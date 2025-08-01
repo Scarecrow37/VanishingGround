@@ -1,12 +1,13 @@
 ﻿#include "pch.h"
 #include "DeferredPBRLitPass.h"
 #include "SkyBox.h"
+#include "ShadowMapPass.h"
 
 DeferredPBRLitPass::~DeferredPBRLitPass() {}
 
-void DeferredPBRLitPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList)
+void DeferredPBRLitPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene, commandList);
+    __super::Initialize(ownerScene, ownerTechnique, commandList);
 
     InitShaderAndPSO();
 }
@@ -16,7 +17,7 @@ void DeferredPBRLitPass::Begin(ID3D12GraphicsCommandList* commandList)
     _meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
     commandList->OMSetRenderTargets(1, &_meshRenderTarget->GetRTVHandle(), FALSE, nullptr);
-    commandList->RSSetViewports(1, &_meshRenderTarget->GetViewPort());
+    commandList->RSSetViewports(1, &_meshRenderTarget->GetViewport());
     commandList->RSSetScissorRects(1, &_meshRenderTarget->GetScissorRect());
 }
 
@@ -28,9 +29,15 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
     //"BaseColor", "Normal", "ORM", "Emissive", "WorldPosition", "Depth", "CustomDepth"
     const auto& renderTargetGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
 
+    auto shadowMapPass = GetRenderPass<ShadowMapPass>();
+    if (nullptr == shadowMapPass)
+        return;
+
     commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_3_numLight"), 3, &_ownerScene->_numLight, 0);
     commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"), _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
     commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("lightData"), _ownerScene->_lightBuffer->GetGPUVirtualAddress());
+    commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("cascadeData"), shadowMapPass->GetCascadeDataCBV());
+    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("shadowMap"), shadowMapPass->GetShadowMapSRV());
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("irradianceMap"), _ownerScene->_skyBox->GetIrradianceMapSRV());
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("prefilteredMap"), _ownerScene->_skyBox->GetPrefilteredMapSRV());
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("brdfLUT"), _ownerScene->_skyBox->GetBrdfLUTSRV());
@@ -39,8 +46,6 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("ormMap"), renderTargetGroup[GBuffer::ORM]->GetSRVHandle());
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("worldPositionMap"), renderTargetGroup[GBuffer::WORLDPOSITION]->GetSRVHandle());
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("depthMap"), renderTargetGroup[GBuffer::DEPTH]->GetSRVHandle());
-
-    //commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("textures"), renderTarget->GetSRVHandle());
 
     _ownerScene->_frameQuad->Render(commandList);
 }

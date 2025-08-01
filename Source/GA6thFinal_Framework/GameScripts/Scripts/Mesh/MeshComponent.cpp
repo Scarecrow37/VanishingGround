@@ -172,7 +172,7 @@ void MeshComponent::InitMaterial()
     {
         ReflectFields->BlendMode.resize(meshCount, 0);
         ReflectFields->CullMode.resize(meshCount, 0);
-        ReflectFields->CustomDepth.resize(meshCount, 0);
+        ReflectFields->CustomDepth.resize(meshCount, PostProcess::BLOOM);
         ReflectFields->IsTwoSided.resize(meshCount, false);
 
         return;
@@ -180,6 +180,10 @@ void MeshComponent::InitMaterial()
 
     for (size_t i = 0; i < meshCount; i++)
     {
+        if (ReflectFields->CustomDepth.size() <= i)
+        {
+            continue;
+        }
         Renderer->OnCustomDepth(ReflectFields->CustomDepth[i], (UINT)i);
 
         //materials[i].ShadingModel = (Material::ShadingModelType)ReflectFields->ShadingModel[i];

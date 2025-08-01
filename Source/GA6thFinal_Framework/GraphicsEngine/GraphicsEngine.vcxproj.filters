@@ -13,6 +13,21 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{bef704b1-9a0c-44cc-87cd-002c3494a763}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Headers">
+      <UniqueIdentifier>{0e5ba4a2-6499-48bc-bd72-e097ab20b814}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\vs">
+      <UniqueIdentifier>{befa6fe2-fe3e-4794-a503-35e4b00b4900}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\ps">
+      <UniqueIdentifier>{b7ab3244-4013-4c1f-bf03-5189b0e8fe14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\cs">
+      <UniqueIdentifier>{cd841684-dc40-4d56-b9de-a249730de292}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -105,9 +120,6 @@
     <ClInclude Include="UnorderedAccessView.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="UpScalePass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="VertexShader.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -135,10 +147,7 @@
     <ClInclude Include="BloomTechnique.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="BlurXPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="BlurYPass.h">
+    <ClInclude Include="Module\GaussianBlurModule.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Box.h">
@@ -183,7 +192,7 @@
     <ClInclude Include="Device.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="DownScalePass.h">
+    <ClInclude Include="DownAndUpSamplingPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="DXResourceManager.h">
@@ -342,6 +351,27 @@
     <ClInclude Include="ParticleRibbonPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="ShadowMapPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics_Structs.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics_Enums.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderPassDatas.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Module\RenderModule.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Module\AccumulationModule.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Module\ModuleManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="DXRComputeSkeletalMeshPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -434,9 +464,6 @@
     <ClCompile Include="UnorderedAccessView.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="UpScalePass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="VertexShader.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -467,10 +494,7 @@
     <ClCompile Include="BloomTechnique.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="BlurXPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="BlurYPass.cpp">
+    <ClCompile Include="Module\GaussianBlurModule.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Box.cpp">
@@ -512,7 +536,7 @@
     <ClCompile Include="Device.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="DownScalePass.cpp">
+    <ClCompile Include="DownAndUpSamplingPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="DXResourceManager.cpp">
@@ -659,11 +683,177 @@
     <ClCompile Include="ParticleRibbonPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="DXRComputeSkeletalMeshPass.cpp">
+    <ClCompile Include="ShadowMapPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="DXRSkeletalMesh.cpp">
+    <ClCompile Include="RenderPassDatas.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Module\AccumulationModule.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Module\ModuleManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Shaders\CommonData.hlsli">
+      <Filter>Shaders\Headers</Filter>
+    </None>
+    <None Include="..\Shaders\CommonDefines.hlsli">
+      <Filter>Shaders\Headers</Filter>
+    </None>
+    <None Include="..\Shaders\CommonSamplers.hlsli">
+      <Filter>Shaders\Headers</Filter>
+    </None>
+    <None Include="..\Shaders\CommonStructs.hlsli">
+      <Filter>Shaders\Headers</Filter>
+    </None>
+    <None Include="..\Shaders\Compute.hlsli">
+      <Filter>Shaders\Headers</Filter>
+    </None>
+    <None Include="..\Shaders\Function.hlsli">
+      <Filter>Shaders\Headers</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\Shaders\RTShaders.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\cs_brdf_lut.hlsl">
+      <Filter>Shaders\cs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\cs_compute_axial_sprite.hlsl">
+      <Filter>Shaders\cs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\cs_compute_mesh.hlsl">
+      <Filter>Shaders\cs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\cs_compute_ribbon.hlsl">
+      <Filter>Shaders\cs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\cs_compute_sprite.hlsl">
+      <Filter>Shaders\cs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\cs_cube_texture_convertor.hlsl">
+      <Filter>Shaders\cs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\cs_depth_extract.hlsl">
+      <Filter>Shaders\cs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\cs_down_sample.hlsl">
+      <Filter>Shaders\cs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\cs_irradiance_map.hlsl">
+      <Filter>Shaders\cs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\cs_particle_reorder.hlsl">
+      <Filter>Shaders\cs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\cs_prefiltered_map.hlsl">
+      <Filter>Shaders\cs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\cs_prefix_sum.hlsl">
+      <Filter>Shaders\cs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\cs_radix_histogram.hlsl">
+      <Filter>Shaders\cs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\cs_radix_scatter.hlsl">
+      <Filter>Shaders\cs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\cs_validate_sort.hlsl">
+      <Filter>Shaders\cs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_blend.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_gaussianblur_x.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_accumulation.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_bright_extract.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_dxrgbuffer.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_gbuffer.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_grid.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_outline.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_particle_quad.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_particle_resolve.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_pbr_lighting.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_skybox.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_to_backbuffer.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_ui.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\vs.hlsl">
+      <Filter>Shaders\vs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\vs_fr.hlsl">
+      <Filter>Shaders\vs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\vs_grid.hlsl">
+      <Filter>Shaders\vs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\vs_particle_fullscreen.hlsl">
+      <Filter>Shaders\vs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\vs_particle_quad.hlsl">
+      <Filter>Shaders\vs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\vs_particle_ribbon.hlsl">
+      <Filter>Shaders\vs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\vs_quad.hlsl">
+      <Filter>Shaders\vs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\vs_skeletal_fr.hlsl">
+      <Filter>Shaders\vs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\vs_skeletal_shadow_fr.hlsl">
+      <Filter>Shaders\vs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\vs_skybox.hlsl">
+      <Filter>Shaders\vs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\vs_static_shadow_fr.hlsl">
+      <Filter>Shaders\vs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\vs_ui_fr.hlsl">
+      <Filter>Shaders\vs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_down_sample.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_up_sample.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_gaussianblur_y.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

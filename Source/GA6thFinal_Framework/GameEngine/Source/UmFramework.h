@@ -46,7 +46,6 @@ constexpr const char* STR_NULL = "null";
 #define NOMINMAX
 #include <Windows.h>
 #include <wrl.h>
-#include <winrt/base.h>
 #include <Xinput.h>
 #include <xaudio2.h>
 
@@ -65,6 +64,7 @@ constexpr const char* STR_NULL = "null";
 #include <vector>
 #include <type_traits>
 #include <functional> 
+#include <map>
 #include <unordered_map>
 #include <unordered_set>
 #include <source_location>
@@ -225,6 +225,7 @@ using namespace Microsoft::WRL;
 #include "Editor/Tool/Model/EditorAnimationNotifyTool.h"
 #include "Editor/Tool/Command/EditorCommandTool.h"
 #include "Editor/Tool/Sequencer/EditorSequencerTool.h"
+#include "Editor/Tool/RenderPassData/EditorRenderPassData.h"
 
 #include "Editor/Tool/ParticleEffect/EditorParticleEffectDetails.h"
 #include "Editor/Tool/ParticleEffect/EditorParticleEffectViewer.h"

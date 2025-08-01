@@ -195,7 +195,12 @@ void AnimationComponent::UpdateAnimation(AnimationData& animData)
             bool result = animData.PopCondition(animData);
             if (result)
             {
+                if (animData.OnPopCallback)
+                {
+                    animData.OnPopCallback();
+                }
                 PopOverrideAnimation();
+                
             }
         }
     }
@@ -251,6 +256,14 @@ void AnimationComponent::ChangeAnimationFlagsEx(AnimationData& animData, int fla
     if (_animator)
     {
         animData.Flags = flags;
+    }
+}
+
+void AnimationComponent::SetAnimationPopCallbackEx(AnimationData& animData, std::function<void()> callback) 
+{
+    if (_animator)
+    {
+        animData.OnPopCallback = callback;
     }
 }
 
@@ -347,6 +360,16 @@ void AnimationComponent::ChangeCurrentAnimationFlags(int flags)
 void AnimationComponent::ChangeMainAnimationFlags(int flags) 
 {
     ChangeAnimationFlagsEx(_mainAnimationData, flags);
+}
+
+void AnimationComponent::SetCurrentAnimationPopCallback(std::function<void()> callback) 
+{
+    SetAnimationPopCallbackEx(GetLastAnimationDataEx(), callback);
+}
+
+void AnimationComponent::SetMainAnimationPopCallback(std::function<void()> callback) 
+{
+    SetAnimationPopCallbackEx(_mainAnimationData, callback);
 }
 
 const AnimationData& AnimationComponent::GetMainAnimationData() const

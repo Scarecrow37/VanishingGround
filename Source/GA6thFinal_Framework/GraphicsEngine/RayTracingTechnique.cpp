@@ -34,7 +34,7 @@ void RayTracingTechnique::InitDXRDrawMeshPass(ID3D12GraphicsCommandList* command
 void RayTracingTechnique::InitDXRGbufferPass(ID3D12GraphicsCommandList* commandList)
 {
     std::unique_ptr<DXRGBufferPass> pass = std::make_unique<DXRGBufferPass>();
-    pass->Initialize(_ownerScene, commandList);
+    pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));
 }
 

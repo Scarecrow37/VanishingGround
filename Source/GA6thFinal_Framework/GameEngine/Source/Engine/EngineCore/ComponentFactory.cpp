@@ -74,32 +74,6 @@ bool EComponentFactory::InitalizeComponentFactory()
         return false;
     }
 
-    if constexpr (true == Application::IsEditor())
-    {
-        //기존 DLL, PDB 삭제
-        std::filesystem::path prevPath = EComponentFactory::Engine::SCRIPTS_DLL_PATH;
-        prevPath /= L"Prev_GameScripts.dll";
-        if (std::filesystem::exists(prevPath))
-        {
-            std::error_code ec;
-            std::filesystem::remove(prevPath, ec);
-            if (ec) 
-            {
-                __debugbreak(); //삭제 실패
-            }
-        }
-        prevPath.replace_extension(L".pdb");
-        if (std::filesystem::exists(prevPath))
-        {
-            std::error_code ec;
-            std::filesystem::remove(prevPath, ec);
-            if (ec)
-            {
-                __debugbreak(); //삭제 실패
-            }
-        }
-    }
-    
     //스크립트 파일 생성 함수 등록
     std::vector<std::string> funcList = dllUtility::GetDLLFuntionNameList(m_scriptsDll);
     MakeScriptFunc = (MakeUmScriptsFile)GetProcAddress(m_scriptsDll, funcList[0].c_str());
@@ -265,6 +239,11 @@ YAML::Node EComponentFactory::SerializeToYaml(Component* component)
 
 bool EComponentFactory::ParsingYamlToOverrideFlags(Component* component, const YAML::Node& componentNode) 
 {
+    if (nullptr == component)
+    {
+        __debugbreak();
+    }
+
     bool result = false;
     int SerializedVersion = 0;
     const YAML::Node& node = componentNode;

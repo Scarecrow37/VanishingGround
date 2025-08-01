@@ -6,12 +6,15 @@ void UnorderedAccessView::Initialize(const D3D12_RESOURCE_DESC& desc, D3D12_UAV_
     UINT maxValue = std::max((UINT)desc.Width, desc.Height);
 
     UINT mipLevelCount = 1;
-    while (maxValue > 0)
-    {
-        maxValue /= 2;
-        mipLevelCount++;
-    }
 
+    if (1 != desc.MipLevels)
+    {
+        while (maxValue > 0)
+        {
+            maxValue /= 2;
+            mipLevelCount++;
+        }
+    }
     _uavCPUHandles.resize(mipLevelCount);
     _uavHandles.resize(mipLevelCount);
 
@@ -68,7 +71,7 @@ void UnorderedAccessView::CreateUnorderedAccessView()
 
     D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
     uavDesc.Format                           = _desc.Format;
-    uavDesc.ViewDimension                    = _uavDimension;    
+    uavDesc.ViewDimension                    = _uavDimension;
 
     for (UINT16 i = 0; i < _desc.MipLevels; i++)
     {

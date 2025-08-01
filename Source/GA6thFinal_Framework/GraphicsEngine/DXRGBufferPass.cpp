@@ -7,7 +7,7 @@
 
 DXRGBufferPass::~DXRGBufferPass() {}
 
-void DXRGBufferPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList)
+void DXRGBufferPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
     static bool isInitialized = false;
     if (!isInitialized)
@@ -51,7 +51,7 @@ void DXRGBufferPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandLi
         _gBufferHandles[i] = gBufferGroup[i]->GetRTVHandle();
     }
 
-    __super::Initialize(ownerScene, commandList);
+    __super::Initialize(ownerScene, ownerTechnique, commandList);
     InitShaderAndPSO();
 }
 
@@ -60,7 +60,7 @@ void DXRGBufferPass::Begin(ID3D12GraphicsCommandList* commandList)
     const auto& gBufferGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
 
     commandList->OMSetRenderTargets(DXRGBuffer::DXRGBUFFER_END, _gBufferHandles.data(), FALSE, &_ownerScene->_depthStencilView->GetDSVHandle());
-    commandList->RSSetViewports(1, &gBufferGroup[0]->GetViewPort());
+    commandList->RSSetViewports(1, &gBufferGroup[0]->GetViewport());
     commandList->RSSetScissorRects(1, &gBufferGroup[0]->GetScissorRect());
 }
 

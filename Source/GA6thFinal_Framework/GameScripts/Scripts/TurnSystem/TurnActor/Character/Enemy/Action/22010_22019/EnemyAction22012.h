@@ -12,7 +12,7 @@ namespace EnemyAction
         using ActionBase::ActionBase;
     private:
         void OnActionEnter() override;
-        bool OnActionUpdate() override;
+        void OnActionUpdate() override;
         void OnActionExit() override;
 
     private:

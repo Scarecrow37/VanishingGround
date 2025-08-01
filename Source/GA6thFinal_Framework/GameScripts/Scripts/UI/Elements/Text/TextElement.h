@@ -24,6 +24,7 @@ public:
     {
         ReflectFields->Text = value;
         UpdateText();
+        UpdateContentSize();
         if (ReflectFields->IsFitContent)
             FitContent();
     }
@@ -54,28 +55,30 @@ public:
     }
     PROPERTY(IsFitContent)
 
+public:
+    SIZE GetContentSize() const override;
+    void SetFont(const File::GuidRef& guidRef);
+
 protected:
     void  Reset() override;
     void  DeserializedReflectEvent() override;
-
     void  OnPlacementChange() override;
-
     float GetZOrder() const override;
 
 private:
-    void RequestResource() const;
-    void LoadFont() const;
-
     void SetViewOrder(int viewOrder) override;
 
-    void PassProperty() const;
-    void FitContent();
-
-    void UpdateAll() const;
+    void RequestResource();
+    void LoadFont() const;
+    void PassProperty();
+    void UpdateAll();
     void UpdateText() const;
     void UpdateColor() const;
     void UpdatePosition() const;
     void UpdateScale() const;
+    void UpdateContentSize();
+
+    void FitContent();
 
 protected:
     REFLECT_FIELDS_BEGIN(EditablePlacementUIComponent)
@@ -84,9 +87,11 @@ protected:
     std::array<float, 4> Color        = {0.0f, 0.0f, 0.0f, 1.0f};
     float                FontScale    = 1.0f;
     bool                 IsFitContent = false;
+    SIZE                 ContentSize  = SIZE{};
     REFLECT_FIELDS_END(TextElement)
 
 private:
     std::unique_ptr<FontRenderer> _renderer;
     File::GuidRef                 _guidRef;
+
 };

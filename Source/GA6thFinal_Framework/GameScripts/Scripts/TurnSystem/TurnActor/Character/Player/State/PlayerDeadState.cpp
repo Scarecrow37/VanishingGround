@@ -48,5 +48,13 @@ void PlayerDeadState::OnExit()
 
 void PlayerDeadState::OnUpdate() 
 {
-
+    Player&             player   = GetPlayer();
+    AnimationComponent* animator = player.GetAnimationComponent();
+    if (animator)
+    {
+        if (animator->GetMainAnimationData().IsEnd())
+        {
+            player.gameObject->SetActive(false);
+        }
+    }
 }

@@ -26,6 +26,16 @@ D3D12_GPU_DESCRIPTOR_HANDLE RenderScene::GetFinalImage()
     return finalTarget->GetSRVHandle();
 }
 
+const std::any& RenderScene::GetRenderPassProperty(std::string_view passName) const
+{
+    return Global::renderPassDatas->GetRenderPassProperty(_name, passName);
+}
+
+SharedResource<RenderTarget> RenderScene::GetSharedRenderTarget() const
+{
+    return _sharedRenderTarget[_currentFrameIndex];
+}
+
 void RenderScene::SetSkyBox(std::wstring_view path)
 {
     _skyBox->SetTexture(path);
@@ -122,6 +132,14 @@ void RenderScene::AddRenderTechnique(std::unique_ptr<RenderTechnique> technique)
     _techniques.push_back(std::move(technique));
 }
 
+void RenderScene::AddRenderPassDatas()
+{
+    for (auto& technique : _techniques)
+    {
+        technique->AddRenderPassDatas(_name);
+    }
+}
+
 void RenderScene::UpdateRenderScene()
 {
     UpdateGlobal();
@@ -194,8 +212,7 @@ void RenderScene::UpdateGlobal()
                           .ViewInverse       = _camera->GetWorldMatrix(),
                           .ProjectionInverse = _camera->GetProjectionInverseMatrix(),
                           .Position          = Vector4(_camera->GetPosition())};
-    auto& lights = Global::lightCore->GetLights(_name.c_str());
-       
+    auto& lights = Global::lightCore->GetLights(_name.c_str());       
 
     _numLight = {};
     for (auto& [isDestroy, light] : lights)
@@ -206,12 +223,18 @@ void RenderScene::UpdateGlobal()
         switch (light->_type)
         {
         case Light::Type::DIRECTIONAL:
+            if (_numLight.Directional >= MAX_DIRECTIONAL_LIGHT)
+                continue;
             _lightDatas[_numLight.Directional++] = light->_data;
             break;
         case Light::Type::POINT:
+            if (_numLight.Point >= MAX_POINT_LIGHT)
+                continue;
             _lightDatas[MAX_DIRECTIONAL_LIGHT + _numLight.Point++] = light->_data;
             break;
         case Light::Type::SPOT:
+            if (_numLight.Spot >= MAX_SPOT_LIGHT)
+                continue;
             _lightDatas[MAX_DIRECTIONAL_LIGHT + MAX_POINT_LIGHT + _numLight.Spot++] = light->_data;
             break;
         }
@@ -236,7 +259,20 @@ void RenderScene::UpdateObject()
     _staticMeshInstanceIDs.clear();
     _skeletalMeshInstanceIDs.clear();
 
-    const auto& cameraFrustum = _camera->GetWorldFrustum();
+    int   mainLight    = 0;
+    float maxIntensity = 0.0f;
+
+    for (int i = 0; i < MAX_DIRECTIONAL_LIGHT; i++)
+    {
+        if (maxIntensity < _lightDatas[i].Intensity)
+        {
+            maxIntensity = _lightDatas[i].Intensity;
+            mainLight    = i;
+        }
+    }
+
+    Vector3 lightDirection = (_lightDatas[mainLight].float3_1);
+    lightDirection.Normalize();
 
     UINT instanceID = 0;
     for (auto& [isDestroy, component] : _meshRenderQueue)
@@ -249,13 +285,13 @@ void RenderScene::UpdateObject()
             continue;
 
         const auto  type         = component->GetType();
+        const auto& customDepths = component->GetCustomDepths();
         const auto& meshes       = model->GetMeshes();
         auto&       materials    = model->GetMaterials();
         const auto& textures     = model->GetTextures();
-        const auto& customDepths = component->GetCustomDepths();
 
-        XMMATRIX     world          = component->GetWorldMatrix();
-        XMMATRIX     transposeWorld = XMMatrixTranspose(world);
+        XMMATRIX     world = XMMatrixTranspose(component->GetWorldMatrix());
+        float        determinant = XMMatrixDeterminant(world).m128_f32[0];
         BoneMatrices boneMatrices;
 
         if (SKELETAL_MESH == type)
@@ -267,16 +303,8 @@ void RenderScene::UpdateObject()
         auto& skinnedBuffers = component->GetDXRSkeletalMeshes();
         UINT size = (UINT)meshes.size();
         for (UINT i = 0; i < size; i++)
-        {
-       /*     BoundingOrientedBox boundingOrientedBox;
-
-            const auto& meshBoundingBox = meshes[i]->GetBoundingBox();
-            meshBoundingBox.Transform(boundingOrientedBox, world);
-
-            if (!cameraFrustum.Intersects(boundingOrientedBox))
-                continue;*/
-
-            _worldMatrices.push_back(transposeWorld);
+        {            
+            _worldMatrices.push_back(world);
             _boneMatrices.push_back(boneMatrices);
 
             if (materials[i].IsTwoSided)
@@ -285,11 +313,7 @@ void RenderScene::UpdateObject()
             }
             else
             {
-                const auto& transform = component->GetTransform();
-                float       sign      = transform.Scale.x * transform.Scale.y * transform.Scale.z;
-
-                materials[i].CullMode =
-                    sign < 0.f ? Material::CullModeType::CULL_FRONT : Material::CullModeType::CULL_BACK;
+                materials[i].CullMode = determinant < 0.f ? Material::CullModeType::CULL_FRONT : Material::CullModeType::CULL_BACK;
             }
 
             MaterialID materialID{};
@@ -375,25 +399,31 @@ void RenderScene::UpdateFont()
 
 void RenderScene::CreateRenderTarget()
 {
-    auto                          mode                     = Global::device->GetMode();
-    auto&                         multiRenderTargetManager = Global::multiRenderTargetManager;
-    SharedResource<RenderTarget>  renderTarget;
-    mode.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(mode.Format, mode.Width, mode.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+    auto                         resolution = Global::device->GetResolution();
+    SharedResource<RenderTarget> renderTarget;
+    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, resolution.Width, resolution.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
     _meshRenderTargetName = _name + "_MeshRenderTarget";
     renderTarget          = MakeSharedResource<RenderTarget>();
     renderTarget->Initialize(desc, 0.247f);
     renderTarget->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
-    multiRenderTargetManager->AddRenderTarget(_meshRenderTargetName, renderTarget);
+    Global::multiRenderTargetManager->AddRenderTarget(_meshRenderTargetName, renderTarget);
 
     _finalTargetName = _name + "_FinalTarget";
     renderTarget     = MakeSharedResource<RenderTarget>();
     renderTarget->Initialize(desc, 0.247f);
     renderTarget->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
-    multiRenderTargetManager->AddRenderTarget(_finalTargetName, renderTarget);
+    Global::multiRenderTargetManager->AddRenderTarget(_finalTargetName, renderTarget);
+
+    _sharedRenderTarget.resize(SWAPCHAIN_BUFFER_COUNT);
+    for (auto& target : _sharedRenderTarget)
+    {
+        target = MakeSharedResource<RenderTarget>();
+        target->Initialize(desc, 0.247f);
+        target->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    }
 }
 
 void RenderScene::CreateDepthStencil()

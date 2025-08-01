@@ -56,6 +56,23 @@ void FPSCounter::ShowFPS()
         ImGui::Text("FixedUnscaledDeltaTime %f", time.FixedUnscaledDeltaTime());
 
         ImGui::InputDouble("maximumDeltaTime", &time.MaximumDeltaTime);
+
+        ImGui::Separator();
+        ImGui::Text("Scene");
+        if (ImGui::Button("Reload Scene"))
+        {
+            const std::string& name = UmSceneManager.GetMainScene()->Name;
+            UmSceneManager.LoadScene(name);
+        }
+
+        ImGui::Separator();
+        ImGui::Text("Font size");
+        float& globalScale = ImGui::GetIO().FontGlobalScale;
+        if (ImGui::DragFloat("##font scale", &globalScale, 0.01f))
+        {
+            globalScale = std::clamp(globalScale, 0.1f, 10.f);
+        }
+
         ImGui::End();
     }
 }

@@ -178,6 +178,34 @@ uint SafeMipLevel(float requestedMip, Texture2D tex)
     return mip;
 }
 
+inline float CalculateShadow(float3 worldPosition, float3 normal, float3 lightDirection, Texture2DArray shadowMap)
+{
+    float eyeZ = mul(float4(worldPosition, 1), cameraData.View).z;
+    
+    uint cid = (eyeZ < cascadeData.CascadeSplits[0]) ? 0 :
+               (eyeZ < cascadeData.CascadeSplits[1]) ? 1 :
+               (eyeZ < cascadeData.CascadeSplits[2]) ? 2 : 3;
+
+    float4 shadowPos = mul(float4(worldPosition, 1), cascadeData.ShadowVP[cid]);
+    shadowPos.xyz /= shadowPos.w;
+    shadowPos.xy = shadowPos.xy * 0.5f + 0.5f;
+    shadowPos.y = 1 - shadowPos.y;
+
+    static const float2 texelSize = 1.0f / 2048.0f;
+    float bias = max(0.005f * (1.0f - dot(normal, lightDirection)), 0.0005f);
+    float shadow = 0.0f;
+    
+    for (int x = -1; x <= 1; ++x)
+    {
+        for (int y = -1; y <= 1; ++y)
+        {
+            shadow += shadowMap.SampleCmpLevelZero(samComparisonLinear_border, float3(shadowPos.xy + float2(x, y) * texelSize, cid), shadowPos.z - bias);
+        }
+    }
+                                                                                                                                                                                                                                         
+    return shadow / 9.0f;
+}
+
 float4 SampleCalculateMipLevel(Texture2D tex, SamplerState sam, float2 uv, float mipLevel)
 {
     uint safeMip = SafeMipLevel(mipLevel, tex);
