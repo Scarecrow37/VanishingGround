@@ -26,7 +26,7 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
 
-    //"BaseColor", "Normal", "ORM", "Emissive", "WorldPosition", "Depth", "CustomDepth"
+    //"BaseColor", "Normal", "ORM", "Emissive", "Depth", "CustomDepth"
     const auto& renderTargetGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
 
     auto shadowMapPass = GetRenderPass<ShadowMapPass>();
@@ -44,7 +44,6 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("baseColorMap"), renderTargetGroup[GBuffer::BASECOLOR]->GetSRVHandle());
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("normalMap"), renderTargetGroup[GBuffer::NORMAL]->GetSRVHandle());
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("ormMap"), renderTargetGroup[GBuffer::ORM]->GetSRVHandle());
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("worldPositionMap"), renderTargetGroup[GBuffer::WORLDPOSITION]->GetSRVHandle());
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("depthMap"), renderTargetGroup[GBuffer::DEPTH]->GetSRVHandle());
 
     _ownerScene->_frameQuad->Render(commandList);
@@ -74,11 +73,11 @@ void DeferredPBRLitPass::InitShaderAndPSO()
     psodesc.DepthStencilState.DepthEnable = FALSE;
     psodesc.SampleMask                    = UINT_MAX;
     psodesc.PrimitiveTopologyType         = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psodesc.InputLayout                   = _shader->GetInputLayout();
     psodesc.NumRenderTargets              = 1;
     psodesc.RTVFormats[0]                 = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    psodesc.pRootSignature                = _shader->GetRootSignature();
     psodesc.SampleDesc                    = {1, 0};
+    psodesc.InputLayout                   = _shader->GetInputLayout();
+    psodesc.pRootSignature                = _shader->GetRootSignature();
     psodesc.VS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::VS);
     psodesc.PS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::PS);
 

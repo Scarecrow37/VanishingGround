@@ -17,16 +17,14 @@ void DXRGBufferPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerT
 
         auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, mode.Width, mode.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
-        std::initializer_list<std::string_view> renderTargetNames = {"Normal", "WorldPosition", "Depth", "CustomDepth"};
+        std::initializer_list<std::string_view> renderTargetNames = {"Normal", "Depth", "CustomDepth"};
         auto first = renderTargetNames.begin();
 
         SharedResource<RenderTarget> renderTarget;
-        for (UINT i = 0; i <= DXRGBuffer::DXRWORLDPOSITION; ++i)
-        {            
-            renderTarget = MakeSharedResource<RenderTarget>();
-            renderTarget->Initialize(desc, 0.247f);
-            renderTargetManager->AddRenderTarget(*(first + i), renderTarget);
-        }
+        
+        renderTarget = MakeSharedResource<RenderTarget>();
+        renderTarget->Initialize(desc, 0.247f);
+        renderTargetManager->AddRenderTarget(*(first + DXRGBuffer::DXRNORMAL), renderTarget);
 
         renderTarget = MakeSharedResource<RenderTarget>();
         desc.Format  = DXGI_FORMAT_R32_FLOAT;
@@ -189,7 +187,6 @@ void DXRGBufferPass::InitShaderAndPSO()
     psodesc.InputLayout                              = _shaders[STATIC_MESH]->GetInputLayout();
     psodesc.NumRenderTargets                         = DXRGBuffer::DXRGBUFFER_END;
     psodesc.RTVFormats[DXRGBuffer::DXRNORMAL]        = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    psodesc.RTVFormats[DXRGBuffer::DXRWORLDPOSITION] = DXGI_FORMAT_R32G32B32A32_FLOAT;
     psodesc.RTVFormats[DXRGBuffer::DXRDEPTH]         = DXGI_FORMAT_R32_FLOAT;
     psodesc.RTVFormats[DXRGBuffer::DXRCUSTOMDEPTH]   = DXGI_FORMAT_R32_UINT;
     psodesc.DSVFormat                                = _ownerScene->_depthStencilView->GetFormat();

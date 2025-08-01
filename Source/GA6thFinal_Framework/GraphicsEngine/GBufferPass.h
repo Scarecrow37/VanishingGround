@@ -27,6 +27,7 @@ public:
 
 public:
     void Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList) override;
+    void AddRenderPassDatas(std::string_view sceneName) override;
     void Update(ID3D12GraphicsCommandList* commadList) override;
     void Begin(ID3D12GraphicsCommandList* commandList) override;
     void Draw(ID3D12GraphicsCommandList* commandList) override;
@@ -41,4 +42,6 @@ private:
     std::vector<ComPtr<ID3D12PipelineState>>                      _psos;
     std::array<D3D12_CPU_DESCRIPTOR_HANDLE, GBuffer::GBUFFER_END> _gBufferHandles;
     std::vector<RenderData>                                       _renderDatas[MeshType::END];
+
+    SharedResource<RenderTarget> _gbuffer[5];
 };

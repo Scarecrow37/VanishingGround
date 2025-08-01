@@ -18,11 +18,11 @@ void GBufferPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTech
         auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, mode.Width, mode.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
         std::initializer_list<std::string_view> renderTargetNames = {
-            "BaseColor", "Normal", "ORM", "Emissive", "WorldPosition", "Depth", "CustomDepth"};
+            "BaseColor", "Normal", "ORM", "Emissive", "Depth", "CustomDepth"};
         auto first = renderTargetNames.begin();
 
         SharedResource<RenderTarget> renderTarget;
-        for (UINT i = 0; i <= GBuffer::WORLDPOSITION; ++i)
+        for (UINT i = 0; i <= GBuffer::EMISSIVE; ++i)
         {
             renderTarget = MakeSharedResource<RenderTarget>();
             renderTarget->Initialize(desc, 0.247f);
@@ -54,6 +54,20 @@ void GBufferPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTech
 
     __super::Initialize(ownerScene, ownerTechnique, commandList);
     InitShaderAndPSO();
+}
+
+void GBufferPass::AddRenderPassDatas(std::string_view sceneName)
+{
+    /*const auto& gBufferGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
+
+    std::initializer_list<std::string_view> gBufferNames = {"BaseColor", "Normal", "ORM", "Emissive", "WorldPosition"};
+
+    for (int i = 0; i < 5; i++)
+    {
+        _gbuffer[i] = MakeSharedResource<RenderTarget>();        
+        _gbuffer[i]->Initialize(gBufferGroup[i]->GetResourceDesc(), 0.247f);
+        Global::renderPassDatas->AddRenderPassImage(sceneName, "GBufferPass", *(gBufferNames.begin() + i), _gbuffer[i]->GetSRVHandle());
+    }*/
 }
 
 void GBufferPass::Update(ID3D12GraphicsCommandList* commadList)
@@ -148,6 +162,17 @@ void GBufferPass::End(ID3D12GraphicsCommandList* commandList)
     {
         gBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     }
+
+    /*for (int i = 0; i < 5;i++)
+    {
+        _gbuffer[i]->TransitionResource(commandList, D3D12_RESOURCE_STATE_COPY_DEST);
+        gBufferGroup[i]->TransitionResource(commandList, D3D12_RESOURCE_STATE_COPY_SOURCE);
+
+        commandList->CopyResource(_gbuffer[i]->GetResource(), gBufferGroup[i]->GetResource());
+
+        _gbuffer[i]->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        gBufferGroup[i]->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    }*/
 }
 
 void GBufferPass::InitShaderAndPSO()
@@ -185,7 +210,6 @@ void GBufferPass::InitShaderAndPSO()
     psodesc.RTVFormats[GBuffer::NORMAL]        = DXGI_FORMAT_R32G32B32A32_FLOAT;
     psodesc.RTVFormats[GBuffer::ORM]           = DXGI_FORMAT_R32G32B32A32_FLOAT;
     psodesc.RTVFormats[GBuffer::EMISSIVE]      = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    psodesc.RTVFormats[GBuffer::WORLDPOSITION] = DXGI_FORMAT_R32G32B32A32_FLOAT;
     psodesc.RTVFormats[GBuffer::DEPTH]         = DXGI_FORMAT_R32_FLOAT;
     psodesc.RTVFormats[GBuffer::CUSTOMDEPTH]   = DXGI_FORMAT_R32_UINT;
     psodesc.DSVFormat                          = _ownerScene->_depthStencilView->GetFormat();
