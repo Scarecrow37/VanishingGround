@@ -83,7 +83,7 @@ RTPipeline::RootSignatureDesc RTPipeline::CreateRayGenRootDesc()
 RTPipeline::RootSignatureDesc RTPipeline::CreateHitRootDesc()
 {
     RootSignatureDesc r;
-    r.range.resize(5);
+    r.range.resize(7);
     /* ---------- 1 SRV t0 (TLAS)  ---------- */
     D3D12_DESCRIPTOR_RANGE tlasRange{};
     tlasRange.RangeType          = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
@@ -98,62 +98,90 @@ RTPipeline::RootSignatureDesc RTPipeline::CreateHitRootDesc()
     tlasTable.DescriptorTable.pDescriptorRanges   = &r.range[0];
     r.rootParams.push_back(tlasTable); // RootParam #4
   
-    /* ---------- 2 cube texture t4---------- */
-    D3D12_DESCRIPTOR_RANGE cubeMapRange{};
-    cubeMapRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-    cubeMapRange.NumDescriptors = 1;
-    cubeMapRange.BaseShaderRegister = 5;
-    r.range[1]                      = cubeMapRange;
+    /* ---------- 2 cube texture t6---------- */
+    D3D12_DESCRIPTOR_RANGE irradianceMapRange{};
+    irradianceMapRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+    irradianceMapRange.NumDescriptors = 1;
+    irradianceMapRange.BaseShaderRegister = 6;
+    r.range[1]                      = irradianceMapRange;
 
-    D3D12_ROOT_PARAMETER cubeMapTable{};
-    cubeMapTable.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-    cubeMapTable.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-    cubeMapTable.DescriptorTable.NumDescriptorRanges = 1;
-    cubeMapTable.DescriptorTable.pDescriptorRanges   = &r.range[1];
-    r.rootParams.push_back(cubeMapTable);
+    D3D12_ROOT_PARAMETER irradianceMapTable{};
+    irradianceMapTable.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+    irradianceMapTable.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+    irradianceMapTable.DescriptorTable.NumDescriptorRanges = 1;
+    irradianceMapTable.DescriptorTable.pDescriptorRanges   = &r.range[1];
+    r.rootParams.push_back(irradianceMapTable);
+
+    /* ---------- 3 cube texture t7---------- */
+    D3D12_DESCRIPTOR_RANGE  prefiletedMapRange{};
+    prefiletedMapRange.RangeType          = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+    prefiletedMapRange.NumDescriptors     = 1;
+    prefiletedMapRange.BaseShaderRegister = 7;
+    r.range[2]                            = prefiletedMapRange;
+
+    D3D12_ROOT_PARAMETER prefilteredMapTable{};
+    prefilteredMapTable.ParameterType                       = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+    prefilteredMapTable.ShaderVisibility                    = D3D12_SHADER_VISIBILITY_ALL;
+    prefilteredMapTable.DescriptorTable.NumDescriptorRanges = 1;
+    prefilteredMapTable.DescriptorTable.pDescriptorRanges   = &r.range[2];
+    r.rootParams.push_back(prefilteredMapTable);
+
+    /* ---------- texture2d t8---------- */
+    D3D12_DESCRIPTOR_RANGE brdfLUTRange{};
+    brdfLUTRange.RangeType          = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+    brdfLUTRange.NumDescriptors     = 1;
+    brdfLUTRange.BaseShaderRegister = 8;
+    r.range[3]                            = brdfLUTRange;
+
+    D3D12_ROOT_PARAMETER brdfLUTTable{};
+    brdfLUTTable.ParameterType                       = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+    brdfLUTTable.ShaderVisibility                    = D3D12_SHADER_VISIBILITY_ALL;
+    brdfLUTTable.DescriptorTable.NumDescriptorRanges = 1;
+    brdfLUTTable.DescriptorTable.pDescriptorRanges   = &r.range[3];
+    r.rootParams.push_back(brdfLUTTable);
 
     /* ---------- 3 Vertices[2000]  ---------- */
     D3D12_DESCRIPTOR_RANGE verticesRange{};
     verticesRange.RangeType          = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     verticesRange.NumDescriptors     = 2000; // t5~t2005
-    verticesRange.BaseShaderRegister = 6;
-    r.range[2]                       = verticesRange;
+    verticesRange.BaseShaderRegister = 9;
+    r.range[4]                       = verticesRange;
    
     D3D12_ROOT_PARAMETER verticesTable{};
     verticesTable.ParameterType                       = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     verticesTable.ShaderVisibility                    = D3D12_SHADER_VISIBILITY_ALL;
     verticesTable.DescriptorTable.NumDescriptorRanges = 1;
-    verticesTable.DescriptorTable.pDescriptorRanges   = &r.range[2];
+    verticesTable.DescriptorTable.pDescriptorRanges   = &r.range[4];
     r.rootParams.push_back(verticesTable); // #9
 
     /* ---------- 4 Indices[2000]  ---------- */
     D3D12_DESCRIPTOR_RANGE indicesRange{};
     indicesRange.RangeType          = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     indicesRange.NumDescriptors     = 2000; // t2006~t4005
-    indicesRange.BaseShaderRegister = 2006;
-    r.range[3] = indicesRange;
+    indicesRange.BaseShaderRegister = 2009;
+    r.range[5] = indicesRange;
 
     D3D12_ROOT_PARAMETER indicesTable{};
     indicesTable.ParameterType                       = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     indicesTable.ShaderVisibility                    = D3D12_SHADER_VISIBILITY_ALL;
     indicesTable.DescriptorTable.NumDescriptorRanges = 1;
-    indicesTable.DescriptorTable.pDescriptorRanges   = &r.range[3];
+    indicesTable.DescriptorTable.pDescriptorRanges   = &r.range[5];
     r.rootParams.push_back(indicesTable); // #10
 
     /* ---------- 5 textures[]  (unbounded) ---------- */
     D3D12_DESCRIPTOR_RANGE texRange{};
     texRange.RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     texRange.NumDescriptors                    = -1; // 무제한
-    texRange.BaseShaderRegister                = 4006;     // t4005~
+    texRange.BaseShaderRegister                = 4009;     // t4005~
     texRange.RegisterSpace                     = 0;
     texRange.OffsetInDescriptorsFromTableStart = 0;
-    r.range[4] = texRange;
+    r.range[6] = texRange;
 
     D3D12_ROOT_PARAMETER texTable{};
     texTable.ParameterType                       = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     texTable.ShaderVisibility                    = D3D12_SHADER_VISIBILITY_ALL;
     texTable.DescriptorTable.NumDescriptorRanges = 1;
-    texTable.DescriptorTable.pDescriptorRanges   = &r.range[4];
+    texTable.DescriptorTable.pDescriptorRanges   = &r.range[6];
     r.rootParams.push_back(texTable); // #11
 
     /* ---------- 6 루트 시그니처 만들기 ---------- */
@@ -203,13 +231,13 @@ RTPipeline::RootSignatureDesc RTPipeline::CreateGlobalRootDesc()
     r.rootParams[0].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
     // b1 light data
     r.rootParams[1].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
-    r.rootParams[1].Descriptor.ShaderRegister = 1;
+    r.rootParams[1].Descriptor.ShaderRegister = 2;
     r.rootParams[1].Descriptor.RegisterSpace  = 0;
     r.rootParams[1].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
     // b2 bit32_3_numLight
     r.rootParams[2].ParameterType            = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
     r.rootParams[2].Constants.Num32BitValues = 3;
-    r.rootParams[2].Constants.ShaderRegister = 2;
+    r.rootParams[2].Constants.ShaderRegister = 3;
     r.rootParams[2].Constants.RegisterSpace  = 0;
     r.rootParams[2].ShaderVisibility         = D3D12_SHADER_VISIBILITY_ALL;
 

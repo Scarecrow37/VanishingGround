@@ -36,7 +36,6 @@ public:
 
 public:
     void UpdateRenderScene();
-    void ClassifyMesh();
     void Execute();
 
 public:
@@ -69,10 +68,6 @@ public:
 
     CommandSet _commandSet;
 
-    // mesh 분리
-    std::vector<MeshRenderer*> _staticMesh;
-    std::vector<MeshRenderer*> _skeletalMesh;
-
     // Frame Resource
     std::vector<std::unique_ptr<FrameResource>> _frameResources;    
     std::vector<LightData>                      _lightDatas;
@@ -81,8 +76,8 @@ public:
     std::vector<MaterialID>                     _materialIDs;
     std::vector<XMMATRIX>                       _uiMatrices;
     std::vector<UIMaterial>                     _uiMaterials;
-    std::vector<StaticMeshInstanceID>           _staticMeshInstanceIDs;
-    std::vector<SkeletalMeshInstanceID>         _skeletalMeshInstanceIDs;
+    std::vector<MeshInstanceID>                 _staticMeshInstanceIDs;
+    std::vector<MeshInstanceID>                 _skeletalMeshInstanceIDs;
     std::shared_ptr<Camera>                     _camera;
     NumLight                                    _numLight;
 

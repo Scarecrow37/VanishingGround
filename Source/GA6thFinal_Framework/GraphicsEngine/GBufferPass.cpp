@@ -67,13 +67,13 @@ void GBufferPass::Update(ID3D12GraphicsCommandList* commadList)
     MeshType meshType = END;
     for (int i = 0; i < MESH_TYPE_END; i++)
     {
-        for (auto& [material, mesh, customDepth, instanceID] : _ownerScene->_activeMeshes[i])
+        for (auto& meshInfo : _ownerScene->_activeMeshes[i])
         {
             const auto& cameraFrustum = _ownerScene->_camera->GetWorldFrustum();
             
             BoundingOrientedBox boundingOrientedBox;
-            const auto& meshBoundingBox = mesh->GetBoundingBox();
-            meshBoundingBox.Transform(boundingOrientedBox, XMMatrixTranspose(_ownerScene->_worldMatrices[instanceID]));
+            const auto& meshBoundingBox = meshInfo.Mesh->GetBoundingBox();
+            meshBoundingBox.Transform(boundingOrientedBox, XMMatrixTranspose(_ownerScene->_worldMatrices[meshInfo.InstanceID]));
 
             if (!cameraFrustum.Intersects(boundingOrientedBox))
             {
@@ -81,8 +81,8 @@ void GBufferPass::Update(ID3D12GraphicsCommandList* commadList)
             }
 
             // cull_back, cull_front, cull_none
-            meshType = MeshType(i * 3 + (int)material.CullMode);
-            _renderDatas[meshType].emplace_back(mesh, instanceID, customDepth);
+            meshType = MeshType(i * 3 + (int)meshInfo.Material.CullMode);
+            _renderDatas[meshType].emplace_back(meshInfo.Mesh, meshInfo.InstanceID, meshInfo.CustomDepth);
         }
     }
 }

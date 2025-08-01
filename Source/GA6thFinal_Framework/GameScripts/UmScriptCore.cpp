@@ -8,6 +8,7 @@ UMREALSCRIPTS_DECLSPEC void InitalizeUmrealScript(const std::shared_ptr<EngineCo
 {
     Global::engineCore = engineCores;        //코어 동기화
     ImGui::SetCurrentContext(ImguiContext);  //Imguicontext 동기화
+    Global::engineCore->Graphics.SyncGlobalVariable();
     UmFactoryRegister.InvokeRegister();      //Factory 초기화
 }
 

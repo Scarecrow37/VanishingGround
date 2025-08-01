@@ -11,7 +11,7 @@ void RenderTechnique::AddRenderPass(std::unique_ptr<RenderPass> pass)
 
 void RenderTechnique::AddRenderPassDatas(std::string_view sceneName)
 {
-    for (auto& pass : _renderPasses)
+    for (auto& pass : _renderPasses) 
     {
         pass->AddRenderPassDatas(sceneName);
     }

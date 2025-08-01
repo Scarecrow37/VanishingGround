@@ -2,6 +2,7 @@
 #include "Model.h"
 #include "BaseMesh.h"
 #include "FBXConverter.h"
+#include "Skeleton.h"
 
 Model::Model()
 {
@@ -9,6 +10,11 @@ Model::Model()
 
 Model::~Model()
 {
+}
+
+std::vector<std::string> Model::GetBoneNameList() const
+{
+    return _skeleton->GetBoneNameList();
 }
 
 void Model::SetMaterial(const UINT meshIndex, const Material& material)

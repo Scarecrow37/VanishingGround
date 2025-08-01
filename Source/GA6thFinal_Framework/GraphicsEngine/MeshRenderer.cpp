@@ -2,6 +2,7 @@
 #include "MeshRenderer.h"
 #include "Animator.h"
 #include "Model.h"
+#include "DXRSkeletalMesh.h"
 
 MeshRenderer::MeshRenderer(MeshType type, const Vector3& position, const Vector3& scale, const Quaternion& rotation, const Matrix& world)
     : _type(type)
@@ -28,26 +29,14 @@ void MeshRenderer::SetModel(std::shared_ptr<Model> model)
     if (model->GetAnimation())
     {
         _type = SKELETAL_MESH;
-        //const auto& meshes = _model->GetMeshes();
-        //_skeletaMesheInstances.resize(meshes.size());
-        //for (size_t i = 0; i < meshes.size(); ++i)
-        //{
-        //    const auto& viBuffer    = meshes[i]->GetVIBuffer();
-        //    const UINT  vertexCount = viBuffer->_vertexCount;
-        //    const UINT  stride      = sizeof(SkeletalMeshVertex);
+        auto& meshes = _model->GetMeshes();
 
-        //    auto instance         = std::make_shared<SkeletalMeshInstance>();
-        //    instance->VertexCount = vertexCount;
-
-        //    instance->UAVBuffer = std::make_shared<UnorderedAccessView>();
-        //    instance->UAVBuffer->InitializeForBuffer(stride, vertexCount);
-
-        //    instance->VertexBufferView.BufferLocation = instance->UAVBuffer->GetGPUVirtualAddress();
-        //    instance->VertexBufferView.SizeInBytes    = stride * vertexCount;
-        //    instance->VertexBufferView.StrideInBytes  = stride;
-
-        //    _skeletaMesheInstances[i] = instance;
-        //}
+        for (auto& mesh : meshes)
+        {
+            auto dxrMesh = std::make_shared<DXRSkeletalMesh>(mesh->GetVIBuffer());
+            dxrMesh->Initialize(mesh->GetVIBuffer()->_vertexCount, sizeof(StaticMeshVertex));
+            _dxrSkeletalMeshes.push_back(dxrMesh);
+        }
     }
     else
         _type = STATIC_MESH;
