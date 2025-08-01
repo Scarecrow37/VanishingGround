@@ -370,7 +370,7 @@ Component* EComponentFactory::AddComponentToYamlNow(GameObject* ownerObject, YAM
     std::shared_ptr<Component> component;
     if (component = MakeComponentToYaml(ownerObject, componentNode))
     {
-        PushBackComponentToObject(component);   
+        PushBackComponentToObject(component, false);   
     }
     else
     {
