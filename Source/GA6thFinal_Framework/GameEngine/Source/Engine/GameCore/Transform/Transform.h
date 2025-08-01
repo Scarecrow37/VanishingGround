@@ -368,6 +368,11 @@ private:
     void SetParentEx(Transform* p, bool worldPositionStays, bool callEvent);
 
     /// <summary>
+    /// 특정 자식 인덱스에 삽입하는 함수
+    /// </summary>
+    void SetParentToIndexEx(Transform* p, int index, bool worldPositionStays, bool callEvent);
+
+    /// <summary>
     /// 내부에서 사용되는 DetachChild 함수
     /// </summary>
     /// <param name="callEvent"></param>
