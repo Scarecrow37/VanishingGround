@@ -97,8 +97,23 @@ void EGameObjectFactory::ApplyPrefabInstanceChanges(const File::Guid& guid, YAML
                         // 최상위 오브젝트 Transform 설정
                         auto& [frontOrigin, frontPrefab] = swapObjects.front();
                         frontPrefab->_ownerScene         = frontOrigin->_ownerScene;
-                        frontPrefab->transform->SetParentEx(frontOrigin->transform->Parent, false, false);
-
+                        Transform* frontParent = frontOrigin->transform->Parent;
+						if (nullptr != frontParent)
+						{
+                            for (int childIndex = 0; childIndex < frontParent->_childsList.size();++childIndex)
+                            {
+                                if (&frontOrigin->_transform == frontParent->_childsList[childIndex])
+                                {
+                                    frontPrefab->transform->SetParentToIndexEx(frontParent, childIndex, false, false);
+                                    break;
+                                }
+                            }
+						}
+						else
+						{
+                            frontPrefab->transform->SetParentEx(frontParent, false, false);
+						}
+                     
                         // Swap 이루어진 오브젝트들
                         std::vector<std::shared_ptr<GameObject>> originInstances;
                         originInstances.reserve(swapObjects.size());
