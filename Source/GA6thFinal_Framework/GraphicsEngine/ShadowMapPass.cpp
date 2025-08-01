@@ -215,7 +215,7 @@ void ShadowMapPass::CreateShaderAndPSO()
     ComPtr<ID3D12PipelineState>        pipelineState;
 
     psodesc.RasterizerState                      = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    psodesc.RasterizerState.DepthBias            = 10000;
+    psodesc.RasterizerState.DepthBias            = 100;
     psodesc.RasterizerState.DepthBiasClamp       = 0.0f;
     psodesc.RasterizerState.SlopeScaledDepthBias = 1.5f;
     psodesc.BlendState                           = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
@@ -283,8 +283,8 @@ void ShadowMapPass::UpdateCascades(const Vector3& lightDirection)
     const auto& shadowMapProps = std::any_cast<ShadowPassProperty>(_ownerScene->GetRenderPassProperty("ShadowMapPass"));
 
     // 1. 캐스케이드 분할 거리 계산
-    float nearZ  = shadowMapProps.NearPlane;
-    float farZ   = shadowMapProps.FarPlane;
+    float nearZ  = std::max(0.01f, shadowMapProps.NearPlane);
+    float farZ   = std::max(nearZ + 1, shadowMapProps.FarPlane);
     float lambda = shadowMapProps.SplitFactor;
 
     for (int i = 0; i < MAX_CASCADES; i++)
