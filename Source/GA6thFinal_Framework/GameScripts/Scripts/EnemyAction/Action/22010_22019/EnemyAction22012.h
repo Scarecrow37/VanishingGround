@@ -22,6 +22,6 @@ namespace EnemyAction
 
     private:
         // 기절 부여용 액션
-        TokenApplyAction* _tokenAction;
+        std::unique_ptr<TokenApplyAction> _tokenAction;
     };
 } // namespace EnemyAction

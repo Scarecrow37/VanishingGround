@@ -8,18 +8,13 @@
 namespace EnemyAction
 {
     Action22012::Action22012(Enemy* owner) 
-        : ActionBase(owner), _tokenAction(new TokenApplyAction)
+        : ActionBase(owner), _tokenAction(std::make_unique<TokenApplyAction>())
     {
         _tokenAction->TokenID    = TokenObject::Stun::ID;
         _tokenAction->TokenCount = 1;
     }
     Action22012::~Action22012() 
     {
-        if (_tokenAction)
-        {
-            delete _tokenAction;
-            _tokenAction = nullptr;
-        }
     }
     void Action22012::OnActionEnter() 
     {
@@ -49,7 +44,7 @@ namespace EnemyAction
             TurnMode* turnMode = TurnMode::GetInstance();
             if (turnMode)
             {
-                turnMode->AddTurnAction(_tokenAction);
+                turnMode->AddTurnAction(_tokenAction.get());
                 ProcessBattle(1);
                 _tokenAction->SetDestroy();
             }

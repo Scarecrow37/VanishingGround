@@ -8,18 +8,13 @@
 namespace EnemyAction
 {
     Action22010::Action22010(Enemy* owner) 
-        : ActionBase(owner), _tokenAction(new TokenApplyAction)
+        : ActionBase(owner), _tokenAction(std::make_unique<TokenApplyAction>())
     {
         _tokenAction->TokenID = TokenObject::Bleed::ID;
         _tokenAction->TokenCount = 1;
     }
     Action22010::~Action22010() 
     {
-        if (_tokenAction)
-        {
-            delete _tokenAction;
-            _tokenAction = nullptr;
-        }
     }
 
     void Action22010::OnActionEnter() 
@@ -53,7 +48,7 @@ namespace EnemyAction
             TurnMode* turnMode = TurnMode::GetInstance();
             if (turnMode)
             {
-                turnMode->AddTurnAction(_tokenAction);
+                turnMode->AddTurnAction(_tokenAction.get());
                 ProcessBattle(5);
                 _tokenAction->SetDestroy();
             }
