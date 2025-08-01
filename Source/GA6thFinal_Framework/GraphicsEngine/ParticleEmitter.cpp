@@ -622,21 +622,23 @@ void ParticleEmitter::ScaleVelocity(Vector3 pos)
 
 void ParticleEmitter::ScaleVelFromPoint(Vector3 pos) 
 {
-    Vector3 emitterCenter;
-    if (_useWorldSpace)
-    {
-        // In world space simulation, 'pos' is the particle's world position.
-        // We need the emitter's world position to calculate the direction.
-        emitterCenter = Vector3(_worldMatrix._41, _worldMatrix._42, _worldMatrix._43);
-    }
-    else
-    {
-        // In local space simulation, 'pos' is the particle's local position.
-        // The emitter's center is the origin of the local space.
-        emitterCenter = Vector3::Zero;
-    }
-
-    Vector3 direction = pos - emitterCenter;
+    //Vector3 emitterCenter;
+    //if (_useWorldSpace)
+    //{
+    //    // In world space simulation, 'pos' is the particle's world position.
+    //    // We need the emitter's world position to calculate the direction.
+    //    emitterCenter = Vector3(_worldMatrix._41, _worldMatrix._42, _worldMatrix._43);
+    //}
+    //else
+    //{
+    //    // In local space simulation, 'pos' is the particle's local position.
+    //    // The emitter's center is the origin of the local space.
+    //    emitterCenter = Vector3::Zero;
+    //}
+    //Vector3 direction = pos - emitterCenter;
+    Vector4 vel = {pos.x, pos.y, pos.z, 0};
+    //vel               = Vector4::Transform(vel, _worldMatrix);
+    Vector3 direction = {vel.x, vel.y, vel.z};
     direction.Normalize();
     _velocity = direction * _velocityFactor.x;
 }

@@ -94,8 +94,7 @@ void ParticleComponent::ImGuiDrawPropertysEvent()
     SkeletalMeshRenderer* skelMesh = GetComponent<SkeletalMeshRenderer>();
     auto&                 renderer   = skelMesh->Renderer;
     auto&                 model      = renderer->GetModel();
-    auto&                 skeleton   = model->GetSkeleton();
-    const auto&           _boneNames = skeleton->GetBoneNameList();
+    const auto&           _boneNames = model->GetBoneNameList();
 
     const char* comboLabel = (nullptr != skelMesh) ? ReflectFields->BoneNameToAttach.c_str() : "-";
     if (ImGui::BeginCombo("##bone name", comboLabel))
@@ -138,6 +137,8 @@ void ParticleComponent::LoadParticle()
     {
         _effect->SetRemoveFlag(true);
     }
+    if (_filepath == L"")
+        return;
     UmParticleSerializer.PreDeserialize(_filepath);
     const auto& modelpaths = UmParticleSerializer.GetUsedModelPaths();
     
