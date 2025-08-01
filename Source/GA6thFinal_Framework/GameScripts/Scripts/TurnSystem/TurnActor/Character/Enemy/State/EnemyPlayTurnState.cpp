@@ -3,17 +3,17 @@
 
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 
-#include <TurnSystem/TurnActor/Character/Enemy/Action/22000_22009/EnemyAction22000.h>
-#include <TurnSystem/TurnActor/Character/Enemy/Action/22000_22009/EnemyAction22001.h>
-#include <TurnSystem/TurnActor/Character/Enemy/Action/22000_22009/EnemyAction22002.h>
-#include <TurnSystem/TurnActor/Character/Enemy/Action/22000_22009/EnemyAction22003.h>
-#include <TurnSystem/TurnActor/Character/Enemy/Action/22000_22009/EnemyAction22004.h>
+#include <EnemyAction/Action/22000_22009/EnemyAction22000.h>
+#include <EnemyAction/Action/22000_22009/EnemyAction22001.h>
+#include <EnemyAction/Action/22000_22009/EnemyAction22002.h>
+#include <EnemyAction/Action/22000_22009/EnemyAction22003.h>
+#include <EnemyAction/Action/22000_22009/EnemyAction22004.h>
 
-#include <TurnSystem/TurnActor/Character/Enemy/Action/22010_22019/EnemyAction22010.h>
-#include <TurnSystem/TurnActor/Character/Enemy/Action/22010_22019/EnemyAction22011.h>
-#include <TurnSystem/TurnActor/Character/Enemy/Action/22010_22019/EnemyAction22012.h>
-#include <TurnSystem/TurnActor/Character/Enemy/Action/22010_22019/EnemyAction22013.h>
-#include <TurnSystem/TurnActor/Character/Enemy/Action/22010_22019/EnemyAction22014.h>
+#include <EnemyAction/Action/22010_22019/EnemyAction22010.h>
+#include <EnemyAction/Action/22010_22019/EnemyAction22011.h>
+#include <EnemyAction/Action/22010_22019/EnemyAction22012.h>
+#include <EnemyAction/Action/22010_22019/EnemyAction22013.h>
+#include <EnemyAction/Action/22010_22019/EnemyAction22014.h>
 
 REGISTER_CLASS(FSMStateFactory, EnemyPlayTurnState)
 
@@ -45,7 +45,7 @@ void EnemyPlayTurnState::OnEnter()
     RequireCurrentAction();
     if (_currentAction)
     {
-        _currentAction->RequireActionEnter();
+        _currentAction->RequestActionEnter();
     }
     LogCurrentAction();
 
@@ -60,13 +60,8 @@ void EnemyPlayTurnState::OnExit()
 
     if (_currentAction)
     {
-        _currentAction->RequireActionExit();
+        _currentAction->RequestActionExit();
     }
-
-    // Enemy의 턴이 종료시 액션을 선언.
-    EnemyAI& aiModel = GetEnemy().GetAIModel();
-    aiModel.Transition();
-    aiModel.Refresh();
 }
     
 void EnemyPlayTurnState::OnUpdate()
@@ -76,12 +71,20 @@ void EnemyPlayTurnState::OnUpdate()
     EnemyAI& aiModel = GetEnemy().GetAIModel();
     if (_currentAction)
     {
-        _currentAction->RequireActionUpdate();
+        _currentAction->RequestActionUpdate();
         result = _currentAction->IsActionEnd();
     }
     if (true == result)
     {
         enemy.EndTurn();
+    }
+}
+
+void EnemyPlayTurnState::OnNotifiedAnimationEvent(const Timeline::EventContext* context) 
+{
+    if (_currentAction)
+    {
+        _currentAction->OnAnimationEvent(context);
     }
 }
 
@@ -190,10 +193,19 @@ void EnemyPlayTurnState::BuildAIModel23001()
 void EnemyPlayTurnState::BuildAIModel23010() 
 {
     EnemyAI& aiModel = GetEnemy().GetAIModel();
-    aiModel.PushActionNode("#1", "#2", {{50.0f, 22010}, {50.0f, 22011}}); // Action 22010, 22011
+    //aiModel.PushActionNode("#1", "#2", {{50.0f, 22010}, {50.0f, 22011}}); // Action 22010, 22011
+    //aiModel.PushActionNode("#2", "#3", {{50.0f, 22010}, {50.0f, 22011}}); // Action 22010, 22011
+    //aiModel.PushActionNode("#3", "#4", 22013); // Action 22013
+    //aiModel.PushActionNode("#4", "#3", {{15.0f, 22010}, {15.0f, 22011}, {70.0f, 22012}}); // Action 22010, 22011, 22012
+
+    aiModel.PushActionNode("#1", "#2", 22012); // Action 22012
     aiModel.PushActionNode("#2", "#3", {{50.0f, 22010}, {50.0f, 22011}}); // Action 22010, 22011
-    aiModel.PushActionNode("#3", "#4", 22013); // Action 22013
-    aiModel.PushActionNode("#4", "#3", {{15.0f, 22010}, {15.0f, 22011}, {70.0f, 22012}}); // Action 22010, 22011, 22012
+    aiModel.PushConditionNode("#3", "#4", "#1", [this]() -> bool { // HP가 50% 이하일 때
+        auto& enemy  = GetEnemy();
+        bool  result = enemy.HP / enemy.MaxHP <= 0.5f;
+        return result;
+    });
+    aiModel.PushActionNode("#4", "#2", 22013); // Action 22013
 
     // Entry 노드 설정
     aiModel.SetCurrentNode("#1");
@@ -202,10 +214,19 @@ void EnemyPlayTurnState::BuildAIModel23010()
 void EnemyPlayTurnState::BuildAIModel23011() 
 {
     EnemyAI& aiModel = GetEnemy().GetAIModel();
-    aiModel.PushActionNode("#1", "#2", 22014); // Action 22014
-    aiModel.PushActionNode("#2", "#3", {{25.0f, 22010}, {25.0f, 22011}, {50.0f, 22014}}); // Action 22010, 22011, 22014
-    aiModel.PushActionNode("#3", "#4", 22013); // Action 22013
-    aiModel.PushActionNode("#4", "#3", {{30.0f, 22011}, {70.0f, 22012}}); // Action 22011, 22012
+    //aiModel.PushActionNode("#1", "#2", 22014); // Action 22014
+    //aiModel.PushActionNode("#2", "#3", {{25.0f, 22010}, {25.0f, 22011}, {50.0f, 22014}}); // Action 22010, 22011, 22014
+    //aiModel.PushActionNode("#3", "#4", 22013); // Action 22013
+    //aiModel.PushActionNode("#4", "#3", {{30.0f, 22011}, {70.0f, 22012}}); // Action 22011, 22012
+
+    aiModel.PushActionNode("#1", "#2", {{50.0f, 22010}, {50.0f, 22011}}); // Action 22010, 22011
+    aiModel.PushActionNode("#2", "#3", {{50.0f, 22010}, {50.0f, 22011}}); // Action 22010, 22011
+    aiModel.PushConditionNode("#3", "#4", "#2", [this]() -> bool {  // HP가 50% 이하일 때
+       auto& enemy = GetEnemy();
+        bool result = enemy.HP / enemy.MaxHP <= 0.5f; 
+        return result;
+    });
+    aiModel.PushActionNode("#4", "#2", 22013); // Action 22013
 
     // Entry 노드 설정
     aiModel.SetCurrentNode("#1");

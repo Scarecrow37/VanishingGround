@@ -6,6 +6,12 @@ class MeshRenderer;
 class Model;
 class Animator;
 
+namespace Timeline
+{
+    class EventContext;
+    class EventTrack;
+} // namespace Timeline
+
 class AnimationComponent : public Component
 {
     USING_PROPERTY(AnimationComponent)
@@ -23,7 +29,7 @@ public:
     void ImGuiDrawPropertysEvent() override;
 
 private:
-    AnimationData&  GetLastAnimationDataEx();
+    AnimationData& GetLastAnimationDataEx();
 
     void UpdateAnimation(AnimationData& animData);
     void SetAnimationEx(AnimationData& animData);
@@ -31,6 +37,7 @@ private:
     void ChangeAnimationFrameEx(AnimationData& animData, float frame);
     void ChangeAnimationFlagsEx(AnimationData& animData, int flags);
     void SetAnimationPopCallbackEx(AnimationData& animData, std::function<void()> callback);
+    void GetAnimationNameEx(std::string_view key, std::string& str) const;
 
 public:
     /// <summary>
@@ -99,6 +106,17 @@ public:
     void SetAnimator(std::shared_ptr<Animator> animator);
     void UpdateNullAnimator();
 
+    void SetAnimationEventTrackFromPath(const File::Path& path);
+    void SetAnimationEventTrackFromGuid(const File::Guid& guid);
+    void SetAnimationPreEventCallback(std::function<bool(const Timeline::EventContext*)> callback) { _preEventCallback = callback; }
+    void SetAnimationPostEventCallback(std::function<void(const Timeline::EventContext*)> callback) { _postEventCallback = callback; }
+    inline AnimationEventTrack& GetEventTrack() { return _eventTrack; }
+
+    void AddAnimationMappingKey(std::string_view key, std::string_view animKey);
+    void RemoveAnimationMappingKey(std::string_view key);
+    bool HasAnimationMappingKey(std::string_view key) const;
+    const std::string& GetAnimationNameFromKey(std::string_view key) const;
+
 private:
     std::shared_ptr<Animator>  _animator;
     EventQueue                 _eventQueue;
@@ -110,5 +128,20 @@ private:
     std::string MainAnimationKey    = "";
     int         MainAnimationFlags  = ANIMATION_FLAG_NONE;
     bool        MainAnimationSpeed  = true;
+    std::string AnimEventTrackGuid  = "";
+    std::map<std::string, std::string> AnimationKeyMap;
     REFLECT_FIELDS_END(AnimationComponent)
+
+    ///////////////////////////////////////////////////////////////////////
+    /// EventTrack
+    ///////////////////////////////////////////////////////////////////////
+
+    File::GuidRef       _guidRef;
+    File::Path          _filePath;
+    AnimationEventTrack _eventTrack;
+    std::function<bool(const Timeline::EventContext*)> _preEventCallback;  // Event Callback Function
+    std::function<void(const Timeline::EventContext*)> _postEventCallback; // Event Callback Function
+    std::string _selectedEventTrack;
+    std::vector<std::function<void()>> _delayProcess;
+
 };

@@ -115,7 +115,7 @@ public:
     /// <summary>라운드가 끝날 때 호출됩니다.</summary>
     virtual void OnRoundEnd() {}
 
-    /// <summary>인자로 넘어온 캐릭터의 턴이 시작되면 호출됩니다..</summary>
+    /// <summary>인자로 넘어온 캐릭터의 턴이 시작되면 호출됩니다.</summary>
     /// <param name="destination">턴이 시작된 대상</param>
     virtual void OnTurnStart(CharacterBase& destination) {}
 

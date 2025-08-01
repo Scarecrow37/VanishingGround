@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="DebugEditor|Win32">
@@ -302,28 +302,30 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h" />
+    <ClInclude Include="Scripts\EnemyAction\ActionData\EnemyActionData.h" />
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
     <ClInclude Include="Scripts\Audio\AudioComponent.h" />
     <ClInclude Include="Scripts\BattleSystem\Battle.h" />
     <ClInclude Include="Scripts\ColorUtils\ColorUtils.h" />
-    <ClInclude Include="Scripts\EnemyActionSystem\EnemyActionSystem.h" />
+    <ClInclude Include="Scripts\EnemyAction\System\EnemyActionSystem.h" />
+    <ClInclude Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22000.h" />
+    <ClInclude Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22001.h" />
+    <ClInclude Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22002.h" />
+    <ClInclude Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22003.h" />
+    <ClInclude Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22004.h" />
+    <ClInclude Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22010.h" />
+    <ClInclude Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22011.h" />
+    <ClInclude Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22012.h" />
+    <ClInclude Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22013.h" />
+    <ClInclude Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22014.h" />
+    <ClInclude Include="Scripts\EnemyAction\EnemyActionBase.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.h" />
     <ClInclude Include="Scripts\Animation\AnimationComponent.h" />
     <ClInclude Include="Scripts\Animation\Structs\AnimationData.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Recovery\RecoveryAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\WeaponStas\WeaponDamageAction.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22001.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22002.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22003.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22004.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22010_22019\EnemyAction22010.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22010_22019\EnemyAction22011.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22010_22019\EnemyAction22012.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22010_22019\EnemyAction22013.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22010_22019\EnemyAction22014.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\AnemyActionBase.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22000.h" />
     <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Base\RevelationActionBase.h" />
     <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Critical\CriticalDamageAction.h" />
     <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Token\TokenApplyAction.h" />
@@ -438,34 +440,35 @@
     <ClInclude Include="Scripts\Stats\Player\PlayerStatsComponent.h" />
     <ClInclude Include="Scripts\Stats\Enemy\EnemyStatsComponent.h" />
     <ClInclude Include="Scripts\Test\Input\InputTestComponent.h" />
-    <ClInclude Include="Scripts\Timeline\AnimationEventListener.h" />
     <ClInclude Include="Scripts\Test\DevTools\FPSCounter.h" />
     <ClInclude Include="Scripts\WeaponSystem\WeaponSystem.h" />
     <ClInclude Include="Scripts\Test\TurnAction\TestActionComponent.h" />
     <ClInclude Include="Scripts\Test\DevTools\LogOutput.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\EnemyAction\Factory\EnemyActionFactory.cpp" />
+    <ClCompile Include="Scripts\EnemyAction\ActionData\EnemyActionData.cpp" />
     <ClCompile Include="Scripts\Audio\AudioComponent.cpp" />
     <ClCompile Include="Scripts\BattleSystem\Battle.cpp" />
     <ClCompile Include="Scripts\ColorUtils\ColorUtils.cpp" />
-    <ClCompile Include="Scripts\EnemyActionSystem\EnemyActionSystem.cpp" />
+    <ClCompile Include="Scripts\EnemyAction\System\EnemyActionSystem.cpp" />
+    <ClCompile Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22000.cpp" />
+    <ClCompile Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22001.cpp" />
+    <ClCompile Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22002.cpp" />
+    <ClCompile Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22003.cpp" />
+    <ClCompile Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22004.cpp" />
+    <ClCompile Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22010.cpp" />
+    <ClCompile Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22011.cpp" />
+    <ClCompile Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22012.cpp" />
+    <ClCompile Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22013.cpp" />
+    <ClCompile Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22014.cpp" />
+    <ClCompile Include="Scripts\EnemyAction\EnemyActionBase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.cpp" />
     <ClCompile Include="Scripts\Animation\AnimationComponent.cpp" />
     <ClCompile Include="Scripts\Animation\Structs\AnimationData.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Recovery\RecoveryAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\WeaponStas\WeaponDamageAction.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22001.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22002.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22003.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22004.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22010_22019\EnemyAction22010.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22010_22019\EnemyAction22011.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22010_22019\EnemyAction22012.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22010_22019\EnemyAction22013.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22010_22019\EnemyAction22014.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\AnemyActionBase.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Action\22000_22009\EnemyAction22000.cpp" />
     <ClCompile Include="Scripts\DamageSystem\DamageSystem.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\ChainCondition\ChainCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\RoundOnceCondition\RoundOnceCondition.cpp" />
@@ -584,7 +587,6 @@
     <ClCompile Include="Scripts\Stats\Player\PlayerStatsComponent.cpp" />
     <ClCompile Include="Scripts\Stats\Enemy\EnemyStatsComponent.cpp" />
     <ClCompile Include="Scripts\Test\Input\InputTestComponent.cpp" />
-    <ClCompile Include="Scripts\Timeline\AnimationEventListener.cpp" />
     <ClCompile Include="Scripts\Test\DevTools\FPSCounter.cpp" />
     <ClCompile Include="Scripts\WeaponSystem\WeaponSystem.cpp" />
     <ClCompile Include="Scripts\Test\TurnAction\TestActionComponent.cpp" />

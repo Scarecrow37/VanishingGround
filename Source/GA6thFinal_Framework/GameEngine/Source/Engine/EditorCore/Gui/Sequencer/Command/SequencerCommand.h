@@ -1,18 +1,21 @@
 ﻿#pragma once
 
-class TimelineSystem;
-class TimelineNotify;
+namespace Timeline
+{
+    class EventTrack;
+    class EventContext;
+}
 class ITimelineEvent;
 
 namespace Command
 {
     namespace Sequencer
     {
-        struct NotifyData
+        struct ContextData
         {
-            NotifyData(UINT id, float time, std::string_view label, std::string_view typeNameID);
-            NotifyData(TimelineNotify* notify);
-            ~NotifyData() = default;
+            ContextData(UINT id, float time, std::string_view label, std::string_view typeNameID);
+            ContextData(Timeline::EventContext* notify);
+            ~ContextData() = default;
 
             UINT            ID;
             float           Time;
@@ -26,7 +29,7 @@ namespace Command
         class ChangeMinFrame : public UmCommand
         {
         public:
-            ChangeMinFrame(std::weak_ptr<TimelineSystem> system, float frame);
+            ChangeMinFrame(std::weak_ptr<Timeline::EventTrack> system, float frame);
             virtual ~ChangeMinFrame() = default;
 
         private:
@@ -34,7 +37,7 @@ namespace Command
             bool Execute() override;
             void Undo() override;
 
-            std::weak_ptr<TimelineSystem> _timelineSystem;
+            std::weak_ptr<Timeline::EventTrack> _eventTrack;
             float _prevFrame;
             float _tempFrame;
         };
@@ -44,7 +47,7 @@ namespace Command
         class ChangeMaxFrame : public UmCommand
         {
         public:
-            ChangeMaxFrame(std::weak_ptr<TimelineSystem> system, float frame);
+            ChangeMaxFrame(std::weak_ptr<Timeline::EventTrack> system, float frame);
             virtual ~ChangeMaxFrame() = default;
 
         private:
@@ -52,71 +55,71 @@ namespace Command
             bool Execute() override;
             void Undo() override;
 
-            std::weak_ptr<TimelineSystem> _timelineSystem;
+            std::weak_ptr<Timeline::EventTrack> _eventTrack;
             float _prevFrame;
             float _tempFrame;
         };
 
         /// <summary>
-        /// Notify를 추가하는 명령입니다.
+        /// Context를 추가하는 명령입니다.
         /// </summary>
-        class AddNotify : public UmCommand
+        class AddContext : public UmCommand
         {
         public:
-            AddNotify(std::weak_ptr<TimelineSystem> system, float time, std::string_view label,
+            AddContext(std::weak_ptr<Timeline::EventTrack> system, float time, std::string_view label,
                       std::string_view typeNameID);
-            virtual ~AddNotify() = default;
+            virtual ~AddContext() = default;
 
         private:
             // UmCommand을(를) 통해 상속됨
             bool Execute() override;
             void Undo() override;
 
-            std::weak_ptr<TimelineSystem> _timelineSystem;
-            TimelineNotify* _notify;
-            NotifyData _notifyData;
+            std::weak_ptr<Timeline::EventTrack> _eventTrack;
+            Timeline::EventContext* _context;
+            ContextData _contextData;
         };
 
         /// <summary>
-        /// Notify를 제거하는 명령입니다.
+        /// Context를 제거하는 명령입니다.
         /// </summary>
-        class RemoveNotify : public UmCommand
+        class RemoveContext : public UmCommand
         {
         public:
-            RemoveNotify(std::weak_ptr<TimelineSystem> system, TimelineNotify* notify);
-            virtual ~RemoveNotify() = default;
+            RemoveContext(std::weak_ptr<Timeline::EventTrack> system, Timeline::EventContext* notify);
+            virtual ~RemoveContext() = default;
 
         private:
             // UmCommand을(를) 통해 상속됨
             bool Execute() override;
             void Undo() override;
 
-            std::weak_ptr<TimelineSystem> _timelineSystem;
-            TimelineNotify* _notify;    
-            NotifyData _notifyData;
+            std::weak_ptr<Timeline::EventTrack> _eventTrack;
+            Timeline::EventContext* _context;    
+            ContextData _contextData;
         };
 
         /// <summary>
-        /// Notify의 시간을 변경하는 명령입니다.
+        /// Context의 시간을 변경하는 명령입니다.
         /// </summary>
-        class ChangeNotify : public UmCommand
+        class ChangeContext : public UmCommand
         {
         public:
-            ChangeNotify(std::weak_ptr<TimelineSystem> system
-                , TimelineNotify* notify
+            ChangeContext(std::weak_ptr<Timeline::EventTrack> system
+                , Timeline::EventContext* notify
                 , float changeTime
                 , std::string_view changelabel
                 , std::string_view changeTypeNameID);
-            virtual ~ChangeNotify() = default;
+            virtual ~ChangeContext() = default;
         private:
             // UmCommand을(를) 통해 상속됨
             bool Execute() override;
             void Undo() override;
 
-            std::weak_ptr<TimelineSystem> _timelineSystem;
-            TimelineNotify* _notify;    
-            NotifyData _previousData;
-            NotifyData _changedData;
+            std::weak_ptr<Timeline::EventTrack> _eventTrack;
+            Timeline::EventContext* _context;    
+            ContextData _previousData;
+            ContextData _changedData;
         };
     } // namespace Sequencer
 } // namespace Command

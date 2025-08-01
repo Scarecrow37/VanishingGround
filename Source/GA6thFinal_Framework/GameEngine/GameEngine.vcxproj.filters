@@ -276,25 +276,16 @@
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\TimelineCore\TimelineSystem.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\Sequencer\EditorSequencerTool.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Engine\EditorCore\Gui\Sequencer\EditorSequencer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Engine\EditorCore\Gui\Sequencer\Command\SequencerCommand.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\EditorCore\Utillity\EditorDragState.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\TimelineCore\AnimationNotifySet.h">
+    <ClInclude Include="Source\Engine\TimelineCore\AnimationEventTrack.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.h">
+    <ClInclude Include="Source\Editor\Tool\Model\EditorAnimationTrackTool.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\GameCore\InputReciver\InputReceiver.h">
@@ -322,6 +313,15 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Editor\Tool\Model\EditorModelInspector.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\TimelineCore\Context\TimelineEventContext.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\TimelineCore\Track\TimelineEventTrack.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EditorCore\Gui\Sequencer\EditorTimelineTrackSequencer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\Utility\OpenXLSXHelper.h">
@@ -680,15 +680,6 @@
     <ClCompile Include="Source\Editor\Tool\GameView\EditorGameView.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\TimelineCore\TimelineSystem.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Editor\Tool\Sequencer\EditorSequencerTool.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Engine\EditorCore\Gui\Sequencer\EditorSequencer.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Engine\EditorCore\Gui\Sequencer\Command\SequencerCommand.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -698,10 +689,10 @@
     <ClCompile Include="Source\Engine\GameCore\InputReciver\InputReceiver.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\TimelineCore\AnimationNotifySet.cpp">
+    <ClCompile Include="Source\Engine\TimelineCore\AnimationEventTrack.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.cpp">
+    <ClCompile Include="Source\Editor\Tool\Model\EditorAnimationTrackTool.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\AppModule\ImGuiDX12Module.cpp">
@@ -726,6 +717,15 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\Tool\Model\EditorModelInspector.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\TimelineCore\Context\TimelineEventContext.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\TimelineCore\Track\TimelineEventTrack.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\EditorCore\Gui\Sequencer\EditorTimelineTrackSequencer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Utility\OpenXLSXHelper.cpp">
