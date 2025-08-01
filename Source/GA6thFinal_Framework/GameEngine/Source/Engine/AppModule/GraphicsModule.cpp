@@ -3,7 +3,7 @@
 #include "Engine/GraphicsCore/RendererFileEvent.h"
 #include "Engine/GraphicsCore/ParticleEffectSerializer.h"
 
-bool _israytracing = true;
+bool _israytracing = false;
 
 GraphicsModule::GraphicsModule()
 {
