@@ -46,22 +46,6 @@ private:
 private:
     std::map<std::string, WeaponElement> _weaponTable;
 
-private:
-    struct ImguiEvent
-    {
-        bool ShowTableEditor = false;
-
-        std::string           DeleteTableBuffer = STR_NULL;
-        bool                  OpenDeletePopup   = false;
-        WeaponElement*        SelectWeapon      = nullptr;
-        std::function<void()> RenameFunc;
-
-        bool ShowExcelParser = false;
-        std::unique_ptr<OpenXLSX::XLDocument> ExcelDoc;
-        std::vector<std::string> SheetNames;
-    } 
-    _imguiEvent;
-
 protected:
 
     virtual void Reset() override;
@@ -87,12 +71,33 @@ protected:
     virtual void DeserializedReflectEvent() override;
 
 private:
+    struct ImguiEvent
+    {
+        bool ShowTableEditor = false;
+
+        std::string           DeleteTableBuffer = STR_NULL;
+        bool                  OpenDeletePopup   = false;
+        WeaponElement*        SelectWeapon      = nullptr;
+        std::function<void()> RenameFunc;
+
+        bool                                                          ShowExcelParser = false;
+        std::unique_ptr<OpenXLSX::XLDocument>                         ExcelDoc;
+        std::vector<std::string>                                      SheetNames;
+        std::string                                                   SelectSheetName;
+        std::vector<std::pair<std::string, std::vector<std::string>>> SheetDatas;
+    };
+
+#ifdef _UMEDITOR
+    ImguiEvent _imguiEvent;
+#endif
+
+private:
     /*테이블 편집기 ImGuiDraw 함수*/
     void ImGuiTableEditor();
 
     /*엑셀 파서 ImGuiDraw 함수*/
     void ImGuiDrawExcelParser();
+
     /*엑셀 파서 ImGuiMenubar 함수*/
     void ImGuiDrawExcelParserMenuBar();
-
 };
