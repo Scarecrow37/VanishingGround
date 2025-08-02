@@ -19,6 +19,7 @@ class EFileSystem
     using ContextSet            = std::unordered_set<std::shared_ptr<File::Context>>;
     using ContextPathTable      = std::unordered_map<File::Path, std::weak_ptr<File::Context>>;
     using ContextGuidTable      = std::unordered_map<File::Guid, std::weak_ptr<File::Context>>;
+    using AssetIDTable          = std::unordered_map<int, File::Path>;
     using GuidRefTable          = std::unordered_map<File::Guid, std::size_t>;
     using EventSubscriberSet    = std::unordered_set<File::FileEventSubscriber*>;
     using EventSubscriberTable  = std::unordered_map<File::FString, EventSubscriberSet>;
@@ -51,15 +52,30 @@ public:
     inline const File::Path&    GetBuildSettingPath()   const { return _buildSettingPath; }
 
     bool IsLoadedProject() const;
-    bool IsVaildGuid(const File::Guid& guid) const;
     bool IsValidExtension(const File::FString& ext) const;
     bool IsSameContext(std::weak_ptr<File::Context> left, std::weak_ptr<File::Context> right) const;
             
     File::Path                  GetRelativePath(const File::Path& path) const;
     const File::Path&           GetPathFromGuid(const File::Guid& guid) const;
+    const File::Path&           GetPathFromAssetID(int assetID) const;
     const File::Guid&           GetGuidFromPath(const File::Path& path) const;
     const GuidRefTable&         GetGuidRefTable() const;
     const EventSubscriberSet&   GetEventSubscribers(const File::FString& ext);
+
+    bool IsExistsAssetID(int assetID) const;
+    bool IsExistsGuid(const File::Guid& guid) const;
+    bool HasContext(const File::Path& path) const;
+    bool HasContext(const File::Guid& guid) const;
+
+    /// <summary>
+    /// 파일 무결성을 검사합니다. Meta파일이 존재하는지 등.
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    void CheckFileContextIntegrity(const File::Path& path);
+
+    bool ChangeAssetID(const File::Path& path, int changeID);
+    bool ChangeAssetID(std::weak_ptr<File::Context> context, int changeID);
 
     template <typename T>
     std::weak_ptr<T> GetContext(const File::Guid& guid) const 
@@ -112,7 +128,8 @@ public:
         return std::weak_ptr<T>();
     }
     std::weak_ptr<File::Context> GetContext(const File::Path& path) const;
-   
+    std::weak_ptr<File::Context> GetContext(const std::filesystem::path& path) const;
+    
     void RequestInspectFile(const File::Path& path);
     void RequestOpenFile(const File::Path& path);
     void RequestCopyFile(const File::Path& path);
@@ -122,8 +139,7 @@ public:
     void DrawGuiSettingEditor();
 
 public:
-    void RegisterFileEventSubscriber(
-        File::FileEventSubscriber* subscriber, const std::initializer_list<const char*>& exts = {});
+    void RegisterFileEventSubscriber(File::FileEventSubscriber* subscriber, const std::initializer_list<const char*>& exts = {});
     void UnRegisterFileEventSubscriber(File::FileEventSubscriber* subscriber);
 
 public:
@@ -165,6 +181,7 @@ private:
     ContextSet                  _contextTable;              // 원본 컨텍스트 포인터를 관리하는 테이블
     ContextPathTable            _pathToGuidTable;           // 파일 경로를 통해 ID를 찾는 테이블
     ContextGuidTable            _guidToPathTable;           // ID를 통해 파일 경로를 찾는 테이블
+    AssetIDTable                _assetIDTable;              // 에셋 ID를 통해 컨텍스트를 찾는 테이블
     GuidRefTable                _guidToRefTable;            // ID를 통해 참조를 찾는 테이블
 
     EventSubscriberSet          _subscriberSet;             // 등록된 EventSubscriber

@@ -46,7 +46,7 @@ namespace File
     public:
         inline const std::string&   GetName() const { return _name; }
         inline const Path&          GetPath() const { return _path; }
-        inline const MetaData&      GetMeta() const { return _meta; }
+        inline       MetaData&      GetMeta() { return _meta; }
 
     protected:
         std::string _name;

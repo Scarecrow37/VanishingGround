@@ -66,25 +66,34 @@ namespace File
 
     bool OpenFile(const File::Path& path)
     {
-        File::Path AbsPath = fs::absolute(path);
-
-        HINSTANCE hr = ShellExecuteW(NULL,            // 부모 윈도우 핸들
-                                     L"open",         // 작업(“open”, “edit”, “print” 등)
-                                     AbsPath.c_str(), // 실행할 파일 경로
-                                     NULL,            // 커맨드라인 인자
-                                     NULL,            // 기본 디렉터리
-                                     SW_SHOWNORMAL    // 창 표시 방식
-        );
-        if (reinterpret_cast<UINT_PTR>(hr) <= 32)
+        if (fs::exists(path))
         {
-            int debugLevel = UmFileSystem.GetDebugLevel();
-            if (debugLevel > 0)
-                OutputLog(L"Failed Open File: (" + path.wstring() + L')');
-            return false;
+            File::Path AbsPath = fs::absolute(path);
+
+            HINSTANCE hr = ShellExecuteW(NULL,            // 부모 윈도우 핸들
+                                         L"open",         // 작업(“open”, “edit”, “print” 등)
+                                         AbsPath.c_str(), // 실행할 파일 경로
+                                         NULL,            // 커맨드라인 인자
+                                         NULL,            // 기본 디렉터리
+                                         SW_SHOWNORMAL    // 창 표시 방식
+            );
+            if (reinterpret_cast<UINT_PTR>(hr) <= 32)
+            {
+                int debugLevel = UmFileSystem.GetDebugLevel();
+                if (debugLevel > 0)
+                {
+                    OutputLog(L"Failed Open File: (" + path.wstring() + L')');
+                }
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
         else
         {
-            return true;
+            return false;
         }
     }
 

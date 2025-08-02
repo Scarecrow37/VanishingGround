@@ -60,6 +60,8 @@ public:
 
 private:
     inline static EditorAssetBrowserTool* _staticInstance = nullptr;
+    static constexpr ImVec2               ICON_WIDGET_SIZE = ImVec2(100.0f, 100.0f); // 아이콘 위젯 크기
+    static constexpr const char*          POPUP_ID         = "##popup";
 
 public:
     inline const File::Path& GetCurrentFocusFolderPath() const { return _focusFolderPath; }
@@ -77,11 +79,18 @@ private:
     void OnFrameFocusStay() override;
     void OnFrameFocusExit() override;
 
+public:
+    AssetData* GetAssetData(const File::Path& path);
+    void       RefreshState();
+    void       RefreshFocusFolderEntries();
+    void       SetFocusFolderPath(const File::Path& path, bool pushStack = true);
+    void       SetFocusEntryPath(const File::Path& path);
+    void       UndoPath();
+    void       RedoPath();
+
 private:
     /* 메뉴바 - 콜럼 사이 어퍼프레임 */
     void ShowUpperFrame();
-    void ShowFolderDirectoryPath(spFolderContext context); // 주소 출력
-    void ListToDirectoryFileName(const File::Path& relativePath);
 
     /*  */
     void BeginColumn();         // Begin
@@ -101,27 +110,19 @@ private:
     void UpdateFolderEntryInput();
 
     void ShowSearchBar(spFolderContext context);   
-
+    
     /* 팝업 박스 메서드 */
     void ShowDeletePopupBox(const File::Path& path);
     void ShowSameFilePopupBox();
     void ShowCopyFilePopupBox();
+    static void ShowAlreadyAssetIDPopupBox(const File::Path& path, int changeID);
 
 private:
-    void SetFocusFromUndoPath();
-    void SetFocusFromRedoPath();
-
     void ProcessDropFile(const HDROP hDrop);
     static bool WinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-private:
-    AssetData* GetAssetData(const File::Path& path);
-    void RefreshState();
-    void RefreshFocusFolderEntries();
-    void SetFocusFolderPath(const File::Path& path);
-    void SetFocusEntryPath(const File::Path& path);
  
-    // 최신 개발
+private:
     int         _folderCount    = 0;        // 폴더 개수
     float       _zoomScale      = 1.0f;     // 콘텐츠 뷰 줌 스케일
     float       _updateTime     = 0.0f;     // 콘텐츠 뷰 업데이트 시간
@@ -132,38 +133,19 @@ private:
     
     std::bitset<FLAG_SIZE> _flags;          // 플래그 비트셋 (예: 메타 파일 표시 여부 등)
 
+    /* 에셋 정보 저장 테이블 및 리스트 */
     std::unordered_map<File::Path, AssetData> _focusFolderAssetDataMap;
     std::vector<AssetData*> _focusFolderAssetDataList;  // 현재 포커싱 폴더의 파일 목록
-
-    std::vector<std::function<void()>> _delayEvent;     // 후처리 이벤트 
-
-    static constexpr ImVec2 ICON_WIDGET_SIZE = ImVec2(100.0f, 100.0f); // 아이콘 위젯 크기
-    static constexpr const char* POPUP_ID    = "##popup";
-
-    struct RenameController
-    {
-        bool IsActive() const { return IsRenaming; } // 이름 변경 모드인지 확인
-        void StartRename(const File::Path& destFilePath); // 이름 변경 시작
-        void CancelRename(); // 이름 변경 취소
-        const File::Path& ExecuteRename(const File::Path& destFolder);
-        
-        bool        IsRenaming   = false;   // 이름 변경 모드 여부
-        File::Path  Return       = "";      // 이름 변경 대상 이름
-        File::Path  DestPath     = "";      // 이름 변경 대상 이름
-        std::string DestName     = "";      // 이름 변경 대상 이름
-        std::string RenameBuffer = "";      // 이름 변경 버퍼
-
-    };
-    RenameController _rename; // 이름 변경 컨트롤러
-
-private:
-    /* Undo, Redo 스택 */ 
+    
+    /* Undo, Redo 스택 */
     int                    _maxUndoStack = 20; // Undo Stack 최대 개수
     std::deque<File::Path> _directoryUndoStack;
     std::deque<File::Path> _directoryRedoStack;
 
     /* Search */
     char _searchBuffer[128] = "";
+
+    std::vector<std::function<void()>> _delayEvent;     // 후처리 이벤트 
 
     /* Drag&Drop */
     ImRect _windowRect;
@@ -177,6 +159,21 @@ private:
     int   SortFlags   = File::Compare::FLAGS_SORT_BY_TYPE | File::Compare::FLAGS_SORT_BY_NAME;
     int   ShowType    = SHOW_TYPE_LIST;
     REFLECT_FIELDS_END(EditorAssetBrowserTool)
+
+    struct RenameController
+    {
+        bool              IsActive() const { return IsRenaming; }      // 이름 변경 모드인지 확인
+        void              StartRename(const File::Path& destFilePath); // 이름 변경 시작
+        void              CancelRename();                              // 이름 변경 취소
+        const File::Path& ExecuteRename(const File::Path& destFolder);
+
+        bool        IsRenaming   = false; // 이름 변경 모드 여부
+        File::Path  Return       = "";    // 이름 변경 대상 이름
+        File::Path  DestPath     = "";    // 이름 변경 대상 이름
+        std::string DestName     = "";    // 이름 변경 대상 이름
+        std::string RenameBuffer = "";    // 이름 변경 버퍼
+    };
+    RenameController _rename; // 이름 변경 컨트롤러
 
     class Compare
     {
@@ -202,32 +199,20 @@ private:
     private:
         int flags = 0; // 정렬 플래그 (예: 이름순, 날짜순 등)
     };
-};
 
-class EditorAssetObject : public IEditorObject
-{
-public:
-    virtual void OnInspectorEnter() override;
-    virtual void OnInspectorStay() override;
-    virtual void OnInspectorExit() override;
-
-public:
-    inline void SetThis(std::weak_ptr<EditorAssetObject> thisObj)
-    { 
-        _this = thisObj; 
-    }
-
-    inline auto GetContext() 
+    class InspectorDrawer : public IEditorObject
     {
-        return _selectedAsset; 
-    }
+    public:
+        void OnInspectorEnter() override;
+        void OnInspectorStay() override;
+        void OnInspectorExit() override;
 
-    void SetContext(std::weak_ptr<File::Context> context);
+        void SetAsset(const AssetData& assetData);
+    public:
+        AssetData _assetData;
+        File::Path _assetPath;
+        std::weak_ptr<File::Context> _selectedAsset;
 
-private:
-    std::weak_ptr<File::Context> _selectedAsset;
-    std::weak_ptr<File::Context> _focusedInspector;
-
-    std::weak_ptr<EditorAssetObject> _this; // 자신 weak_ptr 객체
+    };
+    std::shared_ptr<InspectorDrawer> _inspectorDrawer; // 인스펙터 정보 드로어
 };
-
