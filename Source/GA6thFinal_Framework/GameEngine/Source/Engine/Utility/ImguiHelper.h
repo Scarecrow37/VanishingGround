@@ -365,17 +365,8 @@ namespace ImGuiHelper
     /// </summary>
     /// <param name="toolTip :">출력할 내용</param>
     /// <returns>마우스 Hovered 여부</returns>
-    bool HoveredToolTip(std::string_view toolTip);
-
-    /// <summary>
-    /// 이전 아이템에 마우스가 올라가면 툴팁을 출력합니다.
-    /// </summary>
-    /// <param name="toolTip :">출력할 내용</param>
-    /// <returns>마우스 Hovered 여부</returns>
-    inline bool HoveredToolTip(std::u8string_view toolTip)
-    {
-        return HoveredToolTip((const char*)toolTip.data());
-    }
+    bool HoveredToolTip(std::string_view toolTip, int flags = 0);
+    bool HoveredToolTip(std::u8string_view toolTip, int flags = 0);
 
     /// <summary>
     /// ImVec4를 선형보간합니다.

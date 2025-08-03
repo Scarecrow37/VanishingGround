@@ -36,12 +36,13 @@ class EditorAssetBrowserTool
 
         void Refesh(FileEntry entry);
 
-        FileEntry   Entry;              // 파일 엔트리
-        bool        IsDirectory;        // 디렉토리인지 여부
-        std::string FileName;           // 파일 이름
-        std::string ViewName;           // 뷰에 표시될 이름
-        std::time_t LastWriteTime;      // 마지막 수정 시간
-        int         Order = 0;          // 정렬 순서 
+        FileEntry   Entry;                  // 파일 엔트리
+        bool        IsDirectory = false;    // 디렉토리인지 여부
+        std::string Extension = "";         // 파일 확장자
+        std::string FileName = "";          // 파일 이름
+        std::string ViewName = "";          // 뷰에 표시될 이름
+        std::time_t LastWriteTime = {};     // 마지막 수정 시간
+        int         Order = 0;              // 정렬 순서 
 
         // icon
         std::shared_ptr<Texture> PreviewIconTexture; // 아이콘 텍스처
@@ -87,12 +88,19 @@ public:
     void       SetFocusEntryPath(const File::Path& path);
     void       UndoPath();
     void       RedoPath();
+    void       SetCopyFile();
+    void       SetCutFile();
+    void       PasteFile();
+
+    bool       IsFavoriteFolder(const File::Path& path) const;
+    void       AddFavoriteFolder(const File::Path& path);
+    void       RemoveFavoriteFolder(const File::Path& path);
 
 private:
     /* 메뉴바 - 콜럼 사이 어퍼프레임 */
     void ShowUpperFrame();
 
-    /*  */
+    /* 좌측, 우측 컬럼 */
     void BeginColumn();         // Begin
     void EndColumn();           // End
     void ShowColumnPlitter();   // 콜럼 사이 리사이징바
@@ -103,18 +111,18 @@ private:
 
     /* 콘텐츠 뷰 콜럼 */
     void ShowFolderEntries();
+    void ShowSearchBar();   
     void ShowFolderEntryToList(AssetData& asset);  
     void ShowFolderEntryToIcon(AssetData& asset);  
     void ShowFolderEntryPopup(AssetData& asset);
     void ProcessFolderEntryDragDrop(AssetData& asset);
     void UpdateFolderEntryInput();
+    void BeginFolderEntryFrame();
 
-    void ShowSearchBar(spFolderContext context);   
-    
     /* 팝업 박스 메서드 */
-    void ShowDeletePopupBox(const File::Path& path);
     void ShowSameFilePopupBox();
     void ShowCopyFilePopupBox();
+    static bool ShowDeletePopupBox(const File::Path& path);
     static void ShowAlreadyAssetIDPopupBox(const File::Path& path, int changeID);
 
 private:
@@ -123,15 +131,19 @@ private:
 
  
 private:
-    int         _folderCount    = 0;        // 폴더 개수
-    float       _zoomScale      = 1.0f;     // 콘텐츠 뷰 줌 스케일
-    float       _updateTime     = 0.0f;     // 콘텐츠 뷰 업데이트 시간
-    bool        _needRefresh    = false;    // 콘텐츠 뷰 새로고침 필요 여부
-    File::Path  _copyBuffer     = "";       // 복사 버퍼
-    File::Path  _focusFolderPath;           // 현재 포커싱 중인 폴더
-    File::Path  _focusEntryPath;            // 현재 포커싱 중인 파일
+    int         _folderCount    = 0;                    // 폴더 개수
+    float       _zoomScale      = 1.0f;                 // 콘텐츠 뷰 줌 스케일
+    float       _updateTime     = 0.0f;                 // 콘텐츠 뷰 업데이트 시간
+    bool        _needRefresh    = false;                // 콘텐츠 뷰 새로고침 필요 여부
+    std::string _searchBuffer   = "";                   // 검색 버퍼
+    File::Path  _focusFolderPath;                       // 현재 포커싱 중인 폴더
+    File::Path  _focusEntryPath;                        // 현재 포커싱 중인 파일
     
-    std::bitset<FLAG_SIZE> _flags;          // 플래그 비트셋 (예: 메타 파일 표시 여부 등)
+    std::bitset<FLAG_SIZE> _flags;                      // 플래그 비트셋 (예: 메타 파일 표시 여부 등)
+
+    std::pair<int, File::Path> _copyBuffer = {0, ""};   // 복사 버퍼 (first가 0이면 복사, 1이면 잘라넣기)
+    
+    ImGuiTextFilter _searchFilter;
 
     /* 에셋 정보 저장 테이블 및 리스트 */
     std::unordered_map<File::Path, AssetData> _focusFolderAssetDataMap;
@@ -142,23 +154,13 @@ private:
     std::deque<File::Path> _directoryUndoStack;
     std::deque<File::Path> _directoryRedoStack;
 
-    /* Search */
-    char _searchBuffer[128] = "";
-
-    std::vector<std::function<void()>> _delayEvent;     // 후처리 이벤트 
+    /* 후처리 이벤트  */
+    std::vector<std::function<void()>> _delayEvent;
 
     /* Drag&Drop */
     ImRect _windowRect;
     std::vector<std::pair<bool, File::Path>> _dragDropPaths; // 드래그 앤 드롭된 파일 경로들 (복사 여부, 경로)
     File::Path _destPath; // 드래그 앤 드롭된 경로의 목적지 경로
-
-    // ReflectFields
-    REFLECT_FIELDS_BEGIN(EditorTool)
-    float ColumWidth  = 250.f;
-    float ColumHeight = 0.0f;
-    int   SortFlags   = File::Compare::FLAGS_SORT_BY_TYPE | File::Compare::FLAGS_SORT_BY_NAME;
-    int   ShowType    = SHOW_TYPE_LIST;
-    REFLECT_FIELDS_END(EditorAssetBrowserTool)
 
     struct RenameController
     {
@@ -187,7 +189,8 @@ private:
         };
 
     public:
-        Compare(int sortFlags = 0) : flags(sortFlags) {}
+        Compare(int sortFlags = 0, bool ascending = true) : flags(sortFlags), isAscending(ascending) {}
+        Compare(std::pair<int, bool>& setting) : flags(setting.first), isAscending(setting.second) {}
         ~Compare() = default;
         bool operator()(const AssetData* a, const AssetData* b) const;
 
@@ -198,6 +201,7 @@ private:
 
     private:
         int flags = 0; // 정렬 플래그 (예: 이름순, 날짜순 등)
+        bool isAscending = true;
     };
 
     class InspectorDrawer : public IEditorObject
@@ -215,4 +219,14 @@ private:
 
     };
     std::shared_ptr<InspectorDrawer> _inspectorDrawer; // 인스펙터 정보 드로어
+
+    // ReflectFields
+    REFLECT_FIELDS_BEGIN(EditorTool)
+    float                 ColumWidth  = 250.f;
+    float                 ColumHeight = 0.0f;
+    int                   ShowType    = SHOW_TYPE_LIST;
+    std::pair<int, bool>  SortFlags   = {Compare::FLAGS_SORT_BY_NAME, true};
+    std::set<std::string> FavoriteFolders;
+    std::array<float, 2>  ListColumnWidth = {0.4f, 0.7f}; // 리스트 컬럼 너비
+    REFLECT_FIELDS_END(EditorAssetBrowserTool)
 };
