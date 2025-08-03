@@ -539,5 +539,7 @@ imgui.ini
 !Source/GA6thFinal_Framework/GameEngine/ThirdParty/include/
 !Source/GA6thFinal_Framework/GameEngine/ThirdParty/lib/
 !Source/GA6thFinal_Framework/GameEngine/ThirdParty/lib/*.lib
+!Source/GA6thFinal_Framework/GameEngine/ThirdParty/lib/*.pdb
 !Source/GA6thFinal_Framework/GameEngine/ThirdParty/bin/
 !Source/GA6thFinal_Framework/GameEngine/ThirdParty/bin/*.dll
+!Source/GA6thFinal_Framework/GameEngine/ThirdParty/bin/*.pdb

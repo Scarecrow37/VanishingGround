@@ -15,6 +15,10 @@ class EnemyAI;
 class EnemyPlayTurnState : public EnemyStateBase
 {
     using Action = EnemyAction::ActionBase;
+
+public:
+    void OnNotifiedAnimationEvent(const Timeline::EventContext* context) override;
+
 private:
     // EnemyStateBase을(를) 통해 상속됨
     void OnAwake() override;

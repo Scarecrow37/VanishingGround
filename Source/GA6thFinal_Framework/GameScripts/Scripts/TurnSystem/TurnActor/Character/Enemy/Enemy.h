@@ -46,9 +46,9 @@ protected:
     void BuildEnemyFSM();
     struct EnemyStates
     {
-        FSMState* WaitTurn = nullptr;   // 턴 종료 상태
-        FSMState* PlayTurn = nullptr;   // 턴 시작 상태
-        FSMState* Dead     = nullptr;   // 사망 상태
+        class EnemyWaitTurnState* WaitTurn = nullptr;   // 턴 종료 상태
+        class EnemyPlayTurnState* PlayTurn = nullptr; // 턴 시작 상태
+        class EnemyDeadState*     Dead     = nullptr;   // 사망 상태
     } 
     _fsmStates;
 
@@ -80,7 +80,7 @@ protected:
     virtual void PlayTurn() override;
     CharacterStats* GetCharacterStats() override;
 
-public:
+private:
     virtual void OnCombatStart() override;
     virtual void OnRoundStart() override;
     virtual void OnRoundEnd() override;
@@ -91,7 +91,5 @@ public:
     virtual void OnKill(CharacterBase* destination) override;
     virtual void OnTokenAdded(int tokenID) override;
     virtual void OnTokenRemoved(int tokenID) override;
-
-    // 애니메이션 리팩터링 전 임시 메서드
-    const char* GetAnimationName(AnimationType type) override;
+    virtual void OnNotifiedAnimationEvent(const Timeline::EventContext* context) override;
 };

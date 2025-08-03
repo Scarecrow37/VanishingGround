@@ -73,6 +73,76 @@ namespace ImGuiHelper
         ImGui::PopID();
         return ImGui::BeginComboPopup(popupID, bb, comboFlags);
     }
+    bool BeginComboInput(const char* label, std::string* inputBuffer, ImGuiInputTextFlags inputTextFlags, ImGuiComboFlags comboFlags)
+    {
+        const ImGuiStyle& style  = ImGui::GetStyle();
+        ImGuiWindow* window = ImGui::GetCurrentWindow();
+        const ImGuiID id = window->GetID(label);
+
+        ImGui::PushID(id);
+
+        const char*   popupLabel    = "##ComboPopup";
+        const char*   buttonLabel   = "##DownArrow";
+        const ImGuiID popupID       = ImGui::GetID(popupLabel);
+        const float   arrowSize     = (comboFlags & ImGuiComboFlags_NoArrowButton) ? 0.0f : ImGui::GetFrameHeight();
+        const ImVec2  labelSize     = ImGui::CalcTextSize(inputBuffer->c_str(), NULL, true);
+        const float   previewWidth  = ((comboFlags & ImGuiComboFlags_WidthFitPreview) && (inputBuffer != NULL)) ? ImGui::CalcTextSize(inputBuffer->c_str(), NULL, true).x : 0.0f;
+        const float   w             = (comboFlags & ImGuiComboFlags_NoPreview) ? arrowSize : ((comboFlags & ImGuiComboFlags_WidthFitPreview) ? (arrowSize + previewWidth + style.FramePadding.x * 2.0f) : ImGui::CalcItemWidth());
+        const ImRect  bb(window->DC.CursorPos, window->DC.CursorPos + ImVec2(w, labelSize.y + style.FramePadding.y * 2.0f));
+        const ImVec2  cursor        = ImGui::GetCursorPos();
+
+        ImGui::SetNextItemWidth(w);
+        ImGui::InputText(label, inputBuffer, inputTextFlags);
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(cursor.x + w);
+        bool isPopupOpen = ImGui::IsPopupOpen(popupLabel, ImGuiPopupFlags_None);
+        bool isPressed   = ImGui::ArrowButton(buttonLabel, ImGuiDir_Down);
+        if (true == isPressed && false == isPopupOpen)
+        {
+            ImGui::OpenPopup(popupLabel, ImGuiPopupFlags_None);
+            isPopupOpen = true;
+        }
+        ImGui::PopID();
+        return ImGui::BeginComboPopup(popupID, bb, comboFlags);
+    }
+    ImRect GetWindowTabBarRect()
+    {
+        ImGuiWindow* window = ImGui::GetCurrentWindow();
+        float titleBarHeight = window->TitleBarHeight;
+        ImRect tabRect = ImRect(window->Pos, window->Pos + ImVec2(window->Size.x, titleBarHeight));
+        return tabRect;
+    }
+    void Separator(float upPadding, float downPadding)
+    {
+        ImGui::Dummy(ImVec2(0.0f, upPadding));
+        ImGui::Separator();
+        ImGui::Dummy(ImVec2(0.0f, downPadding));
+    }
+    void Separator(float spacing) 
+    {
+        ImGui::Dummy(ImVec2(0.0f, spacing));
+        ImGui::Separator();
+        ImGui::Dummy(ImVec2(0.0f, spacing));
+    }
+    void TextWithVerticalSeparator(const char* text, float startX)
+    {
+        TextWithVerticalSeparatorEx(text, startX);
+        float availX = ImGui::GetContentRegionAvail().x;
+        ImGui::SetNextItemWidth(availX);
+    }
+    void TextWithVerticalSeparatorEx(const char* text, float startX) 
+    {
+        ImGui::Text(text);
+        if (FLT_MAX == startX)
+        {
+            startX = ImGui::GetCursorPosX();
+            startX += ImGui::CalcTextSize(text).x;
+            startX += ImGui::GetStyle().ItemSpacing.x;
+        }
+        ImGui::SameLine(startX);
+        ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+        ImGui::SameLine();
+    }
 } // namespace ImGuiHelper
 
 bool ImGuiHelper::DrawManipulate(

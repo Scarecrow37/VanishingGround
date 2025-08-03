@@ -166,6 +166,9 @@ void Enemy::OnTurnStart()
 void Enemy::OnTurnEnd()
 {
     Base::OnTurnEnd();
+    // Enemy의 턴이 종료시 액션을 선언.
+    _aiModel.Transition();
+    _aiModel.Refresh();
 }
 
 void Enemy::OnHit()
@@ -188,81 +191,18 @@ void Enemy::OnTokenRemoved(int tokenID)
     Base::OnTokenRemoved(tokenID);
 }
 
-#define ANIM_NAME(enumType, name)\
-case enumType :\
-return name;\
-break;
-const char* Enemy::GetAnimationName(AnimationType type)
+void Enemy::OnNotifiedAnimationEvent(const Timeline::EventContext* context) 
 {
-    EnemyType enemyType = Type;
-    switch (enemyType)
+    if (_fsmStates.WaitTurn && STATE::Wait == State)
     {
-            // A
-            case EnemyType::MONSTER_A:
-            {
-                switch (type)
-                {
-                    ANIM_NAME(IDLE, "")
-                    ANIM_NAME(HIT, "")
-                    ANIM_NAME(DEATH, "")
-                    ANIM_NAME(ATTACK_1, "")
-                    ANIM_NAME(ATTACK_2, "")
-                    ANIM_NAME(ATTACK_3, "")
-                    ANIM_NAME(ATTACK_4, "")
-                    ANIM_NAME(ATTACK_READY, "")
-                    ANIM_NAME(ATTACK_LOOP, "")
-                    ANIM_NAME(ATTACK_END, "")
-                default:
-                    break;
-                }
-                break;
-            }
-            // B
-            case EnemyType::MONSTER_B: 
-            {
-                switch (type)
-                {
-                    ANIM_NAME(IDLE,     "Armature|Enemy02_Anim_Idle01")
-                    ANIM_NAME(HIT,      "Armature|Enemy02_Anim_GetHit")
-                    ANIM_NAME(DEATH,    "Armature|Enemy02_Anim_Death")
-                    ANIM_NAME(ATTACK_1, "Armature|Enemy02_Anim_Attack01")
-                    ANIM_NAME(ATTACK_2, "")
-                    ANIM_NAME(ATTACK_3, "Armature|Enemy02_Anim_Attack03")
-                    ANIM_NAME(ATTACK_4, "")
-                    ANIM_NAME(ATTACK_READY, "")
-                    ANIM_NAME(ATTACK_LOOP, "")
-                    ANIM_NAME(ATTACK_END, "")
-                default:
-                    break;
-                }
-                break;
-            }
-            // C
-            case EnemyType::MONSTER_C: 
-            {
-                switch (type)
-                {
-                    ANIM_NAME(IDLE, "")
-                    ANIM_NAME(HIT, "")
-                    ANIM_NAME(DEATH, "")
-                    ANIM_NAME(ATTACK_1, "")
-                    ANIM_NAME(ATTACK_2, "")
-                    ANIM_NAME(ATTACK_3, "")
-                    ANIM_NAME(ATTACK_4, "")
-                    ANIM_NAME(ATTACK_READY, "")
-                    ANIM_NAME(ATTACK_LOOP, "")
-                    ANIM_NAME(ATTACK_END, "")
-                default:
-                    break;
-                }
-                break;
-            }
-            default: 
-            {
-                break;
-            }
-           
+        _fsmStates.WaitTurn->OnNotifiedAnimationEvent(context);
     }
-    return "";
+    if (_fsmStates.PlayTurn && STATE::Play == State)
+    {
+        _fsmStates.PlayTurn->OnNotifiedAnimationEvent(context);
+    }
+    if (_fsmStates.Dead && STATE::Dead == State)
+    {
+        _fsmStates.Dead->OnNotifiedAnimationEvent(context);
+    }
 }
-#undef ANIM_NAME
