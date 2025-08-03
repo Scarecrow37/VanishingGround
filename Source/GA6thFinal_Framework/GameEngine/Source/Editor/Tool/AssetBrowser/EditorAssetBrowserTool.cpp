@@ -787,6 +787,7 @@ void EditorAssetBrowserTool::ShowFolderEntryToIcon(AssetData& asset)
         ImGuiHelper::HoveredToolTip(asset.FileName.c_str());
         textStyle.PopStyle();
         widgetStyle.PopStyle();
+        
     }
     ImGui::EndGroup();
 
@@ -909,6 +910,7 @@ void EditorAssetBrowserTool::UpdateFolderEntryInput()
 
     bool isMouseXbutton1    = ImGui::IsMouseClicked(ImGuiMouseButton_XButton1, false);
     bool isMouseXbutton2    = ImGui::IsMouseClicked(ImGuiMouseButton_XButton2, false);
+    bool isKeyEnter         = ImGui::IsKeyPressed(ImGuiKey_Enter, false);
     bool isKeyDelete        = ImGui::IsKeyPressed(ImGuiKey_Delete, false); 
     bool isKeyDBackSpace    = ImGui::IsKeyPressed(ImGuiKey_Backspace, false);
     bool isKeyEsc           = ImGui::IsKeyPressed(ImGuiKey_Escape, false);
@@ -955,6 +957,17 @@ void EditorAssetBrowserTool::UpdateFolderEntryInput()
                     _needRefresh = true; // 삭제 후 새로고침 필요
                 }
             });
+        }
+        else if (isKeyEnter && false == _rename.IsActive())
+        {
+            if (focusAssetData->IsDirectory)
+            {
+                SetFocusFolderPath(focusAssetData->Entry.path());
+            }
+            else
+            {
+                UmFileSystem.RequestOpenFile(focusAssetData->Entry.path());
+            }
         }
     }
     if (isMouseXbutton1)
