@@ -117,7 +117,7 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
         return;
     }
     if (sceneName == "Game")
-        _isRaytracing                      = flag & RenderTechniqueFlag::RAY_TRACING_TECH ? true : false;
+        _isRaytracing = flag & RenderTechniqueFlag::RAY_TRACING_TECH ? true : false;
     
     std::unique_ptr<RenderScene> scene = std::make_unique<RenderScene>(sceneName);
     scene->InitializeRenderScene();
