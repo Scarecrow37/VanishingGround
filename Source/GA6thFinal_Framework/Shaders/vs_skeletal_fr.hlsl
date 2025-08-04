@@ -20,7 +20,6 @@ struct VSOutput
     float3 tangent       : TANGENT;
     float3 biTangent     : BINORMAL;
     float2 uv            : TEXCOORD;
-    float4 worldPosition : POSITION;
 };
 
 StructuredBuffer<matrix> worldMatrices;
@@ -36,12 +35,10 @@ VSOutput vs_main(VSInput input)
     
     VSOutput output = (VSOutput) 0;
     
-    output.position = mul(input.position, worldTransform);
-    
-    output.worldPosition = output.position;
+    output.position = mul(input.position, worldTransform);   
     output.position = mul(output.position, cameraData.View);
     output.position = mul(output.position, cameraData.Projection);
-    
+
     output.normal = normalize(mul(input.normal, (float3x3) worldTransform));
     output.tangent = normalize(mul(input.tangent, (float3x3) worldTransform));
     output.biTangent = normalize(mul(input.biTangent, (float3x3) worldTransform));

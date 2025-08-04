@@ -8,18 +8,22 @@
 
 namespace Global
 {
-    Device*                   device;
-    Renderer*                 renderer;
-    CommandController*        commandController;
-    DXResourceManager*        dxResourceManager;
-    MultiRenderTargetManager* multiRenderTargetManager;
-    ResourceManager*          resourceManager;
-    ViewManager*              viewManager;
-    AnimationCore*            animationCore;
-    LightCore*                lightCore;
-    ParticleManager*          particleManager;
-    DebugDrawCore*            debugDrawCore;
-}
+    Device*                                        device;
+    Renderer*                                      renderer;
+    CommandController*                             commandController;
+    DXResourceManager*                             dxResourceManager;
+    MultiRenderTargetManager*                      multiRenderTargetManager;
+    ResourceManager*                               resourceManager;
+    ViewManager*                                   viewManager;
+    AnimationCore*                                 animationCore;
+    LightCore*                                     lightCore;
+    ParticleManager*                               particleManager;
+    DebugDrawCore*                                 debugDrawCore;
+    RenderPassDatas*                               renderPassDatas;
+    ModuleManager*                                 moduleManager;
+    PipelineStateManager*                          pipelineStateManager;
+    std::unordered_map<std::wstring, std::wstring> shaderPathMappings;
+};
 
 ParticleManager* GraphicsCore::GetParticleManager() const
 {
@@ -61,6 +65,11 @@ ID3D12GraphicsCommandList* GraphicsCore::GetCommandList() const
     return _device->GetCommandList();
 }
 
+RenderPassProperties& GraphicsCore::GetRenderPassProperties() const
+{
+    return _renderPassDatas->GetRenderPassProperties();
+}
+
 void GraphicsCore::SetCamera(const std::string_view renderSceneName, std::shared_ptr<Camera> camera) const
 {
     _renderer->SetCamera(renderSceneName, camera);
@@ -74,6 +83,20 @@ void GraphicsCore::SetSkyBox(const std::string_view renderSceneName, const std::
 void GraphicsCore::SetCurrentScene(const std::string_view sceneName) const
 {
     _renderer->SetCurrentScene(sceneName);
+}
+
+void GraphicsCore::SyncGlobalVariable()
+{
+    Global::device                   = _device;
+    Global::renderer                 = _renderer;
+    Global::animationCore            = _animationCore;
+    Global::lightCore                = _lightCore;
+    Global::viewManager              = _viewManager;
+    Global::resourceManager          = _resourceManager;
+    Global::multiRenderTargetManager = _multiRenderTargetManager;
+    Global::particleManager          = _particleManager;
+    Global::dxResourceManager        = _dxResourceManager;
+    Global::commandController        = _commandController;
 }
 
 void GraphicsCore::AddRenderScene(const std::string_view sceneName, const RenderTechniqueFlag flag) const
@@ -153,6 +176,9 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     _dxResourceManager        = new DXResourceManager;
     _commandController        = new CommandController;
     _debugDrawCore            = new DebugDrawCore;
+    _renderPassDatas          = new RenderPassDatas;
+    _moduleManager            = new ModuleManager;
+    _pipelineStateManager     = new PipelineStateManager;
 
     Global::device                   = _device;
     Global::renderer                 = _renderer;
@@ -165,6 +191,9 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     Global::dxResourceManager        = _dxResourceManager;
     Global::commandController        = _commandController;
     Global::debugDrawCore            = _debugDrawCore;
+    Global::renderPassDatas          = _renderPassDatas;
+    Global::moduleManager            = _moduleManager;
+    Global::pipelineStateManager     = _pipelineStateManager;
 
     _device->SetUpDevice(hwnd, width, height, feature);
     _viewManager->Initialize();
@@ -172,6 +201,7 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     _device->ResetCommands();
     _particleManager->Initialize(MAX_PARTICLE);
     _renderer->Initialize();
+    _moduleManager->Initialize();
 
     auto commandList = _device->GetCommandList();
     commandList->Close();
@@ -195,6 +225,11 @@ void GraphicsCore::Update(const float deltaTime) const
     _particleManager->Update(deltaTime);
     _lightCore->Update(deltaTime);
     _renderer->Update();
+
+    //const float  fps     = 1.f / deltaTime;
+    //HWND         hwnd    = GetActiveWindow();
+    //std::wstring fpsText = L"FPS: " + std::to_wstring(static_cast<int>(fps));
+    //SetWindowTextW(hwnd, fpsText.c_str());
 }
 
 void GraphicsCore::Render() const
@@ -207,6 +242,9 @@ void GraphicsCore::Finalize() const
 {
     _device->Finalize();
 
+    delete _pipelineStateManager;
+    delete _moduleManager;
+    delete _renderPassDatas;
     delete _debugDrawCore;
     delete _commandController;
     delete _dxResourceManager;

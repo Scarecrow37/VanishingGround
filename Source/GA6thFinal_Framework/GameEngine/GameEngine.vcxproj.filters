@@ -429,7 +429,7 @@
     <ClInclude Include="ThirdParty\include\OpenXLSX\OpenXLSX.hpp">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\WatcherCore\System\WatcherSystem.h">
+    <ClInclude Include="Source\Editor\Tool\RenderPassData\EditorRenderPassData.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -732,6 +732,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\Utility\OpenXLSXHelper.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Editor\Tool\RenderPassData\EditorRenderPassData.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

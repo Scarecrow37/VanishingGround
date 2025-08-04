@@ -228,6 +228,7 @@ using namespace Microsoft::WRL;
 #include "Editor/Tool/Model/EditorModelHierarchy.h"
 #include "Editor/Tool/Model/EditorAnimationTrackTool.h"
 #include "Editor/Tool/Command/EditorCommandTool.h"
+#include "Editor/Tool/RenderPassData/EditorRenderPassData.h"
 
 #include "Editor/Tool/ParticleEffect/EditorParticleEffectDetails.h"
 #include "Editor/Tool/ParticleEffect/EditorParticleEffectViewer.h"

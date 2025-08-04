@@ -1,10 +1,7 @@
 ﻿#include "pch.h"
 #include "BloomTechnique.h"
 #include "BrightExtractPass.h"
-#include "DownScalePass.h"
-#include "UpScalePass.h"
-#include "BlurXPass.h"
-#include "BlurYPass.h"
+#include "DownAndUpSamplingPass.h"
 
 BloomTechnique::BloomTechnique() {}
 
@@ -14,23 +11,11 @@ void BloomTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 {    
     std::unique_ptr<RenderPass> pass;
     pass = std::make_unique<BrightExtractPass>();
-    pass->Initialize(_ownerScene, commandList);
+    pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));
 
-    pass = std::make_unique<DownScalePass>();
-    pass->Initialize(_ownerScene, commandList);
-    AddRenderPass(std::move(pass));
-
-    pass = std::make_unique<UpScalePass>();
-    pass->Initialize(_ownerScene, commandList);
-    AddRenderPass(std::move(pass));
-
-    pass = std::make_unique<BlurXPass>();
-    pass->Initialize(_ownerScene, commandList);
-    AddRenderPass(std::move(pass));
-
-    pass = std::make_unique<BlurYPass>();
-    pass->Initialize(_ownerScene, commandList);
+    pass = std::make_unique<DownAndUpSamplingPass>();
+    pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));
 }
 

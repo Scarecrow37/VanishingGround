@@ -1,6 +1,5 @@
 ﻿#include "pchScripts.h"
 #include <Mesh/SkeletalMeshRenderer.h>
-
 #include "ParticleComponent.h"
 
 
@@ -88,6 +87,26 @@ void ParticleComponent::DeserializedReflectEvent()
 
 void ParticleComponent::ImGuiDrawPropertysEvent() 
 {
+    SkeletalMeshRenderer* skelMesh = GetComponent<SkeletalMeshRenderer>();
+    auto&                 renderer   = skelMesh->Renderer;
+    auto&                 model      = renderer->GetModel();
+    const auto&           _boneNames = model->GetBoneNameList();
+
+    const char* comboLabel = (nullptr != skelMesh) ? ReflectFields->BoneNameToAttach.c_str() : "-";
+    if (ImGui::BeginCombo("##bone name", comboLabel))
+    {
+        for (int i = 0; i < _boneNames.size(); ++i)
+        {
+            bool isSelected = ReflectFields->BoneNameToAttach == _boneNames[i];
+            if (ImGui::Selectable(_boneNames[i].c_str(), isSelected))
+            {
+                ReflectFields->BoneNameToAttach = _boneNames[i];
+            }
+        }
+        ImGui::EndCombo();
+    }
+
+
     if (ImGui::Button("Play"))
     {
         if (IS_EDITOR)
@@ -96,6 +115,7 @@ void ParticleComponent::ImGuiDrawPropertysEvent()
         }
         
     }
+    ImGui::SameLine();
     if (ImGui::Button("Stop"))
     {
         if (IS_EDITOR)
@@ -106,12 +126,15 @@ void ParticleComponent::ImGuiDrawPropertysEvent()
 }
 
 
+
 void ParticleComponent::LoadParticle() 
 {
     if (_effect)
     {
         _effect->SetRemoveFlag(true);
     }
+    if (_filepath == L"")
+        return;
     UmParticleSerializer.PreDeserialize(_filepath);
     const auto& modelpaths = UmParticleSerializer.GetUsedModelPaths();
     
@@ -170,11 +193,18 @@ void ParticleComponent::FollowBoneMatrix()
 {
     if (true == AttachToBoneMatrix)
     {
+
         SkeletalMeshRenderer* skelMesh = GetComponent<SkeletalMeshRenderer>();
+
         if (skelMesh != nullptr)
         {
-            _effect->_boneWorldMatrix = skelMesh->Renderer->GetAnimator()->FindBoneMatrix("Bone");
-            _effect->_followBoneFlag  = true;
+            if (ReflectFields->BoneNameToAttach != "")
+            {
+
+                _effect->_boneWorldMatrix =
+                    skelMesh->Renderer->GetAnimator()->FindBoneMatrix(ReflectFields->BoneNameToAttach.c_str());
+                _effect->_followBoneFlag = true;
+            }
         }
     }
     else

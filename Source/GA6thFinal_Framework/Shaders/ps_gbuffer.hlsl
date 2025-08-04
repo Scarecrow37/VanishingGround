@@ -7,7 +7,6 @@ struct PSInput
     float3 tangent : TANGENT;
     float3 biTangent : BINORMAL;
     float2 uv : TEXCOORD;
-    float4 worldPosition : POSITION;
 };
 
 struct PSOutput
@@ -16,9 +15,8 @@ struct PSOutput
     float4 normal        : SV_Target1;
     float4 orm           : SV_Target2;
     float4 emissive      : SV_Target3;
-    float4 worldPosition : SV_Target4;
-    float depth          : SV_Target5;
-    uint customDepth     : SV_Target6;
+    float depth          : SV_Target4;
+    uint customDepth     : SV_Target5;
 };
 
 #define DIFFUSE 0
@@ -51,23 +49,25 @@ PSOutput WriteGuBuffer(PSInput input)
     
     // 0. baseColor
     output.baseColor = textures[diffuseID].Sample(samLinear_wrap, input.uv);
-    //output.baseColor.rgb = pow(output.baseColor.rgb, 2.2);
+    
     // 1. normal
     float3 normal = textures[normalID].Sample(samLinear_wrap, input.uv).xyz;
     normal = CalculateNormal(normal, input.tangent, input.biTangent, input.normal);
     output.normal = float4(normal, 1.f);
+    
     //2. ORM
     float ao = textures[ORMID].Sample(samLinear_wrap, input.uv).r;
     float roughness = textures[ORMID].Sample(samLinear_wrap, input.uv).g;
     float metallic = textures[ORMID].Sample(samLinear_wrap, input.uv).b;
     output.orm = float4(ao, roughness, metallic, 1.f);
+    
     //3. emissive
     output.emissive = textures[emissiveID].Sample(samLinear_wrap, input.uv);
-    //4. worldPosition
-    output.worldPosition = input.worldPosition;
-    //5. depth
+
+    //4. depth
     output.depth = input.position.z;
-    // SWTODO : 나중에 마스킹값 받는거 처리
+    
+    //5. customDepth
     output.customDepth = objectData.CustomDepth;
     return output;
 }

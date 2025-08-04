@@ -1,16 +1,14 @@
 ﻿#pragma once
 #include "RenderPass.h"
 
-class RTPipelineBuilder;
-
-class DXRDrawStaticMeshPass : public RenderPass
+class DXRDrawPass : public RenderPass
 {
 public:
-    DXRDrawStaticMeshPass() = default;
-    virtual ~DXRDrawStaticMeshPass();
+    DXRDrawPass() = default;
+    virtual ~DXRDrawPass();
 
 public:
-    void Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList) override;
+    void Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList) override;
     void Begin(ID3D12GraphicsCommandList* commandList) override;
     void Draw(ID3D12GraphicsCommandList* commandList) override;
     void End(ID3D12GraphicsCommandList* commandList) override;
@@ -19,7 +17,7 @@ private:
     void CreateStateObject();
     void CreateShaderTable();
     void CreateShaderResource();
-    void UpdateStaticMeshVIBufferID(ID3D12GraphicsCommandList* commandList);
+    void UpdateFrameResource(ID3D12GraphicsCommandList* commandList);
 
     void WriteCommand(ID3D12GraphicsCommandList* cmdList);
 
@@ -33,4 +31,7 @@ private:
 
     std::vector<VertexBufferID> _vertexBufferIDs;
     std::vector<IndexBufferID>  _indexBufferIDs;
+    std::vector<MeshInstanceID>       _meshInstanceIDs;
+    ComPtr<ID3D12GraphicsCommandList> _commandList;
+    ComPtr<ID3D12CommandAllocator>    _commandAllocator;
 };

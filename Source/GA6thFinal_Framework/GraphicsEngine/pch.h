@@ -20,6 +20,9 @@
 #include <vector>
 #include <windows.h>
 #include <wrl.h>
+#include <set>
+#include <any>
+#include <format>
 
 #include "directx/d3dcommon.h"
 #include "directx/d3dx12.h"
@@ -59,10 +62,11 @@ using namespace Microsoft::WRL;
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
 
+#include "ShaderTypes.generated.h"
 #include "Defines.h"
 #include "Enums.h"
 #include "Structs.h"
-
+#include "Utility.h"
 #include "Headers.h"
 #include "Externs.h"
 

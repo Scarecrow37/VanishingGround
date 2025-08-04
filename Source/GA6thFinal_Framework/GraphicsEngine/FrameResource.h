@@ -8,7 +8,7 @@ public:
 
 public:
     void SetFrameResource(UINT index, UINT rootParametorIndex, ID3D12GraphicsCommandList* commandList);
-    void SetRayTracingFrameResource(UINT index, UINT rootParametorIndex, ID3D12GraphicsCommandList* commandList);
+    void SetComputeFrameResource(UINT index, UINT rootParametorIndex, ID3D12GraphicsCommandList* commandList);
     void AddFrameResource(UINT stride, UINT numObject);
 
 public:
