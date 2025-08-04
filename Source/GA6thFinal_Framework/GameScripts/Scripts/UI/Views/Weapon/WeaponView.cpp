@@ -39,7 +39,7 @@ void WeaponView::Start()
             if (nullptr != _speed)
                 _speed->Text = std::to_string(value.Speed);
             if (nullptr != _attackCount)
-                _attackCount->Text = std::to_string(value.AttackCount);
+                _attackCount->Text = "x" + std::to_string(value.AttackCount);
             if (nullptr != _description1)
                 _description1->Description = WStringToU8(value.Description1);
             if (nullptr != _description2)
