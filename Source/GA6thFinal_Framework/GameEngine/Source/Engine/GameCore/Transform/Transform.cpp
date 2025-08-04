@@ -276,7 +276,7 @@ void Transform::SetParentToIndexEx(Transform* p, int index, bool worldPositionSt
     SetParentEx(p, worldPositionStays, callEvent);
     std::vector<Transform*> sortTransforms;
     sortTransforms.reserve(p->_childsList.size());
-    for (int i = (int)p->_childsList.size() - 1; i != index; --i)
+    for (int i = (int)p->_childsList.size() - 1; i > index; --i)
     {
         sortTransforms.push_back(p->_childsList[i]);
     }
