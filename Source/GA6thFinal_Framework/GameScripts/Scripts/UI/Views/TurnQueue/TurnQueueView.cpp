@@ -49,6 +49,21 @@ void TurnQueueView::Start()
                         _turnQueuePortraits[i]->Enable = false;
                     }
                 }
+
+            }
+            if (dataSize == 0)
+            {
+                if (nullptr != _firstTurnQueueFrameLeftWing)
+                    _firstTurnQueueFrameLeftWing->Enable = false;
+                if (nullptr != _firstTurnQueueFrameRightWing)
+                    _firstTurnQueueFrameRightWing->Enable = false;
+            }
+            else
+            {
+                if (nullptr != _firstTurnQueueFrameLeftWing)
+                    _firstTurnQueueFrameLeftWing->Enable = true;
+                if (nullptr != _firstTurnQueueFrameRightWing)
+                    _firstTurnQueueFrameRightWing->Enable = true;
             }
         });
 }
@@ -60,20 +75,20 @@ enum class FindResult
     NOT_EXIST_GAME_OBJECT,
 };
 
-void TurnQueueView::FindImageElementWithTag(const std::string& tag, std::array<ImageElement*, 7>& elements,
-                                            const size_t index) const
+ImageElement* TurnQueueView::FindImageElementWithTag(const std::string& tag) const
 {
     const GameObject& owner          = gameObject;
     Transform&        ownerTransform = owner.transform;
     FindResult        result         = FindResult::NOT_EXIST_GAME_OBJECT;
-    Transform::ForeachBFS(ownerTransform, [&tag, &elements, index, &result](const Transform* transform) {
+    ImageElement*     element        = nullptr;
+    Transform::ForeachBFS(ownerTransform, [&tag, &element, &result](const Transform* transform) {
         if (result != FindResult::NOT_EXIST_GAME_OBJECT)
             return;
         if (GameObject& object = transform->gameObject; object.CompareTag(tag))
         {
             if (ImageElement* imageElement = object.GetComponent<ImageElement>(); nullptr != imageElement)
             {
-                elements[index] = imageElement;
+                element = imageElement;
                 result          = FindResult::FIND;
             }
             else
@@ -92,21 +107,25 @@ void TurnQueueView::FindImageElementWithTag(const std::string& tag, std::array<I
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, tag + reinterpret_cast<const char*>(u8" GameObject를 찾을 수 없습니다."));
     }
+
+    return element;
 }
 
 void TurnQueueView::FindFramesWithTag(const std::string& tag, const size_t index)
 {
-    FindImageElementWithTag(tag + " Frame", _turnQueueFrames, index);
+    _turnQueueFrames[index] = FindImageElementWithTag(tag + " Frame");
 }
 
 void TurnQueueView::FindPortraitsWithTag(const std::string& tag, const size_t index)
 {
-    FindImageElementWithTag(tag + " Portrait", _turnQueuePortraits, index);
+    _turnQueuePortraits[index] = FindImageElementWithTag(tag + " Portrait");
 }
 
 void TurnQueueView::InitializeFramesAndPortraits()
 {
     FindFramesWithTag("1st Turn", 0);
+    _firstTurnQueueFrameLeftWing = FindImageElementWithTag("1st Turn Frame Right");
+    _firstTurnQueueFrameRightWing = FindImageElementWithTag("1st Turn Frame Left");
     FindPortraitsWithTag("1st Turn", 0);
     FindFramesWithTag("2nd Turn", 1);
     FindPortraitsWithTag("2nd Turn", 1);

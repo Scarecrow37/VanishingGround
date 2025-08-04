@@ -15,7 +15,7 @@ protected:
     void Start() override;
 
 private:
-    void FindImageElementWithTag(const std::string& tag, std::array<ImageElement*, 7>& elements, size_t index) const;
+    ImageElement* FindImageElementWithTag(const std::string& tag) const;
     void FindFramesWithTag(const std::string& tag, size_t index);
     void FindPortraitsWithTag(const std::string& tag, size_t index);
     void InitializeFramesAndPortraits();
@@ -26,5 +26,7 @@ protected:
 
 private:
     std::array<ImageElement*, 7> _turnQueueFrames;
+    ImageElement*                _firstTurnQueueFrameLeftWing;
+    ImageElement*                _firstTurnQueueFrameRightWing;
     std::array<ImageElement*, 7> _turnQueuePortraits;
 };
