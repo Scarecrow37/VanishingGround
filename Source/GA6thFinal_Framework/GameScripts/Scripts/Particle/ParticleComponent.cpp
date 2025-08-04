@@ -11,20 +11,16 @@ ParticleComponent::ParticleComponent()
         {
             if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
             {
-                DragDropAsset::Data* data    = (DragDropAsset::Data*)payLoad->Data;
-                auto                 context = data->pContext->lock();
-                if (nullptr != context)
+                DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
+                File::Path path = data->GetPath();
+                File::Guid guid = data->GetGuid();
+                const auto extension = path.extension();
+                if (extension == L".vfx")
                 {
-                    const auto& path      = context->GetPath();
-                    const auto  extension = path.extension();
-                    if (extension == L".vfx")
-                    {
-                        _filepath           = path;
-                        _guidRef            = path.ToGuid();
-                        ReflectFields->Guid = _guidRef.string();
-                        LoadParticle();
-                    
-                    }
+                    _filepath = path;
+                    _guidRef  = guid;
+                    ReflectFields->Guid = _guidRef.string();
+                    LoadParticle();
                 }
             }
             ImGui::EndDragDropTarget();

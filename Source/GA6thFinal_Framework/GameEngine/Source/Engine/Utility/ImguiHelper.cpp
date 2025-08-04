@@ -15,14 +15,19 @@ ImVec4 ImGuiHelper::ArrayToImVec4(const std::array<float, 4>& array)
     return vec4;
 }
 
-bool ImGuiHelper::HoveredToolTip(std::string_view toolTip)
+bool ImGuiHelper::HoveredToolTip(std::string_view toolTip, int flags)
 {
-    bool isHovered = ImGui::IsItemHovered();
+    bool isHovered = ImGui::IsItemHovered(flags);
     if (isHovered)
     {
         ImGui::SetTooltip(toolTip.data());
     }
     return isHovered;
+}
+
+bool ImGuiHelper::HoveredToolTip(std::u8string_view toolTip, int flags)
+{
+    return HoveredToolTip((const char*)toolTip.data(), flags);
 }
 
 namespace ImGuiHelper

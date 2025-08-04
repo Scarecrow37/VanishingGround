@@ -212,6 +212,44 @@ namespace ImGuiHelper
         return !window->SkipItems;
     }
 
+    class StyleBuilder
+    {
+    public:
+        StyleBuilder() = default;
+        ~StyleBuilder() { PopStyle(); }
+
+    public:
+        template <typename T>
+        void PushStyleVar(int idx, const T& color)
+        {
+            ImGui::PushStyleVar(idx, color);
+            ++_pushStyleVarCount;
+        }
+        template <typename T>
+        void PushStyleColor(int idx, const T& color)
+        {
+            ImGui::PushStyleColor(idx, color);
+            ++_pushStyleColCount;
+        }
+        void PopStyle()
+        {
+            if (_pushStyleVarCount > 0)
+            {
+                ImGui::PopStyleVar(_pushStyleVarCount);
+                _pushStyleVarCount = 0;
+            }
+            if (_pushStyleColCount > 0)
+            {
+                ImGui::PopStyleColor(_pushStyleColCount);
+                _pushStyleColCount = 0;
+            }
+        }
+
+    private:
+        int _pushStyleVarCount = 0;
+        int _pushStyleColCount = 0;
+    };
+
     class DragDrop
     {
         using EventID = const char*;
@@ -313,17 +351,8 @@ namespace ImGuiHelper
     /// </summary>
     /// <param name="toolTip :">출력할 내용</param>
     /// <returns>마우스 Hovered 여부</returns>
-    bool HoveredToolTip(std::string_view toolTip);
-
-    /// <summary>
-    /// 이전 아이템에 마우스가 올라가면 툴팁을 출력합니다.
-    /// </summary>
-    /// <param name="toolTip :">출력할 내용</param>
-    /// <returns>마우스 Hovered 여부</returns>
-    inline bool HoveredToolTip(std::u8string_view toolTip)
-    {
-        return HoveredToolTip((const char*)toolTip.data());
-    }
+    bool HoveredToolTip(std::string_view toolTip, int flags = 0);
+    bool HoveredToolTip(std::u8string_view toolTip, int flags = 0);
 
     /// <summary>
     /// ImVec4를 선형보간합니다.
