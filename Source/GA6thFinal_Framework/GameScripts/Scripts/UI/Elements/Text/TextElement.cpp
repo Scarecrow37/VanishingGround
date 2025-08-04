@@ -199,8 +199,11 @@ void TextElement::FitContent()
 
 void TextElement::RequestResource()
 {
-    UmSceneManager.ResourceManager.RequestFontResource(this, _guidRef, [this]() {
-        LoadFont();
-        PassProperty();
-    });
+    if (false == _guidRef.IsNull())
+    {
+        UmSceneManager.ResourceManager.RequestFontResource(this, _guidRef, [this]() {
+            LoadFont();
+            PassProperty();
+        });
+    }
 }

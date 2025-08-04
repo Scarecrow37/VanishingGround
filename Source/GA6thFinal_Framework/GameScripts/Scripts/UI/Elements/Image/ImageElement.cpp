@@ -126,9 +126,12 @@ void ImageElement::UpdateWorldMatrix()
 
 void ImageElement::RequestResource()
 {
-    File::GuidRef requestedGuid = _guidRef;
-    UmSceneManager.ResourceManager.RequestTextureResource(this, _guidRef, [this, requestedGuid]() {
-        LoadTexture(requestedGuid);
-        OnPlacementChange();
-    });
+    if (false == _guidRef.IsNull())
+    {
+        File::GuidRef requestedGuid = _guidRef;
+        UmSceneManager.ResourceManager.RequestTextureResource(this, _guidRef, [this, requestedGuid]() {
+            LoadTexture(requestedGuid);
+            OnPlacementChange();
+        });
+    }
 }
