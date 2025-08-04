@@ -35,6 +35,7 @@ class EditorAssetBrowserTool
         ~AssetData() = default;
 
         void Refesh(FileEntry entry);
+        bool IsSamePath(const std::filesystem::path& path) const;
 
         FileEntry   Entry;                  // 파일 엔트리
         bool        IsDirectory = false;    // 디렉토리인지 여부

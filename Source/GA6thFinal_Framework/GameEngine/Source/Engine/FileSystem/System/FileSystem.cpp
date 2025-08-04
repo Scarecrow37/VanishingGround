@@ -440,6 +440,10 @@ void EFileSystem::CheckFileContextIntegrity(const File::Path& path)
             RegisterContext(path);
         }
     }
+    else if (HasContext(path))
+    {
+        UnregisterContext(path);
+    }
 }
 
 bool EFileSystem::ChangeAssetID(const File::Path& path, int changeID)

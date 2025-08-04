@@ -711,13 +711,14 @@ void EditorAssetBrowserTool::ShowFolderEntryToIcon(AssetData& asset)
 
         // 아이콘
         int buttonFlags = ImGuiButtonFlags_None;
+        ImVec4 iconColor = _copyBuffer.first == 1 && asset.IsSamePath(_copyBuffer.second) ? ImVec4(1.0f, 1.0f, 1.0f, 0.5f) : ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
         D3D12_GPU_DESCRIPTOR_HANDLE icon = asset.PreviewIconTexture->GetGPUHandle();
         ImGuiHelper::StyleBuilder iconStyle;
         iconStyle.PushStyleColor(ImGuiCol_Button, bgCol);
         ImGuiID id = ImGui::GetID("##icon");
         isItemClickedLeft |=
             ImGui::ImageButtonEx(id, (ImTextureID)icon.ptr, iconWidgetSize, ImVec2(0, 0),
-            ImVec2(1, 1), ImVec4(0,0,0,0), ImVec4(1,1,1,1), buttonFlags);
+            ImVec2(1, 1), ImVec4(0,0,0,0), iconColor, buttonFlags);
         
         bool isHovered      = ImGui::IsItemHovered();
         isItemFocusedNav |= ImGui::IsItemFocused() && io.NavActive;
@@ -905,6 +906,8 @@ void EditorAssetBrowserTool::ProcessFolderEntryDragDrop(AssetData& asset)
 void EditorAssetBrowserTool::UpdateFolderEntryInput() 
 {
     bool isRootpath         = (_focusFolderPath == UmFileSystem.GetRootPath());
+    bool isFileCopying      = (_copyBuffer.first == 0);
+    bool isFileCutting      = (_copyBuffer.first == 1);
 
     bool isMouseXbutton1    = ImGui::IsMouseClicked(ImGuiMouseButton_XButton1, false);
     bool isMouseXbutton2    = ImGui::IsMouseClicked(ImGuiMouseButton_XButton2, false);
@@ -939,7 +942,11 @@ void EditorAssetBrowserTool::UpdateFolderEntryInput()
         }
         else if (isKeyEsc)
         {
-            if (true == _rename.IsActive())
+            if (isFileCutting)
+            {
+                _copyBuffer.first = -1; // 클립보드 초기화
+            }
+            else if (_rename.IsActive())
             {
                 _rename.CancelRename();
             }
@@ -1267,6 +1274,18 @@ EditorAssetBrowserTool::AssetData* EditorAssetBrowserTool::GetAssetData(const Fi
 
 void EditorAssetBrowserTool::RefreshState() 
 {
+    if (false == fs::exists(_focusFolderPath))
+    {
+        File::Path parentPath = _focusFolderPath.parent_path();
+        if (fs::exists(parentPath) && fs::is_directory(parentPath))
+        {
+            SetFocusFolderPath(parentPath, false);
+        }
+        else
+        {
+            SetFocusFolderPath(UmFileSystem.GetRootPath(), false);
+        }
+    }
 }
 
 void EditorAssetBrowserTool::RefreshFocusFolderEntries()
@@ -1425,14 +1444,17 @@ void EditorAssetBrowserTool::PasteFile()
         if (0 == _copyBuffer.first)
         {
             File::CopyFileFromTo(from, to);
+            UmFileSystem.RequestPasteFile(to);
         }
         if (1 == _copyBuffer.first)
         {
-            fs::rename(from, to);
+            if (from != to)
+            {
+                fs::rename(from, to);
+            }
             _copyBuffer.first = -1;
         }
-        RefreshFocusFolderEntries();
-        UmFileSystem.RequestPasteFile(to);
+        _needRefresh = true;
     }
 }
 
@@ -1553,6 +1575,11 @@ void EditorAssetBrowserTool::AssetData::Refesh(FileEntry entry)
     Entry         = entry;
     LastWriteTime = File::GetFileLastWriteTime(entry);
     ViewName      = FileName;
+}
+
+bool EditorAssetBrowserTool::AssetData::IsSamePath(const std::filesystem::path& path) const
+{
+    return Entry.path() == path;
 }
 
 void EditorAssetBrowserTool::RenameController::StartRename(const File::Path& destFilePath)
