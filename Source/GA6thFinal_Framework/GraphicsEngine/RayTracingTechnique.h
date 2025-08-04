@@ -11,12 +11,7 @@ public:
     void Initialize(ID3D12GraphicsCommandList* commandList) override;
     void Execute(ID3D12GraphicsCommandList* commandList) override;
 private:
-    void InitDXRDrawStaticMeshPass(ID3D12GraphicsCommandList* commandList);
+    void InitDXRDrawMeshPass(ID3D12GraphicsCommandList* commandList);
     void InitDXRGbufferPass(ID3D12GraphicsCommandList* commandList);
-
-private:
-
-//private:
-//    std::vector<Vertex> _unifiedVertices;
-//    std::vector<
+    void InitDXRComputeSkeletalMeshPass(ID3D12GraphicsCommandList* commandList);
 };

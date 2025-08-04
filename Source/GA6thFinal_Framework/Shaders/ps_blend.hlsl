@@ -25,24 +25,45 @@ float GetLuminance(float3 color)
     return dot(color, float3(0.2126, 0.7152, 0.0722));
 }
 
+struct TonMappingProperty
+{
+    float3 WhiteBalance;
+    float Exposure;
+    float Saturation;
+    float Contrast;
+};
+
 Texture2D screenTexture;
 Texture2D sourceTexture;
-//Texture2D uiTexture;
+
+ConstantBuffer<TonMappingProperty> bit32_6_tonMappingProperty;
 
 float4 ps_main(PS_INPUT input) : SV_TARGET
 {
-    float4 color = screenTexture.Sample(samLinear_wrap, input.uv);
-    float4 sourceColor = sourceTexture.Sample(samLinear_wrap, input.uv);
-    float4 finalColor = color + sourceColor;
+    float3 hdrColor = screenTexture.Sample(samLinear_wrap, input.uv).rgb;
+    float3 postProcessColor = sourceTexture.Sample(samLinear_wrap, input.uv).rgb;
     
-    float tempHardExpoure = 1.0f;
-    float exposureBias = 1.0f;
+    hdrColor += postProcessColor;
     
-    finalColor *= tempHardExpoure * exposureBias;
+    TonMappingProperty property = bit32_6_tonMappingProperty;
+    
+    float3 exposedColor = hdrColor * property.Exposure;
+    
+    float3 tonemappedColor = Uncharted2Tonemap(exposedColor);
+    
+    float3 whiteScale = 1.0 / Uncharted2Tonemap(W);
+    tonemappedColor *= whiteScale;
 
-    float3 curr = Uncharted2Tonemap(finalColor.rgb);
-    float3 whiteScale = 1.0f / Uncharted2Tonemap(W);
-    float3 result = LinearToGammaSpace(curr * whiteScale);
+    tonemappedColor *= property.WhiteBalance;
+
+    // Contrast
+    tonemappedColor = 0.5f + property.Contrast * (tonemappedColor - 0.5f);
+
+    // Saturation
+    float luminance = GetLuminance(tonemappedColor);
+    tonemappedColor = lerp(luminance.xxx, tonemappedColor, property.Saturation);
     
+    float3 result = LinearToGammaSpace(tonemappedColor * whiteScale);
+
     return float4(result, 1.0f);
 }

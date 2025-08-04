@@ -40,6 +40,11 @@ public:
     }
     PROPERTY(AttachToBoneMatrix)
 
+
+
+
+
+
     GETTER_ONLY(const ParticleEffect*, Effect) { return _effect; }
     PROPERTY(Effect)
 
@@ -61,6 +66,7 @@ protected:
     std::array<float, 3> RotationArray;
     std::array<float, 3> ScaleArray;
     bool                 AttachToBoneMatrix;
+    std::string          BoneNameToAttach;
     REFLECT_FIELDS_END(ParticleComponent)
 
     ParticleEffect* _effect;
@@ -68,8 +74,6 @@ protected:
     void            SerializedReflectEvent() override;
     void            DeserializedReflectEvent() override;
     void            ImGuiDrawPropertysEvent() override;
-
-
 
 private:
     bool  _isPlaying = false;
@@ -80,6 +84,7 @@ private:
     bool  isDirty = false;
 
     void FollowBoneMatrix();
+    
 
     Vector3 _positionVector{0.f, .0f, 0.f};
     Vector3 _rotationVector{0.f, 0.f, 0.f};

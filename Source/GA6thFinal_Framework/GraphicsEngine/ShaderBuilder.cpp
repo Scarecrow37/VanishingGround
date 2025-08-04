@@ -13,13 +13,14 @@ ShaderBuilder::ShaderBuilder()
 {	
 	if (!_isFirstInitialize)
 	{
-		CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_POINT, D3D12_TEXTURE_ADDRESS_MODE_WRAP, 0, _staticSamplers["samPoint_wrap"]);
-		CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_POINT, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, 1, _staticSamplers["samPoint_clamp"]);
-		CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_WRAP, 2, _staticSamplers["samLinear_wrap"]);
-		CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, 3, _staticSamplers["samLinear_clamp"]);
-		CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_BORDER, 4, _staticSamplers["samLinear_border"]);
-		CreateStaticSampler(D3D12_FILTER_ANISOTROPIC, D3D12_TEXTURE_ADDRESS_MODE_WRAP, 5, _staticSamplers["samAnistropic_wrap"]);
-		CreateStaticSampler(D3D12_FILTER_ANISOTROPIC, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, 6, _staticSamplers["samAnistropic_clamp"]);
+		CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_POINT, D3D12_TEXTURE_ADDRESS_MODE_WRAP, D3D12_COMPARISON_FUNC_ALWAYS, 0, _staticSamplers["samPoint_wrap"]);
+		CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_POINT, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_COMPARISON_FUNC_ALWAYS, 1, _staticSamplers["samPoint_clamp"]);
+		CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_WRAP, D3D12_COMPARISON_FUNC_ALWAYS, 2, _staticSamplers["samLinear_wrap"]);
+		CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_COMPARISON_FUNC_ALWAYS, 3, _staticSamplers["samLinear_clamp"]);
+		CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_BORDER, D3D12_COMPARISON_FUNC_ALWAYS, 4, _staticSamplers["samLinear_border"]);
+		CreateStaticSampler(D3D12_FILTER_ANISOTROPIC, D3D12_TEXTURE_ADDRESS_MODE_WRAP, D3D12_COMPARISON_FUNC_ALWAYS, 5, _staticSamplers["samAnistropic_wrap"]);
+		CreateStaticSampler(D3D12_FILTER_ANISOTROPIC, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_COMPARISON_FUNC_ALWAYS, 6, _staticSamplers["samAnistropic_clamp"]);
+        CreateStaticSampler(D3D12_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT, D3D12_TEXTURE_ADDRESS_MODE_BORDER, D3D12_COMPARISON_FUNC_LESS_EQUAL, 7, _staticSamplers["samComparisonLinear_border"]);
 
 		_isFirstInitialize = true;
 	}
@@ -33,6 +34,18 @@ UINT ShaderBuilder::GetRootParameterIndex(std::string_view tag) const
 		return iter->second;
 
 	return -1;
+}
+
+const D3D12_INPUT_LAYOUT_DESC& ShaderBuilder::GetInputLayout() const
+{
+    auto vertexShader = std::static_pointer_cast<VertexShader>(_shaders[static_cast<UINT>(Type::VS)]);
+
+    if (nullptr == vertexShader)
+    {
+        GRAPHICS_ASSERT(false, L"ShaderBuilder::GetInputLayout: Vertex Shader is not set");
+    }
+
+    return vertexShader->GetInputLayout();
 }
 
 void ShaderBuilder::BeginBuild()
@@ -143,7 +156,8 @@ void ShaderBuilder::CreateRootSignatureTable()
 
         if ((int)Type::VS == i)
         {
-            CreateInputLayout(shaderReflection, shaderDesc);
+            auto vertexShader = std::static_pointer_cast<VertexShader>(_shaders[i]);
+            vertexShader->CreateInputLayout(shaderReflection, shaderDesc);
         }
 
         // 바인딩된 리소스 개수만큼 반복 (CBV, SRV, UAV, Sampler 등)
@@ -303,7 +317,8 @@ void ShaderBuilder::CreateRootSignatureDirect()
 
         if ((int)Type::VS == i)
         {
-            CreateInputLayout(shaderReflection, shaderDesc);
+            auto vertexShader = std::static_pointer_cast<VertexShader>(_shaders[i]);
+            vertexShader->CreateInputLayout(shaderReflection, shaderDesc);
         }
 
         // 바인딩된 리소스 개수만큼 반복 (CBV, SRV, UAV, Sampler 등)
@@ -440,73 +455,7 @@ void ShaderBuilder::CreateRootSignatureDirect()
     FAILED_CHECK_MESSAGE(hr, L"ShaderBuilder::CreateRootSignature device->CreateRootSignature Failed");
 }
 
-void ShaderBuilder::CreateInputLayout(ComPtr<ID3D12ShaderReflection> shaderReflection,
-                                      const D3D12_SHADER_DESC&       shaderDesc)
-{
-	_inputElements.reserve(shaderDesc.InputParameters);
-	_savedSementicNames.resize(shaderDesc.InputParameters);
-
-	for (UINT i = 0; i < shaderDesc.InputParameters; i++)
-	{
-		D3D12_SIGNATURE_PARAMETER_DESC paramDesc;
-		shaderReflection->GetInputParameterDesc(i, &paramDesc);
-
-		// DXGI 포맷 결정 (Semantic Name에 따라 자동 결정)
-		DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN;
-		UINT componentCount = 0;
-
-		// Mask 값으로 데이터 크기 판별
-		if		(paramDesc.Mask == 1)	componentCount = 1;  // R
-		else if (paramDesc.Mask <= 3)	componentCount = 2;  // RG
-		else if (paramDesc.Mask <= 7)	componentCount = 3;  // RGB
-		else if (paramDesc.Mask <= 15)	componentCount = 4; // RGBA
-
-		// 32비트 타입 판별
-		if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
-		{
-			if		(componentCount == 1) format = DXGI_FORMAT_R32_UINT;
-			else if (componentCount == 2) format = DXGI_FORMAT_R32G32_UINT;
-			else if (componentCount == 3) format = DXGI_FORMAT_R32G32B32_UINT;
-			else if (componentCount == 4) format = DXGI_FORMAT_R32G32B32A32_UINT;
-		}
-		else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
-		{
-			if		(componentCount == 1) format = DXGI_FORMAT_R32_SINT;
-			else if (componentCount == 2) format = DXGI_FORMAT_R32G32_SINT;
-			else if (componentCount == 3) format = DXGI_FORMAT_R32G32B32_SINT;
-			else if (componentCount == 4) format = DXGI_FORMAT_R32G32B32A32_SINT;
-		}
-		else if (paramDesc.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
-		{
-			if		(componentCount == 1) format = DXGI_FORMAT_R32_FLOAT;
-			else if (componentCount == 2) format = DXGI_FORMAT_R32G32_FLOAT;
-			else if (componentCount == 3) format = DXGI_FORMAT_R32G32B32_FLOAT;
-			else if (componentCount == 4) format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-		}
-
-		// Input Layout 구조체 생성
-		_savedSementicNames[i].resize(strlen(paramDesc.SemanticName) + 1);
-		memcpy(_savedSementicNames[i].data(), paramDesc.SemanticName, strlen(paramDesc.SemanticName) + 1);
-
-		D3D12_INPUT_ELEMENT_DESC inputElement = {};
-		inputElement.SemanticName = _savedSementicNames[i].data();
-		inputElement.SemanticIndex = paramDesc.SemanticIndex;
-		inputElement.Format = format;
-		inputElement.InputSlot = 0;
-		inputElement.AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-		inputElement.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
-		inputElement.InstanceDataStepRate = 0;
-
-		// Input Layout에 추가
-		_inputElements.push_back(inputElement);
-	}
-
-	_inputLayout.NumElements = shaderDesc.InputParameters;
-	_inputLayout.pInputElementDescs = _inputElements.data();
-}
-
-void ShaderBuilder::CreateStaticSampler(D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE addressMode,
-                                        UINT shaderRegister, D3D12_STATIC_SAMPLER_DESC& desc)
+void ShaderBuilder::CreateStaticSampler(D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE addressMode, D3D12_COMPARISON_FUNC func, UINT shaderRegister, D3D12_STATIC_SAMPLER_DESC& desc)
 {
     D3D12_STATIC_SAMPLER_DESC samplerDesc = {};
     samplerDesc.Filter                    = filter;
@@ -515,7 +464,7 @@ void ShaderBuilder::CreateStaticSampler(D3D12_FILTER filter, D3D12_TEXTURE_ADDRE
     samplerDesc.AddressW                  = addressMode;
     samplerDesc.MipLODBias                = 0.0f;
     samplerDesc.MaxAnisotropy             = (filter == D3D12_FILTER_ANISOTROPIC) ? 8 : 0;
-    samplerDesc.ComparisonFunc            = D3D12_COMPARISON_FUNC_ALWAYS;
+    samplerDesc.ComparisonFunc            = func;
     samplerDesc.BorderColor               = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
     samplerDesc.MinLOD                    = 0.0f;
     samplerDesc.MaxLOD                    = D3D12_FLOAT32_MAX;

@@ -312,6 +312,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Editor\Tool\RenderPassData\EditorRenderPassData.h" />
     <ClInclude Include="Source\Engine\EditorCore\Gui\Sequencer\EditorTimelineTrackSequencer.h" />
     <ClInclude Include="Source\Editor\Tool\Model\EditorModelInspector.h" />
     <ClInclude Include="Source\Editor\Tool\Model\EditorAnimationTrackTool.h" />
@@ -408,6 +409,7 @@
     <ClInclude Include="Source\Engine\ApplicationCore\Application.h" />
     <ClInclude Include="Source\Engine\FileSystem\Importer\SpriteFontImporter.h" />
     <ClInclude Include="Source\Engine\Utility\YAMLHelper.h" />
+    <ClInclude Include="Source\Engine\WatcherCore\System\WatcherSystem.h" />
     <ClInclude Include="ThirdParty\include\OpenXLSX\headers\IZipArchive.hpp" />
     <ClInclude Include="ThirdParty\include\OpenXLSX\headers\OpenXLSX-Exports.hpp" />
     <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLCell.hpp" />
@@ -452,6 +454,7 @@
     <ClInclude Include="Source\Engine\TimelineCore\Track\TimelineEventTrack.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Editor\Tool\RenderPassData\EditorRenderPassData.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Gui\Sequencer\EditorTimelineTrackSequencer.cpp" />
     <ClCompile Include="Source\Editor\Tool\Model\EditorModelInspector.cpp" />
     <ClCompile Include="Source\Editor\Tool\Model\EditorAnimationTrackTool.cpp" />
@@ -560,6 +563,7 @@
     <ClCompile Include="Source\Engine\Utility\utfHelper.cpp" />
     <ClCompile Include="Source\Engine\ApplicationCore\Application.cpp" />
     <ClCompile Include="Source\Engine\Utility\YAMLHelper.cpp" />
+    <ClCompile Include="Source\Engine\WatcherCore\System\WatcherSystem.cpp" />
     <ClCompile Include="Source\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">Create</PrecompiledHeader>
