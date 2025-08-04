@@ -20,10 +20,9 @@ void PlayerActionCondition::OnStart()
 
 bool PlayerActionCondition::Evaluate()
 {
-    TurnActor* currTurn = _turnMode->GetCurrTurnActor();
-    if (nullptr != currTurn)
+    if (auto& currTurnModel = _turnMode->GetCurrTurnActor(); nullptr != currTurnModel)
     {
-        if (typeid(Player) == typeid(*currTurn))
+        if (typeid(Player) == typeid(*currTurnModel))
         {
             return true;
         }

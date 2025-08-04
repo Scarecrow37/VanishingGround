@@ -35,6 +35,7 @@
 #include <Stats/Player/PlayerStats.h>
 #include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
 #include "ViewModels/TurnQueue/TurnQueueViewModel.h"
+#include "ViewModels/Weapon/WeaponViewModel.h"
 
 #include <Stats/Enemy/EnemyStatsComponent.h>
 #include <Stats/Enemy/EnemyStats.h>
@@ -55,6 +56,7 @@ TurnMode::~TurnMode()
 
     _turnList.Reset();
     UmWatcher.Unregister<TurnQueueViewModel>("Turn Queue");
+    UmWatcher.Unregister<WeaponViewModel>("Weapon");
 }
 
 Player* TurnMode::GetPlayer()
@@ -134,14 +136,14 @@ void TurnMode::SortTurnList()
     }
 }
 
-TurnActor* TurnMode::StartFrontTurnActor()
+void TurnMode::StartFrontTurnActor()
 {
     if (_currTurnActor)
     {
         UmLogger.Log(
             LogLevel::LEVEL_ERROR,
             u8"현재 턴이 끝나지 않았습니다. TurnMode::StartFrontTurnActor()를 호출하기 전에 FinishCurrentTurn()을 호출하세요.");
-        return _currTurnActor;
+        return;
     }
 
     auto firstWaitActorIterator = _turnList.cbegin();
@@ -170,8 +172,6 @@ TurnActor* TurnMode::StartFrontTurnActor()
     {
         _turnList.ModifyFront([this](auto& actorSlot) { _currTurnActor = actorSlot.second; });
     }
-
-    return _currTurnActor;
 }
 
 void TurnMode::FinishCurrentTurn()
@@ -278,6 +278,7 @@ void TurnMode::Awake()
     try
     {
         UmWatcher.Register<TurnQueueViewModel>("Turn Queue", _turnList);
+        UmWatcher.Register<WeaponViewModel>("Weapon", _currTurnActor);
     }
     catch (const std::exception& e)
     {
@@ -291,12 +292,11 @@ void TurnMode::ImGuiDrawPropertysEvent()
 {
     if(ImGui::TreeNodeEx("Current", ImGuiTreeNodeFlags_DefaultOpen))
     {
-        TurnActor* actor = GetCurrTurnActor(); 
-        if (nullptr != actor)
+        if (auto& actorModel = GetCurrTurnActor(); nullptr != actorModel)
         {
             if (ImGui::BeginTable("Transition", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
             {
-                ImGui::PushID(actor);
+                ImGui::PushID(&actorModel);
                 {
                     ImGui::TableSetupColumn("Name");
                     ImGui::TableSetupColumn("Type");
@@ -306,16 +306,16 @@ void TurnMode::ImGuiDrawPropertysEvent()
 
                     ImGui::TableNextRow();
                     ImGui::TableSetColumnIndex(0);
-                    if (ImGui::Selectable(actor->gameObject->ToString().data()))
+                    if (ImGui::Selectable(actorModel->gameObject->ToString().data()))
                     {
                     }
                     ImGui::TableSetColumnIndex(1);
-                    ImGui::Selectable(typeid(*actor).name() + 6);
+                    ImGui::Selectable(typeid(*actorModel).name() + 6);
                     ImGui::TableSetColumnIndex(2);
-                    TurnActor::STATE currState = actor->State;
+                    TurnActor::STATE currState = actorModel->State;
                     ImGui::Text(rfl::enum_to_string(currState).data());
                     ImGui::TableSetColumnIndex(3);
-                    int roundSpeed = actor->RoundSpeed;
+                    int roundSpeed = actorModel->RoundSpeed;
                     ImGui::Text("%d", roundSpeed);
                 }
                 ImGui::PopID();

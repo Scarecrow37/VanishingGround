@@ -18,10 +18,9 @@ void CheckTurnEndCondition::OnStart()
 
 bool CheckTurnEndCondition::Evaluate()
 {
-    TurnActor* currActor = _turnMode->GetCurrTurnActor();
-    if (currActor)
+    if (auto& currActorModel = _turnMode->GetCurrTurnActor())
     {
-        return TurnActor::STATE::Play != currActor->State;
+        return TurnActor::STATE::Play != currActorModel->State;
     }
     return false;
 }

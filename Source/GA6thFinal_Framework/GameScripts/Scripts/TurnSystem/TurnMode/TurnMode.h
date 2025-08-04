@@ -60,7 +60,7 @@ public:
     /// 가장 우선순위가 높은 TurnActor를 CurrTurnActor 로 설정합니다.
     /// </summary>
     /// <returns>현재 CurrentTurnActor를 반환합니다.</returns>
-    TurnActor* StartFrontTurnActor();
+    void StartFrontTurnActor();
 
 
     /// <summary>
@@ -71,7 +71,7 @@ public:
     /// <summary>
     /// 현재 턴 실행중인 Actor를 반환합니다.
     /// </summary>
-    TurnActor* GetCurrTurnActor() const { return _currTurnActor; }
+    const MVVM::Model<TurnActor*>& GetCurrTurnActor() const { return _currTurnActor; }
 
     /// <summary>
     /// 턴 대기중인 Actor의 개수를 반환합니다.
@@ -111,7 +111,7 @@ private:
     int _roundCount;
     /*플레이어의 무기 slot 번호를 함께 저장합니다. int 값이 -1이면 Enemy, 0 이상이면 Player 입니다.*/
     MVVM::Model<std::deque<std::pair<int, TurnActor*>>> _turnList;
-    TurnActor* _currTurnActor;
+    MVVM::Model<TurnActor*>                             _currTurnActor;
 
 private:
     struct SystemStates
