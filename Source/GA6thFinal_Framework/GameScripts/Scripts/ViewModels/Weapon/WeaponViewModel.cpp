@@ -105,55 +105,61 @@ struct GetWeaponDescription
         {
         case 1: // 녹슨자의 검
             description.first += L"<Description>"
-                                L"<Text color=\"#ffd966\">치명적</Text>"
-                                L"<Text color=\"#ffffff\"> 영구적으로</Text>"
-                                L"<Image guid=\"" +
-                                getIconGuid(GetIconGuid::IconType::CRITICAL) +
-                                L"\"/>"
-                                L"<Text color=\"#ffffff\">+1</Text>"
-                                L"</Description>";
+                                 L"<Text color=\"#ffd966\">치명적</Text>"
+                                 L"</Description>";
+            description.second += L"<Description>"
+                                  L"<Text color=\"#ffffff\">영구적으로</Text>"
+                                  L"<Image guid=\"" +
+                                  getIconGuid(GetIconGuid::IconType::CRITICAL) +
+                                  L"\"/>"
+                                  L"<Text color=\"#ffffff\">+1</Text>"
+                                  L"</Description>";
             break;
         case 2: // 돌격 대장의 망치
             description.first += L"<Description>"
-                                L"<Text color=\"#ffd966\">무결점</Text>"
-                                L"<Text color=\"#ffffff\"> 적</Text>"
-                                L"<Image guid=\"" +
-                                getIconGuid(GetIconGuid::IconType::STUN) +
-                                L"\"/>"
-                                L"<Text color=\"#ffffff\">1 부여</Text>"
-                                L"</Description>";
+                                 L"<Text color=\"#ffd966\">무결점</Text>"
+                                 L"</Description>";
+            description.second += L"<Description>"
+                                  L"<Text color=\"#ffffff\">적</Text>"
+                                  L"<Image guid=\"" +
+                                  getIconGuid(GetIconGuid::IconType::STUN) +
+                                  L"\"/>"
+                                  L"<Text color=\"#ffffff\">1 부여</Text>"
+                                  L"</Description>";
             break;
         case 3: // 돌파자의 장검
-            description.first  += L"<Description>"
+            description.first += L"<Description>"
                                  L"<Text color=\"#ffffff\">(체력=100%)</Text>"
-                                 L"<Text color=\"#5c6c8b\"> 적</Text>"
+                                 L"<Text color=\"#5c6c8b\">적</Text>"
                                  L"<Text color=\"#ffffff\"> 대상</Text>"
                                  L"</Description>";
             description.second += L"<Description>"
-                                 L"<Image guid=\"" +
-                                 getIconGuid(GetIconGuid::IconType::HIT) +
-                                 L"\"/>"
-                                 L"<Text color=\"#ffffff\">+8</Text>"
-                                 L"<Image guid=\"" +
-                                 getIconGuid(GetIconGuid::IconType::CRITICAL) +
-                                 L"\"/>"
-                                 L"<Text color=\"#ffffff\">+10</Text>"
-                                 L"</Description>";
+                                  L"<Image guid=\"" +
+                                  getIconGuid(GetIconGuid::IconType::HIT) +
+                                  L"\"/>"
+                                  L"<Text color=\"#ffffff\">+8</Text>"
+                                  L"<Image guid=\"" +
+                                  getIconGuid(GetIconGuid::IconType::CRITICAL) +
+                                  L"\"/>"
+                                  L"<Text color=\"#ffffff\">+10</Text>"
+                                  L"</Description>";
             break;
         case 4: // 제물의 단검
             description.first += L"<Description>"
-                                L"<Text color=\"#ffd966\">무결점</Text>"
-                                L"<Text color=\"#ffffff\"> 적</Text>"
-                                L"<Image guid=\"" +
-                                getIconGuid(GetIconGuid::IconType::BLEEDING) +
-                                L"\"/>"
-                                L"<Text color=\"#ffffff\">1 부여</Text>"
-                                L"</Description>";
+                                 L"<Text color=\"#ffd966\">무결점</Text>"
+                                 L"</Description>";
+            description.second += L"<Description>"
+                                  L"<Text color=\"#ffffff\">적</Text>"
+                                  L"<Image guid=\"" +
+                                  getIconGuid(GetIconGuid::IconType::BLEEDING) +
+                                  L"\"/>"
+                                  L"<Text color=\"#ffffff\">1 부여</Text>"
+                                  L"</Description>";
             break;
         default:
             description.first += L"<Description>"
-                                L"<Text color=\"#ffffff\">알 수 없는 무기</Text>"
-                                L"</Description>";
+                                 L"<Text color=\"#ffffff\">알 수 없는 무기</Text>"
+                                 L"</Description>";
             break;
         }
         return description;
