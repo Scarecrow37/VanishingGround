@@ -466,8 +466,12 @@ bool EFileSystem::ChangeAssetID(std::weak_ptr<File::Context> context, int change
         int oldID = meta.GetAssetID();
         meta.SetAssetID(changeID);
         meta.FileCreate();
-        _assetIDTable.erase(oldID); // 기존 ID 제거
-        if (0 != changeID)
+        size_t erased = _assetIDTable.erase(oldID); // 기존 ID 제거
+        if (0 == erased)
+        {
+            File::OutputLog(L"Try to delete non-existent AssetID : " + std::to_wstring(oldID));
+        }
+        if (0 == changeID)
         {
             _assetIDTable[changeID] = spContext->GetPath();
         }
