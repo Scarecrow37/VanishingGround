@@ -509,22 +509,27 @@ void AnimationComponent::EndBuildOverrideAnimation()
     }
 }
 
-void AnimationComponent::PushOverrideAnimation(std::string_view animKey, bool blend, std::function<bool(const AnimationData&)> popCondition)
+bool AnimationComponent::PushOverrideAnimation(std::string_view animKey, bool blend, std::function<bool(const AnimationData&)> popCondition)
 {
     if (_animator)
     {
         std::string animName(animKey);
         GetAnimationNameEx(animKey, animName);
-        _overrideAnimationStack.emplace_back(animName);
-        AnimationData& animData = GetLastAnimationDataEx();
-        animData.IsBlending     = blend;
-        animData.PopCondition   = popCondition;
-        animData.MaxFrame       = _animator->GetAnimationLastTime(animData.AnimationName.data());
-        if (false == _isBuildingOverrideAnimation)
+        if (_animator->HasAnimation(animKey.data()))
         {
-            SetAnimationEx(animData);
+            _overrideAnimationStack.emplace_back(animName);
+            AnimationData& animData = GetLastAnimationDataEx();
+            animData.IsBlending     = blend;
+            animData.PopCondition   = popCondition;
+            animData.MaxFrame       = _animator->GetAnimationLastTime(animData.AnimationName.data());
+            if (false == _isBuildingOverrideAnimation)
+            {
+                SetAnimationEx(animData);
+            }
+            return true;
         }
     }
+    return false;
 }
 
 void AnimationComponent::PopOverrideAnimation() 

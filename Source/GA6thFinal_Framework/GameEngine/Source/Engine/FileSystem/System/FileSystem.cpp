@@ -457,17 +457,21 @@ bool EFileSystem::ChangeAssetID(std::weak_ptr<File::Context> context, int change
     auto spContext = context.lock();
     if (spContext)
     {
-        // 변경하려는 ID가 유효한지 검사
-        if (IsExistsAssetID(changeID) || 0 == changeID)
-        {
-            return false;
-        }
         File::MetaData& meta = spContext->GetMeta();
         int oldID = meta.GetAssetID();
+        // 바꿀 ID가 이미 있거나 현재 ID가 0이 아닌데 존재하지 않는 경우 실패
+        if (IsExistsAssetID(changeID) || (0 == oldID && false == IsExistsAssetID(oldID)))
+        {
+            File::OutputLog(L"Failed to change AssetID. Already exists AssetID : " + std::to_wstring(changeID));
+            return false;
+        }
         meta.SetAssetID(changeID);
         meta.FileCreate();
-        _assetIDTable.erase(oldID); // 기존 ID 제거
-        _assetIDTable[changeID] = spContext->GetPath();
+        _assetIDTable.erase(oldID);
+        if (0 != changeID)
+        {
+            _assetIDTable[changeID] = spContext->GetPath();
+        }
         return true;
     }
     return false;
