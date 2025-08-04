@@ -100,7 +100,7 @@ void EGameObjectFactory::ApplyPrefabInstanceChanges(const File::Guid& guid, YAML
                         Transform* frontParent = frontOrigin->transform->Parent;
 						if (nullptr != frontParent)
 						{
-                            for (int childIndex = 0; childIndex < frontParent->_childsList.size();++childIndex)
+                            for (int childIndex = 0; childIndex < frontParent->_childsList.size(); ++childIndex)
                             {
                                 if (&frontOrigin->_transform == frontParent->_childsList[childIndex])
                                 {
