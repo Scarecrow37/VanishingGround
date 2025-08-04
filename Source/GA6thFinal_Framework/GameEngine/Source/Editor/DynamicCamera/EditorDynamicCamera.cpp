@@ -51,7 +51,7 @@ void EditorDynamicCamera::Update()
         if (ImGui::IsKeyDown(ImGuiKey::ImGuiKey_MouseWheelY))
         {
             float wheel = io.MouseWheel;
-            _pivot += wheel * _moveSpeed * 0.2f;
+            _pivot += wheel;
             _pivot = std::min(_pivot, 0.f);
             _isMoved = true;
         }

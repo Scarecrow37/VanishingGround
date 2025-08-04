@@ -271,6 +271,21 @@ void Transform::SetParentEx(Transform* p, bool worldPositionStays, bool callEven
     GameObject::Engine::UpdateActiveInHierarchy(&_gameObject);
 }
 
+void Transform::SetParentToIndexEx(Transform* p, int index, bool worldPositionStays, bool callEvent) 
+{
+    SetParentEx(p, worldPositionStays, callEvent);
+    std::vector<Transform*> sortTransforms;
+    sortTransforms.reserve(p->_childsList.size());
+    for (int i = (int)p->_childsList.size() - 1; i > index; --i)
+    {
+        sortTransforms.push_back(p->_childsList[i]);
+    }
+    for (auto& child : sortTransforms)
+    {
+        child->SetParentEx(p, worldPositionStays, callEvent);
+    }
+}
+
 void Transform::DetachChildrenEx(bool callEvent) 
 {
     for (auto& child : _childsList)
