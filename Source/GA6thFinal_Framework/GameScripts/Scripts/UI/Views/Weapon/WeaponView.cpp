@@ -25,7 +25,7 @@ void WeaponView::Start()
     UmWatcher.Watch<WeaponViewModel, WeaponUIData>("Weapon", [this](const WeaponUIData& value) {
         if (value.Enable)
         {
-            //gameObject->ActiveSelf = true;
+            gameObject->ActiveSelf = true;
             if (nullptr != _background)
                 _background->SetImage(value.Background);
             if (nullptr != _weaponName)
@@ -47,10 +47,10 @@ void WeaponView::Start()
         }
         else
         {
-            //gameObject->ActiveSelf = false;
+            gameObject->ActiveSelf = false;
         }
     });
-    //gameObject->ActiveSelf = false;
+    gameObject->ActiveSelf = false;
 }
 
 void WeaponView::FindElements()
