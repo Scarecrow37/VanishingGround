@@ -26,10 +26,10 @@ void EndlessGridPass::Initialize(RenderScene* ownerScene, RenderTechnique* owner
     (&pss.BlendState)->RenderTarget[0]        = rtDesc;
     pss.RasterizerState                       = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
     (&pss.RasterizerState)->CullMode          = D3D12_CULL_MODE_NONE;
-    pss.DepthStencilState                     = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-    (&pss.DepthStencilState)->DepthEnable     = FALSE;
+    pss.DepthStencilState                     = CD3DX12_DEPTH_STENCIL_DESC(CommonStates::DepthRead);
     pss.PrimitiveTopology                     = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
     pss.RTVFormats                            = {{DXGI_FORMAT_R32G32B32A32_FLOAT}, 1};
+    pss.DSVFormat                             = _ownerScene->_depthStencilView->GetFormat();
 
     _fx.SetPipelineStateStream(pss);
     _pipelineState = Global::pipelineStateManager->GetPipelineState(pss);
