@@ -18,7 +18,9 @@ public:
     const D3D12_SHADER_BYTECODE&   GetShaderByteCode(ShaderBuilder::Type type) const { return _shaderByteCodes[(int)type]; }
     const D3D12_INPUT_LAYOUT_DESC& GetInputLayout() const;
     UINT                           GetRootParameterIndex(std::string_view tag) const;
-    void                           CreateStaticSampler(D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE addressMode, D3D12_COMPARISON_FUNC func, UINT shaderRegister, D3D12_STATIC_SAMPLER_DESC& desc);
+
+public:
+    static void CreateStaticSampler(D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE addressMode, D3D12_COMPARISON_FUNC func, UINT shaderRegister, D3D12_STATIC_SAMPLER_DESC& desc);
 
 public:
     void BeginBuild();
@@ -26,14 +28,12 @@ public:
     void SetShader(std::wstring_view filePath, ShaderBuilder::Type type);
 
 private:
+    static std::unordered_map<std::string, D3D12_STATIC_SAMPLER_DESC>& GetStaticSamplers();
+
+private:
     void CreateRootSignatureTable();
     void CreateRootSignatureDirect();
     D3D12_STATIC_SAMPLER_DESC FindStaticSampler(std::string_view tag);
-
-private:
-    using StaticSamplers = std::unordered_map<std::string, D3D12_STATIC_SAMPLER_DESC>;
-    static StaticSamplers _staticSamplers;
-    static bool           _isFirstInitialize;
 
 private:
     std::unordered_map<std::string, UINT> _rootParameterIndex;

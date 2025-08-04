@@ -98,9 +98,9 @@ void ShadowMapPass::Draw(ID3D12GraphicsCommandList* commandList)
         commandList->ClearDepthStencilView(_shadowMapDSVs[i], D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
         // Static
-        commandList->SetGraphicsRootSignature(_staticShadowFX.GetRootSignature());
-        commandList->SetGraphicsRootConstantBufferView(_staticShadowFX.GetRootParameterIndex("cascadeData"), cascadeData);
-        frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _staticShadowFX.GetRootParameterIndex("worldMatrices"), commandList);
+        commandList->SetGraphicsRootSignature(_fxStaticShadow.GetRootSignature());
+        commandList->SetGraphicsRootConstantBufferView(_fxStaticShadow.GetRootParameterIndex("cascadeData"), cascadeData);
+        frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxStaticShadow.GetRootParameterIndex("worldMatrices"), commandList);
 
         commandList->SetPipelineState(_psos[STATIC_CULL_BACK].Get());
         DrawMeshes(commandList, STATIC_MESH, STATIC_CULL_BACK, i);
@@ -112,10 +112,10 @@ void ShadowMapPass::Draw(ID3D12GraphicsCommandList* commandList)
         DrawMeshes(commandList, STATIC_MESH, STATIC_TWO_SIDED, i);
 
         // Skeletal
-        commandList->SetGraphicsRootSignature(_skeletalShadowFX.GetRootSignature());
-        commandList->SetGraphicsRootConstantBufferView(_skeletalShadowFX.GetRootParameterIndex("cascadeData"), cascadeData);
-        frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _skeletalShadowFX.GetRootParameterIndex("worldMatrices"), commandList);
-        frameResource->SetFrameResource(FrameResourceType::BONE_MATRICES, _skeletalShadowFX.GetRootParameterIndex("boneMatrices"), commandList);
+        commandList->SetGraphicsRootSignature(_fxSkeletalShadow.GetRootSignature());
+        commandList->SetGraphicsRootConstantBufferView(_fxSkeletalShadow.GetRootParameterIndex("cascadeData"), cascadeData);
+        frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxSkeletalShadow.GetRootParameterIndex("worldMatrices"), commandList);
+        frameResource->SetFrameResource(FrameResourceType::BONE_MATRICES, _fxSkeletalShadow.GetRootParameterIndex("boneMatrices"), commandList);
 
         commandList->SetPipelineState(_psos[SKELETAL_CULL_BACK].Get());
         DrawMeshes(commandList, SKELETAL_MESH, SKELETAL_CULL_BACK, i);
@@ -197,7 +197,7 @@ void ShadowMapPass::CreateShaderAndPSO()
     _psos.resize(MeshType::END);
 
     PipelineStateStream pss{};
-    pss.BlendDesc                                = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    pss.BlendState                               = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
     pss.DepthStencilState                        = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
     pss.RasterizerState                          = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
     (&pss.RasterizerState)->DepthBias            = 100;
@@ -205,8 +205,8 @@ void ShadowMapPass::CreateShaderAndPSO()
     (&pss.RasterizerState)->SlopeScaledDepthBias = 1.5f;
     pss.PrimitiveTopology                        = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
     pss.DSVFormat                                = DXGI_FORMAT_D32_FLOAT;
-               
-    _staticShadowFX.SetPipelineStateStream(pss);
+
+    _fxStaticShadow.SetPipelineStateStream(pss);
 
     (&pss.RasterizerState)->CullMode = D3D12_CULL_MODE_BACK;
     _psos[STATIC_CULL_BACK]          = Global::pipelineStateManager->GetPipelineState(pss);
@@ -217,7 +217,7 @@ void ShadowMapPass::CreateShaderAndPSO()
     (&pss.RasterizerState)->CullMode = D3D12_CULL_MODE_NONE;
     _psos[STATIC_TWO_SIDED]          = Global::pipelineStateManager->GetPipelineState(pss);
 
-    _skeletalShadowFX.SetPipelineStateStream(pss);
+    _fxSkeletalShadow.SetPipelineStateStream(pss);
 
     (&pss.RasterizerState)->CullMode = D3D12_CULL_MODE_BACK;
     _psos[SKELETAL_CULL_BACK]        = Global::pipelineStateManager->GetPipelineState(pss);
@@ -309,10 +309,10 @@ void ShadowMapPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, int shade
         switch (shaderType)
         {
         case STATIC_MESH:
-            commandList->SetGraphicsRoot32BitConstants(_staticShadowFX.GetRootParameterIndex("bit32_4_objectData2"), 4, parameter, 0);
+            commandList->SetGraphicsRoot32BitConstants(_fxStaticShadow.GetRootParameterIndex("bit32_4_objectData2"), 4, parameter, 0);
             break;
         case SKELETAL_MESH:
-            commandList->SetGraphicsRoot32BitConstants(_skeletalShadowFX.GetRootParameterIndex("bit32_4_objectData2"), 4, parameter, 0);
+            commandList->SetGraphicsRoot32BitConstants(_fxSkeletalShadow.GetRootParameterIndex("bit32_4_objectData2"), 4, parameter, 0);
             break;
         }
 

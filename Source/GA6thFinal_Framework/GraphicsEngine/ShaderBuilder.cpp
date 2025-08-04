@@ -5,25 +5,10 @@
 #include "PixelShader.h"
 #include "ComputeShader.h"
 
-bool                          ShaderBuilder::_isFirstInitialize = false;
-ShaderBuilder::StaticSamplers ShaderBuilder::_staticSamplers    = {};
-
 ShaderBuilder::ShaderBuilder()
     : _currentState(State::NONE)
 {	
-	if (!_isFirstInitialize)
-	{
-		CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_POINT, D3D12_TEXTURE_ADDRESS_MODE_WRAP, D3D12_COMPARISON_FUNC_ALWAYS, 0, _staticSamplers["samPoint_wrap"]);
-		CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_POINT, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_COMPARISON_FUNC_ALWAYS, 1, _staticSamplers["samPoint_clamp"]);
-		CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_WRAP, D3D12_COMPARISON_FUNC_ALWAYS, 2, _staticSamplers["samLinear_wrap"]);
-		CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_COMPARISON_FUNC_ALWAYS, 3, _staticSamplers["samLinear_clamp"]);
-		CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_BORDER, D3D12_COMPARISON_FUNC_ALWAYS, 4, _staticSamplers["samLinear_border"]);
-		CreateStaticSampler(D3D12_FILTER_ANISOTROPIC, D3D12_TEXTURE_ADDRESS_MODE_WRAP, D3D12_COMPARISON_FUNC_ALWAYS, 5, _staticSamplers["samAnistropic_wrap"]);
-		CreateStaticSampler(D3D12_FILTER_ANISOTROPIC, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_COMPARISON_FUNC_ALWAYS, 6, _staticSamplers["samAnistropic_clamp"]);
-        CreateStaticSampler(D3D12_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT, D3D12_TEXTURE_ADDRESS_MODE_BORDER, D3D12_COMPARISON_FUNC_LESS_EQUAL, 7, _staticSamplers["samComparisonLinear_border"]);
-
-		_isFirstInitialize = true;
-	}
+	
 }
 
 UINT ShaderBuilder::GetRootParameterIndex(std::string_view tag) const
@@ -34,6 +19,27 @@ UINT ShaderBuilder::GetRootParameterIndex(std::string_view tag) const
 		return iter->second;
 
 	return -1;
+}
+
+void ShaderBuilder::CreateStaticSampler(D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE addressMode, D3D12_COMPARISON_FUNC func, UINT shaderRegister, D3D12_STATIC_SAMPLER_DESC& desc)
+{
+    D3D12_STATIC_SAMPLER_DESC samplerDesc = {};
+    samplerDesc.Filter                    = filter;
+    samplerDesc.AddressU                  = addressMode;
+    samplerDesc.AddressV                  = addressMode;
+    samplerDesc.AddressW                  = addressMode;
+    samplerDesc.MipLODBias                = 0.0f;
+    samplerDesc.MaxAnisotropy             = (filter == D3D12_FILTER_ANISOTROPIC) ? 8 : 0;
+    samplerDesc.ComparisonFunc            = func;
+    samplerDesc.BorderColor               = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
+    samplerDesc.MinLOD                    = 0.0f;
+    samplerDesc.MaxLOD                    = D3D12_FLOAT32_MAX;
+    samplerDesc.ShaderRegister            = shaderRegister;
+    samplerDesc.RegisterSpace             = 0;
+    samplerDesc.ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
+    samplerDesc.BorderColor               = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
+
+    desc = samplerDesc;
 }
 
 const D3D12_INPUT_LAYOUT_DESC& ShaderBuilder::GetInputLayout() const
@@ -234,7 +240,8 @@ void ShaderBuilder::CreateRootSignatureTable()
             }
             else if (bindDesc.Type == D3D_SIT_SAMPLER)
             {
-                samplers.push_back(_staticSamplers[bindDesc.Name]);
+                auto& staticSamplers = GetStaticSamplers();
+                samplers.push_back(staticSamplers[bindDesc.Name]);
             }
 
             auto iter = _rootParameterIndex.find(bindDesc.Name);
@@ -411,7 +418,8 @@ void ShaderBuilder::CreateRootSignatureDirect()
             }
             else if (bindDesc.Type == D3D_SIT_SAMPLER)
             {
-                samplers.push_back(_staticSamplers[bindDesc.Name]);
+                auto& staticSamplers = GetStaticSamplers();
+                samplers.push_back(staticSamplers[bindDesc.Name]);
             }
 
             auto iter = _rootParameterIndex.find(bindDesc.Name);
@@ -455,22 +463,24 @@ void ShaderBuilder::CreateRootSignatureDirect()
     FAILED_CHECK_MESSAGE(hr, L"ShaderBuilder::CreateRootSignature device->CreateRootSignature Failed");
 }
 
-void ShaderBuilder::CreateStaticSampler(D3D12_FILTER filter, D3D12_TEXTURE_ADDRESS_MODE addressMode, D3D12_COMPARISON_FUNC func, UINT shaderRegister, D3D12_STATIC_SAMPLER_DESC& desc)
+std::unordered_map<std::string, D3D12_STATIC_SAMPLER_DESC>& ShaderBuilder::GetStaticSamplers()
 {
-    D3D12_STATIC_SAMPLER_DESC samplerDesc = {};
-    samplerDesc.Filter                    = filter;
-    samplerDesc.AddressU                  = addressMode;
-    samplerDesc.AddressV                  = addressMode;
-    samplerDesc.AddressW                  = addressMode;
-    samplerDesc.MipLODBias                = 0.0f;
-    samplerDesc.MaxAnisotropy             = (filter == D3D12_FILTER_ANISOTROPIC) ? 8 : 0;
-    samplerDesc.ComparisonFunc            = func;
-    samplerDesc.BorderColor               = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
-    samplerDesc.MinLOD                    = 0.0f;
-    samplerDesc.MaxLOD                    = D3D12_FLOAT32_MAX;
-    samplerDesc.ShaderRegister            = shaderRegister;
-    samplerDesc.RegisterSpace             = 0;
-    samplerDesc.ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
-    samplerDesc.BorderColor               = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
-    desc                                  = samplerDesc;
+    static bool initialized = false;
+    static std::unordered_map<std::string, D3D12_STATIC_SAMPLER_DESC> staticSamplers;
+
+    if (!initialized)
+    {
+        CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_POINT, D3D12_TEXTURE_ADDRESS_MODE_WRAP, D3D12_COMPARISON_FUNC_ALWAYS, 0, staticSamplers["samPoint_wrap"]);
+        CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_POINT, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_COMPARISON_FUNC_ALWAYS, 1, staticSamplers["samPoint_clamp"]);
+        CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_WRAP, D3D12_COMPARISON_FUNC_ALWAYS, 2, staticSamplers["samLinear_wrap"]);
+        CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_COMPARISON_FUNC_ALWAYS, 3, staticSamplers["samLinear_clamp"]);
+        CreateStaticSampler(D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_BORDER, D3D12_COMPARISON_FUNC_ALWAYS, 4, staticSamplers["samLinear_border"]);
+        CreateStaticSampler(D3D12_FILTER_ANISOTROPIC, D3D12_TEXTURE_ADDRESS_MODE_WRAP, D3D12_COMPARISON_FUNC_ALWAYS, 5, staticSamplers["samAnistropic_wrap"]);
+        CreateStaticSampler(D3D12_FILTER_ANISOTROPIC, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_COMPARISON_FUNC_ALWAYS, 6, staticSamplers["samAnistropic_clamp"]);
+        CreateStaticSampler(D3D12_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT, D3D12_TEXTURE_ADDRESS_MODE_BORDER, D3D12_COMPARISON_FUNC_LESS_EQUAL, 7, staticSamplers["samComparisonLinear_border"]);
+        
+        initialized = true;
+    }
+
+    return staticSamplers;
 }

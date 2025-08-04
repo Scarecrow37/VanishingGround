@@ -52,8 +52,8 @@ private:
     DescriptorHandles                   _shadowMapSRV;
     std::unique_ptr<ConstantBufferView> _cascadeDataCBV;
 
-    FX<GE::VS::STATIC_SHADOW_FR>             _staticShadowFX;
-    FX<GE::VS::SKELETAL_SHADOW_FR>           _skeletalShadowFX;
+    FX<GE::VS::STATIC_SHADOW_FR>             _fxStaticShadow;
+    FX<GE::VS::SKELETAL_SHADOW_FR>           _fxSkeletalShadow;
     std::vector<ComPtr<ID3D12PipelineState>> _psos;
     std::vector<RenderData>                  _renderDatas[MeshType::END];
 
