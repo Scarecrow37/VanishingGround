@@ -87,7 +87,7 @@ void Skeleton::MakeParent(const char* parent, const char* child)
 	//std::erase_if(pChild->parent->children, [pChild](const Bone& child) { return pChild->name == child.name; });
 }
 
-std::vector<std::string> Skeleton::GetBoneNameList() const 
+const std::vector<std::string>& Skeleton::GetBoneNameList() const 
 {
     return _boneNames;
 }

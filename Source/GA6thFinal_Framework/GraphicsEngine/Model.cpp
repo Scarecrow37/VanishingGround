@@ -12,7 +12,7 @@ Model::~Model()
 {
 }
 
-std::vector<std::string> Model::GetBoneNameList() const
+const std::vector<std::string>& Model::GetBoneNameList() const
 {
     return _skeleton->GetBoneNameList();
 }
