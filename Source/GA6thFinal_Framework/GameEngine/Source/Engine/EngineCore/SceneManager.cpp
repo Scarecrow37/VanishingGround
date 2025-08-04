@@ -212,7 +212,7 @@ void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
                                 auto [iter, result] = WaitSet.insert(component.get());
                                 if (result)
                                 {
-                                    WaitVec.emplace_back(component.get());
+                                    WaitVec.push_back(component);
                                 }
                             }
                         }
@@ -928,26 +928,40 @@ void ESceneManager::ObjectsOnEnable()
         *value = true;  
     }
       
+    static thread_local std::vector<std::shared_ptr<GameObject>> validObjects;
+    validObjects.reserve(UpdateQueue.size());
     for (auto& weakObj : UpdateQueue)
     {
         if (const auto& object = weakObj.lock())
         {
-            GameObject::Engine::UpdateActiveInHierarchy(object.get());
+            validObjects.push_back(std::move(object));
         }  
     }
+    for (auto& object : validObjects)
+    {
+        GameObject::Engine::UpdateActiveInHierarchy(object.get());
+    }
 
+    static thread_local std::vector<std::shared_ptr<Component>> validComponents;
+    validComponents.reserve(OnEnableVec.size());
     for (auto& weakComponent : OnEnableVec)
     {
         if (const auto& component = weakComponent.lock())
         {
-            component->UpdateEnableInHierarchy();
-            if (_isPlay)
-            {
-                component->OnEnable();
-            }
+            validComponents.push_back(std::move(component));
+        }
+    }
+    for (auto& component : validComponents)
+    {
+        component->UpdateEnableInHierarchy();
+        if (_isPlay)
+        {
+            component->OnEnable();
         }
     }
     
+    validObjects.clear();
+    validComponents.clear();
     OnEnableSet.clear();
     OnEnableVec.clear();
     OnEnableValue.clear();
@@ -966,26 +980,40 @@ void ESceneManager::ObjectsOnDisable()
         *value = false;
     }
 
+    static thread_local std::vector<std::shared_ptr<GameObject>> validObjects;
+    validObjects.reserve(UpdateQueue.size());
     for (auto& weakObj : UpdateQueue)
     {
         if (const auto& object = weakObj.lock())
         {
-            GameObject::Engine::UpdateActiveInHierarchy(object.get());
-        }     
+            validObjects.push_back(std::move(object));
+        }
+    }
+    for (auto& object : validObjects)
+    {
+        GameObject::Engine::UpdateActiveInHierarchy(object.get());       
     }
 
+    static thread_local std::vector<std::shared_ptr<Component>> validComponents;
+    validComponents.reserve(OnDisableVec.size());
     for (auto& weakComponent : OnDisableVec)
     {
         if (const auto& component = weakComponent.lock())
         {
-            component->UpdateEnableInHierarchy();
-            if (_isPlay)
-            {
-                component->OnDisable();
-            }
+            validComponents.push_back(std::move(component));
+        }
+    }
+    for (auto& component : validComponents)
+    {
+        component->UpdateEnableInHierarchy();
+        if (_isPlay)
+        {
+            component->OnDisable();
         }
     }
     
+    validObjects.clear();
+    validComponents.clear();
     OnDisableSet.clear();
     OnDisableVec.clear();
     OnDisableValue.clear();
