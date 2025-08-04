@@ -645,17 +645,19 @@ private:
 
     //오브젝트 삭제 대기열
     std::pair<std::unordered_set<GameObject*>, std::vector<GameObject*>> _destroyObjectsQueue;
-    std::pair<std::unordered_set<Component*>, std::vector<Component*>> _destroyComponentsQueue;
+    std::pair<std::unordered_set<Component*>, std::vector<Component*>>   _destroyComponentsQueue;
 
     //초기화 함수 호출 대기열
     std::vector<std::shared_ptr<Component>> _waitAwakeVec;
     std::vector<std::shared_ptr<Component>> _waitStartVec;
 
     //OnEnable, OnDisable을 set과 같이 관리
-    std::tuple<std::unordered_set<Component*>, std::vector<Component*>, std::vector<bool*>> _onEnableQueue;
-    std::tuple<std::unordered_set<Component*>, std::vector<Component*>, std::vector<bool*>> _onDisableQueue;
-    std::pair<std::unordered_set<GameObject*>, std::vector<GameObject*>> _updateEnableQueue;
-    std::pair<std::unordered_set<GameObject*>, std::vector<GameObject*>> _updateDisableQueue;
+    using OnComponentQueue =  std::tuple<std::unordered_set<Component*>, std::vector<std::weak_ptr<Component>>, std::vector<bool*>>;   
+    using OnGameObjectQueue = std::pair<std::unordered_set<GameObject*>, std::vector<std::weak_ptr<GameObject>>>;
+    OnComponentQueue  _onEnableQueue;
+    OnComponentQueue  _onDisableQueue;
+    OnGameObjectQueue _updateEnableQueue;
+    OnGameObjectQueue _updateDisableQueue;
 
     //Scene에 실행중인 Render component들
     std::vector<std::weak_ptr<MeshComponent>> _runtimeMeshComponents;

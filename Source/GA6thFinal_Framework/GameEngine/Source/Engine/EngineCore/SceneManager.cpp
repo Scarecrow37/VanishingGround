@@ -188,7 +188,7 @@ void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
             auto [iter, result] = UpdateSet.insert(gameObject);
             if (true == result)
             {
-                UpdateQueue.push_back(gameObject);
+                UpdateQueue.push_back(gameObject->GetWeakPtr());
             }
 
             //컴포넌트들의 On__able 함수를 호출하도록 합니다.
@@ -241,7 +241,7 @@ void ESceneManager::Engine::SetComponentEnable(Component* component, bool value)
             auto [iter, result] = WaitSet.insert(component);
             if (result)
             {
-                WaitVec.push_back(component);
+                WaitVec.push_back(component->GetWeakPtr());
             }           
         }
     }
@@ -928,17 +928,23 @@ void ESceneManager::ObjectsOnEnable()
         *value = true;  
     }
       
-    for (auto& object : UpdateQueue)
+    for (auto& weakObj : UpdateQueue)
     {
-        GameObject::Engine::UpdateActiveInHierarchy(object);
+        if (const auto& object = weakObj.lock())
+        {
+            GameObject::Engine::UpdateActiveInHierarchy(object.get());
+        }  
     }
 
-    for (auto& component : OnEnableVec)
+    for (auto& weakComponent : OnEnableVec)
     {
-        component->UpdateEnableInHierarchy();
-        if (_isPlay)
+        if (const auto& component = weakComponent.lock())
         {
-            component->OnEnable();
+            component->UpdateEnableInHierarchy();
+            if (_isPlay)
+            {
+                component->OnEnable();
+            }
         }
     }
     
@@ -960,17 +966,23 @@ void ESceneManager::ObjectsOnDisable()
         *value = false;
     }
 
-    for (auto& object : UpdateQueue)
+    for (auto& weakObj : UpdateQueue)
     {
-        GameObject::Engine::UpdateActiveInHierarchy(object);
+        if (const auto& object = weakObj.lock())
+        {
+            GameObject::Engine::UpdateActiveInHierarchy(object.get());
+        }     
     }
 
-    for (auto& component : OnDisableVec)
+    for (auto& weakComponent : OnDisableVec)
     {
-        component->UpdateEnableInHierarchy();
-        if (_isPlay)
+        if (const auto& component = weakComponent.lock())
         {
-            component->OnDisable();
+            component->UpdateEnableInHierarchy();
+            if (_isPlay)
+            {
+                component->OnDisable();
+            }
         }
     }
     
