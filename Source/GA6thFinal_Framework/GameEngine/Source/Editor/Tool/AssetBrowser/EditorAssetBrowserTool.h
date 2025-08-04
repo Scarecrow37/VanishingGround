@@ -66,7 +66,7 @@ private:
 
 public:
     inline const File::Path& GetCurrentFocusFolderPath() const { return _focusFolderPath; }
-    inline const ImRect&     GetWindowRect() const { return _windowRect; }
+    AssetData* GetAssetData(const File::Path& path);
 
 private:
     void OnTickGui() override;
@@ -81,20 +81,19 @@ private:
     void OnFrameFocusExit() override;
 
 public:
-    AssetData* GetAssetData(const File::Path& path);
-    void       RefreshState();
-    void       RefreshFocusFolderEntries();
-    void       SetFocusFolderPath(const File::Path& path, bool pushStack = true);
-    void       SetFocusEntryPath(const File::Path& path);
-    void       UndoPath();
-    void       RedoPath();
-    void       SetCopyFile();
-    void       SetCutFile();
-    void       PasteFile();
-
-    bool       IsFavoriteFolder(const File::Path& path) const;
-    void       AddFavoriteFolder(const File::Path& path);
-    void       RemoveFavoriteFolder(const File::Path& path);
+    void RefreshState();
+    void RefreshFocusFolderEntries();
+    void SetFocusFolderPath(const File::Path& path, bool pushStack = true);
+    void SetFocusEntryPath(const File::Path& path);
+    void UndoPath();
+    void RedoPath();
+    void SetCopyFile();
+    void SetCutFile();
+    void PasteFile();
+         
+    bool IsFavoriteFolder(const File::Path& path) const;
+    void AddFavoriteFolder(const File::Path& path);
+    void RemoveFavoriteFolder(const File::Path& path);
 
 private:
     /* 메뉴바 - 콜럼 사이 어퍼프레임 */
@@ -142,26 +141,26 @@ private:
     std::bitset<FLAG_SIZE> _flags;                      // 플래그 비트셋 (예: 메타 파일 표시 여부 등)
 
     std::pair<int, File::Path> _copyBuffer = {0, ""};   // 복사 버퍼 (first가 0이면 복사, 1이면 잘라넣기)
+    std::vector<std::function<void()>> _delayEvent;     // 후처리 이벤트 (보통 삭제나 추가 등의 작업을 함)
     
-    ImGuiTextFilter _searchFilter;
+    ImGuiTextFilter _searchFilter;                      // 검색 픽터
 
     /* 에셋 정보 저장 테이블 및 리스트 */
     std::unordered_map<File::Path, AssetData> _focusFolderAssetDataMap;
     std::vector<AssetData*> _focusFolderAssetDataList;  // 현재 포커싱 폴더의 파일 목록
     
-    /* Undo, Redo 스택 */
-    int                    _maxUndoStack = 20; // Undo Stack 최대 개수
+    /* Undo 및 Redo 관련 */
     std::deque<File::Path> _directoryUndoStack;
     std::deque<File::Path> _directoryRedoStack;
+    int                    _maxUndoStack = 20; // Undo Stack 최대 개수
 
-    /* 후처리 이벤트  */
-    std::vector<std::function<void()>> _delayEvent;
-
-    /* Drag&Drop */
-    ImRect _windowRect;
+    /* 외부 파일 Drag & Drop 이벤트 관련 */
     std::vector<std::pair<bool, File::Path>> _dragDropPaths; // 드래그 앤 드롭된 파일 경로들 (복사 여부, 경로)
-    File::Path _destPath; // 드래그 앤 드롭된 경로의 목적지 경로
+    File::Path _dragDropPath; // 드래그 앤 드롭된 경로의 목적지 경로
 
+    /// <summary>
+    /// 이름 변경을 할 때 사용함.
+    /// </summary>
     struct RenameController
     {
         bool              IsActive() const { return IsRenaming; }      // 이름 변경 모드인지 확인
@@ -177,6 +176,9 @@ private:
     };
     RenameController _rename; // 이름 변경 컨트롤러
 
+    /// <summary>
+    /// AssetData를 받아 정렬하는 비교 함수입니다.
+    /// </summary>
     class Compare
     {
     public:
@@ -204,6 +206,9 @@ private:
         bool isAscending = true;
     };
 
+    /// <summary>
+    /// 인스펙터에 표시할 에셋 정보를 드로어하는 클래스입니다.
+    /// </summary>
     class InspectorDrawer : public IEditorObject
     {
     public:
@@ -223,10 +228,10 @@ private:
     // ReflectFields
     REFLECT_FIELDS_BEGIN(EditorTool)
     float                 ColumWidth  = 250.f;
-    float                 ColumHeight = 0.0f;
-    int                   ShowType    = SHOW_TYPE_LIST;
-    std::pair<int, bool>  SortFlags   = {Compare::FLAGS_SORT_BY_NAME, true};
-    std::set<std::string> FavoriteFolders;
-    std::array<float, 2>  ListColumnWidth = {0.4f, 0.7f}; // 리스트 컬럼 너비
+    float                 ColumHeight = 0.0f;       
+    int                   ShowType    = SHOW_TYPE_LIST;                         // 현재 보여지는 타입 (리스트, 아이콘 등)
+    std::pair<int, bool>  SortFlags   = {Compare::FLAGS_SORT_BY_NAME, true};    // 정렬 플래그 (예: 이름순, 날짜순 등)
+    std::set<std::string> FavoriteFolders;                                      // 즐겨찾기 폴더 목록
+    std::array<float, 2>  ListColumnWidth = {0.4f, 0.7f};                       // 리스트 컬럼 비율 (이름, 마지막 수정 날짜, 유형)
     REFLECT_FIELDS_END(EditorAssetBrowserTool)
 };

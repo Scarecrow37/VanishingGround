@@ -44,7 +44,6 @@ void EditorAssetBrowserTool::OnStartGui()
 
 void EditorAssetBrowserTool::OnPreFrameBegin()
 {
-    _windowRect = ImRect();
 }
 
 void EditorAssetBrowserTool::OnPostFrameBegin() 
@@ -52,7 +51,6 @@ void EditorAssetBrowserTool::OnPostFrameBegin()
     ImVec2 contentMin = ImGui::GetWindowContentRegionMin(); // 보통 (0, 0)
     ImVec2 contentMax = ImGui::GetWindowContentRegionMax(); // 보통 (width, height)
     ImVec2 pos        = ImGui::GetWindowPos();
-    _windowRect       = ImRect(pos + contentMin, pos + contentMax);
 }
 
 void EditorAssetBrowserTool::OnFrameRender()
@@ -433,7 +431,7 @@ void EditorAssetBrowserTool::ShowSearchBar()
     // ---------------------------
     // 버튼 크기 계산
     // ---------------------------
-    const char* iconX = EditorIcon::UnicodeToUTF8Array(0xf057).data();
+    const char* iconX = EditorIcon::ICON_CIRCLE_X;
     ImVec2 textSize   = ImGui::CalcTextSize(iconX);
     ImVec2 buttonSize = textSize + padding * 2;
 
@@ -483,9 +481,8 @@ void EditorAssetBrowserTool::ShowSearchBar()
     ImVec2 optionCursorPos = cursorPos + ImVec2(availSpace.x - buttonSize.x - padding.x * 2.0f, 0.0f);
     ImGui::SetCursorScreenPos(optionCursorPos);
     const char* popupID = "##filter_compare_popup";
-    const char* filterIcon = EditorIcon::UnicodeToUTF8Array(0xF185).data();
     buttonStyle.PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-    if (ImGui::Button(filterIcon))
+    if (ImGui::Button(EditorIcon::ICON_SUN))
     {
         ImGui::OpenPopup(popupID);
     }
@@ -890,7 +887,8 @@ void EditorAssetBrowserTool::ProcessFolderEntryDragDrop(AssetData& asset)
         static File::Path path;
         static File::Guid guid;
         context = UmFileSystem.GetContext<File::Context>(entryPath);
-        path = guid   = entryPath;
+        path = entryPath;
+        guid = path.ToGuid();
         data.pContext = &context;
         data.pPath    = &path;
         data.pGuid    = &guid;
@@ -1150,7 +1148,7 @@ void EditorAssetBrowserTool::ShowCopyFilePopupBox()
     ImGui::EndChild();
     ImGui::Text("Copy To :");
     ImGui::BeginDisabled();
-    std::string curPath = _destPath.string();
+    std::string curPath = _dragDropPath.string();
     ImGui::InputText("##import path", &curPath, ImGuiInputTextFlags_ReadOnly); // 임포트할 폰트 경로를 표시합니다.
     if (ImGui::BeginItemTooltip())                                          // 호버링 시 툴팁으로 경로를 표시합니다.
     {
@@ -1161,7 +1159,7 @@ void EditorAssetBrowserTool::ShowCopyFilePopupBox()
     ImGui::SameLine();
     if (ImGui::Button(EditorIcon::ICON_FOLDER_OPEN)) // 경로 선택 버튼
     {
-        File::ShowOpenFolderDialog(NULL, L"경로 선택", _destPath.c_str(), _destPath);
+        File::ShowOpenFolderDialog(NULL, L"경로 선택", _dragDropPath.c_str(), _dragDropPath);
     }
     ImGui::Separator();
     if (ImGui::Button("Copy"))
@@ -1171,7 +1169,7 @@ void EditorAssetBrowserTool::ShowCopyFilePopupBox()
             if (check)
             {
                 File::Path from = targetPath;
-                File::Path to   = _destPath / from.filename();
+                File::Path to   = _dragDropPath / from.filename();
                 to   = File::GenerateUniquePath(to); // 중복된 파일 이름이 있을 경우, 고유한 이름으로 변경
                 from = from.generic_wstring();
                 to   = to.generic_wstring();
@@ -1221,7 +1219,7 @@ void EditorAssetBrowserTool::ProcessDropFile(const HDROP hDrop)
         }
         if (Global::editorModule)
         {
-            _destPath = GetCurrentFocusFolderPath();
+            _dragDropPath = GetCurrentFocusFolderPath();
             Global::editorModule->OpenPopupBox("CopyFile", [this]() { ShowCopyFilePopupBox(); });
         }
     }

@@ -85,7 +85,7 @@ namespace EditorIcon
     constexpr const char* ICON_KEYBOARD             = "\xef\x84\x9c"; // f11c
     constexpr const char* ICON_SQUARE               = "\xef\x83\x88"; // f0c8
     constexpr const char* ICON_CIRCLE               = "\xef\x84\x91"; // f111
-    constexpr const char* ICON_X                    = "\xEF\x80\x8D"; // f00d  X
+    constexpr const char* ICON_SUN                  = "\xef\x86\x85"; // f185 Sun(or Gear)
 
     constexpr const char* ICON_VISIBLE              = "\xef\x83\xae"; // f06e (eye)
     constexpr const char* ICON_INVISIBLE            = "\xef\x83\xb0"; // f070 (eye-slash)
@@ -94,6 +94,7 @@ namespace EditorIcon
     constexpr const char* ICON_CIRCLE_ARROW_RIGHT   = "\xef\x8d\x9a"; // f35a
     constexpr const char* ICON_CIRCLE_ARROW_UP      = "\xef\x8d\x9b"; // f35b
     constexpr const char* ICON_CIRCLE_ARROW_DOWN    = "\xef\x8d\x9c"; // f35c
+    constexpr const char* ICON_CIRCLE_X             = "\xef\x81\x97"; // f35c
 
     constexpr const char* ICON_BELL_ON              = "\xef\x83\xb3"; // f0f3
     constexpr const char* ICON_BELL_OFF             = "\xef\x87\xb6"; // f1f6
