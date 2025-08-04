@@ -151,14 +151,6 @@ void TurnMode::StartFrontTurnActor()
     {
         if (auto& [slot, actor] = *firstWaitActorIterator; actor->State == TurnActor::STATE::Wait)
         {
-            if (WeaponSystem* weaponSystem = WeaponSystem::GetInstance())
-            {
-                weaponSystem->SetCurrentWeaponSlot(slot);
-            }
-            else
-            {
-                UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Weapon System이 존재하지 않습니다.");
-            }
             break;
         }
     }
@@ -170,7 +162,21 @@ void TurnMode::StartFrontTurnActor()
 
     if (false == _turnList.empty())
     {
-        _turnList.ModifyFront([this](auto& actorSlot) { _currTurnActor = actorSlot.second; });
+        _turnList.ModifyFront([this](auto& actorSlot) {
+            _currTurnActor = actorSlot.second;
+            if (true == IsPlayerActorSlot(actorSlot))
+            {
+                if (WeaponSystem* weaponSystem = WeaponSystem::GetInstance())
+                {
+                    weaponSystem->SetCurrentWeaponSlot(actorSlot.first);
+                }
+                else
+                {
+                    UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Weapon System이 존재하지 않습니다.");
+                }
+            }
+        });
+
     }
 }
 
