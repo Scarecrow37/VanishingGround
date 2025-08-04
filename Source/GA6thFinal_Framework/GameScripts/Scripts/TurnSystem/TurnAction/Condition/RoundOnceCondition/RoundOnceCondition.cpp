@@ -34,10 +34,13 @@ void RoundOnceTrueCondition::OnEvaluateConditions(bool result)
 
 RoundOnceTrueCondition::RoundOnceAction::RoundOnceAction()
 {
-    TurnMode* turnMode = TurnMode::GetInstance();
-    if (turnMode)
+    if (Global::IsPlay())
     {
-        turnMode->AddTurnAction(this);
+        TurnMode* turnMode = TurnMode::GetInstance();
+        if (turnMode)
+        {
+            turnMode->AddTurnAction(this);
+        }
     }
 }
 

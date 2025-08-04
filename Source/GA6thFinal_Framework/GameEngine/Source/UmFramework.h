@@ -26,6 +26,7 @@ namespace Global
 #ifdef _UMEDITOR
     extern constexpr bool IsPlay();
 #else
+    // 게임 플레이중 여부를 반환합니다.
     constexpr bool IsPlay()
     {
         return true;

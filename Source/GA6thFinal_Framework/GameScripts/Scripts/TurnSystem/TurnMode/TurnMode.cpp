@@ -23,7 +23,7 @@
 #include "State/RoundStartPhase.h"   
 #include "State/RoundEndPhase.h"
 #include "State/PlayerActionPhase.h"
-#include "State/EnemyActionPhase.h"
+#include "State/EnemyActionPhase.h"    //게임 플레이중 여부를 반환합니다.
 #include "State/CheckPlayerState.h"
 #include "State/TurnListEmptyState.h"
 #include "State/GameOverState.h"
@@ -42,7 +42,7 @@ TurnMode::TurnMode()
     _roundCount(0), 
     _currTurnActor(nullptr)
 {
-
+    static_instance = this;
 }
 TurnMode::~TurnMode()
 {
@@ -251,7 +251,7 @@ int TurnMode::GetRealRoundSpeed(const std::pair<int, TurnActor*>& turnActor)
 
 void TurnMode::Reset() 
 {
-    static_instance = this;
+   
 }
 
 void TurnMode::Awake()
