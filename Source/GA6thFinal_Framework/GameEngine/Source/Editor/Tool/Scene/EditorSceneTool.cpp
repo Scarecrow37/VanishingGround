@@ -596,7 +596,7 @@ void EditorSceneTool::DrawSceneView()
         ImGui::SetNextItemWidth(150.0f);
         ImGui::DragFloat("Camera Pivot Distance##pivot distance",
             &pivotDistance,
-            1.0f,
+            0.1f,
             -100000.0f,
             100000.0f
         );
