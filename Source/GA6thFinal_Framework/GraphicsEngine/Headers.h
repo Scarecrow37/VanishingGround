@@ -22,12 +22,18 @@
 #include "LightCore.h"
 #include "Renderer.h"
 
+#include "CommandController.h"
+#include "RenderPassDatas.h"
+
 #include "DXResourceManager.h"
 #include "MultiRenderTargetManager.h"
 #include "ParticleManager.h"
 #include "ResourceManager.h"
 #include "ViewManager.h"
-#include "CommandController.h"
 #include "AccelerationStructureManager.h"
+#include "Module/ModuleManager.h"
+#include "PipelineStateManager.h"
 
 #include "DebugDrawCore.h"
+#include "RenderTechnique.h"
+#include "FX.h"

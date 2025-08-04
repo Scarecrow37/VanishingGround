@@ -7,8 +7,7 @@ enum class AsBuildClass
 };
 struct MeshInstanceDesc
 {
-    const class MeshRenderer* Renderer;
-    class BaseMesh*              key;
+    MeshInfo             meshInfo;
     UINT                      InstanceID;
     UINT                      HitGroupIndex=0;
     D3D12_RAYTRACING_INSTANCE_FLAGS Flags;
@@ -22,12 +21,13 @@ public:
 
     // 프레임 단위로 호출
     void BeginFrame();
-    void SubmitInstance(const MeshRenderer* renderer);
-    void EndFrame();
+    void SubmitStaticInstance(MeshInfo& meshInfo);
+    void SubmitSkeletalInstance(MeshInfo& meshInfo);
+    void EndFrame(ID3D12GraphicsCommandList4* cmdList);
 
     // blas 필요없는 static mesh 제거용
-    void RemoveUnUsedStaticMeshes(const std::vector<MeshRenderer*>& liveStatics);
-    
+    void RemoveUnUsedStaticMeshes(const std::vector<MeshInfo>& liveStatics, const std::vector<MeshInfo>& liveDynamics);
+    void ProcessGarbage();
     // getter
     const AccelerationStructureBuffers& GetTopLevel() const { return *_topLevelBuffers; }
     const DescriptorHandles&            GetTopLevelSRV() const { return _topLevelBuffersSRV; }
@@ -42,8 +42,7 @@ private:
 
     // key = BaseMesh* (모델 공유)
     std::unordered_map<BaseMesh*, BlasCache>       _staticBlasMap;
-    std::vector<std::shared_ptr<AccelerationStructureBuffers>> _dynamicBlas; // 매-프레임 재빌드
-
+    std::unordered_map<uint64_t, BlasCache>       _dynamicBlasMap;
     // TLAS
     std::shared_ptr<AccelerationStructureBuffers> _topLevelBuffers;
     DescriptorHandles                             _topLevelBuffersSRV;
@@ -58,7 +57,7 @@ private:
     // ---- 내부 helper ----
     void BuildOrUpdateStaticBLAS(ID3D12Device5* device, ID3D12GraphicsCommandList4* cmdList, BaseMesh* mesh,
                                  BlasCache& cache);
-    void BuildDynamicBLAS(ID3D12Device5* device, ID3D12GraphicsCommandList4* cmdList, const MeshRenderer* renderer,
-                          std::shared_ptr<AccelerationStructureBuffers>& outBuf);
+    void BuildDynamicBLAS(ID3D12Device5* device, ID3D12GraphicsCommandList4* cmdList, MeshInfo* meshInfo,
+                          BlasCache& cache);
     void BuildOrUpdateTLAS(ID3D12Device5* device, ID3D12GraphicsCommandList4* cmdList);
 };

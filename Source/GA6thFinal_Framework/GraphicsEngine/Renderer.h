@@ -52,6 +52,7 @@ private:
     void CreateDefaultGeometry();
     void CreateDefaultTexture();
     void CreateDefaultRenderTarget();
+    void CreateDefaultShader();
 
 private:
     std::unordered_map<std::string, std::unique_ptr<RenderScene>> _renderScenes;

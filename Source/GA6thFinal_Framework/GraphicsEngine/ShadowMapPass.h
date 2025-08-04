@@ -1,53 +1,68 @@
-﻿//#pragma once
-//#include "RenderPass.h"
-//
-//// 최대 캐스케이드 레벨 정의 (pch.h나 Constants.h로 이동 가능)
-//#ifndef MAX_CASCADES
-//#define MAX_CASCADES 4
-//#endif
-//
-//class ShadowMapPass : public RenderPass
-//{
-//public:
-//    ShadowMapPass();
-//    virtual ~ShadowMapPass();
-//
-//    // RenderPass 인터페이스 구현
-//    void Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList) override;
-//    void Begin(ID3D12GraphicsCommandList* commandList) override;
-//    void Draw(ID3D12GraphicsCommandList* commandList) override;
-//    void End(ID3D12GraphicsCommandList* commandList) override;
-//
-//    // 외부에서 그림자 맵 리소스에 접근하기 위한 Getter
-//    ID3D12Resource*             GetShadowMapResource() const { return m_shadowMap.Get(); }
-//    D3D12_GPU_DESCRIPTOR_HANDLE GetShadowMapSrv() const { return m_shadowMapSrv.GPU; }
-//
-//private:
-//    // 초기화 헬퍼 함수
-//    void CreateShadowMapResource();
-//    void CreateShaderAndPSO();
-//
-//    // 매 프레임 실행되는 핵심 로직
-//    void UpdateCascades(const Camera& mainCamera, const Vector3& lightDirection);
-//    void RenderMeshes(ID3D12GraphicsCommandList* commandList, int cascadeIndex);
-//
-//private:
-//    // 그림자 맵 리소스
-//    ComPtr<ID3D12Resource> m_shadowMap; // Texture2DArray
-//    DescriptorHandles      m_shadowMapSrv;
-//    DescriptorHandles      m_shadowMapDsvs[MAX_CASCADES];
-//
-//    // 렌더링에 필요한 PSO 및 셰이더
-//    ComPtr<ID3D12PipelineState>    m_pso;
-//    std::unique_ptr<ShaderBuilder> m_shader;
-//
-//    // 캐스케이드 관련 데이터
-//    D3D12_VIEWPORT m_viewport;
-//    D3D12_RECT     m_scissorRect;
-//    UINT           m_shadowMapSize = 2048; // 그림자 맵 해상도
-//
-//    // 매 프레임 계산되어 LightData에 전달될 행렬들
-//    Matrix m_lightView;
-//    Matrix m_lightProj[MAX_CASCADES];
-//    float  m_cascadeSplits[MAX_CASCADES];
-//};
+﻿#pragma once
+#include "RenderPass.h"
+
+class ShadowMapPass : public RenderPass
+{
+    enum MeshType
+    {
+        STATIC_CULL_BACK,
+        STATIC_CULL_FRONT,
+        STATIC_TWO_SIDED,
+        SKELETAL_CULL_BACK,
+        SKELETAL_CULL_FRONT,
+        SKELETAL_TWO_SIDED,
+        END
+    };
+    struct RenderData
+    {
+        BaseMesh* mesh;
+        UINT      instanceID;
+        UINT      customDepth;
+    };
+
+public:
+    ShadowMapPass();
+    virtual ~ShadowMapPass();
+
+public:
+    D3D12_GPU_DESCRIPTOR_HANDLE GetShadowMapSRV() const { return _shadowMapSRV.GPU; }
+    D3D12_GPU_VIRTUAL_ADDRESS   GetCascadeDataCBV() const { return _cascadeDataCBV->GetGPUVirtualAddress(); }
+
+public:
+    void Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList) override;
+    void AddRenderPassDatas(std::string_view sceneName) override;
+    void Update(ID3D12GraphicsCommandList* commandList) override;
+    void Begin(ID3D12GraphicsCommandList* commandList) override;
+    void Draw(ID3D12GraphicsCommandList* commandList) override;
+    void End(ID3D12GraphicsCommandList* commandList) override;
+
+private:
+    // 초기화 헬퍼 함수
+    void CreateShadowMapResource();
+    void CreateShaderAndPSO();
+
+    // 매 프레임 실행되는 핵심 로직
+    void UpdateCascades(const Vector3& lightDirection);
+    void DrawMeshes(ID3D12GraphicsCommandList* commandList, int shaderType, MeshType meshType, int cascadeIndex);
+
+private:
+    // 그림자 맵 리소스
+    ComPtr<ID3D12Resource>              _shadowMap;
+    D3D12_CPU_DESCRIPTOR_HANDLE         _shadowMapDSVs[MAX_CASCADES];
+    DescriptorHandles                   _shadowMapSRV;
+    std::unique_ptr<ConstantBufferView> _cascadeDataCBV;
+
+    FX<GE::VS::STATIC_SHADOW_FR>             _staticShadowFX;
+    FX<GE::VS::SKELETAL_SHADOW_FR>           _skeletalShadowFX;
+    std::vector<ComPtr<ID3D12PipelineState>> _psos;
+    std::vector<RenderData>                  _renderDatas[MeshType::END];
+
+    // 캐스케이드 관련 데이터
+    CascadeData    _cascadeData;
+    D3D12_VIEWPORT _viewport;
+    D3D12_RECT     _scissorRect;
+    UINT           _shadowMapSize = 2048; // 그림자 맵 해상도
+
+    // 디버그용
+    DescriptorHandles _debugHandles[MAX_CASCADES];
+};

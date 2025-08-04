@@ -168,14 +168,12 @@ void MeshComponent::InitMaterial()
     auto&       materials = model->GetMaterials();
     size_t      meshCount = model->GetMeshCount();
 
-    if (ReflectFields->BlendMode.empty())
+    if (ReflectFields->CustomDepth.size() <= meshCount)
     {
         ReflectFields->BlendMode.resize(meshCount, 0);
         ReflectFields->CullMode.resize(meshCount, 0);
-        ReflectFields->CustomDepth.resize(meshCount, 0);
         ReflectFields->IsTwoSided.resize(meshCount, false);
-
-        return;
+        ReflectFields->CustomDepth.resize(meshCount, PostProcess::BLOOM);
     }
 
     for (size_t i = 0; i < meshCount; i++)

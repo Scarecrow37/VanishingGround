@@ -6,9 +6,9 @@ SkyBoxPass::SkyBoxPass() {}
 
 SkyBoxPass::~SkyBoxPass() {}
 
-void SkyBoxPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList)
+void SkyBoxPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene, commandList);
+    __super::Initialize(ownerScene, ownerTechnique, commandList);
 
     _skyBox = _ownerScene->GetSkyBox();
     InitShaderAndPSO();
@@ -17,7 +17,7 @@ void SkyBoxPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* 
 void SkyBoxPass::Begin(ID3D12GraphicsCommandList* commandList) 
 {
     commandList->OMSetRenderTargets(1, &_meshRenderTarget->GetRTVHandle(), FALSE, nullptr);
-    commandList->RSSetViewports(1, &_meshRenderTarget->GetViewPort());
+    commandList->RSSetViewports(1, &_meshRenderTarget->GetViewport());
     commandList->RSSetScissorRects(1, &_meshRenderTarget->GetScissorRect());
 }
 
