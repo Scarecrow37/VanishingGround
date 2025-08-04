@@ -42,6 +42,21 @@ void UIRoot::OnPlacementChange()
     std::ranges::for_each(slots, [this](UIRootSlot* slot) { AssignChild(*slot); });
 }
 
+void UIRoot::SortViewOrder()
+{
+    int startOrder = 0;
+    SetViewOrder(startOrder++);
+
+    Transform& transform = this->transform;
+    Transform::ForeachDFS(transform, [&startOrder](const Transform* dfsTransform) {
+        const GameObject& gameObject = dfsTransform->gameObject;
+        auto              components = gameObject.GetComponents<PlacementUIComponent>();
+        std::ranges::for_each(components, [&startOrder](PlacementUIComponent* component) {
+            component->SetViewOrder(startOrder++); // 초기값은 0으로 설정
+        });
+    });
+}
+
 void UIRoot::AssignChild(UIRootSlot& slot) const
 {
     const POINT point = GetPoint();
