@@ -104,12 +104,12 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
     auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
 
     // Static
-    commandList->SetGraphicsRootSignature(_shaders[STATIC_MESH]->GetRootSignature());
+    commandList->SetGraphicsRootSignature(_staticMeshFX.GetRootSignature());
 
-    commandList->SetGraphicsRootDescriptorTable(_shaders[STATIC_MESH]->GetRootParameterIndex("textures"), resource);
-    commandList->SetGraphicsRootConstantBufferView(_shaders[STATIC_MESH]->GetRootParameterIndex("cameraData"), cameraData);
-    frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _shaders[STATIC_MESH]->GetRootParameterIndex("worldMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResourceType::MATERIAL, _shaders[STATIC_MESH]->GetRootParameterIndex("material"), commandList);
+    commandList->SetGraphicsRootDescriptorTable(_staticMeshFX.GetRootParameterIndex("textures"), resource);
+    commandList->SetGraphicsRootConstantBufferView(_staticMeshFX.GetRootParameterIndex("cameraData"), cameraData);
+    frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _staticMeshFX.GetRootParameterIndex("worldMatrices"), commandList);
+    frameResource->SetFrameResource(FrameResourceType::MATERIAL, _staticMeshFX.GetRootParameterIndex("material"), commandList);
 
     commandList->SetPipelineState(_psos[STATIC_CULL_BACK].Get());
     DrawMeshes(commandList, STATIC_MESH, STATIC_CULL_BACK);
@@ -121,13 +121,13 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
     DrawMeshes(commandList, STATIC_MESH, STATIC_TWO_SIDED);
 
     // Skeletal
-    commandList->SetGraphicsRootSignature(_shaders[SKELETAL_MESH]->GetRootSignature());
+    commandList->SetGraphicsRootSignature(_skeletalMeshFX.GetRootSignature());
 
-    commandList->SetGraphicsRootDescriptorTable(_shaders[SKELETAL_MESH]->GetRootParameterIndex("textures"), resource);
-    commandList->SetGraphicsRootConstantBufferView(_shaders[SKELETAL_MESH]->GetRootParameterIndex("cameraData"), cameraData);
-    frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _shaders[SKELETAL_MESH]->GetRootParameterIndex("worldMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResourceType::BONE_MATRICES, _shaders[SKELETAL_MESH]->GetRootParameterIndex("boneMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResourceType::MATERIAL, _shaders[SKELETAL_MESH]->GetRootParameterIndex("material"), commandList);
+    commandList->SetGraphicsRootDescriptorTable(_skeletalMeshFX.GetRootParameterIndex("textures"), resource);
+    commandList->SetGraphicsRootConstantBufferView(_skeletalMeshFX.GetRootParameterIndex("cameraData"), cameraData);
+    frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _skeletalMeshFX.GetRootParameterIndex("worldMatrices"), commandList);
+    frameResource->SetFrameResource(FrameResourceType::BONE_MATRICES, _skeletalMeshFX.GetRootParameterIndex("boneMatrices"), commandList);
+    frameResource->SetFrameResource(FrameResourceType::MATERIAL, _skeletalMeshFX.GetRootParameterIndex("material"), commandList);
 
     commandList->SetPipelineState(_psos[SKELETAL_CULL_BACK].Get());
     DrawMeshes(commandList, SKELETAL_MESH, SKELETAL_CULL_BACK);
@@ -153,88 +153,43 @@ void GBufferPass::End(ID3D12GraphicsCommandList* commandList)
 
 void GBufferPass::InitShaderAndPSO()
 {
-    _shaders.reserve(2);
     _psos.resize(MeshType::END);
 
-    std::unique_ptr<ShaderBuilder> staticMeshShaderBuilder = std::make_unique<ShaderBuilder>();
-    staticMeshShaderBuilder->BeginBuild();
-    staticMeshShaderBuilder->SetShader(L"../Shaders/vs_fr.hlsl", ShaderBuilder::Type::VS);
-    staticMeshShaderBuilder->SetShader(L"../Shaders/ps_gbuffer.hlsl", ShaderBuilder::Type::PS);
-    staticMeshShaderBuilder->EndBuild();
-    _shaders.push_back(std::move(staticMeshShaderBuilder));
+    PipelineStateStream pss;
+    pss.BlendDesc         = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    pss.RasterizerState   = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    pss.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+    pss.PrimitiveTopology = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    pss.RTVFormats        = {{DXGI_FORMAT_R32G32B32A32_FLOAT, // BaseColor
+                              DXGI_FORMAT_R32G32B32A32_FLOAT, // Normal
+                              DXGI_FORMAT_R32G32B32A32_FLOAT, // ORM
+                              DXGI_FORMAT_R32G32B32A32_FLOAT, // Emissive
+                              DXGI_FORMAT_R32_FLOAT,          // Depth
+                              DXGI_FORMAT_R32_UINT},          // CustomDepth
+                             GBUFFER_END};
+    pss.DSVFormat         = _ownerScene->_depthStencilView->GetFormat();
 
-    std::unique_ptr<ShaderBuilder> skeletalMeshShaderBuilder = std::make_unique<ShaderBuilder>();
-    skeletalMeshShaderBuilder->BeginBuild();
-    skeletalMeshShaderBuilder->SetShader(L"../Shaders/vs_skeletal_fr.hlsl", ShaderBuilder::Type::VS);
-    skeletalMeshShaderBuilder->SetShader(L"../Shaders/ps_gbuffer.hlsl", ShaderBuilder::Type::PS);
-    skeletalMeshShaderBuilder->EndBuild();
-    _shaders.push_back(std::move(skeletalMeshShaderBuilder));
+    _staticMeshFX.SetPipelineStateStream(pss);
 
-    ID3D12Device*                      device = Global::device->GetDevice();
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc{};
-    HRESULT                            hr = S_OK;
-    ComPtr<ID3D12PipelineState>        pipelineState;
+    (&pss.RasterizerState)->CullMode = D3D12_CULL_MODE_BACK;
+    _psos[STATIC_CULL_BACK]          = Global::pipelineStateManager->GetPipelineState(pss);
 
-    psodesc.RasterizerState                  = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    psodesc.BlendState                       = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    psodesc.DepthStencilState                = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-    psodesc.SampleMask                       = UINT_MAX;
-    psodesc.PrimitiveTopologyType            = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psodesc.InputLayout                      = _shaders[STATIC_MESH]->GetInputLayout();
-    psodesc.NumRenderTargets                 = GBuffer::GBUFFER_END;
-    psodesc.RTVFormats[GBuffer::BASECOLOR]   = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    psodesc.RTVFormats[GBuffer::NORMAL]      = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    psodesc.RTVFormats[GBuffer::ORM]         = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    psodesc.RTVFormats[GBuffer::EMISSIVE]    = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    psodesc.RTVFormats[GBuffer::DEPTH]       = DXGI_FORMAT_R32_FLOAT;
-    psodesc.RTVFormats[GBuffer::CUSTOMDEPTH] = DXGI_FORMAT_R32_UINT;
-    psodesc.DSVFormat                        = _ownerScene->_depthStencilView->GetFormat();
-    psodesc.pRootSignature                   = _shaders[STATIC_MESH]->GetRootSignature();
-    psodesc.SampleDesc                       = {1, 0};
-    psodesc.VS                               = _shaders[STATIC_MESH]->GetShaderByteCode(ShaderBuilder::Type::VS);
-    psodesc.PS                               = _shaders[STATIC_MESH]->GetShaderByteCode(ShaderBuilder::Type::PS);
+    (&pss.RasterizerState)->CullMode = D3D12_CULL_MODE_FRONT;
+    _psos[STATIC_CULL_FRONT]         = Global::pipelineStateManager->GetPipelineState(pss);
 
-    // static one side back.
-    psodesc.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
-    hr                               = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&pipelineState));
-    FAILED_CHECK_MESSAGE(hr, L"GBufferPass::InitShaderAndPSO device->CreateGraphicsPipelineState Failed");
-    _psos[STATIC_CULL_BACK] = pipelineState;
+    (&pss.RasterizerState)->CullMode = D3D12_CULL_MODE_NONE;
+    _psos[STATIC_TWO_SIDED]          = Global::pipelineStateManager->GetPipelineState(pss);
 
-    // static one side front.
-    psodesc.RasterizerState.CullMode = D3D12_CULL_MODE_FRONT;
-    hr                               = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&pipelineState));
-    FAILED_CHECK_MESSAGE(hr, L"GBufferPass::InitShaderAndPSO device->CreateGraphicsPipelineState Failed");
-    _psos[STATIC_CULL_FRONT] = pipelineState;
+    _skeletalMeshFX.SetPipelineStateStream(pss);
 
-    // static two side.
-    psodesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
-    hr                               = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&pipelineState));
-    FAILED_CHECK_MESSAGE(hr, L"GBufferPass::InitShaderAndPSO device->CreateGraphicsPipelineState Failed");
-    _psos[STATIC_TWO_SIDED] = pipelineState;
+    (&pss.RasterizerState)->CullMode = D3D12_CULL_MODE_BACK;
+    _psos[SKELETAL_CULL_BACK]        = Global::pipelineStateManager->GetPipelineState(pss);
 
-    // Skeletal Mesh PSO
-    psodesc.InputLayout    = _shaders[SKELETAL_MESH]->GetInputLayout();
-    psodesc.pRootSignature = _shaders[SKELETAL_MESH]->GetRootSignature();
-    psodesc.VS             = _shaders[SKELETAL_MESH]->GetShaderByteCode(ShaderBuilder::Type::VS);
-    psodesc.PS             = _shaders[SKELETAL_MESH]->GetShaderByteCode(ShaderBuilder::Type::PS);
+    (&pss.RasterizerState)->CullMode = D3D12_CULL_MODE_FRONT;
+    _psos[SKELETAL_CULL_FRONT]       = Global::pipelineStateManager->GetPipelineState(pss);
 
-    // skeletal one side back.
-    psodesc.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
-    hr                               = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&pipelineState));
-    FAILED_CHECK_MESSAGE(hr, L"GBufferPass::InitShaderAndPSO device->CreateGraphicsPipelineState Failed");
-    _psos[SKELETAL_CULL_BACK] = pipelineState;
-
-    // skeletal one side front.
-    psodesc.RasterizerState.CullMode = D3D12_CULL_MODE_FRONT;
-    hr                               = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&pipelineState));
-    FAILED_CHECK_MESSAGE(hr, L"GBufferPass::InitShaderAndPSO device->CreateGraphicsPipelineState Failed");
-    _psos[SKELETAL_CULL_FRONT] = pipelineState;
-
-    // skeletal two side.
-    psodesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
-    hr                               = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&pipelineState));
-    FAILED_CHECK_MESSAGE(hr, L"GBufferPass::InitShaderAndPSO device->CreateGraphicsPipelineState Failed");
-    _psos[SKELETAL_TWO_SIDED] = pipelineState;
+    (&pss.RasterizerState)->CullMode = D3D12_CULL_MODE_NONE;
+    _psos[SKELETAL_TWO_SIDED]        = Global::pipelineStateManager->GetPipelineState(pss);
 }
 
 void GBufferPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, int shaderType, MeshType meshType)
@@ -245,7 +200,16 @@ void GBufferPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, int shaderT
         parameter[0] = instanceID;
         parameter[2] = customDepth;
 
-        commandList->SetGraphicsRoot32BitConstants(_shaders[shaderType]->GetRootParameterIndex("bit32_3_objectData"), 3, parameter, 0);
+        switch (shaderType)
+        {
+        case STATIC_MESH:
+            commandList->SetGraphicsRoot32BitConstants(_staticMeshFX.GetRootParameterIndex("bit32_3_objectData"), 3, parameter, 0);
+            break;
+        case SKELETAL_MESH:
+            commandList->SetGraphicsRoot32BitConstants(_skeletalMeshFX.GetRootParameterIndex("bit32_3_objectData"), 3, parameter, 0);
+            break;
+        }
+
         mesh->Render(commandList);
     }
 }

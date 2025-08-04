@@ -14,6 +14,10 @@ public:
     ~FX() = default;
 
 public:
+    UINT GetRootParameterIndex(std::string_view tag) const { return _shader.GetRootParameterIndex(tag); }
+    ID3D12RootSignature* GetRootSignature() const { return _shader.GetRootSignature(); }
+
+public:
     void SetPipelineStateStream(PipelineStateStream& pss)
     {
         if (nullptr == _shader.GetRootSignature())

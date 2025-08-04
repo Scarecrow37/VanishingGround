@@ -15,4 +15,7 @@ public:
 
 private:
     void InitShaderAndPSO();
+
+private:
+    FX<GE::VS::QUAD, GE::PS::PBR_LIGHTING> _fx;
 };

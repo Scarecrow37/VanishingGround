@@ -37,8 +37,10 @@ private:
     void DrawMeshes(ID3D12GraphicsCommandList* commandList, int shaderType, MeshType meshType);
 
 private:
-    std::vector<std::unique_ptr<ShaderBuilder>>                   _shaders;
     std::vector<ComPtr<ID3D12PipelineState>>                      _psos;
     std::array<D3D12_CPU_DESCRIPTOR_HANDLE, GBuffer::GBUFFER_END> _gBufferHandles;
     std::vector<RenderData>                                       _renderDatas[MeshType::END];
+
+    FX<GE::VS::STATIC_FR, GE::PS::GBUFFER>                        _staticMeshFX;
+    FX<GE::VS::SKELETAL_FR, GE::PS::GBUFFER>                      _skeletalMeshFX;
 };

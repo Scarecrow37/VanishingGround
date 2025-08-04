@@ -1,17 +1,17 @@
 ﻿#include "pch.h"
 #include "PipelineStateManager.h"
 
-ID3D12PipelineState* PipelineStateManager::GetPipelineState(const PipelineStateStream& stream)
+ComPtr<ID3D12PipelineState> PipelineStateManager::GetPipelineState(const PipelineStateStream& stream)
 {
     auto iter = _pipelineStates.find(stream);
     if (iter != _pipelineStates.end())
     {
-        return iter->second.Get();
+        return iter->second;
     }
-            
+
     CreatePipelineState(stream);
    
-    return _pipelineStates[stream].Get();
+    return _pipelineStates[stream];
 }
 
 void PipelineStateManager::CreatePipelineState(const PipelineStateStream& stream)

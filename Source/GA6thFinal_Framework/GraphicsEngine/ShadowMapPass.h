@@ -52,9 +52,10 @@ private:
     DescriptorHandles                   _shadowMapSRV;
     std::unique_ptr<ConstantBufferView> _cascadeDataCBV;
 
-    std::vector<std::unique_ptr<ShaderBuilder>> _shaders;
-    std::vector<ComPtr<ID3D12PipelineState>>    _psos;
-    std::vector<RenderData> _renderDatas[MeshType::END];
+    FX<GE::VS::STATIC_SHADOW_FR>             _staticShadowFX;
+    FX<GE::VS::SKELETAL_SHADOW_FR>           _skeletalShadowFX;
+    std::vector<ComPtr<ID3D12PipelineState>> _psos;
+    std::vector<RenderData>                  _renderDatas[MeshType::END];
 
     // 캐스케이드 관련 데이터
     CascadeData    _cascadeData;

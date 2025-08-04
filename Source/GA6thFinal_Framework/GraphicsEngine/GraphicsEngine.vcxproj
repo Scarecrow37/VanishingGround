@@ -229,6 +229,10 @@
       <Command>xcopy /Y /I "$(ProjectDir)ThirdParty\lib\*.*" "$(SolutionDir)GameEngine\ThirdParty\lib\"
 xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Debug\*.*" "$(SolutionDir)GameEngine\ThirdParty\bin\Debug\"</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">
     <ClCompile>
@@ -252,6 +256,10 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Debug\*.*" "$(SolutionDir)GameEngine\Th
       <Command>xcopy /Y /I "$(ProjectDir)ThirdParty\lib\*.*" "$(SolutionDir)GameEngine\ThirdParty\lib\"
 xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Debug\*.*" "$(SolutionDir)GameEngine\ThirdParty\bin\Debug\"</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -277,6 +285,10 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Debug\*.*" "$(SolutionDir)GameEngine\Th
       <Command>xcopy /Y /I "$(ProjectDir)ThirdParty\lib\*.*" "$(SolutionDir)GameEngine\ThirdParty\lib\"
 xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\ThirdParty\bin\Release\"</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">
     <ClCompile>
@@ -302,6 +314,10 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\
       <Command>xcopy /Y /I "$(ProjectDir)ThirdParty\lib\*.*" "$(SolutionDir)GameEngine\ThirdParty\lib\"
 xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\ThirdParty\bin\Release\"</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AccelerationStructureManager.h" />

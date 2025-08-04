@@ -7,7 +7,7 @@ public:
     ~PipelineStateManager() = default;
 
 public:
-    ID3D12PipelineState* GetPipelineState(const PipelineStateStream& stream);
+    ComPtr<ID3D12PipelineState> GetPipelineState(const PipelineStateStream& stream);
 
 private:
     void CreatePipelineState(const PipelineStateStream& stream);

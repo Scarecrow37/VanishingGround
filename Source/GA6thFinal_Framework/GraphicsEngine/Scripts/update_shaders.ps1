@@ -7,8 +7,8 @@
 #>
 
 param (
-    [string]$ShaderDirectory = (Join-Path $PSScriptRoot '..\Source\GA6thFinal_Framework\Shaders'),
-    [string]$HeaderFile = (Join-Path $PSScriptRoot '..\Source\GA6thFinal_Framework\GraphicsEngine\ShaderTypes.h')
+    [string]$ShaderDirectory = (Join-Path $PSScriptRoot '..\..\Shaders'),
+    [string]$HeaderFile = (Join-Path $PSScriptRoot '..\ShaderTypes.h')
 )
 
 function Generate-ShaderFiles {

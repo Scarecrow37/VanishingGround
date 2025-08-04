@@ -6,7 +6,6 @@ namespace GE
 {
     enum class VS { 
         NONE,
-        FR,
         GRID,
         PARTICLE_FULLSCREEN,
         PARTICLE_QUAD,
@@ -15,6 +14,7 @@ namespace GE
         SKELETAL_FR,
         SKELETAL_SHADOW_FR,
         SKYBOX,
+        STATIC_FR,
         STATIC_SHADOW_FR,
         UI_FR,
         END
@@ -56,6 +56,7 @@ namespace GE
         PREFIX_SUM,
         RADIX_HISTOGRAM,
         RADIX_SCATTER,
+        SKELETAL_SKINNING,
         VALIDATE_SORT,
         END
      };

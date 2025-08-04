@@ -14,29 +14,30 @@ namespace GE
         {VS::GRID, L"vs_grid.hlsl"},
         {VS::SKELETAL_FR, L"vs_skeletal_fr.hlsl"},
         {VS::PARTICLE_RIBBON, L"vs_particle_ribbon.hlsl"},
+        {VS::STATIC_FR, L"vs_static_fr.hlsl"},
         {VS::SKYBOX, L"vs_skybox.hlsl"},
         {VS::UI_FR, L"vs_ui_fr.hlsl"},
         {VS::PARTICLE_FULLSCREEN, L"vs_particle_fullscreen.hlsl"},
         {VS::QUAD, L"vs_quad.hlsl"},
         {VS::SKELETAL_SHADOW_FR, L"vs_skeletal_shadow_fr.hlsl"},
         {VS::PARTICLE_QUAD, L"vs_particle_quad.hlsl"},
-        {VS::FR, L"vs_fr.hlsl"},
         {VS::STATIC_SHADOW_FR, L"vs_static_shadow_fr.hlsl"}
     };
 
     inline const std::unordered_map<CS, std::wstring> enumToCSFileNameMap = {
-        {CS::COMPUTE_RIBBON, L"cs_compute_ribbon.hlsl"},
-        {CS::RADIX_SCATTER, L"cs_radix_scatter.hlsl"},
+        {CS::COMPUTE_SPRITE, L"cs_compute_sprite.hlsl"},
         {CS::PREFILTERED_MAP, L"cs_prefiltered_map.hlsl"},
-        {CS::PREFIX_SUM, L"cs_prefix_sum.hlsl"},
-        {CS::VALIDATE_SORT, L"cs_validate_sort.hlsl"},
-        {CS::CUBE_TEXTURE_CONVERTOR, L"cs_cube_texture_convertor.hlsl"},
-        {CS::RADIX_HISTOGRAM, L"cs_radix_histogram.hlsl"},
-        {CS::IRRADIANCE_MAP, L"cs_irradiance_map.hlsl"},
-        {CS::BRDF_LUT, L"cs_brdf_lut.hlsl"},
         {CS::DEPTH_EXTRACT, L"cs_depth_extract.hlsl"},
+        {CS::BRDF_LUT, L"cs_brdf_lut.hlsl"},
         {CS::PARTICLE_REORDER, L"cs_particle_reorder.hlsl"},
-        {CS::COMPUTE_SPRITE, L"cs_compute_sprite.hlsl"}
+        {CS::RADIX_HISTOGRAM, L"cs_radix_histogram.hlsl"},
+        {CS::VALIDATE_SORT, L"cs_validate_sort.hlsl"},
+        {CS::IRRADIANCE_MAP, L"cs_irradiance_map.hlsl"},
+        {CS::SKELETAL_SKINNING, L"cs_skeletal_skinning.hlsl"},
+        {CS::COMPUTE_RIBBON, L"cs_compute_ribbon.hlsl"},
+        {CS::CUBE_TEXTURE_CONVERTOR, L"cs_cube_texture_convertor.hlsl"},
+        {CS::RADIX_SCATTER, L"cs_radix_scatter.hlsl"},
+        {CS::PREFIX_SUM, L"cs_prefix_sum.hlsl"}
     };
 
     inline const std::unordered_map<PS, std::wstring> enumToPSFileNameMap = {
