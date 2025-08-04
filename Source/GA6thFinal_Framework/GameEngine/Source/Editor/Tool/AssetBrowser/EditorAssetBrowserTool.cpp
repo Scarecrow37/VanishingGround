@@ -248,10 +248,9 @@ void EditorAssetBrowserTool::ShowColumnPlitter()
     ImGui::InvisibleButton("##AssetBrowserPlitter", ImVec2(padding, ReflectFields->ColumHeight));
     if (true == ImGui::IsItemActive())
     {
-        float center              = ImGui::GetIO().MousePos.x - rect.Min.x - (padding * 1.5f);
-        ReflectFields->ColumWidth = center;
-        ReflectFields->ColumWidth = ImClamp(ReflectFields->ColumWidth, 200.0f, columWidth - 200.0f);
+        ReflectFields->ColumWidth = ImGui::GetIO().MousePos.x - rect.Min.x - (padding * 1.5f);
     }
+    ReflectFields->ColumWidth = ImClamp(ReflectFields->ColumWidth, 200.0f, columWidth - 200.0f);
 }
 
 void EditorAssetBrowserTool::ShowFolderHierarchy()
@@ -389,7 +388,7 @@ void EditorAssetBrowserTool::ShowFolderEntries()
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(15.0f, 4.0f)); ++pushStyleVar;// 아이콘 간격 조정
         for (auto& asset : _focusFolderAssetDataList)
         {
-            if (_searchFilter.PassFilter(asset->FileName.c_str()))
+            if (_search.PassFilter(asset->FileName.c_str()))
             {
                 switch (showType)
                 {
@@ -453,9 +452,7 @@ void EditorAssetBrowserTool::ShowSearchBar()
     buttonStyle.PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0, 0, 0));  // 클릭 시 배경
     if (ImGui::Button(iconX, buttonSize))
     {
-        _searchBuffer.clear();
-        _searchFilter.InputBuf[0] = '\0'; // Ensure null-termination
-        _searchFilter.Build();
+        _search.ClearBuffer();
     }
     buttonStyle.PopStyle();
 
@@ -466,12 +463,11 @@ void EditorAssetBrowserTool::ShowSearchBar()
     ImGuiHelper::StyleBuilder inputStyle;
     inputStyle.PushStyleColor(ImGuiCol_FrameBg, ImVec4(0, 0, 0, 0)); // 완전 투명
     ImGui::SetNextItemWidth(inputSize.x);
-    if (ImGui::InputTextWithHint("##SearchBar", "Search...", &_searchBuffer, ImGuiInputTextFlags_AutoSelectAll))
+    if (ImGui::InputTextWithHint("##SearchBar", "Search...", &_search.SearchBuffer, ImGuiInputTextFlags_AutoSelectAll))
     {
-        strncpy_s(_searchFilter.InputBuf, _searchBuffer.c_str(), _searchBuffer.length());
-        _searchFilter.InputBuf[_searchBuffer.length()] = '\0'; // Ensure null-termination
-        _searchFilter.Build();
+        _search.UpdateBuffer();
     }
+    _search.IsSearching = ImGui::IsItemActive();
     inputStyle.PopStyle();
     styleBuilder.PopStyle();
 
@@ -913,7 +909,7 @@ void EditorAssetBrowserTool::UpdateFolderEntryInput()
     bool isMouseXbutton2    = ImGui::IsMouseClicked(ImGuiMouseButton_XButton2, false);
     bool isKeyEnter         = ImGui::IsKeyPressed(ImGuiKey_Enter, false);
     bool isKeyDelete        = ImGui::IsKeyPressed(ImGuiKey_Delete, false); 
-    bool isKeyDBackSpace    = ImGui::IsKeyPressed(ImGuiKey_Backspace, false);
+    bool isKeyBackSpace     = ImGui::IsKeyPressed(ImGuiKey_Backspace, false);
     bool isKeyEsc           = ImGui::IsKeyPressed(ImGuiKey_Escape, false);
     bool isKeyCtrl          = ImGui::IsKeyDown(ImGuiKey_LeftCtrl);
     bool isKeyF2            = ImGui::IsKeyPressed(ImGuiKey_F2, false);
@@ -926,9 +922,11 @@ void EditorAssetBrowserTool::UpdateFolderEntryInput()
 
     if (focusAssetData)
     {
-        if (isKeyDBackSpace)
+        if (isKeyBackSpace)
         {
-            if (false == _rename.IsActive() && false == isRootpath)
+            if (false == _rename.IsActive() &&
+                false == _search.IsActive() &&
+                false == isRootpath)
             {
                 SetFocusFolderPath(parentPath);
             }
@@ -1499,7 +1497,7 @@ bool EditorAssetBrowserTool::Compare::operator()(const AssetData* a, const Asset
     bool bIsDir = b->IsDirectory;
     if (aIsDir != bIsDir)
     {
-        return isAscending ? aIsDir > bIsDir : aIsDir < bIsDir;
+        return aIsDir > bIsDir;
     }
     else
     {
@@ -1740,4 +1738,24 @@ void EditorAssetBrowserTool::InspectorDrawer::SetAsset(const AssetData& assetDat
         _assetPath     = assetData.Entry.path().generic_string();
         _selectedAsset = UmFileSystem.GetContext(_assetData.Entry.path());
     }
+}
+
+void EditorAssetBrowserTool::SearchController::UpdateBuffer()
+{
+    strncpy_s(SearchFilter.InputBuf, SearchBuffer.c_str(), SearchBuffer.length());
+    SearchFilter.InputBuf[SearchBuffer.length()] = '\0'; // Ensure null-termination
+    SearchFilter.Build();
+}
+
+void EditorAssetBrowserTool::SearchController::ClearBuffer() 
+{
+    SearchBuffer.clear();
+    SearchFilter.InputBuf[0] = '\0'; // Ensure null-termination
+    SearchFilter.Build();
+    IsSearching = false;
+}
+
+bool EditorAssetBrowserTool::SearchController::PassFilter(const char* text)
+{
+    return SearchFilter.PassFilter(text);
 }
