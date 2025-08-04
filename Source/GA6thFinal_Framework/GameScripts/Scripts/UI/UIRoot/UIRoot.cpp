@@ -48,7 +48,7 @@ void UIRoot::SortViewOrder()
     SetViewOrder(startOrder++);
 
     Transform& transform = this->transform;
-    Transform::ForeachDFS(transform, [&startOrder](const Transform* dfsTransform) {
+    Transform::ForeachPostOrder(transform, [&startOrder](const Transform* dfsTransform) {
         const GameObject& gameObject = dfsTransform->gameObject;
         auto              components = gameObject.GetComponents<PlacementUIComponent>();
         std::ranges::for_each(components, [&startOrder](PlacementUIComponent* component) {
