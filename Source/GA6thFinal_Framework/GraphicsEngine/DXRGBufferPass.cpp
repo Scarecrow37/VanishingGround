@@ -70,13 +70,13 @@ void DXRGBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
     auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
 
     // Static
-    commandList->SetGraphicsRootSignature(_staticMeshFX.GetRootSignature());
+    commandList->SetGraphicsRootSignature(_fxStaticMesh.GetRootSignature());
 
-    commandList->SetGraphicsRootDescriptorTable(_staticMeshFX.GetRootParameterIndex("textures"), resource);
-    commandList->SetGraphicsRootConstantBufferView(_staticMeshFX.GetRootParameterIndex("cameraData"), cameraData);
-    frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _staticMeshFX.GetRootParameterIndex("worldMatrices"),
+    commandList->SetGraphicsRootDescriptorTable(_fxStaticMesh.GetRootParameterIndex("textures"), resource);
+    commandList->SetGraphicsRootConstantBufferView(_fxStaticMesh.GetRootParameterIndex("cameraData"), cameraData);
+    frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxStaticMesh.GetRootParameterIndex("worldMatrices"),
                                     commandList);
-    frameResource->SetFrameResource(FrameResourceType::MATERIAL, _staticMeshFX.GetRootParameterIndex("material"),
+    frameResource->SetFrameResource(FrameResourceType::MATERIAL, _fxStaticMesh.GetRootParameterIndex("material"),
                                     commandList);
 
     commandList->SetPipelineState(_psos[STATIC_CULL_BACK].Get());
@@ -89,15 +89,15 @@ void DXRGBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
     DrawMeshes(commandList, STATIC_MESH, STATIC_TWO_SIDED);
 
     // Skeletal
-    commandList->SetGraphicsRootSignature(_skeletalMeshFX.GetRootSignature());
+    commandList->SetGraphicsRootSignature(_fxSkeletalMesh.GetRootSignature());
 
-    commandList->SetGraphicsRootDescriptorTable(_skeletalMeshFX.GetRootParameterIndex("textures"), resource);
-    commandList->SetGraphicsRootConstantBufferView(_skeletalMeshFX.GetRootParameterIndex("cameraData"), cameraData);
+    commandList->SetGraphicsRootDescriptorTable(_fxSkeletalMesh.GetRootParameterIndex("textures"), resource);
+    commandList->SetGraphicsRootConstantBufferView(_fxSkeletalMesh.GetRootParameterIndex("cameraData"), cameraData);
     frameResource->SetFrameResource(FrameResourceType::TRANSFORM,
-                                    _skeletalMeshFX.GetRootParameterIndex("worldMatrices"), commandList);
+                                    _fxSkeletalMesh.GetRootParameterIndex("worldMatrices"), commandList);
     frameResource->SetFrameResource(FrameResourceType::BONE_MATRICES,
-                                    _skeletalMeshFX.GetRootParameterIndex("boneMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResourceType::MATERIAL, _skeletalMeshFX.GetRootParameterIndex("material"),
+                                    _fxSkeletalMesh.GetRootParameterIndex("boneMatrices"), commandList);
+    frameResource->SetFrameResource(FrameResourceType::MATERIAL, _fxSkeletalMesh.GetRootParameterIndex("material"),
                                     commandList);
 
     commandList->SetPipelineState(_psos[SKELETAL_CULL_BACK].Get());
@@ -122,7 +122,7 @@ void DXRGBufferPass::End(ID3D12GraphicsCommandList* commandList)
     }
 }
 
-void DXRGBufferPass::Update(ID3D12GraphicsCommandList* commandList) 
+void DXRGBufferPass::Update(ID3D12GraphicsCommandList* commandList)
 {
     for (auto& data : _renderDatas)
     {
@@ -157,19 +157,19 @@ void DXRGBufferPass::InitShaderAndPSO()
 {
     _psos.resize(MeshType::END);
     PipelineStateStream pss;
-    pss.BlendDesc = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    pss.BlendDesc         = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
     pss.RasterizerState   = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
     pss.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
     pss.PrimitiveTopology = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    pss.RTVFormats        = { 
+    pss.RTVFormats        = {
         {DXGI_FORMAT_R32G32B32A32_FLOAT, // Normal
-         DXGI_FORMAT_R32_FLOAT,          // Depth
-         DXGI_FORMAT_R32_UINT},
+                DXGI_FORMAT_R32_FLOAT,          // Depth
+                DXGI_FORMAT_R32_UINT},
         DXRGBUFFER_END // CustomDepth
     };
     pss.DSVFormat = _ownerScene->_depthStencilView->GetFormat();
-    
-    _staticMeshFX.SetPipelineStateStream(pss);
+
+    _fxStaticMesh.SetPipelineStateStream(pss);
     (&pss.RasterizerState)->CullMode = D3D12_CULL_MODE_BACK;
     _psos[STATIC_CULL_BACK]          = Global::pipelineStateManager->GetPipelineState(pss);
 
@@ -179,7 +179,7 @@ void DXRGBufferPass::InitShaderAndPSO()
     (&pss.RasterizerState)->CullMode = D3D12_CULL_MODE_NONE;
     _psos[STATIC_TWO_SIDED]          = Global::pipelineStateManager->GetPipelineState(pss);
 
-    _skeletalMeshFX.SetPipelineStateStream(pss);
+    _fxSkeletalMesh.SetPipelineStateStream(pss);
 
     (&pss.RasterizerState)->CullMode = D3D12_CULL_MODE_BACK;
     _psos[SKELETAL_CULL_BACK]        = Global::pipelineStateManager->GetPipelineState(pss);
@@ -202,11 +202,11 @@ void DXRGBufferPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, int shad
         switch (shaderType)
         {
         case STATIC_MESH:
-            commandList->SetGraphicsRoot32BitConstants(_staticMeshFX.GetRootParameterIndex("bit32_3_objectData"), 3,
+            commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_3_objectData"), 3,
                                                        parameter, 0);
             break;
         case SKELETAL_MESH:
-            commandList->SetGraphicsRoot32BitConstants(_skeletalMeshFX.GetRootParameterIndex("bit32_3_objectData"), 3,
+            commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_3_objectData"), 3,
                                                        parameter, 0);
             break;
         }

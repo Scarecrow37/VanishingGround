@@ -42,6 +42,6 @@ private:
     std::array<D3D12_CPU_DESCRIPTOR_HANDLE, GBuffer::GBUFFER_END> _gBufferHandles;
     std::vector<RenderData>                                       _renderDatas[MeshType::END];
 
-    FX<GE::VS::STATIC_FR, GE::PS::DXRGBUFFER> _staticMeshFX;
-    FX<GE::VS::SKELETAL_FR, GE::PS::DXRGBUFFER> _skeletalMeshFX;
+    FX<GE::VS::STATIC_FR, GE::PS::DXRGBUFFER> _fxStaticMesh;
+    FX<GE::VS::SKELETAL_FR, GE::PS::DXRGBUFFER> _fxSkeletalMesh;
 };
