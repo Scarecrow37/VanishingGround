@@ -23,7 +23,7 @@
 #include "State/RoundStartPhase.h"   
 #include "State/RoundEndPhase.h"
 #include "State/PlayerActionPhase.h"
-#include "State/EnemyActionPhase.h"    //게임 플레이중 여부를 반환합니다.
+#include "State/EnemyActionPhase.h"    
 #include "State/CheckPlayerState.h"
 #include "State/TurnListEmptyState.h"
 #include "State/GameOverState.h"
