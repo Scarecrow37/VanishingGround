@@ -56,7 +56,7 @@ void VertexShader::CreateInputLayout(ComPtr<ID3D12ShaderReflection> shaderReflec
 
 		// Input Layout 구조체 생성
 		_savedSemanticNames[i].resize(strlen(paramDesc.SemanticName) + 1);
-		memcpy(_savedSemanticNames[i].data(), paramDesc.SemanticName, strlen(paramDesc.SemanticName));
+		memcpy(_savedSemanticNames[i].data(), paramDesc.SemanticName, strlen(paramDesc.SemanticName) + 1);
 
 		D3D12_INPUT_ELEMENT_DESC inputElement = {};
 		inputElement.SemanticName = _savedSemanticNames[i].data();
