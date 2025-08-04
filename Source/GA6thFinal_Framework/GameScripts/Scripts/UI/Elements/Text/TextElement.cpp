@@ -8,16 +8,12 @@ TextElement::TextElement()
         {
             if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
             {
-                const DragDropAsset::Data* data    = static_cast<DragDropAsset::Data*>(payLoad->Data);
-                if (const auto context = data->pContext->lock(); nullptr != context)
+                const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
+                if (const auto extension = data->GetPath().extension(); extension == L".UmFont")
                 {
-                    const auto& path      = context->GetPath();
-                    if (const auto extension = path.extension(); extension == L".UmFont")
-                    {
-                        _guidRef            = path.ToGuid();
-                        ReflectFields->Guid = _guidRef.string();
-                        RequestResource();
-                    }
+                    _guidRef            = data->GetGuid();
+                    ReflectFields->Guid = _guidRef.string();
+                    RequestResource();
                 }
             }
             ImGui::EndDragDropTarget();

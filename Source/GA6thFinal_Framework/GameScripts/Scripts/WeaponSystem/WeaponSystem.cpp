@@ -87,7 +87,7 @@ void WeaponSystem::SetCurrentWeaponSlot(int slot)
         if (next._action)
         {
             turnMode->AddTurnAction(next._action.get());
-            std::string msg = next.Stats.Name;
+            std::string msg = next.Stats.WeaponName;
             msg += (const char*)u8" 효과 발동";
             next._action->OnActionActive = [msg]() { UmLogger.Message(LogLevel::LEVEL_DEBUG, msg); };
         }       
@@ -104,10 +104,40 @@ int WeaponSystem::GetRoundSpeedToSlot(int slot)
 
 void WeaponSystem::ImguiEquipWeapons()
 {
+    auto WeaponsRightClickContext = [&]() 
+    {
+        if (ImGui::BeginPopupContextItem())
+        {
+            if (ImGui::MenuItem("Reset All"))
+            {
+                WeaponTableComponent* weaponTableComponent = WeaponTableComponent::GetInstance();
+                if (weaponTableComponent)
+                {
+                    auto& weaponTable = weaponTableComponent->GetWeaponTable();
+                    for (auto& weapon : _equipWeapons)
+                    {
+                        const std::string& weaponName = weapon.Stats.WeaponName;
+                        auto findIter = weaponTable.find(weaponName);
+                        if (findIter != weaponTable.end())
+                        {
+                            weapon = findIter->second;
+                        }               
+                    }
+                }
+            }
+            ImGuiHelper::HoveredToolTip(u8"플레이어의 무기 스텟들을 무기 테이블 기준으로 초기화 시킵니다.");
+            ImGui::EndPopup();
+        }
+    };
+
     if (ImGui::TreeNodeEx("Weapons", ImGuiTreeNodeFlags_DefaultOpen))
     {
+        WeaponsRightClickContext();
         static const WeaponElement* changeWeaponSelect = nullptr;
-        auto                      RightClickContext  = [&](int id) {
+        static bool                 resetWeponSelect   = false;
+
+        auto RightClickContext = [&](int id) 
+        {
             if (ImGui::BeginPopupContextItem())
             {
                 if (ImGui::BeginMenu("Change"))
@@ -121,7 +151,7 @@ void WeaponSystem::ImguiEquipWeapons()
                         {
                             if (filter.PassFilter(name.c_str()))
                             {
-                                ImGui::PushStyleColor(ImGuiCol_Text, WeaponTableComponent::GetWeaponTypeColor(element.Stats.Type));
+                                ImGui::PushStyleColor(ImGuiCol_Text, WeaponStats::GetGradeToColor(element.Stats.Grade));
                                 if (ImGui::Selectable(name.c_str()))
                                 {
                                     changeWeaponSelect = &element;
@@ -132,6 +162,10 @@ void WeaponSystem::ImguiEquipWeapons()
                     }
                     ImGui::EndMenu();
                 }
+                if (ImGui::MenuItem("Reset"))
+                {
+                    resetWeponSelect = true;
+                }
                 ImGui::EndPopup();
             }
         };
@@ -139,9 +173,9 @@ void WeaponSystem::ImguiEquipWeapons()
         int itemID = 0;
         for (auto& weapon : _equipWeapons)
         {
-            ImGui::PushStyleColor(ImGuiCol_Text, WeaponTableComponent::GetWeaponTypeColor(weapon.Stats.Type));
+            ImGui::PushStyleColor(ImGuiCol_Text, WeaponStats::GetGradeToColor(weapon.Stats.Grade));
             ImGui::PushID(itemID++);
-            const std::string& weaponName = weapon.Stats.Name;
+            const std::string& weaponName = weapon.Stats.WeaponName;
             if (ImGui::TreeNodeEx(weaponName.data(), ImGuiTreeNodeFlags_OpenOnArrow))
             {
                 RightClickContext(itemID);
@@ -158,14 +192,37 @@ void WeaponSystem::ImguiEquipWeapons()
             {
                 RightClickContext(itemID);
             }
+            
+            // 무기 변경
             if (nullptr != changeWeaponSelect)
             {
                 weapon             = *changeWeaponSelect;
                 changeWeaponSelect = nullptr;
             }
+
+            //무기 스텟 테이블 정보로 리셋
+            if (true == resetWeponSelect)
+            {
+                WeaponTableComponent* weaponTableComponent = WeaponTableComponent::GetInstance();
+                if (weaponTableComponent)
+                {
+                    auto& weaponTable = weaponTableComponent->GetWeaponTable();
+                    auto findIter = weaponTable.find(weaponName);
+                    if (findIter != weaponTable.end())
+                    {
+                        weapon = findIter->second;
+                        resetWeponSelect = false;
+                    }
+                }
+            }
+
             ImGui::PopID();
             ImGui::PopStyleColor(1);
         }
         ImGui::TreePop();
+    }
+    else
+    {
+        WeaponsRightClickContext();
     }
 }

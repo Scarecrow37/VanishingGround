@@ -13,9 +13,19 @@ struct EnemyStats : public CharacterStats
     GETTER(int, Speed) { return ReflectFields->Speed; }
     PROPERTY(Speed)
 
+    SETTER(int, Damage) { ReflectFields->Damage = std::max(value, 0); }
+    GETTER(int, Damage) { return ReflectFields->Damage; }
+    PROPERTY(Damage)
+
+    SETTER(float, DamageMultiplier) { ReflectFields->DamageMultiplier = value; }
+    GETTER(float, DamageMultiplier) { return ReflectFields->DamageMultiplier; }
+    PROPERTY(DamageMultiplier)
+
 protected:
     REFLECT_FIELDS_BEGIN(CharacterStats)
     int Speed = 0;
+    int Damage = 0;
+    float DamageMultiplier = 1.0f;
     REFLECT_FIELDS_END(EnemyStats)
         
 public:
@@ -23,9 +33,12 @@ public:
     {
         if (this != &rhs)
         {
-            reflect_fields_struct& myFields  = *this->ReflectFields;
-            reflect_fields_struct& rhsFields = *this->ReflectFields;
-            myFields                         = rhsFields;
+            //reflect_fields_struct& myFields  = *this->ReflectFields;
+            //reflect_fields_struct& rhsFields = *this->ReflectFields;
+            //myFields                         = rhsFields;
+            ReflectFields->Speed = rhs.ReflectFields->Speed;
+            ReflectFields->Damage = rhs.ReflectFields->Damage;
+            ReflectFields->DamageMultiplier = rhs.ReflectFields->DamageMultiplier;
         }
         return *this;
     }

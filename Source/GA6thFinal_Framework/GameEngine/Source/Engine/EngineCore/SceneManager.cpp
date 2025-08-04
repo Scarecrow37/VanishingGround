@@ -148,6 +148,7 @@ void ESceneManager::SceneUpdate()
     ObjectsOnDisable();
     ObjectsDestroy();
     ObjectsMatrixUpdate();
+    ObjectsAddLoadScene();
 }
 
 void ESceneManager::Engine::AddGameObjectToLifeCycle(std::shared_ptr<GameObject> gameObject)
@@ -166,7 +167,7 @@ void ESceneManager::Engine::AddGameObjectToLifeCycle(std::shared_ptr<GameObject>
 
 void ESceneManager::Engine::AddComponentToLifeCycle(std::shared_ptr<Component> component)
 {
-    Global::engineCore->SceneManager._addComponentsQueue.push_back(component);
+    Global::engineCore->SceneManager._addComponentsQueue.emplace_back(component->_gameObject->GetWeakPtr(), component);
     EComponentFactory::Engine::PushBackComponentToObject(component);
 }
 
@@ -187,7 +188,7 @@ void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
             auto [iter, result] = UpdateSet.insert(gameObject);
             if (true == result)
             {
-                UpdateQueue.push_back(gameObject);
+                UpdateQueue.push_back(gameObject->GetWeakPtr());
             }
 
             //컴포넌트들의 On__able 함수를 호출하도록 합니다.
@@ -211,7 +212,7 @@ void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
                                 auto [iter, result] = WaitSet.insert(component.get());
                                 if (result)
                                 {
-                                    WaitVec.emplace_back(component.get());
+                                    WaitVec.push_back(component);
                                 }
                             }
                         }
@@ -240,7 +241,7 @@ void ESceneManager::Engine::SetComponentEnable(Component* component, bool value)
             auto [iter, result] = WaitSet.insert(component);
             if (result)
             {
-                WaitVec.push_back(component);
+                WaitVec.push_back(component->GetWeakPtr());
             }           
         }
     }
@@ -602,70 +603,62 @@ void ESceneManager::CreateEmptySceneAndLoad(std::string_view name, std::string_v
 
 void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
 {
-    try
+    if (false == UmComponentFactory.HasScript())
     {
-        if (false == UmComponentFactory.HasScript())
+        UmComponentFactory.InitalizeComponentFactory();
+    }
+
+    Scene* scene = GetSceneByName(sceneName);
+    if (scene == nullptr)
+    {
+        return;
+    }
+
+    if (mode == LoadSceneMode::SINGLE)
+    {
+        for (auto& obj : _runtimeObjects)
         {
-            UmComponentFactory.InitalizeComponentFactory();
+            if (obj)
+            {
+                if (obj->_ownerScene == DONT_DESTROY_ON_LOAD_SCENE_NAME)
+                    continue;
+
+                GameObject::Destroy(obj.get());
+            }
         }
 
-        Scene* scene = GetSceneByName(sceneName);
-        if (scene == nullptr)
+        if (false == _lodedSceneList.empty())
         {
+            _prevScene = _setting.MainScene;
+            for (auto& scene : _lodedSceneList)
+            {
+                scene->_isLoaded = false;
+            }
+        }
+        _setting.MainScene = scene->Path;
+        _addComponentsQueue.clear();
+        _addGameObjectsQueue.clear();
+        _waitAwakeVec.clear();
+        _waitStartVec.clear();
+        _lodedSceneList.clear();
+        UmCommandManager.Clear();
+        SetRendererSkyBox(scene);
+    }
+    else
+    {
+        Scene* mainScene = GetMainScene();
+        if (mainScene == nullptr)
+        {
+            engineCore->Logger.Log(LogLevel::LEVEL_WARNING, u8"메인 씬을 먼저 로드해주세요."_c_str);
             return;
         }
-
-        if (mode == LoadSceneMode::SINGLE)
+        if (scene->_isLoaded)
         {
-            for (auto& obj : _runtimeObjects)
-            {
-                if (obj)
-                {
-                    if (obj->_ownerScene == DONT_DESTROY_ON_LOAD_SCENE_NAME)
-                        continue;
-
-                    GameObject::Destroy(obj.get());
-                }
-            }
-
-            if (false == _lodedSceneList.empty())
-            {
-                _prevScene = _setting.MainScene;
-            }
-            _setting.MainScene = scene->Path;
-            _addComponentsQueue.clear();
-            _addGameObjectsQueue.clear();
-            _waitAwakeVec.clear();
-            _waitStartVec.clear();
-            _lodedSceneList.clear();
-            UmCommandManager.Clear();
-            SetRendererSkyBox(scene);
+            engineCore->Logger.Log(LogLevel::LEVEL_WARNING, u8"이미 로드된 씬은 추가 로드가 불가능합니다."_c_str);
+            return;
         }
-        else
-        {
-            Scene* mainScene = GetMainScene();
-            if (mainScene == nullptr)
-            {
-                engineCore->Logger.Log(LogLevel::LEVEL_WARNING, u8"메인 씬을 먼저 로드해주세요."_c_str);
-                return;
-            }
-            if (scene->_isLoaded)
-            {
-                engineCore->Logger.Log(LogLevel::LEVEL_WARNING, u8"이미 로드된 씬은 추가 로드가 불가능합니다."_c_str);
-                return;
-            }
-        }
-
-        DeserializeToGuid(scene->_guid);
-        scene->_isLoaded = true;
-        scene->_isDirty  = false;
-        _lodedSceneList.push_back(scene);
     }
-    catch (const std::exception& ex)
-    {
-        std::string msg = std::format("{}{}{}", sceneName, (const char*)u8" 로드 실패. ", ex.what());
-        UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
-    }
+    _nextSceneGuid = scene->_guid;
 }
 
 void ESceneManager::UnloadScene(std::string_view sceneName) 
@@ -879,6 +872,32 @@ void ESceneManager::ObjectsMatrixUpdate()
     }
 }
 
+void ESceneManager::ObjectsAddLoadScene() 
+{
+    if (false == _nextSceneGuid.empty())
+    {
+        auto sceneIter = _scenesMap.find(_nextSceneGuid);
+        if (sceneIter != _scenesMap.end())
+        {
+            Scene* scene = &sceneIter->second;
+            try
+            {
+                DeserializeToGuid(_nextSceneGuid);
+                scene->_isLoaded = true;
+                scene->_isDirty  = false;
+                _lodedSceneList.push_back(scene);
+            }
+            catch (const std::exception& ex)
+            {
+                std::string sceneName = scene->Name;
+                std::string msg       = std::format("{}{}{}", sceneName, (const char*)u8" 로드 실패. ", ex.what());
+                UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+            }
+        }
+        _nextSceneGuid.clear();
+    }
+}
+
 void ESceneManager::ObjectsApplicationQuit()
 {
     if (_isPlay)
@@ -909,12 +928,30 @@ void ESceneManager::ObjectsOnEnable()
         *value = true;  
     }
       
-    for (auto& object : UpdateQueue)
+    static thread_local std::vector<std::shared_ptr<GameObject>> validObjects;
+    validObjects.reserve(UpdateQueue.size());
+    for (auto& weakObj : UpdateQueue)
     {
-        GameObject::Engine::UpdateActiveInHierarchy(object);
+        if (const auto& object = weakObj.lock())
+        {
+            validObjects.push_back(std::move(object));
+        }  
+    }
+    for (auto& object : validObjects)
+    {
+        GameObject::Engine::UpdateActiveInHierarchy(object.get());
     }
 
-    for (auto& component : OnEnableVec)
+    static thread_local std::vector<std::shared_ptr<Component>> validComponents;
+    validComponents.reserve(OnEnableVec.size());
+    for (auto& weakComponent : OnEnableVec)
+    {
+        if (const auto& component = weakComponent.lock())
+        {
+            validComponents.push_back(std::move(component));
+        }
+    }
+    for (auto& component : validComponents)
     {
         component->UpdateEnableInHierarchy();
         if (_isPlay)
@@ -923,6 +960,8 @@ void ESceneManager::ObjectsOnEnable()
         }
     }
     
+    validObjects.clear();
+    validComponents.clear();
     OnEnableSet.clear();
     OnEnableVec.clear();
     OnEnableValue.clear();
@@ -935,18 +974,35 @@ void ESceneManager::ObjectsOnDisable()
 {
     auto& [OnDisableSet, OnDisableVec, OnDisableValue] = _onDisableQueue;
     auto& [UpdateSet, UpdateQueue] = _updateDisableQueue;
-
     for (auto& value : OnDisableValue)
     {
         *value = false;
     }
 
-    for (auto& object : UpdateQueue)
+    static thread_local std::vector<std::shared_ptr<GameObject>> validObjects;
+    validObjects.reserve(UpdateQueue.size());
+    for (auto& weakObj : UpdateQueue)
     {
-        GameObject::Engine::UpdateActiveInHierarchy(object);
+        if (const auto& object = weakObj.lock())
+        {
+            validObjects.push_back(std::move(object));
+        }
+    }
+    for (auto& object : validObjects)
+    {
+        GameObject::Engine::UpdateActiveInHierarchy(object.get());       
     }
 
-    for (auto& component : OnDisableVec)
+    static thread_local std::vector<std::shared_ptr<Component>> validComponents;
+    validComponents.reserve(OnDisableVec.size());
+    for (auto& weakComponent : OnDisableVec)
+    {
+        if (const auto& component = weakComponent.lock())
+        {
+            validComponents.push_back(std::move(component));
+        }
+    }
+    for (auto& component : validComponents)
     {
         component->UpdateEnableInHierarchy();
         if (_isPlay)
@@ -955,6 +1011,8 @@ void ESceneManager::ObjectsOnDisable()
         }
     }
     
+    validObjects.clear();
+    validComponents.clear();
     OnDisableSet.clear();
     OnDisableVec.clear();
     OnDisableValue.clear();
@@ -1059,21 +1117,25 @@ void ESceneManager::ObjectsAddRuntime()
         _runtimeObjects[id] = gameObject;
         GameObject::Engine::UpdateActiveInHierarchy(gameObject.get());     
     }
-    _addGameObjectsQueue.clear();
 
-    for (auto& component : _addComponentsQueue)
+    for (auto& [owner, component] : _addComponentsQueue)
     {
-        if (_isPlay)
+        if (owner.expired() == false)
         {
-            _waitAwakeVec.push_back(component);
-            _waitStartVec.push_back(component);
+            if (_isPlay)
+            {
+                _waitAwakeVec.push_back(component);
+                _waitStartVec.push_back(component);
+            }
+            if (component->_type == Component::TYPE::CAMERA)
+            {
+                component->gameObject->_transform._hasChanged = true;
+            }
+            component->UpdateEnableInHierarchy();
         }
-        if (component->_type == Component::TYPE::CAMERA)
-        {
-            component->gameObject->_transform._hasChanged = true;
-        }
-        component->UpdateEnableInHierarchy();
     }
+
+    _addGameObjectsQueue.clear();
     _addComponentsQueue.clear();
 }
 
@@ -1667,9 +1729,13 @@ void ESceneManager::SceneResourceManager::UpdateRenderResource(RenderResource<T>
 
 void ESceneManager::SceneResourceManager::Engine::Update(SceneResourceManager& manager)
 {
-    manager.UpdateRenderResource(manager._models);
-    manager.UpdateRenderResource(manager._textures);
-    manager.UpdateRenderResource(manager._fonts);
+    ESceneManager& sceneManager = UmSceneManager;
+    if (true == sceneManager._addComponentsQueue.empty())
+    {
+        manager.UpdateRenderResource(manager._models);
+        manager.UpdateRenderResource(manager._textures);
+        manager.UpdateRenderResource(manager._fonts);
+    }
 }
 
 void ESceneManager::SceneResourceManager::RequestModelResource(const Component* component, const File::Guid& guid,

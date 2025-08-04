@@ -83,6 +83,7 @@ void CharacterBase::Awake()
     gameObject->AddTag(TAG);
 
     InitMeshModel();
+    InitAnimationCallback();
 }
 
 void CharacterBase::InitMeshModel()
@@ -122,6 +123,15 @@ void CharacterBase::InitMeshModel()
     }
 }
 
+void CharacterBase::InitAnimationCallback() 
+{
+    if (_animationComponent)
+    {
+        _animationComponent->SetAnimationPostEventCallback(
+            [this](const Timeline::EventContext* context) { OnNotifiedAnimationEvent(context); });
+    }
+}
+
 void CharacterBase::ClearState() 
 {
     Base::ClearState();
@@ -137,7 +147,8 @@ void CharacterBase::ClearState()
     if (_animationComponent)
     {
         _animationComponent->ClearOverrideAnimations();
-        SetMainAnimation(CharacterBase::IDLE, true, true);
+        _animationComponent->ChangeMainAnimation("Idle", true);
+        _animationComponent->ChangeMainAnimationFlags(ANIMATION_FLAG_USE_LOOP | ANIMATION_FLAG_RESET_FRAME);
     }
 }
 
@@ -184,14 +195,14 @@ void CharacterBase::TakeDamage(int damage)
     }
     if (_animationComponent)
     {
-        const auto& animData        = _animationComponent->GetLastAnimationData();
-        const char* currentAnimName = animData.GetAnimationName().c_str();
-        const char* hitAnimName     = GetAnimationName(CharacterBase::HIT);
-        if (0 == strcmp(currentAnimName, hitAnimName))
+        const auto& animData    = _animationComponent->GetLastAnimationData();
+        const char* hitAnimName = _animationComponent->GetAnimationNameFromKey("Hit").c_str();
+        const char* curAnimName = animData.GetAnimationName().c_str();
+        if (0 == strcmp(curAnimName, hitAnimName))
         {
             _animationComponent->PopOverrideAnimation();
         }
-        _animationComponent->PushOverrideAnimation(hitAnimName, true,
+        _animationComponent->PushOverrideAnimation("Hit", true,
             [](const AnimationData& data) { return data.IsEnd(); });
     }
 }
@@ -299,36 +310,12 @@ void CharacterBase::OnTokenRemoved(int tokenID)
     _tokenInventory.NotifyTokenRemoved(tokenID);
 }
 
+void CharacterBase::OnNotifiedAnimationEvent(const Timeline::EventContext* context) 
+{
+}
+
 void CharacterBase::ImGuiDrawPropertysEvent() 
 {
     ImGui::Separator();
     _tokenInventory.DrawImGuiDebugData();
-}
-
-void CharacterBase::SetMainAnimation(AnimationType type, int flags, bool blend)
-{
-    if (_animationComponent)
-    {
-        const char* animKey = GetAnimationName(type);
-        _animationComponent->ChangeMainAnimation(animKey, blend);
-        _animationComponent->ChangeMainAnimationFlags(flags);
-    }
-}
-
-void CharacterBase::ClearOverrideAnimations()
-{
-    if (_animationComponent)
-    {
-        _animationComponent->ClearOverrideAnimations();
-    }
-}
-
-bool CharacterBase::IsAnimationEnd()
-{
-    if (_animationComponent)
-    {
-        const auto& data = _animationComponent->GetLastAnimationData();
-        return data.IsEnd();
-    }
-    return true;
 }

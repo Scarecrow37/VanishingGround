@@ -312,23 +312,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Editor\Tool\RenderPassData\EditorRenderPassData.h" />
+    <ClInclude Include="Source\Engine\EditorCore\Gui\Sequencer\EditorTimelineTrackSequencer.h" />
     <ClInclude Include="Source\Editor\Tool\Model\EditorModelInspector.h" />
-    <ClInclude Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.h" />
+    <ClInclude Include="Source\Editor\Tool\Model\EditorAnimationTrackTool.h" />
     <ClInclude Include="Source\Engine\AppModule\GraphicsModule.h" />
     <ClInclude Include="Source\Engine\AppModule\ImGuiDX12Module.h" />
     <ClInclude Include="Source\Engine\AudioCore\AudioModule.h" />
     <ClInclude Include="Source\Engine\ClassCore\Delegate.hpp" />
     <ClInclude Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.h" />
-    <ClInclude Include="Source\Engine\TimelineCore\AnimationNotifySet.h" />
+    <ClInclude Include="Source\Engine\TimelineCore\AnimationEventTrack.h" />
     <ClInclude Include="Source\Engine\EditorCore\Utillity\EditorDragState.h" />
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.h" />
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.h" />
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectViewer.h" />
     <ClInclude Include="Source\Engine\GameCore\InputReciver\InputReceiver.h" />
     <ClInclude Include="Source\Engine\EditorCore\Gui\Sequencer\Command\SequencerCommand.h" />
-    <ClInclude Include="Source\Engine\EditorCore\Gui\Sequencer\EditorSequencer.h" />
-    <ClInclude Include="Source\Editor\Tool\Sequencer\EditorSequencerTool.h" />
     <ClInclude Include="Source\Editor\Menu\Model\EditorModelMenu.h" />
     <ClInclude Include="Source\Editor\Tool\GameView\EditorGameView.h" />
     <ClInclude Include="Source\Editor\Tool\Hierarchy\HierarchyFindTool.h" />
@@ -387,6 +385,7 @@
     <ClInclude Include="Source\Engine\Utility\FileHelper.h" />
     <ClInclude Include="Source\Engine\Utility\LogLevel.h" />
     <ClInclude Include="Source\Engine\Utility\Mathf.h" />
+    <ClInclude Include="Source\Engine\Utility\OpenXLSXHelper.h" />
     <ClInclude Include="Source\Engine\Utility\Random.h" />
     <ClInclude Include="Source\Engine\Utility\stlHelper.h" />
     <ClInclude Include="Source\Engine\ClassCore\ReflectHelper.h" />
@@ -409,31 +408,64 @@
     <ClInclude Include="Source\Engine\ApplicationCore\Application.h" />
     <ClInclude Include="Source\Engine\FileSystem\Importer\SpriteFontImporter.h" />
     <ClInclude Include="Source\Engine\Utility\YAMLHelper.h" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\IZipArchive.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\OpenXLSX-Exports.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLCell.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLCellIterator.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLCellRange.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLCellReference.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLCellValue.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLColor.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLColumn.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLCommandQuery.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLComments.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLConstants.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLContentTypes.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLDateTime.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLDocument.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLDrawing.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLException.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLFormula.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLIterator.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLMergeCells.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLProperties.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLRelationships.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLRow.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLRowData.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLSharedStrings.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLSheet.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLStyles.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLTables.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLWorkbook.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLXmlData.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLXmlFile.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLXmlParser.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLZipArchive.hpp" />
+    <ClInclude Include="ThirdParty\include\OpenXLSX\OpenXLSX.hpp" />
     <ClInclude Include="ThirdParty\include\pugixml\pugiconfig.hpp" />
     <ClInclude Include="ThirdParty\include\pugixml\pugixml.hpp" />
     <ClInclude Include="Source\UmFramework.h" />
     <ClInclude Include="Source\pch.h" />
     <ClInclude Include="Source\Engine\Utility\DumpUtility.h" />
     <ClInclude Include="ThirdParty\include\UmYaml-cpp.h" />
-    <ClInclude Include="Source\Engine\TimelineCore\TimelineSystem.h" />
+    <ClInclude Include="Source\Engine\TimelineCore\Context\TimelineEventContext.h" />
+    <ClInclude Include="Source\Engine\TimelineCore\Track\TimelineEventTrack.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Editor\Tool\RenderPassData\EditorRenderPassData.cpp" />
+    <ClCompile Include="Source\Engine\EditorCore\Gui\Sequencer\EditorTimelineTrackSequencer.cpp" />
     <ClCompile Include="Source\Editor\Tool\Model\EditorModelInspector.cpp" />
-    <ClCompile Include="Source\Editor\Tool\Model\EditorAnimationNotifyTool.cpp" />
+    <ClCompile Include="Source\Editor\Tool\Model\EditorAnimationTrackTool.cpp" />
     <ClCompile Include="Source\Engine\AppModule\GraphicsModule.cpp" />
     <ClCompile Include="Source\Engine\AppModule\ImGuiDX12Module.cpp" />
     <ClCompile Include="Source\Engine\AudioCore\AudioModule.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.cpp" />
-    <ClCompile Include="Source\Engine\TimelineCore\AnimationNotifySet.cpp" />
+    <ClCompile Include="Source\Engine\TimelineCore\AnimationEventTrack.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Utillity\EditorDragState.cpp" />
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.cpp" />
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.cpp" />
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectViewer.cpp" />
     <ClCompile Include="Source\Engine\GameCore\InputReciver\InputReceiver.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Gui\Sequencer\Command\SequencerCommand.cpp" />
-    <ClCompile Include="Source\Engine\EditorCore\Gui\Sequencer\EditorSequencer.cpp" />
-    <ClCompile Include="Source\Editor\Tool\Sequencer\EditorSequencerTool.cpp" />
     <ClCompile Include="Source\Editor\Menu\Model\EditorModelMenu.cpp" />
     <ClCompile Include="Source\Editor\Tool\GameView\EditorGameView.cpp" />
     <ClCompile Include="Source\Editor\Tool\Hierarchy\HierarchyFindTool.cpp" />
@@ -523,6 +555,7 @@
     <ClCompile Include="Source\Engine\Utility\ImguiHelper.cpp" />
     <ClCompile Include="Source\Engine\Utility\LogLevel.cpp" />
     <ClCompile Include="Source\Engine\Utility\Mathf.cpp" />
+    <ClCompile Include="Source\Engine\Utility\OpenXLSXHelper.cpp" />
     <ClCompile Include="Source\Engine\Utility\Random.cpp" />
     <ClCompile Include="Source\Engine\Utility\utfHelper.cpp" />
     <ClCompile Include="Source\Engine\ApplicationCore\Application.cpp" />
@@ -540,12 +573,6 @@
     <ClCompile Include="Source\Engine\Utility\DumpUtility.cpp" />
     <ClCompile Include="Source\UmFramework.cpp" />
     <ClCompile Include="Source\Engine\FileSystem\Importer\SpriteFontImporter.cpp" />
-    <ClCompile Include="ThirdParty\include\pugixml\pugixml.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="ThirdParty\include\reflectcpp.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
@@ -570,7 +597,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Source\Engine\TimelineCore\TimelineSystem.cpp" />
+    <ClCompile Include="Source\Engine\TimelineCore\Context\TimelineEventContext.cpp" />
+    <ClCompile Include="Source\Engine\TimelineCore\Track\TimelineEventTrack.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
@@ -584,6 +612,9 @@
     </ProjectReference>
     <ProjectReference Include="..\InputModule\InputModule.vcxproj">
       <Project>{c56311d7-823b-4cea-bc18-4e55f615ad78}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\InstallerCusomAction\InstallerCusomAction.vcxproj">
+      <Project>{7e4d57e2-be52-4b84-aa2b-5754349231a1}</Project>
     </ProjectReference>
     <ProjectReference Include="..\UserInterfaceModule\UserInterfaceModule.vcxproj">
       <Project>{133fd9da-4bdb-4da1-be06-d61d62371f74}</Project>

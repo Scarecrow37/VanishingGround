@@ -527,21 +527,16 @@ void EditorHierarchyTool::HierarchyDropEvent()
         // 에셋에 대한 드래그 앤 드롭 이벤트 처리
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
         {
-            DragDropAsset::Data*          data      = (DragDropAsset::Data*)payload->Data;
-            std::weak_ptr<File::Context>* wpContext = data->pContext;
-            if (false == wpContext->expired())
+            DragDropAsset::Data* data = (DragDropAsset::Data*)payload->Data;
+            const File::Path&    path = data->GetPath();
+            fs::path extension = path.extension();
+            if (extension == UmGameObjectFactory.PREFAB_EXTENSION)
             {
-                auto              context   = wpContext->lock();
-                const File::Path& path      = context->GetPath();
-                fs::path          extension = path.extension();
-                if (extension == UmGameObjectFactory.PREFAB_EXTENSION)
-                {
-                    UmCommandManager.Do<DropPrefabCommand>(path.ToGuid());
-                }
-                else if (extension == UmSceneManager.SCENE_EXTENSION)
-                {
-                    UmSceneManager.LoadScene(path.string(), LoadSceneMode::ADDITIVE);
-                }
+                UmCommandManager.Do<DropPrefabCommand>(path.ToGuid());
+            }
+            else if (extension == UmSceneManager.SCENE_EXTENSION)
+            {
+                UmSceneManager.LoadScene(path.string(), LoadSceneMode::ADDITIVE);
             }
         }
         // Transform에 대한 드래그 앤 드롭 이벤트 처리

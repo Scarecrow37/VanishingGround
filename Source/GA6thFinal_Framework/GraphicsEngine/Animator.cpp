@@ -216,7 +216,7 @@ void Animator::Initialize(std::shared_ptr<Animation> animation, std::shared_ptr<
 
 void Animator::Update(const float deltaTime)
 {
-    if (!_isInitialize || _isPause)
+    if (!_isInitialize)
         return;
 
 	XMMATRIX identity = XMMatrixIdentity();
@@ -224,7 +224,10 @@ void Animator::Update(const float deltaTime)
 	for (unsigned int i = 0; i < _maxSplit; i++)
 	{
 		const Animation::Channel& animation = _animation->_animations[_controllers[i].Animation.data()];
-		_controllers[i].PlayTime += _controllers[i].Speed * deltaTime;
+        if (false == _isPause)
+        {
+		    _controllers[i].PlayTime += _controllers[i].Speed * deltaTime;
+        }
 	
 		if (_controllers[i].PlayTime >= animation.LastTime)
 		{

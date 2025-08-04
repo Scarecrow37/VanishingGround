@@ -71,7 +71,7 @@ void EditorMenuProjectRoot::OnMenu()
         if (ImGui::MenuItem("Open Project", nullptr))
         {
             HWND       owner    = UmApplication.GetHwnd();
-            LPCWSTR    title    = L"새 프로젝트 만들기";
+            LPCWSTR    title    = L"프로젝트 열기";
             std::vector<File::Path> out;
             if (File::ShowOpenFileDialog(owner, title, L"",
                                          {{L"프로젝트 파일\0", L"*.UmProject*\0"}, {L"모든 파일\0", L"*.*\0"}}, false,

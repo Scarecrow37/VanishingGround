@@ -15,16 +15,38 @@ class EditorAssetBrowserTool
     : public EditorTool
     , public File::FileEventSubscriber
 {
+    using FileEntry = std::filesystem::directory_entry;
+    using FileTime  = std::filesystem::file_time_type;
+
     enum ShowType
     {
-        List,
-        Icon,
+        SHOW_TYPE_LIST,
+        SHOW_TYPE_ICON,
     };
     enum Flags
     {
-        FLAG_IS_RENAME = 0,     // 리네임 중인지 여부
+        FLAG_SHOW_META          = 1,     // 메타 파일 표시 여부
+        FLAG_SIZE,
+    };
+    struct AssetData
+    {
+        AssetData(FileEntry entry);
+        AssetData()  = default;
+        ~AssetData() = default;
 
-        FALG_SIZE,
+        void Refesh(FileEntry entry);
+        bool IsSamePath(const std::filesystem::path& path) const;
+
+        FileEntry   Entry;                  // 파일 엔트리
+        bool        IsDirectory = false;    // 디렉토리인지 여부
+        std::string Extension = "";         // 파일 확장자
+        std::string FileName = "";          // 파일 이름
+        std::string ViewName = "";          // 뷰에 표시될 이름
+        std::time_t LastWriteTime = {};     // 마지막 수정 시간
+        int         Order = 0;              // 정렬 순서 
+
+        // icon
+        std::shared_ptr<Texture> PreviewIconTexture; // 아이콘 텍스처
     };
     using wpContext = std::weak_ptr<File::Context>;
     using spContext = std::shared_ptr<File::Context>;
@@ -40,10 +62,12 @@ public:
 
 private:
     inline static EditorAssetBrowserTool* _staticInstance = nullptr;
+    static constexpr ImVec2               ICON_WIDGET_SIZE = ImVec2(100.0f, 100.0f); // 아이콘 위젯 크기
+    static constexpr const char*          POPUP_ID         = "##popup";
 
 public:
-    inline const File::Path& GetCurrentFocusFolderPath() const { return _currFocusFolderPath; }
-    inline const ImRect&     GetWindowRect() const { return _windowRect; }
+    inline const File::Path& GetCurrentFocusFolderPath() const { return _focusFolderPath; }
+    AssetData* GetAssetData(const File::Path& path);
 
 private:
     void OnTickGui() override;
@@ -57,118 +81,158 @@ private:
     void OnFrameFocusStay() override;
     void OnFrameFocusExit() override;
 
+public:
+    void RefreshState();
+    void RefreshFocusFolderEntries();
+    void SetFocusFolderPath(const File::Path& path, bool pushStack = true);
+    void SetFocusEntryPath(const File::Path& path);
+    void UndoPath();
+    void RedoPath();
+    void SetCopyFile();
+    void SetCutFile();
+    void PasteFile();
+         
+    bool IsFavoriteFolder(const File::Path& path) const;
+    void AddFavoriteFolder(const File::Path& path);
+    void RemoveFavoriteFolder(const File::Path& path);
+
 private:
     /* 메뉴바 - 콜럼 사이 어퍼프레임 */
     void ShowUpperFrame();
-    void ShowFolderDirectoryPath(spFolderContext context); // 주소 출력
-    void ListToDirectoryFileName(const File::Path& relativePath);
 
-    /*  */
+    /* 좌측, 우측 컬럼 */
     void BeginColumn();         // Begin
     void EndColumn();           // End
     void ShowColumnPlitter();   // 콜럼 사이 리사이징바
 
     /* 폴더 계층 뷰 콜럼 */
     void ShowFolderHierarchy();
-    void ShowFolderHierarchy(spFolderContext FolderContext);
+    void ShowFolderHierarchyTree(const File::Path& directory);
 
     /* 콘텐츠 뷰 콜럼 */
-    void ShowFolderContents();
-    void ShowSearchBar(spFolderContext context); // 콘텐츠 뷰 검색 바
-    void ContentsFrameEventAction(spFolderContext context); // 콘텐츠 뷰 프레임 이벤트 액션
-
-    void ShowContentsToList(); // 콘텐츠 뷰 출력 타입 - 리스트
-    void ShowContentsToIcon(); // 콘텐츠 뷰 출력 타입 - 아이콘
-
-    void ShowItemToList(spContext context, const char* mode = ""); // 콘텐츠 뷰 아이템 출력 - 리스트 
-    void ShowItemToIcon(spContext context, const char* mode = ""); // 콘텐츠 뷰 아이템 출력 - 아이콘 
-
-    void ItemInputText(spContext context);  // 콘텐츠 뷰 이름 변경 인풋 텍스트
-
-    void ItemEventAction(spContext context, const char* mode = "");    // 콘텐츠 뷰 아이템 이벤트 액션
-    void ItemInputAction(spContext context, const char* mode = "");    // 콘텐츠 뷰 아이템 인풋 액션
-    void ItemPopupAction(spContext context, const char* mode = "");    // 콘텐츠 뷰 아이템 팝업 액션
+    void ShowFolderEntries();
+    void ShowSearchBar();   
+    void ShowFolderEntryToList(AssetData& asset);  
+    void ShowFolderEntryToIcon(AssetData& asset);  
+    void ShowFolderEntryPopup(AssetData& asset);
+    void ProcessFolderEntryDragDrop(AssetData& asset);
+    void UpdateFolderEntryInput();
+    void BeginFolderEntryFrame();
 
     /* 팝업 박스 메서드 */
-    void ShowDeletePopupBox(wpContext context);
     void ShowSameFilePopupBox();
     void ShowCopyFilePopupBox();
+    static bool ShowDeletePopupBox(const File::Path& path);
+    static void ShowAlreadyAssetIDPopupBox(const File::Path& path, int changeID);
 
 private:
-    void ProcessEnterAction(spContext context);
-    void ProcessMoveAction(wpContext srcContext, wpFolderContext dstContext);
-
-    void SetFocusInspector(wpContext context);
-    bool SetFocusFolder(wpFolderContext context); // 선택된 폴더 or 파일 포커싱
-    void SetFocusParentFolder(spContext context);
-    void SetFocusFromUndoPath();
-    void SetFocusFromRedoPath();
-
     void ProcessDropFile(const HDROP hDrop);
     static bool WinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+ 
 private:
-    /* 브라우저에서 보여질 유형 (List, Icon) */
-    ShowType _showType;
-    /* 현재 포커싱 폴더 */
-    File::Path      _currFocusFolderPath;
-    wpFolderContext _currFocusFolderContext;
-    wpFolderContext _nextFocusFolderContext;
-    /* 현재 선택된 폴더 or 파일 */
-    std::shared_ptr<EditorAssetObject> _selectedContext;
-    /* 이름 바꾸기 모드 여부 */
-    std::bitset<FALG_SIZE> browserFlags;
+    int         _folderCount    = 0;                    // 폴더 개수
+    float       _zoomScale      = 1.0f;                 // 콘텐츠 뷰 줌 스케일
+    float       _updateTime     = 0.0f;                 // 콘텐츠 뷰 업데이트 시간
+    bool        _needRefresh    = false;                // 콘텐츠 뷰 새로고침 필요 여부
+    std::string _searchBuffer   = "";                   // 검색 버퍼
+    File::Path  _focusFolderPath;                       // 현재 포커싱 중인 폴더
+    File::Path  _focusEntryPath;                        // 현재 포커싱 중인 파일
+    
+    std::bitset<FLAG_SIZE> _flags;                      // 플래그 비트셋 (예: 메타 파일 표시 여부 등)
 
-    /* Undo, Redo 스택 */ 
-    int                    _maxUndoStack = 20; // Undo Stack 최대 개수
+    std::pair<int, File::Path> _copyBuffer = {0, ""};   // 복사 버퍼 (first가 0이면 복사, 1이면 잘라넣기)
+    std::vector<std::function<void()>> _delayEvent;     // 후처리 이벤트 (보통 삭제나 추가 등의 작업을 함)
+    
+    ImGuiTextFilter _searchFilter;                      // 검색 픽터
+
+    /* 에셋 정보 저장 테이블 및 리스트 */
+    std::unordered_map<File::Path, AssetData> _focusFolderAssetDataMap;
+    std::vector<AssetData*> _focusFolderAssetDataList;  // 현재 포커싱 폴더의 파일 목록
+    
+    /* Undo 및 Redo 관련 */
     std::deque<File::Path> _directoryUndoStack;
     std::deque<File::Path> _directoryRedoStack;
+    int                    _maxUndoStack = 20; // Undo Stack 최대 개수
 
-    /* Copy&Paste */
-    File::Path _copyPath;
-    
-    /* EventProcessing */
-    std::vector<std::function<void()>> _eventFunc; 
-
-    /* Search */
-    char _searchBuffer[128] = "";
-
-    /* Drag&Drop */
-    ImRect _windowRect;
+    /* 외부 파일 Drag & Drop 이벤트 관련 */
     std::vector<std::pair<bool, File::Path>> _dragDropPaths; // 드래그 앤 드롭된 파일 경로들 (복사 여부, 경로)
-    File::Path _destPath; // 드래그 앤 드롭된 경로의 목적지 경로
+    File::Path _dragDropPath; // 드래그 앤 드롭된 경로의 목적지 경로
+
+    /// <summary>
+    /// 이름 변경을 할 때 사용함.
+    /// </summary>
+    struct RenameController
+    {
+        bool              IsActive() const { return IsRenaming; }      // 이름 변경 모드인지 확인
+        void              StartRename(const File::Path& destFilePath); // 이름 변경 시작
+        void              CancelRename();                              // 이름 변경 취소
+        const File::Path& ExecuteRename(const File::Path& destFolder);
+
+        bool        IsRenaming   = false; // 이름 변경 모드 여부
+        File::Path  Return       = "";    // 이름 변경 대상 이름
+        File::Path  DestPath     = "";    // 이름 변경 대상 이름
+        std::string DestName     = "";    // 이름 변경 대상 이름
+        std::string RenameBuffer = "";    // 이름 변경 버퍼
+    };
+    RenameController _rename; // 이름 변경 컨트롤러
+
+    /// <summary>
+    /// AssetData를 받아 정렬하는 비교 함수입니다.
+    /// </summary>
+    class Compare
+    {
+    public:
+        enum SortFlags
+        {
+            FLAGS_SORT_BY_NONE = 0,      // 정렬 없음
+            FLAGS_SORT_BY_TYPE = 1 << 1, // 유형별 정렬
+            FLAGS_SORT_BY_NAME = 1 << 2, // 이름순 정렬
+            FLAGS_SORT_BY_DATE = 1 << 3, // 날짜순 정렬
+        };
+
+    public:
+        Compare(int sortFlags = 0, bool ascending = true) : flags(sortFlags), isAscending(ascending) {}
+        Compare(std::pair<int, bool>& setting) : flags(setting.first), isAscending(setting.second) {}
+        ~Compare() = default;
+        bool operator()(const AssetData* a, const AssetData* b) const;
+
+    private:
+        bool CompareByType(const AssetData* a, const AssetData* b) const;
+        bool CompareByName(const AssetData* a, const AssetData* b) const;
+        bool CompareByDate(const AssetData* a, const AssetData* b) const;
+
+    private:
+        int flags = 0; // 정렬 플래그 (예: 이름순, 날짜순 등)
+        bool isAscending = true;
+    };
+
+    /// <summary>
+    /// 인스펙터에 표시할 에셋 정보를 드로어하는 클래스입니다.
+    /// </summary>
+    class InspectorDrawer : public IEditorObject
+    {
+    public:
+        void OnInspectorEnter() override;
+        void OnInspectorStay() override;
+        void OnInspectorExit() override;
+
+        void SetAsset(const AssetData& assetData);
+    public:
+        AssetData _assetData;
+        File::Path _assetPath;
+        std::weak_ptr<File::Context> _selectedAsset;
+
+    };
+    std::shared_ptr<InspectorDrawer> _inspectorDrawer; // 인스펙터 정보 드로어
 
     // ReflectFields
     REFLECT_FIELDS_BEGIN(EditorTool)
-    float ColumWidth  = 250.f;
-    float ColumHeight = 0.0f;
+    float                 ColumWidth  = 250.f;
+    float                 ColumHeight = 0.0f;       
+    int                   ShowType    = SHOW_TYPE_LIST;                         // 현재 보여지는 타입 (리스트, 아이콘 등)
+    std::pair<int, bool>  SortFlags   = {Compare::FLAGS_SORT_BY_NAME, true};    // 정렬 플래그 (예: 이름순, 날짜순 등)
+    std::set<std::string> FavoriteFolders;                                      // 즐겨찾기 폴더 목록
+    std::array<float, 2>  ListColumnWidth = {0.4f, 0.7f};                       // 리스트 컬럼 비율 (이름, 마지막 수정 날짜, 유형)
     REFLECT_FIELDS_END(EditorAssetBrowserTool)
 };
-
-class EditorAssetObject : public IEditorObject
-{
-public:
-    virtual void OnInspectorEnter() override;
-    virtual void OnInspectorStay() override;
-    virtual void OnInspectorExit() override;
-
-public:
-    inline void SetThis(std::weak_ptr<EditorAssetObject> thisObj)
-    { 
-        _this = thisObj; 
-    }
-
-    inline auto GetContext() 
-    {
-        return _selectedAsset; 
-    }
-
-    void SetContext(std::weak_ptr<File::Context> context);
-
-private:
-    std::weak_ptr<File::Context> _selectedAsset;
-    std::weak_ptr<File::Context> _focusedInspector;
-
-    std::weak_ptr<EditorAssetObject> _this; // 자신 weak_ptr 객체
-};
-

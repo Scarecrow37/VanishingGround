@@ -58,7 +58,7 @@ void WeaponDamageAction::OnPlayerQTEResult(Player& player)
            stats.CriticalDamage += ReflectFields->CriticalDamage;
            stats.CriticalDamageMultiplier *= ReflectFields->CriticalDamageMultiplier;
 
-           const std::string& weaponName = stats.Name;
+           const std::string& weaponName = stats.WeaponName;
            std::string msg = weaponName;
            msg += u8"의"_c_str;
            if (ReflectFields->Damage != 0)

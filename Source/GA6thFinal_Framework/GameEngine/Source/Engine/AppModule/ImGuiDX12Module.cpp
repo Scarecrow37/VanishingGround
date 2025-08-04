@@ -66,7 +66,9 @@ void ImGuiDX12Module::PreInitialize()
 
 void ImGuiDX12Module::ModuleInitialize()
 {
-
+    // ImGui 메세지 핸들러
+    const MessageHandler msgHandler(ImGuiWinProc, 999);
+    UmApplication.AddMessageHandler(msgHandler);
 }
 
 void ImGuiDX12Module::PreUnInitialize()
@@ -78,6 +80,28 @@ void ImGuiDX12Module::PreUnInitialize()
 
 void ImGuiDX12Module::ModuleUnInitialize()
 {
+}
+
+bool ImGuiDX12Module::ImGuiWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    ImGuiIO& io = ImGui::GetIO();
+    switch (msg)
+    {
+        case WM_XBUTTONDOWN:
+        case WM_XBUTTONDBLCLK: 
+        {
+            int button = (GET_XBUTTON_WPARAM(wParam) == XBUTTON1) ? ImGuiMouseButton_XButton1 : ImGuiMouseButton_XButton2;
+            io.AddMouseButtonEvent(button, true);                          // Press & Click 이벤트
+            return 0;
+        }
+        case WM_XBUTTONUP: 
+        {
+            int button = (GET_XBUTTON_WPARAM(wParam) == XBUTTON1) ? ImGuiMouseButton_XButton1 : ImGuiMouseButton_XButton2;
+            io.AddMouseButtonEvent(button, false); // Release 이벤트
+            return 0;
+        }
+    }
+    return false;
 }
 
 void ImGuiDX12Module::ImguiBegin()
