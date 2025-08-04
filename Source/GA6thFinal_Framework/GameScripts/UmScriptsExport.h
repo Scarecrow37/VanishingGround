@@ -126,6 +126,9 @@ UMREAL_COMPONENT(DescriptionPanel)
 #include "Scripts/UI/Views/TurnQueue/TurnQueueView.h"
 UMREAL_COMPONENT(TurnQueueView)
 
+#include "Scripts/UI/Views/Weapon/WeaponView.h"
+UMREAL_COMPONENT(WeaponView)
+
 #include "Scripts\WeaponSystem/WeaponSystem.h"
 UMREAL_COMPONENT(WeaponSystem)
 
