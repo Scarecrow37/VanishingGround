@@ -974,7 +974,6 @@ void ESceneManager::ObjectsOnDisable()
 {
     auto& [OnDisableSet, OnDisableVec, OnDisableValue] = _onDisableQueue;
     auto& [UpdateSet, UpdateQueue] = _updateDisableQueue;
-
     for (auto& value : OnDisableValue)
     {
         *value = false;
