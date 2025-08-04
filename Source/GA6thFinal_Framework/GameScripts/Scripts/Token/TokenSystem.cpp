@@ -144,7 +144,7 @@ void TokenSystem::ImGuiDrawDataTable()
     ImVec2 left          = ImVec2(130.0f, availableSize.y);
     ImVec2 right         = ImVec2(availableSize.x - left.x, availableSize.y);
 
-     // Left Window
+    // Left Window
     ImGui::BeginChild("Left", left, ImGuiChildFlags_Border);
     if (ImGui::CollapsingHeader("Token List##token", ImGuiTreeNodeFlags_DefaultOpen))
     {

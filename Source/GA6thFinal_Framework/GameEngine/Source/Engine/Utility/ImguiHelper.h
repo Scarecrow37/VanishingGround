@@ -15,15 +15,15 @@ namespace ImGuiHelper
     /// <summary>
     /// Preview 렉트를 인풋 텍스트 기반으로 하는 콤보
     /// </summary>
-    /// <param name="label"></param>
-    /// <param name="preview_value"></param>
-    /// <param name="inputTextFlags"></param>
-    /// <param name="comboFlags"></param>
-    /// <returns></returns>
     bool BeginComboInput(const char* label, const char* preview_value,
                          ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_ReadOnly,
                          ImGuiComboFlags     comboFlags     = ImGuiComboFlags_None);
-
+    /// <summary>
+    /// 인풋 텍스트에 입력을 할 수 있는 콤보
+    /// </summary>
+    bool BeginComboInput(const char* label, std::string* inputBuffer,
+                         ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_ReadOnly,
+                         ImGuiComboFlags     comboFlags     = ImGuiComboFlags_None);
     /*
     호버링시 둘팁을 여는 텍스트를 생성
     desc = 툴팁에 나타날 텍스트
@@ -81,21 +81,19 @@ namespace ImGuiHelper
         }
     }
 
-    /*
-    여백있는 구분선
-    */
-    static void Separator(float upPadding, float downPadding)
-    {
-        ImGui::Dummy(ImVec2(0.0f, upPadding));
-        ImGui::Separator();
-        ImGui::Dummy(ImVec2(0.0f, downPadding));
-    }
-    static void Separator(float spacing = 5.0f)
-    {
-        ImGui::Dummy(ImVec2(0.0f, spacing));
-        ImGui::Separator();
-        ImGui::Dummy(ImVec2(0.0f, spacing));
-    }
+    /// <summary>
+    /// 윈도우의 탭바 영역을 반환합니다.
+    /// </summary>
+    /// <returns></returns>
+    ImRect GetWindowTabBarRect();
+
+    /// <summary>
+    /// 여백있는 구분선
+    /// </summary>
+    /// <param name="upPadding">위 여백</param>
+    /// <param name="downPadding">아래 여백</param>
+    void Separator(float upPadding, float downPadding);
+    void Separator(float spacing = 5.0f);
 
     /// <summary>
     /// <para>텍스트에 수직 구분선을 적용하여 출력합니다. startX는 구분선의 위치를 조정하는데 사용됩니다.</para>
@@ -103,21 +101,9 @@ namespace ImGuiHelper
     /// </summary>
     /// <param name="text">출력할 텍스트</param>
     /// <param name="startX">구분선 위치</param>
-    static void TextWithVerticalSeparator(const char* text, float startX = FLT_MAX)
-    {
-        ImGui::Text(text);
-        if (FLT_MAX == startX)
-        {
-            startX = ImGui::GetCursorPosX();
-            startX += ImGui::CalcTextSize(text).x;
-            startX += ImGui::GetStyle().ItemSpacing.x;
-        }
-        ImGui::SameLine(startX);
-        ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
-        ImGui::SameLine();
-        float availX = ImGui::GetContentRegionAvail().x;
-        ImGui::SetNextItemWidth(availX);
-    }
+    void TextWithVerticalSeparator(const char* text, float startX = FLT_MAX);
+
+    void TextWithVerticalSeparatorEx(const char* text, float startX = FLT_MAX);
 
     /*
     토글이 가능한 버튼 (false->true / true->false)
@@ -226,6 +212,44 @@ namespace ImGuiHelper
         return !window->SkipItems;
     }
 
+    class StyleBuilder
+    {
+    public:
+        StyleBuilder() = default;
+        ~StyleBuilder() { PopStyle(); }
+
+    public:
+        template <typename T>
+        void PushStyleVar(int idx, const T& color)
+        {
+            ImGui::PushStyleVar(idx, color);
+            ++_pushStyleVarCount;
+        }
+        template <typename T>
+        void PushStyleColor(int idx, const T& color)
+        {
+            ImGui::PushStyleColor(idx, color);
+            ++_pushStyleColCount;
+        }
+        void PopStyle()
+        {
+            if (_pushStyleVarCount > 0)
+            {
+                ImGui::PopStyleVar(_pushStyleVarCount);
+                _pushStyleVarCount = 0;
+            }
+            if (_pushStyleColCount > 0)
+            {
+                ImGui::PopStyleColor(_pushStyleColCount);
+                _pushStyleColCount = 0;
+            }
+        }
+
+    private:
+        int _pushStyleVarCount = 0;
+        int _pushStyleColCount = 0;
+    };
+
     class DragDrop
     {
         using EventID = const char*;
@@ -327,17 +351,8 @@ namespace ImGuiHelper
     /// </summary>
     /// <param name="toolTip :">출력할 내용</param>
     /// <returns>마우스 Hovered 여부</returns>
-    bool HoveredToolTip(std::string_view toolTip);
-
-    /// <summary>
-    /// 이전 아이템에 마우스가 올라가면 툴팁을 출력합니다.
-    /// </summary>
-    /// <param name="toolTip :">출력할 내용</param>
-    /// <returns>마우스 Hovered 여부</returns>
-    inline bool HoveredToolTip(std::u8string_view toolTip)
-    {
-        return HoveredToolTip((const char*)toolTip.data());
-    }
+    bool HoveredToolTip(std::string_view toolTip, int flags = 0);
+    bool HoveredToolTip(std::u8string_view toolTip, int flags = 0);
 
     /// <summary>
     /// ImVec4를 선형보간합니다.

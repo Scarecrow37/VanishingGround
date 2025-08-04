@@ -145,17 +145,11 @@ void EditorSceneTool::DragDropEvent()
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
         {
             DragDropAsset::Data* data = (DragDropAsset::Data*)payload->Data;
-            std::weak_ptr<File::Context>* wpContext = data->pContext;
-            if (false == wpContext->expired())
+            File::Path path = data->GetPath();
+            fs::path extension = path.extension();
+            if (".hdr" == extension)
             {
-                auto              context   = wpContext->lock();
-                const File::Path& path      = context->GetPath();
-                fs::path extension = path.extension();
-            
-                if (".hdr" == extension)
-                {
-                    UmSceneManager.SetSkyBox(path);
-                }
+                UmSceneManager.SetSkyBox(path);
             }
         }
         ImGui::EndDragDropTarget();
@@ -596,7 +590,7 @@ void EditorSceneTool::DrawSceneView()
         ImGui::SetNextItemWidth(150.0f);
         ImGui::DragFloat("Camera Pivot Distance##pivot distance",
             &pivotDistance,
-            1.0f,
+            0.1f,
             -100000.0f,
             100000.0f
         );

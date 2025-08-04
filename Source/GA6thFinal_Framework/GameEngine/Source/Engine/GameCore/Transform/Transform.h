@@ -7,8 +7,7 @@ class Transform : public ReflectSerializer
     friend class ESceneManager;
     friend class EGameObjectFactory;
     USING_PROPERTY(Transform);
-    inline static std::vector<Transform*> trStack; //순회용 stack (Foreach에서 씀)
-    inline static std::queue<Transform*> trQueue; //순회용 queue (Foreach에서 씀)
+
 public:
     /*Transform의 좌표계 공간을 나타내는 enum class*/
     enum class Space
@@ -181,9 +180,15 @@ public:
     /// <typeparam name="Func">실행할 함수</typeparam>
     /// <param name="root :">DFS 시작할 루트</param>
     /// <param name="func : 실행할 함수"></param>
-    template<typename Func>
-    inline static void ForeachDFS(Transform& root, Func func);
+    inline static void ForeachDFS(Transform& root, const std::function<void(Transform*)>& func);
 
+    /// <summary>
+    /// Transform를 DFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
+    /// </summary>
+    /// <typeparam name="Func">실행할 함수</typeparam>
+    /// <param name="root :">DFS 시작할 루트</param>
+    /// <param name="func : 실행할 함수"></param>
+    inline static void ForeachDFS(Transform& root, const std::function<void(Transform*, int)>& func);
 
     /// <summary>
     /// Transform를 BFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
@@ -191,8 +196,15 @@ public:
     /// <typeparam name="Func">실행할 함수</typeparam>
     /// <param name="root">BFS 시작할 루트</param>
     /// <param name="func">실행할 함수</param>
-    template<typename Func>
-    inline static void ForeachBFS(Transform& root, Func func); 
+    inline static void ForeachBFS(Transform& root, const std::function<void(Transform*)>& func); 
+
+    /// <summary>
+    /// Transform를 BFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
+    /// </summary>
+    /// <typeparam name="Func">실행할 함수</typeparam>
+    /// <param name="root">BFS 시작할 루트</param>
+    /// <param name="func">실행할 함수</param>
+    inline static void ForeachBFS(Transform& root, const std::function<void(Transform*, int)>& func); 
 
 public:
     /// <summary>
@@ -356,6 +368,11 @@ private:
     void SetParentEx(Transform* p, bool worldPositionStays, bool callEvent);
 
     /// <summary>
+    /// 특정 자식 인덱스에 삽입하는 함수
+    /// </summary>
+    void SetParentToIndexEx(Transform* p, int index, bool worldPositionStays, bool callEvent);
+
+    /// <summary>
     /// 내부에서 사용되는 DetachChild 함수
     /// </summary>
     /// <param name="callEvent"></param>
@@ -383,37 +400,63 @@ private:
     /// <summary>
     /// Transform를 DFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
     /// </summary>
-    /// <typeparam name="Func">실행할 함수</typeparam>
-    /// <param name="root :">DFS 시작할 루트</param>
-    /// <param name="func : 실행할 함수"></param>
-    template <typename Func>
-    inline static void ForeachExDFS(Transform& root, bool checkValid, Func func);
+    /// <typeparam name="Func :">실행할 함수</typeparam>
+    /// <param name="root :">루트</param>
+    /// <param name="checkValid :">Valid 오브젝트 필터 여부</param>
+    /// <param name="func"></param>
+    inline static void ForeachExDFS(Transform& root, bool checkValid, const std::function<void(Transform*)>& func);
 
     /// <summary>
     /// Transform를 BFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
     /// </summary>
-    /// <typeparam name="Func">실행할 함수</typeparam>
-    /// <param name="root">BFS 시작할 루트</param>
-    /// <param name="func">실행할 함수</param>
-    template <typename Func>
-    inline static void ForeachExBFS(Transform& root, bool checkValid, Func func);
+    /// <typeparam name="Func :">실행할 함수</typeparam>
+    /// <param name="root :">루트</param>
+    /// <param name="checkValid :">Valid 오브젝트 필터 여부</param>
+    /// <param name="func"></param>
+    inline static void ForeachExBFS(Transform& root, bool checkValid, const std::function<void(Transform*)>& func);
+
+    /// <summary>
+    /// Transform를 DFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
+    /// </summary>
+    /// <typeparam name="Func :">실행할 함수</typeparam>
+    /// <param name="root :">루트</param>
+    /// <param name="checkValid :">Valid 오브젝트 필터 여부</param>
+    /// <param name="func"></param>
+    inline static void ForeachExDFS(Transform& root, bool checkValid, const std::function<void(Transform*, int)>& func);
+
+    /// <summary>
+    /// Transform를 BFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
+    /// </summary>
+    /// <typeparam name="Func :">실행할 함수</typeparam>
+    /// <param name="root :">루트</param>
+    /// <param name="checkValid :">Valid 오브젝트 필터 여부</param>
+    /// <param name="func"></param>
+    inline static void ForeachExBFS(Transform& root, bool checkValid, const std::function<void(Transform*, int)>& func);
 };
 
-template <typename Func>
-inline void Transform::ForeachDFS(Transform& root, Func func)
+inline void Transform::ForeachDFS(Transform& root, const std::function<void(Transform*)>& func)
 {
     ForeachExDFS(root, true, func);
 }
 
-template <typename Func>
-inline void Transform::ForeachBFS(Transform& root, Func func)
+inline void Transform::ForeachDFS(Transform& root, const std::function<void(Transform*, int)>& func)
+{
+    ForeachExDFS(root, true, func);
+}
+
+inline void Transform::ForeachBFS(Transform& root, const std::function<void(Transform*)>& func)
 {
     ForeachExBFS(root, true, func);
 }
 
-template <typename Func>
-inline void Transform::ForeachExDFS(Transform& root, bool checkValid, Func func)
+inline void Transform::ForeachBFS(Transform& root, const std::function<void(Transform*, int)>& func)
 {
+    ForeachExBFS(root, true, func);
+}
+
+inline void Transform::ForeachExDFS(Transform& root, bool checkValid, const std::function<void(Transform*)>& func)
+{
+    std::vector<Transform*> trStack; // 순회용 stack (Foreach에서 씀)
     trStack.push_back(&root);
     while (trStack.empty() == false)
     {
@@ -423,17 +466,39 @@ inline void Transform::ForeachExDFS(Transform& root, bool checkValid, Func func)
         if (vaild)
         {
             func(currTr);
-            for (auto& _transform : currTr->_childsList)
+            for (auto iter = currTr->_childsList.rbegin(); iter != currTr->_childsList.rend(); ++iter)
             {
-                trStack.push_back(_transform);
+                auto& transform = *iter;
+                trStack.push_back(transform);
             }
         }
     }
 }
 
-template <typename Func>
-inline void Transform::ForeachExBFS(Transform& root, bool checkValid, Func func)
+inline void Transform::ForeachExDFS(Transform& root, bool checkValid, const std::function<void(Transform*, int)>& func)
 {
+    std::vector<std::pair<Transform*, int>> trStack; // 순회용 stack (Foreach에서 씀)
+    trStack.emplace_back(&root, 0);
+    while (trStack.empty() == false)
+    {
+        auto [currTr, currentDepth] = trStack.back();
+        trStack.pop_back();
+        bool vaild = checkValid ? CheckValidTransform(currTr) : true;
+        if (vaild)
+        {
+            func(currTr, currentDepth);
+            for (auto iter = currTr->_childsList.rbegin(); iter != currTr->_childsList.rend(); ++iter)
+            {
+                auto& transform = *iter;
+                trStack.emplace_back(transform, currentDepth + 1);
+            }
+        }
+    }
+}
+
+inline void Transform::ForeachExBFS(Transform& root, bool checkValid, const std::function<void(Transform*)>& func)
+{
+    std::queue<Transform*> trQueue; // 순회용 queue (Foreach에서 씀)
     trQueue.push(&root);
     while (trQueue.empty() == false)
     {
@@ -446,6 +511,26 @@ inline void Transform::ForeachExBFS(Transform& root, bool checkValid, Func func)
             for (auto& _transform : currTr->_childsList)
             {
                 trQueue.push(_transform);
+            }
+        }
+    }
+}
+
+inline void Transform::ForeachExBFS(Transform& root, bool checkValid, const std::function<void(Transform*, int)>& func)
+{
+    std::queue<std::pair<Transform*, int>> trQueue; // 순회용 queue (Foreach에서 씀)
+    trQueue.push({&root, 0});
+    while (trQueue.empty() == false)
+    {
+        auto [currTr, currentDepth] = trQueue.front();
+        trQueue.pop();
+        bool vaild = checkValid ? CheckValidTransform(currTr) : true;
+        if (vaild)
+        {
+            func(currTr, currentDepth);
+            for (auto& _transform : currTr->_childsList)
+            {
+                trQueue.push({_transform, currentDepth + 1});
             }
         }
     }

@@ -110,14 +110,10 @@ DescriptionPanel::DescriptionPanel()
             if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
             {
                 const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
-                if (const auto context = data->pContext->lock(); nullptr != context)
+                if (const auto extension = data->GetPath().extension(); extension == L".UmFont")
                 {
-                    const auto& path = context->GetPath();
-                    if (const auto extension = path.extension(); extension == L".UmFont")
-                    {
-                        _guidRef = path.ToGuid();
-                        ReflectFields->Guid = _guidRef.string();
-                    }
+                    _guidRef            = data->GetGuid();
+                    ReflectFields->Guid = _guidRef.string();
                 }
             }
             ImGui::EndDragDropTarget();
@@ -130,15 +126,11 @@ DescriptionPanel::DescriptionPanel()
             if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
             {
                 const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
-                if (const auto context = data->pContext->lock(); nullptr != context)
+                if (const auto extension = data->GetPath().extension(); extension == L".png")
                 {
-                    const auto& path = context->GetPath();
-                    if (const auto extension = path.extension(); extension == L".png")
-                    {
-                        const std::string newDescription = ReflectFields->Description + path.ToGuid().string();
-                        ReflectFields->Description = newDescription;
-                        UpdateContent();
-                    }
+                    const std::string newDescription = ReflectFields->Description + data->GetGuid().string();
+                    ReflectFields->Description       = newDescription;
+                    UpdateContent();
                 }
             }
             ImGui::EndDragDropTarget();

@@ -167,7 +167,7 @@ void ESceneManager::Engine::AddGameObjectToLifeCycle(std::shared_ptr<GameObject>
 
 void ESceneManager::Engine::AddComponentToLifeCycle(std::shared_ptr<Component> component)
 {
-    Global::engineCore->SceneManager._addComponentsQueue.push_back(component);
+    Global::engineCore->SceneManager._addComponentsQueue.emplace_back(component->_gameObject->GetWeakPtr(), component);
     EComponentFactory::Engine::PushBackComponentToObject(component);
 }
 
@@ -188,7 +188,7 @@ void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
             auto [iter, result] = UpdateSet.insert(gameObject);
             if (true == result)
             {
-                UpdateQueue.push_back(gameObject);
+                UpdateQueue.push_back(gameObject->GetWeakPtr());
             }
 
             //컴포넌트들의 On__able 함수를 호출하도록 합니다.
@@ -212,7 +212,7 @@ void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
                                 auto [iter, result] = WaitSet.insert(component.get());
                                 if (result)
                                 {
-                                    WaitVec.emplace_back(component.get());
+                                    WaitVec.push_back(component);
                                 }
                             }
                         }
@@ -241,7 +241,7 @@ void ESceneManager::Engine::SetComponentEnable(Component* component, bool value)
             auto [iter, result] = WaitSet.insert(component);
             if (result)
             {
-                WaitVec.push_back(component);
+                WaitVec.push_back(component->GetWeakPtr());
             }           
         }
     }
@@ -928,12 +928,30 @@ void ESceneManager::ObjectsOnEnable()
         *value = true;  
     }
       
-    for (auto& object : UpdateQueue)
+    static thread_local std::vector<std::shared_ptr<GameObject>> validObjects;
+    validObjects.reserve(UpdateQueue.size());
+    for (auto& weakObj : UpdateQueue)
     {
-        GameObject::Engine::UpdateActiveInHierarchy(object);
+        if (const auto& object = weakObj.lock())
+        {
+            validObjects.push_back(std::move(object));
+        }  
+    }
+    for (auto& object : validObjects)
+    {
+        GameObject::Engine::UpdateActiveInHierarchy(object.get());
     }
 
-    for (auto& component : OnEnableVec)
+    static thread_local std::vector<std::shared_ptr<Component>> validComponents;
+    validComponents.reserve(OnEnableVec.size());
+    for (auto& weakComponent : OnEnableVec)
+    {
+        if (const auto& component = weakComponent.lock())
+        {
+            validComponents.push_back(std::move(component));
+        }
+    }
+    for (auto& component : validComponents)
     {
         component->UpdateEnableInHierarchy();
         if (_isPlay)
@@ -942,6 +960,8 @@ void ESceneManager::ObjectsOnEnable()
         }
     }
     
+    validObjects.clear();
+    validComponents.clear();
     OnEnableSet.clear();
     OnEnableVec.clear();
     OnEnableValue.clear();
@@ -954,18 +974,35 @@ void ESceneManager::ObjectsOnDisable()
 {
     auto& [OnDisableSet, OnDisableVec, OnDisableValue] = _onDisableQueue;
     auto& [UpdateSet, UpdateQueue] = _updateDisableQueue;
-
     for (auto& value : OnDisableValue)
     {
         *value = false;
     }
 
-    for (auto& object : UpdateQueue)
+    static thread_local std::vector<std::shared_ptr<GameObject>> validObjects;
+    validObjects.reserve(UpdateQueue.size());
+    for (auto& weakObj : UpdateQueue)
     {
-        GameObject::Engine::UpdateActiveInHierarchy(object);
+        if (const auto& object = weakObj.lock())
+        {
+            validObjects.push_back(std::move(object));
+        }
+    }
+    for (auto& object : validObjects)
+    {
+        GameObject::Engine::UpdateActiveInHierarchy(object.get());       
     }
 
-    for (auto& component : OnDisableVec)
+    static thread_local std::vector<std::shared_ptr<Component>> validComponents;
+    validComponents.reserve(OnDisableVec.size());
+    for (auto& weakComponent : OnDisableVec)
+    {
+        if (const auto& component = weakComponent.lock())
+        {
+            validComponents.push_back(std::move(component));
+        }
+    }
+    for (auto& component : validComponents)
     {
         component->UpdateEnableInHierarchy();
         if (_isPlay)
@@ -974,6 +1011,8 @@ void ESceneManager::ObjectsOnDisable()
         }
     }
     
+    validObjects.clear();
+    validComponents.clear();
     OnDisableSet.clear();
     OnDisableVec.clear();
     OnDisableValue.clear();
@@ -1078,21 +1117,25 @@ void ESceneManager::ObjectsAddRuntime()
         _runtimeObjects[id] = gameObject;
         GameObject::Engine::UpdateActiveInHierarchy(gameObject.get());     
     }
-    _addGameObjectsQueue.clear();
 
-    for (auto& component : _addComponentsQueue)
+    for (auto& [owner, component] : _addComponentsQueue)
     {
-        if (_isPlay)
+        if (owner.expired() == false)
         {
-            _waitAwakeVec.push_back(component);
-            _waitStartVec.push_back(component);
+            if (_isPlay)
+            {
+                _waitAwakeVec.push_back(component);
+                _waitStartVec.push_back(component);
+            }
+            if (component->_type == Component::TYPE::CAMERA)
+            {
+                component->gameObject->_transform._hasChanged = true;
+            }
+            component->UpdateEnableInHierarchy();
         }
-        if (component->_type == Component::TYPE::CAMERA)
-        {
-            component->gameObject->_transform._hasChanged = true;
-        }
-        component->UpdateEnableInHierarchy();
     }
+
+    _addGameObjectsQueue.clear();
     _addComponentsQueue.clear();
 }
 
@@ -1686,9 +1729,13 @@ void ESceneManager::SceneResourceManager::UpdateRenderResource(RenderResource<T>
 
 void ESceneManager::SceneResourceManager::Engine::Update(SceneResourceManager& manager)
 {
-    manager.UpdateRenderResource(manager._models);
-    manager.UpdateRenderResource(manager._textures);
-    manager.UpdateRenderResource(manager._fonts);
+    ESceneManager& sceneManager = UmSceneManager;
+    if (true == sceneManager._addComponentsQueue.empty())
+    {
+        manager.UpdateRenderResource(manager._models);
+        manager.UpdateRenderResource(manager._textures);
+        manager.UpdateRenderResource(manager._fonts);
+    }
 }
 
 void ESceneManager::SceneResourceManager::RequestModelResource(const Component* component, const File::Guid& guid,

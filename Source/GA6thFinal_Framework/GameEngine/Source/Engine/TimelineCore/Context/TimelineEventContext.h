@@ -1,0 +1,52 @@
+﻿#pragma once
+
+namespace Timeline
+{
+    class EventContext : public ReflectSerializer
+    {
+        friend class EventTrack;
+    public:
+        USING_PROPERTY(EventContext)
+        EventContext()          = default;
+        virtual ~EventContext() = default;
+
+        REFLECT_PROPERTY(ID, Label, EventType, Time)
+
+        GETTER_ONLY(UINT, ID) { return ReflectFields->ContextID; }
+        PROPERTY(ID)
+        GETTER(std::string_view, Label) { return ReflectFields->Label; }
+        SETTER(std::string_view, Label) { ReflectFields->Label = value; }
+        PROPERTY(Label)
+        GETTER_ONLY(std::string_view, EventType) { return ReflectFields->EventType.c_str(); }
+        PROPERTY(EventType)
+        GETTER_ONLY(float, Time) { return ReflectFields->Time; }
+        PROPERTY(Time)
+
+        inline const std::string& GetLabel()        const { return ReflectFields->Label; }
+        inline const std::string& GetEventType()    const { return ReflectFields->EventType; }
+        inline float              GetTime()         const { return ReflectFields->Time; }
+
+        void SetEvent(std::string_view typeNameID);
+        void SetTime(float time);
+        bool IsValidID() const;
+        bool IsSameEvent(const EventContext* other) const;
+
+        virtual void OnNotify() {};
+
+    protected:
+        /// <summary>
+        /// typeID를 통해 이벤트를 생성해야하는 인터페이스 함수입니다.
+        /// </summary>
+        /// <param name="typeNameID">해당 이벤트의 typenameID</param>
+        virtual void RequireEvent(std::string_view typeNameID) {};
+
+    protected:
+        REFLECT_FIELDS_BEGIN(ReflectSerializer)
+        UINT        ContextID       = UINT_MAX;
+        float       Time            = 0.0f;
+        std::string Label           = "";
+        std::string EventType       = "";
+        std::string SerializedData  = "";
+        REFLECT_FIELDS_END(EventContext)
+    };
+} // namespace Timeline

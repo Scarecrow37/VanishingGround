@@ -21,7 +21,8 @@ void EnemyDeadState::OnEnter()
     {
         animator->BeginBuildOverrideAnimation();
         animator->ClearOverrideAnimations();
-        enemy.SetMainAnimation(CharacterBase::DEATH, ANIMATION_FLAG_NONE);
+        animator->ChangeMainAnimation("Dead", true);
+        animator->ChangeMainAnimationFlags(ANIMATION_FLAG_NONE);
         animator->EndBuildOverrideAnimation();
     }
 }
@@ -39,4 +40,8 @@ void EnemyDeadState::OnUpdate()
             enemy.gameObject->SetActive(false);
         }
     }
+}
+
+void EnemyDeadState::OnNotifiedAnimationEvent(const Timeline::EventContext* context) 
+{
 }

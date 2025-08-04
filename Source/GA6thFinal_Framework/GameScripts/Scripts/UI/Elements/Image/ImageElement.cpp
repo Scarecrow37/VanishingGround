@@ -8,16 +8,13 @@ ImageElement::ImageElement()
         {
             if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
             {
+
                 const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
-                if (const auto context = data->pContext->lock(); nullptr != context)
+                if (const auto extension = data->GetPath().extension(); extension == L".png" || extension == L".jpeg")
                 {
-                    const auto& path = context->GetPath();
-                    if (const auto extension = path.extension(); extension == L".png" || extension == L".jpeg")
-                    {
-                        _guidRef            = path.ToGuid();
-                        ReflectFields->Guid = _guidRef.string();
-                        RequestResource();
-                    }
+                    _guidRef            = data->GetGuid();
+                    ReflectFields->Guid = _guidRef.string();
+                    RequestResource();
                 }
             }
             ImGui::EndDragDropTarget();

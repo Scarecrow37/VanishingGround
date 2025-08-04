@@ -29,7 +29,7 @@ void FileSystemModule::ModuleInitialize()
         UmFileSystem.ObserverSetUp([this](const Event& event) { RecieveFileEvent(event); });
     }
 
-    auto accessExt = {".UmAnimNotifySet"};
+    auto accessExt = {".UmAnimEvent"};
     UmFileSystem.RegisterFileEventSubscriber(this, accessExt);
 
     try

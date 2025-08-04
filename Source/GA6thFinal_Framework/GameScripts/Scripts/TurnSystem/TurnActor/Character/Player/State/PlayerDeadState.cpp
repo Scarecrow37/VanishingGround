@@ -36,7 +36,8 @@ void PlayerDeadState::OnEnter()
     {
         animator->BeginBuildOverrideAnimation();
         animator->ClearOverrideAnimations();
-        player.SetMainAnimation(CharacterBase::DEATH, ANIMATION_FLAG_NONE);
+        animator->ChangeMainAnimation("Dead", true);
+        animator->ChangeMainAnimationFlags(ANIMATION_FLAG_NONE);
         animator->EndBuildOverrideAnimation();
     }
 }

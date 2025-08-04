@@ -20,7 +20,12 @@ bool CheckTurnEndCondition::Evaluate()
 {
     if (auto& currActorModel = _turnMode->GetCurrTurnActor())
     {
-        return TurnActor::STATE::Play != currActorModel->State;
+        bool isTurnEnd = TurnActor::STATE::Play != currActor->State;
+        if (isTurnEnd)
+        {
+            currActor->OnTurnEnd();
+        }
+        return isTurnEnd;
     }
     return false;
 }
