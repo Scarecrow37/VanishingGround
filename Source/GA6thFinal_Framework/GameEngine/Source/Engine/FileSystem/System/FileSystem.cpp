@@ -458,7 +458,7 @@ bool EFileSystem::ChangeAssetID(std::weak_ptr<File::Context> context, int change
     if (spContext)
     {
         // 변경하려는 ID가 유효한지 검사
-        if (IsExistsAssetID(changeID) || 0 == changeID)
+        if (IsExistsAssetID(changeID))
         {
             return false;
         }
@@ -467,7 +467,10 @@ bool EFileSystem::ChangeAssetID(std::weak_ptr<File::Context> context, int change
         meta.SetAssetID(changeID);
         meta.FileCreate();
         _assetIDTable.erase(oldID); // 기존 ID 제거
-        _assetIDTable[changeID] = spContext->GetPath();
+        if (0 != changeID)
+        {
+            _assetIDTable[changeID] = spContext->GetPath();
+        }
         return true;
     }
     return false;

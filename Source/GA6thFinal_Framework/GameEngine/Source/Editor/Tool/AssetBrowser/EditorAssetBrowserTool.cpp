@@ -1700,7 +1700,7 @@ void EditorAssetBrowserTool::InspectorDrawer::OnInspectorStay()
                     {
                         File::Path path = _assetData.Entry.path();
                         Global::editorModule->OpenPopupBox(u8"이미 존재하는 Asset ID입니다."_c_str, [this, path, assetId]() {
-                            EditorAssetBrowserTool::ShowAlreadyAssetIDPopupBox(path, assetId);   
+                            EditorAssetBrowserTool::ShowAlreadyAssetIDPopupBox(path, assetId);
                         });
                         return; // 중복된 AssetID가 있으면 처리 중지
                     }
