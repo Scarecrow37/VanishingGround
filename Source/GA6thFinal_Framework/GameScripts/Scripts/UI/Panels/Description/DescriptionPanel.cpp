@@ -50,6 +50,10 @@ struct ParseData
     std::vector<ElementData> operator()(const std::string& content) const
     {
         std::vector<ElementData> elements;
+
+        if (content.empty())
+            return elements;
+
         pugi::xml_document       doc;
         pugi::xml_parse_result   result = doc.load_string(content.c_str());
 
