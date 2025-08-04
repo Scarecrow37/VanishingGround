@@ -402,7 +402,7 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
              
         if (isValidNode)
         {
-            if (currObject == nullptr)
+            if (nullptr == currObject)
             {
                 if (isPrefabObject && 0 < nodeIndex)
                 {
