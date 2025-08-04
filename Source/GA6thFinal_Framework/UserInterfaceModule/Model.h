@@ -14,6 +14,7 @@ namespace MVVM
         ModelBase& operator=(ModelBase&&) noexcept = default;
         virtual ~ModelBase()                       = default;
 
+    public:
         void AddObserver(const Callback& observer) { _observers.push_back(observer); }
 
         void Reset() { _observers.clear(); }
@@ -27,7 +28,7 @@ namespace MVVM
         }
 
     protected:
-        ModelBase() : _value(T()) {}
+        ModelBase() = default;
         explicit ModelBase(T value) : _value(value) {}
 
         T _value;
@@ -39,11 +40,20 @@ namespace MVVM
     template <typename T>
     class Model final : public ModelBase<T>
     {
-
     public:
         Model() = default;
         explicit Model(const T& value) : ModelBase<T>(value) {}
+        Model& operator=(const T& value)
+        {
+            ModelBase<T>::_value = value;
+            ModelBase<T>::Notify();
+            return *this;
+        }
 
+    public:
+        explicit operator bool() const noexcept { return ModelBase<T>::_value != 0; }
+
+    public:
         T Get() const { return ModelBase<T>::_value; }
 
         void Set(const T& value)
@@ -56,6 +66,49 @@ namespace MVVM
         {
             ModelBase<T>::_value = std::move(value);
             ModelBase<T>::Notify();
+        }
+    };
+
+    template <typename T>
+    class Model<T*> final : public ModelBase<T*>
+    {
+    public:
+        Model() = default;
+        explicit Model(T* value) : ModelBase<T*>(value) {}
+        Model& operator=(T* value)
+        {
+            ModelBase<T*>::_value = value;
+            ModelBase<T*>::Notify();
+            return *this;
+        }
+
+    public:
+        const T* operator->() const noexcept { return ModelBase<T*>::_value; }
+
+        const T& operator*() const { return *ModelBase<T*>::_value; }
+
+        auto operator<=>(std::nullptr_t) const noexcept { return ModelBase<T*>::_value <=> nullptr; }
+
+        bool operator==(std::nullptr_t) const noexcept { return ModelBase<T*>::_value == nullptr; }
+
+        explicit operator bool() const noexcept { return ModelBase<T*>::_value != nullptr; }
+
+    public:
+        const T* Get() const { return ModelBase<T*>::_value; }
+
+        void Set(T* value)
+        {
+            ModelBase<T*>::_value = value;
+            ModelBase<T*>::Notify();
+        }
+
+        void Apply(std::function<void(T*)> modifier) const
+        {
+            if (ModelBase<T*>::_value)
+            {
+                modifier(ModelBase<T*>::_value);
+                ModelBase<T*>::Notify();
+            }
         }
     };
 
