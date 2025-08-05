@@ -11,12 +11,15 @@ void ShadowMapPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTe
     __super::Initialize(ownerScene, ownerTechnique, commandList);
 
     CreateShadowMapResource();
-    CreateShaderAndPSO();    
+    CreateShaderAndPSO();
+
+    auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(_staticShadowMap.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+    commandList->ResourceBarrier(1, &barrier);
 }
 
 void ShadowMapPass::AddRenderPassDatas(std::string_view sceneName)
 {
-    auto device = Global::device->GetDevice();
+    auto device = Global::device->GetDevice();   
 
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
     for (int i = 0; i < MAX_CASCADES; i++)
@@ -55,24 +58,32 @@ void ShadowMapPass::Update(ID3D12GraphicsCommandList* commandList)
     Vector3 lightDirection = (_ownerScene->_lightDatas[mainLight].float3_1);
     lightDirection.Normalize();
 
-    UpdateCascades(lightDirection);
-
     for (auto& data : _renderDatas)
     {
         data.clear();
     }
 
     MeshType meshType = END;
-    const auto& camera   = _ownerScene->_camera;
-    float       nearZ    = camera->GetNearZ();
-    for (int i = 0; i < MESH_TYPE_END; i++)
+    const auto& shadowMapProps = std::any_cast<ShadowPassProperty>(_ownerScene->GetRenderPassProperty("ShadowMapPass"));
+    if (!XMVector3Equal(lightDirection, _prevLightDirection) || shadowMapProps != _previousShadowPassProperty)
     {
-        for (auto& meshInfo: _ownerScene->_activeMeshes[i])
+        UpdateCascades(lightDirection);
+
+        for (auto& meshInfo : _ownerScene->_activeMeshes[STATIC_MESH])
         {
             // cull_back, cull_front, cull_none
-            meshType = MeshType(i * 3 + (int)meshInfo.Material.CullMode);
+            meshType = MeshType(STATIC_MESH * 3 + (int)meshInfo.Material.CullMode);
             _renderDatas[meshType].emplace_back(meshInfo.Mesh, meshInfo.InstanceID, meshInfo.CustomDepth);
         }
+
+        _isDirtyFlag = true;
+    }
+
+    for (auto& meshInfo : _ownerScene->_activeMeshes[SKELETAL_MESH])
+    {
+        // cull_back, cull_front, cull_none
+        meshType = MeshType(SKELETAL_MESH * 3 + (int)meshInfo.Material.CullMode);
+        _renderDatas[meshType].emplace_back(meshInfo.Mesh, meshInfo.InstanceID, meshInfo.CustomDepth);
     }
 }
 
@@ -80,9 +91,6 @@ void ShadowMapPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
     commandList->RSSetViewports(1, &_viewport);
     commandList->RSSetScissorRects(1, &_scissorRect);
-
-    auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(_shadowMap.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-    commandList->ResourceBarrier(1, &barrier);
 }
 
 void ShadowMapPass::Draw(ID3D12GraphicsCommandList* commandList)
@@ -92,24 +100,37 @@ void ShadowMapPass::Draw(ID3D12GraphicsCommandList* commandList)
     auto  cascadeData            = _cascadeDataCBV->GetGPUVirtualAddress();
     auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
 
+    if (_isDirtyFlag)
+    {
+        for (int i = 0; i < MAX_CASCADES; i++)
+        {
+            commandList->OMSetRenderTargets(0, nullptr, FALSE, &_staticShadowMapDSVs[i]);
+            commandList->ClearDepthStencilView(_staticShadowMapDSVs[i], D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+
+            // Static
+            commandList->SetGraphicsRootSignature(_fxStaticShadow.GetRootSignature());
+            commandList->SetGraphicsRootConstantBufferView(_fxStaticShadow.GetRootParameterIndex("cascadeData"), cascadeData);
+            frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxStaticShadow.GetRootParameterIndex("worldMatrices"), commandList);
+
+            commandList->SetPipelineState(_psos[STATIC_CULL_BACK].Get());
+            DrawMeshes(commandList, STATIC_MESH, STATIC_CULL_BACK, i);
+
+            commandList->SetPipelineState(_psos[STATIC_CULL_FRONT].Get());
+            DrawMeshes(commandList, STATIC_MESH, STATIC_CULL_FRONT, i);
+
+            commandList->SetPipelineState(_psos[STATIC_TWO_SIDED].Get());
+            DrawMeshes(commandList, STATIC_MESH, STATIC_TWO_SIDED, i);
+        }
+        _isDirtyFlag = false;
+    }
+
+    // Copy previous cascade data
+    CopyPreviousCascadeData(commandList);
+
     for (int i = 0; i < MAX_CASCADES; i++)
     {
         commandList->OMSetRenderTargets(0, nullptr, FALSE, &_shadowMapDSVs[i]);
-        commandList->ClearDepthStencilView(_shadowMapDSVs[i], D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
-
-        // Static
-        commandList->SetGraphicsRootSignature(_fxStaticShadow.GetRootSignature());
-        commandList->SetGraphicsRootConstantBufferView(_fxStaticShadow.GetRootParameterIndex("cascadeData"), cascadeData);
-        frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxStaticShadow.GetRootParameterIndex("worldMatrices"), commandList);
-
-        commandList->SetPipelineState(_psos[STATIC_CULL_BACK].Get());
-        DrawMeshes(commandList, STATIC_MESH, STATIC_CULL_BACK, i);
-
-        commandList->SetPipelineState(_psos[STATIC_CULL_FRONT].Get());
-        DrawMeshes(commandList, STATIC_MESH, STATIC_CULL_FRONT, i);
-
-        commandList->SetPipelineState(_psos[STATIC_TWO_SIDED].Get());
-        DrawMeshes(commandList, STATIC_MESH, STATIC_TWO_SIDED, i);
+        //commandList->ClearDepthStencilView(_shadowMapDSVs[i], D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
         // Skeletal
         commandList->SetGraphicsRootSignature(_fxSkeletalShadow.GetRootSignature());
@@ -139,9 +160,10 @@ void ShadowMapPass::CreateShadowMapResource()
     _cascadeDataCBV = std::make_unique<ConstantBufferView>();
     _cascadeDataCBV->Initialize(sizeof(CascadeData));
 
-    for (auto& shadowMapDSV : _shadowMapDSVs)
+    for (int i = 0; i < MAX_CASCADES; i++)
     {
-        Global::viewManager->AddDescriptorHeap(ViewManager::Type::DEPTH_STENCIL, shadowMapDSV);
+        Global::viewManager->AddDescriptorHeap(ViewManager::Type::DEPTH_STENCIL, _shadowMapDSVs[i]);
+        Global::viewManager->AddDescriptorHeap(ViewManager::Type::DEPTH_STENCIL, _staticShadowMapDSVs[i]);
     }
 
     Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _shadowMapSRV);
@@ -153,7 +175,14 @@ void ShadowMapPass::CreateShadowMapResource()
     // Create Shadow Map Resource
     auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32_TYPELESS, _shadowMapSize, _shadowMapSize, MAX_CASCADES, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
     auto heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-    HRESULT hr = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, &optClear, IID_PPV_ARGS(&_shadowMap));
+    HRESULT hr             = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &desc,
+                                                             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, &optClear,
+                                                             IID_PPV_ARGS(&_shadowMap));
+    FAILED_CHECK_MESSAGE(hr, L"ShadowMapPass::CreateShadowMapResource device->CreateCommittedResource Failed");
+
+    hr = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &desc,
+                                         D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, &optClear,
+                                         IID_PPV_ARGS(&_staticShadowMap));
     FAILED_CHECK_MESSAGE(hr, L"ShadowMapPass::CreateShadowMapResource device->CreateCommittedResource Failed");
 
     // Create DSV for Shadow Map
@@ -166,6 +195,7 @@ void ShadowMapPass::CreateShadowMapResource()
         dsvDesc.Texture2DArray.FirstArraySlice = i;
         dsvDesc.Texture2DArray.ArraySize       = 1;
         device->CreateDepthStencilView(_shadowMap.Get(), &dsvDesc, _shadowMapDSVs[i]);
+        device->CreateDepthStencilView(_staticShadowMap.Get(), &dsvDesc, _staticShadowMapDSVs[i]);
     }
 
     // Create SRV for Shadow Map
@@ -232,7 +262,7 @@ void ShadowMapPass::CreateShaderAndPSO()
 void ShadowMapPass::UpdateCascades(const Vector3& lightDirection)
 {
     if (XMVector3Equal(lightDirection, Vector3::Zero))
-        return;
+        return;    
 
     XMVECTOR lightDir = lightDirection;
 
@@ -264,16 +294,16 @@ void ShadowMapPass::UpdateCascades(const Vector3& lightDirection)
         splitFrust.GetCorners(corners);
         XMVECTOR frustumCenter = XMVectorZero();
 
-        for (int i = 0; i < 8; ++i)
+        for (auto& corner : corners)
         {
-            frustumCenter += XMLoadFloat3(&corners[i]);
+            frustumCenter += XMLoadFloat3(&corner);
         }
         frustumCenter /= 8.0f;
 
         float radius = 0.f;
-        for (int i = 0; i < 8; ++i)
+        for (auto& corner : corners)
         {
-            radius = std::max(radius, XMVectorGetX(XMVector3Length(XMLoadFloat3(&corners[i]) - frustumCenter)));
+            radius = std::max(radius, XMVectorGetX(XMVector3Length(XMLoadFloat3(&corner) - frustumCenter)));
         }
         // 텍셀 스냅을 위해 울림
         radius = std::ceil(radius * 16.0f) / 16.0f;
@@ -295,6 +325,9 @@ void ShadowMapPass::UpdateCascades(const Vector3& lightDirection)
 
     // 계산된 모든 캐스케이드 데이터를 상수 버퍼에 한 번에 업데이트
     _cascadeDataCBV->UpdateBuffer(&_cascadeData);
+
+    _prevLightDirection         = lightDirection;
+    _previousShadowPassProperty = shadowMapProps;
 }
 
 void ShadowMapPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, int shaderType, MeshType meshType, int cascadeIndex)
@@ -318,4 +351,19 @@ void ShadowMapPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, int shade
 
         mesh->Render(commandList);
     }
+}
+
+void ShadowMapPass::CopyPreviousCascadeData(ID3D12GraphicsCommandList* commandList)
+{
+    D3D12_RESOURCE_BARRIER barriers[2];
+    barriers[0] = CD3DX12_RESOURCE_BARRIER::Transition(_staticShadowMap.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_COPY_SOURCE);
+    barriers[1] = CD3DX12_RESOURCE_BARRIER::Transition(_shadowMap.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
+
+    commandList->ResourceBarrier(2, barriers);
+    commandList->CopyResource(_shadowMap.Get(), _staticShadowMap.Get());
+
+    barriers[0] = CD3DX12_RESOURCE_BARRIER::Transition(_staticShadowMap.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+    barriers[1] = CD3DX12_RESOURCE_BARRIER::Transition(_shadowMap.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+
+    commandList->ResourceBarrier(2, barriers);
 }
