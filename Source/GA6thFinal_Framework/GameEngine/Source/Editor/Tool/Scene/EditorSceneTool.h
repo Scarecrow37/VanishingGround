@@ -18,6 +18,7 @@ public:
 public:
     const Matrix& GetCameraMatrix();
     void SetCameraToObject(std::weak_ptr<GameObject> destination);
+    bool          IsMouseHoveredWindow() const { return _isHorverdWindow; }
 
 private:
     inline static EditorSceneTool* pSceneTool = nullptr;
@@ -56,7 +57,7 @@ private:
     EditorDockWindow* _dockWindow = nullptr;
     EditorHierarchyTool* _editorHierarchyTool = nullptr;
 
-    bool _isHorverdScene = false;
+    bool _isHorverdWindow = false;
     std::unique_ptr<EditorDynamicCamera> _camera;
 
     //clientSize

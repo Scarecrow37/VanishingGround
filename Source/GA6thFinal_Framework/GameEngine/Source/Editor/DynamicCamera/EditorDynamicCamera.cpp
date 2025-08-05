@@ -6,7 +6,6 @@ EditorDynamicCamera::EditorDynamicCamera()
     _moveSpeed(10.f),
     _rotationSpeed(5.f), 
     _pivot(0.f),
-    _isManipulated(false),
     _isMoved(false),
     _isRotated(false),
     _camera(nullptr),
@@ -27,7 +26,6 @@ void EditorDynamicCamera::Update()
 {
     _isMoved = false;
     _isRotated = false;
-    _isManipulated = false;
 
     ImGuiIO&      io           = ImGui::GetIO();
     const Vector3 forward      = Vector3::Transform(Vector3(0.0f, 0.0f, 1.0f), _rotation);
@@ -38,8 +36,9 @@ void EditorDynamicCamera::Update()
     if (isRightClick)
     {
         _isMoved = UpdateMove();
-        _isRotated     = UpdateRotate();
+        _isRotated  = UpdateRotate();
         _pivotPosition = _position - forward * _pivot;
+        UpdateMouseCursor();
     }
     else
     {
@@ -59,8 +58,6 @@ void EditorDynamicCamera::Update()
     }
     _camera->SetPosition(_position);
     _camera->SetRotation(_rotation);
-
-    _isManipulated = _isMoved || _isRotated;
 }
 
 bool EditorDynamicCamera::UpdateMove()
@@ -112,16 +109,81 @@ bool EditorDynamicCamera::UpdateMove()
 bool EditorDynamicCamera::UpdateRotate() 
 {
     bool isMoved = false;
-    ImGuiIO& io = ImGui::GetIO();
-    ImVec2 mouseDelta = io.MouseDelta;
-    if (mouseDelta.x != 0.f || mouseDelta.y != 0.f)
+    if (true == _isSkipRotated)
     {
-        float rotateSpeed = _rotationSpeed * 0.001f;
-        float deltaX = mouseDelta.x * rotateSpeed;
-        float deltaY = mouseDelta.y * rotateSpeed;
-        _rotation *= Quaternion::CreateFromAxisAngle(Vector3::Up, deltaX);
-        _rotation = Quaternion::CreateFromAxisAngle(Vector3::Right, deltaY) * _rotation;
-        isMoved   = true;
+        _isSkipRotated = false;     
+    }
+    else
+    {
+        ImGuiIO& io         = ImGui::GetIO();
+        ImVec2   mouseDelta = io.MouseDelta;
+        if (mouseDelta.x != 0.f || mouseDelta.y != 0.f)
+        {
+            float rotateSpeed = _rotationSpeed * 0.001f;
+            float deltaX      = mouseDelta.x * rotateSpeed;
+            float deltaY      = mouseDelta.y * rotateSpeed;
+            _rotation *= Quaternion::CreateFromAxisAngle(Vector3::Up, deltaX);
+            _rotation = Quaternion::CreateFromAxisAngle(Vector3::Right, deltaY) * _rotation;
+            isMoved   = true;
+        }
     }
     return isMoved;
+}
+
+void EditorDynamicCamera::UpdateMouseCursor() 
+{
+    constexpr float windowPadding = 0.f;
+    ImGuiIO&       io       = ImGui::GetIO();
+    ImGuiViewport* viewport = ImGui::GetMainViewport();       // 메인 뷰포트를 가져옵니다.
+    HWND           hWnd     = (HWND)viewport->PlatformHandle; // 뷰포트에서 직접 HWND를 얻습니다.
+    if (hWnd)
+    {
+        ImVec2 windowPos  = ImGui::GetWindowPos();
+        ImVec2 windowSize = ImGui::GetWindowSize();
+
+        // 창의 경계 좌표 계산
+        const float left   = windowPos.x + windowPadding;
+        const float right  = windowPos.x + windowSize.x - windowPadding;
+        const float top    = windowPos.y + windowPadding;
+        const float bottom = windowPos.y + windowSize.y - windowPadding;
+
+        ImVec2 newMousePos = io.MousePos;
+        bool   teleported  = false;
+
+        // 수평 래핑
+        if (io.MousePos.x < left)
+        {
+            newMousePos.x = right - (left - io.MousePos.x);
+            teleported    = true;
+        }
+        else if (io.MousePos.x > right)
+        {
+            newMousePos.x = left + (io.MousePos.x - right);
+            teleported    = true;
+        }
+
+        // 수직 래핑
+        if (io.MousePos.y < top)
+        {
+            newMousePos.y = bottom - (top - io.MousePos.y);
+            teleported    = true;
+        }
+        else if (io.MousePos.y > bottom)
+        {
+            newMousePos.y = top + (io.MousePos.y - bottom);
+            teleported    = true;
+        }
+
+        if (teleported)
+        {
+            // 화면 좌표로 변환.
+            SetCursorPos((int)newMousePos.x, (int)newMousePos.y);
+
+            // ImGui에게 새 위치를 알려줌
+            io.MousePos = newMousePos;
+
+            // 한 프레임 스킵
+            _isSkipRotated = true;
+        }
+    } 
 }
