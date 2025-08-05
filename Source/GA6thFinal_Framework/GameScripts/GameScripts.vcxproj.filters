@@ -1,938 +1,285 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="소스 파일">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="헤더 파일">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="리소스 파일">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
+    <ClCompile Include="Scripts\EnemyAction\Factory\EnemyActionFactory.cpp" />
+    <ClCompile Include="Scripts\EnemyAction\ActionData\EnemyActionData.cpp" />
+    <ClCompile Include="Scripts\Audio\AudioComponent.cpp" />
+    <ClCompile Include="Scripts\BattleSystem\Battle.cpp" />
+    <ClCompile Include="Scripts\ColorUtils\ColorUtils.cpp" />
+    <ClCompile Include="Scripts\EnemyAction\System\EnemyActionSystem.cpp" />
+    <ClCompile Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22000.cpp" />
+    <ClCompile Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22001.cpp" />
+    <ClCompile Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22002.cpp" />
+    <ClCompile Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22003.cpp" />
+    <ClCompile Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22004.cpp" />
+    <ClCompile Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22010.cpp" />
+    <ClCompile Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22011.cpp" />
+    <ClCompile Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22012.cpp" />
+    <ClCompile Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22013.cpp" />
+    <ClCompile Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22014.cpp" />
+    <ClCompile Include="Scripts\EnemyAction\EnemyActionBase.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.cpp" />
+    <ClCompile Include="Scripts\Animation\AnimationComponent.cpp" />
+    <ClCompile Include="Scripts\Animation\Structs\AnimationData.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Recovery\RecoveryAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\WeaponStas\WeaponDamageAction.cpp" />
+    <ClCompile Include="Scripts\DamageSystem\DamageSystem.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\ChainCondition\ChainCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\RoundOnceCondition\RoundOnceCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\TokenCondition\TokenCondition.cpp" />
+    <ClCompile Include="Scripts\Test\Model\ModelTest.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\AdditionalDamage\AdditionalDamageAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Token\TokenApplyAction.cpp" />
+    <ClCompile Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.cpp" />
+    <ClCompile Include="Scripts\RevelationSystem\RevelationSystem.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Poison\PoisonToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Bleed\BleedToken.cpp" />
+    <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="Scripts\GameCore\FSM\AlwaysTransitionCondition.cpp" />
+    <ClCompile Include="Scripts\Mesh\SkeletalMeshRenderer.cpp" />
+    <ClCompile Include="Scripts\Mesh\StaticMeshRenderer.cpp" />
+    <ClCompile Include="Scripts\Light\Base\LightComponent.cpp" />
+    <ClCompile Include="pchScripts.cpp" />
+    <ClCompile Include="Scripts\Particle\ParticleComponent.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\TurnAction.cpp" />
+    <ClCompile Include="Scripts\UI\Panels\Anchor\AnchorPanel.cpp" />
+    <ClCompile Include="Scripts\UI\Panels\Description\DescriptionPanel.cpp" />
+    <ClCompile Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.cpp" />
+    <ClCompile Include="Scripts\UI\Views\TurnQueue\TurnQueueView.cpp" />
+    <ClCompile Include="Scripts\UI\Views\Weapon\WeaponView.cpp" />
+    <ClCompile Include="Scripts\UI\Wrappers\Center\CenterWrapper.cpp" />
+    <ClCompile Include="Scripts\UI\Wrappers\Padding\PaddingWrapper.cpp" />
+    <ClCompile Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.cpp" />
+    <ClCompile Include="Scripts\ViewModels\TurnQueue\TurnQueueViewModel.cpp" />
+    <ClCompile Include="Scripts\ViewModels\Weapon\WeaponViewModel.cpp" />
+    <ClCompile Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.cpp" />
+    <ClCompile Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.cpp" />
+    <ClCompile Include="Scripts\Stats\Weapon\WeaponStats.cpp" />
+    <ClCompile Include="Scripts\Test\Component\TestComponent.cpp" />
+    <ClCompile Include="Scripts\Token\Interface\IToken.cpp" />
+    <ClCompile Include="Scripts\Token\Token.cpp" />
+    <ClCompile Include="Scripts\Token\TokenInventory.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\AI\EnemyAI.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\Base\EnemyConditionBase.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyDeadCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyEndCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyStartCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\Base\EnemyStateBase.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\EnemyDeadState.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\EnemyPlayTurnState.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\EnemyWaitTurnState.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\Base\PlayerConditionBase.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerDeadCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerExitCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerStartCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\State\Base\PlayerStateBase.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerDeadState.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerPlayTurnState.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerWaitTurnState.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\Base\TurnModeConditionBase.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundEndExit.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundStartExit.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnEmpty.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnEndCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnNotEmpty.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\EnemyActionCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\GameClearCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\GameOverCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\PlayerActionCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\RoundStartCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\Base\TurnModeStateBase.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\CheckPlayerState.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\CombatStartPhase.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\EnemyActionPhase.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\GameClearState.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\GameOverState.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\PlayerActionPhase.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\RoundEndPhase.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\RoundStartPhase.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\TurnListEmptyState.cpp" />
+    <ClCompile Include="Scripts\UI\Base\EditablePlacementUIComponent\EditablePlacementUIComponent.cpp" />
+    <ClCompile Include="Scripts\UI\Base\PanelSlotComponent\PanelSlotComponent.cpp" />
+    <ClCompile Include="Scripts\UI\Base\PlacementUIComponent\PlacementUIComponent.cpp" />
+    <ClCompile Include="Scripts\UI\Base\UIComponent\UIComponent.cpp" />
+    <ClCompile Include="Scripts\UI\Elements\Dummy\DummyElement.cpp" />
+    <ClCompile Include="Scripts\UI\Elements\Image\ImageElement.cpp" />
+    <ClCompile Include="Scripts\UI\Elements\Text\TextElement.cpp" />
+    <ClCompile Include="Scripts\UI\Panels\Grid\GridPanel.cpp" />
+    <ClCompile Include="Scripts\UI\UIRoot\UIRoot.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Stun\StunToken.cpp" />
+    <ClCompile Include="Scripts\Token\TokenSystem.cpp" />
+    <ClCompile Include="UmScriptCore.cpp" />
+    <ClCompile Include="UmScriptsExport.cpp" />
+    <ClCompile Include="Scripts\Mesh\MeshComponent.cpp" />
+    <ClCompile Include="Scripts\GameCore\FSM\FiniteStateMachine.cpp" />
+    <ClCompile Include="Scripts\Light\DirectionalLight.cpp" />
+    <ClCompile Include="Scripts\Light\PointLight.cpp" />
+    <ClCompile Include="Scripts\Light\SpotLight.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\TurnMode.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\TurnActor.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\CharacterBase.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Player.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Enemy.cpp" />
+    <ClCompile Include="Scripts\Camera\CameraComponent.cpp" />
+    <ClCompile Include="Scripts\Stats\TurnActorStatsComponent.cpp" />
+    <ClCompile Include="Scripts\Stats\Player\PlayerStatsComponent.cpp" />
+    <ClCompile Include="Scripts\Stats\Enemy\EnemyStatsComponent.cpp" />
+    <ClCompile Include="Scripts\Test\Input\InputTestComponent.cpp" />
+    <ClCompile Include="Scripts\Test\DevTools\FPSCounter.cpp" />
+    <ClCompile Include="Scripts\WeaponSystem\WeaponSystem.cpp" />
+    <ClCompile Include="Scripts\Test\TurnAction\TestActionComponent.cpp" />
+    <ClCompile Include="Scripts\Test\DevTools\LogOutput.cpp" />
+    <ClCompile Include="Scripts\Audio\Table\AudioTableComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="UmScriptCore.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Test\Component\TestComponent.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Mesh\StaticMeshRenderer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Mesh\MeshComponent.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\GameCore\FSM\FSMState.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\GameCore\FSM\FiniteStateMachine.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Light\Base\LightComponent.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Light\DirectionalLight.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Light\PointLight.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Light\SpotLight.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\GameCore\FSM\FSMCondition.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\GameCore\FSM\Factory\FSMStateFactory.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\GameCore\FSM\Factory\FSMConditionFactory.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\GameCore\FSM\IFSMEntity.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="UmScriptsExport.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\TurnMode.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\TurnActor.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnEndCondition.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\Base\TurnModeConditionBase.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundStartExit.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\GameCore\FSM\AlwaysTransitionCondition.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\EnemyActionCondition.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\PlayerActionCondition.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\RoundStartCondition.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\Base\TurnModeStateBase.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\CheckPlayerState.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\CombatStartPhase.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\EnemyActionPhase.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\PlayerActionPhase.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\RoundStartPhase.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\CharacterBase.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\Player.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Enemy.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\TurnListEmptyState.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnEmpty.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnNotEmpty.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\RoundEndPhase.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundEndExit.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Stats\TurnActorStatsComponent.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Stats\Enemy\EnemyStats.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="pchScripts.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Stats\Player\PlayerStats.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Camera\CameraComponent.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Stats\CharacterStats.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Stats\Player\PlayerStatsComponent.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Stats\Enemy\EnemyStatsComponent.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\State\Base\PlayerStateBase.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerWaitTurnState.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerStartCondition.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\Base\PlayerConditionBase.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerPlayTurnState.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerExitCondition.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\Base\EnemyConditionBase.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\Base\EnemyStateBase.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerDeadCondition.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerDeadState.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\EnemyWaitTurnState.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyStartCondition.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\EnemyPlayTurnState.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyEndCondition.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\EnemyDeadState.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyDeadCondition.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Mesh\SkeletalMeshRenderer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Test\Input\InputTestComponent.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Timeline\AnimationEventListener.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Stats\Weapon\WeaponStats.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Stats\TurnActorStats.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Test\DevTools\FPSCounter.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Enum\EnemyEnum.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Test\DevTools\FPSCounter.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\AI\EnemyAI.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\DamageSystem\DamageSystem.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\GameClearCondition.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\GameOverCondition.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\GameClearState.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\GameOverState.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Token\Object\Bleed\BleedToken.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Token\Interface\IToken.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Token\Token.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\WeaponSystem\WeaponSystem.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Interface\ITriggerType.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\UI\Base\PanelSlotComponent\PanelSlotComponent.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\UI\Base\UIComponent\UIComponent.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\UI\Elements\Dummy\DummyElement.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\UI\Elements\Image\ImageElement.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\UI\Elements\Text\TextElement.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\UI\Panels\Grid\GridPanel.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\UI\UIRoot\UIRoot.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\UI\Base\PlacementUIComponent\PlacementUIComponent.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\UI\Base\EditablePlacementUIComponent\EditablePlacementUIComponent.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Token\Object\Poison\PoisonToken.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Token\TokenSystem.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\RevelationSystem\RevelationSystem.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnAction.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionFactory.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Token\TokenInventory.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Test\TurnAction\TestActionComponent.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\AdditionalDamage\AdditionalDamageAction.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\Token\TokenApplyAction.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Token\Enums\TokenEnums.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\TokenCondition\TokenCondition.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\TurnActionCondition.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Particle\ParticleComponent.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\ChainCondition\ChainCondition.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\RoundOnceCondition\RoundOnceCondition.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Animation\Structs\AnimationData.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Base\RevelationActionBase.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Critical\CriticalDamageAction.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Token\TokenApplyAction.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Animation\AnimationComponent.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Test\Model\ModelTest.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\UI\Panels\Anchor\AnchorPanel.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Token\Object\Stun\StunToken.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Audio\AudioComponent.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\BattleSystem\Battle.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\EnemyAction\ActionData\EnemyActionData.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\EnemyAction\System\EnemyActionSystem.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\Recovery\RecoveryAction.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\WeaponStas\WeaponDamageAction.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    </ClInclude>
-    <ClInclude Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\UI\Wrappers\Center\CenterWrapper.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\UI\Wrappers\Padding\PaddingWrapper.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Test\DevTools\LogOutput.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\EnemyAction\ActionData\EnemyActionData.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\EnemyAction\System\EnemyActionSystem.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\EnemyAction\EnemyActionBase.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22000.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22001.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22002.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22003.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22004.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22010.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22011.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22012.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22013.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22014.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\Recovery\RecoveryAction.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\WeaponStas\WeaponDamageAction.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\UI\Wrappers\Center\CenterWrapper.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\UI\Wrappers\Padding\PaddingWrapper.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Test\DevTools\LogOutput.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\Recovery\RecoveryAction.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\UI\Wrappers\Center\CenterWrapper.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\UI\Wrappers\Padding\PaddingWrapper.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\EnemyAction\EnemyActionSystem.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Timeline\Timeline.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Timeline\EventContext\TimelineEventContext.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scripts\Timeline\Editor\TimelineSequencerEditor.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="dllmain.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="UmScriptCore.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Test\Component\TestComponent.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Mesh\StaticMeshRenderer.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Mesh\MeshComponent.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\GameCore\FSM\FiniteStateMachine.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Light\Base\LightComponent.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Light\DirectionalLight.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Light\PointLight.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Light\SpotLight.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="UmScriptsExport.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\TurnMode.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\TurnActor.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\GameCore\FSM\AlwaysTransitionCondition.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\Base\TurnModeConditionBase.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundStartExit.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\EnemyActionCondition.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\PlayerActionCondition.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\RoundStartCondition.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\Base\TurnModeStateBase.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\CheckPlayerState.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\CombatStartPhase.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\EnemyActionPhase.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\PlayerActionPhase.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\RoundStartPhase.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\CharacterBase.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Player.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Enemy.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnEndCondition.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\TurnListEmptyState.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnEmpty.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnNotEmpty.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\RoundEndPhase.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundEndExit.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="pchScripts.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Camera\CameraComponent.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Stats\TurnActorStatsComponent.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Stats\Player\PlayerStatsComponent.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Stats\Enemy\EnemyStatsComponent.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\State\Base\PlayerStateBase.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerWaitTurnState.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\Base\PlayerConditionBase.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerStartCondition.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerPlayTurnState.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerExitCondition.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\Base\EnemyConditionBase.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\Base\EnemyStateBase.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerDeadCondition.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerDeadState.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\EnemyWaitTurnState.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyStartCondition.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\EnemyPlayTurnState.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyEndCondition.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\EnemyDeadState.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyDeadCondition.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Mesh\SkeletalMeshRenderer.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Test\Input\InputTestComponent.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Timeline\AnimationEventListener.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Test\DevTools\FPSCounter.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Stats\Weapon\WeaponStats.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Test\DevTools\FPSCounter.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\AI\EnemyAI.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\GameClearCondition.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\GameOverCondition.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\GameClearState.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\GameOverState.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Token\Object\Bleed\BleedToken.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Token\Interface\IToken.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Token\Token.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\WeaponSystem\WeaponSystem.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\UI\Base\PanelSlotComponent\PanelSlotComponent.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\UI\Base\UIComponent\UIComponent.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\UI\Elements\Dummy\DummyElement.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\UI\Elements\Image\ImageElement.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\UI\Elements\Text\TextElement.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\UI\Panels\Grid\GridPanel.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\UI\UIRoot\UIRoot.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\UI\Base\PlacementUIComponent\PlacementUIComponent.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\UI\Base\EditablePlacementUIComponent\EditablePlacementUIComponent.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Token\TokenSystem.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Token\Object\Stun\StunToken.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\RevelationSystem\RevelationSystem.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Token\TokenInventory.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Test\TurnAction\TestActionComponent.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\AdditionalDamage\AdditionalDamageAction.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\Token\TokenApplyAction.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\TokenCondition\TokenCondition.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Particle\ParticleComponent.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\TurnAction.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\ChainCondition\ChainCondition.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\RoundOnceCondition\RoundOnceCondition.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Animation\AnimationComponent.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Animation\Structs\AnimationData.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\DamageSystem\DamageSystem.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Test\Model\ModelTest.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Token\Object\Poison\PoisonToken.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\UI\Panels\Anchor\AnchorPanel.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Audio\AudioComponent.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\BattleSystem\Battle.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\EnemyAction\Factory\EnemyActionFactory.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\EnemyAction\ActionData\EnemyActionData.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\EnemyAction\System\EnemyActionSystem.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\Recovery\RecoveryAction.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\WeaponStas\WeaponDamageAction.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\UI\Wrappers\Center\CenterWrapper.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\UI\Wrappers\Padding\PaddingWrapper.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Test\DevTools\LogOutput.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\EnemyAction\ActionData\EnemyActionData.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\EnemyAction\System\EnemyActionSystem.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\EnemyAction\EnemyActionBase.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22000.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22001.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22002.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22003.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22004.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22010.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22011.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22012.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22013.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22014.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\Recovery\RecoveryAction.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\WeaponStas\WeaponDamageAction.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\UI\Wrappers\Center\CenterWrapper.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\UI\Wrappers\Padding\PaddingWrapper.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Test\DevTools\LogOutput.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\Recovery\RecoveryAction.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\UI\Wrappers\Center\CenterWrapper.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\UI\Wrappers\Padding\PaddingWrapper.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\EnemyAction\EnemyActionSystem.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Timeline\Timeline.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Timeline\EventContext\TimelineEventContext.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scripts\Timeline\Editor\TimelineSequencerEditor.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
+    <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h" />
+    <ClInclude Include="Scripts\EnemyAction\ActionData\EnemyActionData.h" />
+    <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
+    <ClInclude Include="Scripts\Audio\AudioComponent.h" />
+    <ClInclude Include="Scripts\BattleSystem\Battle.h" />
+    <ClInclude Include="Scripts\ColorUtils\ColorUtils.h" />
+    <ClInclude Include="Scripts\EnemyAction\System\EnemyActionSystem.h" />
+    <ClInclude Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22000.h" />
+    <ClInclude Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22001.h" />
+    <ClInclude Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22002.h" />
+    <ClInclude Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22003.h" />
+    <ClInclude Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22004.h" />
+    <ClInclude Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22010.h" />
+    <ClInclude Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22011.h" />
+    <ClInclude Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22012.h" />
+    <ClInclude Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22013.h" />
+    <ClInclude Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22014.h" />
+    <ClInclude Include="Scripts\EnemyAction\EnemyActionBase.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.h" />
+    <ClInclude Include="Scripts\Animation\AnimationComponent.h" />
+    <ClInclude Include="Scripts\Animation\Structs\AnimationData.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Recovery\RecoveryAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\WeaponStas\WeaponDamageAction.h" />
+    <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Base\RevelationActionBase.h" />
+    <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Critical\CriticalDamageAction.h" />
+    <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Token\TokenApplyAction.h" />
+    <ClInclude Include="Scripts\Token\Enums\TokenEnums.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\ChainCondition\ChainCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\RoundOnceCondition\RoundOnceCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\TokenCondition\TokenCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\TurnActionCondition.h" />
+    <ClInclude Include="Scripts\Test\Model\ModelTest.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\AdditionalDamage\AdditionalDamageAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Token\TokenApplyAction.h" />
+    <ClInclude Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.h" />
+    <ClInclude Include="Scripts\RevelationSystem\RevelationSystem.h" />
+    <ClInclude Include="Scripts\Token\Object\Poison\PoisonToken.h" />
+    <ClInclude Include="Scripts\Interface\ITriggerType.h" />
+    <ClInclude Include="Scripts\Token\Object\Bleed\BleedToken.h" />
+    <ClInclude Include="Scripts\DamageSystem\DamageSystem.h" />
+    <ClInclude Include="Scripts\GameCore\FSM\Factory\FSMConditionFactory.h" />
+    <ClInclude Include="Scripts\GameCore\FSM\Factory\FSMStateFactory.h" />
+    <ClInclude Include="Scripts\GameCore\FSM\IFSMEntity.h" />
+    <ClInclude Include="Scripts\GameCore\FSM\FSMCondition.h" />
+    <ClInclude Include="Scripts\GameCore\FSM\FSMState.h" />
+    <ClInclude Include="Scripts\Mesh\SkeletalMeshRenderer.h" />
+    <ClInclude Include="Scripts\Mesh\StaticMeshRenderer.h" />
+    <ClInclude Include="Scripts\Light\Base\LightComponent.h" />
+    <ClInclude Include="Scripts\Particle\ParticleComponent.h" />
+    <ClInclude Include="Scripts\Stats\TurnActorStats.h" />
+    <ClInclude Include="Scripts\Stats\TurnActorStatsComponent.h" />
+    <ClInclude Include="Scripts\Stats\Enemy\EnemyStats.h" />
+    <ClInclude Include="pchScripts.h" />
+    <ClInclude Include="Scripts\Stats\Player\PlayerStats.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionFactory.h" />
+    <ClInclude Include="Scripts\UI\Panels\Anchor\AnchorPanel.h" />
+    <ClInclude Include="Scripts\UI\Panels\Description\DescriptionPanel.h" />
+    <ClInclude Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.h" />
+    <ClInclude Include="Scripts\UI\Views\TurnQueue\TurnQueueView.h" />
+    <ClInclude Include="Scripts\UI\Views\Weapon\WeaponView.h" />
+    <ClInclude Include="Scripts\UI\Wrappers\Center\CenterWrapper.h" />
+    <ClInclude Include="Scripts\UI\Wrappers\Padding\PaddingWrapper.h" />
+    <ClInclude Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.h" />
+    <ClInclude Include="Scripts\ViewModels\TurnQueue\TurnQueueViewModel.h" />
+    <ClInclude Include="Scripts\ViewModels\Weapon\WeaponViewModel.h" />
+    <ClInclude Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.h" />
+    <ClInclude Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.h" />
+    <ClInclude Include="Scripts\Stats\Weapon\WeaponStats.h" />
+    <ClInclude Include="Scripts\Test\Component\TestComponent.h" />
+    <ClInclude Include="Scripts\Token\Interface\IToken.h" />
+    <ClInclude Include="Scripts\Token\Token.h" />
+    <ClInclude Include="Scripts\Token\TokenInventory.h" />
+    <ClInclude Include="Scripts\Token\TokenSystem.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\AI\EnemyAI.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\Base\EnemyConditionBase.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyDeadCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyEndCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyStartCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Enum\EnemyEnum.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\Base\EnemyStateBase.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\EnemyDeadState.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\EnemyPlayTurnState.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\EnemyWaitTurnState.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\Base\PlayerConditionBase.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerDeadCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerStartCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerExitCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerDeadState.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\State\Base\PlayerStateBase.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerPlayTurnState.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerWaitTurnState.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundEndExit.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnEmpty.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnEndCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\Base\TurnModeConditionBase.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundStartExit.h" />
+    <ClInclude Include="Scripts\GameCore\FSM\AlwaysTransitionCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnNotEmpty.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\EnemyActionCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\GameClearCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\GameOverCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\PlayerActionCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\RoundStartCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\GameClearState.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\GameOverState.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\RoundEndPhase.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\TurnListEmptyState.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\Base\TurnModeStateBase.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\CheckPlayerState.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\CombatStartPhase.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\EnemyActionPhase.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\PlayerActionPhase.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\RoundStartPhase.h" />
+    <ClInclude Include="Scripts\UI\Base\EditablePlacementUIComponent\EditablePlacementUIComponent.h" />
+    <ClInclude Include="Scripts\UI\Base\PanelSlotComponent\PanelSlotComponent.h" />
+    <ClInclude Include="Scripts\UI\Base\PlacementUIComponent\PlacementUIComponent.h" />
+    <ClInclude Include="Scripts\UI\Base\UIComponent\UIComponent.h" />
+    <ClInclude Include="Scripts\UI\Elements\Dummy\DummyElement.h" />
+    <ClInclude Include="Scripts\UI\Elements\Image\ImageElement.h" />
+    <ClInclude Include="Scripts\UI\Elements\Text\TextElement.h" />
+    <ClInclude Include="Scripts\UI\Panels\Grid\GridPanel.h" />
+    <ClInclude Include="Scripts\UI\UIRoot\UIRoot.h" />
+    <ClInclude Include="Scripts\Token\Object\Stun\StunToken.h" />
+    <ClInclude Include="UmScriptCore.h" />
+    <ClInclude Include="UmScriptsExport.h" />
+    <ClInclude Include="Scripts\Mesh\MeshComponent.h" />
+    <ClInclude Include="Scripts\GameCore\FSM\FiniteStateMachine.h" />
+    <ClInclude Include="Scripts\Light\DirectionalLight.h" />
+    <ClInclude Include="Scripts\Light\PointLight.h" />
+    <ClInclude Include="Scripts\Light\SpotLight.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\TurnMode.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\TurnActor.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\CharacterBase.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\Player.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Enemy.h" />
+    <ClInclude Include="Scripts\Camera\CameraComponent.h" />
+    <ClInclude Include="Scripts\Stats\CharacterStats.h" />
+    <ClInclude Include="Scripts\Stats\Player\PlayerStatsComponent.h" />
+    <ClInclude Include="Scripts\Stats\Enemy\EnemyStatsComponent.h" />
+    <ClInclude Include="Scripts\Test\Input\InputTestComponent.h" />
+    <ClInclude Include="Scripts\Test\DevTools\FPSCounter.h" />
+    <ClInclude Include="Scripts\WeaponSystem\WeaponSystem.h" />
+    <ClInclude Include="Scripts\Test\TurnAction\TestActionComponent.h" />
+    <ClInclude Include="Scripts\Test\DevTools\LogOutput.h" />
+    <ClInclude Include="Scripts\Audio\Table\AudioTableComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
