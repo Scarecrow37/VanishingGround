@@ -8499,6 +8499,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_EC55D9EA15C54D5687580DF8CF13BE98"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_EC58AF86841A4AE58140E2CE3916EF2C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -9423,17 +9429,17 @@
     {
         "CustomAction"
         {
-            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_92D587BACDA640908DF670AF7C652D60"
+            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_918A230ACCCA43DBA03F6A29D6674A8A"
             {
             "Name" = "8:InstallerCusomAction.exe"
             "Condition" = "8:"
-            "Object" = "8:"
+            "Object" = "8:_EC55D9EA15C54D5687580DF8CF13BE98"
             "FileType" = "3:2"
             "InstallAction" = "3:4"
-            "Arguments" = "8:/Uninstall \"[TARGETDIR]\""
+            "Arguments" = "8:/Uninstall"
             "EntryPoint" = "8:"
             "Sequence" = "3:1"
-            "Identifier" = "8:_ED4E0B0D_6386_4328_9428_D2A8EC336881"
+            "Identifier" = "8:_211B5C6D_A55B_4B63_AB83_648FD51130F5"
             "InstallerClass" = "11:FALSE"
             "CustomActionData" = "8:"
             }
@@ -28307,7 +28313,7 @@
             "SharedLegacy" = "11:FALSE"
             "PackageAs" = "3:1"
             "Register" = "3:1"
-            "Exclude" = "11:FALSE"
+            "Exclude" = "11:TRUE"
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
@@ -37728,6 +37734,26 @@
             "TargetName" = "8:GaussianBlurModule.h"
             "Tag" = "8:"
             "Folder" = "8:_EF72F7A8FDF24C2EB18B18633B7BCEFF"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EC55D9EA15C54D5687580DF8CF13BE98"
+            {
+            "SourcePath" = "8:..\\InstallerCusomAction\\bin\\Release\\InstallerCusomAction.exe"
+            "TargetName" = "8:InstallerCusomAction.exe"
+            "Tag" = "8:"
+            "Folder" = "8:_D4EFFDC87AB44B8FA1183FA369F578E0"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
