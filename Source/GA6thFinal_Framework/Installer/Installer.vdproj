@@ -783,6 +783,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_122C2ABBF6964DB3AC69A78C641099D7"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_1236CF42514545F18B39B7A7BD042DAB"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -3267,6 +3273,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_58E5232B7725430690CA8D0B48962FE4"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_59BB3EDD988A46EC822967C98CBE7C38"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -4210,6 +4222,12 @@
         "Entry"
         {
         "MsmKey" = "8:_7204C3F82149415081F0CA6981BE068C"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_721A480568B64EFEA650C73BA9603165"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -7426,6 +7444,12 @@
         "Entry"
         {
         "MsmKey" = "8:_CABF141798F4420C9F3C7C663EE7E184"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_CAD76337101744E7936CA6D397F23911"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -11988,6 +12012,26 @@
             "TargetName" = "8:ps_gaussianblur_x.hlsl"
             "Tag" = "8:"
             "Folder" = "8:_87E6A9644493472890552977DF67BB1D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_122C2ABBF6964DB3AC69A78C641099D7"
+            {
+            "SourcePath" = "8:..\\GameScripts.sln"
+            "TargetName" = "8:GameScripts.sln"
+            "Tag" = "8:"
+            "Folder" = "8:_8F40E98B052A4546870F24792BFD6B45"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -20262,6 +20306,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_58E5232B7725430690CA8D0B48962FE4"
+            {
+            "SourcePath" = "8:..\\GA6thFinal_Framework.sln"
+            "TargetName" = "8:GA6thFinal_Framework.sln"
+            "Tag" = "8:"
+            "Folder" = "8:_8F40E98B052A4546870F24792BFD6B45"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_59BB3EDD988A46EC822967C98CBE7C38"
             {
             "SourcePath" = "8:..\\GraphicsEngine\\ThirdParty\\lib\\DirectXTK12_d.lib"
@@ -23408,6 +23472,26 @@
             "TargetName" = "8:ProjectVG.vcxproj"
             "Tag" = "8:"
             "Folder" = "8:_12B3E2F3A05843E29E0FA20A203FFF9E"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_721A480568B64EFEA650C73BA9603165"
+            {
+            "SourcePath" = "8:..\\.editorconfig"
+            "TargetName" = "8:.editorconfig"
+            "Tag" = "8:"
+            "Folder" = "8:_8F40E98B052A4546870F24792BFD6B45"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -34164,6 +34248,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CAD76337101744E7936CA6D397F23911"
+            {
+            "SourcePath" = "8:..\\.clang-format"
+            "TargetName" = "8:.clang-format"
+            "Tag" = "8:"
+            "Folder" = "8:_8F40E98B052A4546870F24792BFD6B45"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CB0B971C897D4107B57AA05E376E6186"
             {
             "SourcePath" = "8:..\\GameScripts\\Scripts\\Light\\SpotLight.cpp"
@@ -42824,7 +42928,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Umreal Engine"
         "ProductCode" = "8:{FA979338-C37F-4398-B89C-21F47B591657}"
-        "PackageCode" = "8:{BE71E551-BF5F-405A-952F-04468EC150CD}"
+        "PackageCode" = "8:{6FDB0AB5-4B9E-4A90-85ED-256C0CA4F11E}"
         "UpgradeCode" = "8:{43C62E9B-CAB0-4C45-9035-CFD2A4296D61}"
         "AspNetVersion" = "8:"
         "RestartWWWService" = "11:FALSE"
