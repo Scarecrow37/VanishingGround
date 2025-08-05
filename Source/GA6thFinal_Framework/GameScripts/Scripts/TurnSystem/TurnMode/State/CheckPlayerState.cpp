@@ -18,7 +18,7 @@ void CheckPlayerState::OnStart()
 void CheckPlayerState::OnEnter() 
 {
     UmLogger.Message(LogLevel::LEVEL_DEBUG, (const char*)u8"턴을 시작합니다.");
-    _turnMode->PopTurnList();
+    _turnMode->StartFrontTurnActor();
 }
 
 void CheckPlayerState::OnExit() {}
