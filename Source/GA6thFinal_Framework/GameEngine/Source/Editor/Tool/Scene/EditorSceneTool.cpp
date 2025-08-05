@@ -112,7 +112,7 @@ void EditorSceneTool::OnFrameRender()
     _window = ImGui::GetCurrentWindow();
     if (_isHorverdWindow)
     {
-        if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_MouseRight, false))
+        if (ImGui::IsKeyPressed(ImGuiKey_MouseRight, false))
         {
             ImGui::SetWindowFocus();
         }
@@ -133,12 +133,10 @@ void EditorSceneTool::OnFrameEnd()
 
 void EditorSceneTool::OnFrameFocusStay()
 {
-    bool isRightClickDown = ImGui::IsKeyDown(ImGuiKey_MouseRight);
-    bool isRightClickPressed = ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_MouseRight, false);
-    if (IsFocusFrame() && (_isHorverdWindow || (isRightClickDown && false == isRightClickPressed)))
+    if (IsFocusFrame())
     {
         _camera->Update();
-    }
+    }   
     UpdateKeyboardFrameFocus();
 }
     

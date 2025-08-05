@@ -42,7 +42,7 @@ public:
     float GetMaxRotationSpeed() const { return _minmaxRotationSpeed.second; }
 
 public:
-    void Update();
+    void Update(bool isHoverdWindow = true);
 
 private:
     // 움직인 경우 true, 움직이지 않은 경우 false
@@ -67,4 +67,6 @@ private:
     bool                    _isMoved;
     bool                    _isRotated;
     bool                    _isSkipRotated;
+    bool                    _isRightClickDown;
+    bool                    _isHoverdWindow;
 };
