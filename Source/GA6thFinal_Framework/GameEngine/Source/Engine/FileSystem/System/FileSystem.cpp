@@ -435,7 +435,7 @@ void EFileSystem::CheckFileContextIntegrity(const File::Path& path)
 {
     if (fs::exists(path))
     {
-        if (false == HasContext(path))
+        if (IsValidExtension(path.extension()) && false == HasContext(path))
         {
             RegisterContext(path);
         }
