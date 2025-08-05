@@ -138,7 +138,7 @@ void AudioTableComponent::ImGuiDrawPropertysEvent()
         if (const char* comboLabel = _selectedAudioKey.empty() ? "Select Audio" : _selectedAudioKey.c_str();
             ImGui::BeginCombo("##AudioCombo", comboLabel))
         {
-            for (const auto keys = _audioSources | std::views::keys; const auto& key : keys)
+            for (const auto keys = audioMappingKeys | std::views::keys; const auto& key : keys)
             {
                 if (const bool isSelected = _selectedAudioKey == key; ImGui::Selectable(key.c_str(), isSelected))
                 {
