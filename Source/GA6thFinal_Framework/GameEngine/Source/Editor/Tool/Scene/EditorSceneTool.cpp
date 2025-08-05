@@ -135,7 +135,7 @@ void EditorSceneTool::OnFrameFocusStay()
 {
     if (IsFocusFrame())
     {
-        _camera->Update();
+        _camera->Update(_isHorverdWindow);
     }   
     UpdateKeyboardFrameFocus();
 }
