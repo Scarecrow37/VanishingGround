@@ -85,13 +85,14 @@ void BrightExtractPass::Draw(ID3D12GraphicsCommandList* commandList)
     auto renderTarget = Global::multiRenderTargetManager->GetAvailableRenderTarget();
     renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
     _sharedRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    gaussianBlurModule->Execute(commandList, _sharedRenderTarget->GetSRVHandle(), renderTarget.Get(), DXGI_FORMAT_R32G32B32A32_FLOAT, GaussianBlurModule::BlurType::AXIS_X);
+
+    gaussianBlurModule->Execute(commandList, _sharedRenderTarget->GetSRVHandle(), renderTarget.Get(), _sharedRenderTarget->GetFormat(), GaussianBlurModule::BlurType::AXIS_X);
     renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
     // y tab
     _sharedRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-    gaussianBlurModule->Execute(commandList, renderTarget->GetSRVHandle(), _sharedRenderTarget, DXGI_FORMAT_R32G32B32A32_FLOAT, GaussianBlurModule::BlurType::AXIS_Y);
+    gaussianBlurModule->Execute(commandList, renderTarget->GetSRVHandle(), _sharedRenderTarget, _sharedRenderTarget->GetFormat(), GaussianBlurModule::BlurType::AXIS_Y);
 
     Global::multiRenderTargetManager->ReturnRenderTarget(renderTarget);
 }
