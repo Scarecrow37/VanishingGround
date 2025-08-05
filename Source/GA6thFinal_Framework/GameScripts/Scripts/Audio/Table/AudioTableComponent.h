@@ -7,6 +7,10 @@ class AudioTableComponent : public Component
 public:
     AudioTableComponent();
 
+public:
+    void Play(const std::string& key);
+    void Stop(const std::string& key);
+
 protected:
     void ImGuiDrawPropertysEvent() override;
     void Reset() override;
@@ -17,6 +21,7 @@ private:
 
     void PlaySelectedAudio();
     void StopSelectedAudio();
+
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
