@@ -43,9 +43,11 @@ private:
     bool RenameWeapon(WeaponElement& weapon, const std::string& newName);
     bool InsertWeapon(WeaponElement& weapon);
     bool EraseWeapon(WeaponElement& weapon);
+    void SortTableIDOrder();
 
 private:
     std::map<std::string, WeaponElement> _weaponTable;
+    std::vector<WeaponElement*>          _weaponTableIdOrder;
 
 protected:
 
