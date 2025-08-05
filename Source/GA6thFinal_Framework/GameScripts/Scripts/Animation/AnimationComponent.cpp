@@ -367,8 +367,9 @@ void AnimationComponent::UpdateAnimation(AnimationData& animData)
                 _eventQueue.push_back([this, id]() {
                     auto beginItr = _overrideAnimationStack.begin();
                     auto endItr   = _overrideAnimationStack.end();
-                    auto itr =
-                        std::remove_if(beginItr, endItr, [id](const AnimationData& data) { return data.IsSameID(id); });
+                    auto itr      = std::remove_if(beginItr, endItr, [id](const AnimationData& data) {
+                        return data.IsSameID(id);
+                    });
                     _overrideAnimationStack.erase(itr, endItr);
                 });
             }
