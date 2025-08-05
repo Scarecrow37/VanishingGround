@@ -18,11 +18,11 @@ namespace File
         using FString::FString;
 
     public:
-        File::Path ToPath() const;
-        bool       IsNull() const;
+        const File::Path& ToPath() const;
+        bool  IsNull() const;
 
     public:
-        operator File::Path() const;
+        operator const File::Path&() const;
 
     };
 
@@ -34,11 +34,11 @@ namespace File
         using FString::FString;
 
     public:
-        File::Guid ToGuid() const;
-        bool       IsNull() const;
+        const File::Guid& ToGuid() const;
+        bool  IsNull() const;
 
     public:
-        operator File::Guid() const;
+        operator const File::Guid&() const;
         File::Path operator+(const File::FString& v);
         File::Path operator/(const File::FString& v);
 

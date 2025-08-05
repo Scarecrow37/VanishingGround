@@ -175,6 +175,20 @@ public:
     }
 
     /// <summary>
+    /// 루트 트랜스폼에서 시작하여 후위 순회 방식으로 모든 트랜스폼에 대해 지정된 함수를 호출합니다.
+    /// </summary>
+    /// <param name="root">순회를 시작할 루트 Transform 객체입니다.</param>
+    /// <param name="func">각 Transform에 대해 호출할 함수 객체입니다. Transform 포인터를 인자로 받습니다.</param>
+    inline static void ForeachPostOrder(Transform& root, const std::function<void(Transform*)>& func);
+
+    /// <summary>
+    /// 루트 트랜스폼에서 시작하여 후위 순회 방식으로 모든 트랜스폼에 대해 지정된 함수를 호출합니다.
+    /// </summary>
+    /// <param name="root">순회를 시작할 루트 Transform 객체입니다.</param>
+    /// <param name="func">각 트랜스폼과 해당 깊이에 대해 호출되는 함수 객체입니다. 함수는 Transform 포인터와 int(깊이)를 인자로 받습니다.</param>
+    inline static void ForeachPostOrder(Transform& root, const std::function<void(Transform*, int)>& func);
+
+    /// <summary>
     /// Transform를 DFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
     /// </summary>
     /// <typeparam name="Func">실행할 함수</typeparam>
@@ -398,6 +412,15 @@ private:
     static bool CheckValidTransform(Transform* target);
 
     /// <summary>
+    /// 루트 Transform에서 시작하여 후위 순회 방식으로 모든 Transform에 대해 지정된 함수를 호출합니다.
+    /// </summary>
+    /// <param name="root">순회를 시작할 루트 Transform 객체입니다.</param>
+    /// <param name="checkValid">Transform의 유효성을 검사할지 여부를 지정하는 불리언 값입니다.</param>
+    /// <param name="func">각 Transform에 대해 호출할 함수 객체입니다. Transform 포인터를 인자로 받습니다.</param>
+    inline static void ForeachExPostOrder(Transform& root, bool checkValid,
+                                          const std::function<void(Transform*)>& func);
+
+    /// <summary>
     /// Transform를 DFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
     /// </summary>
     /// <typeparam name="Func :">실행할 함수</typeparam>
@@ -414,6 +437,15 @@ private:
     /// <param name="checkValid :">Valid 오브젝트 필터 여부</param>
     /// <param name="func"></param>
     inline static void ForeachExBFS(Transform& root, bool checkValid, const std::function<void(Transform*)>& func);
+
+    /// <summary>
+    /// 루트 Transform에서 시작하여 후위 순회 방식으로 모든 Transform을 탐색하고, 각 노드에 대해 지정된 함수를 호출합니다.
+    /// </summary>
+    /// <param name="root">순회를 시작할 Transform 객체입니다.</param>
+    /// <param name="checkValid">노드의 유효성을 검사할지 여부를 지정하는 불리언 값입니다.</param>
+    /// <param name="func">각 Transform 노드와 해당 깊이에 대해 호출되는 함수 객체입니다. 함수는 (Transform*, int) 형식의 인자를 받습니다.</param>
+    inline static void ForeachExPostOrder(Transform& root, bool checkValid,
+                                          const std::function<void(Transform*, int)>& func);
 
     /// <summary>
     /// Transform를 DFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
@@ -433,6 +465,16 @@ private:
     /// <param name="func"></param>
     inline static void ForeachExBFS(Transform& root, bool checkValid, const std::function<void(Transform*, int)>& func);
 };
+
+inline void Transform::ForeachPostOrder(Transform& root, const std::function<void(Transform*)>& func)
+{
+    ForeachExPostOrder(root, true, func);
+}
+
+inline void Transform::ForeachPostOrder(Transform& root, const std::function<void(Transform*, int)>& func)
+{
+    ForeachExPostOrder(root, true, func);
+}
 
 inline void Transform::ForeachDFS(Transform& root, const std::function<void(Transform*)>& func)
 {
@@ -454,6 +496,27 @@ inline void Transform::ForeachBFS(Transform& root, const std::function<void(Tran
     ForeachExBFS(root, true, func);
 }
 
+inline void Transform::ForeachExPostOrder(Transform& root, bool checkValid, const std::function<void(Transform*)>& func)
+{
+    std::vector<Transform*> trStack; // 순회용 stack (Foreach에서 씀)
+    trStack.push_back(&root);
+    while (trStack.empty() == false)
+    {
+        Transform* currTr = trStack.back();
+        trStack.pop_back();
+        bool vaild = checkValid ? CheckValidTransform(currTr) : true;
+        if (vaild)
+        {
+            func(currTr);
+            for (auto iter = currTr->_childsList.begin(); iter != currTr->_childsList.end(); ++iter)
+            {
+                auto& transform = *iter;
+                trStack.push_back(transform);
+            }
+        }
+    }
+}
+
 inline void Transform::ForeachExDFS(Transform& root, bool checkValid, const std::function<void(Transform*)>& func)
 {
     std::vector<Transform*> trStack; // 순회용 stack (Foreach에서 씀)
@@ -470,6 +533,27 @@ inline void Transform::ForeachExDFS(Transform& root, bool checkValid, const std:
             {
                 auto& transform = *iter;
                 trStack.push_back(transform);
+            }
+        }
+    }
+}
+
+inline void Transform::ForeachExPostOrder(Transform& root, bool checkValid, const std::function<void(Transform*, int)>& func)
+{
+    std::vector<std::pair<Transform*, int>> trStack; // 순회용 stack (Foreach에서 씀)
+    trStack.emplace_back(&root, 0);
+    while (trStack.empty() == false)
+    {
+        auto [currTr, currentDepth] = trStack.back();
+        trStack.pop_back();
+        bool vaild = checkValid ? CheckValidTransform(currTr) : true;
+        if (vaild)
+        {
+            func(currTr, currentDepth);
+            for (auto iter = currTr->_childsList.begin(); iter != currTr->_childsList.end(); ++iter)
+            {
+                auto& transform = *iter;
+                trStack.emplace_back(transform, currentDepth + 1);
             }
         }
     }

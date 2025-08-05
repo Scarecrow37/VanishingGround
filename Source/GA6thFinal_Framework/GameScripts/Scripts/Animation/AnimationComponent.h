@@ -62,7 +62,7 @@ public:
     /// <param name="animKey"></param>
     /// <param name="blend"></param>
     /// <param name="popCondition"></param>
-    void PushOverrideAnimation(std::string_view animKey, bool blend = true, std::function<bool(const AnimationData&)> popCondition = nullptr);
+    bool PushOverrideAnimation(std::string_view animKey, bool blend = true, std::function<bool(const AnimationData&)> popCondition = nullptr);
 
     /// <summary>애니메이션 오버라이드를 뺍니다.</summary>
     void PopOverrideAnimation();

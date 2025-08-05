@@ -132,8 +132,8 @@ void ESceneManager::SceneUpdate()
 #ifdef _UMEDITOR
     _isPlay = editorModule->PlayMode.IsPlay();
 #endif
-    SceneResourceManager::Engine::Update(ResourceManager);
     ObjectsAddRuntime();
+    SceneResourceManager::Engine::Update(ResourceManager);
     ObjectsOnEnable();
     ObjectsAwake();
     ObjectsStart();
@@ -887,7 +887,7 @@ void ESceneManager::ObjectsAddLoadScene()
                 scene->_isDirty  = false;
                 _lodedSceneList.push_back(scene);
             }
-            catch (const std::exception& ex)
+            catch (const YAML::Exception& ex)
             {
                 std::string sceneName = scene->Name;
                 std::string msg       = std::format("{}{}{}", sceneName, (const char*)u8" 로드 실패. ", ex.what());

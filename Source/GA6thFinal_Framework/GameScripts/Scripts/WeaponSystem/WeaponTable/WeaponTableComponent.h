@@ -85,6 +85,8 @@ private:
         std::vector<std::string>                                      SheetNames;
         std::string                                                   SelectSheetName;
         std::vector<std::pair<std::string, std::vector<std::string>>> SheetDatas;
+        std::queue<WeaponElement*>                                    DirtyWeaponElementQueue;
+        bool                                                          ShowDirtyWeaponPopup = false;
     };
 
 #ifdef _UMEDITOR
@@ -100,4 +102,7 @@ private:
 
     /*엑셀 파서 ImGuiMenubar 함수*/
     void ImGuiDrawExcelParserMenuBar();
+
+    /*엑셀 데이터를 Element 데이터로 변환*/
+    bool ExcelToWeaponElement(WeaponElement& element, const std::string& key, const std::string& data);
 };

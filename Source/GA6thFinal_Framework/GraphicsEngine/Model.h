@@ -19,7 +19,7 @@ public:
     std::vector<Material>&                                    GetMaterials() { return _material; }
     const std::shared_ptr<Animation>                          GetAnimation() const { return _animation; }
     const std::shared_ptr<Skeleton>                           GetSkeleton() const { return _skeleton; }
-    std::vector<std::string>                                  GetBoneNameList() const;
+    const std::vector<std::string>&                           GetBoneNameList() const;
     const size_t                                              GetMeshCount() const { return _meshes.size(); }
 
 public:

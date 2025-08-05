@@ -15,7 +15,6 @@ public:
 
 protected:
     void UpdateBuffer(ID3D12GraphicsCommandList* commandList);
-    void SetResource(UINT rootParameterIndex, ID3D12GraphicsCommandList* commandList);
 
 protected:
     CameraData                          _cameraData;

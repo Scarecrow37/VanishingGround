@@ -15,6 +15,7 @@ public:
     void End(ID3D12GraphicsCommandList* commandList) override;
 
 private:
+    FX<GE::VS::QUAD, GE::PS::BRIGHT_EXTRACT> _fx;
     ComPtr<ID3D12Resource> _finalTexture;
     DescriptorHandles      _finalHandle;
 };

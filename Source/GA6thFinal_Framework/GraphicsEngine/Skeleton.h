@@ -25,7 +25,7 @@ public:
     void SetUpSplitBone(const unsigned int maxSplit);
     void SplitBone(const unsigned int ID, const char* boneName);
     void MakeParent(const char* parent, const char* child);
-    std::vector<std::string> GetBoneNameList() const;;
+    const std::vector<std::string>& GetBoneNameList() const;
 
 
 

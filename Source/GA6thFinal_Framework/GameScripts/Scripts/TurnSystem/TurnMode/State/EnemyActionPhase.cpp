@@ -24,22 +24,23 @@ void EnemyActionPhase::OnEnter()
 {
     if (_turnMode)
     {
-        TurnActor* actor = _turnMode->GetCurrTurnActor();
-        if (actor)
+        if (auto& actorModel = _turnMode->GetCurrTurnActor())
         {
-            actor->PlayTurn();
-            actor->OnTurnStart();
-            CombatStartPhase* combatStartPhase = _turnMode->States->CombatStartPhase;
-            if (combatStartPhase)
-            {
-                CharacterBase* character = static_cast<CharacterBase*>(actor);
-                for (auto& ch : combatStartPhase->GetCharacters())
+            actorModel.Apply([this](TurnActor* actor) {
+                actor->PlayTurn();
+                actor->OnTurnStart();
+                CombatStartPhase* combatStartPhase = _turnMode->States->CombatStartPhase;
+                if (combatStartPhase)
                 {
-                    ch->OnEachTurnStart(character);
+                    CharacterBase* character = static_cast<CharacterBase*>(actor);
+                    for (auto& ch : combatStartPhase->GetCharacters())
+                    {
+                        ch->OnEachTurnStart(character);
+                    }
+                    _turnMode->ApplyActions([character](TurnAction& action) { action.OnTurnStart(*character); });
                 }
-                _turnMode->ApplyActions([character](TurnAction& action) { action.OnTurnStart(*character); });
-            }
-            actor->UpdatePostTurnState();
+                actor->UpdatePostTurnState();
+            });
         }
         // 액터의 턴 State를 상태 플래그를 확인하여 바꿉니다.
     }
