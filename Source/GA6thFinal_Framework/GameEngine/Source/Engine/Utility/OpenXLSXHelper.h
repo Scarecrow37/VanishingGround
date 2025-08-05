@@ -46,4 +46,13 @@ namespace OpenXLSXHelper
     /// <param name="findData :">찾을 데이터</param>
     /// <returns>실패시 unsigend int max를 반환합니다.</returns>
     std::pair<Row, Column> FindRowColumnToData(const OpenXLSX::XLWorksheet& workSheet, std::string_view findData);
+
+    /// <summary>
+    /// 워크시트에 Column을 키로 사용하는 시트를 파싱해 반환합니다.
+    /// pair의 첫번째 요소는 key, 두번째 요소는 Row 데이터들 입니다.
+    /// </summary>
+    /// <param name="workSheet :">파싱할 워크시트</param>
+    /// <param name="keyRowIndex :">키로 사용할 Row 번호</param>
+    /// <returns></returns>
+    std::vector<std::pair<std::string, std::vector<std::string>>> ParseSheetWithColumnKeys(const OpenXLSX::XLWorksheet& workSheet, Row keyRowIndex);
 }
