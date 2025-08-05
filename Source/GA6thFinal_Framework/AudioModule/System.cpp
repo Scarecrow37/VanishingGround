@@ -123,7 +123,7 @@ namespace Audio
 
             WaveFormatHash operator()(const WAVEFORMATEX& waveFormat) const
             {
-                WaveFormatHash seed = 0;
+                WaveFormatHash seed = Seed++;
                 Combine(seed, waveFormat.wFormatTag);
                 Combine(seed, waveFormat.nChannels);
                 Combine(seed, waveFormat.nSamplesPerSec);
@@ -133,7 +133,11 @@ namespace Audio
                 Combine(seed, waveFormat.cbSize);
                 return seed;
             }
+
+            static WaveFormatHash Seed;
         };
+
+        WaveFormatHash GetWaveFormatHash::Seed = 0;
     } // namespace
 
     System::System() = default;
