@@ -91,6 +91,7 @@ public:
     void SetCopyFile();
     void SetCutFile();
     void PasteFile();
+    bool DeleteFileFromPath(const File::Path& path);
          
     bool IsFavoriteFolder(const File::Path& path) const;
     void AddFavoriteFolder(const File::Path& path);
@@ -229,9 +230,9 @@ private:
         void OnInspectorStay() override;
         void OnInspectorExit() override;
 
-        void SetAsset(const AssetData& assetData);
+        void SetAsset(AssetData* assetData);
     public:
-        AssetData _assetData;
+        AssetData* _assetData;
         File::Path _assetPath;
         std::weak_ptr<File::Context> _selectedAsset;
 
