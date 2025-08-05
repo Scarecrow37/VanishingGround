@@ -8,16 +8,13 @@ ImageElement::ImageElement()
         {
             if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
             {
+
                 const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
-                if (const auto context = data->pContext->lock(); nullptr != context)
+                if (const auto extension = data->GetPath().extension(); extension == L".png" || extension == L".jpeg")
                 {
-                    const auto& path = context->GetPath();
-                    if (const auto extension = path.extension(); extension == L".png" || extension == L".jpeg")
-                    {
-                        _guidRef            = path.ToGuid();
-                        ReflectFields->Guid = _guidRef.string();
-                        RequestResource();
-                    }
+                    _guidRef            = data->GetGuid();
+                    ReflectFields->Guid = _guidRef.string();
+                    RequestResource();
                 }
             }
             ImGui::EndDragDropTarget();
@@ -31,9 +28,16 @@ ImageElement::~ImageElement()
         _renderer->SetDestroy();
 }
 
+void ImageElement::SetImage(const File::GuidRef& guidRef)
+{
+    _guidRef = guidRef;
+    ReflectFields->Guid = _guidRef.string();
+    RequestResource();
+}
+
 void ImageElement::Reset()
 {
-    UIComponent::Reset();
+    EditablePlacementUIComponent::Reset();
 
     try
     {
@@ -44,17 +48,24 @@ void ImageElement::Reset()
             UmGraphics.RegisterComponent("Editor", _renderer.get());
         }
         _renderer->SetActive(&EnableInHierarchy);
-        const File::Guid guid = ReflectFields->Guid;
-        if (const auto path = guid.ToPath(); !path.IsNull())
-        {
-            _guidRef = path.ToGuid();
-            RequestResource();
-        }
+
+        RequestResource();
     }
     catch (...)
     {
         UmLogger.Log(LogLevel::LEVEL_ERROR, u8"SpriteRenderer 생성에 실패했습니다.");
         throw;
+    }
+}
+
+void ImageElement::DeserializedReflectEvent()
+{
+    EditablePlacementUIComponent::DeserializedReflectEvent();
+
+    const File::Guid guid = ReflectFields->Guid;
+    if (const auto path = guid.ToPath(); !path.IsNull())
+    {
+        _guidRef = path.ToGuid();
     }
 }
 
@@ -84,9 +95,14 @@ void ImageElement::SetViewOrder(const int viewOrder)
 
 void ImageElement::LoadTexture() const
 {
+    LoadTexture(_guidRef);
+}
+
+void ImageElement::LoadTexture(const File::GuidRef& guid) const
+{
     if (nullptr != _renderer)
     {
-        const std::string path = FilePath;
+        const std::string path = guid.ToPath().string();
         if (path != File::NULL_PATH)
         {
             const std::wstring filePath = U8ToWString(path);
@@ -97,8 +113,8 @@ void ImageElement::LoadTexture() const
 
 void ImageElement::UpdateWorldMatrix()
 {
-    const auto& [x, y]          = GetAbsolutePoint();
-    const float zOrder          = GetZOrder();
+    const auto& [x, y] = GetAbsolutePoint();
+    const float zOrder = GetZOrder();
 
     const Vector3 position{static_cast<float>(x), static_cast<float>(y), zOrder};
 
@@ -107,8 +123,12 @@ void ImageElement::UpdateWorldMatrix()
 
 void ImageElement::RequestResource()
 {
-    UmSceneManager.ResourceManager.RequestTextureResource(this, _guidRef, [this]() {
-        LoadTexture();
-        OnPlacementChange();
-    });
+    if (false == _guidRef.IsNull())
+    {
+        File::GuidRef requestedGuid = _guidRef;
+        UmSceneManager.ResourceManager.RequestTextureResource(this, _guidRef, [this, requestedGuid]() {
+            LoadTexture(requestedGuid);
+            OnPlacementChange();
+        });
+    }
 }

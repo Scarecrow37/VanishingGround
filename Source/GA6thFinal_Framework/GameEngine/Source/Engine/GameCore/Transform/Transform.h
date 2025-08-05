@@ -5,9 +5,9 @@ using namespace DirectX::SimpleMath;
 class Transform : public ReflectSerializer
 {
     friend class ESceneManager;
+    friend class EGameObjectFactory;
     USING_PROPERTY(Transform);
-    inline static std::vector<Transform*> trStack; //순회용 stack (Foreach에서 씀)
-    inline static std::queue<Transform*> trQueue; //순회용 queue (Foreach에서 씀)
+
 public:
     /*Transform의 좌표계 공간을 나타내는 enum class*/
     enum class Space
@@ -175,23 +175,50 @@ public:
     }
 
     /// <summary>
-    /// Tansform를 DFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
+    /// 루트 트랜스폼에서 시작하여 후위 순회 방식으로 모든 트랜스폼에 대해 지정된 함수를 호출합니다.
+    /// </summary>
+    /// <param name="root">순회를 시작할 루트 Transform 객체입니다.</param>
+    /// <param name="func">각 Transform에 대해 호출할 함수 객체입니다. Transform 포인터를 인자로 받습니다.</param>
+    inline static void ForeachPostOrder(Transform& root, const std::function<void(Transform*)>& func);
+
+    /// <summary>
+    /// 루트 트랜스폼에서 시작하여 후위 순회 방식으로 모든 트랜스폼에 대해 지정된 함수를 호출합니다.
+    /// </summary>
+    /// <param name="root">순회를 시작할 루트 Transform 객체입니다.</param>
+    /// <param name="func">각 트랜스폼과 해당 깊이에 대해 호출되는 함수 객체입니다. 함수는 Transform 포인터와 int(깊이)를 인자로 받습니다.</param>
+    inline static void ForeachPostOrder(Transform& root, const std::function<void(Transform*, int)>& func);
+
+    /// <summary>
+    /// Transform를 DFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
     /// </summary>
     /// <typeparam name="Func">실행할 함수</typeparam>
     /// <param name="root :">DFS 시작할 루트</param>
     /// <param name="func : 실행할 함수"></param>
-    template<typename Func>
-    inline static void ForeachDFS(Transform& root, Func func);
-
+    inline static void ForeachDFS(Transform& root, const std::function<void(Transform*)>& func);
 
     /// <summary>
-    /// Tansform를 BFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
+    /// Transform를 DFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
+    /// </summary>
+    /// <typeparam name="Func">실행할 함수</typeparam>
+    /// <param name="root :">DFS 시작할 루트</param>
+    /// <param name="func : 실행할 함수"></param>
+    inline static void ForeachDFS(Transform& root, const std::function<void(Transform*, int)>& func);
+
+    /// <summary>
+    /// Transform를 BFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
     /// </summary>
     /// <typeparam name="Func">실행할 함수</typeparam>
     /// <param name="root">BFS 시작할 루트</param>
     /// <param name="func">실행할 함수</param>
-    template<typename Func>
-    inline static void ForeachBFS(Transform& root, Func func); 
+    inline static void ForeachBFS(Transform& root, const std::function<void(Transform*)>& func); 
+
+    /// <summary>
+    /// Transform를 BFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
+    /// </summary>
+    /// <typeparam name="Func">실행할 함수</typeparam>
+    /// <param name="root">BFS 시작할 루트</param>
+    /// <param name="func">실행할 함수</param>
+    inline static void ForeachBFS(Transform& root, const std::function<void(Transform*, int)>& func); 
 
 public:
     /// <summary>
@@ -300,7 +327,7 @@ private:
     /// <summary>
     /// 부모를 지웁니다.
     /// </summary>
-    void EraseParent();
+    void EraseParent(bool callEvent);
 
     /// <summary>
     /// 대상의 모든 자식을 순회하면서 root를 변경합니다.
@@ -350,6 +377,22 @@ private:
     void UpdateMatrix();
 
     /// <summary>
+    /// 내부에서 사용되는 SetParent 함수
+    /// </summary>
+    void SetParentEx(Transform* p, bool worldPositionStays, bool callEvent);
+
+    /// <summary>
+    /// 특정 자식 인덱스에 삽입하는 함수
+    /// </summary>
+    void SetParentToIndexEx(Transform* p, int index, bool worldPositionStays, bool callEvent);
+
+    /// <summary>
+    /// 내부에서 사용되는 DetachChild 함수
+    /// </summary>
+    /// <param name="callEvent"></param>
+    void DetachChildrenEx(bool callEvent);
+
+    /// <summary>
     /// UI 컴포넌트들의 Detach 이벤트 함수를 호출합니다.
     /// </summary>
     /// <param name="target"></param>
@@ -361,36 +404,218 @@ private:
     /// <param name="target"></param>
     static void CallUIAttachChild(Transform* target, Transform* newChild);
 
+    /// <summary>
+    /// object의 vaild 여부 체크합니다.
+    /// </summary>
+    /// <param name="target"></param>
+    /// <returns></returns>
+    static bool CheckValidTransform(Transform* target);
+
+    /// <summary>
+    /// 루트 Transform에서 시작하여 후위 순회 방식으로 모든 Transform에 대해 지정된 함수를 호출합니다.
+    /// </summary>
+    /// <param name="root">순회를 시작할 루트 Transform 객체입니다.</param>
+    /// <param name="checkValid">Transform의 유효성을 검사할지 여부를 지정하는 불리언 값입니다.</param>
+    /// <param name="func">각 Transform에 대해 호출할 함수 객체입니다. Transform 포인터를 인자로 받습니다.</param>
+    inline static void ForeachExPostOrder(Transform& root, bool checkValid,
+                                          const std::function<void(Transform*)>& func);
+
+    /// <summary>
+    /// Transform를 DFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
+    /// </summary>
+    /// <typeparam name="Func :">실행할 함수</typeparam>
+    /// <param name="root :">루트</param>
+    /// <param name="checkValid :">Valid 오브젝트 필터 여부</param>
+    /// <param name="func"></param>
+    inline static void ForeachExDFS(Transform& root, bool checkValid, const std::function<void(Transform*)>& func);
+
+    /// <summary>
+    /// Transform를 BFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
+    /// </summary>
+    /// <typeparam name="Func :">실행할 함수</typeparam>
+    /// <param name="root :">루트</param>
+    /// <param name="checkValid :">Valid 오브젝트 필터 여부</param>
+    /// <param name="func"></param>
+    inline static void ForeachExBFS(Transform& root, bool checkValid, const std::function<void(Transform*)>& func);
+
+    /// <summary>
+    /// 루트 Transform에서 시작하여 후위 순회 방식으로 모든 Transform을 탐색하고, 각 노드에 대해 지정된 함수를 호출합니다.
+    /// </summary>
+    /// <param name="root">순회를 시작할 Transform 객체입니다.</param>
+    /// <param name="checkValid">노드의 유효성을 검사할지 여부를 지정하는 불리언 값입니다.</param>
+    /// <param name="func">각 Transform 노드와 해당 깊이에 대해 호출되는 함수 객체입니다. 함수는 (Transform*, int) 형식의 인자를 받습니다.</param>
+    inline static void ForeachExPostOrder(Transform& root, bool checkValid,
+                                          const std::function<void(Transform*, int)>& func);
+
+    /// <summary>
+    /// Transform를 DFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
+    /// </summary>
+    /// <typeparam name="Func :">실행할 함수</typeparam>
+    /// <param name="root :">루트</param>
+    /// <param name="checkValid :">Valid 오브젝트 필터 여부</param>
+    /// <param name="func"></param>
+    inline static void ForeachExDFS(Transform& root, bool checkValid, const std::function<void(Transform*, int)>& func);
+
+    /// <summary>
+    /// Transform를 BFS로 root부터 모든 자식들을 순회하면서 함수를 호출해줍니다.
+    /// </summary>
+    /// <typeparam name="Func :">실행할 함수</typeparam>
+    /// <param name="root :">루트</param>
+    /// <param name="checkValid :">Valid 오브젝트 필터 여부</param>
+    /// <param name="func"></param>
+    inline static void ForeachExBFS(Transform& root, bool checkValid, const std::function<void(Transform*, int)>& func);
 };
 
-template <typename Func>
-inline void Transform::ForeachDFS(Transform& root, Func func)
+inline void Transform::ForeachPostOrder(Transform& root, const std::function<void(Transform*)>& func)
 {
+    ForeachExPostOrder(root, true, func);
+}
+
+inline void Transform::ForeachPostOrder(Transform& root, const std::function<void(Transform*, int)>& func)
+{
+    ForeachExPostOrder(root, true, func);
+}
+
+inline void Transform::ForeachDFS(Transform& root, const std::function<void(Transform*)>& func)
+{
+    ForeachExDFS(root, true, func);
+}
+
+inline void Transform::ForeachDFS(Transform& root, const std::function<void(Transform*, int)>& func)
+{
+    ForeachExDFS(root, true, func);
+}
+
+inline void Transform::ForeachBFS(Transform& root, const std::function<void(Transform*)>& func)
+{
+    ForeachExBFS(root, true, func);
+}
+
+inline void Transform::ForeachBFS(Transform& root, const std::function<void(Transform*, int)>& func)
+{
+    ForeachExBFS(root, true, func);
+}
+
+inline void Transform::ForeachExPostOrder(Transform& root, bool checkValid, const std::function<void(Transform*)>& func)
+{
+    std::vector<Transform*> trStack; // 순회용 stack (Foreach에서 씀)
     trStack.push_back(&root);
     while (trStack.empty() == false)
     {
         Transform* currTr = trStack.back();
         trStack.pop_back();
-        func(currTr);
-        for (auto& _transform : currTr->_childsList)
+        bool vaild = checkValid ? CheckValidTransform(currTr) : true;
+        if (vaild)
         {
-            trStack.push_back(_transform);
+            func(currTr);
+            for (auto iter = currTr->_childsList.begin(); iter != currTr->_childsList.end(); ++iter)
+            {
+                auto& transform = *iter;
+                trStack.push_back(transform);
+            }
         }
     }
 }
 
-template <typename Func>
-inline void Transform::ForeachBFS(Transform& root, Func func)
+inline void Transform::ForeachExDFS(Transform& root, bool checkValid, const std::function<void(Transform*)>& func)
 {
+    std::vector<Transform*> trStack; // 순회용 stack (Foreach에서 씀)
+    trStack.push_back(&root);
+    while (trStack.empty() == false)
+    {
+        Transform* currTr = trStack.back();
+        trStack.pop_back();
+        bool vaild = checkValid ? CheckValidTransform(currTr) : true;
+        if (vaild)
+        {
+            func(currTr);
+            for (auto iter = currTr->_childsList.rbegin(); iter != currTr->_childsList.rend(); ++iter)
+            {
+                auto& transform = *iter;
+                trStack.push_back(transform);
+            }
+        }
+    }
+}
+
+inline void Transform::ForeachExPostOrder(Transform& root, bool checkValid, const std::function<void(Transform*, int)>& func)
+{
+    std::vector<std::pair<Transform*, int>> trStack; // 순회용 stack (Foreach에서 씀)
+    trStack.emplace_back(&root, 0);
+    while (trStack.empty() == false)
+    {
+        auto [currTr, currentDepth] = trStack.back();
+        trStack.pop_back();
+        bool vaild = checkValid ? CheckValidTransform(currTr) : true;
+        if (vaild)
+        {
+            func(currTr, currentDepth);
+            for (auto iter = currTr->_childsList.begin(); iter != currTr->_childsList.end(); ++iter)
+            {
+                auto& transform = *iter;
+                trStack.emplace_back(transform, currentDepth + 1);
+            }
+        }
+    }
+}
+
+inline void Transform::ForeachExDFS(Transform& root, bool checkValid, const std::function<void(Transform*, int)>& func)
+{
+    std::vector<std::pair<Transform*, int>> trStack; // 순회용 stack (Foreach에서 씀)
+    trStack.emplace_back(&root, 0);
+    while (trStack.empty() == false)
+    {
+        auto [currTr, currentDepth] = trStack.back();
+        trStack.pop_back();
+        bool vaild = checkValid ? CheckValidTransform(currTr) : true;
+        if (vaild)
+        {
+            func(currTr, currentDepth);
+            for (auto iter = currTr->_childsList.rbegin(); iter != currTr->_childsList.rend(); ++iter)
+            {
+                auto& transform = *iter;
+                trStack.emplace_back(transform, currentDepth + 1);
+            }
+        }
+    }
+}
+
+inline void Transform::ForeachExBFS(Transform& root, bool checkValid, const std::function<void(Transform*)>& func)
+{
+    std::queue<Transform*> trQueue; // 순회용 queue (Foreach에서 씀)
     trQueue.push(&root);
     while (trQueue.empty() == false)
     {
         Transform* currTr = trQueue.front();
         trQueue.pop();
-        func(currTr);
-        for (auto& _transform : currTr->_childsList)
+        bool vaild = checkValid ? CheckValidTransform(currTr) : true;
+        if (vaild)
         {
-            trQueue.push(_transform);
+            func(currTr);
+            for (auto& _transform : currTr->_childsList)
+            {
+                trQueue.push(_transform);
+            }
+        }
+    }
+}
+
+inline void Transform::ForeachExBFS(Transform& root, bool checkValid, const std::function<void(Transform*, int)>& func)
+{
+    std::queue<std::pair<Transform*, int>> trQueue; // 순회용 queue (Foreach에서 씀)
+    trQueue.push({&root, 0});
+    while (trQueue.empty() == false)
+    {
+        auto [currTr, currentDepth] = trQueue.front();
+        trQueue.pop();
+        bool vaild = checkValid ? CheckValidTransform(currTr) : true;
+        if (vaild)
+        {
+            func(currTr, currentDepth);
+            for (auto& _transform : currTr->_childsList)
+            {
+                trQueue.push({_transform, currentDepth + 1});
+            }
         }
     }
 }

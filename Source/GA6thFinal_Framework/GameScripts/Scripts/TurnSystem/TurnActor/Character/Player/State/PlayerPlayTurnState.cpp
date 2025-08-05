@@ -53,9 +53,6 @@ void PlayerPlayTurnState::OnEnter()
     _setImguiPosCenter    = true;
     _attackButtonHeldTime = 0;
     _attackRemaining      = 0;
-
-    auto& player = GetPlayer();
-    player.SetMainAnimation(CharacterBase::IDLE, ANIMATION_FLAG_USE_LOOP | ANIMATION_FLAG_RESET_FRAME);
 }
 
 void PlayerPlayTurnState::OnExit() 
@@ -73,8 +70,6 @@ void PlayerPlayTurnState::OnUpdate()
                                           viewport->Pos.y + (viewport->Size.y - 500.0f) * 0.5f);
 
         ImGui::SetNextWindowPos(centerPos);
-        ImGui::SetNextWindowSize(ImVec2(500, 500));
-
         _setImguiPosCenter = false;
     }
 
@@ -169,7 +164,9 @@ void PlayerPlayTurnState::ReleasedButtonB(const Input::Controller& controller)
 
 void PlayerPlayTurnState::UpdateActionSelectionUI(float dt) 
 {
-    ImGui::Begin("Player Turn##9A48EE30-CB5F-48AC-9740-DDF8118AAC49");
+    ImGuiWindowFlags flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar;
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.1f, 0.1f, 0.1f, 0.5f));
+    ImGui::Begin("Player Turn##9A48EE30-CB5F-48AC-9740-DDF8118AAC49", nullptr, flags);
     {
         if (ImGui::Button((const char*)u8"A를 눌러 공격 진입"))
         {
@@ -180,11 +177,14 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
         ImGui::ProgressBar(t);
     }
     ImGui::End();
+    ImGui::PopStyleColor();
 }
 
 void PlayerPlayTurnState::UpdateQuickTimeEventUI(float dt)
 {
-    ImGui::Begin("Player Turn##9A48EE30-CB5F-48AC-9740-DDF8118AAC49");
+    ImGuiWindowFlags flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar;
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.1f, 0.1f, 0.1f, 0.5f));
+    ImGui::Begin("Player Turn##9A48EE30-CB5F-48AC-9740-DDF8118AAC49", nullptr, flags);
     {
         WeaponSystem* weaponSystem = WeaponSystem::GetInstance();
         TurnMode*     turnMode     = TurnMode::GetInstance();
@@ -193,27 +193,44 @@ void PlayerPlayTurnState::UpdateQuickTimeEventUI(float dt)
             Player&      player = GetPlayer();
             WeaponStats& weapon = const_cast<WeaponStats&>(weaponSystem->GetCurrentWeaponStats());
             ImGui::BeginDisabled();
-            weapon.ImGuiDrawPropertys();
+            ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.WeaponName, UmCore->ImGuiDrawPropertysSetting);
+            ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.Type, UmCore->ImGuiDrawPropertysSetting);
+            ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.HitDamage, UmCore->ImGuiDrawPropertysSetting);
+            ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.CriticalDamage, UmCore->ImGuiDrawPropertysSetting);
             ImGui::EndDisabled();
             ImGui::Separator();
 
             ImGui::Text((const char*)u8"X, Y, B를 눌러 공격하세요.");
             ImGui::Text((const char*)u8"남은 공격 횟수 : %d", _attackRemaining);
+            int index = 0;
             for (auto& [name, value] : Battle::ENEMY_TARGET_FLAGS)
             {
                 if (ImGui::Button(name))
                 {
                     PushAttackTarget(value);
+                }      
+                constexpr int lastIndex = std::size(Battle::ENEMY_TARGET_FLAGS) - 1;
+                if (index < lastIndex)
+                {
+                    ImGui::SameLine();
                 }
+                index++;
             }
+
             ImGui::Separator();
             if (ImGui::Button((const char*)u8"[테스트] 자해"))
             {
                 player.TakeDamage(10);
             }
+            ImGui::SameLine();
             if (ImGui::Button((const char*)u8"[테스트] 자살"))
             {
                 player.Dead();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button((const char*)u8"[테스트] 턴 종료"))
+            {
+                _attackRemaining = 0;
             }
             for (auto& target : _attackTargets)
             {
@@ -236,6 +253,7 @@ void PlayerPlayTurnState::UpdateQuickTimeEventUI(float dt)
         }
     }
     ImGui::End();
+    ImGui::PopStyleColor();
 }
 
 void PlayerPlayTurnState::UpdateAttackEventUI(float dt)
@@ -258,7 +276,6 @@ void PlayerPlayTurnState::UpdateAttackEventUI(float dt)
             {
                 auto& player = GetPlayer();
                 SetAttackEndAnimation();
-                player.EndTurn();
             });
            
         }
@@ -283,66 +300,76 @@ void PlayerPlayTurnState::PushAttackTarget(Battle::EnemyTargetFlag_ target)
 void PlayerPlayTurnState::SetAttackReadyAnimation()
 {
     Player& player = GetPlayer();
-    auto* renderer = player.GetAnimationComponent();
-    if (renderer)
+    auto*   animator = player.GetAnimationComponent();
+    if (animator)
     {
-        renderer->BeginBuildOverrideAnimation();
-        renderer->ClearOverrideAnimations();
+        animator->BeginBuildOverrideAnimation();
+        animator->ClearOverrideAnimations();
         {
-            const char* animKey = player.GetAnimationName(CharacterBase::ATTACK_READY_LOOP);
-            renderer->PushOverrideAnimation(animKey, true);
-            renderer->ChangeCurrentAnimationFlags(ANIMATION_FLAG_USE_LOOP);
+            animator->PushOverrideAnimation("Attack_Ready_Loop", true);
+            animator->ChangeCurrentAnimationFlags(ANIMATION_FLAG_USE_LOOP);
         }
         {
-
-            const char* animKey = player.GetAnimationName(CharacterBase::ATTACK_READY);
-            renderer->PushOverrideAnimation(animKey, true, [](const AnimationData& data) { return data.IsEnd(); });
-            renderer->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
+            animator->PushOverrideAnimation("Attack_Ready", true, [](const AnimationData& data) { return data.IsEnd(); });
+            animator->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
         }
-        renderer->EndBuildOverrideAnimation();
+        animator->EndBuildOverrideAnimation();
     }
 }
 
 void PlayerPlayTurnState::SetAttackAnimation()
 {
     Player& player   = GetPlayer();
-    auto*   renderer = player.GetAnimationComponent();
-    if (renderer)
+    auto*   animator = player.GetAnimationComponent();
+    if (animator)
     {
-        renderer->BeginBuildOverrideAnimation();
-        renderer->ClearOverrideAnimations();
+        animator->BeginBuildOverrideAnimation();
+        animator->ClearOverrideAnimations();
         {
-            const char* animKey = player.GetAnimationName(CharacterBase::ATTACK_LOOP);
-            renderer->PushOverrideAnimation(animKey, true);
-            renderer->ChangeCurrentAnimationFlags(ANIMATION_FLAG_USE_LOOP);
+            animator->PushOverrideAnimation("Attack_Loop", true);
+            animator->ChangeCurrentAnimationFlags(ANIMATION_FLAG_USE_LOOP);
         }
         {
-            const char* animKey = player.GetAnimationName(CharacterBase::ATTACK);
-            renderer->PushOverrideAnimation(animKey, true, [](const AnimationData& data) { return data.IsEnd(); });
-            renderer->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
+            animator->PushOverrideAnimation("Attack", true, [](const AnimationData& data) { return data.IsEnd(); });
+            animator->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
         }
-        renderer->EndBuildOverrideAnimation();
+        animator->EndBuildOverrideAnimation();
     }
 }
 
 void PlayerPlayTurnState::SetAttackEndAnimation() 
 {
     Player& player   = GetPlayer();
-    auto*   renderer = player.GetAnimationComponent();
-    if (renderer)
+    auto*   animator = player.GetAnimationComponent();
+    if (animator)
     {
-        renderer->BeginBuildOverrideAnimation();
-        renderer->ClearOverrideAnimations();
+        animator->BeginBuildOverrideAnimation();
+        animator->ClearOverrideAnimations();
         {
-            const char* animKey = player.GetAnimationName(CharacterBase::IDLE);
-            renderer->ChangeMainAnimation(animKey);
-            renderer->ChangeMainAnimationFlags(ANIMATION_FLAG_USE_LOOP | ANIMATION_FLAG_RESET_FRAME);
+            animator->ChangeMainAnimation("Idle", true);
+            animator->ChangeMainAnimationFlags(ANIMATION_FLAG_USE_LOOP | ANIMATION_FLAG_RESET_FRAME);
         }
         {
-            const char*   animKey = player.GetAnimationName(CharacterBase::ATTACK_END);
-            renderer->PushOverrideAnimation(animKey, true, [](const AnimationData& data) { return data.IsEnd(); });
-            renderer->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
+            bool pushResult = animator->PushOverrideAnimation("Attack_End", true, [](const AnimationData& data) { return data.IsEnd(); });
+            if (pushResult)
+            {
+                animator->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
+                animator->SetCurrentAnimationPopCallback([this]() {
+                    // 애니메이션이 끝날 시 턴 종료
+                    auto& player = GetPlayer();
+                    player.EndTurn();
+                });
+            }
+            else
+            {
+                // 애니메이션을 못넣었으면 바로 턴 종료
+                player.EndTurn();
+            }
         }
-        renderer->EndBuildOverrideAnimation();
+        animator->EndBuildOverrideAnimation();
+    }
+    else
+    {
+        player.EndTurn();
     }
 }

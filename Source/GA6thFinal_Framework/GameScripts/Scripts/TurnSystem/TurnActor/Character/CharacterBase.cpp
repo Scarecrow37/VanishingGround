@@ -59,6 +59,17 @@ int CharacterBase::GetMaxChainRoundCount()
     return maxChainCount;
 }
 
+int CharacterBase::GetStunResistance()
+{
+    int stunResistance = 1;
+    CharacterStats* stats = GetCharacterStats();
+    if (nullptr != stats)
+    {
+        stunResistance = stats->StunResistance;
+    }
+    return stunResistance;
+}
+
 CharacterBase::CharacterBase() : 
     _tokenInventory(this)
 {
@@ -72,6 +83,7 @@ void CharacterBase::Awake()
     gameObject->AddTag(TAG);
 
     InitMeshModel();
+    InitAnimationCallback();
 }
 
 void CharacterBase::InitMeshModel()
@@ -111,7 +123,36 @@ void CharacterBase::InitMeshModel()
     }
 }
 
-void CharacterBase::Revive() 
+void CharacterBase::InitAnimationCallback() 
+{
+    if (_animationComponent)
+    {
+        _animationComponent->SetAnimationPostEventCallback(
+            [this](const Timeline::EventContext* context) { OnNotifiedAnimationEvent(context); });
+    }
+}
+
+void CharacterBase::ClearState() 
+{
+    Base::ClearState();
+    _tokenInventory.Clear();
+    CharacterStats* stats = GetCharacterStats();
+    if (stats)
+    {
+        stats->CurrentHP                = MaxHP;
+        stats->CurrentChainCount        = 0;
+        stats->CurrentChainRoundCount   = MaxChainRoundCount;
+        _tokenInventory.AddTokenStackFromID(16008, stats->StunResistance);
+    }
+    if (_animationComponent)
+    {
+        _animationComponent->ClearOverrideAnimations();
+        _animationComponent->ChangeMainAnimation("Idle", true);
+        _animationComponent->ChangeMainAnimationFlags(ANIMATION_FLAG_USE_LOOP | ANIMATION_FLAG_RESET_FRAME);
+    }
+}
+
+void CharacterBase::Revive()
 {
     Base::Revive();
     CharacterStats* stats = GetCharacterStats();
@@ -135,8 +176,13 @@ void CharacterBase::Dead()
 void CharacterBase::TakeDamage(int damage) 
 {
     if (TurnActor::STATE::Dead == GetActorState())
+    {
+        GameObject& owner = gameObject;
+        std::string msg = std::format("{}{}", owner.ToString(), (const char*)u8" 대한 공격 빗나감.");
+        UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
         return;
-
+    }
+       
     CharacterStats* stats = GetCharacterStats();
     if (stats)
     {
@@ -149,15 +195,18 @@ void CharacterBase::TakeDamage(int damage)
     }
     if (_animationComponent)
     {
-        const auto& animData        = _animationComponent->GetLastAnimationData();
-        const char* currentAnimName = animData.GetAnimationName().c_str();
-        const char* hitAnimName     = GetAnimationName(CharacterBase::HIT);
-        if (0 == strcmp(currentAnimName, hitAnimName))
+        const auto& animData    = _animationComponent->GetLastAnimationData();
+        const std::string& hitAnimName = _animationComponent->GetAnimationNameFromKey("Hit");
+        const std::string& curAnimName = animData.GetAnimationName();
+        _animationComponent->BeginBuildOverrideAnimation();
+        // 마지막 애니메이션이 Hit 애니메이션이면, Pop하고 다시 넣기
+        if (false == hitAnimName.empty() && hitAnimName == curAnimName)
         {
             _animationComponent->PopOverrideAnimation();
         }
-        _animationComponent->PushOverrideAnimation(hitAnimName, true,
+        _animationComponent->PushOverrideAnimation("Hit", true,
             [](const AnimationData& data) { return data.IsEnd(); });
+        _animationComponent->EndBuildOverrideAnimation();
     }
 }
 
@@ -264,36 +313,12 @@ void CharacterBase::OnTokenRemoved(int tokenID)
     _tokenInventory.NotifyTokenRemoved(tokenID);
 }
 
+void CharacterBase::OnNotifiedAnimationEvent(const Timeline::EventContext* context) 
+{
+}
+
 void CharacterBase::ImGuiDrawPropertysEvent() 
 {
     ImGui::Separator();
     _tokenInventory.DrawImGuiDebugData();
-}
-
-void CharacterBase::SetMainAnimation(AnimationType type, int flags, bool blend)
-{
-    if (_animationComponent)
-    {
-        const char* animKey = GetAnimationName(type);
-        _animationComponent->ChangeMainAnimation(animKey, blend);
-        _animationComponent->ChangeMainAnimationFlags(flags);
-    }
-}
-
-void CharacterBase::ClearOverrideAnimations()
-{
-    if (_animationComponent)
-    {
-        _animationComponent->ClearOverrideAnimations();
-    }
-}
-
-bool CharacterBase::IsAnimationEnd()
-{
-    if (_animationComponent)
-    {
-        const auto& data = _animationComponent->GetLastAnimationData();
-        return data.IsEnd();
-    }
-    return true;
 }

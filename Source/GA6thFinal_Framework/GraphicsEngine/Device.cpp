@@ -2,24 +2,23 @@
 #include "Device.h"
 #include "d3dUtil.h"
 
-//void Device::SignalComputeQueue(int fenceSlot)
+// void Device::SignalComputeQueue(int fenceSlot)
 //{
-//    const UINT64 fenceValue = _fenceValues[fenceSlot]++;
-//    _computeCommandQueue->Signal(_graphicsFences[fenceSlot].Get(), fenceValue);
-//    _lastGraphicsFenceValues[fenceSlot] = fenceValue;
-//}
-//void Device::SignalGraphicsQueue(int fenceSlot)
+//     const UINT64 fenceValue = _fenceValues[fenceSlot]++;
+//     _computeCommandQueue->Signal(_graphicsFences[fenceSlot].Get(), fenceValue);
+//     _lastGraphicsFenceValues[fenceSlot] = fenceValue;
+// }
+// void Device::SignalGraphicsQueue(int fenceSlot)
 //{
-//    const UINT64 fenceValue = _fenceValues[fenceSlot]++;
-//    _commandQueue->Signal(_graphicsFences[fenceSlot].Get(), fenceValue);
-//    _lastGraphicsFenceValues[fenceSlot] = fenceValue;
-//}
+//     const UINT64 fenceValue = _fenceValues[fenceSlot]++;
+//     _commandQueue->Signal(_graphicsFences[fenceSlot].Get(), fenceValue);
+//     _lastGraphicsFenceValues[fenceSlot] = fenceValue;
+// }
 
-
-ComPtr<ID3D12Device5> Device::GetDevice5() 
+ComPtr<ID3D12Device5> Device::GetDevice5()
 {
     ComPtr<ID3D12Device5> result;
-    HRESULT hr = _device->QueryInterface(IID_PPV_ARGS(result.GetAddressOf()));
+    HRESULT               hr = _device->QueryInterface(IID_PPV_ARGS(result.GetAddressOf()));
     FAILED_CHECK_MESSAGE(hr, L"DEvice::GetDevice5() Failed");
     return result;
 }
@@ -27,7 +26,7 @@ ComPtr<ID3D12Device5> Device::GetDevice5()
 ComPtr<ID3D12GraphicsCommandList4> Device::GetCommandList4()
 {
     ComPtr<ID3D12GraphicsCommandList4> result;
-    HRESULT        hr = _commandList->QueryInterface(IID_PPV_ARGS(result.GetAddressOf()));
+    HRESULT                            hr = _commandList->QueryInterface(IID_PPV_ARGS(result.GetAddressOf()));
     FAILED_CHECK_MESSAGE(hr, L"DEvice::GetDevice5() Failed");
     return result;
 }
@@ -63,7 +62,7 @@ void Device::SetUpDevice(HWND hwnd, UINT width, UINT height, FeatureLevel featur
     default:
         break;
     }
-    
+
     CreateDeviceAndSwapChain(hwnd, d3dFeature);
     if (Global::renderer->_isRaytracing)
     {
@@ -73,7 +72,8 @@ void Device::SetUpDevice(HWND hwnd, UINT width, UINT height, FeatureLevel featur
 
 void Device::Initialize()
 {
-    Global::viewManager->AddDescriptorHeap(ViewManager::Type::RENDER_TARGET, SWAPCHAIN_BUFFER_COUNT, _renderTargetHandles);
+    Global::viewManager->AddDescriptorHeap(ViewManager::Type::RENDER_TARGET, SWAPCHAIN_BUFFER_COUNT,
+                                           _renderTargetHandles);
 
     ResizeSwapChain();
 }
@@ -85,9 +85,9 @@ void Device::Finalize()
 
 void Device::OnResize(UINT width, UINT height)
 {
-    _newMode.Width   = width;
+    _newMode.Width  = width;
     _newMode.Height = height;
-    _onResize        = true;
+    _onResize       = true;
 }
 
 void Device::GPUSync()
@@ -106,7 +106,7 @@ void Device::FullGPUSync()
     commandController->WaitForCommandQueue(CommandQueueType::GRAPHICS_QUEUE, fence);
 }
 
-void Device::UploadResource(ComPtr<ID3D12Resource> uploadResource) 
+void Device::UploadResource(ComPtr<ID3D12Resource> uploadResource)
 {
     _uploadResources.push_back(uploadResource);
 }
@@ -115,7 +115,9 @@ void Device::ResolveBackBuffer(ComPtr<ID3D12Resource> source)
 {
     _commandList->ResolveSubresource(_swapChainBuffer[_renderTargetIndex].Get(), 0, source.Get(), 0, _mode.Format);
 
-    auto br = CD3DX12_RESOURCE_BARRIER::Transition(_swapChainBuffer[_renderTargetIndex].Get(), D3D12_RESOURCE_STATE_RESOLVE_DEST, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    auto br =
+        CD3DX12_RESOURCE_BARRIER::Transition(_swapChainBuffer[_renderTargetIndex].Get(),
+                                             D3D12_RESOURCE_STATE_RESOLVE_DEST, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
     _commandList->ResourceBarrier(1, &br);
 }
@@ -128,6 +130,11 @@ void Device::ResetCommands()
     Global::commandController->ResetCommand(CommandQueueType::GRAPHICS_QUEUE);
 }
 
+void Device::ResetGraphicsCommnad()
+{
+    _commandList->Reset(_commandAllocator.Get(), nullptr);
+}
+
 void Device::ResetComputeCommands()
 {
     _computeCommandAllocator->Reset();
@@ -136,7 +143,8 @@ void Device::ResetComputeCommands()
 
 void Device::Execute()
 {
-    auto br = CD3DX12_RESOURCE_BARRIER::Transition(_swapChainBuffer[_renderTargetIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+    auto br = CD3DX12_RESOURCE_BARRIER::Transition(_swapChainBuffer[_renderTargetIndex].Get(),
+                                                   D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
     _commandList->ResourceBarrier(1, &br);
 
     _computeCommandList->Close();
@@ -149,7 +157,8 @@ void Device::Execute()
 
     // Wait for Compute Commands to finish
     UINT64 computeFence = commandController->SignalCommandQueue(CommandQueueType::COMPUTE_QUEUE);
-    commandController->WaitCommandQueue(CommandQueueType::GRAPHICS_QUEUE, CommandQueueType::COMPUTE_QUEUE, computeFence);
+    commandController->WaitCommandQueue(CommandQueueType::GRAPHICS_QUEUE, CommandQueueType::COMPUTE_QUEUE,
+                                        computeFence);
 
     // Draw Graphics Commands
     commandController->ExecuteCommand(CommandQueueType::GRAPHICS_QUEUE, _commandList.Get());
@@ -180,7 +189,8 @@ void Device::ClearBackBuffer(UINT flag, XMVECTOR color, float depth, UINT stenci
     _commandList->RSSetViewports(1, &_mainViewport);
     _commandList->RSSetScissorRects(1, &rc);
 
-    auto br = CD3DX12_RESOURCE_BARRIER::Transition(_swapChainBuffer[_renderTargetIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    auto br = CD3DX12_RESOURCE_BARRIER::Transition(_swapChainBuffer[_renderTargetIndex].Get(),
+                                                   D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
     _commandList->ResourceBarrier(1, &br);
     _commandList->ClearRenderTargetView(_renderTargetHandles[_renderTargetIndex], (float*)&color, 0, nullptr);
@@ -202,8 +212,9 @@ void Device::Flip()
     // 새 프레임 준비.
     _renderTargetIndex = _swapChain->GetCurrentBackBufferIndex();
 }
-  
-void Device::CreateVertexBuffer(void* data, UINT size, UINT stride, ComPtr<ID3D12Resource>& buffer, D3D12_VERTEX_BUFFER_VIEW& view)
+
+void Device::CreateVertexBuffer(void* data, UINT size, UINT stride, ComPtr<ID3D12Resource>& buffer,
+                                D3D12_VERTEX_BUFFER_VIEW& view)
 {
     if (data)
     {
@@ -244,7 +255,7 @@ void Device::CreateConstantBuffer(void* data, UINT size, ComPtr<ID3D12Resource>&
         UpdateBuffer(buffer, data, size);
 }
 
-void Device::CreateDefaultBuffer(UINT size, ComPtr<ID3D12Resource>& buffer) 
+void Device::CreateDefaultBuffer(UINT size, ComPtr<ID3D12Resource>& buffer)
 {
     D3D12_HEAP_PROPERTIES hp = {};
     hp.Type                  = D3D12_HEAP_TYPE_DEFAULT;
@@ -271,7 +282,8 @@ void Device::CreateDefaultBuffer(UINT size, ComPtr<ID3D12Resource>& buffer)
     ID3D12Resource* pBuff = nullptr;
 
     HRESULT hr = S_OK;
-    hr = _device->CreateCommittedResource(&hp, D3D12_HEAP_FLAG_NONE, &rd, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&buffer));
+    hr         = _device->CreateCommittedResource(&hp, D3D12_HEAP_FLAG_NONE, &rd, D3D12_RESOURCE_STATE_COMMON, nullptr,
+                                                  IID_PPV_ARGS(&buffer));
     FAILED_CHECK_MESSAGE(hr, L"Device::CreateDefaultBuffer _device->CreateCommittedResource Failed");
 }
 
@@ -339,12 +351,10 @@ void Device::CreateUploadBuffer(UINT size, const D3D12_RESOURCE_FLAGS flags, con
     FAILED_CHECK_MESSAGE(hr, L"Device::CreateUploadBuffer _device->CreateCommittedResource Failed");
 }
 
-
-
-void Device::CreateCommandList(ComPtr<ID3D12CommandAllocator>& allocator, ComPtr<ID3D12GraphicsCommandList>& commandList, CommandType type)
+void Device::CreateCommandList(ComPtr<ID3D12CommandAllocator>&    allocator,
+                               ComPtr<ID3D12GraphicsCommandList>& commandList, CommandType type)
 {
-    D3D12_COMMAND_QUEUE_DESC desc
-    {
+    D3D12_COMMAND_QUEUE_DESC desc{
         .Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
         .Flags    = D3D12_COMMAND_QUEUE_FLAG_NONE,
         .NodeMask = 0,
@@ -364,7 +374,7 @@ void Device::CreateCommandList(ComPtr<ID3D12CommandAllocator>& allocator, ComPtr
     }
 
     HRESULT hr = S_OK;
-    hr = _device->CreateCommandAllocator(desc.Type, IID_PPV_ARGS(&allocator));
+    hr         = _device->CreateCommandAllocator(desc.Type, IID_PPV_ARGS(&allocator));
     FAILED_CHECK_MESSAGE(hr, L"Device::CreateCommandList _device->CreateCommandAllocator Failed");
 
     hr = _device->CreateCommandList(desc.NodeMask, desc.Type, allocator.Get(), nullptr, IID_PPV_ARGS(&commandList));
@@ -408,7 +418,7 @@ void Device::ResizeSwapChain()
 
     _commandList->Close();
     Global::commandController->ExecuteCommand(CommandQueueType::GRAPHICS_QUEUE, _commandList.Get());
-    
+
     FullGPUSync();
 
     _mainViewport.TopLeftX = 0;
@@ -426,7 +436,7 @@ void Device::ResizeSwapChain()
     // Global::dxResourceManager->ResizeResource(prevMode);
     // _resolution = {_newMode.Width, _newMode.Height};
 
-    _onResize  = false;
+    _onResize = false;
 }
 
 void Device::CreateDeviceAndSwapChain(HWND hwnd, D3D_FEATURE_LEVEL feature)
@@ -452,13 +462,15 @@ void Device::CreateDeviceAndSwapChain(HWND hwnd, D3D_FEATURE_LEVEL feature)
     msQualityLevels.Format           = _backBufferFormat;
     msQualityLevels.NumQualityLevels = 0;
 
-    hr = _device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &msQualityLevels, sizeof(msQualityLevels));
+    hr = _device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &msQualityLevels,
+                                      sizeof(msQualityLevels));
     FAILED_CHECK_MESSAGE(hr, L"Device::CreateDeviceAndSwapChain _device->CheckFeatureSupport Failed");
 
     _4xMSAAQuality = msQualityLevels.NumQualityLevels;
     GRAPHICS_ASSERT(_4xMSAAQuality > 0, L"Unexpected MSAA quality level");
 
-    //_commanSet = Global::commandController->CreateCommandSet(CommandType::DIRECT, CommandQueueType::GRAPHICS_QUEUE, L"GraphicsCommandS");
+    //_commanSet = Global::commandController->CreateCommandSet(CommandType::DIRECT, CommandQueueType::GRAPHICS_QUEUE,
+    //L"GraphicsCommandS");
 
     CreateCommandList(_commandAllocator, _commandList, CommandType::DIRECT);
     CreateCommandList(_computeCommandAllocator, _computeCommandList, CommandType::COMPUTE);
@@ -498,13 +510,14 @@ void Device::CreateDeviceAndSwapChain(HWND hwnd, D3D_FEATURE_LEVEL feature)
 void Device::CreateBackBuffer()
 {
     _newMode.Format = _backBufferFormat;
-    for (auto & swapChain : _swapChainBuffer)
+    for (auto& swapChain : _swapChainBuffer)
     {
         swapChain.Reset();
     }
 
     HRESULT hr = S_OK;
-    hr         = _swapChain->ResizeBuffers(SWAPCHAIN_BUFFER_COUNT, _newMode.Width, _newMode.Height, _newMode.Format, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
+    hr         = _swapChain->ResizeBuffers(SWAPCHAIN_BUFFER_COUNT, _newMode.Width, _newMode.Height, _newMode.Format,
+                                           DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
     FAILED_CHECK_MESSAGE(hr, L"Device::CreateBackBuffer _swapChain->ResizeBuffers Failed");
 
     _renderTargetIndex = _swapChain->GetCurrentBackBufferIndex();
@@ -543,11 +556,12 @@ void Device::CreateBuffer(UINT size, ComPtr<ID3D12Resource>& buffer)
     ID3D12Resource* pBuff = nullptr;
 
     HRESULT hr = S_OK;
-    hr = _device->CreateCommittedResource(&hp, D3D12_HEAP_FLAG_NONE, &rd, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&buffer));
+    hr = _device->CreateCommittedResource(&hp, D3D12_HEAP_FLAG_NONE, &rd, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+                                          IID_PPV_ARGS(&buffer));
     FAILED_CHECK_MESSAGE(hr, L"Device::CreateBuffer _device->CreateCommittedResource Failed");
 }
 
-void Device::CheckDXRSupport() 
+void Device::CheckDXRSupport()
 {
     D3D12_FEATURE_DATA_D3D12_OPTIONS5 options5{};
     HRESULT                           hr = S_OK;

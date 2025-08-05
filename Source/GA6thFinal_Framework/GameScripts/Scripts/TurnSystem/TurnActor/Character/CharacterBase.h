@@ -22,7 +22,8 @@ public:
         MaxHP, 
         ChainCount, 
         ChainRoundCount,
-        MaxChainRoundCount
+        MaxChainRoundCount,
+        StunResistance
         )
 
     GETTER_ONLY(int, MaxHP) { return GetMaxHP(); }
@@ -42,16 +43,21 @@ public:
     //int 남은 연격 수 유지 시간
     PROPERTY(ChainRoundCount)
 
+    GETTER_ONLY(int, StunResistance) { return GetStunResistance(); }
+    PROPERTY(StunResistance)
+
 private:
     int GetMaxHP();
     int GetHP();
     int GetChainCount();
     int GetChainRoundCount();
     int GetMaxChainRoundCount();
+    int GetStunResistance();
 
 public:
     virtual CharacterStats* GetCharacterStats() = 0;
 
+    virtual void ClearState() override;
     virtual void Revive() override;
     virtual void Dead() override;
     virtual void TakeDamage(int damage);
@@ -75,14 +81,15 @@ protected:
     REFLECT_FIELDS_END(CharacterBase)
 
 private:
-    TokenInventory _tokenInventory;
-    SkeletalMeshRenderer* _skeletalMeshRenderer = nullptr;
-    AnimationComponent*   _animationComponent   = nullptr;
+    TokenInventory          _tokenInventory;
+    SkeletalMeshRenderer*   _skeletalMeshRenderer = nullptr;
+    AnimationComponent*     _animationComponent   = nullptr;
 
 protected:
     virtual void Awake() override;
 
     void InitMeshModel();
+    void InitAnimationCallback();
 
 public:
     virtual void OnCombatStart() override;
@@ -95,29 +102,7 @@ public:
     virtual void OnKill(CharacterBase* destination) override;
     virtual void OnTokenAdded(int tokenID) override;
     virtual void OnTokenRemoved(int tokenID) override;
+    virtual void OnNotifiedAnimationEvent(const Timeline::EventContext* context);
 
     virtual void ImGuiDrawPropertysEvent() override;
-
-    
-    // 애니메이션 리팩터링 전 임시 메서드
-    enum AnimationType
-    {
-        IDLE,
-        HIT,
-        DEATH,
-        ATTACK_1,
-        ATTACK_2,
-        ATTACK_3,
-        ATTACK_4,
-        ATTACK_READY,
-        ATTACK_READY_LOOP,
-        ATTACK,
-        ATTACK_LOOP,
-        ATTACK_END,
-        SIZE,
-    };
-    virtual const char* GetAnimationName(AnimationType type) = 0;
-    void SetMainAnimation(AnimationType type, int flags = 0, bool blend = true);
-    void ClearOverrideAnimations();
-    bool IsAnimationEnd();
 };

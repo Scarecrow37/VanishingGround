@@ -63,7 +63,7 @@ public:
     { 
         return _guid.ToPath().stem().string();
     }
-    // get : 이 씬의 이름을 반환합니다.
+    // std::string : 이 씬의 이름을 반환합니다.
     PROPERTY(Name)
 
     GETTER_ONLY(std::string, Path)
@@ -253,7 +253,7 @@ public:
         /// <summary>
         /// 프리팹 인스턴스를 Swap 합니다. Reset만 호출되며 인스턴스 아이디는 유지됩니다.
         /// </summary>
-        static void SwapPrefabInstance(GameObject* original, GameObject* remake);
+        static std::shared_ptr<GameObject> SwapPrefabInstance(GameObject* original, GameObject* remake);
 
         /// <summary>
         /// 씬의 스카이박스를 설정합니다.
@@ -390,8 +390,8 @@ public:
     /// </summary>
     /// <returns>Main Scene</returns>
     Scene* GetMainScene()
-    {
-        return GetSceneByName(_setting.MainScene);
+    { 
+         return GetSceneByName(_setting.MainScene);
     }
 
     /// <summary>
@@ -581,10 +581,11 @@ private:
     void ObjectsFixedUpdate();       //FixedUpdate를 호출합니다.
     void ObjectsUpdate();            //Update 를 호출합니다.
     void ObjectsLateUpdate();        //LateUpdate를 호출합니다.
-    void ObjectsMatrixUpdate();      //오브젝트들의 행렬을 업데이트합니다.
     void ObjectsApplicationQuit();   //OnApplicationQuit를 호출합니다.
     void ObjectsOnDisable();         //OnDisable 예정인 컴포넌트들의 OnDisable 함수를 호출해줍니다.
     void ObjectsDestroy();           //Destroy 예정인 컴포넌트들의 OnDestroy 함수를 호출 한 뒤 파괴합니다.
+    void ObjectsMatrixUpdate();      //오브젝트들의 행렬을 업데이트합니다.
+    void ObjectsAddLoadScene();      //다음에 로드할 씬의 오브젝트들을 추가합니다.
 
 private:
     /*게임오브젝트의 Life cycle 수행 여부를 확인하는 함수*/
@@ -640,21 +641,23 @@ private:
 
     //오브젝트 추가 대기열 
     std::vector<std::shared_ptr<GameObject>> _addGameObjectsQueue;
-    std::vector<std::shared_ptr<Component>> _addComponentsQueue;
+    std::vector<std::pair<std::weak_ptr<GameObject>, std::shared_ptr<Component>>> _addComponentsQueue;
 
     //오브젝트 삭제 대기열
     std::pair<std::unordered_set<GameObject*>, std::vector<GameObject*>> _destroyObjectsQueue;
-    std::pair<std::unordered_set<Component*>, std::vector<Component*>> _destroyComponentsQueue;
+    std::pair<std::unordered_set<Component*>, std::vector<Component*>>   _destroyComponentsQueue;
 
     //초기화 함수 호출 대기열
     std::vector<std::shared_ptr<Component>> _waitAwakeVec;
     std::vector<std::shared_ptr<Component>> _waitStartVec;
 
     //OnEnable, OnDisable을 set과 같이 관리
-    std::tuple<std::unordered_set<Component*>, std::vector<Component*>, std::vector<bool*>> _onEnableQueue;
-    std::tuple<std::unordered_set<Component*>, std::vector<Component*>, std::vector<bool*>> _onDisableQueue;
-    std::pair<std::unordered_set<GameObject*>, std::vector<GameObject*>> _updateEnableQueue;
-    std::pair<std::unordered_set<GameObject*>, std::vector<GameObject*>> _updateDisableQueue;
+    using OnComponentQueue =  std::tuple<std::unordered_set<Component*>, std::vector<std::weak_ptr<Component>>, std::vector<bool*>>;   
+    using OnGameObjectQueue = std::pair<std::unordered_set<GameObject*>, std::vector<std::weak_ptr<GameObject>>>;
+    OnComponentQueue  _onEnableQueue;
+    OnComponentQueue  _onDisableQueue;
+    OnGameObjectQueue _updateEnableQueue;
+    OnGameObjectQueue _updateDisableQueue;
 
     //Scene에 실행중인 Render component들
     std::vector<std::weak_ptr<MeshComponent>> _runtimeMeshComponents;
@@ -667,8 +670,8 @@ private:
     std::string _prevScene = STR_NULL;
     struct
     {
-       //현재 Single로 로드된 씬 이름입니다. NewGameObject를 하면 이 씬에 오브젝트가 생성됩니다.
-       std::string MainScene = STR_NULL;
+        // 현재 Single로 로드된 씬 이름입니다. NewGameObject를 하면 이 씬에 오브젝트가 생성됩니다.
+        std::string MainScene = STR_NULL;
 
        //에디터가 아닌 상태에서 처음으로 로드할 씬
        std::string StartScene = STR_NULL;
@@ -684,6 +687,9 @@ private:
 
     //로드된 씬 항목
     std::vector<Scene*> _lodedSceneList;
+
+    //다음에 로드할 씬
+    File::Guid _nextSceneGuid;
 
 protected:
     /// <summary>
@@ -717,7 +723,8 @@ protected:
         Scene& scene, 
         std::string_view sceneName, 
         std::string_view outPath,
-        bool isOverride = false);
+        bool isOverride = false,
+        bool isEmptyScene = false);
 
     // FileEventSubscriber을(를) 통해 상속됨
     virtual void OnFileRegistered(const File::Path& path) override;

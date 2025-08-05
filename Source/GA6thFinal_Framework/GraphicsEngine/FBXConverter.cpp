@@ -291,6 +291,22 @@ void FBXConverter::LoadMesh(aiNode* node,
                 }
             }
         }
+
+        for (auto& vertex : _skeletalVertices.back())
+        {
+            float totalWeight = 0.f;
+            
+            for (float BlendWeight : vertex.BlendWeights)
+                totalWeight += BlendWeight;
+
+            if (totalWeight > 0.f)
+            {
+                for (float& BlendWeight : vertex.BlendWeights)
+                {
+                    BlendWeight /= totalWeight;
+                }
+            }
+        }
     }
 
     void* vertices     = nullptr;

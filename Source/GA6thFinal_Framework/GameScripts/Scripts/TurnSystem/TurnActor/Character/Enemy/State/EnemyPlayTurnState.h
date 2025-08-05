@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Base/EnemyStateBase.h"
 #include "../Enum/EnemyEnum.h"
-#include "../AI/EnemyAI.h"
+
 
 namespace EnemyAction
 {
@@ -15,6 +15,10 @@ class EnemyAI;
 class EnemyPlayTurnState : public EnemyStateBase
 {
     using Action = EnemyAction::ActionBase;
+
+public:
+    void OnNotifiedAnimationEvent(const Timeline::EventContext* context) override;
+
 private:
     // EnemyStateBase을(를) 통해 상속됨
     void OnAwake() override;
@@ -30,15 +34,11 @@ private:
     void ClearAction();
 
     /// <summary>
-    /// AI 모델이 정의한 액션을 실행합니다. 액션이 종료되면 true가 반환됩니다.
-    /// </summary>
-    bool ExcuteAction();
-
-    /// <summary>
     /// EnemyType에 맞는 AIModel을 셋업합니다.
     /// </summary>
     /// <param name="type"></param>
     void SetAIModel(EnemyType type);
+
     /// <summary>
     /// EnemyType에 액션 함수를 바인드합니다.
     /// </summary>
@@ -75,9 +75,9 @@ private:
     // 현재 액션을 로그로 출력합니다.
     void LogCurrentAction();
 
+    void RequireCurrentAction();
+
 private:
-    EnemyAI _aiModel;
-    Action* _previousAction = nullptr;
     Action* _currentAction  = nullptr;
     std::unordered_map<int, std::unique_ptr<Action>> _actionTable;
 

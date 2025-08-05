@@ -58,9 +58,13 @@ StructuredBuffer<uint> index_buffer_id : register(t2); //chs
 StructuredBuffer<Material> material : register(t3); //chs//-> texture id.??=
 StructuredBuffer<uint> meshInstanceID : register(t4);
 TextureCube evnTexture : register(t5); //chs
-StructuredBuffer<RayVertex> Vertices[MAX_MESH] : register(t6);
-StructuredBuffer<uint> Indices[MAX_MESH] : register(t2006);
-Texture2D textures[] : register(t4006); //chs
+TextureCube irradianceTexture : register(t6); //chs
+TextureCube prefilteredMap : register(t7); //chs
+Texture2D brdfLUT : register(t8); //chs
+
+StructuredBuffer<RayVertex> Vertices[MAX_MESH] : register(t9);
+StructuredBuffer<uint> Indices[MAX_MESH] : register(t2009);
+Texture2D textures[] : register(t4009); //chs
 
 struct RayPayload
 {
@@ -73,7 +77,7 @@ struct ShadowPayload
     bool hit;
 };
 
-float3 CalculateAttribeNoraml(in BuiltInTriangleIntersectionAttributes attribs,uint normalId,uint indexID,uint vertexID)
+float3 CalculateAttribeNoraml(in BuiltInTriangleIntersectionAttributes attribs,uint normalId,uint indexID,uint vertexID,float mipLevel)
 {
     //mesh 단위 blas에서의 삼각형 번호.
     uint baseIndex = PrimitiveIndex() * 3;
@@ -115,7 +119,7 @@ float3 CalculateAttribeNoraml(in BuiltInTriangleIntersectionAttributes attribs,u
     float3 localN = normalize(HitAttribute3(vN, attribs));
     float3 localT = normalize(HitAttribute3(vT, attribs));
     float3 localB = normalize(HitAttribute3(vB, attribs));
-    float3 normalMapSample = textures[normalId].SampleLevel(samLinear_wrap, hitUV, 0).xyz;
+    float3 normalMapSample = textures[normalId].SampleLevel(samAnistropic_wrap, hitUV, mipLevel).xyz;
     
     float3 worldNormal = normalize(mul((float3x3) ObjectToWorld3x4(), localN));
     float3 worldTangent = normalize(mul((float3x3) ObjectToWorld3x4(), localT));
@@ -159,13 +163,13 @@ void RayGen()
     target /= target.w;
     ray.Direction = normalize(mul(viewI, float4(target.xyz, 0))).xyz;
     ray.TMin = 0.01;
-    ray.TMax = 10000;
+    ray.TMax = 2000;
 
     RayPayload payload;
     payload.recursionDepth = 0;
 
     TraceRay(RtScene,
-             RAY_FLAG_CULL_BACK_FACING_TRIANGLES, 0xFF,
+             RAY_FLAG_NONE, 0xFF,
              0, 0, 0, // hitGroup/miss/callable
              ray, payload);
 
@@ -205,7 +209,11 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
     uint indexID = index_buffer_id[instanceID];
     
     float3 hitPosition = HitWorldPosition();
-    float3 normal = normalize(CalculateAttribeNoraml(attribs, normalID, indexID, vertexID));
+    float distanceToCamera = length(cameraData.Position.xyz - hitPosition);
+    float mipLevel = ComputeDynamicMipLevel(distanceToCamera, 12);
+    
+    
+    float3 normal = normalize(CalculateAttribeNoraml(attribs, normalID, indexID, vertexID,mipLevel));
     float3 view = normalize(WorldRayOrigin() - hitPosition);
     uint baseIndex = PrimitiveIndex() * 3;
     uint3 indices = uint3(Indices[indexID][baseIndex], 
@@ -219,22 +227,30 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
         Vertices[vertexID][indices[2]].uv[0]
     };
     float2 hitUV = HitAttribute2(uv, attribs);
-    float3 albedo = textures[diffuseID].SampleLevel(samLinear_wrap, hitUV, 0).rgb;
+    
+    
+    float3 emissive = SampleCalculateMipLevel(textures[emissiveID], samAnistropic_wrap, hitUV, mipLevel).rgb;
+    
+    float3 albedo = SampleCalculateMipLevel(textures[diffuseID],samAnistropic_wrap, hitUV, mipLevel).rgb;
     albedo = GammaToLinearSpace(albedo);
-    float3 orm = textures[ORMID].SampleLevel(samLinear_wrap, hitUV, 0).rgb;
-    float3 emissive = textures[emissiveID].SampleLevel(samLinear_wrap, hitUV, 0).rgb;
+    
+    float3 orm = SampleCalculateMipLevel(textures[ORMID],samAnistropic_wrap, hitUV, mipLevel).rgb;
     float ao = orm.r;
     float rough = orm.g;
     float metal = orm.b;
     
     float3 directLighting = 0;
-    
+    float3 ambientLighting = 0;
     // Directional
     for (uint i = 0; i < numLight.Directional; ++i)
     {
         DirectionalLight Ld = lightData.Directional[i];
         float3 L = normalize(-Ld.Direction);
-        if (TraceShadow(hitPosition, L, 10000) == false)
+        
+        /* 환경광 / IBL  */
+        ambientLighting += CalculateIBL(normal, view, irradianceTexture, prefilteredMap, brdfLUT, albedo, rough, metal) * Ld.Ambient;
+        
+        if (TraceShadow(hitPosition, L, 2000) == false)
             directLighting += CalculateDirectional(Ld, normal, view, albedo, metal, rough);
     }
 
@@ -258,31 +274,26 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
         float3 L = toL / dist;
         if (TraceShadow(hitPosition, L, dist - 0.01) == false)
             directLighting += CalculateSpot(Ls, normal, view, albedo, metal, rough, hitPosition);
-    }
-    /* 환경광 / IBL  */
-    float3 envDiffuse = evnTexture.SampleLevel(samLinear_wrap, normal, 0).rgb;
-    envDiffuse = saturate(envDiffuse);
-    envDiffuse = GammaToLinearSpace(envDiffuse) * 10;
-    float3 iblalbedo = albedo * rough;
-    float3 ambientLighting = iblalbedo * envDiffuse;
+    }    
 
     /* 반사(거울) – FresnelSchlick 사용 */
     float3 reflectionLighting = 0.0;
     if (payload.recursionDepth< MAX_RECURSION_DEPTH)
     {
-        float3 reflectionDirection = reflect(-view, normal);
+        float3 reflectionDirection = normalize(reflect(-view, normal));
         
         RayDesc reflectionRay;
-        reflectionRay.Origin = hitPosition; //+reflectionDirection * Epsilon;
+        reflectionRay.Origin = hitPosition + reflectionDirection * Epsilon;
         reflectionRay.Direction = reflectionDirection;
         reflectionRay.TMin = 0.01;
-        reflectionRay.TMax = 10000;
-
+        reflectionRay.TMax = 2000;
+       
         RayPayload reflectionPayload;
         reflectionPayload.recursionDepth = payload.recursionDepth+ 1;
-
+        reflectionPayload.color = float4(0, 0, 0, 1); // 초기화
+        
         TraceRay(RtScene,
-                 RAY_FLAG_CULL_BACK_FACING_TRIANGLES, // Flags
+                 RAY_FLAG_NONE, // Flags
                  0xFF, // Instance mask
                  0, 1, 0, // SBT	record indices (Hit / Miss / Callable)
                  reflectionRay, reflectionPayload);
@@ -293,12 +304,12 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
                  albedo,metal);
 
         float3 fresnelFactor =
-            FresnelSchlick(saturate(dot(normal, view)), baseReflectance);
-
+            FresnelSchlick(saturate(dot(reflectionDirection, view)), baseReflectance);
         reflectionLighting = reflectionPayload.color.rgb * fresnelFactor;
-        //if (TraceShadow(hitPosition, L, 10000) == false)
     }
-
+    float reflectivity = lerp(0.04, 1.0, metal); // 금속 여부에 따라
+    float reflectionWeight = reflectivity * (1.0 - rough * rough); // 조절식
+    reflectionLighting *= reflectionWeight;
     /* 최종 색 결과 ------------------------------------------------------- */
     float3 finalcolor =
           emissive +

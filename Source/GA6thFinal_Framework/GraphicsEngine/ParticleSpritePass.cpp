@@ -5,9 +5,9 @@ ParticleSpritePass::ParticleSpritePass() {}
 
 ParticleSpritePass::~ParticleSpritePass() {}
 
-void ParticleSpritePass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList)
+void ParticleSpritePass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene, commandList);
+    __super::Initialize(ownerScene, ownerTechnique, commandList);
     
     InitializeShader();
     InitializePSO();
@@ -31,7 +31,7 @@ void ParticleSpritePass::Begin(ID3D12GraphicsCommandList* commandList)
     _revealageBuffer->ClearUnorderedAccessView(commandList);
 
     commandList->OMSetRenderTargets(1, &customDepthTarget->GetRTVHandle(), FALSE, nullptr);
-    commandList->RSSetViewports(1, &customDepthTarget->GetViewPort());
+    commandList->RSSetViewports(1, &customDepthTarget->GetViewport());
     commandList->RSSetScissorRects(1, &customDepthTarget->GetScissorRect());
 
     ComPtr<ID3D12Resource> resource = Global::particleManager->GetComputeOutputResource(_ownerScene->_name);

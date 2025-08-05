@@ -34,7 +34,7 @@ void ParticleRenderTechnique::Execute(ID3D12GraphicsCommandList* commandList)
 void ParticleRenderTechnique::InitializeSpriteParticlePass(ID3D12GraphicsCommandList* commandList)
 {
     std::unique_ptr<ParticleSpritePass> spritepass = std::make_unique<ParticleSpritePass>();
-    spritepass->Initialize(_ownerScene, commandList);
+    spritepass->Initialize(_ownerScene, this, commandList);
     spritepass->SetAccumulationBuffers(_accumlateBuffer, _revealageBuffer);
     AddRenderPass(std::move(spritepass));
 }
@@ -42,7 +42,7 @@ void ParticleRenderTechnique::InitializeSpriteParticlePass(ID3D12GraphicsCommand
 void ParticleRenderTechnique::InitializeRibbonParticlePass(ID3D12GraphicsCommandList* commandList)
 {
     std::unique_ptr<ParticleRibbonPass> ribbonpass = std::make_unique<ParticleRibbonPass>();
-    ribbonpass->Initialize(_ownerScene,commandList);
+    ribbonpass->Initialize(_ownerScene, this, commandList);
     ribbonpass->SetAccumulationBuffers(_accumlateBuffer, _revealageBuffer);
     AddRenderPass(std::move(ribbonpass));
 
@@ -52,7 +52,7 @@ void ParticleRenderTechnique::InitializeRibbonParticlePass(ID3D12GraphicsCommand
 void ParticleRenderTechnique::InitializeParticleResolvePass(ID3D12GraphicsCommandList* commandList)
 {
     std::unique_ptr<ParticleResolvePass> resolvepass = std::make_unique<ParticleResolvePass>();
-    resolvepass->Initialize(_ownerScene, commandList);
+    resolvepass->Initialize(_ownerScene, this, commandList);
     resolvepass->SetAccumulationBuffers(_accumlateBuffer, _revealageBuffer);
     AddRenderPass(std::move(resolvepass));
 }

@@ -66,25 +66,34 @@ namespace File
 
     bool OpenFile(const File::Path& path)
     {
-        File::Path AbsPath = fs::absolute(path);
-
-        HINSTANCE hr = ShellExecuteW(NULL,            // 부모 윈도우 핸들
-                                     L"open",         // 작업(“open”, “edit”, “print” 등)
-                                     AbsPath.c_str(), // 실행할 파일 경로
-                                     NULL,            // 커맨드라인 인자
-                                     NULL,            // 기본 디렉터리
-                                     SW_SHOWNORMAL    // 창 표시 방식
-        );
-        if (reinterpret_cast<UINT_PTR>(hr) <= 32)
+        if (fs::exists(path))
         {
-            int debugLevel = UmFileSystem.GetDebugLevel();
-            if (debugLevel > 0)
-                OutputLog(L"Failed Open File: (" + path.wstring() + L')');
-            return false;
+            File::Path AbsPath = fs::absolute(path);
+
+            HINSTANCE hr = ShellExecuteW(NULL,            // 부모 윈도우 핸들
+                                         L"open",         // 작업(“open”, “edit”, “print” 등)
+                                         AbsPath.c_str(), // 실행할 파일 경로
+                                         NULL,            // 커맨드라인 인자
+                                         NULL,            // 기본 디렉터리
+                                         SW_SHOWNORMAL    // 창 표시 방식
+            );
+            if (reinterpret_cast<UINT_PTR>(hr) <= 32)
+            {
+                int debugLevel = UmFileSystem.GetDebugLevel();
+                if (debugLevel > 0)
+                {
+                    OutputLog(L"Failed Open File: (" + path.wstring() + L')');
+                }
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
         else
         {
-            return true;
+            return false;
         }
     }
 
@@ -558,5 +567,33 @@ namespace File
         CloseClipboard();
 
         return text;
+    }
+    std::time_t GetFileLastWriteTime(const fs::directory_entry& entry)
+    {
+        auto ftime = fs::last_write_time(entry);
+        auto sctp  = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+            ftime - fs::file_time_type::clock::now() + std::chrono::system_clock::now());
+        std::time_t cftime = std::chrono::system_clock::to_time_t(sctp);
+        return cftime;
+    }
+    bool Compare::CompareByType(const fs::directory_entry& a, const fs::directory_entry& b) const
+    {
+        bool aIsDir = a.is_directory();
+        bool bIsDir = b.is_directory();
+        return aIsDir > bIsDir;
+    }
+
+    bool Compare::CompareByName(const fs::directory_entry& a, const fs::directory_entry& b) const
+    {
+        std::string aName = a.path().filename().string();
+        std::string bName = b.path().filename().string();
+        return aName < bName;
+    }
+
+    bool Compare::CompareByDate(const fs::directory_entry& a, const fs::directory_entry& b) const
+    {
+        auto timeA = fs::last_write_time(a);
+        auto timeB = fs::last_write_time(b);
+        return timeA > timeB; // 최신순
     }
 } // namespace File

@@ -55,11 +55,12 @@ void AnimationCore::Update(const float deltaTime)
     auto first = std::remove_if(_components.begin(), _components.end(), [](const auto& pair) { return *pair.first; });
     _components.erase(first, _components.end());
 
+    for (auto& [isDestroy, component] : _components)
+        component->Update(deltaTime);
+
     // Animator가 64개 미만이면 스레드를 사용하지 않음
-    if (size < 64)
+    /*if (size < 64)
     {
-        for (auto& [isDestroy, component] : _components)
-            component->Update(deltaTime);
     }
     else
     {
@@ -75,7 +76,7 @@ void AnimationCore::Update(const float deltaTime)
 
         std::unique_lock<std::mutex> lock(_mutexDone);
         _cvDone.wait(lock, [this]() { return 0 == _remainingTasks; });
-    }
+    }*/
 }
 
 void AnimationCore::WorkerThread(unsigned int index)

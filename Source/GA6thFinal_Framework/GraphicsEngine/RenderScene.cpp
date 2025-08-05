@@ -26,6 +26,16 @@ D3D12_GPU_DESCRIPTOR_HANDLE RenderScene::GetFinalImage()
     return finalTarget->GetSRVHandle();
 }
 
+const std::any& RenderScene::GetRenderPassProperty(std::string_view passName) const
+{
+    return Global::renderPassDatas->GetRenderPassProperty(_name, passName);
+}
+
+SharedResource<RenderTarget> RenderScene::GetSharedRenderTarget() const
+{
+    return _sharedRenderTarget[_currentFrameIndex];
+}
+
 void RenderScene::SetSkyBox(std::wstring_view path)
 {
     _skyBox->SetTexture(path);
@@ -122,20 +132,34 @@ void RenderScene::AddRenderTechnique(std::unique_ptr<RenderTechnique> technique)
     _techniques.push_back(std::move(technique));
 }
 
+void RenderScene::AddRenderPassDatas()
+{
+    for (auto& technique : _techniques)
+    {
+        technique->AddRenderPassDatas(_name);
+    }
+}
+
 void RenderScene::UpdateRenderScene()
 {
     UpdateGlobal();
     UpdateObject();
     UpdateUI();
     UpdateFont();
-
+    if (Global::renderer->_isRaytracing)
+    {
+        _accelerationStructureManager->RemoveUnUsedStaticMeshes(_activeMeshes[STATIC_MESH], _activeMeshes[SKELETAL_MESH]);
+    }
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::TRANSFORM, _worldMatrices.data(), (UINT)_worldMatrices.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::BONE_MATRICES, _boneMatrices.data(), (UINT)_boneMatrices.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::MATERIAL, _materialIDs.data(), (UINT)_materialIDs.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::UI_TRANSFORM, _uiMatrices.data(), (UINT)_uiMatrices.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::UI_MATERIAL, _uiMaterials.data(), (UINT)_uiMaterials.size());
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::STATIC_MESH_INSTANCE_ID, _staticMeshInstanceIDs.data(), (UINT)_staticMeshInstanceIDs.size());
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::SKELETAL_MESH_INSTANCE_ID, _skeletalMeshInstanceIDs.data(), (UINT)_skeletalMeshInstanceIDs.size());
+    
+    for (auto& technique : _techniques)
+    {
+        technique->Update(_commandSet);
+    }
 }
 
 void RenderScene::Execute()
@@ -193,8 +217,7 @@ void RenderScene::UpdateGlobal()
                           .ViewInverse       = _camera->GetWorldMatrix(),
                           .ProjectionInverse = _camera->GetProjectionInverseMatrix(),
                           .Position          = Vector4(_camera->GetPosition())};
-    auto& lights = Global::lightCore->GetLights(_name.c_str());
-       
+    auto& lights = Global::lightCore->GetLights(_name.c_str());       
 
     _numLight = {};
     for (auto& [isDestroy, light] : lights)
@@ -205,12 +228,18 @@ void RenderScene::UpdateGlobal()
         switch (light->_type)
         {
         case Light::Type::DIRECTIONAL:
+            if (_numLight.Directional >= MAX_DIRECTIONAL_LIGHT)
+                continue;
             _lightDatas[_numLight.Directional++] = light->_data;
             break;
         case Light::Type::POINT:
+            if (_numLight.Point >= MAX_POINT_LIGHT)
+                continue;
             _lightDatas[MAX_DIRECTIONAL_LIGHT + _numLight.Point++] = light->_data;
             break;
         case Light::Type::SPOT:
+            if (_numLight.Spot >= MAX_SPOT_LIGHT)
+                continue;
             _lightDatas[MAX_DIRECTIONAL_LIGHT + MAX_POINT_LIGHT + _numLight.Spot++] = light->_data;
             break;
         }
@@ -223,8 +252,9 @@ void RenderScene::UpdateGlobal()
 
 void RenderScene::UpdateObject()
 {
-    auto first = std::remove_if(_meshRenderQueue.begin(), _meshRenderQueue.end(), [](const auto& pair) { return *pair.first; });
-    _meshRenderQueue.erase(first, _meshRenderQueue.end());    
+    auto first =
+        std::remove_if(_meshRenderQueue.begin(), _meshRenderQueue.end(), [](const auto& pair) { return *pair.first; });
+    _meshRenderQueue.erase(first, _meshRenderQueue.end());
 
     _activeMeshes[STATIC_MESH].clear();
     _activeMeshes[SKELETAL_MESH].clear();
@@ -234,7 +264,20 @@ void RenderScene::UpdateObject()
     _staticMeshInstanceIDs.clear();
     _skeletalMeshInstanceIDs.clear();
 
-    const auto& cameraFrustum = _camera->GetWorldFrustum();
+    int   mainLight    = 0;
+    float maxIntensity = 0.0f;
+
+    for (int i = 0; i < MAX_DIRECTIONAL_LIGHT; i++)
+    {
+        if (maxIntensity < _lightDatas[i].Intensity)
+        {
+            maxIntensity = _lightDatas[i].Intensity;
+            mainLight    = i;
+        }
+    }
+
+    Vector3 lightDirection = (_lightDatas[mainLight].float3_1);
+    lightDirection.Normalize();
 
     UINT instanceID = 0;
     for (auto& [isDestroy, component] : _meshRenderQueue)
@@ -247,33 +290,26 @@ void RenderScene::UpdateObject()
             continue;
 
         const auto  type         = component->GetType();
+        const auto& customDepths = component->GetCustomDepths();
         const auto& meshes       = model->GetMeshes();
         auto&       materials    = model->GetMaterials();
         const auto& textures     = model->GetTextures();
-        const auto& customDepths = component->GetCustomDepths();
 
-        XMMATRIX     world          = component->GetWorldMatrix();
-        XMMATRIX     transposeWorld = XMMatrixTranspose(world);
+        XMMATRIX     world = XMMatrixTranspose(component->GetWorldMatrix());
+        float        determinant = XMMatrixDeterminant(world).m128_f32[0];
         BoneMatrices boneMatrices;
 
         if (SKELETAL_MESH == type)
         {
             auto animator = component->GetAnimator();
-            if (animator) memcpy(&boneMatrices, animator->GetAnimationTransform(), sizeof(BoneMatrices));
+            if (animator)
+                memcpy(&boneMatrices, animator->GetAnimationTransform(), sizeof(BoneMatrices));
         }
-
+        auto& skinnedBuffers = component->GetDXRSkeletalMeshes();
         UINT size = (UINT)meshes.size();
         for (UINT i = 0; i < size; i++)
-        {
-            BoundingOrientedBox boundingOrientedBox;
-
-            const auto& meshBoundingBox = meshes[i]->GetBoundingBox();
-            meshBoundingBox.Transform(boundingOrientedBox, world);
-
-            if (!cameraFrustum.Intersects(boundingOrientedBox))
-                continue;
-
-            _worldMatrices.push_back(transposeWorld);
+        {            
+            _worldMatrices.push_back(world);
             _boneMatrices.push_back(boneMatrices);
 
             if (materials[i].IsTwoSided)
@@ -282,10 +318,7 @@ void RenderScene::UpdateObject()
             }
             else
             {
-                const auto& transform = component->GetTransform();
-                float       sign      = transform.Scale.x * transform.Scale.y * transform.Scale.z;
-
-                materials[i].CullMode = sign < 0.f ? Material::CullModeType::CULL_FRONT : Material::CullModeType::CULL_BACK;
+                materials[i].CullMode = determinant < 0.f ? Material::CullModeType::CULL_FRONT : Material::CullModeType::CULL_BACK;
             }
 
             MaterialID materialID{};
@@ -298,41 +331,15 @@ void RenderScene::UpdateObject()
             if (STATIC_MESH == type)
             {
                 _staticMeshInstanceIDs.push_back(instanceID);
+                _activeMeshes[type].emplace_back(materials[i], meshes[i].get(), customDepths[i], instanceID++,
+                                                 &_worldMatrices[instanceID], nullptr);
             }
             else if (SKELETAL_MESH == type)
             {
                 _skeletalMeshInstanceIDs.push_back(instanceID);
+                _activeMeshes[type].emplace_back(materials[i], meshes[i].get(), customDepths[i], instanceID++,
+                                                 &_worldMatrices[instanceID], skinnedBuffers[i].get());
             }
-
-            _activeMeshes[type].emplace_back(materials[i], meshes[i].get(), customDepths[i], instanceID++);
-        }
-    }
-
-    ClassifyMesh();
-}
-
-void RenderScene::ClassifyMesh()
-{
-    _staticMesh.clear();
-    _skeletalMesh.clear();
-    for (auto& [isDestroy,component] : _meshRenderQueue)
-    {
-        if (!component->IsActive())
-            continue;
-        const auto& model = component->GetModel();
-        if (!model)
-            continue;
-
-        switch (component->GetType())
-        {
-        case STATIC_MESH:
-            _staticMesh.push_back(component);
-            break;
-        case SKELETAL_MESH:
-            _skeletalMesh.push_back(component);
-            break;
-        default:
-            break;
         }
     }
 }
@@ -397,25 +404,31 @@ void RenderScene::UpdateFont()
 
 void RenderScene::CreateRenderTarget()
 {
-    auto                          mode                     = Global::device->GetMode();
-    auto&                         multiRenderTargetManager = Global::multiRenderTargetManager;
-    SharedResource<RenderTarget>  renderTarget;
-    mode.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(mode.Format, mode.Width, mode.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+    auto                         resolution = Global::device->GetResolution();
+    SharedResource<RenderTarget> renderTarget;
+    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, resolution.Width, resolution.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
     _meshRenderTargetName = _name + "_MeshRenderTarget";
     renderTarget          = MakeSharedResource<RenderTarget>();
     renderTarget->Initialize(desc, 0.247f);
     renderTarget->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
-    multiRenderTargetManager->AddRenderTarget(_meshRenderTargetName, renderTarget);
+    Global::multiRenderTargetManager->AddRenderTarget(_meshRenderTargetName, renderTarget);
 
     _finalTargetName = _name + "_FinalTarget";
     renderTarget     = MakeSharedResource<RenderTarget>();
     renderTarget->Initialize(desc, 0.247f);
     renderTarget->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
-    multiRenderTargetManager->AddRenderTarget(_finalTargetName, renderTarget);
+    Global::multiRenderTargetManager->AddRenderTarget(_finalTargetName, renderTarget);
+
+    _sharedRenderTarget.resize(SWAPCHAIN_BUFFER_COUNT);
+    for (auto& target : _sharedRenderTarget)
+    {
+        target = MakeSharedResource<RenderTarget>();
+        target->Initialize(desc, 0.247f);
+        target->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    }
 }
 
 void RenderScene::CreateDepthStencil()
@@ -460,11 +473,8 @@ void RenderScene::CreateFrameResource()
         // Index Buffer ID
         _frameResources[i]->AddFrameResource(sizeof(IndexBufferID), MAX_OBJECTS);
 
-        // Static Mesh Instance ID
-        _frameResources[i]->AddFrameResource(sizeof(StaticMeshInstanceID), MAX_OBJECTS);
-        
-        // Skeletal Mesh Instance ID
-        _frameResources[i]->AddFrameResource(sizeof(SkeletalMeshInstanceID), MAX_OBJECTS);
+        //  Mesh Instance ID
+        _frameResources[i]->AddFrameResource(sizeof(MeshInstanceID), MAX_OBJECTS);
     }
 
     _cameraBuffer = std::make_unique<ConstantBufferView>();

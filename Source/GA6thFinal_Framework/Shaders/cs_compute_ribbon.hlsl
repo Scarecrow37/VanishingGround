@@ -78,12 +78,11 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
         
         
     float4 ribbonnormal = lerp(emitter.startNormal, emitter.endNormal, ratio);
-    ribbonnormal = mul(ribbonnormal, emitter.OrientedWorldMatrix);
-    float4 ribbonDir = mul(emitter.ribbonVector, emitter.OrientedWorldMatrix);
-    
-    
-    //float4 ribbonnormal = emitter.startNormal;
-    //float4 ribbonup = emitter.endNormal;
+    float4x4 ribbonworld = lerp(input.initialMatrix, emitter.WorldMatrix, useWorldSpace);
+    ribbonnormal.w = 0;
+    ribbonnormal = mul(ribbonnormal, ribbonworld);
+    emitter.ribbonVector.w = 0;
+    float4 ribbonDir = mul(emitter.ribbonVector, ribbonworld);
     
     output.paddings = cross(ribbonDir.xyz, ribbonnormal.xyz);
 

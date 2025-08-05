@@ -277,7 +277,11 @@ protected :
 
     //x = drag radius y = drag force
     UMPARTICLE_PROPERTY_REF(Vector4, _dragForce, DragForce, Vector4(0, 0, 0, 0));
-    UMPARTICLE_PROPERTY_REF(Vector4, _vortexForce, VortexForce, Vector4(0.1f, 0.1f, 0.1f, 0));
+    UMPARTICLE_PROPERTY_REF(Vector4, _vortexForce, VortexForce, Vector4(0.00001f, 0.f, 0.f, 0));
+
+    UMPARTICLE_PROPERTY_REF(Vector3, _particleAxis, ParticleAxis, Vector3(0,0,0));
+    UMPARTICLE_PROPERTY(bool, _scaleByVelocityFlag, ScaleByVelocityFlag, false);
+
 
     UMPARTICLE_PROPERTY(bool, _endFlag, EndFlag, false);
 

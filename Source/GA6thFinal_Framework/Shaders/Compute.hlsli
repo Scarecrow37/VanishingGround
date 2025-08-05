@@ -8,6 +8,7 @@ struct ParticleInput
     float mass;
     int emitterIndex;
     float3 paddings;
+    float4x4 initialMatrix;
 };
 
 

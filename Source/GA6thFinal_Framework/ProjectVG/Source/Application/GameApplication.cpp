@@ -130,6 +130,7 @@ void GameApplication::BuildSceneDock()
     _sceneDock->RegisterGui<EditorLogsTool>();
     _sceneDock->RegisterGui<EditorCommandTool>();
     _sceneDock->RegisterGui<EditorAssetBrowserTool>();
+    _sceneDock->RegisterGui<EditorRenderPassData>();
 
     _sceneDock->RegisterGui<EditorPlayMenu>();
     _sceneDock->RegisterGui<EditorMenuTools>(_sceneDock);
@@ -162,7 +163,7 @@ void GameApplication::BuildModelDock()
     _modelDock->RegisterGui<EditorModelTool>();
     _modelDock->RegisterGui<EditorModelDetails>();
     _modelDock->RegisterGui<EditorModelHierarchy>();
-    _modelDock->RegisterGui<EditorAnimationNotifyTool>();
+    _modelDock->RegisterGui<EditorAnimationTrackTool>();
 
     // Menu
     _modelDock->RegisterGui<EditorModelMenu>();

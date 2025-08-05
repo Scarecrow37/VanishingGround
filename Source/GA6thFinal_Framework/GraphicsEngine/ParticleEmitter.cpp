@@ -580,12 +580,21 @@ void ParticleEmitter::AwakeParticle(UINT index)
     _particlePool[index]->SetAge(0.f);
     _particlePool[index]->SetMass(_particleMass);
 
+
+
+    if (true == GetScaleByVelocityFlag())
+        _particlePool[index]->SetAxis(finalVelocity);
+    else
+        _particlePool[index]->SetAxis(_particleAxis);
+
+
     if (ParticleType::SPRITE == _particleType)
     {
         auto    spritemodule = static_cast<SpriteModule*>(_particleRenderModule);
         Vector4 frameInfo    = {spritemodule->GetFrameDuration(), 0, 0, 0};
         _particlePool[index]->SetFrameinfo(frameInfo);
     }
+        _particlePool[index]->SetInitialMatrix(_worldMatrix.Transpose());
 
 }
 
@@ -614,21 +623,8 @@ void ParticleEmitter::ScaleVelocity(Vector3 pos)
 
 void ParticleEmitter::ScaleVelFromPoint(Vector3 pos) 
 {
-    Vector3 emitterCenter;
-    if (_useWorldSpace)
-    {
-        // In world space simulation, 'pos' is the particle's world position.
-        // We need the emitter's world position to calculate the direction.
-        emitterCenter = Vector3(_worldMatrix._41, _worldMatrix._42, _worldMatrix._43);
-    }
-    else
-    {
-        // In local space simulation, 'pos' is the particle's local position.
-        // The emitter's center is the origin of the local space.
-        emitterCenter = Vector3::Zero;
-    }
-
-    Vector3 direction = pos - emitterCenter;
+    Vector4 vel = {pos.x, pos.y, pos.z, 0};
+    Vector3 direction = {vel.x, vel.y, vel.z};
     direction.Normalize();
     _velocity = direction * _velocityFactor.x;
 }

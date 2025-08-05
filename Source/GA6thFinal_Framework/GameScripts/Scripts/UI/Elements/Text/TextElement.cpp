@@ -8,16 +8,12 @@ TextElement::TextElement()
         {
             if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
             {
-                const DragDropAsset::Data* data    = static_cast<DragDropAsset::Data*>(payLoad->Data);
-                if (const auto context = data->pContext->lock(); nullptr != context)
+                const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
+                if (const auto extension = data->GetPath().extension(); extension == L".UmFont")
                 {
-                    const auto& path      = context->GetPath();
-                    if (const auto extension = path.extension(); extension == L".UmFont")
-                    {
-                        _guidRef            = path.ToGuid();
-                        ReflectFields->Guid = _guidRef.string();
-                        RequestResource();
-                    }
+                    _guidRef            = data->GetGuid();
+                    ReflectFields->Guid = _guidRef.string();
+                    RequestResource();
                 }
             }
             ImGui::EndDragDropTarget();
@@ -36,6 +32,13 @@ SIZE TextElement::GetContentSize() const
     return ReflectFields->ContentSize;
 }
 
+void TextElement::SetFont(const File::GuidRef& guidRef)
+{
+    _guidRef = guidRef;
+    ReflectFields->Guid = _guidRef.string();
+    RequestResource();
+}
+
 void TextElement::Reset()
 {
     EditablePlacementUIComponent::Reset();
@@ -50,17 +53,23 @@ void TextElement::Reset()
         }
         _renderer->SetActive(&EnableInHierarchy);
 
-        const File::Guid guid = ReflectFields->Guid;
-        if (const auto path = guid.ToPath(); !path.IsNull())
-        {
-            _guidRef = path.ToGuid();
-            RequestResource();
-        }
+        RequestResource();
     }
     catch (...)
     {
         UmLogger.Log(LogLevel::LEVEL_ERROR, u8"FontRenderer 생성에 실패했습니다.");
         throw;
+    }
+}
+
+void TextElement::DeserializedReflectEvent()
+{
+    EditablePlacementUIComponent::DeserializedReflectEvent();
+
+    const File::Guid guid = ReflectFields->Guid;
+    if (const auto path = guid.ToPath(); !path.IsNull())
+    {
+        _guidRef = path.ToGuid();
     }
 }
 
@@ -101,7 +110,7 @@ void TextElement::SetViewOrder(const int viewOrder)
     UpdatePosition();
 }
 
-void TextElement::PassProperty() const
+void TextElement::PassProperty()
 {
     if (nullptr != _renderer)
     {
@@ -111,12 +120,15 @@ void TextElement::PassProperty() const
     UpdateAll();
 }
 
-void TextElement::UpdateAll() const
+void TextElement::UpdateAll()
 {
     UpdateText();
     UpdateColor();
     UpdatePosition();
     UpdateScale();
+    UpdateContentSize();
+    if (ReflectFields->IsFitContent)
+        FitContent();
 }
 
 void TextElement::UpdateText() const
@@ -181,10 +193,13 @@ void TextElement::FitContent()
     }
 }
 
-void TextElement::RequestResource() const
+void TextElement::RequestResource()
 {
-    UmSceneManager.ResourceManager.RequestFontResource(this, _guidRef, [this]() {
-        LoadFont();
-        PassProperty();
-    });
+    if (false == _guidRef.IsNull())
+    {
+        UmSceneManager.ResourceManager.RequestFontResource(this, _guidRef, [this]() {
+            LoadFont();
+            PassProperty();
+        });
+    }
 }

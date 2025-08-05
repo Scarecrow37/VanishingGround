@@ -15,6 +15,16 @@ TokenTag Token::GetTokenTag() const
     return ReflectFields->Tag;
 }
 
+bool Token::CanAdd(CharacterBase* owner) const
+{
+    return true;
+}
+
+bool Token::CanRemove(CharacterBase* owner) const
+{
+    return true;
+}
+
 int Token::GetTokenOrder() const
 {
     return ReflectFields->Order;

@@ -5,6 +5,8 @@
 #define MAX_POINT_LIGHT 32
 #define MAX_SPOT_LIGHT 16
 
+#define MAX_CASCADES 4
+
 struct DirectionalLight
 {
     float3 Color;
@@ -69,11 +71,22 @@ struct ObjectData
     uint CustomDepth;
 };
 
+struct ObjectData2 : ObjectData
+{
+    uint CascadeIndex;
+};
+
 struct PostProcessData
 {
     float2 ScreenSize;
     float2 TexelSize;
     uint PostProcessMask;
+};
+
+struct CascadeData
+{
+    matrix ShadowVP[MAX_CASCADES];
+    float CascadeSplits[MAX_CASCADES];
 };
 
 #endif

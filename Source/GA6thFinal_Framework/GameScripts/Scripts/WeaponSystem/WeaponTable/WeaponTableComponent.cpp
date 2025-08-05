@@ -1,5 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "WeaponTableComponent.h"
+
+using namespace u8_literals;
+
 WeaponTableComponent::WeaponTableComponent() = default;
 WeaponTableComponent::~WeaponTableComponent()
 {
@@ -57,7 +60,7 @@ bool WeaponTableComponent::RenameWeapon(WeaponElement& weapon, const std::string
         newWeapon = weapon; 
         newWeapon.Stats.SetName(newName); // 이름 변경
 
-        const std::string& prevName = weapon.Stats.Name;
+        const std::string& prevName = weapon.Stats.WeaponName;
         _weaponTable.erase(prevName);    //기존 삭제
         result = true;
     }
@@ -71,7 +74,7 @@ bool WeaponTableComponent::RenameWeapon(WeaponElement& weapon, const std::string
 bool WeaponTableComponent::InsertWeapon(WeaponElement& weapon)
 {
     bool result = false;
-    const std::string& name = weapon.Stats.Name;
+    const std::string& name     = weapon.Stats.WeaponName;
     auto             findIter = _weaponTable.find(name);
     if (findIter == _weaponTable.end())
     {
@@ -89,7 +92,7 @@ bool WeaponTableComponent::InsertWeapon(WeaponElement& weapon)
 bool WeaponTableComponent::EraseWeapon(WeaponElement& weapon)
 {
     bool               result   = false;
-    const std::string& name     = weapon.Stats.Name;
+    const std::string& name     = weapon.Stats.WeaponName;
     auto               findIter = _weaponTable.find(name);
     if (findIter != _weaponTable.end())
     {
@@ -116,6 +119,7 @@ void WeaponTableComponent::Awake()
 
 void WeaponTableComponent::ImGuiDrawPropertysEvent()
 {
+#ifdef _UMEDITOR
     if (ImGui::Button("Table Editor"))
     {
         _imguiEvent.ShowTableEditor = true;
@@ -194,20 +198,25 @@ void WeaponTableComponent::ImGuiDrawPropertysEvent()
                 }
                 gameObject->GetScene().IsDirty = true;
             }
+            ImGui::MenuItem("Excel Parser", "", &_imguiEvent.ShowExcelParser);
             ImGui::EndMenuBar();
         }
         ImGuiTableEditor();
-
+        ImGuiDrawExcelParser();
         ImGui::End();
     }
+#endif
 }
 
 void WeaponTableComponent::ImGuiTableEditor() 
 {
-    if (ImGui::BeginTable("Weapon Stats", 7, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+#ifdef _UMEDITOR
+    if (ImGui::BeginTable("Weapon Stats", 9, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
     {
+        ImGui::TableSetupColumn((const char*)u8"ID");                   // ID,
         ImGui::TableSetupColumn((const char*)u8"이름");                   // Name,
         ImGui::TableSetupColumn((const char*)u8"종류");                   // Type,
+        ImGui::TableSetupColumn((const char*)u8"등급");                   // Grade,
         ImGui::TableSetupColumn((const char*)u8"데미지");                 // HitDamage,
         //ImGui::TableSetupColumn((const char*)u8"데미지 배율");            // HitDamageMultiplier,
         ImGui::TableSetupColumn((const char*)u8"치명타 데미지");          // CriticalDamage,
@@ -233,7 +242,6 @@ void WeaponTableComponent::ImGuiTableEditor()
                     ImGui::EndPopup();
                 }
             };
-            ImGui::PushStyleColor(ImGuiCol_Text, GetWeaponTypeColor(weapon.Stats.Type));
             ImGui::PushID(itemID++);
             {
                 static ReflectHelper::ImGuiDraw::InputAutoSetting setting = []() 
@@ -254,10 +262,12 @@ void WeaponTableComponent::ImGuiTableEditor()
                     }
                     RightClickContext();
                 };
-                ImGui::TableSetColumnIndex(0);
+
+                DrawColumnProperty(weapon.Stats.WeaponID, 0);
+                ImGui::TableSetColumnIndex(1);
                 {
                     static std::string renameBuffer;
-                    const std::string  originName = weapon.Stats.Name;
+                    const std::string  originName = weapon.Stats.WeaponName;
                     renameBuffer                  = originName;
                     bool input                    = ImGui::InputText("##name", &renameBuffer);
                     if (input)
@@ -278,22 +288,29 @@ void WeaponTableComponent::ImGuiTableEditor()
                     }
                     RightClickContext();
                 };
-                DrawColumnProperty(weapon.Stats.Type, 1);
-                DrawColumnProperty(weapon.Stats.HitDamage, 2);
+
+                ImGui::PushStyleColor(ImGuiCol_Text, WeaponStats::GetTypeToColor(weapon.Stats.Type));
+                DrawColumnProperty(weapon.Stats.Type, 2);
+                ImGui::PopStyleColor();
+
+                ImGui::PushStyleColor(ImGuiCol_Text, WeaponStats::GetGradeToColor(weapon.Stats.Grade));
+                DrawColumnProperty(weapon.Stats.Grade, 3);
+                ImGui::PopStyleColor();
+
+                DrawColumnProperty(weapon.Stats.HitDamage, 4);
                 // DrawColumnProperty(weapon.Stats.HitDamageMultiplier,      3);
-                DrawColumnProperty(weapon.Stats.CriticalDamage, 3);
+                DrawColumnProperty(weapon.Stats.CriticalDamage, 5);
                 // DrawColumnProperty(weapon.Stats.CriticalDamageMultiplier, 5);
-                DrawColumnProperty(weapon.Stats.AttackCount, 4);
-                DrawColumnProperty(weapon.Stats.Speed, 5);
+                DrawColumnProperty(weapon.Stats.AttackCount, 6);
+                DrawColumnProperty(weapon.Stats.Speed, 7);
                 // DrawColumnProperty(weapon.Stats.AttackPerChain,           8);
                 // DrawColumnProperty(weapon.Stats.AttackPerChainMultiplier, 9);    
-                ImGui::TableSetColumnIndex(6);
+                ImGui::TableSetColumnIndex(8);
                 {
                     TurnAction::ImGuiDrawActionMaker(key, weapon._action, weapon._showActionEditor);
                 }              
             }
             ImGui::PopID();
-            ImGui::PopStyleColor(1);
         }
         ImGui::EndTable();
 
@@ -348,6 +365,274 @@ void WeaponTableComponent::ImGuiTableEditor()
             }
         }
     }
+#endif
+}
+
+void WeaponTableComponent::ImGuiDrawExcelParser() 
+{
+#ifdef _UMEDITOR
+    auto DirtyWeaponModalPopup = [this]() 
+    {
+        if (ImGui::BeginPopupModal(u8"알림##Dirty Weapon Popup"_c_str))
+        {
+            ImGui::Text(u8"올바르지 않은 형식입니다. 직접 입력해주세요."_c_str);
+            WeaponElement& element = *_imguiEvent.DirtyWeaponElementQueue.front();
+            element.ImGuiDrawPropertys();
+            ImGui::Separator();
+            if (ImGui::Button("OK"))
+            {
+                _imguiEvent.ShowDirtyWeaponPopup = false;
+                _imguiEvent.DirtyWeaponElementQueue.pop();
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Cancel"))
+            {
+                _imguiEvent.ShowDirtyWeaponPopup = false;
+                _imguiEvent.DirtyWeaponElementQueue.pop();
+                EraseWeapon(element);
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
+        }
+    };
+
+    if (_imguiEvent.ShowExcelParser)
+    {
+        ImGui::Begin("Excel Parser##12487AA8-BA7A-43E8-90A6-EBC10DAE14FC", &_imguiEvent.ShowExcelParser,
+                     ImGuiWindowFlags_MenuBar);
+        {
+            ImGui::PushID(this);
+            ImGuiDrawExcelParserMenuBar();
+            DirtyWeaponModalPopup();
+            if (false == _imguiEvent.SheetDatas.empty())
+            {
+                if (true == _imguiEvent.DirtyWeaponElementQueue.empty())
+                {
+                    _imguiEvent.ShowExcelParser = false;
+                }
+                else if (false == _imguiEvent.ShowDirtyWeaponPopup)
+                {
+                    ImGui::OpenPopup(u8"알림##Dirty Weapon Popup"_c_str);
+                    _imguiEvent.ShowDirtyWeaponPopup = true;
+                }
+            }
+            else if (true == _imguiEvent.SheetNames.empty())
+            {
+                ImGui::Text((const char*)u8"엑셀 파일을 로드해주세요.");
+            }
+            else
+            {
+                ImGui::Text(u8"파싱할 시트를 선택하세요."_c_str);
+                if (ImGui::BeginCombo("##{A4CAA356-B858-4BFF-85E8-52E3B270A7D2}", _imguiEvent.SelectSheetName.c_str()))
+                {
+                    for (auto& name : _imguiEvent.SheetNames)
+                    {
+                        if (ImGui::Selectable(name.c_str(), _imguiEvent.SelectSheetName == name))
+                        {
+                            _imguiEvent.SelectSheetName = name;
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
+                if (ImGui::Button("Ok") && false == _imguiEvent.SelectSheetName.empty())
+                {
+                    auto& doc = *_imguiEvent.ExcelDoc;
+                    auto  workBook = doc.workbook();
+                    auto  workSheet = workBook.worksheet(_imguiEvent.SelectSheetName.c_str());
+
+                    auto [keyRow, keyColum] = OpenXLSXHelper::FindRowColumnToData(workSheet, u8"이름"_c_str);
+                    if (OpenXLSXHelper::IsFindSuccess(keyRow, keyColum))
+                    {        
+                        //파싱
+                        _imguiEvent.SheetDatas.clear();
+                        _imguiEvent.SheetDatas = OpenXLSXHelper::ParseSheetWithColumnKeys(workSheet, keyRow);
+
+                        //생성
+                        if (false == _imguiEvent.SheetDatas.empty())
+                        {                                                
+                            for (size_t row = 0; row < _imguiEvent.SheetDatas.front().second.size(); ++row)
+                            {
+                                bool result = true;
+                                WeaponElement temp;
+                                for (auto& [key, datas] : _imguiEvent.SheetDatas)
+                                {
+                                    result &= ExcelToWeaponElement(temp, key, datas[row]);
+                                }
+                                const std::string& name = temp.Stats.WeaponName;
+                                if (name != WeaponStats::DEFAULT_NAME)
+                                {
+                                    auto findWeaponIter = _weaponTable.find(name);
+                                    if (findWeaponIter == _weaponTable.end())
+                                    {
+                                        //없으면 새로 생성
+                                        InsertWeapon(temp);
+                                    }
+                                    else
+                                    {
+                                        //이미 있으면 스텟만 복사
+                                        findWeaponIter->second.Stats = temp.Stats;
+                                    }
+                                    if (false == result)
+                                    {
+                                        //잘못된 데이터는 알림 팝업
+                                        WeaponElement& element = _weaponTable[name];
+                                        _imguiEvent.DirtyWeaponElementQueue.push(&element);
+                                    }
+                                }
+                            }
+                        }
+                    }                  
+                }
+            }
+            ImGui::PopID();
+        }
+        ImGui::End();
+    }
+
+    if (_imguiEvent.ExcelDoc && _imguiEvent.ShowExcelParser == false)
+    {
+        if (_imguiEvent.ExcelDoc->isOpen())
+        {
+            _imguiEvent.ExcelDoc->close();
+        }
+        _imguiEvent.ExcelDoc.reset();
+        _imguiEvent.SheetNames.clear();
+        _imguiEvent.SelectSheetName.clear();
+        _imguiEvent.SheetDatas.clear();
+    }
+#endif
+}
+
+void WeaponTableComponent::ImGuiDrawExcelParserMenuBar() 
+{
+#ifdef _UMEDITOR
+    if (ImGui::BeginMenuBar())
+    {
+        if (ImGui::MenuItem("Load Excel Table"))
+        {
+            std::wstring_view       desktopPath = File::GetDesktopPath();
+            std::vector<File::Path> out;
+            if (File::ShowOpenFileDialog(NULL, L"로드할 파일을 선택하세요.", desktopPath.data(),
+                                         {{L"무기 테이블 파일\0", L"*.xlsm\0"}}, false, out))
+            {
+                if (false == out.empty())
+                {
+                    if (nullptr == _imguiEvent.ExcelDoc)
+                    {
+                        _imguiEvent.ExcelDoc.reset(new OpenXLSX::XLDocument);
+                    }
+                    _imguiEvent.SheetNames.clear();
+                    _imguiEvent.SelectSheetName.clear();
+                    _imguiEvent.SheetDatas.clear();
+                    _imguiEvent.ExcelDoc->open(out.front().generic_string());
+                    auto& doc = *_imguiEvent.ExcelDoc;
+                    if (doc.isOpen())
+                    {
+                        auto workBook          = doc.workbook();
+                        _imguiEvent.SheetNames = workBook.sheetNames();
+                    }
+                    gameObject->GetScene().IsDirty = true;
+                }
+            }
+        }
+        ImGui::EndMenuBar();
+    }
+#endif
+}
+
+bool WeaponTableComponent::ExcelToWeaponElement(WeaponElement& element, const std::string& key, const std::string& data)
+{
+    if (false == key.empty())
+    {
+        try
+        {
+            std::wstring wcharKey = U8ToWString(key);
+            WeaponStats& stats = element.Stats;
+            if (wcharKey.find(L"ID") != std::wstring::npos)
+            {
+                stats.WeaponID = std::stoi(data);
+            }
+            else if (wcharKey.find(L"이름") != std::wstring::npos)
+            {
+                if (false == data.empty())
+                {
+                    stats.SetName(data);
+                }             
+            }
+            else if (wcharKey.find(L"타입") != std::wstring::npos)
+            {
+                if (u8"검"_c_str == data)
+                {
+                    stats.Type = WeaponType::SWORD;
+                }
+                else if (u8"단검"_c_str == data)
+                {
+                    stats.Type = WeaponType::DAGGER;
+                }
+                else if (u8"대형망치"_c_str == data)
+                {
+                    stats.Type = WeaponType::WARHAMMER;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else if (wcharKey.find(L"등급") != std::wstring::npos)
+            {
+                if (u8"일반"_c_str == data)
+                {
+                    stats.Grade = WeaponGrade::COMMON;
+                }
+                else if (u8"희귀"_c_str == data)
+                {
+                    stats.Grade = WeaponGrade::RARE;
+                }
+                else if (u8"신비"_c_str == data)
+                {
+                    stats.Grade = WeaponGrade::BIZARRE;
+                }
+                else if (u8"전설"_c_str == data)
+                {
+                    stats.Grade = WeaponGrade::LEGENDARY;
+                }
+                else
+                {
+                    return false;
+                }       
+            }
+            else if (wcharKey.find(L"일격 공격력") != std::wstring::npos)
+            {
+                stats.HitDamage = std::stoi(data);
+            }
+            else if (wcharKey.find(L"치명타 공격력") != std::wstring::npos)
+            {
+                stats.CriticalDamage = std::stoi(data);
+            }
+            else if (wcharKey.find(L"공격 횟수") != std::wstring::npos)
+            {
+                stats.AttackCount = std::stoi(data);
+            }
+            else if (wcharKey.find(L"속도") != std::wstring::npos)
+            {
+                stats.Speed = std::stoi(data);
+            }
+            else if (wcharKey.find(L"1 공격 당 연격 부여량") != std::wstring::npos)
+            {
+                stats.AttackPerChain = std::stoi(data);
+            }
+        }
+        catch (const std::invalid_argument&)
+        {
+            return false;
+        }
+        catch (const std::out_of_range&)
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 void WeaponTableComponent::SerializedReflectEvent() 

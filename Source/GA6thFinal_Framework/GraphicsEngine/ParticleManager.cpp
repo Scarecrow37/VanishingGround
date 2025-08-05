@@ -69,13 +69,8 @@ ParticleEffect* ParticleManager::RegisterEffect(std::string_view sceneName)
     newEffect->SetEffectName(name);
 
     auto scenename = std::string(sceneName);
-    if (true == _sceneResources.contains(scenename))
-    {
-        _sceneResources[scenename]._updateResource->_sceneEffects.push_back(newEffect);
-        return newEffect;
-    }
-    else
-        return nullptr;
+    _sceneResources[scenename]._updateResource->_sceneEffects.push_back(newEffect);
+    return newEffect;
 }
 
 class ParticleEffect* ParticleManager::RegisterEffectOnEditor()
