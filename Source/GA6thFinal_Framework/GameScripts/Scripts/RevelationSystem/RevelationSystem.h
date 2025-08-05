@@ -129,8 +129,10 @@ private:
         RevelationElement* SelectElement     = nullptr;
         std::string        DeleteTableBuffer = STR_NULL;
         bool               OpenDeletePopup   = false;
-    }
-    _imguiEvent;
+    };
+#ifdef _UMEDITOR
+    ImGuiEvent _imguiEvent;
+#endif
 
     void DrawImGuiElementTableEditor();
 
