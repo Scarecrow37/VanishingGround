@@ -9,7 +9,7 @@ ImGuiColumnSheetParser::ImGuiColumnSheetParser(std::string_view id)
     _id += id;
 }
 
-void ImGuiColumnSheetParser::Draw(const std::function<void(const std::string&, const std::string&)>& callBackFunc)
+void ImGuiColumnSheetParser::Draw(const std::function<void(const ColumnDatas&)>& callBackFunc)
 {
     if (ShowParser)
     {
@@ -47,19 +47,10 @@ void ImGuiColumnSheetParser::Draw(const std::function<void(const std::string&, c
                     if (OpenXLSXHelper::IsFindSuccess(keyRow, keyColum))
                     {
                         // 파싱
-                        _sheetDatas.clear();
                         _sheetDatas = OpenXLSXHelper::ParseSheetWithColumnKeys(workSheet, keyRow);
-
-                        // 생성
-                        if (false == _sheetDatas.empty())
+                        if (callBackFunc)
                         {
-                            for (size_t row = 0; row < _sheetDatas.front().second.size(); ++row)
-                            {
-                                for (auto& [key, datas] : _sheetDatas)
-                                {
-                                    callBackFunc(key, datas[row]);
-                                }                              
-                            }
+                            Apply(callBackFunc);
                         }
                     }
                 }
@@ -80,6 +71,29 @@ void ImGuiColumnSheetParser::Draw(const std::function<void(const std::string&, c
         _selectSheetName.clear();
         _sheetDatas.clear();
     }
+}
+
+bool ImGuiColumnSheetParser::Apply(const std::function<void(const ColumnDatas& datas)>& callBackFunc)
+{
+    if (false == _sheetDatas.empty())
+    {
+        ColumnDatas columnDatas;
+        for (size_t row = 0; row < _sheetDatas.front().second.size(); ++row)
+        {
+            columnDatas.clear();
+            for (auto& [key, datas] : _sheetDatas)
+            {
+                columnDatas.emplace_back(std::cref(key), std::cref(datas[row]));
+            }
+
+            if (false == columnDatas.empty())
+            {
+                callBackFunc(columnDatas);
+            }
+        }
+        return true;
+    }
+    return false;
 }
 
 void ImGuiColumnSheetParser::DrawMenuBar() 
