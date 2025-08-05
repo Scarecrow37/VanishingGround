@@ -1440,8 +1440,7 @@ void EditorAssetBrowserTool::PasteFile()
         File::Path from = _copyBuffer.second;
         File::Path to   = (_focusFolderPath / from.filename());
         bool isFromExists = fs::exists(from);
-        bool isToExists   = fs::exists(to);
-        if (isFromExists && isToExists)
+        if (isFromExists)
         {
             if (0 == _copyBuffer.first)
             {
@@ -1651,7 +1650,7 @@ void EditorAssetBrowserTool::InspectorDrawer::OnInspectorEnter()
 
 void EditorAssetBrowserTool::InspectorDrawer::OnInspectorStay()
 {
-    if (nullptr == _assetData && false == fs::exists(_assetPath))
+    if (nullptr == _assetData || false == fs::exists(_assetPath))
     {
         return;
     }
