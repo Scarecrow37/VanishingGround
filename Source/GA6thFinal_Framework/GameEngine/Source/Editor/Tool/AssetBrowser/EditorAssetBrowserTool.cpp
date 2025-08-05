@@ -940,12 +940,13 @@ void EditorAssetBrowserTool::UpdateFolderEntriesInput()
             }
             ImGui::EndMenu();
         }
-        if (-1 == _copyBuffer.first) ImGui::BeginDisabled();
+        int copyState= _copyBuffer.first;
+        if (-1 == copyState) ImGui::BeginDisabled();
         if (ImGui::MenuItem("Paste"))
         {
             PasteFile();
         }
-        if (-1 == _copyBuffer.first) ImGui::EndDisabled();
+        if (-1 == copyState) ImGui::EndDisabled();
 
         if (ImGui::MenuItem("Copy Path"))
         {
