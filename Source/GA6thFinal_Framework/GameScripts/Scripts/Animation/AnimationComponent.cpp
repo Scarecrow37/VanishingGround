@@ -515,7 +515,7 @@ bool AnimationComponent::PushOverrideAnimation(std::string_view animKey, bool bl
     {
         std::string animName(animKey);
         GetAnimationNameEx(animKey, animName);
-        if (_animator->HasAnimation(animKey.data()))
+        if (_animator->HasAnimation(animName.c_str()))
         {
             _overrideAnimationStack.emplace_back(animName);
             AnimationData& animData = GetLastAnimationDataEx();
