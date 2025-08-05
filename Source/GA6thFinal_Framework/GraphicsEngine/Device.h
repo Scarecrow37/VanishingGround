@@ -39,6 +39,7 @@ public:
     void ResolveBackBuffer(ComPtr<ID3D12Resource> source);
 
     void ResetCommands();
+    void ResetGraphicsCommnad();
     void ResetComputeCommands();
 
     void Execute();
@@ -62,7 +63,7 @@ private:
     void CreateBackBuffer();
     void CreateBuffer(UINT size, ComPtr<ID3D12Resource>& buffer);
 
-private:
+public:
     std::unique_ptr<GraphicsMemory> _graphicsMemory;
     ComPtr<ID3D12Device>            _device;
     ComPtr<IDXGIFactory4>           _dxgiFactory;

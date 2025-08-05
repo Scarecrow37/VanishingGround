@@ -117,8 +117,11 @@ void EditorModelHierarchy::ShowBoneList()
     }
 }
 
+
+
 void EditorModelHierarchy::ShowBone(Bone* parent) 
 {
+
     if (parent)
     {
         ImGui::PushID(parent);

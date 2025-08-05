@@ -135,7 +135,6 @@ private:
     float       _zoomScale      = 1.0f;                 // 콘텐츠 뷰 줌 스케일
     float       _updateTime     = 0.0f;                 // 콘텐츠 뷰 업데이트 시간
     bool        _needRefresh    = false;                // 콘텐츠 뷰 새로고침 필요 여부
-    std::string _searchBuffer   = "";                   // 검색 버퍼
     File::Path  _focusFolderPath;                       // 현재 포커싱 중인 폴더
     File::Path  _focusEntryPath;                        // 현재 포커싱 중인 파일
     
@@ -143,11 +142,10 @@ private:
 
     std::pair<int, File::Path> _copyBuffer = {0, ""};   // 복사 버퍼 (first가 0이면 복사, 1이면 잘라넣기)
     std::vector<std::function<void()>> _delayEvent;     // 후처리 이벤트 (보통 삭제나 추가 등의 작업을 함)
-    
-    ImGuiTextFilter _searchFilter;                      // 검색 픽터
 
     /* 에셋 정보 저장 테이블 및 리스트 */
-    std::unordered_map<File::Path, AssetData> _focusFolderAssetDataMap;
+    AssetData UpperFolderData; // 상위 폴더 정보
+    std::unordered_map<File::Path, AssetData> _focusFolderAssetDataMap; // 현재 포커싱 폴더의 파일 목록 맵 (경로 -> AssetData)
     std::vector<AssetData*> _focusFolderAssetDataList;  // 현재 포커싱 폴더의 파일 목록
     
     /* Undo 및 Redo 관련 */
@@ -158,6 +156,20 @@ private:
     /* 외부 파일 Drag & Drop 이벤트 관련 */
     std::vector<std::pair<bool, File::Path>> _dragDropPaths; // 드래그 앤 드롭된 파일 경로들 (복사 여부, 경로)
     File::Path _dragDropPath; // 드래그 앤 드롭된 경로의 목적지 경로
+
+
+    struct SearchController
+    {
+        bool IsActive() const { return IsSearching; } // 검색 모드인지 확인
+        void UpdateBuffer();
+        void ClearBuffer();
+        bool PassFilter(const char* text);
+
+        bool IsSearching = false;       // 검색 모드 여부
+        std::string SearchBuffer = "";  // 검색 버퍼
+        ImGuiTextFilter SearchFilter;   // ImGui 검색 필터
+    };
+    SearchController _search; // 검색 컨트롤러
 
     /// <summary>
     /// 이름 변경을 할 때 사용함.

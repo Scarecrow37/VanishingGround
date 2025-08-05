@@ -20,6 +20,8 @@ void TurnListEmptyState::OnStart()
 
 void TurnListEmptyState::OnEnter() 
 {
+    _turnMode->FinishCurrentTurn();
+
     CombatStartPhase* combatStartPhase = _turnMode->States->CombatStartPhase;
     if (combatStartPhase)
     {

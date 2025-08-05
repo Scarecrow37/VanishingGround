@@ -24,15 +24,26 @@ namespace EnemyAction
             _animator->BeginBuildOverrideAnimation();
             {
                 _animator->ClearOverrideAnimations();
-                _animator->PushOverrideAnimation("Attack0", true, [](const AnimationData& data) { return data.IsEnd(); });
-                _animator->SetCurrentAnimationPopCallback([this]() { SetActionEnd(); });
-                _animator->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
+                bool result = _animator->PushOverrideAnimation("Attack0", true, [](const AnimationData& data) { return data.IsEnd(); });
+                if (result)
+                {
+                    _animator->SetCurrentAnimationPopCallback([this]() { SetActionEnd(); });
+                    _animator->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
+                }
+                else
+                {
+                    SetActionEnd();
+                }
             }
             _animator->EndBuildOverrideAnimation();
         }
+        else
+        {
+            SetActionEnd();
+        }
     }
 
-    void EnemyAction::Action22010::OnActionUpdate()
+    void Action22010::OnActionUpdate()
     {
     }
 

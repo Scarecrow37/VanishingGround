@@ -5,9 +5,9 @@ EndlessGridPass::EndlessGridPass() {}
 
 EndlessGridPass::~EndlessGridPass() {}
 
-void EndlessGridPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList)
+void EndlessGridPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene, commandList);
+    __super::Initialize(ownerScene, ownerTechnique, commandList);
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();
@@ -57,7 +57,7 @@ void EndlessGridPass::Begin(ID3D12GraphicsCommandList* commandList)
     _ownerScene->_depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_DEPTH_READ);
 
     commandList->OMSetRenderTargets(1, &_meshRenderTarget->GetRTVHandle(), FALSE, &_ownerScene->_depthStencilView->GetDSVHandle());
-    commandList->RSSetViewports(1, &_meshRenderTarget->GetViewPort());
+    commandList->RSSetViewports(1, &_meshRenderTarget->GetViewport());
     commandList->RSSetScissorRects(1, &_meshRenderTarget->GetScissorRect());
 }
 

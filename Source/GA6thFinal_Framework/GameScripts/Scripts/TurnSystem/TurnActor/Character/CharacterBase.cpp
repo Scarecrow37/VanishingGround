@@ -196,14 +196,17 @@ void CharacterBase::TakeDamage(int damage)
     if (_animationComponent)
     {
         const auto& animData    = _animationComponent->GetLastAnimationData();
-        const char* hitAnimName = _animationComponent->GetAnimationNameFromKey("Hit").c_str();
-        const char* curAnimName = animData.GetAnimationName().c_str();
-        if (0 == strcmp(curAnimName, hitAnimName))
+        const std::string& hitAnimName = _animationComponent->GetAnimationNameFromKey("Hit");
+        const std::string& curAnimName = animData.GetAnimationName();
+        _animationComponent->BeginBuildOverrideAnimation();
+        // 마지막 애니메이션이 Hit 애니메이션이면, Pop하고 다시 넣기
+        if (false == hitAnimName.empty() && hitAnimName == curAnimName)
         {
             _animationComponent->PopOverrideAnimation();
         }
         _animationComponent->PushOverrideAnimation("Hit", true,
             [](const AnimationData& data) { return data.IsEnd(); });
+        _animationComponent->EndBuildOverrideAnimation();
     }
 }
 

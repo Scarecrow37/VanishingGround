@@ -7,15 +7,13 @@ struct PSInput
     float3 tangent : TANGENT;
     float3 biTangent : BINORMAL;
     float2 uv : TEXCOORD;
-    float4 worldPosition : POSITION;
 };
 
 struct PSOutput
 {
     float4 normal        : SV_Target0;
-    float4 worldPosition : SV_Target1;
-    float depth          : SV_Target2;
-    uint customDepth     : SV_Target3;
+    float depth          : SV_Target1;
+    uint customDepth     : SV_Target2;
 };
 
 #define NORMAL 0
@@ -45,8 +43,7 @@ PSOutput WriteGuBuffer(PSInput input)
     float3 normal = textures[normalID].Sample(samLinear_wrap, input.uv).xyz;
     normal = CalculateNormal(normal, input.tangent, input.biTangent, input.normal);
     output.normal = float4(normal, 1.f);
-    //4. worldPosition
-    output.worldPosition = input.worldPosition;
+    
     //5. depth
     output.depth = input.position.z;
     // SWTODO : 나중에 마스킹값 받는거 처리

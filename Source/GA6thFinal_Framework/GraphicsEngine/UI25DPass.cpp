@@ -9,9 +9,9 @@ UI25DPass::UI25DPass(const std::vector<UINT>& instanceIDs)
 
 UI25DPass::~UI25DPass() {}
 
-void UI25DPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList)
+void UI25DPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene, commandList);
+    __super::Initialize(ownerScene, ownerTechnique, commandList);
 
     _cameraData.View = XMMatrixTranspose(XMMatrixLookAtLH({0.f, 0.f, -1.f}, {0.f, 0.f, 1.f}, {0.f, 1.f, 0.f}));
 

@@ -1,6 +1,12 @@
 ﻿#include "pch.h"
 #include "Renderer.h"
 
+// Shader
+#include "VertexShader.h"
+#include "PixelShader.h"
+#include "ComputeShader.h"
+#include "GeometryShader.h"
+
 // Geometry
 #include "Box.h"
 #include "Cylinder.h"
@@ -111,7 +117,7 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
         return;
     }
     if (sceneName == "Game")
-        _isRaytracing                      = flag & RenderTechniqueFlag::RAY_TRACING_TECH ? true : false;
+        _isRaytracing = flag & RenderTechniqueFlag::RAY_TRACING_TECH ? true : false;
     
     std::unique_ptr<RenderScene> scene = std::make_unique<RenderScene>(sceneName);
     scene->InitializeRenderScene();
@@ -160,6 +166,8 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
     {
         scene->AddRenderTechnique(std::make_unique<FontTechnique>());
     }
+
+    scene->AddRenderPassDatas();
 
     _renderScenes.try_emplace(sceneName.data(), std::move(scene));
 }
@@ -330,6 +338,7 @@ void Renderer::CreateDefaultResource()
     CreateDefaultGeometry();
     CreateDefaultTexture();
     CreateDefaultRenderTarget();
+    CreateDefaultShader();
 }
 
 void Renderer::CreateDefaultGeometry()
@@ -458,25 +467,67 @@ void Renderer::CreateDefaultTexture()
 
 void Renderer::CreateDefaultRenderTarget()
 {
-    std::initializer_list<std::string_view> defaultRenderTargets = {"1024x1024", "512x512", "256x256", "128x128", "64x64", "32x32", "16x16", "8x8", "4x4", "2x2", "1x1"};
     SharedResource<RenderTarget> renderTarget;
-    auto&                        multiRenderTargetManager = Global::multiRenderTargetManager;
-    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, 1024, 1024, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+   
+    auto resolution = Global::device->GetResolution();
+    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, resolution.Width, resolution.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
-    for (auto& defaultRenderTarget : defaultRenderTargets)
+    while (desc.Width > 1 || desc.Height > 1)
     {
         renderTarget = MakeSharedResource<RenderTarget>();
         renderTarget->Initialize(desc, 0.f);
 
+        std::string name = std::format("Mipmap{}x{}", desc.Width, desc.Height);
+
+        Global::multiRenderTargetManager->AddRenderTarget(name, renderTarget);
+        Global::multiRenderTargetManager->AddRenderTargetGroup("Mipmap", name);
+
         desc.Width >>= 1;
         desc.Height >>= 1;
-
-        multiRenderTargetManager->AddRenderTarget(defaultRenderTarget, renderTarget);
-        multiRenderTargetManager->AddRenderTargetGroup("Mipmap", defaultRenderTarget.data());
     }
 
-    auto mode = Global::device->GetMode();
-    desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    desc        = CD3DX12_RESOURCE_DESC::Tex2D(desc.Format, mode.Width, mode.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
-    multiRenderTargetManager->InitializeRenderTargetPool(4, desc);
+    renderTarget = MakeSharedResource<RenderTarget>();
+    renderTarget->Initialize(desc, 0.f);
+
+    std::string name = std::format("Mipmap{}x{}", desc.Width, desc.Height);
+
+    Global::multiRenderTargetManager->AddRenderTarget(name, renderTarget);
+    Global::multiRenderTargetManager->AddRenderTargetGroup("Mipmap", name);
+
+    desc.Width = resolution.Width;
+    desc.Height = resolution.Height;
+    Global::multiRenderTargetManager->InitializeRenderTargetPool(4, desc);
+}
+
+void Renderer::CreateDefaultShader()
+{
+    // L"../Shaders 폴더를 탐색 후 모든 쉐이더 파일을 미리 컴파일
+    std::filesystem::path shaderDir = L"../Shaders";
+
+    for (const auto& entry : std::filesystem::recursive_directory_iterator(shaderDir))
+    {
+        if (entry.is_regular_file() && entry.path().extension() == L".hlsl")
+        {
+            std::wstring_view shaderPath = entry.path().c_str();
+
+            if (shaderPath.find(L"vs_") != std::wstring_view::npos)
+            {
+                _defaultResource.push_back(Global::resourceManager->LoadResource<VertexShader>(shaderPath));
+            }
+            else if (shaderPath.find(L"ps_") != std::wstring_view::npos)
+            {
+                _defaultResource.push_back(Global::resourceManager->LoadResource<PixelShader>(shaderPath));
+            }
+            else if (shaderPath.find(L"cs_") != std::wstring_view::npos)
+            {
+                _defaultResource.push_back(Global::resourceManager->LoadResource<ComputeShader>(shaderPath));
+            }
+            else if (shaderPath.find(L"gs_") != std::wstring_view::npos)
+            {
+                _defaultResource.push_back(Global::resourceManager->LoadResource<GeometryShader>(shaderPath));
+            }
+
+            Global::shaderPathMappings[entry.path().filename()] = shaderPath;
+        }
+    }
 }

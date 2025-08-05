@@ -37,6 +37,7 @@ public:
     float         GetCurrentAnimationLastTime(unsigned int ID = 0) const;
     float         GetCurrentAnimationPlayTime(unsigned int ID = 0) const;
     float         GetCurrentAnimationSpeed(unsigned int ID = 0) const;
+    bool          HasAnimation(const char* animation) const;
     bool          IsPaused() const;
     bool          IsLoop() const;
     bool          IsEnd() const;

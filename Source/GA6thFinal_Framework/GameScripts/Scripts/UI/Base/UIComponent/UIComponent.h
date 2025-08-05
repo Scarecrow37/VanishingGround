@@ -66,6 +66,11 @@ inline POINT operator+(const POINT& lhs, const POINT& rhs)
     return POINT{lhs.x + rhs.x, lhs.y + rhs.y};
 }
 
+inline POINT operator-(const POINT& lhs, const POINT& rhs)
+{
+    return POINT{lhs.x - rhs.x, lhs.y - rhs.y};
+}
+
 inline bool operator==(const SIZE& lhs, const SIZE& rhs)
 {
     return lhs.cx == rhs.cx && lhs.cy == rhs.cy;
@@ -79,4 +84,9 @@ inline bool operator!=(const SIZE& lhs, const SIZE& rhs)
 inline SIZE operator+(const SIZE& lhs, const SIZE& rhs)
 {
     return SIZE{lhs.cx + rhs.cx, lhs.cy + rhs.cy};
+}
+
+inline SIZE operator-(const SIZE& lhs, const SIZE& rhs)
+{
+    return SIZE{lhs.cx - rhs.cx, lhs.cy - rhs.cy};
 }
