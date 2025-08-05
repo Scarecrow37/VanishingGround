@@ -72,6 +72,11 @@ Command::EditorScene::NewGameObjectCommand::NewGameObjectCommand(std::string_vie
 
 bool Command::EditorScene::NewGameObjectCommand::Execute()
 {
+    if (nullptr == UmSceneManager.GetMainScene())
+    {
+        return false;
+    }
+
     if (nullptr == _newObject)
     {
         _newObject  = UmGameObjectFactory.NewGameObject(_typeName, _newName);
