@@ -142,7 +142,7 @@ private:
     
     std::bitset<FLAG_SIZE> _flags;                      // 플래그 비트셋 (예: 메타 파일 표시 여부 등)
 
-    std::pair<int, File::Path> _copyBuffer = {-1, ""};   // 복사 버퍼 (first가 0이면 복사, 1이면 잘라넣기)
+    std::pair<int, File::Path> _copyBuffer = {-1, ""};   // 복사 버퍼 (first가 -1이면 비어있음/동작 없음, 0이면 복사, 1이면 잘라넣기)
     std::vector<std::function<void()>> _delayEvent;     // 후처리 이벤트 (보통 삭제나 추가 등의 작업을 함)
 
     /* 에셋 정보 저장 테이블 및 리스트 */
