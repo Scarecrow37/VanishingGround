@@ -1265,11 +1265,11 @@ void EditorAssetBrowserTool::ProcessInput()
             _zoomScale   = ImClamp(_zoomScale, 0.5f, 2.0f);
             _needRefresh = true;
         }
-        if (isKeyC)
+        if (isKeyC && fs::exists(_focusEntryPath))
         {
             SetCopyFileFromPath(_focusEntryPath);
         }
-        if (isKeyX)
+        if (isKeyX && fs::exists(_focusEntryPath))
         {
             SetCutFileFromPath(_focusEntryPath);
         }
