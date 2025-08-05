@@ -104,13 +104,13 @@ void EditorSceneTool::OnPreFrameBegin()
 
 void EditorSceneTool::OnPostFrameBegin()
 {
-    _isHorverdWindow = ImGui::IsWindowHovered();
+    _isHoveredWindow = ImGui::IsWindowHovered();
 }
 
 void EditorSceneTool::OnFrameRender() 
 {
     _window = ImGui::GetCurrentWindow();
-    if (_isHorverdWindow)
+    if (_isHoveredWindow)
     {
         if (ImGui::IsKeyPressed(ImGuiKey_MouseRight, false))
         {
@@ -135,7 +135,7 @@ void EditorSceneTool::OnFrameFocusStay()
 {
     if (IsFocusFrame())
     {
-        _camera->Update(_isHorverdWindow);
+        _camera->Update(_isHoveredWindow);
     }   
     UpdateKeyboardFrameFocus();
 }
@@ -618,7 +618,7 @@ void EditorSceneTool::RayPicker()
         false == _isUsingEnd)
     {
         bool isLeftAltDown = ImGui::IsKeyDown(ImGuiKey_LeftAlt);
-        if (false == isLeftAltDown && IsFocusFrame() && _isHorverdWindow && ImGui::IsKeyReleased(ImGuiKey_MouseLeft))
+        if (false == isLeftAltDown && IsFocusFrame() && _isHoveredWindow && ImGui::IsKeyReleased(ImGuiKey_MouseLeft))
         {
             ImGuiIO& io = ImGui::GetIO();
             if (io.MousePos.x >= _sceneClienttLeft && io.MousePos.y >= _sceneClientTop &&

@@ -68,5 +68,5 @@ private:
     bool                    _isRotated;
     bool                    _isSkipRotated;
     bool                    _isRightClickDown;
-    bool                    _isHoverdWindow;
+    bool                    _isHoveredWindow;
 };

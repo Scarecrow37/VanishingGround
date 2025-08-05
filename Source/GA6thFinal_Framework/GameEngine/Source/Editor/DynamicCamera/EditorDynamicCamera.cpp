@@ -10,7 +10,7 @@ EditorDynamicCamera::EditorDynamicCamera()
     _isRotated(false),
     _isSkipRotated(false),
     _isRightClickDown(false),
-    _isHoverdWindow(false),
+    _isHoveredWindow(false),
     _camera(nullptr),
     _position(Vector3::Zero),
     _rotation(Quaternion::Identity),
@@ -25,11 +25,11 @@ void EditorDynamicCamera::SetTarget(std::shared_ptr<Camera> camera)
     _camera = camera;
 }
 
-void EditorDynamicCamera::Update(bool isHoverdWindow)
+void EditorDynamicCamera::Update(bool isHoveredWindow)
 {
     _isMoved = false;
     _isRotated = false;
-    _isHoverdWindow = isHoverdWindow;
+    _isHoveredWindow = isHoveredWindow;
 
     ImGuiIO&      io                    = ImGui::GetIO();
     const Vector3 forward               = Vector3::Transform(Vector3(0.0f, 0.0f, 1.0f), _rotation);
@@ -47,7 +47,7 @@ void EditorDynamicCamera::Update(bool isHoverdWindow)
     }
     else
     {
-        if (isHoverdWindow)
+        if (isHoveredWindow)
         {
             if (isLeftAlt && isLeftClick)
             {
@@ -69,7 +69,7 @@ void EditorDynamicCamera::Update(bool isHoverdWindow)
 
     if (isRightClickPressed)
     {
-        _isRightClickDown = true && _isHoverdWindow;
+        _isRightClickDown = true && _isHoveredWindow;
     }
     else if (isRightClickReleased)
     {
