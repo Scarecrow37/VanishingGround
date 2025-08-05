@@ -240,11 +240,16 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
     float metal = orm.b;
     
     float3 directLighting = 0;
+    float3 ambientLighting = 0;
     // Directional
     for (uint i = 0; i < numLight.Directional; ++i)
     {
         DirectionalLight Ld = lightData.Directional[i];
         float3 L = normalize(-Ld.Direction);
+        
+        /* 환경광 / IBL  */
+        ambientLighting += CalculateIBL(normal, view, irradianceTexture, prefilteredMap, brdfLUT, albedo, rough, metal) * Ld.Ambient;
+        
         if (TraceShadow(hitPosition, L, 2000) == false)
             directLighting += CalculateDirectional(Ld, normal, view, albedo, metal, rough);
     }
@@ -269,9 +274,7 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
         float3 L = toL / dist;
         if (TraceShadow(hitPosition, L, dist - 0.01) == false)
             directLighting += CalculateSpot(Ls, normal, view, albedo, metal, rough, hitPosition);
-    }
-    /* 환경광 / IBL  */
-    float3 ambientLighting = CalculateIBL(normal, view,irradianceTexture,prefilteredMap,brdfLUT,albedo,rough,metal)*0.5;
+    }    
 
     /* 반사(거울) – FresnelSchlick 사용 */
     float3 reflectionLighting = 0.0;
