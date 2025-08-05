@@ -425,6 +425,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\
     <ClInclude Include="SkyBoxRenderTechnique.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="SpriteRenderer.h" />
+    <ClInclude Include="SSAOBlendPass.h" />
     <ClInclude Include="SSAOTechnique.h" />
     <ClInclude Include="SSAOWritePass.h" />
     <ClInclude Include="Structs.h" />
@@ -547,6 +548,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\
     <ClCompile Include="SkyBoxRenderTechnique.cpp" />
     <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="SpriteRenderer.cpp" />
+    <ClCompile Include="SSAOBlendPass.cpp" />
     <ClCompile Include="SSAOTechnique.cpp" />
     <ClCompile Include="SSAOWritePass.cpp" />
     <ClCompile Include="StructuredBuffer.cpp" />

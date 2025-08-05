@@ -36,6 +36,7 @@ namespace GE
         PBR_LIGHTING,
         SKYBOX,
         SSAO,
+        SSAO_BLEND,
         TO_BACKBUFFER,
         UI,
         UP_SAMPLE,

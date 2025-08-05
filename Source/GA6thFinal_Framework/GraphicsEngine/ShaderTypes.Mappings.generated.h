@@ -48,6 +48,7 @@ namespace GE
         {PS::GAUSSIANBLUR_X, L"ps_gaussianblur_x.hlsl"},
         {PS::TO_BACKBUFFER, L"ps_to_backbuffer.hlsl"},
         {PS::SKYBOX, L"ps_skybox.hlsl"},
+        {PS::SSAO_BLEND, L"ps_ssao_blend.hlsl"},
         {PS::UI, L"ps_ui.hlsl"},
         {PS::ACCUMULATION, L"ps_accumulation.hlsl"},
         {PS::DOWN_SAMPLE, L"ps_down_sample.hlsl"},
