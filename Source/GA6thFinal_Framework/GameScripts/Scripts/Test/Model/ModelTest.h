@@ -27,7 +27,7 @@ protected:
     void ImGuiDrawPropertysEvent() override;
 
 private:
-    MVVM::Model<int> _value = MVVM::Model(100);
+    MVVM::Model<int> _value;
 };
 
 class ViewTest : public TextElement

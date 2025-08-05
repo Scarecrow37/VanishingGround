@@ -30,22 +30,22 @@ void PlayerActionPhase::OnEnter()
 {
     if (_turnMode)
     {
-        TurnActor* actor = _turnMode->GetCurrTurnActor();
-        if (actor)
+        if (auto& actorModel = _turnMode->GetCurrTurnActor())
         {
-            actor->PlayTurn();
-            actor->OnTurnStart();
-            auto* combatStartPhase = _turnMode->States->CombatStartPhase;
-            if (combatStartPhase)
-            {
-                CharacterBase* character = static_cast<CharacterBase*>(actor);
-                for (auto& cha : combatStartPhase->GetCharacters())
+            actorModel.Apply([this](TurnActor* actor) {
+                actor->PlayTurn();
+                actor->OnTurnStart();
+                if (auto* combatStartPhase = _turnMode->States->CombatStartPhase)
                 {
-                    cha->OnEachTurnStart(character);
+                    CharacterBase* character = static_cast<CharacterBase*>(actor);
+                    for (auto& cha : combatStartPhase->GetCharacters())
+                    {
+                        cha->OnEachTurnStart(character);
+                    }
+                    _turnMode->ApplyActions([character](TurnAction& action) { action.OnTurnStart(*character); });
                 }
-                _turnMode->ApplyActions([character](TurnAction& action) { action.OnTurnStart(*character); });
-            }
-            actor->UpdatePostTurnState();
+                actor->UpdatePostTurnState();
+            });
         }
     }
 }

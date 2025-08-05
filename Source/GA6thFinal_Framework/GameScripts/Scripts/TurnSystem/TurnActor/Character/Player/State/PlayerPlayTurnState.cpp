@@ -350,14 +350,26 @@ void PlayerPlayTurnState::SetAttackEndAnimation()
             animator->ChangeMainAnimationFlags(ANIMATION_FLAG_USE_LOOP | ANIMATION_FLAG_RESET_FRAME);
         }
         {
-            animator->PushOverrideAnimation("Attack_End", true, [](const AnimationData& data) { return data.IsEnd(); });
-            animator->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
-            animator->SetCurrentAnimationPopCallback([this]() {
-                // 애니메이션이 끝날 시 턴 종료
-                auto& player = GetPlayer();
-                player.EndTurn();
+            bool pushResult = animator->PushOverrideAnimation("Attack_End", true, [](const AnimationData& data) { return data.IsEnd(); });
+            if (pushResult)
+            {
+                animator->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
+                animator->SetCurrentAnimationPopCallback([this]() {
+                    // 애니메이션이 끝날 시 턴 종료
+                    auto& player = GetPlayer();
+                    player.EndTurn();
                 });
+            }
+            else
+            {
+                // 애니메이션을 못넣었으면 바로 턴 종료
+                player.EndTurn();
+            }
         }
         animator->EndBuildOverrideAnimation();
+    }
+    else
+    {
+        player.EndTurn();
     }
 }

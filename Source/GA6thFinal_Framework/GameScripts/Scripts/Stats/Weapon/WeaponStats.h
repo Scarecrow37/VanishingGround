@@ -19,6 +19,8 @@ enum class WeaponGrade
 
 struct WeaponStats : public TurnActorStats
 {
+    inline static constexpr const char* DEFAULT_NAME = "Default Sword";
+
     inline static constexpr ImVec4 GetTypeToColor(WeaponType type)
     {
         switch (type)
@@ -138,7 +140,7 @@ struct WeaponStats : public TurnActorStats
 protected:
     REFLECT_FIELDS_BEGIN(TurnActorStats)
     int         WeaponID = 0;
-    std::string Name = "Default Sword";
+    std::string Name = DEFAULT_NAME;
     WeaponType  Type = WeaponType::SWORD;
     WeaponGrade Grade = WeaponGrade::COMMON;
     int         HitDamage = 1;

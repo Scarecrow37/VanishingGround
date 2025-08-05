@@ -47,26 +47,6 @@ void PlacementUIComponent::SetScopePlacement(const POINT scopePoint, const SIZE 
     }
 }
 
-int PlacementUIComponent::SortViewOrder(int startOrder)
-{
-    SetViewOrder(startOrder++);
-    const int childCount = transform->GetChildCount();
-    for (int i = childCount - 1; i >= 0; --i)
-    {
-        const Transform* child          = transform->GetChild(i);
-        GameObject&      gameObject     = child->gameObject;
-        const size_t     componentCount = gameObject.GetComponentCount();
-        for (size_t j = 0; j < componentCount; ++j)
-        {
-            if (PlacementUIComponent* component = gameObject.GetComponentAtIndex<PlacementUIComponent>(j))
-            {
-                startOrder = component->SortViewOrder(startOrder);
-            }
-        }
-    }
-    return startOrder;
-}
-
 void PlacementUIComponent::ResetPlacement()
 {
     ReflectFields->Point = POINT{0, 0};
@@ -131,9 +111,9 @@ void PlacementUIComponent::RequestViewOrder(const Transform& transform)
 
     if (nullptr != uiRoot)
     {
-        uiRoot->SortViewOrder(1);
+        uiRoot->SortViewOrder();
     }
-    else
+    else if (false == Global::IsPlay())
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, u8"UI Component는 UIRoot의 하위에 있어야 합니다.");
     }

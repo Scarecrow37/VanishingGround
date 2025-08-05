@@ -47,8 +47,25 @@ public:
     AnchorPanelSlot();
 
 public:
+    REFLECT_PROPERTY(Pivot)
+
+    GETTER(Vector2, Pivot)
+    {
+        return Vector2{ReflectFields->PivotX, ReflectFields->PivotY};
+    }
+    SETTER(Vector2, Pivot)
+    {
+        ReflectFields->PivotX = std::clamp(value.x, 0.0f, 1.0f);
+        ReflectFields->PivotY = std::clamp(value.y, 0.0f, 1.0f);
+        OnPlacementChange();
+    }
+    PROPERTY(Pivot)
+
+public:
     AnchorType GetAnchorType() const;
     POINT      GetAnchorPoint() const;
+    POINT      GetOffsetPoint() const;
+    SIZE       GetSiblingSize() const;
 
 protected:
     void OnPlacementChange() override;
@@ -57,11 +74,16 @@ protected:
 
 private:
     void UpdateAnchorPoint();
+    void UpdateOffsetPoint();
 
 protected:
     REFLECT_FIELDS_BEGIN(PanelSlotComponent)
     AnchorType Anchor = AnchorType::TOP_LEFT;
     POINT      AnchorPoint;
+    float      PivotX = 0.0f;
+    float      PivotY = 0.0f;
+    POINT      OffsetPoint;
+    SIZE       SiblingSize;
     REFLECT_FIELDS_END(AnchorPanelSlot)
 
 };

@@ -67,8 +67,3 @@ void UIPassBase::UpdateBuffer(ID3D12GraphicsCommandList* commandList)
 {
     _instanceIDBuffer->CopyStructuredBuffer(commandList, (void*)_instanceIDs.data(), (UINT)_instanceIDs.size());
 }
-
-void UIPassBase::SetResource(UINT rootParameterIndex, ID3D12GraphicsCommandList* commandList)
-{
-
-}

@@ -91,6 +91,16 @@ float Animator::GetCurrentAnimationSpeed(unsigned int ID) const
     return 0.0f;
 }
 
+bool Animator::HasAnimation(const char* animation) const
+{
+    auto iter = _animation->_animations.find(animation);
+    if (iter != _animation->_animations.end())
+    {
+        return true;
+    }
+    return false;
+}
+
 bool Animator::IsPaused() const
 {
     return _isPause;
