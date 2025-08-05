@@ -74,9 +74,6 @@ UMREAL_COMPONENT(EnemyStatsComponent)
 #include "Scripts\Test/Input/InputTestComponent.h"
 UMREAL_COMPONENT(InputTestComponent)
 
-#include "Scripts\Timeline/AnimationEventListener.h"
-UMREAL_COMPONENT(AnimationEventListener)
-
 #include "Scripts\WeaponSystem/WeaponTable/WeaponTableComponent.h"
 UMREAL_COMPONENT(WeaponTableComponent)
 
@@ -105,6 +102,9 @@ UMREAL_COMPONENT(PaddingWrapper)
 #include "Scripts/UI/Wrappers/Center/CenterWrapper.h"
 UMREAL_COMPONENT(CenterWrapper)
 
+#include "Scripts/UI/Wrappers/Ratio/RatioWrapper.h"
+UMREAL_COMPONENT(RatioWrapper)
+
 #include "Scripts/UI/Panels/Grid/GridPanel.h"
 UMREAL_COMPONENT(GridPanel)
 UMREAL_COMPONENT(GridPanelSlot)
@@ -116,6 +116,15 @@ UMREAL_COMPONENT(AnchorPanelSlot)
 #include "Scripts/UI/Panels/Horizontal/HorizontalPanel.h"
 UMREAL_COMPONENT(HorizontalPanel)
 UMREAL_COMPONENT(HorizontalPanelSlot)
+
+#include "Scripts/UI/Panels/Description/DescriptionPanel.h"
+UMREAL_COMPONENT(DescriptionPanel)
+
+#include "Scripts/UI/Views/TurnQueue/TurnQueueView.h"
+UMREAL_COMPONENT(TurnQueueView)
+
+#include "Scripts/UI/Views/Weapon/WeaponView.h"
+UMREAL_COMPONENT(WeaponView)
 
 #include "Scripts\WeaponSystem/WeaponSystem.h"
 UMREAL_COMPONENT(WeaponSystem)
@@ -141,3 +150,6 @@ UMREAL_COMPONENT(AnimationComponent)
 
 #include "Scripts/Test/DevTools/LogOutput.h"
 UMREAL_COMPONENT(LogOutput)
+
+#include "Scripts/EnemyAction/System/EnemyActionSystem.h"
+UMREAL_COMPONENT(EnemyActionSystem)

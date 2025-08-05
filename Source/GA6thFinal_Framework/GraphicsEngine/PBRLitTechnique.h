@@ -10,8 +10,4 @@ public:
 public:
     void Initialize(ID3D12GraphicsCommandList* commandList) override;
     void Execute(ID3D12GraphicsCommandList* commandList) override;
-
-private:
-    void InitGBufferPass(ID3D12GraphicsCommandList* commandList);
-    void InitDeferredPass(ID3D12GraphicsCommandList* commandList);
 };

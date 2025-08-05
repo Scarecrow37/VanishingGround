@@ -10,18 +10,14 @@ SkeletalMeshRenderer::SkeletalMeshRenderer()
         {
             if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
             {
-                DragDropAsset::Data* data    = (DragDropAsset::Data*)payLoad->Data;
-                auto                 context = data->pContext->lock();
-                if (nullptr != context)
+                DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
+                File::Path path = data->GetPath();
+                const auto extension = path.extension();
+                if (extension == L".fbx" || extension == L".UmModel")
                 {
-                    const auto& path      = context->GetPath();
-                    const auto  extension = path.extension();
-                    if (extension == L".fbx" || extension == L".UmModel")
-                    {
-                        _guidRef            = path.ToGuid();
-                        ReflectFields->Basefields.get().Guid = _guidRef.string();
-                        UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef, [this](){ LoadModel(); });
-                    }
+                    _guidRef = data->GetGuid();
+                    ReflectFields->Basefields.get().Guid = _guidRef.string();
+                    UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef, [this]() { LoadModel(); });
                 }
             }
             ImGui::EndDragDropTarget();
@@ -40,7 +36,7 @@ void SkeletalMeshRenderer::Reset()
     if (false == _guidRef.IsNull())
     {
         UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef, [this]() { LoadModel(); });
-    }
+    } 
 }
 
 void SkeletalMeshRenderer::Awake() 
@@ -71,6 +67,8 @@ void SkeletalMeshRenderer::DeserializedReflectEvent()
 
 void SkeletalMeshRenderer::ImGuiDrawPropertysEvent() 
 {
+    __super::ImGuiDrawPropertysEvent();
+
     if (nullptr != Renderer)
     {
         if (nullptr == Renderer->GetModel())
@@ -105,7 +103,7 @@ void SkeletalMeshRenderer::LoadModel()
                 animator->SetActive(&EnableInHierarchy);
                 UmGraphics.RegisterComponent(animator.get());
                 Renderer->SetAnimator(animator);
-
+                Renderer->OnCustomDepth(PostProcess::BLOOM);
                 __super::InitMaterial();
             }
             OnChangedModel();

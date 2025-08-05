@@ -448,6 +448,12 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
                     GameObjectKey, GameObject::Helper::GenerateUniqueName("Horizontal Panel"), &ui);
                 ui->AddComponent<HorizontalPanel>();
             }
+            if (ImGui::MenuItem("Description Panel"))
+            {
+                UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Description Panel"), &ui);
+                ui->AddComponent<DescriptionPanel>();
+            }
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Wrappers"))
@@ -463,6 +469,12 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
                 UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                     GameObjectKey, GameObject::Helper::GenerateUniqueName("Center Wrapper"), &ui);
                 ui->AddComponent<CenterWrapper>();
+            }
+            if (ImGui::MenuItem("Ratio Wrapper"))
+            {
+                UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Ratio Wrapper"), &ui);
+                ui->AddComponent<RatioWrapper>();
             }
             ImGui::EndMenu();
         }
@@ -515,21 +527,16 @@ void EditorHierarchyTool::HierarchyDropEvent()
         // 에셋에 대한 드래그 앤 드롭 이벤트 처리
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
         {
-            DragDropAsset::Data*          data      = (DragDropAsset::Data*)payload->Data;
-            std::weak_ptr<File::Context>* wpContext = data->pContext;
-            if (false == wpContext->expired())
+            DragDropAsset::Data* data = (DragDropAsset::Data*)payload->Data;
+            const File::Path&    path = data->GetPath();
+            fs::path extension = path.extension();
+            if (extension == UmGameObjectFactory.PREFAB_EXTENSION)
             {
-                auto              context   = wpContext->lock();
-                const File::Path& path      = context->GetPath();
-                fs::path          extension = path.extension();
-                if (extension == UmGameObjectFactory.PREFAB_EXTENSION)
-                {
-                    UmCommandManager.Do<DropPrefabCommand>(path.ToGuid());
-                }
-                else if (extension == UmSceneManager.SCENE_EXTENSION)
-                {
-                    UmSceneManager.LoadScene(path.string(), LoadSceneMode::ADDITIVE);
-                }
+                UmCommandManager.Do<DropPrefabCommand>(path.ToGuid());
+            }
+            else if (extension == UmSceneManager.SCENE_EXTENSION)
+            {
+                UmSceneManager.LoadScene(path.string(), LoadSceneMode::ADDITIVE);
             }
         }
         // Transform에 대한 드래그 앤 드롭 이벤트 처리

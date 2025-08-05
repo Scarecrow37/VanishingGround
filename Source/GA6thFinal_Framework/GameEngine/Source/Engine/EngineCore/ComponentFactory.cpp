@@ -239,6 +239,11 @@ YAML::Node EComponentFactory::SerializeToYaml(Component* component)
 
 bool EComponentFactory::ParsingYamlToOverrideFlags(Component* component, const YAML::Node& componentNode) 
 {
+    if (nullptr == component)
+    {
+        __debugbreak();
+    }
+
     bool result = false;
     int SerializedVersion = 0;
     const YAML::Node& node = componentNode;
@@ -365,7 +370,7 @@ Component* EComponentFactory::AddComponentToYamlNow(GameObject* ownerObject, YAM
     std::shared_ptr<Component> component;
     if (component = MakeComponentToYaml(ownerObject, componentNode))
     {
-        PushBackComponentToObject(component);   
+        PushBackComponentToObject(component, false);   
     }
     else
     {

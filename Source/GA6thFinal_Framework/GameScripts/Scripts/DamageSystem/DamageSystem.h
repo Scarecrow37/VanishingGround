@@ -31,8 +31,9 @@ struct EnemyInfo
     ~EnemyInfo() = default;
 
 private:
-    const Enemy& _enemy;
+    const Enemy&      _enemy;
     const EnemyStats& _enemyStats;
+    const int         _enemyActionID = 0;
 };
 
 class DamageSystem : public Component

@@ -104,14 +104,15 @@ void EditorSceneTool::OnPreFrameBegin()
 
 void EditorSceneTool::OnPostFrameBegin()
 {
+    _isHoveredWindow = ImGui::IsWindowHovered();
 }
 
 void EditorSceneTool::OnFrameRender() 
 {
     _window = ImGui::GetCurrentWindow();
-    if (ImGui::IsWindowHovered())
+    if (_isHoveredWindow)
     {
-        if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_MouseRight, false))
+        if (ImGui::IsKeyPressed(ImGuiKey_MouseRight, false))
         {
             ImGui::SetWindowFocus();
         }
@@ -132,7 +133,10 @@ void EditorSceneTool::OnFrameEnd()
 
 void EditorSceneTool::OnFrameFocusStay()
 {
-    _camera->Update();
+    if (IsFocusFrame())
+    {
+        _camera->Update(_isHoveredWindow);
+    }   
     UpdateKeyboardFrameFocus();
 }
     
@@ -145,17 +149,11 @@ void EditorSceneTool::DragDropEvent()
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
         {
             DragDropAsset::Data* data = (DragDropAsset::Data*)payload->Data;
-            std::weak_ptr<File::Context>* wpContext = data->pContext;
-            if (false == wpContext->expired())
+            File::Path path = data->GetPath();
+            fs::path extension = path.extension();
+            if (".hdr" == extension)
             {
-                auto              context   = wpContext->lock();
-                const File::Path& path      = context->GetPath();
-                fs::path extension = path.extension();
-            
-                if (".hdr" == extension)
-                {
-                    UmSceneManager.SetSkyBox(path);
-                }
+                UmSceneManager.SetSkyBox(path);
             }
         }
         ImGui::EndDragDropTarget();
@@ -596,7 +594,7 @@ void EditorSceneTool::DrawSceneView()
         ImGui::SetNextItemWidth(150.0f);
         ImGui::DragFloat("Camera Pivot Distance##pivot distance",
             &pivotDistance,
-            1.0f,
+            0.1f,
             -100000.0f,
             100000.0f
         );
@@ -620,7 +618,7 @@ void EditorSceneTool::RayPicker()
         false == _isUsingEnd)
     {
         bool isLeftAltDown = ImGui::IsKeyDown(ImGuiKey_LeftAlt);
-        if (false == isLeftAltDown && IsFocusFrame() && ImGui::IsWindowHovered() && ImGui::IsKeyReleased(ImGuiKey_MouseLeft))
+        if (false == isLeftAltDown && IsFocusFrame() && _isHoveredWindow && ImGui::IsKeyReleased(ImGuiKey_MouseLeft))
         {
             ImGuiIO& io = ImGui::GetIO();
             if (io.MousePos.x >= _sceneClienttLeft && io.MousePos.y >= _sceneClientTop &&

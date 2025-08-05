@@ -18,14 +18,19 @@ public:
     GETTER_ONLY(std::string, FilePath) { return _guidRef.ToPath().string(); }
     PROPERTY(FilePath)
 
+public:
+    void SetImage(const File::GuidRef& guidRef);
+
 protected:
     void  Reset() override;
+    void  DeserializedReflectEvent() override;
     void  OnPlacementChange() override;
     float GetZOrder() const override;
     void  SetViewOrder(int viewOrder) override;
 
 private:
     void LoadTexture() const;
+    void LoadTexture(const File::GuidRef& guid) const;
     void UpdateWorldMatrix();
     void RequestResource();
 

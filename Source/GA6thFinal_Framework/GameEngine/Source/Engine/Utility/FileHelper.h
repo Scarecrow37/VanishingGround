@@ -103,6 +103,49 @@ namespace File
 
     // 클립보드에서 std::wstring을 가져오는 함수
     std::wstring GetClipboardText();
-  
+    
+    std::time_t GetFileLastWriteTime(const fs::directory_entry& entry);
+
+    class Compare
+    {
+    public:
+        enum SortFlags
+        {
+            FLAGS_SORT_BY_NONE = 0,      // 정렬 없음
+            FLAGS_SORT_BY_TYPE = 1 << 1, // 유형별 정렬
+            FLAGS_SORT_BY_NAME = 1 << 2, // 이름순 정렬
+            FLAGS_SORT_BY_DATE = 1 << 3, // 날짜순 정렬
+        };
+
+    public:
+        Compare(int sortFlags = 0) : flags(sortFlags) {}
+        ~Compare() = default;
+        bool operator()(const fs::directory_entry& a, const fs::directory_entry& b) const
+        {
+            bool isADir = a.is_directory();
+            bool isBDir = b.is_directory();
+            if (isADir != isBDir)
+            {
+                return isADir > isBDir; // 폴더 우선
+            }
+            if (flags & FLAGS_SORT_BY_NAME)
+            {
+                return a.path().filename().string() < b.path().filename().string(); // 이름순
+            }
+            if (flags & FLAGS_SORT_BY_DATE)
+            {
+                return a.last_write_time() < b.last_write_time(); // 날짜순
+            }
+            return false;
+        }
+
+    private:
+        bool CompareByType(const fs::directory_entry& a, const fs::directory_entry& b) const;
+        bool CompareByName(const fs::directory_entry& a, const fs::directory_entry& b) const;
+        bool CompareByDate(const fs::directory_entry& a, const fs::directory_entry& b) const;
+
+    private:
+        int flags = 0; // 정렬 플래그 (예: 이름순, 날짜순 등)
+    };
 } // namespace File
 

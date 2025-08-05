@@ -161,7 +161,7 @@ bool EFileSystem::SaveAsProject(const File::Path& to)
         return false;
 
     std::wstring msg    = L"현재 프로젝트를 저장하고 다른 이름으로 저장합니다.";
-    std::wstring title  = L"Save As Project";
+    std::wstring title  = L"다른 이름으로 저장";
 
     int result = MessageBox(
         GetFocus(),               // 부모 창 핸들 (NULL로 하면 독립적 메시지 박스)
@@ -209,7 +209,7 @@ int EFileSystem::SaveProjectWithMessageBox()
         return false;
 
     std::wstring msg    = L"현재 프로젝트를 저장하시겠습니까?"; 
-    std::wstring title  = L"Save Project";
+    std::wstring title  = L"프로젝트 저장";
     HWND         hwnd   = UmApplication.GetHwnd();
     UINT         style  = MB_YESNOCANCEL | MB_DEFBUTTON1; // 기본 버튼을 YES로 설정
 
@@ -280,11 +280,6 @@ bool EFileSystem::IsLoadedProject() const
     return !_projectData.IsNull();
 }
 
-bool EFileSystem::IsVaildGuid(const File::Guid& guid) const
-{
-    return _guidToPathTable.find(guid) != _guidToPathTable.end();
-}
-
 bool EFileSystem::IsValidExtension(const File::FString& ext) const
 {
     return (ext == "") || (_extToSubscriberTable.find(ext) != _extToSubscriberTable.end());
@@ -331,6 +326,16 @@ const File::Path& EFileSystem::GetPathFromGuid(const File::Guid& guid) const
     return NULL_PATH;
 }
 
+const File::Path& EFileSystem::GetPathFromAssetID(int assetID) const
+{
+    auto itr = _assetIDTable.find(assetID);
+    if (itr != _assetIDTable.end())
+    {
+        return itr->second;
+    }
+    return NULL_PATH;
+}
+
 const File::Guid& EFileSystem::GetGuidFromPath(const File::Path& path) const
 {
     auto wpContext = GetContext(path);
@@ -373,6 +378,19 @@ std::weak_ptr<Context> EFileSystem::GetContext(const File::Path& path) const
     }
 }
 
+std::weak_ptr<File::Context> EFileSystem::GetContext(const fs::path& path) const
+{
+    auto itr = _pathToGuidTable.find(path);
+    if (itr != _pathToGuidTable.end())
+    {
+        return itr->second;
+    }
+    else
+    {
+        return std::weak_ptr<Context>();
+    }
+}
+
 const EFileSystem::EventSubscriberSet& EFileSystem::GetEventSubscribers(const File::FString& ext)
 {
     auto itr = _extToSubscriberTable.find(ext);
@@ -381,6 +399,82 @@ const EFileSystem::EventSubscriberSet& EFileSystem::GetEventSubscribers(const Fi
         return itr->second;
     }
     return _extToSubscriberTable["null"];
+}
+
+bool EFileSystem::IsExistsAssetID(int assetID) const
+{
+    return _assetIDTable.find(assetID) != _assetIDTable.end();
+}
+
+bool EFileSystem::IsExistsGuid(const File::Guid& guid) const
+{
+    return _guidToPathTable.find(guid) != _guidToPathTable.end();
+}
+
+bool EFileSystem::HasContext(const File::Path& path) const
+{
+    auto itr = _pathToGuidTable.find(path);
+    if (itr != _pathToGuidTable.end())
+    {
+        return true;
+    }
+    return false;
+}
+
+bool EFileSystem::HasContext(const File::Guid& guid) const
+{
+    auto itr = _guidToPathTable.find(guid);
+    if (itr != _guidToPathTable.end())
+    {
+        return true;
+    }
+    return false;
+}
+
+void EFileSystem::CheckFileContextIntegrity(const File::Path& path)
+{
+    if (fs::exists(path))
+    {
+        if (IsValidExtension(path.extension()) && false == HasContext(path))
+        {
+            RegisterContext(path);
+        }
+    }
+    else if (HasContext(path))
+    {
+        UnregisterContext(path);
+    }
+}
+
+bool EFileSystem::ChangeAssetID(const File::Path& path, int changeID)
+{
+    auto wpContext = GetContext(path);
+    return ChangeAssetID(wpContext, changeID);
+}
+
+bool EFileSystem::ChangeAssetID(std::weak_ptr<File::Context> context, int changeID)
+{
+    auto spContext = context.lock();
+    if (spContext)
+    {
+        File::MetaData& meta = spContext->GetMeta();
+        int oldID = meta.GetAssetID();
+        // 바꿀 ID가 이미 있거나 현재 ID가 0이 아닌데 존재하지 않는 경우 실패
+        if (IsExistsAssetID(changeID) || (0 != oldID && false == IsExistsAssetID(oldID)))
+        {
+            File::OutputLog(L"Failed to change AssetID. Already exists AssetID : " + std::to_wstring(changeID));
+            return false;
+        }
+        meta.SetAssetID(changeID);
+        meta.FileCreate();
+        _assetIDTable.erase(oldID);
+        if (0 != changeID)
+        {
+            _assetIDTable[changeID] = spContext->GetPath();
+        }
+        return true;
+    }
+    return false;
 }
 
 void EFileSystem::RequestInspectFile(const File::Path& path)
@@ -683,16 +777,21 @@ void EFileSystem::RegisterContext(const File::Path& path)
              spParentContext->_contextTable[filename] = context;
          }
 
-         auto& meta = context->GetMeta();
-         auto& guid = meta.GetGuid();
+         auto& meta     = context->GetMeta();
+         auto& guid     = meta.GetGuid();
+         auto  assetID  = meta.GetAssetID();
 
          _pathToGuidTable[absPath] = context;
          _guidToPathTable[guid] = context;
          _contextTable.insert(context);
+         if (assetID != 0)
+         {
+             _assetIDTable[assetID] = absPath; // Guid는 경로를 가지고 있어야 한다.
+         }
 
          context->OnFileRegistered(absPath);
 
-         File::Path  extension   = absPath.extension();
+         File::Path extension = absPath.extension();
          const EventSubscriberSet& subscriberSet = GetEventSubscribers(extension);
          for (auto& subscriber : subscriberSet)
          {
@@ -716,6 +815,7 @@ void EFileSystem::UnregisterContext(const File::Path& path)
         auto spContext  = wpContext.lock();
         auto& meta      = spContext->GetMeta();
         auto& guid      = meta.GetGuid();
+        auto  assetID   = meta.GetAssetID();
 
         File::Path  extension   = path.extension();
         const EventSubscriberSet& subscriberSet = GetEventSubscribers(extension);
@@ -725,8 +825,10 @@ void EFileSystem::UnregisterContext(const File::Path& path)
         }
 
         _contextTable.erase(spContext);
+        _assetIDTable.erase(assetID);
         _pathToGuidTable.erase(path);
         _guidToPathTable.erase(guid);
+
     }
 }
 

@@ -18,10 +18,14 @@ void CheckTurnEndCondition::OnStart()
 
 bool CheckTurnEndCondition::Evaluate()
 {
-    TurnActor* currActor = _turnMode->GetCurrTurnActor();
-    if (currActor)
+    if (auto& currActorModel = _turnMode->GetCurrTurnActor())
     {
-        return TurnActor::STATE::Wait == currActor->State;
+        const bool isTurnEnd = TurnActor::STATE::Play != currActorModel->State;
+        if (isTurnEnd)
+        {
+            currActorModel.Apply([](TurnActor* a) { a->OnTurnEnd(); });
+        }
+        return isTurnEnd;
     }
     return false;
 }

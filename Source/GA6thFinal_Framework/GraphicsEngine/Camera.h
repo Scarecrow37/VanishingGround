@@ -3,27 +3,31 @@
 class Camera
 {
 public:
-	const Matrix& GetWorldMatrix() const { return _world; }
-	const Matrix& GetViewMatrix() const { return _view; }
-	const Matrix& GetProjectionMatrix() const { return _projection; }
-    const Matrix& GetProjectionInverseMatrix() const { return _projectionInverse; }
-    const Vector3 GetPosition() const { return _world.Translation(); }
-    const Quaternion& GetRotation() const { return _rotation; }
+    const Matrix&          GetWorldMatrix() const { return _world; }
+    const Matrix&          GetViewMatrix() const { return _view; }
+    const Matrix&          GetProjectionMatrix() const { return _projection; }
+    const Matrix&          GetProjectionInverseMatrix() const { return _projectionInverse; }
+    const Vector3          GetPosition() const { return _world.Translation(); }
+    const Quaternion&      GetRotation() const { return _rotation; }
     const BoundingFrustum& GetWorldFrustum() const { return _worldFrustum; }
+    const BoundingFrustum& GetFrustum() const { return _frustum; }
+    const float            GetNearZ() const { return _nearZ; }
+    const float            GetFarZ() const { return _farZ; }
+    BoundingFrustum        GetSplitFrustum(float nearZ, float farZ) const;
 
 public:
-	void SetupPerspective(float fovDegree, float aspect, float nearZ, float farZ);
+    void SetupPerspective(float fovDegree, float aspect, float nearZ, float farZ);
     void SetupOrthographic(float width, float height, float nearZ, float farZ);
     void SetWorldMatrix(const Matrix& worldMatrix);
-	void SetRotation(const Vector3& rotation);
-	void SetRotation(const Quaternion& rotation);
-	void SetPosition(const Vector3& position);
-	void AddRotation(const Vector3& rotation);
+    void SetRotation(const Vector3& rotation);
+    void SetRotation(const Quaternion& rotation);
+    void SetPosition(const Vector3& position);
+    void AddRotation(const Vector3& rotation);
     void AddRotation(const Quaternion& rotation);
-	void AddPosition(const Vector3& position);
+    void AddPosition(const Vector3& position);
 
 public:
-	void Update();
+    void Update();
 
 private:
     Matrix          _world;
@@ -34,4 +38,6 @@ private:
     BoundingFrustum _worldFrustum;
     Vector3         _position;
     Quaternion      _rotation;
+    float           _nearZ;
+    float           _farZ;
 };

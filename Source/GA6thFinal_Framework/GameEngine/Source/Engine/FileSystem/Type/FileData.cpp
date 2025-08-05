@@ -6,18 +6,18 @@ namespace File
     FileData::FileData(File::Path path) : _filePath(path), _fileGuid(path) {}
     FileData::FileData(File::Guid guid) : _filePath(guid), _fileGuid(guid) {}
 
-    bool FileData::FileCreate(bool isHidden) const
+    bool FileData::FileCreate(bool hidden) const
     {
         std::ofstream fout(_filePath);
         if (false == fout.is_open())
         {
-            OutputLog(L"File Open Error");
+            OutputLog(L"FileData::FileCreate - File Open Error");
             return false;
         }
         else
         {
             // 숨김 설정
-            if (isHidden)
+            if (hidden)
             {
                 SetFileAttributesW(_filePath.c_str(), FILE_ATTRIBUTE_HIDDEN);
             }
@@ -139,12 +139,21 @@ namespace File
 
     bool MetaData::Write(YAML::Node& node) const
     {
+        node[ASSET_ID_HEADER] = _assetID;
         return true;
     }
 
-    bool MetaData::Read(YAML::Node& node) const
+    bool MetaData::Read(YAML::Node& node)
     {
-        return true;
+        if (node[ASSET_ID_HEADER])
+        {
+            _assetID = node[ASSET_ID_HEADER].as<int>();
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     bool ProjectData::Write(YAML::Node& node) const
@@ -152,7 +161,7 @@ namespace File
         return true;
     }
 
-    bool ProjectData::Read(YAML::Node& node) const
+    bool ProjectData::Read(YAML::Node& node)
     {
         return true;
     }

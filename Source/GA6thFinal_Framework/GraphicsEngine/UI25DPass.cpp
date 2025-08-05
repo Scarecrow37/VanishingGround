@@ -9,52 +9,36 @@ UI25DPass::UI25DPass(const std::vector<UINT>& instanceIDs)
 
 UI25DPass::~UI25DPass() {}
 
-void UI25DPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList)
+void UI25DPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene, commandList);
+    __super::Initialize(ownerScene, ownerTechnique, commandList);
 
     _cameraData.View = XMMatrixTranspose(XMMatrixLookAtLH({0.f, 0.f, -1.f}, {0.f, 0.f, 1.f}, {0.f, 1.f, 0.f}));
 
-    _shader = std::make_unique<ShaderBuilder>();
-    _shader->BeginBuild();
-    _shader->SetShader(L"../Shaders/vs_ui_fr.hlsl", ShaderBuilder::Type::VS);
-    _shader->SetShader(L"../Shaders/ps_ui.hlsl", ShaderBuilder::Type::PS);
-    _shader->EndBuild();
+    D3D12_RENDER_TARGET_BLEND_DESC rtDesc{};
+    rtDesc.BlendEnable                    = TRUE;
+    rtDesc.SrcBlend                       = D3D12_BLEND_SRC_ALPHA;
+    rtDesc.DestBlend                      = D3D12_BLEND_INV_SRC_ALPHA;
+    rtDesc.BlendOp                        = D3D12_BLEND_OP_ADD;
+    rtDesc.SrcBlendAlpha                  = D3D12_BLEND_ZERO;
+    rtDesc.DestBlendAlpha                 = D3D12_BLEND_ONE;
+    rtDesc.BlendOpAlpha                   = D3D12_BLEND_OP_ADD;
+    rtDesc.RenderTargetWriteMask          = D3D12_COLOR_WRITE_ENABLE_ALL;
 
-    ID3D12Device* device = Global::device->GetDevice();
+    PipelineStateStream pss;
+    pss.BlendState                            = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    (&pss.BlendState)->AlphaToCoverageEnable  = FALSE;
+    (&pss.BlendState)->IndependentBlendEnable = FALSE;
+    (&pss.BlendState)->RenderTarget[0]        = rtDesc;
+    pss.RasterizerState                       = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    (&pss.RasterizerState)->CullMode          = D3D12_CULL_MODE_NONE;
+    pss.DepthStencilState                     = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+    pss.PrimitiveTopology                     = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    pss.RTVFormats                            = {{DXGI_FORMAT_R32G32B32A32_FLOAT}, 1};
+    pss.DSVFormat                             = _ownerScene->_depthStencilView->GetFormat();
 
-    D3D12_BLEND_DESC blendDesc       = {};
-    blendDesc.AlphaToCoverageEnable  = FALSE;
-    blendDesc.IndependentBlendEnable = FALSE;
-
-    auto& rtDesc                 = blendDesc.RenderTarget[0];
-    rtDesc.BlendEnable           = TRUE;
-    rtDesc.SrcBlend              = D3D12_BLEND_SRC_ALPHA;
-    rtDesc.DestBlend             = D3D12_BLEND_INV_SRC_ALPHA;
-    rtDesc.BlendOp               = D3D12_BLEND_OP_ADD;
-    rtDesc.SrcBlendAlpha         = D3D12_BLEND_ZERO;
-    rtDesc.DestBlendAlpha        = D3D12_BLEND_ONE;
-    rtDesc.BlendOpAlpha          = D3D12_BLEND_OP_ADD;
-    rtDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc = {};
-    psodesc.RasterizerState                    = CommonStates::CullNone;
-    psodesc.BlendState                         = blendDesc;
-    psodesc.DepthStencilState                  = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-    psodesc.DSVFormat                          = _ownerScene->_depthStencilView->GetFormat();
-    psodesc.SampleMask                         = UINT_MAX;
-    psodesc.PrimitiveTopologyType              = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psodesc.InputLayout                        = _shader->GetInputLayout();
-    psodesc.RTVFormats[0] = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    psodesc.NumRenderTargets                   = 1;
-    psodesc.pRootSignature                     = _shader->GetRootSignature();
-    psodesc.SampleDesc                         = {1, 0};
-    psodesc.VS                                 = _shader->GetShaderByteCode(ShaderBuilder::Type::VS);
-    psodesc.PS                                 = _shader->GetShaderByteCode(ShaderBuilder::Type::PS);    
-
-    HRESULT hr = S_OK;
-    hr         = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&_pipelineState));
-    FAILED_CHECK_MESSAGE(hr, L"UI25DPass::Initialize device->CreateGraphicsPipelineState Failed");
+    _fx.SetPipelineStateStream(pss);
+    _pipelineState = Global::pipelineStateManager->GetPipelineState(pss);   
 }
 
 void UI25DPass::Begin(ID3D12GraphicsCommandList* commandList)
@@ -65,4 +49,23 @@ void UI25DPass::Begin(ID3D12GraphicsCommandList* commandList)
     __super::UpdateBuffer(commandList);
 
     __super::Begin(commandList);
+}
+
+void UI25DPass::Draw(ID3D12GraphicsCommandList* commandList)
+{
+    commandList->SetPipelineState(_pipelineState.Get());
+    commandList->SetGraphicsRootSignature(_fx.GetRootSignature());
+
+    UINT  currentBackBufferIndex = Global::device->GetCurrentBackBufferIndex();
+    auto  resource               = Global::viewManager->GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
+    auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
+
+    frameResource->SetFrameResource(FrameResourceType::UI_TRANSFORM, _fx.GetRootParameterIndex("worldMatrices"), commandList);
+    frameResource->SetFrameResource(FrameResourceType::UI_MATERIAL, _fx.GetRootParameterIndex("material"), commandList);
+
+    commandList->SetGraphicsRootShaderResourceView(_fx.GetRootParameterIndex("IDs"), _instanceIDBuffer->GetGPUVirtualAddress());
+    commandList->SetGraphicsRootConstantBufferView(_fx.GetRootParameterIndex("cameraData"), _cameraBuffer->GetGPUVirtualAddress());
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("textures"), resource);
+
+    _halfQuad->Render(commandList, (UINT)_instanceIDs.size());
 }

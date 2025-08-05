@@ -5,36 +5,25 @@ BlendPass::BlendPass() {}
 
 BlendPass::~BlendPass() {}
 
-void BlendPass::Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList)
+void BlendPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene, commandList);
+    __super::Initialize(ownerScene, ownerTechnique, commandList);
 
-    _shader = std::make_unique<ShaderBuilder>();
-    _shader->BeginBuild();
-    _shader->SetShader(L"../Shaders/vs_quad.hlsl", ShaderBuilder::Type::VS);
-    _shader->SetShader(L"../Shaders/ps_blend.hlsl", ShaderBuilder::Type::PS);
-    _shader->EndBuild();
+    PipelineStateStream pss;
+    pss.BlendState                        = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    pss.RasterizerState                   = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    pss.DepthStencilState                 = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+    (&pss.DepthStencilState)->DepthEnable = FALSE;
+    pss.PrimitiveTopology                 = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    pss.RTVFormats                        = {{DXGI_FORMAT_R32G32B32A32_FLOAT}, 1};
 
-    ID3D12Device* device = Global::device->GetDevice();
-   
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc = {};
-    psodesc.RasterizerState               = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    psodesc.BlendState                    = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    psodesc.DepthStencilState             = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-    psodesc.DepthStencilState.DepthEnable = FALSE;
-    psodesc.SampleMask                    = UINT_MAX;
-    psodesc.PrimitiveTopologyType         = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psodesc.InputLayout                   = _shader->GetInputLayout();
-    psodesc.RTVFormats[0] = DXGI_FORMAT_R32G32B32A32_FLOAT;    
-    psodesc.NumRenderTargets              = 1;
-    psodesc.pRootSignature                = _shader->GetRootSignature();
-    psodesc.SampleDesc                    = {1, 0};
-    psodesc.VS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::VS);
-    psodesc.PS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::PS);
+    _fx.SetPipelineStateStream(pss);
+    _pipelineState = Global::pipelineStateManager->GetPipelineState(pss);
+}
 
-    HRESULT hr = S_OK;
-    hr         = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&_pipelineState));
-    FAILED_CHECK_MESSAGE(hr, L"BlendPass::Initialize device->CreateGraphicsPipelineState Failed");
+void BlendPass::AddRenderPassDatas(std::string_view sceneName)
+{
+    Global::renderPassDatas->AddRenderPassProperty(sceneName, "ToneMappingPass", ToneMappingProperty({{1.f, 1.f, 1.f}, 1.f, 1.f, 1.f}));
 }
 
 void BlendPass::Begin(ID3D12GraphicsCommandList* commandList)
@@ -45,17 +34,20 @@ void BlendPass::Begin(ID3D12GraphicsCommandList* commandList)
 
     _ownerScene->_accumulationBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
-    commandList->RSSetViewports(1, &_finalRenderTarget->GetViewPort());
+    commandList->RSSetViewports(1, &_finalRenderTarget->GetViewport());
     commandList->RSSetScissorRects(1, &_finalRenderTarget->GetScissorRect());
 }
 
 void BlendPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
     commandList->SetPipelineState(_pipelineState.Get());
-    commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
+    commandList->SetGraphicsRootSignature(_fx.GetRootSignature());
 
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("screenTexture"), _meshRenderTarget->GetSRVHandle());
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("sourceTexture"), _ownerScene->_accumulationBuffer->GetSRVHandle());
+    const auto& toneMappingProperty = std::any_cast<const ToneMappingProperty&>(_ownerScene->GetRenderPassProperty("ToneMappingPass"));
+
+    commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_6_tonMappingProperty"), 6, &toneMappingProperty, 0);
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("screenTexture"), _meshRenderTarget->GetSRVHandle());
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("sourceTexture"), _ownerScene->_accumulationBuffer->GetSRVHandle());
 
     _ownerScene->_frameQuad->Render(commandList);
 }

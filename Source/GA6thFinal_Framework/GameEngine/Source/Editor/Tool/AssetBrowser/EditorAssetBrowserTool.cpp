@@ -3,15 +3,16 @@
 namespace fs = std::filesystem;
 using namespace u8_literals;
 
+
 EditorAssetBrowserTool::EditorAssetBrowserTool()
 {
     SetLabel("AssetBrowser");
     SetDockLayout(ImGuiDir_Down);
 
-    _selectedContext = std::make_shared<EditorAssetObject>();
-    _selectedContext->SetThis(_selectedContext);
+    //_selectedContext = std::make_shared<EditorAssetObject>();
+    //_selectedContext->SetThis(_selectedContext);
 
-    _showType = List;
+    ReflectFields->ShowType = SHOW_TYPE_ICON;
 
     _staticInstance = this;
 }
@@ -31,26 +32,18 @@ EditorAssetBrowserTool* EditorAssetBrowserTool::GetInstance()
 
 void EditorAssetBrowserTool::OnTickGui() 
 {
+    _updateTime += UmTime.UnscaledDeltaTime();
 }
 
 void EditorAssetBrowserTool::OnStartGui()
 {
-    _currFocusFolderContext = UmFileSystem.GetContext<File::FolderContext>(File::Path(UmFileSystem.GetRootPath()));
     const MessageHandler msgHandler(WinProc, 0);
     UmApplication.AddMessageHandler(msgHandler);
+    _inspectorDrawer = std::make_unique<InspectorDrawer>();
 }
 
 void EditorAssetBrowserTool::OnPreFrameBegin()
 {
-    if (false == _nextFocusFolderContext.expired())
-    {
-        auto sp = _nextFocusFolderContext.lock();
-
-        _currFocusFolderContext = sp;
-        _currFocusFolderPath    = sp->GetPath();
-        _nextFocusFolderContext.reset();
-    }
-    _windowRect = ImRect();
 }
 
 void EditorAssetBrowserTool::OnPostFrameBegin() 
@@ -58,22 +51,26 @@ void EditorAssetBrowserTool::OnPostFrameBegin()
     ImVec2 contentMin = ImGui::GetWindowContentRegionMin(); // 보통 (0, 0)
     ImVec2 contentMax = ImGui::GetWindowContentRegionMax(); // 보통 (width, height)
     ImVec2 pos        = ImGui::GetWindowPos();
-    _windowRect       = ImRect(pos + contentMin, pos + contentMax);
 }
 
 void EditorAssetBrowserTool::OnFrameRender()
 {
+    RefreshState();
+    if (_updateTime >= 0.5f || _needRefresh)
+    {
+        _updateTime     = 0.0f;
+        _needRefresh    = false;
+        RefreshFocusFolderEntries();
+    }
     ImGui::PushID(this);
 
-    ImGuiChildFlags flags = ImGuiChildFlags_Border;
-    
     ShowUpperFrame();
 
     // Left, Right 구분 창
     BeginColumn();
     {
         // 왼쪽: 폴더 트리
-        ImGui::BeginChild("FolderHierarchyFrame", ImVec2(ReflectFields->ColumWidth, ReflectFields->ColumHeight), flags);
+        ImGui::BeginChild("FolderHierarchyFrame", ImVec2(ReflectFields->ColumWidth, ReflectFields->ColumHeight), ImGuiChildFlags_Border);
         {
             ShowFolderHierarchy();
         }
@@ -83,25 +80,26 @@ void EditorAssetBrowserTool::OnFrameRender()
         ImGui::SameLine();
 
         // 오른쪽: 선택한 폴더의 파일 목록
-        ImGui::BeginChild("ContentsFrame", ImVec2(0, ReflectFields->ColumHeight), flags);
+        ImGui::BeginChild("ContentsFrame", ImVec2(0, ReflectFields->ColumHeight), ImGuiChildFlags_Border);
         {
-            ShowFolderContents();
+            ShowFolderEntries();
         }
         ImGui::EndChild();
     }
     EndColumn();
+
+    for (auto& func : _delayEvent)
+    {
+        if (nullptr != func)
+            func();
+    }
+    _delayEvent.clear();
 
     ImGui::PopID();
 }
 
 void EditorAssetBrowserTool::OnFrameEnd()
 {
-    for (auto& func : _eventFunc)
-    {
-        if (nullptr != func)
-            func();
-    }
-    _eventFunc.clear();
 }
 
 void EditorAssetBrowserTool::OnFrameFocusEnter() 
@@ -110,174 +108,123 @@ void EditorAssetBrowserTool::OnFrameFocusEnter()
 
 void EditorAssetBrowserTool::OnFrameFocusStay() 
 {
+    if (fs::exists(_focusFolderPath) && fs::is_directory(_focusFolderPath))
+    {
+        ProcessInput();
+    }
 }
 
 void EditorAssetBrowserTool::OnFrameFocusExit() 
 {
 }
 
-#define REFRESH_TEXT "Refresh"
 void EditorAssetBrowserTool::ShowUpperFrame()
 {
-    ImVec2 textSize = ImGui::CalcTextSize(REFRESH_TEXT);
-    float  upperHeight = textSize.y + 15.0f;
+    auto&   style       = ImGui::GetStyle();
+    float   fontSize    = ImGui::GetFontSize();
+    int     childFlags  = ImGuiChildFlags_Border;
+    int     windowFlags = ImGuiWindowFlags_NoScrollbar;
+    float   height      = ImGui::GetTextLineHeightWithSpacing();
+    ImVec2  spacing     = style.ItemSpacing;
+    ImVec2  padding     = style.FramePadding;
+    bool    isRootpath  = (_focusFolderPath == UmFileSystem.GetRootPath());
+    bool    isExsists   = fs::exists(_focusFolderPath);
 
-    ImGuiChildFlags flags = ImGuiChildFlags_Border;
-    ImGui::BeginChild("UpperFrame", ImVec2(0, upperHeight), flags, ImGuiWindowFlags_NoScrollbar);
+    ImGui::BeginChild("UpperFrame", ImVec2(0, fontSize + height), childFlags, windowFlags);
     {
-        // 해당 프레임의 사용 가능 영역을 가져옴
-        ImVec2 windowPos  = ImGui::GetWindowPos();
-        ImVec2 windowSize = ImGui::GetWindowSize();
-        ImVec2 availableSize = ImGui::GetContentRegionAvail();
-
-        ImVec2 buttonSize = ImVec2(textSize.x, availableSize.y); // 버튼 크기 설정
-        //ImGui::SetCursorPos(ImVec2(0, 0));            // 윈도우 내부 좌표 기준
-
-        if (ImGui::Selectable(REFRESH_TEXT, false, ImGuiSelectableFlags_None, buttonSize))
-        {
-            File::Path path = UmFileSystem.GetRootPath();
-            UmFileSystem.ReadDirectory();
-            _currFocusFolderContext = UmFileSystem.GetContext<File::FolderContext>(path);
-            _directoryUndoStack.clear();
-            _directoryRedoStack.clear();
-        }
-        ImGui::SameLine();
-        if (false == _currFocusFolderContext.expired())
-        {
-            spFolderContext spForcusFolder = _currFocusFolderContext.lock();
-            ShowFolderDirectoryPath(spForcusFolder);
-        }
-    }
-    ImGui::EndChild();
-}
-
-void EditorAssetBrowserTool::ShowFolderDirectoryPath(spFolderContext context)
-{
-    if (nullptr != context)
-    {
-        const File::Path& path = context->GetPath();
-        const File::Path& root = UmFileSystem.GetRootPath();
+        ImVec2 windowPos    = ImGui::GetWindowPos();
+        ImVec2 windowSize   = ImGui::GetWindowSize();
+        ImVec2 availSpace   = ImGui::GetContentRegionAvail();
+        ImVec2 cursorpos    = ImGui::GetCursorPos();
 
         bool canUndo = (false == _directoryUndoStack.empty());
         bool canRedo = (false == _directoryRedoStack.empty());
 
-        ImVec2 windowSize = ImGui::GetWindowSize();
-        ImVec2 pos        = ImGui::GetCursorPos();
+        // 뒤로 가기, 앞으로 가기
+        ImGuiHelper::StyleBuilder buttonStyle;
+        buttonStyle.PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+        buttonStyle.PushStyleVar(ImGuiStyleVar_FrameRounding, 4.0f);
+        if (false == canUndo || false == isExsists) ImGui::BeginDisabled();
+        if (ImGui::Button(EditorIcon::ICON_CIRCLE_ARROW_LEFT))
         {
-           
-            const char* icon  = EditorIcon::ICON_CIRCLE_ARROW_LEFT;
-            ImVec2      size  = ImGui::CalcTextSize(icon);
-            int         flags = canUndo ? ImGuiSelectableFlags_None : ImGuiSelectableFlags_Disabled;
-
-            if (ImGui::Selectable(icon, false, flags, size))
-            {
-                SetFocusFromUndoPath();
-            }
-            ImGui::SameLine(0.0f, 10.0f);
+            UndoPath();
         }
+        if (false == canUndo || false == isExsists) ImGui::EndDisabled();
+        ImGuiHelper::HoveredToolTip(u8"뒤로 가기"_c_str, ImGuiHoveredFlags_DelayNormal);
+        ImGui::SameLine();
+        if (false == canRedo || false == isExsists) ImGui::BeginDisabled();
+        if (ImGui::Button(EditorIcon::ICON_CIRCLE_ARROW_RIGHT))
         {
-            const char* icon  = EditorIcon::ICON_CIRCLE_ARROW_RIGHT;
-            ImVec2      size  = ImGui::CalcTextSize(icon);
-            int         flags = canRedo ? ImGuiSelectableFlags_None : ImGuiSelectableFlags_Disabled;
-
-            if (ImGui::Selectable(icon, false, flags, size))
-            {
-                SetFocusFromRedoPath();
-            }
-            ImGui::SameLine(0.0f, 10.0f);
+            RedoPath();
         }
+        if (false == canRedo || false == isExsists) ImGui::EndDisabled();
+        ImGuiHelper::HoveredToolTip(u8"앞으로 가기"_c_str, ImGuiHoveredFlags_DelayNormal);
+        ImGui::SameLine(0.0f, 10.0f);
 
-        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(200, 230, 200, 255));
-
-        std::string icon = EditorIcon::ICON_FOLDER_OPEN;
-        ImGui::Text(icon.c_str());
-        ImGui::SameLine(0.0f, 5.0f);
-
-        ListToDirectoryFileName(L".");
-
-        // 상대경로로 부모 폴더 계산
-        File::Path relativePath;
-        relativePath = fs::relative(path, root);
-
-        File::Path node;
-        for (auto itr = relativePath.begin(); itr != relativePath.end(); ++itr)
+        if (isRootpath || false == isExsists) ImGui::BeginDisabled();
+        if (ImGui::Button(EditorIcon::ICON_CIRCLE_ARROW_UP))
         {
-            if ((*itr) == L".")
-                continue;
-
-            ImGui::SameLine();
-            ImGui::Text("/");
-            ImGui::SameLine();
-
-            File::Path folderName = fs::absolute((*itr)).filename();
-            node /= folderName;
-            ListToDirectoryFileName(node);
+            _rename.CancelRename();
+            File::Path parentPath = _focusFolderPath.parent_path();
+            SetFocusFolderPath(parentPath);
         }
-    }
-    else
-    {
-        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 100, 100, 255));
-        File::Path curPath = _currFocusFolderPath;
-        while (false == fs::exists(curPath))
-        {
-            curPath = curPath.parent_path();
+        if (isRootpath || false == isExsists) ImGui::EndDisabled();
+        ImGuiHelper::HoveredToolTip(u8"상위 폴더"_c_str, ImGuiHoveredFlags_DelayNormal);
+        ImGui::SameLine(0.0f, 10.0f);
 
-            auto context = UmFileSystem.GetContext<File::FolderContext>(curPath);
-            if (false == context.expired())
+        if (false == isExsists) ImGui::BeginDisabled();
+        if (ImGui::Button(EditorIcon::ICON_CIRCLE))
+        {
+            _needRefresh = true;
+        }
+        if (false == isExsists) ImGui::EndDisabled();
+        ImGuiHelper::HoveredToolTip(u8"새로고침"_c_str, ImGuiHoveredFlags_DelayNormal);
+        ImGui::SetCursorPos(cursorpos + ImVec2(ReflectFields->ColumWidth, 0.0f));
+
+        // 폴더 경로 표시
+        if (false == _focusFolderPath.empty())
+        {
+            const File::Path& currPath  = _focusFolderPath;
+            const File::Path& rootPath  = UmFileSystem.GetRootPath();
+            File::Path relativePath     = fs::relative(currPath, rootPath);
+
+            relativePath = relativePath == L"." ? 
+                rootPath.filename() :
+                rootPath.filename() / relativePath;
+            
+            File::Path node = rootPath.parent_path();
+            for (auto itr = relativePath.begin(); itr != relativePath.end();)
             {
-                SetFocusFolder(context);
-            }
-            else
-            {
-                if (true == curPath.empty())
-                {
+                const File::Path& segment = *itr;
+                if (segment.empty())
                     break;
+                if (segment == L".")
+                    continue;
+
+                node /= segment; // 누적 경로에 현재 세그먼트 추가
+
+                // 세그먼트 버튼
+                std::string label = segment.string();
+                if (ImGui::Button(label.c_str()))
+                {
+                    SetFocusFolderPath(node); // 해당 폴더로 포커스 이동
                 }
-                continue;
+
+                // 마지막 세그먼트가 아니면 구분자 찍기
+                ++itr;
+                if (itr != relativePath.end())
+                {
+                    ImGui::SameLine();
+                    ImGui::TextUnformatted(">");
+                    ImGui::SameLine();
+                }
             }
         }
+        buttonStyle.PopStyle();
     }
-
-    ImGui::PopStyleColor();
+    ImGui::EndChild();
 }
 
-void EditorAssetBrowserTool::ListToDirectoryFileName(const File::Path& relativePath)
-{
-    auto& root = UmFileSystem.GetRootPath();
-
-    File::Path  absPath    = fs::absolute(relativePath);
-    File::Path  folderName = absPath.filename();
-    std::string nameStr    = folderName.string();
-
-    ImVec2 textSize = ImGui::CalcTextSize(nameStr.c_str());
-    float  startX   = ImGui::GetCursorPosX();
-
-    auto wpFolderContext = UmFileSystem.GetContext<File::FolderContext>(absPath);
-    auto spFolderContext = wpFolderContext.lock(); // 실패하면 개버그니까 그냥 과감하게 lock
-
-    ImGui::PushID(spFolderContext.get());
-
-    ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0, 0, 0, 0)); // 기본 배경 투명
-    if (ImGui::Selectable(nameStr.c_str(), false, 0, textSize))
-    {
-        SetFocusFolder(wpFolderContext);
-    }
-
-    const char* eventID = DragDropAsset::KEY;
-    if (ImGui::BeginDragDropTarget())
-    {
-        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(eventID))
-        {
-            DragDropAsset::Data data = (*(DragDropAsset::Data*)payload->Data);
-            _eventFunc.emplace_back([=]() { ProcessMoveAction(*data.pContext, spFolderContext); });
-        }
-        ImGui::EndDragDropTarget();
-    }
-
-    ImGui::PopStyleColor();
-
-    ImGui::PopID();
-}
 
 void EditorAssetBrowserTool::BeginColumn()
 {
@@ -305,540 +252,760 @@ void EditorAssetBrowserTool::ShowColumnPlitter()
     ImGui::InvisibleButton("##AssetBrowserPlitter", ImVec2(padding, ReflectFields->ColumHeight));
     if (true == ImGui::IsItemActive())
     {
-        float center              = ImGui::GetIO().MousePos.x - rect.Min.x - (padding * 1.5f);
-        ReflectFields->ColumWidth = center;
-        ReflectFields->ColumWidth = ImClamp(ReflectFields->ColumWidth, 200.0f, columWidth - 200.0f);
+        ReflectFields->ColumWidth = ImGui::GetIO().MousePos.x - rect.Min.x - (padding * 1.5f);
     }
+    ReflectFields->ColumWidth = ImClamp(ReflectFields->ColumWidth, 200.0f, columWidth - 200.0f);
 }
 
 void EditorAssetBrowserTool::ShowFolderHierarchy()
 {
+    _folderCount = 0;
     const File::Path& root = UmFileSystem.GetRootPath();
-    std::weak_ptr<File::FolderContext> rootFolder = UmFileSystem.GetContext<File::FolderContext>(root);
-
-    if (false == rootFolder.expired())
+    ImVec4 col       = ImColor(70, 70, 70, 255);
+    ImVec4 colHover  = ImColor(90, 90, 90, 255);
+    ImVec4 colActive = ImColor(50, 50, 50, 255);
+    ImGuiHelper::StyleBuilder collapsingStyle;
+    collapsingStyle.PushStyleColor(ImGuiCol_Header, col);
+    collapsingStyle.PushStyleColor(ImGuiCol_HeaderHovered, colHover);
+    collapsingStyle.PushStyleColor(ImGuiCol_HeaderActive, colActive);
+    std::string folderLabel = std::format("{} {}", EditorIcon::ICON_FOLDER_OPEN, "Project Folders");
+    if (ImGui::CollapsingHeader(folderLabel.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
     {
-        ShowFolderHierarchy(rootFolder.lock());
+        collapsingStyle.PopStyle();
+        ShowFolderHierarchyTree(root);
     }
+    ImGui::Separator();
+    // 즐겨찾기 폴더
+    collapsingStyle.PushStyleColor(ImGuiCol_Header, col);
+    collapsingStyle.PushStyleColor(ImGuiCol_HeaderHovered, colHover);
+    collapsingStyle.PushStyleColor(ImGuiCol_HeaderActive, colActive);
+    std::string favoriteLabel = std::format("{} {}", EditorIcon::ICON_STAR, "Favorite Folders");
+    if (ImGui::CollapsingHeader(favoriteLabel.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        collapsingStyle.PopStyle();
+        for (const auto& folder : ReflectFields->FavoriteFolders)
+        {
+            const File::Path& root         = UmFileSystem.GetRootPath();
+            File::Path        favoritePath = root / folder;
+            if (fs::exists(favoritePath) && fs::is_directory(favoritePath))
+            {
+                ImGui::PushID(&folder);
+                ShowFolderHierarchyTree(favoritePath);
+                ImGui::PopID();
+            }
+            else
+            {
+                _delayEvent.push_back([this, favoritePath]() {
+                    RemoveFavoriteFolder(favoritePath); 
+                    });
+            }
+        }
+    }
+    collapsingStyle.PopStyle();
 }
 
 #define NODE_SPACING "                                                                ##"
-
-// 왼쪽: 폴더 트리 표시 (재귀)
-void EditorAssetBrowserTool::ShowFolderHierarchy(spFolderContext FolderContext)
+void EditorAssetBrowserTool::ShowFolderHierarchyTree(const File::Path& directory)
 {
-    auto& path       = FolderContext->GetPath();
-    int   flags      = ImGuiTreeNodeFlags_OpenOnArrow;
-    bool  isSelected = UmFileSystem.IsSameContext(_currFocusFolderContext, FolderContext);
-    float startX     = ImGui::GetCursorPosX();
-    float offsetX    = 30.0f;
-
-    if (true == isSelected)
+    if (fs::exists(directory) && fs::is_directory(directory))
     {
-        flags |= ImGuiTreeNodeFlags_Selected;
-    }
+        ++_folderCount;
+        std::string filePath    = directory.string();
+        std::string fileName    = directory.filename().string();
+        bool isFocusedFolder    = _focusFolderPath == directory;
+        float cursorX           = ImGui::GetCursorPosX();
 
-    // ==== Tree 출력 ====
-    bool isOpen                = ImGui::TreeNodeEx((NODE_SPACING + path.string()).c_str(), flags);
-    bool isHovered             = ImGui::IsItemHovered();
-    bool isMouseDeoubleClicked = ImGui::IsMouseDoubleClicked(0);
+        // ==== Tree 출력 ====
+        ImGui::PushID(_folderCount);
+        int treeFlags           = ImGuiTreeNodeFlags_OpenOnArrow;
+        treeFlags               |= isFocusedFolder ? ImGuiTreeNodeFlags_Selected : ImGuiTreeNodeFlags_None;
+        bool isTreeOpen         = ImGui::TreeNodeEx(NODE_SPACING, treeFlags);
+        bool isHovered          = ImGui::IsItemHovered();
+        bool isLeftClicked      = ImGui::IsMouseClicked(ImGuiMouseButton_Left);
+        bool isRightClicked     = ImGui::IsMouseClicked(ImGuiMouseButton_Right);
+        bool isDoubleClicked    = ImGui::IsMouseDoubleClicked(0);
+        ImGuiHelper::HoveredToolTip(filePath.c_str(), ImGuiHoveredFlags_DelayNormal);
 
-    if (true == isHovered && true == isMouseDeoubleClicked)
-    {
-        SetFocusFolder(FolderContext);
-    }
-
-    // ==== Text출력 ====
-    std::string icon = isOpen ? EditorIcon::ICON_FOLDER_OPEN : EditorIcon::ICON_FOLDER;
-    std::string name = icon + " " + path.filename().string();
-    ImGui::SameLine();
-    ImGui::SetCursorPosX(startX + offsetX);
-    ImGui::Text(name.c_str());
-    ImGui::SetCursorPosX(startX + offsetX);
-    ImGui::Separator();
-
-    if (isOpen)
-    {
-        for (auto itr = FolderContext->begin(); itr != FolderContext->end(); ++itr)
+        if (isHovered)
         {
-            auto& [name, wpCtx] = *itr;
-            if (false == wpCtx.expired())
+            if (isDoubleClicked)
             {
-                auto spCtx = wpCtx.lock();
-                // 폴더일때만
-                if (spCtx->IsDirectory())
-                {
-                    auto spFolderCtx = std::static_pointer_cast<File::FolderContext>(spCtx);
-                    ShowFolderHierarchy(spFolderCtx);
-                }
+                SetFocusFolderPath(directory);
+            }
+            if (isRightClicked)
+            {
+                ImGui::OpenPopup("##folder_context_popup");
             }
         }
-        ImGui::TreePop();
+        if (ImGui::BeginPopup("##folder_context_popup"))
+        {
+            if (IsFavoriteFolder(directory))
+            {
+                if (ImGui::MenuItem("Remove Favorite"))
+                {
+                    _delayEvent.emplace_back([this, directory]() {
+                        RemoveFavoriteFolder(directory);
+                        });
+                }
+            }
+            else
+            {
+                if (ImGui::MenuItem("Add Favorite"))
+                {
+                    _delayEvent.emplace_back([this, directory]() {
+                        AddFavoriteFolder(directory); 
+                        });
+                }
+            }
+            ImGui::EndPopup();
+        }
+
+        ImGui::SameLine();
+        // ==== Text출력 ====
+        const char* icon  = isTreeOpen ? EditorIcon::ICON_FOLDER_OPEN : EditorIcon::ICON_FOLDER;
+        std::string label = std::format("{} {}", icon, fileName);
+        ImGui::SetCursorPosX(cursorX + 30.0f);
+        ImGui::Text(label.c_str());
+
+        if (isTreeOpen)
+        {
+            for (const auto& entry : fs::directory_iterator(directory))
+            {
+                ShowFolderHierarchyTree(entry.path());
+            }
+            ImGui::TreePop();
+        }
+        ImGui::PopID();
     }
 }
 
 // 오른쪽: 선택된 폴더의 파일 목록
-void EditorAssetBrowserTool::ShowFolderContents()
+void EditorAssetBrowserTool::ShowFolderEntries()
 {
-    if (false == _currFocusFolderContext.expired())
-    {
-        spFolderContext spForcusFolder = _currFocusFolderContext.lock();
-
-        ContentsFrameEventAction(spForcusFolder);
-
-        //ShowSearchBar(spForcusFolder);
-
-        switch (_showType)
-        {
-        case EditorAssetBrowserTool::List:
-            ShowContentsToList();
-            break;
-        case EditorAssetBrowserTool::Icon:
-            ShowContentsToIcon();
-            break;
-        default:
-            break;
-        }
-    }
-}
-
-void EditorAssetBrowserTool::ShowSearchBar(spFolderContext context) 
-{
-    float roundFactor = 3.0f;
-
-    // ---------------------------
-    // InputText의 위치 및 크기 계산
-    // ---------------------------
-    ImVec2 inputPos   = ImGui::GetCursorScreenPos();
-    ImVec2 inputSize = ImVec2(200.0f, ImGui::GetFrameHeight()); // 높이는 자동 조절됨
-
-    // ---------------------------
-    // 버튼 크기 계산
-    // ---------------------------
-    ImVec2 textSize   = ImGui::CalcTextSize("x");
-    ImVec2 buttonSize = textSize;
-    buttonSize.x += ImGui::GetStyle().FramePadding.x * 2;
-    buttonSize.y += ImGui::GetStyle().FramePadding.y * 2;
-
-
-    // ---------------------------
-    // 사각형 Draw
-    // ---------------------------
-    ImVec2 rectSize = ImVec2(inputSize.x + buttonSize.x, inputSize.y);
-    ImU32 rectColor = ImGui::GetColorU32(ImGuiCol_FrameBg);
-    ImGuiHelper::DrawFillRect(
-        inputPos,
-        inputPos + rectSize, rectColor, 
-        roundFactor,
-        ImDrawFlags_RoundCornersAll
-    );
-    
-    // ---------------------------
-    // 버튼 먼저 그림 (겹치게)
-    // ---------------------------
-    ImVec2 buttonPos = ImVec2(inputPos.x + inputSize.x, inputPos.y);
-    ImGui::SetCursorScreenPos(buttonPos);
-    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));        // 기본 배경
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0, 0, 0)); // 호버 시 배경
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0, 0, 0));  // 클릭 시 배경
-    if (ImGui::Button("x", buttonSize))
-    {
-        _searchBuffer[0] = '\0';
-    }
-    ImGui::PopStyleColor(3);
-
-    // ---------------------------
-    // InputText는 나중에 그림
-    // ---------------------------
-    ImGui::SetCursorScreenPos(inputPos);
-    ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0, 0, 0, 0)); // 완전 투명
-    ImGui::PushItemWidth(inputSize.x);
-    ImGui::InputText("##SearchBarFrontFrame", _searchBuffer, IM_ARRAYSIZE(_searchBuffer));
-    ImGui::PopItemWidth();
-    ImGui::PopStyleColor();
-
-    ImGuiHelper::Separator();
-}
-
-void EditorAssetBrowserTool::ContentsFrameEventAction(spFolderContext context)
-{
-    if (nullptr == context)
-        return;
-
-    const File::Path& curPath = context->GetPath();
-
-    bool isSelected     = UmFileSystem.IsSameContext(_selectedContext->GetContext(), context);
-    bool isRename       = browserFlags[FLAG_IS_RENAME];
-    bool isFrameFocused = IsFocusFrame();         // 윈도우 포커스 여부
-    bool isItemActive   = ImGui::IsItemActive();  // 셀렉터블이 눌렸는지
-    bool isHovered      = ImGui::IsItemHovered(); // 셀렉터블이 호버링 되었는지
-
-    bool isClickedLeft  = isHovered && ImGui::IsMouseClicked(0); // 마우스 왼 클릭
-    bool isClickedRight = isHovered && ImGui::IsMouseClicked(1); // 마우스 오른 클릭
-
-    bool isMouseDouble  = ImGui::IsMouseDoubleClicked(0);                 // 마우스 더블 클릭
-    bool iskeyEnter     = ImGui::IsKeyPressed(ImGuiKey_Enter, false);     // 엔터키 눌림
-    bool isKeyBackSpace = ImGui::IsKeyPressed(ImGuiKey_Backspace, false); // 백스페이스 눌림
-    bool isKeyEscape    = ImGui::IsKeyPressed(ImGuiKey_Escape, false);    // ESC키 눌림
-    bool isKeyDelete    = ImGui::IsKeyPressed(ImGuiKey_Delete, false);    // DEL키 눌림
-
-    bool ctrl       = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftCtrl);
-    bool c          = ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_C, false);
-    bool v          = ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_V, false);
-    bool isKeyCopy  = ctrl && c; // Ctrl + C
-    bool isKeyPaste = ctrl && v; // Ctrl + V
-
-    if (nullptr != context)
+    if (fs::exists(_focusFolderPath) && fs::is_directory(_focusFolderPath))
     {
         DragDropTransform::Data data;
         if (ImGuiHelper::DragDrop::RecieveFrameDragDropEvent(DragDropTransform::KEY, &data))
         {
-            std::filesystem::path path = context->GetPath();
-            path = std::filesystem::relative(path, UmFileSystem.GetAssetPath());
-            UmGameObjectFactory.WriteGameObjectFile(data.pTransform, path.string());
+            File::Path relativePath = std::filesystem::relative(_focusFolderPath, UmFileSystem.GetAssetPath());
+            UmGameObjectFactory.WriteGameObjectFile(data.pTransform, relativePath.string());
+            RefreshFocusFolderEntries();
         }
-
-        if (true == isFrameFocused && false == isRename)
+        ShowSearchBar();
+        BeginFolderEntryFrame();
+        UpdateFolderEntriesInput();
+        int showType = ReflectFields->ShowType;
+        int pushStyleVar = 0;
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(15.0f, 4.0f)); ++pushStyleVar;// 아이콘 간격 조정
+        for (auto& asset : _focusFolderAssetDataList)
         {
-            if (true == isKeyBackSpace)
+            if (_search.PassFilter(asset->FileName.c_str()))
             {
-                SetFocusParentFolder(context);
-            }
-            if (true == isKeyPaste)
-            {
-                if (true == fs::exists(_copyPath))
+                switch (showType)
                 {
-                    File::Path from = _copyPath;
-                    File::Path to   = (curPath / from.filename());
-
-                    File::CopyFileFromTo(from, to);
+                case EditorAssetBrowserTool::SHOW_TYPE_LIST:
+                    ShowFolderEntryToList(*asset);
+                    break;
+                case EditorAssetBrowserTool::SHOW_TYPE_ICON:
+                    ShowFolderEntryToIcon(*asset);
+                    break;
+                default:
+                    break;
                 }
             }
         }
-
-        if (true == ImGui::IsWindowHovered() && false == ImGui::IsAnyItemHovered())
-        {
-            if (true == ImGui::IsMouseClicked(ImGuiMouseButton_Right))
-            {
-                ImGui::OpenPopup("ContentsFramePopup");
-            }
-        }
-
-        float compactFactor = 0.1f;
-        ImGuiHelper::PushStyleCompactToItem(compactFactor);
-
-        if (File::NULL_PATH != curPath)
-        {
-            if (ImGui::BeginPopup("ContentsFramePopup"))
-            {
-                if (ImGui::MenuItem("Open"))
-                {
-                    File::OpenFile(curPath);
-                }
-                if (ImGui::BeginMenu("Create"))
-                {
-                    if (ImGui::MenuItem("Folder"))
-                    {
-                        File::CreateFolderEx(curPath / "New Folder", true);
-                    }
-                    ImGui::EndMenu();
-                }
-                if (ImGui::MenuItem("Copy Path"))
-                {
-                    File::CopyPathToClipBoard(curPath);
-                }
-                ImGui::EndPopup();
-            }
-        }
-        ImGuiHelper::PopStyleCompact();
+        ImGui::PopStyleVar(pushStyleVar);
+        ImGui::EndChild();
     }
 }
 
-void EditorAssetBrowserTool::ShowContentsToList()
+void EditorAssetBrowserTool::ShowSearchBar()
 {
-    File::Path parentPath     = _currFocusFolderPath.parent_path().generic_wstring();
-    auto       wpParentFolder = UmFileSystem.GetContext<File::FolderContext>(parentPath);
-    if (false == wpParentFolder.expired())
+    float  roundFactor = 3.0f;
+    auto&  style       = ImGui::GetStyle();
+    float  fontSize    = ImGui::GetFontSize();
+    float  frameHeight = ImGui::GetFrameHeight();
+    float  height      = ImGui::GetTextLineHeightWithSpacing();
+    ImVec2 spacing     = style.ItemSpacing;
+    ImVec2 padding     = style.FramePadding;
+
+    ImGuiHelper::StyleBuilder styleBuilder;
+    styleBuilder.PushStyleVar(ImGuiStyleVar_FrameRounding, roundFactor);
+    ImGui::BeginChild("SearchBar", ImVec2(0, fontSize + height), ImGuiChildFlags_Border, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+    ImVec2 windowPos  = ImGui::GetWindowPos();
+    ImVec2 windowSize = ImGui::GetWindowSize();
+    ImVec2 availSpace = ImGui::GetContentRegionAvail();
+    ImVec2 cursorPos = ImGui::GetCursorScreenPos();
+    ImVec2 inputSize = ImVec2(availSpace.x * 0.5f + 50.0f, ImGui::GetFrameHeight()); // 높이는 자동 조절됨
+
+    // ---------------------------
+    // 버튼 크기 계산
+    // ---------------------------
+    const char* iconX = EditorIcon::ICON_CIRCLE_X;
+    ImVec2 textSize   = ImGui::CalcTextSize(iconX);
+    ImVec2 buttonSize = textSize + padding * 2;
+
+    // ---------------------------
+    // 사각형 Draw
+    // ---------------------------
+    ImVec2 rectSize  = ImVec2(inputSize.x + buttonSize.x, inputSize.y);
+    ImU32  rectColor = ImGui::GetColorU32(ImGuiCol_FrameBg);
+    ImGuiHelper::DrawFillRect(cursorPos, cursorPos + rectSize, rectColor, roundFactor, ImDrawFlags_RoundCornersAll);
+
+    // ---------------------------
+    // 버튼 먼저 그림 (겹치게)
+    // ---------------------------
+    ImVec2 buttonPos = ImVec2(cursorPos + ImVec2(inputSize.x, 0.0f));
+    ImGui::SetCursorScreenPos(buttonPos);
+    ImGuiHelper::StyleBuilder buttonStyle;
+    buttonStyle.PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));        // 기본 배경
+    buttonStyle.PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0, 0, 0)); // 호버 시 배경
+    buttonStyle.PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0, 0, 0));  // 클릭 시 배경
+    if (ImGui::Button(iconX, buttonSize))
     {
-        auto spParentContext = wpParentFolder.lock();
-        ShowItemToList(spParentContext, "parent");
+        _search.ClearBuffer();
     }
+    buttonStyle.PopStyle();
 
-    // 참조 포인터가 살아있을 때
-    if (false == _currFocusFolderContext.expired())
+    // ---------------------------
+    // InputText는 나중에 그림
+    // ---------------------------
+    ImGui::SetCursorScreenPos(cursorPos);
+    ImGuiHelper::StyleBuilder inputStyle;
+    inputStyle.PushStyleColor(ImGuiCol_FrameBg, ImVec4(0, 0, 0, 0)); // 완전 투명
+    ImGui::SetNextItemWidth(inputSize.x);
+    if (ImGui::InputTextWithHint("##SearchBar", "Search...", &_search.SearchBuffer, ImGuiInputTextFlags_AutoSelectAll))
     {
-        auto spFocusCtx = _currFocusFolderContext.lock();
+        _search.UpdateBuffer();
+    }
+    _search.IsSearching = ImGui::IsItemActive();
+    inputStyle.PopStyle();
+    styleBuilder.PopStyle();
 
-        for (auto itr = spFocusCtx->begin(); itr != spFocusCtx->end();)
+    // ---------------------------
+    // Open Option
+    // ---------------------------
+    ImVec2 optionCursorPos = cursorPos + ImVec2(availSpace.x - buttonSize.x - padding.x * 2.0f, 0.0f);
+    ImGui::SetCursorScreenPos(optionCursorPos);
+    const char* popupID = "##filter_compare_popup";
+    buttonStyle.PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+    if (ImGui::Button(EditorIcon::ICON_SUN))
+    {
+        ImGui::OpenPopup(popupID);
+    }
+    if (ImGui::BeginPopup(popupID))
+    {
+        ImGuiHelper::AlignedText(u8"정렬"_c_str, ImGuiHelper::CENTER, 0.8f);
+        ImGuiHelper::Separator(3.0f);
+
+        bool compareByType = ReflectFields->SortFlags.first == Compare::FLAGS_SORT_BY_TYPE;
+        if (ImGui::MenuItem(u8"유형"_c_str, "", compareByType))
         {
-            auto& [name, wpFileCtx] = *itr++;
-            if (false == wpFileCtx.expired())
-            {
-                auto spFileCtx = wpFileCtx.lock();
-
-                File::Path  path = spFileCtx->GetPath();
-                std::string id   = name.string() + "##" + path.string();
-
-                bool isMeta = path.extension() == UmFileSystem.GetMetaExt();
-
-                ShowItemToList(spFileCtx);
-            }
+            ReflectFields->SortFlags.first = Compare::FLAGS_SORT_BY_TYPE;
+            _needRefresh = true;
         }
+        bool compareByName = ReflectFields->SortFlags.first == Compare::FLAGS_SORT_BY_NAME;
+        if (ImGui::MenuItem(u8"이름"_c_str, "", compareByName))
+        {
+            ReflectFields->SortFlags.first = Compare::FLAGS_SORT_BY_NAME;
+            _needRefresh = true;
+        }
+        bool compareByDate = ReflectFields->SortFlags.first == Compare::FLAGS_SORT_BY_DATE;
+        if (ImGui::MenuItem(u8"수정된 날짜"_c_str, "", compareByDate))
+        {
+            ReflectFields->SortFlags.first = Compare::FLAGS_SORT_BY_DATE;
+            _needRefresh = true;
+        }
+        ImGuiHelper::Separator(3.0f);
+        bool compareAscending = ReflectFields->SortFlags.second;
+        if (ImGui::MenuItem(u8"오름차순"_c_str, "", compareAscending))
+        {
+            ReflectFields->SortFlags.second = true;
+            _needRefresh = true; 
+        }
+        if (ImGui::MenuItem(u8"내림차순"_c_str, "", !compareAscending))
+        {
+            ReflectFields->SortFlags.second = false;
+            _needRefresh = true;
+        }
+
+        ImGui::EndPopup();
     }
+    buttonStyle.PopStyle();
+
+    // ---------------------------
+    // Show List/Icon
+    // ---------------------------
+    bool isShowList = (ReflectFields->ShowType == SHOW_TYPE_LIST);
+    bool isShowIcon = (ReflectFields->ShowType == SHOW_TYPE_ICON);
+    ImVec2 IconCusorPos = optionCursorPos - ImVec2(frameHeight, 0.0f);
+    ImVec2 ListCusorPos = IconCusorPos - ImVec2(frameHeight, 0.0f);
+
+    {
+        ImVec4 selectedColor = isShowIcon ? ImGui::GetStyleColorVec4(ImGuiCol_Header) : ImVec4(0, 0, 0, 0);
+        buttonStyle.PushStyleColor(ImGuiCol_Button, selectedColor);
+        buttonStyle.PushStyleColor(ImGuiCol_ButtonHovered, selectedColor * ImVec4(1.2f, 1.2f, 1.2f, 1.0f));
+        buttonStyle.PushStyleColor(ImGuiCol_ButtonActive, selectedColor * ImVec4(0.8f, 0.8f, 0.8f, 1.0f));
+        ImGui::SetCursorScreenPos(IconCusorPos);
+        if (ImGui::Button(EditorIcon::ICON_IMAGES))
+        {
+            ReflectFields->ShowType = SHOW_TYPE_ICON;
+            _needRefresh = true; // 새로고침 필요
+        }
+        buttonStyle.PopStyle();
+    }
+    {
+        ImVec4 selectedColor = isShowList ? ImGui::GetStyleColorVec4(ImGuiCol_Header) : ImVec4(0, 0, 0, 0);
+        buttonStyle.PushStyleColor(ImGuiCol_Button, selectedColor);
+        buttonStyle.PushStyleColor(ImGuiCol_ButtonHovered, selectedColor * ImVec4(1.2f, 1.2f, 1.2f, 1.0f));
+        buttonStyle.PushStyleColor(ImGuiCol_ButtonActive, selectedColor * ImVec4(0.8f, 0.8f, 0.8f, 1.0f));
+        ImGui::SetCursorScreenPos(ListCusorPos);
+        if (ImGui::Button(EditorIcon::ICON_LIST))
+        {
+            ReflectFields->ShowType = SHOW_TYPE_LIST;
+            _needRefresh            = true; // 새로고침 필요
+        }
+        buttonStyle.PopStyle();
+    }
+
+    ImGui::EndChild();
 }
 
-void EditorAssetBrowserTool::ShowContentsToIcon() {}
 
-void EditorAssetBrowserTool::ShowItemToList(spContext context, const char* mode)
+void EditorAssetBrowserTool::ShowFolderEntryToList(AssetData& asset)
 {
-    if (nullptr == context)
-        return;
+    auto& io = ImGui::GetIO();
 
-    bool isSelected = UmFileSystem.IsSameContext(_selectedContext->GetContext(), context);
-    bool isRename   = browserFlags[FLAG_IS_RENAME];
-    bool isParent   = (0 == strcmp(mode, "parent"));
+    auto  window = ImGui::GetCurrentWindow();
+    float oldFontScale = window->FontWindowScale;
+    ImGui::SetWindowFontScale(_zoomScale);
 
-    float startX   = ImGui::GetCursorPosX();
-    float fontSize = ImGui::GetFontSize();
+    bool isItemReleasedLeft     = false;
+    bool isItemClickedLeft      = false;
+    bool isItemClickedRight     = false;
+    bool isItemFocusedNav       = false;
+    bool isItemDoubleClicked    = false;
 
-    const File::Path&  path = context->GetPath();
-    const std::string  icon = context->IsDirectory() ? EditorIcon::ICON_FOLDER : EditorIcon::ICON_FILE;
-    const std::string& name = isParent ? "../" : context->GetName();
+    bool   isFocused  = (_focusEntryPath == asset.Entry.path());
+    bool   isRenaming = _rename.IsActive() && isFocused;
+    float  fontSize   = ImGui::GetFontSize();
+    float  textHeight = ImGui::GetTextLineHeightWithSpacing();
+    ImVec2 availSpace = ImGui::GetContentRegionAvail();
+    ImVec2 widgetSize = ImVec2(availSpace.x, textHeight);
+    ImVec2 cursorPos  = ImGui::GetCursorPos();
+    ImVec4 bgCol      = isFocused ? ImGui::GetStyleColorVec4(ImGuiCol_Header) : ImVec4(0, 0, 0, 0);
 
-    ImGui::PushID(context.get());
+    ImGui::PushID(&asset);
+    ImGuiHelper::StyleBuilder buttonStyle;
+    int buttonFlags = ImGuiButtonFlags_None;
+    buttonStyle.PushStyleColor(ImGuiCol_Button, bgCol);
+    isItemClickedLeft |= ImGui::ButtonEx(" ", widgetSize, buttonFlags);
+    
 
-    ImGui::Selectable("##Selectable", isSelected, 0);
+    bool isHovered      = ImGui::IsItemHovered();
+    isItemFocusedNav    |= ImGui::IsItemFocused() && io.NavActive;
+    isItemClickedRight  |= isHovered && ImGui::IsMouseClicked(ImGuiMouseButton_Right) && !isRenaming;
+    isItemReleasedLeft  |= isHovered && ImGui::IsMouseReleased(ImGuiMouseButton_Left) && !isRenaming;
+    isItemDoubleClicked |= isHovered && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && !isRenaming;
+    buttonStyle.PopStyle();
+
+    ProcessFolderEntryDragDrop(asset);
+
+    bool isNavDirty = isItemFocusedNav 
+                        && (ImGui::IsKeyDown(ImGuiKey_DownArrow) 
+                        || ImGui::IsKeyDown(ImGuiKey_UpArrow) 
+                        || ImGui::IsKeyDown(ImGuiKey_Tab));
+
+    if (isItemDoubleClicked)
     {
-        ItemEventAction(context, mode);
-        ItemInputAction(context, mode);
-
-        ImGui::SameLine(ImGui::GetCursorPosX());
-        ImGui::Text(icon.c_str());
-        ImGui::SameLine(startX + fontSize);
+        if (asset.IsDirectory)
+        {
+            // 폴더 열기
+            File::Path path = asset.Entry.path();
+            _delayEvent.emplace_back([this, path]() {
+                File::Path focusPath = path;
+                SetFocusFolderPath(focusPath);
+            });
+        }
+        else
+        {   // 파일 열기
+            UmFileSystem.RequestOpenFile(asset.Entry.path());
+        }
     }
-
-    if (true == isSelected && true == isRename && false == isParent)
+    
+    const char* icon = asset.IsDirectory ? EditorIcon::ICON_FOLDER : EditorIcon::ICON_FILE;
+    ImGui::SetCursorPos(cursorPos);
+    ImGui::TextUnformatted(icon);
+    ImGui::SameLine(cursorPos.x + fontSize);
+    if (isRenaming)
     {
-        ItemInputText(context);
+        ImGuiHelper::StyleBuilder textStyle;
+        textStyle.PushStyleVar(ImGuiStyleVar_FrameBorderSize, 2.0f); // 테두리 두께 
+        textStyle.PushStyleColor(ImGuiCol_Border, IM_COL32(100, 100, 255, 255));
+        int flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_AutoSelectAll; 
+        //ImGui::SetKeyboardFocusHere();
+        if (ImGui::InputText("##name", &_rename.RenameBuffer, flags) && isRenaming)
+        {
+            const auto& path = _rename.ExecuteRename(_focusFolderPath);
+            SetFocusEntryPath(path);
+        }
+        ImGuiHelper::HoveredToolTip(asset.FileName.c_str());
+        textStyle.PopStyle();
     }
     else
     {
-        ImGui::Text(name.c_str());
-        ItemPopupAction(context, mode);
+        ImGuiHelper::TextWithVerticalSeparator(asset.FileName.c_str(), availSpace.x * ReflectFields->ListColumnWidth[0]);
+        std::ostringstream oss;
+        std::tm            tm;
+        localtime_s(&tm, &asset.LastWriteTime);
+        oss << std::put_time(&tm, "%F %T"); // "YYYY-MM-DD HH:MM:SS" 형식
+        ImGuiHelper::TextWithVerticalSeparator(oss.str().c_str(), availSpace.x * ReflectFields->ListColumnWidth[1]);
+        //ImGui::SameLine();
+        if (asset.IsDirectory)
+        {
+            ImGui::TextUnformatted(u8"폴더"_c_str);
+        }
+        else
+        {
+            std::string formatLabel = std::format("{} {}", asset.Extension.c_str(), u8"파일"_c_str);
+            ImGui::TextUnformatted(formatLabel.c_str());
+        }
     }
-
-    ImGui::Separator();
+    if (isItemReleasedLeft || isNavDirty)
+    {
+        SetFocusEntryPath(asset.Entry.path());
+        _inspectorDrawer->SetAsset(&asset);
+        EditorInspectorTool::SetFocusObject(_inspectorDrawer);
+    }
+    if (isItemClickedRight)
+    {
+        ImGui::OpenPopup(POPUP_ID);
+    }
+    ShowFolderEntryPopup(asset);
 
     ImGui::PopID();
+
+    ImGui::SetWindowFontScale(oldFontScale);
+    ImGui::Separator();
 }
 
-void EditorAssetBrowserTool::ShowItemToIcon(spContext context, const char* mode) {}
-
-void EditorAssetBrowserTool::ItemInputText(spContext context)
+void EditorAssetBrowserTool::ShowFolderEntryToIcon(AssetData& asset)
 {
-    static char buffer[128] = "";
-    static bool init        = false;
+    auto& io = ImGui::GetIO();
+    
+    bool isNavDirty         = false;
+    bool isItemReleasedLeft = false;
+    bool isItemClickedLeft  = false;
+    bool isItemClickedRight = false;
+    bool isItemFocusedNav   = false;
 
-    const std::string&  name  = context->GetName();
-    const File::Path&   path  = context->GetPath();
-    ImGuiInputTextFlags flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_AutoSelectAll;
+    bool  isFocused         = (_focusEntryPath == asset.Entry.path());
+    bool  isRenaming        = _rename.IsActive() && isFocused;
+    float rounding          = 6.0f;
 
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f)); // Y 패딩만 약간 줘서 커서 보이게
-    ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0, 0, 0, 0));       // 투명 배경
+    float textWidgetHeight  = ImGui::GetTextLineHeightWithSpacing();
+    ImVec2 iconWidgetSize   = ICON_WIDGET_SIZE * _zoomScale;
+    ImVec2 widgetSize       = iconWidgetSize + ImVec2(0.0f, textWidgetHeight);
 
-    if (false == init)
+    ImGui::PushID(&asset);
+    ImGui::BeginGroup();
+    ImVec2 oldCursorPos = ImGui::GetCursorPos();
     {
-        ImGui::SetKeyboardFocusHere();
-        strcpy_s(buffer, name.c_str());
-        init = true;
-    }
+        // 라운딩 스타일
+        ImGuiHelper::StyleBuilder widgetStyle;
+        widgetStyle.PushStyleVar(ImGuiStyleVar_FrameRounding, rounding); 
+        ImVec4 bgCol = isFocused ? ImGui::GetStyleColorVec4(ImGuiCol_Header) : ImVec4(0, 0, 0, 0);
 
-    if (ImGui::InputText("##InputText", buffer, IM_ARRAYSIZE(buffer), flags))
+        // 아이콘
+        int buttonFlags = ImGuiButtonFlags_None;
+        ImVec4 iconColor = _copyBuffer.first == 1 && asset.IsSamePath(_copyBuffer.second) ? ImVec4(1.0f, 1.0f, 1.0f, 0.5f) : ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+        D3D12_GPU_DESCRIPTOR_HANDLE icon = asset.PreviewIconTexture->GetGPUHandle();
+        ImGuiHelper::StyleBuilder iconStyle;
+        iconStyle.PushStyleColor(ImGuiCol_Button, bgCol);
+        ImGuiID id = ImGui::GetID("##icon");
+        isItemClickedLeft |=
+            ImGui::ImageButtonEx(id, (ImTextureID)icon.ptr, iconWidgetSize, ImVec2(0, 0),
+            ImVec2(1, 1), ImVec4(0,0,0,0), iconColor, buttonFlags);
+        
+        bool isHovered      = ImGui::IsItemHovered();
+        isItemFocusedNav |= ImGui::IsItemFocused() && io.NavActive;
+        isItemClickedRight |= isHovered && ImGui::IsMouseClicked(ImGuiMouseButton_Right) && !isRenaming;
+        isItemReleasedLeft |= isHovered && ImGui::IsMouseReleased(ImGuiMouseButton_Left) && !isRenaming;
+        iconStyle.PopStyle();
+
+        ProcessFolderEntryDragDrop(asset);
+
+        isNavDirty = isItemFocusedNav
+                        && (ImGui::IsKeyDown(ImGuiKey_LeftArrow)
+                        || ImGui::IsKeyDown(ImGuiKey_RightArrow)
+                        || ImGui::IsKeyDown(ImGuiKey_Tab));
+
+        if (isHovered && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+        {
+            if (asset.IsDirectory)
+            {
+                // 폴더 열기
+                File::Path path = asset.Entry.path();
+                _delayEvent.emplace_back([this, path]() {
+                    File::Path focusPath = path;
+                    SetFocusFolderPath(focusPath);
+                });
+            } 
+            else
+            {
+                // 파일 열기
+                UmFileSystem.RequestOpenFile(asset.Entry.path());
+            }
+        }
+        // 텍스트 
+        ImGuiHelper::StyleBuilder textStyle;
+        if (isRenaming)
+        {
+            // 평범하게 정렬
+            textStyle.PushStyleVar(ImGuiStyleVar_FrameBorderSize, 2.0f); // 테두리 두께 
+            textStyle.PushStyleColor(ImGuiCol_Border, IM_COL32(100, 100, 255, 255));
+            ImGui::SetNextItemWidth(widgetSize.x);
+        }
+        else
+        {
+            // 가운데 정렬
+            float textWidth  = ImGui::CalcTextSize(asset.ViewName.c_str()).x;
+            float textOffset = std::max(0.0f, (iconWidgetSize.x - textWidth) * 0.5f);
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + textOffset);
+            ImGui::SetNextItemWidth(textWidth + 8.0f);
+            textStyle.PushStyleColor(ImGuiCol_FrameBg, bgCol);
+        }
+        int flags = isRenaming 
+            ? ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_AutoSelectAll
+            : ImGuiInputTextFlags_ReadOnly;
+        std::string* buffer = isRenaming ? &_rename.RenameBuffer : &asset.ViewName;
+        //ImGui::SetKeyboardFocusHere();
+        if (ImGui::InputText("##name", buffer, flags) && isRenaming)
+        {
+            const auto& path = _rename.ExecuteRename(_focusFolderPath);
+            SetFocusEntryPath(path);
+        }
+        isItemClickedLeft   |= ImGui::IsItemClicked(ImGuiMouseButton_Left) && !isRenaming;      // 좌 클릭 되었는지
+        isItemClickedRight  |= ImGui::IsItemClicked(ImGuiMouseButton_Right) && !isRenaming;     // 우 클릭 되었는지
+        //isItemFocusedNav    |= ImGui::IsItemFocused() && io.NavActive;
+
+        ImGuiHelper::HoveredToolTip(asset.FileName.c_str());
+        textStyle.PopStyle();
+        widgetStyle.PopStyle();
+        
+    }
+    ImGui::EndGroup();
+
+    if (isItemReleasedLeft || isNavDirty)
     {
-        fs::path newPath = path;
-        newPath.replace_filename(buffer);
-        context->Move(newPath);
-        browserFlags[FLAG_IS_RENAME] = false;
+        SetFocusEntryPath(asset.Entry.path());
+        _inspectorDrawer->SetAsset(&asset);
+        EditorInspectorTool::SetFocusObject(_inspectorDrawer);
     }
-
-    if (ImGui::IsItemDeactivated())
+    if (isItemClickedRight)
     {
-        browserFlags[FLAG_IS_RENAME] = false;
-        init                         = false;
+        ImGui::OpenPopup(POPUP_ID);
     }
-
-    ImGui::PopStyleColor();
-    ImGui::PopStyleVar();
+    ShowFolderEntryPopup(asset);
+    
+    ImGui::PopID();
+    // 충분한 공간이 있으면 같은 줄로 고정 
+    ImVec2 availableSize = ImGui::GetContentRegionAvail();
+    if (availableSize.x < oldCursorPos.x + widgetSize.x * 2.0f)
+    {
+        ImGui::NewLine();
+    }
+    else
+    {
+        ImGui::SameLine();
+    }
 }
 
-void EditorAssetBrowserTool::ItemEventAction(spContext context, const char* mode)
+void EditorAssetBrowserTool::ShowFolderEntryPopup(AssetData& asset) 
 {
-    bool isParent = (0 == strcmp(mode, "parent"));
-
-    if (true == context->IsDirectory())
+    if (ImGui::BeginPopup(POPUP_ID))
     {
-        auto spFolderContext = std::static_pointer_cast<File::FolderContext>(context);
+        if (ImGui::MenuItem("Open"))
+        {
+            File::OpenFile(asset.Entry.path());
+        }
+        if (asset.IsDirectory) ImGui::BeginDisabled();
+        if (ImGui::MenuItem("Copy"))
+        {
+            SetCopyFileFromPath(asset.Entry.path());
+        }
+        if (ImGui::MenuItem("Cut"))
+        {
+            SetCutFileFromPath(asset.Entry.path());
+        }
+        if (asset.IsDirectory) ImGui::EndDisabled();
+        if (ImGui::MenuItem("Rename"))
+        {
+            _rename.StartRename(asset.Entry.path());
+        }
+        if (ImGui::MenuItem("Delete"))
+        {
+            Global::editorModule->OpenPopupBox("Delete File", [this, asset]()
+                {
+                    _rename.CancelRename();
+                    if (ShowDeletePopupBox(asset.Entry.path()))
+                    {
+                        DeleteFileFromPath(asset.Entry.path());
+                    }
+                });
+        }
+        ImGuiHelper::Separator(3.0f);
+        if (ImGui::MenuItem("Copy Path"))
+        {
+            File::CopyPathToClipBoard(asset.Entry.path());
+        }
+        ImGui::EndPopup();
+    }
+}
 
+void EditorAssetBrowserTool::ProcessFolderEntryDragDrop(AssetData& asset)
+{
+    if (true == asset.IsDirectory)
+    {
         const char* eventID = DragDropAsset::KEY;
         if (ImGui::BeginDragDropTarget())
         {
             if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(eventID))
             {
                 DragDropAsset::Data data = (*(DragDropAsset::Data*)payload->Data);
-                _eventFunc.emplace_back([=]() { ProcessMoveAction(*data.pContext, spFolderContext); });
+                File::Path fromPath = data.GetPath();
+                File::Path toPath   = asset.Entry.path() / fromPath.filename();
+                _delayEvent.emplace_back([this, fromPath, toPath]()
+                    {
+                        if (fs::exists(fromPath))
+                        {
+                            fs::rename(fromPath, toPath);
+                        }
+                    });
             }
             ImGui::EndDragDropTarget();
         }
     }
-    if (false == isParent)
+
+    const char* eventID = DragDropAsset::KEY;
+    if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
     {
-        const char* eventID = DragDropAsset::KEY;
-        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+        DragDropAsset::Data data;
+        File::Path entryPath = asset.Entry.path();
+        static std::weak_ptr<File::Context> context;
+        static File::Path path;
+        static File::Guid guid;
+        context = UmFileSystem.GetContext<File::Context>(entryPath);
+        path = entryPath;
+        guid = path.ToGuid();
+        data.pContext = &context;
+        data.pPath    = &path;
+        data.pGuid    = &guid;
+        ImGui::SetDragDropPayload(eventID, &data, sizeof(DragDropAsset::Data));
+        if (asset.PreviewIconTexture)
         {
-            DragDropAsset::Data                 data;
-            static std::weak_ptr<File::Context> dataContext;
-            dataContext   = context;
-            data.pContext = &dataContext;
-            ImGui::SetDragDropPayload(eventID, &data, sizeof(DragDropAsset::Data));
-            File::Path path = context->GetPath();
-            ImGui::Text(path.string().c_str());
-            ImGui::EndDragDropSource();
+            ImGui::Image((ImTextureID)asset.PreviewIconTexture->GetGPUHandle().ptr, ICON_WIDGET_SIZE);
         }
+        ImGui::Text(asset.FileName.c_str());
+        ImGui::EndDragDropSource();
     }
 }
 
-void EditorAssetBrowserTool::ItemInputAction(spContext context, const char* mode)
+void EditorAssetBrowserTool::UpdateFolderEntriesInput()
 {
-    auto& io = ImGui::GetIO();
-
-    bool isParent       = (0 == strcmp(mode, "parent"));
-    bool isSelected     = UmFileSystem.IsSameContext(_selectedContext->GetContext(), context);
-    bool isRename       = browserFlags[FLAG_IS_RENAME];
-    bool isFrameFocused = IsFocusFrame();                         // 윈도우 포커스 여부
-    bool isItemActive   = ImGui::IsItemActive();                  // 셀렉터블이 눌렸는지
-    bool isItemHovered  = ImGui::IsItemHovered();                 // 셀렉터블이 호버링 되었는지
-    bool isItemFocused  = ImGui::IsItemFocused() && io.NavActive; // 셀렉터블이 포커스 되었는지
-
-    bool isClickedLeft  = isItemHovered && ImGui::IsMouseReleased(0); // 마우스 왼 클릭
-    bool isClickedRight = isItemHovered && ImGui::IsMouseReleased(1); // 마우스 오른 클릭
-
-    bool isMouseDouble  = isItemFocused && ImGui::IsMouseDoubleClicked(0);              // 마우스 더블 클릭
-    bool iskeyEnter     = isItemFocused && ImGui::IsKeyPressed(ImGuiKey_Enter, false);  // 엔터키 눌림
-    bool isKeyEscape    = isItemFocused && ImGui::IsKeyPressed(ImGuiKey_Escape, false); // ESC키 눌림
-    bool isKeyDelete    = isItemFocused && ImGui::IsKeyPressed(ImGuiKey_Delete, false); // DEL키 눌림
-    bool isKeyF2        = isItemFocused && ImGui::IsKeyPressed(ImGuiKey_F2, false);     // 백스페이스 눌림
-    bool isKeyArrowDown = isItemFocused && ImGui::IsKeyDown(ImGuiKey_DownArrow);
-    bool isKeyArrowUp   = isItemFocused && ImGui::IsKeyDown(ImGuiKey_UpArrow);
-    bool isKeyArrow     = isKeyArrowDown || isKeyArrowUp;
-
-    bool ctrl       = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftCtrl);
-    bool c          = ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_C, false);
-    bool v          = ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_V, false);
-    bool isKeyCopy  = ctrl && c; // Ctrl + C
-    bool isKeyPaste = ctrl && v; // Ctrl + V
-
-    if (true == isFrameFocused && true == isItemFocused)
+    if (ImGui::IsWindowHovered() && false == ImGui::IsAnyItemHovered())
     {
-        if (true == isMouseDouble || true == iskeyEnter)
+        if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
         {
-            ProcessEnterAction(context);
+            ImGui::OpenPopup(POPUP_ID);
         }
-        if (true == isClickedLeft || true == isClickedRight || true == isKeyArrow)
+        else if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
         {
-            SetFocusInspector(context);
+            _rename.CancelRename();
         }
-        if (false == isParent)
+    }
+    if (ImGui::BeginPopup(POPUP_ID))
+    {
+        if (ImGui::MenuItem("Open"))
         {
-            if (true == isRename)
+            File::OpenFile(_focusFolderPath);
+        }
+        if (ImGui::BeginMenu("Create"))
+        {
+            if (ImGui::MenuItem("Folder"))
             {
-                if (true == isKeyEscape)
-                {
-                    browserFlags[FLAG_IS_RENAME] = false;
-                }
+                File::Path newFolderPath = _focusFolderPath / "New Folder";
+                File::CreateFolderEx(newFolderPath, true);
+                SetFocusEntryPath(newFolderPath);
             }
-            else if (false == isRename)
-            {
-                if (true == isKeyF2)
-                {
-                    browserFlags[FLAG_IS_RENAME] = true;
-                }
-
-                if (true == isKeyDelete)
-                {
-                    Global::editorModule->OpenPopupBox("RemoveAsset", [&, context]() { ShowDeletePopupBox(context); });
-                }
-
-                if (true == isKeyCopy)
-                {
-                    _copyPath = context->GetPath();
-                    UmFileSystem.RequestCopyFile(_copyPath);
-                }
-            }
+            ImGui::EndMenu();
         }
+        int copyState= _copyBuffer.first;
+        if (-1 == copyState) ImGui::BeginDisabled();
+        if (ImGui::MenuItem("Paste"))
+        {
+            PasteFile();
+        }
+        if (-1 == copyState) ImGui::EndDisabled();
+
+        if (ImGui::MenuItem("Copy Path"))
+        {
+            File::CopyPathToClipBoard(_focusFolderPath);
+        }
+        ImGui::EndPopup();
     }
 }
 
-void EditorAssetBrowserTool::ItemPopupAction(spContext context, const char* mode)
+void EditorAssetBrowserTool::BeginFolderEntryFrame()
 {
-    bool isParent = (0 == strcmp(mode, "parent"));
-
-    if (false == isParent)
+    ImGui::BeginChild("ListFrame", ImVec2(0, 0));
+    int showType = ReflectFields->ShowType;
+    // Column
+    ImVec2 availSpace = ImGui::GetContentRegionAvail();
+    float  frameHeight = ImGui::GetFrameHeight();
+    switch (showType)
     {
-        if (ImGui::BeginPopupContextItem("ItemPopup"))
+        case EditorAssetBrowserTool::SHOW_TYPE_LIST:
         {
-            _selectedContext->SetContext(context);
-            if (ImGui::MenuItem("Open##"))
-            {
-                context->Open();
-                ImGui::CloseCurrentPopup(); // 팝업 닫기
-            }
-            if (ImGui::MenuItem("Delete##"))
-            {
-                Global::editorModule->OpenPopupBox("RemoveAsset", [&, context]() { ShowDeletePopupBox(context); });
-                ImGui::CloseCurrentPopup(); // 팝업 닫기
-            }
-            if (ImGui::MenuItem("Rename##"))
-            {
-                browserFlags[FLAG_IS_RENAME] = true;
-                ImGui::CloseCurrentPopup(); // 팝업 닫기
-            }
-            ImGui::EndPopup();
+            ImGui::BeginChild("Column", ImVec2(availSpace.x, frameHeight));
+            ImGuiHelper::TextWithVerticalSeparator(u8"이름"_c_str, availSpace.x * ReflectFields->ListColumnWidth[0]);
+            ImGuiHelper::TextWithVerticalSeparator(u8"수정한 날짜"_c_str, availSpace.x * ReflectFields->ListColumnWidth[1]);
+            ImGui::TextUnformatted(u8"파일 유형"_c_str);
+            ImGui::EndChild();
+            break;
         }
+    default:
+        break;
     }
 }
 
-void EditorAssetBrowserTool::ShowDeletePopupBox(wpContext context)
+bool EditorAssetBrowserTool::ShowDeletePopupBox(const File::Path& path)
 {
-    bool isSelected = UmFileSystem.IsSameContext(_selectedContext->GetContext(), context);
-
     ImGui::Text(u8"정말 삭제하시겠습니까?"_c_str);
 
-    if (false == context.expired())
+    ImGui::Text(u8"경로: "_c_str);
+    ImGui::SameLine();
+    ImGui::Text(path.string().c_str());
+
+    ImGui::PushID(&path);
+
+    if (ImGui::Button("OK##") || ImGui::IsKeyReleased(ImGuiKey::ImGuiKey_Enter))
     {
-        auto       spContext = context.lock();
-        File::Path path      = spContext->GetPath();
-        ImGui::Text(u8"경로: "_c_str);
-        ImGui::SameLine();
-        ImGui::Text(path.string().c_str());
-
-        ImGui::PushID(this);
-
-        if (ImGui::Button("OK##") || ImGui::IsKeyReleased(ImGuiKey::ImGuiKey_Enter))
-        {
-            SetFocusParentFolder(spContext);
-            spContext->Remove();
-            ImGui::CloseCurrentPopup();
-        }
-
-        ImGui::SameLine();
-
-        if (ImGui::Button("NO##") || ImGui::IsKeyReleased(ImGuiKey::ImGuiKey_Escape))
-        {
-            ImGui::CloseCurrentPopup();
-        }
-
+        ImGui::CloseCurrentPopup();
         ImGui::PopID();
+        return true;
     }
+
+    ImGui::SameLine();
+
+    if (ImGui::Button("NO##") || ImGui::IsKeyReleased(ImGuiKey::ImGuiKey_Escape))
+    {
+        ImGui::CloseCurrentPopup();
+    }
+
+    ImGui::PopID();
+
+    return false;
 }
 
 void EditorAssetBrowserTool::ShowSameFilePopupBox()
@@ -900,7 +1067,7 @@ void EditorAssetBrowserTool::ShowCopyFilePopupBox()
     ImGui::EndChild();
     ImGui::Text("Copy To :");
     ImGui::BeginDisabled();
-    std::string curPath = _destPath.string();
+    std::string curPath = _dragDropPath.string();
     ImGui::InputText("##import path", &curPath, ImGuiInputTextFlags_ReadOnly); // 임포트할 폰트 경로를 표시합니다.
     if (ImGui::BeginItemTooltip())                                          // 호버링 시 툴팁으로 경로를 표시합니다.
     {
@@ -911,7 +1078,7 @@ void EditorAssetBrowserTool::ShowCopyFilePopupBox()
     ImGui::SameLine();
     if (ImGui::Button(EditorIcon::ICON_FOLDER_OPEN)) // 경로 선택 버튼
     {
-        File::ShowOpenFolderDialog(NULL, L"경로 선택", _destPath.c_str(), _destPath);
+        File::ShowOpenFolderDialog(NULL, L"경로 선택", _dragDropPath.c_str(), _dragDropPath);
     }
     ImGui::Separator();
     if (ImGui::Button("Copy"))
@@ -921,7 +1088,7 @@ void EditorAssetBrowserTool::ShowCopyFilePopupBox()
             if (check)
             {
                 File::Path from = targetPath;
-                File::Path to   = _destPath / from.filename();
+                File::Path to   = _dragDropPath / from.filename();
                 to   = File::GenerateUniquePath(to); // 중복된 파일 이름이 있을 경우, 고유한 이름으로 변경
                 from = from.generic_wstring();
                 to   = to.generic_wstring();
@@ -937,132 +1104,21 @@ void EditorAssetBrowserTool::ShowCopyFilePopupBox()
     }
 }
 
-void EditorAssetBrowserTool::ProcessEnterAction(spContext context)
+void EditorAssetBrowserTool::ShowAlreadyAssetIDPopupBox(const File::Path& path, int changeID)
 {
-    if (nullptr != context)
+    const File::Path& dstPath = UmFileSystem.GetPathFromAssetID(changeID);
+    std::string dstPathStr = dstPath.string();
+    std::string text = std::format("{} {}", changeID, (const char*)u8"ID는 이미 사용중인 ID입니다. 아래 경로의 Asset을 확인해주세요.");
+    ImGui::Text(text.c_str());
+    //ImGui::BeginDisabled();
+    ImGui::SetNextItemWidth(ImGui::CalcTextSize(text.c_str()).x);
+    ImGui::InputText("##AssetID", &dstPathStr, ImGuiInputTextFlags_ReadOnly | ImGuiInputTextFlags_AutoSelectAll);
+    //ImGui::EndDisabled();
+    ImGuiHelper::HoveredToolTip(dstPathStr.c_str());
+
+    if (ImGui::Button("OK##"))
     {
-        // 폴더일 시
-        if (true == context->IsDirectory())
-        {
-            auto spFolderContext = std::static_pointer_cast<File::FolderContext>(context);
-            SetFocusFolder(spFolderContext);
-        }
-        // 파일일 시
-        else
-        {
-            UmFileSystem.RequestOpenFile(context->GetPath());
-        }
-    }
-}
-
-void EditorAssetBrowserTool::ProcessMoveAction(wpContext srcContext, wpFolderContext dstContext)
-{
-    bool isSrcExpired = srcContext.expired();
-    bool isDstExpired = dstContext.expired();
-
-    if (false == isSrcExpired && false == isDstExpired)
-    {
-        auto spSrcContext = srcContext.lock();
-        auto spDstContext = dstContext.lock();
-
-        auto& from = spSrcContext->GetPath();
-        auto& to   = spDstContext->GetPath();
-
-        // 해당 폴더에 파일 이름을 붙임
-        File::Path newPath = to / from.filename();
-        newPath            = newPath.generic_wstring();
-
-        if (true == fs::exists(newPath))
-        {
-            Global::editorModule->OpenPopupBox("SameFile", [this]() { ShowSameFilePopupBox(); });
-        }
-        else
-        {
-            spSrcContext->Move(newPath);
-        }
-    }
-}
-
-void EditorAssetBrowserTool::SetFocusInspector(wpContext context)
-{
-    _selectedContext->SetContext(context);
-}
-
-bool EditorAssetBrowserTool::SetFocusFolder(wpFolderContext context)
-{
-    if (false == context.expired())
-    {
-        auto spContext = context.lock();
-        if (false == _currFocusFolderContext.expired())
-        {
-            auto  spFolderContext = _currFocusFolderContext.lock();
-            auto& path            = spFolderContext->GetPath();
-            _directoryUndoStack.push_back(path);
-            if (_directoryUndoStack.size() > _maxUndoStack)
-            {
-                _directoryUndoStack.pop_front();
-            }
-        }
-        _directoryRedoStack.clear();
-        _nextFocusFolderContext = context;
-        return true;
-    }
-    else
-    {
-        const File::Path rootPath = UmFileSystem.GetRootPath();
-        _nextFocusFolderContext   = UmFileSystem.GetContext<File::FolderContext>(rootPath);
-        _directoryUndoStack.clear();
-        _directoryRedoStack.clear();
-        return false;
-    }
-}
-
-void EditorAssetBrowserTool::SetFocusParentFolder(spContext context)
-{
-    if (nullptr != context)
-    {
-        const File::Path& curPath       = context->GetPath();
-        const File::Path  parentPath    = curPath.parent_path();
-        const auto        parentContext = UmFileSystem.GetContext<File::FolderContext>(parentPath);
-        SetFocusFolder(parentContext);
-    }
-}
-
-void EditorAssetBrowserTool::SetFocusFromUndoPath()
-{
-    if (false == _directoryUndoStack.empty())
-    {
-        const File::Path& undoPath    = _directoryUndoStack.back();
-        auto              undoContext = UmFileSystem.GetContext<File::FolderContext>(undoPath);
-        if (false == undoContext.expired())
-        {
-            if (false == _currFocusFolderContext.expired())
-            {
-                const File::Path& path = _currFocusFolderContext.lock()->GetPath();
-                _directoryRedoStack.push_back(path);
-            }
-            _nextFocusFolderContext = undoContext;
-        }
-        _directoryUndoStack.pop_back();
-    }
-}
-
-void EditorAssetBrowserTool::SetFocusFromRedoPath()
-{
-    if (false == _directoryRedoStack.empty())
-    {
-        const File::Path& curPath     = _directoryRedoStack.back();
-        auto              redoContext = UmFileSystem.GetContext<File::FolderContext>(curPath);
-        if (false == redoContext.expired())
-        {
-            if (false == _currFocusFolderContext.expired())
-            {
-                const File::Path& path = _currFocusFolderContext.lock()->GetPath();
-                _directoryUndoStack.push_back(path);
-            }
-            _nextFocusFolderContext = redoContext;
-        }
-        _directoryRedoStack.pop_back();
+        ImGui::CloseCurrentPopup();
     }
 }
 
@@ -1082,7 +1138,7 @@ void EditorAssetBrowserTool::ProcessDropFile(const HDROP hDrop)
         }
         if (Global::editorModule)
         {
-            _destPath = GetCurrentFocusFolderPath();
+            _dragDropPath = GetCurrentFocusFolderPath();
             Global::editorModule->OpenPopupBox("CopyFile", [this]() { ShowCopyFilePopupBox(); });
         }
     }
@@ -1118,40 +1174,636 @@ bool EditorAssetBrowserTool::WinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM 
     return false;
 }
 
-void EditorAssetObject::OnInspectorEnter() 
+EditorAssetBrowserTool::AssetData* EditorAssetBrowserTool::GetAssetData(const File::Path& path)
 {
+    auto itr = _focusFolderAssetDataMap.find(path);
+    if (itr != _focusFolderAssetDataMap.end())
+    {
+        return &itr->second; // 해당 경로의 AssetData 반환
+    }
+    return nullptr;
 }
 
-void EditorAssetObject::OnInspectorStay()
+void EditorAssetBrowserTool::ProcessInput()
 {
-    bool isDebug   = Global::editorModule->IsDebugMode();
-    bool isExpired = _focusedInspector.expired();
+    bool isRootpath    = (_focusFolderPath == UmFileSystem.GetRootPath());
+    bool isFileCopying = (_copyBuffer.first == 0);
+    bool isFileCutting = (_copyBuffer.first == 1);
 
-    if (false == isExpired)
+    bool isMouseXbutton1 = ImGui::IsMouseClicked(ImGuiMouseButton_XButton1, false);
+    bool isMouseXbutton2 = ImGui::IsMouseClicked(ImGuiMouseButton_XButton2, false);
+    bool isKeyEnter      = ImGui::IsKeyPressed(ImGuiKey_Enter, false);
+    bool isKeyDelete     = ImGui::IsKeyPressed(ImGuiKey_Delete, false);
+    bool isKeyBackSpace  = ImGui::IsKeyPressed(ImGuiKey_Backspace, false);
+    bool isKeyEsc        = ImGui::IsKeyPressed(ImGuiKey_Escape, false);
+    bool isKeyCtrl       = ImGui::IsKeyDown(ImGuiKey_LeftCtrl);
+    bool isKeyF2         = ImGui::IsKeyPressed(ImGuiKey_F2, false);
+    bool isKeyC          = ImGui::IsKeyPressed(ImGuiKey_C, false);
+    bool isKeyX          = ImGui::IsKeyPressed(ImGuiKey_X, false);
+    bool isKeyV          = ImGui::IsKeyPressed(ImGuiKey_V, false);
+
+    AssetData* focusAssetData = GetAssetData(_focusEntryPath);
+    File::Path parentPath     = _focusFolderPath.parent_path();
+
+    if (focusAssetData)
     {
-        auto  spContext = _focusedInspector.lock();
-        if (true == isDebug)
+        if (isKeyF2)
         {
-            auto& metaData = spContext->GetMeta();
-            ImGui::Text("Path: %s", spContext->GetPath().string().c_str());
-            ImGui::Text("Guid: %s", metaData.GetGuid().string().c_str());
-            ImGui::Separator();
+            if (false == _rename.IsActive() || parentPath != _focusEntryPath)
+            {
+                _rename.StartRename(focusAssetData->Entry.path());
+            }
         }
-        auto& path = spContext->GetPath();
-        UmFileSystem.RequestInspectFile(path);
+        else if (isKeyEsc)
+        {
+            if (isFileCutting)
+            {
+                _copyBuffer.first = -1; // 클립보드 초기화
+            }
+            else if (_rename.IsActive())
+            {
+                _rename.CancelRename();
+            }
+        }
+        else if (isKeyDelete)
+        {
+            File::Path focusPath = _focusEntryPath;
+            Global::editorModule->OpenPopupBox("Delete File", [this, focusPath]() {
+                _rename.CancelRename();
+                if (ShowDeletePopupBox(focusPath))
+                {
+                    DeleteFileFromPath(focusPath);
+                }
+            });
+        }
+        else if (isKeyEnter && false == _rename.IsActive())
+        {
+            if (focusAssetData->IsDirectory)
+            {
+                SetFocusFolderPath(focusAssetData->Entry.path());
+            }
+            else
+            {
+                UmFileSystem.RequestOpenFile(focusAssetData->Entry.path());
+            }
+        }
     }
-}
-
-void EditorAssetObject::OnInspectorExit() 
-{
-}
-
-void EditorAssetObject::SetContext(std::weak_ptr<File::Context> context)
-{
-    _selectedAsset = context;
-
-    if (true == EditorInspectorTool::SetFocusObject(_this))
+    if (isMouseXbutton1)
     {
-        _focusedInspector = context;
+        UndoPath();
     }
+    else if (isMouseXbutton2)
+    {
+        RedoPath();
+    }
+    if (isKeyCtrl)
+    {
+        float wheelY = ImGui::GetIO().MouseWheel;
+        if (wheelY != 0.0f)
+        {
+            _zoomScale += wheelY * 0.1f;
+            _zoomScale   = ImClamp(_zoomScale, 0.5f, 2.0f);
+            _needRefresh = true;
+        }
+        if (isKeyC && fs::exists(_focusEntryPath))
+        {
+            SetCopyFileFromPath(_focusEntryPath);
+        }
+        if (isKeyX && fs::exists(_focusEntryPath))
+        {
+            SetCutFileFromPath(_focusEntryPath);
+        }
+        if (isKeyV)
+        {
+            PasteFile();
+        }
+    }
+}
+
+void EditorAssetBrowserTool::RefreshState()
+{
+    if (false == fs::exists(_focusFolderPath))
+    {
+        File::Path parentPath = _focusFolderPath.parent_path();
+        if (fs::exists(parentPath) && fs::is_directory(parentPath))
+        {
+            SetFocusFolderPath(parentPath, false);
+        }
+        else
+        {
+            SetFocusFolderPath(UmFileSystem.GetRootPath(), false);
+        }
+    }
+}
+
+void EditorAssetBrowserTool::RefreshFocusFolderEntries()
+{
+    if (fs::exists(_focusFolderPath) && fs::is_directory(_focusFolderPath))
+    {
+        // 매번 Vector는 초기화하고 다시 생성
+        _focusFolderAssetDataList.clear();
+        // 파일이 없으면 제거, (벡터는 매번 초기화하므로 상관X)
+        for (auto it = _focusFolderAssetDataMap.begin(); it != _focusFolderAssetDataMap.end();)
+        {
+            const auto& [path, data] = *it;
+            if (fs::exists(path) == false)
+            {
+                it = _focusFolderAssetDataMap.erase(it);
+            }
+            else
+            {
+                ++it; // 파일이 있으면 다음으로 이동
+            }
+        }
+
+        static std::vector<FileEntry> entries;
+        entries.clear();
+        for (const auto& entry : fs::directory_iterator(_focusFolderPath))
+        {
+            entries.push_back(entry);
+        }
+        // 폴더 내의 모든 파일을 읽어옴
+        for (const auto& entry : entries)
+        {
+            std::filesystem::path extension   = entry.path().extension();
+            bool                  isMetaFile  = extension == File::META_EXTENSION;
+            bool                  canShowMeta = _flags[FLAG_SHOW_META];
+            if (true == isMetaFile && false == canShowMeta)
+            {
+                continue; // 메타 파일은 제외
+            }
+
+            // 이미 있는 데이터면 데이터만 갱신, 없으면 데이터를 추가하고 갱신
+            auto itr = _focusFolderAssetDataMap.find(entry.path());
+            if (itr == _focusFolderAssetDataMap.end())
+            {
+                _focusFolderAssetDataMap[entry.path()] = AssetData(entry);
+            }
+
+            AssetData& assetData = _focusFolderAssetDataMap[entry.path()];
+            assetData.Refesh(entry);
+
+            // 뷰 이름 설정
+            ImVec2 iconWidgetSize = ICON_WIDGET_SIZE * _zoomScale;
+            float  maxTextWidth   = iconWidgetSize.x - ImGui::CalcTextSize("...").x - 2.0f;
+            float  fullWidth      = ImGui::CalcTextSize(assetData.ViewName.c_str()).x;
+            // 너무 길면 ... 처리
+            if (fullWidth > maxTextWidth)
+            {
+                while (!assetData.ViewName.empty() && ImGui::CalcTextSize((assetData.ViewName + "...").c_str()).x > maxTextWidth)
+                {
+                    assetData.ViewName.pop_back();
+                }
+                assetData.ViewName += "...";
+            }
+            _focusFolderAssetDataList.push_back(&assetData);
+
+            UmFileSystem.CheckFileContextIntegrity(assetData.Entry.path());
+        }
+        std::sort(_focusFolderAssetDataList.begin(), _focusFolderAssetDataList.end(), Compare(ReflectFields->SortFlags));
+        _updateTime = 0.0f;
+    }
+}
+
+void EditorAssetBrowserTool::SetFocusFolderPath(const File::Path& path, bool pushStack)
+{
+    File::Path focusPath = path.generic_string();
+    if (false == focusPath.empty() && fs::exists(focusPath) && fs::is_directory(focusPath))
+    {
+        if (_focusFolderPath != focusPath)
+        {
+            if (pushStack)
+            {
+                _directoryRedoStack.clear();
+                _directoryUndoStack.push_back(_focusFolderPath);
+                if (_directoryUndoStack.size() > _maxUndoStack)
+                {
+                    _directoryUndoStack.pop_front();
+                }
+            }
+            _focusFolderPath = focusPath;
+            RefreshFocusFolderEntries();
+            _rename.CancelRename();
+        }
+    }
+    else
+    {
+        if (pushStack)
+        {
+            _directoryUndoStack.clear();
+            _directoryRedoStack.clear();
+        }
+    }
+}
+
+void EditorAssetBrowserTool::SetFocusEntryPath(const File::Path& path) 
+{
+    File::Path focusPath = path.generic_string();
+    if (fs::exists(focusPath) && _focusEntryPath != focusPath)
+    {
+        File::Path parent = focusPath.parent_path();
+        _focusEntryPath = focusPath;
+        SetFocusFolderPath(parent.generic_string());
+        _rename.CancelRename();
+    }
+}
+
+void EditorAssetBrowserTool::UndoPath()
+{
+    if (false == _directoryUndoStack.empty())
+    {
+        const File::Path undoPath = _directoryUndoStack.back();
+        _directoryRedoStack.push_back(_focusFolderPath);
+        _directoryUndoStack.pop_back();
+        SetFocusFolderPath(undoPath, false);
+    }
+}
+
+void EditorAssetBrowserTool::RedoPath()
+{
+    if (false == _directoryRedoStack.empty())
+    {
+        const File::Path redoPath = _directoryRedoStack.back();
+        _directoryUndoStack.push_back(_focusFolderPath);
+        _directoryRedoStack.pop_back();
+        SetFocusFolderPath(redoPath, false);
+    }
+}
+
+void EditorAssetBrowserTool::SetCopyFileFromPath(const File::Path& path)
+{
+    _copyBuffer.first  = 0;
+    _copyBuffer.second = path;
+    UmFileSystem.RequestCopyFile(_copyBuffer.second);
+}
+
+void EditorAssetBrowserTool::SetCutFileFromPath(const File::Path& path)
+{
+    _copyBuffer.first  = 1;
+    _copyBuffer.second = path;
+}
+
+void EditorAssetBrowserTool::PasteFile() 
+{
+    if (-1 != _copyBuffer.first)
+    {
+        File::Path from = _copyBuffer.second;
+        File::Path to   = (_focusFolderPath / from.filename());
+        bool isFromExists = fs::exists(from);
+        if (isFromExists)
+        {
+            if (0 == _copyBuffer.first)
+            {
+                File::CopyFileFromTo(from, to);
+                UmFileSystem.RequestPasteFile(to);
+            }
+            if (1 == _copyBuffer.first)
+            {
+                if (from != to)
+                {
+                    fs::rename(from, to);
+                }
+                _copyBuffer.first = -1;
+            }
+            _needRefresh = true;
+        }
+    }
+}
+
+bool EditorAssetBrowserTool::DeleteFileFromPath(const File::Path& path)
+{
+    if (fs::exists(path))
+    {
+        if (_focusEntryPath == path)
+        {
+            SetFocusEntryPath("");
+            _inspectorDrawer->SetAsset(nullptr); // 인스펙터 비우기
+        }
+        File::RemoveFile(path);
+        _needRefresh = true; // 삭제 후 새로고침 필요
+        return true;
+    }
+    return false;
+}
+
+bool EditorAssetBrowserTool::IsFavoriteFolder(const File::Path& path) const
+{
+    const File::Path& root = UmFileSystem.GetRootPath();
+    std::string pathStr = fs::relative(path, root).generic_string();
+    auto itr = ReflectFields->FavoriteFolders.find(pathStr);
+    if (itr != ReflectFields->FavoriteFolders.end())
+    {
+        return true;
+    }
+    return false;
+}
+
+void EditorAssetBrowserTool::AddFavoriteFolder(const File::Path& path)
+{
+    const File::Path& root = UmFileSystem.GetRootPath();
+    std::string pathStr = fs::relative(path, root).generic_string();
+    auto itr = ReflectFields->FavoriteFolders.find(pathStr);
+    if (itr == ReflectFields->FavoriteFolders.end())
+    {
+        // 폴더가 없으면 추가
+        ReflectFields->FavoriteFolders.insert(pathStr);
+    }
+}
+
+void EditorAssetBrowserTool::RemoveFavoriteFolder(const File::Path& path) 
+{
+    const File::Path& root = UmFileSystem.GetRootPath();
+    std::string pathStr = fs::relative(path, root).generic_string();
+    ReflectFields->FavoriteFolders.erase(pathStr);
+}
+
+bool EditorAssetBrowserTool::Compare::operator()(const AssetData* a, const AssetData* b) const
+{
+    if (a->Order != b->Order)
+    {   // Order가 다르면 Order 오름차순으로 정렬
+        return a->Order < b->Order; 
+    }
+    bool aIsDir = a->IsDirectory;
+    bool bIsDir = b->IsDirectory;
+    if (aIsDir != bIsDir)
+    {
+        return aIsDir > bIsDir;
+    }
+    else
+    {
+        if (flags == FLAGS_SORT_BY_TYPE)
+        {
+            return CompareByType(a, b); // 이름순
+        }
+        if (flags == FLAGS_SORT_BY_NAME)
+        {
+            return CompareByName(a, b); // 이름순
+        }
+        if (flags == FLAGS_SORT_BY_DATE)
+        {
+            return CompareByDate(a, b); // 날짜순
+        }
+    }
+   
+    return false;
+}
+
+bool EditorAssetBrowserTool::Compare::CompareByType(const AssetData* a, const AssetData* b) const
+{
+    const std::string& aIsExt = a->Extension;
+    const std::string& bIsExt = b->Extension;
+    return isAscending ? a->Extension > b->Extension : a->Extension < b->Extension;
+}
+
+bool EditorAssetBrowserTool::Compare::CompareByName(const AssetData* a, const AssetData* b) const
+{
+    const std::string& aName = a->FileName;
+    const std::string& bName = b->FileName;
+    return isAscending ? aName > bName : aName < bName;
+}
+
+bool EditorAssetBrowserTool::Compare::CompareByDate(const AssetData* a, const AssetData* b) const
+{
+    const auto& timeA = a->LastWriteTime;
+    const auto& timeB = b->LastWriteTime;
+    return isAscending ? timeA > timeB : timeA < timeB;
+}
+
+EditorAssetBrowserTool::AssetData::AssetData(FileEntry entry) 
+    : Entry(entry)
+{
+    IsDirectory = fs::is_directory(entry);
+    FileName    = entry.path().filename().string();
+    Extension   = entry.path().extension().string().c_str() + 1;
+    File::Path extension = entry.path().extension();
+
+    static std::unordered_set<File::Path> imageFormat = {".jpg", ".png", ".dds", ".jpeg", ".bmp"};
+    static std::unordered_set<File::Path> modelFormat = {".fbx", ".FBX",".obj"};
+
+    if (IsDirectory)
+    {
+        PreviewIconTexture = UmResourceManager->LoadResource<Texture>(L"../GameEngine/Icon/Editor/Icon_Folder.png");
+    }
+    else if (imageFormat.find(extension) != imageFormat.end())
+    {
+        PreviewIconTexture = UmResourceManager->LoadResource<Texture>(entry.path());
+    }
+    else if (modelFormat.find(extension) != modelFormat.end())
+    {
+        PreviewIconTexture = UmResourceManager->LoadResource<Texture>(L"../GameEngine/Icon/Editor/Icon_File_FBX.png");
+    }
+    else
+    {
+        PreviewIconTexture = UmResourceManager->LoadResource<Texture>(L"../GameEngine/Icon/Editor/Icon_File_Default.png");
+    }
+}
+
+void EditorAssetBrowserTool::AssetData::Refesh(FileEntry entry) 
+{
+    Entry         = entry;
+    LastWriteTime = File::GetFileLastWriteTime(entry);
+    ViewName      = FileName;
+}
+
+bool EditorAssetBrowserTool::AssetData::IsSamePath(const std::filesystem::path& path) const
+{
+    return Entry.path() == path;
+}
+
+void EditorAssetBrowserTool::RenameController::StartRename(const File::Path& destFilePath)
+{
+    IsRenaming = true;
+    DestPath     = destFilePath;
+    DestName     = DestPath.filename().string();
+    RenameBuffer = DestName;
+}
+
+void EditorAssetBrowserTool::RenameController::CancelRename() 
+{
+    IsRenaming   = false;
+    DestName     = "";
+    RenameBuffer = "";
+}
+
+const File::Path& EditorAssetBrowserTool::RenameController::ExecuteRename(const File::Path& targetFolder)
+{
+    Return = "";
+    if (IsRenaming)
+    {
+        Return = targetFolder / RenameBuffer;
+        if (false == Return.has_extension())
+        {
+            Return.replace_extension(DestPath.extension());
+        }
+        if (!fs::exists(Return))
+        {
+            fs::rename(DestPath, Return);
+        }
+        CancelRename();
+    }
+    return Return;
+}
+
+void EditorAssetBrowserTool::InspectorDrawer::OnInspectorEnter() 
+{
+    if (_assetData && fs::exists(_assetPath))
+    {
+        _selectedAsset = UmFileSystem.GetContext(_assetData->Entry.path());
+    }
+    else
+    {
+        _assetData = nullptr;
+        _assetPath = "";
+        _selectedAsset.reset(); 
+    }
+}
+
+void EditorAssetBrowserTool::InspectorDrawer::OnInspectorStay()
+{
+    if (nullptr == _assetData || false == fs::exists(_assetPath))
+    {
+        return;
+    }
+
+    ImGuiStyle& style  = ImGui::GetStyle();
+
+    bool   isDebug      = Global::editorModule->IsDebugMode();
+    bool   isExpired    = _selectedAsset.expired();
+    float  offsetX      = 150.0f;
+    ImVec2 availSpace   = ImGui::GetContentRegionAvail();
+    ImVec2 cursorPos    = ImGui::GetCursorPos();
+    ImVec2 iconSize     = ImVec2(64, 64);
+    ImVec2 padding      = style.ItemSpacing;
+
+    if (_assetData->PreviewIconTexture)
+    {
+        D3D12_GPU_DESCRIPTOR_HANDLE iconHandle = _assetData->PreviewIconTexture->GetGPUHandle();
+        ImGui::Image((ImTextureID)iconHandle.ptr, iconSize);
+        ImGui::SetCursorPos(cursorPos + ImVec2(iconSize.x + padding.x, 0.0f));
+    }
+
+    ImGui::Text(_assetData->FileName.c_str());
+    
+
+    const char* buttonLabel = "Open File";
+    ImVec2 buttonSize = ImGui::CalcTextSize(buttonLabel) + padding;
+    ImGui::SetCursorPos(cursorPos + ImVec2(availSpace.x - buttonSize.x, 0.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 5.0f);
+    if (ImGui::Button(buttonLabel, buttonSize))
+    {
+        File::OpenFile(_assetData->Entry.path());
+    }
+    ImGui::PopStyleVar();
+
+    ImGui::SetCursorPos(cursorPos + ImVec2(0.0f, iconSize.y + padding.y));
+    ImGui::Separator();
+    if (ImGui::CollapsingHeader("Asset Info", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        if (false == _assetData->IsDirectory)
+        {
+            std::shared_ptr<File::Context> context;
+            if (false == isExpired)
+            {
+                context = _selectedAsset.lock();
+            }
+
+            ImGuiHelper::TextWithVerticalSeparator("Asset Guid", offsetX);
+            static std::string guidStr;
+            if (context)
+            {
+                File::MetaData& meta = context->GetMeta();
+                guidStr = meta.GetGuid().string();
+                ImGui::InputText("##guid", &guidStr, ImGuiInputTextFlags_ReadOnly);
+            }
+            else
+            {
+                guidStr = "NULL_GUID";
+                ImGui::InputText("##guid", &guidStr, ImGuiInputTextFlags_ReadOnly);
+            }
+
+            if (context)
+            {
+                ImGuiHelper::TextWithVerticalSeparator("AssetID", offsetX);
+                ImGuiHelper::StyleBuilder assetIDStyle;
+                File::MetaData& meta = context->GetMeta();
+                int assetId = meta.GetAssetID();
+                bool isUnique = _assetPath == UmFileSystem.GetPathFromAssetID(assetId);
+                ImU32 borderColor = isUnique ? IM_COL32(100, 255, 100, 255) : IM_COL32(255, 100, 100, 255);
+                assetIDStyle.PushStyleVar(ImGuiStyleVar_FrameBorderSize, 2.0f); // 테두리 두께 
+                assetIDStyle.PushStyleColor(ImGuiCol_Border, borderColor);
+                if (ImGui::InputInt("##asset_id", &assetId, 0, 0, ImGuiInputTextFlags_EnterReturnsTrue))
+                {
+                    if (UmFileSystem.IsExistsAssetID(assetId))
+                    {
+                        File::Path path = _assetData->Entry.path();
+                        Global::editorModule->OpenPopupBox(u8"이미 존재하는 Asset ID입니다."_c_str, [this, path, assetId]() {
+                            EditorAssetBrowserTool::ShowAlreadyAssetIDPopupBox(path, assetId);
+                        });
+                        return; // 중복된 AssetID가 있으면 처리 중지
+                    }
+                    else
+                    {
+                        UmFileSystem.ChangeAssetID(context, assetId);
+                    }
+                }
+                assetIDStyle.PopStyle();
+            }
+            
+            ImGuiHelper::TextWithVerticalSeparator("File Last Write", offsetX);
+            std::ostringstream oss;
+            std::tm tm;
+            localtime_s(&tm, &_assetData->LastWriteTime);
+            oss << std::put_time(&tm, "%F %T"); // "YYYY-MM-DD HH:MM:SS" 형식
+            ImGui::Text(oss.str().c_str());
+
+            ImGuiHelper::TextWithVerticalSeparator("File Size", offsetX);
+            uintmax_t size_mb = (uintmax_t)((float)_assetData->Entry.file_size() / (float)(1024.0 * 1024.0));
+            ImGui::Text("%lld MB", size_mb);
+        }
+    }
+    ImGui::Separator();
+    UmFileSystem.RequestInspectFile(_assetData->Entry.path());
+}
+
+void EditorAssetBrowserTool::InspectorDrawer::OnInspectorExit() 
+{
+}
+
+void EditorAssetBrowserTool::InspectorDrawer::SetAsset(AssetData* assetData)
+{
+    if (assetData)
+    {
+        if (false == EditorInspectorTool::IsLockFocus())
+        {
+            _assetData     = assetData;
+            _assetPath     = assetData->Entry.path().generic_string();
+            _selectedAsset = UmFileSystem.GetContext(_assetData->Entry.path());
+        }
+    }
+    else
+    {
+        _assetData = nullptr;
+        _assetPath = "";
+        _selectedAsset.reset(); 
+    }
+}
+
+void EditorAssetBrowserTool::SearchController::UpdateBuffer()
+{
+    strncpy_s(SearchFilter.InputBuf, SearchBuffer.c_str(), SearchBuffer.length());
+    SearchFilter.InputBuf[SearchBuffer.length()] = '\0'; // Ensure null-termination
+    SearchFilter.Build();
+}
+
+void EditorAssetBrowserTool::SearchController::ClearBuffer() 
+{
+    SearchBuffer.clear();
+    SearchFilter.InputBuf[0] = '\0'; // Ensure null-termination
+    SearchFilter.Build();
+    IsSearching = false;
+}
+
+bool EditorAssetBrowserTool::SearchController::PassFilter(const char* text)
+{
+    return SearchFilter.PassFilter(text);
 }

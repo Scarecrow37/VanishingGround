@@ -31,7 +31,7 @@ void WeaponElement::DeserializedReflectEvent()
 void WeaponElement::ImGuiDrawPropertysEvent() 
 {
     Stats.ImGuiDrawPropertys();
-    const std::string& name = Stats.Name;
+    const std::string& name = Stats.WeaponName;
     if (_action)
     {
         static std::string name;

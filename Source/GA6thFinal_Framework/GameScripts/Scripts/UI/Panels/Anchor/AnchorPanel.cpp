@@ -38,14 +38,26 @@ POINT AnchorPanelSlot::GetAnchorPoint() const
     return ReflectFields->AnchorPoint;
 }
 
+POINT AnchorPanelSlot::GetOffsetPoint() const
+{
+    return ReflectFields->OffsetPoint;
+}
+
+SIZE AnchorPanelSlot::GetSiblingSize() const
+{
+    return ReflectFields->SiblingSize;
+}
+
 void AnchorPanelSlot::OnPlacementChange()
 {
     PanelSlotComponent::OnPlacementChange();
 
     UpdateAnchorPoint();
+    UpdateOffsetPoint();
     const POINT anchorPoint = GetAnchorPoint();
-    const SIZE  size        = GetSize();
-    PassScopedPlacementToSibling(anchorPoint, size);
+    const POINT offsetPoint = GetOffsetPoint();
+    const SIZE  size        = GetSiblingSize();
+    PassScopedPlacementToSibling(anchorPoint - offsetPoint, size);
 }
 
 void AnchorPanelSlot::ImGuiDrawPropertysEvent()
@@ -110,11 +122,11 @@ void AnchorPanelSlot::DrawDebugSelected()
 
 void AnchorPanelSlot::UpdateAnchorPoint()
 {
-    const POINT      absolutePoint = GetAbsolutePoint();
-    const auto       [width, height]      = GetSize();
-    const AnchorType anchor        = ReflectFields->Anchor;
+    const POINT absolutePoint  = GetAbsolutePoint();
+    const auto [width, height] = GetSize();
+    const AnchorType anchor    = ReflectFields->Anchor;
 
-    auto            [anchorX, anchorY]   = absolutePoint;
+    auto [anchorX, anchorY] = absolutePoint;
     switch (anchor)
     {
     case AnchorType::TOP_LEFT:
@@ -151,4 +163,27 @@ void AnchorPanelSlot::UpdateAnchorPoint()
     }
 
     ReflectFields->AnchorPoint = POINT{anchorX, anchorY};
+}
+
+void AnchorPanelSlot::UpdateOffsetPoint()
+{
+    const float pivotX        = ReflectFields->PivotX;
+    const float pivotY        = ReflectFields->PivotY;
+
+    LONG siblingWidth  = 0;
+    LONG siblingHeight = 0;
+
+    std::vector<PlacementUIComponent*> components = gameObject->GetComponents<PlacementUIComponent>();
+    std::ranges::for_each(
+        components | std::views::filter([this](const PlacementUIComponent* component) { return component != this; }),
+        [&siblingWidth, &siblingHeight](const PlacementUIComponent* component) {
+            siblingWidth  = std::max(siblingWidth, component->GetSize().cx);
+            siblingHeight = std::max(siblingHeight, component->GetSize().cy);
+        });
+
+    const LONG offsetX = static_cast<LONG>(std::lerp(0, static_cast<float>(siblingWidth), pivotX));
+    const LONG offsetY = static_cast<LONG>(std::lerp(0, static_cast<float>(siblingHeight), pivotY));
+
+    ReflectFields->OffsetPoint = POINT{offsetX, offsetY};
+    ReflectFields->SiblingSize = SIZE{siblingWidth, siblingHeight};
 }

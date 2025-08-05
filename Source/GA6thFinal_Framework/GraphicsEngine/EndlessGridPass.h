@@ -8,8 +8,11 @@ public:
     virtual ~EndlessGridPass();
 
 public:
-    void Initialize(RenderScene* ownerScene, ID3D12GraphicsCommandList* commandList) override;
+    void Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList) override;
     void Begin(ID3D12GraphicsCommandList* commandList) override;
     void Draw(ID3D12GraphicsCommandList* commandList) override;
     void End(ID3D12GraphicsCommandList* commandList) override;
+
+private:
+    FX<GE::VS::GRID, GE::PS::GRID> _fx;
 };

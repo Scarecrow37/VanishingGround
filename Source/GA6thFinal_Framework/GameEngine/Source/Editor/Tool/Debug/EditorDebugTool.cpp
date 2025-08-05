@@ -58,6 +58,7 @@ void EditorDebugTool::OnFrameRender()
 
     ImGui::InputDouble("maximumDeltaTime", &engineCore->Time.MaximumDeltaTime);
 
+    ImGui::Text("Mouse Position: (%.3f, %.3f)", io.MousePos.x, io.MousePos.y);
     ImGui::Text("Mouse Delta: (%.3f, %.3f)", io.MouseDelta.x, io.MouseDelta.y);
 }
 

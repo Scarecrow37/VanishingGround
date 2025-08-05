@@ -54,6 +54,8 @@ GameObject::~GameObject()
     if (0 <= _instanceID)
     {
         UmGameObjectFactory.InstanceID.ReturnInstanceID(_instanceID);
+        _instanceID = -1;
+        _ownerScene = STR_NULL;
     }
 
     if (0 < ReflectFields->_tags.size())
@@ -248,21 +250,26 @@ void GameObject::OnInspectorStay()
                                             if (overrideMap.size() < reflectFieldsCount)
                                             {
                                                 using namespace ReflectHelper::json;
-                                                GameObject* prefab          = (*originPrefab)[myNumber].get();
-                                                Component*  prefabComponent = prefab->GetComponentAtIndex<Component>(i);
-                                                if (prefabComponent != nullptr)
+                                                auto& originPrefabs = (*originPrefab);
+                                                if (myNumber < originPrefabs.size())
                                                 {
-                                                    std::string prefabData = prefabComponent->SerializedReflectFields();
-                                                    yyjson_doc* prefabDoc =
-                                                        yyjson_read(prefabData.c_str(), prefabData.size(), 0);
-                                                    yyjson_val* prefabRoot = yyjson_doc_get_root(prefabDoc);
+                                                    GameObject* prefab = originPrefabs[myNumber].get();
+                                                    Component*  prefabComponent = prefab->GetComponentAtIndex<Component>(i);
+                                                    if (prefabComponent != nullptr)
+                                                    {
+                                                        std::string prefabData =
+                                                            prefabComponent->SerializedReflectFields();
+                                                        yyjson_doc* prefabDoc =
+                                                            yyjson_read(prefabData.c_str(), prefabData.size(), 0);
+                                                        yyjson_val* prefabRoot = yyjson_doc_get_root(prefabDoc);
 
-                                                    std::string myData = component->SerializedReflectFields();
-                                                    yyjson_doc* myDoc  = yyjson_read(myData.c_str(), myData.size(), 0);
-                                                    yyjson_val* myRoot = yyjson_doc_get_root(myDoc);
+                                                        std::string myData = component->SerializedReflectFields();
+                                                        yyjson_doc* myDoc =
+                                                            yyjson_read(myData.c_str(), myData.size(), 0);
+                                                        yyjson_val* myRoot = yyjson_doc_get_root(myDoc);
 
-                                                    component->applyReflectFields(
-                                                        [&](std::string_view rflName, void* pData) {
+                                                        component->applyReflectFields([&](std::string_view rflName,
+                                                                                          void*            pData) {
                                                             yyjson_val* prefabVal =
                                                                 yyjson_obj_get(prefabRoot, rflName.data());
                                                             char* prefabCStr = yyjsonValToCStr(prefabVal);
@@ -282,9 +289,10 @@ void GameObject::OnInspectorStay()
                                                             }
                                                         });
 
-                                                    yyjson_doc_free(prefabDoc);
-                                                    yyjson_doc_free(myDoc);
-                                                }
+                                                        yyjson_doc_free(prefabDoc);
+                                                        yyjson_doc_free(myDoc);
+                                                    }
+                                                }                                             
                                             }
                                         }
                                     }
@@ -550,7 +558,15 @@ void GameObject::Engine::UpdateActiveInHierarchy(GameObject* obj)
         bool currActive = parentActiveInHierarchy && curr->ReflectFields->_activeSelf && curr->IsValid();
         if (prevActive != currActive)
         {
-            curr->_activeInHierarchy = currActive;
+            if (curr->IsValid())
+            {
+                curr->_activeInHierarchy = currActive;
+            }
+            else
+            {
+                curr->_activeInHierarchy = false;
+            }
+
             for (auto& component : curr->_components)
             {
                 component->UpdateEnableInHierarchy();

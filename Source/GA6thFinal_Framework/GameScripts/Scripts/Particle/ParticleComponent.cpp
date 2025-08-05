@@ -1,6 +1,5 @@
 ﻿#include "pchScripts.h"
 #include <Mesh/SkeletalMeshRenderer.h>
-
 #include "ParticleComponent.h"
 
 
@@ -11,20 +10,16 @@ ParticleComponent::ParticleComponent()
         {
             if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
             {
-                DragDropAsset::Data* data    = (DragDropAsset::Data*)payLoad->Data;
-                auto                 context = data->pContext->lock();
-                if (nullptr != context)
+                DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
+                File::Path path = data->GetPath();
+                File::Guid guid = data->GetGuid();
+                const auto extension = path.extension();
+                if (extension == L".vfx")
                 {
-                    const auto& path      = context->GetPath();
-                    const auto  extension = path.extension();
-                    if (extension == L".vfx")
-                    {
-                        _filepath           = path;
-                        _guidRef            = path.ToGuid();
-                        ReflectFields->Guid = _guidRef.string();
-                        LoadParticle();
-                    
-                    }
+                    _filepath = path;
+                    _guidRef  = guid;
+                    ReflectFields->Guid = _guidRef.string();
+                    LoadParticle();
                 }
             }
             ImGui::EndDragDropTarget();
@@ -92,6 +87,26 @@ void ParticleComponent::DeserializedReflectEvent()
 
 void ParticleComponent::ImGuiDrawPropertysEvent() 
 {
+    SkeletalMeshRenderer* skelMesh = GetComponent<SkeletalMeshRenderer>();
+    auto&                 renderer   = skelMesh->Renderer;
+    auto&                 model      = renderer->GetModel();
+    const auto&           _boneNames = model->GetBoneNameList();
+
+    const char* comboLabel = (nullptr != skelMesh) ? ReflectFields->BoneNameToAttach.c_str() : "-";
+    if (ImGui::BeginCombo("##bone name", comboLabel))
+    {
+        for (int i = 0; i < _boneNames.size(); ++i)
+        {
+            bool isSelected = ReflectFields->BoneNameToAttach == _boneNames[i];
+            if (ImGui::Selectable(_boneNames[i].c_str(), isSelected))
+            {
+                ReflectFields->BoneNameToAttach = _boneNames[i];
+            }
+        }
+        ImGui::EndCombo();
+    }
+
+
     if (ImGui::Button("Play"))
     {
         if (IS_EDITOR)
@@ -100,6 +115,7 @@ void ParticleComponent::ImGuiDrawPropertysEvent()
         }
         
     }
+    ImGui::SameLine();
     if (ImGui::Button("Stop"))
     {
         if (IS_EDITOR)
@@ -110,12 +126,15 @@ void ParticleComponent::ImGuiDrawPropertysEvent()
 }
 
 
+
 void ParticleComponent::LoadParticle() 
 {
     if (_effect)
     {
         _effect->SetRemoveFlag(true);
     }
+    if (_filepath == L"")
+        return;
     UmParticleSerializer.PreDeserialize(_filepath);
     const auto& modelpaths = UmParticleSerializer.GetUsedModelPaths();
     
@@ -174,11 +193,18 @@ void ParticleComponent::FollowBoneMatrix()
 {
     if (true == AttachToBoneMatrix)
     {
+
         SkeletalMeshRenderer* skelMesh = GetComponent<SkeletalMeshRenderer>();
+
         if (skelMesh != nullptr)
         {
-            _effect->_boneWorldMatrix = skelMesh->Renderer->GetAnimator()->FindBoneMatrix("Bone");
-            _effect->_followBoneFlag  = true;
+            if (ReflectFields->BoneNameToAttach != "")
+            {
+
+                _effect->_boneWorldMatrix =
+                    skelMesh->Renderer->GetAnimator()->FindBoneMatrix(ReflectFields->BoneNameToAttach.c_str());
+                _effect->_followBoneFlag = true;
+            }
         }
     }
     else

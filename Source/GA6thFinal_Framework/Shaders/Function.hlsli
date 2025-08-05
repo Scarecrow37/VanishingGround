@@ -138,10 +138,10 @@ inline float3 RimLight(float3 N, float3 V, float rimPower, float rimIntensity)
     return rim * rimIntensity;
 }
 
-inline float3 CalculateIBL(float2 uv, float3 N, float3 V, TextureCube irradianceMap, TextureCube prefilterMap, Texture2D brdfMap, float3 albedo, float roughness, float metalness)
+inline float3 CalculateIBL(float3 N, float3 V, TextureCube irradianceMap, TextureCube prefilterMap, Texture2D brdfMap, float3 albedo, float roughness, float metalness)
 {    
     float3 F0 = lerp(Fdielectric, albedo, metalness);
-    float3 irradiance = irradianceMap.Sample(samLinear_wrap, N).rgb;
+    float3 irradiance = irradianceMap.SampleLevel(samLinear_wrap, N,0).rgb;
     
     float NdotV = max(0, dot(N, V));
     
@@ -150,14 +150,66 @@ inline float3 CalculateIBL(float2 uv, float3 N, float3 V, TextureCube irradiance
 
     float3 Lr = 2.0 * NdotV * N - V;
     float3 preFilteredColor = prefilterMap.SampleLevel(samLinear_wrap, Lr, roughness * levels).rgb;
-    float2 brdf = brdfMap.Sample(samLinear_clamp, float2(NdotV, roughness)).rg;
+    float2 brdf = brdfMap.SampleLevel(samLinear_clamp, float2(NdotV, roughness),0).rg;
 
     float3 F = FresnelSchlick(NdotV, F0);
     float3 kD = lerp(1.0 - F, 0, metalness);
     float3 diffuseIBL = kD * albedo * irradiance;
     float3 specularIBL = (F0 * brdf.x + brdf.y) * preFilteredColor;   
 
+    
     return diffuseIBL + specularIBL;
 }
+float ComputeDynamicMipLevel(float distance, float maxMipLevel)
+{
+    float mipFromDistance = log2(distance + 1e-3);
+    return clamp(mipFromDistance, 0.0, maxMipLevel);
+}
 
+// miplevel clam함수
+uint SafeMipLevel(float requestedMip, Texture2D tex)
+{
+    // 0 레벨에서 해상도(width, height)와 전체 mipLevels 수를 얻는다
+    uint width, height, mipLevels;
+    tex.GetDimensions(0, width, height, mipLevels);
+
+    // floor 후 uint 변환하고, (mipLevels - 1) 과 비교해 clamp
+    uint mip = min((uint) floor(requestedMip), mipLevels - 1);
+    return mip;
+}
+
+inline float CalculateShadow(float3 worldPosition, float3 normal, float3 lightDirection, Texture2DArray shadowMap)
+{
+    float eyeZ = mul(float4(worldPosition, 1), cameraData.View).z;
+    
+    uint cid = (eyeZ < cascadeData.CascadeSplits[0]) ? 0 :
+               (eyeZ < cascadeData.CascadeSplits[1]) ? 1 :
+               (eyeZ < cascadeData.CascadeSplits[2]) ? 2 : 3;
+
+    float4 shadowPos = mul(float4(worldPosition, 1), cascadeData.ShadowVP[cid]);
+    shadowPos.xyz /= shadowPos.w;
+    shadowPos.xy = shadowPos.xy * 0.5f + 0.5f;
+    shadowPos.y = 1 - shadowPos.y;
+
+    static const float2 texelSize = 1.0f / 2048.0f;
+    float bias = max(0.005f * (1.0f - dot(normal, lightDirection)), 0.0005f);
+    float shadow = 0.0f;
+    
+    for (int x = -1; x <= 1; ++x)
+    {
+        for (int y = -1; y <= 1; ++y)
+        {
+            shadow += shadowMap.SampleCmpLevelZero(samComparisonLinear_border, float3(shadowPos.xy + float2(x, y) * texelSize, cid), shadowPos.z - bias);
+        }
+    }
+                                                                                                                                                                                                                                         
+    return shadow / 9.0f;
+}
+
+float4 SampleCalculateMipLevel(Texture2D tex, SamplerState sam, float2 uv, float mipLevel)
+{
+    uint safeMip = SafeMipLevel(mipLevel, tex);
+    
+    return tex.SampleLevel(sam, uv, safeMip);
+}
 #endif

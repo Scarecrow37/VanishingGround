@@ -11,6 +11,9 @@ class UIRoot : public PlacementUIComponent
 public:
     UIRoot();
 
+public:
+    void SortViewOrder();
+
 protected:
     void OnAttachChild(GameObject* childGameObject) override;
     void OnDetachParent(GameObject* previousParentGameObject) override;
