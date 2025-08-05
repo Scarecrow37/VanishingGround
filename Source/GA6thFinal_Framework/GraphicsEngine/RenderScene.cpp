@@ -426,7 +426,7 @@ void RenderScene::CreateRenderTarget()
     for (auto& target : _sharedRenderTarget)
     {
         target = MakeSharedResource<RenderTarget>();
-        target->Initialize(desc, 0.247f);
+        target->Initialize(desc, 1.f);
         target->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     }
 }

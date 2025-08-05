@@ -24,46 +24,72 @@ struct SSAOProperty
     float falloff;
     float strengthFactor;
     float contrastFactor;
+    float threshold;
 };
 
 Texture2D normalMap;
 Texture2D depthMap;
-ConstantBuffer<SSAOProperty> bit32_4_ssaoProperty;
+ConstantBuffer<SSAOProperty> bit32_5_ssaoProperty;
 
-// radius 0.f ~ 1.f
-// 리벨리온 radius = 0.0005f, fallOff = 3.0f, strengthFactor = 2.0f, contrastFactor = 2.0f
-
-float ps_main(PSInput input) : SV_Target
+float3 ReconstructViewPos(float2 uv, float depth)
 {
-    float3 normal = normalMap.SampleLevel(samLinear_wrap, input.uv, 0).xyz;
+    float2 ndc = uv * 2.0f - 1.0f; // NDC [-1, 1]
+    float4 clipPos = float4(ndc, depth, 1.0f);
+    float4 viewPos = mul(cameraData.ProjectionInverse, clipPos);
+    return viewPos.xyz / viewPos.w;
+}
+
+float2 ProjectToUV(float3 viewPos)
+{
+    float4 clipPos = mul(cameraData.Projection, float4(viewPos, 1.0f));
+    float2 ndc = clipPos.xy / clipPos.w;
+    return ndc * 0.5f + 0.5f;
+}
+
+float ps_main(PSInput input) : SV_TARGET
+{
     float depth = depthMap.SampleLevel(samLinear_wrap, input.uv, 0).r;
+    SSAOProperty property = bit32_5_ssaoProperty;
+    clip(depth - property.threshold);
     
-    float occlusion = 1.f;
-    // factor들 나중에 빼서 사용 가능
-    
-    SSAOProperty property = bit32_4_ssaoProperty;
-    
+    float3 normal = normalize(normalMap.SampleLevel(samLinear_wrap, input.uv, 0).xyz);
+
+    float3 viewPos = ReconstructViewPos(input.uv, depth);
+
+    // Tangent basis from normal
+    float3 up = abs(normal.z) < 0.999 ? float3(0, 0, 1) : float3(0, 1, 0);
+    float3 tangent = normalize(cross(up, normal));
+    float3 bitangent = cross(normal, tangent);
+    float3x3 TBN = float3x3(tangent, bitangent, normal);
+
+    float occlusion = 0.0f;
+
     [unroll]
     for (int i = 0; i < 16; ++i)
     {
-        float3 sampleDir = normalize(SSAOKernel[i]);
-        float3 samplePos = float3(input.uv, depth) + sampleDir * property.radius;
-        
-        float3 sampleNormalData = normalMap.SampleLevel(samLinear_wrap, samplePos.xy, 0).xyz;
-        float3 sampleNormal = normalize(sampleNormalData);
-        float sampleDepth = depthMap.SampleLevel(samLinear_wrap, samplePos.xy, 0).r;
-        
-        float3 toSampleDir = normalize(samplePos - float3(input.uv, depth));
-        float angle = max(dot(normal, sampleNormal), 0.f);
-        float depthDiff = samplePos.z - sampleDepth;
-        if (depthDiff > 0.f && depthDiff < property.radius)
+        float3 sampleOffset = mul(TBN, SSAOKernel[i]) * property.radius;
+        float3 samplePosVS = viewPos + sampleOffset;
+
+        float2 sampleUV = ProjectToUV(samplePosVS);
+        if (sampleUV.x < 0.0 || sampleUV.x > 1.0 || sampleUV.y < 0.0 || sampleUV.y > 1.0)
+            continue;
+
+        float sampleDepth = depthMap.SampleLevel(samLinear_wrap, sampleUV, 0).r;
+        float3 sampleNormal = normalize(normalMap.SampleLevel(samLinear_wrap, sampleUV, 0).xyz);
+        float3 sampleViewPos = ReconstructViewPos(sampleUV, sampleDepth);
+
+        float angle = max(dot(normal, sampleNormal), 0.0f);
+        float depthDiff = samplePosVS.z - sampleViewPos.z;
+
+        if (depthDiff > 0.0f && depthDiff < property.radius)
         {
             float weight = exp(-depthDiff * property.falloff);
             occlusion += saturate(weight * angle);
-        };
+        }
     }
-    occlusion = saturate(occlusion / 16.f) * property.strengthFactor;
+
+    occlusion = saturate(occlusion / 16.0f) * property.strengthFactor;
     occlusion = pow(saturate(occlusion), property.contrastFactor);
-    
     return occlusion;
-};
+}
+

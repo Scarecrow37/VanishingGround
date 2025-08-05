@@ -41,10 +41,11 @@ void EditToneMappingProperty(std::any& property)
 void EditSSAOProperty(std::any& property)
 {
     auto& ssaoProps = std::any_cast<SSAOPassProperty&>(property);
-    ImGui::DragFloat("Radius", &ssaoProps.Radius, 0.0005f, 0.f, 1.0f);
-    ImGui::DragFloat("FallOff", &ssaoProps.Falloff, 0.1f, 0.f, 10.0f);
-    ImGui::DragFloat("StrengthFactor", &ssaoProps.StrengthFactor, 0.1f, 0.1f, 10.f);
-    ImGui::DragFloat("ContrastFactor", &ssaoProps.ContrastFactor, 0.1f, 0.1f, 10.f);
+    ImGui::DragFloat("Radius", &ssaoProps.Radius, 0.0001f, 0.f, 0.1f);
+    ImGui::DragFloat("FallOff", &ssaoProps.Falloff, 0.001f, 0.f, 5.0f);
+    ImGui::DragFloat("StrengthFactor", &ssaoProps.StrengthFactor, 0.01f, 0.1f, 5.f);
+    ImGui::DragFloat("ContrastFactor", &ssaoProps.ContrastFactor, 0.01f, 0.1f, 5.f);
+    ImGui::DragFloat("Threshold", &ssaoProps.Threshold, 0.0005f, 0.f, 1.f);
 }
 
 void EditorRenderPassData::OnFrameRender()

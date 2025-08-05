@@ -126,4 +126,5 @@ struct SSAOPassProperty
     float Falloff;
     float StrengthFactor;
     float ContrastFactor;
+    float Threshold;
 };

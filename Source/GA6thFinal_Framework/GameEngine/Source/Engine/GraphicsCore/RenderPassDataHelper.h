@@ -36,6 +36,7 @@ inline void SerializeSSAOPassProperty(std::ostream& os, const SSAOPassProperty& 
     os << "        Falloff = " << prop.Falloff << "\n";
     os << "        StrengthFactor = " << prop.StrengthFactor << "\n";
     os << "        ContrastFactor = " << prop.ContrastFactor << "\n";
+    os << "        Threshold = " << prop.Threshold << "\n";
 }
 
 // 문자열에서 ShadowPassProperty를 복원
@@ -93,10 +94,16 @@ inline void DeserializeSSAOPassProperty(std::istream& is, SSAOPassProperty& prop
     {
         std::stringstream ss(line);
         ss >> key >> equals;
-        if (key == "Radius") ss >> prop.Radius;
-        else if (key == "Falloff") ss >> prop.Falloff;
-        else if (key == "StrengthFactor") ss >> prop.StrengthFactor;
-        else if (key == "ContrastFactor") ss >> prop.ContrastFactor;
+        if (key == "Radius")
+            ss >> prop.Radius;
+        else if (key == "Falloff")
+            ss >> prop.Falloff;
+        else if (key == "StrengthFactor")
+            ss >> prop.StrengthFactor;
+        else if (key == "ContrastFactor")
+            ss >> prop.ContrastFactor;
+        else if (key == "Threshold")
+            ss >> prop.Threshold;
     }
 }
 
