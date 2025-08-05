@@ -15,7 +15,7 @@ void UI25DPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechni
 
     _cameraData.View = XMMatrixTranspose(XMMatrixLookAtLH({0.f, 0.f, -1.f}, {0.f, 0.f, 1.f}, {0.f, 1.f, 0.f}));
 
-    D3D12_RENDER_TARGET_BLEND_DESC rtDesc = {};
+    D3D12_RENDER_TARGET_BLEND_DESC rtDesc{};
     rtDesc.BlendEnable                    = TRUE;
     rtDesc.SrcBlend                       = D3D12_BLEND_SRC_ALPHA;
     rtDesc.DestBlend                      = D3D12_BLEND_INV_SRC_ALPHA;

@@ -13,7 +13,7 @@ void GaussianBlurModule::Initialize()
     _quadMesh  = model->GetMeshes().front().get();
 }
 
-void GaussianBlurModule::Execute(ID3D12GraphicsCommandList* commandList, D3D12_GPU_DESCRIPTOR_HANDLE input, RenderTarget* output, DXGI_FORMAT rtvForamt, BlurType type)
+void GaussianBlurModule::Execute(ID3D12GraphicsCommandList* commandList, D3D12_GPU_DESCRIPTOR_HANDLE input, RenderTarget* output, DXGI_FORMAT rtvFormat, BlurType type)
 {
     const auto& resolution = output->GetResolution();
     PostProcessData postProcessData{.TexelSize = {1.0f / resolution.Width, 1.0f / resolution.Height}};
@@ -22,7 +22,7 @@ void GaussianBlurModule::Execute(ID3D12GraphicsCommandList* commandList, D3D12_G
     commandList->RSSetViewports(1, &output->GetViewport());
     commandList->RSSetScissorRects(1, &output->GetScissorRect());
 
-    _pipelineStates[type].RTVFormats = {{rtvForamt}, 1};
+    _pipelineStates[type].RTVFormats          = {{rtvFormat}, 1};
     ComPtr<ID3D12PipelineState> pipelineState = Global::pipelineStateManager->GetPipelineState(_pipelineStates[type]);
 
     commandList->SetPipelineState(pipelineState.Get());

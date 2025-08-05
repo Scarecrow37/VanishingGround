@@ -12,7 +12,7 @@ public:
 
 public:
     void Initialize() override;
-    void Execute(ID3D12GraphicsCommandList* commandList, D3D12_GPU_DESCRIPTOR_HANDLE input, RenderTarget* output, DXGI_FORMAT rtvForamt, BlurType type);
+    void Execute(ID3D12GraphicsCommandList* commandList, D3D12_GPU_DESCRIPTOR_HANDLE input, RenderTarget* output, DXGI_FORMAT rtvFormat, BlurType type);
 
 private:
     void InitShaderAndPipelineState();
