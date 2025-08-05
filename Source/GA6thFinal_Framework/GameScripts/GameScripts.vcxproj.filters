@@ -390,7 +390,6 @@
     <ClInclude Include="Scripts\TurnSystem\TurnAction\WeaponStas\WeaponDamageAction.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    </ClInclude>
     <ClInclude Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
