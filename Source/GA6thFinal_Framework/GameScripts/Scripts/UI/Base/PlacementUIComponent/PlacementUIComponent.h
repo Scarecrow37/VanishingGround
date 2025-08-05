@@ -18,6 +18,7 @@ public:
 
 public:
     virtual SIZE GetContentSize() const;
+    virtual void  SetViewOrder(int viewOrder);
 
     POINT GetPoint() const;
     SIZE  GetSize() const;
@@ -26,7 +27,6 @@ public:
     POINT GetAbsolutePoint() const;
 
     void SetScopePlacement(POINT scopePoint, SIZE scopeSize); // 내림
-    int  SortViewOrder(int startOrder);
 
 protected:
     void ImGuiDrawPropertysEvent() override;
@@ -37,7 +37,6 @@ protected:
     virtual void  OnPlacementChange() {}
     virtual float GetZOrder() const;
     virtual void  SpreadPlacementToParent(); // 올림
-    virtual void  SetViewOrder(int viewOrder);
 
     void ResetPlacement();
 

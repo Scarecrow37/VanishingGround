@@ -10,9 +10,11 @@ namespace Watcher
         public:
             static bool Register(const std::string& key, std::shared_ptr<T> value)
             {
-                auto [iterator, inserted] = Map().try_emplace(key, value);
-                return inserted;
+                auto [iterator, result] = Map().try_emplace(key, value);
+                return result;
             }
+
+            static void Unregister(const std::string& key) { Map().erase(key); }
 
             static std::shared_ptr<T> Get(const std::string& key) { return Map().at(key); }
 
@@ -30,8 +32,14 @@ namespace Watcher
         {
             if (!Registry<T>::Register(std::string(key), std::make_shared<T>(std::forward<Args>(args)...)))
             {
-                throw std::invalid_argument("Failed to register ViewModel. Key already exists: " + key);
+                throw std::invalid_argument("Already registered key: " + key);
             }
+        }
+
+        template <typename T>
+        void Unregister(const std::string& key)
+        {
+             Registry<T>::Unregister(std::string(key));
         }
 
         template <typename T, typename U>
@@ -51,6 +59,22 @@ namespace Watcher
                 throw std::logic_error("ViewModel is null for key: " + key);
             }
             viewModel->SetCallback(callback);
+        }
+
+        template <typename T>
+        void Blind(const std::string& key)
+        {
+            std::shared_ptr<T> viewModel;
+            try
+            {
+                viewModel = Registry<T>::Get(key);
+            }
+            catch (...)
+            {
+                viewModel = nullptr;
+            }
+            if (nullptr != viewModel)
+                viewModel->SetCallback(nullptr);
         }
     };
 } // namespace MVVM
