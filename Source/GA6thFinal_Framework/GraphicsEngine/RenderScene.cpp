@@ -67,7 +67,7 @@ void RenderScene::InitializeRenderScene()
 
     Global::dxResourceManager->AddResource(_accumulationBuffer);
 
-    if (Global::renderer->_isRaytracing)
+    if (Global::isRayTracing)
     { 
         _accelerationStructureManager = std::make_unique<AccelerationStructureManager>();
         _accelerationStructureManager->Initialize(10000);
@@ -146,7 +146,7 @@ void RenderScene::UpdateRenderScene()
     UpdateObject();
     UpdateUI();
     UpdateFont();
-    if (Global::renderer->_isRaytracing)
+    if (Global::isRayTracing)
     {
         _accelerationStructureManager->RemoveUnUsedStaticMeshes(_activeMeshes[STATIC_MESH], _activeMeshes[SKELETAL_MESH]);
     }

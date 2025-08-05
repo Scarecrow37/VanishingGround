@@ -28,6 +28,16 @@ inline void SerializeToneMappingProperty(std::ostream& os, const ToneMappingProp
 	os << "        WhiteBalance = " << prop.WhiteBalance.x << " " << prop.WhiteBalance.y << " " << prop.WhiteBalance.z << "\n";
 }
 
+// SSAOPassProperty를 문자열로 변환
+inline void SerializeSSAOPassProperty(std::ostream& os, const SSAOPassProperty& prop)
+{
+    os << "        Type = SSAOPassProperty\n";
+    os << "        Radius = " << prop.Radius << "\n";
+    os << "        Falloff = " << prop.Falloff << "\n";
+    os << "        StrengthFactor = " << prop.StrengthFactor << "\n";
+    os << "        ContrastFactor = " << prop.ContrastFactor << "\n";
+}
+
 // 문자열에서 ShadowPassProperty를 복원
 inline void DeserializeShadowProperty(std::istream& is, ShadowPassProperty& prop)
 {
@@ -75,6 +85,21 @@ inline void DeserializeToneMappingProperty(std::istream& is, ToneMappingProperty
 	}
 }
 
+// 문자열에서 SSAOPassProperty를 복원
+inline void DeserializeSSAOPassProperty(std::istream& is, SSAOPassProperty& prop)
+{
+    std::string line, key, equals;
+    while (std::getline(is, line) && line.find('}') == std::string::npos)
+    {
+        std::stringstream ss(line);
+        ss >> key >> equals;
+        if (key == "Radius") ss >> prop.Radius;
+        else if (key == "Falloff") ss >> prop.Falloff;
+        else if (key == "StrengthFactor") ss >> prop.StrengthFactor;
+        else if (key == "ContrastFactor") ss >> prop.ContrastFactor;
+    }
+}
+
 inline void SaveRenderPassData(const std::string& filePath)
 {
 	std::filesystem::path path(filePath);
@@ -110,6 +135,10 @@ inline void SaveRenderPassData(const std::string& filePath)
 			{
 				SerializeToneMappingProperty(outFile, std::any_cast<const ToneMappingProperty&>(property));
 			}
+            else if (property.type() == typeid(SSAOPassProperty))
+            {
+                SerializeSSAOPassProperty(outFile, std::any_cast<const SSAOPassProperty&>(property));
+            }
 
 			outFile << "    }\n";
 		}
@@ -171,6 +200,10 @@ inline void LoadRenderPassData(const std::string& filePath)
 						{
 							DeserializeToneMappingProperty(inFile, std::any_cast<ToneMappingProperty&>(property));
 						}
+                        else if (name == "SSAOPassProperty" && property.type() == typeid(SSAOPassProperty))
+                        {
+                            DeserializeSSAOPassProperty(inFile, std::any_cast<SSAOPassProperty&>(property));
+                        }
 					}
 				}
 			}

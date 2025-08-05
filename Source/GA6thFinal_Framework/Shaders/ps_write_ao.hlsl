@@ -35,7 +35,7 @@ ConstantBuffer<SSAOProperty> bit32_4_ssaoProperty;
 
 float ps_main(PSInput input) : SV_Target
 {
-    float3 normal = normalMap.SampleLevel(samLinear_wrap, input.uv,0).xyz;
+    float3 normal = normalMap.SampleLevel(samLinear_wrap, input.uv, 0).xyz;
     float depth = depthMap.SampleLevel(samLinear_wrap, input.uv, 0).r;
     
     float occlusion = 1.f;
@@ -56,7 +56,7 @@ float ps_main(PSInput input) : SV_Target
         float3 toSampleDir = normalize(samplePos - float3(input.uv, depth));
         float angle = max(dot(normal, sampleNormal), 0.f);
         float depthDiff = samplePos.z - sampleDepth;
-        if(depthDiff>0.f&&depthDiff<property.radius)
+        if (depthDiff > 0.f && depthDiff < property.radius)
         {
             float weight = exp(-depthDiff * property.falloff);
             occlusion += saturate(weight * angle);

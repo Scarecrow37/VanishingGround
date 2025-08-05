@@ -41,6 +41,7 @@ namespace GE
         TO_BACKBUFFER,
         UI,
         UP_SAMPLE,
+        WRITE_AO,
         END
      };
     enum class CS { 

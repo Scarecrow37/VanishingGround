@@ -44,6 +44,7 @@ namespace GE
         {PS::BLEND, L"ps_blend.hlsl"},
         {PS::SSAO, L"ps_ssao.hlsl"},
         {PS::PBR_LIGHTING, L"ps_pbr_lighting.hlsl"},
+        {PS::WRITE_AO, L"ps_write_ao.hlsl"},
         {PS::PARTICLE_QUAD, L"ps_particle_quad.hlsl"},
         {PS::GAUSSIANBLUR_X_UAV, L"ps_gaussianblur_x_uav.hlsl"},
         {PS::GAUSSIANBLUR_X_RTV, L"ps_gaussianblur_x_rtv.hlsl"},
