@@ -355,12 +355,6 @@ void ShadowMapPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, int shade
 
 void ShadowMapPass::CopyPreviousCascadeData(ID3D12GraphicsCommandList* commandList)
 {
-    if (_renderDatas[SKELETAL_CULL_BACK].empty()  && 
-        _renderDatas[SKELETAL_CULL_FRONT].empty() && 
-        _renderDatas[SKELETAL_TWO_SIDED].empty())
-        return;
-
-    
     D3D12_RESOURCE_BARRIER barriers[2];
     barriers[0] = CD3DX12_RESOURCE_BARRIER::Transition(_staticShadowMap.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_COPY_SOURCE);
     barriers[1] = CD3DX12_RESOURCE_BARRIER::Transition(_shadowMap.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
