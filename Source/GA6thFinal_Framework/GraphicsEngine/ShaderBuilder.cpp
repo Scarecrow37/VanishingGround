@@ -37,7 +37,6 @@ void ShaderBuilder::CreateStaticSampler(D3D12_FILTER filter, D3D12_TEXTURE_ADDRE
     samplerDesc.ShaderRegister            = shaderRegister;
     samplerDesc.RegisterSpace             = 0;
     samplerDesc.ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
-    samplerDesc.BorderColor               = D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE;
 
     desc = samplerDesc;
 }
