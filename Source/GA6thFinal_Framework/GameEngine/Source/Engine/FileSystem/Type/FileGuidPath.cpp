@@ -3,11 +3,11 @@
 
 namespace File
 {
-    Guid::operator File::Path() const
+    Guid::operator const File::Path&() const
     {
         return ToPath();
     }
-    File::Path Guid::ToPath() const
+    const File::Path& Guid::ToPath() const
     {
         return UmFileSystem.GetPathFromGuid(native());
     }
@@ -15,7 +15,7 @@ namespace File
     {
         return NULL_GUID == native();
     }
-    Path::operator File::Guid() const
+    Path::operator const File::Guid&() const
     {
         return ToGuid();
     }
@@ -29,7 +29,7 @@ namespace File
         path /= v;
         return path.generic_string();
     }
-    File::Guid Path::ToGuid() const
+    const File::Guid& Path::ToGuid() const
     {
         return UmFileSystem.GetGuidFromPath(native());
     }

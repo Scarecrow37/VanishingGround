@@ -321,6 +321,7 @@
     <ClInclude Include="Source\Engine\AudioCore\AudioModule.h" />
     <ClInclude Include="Source\Engine\ClassCore\Delegate.hpp" />
     <ClInclude Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.h" />
+    <ClInclude Include="Source\Engine\GraphicsCore\RenderPassDataHelper.h" />
     <ClInclude Include="Source\Engine\TimelineCore\AnimationEventTrack.h" />
     <ClInclude Include="Source\Engine\EditorCore\Utillity\EditorDragState.h" />
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.h" />
@@ -410,6 +411,7 @@
     <ClInclude Include="Source\Engine\FileSystem\Importer\SpriteFontImporter.h" />
     <ClInclude Include="Source\Engine\Utility\YAMLHelper.h" />
     <ClInclude Include="Source\Engine\WatcherCore\System\WatcherSystem.h" />
+    <ClInclude Include="Source\UmScripts.h" />
     <ClInclude Include="ThirdParty\include\OpenXLSX\headers\IZipArchive.hpp" />
     <ClInclude Include="ThirdParty\include\OpenXLSX\headers\OpenXLSX-Exports.hpp" />
     <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLCell.hpp" />
