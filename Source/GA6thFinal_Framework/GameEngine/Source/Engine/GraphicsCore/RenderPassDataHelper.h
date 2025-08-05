@@ -176,4 +176,22 @@ inline void LoadRenderPassData(const std::string& filePath)
 			}
 		}
 	}
+
+    auto editor = renderPassProperties.find("Editor");
+    if (editor != renderPassProperties.end())
+    {
+        auto game = renderPassProperties.find("Game");
+
+        if (game != renderPassProperties.end())
+        {
+            for (auto& [passName, pair] : game->second)
+            {
+                auto editorPair = editor->second.find(passName);
+                if (editorPair != editor->second.end())
+                {
+                    pair = editorPair->second;
+                }
+            }
+        }
+    }
 }

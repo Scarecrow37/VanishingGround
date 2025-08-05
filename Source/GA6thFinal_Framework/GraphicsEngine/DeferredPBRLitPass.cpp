@@ -30,6 +30,7 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
     const auto& renderTargetGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
 
     auto shadowMapPass = GetRenderPass<ShadowMapPass>();
+
     if (nullptr == shadowMapPass)
         return;
 
@@ -57,7 +58,7 @@ void DeferredPBRLitPass::End(ID3D12GraphicsCommandList* commandList)
 void DeferredPBRLitPass::InitShaderAndPSO()
 {
     PipelineStateStream pss;
-    pss.BlendDesc                         = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    pss.BlendState                        = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
     pss.RasterizerState                   = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
     (&pss.RasterizerState)->CullMode      = D3D12_CULL_MODE_NONE;
     pss.DepthStencilState                 = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);

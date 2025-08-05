@@ -157,16 +157,14 @@ void DXRGBufferPass::InitShaderAndPSO()
 {
     _psos.resize(MeshType::END);
     PipelineStateStream pss;
-    pss.BlendDesc         = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    pss.BlendState        = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
     pss.RasterizerState   = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
     pss.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
     pss.PrimitiveTopology = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    pss.RTVFormats        = {
-        {DXGI_FORMAT_R32G32B32A32_FLOAT, // Normal
-                DXGI_FORMAT_R32_FLOAT,          // Depth
-                DXGI_FORMAT_R32_UINT},
-        DXRGBUFFER_END // CustomDepth
-    };
+    pss.RTVFormats        = {{DXGI_FORMAT_R32G32B32A32_FLOAT, // Normal
+                              DXGI_FORMAT_R32_FLOAT,          // Depth
+                              DXGI_FORMAT_R32_UINT},          // CustomDepth
+                              DXRGBUFFER_END};
     pss.DSVFormat = _ownerScene->_depthStencilView->GetFormat();
 
     _fxStaticMesh.SetPipelineStateStream(pss);

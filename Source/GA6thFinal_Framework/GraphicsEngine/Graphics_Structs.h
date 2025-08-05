@@ -95,6 +95,11 @@ struct GraphicsTransform
 
 struct ShadowPassProperty
 {
+    bool operator==(const ShadowPassProperty& other) const
+    {
+        return NearPlane == other.NearPlane && FarPlane == other.FarPlane && SplitFactor == other.SplitFactor;
+    }
+
     float NearPlane;
     float FarPlane;
     float SplitFactor;

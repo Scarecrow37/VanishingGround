@@ -28,7 +28,7 @@ inline bool operator==(const PipelineStateStream& lhs, const PipelineStateStream
     if (lhs_gs.BytecodeLength != rhs_gs.BytecodeLength || (lhs_gs.BytecodeLength > 0 && memcmp(lhs_gs.pShaderBytecode, rhs_gs.pShaderBytecode, lhs_gs.BytecodeLength) != 0)) return false;
 
     // 3. 구조체 멤버들을 하나씩 직접 비교
-    D3D12_BLEND_DESC lb = lhs.BlendDesc, rb = rhs.BlendDesc;   
+    D3D12_BLEND_DESC lb = lhs.BlendState, rb = rhs.BlendState;   
     if (std::memcmp(&lb, &rb, sizeof(D3D12_BLEND_DESC)) != 0) return false;
 
     D3D12_RASTERIZER_DESC lr = lhs.RasterizerState, rr = rhs.RasterizerState;
@@ -78,7 +78,7 @@ namespace std
             hash_combine(seed, r.ForcedSampleCount);
             hash_combine(seed, r.ConservativeRaster);
 
-            D3D12_BLEND_DESC b = s.BlendDesc;
+            D3D12_BLEND_DESC b = s.BlendState;
             hash_combine(seed, b.AlphaToCoverageEnable);
             hash_combine(seed, b.IndependentBlendEnable);
             for(int i=0; i<8; ++i) {

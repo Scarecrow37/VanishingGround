@@ -18,5 +18,6 @@ private:
     void InitShaderAndPSO();
 
 private:
+    FX<GE::VS::SKYBOX, GE::PS::SKYBOX> _fx;
     SkyBox* _skyBox;
 };

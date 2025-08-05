@@ -9,18 +9,7 @@ void EndlessGridPass::Initialize(RenderScene* ownerScene, RenderTechnique* owner
 {
     __super::Initialize(ownerScene, ownerTechnique, commandList);
 
-    _shader = std::make_unique<ShaderBuilder>();
-    _shader->BeginBuild();
-    _shader->SetShader(L"../Shaders/vs_grid.hlsl", ShaderBuilder::Type::VS);
-    _shader->SetShader(L"../Shaders/ps_grid.hlsl", ShaderBuilder::Type::PS);
-    _shader->EndBuild();
-
-    ID3D12Device* device = Global::device->GetDevice();
-
-    D3D12_BLEND_DESC blendDesc       = {};
-    blendDesc.AlphaToCoverageEnable  = FALSE;
-    blendDesc.IndependentBlendEnable = TRUE;
-    auto& rtDesc                     = blendDesc.RenderTarget[0];
+    D3D12_RENDER_TARGET_BLEND_DESC rtDesc{};
     rtDesc.BlendEnable               = TRUE;
     rtDesc.SrcBlend                  = D3D12_BLEND_SRC_ALPHA;
     rtDesc.DestBlend                 = D3D12_BLEND_INV_SRC_ALPHA;
@@ -30,25 +19,20 @@ void EndlessGridPass::Initialize(RenderScene* ownerScene, RenderTechnique* owner
     rtDesc.BlendOpAlpha              = D3D12_BLEND_OP_ADD;
     rtDesc.RenderTargetWriteMask     = D3D12_COLOR_WRITE_ENABLE_ALL;
 
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc{};
-    psodesc.RasterizerState               = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    psodesc.RasterizerState.CullMode      = D3D12_CULL_MODE_NONE;
-    psodesc.BlendState                    = blendDesc;
-    psodesc.DepthStencilState             = CommonStates::DepthRead;
-    psodesc.DSVFormat                     = _ownerScene->_depthStencilView->GetFormat();
-    psodesc.SampleMask                    = UINT_MAX;
-    psodesc.PrimitiveTopologyType         = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psodesc.InputLayout                   = _shader->GetInputLayout();
-    psodesc.NumRenderTargets              = 1;
-    psodesc.RTVFormats[0]                 = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    psodesc.pRootSignature                = _shader->GetRootSignature();
-    psodesc.SampleDesc                    = {1, 0};
-    psodesc.VS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::VS);
-    psodesc.PS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::PS);
-    
-    HRESULT hr = S_OK;
-    hr         = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&_pipelineState));
-    FAILED_CHECK_MESSAGE(hr, L"EndlessGridPass::Initialize device->CreateGraphicsPipelineState Failed");
+    PipelineStateStream pss;
+    pss.BlendState                            = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    (&pss.BlendState)->AlphaToCoverageEnable  = FALSE;
+    (&pss.BlendState)->IndependentBlendEnable = FALSE;
+    (&pss.BlendState)->RenderTarget[0]        = rtDesc;
+    pss.RasterizerState                       = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    (&pss.RasterizerState)->CullMode          = D3D12_CULL_MODE_NONE;
+    pss.DepthStencilState                     = CD3DX12_DEPTH_STENCIL_DESC(CommonStates::DepthRead);
+    pss.PrimitiveTopology                     = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    pss.RTVFormats                            = {{DXGI_FORMAT_R32G32B32A32_FLOAT}, 1};
+    pss.DSVFormat                             = _ownerScene->_depthStencilView->GetFormat();
+
+    _fx.SetPipelineStateStream(pss);
+    _pipelineState = Global::pipelineStateManager->GetPipelineState(pss);
 }
 
 void EndlessGridPass::Begin(ID3D12GraphicsCommandList* commandList)
@@ -64,9 +48,9 @@ void EndlessGridPass::Begin(ID3D12GraphicsCommandList* commandList)
 void EndlessGridPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
     commandList->SetPipelineState(_pipelineState.Get());
-    commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
+    commandList->SetGraphicsRootSignature(_fx.GetRootSignature());
     
-    commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"), _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
+    commandList->SetGraphicsRootConstantBufferView(_fx.GetRootParameterIndex("cameraData"), _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
     commandList->DrawInstanced(4, 1, 0, 0);
 }
