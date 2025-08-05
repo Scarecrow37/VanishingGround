@@ -829,6 +829,7 @@ void EditorAssetBrowserTool::ShowFolderEntryPopup(AssetData& asset)
         {
             File::OpenFile(asset.Entry.path());
         }
+        if (asset.IsDirectory) ImGui::BeginDisabled();
         if (ImGui::MenuItem("Copy"))
         {
             SetCopyFileFromPath(asset.Entry.path());
@@ -837,6 +838,7 @@ void EditorAssetBrowserTool::ShowFolderEntryPopup(AssetData& asset)
         {
             SetCutFileFromPath(asset.Entry.path());
         }
+        if (asset.IsDirectory) ImGui::EndDisabled();
         if (ImGui::MenuItem("Rename"))
         {
             _rename.StartRename(asset.Entry.path());
