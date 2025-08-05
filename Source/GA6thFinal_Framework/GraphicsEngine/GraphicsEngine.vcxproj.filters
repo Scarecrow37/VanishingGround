@@ -771,16 +771,22 @@
     <FxCompile Include="..\Shaders\cs_radix_scatter.hlsl">
       <Filter>Shaders\cs</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\cs_validate_sort.hlsl">
+    <FxCompile Include="..\Shaders\cs_skeletal_skinning.hlsl">
       <Filter>Shaders\cs</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\ps_blend.hlsl">
-      <Filter>Shaders\ps</Filter>
+    <FxCompile Include="..\Shaders\cs_validate_sort.hlsl">
+      <Filter>Shaders\cs</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\ps_accumulation.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\ps_blend.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
     <FxCompile Include="..\Shaders\ps_bright_extract.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_down_sample.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\ps_dxrgbuffer.hlsl">
@@ -807,10 +813,16 @@
     <FxCompile Include="..\Shaders\ps_skybox.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\ps_ssao.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
     <FxCompile Include="..\Shaders\ps_to_backbuffer.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\ps_ui.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_up_sample.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\vs_grid.hlsl">
@@ -837,31 +849,19 @@
     <FxCompile Include="..\Shaders\vs_skybox.hlsl">
       <Filter>Shaders\vs</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\vs_static_fr.hlsl">
+      <Filter>Shaders\vs</Filter>
+    </FxCompile>
     <FxCompile Include="..\Shaders\vs_static_shadow_fr.hlsl">
       <Filter>Shaders\vs</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\vs_ui_fr.hlsl">
       <Filter>Shaders\vs</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\ps_down_sample.hlsl">
+    <FxCompile Include="..\Shaders\ps_gaussianblur_x.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\ps_up_sample.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_ssao.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_gaussianblur_x_rtv.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_gaussianblur_x_uav.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_gaussianblur_y_rtv.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_gaussianblur_y_uav.hlsl">
+    <FxCompile Include="..\Shaders\ps_gaussianblur_y.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
   </ItemGroup>

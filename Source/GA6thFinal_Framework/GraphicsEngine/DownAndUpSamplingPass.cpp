@@ -11,48 +11,21 @@ void DownAndUpSamplingPass::Initialize(RenderScene* ownerScene, RenderTechnique*
 {
     __super::Initialize(ownerScene, ownerTechnique, commandList);
 
-    _shaders[DOWN_SAMPLING] = std::make_unique<ShaderBuilder>();
-    _shaders[DOWN_SAMPLING]->BeginBuild();
-    _shaders[DOWN_SAMPLING]->SetShader(L"../Shaders/vs_quad.hlsl", ShaderBuilder::Type::VS);
-    _shaders[DOWN_SAMPLING]->SetShader(L"../Shaders/ps_down_sample.hlsl", ShaderBuilder::Type::PS);
-    _shaders[DOWN_SAMPLING]->EndBuild();
+    PipelineStateStream pss;
+    pss.BlendState                        = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    pss.RasterizerState                   = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    pss.DepthStencilState                 = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+    (&pss.DepthStencilState)->DepthEnable = FALSE;
+    pss.PrimitiveTopology                 = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    pss.RTVFormats                        = {{DXGI_FORMAT_R32G32B32A32_FLOAT}, 1};
 
-    _shaders[UP_SAMPLING] = std::make_unique<ShaderBuilder>();
-    _shaders[UP_SAMPLING]->BeginBuild();
-    _shaders[UP_SAMPLING]->SetShader(L"../Shaders/vs_quad.hlsl", ShaderBuilder::Type::VS);
-    _shaders[UP_SAMPLING]->SetShader(L"../Shaders/ps_up_sample.hlsl", ShaderBuilder::Type::PS);
-    _shaders[UP_SAMPLING]->EndBuild();    
+    _fxDownSampling.SetPipelineStateStream(pss);
+    _pipelineStates[DOWN_SAMPLING] = Global::pipelineStateManager->GetPipelineState(pss);
 
-    ID3D12Device* device = Global::device->GetDevice();
-    HRESULT       hr     = S_OK;
+    _fxUpSampling.SetPipelineStateStream(pss);
+    _pipelineStates[UP_SAMPLING] = Global::pipelineStateManager->GetPipelineState(pss);    
 
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc = {};
-    psodesc.RasterizerState                    = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    psodesc.BlendState                         = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    psodesc.DepthStencilState                  = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-    psodesc.DepthStencilState.DepthEnable      = FALSE;
-    psodesc.SampleMask                         = UINT_MAX;
-    psodesc.PrimitiveTopologyType              = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psodesc.NumRenderTargets                   = 1;
-    psodesc.RTVFormats[0]                      = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    psodesc.SampleDesc                         = {1, 0};
-
-    psodesc.InputLayout    = _shaders[DOWN_SAMPLING]->GetInputLayout();
-    psodesc.pRootSignature = _shaders[DOWN_SAMPLING]->GetRootSignature();
-    psodesc.VS             = _shaders[DOWN_SAMPLING]->GetShaderByteCode(ShaderBuilder::Type::VS);
-    psodesc.PS             = _shaders[DOWN_SAMPLING]->GetShaderByteCode(ShaderBuilder::Type::PS);
-
-    hr = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&_pipelineStates[DOWN_SAMPLING]));
-    FAILED_CHECK_MESSAGE(hr, L"DownAndUpSamplingPass::Initialize device->CreateGraphicsPipelineState Failed");
-
-    psodesc.InputLayout    = _shaders[UP_SAMPLING]->GetInputLayout();
-    psodesc.pRootSignature = _shaders[UP_SAMPLING]->GetRootSignature();
-    psodesc.VS             = _shaders[UP_SAMPLING]->GetShaderByteCode(ShaderBuilder::Type::VS);
-    psodesc.PS             = _shaders[UP_SAMPLING]->GetShaderByteCode(ShaderBuilder::Type::PS);
-
-    hr = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&_pipelineStates[UP_SAMPLING]));
-    FAILED_CHECK_MESSAGE(hr, L"DownAndUpSamplingPass::Initialize device->CreateGraphicsPipelineState Failed");
-
+    
     _pingpongTarget[0] = MakeSharedResource<RenderTarget>();
     _pingpongTarget[1] = MakeSharedResource<RenderTarget>();
 
@@ -111,7 +84,7 @@ void DownAndUpSamplingPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
     // Down Scale Pass
     commandList->SetPipelineState(_pipelineStates[DOWN_SAMPLING].Get());
-    commandList->SetGraphicsRootSignature(_shaders[DOWN_SAMPLING]->GetRootSignature());
+    commandList->SetGraphicsRootSignature(_fxDownSampling.GetRootSignature());
 
     UINT currentIndex = 0;
     D3D12_GPU_DESCRIPTOR_HANDLE currentSRVHandle = _sharedRenderTarget->GetSRVHandle();
@@ -125,8 +98,8 @@ void DownAndUpSamplingPass::Draw(ID3D12GraphicsCommandList* commandList)
         commandList->RSSetScissorRects(1, &_pingpongTarget[currentIndex]->GetScissorRect(i));
 
         int mipLevel = std::max(0, (int)i - 1);
-        commandList->SetGraphicsRoot32BitConstants(_shaders[DOWN_SAMPLING]->GetRootParameterIndex("bit32_1_mipLevel"), 1, &mipLevel, 0);
-        commandList->SetGraphicsRootDescriptorTable(_shaders[DOWN_SAMPLING]->GetRootParameterIndex("sourceTexture"), currentSRVHandle);
+        commandList->SetGraphicsRoot32BitConstants(_fxDownSampling.GetRootParameterIndex("bit32_1_mipLevel"), 1, &mipLevel, 0);
+        commandList->SetGraphicsRootDescriptorTable(_fxDownSampling.GetRootParameterIndex("sourceTexture"), currentSRVHandle);
 
         _ownerScene->_frameQuad->Render(commandList);
 
@@ -139,7 +112,7 @@ void DownAndUpSamplingPass::Draw(ID3D12GraphicsCommandList* commandList)
 
     // Up Scale Pass
     commandList->SetPipelineState(_pipelineStates[UP_SAMPLING].Get());
-    commandList->SetGraphicsRootSignature(_shaders[UP_SAMPLING]->GetRootSignature());
+    commandList->SetGraphicsRootSignature(_fxUpSampling.GetRootSignature());
 
     currentSRVHandle = _activeSRVs.back();
     const auto& renderTargetGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("Mipmap");
@@ -158,9 +131,9 @@ void DownAndUpSamplingPass::Draw(ID3D12GraphicsCommandList* commandList)
         commandList->RSSetViewports(1, &currentTarget->GetViewport());
         commandList->RSSetScissorRects(1, &currentTarget->GetScissorRect());
 
-        commandList->SetGraphicsRoot32BitConstants(_shaders[UP_SAMPLING]->GetRootParameterIndex("bit32_2_mipLevel"), 2, &mipLevel, 0);
-        commandList->SetGraphicsRootDescriptorTable(_shaders[UP_SAMPLING]->GetRootParameterIndex("lowTexture"), currentSRVHandle);
-        commandList->SetGraphicsRootDescriptorTable(_shaders[UP_SAMPLING]->GetRootParameterIndex("highTexture"), _activeSRVs[i]);
+        commandList->SetGraphicsRoot32BitConstants(_fxUpSampling.GetRootParameterIndex("bit32_2_mipLevel"), 2, &mipLevel, 0);
+        commandList->SetGraphicsRootDescriptorTable(_fxUpSampling.GetRootParameterIndex("lowTexture"), currentSRVHandle);
+        commandList->SetGraphicsRootDescriptorTable(_fxUpSampling.GetRootParameterIndex("highTexture"), _activeSRVs[i]);
 
         _ownerScene->_frameQuad->Render(commandList);
 
@@ -177,9 +150,9 @@ void DownAndUpSamplingPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->RSSetScissorRects(1, &renderTargetGroup[0]->GetScissorRect());
 
     mipLevel[1] = 0;
-    commandList->SetGraphicsRoot32BitConstants(_shaders[UP_SAMPLING]->GetRootParameterIndex("bit32_2_mipLevel"), 2, &mipLevel, 0);
-    commandList->SetGraphicsRootDescriptorTable(_shaders[UP_SAMPLING]->GetRootParameterIndex("lowTexture"), currentSRVHandle);
-    commandList->SetGraphicsRootDescriptorTable(_shaders[UP_SAMPLING]->GetRootParameterIndex("highTexture"), _sharedRenderTarget->GetSRVHandle());
+    commandList->SetGraphicsRoot32BitConstants(_fxUpSampling.GetRootParameterIndex("bit32_2_mipLevel"), 2, &mipLevel, 0);
+    commandList->SetGraphicsRootDescriptorTable(_fxUpSampling.GetRootParameterIndex("lowTexture"), currentSRVHandle);
+    commandList->SetGraphicsRootDescriptorTable(_fxUpSampling.GetRootParameterIndex("highTexture"), _sharedRenderTarget->GetSRVHandle());
 
     _ownerScene->_frameQuad->Render(commandList);
 }
