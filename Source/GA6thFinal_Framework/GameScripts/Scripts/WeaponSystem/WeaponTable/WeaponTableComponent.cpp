@@ -441,40 +441,12 @@ void WeaponTableComponent::ImGuiDrawExcelParser()
                     auto  workBook = doc.workbook();
                     auto  workSheet = workBook.worksheet(_imguiEvent.SelectSheetName.c_str());
 
-                    auto [keyRaw, keyColum] = OpenXLSXHelper::FindRowColumnToData(workSheet, u8"이름"_c_str);
-                    if (OpenXLSXHelper::IsFindSuccess(keyRaw, keyColum))
+                    auto [keyRow, keyColum] = OpenXLSXHelper::FindRowColumnToData(workSheet, u8"이름"_c_str);
+                    if (OpenXLSXHelper::IsFindSuccess(keyRow, keyColum))
                     {        
                         //파싱
-                        unsigned int rowCount    = workSheet.rowCount();
-                        unsigned int rowStart    = keyRaw + 1;
-                        if (rowStart <= rowCount)
-                        {
-                            unsigned int columnCount = workSheet.columnCount();
-                            _imguiEvent.SheetDatas.clear();
-                            _imguiEvent.SheetDatas.reserve(columnCount);
-                            for (unsigned int column = 1; column <= columnCount; ++column)
-                            {
-                                auto keyValue = workSheet.cell(keyRaw, column);
-                                if (keyValue)
-                                {
-                                    std::string key = keyValue.getString();
-                                    if (false == key.empty())
-                                    {
-                                        std::vector<std::string> datas(size_t(rowCount - rowStart + 1));
-                                        for (unsigned int row = rowStart; row <= rowCount; ++row)
-                                        {
-                                            auto dataValue = workSheet.cell(row, column);
-                                            if (dataValue)
-                                            {
-                                                unsigned int index = row - rowStart;
-                                                datas[index]       = dataValue.getString();
-                                            }
-                                        }
-                                        _imguiEvent.SheetDatas.emplace_back(key, datas);
-                                    }
-                                }
-                            }          
-                        }       
+                        _imguiEvent.SheetDatas.clear();
+                        _imguiEvent.SheetDatas = OpenXLSXHelper::ParseSheetWithColumnKeys(workSheet, keyRow);
 
                         //생성
                         if (false == _imguiEvent.SheetDatas.empty())

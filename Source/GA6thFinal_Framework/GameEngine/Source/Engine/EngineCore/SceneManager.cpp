@@ -132,8 +132,8 @@ void ESceneManager::SceneUpdate()
 #ifdef _UMEDITOR
     _isPlay = editorModule->PlayMode.IsPlay();
 #endif
-    SceneResourceManager::Engine::Update(ResourceManager);
     ObjectsAddRuntime();
+    SceneResourceManager::Engine::Update(ResourceManager);
     ObjectsOnEnable();
     ObjectsAwake();
     ObjectsStart();
