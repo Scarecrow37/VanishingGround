@@ -198,7 +198,7 @@ void WeaponTableComponent::ImGuiDrawPropertysEvent()
                 }
                 gameObject->GetScene().IsDirty = true;
             }
-            ImGui::MenuItem("Excel Parser", "", &_imguiEvent.ShowExcelParser);
+            ImGui::MenuItem("Excel Parser", "", &_imguiEvent.ColumnParser.ShowParser);
             ImGui::EndMenuBar();
         }
         ImGuiTableEditor();
@@ -371,175 +371,66 @@ void WeaponTableComponent::ImGuiTableEditor()
 void WeaponTableComponent::ImGuiDrawExcelParser() 
 {
 #ifdef _UMEDITOR
-    auto DirtyWeaponModalPopup = [this]() 
+    if (ImGui::BeginPopupModal(u8"알림##Dirty Weapon Popup"_c_str))
     {
-        if (ImGui::BeginPopupModal(u8"알림##Dirty Weapon Popup"_c_str))
+        ImGui::Text(u8"올바르지 않은 형식입니다. 직접 입력해주세요."_c_str);
+        WeaponElement& element = *_imguiEvent.DirtyWeaponElementQueue.front();
+        element.ImGuiDrawPropertys();
+        ImGui::Separator();
+        if (ImGui::Button("OK"))
         {
-            ImGui::Text(u8"올바르지 않은 형식입니다. 직접 입력해주세요."_c_str);
-            WeaponElement& element = *_imguiEvent.DirtyWeaponElementQueue.front();
-            element.ImGuiDrawPropertys();
-            ImGui::Separator();
-            if (ImGui::Button("OK"))
-            {
-                _imguiEvent.ShowDirtyWeaponPopup = false;
-                _imguiEvent.DirtyWeaponElementQueue.pop();
-                ImGui::CloseCurrentPopup();
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Cancel"))
-            {
-                _imguiEvent.ShowDirtyWeaponPopup = false;
-                _imguiEvent.DirtyWeaponElementQueue.pop();
-                EraseWeapon(element);
-                ImGui::CloseCurrentPopup();
-            }
-            ImGui::EndPopup();
+            _imguiEvent.ShowDirtyWeaponPopup = false;
+            _imguiEvent.DirtyWeaponElementQueue.pop();
+            ImGui::CloseCurrentPopup();
         }
-    };
-
-    if (_imguiEvent.ShowExcelParser)
-    {
-        ImGui::Begin("Excel Parser##12487AA8-BA7A-43E8-90A6-EBC10DAE14FC", &_imguiEvent.ShowExcelParser,
-                     ImGuiWindowFlags_MenuBar);
+        ImGui::SameLine();
+        if (ImGui::Button("Cancel"))
         {
-            ImGui::PushID(this);
-            ImGuiDrawExcelParserMenuBar();
-            DirtyWeaponModalPopup();
-            if (false == _imguiEvent.SheetDatas.empty())
+            _imguiEvent.ShowDirtyWeaponPopup = false;
+            _imguiEvent.DirtyWeaponElementQueue.pop();
+            EraseWeapon(element);
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+    }
+
+    if (false == _imguiEvent.DirtyWeaponElementQueue.empty() && false == _imguiEvent.ShowDirtyWeaponPopup)
+    {
+        _imguiEvent.ShowDirtyWeaponPopup = true;
+    }
+
+    auto ParserFunc = [this](const std::string& key, const std::string& data) 
+    {
+        WeaponElement temp;
+        bool          result = true;
+        result &= ExcelToWeaponElement(temp, key, data);
+        const std::string& name = temp.Stats.WeaponName;
+        if (name != WeaponStats::DEFAULT_NAME)
+        {
+            auto findWeaponIter = _weaponTable.find(name);
+            if (findWeaponIter == _weaponTable.end())
             {
-                if (true == _imguiEvent.DirtyWeaponElementQueue.empty())
-                {
-                    _imguiEvent.ShowExcelParser = false;
-                }
-                else if (false == _imguiEvent.ShowDirtyWeaponPopup)
-                {
-                    ImGui::OpenPopup(u8"알림##Dirty Weapon Popup"_c_str);
-                    _imguiEvent.ShowDirtyWeaponPopup = true;
-                }
-            }
-            else if (true == _imguiEvent.SheetNames.empty())
-            {
-                ImGui::Text((const char*)u8"엑셀 파일을 로드해주세요.");
+                // 없으면 새로 생성
+                InsertWeapon(temp);
             }
             else
             {
-                ImGui::Text(u8"파싱할 시트를 선택하세요."_c_str);
-                if (ImGui::BeginCombo("##{A4CAA356-B858-4BFF-85E8-52E3B270A7D2}", _imguiEvent.SelectSheetName.c_str()))
-                {
-                    for (auto& name : _imguiEvent.SheetNames)
-                    {
-                        if (ImGui::Selectable(name.c_str(), _imguiEvent.SelectSheetName == name))
-                        {
-                            _imguiEvent.SelectSheetName = name;
-                        }
-                    }
-                    ImGui::EndCombo();
-                }
-                if (ImGui::Button("Ok") && false == _imguiEvent.SelectSheetName.empty())
-                {
-                    auto& doc = *_imguiEvent.ExcelDoc;
-                    auto  workBook = doc.workbook();
-                    auto  workSheet = workBook.worksheet(_imguiEvent.SelectSheetName.c_str());
-
-                    auto [keyRow, keyColum] = OpenXLSXHelper::FindRowColumnToData(workSheet, u8"이름"_c_str);
-                    if (OpenXLSXHelper::IsFindSuccess(keyRow, keyColum))
-                    {        
-                        //파싱
-                        _imguiEvent.SheetDatas.clear();
-                        _imguiEvent.SheetDatas = OpenXLSXHelper::ParseSheetWithColumnKeys(workSheet, keyRow);
-
-                        //생성
-                        if (false == _imguiEvent.SheetDatas.empty())
-                        {                                                
-                            for (size_t row = 0; row < _imguiEvent.SheetDatas.front().second.size(); ++row)
-                            {
-                                bool result = true;
-                                WeaponElement temp;
-                                for (auto& [key, datas] : _imguiEvent.SheetDatas)
-                                {
-                                    result &= ExcelToWeaponElement(temp, key, datas[row]);
-                                }
-                                const std::string& name = temp.Stats.WeaponName;
-                                if (name != WeaponStats::DEFAULT_NAME)
-                                {
-                                    auto findWeaponIter = _weaponTable.find(name);
-                                    if (findWeaponIter == _weaponTable.end())
-                                    {
-                                        //없으면 새로 생성
-                                        InsertWeapon(temp);
-                                    }
-                                    else
-                                    {
-                                        //이미 있으면 스텟만 복사
-                                        findWeaponIter->second.Stats = temp.Stats;
-                                    }
-                                    if (false == result)
-                                    {
-                                        //잘못된 데이터는 알림 팝업
-                                        WeaponElement& element = _weaponTable[name];
-                                        _imguiEvent.DirtyWeaponElementQueue.push(&element);
-                                    }
-                                }
-                            }
-                        }
-                    }                  
-                }
+                // 이미 있으면 스텟만 복사
+                findWeaponIter->second.Stats = temp.Stats;
             }
-            ImGui::PopID();
-        }
-        ImGui::End();
-    }
-
-    if (_imguiEvent.ExcelDoc && _imguiEvent.ShowExcelParser == false)
-    {
-        if (_imguiEvent.ExcelDoc->isOpen())
-        {
-            _imguiEvent.ExcelDoc->close();
-        }
-        _imguiEvent.ExcelDoc.reset();
-        _imguiEvent.SheetNames.clear();
-        _imguiEvent.SelectSheetName.clear();
-        _imguiEvent.SheetDatas.clear();
-    }
-#endif
-}
-
-void WeaponTableComponent::ImGuiDrawExcelParserMenuBar() 
-{
-#ifdef _UMEDITOR
-    if (ImGui::BeginMenuBar())
-    {
-        if (ImGui::MenuItem("Load Excel Table"))
-        {
-            std::wstring_view       desktopPath = File::GetDesktopPath();
-            std::vector<File::Path> out;
-            if (File::ShowOpenFileDialog(NULL, L"로드할 파일을 선택하세요.", desktopPath.data(),
-                                         {{L"무기 테이블 파일\0", L"*.xlsm\0"}}, false, out))
+            if (false == result)
             {
-                if (false == out.empty())
-                {
-                    if (nullptr == _imguiEvent.ExcelDoc)
-                    {
-                        _imguiEvent.ExcelDoc.reset(new OpenXLSX::XLDocument);
-                    }
-                    _imguiEvent.SheetNames.clear();
-                    _imguiEvent.SelectSheetName.clear();
-                    _imguiEvent.SheetDatas.clear();
-                    _imguiEvent.ExcelDoc->open(out.front().generic_string());
-                    auto& doc = *_imguiEvent.ExcelDoc;
-                    if (doc.isOpen())
-                    {
-                        auto workBook          = doc.workbook();
-                        _imguiEvent.SheetNames = workBook.sheetNames();
-                    }
-                    gameObject->GetScene().IsDirty = true;
-                }
+                // 잘못된 데이터는 알림 팝업
+                WeaponElement& element = _weaponTable[name];
+                _imguiEvent.DirtyWeaponElementQueue.push(&element);
             }
         }
-        ImGui::EndMenuBar();
-    }
+    };
+    _imguiEvent.ColumnParser.Draw(ParserFunc);
+     
 #endif
 }
+
 
 bool WeaponTableComponent::ExcelToWeaponElement(WeaponElement& element, const std::string& key, const std::string& data)
 {

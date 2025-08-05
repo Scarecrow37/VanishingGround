@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <WeaponSystem/WeaponElement/WeaponElement.h>
+#include <ExcelParser/ImGuiColumnSheetParser.h>
 
 class WeaponTableComponent : public Component
 {
@@ -80,13 +81,9 @@ private:
         WeaponElement*        SelectWeapon      = nullptr;
         std::function<void()> RenameFunc;
 
-        bool                                                          ShowExcelParser = false;
-        std::unique_ptr<OpenXLSX::XLDocument>                         ExcelDoc;
-        std::vector<std::string>                                      SheetNames;
-        std::string                                                   SelectSheetName;
-        std::vector<std::pair<std::string, std::vector<std::string>>> SheetDatas;
-        std::queue<WeaponElement*>                                    DirtyWeaponElementQueue;
-        bool                                                          ShowDirtyWeaponPopup = false;
+        ImGuiColumnSheetParser     ColumnParser{"87159CF2-3513-401C-B7C9-5C7C7E7F6167"};
+        std::queue<WeaponElement*> DirtyWeaponElementQueue;
+        bool                       ShowDirtyWeaponPopup = false;
     };
 
 #ifdef _UMEDITOR
@@ -99,9 +96,6 @@ private:
 
     /*엑셀 파서 ImGuiDraw 함수*/
     void ImGuiDrawExcelParser();
-
-    /*엑셀 파서 ImGuiMenubar 함수*/
-    void ImGuiDrawExcelParserMenuBar();
 
     /*엑셀 데이터를 Element 데이터로 변환*/
     bool ExcelToWeaponElement(WeaponElement& element, const std::string& key, const std::string& data);
