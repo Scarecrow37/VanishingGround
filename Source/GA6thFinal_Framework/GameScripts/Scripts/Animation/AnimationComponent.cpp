@@ -271,7 +271,6 @@ void AnimationComponent::ImGuiDrawPropertysEvent()
                     {
                         ImVec2 availSize = ImGui::GetContentRegionAvail();
                         ImGui::Selectable(key.c_str(), isSelected, 0, availSize);
-                        ImGui::Text(key.c_str());
                         ImGuiHelper::HoveredToolTip(key.c_str());
                     }
 

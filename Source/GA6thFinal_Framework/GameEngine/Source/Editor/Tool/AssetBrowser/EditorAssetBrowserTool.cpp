@@ -9,9 +9,6 @@ EditorAssetBrowserTool::EditorAssetBrowserTool()
     SetLabel("AssetBrowser");
     SetDockLayout(ImGuiDir_Down);
 
-    //_selectedContext = std::make_shared<EditorAssetObject>();
-    //_selectedContext->SetThis(_selectedContext);
-
     ReflectFields->ShowType = SHOW_TYPE_ICON;
 
     _staticInstance = this;
@@ -40,6 +37,7 @@ void EditorAssetBrowserTool::OnStartGui()
     const MessageHandler msgHandler(WinProc, 0);
     UmApplication.AddMessageHandler(msgHandler);
     _inspectorDrawer = std::make_unique<InspectorDrawer>();
+    UmFileSystem.RegisterFileEventSubscriber(this);
 }
 
 void EditorAssetBrowserTool::OnPreFrameBegin()
@@ -55,7 +53,18 @@ void EditorAssetBrowserTool::OnPostFrameBegin()
 
 void EditorAssetBrowserTool::OnFrameRender()
 {
-    RefreshState();
+    if (false == fs::exists(_focusFolderPath))
+    {
+        File::Path parentPath = _focusFolderPath.parent_path();
+        if (fs::exists(parentPath) && fs::is_directory(parentPath))
+        {
+            SetFocusFolderPath(parentPath, false);
+        }
+        else
+        {
+            ResetState();
+        }
+    }
     if (_updateTime >= 0.5f || _needRefresh)
     {
         _updateTime     = 0.0f;
@@ -116,6 +125,13 @@ void EditorAssetBrowserTool::OnFrameFocusStay()
 
 void EditorAssetBrowserTool::OnFrameFocusExit() 
 {
+}
+
+void EditorAssetBrowserTool::OnPostRequestedLoad() 
+{
+    // 파일 시스템이 로드된 후에 호출되는 메서드
+    // 여기서 초기 폴더 경로를 설정하거나 필요한 초기화 작업을 수행할 수 있습니다.
+    ResetState();
 }
 
 void EditorAssetBrowserTool::ShowUpperFrame()
@@ -1184,6 +1200,15 @@ EditorAssetBrowserTool::AssetData* EditorAssetBrowserTool::GetAssetData(const Fi
     return nullptr;
 }
 
+void EditorAssetBrowserTool::ResetState() 
+{
+    SetFocusEntryPath("");
+    SetFocusFolderPath(UmFileSystem.GetRootPath(), false);
+    _search.ClearBuffer();
+    _rename.CancelRename();
+    ClearUndoRedoStack();
+}
+
 void EditorAssetBrowserTool::ProcessInput()
 {
     bool isRootpath    = (_focusFolderPath == UmFileSystem.GetRootPath());
@@ -1276,22 +1301,6 @@ void EditorAssetBrowserTool::ProcessInput()
         if (isKeyV)
         {
             PasteFile();
-        }
-    }
-}
-
-void EditorAssetBrowserTool::RefreshState()
-{
-    if (false == fs::exists(_focusFolderPath))
-    {
-        File::Path parentPath = _focusFolderPath.parent_path();
-        if (fs::exists(parentPath) && fs::is_directory(parentPath))
-        {
-            SetFocusFolderPath(parentPath, false);
-        }
-        else
-        {
-            SetFocusFolderPath(UmFileSystem.GetRootPath(), false);
         }
     }
 }
@@ -1406,6 +1415,12 @@ void EditorAssetBrowserTool::SetFocusEntryPath(const File::Path& path)
         SetFocusFolderPath(parent.generic_string());
         _rename.CancelRename();
     }
+}
+
+void EditorAssetBrowserTool::ClearUndoRedoStack() 
+{
+    _directoryUndoStack.clear();
+    _directoryRedoStack.clear();
 }
 
 void EditorAssetBrowserTool::UndoPath()
