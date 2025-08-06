@@ -42,8 +42,9 @@ void RevelationSystem::RollRoundElement()
 
     if (_turnMode)
     {
+        const auto& roundElementList = _roundElementList;
         //기존 액션들 비활성화
-        for (auto& element : _roundElementList)
+        for (auto& element : roundElementList)
         {
             if (element->IsAction())
             {
@@ -62,7 +63,7 @@ void RevelationSystem::RollRoundElement()
         }
 
         // 랜덤 셔플
-        std::ranges::shuffle(_roundElementList, Random::GetEngine());
+        _roundElementList.shuffle(Random::GetEngine());
 
         // 사용 가능한 개수만 남긴다.
         if (ReflectFields->RevelationsPerRound < _roundElementList.size())
@@ -71,7 +72,7 @@ void RevelationSystem::RollRoundElement()
         }
 
         // 뽑힌 횟수 계산 및 액션 활성화
-        for (auto& element : _roundElementList)
+        for (auto& element : roundElementList)
         {
             const std::string& name = element->ElementName;
             _elementTotalAppearances[name]++;
@@ -556,7 +557,7 @@ void RevelationSystem::ImGuiDrawPlayerElementEditor()
         }
         if (eraseSelect)
         {
-            std::erase(_roundElementList, *eraseSelect);
+            _roundElementList.erase(*eraseSelect);
             RemovePlayerElement(eraseSlot);
             eraseSelect = nullptr;          
         }
@@ -591,7 +592,8 @@ void RevelationSystem::ImGuiDrawRoundElementList()
     if (ImGui::TreeNodeEx("Round Elements", ImGuiTreeNodeFlags_DefaultOpen))
     {
         RollButton();
-        for (auto& element : _roundElementList)
+        const auto& roundElementList = _roundElementList;
+        for (auto& element : roundElementList)
         {
             std::string_view name = (const std::string&)element->ElementName;
             ImGui::PushStyleColor(ImGuiCol_Text, element->GetGradeColor());
