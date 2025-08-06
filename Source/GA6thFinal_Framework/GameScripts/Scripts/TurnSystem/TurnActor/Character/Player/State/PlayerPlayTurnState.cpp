@@ -67,8 +67,8 @@ void PlayerPlayTurnState::OnAwake()
     weapontransform = player.transform->Find("dagger");
     if (nullptr != weapontransform)
     {
-        weaponanim   = player.transform->Find("dagger")->gameObject->GetComponent<AnimationComponent>();
-        weaponeffect = player.transform->Find("dagger")->gameObject->GetComponent<ParticleComponent>();
+        weaponanim   = weapontransform->gameObject->GetComponent<AnimationComponent>();
+        weaponeffect = weapontransform->gameObject->GetComponent<ParticleComponent>();
     }
     else
     {
@@ -81,8 +81,8 @@ void PlayerPlayTurnState::OnAwake()
     weapontransform = player.transform->Find("mace");
     if (nullptr != weapontransform)
     {
-        weaponanim   = player.transform->Find("mace")->gameObject->GetComponent<AnimationComponent>();
-        weaponeffect = player.transform->Find("mace")->gameObject->GetComponent<ParticleComponent>();
+        weaponanim   = weapontransform->gameObject->GetComponent<AnimationComponent>();
+        weaponeffect = weapontransform->gameObject->GetComponent<ParticleComponent>();
     }
     else
     {
