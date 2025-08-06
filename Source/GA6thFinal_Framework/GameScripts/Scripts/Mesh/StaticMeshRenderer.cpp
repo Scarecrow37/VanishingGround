@@ -47,8 +47,7 @@ void StaticMeshRenderer::LoadModel()
 
 void StaticMeshRenderer::Reset()
 {
-    MakeMeshRenderer(MeshType::STATIC_MESH, transform->Position, transform->Scale, transform->Rotation,
-                     transform->GetWorldMatrix());
+    MakeMeshRenderer(MeshType::STATIC_MESH, transform->Position, transform->Scale, transform->Rotation, transform->GetWorldMatrix(), transform->HasChangedRef());
 
     if (false == _guidRef.IsNull())
     {

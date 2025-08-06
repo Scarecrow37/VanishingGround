@@ -14,13 +14,13 @@ void ShadowMapPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTe
     CreateShaderAndPSO();
 
     auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(_staticShadowMap.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-    commandList->ResourceBarrier(1, &barrier);  
+    commandList->ResourceBarrier(1, &barrier);
 }
 
 void ShadowMapPass::AddRenderPassDatas(std::string_view sceneName)
 {
     auto device = Global::device->GetDevice();   
-
+    
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
     for (int i = 0; i < MAX_CASCADES; i++)
     {
@@ -65,7 +65,7 @@ void ShadowMapPass::Update(ID3D12GraphicsCommandList* commandList)
 
     MeshType meshType = END;
     const auto& shadowMapProps = std::any_cast<ShadowPassProperty>(_ownerScene->GetRenderPassProperty("ShadowMapPass"));
-    if (_ownerScene->IsDirtyFlag() || !XMVector3Equal(lightDirection, _prevLightDirection) || shadowMapProps != _previousShadowPassProperty)
+    if (_isDirtyFlag || !XMVector3Equal(lightDirection, _prevLightDirection) || shadowMapProps != _previousShadowPassProperty)
     {
         UpdateCascades(lightDirection);
 
@@ -102,6 +102,8 @@ void ShadowMapPass::Draw(ID3D12GraphicsCommandList* commandList)
 
     if (_isDirtyFlag)
     {
+        //PIXBeginEvent(PIX_COLOR_DEFAULT, L"StaticShadowMap");
+        //PIXSetMarker(PIX_COLOR_DEFAULT, "StaticShadowMap");
         for (int i = 0; i < MAX_CASCADES; i++)
         {
             commandList->OMSetRenderTargets(0, nullptr, FALSE, &_staticShadowMapDSVs[i]);
@@ -121,7 +123,8 @@ void ShadowMapPass::Draw(ID3D12GraphicsCommandList* commandList)
             commandList->SetPipelineState(_psos[STATIC_TWO_SIDED].Get());
             DrawMeshes(commandList, STATIC_MESH, STATIC_TWO_SIDED, i);
         }
-
+        //PIXSetMarker(commandList, PIX_COLOR_DEFAULT, L"Finish StaticShadowMap");
+        //PIXEndEvent();
         _isDirtyFlag = false;
     }
 
@@ -154,6 +157,11 @@ void ShadowMapPass::End(ID3D12GraphicsCommandList* commandList)
 {
     auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(_shadowMap.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     commandList->ResourceBarrier(1, &barrier);
+
+    if (_ownerScene->IsDirtyFlag())
+    {
+        _isDirtyFlag = true;
+    }
 }
 
 void ShadowMapPass::CreateShadowMapResource()

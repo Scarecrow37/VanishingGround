@@ -14,6 +14,8 @@
 
 RenderScene::RenderScene(std::string_view name)
     : _name(name)
+    , _isDirtyFlag(true)
+    , _prevSize(0)
 {
     _lightDatas.resize(MAX_LIGHT);
 }
@@ -142,8 +144,6 @@ void RenderScene::AddRenderPassDatas()
 
 void RenderScene::UpdateRenderScene()
 {
-    _isDirtyFlag = false;
-
     UpdateGlobal();
     UpdateObject();
     UpdateUI();
@@ -196,6 +196,8 @@ void RenderScene::Execute()
 
     _commandSet->Close();
     Global::commandController->ExecuteCommand(CommandQueueType::GRAPHICS_QUEUE, _commandSet);
+
+    _isDirtyFlag = false;
 }
 
 void RenderScene::ResetSkyBox()
@@ -257,8 +259,11 @@ void RenderScene::UpdateObject()
     auto first = std::remove_if(_meshRenderQueue.begin(), _meshRenderQueue.end(), [](const auto& pair) { return *pair.first; });
     _meshRenderQueue.erase(first, _meshRenderQueue.end());
 
-    if (first != _meshRenderQueue.end())
+    size_t currentSize = _meshRenderQueue.size();
+    if (_prevSize != currentSize)
         _isDirtyFlag = true;
+
+    _prevSize = currentSize;
 
     _activeMeshes[STATIC_MESH].clear();
     _activeMeshes[SKELETAL_MESH].clear();

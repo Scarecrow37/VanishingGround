@@ -97,5 +97,6 @@ public:
 
 private:
     std::vector<SharedResource<RenderTarget>> _sharedRenderTarget;
-    bool                                      _isDirtyFlag = false;
+    bool                                      _isDirtyFlag;
+    size_t                                    _prevSize;
 };
