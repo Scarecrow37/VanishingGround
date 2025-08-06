@@ -10,7 +10,7 @@ MeshRenderer::MeshRenderer(MeshType type, const Vector3& position, const Vector3
 {
 }
 
-MeshRenderer::~MeshRenderer() = default;
+MeshRenderer::~MeshRenderer() {}
 
 std::shared_ptr<Animator> MeshRenderer::GetAnimator() const
 {
