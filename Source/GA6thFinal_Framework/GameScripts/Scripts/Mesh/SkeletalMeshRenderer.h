@@ -36,4 +36,5 @@ private:
     File::GuidRef _guidRef;
     REFLECT_FIELDS_BEGIN(MeshComponent)
     REFLECT_FIELDS_END(SkeletalMeshRenderer)
+    bool _isDirtyFlag = false;
 };

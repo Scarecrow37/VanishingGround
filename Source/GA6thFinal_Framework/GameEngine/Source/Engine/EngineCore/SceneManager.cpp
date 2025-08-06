@@ -127,6 +127,11 @@ void ESceneManager::Engine::SceneUpdate()
     engineCore->SceneManager.SceneUpdate();
 }
 
+void ESceneManager::Engine::SceneFinalUpdate() 
+{
+    engineCore->SceneManager.SceneFinalUpdate();
+}
+
 void ESceneManager::SceneUpdate()
 {
 #ifdef _UMEDITOR
@@ -149,6 +154,22 @@ void ESceneManager::SceneUpdate()
     ObjectsDestroy();
     ObjectsMatrixUpdate();
     ObjectsAddLoadScene();
+}
+
+void ESceneManager::SceneFinalUpdate() 
+{
+    ObjectsTransformFlagReset();
+}
+
+void ESceneManager::ObjectsTransformFlagReset() 
+{
+    for (auto& obj : _runtimeObjects)
+    {
+        if (nullptr != obj && obj->_transform._hasChanged == true)
+        {
+            obj->_transform._hasChanged = false;
+        }
+    }
 }
 
 void ESceneManager::Engine::AddGameObjectToLifeCycle(std::shared_ptr<GameObject> gameObject)
