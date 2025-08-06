@@ -12,10 +12,10 @@ WeaponTableComponent::~WeaponTableComponent()
     }
 }
 
-const WeaponElement* WeaponTableComponent::GetWeaponToName(std::string_view name)
+const WeaponElement* WeaponTableComponent::GetWeaponToName(const std::string& name)
 {
-    WeaponElement* result   = nullptr;
-    auto findIter = _weaponTable.find(name.data());
+    WeaponElement* result = nullptr;
+    auto findIter = _weaponTable.find(name);
     if (findIter != _weaponTable.end())
     {
         result = &findIter->second;

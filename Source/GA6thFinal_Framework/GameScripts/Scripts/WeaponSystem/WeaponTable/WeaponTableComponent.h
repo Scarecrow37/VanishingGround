@@ -28,7 +28,7 @@ public:
     /// </summary>
     /// <param name="name :">찾을 무기 이름</param>
     /// <returns>찾은 무기 Stats 정보</returns>
-    const WeaponElement* GetWeaponToName(std::string_view name);
+    const WeaponElement* GetWeaponToName(const std::string& name);
 
     /// <summary>
     /// 이름을 key로 사용하는 WeaponTable을 반환합니다.
@@ -84,7 +84,7 @@ private:
         WeaponElement*        SelectWeapon      = nullptr;
         std::function<void()> RenameFunc;
 
-        ImGuiColumnSheetParser     ColumnParser{"87159CF2-3513-401C-B7C9-5C7C7E7F6167"};
+        ImGuiColumnSheetParser     ColumnParser{"87159CF2-3513-401C-B7C9-5C7C7E7F6167", u8"이름"};
         std::queue<WeaponElement*> DirtyWeaponElementQueue;
         bool                       ShowDirtyWeaponPopup = false;
     };
