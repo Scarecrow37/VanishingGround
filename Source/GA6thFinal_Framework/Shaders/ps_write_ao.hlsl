@@ -63,11 +63,11 @@ float ps_main(PSInput input) : SV_TARGET
     float3x3 TBN = float3x3(tangent, bitangent, normal);
 
     float occlusion = 0.0f;
-
+    float radius = property.radius/100.f;
     [unroll]
     for (int i = 0; i < 16; ++i)
     {
-        float3 sampleOffset = mul(TBN, SSAOKernel[i]) * property.radius;
+        float3 sampleOffset = mul(TBN, SSAOKernel[i]) * radius;
         float3 samplePosVS = viewPos + sampleOffset;
 
         float2 sampleUV = ProjectToUV(samplePosVS);
@@ -81,7 +81,7 @@ float ps_main(PSInput input) : SV_TARGET
         float angle = max(dot(normal, sampleNormal), 0.0f);
         float depthDiff = samplePosVS.z - sampleViewPos.z;
 
-        if (depthDiff > 0.0f && depthDiff < property.radius)
+        if (depthDiff > 0.0f && depthDiff < radius)
         {
             float weight = exp(-depthDiff * property.falloff);
             occlusion += saturate(weight * angle);
