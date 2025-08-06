@@ -22,11 +22,12 @@
 #include "EditorDrawTechnique.h"
 #include "FontTechnique.h"
 #include "PBRLitTechnique.h"
+#include "SSAOTechnique.h"
+#include "SSRTechnique.h"
 #include "ParticleRenderTechnique.h"
 #include "RayTracingTechnique.h"
 #include "SkyBoxRenderTechnique.h"
 #include "UITechnique.h"
-#include "SSAOTechnique.h"
 
 Renderer::Renderer() {}
 
@@ -140,6 +141,11 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
     {
         scene->AddRenderTechnique(std::make_unique<SSAOTechnique>());
     }
+    if (RenderTechniqueFlag::SSR_TECH & flag)
+    {
+        scene->AddRenderTechnique(std::make_unique<SSRTechnique>());
+    }
+
     if (RenderTechniqueFlag::PARTICLE_TECH & flag)
     {
         scene->AddRenderTechnique(std::make_unique<ParticleRenderTechnique>());
