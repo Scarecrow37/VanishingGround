@@ -159,3 +159,6 @@ UMREAL_COMPONENT(LogOutput)
 
 #include "Scripts/EnemyAction/System/EnemyActionSystem.h"
 UMREAL_COMPONENT(EnemyActionSystem)
+
+#include "Scripts\Audio/BGMManager.h"
+UMREAL_COMPONENT(BGMManager)

@@ -7,6 +7,7 @@
 #include <TurnSystem/TurnMode/State/CombatStartPhase.h>
 #include <WeaponSystem/WeaponSystem.h>
 #include <Animation/AnimationComponent.h>
+#include <Audio/Table/AudioTableComponent.h>
 #include <Particle/ParticleComponent.h>
 
 using namespace u8_literals;
@@ -161,7 +162,7 @@ void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
                 _setImguiPosCenter = true;
                 _attackTargets.clear();
             }
-            SetAttackReadyAnimation();
+            SetAttackReady();
         }
     }
 }
@@ -296,7 +297,7 @@ void PlayerPlayTurnState::UpdateQuickTimeEventUI(float dt)
                 {
                     turnMode->ApplyActions([&player](TurnAction& action) { action.OnPlayerQTEResult(player); });
                 }
-                SetAttackAnimation();
+                SetAttack();
             }
         }
         else
@@ -316,11 +317,18 @@ void PlayerPlayTurnState::UpdateAttackEventUI(float dt)
         if (turnMode)
         {
             Player& player = GetPlayer();
-            for (auto& target : _attackTargets)
+            if (_attackTargets.empty())
             {
-                PushWeaponAnimation(target);
+                SetAttackEnd();
             }
-            _attackTargets.clear();
+            else
+            {
+                for (auto& target : _attackTargets)
+                {
+                    PushWeaponAnimation(target);
+                }
+                _attackTargets.clear();
+            }
             _inputState = InputState::NONE;
         }
     }
@@ -341,10 +349,11 @@ void PlayerPlayTurnState::PushAttackTarget(Battle::EnemyTargetFlag_ target)
     }
 }
 
-void PlayerPlayTurnState::SetAttackReadyAnimation()
+void PlayerPlayTurnState::SetAttackReady()
 {
     Player& player = GetPlayer();
-    auto*   animator = player.GetAnimationComponent();
+    auto* animator = player.GetAnimationComponent();
+    auto* audioTable = player.GetAudioTableComponent();
     if (animator)
     {
         animator->BeginBuildOverrideAnimation();
@@ -359,15 +368,17 @@ void PlayerPlayTurnState::SetAttackReadyAnimation()
         }
         animator->EndBuildOverrideAnimation();
     }
-
-
-
+    if (audioTable)
+    {
+        audioTable->Play("Casting");
+    }
 }
 
-void PlayerPlayTurnState::SetAttackAnimation()
+void PlayerPlayTurnState::SetAttack()
 {
     Player& player   = GetPlayer();
     auto*   animator = player.GetAnimationComponent();
+    auto*   audioTable = player.GetAudioTableComponent();
     if (animator)
     {
         animator->BeginBuildOverrideAnimation();
@@ -382,9 +393,13 @@ void PlayerPlayTurnState::SetAttackAnimation()
         }
         animator->EndBuildOverrideAnimation();
     }
+    if (audioTable)
+    {
+        audioTable->Play("Shoot");
+    }
 }
 
-void PlayerPlayTurnState::SetAttackEndAnimation() 
+void PlayerPlayTurnState::SetAttackEnd()
 {
     Player& player   = GetPlayer();
     auto*   animator = player.GetAnimationComponent();
@@ -444,27 +459,31 @@ void PlayerPlayTurnState::PushWeaponAnimation(Battle::EnemyTargetFlag_ destEnemy
         break;
     }
 
-    // 무기 이펙트 Play
-    if (weaponEffect)
-        weaponEffect->PlayEffect();
-
     // 무기 애니메이션 Push
     if (weaponAnim)
     {
+        // 무기 이펙트 Play
+        if (weaponEffect)
+            weaponEffect->PlayEffect();
+
         weaponAnim->PushOverrideAnimation("attack", true, [](const AnimationData& data) { return data.IsEnd(); });
+        // Pop시 Battle 호출
         weaponAnim->SetCurrentAnimationPopCallback([this, weaponEffect, weaponAnim, destEnemy]() { 
             Player& player = GetPlayer();
             Battle()(player, destEnemy);
-            
-            int count = weaponAnim->GetOverrideAnimationCount();
+            size_t count = weaponAnim->GetOverrideAnimationCount();
             if (1 == count)
             {
-                SetAttackEndAnimation();
                 if (weaponEffect)
                 {
                     weaponEffect->StopEffect();
                 }
+                SetAttackEnd();
             }
             });
+    }
+    else
+    {
+        Battle()(player, destEnemy);
     }
 }

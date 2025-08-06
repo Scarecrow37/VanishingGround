@@ -32,6 +32,7 @@ namespace EnemyAction
 
     protected:
         void ProcessBattle(int damage, float damageScale = 1.0f);
+        void PlaySoundFromKey(std::string_view key);
 
     protected:
         Enemy*              _owner = nullptr;
