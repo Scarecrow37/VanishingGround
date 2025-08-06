@@ -182,7 +182,7 @@ void CharacterBase::Dead()
     _tokenInventory.NotifyDead();
 }
 
-void CharacterBase::TakeDamage(int damage) 
+void CharacterBase::TakeDamage(int damage, bool playAnim)
 {
     if (TurnActor::STATE::Dead == GetActorState())
     {
@@ -202,7 +202,7 @@ void CharacterBase::TakeDamage(int damage)
             (const char*)u8"의 피해를 입었습니다.");
         UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
     }
-    if (_animationComponent)
+    if (playAnim && _animationComponent)
     {
         const auto& animData    = _animationComponent->GetLastAnimationData();
         const std::string& hitAnimName = _animationComponent->GetAnimationNameFromKey("Hit");
