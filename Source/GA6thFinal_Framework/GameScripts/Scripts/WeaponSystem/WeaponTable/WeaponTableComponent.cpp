@@ -57,7 +57,7 @@ bool WeaponTableComponent::RenameWeapon(WeaponElement& weapon, const std::string
     auto findIter = _weaponTable.find(newName);
     if (findIter == _weaponTable.end())
     {
-        WeaponElement newWeapon(weapon);
+        WeaponElement newWeapon = weapon;
         newWeapon.Stats.SetName(newName); 
         if (InsertWeapon(newWeapon))
         {
@@ -124,7 +124,7 @@ bool WeaponTableComponent::EraseWeapon(WeaponElement& weapon)
 void WeaponTableComponent::SortTableIDOrder()
 {
     std::ranges::sort(_weaponTableIdOrder,
-    [](WeaponElement* a, const WeaponElement* b) 
+    [](const WeaponElement* a, const WeaponElement* b) 
     { 
         return a->Stats.WeaponID < b->Stats.WeaponID; 
     });
