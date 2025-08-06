@@ -39,6 +39,15 @@ inline void SerializeSSAOPassProperty(std::ostream& os, const SSAOPassProperty& 
     os << "        Threshold = " << prop.Threshold << "\n";
 }
 
+// SSRPassProperty를 문자열로 변환
+inline void SerializeSSRPassProperty(std::ostream& os, const SSRPassProperty& prop)
+{
+    os << "        Type = SSRPassProperty\n";
+    os << "        Stride = " << prop.Stride << "\n";
+    os << "        MaxDistance = " << prop.MaxDistance << "\n";
+    os << "        Thickness = " << prop.Thickness << "\n";
+}
+
 // 문자열에서 ShadowPassProperty를 복원
 inline void DeserializeShadowProperty(std::istream& is, ShadowPassProperty& prop)
 {
@@ -107,6 +116,23 @@ inline void DeserializeSSAOPassProperty(std::istream& is, SSAOPassProperty& prop
     }
 }
 
+// 문자열에서 SSRPassProperty를 복원
+inline void DeserializeSSRPassProperty(std::istream& is, SSRPassProperty& prop)
+{
+    std::string line, key, equals;
+    while (std::getline(is, line) && line.find('}') == std::string::npos)
+    {
+        std::stringstream ss(line);
+        ss >> key >> equals;
+        if (key == "Stride")
+            ss >> prop.Stride;
+        else if (key == "MaxDistance")
+            ss >> prop.MaxDistance;
+        else if (key == "Thickness")
+            ss >> prop.Thickness;
+    }
+}
+
 inline void SaveRenderPassData(const std::string& filePath)
 {
 	std::filesystem::path path(filePath);
@@ -146,7 +172,10 @@ inline void SaveRenderPassData(const std::string& filePath)
             {
                 SerializeSSAOPassProperty(outFile, std::any_cast<const SSAOPassProperty&>(property));
             }
-
+            else if (property.type() == typeid(SSRPassProperty))
+            {
+                SerializeSSRPassProperty(outFile, std::any_cast<const SSRPassProperty&>(property));
+            }
 			outFile << "    }\n";
 		}
 		outFile << "}\n\n";
@@ -210,6 +239,10 @@ inline void LoadRenderPassData(const std::string& filePath)
                         else if (name == "SSAOPassProperty" && property.type() == typeid(SSAOPassProperty))
                         {
                             DeserializeSSAOPassProperty(inFile, std::any_cast<SSAOPassProperty&>(property));
+                        }
+                        else if (name == "SSRPassProperty" && property.type() == typeid(SSRPassProperty))
+                        {
+                            DeserializeSSRPassProperty(inFile, std::any_cast<SSRPassProperty&>(property));
                         }
 					}
 				}

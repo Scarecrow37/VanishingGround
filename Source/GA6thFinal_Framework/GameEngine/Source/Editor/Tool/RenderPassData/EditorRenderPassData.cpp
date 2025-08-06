@@ -48,6 +48,14 @@ void EditSSAOProperty(std::any& property)
     ImGui::DragFloat("Threshold", &ssaoProps.Threshold, 0.0005f, 0.f, 1.f);
 }
 
+void EditSSRProperty(std::any& property)
+{
+    auto& ssrProps = std::any_cast<SSRPassProperty&>(property);
+    ImGui::DragFloat("Intensity", &ssrProps.Stride, 0.001f, 0.f, 10.f);
+    ImGui::DragFloat("MaxDistance", &ssrProps.MaxDistance, 0.01f, 0.f, 100.f);
+    ImGui::DragFloat("Thickness", &ssrProps.Thickness, 0.001f, 0.f, 10.f);
+}
+
 void EditorRenderPassData::OnFrameRender()
 {
     auto& renderPassProperties = UmGraphics.GetRenderPassProperties();
@@ -80,7 +88,10 @@ void EditorRenderPassData::OnFrameRender()
                         {
                             EditSSAOProperty(property);
                         }
-
+                        else if (property.type() == typeid(SSRPassProperty))
+                        {
+                            EditSSRProperty(property);
+                        }
                         ImGui::TreePop();
                     }
 

@@ -128,3 +128,10 @@ struct SSAOPassProperty
     float ContrastFactor;
     float Threshold;
 };
+
+struct SSRPassProperty
+{
+    float MaxDistance;
+    float Stride;
+    float Thickness;
+};
