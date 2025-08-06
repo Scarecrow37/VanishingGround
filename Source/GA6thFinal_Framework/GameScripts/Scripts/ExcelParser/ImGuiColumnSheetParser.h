@@ -56,6 +56,7 @@ public:
     bool ShowParser = false;
 private:
     std::string                           _id;
+    std::wstring                          _lastOpenFolder;
     std::unique_ptr<OpenXLSX::XLDocument> _excelDoc;
     std::vector<std::string>              _sheetNames;
     std::string                           _selectSheetName;
