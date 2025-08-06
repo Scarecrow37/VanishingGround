@@ -56,7 +56,7 @@ float ps_main(PSInput input) : SV_Target
         float3 toSampleDir = normalize(samplePos - float3(input.uv, depth));
         float angle = max(dot(normal, sampleNormal), 0.f);
         float depthDiff = samplePos.z - sampleDepth;
-        if(depthDiff>0.f&&depthDiff<property.radius)
+        if (depthDiff > 0.f && depthDiff < property.radius)
         {
             float weight = exp(-depthDiff * property.falloff);
             occlusion += saturate(weight * angle);
