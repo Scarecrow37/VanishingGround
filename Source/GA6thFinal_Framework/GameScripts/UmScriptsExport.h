@@ -148,6 +148,9 @@ UMREAL_COMPONENT(ViewTest)
 #include "Scripts/Audio/AudioComponent.h"
 UMREAL_COMPONENT(AudioComponent)
 
+#include "Scripts/Audio/Table/AudioTableComponent.h"
+UMREAL_COMPONENT(AudioTableComponent)
+
 #include "Scripts/Animation/AnimationComponent.h"
 UMREAL_COMPONENT(AnimationComponent)
 

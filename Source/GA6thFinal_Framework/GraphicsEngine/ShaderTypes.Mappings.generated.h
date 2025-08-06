@@ -43,10 +43,12 @@ namespace GE
     inline const std::unordered_map<PS, std::wstring> enumToPSFileNameMap = {
         {PS::BLEND, L"ps_blend.hlsl"},
         {PS::SSAO, L"ps_ssao.hlsl"},
+        {PS::WRITE_AO, L"ps_write_ao.hlsl"},
         {PS::PARTICLE_QUAD, L"ps_particle_quad.hlsl"},
         {PS::GAUSSIANBLUR_X, L"ps_gaussianblur_x.hlsl"},
         {PS::TO_BACKBUFFER, L"ps_to_backbuffer.hlsl"},
         {PS::SKYBOX, L"ps_skybox.hlsl"},
+        {PS::SSAO_BLEND, L"ps_ssao_blend.hlsl"},
         {PS::UI, L"ps_ui.hlsl"},
         {PS::ACCUMULATION, L"ps_accumulation.hlsl"},
         {PS::DOWN_SAMPLE, L"ps_down_sample.hlsl"},

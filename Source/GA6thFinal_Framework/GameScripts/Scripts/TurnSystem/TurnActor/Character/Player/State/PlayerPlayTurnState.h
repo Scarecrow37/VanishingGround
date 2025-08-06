@@ -58,6 +58,7 @@ private:
     void SetAttackReadyAnimation();
     void SetAttackAnimation();
     void SetAttackEndAnimation();
+    void PushWeaponAnimation(Battle::EnemyTargetFlag_ destEnemy);
 
 private:
     bool       _setImguiPosCenter;
@@ -65,6 +66,11 @@ private:
     bool       _isDownAttackButton;
     float      _attackButtonHeldTime;
     float      _attackButtonHeldWaitTime;
-    int        _attackRemaining;
+    int        _attackRemaining; // 공격 남은 횟수
     std::vector<Battle::EnemyTargetFlag_> _attackTargets;
+
+    std::vector<class AnimationComponent*> weaponAnims;
+    std::vector<class ParticleComponent*> weaponEffects;
+    
+
 };

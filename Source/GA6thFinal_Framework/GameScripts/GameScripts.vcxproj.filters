@@ -130,8 +130,7 @@
     <ClCompile Include="Scripts\WeaponSystem\WeaponSystem.cpp" />
     <ClCompile Include="Scripts\Test\TurnAction\TestActionComponent.cpp" />
     <ClCompile Include="Scripts\Test\DevTools\LogOutput.cpp" />
-    <ClCompile Include="Scripts\ViewModels\Hp\HpViewModel.cpp" />
-    <ClCompile Include="Scripts\UI\Views\MonsterHp\MonsterHpView.cpp" />
+    <ClCompile Include="Scripts\Audio\Table\AudioTableComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h" />
@@ -280,8 +279,7 @@
     <ClInclude Include="Scripts\WeaponSystem\WeaponSystem.h" />
     <ClInclude Include="Scripts\Test\TurnAction\TestActionComponent.h" />
     <ClInclude Include="Scripts\Test\DevTools\LogOutput.h" />
-    <ClInclude Include="Scripts\ViewModels\Hp\HpViewModel.h" />
-    <ClInclude Include="Scripts\UI\Views\MonsterHp\MonsterHpView.h" />
+    <ClInclude Include="Scripts\Audio\Table\AudioTableComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

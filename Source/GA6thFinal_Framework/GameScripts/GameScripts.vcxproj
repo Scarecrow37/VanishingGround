@@ -302,6 +302,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\Audio\Table\AudioTableComponent.h" />
     <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h" />
     <ClInclude Include="Scripts\EnemyAction\ActionData\EnemyActionData.h" />
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
@@ -368,7 +369,7 @@
     <ClInclude Include="Scripts\UI\Wrappers\Center\CenterWrapper.h" />
     <ClInclude Include="Scripts\UI\Wrappers\Padding\PaddingWrapper.h" />
     <ClInclude Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.h" />
-    <ClInclude Include="Scripts\ViewModels\Hp\HpViewModel.h" />
+    <ClInclude Include="Scripts\ExcelParser\ImGuiColumnSheetParser.h" />
     <ClInclude Include="Scripts\ViewModels\TurnQueue\TurnQueueViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Weapon\WeaponViewModel.h" />
     <ClInclude Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.h" />
@@ -452,6 +453,7 @@
     <ClInclude Include="Scripts\Test\DevTools\LogOutput.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\Audio\Table\AudioTableComponent.cpp" />
     <ClCompile Include="Scripts\EnemyAction\Factory\EnemyActionFactory.cpp" />
     <ClCompile Include="Scripts\EnemyAction\ActionData\EnemyActionData.cpp" />
     <ClCompile Include="Scripts\Audio\AudioComponent.cpp" />
@@ -469,6 +471,7 @@
     <ClCompile Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22013.cpp" />
     <ClCompile Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22014.cpp" />
     <ClCompile Include="Scripts\EnemyAction\EnemyActionBase.cpp" />
+    <ClCompile Include="Scripts\ExcelParser\ImGuiColumnSheetParser.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.cpp" />
     <ClCompile Include="Scripts\Animation\AnimationComponent.cpp" />
