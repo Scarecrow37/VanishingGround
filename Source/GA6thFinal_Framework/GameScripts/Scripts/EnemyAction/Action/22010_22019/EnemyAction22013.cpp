@@ -45,6 +45,11 @@ namespace EnemyAction
             if (_owner)
             {
                 _owner->TakeDamage(_owner->HP, false);
+                EnemyDeadState* deadState = _owner->GetFSMStates().Dead;
+                if (deadState)
+                {
+                    deadState->SetDontChangeAnimation(true);
+                }
             }
             SetActionEnd();
         }
