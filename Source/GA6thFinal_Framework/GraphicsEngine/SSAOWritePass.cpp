@@ -44,9 +44,11 @@ void SSAOWritePass::Draw(ID3D12GraphicsCommandList* commandList)
     const auto& ssaoProperty =
         std::any_cast<const SSAOPassProperty&>(_ownerScene->GetRenderPassProperty("SSAOWritePass"));
     const auto& renderTargetGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
+    auto        cameraData        = _ownerScene->_cameraBuffer->GetGPUVirtualAddress();
     commandList->SetGraphicsRootSignature(_fxSSAOWrite.GetRootSignature());
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRoot32BitConstants(_fxSSAOWrite.GetRootParameterIndex("bit32_5_ssaoProperty"), 5, &ssaoProperty, 0);
+    commandList->SetGraphicsRootConstantBufferView(_fxSSAOWrite.GetRootParameterIndex("cameraData"), cameraData);
     if (Global::isRayTracing)
     {
         commandList->SetGraphicsRootDescriptorTable(_fxSSAOWrite.GetRootParameterIndex("normalMap"),
