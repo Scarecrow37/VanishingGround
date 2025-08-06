@@ -142,10 +142,13 @@ void RenderScene::AddRenderPassDatas()
 
 void RenderScene::UpdateRenderScene()
 {
+    _isDirtyFlag = false;
+
     UpdateGlobal();
     UpdateObject();
     UpdateUI();
     UpdateFont();
+
     if (Global::isRayTracing)
     {
         _accelerationStructureManager->RemoveUnUsedStaticMeshes(_activeMeshes[STATIC_MESH], _activeMeshes[SKELETAL_MESH]);
@@ -193,7 +196,6 @@ void RenderScene::Execute()
 
     _commandSet->Close();
     Global::commandController->ExecuteCommand(CommandQueueType::GRAPHICS_QUEUE, _commandSet);
-
 }
 
 void RenderScene::ResetSkyBox()
@@ -252,9 +254,11 @@ void RenderScene::UpdateGlobal()
 
 void RenderScene::UpdateObject()
 {
-    auto first =
-        std::remove_if(_meshRenderQueue.begin(), _meshRenderQueue.end(), [](const auto& pair) { return *pair.first; });
+    auto first = std::remove_if(_meshRenderQueue.begin(), _meshRenderQueue.end(), [](const auto& pair) { return *pair.first; });
     _meshRenderQueue.erase(first, _meshRenderQueue.end());
+
+    if (first != _meshRenderQueue.end())
+        _isDirtyFlag = true;
 
     _activeMeshes[STATIC_MESH].clear();
     _activeMeshes[SKELETAL_MESH].clear();
@@ -282,6 +286,9 @@ void RenderScene::UpdateObject()
     UINT instanceID = 0;
     for (auto& [isDestroy, component] : _meshRenderQueue)
     {
+        if (!_isDirtyFlag)
+            _isDirtyFlag = component->IsDirtyFlag();
+
         if (!component->IsActive())
             continue;
 

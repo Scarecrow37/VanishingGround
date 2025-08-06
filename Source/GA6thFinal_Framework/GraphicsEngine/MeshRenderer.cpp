@@ -4,13 +4,13 @@
 #include "Model.h"
 #include "DXRSkeletalMesh.h"
 
-MeshRenderer::MeshRenderer(MeshType type, const Vector3& position, const Vector3& scale, const Quaternion& rotation, const Matrix& world)
+MeshRenderer::MeshRenderer(MeshType type, const Vector3& position, const Vector3& scale, const Quaternion& rotation, const Matrix& world, const bool& dirtyFlag)
     : _type(type)
-    , _transform{position, scale, rotation, world}
+    , _transform{position, scale, rotation, world, dirtyFlag}
 {
 }
 
-MeshRenderer::~MeshRenderer() {}
+MeshRenderer::~MeshRenderer() = default;
 
 std::shared_ptr<Animator> MeshRenderer::GetAnimator() const
 {

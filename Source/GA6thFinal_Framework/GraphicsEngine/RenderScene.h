@@ -21,6 +21,7 @@ public:
     SkyBox*                      GetSkyBox() { return _skyBox.get(); };
     const std::any&              GetRenderPassProperty(std::string_view passName) const;
     SharedResource<RenderTarget> GetSharedRenderTarget() const;
+    const bool                   IsDirtyFlag() const { return _isDirtyFlag; }
 
 public:
     void SetCamera(std::shared_ptr<Camera> camera) { _camera = camera; }
@@ -96,4 +97,5 @@ public:
 
 private:
     std::vector<SharedResource<RenderTarget>> _sharedRenderTarget;
+    bool                                      _isDirtyFlag = false;
 };

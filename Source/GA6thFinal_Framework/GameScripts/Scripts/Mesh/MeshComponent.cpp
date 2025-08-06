@@ -35,7 +35,7 @@ void MeshComponent::MakeMeshRenderer(MeshType renderType, const Vector3& positio
 {
     if (nullptr == _pMeshRenderer)
     {
-        _pMeshRenderer.reset(new MeshRenderer(renderType, position, scale, rotation, world));
+        _pMeshRenderer.reset(new MeshRenderer(renderType, position, scale, rotation, world, transform->HasChangedRef()));
         _pMeshRenderer->SetActive(&EnableInHierarchy);
         _pMeshRenderer->OnCustomDepth(PostProcess::BLOOM);
         UmGraphics.RegisterComponent("Game", _pMeshRenderer.get());

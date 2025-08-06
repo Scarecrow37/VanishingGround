@@ -198,8 +198,6 @@ void Transform::UpdateMatrix()
 
         curr->_right = Vector3(curr->_worldMatrix._11, curr->_worldMatrix._12, curr->_worldMatrix._13);
         curr->_right.Normalize();
-
-        curr->_hasChanged = false;
     });
 }
 
