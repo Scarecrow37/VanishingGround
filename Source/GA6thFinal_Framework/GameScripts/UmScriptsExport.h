@@ -129,6 +129,9 @@ UMREAL_COMPONENT(WeaponView)
 #include "Scripts/UI/Views/MonsterHp/MonsterHpView.h"
 UMREAL_COMPONENT(MonsterHpView)
 
+#include "Scripts/UI/Views/RevelationsView/RevelationsView.h"
+UMREAL_COMPONENT(RevelationsView)
+
 #include "Scripts\WeaponSystem/WeaponSystem.h"
 UMREAL_COMPONENT(WeaponSystem)
 

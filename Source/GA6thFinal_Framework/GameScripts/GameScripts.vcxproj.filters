@@ -134,6 +134,8 @@
     <ClCompile Include="Scripts\ExcelParser\ImGuiColumnSheetParser.cpp" />
     <ClCompile Include="Scripts\UI\Views\MonsterHp\MonsterHpView.cpp" />
     <ClCompile Include="Scripts\ViewModels\Hp\HpViewModel.cpp" />
+    <ClCompile Include="Scripts\ViewModels\Revelations\RevelationsViewModel.cpp" />
+    <ClCompile Include="Scripts\UI\Views\RevelationsView\RevelationsView.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h" />
@@ -286,6 +288,8 @@
     <ClInclude Include="Scripts\UI\Views\MonsterHp\MonsterHpView.h" />
     <ClInclude Include="Scripts\ExcelParser\ImGuiColumnSheetParser.h" />
     <ClInclude Include="Scripts\ViewModels\Hp\HpViewModel.h" />
+    <ClInclude Include="Scripts\ViewModels\Revelations\RevelationsViewModel.h" />
+    <ClInclude Include="Scripts\UI\Views\RevelationsView\RevelationsView.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
