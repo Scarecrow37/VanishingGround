@@ -44,6 +44,7 @@ private:
     bool InsertWeapon(WeaponElement& weapon);
     bool EraseWeapon(WeaponElement& weapon);
     void SortTableIDOrder();
+    void ClampMultiplierStats(WeaponElement& weapon);
 
 private:
     std::map<std::string, WeaponElement> _weaponTable;

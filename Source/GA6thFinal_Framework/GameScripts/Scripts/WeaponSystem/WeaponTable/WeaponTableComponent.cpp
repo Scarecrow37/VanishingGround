@@ -87,6 +87,7 @@ bool WeaponTableComponent::InsertWeapon(WeaponElement& weapon)
     {
         WeaponElement& newWeapon = _weaponTable[name];
         newWeapon = weapon;
+        ClampMultiplierStats(newWeapon);
         _weaponTableIdOrder.push_back(&newWeapon);
 
         //ID 기준 정렬
@@ -127,6 +128,18 @@ void WeaponTableComponent::SortTableIDOrder()
     { 
         return a->Stats.WeaponID < b->Stats.WeaponID; 
     });
+}
+
+void WeaponTableComponent::ClampMultiplierStats(WeaponElement& weapon) 
+{
+    float hitDamageMultiplier        = weapon.Stats.HitDamageMultiplier;
+    weapon.Stats.HitDamageMultiplier = std::max(1.f, hitDamageMultiplier);
+
+    float criticalDamageMultiplier        = weapon.Stats.CriticalDamageMultiplier;
+    weapon.Stats.CriticalDamageMultiplier = std::max(1.f, criticalDamageMultiplier);
+
+    float attackPerChainMultiplier        = weapon.Stats.AttackPerChainMultiplier;
+    weapon.Stats.AttackPerChainMultiplier = std::max(1.f, attackPerChainMultiplier);
 }
 
 void WeaponTableComponent::Reset() 
