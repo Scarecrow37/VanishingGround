@@ -200,8 +200,8 @@ void DescriptionPanel::UpdateContent()
             break;
             }
             child->transform->SetParent(transform, true);
-            _requestUpdate = false;
         }
+        _requestUpdate = false;
     });
 
     _requestUpdate = true;
