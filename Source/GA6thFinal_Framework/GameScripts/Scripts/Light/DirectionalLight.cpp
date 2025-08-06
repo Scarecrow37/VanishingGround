@@ -1,6 +1,9 @@
 ﻿#include "pchScripts.h"
 #include "DirectionalLight.h"
 
+static constexpr float DEBUG_LINE_LENGTH = 3.f;
+static constexpr float DEBUG_LINE_RADIUS = 1.f;
+
 DirectionalLight::DirectionalLight()
 {
 

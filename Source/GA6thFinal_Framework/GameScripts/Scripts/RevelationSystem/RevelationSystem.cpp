@@ -1,5 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "RevelationSystem.h"
+
+#include "ViewModels/Revelations/RevelationsViewModel.h"
+
 #include <TurnSystem/TurnAction/TurnActionFactory.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
 
@@ -10,7 +13,10 @@ RevelationSystem::RevelationSystem()
     static_instance = this;
     RevelationsPerRound.SetInputAutoEvent([]() { ImGuiHelper::HoveredToolTip(u8"라운드당 뽑는 계시 개수"); });
 }
-RevelationSystem::~RevelationSystem() = default;
+RevelationSystem::~RevelationSystem()
+{
+    UmWatcher.Unregister<RevelationsViewModel>("Revelations");
+};
 
 std::shared_ptr<RevelationElement> RevelationSystem::EquipPlayerElement(int slot, const RevelationElement& element)
 {
@@ -45,8 +51,9 @@ void RevelationSystem::RollRoundElement()
 
     if (_turnMode)
     {
+        const auto& roundElementList = _roundElementList;
         //기존 액션들 비활성화
-        for (auto& element : _roundElementList)
+        for (auto& element : roundElementList)
         {
             if (element->IsAction())
             {
@@ -65,7 +72,7 @@ void RevelationSystem::RollRoundElement()
         }
 
         // 랜덤 셔플
-        std::ranges::shuffle(_roundElementList, Random::GetEngine());
+        _roundElementList.shuffle(Random::GetEngine());
 
         // 사용 가능한 개수만 남긴다.
         if (ReflectFields->RevelationsPerRound < _roundElementList.size())
@@ -74,7 +81,7 @@ void RevelationSystem::RollRoundElement()
         }
 
         // 뽑힌 횟수 계산 및 액션 활성화
-        for (auto& element : _roundElementList)
+        for (auto& element : roundElementList)
         {
             const std::string& name = element->ElementName;
             _elementTotalAppearances[name]++;
@@ -708,7 +715,7 @@ void RevelationSystem::ImGuiDrawPlayerElementEditor()
         }
         if (eraseSelect)
         {
-            std::erase(_roundElementList, *eraseSelect);
+            _roundElementList.erase(*eraseSelect);
             RemovePlayerElement(eraseSlot);
             eraseSelect = nullptr;          
         }
@@ -743,7 +750,8 @@ void RevelationSystem::ImGuiDrawRoundElementList()
     if (ImGui::TreeNodeEx("Round Elements", ImGuiTreeNodeFlags_DefaultOpen))
     {
         RollButton();
-        for (auto& element : _roundElementList)
+        const auto& roundElementList = _roundElementList;
+        for (auto& element : roundElementList)
         {
             std::string_view name = (const std::string&)element->ElementName;
             ImGui::PushStyleColor(ImGuiCol_Text, element->GetGradeColor());
@@ -776,4 +784,11 @@ void RevelationSystem::PushElementTableOrderID(RevelationElement& element)
 void RevelationSystem::EraseElementTableOrderID(RevelationElement& element) 
 {
     std::erase(_elementTableOrderID, &element);
+}
+
+void RevelationSystem::Awake()
+{
+    Component::Awake();
+
+    UmWatcher.Register<RevelationsViewModel>("Revelations", _roundElementList);
 }

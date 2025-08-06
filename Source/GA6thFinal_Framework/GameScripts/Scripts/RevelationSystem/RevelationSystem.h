@@ -58,7 +58,10 @@ public:
     /// 이번 라운드에 활성화된 계시 항목을 반환합니다.
     /// </summary>
     /// <returns></returns>
-    const std::vector<std::shared_ptr<RevelationElement>>& GetRoundElementList() { return _roundElementList; }
+    const MVVM::Model<std::vector<std::shared_ptr<RevelationElement>>>& GetRoundElementList()
+    {
+        return _roundElementList;
+    }
 
     /// <summary>
     /// 플레이어가 사용중인 element 항목을 반환합니다.
@@ -198,7 +201,7 @@ private:
 
 private:
     std::vector<std::shared_ptr<RevelationElement>> _playerElementList;       // 플레이어가 사용중인 계시 (인벤토리)
-    std::vector<std::shared_ptr<RevelationElement>> _roundElementList;        // 이번 라운드에 효과가 발동된 계시 (뽑힌 계시)
+    MVVM::Model<std::vector<std::shared_ptr<RevelationElement>>> _roundElementList;        // 이번 라운드에 효과가 발동된 계시 (뽑힌 계시)
     std::unordered_map<std::string, unsigned int>   _elementTotalAppearances; // 계시가 뽑힌 횟수
     unsigned int                                    _totalRollCount = 0;      //계시를 굴린 횟수
 
@@ -209,4 +212,8 @@ private:
     void SortElementTableOrderID();
     void PushElementTableOrderID(RevelationElement& element);
     void EraseElementTableOrderID(RevelationElement& element);
+
+protected:
+    void Awake() override;
+
 };

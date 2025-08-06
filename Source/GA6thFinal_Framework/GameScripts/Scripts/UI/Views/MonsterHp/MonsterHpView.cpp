@@ -10,6 +10,8 @@ void MonsterHpView::Watch(const std::string& key) const
     if (false == key.empty())
     {
         UmWatcher.Blind<HpViewModel>(key);
+        if (_hpTextElement)
+            _hpTextElement->Enable = true;
         try
         {
             UmWatcher.Watch<HpViewModel, float>(key, [this](const float value) {
@@ -28,10 +30,17 @@ void MonsterHpView::Watch(const std::string& key) const
     }
 }
 
+void MonsterHpView::Disable() const
+{
+    if (_hpTextElement)
+        _hpTextElement->Enable = false;
+}
+
 void MonsterHpView::Awake()
 {
     Component::Awake();
     FindTextElement();
+    Disable();
 }
 
 void MonsterHpView::FindTextElement()

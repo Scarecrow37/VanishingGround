@@ -157,6 +157,11 @@ public:
         static void SceneUpdate();
 
         /// <summary>
+        /// 프레임 종료 직전 수행해야하는 업데이트.
+        /// </summary>
+        static void SceneFinalUpdate();
+
+        /// <summary>
         /// 씬에 게임 오브젝트를 추가합니다.
         /// </summary>
         /// <param name="GameObject :">추가할 오브젝트</param>
@@ -571,7 +576,7 @@ private:
 
     //Life cycle 을 수행. 클라에서 매틱 호출해야함.
     void SceneUpdate();
-    
+ 
 private:
     void ObjectsAddRuntime();        //추가 대기중인 오브젝트, 컴포넌트를 라이프 사이클에 포함시킵니다.
     void ObjectsAwake();             //Awake 예정인 컴포넌트들의 Awake 함수를 호출합니다.
@@ -586,6 +591,12 @@ private:
     void ObjectsDestroy();           //Destroy 예정인 컴포넌트들의 OnDestroy 함수를 호출 한 뒤 파괴합니다.
     void ObjectsMatrixUpdate();      //오브젝트들의 행렬을 업데이트합니다.
     void ObjectsAddLoadScene();      //다음에 로드할 씬의 오브젝트들을 추가합니다.
+
+private:
+    void SceneFinalUpdate();
+
+private:
+    void ObjectsTransformFlagReset();
 
 private:
     /*게임오브젝트의 Life cycle 수행 여부를 확인하는 함수*/

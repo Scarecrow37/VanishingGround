@@ -11,7 +11,8 @@ struct GetEnemyFrameGuid
 {
     File::GuidRef operator()() const
     {
-        return File::GuidRef("a4e15352-fb7b-4b98-a816-8ce992a5bae6");
+        const File::Path& path = UmFileSystem.GetPathFromAssetID(110053);
+        return path.ToGuid();
     }
 };
 
@@ -19,7 +20,8 @@ struct GetPlayerFrameGuid
 {
     File::GuidRef operator()() const
     {
-        return File::GuidRef("34a8ea24-4930-40b7-9804-44913d370b8d");
+        const File::Path& path = UmFileSystem.GetPathFromAssetID(110052);
+        return path.ToGuid();
     }
 };
 
@@ -35,7 +37,8 @@ struct GetPortraitGuid
         case EnemyType::MONSTER_B:
             [[fallthrough]];
         case EnemyType::MONSTER_C:
-            portraitGuid = File::GuidRef("dfe97341-a308-4c16-a772-bf27a8dc8692");
+            const File::Path& path = UmFileSystem.GetPathFromAssetID(113301);
+            portraitGuid = path.ToGuid();
         }
         return portraitGuid;
     }
@@ -45,18 +48,30 @@ struct GetPortraitGuid
         File::GuidRef portraitGuid;
         switch (weaponId)
         {
-        case 1: // 녹슨자의 검
-            portraitGuid = File::GuidRef("d8c48715-62dc-4e6f-b72b-d0454417a30f");
-            break;
-        case 2: // 돌격 대장의 망치
-            portraitGuid = File::GuidRef("1400cdb7-d00b-42cd-84bb-c3a23eb1f6a8");
-            break;
-        case 3: // 돌파자의 장검
-            portraitGuid = File::GuidRef("cb4204c9-583c-4e59-b310-fe649ba6c6f6");
-            break;
-        case 4: // 제물의 단검
-            portraitGuid = File::GuidRef("e051b13f-3bbe-4bfb-adc2-338f88e8a8fe");
-            break;
+        case 11004: // 녹슨자의 검
+        {
+            const File::Path& path = UmFileSystem.GetPathFromAssetID(113000);
+            portraitGuid           = path.ToGuid();
+        }
+        break;
+        case 11200: // 돌격 대장의 망치
+        {
+            const File::Path& path = UmFileSystem.GetPathFromAssetID(113200);
+            portraitGuid           = path.ToGuid();
+        }
+        break;
+        case 11000: // 돌파자의 장검
+        {
+            const File::Path& path = UmFileSystem.GetPathFromAssetID(113001);
+            portraitGuid           = path.ToGuid();
+        }
+        break;
+        case 11101: // 제물의 단검
+        {
+            const File::Path& path = UmFileSystem.GetPathFromAssetID(113100);
+            portraitGuid           = path.ToGuid();
+        }
+        break;
         default:
             UmLogger.Log(LogLevel::LEVEL_WARNING, "Unknown weapon ID: " + std::to_string(weaponId));
             portraitGuid = File::NULL_GUID; // Default to SWORD
@@ -95,6 +110,7 @@ std::vector<TurnUIData> TurnQueueViewModel::Convert(const std::deque<std::pair<i
             TurnActor* actor = slotAndActor.second;
             if (const Enemy*     enemy = dynamic_cast<Enemy*>(actor); nullptr != enemy)
             {
+
                 const EnemyType enemyType = enemy->Type;
                 const File::GuidRef portraitGuid = GetPortraitGuid()(enemyType);
                 const File::GuidRef frameGuid    = GetEnemyFrameGuid()();
