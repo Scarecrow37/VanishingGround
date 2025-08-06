@@ -3,6 +3,7 @@
 #include "Enum/EnemyEnum.h"
 #include "AI/EnemyAI.h"
 
+class MonsterHpView;
 class EnemyStatsComponent;
 class FSMState;
 
@@ -66,6 +67,13 @@ public:
 
     /*Enemy의 Stats을 반환합니다.*/
     EnemyStatsComponent* GetEnemyStats();
+
+public:
+    MonsterHpView* GetMonsterHpView() const { return _monsterHpView; }
+    void SetMonsterHpView(MonsterHpView* view);
+
+private:
+    MonsterHpView* _monsterHpView = nullptr;
 
 protected:
     /// <summary>

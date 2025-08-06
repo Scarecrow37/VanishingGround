@@ -31,7 +31,7 @@ SkeletalMeshRenderer::~SkeletalMeshRenderer()
 
 void SkeletalMeshRenderer::Reset()
 {
-    MakeMeshRenderer(MeshType::SKELETAL_MESH, transform->Position, transform->Scale, transform->Rotation, transform->GetWorldMatrix());
+    MakeMeshRenderer(MeshType::SKELETAL_MESH, transform->Position, transform->Scale, transform->Rotation, transform->GetWorldMatrix(), _isDirtyFlag);
 
     if (false == _guidRef.IsNull())
     {

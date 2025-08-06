@@ -40,8 +40,11 @@ public:
     GETTER(std::string, Description) { return ReflectFields->Description; }
     SETTER(std::string, Description)
     {
-        ReflectFields->Description = value;
-        UpdateContent();
+        if (ReflectFields->Description != value)
+        {
+            ReflectFields->Description = value;
+            UpdateContent();
+        }
     }
     PROPERTY(Description)
 
@@ -59,4 +62,5 @@ protected:
 
 private:
     File::GuidRef _guidRef;
+    bool          _requestUpdate = false;
 };

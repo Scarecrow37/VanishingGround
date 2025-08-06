@@ -3,9 +3,6 @@
 class DirectionalLight : public LightComponent
 {
     USING_PROPERTY(DirectionalLight)
-protected:
-    inline static constexpr float DEBUG_LINE_LENGTH = 50.f;
-    inline static constexpr float DEBUG_LINE_RADIUS = 10.f;
 
 public:
     REFLECT_PROPERTY(

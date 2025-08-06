@@ -77,9 +77,9 @@ public:
     // return : Transform*
     PROPERTY(Parent)
 
+    inline void SetChangeFlag() { _hasChanged = true; }
     GETTER_ONLY(bool, HasChanged) { return _hasChanged; }
-    // get : Transform의 이번 프레임 변경 여부를 확인합니다. true면 이번
-    // 프레임에 행렬 계산 대상이 됩니다.
+    // bool : Transform의 이번 프레임 변경 여부입니다. true면 이번 프레임에 행렬 계산 대상이 됩니다.
     PROPERTY(HasChanged)
 
     GETTER_ONLY(const Matrix&, LocalToWorldMatrix) { return GetWorldMatrix(); }
@@ -314,6 +314,12 @@ public:
     /// </summary>
     /// <returns></returns>
     const Matrix& GetInversWorldMatrix() { return _inversWorldMatrix; }
+
+    /// <summary>
+    /// Dirty flag 레퍼런스를 반환합니다.
+    /// </summary>
+    /// <returns></returns>
+    const bool& HasChangedRef() const { return _hasChanged; }
 
 private:
     GameObject& _gameObject;

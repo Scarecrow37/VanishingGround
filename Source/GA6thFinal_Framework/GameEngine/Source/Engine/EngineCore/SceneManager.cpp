@@ -127,6 +127,11 @@ void ESceneManager::Engine::SceneUpdate()
     engineCore->SceneManager.SceneUpdate();
 }
 
+void ESceneManager::Engine::SceneFinalUpdate() 
+{
+    engineCore->SceneManager.SceneFinalUpdate();
+}
+
 void ESceneManager::SceneUpdate()
 {
 #ifdef _UMEDITOR
@@ -149,6 +154,22 @@ void ESceneManager::SceneUpdate()
     ObjectsDestroy();
     ObjectsMatrixUpdate();
     ObjectsAddLoadScene();
+}
+
+void ESceneManager::SceneFinalUpdate() 
+{
+    ObjectsTransformFlagReset();
+}
+
+void ESceneManager::ObjectsTransformFlagReset() 
+{
+    for (auto& obj : _runtimeObjects)
+    {
+        if (nullptr != obj && obj->_transform._hasChanged == true)
+        {
+            obj->_transform._hasChanged = false;
+        }
+    }
 }
 
 void ESceneManager::Engine::AddGameObjectToLifeCycle(std::shared_ptr<GameObject> gameObject)
@@ -1076,10 +1097,28 @@ void ESceneManager::ObjectsDestroy()
         int instanceID = destroyObject->GetInstanceID();
         if (STR_NULL != destroyObject->_ownerScene)
         {
-            std::shared_ptr<GameObject>& pObject = _runtimeObjects[instanceID];
-            SetObjectOwnerScene(pObject.get(), STR_NULL);
-            EraseGameObjectMap(pObject);
-            pObject.reset();
+            if (static_cast<size_t>(instanceID) < _runtimeObjects.size() && _runtimeObjects[instanceID])
+            {
+                std::shared_ptr<GameObject>& pObject = _runtimeObjects[instanceID];
+                SetObjectOwnerScene(pObject.get(), STR_NULL);
+                EraseGameObjectMap(pObject);
+                pObject.reset();
+            }
+            else
+            {
+                std::erase_if(_addGameObjectsQueue, 
+                [destroyObject, this](std::shared_ptr<GameObject>& object) 
+                {
+                    bool erase = object.get() == destroyObject;
+                    if (erase)
+                    {
+                        SetObjectOwnerScene(object.get(), STR_NULL);
+                        EraseGameObjectMap(object);
+                    }
+                    return erase;
+                });
+
+            }
         }
     }
 
