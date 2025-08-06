@@ -39,6 +39,7 @@ void StaticMeshRenderer::LoadModel()
             std::wstring modelPath = U8ToWString(path);
             UmGraphics.LoadResource(modelPath, Renderer.get());
             Renderer->OnCustomDepth(PostProcess::BLOOM);
+            transform->SetChangeFlag();
             __super::InitMaterial();
         }
     }
@@ -46,8 +47,7 @@ void StaticMeshRenderer::LoadModel()
 
 void StaticMeshRenderer::Reset()
 {
-    MakeMeshRenderer(MeshType::STATIC_MESH, transform->Position, transform->Scale, transform->Rotation,
-                     transform->GetWorldMatrix());
+    MakeMeshRenderer(MeshType::STATIC_MESH, transform->Position, transform->Scale, transform->Rotation, transform->GetWorldMatrix(), transform->HasChangedRef());
 
     if (false == _guidRef.IsNull())
     {
