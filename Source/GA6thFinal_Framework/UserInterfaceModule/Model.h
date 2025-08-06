@@ -42,7 +42,7 @@ namespace MVVM
     {
     public:
         Model() = default;
-        explicit Model(const T& value) : ModelBase<T>(value) {}
+        Model(const T& value) : ModelBase<T>(value) {}
         Model& operator=(const T& value)
         {
             ModelBase<T>::_value = value;
@@ -51,6 +51,7 @@ namespace MVVM
         }
 
     public:
+        operator T() const noexcept { return ModelBase<T>::_value; }
         explicit operator bool() const noexcept { return ModelBase<T>::_value != 0; }
 
     public:
