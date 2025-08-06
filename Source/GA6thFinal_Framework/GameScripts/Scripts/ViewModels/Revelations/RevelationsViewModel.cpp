@@ -95,6 +95,7 @@ struct GetIconGuid
             const File::Path& path = UmFileSystem.GetPathFromAssetID(111703);
             guid                   = path.ToGuid();
         }
+        break;
         case IconType::COMBO: {
             const File::Path& path = UmFileSystem.GetPathFromAssetID(110023);
             guid                   = path.ToGuid();
