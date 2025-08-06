@@ -138,6 +138,7 @@ static ReflectHelper::ImGuiDraw::InputAutoSetting InitSetting()
 
 void RevelationSystem::DrawImGuiElementTableEditor() 
 {
+#ifdef _UMEDITOR
     if (ImGui::BeginTable("Revelation Stats", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
     {                      
         static ReflectHelper::ImGuiDraw::InputAutoSetting tableSetting = InitSetting();
@@ -281,6 +282,7 @@ void RevelationSystem::DrawImGuiElementTableEditor()
             }
         }
     }
+#endif
 }
 
 void RevelationSystem::ActionsToActionDatas() 

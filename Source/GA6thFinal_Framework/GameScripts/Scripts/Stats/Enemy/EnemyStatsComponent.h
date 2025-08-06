@@ -14,6 +14,8 @@ public:
 
     EnemyStats& GetStats() { return *_stats; }
 
+    void RegisterHP(const std::string& key) const;
+
 protected:
     REFLECT_FIELDS_BEGIN(TurnActorStatsComponent)
     REFLECT_FIELDS_END(EnemyStatsComponent)

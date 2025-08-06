@@ -8,6 +8,8 @@
 #include <TurnSystem/TurnAction/TurnAction.h>
 #include <RevelationSystem/RevelationSystem.h>
 #include <WeaponSystem/WeaponSystem.h>
+#include "Scripts/Stats/Enemy/EnemyStatsComponent.h"
+#include "UI/Views/MonsterHp/MonsterHpView.h"
 
 REGISTER_CLASS(FSMStateFactory, CombatStartPhase)
 
@@ -73,7 +75,9 @@ void CombatStartPhase::ResetCharacterStats()
 
 void CombatStartPhase::OnAwake() 
 {
-
+    ResetCharacterStats();
+    SortEnemies();
+    RegisterEnemiesHP();
 }
 
 void CombatStartPhase::OnStart() 
@@ -85,8 +89,6 @@ void CombatStartPhase::OnEnter()
 {
     _turnMode->ResetRoundCount();
     AddValidActions();
-    ResetCharacterStats();
-    SortEnemies();
 
     UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"배틀 시작...3");
     UmTime.Invoke(&GetFSM(), 1.f, [this]() { UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"배틀 시작...2"); });
@@ -207,5 +209,43 @@ void CombatStartPhase::SortEnemies()
         _enemies[0] = leftEnemy;
         _enemies[1] = centerEnemy;
         _enemies[2] = rightEnemy;
+    }
+}
+
+void CombatStartPhase::RegisterEnemiesHP() const
+{
+    RegisterEnemyHP(0, "Left Monster HP", "Left Monster HP UI");
+    RegisterEnemyHP(1, "Middle Monster HP", "Middle Monster HP UI");
+    RegisterEnemyHP(2, "Right Monster HP", "Right Monster HP UI");
+}
+
+void CombatStartPhase::RegisterEnemyHP(const int index, const std::string& key, const std::string& tag) const
+{
+    if (const EnemyStatsComponent* leftEnemyStatsComponent = _enemies[index]->GetComponent<EnemyStatsComponent>();
+        nullptr != leftEnemyStatsComponent)
+    {
+        leftEnemyStatsComponent->RegisterHP(key);
+        const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(tag);
+        if (const auto sharedGameObject = weakGameObject.lock())
+        {
+            if (const MonsterHpView* monsterHpView = sharedGameObject->GetComponent<MonsterHpView>();
+                nullptr != monsterHpView)
+            {
+                monsterHpView->Watch(key);
+            }
+            else
+            {
+                UmLogger.Log(LogLevel::LEVEL_ERROR, "MonsterHpView with tag '" + tag + "' not found.");
+            }
+        }
+        else
+        {
+            UmLogger.Log(LogLevel::LEVEL_ERROR, "GameObject with tag '" + tag + "' not found.");
+        }
+    }
+    else
+    {
+        UmLogger.Log(LogLevel::LEVEL_ERROR,
+                     "EnemyStatsComponent not found for enemy at index " + std::to_string(index));
     }
 }

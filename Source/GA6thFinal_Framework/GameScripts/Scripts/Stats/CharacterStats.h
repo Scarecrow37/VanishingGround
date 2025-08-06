@@ -19,7 +19,10 @@ struct CharacterStats : public TurnActorStats
     // int 최대 체력
     PROPERTY(MaxHP)
 
-    SETTER(int, CurrentHP) { _currentHP = std::clamp(value, 0, ReflectFields->MaxHP); }
+    SETTER(int, CurrentHP)
+    {
+        _currentHP = std::clamp(value, 0, ReflectFields->MaxHP);
+    }
     GETTER(int, CurrentHP) { return _currentHP; }
     // int 현재 체력
     PROPERTY(CurrentHP)
@@ -61,7 +64,7 @@ protected:
     float StunResistanceMultiplier = 1.25f;
     REFLECT_FIELDS_END(CharacterStats)
 
-    int _currentHP = 100;
+    MVVM::Model<int> _currentHP = 100;
     int _currentChainCount = 0;
     int _currentChainRoundCount = 0;
 };
