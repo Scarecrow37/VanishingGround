@@ -1,5 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "RevelationSystem.h"
+
+#include "ViewModels/Revelations/RevelationsViewModel.h"
+
 #include <TurnSystem/TurnAction/TurnActionFactory.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
 RevelationSystem::RevelationSystem() 
@@ -7,7 +10,10 @@ RevelationSystem::RevelationSystem()
     static_instance = this;
     RevelationsPerRound.SetInputAutoEvent([]() { ImGuiHelper::HoveredToolTip(u8"라운드당 뽑는 계시 개수"); });
 }
-RevelationSystem::~RevelationSystem() = default;
+RevelationSystem::~RevelationSystem()
+{
+    UmWatcher.Unregister<RevelationsViewModel>("Revelations");
+};
 
 std::shared_ptr<RevelationElement> RevelationSystem::EquipPlayerElement(int slot, const RevelationElement& element)
 {
@@ -607,4 +613,11 @@ void RevelationSystem::ImGuiDrawRoundElementList()
     {
         RollButton();
     }
+}
+
+void RevelationSystem::Awake()
+{
+    Component::Awake();
+
+    UmWatcher.Register<RevelationsViewModel>("Revelations", _roundElementList);
 }

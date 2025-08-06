@@ -204,4 +204,7 @@ private:
     void ImGuiDrawPlayerElementEditor();
     void ImGuiDrawRoundElementList();
 
+protected:
+    void Awake() override;
+
 };
