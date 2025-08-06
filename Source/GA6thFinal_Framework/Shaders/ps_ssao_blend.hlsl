@@ -13,6 +13,6 @@ float4 ps_main(PSInput input) : SV_Target
 {
     float4 pixelColor = LightTexture.SampleLevel(samLinear_clamp, input.uv, 0);
     float AO = AOTexture.SampleLevel(samLinear_clamp, input.uv, 0).r;
-    float4 finialColor = float4(pixelColor.xyz * AO,1.f);
-    return finialColor;
+    float4 finalColor = float4(pixelColor.xyz * AO,1.f);
+    return finalColor;
 };
