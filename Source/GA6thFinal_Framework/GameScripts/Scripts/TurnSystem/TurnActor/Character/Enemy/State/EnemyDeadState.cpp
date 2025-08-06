@@ -1,5 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "EnemyDeadState.h"
+
+#include "UI/Views/MonsterHp/MonsterHpView.h"
+
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 #include <Animation/AnimationComponent.h>
 
@@ -36,11 +39,15 @@ void EnemyDeadState::OnUpdate()
 {
     Enemy& enemy = GetEnemy();
     AnimationComponent* animator = enemy.GetAnimationComponent();
+    MonsterHpView*      view     = enemy.GetMonsterHpView();
     if (animator)
     {
         if (animator->GetMainAnimationData().IsEnd())
         {
             enemy.gameObject->SetActive(false);
+
+            if (nullptr != view)
+                view->Disable();
         }
     }
 }

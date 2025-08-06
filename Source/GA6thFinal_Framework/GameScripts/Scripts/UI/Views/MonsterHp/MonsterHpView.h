@@ -11,6 +11,7 @@ public:
 
 public:
     void Watch(const std::string& key) const;
+    void Disable() const;
 
 protected:
     void Awake() override;
