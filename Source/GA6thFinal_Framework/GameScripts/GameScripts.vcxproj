@@ -362,11 +362,13 @@
     <ClInclude Include="Scripts\UI\Panels\Anchor\AnchorPanel.h" />
     <ClInclude Include="Scripts\UI\Panels\Description\DescriptionPanel.h" />
     <ClInclude Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.h" />
+    <ClInclude Include="Scripts\UI\Views\MonsterHp\MonsterHpView.h" />
     <ClInclude Include="Scripts\UI\Views\TurnQueue\TurnQueueView.h" />
     <ClInclude Include="Scripts\UI\Views\Weapon\WeaponView.h" />
     <ClInclude Include="Scripts\UI\Wrappers\Center\CenterWrapper.h" />
     <ClInclude Include="Scripts\UI\Wrappers\Padding\PaddingWrapper.h" />
     <ClInclude Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.h" />
+    <ClInclude Include="Scripts\ViewModels\Hp\HpViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\TurnQueue\TurnQueueViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Weapon\WeaponViewModel.h" />
     <ClInclude Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.h" />
@@ -510,11 +512,13 @@
     <ClCompile Include="Scripts\UI\Panels\Anchor\AnchorPanel.cpp" />
     <ClCompile Include="Scripts\UI\Panels\Description\DescriptionPanel.cpp" />
     <ClCompile Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.cpp" />
+    <ClCompile Include="Scripts\UI\Views\MonsterHp\MonsterHpView.cpp" />
     <ClCompile Include="Scripts\UI\Views\TurnQueue\TurnQueueView.cpp" />
     <ClCompile Include="Scripts\UI\Views\Weapon\WeaponView.cpp" />
     <ClCompile Include="Scripts\UI\Wrappers\Center\CenterWrapper.cpp" />
     <ClCompile Include="Scripts\UI\Wrappers\Padding\PaddingWrapper.cpp" />
     <ClCompile Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.cpp" />
+    <ClCompile Include="Scripts\ViewModels\Hp\HpViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\TurnQueue\TurnQueueViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Weapon\WeaponViewModel.cpp" />
     <ClCompile Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.cpp" />
