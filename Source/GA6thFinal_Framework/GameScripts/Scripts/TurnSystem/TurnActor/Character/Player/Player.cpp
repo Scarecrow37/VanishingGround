@@ -257,6 +257,8 @@ void Player::OnTokenRemoved(int tokenID)
 void Player::OnNotifiedAnimationEvent(const Timeline::EventContext* context)
 {
     auto* modelTransform = transform->Find(MODEL_NAME);
+    if (nullptr == modelTransform)
+        return;
     auto particlecomponent = modelTransform->gameObject->GetComponent<ParticleComponent>();
     if (nullptr == particlecomponent)
         return;
