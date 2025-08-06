@@ -242,39 +242,42 @@ void AudioTableComponent::LoadAudio(const std::string& key, const File::Path& pa
 
 void AudioTableComponent::PlaySelectedAudio()
 {
-    Play(_selectedAudioKey);
+    _selectedAudioHandle = Play(_selectedAudioKey);
 }
 
 void AudioTableComponent::StopSelectedAudio()
 {
-    Stop(_selectedAudioKey);
-}
-
-void AudioTableComponent::Play(const std::string& key)
-{
-    // Check if an audio is selected
-    if (true == key.empty())
+    if (_selectedAudioKey.empty())
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, "No audio selected.");
         return;
     }
 
-    if (_audioHandles.contains(key))
+    if (UmAudio.IsValidHandle(_selectedAudioHandle))
     {
-        if (const Audio::Handle& audioHandle = _audioHandles.at(key); UmAudio.IsValidHandle(audioHandle))
-        {
-            const std::string errorMessage = std::format("{} : Already playing.", key);
-            UmLogger.Log(LogLevel::LEVEL_WARNING, errorMessage);
-            return;
-        }
+        UmAudio.Stop(_selectedAudioHandle);
+    }
+    else
+    {
+        const std::string errorMessage = std::format("{} : Not playing or invalid Audio Handle.", _selectedAudioKey);
+        UmLogger.Log(LogLevel::LEVEL_WARNING, errorMessage);
+    }
+}
+
+Audio::Handle AudioTableComponent::Play(const std::string& key) const
+{
+    // Check if an audio is selected
+    if (true == key.empty())
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, "No audio selected.");
+        return {};
     }
 
     // Play the selected audio
     try
     {
         const Audio::Source& audioSource = _audioSources.at(key);
-        Audio::Handle        audioHandle = UmAudio.Play(audioSource);
-        _audioHandles.insert_or_assign(key, std::move(audioHandle));
+        return UmAudio.Play(audioSource);
     }
     catch (const std::out_of_range& exception)
     {
@@ -282,33 +285,5 @@ void AudioTableComponent::Play(const std::string& key)
         UmLogger.Log(LogLevel::LEVEL_ERROR, errorMessage);
         UmLogger.Log(LogLevel::LEVEL_ERROR, exception.what());
     }
-}
-
-void AudioTableComponent::Stop(const std::string& key)
-{
-    if (key.empty())
-    {
-        UmLogger.Log(LogLevel::LEVEL_WARNING, "No audio selected.");
-        return;
-    }
-
-    try
-    {
-        if (const Audio::Handle& audioHandle = _audioHandles.at(key); UmAudio.IsValidHandle(audioHandle))
-        {
-            UmAudio.Stop(audioHandle);
-            _audioHandles.insert_or_assign(key, Audio::Handle());
-        }
-        else
-        {
-            const std::string errorMessage = std::format("{} : Not playing or invalid Audio Handle.", key);
-            UmLogger.Log(LogLevel::LEVEL_WARNING, errorMessage);
-        }
-    }
-    catch (const std::out_of_range& exception)
-    {
-        const std::string errorMessage = std::format("{} : Audio handle does not exist.", key);
-        UmLogger.Log(LogLevel::LEVEL_ERROR, errorMessage);
-        UmLogger.Log(LogLevel::LEVEL_ERROR, exception.what());
-    }
+    return {};
 }

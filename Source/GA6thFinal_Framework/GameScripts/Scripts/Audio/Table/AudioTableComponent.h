@@ -8,8 +8,7 @@ public:
     AudioTableComponent();
 
 public:
-    void Play(const std::string& key);
-    void Stop(const std::string& key);
+    Audio::Handle Play(const std::string& key) const;
 
 protected:
     void ImGuiDrawPropertysEvent() override;
@@ -32,8 +31,8 @@ private:
     std::string _newKey;
     std::string _newPathString;
 
-    std::string _selectedAudioKey;
+    std::string   _selectedAudioKey;
+    Audio::Handle _selectedAudioHandle;
 
     std::unordered_map<std::string, Audio::Source> _audioSources;
-    std::unordered_map<std::string, Audio::Handle> _audioHandles;
 };
