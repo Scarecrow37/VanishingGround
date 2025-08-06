@@ -58,7 +58,7 @@ public:
     /*Enemy를 Dead 상태로 만듭니다.*/
     virtual void Dead() override;
     /*Enemy에게 피격을 가합니다.*/
-    virtual void TakeDamage(int damage) override;
+    virtual void TakeDamage(int damage, bool playAnim = true) override;
 
     inline EnemyAI&            GetAIModel() { return _aiModel; }
     inline FiniteStateMachine& GetFSM() { return *_finiteStateMachine; }
