@@ -156,6 +156,10 @@ void Application::Run()
             Global::engineCore->Graphics.Update(deltaTime);
             Global::engineCore->Graphics.Render();
             _imguiDX12Module->ImguiEnd();
+
+            // Scene Final Update
+            ESceneManager::Engine::SceneFinalUpdate();
+
             Global::engineCore->Graphics.Flip();
         }
     }

@@ -43,7 +43,7 @@ float4 ps_main(PSInput input) : SV_TARGET
 
     // 거리 페이드
     float dist = distance(cameraData.Position.xz, worldXZ);
-    float fade = saturate(1.0 - dist / 1500.0);
+    float fade = saturate(1.0 - dist / 1000.0);
     
     return float4(color, finalAlpha * fade);
 }
