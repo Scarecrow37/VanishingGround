@@ -28,7 +28,6 @@ void RevelationsView::Start()
             {
                 if (i < revelations.size())
                 {
-                    //_revelationObjects[i]->ActiveSelf = true;
                     if (nullptr != _revelationUis[i].IconElement)
                         _revelationUis[i].IconElement->SetImage(revelations[i].Icon);
                     if (nullptr != _revelationUis[i].NameElement)
@@ -38,16 +37,8 @@ void RevelationsView::Start()
                     if (nullptr != _revelationUis[i].Description2Element)
                         _revelationUis[i].Description2Element->Description = WStringToU8(revelations[i].Description2);
                 }
-                //else
-                //{
-                //    _revelationObjects[i]->ActiveSelf = false;
-                //}
             }
         });
-    //for (const auto& revelationObject : _revelationObjects)
-    //{
-    //    revelationObject->ActiveSelf = false;
-    //}
 }
 
 void RevelationsView::FindRevelationUIs()
