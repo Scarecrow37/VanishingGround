@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "RevelationElement/RevelationElement.h"
+#include <ExcelParser/ImGuiColumnSheetParser.h>
 
 class TurnAction;
 class RevelationSystem : public Component
@@ -124,17 +125,21 @@ private:
 
     struct ImGuiEvent
     {
-        std::function<void()> RenameFunc;
+        std::function<void()>          RenameFunc;
+        RevelationElement*             SelectElement     = nullptr;
+        std::string                    DeleteTableBuffer = STR_NULL;
+        bool                           OpenDeletePopup   = false;
 
-        RevelationElement* SelectElement     = nullptr;
-        std::string        DeleteTableBuffer = STR_NULL;
-        bool               OpenDeletePopup   = false;
+        ImGuiColumnSheetParser         ExcelParser{"FD7989C6-FD1B-4B38-8B50-DB8E6274C439", u8"Name"};
+        std::queue<RevelationElement*> DirtyRevelationElementQueue;
+        bool                           ShowDirtyElementPopup = false;
     };
 #ifdef _UMEDITOR
     ImGuiEvent _imguiEvent;
 #endif
-
-    void DrawImGuiElementTableEditor();
+    void ImGuiDrawElementTableEditor();
+    void ImGuiDrawExcelParser();
+    bool ExcelToRevelationElement(RevelationElement& element, const std::string& key, const std::string& data);
 
 public:
     REFLECT_PROPERTY(
@@ -188,6 +193,7 @@ private:
 
 private:
     std::map<std::string, RevelationElement> _elementsTable; // 계시 테이블
+    std::vector<RevelationElement*>          _elementTableOrderID;
     ImVec2                                   _tableEditorCenterPos{};
 
 private:
@@ -200,5 +206,7 @@ private:
 private:
     void ImGuiDrawPlayerElementEditor();
     void ImGuiDrawRoundElementList();
-
+    void SortElementTableOrderID();
+    void PushElementTableOrderID(RevelationElement& element);
+    void EraseElementTableOrderID(RevelationElement& element);
 };
