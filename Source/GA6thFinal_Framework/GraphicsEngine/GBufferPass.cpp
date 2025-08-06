@@ -67,10 +67,10 @@ void GBufferPass::AddRenderPassDatas(std::string_view sceneName)
         renderTarget->Initialize(desc, 0.247f);
     }
 
-    Global::renderPassDatas->AddRenderPassImage(sceneName, "G-Buffer Pass", "Albedo", _gBufferRenderTargets[0]->GetSRVHandle());
-    Global::renderPassDatas->AddRenderPassImage(sceneName, "G-Buffer Pass", "Normal", _gBufferRenderTargets[1]->GetSRVHandle());
-    Global::renderPassDatas->AddRenderPassImage(sceneName, "G-Buffer Pass", "ORM", _gBufferRenderTargets[2]->GetSRVHandle());
-    Global::renderPassDatas->AddRenderPassImage(sceneName, "G-Buffer Pass", "Emissive", _gBufferRenderTargets[3]->GetSRVHandle());
+    Global::renderPassDatas->AddRenderPassImage(sceneName, "G-BufferPass", "Albedo", _gBufferRenderTargets[0]->GetSRVHandle());
+    Global::renderPassDatas->AddRenderPassImage(sceneName, "G-BufferPass", "Normal", _gBufferRenderTargets[1]->GetSRVHandle());
+    Global::renderPassDatas->AddRenderPassImage(sceneName, "G-BufferPass", "ORM", _gBufferRenderTargets[2]->GetSRVHandle());
+    Global::renderPassDatas->AddRenderPassImage(sceneName, "G-BufferPass", "Emissive", _gBufferRenderTargets[3]->GetSRVHandle());
 }
 
 void GBufferPass::Update(ID3D12GraphicsCommandList* commadList)
