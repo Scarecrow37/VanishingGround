@@ -11,6 +11,7 @@ ImGuiColumnSheetParser::ImGuiColumnSheetParser(std::string_view id)
 
 bool ImGuiColumnSheetParser::Draw(const std::function<void(const ColumnDatas&)>& callBackFunc)
 {
+    bool result = false;
     if (ShowParser)
     {
         ImGui::Begin(_id.c_str(), &ShowParser,
@@ -54,6 +55,7 @@ bool ImGuiColumnSheetParser::Draw(const std::function<void(const ColumnDatas&)>&
                             Apply(callBackFunc);
                         }
                     }
+                    result = true;
                 }
             }
             ImGui::PopID();
@@ -72,6 +74,8 @@ bool ImGuiColumnSheetParser::Draw(const std::function<void(const ColumnDatas&)>&
         _selectSheetName.clear();
         _sheetDatas.clear();
     }
+
+    return result;
 }
 
 bool ImGuiColumnSheetParser::Apply(const std::function<void(const ColumnDatas& datas)>& callBackFunc)
