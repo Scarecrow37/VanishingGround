@@ -136,6 +136,10 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
     {
         scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
     }
+    if (RenderTechniqueFlag::SSAO_TECH & flag)
+    {
+        scene->AddRenderTechnique(std::make_unique<SSAOTechnique>());
+    }
     if (RenderTechniqueFlag::PARTICLE_TECH & flag)
     {
         scene->AddRenderTechnique(std::make_unique<ParticleRenderTechnique>());
@@ -150,10 +154,6 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
     }
 
     // FinalRenderTarget Pass
-    if (RenderTechniqueFlag::SSAO_TECH & flag)
-    {
-        scene->AddRenderTechnique(std::make_unique<SSAOTechnique>());
-    }
 
     if (RenderTechniqueFlag::BLOOM_TECH & flag)
     {
