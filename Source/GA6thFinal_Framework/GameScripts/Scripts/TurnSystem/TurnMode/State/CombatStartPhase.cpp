@@ -10,7 +10,6 @@
 #include <WeaponSystem/WeaponSystem.h>
 #include "Scripts/Stats/Enemy/EnemyStatsComponent.h"
 #include "UI/Views/MonsterHp/MonsterHpView.h"
-#include "ViewModels/HP/HpViewModel.h"
 
 REGISTER_CLASS(FSMStateFactory, CombatStartPhase)
 
