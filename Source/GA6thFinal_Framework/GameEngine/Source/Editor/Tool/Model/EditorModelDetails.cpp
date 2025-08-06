@@ -9,7 +9,7 @@ EditorModelDetails::EditorModelDetails()
     , _mainLight(std::make_unique<Light>())
     , _selectedMeshIndex(0)
 {
-    _meshRenderer = std::make_unique<MeshRenderer>(STATIC_MESH, _position, _scale, _quaternion, _worldMatrix);
+    _meshRenderer = std::make_unique<MeshRenderer>(STATIC_MESH, _position, _scale, _quaternion, _worldMatrix, _isDirtyFlag);
     SetLabel("Details##model");
     SetDockLayout(ImGuiDir_Right);
 }

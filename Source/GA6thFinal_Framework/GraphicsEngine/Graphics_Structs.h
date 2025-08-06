@@ -91,6 +91,7 @@ struct GraphicsTransform
     const Vector3&    Scale;
     const Quaternion& Rotation;
     const Matrix&     World;
+    const bool&       IsDirtyFlag;
 };
 
 struct ShadowPassProperty

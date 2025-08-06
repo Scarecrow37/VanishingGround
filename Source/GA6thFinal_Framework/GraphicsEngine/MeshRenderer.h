@@ -8,7 +8,7 @@ class DXRSkeletalMesh;
 class MeshRenderer : public GraphicsBase
 {
 public:
-    MeshRenderer(MeshType type, const Vector3& position, const Vector3& scale, const Quaternion& rotation, const Matrix& world);
+    MeshRenderer(MeshType type, const Vector3& position, const Vector3& scale, const Quaternion& rotation, const Matrix& world, const bool& dirtyFlag);
     virtual ~MeshRenderer();
 
 public:
@@ -19,6 +19,7 @@ public:
     const UINT                    GetCustomDepth(UINT meshID) const { return _customDepths[meshID]; }
     const std::vector<UINT>&      GetCustomDepths() const { return _customDepths; }
     std::shared_ptr<Animator>     GetAnimator() const;
+    const bool                    IsDirtyFlag() const { return _transform.IsDirtyFlag; }
     const std::vector<std::shared_ptr<DXRSkeletalMesh>> GetDXRSkeletalMeshes() const { return _dxrSkeletalMeshes; }
 
 public:
@@ -29,16 +30,16 @@ public:
 
 public:
     void OnCustomDepth(UINT customDepth);
-    void OnCustomDepth(UINT customDepth, UINT meshID);    
+    void OnCustomDepth(UINT customDepth, UINT meshID);
     void OffCustomDepth(UINT customDepth);
     void OffCustomDepth(UINT customDepth, UINT meshID);
 
 private:
-    std::vector<Material>                              _materials;
-    std::vector<UINT>                                  _customDepths;
-    std::vector<std::shared_ptr<DXRSkeletalMesh>>      _dxrSkeletalMeshes;
-    std::shared_ptr<Model>                             _model;
-    std::shared_ptr<Animator>                          _animator;
-    GraphicsTransform                                  _transform;
-    MeshType                                           _type;
+    std::vector<Material>                         _materials;
+    std::vector<UINT>                             _customDepths;
+    std::vector<std::shared_ptr<DXRSkeletalMesh>> _dxrSkeletalMeshes;
+    std::shared_ptr<Model>                        _model;
+    std::shared_ptr<Animator>                     _animator;
+    GraphicsTransform                             _transform;
+    MeshType                                      _type;
 };

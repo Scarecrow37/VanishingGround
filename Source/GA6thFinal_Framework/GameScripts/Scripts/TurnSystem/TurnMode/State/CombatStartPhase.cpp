@@ -228,10 +228,11 @@ void CombatStartPhase::RegisterEnemyHP(const int index, const std::string& key, 
         const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(tag);
         if (const auto sharedGameObject = weakGameObject.lock())
         {
-            if (const MonsterHpView* monsterHpView = sharedGameObject->GetComponent<MonsterHpView>();
+            if (MonsterHpView* monsterHpView = sharedGameObject->GetComponent<MonsterHpView>();
                 nullptr != monsterHpView)
             {
                 monsterHpView->Watch(key);
+                _enemies[index]->SetMonsterHpView(monsterHpView);
             }
             else
             {

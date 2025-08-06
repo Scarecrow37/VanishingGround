@@ -7,7 +7,7 @@ class GraphicsBase
     friend class AnimationCore;
 
 public:
-    GraphicsBase()          = default;
+    GraphicsBase() = default;
     virtual ~GraphicsBase();
 
 public:
