@@ -302,6 +302,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\Audio\Table\AudioTableComponent.h" />
     <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h" />
     <ClInclude Include="Scripts\EnemyAction\ActionData\EnemyActionData.h" />
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
@@ -451,6 +452,7 @@
     <ClInclude Include="Scripts\Test\DevTools\LogOutput.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\Audio\Table\AudioTableComponent.cpp" />
     <ClCompile Include="Scripts\EnemyAction\Factory\EnemyActionFactory.cpp" />
     <ClCompile Include="Scripts\EnemyAction\ActionData\EnemyActionData.cpp" />
     <ClCompile Include="Scripts\Audio\AudioComponent.cpp" />

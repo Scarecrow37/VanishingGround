@@ -64,7 +64,7 @@ void Device::SetUpDevice(HWND hwnd, UINT width, UINT height, FeatureLevel featur
     }
 
     CreateDeviceAndSwapChain(hwnd, d3dFeature);
-    if (Global::renderer->_isRaytracing)
+    if (Global::isRayTracing)
     {
         CheckDXRSupport();
     }

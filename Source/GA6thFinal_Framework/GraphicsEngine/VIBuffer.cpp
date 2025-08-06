@@ -20,7 +20,7 @@ void VIBuffer::Initialize(const VIBuffer::Descriptor& descriptor)
 	_indexCount = descriptor.indexCount;
     _vertexCount = descriptor.vertexSize/descriptor.vertexStride;
 
-    if (Global::renderer->_isRaytracing)
+    if (Global::isRayTracing)
     {
         _vertexBufferID = Global::viewManager->GetNumVertexBuffer();
         _indexBufferID  = Global::viewManager->GetNumIndexBuffer();

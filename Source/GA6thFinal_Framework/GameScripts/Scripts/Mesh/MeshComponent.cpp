@@ -185,4 +185,6 @@ void MeshComponent::InitMaterial()
         materials[i].CullMode     = (Material::CullModeType)ReflectFields->CullMode[i];
         materials[i].IsTwoSided   = ReflectFields->IsTwoSided[i];
     }
+
+    Renderer->OffCustomDepth(PostProcess::OUTLINE);
 }

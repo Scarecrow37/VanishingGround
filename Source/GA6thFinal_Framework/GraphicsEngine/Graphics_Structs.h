@@ -119,3 +119,12 @@ struct ToneMappingProperty
     float   Saturation;
     float   Contrast;
 };
+
+struct SSAOPassProperty
+{
+    float Radius;
+    float Falloff;
+    float StrengthFactor;
+    float ContrastFactor;
+    float Threshold;
+};

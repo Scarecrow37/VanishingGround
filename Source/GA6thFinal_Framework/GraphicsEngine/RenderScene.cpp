@@ -67,7 +67,7 @@ void RenderScene::InitializeRenderScene()
 
     Global::dxResourceManager->AddResource(_accumulationBuffer);
 
-    if (Global::renderer->_isRaytracing)
+    if (Global::isRayTracing)
     { 
         _accelerationStructureManager = std::make_unique<AccelerationStructureManager>();
         _accelerationStructureManager->Initialize(10000);
@@ -146,7 +146,7 @@ void RenderScene::UpdateRenderScene()
     UpdateObject();
     UpdateUI();
     UpdateFont();
-    if (Global::renderer->_isRaytracing)
+    if (Global::isRayTracing)
     {
         _accelerationStructureManager->RemoveUnUsedStaticMeshes(_activeMeshes[STATIC_MESH], _activeMeshes[SKELETAL_MESH]);
     }
@@ -426,7 +426,7 @@ void RenderScene::CreateRenderTarget()
     for (auto& target : _sharedRenderTarget)
     {
         target = MakeSharedResource<RenderTarget>();
-        target->Initialize(desc, 0.247f);
+        target->Initialize(desc, 1.f);
         target->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     }
 }
