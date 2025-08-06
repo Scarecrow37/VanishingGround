@@ -9,7 +9,7 @@ ImGuiColumnSheetParser::ImGuiColumnSheetParser(std::string_view id)
     _id += id;
 }
 
-void ImGuiColumnSheetParser::Draw(const std::function<void(const ColumnDatas&)>& callBackFunc)
+bool ImGuiColumnSheetParser::Draw(const std::function<void(const ColumnDatas&)>& callBackFunc)
 {
     if (ShowParser)
     {
@@ -37,6 +37,7 @@ void ImGuiColumnSheetParser::Draw(const std::function<void(const ColumnDatas&)>&
                     }
                     ImGui::EndCombo();
                 }
+
                 if (ImGui::Button("Ok") && false == _selectSheetName.empty())
                 {
                     auto& doc       = *_excelDoc;
