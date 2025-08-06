@@ -15,6 +15,8 @@
 #include "State/EnemyPlayTurnState.h"
 #include "State/EnemyDeadState.h"
 
+#include <Particle/ParticleComponent.h>
+
 Enemy::Enemy()
 {
 
@@ -205,4 +207,14 @@ void Enemy::OnNotifiedAnimationEvent(const Timeline::EventContext* context)
     {
         _fsmStates.Dead->OnNotifiedAnimationEvent(context);
     }
+
+    auto* modelTransform    = transform->Find(MODEL_NAME);
+    auto  particlecomponent = modelTransform->gameObject->GetComponent<ParticleComponent>();
+    if (nullptr == particlecomponent)
+        return;
+    if ("Hit" == context->GetLabel())
+    {
+        particlecomponent->PlayEffect();
+    }
+  
 }
