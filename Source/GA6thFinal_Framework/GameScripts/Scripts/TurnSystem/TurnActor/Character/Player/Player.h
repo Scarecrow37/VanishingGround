@@ -12,6 +12,7 @@ public:
     inline static constexpr const char* TAG = "Player";
   
 
+
 public:
     REFLECT_PROPERTY(
         Shield
@@ -107,4 +108,5 @@ public:
     virtual void OnKill(CharacterBase* destination) override;
     virtual void OnTokenAdded(int tokenID) override;
     virtual void OnTokenRemoved(int tokenID) override;
+    void OnNotifiedAnimationEvent(const Timeline::EventContext* context) override;
 };

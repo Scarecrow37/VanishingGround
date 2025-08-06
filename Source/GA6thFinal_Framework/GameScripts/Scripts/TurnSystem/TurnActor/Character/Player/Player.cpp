@@ -7,7 +7,7 @@
 #include <WeaponSystem/WeaponSystem.h>
 #include <Mesh/SkeletalMeshRenderer.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
-
+#include <Particle/ParticleComponent.h>
 //Condition
 #include "Condition/PlayerStartCondition.h"
 #include "Condition/PlayerExitCondition.h"
@@ -17,6 +17,7 @@
 #include "State/PlayerWaitTurnState.h"
 #include "State/PlayerPlayTurnState.h"
 #include "State/PlayerDeadState.h"
+
 
 Player::Player()
 {
@@ -39,6 +40,7 @@ void Player::Awake()
     Base::Awake();
     gameObject->AddTag(TAG);
     BuildPlayerFSM();
+    
 
     if (nullptr == GetPlayerStats())
     {
@@ -250,4 +252,26 @@ void Player::OnTokenAdded(int tokenID)
 void Player::OnTokenRemoved(int tokenID)
 {
     Base::OnTokenRemoved(tokenID);
+}
+
+void Player::OnNotifiedAnimationEvent(const Timeline::EventContext* context)
+{
+    auto* modelTransform = transform->Find(MODEL_NAME);
+    if (nullptr == modelTransform)
+        return;
+    auto particlecomponent = modelTransform->gameObject->GetComponent<ParticleComponent>();
+    if (nullptr == particlecomponent)
+        return;
+    if ("castingStart" == context->GetLabel())
+    {
+        particlecomponent->PlayEffect();
+    }
+    if ("attackEnd" == context->GetLabel())
+    {
+        particlecomponent->StopEffect();
+    }
+        
+
+
+
 }
