@@ -1097,10 +1097,28 @@ void ESceneManager::ObjectsDestroy()
         int instanceID = destroyObject->GetInstanceID();
         if (STR_NULL != destroyObject->_ownerScene)
         {
-            std::shared_ptr<GameObject>& pObject = _runtimeObjects[instanceID];
-            SetObjectOwnerScene(pObject.get(), STR_NULL);
-            EraseGameObjectMap(pObject);
-            pObject.reset();
+            if (static_cast<size_t>(instanceID) < _runtimeObjects.size() && _runtimeObjects[instanceID])
+            {
+                std::shared_ptr<GameObject>& pObject = _runtimeObjects[instanceID];
+                SetObjectOwnerScene(pObject.get(), STR_NULL);
+                EraseGameObjectMap(pObject);
+                pObject.reset();
+            }
+            else
+            {
+                std::erase_if(_addGameObjectsQueue, 
+                [destroyObject, this](std::shared_ptr<GameObject>& object) 
+                {
+                    bool erase = object.get() == destroyObject;
+                    if (erase)
+                    {
+                        SetObjectOwnerScene(object.get(), STR_NULL);
+                        EraseGameObjectMap(object);
+                    }
+                    return erase;
+                });
+
+            }
         }
     }
 

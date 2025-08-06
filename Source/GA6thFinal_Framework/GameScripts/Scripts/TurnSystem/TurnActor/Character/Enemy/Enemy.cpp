@@ -116,6 +116,11 @@ EnemyStatsComponent* Enemy::GetEnemyStats()
     return _enemyStats;
 }
 
+void Enemy::SetMonsterHpView(MonsterHpView* view)
+{
+    _monsterHpView = view;
+}
+
 void Enemy::BuildEnemyFSM()
 {
     _finiteStateMachine = GetComponent<FiniteStateMachine>();
