@@ -456,7 +456,7 @@ void PlayerPlayTurnState::PushWeaponAnimation(Battle::EnemyTargetFlag_ destEnemy
             Player& player = GetPlayer();
             Battle()(player, destEnemy);
             
-            int count = weaponAnim->GetOverrideAnimationCount();
+            int count = (int)weaponAnim->GetOverrideAnimationCount();
             if (1 == count)
             {
                 SetAttackEndAnimation();
