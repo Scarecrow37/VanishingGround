@@ -151,7 +151,7 @@ void FileSystemModule::ProcessDropFile(const HDROP hDrop)
         UmFileSystem.RequestDragDropFile(path);
 
         File::Path extension = path.extension();
-        if (File::PROJECT_EXTENSION == extension)
+        if (false == Global::IsPlay() && File::PROJECT_EXTENSION == extension)
         {
             UmFileSystem.SaveProjectWithMessageBox();
             UmFileSystem.LoadProjectWithMessageBox(path);

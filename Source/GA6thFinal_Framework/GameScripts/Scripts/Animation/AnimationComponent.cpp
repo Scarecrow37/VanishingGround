@@ -236,16 +236,15 @@ void AnimationComponent::ImGuiDrawPropertysEvent()
 
         if (ImGui::TreeNodeEx("Animation Mapping Keys##details"))
         {
-            auto addMapping = [this](std::string& anim) {
+            auto comboList = [this](std::string& anim) {
                 const auto& animationNames = _animator->GetAnimationNames();
-                AnimationData& curAnimData = GetLastAnimationDataEx();
                 ImVec2 availSize = ImGui::GetContentRegionAvail();
                 ImGui::SetNextItemWidth(availSize.x - 60.0f);
                 if (ImGuiHelper::BeginComboInput("##AnimName", &anim))
                 {
                     for (int i = 0; i < animationNames.size(); ++i)
                     {
-                        bool isSelected = (curAnimData.AnimationName == animationNames[i]);
+                        bool isSelected = (anim == animationNames[i]);
                         if (ImGui::Selectable(animationNames[i], isSelected))
                         {
                             anim = animationNames[i];
@@ -270,14 +269,13 @@ void AnimationComponent::ImGuiDrawPropertysEvent()
                     ImGui::TableSetColumnIndex(0);
                     {
                         ImVec2 availSize = ImGui::GetContentRegionAvail();
-                        ImGui::Selectable(key.c_str(), isSelected, 0, availSize);
-                        ImGui::Text(key.c_str());
+                        ImGui::Selectable(key.c_str(), isSelected, 0, ImVec2(availSize.x, 0.0f));
                         ImGuiHelper::HoveredToolTip(key.c_str());
                     }
 
                     ImGui::TableSetColumnIndex(1);
                     {
-                        addMapping(anim);
+                        comboList(anim);
                         float height = ImGui::GetItemRectSize().y;
                         ImGuiHelper::HoveredToolTip(anim.c_str());
                         ImGui::SameLine();
@@ -299,7 +297,7 @@ void AnimationComponent::ImGuiDrawPropertysEvent()
                 ImGui::InputTextWithHint("##NewKey", "New Key...", &newKey);
 
                 ImGui::TableSetColumnIndex(1);
-                addMapping(newKeyFromAnim);
+                comboList(newKeyFromAnim);
                 float height = ImGui::GetItemRectSize().y;
                 ImGuiHelper::HoveredToolTip(newKeyFromAnim.c_str());
                 ImGui::SameLine();
@@ -367,8 +365,9 @@ void AnimationComponent::UpdateAnimation(AnimationData& animData)
                 _eventQueue.push_back([this, id]() {
                     auto beginItr = _overrideAnimationStack.begin();
                     auto endItr   = _overrideAnimationStack.end();
-                    auto itr =
-                        std::remove_if(beginItr, endItr, [id](const AnimationData& data) { return data.IsSameID(id); });
+                    auto itr      = std::remove_if(beginItr, endItr, [id](const AnimationData& data) {
+                        return data.IsSameID(id);
+                    });
                     _overrideAnimationStack.erase(itr, endItr);
                 });
             }

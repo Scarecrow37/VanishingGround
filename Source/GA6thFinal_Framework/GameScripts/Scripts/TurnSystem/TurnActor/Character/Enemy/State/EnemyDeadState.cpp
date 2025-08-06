@@ -17,7 +17,7 @@ void EnemyDeadState::OnEnter()
     Enemy& enemy = GetEnemy();
     enemy.Dead();
     AnimationComponent* animator = enemy.GetAnimationComponent();
-    if (animator)
+    if (animator && false == _dontChangeAnimation)
     {
         animator->BeginBuildOverrideAnimation();
         animator->ClearOverrideAnimations();
@@ -27,7 +27,10 @@ void EnemyDeadState::OnEnter()
     }
 }
 
-void EnemyDeadState::OnExit() {}
+void EnemyDeadState::OnExit() 
+{
+    _dontChangeAnimation = false;
+}
 
 void EnemyDeadState::OnUpdate() 
 {

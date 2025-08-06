@@ -36,6 +36,11 @@ void EditorBuildSettingMenu::OnMenu()
     bool isProjectLoaded = UmFileSystem.IsLoadedProject();
     if (ImGui::BeginMenu("Project"))
     {
+        bool isPlayMode = Global::editorModule->PlayMode.IsPlay();
+        if (isPlayMode)
+        {
+            ImGui::BeginDisabled();
+        }
         if (ImGui::BeginMenu("Build"))
         {
             if (false == isProjectLoaded)
@@ -56,6 +61,10 @@ void EditorBuildSettingMenu::OnMenu()
                 componentFactory.InitalizeComponentFactory();
             }
             ImGui::EndMenu();
+        }
+        if (isPlayMode)
+        {
+            ImGui::EndDisabled();
         }
         ImGui::EndMenu();
     }
