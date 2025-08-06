@@ -1,5 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "CharacterBase.h"
+
+#include "Audio/Table/AudioTableComponent.h"
 #include "Stats/CharacterStats.h"
 #include "TurnSystem/TurnMode/TurnMode.h"
 
@@ -84,6 +86,7 @@ void CharacterBase::Awake()
 
     InitMeshModel();
     InitAnimationCallback();
+    InitAudio();
 }
 
 void CharacterBase::InitMeshModel()
@@ -121,6 +124,12 @@ void CharacterBase::InitMeshModel()
         );
         UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
     }
+}
+
+void CharacterBase::InitAudio()
+{
+    const GameObject& object = gameObject;
+    _audioTableComponent     = object.GetComponent<AudioTableComponent>();
 }
 
 void CharacterBase::InitAnimationCallback() 
@@ -206,6 +215,10 @@ void CharacterBase::TakeDamage(int damage, bool playAnim)
         }
         _animationComponent->PushOverrideAnimation("Hit", true,
             [](const AnimationData& data) { return data.IsEnd(); });
+        if (_audioTableComponent)
+        {
+            _audioTableComponent->Play("Hit");
+        }
         _animationComponent->EndBuildOverrideAnimation();
     }
 }

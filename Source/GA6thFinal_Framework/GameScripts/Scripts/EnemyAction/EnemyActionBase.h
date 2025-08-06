@@ -4,6 +4,7 @@
 class Enemy;
 class SkeletalMeshRenderer;
 class AnimationComponent;
+class AudioTableComponent;
 class CharacterBase;
 
 namespace EnemyAction
@@ -35,6 +36,7 @@ namespace EnemyAction
     protected:
         Enemy*              _owner = nullptr;
         AnimationComponent* _animator = nullptr;
+        AudioTableComponent* _audioTable  = nullptr;
         bool                _isActionEnd = false;
 
         EnemyAction::ActionData _actionData;

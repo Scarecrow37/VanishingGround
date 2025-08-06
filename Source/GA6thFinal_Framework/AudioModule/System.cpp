@@ -121,19 +121,31 @@ namespace Audio
                 seed ^= std::hash<T>()(value) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
             }
 
-            WaveFormatHash operator()(const WAVEFORMATEX& waveFormat) const
+            WaveFormatHash operator()(const WAVEFORMATEXTENSIBLE& waveFormat) const
             {
-                WaveFormatHash seed = 0;
-                Combine(seed, waveFormat.wFormatTag);
-                Combine(seed, waveFormat.nChannels);
-                Combine(seed, waveFormat.nSamplesPerSec);
-                Combine(seed, waveFormat.nAvgBytesPerSec);
-                Combine(seed, waveFormat.nBlockAlign);
-                Combine(seed, waveFormat.wBitsPerSample);
-                Combine(seed, waveFormat.cbSize);
+                WaveFormatHash seed = Seed++;
+                Combine(seed, waveFormat.Format.wFormatTag);
+                Combine(seed, waveFormat.Format.nChannels);
+                Combine(seed, waveFormat.Format.nSamplesPerSec);
+                Combine(seed, waveFormat.Format.nAvgBytesPerSec);
+                Combine(seed, waveFormat.Format.nBlockAlign);
+                Combine(seed, waveFormat.Format.wBitsPerSample);
+                Combine(seed, waveFormat.Format.cbSize);
+                Combine(seed, waveFormat.Samples.wValidBitsPerSample);
+                Combine(seed, waveFormat.dwChannelMask);
+                Combine(seed, waveFormat.SubFormat.Data1);
+                Combine(seed, waveFormat.SubFormat.Data2);
+                Combine(seed, waveFormat.SubFormat.Data3);
+                unsigned long long data4;
+                std::memcpy(&data4, waveFormat.SubFormat.Data4, sizeof(data4));
+                Combine(seed, data4);
                 return seed;
             }
+
+            static WaveFormatHash Seed;
         };
+
+        WaveFormatHash GetWaveFormatHash::Seed = 0;
     } // namespace
 
     System::System() = default;
@@ -211,7 +223,7 @@ namespace Audio
         // Format 청크
         auto [fmtSize, fmtPosition] = findChunk(fileStream, FMT);
 
-        WAVEFORMATEX wfx{};
+        WAVEFORMATEXTENSIBLE wfx{};
         readChunkData(fileStream, &wfx, fmtSize, fmtPosition);
 
         // Data 청크
@@ -295,8 +307,8 @@ namespace Audio
         // 필요시 IXAudio2SourceVoice 생성
         if (notFound)
         {
-            throwIfFailed(_xAudio2->CreateSourceVoice(&Voice, &sound._format, 0, XAUDIO2_DEFAULT_FREQ_RATIO,
-                                                      &Callback),
+            throwIfFailed(_xAudio2->CreateSourceVoice(&Voice, reinterpret_cast<const WAVEFORMATEX*>(&sound._format), 0,
+                                                      XAUDIO2_DEFAULT_FREQ_RATIO, &Callback),
                           "Failed to create source voice.");
         }
 
