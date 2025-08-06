@@ -3,10 +3,24 @@
 
 using namespace u8_literals;
 
-ImGuiColumnSheetParser::ImGuiColumnSheetParser(std::string_view id) 
+namespace
+{
+    constexpr unsigned int ROW_MAX = std::numeric_limits<unsigned int>::max();
+}
+
+ImGuiColumnSheetParser::ImGuiColumnSheetParser(std::string_view imguiID, std::u8string_view keyValue)
 {
     _id = "Excel Parser##";
-    _id += id;
+    _id += imguiID;
+    _keyRowIndex = ROW_MAX;
+    _keyValue    = (const char*)keyValue.data();
+}
+
+ImGuiColumnSheetParser::ImGuiColumnSheetParser(std::string_view imguiID, unsigned int keyRowIndex) 
+{
+    _id = "Excel Parser##";
+    _id += imguiID;
+    _keyRowIndex = keyRowIndex;
 }
 
 bool ImGuiColumnSheetParser::Draw(const std::function<void(const ColumnDatas&)>& callBackFunc)
@@ -45,8 +59,12 @@ bool ImGuiColumnSheetParser::Draw(const std::function<void(const ColumnDatas&)>&
                     auto  workBook  = doc.workbook();
                     auto  workSheet = workBook.worksheet(_selectSheetName.c_str());
 
-                    auto [keyRow, keyColum] = OpenXLSXHelper::FindRowColumnToData(workSheet, u8"이름"_c_str);
-                    if (OpenXLSXHelper::IsFindSuccess(keyRow, keyColum))
+                    unsigned int keyRow = _keyRowIndex;
+                    if (keyRow == ROW_MAX && false == _keyValue.empty())
+                    {
+                        keyRow = OpenXLSXHelper::FindRowColumnToData(workSheet, _keyValue).first;
+                    }
+                    if (keyRow != OpenXLSXHelper::FAIL_ROW)
                     {
                         // 파싱
                         _sheetDatas = OpenXLSXHelper::ParseSheetWithColumnKeys(workSheet, keyRow);
@@ -54,8 +72,8 @@ bool ImGuiColumnSheetParser::Draw(const std::function<void(const ColumnDatas&)>&
                         {
                             Apply(callBackFunc);
                         }
+                        result = true;
                     }
-                    result = true;
                 }
             }
             ImGui::PopID();

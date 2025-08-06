@@ -6,7 +6,20 @@ class ImGuiColumnSheetParser
 public:
     using ColumnDatas = std::vector<std::pair<std::reference_wrapper<const std::string>, std::reference_wrapper<const std::string>>>;
     using ParsedDatas = std::vector<std::pair<std::string, std::vector<std::string>>>;
-    ImGuiColumnSheetParser(std::string_view id);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="imguiID :">ImGui ID로 사용할 번호</param>
+    /// <param name="keyValue :">엑셀 데이터에서 하나의 Key 값. 해당 키와 동일한 Row 값들이 Key가 됩니다.</param>
+    ImGuiColumnSheetParser(std::string_view imguiID, std::u8string_view keyValue);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="imguiID :">ImGui ID로 사용할 번호</param>
+    /// <param name="keyRowIndex">엑셀 데이터에서 Key 부분에 해당하는 Row Index</param>
+    ImGuiColumnSheetParser(std::string_view imguiID, unsigned int keyRowIndex);
 
     /// <summary>
     /// 파서를 Draw 합니다. 파싱 이후 파싱된 데이터들을 순회하면서 key, data를 사용할 콜백 함수를 인자로 넘겨주어야 합니다.
@@ -47,6 +60,8 @@ private:
     std::vector<std::string>              _sheetNames;
     std::string                           _selectSheetName;
     ParsedDatas                           _sheetDatas;
+    unsigned int                          _keyRowIndex;
+    std::string                           _keyValue;
 
     void DrawMenuBar();
 };
