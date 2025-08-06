@@ -8,5 +8,6 @@ public:
     ~RendererFileEvent() = default;
 
 public:
+    void OnPostRequestedSave() override;
     void OnPostRequestedLoad() override;
 };

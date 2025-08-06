@@ -29,7 +29,6 @@ public:
     void SetPivot(float value) { _pivot = std::min(value, 0.f); }
     float GetPivot() const { return _pivot; }
 
-    bool IsManipulated() const { return _isManipulated; }
     bool IsMoved() const { return _isMoved; }
     bool IsRotated() const { return _isRotated; }
 
@@ -43,13 +42,15 @@ public:
     float GetMaxRotationSpeed() const { return _minmaxRotationSpeed.second; }
 
 public:
-    void Update();
+    void Update(bool isHoverdWindow = true);
 
 private:
     // 움직인 경우 true, 움직이지 않은 경우 false
     bool UpdateMove();
     // 회전한 경우 true, 회전하지 않은 경우 false
     bool UpdateRotate();
+    // 마우스 커서 조정
+    void UpdateMouseCursor();
 
 private:
     std::shared_ptr<Camera> _camera;
@@ -65,5 +66,7 @@ private:
 
     bool                    _isMoved;
     bool                    _isRotated;
-    bool                    _isManipulated;
+    bool                    _isSkipRotated;
+    bool                    _isRightClickDown;
+    bool                    _isHoveredWindow;
 };

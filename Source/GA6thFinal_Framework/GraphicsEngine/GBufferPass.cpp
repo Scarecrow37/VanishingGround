@@ -57,6 +57,22 @@ void GBufferPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTech
     InitShaderAndPSO();
 }
 
+void GBufferPass::AddRenderPassDatas(std::string_view sceneName)
+{
+    auto desc = Global::multiRenderTargetManager->GetRenderTarget("BaseColor")->GetResource()->GetDesc();
+
+    for (auto& renderTarget : _gBufferRenderTargets)
+    {
+        renderTarget = MakeSharedResource<RenderTarget>();
+        renderTarget->Initialize(desc, 0.247f);
+    }
+
+    Global::renderPassDatas->AddRenderPassImage(sceneName, "G-BufferPass", "Albedo", _gBufferRenderTargets[0]->GetSRVHandle());
+    Global::renderPassDatas->AddRenderPassImage(sceneName, "G-BufferPass", "Normal", _gBufferRenderTargets[1]->GetSRVHandle());
+    Global::renderPassDatas->AddRenderPassImage(sceneName, "G-BufferPass", "ORM", _gBufferRenderTargets[2]->GetSRVHandle());
+    Global::renderPassDatas->AddRenderPassImage(sceneName, "G-BufferPass", "Emissive", _gBufferRenderTargets[3]->GetSRVHandle());
+}
+
 void GBufferPass::Update(ID3D12GraphicsCommandList* commadList)
 {    
     for (auto& data : _renderDatas)
@@ -144,6 +160,16 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
 void GBufferPass::End(ID3D12GraphicsCommandList* commandList)
 {
     const auto& gBufferGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
+
+    for (int i = 0; i < 4; i++)
+    {
+        _gBufferRenderTargets[i]->TransitionResource(commandList, D3D12_RESOURCE_STATE_COPY_DEST);
+        gBufferGroup[i]->TransitionResource(commandList, D3D12_RESOURCE_STATE_COPY_SOURCE);
+
+        commandList->CopyResource(_gBufferRenderTargets[i]->GetResource(), gBufferGroup[i]->GetResource());
+
+        _gBufferRenderTargets[i]->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    }
 
     for (auto& gBuffer : gBufferGroup)
     {

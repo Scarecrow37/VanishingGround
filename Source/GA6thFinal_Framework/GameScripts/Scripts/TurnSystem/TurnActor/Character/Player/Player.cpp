@@ -123,14 +123,14 @@ void Player::Dead()
     }
 }
 
-void Player::TakeDamage(int damage)
+void Player::TakeDamage(int damage, bool playAnim)
 {  
     // TODO: 피격 애니메이션 재생
     // 예외 사항 - 피격 애니메이션 재생 종료 후 원래 애니메이션으로 돌아가야함.
 
     // 혹시나 그럴 일 없겠지만 중간에 계산할 연산이 또 있다면 재연산
     int takeDamage = damage;
-    Base::TakeDamage(takeDamage);
+    Base::TakeDamage(takeDamage, playAnim);
 }
 
 
