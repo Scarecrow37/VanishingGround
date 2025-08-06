@@ -77,7 +77,7 @@ void CombatStartPhase::OnAwake()
 {
     ResetCharacterStats();
     SortEnemies();
-    RegisterEnimiesHP();
+    RegisterEnemiesHP();
 }
 
 void CombatStartPhase::OnStart() 
@@ -212,7 +212,7 @@ void CombatStartPhase::SortEnemies()
     }
 }
 
-void CombatStartPhase::RegisterEnimiesHP()
+void CombatStartPhase::RegisterEnemiesHP() const
 {
     RegisterEnemyHP(0, "Left Monster HP", "Left Monster HP UI");
     RegisterEnemyHP(1, "Middle Monster HP", "Middle Monster HP UI");
