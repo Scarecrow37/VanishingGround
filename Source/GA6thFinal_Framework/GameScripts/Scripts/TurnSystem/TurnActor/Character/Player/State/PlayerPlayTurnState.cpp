@@ -316,9 +316,9 @@ void PlayerPlayTurnState::UpdateAttackEventUI(float dt)
         if (turnMode)
         {
             Player& player = GetPlayer();
-            for (auto& target : _attackTargets)
+            for (auto iter = _attackTargets.rbegin(); iter != _attackTargets.rend(); ++iter)
             {
-                PushWeaponAnimation(target);
+                PushWeaponAnimation(*iter);
             }
             _attackTargets.clear();
             _inputState = InputState::NONE;
