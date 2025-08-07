@@ -196,9 +196,11 @@ void AudioTableComponent::ImGuiDrawPropertysEvent()
             // New Key;
             ImGui::TableNextRow();
             Row()(&_newKey, &_newPathString, audioMappingKeys.contains(_newKey), [this, &audioMappingKeys]() {
-                if (auto [iterator, isSucceed] = audioMappingKeys.try_emplace(_newKey, _newPathString); isSucceed)
+                File::Guid newPathGuid = File::Path(_newPathString).ToGuid();
+                std::string guidString  = newPathGuid.string();
+                if (auto [iterator, isSucceed] = audioMappingKeys.try_emplace(_newKey, guidString); isSucceed)
                 {
-                    LoadAudio(_newKey, File::Path(_newPathString));
+                    LoadAudio(_newKey, newPathGuid);
                     _newKey.clear();
                     _newPathString.clear();
                 }
@@ -220,18 +222,19 @@ void AudioTableComponent::Reset()
 void AudioTableComponent::LoadAudio()
 {
     for (const auto& audioMappingKeys = ReflectFields->AudioMappingKeys;
-         const auto& [key, pathString] : audioMappingKeys)
+         const auto& [key, guidString] : audioMappingKeys)
     {
-        File::Path path(pathString);
-        LoadAudio(key, path);
+        File::Guid guid(guidString);
+        LoadAudio(key, guid);
     }
 }
 
-void AudioTableComponent::LoadAudio(const std::string& key, const File::Path& path)
+void AudioTableComponent::LoadAudio(const std::string& key, const File::Guid& guid)
 {
-    if (path != File::NULL_PATH)
+    if (guid != File::NULL_GUID)
     {
-        Audio::Source source = UmAudio.CreateSoundFromWave(path);
+        const File::Path& path   = guid.ToPath();
+        Audio::Source     source = UmAudio.CreateSoundFromWave(path);
         if (const auto [iterator, isSucceed] = _audioSources.try_emplace(key, std::move(source)); false == isSucceed)
         {
             const std::string errorMsg = std::format("Audio Source with key '{}' already exists.", key);
