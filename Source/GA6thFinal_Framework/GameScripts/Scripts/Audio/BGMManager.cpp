@@ -1,6 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "BGMManager.h"
-#include <Audio/Table/AudioTableComponent.h>
+#include <Audio/AudioComponent.h>
 
 BGMManager::BGMManager() = default;
 BGMManager::~BGMManager()
@@ -9,27 +9,31 @@ BGMManager::~BGMManager()
     {
         _staticInstance = nullptr;
     }
+    if (_audio)
+    {
+        _audio->Stop();
+    }
 }
 
 void BGMManager::Reset() 
 {
     _staticInstance = this;
-    _audioTable     = gameObject->GetComponent<AudioTableComponent>();
 }
 
-void BGMManager::Awake()
+void BGMManager::Start()
 {
-    if (_audioTable)
+    _audio = gameObject->GetComponent<AudioComponent>();
+    if (_audio)
     {
-        _audioTable->Play("BGM_Battle0");
+        _audio->Play();
     }
 }
 
 void BGMManager::PlayBGM(const std::string& bgmKey) 
 {
-    if (_audioTable)
+    if (_audio)
     {
-        _audioTable->Play(bgmKey);
+        //_audio->Play(bgmKey);
     }
     else
     {
@@ -39,13 +43,13 @@ void BGMManager::PlayBGM(const std::string& bgmKey)
 
 void BGMManager::StopBGM(const std::string& bgmKey) 
 {
-    if (_audioTable)
-    {
-        //_audioTable->Stop(bgmKey);
-    }
-    else
-    {
-        UmLogger.Log(LogLevel::LEVEL_ERROR, "AudioTableComponent is not found in BGMManager.");
-    }
+    //if (_audioTable)
+    //{
+    //    //_audioTable->Stop(bgmKey);
+    //}
+    //else
+    //{
+    //    UmLogger.Log(LogLevel::LEVEL_ERROR, "AudioTableComponent is not found in BGMManager.");
+    //}
 }
 

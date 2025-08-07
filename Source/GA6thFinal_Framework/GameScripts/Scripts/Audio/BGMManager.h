@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "UmFramework.h"
 
-class AudioTableComponent;
+class AudioComponent;
 class BGMManager : public Component
 {
     USING_PROPERTY(BGMManager)
@@ -17,14 +17,14 @@ public:
 
 public:
     void Reset() override;
-    void Awake() override;
+    void Start() override;
 
 public:
     void PlayBGM(const std::string& bgmKey);
     void StopBGM(const std::string& bgmKey);
 
 protected:
-    AudioTableComponent* _audioTable = nullptr;
+    AudioComponent* _audio = nullptr;
     REFLECT_FIELDS_BEGIN(Component)
     REFLECT_FIELDS_END(BGMManager)
 };
