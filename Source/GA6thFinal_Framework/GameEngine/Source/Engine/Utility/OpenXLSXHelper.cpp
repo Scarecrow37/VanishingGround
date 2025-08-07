@@ -75,7 +75,7 @@ std::vector<std::pair<std::string, std::vector<std::string>>> OpenXLSXHelper::Pa
                             datas[index]       = std::move(data);
 
                             // 빈 데이터가 연속될시 해당 Column 스킵.
-                            if (false == datas[index].empty())
+                            if (true == datas[index].empty())
                             {
                                 if (emptyRowCountMax <= ++emptyRowCount)
                                 {
