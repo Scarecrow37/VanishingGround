@@ -82,30 +82,47 @@ void DownAndUpSamplingPass::Begin(ID3D12GraphicsCommandList* commandList)
 
 void DownAndUpSamplingPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
-    // Down Scale Pass
-    commandList->SetPipelineState(_pipelineStates[DOWN_SAMPLING].Get());
-    commandList->SetGraphicsRootSignature(_fxDownSampling.GetRootSignature());
+    D3D12_GPU_DESCRIPTOR_HANDLE levelInputSrv = _sharedRenderTarget->GetSRVHandle();
+    auto gaussianBlurModule = Global::moduleManager->GetModule<GaussianBlurModule>();
+    _activeSRVs.clear();
 
     UINT currentIndex = 0;
-    D3D12_GPU_DESCRIPTOR_HANDLE currentSRVHandle = _sharedRenderTarget->GetSRVHandle();
 
     for (UINT i = 0; i < MAX_MIPMAP_LEVEL; i++)
     {
-        _pingpongTarget[currentIndex]->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        UINT  destIndex = (currentIndex + 1) % 2;
+        auto& downsampleAndFinalBlurTarget = *_pingpongTarget[destIndex];
+        auto& blurTempTarget = *_pingpongTarget[currentIndex];
 
-        commandList->OMSetRenderTargets(1, &_pingpongTarget[currentIndex]->GetRTVHandle(i), NULL, nullptr);
-        commandList->RSSetViewports(1, &_pingpongTarget[currentIndex]->GetViewport(i));
-        commandList->RSSetScissorRects(1, &_pingpongTarget[currentIndex]->GetScissorRect(i));
+        // 1. Downsample from the previous level's result into the destination target
+        downsampleAndFinalBlurTarget.TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        commandList->SetPipelineState(_pipelineStates[DOWN_SAMPLING].Get());
+        commandList->SetGraphicsRootSignature(_fxDownSampling.GetRootSignature());
+
+        commandList->OMSetRenderTargets(1, &downsampleAndFinalBlurTarget.GetRTVHandle(i), NULL, nullptr);
+        commandList->RSSetViewports(1, &downsampleAndFinalBlurTarget.GetViewport(i));
+        commandList->RSSetScissorRects(1, &downsampleAndFinalBlurTarget.GetScissorRect(i));
 
         int mipLevel = std::max(0, (int)i - 1);
         commandList->SetGraphicsRoot32BitConstants(_fxDownSampling.GetRootParameterIndex("bit32_1_mipLevel"), 1, &mipLevel, 0);
-        commandList->SetGraphicsRootDescriptorTable(_fxDownSampling.GetRootParameterIndex("sourceTexture"), currentSRVHandle);
-
+        commandList->SetGraphicsRootDescriptorTable(_fxDownSampling.GetRootParameterIndex("sourceTexture"), levelInputSrv);
         _ownerScene->_frameQuad->Render(commandList);
+        downsampleAndFinalBlurTarget.TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
-        _pingpongTarget[currentIndex]->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-        currentSRVHandle = _pingpongTarget[currentIndex]->GetSRVHandle();
-        _activeSRVs.push_back(currentSRVHandle);
+        // 2. Gaussian Blur X-axis: downsampleTarget -> blurTempTarget
+        blurTempTarget.TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        gaussianBlurModule->Execute(commandList, &downsampleAndFinalBlurTarget, &blurTempTarget, blurTempTarget.GetFormat(), GaussianBlurModule::BlurType::AXIS_X, i);
+        blurTempTarget.TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+
+        // 3. Gaussian Blur Y-axis: blurTempTarget -> downsampleTarget (Final result for this level)
+        downsampleAndFinalBlurTarget.TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        gaussianBlurModule->Execute(commandList, &blurTempTarget, &downsampleAndFinalBlurTarget, downsampleAndFinalBlurTarget.GetFormat(), GaussianBlurModule::BlurType::AXIS_Y, i);
+        downsampleAndFinalBlurTarget.TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+
+        // The final blurred result for this level is in downsampleAndFinalBlurTarget.
+        // It becomes the input for the next downsample iteration.
+        levelInputSrv = downsampleAndFinalBlurTarget.GetSRVHandle();
+        _activeSRVs.push_back(levelInputSrv);
 
         currentIndex = (currentIndex + 1) % 2;
     }
@@ -114,12 +131,10 @@ void DownAndUpSamplingPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetPipelineState(_pipelineStates[UP_SAMPLING].Get());
     commandList->SetGraphicsRootSignature(_fxUpSampling.GetRootSignature());
 
-    currentSRVHandle = _activeSRVs.back();
+    D3D12_GPU_DESCRIPTOR_HANDLE currentSRVHandle = _activeSRVs.back();
     const auto& renderTargetGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("Mipmap");
     UINT        mipLevel[2]       = {MAX_MIPMAP_LEVEL - 1, 0};
 
-    //     0     /    1    /    2     /   3
-    // 1920x1080 / 960x540 / 480x270 / 240x135
     for (int i = MAX_MIPMAP_LEVEL - 2; i >= 0; i--)
     {
         mipLevel[1] = i;

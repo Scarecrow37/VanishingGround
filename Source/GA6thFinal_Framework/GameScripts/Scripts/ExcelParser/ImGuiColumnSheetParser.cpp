@@ -10,6 +10,7 @@ namespace
 
 ImGuiColumnSheetParser::ImGuiColumnSheetParser(std::string_view imguiID, std::u8string_view keyValue)
 {
+    _lastOpenFolder = File::GetDesktopPath();
     _id = "Excel Parser##";
     _id += imguiID;
     _keyRowIndex = ROW_MAX;
@@ -18,6 +19,7 @@ ImGuiColumnSheetParser::ImGuiColumnSheetParser(std::string_view imguiID, std::u8
 
 ImGuiColumnSheetParser::ImGuiColumnSheetParser(std::string_view imguiID, unsigned int keyRowIndex) 
 {
+    _lastOpenFolder = File::GetDesktopPath();
     _id = "Excel Parser##";
     _id += imguiID;
     _keyRowIndex = keyRowIndex;
@@ -41,7 +43,7 @@ bool ImGuiColumnSheetParser::Draw(const std::function<void(const ColumnDatas&)>&
             else
             {
                 ImGui::Text(u8"파싱할 시트를 선택하세요."_c_str);
-                if (ImGui::BeginCombo("##{A4CAA356-B858-4BFF-85E8-52E3B270A7D2}", _selectSheetName.c_str()))
+                if (ImGui::BeginCombo("##Sheet Box", _selectSheetName.c_str()))
                 {
                     for (auto& name : _sheetNames)
                     {
@@ -125,9 +127,8 @@ void ImGuiColumnSheetParser::DrawMenuBar()
     {
         if (ImGui::MenuItem("Load Excel Table"))
         {
-            std::wstring_view       desktopPath = File::GetDesktopPath();
             std::vector<File::Path> out;
-            if (File::ShowOpenFileDialog(NULL, L"로드할 파일을 선택하세요.", desktopPath.data(),
+            if (File::ShowOpenFileDialog(NULL, L"로드할 파일을 선택하세요.", _lastOpenFolder.c_str(),
                                          {{L"테이블 파일\0", L"*.xlsm\0"}}, false, out))
             {
                 if (false == out.empty())
@@ -145,6 +146,7 @@ void ImGuiColumnSheetParser::DrawMenuBar()
                     {
                         auto workBook          = doc.workbook();
                         _sheetNames = workBook.sheetNames();
+                        _lastOpenFolder        = out.front().parent_path().generic_wstring();
                     }
                 }
             }

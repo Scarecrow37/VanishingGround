@@ -6,6 +6,7 @@
 #include <BattleSystem/Battle.h>
 #include <Stats/Enemy/EnemyStatsComponent.h>
 #include <Stats/Enemy/EnemyStats.h>
+#include <Audio/Table/AudioTableComponent.h>
 
 namespace EnemyAction
 {
@@ -54,6 +55,14 @@ namespace EnemyAction
                 }
                 Battle()(*enemy, *player);
             }
+        }
+    }
+    void ActionBase::PlaySoundFromKey(std::string_view key) 
+    {
+        auto* audioTable = _owner->GetAudioTableComponent();
+        if (audioTable)
+        {
+            audioTable->Play(key.data());
         }
     }
 } // namespace EnemyAction

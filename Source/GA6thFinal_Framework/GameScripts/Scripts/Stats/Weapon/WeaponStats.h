@@ -11,10 +11,10 @@ enum class WeaponType
 
 enum class WeaponGrade
 {
-    COMMON,
-    RARE,
-    BIZARRE,
-    LEGENDARY,
+    COMMON,     //일반
+    RARE,       //희귀
+    BIZARRE,    //기이
+    LEGENDARY,  //전설
 };
 
 struct WeaponStats : public TurnActorStats
@@ -50,6 +50,23 @@ struct WeaponStats : public TurnActorStats
             return {1.f, 0.85f, 0.4f, 1.f}; // 노랑
         default:
             return {0.5f, 0.5f, 0.5f, 1.f}; // 기본 회색
+        }
+    }
+
+    inline static constexpr int GetGradeID(WeaponGrade grade)
+    {
+        switch (grade)
+        {
+        case WeaponGrade::COMMON:
+            return 300000;
+        case WeaponGrade::RARE:
+            return 300001;
+        case WeaponGrade::BIZARRE:
+            return 300002;
+        case WeaponGrade::LEGENDARY:
+            return 300003;
+        default:
+            return -1;
         }
     }
 

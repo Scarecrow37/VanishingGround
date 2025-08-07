@@ -5,6 +5,7 @@
 
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 #include <Animation/AnimationComponent.h>
+#include <Audio/Table/AudioTableComponent.h>
 
 REGISTER_CLASS(FSMStateFactory, EnemyDeadState)
 
@@ -20,6 +21,7 @@ void EnemyDeadState::OnEnter()
     Enemy& enemy = GetEnemy();
     enemy.Dead();
     AnimationComponent* animator = enemy.GetAnimationComponent();
+    AudioTableComponent* audioTable = enemy.GetAudioTableComponent();
     if (animator && false == _dontChangeAnimation)
     {
         animator->BeginBuildOverrideAnimation();
@@ -27,6 +29,10 @@ void EnemyDeadState::OnEnter()
         animator->ChangeMainAnimation("Dead", true);
         animator->ChangeMainAnimationFlags(ANIMATION_FLAG_NONE);
         animator->EndBuildOverrideAnimation();
+        if (audioTable)
+        {
+            audioTable->Play("Dead0");
+        }
     }
 }
 
