@@ -132,7 +132,7 @@ struct SSAOPassProperty
 
 struct SSRPassProperty
 {
-    float MaxDistance;
-    float Stride;
-    float Thickness;
+    float MaxThickness;
+    float StepSize;
+    float MaxRayCount;
 };

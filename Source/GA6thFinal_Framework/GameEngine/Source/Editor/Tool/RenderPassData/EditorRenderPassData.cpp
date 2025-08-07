@@ -51,9 +51,9 @@ void EditSSAOProperty(std::any& property)
 void EditSSRProperty(std::any& property)
 {
     auto& ssrProps = std::any_cast<SSRPassProperty&>(property);
-    ImGui::DragFloat("Intensity", &ssrProps.Stride, 0.001f, 0.f, 10.f);
-    ImGui::DragFloat("MaxDistance", &ssrProps.MaxDistance, 0.01f, 0.f, 100.f);
-    ImGui::DragFloat("Thickness", &ssrProps.Thickness, 0.001f, 0.f, 10.f);
+    ImGui::DragFloat("MaxThickness", &ssrProps.MaxThickness, 0.001f, 0.05f, 0.2f);
+    ImGui::DragFloat("StepSize", &ssrProps.StepSize, 0.001f, 0.03f, 0.1f);
+    ImGui::DragFloat("MaxRayCount", &ssrProps.MaxRayCount, 1.f, 32.f, 64.f);
 }
 
 void EditorRenderPassData::OnFrameRender()

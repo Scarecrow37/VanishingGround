@@ -43,9 +43,9 @@ inline void SerializeSSAOPassProperty(std::ostream& os, const SSAOPassProperty& 
 inline void SerializeSSRPassProperty(std::ostream& os, const SSRPassProperty& prop)
 {
     os << "        Type = SSRPassProperty\n";
-    os << "        Stride = " << prop.Stride << "\n";
-    os << "        MaxDistance = " << prop.MaxDistance << "\n";
-    os << "        Thickness = " << prop.Thickness << "\n";
+    os << "        MaxThickness = " << prop.MaxThickness   << "\n";
+    os << "        StepSize = " << prop.StepSize  << "\n";
+    os << "        MaxRayCount = " << prop.MaxRayCount << "\n";
 }
 
 // 문자열에서 ShadowPassProperty를 복원
@@ -124,12 +124,12 @@ inline void DeserializeSSRPassProperty(std::istream& is, SSRPassProperty& prop)
     {
         std::stringstream ss(line);
         ss >> key >> equals;
-        if (key == "Stride")
-            ss >> prop.Stride;
-        else if (key == "MaxDistance")
-            ss >> prop.MaxDistance;
-        else if (key == "Thickness")
-            ss >> prop.Thickness;
+        if (key == "MaxThickness")
+            ss >> prop.MaxThickness;
+        else if (key == "StepSize")
+            ss >> prop.StepSize;
+        else if (key == "MaxRayCount")
+            ss >> prop.MaxRayCount;
     }
 }
 

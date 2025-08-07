@@ -212,4 +212,20 @@ float4 SampleCalculateMipLevel(Texture2D tex, SamplerState sam, float2 uv, float
     
     return tex.SampleLevel(sam, uv, safeMip);
 }
+
+float3 ReconstructViewPos(float2 uv, float depth)
+{
+    float2 ndc = uv * 2.0f - 1.0f; // NDC [-1, 1]
+    float4 clipPos = float4(ndc, depth, 1.0f);
+    float4 viewPos = mul(cameraData.ProjectionInverse, clipPos);
+    return viewPos.xyz / viewPos.w;
+}
+
+float2 ProjectToUV(float3 viewPos)
+{
+    float4 clipPos = mul(cameraData.Projection, float4(viewPos, 1.0f));
+    float2 ndc = clipPos.xy / clipPos.w;
+    return ndc * 0.5f + 0.5f;
+}
+
 #endif

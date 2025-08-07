@@ -22,7 +22,7 @@ void SSRPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechniqu
 
 void SSRPass::AddRenderPassDatas(std::string_view sceneName) 
 {
-    Global::renderPassDatas->AddRenderPassProperty(sceneName, "SSRPass", SSRPassProperty({50.f, 0.2f, 0.1f}));
+    Global::renderPassDatas->AddRenderPassProperty(sceneName, "SSRPass", SSRPassProperty({0.1f, 0.05f, 50.f}));
 }
 
 void SSRPass::Begin(ID3D12GraphicsCommandList* commandList) {}
@@ -45,8 +45,8 @@ void SSRPass::Draw(ID3D12GraphicsCommandList* commandList)
                                                 renderTargetGroup[GBuffer::NORMAL]->GetSRVHandle());
     commandList->SetGraphicsRootDescriptorTable(_fxSSR.GetRootParameterIndex("screenDepth"),
                                                 renderTargetGroup[GBuffer::DEPTH]->GetSRVHandle());
-    commandList->SetGraphicsRootDescriptorTable(_fxSSR.GetRootParameterIndex("screenORM"),
-                                                renderTargetGroup[GBuffer::ORM]->GetSRVHandle());
+    //commandList->SetGraphicsRootDescriptorTable(_fxSSR.GetRootParameterIndex("screenORM"),
+                                               // renderTargetGroup[GBuffer::ORM]->GetSRVHandle());
     commandList->SetGraphicsRootConstantBufferView(_fxSSR.GetRootParameterIndex("cameraData"), cameraData);
     commandList->SetGraphicsRoot32BitConstants(_fxSSR.GetRootParameterIndex("bit32_3_ssrProperty"), 3, &ssrProperty, 0);
     _ownerScene->_frameQuad->Render(commandList);

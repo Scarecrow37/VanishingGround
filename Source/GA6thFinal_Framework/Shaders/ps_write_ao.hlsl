@@ -1,5 +1,5 @@
 #include "CommonData.hlsli"
-
+#include "Function.hlsli"
 static const float3 SSAOKernel[16] =
 {
     float3(0.587, 0.245, 0.423), float3(-0.348, 0.378, 0.671),
@@ -31,20 +31,7 @@ Texture2D normalMap;
 Texture2D depthMap;
 ConstantBuffer<SSAOProperty> bit32_5_ssaoProperty;
 
-float3 ReconstructViewPos(float2 uv, float depth)
-{
-    float2 ndc = uv * 2.0f - 1.0f; // NDC [-1, 1]
-    float4 clipPos = float4(ndc, depth, 1.0f);
-    float4 viewPos = mul(cameraData.ProjectionInverse, clipPos);
-    return viewPos.xyz / viewPos.w;
-}
 
-float2 ProjectToUV(float3 viewPos)
-{
-    float4 clipPos = mul(cameraData.Projection, float4(viewPos, 1.0f));
-    float2 ndc = clipPos.xy / clipPos.w;
-    return ndc * 0.5f + 0.5f;
-}
 
 float ps_main(PSInput input) : SV_TARGET
 {

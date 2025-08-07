@@ -1,17 +1,17 @@
 #include "CommonData.hlsli"
-
+#include "Function.hlsli"
 struct PSInput
 {
     float4 position : SV_POSITION;
     float2 uv : TEXCOORD0;
 };
-
 struct SSRProperty
 {
-    float maxDistance; // ssr최대 반사거리
-    float stride; // 레이 마칭 단위 거리
-    float thickness; // 충돌 오차
+    float maxThickness; // ray depth test 허용 오차
+    float stepSize; // ray 길이 간격
+    float maxRayCount; // 최대 ray step 갯수
 };
+
 
 Texture2D screenColor;
 Texture2D screenNormal;
@@ -19,71 +19,78 @@ Texture2D screenDepth;
 Texture2D screenORM;
 ConstantBuffer<SSRProperty> bit32_3_ssrProperty;
 
-float3 ReconstructViewPos(float2 uv, float depth)
+float noise(float2 seed)
 {
-    float2 ndc = uv * 2.0f - 1.0f; // Convert to NDC
-    float4 clipSpacePos = float4(ndc, depth, 1.0f);
-    float4 viewSpacePos = mul(clipSpacePos, cameraData.ProjectionInverse);
-    viewSpacePos.xyz /= viewSpacePos.w; // Perspective divide
-    return viewSpacePos.xyz;
+    return frac(sin(dot(seed.xy, float2(12.9898, 78.233))) * 43758.5453);
 }
 
-float3 RayMarchSSR(float3 viewPos, float3 reflectionDir, out float2 hitUV,float depth)
+float4 RayTrace(float3 reflectDirVS, float3 viewPos, float2 uv)
 {
-    float3 position = viewPos;
     SSRProperty property = bit32_3_ssrProperty;
-    
-    for (int i = 0; i < 64;++i)
+    float4 color = float4(0.0, 0.0, 0.0, 0.0);
+    float3 step = property.stepSize * reflectDirVS;
+
+    float jitter = noise(uv + 40.0f);
+    int maxRayCount = (int) property.maxRayCount;
+
+    [loop]
+    for (int i = 0; i <= maxRayCount; ++i)
     {
-        position += reflectionDir * property.stride;
-        
-        float4 projectionPosition = mul(float4(position, 1.f), cameraData.Projection);
-        projectionPosition.xyz /= projectionPosition.w; // Perspective divide
-        
-        float2 uv = projectionPosition.xy * 0.5f + 0.5f; // Convert to UV
-        if (uv.x < 0.f || uv.x > 1.f || uv.y < 0.f || uv.y > 1.f) 
-            break;
-        
-        float3 screenViewPosition = ReconstructViewPos(uv, depth);
-        float distance = length(position - screenViewPosition);
-        
-        if (distance < property.thickness)
+        float3 ray = (float(i) + jitter) * step;
+        float3 rayPosVS = viewPos + ray;
+
+        // View → Clip → UV
+        float4 clipPos = mul(cameraData.Projection, float4(rayPosVS, 1.0f));
+        if (clipPos.w <= 0.0001f)
+            continue;
+
+        float2 rayUV = clipPos.xy / clipPos.w * 0.5f + 0.5f;
+        rayUV.y = 1.0f - rayUV.y;
+
+        if (rayUV.x < 0.0f || rayUV.x > 1.0f || rayUV.y < 0.0f || rayUV.y > 1.0f)
+            continue;
+
+        float sampleDepth = screenDepth.SampleLevel(samLinear_clamp, rayUV, 0).r;
+
+        // reconstruct view space Z from NDC depth
+        float3 sampleViewPos = ReconstructViewPos(rayUV, sampleDepth);
+
+        float depthDiff = rayPosVS.z - sampleViewPos.z;
+        if (depthDiff > 0.0f && depthDiff < property.maxThickness)
         {
-            hitUV = uv;
-            return position;
-        }
-        if (length(position - viewPos) > property.maxDistance)
+            float a = 0.3f * pow(min(1.0f, (property.stepSize * maxRayCount / 2) / length(ray)), 2.0f);
+            color = color * (1.0f - a) + float4(screenColor.SampleLevel(samLinear_clamp, rayUV, 0).rgb, 1.0f) * a;
             break;
+        }
     }
-    hitUV = float2(-1.f, -1.f); // No hit
-    return float3(0.f, 0.f, 0.f); // Return zero vector if no hit
+
+    return color;
 }
 
 float4 ps_main(PSInput input) : SV_Target
 {
-    float2 uv = input.uv;
-    // alreay normalized in gbuffer pass
-    float3 normal = screenNormal.SampleLevel(samLinear_clamp, uv, 0).xyz;
-    float depth = screenDepth.SampleLevel(samLinear_clamp, uv, 0).r;
+    float3 color = screenColor.SampleLevel(samLinear_clamp, input.uv, 0).xyz;
+    uint width, height;
+    screenColor.GetDimensions(width, height);
     
-    float3 viewPos = ReconstructViewPos(uv, depth);
-    // camera postion is flaot3(0, 0, 0) in view space
+    float depth = screenDepth.SampleLevel(samLinear_clamp, input.uv, 0).r;
+    
+    if(depth >= 1.0f) 
+        return float4(color, 1.0f);
+    
+    float3 normal = screenNormal.SampleLevel(samLinear_clamp, input.uv, 0).xyz;
+    float3 viewnormal = mul((float3x3) cameraData.View, normal);
+    float3 viewPos = ReconstructViewPos(input.uv, depth);
     float3 viewDir = normalize(-viewPos);
-    float3 reflectionDir = reflect(viewDir, normal);
+    float3 reflectDir = normalize(reflect(viewDir, viewnormal));
     
-    float2 hitUV;
-    float3 hitViewSpace = RayMarchSSR(viewPos, reflectionDir, hitUV, depth);
-   
-    float3 reflectColor = float3(0.0, 0.0, 0.0);
-    if (hitUV.x >= 0.f)
-    {
-        reflectColor = screenColor.SampleLevel(samLinear_clamp, hitUV, 0).xyz;
-    }
-    float4 orm = screenORM.SampleLevel(samLinear_clamp, uv, 0);
+    float4 reflectedColor = RayTrace(reflectDir, viewPos, input.uv);
+    
+    float4 orm = screenORM.SampleLevel(samLinear_clamp, input.uv, 0);
     float metallic = orm.b; 
     float roughness = orm.g;
-    float reflectivity = saturate(pow(1.0 - roughness, 2.0)) * metallic;
-    float3 color = screenColor.SampleLevel(samLinear_clamp, uv, 0).xyz;
-    float3 finalColor = color + (reflectColor * reflectivity);
-    return float4(finalColor, 1.f);
+    float reflectivity = lerp(0.04, 1.0, metallic); // 금속 여부에 따라
+    float reflectionWeight = reflectivity * (1.0 - roughness * roughness); // 조절식
+    return float4(color + (reflectedColor.rgb * reflectionWeight),1.f);
+    //return float4(color + reflectedColor.rgb, 1.f);
 }
