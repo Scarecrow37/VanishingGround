@@ -55,9 +55,9 @@ private:
     void PushAttackTarget(Battle::EnemyTargetFlag_ target);
 
     // Animation
-    void SetAttackReadyAnimation();
-    void SetAttackAnimation();
-    void SetAttackEndAnimation();
+    void SetAttackReady();
+    void SetAttack();
+    void SetAttackEnd();
     void PushWeaponAnimation(Battle::EnemyTargetFlag_ destEnemy);
 
 private:
