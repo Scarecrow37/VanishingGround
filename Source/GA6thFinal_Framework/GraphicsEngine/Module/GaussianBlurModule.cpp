@@ -15,9 +15,9 @@ void GaussianBlurModule::Initialize()
 
 void GaussianBlurModule::Execute(ID3D12GraphicsCommandList* commandList, D3D12_GPU_DESCRIPTOR_HANDLE input, RenderTarget* output, DXGI_FORMAT rtvFormat, BlurType type, UINT mipLevel)
 {
-    auto resolution = output->GetResolution();
-    resolution.Width >>= mipLevel;
-    resolution.Height >>= mipLevel;
+    auto resolution   = output->GetResolution();
+    resolution.Width  = std::max(1u, resolution.Width >>= mipLevel);
+    resolution.Height = std::max(1u, resolution.Height >>= mipLevel);
 
     PostProcessData postProcessData{.TexelSize = {1.0f / resolution.Width, 1.0f / resolution.Height},
                                     .MipLevel  = mipLevel};
@@ -50,9 +50,9 @@ void GaussianBlurModule::Execute(ID3D12GraphicsCommandList* commandList, D3D12_G
 
 void GaussianBlurModule::Execute(ID3D12GraphicsCommandList* commandList, RenderTarget* input, RenderTarget* output, DXGI_FORMAT rtvFormat, BlurType type, UINT mipLevel)
 {
-    auto resolution = input->GetResolution();
-    resolution.Width >>= mipLevel;
-    resolution.Height >>= mipLevel;
+    auto resolution   = output->GetResolution();
+    resolution.Width  = std::max(1u, resolution.Width >>= mipLevel);
+    resolution.Height = std::max(1u, resolution.Height >>= mipLevel);
 
     // resolution 기반 viewport 설정
     D3D12_VIEWPORT viewport = {
