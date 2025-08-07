@@ -535,7 +535,7 @@ bool WeaponTableComponent::ExcelToWeaponElement(WeaponElement& element, const st
             }
             else if (L"Rarity" == wcharKey)
             {
-                int rarity = std::stoi(wcharKey);
+                int rarity = std::stoi(data);
                 if (WeaponStats::GetGradeID(WeaponGrade::COMMON) == rarity)
                 {
                     stats.Grade = WeaponGrade::COMMON;

@@ -130,8 +130,8 @@ bool RevelationSystem::EraseElement(std::string_view elementName)
     auto findIter = _elementsTable.find(elementName.data());
     if (findIter != _elementsTable.end())
     {
-        _elementsTable.erase(findIter);
         EraseElementTableOrderID(findIter->second);
+        _elementsTable.erase(findIter);
         result = true;
     }
     else
