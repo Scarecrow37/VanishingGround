@@ -217,7 +217,7 @@ void CharacterBase::TakeDamage(int damage, bool playAnim)
             [](const AnimationData& data) { return data.IsEnd(); });
         if (_audioTableComponent)
         {
-            _audioTableComponent->Play("Hit");
+            //_audioTableComponent->Play("Hit");
         }
         _animationComponent->EndBuildOverrideAnimation();
     }

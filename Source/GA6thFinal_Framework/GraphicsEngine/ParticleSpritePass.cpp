@@ -62,7 +62,7 @@ void ParticleSpritePass::Draw(ID3D12GraphicsCommandList* commandList)
 
     const auto&     resolution = Global::device->GetResolution();
     PostProcessData postProcessData{.TexelSize = {1.f / (float)resolution.Width, 1.f / (float)resolution.Height}};
-    commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_5_postProcessData"), 5,
+    commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_6_postProcessData"), 6,
                                                &postProcessData, 0);
 
 
