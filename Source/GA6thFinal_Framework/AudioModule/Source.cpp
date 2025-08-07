@@ -3,7 +3,9 @@
 
 namespace Audio
 {
-    Source::Source(const WAVEFORMATEX& format, const XAUDIO2_BUFFER& buffer) : _format(format), _buffer(buffer) {}
+    Source::Source(const WAVEFORMATEXTENSIBLE& format, const XAUDIO2_BUFFER& buffer) : _format(format), _buffer(buffer)
+    {
+    }
 
     Source::~Source()
     {

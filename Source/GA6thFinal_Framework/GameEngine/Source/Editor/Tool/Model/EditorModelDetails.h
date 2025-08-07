@@ -108,4 +108,6 @@ private:
     Vector3 _color;
     Vector3 _ambient;
     float   _intensity;
+
+    bool _isDirtyFlag = false;
 };

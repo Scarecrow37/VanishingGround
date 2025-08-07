@@ -12,4 +12,9 @@ public:
     void OnUpdate() override;
 
     void OnNotifiedAnimationEvent(const Timeline::EventContext* context) override;
+
+    void SetDontChangeAnimation(bool dontChange) { _dontChangeAnimation = dontChange; }
+
+private:
+    bool _dontChangeAnimation = false; // 애니메이션 스킵 여부
 };

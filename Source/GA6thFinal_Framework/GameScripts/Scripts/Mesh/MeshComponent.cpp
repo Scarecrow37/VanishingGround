@@ -31,11 +31,11 @@ bool MeshComponent::HasAnimator() const
     return nullptr != Renderer->GetAnimator();
 }
 
-void MeshComponent::MakeMeshRenderer(MeshType renderType, const Vector3& position, const Vector3& scale, const Quaternion& rotation, const Matrix& world)
+void MeshComponent::MakeMeshRenderer(MeshType renderType, const Vector3& position, const Vector3& scale, const Quaternion& rotation, const Matrix& world, const bool& isDirtyFlag)
 {
     if (nullptr == _pMeshRenderer)
     {
-        _pMeshRenderer.reset(new MeshRenderer(renderType, position, scale, rotation, world));
+        _pMeshRenderer.reset(new MeshRenderer(renderType, position, scale, rotation, world, isDirtyFlag));
         _pMeshRenderer->SetActive(&EnableInHierarchy);
         _pMeshRenderer->OnCustomDepth(PostProcess::BLOOM);
         UmGraphics.RegisterComponent("Game", _pMeshRenderer.get());
@@ -185,4 +185,6 @@ void MeshComponent::InitMaterial()
         materials[i].CullMode     = (Material::CullModeType)ReflectFields->CullMode[i];
         materials[i].IsTwoSided   = ReflectFields->IsTwoSided[i];
     }
+
+    Renderer->OffCustomDepth(PostProcess::OUTLINE);
 }

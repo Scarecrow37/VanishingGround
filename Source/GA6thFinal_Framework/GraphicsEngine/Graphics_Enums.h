@@ -31,6 +31,7 @@ enum RenderTechniqueFlag : unsigned long long
     EDITOR_DRAW_TECH = 1 << 5,
     PARTICLE_TECH    = 1 << 6,
     RAY_TRACING_TECH = 1 << 7,
+    SSAO_TECH        = 1 << 8,
 };
 
 inline RenderTechniqueFlag operator|(RenderTechniqueFlag lhs, RenderTechniqueFlag rhs)

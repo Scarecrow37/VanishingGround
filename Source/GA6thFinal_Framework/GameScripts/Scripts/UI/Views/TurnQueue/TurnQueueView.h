@@ -4,7 +4,7 @@ class ImageElement;
 
 class TurnQueueView : public Component
 {
-    USING_PROPERTY(Component)
+    USING_PROPERTY(TurnQueueView)
 
 public:
     TurnQueueView();

@@ -222,7 +222,7 @@ void EnemyPlayTurnState::BuildAIModel23011()
     aiModel.PushActionNode("#1", "#2", {{50.0f, 22010}, {50.0f, 22011}}); // Action 22010, 22011
     aiModel.PushActionNode("#2", "#3", {{50.0f, 22010}, {50.0f, 22011}}); // Action 22010, 22011
     aiModel.PushConditionNode("#3", "#4", "#2", [this]() -> bool {  // HP가 50% 이하일 때
-       auto& enemy = GetEnemy();
+        auto& enemy = GetEnemy();
         bool result = enemy.HP / enemy.MaxHP <= 0.5f; 
         return result;
     });

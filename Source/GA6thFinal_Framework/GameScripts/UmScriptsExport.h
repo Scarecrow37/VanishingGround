@@ -126,6 +126,12 @@ UMREAL_COMPONENT(TurnQueueView)
 #include "Scripts/UI/Views/Weapon/WeaponView.h"
 UMREAL_COMPONENT(WeaponView)
 
+#include "Scripts/UI/Views/MonsterHp/MonsterHpView.h"
+UMREAL_COMPONENT(MonsterHpView)
+
+#include "Scripts/UI/Views/RevelationsView/RevelationsView.h"
+UMREAL_COMPONENT(RevelationsView)
+
 #include "Scripts\WeaponSystem/WeaponSystem.h"
 UMREAL_COMPONENT(WeaponSystem)
 
@@ -145,6 +151,9 @@ UMREAL_COMPONENT(ViewTest)
 #include "Scripts/Audio/AudioComponent.h"
 UMREAL_COMPONENT(AudioComponent)
 
+#include "Scripts/Audio/Table/AudioTableComponent.h"
+UMREAL_COMPONENT(AudioTableComponent)
+
 #include "Scripts/Animation/AnimationComponent.h"
 UMREAL_COMPONENT(AnimationComponent)
 
@@ -153,3 +162,6 @@ UMREAL_COMPONENT(LogOutput)
 
 #include "Scripts/EnemyAction/System/EnemyActionSystem.h"
 UMREAL_COMPONENT(EnemyActionSystem)
+
+#include "Scripts\Audio/BGMManager.h"
+UMREAL_COMPONENT(BGMManager)

@@ -61,9 +61,14 @@ static void ShowNewProjectPopup()
 
 void EditorMenuProjectRoot::OnMenu() 
 {
+    bool isPlayMode      = Global::IsPlay();
     bool isProjectLoaded = UmFileSystem.IsLoadedProject();
     if (ImGui::BeginMenu("Project"))
     {
+        if (isPlayMode)
+        {
+            ImGui::BeginDisabled();
+        }
         if (ImGui::MenuItem("New Project", nullptr))
         {
             Global::editorModule->OpenPopupBox("New Project", ShowNewProjectPopup);
@@ -105,6 +110,10 @@ void EditorMenuProjectRoot::OnMenu()
             }
         }
         if (false == isProjectLoaded)
+        {
+            ImGui::EndDisabled();
+        }
+        if (isPlayMode)
         {
             ImGui::EndDisabled();
         }

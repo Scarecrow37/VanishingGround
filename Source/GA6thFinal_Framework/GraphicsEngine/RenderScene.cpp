@@ -14,6 +14,8 @@
 
 RenderScene::RenderScene(std::string_view name)
     : _name(name)
+    , _isDirtyFlag(true)
+    , _prevSize(0)
 {
     _lightDatas.resize(MAX_LIGHT);
 }
@@ -67,7 +69,7 @@ void RenderScene::InitializeRenderScene()
 
     Global::dxResourceManager->AddResource(_accumulationBuffer);
 
-    if (Global::renderer->_isRaytracing)
+    if (Global::isRayTracing)
     { 
         _accelerationStructureManager = std::make_unique<AccelerationStructureManager>();
         _accelerationStructureManager->Initialize(10000);
@@ -146,7 +148,8 @@ void RenderScene::UpdateRenderScene()
     UpdateObject();
     UpdateUI();
     UpdateFont();
-    if (Global::renderer->_isRaytracing)
+
+    if (Global::isRayTracing)
     {
         _accelerationStructureManager->RemoveUnUsedStaticMeshes(_activeMeshes[STATIC_MESH], _activeMeshes[SKELETAL_MESH]);
     }
@@ -194,6 +197,7 @@ void RenderScene::Execute()
     _commandSet->Close();
     Global::commandController->ExecuteCommand(CommandQueueType::GRAPHICS_QUEUE, _commandSet);
 
+    _isDirtyFlag = false;
 }
 
 void RenderScene::ResetSkyBox()
@@ -252,9 +256,14 @@ void RenderScene::UpdateGlobal()
 
 void RenderScene::UpdateObject()
 {
-    auto first =
-        std::remove_if(_meshRenderQueue.begin(), _meshRenderQueue.end(), [](const auto& pair) { return *pair.first; });
+    auto first = std::remove_if(_meshRenderQueue.begin(), _meshRenderQueue.end(), [](const auto& pair) { return *pair.first; });
     _meshRenderQueue.erase(first, _meshRenderQueue.end());
+
+    size_t currentSize = _meshRenderQueue.size();
+    if (_prevSize != currentSize)
+        _isDirtyFlag = true;
+
+    _prevSize = currentSize;
 
     _activeMeshes[STATIC_MESH].clear();
     _activeMeshes[SKELETAL_MESH].clear();
@@ -282,6 +291,9 @@ void RenderScene::UpdateObject()
     UINT instanceID = 0;
     for (auto& [isDestroy, component] : _meshRenderQueue)
     {
+        if (!_isDirtyFlag)
+            _isDirtyFlag = component->IsDirtyFlag();
+
         if (!component->IsActive())
             continue;
 
@@ -426,7 +438,7 @@ void RenderScene::CreateRenderTarget()
     for (auto& target : _sharedRenderTarget)
     {
         target = MakeSharedResource<RenderTarget>();
-        target->Initialize(desc, 0.247f);
+        target->Initialize(desc, 1.f);
         target->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     }
 }

@@ -151,6 +151,8 @@ void DescriptionPanel::DeserializedReflectEvent()
 
 void DescriptionPanel::UpdateContent()
 {
+    if (_requestUpdate)
+        return;
     Transform& transform = this->transform;
 
     const int childCount = transform.GetChildCount();
@@ -167,33 +169,40 @@ void DescriptionPanel::UpdateContent()
     }
     children.clear();
 
-    const std::string text = ReflectFields->Description;
+    UmTime.Invoke(this, 0, [this]() {
+        Transform&        transform = this->transform;
+        const std::string text = ReflectFields->Description;
 
-    for (const std::vector<ElementData> elementData = ParseData()(text); const auto& [Type, Data] : elementData)
-    {
-        const std::shared_ptr<GameObject> child = NewGameObject(GameObject::Helper::GenerateUniqueName("Text Element"));
-        switch (Type)
+        for (const std::vector<ElementData> elementData = ParseData()(text); const auto& [Type, Data] : elementData)
         {
-        case ElementType::TEXT: {
-            TextElement& element  = child->AddComponent<TextElement>();
-            auto [content, color] = std::get<TextAttributes>(Data);
-            element.SetFont(_guidRef);
-            element.IsFitContent = true;
-            element.Text         = content;
-            element.Color        = color;
+            const std::shared_ptr<GameObject> child =
+                NewGameObject(GameObject::Helper::GenerateUniqueName("Text Element"));
+            switch (Type)
+            {
+            case ElementType::TEXT: {
+                TextElement& element  = child->AddComponent<TextElement>();
+                auto [content, color] = std::get<TextAttributes>(Data);
+                element.SetFont(_guidRef);
+                element.IsFitContent = true;
+                element.Text         = content;
+                element.Color        = color;
+            }
+            break;
+            case ElementType::IMAGE: {
+                child->AddComponent<RatioWrapper>();
+                const std::shared_ptr<GameObject> imageChild =
+                    NewGameObject(GameObject::Helper::GenerateUniqueName("Image Element"));
+                auto [guid]           = std::get<ImageAttributes>(Data);
+                ImageElement& element = imageChild->AddComponent<ImageElement>();
+                element.SetImage(guid);
+                imageChild->transform->SetParent(child->transform, true);
+            }
+            break;
+            }
+            child->transform->SetParent(transform, true);
         }
-        break;
-        case ElementType::IMAGE: {
-            child->AddComponent<RatioWrapper>();
-            const std::shared_ptr<GameObject> imageChild =
-                NewGameObject(GameObject::Helper::GenerateUniqueName("Image Element"));
-            auto [guid]           = std::get<ImageAttributes>(Data);
-            ImageElement& element = imageChild->AddComponent<ImageElement>();
-            element.SetImage(guid);
-            imageChild->transform->SetParent(child->transform, true);
-        }
-        break;
-        }
-        child->transform->SetParent(transform, true);
-    }
+        _requestUpdate = false;
+    });
+
+    _requestUpdate = true;
 }

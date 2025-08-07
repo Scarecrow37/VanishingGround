@@ -6,7 +6,7 @@ class DescriptionPanel;
 
 class WeaponView : public Component
 {
-    USING_PROPERTY(Component)
+    USING_PROPERTY(WeaponView)
 
 public:
     WeaponView();

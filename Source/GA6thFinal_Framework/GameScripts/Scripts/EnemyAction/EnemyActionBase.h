@@ -4,6 +4,7 @@
 class Enemy;
 class SkeletalMeshRenderer;
 class AnimationComponent;
+class AudioTableComponent;
 class CharacterBase;
 
 namespace EnemyAction
@@ -31,10 +32,12 @@ namespace EnemyAction
 
     protected:
         void ProcessBattle(int damage, float damageScale = 1.0f);
+        void PlaySoundFromKey(std::string_view key);
 
     protected:
         Enemy*              _owner = nullptr;
         AnimationComponent* _animator = nullptr;
+        AudioTableComponent* _audioTable  = nullptr;
         bool                _isActionEnd = false;
 
         EnemyAction::ActionData _actionData;

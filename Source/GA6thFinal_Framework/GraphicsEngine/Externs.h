@@ -16,4 +16,5 @@ namespace Global
     extern RenderPassDatas*                               renderPassDatas;
     extern ModuleManager*                                 moduleManager;
     extern PipelineStateManager*                          pipelineStateManager;    
+    extern bool                                           isRayTracing;
 }

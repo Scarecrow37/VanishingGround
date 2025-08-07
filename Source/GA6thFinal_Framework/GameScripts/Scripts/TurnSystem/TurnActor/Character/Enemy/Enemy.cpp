@@ -15,6 +15,9 @@
 #include "State/EnemyPlayTurnState.h"
 #include "State/EnemyDeadState.h"
 
+#include <Particle/ParticleComponent.h>
+#include <Audio/Table/AudioTableComponent.h>
+
 Enemy::Enemy()
 {
 
@@ -47,15 +50,17 @@ void Enemy::Dead()
     }
 }
 
-void Enemy::TakeDamage(int damage) 
+void Enemy::TakeDamage(int damage, bool playAnim)
 {
-    // TODO: 피격 애니메이션 재생
-    // 예외 사항 - 피격 애니메이션 재생 종료 후 원래 애니메이션으로 돌아가야함.
-
+    AudioTableComponent* audioTable = GetAudioTableComponent();
+    if (audioTable)
+    {
+        audioTable->Play("Hit0");
+    }
 
     // 혹시나 그럴 일 없겠지만 중간에 계산할 연산이 또 있다면 재연산
     int takeDamage = damage;
-    Base::TakeDamage(takeDamage);
+    Base::TakeDamage(takeDamage, playAnim);
 }
 
 void Enemy::Awake()
@@ -109,6 +114,11 @@ EnemyStatsComponent* Enemy::GetEnemyStats()
         }
     }
     return _enemyStats;
+}
+
+void Enemy::SetMonsterHpView(MonsterHpView* view)
+{
+    _monsterHpView = view;
 }
 
 void Enemy::BuildEnemyFSM()
@@ -205,4 +215,16 @@ void Enemy::OnNotifiedAnimationEvent(const Timeline::EventContext* context)
     {
         _fsmStates.Dead->OnNotifiedAnimationEvent(context);
     }
+
+    auto* modelTransform    = transform->Find(MODEL_NAME);
+    if (nullptr == modelTransform)
+        return;
+    auto  particlecomponent = modelTransform->gameObject->GetComponent<ParticleComponent>();
+    if (nullptr == particlecomponent)
+        return;
+    if ("Hit" == context->GetLabel())
+    {
+        particlecomponent->PlayEffect();
+    }
+  
 }
