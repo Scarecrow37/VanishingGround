@@ -100,7 +100,7 @@ void ParticleRibbonPass::Draw(ID3D12GraphicsCommandList* commandList)
 
     const auto&     mode = Global::device->GetMode();
     PostProcessData postProcessData{.TexelSize = {1.f / (float)mode.Width, 1.f / (float)mode.Height}};
-    commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_5_postProcessData"), 5,
+    commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_6_postProcessData"), 6,
                                                &postProcessData, 0);
 
     commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("depthbuffer"),
