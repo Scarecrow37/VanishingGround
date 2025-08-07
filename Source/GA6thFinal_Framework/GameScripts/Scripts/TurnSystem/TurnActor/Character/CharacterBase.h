@@ -77,7 +77,7 @@ public:
     // 애니메이션 컴포넌트를 반환합니다.
     AnimationComponent*   GetAnimationComponent() const { return _animationComponent; }
     // 오디오 테이블 컴포넌트를 반환합니다.
-    AudioTableComponent* GetAudioTableComponent() const { return _audioTableComponent; }
+    AudioTableComponent*  GetAudioTableComponent() const { return _audioTableComponent; }
 
 protected:
     REFLECT_FIELDS_BEGIN(TurnActor)
