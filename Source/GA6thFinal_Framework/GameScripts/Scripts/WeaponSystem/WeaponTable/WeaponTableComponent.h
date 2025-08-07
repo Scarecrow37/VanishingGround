@@ -84,7 +84,7 @@ private:
         WeaponElement*        SelectWeapon      = nullptr;
         std::function<void()> RenameFunc;
 
-        ImGuiColumnSheetParser     ColumnParser{"87159CF2-3513-401C-B7C9-5C7C7E7F6167", u8"이름"};
+        ImGuiColumnSheetParser     ColumnParser{"87159CF2-3513-401C-B7C9-5C7C7E7F6167", u8"giveChain"};
         std::queue<WeaponElement*> DirtyWeaponElementQueue;
         bool                       ShowDirtyWeaponPopup = false;
     };

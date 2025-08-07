@@ -323,9 +323,9 @@ void PlayerPlayTurnState::UpdateAttackEventUI(float dt)
             }
             else
             {
-                for (auto& target : _attackTargets)
+                for (auto iter = _attackTargets.rbegin(); iter != _attackTargets.rend(); ++iter)
                 {
-                    PushWeaponAnimation(target);
+                    PushWeaponAnimation(*iter);
                 }
                 _attackTargets.clear();
             }

@@ -53,6 +53,23 @@ namespace OpenXLSXHelper
     /// </summary>
     /// <param name="workSheet :">파싱할 워크시트</param>
     /// <param name="keyRowIndex :">키로 사용할 Row 번호</param>
+    /// <param name="threshold :">빈 데이터 임계값</param>
     /// <returns></returns>
-    std::vector<std::pair<std::string, std::vector<std::string>>> ParseSheetWithColumnKeys(const OpenXLSX::XLWorksheet& workSheet, Row keyRowIndex);
+    std::vector<std::pair<std::string, std::vector<std::string>>> ParseSheetWithColumnKeys(const OpenXLSX::XLWorksheet& workSheet, Row keyRowIndex, unsigned int threshold = 3);
+
+    /// <summary>
+    /// 유효한 Row 데이터 개수를 반환합니다. 
+    /// </summary>
+    /// <param name="workSheet :">파싱할 시트</param>
+    /// <param name="threshold :">빈 데이터 임계값</param>
+    /// <returns></returns>
+    Row GetValidRowCount(const OpenXLSX::XLWorksheet& workSheet, unsigned int threshold = 0);
+
+    /// <summary>
+    /// 유효한 Column 데이터 개수를 반환합니다.
+    /// </summary>
+    /// <param name="workSheet :">파싱할 시트</param>
+    /// <param name="threshold :">빈 데이터 임계값</param>
+    /// <returns></returns>
+    Column GetValidColumnCount(const OpenXLSX::XLWorksheet& workSheet, unsigned int threshold = 0);
 }

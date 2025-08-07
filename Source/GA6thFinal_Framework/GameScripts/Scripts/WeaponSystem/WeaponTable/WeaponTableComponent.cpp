@@ -483,7 +483,13 @@ void WeaponTableComponent::ImGuiDrawExcelParser()
             }
         }
     };
-    _imguiEvent.ColumnParser.Draw(ParserFunc);
+    if (_imguiEvent.ColumnParser.Draw(ParserFunc))
+    {
+        if (true == _imguiEvent.DirtyWeaponElementQueue.empty())
+        {
+            _imguiEvent.ColumnParser.ShowParser = false;
+        }
+    }
 
 #endif
 }
@@ -497,28 +503,28 @@ bool WeaponTableComponent::ExcelToWeaponElement(WeaponElement& element, const st
         {
             std::wstring wcharKey = U8ToWString(key);
             WeaponStats& stats = element.Stats;
-            if (wcharKey.find(L"ID") != std::wstring::npos)
+            if (L"ID" == wcharKey)
             {
                 stats.WeaponID = std::stoi(data);
             }
-            else if (wcharKey.find(L"이름") != std::wstring::npos)
+            else if (L"Name" == wcharKey)
             {
                 if (false == data.empty())
                 {
                     stats.SetName(data);
                 }             
             }
-            else if (wcharKey.find(L"타입") != std::wstring::npos)
+            else if (L"Type" == wcharKey)
             {
-                if (u8"검"_c_str == data)
+                if ("Sword" == data)
                 {
                     stats.Type = WeaponType::SWORD;
                 }
-                else if (u8"단검"_c_str == data)
+                else if ("Dagger" == data)
                 {
                     stats.Type = WeaponType::DAGGER;
                 }
-                else if (u8"대형망치"_c_str == data)
+                else if ("GiantHammer" == data)
                 {
                     stats.Type = WeaponType::WARHAMMER;
                 }
@@ -527,21 +533,22 @@ bool WeaponTableComponent::ExcelToWeaponElement(WeaponElement& element, const st
                     return false;
                 }
             }
-            else if (wcharKey.find(L"등급") != std::wstring::npos)
+            else if (L"Rarity" == wcharKey)
             {
-                if (u8"일반"_c_str == data)
+                int rarity = std::stoi(data);
+                if (WeaponStats::GetGradeID(WeaponGrade::COMMON) == rarity)
                 {
                     stats.Grade = WeaponGrade::COMMON;
                 }
-                else if (u8"희귀"_c_str == data)
+                else if (WeaponStats::GetGradeID(WeaponGrade::RARE) == rarity)
                 {
                     stats.Grade = WeaponGrade::RARE;
                 }
-                else if (u8"신비"_c_str == data)
+                else if (WeaponStats::GetGradeID(WeaponGrade::BIZARRE) == rarity)
                 {
                     stats.Grade = WeaponGrade::BIZARRE;
                 }
-                else if (u8"전설"_c_str == data)
+                else if (WeaponStats::GetGradeID(WeaponGrade::LEGENDARY) == rarity)
                 {
                     stats.Grade = WeaponGrade::LEGENDARY;
                 }
@@ -550,23 +557,23 @@ bool WeaponTableComponent::ExcelToWeaponElement(WeaponElement& element, const st
                     return false;
                 }       
             }
-            else if (wcharKey.find(L"일격 공격력") != std::wstring::npos)
+            else if (L"HitDamage" == wcharKey)
             {
                 stats.HitDamage = std::stoi(data);
             }
-            else if (wcharKey.find(L"치명타 공격력") != std::wstring::npos)
+            else if (L"CritDamage" == wcharKey)
             {
                 stats.CriticalDamage = std::stoi(data);
             }
-            else if (wcharKey.find(L"공격 횟수") != std::wstring::npos)
+            else if (L"AttackCount" == wcharKey)
             {
                 stats.AttackCount = std::stoi(data);
             }
-            else if (wcharKey.find(L"속도") != std::wstring::npos)
+            else if (L"Speed" == wcharKey)
             {
                 stats.Speed = std::stoi(data);
             }
-            else if (wcharKey.find(L"1 공격 당 연격 부여량") != std::wstring::npos)
+            else if (L"giveChain" == wcharKey)
             {
                 stats.AttackPerChain = std::stoi(data);
             }
