@@ -262,11 +262,6 @@ Texture* RibbonModule::GetAlbedoTexture() const
 
  ParticleEmitter::~ParticleEmitter() 
  {
-     // 1. Particle 객체들 정리
-     for (auto particle : _particlePool)
-     {
-         delete particle;
-     }
      _particlePool.clear();
 
      // 2. EmitLocator 객체 정리
@@ -381,11 +376,19 @@ void ParticleEmitter::Initialize(SIZE_T maxParticles /*= 100000*/, float emissio
     _maxParticles = maxParticles;
     _emissionRate = emissionRate;
     _particlePool.resize(_maxParticles);
+
+    while (false == _inactiveParticleIndices.empty())
+    {
+        _inactiveParticleIndices.pop();
+    }
     for (size_t i = 0; i < maxParticles; ++i)
     {
-        _particlePool[i] = new Particle();
         _inactiveParticleIndices.push(i);
     }
+
+
+
+
 }
 
 
@@ -434,14 +437,15 @@ void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime)
     // 수명 다한 파티클 비활성화
     for (int i = 0; i < _activeParticleCount; ++i)
     {
-        _particlePool[i]->SetAge(_particlePool[i]->GetAge() + deltaTime);
-        if (_particlePool[i]->GetAge() >= _particleLifetime)
+        _particlePool[i].SetAge(_particlePool[i].GetAge() + deltaTime);
+        if (_particlePool[i].GetAge() >= _particleLifetime)
         {
-                _activeParticleCount--;
-                std::swap(_particlePool[i], _particlePool[_activeParticleCount]);
-                _inactiveParticleIndices.push(_activeParticleCount);
-            }
+            _activeParticleCount--;
+            std::swap(_particlePool[i], _particlePool[_activeParticleCount]);
+            _inactiveParticleIndices.push(_activeParticleCount);
+            i--;
         }
+    }
     if (true == _endFlag)
         return;
 
@@ -571,30 +575,30 @@ void ParticleEmitter::AwakeParticle(UINT index)
 		location = Vector4::Transform(location, _worldMatrix);
 	}
 
-    _particlePool[index]->SetPosition(location);
+    _particlePool[index].SetPosition(location);
     ScaleVelocity({location.x, location.y, location.z});
     Vector3 finalVelocity = _velocity;
     finalVelocity = Vector3::TransformNormal(_velocity, _worldMatrix);
-    _particlePool[index]->SetVelocity(finalVelocity);
+    _particlePool[index].SetVelocity(finalVelocity);
 
-    _particlePool[index]->SetAge(0.f);
-    _particlePool[index]->SetMass(_particleMass);
+    _particlePool[index].SetAge(0.f);
+    _particlePool[index].SetMass(_particleMass);
 
 
 
     if (true == GetScaleByVelocityFlag())
-        _particlePool[index]->SetAxis(finalVelocity);
+        _particlePool[index].SetAxis(finalVelocity);
     else
-        _particlePool[index]->SetAxis(_particleAxis);
+        _particlePool[index].SetAxis(_particleAxis);
 
 
     if (ParticleType::SPRITE == _particleType)
     {
         auto    spritemodule = static_cast<SpriteModule*>(_particleRenderModule);
         Vector4 frameInfo    = {spritemodule->GetFrameDuration(), 0, 0, 0};
-        _particlePool[index]->SetFrameinfo(frameInfo);
+        _particlePool[index].SetFrameinfo(frameInfo);
     }
-        _particlePool[index]->SetInitialMatrix(_worldMatrix.Transpose());
+        _particlePool[index].SetInitialMatrix(_worldMatrix.Transpose());
 
 }
 

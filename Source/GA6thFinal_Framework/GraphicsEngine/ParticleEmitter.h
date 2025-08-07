@@ -191,7 +191,7 @@ public:
     void Reset();
 
 
-    inline std::vector<class Particle*>& GetParticlePool() { return _particlePool; }
+    inline std::vector<class Particle>& GetParticlePool() { return _particlePool; }
 
     UINT GetActiveParticleCount() const { return (UINT)_activeParticleCount; }
 
@@ -236,7 +236,7 @@ protected:
 
     Matrix GetWorldMatrix() const { return _worldMatrix; }
 
-    std::vector<class Particle*> _particlePool;
+    std::vector<class Particle> _particlePool;
 
     void ScaleVelocity(Vector3 pos);
     void ScaleVelFromPoint(Vector3 pos);

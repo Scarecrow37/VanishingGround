@@ -654,21 +654,48 @@ void ParticleManager::CreateConstantBuffer(ComPtr<ID3D12Resource>& resource, UIN
 
 void ParticleManager::AwakeParticles(float deltaTime, ParticleUpdateResource* scene)
 {
-
-    scene->_totalParticles.clear();
+    // 메타데이터 벡터 초기화
     scene->_emitterMatrix.clear();
     scene->_activeEmitterAlbedos.clear();
-    UINT emitterIndex = 0;
-    scene->_totalCount       = 0;
-
-    scene->_ribbonTotalParticles.clear();
     scene->_ribbonEmitterMatrix.clear();
     scene->_ribbonActiveEmitterAlbedos.clear();
-    UINT ribbonEmitterIndex = 0;
-    scene->_ribbonTotalCount       = 0;
     scene->_ribbonIndices.clear();
+
+    // 1. 이번 프레임에 필요한 총 파티클 수 미리 계산
+    UINT totalSpriteParticles = 0;
+    UINT totalRibbonParticles = 0;
+    for (auto effect : scene->_sceneEffects)
+    {
+        if (effect->GetActiveFlag())
+        {
+            for (auto emitter : effect->GetEmitterList())
+            {
+                if (emitter->GetActiveFlag())
+                {
+                    if (emitter->_particleType == ParticleType::SPRITE)
+                    {
+                        totalSpriteParticles += emitter->GetActiveParticleCount();
+                    }
+                    else if (emitter->_particleType == ParticleType::RIBBON)
+                    {
+                        totalRibbonParticles += emitter->GetActiveParticleCount() * 2;
+                    }
+                }
+            }
+        }
+    }
+
+    // 2. 필요한 메모리 공간을 한 번에 예약
+    scene->_totalParticles.reserve(totalSpriteParticles);
+    scene->_totalParticles.clear(); 
+    scene->_ribbonTotalParticles.reserve(totalRibbonParticles);
+    scene->_ribbonTotalParticles.clear();
+
+    UINT emitterIndex = 0;
+    UINT ribbonEmitterIndex = 0;
     UINT ribbonparticleIndex = 0;
 
+    // 3. 파티클 데이터 복사
     for (auto effect : scene->_sceneEffects)
     {
         if (true == effect->GetActiveFlag())
@@ -679,9 +706,9 @@ void ParticleManager::AwakeParticles(float deltaTime, ParticleUpdateResource* sc
                 {
                     if (ParticleType::SPRITE == emitter->_particleType)
                     {
+                        // (EmitterInfo 설정 코드는 기존과 동일)
                         scene->_activeEmitterAlbedos.push_back(
                             static_cast<SpriteModule*>(emitter->_particleRenderModule)->GetAlbedoTexture());
-
                         Matrix worldMatrix =
                             emitter->GetUseWorldSpace() ? Matrix::Identity : emitter->GetWorldMatrix().Transpose();
                         Matrix orientMatrix = emitter->GetWorldMatrix().Transpose();
@@ -695,21 +722,29 @@ void ParticleManager::AwakeParticles(float deltaTime, ParticleUpdateResource* sc
                              Vector4(emitter->GetParticleLifetime(), emitter->GetUseWorldSpace() ? 1.0f : 0.0f, 0, 0),
                              Vector4(0, 0, 0, 0), Vector4(0, 0, 0, 0),  Vector4(0, 0, 0, 0)
                             });
+
                         auto& particlePool = emitter->GetParticlePool();
-                        for (UINT i = 0; i < emitter->GetActiveParticleCount(); i++)
+                        UINT activeCount = emitter->GetActiveParticleCount();
+
+                        if (activeCount > 0)
                         {
-                            auto& particle = *particlePool[i];
-                            particle.SetEmitterIndex(emitterIndex);
-                            scene->_totalParticles.push_back(particle);
-                            scene->_totalCount++;
+                            size_t insert_position = scene->_totalParticles.size();
+                            // 활성 파티클 블록 전체를 한 번에 삽입
+                            scene->_totalParticles.insert(scene->_totalParticles.end(), particlePool.begin(), particlePool.begin() + activeCount);
+
+                            // 복사된 파티클들에 EmitterIndex 설정
+                            for (size_t i = 0; i < activeCount; ++i)
+                            {
+                                scene->_totalParticles[insert_position + i].SetEmitterIndex(emitterIndex);
+                            }
                         }
                         emitterIndex++;
                     }
                     else if (ParticleType::RIBBON == emitter->_particleType)
                     {
+                        // (Ribbon EmitterInfo 설정 코드는 기존과 동일)
                         scene->_ribbonActiveEmitterAlbedos.push_back(
                             static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetAlbedoTexture());
-
                         Matrix worldMatrix =
                             emitter->GetUseWorldSpace() ? Matrix::Identity : emitter->GetWorldMatrix().Transpose();
                         Matrix orientMatrix = emitter->GetWorldMatrix().Transpose();
@@ -729,37 +764,46 @@ void ParticleManager::AwakeParticles(float deltaTime, ParticleUpdateResource* sc
 
                         );
 
-                        auto&                    particlePool = emitter->GetParticlePool();
-                        std::vector<ribbonIndex> emitterIndices;
-                        for (UINT i = 0; i < emitter->GetActiveParticleCount(); i++)
+                        auto& particlePool = emitter->GetParticlePool();
+                        UINT activeCount = emitter->GetActiveParticleCount();
+                        
+                        if (activeCount > 0)
                         {
-                            auto& particle = *particlePool[i];
-                            particle.SetEmitterIndex(ribbonEmitterIndex);
-                            scene->_ribbonTotalParticles.push_back(particle);
-                            scene->_ribbonTotalParticles.push_back(particle);
-                            emitterIndices.push_back(
-                                {ribbonparticleIndex++, particle.GetAge() / emitter->GetParticleLifetime()});
-                            emitterIndices.push_back(
-                                {ribbonparticleIndex++, particle.GetAge() / emitter->GetParticleLifetime()});
-                            scene->_ribbonTotalCount += 2;
+                            std::vector<ribbonIndex> emitterIndices;
+                            emitterIndices.reserve(activeCount * 2);
+                            float lifetime = emitter->GetParticleLifetime();
+
+                            for (UINT i = 0; i < activeCount; ++i)
+                            {
+                                Particle particle = particlePool[i];
+                                particle.SetEmitterIndex(ribbonEmitterIndex);
+
+                                scene->_ribbonTotalParticles.push_back(particle);
+                                scene->_ribbonTotalParticles.push_back(particle);
+                                
+                                emitterIndices.push_back({ribbonparticleIndex++, particle.GetAge() / lifetime});
+                                emitterIndices.push_back({ribbonparticleIndex++, particle.GetAge() / lifetime});
+                            }
+                            
+                            if (!emitterIndices.empty())
+                            {
+                                scene->_ribbonIndices.push_back(std::move(emitterIndices));
+                            }
                         }
-                        scene->_ribbonIndices.push_back(emitterIndices);
                         ribbonEmitterIndex++;
                     }
                 }
             }
         }
     }
-
-
-
+    // 최종 파티클 수 업데이트
+    scene->_totalCount = scene->_totalParticles.size();
+    scene->_ribbonTotalCount = scene->_ribbonTotalParticles.size();
 }
 
 void ParticleManager::DispatchSprite(float deltaTime, std::string sceneName) 
 {
     ParticleSceneResource& scene = _sceneResources[sceneName];
-
-
     {
         if (0 >= scene._updateResource->_totalCount)
             return;
