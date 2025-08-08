@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "RevelationElement/RevelationElement.h"
+#include <ExcelParser/ImGuiColumnSheetParser.h>
 
 class TurnAction;
 class RevelationSystem : public Component
@@ -57,7 +58,10 @@ public:
     /// 이번 라운드에 활성화된 계시 항목을 반환합니다.
     /// </summary>
     /// <returns></returns>
-    const std::vector<std::shared_ptr<RevelationElement>>& GetRoundElementList() { return _roundElementList; }
+    const MVVM::Model<std::vector<std::shared_ptr<RevelationElement>>>& GetRoundElementList()
+    {
+        return _roundElementList;
+    }
 
     /// <summary>
     /// 플레이어가 사용중인 element 항목을 반환합니다.
@@ -124,15 +128,21 @@ private:
 
     struct ImGuiEvent
     {
-        std::function<void()> RenameFunc;
+        std::function<void()>          RenameFunc;
+        RevelationElement*             SelectElement     = nullptr;
+        std::string                    DeleteTableBuffer = STR_NULL;
+        bool                           OpenDeletePopup   = false;
 
-        RevelationElement* SelectElement     = nullptr;
-        std::string        DeleteTableBuffer = STR_NULL;
-        bool               OpenDeletePopup   = false;
-    }
-    _imguiEvent;
-
-    void DrawImGuiElementTableEditor();
+        ImGuiColumnSheetParser         ExcelParser{"FD7989C6-FD1B-4B38-8B50-DB8E6274C439", u8"Name"};
+        std::queue<RevelationElement*> DirtyRevelationElementQueue;
+        bool                           ShowDirtyElementPopup = false;
+    };
+#ifdef _UMEDITOR
+    ImGuiEvent _imguiEvent;
+#endif
+    void ImGuiDrawElementTableEditor();
+    void ImGuiDrawExcelParser();
+    bool ExcelToRevelationElement(RevelationElement& element, const std::string& key, const std::string& data);
 
 public:
     REFLECT_PROPERTY(
@@ -186,11 +196,12 @@ private:
 
 private:
     std::map<std::string, RevelationElement> _elementsTable; // 계시 테이블
+    std::vector<RevelationElement*>          _elementTableOrderID;
     ImVec2                                   _tableEditorCenterPos{};
 
 private:
     std::vector<std::shared_ptr<RevelationElement>> _playerElementList;       // 플레이어가 사용중인 계시 (인벤토리)
-    std::vector<std::shared_ptr<RevelationElement>> _roundElementList;        // 이번 라운드에 효과가 발동된 계시 (뽑힌 계시)
+    MVVM::Model<std::vector<std::shared_ptr<RevelationElement>>> _roundElementList;        // 이번 라운드에 효과가 발동된 계시 (뽑힌 계시)
     std::unordered_map<std::string, unsigned int>   _elementTotalAppearances; // 계시가 뽑힌 횟수
     unsigned int                                    _totalRollCount = 0;      //계시를 굴린 횟수
 
@@ -198,5 +209,11 @@ private:
 private:
     void ImGuiDrawPlayerElementEditor();
     void ImGuiDrawRoundElementList();
+    void SortElementTableOrderID();
+    void PushElementTableOrderID(RevelationElement& element);
+    void EraseElementTableOrderID(RevelationElement& element);
+
+protected:
+    void Awake() override;
 
 };

@@ -66,6 +66,19 @@ void TurnQueueView::Start()
                     _firstTurnQueueFrameRightWing->Enable = true;
             }
         });
+
+    // Disable
+    for (size_t i = 0; i < 7; ++i)
+    {
+        if (nullptr != _turnQueueFrames[i])
+            _turnQueueFrames[i]->Enable = false;
+        if (nullptr != _turnQueuePortraits[i])
+            _turnQueuePortraits[i]->Enable = false;
+    }
+    if (nullptr != _firstTurnQueueFrameLeftWing)
+        _firstTurnQueueFrameLeftWing->Enable = false;
+    if (nullptr != _firstTurnQueueFrameRightWing)
+        _firstTurnQueueFrameRightWing->Enable = false;
 }
 
 enum class FindResult

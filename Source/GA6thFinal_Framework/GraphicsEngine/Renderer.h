@@ -63,7 +63,4 @@ private:
     ComPtr<ID3D12PipelineState>                                   _pipelineState;
     std::unique_ptr<ShaderBuilder>                                _shader;
     BaseMesh*                                                     _frameQuad;
-
-public:
-    bool _isRaytracing = false;
 };

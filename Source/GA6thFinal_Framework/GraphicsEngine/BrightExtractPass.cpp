@@ -72,7 +72,7 @@ void BrightExtractPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_fx.GetRootSignature());
 
-    commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_5_postProcessData"), 5, &postProcessData, 0);
+    commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_6_postProcessData"), 6, &postProcessData, 0);
     commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_3_bloomProperty"), 3, &bloomProperty, 0);
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("screenTexture"), _meshRenderTarget->GetSRVHandle());
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("customDepthTexture"), customDepthTarget->GetSRVHandle());
@@ -84,7 +84,7 @@ void BrightExtractPass::Draw(ID3D12GraphicsCommandList* commandList)
     // x tab
     auto renderTarget = Global::multiRenderTargetManager->GetAvailableRenderTarget();
     renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
-
+    _sharedRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     gaussianBlurModule->Execute(commandList, _sharedRenderTarget->GetSRVHandle(), renderTarget.Get(), DXGI_FORMAT_R32G32B32A32_FLOAT, GaussianBlurModule::BlurType::AXIS_X);
     renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 

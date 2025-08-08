@@ -91,6 +91,7 @@ struct GraphicsTransform
     const Vector3&    Scale;
     const Quaternion& Rotation;
     const Matrix&     World;
+    const bool&       IsDirtyFlag;
 };
 
 struct ShadowPassProperty
@@ -118,4 +119,13 @@ struct ToneMappingProperty
     float   Exposure;
     float   Saturation;
     float   Contrast;
+};
+
+struct SSAOPassProperty
+{
+    float Radius;
+    float Falloff;
+    float StrengthFactor;
+    float ContrastFactor;
+    float Threshold;
 };

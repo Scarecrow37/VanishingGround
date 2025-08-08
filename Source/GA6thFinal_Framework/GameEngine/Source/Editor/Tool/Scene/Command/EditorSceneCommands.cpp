@@ -148,8 +148,13 @@ void Command::EditorScene::DestroyComponentCommand::Undo()
     }
 }
 
-Command::EditorScene::AddComponentCommand::AddComponentCommand(GameObject* ownerObject, std::string_view type_id)
-    : UmCommand("AddComponent"), _ownerObject(ownerObject->GetWeakPtr()), _typeName(type_id), _index(-1)
+Command::EditorScene::AddComponentCommand::AddComponentCommand(GameObject* ownerObject, std::string_view type_id, Component** pOutComponent)
+    : 
+    UmCommand("AddComponent"), 
+    _ownerObject(ownerObject->GetWeakPtr()), 
+    _typeName(type_id), 
+    _index(-1),
+    _pOutComponent(pOutComponent)
 {
 }
 
@@ -162,6 +167,11 @@ bool Command::EditorScene::AddComponentCommand::Execute()
             auto       pObject   = _ownerObject.lock();
             Component* component = UmComponentFactory.AddComponentToObject(pObject.get(), _typeName);
             _addComponent        = component->GetWeakPtr().lock();
+            if (nullptr != _pOutComponent)
+            {
+                *_pOutComponent = _addComponent.get();
+                _pOutComponent = nullptr;
+            }
         }
         else
         {

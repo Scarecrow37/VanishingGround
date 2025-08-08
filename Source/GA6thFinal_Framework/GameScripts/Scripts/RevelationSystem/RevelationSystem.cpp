@@ -1,13 +1,22 @@
 ﻿#include "pchScripts.h"
 #include "RevelationSystem.h"
+
+#include "ViewModels/Revelations/RevelationsViewModel.h"
+
 #include <TurnSystem/TurnAction/TurnActionFactory.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
+
+using namespace u8_literals;
+
 RevelationSystem::RevelationSystem() 
 {
     static_instance = this;
     RevelationsPerRound.SetInputAutoEvent([]() { ImGuiHelper::HoveredToolTip(u8"라운드당 뽑는 계시 개수"); });
 }
-RevelationSystem::~RevelationSystem() = default;
+RevelationSystem::~RevelationSystem()
+{
+    UmWatcher.Unregister<RevelationsViewModel>("Revelations");
+};
 
 std::shared_ptr<RevelationElement> RevelationSystem::EquipPlayerElement(int slot, const RevelationElement& element)
 {
@@ -42,8 +51,9 @@ void RevelationSystem::RollRoundElement()
 
     if (_turnMode)
     {
+        const auto& roundElementList = _roundElementList;
         //기존 액션들 비활성화
-        for (auto& element : _roundElementList)
+        for (auto& element : roundElementList)
         {
             if (element->IsAction())
             {
@@ -62,7 +72,7 @@ void RevelationSystem::RollRoundElement()
         }
 
         // 랜덤 셔플
-        std::ranges::shuffle(_roundElementList, Random::GetEngine());
+        _roundElementList.shuffle(Random::GetEngine());
 
         // 사용 가능한 개수만 남긴다.
         if (ReflectFields->RevelationsPerRound < _roundElementList.size())
@@ -71,7 +81,7 @@ void RevelationSystem::RollRoundElement()
         }
 
         // 뽑힌 횟수 계산 및 액션 활성화
-        for (auto& element : _roundElementList)
+        for (auto& element : roundElementList)
         {
             const std::string& name = element->ElementName;
             _elementTotalAppearances[name]++;
@@ -104,7 +114,8 @@ bool RevelationSystem::InsertElement(const RevelationElement& element)
     {
         RevelationElement& myElement = _elementsTable[key];
         myElement                    = element;
-        result                       = true;
+        PushElementTableOrderID(myElement);
+        result = true;
     }
     else
     {
@@ -119,6 +130,7 @@ bool RevelationSystem::EraseElement(std::string_view elementName)
     auto findIter = _elementsTable.find(elementName.data());
     if (findIter != _elementsTable.end())
     {
+        EraseElementTableOrderID(findIter->second);
         _elementsTable.erase(findIter);
         result = true;
     }
@@ -136,8 +148,9 @@ static ReflectHelper::ImGuiDraw::InputAutoSetting InitSetting()
     return setting;
 }
 
-void RevelationSystem::DrawImGuiElementTableEditor() 
+void RevelationSystem::ImGuiDrawElementTableEditor() 
 {
+#ifdef _UMEDITOR
     if (ImGui::BeginTable("Revelation Stats", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
     {                      
         static ReflectHelper::ImGuiDraw::InputAutoSetting tableSetting = InitSetting();
@@ -149,9 +162,13 @@ void RevelationSystem::DrawImGuiElementTableEditor()
         ImGui::TableHeadersRow();
 
         int itemID = 0;
-        for (auto& [key, element] : _elementsTable)
+        for (auto& revelation : _elementTableOrderID)
         {
-            auto RightClickContext = [&]() {
+            RevelationElement& element = *revelation;
+            const std::string& key     = element.ElementName;
+
+            auto RightClickContext = [&]() 
+            {
                 if (ImGui::BeginPopupContextItem())
                 {
                     if (ImGui::MenuItem("Delete"))
@@ -281,6 +298,147 @@ void RevelationSystem::DrawImGuiElementTableEditor()
             }
         }
     }
+#endif
+}
+
+void RevelationSystem::ImGuiDrawExcelParser()
+{
+#ifdef _UMEDITOR
+    if (ImGui::BeginPopupModal(u8"알림##Dirty Revelation Popup"_c_str))
+    {
+        auto PopDirtyWeaponElement = [this]() 
+        {
+            _imguiEvent.ShowDirtyElementPopup = false;
+            _imguiEvent.DirtyRevelationElementQueue.pop();
+            if (true == _imguiEvent.DirtyRevelationElementQueue.empty())
+            {
+                _imguiEvent.ExcelParser.ShowParser = false;
+            }
+        };
+
+        ImGui::Text(u8"올바르지 않은 형식입니다. 직접 입력해주세요."_c_str);
+        RevelationElement& element = *_imguiEvent.DirtyRevelationElementQueue.front();
+        element.ImGuiDrawPropertys();
+        ImGui::Separator();
+        if (ImGui::Button("OK"))
+        {
+            PopDirtyWeaponElement();
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Cancel"))
+        {
+            PopDirtyWeaponElement();
+            const std::string& name = element.ElementName;
+            EraseElement(name);
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+    }
+
+    if (false == _imguiEvent.DirtyRevelationElementQueue.empty() && false == _imguiEvent.ShowDirtyElementPopup)
+    {
+        ImGui::OpenPopup(u8"알림##Dirty Revelation Popup"_c_str);
+        _imguiEvent.ShowDirtyElementPopup = true;
+    }
+
+    auto ParserFunc = [&](ImGuiColumnSheetParser::ColumnDatas datas) 
+    {
+        RevelationElement temp;
+        bool              result = true;
+        for (auto& [key, data] : datas)
+        {
+            result &= ExcelToRevelationElement(temp, key, data);
+        }
+        const std::string& name = temp.ElementName;
+
+        if (STR_NULL != name)
+        {
+            auto findWeaponIter = _elementsTable.find(name);
+            if (findWeaponIter == _elementsTable.end())
+            {
+                // 없으면 새로 생성
+                InsertElement(temp);
+            }
+            else
+            {
+                // 이미 있으면 데이터만 복사(액션은 유지)
+                std::string originActionName                     = findWeaponIter->second.ReflectFields->ActionName;
+                *findWeaponIter->second.ReflectFields            = *temp.ReflectFields;
+                findWeaponIter->second.ReflectFields->ActionName = std::move(originActionName);
+            }
+            if (false == result)
+            {
+                // 잘못된 데이터는 알림 팝업
+                RevelationElement& element = _elementsTable[name];
+                _imguiEvent.DirtyRevelationElementQueue.push(&element);
+            }
+        }       
+    };
+    if (_imguiEvent.ExcelParser.Draw(ParserFunc))
+    {
+        if (true == _imguiEvent.DirtyRevelationElementQueue.empty())
+        {
+            _imguiEvent.ExcelParser.ShowParser = false;
+        }
+    }
+#endif
+}
+
+bool RevelationSystem::ExcelToRevelationElement(RevelationElement& element, const std::string& key, const std::string& data)
+{
+    if (false == key.empty())
+    {
+        try
+        {
+            std::wstring wcharKey = U8ToWString(key);
+            if (L"ID" == wcharKey)
+            {
+                element.RevelationID = std::stoi(data);
+            }
+            else if (L"Name" == wcharKey)
+            {
+                if (false == data.empty())
+                {
+                    element.SetName(data);
+                }
+            }
+            else if (L"Rarity" == wcharKey)
+            {
+                int rarity = std::stoi(data);
+                
+                if (RevelationElement::GetGradeID(RevelationGrade::COMMON) == rarity)
+                {
+                    element.Grade = RevelationGrade::COMMON;
+                }
+                else if (RevelationElement::GetGradeID(RevelationGrade::RARE) == rarity)
+                {
+                    element.Grade = RevelationGrade::RARE;
+                }
+                else if (RevelationElement::GetGradeID(RevelationGrade::LEGENDARY) == rarity)
+                {
+                    element.Grade = RevelationGrade::LEGENDARY;
+                }
+                else if (RevelationElement::GetGradeID(RevelationGrade::EXTINCTION) == rarity)
+                {
+                    element.Grade = RevelationGrade::EXTINCTION;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+        catch (const std::invalid_argument&)
+        {
+            return false;
+        }
+        catch (const std::out_of_range&)
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 void RevelationSystem::ActionsToActionDatas() 
@@ -323,6 +481,7 @@ void RevelationSystem::ElementsToElementDatas()
 void RevelationSystem::ElementDatasToElements() 
 {
     _elementsTable.clear();
+    _elementTableOrderID.clear();
     for (auto& data : ReflectFields->RevelationElementDatas)
     {
         RevelationElement element;
@@ -394,7 +553,8 @@ void RevelationSystem::DeserializedReflectEvent()
 
 void RevelationSystem::ImGuiDrawPropertysEvent() 
 {
-    if(ImGui::Button("Table Editor"))
+#ifdef _UMEDITOR
+    if (ImGui::Button("Table Editor"))
     {
         _tableEditorOpen = true;
     }
@@ -478,16 +638,19 @@ void RevelationSystem::ImGuiDrawPropertysEvent()
                     }
                     gameObject->GetScene().IsDirty = true;
                 }
+                ImGui::MenuItem("Excel Parser", nullptr, &_imguiEvent.ExcelParser.ShowParser);
                 ImGui::EndMenuBar();
             }
 
-            DrawImGuiElementTableEditor();
+            ImGuiDrawElementTableEditor();
+            ImGuiDrawExcelParser();
         }
         ImGui::End();
     }
 
     ImGuiDrawPlayerElementEditor();
     ImGuiDrawRoundElementList();
+#endif
 }
 
 void RevelationSystem::ImGuiDrawPlayerElementEditor() 
@@ -554,7 +717,7 @@ void RevelationSystem::ImGuiDrawPlayerElementEditor()
         }
         if (eraseSelect)
         {
-            std::erase(_roundElementList, *eraseSelect);
+            _roundElementList.erase(*eraseSelect);
             RemovePlayerElement(eraseSlot);
             eraseSelect = nullptr;          
         }
@@ -589,7 +752,8 @@ void RevelationSystem::ImGuiDrawRoundElementList()
     if (ImGui::TreeNodeEx("Round Elements", ImGuiTreeNodeFlags_DefaultOpen))
     {
         RollButton();
-        for (auto& element : _roundElementList)
+        const auto& roundElementList = _roundElementList;
+        for (auto& element : roundElementList)
         {
             std::string_view name = (const std::string&)element->ElementName;
             ImGui::PushStyleColor(ImGuiCol_Text, element->GetGradeColor());
@@ -603,4 +767,30 @@ void RevelationSystem::ImGuiDrawRoundElementList()
     {
         RollButton();
     }
+}
+
+void RevelationSystem::SortElementTableOrderID() 
+{
+    std::ranges::sort(_elementTableOrderID, [](const RevelationElement* a, const RevelationElement* b) 
+    {
+        return a->RevelationID < b->RevelationID;
+    });
+}
+
+void RevelationSystem::PushElementTableOrderID(RevelationElement& element) 
+{
+    _elementTableOrderID.push_back(&element);
+    SortElementTableOrderID();
+}
+
+void RevelationSystem::EraseElementTableOrderID(RevelationElement& element) 
+{
+    std::erase(_elementTableOrderID, &element);
+}
+
+void RevelationSystem::Awake()
+{
+    Component::Awake();
+
+    UmWatcher.Register<RevelationsViewModel>("Revelations", _roundElementList);
 }

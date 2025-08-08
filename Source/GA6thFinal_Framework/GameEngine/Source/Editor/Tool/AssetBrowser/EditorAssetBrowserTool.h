@@ -81,12 +81,15 @@ private:
     void OnFrameFocusStay() override;
     void OnFrameFocusExit() override;
 
+    void OnPostRequestedLoad() override;
+
 public:
+    void ResetState();
     void ProcessInput();
-    void RefreshState();
     void RefreshFocusFolderEntries();
     void SetFocusFolderPath(const File::Path& path, bool pushStack = true);
     void SetFocusEntryPath(const File::Path& path);
+    void ClearUndoRedoStack();
     void UndoPath();
     void RedoPath();
     void SetCopyFileFromPath(const File::Path& path);

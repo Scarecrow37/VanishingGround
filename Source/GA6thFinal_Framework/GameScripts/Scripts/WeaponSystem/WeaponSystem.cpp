@@ -170,6 +170,21 @@ void WeaponSystem::ImguiEquipWeapons()
             }
         };
 
+        auto ValidWeaponInfo = [](const std::string& weaponName) 
+        {
+            WeaponTableComponent* weaponTableComponent = WeaponTableComponent::GetInstance();
+            if (weaponTableComponent)
+            {
+                const WeaponElement* element = weaponTableComponent->GetWeaponToName(weaponName);
+                if (nullptr == element)
+                {
+                    ImGui::SameLine();
+                    ImGui::Text("(!)");
+                    ImGuiHelper::HoveredToolTip(u8"테이블에 존재하지 않는 무기입니다.");
+                }
+            }
+        };
+
         int itemID = 0;
         for (auto& weapon : _equipWeapons)
         {
@@ -179,6 +194,7 @@ void WeaponSystem::ImguiEquipWeapons()
             if (ImGui::TreeNodeEx(weaponName.data(), ImGuiTreeNodeFlags_OpenOnArrow))
             {
                 RightClickContext(itemID);
+                ValidWeaponInfo(weaponName);
                 if (ImGui::BeginTable(weaponName.data(), 1, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
                 {
                     ImGui::TableNextRow();
@@ -191,6 +207,7 @@ void WeaponSystem::ImguiEquipWeapons()
             else
             {
                 RightClickContext(itemID);
+                ValidWeaponInfo(weaponName);
             }
             
             // 무기 변경

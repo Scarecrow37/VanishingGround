@@ -2,6 +2,7 @@
 #include "EnemyAction22013.h"
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 #include <Animation/AnimationComponent.h>
+#include <TurnSystem/TurnActor/Character/Enemy/State/EnemyDeadState.h>
 
 namespace EnemyAction
 {
@@ -11,12 +12,11 @@ namespace EnemyAction
         {
             _animator->BeginBuildOverrideAnimation();
             {
-                _animator->ClearOverrideAnimations();
-                bool result = _animator->PushOverrideAnimation("Attack1", true, [](const AnimationData& data) { return data.IsEnd(); });
-                if (result)
+                if (_animator->HasAnimationMappingKey("Attack1"))
                 {
-                    _animator->SetCurrentAnimationPopCallback([this]() { SetActionEnd(); });
-                    _animator->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
+                    _animator->ClearOverrideAnimations();
+                    _animator->ChangeMainAnimation("Attack1", true);
+                    _animator->ChangeMainAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
                 }
                 else
                 {
@@ -42,10 +42,17 @@ namespace EnemyAction
         if ("Attack" == label)
         {
             ProcessBattle(30);
+            PlaySoundFromKey("AttackHit0");
             if (_owner)
             {
-                _owner->Dead();
+                _owner->TakeDamage(_owner->HP, false);
+                EnemyDeadState* deadState = _owner->GetFSMStates().Dead;
+                if (deadState)
+                {
+                    deadState->SetDontChangeAnimation(true);
+                }
             }
+            SetActionEnd();
         }
     }
 } // namespace EnemyAction

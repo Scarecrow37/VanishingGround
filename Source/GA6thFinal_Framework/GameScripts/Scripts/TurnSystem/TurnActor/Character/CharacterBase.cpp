@@ -1,5 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "CharacterBase.h"
+
+#include "Audio/Table/AudioTableComponent.h"
 #include "Stats/CharacterStats.h"
 #include "TurnSystem/TurnMode/TurnMode.h"
 
@@ -84,6 +86,7 @@ void CharacterBase::Awake()
 
     InitMeshModel();
     InitAnimationCallback();
+    InitAudio();
 }
 
 void CharacterBase::InitMeshModel()
@@ -121,6 +124,12 @@ void CharacterBase::InitMeshModel()
         );
         UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
     }
+}
+
+void CharacterBase::InitAudio()
+{
+    const GameObject& object = gameObject;
+    _audioTableComponent     = object.GetComponent<AudioTableComponent>();
 }
 
 void CharacterBase::InitAnimationCallback() 
@@ -173,7 +182,7 @@ void CharacterBase::Dead()
     _tokenInventory.NotifyDead();
 }
 
-void CharacterBase::TakeDamage(int damage) 
+void CharacterBase::TakeDamage(int damage, bool playAnim)
 {
     if (TurnActor::STATE::Dead == GetActorState())
     {
@@ -193,7 +202,7 @@ void CharacterBase::TakeDamage(int damage)
             (const char*)u8"의 피해를 입었습니다.");
         UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
     }
-    if (_animationComponent)
+    if (playAnim && _animationComponent)
     {
         const auto& animData    = _animationComponent->GetLastAnimationData();
         const std::string& hitAnimName = _animationComponent->GetAnimationNameFromKey("Hit");
@@ -206,6 +215,10 @@ void CharacterBase::TakeDamage(int damage)
         }
         _animationComponent->PushOverrideAnimation("Hit", true,
             [](const AnimationData& data) { return data.IsEnd(); });
+        if (_audioTableComponent)
+        {
+            //_audioTableComponent->Play("Hit");
+        }
         _animationComponent->EndBuildOverrideAnimation();
     }
 }

@@ -3,6 +3,7 @@
 #include "Enum/EnemyEnum.h"
 #include "AI/EnemyAI.h"
 
+class MonsterHpView;
 class EnemyStatsComponent;
 class FSMState;
 
@@ -58,7 +59,7 @@ public:
     /*Enemy를 Dead 상태로 만듭니다.*/
     virtual void Dead() override;
     /*Enemy에게 피격을 가합니다.*/
-    virtual void TakeDamage(int damage) override;
+    virtual void TakeDamage(int damage, bool playAnim = true) override;
 
     inline EnemyAI&            GetAIModel() { return _aiModel; }
     inline FiniteStateMachine& GetFSM() { return *_finiteStateMachine; }
@@ -66,6 +67,13 @@ public:
 
     /*Enemy의 Stats을 반환합니다.*/
     EnemyStatsComponent* GetEnemyStats();
+
+public:
+    MonsterHpView* GetMonsterHpView() const { return _monsterHpView; }
+    void SetMonsterHpView(MonsterHpView* view);
+
+private:
+    MonsterHpView* _monsterHpView = nullptr;
 
 protected:
     /// <summary>

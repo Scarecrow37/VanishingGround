@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <WeaponSystem/WeaponElement/WeaponElement.h>
+#include <ExcelParser/ImGuiColumnSheetParser.h>
 
 class WeaponTableComponent : public Component
 {
@@ -27,7 +28,7 @@ public:
     /// </summary>
     /// <param name="name :">찾을 무기 이름</param>
     /// <returns>찾은 무기 Stats 정보</returns>
-    const WeaponElement* GetWeaponToName(std::string_view name);
+    const WeaponElement* GetWeaponToName(const std::string& name);
 
     /// <summary>
     /// 이름을 key로 사용하는 WeaponTable을 반환합니다.
@@ -42,9 +43,12 @@ private:
     bool RenameWeapon(WeaponElement& weapon, const std::string& newName);
     bool InsertWeapon(WeaponElement& weapon);
     bool EraseWeapon(WeaponElement& weapon);
+    void SortTableIDOrder();
+    void ClampMultiplierStats(WeaponElement& weapon);
 
 private:
     std::map<std::string, WeaponElement> _weaponTable;
+    std::vector<WeaponElement*>          _weaponTableIdOrder;
 
 protected:
 
@@ -80,13 +84,9 @@ private:
         WeaponElement*        SelectWeapon      = nullptr;
         std::function<void()> RenameFunc;
 
-        bool                                                          ShowExcelParser = false;
-        std::unique_ptr<OpenXLSX::XLDocument>                         ExcelDoc;
-        std::vector<std::string>                                      SheetNames;
-        std::string                                                   SelectSheetName;
-        std::vector<std::pair<std::string, std::vector<std::string>>> SheetDatas;
-        std::queue<WeaponElement*>                                    DirtyWeaponElementQueue;
-        bool                                                          ShowDirtyWeaponPopup = false;
+        ImGuiColumnSheetParser     ColumnParser{"87159CF2-3513-401C-B7C9-5C7C7E7F6167", u8"giveChain"};
+        std::queue<WeaponElement*> DirtyWeaponElementQueue;
+        bool                       ShowDirtyWeaponPopup = false;
     };
 
 #ifdef _UMEDITOR
@@ -99,9 +99,6 @@ private:
 
     /*엑셀 파서 ImGuiDraw 함수*/
     void ImGuiDrawExcelParser();
-
-    /*엑셀 파서 ImGuiMenubar 함수*/
-    void ImGuiDrawExcelParserMenuBar();
 
     /*엑셀 데이터를 Element 데이터로 변환*/
     bool ExcelToWeaponElement(WeaponElement& element, const std::string& key, const std::string& data);

@@ -6,6 +6,7 @@
 struct CharacterStats;
 class SkeletalMeshRenderer;
 class AnimationComponent;
+class AudioTableComponent;
 
 class CharacterBase abstract : public TurnActor
 {
@@ -60,7 +61,7 @@ public:
     virtual void ClearState() override;
     virtual void Revive() override;
     virtual void Dead() override;
-    virtual void TakeDamage(int damage);
+    virtual void TakeDamage(int damage, bool playAnim = true);
     virtual void TakeChain(int chainDamage);
 
     // 연격 수를 설정합니다.
@@ -75,6 +76,8 @@ public:
     SkeletalMeshRenderer* GetSkeletalMeshRenderer() const { return _skeletalMeshRenderer; }
     // 애니메이션 컴포넌트를 반환합니다.
     AnimationComponent*   GetAnimationComponent() const { return _animationComponent; }
+    // 오디오 테이블 컴포넌트를 반환합니다.
+    AudioTableComponent*  GetAudioTableComponent() const { return _audioTableComponent; }
 
 protected:
     REFLECT_FIELDS_BEGIN(TurnActor)
@@ -84,11 +87,13 @@ private:
     TokenInventory          _tokenInventory;
     SkeletalMeshRenderer*   _skeletalMeshRenderer = nullptr;
     AnimationComponent*     _animationComponent   = nullptr;
+    AudioTableComponent*    _audioTableComponent  = nullptr;
 
 protected:
     virtual void Awake() override;
 
     void InitMeshModel();
+    void InitAudio();
     void InitAnimationCallback();
 
 public:

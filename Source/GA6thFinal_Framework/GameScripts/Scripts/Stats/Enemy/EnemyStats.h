@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Stats/CharacterStats.h"
+#include "ViewModels/HP/HpViewModel.h"
 
 struct EnemyStats : public CharacterStats
 {
@@ -45,4 +46,18 @@ public:
     EnemyStats(const EnemyStats& rhs) { CopyStats(rhs); }
     EnemyStats& operator=(const EnemyStats& rhs) { return CopyStats(rhs); }
 
+public:
+    void RegisterHP(const std::string& key)
+    {
+        if (false == key.empty())
+        {
+            UmWatcher.Unregister<HpViewModel>(key);
+            int maxHp = MaxHP;
+            UmWatcher.Register<HpViewModel>(key, _currentHP, maxHp);
+        }
+        else
+        {
+            UmLogger.Log(LogLevel::LEVEL_ERROR, "RegisterHP key is empty.");
+        }
+    }
 };
