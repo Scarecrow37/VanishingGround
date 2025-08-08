@@ -37,6 +37,7 @@ namespace GE
         SKYBOX,
         SSAO,
         SSAO_BLEND,
+        SSR,
         TO_BACKBUFFER,
         UI,
         UP_SAMPLE,

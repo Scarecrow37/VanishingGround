@@ -2,6 +2,7 @@
 #include "DeferredPBRLitPass.h"
 #include "SkyBox.h"
 #include "ShadowMapPass.h"
+#include "SSAOWritePass.h"
 
 DeferredPBRLitPass::~DeferredPBRLitPass() {}
 
@@ -30,8 +31,9 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
     const auto& renderTargetGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
 
     auto shadowMapPass = GetRenderPass<ShadowMapPass>();
+    auto ssaoPass      = GetRenderPass<SSAOWritePass>();
 
-    if (nullptr == shadowMapPass)
+    if (nullptr == shadowMapPass || nullptr == ssaoPass)
         return;
 
     commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_3_numLight"), 3, &_ownerScene->_numLight, 0);
@@ -45,7 +47,8 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("baseColorMap"), renderTargetGroup[GBuffer::BASECOLOR]->GetSRVHandle());
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("normalMap"), renderTargetGroup[GBuffer::NORMAL]->GetSRVHandle());
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("ormMap"), renderTargetGroup[GBuffer::ORM]->GetSRVHandle());
-    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("depthMap"), renderTargetGroup[GBuffer::DEPTH]->GetSRVHandle());
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("depthMap"), renderTargetGroup[GBuffer::DEPTH]->GetSRVHandle());    
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("SSAOMap"), ssaoPass->GetAOTexture());
 
     _ownerScene->_frameQuad->Render(commandList);
 }
