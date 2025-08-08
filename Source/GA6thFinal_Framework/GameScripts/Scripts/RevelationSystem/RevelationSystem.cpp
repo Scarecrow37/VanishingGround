@@ -553,7 +553,8 @@ void RevelationSystem::DeserializedReflectEvent()
 
 void RevelationSystem::ImGuiDrawPropertysEvent() 
 {
-    if(ImGui::Button("Table Editor"))
+#ifdef _UMEDITOR
+    if (ImGui::Button("Table Editor"))
     {
         _tableEditorOpen = true;
     }
@@ -649,6 +650,7 @@ void RevelationSystem::ImGuiDrawPropertysEvent()
 
     ImGuiDrawPlayerElementEditor();
     ImGuiDrawRoundElementList();
+#endif
 }
 
 void RevelationSystem::ImGuiDrawPlayerElementEditor() 
