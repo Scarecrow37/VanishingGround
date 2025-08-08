@@ -272,11 +272,6 @@ Texture* RibbonModule::GetAlbedoTexture() const
      delete _particleRenderModule;
      _particleRenderModule = nullptr;
 
-     // 4. 기타 컨테이너 정리 (안전성을 위해)
-     while (!_inactiveParticleIndices.empty())
-     {
-         _inactiveParticleIndices.pop();
-     }
  }
 
  ParticleEmitter::ParticleEmitter(const ParticleEmitter& other) 
@@ -376,19 +371,6 @@ void ParticleEmitter::Initialize(SIZE_T maxParticles /*= 100000*/, float emissio
     _maxParticles = maxParticles;
     _emissionRate = emissionRate;
     _particlePool.resize(_maxParticles);
-
-    while (false == _inactiveParticleIndices.empty())
-    {
-        _inactiveParticleIndices.pop();
-    }
-    for (size_t i = 0; i < maxParticles; ++i)
-    {
-        _inactiveParticleIndices.push(i);
-    }
-
-
-
-
 }
 
 
@@ -442,7 +424,6 @@ void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime)
         {
             _activeParticleCount--;
             std::swap(_particlePool[i], _particlePool[_activeParticleCount]);
-            _inactiveParticleIndices.push(_activeParticleCount);
             i--;
         }
     }
@@ -462,24 +443,18 @@ void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime)
         newParticles = static_cast<size_t>(_emissionThreshold);
         _emissionThreshold -= newParticles;
     }
-    while (0 < newParticles && false == _inactiveParticleIndices.empty())
+    
+    size_t availableSlots = _maxParticles - _activeParticleCount;
+    if (newParticles > availableSlots)
     {
-        size_t index = _inactiveParticleIndices.top();
-        _inactiveParticleIndices.pop();
-        if (index >= _activeParticleCount)
-        {
-            // SwapVectors(index, m_activeCount);
-            std::swap(_particlePool[index], _particlePool[_activeParticleCount]);
-            index = _activeParticleCount;
-        }
-        _activeParticleCount++;
-        AwakeParticle(static_cast<UINT>(index));
-        newParticles--;
+        newParticles = availableSlots;
     }
 
-
-
-
+    for (size_t i = 0; i < newParticles; ++i)
+    {
+        AwakeParticle(static_cast<UINT>(_activeParticleCount));
+        _activeParticleCount++;
+    }
 }
 
 
@@ -520,15 +495,7 @@ void ParticleEmitter::Reset()
     _delayTimer              = 0.f;
     _emitterAge              = 0.f;
     _activeParticleCount     = 0;
-    while (false == _inactiveParticleIndices.empty())
-    {
-        _inactiveParticleIndices.pop();
-    }
-    for (size_t i = 0; i < _maxParticles; ++i)
-    {
-        _inactiveParticleIndices.push(i);
-
-    }
+    _emissionThreshold       = 0;
 }
 
 void ParticleEmitter::InitializeLocator(LocationShape locatorShape , Vector3 factor) 

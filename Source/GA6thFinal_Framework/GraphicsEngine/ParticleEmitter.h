@@ -250,7 +250,6 @@ protected :
 
     // particle pooling
     SIZE_T             _activeParticleCount = 0;
-    std::stack<SIZE_T> _inactiveParticleIndices;
 
     // rotation, translation matrix for scene graph ( manager - system - emitter - particles )
 
