@@ -61,10 +61,11 @@ namespace Command
         class AddComponentCommand : public UmCommand
         {
         public:
-            AddComponentCommand(GameObject* ownerObject, std::string_view type_id);
+            AddComponentCommand(GameObject* ownerObject, std::string_view type_id, Component** pOutComponent = nullptr);
             virtual ~AddComponentCommand() = default;
 
         private:
+            Component**                _pOutComponent;
             std::shared_ptr<Component> _addComponent;
             std::weak_ptr<GameObject>  _ownerObject;
             std::string                _typeName;
