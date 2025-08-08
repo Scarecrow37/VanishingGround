@@ -120,6 +120,9 @@ void ESceneManager::Engine::CleanupSceneManager()
 
     //Render component들
     engineCore->SceneManager._runtimeMeshComponents.clear();
+
+    //리소스
+    SceneResourceManager::Engine::CleanUp(engineCore->SceneManager.ResourceManager);
 }
 
 void ESceneManager::Engine::SceneUpdate()
@@ -1775,6 +1778,18 @@ void ESceneManager::SceneResourceManager::Engine::Update(SceneResourceManager& m
         manager.UpdateRenderResource(manager._textures);
         manager.UpdateRenderResource(manager._fonts);
     }
+}
+
+void ESceneManager::SceneResourceManager::Engine::CleanUp(SceneResourceManager& manager) 
+{
+    manager._models.ResourceLoadQueue.clear();
+    manager._models.RenderResource.clear();
+
+    manager._textures.ResourceLoadQueue.clear();
+    manager._textures.RenderResource.clear();
+
+    manager._fonts.ResourceLoadQueue.clear();
+    manager._fonts.RenderResource.clear();
 }
 
 void ESceneManager::SceneResourceManager::RequestModelResource(const Component* component, const File::Guid& guid,
