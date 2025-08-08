@@ -33,6 +33,9 @@ protected:
     /// </summary>
     virtual void OnDrawDebugSelectedOverride() {};
 
+protected:
+    void ImGuiDrawPropertysEvent() override;
+
 private:
     void OnDrawDebug() override;
     void OnDrawDebugSelected() override;
@@ -41,6 +44,7 @@ protected:
     REFLECT_FIELDS_BEGIN(Component)
     REFLECT_FIELDS_END(UIComponent)
 
+    static bool _isDebug;
 };
 
 template <typename T>

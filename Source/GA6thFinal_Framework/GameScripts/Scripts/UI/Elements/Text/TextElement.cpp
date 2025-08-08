@@ -41,7 +41,7 @@ void TextElement::SetFont(const File::GuidRef& guidRef)
 
 void TextElement::Reset()
 {
-    EditablePlacementUIComponent::Reset();
+    DrawUIComponent::Reset();
 
     try
     {
@@ -64,7 +64,7 @@ void TextElement::Reset()
 
 void TextElement::DeserializedReflectEvent()
 {
-    EditablePlacementUIComponent::DeserializedReflectEvent();
+    DrawUIComponent::DeserializedReflectEvent();
 
     const File::Guid guid = ReflectFields->Guid;
     if (const auto path = guid.ToPath(); !path.IsNull())
@@ -75,7 +75,7 @@ void TextElement::DeserializedReflectEvent()
 
 void TextElement::OnPlacementChange()
 {
-    EditablePlacementUIComponent::OnPlacementChange();
+    DrawUIComponent::OnPlacementChange();
 
     UpdatePosition();
 
@@ -87,7 +87,7 @@ void TextElement::OnPlacementChange()
 
 float TextElement::GetZOrder() const
 {
-    return EditablePlacementUIComponent::GetZOrder() * VIEW_ORDER_TEXT_RATIO + VIEW_ORDER_TEXT_OFFSET;
+    return DrawUIComponent::GetZOrder() * VIEW_ORDER_TEXT_RATIO + VIEW_ORDER_TEXT_OFFSET;
 }
 
 void TextElement::LoadFont() const
@@ -105,7 +105,7 @@ void TextElement::LoadFont() const
 
 void TextElement::SetViewOrder(const int viewOrder)
 {
-    EditablePlacementUIComponent::SetViewOrder(viewOrder);
+    DrawUIComponent::SetViewOrder(viewOrder);
 
     UpdatePosition();
 }
@@ -188,7 +188,7 @@ void TextElement::FitContent()
 
     if (contentSize != previousSize)
     {
-        Size = contentSize;
+        //Size = contentSize;
         SpreadPlacementToParent();
     }
 }

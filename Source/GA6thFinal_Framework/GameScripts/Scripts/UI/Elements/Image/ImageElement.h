@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "UI/Base/EditablePlacementUIComponent/EditablePlacementUIComponent.h"
+#include "UI/Base/DrawUIComponent/DrawUIComponent.h"
 
-class ImageElement : public EditablePlacementUIComponent
+class ImageElement : public DrawUIComponent
 {
     USING_PROPERTY(ImageElement)
 
@@ -35,7 +35,7 @@ private:
     void RequestResource();
 
 protected:
-    REFLECT_FIELDS_BEGIN(EditablePlacementUIComponent)
+    REFLECT_FIELDS_BEGIN(DrawUIComponent)
     std::string Guid;
     REFLECT_FIELDS_END(ImageElement)
 

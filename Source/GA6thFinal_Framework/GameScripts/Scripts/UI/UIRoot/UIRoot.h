@@ -12,7 +12,7 @@ public:
     UIRoot();
 
 public:
-    void SortViewOrder();
+    void SortViewOrder() const;
 
 protected:
     void OnAttachChild(GameObject* childGameObject) override;

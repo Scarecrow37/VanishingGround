@@ -37,7 +37,7 @@ void ImageElement::SetImage(const File::GuidRef& guidRef)
 
 void ImageElement::Reset()
 {
-    EditablePlacementUIComponent::Reset();
+    DrawUIComponent::Reset();
 
     try
     {
@@ -60,7 +60,7 @@ void ImageElement::Reset()
 
 void ImageElement::DeserializedReflectEvent()
 {
-    EditablePlacementUIComponent::DeserializedReflectEvent();
+    DrawUIComponent::DeserializedReflectEvent();
 
     const File::Guid guid = ReflectFields->Guid;
     if (const auto path = guid.ToPath(); !path.IsNull())
@@ -71,7 +71,7 @@ void ImageElement::DeserializedReflectEvent()
 
 void ImageElement::OnPlacementChange()
 {
-    EditablePlacementUIComponent::OnPlacementChange();
+    DrawUIComponent::OnPlacementChange();
 
     if (nullptr != _renderer)
     {
@@ -83,12 +83,12 @@ void ImageElement::OnPlacementChange()
 
 float ImageElement::GetZOrder() const
 {
-    return EditablePlacementUIComponent::GetZOrder() * VIEW_ORDER_IMAGE_RATIO;
+    return DrawUIComponent::GetZOrder() * VIEW_ORDER_IMAGE_RATIO;
 }
 
 void ImageElement::SetViewOrder(const int viewOrder)
 {
-    EditablePlacementUIComponent::SetViewOrder(viewOrder);
+    DrawUIComponent::SetViewOrder(viewOrder);
 
     UpdateWorldMatrix();
 }

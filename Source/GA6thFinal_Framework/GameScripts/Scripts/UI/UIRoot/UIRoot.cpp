@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "UIRoot.h"
 
+#include "UI/Base/DrawUIComponent/DrawUIComponent.h"
 #include "UI/Base/EditablePlacementUIComponent/EditablePlacementUIComponent.h"
 
 UIRoot::UIRoot()
@@ -42,18 +43,19 @@ void UIRoot::OnPlacementChange()
     std::ranges::for_each(slots, [this](UIRootSlot* slot) { AssignChild(*slot); });
 }
 
-void UIRoot::SortViewOrder()
+void UIRoot::SortViewOrder() const
 {
     int startOrder = 0;
-    SetViewOrder(startOrder++);
 
     Transform& transform = this->transform;
+
     Transform::ForeachPostOrder(transform, [&startOrder](const Transform* dfsTransform) {
         const GameObject& gameObject = dfsTransform->gameObject;
-        auto              components = gameObject.GetComponents<PlacementUIComponent>();
-        std::ranges::for_each(components, [&startOrder](PlacementUIComponent* component) {
-            component->SetViewOrder(startOrder++); // 초기값은 0으로 설정
-        });
+
+        auto components = gameObject.GetComponents<DrawUIComponent>();
+
+        std::ranges::for_each(components,
+                              [&startOrder](DrawUIComponent* component) { component->SetViewOrder(startOrder++); });
     });
 }
 

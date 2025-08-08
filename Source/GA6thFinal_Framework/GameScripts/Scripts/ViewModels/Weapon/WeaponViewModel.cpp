@@ -74,127 +74,131 @@ struct GetWeaponBackground
         return backgroundGuid;
     }
 };
-struct GetIconGuid
-{
-    enum class IconType : char
-    {
-        HIT,
-        CRITICAL,
-        SPEED,
-        ATTACK_COUNT,
-        BLEEDING,
-        STUN
-    };
-    std::wstring operator()(const IconType type) const
-    {
-        std::wstring guid;
-        switch (type)
-        {
-        case IconType::HIT: {
-            const File::Path& path = UmFileSystem.GetPathFromAssetID(110010);
-            guid                   = path.ToGuid();
-        }
-        break;
-        case IconType::CRITICAL: {
-            const File::Path& path = UmFileSystem.GetPathFromAssetID(110011);
-            guid                   = path.ToGuid();
-        }
-        break;
-        case IconType::SPEED: {
-            const File::Path& path = UmFileSystem.GetPathFromAssetID(110013);
-            guid                   = path.ToGuid();
-        }
-        break;
-        case IconType::ATTACK_COUNT: {
-            const File::Path& path = UmFileSystem.GetPathFromAssetID(110012);
-            guid                   = path.ToGuid();
-        }
-        break;
-        case IconType::BLEEDING: {
-            const File::Path& path = UmFileSystem.GetPathFromAssetID(111700);
-            guid                   = path.ToGuid();
-        }
-        break;
-        case IconType::STUN: {
-            const File::Path& path = UmFileSystem.GetPathFromAssetID(111703);
-            guid                   = path.ToGuid();
-        }
-        break;
-        }
-        return guid;
-    }
-};
 
-struct GetWeaponDescription
+namespace
 {
-    std::pair<std::wstring, std::wstring> operator()(const int weaponId) const
+    struct GetIconGuid
     {
-        constexpr GetIconGuid               getIconGuid;
-        std::pair<std::wstring, std::wstring> description{};
-        switch (weaponId)
+        enum class IconType : char
         {
-        case 11004: // 녹슨자의 검
-            description.first += L"<Description>"
-                                 L"<Text color=\"#ffd966\">치명적</Text>"
-                                 L"</Description>";
-            description.second += L"<Description>"
-                                  L"<Text color=\"#ffffff\">영구적으로</Text>"
-                                  L"<Image guid=\"" +
-                                  getIconGuid(GetIconGuid::IconType::CRITICAL) +
-                                  L"\"/>"
-                                  L"<Text color=\"#ffffff\">+1</Text>"
-                                  L"</Description>";
+            HIT,
+            CRITICAL,
+            SPEED,
+            ATTACK_COUNT,
+            BLEEDING,
+            STUN
+        };
+        std::wstring operator()(const IconType type) const
+        {
+            std::wstring guid;
+            switch (type)
+            {
+            case IconType::HIT: {
+                const File::Path& path = UmFileSystem.GetPathFromAssetID(110010);
+                guid                   = path.ToGuid();
+            }
             break;
-        case 11200: // 돌격 대장의 망치
-            description.first += L"<Description>"
-                                 L"<Text color=\"#ffd966\">무결점</Text>"
-                                 L"</Description>";
-            description.second += L"<Description>"
-                                  L"<Text color=\"#ffffff\">적</Text>"
-                                  L"<Image guid=\"" +
-                                  getIconGuid(GetIconGuid::IconType::STUN) +
-                                  L"\"/>"
-                                  L"<Text color=\"#ffffff\">1 부여</Text>"
-                                  L"</Description>";
+            case IconType::CRITICAL: {
+                const File::Path& path = UmFileSystem.GetPathFromAssetID(110011);
+                guid                   = path.ToGuid();
+            }
             break;
-        case 11000: // 돌파자의 장검
-            description.first += L"<Description>"
-                                 L"<Text color=\"#ffffff\">(체력=100%)</Text>"
-                                 L"<Text color=\"#5c6c8b\">적</Text>"
-                                 L"<Text color=\"#ffffff\"> 대상</Text>"
-                                 L"</Description>";
-            description.second += L"<Description>"
-                                  L"<Image guid=\"" +
-                                  getIconGuid(GetIconGuid::IconType::HIT) +
-                                  L"\"/>"
-                                  L"<Text color=\"#ffffff\">+8</Text>"
-                                  L"<Image guid=\"" +
-                                  getIconGuid(GetIconGuid::IconType::CRITICAL) +
-                                  L"\"/>"
-                                  L"<Text color=\"#ffffff\">+10</Text>"
-                                  L"</Description>";
+            case IconType::SPEED: {
+                const File::Path& path = UmFileSystem.GetPathFromAssetID(110013);
+                guid                   = path.ToGuid();
+            }
             break;
-        case 11101: // 제물의 단검
-            description.first += L"<Description>"
-                                 L"<Text color=\"#ffd966\">무결점</Text>"
-                                 L"</Description>";
-            description.second += L"<Description>"
-                                  L"<Text color=\"#ffffff\">적</Text>"
-                                  L"<Image guid=\"" +
-                                  getIconGuid(GetIconGuid::IconType::BLEEDING) +
-                                  L"\"/>"
-                                  L"<Text color=\"#ffffff\">1 부여</Text>"
-                                  L"</Description>";
+            case IconType::ATTACK_COUNT: {
+                const File::Path& path = UmFileSystem.GetPathFromAssetID(110012);
+                guid                   = path.ToGuid();
+            }
             break;
-        default:
-            description.first += L"<Description>"
-                                 L"<Text color=\"#ffffff\">알 수 없는 무기</Text>"
-                                 L"</Description>";
+            case IconType::BLEEDING: {
+                const File::Path& path = UmFileSystem.GetPathFromAssetID(111700);
+                guid                   = path.ToGuid();
+            }
             break;
+            case IconType::STUN: {
+                const File::Path& path = UmFileSystem.GetPathFromAssetID(111703);
+                guid                   = path.ToGuid();
+            }
+            break;
+            }
+            return guid;
         }
-        return description;
-    }
-};
+    };
+    struct GetWeaponDescription
+    {
+        std::pair<std::wstring, std::wstring> operator()(const int weaponId) const
+        {
+            constexpr GetIconGuid                 getIconGuid;
+            std::pair<std::wstring, std::wstring> description{};
+            switch (weaponId)
+            {
+            case 11004: // 녹슨자의 검
+                description.first += L"<Description>"
+                                     L"<Text color=\"#ffd966\">치명적</Text>"
+                                     L"</Description>";
+                description.second += L"<Description>"
+                                      L"<Text color=\"#ffffff\">영구적으로</Text>"
+                                      L"<Image guid=\"" +
+                                      getIconGuid(GetIconGuid::IconType::CRITICAL) +
+                                      L"\"/>"
+                                      L"<Text color=\"#ffffff\">+1</Text>"
+                                      L"</Description>";
+                break;
+            case 11200: // 돌격 대장의 망치
+                description.first += L"<Description>"
+                                     L"<Text color=\"#ffd966\">무결점</Text>"
+                                     L"</Description>";
+                description.second += L"<Description>"
+                                      L"<Text color=\"#ffffff\">적</Text>"
+                                      L"<Image guid=\"" +
+                                      getIconGuid(GetIconGuid::IconType::STUN) +
+                                      L"\"/>"
+                                      L"<Text color=\"#ffffff\">1 부여</Text>"
+                                      L"</Description>";
+                break;
+            case 11000: // 돌파자의 장검
+                description.first += L"<Description>"
+                                     L"<Text color=\"#ffffff\">(체력=100%)</Text>"
+                                     L"<Text color=\"#5c6c8b\">적</Text>"
+                                     L"<Text color=\"#ffffff\"> 대상</Text>"
+                                     L"</Description>";
+                description.second += L"<Description>"
+                                      L"<Image guid=\"" +
+                                      getIconGuid(GetIconGuid::IconType::HIT) +
+                                      L"\"/>"
+                                      L"<Text color=\"#ffffff\">+8</Text>"
+                                      L"<Image guid=\"" +
+                                      getIconGuid(GetIconGuid::IconType::CRITICAL) +
+                                      L"\"/>"
+                                      L"<Text color=\"#ffffff\">+10</Text>"
+                                      L"</Description>";
+                break;
+            case 11101: // 제물의 단검
+                description.first += L"<Description>"
+                                     L"<Text color=\"#ffd966\">무결점</Text>"
+                                     L"</Description>";
+                description.second += L"<Description>"
+                                      L"<Text color=\"#ffffff\">적</Text>"
+                                      L"<Image guid=\"" +
+                                      getIconGuid(GetIconGuid::IconType::BLEEDING) +
+                                      L"\"/>"
+                                      L"<Text color=\"#ffffff\">1 부여</Text>"
+                                      L"</Description>";
+                break;
+            default:
+                description.first += L"<Description>"
+                                     L"<Text color=\"#ffffff\">알 수 없는 무기</Text>"
+                                     L"</Description>";
+                break;
+            }
+            return description;
+        }
+    };
+} // namespace
+
 
 WeaponViewModel::WeaponViewModel(MVVM::Model<TurnActor*>& model): MVVM::ViewModel<TurnActor*, WeaponUIData>(model) {}
 

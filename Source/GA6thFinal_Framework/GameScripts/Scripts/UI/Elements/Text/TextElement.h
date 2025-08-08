@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "UI/Base/EditablePlacementUIComponent/EditablePlacementUIComponent.h"
+#include "UI/Base/DrawUIComponent/DrawUIComponent.h"
 
-class TextElement : public EditablePlacementUIComponent
+class TextElement : public DrawUIComponent
 {
     USING_PROPERTY(TextElement)
 
@@ -81,7 +81,7 @@ private:
     void FitContent();
 
 protected:
-    REFLECT_FIELDS_BEGIN(EditablePlacementUIComponent)
+    REFLECT_FIELDS_BEGIN(DrawUIComponent)
     std::string          Guid;
     std::string          Text         = "Hello Um!";
     std::array<float, 4> Color        = {0.0f, 0.0f, 0.0f, 1.0f};

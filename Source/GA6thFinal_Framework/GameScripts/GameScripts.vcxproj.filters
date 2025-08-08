@@ -136,6 +136,8 @@
     <ClCompile Include="Scripts\ViewModels\Hp\HpViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Revelations\RevelationsViewModel.cpp" />
     <ClCompile Include="Scripts\UI\Views\RevelationsView\RevelationsView.cpp" />
+    <ClCompile Include="Scripts\Audio\BGMManager.cpp" />
+    <ClCompile Include="Scripts\UI\Base\DrawUIComponent\DrawUIComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h" />
@@ -290,6 +292,8 @@
     <ClInclude Include="Scripts\ViewModels\Hp\HpViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Revelations\RevelationsViewModel.h" />
     <ClInclude Include="Scripts\UI\Views\RevelationsView\RevelationsView.h" />
+    <ClInclude Include="Scripts\Audio\BGMManager.h" />
+    <ClInclude Include="Scripts\UI\Base\DrawUIComponent\DrawUIComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
