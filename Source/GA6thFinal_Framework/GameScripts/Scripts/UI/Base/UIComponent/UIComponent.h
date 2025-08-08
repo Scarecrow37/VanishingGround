@@ -21,8 +21,17 @@ protected:
     /// <param name="previousParentGameObject">이전에 연결되어 있던 부모 GameObject에 대한 포인터입니다.</param>
     virtual void OnDetachParent(GameObject* previousParentGameObject) {};
 
-    virtual void DrawDebug() {};
-    virtual void DrawDebugSelected() {};
+    /// <summary>
+    /// OnDrawDebug에 의해 호출되는 디버그 오버라이드 함수입니다.
+    /// EnableInHierarchy가 true일 때만 호출됩니다.
+    /// </summary>
+    virtual void OnDrawDebugOverride() {};
+
+    /// <summary>
+    /// OnDrawDebugSelected에 의해 호출되는 디버그 선택 오버라이드 함수입니다.
+    /// EnableInHierarchy가 true일 때만 호출됩니다.
+    /// </summary>
+    virtual void OnDrawDebugSelectedOverride() {};
 
 private:
     void OnDrawDebug() override;

@@ -3,9 +3,9 @@
 
 EditablePlacementUIComponent::EditablePlacementUIComponent() = default;
 
-void EditablePlacementUIComponent::DrawDebug()
+void EditablePlacementUIComponent::OnDrawDebugOverride()
 {
-    UIComponent::DrawDebug();
+    UIComponent::OnDrawDebugOverride();
 
     DrawQuad([](const POINT& leftTop, const POINT& rightTop, const POINT& rightBottom, const POINT& leftBottom) {
         const XMFLOAT2 leftTopVector     = {static_cast<float>(leftTop.x), static_cast<float>(leftTop.y)};
@@ -17,9 +17,9 @@ void EditablePlacementUIComponent::DrawDebug()
     });
 }
 
-void EditablePlacementUIComponent::DrawDebugSelected()
+void EditablePlacementUIComponent::OnDrawDebugSelectedOverride()
 {
-    UIComponent::DrawDebugSelected();
+    UIComponent::OnDrawDebugSelectedOverride();
 
     DrawQuad([](const POINT& leftTop, const POINT& rightTop, const POINT& rightBottom, const POINT& leftBottom) {
         const XMFLOAT2 leftTopVector{static_cast<float>(leftTop.x), static_cast<float>(leftTop.y)};

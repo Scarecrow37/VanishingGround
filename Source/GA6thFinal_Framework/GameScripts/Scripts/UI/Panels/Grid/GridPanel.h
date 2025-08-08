@@ -42,8 +42,8 @@ public:
 
 protected:
     void OnAttachChild(GameObject* childGameObject) override;
-    void DrawDebug() override;
-    void DrawDebugSelected() override;
+    void OnDrawDebugOverride() override;
+    void OnDrawDebugSelectedOverride() override;
     void OnPlacementChange() override;
 
 private:

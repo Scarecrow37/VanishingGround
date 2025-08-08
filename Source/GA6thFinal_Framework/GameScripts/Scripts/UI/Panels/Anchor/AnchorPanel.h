@@ -70,7 +70,7 @@ public:
 protected:
     void OnPlacementChange() override;
     void ImGuiDrawPropertysEvent() override;
-    void DrawDebugSelected() override;
+    void OnDrawDebugSelectedOverride() override;
 
 private:
     void UpdateAnchorPoint();

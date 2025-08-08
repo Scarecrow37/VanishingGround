@@ -21,9 +21,9 @@ void GridPanel::OnAttachChild(GameObject* childGameObject)
     AssignChild(slot);
 }
 
-void GridPanel::DrawDebug()
+void GridPanel::OnDrawDebugOverride()
 {
-    EditablePlacementUIComponent::DrawDebug();
+    EditablePlacementUIComponent::OnDrawDebugOverride();
 
     const LineCallback callback = [](const POINT& start, const POINT& end) {
         const XMFLOAT2 startVector = {static_cast<float>(start.x), static_cast<float>(start.y)};
@@ -35,9 +35,9 @@ void GridPanel::DrawDebug()
     DrawSubline(callback, callback);
 }
 
-void GridPanel::DrawDebugSelected()
+void GridPanel::OnDrawDebugSelectedOverride()
 {
-    EditablePlacementUIComponent::DrawDebugSelected();
+    EditablePlacementUIComponent::OnDrawDebugSelectedOverride();
 
     const LineCallback column = [](const POINT& start, const POINT& end) {
         const XMFLOAT2 startVector = {static_cast<float>(start.x), static_cast<float>(start.y)};

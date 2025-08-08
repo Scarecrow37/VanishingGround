@@ -35,8 +35,8 @@ public:
     PROPERTY(Size)
 
 protected:
-    void DrawDebug() override;
-    void DrawDebugSelected() override;
+    void OnDrawDebugOverride() override;
+    void OnDrawDebugSelectedOverride() override;
     void ImGuiDrawPropertysEvent() override;
 
 private:

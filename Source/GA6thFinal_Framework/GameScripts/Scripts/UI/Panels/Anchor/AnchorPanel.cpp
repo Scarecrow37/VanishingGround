@@ -75,9 +75,9 @@ void AnchorPanelSlot::ImGuiDrawPropertysEvent()
     ImGui::Text("Anchor");
 }
 
-void AnchorPanelSlot::DrawDebugSelected()
+void AnchorPanelSlot::OnDrawDebugSelectedOverride()
 {
-    PanelSlotComponent::DrawDebugSelected();
+    PanelSlotComponent::OnDrawDebugSelectedOverride();
 
     auto [anchorX, anchorY] = ReflectFields->AnchorPoint;
 
