@@ -42,6 +42,7 @@ namespace EnemyAction
         if ("Attack_1" == label || "Attack_2" == label)
         {
             ProcessBattle(4);
+            PlaySoundFromKey("AttackHit0");
         }
     }
 } // namespace EnemyAction

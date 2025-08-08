@@ -7,7 +7,7 @@
 #include <WeaponSystem/WeaponSystem.h>
 #include <Mesh/SkeletalMeshRenderer.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
-
+#include <Particle/ParticleComponent.h>
 //Condition
 #include "Condition/PlayerStartCondition.h"
 #include "Condition/PlayerExitCondition.h"
@@ -17,6 +17,7 @@
 #include "State/PlayerWaitTurnState.h"
 #include "State/PlayerPlayTurnState.h"
 #include "State/PlayerDeadState.h"
+
 
 Player::Player()
 {
@@ -39,6 +40,7 @@ void Player::Awake()
     Base::Awake();
     gameObject->AddTag(TAG);
     BuildPlayerFSM();
+    
 
     if (nullptr == GetPlayerStats())
     {
@@ -121,14 +123,14 @@ void Player::Dead()
     }
 }
 
-void Player::TakeDamage(int damage)
+void Player::TakeDamage(int damage, bool playAnim)
 {  
     // TODO: 피격 애니메이션 재생
     // 예외 사항 - 피격 애니메이션 재생 종료 후 원래 애니메이션으로 돌아가야함.
 
     // 혹시나 그럴 일 없겠지만 중간에 계산할 연산이 또 있다면 재연산
     int takeDamage = damage;
-    Base::TakeDamage(takeDamage);
+    Base::TakeDamage(takeDamage, playAnim);
 }
 
 
@@ -250,4 +252,26 @@ void Player::OnTokenAdded(int tokenID)
 void Player::OnTokenRemoved(int tokenID)
 {
     Base::OnTokenRemoved(tokenID);
+}
+
+void Player::OnNotifiedAnimationEvent(const Timeline::EventContext* context)
+{
+    auto* modelTransform = transform->Find(MODEL_NAME);
+    if (nullptr == modelTransform)
+        return;
+    auto particlecomponent = modelTransform->gameObject->GetComponent<ParticleComponent>();
+    if (nullptr == particlecomponent)
+        return;
+    if ("castingStart" == context->GetLabel())
+    {
+        particlecomponent->PlayEffect();
+    }
+    if ("attackEnd" == context->GetLabel())
+    {
+        particlecomponent->StopEffect();
+    }
+        
+
+
+
 }

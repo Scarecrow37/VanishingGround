@@ -81,6 +81,7 @@ struct PostProcessData
     float2 ScreenSize;
     float2 TexelSize;
     uint PostProcessMask;
+    uint MipLevel;
 };
 
 struct CascadeData

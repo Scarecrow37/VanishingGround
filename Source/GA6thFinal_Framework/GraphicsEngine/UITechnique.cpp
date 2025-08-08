@@ -23,6 +23,9 @@ void UITechnique::Initialize(ID3D12GraphicsCommandList* commandList)
     pass = std::make_unique<UI3DPass>(_renderDatas[MODE_3D]);
     pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));
+
+    _depthStencilView = MakeSharedResource<DepthStencilView>();
+    _depthStencilView->Initialize(_ownerScene->_depthStencilView->GetDesc());
 }
 
 void UITechnique::Execute(ID3D12GraphicsCommandList* commandList)

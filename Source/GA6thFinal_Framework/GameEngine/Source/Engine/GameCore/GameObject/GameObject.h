@@ -266,12 +266,8 @@ public:
 
  private:
     //IEditorObject에서 상속됨
-
-    /* InspectorView에 SetFocus 될 때 호출 구현 X */
-     virtual void OnInspectorEnter();
-    /* InspectorView의 Draw단계에 호출 */
-    virtual void OnInspectorStay();
-
+    void OnInspectorBegin() override;
+    void OnInspectorStay() override;
 
 //프로퍼티
 public:

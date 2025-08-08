@@ -62,12 +62,12 @@ void AudioComponent::DeserializedReflectEvent()
 void AudioComponent::ImGuiDrawPropertysEvent()
 {
     Component::ImGuiDrawPropertysEvent();
-    if (ImGui::Button("Play"))
+    if (ImGui::Button(EditorIcon::ICON_PLAY))
     {
         Play();
     }
     ImGui::SameLine();
-    if (ImGui::Button("Stop"))
+    if (ImGui::Button(EditorIcon::ICON_STOP))
     {
         Stop();
     }

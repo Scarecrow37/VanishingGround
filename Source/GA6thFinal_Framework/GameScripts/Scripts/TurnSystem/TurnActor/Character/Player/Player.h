@@ -12,6 +12,7 @@ public:
     inline static constexpr const char* TAG = "Player";
   
 
+
 public:
     REFLECT_PROPERTY(
         Shield
@@ -50,7 +51,7 @@ public:
     /*플레이어를 사망 상태로 만듭니다.*/
     virtual void Dead() override;
     /*플레이어에게 피격을 가합니다.*/
-    virtual void TakeDamage(int damage) override;
+    virtual void TakeDamage(int damage, bool playAnim = true) override;
 
     inline static Player* GetInstance() { return static_instance; }
     FiniteStateMachine& GetFSM() { return *_finiteStateMachine; }
@@ -107,4 +108,5 @@ public:
     virtual void OnKill(CharacterBase* destination) override;
     virtual void OnTokenAdded(int tokenID) override;
     virtual void OnTokenRemoved(int tokenID) override;
+    void OnNotifiedAnimationEvent(const Timeline::EventContext* context) override;
 };

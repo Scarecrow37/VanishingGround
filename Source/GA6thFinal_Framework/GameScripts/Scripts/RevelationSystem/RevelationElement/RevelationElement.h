@@ -23,11 +23,31 @@ class RevelationElement : public ReflectSerializer
     friend class RevelationSystem;
     USING_PROPERTY(RevelationElement)
 public:
+    static constexpr int GetGradeID(RevelationGrade grade)
+    {
+        switch (grade)
+        {
+        case RevelationGrade::COMMON:
+            return 300000;
+        case RevelationGrade::RARE:
+            return 300001;
+        case RevelationGrade::LEGENDARY:
+            return 300003;
+        case RevelationGrade::EXTINCTION:
+            return 300004;
+        default:
+            return -1;
+        }
+    }
+
     RevelationElement() = default;
     ~RevelationElement() override = default; 
    
 public:
-    REFLECT_PROPERTY()
+    REFLECT_PROPERTY(
+        ElementName, 
+        Grade, 
+        RevelationID)
     
     void SetName(std::string_view elementName) { ReflectFields->ElementName = elementName; }
     GETTER_ONLY(const std::string&, ElementName) { return ReflectFields->ElementName; }

@@ -22,6 +22,7 @@ namespace Global
     RenderPassDatas*                               renderPassDatas;
     ModuleManager*                                 moduleManager;
     PipelineStateManager*                          pipelineStateManager;
+    bool                                           isRayTracing = false;
     std::unordered_map<std::wstring, std::wstring> shaderPathMappings;
 };
 

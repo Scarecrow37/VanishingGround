@@ -7,6 +7,8 @@
 #include <TurnSystem/TurnMode/State/CombatStartPhase.h>
 #include <WeaponSystem/WeaponSystem.h>
 #include <Animation/AnimationComponent.h>
+#include <Audio/Table/AudioTableComponent.h>
+#include <Particle/ParticleComponent.h>
 
 using namespace u8_literals;
 
@@ -40,6 +42,57 @@ void PlayerPlayTurnState::OnAwake()
 
     BindInputAction(ControllerButton::Y, Action::PRESSED, &GetFSM(), this, &PlayerPlayTurnState::PressedButtonY);
     BindInputAction(ControllerButton::Y, Action::RELEASED, &GetFSM(), this, &PlayerPlayTurnState::ReleasedButtonY);
+
+    Player&             player       = GetPlayer();
+    WeaponSystem*       weaponSystem = WeaponSystem::GetInstance();
+    const WeaponStats&  weapontype   = weaponSystem->GetCurrentWeaponStats();
+    AnimationComponent* weaponanim;
+    ParticleComponent*  weaponeffect;
+    weaponAnims.resize(3);
+    weaponEffects.resize(3);
+    
+    Transform* weapontransform = player.transform->Find("sword");
+    if (nullptr != weapontransform)
+    {
+        weaponanim   = weapontransform->gameObject->GetComponent<AnimationComponent>();
+        weaponeffect = weapontransform->gameObject->GetComponent<ParticleComponent>();
+    }
+    else
+    {
+        weaponanim   = nullptr;
+        weaponeffect = nullptr;
+    }
+    weaponAnims[0]   = weaponanim;
+    weaponEffects[0] = weaponeffect;
+
+    weapontransform = player.transform->Find("dagger");
+    if (nullptr != weapontransform)
+    {
+        weaponanim   = weapontransform->gameObject->GetComponent<AnimationComponent>();
+        weaponeffect = weapontransform->gameObject->GetComponent<ParticleComponent>();
+    }
+    else
+    {
+        weaponanim   = nullptr;
+        weaponeffect = nullptr;
+    }
+    weaponAnims[1]   = weaponanim;
+    weaponEffects[1] = weaponeffect;
+
+    weapontransform = player.transform->Find("mace");
+    if (nullptr != weapontransform)
+    {
+        weaponanim   = weapontransform->gameObject->GetComponent<AnimationComponent>();
+        weaponeffect = weapontransform->gameObject->GetComponent<ParticleComponent>();
+    }
+    else
+    {
+        weaponanim   = nullptr;
+        weaponeffect = nullptr;
+    }
+    weaponAnims[2]   = weaponanim;
+    weaponEffects[2] = weaponeffect;
+
 }
 
 void PlayerPlayTurnState::OnStart() 
@@ -109,7 +162,7 @@ void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
                 _setImguiPosCenter = true;
                 _attackTargets.clear();
             }
-            SetAttackReadyAnimation();
+            SetAttackReady();
         }
     }
 }
@@ -244,7 +297,7 @@ void PlayerPlayTurnState::UpdateQuickTimeEventUI(float dt)
                 {
                     turnMode->ApplyActions([&player](TurnAction& action) { action.OnPlayerQTEResult(player); });
                 }
-                SetAttackAnimation();
+                SetAttack();
             }
         }
         else
@@ -263,21 +316,20 @@ void PlayerPlayTurnState::UpdateAttackEventUI(float dt)
         TurnMode* turnMode = TurnMode::GetInstance();
         if (turnMode)
         {
-            float   delay  = 0.5f;
             Player& player = GetPlayer();
-            for (auto& target : _attackTargets)
+            if (_attackTargets.empty())
             {
-                UmTime.Invoke(&GetFSM(), delay, [&player, target]() { Battle()(player, target); });
-                delay += 0.5f;
+                SetAttackEnd();
             }
-            _attackTargets.clear();
-            _inputState = InputState::NONE;
-            UmTime.Invoke(&GetFSM(), delay, [&]()
+            else
             {
-                auto& player = GetPlayer();
-                SetAttackEndAnimation();
-            });
-           
+                for (auto iter = _attackTargets.rbegin(); iter != _attackTargets.rend(); ++iter)
+                {
+                    PushWeaponAnimation(*iter);
+                }
+                _attackTargets.clear();
+            }
+            _inputState = InputState::NONE;
         }
     }
     ImGui::End();
@@ -297,10 +349,11 @@ void PlayerPlayTurnState::PushAttackTarget(Battle::EnemyTargetFlag_ target)
     }
 }
 
-void PlayerPlayTurnState::SetAttackReadyAnimation()
+void PlayerPlayTurnState::SetAttackReady()
 {
     Player& player = GetPlayer();
-    auto*   animator = player.GetAnimationComponent();
+    auto* animator = player.GetAnimationComponent();
+    auto* audioTable = player.GetAudioTableComponent();
     if (animator)
     {
         animator->BeginBuildOverrideAnimation();
@@ -315,12 +368,17 @@ void PlayerPlayTurnState::SetAttackReadyAnimation()
         }
         animator->EndBuildOverrideAnimation();
     }
+    if (audioTable)
+    {
+        audioTable->Play("Casting");
+    }
 }
 
-void PlayerPlayTurnState::SetAttackAnimation()
+void PlayerPlayTurnState::SetAttack()
 {
     Player& player   = GetPlayer();
     auto*   animator = player.GetAnimationComponent();
+    auto*   audioTable = player.GetAudioTableComponent();
     if (animator)
     {
         animator->BeginBuildOverrideAnimation();
@@ -335,9 +393,13 @@ void PlayerPlayTurnState::SetAttackAnimation()
         }
         animator->EndBuildOverrideAnimation();
     }
+    if (audioTable)
+    {
+        audioTable->Play("Shoot");
+    }
 }
 
-void PlayerPlayTurnState::SetAttackEndAnimation() 
+void PlayerPlayTurnState::SetAttackEnd()
 {
     Player& player   = GetPlayer();
     auto*   animator = player.GetAnimationComponent();
@@ -371,5 +433,57 @@ void PlayerPlayTurnState::SetAttackEndAnimation()
     else
     {
         player.EndTurn();
+    }
+}
+
+void PlayerPlayTurnState::PushWeaponAnimation(Battle::EnemyTargetFlag_ destEnemy)
+{
+    Player&             player       = GetPlayer();
+    WeaponSystem*       weaponSystem = WeaponSystem::GetInstance();
+    const WeaponStats&  weapontype   = weaponSystem->GetCurrentWeaponStats();
+    AnimationComponent* weaponAnim   = nullptr;
+    ParticleComponent*  weaponEffect = nullptr;
+    switch (weapontype.Type)
+    {
+    case WeaponType::SWORD:
+        weaponAnim = weaponAnims[0];
+        weaponEffect = weaponEffects[0];
+        break;
+    case WeaponType::DAGGER:
+        weaponAnim   = weaponAnims[1];
+        weaponEffect = weaponEffects[1];
+        break;
+    case WeaponType::WARHAMMER:
+        weaponAnim   = weaponAnims[2];
+        weaponEffect = weaponEffects[2];
+        break;
+    }
+
+    // 무기 애니메이션 Push
+    if (weaponAnim)
+    {
+        // 무기 이펙트 Play
+        if (weaponEffect)
+            weaponEffect->PlayEffect();
+
+        weaponAnim->PushOverrideAnimation("attack", true, [](const AnimationData& data) { return data.IsEnd(); });
+        // Pop시 Battle 호출
+        weaponAnim->SetCurrentAnimationPopCallback([this, weaponEffect, weaponAnim, destEnemy]() { 
+            Player& player = GetPlayer();
+            Battle()(player, destEnemy);
+            size_t count = weaponAnim->GetOverrideAnimationCount();
+            if (1 == count)
+            {
+                if (weaponEffect)
+                {
+                    weaponEffect->StopEffect();
+                }
+                SetAttackEnd();
+            }
+            });
+    }
+    else
+    {
+        Battle()(player, destEnemy);
     }
 }

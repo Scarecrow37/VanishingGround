@@ -9,11 +9,90 @@ Transform::Transform(GameObject& owner)
 
     _hasChanged(true),
     _position(),
-    _rotation(),
-    _scale(1,1,1)
+    _rotation(), _scale(1, 1, 1) 
 {
-   
+    auto CopyContext = [this](std::string_view name) 
+    { 
+        if (ImGui::BeginPopupContextItem(name.data()))
+        {
+            if (ImGui::MenuItem("Copy Transform", "C") || ImGui::IsKeyReleased(ImGuiKey_C))
+            {
+                std::wstring transform = U8ToWString(SerializedReflectFields());
+                File::SetClipboardText(transform);
+                ImGui::CloseCurrentPopup();
+            }
+            if (ImGui::BeginMenu("Paste"))
+            {
+                enum class PasteType
+                {
+                    NONE,
+                    TRANSFORM,
+                    POSITION,
+                    ROTATION,
+                    SCALE
+                };
+                PasteType pasteType = PasteType::NONE;
+                bool isPaste = false;
+                if (ImGui::MenuItem("Transform", "Q") || ImGui::IsKeyReleased(ImGuiKey_Q))
+                {
+                    pasteType = PasteType::TRANSFORM;
+                    isPaste   = true;
+                }
+                if (ImGui::MenuItem("Position", "W") || ImGui::IsKeyReleased(ImGuiKey_W))
+                {
+                    pasteType = PasteType::POSITION;
+                    isPaste   = true;
+                }
+                if (ImGui::MenuItem("Rotation", "E") || ImGui::IsKeyReleased(ImGuiKey_E))
+                {
+                    pasteType = PasteType::ROTATION;
+                    isPaste   = true;
+                }
+                if (ImGui::MenuItem("Scale", "R") || ImGui::IsKeyReleased(ImGuiKey_R))
+                {
+                    pasteType = PasteType::SCALE;
+                    isPaste   = true;
+                }
+                if (isPaste)
+                {
+                    std::wstring clipboardData = File::GetClipboardText();
+                    if (false == clipboardData.empty())
+                    {
+                        std::string data = WStringToU8(clipboardData);
+                        GameObject  dummyObject;
+                        Transform   tempTransform(dummyObject);
+                        if (tempTransform.DeserializedReflectFields(data))
+                        {
+                            switch (pasteType)
+                            {
+                            case PasteType::TRANSFORM:
+                                CopyTransform(tempTransform, false);
+                                break;
+                            case PasteType::POSITION:
+                                Position = tempTransform.Position;
+                                break;
+                            case PasteType::ROTATION:
+                                Rotation = tempTransform.Rotation;
+                                break;
+                            case PasteType::SCALE:
+                                Scale = tempTransform.Scale;
+                                break;
+                            default:
+                                break;
+                            }
+                            ImGui::CloseCurrentPopup();
+                        }
+                    }
+                }
+                ImGui::EndMenu();
+            }
+            ImGui::EndPopup();
+        }
+    };
 
+    Position.SetInputAutoEvent(std::bind(CopyContext, Position.name()));
+    EulerAngle.SetInputAutoEvent(std::bind(CopyContext, EulerAngle.name()));
+    Scale.SetInputAutoEvent(std::bind(CopyContext, Scale.name()));
 }
 Transform::~Transform()
 {
@@ -198,8 +277,6 @@ void Transform::UpdateMatrix()
 
         curr->_right = Vector3(curr->_worldMatrix._11, curr->_worldMatrix._12, curr->_worldMatrix._13);
         curr->_right.Normalize();
-
-        curr->_hasChanged = false;
     });
 }
 

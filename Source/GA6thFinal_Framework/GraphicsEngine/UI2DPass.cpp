@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "UI2DPass.h"
 #include "FrameResource.h"
+#include "UITechnique.h"
 
 UI2DPass::UI2DPass(const std::vector<UINT>& instanceIDs)
     : UIPassBase(instanceIDs)
@@ -50,7 +51,7 @@ void UI2DPass::Begin(ID3D12GraphicsCommandList* commandList)
 
     __super::UpdateBuffer(commandList);
 
-    auto& depthStencilView = _ownerScene->_depthStencilView;
+    auto depthStencilView = static_cast<UITechnique*>(_ownerTechnique)->GetDepthStencilView();
     depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_DEPTH_WRITE);
     depthStencilView->ClearDepthStencilView(commandList);
 

@@ -52,6 +52,7 @@ struct PostProcessData
     Vector2      ScreenSize;
     Vector2      TexelSize;
     unsigned int PostProcessMask;
+    unsigned int MipLevel;
 };
 
 struct Resolution

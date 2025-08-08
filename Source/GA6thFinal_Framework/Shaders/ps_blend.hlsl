@@ -42,7 +42,7 @@ float4 ps_main(PS_INPUT input) : SV_TARGET
 {
     float3 hdrColor = screenTexture.Sample(samLinear_wrap, input.uv).rgb;
     float3 postProcessColor = sourceTexture.Sample(samLinear_wrap, input.uv).rgb;
-    
+
     hdrColor += postProcessColor;
     
     TonMappingProperty property = bit32_6_tonMappingProperty;

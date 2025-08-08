@@ -42,7 +42,7 @@ namespace MVVM
     {
     public:
         Model() = default;
-        explicit Model(const T& value) : ModelBase<T>(value) {}
+        Model(const T& value) : ModelBase<T>(value) {}
         Model& operator=(const T& value)
         {
             ModelBase<T>::_value = value;
@@ -51,6 +51,7 @@ namespace MVVM
         }
 
     public:
+        operator T() const noexcept { return ModelBase<T>::_value; }
         explicit operator bool() const noexcept { return ModelBase<T>::_value != 0; }
 
     public:
@@ -110,6 +111,91 @@ namespace MVVM
                 ModelBase<T*>::Notify();
             }
         }
+    };
+
+    template <class T>
+    class Model<std::vector<T>> final : public ModelBase<std::vector<T>>
+    {
+        using container_type  = std::vector<T>;
+        using reference       = typename container_type::reference;
+        using const_reference = typename container_type::const_reference;
+        using iterator        = typename container_type::iterator;
+        using const_iterator  = typename container_type::const_iterator;
+        using size_type       = typename container_type::size_type;
+
+    public:
+        Model() = default;
+
+        void clear() noexcept
+        {
+            ModelBase<container_type>::_value.clear();
+            ModelBase<container_type>::Notify();
+        }
+
+        bool empty() const noexcept { return ModelBase<container_type>::_value.empty(); }
+
+        void push_back(const T& value)
+        {
+            ModelBase<container_type>::_value.push_back(value);
+            ModelBase<container_type>::Notify();
+        }
+
+        void push_back(T&& value)
+        {
+            ModelBase<container_type>::_value.push_back(std::move(value));
+            ModelBase<container_type>::Notify();
+        }
+
+        void resize(size_type count)
+        {
+            ModelBase<container_type>::_value.resize(count);
+            ModelBase<container_type>::Notify();
+        }
+
+        void resize(size_type count, const T& value)
+        {
+            ModelBase<container_type>::_value.resize(count, value);
+            ModelBase<container_type>::Notify();
+        }
+
+        iterator erase(const_iterator pos)
+        {
+            iterator result = ModelBase<container_type>::_value.erase(pos);
+            ModelBase<container_type>::Notify();
+            return result;
+        }
+
+        iterator erase(const_iterator first, const_iterator last)
+        {
+            iterator result = ModelBase<container_type>::_value.erase(first, last);
+            ModelBase<container_type>::Notify();
+            return result;
+        }
+
+        size_type erase(const T& value)
+        {
+            auto size = std::erase(ModelBase<container_type>::_value, value);
+            ModelBase<container_type>::Notify();
+            return size;
+        }
+
+        template <typename UniformRandomBitGenerator>
+        void shuffle(UniformRandomBitGenerator&& generator)
+        {
+            std::ranges::shuffle(ModelBase<container_type>::_value, std::forward<UniformRandomBitGenerator>(generator));
+            ModelBase<container_type>::Notify();
+        }
+
+        const_iterator begin() const noexcept { return ModelBase<container_type>::_value.begin(); }
+        const_iterator cbegin() const noexcept { return ModelBase<container_type>::_value.cbegin(); }
+        const_iterator end() const noexcept { return ModelBase<container_type>::_value.end(); }
+        const_iterator cend() const noexcept { return ModelBase<container_type>::_value.cend(); }
+
+        size_type size() const noexcept { return ModelBase<container_type>::_value.size(); }
+
+    protected:
+        iterator begin() noexcept { return ModelBase<container_type>::_value.begin(); }
+        iterator end() noexcept { return ModelBase<container_type>::_value.end(); }
     };
 
     template <class T>
@@ -180,10 +266,12 @@ namespace MVVM
             return result;
         }
 
+
+
         template <typename UniformRandomBitGenerator>
         void shuffle(UniformRandomBitGenerator&& generator)
         {
-            std::shuffle(begin(), end(), std::forward<UniformRandomBitGenerator>(generator));
+            std::ranges::shuffle(ModelBase<container_type>::_value, std::forward<UniformRandomBitGenerator>(generator));
             ModelBase<container_type>::Notify();
         }
 
