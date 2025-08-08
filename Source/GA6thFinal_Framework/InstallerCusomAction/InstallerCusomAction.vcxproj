@@ -24,7 +24,7 @@
     <ProjectGuid>{7e4d57e2-be52-4b84-aa2b-5754349231a1}</ProjectGuid>
     <RootNamespace>InstallerCusomAction</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>InstallerCusomAction</ProjectName>
+    <ProjectName>InstallerCustomAction</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
