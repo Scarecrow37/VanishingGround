@@ -22,7 +22,6 @@
 #include "EditorDrawTechnique.h"
 #include "FontTechnique.h"
 #include "PBRLitTechnique.h"
-#include "SSAOTechnique.h"
 #include "SSRTechnique.h"
 #include "ParticleRenderTechnique.h"
 #include "RayTracingTechnique.h"

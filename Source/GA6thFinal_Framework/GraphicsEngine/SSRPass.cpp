@@ -9,8 +9,9 @@ void SSRPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechniqu
                          ID3D12GraphicsCommandList* commandList)
 {
     __super::Initialize(ownerScene, ownerTechnique, commandList);
-    auto mode = Global::device->GetMode();
-    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, mode.Width, mode.Height, 1, 1, 1, 0,
+    auto resolution = Global::device->GetResolution();
+    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, resolution.Width, resolution.Height, 1, 1,
+                                             1, 0,
                                              D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
     _renderTarget = MakeSharedResource<RenderTarget>();
