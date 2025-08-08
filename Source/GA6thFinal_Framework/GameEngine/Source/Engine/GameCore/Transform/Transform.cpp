@@ -55,10 +55,10 @@ Transform::Transform(GameObject& owner)
                 }
                 if (isPaste)
                 {
-                    std::wstring clipboradData = File::GetClipboardText();
-                    if (false == clipboradData.empty())
+                    std::wstring clipboardData = File::GetClipboardText();
+                    if (false == clipboardData.empty())
                     {
-                        std::string data = WStringToU8(clipboradData);
+                        std::string data = WStringToU8(clipboardData);
                         GameObject  dummyObject;
                         Transform   tempTransform(dummyObject);
                         if (tempTransform.DeserializedReflectFields(data))
