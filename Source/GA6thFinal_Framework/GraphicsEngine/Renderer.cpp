@@ -29,7 +29,7 @@
 #include "SkyBoxRenderTechnique.h"
 #include "UITechnique.h"
 
-Renderer::Renderer() {}
+Renderer::Renderer() : _totalTime{0.f} {}
 
 Renderer::~Renderer() {}
 
@@ -136,10 +136,6 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
     if (RenderTechniqueFlag::PBR_TECH & flag)
     {
         scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
-    }
-    if (RenderTechniqueFlag::SSAO_TECH & flag)
-    {
-        scene->AddRenderTechnique(std::make_unique<SSAOTechnique>());
     }
     if (RenderTechniqueFlag::SSR_TECH & flag)
     {
@@ -284,10 +280,10 @@ void Renderer::Initialize()
     _frameQuad     = quadModel->GetMeshes().front().get();
 }
 
-void Renderer::Update()
+void Renderer::Update(const float deltaTime)
 {
     Global::device->ClearBackBuffer(D3D12_CLEAR_FLAG_DEPTH, { 0.5f, 0.5f, 0.5f, 1.f });
-
+    _totalTime += deltaTime;
     for (auto& renderScene : _renderScenes)
     {
         renderScene.second->UpdateRenderScene();

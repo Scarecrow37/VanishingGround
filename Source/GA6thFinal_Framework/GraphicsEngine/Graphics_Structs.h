@@ -135,4 +135,5 @@ struct SSRPassProperty
     float MaxThickness;
     float StepSize;
     float MaxRayCount;
+    float ScreenFade;
 };

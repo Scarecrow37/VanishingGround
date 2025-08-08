@@ -46,6 +46,7 @@ inline void SerializeSSRPassProperty(std::ostream& os, const SSRPassProperty& pr
     os << "        MaxThickness = " << prop.MaxThickness   << "\n";
     os << "        StepSize = " << prop.StepSize  << "\n";
     os << "        MaxRayCount = " << prop.MaxRayCount << "\n";
+    os << "        ScreenFade = " << prop.ScreenFade << "\n";
 }
 
 // 문자열에서 ShadowPassProperty를 복원
@@ -130,6 +131,8 @@ inline void DeserializeSSRPassProperty(std::istream& is, SSRPassProperty& prop)
             ss >> prop.StepSize;
         else if (key == "MaxRayCount")
             ss >> prop.MaxRayCount;
+        else if (key == "ScreenFade")
+            ss >> prop.ScreenFade;
     }
 }
 

@@ -225,7 +225,7 @@ void GraphicsCore::Update(const float deltaTime) const
 {
     _particleManager->Update(deltaTime);
     _lightCore->Update(deltaTime);
-    _renderer->Update();
+    _renderer->Update(deltaTime);
 
     //const float  fps     = 1.f / deltaTime;
     //HWND         hwnd    = GetActiveWindow();

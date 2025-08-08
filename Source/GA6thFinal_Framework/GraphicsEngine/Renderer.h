@@ -9,13 +9,6 @@ class SpriteRenderer;
 class FontRenderer;
 class Renderer
 {
-    enum class ResterizeMode
-    {
-        SOLID,
-        WIREFRAME,
-        END
-    };
-
 public:
     Renderer();
     ~Renderer();
@@ -24,6 +17,7 @@ public:
     D3D12_GPU_DESCRIPTOR_HANDLE GetRenderSceneImage(std::string_view renderSceneName);
     std::shared_ptr<Camera>     GetCamera(std::string_view renderSceneName);
     RenderScene*                GetRenderScene(std::string_view renderSceneName);
+    const float                       GetTotalTime() const { return _totalTime; }
 
 public:
     void SetCamera(std::string_view renderSceneName, std::shared_ptr<Camera> camera);
@@ -40,7 +34,7 @@ public:
 
 public:
     void Initialize();
-    void Update();
+    void Update(const float deltaTime);
     void Render();
     void Flip();
 
@@ -63,4 +57,6 @@ private:
     ComPtr<ID3D12PipelineState>                                   _pipelineState;
     std::unique_ptr<ShaderBuilder>                                _shader;
     BaseMesh*                                                     _frameQuad;
+
+    float                                                         _totalTime;
 };
