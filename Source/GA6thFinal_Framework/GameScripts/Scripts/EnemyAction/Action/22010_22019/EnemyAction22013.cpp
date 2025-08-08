@@ -42,6 +42,7 @@ namespace EnemyAction
         if ("Attack" == label)
         {
             ProcessBattle(30);
+            PlaySoundFromKey("AttackHit0");
             if (_owner)
             {
                 _owner->TakeDamage(_owner->HP, false);

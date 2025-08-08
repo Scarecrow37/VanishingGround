@@ -18,7 +18,7 @@ float4 ps_main(PS_INPUT input) : SV_TARGET
     [unroll]
     for (int i = 0; i < 9; i++)
     {
-        result += sourceTexture.Sample(samLinear_clamp, float2(input.uv + indices[i] * step)) * GaussianWeight[i];
+        result += sourceTexture.SampleLevel(samLinear_clamp, float2(input.uv + indices[i] * step), postProcessData.MipLevel) * GaussianWeight[i];
     }
     
     return float4(result.rgb, 1);

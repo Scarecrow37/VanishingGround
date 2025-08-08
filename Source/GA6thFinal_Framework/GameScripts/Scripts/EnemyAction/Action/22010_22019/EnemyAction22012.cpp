@@ -57,6 +57,7 @@ namespace EnemyAction
             {
                 turnMode->AddTurnAction(_tokenAction.get());
                 ProcessBattle(1);
+                PlaySoundFromKey("AttackHit0");
                 _tokenAction->SetDestroy();
             }
         }
