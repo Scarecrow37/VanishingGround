@@ -453,6 +453,12 @@ public:
             /// </summary>
             /// <param name="manager"></param>
             static void Update(SceneResourceManager& manager);
+
+            /// <summary>
+            /// 해당 리소스 매니저를 정리합니다.
+            /// </summary>
+            /// <param name="manager"></param>
+            static void CleanUp(SceneResourceManager& manager);
         };
 
         /// <summary>
