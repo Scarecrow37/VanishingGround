@@ -204,7 +204,7 @@ void CharacterBase::TakeDamage(int damage, bool playAnim)
     }
     if (playAnim && _animationComponent)
     {
-        const auto& animData    = _animationComponent->GetLastAnimationData();
+        const auto& animData    = _animationComponent->GetTopAnimationData();
         const std::string& hitAnimName = _animationComponent->GetAnimationNameFromKey("Hit");
         const std::string& curAnimName = animData.GetAnimationName();
         _animationComponent->BeginBuildOverrideAnimation();
@@ -213,7 +213,7 @@ void CharacterBase::TakeDamage(int damage, bool playAnim)
         {
             _animationComponent->PopOverrideAnimation();
         }
-        _animationComponent->PushOverrideAnimation("Hit", true,
+        _animationComponent->PushBackOverrideAnimation("Hit", true,
             [](const AnimationData& data) { return data.IsEnd(); });
         if (_audioTableComponent)
         {

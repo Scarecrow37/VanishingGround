@@ -179,6 +179,11 @@ void Animator::SetLoop(bool isLoop)
     _isLoop = isLoop;
 }
 
+void Animator::SetAnimationEndCallback(std::function<void()> callback) 
+{
+    _onAnimationEndCallback = callback;
+}
+
 const std::vector<const char*>& Animator::GetAnimationNames() const
 {
     if (_animation)
@@ -234,12 +239,12 @@ void Animator::Update(const float deltaTime)
 	for (unsigned int i = 0; i < _maxSplit; i++)
 	{
 		const Animation::Channel& animation = _animation->_animations[_controllers[i].Animation.data()];
-        if (false == _isPause)
+        if (false == _isPause && _controllers[i].PlayTime < animation.LastTime)
         {
 		    _controllers[i].PlayTime += _controllers[i].Speed * deltaTime;
         }
 	
-		if (_controllers[i].PlayTime >= animation.LastTime)
+		if (_controllers[i].PlayTime > animation.LastTime)
 		{
             if (true == _isLoop)
             {
@@ -249,6 +254,10 @@ void Animator::Update(const float deltaTime)
             else
             {
                 _controllers[i].PlayTime = animation.LastTime;
+            }
+            if (_onAnimationEndCallback)
+            {
+                _onAnimationEndCallback();
             }
 		}
 	}

@@ -23,7 +23,7 @@ namespace EnemyAction
             _animator->BeginBuildOverrideAnimation();
             {
                 _animator->ClearOverrideAnimations();
-                bool result = _animator->PushOverrideAnimation("Attack0", true, [](const AnimationData& data) { return data.IsEnd(); });
+                bool result = _animator->PushBackOverrideAnimation("Attack0", true, [](const AnimationData& data) { return data.IsEnd(); });
                 if (result)
                 {
                     _animator->SetCurrentAnimationPopCallback([this]() { SetActionEnd(); });

@@ -359,11 +359,11 @@ void PlayerPlayTurnState::SetAttackReady()
         animator->BeginBuildOverrideAnimation();
         animator->ClearOverrideAnimations();
         {
-            animator->PushOverrideAnimation("Attack_Ready_Loop", true);
+            animator->PushBackOverrideAnimation("Attack_Ready_Loop", true, nullptr);
             animator->ChangeCurrentAnimationFlags(ANIMATION_FLAG_USE_LOOP);
         }
         {
-            animator->PushOverrideAnimation("Attack_Ready", true, [](const AnimationData& data) { return data.IsEnd(); });
+            animator->PushBackOverrideAnimation("Attack_Ready", true, [](const AnimationData& data) { return data.IsEnd(); });
             animator->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
         }
         animator->EndBuildOverrideAnimation();
@@ -384,11 +384,11 @@ void PlayerPlayTurnState::SetAttack()
         animator->BeginBuildOverrideAnimation();
         animator->ClearOverrideAnimations();
         {
-            animator->PushOverrideAnimation("Attack_Loop", true);
+            animator->PushBackOverrideAnimation("Attack_Loop", true, nullptr);
             animator->ChangeCurrentAnimationFlags(ANIMATION_FLAG_USE_LOOP);
         }
         {
-            animator->PushOverrideAnimation("Attack", true, [](const AnimationData& data) { return data.IsEnd(); });
+            animator->PushBackOverrideAnimation("Attack", true, [](const AnimationData& data) { return data.IsEnd(); });
             animator->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
         }
         animator->EndBuildOverrideAnimation();
@@ -412,7 +412,7 @@ void PlayerPlayTurnState::SetAttackEnd()
             animator->ChangeMainAnimationFlags(ANIMATION_FLAG_USE_LOOP | ANIMATION_FLAG_RESET_FRAME);
         }
         {
-            bool pushResult = animator->PushOverrideAnimation("Attack_End", true, [](const AnimationData& data) { return data.IsEnd(); });
+            bool pushResult = animator->PushBackOverrideAnimation("Attack_End", true, [](const AnimationData& data) { return data.IsEnd(); });
             if (pushResult)
             {
                 animator->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
@@ -466,7 +466,7 @@ void PlayerPlayTurnState::PushWeaponAnimation(Battle::EnemyTargetFlag_ destEnemy
         if (weaponEffect)
             weaponEffect->PlayEffect();
 
-        weaponAnim->PushOverrideAnimation("attack", true, [](const AnimationData& data) { return data.IsEnd(); });
+        weaponAnim->PushBackOverrideAnimation("attack", true, [](const AnimationData& data) { return data.IsEnd(); });
         // Pop시 Battle 호출
         weaponAnim->SetCurrentAnimationPopCallback([this, weaponEffect, weaponAnim, destEnemy]() { 
             Player& player = GetPlayer();
