@@ -45,7 +45,7 @@ float4 ps_main(PSInput input) : SV_Target
     float3 normal_view = normalize(mul(normal_world, (float3x3) cameraData.View));
     float3 viewPos = ReconstructViewPos(input.uv, depth);
     float3 viewDir = normalize(viewPos);
-    float3 refelctDir = reflect(viewDir, normal_view);
+    float3 reflectDir = reflect(viewDir, normal_view);
     bool foundHit = false;
     float2 hitUV = float2(0.0f, 0.0f);
     SSRProperty property = bit32_4_ssrProperty;
@@ -53,9 +53,9 @@ float4 ps_main(PSInput input) : SV_Target
     [loop]
     for (int i = 0; i < property.maxRayCount; ++i)
     {
-        currentRayPos += refelctDir * property.stepSize;
+        currentRayPos += reflectDir * property.stepSize;
         float2 sampleUV = ProjectToUV(currentRayPos);
-        if (any(sampleUV.x < 0.0f) || any(sampleUV.x > 1.0f) || any(sampleUV.y < 0.0f) || any(sampleUV.y > 1.0f))
+        if (sampleUV.x < 0.0f || sampleUV.x > 1.0f || sampleUV.y < 0.0f || sampleUV.y > 1.0f)
         {
             break;
         }
@@ -74,12 +74,12 @@ float4 ps_main(PSInput input) : SV_Target
     float3 finalColor = baseColor;
     if (foundHit)
     {
-        float3 refelectionColor = screenColor.SampleLevel(samLinear_clamp, hitUV, 0).rgb;
+        float3 reflectionColor = screenColor.SampleLevel(samLinear_clamp, hitUV, 0).rgb;
         float reflectionStrength = saturate(1.0f - roughness); // roughness=0 → full reflection, roughness=1 → no reflection
         float2 distToCenter = abs(hitUV - 0.5) * 2.f;
         float fade = pow(saturate(1.f - distToCenter.x), property.screenFade * 0.5f) * pow(saturate(1.f - distToCenter.y * 0.5f), property.screenFade);
 
-        finalColor = lerp(finalColor, refelectionColor, fade * reflectionStrength);
+        finalColor = lerp(finalColor, reflectionColor, fade * reflectionStrength);
     }
     
     return float4(finalColor, 1.0f);
