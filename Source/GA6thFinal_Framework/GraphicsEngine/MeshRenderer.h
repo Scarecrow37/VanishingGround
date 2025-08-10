@@ -17,7 +17,7 @@ public:
     const GraphicsTransform&      GetTransform() const { return _transform; }
     const MeshType                GetType() const { return _type; }
     const UINT                    GetCustomDepth(UINT meshID) const { return _customDepths[meshID]; }
-    const std::vector<UINT>&      GetCustomDepths() const { return _customDepths; }
+    const std::vector<UINT>&      GetCustomDepths();
     std::shared_ptr<Animator>     GetAnimator() const;
     const bool                    IsDirtyFlag() const { return _transform.IsDirtyFlag; }
     const std::vector<std::shared_ptr<DXRSkeletalMesh>> GetDXRSkeletalMeshes() const { return _dxrSkeletalMeshes; }

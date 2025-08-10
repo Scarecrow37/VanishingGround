@@ -22,6 +22,7 @@ namespace Global
     RenderPassDatas*                               renderPassDatas;
     ModuleManager*                                 moduleManager;
     PipelineStateManager*                          pipelineStateManager;
+    ThreadPool*                                    threadPool;
     bool                                           isRayTracing = false;
     std::unordered_map<std::wstring, std::wstring> shaderPathMappings;
 };
@@ -180,6 +181,7 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     _renderPassDatas          = new RenderPassDatas;
     _moduleManager            = new ModuleManager;
     _pipelineStateManager     = new PipelineStateManager;
+    _threadPool               = new ThreadPool;
 
     Global::device                   = _device;
     Global::renderer                 = _renderer;
@@ -195,6 +197,7 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     Global::renderPassDatas          = _renderPassDatas;
     Global::moduleManager            = _moduleManager;
     Global::pipelineStateManager     = _pipelineStateManager;
+    Global::threadPool               = _threadPool;
 
     _device->SetUpDevice(hwnd, width, height, feature);
     _viewManager->Initialize();
@@ -203,6 +206,7 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     _particleManager->Initialize(MAX_PARTICLE);
     _renderer->Initialize();
     _moduleManager->Initialize();
+    _threadPool->Initialize(10);
 
     auto commandList = _device->GetCommandList();
     commandList->Close();
@@ -223,14 +227,11 @@ void GraphicsCore::UpdateAnimation(const float deltaTime) const
 
 void GraphicsCore::Update(const float deltaTime) const
 {
+    _threadPool->Done();
+    _resourceManager->Update();
     _particleManager->Update(deltaTime);
     _lightCore->Update(deltaTime);
     _renderer->Update(deltaTime);
-
-    //const float  fps     = 1.f / deltaTime;
-    //HWND         hwnd    = GetActiveWindow();
-    //std::wstring fpsText = L"FPS: " + std::to_wstring(static_cast<int>(fps));
-    //SetWindowTextW(hwnd, fpsText.c_str());
 }
 
 void GraphicsCore::Render() const
@@ -243,6 +244,7 @@ void GraphicsCore::Finalize() const
 {
     _device->Finalize();
 
+    delete _threadPool;
     delete _pipelineStateManager;
     delete _moduleManager;
     delete _renderPassDatas;

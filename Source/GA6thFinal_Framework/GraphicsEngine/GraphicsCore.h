@@ -75,4 +75,5 @@ private:
     class RenderPassDatas*          _renderPassDatas;
     class ModuleManager*            _moduleManager;
     class PipelineStateManager*     _pipelineStateManager;
+    class ThreadPool*               _threadPool;
 };

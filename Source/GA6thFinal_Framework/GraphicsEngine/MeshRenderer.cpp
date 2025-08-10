@@ -12,6 +12,16 @@ MeshRenderer::MeshRenderer(MeshType type, const Vector3& position, const Vector3
 
 MeshRenderer::~MeshRenderer() {}
 
+const std::vector<UINT>& MeshRenderer::GetCustomDepths()
+{
+    if (_customDepths.empty())
+    {
+        _customDepths.resize(_model->GetMeshCount(), PostProcess::BLOOM);
+    }
+
+    return _customDepths;
+}
+
 std::shared_ptr<Animator> MeshRenderer::GetAnimator() const
 {
     if (SKELETAL_MESH != _type)
@@ -24,7 +34,7 @@ void MeshRenderer::SetModel(std::shared_ptr<Model> model)
 {
     _model = model;
 
-    _customDepths.resize(_model->GetMeshCount(), 0);
+    _customDepths.resize(_model->GetMeshCount(), PostProcess::BLOOM);
 
     if (model->GetAnimation())
     {

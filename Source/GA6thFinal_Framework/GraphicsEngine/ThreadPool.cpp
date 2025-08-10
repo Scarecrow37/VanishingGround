@@ -1,19 +1,65 @@
 ﻿#include "pch.h"
 #include "ThreadPool.h"
 
-constexpr unsigned int MAX_THREAD = 3;
-
 ThreadPool::ThreadPool() = default;
 
-ThreadPool::~ThreadPool() = default;
+ThreadPool::~ThreadPool()
+{    
+    for (auto& event : _threadEvents)
+        event = ThreadEvent::DESTROY;
+        
+    _cv.notify_all();
 
-void ThreadPool::WorkerThread(unsigned int index)
+    for (auto& thread : _threads)
+    {
+        if (thread.joinable())
+            thread.join();
+    }
+}
+
+void ThreadPool::Initialize(unsigned int threadCount)
+{
+    _threads.resize(threadCount);
+    _mutexes.resize(threadCount);
+    _threadEvents.resize(threadCount);
+    _remainingTasks = 0;
+
+    for (unsigned int i = 0; i < threadCount; i++)
+    {
+        _mutexes[i] = std::make_unique<std::mutex>();
+        _threads[i] = std::thread(&ThreadPool::WorkerThread, this, i);
+    }
+}
+
+void ThreadPool::AddTask(const std::function<void()> task)
+{    
+    _taskQueue.push(task);
+    _remainingTasks++;
+}
+
+void ThreadPool::Done()
+{
+    if (0 == _remainingTasks)
+        return;
+
+    for (auto& event : _threadEvents)
+    {
+        event = ThreadEvent::PROCESS;
+    }
+
+    _cv.notify_all();
+
+    std::unique_lock<std::mutex> lock(_mutexDone);
+    _cvDone.wait(lock, [this] { return 0 == _remainingTasks; });
+}
+
+void ThreadPool::WorkerThread(const unsigned int index)
 {
     bool isLoop = true;
     while (isLoop)
     {
         std::unique_lock<std::mutex> lock(*_mutexes[index]);
-        _cvs[index]->wait(lock, [this, index] { return ThreadEvent::NONE != _threadEvents[index]; });
+        _cv.wait(lock, [this, index] { return ThreadEvent::NONE != _threadEvents[index]; });
 
         switch (_threadEvents[index])
         {
@@ -25,18 +71,17 @@ void ThreadPool::WorkerThread(unsigned int index)
                 if (_taskQueue.try_pop(task))
                 {
                     task();
+                    _remainingTasks--;
                 }
             }
 
-            {
-                std::scoped_lock nestLock(_mutexDone);
-                _remainingTasks--;
-
-                if (0 == _remainingTasks)
-                    _cvDone.notify_one();
-            }
-
             _threadEvents[index] = ThreadEvent::NONE;
+
+            if (0 == _remainingTasks)
+            {
+                std::unique_lock<std::mutex> doneLock(_mutexDone);
+                _cvDone.notify_one();
+            }
             break;
         }
         case ThreadEvent::DESTROY:

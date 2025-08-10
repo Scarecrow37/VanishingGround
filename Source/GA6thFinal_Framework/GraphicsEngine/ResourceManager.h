@@ -48,13 +48,13 @@ public:
     void Update();
 
 private:
-    void WorkerThread();
+    void WorkerThread(const unsigned int index);
 
 private:
     std::unordered_map<std::type_index, std::unordered_map<std::wstring, std::weak_ptr<Resource>>> _resources;
 
 private:
-    std::mutex                                           _mutex;
+    std::vector<std::unique_ptr<std::mutex>>             _mutexes;
     std::condition_variable                              _cv;
     Concurrency::concurrent_queue<std::function<void()>> _taskQueue;
     std::vector<std::thread>                             _threads;

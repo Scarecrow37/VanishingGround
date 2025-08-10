@@ -1,11 +1,17 @@
 ﻿#include "pch.h"
 #include "ResourceManager.h"
 
-constexpr unsigned int MAX_THREAD = 3;
+constexpr unsigned int MAX_THREAD = 4;
 
 ResourceManager::ResourceManager()
 {
     _threads.reserve(MAX_THREAD);
+    _mutexes.resize(MAX_THREAD);
+
+    for (auto& mutex : _mutexes)
+    {
+        mutex = std::make_unique<std::mutex>();
+    }
 }
 
 ResourceManager::~ResourceManager()
@@ -37,19 +43,19 @@ void ResourceManager::Update()
     {
         for (unsigned int i = 0; i < MAX_THREAD; ++i)
         {
-            std::thread thread(&ResourceManager::WorkerThread, this);
-            _threads.emplace_back(std::move(thread));
+            std::thread thread(&ResourceManager::WorkerThread, this, i);
             thread.detach();
+            _threads.emplace_back(std::move(thread));
         }
     }
 }
 
-void ResourceManager::WorkerThread()
+void ResourceManager::WorkerThread(const unsigned int index)
 {
     bool isLoop = true;
     while (isLoop)
     {
-        std::unique_lock<std::mutex> lock(_mutex);
+        std::unique_lock<std::mutex> lock(*_mutexes[index]);
         _cv.wait(lock, [this] { return ThreadEvent::NONE != _threadEvent; });
 
         switch (_threadEvent)

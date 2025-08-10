@@ -49,7 +49,9 @@ public:
     void ClearBackBuffer(UINT flag, XMVECTOR color, float depth = 1.0f, UINT stencil = 0);
     void Flip();
     void CreateVertexBuffer(void* data, UINT size, UINT stride, ComPtr<ID3D12Resource>& buffer, D3D12_VERTEX_BUFFER_VIEW& view);
+    void CreateVertexBuffer(ID3D12GraphicsCommandList* commandList, void* data, UINT size, UINT stride, ComPtr<ID3D12Resource>& buffer, D3D12_VERTEX_BUFFER_VIEW& view);
     void CreateIndexBuffer(void* data, UINT size, DXGI_FORMAT format, ComPtr<ID3D12Resource>& buffer, D3D12_INDEX_BUFFER_VIEW& view);
+    void CreateIndexBuffer(ID3D12GraphicsCommandList* commandList, void* data, UINT size, DXGI_FORMAT format, ComPtr<ID3D12Resource>& buffer, D3D12_INDEX_BUFFER_VIEW& view);
     void CreateConstantBuffer(void* data, UINT size, ComPtr<ID3D12Resource>& buffer);
     void CreateDefaultBuffer(UINT size, ComPtr<ID3D12Resource>& buffer);
     void CreateCommandList(ComPtr<ID3D12CommandAllocator>& allocator, ComPtr<ID3D12GraphicsCommandList>& commandList, CommandType type);

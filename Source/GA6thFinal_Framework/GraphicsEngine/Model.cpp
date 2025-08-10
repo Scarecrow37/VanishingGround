@@ -48,6 +48,9 @@ void Model::BindMaterial(const UINT meshIndex, const Material& material)
 
 void Model::LoadResource(const std::filesystem::path& filePath)
 {    
-    FBXConverter fbxConverter;
-    fbxConverter.ImportModel(filePath, this);
+    Global::threadPool->AddTask([this, filePath]()
+    {
+        FBXConverter fbxConverter;
+        fbxConverter.ImportModel(filePath, this);
+    });    
 }

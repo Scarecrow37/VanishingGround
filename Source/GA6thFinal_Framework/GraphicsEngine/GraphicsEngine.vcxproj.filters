@@ -1,907 +1,300 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="헤더 파일">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="리소스 파일">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="Shaders">
-      <UniqueIdentifier>{bef704b1-9a0c-44cc-87cd-002c3494a763}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shaders\Headers">
-      <UniqueIdentifier>{0e5ba4a2-6499-48bc-bd72-e097ab20b814}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shaders\vs">
-      <UniqueIdentifier>{befa6fe2-fe3e-4794-a503-35e4b00b4900}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shaders\ps">
-      <UniqueIdentifier>{b7ab3244-4013-4c1f-bf03-5189b0e8fe14}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shaders\cs">
-      <UniqueIdentifier>{cd841684-dc40-4d56-b9de-a249730de292}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
+    <FxCompile Include="..\Shaders\cs_brdf_lut.hlsl" />
+    <FxCompile Include="..\Shaders\cs_compute_ribbon.hlsl" />
+    <FxCompile Include="..\Shaders\cs_compute_sprite.hlsl" />
+    <FxCompile Include="..\Shaders\cs_cube_texture_convertor.hlsl" />
+    <FxCompile Include="..\Shaders\cs_depth_extract.hlsl" />
+    <FxCompile Include="..\Shaders\cs_irradiance_map.hlsl" />
+    <FxCompile Include="..\Shaders\cs_particle_reorder.hlsl" />
+    <FxCompile Include="..\Shaders\cs_prefiltered_map.hlsl" />
+    <FxCompile Include="..\Shaders\cs_prefix_sum.hlsl" />
+    <FxCompile Include="..\Shaders\cs_radix_histogram.hlsl" />
+    <FxCompile Include="..\Shaders\cs_radix_scatter.hlsl" />
+    <FxCompile Include="..\Shaders\cs_skeletal_skinning.hlsl" />
+    <FxCompile Include="..\Shaders\cs_validate_sort.hlsl" />
+    <FxCompile Include="..\Shaders\ps_accumulation.hlsl" />
+    <FxCompile Include="..\Shaders\ps_blend.hlsl" />
+    <FxCompile Include="..\Shaders\ps_bright_extract.hlsl" />
+    <FxCompile Include="..\Shaders\ps_down_sample.hlsl" />
+    <FxCompile Include="..\Shaders\ps_dxrgbuffer.hlsl" />
+    <FxCompile Include="..\Shaders\ps_gaussianblur_x.hlsl" />
+    <FxCompile Include="..\Shaders\ps_gaussianblur_y.hlsl" />
+    <FxCompile Include="..\Shaders\ps_gbuffer.hlsl" />
+    <FxCompile Include="..\Shaders\ps_grid.hlsl" />
+    <FxCompile Include="..\Shaders\ps_outline.hlsl" />
+    <FxCompile Include="..\Shaders\ps_particle_quad.hlsl" />
+    <FxCompile Include="..\Shaders\ps_particle_resolve.hlsl" />
+    <FxCompile Include="..\Shaders\ps_pbr_lighting.hlsl" />
+    <FxCompile Include="..\Shaders\ps_skybox.hlsl" />
+    <FxCompile Include="..\Shaders\ps_ssr.hlsl" />
+    <FxCompile Include="..\Shaders\ps_to_backbuffer.hlsl" />
+    <FxCompile Include="..\Shaders\ps_ui.hlsl" />
+    <FxCompile Include="..\Shaders\ps_up_sample.hlsl" />
+    <FxCompile Include="..\Shaders\ps_write_ao.hlsl" />
+    <FxCompile Include="..\Shaders\RTShaders.hlsl" />
+    <FxCompile Include="..\Shaders\vs_grid.hlsl" />
+    <FxCompile Include="..\Shaders\vs_particle_fullscreen.hlsl" />
+    <FxCompile Include="..\Shaders\vs_particle_quad.hlsl" />
+    <FxCompile Include="..\Shaders\vs_particle_ribbon.hlsl" />
+    <FxCompile Include="..\Shaders\vs_quad.hlsl" />
+    <FxCompile Include="..\Shaders\vs_skeletal_fr.hlsl" />
+    <FxCompile Include="..\Shaders\vs_skeletal_shadow_fr.hlsl" />
+    <FxCompile Include="..\Shaders\vs_skybox.hlsl" />
+    <FxCompile Include="..\Shaders\vs_static_fr.hlsl" />
+    <FxCompile Include="..\Shaders\vs_static_shadow_fr.hlsl" />
+    <FxCompile Include="..\Shaders\vs_ui_fr.hlsl" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="pch.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ViewManager.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="PixelShader.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Quad.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderScene.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderTarget.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Resource.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ResourceBase.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ResourceManager.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Shader.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderBuilder.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Skeleton.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SkyBox.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SkyBoxPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SkyBoxRenderTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Sphere.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SpriteRenderer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Structs.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="StructuredBuffer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="TextDrawPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="UI2DPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="UI3DPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="UI25DPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="UIPassBase.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="UITechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="UnorderedAccessView.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="VertexShader.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="VIBuffer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Animation.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="AnimationCore.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Animator.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="BaseMesh.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="BlendPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="BlendTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="BloomTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Module\GaussianBlurModule.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Box.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="BrightExtractPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="CommandController.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="CommandSet.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ComputeShader.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ConstantBufferView.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Cylinder.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="d3dUtil.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="DebugDrawCore.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="DeferredPBRLitPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Defines.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="DepthStencilView.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Device.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="DownAndUpSamplingPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="DXResourceManager.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="EditorDrawTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="EndlessGridPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Enums.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Externs.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="FBXConverter.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Font.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="FontRenderer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="FontTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="FrameResource.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="GBufferPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="GeometryGenerator.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="GeometryShader.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="GeoSphere.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphicsBase.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphicsCore.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Grid.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Headers.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Light.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="LightCore.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="LightMapBaker.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="MeshRenderer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="MeshShader.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Model.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="MultiRenderTargetManager.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="OutLinePass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Particle.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleEffect.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleEmitter.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleHelper.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleManager.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleRenderTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleResolvePass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleSpritePass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="PBRLitTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SharedResource.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="AccelerationStructureManager.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="dxcapi.use.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="DxilLibrary.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="DXRDrawPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="DXRGBufferPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ExportAssociation.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="GlobalRootSignature.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="HItProgram.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="LocalRootSignature.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="PipelineConfig.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="RayTracingTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="RTPipeline.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="RTPipelineBuilder.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderConfig.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleRibbonPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ShadowMapPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics_Structs.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics_Enums.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderPassDatas.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Module\RenderModule.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Module\AccumulationModule.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Module\ModuleManager.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="DXRComputeSkeletalMeshPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="DXRSkeletalMesh.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="FX.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="PipelineStateManager.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SSAOBlendPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SSAOTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SSAOWritePass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SSRTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SSRPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
+    <ClCompile Include="AccelerationStructureManager.cpp" />
+    <ClCompile Include="Module\AccumulationModule.cpp" />
+    <ClCompile Include="Animation.cpp" />
+    <ClCompile Include="AnimationCore.cpp" />
+    <ClCompile Include="Animator.cpp" />
+    <ClCompile Include="BaseMesh.cpp" />
+    <ClCompile Include="BlendPass.cpp" />
+    <ClCompile Include="BlendTechnique.cpp" />
+    <ClCompile Include="BloomTechnique.cpp" />
+    <ClCompile Include="Module\GaussianBlurModule.cpp" />
+    <ClCompile Include="Box.cpp" />
+    <ClCompile Include="BrightExtractPass.cpp" />
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="CommandController.cpp" />
+    <ClCompile Include="CommandSet.cpp" />
+    <ClCompile Include="ComputeShader.cpp" />
+    <ClCompile Include="ConstantBufferView.cpp" />
+    <ClCompile Include="Cylinder.cpp" />
+    <ClCompile Include="d3dUtil.cpp" />
+    <ClCompile Include="Module\ModuleManager.cpp" />
+    <ClCompile Include="PipelineStateManager.cpp" />
+    <ClCompile Include="RenderPassDatas.cpp" />
+    <ClCompile Include="DebugDrawCore.cpp" />
+    <ClCompile Include="DeferredPBRLitPass.cpp" />
+    <ClCompile Include="DepthStencilView.cpp" />
+    <ClCompile Include="Device.cpp" />
+    <ClCompile Include="DownAndUpSamplingPass.cpp" />
+    <ClCompile Include="dxcapi.use.cpp" />
+    <ClCompile Include="DxilLibrary.cpp" />
+    <ClCompile Include="DXRComputeSkeletalMeshPass.cpp" />
+    <ClCompile Include="DXRDrawPass.cpp" />
+    <ClCompile Include="DXResourceManager.cpp" />
+    <ClCompile Include="DXRGBufferPass.cpp" />
+    <ClCompile Include="DXRSkeletalMesh.cpp" />
+    <ClCompile Include="EditorDrawTechnique.cpp" />
+    <ClCompile Include="EndlessGridPass.cpp" />
+    <ClCompile Include="ExportAssociation.cpp" />
+    <ClCompile Include="FBXConverter.cpp" />
+    <ClCompile Include="Font.cpp" />
+    <ClCompile Include="FontRenderer.cpp" />
+    <ClCompile Include="FontTechnique.cpp" />
+    <ClCompile Include="FrameResource.cpp" />
+    <ClCompile Include="GBufferPass.cpp" />
+    <ClCompile Include="GeometryGenerator.cpp" />
+    <ClCompile Include="GeometryShader.cpp" />
+    <ClCompile Include="GeoSphere.cpp" />
+    <ClCompile Include="GlobalRootSignature.cpp" />
+    <ClCompile Include="GraphicsBase.cpp" />
+    <ClCompile Include="GraphicsCore.cpp" />
+    <ClCompile Include="GraphicsEngine.cpp" />
+    <ClCompile Include="Grid.cpp" />
+    <ClCompile Include="HItProgram.cpp" />
+    <ClCompile Include="Light.cpp" />
+    <ClCompile Include="LightCore.cpp" />
+    <ClCompile Include="LightMapBaker.cpp" />
+    <ClCompile Include="LocalRootSignature.cpp" />
+    <ClCompile Include="MeshRenderer.cpp" />
+    <ClCompile Include="MeshShader.cpp" />
+    <ClCompile Include="Model.cpp" />
+    <ClCompile Include="MultiRenderTargetManager.cpp" />
+    <ClCompile Include="OutLinePass.cpp" />
+    <ClCompile Include="Particle.cpp" />
+    <ClCompile Include="ParticleEffect.cpp" />
+    <ClCompile Include="ParticleEmitter.cpp" />
+    <ClCompile Include="ParticleManager.cpp" />
+    <ClCompile Include="ParticleRenderTechnique.cpp" />
+    <ClCompile Include="ParticleResolvePass.cpp" />
+    <ClCompile Include="ParticleRibbonPass.cpp" />
+    <ClCompile Include="ParticleSpritePass.cpp" />
+    <ClCompile Include="PBRLitTechnique.cpp" />
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="PipelineConfig.cpp" />
+    <ClCompile Include="PixelShader.cpp" />
+    <ClCompile Include="Quad.cpp" />
+    <ClCompile Include="RayTracingTechnique.cpp" />
+    <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="RenderPass.cpp" />
+    <ClCompile Include="RenderScene.cpp" />
+    <ClCompile Include="RenderTarget.cpp" />
+    <ClCompile Include="RenderTechnique.cpp" />
+    <ClCompile Include="ResourceBase.cpp" />
+    <ClCompile Include="ResourceManager.cpp" />
+    <ClCompile Include="FX.cpp" />
+    <ClCompile Include="RTPipeline.cpp" />
+    <ClCompile Include="RTPipelineBuilder.cpp" />
+    <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="ShaderBuilder.cpp" />
+    <ClCompile Include="ShaderConfig.cpp" />
+    <ClCompile Include="ShadowMapPass.cpp" />
+    <ClCompile Include="SharedResource.cpp" />
+    <ClCompile Include="Skeleton.cpp" />
+    <ClCompile Include="SkyBox.cpp" />
+    <ClCompile Include="SkyBoxPass.cpp" />
+    <ClCompile Include="SkyBoxRenderTechnique.cpp" />
+    <ClCompile Include="Sphere.cpp" />
+    <ClCompile Include="SpriteRenderer.cpp" />
+    <ClCompile Include="SSAOBlendPass.cpp" />
+    <ClCompile Include="SSAOTechnique.cpp" />
+    <ClCompile Include="SSAOWritePass.cpp" />
+    <ClCompile Include="SSRPass.cpp" />
+    <ClCompile Include="SSRTechnique.cpp" />
+    <ClCompile Include="StructuredBuffer.cpp" />
+    <ClCompile Include="TextDrawPass.cpp" />
+    <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="ThirdParty\source\DebugDraw.cpp" />
+    <ClCompile Include="ThreadPool.cpp" />
+    <ClCompile Include="UI25DPass.cpp" />
+    <ClCompile Include="UI2DPass.cpp" />
+    <ClCompile Include="UI3DPass.cpp" />
+    <ClCompile Include="UIPassBase.cpp" />
+    <ClCompile Include="UITechnique.cpp" />
+    <ClCompile Include="UnorderedAccessView.cpp" />
+    <ClCompile Include="VertexShader.cpp" />
+    <ClCompile Include="VIBuffer.cpp" />
+    <ClCompile Include="ViewManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="GraphicsEngine.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="pch.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="PixelShader.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Quad.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderScene.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderTarget.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderTechnique.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ResourceBase.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ResourceManager.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Shader.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderBuilder.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Skeleton.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="SkyBox.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="SkyBoxPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="SkyBoxRenderTechnique.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Sphere.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="SpriteRenderer.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="StructuredBuffer.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="TextDrawPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Texture.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="UI2DPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="UI3DPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="UI25DPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="UIPassBase.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="UITechnique.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="UnorderedAccessView.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="VertexShader.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="VIBuffer.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ViewManager.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Animation.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="AnimationCore.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Animator.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="BaseMesh.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="BlendPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="BlendTechnique.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="BloomTechnique.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Module\GaussianBlurModule.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Box.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="BrightExtractPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="CommandController.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="CommandSet.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ComputeShader.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ConstantBufferView.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Cylinder.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="d3dUtil.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="DebugDrawCore.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="DeferredPBRLitPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="DepthStencilView.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Device.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="DownAndUpSamplingPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="DXResourceManager.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="EditorDrawTechnique.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="EndlessGridPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="FBXConverter.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Font.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="FontRenderer.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="FontTechnique.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="FrameResource.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="GBufferPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="GeometryGenerator.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="GeometryShader.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="GeoSphere.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphicsBase.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphicsCore.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Grid.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Light.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="LightCore.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="LightMapBaker.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="MeshRenderer.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="MeshShader.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Model.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="MultiRenderTargetManager.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="OutLinePass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Particle.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ParticleEffect.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ParticleEmitter.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ParticleManager.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ParticleRenderTechnique.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ParticleResolvePass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ParticleSpritePass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="PBRLitTechnique.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="SharedResource.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ThirdParty\source\DebugDraw.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="AccelerationStructureManager.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="dxcapi.use.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="DxilLibrary.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="DXRDrawPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="DXRGBufferPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ExportAssociation.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="GlobalRootSignature.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="HItProgram.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="LocalRootSignature.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="PipelineConfig.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="RayTracingTechnique.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="RTPipeline.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="RTPipelineBuilder.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ShaderConfig.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ParticleRibbonPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ShadowMapPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderPassDatas.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Module\AccumulationModule.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Module\ModuleManager.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="PipelineStateManager.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="FX.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="DXRComputeSkeletalMeshPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="DXRSkeletalMesh.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="SSAOBlendPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="SSAOTechnique.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="SSAOWritePass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="SSRTechnique.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="SSRPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
+    <ClInclude Include="AccelerationStructureManager.h" />
+    <ClInclude Include="Module\AccumulationModule.h" />
+    <ClInclude Include="Animation.h" />
+    <ClInclude Include="AnimationCore.h" />
+    <ClInclude Include="Animator.h" />
+    <ClInclude Include="BaseMesh.h" />
+    <ClInclude Include="BlendPass.h" />
+    <ClInclude Include="BlendTechnique.h" />
+    <ClInclude Include="BloomTechnique.h" />
+    <ClInclude Include="Module\GaussianBlurModule.h" />
+    <ClInclude Include="Box.h" />
+    <ClInclude Include="BrightExtractPass.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="CommandController.h" />
+    <ClInclude Include="CommandSet.h" />
+    <ClInclude Include="ComputeShader.h" />
+    <ClInclude Include="ConstantBufferView.h" />
+    <ClInclude Include="Cylinder.h" />
+    <ClInclude Include="d3dUtil.h" />
+    <ClInclude Include="Module\ModuleManager.h" />
+    <ClInclude Include="Module\RenderModule.h" />
+    <ClInclude Include="PipelineStateManager.h" />
+    <ClInclude Include="RenderPassDatas.h" />
+    <ClInclude Include="DebugDrawCore.h" />
+    <ClInclude Include="DeferredPBRLitPass.h" />
+    <ClInclude Include="Defines.h" />
+    <ClInclude Include="DepthStencilView.h" />
+    <ClInclude Include="Device.h" />
+    <ClInclude Include="DownAndUpSamplingPass.h" />
+    <ClInclude Include="dxcapi.use.h" />
+    <ClInclude Include="DxilLibrary.h" />
+    <ClInclude Include="DXRComputeSkeletalMeshPass.h" />
+    <ClInclude Include="DXRDrawPass.h" />
+    <ClInclude Include="DXResourceManager.h" />
+    <ClInclude Include="DXRGBufferPass.h" />
+    <ClInclude Include="DXRSkeletalMesh.h" />
+    <ClInclude Include="EditorDrawTechnique.h" />
+    <ClInclude Include="EndlessGridPass.h" />
+    <ClInclude Include="Enums.h" />
+    <ClInclude Include="ExportAssociation.h" />
+    <ClInclude Include="Externs.h" />
+    <ClInclude Include="FBXConverter.h" />
+    <ClInclude Include="Font.h" />
+    <ClInclude Include="FontRenderer.h" />
+    <ClInclude Include="FontTechnique.h" />
+    <ClInclude Include="FrameResource.h" />
+    <ClInclude Include="GBufferPass.h" />
+    <ClInclude Include="GeometryGenerator.h" />
+    <ClInclude Include="GeometryShader.h" />
+    <ClInclude Include="GeoSphere.h" />
+    <ClInclude Include="GlobalRootSignature.h" />
+    <ClInclude Include="Graphics.h" />
+    <ClInclude Include="GraphicsBase.h" />
+    <ClInclude Include="GraphicsCore.h" />
+    <ClInclude Include="Graphics_Enums.h" />
+    <ClInclude Include="Graphics_Structs.h" />
+    <ClInclude Include="Grid.h" />
+    <ClInclude Include="Headers.h" />
+    <ClInclude Include="HItProgram.h" />
+    <ClInclude Include="Light.h" />
+    <ClInclude Include="LightCore.h" />
+    <ClInclude Include="LightMapBaker.h" />
+    <ClInclude Include="LocalRootSignature.h" />
+    <ClInclude Include="MeshRenderer.h" />
+    <ClInclude Include="MeshShader.h" />
+    <ClInclude Include="Model.h" />
+    <ClInclude Include="MultiRenderTargetManager.h" />
+    <ClInclude Include="OutLinePass.h" />
+    <ClInclude Include="Particle.h" />
+    <ClInclude Include="ParticleEffect.h" />
+    <ClInclude Include="ParticleEmitter.h" />
+    <ClInclude Include="ParticleHelper.h" />
+    <ClInclude Include="ParticleManager.h" />
+    <ClInclude Include="ParticleRenderTechnique.h" />
+    <ClInclude Include="ParticleResolvePass.h" />
+    <ClInclude Include="ParticleRibbonPass.h" />
+    <ClInclude Include="ParticleSpritePass.h" />
+    <ClInclude Include="PBRLitTechnique.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="PipelineConfig.h" />
+    <ClInclude Include="PixelShader.h" />
+    <ClInclude Include="Quad.h" />
+    <ClInclude Include="RayTracingTechnique.h" />
+    <ClInclude Include="Renderer.h" />
+    <ClInclude Include="RenderPass.h" />
+    <ClInclude Include="RenderScene.h" />
+    <ClInclude Include="RenderTarget.h" />
+    <ClInclude Include="RenderTechnique.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="ResourceBase.h" />
+    <ClInclude Include="ResourceManager.h" />
+    <ClInclude Include="FX.h" />
+    <ClInclude Include="RTPipeline.h" />
+    <ClInclude Include="RTPipelineBuilder.h" />
+    <ClInclude Include="Shader.h" />
+    <ClInclude Include="ShaderBuilder.h" />
+    <ClInclude Include="ShaderConfig.h" />
+    <ClInclude Include="ShadowMapPass.h" />
+    <ClInclude Include="SharedResource.h" />
+    <ClInclude Include="Skeleton.h" />
+    <ClInclude Include="SkyBox.h" />
+    <ClInclude Include="SkyBoxPass.h" />
+    <ClInclude Include="SkyBoxRenderTechnique.h" />
+    <ClInclude Include="Sphere.h" />
+    <ClInclude Include="SpriteRenderer.h" />
+    <ClInclude Include="SSAOBlendPass.h" />
+    <ClInclude Include="SSAOTechnique.h" />
+    <ClInclude Include="SSAOWritePass.h" />
+    <ClInclude Include="SSRPass.h" />
+    <ClInclude Include="SSRTechnique.h" />
+    <ClInclude Include="Structs.h" />
+    <ClInclude Include="StructuredBuffer.h" />
+    <ClInclude Include="TextDrawPass.h" />
+    <ClInclude Include="Texture.h" />
+    <ClInclude Include="ThreadPool.h" />
+    <ClInclude Include="UI25DPass.h" />
+    <ClInclude Include="UI2DPass.h" />
+    <ClInclude Include="UI3DPass.h" />
+    <ClInclude Include="UIPassBase.h" />
+    <ClInclude Include="UITechnique.h" />
+    <ClInclude Include="UnorderedAccessView.h" />
+    <ClInclude Include="VertexShader.h" />
+    <ClInclude Include="VIBuffer.h" />
+    <ClInclude Include="ViewManager.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Shaders\CommonData.hlsli">
-      <Filter>Shaders\Headers</Filter>
-    </None>
-    <None Include="..\Shaders\CommonDefines.hlsli">
-      <Filter>Shaders\Headers</Filter>
-    </None>
-    <None Include="..\Shaders\CommonSamplers.hlsli">
-      <Filter>Shaders\Headers</Filter>
-    </None>
-    <None Include="..\Shaders\CommonStructs.hlsli">
-      <Filter>Shaders\Headers</Filter>
-    </None>
-    <None Include="..\Shaders\Compute.hlsli">
-      <Filter>Shaders\Headers</Filter>
-    </None>
-    <None Include="..\Shaders\Function.hlsli">
-      <Filter>Shaders\Headers</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="..\Shaders\RTShaders.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\cs_brdf_lut.hlsl">
-      <Filter>Shaders\cs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\cs_compute_ribbon.hlsl">
-      <Filter>Shaders\cs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\cs_compute_sprite.hlsl">
-      <Filter>Shaders\cs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\cs_cube_texture_convertor.hlsl">
-      <Filter>Shaders\cs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\cs_depth_extract.hlsl">
-      <Filter>Shaders\cs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\cs_irradiance_map.hlsl">
-      <Filter>Shaders\cs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\cs_particle_reorder.hlsl">
-      <Filter>Shaders\cs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\cs_prefiltered_map.hlsl">
-      <Filter>Shaders\cs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\cs_prefix_sum.hlsl">
-      <Filter>Shaders\cs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\cs_radix_histogram.hlsl">
-      <Filter>Shaders\cs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\cs_radix_scatter.hlsl">
-      <Filter>Shaders\cs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\cs_skeletal_skinning.hlsl">
-      <Filter>Shaders\cs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\cs_validate_sort.hlsl">
-      <Filter>Shaders\cs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_accumulation.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_blend.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_bright_extract.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_down_sample.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_dxrgbuffer.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_gbuffer.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_grid.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_outline.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_particle_quad.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_particle_resolve.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_pbr_lighting.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_skybox.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_ssao.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_to_backbuffer.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_ui.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_up_sample.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\vs_grid.hlsl">
-      <Filter>Shaders\vs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\vs_particle_fullscreen.hlsl">
-      <Filter>Shaders\vs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\vs_particle_quad.hlsl">
-      <Filter>Shaders\vs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\vs_particle_ribbon.hlsl">
-      <Filter>Shaders\vs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\vs_quad.hlsl">
-      <Filter>Shaders\vs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\vs_skeletal_fr.hlsl">
-      <Filter>Shaders\vs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\vs_skeletal_shadow_fr.hlsl">
-      <Filter>Shaders\vs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\vs_skybox.hlsl">
-      <Filter>Shaders\vs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\vs_static_fr.hlsl">
-      <Filter>Shaders\vs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\vs_static_shadow_fr.hlsl">
-      <Filter>Shaders\vs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\vs_ui_fr.hlsl">
-      <Filter>Shaders\vs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_gaussianblur_x.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_gaussianblur_y.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_write_ao.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_ssr.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_ssao_blend.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
+    <None Include="..\Shaders\CommonData.hlsli" />
+    <None Include="..\Shaders\CommonDefines.hlsli" />
+    <None Include="..\Shaders\CommonSamplers.hlsli" />
+    <None Include="..\Shaders\CommonStructs.hlsli" />
+    <None Include="..\Shaders\Compute.hlsli" />
+    <None Include="..\Shaders\Function.hlsli" />
   </ItemGroup>
 </Project>

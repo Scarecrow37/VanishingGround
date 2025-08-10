@@ -229,6 +229,22 @@ void Device::CreateVertexBuffer(void* data, UINT size, UINT stride, ComPtr<ID3D1
     view.StrideInBytes  = stride;
 }
 
+void Device::CreateVertexBuffer(ID3D12GraphicsCommandList* commandList, void* data, UINT size, UINT stride,
+                                ComPtr<ID3D12Resource>& buffer, D3D12_VERTEX_BUFFER_VIEW& view)
+{
+    if (data)
+    {
+        ComPtr<ID3D12Resource> uploadBuffer;
+        buffer = d3dUtil::CreateBufferWithData(_device.Get(), commandList, data, size, uploadBuffer);
+
+        _uploadResources.push_back(uploadBuffer);
+    }
+
+    view.BufferLocation = buffer->GetGPUVirtualAddress();
+    view.SizeInBytes    = size;
+    view.StrideInBytes  = stride;
+}
+
 void Device::CreateIndexBuffer(void* data, UINT size, DXGI_FORMAT format, ComPtr<ID3D12Resource>& buffer,
                                D3D12_INDEX_BUFFER_VIEW& view)
 {
@@ -236,6 +252,22 @@ void Device::CreateIndexBuffer(void* data, UINT size, DXGI_FORMAT format, ComPtr
     {
         ComPtr<ID3D12Resource> uploadBuffer;
         buffer = d3dUtil::CreateBufferWithData(_device.Get(), _commandList.Get(), data, size, uploadBuffer);
+
+        _uploadResources.push_back(uploadBuffer);
+    }
+
+    view.BufferLocation = buffer->GetGPUVirtualAddress();
+    view.SizeInBytes    = size;
+    view.Format         = format;
+}
+
+void Device::CreateIndexBuffer(ID3D12GraphicsCommandList* commandList, void* data, UINT size, DXGI_FORMAT format,
+                               ComPtr<ID3D12Resource>& buffer, D3D12_INDEX_BUFFER_VIEW& view)
+{
+    if (data)
+    {
+        ComPtr<ID3D12Resource> uploadBuffer;
+        buffer = d3dUtil::CreateBufferWithData(_device.Get(), commandList, data, size, uploadBuffer);
 
         _uploadResources.push_back(uploadBuffer);
     }
