@@ -221,12 +221,13 @@ void RenderScene::UpdateGlobal()
                           .ViewInverse       = _camera->GetWorldMatrix(),
                           .ProjectionInverse = _camera->GetProjectionInverseMatrix(),
                           .Position          = Vector4(_camera->GetPosition())};
-    auto& lights = Global::lightCore->GetLights(_name.c_str());       
+
+    auto& lights = Global::lightCore->GetLights(_name.c_str());
 
     _numLight = {};
     for (auto& [isDestroy, light] : lights)
     {
-        if (nullptr == light->_isActive || !(*light->_isActive))
+        if (nullptr == light->_isActive || !light->IsActive())
             continue;
 
         switch (light->_type)
