@@ -5,11 +5,11 @@
 enum AnimationFlag
 {
     ANIMATION_FLAG_NONE                     = 0,
-    ANIMATION_FLAG_USE_LOOP                 = 1 << 0, // 루프 애니메이션
-    ANIMATION_FLAG_PAUSE                    = 1 << 1, // 애니메이션 정지
-    ANIMATION_FLAG_ALWAYS_UPDATE            = 1 << 2, // 항상 업데이트 애니메이션(OverrideAnimation은 마지막 애니메이션만 업데이트 하지만, 해당 bool값을 true로 할 경우 해당 애니메이션도 업데이트)
-    ANIMATION_FLAG_RESET_FRAME              = 1 << 3, // 애니메이션이 바뀔 때 프레임을 0으로 초기화
-    ANIMATION_FLAG_ENABLE_BLEND
+    ANIMATION_FLAG_USE_BLEND                = 1 << 0, // 애니메이션 블렌딩 활성화
+    ANIMATION_FLAG_USE_LOOP                 = 1 << 1, // 루프 애니메이션
+    ANIMATION_FLAG_PAUSE                    = 1 << 2, // 애니메이션 정지
+    ANIMATION_FLAG_ALWAYS_UPDATE            = 1 << 3, // 항상 업데이트 애니메이션(OverrideAnimation은 마지막 애니메이션만 업데이트 하지만, 해당 bool값을 true로 할 경우 해당 애니메이션도 업데이트)
+    ANIMATION_FLAG_RESET_FRAME              = 1 << 4, // 애니메이션이 바뀔 때 프레임을 0으로 초기화
 };
 using AnimationFlags = int;
 
@@ -18,17 +18,17 @@ class AnimationData
     friend class AnimationComponent;
 
 public:
+    AnimationData(std::string_view key, AnimationFlags option);
     AnimationData(std::string_view key);
     AnimationData();
     ~AnimationData();
 
 public:
     inline const std::string& GetAnimationName() const { return _animationName; }
-    inline bool  IsAnimationBlend() const { return _isBlending; }
     inline float GetAnimationSpeed() const { return _speed; }
     inline float GetAnimationElapsedFrame() const { return _elapsedFrame; }
     inline float GetAnimationMaxFrame() const { return _maxFrame; }
-    inline bool  HasFlag(AnimationFlags flag) const { return _flags & flag; }
+    inline bool  HasFlag(AnimationFlags flag) const { return _flag & flag; }
 
     inline bool  IsEnd() const { return _elapsedFrame >= _maxFrame; }
     inline bool  IsSameAnimation(const char* animName) const { return _animationName == animName; }
@@ -38,20 +38,19 @@ public:
 private:
     inline static UINT _nextID = 0;
 
-    UINT            _id              = ++_nextID; // Data 식별용 ID
-    std::string     _animationName   = "";       // 애니메이션 이름
-    AnimationFlags  _flags           = 0;        // 애니메이션 플래그
-    bool            _isBlending      = false;    // 애니메이션 블렌딩 여부
-    float           _speed           = 1.0f;     // 애니메이션 속도 (배수)
-    float           _elapsedFrame    = 0.0f;     // 애니메이션 지속 시간 (초)
-    float           _maxFrame        = 0.0f;     // 애니메이션 최대 프레임 (초 단위로 변환된 값)
+    UINT            _id                 = ++_nextID;   // Data 식별용 ID
+    std::string     _animationName      = "";          // 애니메이션 이름
+    int             _flag               = ANIMATION_FLAG_NONE; // 애니메이션 옵션
+    float           _speed              = 1.0f;        // 애니메이션 속도 (배수)
+    float           _elapsedFrame       = 0.0f;        // 애니메이션 지속 시간 (초)
+    float           _maxFrame           = 0.0f;        // 애니메이션 최대 프레임 (초 단위로 변환된 값)
 
     std::function<bool(const AnimationData&)> _popCondition = nullptr;  // return true일 시 Pop
     std::function<void()>                     _onPopCallback = nullptr; // Pop 시 호출할 콜백 함수
     std::function<void()>                     _onEndCallback = nullptr; // End 시 호출할 콜백 함수
 
-    inline void SetFlag(AnimationFlags flag) { _flags = flag; }
-    inline void AddFlag(AnimationFlags flag) { _flags |= flag; }
-    inline void RemoveFlag(AnimationFlags flag) { _flags &= ~flag; }
-    inline void ToggleFlag(AnimationFlags flag) { _flags ^= flag; }
+    inline void SetFlag(AnimationFlags flag) { _flag = flag; }
+    inline void AddFlag(AnimationFlags flag) { _flag |= flag; }
+    inline void RemoveFlag(AnimationFlags flag) { _flag &= ~flag; }
+    inline void ToggleFlag(AnimationFlags flag) { _flag ^= flag; }
 };

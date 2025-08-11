@@ -9,7 +9,7 @@ void AnimationComponent::Reset()
 
 void AnimationComponent::Awake()
 {
-    ChangeMainAnimation(ReflectFields->MainAnimationKey, false);
+    ChangeMainAnimation(ReflectFields->MainAnimationKey);
     ChangeMainAnimationFlags(ReflectFields->MainAnimationFlags);
 }
 
@@ -58,7 +58,7 @@ void AnimationComponent::OnDisable()
 void AnimationComponent::SerializedReflectEvent()
 {
     ReflectFields->MainAnimationKey   = _mainAnimationData._animationName;
-    ReflectFields->MainAnimationFlags = _mainAnimationData._flags;
+    ReflectFields->MainAnimationFlags = _mainAnimationData._flag;
     ReflectFields->MainAnimationSpeed = _mainAnimationData._speed;
 
     ReflectFields->AnimEventTrackGuid = _guidRef.string();
@@ -66,9 +66,9 @@ void AnimationComponent::SerializedReflectEvent()
 
 void AnimationComponent::DeserializedReflectEvent()
 {
-    _mainAnimationData._animationName = ReflectFields->MainAnimationKey;
-    _mainAnimationData._flags         = ReflectFields->MainAnimationFlags;
-    _mainAnimationData._speed         = ReflectFields->MainAnimationSpeed;
+    _mainAnimationData._animationName   = ReflectFields->MainAnimationKey;
+    _mainAnimationData._flag            = ReflectFields->MainAnimationFlags;
+    _mainAnimationData._speed           = ReflectFields->MainAnimationSpeed;
     SetAnimationEventTrackFromGuid(ReflectFields->AnimEventTrackGuid);
 }
 
@@ -350,6 +350,15 @@ AnimationData& AnimationComponent::GetLastAnimationDataEx()
     return _mainAnimationData;
 }
 
+AnimationData& AnimationComponent::GetFrontAnimationDataEx()
+{
+    if (false == _overrideAnimationStack.empty())
+    {
+        return _overrideAnimationStack.front();
+    }
+    return _mainAnimationData;
+}
+
 AnimationData& AnimationComponent::GetTopAnimationDataEx()
 {
     if (false == _overrideAnimationStack.empty())
@@ -424,7 +433,9 @@ bool AnimationComponent::SetAnimationEx(AnimationData& animData)
         bool isTopData = GetTopAnimationDataEx().IsSameData(animData);
         if (true == isTopData && false == _isBuildingOverrideAnimation)
         {
-            result = _animator->ChangeAnimation(animData._animationName.c_str(), animData._isBlending);
+            const char* animName = animData._animationName.c_str();
+            bool        canBlend = animData.HasFlag(ANIMATION_FLAG_USE_LOOP);
+            result = _animator->ChangeAnimation(animName, canBlend);
             if (result)
             {
                 if (animData.HasFlag(ANIMATION_FLAG_RESET_FRAME))
@@ -440,16 +451,17 @@ bool AnimationComponent::SetAnimationEx(AnimationData& animData)
     return result;
 }
 
-bool AnimationComponent::ChangeAnimationEx(AnimationData& animData, std::string_view animKey, bool blend)
+bool AnimationComponent::ChangeAnimationEx(AnimationData& animData, std::string_view animKey)
 {
     bool result = false;
+    int  nextFlag            = _nextAnimationFlag.first ? _nextAnimationFlag.second : animData._flag;
+    _nextAnimationFlag.first = false;
     if (_animator)
     {
         GetAnimationNameEx(animKey, animData._animationName);
-        animData._isBlending    = blend;
         animData._maxFrame      = _animator->GetAnimationLastTime(animData._animationName.c_str());
-        bool isTopData         = GetTopAnimationDataEx().IsSameData(animData);
-        if (true == isTopData && false == _isBuildingOverrideAnimation)
+        animData._flag          = nextFlag;
+        if (false == _isBuildingOverrideAnimation)
         {
             result = SetAnimationEx(animData);
         }
@@ -463,8 +475,7 @@ void AnimationComponent::ChangeAnimationFrameEx(AnimationData& animData, float f
     if (_animator)
     {
         animData._elapsedFrame = std::clamp(frame, 0.0f, animData._maxFrame);
-        bool isTopData        = GetTopAnimationDataEx().IsSameData(animData);
-        if (true == isTopData && false == _isBuildingOverrideAnimation)
+        if (false == _isBuildingOverrideAnimation)
         {
             _animator->SetAnimationTime(animData._elapsedFrame);
         }
@@ -475,7 +486,7 @@ void AnimationComponent::ChangeAnimationFlagsEx(AnimationData& animData, int fla
 {
     if (_animator)
     {
-        animData._flags = flags;
+        animData.SetFlag(flags);
     }
 }
 
@@ -504,7 +515,13 @@ void AnimationComponent::GetAnimationNameEx(std::string_view key, std::string& s
     }
 }
 
-void AnimationComponent::ClearOverrideAnimations() 
+void AnimationComponent::SetNextAnimationFlags(AnimationFlags nextAnimFlag)
+{
+    _nextAnimationFlag.first  = true;
+    _nextAnimationFlag.second = nextAnimFlag;
+}
+
+void AnimationComponent::ClearOverrideAnimations()
 {
     if (false == _overrideAnimationStack.empty())
     {
@@ -543,19 +560,29 @@ void AnimationComponent::EndBuildOverrideAnimation()
     }
 }
 
-bool AnimationComponent::PushBackOverrideAnimation(std::string_view animKey, bool blend, std::function<bool(const AnimationData&)> popCondition)
+bool AnimationComponent::PushBackOverrideAnimation(std::string_view animKey, bool allowOverlap)
 {
+    int nextFlag = _nextAnimationFlag.first ? _nextAnimationFlag.second : ANIMATION_FLAG_NONE;
+    _nextAnimationFlag.first = false;
     if (_animator)
     {
+        // 중복 애니메이션을 허용하지 않는 경우
+        if (false == allowOverlap)
+        {
+            const AnimationData& topData = GetTopAnimationData();
+            if(topData._animationName == animKey)
+            {
+                return false;
+            }
+        }
         std::string animName(animKey);
         GetAnimationNameEx(animKey, animName);
         if (_animator->HasAnimation(animName.c_str()))
         {
             _overrideAnimationStack.emplace_back(animName);
-            AnimationData& animData  = _overrideAnimationStack.back();
-            animData._isBlending     = blend;
-            animData._popCondition   = popCondition;
-            animData._maxFrame       = _animator->GetAnimationLastTime(animData._animationName.data());
+            AnimationData& animData = _overrideAnimationStack.back();
+            animData._maxFrame      = _animator->GetAnimationLastTime(animData._animationName.data());
+            animData._flag          = nextFlag;
             if (false == _isBuildingOverrideAnimation)
             {
                 SetAnimationEx(animData);
@@ -567,19 +594,29 @@ bool AnimationComponent::PushBackOverrideAnimation(std::string_view animKey, boo
     return false;
 }
 
-bool AnimationComponent::PushFrontOverrideAnimation(std::string_view animKey, bool blend, std::function<bool(const AnimationData&)> popCondition)
+bool AnimationComponent::PushFrontOverrideAnimation(std::string_view animKey, bool allowOverlap)
 {
+    int nextFlag = _nextAnimationFlag.first ? _nextAnimationFlag.second : ANIMATION_FLAG_NONE;
+    _nextAnimationFlag.first = false;
     if (_animator)
     {
+        // 중복 애니메이션을 허용하지 않는 경우
+        if (false == allowOverlap)
+        {
+            const AnimationData& frontData = GetFrontAnimationData();
+            if (frontData._animationName == animKey)
+            {
+                return false;
+            }
+        }
         std::string animName(animKey);
         GetAnimationNameEx(animKey, animName);
         if (_animator->HasAnimation(animName.c_str()))
         {
             _overrideAnimationStack.emplace_front(animName);
             AnimationData& animData = _overrideAnimationStack.front();
-            animData._isBlending    = blend;
-            animData._popCondition  = popCondition;
             animData._maxFrame      = _animator->GetAnimationLastTime(animData._animationName.data());
+            animData._flag          = nextFlag;
             if (false == _isBuildingOverrideAnimation)
             {
                 SetAnimationEx(animData);
@@ -602,14 +639,14 @@ void AnimationComponent::PopOverrideAnimation()
     _lastAnimationData = &animData;
 }
 
-bool AnimationComponent::ChangeCurrentAnimation(std::string_view animKey, bool blend) 
+bool AnimationComponent::ChangeCurrentAnimation(std::string_view animKey) 
 {
-    return ChangeAnimationEx(GetLastAnimationDataEx(), animKey, blend);
+    return ChangeAnimationEx(GetLastAnimationDataEx(), animKey);
 }
 
-bool AnimationComponent::ChangeMainAnimation(std::string_view animKey, bool blend) 
+bool AnimationComponent::ChangeMainAnimation(std::string_view animKey) 
 {
-    return ChangeAnimationEx(_mainAnimationData, animKey, blend);
+    return ChangeAnimationEx(_mainAnimationData, animKey);
 }
 
 void AnimationComponent::ChangeCurrentAnimationFrame(float frame) 
@@ -654,6 +691,21 @@ void AnimationComponent::SetMainAnimationEndCallback(std::function<void()> callb
 
 const AnimationData& AnimationComponent::GetMainAnimationData() const
 {
+    return _mainAnimationData;
+}
+
+void AnimationComponent::SetCurrentAnimationPopCondition(std::function<bool(const AnimationData&)> callback)
+{
+    AnimationData& animData = GetLastAnimationDataEx();
+    animData._popCondition  = callback;
+}
+
+const AnimationData& AnimationComponent::GetFrontAnimationData() const
+{
+    if (false == _overrideAnimationStack.empty())
+    {
+        return _overrideAnimationStack.front();
+    }
     return _mainAnimationData;
 }
 

@@ -12,6 +12,14 @@ namespace Timeline
     class EventTrack;
 } // namespace Timeline
 
+/// <summary>
+/// AnimationComponent 클래스는 게임 오브젝트의 애니메이션 상태를 관리하고, 
+/// 애니메이션의 재생, 정지, 일시정지, 프레임 및 플래그 변경, 
+/// 오버라이드 애니메이션 스택 관리, 애니메이션 이벤트 트랙 및 매핑 기능을 제공합니다.
+/// 
+/// <para>오버라이드 애니메이션: 메인 애니메이션에 덧씌울 수 있는 애니메이션입니다.</para>
+/// <para>애니메이션 이벤트 트랙: 애니메이션의 특정 프레임에 이벤트를 연결할 수 있는 기능입니다.</para>
+/// </summary>
 class AnimationComponent : public Component
 {
     USING_PROPERTY(AnimationComponent)
@@ -31,12 +39,13 @@ public:
 
 private:
     AnimationData& GetLastAnimationDataEx();
+    AnimationData& GetFrontAnimationDataEx();
     AnimationData& GetTopAnimationDataEx();
 
     void UpdateNullAnimator();
     void UpdateAnimation(AnimationData& animData);
     bool SetAnimationEx(AnimationData& animData);
-    bool ChangeAnimationEx(AnimationData& animData, std::string_view animKey, bool blend);
+    bool ChangeAnimationEx(AnimationData& animData, std::string_view animKey);
     void ChangeAnimationFrameEx(AnimationData& animData, float frame);
     void ChangeAnimationFlagsEx(AnimationData& animData, int flags);
     void SetAnimationPopCallbackEx(AnimationData& animData, std::function<void()> callback);
@@ -47,7 +56,12 @@ public:
     void SetAnimator(SkeletalMeshRenderer* renderer);
     void SetAnimator(std::shared_ptr<Animator> animator);
 
-    // 오버라이드 애니메이션: 메인 애니메이션에 덧씌울 수 있는 애니메이션입니다.
+    /// <summary>
+    /// 다음에 적용할 애니메이션 플래그를 설정합니다.
+    /// <para>해당 함수를 호출하지 않아도 애니메이션은 추가할 수 있지만, 기본 플래그로 적용됩니다.</para>
+    /// </summary>
+    /// <param name="nextAnimFlag">설정할 다음 애니메이션 옵션입니다.</param>
+    void SetNextAnimationFlags(AnimationFlags nextAnimFlag);
 
     /// <summary>
     /// 애니메이션 오버라이드를 모두 지웁니다. 
@@ -72,22 +86,23 @@ public:
     /// <para>Pop조건을 추가할 수 있습니다. (댕글링 위험성이 있는 콜백을 넣지 마세요.)</para>
     /// </summary>
     /// <param name="animKey">애니메이션 키</param>
-    /// <param name="blend">블렌드 여부</param>
+    /// <param name="allowOverlap">마지막 애니메이션이 동일해도 중복 추가할 수 있는지 여부</param>
     /// <param name="popCondition">애니메이션 Pop 조건</param>
     /// <returns>보통 애니메이션 키가 유효하면 true를 반환합니다. 유효하지 않는 경우 false를 반환합니다.</returns>
-    bool PushBackOverrideAnimation(std::string_view animKey, bool blend = true, std::function<bool(const AnimationData&)> popCondition = nullptr);
-    bool PushFrontOverrideAnimation(std::string_view animKey, bool blend = true, std::function<bool(const AnimationData&)> popCondition = nullptr);
+    bool PushBackOverrideAnimation(std::string_view animKey, bool allowOverlap = false);
+    bool PushFrontOverrideAnimation(std::string_view animKey, bool allowOverlap = false);
 
     /// <summary>
-    /// 최상단 오버라이드 애니메이션을 제거하고, 마지막 애니메이션으로 바꿉니다.
+    /// <para>최상단 오버라이드 애니메이션을 제거하고, 마지막 애니메이션으로 바꿉니다.</para>
+    /// <para>오버라이드 애니메이션이 비었다면, 메인 에니메이션을 적용합니다.</para>
     /// </summary>
     void PopOverrideAnimation();
 
     /// <summary>현재 애니메이션을 바꿉니다.</summary>
     /// <param name="animKey">애니메이션 키</param>
     /// <param name="loop">루프 여부. 기본 값은 true입니다.</param>
-    bool ChangeCurrentAnimation(std::string_view animKey, bool blend = true);
-    bool ChangeMainAnimation(std::string_view animKey, bool blend = true);
+    bool ChangeCurrentAnimation(std::string_view animKey);
+    bool ChangeMainAnimation(std::string_view animKey);
 
     /// <summary>애니메이션의 프레임을 설정합니다.</summary>
     /// <param name="frame">애니메이션 프레임 수</param>
@@ -107,8 +122,13 @@ public:
     void SetCurrentAnimationEndCallback(std::function<void()> callback);
     void SetMainAnimationEndCallback(std::function<void()> callback);
 
+    /// <summary>오버라이드 애니메이션이 Pop될 조건을 설정합니다. 설정하지 않는 경우 직접 Pop하기 전까지 유지됩니다.</summary>
+    void SetCurrentAnimationPopCondition(std::function<bool(const AnimationData&)> callback);
+    
     /// <summary>메인 애니메이션 데이터에 접근합니다.</summary>
     const AnimationData& GetMainAnimationData() const;
+    /// <summary>최상단 애니메이션 데이터에 접근합니다.</summary>
+    const AnimationData& GetFrontAnimationData() const;
     /// <summary>최상단 애니메이션 데이터에 접근합니다.</summary>
     const AnimationData& GetTopAnimationData() const;
     /// <summary>마지막(최상단) 애니메이션 데이터에 접근합니다.</summary>
@@ -193,6 +213,8 @@ private:
     AnimationData*             _lastAnimationData = nullptr;
     bool                       _isBuildingOverrideAnimation = false;
     
+    std::pair<bool, AnimationFlags> _nextAnimationFlag; // 다음 애니메이션 데이터 (first: isValid, second: NextAnimationData)
+    
     // 지연 처리용 큐
     std::vector<std::function<void()>> _delayProcess;
 
@@ -216,5 +238,4 @@ private:
     std::function<void(const Timeline::EventContext*)> _postEventCallback; // Event Callback Function
     std::string _selectedEventTrack;
     
-
 };

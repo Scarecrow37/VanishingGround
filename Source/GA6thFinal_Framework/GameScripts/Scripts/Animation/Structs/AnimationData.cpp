@@ -1,7 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "AnimationData.h"
 
-AnimationData::AnimationData(std::string_view key) : _animationName(key)
+AnimationData::AnimationData(std::string_view key) 
+    : _animationName(key)
 {
 }
 

@@ -317,17 +317,18 @@ void PlayerPlayTurnState::UpdateAttackEventUI(float dt)
         if (turnMode)
         {
             Player& player = GetPlayer();
-            if (_attackTargets.empty())
-            {
-                SetAttackEnd();
-            }
-            else
+            if (false == _attackTargets.empty())
             {
                 for (auto iter = _attackTargets.rbegin(); iter != _attackTargets.rend(); ++iter)
                 {
                     PushWeaponAnimation(*iter);
                 }
                 _attackTargets.clear();
+            }
+            else
+            {
+                // 공격 대상이 없으면 애니메이션을 스킵
+                SetAttackEnd();
             }
             _inputState = InputState::NONE;
         }
@@ -358,14 +359,14 @@ void PlayerPlayTurnState::SetAttackReady()
     {
         animator->BeginBuildOverrideAnimation();
         animator->ClearOverrideAnimations();
-        {
-            animator->PushBackOverrideAnimation("Attack_Ready_Loop", true, nullptr);
-            animator->ChangeCurrentAnimationFlags(ANIMATION_FLAG_USE_LOOP);
-        }
-        {
-            animator->PushBackOverrideAnimation("Attack_Ready", true, [](const AnimationData& data) { return data.IsEnd(); });
-            animator->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
-        }
+
+        animator->SetNextAnimationFlags(ANIMATION_FLAG_USE_BLEND | ANIMATION_FLAG_USE_LOOP);
+        animator->PushBackOverrideAnimation("Attack_Ready_Loop");
+        
+        animator->SetNextAnimationFlags(ANIMATION_FLAG_USE_BLEND | ANIMATION_FLAG_ALWAYS_UPDATE);
+        animator->PushBackOverrideAnimation("Attack_Ready");
+        animator->SetCurrentAnimationPopCondition([](const AnimationData& data) { return data.IsEnd(); });  // 애니메이션이 끝날 경우 Pop
+
         animator->EndBuildOverrideAnimation();
     }
     if (audioTable)
@@ -383,14 +384,14 @@ void PlayerPlayTurnState::SetAttack()
     {
         animator->BeginBuildOverrideAnimation();
         animator->ClearOverrideAnimations();
-        {
-            animator->PushBackOverrideAnimation("Attack_Loop", true, nullptr);
-            animator->ChangeCurrentAnimationFlags(ANIMATION_FLAG_USE_LOOP);
-        }
-        {
-            animator->PushBackOverrideAnimation("Attack", true, [](const AnimationData& data) { return data.IsEnd(); });
-            animator->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
-        }
+
+        animator->SetNextAnimationFlags(ANIMATION_FLAG_USE_BLEND | ANIMATION_FLAG_USE_LOOP);
+        animator->PushBackOverrideAnimation("Attack_Loop");
+        
+        animator->SetNextAnimationFlags(ANIMATION_FLAG_USE_BLEND | ANIMATION_FLAG_ALWAYS_UPDATE);
+        animator->PushBackOverrideAnimation("Attack");
+        animator->SetCurrentAnimationPopCondition([](const AnimationData& data) { return data.IsEnd(); }); // 애니메이션이 끝날 경우 Pop
+
         animator->EndBuildOverrideAnimation();
     }
     if (audioTable)
@@ -407,27 +408,25 @@ void PlayerPlayTurnState::SetAttackEnd()
     {
         animator->BeginBuildOverrideAnimation();
         animator->ClearOverrideAnimations();
-        {
-            animator->ChangeMainAnimation("Idle", true);
-            animator->ChangeMainAnimationFlags(ANIMATION_FLAG_USE_LOOP | ANIMATION_FLAG_RESET_FRAME);
+
+        // 메인 애니메이션을 Idle로 바꿈
+        animator->SetNextAnimationFlags(ANIMATION_FLAG_USE_BLEND | ANIMATION_FLAG_USE_LOOP | ANIMATION_FLAG_RESET_FRAME);
+        animator->ChangeMainAnimation("Idle");
+
+        // 애니메이션 "Attack_End"를 Push
+        animator->SetNextAnimationFlags(ANIMATION_FLAG_USE_BLEND | ANIMATION_FLAG_ALWAYS_UPDATE);
+        bool pushResult = animator->PushBackOverrideAnimation("Attack_End");
+        if (pushResult)
+        {   
+            animator->SetCurrentAnimationPopCondition([](const AnimationData& data) { return data.IsEnd(); }); // 애니메이션이 끝날 경우 Pop
+            animator->SetCurrentAnimationPopCallback([this]() { GetPlayer().EndTurn(); }); // Pop시 턴 종료
         }
+        else
         {
-            bool pushResult = animator->PushBackOverrideAnimation("Attack_End", true, [](const AnimationData& data) { return data.IsEnd(); });
-            if (pushResult)
-            {
-                animator->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
-                animator->SetCurrentAnimationPopCallback([this]() {
-                    // 애니메이션이 끝날 시 턴 종료
-                    auto& player = GetPlayer();
-                    player.EndTurn();
-                });
-            }
-            else
-            {
-                // 애니메이션을 못넣었으면 바로 턴 종료
-                player.EndTurn();
-            }
+            // 애니메이션을 못넣었으면 바로 턴 종료
+            player.EndTurn();
         }
+
         animator->EndBuildOverrideAnimation();
     }
     else
@@ -466,9 +465,9 @@ void PlayerPlayTurnState::PushWeaponAnimation(Battle::EnemyTargetFlag_ destEnemy
         if (weaponEffect)
             weaponEffect->PlayEffect();
 
-        weaponAnim->PushBackOverrideAnimation("attack", true, [](const AnimationData& data) { return data.IsEnd(); });
-        // Pop시 Battle 호출
-        weaponAnim->SetCurrentAnimationPopCallback([this, weaponEffect, weaponAnim, destEnemy]() { 
+        weaponAnim->PushBackOverrideAnimation("attack");
+        weaponAnim->SetCurrentAnimationPopCondition([](const AnimationData& data) { return data.IsEnd(); });    // 애니메이션이 끝날 경우 Pop
+        weaponAnim->SetCurrentAnimationPopCallback([this, weaponEffect, weaponAnim, destEnemy]() {              // Pop시 Battle 호출
             Player& player = GetPlayer();
             Battle()(player, destEnemy);
             size_t count = weaponAnim->GetOverrideAnimationCount();

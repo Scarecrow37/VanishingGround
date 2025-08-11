@@ -331,20 +331,18 @@ bool Animator::ChangeAnimation(const char* animation, const unsigned int ID, boo
 		return false;
 
 	_isBlending = true;
+    _blends[ID].BlendTime  = 0.f;
+    _blends[ID].IsBlending = true;
     if (true == blending)
     {
-        _blends[ID].BlendTime  = 0.f;
-        _blends[ID].IsBlending = true;
-        _prevControllers[ID]   = _controllers[ID];
+        _prevControllers[ID] = _controllers[ID];
     }
     _controllers[ID].Animation = iter->first;
     _controllers[ID].PlayTime  = 0.f;
     _controllers[ID].LastTime  = iter->second.LastTime;
     if (false == blending)
     {
-        _blends[ID].BlendTime  = 0.f;
-        _blends[ID].IsBlending = false;
-        _prevControllers[ID]   = _controllers[ID];
+        _prevControllers[ID] = _controllers[ID];
     }
 
     return true;

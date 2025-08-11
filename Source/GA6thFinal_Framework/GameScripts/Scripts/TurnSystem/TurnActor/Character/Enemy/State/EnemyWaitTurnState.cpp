@@ -28,8 +28,8 @@ void EnemyWaitTurnState::OnEnter()
     auto animator = enemy.GetAnimationComponent();
     if (animator)
     {
-        animator->ChangeMainAnimation("Idle", true);
-        animator->ChangeMainAnimationFlags(ANIMATION_FLAG_USE_LOOP | ANIMATION_FLAG_RESET_FRAME);
+        animator->SetNextAnimationFlags(ANIMATION_FLAG_USE_LOOP | ANIMATION_FLAG_RESET_FRAME | ANIMATION_FLAG_USE_BLEND);
+        animator->ChangeMainAnimation("Idle");
     }
 }
 
