@@ -22,6 +22,7 @@ public:
     Audio::System      Audio;
     Watcher::System    Watcher;
     ParticleEffectSerializer ParticleSerializer;
+    UI::System               UserInterface;
 
     ReflectHelper::ImGuiDraw::InputAutoSetting ImGuiDrawPropertysSetting;
 
@@ -82,6 +83,7 @@ namespace Global
 #define UmFactoryRegister UmCore->FactoryRegister
 #define UmAudio UmCore->Audio
 #define UmWatcher UmCore->Watcher
+#define UmUI UmCore->UserInterface
 
 // Graphics
 #define UmParticleSerializer UmCore->ParticleSerializer

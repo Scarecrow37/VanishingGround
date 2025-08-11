@@ -152,6 +152,9 @@ void Application::Run()
             // Scene Logic Update
             ESceneManager::Engine::SceneUpdate();
 
+            // User Interface Update
+            Global::engineCore->UserInterface.Update();
+
             // CameraUpdate, RenderQueueUpdate, Render
             Global::engineCore->Graphics.Update(deltaTime);
             Global::engineCore->Graphics.Render();
