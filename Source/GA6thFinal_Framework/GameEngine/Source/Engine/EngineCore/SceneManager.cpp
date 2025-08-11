@@ -1072,18 +1072,11 @@ void ESceneManager::ObjectsDestroy()
     auto& [destroyObjectSet, destroyObjectQueue] = _destroyObjectsQueue;
     for (auto& destroyObject : destroyObjectQueue)
     {
-        //OnDestroy 대상 호출
-        if (destroyObject->ActiveInHierarchy_property_getter())
+        if (_isPlay)
         {
             for (auto& component : destroyObject->_components)
             {
-                if (_isPlay)
-                {
-                    if (component->Enable)
-                    {
-                        component->OnDestroy();
-                    }
-                }
+                component->OnDestroy();
                 NotInitDestroyComponentEraseToWaitVec(component.get());
             }
         }
