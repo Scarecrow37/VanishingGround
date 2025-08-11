@@ -49,7 +49,7 @@ void PlayerPlayTurnState::OnAwake()
         auto sharedWeapon = weapon.lock();
         if (sharedWeapon)
         {
-            WeaponType type;
+            WeaponType type = WeaponType::SWORD;
             if (sharedWeapon->CompareTag("Sword")) 
                 type = WeaponType::SWORD;
             else if (sharedWeapon->CompareTag("Dagger")) 
@@ -58,6 +58,17 @@ void PlayerPlayTurnState::OnAwake()
                 type = WeaponType::WARHAMMER;
             weaponAnims[(int)type]   = sharedWeapon->GetComponent<AnimationComponent>();
             weaponEffects[(int)type] = sharedWeapon->GetComponent<ParticleComponent>();
+            weaponAnims[(int)type]->SetAnimationPostEventCallback([this](const Timeline::EventContext* context) 
+            { 
+                const std::string& label = context->GetLabel();
+                if ("Attack" == label)
+                {
+                    auto&   target = _attackTargets.back();
+                    Player& player = GetPlayer();
+                    Battle()(player, target);
+                    _attackTargets.pop_back();
+                }
+            });
         }
     }
 }
@@ -78,6 +89,7 @@ void PlayerPlayTurnState::OnEnter()
 void PlayerPlayTurnState::OnExit() 
 {
     _inputState = InputState::NONE;
+    _attackTargets.clear();
 }
 
 
@@ -280,25 +292,7 @@ void PlayerPlayTurnState::UpdateAttackEventUI(float dt)
 {
     ImGui::Begin("Player Turn##9A48EE30-CB5F-48AC-9740-DDF8118AAC49");
     {
-        TurnMode* turnMode = TurnMode::GetInstance();
-        if (turnMode)
-        {
-            Player& player = GetPlayer();
-            if (false == _attackTargets.empty())
-            {
-                for (auto iter = _attackTargets.rbegin(); iter != _attackTargets.rend(); ++iter)
-                {
-                    PushWeaponAnimation(*iter);
-                }
-                _attackTargets.clear();
-            }
-            else
-            {
-                // 공격 대상이 없으면 애니메이션을 스킵
-                SetAttackEnd();
-            }
-            _inputState = InputState::NONE;
-        }
+        _inputState = InputState::NONE;
     }
     ImGui::End();
 }
@@ -340,10 +334,22 @@ void PlayerPlayTurnState::SetAttackReady()
     {
         audioTable->Play("Casting");
     }
+
+    WeaponSystem*       weaponSystem = WeaponSystem::GetInstance();
+    const WeaponStats&  weaponStats  = weaponSystem->GetCurrentWeaponStats();
+    WeaponType          weaponType   = weaponStats.Type;
+    AnimationComponent* weaponAnim   = weaponAnims[(int)weaponType];
+    ParticleComponent*  weaponEffect = weaponEffects[(int)weaponType];
+
+    if (weaponAnim)
+    {
+        weaponAnim->BeginBuildOverrideAnimation();
+    }
 }
 
 void PlayerPlayTurnState::SetAttack()
 {
+    // 애니메이션 처리
     Player& player   = GetPlayer();
     auto*   animator = player.GetAnimationComponent();
     auto*   audioTable = player.GetAudioTableComponent();
@@ -361,9 +367,52 @@ void PlayerPlayTurnState::SetAttack()
 
         animator->EndBuildOverrideAnimation();
     }
+
+    // 사운드 처리
     if (audioTable)
     {
         audioTable->Play("Shoot");
+    }
+
+    // 무기 애니메이션 및 이펙트 처리
+    WeaponSystem*       weaponSystem = WeaponSystem::GetInstance();
+    const WeaponStats&  weaponStats  = weaponSystem->GetCurrentWeaponStats();
+    WeaponType          weaponType   = weaponStats.Type;
+    AnimationComponent* weaponAnim   = weaponAnims[(int)weaponType];
+    ParticleComponent*  weaponEffect = weaponEffects[(int)weaponType];
+
+    // 무기 애니메이션 처리
+    if (false == _attackTargets.empty())
+    {
+        // 무기 이펙트 처리
+        if (weaponEffect)
+        {
+            weaponEffect->PlayEffect();
+        }
+        bool isFirst = true;
+        for (auto iter = _attackTargets.rbegin(); iter != _attackTargets.rend(); ++iter)
+        {
+            // 무기 애니메이션 설정(중복 Push 허용)
+            weaponAnim->PushBackOverrideAnimation("attack", true);
+            weaponAnim->SetCurrentAnimationPopCondition([](const AnimationData& data) { return data.IsEnd(); }); // 애니메이션이 끝날 경우 Pop
+            if (isFirst)
+            {
+                weaponAnim->SetCurrentAnimationPopCallback([this]() 
+                {
+                    SetAttackEnd();
+                });
+                isFirst = false;
+            }
+        }
+    }
+    else
+    {
+        // 공격 대상이 없으면 애니메이션을 스킵
+        SetAttackEnd();
+    }
+    if (weaponAnim)
+    {
+        weaponAnim->EndBuildOverrideAnimation();
     }
 }
 
@@ -400,43 +449,16 @@ void PlayerPlayTurnState::SetAttackEnd()
     {
         player.EndTurn();
     }
-}
 
-void PlayerPlayTurnState::PushWeaponAnimation(Battle::EnemyTargetFlag_ destEnemy)
-{
-    Player&             player       = GetPlayer();
+    // 무기 애니메이션 및 이펙트 처리
     WeaponSystem*       weaponSystem = WeaponSystem::GetInstance();
-    const WeaponStats&  weaponStats   = weaponSystem->GetCurrentWeaponStats();
+    const WeaponStats&  weaponStats  = weaponSystem->GetCurrentWeaponStats();
     WeaponType          weaponType   = weaponStats.Type;
     AnimationComponent* weaponAnim   = weaponAnims[(int)weaponType];
     ParticleComponent*  weaponEffect = weaponEffects[(int)weaponType];
 
-    // 무기 애니메이션 Push
-    if (weaponAnim)
+    if (weaponEffect)
     {
-        // 무기 이펙트 Play
-        if (weaponEffect)
-            weaponEffect->PlayEffect();
-
-        // 무기 애니메이션 설정(중복 Push 허용)
-        weaponAnim->PushBackOverrideAnimation("attack", true);
-        weaponAnim->SetCurrentAnimationPopCondition([](const AnimationData& data) { return data.IsEnd(); });    // 애니메이션이 끝날 경우 Pop
-        weaponAnim->SetCurrentAnimationPopCallback([this, weaponEffect, weaponAnim, destEnemy]() {              // Pop시 Battle 호출
-            Player& player = GetPlayer();
-            Battle()(player, destEnemy);
-            size_t count = weaponAnim->GetOverrideAnimationCount();
-            if (1 == count)
-            {
-                if (weaponEffect)
-                {
-                    weaponEffect->StopEffect();
-                }
-                SetAttackEnd();
-            }
-            });
-    }
-    else
-    {
-        Battle()(player, destEnemy);
+        weaponEffect->StopEffect();
     }
 }

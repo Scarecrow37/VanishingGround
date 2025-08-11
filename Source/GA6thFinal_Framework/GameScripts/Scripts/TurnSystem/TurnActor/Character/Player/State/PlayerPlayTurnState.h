@@ -58,7 +58,6 @@ private:
     void SetAttackReady();
     void SetAttack();
     void SetAttackEnd();
-    void PushWeaponAnimation(Battle::EnemyTargetFlag_ destEnemy);
 
 private:
     bool       _setImguiPosCenter;

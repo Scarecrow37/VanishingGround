@@ -7,10 +7,11 @@ void AnimationComponent::Reset()
     SetAnimator(GetComponent<SkeletalMeshRenderer>());
 }
 
-void AnimationComponent::Awake()
+void AnimationComponent::Start()
 {
     ChangeMainAnimation(ReflectFields->MainAnimationKey);
     ChangeMainAnimationFlags(ReflectFields->MainAnimationFlags);
+    _currentAnimationData = &_mainAnimationData;
 }
 
 void AnimationComponent::Update() 
@@ -430,14 +431,22 @@ bool AnimationComponent::SetAnimationEx(AnimationData& animData)
     bool result = false;
     if (_animator)
     {
-        bool isTopData = GetTopAnimationDataEx().IsSameData(animData);
-        if (true == isTopData && false == _isBuildingOverrideAnimation)
+        if (false == _isBuildingOverrideAnimation)
         {
             const char* animName = animData._animationName.c_str();
             bool        canBlend = animData.HasFlag(ANIMATION_FLAG_USE_LOOP);
             result = _animator->ChangeAnimation(animName, canBlend);
             if (result)
             {
+                if (_currentAnimationData && _currentAnimationData->_onExitCallback)
+                {
+                    _currentAnimationData->_onExitCallback();
+                }
+                _currentAnimationData = &animData;
+                if (_currentAnimationData && _currentAnimationData->_onEnterCallback)
+                {
+                    _currentAnimationData->_onEnterCallback();
+                }
                 if (animData.HasFlag(ANIMATION_FLAG_RESET_FRAME))
                 {
                     animData._elapsedFrame = 0.0f;
@@ -498,6 +507,22 @@ void AnimationComponent::SetAnimationPopCallbackEx(AnimationData& animData, std:
     }
 }
 
+void AnimationComponent::SetAnimationEnterCallbackEx(AnimationData& animData, std::function<void()> callback) 
+{
+    if (_animator)
+    {
+        animData._onEnterCallback = callback;
+    }
+}
+
+void AnimationComponent::SetAnimationExitCallbackEx(AnimationData& animData, std::function<void()> callback)
+{
+    if (_animator)
+    {
+        animData._onExitCallback = callback;
+    }
+}
+
 void AnimationComponent::SetAnimationEndCallbackEx(AnimationData& animData, std::function<void()> callback) 
 {
     if (_animator)
@@ -531,6 +556,7 @@ void AnimationComponent::ClearOverrideAnimations()
             SetAnimationEx(_mainAnimationData);
         }
     }
+    _currentAnimationData = &_mainAnimationData;
 }
 
 void AnimationComponent::BeginBuildOverrideAnimation() 
@@ -579,6 +605,7 @@ bool AnimationComponent::PushBackOverrideAnimation(std::string_view animKey, boo
         GetAnimationNameEx(animKey, animName);
         if (_animator->HasAnimation(animName.c_str()))
         {
+            AnimationData& topData = GetTopAnimationDataEx();
             _overrideAnimationStack.emplace_back(animName);
             AnimationData& animData = _overrideAnimationStack.back();
             animData._maxFrame      = _animator->GetAnimationLastTime(animData._animationName.data());
@@ -613,6 +640,7 @@ bool AnimationComponent::PushFrontOverrideAnimation(std::string_view animKey, bo
         GetAnimationNameEx(animKey, animName);
         if (_animator->HasAnimation(animName.c_str()))
         {
+            AnimationData& topData = GetTopAnimationDataEx();
             _overrideAnimationStack.emplace_front(animName);
             AnimationData& animData = _overrideAnimationStack.front();
             animData._maxFrame      = _animator->GetAnimationLastTime(animData._animationName.data());
@@ -631,12 +659,12 @@ bool AnimationComponent::PushFrontOverrideAnimation(std::string_view animKey, bo
 void AnimationComponent::PopOverrideAnimation() 
 {
     _overrideAnimationStack.pop_back();
-    AnimationData& animData = GetTopAnimationDataEx();
+    AnimationData& nextData = GetTopAnimationDataEx();
     if (false == _isBuildingOverrideAnimation)
     {
-        SetAnimationEx(animData);
+        SetAnimationEx(nextData);
     }
-    _lastAnimationData = &animData;
+    _lastAnimationData = &nextData;
 }
 
 bool AnimationComponent::ChangeCurrentAnimation(std::string_view animKey) 
@@ -687,6 +715,26 @@ void AnimationComponent::SetCurrentAnimationEndCallback(std::function<void()> ca
 void AnimationComponent::SetMainAnimationEndCallback(std::function<void()> callback) 
 {
     SetAnimationEndCallbackEx(_mainAnimationData, callback);
+}
+
+void AnimationComponent::SetCurrentAnimationEnterCallback(std::function<void()> callback) 
+{
+    SetAnimationEnterCallbackEx(GetLastAnimationDataEx(), callback);
+}
+
+void AnimationComponent::SetMainAnimationEnterCallback(std::function<void()> callback) 
+{
+    SetAnimationEnterCallbackEx(_mainAnimationData, callback);
+}
+
+void AnimationComponent::SetCurrentAnimationExitCallback(std::function<void()> callback)
+{
+    SetAnimationExitCallbackEx(GetLastAnimationDataEx(), callback);
+}
+
+void AnimationComponent::SetMainAnimationExitCallback(std::function<void()> callback)
+{
+    SetAnimationExitCallbackEx(_mainAnimationData, callback);
 }
 
 const AnimationData& AnimationComponent::GetMainAnimationData() const

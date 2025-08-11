@@ -1594,6 +1594,10 @@ EditorAssetBrowserTool::AssetData::AssetData(FileEntry entry)
 
     static std::unordered_set<File::Path> imageFormat = {".jpg", ".png", ".dds", ".jpeg", ".bmp"};
     static std::unordered_set<File::Path> modelFormat = {".fbx", ".FBX",".obj"};
+    static std::unordered_set<File::Path> soundFormat = {".wav"};
+    static std::unordered_set<File::Path> prefabFormat = {".UmPrefab"};
+    static std::unordered_set<File::Path> vfxFormat = {".vfx"};
+    static std::unordered_set<File::Path> animFormat = {AnimationEventTrack::EXTENSION};
 
     if (IsDirectory)
     {
@@ -1606,6 +1610,22 @@ EditorAssetBrowserTool::AssetData::AssetData(FileEntry entry)
     else if (modelFormat.find(extension) != modelFormat.end())
     {
         PreviewIconTexture = UmResourceManager->LoadResource<Texture>(L"../GameEngine/Icon/Editor/Icon_File_FBX.png");
+    }
+    else if (soundFormat.find(extension) != soundFormat.end())
+    {
+        PreviewIconTexture = UmResourceManager->LoadResource<Texture>(L"../GameEngine/Icon/Editor/Icon_File_Sound.png");
+    }
+    else if (prefabFormat.find(extension) != prefabFormat.end())
+    {
+        PreviewIconTexture = UmResourceManager->LoadResource<Texture>(L"../GameEngine/Icon/Editor/Icon_File_Prefab.png");
+    }
+    else if (vfxFormat.find(extension) != vfxFormat.end())
+    {
+        PreviewIconTexture = UmResourceManager->LoadResource<Texture>(L"../GameEngine/Icon/Editor/Icon_File_VFX.png");
+    }
+    else if (animFormat.find(extension) != animFormat.end())
+    {
+        PreviewIconTexture = UmResourceManager->LoadResource<Texture>(L"../GameEngine/Icon/Editor/Icon_File_Animation.png");
     }
     else
     {

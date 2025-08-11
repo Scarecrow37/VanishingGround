@@ -27,7 +27,7 @@ class AnimationComponent : public Component
 
 public:
     void Reset() override;
-    void Awake() override;
+    void Start() override;
     void Update() override;
     void OnDestroy() override;
     void OnEnable() override;
@@ -49,6 +49,8 @@ private:
     void ChangeAnimationFrameEx(AnimationData& animData, float frame);
     void ChangeAnimationFlagsEx(AnimationData& animData, int flags);
     void SetAnimationPopCallbackEx(AnimationData& animData, std::function<void()> callback);
+    void SetAnimationEnterCallbackEx(AnimationData& animData, std::function<void()> callback);
+    void SetAnimationExitCallbackEx(AnimationData& animData, std::function<void()> callback);
     void SetAnimationEndCallbackEx(AnimationData& animData, std::function<void()> callback);
     void GetAnimationNameEx(std::string_view key, std::string& str) const;
 
@@ -121,6 +123,14 @@ public:
     /// <summary>애니메이션이 끝날 때 호출되는 콜백을 설정합니다. (댕글링 위험성이 있는 콜백을 넣지 마세요.)(루프는 끝날 때 마다 호출됩니다.)</summary>
     void SetCurrentAnimationEndCallback(std::function<void()> callback);
     void SetMainAnimationEndCallback(std::function<void()> callback);
+
+    /// <summary>애니메이션을 진입할 때 호출되는 콜백을 설정합니다. (댕글링 위험성이 있는 콜백을 넣지 마세요.)(루프는 끝날 때 마다 호출됩니다.)</summary>
+    void SetCurrentAnimationEnterCallback(std::function<void()> callback);
+    void SetMainAnimationEnterCallback(std::function<void()> callback);
+
+    /// <summary>애니메이션을 진입할 때 호출되는 콜백을 설정합니다. (댕글링 위험성이 있는 콜백을 넣지 마세요.)(루프는 끝날 때 마다 호출됩니다.)</summary>
+    void SetCurrentAnimationExitCallback(std::function<void()> callback);
+    void SetMainAnimationExitCallback(std::function<void()> callback);
 
     /// <summary>오버라이드 애니메이션이 Pop될 조건을 설정합니다. 설정하지 않는 경우 직접 Pop하기 전까지 유지됩니다.</summary>
     void SetCurrentAnimationPopCondition(std::function<bool(const AnimationData&)> callback);
@@ -208,6 +218,7 @@ public:
 private:
     std::shared_ptr<Animator>  _animator;
     EventQueue                 _eventQueue;
+    AnimationData*             _currentAnimationData = nullptr; // 현재 애니메이션 데이터
     AnimationData              _mainAnimationData;
     std::deque<AnimationData>  _overrideAnimationStack; 
     AnimationData*             _lastAnimationData = nullptr;

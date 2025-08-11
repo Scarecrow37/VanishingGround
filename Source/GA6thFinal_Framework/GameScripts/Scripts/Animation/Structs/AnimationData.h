@@ -18,7 +18,6 @@ class AnimationData
     friend class AnimationComponent;
 
 public:
-    AnimationData(std::string_view key, AnimationFlags option);
     AnimationData(std::string_view key);
     AnimationData();
     ~AnimationData();
@@ -45,9 +44,11 @@ private:
     float           _elapsedFrame       = 0.0f;        // 애니메이션 지속 시간 (초)
     float           _maxFrame           = 0.0f;        // 애니메이션 최대 프레임 (초 단위로 변환된 값)
 
-    std::function<bool(const AnimationData&)> _popCondition = nullptr;  // return true일 시 Pop
-    std::function<void()>                     _onPopCallback = nullptr; // Pop 시 호출할 콜백 함수
-    std::function<void()>                     _onEndCallback = nullptr; // End 시 호출할 콜백 함수
+    std::function<bool(const AnimationData&)> _popCondition = nullptr;      // return true일 시 Pop
+    std::function<void()>                     _onPopCallback = nullptr;     // Pop 시 호출할 콜백 함수
+    std::function<void()>                     _onEnterCallback = nullptr;   // Pop 시 호출할 콜백 함수
+    std::function<void()>                     _onExitCallback  = nullptr;     // End 시 호출할 콜백 함수
+    std::function<void()>                     _onEndCallback = nullptr;     // End 시 호출할 콜백 함수
 
     inline void SetFlag(AnimationFlags flag) { _flag = flag; }
     inline void AddFlag(AnimationFlags flag) { _flag |= flag; }
