@@ -13,7 +13,7 @@ std::vector<CharacterBase*> TurnSystemHelper::GetTargetCharacters(TurnTarget tar
     std::vector<CharacterBase*> targetCharacters;
     if (TurnMode* turnMode = TurnMode::GetInstance())
     {
-        auto lastAttaker     = Battle::GetLastAttacker().lock();
+        auto lastAttacker    = Battle::GetLastAttacker().lock();
         auto lastTarget      = Battle::GetLastTarget().lock();
         auto lastTargetEnemy = Battle::GetLastTargetEnemy().lock();
         switch (target)
@@ -21,7 +21,7 @@ std::vector<CharacterBase*> TurnSystemHelper::GetTargetCharacters(TurnTarget tar
         default:
             return targetCharacters;
         case TurnTarget::SELF: {
-            const auto& self = lastAttaker;
+            const auto& self = lastAttacker;
             if (self)
             {
                 targetCharacters.push_back(self.get());
