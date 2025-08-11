@@ -19,6 +19,9 @@
     <Filter Include="ViewModel">
       <UniqueIdentifier>{93ad4b85-5f99-4fc7-84d2-22341437c91e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="System">
+      <UniqueIdentifier>{9c5133ea-d6de-45f3-9342-436d3676662a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -36,6 +39,9 @@
     <ClInclude Include="ViewModel.h">
       <Filter>ViewModel</Filter>
     </ClInclude>
+    <ClInclude Include="System.h">
+      <Filter>System</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -46,6 +52,9 @@
     </ClCompile>
     <ClCompile Include="ViewModel.cpp">
       <Filter>ViewModel</Filter>
+    </ClCompile>
+    <ClCompile Include="System.cpp">
+      <Filter>System</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
