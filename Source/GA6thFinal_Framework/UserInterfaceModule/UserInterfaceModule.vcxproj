@@ -273,6 +273,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="Requires.h" />
     <ClInclude Include="System.h" />
+    <ClInclude Include="Transform.h" />
     <ClInclude Include="UserInterfaceModule.h" />
     <ClInclude Include="ViewModel.h" />
   </ItemGroup>
@@ -289,6 +290,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="System.cpp" />
+    <ClCompile Include="Transform.cpp" />
     <ClCompile Include="ViewModel.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -22,6 +22,9 @@
     <Filter Include="System">
       <UniqueIdentifier>{9c5133ea-d6de-45f3-9342-436d3676662a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Transform">
+      <UniqueIdentifier>{4b20ae59-1895-4f49-a7de-1b1bae06f01d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -42,6 +45,9 @@
     <ClInclude Include="System.h">
       <Filter>System</Filter>
     </ClInclude>
+    <ClInclude Include="Transform.h">
+      <Filter>Transform</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -55,6 +61,9 @@
     </ClCompile>
     <ClCompile Include="System.cpp">
       <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="Transform.cpp">
+      <Filter>Transform</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
