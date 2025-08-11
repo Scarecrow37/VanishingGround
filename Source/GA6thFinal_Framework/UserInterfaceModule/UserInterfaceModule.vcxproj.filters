@@ -25,7 +25,7 @@
     <Filter Include="Transform">
       <UniqueIdentifier>{4b20ae59-1895-4f49-a7de-1b1bae06f01d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Control">
+    <Filter Include="Element">
       <UniqueIdentifier>{fbb9aded-10c5-4ecb-a7af-577fee816b6c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -51,8 +51,8 @@
     <ClInclude Include="Transform.h">
       <Filter>Transform</Filter>
     </ClInclude>
-    <ClInclude Include="Control.h">
-      <Filter>Control</Filter>
+    <ClInclude Include="Element.h">
+      <Filter>Element</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -71,8 +71,8 @@
     <ClCompile Include="Transform.cpp">
       <Filter>Transform</Filter>
     </ClCompile>
-    <ClCompile Include="Control.cpp">
-      <Filter>Control</Filter>
+    <ClCompile Include="Element.cpp">
+      <Filter>Element</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
