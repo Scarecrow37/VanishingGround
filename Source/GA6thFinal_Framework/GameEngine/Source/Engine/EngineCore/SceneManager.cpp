@@ -930,12 +930,11 @@ void ESceneManager::ObjectsApplicationQuit()
         {
             for (auto& obj : _runtimeObjects)
             {
-                if (IsRuntimeActive(obj))
+                if (obj->IsValid())
                 {
                     for (auto& component : obj->_components)
                     {
-                        if (component->Enable)
-                            component->OnApplicationQuit();
+                        component->OnApplicationQuit();
                     }
                 }
             }
@@ -1053,14 +1052,7 @@ void ESceneManager::ObjectsDestroy()
         //OnDestroy 대상 호출
         if (_isPlay)
         {
-            if (destroyComponent->_gameObject->ActiveInHierarchy_property_getter())
-            {
-
-                if (destroyComponent->Enable)
-                {
-                    destroyComponent->OnDestroy();
-                }
-            }
+            destroyComponent->OnDestroy();
         }
 
         //해당 컴포넌트를 오브젝트 배열에서 삭제.
