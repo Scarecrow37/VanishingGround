@@ -37,10 +37,6 @@ namespace TurnSystemHelper
     /// <returns></returns>
     std::vector<CharacterBase*> GetTargetCharacters(TurnTarget target);
 
-};
-
-namespace TurnSystemHelper
-{
     /// <summary>
     /// ImGui로 TurnTarget을 편집 가능한 Combobox를 Draw합니다.
     /// </summary>
@@ -48,4 +44,5 @@ namespace TurnSystemHelper
     /// <param name="showComboTitle :">콤보 박스 제목 표시 여부</param>
     /// <returns>이번 프레임 편집 여부</returns>
     bool DrawTargetComboboxWithToolTip(TurnTarget& target, bool showComboTitle = false);
+
 };
