@@ -19,15 +19,6 @@
     <Filter Include="ViewModel">
       <UniqueIdentifier>{93ad4b85-5f99-4fc7-84d2-22341437c91e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="System">
-      <UniqueIdentifier>{9c5133ea-d6de-45f3-9342-436d3676662a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Transform">
-      <UniqueIdentifier>{4b20ae59-1895-4f49-a7de-1b1bae06f01d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Element">
-      <UniqueIdentifier>{fbb9aded-10c5-4ecb-a7af-577fee816b6c}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -45,15 +36,6 @@
     <ClInclude Include="ViewModel.h">
       <Filter>ViewModel</Filter>
     </ClInclude>
-    <ClInclude Include="System.h">
-      <Filter>System</Filter>
-    </ClInclude>
-    <ClInclude Include="Transform.h">
-      <Filter>Transform</Filter>
-    </ClInclude>
-    <ClInclude Include="Element.h">
-      <Filter>Element</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -64,15 +46,6 @@
     </ClCompile>
     <ClCompile Include="ViewModel.cpp">
       <Filter>ViewModel</Filter>
-    </ClCompile>
-    <ClCompile Include="System.cpp">
-      <Filter>System</Filter>
-    </ClCompile>
-    <ClCompile Include="Transform.cpp">
-      <Filter>Transform</Filter>
-    </ClCompile>
-    <ClCompile Include="Element.cpp">
-      <Filter>Element</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
