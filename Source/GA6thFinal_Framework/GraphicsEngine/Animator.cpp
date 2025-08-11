@@ -327,8 +327,8 @@ bool Animator::ChangeAnimation(const char* animation, const unsigned int ID, boo
 	if (iter == _animation->_animations.end())
 		return false;
 
-	if (!strcmp(_controllers[ID].Animation.data(), animation))
-		return false;
+	//if (!strcmp(_controllers[ID].Animation.data(), animation))
+	//	return false;
 
 	_isBlending = true;
     _blends[ID].BlendTime  = 0.f;

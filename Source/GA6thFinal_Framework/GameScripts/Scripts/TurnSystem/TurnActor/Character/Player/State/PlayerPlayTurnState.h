@@ -69,8 +69,8 @@ private:
     int        _attackRemaining; // 공격 남은 횟수
     std::vector<Battle::EnemyTargetFlag_> _attackTargets;
 
-    std::vector<class AnimationComponent*> weaponAnims;
-    std::vector<class ParticleComponent*> weaponEffects;
+    std::map<int, class AnimationComponent*> weaponAnims;
+    std::map<int, class ParticleComponent*> weaponEffects;
     
 
 };
