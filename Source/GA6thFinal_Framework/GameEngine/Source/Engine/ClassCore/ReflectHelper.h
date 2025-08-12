@@ -2,6 +2,7 @@
 #undef max
 #undef min
 #include "rfl.hpp"
+#include "Engine/Utility/BoxSpacing.h"
 #include "rfl/json.hpp"
 #include "rfl/yaml.hpp"
 #include "Engine/Utility/YAMLHelper.h"
@@ -389,6 +390,45 @@ namespace ReflectHelper
                                 else if constexpr (std::is_same_v<FieldTpye, std::string>)
                                 {
                                     value = yyjson_get_str(jsonVal);
+                                }
+                                else if constexpr (std::is_same_v<FieldTpye, SIZE>)
+                                {
+                                    char* data = yyjsonValToCStr(jsonVal);
+                                    if (nullptr != data)
+                                    {
+                                        auto result = rfl::json::read<SIZE>(data);
+                                        if (result)
+                                        {
+                                            value = result.value();
+                                        }
+                                        free(data);
+                                    }
+                                }
+                                else if constexpr (std::is_same_v<FieldTpye, POINT>)
+                                {
+                                    char* data = yyjsonValToCStr(jsonVal);
+                                    if (nullptr != data)
+                                    {
+                                        auto result = rfl::json::read<POINT>(data);
+                                        if (result)
+                                        {
+                                            value = result.value();
+                                        }
+                                        free(data);
+                                    }
+                                }
+                                else if constexpr (std::is_same_v<FieldTpye, RECT>)
+                                {
+                                    char* data = yyjsonValToCStr(jsonVal);
+                                    if (nullptr != data)
+                                    {
+                                        auto result = rfl::json::read<RECT>(data);
+                                        if (result)
+                                        {
+                                            value = result.value();
+                                        }
+                                        free(data);
+                                    }
                                 }
                             }
                         });
