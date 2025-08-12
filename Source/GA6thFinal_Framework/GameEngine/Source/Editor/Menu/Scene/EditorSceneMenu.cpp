@@ -37,14 +37,13 @@ void EditorSceneMenu::OnMenu()
                 ImGui::PopID();
             });
         }
-        if (ImGui::MenuItem("Camera Setting"))
-        {
-            _isSceneCameraPopUp = true;
-        }
+        ImGui::MenuItem("Camera Setting", nullptr, &_isSceneCameraPopUp);
+        ImGui::MenuItem("Sky box", nullptr, &_isSceneSkyBoxEditPopup);
         ImGui::EndMenu();
     }
 
     SceneCameraPopUp();
+    SceneSkyBoxEditPopup();
 }
 
 void EditorSceneMenu::SceneCameraPopUp() 
@@ -61,6 +60,61 @@ void EditorSceneMenu::SceneCameraPopUp()
         _sceneTool->ImGuiDrawPropertys();
         _sceneTool->UpdateCameraSetting();
         _sceneTool->UpdateReflectFields();
+        ImGui::End();
+    }
+}
+
+void EditorSceneMenu::SceneSkyBoxEditPopup() 
+{
+    namespace fs = std::filesystem;
+    if (_isSceneSkyBoxEditPopup)
+    {
+        ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+        ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+        ImGui::Begin("Skybox Setting", &_isSceneSkyBoxEditPopup, ImGuiWindowFlags_AlwaysAutoResize);
+        {
+            Scene* mainScene = UmSceneManager.GetMainScene();
+            if (mainScene)
+            {
+                static std::string skyBoxBuffer = STR_NULL;
+                skyBoxBuffer = mainScene->_skyBox.ToPath().generic_string();
+                ImGui::InputText("Env", &skyBoxBuffer, ImGuiInputTextFlags_ReadOnly);
+                // 에셋에 대한 드래그 앤 드롭 이벤트 처리
+                if (ImGui::BeginDragDropTarget())
+                {
+                    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
+                    {
+                        DragDropAsset::Data* data      = (DragDropAsset::Data*)payload->Data;
+                        const File::Path&    path      = data->GetPath();
+                        fs::path             extension = path.extension();
+                        if (extension == ".hdr")
+                        {
+                            UmSceneManager.SetSkyBox(data->GetGuid());
+                        }
+                    }                
+                    ImGui::EndDragDropTarget();
+                }
+
+                static std::string skyIBLBuffer = STR_NULL;
+                skyIBLBuffer = mainScene->_skyIBL.ToPath().generic_string();
+                ImGui::InputText("IBL", &skyIBLBuffer, ImGuiInputTextFlags_ReadOnly);
+                // 에셋에 대한 드래그 앤 드롭 이벤트 처리
+                if (ImGui::BeginDragDropTarget())
+                {
+                    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
+                    {
+                        DragDropAsset::Data* data      = (DragDropAsset::Data*)payload->Data;
+                        const File::Path&    path      = data->GetPath();
+                        fs::path             extension = path.extension();
+                        if (extension == ".hdr")
+                        {
+                            UmSceneManager.SetSkyIBL(data->GetGuid());
+                        }
+                    }
+                    ImGui::EndDragDropTarget();
+                }
+            }
+        }
         ImGui::End();
     }
 }
