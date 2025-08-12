@@ -22,7 +22,7 @@ public:
     Audio::System      Audio;
     Watcher::System    Watcher;
     ParticleEffectSerializer ParticleSerializer;
-    UI::System               UserInterface;
+    UI::Manager               UserInterface;
 
     ReflectHelper::ImGuiDraw::InputAutoSetting ImGuiDrawPropertysSetting;
 

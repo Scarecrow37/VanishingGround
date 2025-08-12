@@ -320,6 +320,8 @@
     <ClInclude Include="Source\Engine\AppModule\ImGuiDX12Module.h" />
     <ClInclude Include="Source\Engine\AudioCore\AudioModule.h" />
     <ClInclude Include="Source\Engine\ClassCore\Delegate.hpp" />
+    <ClInclude Include="Source\Engine\EngineCore\UIManager.h" />
+    <ClInclude Include="Source\Engine\GameCore\Component\UIComponent.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\RenderPassDataHelper.h" />
     <ClInclude Include="Source\Engine\TimelineCore\AnimationEventTrack.h" />
@@ -361,6 +363,7 @@
     <ClInclude Include="Source\Engine\EditorCore\Gui\PopupBox\EditorPopupBox.h" />
     <ClInclude Include="Source\Engine\EditorCore\System\EditorPopupBoxSystem.h" />
     <ClInclude Include="Source\Editor\DragDropTypes\DragDropAsset.h" />
+    <ClInclude Include="Source\Engine\Utility\BoxSpacing.h" />
     <ClInclude Include="Source\Engine\Utility\EditorHelper.h" />
     <ClInclude Include="Source\Editor\DragDropTypes\DragDropTransform.h" />
     <ClInclude Include="Source\Editor\Menu\Project\EditorProjectMenu.h" />
@@ -463,6 +466,8 @@
     <ClCompile Include="Source\Engine\AppModule\GraphicsModule.cpp" />
     <ClCompile Include="Source\Engine\AppModule\ImGuiDX12Module.cpp" />
     <ClCompile Include="Source\Engine\AudioCore\AudioModule.cpp" />
+    <ClCompile Include="Source\Engine\EngineCore\UIManager.cpp" />
+    <ClCompile Include="Source\Engine\GameCore\Component\UIComponent.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.cpp" />
     <ClCompile Include="Source\Engine\TimelineCore\AnimationEventTrack.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Utillity\EditorDragState.cpp" />
@@ -521,6 +526,7 @@
     <ClCompile Include="Source\Engine\EditorCore\Gui\PopupBox\EditorPopupBox.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\System\EditorPopupBoxSystem.cpp" />
     <ClCompile Include="Source\Editor\DragDropTypes\DragDropAsset.cpp" />
+    <ClCompile Include="Source\Engine\Utility\BoxSpacing.cpp" />
     <ClCompile Include="Source\Engine\Utility\EditorHelper.cpp" />
     <ClCompile Include="Source\Editor\Menu\Project\EditorProjectMenu.cpp" />
     <ClCompile Include="Source\Editor\Menu\Scene\EditorSceneMenu.cpp" />
