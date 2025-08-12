@@ -5,17 +5,22 @@ bool  operator==(const POINT& lhs, const POINT& rhs);
 bool  operator!=(const POINT& lhs, const POINT& rhs);
 POINT operator+(const POINT& lhs, const POINT& rhs);
 POINT operator-(const POINT& lhs, const POINT& rhs);
+POINT& operator+=(POINT& lhs, const POINT& rhs);
 
 // SIZE
 bool operator==(const SIZE& lhs, const SIZE& rhs);
 bool operator!=(const SIZE& lhs, const SIZE& rhs);
 SIZE operator+(const SIZE& lhs, const SIZE& rhs);
 SIZE operator-(const SIZE& lhs, const SIZE& rhs);
+SIZE& operator+=(SIZE& lhs, const SIZE& rhs);
 
 struct MinSize
 {
     SIZE operator()(const SIZE& lhs, const SIZE& rhs) const;
+    SIZE operator()(const SIZE& lhs, const SIZE& rhs, bool useLhsWidth, bool useLhsHeight) const;
 };
+
+
 
 enum class HorizontalAlignment : char
 {
@@ -31,12 +36,19 @@ enum class VerticalAlignment : char
     BOTTOM
 };
 
+struct AlignPoint
+{
+    POINT operator()(HorizontalAlignment horizontal, VerticalAlignment vertical, SIZE size) const;
+};
+
 enum class FillMode : char
 {
     NONE,
     WRAP,
     FILL
 };
+
+
 
 class UIComponent : public Component
 {
@@ -93,7 +105,7 @@ public:
     SETTER(HorizontalAlignment, HorizontalAlign)
     {
         ReflectFields->HorizontalAlignment = value;
-        InvalidateMeasure();
+        InvalidateArrange();
     }
     PROPERTY(HorizontalAlign)
 
@@ -101,7 +113,7 @@ public:
     SETTER(VerticalAlignment, VerticalAlign)
     {
         ReflectFields->VerticalAlignment = value;
-        InvalidateMeasure();
+        InvalidateArrange();
     }
     PROPERTY(VerticalAlign)
 

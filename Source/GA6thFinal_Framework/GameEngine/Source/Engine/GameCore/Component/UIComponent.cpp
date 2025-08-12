@@ -23,6 +23,12 @@ POINT operator-(const POINT& lhs, const POINT& rhs)
     return POINT{lhs.x - rhs.x, lhs.y - rhs.y};
 }
 
+POINT& operator+=(POINT& lhs, const POINT& rhs)
+{
+    lhs = lhs + rhs;
+    return lhs;
+}
+
 bool operator==(const SIZE& lhs, const SIZE& rhs)
 {
     return lhs.cx == rhs.cx && lhs.cy == rhs.cy;
@@ -43,9 +49,52 @@ SIZE operator-(const SIZE& lhs, const SIZE& rhs)
     return SIZE{lhs.cx - rhs.cx, lhs.cy - rhs.cy};
 }
 
+SIZE& operator+=(SIZE& lhs, const SIZE& rhs)
+{
+    lhs = lhs + rhs;
+    return lhs;
+}
+
 SIZE MinSize::operator()(const SIZE& lhs, const SIZE& rhs) const
 {
     return SIZE{.cx = std::min(lhs.cx, rhs.cx), .cy = std::min(lhs.cy, rhs.cy)};
+}
+
+SIZE MinSize::operator()(const SIZE& lhs, const SIZE& rhs, const bool useLhsWidth, const bool useLhsHeight) const
+{
+    return SIZE{.cx = useLhsWidth ? lhs.cx : std::min(lhs.cx, rhs.cx),
+                .cy = useLhsHeight ? lhs.cy : std::min(lhs.cy, rhs.cy)};
+}
+
+POINT AlignPoint::operator()(const HorizontalAlignment horizontal, const VerticalAlignment vertical,
+                             const SIZE size) const
+{
+    POINT alignPoint{};
+    switch (horizontal)
+    {
+    case HorizontalAlignment::LEFT:
+        break;
+    case HorizontalAlignment::CENTER:
+        alignPoint.x += size.cx / 2;
+        break;
+    case HorizontalAlignment::RIGHT:
+        alignPoint.x += size.cx;
+        break;
+    }
+
+    switch (vertical)
+    {
+    case VerticalAlignment::TOP:
+        break;
+    case VerticalAlignment::CENTER:
+        alignPoint.y += size.cy / 2;
+        break;
+    case VerticalAlignment::BOTTOM:
+        alignPoint.y += size.cy;
+        break;
+    }
+
+    return alignPoint;
 }
 
 UIComponent::UIComponent()

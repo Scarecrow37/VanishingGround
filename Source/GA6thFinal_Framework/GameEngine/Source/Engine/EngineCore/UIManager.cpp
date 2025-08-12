@@ -20,9 +20,9 @@ void UI::Manager::Update(const SIZE& rootSize)
 
 void UI::Manager::ProcessMeasureQueue(const SIZE& availableRootSize)
 {
-
-    for (const auto& element : _measureQueue)
+    while (false == _measureQueue.empty())
     {
+        const auto& element = _measureQueue.front();
         if (const UIComponent* parent = element->Parent; nullptr == parent)
         {
             if (const bool isMeasureDirty = element->IsMeasureDirty; true == isMeasureDirty)
@@ -30,14 +30,16 @@ void UI::Manager::ProcessMeasureQueue(const SIZE& availableRootSize)
                 element->Measure(availableRootSize);
             }
         }
+        _measureQueue.pop_front();
     }
     _measureQueue.clear();
 }
 
 void UI::Manager::ProcessArrangeQueue(const SIZE& finalRootSize)
 {
-    for (const auto& element : _arrangeQueue)
+    while (false == _arrangeQueue.empty())
     {
+        const auto& element = _arrangeQueue.front();
         if (UIComponent* parent = element->Parent; nullptr == parent)
         {
             if (const bool isArrangeDirty = element->IsArrangeDirty; true == isArrangeDirty)
@@ -50,6 +52,7 @@ void UI::Manager::ProcessArrangeQueue(const SIZE& finalRootSize)
         {
             parent->Arrange();
         }
+        _arrangeQueue.pop_front();
     }
     _arrangeQueue.clear();
 }
