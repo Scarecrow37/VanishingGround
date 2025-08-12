@@ -243,17 +243,28 @@ void Renderer::RegisterRenderQueue(std::string_view sceneName, FontRenderer* com
     scene->RegisterOnRenderQueue(component);
 }
 
-void Renderer::ResetSkyBox(std::string_view sceneName) 
+void Renderer::ResetEnvironmentSkyBox(std::string_view sceneName)
 {
     auto iter = _renderScenes.find(sceneName.data());
-
     if (iter == _renderScenes.end())
     {
-        GRAPHICS_ASSERT(false, L"Renderer::RegisterRenderQueue : Render Scene Not Registered.");
+        GRAPHICS_ASSERT(false, L"Renderer::ResetEnvironmentSkyBox : Render Scene Not Registered.");
     }
 
     auto& scene = iter->second;
-    scene->ResetSkyBox();
+    scene->ResetEnvironmentSkyBox();
+}
+
+void Renderer::ResetIBLSkyBox(std::string_view sceneName)
+{
+    auto iter = _renderScenes.find(sceneName.data());
+    if (iter == _renderScenes.end())
+    {
+        GRAPHICS_ASSERT(false, L"Renderer::ResetIBLSkyBox : Render Scene Not Registered.");
+    }
+
+    auto& scene = iter->second;
+    scene->ResetIBLSkyBox();
 }
 
 void Renderer::Initialize()
