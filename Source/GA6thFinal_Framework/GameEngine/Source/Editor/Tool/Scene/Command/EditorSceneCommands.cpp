@@ -226,7 +226,7 @@ bool Command::EditorScene::DuplicateCommand::Execute()
 
         if (nullptr != sourceRoot->transform->Parent)
         {
-            destRoot->transform->SetParent(sourceRoot->transform->Parent);
+            destRoot->transform->SetParent(sourceRoot->transform->Parent, false);
         }
     }
     else
@@ -308,7 +308,7 @@ bool Command::EditorScene::PasteObjectCommand::Execute()
 
                     if (auto parent = EditorHierarchyTool::GetFocusObject().lock())
                     {
-                        sourceRoot->transform->SetParent(parent->transform);
+                        sourceRoot->transform->SetParent(parent->transform, false);
                     }
                     _loadSuccess = true;
                 }
