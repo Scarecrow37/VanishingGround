@@ -363,6 +363,7 @@
     <ClInclude Include="Scripts\ExcelParser\ImGuiColumnSheetParser.h" />
     <ClInclude Include="Scripts\UI\Elements\Dummy\DummyElement.h" />
     <ClInclude Include="Scripts\UI\Wrappers\Dummy\DummyWrapper.h" />
+    <ClInclude Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.h" />
     <ClInclude Include="Scripts\ViewModels\Hp\HpViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Revelations\RevelationsViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\TurnQueue\TurnQueueViewModel.h" />
@@ -500,6 +501,7 @@
     <ClCompile Include="Scripts\TurnSystem\TurnAction\TurnAction.cpp" />
     <ClCompile Include="Scripts\UI\Elements\Dummy\DummyElement.cpp" />
     <ClCompile Include="Scripts\UI\Wrappers\Dummy\DummyWrapper.cpp" />
+    <ClCompile Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.cpp" />
     <ClCompile Include="Scripts\ViewModels\Hp\HpViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Revelations\RevelationsViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\TurnQueue\TurnQueueViewModel.cpp" />

@@ -119,6 +119,7 @@
     <ClCompile Include="Scripts\Audio\BGMManager.cpp" />
     <ClCompile Include="Scripts\UI\Elements\Dummy\DummyElement.cpp" />
     <ClCompile Include="Scripts\UI\Wrappers\Dummy\DummyWrapper.cpp" />
+    <ClCompile Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h" />
@@ -256,6 +257,7 @@
     <ClInclude Include="Scripts\Audio\BGMManager.h" />
     <ClInclude Include="Scripts\UI\Elements\Dummy\DummyElement.h" />
     <ClInclude Include="Scripts\UI\Wrappers\Dummy\DummyWrapper.h" />
+    <ClInclude Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

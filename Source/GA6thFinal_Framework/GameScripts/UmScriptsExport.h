@@ -100,15 +100,10 @@ UMREAL_COMPONENT(DummyWrapper)
 //#include "Scripts/UI/Elements/Text/TextElement.h"
 //UMREAL_COMPONENT(TextElement)
 //
-//#include "Scripts/UI/Wrappers/Padding/PaddingWrapper.h"
-//UMREAL_COMPONENT(PaddingWrapper)
-//
-//#include "Scripts/UI/Wrappers/Center/CenterWrapper.h"
-//UMREAL_COMPONENT(CenterWrapper)
-//
-//#include "Scripts/UI/Wrappers/Ratio/RatioWrapper.h"
-//UMREAL_COMPONENT(RatioWrapper)
-//
+
+#include "Scripts/UI/Wrappers/Ratio/RatioWrapper.h"
+UMREAL_COMPONENT(RatioWrapper)
+
 //#include "Scripts/UI/Panels/Grid/GridPanel.h"
 //UMREAL_COMPONENT(GridPanel)
 //UMREAL_COMPONENT(GridPanelSlot)
