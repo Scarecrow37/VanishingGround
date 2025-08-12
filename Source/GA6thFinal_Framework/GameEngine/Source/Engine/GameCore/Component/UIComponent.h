@@ -17,6 +17,27 @@ struct MinSize
     SIZE operator()(const SIZE& lhs, const SIZE& rhs) const;
 };
 
+enum class HorizontalAlignment : char
+{
+    LEFT,
+    CENTER,
+    RIGHT
+};
+
+enum class VerticalAlignment : char
+{
+    TOP,
+    CENTER,
+    BOTTOM
+};
+
+enum class FillMode : char
+{
+    NONE,
+    WRAP,
+    FILL
+};
+
 class UIComponent : public Component
 {
     friend class Transform;
@@ -29,7 +50,7 @@ public:
     UIComponent();
 
 public:
-    REFLECT_PROPERTY(Point, Size, Padding, Margin)
+    REFLECT_PROPERTY(Point, Size, Padding, Margin, HorizontalAlign, VerticalAlign, HorizontalFillMode, VerticalFillMode)
 
     GETTER(POINT, Point) { return ReflectFields->ActualPosition; }
     SETTER(POINT, Point)
@@ -43,6 +64,11 @@ public:
     SETTER(SIZE, Size)
     {
         _requestedSize = value;
+        auto [actualWidth, actualHeight] = ReflectFields->ActualSize;
+        if (actualWidth != value.cx)
+            ReflectFields->HorizontalFillMode = FillMode::NONE;
+        if (actualHeight != value.cy)
+            ReflectFields->VerticalFillMode = FillMode::NONE;
         InvalidateMeasure();
     }
     PROPERTY(Size)
@@ -62,6 +88,38 @@ public:
         InvalidateMeasure();
     }
     PROPERTY(Margin)
+
+    GETTER(HorizontalAlignment, HorizontalAlign) { return ReflectFields->HorizontalAlignment; }
+    SETTER(HorizontalAlignment, HorizontalAlign)
+    {
+        ReflectFields->HorizontalAlignment = value;
+        InvalidateMeasure();
+    }
+    PROPERTY(HorizontalAlign)
+
+    GETTER(VerticalAlignment, VerticalAlign) { return ReflectFields->VerticalAlignment; }
+    SETTER(VerticalAlignment, VerticalAlign)
+    {
+        ReflectFields->VerticalAlignment = value;
+        InvalidateMeasure();
+    }
+    PROPERTY(VerticalAlign)
+
+    GETTER(FillMode, HorizontalFillMode) { return ReflectFields->HorizontalFillMode; }
+    SETTER(FillMode, HorizontalFillMode)
+    {
+        ReflectFields->HorizontalFillMode = value;
+        InvalidateMeasure();
+    }
+    PROPERTY(HorizontalFillMode)
+
+    GETTER(FillMode, VerticalFillMode) { return ReflectFields->VerticalFillMode; }
+    SETTER(FillMode, VerticalFillMode)
+    {
+        ReflectFields->VerticalFillMode = value;
+        InvalidateMeasure();
+    }
+    PROPERTY(VerticalFillMode)
 
 
     GETTER_ONLY(UIComponent*, Parent)
@@ -206,6 +264,11 @@ protected:
 
     RECT Padding;
     RECT Margin;
+
+    HorizontalAlignment HorizontalAlignment;
+    VerticalAlignment   VerticalAlignment;
+    FillMode            HorizontalFillMode;
+    FillMode            VerticalFillMode;
     REFLECT_FIELDS_END(UIComponent)
 
 protected:
