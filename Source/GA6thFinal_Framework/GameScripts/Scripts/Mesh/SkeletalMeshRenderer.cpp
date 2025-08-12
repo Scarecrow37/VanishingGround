@@ -93,20 +93,22 @@ void SkeletalMeshRenderer::LoadModel()
         if (path != File::NULL_PATH)
         {
             std::wstring modelPath = U8ToWString(path);
-            UmGraphics.LoadResource(modelPath, Renderer.get());
-            auto& animation = Renderer->GetModel()->GetAnimation();
-            auto& skeleton  = Renderer->GetModel()->GetSkeleton();
-            if (animation != nullptr && skeleton != nullptr)
-            {
-                std::shared_ptr<Animator> animator(new Animator);
-                animator->Initialize(animation, skeleton);
-                animator->SetActive(&EnableInHierarchy);
-                UmGraphics.RegisterComponent(animator.get());
-                Renderer->SetAnimator(animator);
-                Renderer->OnCustomDepth(PostProcess::BLOOM);
-                __super::InitMaterial();
-            }
-            OnChangedModel();
+            UmGraphics.LoadResource(modelPath, Renderer.get(), [this]()
+                { 
+                    auto& animation = Renderer->GetModel()->GetAnimation();
+                    auto& skeleton  = Renderer->GetModel()->GetSkeleton();
+                    if (animation != nullptr && skeleton != nullptr)
+                    {
+                        std::shared_ptr<Animator> animator(new Animator);
+                        animator->Initialize(animation, skeleton);
+                        animator->SetActive(&EnableInHierarchy);
+                        UmGraphics.RegisterComponent(animator.get());
+                        Renderer->SetAnimator(animator);
+                        Renderer->OnCustomDepth(PostProcess::BLOOM);
+                        this->InitMaterial();
+                    }
+                    OnChangedModel();
+                });
         }
     }
 }

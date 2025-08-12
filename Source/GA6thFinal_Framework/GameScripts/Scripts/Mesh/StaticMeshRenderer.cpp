@@ -37,10 +37,13 @@ void StaticMeshRenderer::LoadModel()
         if (path != File::NULL_PATH)
         {
             std::wstring modelPath = U8ToWString(path);
-            UmGraphics.LoadResource(modelPath, Renderer.get());
-            Renderer->OnCustomDepth(PostProcess::BLOOM);
-            transform->SetChangeFlag();
-            __super::InitMaterial();
+            UmGraphics.LoadResource(modelPath, Renderer.get(), [this]()
+            {
+                Renderer->OnCustomDepth(PostProcess::BLOOM);
+                transform->SetChangeFlag();
+                this->InitMaterial();
+            });
+            
         }
     }
 }
