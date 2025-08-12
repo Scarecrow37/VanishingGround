@@ -214,6 +214,16 @@ public:
     inline TComponent* GetComponent() const;
 
     /// <summary>
+    /// <para> TComponent 타입의 컴포넌트를 찾아서 반환합니다. </para>
+    /// <para> dynamic_cast를 사용하여 캐스팅을 시도합니다. </para>
+    /// <para> 실패시 nullptr를 반환합니다.                     </para>
+    /// </summary>
+    /// <typeparam name="TComponent :">검색할 컴포넌트 타입</typeparam>
+    /// <returns>해당 타입 컴포넌트의 ptr</returns>
+    template <IS_BASE_COMPONENT_C TComponent>
+    inline TComponent* GetComponentDynamic() const;
+
+    /// <summary>
     /// 전달받은 인덱스의 컴포넌트를 TComponent 타입으로 dynamic_cast를 시도해 반환합니다.
     /// </summary>
     /// <typeparam name="TComponent :">캐스팅할 컴포넌트 타입</typeparam>
@@ -428,6 +438,21 @@ inline TComponent* GameObject::GetComponent() const
                 result = static_cast<TComponent*>(component.get());
                 break;
             }
+        }
+    }
+    return result;
+}
+
+template <IS_BASE_COMPONENT_C TComponent>
+inline TComponent* GameObject::GetComponentDynamic() const
+{
+    TComponent* result = nullptr;
+    for (auto& component : _components)
+    {
+        if (nullptr != component)
+        {
+            result = dynamic_cast<TComponent*>(component.get());
+            break;
         }
     }
     return result;
