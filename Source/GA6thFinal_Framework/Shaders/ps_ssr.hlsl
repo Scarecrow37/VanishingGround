@@ -71,7 +71,9 @@ float4 ps_main(PSInput input) : SV_Target
             break;
         }
     }
-    float3 finalColor = baseColor;
+    
+    float3 finalColor = 0;
+    
     if (foundHit)
     {
         float3 reflectionColor = screenColor.SampleLevel(samLinear_clamp, hitUV, 0).rgb;
@@ -79,7 +81,9 @@ float4 ps_main(PSInput input) : SV_Target
         float2 distToCenter = abs(hitUV - 0.5) * 2.f;
         float fade = pow(saturate(1.f - distToCenter.x), property.screenFade * 0.5f) * pow(saturate(1.f - distToCenter.y * 0.5f), property.screenFade);
 
-        finalColor = lerp(finalColor, reflectionColor, fade * reflectionStrength);
+        float3 reflection = reflectionColor * reflectionStrength * fade;
+        float3 diffuse = baseColor * (1 - metallic);
+        finalColor = diffuse + reflection;
     }
     
     return float4(finalColor, 1.0f);

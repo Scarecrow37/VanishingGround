@@ -1294,10 +1294,10 @@ void ESceneManager::SetRendererSkyBox(Scene* scene)
     }
     else
     {
-        UmGraphics.ResetSkyBox("Game");
+        UmGraphics.ResetEnvironmentSkyBox("Game");
         if constexpr (IS_EDITOR)
         {
-            UmGraphics.ResetSkyBox("Editor");
+            UmGraphics.ResetEnvironmentSkyBox("Editor");
         }
     }
 
@@ -1343,10 +1343,10 @@ void ESceneManager::SetRendererSkyBox(Scene* scene)
     }
     else
     {
-        UmGraphics.ResetSkyBox("Game");
+        UmGraphics.ResetIBLSkyBox("Game");
         if constexpr (IS_EDITOR)
         {
-            UmGraphics.ResetSkyBox("Editor");
+            UmGraphics.ResetIBLSkyBox("Editor");
         }
     }
 }

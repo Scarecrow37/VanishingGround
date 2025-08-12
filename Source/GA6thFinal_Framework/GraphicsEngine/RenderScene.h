@@ -41,7 +41,8 @@ public:
     void Execute();
 
 public:
-    void ResetSkyBox();
+    void ResetEnvironmentSkyBox();
+    void ResetIBLSkyBox();
 
 private:
     void UpdateGlobal();

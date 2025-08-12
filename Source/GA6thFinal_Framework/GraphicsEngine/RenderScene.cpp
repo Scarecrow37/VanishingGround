@@ -205,9 +205,14 @@ void RenderScene::Execute()
     _isDirtyFlag = false;
 }
 
-void RenderScene::ResetSkyBox()
+void RenderScene::ResetEnvironmentSkyBox()
 {
-    _skyBox->ResetResource();
+    _skyBox->ResetEnvironmentResource();
+}
+
+void RenderScene::ResetIBLSkyBox()
+{
+    _skyBox->ResetIBLResource();
 }
 
 void RenderScene::UpdateGlobal()
