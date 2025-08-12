@@ -75,10 +75,7 @@ void ThreadPool::Initialize(unsigned int threadCount)
         _commandSets[PARALLEL][i]->Close();
 
         _threads[ASYNK][i] = std::thread(&ThreadPool::AsyncWorkerThread, this, std::ref(_commandSets[ASYNK][i]), i);
-        _threads[ASYNK][i].detach();
-
         _threads[PARALLEL][i] = std::thread(&ThreadPool::ParallelWorkerThread, this, std::ref(_commandSets[PARALLEL][i]), i);
-        _threads[PARALLEL][i].detach();
     }
 
     _parallelRemainingTasks = 0;
