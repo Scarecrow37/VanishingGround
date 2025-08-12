@@ -77,9 +77,14 @@ void GraphicsCore::SetCamera(const std::string_view renderSceneName, std::shared
     _renderer->SetCamera(renderSceneName, camera);
 }
 
-void GraphicsCore::SetSkyBox(const std::string_view renderSceneName, const std::wstring_view filePath) const
+void GraphicsCore::SetEnvironmentSkyBox(std::string_view renderSceneName, std::wstring_view filePath) const
 {
-    _renderer->SetSkyBox(renderSceneName, filePath);
+    _renderer->SetEnvironmentSkyBox(renderSceneName, filePath);
+}
+
+void GraphicsCore::SetIBLSkyBox(std::string_view renderSceneName, std::wstring_view filePath) const
+{
+    _renderer->SetIBLSkyBox(renderSceneName, filePath);
 }
 
 void GraphicsCore::SetCurrentScene(const std::string_view sceneName) const

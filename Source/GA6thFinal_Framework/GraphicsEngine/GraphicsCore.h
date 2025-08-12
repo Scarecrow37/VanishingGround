@@ -19,7 +19,8 @@ public:
 
 public:
     void SetCamera(std::string_view renderSceneName, std::shared_ptr<Camera> camera) const;
-    void SetSkyBox(std::string_view renderSceneName, std::wstring_view filePath) const;
+    void SetEnvironmentSkyBox(std::string_view renderSceneName, std::wstring_view filePath) const;
+    void SetIBLSkyBox(std::string_view renderSceneName, std::wstring_view filePath) const;
     void SetCurrentScene(std::string_view sceneName) const;
     void SyncGlobalVariable();
 

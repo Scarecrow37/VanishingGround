@@ -15,7 +15,48 @@ SkyBox::SkyBox()
 
 SkyBox::~SkyBox() {}
 
-void SkyBox::SetTexture(std::wstring_view path)
+void SkyBox::SetEnvironmentTexture(std::wstring_view path)
+{
+    // HDR/EXR 이미지 로드
+    ScratchImage image;
+    TexMetadata  metadata;
+
+    HRESULT hr = LoadFromHDRFile(path.data(), &metadata, image);
+    if (FAILED(hr))
+    {
+        _hasTexture = false;
+        return;
+    }
+    FAILED_CHECK_MESSAGE(hr, L"SkyBox::SetTexture LoadFromHDRFile Failed");
+
+    const Image* img = image.GetImage(0, 0, 0);
+
+    size_t                     imageSize    = img->slicePitch;
+    ID3D12Device*              pDevice      = Global::device->GetDevice();
+    ID3D12GraphicsCommandList* commandList  = Global::device->GetCommandList();
+
+    // DirectXTex에서 가져온 포맷 사용 (보통 R32G32B32A32_FLOAT)
+    _skyboxhdrTexture = CreateTexture2D(pDevice, static_cast<int>(metadata.width), static_cast<int>(metadata.height), metadata.format);
+
+    UploadToTexture2D(pDevice, commandList, _skyboxhdrTexture.Get(), img->pixels, imageSize);
+
+    CreateHDRSRV(_skyboxhdrTexture.Get());
+
+    // CubeMap 생성
+    commandList->SetPipelineState(_pipelineState[CUBE_MAP].Get());
+    commandList->SetComputeRootSignature(_shader[CUBE_MAP]->GetRootSignature());
+
+    auto descriptorHeap = Global::viewManager->GetShaderResourceHeap();
+    commandList->SetDescriptorHeaps(1, &descriptorHeap);
+
+    commandList->SetComputeRootSignature(_shader[CUBE_MAP]->GetRootSignature());
+    commandList->SetComputeRootDescriptorTable(_shader[CUBE_MAP]->GetRootParameterIndex("equirectangularMap"), _hdrSRVHandles.GPU);
+    commandList->SetComputeRootDescriptorTable(_shader[CUBE_MAP]->GetRootParameterIndex("cubeMap"), _cubeMap->GetUAVHandle());
+    commandList->SetComputeRoot32BitConstants(_shader[CUBE_MAP]->GetRootParameterIndex("bit32_1_cubeMapInfo"), 1, &CUBE_MAP_SIZE, 0);
+    commandList->Dispatch((CUBE_MAP_SIZE + 15) / 16, (CUBE_MAP_SIZE + 15) / 16, 6);
+}
+
+void SkyBox::SetIBLTexture(std::wstring_view path)
 {
     // HDR/EXR 이미지 로드
     ScratchImage image;
