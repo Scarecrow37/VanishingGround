@@ -124,6 +124,7 @@ class MeshModule : public ParticleRenderModule
 public:
     void Initialize() override {};
 };
+
 class RibbonModule : public ParticleRenderModule
 {
 public:
@@ -146,6 +147,27 @@ protected:
     UMPARTICLE_PROPERTY_REF(Vector4, _endNormal, EndNormal, Vector4(0, 0, -1, 0));
     UMPARTICLE_PROPERTY_REF(Vector4, _ribbonVector, RibbonVector, Vector4(1, 0, 0, 0));
 };
+
+
+class MiscModule : public SpriteModule
+{
+public:
+    virtual ~MiscModule();
+
+protected:
+    /// <summary>
+    /// distortion = 0, blur = 1, 
+    /// </summary>
+    UMPARTICLE_PROPERTY(uint8_t, _bitFlag, BitFlag, 0);
+
+
+};
+
+
+
+
+
+
 
 class ParticleEmitter
 {
@@ -220,6 +242,8 @@ protected:
     UMPARTICLE_PROPERTY_REF(Vector3, _emitterPosition, EmitterPosition, Vector3(0, 0, 0));
     Quaternion _emitterRotationQ = Quaternion::Identity;
     Vector3 _emitterRotationE = Vector3(0, 0, 0);
+    Vector3    _finalPos         = Vector3(0, 0, 0);
+
     
     UMPARTICLE_PROPERTY(bool, _activeFlag, ActiveFlag, true);
     UMPARTICLE_PROPERTY(float, _emitterAge, EmitterAge, 0.f);
@@ -245,6 +269,8 @@ protected:
 
     std::function<Vector3(void)> _velocityScalingFunciton;
 
+
+
 protected :
     float _emissionThreshold;
 
@@ -258,6 +284,22 @@ protected :
     Matrix _worldMatrix;
 
     // initial value for particles for lerp
+
+    
+    class Light* _light;
+
+    UMPARTICLE_PROPERTY(bool, _useLight, UseLight, false);
+    UMPARTICLE_PROPERTY(float, _lightIntensity, LightIntensity, 0);
+    UMPARTICLE_PROPERTY(float, _lightRange, LightRange, 0);
+    UMPARTICLE_PROPERTY_REF(Vector3, _lightColor, LightColor, Vector3(0, 0, 0));
+    Vector3 _lightAttenuation = Vector3(0, 0, 0);
+
+public:
+    void    InitializeLight(std::string_view scenenName);
+
+protected:
+
+
     UMPARTICLE_PROPERTY_REF(Vector3, _velocity, Velocity, Vector3(1, 1, 1));
     UMPARTICLE_PROPERTY_REF(Vector3, _velocityFactor, VelocityFactor, Vector3(0, 0, 0));
     UMPARTICLE_PROPERTY_REF(Vector3, _startColor, StartColor, Vector3(1, 1, 1));
@@ -269,7 +311,8 @@ protected :
 
     UMPARTICLE_PROPERTY(float, _particleLifetime, ParticleLifetime, 1.f);
     UMPARTICLE_PROPERTY(float, _particleMass, ParticleMass, 0.1f);
-    UMPARTICLE_PROPERTY_REF(Vector3, _particleDistributionOffset, ParticleDistributionOffset, Vector3(0,0,0));
+    UMPARTICLE_PROPERTY_REF(Vector3, _particleStartDistributionOffset, ParticleStartDistributionOffset, Vector3(0,0,0));
+    UMPARTICLE_PROPERTY_REF(Vector3, _particleEndDistributionOffset, ParticleEndDistributionOffset, Vector3(0,0,0));
 
     //w = drag flag
     UMPARTICLE_PROPERTY_REF(Vector4, _dragPoint, DragPoint, Vector4(0, 0, 0, 0));

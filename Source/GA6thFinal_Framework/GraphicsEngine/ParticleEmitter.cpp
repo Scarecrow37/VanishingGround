@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "Particle.h"
 #include "ParticleEmitter.h"
+#include "Light.h"
 #include "Model.h"
 /////////////////////////////////////////////////
 void EmitLocator::RandomInitialize() 
@@ -278,25 +279,26 @@ Texture* RibbonModule::GetAlbedoTexture() const
          : _particleType(other._particleType), _locationType(other._locationType), _velocityType(other._velocityType),
        _emitterRotationQ(other._emitterRotationQ), _emitterRotationE(other._emitterRotationE),_emitterPosition(other._emitterPosition)
  {
-     _emitterLifetime           =other.GetEmitterLifetime();
-     _maxParticles              =other.GetMaxParticles();
-     _emissionRate              =other.GetEmissionRate();
-     _startDelay                =other.GetStartDelay();
-     _spawnBurstFlag            =other.GetSpawnBurstFlag();
-     _spawnBurstCount           =other.GetSpawnBurstCount();
-     _emitterName               =other.GetEmitterName();
-     _velocityFactor            =other.GetVelocityFactor();
-     _startColor                =other.GetStartColor();
-     _startOpacity              =other.GetStartOpacity();
-     _endColor                  =other.GetEndColor();
-     _endOpacity                =other.GetEndOpacity();
-     _startScale                =other.GetStartScale();
-     _endScale                  =other.GetEndScale();
-     _particleLifetime          =other.GetParticleLifetime();
-     _particleMass              =other.GetParticleMass();
-     _particleDistributionOffset=other.GetParticleDistributionOffset();
-     _dragPoint                 =other.GetDragPoint();
-     _dragForce                 =other.GetDragForce();
+     _emitterLifetime                 = other.GetEmitterLifetime();
+     _maxParticles                    = other.GetMaxParticles();
+     _emissionRate                    = other.GetEmissionRate();
+     _startDelay                      = other.GetStartDelay();
+     _spawnBurstFlag                  = other.GetSpawnBurstFlag();
+     _spawnBurstCount                 = other.GetSpawnBurstCount();
+     _emitterName                     = other.GetEmitterName();
+     _velocityFactor                  = other.GetVelocityFactor();
+     _startColor                      = other.GetStartColor();
+     _startOpacity                    = other.GetStartOpacity();
+     _endColor                        = other.GetEndColor();
+     _endOpacity                      = other.GetEndOpacity();
+     _startScale                      = other.GetStartScale();
+     _endScale                        = other.GetEndScale();
+     _particleLifetime                = other.GetParticleLifetime();
+     _particleMass                    = other.GetParticleMass();
+     _particleStartDistributionOffset = other.GetParticleStartDistributionOffset();
+     _particleEndDistributionOffset   = other.GetParticleEndDistributionOffset();
+     _dragPoint                       = other.GetDragPoint();
+     _dragForce                       = other.GetDragForce();
 
 
 
@@ -336,8 +338,13 @@ void ParticleEmitter::Initialize(SIZE_T maxParticles /*= 100000*/, float emissio
         _particleRenderModule = new SpriteModule();
         break;
     }
+    if (meshspritePath == L"")
+    {
+        _particleRenderModule->SetModelAndTexturePath(L"BlackTexture");
 
-    _particleRenderModule->SetModelAndTexturePath(meshspritePath);
+    }
+    else
+        _particleRenderModule->SetModelAndTexturePath(meshspritePath);
 
     _locationType = locatorShape;
     switch (_locationType)
@@ -371,6 +378,10 @@ void ParticleEmitter::Initialize(SIZE_T maxParticles /*= 100000*/, float emissio
     _maxParticles = maxParticles;
     _emissionRate = emissionRate;
     _particlePool.resize(_maxParticles);
+
+
+
+
 }
 
 
@@ -411,6 +422,7 @@ void ParticleEmitter::Update(float deltaTime)
     _translationMatrix = Matrix::CreateTranslation(_emitterPosition);
     _rotationMatrix    = Matrix::CreateFromQuaternion(_emitterRotationQ);
     _worldMatrix       = _rotationMatrix * _translationMatrix * _effectWorldMatrix;
+    _finalPos          = _worldMatrix.Translation();
 }
 
 
@@ -533,9 +545,12 @@ void ParticleEmitter::AwakeParticle(UINT index)
 
     Vector4 location = {1, 1, 1, 1};
     Vector3 tempPos = _emitLocator->EmitLocate();
-    location.x      = tempPos.x + offset.x * _particleDistributionOffset.x;
-    location.y      = tempPos.y + offset.y * _particleDistributionOffset.y;
-    location.z      = tempPos.z + offset.z * _particleDistributionOffset.z;
+    float   ratio    = _emitterAge / (_emitterLifetime-_particleLifetime);
+    Vector3 currentOffset = Vector3::Lerp(_particleStartDistributionOffset, _particleEndDistributionOffset, ratio);
+
+    location.x = tempPos.x + offset.x * (0 < currentOffset.x ? currentOffset.x : 0);
+    location.y = tempPos.y + offset.y * (0 < currentOffset.x ? currentOffset.y : 0);
+    location.z = tempPos.z + offset.z * (0 < currentOffset.x ? currentOffset.z : 0);
 
     if (_useWorldSpace)
     {
@@ -607,4 +622,11 @@ void ParticleEmitter::ScaleVelInCone(Vector3 pos)
 
 }
 
+void ParticleEmitter::InitializeLight(std::string_view scenenName) 
+{
+    _light = new Light();
+    _light->SetPointLight(_lightColor, _finalPos, _lightAttenuation, _lightRange, _lightIntensity);
+    _light->SetActive(&_useLight);
+    Global::lightCore->RegisterLight(scenenName,_light);
+}
 

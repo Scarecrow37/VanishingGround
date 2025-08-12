@@ -106,8 +106,17 @@ enum class ParticleType
 {
     SPRITE,
     MESH,
-    RIBBON
+    RIBBON,
+    Misc
 }; 
+enum ParticleMiscFlag
+{
+    Distortion,
+    Blur,
+};
+
+
+
 
 enum class VelocityScaleType
 {
