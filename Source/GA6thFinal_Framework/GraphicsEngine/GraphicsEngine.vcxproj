@@ -227,7 +227,7 @@
     <Lib />
     <PostBuildEvent>
       <Command>xcopy /Y /I "$(ProjectDir)ThirdParty\lib\*.*" "$(SolutionDir)GameEngine\ThirdParty\lib\"
-xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Debug\*.*" "$(SolutionDir)GameEngine\ThirdParty\bin\Debug\"</Command>
+xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdParty\bin\Debug\"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -254,7 +254,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Debug\*.*" "$(SolutionDir)GameEngine\Th
     <Lib />
     <PostBuildEvent>
       <Command>xcopy /Y /I "$(ProjectDir)ThirdParty\lib\*.*" "$(SolutionDir)GameEngine\ThirdParty\lib\"
-xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Debug\*.*" "$(SolutionDir)GameEngine\ThirdParty\bin\Debug\"</Command>
+xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdParty\bin\Debug\"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -283,7 +283,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Debug\*.*" "$(SolutionDir)GameEngine\Th
     <Lib />
     <PostBuildEvent>
       <Command>xcopy /Y /I "$(ProjectDir)ThirdParty\lib\*.*" "$(SolutionDir)GameEngine\ThirdParty\lib\"
-xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\ThirdParty\bin\Release\"</Command>
+xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdParty\bin\Release\"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -312,7 +312,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\
     <Lib />
     <PostBuildEvent>
       <Command>xcopy /Y /I "$(ProjectDir)ThirdParty\lib\*.*" "$(SolutionDir)GameEngine\ThirdParty\lib\"
-xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\ThirdParty\bin\Release\"</Command>
+xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdParty\bin\Release\"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -434,6 +434,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\
     <ClInclude Include="StructuredBuffer.h" />
     <ClInclude Include="TextDrawPass.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="ThreadPool.h" />
     <ClInclude Include="UI25DPass.h" />
     <ClInclude Include="UI2DPass.h" />
     <ClInclude Include="UI3DPass.h" />
@@ -564,6 +565,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="ThreadPool.cpp" />
     <ClCompile Include="UI25DPass.cpp" />
     <ClCompile Include="UI2DPass.cpp" />
     <ClCompile Include="UI3DPass.cpp" />
@@ -745,18 +747,6 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="..\Shaders\ps_skybox.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_ssao.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_ssao_blend.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>

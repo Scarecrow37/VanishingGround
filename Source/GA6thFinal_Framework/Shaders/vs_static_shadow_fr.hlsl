@@ -16,7 +16,7 @@ struct VSOutput
     float2 uv           : TEXCOORD;
 };
 
-StructuredBuffer<matrix> worldMatrices;
+StructuredBuffer<MatrixData> matrices;
 
 VSOutput vs_main(VSInput input)
 {
@@ -24,8 +24,8 @@ VSOutput vs_main(VSInput input)
 
     uint instanceID = shadowData.ID;
     uint cascadeIndex = shadowData.CascadeIndex;
-    
-    output.position = mul(input.position, worldMatrices[instanceID]);
+
+    output.position = mul(input.position, matrices[instanceID].World);
     output.position = mul(output.position, cascadeData.ShadowVP[cascadeIndex]);
 
     output.uv = input.uv;

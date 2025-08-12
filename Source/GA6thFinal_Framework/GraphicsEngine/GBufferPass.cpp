@@ -89,7 +89,7 @@ void GBufferPass::Update(ID3D12GraphicsCommandList* commadList)
             
             BoundingOrientedBox boundingOrientedBox;
             const auto& meshBoundingBox = meshInfo.Mesh->GetBoundingBox();
-            meshBoundingBox.Transform(boundingOrientedBox, XMMatrixTranspose(_ownerScene->_worldMatrices[meshInfo.InstanceID]));
+            meshBoundingBox.Transform(boundingOrientedBox, XMMatrixTranspose(_ownerScene->_matrices[meshInfo.InstanceID].World));
 
             if (!cameraFrustum.Intersects(boundingOrientedBox))
             {
@@ -124,13 +124,13 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
 
     commandList->SetGraphicsRootDescriptorTable(_fxStaticMesh.GetRootParameterIndex("textures"), resource);
     commandList->SetGraphicsRootConstantBufferView(_fxStaticMesh.GetRootParameterIndex("cameraData"), cameraData);
-    frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxStaticMesh.GetRootParameterIndex("worldMatrices"), commandList);
+    frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxStaticMesh.GetRootParameterIndex("matrices"), commandList);
     frameResource->SetFrameResource(FrameResourceType::MATERIAL, _fxStaticMesh.GetRootParameterIndex("material"), commandList);
 
     commandList->SetPipelineState(_psos[STATIC_CULL_BACK].Get());
     DrawMeshes(commandList, STATIC_MESH, STATIC_CULL_BACK);
 
-    commandList->SetPipelineState(_psos[STATIC_CULL_FRONT].Get());    
+    commandList->SetPipelineState(_psos[STATIC_CULL_FRONT].Get());
     DrawMeshes(commandList, STATIC_MESH, STATIC_CULL_FRONT);
 
     commandList->SetPipelineState(_psos[STATIC_TWO_SIDED].Get());    
@@ -141,7 +141,7 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
 
     commandList->SetGraphicsRootDescriptorTable(_fxSkeletalMesh.GetRootParameterIndex("textures"), resource);
     commandList->SetGraphicsRootConstantBufferView(_fxSkeletalMesh.GetRootParameterIndex("cameraData"), cameraData);
-    frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxSkeletalMesh.GetRootParameterIndex("worldMatrices"), commandList);
+    frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxSkeletalMesh.GetRootParameterIndex("matrices"), commandList);
     frameResource->SetFrameResource(FrameResourceType::BONE_MATRICES, _fxSkeletalMesh.GetRootParameterIndex("boneMatrices"), commandList);
     frameResource->SetFrameResource(FrameResourceType::MATERIAL, _fxSkeletalMesh.GetRootParameterIndex("material"), commandList);
 

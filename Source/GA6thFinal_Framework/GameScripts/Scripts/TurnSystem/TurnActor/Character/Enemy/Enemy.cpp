@@ -52,12 +52,6 @@ void Enemy::Dead()
 
 void Enemy::TakeDamage(int damage, bool playAnim)
 {
-    AudioTableComponent* audioTable = GetAudioTableComponent();
-    if (audioTable)
-    {
-        audioTable->Play("Hit0");
-    }
-
     // 혹시나 그럴 일 없겠지만 중간에 계산할 연산이 또 있다면 재연산
     int takeDamage = damage;
     Base::TakeDamage(takeDamage, playAnim);
@@ -73,8 +67,7 @@ void Enemy::Awake()
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Enemy Stats를 추가해주세요");
     }
-
-    InitMeshModel();
+    InitParticle();
 }
 
 void Enemy::Update() 
@@ -90,6 +83,20 @@ CharacterStats* Enemy::GetCharacterStats()
         stats = &statsComponent->GetStats();
     }
     return stats;
+}
+
+void Enemy::InitParticle() 
+{
+    auto* modelTransform = transform->Find(MODEL_NAME);
+    if (modelTransform)
+    {
+        _hitParticle = modelTransform->gameObject->GetComponent<ParticleComponent>();
+        if (nullptr == _hitParticle)
+        {
+            std::string message = std::format("{} {}", modelTransform->gameObject->ToString(), (const char*)u8"피격 파티클이 존재하지 않습니다.");
+            UmLogger.Log(LogLevel::LEVEL_WARNING, message);
+        }
+    }
 }
 
 int Enemy::GetSpeed()
@@ -215,16 +222,12 @@ void Enemy::OnNotifiedAnimationEvent(const Timeline::EventContext* context)
     {
         _fsmStates.Dead->OnNotifiedAnimationEvent(context);
     }
-
-    auto* modelTransform    = transform->Find(MODEL_NAME);
-    if (nullptr == modelTransform)
-        return;
-    auto  particlecomponent = modelTransform->gameObject->GetComponent<ParticleComponent>();
-    if (nullptr == particlecomponent)
-        return;
-    if ("Hit" == context->GetLabel())
+    if (_hitParticle)
     {
-        particlecomponent->PlayEffect();
+        if ("Hit" == context->GetLabel())
+        {
+            _hitParticle->StopEffect();
+            _hitParticle->PlayEffect();
+        }
     }
-  
 }

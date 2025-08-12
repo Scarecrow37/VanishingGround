@@ -83,7 +83,6 @@ void CharacterBase::Awake()
 {
     Base::Awake();
     gameObject->AddTag(TAG);
-
     InitMeshModel();
     InitAnimationCallback();
     InitAudio();
@@ -156,8 +155,8 @@ void CharacterBase::ClearState()
     if (_animationComponent)
     {
         _animationComponent->ClearOverrideAnimations();
-        _animationComponent->ChangeMainAnimation("Idle", true);
-        _animationComponent->ChangeMainAnimationFlags(ANIMATION_FLAG_USE_LOOP | ANIMATION_FLAG_RESET_FRAME);
+        _animationComponent->SetNextAnimationFlags(ANIMATION_FLAG_USE_LOOP | ANIMATION_FLAG_RESET_FRAME | ANIMATION_FLAG_USE_BLEND);
+        _animationComponent->ChangeMainAnimation("Idle");
     }
 }
 
@@ -204,20 +203,12 @@ void CharacterBase::TakeDamage(int damage, bool playAnim)
     }
     if (playAnim && _animationComponent)
     {
-        const auto& animData    = _animationComponent->GetLastAnimationData();
-        const std::string& hitAnimName = _animationComponent->GetAnimationNameFromKey("Hit");
-        const std::string& curAnimName = animData.GetAnimationName();
         _animationComponent->BeginBuildOverrideAnimation();
-        // 마지막 애니메이션이 Hit 애니메이션이면, Pop하고 다시 넣기
-        if (false == hitAnimName.empty() && hitAnimName == curAnimName)
+        _animationComponent->SetNextAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
+        bool pushResult = _animationComponent->PushBackOverrideAnimation("Hit");
+        if (pushResult)
         {
-            _animationComponent->PopOverrideAnimation();
-        }
-        _animationComponent->PushOverrideAnimation("Hit", true,
-            [](const AnimationData& data) { return data.IsEnd(); });
-        if (_audioTableComponent)
-        {
-            //_audioTableComponent->Play("Hit");
+            _animationComponent->SetCurrentAnimationPopCondition([](const AnimationData& data) { return data.IsEnd(); }); // 애니메이션이 끝날 경우 Pop
         }
         _animationComponent->EndBuildOverrideAnimation();
     }

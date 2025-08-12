@@ -116,8 +116,10 @@ void MeshComponent::ImGuiDrawPropertysEvent()
                         }
                         ImGui::TableNextColumn();
                         {
-                            ImGui::Checkbox("##IsTwoSided", &materials[i].IsTwoSided);
-                            ReflectFields->IsTwoSided[i] = materials[i].IsTwoSided;
+                            if (ImGui::Checkbox("##IsTwoSided", &materials[i].IsTwoSided))
+                            {
+                                ReflectFields->IsTwoSided[i] = materials[i].IsTwoSided;
+                            }
                         }
                         ImGui::TableNextColumn();
                     }
@@ -154,10 +156,6 @@ void MeshComponent::ImGuiDrawPropertysEvent()
             ImGui::PopID();
         }
 
-        if (ImGui::Button("Apply##MeshComponent", ImVec2(100, 50)))
-        {
-        }
-
         ImGui::TreePop();
     }    
 }
@@ -168,7 +166,7 @@ void MeshComponent::InitMaterial()
     auto&       materials = model->GetMaterials();
     size_t      meshCount = model->GetMeshCount();
 
-    if (ReflectFields->CustomDepth.size() <= meshCount)
+    if (ReflectFields->CustomDepth.size() < meshCount)
     {
         ReflectFields->BlendMode.resize(meshCount, 0);
         ReflectFields->CullMode.resize(meshCount, 0);

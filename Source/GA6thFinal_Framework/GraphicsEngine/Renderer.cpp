@@ -280,8 +280,7 @@ void Renderer::Initialize()
 }
 
 void Renderer::Update(const float deltaTime)
-{
-    Global::device->ClearBackBuffer(D3D12_CLEAR_FLAG_DEPTH, { 0.5f, 0.5f, 0.5f, 1.f });
+{    
     _totalTime += deltaTime;
     for (auto& renderScene : _renderScenes)
     {
@@ -295,7 +294,7 @@ void Renderer::Render()
     {
         renderScene.second->Execute();
     }   
-
+    
     RenderToBackBuffer();
 }
 
@@ -309,6 +308,8 @@ void Renderer::Flip()
 
 void Renderer::RenderToBackBuffer()
 {
+    Global::device->ClearBackBuffer(D3D12_CLEAR_FLAG_DEPTH, {0.5f, 0.5f, 0.5f, 1.f});
+
     if (_currentSceneName.empty())
     {
         return;
@@ -320,8 +321,8 @@ void Renderer::RenderToBackBuffer()
         GRAPHICS_ASSERT(false, L"Renderer::DrawCurrentSceneToBackBuffer: Current scene not found.");
         return;
     }
-
-    auto& scene = iter->second;    
+    
+    auto& scene = iter->second;
 
     auto commandList = Global::device->GetCommandList();
     auto backBuffer  = Global::device->GetBackBufferHandle();

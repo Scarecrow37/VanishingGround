@@ -17,8 +17,13 @@ public:
             filePath = filePath.generic_string();
         }
 
-		std::weak_ptr<Resource> resource       = _resources[typeid(T)][filePath];
-        std::shared_ptr<T>      sharedResource = std::static_pointer_cast<T>(resource.lock());
+		std::weak_ptr<Resource> resource;
+        {
+            std::lock_guard<std::mutex> lock(_mutex);
+            resource = _resources[typeid(T)][filePath];
+        }
+
+        std::shared_ptr<T> sharedResource = std::static_pointer_cast<T>(resource.lock());
 
 		if (resource.expired())
 		{
@@ -39,5 +44,5 @@ public:
 
 private:
     std::unordered_map<std::type_index, std::unordered_map<std::wstring, std::weak_ptr<Resource>>> _resources;
+    std::mutex _mutex;
 };
-

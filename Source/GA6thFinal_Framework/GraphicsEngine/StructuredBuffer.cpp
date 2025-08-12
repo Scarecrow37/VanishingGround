@@ -53,7 +53,7 @@ void StructuredBuffer::CopyStructuredBuffer(ID3D12GraphicsCommandList* commandLi
 {
 	void* temp = nullptr;
 
-	_uploadBuffer->Map(0, nullptr, &temp);
+	HRESULT hr = _uploadBuffer->Map(0, nullptr, &temp);
     memcpy(temp, data, _stride * count);
 	_uploadBuffer->Unmap(0, nullptr);
 
