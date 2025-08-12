@@ -17,11 +17,13 @@ public:
     D3D12_GPU_DESCRIPTOR_HANDLE GetRenderSceneImage(std::string_view renderSceneName);
     std::shared_ptr<Camera>     GetCamera(std::string_view renderSceneName);
     RenderScene*                GetRenderScene(std::string_view renderSceneName);
-    const float                       GetTotalTime() const { return _totalTime; }
+    const float                 GetTotalTime() const { return _totalTime; }
 
 public:
     void SetCamera(std::string_view renderSceneName, std::shared_ptr<Camera> camera);
     void SetCurrentScene(std::string_view sceneName);
+    void SetEnvironmentSkyBox(std::string_view renderSceneName, std::wstring_view filePath) const;
+    void SetIBLSkyBox(std::string_view renderSceneName, std::wstring_view filePath) const;
 
 public:
     void AddRenderScene(std::string_view sceneName, RenderTechniqueFlag flag);
@@ -29,7 +31,7 @@ public:
     void RegisterRenderQueue(std::string_view sceneName, SpriteRenderer* component);
     void RegisterRenderQueue(std::string_view sceneName, FontRenderer* component);
 
-    void SetSkyBox(std::string_view sceneName, std::wstring_view path);
+public:
     void ResetSkyBox(std::string_view sceneName);
 
 public:
