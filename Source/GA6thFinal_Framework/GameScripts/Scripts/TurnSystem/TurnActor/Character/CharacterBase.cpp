@@ -204,19 +204,12 @@ void CharacterBase::TakeDamage(int damage, bool playAnim)
     }
     if (playAnim && _animationComponent)
     {
-        const auto& animData    = _animationComponent->GetTopAnimationData();
-        const std::string& hitAnimName = _animationComponent->GetAnimationNameFromKey("Hit");
-        const std::string& curAnimName = animData.GetAnimationName();
         _animationComponent->BeginBuildOverrideAnimation();
+        _animationComponent->SetNextAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
         bool pushResult = _animationComponent->PushBackOverrideAnimation("Hit");
         if (pushResult)
         {
             _animationComponent->SetCurrentAnimationPopCondition([](const AnimationData& data) { return data.IsEnd(); }); // 애니메이션이 끝날 경우 Pop
-        }
-
-        if (_audioTableComponent)
-        {
-            //_audioTableComponent->Play("Hit");
         }
         _animationComponent->EndBuildOverrideAnimation();
     }

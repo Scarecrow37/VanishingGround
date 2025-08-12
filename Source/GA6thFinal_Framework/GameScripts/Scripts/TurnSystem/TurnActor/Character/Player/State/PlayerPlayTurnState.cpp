@@ -330,10 +330,6 @@ void PlayerPlayTurnState::SetAttackReady()
 
         animator->EndBuildOverrideAnimation();
     }
-    if (audioTable)
-    {
-        audioTable->Play("Casting");
-    }
 
     WeaponSystem*       weaponSystem = WeaponSystem::GetInstance();
     const WeaponStats&  weaponStats  = weaponSystem->GetCurrentWeaponStats();
@@ -366,12 +362,6 @@ void PlayerPlayTurnState::SetAttack()
         animator->SetCurrentAnimationPopCondition([](const AnimationData& data) { return data.IsEnd(); }); // 애니메이션이 끝날 경우 Pop
 
         animator->EndBuildOverrideAnimation();
-    }
-
-    // 사운드 처리
-    if (audioTable)
-    {
-        audioTable->Play("Shoot");
     }
 
     // 무기 애니메이션 및 이펙트 처리

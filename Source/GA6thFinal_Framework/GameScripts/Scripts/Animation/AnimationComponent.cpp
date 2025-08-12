@@ -335,10 +335,13 @@ void AnimationComponent::ImGuiDrawPropertysEvent()
         }
         _delayProcess.clear();
 
-        // 애니메이터가 해당 객체만 사용 중이라면 reset합니다.
-        UpdateNullAnimator();
-        // 메인 애니메이션만
-        UpdateAnimation(_mainAnimationData);
+        if (false == Global::IsPlay())
+        {
+            // 애니메이터가 해당 객체만 사용 중이라면 reset합니다.
+            UpdateNullAnimator();
+            // 메인 애니메이션만
+            UpdateAnimation(_mainAnimationData);
+        }
     }
 }
 
@@ -658,6 +661,12 @@ bool AnimationComponent::PushFrontOverrideAnimation(std::string_view animKey, bo
 
 void AnimationComponent::PopOverrideAnimation() 
 {
+    if (_currentAnimationData && _currentAnimationData->_onExitCallback)
+    {
+        _currentAnimationData->_onExitCallback();
+    }
+    _currentAnimationData = nullptr;
+
     _overrideAnimationStack.pop_back();
     AnimationData& nextData = GetTopAnimationDataEx();
     if (false == _isBuildingOverrideAnimation)

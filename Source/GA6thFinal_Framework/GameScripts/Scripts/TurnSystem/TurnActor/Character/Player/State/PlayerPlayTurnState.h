@@ -59,6 +59,9 @@ private:
     void SetAttack();
     void SetAttackEnd();
 
+    // Callback //
+    void OnAnimationEventAttack();
+
 private:
     bool       _setImguiPosCenter;
     InputState _inputState;

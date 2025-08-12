@@ -1595,7 +1595,7 @@ EditorAssetBrowserTool::AssetData::AssetData(FileEntry entry)
     static std::unordered_set<File::Path> imageFormat = {".jpg", ".png", ".dds", ".jpeg", ".bmp"};
     static std::unordered_set<File::Path> modelFormat = {".fbx", ".FBX",".obj"};
     static std::unordered_set<File::Path> soundFormat = {".wav"};
-    static std::unordered_set<File::Path> prefabFormat = {".UmPrefab"};
+    static std::unordered_set<File::Path> prefabFormat = {EGameObjectFactory::PREFAB_EXTENSION};
     static std::unordered_set<File::Path> vfxFormat = {".vfx"};
     static std::unordered_set<File::Path> animFormat = {AnimationEventTrack::EXTENSION};
 
