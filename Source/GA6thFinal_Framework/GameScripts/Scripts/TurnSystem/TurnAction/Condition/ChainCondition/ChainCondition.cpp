@@ -6,6 +6,7 @@
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <TurnSystem/TurnMode/State/CombatStartPhase.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
+#include <TurnSystem/TurnSystemHelper.h>
 
 REGISTER_TURN_ACTION_CONDITION(ChainCondition)
 using namespace u8_literals;
@@ -17,9 +18,7 @@ ChainCondition::ChainCondition()
 
 bool ChainCondition::Evaluate()
 {
-    std::vector<CharacterBase*> targetList;
-    GetTargetList(targetList);
-
+    std::vector<CharacterBase*> targetList = TurnSystemHelper::GetTargetCharacters(ReflectFields->Target);
     if (targetList.empty())
     {
         return false;
@@ -76,7 +75,14 @@ void ChainCondition::DrawImguiEditor()
         int         index = 0;
         view.apply([&](const auto& field) {
             ImGui::TableSetColumnIndex(index);
-            isEdit |= ReflectHelper::ImGuiDraw::Private::InputAuto(field, setting);
+            if constexpr (field.name() == "Target")
+            {
+                isEdit |= TurnSystemHelper::DrawTargetComboboxWithToolTip(*field.value());
+            }
+            else
+            {
+                isEdit |= ReflectHelper::ImGuiDraw::Private::InputAuto(field, setting);
+            }
             index++;
         });
         ImGui::EndTable();
@@ -106,22 +112,22 @@ void ChainCondition::DeserializedReflectEvent()
 void ChainCondition::UpdateConditionInfo() 
 {
     std::string_view who    = STR_NULL;
-    Target           target = ReflectFields->Target;
+    TurnTarget       target = ReflectFields->Target;
     switch (target)
     {
-    case ChainCondition::Target::SELF:
+    case TurnTarget::SELF:
         who = u8"자신의"_c_str;
         break;
-    case ChainCondition::Target::PLAYER:
+    case TurnTarget::PLAYER:
         who = u8"플레이어의"_c_str;
         break;
-    case ChainCondition::Target::ENEMY:
+    case TurnTarget::ENEMY:
         who = u8"적의"_c_str;
         break;
-    case ChainCondition::Target::ALL_ENEMIES:
+    case TurnTarget::ALL_ENEMIES:
         who = u8"모든 적의"_c_str;
         break;
-    case ChainCondition::Target::ALL:
+    case TurnTarget::ALL:
         who = u8"모든 캐릭터의"_c_str;
         break;
     default:
@@ -159,65 +165,3 @@ void ChainCondition::UpdateConditionInfo()
     }
     _conditionInfo = std::format("{}{}{}", who, u8" 연격이 "_c_str, operInfo);
 }
-
-void ChainCondition::GetTargetList(std::vector<class CharacterBase*>& targetList)
-{
-    targetList.clear();
-    if (TurnMode* turnMode = TurnMode::GetInstance())
-    {
-        CombatStartPhase* combatStartPhase = turnMode->States->CombatStartPhase;
-        if (combatStartPhase)
-        {
-            Target target          = ReflectFields->Target;
-            auto   lastAttaker     = Battle::GetLastAttacker().lock();
-            auto   lastTarget      = Battle::GetLastTarget().lock();
-            auto   lastTargetEnemy = Battle::GetLastTargetEnemy().lock();
-            switch (target)
-            {
-            default:
-                return;
-            case Target::SELF: {
-                const auto& self = lastAttaker;
-                if (self)
-                {
-                    targetList.push_back(self.get());
-                }
-                break;
-            }
-            case Target::PLAYER: {
-                Player* player = combatStartPhase->GetPlayer();
-                if (player)
-                {
-                    targetList.push_back(player);
-                }
-                break;
-            }
-            case Target::ENEMY: {
-                if (lastTarget && lastTarget.get() == lastTargetEnemy.get())
-                {
-                    targetList.push_back(lastTarget.get());
-                }
-                break;
-            }
-            case Target::ALL_ENEMIES: {
-                auto& enemys = combatStartPhase->GetEnemies();
-                for (auto& enemy : enemys)
-                {
-                    targetList.push_back(enemy);
-                }
-                break;
-            }
-            case Target::ALL: {
-                auto& characters = combatStartPhase->GetCharacters();
-                for (auto& character : characters)
-                {
-                    targetList.push_back(character);
-                }
-                break;
-            }
-            }
-        }      
-    }
-}
-
-

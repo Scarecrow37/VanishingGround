@@ -23,6 +23,8 @@
 #include <set>
 #include <any>
 #include <format>
+#include <concurrent_queue.h>
+#include <functional>
 
 #include "directx/d3dcommon.h"
 #include "directx/d3dx12.h"

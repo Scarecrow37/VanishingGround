@@ -10,8 +10,8 @@ void SSAOWritePass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTe
                                ID3D12GraphicsCommandList* commandList)
 {
     __super::Initialize(ownerScene, ownerTechnique, commandList);
-    auto mode = Global::device->GetMode();
-    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8_UNORM, mode.Width, mode.Height, 1, 1, 1, 0,
+    auto resolution = Global::device->GetResolution();
+    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8_UNORM, resolution.Width, resolution.Height, 1, 1, 1, 0,
                                              D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
     
     _renderTarget = MakeSharedResource<RenderTarget>();
@@ -32,11 +32,11 @@ void SSAOWritePass::AddRenderPassDatas(std::string_view sceneName)
 
 void SSAOWritePass::Begin(ID3D12GraphicsCommandList* commandList) 
 {
-    _sharedRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    _sharedRenderTarget->ClearRenderTarget(commandList, 0);
-    commandList->OMSetRenderTargets(1, &_sharedRenderTarget->GetRTVHandle(), FALSE, nullptr);
-    commandList->RSSetViewports(1, &_sharedRenderTarget->GetViewport());
-    commandList->RSSetScissorRects(1, &_sharedRenderTarget->GetScissorRect());
+    _renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    _renderTarget->ClearRenderTarget(commandList, 0);
+    commandList->OMSetRenderTargets(1, &_renderTarget->GetRTVHandle(), FALSE, nullptr);
+    commandList->RSSetViewports(1, &_renderTarget->GetViewport());
+    commandList->RSSetScissorRects(1, &_renderTarget->GetScissorRect());
 }
 
 void SSAOWritePass::Draw(ID3D12GraphicsCommandList* commandList)
@@ -68,23 +68,24 @@ void SSAOWritePass::Draw(ID3D12GraphicsCommandList* commandList)
     _ownerScene->_frameQuad->Render(commandList);
 
     auto gaussianBlurModule = Global::moduleManager->GetModule<GaussianBlurModule>();
-    _renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    _renderTarget->ClearRenderTarget(commandList, 0);
-
-    _sharedRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    gaussianBlurModule->Execute(commandList, _sharedRenderTarget->GetSRVHandle(), _renderTarget, DXGI_FORMAT_R8_UNORM,
-                               GaussianBlurModule::AXIS_X);
-    _renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-
     _sharedRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    _sharedRenderTarget->ClearRenderTarget(commandList, 0);
 
+    _renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     gaussianBlurModule->Execute(commandList, _renderTarget->GetSRVHandle(), _sharedRenderTarget,
-                                DXGI_FORMAT_R32G32B32A32_FLOAT, GaussianBlurModule::BlurType::AXIS_Y);
+                                _sharedRenderTarget->GetFormat(),
+                               GaussianBlurModule::AXIS_X);
+    _sharedRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+
+    _renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+    gaussianBlurModule->Execute(commandList, _sharedRenderTarget->GetSRVHandle(), _renderTarget,
+                                _renderTarget->GetFormat(), GaussianBlurModule::BlurType::AXIS_Y);
 }
 
 void SSAOWritePass::End(ID3D12GraphicsCommandList* commandList)
 {
-    _sharedRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    _renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
 void SSAOWritePass::InitShaderAndPSO()
@@ -94,7 +95,7 @@ void SSAOWritePass::InitShaderAndPSO()
     pss.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
     pss.DepthStencilState            = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
     pss.PrimitiveTopology            = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    pss.RTVFormats                   = {{DXGI_FORMAT_R32G32B32A32_FLOAT}, 1};
+    pss.RTVFormats                        = {{_renderTarget->GetFormat()}, 1};
     pss.DSVFormat                    = _ownerScene->_depthStencilView->GetFormat();
     (&pss.DepthStencilState)->DepthEnable = FALSE;
     (&pss.RasterizerState)->CullMode = D3D12_CULL_MODE_BACK;

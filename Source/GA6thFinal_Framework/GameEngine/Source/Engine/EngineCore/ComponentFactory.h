@@ -147,13 +147,13 @@ public:
     /// <summary>
     /// Yaml 형식으로 직렬화된 컴포넌트를 런타임 오브젝트에 추가합니다. 
     /// </summary>
-    /// <returns></returns>
+    /// <returns>추가된 컴포넌트</returns>
     Component* AddComponentToYamlLifeCycle(GameObject* ownerObject, YAML::Node* componentNode);
 
     /// <summary>
     /// Yaml 형식으로 직렬화된 컴포넌트를 즉시 오브젝트에 추가합니다. (리소스 프리팹 전용)
     /// </summary>
-    /// <returns></returns>
+    /// <returns>추가된 컴포넌트</returns>
     Component* AddComponentToYamlNow(GameObject* ownerObject, YAML::Node* componentNode);
 
     /// <summary>

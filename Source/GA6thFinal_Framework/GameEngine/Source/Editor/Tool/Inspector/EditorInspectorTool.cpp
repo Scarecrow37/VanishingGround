@@ -1,6 +1,8 @@
 ﻿#include "pch.h"
 #include "EditorInspectorTool.h"
 
+#define SAFE_CALL(ptr, func) if (nullptr != ptr) ptr->func; // nullptr 체크용
+
 EditorInspectorTool::EditorInspectorTool()
 {
     SetLabel("Inspector");
@@ -19,6 +21,7 @@ void  EditorInspectorTool::OnStartGui()
 
 void EditorInspectorTool::OnPreFrameBegin()
 {
+    
 }
 
 void EditorInspectorTool::OnPostFrameBegin() 
@@ -45,10 +48,10 @@ void EditorInspectorTool::OnPostFrameBegin()
     {
         _isLockFocus = false;
     }
-}
 
-#define SAFE_CALL(ptr, func) if (nullptr != ptr) ptr->func; // nullptr 체크용
-  
+    SAFE_CALL(_rowPtrCurrFocused, OnInspectorBegin());
+}
+ 
 void EditorInspectorTool::OnFrameRender()
 {
     ShowMenuBarFrame();

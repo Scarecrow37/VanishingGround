@@ -1,21 +1,12 @@
 ﻿#pragma once
 #include <TurnSystem/TurnAction/TurnAction.h>
+#include <TurnSystem/TurnAction/TurnActionEnums.h>
 
 // 체력을 확인하는 조건 클래스입니다.
 class HealthRangeCondition : public TurnActionCondition
 {
     USING_PROPERTY(HealthRangeCondition)
 public:
-    // 대상
-    enum class Target
-    {
-        SELF,
-        PLAYER,
-        ENEMY,
-        ALL_ENEMIES,
-        ALL
-    };
-
     enum class Operator
     {
         GREATER_EQUAL, // 이상(≥A)
@@ -40,11 +31,11 @@ protected:
     const std::string& GetConditionInfo() const override;
 
     REFLECT_FIELDS_BEGIN(TurnActionCondition)
-    Target   Target   = Target::SELF;
-    Operator Operator = Operator::GREATER_EQUAL;
-    float    value1   = 0;
-    float    value2   = 0;
-    Unit     Unit     = Unit::FLAT;
+    TurnTarget Target   = TurnTarget::SELF;
+    Operator   Operator = Operator::GREATER_EQUAL;
+    float      value1   = 0;
+    float      value2   = 0;
+    Unit       Unit     = Unit::FLAT;
     REFLECT_FIELDS_END(HealthRangeCondition)
 
 private:

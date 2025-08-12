@@ -22,6 +22,7 @@ namespace Global
     RenderPassDatas*                               renderPassDatas;
     ModuleManager*                                 moduleManager;
     PipelineStateManager*                          pipelineStateManager;
+    ThreadPool*                                    threadPool;
     bool                                           isRayTracing = false;
     std::unordered_map<std::wstring, std::wstring> shaderPathMappings;
 };
@@ -130,9 +131,15 @@ void GraphicsCore::RegisterComponent(const std::string_view renderSceneName, Lig
     _lightCore->RegisterLight(renderSceneName, component);
 }
 
-void GraphicsCore::LoadResource(const std::wstring_view filePath, MeshRenderer* component) const
-{    
-    component->SetModel(_resourceManager->LoadResource<Model>(filePath));    
+void GraphicsCore::LoadResource(std::wstring_view filePath, MeshRenderer* component, const std::function<void()>& callback)
+{
+    component->SetModel(_resourceManager->LoadResource<Model>(filePath));
+
+    _resourceLoadQueue.emplace([this, component, callback]()
+    {
+        component->Initialize();
+        callback();
+    });
 }
 
 void GraphicsCore::LoadResource(const std::wstring_view filePath, SpriteRenderer* component) const
@@ -180,6 +187,7 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     _renderPassDatas          = new RenderPassDatas;
     _moduleManager            = new ModuleManager;
     _pipelineStateManager     = new PipelineStateManager;
+    _threadPool               = new ThreadPool;
 
     Global::device                   = _device;
     Global::renderer                 = _renderer;
@@ -195,6 +203,7 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     Global::renderPassDatas          = _renderPassDatas;
     Global::moduleManager            = _moduleManager;
     Global::pipelineStateManager     = _pipelineStateManager;
+    Global::threadPool               = _threadPool;
 
     _device->SetUpDevice(hwnd, width, height, feature);
     _viewManager->Initialize();
@@ -203,6 +212,7 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     _particleManager->Initialize(MAX_PARTICLE);
     _renderer->Initialize();
     _moduleManager->Initialize();
+    _threadPool->Initialize(5);
 
     auto commandList = _device->GetCommandList();
     commandList->Close();
@@ -221,16 +231,20 @@ void GraphicsCore::UpdateAnimation(const float deltaTime) const
     _animationCore->Update(deltaTime);
 }
 
-void GraphicsCore::Update(const float deltaTime) const
+void GraphicsCore::Update(const float deltaTime)
 {
+    _threadPool->Update();
+
+    while (!_resourceLoadQueue.empty())
+    {
+        auto task = _resourceLoadQueue.front();
+        task();
+        _resourceLoadQueue.pop();
+    }
+
     _particleManager->Update(deltaTime);
     _lightCore->Update(deltaTime);
-    _renderer->Update();
-
-    //const float  fps     = 1.f / deltaTime;
-    //HWND         hwnd    = GetActiveWindow();
-    //std::wstring fpsText = L"FPS: " + std::to_wstring(static_cast<int>(fps));
-    //SetWindowTextW(hwnd, fpsText.c_str());
+    _renderer->Update(deltaTime);
 }
 
 void GraphicsCore::Render() const
@@ -243,6 +257,7 @@ void GraphicsCore::Finalize() const
 {
     _device->Finalize();
 
+    delete _threadPool;
     delete _pipelineStateManager;
     delete _moduleManager;
     delete _renderPassDatas;

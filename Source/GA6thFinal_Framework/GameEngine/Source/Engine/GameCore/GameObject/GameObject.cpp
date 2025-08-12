@@ -79,12 +79,36 @@ Scene& GameObject::GetScene()
     }
 }
 
-void GameObject::OnInspectorEnter() 
+void GameObject::OnInspectorBegin() 
 {
+    if (ImGui::BeginPopupContextWindow())
+    {
+        if (ImGui::MenuItem("Paste Component", "V") || ImGui::IsKeyReleased(ImGuiKey_V))
+        {
+            std::wstring clipboardText = File::GetClipboardText();
+            if (false == clipboardText.empty())
+            {
+                std::string yamlData = WStringToU8(clipboardText);
+                try
+                {
+                    auto [node, result] = YAMLHelper::SafeLoad(yamlData);
+                    if (result)
+                    {
+                        UmComponentFactory.AddComponentToYamlLifeCycle(this, &node);
+                    }
+                }
+                catch (const YAML::Exception)
+                {
 
+                }
+            }
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+    }
 }
 
-void GameObject::OnInspectorStay() 
+void GameObject::OnInspectorStay()
 {
     using namespace u8_literals;
     constexpr ImVec4 DEBUG_TEXT_COLOR = ImVec4(0.6f, 0.6f, 0.6f, 1.0f);
@@ -196,6 +220,13 @@ void GameObject::OnInspectorStay()
                     {
                         if (ImGui::BeginPopupContextItem("Component Context Popup"))
                         {
+                            if (ImGui::MenuItem("Copy Component"))
+                            {
+                                YAML::Emitter componentYamlEmitter;
+                                componentYamlEmitter << UmComponentFactory.SerializeToYaml(component.get());
+                                std::wstring componentData = U8ToWString(componentYamlEmitter.c_str());
+                                File::SetClipboardText(componentData);
+                            }
                             if (ImGui::MenuItem("Destroy Component"))
                             {
                                 if (false == editorModule->PlayMode.IsPlay())

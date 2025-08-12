@@ -49,7 +49,9 @@ public:
     void ClearBackBuffer(UINT flag, XMVECTOR color, float depth = 1.0f, UINT stencil = 0);
     void Flip();
     void CreateVertexBuffer(void* data, UINT size, UINT stride, ComPtr<ID3D12Resource>& buffer, D3D12_VERTEX_BUFFER_VIEW& view);
+    void CreateVertexBuffer(ID3D12GraphicsCommandList* commandList, void* data, UINT size, UINT stride, ComPtr<ID3D12Resource>& buffer, D3D12_VERTEX_BUFFER_VIEW& view);
     void CreateIndexBuffer(void* data, UINT size, DXGI_FORMAT format, ComPtr<ID3D12Resource>& buffer, D3D12_INDEX_BUFFER_VIEW& view);
+    void CreateIndexBuffer(ID3D12GraphicsCommandList* commandList, void* data, UINT size, DXGI_FORMAT format, ComPtr<ID3D12Resource>& buffer, D3D12_INDEX_BUFFER_VIEW& view);
     void CreateConstantBuffer(void* data, UINT size, ComPtr<ID3D12Resource>& buffer);
     void CreateDefaultBuffer(UINT size, ComPtr<ID3D12Resource>& buffer);
     void CreateCommandList(ComPtr<ID3D12CommandAllocator>& allocator, ComPtr<ID3D12GraphicsCommandList>& commandList, CommandType type);
@@ -98,7 +100,8 @@ public:
     ComPtr<ID3D12GraphicsCommandList> _computeCommandList;
 
     // UploadBuffer 생명주기를 관리 할 UploadBuffer container
-    std::vector<ComPtr<ID3D12Resource>> _uploadResources;
+    std::mutex                          _uploadBufferMutex;
+    std::vector<ComPtr<ID3D12Resource>> _uploadBuffers;
 
     /// DXR
 private:

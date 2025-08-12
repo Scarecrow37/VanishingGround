@@ -13,12 +13,12 @@ public:
     virtual ~Model();
 
 public:
+    const std::shared_ptr<Animation>                          GetAnimation() const { return _animation; }
+    const std::shared_ptr<Skeleton>                           GetSkeleton() const { return _skeleton; }
     const std::vector<std::unique_ptr<BaseMesh>>&             GetMeshes() const { return _meshes; }
     const std::vector<std::vector<std::shared_ptr<Texture>>>& GetTextures() const { return _textures; }
     const std::vector<Material>&                              GetMaterials() const { return _material; }
     std::vector<Material>&                                    GetMaterials() { return _material; }
-    const std::shared_ptr<Animation>                          GetAnimation() const { return _animation; }
-    const std::shared_ptr<Skeleton>                           GetSkeleton() const { return _skeleton; }
     const std::vector<std::string>&                           GetBoneNameList() const;
     const size_t                                              GetMeshCount() const { return _meshes.size(); }
 

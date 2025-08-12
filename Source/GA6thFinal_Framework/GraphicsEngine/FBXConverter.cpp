@@ -10,7 +10,9 @@
 FBXConverter::FBXConverter()
 	: _boneCount(0)
 	, _isStaticMesh(true)
-{    
+    , _commandList(nullptr)
+    , _model(nullptr)
+{
 }
 
 FBXConverter::~FBXConverter()
@@ -35,6 +37,20 @@ void FBXConverter::ImportModel(const std::filesystem::path& filePath, std::share
 
 void FBXConverter::ImportModel(const std::filesystem::path& filePath, Model* model)
 {
+    if (filePath.extension() == L".fbx")
+    {
+        LoadFromAssimp(filePath, model);
+    }
+    else if (filePath.extension() == L".UmModel")
+    {
+        LoadFromBinary(filePath, model);
+    }
+}
+
+void FBXConverter::ImportModel(ID3D12GraphicsCommandList* commandList, const std::filesystem::path& filePath, Model* model)
+{
+    _commandList = commandList;
+
     if (filePath.extension() == L".fbx")
     {
         LoadFromAssimp(filePath, model);
@@ -176,22 +192,29 @@ void FBXConverter::LoadMesh(aiNode* node,
 {   
     auto LoadVertexData = [node, mesh](auto& vertices)
         {
+			XMMATRIX transform = XMMatrixTranspose(XMMATRIX(&node->mTransformation.a1));
+            XMMATRIX inverseTranspose = XMMatrixTranspose(XMMatrixInverse(nullptr, transform));
+
 			vertices.resize(mesh->mNumVertices);
+
 			for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 			{
-				XMMATRIX transform = XMMatrixTranspose(XMMATRIX(&node->mTransformation.a1));
                 if (mesh->HasPositions())
                 {
                     vertices[i].Position = XMVector3TransformCoord(XMVectorSet(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z, 1.f), transform);
                 }
                 if (mesh->HasNormals())
                 {
-                    vertices[i].Normal = XMVector3TransformNormal(XMVectorSet(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z, 0.f), transform);
+                    vertices[i].Normal = XMVector3TransformNormal(XMVectorSet(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z, 0.f), inverseTranspose);
+                    vertices[i].Normal = XMVector3Normalize(vertices[i].Normal);
                 }
 				if (mesh->HasTangentsAndBitangents())
 				{
-					vertices[i].Tangent = XMVectorSet(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z, 0.f);
-					vertices[i].BiTangent = XMVectorSet(mesh->mBitangents[i].x, mesh->mBitangents[i].y, mesh->mBitangents[i].z, 0.f);
+					vertices[i].Tangent   = XMVector3TransformNormal(XMVectorSet(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z, 0.f), inverseTranspose);
+                    vertices[i].Tangent   = XMVector3Normalize(vertices[i].Tangent);
+
+					vertices[i].BiTangent = XMVector3TransformNormal(XMVectorSet(mesh->mBitangents[i].x, mesh->mBitangents[i].y, mesh->mBitangents[i].z, 0.f), inverseTranspose);
+                    vertices[i].BiTangent = XMVector3Normalize(vertices[i].BiTangent);
 				}
 
                 if (mesh->mTextureCoords[0])
@@ -201,7 +224,7 @@ void FBXConverter::LoadMesh(aiNode* node,
                 else
                 {
                     vertices[i].UV[0] = Vector2::Zero;
-                }                
+                }
 			}
         };
 
@@ -336,7 +359,10 @@ void FBXConverter::LoadMesh(aiNode* node,
     };
 
     std::unique_ptr<BaseMesh> baseMesh = std::make_unique<BaseMesh>();
-    baseMesh->Initialize(descriptor, true);
+
+    if (_commandList) baseMesh->Initialize(_commandList, descriptor, true);
+    else              baseMesh->Initialize(descriptor, true);
+    
     baseMesh->SetName(node->mName.C_Str());
     model->AddMesh(std::move(baseMesh));
 
