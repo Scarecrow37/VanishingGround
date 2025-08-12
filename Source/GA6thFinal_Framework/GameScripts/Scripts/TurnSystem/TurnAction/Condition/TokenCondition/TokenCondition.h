@@ -11,16 +11,6 @@ public:
     TokenCondition();
     ~TokenCondition() override = default;
 
-    // 대상
-    enum class Target
-    {
-        SELF,
-        PLAYER,
-        ENEMY,
-        ALL_ENEMIES,
-        ALL
-    };
-
     enum class Operator
     {
         GREATER_EQUAL,
@@ -37,10 +27,10 @@ protected:
     REFLECT_PROPERTY()
 
     REFLECT_FIELDS_BEGIN(TurnActionCondition)
-    Target   Target    = Target::SELF;
-    int      TokenType = 16000;
-    Operator Operator  = Operator::GREATER_EQUAL;
-    int      Value     = 0;
+    TurnTarget Target    = TurnTarget::SELF;
+    int        TokenType = 16000;
+    Operator   Operator  = Operator::GREATER_EQUAL;
+    int        Value     = 0;
     REFLECT_FIELDS_END(TokenCondition)
 
     void SerializedReflectEvent() override;

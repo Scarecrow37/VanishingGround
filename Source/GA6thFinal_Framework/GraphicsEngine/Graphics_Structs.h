@@ -129,3 +129,11 @@ struct SSAOPassProperty
     float ContrastFactor;
     float Threshold;
 };
+
+struct SSRPassProperty
+{
+    float MaxThickness;
+    float StepSize;
+    float MaxRayCount;
+    float ScreenFade;
+};

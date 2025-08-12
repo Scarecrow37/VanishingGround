@@ -33,6 +33,7 @@
 #include "AccelerationStructureManager.h"
 #include "Module/ModuleManager.h"
 #include "PipelineStateManager.h"
+#include "ThreadPool.h"
 
 #include "DebugDrawCore.h"
 #include "RenderTechnique.h"

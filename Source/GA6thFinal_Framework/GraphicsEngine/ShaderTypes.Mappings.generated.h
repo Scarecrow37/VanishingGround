@@ -47,6 +47,7 @@ namespace GE
         {PS::PARTICLE_QUAD, L"ps_particle_quad.hlsl"},
         {PS::GAUSSIANBLUR_X, L"ps_gaussianblur_x.hlsl"},
         {PS::TO_BACKBUFFER, L"ps_to_backbuffer.hlsl"},
+        {PS::SSR, L"ps_ssr.hlsl"},
         {PS::SKYBOX, L"ps_skybox.hlsl"},
         {PS::SSAO_BLEND, L"ps_ssao_blend.hlsl"},
         {PS::UI, L"ps_ui.hlsl"},

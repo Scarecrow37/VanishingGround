@@ -453,6 +453,12 @@ public:
             /// </summary>
             /// <param name="manager"></param>
             static void Update(SceneResourceManager& manager);
+
+            /// <summary>
+            /// 해당 리소스 매니저를 정리합니다.
+            /// </summary>
+            /// <param name="manager"></param>
+            static void CleanUp(SceneResourceManager& manager);
         };
 
         /// <summary>
@@ -656,7 +662,9 @@ private:
 
     //오브젝트 삭제 대기열
     std::pair<std::unordered_set<GameObject*>, std::vector<GameObject*>> _destroyObjectsQueue;
+    std::vector<GameObject*>                                             _destroyObjectTemp;
     std::pair<std::unordered_set<Component*>, std::vector<Component*>>   _destroyComponentsQueue;
+    std::vector<Component*>                                              _destroyComponentsTemp;
 
     //초기화 함수 호출 대기열
     std::vector<std::shared_ptr<Component>> _waitAwakeVec;

@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "UmFramework.h"
+#include <TurnSystem/TurnAction/TurnActionEnums.h>
 
 //턴 액션 조건 재사용을 위한 Base 클래스
 class TurnActionCondition : public ReflectSerializer

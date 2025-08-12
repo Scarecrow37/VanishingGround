@@ -57,12 +57,4 @@ namespace EnemyAction
             }
         }
     }
-    void ActionBase::PlaySoundFromKey(std::string_view key) 
-    {
-        auto* audioTable = _owner->GetAudioTableComponent();
-        if (audioTable)
-        {
-            audioTable->Play(key.data());
-        }
-    }
 } // namespace EnemyAction

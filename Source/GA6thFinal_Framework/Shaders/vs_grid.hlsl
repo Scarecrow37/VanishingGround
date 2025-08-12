@@ -18,7 +18,7 @@ VSOutput vs_main(uint id : SV_VertexID)
 
     float2 uv = quad[id];
 
-    float gridExtent = 2000.0f; // 큰 범위로 설정
+    float gridExtent = 1000.0f; // 큰 범위로 설정
 
     // 카메라 위치 기준 평면상의 월드 좌표 계산
     float3 worldPos;

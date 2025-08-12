@@ -72,15 +72,19 @@ void Device::SetUpDevice(HWND hwnd, UINT width, UINT height, FeatureLevel featur
 
 void Device::Initialize()
 {
-    Global::viewManager->AddDescriptorHeap(ViewManager::Type::RENDER_TARGET, SWAPCHAIN_BUFFER_COUNT,
-                                           _renderTargetHandles);
+    _renderTargetHandles.resize(SWAPCHAIN_BUFFER_COUNT);
+
+    for (auto& handle : _renderTargetHandles)
+    {
+        Global::viewManager->AddDescriptorHeap(ViewManager::Type::RENDER_TARGET, handle);
+    }
 
     ResizeSwapChain();
 }
 
 void Device::Finalize()
 {
-    _uploadResources.clear();
+    _uploadBuffers.clear();
 }
 
 void Device::OnResize(UINT width, UINT height)
@@ -108,7 +112,7 @@ void Device::FullGPUSync()
 
 void Device::UploadResource(ComPtr<ID3D12Resource> uploadResource)
 {
-    _uploadResources.push_back(uploadResource);
+    _uploadBuffers.push_back(uploadResource);
 }
 
 void Device::ResolveBackBuffer(ComPtr<ID3D12Resource> source)
@@ -207,7 +211,7 @@ void Device::Flip()
 
     Global::particleManager->ChangeTexture();
 
-    _uploadResources.clear();
+    _uploadBuffers.clear();
 
     // 새 프레임 준비.
     _renderTargetIndex = _swapChain->GetCurrentBackBufferIndex();
@@ -221,7 +225,24 @@ void Device::CreateVertexBuffer(void* data, UINT size, UINT stride, ComPtr<ID3D1
         ComPtr<ID3D12Resource> uploadBuffer;
         buffer = d3dUtil::CreateBufferWithData(_device.Get(), _commandList.Get(), data, size, uploadBuffer);
 
-        _uploadResources.push_back(uploadBuffer);
+        _uploadBuffers.push_back(uploadBuffer);
+    }
+
+    view.BufferLocation = buffer->GetGPUVirtualAddress();
+    view.SizeInBytes    = size;
+    view.StrideInBytes  = stride;
+}
+
+void Device::CreateVertexBuffer(ID3D12GraphicsCommandList* commandList, void* data, UINT size, UINT stride,
+                                ComPtr<ID3D12Resource>& buffer, D3D12_VERTEX_BUFFER_VIEW& view)
+{
+    if (data)
+    {
+        ComPtr<ID3D12Resource> uploadBuffer;
+        buffer = d3dUtil::CreateBufferWithData(_device.Get(), commandList, data, size, uploadBuffer);
+
+        std::unique_lock<std::mutex> lock(_uploadBufferMutex);
+        _uploadBuffers.push_back(uploadBuffer);
     }
 
     view.BufferLocation = buffer->GetGPUVirtualAddress();
@@ -237,7 +258,24 @@ void Device::CreateIndexBuffer(void* data, UINT size, DXGI_FORMAT format, ComPtr
         ComPtr<ID3D12Resource> uploadBuffer;
         buffer = d3dUtil::CreateBufferWithData(_device.Get(), _commandList.Get(), data, size, uploadBuffer);
 
-        _uploadResources.push_back(uploadBuffer);
+        _uploadBuffers.push_back(uploadBuffer);
+    }
+
+    view.BufferLocation = buffer->GetGPUVirtualAddress();
+    view.SizeInBytes    = size;
+    view.Format         = format;
+}
+
+void Device::CreateIndexBuffer(ID3D12GraphicsCommandList* commandList, void* data, UINT size, DXGI_FORMAT format,
+                               ComPtr<ID3D12Resource>& buffer, D3D12_INDEX_BUFFER_VIEW& view)
+{
+    if (data)
+    {
+        ComPtr<ID3D12Resource> uploadBuffer;
+        buffer = d3dUtil::CreateBufferWithData(_device.Get(), commandList, data, size, uploadBuffer);
+
+        std::unique_lock<std::mutex> lock(_uploadBufferMutex);
+        _uploadBuffers.push_back(uploadBuffer);
     }
 
     view.BufferLocation = buffer->GetGPUVirtualAddress();
