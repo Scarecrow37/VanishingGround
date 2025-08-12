@@ -108,7 +108,7 @@ void Renderer::SetEnvironmentSkyBox(std::string_view renderSceneName, std::wstri
 
     if (iter == _renderScenes.end())
     {
-        GRAPHICS_ASSERT(false, L"Renderer::RegisterRenderQueue : Render Scene Not Registered.");
+        GRAPHICS_ASSERT(false, L"Renderer::SetEnvironmentSkyBox : Render Scene Not Registered.");
     }
 
     auto& scene = iter->second;
@@ -120,7 +120,7 @@ void Renderer::SetIBLSkyBox(std::string_view renderSceneName, std::wstring_view 
     auto iter = _renderScenes.find(renderSceneName.data());
     if (iter == _renderScenes.end())
     {
-        GRAPHICS_ASSERT(false, L"Renderer::RegisterRenderQueue : Render Scene Not Registered.");
+        GRAPHICS_ASSERT(false, L"Renderer::SetIBLSkyBox: Render Scene Not Registered.");
     }
 
     auto& scene = iter->second;
