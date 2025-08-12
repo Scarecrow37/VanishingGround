@@ -83,7 +83,6 @@ void CharacterBase::Awake()
 {
     Base::Awake();
     gameObject->AddTag(TAG);
-
     InitMeshModel();
     InitAnimationCallback();
     InitAudio();

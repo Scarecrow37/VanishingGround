@@ -58,17 +58,24 @@ void PlayerPlayTurnState::OnAwake()
                 type = WeaponType::WARHAMMER;
             weaponAnims[(int)type]   = sharedWeapon->GetComponent<AnimationComponent>();
             weaponEffects[(int)type] = sharedWeapon->GetComponent<ParticleComponent>();
-            weaponAnims[(int)type]->SetAnimationPostEventCallback([this](const Timeline::EventContext* context) 
-            { 
-                const std::string& label = context->GetLabel();
-                if ("Attack" == label)
-                {
-                    auto&   target = _attackTargets.back();
-                    Player& player = GetPlayer();
-                    Battle()(player, target);
-                    _attackTargets.pop_back();
-                }
-            });
+            if (weaponAnims[(int)type] != nullptr)
+            {
+                weaponAnims[(int)type]->StopCurrentAnimation();
+                weaponAnims[(int)type]->SetAnimationPostEventCallback([this](const Timeline::EventContext* context) {
+                    const std::string& label = context->GetLabel();
+                    if ("Attack" == label)
+                    {
+                        if (!_attackTargets.empty())
+                        {
+                            auto&   target = _attackTargets.back();
+                            Player& player = GetPlayer();
+                            Battle()(player, target);
+                            _attackTargets.pop_back();
+                        }
+                    }
+                });
+            }
+            
         }
     }
 }
@@ -382,18 +389,25 @@ void PlayerPlayTurnState::SetAttack()
         bool isFirst = true;
         for (auto iter = _attackTargets.rbegin(); iter != _attackTargets.rend(); ++iter)
         {
-            // 무기 애니메이션 설정(중복 Push 허용)
-            weaponAnim->PushBackOverrideAnimation("attack", true);
-            weaponAnim->SetCurrentAnimationPopCondition([](const AnimationData& data) { return data.IsEnd(); }); // 애니메이션이 끝날 경우 Pop
-            if (isFirst)
+            // 임시 랜덤 애니메이션
+            const auto& keymap = weaponAnim->GetAnimationKeyMap();
+            int count = 0, randomIndex = Random::Range(0, (int)keymap.size() - 1);
+            for (auto& [key, value] : keymap)
             {
-                weaponAnim->SetCurrentAnimationPopCallback([this]() 
-                {
-                    SetAttackEnd();
-                });
-                isFirst = false;
+                if (count == randomIndex)
+                {   // 무기 애니메이션 설정(중복 Push 허용)
+                    weaponAnim->PushBackOverrideAnimation(key, true);
+                    weaponAnim->SetCurrentAnimationPopCondition([](const AnimationData& data) { return data.IsEnd(); }); // 애니메이션이 끝날 경우 Pop
+                    if (isFirst)
+                    {
+                        weaponAnim->SetCurrentAnimationPopCallback([this]() { SetAttackEnd(); });
+                        isFirst = false;
+                    }
+                }
+                ++count;
             }
         }
+        weaponAnim->PlayCurrentAnimation();
     }
     else
     {
@@ -452,3 +466,5 @@ void PlayerPlayTurnState::SetAttackEnd()
         weaponEffect->StopEffect();
     }
 }
+
+void PlayerPlayTurnState::OnAnimationEventAttack() {}

@@ -215,6 +215,8 @@ public:
     /// <returns>키에 해당하는 애니메이션 이름에 대한 상수 참조를 반환합니다.</returns>
     const std::string& GetAnimationNameFromKey(std::string_view key) const;
 
+    inline const std::map<std::string, std::string>& GetAnimationKeyMap() const { return ReflectFields->AnimationKeyMap; }
+
 private:
     std::shared_ptr<Animator>  _animator;
     EventQueue                 _eventQueue;
