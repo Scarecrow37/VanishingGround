@@ -930,12 +930,11 @@ void ESceneManager::ObjectsApplicationQuit()
         {
             for (auto& obj : _runtimeObjects)
             {
-                if (IsRuntimeActive(obj))
+                if (obj->IsValid())
                 {
                     for (auto& component : obj->_components)
                     {
-                        if (component->Enable)
-                            component->OnApplicationQuit();
+                        component->OnApplicationQuit();
                     }
                 }
             }
@@ -1048,50 +1047,36 @@ void ESceneManager::ObjectsDestroy()
 {
     //컴포넌트 삭제
     auto& [destroyComponentSet, destroyComponentQueue] = _destroyComponentsQueue;
-    for (auto& destroyComponent : destroyComponentQueue)
+    //OnDestroy 호출 도중 원본 큐 변형 방지를 위한 지연삭제
+    _destroyComponentsTemp = destroyComponentQueue;
+    for (auto& destroyComponent : _destroyComponentsTemp)
     {
-        //OnDestroy 대상 호출
+        // OnDestroy 대상 호출
         if (_isPlay)
         {
-            if (destroyComponent->_gameObject->ActiveInHierarchy_property_getter())
-            {
-
-                if (destroyComponent->Enable)
-                {
-                    destroyComponent->OnDestroy();
-                }
-            }
+            destroyComponent->OnDestroy();
         }
 
-        //해당 컴포넌트를 오브젝트 배열에서 삭제.
+        // 해당 컴포넌트를 오브젝트 배열에서 삭제.
         std::vector<std::shared_ptr<Component>>& components = destroyComponent->_gameObject->_components;
-        std::erase_if(
-            components, 
-            [destroyComponent](std::shared_ptr<Component>& component)
-            {     
-                return destroyComponent == component.get();
-            }
-        );
+        std::erase_if(components, [destroyComponent](std::shared_ptr<Component>& component) {
+            return destroyComponent == component.get();
+        });
 
         NotInitDestroyComponentEraseToWaitVec(destroyComponent);
     }
 
     //오브젝트 삭제
     auto& [destroyObjectSet, destroyObjectQueue] = _destroyObjectsQueue;
-    for (auto& destroyObject : destroyObjectQueue)
+    // OnDestroy 호출 도중 원본 큐 변형 방지를 위한 지연삭제
+    _destroyObjectTemp = destroyObjectQueue;
+    for (auto& destroyObject : _destroyObjectTemp)
     {
-        //OnDestroy 대상 호출
-        if (destroyObject->ActiveInHierarchy_property_getter())
+        if (_isPlay)
         {
             for (auto& component : destroyObject->_components)
             {
-                if (_isPlay)
-                {
-                    if (component->Enable)
-                    {
-                        component->OnDestroy();
-                    }
-                }
+                component->OnDestroy();
                 NotInitDestroyComponentEraseToWaitVec(component.get());
             }
         }
@@ -1134,8 +1119,10 @@ void ESceneManager::ObjectsDestroy()
     //파괴 큐 초기화
     destroyComponentSet.clear();
     destroyComponentQueue.clear();
+    _destroyComponentsTemp.clear();
     destroyObjectSet.clear();
     destroyObjectQueue.clear();
+    _destroyObjectTemp.clear();
 }
 
 void ESceneManager::ObjectsAddRuntime()

@@ -662,7 +662,9 @@ private:
 
     //오브젝트 삭제 대기열
     std::pair<std::unordered_set<GameObject*>, std::vector<GameObject*>> _destroyObjectsQueue;
+    std::vector<GameObject*>                                             _destroyObjectTemp;
     std::pair<std::unordered_set<Component*>, std::vector<Component*>>   _destroyComponentsQueue;
+    std::vector<Component*>                                              _destroyComponentsTemp;
 
     //초기화 함수 호출 대기열
     std::vector<std::shared_ptr<Component>> _waitAwakeVec;

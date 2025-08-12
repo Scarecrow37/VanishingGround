@@ -121,14 +121,17 @@ public:
     {
         return *_gameObject;
     }
-    //get : 이 컴포넌트가 부착된 게임 오브젝트입니다. 컴포넌트는 항상 게임 오브젝트에 부착됩니다.
+    
+    // type : GameObject&
+    // get : 이 컴포넌트가 부착된 게임 오브젝트입니다. 컴포넌트는 항상 게임 오브젝트에 부착됩니다.     
     PROPERTY(gameObject);
 
     GETTER_ONLY(Transform&, transform)
     { 
         return _gameObject->transform_property_getter();
     }
-    //get : 게임 오브젝트의 transform
+    // type : Transform&
+    // get : 게임 오브젝트의 transform입니다. 모든 오브젝트는 Transform을 가지고 있습니다.
     PROPERTY(transform)
 
     GETTER(bool, Enable)
@@ -139,15 +142,16 @@ public:
     {
         ESceneManager::Engine::SetComponentEnable(this, value);
     }
-    // get, set :
-    //  컴포넌트의 활성화 여부입니다.
+    // type : bool
+    // get, set : 컴포넌트의 활성화 여부입니다.
     PROPERTY(Enable);
 
     GETTER_ONLY(const bool&, EnableInHierarchy)
     {
         return _enableInHierarchy;
     }
-    // 컴포넌트의 하이러키 기준 활성화 여부입니다.
+    // type : const bool&
+    // get : 컴포넌트의 하이러키 기준 활성화 여부입니다.
     PROPERTY(EnableInHierarchy);
 
     REFLECT_PROPERTY(
@@ -226,6 +230,7 @@ public:
     inline size_t GetComponentCount() const;
 
 private:
+    /*초기화 함수 호출 여부를 관리하기 위한 내부 구조체입니다.*/
     struct InitFlags
     {
         InitFlags();
