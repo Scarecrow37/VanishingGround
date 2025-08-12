@@ -39,6 +39,7 @@ GameApplication::GameApplication()
     else
     {
         _windowName = L"Project VG <DirectX12>";
+        SetStyleToBorderlessWindowed();
     }
 }
 

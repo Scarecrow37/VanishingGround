@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 /// <summary>
-/// 메시지 이벤트를 위한 핸들러입니다.
+/// 메시지 이벤트를 위한 핸들러입니다. 등록된 핸들러들은 Order 순에 따라 정렬되어 순서대로 메시지를 Pump합니다.
 /// </summary>
 struct MessageHandler
 {
@@ -26,6 +26,10 @@ private:
     long   _messageOrder;
 };
 
+
+/*
+* 윈도우 애플리케이션을 관리하는 클래스입니다. 프로젝트는 이 클래스를 상속받아 구성해야 합니다.
+*/
 class Application
 {
 public:
@@ -102,24 +106,47 @@ public:
     }
 
 public:
+    /*엔진을 사용하는 프로젝트의 MainEntry에서 사용해야합니다.*/
     struct MainEntry
     {
+        /*앱을 초기화합니다.*/
         static void Initialize(HINSTANCE hInstance);
-        static void UnInitialize();
+
+        /*메인 루프를 실행합니다.*/
         static void Run();
+
+        /*앱을 정리합니다.*/
+        static void UnInitialize();
     };
 
 private:
+    /*메시지 펌프를 사용할 핸들러를 등록합니다.*/
     static bool AppMessageHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 private:
+    /*앱을 초기화합니다.*/
     void Initialize(HINSTANCE hInstance);
-    void UnInitialize();
+
+    /*메인 루프를 실행합니다.*/
     void Run();
 
+    /*앱을 정리합니다.*/
+    void UnInitialize();
+
 private:
+    /*윈도우 클래스 초기화 및 윈도우 클라이언트를 생성합니다.*/
     void CreateWindowClient();
+
+    /// <summary>
+    /// Application에 등록된 모듈들의 초기화 함수들을 실행합니다.
+    /// 등록된 순서대로 모든 모듈의 PreInit을 호출 한 뒤 ModuleInit을 호출합니다.
+    /// </summary>
     void InitModules();
+
+    /// <summary>
+    /// Application에 등록된 모듈들의 정리 함수들을 실행합니다.
+    /// 등록된 순서의 역으로 PreUnInit을 호출 한 뒤 ModuleUnInit을 호출합니다.
+    /// </summary>
     void UnInitModules();
 
 private:
@@ -159,8 +186,10 @@ protected:
 
     /*윈도우 스타일을 창모드로*/
     void SetStyleToWindowed();
+
     /*윈도우 스타일을 테두리 없는 창모드로*/
     void SetStyleToBorderlessWindowed();
+
     /*클라이언트 크기를 모니터 해상도로*/
     void SetOptimalScreenSize();
 
