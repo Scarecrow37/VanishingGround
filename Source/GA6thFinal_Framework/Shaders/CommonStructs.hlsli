@@ -90,4 +90,8 @@ struct CascadeData
     float CascadeSplits[MAX_CASCADES];
 };
 
+struct ParallaxMappingData
+{
+    float HeightScale;
+};
 #endif

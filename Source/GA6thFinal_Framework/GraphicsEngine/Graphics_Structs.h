@@ -137,3 +137,8 @@ struct SSRPassProperty
     float MaxRayCount;
     float ScreenFade;
 };
+
+struct ParallaxMappingProperty
+{
+    float HeightScale;
+};

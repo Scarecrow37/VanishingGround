@@ -57,6 +57,11 @@ void EditSSRProperty(std::any& property)
     ImGui::DragFloat("ScreenFade", &ssrProps.ScreenFade, 0.01f, 0.01f, 10.f);
 }
 
+void EditParallaxMappingProperty(std::any& property)
+{
+    auto& parallaxProps = std::any_cast<ParallaxMappingProperty&>(property);
+    ImGui::DragFloat("HeightScale", &parallaxProps.HeightScale, 0.001f, 0.0f, 1.0f);
+}
 void EditorRenderPassData::OnFrameRender()
 {
     auto& renderPassProperties = UmGraphics.GetRenderPassProperties();
@@ -92,6 +97,10 @@ void EditorRenderPassData::OnFrameRender()
                         else if (property.type() == typeid(SSRPassProperty))
                         {
                             EditSSRProperty(property);
+                        }
+                        else if (property.type() == typeid(ParallaxMappingProperty))
+                        {
+                            EditParallaxMappingProperty(property);
                         }
                         ImGui::TreePop();
                     }
