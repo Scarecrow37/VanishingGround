@@ -17,7 +17,8 @@ public:
     bool HasTexture() { return _hasTexture; }
 
 public:
-    void SetTexture(std::wstring_view path);
+    void SetEnvironmentTexture(std::wstring_view path);
+    void SetIBLTexture(std::wstring_view path);
 
 public:
     void Initialize();
