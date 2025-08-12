@@ -58,7 +58,7 @@ void ViewManager::AddDescriptorHeap(const ViewManager::Type type, D3D12_CPU_DESC
         offset           = _shaderResourceDescriptorSize * atomicIndex;
         handle           = _shaderResourceHeap->GetCPUDescriptorHandleForHeapStart();
         handle.ptr += offset;
-        if (ID) *ID = atomicIndex - 1;
+        if (ID) *ID = atomicIndex;
         break;
     }
     case ViewManager::Type::RENDER_TARGET:
