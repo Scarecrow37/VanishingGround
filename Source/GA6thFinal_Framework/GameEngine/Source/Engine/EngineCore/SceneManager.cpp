@@ -1311,7 +1311,8 @@ void ESceneManager::SetRendererSkyBox(Scene* scene)
             if (false == prevGuid.IsNull())
             {
                 Scene& prevSccene = _scenesMap[prevGuid];
-                if (prevSccene._skyIBL != scene->_skyIBL)
+                Scene& prevScene = _scenesMap[prevGuid];
+                if (prevScene._skyIBL != scene->_skyIBL)
                 {
                     loadSkyBox = true;
                 }
