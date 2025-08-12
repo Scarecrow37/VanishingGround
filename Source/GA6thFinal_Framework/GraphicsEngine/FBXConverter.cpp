@@ -10,7 +10,9 @@
 FBXConverter::FBXConverter()
 	: _boneCount(0)
 	, _isStaticMesh(true)
-{    
+    , _commandList(nullptr)
+    , _model(nullptr)
+{
 }
 
 FBXConverter::~FBXConverter()
@@ -35,6 +37,20 @@ void FBXConverter::ImportModel(const std::filesystem::path& filePath, std::share
 
 void FBXConverter::ImportModel(const std::filesystem::path& filePath, Model* model)
 {
+    if (filePath.extension() == L".fbx")
+    {
+        LoadFromAssimp(filePath, model);
+    }
+    else if (filePath.extension() == L".UmModel")
+    {
+        LoadFromBinary(filePath, model);
+    }
+}
+
+void FBXConverter::ImportModel(ID3D12GraphicsCommandList* commandList, const std::filesystem::path& filePath, Model* model)
+{
+    _commandList = commandList;
+
     if (filePath.extension() == L".fbx")
     {
         LoadFromAssimp(filePath, model);
@@ -343,7 +359,10 @@ void FBXConverter::LoadMesh(aiNode* node,
     };
 
     std::unique_ptr<BaseMesh> baseMesh = std::make_unique<BaseMesh>();
-    baseMesh->Initialize(descriptor, true);
+
+    if (_commandList) baseMesh->Initialize(_commandList, descriptor, true);
+    else              baseMesh->Initialize(descriptor, true);
+    
     baseMesh->SetName(node->mName.C_Str());
     model->AddMesh(std::move(baseMesh));
 

@@ -3,9 +3,6 @@
 class Resource;
 class ResourceManager
 {
-    enum class ThreadEvent { NONE, PROCESS, DESTROY };
-    enum CVEvent { THREAD, DONE };
-
 public:
 	ResourceManager();
 	~ResourceManager();
@@ -20,8 +17,13 @@ public:
             filePath = filePath.generic_string();
         }
 
-		std::weak_ptr<Resource> resource       = _resources[typeid(T)][filePath];
-        std::shared_ptr<T>      sharedResource = std::static_pointer_cast<T>(resource.lock());
+		std::weak_ptr<Resource> resource;
+        {
+            std::lock_guard<std::mutex> lock(_mutex);
+            resource = _resources[typeid(T)][filePath];
+        }
+
+        std::shared_ptr<T> sharedResource = std::static_pointer_cast<T>(resource.lock());
 
 		if (resource.expired())
 		{
@@ -34,30 +36,13 @@ public:
 		return sharedResource;
 	}
 
-
     template <typename T> requires(std::is_base_of_v<Resource, T>)
     void AddResource(std::filesystem::path filePath, std::shared_ptr<T> resource)
     {
         _resources[typeid(T)][filePath] = resource;
     }
 
-public:
-    void RequestResource(const std::function<void()>& callback);
-
-public:
-    void Update();
-
-private:
-    void WorkerThread(const unsigned int index);
-
 private:
     std::unordered_map<std::type_index, std::unordered_map<std::wstring, std::weak_ptr<Resource>>> _resources;
-
-private:
-    std::vector<std::unique_ptr<std::mutex>>             _mutexes;
-    std::condition_variable                              _cv;
-    Concurrency::concurrent_queue<std::function<void()>> _taskQueue;
-    std::vector<std::thread>                             _threads;
-    ThreadEvent                                          _threadEvent;
+    std::mutex _mutex;
 };
-

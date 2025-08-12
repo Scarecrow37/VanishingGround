@@ -131,9 +131,15 @@ void GraphicsCore::RegisterComponent(const std::string_view renderSceneName, Lig
     _lightCore->RegisterLight(renderSceneName, component);
 }
 
-void GraphicsCore::LoadResource(const std::wstring_view filePath, MeshRenderer* component) const
-{    
-    component->SetModel(_resourceManager->LoadResource<Model>(filePath));    
+void GraphicsCore::LoadResource(std::wstring_view filePath, MeshRenderer* component, const std::function<void()>& callback)
+{
+    component->SetModel(_resourceManager->LoadResource<Model>(filePath));
+
+    _resourceLoadQueue.emplace([this, component, callback]()
+    {
+        component->Initialize();
+        callback();
+    });
 }
 
 void GraphicsCore::LoadResource(const std::wstring_view filePath, SpriteRenderer* component) const
@@ -206,7 +212,7 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     _particleManager->Initialize(MAX_PARTICLE);
     _renderer->Initialize();
     _moduleManager->Initialize();
-    _threadPool->Initialize(10);
+    _threadPool->Initialize(5);
 
     auto commandList = _device->GetCommandList();
     commandList->Close();
@@ -225,10 +231,17 @@ void GraphicsCore::UpdateAnimation(const float deltaTime) const
     _animationCore->Update(deltaTime);
 }
 
-void GraphicsCore::Update(const float deltaTime) const
+void GraphicsCore::Update(const float deltaTime)
 {
-    _threadPool->Done();
-    _resourceManager->Update();
+    _threadPool->Update();
+
+    while (!_resourceLoadQueue.empty())
+    {
+        auto task = _resourceLoadQueue.front();
+        task();
+        _resourceLoadQueue.pop();
+    }
+
     _particleManager->Update(deltaTime);
     _lightCore->Update(deltaTime);
     _renderer->Update(deltaTime);

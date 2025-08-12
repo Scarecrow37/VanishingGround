@@ -32,24 +32,7 @@ std::shared_ptr<Animator> MeshRenderer::GetAnimator() const
 
 void MeshRenderer::SetModel(std::shared_ptr<Model> model)
 {
-    _model = model;
-
-    _customDepths.resize(_model->GetMeshCount(), PostProcess::BLOOM);
-
-    if (model->GetAnimation())
-    {
-        _type = SKELETAL_MESH;
-        auto& meshes = _model->GetMeshes();
-
-        for (auto& mesh : meshes)
-        {
-            auto dxrMesh = std::make_shared<DXRSkeletalMesh>(mesh->GetVIBuffer());
-            dxrMesh->Initialize(mesh->GetVIBuffer()->_vertexCount, sizeof(StaticMeshVertex));
-            _dxrSkeletalMeshes.push_back(dxrMesh);
-        }
-    }
-    else
-        _type = STATIC_MESH;
+    _model = model;    
 }
 
 void MeshRenderer::SetAnimator(std::shared_ptr<Animator> animator)
@@ -104,4 +87,24 @@ void MeshRenderer::OffCustomDepth(UINT customDepth, UINT meshID)
     }
 
     _customDepths[meshID] &= ~customDepth;
+}
+
+void MeshRenderer::Initialize()
+{
+    _customDepths.resize(_model->GetMeshCount(), PostProcess::BLOOM);
+
+    if (_model->GetAnimation())
+    {
+        _type        = SKELETAL_MESH;
+        auto& meshes = _model->GetMeshes();
+
+        for (auto& mesh : meshes)
+        {
+            auto dxrMesh = std::make_shared<DXRSkeletalMesh>(mesh->GetVIBuffer());
+            dxrMesh->Initialize(mesh->GetVIBuffer()->_vertexCount, sizeof(StaticMeshVertex));
+            _dxrSkeletalMeshes.push_back(dxrMesh);
+        }
+    }
+    else
+        _type = STATIC_MESH;
 }

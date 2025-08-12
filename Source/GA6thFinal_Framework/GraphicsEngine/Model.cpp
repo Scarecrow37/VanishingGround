@@ -3,6 +3,7 @@
 #include "BaseMesh.h"
 #include "FBXConverter.h"
 #include "Skeleton.h"
+#include "Animation.h"
 
 Model::Model()
 {
@@ -47,10 +48,13 @@ void Model::BindMaterial(const UINT meshIndex, const Material& material)
 }
 
 void Model::LoadResource(const std::filesystem::path& filePath)
-{    
-    Global::threadPool->AddTask([this, filePath]()
+{   
+    //FBXConverter fbxConverter;
+    //fbxConverter.ImportModel(filePath, this);
+
+    Global::threadPool->AddTask(ThreadPool::ThreadType::PARALLEL, [this, filePath](ID3D12GraphicsCommandList* commandList)
     {
         FBXConverter fbxConverter;
-        fbxConverter.ImportModel(filePath, this);
-    });    
+        fbxConverter.ImportModel(commandList, filePath, this);
+    });
 }

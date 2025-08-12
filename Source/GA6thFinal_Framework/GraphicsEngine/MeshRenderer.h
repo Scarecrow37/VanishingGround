@@ -34,6 +34,9 @@ public:
     void OffCustomDepth(UINT customDepth);
     void OffCustomDepth(UINT customDepth, UINT meshID);
 
+public:
+    void Initialize();
+
 private:
     std::vector<Material>                         _materials;
     std::vector<UINT>                             _customDepths;

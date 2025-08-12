@@ -16,6 +16,7 @@ public:
 
 public:
     void Initialize(const VIBuffer::Descriptor& descriptor, bool createVertexInfo = false);
+    void Initialize(ID3D12GraphicsCommandList* commandList, const VIBuffer::Descriptor& descriptor, bool createVertexInfo = false);
     void Render(ID3D12GraphicsCommandList* commandList);
     void Render(ID3D12GraphicsCommandList* commandList , UINT instanceCount);
 

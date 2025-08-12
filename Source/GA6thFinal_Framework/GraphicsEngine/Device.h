@@ -100,7 +100,8 @@ public:
     ComPtr<ID3D12GraphicsCommandList> _computeCommandList;
 
     // UploadBuffer 생명주기를 관리 할 UploadBuffer container
-    std::vector<ComPtr<ID3D12Resource>> _uploadResources;
+    std::mutex                          _uploadBufferMutex;
+    std::vector<ComPtr<ID3D12Resource>> _uploadBuffers;
 
     /// DXR
 private:
