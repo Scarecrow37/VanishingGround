@@ -38,9 +38,14 @@ SharedResource<RenderTarget> RenderScene::GetSharedRenderTarget() const
     return _sharedRenderTarget[_currentFrameIndex];
 }
 
-void RenderScene::SetSkyBox(std::wstring_view path)
+void RenderScene::SetEnvironmentSkyBox(std::wstring_view path)
 {
-    _skyBox->SetTexture(path);
+    _skyBox->SetEnvironmentTexture(path);
+}
+
+void RenderScene::SetIBLSkyBox(std::wstring_view path)
+{
+    _skyBox->SetIBLTexture(path);
 }
 
 void RenderScene::InitializeRenderScene()

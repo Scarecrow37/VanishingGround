@@ -227,7 +227,7 @@
     <Lib />
     <PostBuildEvent>
       <Command>xcopy /Y /I "$(ProjectDir)ThirdParty\lib\*.*" "$(SolutionDir)GameEngine\ThirdParty\lib\"
-xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Debug\*.*" "$(SolutionDir)GameEngine\ThirdParty\bin\Debug\"</Command>
+xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdParty\bin\Debug\"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -254,7 +254,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Debug\*.*" "$(SolutionDir)GameEngine\Th
     <Lib />
     <PostBuildEvent>
       <Command>xcopy /Y /I "$(ProjectDir)ThirdParty\lib\*.*" "$(SolutionDir)GameEngine\ThirdParty\lib\"
-xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Debug\*.*" "$(SolutionDir)GameEngine\ThirdParty\bin\Debug\"</Command>
+xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdParty\bin\Debug\"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -283,7 +283,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Debug\*.*" "$(SolutionDir)GameEngine\Th
     <Lib />
     <PostBuildEvent>
       <Command>xcopy /Y /I "$(ProjectDir)ThirdParty\lib\*.*" "$(SolutionDir)GameEngine\ThirdParty\lib\"
-xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\ThirdParty\bin\Release\"</Command>
+xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdParty\bin\Release\"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
@@ -312,7 +312,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\
     <Lib />
     <PostBuildEvent>
       <Command>xcopy /Y /I "$(ProjectDir)ThirdParty\lib\*.*" "$(SolutionDir)GameEngine\ThirdParty\lib\"
-xcopy /Y /I "$(ProjectDir)ThirdParty\bin\Release\*.*" "$(SolutionDir)GameEngine\ThirdParty\bin\Release\"</Command>
+xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdParty\bin\Release\"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
