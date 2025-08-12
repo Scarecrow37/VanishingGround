@@ -47,26 +47,18 @@ public:
     }
     PROPERTY(Size)
 
-    GETTER(PADDING, Padding) { return _padding; }
+    GETTER(PADDING, Padding) { return PADDING(ReflectFields->Padding); }
     SETTER(PADDING, Padding)
     {
-        _padding = value;
-        ReflectFields->PaddingLeft = value.left;
-        ReflectFields->PaddingTop  = value.top;
-        ReflectFields->PaddingRight = value.right;
-        ReflectFields->PaddingBottom = value.bottom;
+        ReflectFields->Padding = static_cast<RECT>(value);
         InvalidateMeasure();
     }
     PROPERTY(Padding)
 
-    GETTER(MARGIN, Margin) { return _margin; }
+    GETTER(MARGIN, Margin) { return MARGIN(ReflectFields->Margin); }
     SETTER(MARGIN, Margin)
     {
-        _margin = value;
-        ReflectFields->MarginLeft = value.left;
-        ReflectFields->MarginTop  = value.top;
-        ReflectFields->MarginRight = value.right;
-        ReflectFields->MarginBottom = value.bottom;
+        ReflectFields->Margin = static_cast<RECT>(value);
         InvalidateMeasure();
     }
     PROPERTY(Margin)
@@ -210,23 +202,13 @@ protected:
     SIZE  DesiredSize;
     SIZE  AvailableSize;
 
-    LONG  PaddingLeft;
-    LONG  PaddingTop;
-    LONG  PaddingRight;
-    LONG  PaddingBottom;
-
-    LONG  MarginLeft;
-    LONG  MarginTop;
-    LONG  MarginRight;
-    LONG  MarginBottom;
+    RECT Padding;
+    RECT Margin;
     REFLECT_FIELDS_END(UIComponent)
 
 protected:
     POINT _requestedPoint;
     SIZE  _requestedSize;
-
-    PADDING _padding;
-    MARGIN  _margin;
 
 private:
     bool _isMeasureDirty;
