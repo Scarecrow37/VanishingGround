@@ -1269,11 +1269,11 @@ void ESceneManager::SetRendererSkyBox(Scene* scene)
             File::Path path = scene->_skyBox.ToPath();
             if (false == path.IsNull())
             {
-                UmGraphics.SetSkyBox("Game", path.c_str());
+                UmGraphics.SetIBLSkyBox("Game", path.c_str());
 
                 if constexpr (IS_EDITOR)
                 {
-                    UmGraphics.SetSkyBox("Editor", path.c_str());
+                    UmGraphics.SetIBLSkyBox("Editor", path.c_str());
                 }
             }
         }
@@ -1407,11 +1407,11 @@ bool ESceneManager::SetSkyBox(const File::Path& path)
     }
 
     Engine::SetSceneSkyBoxGuid(*mainScene, guid);
-    UmGraphics.SetSkyBox("Game", path.c_str());
+    UmGraphics.SetIBLSkyBox("Game", path.c_str());
 
     if constexpr (IS_EDITOR)
     {
-        UmGraphics.SetSkyBox("Editor", path.c_str());
+        UmGraphics.SetIBLSkyBox("Editor", path.c_str());
     }
 
     mainScene->IsDirty = true;
