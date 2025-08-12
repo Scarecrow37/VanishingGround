@@ -5,7 +5,11 @@ DummyElement::DummyElement() = default;
 
 SIZE DummyElement::MeasureOverride(const SIZE availableSize)
 {
-    const SIZE desiredSize = MinSize()(availableSize, _requestedSize);
+    const FillMode horizontalFillMode = HorizontalFillMode;
+    const FillMode verticalFillMode   = VerticalFillMode;
+    const SIZE     desiredSize        = MinSize()(availableSize, _requestedSize, verticalFillMode == FillMode::FILL,
+                                       horizontalFillMode == FillMode::FILL);
+
     return desiredSize;
 }
 
