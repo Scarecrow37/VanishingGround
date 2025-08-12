@@ -1,8 +1,13 @@
 ﻿#include "pch.h"
 #include "EditorParticleEffectHierarchy.h"
+#include "GraphicsEngine/FBXConverter.h"
+
 
  EditorParticleEffectHierarchy::EditorParticleEffectHierarchy() 
  {
+     _meshRenderer =
+         std::make_unique<MeshRenderer>(STATIC_MESH, _position, _scale, _quaternion, _worldMatrix, _isDirtyFlag);
+
      SetLabel("Hierarchy##particleeffect");
      SetDockLayout(ImGuiDir_Left);
  }
@@ -32,6 +37,9 @@ void EditorParticleEffectHierarchy::OnPreFrameBegin()
 
 void EditorParticleEffectHierarchy::OnPostFrameBegin()
 {
+
+
+
     bool isnewbuttonpressed = ImGui::Button("New", {180, 50});
     if (true == isnewbuttonpressed)
     {
@@ -65,7 +73,6 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
             _curEffect = effect;
         }
     }
-
     ParticleEffect* effect = UmParticleManager->GetCurrentEditorEffect();
     if (nullptr != effect)
     {
@@ -103,7 +110,27 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
     float deltaScale = UmParticleManager->GetDeltaScale();
     ImGui::SliderFloat("Time Speed", &deltaScale, 0.f, 2.f);
     UmParticleManager->SetDeltaScale(deltaScale);
+    {
+        _envmodelpath = std::filesystem::absolute(_envmodelpath);
+        ImGui::Text(_envmodelpath.string().c_str());
+        bool isLoadModelButtonPressed = ImGui::Button("load environment model", {250, 30});
+        if (true == isLoadModelButtonPressed)
+        {
 
+            HWND                    owner = UmApplication.GetHwnd();
+            LPCWSTR                 title = L"Load fbx file";
+            std::vector<File::Path> out;
+            if (File::ShowOpenFileDialog(UmApplication.GetHwnd(), title, L"",
+                                         {{L"Model Files (*.fbx;*.UmModel)", L"*.fbx; *.UmModel\0\0"}}, false, out))
+            {
+                _envmodelpath = out.front();
+            }
+            _envmodelpath = std::filesystem::absolute(_envmodelpath);
+            LoadEnvironmentModel(_envmodelpath);
+            ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.0f);
+        }
+
+    }
     if (nullptr == UmParticleManager->GetCurrentEditorEffect())
     if (nullptr == effect)
     {
@@ -114,8 +141,6 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
     ImGui::Text("current particle count : %d", UmParticleManager->GetTotalCount("ParticleEditor") +
                                                    UmParticleManager->GetRibbonCount("ParticleEditor"));
     ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.f);
-
-
 
     LocationShape   locationType;
     ParticleType  particleType;
@@ -204,6 +229,7 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
         {
             UmGraphics.LoadModelResource(std::wstring_view(currentmeshsurfacepath.wstring()), emitter);
         }
+        emitter->InitializeLight("ParticleEditor");
 
     }
     bool isSomeoneChanged   = false;
@@ -291,4 +317,20 @@ void EditorParticleEffectHierarchy::OnFrameFocusExit()
 void EditorParticleEffectHierarchy::OnFramePopupOpened()
 {
 
+}
+
+void EditorParticleEffectHierarchy::LoadEnvironmentModel(const File::Path& path) 
+{
+    std::shared_ptr<Model> model = std::make_shared<Model>();
+    FBXConverter& fbxConverter = GetFBXConverter();
+    fbxConverter.ImportModel(path, model);
+    _meshRenderer->SetModel(model);
+    _meshRenderer->SetActive(&_isModelActive);
+    UmGraphics.RegisterComponent("ParticleEditor", _meshRenderer.get());
+}
+
+FBXConverter& EditorParticleEffectHierarchy::GetFBXConverter()
+{
+    static FBXConverter fbxConverter;
+    return fbxConverter;
 }

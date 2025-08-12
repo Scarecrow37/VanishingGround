@@ -293,6 +293,7 @@ protected :
     UMPARTICLE_PROPERTY(float, _lightRange, LightRange, 0);
     UMPARTICLE_PROPERTY_REF(Vector3, _lightColor, LightColor, Vector3(0, 0, 0));
     Vector3 _lightAttenuation = Vector3(0, 0, 0);
+    float   _endLightIntensity;
 
 public:
     void    InitializeLight(std::string_view scenenName);

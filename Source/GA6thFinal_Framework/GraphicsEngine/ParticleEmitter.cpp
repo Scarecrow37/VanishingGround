@@ -398,7 +398,6 @@ void ParticleEmitter::Update(float deltaTime)
         }
         else
         {
-            _activeFlag = false;
             return;
         }
     }
@@ -407,15 +406,15 @@ void ParticleEmitter::Update(float deltaTime)
 
 
     _emitterAge += deltaTime;
-    if (_emitterAge >= _emitterLifetime-_particleLifetime)
+    if (_emitterAge >= _emitterLifetime -_particleLifetime)
     {
         _endFlag = true;
         //return;
     }
     if (_emitterAge >= _emitterLifetime)
     {
-        _emitterAge = 0;
         _activeFlag = false;
+        _emitterAge = 0;
         return;
     }
 
@@ -423,6 +422,12 @@ void ParticleEmitter::Update(float deltaTime)
     _rotationMatrix    = Matrix::CreateFromQuaternion(_emitterRotationQ);
     _worldMatrix       = _rotationMatrix * _translationMatrix * _effectWorldMatrix;
     _finalPos          = _worldMatrix.Translation();
+    if (true == _useLight)
+        _lightIntensity = std::lerp(0, _endLightIntensity, _activeParticleCount / (_emissionRate * _particleLifetime));
+
+
+
+
 }
 
 
@@ -440,7 +445,14 @@ void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime)
         }
     }
     if (true == _endFlag)
+    {
+
+        if (_activeParticleCount == 0)
+        {
+            _activeFlag = false;
+        }
         return;
+    }
 
     // 새 파티클 생성
     size_t newParticles = 0;
@@ -473,7 +485,7 @@ void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime)
 void ParticleEmitter::FlushTextureResource() 
 {
 
-        if (ParticleType::SPRITE == _particleType)
+    if (ParticleType::SPRITE == _particleType)
     {
         SpriteModule* spritemodule = static_cast<SpriteModule*>(_particleRenderModule);
         if (true == spritemodule->GetTextureChangeFlag())
@@ -508,6 +520,8 @@ void ParticleEmitter::Reset()
     _emitterAge              = 0.f;
     _activeParticleCount     = 0;
     _emissionThreshold       = 0;
+    //if (true == _useLight)
+    //    _lightIntensity = _endLightIntensity;
 }
 
 void ParticleEmitter::InitializeLocator(LocationShape locatorShape , Vector3 factor) 
@@ -626,7 +640,16 @@ void ParticleEmitter::InitializeLight(std::string_view scenenName)
 {
     _light = new Light();
     _light->SetPointLight(_lightColor, _finalPos, _lightAttenuation, _lightRange, _lightIntensity);
-    _light->SetActive(&_useLight);
-    Global::lightCore->RegisterLight(scenenName,_light);
+    if (_useLight)
+        _light->SetActive(&_activeFlag);
+    else
+        _light->SetActive(&_useLight);
+    _endLightIntensity = _lightIntensity;
+
+    Global::lightCore->RegisterLight(scenenName, _light);
+    if (scenenName == "Game")
+    {
+        Global::lightCore->RegisterLight("Editor", _light);
+    }
 }
 

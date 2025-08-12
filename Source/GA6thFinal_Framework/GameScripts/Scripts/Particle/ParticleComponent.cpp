@@ -51,6 +51,16 @@ void ParticleComponent::Update()
 
 }
 
+void ParticleComponent::Start() 
+{
+    _skelMesh = GetComponent<SkeletalMeshRenderer>();
+}
+
+void ParticleComponent::Reset() 
+{
+
+}
+
 void ParticleComponent::SerializedReflectEvent()
 {
     ReflectFields->PositionArray[0] = Position->x;

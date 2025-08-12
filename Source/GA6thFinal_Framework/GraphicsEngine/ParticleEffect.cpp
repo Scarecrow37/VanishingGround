@@ -42,6 +42,10 @@ void ParticleEffect::Update(float deltaTime)
     if (_age >= _lifetime)
     {
         _activeFlag = false;
+        for (auto emitter : _particleEmitters)
+        {
+            emitter->SetActiveFlag(false);
+        }
         _playFlag   = false;
         if (true == _isPlaying)
         {
@@ -153,6 +157,7 @@ void ParticleEffect::Play()
         _playFlag   = true;
         _isPlaying  = true;
         _activeFlag = true;
+
         _isEnding   = false;
         _age        = 0;
         for (auto& emitter : _particleEmitters)

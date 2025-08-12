@@ -96,7 +96,7 @@ void ParticleEffectSerializer::RegisterDeserializers()
                                         std::string_view sceneName) -> ParticleEffect* {
             return this->Deserialize_1_4(is, isEditor, sceneName);
         };
-        _preDeserializers[{1, 4}] = [this](std::ifstream& is) { this->PreDeserialize_1_3(is); };
+        _preDeserializers[{1, 4}] = [this](std::ifstream& is) { this->PreDeserialize_1_4(is); };
     }
 
 
@@ -2326,11 +2326,6 @@ void ParticleEffectSerializer::Serialize_1_4(std::ofstream& os, ParticleEffect* 
             }
 
         }
-
-
-
-
-
         // worldspaceflag
         {
             auto temp = emitter->GetUseWorldSpace();
@@ -2800,7 +2795,8 @@ void ParticleEffectSerializer::PreDeserialize_1_4(std::ifstream& is)
         Vector4           startScale;
         Vector4           endScale;
         float             particleMass;
-        Vector3           distributionOffset;
+        Vector3           startdistributionOffset;
+        Vector3           enddistributionOffset;
         Vector4           dragPoint;
         Vector4           dragForce;
         Vector4           vortexForce;
@@ -2858,7 +2854,8 @@ void ParticleEffectSerializer::PreDeserialize_1_4(std::ifstream& is)
         is.read(reinterpret_cast<char*>(&axis), sizeof(axis));
         is.read(reinterpret_cast<char*>(&scaleVelflag), sizeof(scaleVelflag));
         is.read(reinterpret_cast<char*>(&particleMass), sizeof(particleMass));
-        is.read(reinterpret_cast<char*>(&distributionOffset), sizeof(distributionOffset));
+        is.read(reinterpret_cast<char*>(&startdistributionOffset), sizeof(startdistributionOffset));
+        is.read(reinterpret_cast<char*>(&enddistributionOffset), sizeof(enddistributionOffset));
         is.read(reinterpret_cast<char*>(&dragPoint), sizeof(dragPoint));
         is.read(reinterpret_cast<char*>(&dragForce), sizeof(dragForce));
         is.read(reinterpret_cast<char*>(&vortexForce), sizeof(vortexForce));
