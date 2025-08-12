@@ -422,53 +422,47 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
     if (ImGui::BeginMenu("UI"))
     {
         GameObject* ui = nullptr;
-        if (ImGui::MenuItem("UI Root"))
-        {
-            UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
-                GameObjectKey, GameObject::Helper::GenerateUniqueName("UI Root"), &ui);
-            ui->AddComponent<UIRoot>();
-        }
-        if (ImGui::BeginMenu("Panels"))
-        {
-            if (ImGui::MenuItem("Grid Panel"))
-            {
-                UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
-                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Grid Panel"), &ui);
-                ui->AddComponent<GridPanel>();
-            }
-            if (ImGui::MenuItem("Anchor Panel"))
-            {
-                UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
-                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Anchor Panel"), &ui);
-                ui->AddComponent<AnchorPanel>();
-            }
-            if (ImGui::MenuItem("Horizontal Panel"))
-            {
-                UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
-                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Horizontal Panel"), &ui);
-                ui->AddComponent<HorizontalPanel>();
-            }
-            if (ImGui::MenuItem("Description Panel"))
-            {
-                UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
-                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Description Panel"), &ui);
-                ui->AddComponent<DescriptionPanel>();
-            }
-            ImGui::EndMenu();
-        }
+        //if (ImGui::MenuItem("UI Root"))
+        //{
+        //    UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+        //        GameObjectKey, GameObject::Helper::GenerateUniqueName("UI Root"), &ui);
+        //    ui->AddComponent<UIRoot>();
+        //}
+        //if (ImGui::BeginMenu("Panels"))
+        //{
+        //    if (ImGui::MenuItem("Grid Panel"))
+        //    {
+        //        UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+        //            GameObjectKey, GameObject::Helper::GenerateUniqueName("Grid Panel"), &ui);
+        //        ui->AddComponent<GridPanel>();
+        //    }
+        //    if (ImGui::MenuItem("Anchor Panel"))
+        //    {
+        //        UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+        //            GameObjectKey, GameObject::Helper::GenerateUniqueName("Anchor Panel"), &ui);
+        //        ui->AddComponent<AnchorPanel>();
+        //    }
+        //    if (ImGui::MenuItem("Horizontal Panel"))
+        //    {
+        //        UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+        //            GameObjectKey, GameObject::Helper::GenerateUniqueName("Horizontal Panel"), &ui);
+        //        ui->AddComponent<HorizontalPanel>();
+        //    }
+        //    if (ImGui::MenuItem("Description Panel"))
+        //    {
+        //        UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+        //            GameObjectKey, GameObject::Helper::GenerateUniqueName("Description Panel"), &ui);
+        //        ui->AddComponent<DescriptionPanel>();
+        //    }
+        //    ImGui::EndMenu();
+        //}
         if (ImGui::BeginMenu("Wrappers"))
         {
-            if (ImGui::MenuItem("Padding Wrapper"))
+            if (ImGui::MenuItem("Dummy Wrapper"))
             {
                 UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
-                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Padding Wrapper"), &ui);
-                ui->AddComponent<PaddingWrapper>();
-            }
-            if (ImGui::MenuItem("Center Wrapper"))
-            {
-                UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
-                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Center Wrapper"), &ui);
-                ui->AddComponent<CenterWrapper>();
+                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Dummy Wrapper"), &ui);
+                ui->AddComponent<DummyWrapper>();
             }
             if (ImGui::MenuItem("Ratio Wrapper"))
             {
@@ -486,18 +480,18 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
                     GameObjectKey, GameObject::Helper::GenerateUniqueName("Dummy Element"), &ui);
                 ui->AddComponent<DummyElement>();
             }
-            if (ImGui::MenuItem("Image Element"))
-            {
-                UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
-                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Image Element"), &ui);
-                ui->AddComponent<ImageElement>();
-            }
-            if (ImGui::MenuItem("Text Element"))
-            {
-                UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
-                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Text Element"), &ui);
-                ui->AddComponent<TextElement>();
-            }
+            //if (ImGui::MenuItem("Image Element"))
+            //{
+            //    UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+            //        GameObjectKey, GameObject::Helper::GenerateUniqueName("Image Element"), &ui);
+            //    ui->AddComponent<ImageElement>();
+            //}
+            //if (ImGui::MenuItem("Text Element"))
+            //{
+            //    UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+            //        GameObjectKey, GameObject::Helper::GenerateUniqueName("Text Element"), &ui);
+            //    ui->AddComponent<TextElement>();
+            //}
             ImGui::EndMenu();
         }
         ImGui::EndMenu();
