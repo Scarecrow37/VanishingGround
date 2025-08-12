@@ -48,6 +48,7 @@ public:
     void          SetAnimationSpeed(float speed, unsigned int ID);
     void          SetPause(bool isPause);
     void          SetLoop(bool isLoop);
+    void          SetAnimationEndCallback(std::function<void()> callback);
 
     const std::vector<const char*>& GetAnimationNames() const;
 
@@ -101,4 +102,6 @@ private:
     bool                                    _isInitialize{false};
     bool                                    _isPause{false};
     bool                                    _isLoop{true};
+
+    std::function<void()>                   _onAnimationEndCallback{nullptr};
 };
