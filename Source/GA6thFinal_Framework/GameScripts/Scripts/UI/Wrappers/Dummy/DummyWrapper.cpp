@@ -5,8 +5,9 @@ DummyWrapper::DummyWrapper() = default;
 
 SIZE DummyWrapper::MeasureOverride(const SIZE availableSize)
 {
-    const SIZE desiredSize = MinSize()(availableSize, _requestedSize);
-    const SIZE childAvailableSize = desiredSize - _padding.Size();
+    const SIZE    desiredSize        = MinSize()(availableSize, _requestedSize);
+    const PADDING padding            = Padding;
+    const SIZE    childAvailableSize = desiredSize - padding.Size();
     if (const std::vector<UIComponent*> children = Children; children.size() > 0)
     {
         children[0]->Measure(childAvailableSize);
@@ -17,9 +18,10 @@ SIZE DummyWrapper::MeasureOverride(const SIZE availableSize)
 
 SIZE DummyWrapper::ArrangeOverride(const SIZE finalSize)
 {
-    const SIZE desiredSize = DesiredSize;
-    const SIZE actualSize = MinSize()(finalSize, desiredSize);
-    const SIZE childAvailableSize = actualSize - _padding.Size();
+    const SIZE    desiredSize        = DesiredSize;
+    const SIZE    actualSize         = MinSize()(finalSize, desiredSize);
+    const PADDING padding            = Padding;
+    const SIZE    childAvailableSize = actualSize - padding.Size();
     if (const std::vector<UIComponent*> children = Children; children.size() > 0)
     {
         const POINT childPoint = AbsoluteChildPosition;

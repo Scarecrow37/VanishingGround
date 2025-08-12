@@ -95,7 +95,8 @@ public:
     GETTER_ONLY(POINT, AbsolutePosition)
     {
         const POINT offset           = ReflectFields->Offset;
-        const POINT leftTopMargin    = _margin.LeftTop();
+        const MARGIN margin           = Margin;
+        const POINT  leftTopMargin    = margin.LeftTop();
         const POINT actualPosition   = ReflectFields->ActualPosition;
         const POINT absolutePosition = offset + leftTopMargin + actualPosition;
         return absolutePosition;
@@ -105,7 +106,8 @@ public:
     GETTER_ONLY(POINT, AbsoluteChildPosition)
     {
         const POINT absolutePosition      = AbsolutePosition;
-        const POINT leftTopPadding        = _padding.LeftTop();
+        const PADDING padding               = Padding;
+        const POINT   leftTopPadding        = padding.LeftTop();
         const POINT absoluteChildPosition = absolutePosition + leftTopPadding;
         return absoluteChildPosition;
     }

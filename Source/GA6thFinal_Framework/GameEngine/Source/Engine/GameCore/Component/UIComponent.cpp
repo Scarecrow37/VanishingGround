@@ -49,7 +49,7 @@ SIZE MinSize::operator()(const SIZE& lhs, const SIZE& rhs) const
 }
 
 UIComponent::UIComponent()
-    : Component(TYPE::UI), _requestedPoint{}, _requestedSize{}, _padding{}, _margin{}, _isMeasureDirty(false),
+    : Component(TYPE::UI), _requestedPoint{}, _requestedSize{}, _isMeasureDirty(false),
       _isArrangeDirty(false)
 {
 }
@@ -121,10 +121,6 @@ void UIComponent::DeserializedReflectEvent()
 
     _requestedPoint = ActualPosition;
     _requestedSize  = ActualSize;
-    _margin         = MARGIN{ReflectFields->MarginLeft, ReflectFields->MarginTop, ReflectFields->MarginRight,
-                     ReflectFields->MarginBottom};
-    _padding        = PADDING{ReflectFields->PaddingLeft, ReflectFields->PaddingTop, ReflectFields->PaddingRight,
-                       ReflectFields->PaddingBottom};
 }
 
 void UIComponent::InvalidateMeasure()
@@ -156,9 +152,10 @@ void UIComponent::Measure(const SIZE availableSize)
 {
     ReflectFields->AvailableSize = availableSize;
 
-    const SIZE    desiredSize = ReflectFields->DesiredSize;
+    const SIZE desiredSize = ReflectFields->DesiredSize;
 
-    const SIZE overrideAvailableSize = availableSize - _margin.Size();
+    const MARGIN margin                = Margin;
+    const SIZE   overrideAvailableSize = availableSize - margin.Size();
     if (const SIZE newDesiredSize = MeasureOverride(overrideAvailableSize); desiredSize != newDesiredSize)
     {
         ReflectFields->DesiredSize = newDesiredSize;
