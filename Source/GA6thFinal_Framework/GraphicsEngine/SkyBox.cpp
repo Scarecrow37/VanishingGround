@@ -27,7 +27,7 @@ void SkyBox::SetEnvironmentTexture(std::wstring_view path)
         _hasTexture = false;
         return;
     }
-    FAILED_CHECK_MESSAGE(hr, L"SkyBox::SetTexture LoadFromHDRFile Failed");
+    FAILED_CHECK_MESSAGE(hr, L"SkyBox::SetEnvironmentTexture LoadFromHDRFile Failed");
 
     const Image* img = image.GetImage(0, 0, 0);
 
@@ -54,6 +54,9 @@ void SkyBox::SetEnvironmentTexture(std::wstring_view path)
     commandList->SetComputeRootDescriptorTable(_shader[CUBE_MAP]->GetRootParameterIndex("cubeMap"), _cubeMap->GetUAVHandle());
     commandList->SetComputeRoot32BitConstants(_shader[CUBE_MAP]->GetRootParameterIndex("bit32_1_cubeMapInfo"), 1, &CUBE_MAP_SIZE, 0);
     commandList->Dispatch((CUBE_MAP_SIZE + 15) / 16, (CUBE_MAP_SIZE + 15) / 16, 6);
+
+    _cubeMap->ResourceBarrier(commandList);
+    _cubeMap->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
 void SkyBox::SetIBLTexture(std::wstring_view path)
@@ -68,7 +71,7 @@ void SkyBox::SetIBLTexture(std::wstring_view path)
         _hasTexture = false;
         return;
     }
-    FAILED_CHECK_MESSAGE(hr, L"SkyBox::SetTexture LoadFromHDRFile Failed");
+    FAILED_CHECK_MESSAGE(hr, L"SkyBox::SetIBLTexture LoadFromHDRFile Failed");
 
     const Image* img = image.GetImage(0, 0, 0);
 
