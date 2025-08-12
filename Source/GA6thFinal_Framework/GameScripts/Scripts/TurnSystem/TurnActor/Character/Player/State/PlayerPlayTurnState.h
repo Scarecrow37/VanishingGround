@@ -60,7 +60,7 @@ private:
     void SetAttackEnd();
 
     // Callback //
-    void OnAnimationEventAttack();
+    void BattleOnAttackEvent();
 
 private:
     bool       _setImguiPosCenter;

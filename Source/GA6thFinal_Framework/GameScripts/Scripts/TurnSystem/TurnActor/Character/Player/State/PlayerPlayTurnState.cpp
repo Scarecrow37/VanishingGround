@@ -65,13 +65,7 @@ void PlayerPlayTurnState::OnAwake()
                     const std::string& label = context->GetLabel();
                     if ("Attack" == label)
                     {
-                        if (!_attackTargets.empty())
-                        {
-                            auto&   target = _attackTargets.back();
-                            Player& player = GetPlayer();
-                            Battle()(player, target);
-                            _attackTargets.pop_back();
-                        }
+                        BattleOnAttackEvent();
                     }
                 });
             }
@@ -467,4 +461,13 @@ void PlayerPlayTurnState::SetAttackEnd()
     }
 }
 
-void PlayerPlayTurnState::OnAnimationEventAttack() {}
+void PlayerPlayTurnState::BattleOnAttackEvent()
+{
+    if (!_attackTargets.empty())
+    {
+        auto&   target = _attackTargets.back();
+        Player& player = GetPlayer();
+        Battle()(player, target);
+        _attackTargets.pop_back();
+    }
+}
