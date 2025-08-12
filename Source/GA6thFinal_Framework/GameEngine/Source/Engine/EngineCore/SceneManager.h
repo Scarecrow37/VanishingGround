@@ -86,6 +86,7 @@ private:
     bool _isLoaded = false;
     File::Guid _guid = STR_NULL;
     File::Guid _skyBox = STR_NULL;
+    File::Guid _skyIBL = STR_NULL;
 };
 
 /// <summary>
@@ -271,6 +272,16 @@ public:
         static void SetSceneSkyBoxPath(Scene& scene, std::string_view skyBoxPath);
 
         /// <summary>
+        /// 씬의 IBL 텍스쳐를 설정합니다.
+        /// </summary>
+        static void SetSceneIBLGuid(Scene& scene, const File::Guid& skyIBL);
+
+        /// <summary>
+        /// 씬의 IBL 텍스쳐를 설정합니다.
+        /// </summary>
+        static void SetSceneIBLPath(Scene& scene, std::string_view skyIBLPath);
+
+        /// <summary>
         /// 오브젝트의 행렬을 명시적으로 업데이트합니다. (성능 하락 주의)
         /// </summary>
         /// <param name="gameObject"></param>
@@ -434,6 +445,13 @@ public:
     /// <returns></returns>
     bool SetSkyBox(const File::Path& path);
     
+    /// <summary>
+    /// IBL 텍스쳐를 설정합니다.
+    /// </summary>
+    /// <param name="path :">사용할 스카이박스</param>
+    /// <returns></returns>
+    bool SetSkyIBL(const File::Path& path);
+
     /// <summary>
     /// 현재 씬에 존재하는 MeshComponent들을 반환합니다. *매 프레임 호출하면 퍼포먼스가 하락할 수 있습니다.*
     /// </summary>

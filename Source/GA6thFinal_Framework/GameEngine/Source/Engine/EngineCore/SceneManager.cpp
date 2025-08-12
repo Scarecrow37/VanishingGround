@@ -523,6 +523,20 @@ void ESceneManager::Engine::SetSceneSkyBoxPath(Scene& scene, std::string_view sk
     }
 }
 
+void ESceneManager::Engine::SetSceneIBLGuid(Scene& scene, const File::Guid& skyIBL) 
+{
+    scene._skyIBL = skyIBL;
+}
+
+void ESceneManager::Engine::SetSceneIBLPath(Scene& scene, std::string_view skyIBLPath) 
+{
+    File::Guid guid = UmFileSystem.GetGuidFromPath(skyIBLPath);
+    if (false == guid.IsNull())
+    {
+        SetSceneIBLGuid(scene, guid);
+    }
+}
+
 void ESceneManager::Engine::UpdateMatrix(GameObject* gameObject) 
 {
     gameObject->transform->UpdateMatrix();
@@ -666,7 +680,6 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
         _waitStartVec.clear();
         _lodedSceneList.clear();
         UmCommandManager.Clear();
-        SetRendererSkyBox(scene);
     }
     else
     {
@@ -906,6 +919,7 @@ void ESceneManager::ObjectsAddLoadScene()
             Scene* scene = &sceneIter->second;
             try
             {
+                SetRendererSkyBox(scene);              
                 DeserializeToGuid(_nextSceneGuid);
                 scene->_isLoaded = true;
                 scene->_isDirty  = false;
@@ -1239,7 +1253,7 @@ void ESceneManager::SetObjectOwnerScene(GameObject* object, std::string_view sce
 
 void ESceneManager::SetRendererSkyBox(Scene* scene) 
 {
-    // 스카이 박스 로드
+    // ENV 로드
     if (STR_NULL != scene->_skyBox)
     {
         bool loadSkyBox = false;
@@ -1267,6 +1281,54 @@ void ESceneManager::SetRendererSkyBox(Scene* scene)
         if (loadSkyBox)
         {
             File::Path path = scene->_skyBox.ToPath();
+            if (false == path.IsNull())
+            {
+                UmGraphics.SetEnvironmentSkyBox("Game", path.c_str());
+
+                if constexpr (IS_EDITOR)
+                {
+                    UmGraphics.SetEnvironmentSkyBox("Editor", path.c_str());
+                }
+            }
+        }
+    }
+    else
+    {
+        UmGraphics.ResetSkyBox("Game");
+        if constexpr (IS_EDITOR)
+        {
+            UmGraphics.ResetSkyBox("Editor");
+        }
+    }
+
+    // IBL 로드
+    if (STR_NULL != scene->_skyBox)
+    {
+        bool loadSkyBox = false;
+        if (STR_NULL != _prevScene)
+        {
+            File::Guid prevGuid = UmFileSystem.GetGuidFromPath(_prevScene);
+            if (false == prevGuid.IsNull())
+            {
+                Scene& prevSccene = _scenesMap[prevGuid];
+                if (prevSccene._skyIBL != scene->_skyIBL)
+                {
+                    loadSkyBox = true;
+                }
+            }
+            else
+            {
+                loadSkyBox = true;
+            }
+        }
+        else
+        {
+            loadSkyBox = true;
+        }
+
+        if (loadSkyBox)
+        {
+            File::Path path = scene->_skyIBL.ToPath();
             if (false == path.IsNull())
             {
                 UmGraphics.SetIBLSkyBox("Game", path.c_str());
@@ -1319,6 +1381,10 @@ YAML::Node ESceneManager::SerializeToYaml(const Scene& scene)
     if (false == targetScene._skyBox.ToPath().IsNull())
     {
         sceneNode["SkyBox"] = targetScene._skyBox.string();
+    }
+    if (false == targetScene._skyIBL.ToPath().IsNull())
+    {
+        sceneNode["SkyIBL"] = targetScene._skyIBL.string();
     }
 
     auto rootObjects = scene.GetRootGameObjects();
@@ -1407,6 +1473,33 @@ bool ESceneManager::SetSkyBox(const File::Path& path)
     }
 
     Engine::SetSceneSkyBoxGuid(*mainScene, guid);
+    UmGraphics.SetEnvironmentSkyBox("Game", path.c_str());
+
+    if constexpr (IS_EDITOR)
+    {
+        UmGraphics.SetEnvironmentSkyBox("Editor", path.c_str());
+    }
+
+    mainScene->IsDirty = true;
+
+    return true;
+}
+
+bool ESceneManager::SetSkyIBL(const File::Path& path)
+{
+    Scene* mainScene = GetMainScene();
+    if (nullptr == mainScene)
+    {
+        return false;
+    }
+
+    File::Guid guid = path.ToGuid();
+    if (true == guid.IsNull())
+    {
+        return false;
+    }
+
+    Engine::SetSceneIBLGuid(*mainScene, guid);
     UmGraphics.SetIBLSkyBox("Game", path.c_str());
 
     if constexpr (IS_EDITOR)
@@ -1493,6 +1586,11 @@ void ESceneManager::OnFileRegistered(const File::Path& path)
             {
                 scene._skyBox = sceneNode["SkyBox"].as<std::string>();
             }
+            if (sceneNode["SkyIBL"])
+            {
+                scene._skyIBL = sceneNode["SkyIBL"].as<std::string>();
+            }
+
             std::string nodeGuid = sceneNode["Guid"].as<std::string>();
             if (nodeGuid != guid)
             {
@@ -1572,6 +1670,10 @@ void ESceneManager::OnFileModified(const File::Path& path)
             if (node["SkyBox"])
             {
                 scene._skyBox = node["SkyBox"].as<std::string>();
+            }
+            if (node["SkyIBL"])
+            {
+                scene._skyIBL = node["SkyIBL"].as<std::string>();
             }
         }
         catch (const YAML::BadConversion& ex)
