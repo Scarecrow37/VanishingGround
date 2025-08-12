@@ -28,6 +28,7 @@ struct Scene
 {
     USING_PROPERTY(Scene)
     friend class ESceneManager;
+    friend class EditorSceneMenu;
 
     Scene() = default;
     ~Scene() = default;
