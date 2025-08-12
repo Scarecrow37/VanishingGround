@@ -1,7 +1,5 @@
 #include "CommonData.hlsli"
 
-StructuredBuffer<matrix> worldMatrices;
-
 struct VSInput
 {
     float4 position     : POSITION;
@@ -22,17 +20,20 @@ struct VSOutput
     float4 worldPosition : TEXCOORD1;
 };
 
+StructuredBuffer<MatrixData> matrices;
+
 VSOutput vs_main(VSInput input)
 {
     VSOutput output = (VSOutput) 0;
     
-    output.position = mul(input.position, worldMatrices[objectData.ID]);
-    output.worldPosition = output.position;
+    output.position = mul(input.position, matrices[objectData.ID].World);
     output.position = mul(output.position, cameraData.View);
-    output.position = mul(output.position, cameraData.Projection);   
-    output.normal = normalize(mul(float4(input.normal, 0), worldMatrices[objectData.ID]));
-    output.tangent = normalize(mul(float4(input.tangent, 0), worldMatrices[objectData.ID]));
-    output.biTangent = normalize(mul(float4(input.biTangent, 0), worldMatrices[objectData.ID]));
+    output.position = mul(output.position, cameraData.Projection);       
+    
+    output.normal = normalize(mul(input.normal, (float3x3) matrices[objectData.ID].InverseTranspose));
+    output.tangent = normalize(mul(input.tangent, (float3x3) matrices[objectData.ID].InverseTranspose));
+    output.biTangent = normalize(mul(input.biTangent, (float3x3) matrices[objectData.ID].InverseTranspose));
+    
     output.uv = input.uv;
 
     return output;

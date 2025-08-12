@@ -46,8 +46,7 @@ void RenderTarget::Initialize(const D3D12_RESOURCE_DESC& desc, FLOAT clearColor)
 
     CreateRenderTargetView();
 
-    Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _srvHandle);
-    _ID = Global::viewManager->GetNumShaderResourceView() - 1;
+    Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _srvHandle, &_ID);
     CreateShaderResourceView();
 }
 

@@ -1,4 +1,6 @@
-﻿#pragma once
+#pragma once
+#include <mutex>
+#include <atomic>
 
 class CommandController
 {
@@ -24,9 +26,10 @@ public:
     bool   IsCompleteCommandQueue(CommandQueueType queue, UINT64 fenceValue);
 
 private:
+    std::mutex				   _mutex;
     std::vector<CommandSet>    _commandSets;
     ComPtr<ID3D12CommandQueue> _commandQueue[COMMAND_QUEUE_END];
     ComPtr<ID3D12Fence>        _fence[COMMAND_QUEUE_END];
-    UINT64                     _fenceValue[COMMAND_QUEUE_END]{0};
-    HANDLE                     _fenceEvent{nullptr};
+    std::atomic<UINT64>        _fenceValue[COMMAND_QUEUE_END]{0};
+    HANDLE                     _fenceEvent[COMMAND_QUEUE_END]{nullptr};
 };

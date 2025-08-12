@@ -3,10 +3,13 @@
 
 CommandController::~CommandController()
 {
-    if (_fenceEvent)
+    for (int i = 0; i < COMMAND_QUEUE_END; ++i)
     {
-        CloseHandle(_fenceEvent);
-        _fenceEvent = nullptr;
+        if (_fenceEvent[i])
+        {
+            CloseHandle(_fenceEvent[i]);
+            _fenceEvent[i] = nullptr;
+        }
     }
 }
 
@@ -33,17 +36,15 @@ void CommandController::Initialize()
     hr        = device->CreateCommandQueue(&desc, IID_PPV_ARGS(&_commandQueue[COPY_QUEUE]));
     FAILED_CHECK_MESSAGE(hr, L"CommandController::Initialize CreateCommandQueue Failed");
 
-    hr = device->CreateFence(_fenceValue[GRAPHICS_QUEUE], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence[GRAPHICS_QUEUE]));
-    FAILED_CHECK_MESSAGE(hr, L"CommandController::Initialize CreateFence Failed");
+    for (int i = 0; i < COMMAND_QUEUE_END; ++i)
+    {
+        _fenceValue[i] = 0;
+        hr = device->CreateFence(_fenceValue[i], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence[i]));
+        FAILED_CHECK_MESSAGE(hr, L"CommandController::Initialize CreateFence Failed");
 
-    hr = device->CreateFence(_fenceValue[COMPUTE_QUEUE], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence[COMPUTE_QUEUE]));
-    FAILED_CHECK_MESSAGE(hr, L"CommandController::Initialize CreateFence Failed");
-
-    hr = device->CreateFence(_fenceValue[COPY_QUEUE], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence[COPY_QUEUE]));
-    FAILED_CHECK_MESSAGE(hr, L"CommandController::Initialize CreateFence Failed");
-
-    _fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-    GRAPHICS_ASSERT(nullptr != _fenceEvent, L"CommandController::Initialize CreateEvent Failed");
+        _fenceEvent[i] = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+        GRAPHICS_ASSERT(nullptr != _fenceEvent[i], L"CommandController::Initialize CreateEvent Failed");
+    }
 
     _commandQueue[GRAPHICS_QUEUE]->SetName(L"GraphicsCommandQueue");
     _commandQueue[COMPUTE_QUEUE]->SetName(L"ComputeCommandQueue");
@@ -52,14 +53,11 @@ void CommandController::Initialize()
     _fence[GRAPHICS_QUEUE]->SetName(L"GraphicsFence");
     _fence[COMPUTE_QUEUE]->SetName(L"ComputeFence");
     _fence[COPY_QUEUE]->SetName(L"CopyFence");
-
-    _fenceValue[GRAPHICS_QUEUE] = 0;
-    _fenceValue[COMPUTE_QUEUE]  = 0;
-    _fenceValue[COPY_QUEUE]     = 0;
 }
 
 void CommandController::AddCommandSet(CommandType command, std::wstring_view resourceName, CommandSet& out)
 {
+    std::lock_guard<std::mutex> lock(_mutex);
     CommandSet commandSet;
     commandSet.Initialize(command, resourceName);
     _commandSets.emplace_back(std::move(commandSet));
@@ -70,8 +68,8 @@ void CommandController::WaitForCommandQueue(CommandQueueType type, UINT64 fenceV
 {
     if (_fence[type]->GetCompletedValue() < fenceValue)
     {
-        _fence[type]->SetEventOnCompletion(fenceValue, _fenceEvent);
-        ::WaitForSingleObject(_fenceEvent, INFINITE);
+        _fence[type]->SetEventOnCompletion(fenceValue, _fenceEvent[type]);
+        ::WaitForSingleObject(_fenceEvent[type], INFINITE);
     }
 }
 
@@ -95,13 +93,14 @@ void CommandController::ResetCommand(CommandQueueType type)
 
 UINT64 CommandController::SignalCommandQueue(CommandQueueType type)
 {
+    std::lock_guard<std::mutex> lock(_mutex);
     _commandQueue[type]->Signal(_fence[type].Get(), ++_fenceValue[type]);
     return _fenceValue[type];
 }
 
 bool CommandController::IsCompleteCommandQueue(CommandQueueType queue, UINT64 fenceValue)
 {
-    if (_fence[queue]->GetCompletedValue() < fenceValue)
+    if (_fence[queue]->GetCompletedValue() >= fenceValue)
     {
         return true;
     }

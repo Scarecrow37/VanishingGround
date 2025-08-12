@@ -1,10 +1,6 @@
 ﻿#include "pch.h"
 #include "ResourceManager.h"
 
-ResourceManager::ResourceManager()
-{
-}
+ResourceManager::ResourceManager() = default;
 
-ResourceManager::~ResourceManager()
-{  
-}
+ResourceManager::~ResourceManager() = default;

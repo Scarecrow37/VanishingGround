@@ -23,6 +23,8 @@
 #include <set>
 #include <any>
 #include <format>
+#include <concurrent_queue.h>
+#include <functional>
 
 #include "directx/d3dcommon.h"
 #include "directx/d3dx12.h"
@@ -47,12 +49,12 @@
 #pragma comment(lib, "DirectXTK12.lib")
 #endif
 
+#pragma comment(lib, "assimp-vc143-mt.lib")
 #pragma comment(lib, "d3d12")
 #pragma comment(lib, "dxgi")
 #pragma comment(lib, "Dbghelp.lib")
 #pragma comment(lib, "d3dcompiler")
 #pragma comment(lib, "dxcompiler")
-#pragma comment(lib, "assimp-vc143-mt.lib")
 
 using namespace DirectX;
 using namespace DirectX::SimpleMath;

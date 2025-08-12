@@ -43,6 +43,48 @@ void VIBuffer::Initialize(const VIBuffer::Descriptor& descriptor)
     }
 }
 
+void VIBuffer::Initialize(ID3D12GraphicsCommandList* commandList, const VIBuffer::Descriptor& descriptor)
+{
+    ID3D12Device* device = Global::device->GetDevice();
+    Global::device->CreateVertexBuffer(commandList, 
+                                       descriptor.vertexData, 
+                                       descriptor.vertexSize,
+                                       descriptor.vertexStride, 
+                                       _vertexBuffer, 
+                                       _vertexBufferView);
+
+    Global::device->CreateIndexBuffer(commandList, 
+                                      descriptor.indexData, 
+                                      descriptor.indexSize, 
+                                      DXGI_FORMAT_R32_UINT, 
+                                      _indexBuffer, 
+                                      _indexBufferView);
+
+    _indexCount  = descriptor.indexCount;
+    _vertexCount = descriptor.vertexSize / descriptor.vertexStride;
+
+    if (Global::isRayTracing)
+    {
+        _vertexBufferID = Global::viewManager->GetNumVertexBuffer();
+        _indexBufferID  = Global::viewManager->GetNumIndexBuffer();
+        Global::viewManager->AddDescriptorHeap(ViewManager::Type::VERTEX_BUFFER_SHADER_RESOURCE, _vertexBufferSrv);
+        Global::viewManager->AddDescriptorHeap(ViewManager::Type::INDEX_BUFFER_SHADER_RESOURCE, _indexBufferSrv);
+
+        D3D12_SHADER_RESOURCE_VIEW_DESC srvd{};
+        srvd.ViewDimension              = D3D12_SRV_DIMENSION_BUFFER;
+        srvd.Shader4ComponentMapping    = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+        srvd.Format                     = DXGI_FORMAT_UNKNOWN;
+        srvd.Buffer.NumElements         = _vertexCount;
+        srvd.Buffer.StructureByteStride = descriptor.vertexStride;
+        srvd.Buffer.FirstElement        = 0;
+        device->CreateShaderResourceView(_vertexBuffer.Get(), &srvd, _vertexBufferSrv.CPU);
+
+        srvd.Buffer.NumElements         = _indexCount;
+        srvd.Buffer.StructureByteStride = sizeof(UINT);
+        device->CreateShaderResourceView(_indexBuffer.Get(), &srvd, _indexBufferSrv.CPU);
+    }
+}
+
 void VIBuffer::DrawIndexedInstanced(ID3D12GraphicsCommandList* commandList, UINT instanceCount)
 {
 	commandList->IASetVertexBuffers(0, 1, &_vertexBufferView);

@@ -1,6 +1,12 @@
 ﻿#pragma once
 #include "Graphics_Structs.h"
 
+struct MatrixData
+{
+    Matrix World;
+    Matrix InverseTransposeWorld;
+};
+
 struct BoneMatrices
 {
     Matrix matrix[MAX_BONE_MATRIX];

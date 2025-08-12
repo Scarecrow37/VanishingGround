@@ -153,7 +153,7 @@ void RenderScene::UpdateRenderScene()
     {
         _accelerationStructureManager->RemoveUnUsedStaticMeshes(_activeMeshes[STATIC_MESH], _activeMeshes[SKELETAL_MESH]);
     }
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::TRANSFORM, _worldMatrices.data(), (UINT)_worldMatrices.size());
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::TRANSFORM, _matrices.data(), (UINT)_matrices.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::BONE_MATRICES, _boneMatrices.data(), (UINT)_boneMatrices.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::MATERIAL, _materialIDs.data(), (UINT)_materialIDs.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::UI_TRANSFORM, _uiMatrices.data(), (UINT)_uiMatrices.size());
@@ -221,12 +221,13 @@ void RenderScene::UpdateGlobal()
                           .ViewInverse       = _camera->GetWorldMatrix(),
                           .ProjectionInverse = _camera->GetProjectionInverseMatrix(),
                           .Position          = Vector4(_camera->GetPosition())};
-    auto& lights = Global::lightCore->GetLights(_name.c_str());       
+
+    auto& lights = Global::lightCore->GetLights(_name.c_str());
 
     _numLight = {};
     for (auto& [isDestroy, light] : lights)
     {
-        if (nullptr == light->_isActive || !(*light->_isActive))
+        if (nullptr == light->_isActive || !light->IsActive())
             continue;
 
         switch (light->_type)
@@ -267,7 +268,7 @@ void RenderScene::UpdateObject()
 
     _activeMeshes[STATIC_MESH].clear();
     _activeMeshes[SKELETAL_MESH].clear();
-    _worldMatrices.clear();
+    _matrices.clear();
     _boneMatrices.clear();
     _materialIDs.clear();
     _staticMeshInstanceIDs.clear();
@@ -307,21 +308,22 @@ void RenderScene::UpdateObject()
         auto&       materials    = model->GetMaterials();
         const auto& textures     = model->GetTextures();
 
-        XMMATRIX     world = XMMatrixTranspose(component->GetWorldMatrix());
-        float        determinant = XMMatrixDeterminant(world).m128_f32[0];
         BoneMatrices boneMatrices;
+        MatrixData   matrixData          = {.World = XMMatrixTranspose(component->GetWorldMatrix())};
+        float        determinant         = XMMatrixDeterminant(matrixData.World).m128_f32[0];
+        matrixData.InverseTransposeWorld = XMMatrixTranspose(XMMatrixInverse(nullptr, matrixData.World));
 
         if (SKELETAL_MESH == type)
         {
             auto animator = component->GetAnimator();
-            if (animator)
-                memcpy(&boneMatrices, animator->GetAnimationTransform(), sizeof(BoneMatrices));
+            if (animator) memcpy(&boneMatrices, animator->GetAnimationTransform(), sizeof(BoneMatrices));
         }
+
         auto& skinnedBuffers = component->GetDXRSkeletalMeshes();
         UINT size = (UINT)meshes.size();
         for (UINT i = 0; i < size; i++)
-        {            
-            _worldMatrices.push_back(world);
+        {
+            _matrices.push_back(matrixData);
             _boneMatrices.push_back(boneMatrices);
 
             if (materials[i].IsTwoSided)
@@ -343,14 +345,12 @@ void RenderScene::UpdateObject()
             if (STATIC_MESH == type)
             {
                 _staticMeshInstanceIDs.push_back(instanceID);
-                _activeMeshes[type].emplace_back(materials[i], meshes[i].get(), customDepths[i], instanceID++,
-                                                 &_worldMatrices[instanceID], nullptr);
+                _activeMeshes[type].emplace_back(materials[i], meshes[i].get(), customDepths[i], instanceID++, nullptr, nullptr);
             }
             else if (SKELETAL_MESH == type)
             {
                 _skeletalMeshInstanceIDs.push_back(instanceID);
-                _activeMeshes[type].emplace_back(materials[i], meshes[i].get(), customDepths[i], instanceID++,
-                                                 &_worldMatrices[instanceID], skinnedBuffers[i].get());
+                _activeMeshes[type].emplace_back(materials[i], meshes[i].get(), customDepths[i], instanceID++, nullptr, skinnedBuffers[i].get());
             }
         }
     }
@@ -465,7 +465,7 @@ void RenderScene::CreateFrameResource()
         _frameResources[i] = std::make_unique<FrameResource>();
 
         // Object Transform
-        _frameResources[i]->AddFrameResource(sizeof(XMMATRIX), MAX_OBJECTS);
+        _frameResources[i]->AddFrameResource(sizeof(MatrixData), MAX_OBJECTS);
 
         // Object BoneTransform
         _frameResources[i]->AddFrameResource(sizeof(XMMATRIX) * MAX_BONE_MATRIX, MAX_OBJECTS);

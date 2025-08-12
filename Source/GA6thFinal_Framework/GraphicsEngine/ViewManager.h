@@ -20,7 +20,6 @@ public:
     ID3D12DescriptorHeap* GetShaderResourceHeap() const { return _shaderResourceHeap.Get(); }
     ID3D12DescriptorHeap* GetRenderTargetHeap() const { return _renderTargetHeap.Get(); }
     ID3D12DescriptorHeap* GetDepthStencilHeap() const { return _depthStencilHeap.Get(); }
-    const UINT            GetNumShaderResourceView() const { return _numShaderResource; }
     const UINT64          GetVertexBufferSrvPtr();
     const UINT64          GetIndexBufferSrvPtr();
     UINT                  GetNumVertexBuffer() { return _numVertexSrv; }
@@ -28,10 +27,8 @@ public:
 
 public:
     void Initialize();
-    void AddDescriptorHeap(const ViewManager::Type type, D3D12_CPU_DESCRIPTOR_HANDLE& handle);
-    void AddDescriptorHeap(const ViewManager::Type type, DescriptorHandles& handles);
-    void AddDescriptorHeap(const ViewManager::Type type, UINT numDescriptors, std::vector<D3D12_CPU_DESCRIPTOR_HANDLE>& handles);
-    void AddDescriptorHeap(const ViewManager::Type type, UINT numDescriptors, std::vector<DescriptorHandles>& handles);
+    void AddDescriptorHeap(const ViewManager::Type type, D3D12_CPU_DESCRIPTOR_HANDLE& handle, UINT* ID = nullptr);
+    void AddDescriptorHeap(const ViewManager::Type type, DescriptorHandles& handles, UINT* ID = nullptr);
 
 private:
     ComPtr<ID3D12DescriptorHeap> _shaderResourceHeap;
@@ -41,12 +38,12 @@ private:
     UINT _shaderResourceDescriptorSize{0};
     UINT _renderTargetDescriptorSize{0};
     UINT _depthStencilDescriptorSize{0};
-    UINT _numShaderResource{1};
-    UINT _numRenderTarget{0};
-    UINT _numDepthStencil{0};
+    std::atomic<UINT> _numShaderResource{1};
+    std::atomic<UINT> _numRenderTarget{0};
+    std::atomic<UINT> _numDepthStencil{0};
 
     UINT _vertexSrvStartIndex{1000};
     UINT _indexSrvStartIndex{3000};
-    UINT _numVertexSrv{0};
-    UINT _numIndexSrv{0};
+    std::atomic<UINT> _numVertexSrv{0};
+    std::atomic<UINT> _numIndexSrv{0};
 };

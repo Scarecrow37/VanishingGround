@@ -112,7 +112,7 @@ void ShadowMapPass::Draw(ID3D12GraphicsCommandList* commandList)
             // Static
             commandList->SetGraphicsRootSignature(_fxStaticShadow.GetRootSignature());
             commandList->SetGraphicsRootConstantBufferView(_fxStaticShadow.GetRootParameterIndex("cascadeData"), cascadeData);
-            frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxStaticShadow.GetRootParameterIndex("worldMatrices"), commandList);
+            frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxStaticShadow.GetRootParameterIndex("matrices"), commandList);
 
             commandList->SetPipelineState(_psos[STATIC_CULL_BACK].Get());
             DrawMeshes(commandList, STATIC_MESH, STATIC_CULL_BACK, i);
@@ -139,7 +139,7 @@ void ShadowMapPass::Draw(ID3D12GraphicsCommandList* commandList)
         // Skeletal
         commandList->SetGraphicsRootSignature(_fxSkeletalShadow.GetRootSignature());
         commandList->SetGraphicsRootConstantBufferView(_fxSkeletalShadow.GetRootParameterIndex("cascadeData"), cascadeData);
-        frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxSkeletalShadow.GetRootParameterIndex("worldMatrices"), commandList);
+        frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxSkeletalShadow.GetRootParameterIndex("matrices"), commandList);
         frameResource->SetFrameResource(FrameResourceType::BONE_MATRICES, _fxSkeletalShadow.GetRootParameterIndex("boneMatrices"), commandList);
 
         commandList->SetPipelineState(_psos[SKELETAL_CULL_BACK].Get());
