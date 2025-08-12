@@ -1049,6 +1049,8 @@ void ESceneManager::ObjectsDestroy()
     auto& [destroyComponentSet, destroyComponentQueue] = _destroyComponentsQueue;
     //OnDestroy 호출 도중 원본 큐 변형 방지를 위한 지연삭제
     _destroyComponentsTemp = destroyComponentQueue;
+    destroyComponentSet.clear();
+    destroyComponentQueue.clear();
     for (auto& destroyComponent : _destroyComponentsTemp)
     {
         // OnDestroy 대상 호출
@@ -1070,6 +1072,8 @@ void ESceneManager::ObjectsDestroy()
     auto& [destroyObjectSet, destroyObjectQueue] = _destroyObjectsQueue;
     // OnDestroy 호출 도중 원본 큐 변형 방지를 위한 지연삭제
     _destroyObjectTemp = destroyObjectQueue;
+    destroyObjectSet.clear();
+    destroyObjectQueue.clear();
     for (auto& destroyObject : _destroyObjectTemp)
     {
         if (_isPlay)
@@ -1116,12 +1120,8 @@ void ESceneManager::ObjectsDestroy()
         _runtimeObjects.pop_back();
     }
 
-    //파괴 큐 초기화
-    destroyComponentSet.clear();
-    destroyComponentQueue.clear();
+    //큐 초기화
     _destroyComponentsTemp.clear();
-    destroyObjectSet.clear();
-    destroyObjectQueue.clear();
     _destroyObjectTemp.clear();
 }
 
