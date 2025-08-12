@@ -790,10 +790,10 @@ void EditorHierarchyTool::DeserializedReflectEvent() {}
 void EditorHierarchyTool::OnFrameRender()
 {
     _window = ImGui::GetCurrentWindow();
-    HierarchyRightClickEvent();//하이러키 영역에 대한 Imgui Right Click 이벤트를 설정합니다.
-    HierarchyDropEvent();    //하이러키 영역에 대한 Imgui Drag Drop 이벤트를 설정합니다.
-    HierarchyDrawTreeNode(); //씬 오브젝트들의 계층 구조를 Tree Node로 Draw 합니다.
-    KeyboardEvent();  //오브젝트를 추가하는 기능이 있어서 Draw Tree Node 이후에 실행해야 문제가 안생김.
+    HierarchyRightClickEvent(); // 하이러키 영역에 대한 Imgui Right Click 이벤트를 설정합니다.
+    HierarchyDropEvent();       // 하이러키 영역에 대한 Imgui Drag Drop 이벤트를 설정합니다.
+    HierarchyDrawTreeNode();    // 씬 오브젝트들의 계층 구조를 Tree Node로 Draw 합니다.
+    KeyboardEvent();            // 오브젝트를 추가하는 기능이 있어서 Draw Tree Node 이후에 실행해야 문제가 안생김.
 }
 
 void EditorHierarchyTool::OnFrameEnd() 
