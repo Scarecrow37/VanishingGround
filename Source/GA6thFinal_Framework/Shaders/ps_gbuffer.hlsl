@@ -120,8 +120,8 @@ PSOutput WriteGuBuffer(PSInput input)
     if (height < 1.f)
     {
 // parallax mapping start
-        float3 viewDirWorld = normalize(cameraData.Position.xyz - input.worldPosition.xyz);
-        float3 TangentViewDir = mul(viewDirWorld, TBN);
+        float3 viewDirWorld = (cameraData.Position.xyz - input.worldPosition.xyz);
+        float3 TangentViewDir = mul(TBN, viewDirWorld);
         float2 parallaxDir = normalize(TangentViewDir.xy);
         float viewDirTSLength = length(TangentViewDir);
         float parallaxLength = sqrt(viewDirTSLength * viewDirTSLength - TangentViewDir.z * TangentViewDir.z) / TangentViewDir.z;
