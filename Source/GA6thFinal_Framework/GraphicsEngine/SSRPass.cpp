@@ -31,7 +31,7 @@ void SSRPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechniqu
 
 void SSRPass::AddRenderPassDatas(std::string_view sceneName) 
 {
-    Global::renderPassDatas->AddRenderPassProperty(sceneName, "SSRPass", SSRPassProperty({0.65f, 0.69f, 50.f,0.5f}));
+    Global::renderPassDatas->AddRenderPassProperty(sceneName, "SSRPass", SSRPassProperty({0.3f, 0.34f, 200.f,2.f}));
 }
 
 void SSRPass::Begin(ID3D12GraphicsCommandList* commandList) 

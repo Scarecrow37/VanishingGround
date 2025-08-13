@@ -138,6 +138,12 @@ struct SSRPassProperty
     float ScreenFade;
 };
 
+struct ParallaxMappingProperty
+{
+    float HeightScale;
+};
+};
+
 struct VolumetricFogProperty
 {
     float Anisotropy;

@@ -20,6 +20,7 @@ struct VSOutput
     float3 tangent       : TANGENT;
     float3 biTangent     : BINORMAL;
     float2 uv            : TEXCOORD;
+    float4 worldPosition : TEXCOORD1;
 };
 
 StructuredBuffer<MatrixData> matrices;
