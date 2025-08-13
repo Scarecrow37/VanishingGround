@@ -81,7 +81,7 @@ void EditorSceneMenu::SceneSkyBoxEditPopup()
                 {
                     static std::string skyBoxBuffer = STR_NULL;
                     skyBoxBuffer                    = mainScene->_skyBox.ToPath().generic_string();
-                    ImGui::InputText("Env", &skyBoxBuffer, ImGuiInputTextFlags_ReadOnly);
+                    ImGui::InputText("ENV", &skyBoxBuffer, ImGuiInputTextFlags_ReadOnly);
                     // 에셋에 대한 드래그 앤 드롭 이벤트 처리
                     if (ImGui::BeginDragDropTarget())
                     {
