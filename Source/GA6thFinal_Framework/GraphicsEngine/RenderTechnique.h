@@ -17,6 +17,35 @@ public:
     virtual void Update(ID3D12GraphicsCommandList* commandList);
     virtual void Execute(ID3D12GraphicsCommandList* commandList);
 
+public:
+    template <typename T>
+    T* GetRenderTechnique()
+    {
+        for (auto& pass : _ownerScene->_techniques)
+        {
+            T* pointer = dynamic_cast<T*>(pass.get());
+            if (pointer)
+            {
+                return pointer;
+            }
+        }
+        return nullptr;
+    }
+
+    template <typename T>
+    T* GetRenderPass()
+    {
+        for (auto& pass : _renderPasses)
+        {
+            T* pointer = dynamic_cast<T*>(pass.get());
+            if (pointer)
+            {
+                return pointer;
+            }
+        }
+        return nullptr;
+    }
+
 protected:
     std::vector<std::unique_ptr<RenderPass>> _renderPasses;
     RenderScene*                             _ownerScene;

@@ -137,3 +137,14 @@ struct SSRPassProperty
     float MaxRayCount;
     float ScreenFade;
 };
+
+struct VolumetricFogProperty
+{
+    float Anisotropy;
+    float Density;
+    float Strength;
+    float BlendWithScene;
+    float BlendWithPrevFrame;
+    float CustomNear;
+    float CustomFar;
+};

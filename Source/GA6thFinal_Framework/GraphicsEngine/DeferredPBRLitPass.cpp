@@ -30,8 +30,8 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
     //"BaseColor", "Normal", "ORM", "Emissive", "Depth", "CustomDepth"
     const auto& renderTargetGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
 
-    auto shadowMapPass = GetRenderPass<ShadowMapPass>();
-    auto ssaoPass      = GetRenderPass<SSAOWritePass>();
+    auto shadowMapPass = _ownerTechnique->GetRenderPass<ShadowMapPass>();
+    auto ssaoPass      = _ownerTechnique->GetRenderPass<SSAOWritePass>();
 
     if (nullptr == shadowMapPass || nullptr == ssaoPass)
         return;

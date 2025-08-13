@@ -46,6 +46,17 @@ struct CascadeData
     float  CascadeSplits[MAX_CASCADES];
 };
 
+struct VolumetricFogData
+{
+    XMMATRIX PreViewProjection;
+    Vector4  CameraNearFar_FrameIndex_PreviousFrameBlend; // x=near, y=far, z=frameIndex, w=prevBlend
+    Vector4   VolumeSize;                                  // x=volX, y=volY, z=volZ
+    float    Anisotropy;
+    float    Density;
+    float    Strength;
+    float    ThicknessFactor;
+};
+
 struct NumLight
 {
     unsigned int Directional;

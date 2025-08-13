@@ -49,6 +49,20 @@ inline void SerializeSSRPassProperty(std::ostream& os, const SSRPassProperty& pr
     os << "        ScreenFade = " << prop.ScreenFade << "\n";
 }
 
+// VolumetricFogProperty를 문자열로 변환
+inline void SerializeVolumetricFogProperty(std::ostream& os, const VolumetricFogProperty& prop)
+{
+    os << "        Type = VolumetricFogProperty\n";
+    os << "        Anisotropy = " << prop.Anisotropy << "\n";
+    os << "        Density = " << prop.Density << "\n";
+    os << "        Strength = " << prop.Strength << "\n";
+    os << "        BlendWithScene = " << prop.BlendWithScene << "\n";
+    os << "        BlendWithPrevFrame = " << prop.BlendWithPrevFrame << "\n";
+    os << "        CustomNear = " << prop.CustomNear << "\n";
+    os << "        CustomFar = " << prop.CustomFar << "\n";
+}
+
+
 // 문자열에서 ShadowPassProperty를 복원
 inline void DeserializeShadowProperty(std::istream& is, ShadowPassProperty& prop)
 {
@@ -136,6 +150,31 @@ inline void DeserializeSSRPassProperty(std::istream& is, SSRPassProperty& prop)
     }
 }
 
+// 문자열에서 VolumetricFogProperty를 복원
+inline void DeserializeVolumetricFogProperty(std::istream& is, VolumetricFogProperty& prop)
+{
+    std::string line, key, equals;
+    while (std::getline(is, line) && line.find('}') == std::string::npos)
+    {
+        std::stringstream ss(line);
+        ss >> key >> equals;
+        if (key == "Anisotropy")
+            ss >> prop.Anisotropy;
+        else if (key == "Density")
+            ss >> prop.Density;
+        else if (key == "Strength")
+            ss >> prop.Strength;
+        else if (key == "BlendWithScene")
+            ss >> prop.BlendWithScene;
+        else if (key == "BlendWithPrevFrame")
+            ss >> prop.BlendWithPrevFrame;
+        else if (key == "CustomNear")
+            ss >> prop.CustomNear;
+        else if (key == "CustomFar")
+            ss >> prop.CustomFar;
+    }
+}
+
 inline void SaveRenderPassData(const std::string& filePath)
 {
 	std::filesystem::path path(filePath);
@@ -178,6 +217,10 @@ inline void SaveRenderPassData(const std::string& filePath)
             else if (property.type() == typeid(SSRPassProperty))
             {
                 SerializeSSRPassProperty(outFile, std::any_cast<const SSRPassProperty&>(property));
+            }
+            else if (property.type() == typeid(VolumetricFogProperty))
+            {
+                SerializeVolumetricFogProperty(outFile, std::any_cast<const VolumetricFogProperty&>(property));
             }
 			outFile << "    }\n";
 		}
@@ -246,6 +289,10 @@ inline void LoadRenderPassData(const std::string& filePath)
                         else if (name == "SSRPassProperty" && property.type() == typeid(SSRPassProperty))
                         {
                             DeserializeSSRPassProperty(inFile, std::any_cast<SSRPassProperty&>(property));
+                        }
+                        else if (name == "VolumetricFogProperty" && property.type() == typeid(VolumetricFogProperty))
+                        {
+                            DeserializeVolumetricFogProperty(inFile, std::any_cast<VolumetricFogProperty&>(property));
                         }
 					}
 				}
