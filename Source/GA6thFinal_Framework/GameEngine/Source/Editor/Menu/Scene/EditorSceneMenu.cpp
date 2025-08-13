@@ -71,48 +71,56 @@ void EditorSceneMenu::SceneSkyBoxEditPopup()
     {
         ImVec2 center = ImGui::GetMainViewport()->GetCenter();
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-        ImGui::Begin("Skybox Setting", &_isSceneSkyBoxEditPopup, ImGuiWindowFlags_AlwaysAutoResize);
+        ImGui::Begin("Skybox Setting", &_isSceneSkyBoxEditPopup);
         {
-            Scene* mainScene = UmSceneManager.GetMainScene();
-            if (mainScene)
+            size_t loadedSceneCount = UmSceneManager.LoadedSceneCount();
+            if (0 < loadedSceneCount)
             {
-                static std::string skyBoxBuffer = STR_NULL;
-                skyBoxBuffer = mainScene->_skyBox.ToPath().generic_string();
-                ImGui::InputText("Env", &skyBoxBuffer, ImGuiInputTextFlags_ReadOnly);
-                // 에셋에 대한 드래그 앤 드롭 이벤트 처리
-                if (ImGui::BeginDragDropTarget())
+                Scene* mainScene = UmSceneManager.GetMainScene();
+                if (mainScene)
                 {
-                    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
+                    static std::string skyBoxBuffer = STR_NULL;
+                    skyBoxBuffer                    = mainScene->_skyBox.ToPath().generic_string();
+                    ImGui::InputText("Env", &skyBoxBuffer, ImGuiInputTextFlags_ReadOnly);
+                    // 에셋에 대한 드래그 앤 드롭 이벤트 처리
+                    if (ImGui::BeginDragDropTarget())
                     {
-                        DragDropAsset::Data* data      = (DragDropAsset::Data*)payload->Data;
-                        const File::Path&    path      = data->GetPath();
-                        fs::path             extension = path.extension();
-                        if (extension == ".hdr")
+                        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
                         {
-                            UmSceneManager.SetSkyBox(data->GetGuid());
+                            DragDropAsset::Data* data      = (DragDropAsset::Data*)payload->Data;
+                            const File::Path&    path      = data->GetPath();
+                            fs::path             extension = path.extension();
+                            if (extension == ".hdr")
+                            {
+                                UmSceneManager.SetSkyBox(data->GetGuid());
+                            }
                         }
-                    }                
-                    ImGui::EndDragDropTarget();
-                }
-
-                static std::string skyIBLBuffer = STR_NULL;
-                skyIBLBuffer = mainScene->_skyIBL.ToPath().generic_string();
-                ImGui::InputText("IBL", &skyIBLBuffer, ImGuiInputTextFlags_ReadOnly);
-                // 에셋에 대한 드래그 앤 드롭 이벤트 처리
-                if (ImGui::BeginDragDropTarget())
-                {
-                    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
-                    {
-                        DragDropAsset::Data* data      = (DragDropAsset::Data*)payload->Data;
-                        const File::Path&    path      = data->GetPath();
-                        fs::path             extension = path.extension();
-                        if (extension == ".hdr")
-                        {
-                            UmSceneManager.SetSkyIBL(data->GetGuid());
-                        }
+                        ImGui::EndDragDropTarget();
                     }
-                    ImGui::EndDragDropTarget();
-                }
+
+                    static std::string skyIBLBuffer = STR_NULL;
+                    skyIBLBuffer                    = mainScene->_skyIBL.ToPath().generic_string();
+                    ImGui::InputText("IBL", &skyIBLBuffer, ImGuiInputTextFlags_ReadOnly);
+                    // 에셋에 대한 드래그 앤 드롭 이벤트 처리
+                    if (ImGui::BeginDragDropTarget())
+                    {
+                        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
+                        {
+                            DragDropAsset::Data* data      = (DragDropAsset::Data*)payload->Data;
+                            const File::Path&    path      = data->GetPath();
+                            fs::path             extension = path.extension();
+                            if (extension == ".hdr")
+                            {
+                                UmSceneManager.SetSkyIBL(data->GetGuid());
+                            }
+                        }
+                        ImGui::EndDragDropTarget();
+                    }
+                }           
+            }
+            else
+            {
+                ImGui::Text(u8"씬을 로드 해주세요."_c_str);
             }
         }
         ImGui::End();

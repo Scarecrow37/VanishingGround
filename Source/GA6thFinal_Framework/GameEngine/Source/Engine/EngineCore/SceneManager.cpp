@@ -1590,6 +1590,11 @@ void ESceneManager::OnFileRegistered(const File::Path& path)
             {
                 scene._skyIBL = sceneNode["SkyIBL"].as<std::string>();
             }
+            else
+            {
+                // SkyIBL 노드가 없던 구 버전 씬 파일은 skyBox를 IBL로
+                scene._skyIBL = scene._skyBox;
+            }
 
             std::string nodeGuid = sceneNode["Guid"].as<std::string>();
             if (nodeGuid != guid)
@@ -1674,6 +1679,11 @@ void ESceneManager::OnFileModified(const File::Path& path)
             if (node["SkyIBL"])
             {
                 scene._skyIBL = node["SkyIBL"].as<std::string>();
+            }
+            else
+            {
+                // SkyIBL 노드가 없던 구 버전 씬 파일은 skyBox를 IBL로
+                scene._skyIBL = scene._skyBox;
             }
         }
         catch (const YAML::BadConversion& ex)
