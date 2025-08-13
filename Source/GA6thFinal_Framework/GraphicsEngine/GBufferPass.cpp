@@ -223,8 +223,8 @@ void GBufferPass::InitShaderAndPSO()
 void GBufferPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, int shaderType, MeshType meshType)
 {
     UINT parameter[3]{0, MAX_BONE_MATRIX, 0};
-    auto parallaxMappingProperty =
-        std::any_cast<ParallaxMappingProperty>(_ownerScene->GetRenderPassProperty("G-BufferPass"));
+    const auto& parallaxMappingProperty =
+        std::any_cast<const ParallaxMappingProperty&>(_ownerScene->GetRenderPassProperty("G-BufferPass"));
 
     for (auto& [mesh, instanceID, customDepth] : _renderDatas[meshType])
     {
