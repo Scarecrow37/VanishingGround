@@ -71,7 +71,7 @@ void EditorSceneMenu::SceneSkyBoxEditPopup()
     {
         ImGuiViewport* viewPort = ImGui::GetMainViewport();
         ImVec2 center = viewPort->GetCenter();
-        ImVec2 size = viewPort->Size * 0.75f;
+        ImVec2 size = viewPort->Size * 0.3f;
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
         ImGui::SetNextWindowSize(size, ImGuiCond_Appearing);
         ImGui::Begin("Skybox Setting", &_isSceneSkyBoxEditPopup);
