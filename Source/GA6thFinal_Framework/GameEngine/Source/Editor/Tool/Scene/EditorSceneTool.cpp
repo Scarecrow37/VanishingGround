@@ -154,6 +154,7 @@ void EditorSceneTool::DragDropEvent()
             if (".hdr" == extension)
             {
                 UmSceneManager.SetSkyBox(path);
+                UmSceneManager.SetSkyIBL(path);
             }
         }
         ImGui::EndDragDropTarget();
