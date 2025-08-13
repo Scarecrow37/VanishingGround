@@ -36,6 +36,24 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
     if (nullptr == shadowMapPass || nullptr == ssaoPass)
         return;
 
+    D3D12_GPU_DESCRIPTOR_HANDLE brdf;
+    D3D12_GPU_DESCRIPTOR_HANDLE irradiance;
+    D3D12_GPU_DESCRIPTOR_HANDLE prefiltered;
+
+    if (_ownerScene->_skyBox->HasIBLTexture())
+    {
+        brdf        = _ownerScene->_skyBox->GetBrdfLUTSRV();
+        irradiance  = _ownerScene->_skyBox->GetIrradianceMapSRV();
+        prefiltered = _ownerScene->_skyBox->GetPrefilteredMapSRV();
+    }
+    else
+    {
+        auto defaultTexture = Global::resourceManager->LoadResource<Texture>("BlackTexture")->GetGPUHandle();
+        brdf                = defaultTexture;
+        irradiance          = defaultTexture;
+        prefiltered         = defaultTexture;
+    }
+
     commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_3_numLight"), 3, &_ownerScene->_numLight, 0);
     commandList->SetGraphicsRootConstantBufferView(_fx.GetRootParameterIndex("cameraData"), _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
     commandList->SetGraphicsRootConstantBufferView(_fx.GetRootParameterIndex("lightData"), _ownerScene->_lightBuffer->GetGPUVirtualAddress());

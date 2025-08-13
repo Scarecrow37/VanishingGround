@@ -48,7 +48,8 @@ public:
     void Finalize() const;
 
 public:
-    void             ResetSkyBox(std::string_view sceneName) const;
+    void             ResetEnvironmentSkyBox(std::string_view sceneName) const;
+    void             ResetIBLSkyBox(std::string_view sceneName) const;
     void             OnResize(UINT width, UINT height) const;
     void XM_CALLCONV DebugDraw3D(std::string_view sceneName, const BoundingSphere& sphere, FXMVECTOR color = DirectX::Colors::White) const;
     void XM_CALLCONV DebugDraw3D(std::string_view sceneName, const BoundingOrientedBox& obb, FXMVECTOR color = DirectX::Colors::White) const;

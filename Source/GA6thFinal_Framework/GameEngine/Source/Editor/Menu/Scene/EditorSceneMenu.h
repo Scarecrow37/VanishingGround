@@ -14,5 +14,7 @@ public:
 private:
     EditorSceneTool* _sceneTool = nullptr;
     bool _isSceneCameraPopUp = false;
+    bool _isSceneSkyBoxEditPopup = false;
     void SceneCameraPopUp();
+    void SceneSkyBoxEditPopup();
 };

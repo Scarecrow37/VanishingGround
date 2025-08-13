@@ -33,7 +33,7 @@ public:
     }
 
 private:
-    void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>& focusObject, GameObject*& outClickNode);
+    void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>& focusObject, GameObject*& outClickNode, bool isOpenFocusObject);
 
     virtual void OnStartGui() override;
 
@@ -56,6 +56,9 @@ private:
 
     //빈 공간 우클릭시
     void HierarchyRightClickEvent() const;
+
+    //하이러키 트리 그리기
+    void HierarchyDrawTreeNode();
 
     //키보드 이벤트
     void KeyboardEvent();

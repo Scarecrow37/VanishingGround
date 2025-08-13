@@ -9,9 +9,17 @@ bool Command::Hierarchy::FocusCommand::Execute()
     {   
         return false;
     }
-    Super::Execute();
-    EditorHierarchyTool::SetFocusObject(_newFocused);
-    EditorSceneTool::SetManipulateObject(_newFocused);
+
+    if (true == _newFocused.expired())
+    {
+        EditorInspectorTool::ResetFocusObject();
+    }
+    else
+    {
+        Super::Execute();
+        EditorHierarchyTool::SetFocusObject(_newFocused);
+        EditorSceneTool::SetManipulateObject(_newFocused);
+    }
     return true;
 }
 

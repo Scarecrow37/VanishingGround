@@ -284,9 +284,14 @@ void GraphicsCore::Flip() const
     _renderer->Flip();
 }
 
-void GraphicsCore::ResetSkyBox(const std::string_view sceneName) const
+void GraphicsCore::ResetEnvironmentSkyBox(std::string_view sceneName) const
 {
-    _renderer->ResetSkyBox(sceneName);
+    _renderer->ResetEnvironmentSkyBox(sceneName);
+}
+
+void GraphicsCore::ResetIBLSkyBox(std::string_view sceneName) const
+{
+    _renderer->ResetIBLSkyBox(sceneName);
 }
 
 void GraphicsCore::OnResize(const UINT width, const UINT height) const

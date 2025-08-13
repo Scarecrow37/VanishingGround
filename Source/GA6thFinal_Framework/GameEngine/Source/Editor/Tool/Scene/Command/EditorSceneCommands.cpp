@@ -220,9 +220,14 @@ bool Command::EditorScene::DuplicateCommand::Execute()
         destRoot->Name = GameObject::Helper::GenerateUniqueName(destName);
         _newFocused = destRoot->GetWeakPtr();
         Transform::ForeachBFS(destRoot->transform, [&](Transform* curr) 
-            { 
-                _destObjects.push_back(curr->gameObject->GetWeakPtr().lock()); 
-            });
+        { 
+            _destObjects.push_back(curr->gameObject->GetWeakPtr().lock()); 
+        });
+
+        if (nullptr != sourceRoot->transform->Parent)
+        {
+            destRoot->transform->SetParent(sourceRoot->transform->Parent, false);
+        }
     }
     else
     {
@@ -300,6 +305,11 @@ bool Command::EditorScene::PasteObjectCommand::Execute()
                     Transform::ForeachBFS(sourceRoot->transform, [&](Transform* curr) {
                         _destObjects.push_back(curr->gameObject->GetWeakPtr().lock());
                     });
+
+                    if (auto parent = EditorHierarchyTool::GetFocusObject().lock())
+                    {
+                        sourceRoot->transform->SetParent(parent->transform, false);
+                    }
                     _loadSuccess = true;
                 }
                 else

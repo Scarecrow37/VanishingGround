@@ -523,6 +523,20 @@ void ESceneManager::Engine::SetSceneSkyBoxPath(Scene& scene, std::string_view sk
     }
 }
 
+void ESceneManager::Engine::SetSceneIBLGuid(Scene& scene, const File::Guid& skyIBL) 
+{
+    scene._skyIBL = skyIBL;
+}
+
+void ESceneManager::Engine::SetSceneIBLPath(Scene& scene, std::string_view skyIBLPath) 
+{
+    File::Guid guid = UmFileSystem.GetGuidFromPath(skyIBLPath);
+    if (false == guid.IsNull())
+    {
+        SetSceneIBLGuid(scene, guid);
+    }
+}
+
 void ESceneManager::Engine::UpdateMatrix(GameObject* gameObject) 
 {
     gameObject->transform->UpdateMatrix();
@@ -666,7 +680,6 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
         _waitStartVec.clear();
         _lodedSceneList.clear();
         UmCommandManager.Clear();
-        SetRendererSkyBox(scene);
     }
     else
     {
@@ -906,6 +919,7 @@ void ESceneManager::ObjectsAddLoadScene()
             Scene* scene = &sceneIter->second;
             try
             {
+                SetRendererSkyBox(scene);              
                 DeserializeToGuid(_nextSceneGuid);
                 scene->_isLoaded = true;
                 scene->_isDirty  = false;
@@ -1049,6 +1063,8 @@ void ESceneManager::ObjectsDestroy()
     auto& [destroyComponentSet, destroyComponentQueue] = _destroyComponentsQueue;
     //OnDestroy 호출 도중 원본 큐 변형 방지를 위한 지연삭제
     _destroyComponentsTemp = destroyComponentQueue;
+    destroyComponentSet.clear();
+    destroyComponentQueue.clear();
     for (auto& destroyComponent : _destroyComponentsTemp)
     {
         // OnDestroy 대상 호출
@@ -1070,6 +1086,8 @@ void ESceneManager::ObjectsDestroy()
     auto& [destroyObjectSet, destroyObjectQueue] = _destroyObjectsQueue;
     // OnDestroy 호출 도중 원본 큐 변형 방지를 위한 지연삭제
     _destroyObjectTemp = destroyObjectQueue;
+    destroyObjectSet.clear();
+    destroyObjectQueue.clear();
     for (auto& destroyObject : _destroyObjectTemp)
     {
         if (_isPlay)
@@ -1116,12 +1134,8 @@ void ESceneManager::ObjectsDestroy()
         _runtimeObjects.pop_back();
     }
 
-    //파괴 큐 초기화
-    destroyComponentSet.clear();
-    destroyComponentQueue.clear();
+    //큐 초기화
     _destroyComponentsTemp.clear();
-    destroyObjectSet.clear();
-    destroyObjectQueue.clear();
     _destroyObjectTemp.clear();
 }
 
@@ -1239,7 +1253,7 @@ void ESceneManager::SetObjectOwnerScene(GameObject* object, std::string_view sce
 
 void ESceneManager::SetRendererSkyBox(Scene* scene) 
 {
-    // 스카이 박스 로드
+    // ENV 로드
     if (STR_NULL != scene->_skyBox)
     {
         bool loadSkyBox = false;
@@ -1248,8 +1262,8 @@ void ESceneManager::SetRendererSkyBox(Scene* scene)
             File::Guid prevGuid = UmFileSystem.GetGuidFromPath(_prevScene);
             if (false == prevGuid.IsNull())
             {
-                Scene& prevSccene = _scenesMap[prevGuid];
-                if (prevSccene._skyBox != scene->_skyBox)
+                Scene& prevScene = _scenesMap[prevGuid];
+                if (prevScene._skyBox != scene->_skyBox)
                 {
                     loadSkyBox = true;
                 }
@@ -1269,6 +1283,54 @@ void ESceneManager::SetRendererSkyBox(Scene* scene)
             File::Path path = scene->_skyBox.ToPath();
             if (false == path.IsNull())
             {
+                UmGraphics.SetEnvironmentSkyBox("Game", path.c_str());
+
+                if constexpr (IS_EDITOR)
+                {
+                    UmGraphics.SetEnvironmentSkyBox("Editor", path.c_str());
+                }
+            }
+        }
+    }
+    else
+    {
+        UmGraphics.ResetEnvironmentSkyBox("Game");
+        if constexpr (IS_EDITOR)
+        {
+            UmGraphics.ResetEnvironmentSkyBox("Editor");
+        }
+    }
+
+    // IBL 로드
+    if (STR_NULL != scene->_skyIBL)
+    {
+        bool loadSkyBox = false;
+        if (STR_NULL != _prevScene)
+        {
+            File::Guid prevGuid = UmFileSystem.GetGuidFromPath(_prevScene);
+            if (false == prevGuid.IsNull())
+            {
+                Scene& prevScene = _scenesMap[prevGuid];
+                if (prevScene._skyIBL != scene->_skyIBL)
+                {
+                    loadSkyBox = true;
+                }
+            }
+            else
+            {
+                loadSkyBox = true;
+            }
+        }
+        else
+        {
+            loadSkyBox = true;
+        }
+
+        if (loadSkyBox)
+        {
+            File::Path path = scene->_skyIBL.ToPath();
+            if (false == path.IsNull())
+            {
                 UmGraphics.SetIBLSkyBox("Game", path.c_str());
 
                 if constexpr (IS_EDITOR)
@@ -1280,10 +1342,10 @@ void ESceneManager::SetRendererSkyBox(Scene* scene)
     }
     else
     {
-        UmGraphics.ResetSkyBox("Game");
+        UmGraphics.ResetIBLSkyBox("Game");
         if constexpr (IS_EDITOR)
         {
-            UmGraphics.ResetSkyBox("Editor");
+            UmGraphics.ResetIBLSkyBox("Editor");
         }
     }
 }
@@ -1319,6 +1381,10 @@ YAML::Node ESceneManager::SerializeToYaml(const Scene& scene)
     if (false == targetScene._skyBox.ToPath().IsNull())
     {
         sceneNode["SkyBox"] = targetScene._skyBox.string();
+    }
+    if (false == targetScene._skyIBL.ToPath().IsNull())
+    {
+        sceneNode["SkyIBL"] = targetScene._skyIBL.string();
     }
 
     auto rootObjects = scene.GetRootGameObjects();
@@ -1407,6 +1473,33 @@ bool ESceneManager::SetSkyBox(const File::Path& path)
     }
 
     Engine::SetSceneSkyBoxGuid(*mainScene, guid);
+    UmGraphics.SetEnvironmentSkyBox("Game", path.c_str());
+
+    if constexpr (IS_EDITOR)
+    {
+        UmGraphics.SetEnvironmentSkyBox("Editor", path.c_str());
+    }
+
+    mainScene->IsDirty = true;
+
+    return true;
+}
+
+bool ESceneManager::SetSkyIBL(const File::Path& path)
+{
+    Scene* mainScene = GetMainScene();
+    if (nullptr == mainScene)
+    {
+        return false;
+    }
+
+    File::Guid guid = path.ToGuid();
+    if (true == guid.IsNull())
+    {
+        return false;
+    }
+
+    Engine::SetSceneIBLGuid(*mainScene, guid);
     UmGraphics.SetIBLSkyBox("Game", path.c_str());
 
     if constexpr (IS_EDITOR)
@@ -1493,6 +1586,16 @@ void ESceneManager::OnFileRegistered(const File::Path& path)
             {
                 scene._skyBox = sceneNode["SkyBox"].as<std::string>();
             }
+            if (sceneNode["SkyIBL"])
+            {
+                scene._skyIBL = sceneNode["SkyIBL"].as<std::string>();
+            }
+            else
+            {
+                // SkyIBL 노드가 없던 구 버전 씬 파일은 skyBox를 IBL로
+                scene._skyIBL = scene._skyBox;
+            }
+
             std::string nodeGuid = sceneNode["Guid"].as<std::string>();
             if (nodeGuid != guid)
             {
@@ -1572,6 +1675,15 @@ void ESceneManager::OnFileModified(const File::Path& path)
             if (node["SkyBox"])
             {
                 scene._skyBox = node["SkyBox"].as<std::string>();
+            }
+            if (node["SkyIBL"])
+            {
+                scene._skyIBL = node["SkyIBL"].as<std::string>();
+            }
+            else
+            {
+                // SkyIBL 노드가 없던 구 버전 씬 파일은 skyBox를 IBL로
+                scene._skyIBL = scene._skyBox;
             }
         }
         catch (const YAML::BadConversion& ex)
