@@ -69,8 +69,11 @@ void EditorSceneMenu::SceneSkyBoxEditPopup()
     namespace fs = std::filesystem;
     if (_isSceneSkyBoxEditPopup)
     {
-        ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+        ImGuiViewport* viewPort = ImGui::GetMainViewport();
+        ImVec2 center = viewPort->GetCenter();
+        ImVec2 size = viewPort->Size * 0.75f;
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+        ImGui::SetNextWindowSize(size, ImGuiCond_Appearing);
         ImGui::Begin("Skybox Setting", &_isSceneSkyBoxEditPopup);
         {
             size_t loadedSceneCount = UmSceneManager.LoadedSceneCount();
@@ -79,8 +82,10 @@ void EditorSceneMenu::SceneSkyBoxEditPopup()
                 Scene* mainScene = UmSceneManager.GetMainScene();
                 if (mainScene)
                 {
+                    ImGui::Text(u8"에셋 브라우저에서 hdr 파일을 드래그 드롭해 설정합니다."_c_str);
+                    ImGui::Separator();
                     static std::string skyBoxBuffer = STR_NULL;
-                    skyBoxBuffer                    = mainScene->_skyBox.ToPath().generic_string();
+                    skyBoxBuffer = mainScene->_skyBox.ToPath().generic_string();
                     ImGui::InputText("ENV", &skyBoxBuffer, ImGuiInputTextFlags_ReadOnly);
                     // 에셋에 대한 드래그 앤 드롭 이벤트 처리
                     if (ImGui::BeginDragDropTarget())
@@ -99,7 +104,7 @@ void EditorSceneMenu::SceneSkyBoxEditPopup()
                     }
 
                     static std::string skyIBLBuffer = STR_NULL;
-                    skyIBLBuffer                    = mainScene->_skyIBL.ToPath().generic_string();
+                    skyIBLBuffer = mainScene->_skyIBL.ToPath().generic_string();
                     ImGui::InputText("IBL", &skyIBLBuffer, ImGuiInputTextFlags_ReadOnly);
                     // 에셋에 대한 드래그 앤 드롭 이벤트 처리
                     if (ImGui::BeginDragDropTarget())
