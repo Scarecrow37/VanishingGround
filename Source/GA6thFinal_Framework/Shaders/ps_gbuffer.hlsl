@@ -1,5 +1,5 @@
 #include "CommonData.hlsli"
-
+#define PARALLAX_HEIGHT_SCALE_DIVISOR 200
 struct PSInput
 {
     float4 position : SV_POSITION;
@@ -142,7 +142,7 @@ PSOutput WriteGuBuffer(PSInput input)
 
             // 안전한 오프셋 공식: (xy / z) * scale
             float2 dirTS = normalize(viewDirTS.xy);
-            float scale = (bit32_1_parallaxProperty.HeightScale) / 200.f * (1.0f - ndotv); // 시선이 비스듬할수록 강해짐
+            float scale = (bit32_1_parallaxProperty.HeightScale) / PARALLAX_HEIGHT_SCALE_DIVISOR * (1.0f - ndotv); // 시선이 비스듬할수록 강해짐
             float2 parallaxOffset = (dirTS / max(viewDirTS.z, 1e-4f)) * scale;
 
             // seam 폭주 방지를 위한 클램프(필요 시 수치 조정)
@@ -163,7 +163,6 @@ PSOutput WriteGuBuffer(PSInput input)
 
     // 0. baseColor
     output.baseColor = textures[diffuseID].Sample(samLinear_wrap, parallaxUV);
-    output.baseColor.rgb += input.worldPosition.xyz * 0.0001f; // 디버깅용 ID offset 유지
 
     // 1. normal (TS→WS)
     float3 normalTS = textures[normalID].Sample(samLinear_wrap, parallaxUV).xyz;
