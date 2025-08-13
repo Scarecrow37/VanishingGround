@@ -20,10 +20,10 @@ struct PSOutput
     uint customDepth : SV_Target5;
 };
 
-#define DIFFUSE 0
-#define NORMAL 1
-#define ORM 2
-#define EMISSIVE 3
+#define DIFFUSE   0
+#define NORMAL    1
+#define ORM       2
+#define EMISSIVE  3
 
 struct Material
 {
@@ -33,136 +33,163 @@ struct Material
 StructuredBuffer<Material> material;
 Texture2D textures[];
 ConstantBuffer<ParallaxMappingData> bit32_1_parallaxProperty;
+
+// ---------------------- 유틸 ----------------------
+
+static const float EPSILON_POM = 1e-5f;
+
+// TBN 직교정규화: tangent를 normal에 대해 그램-슈미트, bitangent는 cross로 재구축
+void OrthonormalizeTBN(inout float3 T, inout float3 B, inout float3 N)
+{
+    N = normalize(N);
+    T = normalize(T - N * dot(T, N));
+    B = normalize(cross(N, T));
+}
+
+// 원래 코드의 POM 누적 (SampleGrad 유지)
 float2 CalculatePOMUVOffset(float2 parallaxOffset, float2 uv, int numSteps, uint ORMID)
 {
     float currentHeight = 0.0f;
     float stepSize = 1.0f / (float) numSteps;
     float prevHeight = 1.0f;
-    float nextHeight = 0.0f;
-    int stepIndex = 0;
+    float currentBound = 1.0f;
 
     float2 texOffsetPerStep = stepSize * parallaxOffset;
     float2 texCurrentOffset = uv;
-    float currentBound = 1.0;
-    float parallaxAmount = 0.0;
 
     float2 pt1 = 0;
     float2 pt2 = 0;
 
-    float2 texOffset2 = 0;
     float2 dx = ddx(uv);
     float2 dy = ddy(uv);
-    
+
     [loop]
-    while (stepIndex < numSteps)
+    for (int stepIndex = 0; stepIndex < numSteps; ++stepIndex)
     {
         texCurrentOffset -= texOffsetPerStep;
-        currentHeight = textures[ORMID].SampleGrad(samLinear_wrap, texCurrentOffset, dx, dy).a;
+
+        // 심을 넘을 수 있으므로 래핑 안전을 위해 수동 frac 적용
+        float2 sampleUV = frac(texCurrentOffset);
+
+        currentHeight = textures[ORMID].SampleGrad(samLinear_wrap, sampleUV, dx, dy).a;
         currentBound -= stepSize;
 
         if (currentHeight > currentBound)
         {
-            pt1 = float2(currentBound, currentHeight); // point from current height
-            pt2 = float2(currentBound + stepSize, prevHeight); // point from previous height
-
-            texOffset2 = texCurrentOffset - texOffsetPerStep;
-
-            stepIndex = numSteps + 1;
+            pt1 = float2(currentBound, currentHeight);
+            pt2 = float2(currentBound + stepSize, prevHeight);
+            break;
         }
-        else
-        {
-            stepIndex++;
-            prevHeight = currentHeight;
-        }
+        prevHeight = currentHeight;
     }
-   
-    //linear interpolation
+
+    // 선형 보간
     float delta2 = pt2.x - pt2.y;
     float delta1 = pt1.x - pt1.y;
     float diff = delta2 - delta1;
-      
-    if (diff == 0.0f)
-        parallaxAmount = 0.0f;
-    else
-        parallaxAmount = (pt1.x * delta2 - pt2.x * delta1) / diff;
-   
+
+    float parallaxAmount = (abs(diff) < EPSILON_POM) ? 0.0f : (pt1.x * delta2 - pt2.x * delta1) / diff;
     float2 vParallaxOffset = parallaxOffset * (1.0 - parallaxAmount);
-    return uv - vParallaxOffset;
+
+    // 심을 넘어가는 경우를 대비해 frac로 고정
+    return frac(uv - vParallaxOffset);
 }
-int GetPOMRayStepsCount(float3 worldPos, float3 normal)
+
+// 시선각 기반 스텝 수
+int GetPOMRayStepsCount(float3 worldPos, float3 N)
 {
     int minLayers = 8;
     int maxLayers = 32;
-    
-    int numLayers = (int) lerp(maxLayers, minLayers, dot(normalize(cameraData.Position.rgb - worldPos), normal));
-    return numLayers;
+    float ndotv = saturate(dot(normalize(cameraData.Position.xyz - worldPos), normalize(N)));
+    return (int) lerp(maxLayers, minLayers, ndotv);
 }
 
-float3 CalculateNormal(float3 sampledNormal, float3 tangent, float3 bitangent, float3 normal)
-{
-    sampledNormal = normalize(sampledNormal * 2.0 - 1.0);
-    float3x3 TBN = float3x3(tangent, bitangent, normal);
-    return normalize(mul(sampledNormal, TBN));
-}
+// ---------------------- 메인 ----------------------
 
 PSOutput WriteGuBuffer(PSInput input)
 {
     PSOutput output = (PSOutput) 0;
+
     uint diffuseID = material[objectData.ID].ID[DIFFUSE];
     uint normalID = material[objectData.ID].ID[NORMAL];
     uint ORMID = material[objectData.ID].ID[ORM];
     uint emissiveID = material[objectData.ID].ID[EMISSIVE];
-    
-    float2 parallaxUV = input.uv;
-    float3x3 TBN = float3x3(input.tangent, input.biTangent, input.normal);
-    float height = textures[ORMID].Sample(samLinear_wrap, input.uv).a;
-    int stepCount = 0;
-    if (height < 1.f)
-    {
-// parallax mapping start
-        float3 viewDirWorld = (cameraData.Position.xyz - input.worldPosition.xyz);
-        float3 TangentViewDir = mul(TBN, viewDirWorld);
-        float2 parallaxDir = normalize(TangentViewDir.xy);
-        float viewDirTSLength = length(TangentViewDir);
-        float parallaxLength = sqrt(viewDirTSLength * viewDirTSLength - TangentViewDir.z * TangentViewDir.z) / TangentViewDir.z;
-        float2 parallaxOffset = parallaxDir * parallaxLength * bit32_1_parallaxProperty.HeightScale;
 
-        stepCount = GetPOMRayStepsCount(input.worldPosition.xyz, input.normal);
-        parallaxUV = CalculatePOMUVOffset(parallaxOffset, input.uv, stepCount, ORMID);
-// parallax mapping end
+    // TBN 직교정규화 (심/왜곡 구간 안정화에 중요)
+    float3 T = input.tangent;
+    float3 B = input.biTangent;
+    float3 N = input.normal;
+    OrthonormalizeTBN(T, B, N);
+    float3x3 TBN = float3x3(T, B, N);
+
+    float2 parallaxUV = input.uv;
+
+    // 높이맵 미리 샘플 (원래 UV로): height==1은 평면 가정인 듯하니 동일 조건 유지
+    float height = textures[ORMID].Sample(samLinear_wrap, input.uv).a;
+
+    if (height < 1.0f)
+    {
+        // viewDir in TS
+        float3 viewDirWS = cameraData.Position.xyz - input.worldPosition.xyz;
+        float3 viewDirTS = mul(TBN, viewDirWS);
+
+        // 카메라가 뒤에서 보거나 z가 너무 작으면 POM 비활성
+        if (viewDirTS.z > 1e-4f)
+        {
+            // 시선각 기반 강도/스텝
+            int stepCount = GetPOMRayStepsCount(input.worldPosition.xyz, N);
+            float ndotv = saturate(dot(normalize(viewDirWS), N));
+
+            // 안전한 오프셋 공식: (xy / z) * scale
+            float2 dirTS = normalize(viewDirTS.xy);
+            float scale = (bit32_1_parallaxProperty.HeightScale) / 200.f * (1.0f - ndotv); // 시선이 비스듬할수록 강해짐
+            float2 parallaxOffset = (dirTS / max(viewDirTS.z, 1e-4f)) * scale;
+
+            // seam 폭주 방지를 위한 클램프(필요 시 수치 조정)
+            parallaxOffset = clamp(parallaxOffset, -0.25f, 0.25f);
+
+            parallaxUV = CalculatePOMUVOffset(parallaxOffset, input.uv, stepCount, ORMID);
+        }
+        else
+        {
+            // 뒤에서 보는 경우: POM 패스
+            parallaxUV = frac(parallaxUV);
+        }
+    }
+    else
+    {
+        parallaxUV = frac(parallaxUV);
     }
 
     // 0. baseColor
     output.baseColor = textures[diffuseID].Sample(samLinear_wrap, parallaxUV);
-    output.baseColor.rgb += input.worldPosition.xyz * 0.0001f;
-    
-    // 1. normal
-    float3 normal = textures[normalID].Sample(samLinear_wrap, parallaxUV).xyz;
-    normal = normalize(normal * 2.0 - 1.0);
-    normal = normalize(mul(normal, TBN));
-    output.normal = float4(normal, 1.f);
-    
-    //2. ORM
-    float ao = textures[ORMID].Sample(samLinear_wrap, parallaxUV).r;
-    float roughness = textures[ORMID].Sample(samLinear_wrap, parallaxUV).g;
-    float metallic = textures[ORMID].Sample(samLinear_wrap, parallaxUV).b;
-    output.orm = float4(ao, roughness, metallic, 1.f);
-    
-    //3. emissive
+    output.baseColor.rgb += input.worldPosition.xyz * 0.0001f; // 디버깅용 ID offset 유지
+
+    // 1. normal (TS→WS)
+    float3 normalTS = textures[normalID].Sample(samLinear_wrap, parallaxUV).xyz;
+    normalTS = normalize(normalTS * 2.0f - 1.0f);
+    float3 normalWS = normalize(mul(normalTS, TBN));
+    output.normal = float4(normalWS, 1.0f);
+
+    // 2. ORM
+    float4 ormSample = textures[ORMID].Sample(samLinear_wrap, parallaxUV);
+    output.orm = float4(ormSample.r, ormSample.g, ormSample.b, 1.0f);
+
+    // 3. emissive
     output.emissive = textures[emissiveID].Sample(samLinear_wrap, parallaxUV);
 
-    //4. depth
+    // 4. depth (clip-space z 그대로 저장하던 기존 로직 유지)
+    // 필요 시: LinearizeDepth(input.position.z, near, far)로 교체 가능
     output.depth = input.position.z;
-    
-    //5. customDepth
+
+    // 5. customDepth
     output.customDepth = objectData.CustomDepth;
+
     return output;
 }
 
 PSOutput ps_main(PSInput input)
 {
-    PSOutput output = (PSOutput) 0;
-    output = WriteGuBuffer(input);
-
-    return output;
+    return WriteGuBuffer(input);
 }
+

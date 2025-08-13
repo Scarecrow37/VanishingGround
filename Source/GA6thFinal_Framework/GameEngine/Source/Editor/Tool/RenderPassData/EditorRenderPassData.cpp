@@ -60,7 +60,7 @@ void EditSSRProperty(std::any& property)
 void EditParallaxMappingProperty(std::any& property)
 {
     auto& parallaxProps = std::any_cast<ParallaxMappingProperty&>(property);
-    ImGui::DragFloat("HeightScale", &parallaxProps.HeightScale, 0.001f, 0.0f, 1.0f);
+    ImGui::DragFloat("HeightScale", &parallaxProps.HeightScale, 0.001f, 0.0f, 5.f);
 }
 void EditorRenderPassData::OnFrameRender()
 {
