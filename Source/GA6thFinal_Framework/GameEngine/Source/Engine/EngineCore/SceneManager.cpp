@@ -1262,8 +1262,8 @@ void ESceneManager::SetRendererSkyBox(Scene* scene)
             File::Guid prevGuid = UmFileSystem.GetGuidFromPath(_prevScene);
             if (false == prevGuid.IsNull())
             {
-                Scene& prevSccene = _scenesMap[prevGuid];
-                if (prevSccene._skyBox != scene->_skyBox)
+                Scene& prevScene = _scenesMap[prevGuid];
+                if (prevScene._skyBox != scene->_skyBox)
                 {
                     loadSkyBox = true;
                 }
@@ -1294,15 +1294,15 @@ void ESceneManager::SetRendererSkyBox(Scene* scene)
     }
     else
     {
-        UmGraphics.ResetSkyBox("Game");
+        UmGraphics.ResetEnvironmentSkyBox("Game");
         if constexpr (IS_EDITOR)
         {
-            UmGraphics.ResetSkyBox("Editor");
+            UmGraphics.ResetEnvironmentSkyBox("Editor");
         }
     }
 
     // IBL 로드
-    if (STR_NULL != scene->_skyBox)
+    if (STR_NULL != scene->_skyIBL)
     {
         bool loadSkyBox = false;
         if (STR_NULL != _prevScene)
@@ -1310,7 +1310,6 @@ void ESceneManager::SetRendererSkyBox(Scene* scene)
             File::Guid prevGuid = UmFileSystem.GetGuidFromPath(_prevScene);
             if (false == prevGuid.IsNull())
             {
-                Scene& prevSccene = _scenesMap[prevGuid];
                 Scene& prevScene = _scenesMap[prevGuid];
                 if (prevScene._skyIBL != scene->_skyIBL)
                 {
@@ -1343,10 +1342,10 @@ void ESceneManager::SetRendererSkyBox(Scene* scene)
     }
     else
     {
-        UmGraphics.ResetSkyBox("Game");
+        UmGraphics.ResetIBLSkyBox("Game");
         if constexpr (IS_EDITOR)
         {
-            UmGraphics.ResetSkyBox("Editor");
+            UmGraphics.ResetIBLSkyBox("Editor");
         }
     }
 }
@@ -1591,6 +1590,11 @@ void ESceneManager::OnFileRegistered(const File::Path& path)
             {
                 scene._skyIBL = sceneNode["SkyIBL"].as<std::string>();
             }
+            else
+            {
+                // SkyIBL 노드가 없던 구 버전 씬 파일은 skyBox를 IBL로
+                scene._skyIBL = scene._skyBox;
+            }
 
             std::string nodeGuid = sceneNode["Guid"].as<std::string>();
             if (nodeGuid != guid)
@@ -1675,6 +1679,11 @@ void ESceneManager::OnFileModified(const File::Path& path)
             if (node["SkyIBL"])
             {
                 scene._skyIBL = node["SkyIBL"].as<std::string>();
+            }
+            else
+            {
+                // SkyIBL 노드가 없던 구 버전 씬 파일은 skyBox를 IBL로
+                scene._skyIBL = scene._skyBox;
             }
         }
         catch (const YAML::BadConversion& ex)
