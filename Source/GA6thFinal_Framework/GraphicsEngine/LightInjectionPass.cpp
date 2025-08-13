@@ -28,7 +28,8 @@ void LightInjectionPass::Initialize(RenderScene* ownerScene, RenderTechnique* ow
 
 void LightInjectionPass::Update(ID3D12GraphicsCommandList* commandList) 
 {
-    VolumetricFogData fogData;
+    //VolumetricFogData fogData;
+    // VolumetricFogData
 }
 
 void LightInjectionPass::Begin(ID3D12GraphicsCommandList* commandList) 
@@ -57,7 +58,8 @@ void LightInjectionPass::Draw(ID3D12GraphicsCommandList* commandList)
                                                _volumTech->GetPrevVoxelTexture()->GetSRVHandle());
     commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("VoxelWriteTexture"),
                                                _volumTech->GetCurrVoxelTexture()->GetUAVHandle());
-
+    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("ShadowMap"),
+                                               shadowpass->GetShadowMapSRV());
     
 }
 
