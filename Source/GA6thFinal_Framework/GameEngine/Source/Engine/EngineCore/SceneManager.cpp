@@ -1262,8 +1262,8 @@ void ESceneManager::SetRendererSkyBox(Scene* scene)
             File::Guid prevGuid = UmFileSystem.GetGuidFromPath(_prevScene);
             if (false == prevGuid.IsNull())
             {
-                Scene& prevSccene = _scenesMap[prevGuid];
-                if (prevSccene._skyBox != scene->_skyBox)
+                Scene& prevScene = _scenesMap[prevGuid];
+                if (prevScene._skyBox != scene->_skyBox)
                 {
                     loadSkyBox = true;
                 }
@@ -1302,7 +1302,7 @@ void ESceneManager::SetRendererSkyBox(Scene* scene)
     }
 
     // IBL 로드
-    if (STR_NULL != scene->_skyBox)
+    if (STR_NULL != scene->_skyIBL)
     {
         bool loadSkyBox = false;
         if (STR_NULL != _prevScene)
@@ -1310,7 +1310,6 @@ void ESceneManager::SetRendererSkyBox(Scene* scene)
             File::Guid prevGuid = UmFileSystem.GetGuidFromPath(_prevScene);
             if (false == prevGuid.IsNull())
             {
-                Scene& prevSccene = _scenesMap[prevGuid];
                 Scene& prevScene = _scenesMap[prevGuid];
                 if (prevScene._skyIBL != scene->_skyIBL)
                 {
