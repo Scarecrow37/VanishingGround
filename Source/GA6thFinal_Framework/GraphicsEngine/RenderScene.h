@@ -25,7 +25,8 @@ public:
 
 public:
     void SetCamera(std::shared_ptr<Camera> camera) { _camera = camera; }
-    void SetSkyBox(std::wstring_view path);
+    void SetEnvironmentSkyBox(std::wstring_view path);
+    void SetIBLSkyBox(std::wstring_view path);
 
 public:
     void InitializeRenderScene();
@@ -40,7 +41,8 @@ public:
     void Execute();
 
 public:
-    void ResetSkyBox();
+    void ResetEnvironmentSkyBox();
+    void ResetIBLSkyBox();
 
 private:
     void UpdateGlobal();
@@ -70,9 +72,9 @@ public:
     CommandSet _commandSet;
 
     // Frame Resource
-    std::vector<std::unique_ptr<FrameResource>> _frameResources;    
+    std::vector<std::unique_ptr<FrameResource>> _frameResources;
     std::vector<LightData>                      _lightDatas;
-    std::vector<XMMATRIX>                       _worldMatrices;
+    std::vector<MatrixData>                     _matrices;
     std::vector<BoneMatrices>                   _boneMatrices;
     std::vector<MaterialID>                     _materialIDs;
     std::vector<XMMATRIX>                       _uiMatrices;

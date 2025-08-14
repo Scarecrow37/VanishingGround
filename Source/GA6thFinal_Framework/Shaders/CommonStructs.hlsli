@@ -7,6 +7,12 @@
 
 #define MAX_CASCADES 4
 
+struct MatrixData
+{
+    matrix World;
+    matrix InverseTranspose;
+};
+
 struct DirectionalLight
 {
     float3 Color;
@@ -90,4 +96,8 @@ struct CascadeData
     float CascadeSplits[MAX_CASCADES];
 };
 
+struct ParallaxMappingData
+{
+    float HeightScale;
+};
 #endif

@@ -17,7 +17,7 @@ public:
     void SetActive(const bool* isActive) { _isActive = isActive; }
     void SetDestroy();
 
-private:
+protected:
     std::vector<bool*> _isDestroyeds;
     const bool*        _isActive{nullptr};
 };

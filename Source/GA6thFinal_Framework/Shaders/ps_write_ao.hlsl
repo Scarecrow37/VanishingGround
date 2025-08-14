@@ -1,5 +1,5 @@
 #include "CommonData.hlsli"
-
+#include "Function.hlsli"
 static const float3 SSAOKernel[16] =
 {
     float3(0.587, 0.245, 0.423), float3(-0.348, 0.378, 0.671),
@@ -31,43 +31,29 @@ Texture2D normalMap;
 Texture2D depthMap;
 ConstantBuffer<SSAOProperty> bit32_5_ssaoProperty;
 
-float3 ReconstructViewPos(float2 uv, float depth)
-{
-    float2 ndc = uv * 2.0f - 1.0f; // NDC [-1, 1]
-    float4 clipPos = float4(ndc, depth, 1.0f);
-    float4 viewPos = mul(cameraData.ProjectionInverse, clipPos);
-    return viewPos.xyz / viewPos.w;
-}
-
-float2 ProjectToUV(float3 viewPos)
-{
-    float4 clipPos = mul(cameraData.Projection, float4(viewPos, 1.0f));
-    float2 ndc = clipPos.xy / clipPos.w;
-    return ndc * 0.5f + 0.5f;
-}
-
 float ps_main(PSInput input) : SV_TARGET
 {
     float depth = depthMap.SampleLevel(samLinear_wrap, input.uv, 0).r;
     SSAOProperty property = bit32_5_ssaoProperty;
-    clip(depth - property.threshold);
     
-    float3 normal = normalize(normalMap.SampleLevel(samLinear_wrap, input.uv, 0).xyz);
+    if (depth < property.threshold)
+        return 1.0f;
 
+    float3 normal = normalize(normalMap.SampleLevel(samLinear_wrap, input.uv, 0).xyz);
     float3 viewPos = ReconstructViewPos(input.uv, depth);
 
-    // Tangent basis from normal
     float3 up = abs(normal.z) < 0.999 ? float3(0, 0, 1) : float3(0, 1, 0);
     float3 tangent = normalize(cross(up, normal));
     float3 bitangent = cross(normal, tangent);
     float3x3 TBN = float3x3(tangent, bitangent, normal);
 
     float occlusion = 0.0f;
-    float radius = property.radius/100.f;
+    float radius = property.radius / 100.f;
+
     [unroll]
     for (int i = 0; i < 16; ++i)
     {
-        float3 sampleOffset = mul(TBN, SSAOKernel[i]) * radius;
+        float3 sampleOffset = mul(SSAOKernel[i], TBN) * radius;
         float3 samplePosVS = viewPos + sampleOffset;
 
         float2 sampleUV = ProjectToUV(samplePosVS);
@@ -78,13 +64,15 @@ float ps_main(PSInput input) : SV_TARGET
         float3 sampleNormal = normalize(normalMap.SampleLevel(samLinear_wrap, sampleUV, 0).xyz);
         float3 sampleViewPos = ReconstructViewPos(sampleUV, sampleDepth);
 
+        float3 offsetVec = sampleViewPos - viewPos;
+        float dist = length(offsetVec);
         float angle = max(dot(normal, sampleNormal), 0.0f);
-        float depthDiff = samplePosVS.z - sampleViewPos.z;
 
-        if (depthDiff > 0.0f && depthDiff < radius)
+        if (dist < radius)
         {
-            float weight = exp(-depthDiff * property.falloff);
-            occlusion += saturate(weight * angle);
+            float weight = exp(-dist * property.falloff);
+            float rangeCheck = smoothstep(0.0f, 1.0f, radius / (dist + 1e-5)); // soft range filter
+            occlusion += saturate(weight * angle) * rangeCheck;
         }
     }
 

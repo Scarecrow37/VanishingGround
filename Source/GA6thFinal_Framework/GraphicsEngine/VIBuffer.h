@@ -16,6 +16,7 @@ public:
 
 public:
 	void Initialize(const VIBuffer::Descriptor& descriptor);
+    void Initialize(ID3D12GraphicsCommandList* commandList, const VIBuffer::Descriptor& descriptor);
 	void DrawIndexedInstanced(ID3D12GraphicsCommandList* commandList, UINT instanceCount = 1);
     void MakeAccelerationBuffer(
     ID3D12Device5* device,

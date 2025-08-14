@@ -18,7 +18,7 @@ struct VSOutput
     float2 uv            : TEXCOORD;
 };
 
-StructuredBuffer<matrix> worldMatrices;
+StructuredBuffer<MatrixData> matrices;
 StructuredBuffer<matrix> boneMatrices;
 
 VSOutput vs_main(VSInput input)
@@ -31,8 +31,8 @@ VSOutput vs_main(VSInput input)
     boneTransform       += mul(input.blendWeights.z, boneMatrices[instanceID * shadowData.Offset + input.blendIndices.z]);
     boneTransform       += mul(input.blendWeights.w, boneMatrices[instanceID * shadowData.Offset + input.blendIndices.w]);
 
-    matrix worldTransform = mul(boneTransform, worldMatrices[instanceID]);
-
+    matrix worldTransform = mul(boneTransform, matrices[instanceID].World);
+    
     VSOutput output = (VSOutput) 0;
     
     output.position = mul(input.position, worldTransform);

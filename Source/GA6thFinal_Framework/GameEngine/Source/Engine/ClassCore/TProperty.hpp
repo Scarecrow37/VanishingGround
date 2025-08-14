@@ -1,7 +1,10 @@
-﻿//프로퍼티 사용시 1회 포함
+﻿// 프로퍼티 사용시 1회 포함
 #define USING_PROPERTY(class_name)                                                             \
 using property_class_type = class_name;                                                                           
 
+// 프로퍼티의 GETTER을 정의합니다.
+// type : 프로퍼티 맴버 타입
+// property_name : 맴버 이름
 #define GETTER(type, property_name)                                                            \
 struct property_name##_property_getter_struct                                                  \
 {                                                                                              \
@@ -13,7 +16,10 @@ struct property_name##_property_getter_struct                                   
     }                                                                                          \
 };                                                                                             \
 type property_name##_property_getter()                                         
-                                                                                               
+ 
+// 프로퍼티의 SETTER을 정의합니다.
+// type : 프로퍼티 맴버 타입
+// property_name : 맴버 이름
 #define SETTER(type, property_name)                                                            \
 struct property_name##_property_setter_struct                                                  \
 {                                                                                              \
@@ -26,14 +32,22 @@ struct property_name##_property_setter_struct                                   
 };                                                                                             \
 void property_name##_property_setter(const std::remove_cvref_t<type>& value)
 
+// GET 함수만 존재하는 프로퍼티를 정의합니다.
+// type : 프로퍼티 맴버 타입
+// property_name : 맴버 이름
 #define GETTER_ONLY(type, property_name)                                                       \
 using property_name##_property_setter_struct = property_void_type;                             \
 GETTER(type, property_name)               
 
+// SET 함수만 존재하는 프로퍼티를 정의합니다.
+// type : 프로퍼티 맴버 타입
+// property_name : 맴버 이름
 #define SETTER_ONLY(type, property_name)                                                       \
 using property_name##_property_getter_struct = property_void_type;                             \
 SETTER(type, property_name)   
 
+// 프로퍼티를 선언합니다. GETTER, SETTER가 정의된 프로퍼티의 이름을 넣어 프로퍼티 맴버를 선언합니다.
+// property_name : 맴버 이름
 #define PROPERTY(property_name)                                                                \
 TProperty<property_class_type, property_name##_property_getter_struct, property_name##_property_setter_struct> property_name{this};                \
 using property_name##_property_t = TProperty<property_class_type, property_name##_property_getter_struct, property_name##_property_setter_struct>;                                                                                                               

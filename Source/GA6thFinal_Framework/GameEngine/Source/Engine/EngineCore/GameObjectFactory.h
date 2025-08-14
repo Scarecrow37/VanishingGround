@@ -52,6 +52,7 @@ public:
     struct InstanceIDManager
     {
         // 게임 오브젝트의 인스턴스 ID를 부여하기 위한 함수입니다.
+        // 해당 ID는 씬 매니저의 런타임 오브젝트 백터의 index로 사용됩니다.
         int CreateInstanceID();
 
         // SceneManager에서 오브젝트를 Destroy 할때 Instance ID를 반납하기 위한 함수입니다.
@@ -173,8 +174,10 @@ private:
    //오브젝트 계층구조를 포함한 Yaml 직렬화 데이터로 GameObject들을 만들어서 반환합니다.
    std::vector<std::shared_ptr<GameObject>> MakeObjectsGraphToYaml(YAML::Node* pObjectNode, bool useResource = false, YAML::Node* pSceneObjectNode = nullptr);
 
+   //엔진에 존재하는 컴포넌트를 등록하기 위한 함수입니다.
    void RegisterGameObjects();
 
+   //프리팹을 맵에서 제거합니다.
    void ErasePrefabItem(const File::Guid& guid);
 
    private:

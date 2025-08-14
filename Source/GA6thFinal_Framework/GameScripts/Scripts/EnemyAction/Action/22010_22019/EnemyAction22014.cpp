@@ -12,11 +12,12 @@ namespace EnemyAction
             _animator->BeginBuildOverrideAnimation();
             {
                 _animator->ClearOverrideAnimations();
-                bool result = _animator->PushOverrideAnimation("Attack0", true, [](const AnimationData& data) { return data.IsEnd(); });
+                _animator->SetNextAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE | ANIMATION_FLAG_USE_BLEND);
+                bool result = _animator->PushBackOverrideAnimation("Attack0");
                 if (result)
                 {
+                    _animator->SetCurrentAnimationPopCondition([](const AnimationData& data) { return data.IsEnd(); }); // 애니메이션이 끝날 경우 Pop
                     _animator->SetCurrentAnimationPopCallback([this]() { SetActionEnd(); });
-                    _animator->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
                 }
                 else
                 {

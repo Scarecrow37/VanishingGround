@@ -22,13 +22,13 @@
 #include "EditorDrawTechnique.h"
 #include "FontTechnique.h"
 #include "PBRLitTechnique.h"
+#include "SSRTechnique.h"
 #include "ParticleRenderTechnique.h"
 #include "RayTracingTechnique.h"
 #include "SkyBoxRenderTechnique.h"
 #include "UITechnique.h"
-#include "SSAOTechnique.h"
 
-Renderer::Renderer() {}
+Renderer::Renderer() : _totalTime{0.f} {}
 
 Renderer::~Renderer() {}
 
@@ -102,6 +102,31 @@ void Renderer::SetCurrentScene(std::string_view sceneName)
     _currentSceneName = sceneName;
 }
 
+void Renderer::SetEnvironmentSkyBox(std::string_view renderSceneName, std::wstring_view filePath) const
+{
+    auto iter = _renderScenes.find(renderSceneName.data());
+
+    if (iter == _renderScenes.end())
+    {
+        GRAPHICS_ASSERT(false, L"Renderer::SetEnvironmentSkyBox : Render Scene Not Registered.");
+    }
+
+    auto& scene = iter->second;
+    scene->SetEnvironmentSkyBox(filePath);
+}
+
+void Renderer::SetIBLSkyBox(std::string_view renderSceneName, std::wstring_view filePath) const
+{
+    auto iter = _renderScenes.find(renderSceneName.data());
+    if (iter == _renderScenes.end())
+    {
+        GRAPHICS_ASSERT(false, L"Renderer::SetIBLSkyBox: Render Scene Not Registered.");
+    }
+
+    auto& scene = iter->second;
+    scene->SetIBLSkyBox(filePath);
+}
+
 void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag flag)
 {
     auto iter = _renderScenes.find(sceneName.data());
@@ -136,10 +161,11 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
     {
         scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
     }
-    if (RenderTechniqueFlag::SSAO_TECH & flag)
+    if (RenderTechniqueFlag::SSR_TECH & flag)
     {
-        scene->AddRenderTechnique(std::make_unique<SSAOTechnique>());
+        scene->AddRenderTechnique(std::make_unique<SSRTechnique>());
     }
+
     if (RenderTechniqueFlag::PARTICLE_TECH & flag)
     {
         scene->AddRenderTechnique(std::make_unique<ParticleRenderTechnique>());
@@ -217,30 +243,28 @@ void Renderer::RegisterRenderQueue(std::string_view sceneName, FontRenderer* com
     scene->RegisterOnRenderQueue(component);
 }
 
-void Renderer::SetSkyBox(std::string_view sceneName, std::wstring_view path)
+void Renderer::ResetEnvironmentSkyBox(std::string_view sceneName)
 {
     auto iter = _renderScenes.find(sceneName.data());
-
     if (iter == _renderScenes.end())
     {
-        GRAPHICS_ASSERT(false, L"Renderer::RegisterRenderQueue : Render Scene Not Registered.");
+        GRAPHICS_ASSERT(false, L"Renderer::ResetEnvironmentSkyBox : Render Scene Not Registered.");
     }
 
     auto& scene = iter->second;
-    scene->SetSkyBox(path);
+    scene->ResetEnvironmentSkyBox();
 }
 
-void Renderer::ResetSkyBox(std::string_view sceneName) 
+void Renderer::ResetIBLSkyBox(std::string_view sceneName)
 {
     auto iter = _renderScenes.find(sceneName.data());
-
     if (iter == _renderScenes.end())
     {
-        GRAPHICS_ASSERT(false, L"Renderer::RegisterRenderQueue : Render Scene Not Registered.");
+        GRAPHICS_ASSERT(false, L"Renderer::ResetIBLSkyBox : Render Scene Not Registered.");
     }
 
     auto& scene = iter->second;
-    scene->ResetSkyBox();
+    scene->ResetIBLSkyBox();
 }
 
 void Renderer::Initialize()
@@ -278,10 +302,9 @@ void Renderer::Initialize()
     _frameQuad     = quadModel->GetMeshes().front().get();
 }
 
-void Renderer::Update()
-{
-    Global::device->ClearBackBuffer(D3D12_CLEAR_FLAG_DEPTH, { 0.5f, 0.5f, 0.5f, 1.f });
-
+void Renderer::Update(const float deltaTime)
+{    
+    _totalTime += deltaTime;
     for (auto& renderScene : _renderScenes)
     {
         renderScene.second->UpdateRenderScene();
@@ -294,7 +317,7 @@ void Renderer::Render()
     {
         renderScene.second->Execute();
     }   
-
+    
     RenderToBackBuffer();
 }
 
@@ -308,6 +331,8 @@ void Renderer::Flip()
 
 void Renderer::RenderToBackBuffer()
 {
+    Global::device->ClearBackBuffer(D3D12_CLEAR_FLAG_DEPTH, {0.5f, 0.5f, 0.5f, 1.f});
+
     if (_currentSceneName.empty())
     {
         return;
@@ -319,8 +344,8 @@ void Renderer::RenderToBackBuffer()
         GRAPHICS_ASSERT(false, L"Renderer::DrawCurrentSceneToBackBuffer: Current scene not found.");
         return;
     }
-
-    auto& scene = iter->second;    
+    
+    auto& scene = iter->second;
 
     auto commandList = Global::device->GetCommandList();
     auto backBuffer  = Global::device->GetBackBufferHandle();

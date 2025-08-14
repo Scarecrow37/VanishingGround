@@ -1,21 +1,12 @@
 ﻿#pragma once
 #include <TurnSystem/TurnAction/TurnAction.h>
+#include <TurnSystem/TurnAction/TurnActionEnums.h>
 
 //연격 확인 조건
 class ChainCondition : public TurnActionCondition
 {
     USING_PROPERTY(ChainCondition)
 public:
-    // 대상
-    enum class Target
-    {
-        SELF,
-        PLAYER,
-        ENEMY,
-        ALL_ENEMIES,
-        ALL
-    };
-
     enum class Operator
     {
         GREATER_EQUAL, //이상(≥A)
@@ -35,10 +26,10 @@ public:
 protected:
     REFLECT_PROPERTY()
     REFLECT_FIELDS_BEGIN(TurnActionCondition)
-    Target   Target   = Target::SELF;
-    Operator Operator = Operator::GREATER_EQUAL;
-    int      Value1   = 0;
-    int      Value2   = 0;
+    TurnTarget Target   = TurnTarget::SELF;
+    Operator   Operator = Operator::GREATER_EQUAL;
+    int        Value1   = 0;
+    int        Value2   = 0;
     REFLECT_FIELDS_END(ChainCondition)
 
     void SerializedReflectEvent() override;
@@ -47,6 +38,5 @@ protected:
 private:
     std::string _conditionInfo;
     void        UpdateConditionInfo();
-    void        GetTargetList(std::vector<class CharacterBase*>& targetList);
 
 };

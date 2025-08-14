@@ -39,6 +39,23 @@ inline void SerializeSSAOPassProperty(std::ostream& os, const SSAOPassProperty& 
     os << "        Threshold = " << prop.Threshold << "\n";
 }
 
+// SSRPassProperty를 문자열로 변환
+inline void SerializeSSRPassProperty(std::ostream& os, const SSRPassProperty& prop)
+{
+    os << "        Type = SSRPassProperty\n";
+    os << "        MaxThickness = " << prop.MaxThickness   << "\n";
+    os << "        StepSize = " << prop.StepSize  << "\n";
+    os << "        MaxRayCount = " << prop.MaxRayCount << "\n";
+    os << "        ScreenFade = " << prop.ScreenFade << "\n";
+}
+
+// ParallaxMappingProperty를 문자열로 변환
+inline void SerializeParallaxMappingProperty(std::ostream& os, const ParallaxMappingProperty& prop)
+{
+    os << "        Type = ParallaxMappingProperty\n";
+    os << "        HeightScale = " << prop.HeightScale << "\n";
+}
+
 // 문자열에서 ShadowPassProperty를 복원
 inline void DeserializeShadowProperty(std::istream& is, ShadowPassProperty& prop)
 {
@@ -107,6 +124,38 @@ inline void DeserializeSSAOPassProperty(std::istream& is, SSAOPassProperty& prop
     }
 }
 
+// 문자열에서 SSRPassProperty를 복원
+inline void DeserializeSSRPassProperty(std::istream& is, SSRPassProperty& prop)
+{
+    std::string line, key, equals;
+    while (std::getline(is, line) && line.find('}') == std::string::npos)
+    {
+        std::stringstream ss(line);
+        ss >> key >> equals;
+        if (key == "MaxThickness")
+            ss >> prop.MaxThickness;
+        else if (key == "StepSize")
+            ss >> prop.StepSize;
+        else if (key == "MaxRayCount")
+            ss >> prop.MaxRayCount;
+        else if (key == "ScreenFade")
+            ss >> prop.ScreenFade;
+    }
+}
+
+// 문자열에서 ParallaxMappingProperty를 복원
+inline void DeserializeParallaxMappingProperty(std::istream& is, ParallaxMappingProperty& prop)
+{
+    std::string line, key, equals;
+    while (std::getline(is, line) && line.find('}') == std::string::npos)
+    {
+        std::stringstream ss(line);
+        ss >> key >> equals;
+        if (key == "HeightScale")
+            ss >> prop.HeightScale;
+    }
+}
+
 inline void SaveRenderPassData(const std::string& filePath)
 {
 	std::filesystem::path path(filePath);
@@ -146,7 +195,14 @@ inline void SaveRenderPassData(const std::string& filePath)
             {
                 SerializeSSAOPassProperty(outFile, std::any_cast<const SSAOPassProperty&>(property));
             }
-
+            else if (property.type() == typeid(SSRPassProperty))
+            {
+                SerializeSSRPassProperty(outFile, std::any_cast<const SSRPassProperty&>(property));
+            }
+            else if (property.type() == typeid(ParallaxMappingProperty))
+            {
+                SerializeParallaxMappingProperty(outFile, std::any_cast<const ParallaxMappingProperty&>(property));
+            }
 			outFile << "    }\n";
 		}
 		outFile << "}\n\n";
@@ -210,6 +266,14 @@ inline void LoadRenderPassData(const std::string& filePath)
                         else if (name == "SSAOPassProperty" && property.type() == typeid(SSAOPassProperty))
                         {
                             DeserializeSSAOPassProperty(inFile, std::any_cast<SSAOPassProperty&>(property));
+                        }
+                        else if (name == "SSRPassProperty" && property.type() == typeid(SSRPassProperty))
+                        {
+                            DeserializeSSRPassProperty(inFile, std::any_cast<SSRPassProperty&>(property));
+                        }
+                        else if (name == "ParallaxMappingProperty" && property.type() == typeid(ParallaxMappingProperty))
+                        {
+                            DeserializeParallaxMappingProperty(inFile, std::any_cast<ParallaxMappingProperty&>(property));
                         }
 					}
 				}

@@ -7,9 +7,9 @@ public:
     virtual ~Resource() = default;
 
 public:
-    const D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle() const { return _handle.CPU; }
-    const D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle() const { return _handle.GPU; }
-    const UINT                        GetID() const { return _ID; }
+    const D3D12_CPU_DESCRIPTOR_HANDLE& GetCPUHandle() const { return _handle.CPU; }
+    const D3D12_GPU_DESCRIPTOR_HANDLE& GetGPUHandle() const { return _handle.GPU; }
+    const UINT& GetID() const { return _ID; }
 
 public:
     virtual void LoadResource(const std::filesystem::path& filePath) = 0;

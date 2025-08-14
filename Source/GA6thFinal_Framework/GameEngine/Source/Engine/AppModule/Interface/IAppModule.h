@@ -12,9 +12,23 @@ struct IAppModule
     IAppModule() = default;
     virtual ~IAppModule() = default;
 
+    /// <summary>
+    /// 먼저 호출되는 초기화 함수입니다. 
+    /// </summary>
     virtual void PreInitialize() = 0;
+
+    /// <summary>
+    /// 다른 모듈들의 PreInitialize이 전부 끝난 뒤 호출되는 초기화 함수입니다.
+    /// </summary>
     virtual void ModuleInitialize() = 0;
 
+    /// <summary>
+    /// 먼저 호출되는 정리 함수입니다.
+    /// </summary>
     virtual void PreUnInitialize() = 0;
+
+    /// <summary>
+    /// 다른 모듈들의 PreUnInitialize가 전부 끝난 뒤 호출되는 정리 함수입니다.
+    /// </summary>
     virtual void ModuleUnInitialize() = 0;
 };
