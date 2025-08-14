@@ -41,13 +41,27 @@ void EditToneMappingProperty(std::any& property)
 void EditSSAOProperty(std::any& property)
 {
     auto& ssaoProps = std::any_cast<SSAOPassProperty&>(property);
-    ImGui::DragFloat("Radius", &ssaoProps.Radius, 0.0001f, 0.f, 1.f);
+    ImGui::DragFloat("Radius", &ssaoProps.Radius, 0.01f, 0.f, 50.f);
     ImGui::DragFloat("FallOff", &ssaoProps.Falloff, 0.001f, 0.f, 5.0f);
     ImGui::DragFloat("StrengthFactor", &ssaoProps.StrengthFactor, 0.01f, 0.1f, 5.f);
     ImGui::DragFloat("ContrastFactor", &ssaoProps.ContrastFactor, 0.01f, 0.1f, 5.f);
     ImGui::DragFloat("Threshold", &ssaoProps.Threshold, 0.0005f, 0.f, 1.f);
 }
 
+void EditSSRProperty(std::any& property)
+{
+    auto& ssrProps = std::any_cast<SSRPassProperty&>(property);
+    ImGui::DragFloat("MaxThickness", &ssrProps.MaxThickness, 0.01f, 0.01f, 10.f);
+    ImGui::DragFloat("StepSize", &ssrProps.StepSize, 0.01f, 0.01f, 10.f);
+    ImGui::DragFloat("MaxRayCount", &ssrProps.MaxRayCount, 1.f, 32.f, 200.f);
+    ImGui::DragFloat("ScreenFade", &ssrProps.ScreenFade, 0.01f, 0.01f, 10.f);
+}
+
+void EditParallaxMappingProperty(std::any& property)
+{
+    auto& parallaxProps = std::any_cast<ParallaxMappingProperty&>(property);
+    ImGui::DragFloat("HeightScale", &parallaxProps.HeightScale, 0.001f, 0.0f, 5.f);
+}
 void EditorRenderPassData::OnFrameRender()
 {
     auto& renderPassProperties = UmGraphics.GetRenderPassProperties();
@@ -80,7 +94,14 @@ void EditorRenderPassData::OnFrameRender()
                         {
                             EditSSAOProperty(property);
                         }
-
+                        else if (property.type() == typeid(SSRPassProperty))
+                        {
+                            EditSSRProperty(property);
+                        }
+                        else if (property.type() == typeid(ParallaxMappingProperty))
+                        {
+                            EditParallaxMappingProperty(property);
+                        }
                         ImGui::TreePop();
                     }
 

@@ -74,7 +74,7 @@ void DXRGBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
 
     commandList->SetGraphicsRootDescriptorTable(_fxStaticMesh.GetRootParameterIndex("textures"), resource);
     commandList->SetGraphicsRootConstantBufferView(_fxStaticMesh.GetRootParameterIndex("cameraData"), cameraData);
-    frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxStaticMesh.GetRootParameterIndex("worldMatrices"),
+    frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxStaticMesh.GetRootParameterIndex("matrices"),
                                     commandList);
     frameResource->SetFrameResource(FrameResourceType::MATERIAL, _fxStaticMesh.GetRootParameterIndex("material"),
                                     commandList);
@@ -94,7 +94,7 @@ void DXRGBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootDescriptorTable(_fxSkeletalMesh.GetRootParameterIndex("textures"), resource);
     commandList->SetGraphicsRootConstantBufferView(_fxSkeletalMesh.GetRootParameterIndex("cameraData"), cameraData);
     frameResource->SetFrameResource(FrameResourceType::TRANSFORM,
-                                    _fxSkeletalMesh.GetRootParameterIndex("worldMatrices"), commandList);
+                                    _fxSkeletalMesh.GetRootParameterIndex("matrices"), commandList);
     frameResource->SetFrameResource(FrameResourceType::BONE_MATRICES,
                                     _fxSkeletalMesh.GetRootParameterIndex("boneMatrices"), commandList);
     frameResource->SetFrameResource(FrameResourceType::MATERIAL, _fxSkeletalMesh.GetRootParameterIndex("material"),
@@ -138,8 +138,7 @@ void DXRGBufferPass::Update(ID3D12GraphicsCommandList* commandList)
 
             BoundingOrientedBox boundingOrientedBox;
             const auto&         meshBoundingBox = meshInfo.Mesh->GetBoundingBox();
-            meshBoundingBox.Transform(boundingOrientedBox,
-                                      XMMatrixTranspose(_ownerScene->_worldMatrices[meshInfo.InstanceID]));
+            meshBoundingBox.Transform(boundingOrientedBox, XMMatrixTranspose(_ownerScene->_matrices[meshInfo.InstanceID].World));
 
             if (!cameraFrustum.Intersects(boundingOrientedBox))
             {

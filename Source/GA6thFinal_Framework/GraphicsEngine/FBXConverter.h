@@ -20,6 +20,7 @@ public:
 public:
     void ImportModel(const std::filesystem::path& filePath, std::shared_ptr<Model> model);
     void ImportModel(const std::filesystem::path& filePath, Model* model);
+    void ImportModel(ID3D12GraphicsCommandList* commandList, const std::filesystem::path& filePath, Model* model);
     void ExportModel(const std::filesystem::path& filePath);
 
 private:
@@ -47,4 +48,6 @@ private:
 
     unsigned int                                 _boneCount;
     bool                                         _isStaticMesh;
+
+    ID3D12GraphicsCommandList*                   _commandList;
 };

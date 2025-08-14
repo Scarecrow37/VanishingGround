@@ -19,7 +19,8 @@ public:
 
 public:
     void SetCamera(std::string_view renderSceneName, std::shared_ptr<Camera> camera) const;
-    void SetSkyBox(std::string_view renderSceneName, std::wstring_view filePath) const;
+    void SetEnvironmentSkyBox(std::string_view renderSceneName, std::wstring_view filePath) const;
+    void SetIBLSkyBox(std::string_view renderSceneName, std::wstring_view filePath) const;
     void SetCurrentScene(std::string_view sceneName) const;
     void SyncGlobalVariable();
 
@@ -32,7 +33,7 @@ public:
     void RegisterComponent(std::string_view renderSceneName, Light* component) const;
 
 public:
-    void LoadResource(std::wstring_view filePath, MeshRenderer* component) const;
+    void LoadResource(std::wstring_view filePath, MeshRenderer* component, const std::function<void()>& callback);
     void LoadResource(std::wstring_view filePath, SpriteRenderer* component) const;
     void LoadResource(std::wstring_view filePath, FontRenderer* component) const;
     void LoadTextureResource(std::wstring_view filePath, class ParticleEmitter* component) const;
@@ -41,13 +42,14 @@ public:
 public:
     void Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel feature, bool isEditorMode);
     void UpdateAnimation(const float deltaTime) const;
-    void Update(const float deltaTime) const;
+    void Update(const float deltaTime);
     void Render() const;
     void Flip() const;
     void Finalize() const;
 
 public:
-    void             ResetSkyBox(std::string_view sceneName) const;
+    void             ResetEnvironmentSkyBox(std::string_view sceneName) const;
+    void             ResetIBLSkyBox(std::string_view sceneName) const;
     void             OnResize(UINT width, UINT height) const;
     void XM_CALLCONV DebugDraw3D(std::string_view sceneName, const BoundingSphere& sphere, FXMVECTOR color = DirectX::Colors::White) const;
     void XM_CALLCONV DebugDraw3D(std::string_view sceneName, const BoundingOrientedBox& obb, FXMVECTOR color = DirectX::Colors::White) const;
@@ -59,20 +61,23 @@ public:
     void XM_CALLCONV DebugDraw2D(std::string_view sceneName, FXMVECTOR pointA, FXMVECTOR pointB, FXMVECTOR pointC, GXMVECTOR pointD, HXMVECTOR color = DirectX::Colors::White) const;
     void XM_CALLCONV DebugDraw2D(std::string_view sceneName, FXMVECTOR pointA, FXMVECTOR pointB, FXMVECTOR color = DirectX::Colors::White) const;
 
+private:
+    class Device*                     _device;
+    class Renderer*                   _renderer;
+    class CommandController*          _commandController;
+    class DXResourceManager*          _dxResourceManager;
+    class MultiRenderTargetManager*   _multiRenderTargetManager;
+    class ResourceManager*            _resourceManager;
+    class ViewManager*                _viewManager;
+    class AnimationCore*              _animationCore;
+    class LightCore*                  _lightCore;
+    class ParticleManager*            _particleManager;
+    class DebugDrawCore*              _debugDrawCore;
+    class RenderPassDatas*            _renderPassDatas;
+    class ModuleManager*              _moduleManager;
+    class PipelineStateManager*       _pipelineStateManager;
+    class ThreadPool*                 _threadPool;
 
 private:
-    class Device*                   _device;
-    class Renderer*                 _renderer;
-    class CommandController*        _commandController;
-    class DXResourceManager*        _dxResourceManager;
-    class MultiRenderTargetManager* _multiRenderTargetManager;
-    class ResourceManager*          _resourceManager;
-    class ViewManager*              _viewManager;
-    class AnimationCore*            _animationCore;
-    class LightCore*                _lightCore;
-    class ParticleManager*          _particleManager;
-    class DebugDrawCore*            _debugDrawCore;
-    class RenderPassDatas*          _renderPassDatas;
-    class ModuleManager*            _moduleManager;
-    class PipelineStateManager*     _pipelineStateManager;
+    std::queue<std::function<void()>> _resourceLoadQueue;
 };

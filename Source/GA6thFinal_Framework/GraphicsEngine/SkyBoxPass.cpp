@@ -23,7 +23,7 @@ void SkyBoxPass::Begin(ID3D12GraphicsCommandList* commandList)
 
 void SkyBoxPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
-    bool isActive = _skyBox->HasTexture();
+    bool isActive = _skyBox->HasEnvTexture();
 
     if (isActive)
     {

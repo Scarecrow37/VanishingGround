@@ -16,6 +16,7 @@ Texture2D ormMap;
 Texture2D emissiveMap;
 Texture2D depthMap;
 Texture2D customDepthMap;
+Texture2D<float> SSAOMap;
 
 //Texture2D textures[];
 //
@@ -45,6 +46,7 @@ float4 ps_main(PSInput input) : SV_Target
     float roughness = orm.g;
     float metallic = orm.b;
     
+    float ssao = SSAOMap.SampleLevel(samLinear_wrap, input.uv,0).r;
     float3 viewPos = cameraData.Position.xyz;
     
     float4 NDC = float4(input.uv * 2.0 - 1, depth, 1.0);
@@ -72,7 +74,7 @@ float4 ps_main(PSInput input) : SV_Target
     
     float3 directLighting = float3(0, 0, 0);
     float3 ambientLighting = 0;
-    float3 ambient = CalculateIBL(normal, V, irradianceMap, prefilteredMap, brdfLUT, albedo, roughness, metallic) * ao;
+    float3 ambient = CalculateIBL(normal, V, irradianceMap, prefilteredMap, brdfLUT, albedo, roughness, metallic);
     
     //Directional Lights
     for (uint i = 0; i < numLight.Directional; i++)
@@ -98,7 +100,6 @@ float4 ps_main(PSInput input) : SV_Target
         directLighting += CalculateSpot(light, normal, V, albedo, metallic, roughness, worldPosition);
     }
 
-    float3 color = directLighting + ambientLighting + emissive;
-    
+    float3 color = directLighting + (ambientLighting * ssao) + emissive;
     return float4(color, 1.0);
 }

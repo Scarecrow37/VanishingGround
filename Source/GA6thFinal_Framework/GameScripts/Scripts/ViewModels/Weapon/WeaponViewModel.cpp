@@ -74,7 +74,7 @@ struct GetWeaponBackground
         return backgroundGuid;
     }
 };
-struct GetIconGuid
+struct GetIconGuid2
 {
     enum class IconType : char
     {
@@ -129,7 +129,7 @@ struct GetWeaponDescription
 {
     std::pair<std::wstring, std::wstring> operator()(const int weaponId) const
     {
-        constexpr GetIconGuid               getIconGuid;
+        constexpr GetIconGuid2               getIconGuid;
         std::pair<std::wstring, std::wstring> description{};
         switch (weaponId)
         {
@@ -140,7 +140,7 @@ struct GetWeaponDescription
             description.second += L"<Description>"
                                   L"<Text color=\"#ffffff\">영구적으로</Text>"
                                   L"<Image guid=\"" +
-                                  getIconGuid(GetIconGuid::IconType::CRITICAL) +
+                                  getIconGuid(GetIconGuid2::IconType::CRITICAL) +
                                   L"\"/>"
                                   L"<Text color=\"#ffffff\">+1</Text>"
                                   L"</Description>";
@@ -152,7 +152,7 @@ struct GetWeaponDescription
             description.second += L"<Description>"
                                   L"<Text color=\"#ffffff\">적</Text>"
                                   L"<Image guid=\"" +
-                                  getIconGuid(GetIconGuid::IconType::STUN) +
+                                  getIconGuid(GetIconGuid2::IconType::STUN) +
                                   L"\"/>"
                                   L"<Text color=\"#ffffff\">1 부여</Text>"
                                   L"</Description>";
@@ -165,11 +165,11 @@ struct GetWeaponDescription
                                  L"</Description>";
             description.second += L"<Description>"
                                   L"<Image guid=\"" +
-                                  getIconGuid(GetIconGuid::IconType::HIT) +
+                                  getIconGuid(GetIconGuid2::IconType::HIT) +
                                   L"\"/>"
                                   L"<Text color=\"#ffffff\">+8</Text>"
                                   L"<Image guid=\"" +
-                                  getIconGuid(GetIconGuid::IconType::CRITICAL) +
+                                  getIconGuid(GetIconGuid2::IconType::CRITICAL) +
                                   L"\"/>"
                                   L"<Text color=\"#ffffff\">+10</Text>"
                                   L"</Description>";
@@ -181,7 +181,7 @@ struct GetWeaponDescription
             description.second += L"<Description>"
                                   L"<Text color=\"#ffffff\">적</Text>"
                                   L"<Image guid=\"" +
-                                  getIconGuid(GetIconGuid::IconType::BLEEDING) +
+                                  getIconGuid(GetIconGuid2::IconType::BLEEDING) +
                                   L"\"/>"
                                   L"<Text color=\"#ffffff\">1 부여</Text>"
                                   L"</Description>";

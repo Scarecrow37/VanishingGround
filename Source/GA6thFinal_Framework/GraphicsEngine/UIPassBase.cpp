@@ -48,7 +48,7 @@ void UIPassBase::Draw(ID3D12GraphicsCommandList* commandList)
     auto  resource               = Global::viewManager->GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
     auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
 
-    frameResource->SetFrameResource(FrameResourceType::UI_TRANSFORM, _shader->GetRootParameterIndex("worldMatrices"), commandList);
+    frameResource->SetFrameResource(FrameResourceType::UI_TRANSFORM, _shader->GetRootParameterIndex("matrices"), commandList);
     frameResource->SetFrameResource(FrameResourceType::UI_MATERIAL, _shader->GetRootParameterIndex("material"), commandList);
 
     commandList->SetGraphicsRootShaderResourceView(_shader->GetRootParameterIndex("IDs"), _instanceIDBuffer->GetGPUVirtualAddress());

@@ -14,7 +14,7 @@ using namespace Command::Hierarchy;
 static EditorSceneTool* staticEditorScenTool = nullptr;
 
 void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>& focusObject,
-                                            GameObject*& outClickNode)
+                                            GameObject*& outClickNode, bool isOpenFocusObject)
 {
     EditorSceneTool* sceneTool = _editorSceneTool;
     auto TreeClickEvent = [&node, &outClickNode, &sceneTool]() {
@@ -211,7 +211,7 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
     {
         ImGui::PushID(&node);
         bool isPushStyle = PushFocusStyle();
-        if (static_isOpenFocusObj)
+        if (isOpenFocusObject)
         {
             Transform* nodeRoot  = node.Root;
             nodeRoot             = nodeRoot ? nodeRoot : &node;
@@ -227,10 +227,22 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
                 {
                     if (&focusObject->transform != &node)
                     {
-                        ImGui::SetNextItemOpen(true);
+                        //부모 노드가 맞는지 확인
+                        Transform* focusParent = focusObject->transform->Parent;
+                        while (focusParent)
+                        {
+                            //부모 노드면 아이템 Open 후 종료.
+                            if (focusParent == &node)
+                            {                           
+                                ImGui::SetNextItemOpen(true);
+                                break;
+                            }
+                            focusParent = focusParent->Parent;
+                        }
                     }
                     else
                     {
+                        isOpenFocusObject     = false;
                         static_isOpenFocusObj = false;
                     }
                 }
@@ -252,7 +264,7 @@ void EditorHierarchyTool::TransformTreeNode(Transform& node, const std::shared_p
                 Transform* child = node.GetChild(i);
                 if (child)
                 {
-                    TransformTreeNode(*child, focusObject, outClickNode);
+                    TransformTreeNode(*child, focusObject, outClickNode, isOpenFocusObject);
                 }
             }
             ImGui::TreePop();
@@ -577,6 +589,118 @@ void EditorHierarchyTool::HierarchyRightClickEvent() const
     }
 }
 
+void EditorHierarchyTool::HierarchyDrawTreeNode() 
+{
+    std::shared_ptr<GameObject> focusObject = static_hierarchyFocusObjWeak.lock();
+    ImVec2 size = ImGui::GetContentRegionAvail();
+    size.y -= 25;
+    ImGui::BeginChild("##E8DA04FA-E996-4718-8E2F-3138772C5A32", size);
+    {
+        HierarchyRightClickEvent();
+        const auto& scenes = engineCore->SceneManager.GetLoadedScenes();
+        if (false == scenes.empty())
+        {
+            for (auto& pScene : scenes)
+            {
+                ImGui::PushID(pScene);
+                {
+                    Scene& scene = *pScene;
+                    if (scene.isLoaded == false)
+                        continue;
+
+                    std::string sName = scene.Name;
+                    bool        isCollapsingOpen =
+                        ImGui::CollapsingHeader(sName.c_str(), ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen);
+                    if (ImGui::BeginPopupContextItem("RightClick"))
+                    {
+                        if (true == _isPlay)
+                        {
+                            ImGui::BeginDisabled();
+                        }
+
+                        if (ImGui::MenuItem("Save Scene"))
+                        {
+                            SaveScene(scene);
+                            ImGui::CloseCurrentPopup();
+                        }
+
+                        if (ImGui::MenuItem("Unload Scene"))
+                        {
+                            std::string path = scene.Path;
+                            UmSceneManager.UnloadScene(path);
+                            ImGui::CloseCurrentPopup();
+                        }
+
+                        if (true == _isPlay)
+                        {
+                            ImGui::EndDisabled();
+                        }
+                        ImGui::EndPopup();
+                    }
+                    if (true == scene.IsDirty)
+                    {
+                        ImGui::SameLine();
+                        ImGui::Text("*");
+                    }
+                    if (isCollapsingOpen)
+                    {
+                        auto rootObjects = scene.GetRootGameObjects();
+                        for (auto& obj : rootObjects)
+                        {
+                            GameObject* clickNode = nullptr;
+                            TransformTreeNode(obj->transform, focusObject, clickNode, static_isOpenFocusObj);
+                            if (clickNode)
+                            {
+                                auto& oldWp = EditorHierarchyTool::static_hierarchyFocusObjWeak;
+                                auto  newWp = clickNode->GetWeakPtr();
+                                if (false == EditorInspectorTool::IsLockFocus() &&
+                                    false == EditorInspectorTool::IsFocusObject(newWp))
+                                {
+                                    UmCommandManager.Do<Command::Hierarchy::FocusCommand>(oldWp, newWp);
+                                }
+                            }
+                        }
+                    }
+                }
+                ImGui::PopID();
+            }
+        }
+        if (_isPlay)
+        {
+            Scene* pDontDestroyOnLoad = UmSceneManager.GetDontDestroyOnLoadScene();
+            if (nullptr != pDontDestroyOnLoad)
+            {
+                bool isCollapsingOpen =
+                    ImGui::CollapsingHeader("DontDestroyOnLoad", ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen);
+                if (isCollapsingOpen)
+                {
+                    auto rootObjects = pDontDestroyOnLoad->GetRootGameObjects();
+                    for (auto& obj : rootObjects)
+                    {
+                        ImGui::PushID(obj.get());
+                        {
+                            GameObject* clickNode = nullptr;
+                            TransformTreeNode(obj->transform, focusObject, clickNode, static_isOpenFocusObj);
+                            if (clickNode)
+                            {
+                                auto& oldWp = EditorHierarchyTool::static_hierarchyFocusObjWeak;
+                                auto  newWp = clickNode->GetWeakPtr();
+                                if (false == EditorInspectorTool::IsLockFocus() &&
+                                    false == EditorInspectorTool::IsFocusObject(newWp))
+                                {
+                                    UmCommandManager.Do<Command::Hierarchy::FocusCommand>(oldWp, newWp);
+                                }
+                            }
+                        }
+                        ImGui::PopID();
+                    }
+                }
+            }
+        }
+        ImGui::EndChild();
+    }
+}
+
 void EditorHierarchyTool::KeyboardEvent()
 {
     if (Global::editorModule->IsFocusAreaEmpty())
@@ -642,6 +766,12 @@ void EditorHierarchyTool::KeyboardEvent()
                 }
             }
 
+            if (ImGui::IsKeyPressed(ImGuiKey_Escape, false))
+            {
+                const std::weak_ptr<GameObject>& old = EditorHierarchyTool::GetFocusObject();
+                std::weak_ptr<GameObject> empty;
+                UmCommandManager.Do<Command::Hierarchy::FocusCommand>(old, empty);
+            }
         }
     }
 }
@@ -659,124 +789,11 @@ void EditorHierarchyTool::DeserializedReflectEvent() {}
 
 void EditorHierarchyTool::OnFrameRender()
 {
-    std::shared_ptr<GameObject> focusObject = static_hierarchyFocusObjWeak.lock();
-    _window                                 = ImGui::GetCurrentWindow();
-    HierarchyRightClickEvent();
-    HierarchyDropEvent();
-    KeyboardEvent();
-
-    ImVec2 size = ImGui::GetContentRegionAvail();
-    size.y -= 25;
-    ImGui::BeginChild("##E8DA04FA-E996-4718-8E2F-3138772C5A32", size);
-    HierarchyRightClickEvent();
-    const auto& scenes = engineCore->SceneManager.GetLoadedScenes();
-    if (false == scenes.empty())
-    {
-        for (auto& pScene : scenes)
-        {
-            ImGui::PushID(pScene);
-            {
-                Scene& scene = *pScene;
-                if (scene.isLoaded == false)
-                    continue;
-
-                std::string sName = scene.Name;
-                bool        isCollapsingOpen =
-                    ImGui::CollapsingHeader(sName.c_str(), ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen);
-                if (ImGui::BeginPopupContextItem("RightClick"))
-                {
-                    if (true == _isPlay)
-                    {
-                        ImGui::BeginDisabled();
-                    }
-
-                    if (ImGui::MenuItem("Save Scene"))
-                    {
-                        SaveScene(scene);
-                        ImGui::CloseCurrentPopup();
-                    }
-
-                    if (ImGui::MenuItem("Unload Scene"))
-                    {
-                        std::string path = scene.Path;
-                        UmSceneManager.UnloadScene(path);
-                        ImGui::CloseCurrentPopup();
-                    }
-
-                    if (true == _isPlay)
-                    {
-                        ImGui::EndDisabled();
-                    }
-                    ImGui::EndPopup();
-                }
-                if (true == scene.IsDirty)
-                {
-                    ImGui::SameLine();
-                    ImGui::Text("*");
-                }
-                if (isCollapsingOpen)
-                {
-                    auto rootObjects = scene.GetRootGameObjects();
-                    for (auto& obj : rootObjects)
-                    {
-                        ImGui::PushID(obj.get());
-                        {
-                            GameObject* clickNode = nullptr;
-                            TransformTreeNode(obj->transform, focusObject, clickNode);
-                            if (clickNode)
-                            {
-                                auto& oldWp = EditorHierarchyTool::static_hierarchyFocusObjWeak;
-                                auto  newWp = clickNode->GetWeakPtr();
-                                if (false == EditorInspectorTool::IsLockFocus() &&
-                                    false == EditorInspectorTool::IsFocusObject(newWp))
-                                {
-                                    UmCommandManager.Do<Command::Hierarchy::FocusCommand>(oldWp, newWp);
-                                }
-                            }
-                        }
-                        ImGui::PopID();
-                    }
-                }
-            }
-            ImGui::PopID();
-        }
-        static_isOpenFocusObj = false;
-    }
-
-    if (_isPlay)
-    {
-        Scene* pDontDestroyOnLoad = UmSceneManager.GetDontDestroyOnLoadScene();
-        if (nullptr != pDontDestroyOnLoad)
-        {
-            bool isCollapsingOpen =
-                ImGui::CollapsingHeader("DontDestroyOnLoad", ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen);
-            if (isCollapsingOpen)
-            {
-                auto rootObjects = pDontDestroyOnLoad->GetRootGameObjects();
-                for (auto& obj : rootObjects)
-                {
-                    ImGui::PushID(obj.get());
-                    {
-                        GameObject* clickNode = nullptr;
-                        TransformTreeNode(obj->transform, focusObject, clickNode);
-                        if (clickNode)
-                        {
-                            auto& oldWp = EditorHierarchyTool::static_hierarchyFocusObjWeak;
-                            auto  newWp = clickNode->GetWeakPtr();
-                            if (false == EditorInspectorTool::IsLockFocus() &&
-                                false == EditorInspectorTool::IsFocusObject(newWp))
-                            {
-                                UmCommandManager.Do<Command::Hierarchy::FocusCommand>(oldWp, newWp);
-                            }
-                        }
-                    }
-                    ImGui::PopID();
-                }
-            }
-        }
-    }
-
-    ImGui::EndChild();
+    _window = ImGui::GetCurrentWindow();
+    HierarchyRightClickEvent(); // 하이러키 영역에 대한 Imgui Right Click 이벤트를 설정합니다.
+    HierarchyDropEvent();       // 하이러키 영역에 대한 Imgui Drag Drop 이벤트를 설정합니다.
+    HierarchyDrawTreeNode();    // 씬 오브젝트들의 계층 구조를 Tree Node로 Draw 합니다.
+    KeyboardEvent();            // 오브젝트를 추가하는 기능이 있어서 Draw Tree Node 이후에 실행해야 문제가 안생김.
 }
 
 void EditorHierarchyTool::OnFrameEnd() 

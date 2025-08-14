@@ -14,6 +14,8 @@ public:
     void Draw(ID3D12GraphicsCommandList* commandList) override;
     void End(ID3D12GraphicsCommandList* commandList) override;
 
+    D3D12_GPU_DESCRIPTOR_HANDLE GetAOTexture() const { return _renderTarget->GetSRVHandle(); }
+
 private:
     void                               InitShaderAndPSO();
     FX<GE::VS::QUAD, GE::PS::WRITE_AO> _fxSSAOWrite;

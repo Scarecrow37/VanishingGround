@@ -17,8 +17,10 @@ namespace ReflectHelper
 
 // reflect-cpp 라이브러리 docs https://rfl.getml.com/docs-readme/#the-basics
 // reflect-cpp github https://github.com/getml/reflect-cpp
+// reflect-helper wiki https://github.com/Scarecrow37/VanishingGround/wiki/%5BEngine%5D-ReflectHelper
 
-// 자동 직렬화 및 REFLECT_PROPERTY를 사용하기 위한 클래스
+// 자동 직렬화 및 REFLECT_PROPERTY를 사용하기 위한 클래스 입니다.
+// 기능을 사용할 클래스는 이 클래스를 상속받아야 합니다.
 struct ReflectSerializer
 {
 protected:
