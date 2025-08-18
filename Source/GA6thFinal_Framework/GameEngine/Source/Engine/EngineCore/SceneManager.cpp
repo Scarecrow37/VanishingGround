@@ -2059,8 +2059,8 @@ void ESceneManager::InputSystem::UpdateInput()
                 {
                     UpdateTracker(flag);
                 }
-            }        
-            
+            } 
+
             UpdateAnalogButtons();
             std::memset(_actionChecker.data(), 0, std::size(_actionChecker)); //중복 액션 방지용 기록 배열 초기화.
         }
@@ -2078,6 +2078,22 @@ void ESceneManager::InputSystem::UpdateInput()
 #endif
         }
 
+    }
+}
+
+void ESceneManager::InputSystem::RegisterInputReceiver(InputReceiver& receiver, int buttonIndex, int actionIndex, std::function<void(const Input::Controller& controller)> func)
+{
+    auto& receiverTarget = _receivers[buttonIndex][actionIndex];
+    if (nullptr == receiver._isDestroy)
+    {
+        //플래그 bool 값을 동적 할당
+        receiverTarget.emplace_back(std::make_shared<bool>(false), func);
+        receiver._isDestroy = receiverTarget.back().first;
+    }
+    else
+    {
+        //이미 등록된 리시버는 bool 값을 공유.
+        receiverTarget.emplace_back(receiver._isDestroy, func);
     }
 }
 
@@ -2158,10 +2174,27 @@ void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
 
     int   actionIndex = static_cast<int>(action);
     auto& receivers = _receivers[buttonIndex][actionIndex];
-    for (auto& [instance, event] : receivers)
+    bool  activeErase = false;
+    for (auto& [isDestroy, event] : receivers)
     {
-        event(_inputController);
-        checker = true;
+        if (nullptr == isDestroy || true == *isDestroy)
+        {
+            activeErase = true;
+        }
+        else
+        {
+            event(_inputController);
+            checker = true;
+        }
+    }
+
+    if (true == activeErase)
+    {
+        std::erase_if(receivers, [](auto& pair) 
+        {
+            auto& [destroy, event] = pair;
+            return nullptr == destroy || *destroy;
+        });
     }
 }
 
