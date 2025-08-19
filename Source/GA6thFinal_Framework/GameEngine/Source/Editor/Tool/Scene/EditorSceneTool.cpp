@@ -356,6 +356,12 @@ void EditorSceneTool::DrawManipulate()
             }
         }
     }
+    else
+    {
+        _isUseManipulate = false;
+        _isUsing         = false;
+        _isOver          = false;  
+    }
 }
 
 void EditorSceneTool::DrawSceneView() 

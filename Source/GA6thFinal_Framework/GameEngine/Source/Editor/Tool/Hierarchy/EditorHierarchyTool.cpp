@@ -724,7 +724,7 @@ void EditorHierarchyTool::KeyboardEvent()
 
             if (this->IsFocusFrame() || _editorSceneTool->IsFocusFrame() || _editorFindTool->IsFocusFrame())
             {
-                if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Delete, false))
+                if (ImGui::IsKeyPressed(ImGuiKey_Delete, false))
                 {
                     if (false == static_hierarchyFocusObjWeak.expired())
                     {
@@ -732,6 +732,13 @@ void EditorHierarchyTool::KeyboardEvent()
                         object->GetScene().IsDirty = true;
                         UmCommandManager.Do<Command::EditorScene::DestroyGameObjectCommand>(object.get());
                     }
+                }
+
+                if (ImGui::IsKeyPressed(ImGuiKey_Escape, false))
+                {
+                    const std::weak_ptr<GameObject>& old = EditorHierarchyTool::GetFocusObject();
+                    std::weak_ptr<GameObject>        empty;
+                    UmCommandManager.Do<Command::Hierarchy::FocusCommand>(old, empty);
                 }
             }
         }
@@ -764,13 +771,6 @@ void EditorHierarchyTool::KeyboardEvent()
                         UmCommandManager.Do<Command::EditorScene::PasteObjectCommand>(clipboardText);
                     }
                 }
-            }
-
-            if (ImGui::IsKeyPressed(ImGuiKey_Escape, false))
-            {
-                const std::weak_ptr<GameObject>& old = EditorHierarchyTool::GetFocusObject();
-                std::weak_ptr<GameObject> empty;
-                UmCommandManager.Do<Command::Hierarchy::FocusCommand>(old, empty);
             }
         }
     }
