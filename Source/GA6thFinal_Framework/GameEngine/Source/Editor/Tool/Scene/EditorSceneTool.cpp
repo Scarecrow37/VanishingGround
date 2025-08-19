@@ -358,9 +358,13 @@ void EditorSceneTool::DrawManipulate()
     }
     else
     {
-        _isUseManipulate = false;
-        _isUsing         = false;
-        _isOver          = false;  
+        _isUseManipulate    = false;
+        _isDrawedManipulate = false;
+        _isMovedManipulate  = false;
+        _isUsingStart       = false;
+        _isUsingEnd         = false;
+        _isUsing            = false;
+        _isOver             = false;            
     }
 }
 
