@@ -674,6 +674,7 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
             }
         }
         _setting.MainScene = scene->Path;
+        SetRendererSkyBox(scene);              
         _addComponentsQueue.clear();
         _addGameObjectsQueue.clear();
         _waitAwakeVec.clear();
@@ -919,7 +920,6 @@ void ESceneManager::ObjectsAddLoadScene()
             Scene* scene = &sceneIter->second;
             try
             {
-                SetRendererSkyBox(scene);              
                 DeserializeToGuid(_nextSceneGuid);
                 scene->_isLoaded = true;
                 scene->_isDirty  = false;
@@ -1084,7 +1084,7 @@ void ESceneManager::ObjectsDestroy()
 
     //오브젝트 삭제
     auto& [destroyObjectSet, destroyObjectQueue] = _destroyObjectsQueue;
-    // OnDestroy 호출 도중 원본 큐 변형 방지를 위한 지연삭제
+    // OnDestroy 호출 도중 원본 큐 변형 방지를 위한 복사 후 삭제
     _destroyObjectTemp = destroyObjectQueue;
     destroyObjectSet.clear();
     destroyObjectQueue.clear();
@@ -1134,6 +1134,17 @@ void ESceneManager::ObjectsDestroy()
         _runtimeObjects.pop_back();
     }
 
+    //하이러키 에디터에 삭제 플래그 활성화
+    if constexpr (IS_EDITOR)
+    {
+        if (false == _destroyObjectTemp.empty())
+        {
+            static EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("SceneDock");
+            static EditorHierarchyTool* editorHierarchy = sceneDock->GetGui<EditorHierarchyTool>();
+            editorHierarchy->ActiveHierarchyCleanup();
+        }
+    }
+
     //큐 초기화
     _destroyComponentsTemp.clear();
     _destroyObjectTemp.clear();
@@ -1159,6 +1170,13 @@ void ESceneManager::ObjectsAddRuntime()
         }
         _runtimeObjects[id] = gameObject;
         GameObject::Engine::UpdateActiveInHierarchy(gameObject.get());     
+
+        if constexpr (IS_EDITOR)
+        {
+            static EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("SceneDock");
+            static EditorHierarchyTool* editorHierarchy = sceneDock->GetGui<EditorHierarchyTool>();
+            editorHierarchy->PushHierarchyObject(gameObject);
+        }
     }
 
     for (auto& [owner, component] : _addComponentsQueue)
