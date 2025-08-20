@@ -72,7 +72,7 @@ public:
     {
         return _guid.ToPath().string();
     }
-    // get : 이 씬 파일의 상대 경로를 반환합니다.
+    // std::string : 이 씬 파일의 상대 경로를 반환합니다.
     PROPERTY(Path)
 
     GETTER(bool, IsDirty)
