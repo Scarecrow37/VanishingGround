@@ -14,7 +14,8 @@ public:
         TestVector3,
         ReflectFields->floatVector,
         Work,
-        Move
+        Move,
+        ReflectFields->TestDontDestroyOnLoad
         )
 
     GETTER_ONLY(std::string_view, ObjectDrop)
@@ -48,6 +49,7 @@ private:
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
+    bool TestDontDestroyOnLoad = false;
     int testint = 10;
     float floatTest = 1.f;
     std::string testString = "asdas";
