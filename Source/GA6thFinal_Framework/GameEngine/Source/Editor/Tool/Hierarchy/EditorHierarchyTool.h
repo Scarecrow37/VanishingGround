@@ -24,6 +24,7 @@ public:
     virtual ~EditorHierarchyTool();
 
 public:
+    /*오브젝트 생성하는 Imgui Menu Item들을 Draw 합니다.*/
     static void ImGuiNewGameObjectMenuItems();
 
     /*포커싱된 오브젝트의 트리 노드를 1회 Open 합니다.*/
@@ -31,6 +32,17 @@ public:
     { 
         static_isOpenFocusObj = true; 
     }
+
+    /// <summary>
+    /// 에디터에 표시할 오브젝트를 push_back 합니다.
+    /// </summary>
+    /// <param name="object"></param>
+    void PushHierarchyObject(const std::shared_ptr<GameObject>& object) { _hierarchyObjects.push_back(object); }
+
+    /// <summary>
+    /// 하이러키 오브젝트중 유효하지 않는 오브젝트를 정리합니다.
+    /// </summary>
+    void ActiveHierarchyCleanup() { _hierarchyObjectCleanup = true; }
 
 private:
     void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>& focusObject, GameObject*& outClickNode, bool isOpenFocusObject);
@@ -69,6 +81,13 @@ private:
     EditorDockWindow* _dockWindow = nullptr;
     EditorSceneTool*  _editorSceneTool = nullptr;
     HierarchyFindTool* _editorFindTool = nullptr;
+
+    //오브젝트 항목
+    std::unordered_map<std::string, size_t>                       _hierarchySceneIndex;
+    std::vector<std::pair<std::string, std::vector<GameObject*>>> _hierarchyRootObjects;
+    std::vector<GameObject*>                                      _hierarchyDontDestroyOnLoadObjects;
+    std::vector<std::shared_ptr<GameObject>>                      _hierarchyObjects;
+    bool                                                          _hierarchyObjectCleanup = false;
 
 protected:
     REFLECT_FIELDS_BEGIN(EditorTool)
