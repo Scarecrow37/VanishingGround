@@ -579,6 +579,11 @@ public:
         /// <param name="func :">이벤트 함수</param>
         void RegisterInputReceiver(InputReceiver& receiver, int buttonIndex, int actionIndex, std::function<void(const Input::Controller& controller)> func);
 
+        /// <summary>
+        /// 등록된 모든 Receiver을 해제합니다.
+        /// </summary>
+        void CleanupInputReceivers();
+
     private:
         static constexpr size_t ACTION_COUNT = (size_t)Action::UNKNOWN;
         static constexpr size_t CONTROLLER_BUTTON_COUNT = (size_t)ControllerButton::UNKNOWN;

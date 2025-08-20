@@ -2115,6 +2115,17 @@ void ESceneManager::InputSystem::RegisterInputReceiver(InputReceiver& receiver, 
     }
 }
 
+void ESceneManager::InputSystem::CleanupInputReceivers() 
+{
+    for (auto& actions : _receivers)
+    {
+        for (auto& inputReceivers : actions)
+        {
+            inputReceivers.clear();
+        }
+    }
+}
+
 void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
 {
     int   buttonIndex = std::countr_zero((unsigned int)button);
