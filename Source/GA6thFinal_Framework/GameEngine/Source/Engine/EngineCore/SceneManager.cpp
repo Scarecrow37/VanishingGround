@@ -123,6 +123,9 @@ void ESceneManager::Engine::CleanupSceneManager()
 
     //리소스
     SceneResourceManager::Engine::CleanUp(engineCore->SceneManager.ResourceManager);
+
+    //인풋
+    engineCore->SceneManager._inputSystem.CleanupInputReceivers();
 }
 
 void ESceneManager::Engine::SceneUpdate()
