@@ -14,6 +14,25 @@ public:
     static const std::weak_ptr<GameObject>& GetFocusObject() { return static_hierarchyFocusObjWeak; }
 
     /// <summary>
+    /// 하이러키 오브젝트들을 정리합니다.
+    /// </summary>
+    static void CleanupEditorObjects()
+    {
+        if constexpr (IS_EDITOR)
+        {
+            EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("SceneDock");
+            if (sceneDock)
+            {
+                EditorHierarchyTool* editorHierarchy = sceneDock->GetGui<EditorHierarchyTool>();
+                if (editorHierarchy)
+                {
+                    editorHierarchy->CleanupHierarchyObjects();
+                }
+            }
+        }
+    }
+
+    /// <summary>
     /// 씬을 현재 상태로 저장합니다.
     /// </summary>
     /// <param name="scene"></param>
@@ -43,6 +62,17 @@ public:
     /// 하이러키 오브젝트중 유효하지 않는 오브젝트를 정리합니다.
     /// </summary>
     void ActiveHierarchyCleanup() { _hierarchyObjectCleanup = true; }
+
+    /// <summary>
+    /// 하이러키 오브젝트들을 정리합니다.
+    /// </summary>
+    void CleanupHierarchyObjects()
+    {
+        _hierarchySceneIndex.clear();
+        _hierarchyRootObjects.clear();
+        _hierarchyDontDestroyOnLoadObjects.clear();
+        _hierarchyObjects.clear();
+    }
 
 private:
     void TransformTreeNode(Transform& node, const std::shared_ptr<GameObject>& focusObject, GameObject*& outClickNode, bool isOpenFocusObject);
@@ -89,7 +119,7 @@ private:
     std::vector<std::shared_ptr<GameObject>>                      _hierarchyObjects;
     bool                                                          _hierarchyObjectCleanup = false;
 
-protected:
+protected: 
     REFLECT_FIELDS_BEGIN(EditorTool)
     REFLECT_FIELDS_END(EditorHierarchyTool)
         
