@@ -19,7 +19,8 @@ public:
 
 public:
     void SetCamera(std::string_view renderSceneName, std::shared_ptr<Camera> camera) const;
-    void SetSkyBox(std::string_view renderSceneName, std::wstring_view filePath) const;
+    void SetEnvironmentSkyBox(std::string_view renderSceneName, std::wstring_view filePath) const;
+    void SetIBLSkyBox(std::string_view renderSceneName, std::wstring_view filePath) const;
     void SetCurrentScene(std::string_view sceneName) const;
     void SyncGlobalVariable();
 
@@ -47,7 +48,8 @@ public:
     void Finalize() const;
 
 public:
-    void             ResetSkyBox(std::string_view sceneName) const;
+    void             ResetEnvironmentSkyBox(std::string_view sceneName) const;
+    void             ResetIBLSkyBox(std::string_view sceneName) const;
     void             OnResize(UINT width, UINT height) const;
     void XM_CALLCONV DebugDraw3D(std::string_view sceneName, const BoundingSphere& sphere, FXMVECTOR color = DirectX::Colors::White) const;
     void XM_CALLCONV DebugDraw3D(std::string_view sceneName, const BoundingOrientedBox& obb, FXMVECTOR color = DirectX::Colors::White) const;

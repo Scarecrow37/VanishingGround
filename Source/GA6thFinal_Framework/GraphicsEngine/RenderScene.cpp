@@ -38,9 +38,14 @@ SharedResource<RenderTarget> RenderScene::GetSharedRenderTarget() const
     return _sharedRenderTarget[_currentFrameIndex];
 }
 
-void RenderScene::SetSkyBox(std::wstring_view path)
+void RenderScene::SetEnvironmentSkyBox(std::wstring_view path)
 {
-    _skyBox->SetTexture(path);
+    _skyBox->SetEnvironmentTexture(path);
+}
+
+void RenderScene::SetIBLSkyBox(std::wstring_view path)
+{
+    _skyBox->SetIBLTexture(path);
 }
 
 void RenderScene::InitializeRenderScene()
@@ -200,9 +205,14 @@ void RenderScene::Execute()
     _isDirtyFlag = false;
 }
 
-void RenderScene::ResetSkyBox()
+void RenderScene::ResetEnvironmentSkyBox()
 {
-    _skyBox->ResetResource();
+    _skyBox->ResetEnvironmentResource();
+}
+
+void RenderScene::ResetIBLSkyBox()
+{
+    _skyBox->ResetIBLResource();
 }
 
 void RenderScene::UpdateGlobal()
