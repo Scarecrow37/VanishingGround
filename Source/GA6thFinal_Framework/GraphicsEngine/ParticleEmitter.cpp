@@ -265,13 +265,14 @@ Texture* RibbonModule::GetAlbedoTexture() const
  {
      _particlePool.clear();
 
-     // 2. EmitLocator 객체 정리
      delete _emitLocator;
      _emitLocator = nullptr;
 
-     // 3. ParticleRenderModule 객체 정리
      delete _particleRenderModule;
      _particleRenderModule = nullptr;
+     
+     if (nullptr != _light)
+         _light->SetDestroy();
 
  }
 
@@ -423,8 +424,12 @@ void ParticleEmitter::Update(float deltaTime)
     _worldMatrix       = _rotationMatrix * _translationMatrix * _effectWorldMatrix;
     _finalPos          = _worldMatrix.Translation();
     if (true == _useLight)
-        _lightIntensity = std::lerp(0, _endLightIntensity, _activeParticleCount / (_emissionRate * _particleLifetime));
+    {
 
+        _lightCurrentIntensity =
+            (float)std::lerp(0, _lightIntensity, _activeParticleCount / (_emissionRate * _particleLifetime));
+        _lightCurrentRange = _lightRange;
+    }
 
 
 
@@ -520,8 +525,6 @@ void ParticleEmitter::Reset()
     _emitterAge              = 0.f;
     _activeParticleCount     = 0;
     _emissionThreshold       = 0;
-    //if (true == _useLight)
-    //    _lightIntensity = _endLightIntensity;
 }
 
 void ParticleEmitter::InitializeLocator(LocationShape locatorShape , Vector3 factor) 
@@ -639,17 +642,25 @@ void ParticleEmitter::ScaleVelInCone(Vector3 pos)
 void ParticleEmitter::InitializeLight(std::string_view scenenName) 
 {
     _light = new Light();
-    _light->SetPointLight(_lightColor, _finalPos, _lightAttenuation, _lightRange, _lightIntensity);
-    if (_useLight)
-        _light->SetActive(&_activeFlag);
-    else
-        _light->SetActive(&_useLight);
-    _endLightIntensity = _lightIntensity;
+    _light->SetPointLight(_lightColor, _finalPos, _lightAttenuation, _lightCurrentRange, _lightCurrentIntensity);
+    _light->SetActive(&_activeFlag);
 
     Global::lightCore->RegisterLight(scenenName, _light);
     if (scenenName == "Game")
     {
         Global::lightCore->RegisterLight("Editor", _light);
     }
+}
+
+void ParticleEmitter::SetLightFlag(bool value) 
+{
+    _useLight = value;
+    if (value)
+        _light->SetActive(&_activeFlag);
+    else
+        _light->SetActive(&_useLight);
+
+
+
 }
 

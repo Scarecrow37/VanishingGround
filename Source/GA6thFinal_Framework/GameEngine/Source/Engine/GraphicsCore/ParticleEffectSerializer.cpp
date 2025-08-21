@@ -2692,11 +2692,12 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_4(std::ifstream& is, boo
             
             if (true == uselight)
             {
+                emitter->InitializeLight(sceneName);
                 emitter->SetUseLight(uselight);
                 emitter->SetLightIntensity(lightintensity);
                 emitter->SetLightRange(lightrange);
                 emitter->SetLightColor(lightcolor);
-                emitter->InitializeLight(sceneName);
+                emitter->SetLightFlag(uselight);
             }
             {
                 File::Path absolutePath = emitter->_particleRenderModule->GetModelAndTexturePath();

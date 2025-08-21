@@ -798,7 +798,7 @@ void ParticleManager::AwakeParticles(float deltaTime, ParticleUpdateResource* sc
     }
     // 최종 파티클 수 업데이트
     scene->_totalCount = scene->_totalParticles.size();
-    scene->_ribbonTotalCount = scene->_ribbonTotalParticles.size();
+    scene->_ribbonTotalCount = (UINT)(scene->_ribbonTotalParticles.size());
 }
 
 void ParticleManager::DispatchSprite(float deltaTime, std::string sceneName) 

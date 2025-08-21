@@ -333,7 +333,7 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
              if (true == result)
                  isSomethingChanged = result;
          _curEmitter->SetUseLight(uselight);
-
+         _curEmitter->SetLightFlag(uselight);
          if (true == uselight)
          {
              // emitter position

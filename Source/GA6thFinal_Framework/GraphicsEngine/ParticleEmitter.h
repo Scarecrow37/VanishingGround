@@ -291,12 +291,16 @@ protected :
     UMPARTICLE_PROPERTY(bool, _useLight, UseLight, false);
     UMPARTICLE_PROPERTY(float, _lightIntensity, LightIntensity, 0);
     UMPARTICLE_PROPERTY(float, _lightRange, LightRange, 0);
+    float _lightCurrentIntensity = 0;
+    float _lightCurrentRange     = 0;
     UMPARTICLE_PROPERTY_REF(Vector3, _lightColor, LightColor, Vector3(0, 0, 0));
     Vector3 _lightAttenuation = Vector3(0, 0, 0);
     float   _endLightIntensity;
 
 public:
-    void    InitializeLight(std::string_view scenenName);
+    void InitializeLight(std::string_view scenenName);
+    void SetLightFlag(bool value);
+
 
 protected:
 
