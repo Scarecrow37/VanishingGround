@@ -20,8 +20,6 @@ struct MinSize
     SIZE operator()(const SIZE& lhs, const SIZE& rhs, bool useLhsWidth, bool useLhsHeight) const;
 };
 
-
-
 enum class HorizontalAlignment : char
 {
     LEFT,
@@ -48,15 +46,10 @@ enum class FillMode : char
     FILL
 };
 
-
-
-class UIComponent : public Component
+class UIComponent : public UIBaseComponent
 {
     friend class Transform;
     USING_PROPERTY(UIComponent)
-
-protected:
-    static bool _isDebug;
 
 public:
     UIComponent();
@@ -213,30 +206,10 @@ public:
     void Arrange();
 
 protected:
-    /// <summary>
-    /// 이 컴포넌트를 소유한 게임 오브젝트에 다른 자식 게임 오브젝트가 추가되었을 때 호출됩니다.
-    /// </summary>
-    /// <param name="childGameObject">연결될 자식 GameObject에 대한 포인터입니다.</param>
-    virtual void OnAttachChild(GameObject* childGameObject);
-
-    /// <summary>
-    /// 이 컴포넌트를 소유한 게임 오브젝트가 다른 부모 게임 오브젝트로부터 분리되었을 때 호출됩니다.
-    /// </summary>
-    /// <param name="previousParentGameObject">이전에 연결되어 있던 부모 GameObject에 대한 포인터입니다.</param>
-    virtual void OnDetachParent(GameObject* previousParentGameObject);
-
-    /// <summary>
-    /// OnDrawDebug에 의해 호출되는 디버그 오버라이드 함수입니다.
-    /// EnableInHierarchy가 true일 때만 호출됩니다.
-    /// </summary>
-    virtual void OnDrawDebugOverride();
-
-    /// <summary>
-    /// OnDrawDebugSelected에 의해 호출되는 디버그 선택 오버라이드 함수입니다.
-    /// EnableInHierarchy가 true일 때만 호출됩니다.
-    /// </summary>
-    virtual void OnDrawDebugSelectedOverride();
-
+    void OnAttachChild(GameObject* childGameObject) override;
+    void OnDetachParent(GameObject* previousParentGameObject) override;
+    void OnDrawDebugOverride() override;
+    void OnDrawDebugSelectedOverride() override;
 
     /// <summary>
     /// UI 컴포넌트의 측정 로직을 구현하는 함수입니다.
@@ -259,12 +232,8 @@ protected:
     void InvalidateMeasure();
     void InvalidateArrange();
 
-
 private:
     void ResetPlacement();
-
-    void OnDrawDebug() override;
-    void OnDrawDebugSelected() override;
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
@@ -292,16 +261,17 @@ private:
     bool _isArrangeDirty;
 };
 
-struct DrawDebug
+struct ImGuiDebug
 {
     void operator()(const char* label) const;
     void operator()(const char* label, long x) const;
     void operator()(const char* label, long x, long y) const;
 };
 
-struct DrawQuad
+struct DrawDebug
 {
-    void operator()(POINT point, SIZE size, const int thickness, FXMVECTOR color) const;
+    void operator()(POINT point, SIZE size, int thickness, FXMVECTOR color) const;
+    void operator()(POINT pointA, POINT pointB, int thickness, bool isVertical, FXMVECTOR color) const;
 };
 
 // TODO 지울지 고민

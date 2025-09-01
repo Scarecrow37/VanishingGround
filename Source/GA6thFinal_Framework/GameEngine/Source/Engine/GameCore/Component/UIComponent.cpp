@@ -1,8 +1,6 @@
 ﻿#include "pch.h"
 #include "UIComponent.h"
 
-bool UIComponent::_isDebug = false;
-
 bool operator==(const POINT& lhs, const POINT& rhs)
 {
     return lhs.x == rhs.x && lhs.y == rhs.y;
@@ -98,35 +96,43 @@ POINT AlignPoint::operator()(const HorizontalAlignment horizontal, const Vertica
 }
 
 UIComponent::UIComponent()
-    : Component(TYPE::UI), _requestedPoint{}, _requestedSize{}, _isMeasureDirty(false),
+    : _requestedPoint{}, _requestedSize{}, _isMeasureDirty(false),
       _isArrangeDirty(false)
 {
 }
 
 void UIComponent::OnAttachChild(GameObject* childGameObject)
 {
+    UIBaseComponent::OnAttachChild(childGameObject);
+
     InvalidateMeasure();
 }
 
 void UIComponent::OnDetachParent(GameObject* previousParentGameObject)
 {
+    UIBaseComponent::OnDetachParent(previousParentGameObject);
+
     InvalidateMeasure();
 }
 
 void UIComponent::OnDrawDebugOverride()
 {
+    UIBaseComponent::OnDrawDebugOverride();
+
     const POINT absolutePoint = AbsolutePosition;
     const SIZE  size          = Size;
 
-    DrawQuad()(absolutePoint, size, 1, Colors::White);
+    DrawDebug()(absolutePoint, size, 1, Colors::White);
 }
 
 void UIComponent::OnDrawDebugSelectedOverride()
 {
+    UIBaseComponent::OnDrawDebugSelectedOverride();
+
     const POINT absolutePoint = AbsolutePosition;
     const SIZE  size          = Size;
 
-    DrawQuad()(absolutePoint, size, 3, Colors::Yellow);
+    DrawDebug()(absolutePoint, size, 3, Colors::Yellow);
 }
 
 void UIComponent::ImGuiDrawPropertysEvent()
@@ -145,22 +151,22 @@ void UIComponent::ImGuiDrawPropertysEvent()
 
     if (_isDebug)
     {
-        constexpr DrawDebug drawDebug;
+        constexpr ImGuiDebug imGuiDebug;
 
         auto [actualX, actualY] = ReflectFields->ActualPosition;
-        drawDebug("Actual Position", actualX, actualY);
+        imGuiDebug("Actual Position", actualX, actualY);
 
         auto [actualWidth, actualHeight] = ReflectFields->ActualSize;
-        drawDebug("Actual Size", actualWidth, actualHeight);
+        imGuiDebug("Actual Size", actualWidth, actualHeight);
 
         auto [offsetX, offsetY] = ReflectFields->Offset;
-        drawDebug("Offset", offsetX, offsetY);
+        imGuiDebug("Offset", offsetX, offsetY);
 
         auto [desiredWidth, desiredHeight] = ReflectFields->DesiredSize;
-        drawDebug("Desired Size", desiredWidth, desiredHeight);
+        imGuiDebug("Desired Size", desiredWidth, desiredHeight);
 
         auto [availableWidth, availableHeight] = ReflectFields->AvailableSize;
-        drawDebug("Available Size", availableWidth, availableHeight);
+        imGuiDebug("Available Size", availableWidth, availableHeight);
     }
 }
 
@@ -237,45 +243,25 @@ void UIComponent::ResetPlacement()
     InvalidateArrange();
 }
 
-void UIComponent::OnDrawDebug()
-{
-    Component::OnDrawDebug();
-
-    if (const bool isEnable = EnableInHierarchy; isEnable)
-    {
-        OnDrawDebugOverride();
-    }
-}
-
-void UIComponent::OnDrawDebugSelected()
-{
-    Component::OnDrawDebugSelected();
-
-    if (const bool isEnable = EnableInHierarchy; isEnable)
-    {
-        OnDrawDebugSelectedOverride();
-    }
-}
-
-void DrawDebug::operator()(const char* label) const
+void ImGuiDebug::operator()(const char* label) const
 {
     ImGui::SameLine();
     ImGui::Text(label);
 }
 
-void DrawDebug::operator()(const char* label, const long x) const
+void ImGuiDebug::operator()(const char* label, const long x) const
 {
     ImGui::Text("%d", x);
     operator()(label);
 }
 
-void DrawDebug::operator()(const char* label, const long x, const long y) const
+void ImGuiDebug::operator()(const char* label, const long x, const long y) const
 {
     ImGui::Text("%d x %d", x, y);
     operator()(label);
 }
 
-void DrawQuad::operator()(POINT point, SIZE size, const int thickness, FXMVECTOR color) const {
+void DrawDebug::operator()(POINT point, SIZE size, const int thickness, FXMVECTOR color) const {
     const auto [x, y]          = point;
     const auto [width, height] = size;
 
@@ -296,5 +282,20 @@ void DrawQuad::operator()(POINT point, SIZE size, const int thickness, FXMVECTOR
         const XMFLOAT2 leftBottomVector{static_cast<float>(leftBottom.x + i), static_cast<float>(leftBottom.y - i)};
         UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&leftTopVector), XMLoadFloat2(&rightTopVector),
                                XMLoadFloat2(&rightBottomVector), XMLoadFloat2(&leftBottomVector), color);
+    }
+}
+
+void DrawDebug::operator()(const POINT pointA, const POINT pointB, const int thickness, const bool isVertical, FXMVECTOR color) const
+{
+    const int begin = 0 - thickness / 2;
+    const int end   = thickness / 2;
+
+    for (int i = begin; i <= end; ++i)
+    {
+        const XMFLOAT2 pointAOffset{isVertical ? static_cast<float>(pointA.x + i) : static_cast<float>(pointA.x),
+                                    isVertical ? static_cast<float>(pointA.y) : static_cast<float>(pointA.y + i)};
+        const XMFLOAT2 pointBOffset{isVertical ? static_cast<float>(pointB.x + i) : static_cast<float>(pointB.x),
+                                    isVertical ? static_cast<float>(pointB.y) : static_cast<float>(pointB.y + i)};
+        UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&pointAOffset), XMLoadFloat2(&pointBOffset), color);
     }
 }
