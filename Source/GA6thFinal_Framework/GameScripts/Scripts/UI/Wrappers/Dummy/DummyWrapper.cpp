@@ -7,8 +7,8 @@ SIZE DummyWrapper::MeasureOverride(const SIZE availableSize)
 {
     const FillMode horizontalFillMode = HorizontalFillMode;
     const FillMode verticalFillMode   = VerticalFillMode;
-    SIZE           desiredSize        = MinSize()(availableSize, _requestedSize, verticalFillMode == FillMode::FILL,
-                                 horizontalFillMode == FillMode::FILL);
+    SIZE           desiredSize        = MinSize()(availableSize, _requestedSize, horizontalFillMode == FillMode::FILL,
+                                 verticalFillMode == FillMode::FILL);
 
     const PADDING padding            = Padding;
     const SIZE    childAvailableSize = desiredSize - padding.Size();
