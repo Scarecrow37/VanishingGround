@@ -10,20 +10,28 @@ protected:
     static constexpr float VIEW_ORDER_TEXT_RATIO  = 0.0001f;
     static constexpr float VIEW_ORDER_TEXT_OFFSET = VIEW_ORDER_TEXT_RATIO / VIEW_ORDER_IMAGE_RATIO;
 
-private:
-    static void RequestViewOrder(const Transform& transform);
-
 public:
     DrawUIComponent();
 
 public:
+    /// <summary>
+    /// View Order를 설정합니다.
+    /// </summary>
+    /// <param name="viewOrder">설정할 View Order 값</param>
     virtual void SetViewOrder(int viewOrder);
 
 protected:
+    /// <summary>
+    /// 이 컴포넌트의 Z-Order를 반환합니다.
+    /// </summary>
+    /// <returns>계산된 Z-Order</returns>
+    virtual float GetZOrder() const;
+
     void ImGuiDrawPropertysEvent() override;
     void OnAttachChild(GameObject* childGameObject) override;
 
-    virtual float GetZOrder() const;
+private:
+    void RequestViewOrder() const;
 
 protected:
     REFLECT_FIELDS_BEGIN(PlacementUIComponent)

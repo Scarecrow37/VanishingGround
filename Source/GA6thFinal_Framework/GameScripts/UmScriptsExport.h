@@ -104,13 +104,9 @@ UMREAL_COMPONENT(DummyWrapper)
 #include "Scripts/UI/Wrappers/Ratio/RatioWrapper.h"
 UMREAL_COMPONENT(RatioWrapper)
 
-//#include "Scripts/UI/Panels/Grid/GridPanel.h"
-//UMREAL_COMPONENT(GridPanel)
-//UMREAL_COMPONENT(GridPanelSlot)
-//
-//#include "Scripts/UI/Panels/Anchor/AnchorPanel.h"
-//UMREAL_COMPONENT(AnchorPanel)
-//UMREAL_COMPONENT(AnchorPanelSlot)
+#include "Scripts/UI/Panels/Grid/GridPanel.h"
+UMREAL_COMPONENT(GridPanel)
+UMREAL_COMPONENT(GridPanelSlot)
 //
 //#include "Scripts/UI/Panels/Horizontal/HorizontalPanel.h"
 //UMREAL_COMPONENT(HorizontalPanel)
