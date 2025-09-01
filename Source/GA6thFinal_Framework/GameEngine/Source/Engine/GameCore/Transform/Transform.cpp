@@ -15,7 +15,7 @@ Transform::Transform(GameObject& owner)
     { 
         if (ImGui::BeginPopupContextItem(name.data()))
         {
-            if (ImGui::MenuItem("Copy Transform", "C") || ImGui::IsKeyReleased(ImGuiKey_C))
+            if (ImGui::MenuItem("Copy", "C") || ImGui::IsKeyReleased(ImGuiKey_C))
             {
                 std::wstring transform = U8ToWString(SerializedReflectFields());
                 File::SetClipboardText(transform);
@@ -83,6 +83,128 @@ Transform::Transform(GameObject& owner)
                             ImGui::CloseCurrentPopup();
                         }
                     }
+                }
+                ImGui::EndMenu();
+            }
+            if (ImGui::BeginMenu("Math"))
+            {
+                static Vector3 positionTemp;
+                static Vector3 rotationTemp;
+                static Vector3 scaleTemp;
+
+                static Vector3 positionTempMultiply(1, 1, 1);
+                static Vector3 rotationTempMultiply(1, 1, 1);
+                static Vector3 scaleTempMultiply(1, 1, 1);
+
+                auto IsNoZeroField = [](const Vector3& vector3) 
+                { 
+                    return std::abs(vector3.x) > Mathf::Epsilon && 
+                           std::abs(vector3.y) > Mathf::Epsilon &&
+                           std::abs(vector3.z) > Mathf::Epsilon;
+                };
+
+                auto Vector3Draw = [this](const char* label, Vector3& vector3) 
+                {
+                    ImGui::DragFloat3(label, (float*)&vector3, 0.01f);
+                    if (ImGui::IsItemDeactivatedAfterEdit())
+                    {                     
+                        return true;
+                    }
+                    return false;
+                };
+                if (ImGui::BeginMenu("+"))
+                {           
+                    if (Vector3Draw("Position", positionTemp))
+                    {
+                        Position += positionTemp;
+                        positionTemp = Vector3(0, 0, 0);
+                    }
+                    if (Vector3Draw("Rotation", rotationTemp))
+                    {
+                        EulerAngle += rotationTemp;
+                        rotationTemp = Vector3(0, 0, 0);
+                    }
+                    if (Vector3Draw("Scale", scaleTemp))
+                    {
+                        Scale += scaleTemp;
+                        scaleTemp = Vector3(0, 0, 0);
+                    }
+                    ImGui::EndMenu();
+                }
+                if (ImGui::BeginMenu("-"))
+                {
+                    if (Vector3Draw("Position", positionTemp))
+                    {
+                        Position -= positionTemp;
+                        positionTemp = Vector3(0, 0, 0);
+                    }
+                    if (Vector3Draw("Rotation", rotationTemp))
+                    {
+                        EulerAngle -= rotationTemp;
+                        rotationTemp = Vector3(0, 0, 0);
+                    }
+                    if (Vector3Draw("Scale", scaleTemp))
+                    {
+                        Scale -= scaleTemp;
+                        scaleTemp = Vector3(0, 0, 0);
+                    }
+                    ImGui::EndMenu();
+                }
+                if (ImGui::BeginMenu("*"))
+                {
+                    if (Vector3Draw("Position", positionTempMultiply))
+                    {
+                        if (IsNoZeroField(positionTempMultiply))
+                        {
+                            Position *= positionTempMultiply;
+                            positionTempMultiply = Vector3(1, 1, 1);
+                        }
+                    }
+                    if (Vector3Draw("Rotation", rotationTempMultiply))
+                    {
+                        if (IsNoZeroField(rotationTempMultiply))
+                        {
+                            EulerAngle *= rotationTempMultiply;
+                            rotationTempMultiply = Vector3(1, 1, 1);
+                        }
+                    }
+                    if (Vector3Draw("Scale", scaleTempMultiply))
+                    {
+                        if (IsNoZeroField(scaleTempMultiply))
+                        {
+                            Scale *= scaleTempMultiply;
+                            scaleTempMultiply = Vector3(1, 1, 1);
+                        }
+                    }
+                    ImGui::EndMenu();
+                }
+                if (ImGui::BeginMenu("/"))
+                {
+                    if (Vector3Draw("Position", positionTempMultiply))
+                    {
+                        if (IsNoZeroField(positionTempMultiply))
+                        {
+                            Position /= positionTempMultiply;
+                            positionTempMultiply = Vector3(1, 1, 1);
+                        }
+                    }
+                    if (Vector3Draw("Rotation", rotationTempMultiply))
+                    {
+                        if (IsNoZeroField(rotationTempMultiply))
+                        {
+                            EulerAngle /= rotationTempMultiply;
+                            rotationTempMultiply = Vector3(1, 1, 1);
+                        }
+                    }
+                    if (Vector3Draw("Scale", scaleTempMultiply))
+                    {
+                        if (IsNoZeroField(scaleTempMultiply))
+                        {
+                            Scale /= scaleTempMultiply;
+                            scaleTempMultiply = Vector3(1, 1, 1);
+                        }
+                    }
+                    ImGui::EndMenu();
                 }
                 ImGui::EndMenu();
             }

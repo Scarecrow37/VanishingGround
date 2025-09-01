@@ -334,10 +334,13 @@ namespace ReflectHelper
                                           std::is_base_of_v<Transform, owner_type>
                                          )
                             {   
-                               static std::unordered_map<void*, remove_view_type> prevValue;
+                               static thread_local std::unordered_map<void*, remove_view_type> prevValue;
                                if (ImGui::IsItemActivated())
                                {
-                                   prevValue[value] = val;
+                                   if (prevValue.find(value) == prevValue.end())
+                                   {
+                                       prevValue[value] = val;
+                                   }
                                }
                                if (result)
                                {   
