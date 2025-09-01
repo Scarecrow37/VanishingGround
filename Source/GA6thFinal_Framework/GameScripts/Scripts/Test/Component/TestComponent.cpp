@@ -65,6 +65,10 @@ void TestComponent::Reset()
 void TestComponent::Awake()
 {
     UmLogger.Log(LogLevel::LEVEL_DEBUG, "Awake!");
+    if (ReflectFields->TestDontDestroyOnLoad)
+    {
+        GameObject::DontDestroyOnLoad(gameObject);
+    }
 }
 
 void TestComponent::Start()

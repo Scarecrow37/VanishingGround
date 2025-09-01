@@ -2,6 +2,7 @@
 class GameObject;
 class Component;
 class ESceneManager;
+class InputReceiver;
 class GraphicsBase;
 class MeshComponent;
 class LightComponent;
@@ -71,7 +72,7 @@ public:
     {
         return _guid.ToPath().string();
     }
-    // get : 이 씬 파일의 상대 경로를 반환합니다.
+    // std::string : 이 씬 파일의 상대 경로를 반환합니다.
     PROPERTY(Path)
 
     GETTER(bool, IsDirty)
@@ -531,8 +532,6 @@ public:
 public:
     class InputSystem
     {
-        friend class InputReceiver;
-
     public:
         enum class ControllerButton
         {
@@ -566,7 +565,24 @@ public:
             UNKNOWN
         };
 
+        /// <summary>
+        /// 인풋 시스템을 업데이트 합니다. 
+        /// </summary>
         void UpdateInput();
+
+        /// <summary>
+        /// InputReceiver를 등록합니다.
+        /// </summary>
+        /// <param name="receiver :">등록할 receiver</param>
+        /// <param name="buttonIndex :">버튼 index</param>
+        /// <param name="actionIndex :">액션 index</param>
+        /// <param name="func :">이벤트 함수</param>
+        void RegisterInputReceiver(InputReceiver& receiver, int buttonIndex, int actionIndex, std::function<void(const Input::Controller& controller)> func);
+
+        /// <summary>
+        /// 등록된 모든 Receiver을 해제합니다.
+        /// </summary>
+        void CleanupInputReceivers();
 
     private:
         static constexpr size_t ACTION_COUNT = (size_t)Action::UNKNOWN;
@@ -578,7 +594,7 @@ public:
         std::array<Action, CONTROLLER_BUTTON_COUNT>     _actionTracker{Action::IDLE,};
         std::array<bool, CONTROLLER_BUTTON_COUNT>       _actionChecker{false,};
 
-        std::array<std::array<std::vector<std::pair<InputReceiver*, std::function<void(const Input::Controller&)>>>, 
+        std::array<std::array<std::vector<std::pair<std::shared_ptr<bool>, std::function<void(const Input::Controller&)>>>, 
             ACTION_COUNT>,
             CONTROLLER_BUTTON_COUNT>
             _receivers;
