@@ -142,7 +142,6 @@ struct ParallaxMappingProperty
 {
     float HeightScale;
 };
-};
 
 struct VolumetricFogProperty
 {
