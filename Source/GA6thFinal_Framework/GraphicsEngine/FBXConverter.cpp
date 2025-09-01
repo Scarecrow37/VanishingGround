@@ -201,19 +201,27 @@ void FBXConverter::LoadMesh(aiNode* node,
 			{
                 if (mesh->HasPositions())
                 {
-                    vertices[i].Position = XMVector3TransformCoord(XMVectorSet(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z, 1.f), transform);
+                    vertices[i].Position = XMVector3TransformCoord(
+                        XMVectorSet(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z, 1.f),
+                        transform);
                 }
                 if (mesh->HasNormals())
                 {
-                    vertices[i].Normal = XMVector3TransformNormal(XMVectorSet(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z, 0.f), inverseTranspose);
+                    vertices[i].Normal = XMVector3TransformNormal(
+                        XMVectorSet(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z, 0.f),
+                        inverseTranspose);
                     vertices[i].Normal = XMVector3Normalize(vertices[i].Normal);
                 }
-				if (mesh->HasTangentsAndBitangents())
-				{
-					vertices[i].Tangent   = XMVector3TransformNormal(XMVectorSet(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z, 0.f), inverseTranspose);
-                    vertices[i].Tangent   = XMVector3Normalize(vertices[i].Tangent);
+                if (mesh->HasTangentsAndBitangents())
+                {
+                    vertices[i].Tangent = XMVector3TransformNormal(
+                        XMVectorSet(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z, 0.f),
+                        inverseTranspose);
+                    vertices[i].Tangent = XMVector3Normalize(vertices[i].Tangent);
 
-					vertices[i].BiTangent = XMVector3TransformNormal(XMVectorSet(mesh->mBitangents[i].x, mesh->mBitangents[i].y, mesh->mBitangents[i].z, 0.f), inverseTranspose);
+                    vertices[i].BiTangent = XMVector3TransformNormal(
+                        XMVectorSet(mesh->mBitangents[i].x, mesh->mBitangents[i].y, mesh->mBitangents[i].z, 0.f),
+                        inverseTranspose);
                     vertices[i].BiTangent = XMVector3Normalize(vertices[i].BiTangent);
 				}
 
@@ -445,7 +453,7 @@ void FBXConverter::LoadFromAssimp(const std::filesystem::path& filePath, Model* 
 
     importFlags ^= aiProcess_FindDegenerates | aiProcess_ValidateDataStructure | aiProcess_GenSmoothNormals; // 사용하지 않는 플레그 제거
     
-    importFlags |= aiProcess_GenNormals | aiProcess_OptimizeGraph;
+    importFlags |= aiProcess_GenNormals | aiProcess_OptimizeGraph | aiProcess_TransformUVCoords;
 
     const aiScene* scene = impoter.ReadFile(filePath.string(), importFlags);
 

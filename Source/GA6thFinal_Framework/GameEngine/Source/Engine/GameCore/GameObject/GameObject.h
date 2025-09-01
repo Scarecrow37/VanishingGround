@@ -162,7 +162,7 @@ public:
     /// 이 오브젝트가 속한 씬의 이름을 반환합니다.
     /// </summary>
     /// <returns></returns>
-    std::string_view GetOwnerSceneName()
+    const std::string& GetOwnerSceneName()
     {
         return _ownerScene;
     }

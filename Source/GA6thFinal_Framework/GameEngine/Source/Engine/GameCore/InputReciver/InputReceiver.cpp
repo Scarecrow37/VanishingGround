@@ -2,14 +2,8 @@
 
 InputReceiver::~InputReceiver() 
 {
-    for (auto& key : _controllerSet)
+    if (nullptr != _isDestroy)
     {
-        auto& inputSystem = ESceneManager::Engine::GetInputSystem();
-        std::erase_if(inputSystem._receivers[(int)key.Button][(int)key.Action], 
-        [this](auto& pair) 
-        {
-            auto& [receiver, func] = pair;
-            return this == receiver;
-        });
+        *_isDestroy = true;
     }
 }
