@@ -197,6 +197,7 @@ using namespace Microsoft::WRL;
 #include "Engine/GameCore/GameObject/GameObject.h"
 #include "Engine/GameCore/Component/Component.h"
 #include "Engine/GameCore/Component/MissingComponent.h"
+#include "Engine/GameCore/Component/UIBaseComponent.h"
 #include "Engine/GameCore/Component/UIComponent.h"
 #include "Engine/GameCore/InputReciver/InputReceiver.h"
 
