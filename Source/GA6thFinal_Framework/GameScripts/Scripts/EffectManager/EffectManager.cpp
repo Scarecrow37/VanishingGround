@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "EffectManager.h"
-#include "Particle/ParticleComponent.h"
+#include <WeaponSystem/WeaponSystem.h>
+#include <Particle/ParticleComponent.h>
 
 EffectManager::EffectManager() 
 {
@@ -12,6 +13,7 @@ EffectManager::~EffectManager()
 
 void EffectManager::Awake() 
 {
+
     // 기존 이펙트 풀 리셋
     for (int i = 0; i < _weaponHitEffectPool.size(); ++i)
     {
@@ -20,7 +22,7 @@ void EffectManager::Awake()
     _weaponHitEffectPool.clear();
 
     // HitEffectVFXGuid가 유효하면 이펙트 풀링 생성
-    if (File::NULL_GUID != ReflectFields->HitEffectVFXGuid)
+    if (File::NULL_GUID != ReflectFields->WeaponHitEffectVFXGuid)
     {
         for (int i = 0; i < ReflectFields->WeaponHitEffectPoolSize; ++i)
         {
@@ -43,10 +45,17 @@ void EffectManager::ImGuiDrawPropertysEvent()
 {
 }
 
-bool EffectManager::SpawnWeaponHitEffect(const Vector3& position, const Vector3& rotation, const Vector3& scale)
+bool EffectManager::SpawnWeaponHitParticle(GameObject* dest, const Vector3& offsetPosition,
+                                           const Vector3& offsetRotation, const Vector3& offsetScale)
 {
-    if (_weaponHitEffectPool.empty())
+    if (nullptr == dest)
     {
+        return false;
+    }
+    if (_weaponHitEffectPool.empty() || _currentWeaponHitEffectIndex < 0 ||
+        _currentWeaponHitEffectIndex >= _weaponHitEffectPool.size())
+    {
+        _currentWeaponHitEffectIndex = 0;
         return false;
     }
 
@@ -55,10 +64,11 @@ bool EffectManager::SpawnWeaponHitEffect(const Vector3& position, const Vector3&
     {
         effect->StopEffect();
         effect->PlayEffect();
-        effect->Position = position;
-        effect->Rotation = rotation;
-        effect->Scale    = scale;
+        effect->Position = offsetPosition;
+        effect->Rotation = offsetRotation;
+        effect->Scale    = offsetScale;
         // 다음 이펙트 인덱스 갱신
         _currentWeaponHitEffectIndex = (_currentWeaponHitEffectIndex + 1) % _weaponHitEffectPool.size();
         return true;
     }
+}
