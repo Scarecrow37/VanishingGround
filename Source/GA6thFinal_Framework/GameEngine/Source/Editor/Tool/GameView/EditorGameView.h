@@ -4,6 +4,7 @@ class CameraComponent;
 
 class EditorGameView : public EditorTool
 {
+public:
     enum CameraMode
     {
         CAMERA_MODE_DEFAULT,
@@ -13,7 +14,13 @@ public:
     EditorGameView();
     virtual ~EditorGameView() override;
 
+public:
+    void SetCameraMode(CameraMode mode);
+
+    void ShowPopupCameraMode();
+
 protected:
+    void OnFramePopupOpened() override;
     void OnFrameRender() override;
     void OnFrameFocusStay() override;
 

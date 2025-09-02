@@ -19,7 +19,54 @@ EditorGameView::~EditorGameView()
     }
 }
 
-void EditorGameView::OnFrameRender() 
+void EditorGameView::SetCameraMode(CameraMode mode) 
+{
+    std::shared_ptr<Camera> camera          = UmGraphics.GetCamera("Game");
+    CameraComponent*        cameraComponent = ESceneManager::Engine::GetMainCamera();
+    if (camera && cameraComponent && cameraComponent->gameObject->IsValid())
+    {
+        switch (mode)
+        {
+            case CAMERA_MODE_DEFAULT: {
+                Transform& tr = cameraComponent->gameObject->transform;
+                camera->SetWorldMatrix(tr.GetWorldMatrix());
+                _cameraMode = CAMERA_MODE_DEFAULT;
+                break;
+            }
+            case CAMERA_MODE_FREE_MANIPULATE: {
+                _freeCamera->SetTarget(camera);
+                _freeCamera->SetPosition(camera->GetPosition());
+                _freeCamera->SetRotation(camera->GetRotation());
+                _freeCamera->SetPivot(0.0f);
+                _cameraMode = CAMERA_MODE_FREE_MANIPULATE;
+                break;
+            }
+        }
+    }
+}
+
+void EditorGameView::ShowPopupCameraMode() 
+{
+    if (ImGui::MenuItem("Default Mode", "", _cameraMode == CAMERA_MODE_DEFAULT))
+    {
+        SetCameraMode(EditorGameView::CAMERA_MODE_DEFAULT);
+    }
+    ImGuiHelper::HoveredToolTip((const char*)u8"메인 카메라를 기준으로 보여집니다.");
+    if (ImGui::MenuItem("Manipulate Mode", "", _cameraMode == CAMERA_MODE_FREE_MANIPULATE))
+    {
+        SetCameraMode(EditorGameView::CAMERA_MODE_FREE_MANIPULATE);
+    }
+    ImGuiHelper::HoveredToolTip((const char*)u8"카메라를 직접 조작할 수 있는 모드입니다.");
+}
+
+void EditorGameView::OnFramePopupOpened()
+{
+    ImGui::Separator();
+    ImGuiHelper::AlignedText("Camera Mode", ImGuiHelper::CENTER, 0.8f);
+    ShowPopupCameraMode();
+}
+
+void EditorGameView::OnFrameRender()
 {
     std::shared_ptr<Camera> camera = UmGraphics.GetCamera("Game");
     CameraComponent* cameraComponent = ESceneManager::Engine::GetMainCamera();
@@ -52,30 +99,6 @@ void EditorGameView::OnFrameRender()
         ImVec2 startPos = ImGui::GetWindowPos() + contentMin + centerOffset;
         ImGui::SetCursorScreenPos(startPos);
         ImGui::Image((ImTextureID)gpuHandle.ptr, size);
-
-        if (false == _freeCamera->IsMoved() &&
-            false == _freeCamera->IsRotated())
-        {
-            if (ImGui::BeginPopupContextItem())
-            {
-                ImGuiHelper::AlignedText("Camera Mode", ImGuiHelper::CENTER, 0.8f);
-                ImGui::Separator();
-                if (ImGui::MenuItem("Default", "", _cameraMode == CAMERA_MODE_DEFAULT))
-                {
-                    Transform& tr = cameraComponent->gameObject->transform;
-                    camera->SetWorldMatrix(tr.GetWorldMatrix());
-                    _cameraMode = CAMERA_MODE_DEFAULT;
-                }
-                if (ImGui::MenuItem("Manipulate", "", _cameraMode == CAMERA_MODE_FREE_MANIPULATE))
-                {
-                    _freeCamera->SetTarget(camera);
-                    _freeCamera->SetPosition(camera->GetPosition());
-                    _freeCamera->SetRotation(camera->GetRotation());
-                    _freeCamera->SetPivot(0.0f);
-                    _cameraMode = CAMERA_MODE_FREE_MANIPULATE;
-                }
-            }
-        }
     }
 }
 
