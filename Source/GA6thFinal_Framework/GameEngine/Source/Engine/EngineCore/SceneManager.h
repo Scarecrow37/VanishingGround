@@ -487,8 +487,8 @@ public:
         /// <param name="component :">대상 컴포넌트</param>
         /// <param name="guid :">로드할 리소스의 guid</param>
         /// <param name="func :">리소스 로드후 호출되는 콜백 함수</param>
-        void RequestModelResource(const Component* component, const File::Guid& guid, const std::function<void()> func);
-        void RequestModelResource(const Component* component, const File::Path& path, const std::function<void()> func);
+        void RequestModelResource(const Component* component, const File::Guid& guid, const std::function<void()>& func);
+        void RequestModelResource(const Component* component, const File::Path& path, const std::function<void()>& func);
         
         /// <summary>
         /// Texture 리소스 로드를 요청합니다.
@@ -496,8 +496,8 @@ public:
         /// <param name="component :">대상 컴포넌트</param>
         /// <param name="guid :">로드할 리소스의 guid</param>
         /// <param name="func :">리소스 로드후 호출되는 콜백 함수</param>
-        void RequestTextureResource(const Component* component, const File::Guid& guid, const std::function<void()> func);
-        void RequestTextureResource(const Component* component, const File::Path& path, const std::function<void()> func);
+        void RequestTextureResource(const Component* component, const File::Guid& guid, const std::function<void()>& func);
+        void RequestTextureResource(const Component* component, const File::Path& path, const std::function<void()>& func);
 
         /// <summary>
         /// Font 리소스 로드를 요청합니다.
@@ -505,8 +505,8 @@ public:
         /// <param name="component :">대상 컴포넌트</param>
         /// <param name="guid :">로드할 리소스의 guid</param>
         /// <param name="func :">리소스 로드후 호출되는 콜백 함수</param>
-        void RequestFontResource(const Component* component, const File::Guid& guid, const std::function<void()> func);
-        void RequestFontResource(const Component* component, const File::Path& path, const std::function<void()> func);
+        void RequestFontResource(const Component* component, const File::Guid& guid, const std::function<void()>& func);
+        void RequestFontResource(const Component* component, const File::Path& path, const std::function<void()>& func);
 
     private:
         template <typename T>

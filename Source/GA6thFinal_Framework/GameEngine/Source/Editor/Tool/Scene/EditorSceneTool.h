@@ -9,6 +9,7 @@ class EditorHierarchyTool;
 class EditorSceneTool
     : public EditorTool
 {
+    USING_PROPERTY(EditorSceneTool)
 public:
     EditorSceneTool();
     virtual ~EditorSceneTool();
@@ -39,6 +40,8 @@ private:
     void OnFrameFocusStay() override;
 
 private:
+    void LoadDefaultIcon();
+
     void UpdateKeyboardFrameFocus();
     void UpdateKeyboardFrameRender();
     void DragDropEvent();
@@ -126,6 +129,7 @@ protected:
     float  CameraPivot         = 0.f;
     bool   VertexSnapUse       = false;
     float  VertexSnapThreshold = 100.f;
+    bool   DrawGizmo           = true;
     REFLECT_FIELDS_END(EditorSceneTool)
 
     /*
@@ -148,6 +152,16 @@ public:
         ReflectFields->CameraPivot, 
         ReflectFields->CameraMoveSpeed
         )
+
+    GETTER(bool, DrawGizmo)
+    { 
+        return ReflectFields->DrawGizmo;
+    }
+    SETTER(bool, DrawGizmo)
+    {
+        ReflectFields->DrawGizmo = value;      
+    }
+    PROPERTY(DrawGizmo)
 
     void UpdateCameraSetting();
     void UpdateReflectFields();

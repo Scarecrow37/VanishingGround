@@ -1913,7 +1913,7 @@ void ESceneManager::SceneResourceManager::Engine::CleanUp(SceneResourceManager& 
 }
 
 void ESceneManager::SceneResourceManager::RequestModelResource(const Component* component, const File::Guid& guid,
-                                                               const std::function<void()> func)
+                                                               const std::function<void()>& func)
 {
     if (component->gameObject->IsValid())
     {
@@ -1934,7 +1934,7 @@ void ESceneManager::SceneResourceManager::RequestModelResource(const Component* 
 }
 
 void ESceneManager::SceneResourceManager::RequestModelResource(const Component* component, const File::Path& path,
-                                                               const std::function<void()> func)
+                                                               const std::function<void()>& func)
 {
     if (component->gameObject->IsValid())
     {
@@ -1954,7 +1954,7 @@ void ESceneManager::SceneResourceManager::RequestModelResource(const Component* 
     }
 }
 
-void ESceneManager::SceneResourceManager::RequestTextureResource(const Component* component, const File::Guid& guid, const std::function<void()> func)
+void ESceneManager::SceneResourceManager::RequestTextureResource(const Component* component, const File::Guid& guid, const std::function<void()>& func)
 {
     if (component->gameObject->IsValid())
     {
@@ -1975,7 +1975,7 @@ void ESceneManager::SceneResourceManager::RequestTextureResource(const Component
 }
 
 void ESceneManager::SceneResourceManager::RequestTextureResource(const Component* component, const File::Path& path,
-                                                                 const std::function<void()> func)
+                                                                 const std::function<void()>& func)
 {
     if (component->gameObject->IsValid())
     {
@@ -1996,7 +1996,7 @@ void ESceneManager::SceneResourceManager::RequestTextureResource(const Component
 }
 
 void ESceneManager::SceneResourceManager::RequestFontResource(const Component* component, const File::Guid& guid,
-                                                              const std::function<void()> func)
+                                                              const std::function<void()>& func)
 {
     if (component->gameObject->IsValid())
     {
@@ -2017,7 +2017,7 @@ void ESceneManager::SceneResourceManager::RequestFontResource(const Component* c
 }
 
 void ESceneManager::SceneResourceManager::RequestFontResource(const Component* component, const File::Path& path,
-                                                              const std::function<void()> func)
+                                                              const std::function<void()>& func)
 {
     if (component->gameObject->IsValid())
     {
