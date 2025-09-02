@@ -58,18 +58,20 @@ void EditorGameView::OnFrameRender()
         {
             if (ImGui::BeginPopupContextItem())
             {
+                ImGuiHelper::AlignedText("Camera Mode", ImGuiHelper::CENTER, 0.8f);
+                ImGui::Separator();
                 if (ImGui::MenuItem("Default", "", _cameraMode == CAMERA_MODE_DEFAULT))
                 {
                     Transform& tr = cameraComponent->gameObject->transform;
                     camera->SetWorldMatrix(tr.GetWorldMatrix());
                     _cameraMode = CAMERA_MODE_DEFAULT;
                 }
-                if (ImGui::MenuItem("Free Manipulate", "", _cameraMode == CAMERA_MODE_FREE_MANIPULATE))
+                if (ImGui::MenuItem("Manipulate", "", _cameraMode == CAMERA_MODE_FREE_MANIPULATE))
                 {
-                    _freeCamera->SetPosition(Vector3::Zero);
-                    _freeCamera->SetRotation(Quaternion::Identity);
-                    _freeCamera->SetPivot(0.0f);
                     _freeCamera->SetTarget(camera);
+                    _freeCamera->SetPosition(camera->GetPosition());
+                    _freeCamera->SetRotation(camera->GetRotation());
+                    _freeCamera->SetPivot(0.0f);
                     _cameraMode = CAMERA_MODE_FREE_MANIPULATE;
                 }
             }
