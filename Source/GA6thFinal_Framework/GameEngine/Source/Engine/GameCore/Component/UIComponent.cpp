@@ -67,32 +67,41 @@ SIZE MinSize::operator()(const SIZE& lhs, const SIZE& rhs, const bool useLhsWidt
 POINT AlignPoint::operator()(const HorizontalAlignment horizontal, const VerticalAlignment vertical,
                              const SIZE size) const
 {
-    POINT alignPoint{};
+    return POINT{.x = operator()(horizontal, size.cx), .y = operator()(vertical, size.cy)};
+}
+
+LONG AlignPoint::operator()(const HorizontalAlignment horizontal, const LONG spareWidth) const
+{
+    LONG horizontalAlign = 0;
     switch (horizontal)
     {
     case HorizontalAlignment::LEFT:
         break;
     case HorizontalAlignment::CENTER:
-        alignPoint.x += size.cx / 2;
+        horizontalAlign += spareWidth / 2;
         break;
     case HorizontalAlignment::RIGHT:
-        alignPoint.x += size.cx;
+        horizontalAlign += spareWidth;
         break;
     }
+    return horizontalAlign;
+}
 
+LONG AlignPoint::operator()(const VerticalAlignment vertical, const LONG spareHeight) const
+{
+    LONG verticalAlign = 0;
     switch (vertical)
     {
     case VerticalAlignment::TOP:
         break;
     case VerticalAlignment::CENTER:
-        alignPoint.y += size.cy / 2;
+        verticalAlign += spareHeight / 2;
         break;
     case VerticalAlignment::BOTTOM:
-        alignPoint.y += size.cy;
+        verticalAlign += spareHeight;
         break;
     }
-
-    return alignPoint;
+    return verticalAlign;
 }
 
 UIComponent::UIComponent()

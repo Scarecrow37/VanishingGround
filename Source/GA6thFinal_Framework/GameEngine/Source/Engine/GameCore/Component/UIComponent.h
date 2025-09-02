@@ -37,6 +37,8 @@ enum class VerticalAlignment : char
 struct AlignPoint
 {
     POINT operator()(HorizontalAlignment horizontal, VerticalAlignment vertical, SIZE size) const;
+    LONG  operator()(HorizontalAlignment horizontal, LONG spareWidth) const;
+    LONG  operator()(VerticalAlignment vertical, LONG spareHeight) const;
 };
 
 enum class FillMode : char
@@ -205,6 +207,9 @@ public:
     void Arrange(POINT finalPosition, SIZE finalSize);
     void Arrange();
 
+    void InvalidateMeasure();
+    void InvalidateArrange();
+
 protected:
     void OnAttachChild(GameObject* childGameObject) override;
     void OnDetachParent(GameObject* previousParentGameObject) override;
@@ -228,9 +233,6 @@ protected:
 protected:
     void ImGuiDrawPropertysEvent() override;
     void DeserializedReflectEvent() override;
-
-    void InvalidateMeasure();
-    void InvalidateArrange();
 
 private:
     void ResetPlacement();
