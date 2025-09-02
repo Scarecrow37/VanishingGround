@@ -32,11 +32,15 @@ void LightComponent::DeserializedReflectEvent()
 void LightComponent::Reset() 
 {
     Base::Reset();
+#ifdef _UMEDITOR
     _gizmo.SetIconTexture(SceneGizmo::DefaultIcon::LIGHT);
+#endif
 }
 
 void LightComponent::OnDrawDebug() 
 {
+#ifdef _UMEDITOR
     _gizmo.Draw();
+#endif
 }
 
