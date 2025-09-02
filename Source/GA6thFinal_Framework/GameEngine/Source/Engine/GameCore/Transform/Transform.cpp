@@ -294,6 +294,20 @@ Transform* Transform::GetChild(int index) const
     return child;
 }
 
+void Transform::SetWorldPosition(const Vector3& position) 
+{
+    if (nullptr == _parent)
+    {
+        Position = position; //부모 없으면 그냥 설정
+    }
+    else
+    {
+        const Matrix& parentInversMatrix = _parent->GetInversWorldMatrix();
+        Vector3       newPosition = Vector3::Transform(position, parentInversMatrix); // 목표 기준 로컬 좌표 구한다.
+        Position                  = newPosition;
+    }   
+}
+
 void Transform::EraseParent(bool callEvent)
 {
     Transform* prevParent = this->_parent;
@@ -399,6 +413,8 @@ void Transform::UpdateMatrix()
 
         curr->_right = Vector3(curr->_worldMatrix._11, curr->_worldMatrix._12, curr->_worldMatrix._13);
         curr->_right.Normalize();
+
+        curr->_worldPosition = curr->_worldMatrix.Translation();
     });
 }
 

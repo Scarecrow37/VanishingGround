@@ -9,6 +9,7 @@ public:
     virtual ~EditorSceneMenu() = default;
 
 public:
+    virtual void OnStartGui() override;
     virtual void OnMenu() override;
 
 private:

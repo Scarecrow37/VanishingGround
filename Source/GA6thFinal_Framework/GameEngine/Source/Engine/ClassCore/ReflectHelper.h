@@ -371,7 +371,14 @@ namespace ReflectHelper
                             {
                                 if constexpr (std::is_signed_v<FieldTpye>)
                                 {
-                                    value = yyjson_get_sint(jsonVal);
+                                    if constexpr (std::is_floating_point_v<FieldTpye>)
+                                    {
+                                        value = yyjson_get_real(jsonVal);
+                                    }
+                                    else
+                                    {
+                                        value = yyjson_get_sint(jsonVal);
+                                    }                               
                                 }
                                 else if constexpr (std::is_unsigned_v<FieldTpye>)
                                 {
@@ -384,10 +391,6 @@ namespace ReflectHelper
                                         value = yyjson_get_uint(jsonVal);
                                     }
                                 }                                                          
-                                else if constexpr (std::is_floating_point_v<FieldTpye>)
-                                {
-                                    value = yyjson_get_real(jsonVal);
-                                }
                                 else if constexpr (std::is_same_v<FieldTpye, std::string>)
                                 {
                                     value = yyjson_get_str(jsonVal);
