@@ -32,7 +32,8 @@ public:
     void RegisterRenderQueue(std::string_view sceneName, FontRenderer* component);
 
 public:
-    void ResetSkyBox(std::string_view sceneName);
+    void ResetEnvironmentSkyBox(std::string_view sceneName);
+    void ResetIBLSkyBox(std::string_view sceneName);
 
 public:
     void Initialize();

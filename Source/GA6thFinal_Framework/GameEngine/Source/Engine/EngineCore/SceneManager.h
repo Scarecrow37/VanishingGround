@@ -2,6 +2,7 @@
 class GameObject;
 class Component;
 class ESceneManager;
+class InputReceiver;
 class GraphicsBase;
 class MeshComponent;
 class LightComponent;
@@ -28,6 +29,7 @@ struct Scene
 {
     USING_PROPERTY(Scene)
     friend class ESceneManager;
+    friend class EditorSceneMenu;
 
     Scene() = default;
     ~Scene() = default;
@@ -70,7 +72,7 @@ public:
     {
         return _guid.ToPath().string();
     }
-    // get : 이 씬 파일의 상대 경로를 반환합니다.
+    // std::string : 이 씬 파일의 상대 경로를 반환합니다.
     PROPERTY(Path)
 
     GETTER(bool, IsDirty)
@@ -86,6 +88,7 @@ private:
     bool _isLoaded = false;
     File::Guid _guid = STR_NULL;
     File::Guid _skyBox = STR_NULL;
+    File::Guid _skyIBL = STR_NULL;
 };
 
 /// <summary>
@@ -271,6 +274,16 @@ public:
         static void SetSceneSkyBoxPath(Scene& scene, std::string_view skyBoxPath);
 
         /// <summary>
+        /// 씬의 IBL 텍스쳐를 설정합니다.
+        /// </summary>
+        static void SetSceneIBLGuid(Scene& scene, const File::Guid& skyIBL);
+
+        /// <summary>
+        /// 씬의 IBL 텍스쳐를 설정합니다.
+        /// </summary>
+        static void SetSceneIBLPath(Scene& scene, std::string_view skyIBLPath);
+
+        /// <summary>
         /// 오브젝트의 행렬을 명시적으로 업데이트합니다. (성능 하락 주의)
         /// </summary>
         /// <param name="gameObject"></param>
@@ -435,6 +448,13 @@ public:
     bool SetSkyBox(const File::Path& path);
     
     /// <summary>
+    /// IBL 텍스쳐를 설정합니다.
+    /// </summary>
+    /// <param name="path :">사용할 스카이박스</param>
+    /// <returns></returns>
+    bool SetSkyIBL(const File::Path& path);
+
+    /// <summary>
     /// 현재 씬에 존재하는 MeshComponent들을 반환합니다. *매 프레임 호출하면 퍼포먼스가 하락할 수 있습니다.*
     /// </summary>
     /// <returns></returns>
@@ -512,8 +532,6 @@ public:
 public:
     class InputSystem
     {
-        friend class InputReceiver;
-
     public:
         enum class ControllerButton
         {
@@ -547,7 +565,24 @@ public:
             UNKNOWN
         };
 
+        /// <summary>
+        /// 인풋 시스템을 업데이트 합니다. 
+        /// </summary>
         void UpdateInput();
+
+        /// <summary>
+        /// InputReceiver를 등록합니다.
+        /// </summary>
+        /// <param name="receiver :">등록할 receiver</param>
+        /// <param name="buttonIndex :">버튼 index</param>
+        /// <param name="actionIndex :">액션 index</param>
+        /// <param name="func :">이벤트 함수</param>
+        void RegisterInputReceiver(InputReceiver& receiver, int buttonIndex, int actionIndex, std::function<void(const Input::Controller& controller)> func);
+
+        /// <summary>
+        /// 등록된 모든 Receiver을 해제합니다.
+        /// </summary>
+        void CleanupInputReceivers();
 
     private:
         static constexpr size_t ACTION_COUNT = (size_t)Action::UNKNOWN;
@@ -559,7 +594,7 @@ public:
         std::array<Action, CONTROLLER_BUTTON_COUNT>     _actionTracker{Action::IDLE,};
         std::array<bool, CONTROLLER_BUTTON_COUNT>       _actionChecker{false,};
 
-        std::array<std::array<std::vector<std::pair<InputReceiver*, std::function<void(const Input::Controller&)>>>, 
+        std::array<std::array<std::vector<std::pair<std::shared_ptr<bool>, std::function<void(const Input::Controller&)>>>, 
             ACTION_COUNT>,
             CONTROLLER_BUTTON_COUNT>
             _receivers;

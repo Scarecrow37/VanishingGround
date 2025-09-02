@@ -6,6 +6,7 @@
 class InputReceiver
 {
 public:
+    friend class ESceneManager::InputSystem;
     using Action = ESceneManager::InputSystem::Action;
     using ControllerButton = ESceneManager::InputSystem::ControllerButton;
 
@@ -34,6 +35,7 @@ private:
         }
     };
     std::set<ControllerSetKey> _controllerSet;
+    std::shared_ptr<bool>      _isDestroy;
 };
 
 /// <summary>
@@ -67,16 +69,14 @@ inline bool InputReceiver::BindInputAction(ControllerButton button, Action actio
             int   actionIndex = (int)action;
             if (instance->gameObject->IsValid())
             {
-                inputSystem._receivers[buttonIndex][actionIndex].emplace_back(
-                    instance, 
-                    [instance, func](const Input::Controller& controller) 
+                inputSystem.RegisterInputReceiver(*this, buttonIndex, actionIndex,
+                [instance, func](const Input::Controller& controller) 
+                {
+                    if (instance->EnableInHierarchy)
                     {
-                        if (instance->EnableInHierarchy)
-                        {
-                            std::invoke(func, instance, controller);
-                        }
+                        std::invoke(func, instance, controller);
                     }
-                );
+                });
             }  
         }
         else
@@ -118,14 +118,14 @@ inline bool InputReceiver::BindInputAction(ControllerButton button, Action actio
             int   actionIndex = (int)action;
             if (owner->gameObject->IsValid())
             {
-                inputSystem._receivers[buttonIndex][actionIndex].emplace_back(
-                    instance, [owner, instance, func](const Input::Controller& controller) 
+                inputSystem.RegisterInputReceiver(*this, buttonIndex, actionIndex,
+                [instance, owner, func](const Input::Controller& controller) 
+                {
+                    if (owner->EnableInHierarchy)
                     {
-                        if (owner->EnableInHierarchy)
-                        {
-                            std::invoke(func, instance, controller);
-                        }
-                    });
+                        std::invoke(func, instance, controller);
+                    }
+                });
             }
         }
         else

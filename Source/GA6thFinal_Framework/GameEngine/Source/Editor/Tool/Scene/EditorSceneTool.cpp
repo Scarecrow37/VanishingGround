@@ -154,6 +154,7 @@ void EditorSceneTool::DragDropEvent()
             if (".hdr" == extension)
             {
                 UmSceneManager.SetSkyBox(path);
+                UmSceneManager.SetSkyIBL(path);
             }
         }
         ImGui::EndDragDropTarget();
@@ -354,6 +355,16 @@ void EditorSceneTool::DrawManipulate()
                 }
             }
         }
+    }
+    else
+    {
+        _isUseManipulate    = false;
+        _isDrawedManipulate = false;
+        _isMovedManipulate  = false;
+        _isUsingStart       = false;
+        _isUsingEnd         = false;
+        _isUsing            = false;
+        _isOver             = false;            
     }
 }
 
