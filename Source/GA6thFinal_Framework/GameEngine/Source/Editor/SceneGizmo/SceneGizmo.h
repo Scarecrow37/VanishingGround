@@ -30,7 +30,7 @@ public:
     /// <summary>
     /// 기즈모로 사용할 기본 텍스쳐를 로드합니다.
     /// </summary>
-    /// <param name="icon :">사용할 아이콘ㄴ</param>
+    /// <param name="icon :">사용할 아이콘</param>
     void SetIconTexture(DefaultIcon icon);
 
     /// <summary>
