@@ -47,7 +47,7 @@ private:
     ImGuiWindow*    _targetWindow;
     Camera*         _targetCamera;
 
- private:
+private:
     //출력할 위치를 계산합니다.
     bool CalculateGizmoScreenPosition(SceneGizmo& gizmo, ImVec2* outScreenPos);
 

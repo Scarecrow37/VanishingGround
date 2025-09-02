@@ -11,7 +11,6 @@ public:
 public:
     REFLECT_PROPERTY(
         ObjectDrop, 
-        TestVector3,
         ReflectFields->floatVector,
         Work,
         Move,
@@ -24,15 +23,13 @@ public:
     }
     PROPERTY(ObjectDrop)
 
-    GETTER(const Vector3&, TestVector3)
-    {
-        return testVector3;
-    }
-    SETTER(const Vector3&, TestVector3)
-    {
-        testVector3 = value;
-    }
-    PROPERTY(TestVector3)
+    GETTER(const Vector3&, WorldPosition) { return transform->WorldPosition; }
+    SETTER(const Vector3&, WorldPosition) { transform->WorldPosition = value; }
+    PROPERTY(WorldPosition)
+
+    GETTER(const Vector3&, LocalPosition) { return transform->LocalPosition; }
+    SETTER(const Vector3&, LocalPosition) { transform->LocalPosition = value; }
+    PROPERTY(LocalPosition)
 
     const std::vector<float>& GetfloatVector() const { return ReflectFields->floatVector; }
 
@@ -43,9 +40,6 @@ public:
     GETTER(int, Move) { return ReflectFields->Move; }
     SETTER(int, Move) { ReflectFields->Move = value; }
     PROPERTY(Move)
-
-private:
-    Vector3 testVector3;
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
