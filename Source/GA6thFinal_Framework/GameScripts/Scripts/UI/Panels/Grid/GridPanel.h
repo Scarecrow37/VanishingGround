@@ -119,9 +119,9 @@ public:
     SETTER(unsigned int, ColumnSpan)
     {
         ReflectFields->ColumnSpan = std::clamp(value, MIN_COLUMN_SPAN, ReflectFields->Columns - ReflectFields->Column);
-        if (GridPanel* grid = Grid; nullptr != grid)
+        if (UIComponent* ui = UI; nullptr != ui)
         {
-            grid->InvalidateMeasure();
+            ui->InvalidateMeasure();
         }
     }
     PROPERTY(ColumnSpan)
@@ -130,9 +130,9 @@ public:
     SETTER(unsigned int, RowSpan)
     {
         ReflectFields->RowSpan = std::clamp(value, MIN_ROW_SPAN, ReflectFields->Rows - ReflectFields->Row);
-        if (GridPanel* grid = Grid; nullptr != grid)
+        if (UIComponent* ui = UI; nullptr != ui)
         {
-            grid->InvalidateMeasure();
+            ui->InvalidateMeasure();
         }
     }
     PROPERTY(RowSpan)

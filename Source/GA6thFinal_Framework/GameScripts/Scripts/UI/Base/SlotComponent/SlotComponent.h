@@ -7,6 +7,15 @@ class SlotComponent : public UIBaseComponent
 public:
     SlotComponent();
 
+public:
+    GETTER_ONLY(UIComponent*, UI)
+    {
+        const GameObject& object      = gameObject;
+        UIComponent*      uiComponent = object.GetComponentDynamic<UIComponent>();
+        return uiComponent;
+    }
+    PROPERTY(UI)
+
 protected:
     void OnDetachParent(GameObject* previousParentGameObject) override;
 
