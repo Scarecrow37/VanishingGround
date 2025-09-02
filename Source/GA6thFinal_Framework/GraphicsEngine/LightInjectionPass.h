@@ -23,6 +23,6 @@ private:
     VolumetricFogTechnique*              _volumTech;
     std::unique_ptr<class ShaderBuilder> _shader;
     ComPtr<ID3D12PipelineState>          _pso;
-    std::unique_ptr<Texture>             _noiseTexture;
     std::unique_ptr<ConstantBufferView>  _volumetricFogBuffer;
+    std::unique_ptr<ConstantBufferView>  _constantBuffer;
 };

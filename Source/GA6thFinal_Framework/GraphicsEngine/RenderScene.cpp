@@ -143,7 +143,7 @@ void RenderScene::AddRenderPassDatas()
 {
     for (auto& technique : _techniques)
     {
-        technique->AddRenderPassDatas(_name);
+         technique->AddRenderPassDatas(_name);
     }
 }
 

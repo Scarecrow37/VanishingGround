@@ -1,6 +1,14 @@
 ﻿#pragma once
 
 constexpr UINT SWAPCHAIN_BUFFER_COUNT = 4;
+// volumetric fog medium
+constexpr UINT VOXEL_VOLUME_SIZEX      = 160;
+constexpr UINT VOXEL_VOLUME_SIZEY      = 90;
+constexpr UINT VOXEL_VOLUME_SIZEZ      = 128;
+//// volumetric fog high
+//constexpr UINT VOXEL_VOLUE_SIZEX = 240;
+//constexpr UINT VOXEL_VOLUE_SIZEY = 135;
+
 
 enum class FeatureLevel { LEVEL_11_0, LEVEL_12_0, LEVEL_12_1 };
 
@@ -22,16 +30,17 @@ enum PostProcess
 
 enum RenderTechniqueFlag : unsigned long long
 {
-    NONE             = 0,
-    SKY_BOX_TECH     = 1 << 0,
-    PBR_TECH         = 1 << 1,
-    BLOOM_TECH       = 1 << 2,
-    UI_TECH          = 1 << 3,
-    FONT_TECH        = 1 << 4,
-    EDITOR_DRAW_TECH = 1 << 5,
-    PARTICLE_TECH    = 1 << 6,
-    RAY_TRACING_TECH = 1 << 7,
-    SSR_TECH         = 1 << 8,
+    NONE                = 0,
+    SKY_BOX_TECH        = 1 << 0,
+    PBR_TECH            = 1 << 1,
+    BLOOM_TECH          = 1 << 2,
+    UI_TECH             = 1 << 3,
+    FONT_TECH           = 1 << 4,
+    EDITOR_DRAW_TECH    = 1 << 5,
+    PARTICLE_TECH       = 1 << 6,
+    RAY_TRACING_TECH    = 1 << 7,
+    SSR_TECH            = 1 << 8,
+    VOLUMETRIC_FOG_TECH = 1 << 9,
 };
 
 inline RenderTechniqueFlag operator|(RenderTechniqueFlag lhs, RenderTechniqueFlag rhs)

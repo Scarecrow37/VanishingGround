@@ -62,12 +62,17 @@ void UnorderedAccessView::CreateUnorderedAccessView()
 
     CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_DEFAULT);
     HRESULT                 hr = S_OK;
+
+    if (_uavDimension == D3D12_UAV_DIMENSION_TEXTURE3D)
+    {
+        _desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE3D;
+    }
+
     hr                         = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &_desc,
                                                                  D3D12_RESOURCE_STATE_UNORDERED_ACCESS, nullptr, IID_PPV_ARGS(&_resource));
     FAILED_CHECK_MESSAGE(hr, L"UnorderedAccessView::Initialize CreateCommittedResource Failed");
 
     _desc = _resource->GetDesc();
-
     D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
     uavDesc.Format                           = _desc.Format;
     uavDesc.ViewDimension                    = _uavDimension;
@@ -81,7 +86,12 @@ void UnorderedAccessView::CreateUnorderedAccessView()
             uavDesc.Texture2DArray.ArraySize       = _desc.DepthOrArraySize;
             uavDesc.Texture2DArray.PlaneSlice      = 0;
         }
-
+        else if (_uavDimension == D3D12_UAV_DIMENSION_TEXTURE3D)
+        {
+            uavDesc.Texture3D.MipSlice    = i;
+            uavDesc.Texture3D.FirstWSlice = 0;
+            uavDesc.Texture3D.WSize       = _desc.DepthOrArraySize >> i;
+        }
         device->CreateUnorderedAccessView(_resource.Get(), nullptr, &uavDesc, _uavHandles[i].CPU);
     }
 

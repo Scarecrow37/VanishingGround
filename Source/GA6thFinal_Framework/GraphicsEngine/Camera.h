@@ -7,6 +7,7 @@ public:
     const Matrix&          GetViewMatrix() const { return _view; }
     const Matrix&          GetProjectionMatrix() const { return _projection; }
     const Matrix&          GetProjectionInverseMatrix() const { return _projectionInverse; }
+    const Matrix&          GetPrevViewProjectionMatrix() const { return _prevViewProjection; }
     const Vector3          GetPosition() const { return _world.Translation(); }
     const Quaternion&      GetRotation() const { return _rotation; }
     const BoundingFrustum& GetWorldFrustum() const { return _worldFrustum; }
@@ -34,6 +35,7 @@ private:
     Matrix          _view;
     Matrix          _projection;
     Matrix          _projectionInverse;
+    Matrix          _prevViewProjection;
     BoundingFrustum _frustum;
     BoundingFrustum _worldFrustum;
     Vector3         _position;

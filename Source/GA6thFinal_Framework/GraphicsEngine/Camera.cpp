@@ -76,8 +76,10 @@ void Camera::AddPosition(const Vector3& position)
 
 void Camera::Update()
 {
+    _prevViewProjection = _view * _projection;
     _world = XMMatrixRotationQuaternion(_rotation) * XMMatrixTranslationFromVector(_position);
     _view  = XMMatrixInverse(nullptr, _world);
 
     _frustum.Transform(_worldFrustum, _world);
+
 }

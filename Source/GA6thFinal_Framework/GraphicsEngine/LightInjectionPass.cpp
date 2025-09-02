@@ -15,22 +15,13 @@ void LightInjectionPass::Initialize(RenderScene* ownerScene, RenderTechnique* ow
     InitShaderAndPSO();
     _volumTech = dynamic_cast<VolumetricFogTechnique*>(ownerTechnique);
     
-    // 이러면 패스별로 동일한 텍스쳐를 사용하고 있기에 나중에 공용 텍스쳐로 빼야할것같음 일다는 되는거 확인 먼저
-    _noiseTexture                      = std::make_unique<Texture>();
-    std::filesystem::path noiseTexPath = L"../Shaders/texture/blueNoise.dds";
-    _noiseTexture->LoadResource(noiseTexPath);
     
     _volumetricFogBuffer = std::make_unique<ConstantBufferView>();
     UINT alignedSize     = (sizeof(VolumetricFogTechnique) + 255) & ~255;
     _volumetricFogBuffer->Initialize(alignedSize);
-    
 }
 
-void LightInjectionPass::Update(ID3D12GraphicsCommandList* commandList) 
-{
-    //VolumetricFogData fogData;
-    // VolumetricFogData
-}
+void LightInjectionPass::Update(ID3D12GraphicsCommandList* commandList) {}
 
 void LightInjectionPass::Begin(ID3D12GraphicsCommandList* commandList) 
 {
@@ -40,27 +31,28 @@ void LightInjectionPass::Begin(ID3D12GraphicsCommandList* commandList)
 
 void LightInjectionPass::Draw(ID3D12GraphicsCommandList* commandList) 
 {
-    auto pbrlitTech = _ownerTechnique->GetRenderTechnique<PBRLitTechnique>();
-
-    auto shadowpass = pbrlitTech->GetRenderPass<ShadowMapPass>();
     
+    auto pbrlitTech = _ownerTechnique->GetRenderTechnique<PBRLitTechnique>();
+    auto fogTech    = _ownerTechnique->GetRenderTechnique<VolumetricFogTechnique>();
+    auto shadowpass = pbrlitTech->GetRenderPass<ShadowMapPass>();
     D3D12_GPU_VIRTUAL_ADDRESS cameraData = _ownerScene->_cameraBuffer->GetGPUVirtualAddress();
     D3D12_GPU_VIRTUAL_ADDRESS lightData   = _ownerScene->_lightBuffer->GetGPUVirtualAddress();
     D3D12_GPU_VIRTUAL_ADDRESS cacadeData  = shadowpass->GetCascadeDataCBV();
-
+    D3D12_GPU_VIRTUAL_ADDRESS   fogData      = fogTech->GetConstantBufferView()->GetGPUVirtualAddress();
     D3D12_GPU_DESCRIPTOR_HANDLE shadowMap  = shadowpass->GetShadowMapSRV();
     auto                        preVoxelTex = _volumTech->GetPrevVoxelTexture();
     auto                        currVoxelTex = _volumTech->GetCurrVoxelTexture();
     commandList->SetComputeRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"), cacadeData);
-    commandList->SetComputeRootConstantBufferView(_shader->GetRootParameterIndex("lightdata"), lightData);
+    commandList->SetComputeRootConstantBufferView(_shader->GetRootParameterIndex("lightData"), lightData);
     commandList->SetComputeRootConstantBufferView(_shader->GetRootParameterIndex("cascadeData"),cacadeData);
+    commandList->SetComputeRootConstantBufferView(_shader->GetRootParameterIndex("fogdata"), fogData);
     commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("VoxelReadTexture"),
                                                _volumTech->GetPrevVoxelTexture()->GetSRVHandle());
     commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("VoxelWriteTexture"),
                                                _volumTech->GetCurrVoxelTexture()->GetUAVHandle());
     commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("ShadowMap"),
                                                shadowpass->GetShadowMapSRV());
-    
+    commandList->Dispatch(std::ceil(VOXEL_VOLUME_SIZEX/8),std::ceil(VOXEL_VOLUME_SIZEY/8),VOXEL_VOLUME_SIZEZ);
 }
 
 void LightInjectionPass::End(ID3D12GraphicsCommandList* commandList) {}
