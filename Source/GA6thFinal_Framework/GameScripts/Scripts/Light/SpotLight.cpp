@@ -30,7 +30,7 @@ void SpotLight::OnDrawDebug()
 
 void SpotLight::OnDrawDebugSelected() 
 {
-    Vector3 position  = transform->GetWorldMatrix().Translation();
+    Vector3 position  = transform->WorldPosition;
     Vector3 direction = transform->Forward;
     UmGraphics.DebugDraw3D("Editor", position, direction, GetRange(), XMConvertToRadians(ReflectFields->Inner), XMConvertToRadians(ReflectFields->Outer), LightComponent::DEBUG_COLOR);
 }
