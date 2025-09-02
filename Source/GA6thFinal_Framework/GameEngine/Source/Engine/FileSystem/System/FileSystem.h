@@ -10,6 +10,7 @@ namespace File
 
     constexpr const char* UNDEFINED_EXTENSION       = ".UmUndefined";
     constexpr const char* PROJECT_EXTENSION         = ".UmProject";
+    constexpr const char* SETTING_EXTENSION         = ".UmSetting";
     constexpr const char* PROJECT_SETTING_FILENAME  = "FileSystem.UmSetting";
     constexpr const char* META_EXTENSION            = ".UmMeta";
 } // namespace File

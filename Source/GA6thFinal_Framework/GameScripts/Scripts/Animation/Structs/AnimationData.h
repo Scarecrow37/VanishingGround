@@ -4,12 +4,12 @@
 
 enum AnimationFlag
 {
-    ANIMATION_FLAG_NONE                     = 0,
-    ANIMATION_FLAG_USE_BLEND                = 1 << 0, // 애니메이션 블렌딩 활성화
-    ANIMATION_FLAG_USE_LOOP                 = 1 << 1, // 루프 애니메이션
-    ANIMATION_FLAG_PAUSE                    = 1 << 2, // 애니메이션 정지
-    ANIMATION_FLAG_ALWAYS_UPDATE            = 1 << 3, // 애니메이션 프레임을 항상 업데이트(OverrideAnimation은 마지막 애니메이션만 업데이트 하지만, 해당 bool값을 true로 할 경우 해당 애니메이션도 업데이트)
-    ANIMATION_FLAG_RESET_FRAME              = 1 << 4, // 애니메이션이 바뀔 때 프레임을 0으로 초기화
+    ANIMATION_FLAG_NONE             = 0,
+    ANIMATION_FLAG_USE_BLEND        = 1 << 0, // 애니메이션 블렌딩 활성화
+    ANIMATION_FLAG_USE_LOOP         = 1 << 1, // 루프 애니메이션
+    ANIMATION_FLAG_PAUSE            = 1 << 2, // 애니메이션 정지
+    ANIMATION_FLAG_ALWAYS_UPDATE    = 1 << 3, // 애니메이션 활성화 중이 아니어도 항상 프레임 업데이트
+    ANIMATION_FLAG_RESET_FRAME      = 1 << 4, // 애니메이션이 바뀔 때 프레임을 0으로 초기화
 };
 using AnimationFlags = int;
 

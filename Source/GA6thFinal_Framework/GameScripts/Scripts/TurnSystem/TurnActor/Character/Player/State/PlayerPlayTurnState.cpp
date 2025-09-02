@@ -316,19 +316,22 @@ void PlayerPlayTurnState::SetAttackReady()
 {
     Player& player = GetPlayer();
     auto* animator = player.GetAnimationComponent();
-    auto* audioTable = player.GetAudioTableComponent();
     if (animator)
     {
+        // 오버라이드 애니메이션 빌드 시작
         animator->BeginBuildOverrideAnimation();
         animator->ClearOverrideAnimations();
 
+        // 애니메이션 "Attack_Ready_Loop" USE_BLEND 및 USE_LOOP 플래그 설정 후  Push
         animator->SetNextAnimationFlags(ANIMATION_FLAG_USE_BLEND | ANIMATION_FLAG_USE_LOOP);
         animator->PushBackOverrideAnimation("Attack_Ready_Loop");
         
+        // 애니메이션 "Attack_Ready" USE_BLEND 및 ALWAYS_UPDATE 플래그 설정 후 Push
         animator->SetNextAnimationFlags(ANIMATION_FLAG_USE_BLEND | ANIMATION_FLAG_ALWAYS_UPDATE);
         animator->PushBackOverrideAnimation("Attack_Ready");
         animator->SetCurrentAnimationPopCondition([](const AnimationData& data) { return data.IsEnd(); });  // 애니메이션이 끝날 경우 Pop
 
+        // 애니메이션 빌드 종료
         animator->EndBuildOverrideAnimation();
     }
 

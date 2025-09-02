@@ -34,16 +34,18 @@ class EditorAssetBrowserTool
         AssetData()  = default;
         ~AssetData() = default;
 
-        void Refesh(FileEntry entry);
+        void Refresh(FileEntry entry);
         bool IsSamePath(const std::filesystem::path& path) const;
 
-        FileEntry   Entry;                  // 파일 엔트리
-        bool        IsDirectory = false;    // 디렉토리인지 여부
-        std::string Extension = "";         // 파일 확장자
-        std::string FileName = "";          // 파일 이름
-        std::string ViewName = "";          // 뷰에 표시될 이름
-        std::time_t LastWriteTime = {};     // 마지막 수정 시간
-        int         Order = 0;              // 정렬 순서 
+        FileEntry   Entry;                      // 파일 엔트리
+        bool        IsDirectory = false;        // 디렉토리인지 여부
+        std::string Extension = "";             // 파일 확장자
+        std::string FileName = "";              // 파일 이름
+        std::string ViewName = "";              // 뷰에 표시될 이름
+        std::time_t LastWriteTime = {};         // 마지막 수정 시간
+        int         Order = 0;                  // 정렬 순서
+        bool        AbleToDragSource = true;    // 드래그 소스 가능 여부
+        bool        AbleToDragTarget = true;    // 드래그 타겟 가능 여부
 
         // icon
         std::shared_ptr<Texture> PreviewIconTexture; // 아이콘 텍스처
@@ -149,7 +151,6 @@ private:
     std::vector<std::function<void()>> _delayEvent;     // 후처리 이벤트 (보통 삭제나 추가 등의 작업을 함)
 
     /* 에셋 정보 저장 테이블 및 리스트 */
-    AssetData UpperFolderData; // 상위 폴더 정보
     std::unordered_map<File::Path, AssetData> _focusFolderAssetDataMap; // 현재 포커싱 폴더의 파일 목록 맵 (경로 -> AssetData)
     std::vector<AssetData*> _focusFolderAssetDataList;  // 현재 포커싱 폴더의 파일 목록
     
