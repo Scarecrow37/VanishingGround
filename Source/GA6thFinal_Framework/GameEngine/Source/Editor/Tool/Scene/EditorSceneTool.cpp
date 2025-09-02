@@ -393,7 +393,7 @@ void EditorSceneTool::DrawSceneView()
     D3D12_GPU_DESCRIPTOR_HANDLE handle = UmGraphics.GetRenderSceneImage("Editor");
     ImGui::Image((ImTextureID)handle.ptr, {_sceneClientWidth, _sceneClientHeight});  
 
-    constexpr ImVec2 iconButtonSize = ImVec2(32.f, 32.f);
+    constexpr ImVec2 iconButtonSize = ImVec2(50.f, 50.f);
     constexpr ImVec2 damp = ImVec2(4.f, 4.f);
     ImVec2 moveIconPos = _window->ContentRegionRect.Min;
     ImGui::SetCursorScreenPos(ImVec2(moveIconPos.x + damp.x, moveIconPos.y + damp.y));
