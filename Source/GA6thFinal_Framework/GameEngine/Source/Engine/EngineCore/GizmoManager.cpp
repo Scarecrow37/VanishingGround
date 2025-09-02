@@ -58,22 +58,27 @@ void EGizmoManager::Draw()
         {
             if (gizmo->_icon)
             {
-                ImVec2 screenPos;
-                if (CalculateGizmoScreenPosition(*gizmo, &screenPos))
+                ImGui::PushID(gizmo);
                 {
-                    const ImGuiViewport*               viewport    = ImGui::GetMainViewport();
-                    const D3D12_GPU_DESCRIPTOR_HANDLE& imageHandle = gizmo->_icon->GetGPUHandle();
-
-                    //이미지 크기에 맞게 중심 이동
-                    screenPos.x -= gizmo->Size.x * 0.5f;
-                    screenPos.y -= gizmo->Size.y * 0.5f;
-                    ImGui::SetCursorPos(screenPos);
-                    if (ImGui::ImageButton((ImTextureID)imageHandle.ptr, gizmo->Size))
+                    ImVec2 screenPos;
+                    if (CalculateGizmoScreenPosition(*gizmo, &screenPos))
                     {
-                        std::weak_ptr<GameObject> oldWp = EditorHierarchyTool::GetFocusObject();
-                        UmCommandManager.Do<Command::Hierarchy::FocusCommand>(oldWp, gizmo->_owner.gameObject->GetWeakPtr());
+                        const ImGuiViewport*               viewport    = ImGui::GetMainViewport();
+                        const D3D12_GPU_DESCRIPTOR_HANDLE& imageHandle = gizmo->_icon->GetGPUHandle();
+
+                        // 이미지 크기에 맞게 중심 이동
+                        screenPos.x -= gizmo->Size.x * 0.5f;
+                        screenPos.y -= gizmo->Size.y * 0.5f;
+                        ImGui::SetCursorPos(screenPos);
+                        if (ImGui::ImageButton((ImTextureID)imageHandle.ptr, gizmo->Size))
+                        {
+                            std::weak_ptr<GameObject> oldWp = EditorHierarchyTool::GetFocusObject();
+                            UmCommandManager.Do<Command::Hierarchy::FocusCommand>(
+                                oldWp, gizmo->_owner.gameObject->GetWeakPtr());
+                        }
                     }
                 }
+                ImGui::PopID();
             }
         }
         ImGui::PopStyleColor(3);
