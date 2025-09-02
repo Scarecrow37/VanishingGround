@@ -40,6 +40,8 @@ void EditorGameView::SetCameraMode(CameraMode mode)
                 _freeCamera->SetPivot(0.0f);
                 _cameraMode = CAMERA_MODE_FREE_MANIPULATE;
                 break;
+            default:
+                break;
             }
         }
     }

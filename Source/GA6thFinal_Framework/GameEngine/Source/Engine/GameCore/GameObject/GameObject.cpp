@@ -354,8 +354,17 @@ void GameObject::OnInspectorStay()
                         }
                         component->ImGuiDrawPropertys();
 
-                        static EditorSceneTool* editorSceneTool = Global::editorModule->GetDockWindowSystem().GetDockWindow("SceneDock")->GetGui<EditorSceneTool>();
-                        if (editorSceneTool && editorSceneTool->DrawGizmo)
+                        static EditorSceneTool* editorSceneTool;
+                        if (nullptr == editorSceneTool)
+                        {
+                            auto& dockSystem = Global::editorModule->GetDockWindowSystem();
+                            EditorDockWindow* sceneDock = dockSystem.GetDockWindow("SceneDock");
+                            if (sceneDock)
+                            {
+                                editorSceneTool = dockSystem.GetDockWindow("SceneDock")->GetGui<EditorSceneTool>();
+                            }
+                        }
+                        else if (editorSceneTool && editorSceneTool->DrawGizmo)
                         {
                             component->OnDrawDebugSelected();
                         }                       

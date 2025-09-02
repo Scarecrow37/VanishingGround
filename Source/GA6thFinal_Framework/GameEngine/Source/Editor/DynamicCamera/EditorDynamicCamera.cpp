@@ -38,6 +38,15 @@ void EditorDynamicCamera::Update(bool isHoveredWindow)
     bool          isRightClickPressed   = ImGui::IsKeyPressed(ImGuiKey_MouseRight, false);
     bool          isRightClickReleased  = ImGui::IsKeyReleased(ImGuiKey_MouseRight);
 
+    if (isRightClickPressed)
+    {
+        _isRightClickDown = true && _isHoveredWindow;
+    }
+    else if (isRightClickReleased)
+    {
+        _isRightClickDown = false;
+    }
+
     if (_isRightClickDown)
     {
         _isMoved = UpdateMove();
@@ -45,12 +54,9 @@ void EditorDynamicCamera::Update(bool isHoveredWindow)
         _pivotPosition = _position - forward * _pivot;
         UpdateMouseCursor();
         // 우클릭 + 마우스 휠 시 카메라 이동속도 변경
-        if (ImGui::IsKeyDown(ImGuiKey_MouseRight))
-        {
-            float wheelFactor = 1.0f + (io.MouseWheel * 0.05f);
-            float moveSpeed   = _moveSpeed * (std::max(0.01f, wheelFactor));
-            SetMoveSpeed(moveSpeed);
-        }
+        float wheelFactor = 1.0f + (io.MouseWheel * 0.05f);
+        float moveSpeed   = _moveSpeed * (std::max(0.01f, wheelFactor));
+        SetMoveSpeed(moveSpeed);
     }
     else
     {
@@ -73,15 +79,6 @@ void EditorDynamicCamera::Update(bool isHoveredWindow)
     }
     _camera->SetPosition(_position);
     _camera->SetRotation(_rotation);
-
-    if (isRightClickPressed)
-    {
-        _isRightClickDown = true && _isHoveredWindow;
-    }
-    else if (isRightClickReleased)
-    {
-        _isRightClickDown = false;
-    }
 }
 
 bool EditorDynamicCamera::UpdateMove()
