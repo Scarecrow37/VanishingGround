@@ -14,6 +14,8 @@ public:
         ReflectFields->floatVector,
         Work,
         Move,
+        WorldPosition,
+        LocalPosition,
         ReflectFields->TestDontDestroyOnLoad
         )
 
