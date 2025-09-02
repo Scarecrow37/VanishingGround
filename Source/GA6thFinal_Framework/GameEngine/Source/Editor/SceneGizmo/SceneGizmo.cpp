@@ -5,7 +5,7 @@ SceneGizmo::SceneGizmo(Component* owner)
 : 
     _owner(*owner) 
 {
-
+    Size = {50.f, 50.f};
 }
 
 void SceneGizmo::SetIconTexture(DefaultIcon icon)

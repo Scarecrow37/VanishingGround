@@ -47,7 +47,7 @@ public:
     /// <summary>
     /// 화면 기준 크기를 설정합니다.
     /// </summary>
-    ImVec2 Size = {80.f, 80.f};
+    ImVec2 Size;
 
 private:
     Component& _owner;
