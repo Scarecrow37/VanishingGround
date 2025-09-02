@@ -13,7 +13,7 @@ void SpotLight::Reset()
     Base::Reset();
 
     const Vector3& color = GetColor();
-    const Vector3& position = transform->Position;
+    const Vector3& position = transform->WorldPosition;
     const Vector3& direction = transform->Forward;
     const Vector3& attenuation = GetAttenuation();
     const float&   range       = GetRange();

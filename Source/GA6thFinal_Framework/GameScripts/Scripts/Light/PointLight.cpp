@@ -26,7 +26,7 @@ void PointLight::Reset()
     float&         range       = ReflectFields->Range;
     float&         intensity   = ReflectFields->Basefields.get().Intensity;
 
-    Lighting.SetPointLight(color, transform->Position, attenuation, range, intensity);
+    Lighting.SetPointLight(color, transform->WorldPosition, attenuation, range, intensity);
 }
 
 void PointLight::OnDrawDebug() 
