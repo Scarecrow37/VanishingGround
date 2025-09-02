@@ -51,7 +51,7 @@ void DirectionalLight::OnDrawDebugSelected()
         {0.0f, 0.0f, -1.0f}, // 270도 (뒤)
         {S, 0.0f, -S},       // 315도 (오른쪽 아래)
     };
-    const Vector3& position = transform->Position;
+    const Vector3& position = transform->GetWorldMatrix().Translation();
     const Vector3& dir      = transform->Forward;
     Vector3 rayPositions[8];
     for (int i = 0; i < 8; ++i)

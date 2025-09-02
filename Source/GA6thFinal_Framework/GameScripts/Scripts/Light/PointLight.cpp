@@ -37,7 +37,7 @@ void PointLight::OnDrawDebug()
 void PointLight::OnDrawDebugSelected() 
 {
     BoundingSphere sphere;
-    sphere.Center = transform->Position;
+    sphere.Transform(sphere, transform->GetWorldMatrix());
     sphere.Radius = ReflectFields->Range;
     UmGraphics.DebugDraw3D("Editor", sphere, LightComponent::DEBUG_COLOR);
 }
