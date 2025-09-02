@@ -31,6 +31,12 @@ void LightComponent::DeserializedReflectEvent()
 
 void LightComponent::Reset() 
 {
+    Base::Reset();
+    _gizmo.SetIconTexture(SceneGizmo::DefaultIcon::LIGHT);
+}
 
+void LightComponent::OnDrawDebug() 
+{
+    _gizmo.Draw();
 }
 

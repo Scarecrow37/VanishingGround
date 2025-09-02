@@ -24,6 +24,8 @@ void DirectionalLight::DeserializedReflectEvent()
 
 void DirectionalLight::Reset() 
 {
+    Base::Reset();
+
     const Vector3& color     = GetColor();
     const Vector3& ambient   = _ambientVector3;
     const Vector3& direction = transform->Forward;
@@ -32,7 +34,7 @@ void DirectionalLight::Reset()
 
 void DirectionalLight::OnDrawDebug() 
 {
-
+    Base::OnDrawDebug();
 }
 
 void DirectionalLight::OnDrawDebugSelected() 

@@ -19,6 +19,8 @@ void PointLight::ImGuiDrawPropertysEvent()
 
 void PointLight::Reset() 
 {
+    Base::Reset();
+
     const Vector3& color       = GetColor();
     const Vector3& attenuation = _attenuation;
     float&         range       = ReflectFields->Range;
@@ -29,7 +31,7 @@ void PointLight::Reset()
 
 void PointLight::OnDrawDebug() 
 {
-
+    Base::OnDrawDebug();
 }
 
 void PointLight::OnDrawDebugSelected() 

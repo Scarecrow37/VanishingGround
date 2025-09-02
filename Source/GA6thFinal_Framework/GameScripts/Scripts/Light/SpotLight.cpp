@@ -10,6 +10,8 @@ void SpotLight::DeserializedReflectEvent()
 
 void SpotLight::Reset() 
 {
+    Base::Reset();
+
     const Vector3& color = GetColor();
     const Vector3& position = transform->Position;
     const Vector3& direction = transform->Forward;
@@ -23,7 +25,7 @@ void SpotLight::Reset()
 
 void SpotLight::OnDrawDebug() 
 {
-
+    Base::OnDrawDebug();
 }
 
 void SpotLight::OnDrawDebugSelected() 
