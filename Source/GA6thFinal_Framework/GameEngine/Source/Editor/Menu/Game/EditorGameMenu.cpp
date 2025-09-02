@@ -7,9 +7,12 @@ EditorGameMenu::EditorGameMenu()
 
 void EditorGameMenu::OnStartGui()
 {
-    auto&             system    = Global::editorModule->GetDockWindowSystem();
-    EditorDockWindow* dock      = system.GetDockWindow("SceneDock");
-    _gameView                   = dock->GetGui<EditorGameView>();
+    auto&             system = Global::editorModule->GetDockWindowSystem();
+    EditorDockWindow* dock   = system.GetDockWindow("SceneDock");
+    if (dock)
+    {
+        _gameView = dock->GetGui<EditorGameView>();
+    }
 }
 
 void EditorGameMenu::OnMenu() 
