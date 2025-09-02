@@ -12,7 +12,7 @@ public:
     };
 public:
     EditorGameView();
-    virtual ~EditorGameView() override;
+    virtual ~EditorGameView();
 
 public:
     void SetCameraMode(CameraMode mode);
