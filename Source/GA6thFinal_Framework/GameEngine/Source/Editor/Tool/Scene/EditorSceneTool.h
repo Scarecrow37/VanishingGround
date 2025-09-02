@@ -9,6 +9,7 @@ class EditorHierarchyTool;
 class EditorSceneTool
     : public EditorTool
 {
+    USING_PROPERTY(EditorSceneTool)
 public:
     EditorSceneTool();
     virtual ~EditorSceneTool();
@@ -39,6 +40,8 @@ private:
     void OnFrameFocusStay() override;
 
 private:
+    void LoadDefaultIcon();
+
     void UpdateKeyboardFrameFocus();
     void UpdateKeyboardFrameRender();
     void DragDropEvent();
@@ -126,7 +129,83 @@ protected:
     float  CameraPivot         = 0.f;
     bool   VertexSnapUse       = false;
     float  VertexSnapThreshold = 100.f;
-    REFLECT_FIELDS_END(EditorSceneTool)
+    bool   DrawGizmo           = true;
+};
+struct reflection_safe_ptr
+{
+    reflection_safe_ptr(EditorSceneTool* owner) { _owner = owner; }
+    ~reflection_safe_ptr() = default;
+    reflect_fields_struct*       operator->() { return Get(); }
+    reflect_fields_struct&       operator*() { return *Get(); }
+    const reflect_fields_struct* operator->() const { return Get(); }
+    const reflect_fields_struct& operator*() const { return *Get(); }
+    reflect_fields_struct*       Get()
+    {
+        if (_reflection == nullptr)
+        {
+            _reflection = reinterpret_cast<EditorSceneTool::reflect_fields_struct*>(_owner->get_reflect_fields());
+        }
+        return _reflection;
+    }
+    const reflect_fields_struct* Get() const
+    {
+        if (_reflection == nullptr)
+        {
+            _reflection = reinterpret_cast<EditorSceneTool::reflect_fields_struct*>(_owner->get_reflect_fields());
+        }
+        return _reflection;
+    }
+
+private:
+    mutable EditorSceneTool::reflect_fields_struct* _reflection = nullptr;
+    EditorSceneTool*                                _owner      = nullptr;
+};
+reflection_safe_ptr ReflectFields{this};
+
+public:
+virtual std::string SerializedReflectFields()
+{
+    serialized_reflect_event_recursive();
+    return ReflectHelper::json::SerializedObjet(*ReflectFields);
+}
+virtual bool DeserializedReflectFields(std::string_view data)
+{
+    bool result = ReflectHelper::json::DeserializedObjet(*ReflectFields, data);
+    deserialized_reflect_event_recursive();
+    return result;
+}
+
+protected:
+virtual void make_reflect_fields(void*& fields, unsigned long long& size)
+{
+    size_t size_of = sizeof(EditorSceneTool::reflect_fields_struct);
+    fields         = malloc(size_of);
+    size           = size_of;
+    new (fields) EditorSceneTool::reflect_fields_struct();
+}
+virtual void serialized_reflect_event_recursive()
+{
+    Base::serialized_reflect_event_recursive();
+    if constexpr (std::is_same_v<decltype(Base::SerializedReflectEvent),
+                                 decltype(EditorSceneTool::SerializedReflectEvent)> == false)
+    {
+        EditorSceneTool::SerializedReflectEvent();
+    }
+}
+virtual void deserialized_reflect_event_recursive()
+{
+    Base::deserialized_reflect_event_recursive();
+    if constexpr (std::is_same_v<decltype(Base::DeserializedReflectEvent),
+                                 decltype(EditorSceneTool::DeserializedReflectEvent)> == false)
+    {
+        EditorSceneTool::DeserializedReflectEvent();
+    }
+}
+virtual void applyReflectFields(const std::function<void(std::string_view, void*)>& func)
+{
+    const auto view = rfl::to_view(*ReflectFields.Get());
+    view.apply([&](auto& rflField) { func(rflField.name(), rflField.value()); });
+}
 
     /*
     직렬화 직전 자동으로 호출되는 이벤트 함수입니다.
@@ -148,6 +227,16 @@ public:
         ReflectFields->CameraPivot, 
         ReflectFields->CameraMoveSpeed
         )
+
+    GETTER(bool, DrawGizmo)
+    { 
+        return ReflectFields->DrawGizmo;
+    }
+    SETTER(bool, DrawGizmo)
+    {
+        ReflectFields->DrawGizmo = value;      
+    }
+    PROPERTY(DrawGizmo)
 
     void UpdateCameraSetting();
     void UpdateReflectFields();

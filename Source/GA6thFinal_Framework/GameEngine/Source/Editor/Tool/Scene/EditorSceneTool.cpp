@@ -95,6 +95,7 @@ void EditorSceneTool::OnStartGui()
     _dockWindow = GetOwnerDockWindow();
     _editorHierarchyTool = _dockWindow->GetGui<EditorHierarchyTool>();
 
+    LoadDefaultIcon();
 }
 
 void EditorSceneTool::OnPreFrameBegin()
@@ -110,21 +111,28 @@ void EditorSceneTool::OnPostFrameBegin()
 void EditorSceneTool::OnFrameRender() 
 {
     _window = ImGui::GetCurrentWindow();
-    if (_isHoveredWindow)
+    UmGizmoManager.BeginDraw(_window, _camera->GetCamera().get());
     {
-        if (ImGui::IsKeyPressed(ImGuiKey_MouseRight, false))
+        if (_isHoveredWindow)
         {
-            ImGui::SetWindowFocus();
+            if (ImGui::IsKeyPressed(ImGuiKey_MouseRight, false))
+            {
+                ImGui::SetWindowFocus();
+            }
         }
+        DragDropEvent();
+        SetCamera();
+        DrawSceneView();
+        DrawManipulate();
+        if (ReflectFields->DrawGizmo)
+        {
+            UmGizmoManager.Draw();
+        }
+        RayPicker();
+        VertexSnap();
+        UpdateKeyboardFrameRender();
     }
-    DragDropEvent();
-    
-    SetCamera();    
-    DrawSceneView();
-    DrawManipulate();
-    RayPicker();
-    VertexSnap();
-    UpdateKeyboardFrameRender();
+    UmGizmoManager.EndDraw();
 }
 
 void EditorSceneTool::OnFrameEnd()
@@ -199,6 +207,18 @@ void EditorSceneTool::SetCamera()
         ReflectFields->CameraAspect,
         ReflectFields->CameraNearZ,
         ReflectFields->CameraFarZ);
+}
+
+void EditorSceneTool::LoadDefaultIcon() 
+{
+    constexpr auto icons = rfl::get_enumerator_array<SceneGizmo::DefaultIcon>();
+    static std::array<std::shared_ptr<Texture>, icons.size()> iconTexture;
+    int i = 0;
+    for (auto& [key, data] : icons)
+    {
+        iconTexture[i] = UmResourceManager->LoadResource<Texture>(SceneGizmo::GetIconPath(data));
+        i++;
+    }
 }
 
 void EditorSceneTool::UpdateKeyboardFrameFocus()
@@ -659,7 +679,10 @@ void EditorSceneTool::RayPicker()
                 {
                     if (std::shared_ptr<MeshComponent> mesh = weakMesh.lock())
                     {
-                        meshComponents.push_back(mesh);
+                        if (mesh->gameObject->IsValid())
+                        {
+                            meshComponents.push_back(mesh);
+                        }                       
                     }           
                 }
 
