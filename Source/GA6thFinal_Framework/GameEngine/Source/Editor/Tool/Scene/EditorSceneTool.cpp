@@ -610,11 +610,6 @@ void EditorSceneTool::DrawSceneView()
             100000.0f
         );
         ImGui::PopStyleColor(pushCount);
-        // 우클릭 + 마우스 휠 시 카메라 이동속도 높이기
-        if (ImGui::IsKeyDown(ImGuiKey_MouseRight))
-        {
-            moveSpeed *= 1.0f + (ImGui::GetIO().MouseWheel * 0.05f);
-        }
         _camera->SetMoveSpeed(moveSpeed);
         _camera->SetRotationSpeed(rotationSpeed);
         _camera->SetPivot(pivotDistance);

@@ -44,6 +44,12 @@ void EditorDynamicCamera::Update(bool isHoveredWindow)
         _isRotated  = UpdateRotate();
         _pivotPosition = _position - forward * _pivot;
         UpdateMouseCursor();
+        // 우클릭 + 마우스 휠 시 카메라 이동속도 높이기
+        if (ImGui::IsKeyDown(ImGuiKey_MouseRight))
+        {
+            float moveSpeed = _moveSpeed * (1.0f + (ImGui::GetIO().MouseWheel * 0.05f));
+            SetMoveSpeed(moveSpeed);
+        }
     }
     else
     {
