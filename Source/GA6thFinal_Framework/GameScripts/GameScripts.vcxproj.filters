@@ -122,6 +122,7 @@
     <ClCompile Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.cpp" />
     <ClCompile Include="Scripts\UI\Panels\Grid\GridPanel.cpp" />
     <ClCompile Include="Scripts\UI\Base\SlotComponent\SlotComponent.cpp" />
+    <ClCompile Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h" />
@@ -262,6 +263,7 @@
     <ClInclude Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.h" />
     <ClInclude Include="Scripts\UI\Panels\Grid\GridPanel.h" />
     <ClInclude Include="Scripts\UI\Base\SlotComponent\SlotComponent.h" />
+    <ClInclude Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

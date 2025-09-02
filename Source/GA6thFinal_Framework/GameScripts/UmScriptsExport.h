@@ -107,10 +107,10 @@ UMREAL_COMPONENT(RatioWrapper)
 #include "Scripts/UI/Panels/Grid/GridPanel.h"
 UMREAL_COMPONENT(GridPanel)
 UMREAL_COMPONENT(GridPanelSlot)
-//
-//#include "Scripts/UI/Panels/Horizontal/HorizontalPanel.h"
-//UMREAL_COMPONENT(HorizontalPanel)
-//UMREAL_COMPONENT(HorizontalPanelSlot)
+
+#include "Scripts/UI/Panels/Horizontal/HorizontalPanel.h"
+UMREAL_COMPONENT(HorizontalPanel)
+UMREAL_COMPONENT(HorizontalPanelSlot)
 //
 //#include "Scripts/UI/Panels/Description/DescriptionPanel.h"
 //UMREAL_COMPONENT(DescriptionPanel)

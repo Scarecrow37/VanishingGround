@@ -1,65 +1,83 @@
 ﻿#pragma once
-#include "UI/Base/EditablePlacementUIComponent/EditablePlacementUIComponent.h"
-#include "UI/Base/PanelSlotComponent/PanelSlotComponent.h"
+#include "UI/Base/SlotComponent/SlotComponent.h"
 
 class HorizontalPanelSlot;
 
-class HorizontalPanel : public EditablePlacementUIComponent
+class HorizontalPanel : public UIComponent
 {
+    friend HorizontalPanelSlot;
     USING_PROPERTY(HorizontalPanel)
 
 public:
     HorizontalPanel();
 
 public:
-    void OnAttachChild(GameObject* childGameObject) override;
-    void OnChildPlacementChange(PlacementUIComponent* changedComponent) override;
+    GETTER_ONLY(std::vector<HorizontalPanelSlot*>, Slots)
+    {
+        std::vector<HorizontalPanelSlot*> slots;
+        Transform&                        transform = this->transform;
+        for (int i = 0; i < transform.GetChildCount(); ++i)
+        {
+            const Transform*            child      = transform.GetChild(i);
+            GameObject&                 gameObject = child->gameObject;
+            std::vector<HorizontalPanelSlot*> childSlots = GetSlots(gameObject);
+            std::ranges::move(childSlots, std::back_inserter(slots));
+        }
+        return slots;
+    }
+    PROPERTY(Slots)
 
 protected:
-    void OnPlacementChange() override;
+    void OnAttachChild(GameObject* childGameObject) override;
+
+    SIZE MeasureOverride(const SIZE availableSize) override;
+    SIZE ArrangeOverride(const SIZE finalSize) override;
 
 private:
-    void AssignChild(HorizontalPanelSlot& slot, unsigned int index, LONG offset, LONG limit) const;
+    static std::vector<HorizontalPanelSlot*> GetSlots(const GameObject& parentGameObject);
 
 protected:
-    REFLECT_FIELDS_BEGIN(EditablePlacementUIComponent)
+    REFLECT_FIELDS_BEGIN(UIComponent)
     REFLECT_FIELDS_END(HorizontalPanel)
 
 };
 
-class HorizontalPanelSlot : public PanelSlotComponent
+class HorizontalPanelSlot : public SlotComponent
 {
     friend HorizontalPanel;
     USING_PROPERTY(HorizontalPanelSlot)
 
 public:
-    REFLECT_PROPERTY(Order, IsStretch)
-
-    GETTER_ONLY(unsigned int, Order) { return ReflectFields->Order; }
-    PROPERTY(Order)
+    REFLECT_PROPERTY(IsStretch)
 
     GETTER(bool, IsStretch) { return ReflectFields->IsStretch; }
     SETTER(bool, IsStretch)
     {
         ReflectFields->IsStretch = value;
-        SpreadPlacementToParent();
+        if (UIComponent* ui = UI; nullptr != ui)
+        {
+            ui->InvalidateMeasure();
+        }
     }
     PROPERTY(IsStretch)
 
-protected:
-    void OnPlacementChange() override;
+    GETTER_ONLY(HorizontalPanel*, Horizontal)
+    {
+        HorizontalPanel* horizontal = nullptr;
+        if (const Transform* parentTransform = transform->Parent; nullptr != parentTransform)
+        {
+            const GameObject& parentGameObject = parentTransform->gameObject;
+            horizontal                         = parentGameObject.GetComponent<HorizontalPanel>();
+        }
+        return horizontal;
+    }
+    PROPERTY(Horizontal)
 
-private:
-    LONG GetLimit() const;
-    LONG GetOffset() const;
-    LONG GetSiblingWidth() const;
-    void SetLayout(unsigned int order, LONG offset, LONG limit);
+public:
+    HorizontalPanelSlot();
 
 protected:
-    REFLECT_FIELDS_BEGIN(PanelSlotComponent)
-    unsigned int Order     = 0;
-    LONG         Offset    = 0;
-    LONG         Limit     = 0;
+    REFLECT_FIELDS_BEGIN(SlotComponent)
     bool         IsStretch = false;
     REFLECT_FIELDS_END(HorizontalPanelSlot)
 };
