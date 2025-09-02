@@ -6,6 +6,7 @@ CameraComponent::CameraComponent()
     Component(TYPE::CAMERA),
     _isDirty(false) 
 {
+   
 
 }
 CameraComponent::~CameraComponent()
@@ -16,7 +17,15 @@ CameraComponent::~CameraComponent()
     }
 }
 
-void CameraComponent::ImGuiDrawPropertysEvent() 
+void CameraComponent::Reset() 
+{
+    Base::Reset();
+#ifdef _UMEDITOR
+    _gizmo.SetIconTexture(SceneGizmo::DefaultIcon::CAMERA);
+#endif
+}
+
+void CameraComponent::ImGuiDrawPropertysEvent()
 {
     if (ImGui::Button("Set As Main"))
     {
@@ -40,7 +49,9 @@ void CameraComponent::DeserializedReflectEvent()
 
 void CameraComponent::OnDrawDebug() 
 {
-
+#ifdef _UMEDITOR
+    _gizmo.Draw();
+#endif
 }
 
 void CameraComponent::OnDrawDebugSelected() 
