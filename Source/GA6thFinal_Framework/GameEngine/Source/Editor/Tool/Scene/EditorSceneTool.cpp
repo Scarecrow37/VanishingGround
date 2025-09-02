@@ -529,26 +529,6 @@ void EditorSceneTool::DrawSceneView()
         {
             ImGui::PopStyleColor(3);
         }
-
-        const auto& runtimeObjects = ESceneManager::Engine::GetRuntimeObjects();
-        auto        focusObject    = EditorHierarchyTool::GetFocusObject().lock();
-        for (auto& object : runtimeObjects)
-        {
-            if (object && object->IsValid())
-            {
-                for (size_t i = 0; i < object->GetComponentCount(); ++i)
-                {
-                    Component* component = object->GetComponentAtIndex<Component>(i);
-                    if (component)
-                    {
-                        if (nullptr == focusObject || object != focusObject)
-                        {
-                            component->OnDrawDebug();
-                        }                   
-                    }
-                }
-            }
-        }
     };
     
     static bool showSettings = true;
@@ -634,6 +614,26 @@ void EditorSceneTool::DrawSceneView()
         _camera->SetRotationSpeed(rotationSpeed);
         _camera->SetPivot(pivotDistance);
         UpdateReflectFields();
+    }
+
+    const auto& runtimeObjects = ESceneManager::Engine::GetRuntimeObjects();
+    auto        focusObject    = EditorHierarchyTool::GetFocusObject().lock();
+    for (auto& object : runtimeObjects)
+    {
+        if (object && object->IsValid())
+        {
+            for (size_t i = 0; i < object->GetComponentCount(); ++i)
+            {
+                Component* component = object->GetComponentAtIndex<Component>(i);
+                if (component)
+                {
+                    if (nullptr == focusObject || object != focusObject)
+                    {
+                        component->OnDrawDebug();
+                    }
+                }
+            }
+        }
     }
 }
 
