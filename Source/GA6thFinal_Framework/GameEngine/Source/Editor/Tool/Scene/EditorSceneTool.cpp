@@ -393,7 +393,7 @@ void EditorSceneTool::DrawSceneView()
     D3D12_GPU_DESCRIPTOR_HANDLE handle = UmGraphics.GetRenderSceneImage("Editor");
     ImGui::Image((ImTextureID)handle.ptr, {_sceneClientWidth, _sceneClientHeight});  
 
-    constexpr ImVec2 iconButtonSize = ImVec2(64.0f, 64.0f);
+    constexpr ImVec2 iconButtonSize = ImVec2(32.f, 32.f);
     constexpr ImVec2 damp = ImVec2(4.f, 4.f);
     ImVec2 moveIconPos = _window->ContentRegionRect.Min;
     ImGui::SetCursorScreenPos(ImVec2(moveIconPos.x + damp.x, moveIconPos.y + damp.y));
@@ -616,25 +616,28 @@ void EditorSceneTool::DrawSceneView()
         UpdateReflectFields();
     }
 
-    const auto& runtimeObjects = ESceneManager::Engine::GetRuntimeObjects();
-    auto        focusObject    = EditorHierarchyTool::GetFocusObject().lock();
-    for (auto& object : runtimeObjects)
+    if (ReflectFields->DrawGizmo)
     {
-        if (object && object->IsValid())
+        const auto& runtimeObjects = ESceneManager::Engine::GetRuntimeObjects();
+        auto        focusObject    = EditorHierarchyTool::GetFocusObject().lock();
+        for (auto& object : runtimeObjects)
         {
-            for (size_t i = 0; i < object->GetComponentCount(); ++i)
+            if (object && object->IsValid())
             {
-                Component* component = object->GetComponentAtIndex<Component>(i);
-                if (component)
+                for (size_t i = 0; i < object->GetComponentCount(); ++i)
                 {
-                    if (nullptr == focusObject || object != focusObject)
+                    Component* component = object->GetComponentAtIndex<Component>(i);
+                    if (component)
                     {
-                        component->OnDrawDebug();
+                        if (nullptr == focusObject || object != focusObject)
+                        {
+                            component->OnDrawDebug();
+                        }
                     }
                 }
             }
         }
-    }
+    }   
 }
 
 void EditorSceneTool::RayPicker() 

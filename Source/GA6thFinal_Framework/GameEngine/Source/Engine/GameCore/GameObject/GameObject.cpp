@@ -353,7 +353,12 @@ void GameObject::OnInspectorStay()
                             UmCore->ImGuiDrawPropertysSetting.InputEndEvent = SetSceneDirtyFlag;
                         }
                         component->ImGuiDrawPropertys();
-                        component->OnDrawDebugSelected();
+
+                        static EditorSceneTool* editorSceneTool = Global::editorModule->GetDockWindowSystem().GetDockWindow("SceneDock")->GetGui<EditorSceneTool>();
+                        if (editorSceneTool && editorSceneTool->DrawGizmo)
+                        {
+                            component->OnDrawDebugSelected();
+                        }                       
                     }
                     else
                     {
