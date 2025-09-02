@@ -88,14 +88,9 @@ DirectX::SimpleMath::Vector3 SphereLocator::EmitLocate()
     {
         direction = {_randomVal(), _randomVal(), _randomVal()};
     } while (direction.LengthSquared() > 1.0f);
-    direction.Normalize();
 
-    // 균등한 반지름 분포 (r³이 균등)
-    float u      = (_randomVal() + 1.0f) * 0.5f; // [0,1] 범위로 변환
-    float radius = pow(u, 1.0f / 3.0f);
 
-    Vector3 location = direction * radius;
-    return {location.x * _factor.x, location.y * _factor.y, location.z * _factor.z};
+    return {direction.x * _factor.x, direction.y * _factor.y, direction.z * _factor.z};
 }
 
 DirectX::SimpleMath::Vector3 MeshSurfaceLocator::EmitLocate() 
@@ -657,7 +652,7 @@ void ParticleEmitter::SetLightFlag(bool value)
     _useLight = value;
     if (value)
         _light->SetActive(&_activeFlag);
-    else
+    else if (_light)
         _light->SetActive(&_useLight);
 
 

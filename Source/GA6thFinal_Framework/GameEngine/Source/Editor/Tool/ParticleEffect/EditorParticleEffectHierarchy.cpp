@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "EditorParticleEffectHierarchy.h"
 #include "GraphicsEngine/FBXConverter.h"
+#include "GraphicsEngine/Light.h"
 
 
  EditorParticleEffectHierarchy::EditorParticleEffectHierarchy() 
@@ -20,10 +21,26 @@
  }
 
 void EditorParticleEffectHierarchy::OnStartGui()
-{
-    auto&             system    = Global::editorModule->GetDockWindowSystem();
-    EditorDockWindow* modelDock = system.GetDockWindow("EffectDock");
-    _editorParticleEffectDetails         = modelDock->GetGui<EditorParticleEffectDetails>();
+ {
+     auto&             system     = Global::editorModule->GetDockWindowSystem();
+     EditorDockWindow* modelDock  = system.GetDockWindow("EffectDock");
+     _editorParticleEffectDetails = modelDock->GetGui<EditorParticleEffectDetails>();
+     //light settting
+     {
+         _directionalLight = new Light();
+         _color            = Vector3(1.f);
+         _ambient          = Vector3(1.f);
+         _direction        = Vector3(0.f, -1.f, 0.f);
+         _intensity        = 1.f;
+         _lightActivity    = true;
+         _directionalLight->SetDirectionalLight(_color, _ambient, _direction, _intensity);
+         _directionalLight->SetActive(&_lightActivity);
+         UmGraphics.RegisterComponent("ParticleEditor", _directionalLight);
+     }
+
+
+
+
 }
 
 void EditorParticleEffectHierarchy::OnEndGui()
@@ -93,23 +110,30 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
     }
 
 
-
-    bool isrefreshbutton = ImGui::Button("refresh", {100, 30});
-    if (true == isrefreshbutton)
+    // refresh button
     {
-        UmParticleManager->RefreshEditor();
+        bool isrefreshbutton = ImGui::Button("refresh", {100, 30});
+        if (true == isrefreshbutton && nullptr != _curEffect)
+        {
+            UmParticleManager->RefreshEditor();
+        }
 
+        ImGui::SameLine();
+
+        bool isAutorefresh = UmParticleManager->GetAutoRefresh();
+        ImGui::Checkbox("Auto Refresh", &isAutorefresh);
+        UmParticleManager->SetAutoRefresh(isAutorefresh);
+    }
+    
+    //time scale
+    {
+        float deltaScale = UmParticleManager->GetDeltaScale();
+        ImGui::SliderFloat("Time Speed", &deltaScale, 0.f, 2.f);
+        UmParticleManager->SetDeltaScale(deltaScale);
     }
 
-    ImGui::SameLine();
 
-    bool isAutorefresh = UmParticleManager->GetAutoRefresh();
-    ImGui::Checkbox("Auto Refresh", &isAutorefresh);
-    UmParticleManager->SetAutoRefresh(isAutorefresh);
-
-    float deltaScale = UmParticleManager->GetDeltaScale();
-    ImGui::SliderFloat("Time Speed", &deltaScale, 0.f, 2.f);
-    UmParticleManager->SetDeltaScale(deltaScale);
+    //env model load
     {
         _envmodelpath = std::filesystem::absolute(_envmodelpath);
         ImGui::Text(_envmodelpath.string().c_str());
@@ -129,8 +153,56 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
             LoadEnvironmentModel(_envmodelpath);
             ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.0f);
         }
+        if (_envmodelpath != File::NULL_PATH)
+        {
+
+            bool isDirty = false;
+            {
+                ImGui::Text("Position: ");
+                ImGui::DragFloat3("##env position", &_position.x, 0.05f) ? isDirty = true : isDirty;
+                ImGui::SameLine();
+                if (ImGui::Button("Reset##env position"))
+                {
+                    _position = Vector3::Zero;
+                    isDirty   = true;
+                }
+            }
+            {
+                ImGui::Text("Rotation: ");
+                ImGui::DragFloat3("##env rotation", &_rotation.x, 0.05f) ? isDirty = true : isDirty;
+                ImGui::SameLine();
+                if (ImGui::Button("Reset##env rotation"))
+                {
+                    _rotation = Vector3::Zero;
+                    isDirty   = true;
+                }
+            }
+            {
+                ImGui::Text("Scale: ");
+                ImGui::DragFloat3("##env scale", &_scale.x, 0.05f) ? isDirty = true : isDirty;
+                ImGui::SameLine();
+                if (ImGui::Button("Reset##env scale"))
+                {
+                    _scale  = Vector3::One;
+                    isDirty = true;
+                }
+            }
+            if (isDirty)
+            {
+                Matrix matScale     = Matrix::CreateScale(_scale);
+                Matrix matRotation  = Matrix::CreateFromYawPitchRoll(_rotation.y, _rotation.x, _rotation.z);
+                Matrix matTranslate = Matrix::CreateTranslation(_position);
+                _quaternion         = Quaternion::CreateFromYawPitchRoll(_rotation.y, _rotation.x, _rotation.z);
+
+                // 변환 순서: S  R  T
+                _worldMatrix = matScale * matRotation * matTranslate;
+            }
+
+        }
 
     }
+
+
     if (nullptr == UmParticleManager->GetCurrentEditorEffect())
     if (nullptr == effect)
     {

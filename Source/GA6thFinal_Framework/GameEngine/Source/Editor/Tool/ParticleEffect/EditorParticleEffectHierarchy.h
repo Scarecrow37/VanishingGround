@@ -47,7 +47,7 @@ private:
     bool                          _isModelActive = true;
     File::Path                    _envmodelpath  = File::NULL_PATH;
     Matrix                        _worldMatrix;
-    Vector3                       _position   = Vector3(0,20,0);
+    Vector3                       _position   = Vector3(0,-20,0);
     Vector3                       _rotation   = Vector3::Zero;
     Quaternion                    _quaternion = Quaternion::Identity;
     Vector3                       _scale      = Vector3::One;
@@ -57,4 +57,13 @@ private:
     void LoadEnvironmentModel(const File::Path& path);
 
     FBXConverter& GetFBXConverter();
+
+
+    // Light Property
+    Vector3      _direction;
+    Vector3      _color;
+    Vector3      _ambient;
+    float        _intensity;
+    bool         _lightActivity;
+    class Light* _directionalLight;
 };
