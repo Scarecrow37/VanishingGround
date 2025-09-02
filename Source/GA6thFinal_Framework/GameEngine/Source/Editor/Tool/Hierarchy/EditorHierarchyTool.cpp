@@ -422,12 +422,12 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
     if (ImGui::BeginMenu("UI"))
     {
         GameObject* ui = nullptr;
-        //if (ImGui::MenuItem("UI Root"))
-        //{
-        //    UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
-        //        GameObjectKey, GameObject::Helper::GenerateUniqueName("UI Root"), &ui);
-        //    ui->AddComponent<UIRoot>();
-        //}
+        if (ImGui::MenuItem("UI Root"))
+        {
+            UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                GameObjectKey, GameObject::Helper::GenerateUniqueName("UI Root"), &ui);
+            ui->AddComponent<UIRoot>();
+        }
         if (ImGui::BeginMenu("Panels"))
         {
             if (ImGui::MenuItem("Grid Panel"))
