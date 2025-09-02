@@ -19,6 +19,5 @@ protected:
 
 private:
     CameraMode _cameraMode;
-    CameraComponent* _mainCamera;
     EditorDynamicCamera* _freeCamera;
 };
