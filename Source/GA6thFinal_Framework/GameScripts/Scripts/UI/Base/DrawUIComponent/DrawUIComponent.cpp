@@ -5,7 +5,7 @@
 
 void DrawUIComponent::RequestViewOrder() const
 {
-    if (const UIRoot* uiRoot = this->uiRoot; nullptr != uiRoot)
+    if (const UIRoot* uiRoot = this->Root; nullptr != uiRoot)
     {
         uiRoot->SortViewOrder();
     }
@@ -13,6 +13,11 @@ void DrawUIComponent::RequestViewOrder() const
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, u8"UI Component는 UIRoot의 하위에 있어야 합니다.");
     }
+}
+
+UIRoot* DrawUIComponent::GetRoot(const GameObject& rootGameObject)
+{
+    return rootGameObject.GetComponent<UIRoot>();
 }
 
 DrawUIComponent::DrawUIComponent() = default;
@@ -24,18 +29,18 @@ void DrawUIComponent::SetViewOrder(const int viewOrder)
 
 void DrawUIComponent::ImGuiDrawPropertysEvent()
 {
-    PlacementUIComponent::ImGuiDrawPropertysEvent();
+    UIComponent::ImGuiDrawPropertysEvent();
 
     if (_isDebug)
     {
         const int viewOrder = ReflectFields->ViewOrder;
-        DrawDebug()("View Order", viewOrder);
+        ImGuiDebug()("View Order", viewOrder);
     }
 }
 
 void DrawUIComponent::OnAttachChild(GameObject* childGameObject)
 {
-    PlacementUIComponent::OnAttachChild(childGameObject);
+    UIComponent::OnAttachChild(childGameObject);
 
     RequestViewOrder();
 }

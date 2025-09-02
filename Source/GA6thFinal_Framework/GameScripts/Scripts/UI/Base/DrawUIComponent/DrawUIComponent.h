@@ -1,7 +1,8 @@
 ﻿#pragma once
-#include "UI/Base/PlacementUIComponent/PlacementUIComponent.h"
 
-class DrawUIComponent : public PlacementUIComponent
+class UIRoot;
+
+class DrawUIComponent : public UIComponent
 {
     USING_PROPERTY(DrawUIComponent)
 
@@ -12,6 +13,20 @@ protected:
 
 public:
     DrawUIComponent();
+
+public:
+    GETTER_ONLY(UIRoot*, Root)
+    {
+        UIRoot*          uiRoot    = nullptr;
+        const Transform& transform = this->transform;
+        if (const Transform* rootTransform = transform.Root; nullptr != rootTransform)
+        {
+            const GameObject& rootGameObject = rootTransform->gameObject;
+            uiRoot                           = GetRoot(rootGameObject);
+        }
+        return uiRoot;
+    }
+    PROPERTY(Root)
 
 public:
     /// <summary>
@@ -31,10 +46,11 @@ protected:
     void OnAttachChild(GameObject* childGameObject) override;
 
 private:
-    void RequestViewOrder() const;
+    void           RequestViewOrder() const;
+    static UIRoot* GetRoot(const GameObject& rootGameObject);
 
 protected:
-    REFLECT_FIELDS_BEGIN(PlacementUIComponent)
+    REFLECT_FIELDS_BEGIN(UIComponent)
     int ViewOrder = 0;
     REFLECT_FIELDS_END(DrawUIComponent)
 };
