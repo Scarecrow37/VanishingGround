@@ -270,6 +270,12 @@ void ImGuiDebug::operator()(const char* label, const long x, const long y) const
     operator()(label);
 }
 
+void ImGuiDebug::operator()(const char* label, const unsigned int x) const
+{
+    ImGui::Text("%d", x);
+    operator()(label);
+}
+
 void DrawDebug::operator()(POINT point, SIZE size, const int thickness, FXMVECTOR color) const {
     const auto [x, y]          = point;
     const auto [width, height] = size;

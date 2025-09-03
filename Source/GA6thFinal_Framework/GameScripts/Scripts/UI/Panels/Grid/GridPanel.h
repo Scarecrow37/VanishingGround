@@ -149,6 +149,9 @@ public:
     }
     PROPERTY(Grid)
 
+    protected:
+    void ImGuiDrawPropertysEvent() override;
+
 private:
     void SetColumnsAndRows(unsigned int columns, unsigned int rows);
 

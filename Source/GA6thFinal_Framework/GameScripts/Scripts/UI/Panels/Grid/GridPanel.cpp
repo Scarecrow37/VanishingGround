@@ -3,6 +3,19 @@
 
 GridPanelSlot::GridPanelSlot() = default;
 
+void GridPanelSlot::ImGuiDrawPropertysEvent()
+{
+    SlotComponent::ImGuiDrawPropertysEvent();
+
+    if (_isDebug)
+    {
+        const unsigned int columns = ReflectFields->Columns;
+        ImGuiDebug()("Columns", columns);
+        const unsigned int rows = ReflectFields->Rows;
+        ImGuiDebug()("Rows", rows);
+    }
+}
+
 void GridPanelSlot::SetColumnsAndRows(const unsigned int columns, const unsigned int rows)
 {
     ReflectFields->Columns = std::clamp(columns, GridPanel::MIN_COLUMNS, GridPanel::MAX_COLUMNS);
