@@ -356,7 +356,10 @@ void GameObject::OnInspectorStay()
                         static EditorSceneTool* editorSceneTool = EditorSceneTool::GetTool();
                         if (nullptr != editorSceneTool)
                         {
-                            component->OnDrawDebugSelected();                          
+                            if (editorSceneTool->DrawGizmo)
+                            {
+                                component->OnDrawDebugSelected();        
+                            }                                            
                         }         
                         else
                         {
