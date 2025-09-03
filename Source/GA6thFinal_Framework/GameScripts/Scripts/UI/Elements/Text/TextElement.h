@@ -79,7 +79,6 @@ protected:
     std::string          Text         = "Hello Um!";
     std::array<float, 4> Color        = {0.0f, 0.0f, 0.0f, 1.0f};
     float                FontScale    = 1.0f;
-    bool                 IsFitContent = false;
     SIZE                 ContentSize  = SIZE{};
     REFLECT_FIELDS_END(TextElement)
 
