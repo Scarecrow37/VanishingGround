@@ -387,7 +387,7 @@ void PlayerPlayTurnState::SetAttack()
                 weaponEffect->PlayEffect();
             }
             bool isFirst = true;
-            for (auto iter = _attackTargets.rbegin(); iter != _attackTargets.rend(); ++iter)
+            for (auto& target : _attackTargets)
             {
                 // 임시 랜덤 애니메이션
                 const auto& keymap = weaponAnim->GetAnimationKeyMap();
@@ -470,9 +470,9 @@ void PlayerPlayTurnState::BattleOnAttackEvent()
 {
     if (!_attackTargets.empty())
     {
-        auto&   target = _attackTargets.back();
+        auto&   target = _attackTargets.front();
         Player& player = GetPlayer();
         Battle()(player, target);
-        _attackTargets.pop_back();
+        _attackTargets.pop_front();
     }
 }
