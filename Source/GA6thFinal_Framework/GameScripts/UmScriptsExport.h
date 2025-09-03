@@ -165,3 +165,6 @@ UMREAL_COMPONENT(EnemyActionSystem)
 
 #include "Scripts\Audio/BGMManager.h"
 UMREAL_COMPONENT(BGMManager)
+
+#include "Scripts/QTE/System/QTESystem.h"
+UMREAL_COMPONENT(QTESystem)

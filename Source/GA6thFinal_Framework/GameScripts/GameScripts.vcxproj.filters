@@ -138,6 +138,9 @@
     <ClCompile Include="Scripts\UI\Views\RevelationsView\RevelationsView.cpp" />
     <ClCompile Include="Scripts\Audio\BGMManager.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnSystemHelper.cpp" />
+    <ClCompile Include="Scripts\QTE\System\QTESystem.cpp" />
+    <ClCompile Include="Scripts\QTE\Editor\QTEEditor.cpp" />
+    <ClCompile Include="QTENote.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h" />
@@ -295,6 +298,9 @@
     <ClInclude Include="Scripts\Audio\BGMManager.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnSystemHelper.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionEnums.h" />
+    <ClInclude Include="Scripts\QTE\System\QTESystem.h" />
+    <ClInclude Include="Scripts\QTE\Editor\QTEEditor.h" />
+    <ClInclude Include="QTENote.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
