@@ -1,8 +1,9 @@
 ﻿#include "pch.h"
-#include "UmScripts.h"
+#include "Mesh/MeshComponent.h"
+#include "Camera/CameraComponent.h"
+
 using namespace Global;
 using namespace u8_literals;
-
 
 #define SAFE_FREE(ptr) if(ptr != nullptr) free(ptr)
 

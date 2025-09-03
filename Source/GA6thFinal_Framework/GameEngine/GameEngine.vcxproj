@@ -415,7 +415,6 @@
     <ClInclude Include="Source\Engine\FileSystem\Importer\SpriteFontImporter.h" />
     <ClInclude Include="Source\Engine\Utility\YAMLHelper.h" />
     <ClInclude Include="Source\Engine\WatcherCore\System\WatcherSystem.h" />
-    <ClInclude Include="Source\UmScripts.h" />
     <ClInclude Include="ThirdParty\include\OpenXLSX\headers\IZipArchive.hpp" />
     <ClInclude Include="ThirdParty\include\OpenXLSX\headers\OpenXLSX-Exports.hpp" />
     <ClInclude Include="ThirdParty\include\OpenXLSX\headers\XLCell.hpp" />
