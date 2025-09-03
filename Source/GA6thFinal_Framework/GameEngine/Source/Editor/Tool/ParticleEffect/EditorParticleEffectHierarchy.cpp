@@ -23,8 +23,8 @@
 void EditorParticleEffectHierarchy::OnStartGui()
  {
      auto&             system     = Global::editorModule->GetDockWindowSystem();
-     EditorDockWindow* modelDock  = system.GetDockWindow("EffectDock");
-     _editorParticleEffectDetails = modelDock->GetGui<EditorParticleEffectDetails>();
+     EditorDockWindow* effectdock  = system.GetDockWindow("EffectDock");
+     _editorParticleEffectDetails = effectdock->GetGui<EditorParticleEffectDetails>();
      //light settting
      {
          _directionalLight = new Light();
@@ -311,7 +311,7 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
         ImGuiTreeNodeFlags parent_flags = ImGuiTreeNodeFlags_OpenOnArrow;
         bool               parent_open  = ImGui::TreeNodeEx(_curEffect->GetEffectName().c_str(), parent_flags);
 
-        _curEffect->_position = &defaultpos;
+        _curEffect->_position = &_defaultpos;
         bool isHovered      = ImGui::IsItemHovered();
         bool isMouseClicked = ImGui::IsMouseClicked(0);
         if (true == isHovered && true == isMouseClicked)

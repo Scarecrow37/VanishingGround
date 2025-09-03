@@ -286,7 +286,7 @@ protected :
     // initial value for particles for lerp
 
     
-    class Light* _light;
+    class Light* _light = nullptr;
 
     UMPARTICLE_PROPERTY(bool, _useLight, UseLight, false);
     UMPARTICLE_PROPERTY(float, _lightIntensity, LightIntensity, 0);

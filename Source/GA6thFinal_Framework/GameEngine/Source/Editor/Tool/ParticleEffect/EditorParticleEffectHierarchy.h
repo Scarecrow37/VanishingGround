@@ -42,7 +42,7 @@ private:
     bool       ctrlOflag              = true;
     bool       ctrlSflag              = true;
 
-    Vector3                       defaultpos = Vector3(0, 0, 0);
+    Vector3                       _defaultpos = Vector3(0, 0, 0);
     std::unique_ptr<MeshRenderer> _meshRenderer;
     bool                          _isModelActive = true;
     File::Path                    _envmodelpath  = File::NULL_PATH;

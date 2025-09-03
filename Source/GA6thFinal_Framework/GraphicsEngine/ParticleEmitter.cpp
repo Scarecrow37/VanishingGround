@@ -418,11 +418,11 @@ void ParticleEmitter::Update(float deltaTime)
     _rotationMatrix    = Matrix::CreateFromQuaternion(_emitterRotationQ);
     _worldMatrix       = _rotationMatrix * _translationMatrix * _effectWorldMatrix;
     _finalPos          = _worldMatrix.Translation();
+    float value        = _emissionRate * _particleLifetime;
     if (true == _useLight)
     {
-
-        _lightCurrentIntensity =
-            (float)std::lerp(0, _lightIntensity, _activeParticleCount / (_emissionRate * _particleLifetime));
+        if (value > 0)
+            _lightCurrentIntensity = (float)std::lerp(0, _lightIntensity, _activeParticleCount / value);
         _lightCurrentRange = _lightRange;
     }
 
@@ -557,12 +557,18 @@ void ParticleEmitter::AwakeParticle(UINT index)
 
     Vector4 location = {1, 1, 1, 1};
     Vector3 tempPos = _emitLocator->EmitLocate();
-    float   ratio    = _emitterAge / (_emitterLifetime-_particleLifetime);
+    float   ratio    = 0;
+    if (_emitterLifetime <= _particleLifetime)
+        ratio = _emitterAge / _emitterLifetime;
+    else
+        ratio = _emitterAge / (_emitterLifetime - _particleLifetime);
+
+
     Vector3 currentOffset = Vector3::Lerp(_particleStartDistributionOffset, _particleEndDistributionOffset, ratio);
 
     location.x = tempPos.x + offset.x * (0 < currentOffset.x ? currentOffset.x : 0);
-    location.y = tempPos.y + offset.y * (0 < currentOffset.x ? currentOffset.y : 0);
-    location.z = tempPos.z + offset.z * (0 < currentOffset.x ? currentOffset.z : 0);
+    location.y = tempPos.y + offset.y * (0 < currentOffset.y ? currentOffset.y : 0);
+    location.z = tempPos.z + offset.z * (0 < currentOffset.z ? currentOffset.z : 0);
 
     if (_useWorldSpace)
     {

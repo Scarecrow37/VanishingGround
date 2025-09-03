@@ -43,12 +43,6 @@ ParticleComponent::~ParticleComponent()
 void ParticleComponent::Update()
 {
 
-    if (ImGui::IsKeyPressed(ImGuiKey_K))
-    {
-        PlayEffect();
-    }
-
-
 }
 
 void ParticleComponent::Start() 
@@ -253,8 +247,10 @@ void ParticleComponent::PlayEffect()
 }
 void ParticleComponent::SetGuid(const File::Path& filepath) 
 {
-    ReflectFields->Guid = filepath.ToGuid();
-    if (false == ReflectFields->Guid.IsNull())
+    File::Guid guid = filepath.ToGuid();
+    _guidRef = guid;
+    ReflectFields->Guid = guid.string();
+    if (false == guid.IsNull())
     {
         LoadParticle();
     }
@@ -262,8 +258,9 @@ void ParticleComponent::SetGuid(const File::Path& filepath)
 }
 void ParticleComponent::SetGuid(const File::Guid& fileguid)
 {
-    ReflectFields->Guid = fileguid;
-    if (false == ReflectFields->Guid.IsNull())
+    _guidRef = fileguid;
+    ReflectFields->Guid = fileguid.string();
+    if (false == fileguid.IsNull())
     {
         LoadParticle();
     }
