@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "Particle.h"
 #include "ParticleEmitter.h"
+#include "Light.h"
 #include "Model.h"
 /////////////////////////////////////////////////
 void EmitLocator::RandomInitialize() 
@@ -87,14 +88,9 @@ DirectX::SimpleMath::Vector3 SphereLocator::EmitLocate()
     {
         direction = {_randomVal(), _randomVal(), _randomVal()};
     } while (direction.LengthSquared() > 1.0f);
-    direction.Normalize();
 
-    // 균등한 반지름 분포 (r³이 균등)
-    float u      = (_randomVal() + 1.0f) * 0.5f; // [0,1] 범위로 변환
-    float radius = pow(u, 1.0f / 3.0f);
 
-    Vector3 location = direction * radius;
-    return {location.x * _factor.x, location.y * _factor.y, location.z * _factor.z};
+    return {direction.x * _factor.x, direction.y * _factor.y, direction.z * _factor.z};
 }
 
 DirectX::SimpleMath::Vector3 MeshSurfaceLocator::EmitLocate() 
@@ -262,51 +258,43 @@ Texture* RibbonModule::GetAlbedoTexture() const
 
  ParticleEmitter::~ParticleEmitter() 
  {
-     // 1. Particle 객체들 정리
-     for (auto particle : _particlePool)
-     {
-         delete particle;
-     }
      _particlePool.clear();
 
-     // 2. EmitLocator 객체 정리
      delete _emitLocator;
      _emitLocator = nullptr;
 
-     // 3. ParticleRenderModule 객체 정리
      delete _particleRenderModule;
      _particleRenderModule = nullptr;
+     
+     if (nullptr != _light)
+         _light->SetDestroy();
 
-     // 4. 기타 컨테이너 정리 (안전성을 위해)
-     while (!_inactiveParticleIndices.empty())
-     {
-         _inactiveParticleIndices.pop();
-     }
  }
 
  ParticleEmitter::ParticleEmitter(const ParticleEmitter& other) 
          : _particleType(other._particleType), _locationType(other._locationType), _velocityType(other._velocityType),
        _emitterRotationQ(other._emitterRotationQ), _emitterRotationE(other._emitterRotationE),_emitterPosition(other._emitterPosition)
  {
-     _emitterLifetime           =other.GetEmitterLifetime();
-     _maxParticles              =other.GetMaxParticles();
-     _emissionRate              =other.GetEmissionRate();
-     _startDelay                =other.GetStartDelay();
-     _spawnBurstFlag            =other.GetSpawnBurstFlag();
-     _spawnBurstCount           =other.GetSpawnBurstCount();
-     _emitterName               =other.GetEmitterName();
-     _velocityFactor            =other.GetVelocityFactor();
-     _startColor                =other.GetStartColor();
-     _startOpacity              =other.GetStartOpacity();
-     _endColor                  =other.GetEndColor();
-     _endOpacity                =other.GetEndOpacity();
-     _startScale                =other.GetStartScale();
-     _endScale                  =other.GetEndScale();
-     _particleLifetime          =other.GetParticleLifetime();
-     _particleMass              =other.GetParticleMass();
-     _particleDistributionOffset=other.GetParticleDistributionOffset();
-     _dragPoint                 =other.GetDragPoint();
-     _dragForce                 =other.GetDragForce();
+     _emitterLifetime                 = other.GetEmitterLifetime();
+     _maxParticles                    = other.GetMaxParticles();
+     _emissionRate                    = other.GetEmissionRate();
+     _startDelay                      = other.GetStartDelay();
+     _spawnBurstFlag                  = other.GetSpawnBurstFlag();
+     _spawnBurstCount                 = other.GetSpawnBurstCount();
+     _emitterName                     = other.GetEmitterName();
+     _velocityFactor                  = other.GetVelocityFactor();
+     _startColor                      = other.GetStartColor();
+     _startOpacity                    = other.GetStartOpacity();
+     _endColor                        = other.GetEndColor();
+     _endOpacity                      = other.GetEndOpacity();
+     _startScale                      = other.GetStartScale();
+     _endScale                        = other.GetEndScale();
+     _particleLifetime                = other.GetParticleLifetime();
+     _particleMass                    = other.GetParticleMass();
+     _particleStartDistributionOffset = other.GetParticleStartDistributionOffset();
+     _particleEndDistributionOffset   = other.GetParticleEndDistributionOffset();
+     _dragPoint                       = other.GetDragPoint();
+     _dragForce                       = other.GetDragForce();
 
 
 
@@ -346,8 +334,13 @@ void ParticleEmitter::Initialize(SIZE_T maxParticles /*= 100000*/, float emissio
         _particleRenderModule = new SpriteModule();
         break;
     }
+    if (meshspritePath == L"")
+    {
+        _particleRenderModule->SetModelAndTexturePath(L"BlackTexture");
 
-    _particleRenderModule->SetModelAndTexturePath(meshspritePath);
+    }
+    else
+        _particleRenderModule->SetModelAndTexturePath(meshspritePath);
 
     _locationType = locatorShape;
     switch (_locationType)
@@ -381,11 +374,10 @@ void ParticleEmitter::Initialize(SIZE_T maxParticles /*= 100000*/, float emissio
     _maxParticles = maxParticles;
     _emissionRate = emissionRate;
     _particlePool.resize(_maxParticles);
-    for (size_t i = 0; i < maxParticles; ++i)
-    {
-        _particlePool[i] = new Particle();
-        _inactiveParticleIndices.push(i);
-    }
+
+
+
+
 }
 
 
@@ -402,7 +394,6 @@ void ParticleEmitter::Update(float deltaTime)
         }
         else
         {
-            _activeFlag = false;
             return;
         }
     }
@@ -411,21 +402,32 @@ void ParticleEmitter::Update(float deltaTime)
 
 
     _emitterAge += deltaTime;
-    if (_emitterAge >= _emitterLifetime-_particleLifetime)
+    if (_emitterAge >= _emitterLifetime -_particleLifetime)
     {
         _endFlag = true;
         //return;
     }
     if (_emitterAge >= _emitterLifetime)
     {
-        _emitterAge = 0;
         _activeFlag = false;
+        _emitterAge = 0;
         return;
     }
 
     _translationMatrix = Matrix::CreateTranslation(_emitterPosition);
     _rotationMatrix    = Matrix::CreateFromQuaternion(_emitterRotationQ);
     _worldMatrix       = _rotationMatrix * _translationMatrix * _effectWorldMatrix;
+    _finalPos          = _worldMatrix.Translation();
+    float value        = _emissionRate * _particleLifetime;
+    if (true == _useLight)
+    {
+        if (value > 0)
+            _lightCurrentIntensity = (float)std::lerp(0, _lightIntensity, _activeParticleCount / value);
+        _lightCurrentRange = _lightRange;
+    }
+
+
+
 }
 
 
@@ -434,16 +436,23 @@ void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime)
     // 수명 다한 파티클 비활성화
     for (int i = 0; i < _activeParticleCount; ++i)
     {
-        _particlePool[i]->SetAge(_particlePool[i]->GetAge() + deltaTime);
-        if (_particlePool[i]->GetAge() >= _particleLifetime)
+        _particlePool[i].SetAge(_particlePool[i].GetAge() + deltaTime);
+        if (_particlePool[i].GetAge() >= _particleLifetime)
         {
-                _activeParticleCount--;
-                std::swap(_particlePool[i], _particlePool[_activeParticleCount]);
-                _inactiveParticleIndices.push(_activeParticleCount);
-            }
+            _activeParticleCount--;
+            std::swap(_particlePool[i], _particlePool[_activeParticleCount]);
+            i--;
         }
+    }
     if (true == _endFlag)
+    {
+
+        if (_activeParticleCount == 0)
+        {
+            _activeFlag = false;
+        }
         return;
+    }
 
     // 새 파티클 생성
     size_t newParticles = 0;
@@ -458,31 +467,25 @@ void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime)
         newParticles = static_cast<size_t>(_emissionThreshold);
         _emissionThreshold -= newParticles;
     }
-    while (0 < newParticles && false == _inactiveParticleIndices.empty())
+    
+    size_t availableSlots = _maxParticles - _activeParticleCount;
+    if (newParticles > availableSlots)
     {
-        size_t index = _inactiveParticleIndices.top();
-        _inactiveParticleIndices.pop();
-        if (index >= _activeParticleCount)
-        {
-            // SwapVectors(index, m_activeCount);
-            std::swap(_particlePool[index], _particlePool[_activeParticleCount]);
-            index = _activeParticleCount;
-        }
-        _activeParticleCount++;
-        AwakeParticle(static_cast<UINT>(index));
-        newParticles--;
+        newParticles = availableSlots;
     }
 
-
-
-
+    for (size_t i = 0; i < newParticles; ++i)
+    {
+        AwakeParticle(static_cast<UINT>(_activeParticleCount));
+        _activeParticleCount++;
+    }
 }
 
 
 void ParticleEmitter::FlushTextureResource() 
 {
 
-        if (ParticleType::SPRITE == _particleType)
+    if (ParticleType::SPRITE == _particleType)
     {
         SpriteModule* spritemodule = static_cast<SpriteModule*>(_particleRenderModule);
         if (true == spritemodule->GetTextureChangeFlag())
@@ -516,15 +519,7 @@ void ParticleEmitter::Reset()
     _delayTimer              = 0.f;
     _emitterAge              = 0.f;
     _activeParticleCount     = 0;
-    while (false == _inactiveParticleIndices.empty())
-    {
-        _inactiveParticleIndices.pop();
-    }
-    for (size_t i = 0; i < _maxParticles; ++i)
-    {
-        _inactiveParticleIndices.push(i);
-
-    }
+    _emissionThreshold       = 0;
 }
 
 void ParticleEmitter::InitializeLocator(LocationShape locatorShape , Vector3 factor) 
@@ -562,39 +557,48 @@ void ParticleEmitter::AwakeParticle(UINT index)
 
     Vector4 location = {1, 1, 1, 1};
     Vector3 tempPos = _emitLocator->EmitLocate();
-    location.x      = tempPos.x + offset.x * _particleDistributionOffset.x;
-    location.y      = tempPos.y + offset.y * _particleDistributionOffset.y;
-    location.z      = tempPos.z + offset.z * _particleDistributionOffset.z;
+    float   ratio    = 0;
+    if (_emitterLifetime <= _particleLifetime)
+        ratio = _emitterAge / _emitterLifetime;
+    else
+        ratio = _emitterAge / (_emitterLifetime - _particleLifetime);
+
+
+    Vector3 currentOffset = Vector3::Lerp(_particleStartDistributionOffset, _particleEndDistributionOffset, ratio);
+
+    location.x = tempPos.x + offset.x * (0 < currentOffset.x ? currentOffset.x : 0);
+    location.y = tempPos.y + offset.y * (0 < currentOffset.y ? currentOffset.y : 0);
+    location.z = tempPos.z + offset.z * (0 < currentOffset.z ? currentOffset.z : 0);
 
     if (_useWorldSpace)
     {
 		location = Vector4::Transform(location, _worldMatrix);
 	}
 
-    _particlePool[index]->SetPosition(location);
+    _particlePool[index].SetPosition(location);
     ScaleVelocity({location.x, location.y, location.z});
     Vector3 finalVelocity = _velocity;
     finalVelocity = Vector3::TransformNormal(_velocity, _worldMatrix);
-    _particlePool[index]->SetVelocity(finalVelocity);
+    _particlePool[index].SetVelocity(finalVelocity);
 
-    _particlePool[index]->SetAge(0.f);
-    _particlePool[index]->SetMass(_particleMass);
+    _particlePool[index].SetAge(0.f);
+    _particlePool[index].SetMass(_particleMass);
 
 
 
     if (true == GetScaleByVelocityFlag())
-        _particlePool[index]->SetAxis(finalVelocity);
+        _particlePool[index].SetAxis(finalVelocity);
     else
-        _particlePool[index]->SetAxis(_particleAxis);
+        _particlePool[index].SetAxis(_particleAxis);
 
 
     if (ParticleType::SPRITE == _particleType)
     {
         auto    spritemodule = static_cast<SpriteModule*>(_particleRenderModule);
         Vector4 frameInfo    = {spritemodule->GetFrameDuration(), 0, 0, 0};
-        _particlePool[index]->SetFrameinfo(frameInfo);
+        _particlePool[index].SetFrameinfo(frameInfo);
     }
-        _particlePool[index]->SetInitialMatrix(_worldMatrix.Transpose());
+        _particlePool[index].SetInitialMatrix(_worldMatrix.Transpose());
 
 }
 
@@ -636,4 +640,28 @@ void ParticleEmitter::ScaleVelInCone(Vector3 pos)
 
 }
 
+void ParticleEmitter::InitializeLight(std::string_view scenenName) 
+{
+    _light = new Light();
+    _light->SetPointLight(_lightColor, _finalPos, _lightAttenuation, _lightCurrentRange, _lightCurrentIntensity);
+    _light->SetActive(&_activeFlag);
+
+    Global::lightCore->RegisterLight(scenenName, _light);
+    if (scenenName == "Game")
+    {
+        Global::lightCore->RegisterLight("Editor", _light);
+    }
+}
+
+void ParticleEmitter::SetLightFlag(bool value) 
+{
+    _useLight = value;
+    if (value)
+        _light->SetActive(&_activeFlag);
+    else if (_light)
+        _light->SetActive(&_useLight);
+
+
+
+}
 

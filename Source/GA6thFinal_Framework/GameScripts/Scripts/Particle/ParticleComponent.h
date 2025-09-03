@@ -51,6 +51,8 @@ public:
 
     void PlayEffect();
     void StopEffect();
+    void SetGuid(const File::Path& filepath);
+    void SetGuid(const File::Guid& fileguid);
 
 public:
     ParticleComponent();
@@ -71,9 +73,14 @@ protected:
 
     ParticleEffect* _effect;
     void            Update() override;
+    void            Start() override;
+    void            Reset() override;
+
     void            SerializedReflectEvent() override;
     void            DeserializedReflectEvent() override;
     void            ImGuiDrawPropertysEvent() override;
+
+
 
 private:
     bool  _isPlaying = false;
@@ -85,7 +92,7 @@ private:
 
     void FollowBoneMatrix();
     
-
+    class SkeletalMeshRenderer* _skelMesh;
     Vector3 _positionVector{0.f, .0f, 0.f};
     Vector3 _rotationVector{0.f, 0.f, 0.f};
     Vector3 _scaleVector{1.f, 1.f, 1.f};

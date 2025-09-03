@@ -24,6 +24,7 @@ namespace GE
         ACCUMULATION,
         BLEND,
         BRIGHT_EXTRACT,
+        DISTORTION_RESOLVE,
         DOWN_SAMPLE,
         DXRGBUFFER,
         GAUSSIANBLUR_X,
@@ -35,8 +36,6 @@ namespace GE
         PARTICLE_RESOLVE,
         PBR_LIGHTING,
         SKYBOX,
-        SSAO,
-        SSAO_BLEND,
         SSR,
         TO_BACKBUFFER,
         UI,
@@ -50,15 +49,9 @@ namespace GE
         COMPUTE_RIBBON,
         COMPUTE_SPRITE,
         CUBE_TEXTURE_CONVERTOR,
-        DEPTH_EXTRACT,
         IRRADIANCE_MAP,
-        PARTICLE_REORDER,
         PREFILTERED_MAP,
-        PREFIX_SUM,
-        RADIX_HISTOGRAM,
-        RADIX_SCATTER,
         SKELETAL_SKINNING,
-        VALIDATE_SORT,
         END
      };
     enum class GS { NONE, END };
