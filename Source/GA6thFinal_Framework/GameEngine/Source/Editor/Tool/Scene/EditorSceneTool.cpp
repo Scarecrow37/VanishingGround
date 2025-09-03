@@ -95,6 +95,7 @@ void EditorSceneTool::OnStartGui()
     _dockWindow = GetOwnerDockWindow();
     _editorHierarchyTool = _dockWindow->GetGui<EditorHierarchyTool>();
 
+    LoadDefaultIcon();
 }
 
 void EditorSceneTool::OnPreFrameBegin()
@@ -110,21 +111,28 @@ void EditorSceneTool::OnPostFrameBegin()
 void EditorSceneTool::OnFrameRender() 
 {
     _window = ImGui::GetCurrentWindow();
-    if (_isHoveredWindow)
+    UmGizmoManager.BeginDraw(_window, _camera->GetCamera().get());
     {
-        if (ImGui::IsKeyPressed(ImGuiKey_MouseRight, false))
+        if (_isHoveredWindow)
         {
-            ImGui::SetWindowFocus();
+            if (ImGui::IsKeyPressed(ImGuiKey_MouseRight, false))
+            {
+                ImGui::SetWindowFocus();
+            }
         }
+        DragDropEvent();
+        SetCamera();
+        DrawSceneView();
+        DrawManipulate();
+        if (ReflectFields->DrawGizmo)
+        {
+            UmGizmoManager.Draw();
+        }
+        RayPicker();
+        VertexSnap();
+        UpdateKeyboardFrameRender();
     }
-    DragDropEvent();
-    
-    SetCamera();    
-    DrawSceneView();
-    DrawManipulate();
-    RayPicker();
-    VertexSnap();
-    UpdateKeyboardFrameRender();
+    UmGizmoManager.EndDraw();
 }
 
 void EditorSceneTool::OnFrameEnd()
@@ -199,6 +207,18 @@ void EditorSceneTool::SetCamera()
         ReflectFields->CameraAspect,
         ReflectFields->CameraNearZ,
         ReflectFields->CameraFarZ);
+}
+
+void EditorSceneTool::LoadDefaultIcon() 
+{
+    constexpr auto icons = rfl::get_enumerator_array<SceneGizmo::DefaultIcon>();
+    static std::array<std::shared_ptr<Texture>, icons.size()> iconTexture;
+    int i = 0;
+    for (auto& [key, data] : icons)
+    {
+        iconTexture[i] = UmResourceManager->LoadResource<Texture>(SceneGizmo::GetIconPath(data));
+        i++;
+    }
 }
 
 void EditorSceneTool::UpdateKeyboardFrameFocus()
@@ -356,6 +376,16 @@ void EditorSceneTool::DrawManipulate()
             }
         }
     }
+    else
+    {
+        _isUseManipulate    = false;
+        _isDrawedManipulate = false;
+        _isMovedManipulate  = false;
+        _isUsingStart       = false;
+        _isUsingEnd         = false;
+        _isUsing            = false;
+        _isOver             = false;            
+    }
 }
 
 void EditorSceneTool::DrawSceneView() 
@@ -363,7 +393,7 @@ void EditorSceneTool::DrawSceneView()
     D3D12_GPU_DESCRIPTOR_HANDLE handle = UmGraphics.GetRenderSceneImage("Editor");
     ImGui::Image((ImTextureID)handle.ptr, {_sceneClientWidth, _sceneClientHeight});  
 
-    constexpr ImVec2 iconButtonSize = ImVec2(64.0f, 64.0f);
+    constexpr ImVec2 iconButtonSize = ImVec2(54.f, 54.f);
     constexpr ImVec2 damp = ImVec2(4.f, 4.f);
     ImVec2 moveIconPos = _window->ContentRegionRect.Min;
     ImGui::SetCursorScreenPos(ImVec2(moveIconPos.x + damp.x, moveIconPos.y + damp.y));
@@ -499,26 +529,6 @@ void EditorSceneTool::DrawSceneView()
         {
             ImGui::PopStyleColor(3);
         }
-
-        const auto& runtimeObjects = ESceneManager::Engine::GetRuntimeObjects();
-        auto        focusObject    = EditorHierarchyTool::GetFocusObject().lock();
-        for (auto& object : runtimeObjects)
-        {
-            if (object && object->IsValid())
-            {
-                for (size_t i = 0; i < object->GetComponentCount(); ++i)
-                {
-                    Component* component = object->GetComponentAtIndex<Component>(i);
-                    if (component)
-                    {
-                        if (nullptr == focusObject || object != focusObject)
-                        {
-                            component->OnDrawDebug();
-                        }                   
-                    }
-                }
-            }
-        }
     };
     
     static bool showSettings = true;
@@ -600,16 +610,34 @@ void EditorSceneTool::DrawSceneView()
             100000.0f
         );
         ImGui::PopStyleColor(pushCount);
-        // 우클릭 + 마우스 휠 시 카메라 이동속도 높이기
-        if (ImGui::IsKeyDown(ImGuiKey_MouseRight))
-        {
-            moveSpeed *= 1.0f + (ImGui::GetIO().MouseWheel * 0.05f);
-        }
         _camera->SetMoveSpeed(moveSpeed);
         _camera->SetRotationSpeed(rotationSpeed);
         _camera->SetPivot(pivotDistance);
         UpdateReflectFields();
     }
+
+    if (ReflectFields->DrawGizmo)
+    {
+        const auto& runtimeObjects = ESceneManager::Engine::GetRuntimeObjects();
+        auto        focusObject    = EditorHierarchyTool::GetFocusObject().lock();
+        for (auto& object : runtimeObjects)
+        {
+            if (object && object->IsValid())
+            {
+                for (size_t i = 0; i < object->GetComponentCount(); ++i)
+                {
+                    Component* component = object->GetComponentAtIndex<Component>(i);
+                    if (component)
+                    {
+                        if (nullptr == focusObject || object != focusObject)
+                        {
+                            component->OnDrawDebug();
+                        }
+                    }
+                }
+            }
+        }
+    }   
 }
 
 void EditorSceneTool::RayPicker() 
@@ -649,7 +677,10 @@ void EditorSceneTool::RayPicker()
                 {
                     if (std::shared_ptr<MeshComponent> mesh = weakMesh.lock())
                     {
-                        meshComponents.push_back(mesh);
+                        if (mesh->gameObject->IsValid())
+                        {
+                            meshComponents.push_back(mesh);
+                        }                       
                     }           
                 }
 

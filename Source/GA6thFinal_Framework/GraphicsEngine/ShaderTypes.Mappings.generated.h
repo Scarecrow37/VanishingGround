@@ -25,34 +25,27 @@ namespace GE
     };
 
     inline const std::unordered_map<CS, std::wstring> enumToCSFileNameMap = {
-        {CS::COMPUTE_SPRITE, L"cs_compute_sprite.hlsl"},
-        {CS::PREFILTERED_MAP, L"cs_prefiltered_map.hlsl"},
-        {CS::DEPTH_EXTRACT, L"cs_depth_extract.hlsl"},
-        {CS::BRDF_LUT, L"cs_brdf_lut.hlsl"},
-        {CS::PARTICLE_REORDER, L"cs_particle_reorder.hlsl"},
-        {CS::RADIX_HISTOGRAM, L"cs_radix_histogram.hlsl"},
-        {CS::VALIDATE_SORT, L"cs_validate_sort.hlsl"},
-        {CS::IRRADIANCE_MAP, L"cs_irradiance_map.hlsl"},
-        {CS::SKELETAL_SKINNING, L"cs_skeletal_skinning.hlsl"},
         {CS::COMPUTE_RIBBON, L"cs_compute_ribbon.hlsl"},
         {CS::CUBE_TEXTURE_CONVERTOR, L"cs_cube_texture_convertor.hlsl"},
-        {CS::RADIX_SCATTER, L"cs_radix_scatter.hlsl"},
-        {CS::PREFIX_SUM, L"cs_prefix_sum.hlsl"}
+        {CS::IRRADIANCE_MAP, L"cs_irradiance_map.hlsl"},
+        {CS::BRDF_LUT, L"cs_brdf_lut.hlsl"},
+        {CS::SKELETAL_SKINNING, L"cs_skeletal_skinning.hlsl"},
+        {CS::PREFILTERED_MAP, L"cs_prefiltered_map.hlsl"},
+        {CS::COMPUTE_SPRITE, L"cs_compute_sprite.hlsl"}
     };
 
     inline const std::unordered_map<PS, std::wstring> enumToPSFileNameMap = {
         {PS::BLEND, L"ps_blend.hlsl"},
-        {PS::SSAO, L"ps_ssao.hlsl"},
         {PS::WRITE_AO, L"ps_write_ao.hlsl"},
         {PS::PARTICLE_QUAD, L"ps_particle_quad.hlsl"},
         {PS::GAUSSIANBLUR_X, L"ps_gaussianblur_x.hlsl"},
         {PS::TO_BACKBUFFER, L"ps_to_backbuffer.hlsl"},
         {PS::SSR, L"ps_ssr.hlsl"},
         {PS::SKYBOX, L"ps_skybox.hlsl"},
-        {PS::SSAO_BLEND, L"ps_ssao_blend.hlsl"},
         {PS::UI, L"ps_ui.hlsl"},
         {PS::ACCUMULATION, L"ps_accumulation.hlsl"},
         {PS::DOWN_SAMPLE, L"ps_down_sample.hlsl"},
+        {PS::DISTORTION_RESOLVE, L"ps_distortion_resolve.hlsl"},
         {PS::GAUSSIANBLUR_Y, L"ps_gaussianblur_y.hlsl"},
         {PS::PARTICLE_RESOLVE, L"ps_particle_resolve.hlsl"},
         {PS::OUTLINE, L"ps_outline.hlsl"},

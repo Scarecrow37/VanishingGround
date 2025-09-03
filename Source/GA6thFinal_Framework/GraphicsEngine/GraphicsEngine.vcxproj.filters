@@ -16,31 +16,13 @@
     <FxCompile Include="..\Shaders\cs_cube_texture_convertor.hlsl">
       <Filter>Shaders\cs</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\cs_depth_extract.hlsl">
-      <Filter>Shaders\cs</Filter>
-    </FxCompile>
     <FxCompile Include="..\Shaders\cs_irradiance_map.hlsl">
-      <Filter>Shaders\cs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\cs_particle_reorder.hlsl">
       <Filter>Shaders\cs</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\cs_prefiltered_map.hlsl">
       <Filter>Shaders\cs</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\cs_prefix_sum.hlsl">
-      <Filter>Shaders\cs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\cs_radix_histogram.hlsl">
-      <Filter>Shaders\cs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\cs_radix_scatter.hlsl">
-      <Filter>Shaders\cs</Filter>
-    </FxCompile>
     <FxCompile Include="..\Shaders\cs_skeletal_skinning.hlsl">
-      <Filter>Shaders\cs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\cs_validate_sort.hlsl">
       <Filter>Shaders\cs</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\ps_accumulation.hlsl">
@@ -133,6 +115,7 @@
     <FxCompile Include="..\Shaders\vs_ui_fr.hlsl">
       <Filter>Shaders\vs</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\ps_distortion_resolve.hlsl" />
     <FxCompile Include="..\Shaders\cs_light_injection.hlsl">
       <Filter>Shaders\cs</Filter>
     </FxCompile>
@@ -483,6 +466,8 @@
     <ClCompile Include="ViewManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="DistortionTechnique.cpp" />
+    <ClCompile Include="DistortionResolvePass.cpp" />
     <ClCompile Include="VolumetricFogTechnique.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -869,6 +854,8 @@
     <ClInclude Include="LightInjectionPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="DistortionTechnique.h" />
+    <ClInclude Include="DistortionResolvePass.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Shaders\CommonData.hlsli">

@@ -17,10 +17,10 @@ public:
     void End(ID3D12GraphicsCommandList* commandList) override;
 
 private:
-    void InitializeShader();
-    void InitializePSO();
+    void InitializeShaderAndPSO();
 
 private:    
     SharedResource<UnorderedAccessView> _accumlateBuffer;
     SharedResource<UnorderedAccessView> _revealageBuffer;
+    FX<GE::VS::QUAD, GE::PS::PARTICLE_RESOLVE> _fx;
 };

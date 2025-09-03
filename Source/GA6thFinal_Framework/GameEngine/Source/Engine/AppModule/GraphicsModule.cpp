@@ -40,7 +40,7 @@ void GraphicsModule::PreInitialize()
         flag = RenderTechniqueFlag::SKY_BOX_TECH | lightingFlag;
         UmGraphics.AddRenderScene("ModelViewer", flag);
 
-        flag = RenderTechniqueFlag::PARTICLE_TECH | RenderTechniqueFlag::EDITOR_DRAW_TECH | RenderTechniqueFlag::BLOOM_TECH;
+        flag = RenderTechniqueFlag::PARTICLE_TECH | RenderTechniqueFlag::PBR_TECH | RenderTechniqueFlag::BLOOM_TECH;
         UmGraphics.AddRenderScene("ParticleEditor", flag);
     }
     else

@@ -5,6 +5,11 @@ using namespace Global;
 using namespace u8_literals;
 
 
+void EditorSceneMenu::OnStartGui() 
+{
+    _sceneTool = editorModule->GetDockWindowSystem().GetDockWindow("SceneDock")->GetGui<EditorSceneTool>();
+}
+
 void EditorSceneMenu::OnMenu()
 {
     EditorModule& editor = *Global::editorModule;
@@ -39,6 +44,15 @@ void EditorSceneMenu::OnMenu()
         }
         ImGui::MenuItem("Camera Setting", nullptr, &_isSceneCameraPopUp);
         ImGui::MenuItem("Sky box", nullptr, &_isSceneSkyBoxEditPopup);
+        if(ImGui::BeginMenu("Gizmo"))
+        {
+            bool drawGizmo = _sceneTool->DrawGizmo;
+            if (ImGui::MenuItem("Draw", nullptr, &drawGizmo))
+            {
+                _sceneTool->DrawGizmo = drawGizmo;
+            }     
+            ImGui::EndMenu();
+        }
         ImGui::EndMenu();
     }
 
@@ -48,11 +62,7 @@ void EditorSceneMenu::OnMenu()
 
 void EditorSceneMenu::SceneCameraPopUp() 
 {
-    if (nullptr == _sceneTool)
-    {
-        _sceneTool = editorModule->GetDockWindowSystem().GetDockWindow("SceneDock")->GetGui<EditorSceneTool>();
-    }
-    else if(_isSceneCameraPopUp)
+    if (_isSceneCameraPopUp)
     {
         ImVec2 center = ImGui::GetMainViewport()->GetCenter();
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));

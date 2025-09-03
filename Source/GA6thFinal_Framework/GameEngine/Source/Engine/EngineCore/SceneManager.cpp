@@ -123,6 +123,9 @@ void ESceneManager::Engine::CleanupSceneManager()
 
     //리소스
     SceneResourceManager::Engine::CleanUp(engineCore->SceneManager.ResourceManager);
+
+    //인풋
+    engineCore->SceneManager._inputSystem.CleanupInputReceivers();
 }
 
 void ESceneManager::Engine::SceneUpdate()
@@ -674,6 +677,7 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
             }
         }
         _setting.MainScene = scene->Path;
+        SetRendererSkyBox(scene);              
         _addComponentsQueue.clear();
         _addGameObjectsQueue.clear();
         _waitAwakeVec.clear();
@@ -919,7 +923,6 @@ void ESceneManager::ObjectsAddLoadScene()
             Scene* scene = &sceneIter->second;
             try
             {
-                SetRendererSkyBox(scene);              
                 DeserializeToGuid(_nextSceneGuid);
                 scene->_isLoaded = true;
                 scene->_isDirty  = false;
@@ -1084,7 +1087,7 @@ void ESceneManager::ObjectsDestroy()
 
     //오브젝트 삭제
     auto& [destroyObjectSet, destroyObjectQueue] = _destroyObjectsQueue;
-    // OnDestroy 호출 도중 원본 큐 변형 방지를 위한 지연삭제
+    // OnDestroy 호출 도중 원본 큐 변형 방지를 위한 복사 후 삭제
     _destroyObjectTemp = destroyObjectQueue;
     destroyObjectSet.clear();
     destroyObjectQueue.clear();
@@ -1134,6 +1137,17 @@ void ESceneManager::ObjectsDestroy()
         _runtimeObjects.pop_back();
     }
 
+    //하이러키 에디터에 삭제 플래그 활성화
+    if constexpr (IS_EDITOR)
+    {
+        if (false == _destroyObjectTemp.empty())
+        {
+            static EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("SceneDock");
+            static EditorHierarchyTool* editorHierarchy = sceneDock->GetGui<EditorHierarchyTool>();
+            editorHierarchy->ActiveHierarchyCleanup();
+        }
+    }
+
     //큐 초기화
     _destroyComponentsTemp.clear();
     _destroyObjectTemp.clear();
@@ -1159,6 +1173,13 @@ void ESceneManager::ObjectsAddRuntime()
         }
         _runtimeObjects[id] = gameObject;
         GameObject::Engine::UpdateActiveInHierarchy(gameObject.get());     
+
+        if constexpr (IS_EDITOR)
+        {
+            static EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("SceneDock");
+            static EditorHierarchyTool* editorHierarchy = sceneDock->GetGui<EditorHierarchyTool>();
+            editorHierarchy->PushHierarchyObject(gameObject);
+        }
     }
 
     for (auto& [owner, component] : _addComponentsQueue)
@@ -1892,7 +1913,7 @@ void ESceneManager::SceneResourceManager::Engine::CleanUp(SceneResourceManager& 
 }
 
 void ESceneManager::SceneResourceManager::RequestModelResource(const Component* component, const File::Guid& guid,
-                                                               const std::function<void()> func)
+                                                               const std::function<void()>& func)
 {
     if (component->gameObject->IsValid())
     {
@@ -1913,7 +1934,7 @@ void ESceneManager::SceneResourceManager::RequestModelResource(const Component* 
 }
 
 void ESceneManager::SceneResourceManager::RequestModelResource(const Component* component, const File::Path& path,
-                                                               const std::function<void()> func)
+                                                               const std::function<void()>& func)
 {
     if (component->gameObject->IsValid())
     {
@@ -1933,7 +1954,7 @@ void ESceneManager::SceneResourceManager::RequestModelResource(const Component* 
     }
 }
 
-void ESceneManager::SceneResourceManager::RequestTextureResource(const Component* component, const File::Guid& guid, const std::function<void()> func)
+void ESceneManager::SceneResourceManager::RequestTextureResource(const Component* component, const File::Guid& guid, const std::function<void()>& func)
 {
     if (component->gameObject->IsValid())
     {
@@ -1954,7 +1975,7 @@ void ESceneManager::SceneResourceManager::RequestTextureResource(const Component
 }
 
 void ESceneManager::SceneResourceManager::RequestTextureResource(const Component* component, const File::Path& path,
-                                                                 const std::function<void()> func)
+                                                                 const std::function<void()>& func)
 {
     if (component->gameObject->IsValid())
     {
@@ -1975,7 +1996,7 @@ void ESceneManager::SceneResourceManager::RequestTextureResource(const Component
 }
 
 void ESceneManager::SceneResourceManager::RequestFontResource(const Component* component, const File::Guid& guid,
-                                                              const std::function<void()> func)
+                                                              const std::function<void()>& func)
 {
     if (component->gameObject->IsValid())
     {
@@ -1996,7 +2017,7 @@ void ESceneManager::SceneResourceManager::RequestFontResource(const Component* c
 }
 
 void ESceneManager::SceneResourceManager::RequestFontResource(const Component* component, const File::Path& path,
-                                                              const std::function<void()> func)
+                                                              const std::function<void()>& func)
 {
     if (component->gameObject->IsValid())
     {
@@ -2059,8 +2080,8 @@ void ESceneManager::InputSystem::UpdateInput()
                 {
                     UpdateTracker(flag);
                 }
-            }        
-            
+            } 
+
             UpdateAnalogButtons();
             std::memset(_actionChecker.data(), 0, std::size(_actionChecker)); //중복 액션 방지용 기록 배열 초기화.
         }
@@ -2078,6 +2099,33 @@ void ESceneManager::InputSystem::UpdateInput()
 #endif
         }
 
+    }
+}
+
+void ESceneManager::InputSystem::RegisterInputReceiver(InputReceiver& receiver, int buttonIndex, int actionIndex, std::function<void(const Input::Controller& controller)> func)
+{
+    auto& receiverTarget = _receivers[buttonIndex][actionIndex];
+    if (nullptr == receiver._isDestroy)
+    {
+        //플래그 bool 값을 동적 할당
+        receiverTarget.emplace_back(std::make_shared<bool>(false), func);
+        receiver._isDestroy = receiverTarget.back().first;
+    }
+    else
+    {
+        //이미 등록된 리시버는 bool 값을 공유.
+        receiverTarget.emplace_back(receiver._isDestroy, func);
+    }
+}
+
+void ESceneManager::InputSystem::CleanupInputReceivers() 
+{
+    for (auto& actions : _receivers)
+    {
+        for (auto& inputReceivers : actions)
+        {
+            inputReceivers.clear();
+        }
     }
 }
 
@@ -2158,10 +2206,27 @@ void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
 
     int   actionIndex = static_cast<int>(action);
     auto& receivers = _receivers[buttonIndex][actionIndex];
-    for (auto& [instance, event] : receivers)
+    bool  activeErase = false;
+    for (auto& [isDestroy, event] : receivers)
     {
-        event(_inputController);
-        checker = true;
+        if (nullptr == isDestroy || true == *isDestroy)
+        {
+            activeErase = true;
+        }
+        else
+        {
+            event(_inputController);
+            checker = true;
+        }
+    }
+
+    if (true == activeErase)
+    {
+        std::erase_if(receivers, [](auto& pair) 
+        {
+            auto& [destroy, event] = pair;
+            return nullptr == destroy || *destroy;
+        });
     }
 }
 

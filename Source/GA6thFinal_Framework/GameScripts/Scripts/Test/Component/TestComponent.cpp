@@ -65,6 +65,10 @@ void TestComponent::Reset()
 void TestComponent::Awake()
 {
     UmLogger.Log(LogLevel::LEVEL_DEBUG, "Awake!");
+    if (ReflectFields->TestDontDestroyOnLoad)
+    {
+        GameObject::DontDestroyOnLoad(gameObject);
+    }
 }
 
 void TestComponent::Start()
@@ -85,11 +89,11 @@ void TestComponent::OnDisable()
 void TestComponent::SerializedReflectEvent()
 {
     UmLogger.Log(LogLevel::LEVEL_DEBUG, "SerializedReflectEvent");
-    std::memcpy(ReflectFields->testVector3.data(), &testVector3, sizeof(ReflectFields->testVector3));
+
 }
 
 void TestComponent::DeserializedReflectEvent()
 {
     UmLogger.Log(LogLevel::LEVEL_DEBUG, "DeserializedReflectEvent");
-    testVector3 = Vector3(ReflectFields->testVector3.data());
+
 }

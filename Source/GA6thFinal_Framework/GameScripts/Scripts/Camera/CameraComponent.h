@@ -155,6 +155,8 @@ protected:
     bool IsMainCam = false;
     REFLECT_FIELDS_END(CameraComponent)
 
+    virtual void Reset() override;
+
     /// <summary>
     /// <para>  ImGuiDrawPropertys() 호출 이후 콜되는 이벤트 함수입니다. </para>
     /// </summary>
@@ -182,4 +184,9 @@ protected:
 private:
     bool _isDirty;
     std::shared_ptr<Camera> _camera;
+
+private:
+#ifdef _UMEDITOR
+    SceneGizmo _gizmo{this};
+#endif
 };

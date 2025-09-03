@@ -171,6 +171,7 @@ using namespace Microsoft::WRL;
 #include "Engine/EngineCore/ComponentFactory.h"
 #include "Engine/EngineCore/SceneManager.h"
 #include "Engine/EngineCore/FactoryRegister.h"
+#include "Engine/EngineCore/GizmoManager.h"
 #include "Engine/EngineCore/EngineCores.h" 
 
 //Editor Core
@@ -234,7 +235,6 @@ using namespace Microsoft::WRL;
 #include "Editor/Tool/ParticleEffect/EditorParticleEffectViewer.h"
 #include "Editor/Tool/ParticleEffect/EditorParticleEffectHierarchy.h"
 
-
 // Editor Menu
 #include "Editor/Menu/Project/EditorProjectMenu.h"
 #include "Editor/Menu/Window/EditorWindowMenu.h"
@@ -243,5 +243,8 @@ using namespace Microsoft::WRL;
 #include "Editor/Menu/Project/EditorBuildSettingMenu.h"
 #include "Editor/Menu/Play/EditorPlayMenu.h"
 #include "Editor/Menu/Model/EditorModelMenu.h"
+#include "Editor/Menu/Game/EditorGameMenu.h"
 
 #endif
+
+#include "Editor/SceneGizmo/SceneGizmo.h"

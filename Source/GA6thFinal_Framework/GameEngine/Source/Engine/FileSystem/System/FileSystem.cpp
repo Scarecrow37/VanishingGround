@@ -158,7 +158,16 @@ bool EFileSystem::SaveProject()
 bool EFileSystem::SaveAsProject(const File::Path& to)
 {
     if (true == _projectData.IsNull())
+    {
+        OutputLog(L"Failed to EFileSystem::SaveAsProject. Project is not loaded");
         return false;
+    }
+
+    if (false == fs::exists(_rootPath))
+    {
+        OutputLog(L"Failed to EFileSystem::SaveAsProject. Root path is Invalid.");
+        return false;
+    }
 
     std::wstring msg    = L"현재 프로젝트를 저장하고 다른 이름으로 저장합니다.";
     std::wstring title  = L"다른 이름으로 저장";
@@ -169,7 +178,7 @@ bool EFileSystem::SaveAsProject(const File::Path& to)
         title.c_str(),            // 메시지 박스 제목
         MB_YESNO                  // 스타일: 예/아니오 버튼
     );
-
+    
     if (result == IDYES)
     {
         SaveProject();
@@ -834,7 +843,7 @@ void EFileSystem::UnregisterContext(const File::Path& path)
 
 void EFileSystem::ProcessRemovedFile(const File::Path& path)
 {
-    if (path.extension() == UmFileSystem.GetMetaExt())
+    if (path.extension() == File::META_EXTENSION)
     {
         // 메타 파일을 메모리에 존재하는 guid로 재생성
         File::Path filePath = path;

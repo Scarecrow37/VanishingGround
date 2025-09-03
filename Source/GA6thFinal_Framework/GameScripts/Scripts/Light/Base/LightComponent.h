@@ -66,7 +66,14 @@ protected:
 
     virtual void Reset();
 
+    virtual void OnDrawDebug() override;
+
 private:
     Color _lightColor{1.f, 1.f, 1.f, 1.f};
     Vector3 _lightColorVector3{1.f, 1.f, 1.f};
+
+private:
+#ifdef _UMEDITOR
+    SceneGizmo _gizmo{this};
+#endif
 };
