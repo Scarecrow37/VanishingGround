@@ -95,9 +95,8 @@ UMREAL_COMPONENT(DummyWrapper)
 #include "Scripts/UI/Elements/Image/ImageElement.h"
 UMREAL_COMPONENT(ImageElement)
 
-//#include "Scripts/UI/Elements/Text/TextElement.h"
-//UMREAL_COMPONENT(TextElement)
-//
+#include "Scripts/UI/Elements/Text/TextElement.h"
+UMREAL_COMPONENT(TextElement)
 
 #include "Scripts/UI/Wrappers/Ratio/RatioWrapper.h"
 UMREAL_COMPONENT(RatioWrapper)

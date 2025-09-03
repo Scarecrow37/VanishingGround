@@ -27,11 +27,6 @@ TextElement::~TextElement()
         _renderer->SetDestroy();
 }
 
-SIZE TextElement::GetContentSize() const
-{
-    return ReflectFields->ContentSize;
-}
-
 void TextElement::SetFont(const File::GuidRef& guidRef)
 {
     _guidRef = guidRef;
@@ -73,21 +68,53 @@ void TextElement::DeserializedReflectEvent()
     }
 }
 
-void TextElement::OnPlacementChange()
-{
-    DrawUIComponent::OnPlacementChange();
-
-    UpdatePosition();
-
-    if (IsFitContent)
-    {
-        FitContent();   
-    }
-}
-
 float TextElement::GetZOrder() const
 {
     return DrawUIComponent::GetZOrder() * VIEW_ORDER_TEXT_RATIO + VIEW_ORDER_TEXT_OFFSET;
+}
+
+void TextElement::ImGuiDrawPropertysEvent()
+{
+    DrawUIComponent::ImGuiDrawPropertysEvent();
+
+    if (_isDebug)
+    {
+        const std::string& guid = ReflectFields->Guid;
+        ImGuiDebug()("Font", guid);
+
+        const auto [cx, cy] = ReflectFields->ContentSize;
+        ImGuiDebug()("Content Size", cx, cy);
+    }
+}
+
+SIZE TextElement::MeasureOverride(const SIZE availableSize)
+{
+    const FillMode horizontalFillMode = HorizontalFillMode;
+    const FillMode verticalFillMode   = VerticalFillMode;
+
+    SIZE desiredSize = MinSize()(availableSize, _requestedSize, horizontalFillMode == FillMode::FILL,
+                                 verticalFillMode == FillMode::FILL);
+
+    const auto [contentWidth, contentHeight] = ReflectFields->ContentSize;
+    const LONG scaledContentWidth  = static_cast<LONG>(static_cast<float>(contentWidth) * ReflectFields->FontScale);
+    const LONG scaledContentHeight = static_cast<LONG>(static_cast<float>(contentHeight) * ReflectFields->FontScale);
+
+    if (horizontalFillMode == FillMode::WRAP)
+        desiredSize.cx = scaledContentWidth;
+    if (verticalFillMode == FillMode::WRAP)
+        desiredSize.cy = scaledContentHeight;
+
+    return desiredSize;
+}
+
+SIZE TextElement::ArrangeOverride(const SIZE finalSize)
+{
+    const SIZE desiredSize = DesiredSize;
+    const SIZE actualSize  = MinSize()(finalSize, desiredSize);
+
+    UpdatePosition();
+
+    return actualSize;
 }
 
 void TextElement::LoadFont() const
@@ -110,25 +137,18 @@ void TextElement::SetViewOrder(const int viewOrder)
     UpdatePosition();
 }
 
-void TextElement::PassProperty()
+void TextElement::UpdateProperties()
 {
     if (nullptr != _renderer)
     {
         _renderer->SetOrigin(Vector2::Zero);
         _renderer->SetRotation(0.0f);
     }
-    UpdateAll();
-}
-
-void TextElement::UpdateAll()
-{
     UpdateText();
     UpdateColor();
     UpdatePosition();
     UpdateScale();
     UpdateContentSize();
-    if (ReflectFields->IsFitContent)
-        FitContent();
 }
 
 void TextElement::UpdateText() const
@@ -151,8 +171,9 @@ void TextElement::UpdatePosition() const
 {
     if (nullptr != _renderer)
     {
-        const auto& [x, y]   = GetAbsolutePoint();
-        const float   zOrder = GetZOrder();
+        const POINT absolutePosition = AbsolutePosition;
+        const auto& [x, y]           = absolutePosition;
+        const float   zOrder         = GetZOrder();
         const Vector3 position{static_cast<float>(x), static_cast<float>(y), zOrder};
         _renderer->SetPosition(position);
     }
@@ -181,25 +202,13 @@ void TextElement::UpdateContentSize()
     }
 }
 
-void TextElement::FitContent()
-{
-    const SIZE contentSize = GetContentSize();
-    const SIZE previousSize = GetSize();
-
-    if (contentSize != previousSize)
-    {
-        //Size = contentSize;
-        SpreadPlacementToParent();
-    }
-}
-
 void TextElement::RequestResource()
 {
     if (false == _guidRef.IsNull())
     {
         UmSceneManager.ResourceManager.RequestFontResource(this, _guidRef, [this]() {
             LoadFont();
-            PassProperty();
+            UpdateProperties();
         });
     }
 }

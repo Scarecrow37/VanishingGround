@@ -270,6 +270,7 @@ struct ImGuiDebug
     void operator()(const char* label, long x, long y) const;
     void operator()(const char* label, unsigned int x) const;
     void operator()(const char* label, int x) const;
+    void operator()(const char* label, const std::string& str) const;
 };
 
 struct DrawDebug

@@ -93,6 +93,8 @@ void ImageElement::ImGuiDrawPropertysEvent()
     if (_isDebug)
     {
         ImGuiDebug()("Sprite Size", _spriteOriginSize.cx, _spriteOriginSize.cy);
+        const std::string& guid = ReflectFields->Guid;
+        ImGuiDebug()("Guid", guid);
     }
 }
 
