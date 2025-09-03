@@ -316,19 +316,22 @@ void PlayerPlayTurnState::SetAttackReady()
 {
     Player& player = GetPlayer();
     auto* animator = player.GetAnimationComponent();
-    auto* audioTable = player.GetAudioTableComponent();
     if (animator)
     {
+        // 오버라이드 애니메이션 빌드 시작
         animator->BeginBuildOverrideAnimation();
         animator->ClearOverrideAnimations();
 
+        // 애니메이션 "Attack_Ready_Loop" USE_BLEND 및 USE_LOOP 플래그 설정 후  Push
         animator->SetNextAnimationFlags(ANIMATION_FLAG_USE_BLEND | ANIMATION_FLAG_USE_LOOP);
         animator->PushBackOverrideAnimation("Attack_Ready_Loop");
         
+        // 애니메이션 "Attack_Ready" USE_BLEND 및 ALWAYS_UPDATE 플래그 설정 후 Push
         animator->SetNextAnimationFlags(ANIMATION_FLAG_USE_BLEND | ANIMATION_FLAG_ALWAYS_UPDATE);
         animator->PushBackOverrideAnimation("Attack_Ready");
         animator->SetCurrentAnimationPopCondition([](const AnimationData& data) { return data.IsEnd(); });  // 애니메이션이 끝날 경우 Pop
 
+        // 애니메이션 빌드 종료
         animator->EndBuildOverrideAnimation();
     }
 
@@ -373,43 +376,45 @@ void PlayerPlayTurnState::SetAttack()
     ParticleComponent*  weaponEffect = weaponEffects[(int)weaponType];
 
     // 무기 애니메이션 처리
-    if (false == _attackTargets.empty())
-    {
-        // 무기 이펙트 처리
-        if (weaponEffect)
-        {
-            weaponEffect->PlayEffect();
-        }
-        bool isFirst = true;
-        for (auto iter = _attackTargets.rbegin(); iter != _attackTargets.rend(); ++iter)
-        {
-            // 임시 랜덤 애니메이션
-            const auto& keymap = weaponAnim->GetAnimationKeyMap();
-            int count = 0, randomIndex = Random::Range(0, (int)keymap.size() - 1);
-            for (auto& [key, value] : keymap)
-            {
-                if (count == randomIndex)
-                {   // 무기 애니메이션 설정(중복 Push 허용)
-                    weaponAnim->PushBackOverrideAnimation(key, true);
-                    weaponAnim->SetCurrentAnimationPopCondition([](const AnimationData& data) { return data.IsEnd(); }); // 애니메이션이 끝날 경우 Pop
-                    if (isFirst)
-                    {
-                        weaponAnim->SetCurrentAnimationPopCallback([this]() { SetAttackEnd(); });
-                        isFirst = false;
-                    }
-                }
-                ++count;
-            }
-        }
-        weaponAnim->PlayCurrentAnimation();
-    }
-    else
-    {
-        // 공격 대상이 없으면 애니메이션을 스킵
-        SetAttackEnd();
-    }
+
     if (weaponAnim)
     {
+        if (false == _attackTargets.empty())
+        {
+            // 무기 이펙트 처리
+            if (weaponEffect)
+            {
+                weaponEffect->PlayEffect();
+            }
+            bool isFirst = true;
+            for (auto iter = _attackTargets.rbegin(); iter != _attackTargets.rend(); ++iter)
+            {
+                // 임시 랜덤 애니메이션
+                const auto& keymap = weaponAnim->GetAnimationKeyMap();
+                int         count = 0, randomIndex = Random::Range(0, (int)keymap.size() - 1);
+                for (auto& [key, value] : keymap)
+                {
+                    if (count == randomIndex)
+                    { // 무기 애니메이션 설정(중복 Push 허용)
+                        weaponAnim->PushBackOverrideAnimation(key, true);
+                        weaponAnim->SetCurrentAnimationPopCondition(
+                            [](const AnimationData& data) { return data.IsEnd(); }); // 애니메이션이 끝날 경우 Pop
+                        if (isFirst)
+                        {
+                            weaponAnim->SetCurrentAnimationPopCallback([this]() { SetAttackEnd(); });
+                            isFirst = false;
+                        }
+                    }
+                    ++count;
+                }
+            }
+            weaponAnim->PlayCurrentAnimation();
+        }
+        else
+        {   // 공격 대상이 없으면 애니메이션을 스킵
+            SetAttackEnd();
+        }
+
         weaponAnim->EndBuildOverrideAnimation();
     }
 }

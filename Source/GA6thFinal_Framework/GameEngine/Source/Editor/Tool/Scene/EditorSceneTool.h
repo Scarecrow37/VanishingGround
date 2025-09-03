@@ -15,7 +15,17 @@ public:
     virtual ~EditorSceneTool();
 
     static void SetManipulateObject(std::weak_ptr<GameObject> object);
-
+    static EditorSceneTool* GetTool()
+    {
+        auto& dockSystem = Global::editorModule->GetDockWindowSystem();
+        EditorDockWindow* sceneDock  = dockSystem.GetDockWindow("SceneDock");
+        if (sceneDock)
+        {
+            EditorSceneTool* editorSceneTool = dockSystem.GetDockWindow("SceneDock")->GetGui<EditorSceneTool>();
+            return editorSceneTool;
+        }
+        return nullptr;
+    }
 public:
     const Matrix& GetCameraMatrix();
     void SetCameraToObject(std::weak_ptr<GameObject> destination);

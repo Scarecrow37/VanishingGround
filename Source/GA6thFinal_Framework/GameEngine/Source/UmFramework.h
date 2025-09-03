@@ -243,6 +243,7 @@ using namespace Microsoft::WRL;
 #include "Editor/Menu/Project/EditorBuildSettingMenu.h"
 #include "Editor/Menu/Play/EditorPlayMenu.h"
 #include "Editor/Menu/Model/EditorModelMenu.h"
+#include "Editor/Menu/Game/EditorGameMenu.h"
 
 #endif
 
