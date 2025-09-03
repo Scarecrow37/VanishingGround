@@ -353,21 +353,15 @@ void GameObject::OnInspectorStay()
                             UmCore->ImGuiDrawPropertysSetting.InputEndEvent = SetSceneDirtyFlag;
                         }
                         component->ImGuiDrawPropertys();
-
-                        static EditorSceneTool* editorSceneTool;
-                        if (nullptr == editorSceneTool)
+                        static EditorSceneTool* editorSceneTool = EditorSceneTool::GetTool();
+                        if (nullptr != editorSceneTool)
                         {
-                            auto& dockSystem = Global::editorModule->GetDockWindowSystem();
-                            EditorDockWindow* sceneDock = dockSystem.GetDockWindow("SceneDock");
-                            if (sceneDock)
-                            {
-                                editorSceneTool = dockSystem.GetDockWindow("SceneDock")->GetGui<EditorSceneTool>();
-                            }
+                            component->OnDrawDebugSelected();                          
+                        }         
+                        else
+                        {
+                            assert(!"에디터 없어요");
                         }
-                        else if (editorSceneTool && editorSceneTool->DrawGizmo)
-                        {
-                            component->OnDrawDebugSelected();
-                        }                       
                     }
                     else
                     {
