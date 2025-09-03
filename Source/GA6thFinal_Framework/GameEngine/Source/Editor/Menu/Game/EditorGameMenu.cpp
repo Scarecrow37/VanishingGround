@@ -24,7 +24,7 @@ void EditorGameMenu::OnMenu()
             ImGuiHelper::AlignedText("Camera Mode", ImGuiHelper::CENTER, 0.8f);
             ImGui::Separator();
             _gameView->ShowPopupCameraMode();
+            ImGui::EndMenu();
         }
-        ImGui::EndMenu();
     }
 }
