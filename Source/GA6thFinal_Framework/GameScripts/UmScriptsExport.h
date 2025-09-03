@@ -92,10 +92,9 @@ UMREAL_COMPONENT(DummyElement)
 #include "Scripts/UI/Wrappers/Dummy/DummyWrapper.h"
 UMREAL_COMPONENT(DummyWrapper)
 
-//
-//#include "Scripts/UI/Elements/Image/ImageElement.h"
-//UMREAL_COMPONENT(ImageElement)
-//
+#include "Scripts/UI/Elements/Image/ImageElement.h"
+UMREAL_COMPONENT(ImageElement)
+
 //#include "Scripts/UI/Elements/Text/TextElement.h"
 //UMREAL_COMPONENT(TextElement)
 //

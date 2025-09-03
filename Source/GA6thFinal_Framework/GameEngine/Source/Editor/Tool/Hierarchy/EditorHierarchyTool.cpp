@@ -474,12 +474,12 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
                     GameObjectKey, GameObject::Helper::GenerateUniqueName("Dummy Element"), &ui);
                 ui->AddComponent<DummyElement>();
             }
-            //if (ImGui::MenuItem("Image Element"))
-            //{
-            //    UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
-            //        GameObjectKey, GameObject::Helper::GenerateUniqueName("Image Element"), &ui);
-            //    ui->AddComponent<ImageElement>();
-            //}
+            if (ImGui::MenuItem("Image Element"))
+            {
+                UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Image Element"), &ui);
+                ui->AddComponent<ImageElement>();
+            }
             //if (ImGui::MenuItem("Text Element"))
             //{
             //    UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(

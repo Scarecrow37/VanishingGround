@@ -69,18 +69,6 @@ void ImageElement::DeserializedReflectEvent()
     }
 }
 
-void ImageElement::OnPlacementChange()
-{
-    DrawUIComponent::OnPlacementChange();
-
-    if (nullptr != _renderer)
-    {
-        const SIZE size = GetSize();
-        _renderer->SetSize(size);
-    }
-    UpdateWorldMatrix();
-}
-
 float ImageElement::GetZOrder() const
 {
     return DrawUIComponent::GetZOrder() * VIEW_ORDER_IMAGE_RATIO;
@@ -93,9 +81,46 @@ void ImageElement::SetViewOrder(const int viewOrder)
     UpdateWorldMatrix();
 }
 
-void ImageElement::LoadTexture() const
+void ImageElement::ImGuiDrawPropertysEvent()
 {
-    LoadTexture(_guidRef);
+    DrawUIComponent::ImGuiDrawPropertysEvent();
+
+    if (ImGui::Button("Reset to Sprite Size"))
+    {
+        ResetToSpriteSize();
+    }
+
+    if (_isDebug)
+    {
+        ImGuiDebug()("Sprite Size", _spriteOriginSize.cx, _spriteOriginSize.cy);
+    }
+}
+
+SIZE ImageElement::MeasureOverride(const SIZE availableSize)
+{
+    const FillMode horizontalFillMode = HorizontalFillMode;
+    const FillMode verticalFillMode   = VerticalFillMode;
+    const SIZE     desiredSize        = MinSize()(availableSize, _requestedSize, horizontalFillMode == FillMode::FILL,
+                                       verticalFillMode == FillMode::FILL);
+
+    return desiredSize;
+}
+
+SIZE ImageElement::ArrangeOverride(const SIZE finalSize)
+{
+    const SIZE desiredSize = DesiredSize;
+    const SIZE actualSize  = MinSize()(finalSize, desiredSize);
+
+    UpdateRendererSize(actualSize);
+    UpdateWorldMatrix();
+
+    return actualSize;
+}
+
+void ImageElement::ResetToSpriteSize()
+{
+    _requestedSize = _spriteOriginSize;
+    InvalidateMeasure();
 }
 
 void ImageElement::LoadTexture(const File::GuidRef& guid) const
@@ -113,22 +138,33 @@ void ImageElement::LoadTexture(const File::GuidRef& guid) const
 
 void ImageElement::UpdateWorldMatrix()
 {
-    const auto& [x, y] = GetAbsolutePoint();
-    const float zOrder = GetZOrder();
+    const POINT absolutePosition = AbsolutePosition;
+    const auto& [x, y]           = absolutePosition;
+    const float zOrder           = GetZOrder();
 
     const Vector3 position{static_cast<float>(x), static_cast<float>(y), zOrder};
 
     _worldMatrix = Matrix::CreateTranslation(position);
 }
 
-void ImageElement::RequestResource()
+void ImageElement::UpdateRendererSize(const SIZE size) const
+{
+    if (nullptr != _renderer)
+    {
+        _renderer->SetSize(size);
+    }
+}
+
+void ImageElement::RequestResource() 
 {
     if (false == _guidRef.IsNull())
     {
         File::GuidRef requestedGuid = _guidRef;
         UmSceneManager.ResourceManager.RequestTextureResource(this, _guidRef, [this, requestedGuid]() {
             LoadTexture(requestedGuid);
-            OnPlacementChange();
+            _spriteOriginSize = _renderer->GetSize();
+            const SIZE size = Size;
+            UpdateRendererSize(size);
         });
     }
 }

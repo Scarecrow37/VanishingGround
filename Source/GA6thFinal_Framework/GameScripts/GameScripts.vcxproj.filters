@@ -125,6 +125,7 @@
     <ClCompile Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.cpp" />
     <ClCompile Include="Scripts\UI\UIRoot\UIRoot.cpp" />
     <ClCompile Include="Scripts\UI\Base\DrawUIComponent\DrawUIComponent.cpp" />
+    <ClCompile Include="Scripts\UI\Elements\Image\ImageElement.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h" />
@@ -268,6 +269,7 @@
     <ClInclude Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.h" />
     <ClInclude Include="Scripts\UI\UIRoot\UIRoot.h" />
     <ClInclude Include="Scripts\UI\Base\DrawUIComponent\DrawUIComponent.h" />
+    <ClInclude Include="Scripts\UI\Elements\Image\ImageElement.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
