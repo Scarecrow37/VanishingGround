@@ -203,17 +203,25 @@ void GameObject::OnInspectorStay()
 
         if (false == _components.empty())
         {
-            size_t componentsCount = _components.size();
             const std::vector<std::shared_ptr<GameObject>>* originPrefab = nullptr;
             if (pPrefabObject != nullptr)
             {
                 originPrefab = UmGameObjectFactory.GetOriginPrefab(pPrefabObject->_prefabGuid);
             }
 
+            //안전한 순회 및 동적 할당 반복 방지를 위한 thread_local 순회용 컨테이너
+            static thread_local std::vector<Component*> components;
+            components.clear();
+            for (auto& component : _components)
+            {
+                components.push_back(component.get());
+            }
+
+            size_t componentsCount = components.size();
             for (int i = 0; i < componentsCount; i++)
             {
-                std::shared_ptr<Component>& component = _components[i];
-                ImGui::PushID(component.get());
+                Component* component = components[i];
+                ImGui::PushID(component);
                 {
                     const char* className = component->ClassName();
                     auto componentContextPopup = [&]() 
@@ -223,7 +231,7 @@ void GameObject::OnInspectorStay()
                             if (ImGui::MenuItem("Copy Component"))
                             {
                                 YAML::Emitter componentYamlEmitter;
-                                componentYamlEmitter << UmComponentFactory.SerializeToYaml(component.get());
+                                componentYamlEmitter << UmComponentFactory.SerializeToYaml(component);
                                 std::wstring componentData = U8ToWString(componentYamlEmitter.c_str());
                                 File::SetClipboardText(componentData);
                             }
@@ -231,11 +239,11 @@ void GameObject::OnInspectorStay()
                             {
                                 if (false == editorModule->PlayMode.IsPlay())
                                 {
-                                    UmCommandManager.Do<Command::EditorScene::DestroyComponentCommand>(component.get());
+                                    UmCommandManager.Do<Command::EditorScene::DestroyComponentCommand>(component);
                                 }
                                 else
                                 {
-                                    GameObject::Destroy(component.get());
+                                    GameObject::Destroy(component);
                                 }
                             }
                             ImGui::EndPopup();
@@ -340,7 +348,7 @@ void GameObject::OnInspectorStay()
                                         if (ImGui::Button("Revert"))
                                         {
                                             UmGameObjectFactory.UnsetOverrideFlag(pData);
-                                            UmComponentFactory.RevertOverrideField(component.get(), rflName.data());
+                                            UmComponentFactory.RevertOverrideField(component, rflName.data());
                                             GetScene().IsDirty = true;
                                         }
                                     }
