@@ -332,6 +332,8 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
          if (false == isSomethingChanged)
              if (true == result)
                  isSomethingChanged = result;
+         _curEmitter->InitializeLight("ParticleEditor");
+
          _curEmitter->SetUseLight(uselight);
          _curEmitter->SetLightFlag(uselight);
          if (true == uselight)

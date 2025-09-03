@@ -250,5 +250,21 @@ void ParticleComponent::PlayEffect()
         _effect->Play();
     }
 
+}
+void ParticleComponent::SetGuid(const File::Path& filepath) 
+{
+    ReflectFields->Guid = filepath.ToGuid();
+    if (false == ReflectFields->Guid.IsNull())
+    {
+        LoadParticle();
+    }
 
+}
+void ParticleComponent::SetGuid(const File::Guid& fileguid)
+{
+    ReflectFields->Guid = fileguid;
+    if (false == ReflectFields->Guid.IsNull())
+    {
+        LoadParticle();
+    }
 }

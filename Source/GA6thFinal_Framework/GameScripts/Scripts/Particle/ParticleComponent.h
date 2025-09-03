@@ -51,6 +51,8 @@ public:
 
     void PlayEffect();
     void StopEffect();
+    void SetGuid(const File::Path& filepath);
+    void SetGuid(const File::Guid& fileguid);
 
 public:
     ParticleComponent();
