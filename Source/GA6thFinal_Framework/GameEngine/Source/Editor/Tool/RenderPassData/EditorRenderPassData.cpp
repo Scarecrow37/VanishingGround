@@ -19,6 +19,8 @@ void EditShadowProperty(std::any& property)
     ImGui::DragFloat("Near Plane", &shadowProps.NearPlane, 0.01f, 0.01f, 100.0f);
     ImGui::DragFloat("Far Plane", &shadowProps.FarPlane, 0.1f, 0.1f, 1000.0f);
     ImGui::DragFloat("Split Factor", &shadowProps.SplitFactor, 0.01f, 0.01f, 1.0f);
+    ImGui::DragFloat("Offset1", &shadowProps.Offset1, 0.01f, 0.0f, 1000.0f);
+    ImGui::DragFloat("Offset2", &shadowProps.Offset2, 0.01f, 0.0f, 1000.0f);
 }
 
 void EditBloomProperty(std::any& property)

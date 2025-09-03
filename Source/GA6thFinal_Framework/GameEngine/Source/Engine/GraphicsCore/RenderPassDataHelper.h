@@ -7,6 +7,8 @@ inline void SerializeShadowProperty(std::ostream& os, const ShadowPassProperty& 
 	os << "        NearPlane = " << prop.NearPlane << "\n";
 	os << "        FarPlane = " << prop.FarPlane << "\n";
 	os << "        SplitFactor = " << prop.SplitFactor << "\n";
+    os << "        Offset1 = " << prop.Offset1 << "\n";
+    os << "        Offset2 = " << prop.Offset2 << "\n";
 }
 
 // BloomPassProperty를 문자열로 변환
@@ -67,6 +69,8 @@ inline void DeserializeShadowProperty(std::istream& is, ShadowPassProperty& prop
 		if (key == "NearPlane") ss >> prop.NearPlane;
 		else if (key == "FarPlane") ss >> prop.FarPlane;
 		else if (key == "SplitFactor") ss >> prop.SplitFactor;
+        else if (key == "Offset1") ss >> prop.Offset1;
+        else if (key == "Offset2") ss >> prop.Offset2;
 	}
 }
 
