@@ -119,6 +119,12 @@
     <FxCompile Include="..\Shaders\cs_light_injection.hlsl">
       <Filter>Shaders\cs</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\cs_light_accumulation.hlsl">
+      <Filter>Shaders\cs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_volumetric_fog.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AccelerationStructureManager.cpp">
@@ -412,9 +418,6 @@
     <ClCompile Include="SpriteRenderer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="SSAOBlendPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="SSAOTechnique.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -471,7 +474,13 @@
     <ClCompile Include="VolumetricFogTechnique.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="LightInjectionPass.cpp">
+    <ClCompile Include="FogLightInjectionPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="FogLightAccmulatePass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="FogCompositePass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -791,9 +800,6 @@
     <ClInclude Include="SpriteRenderer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="SSAOBlendPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="SSAOTechnique.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -851,7 +857,13 @@
     <ClInclude Include="VolumetricFogTechnique.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="LightInjectionPass.h">
+    <ClInclude Include="FogLightInjectionPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="FogLightAccmulatePass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="FogCompositePass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="DistortionTechnique.h" />

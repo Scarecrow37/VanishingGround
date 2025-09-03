@@ -213,6 +213,14 @@ float4 SampleCalculateMipLevel(Texture2D tex, SamplerState sam, float2 uv, float
     return tex.SampleLevel(sam, uv, safeMip);
 }
 
+float3 ReconstructWorldPos(float2 uv, float depth, matrix InvViewProj)
+{
+    uv.y = 1.0f - uv.y; // Flip Y
+    float4 clipPos = float4(uv * 2 - 1, depth, 1);
+    float4 worldPos = mul(clipPos, InvViewProj);
+    return worldPos.xyz / worldPos.w;
+}
+
 float3 ReconstructViewPos(float2 uv, float depth)
 {
     uv.y = 1.0f - uv.y; // Flip Y coordinate for NDC
@@ -248,9 +256,9 @@ float ExponentialToLinearDepth(float z, float n, float f)
     return 1.0f / (z_buffer_params_x * z + z_buffer_params_y);
 }
 
-float3 GetWorldPosFromVoxelID(uint3 texCoord, float jitter,float near,float far, matrix invView,matrix invProj, float3 volumeSize)
+float3 GetWorldPosFromVoxelID(uint3 texCoord, float jitter, float near, float far, float4x4 invViewProj, float3 volumeSize)
 {
-    float viewZ = near * pow(far / near, min((float(texCoord.z) + 0.5f + jitter) / volumeSize.z, 1.f));
+    float viewZ = near * pow(far / near, min((float(texCoord.z) + 0.5f + jitter) / volumeSize.z, 1.0f));
     float3 uv = float3((float(texCoord.x) + 0.5f) / volumeSize.x, (float(texCoord.y) + 0.5f) / volumeSize.y, viewZ / far);
     
     float3 ndc;
@@ -258,8 +266,7 @@ float3 GetWorldPosFromVoxelID(uint3 texCoord, float jitter,float near,float far,
     ndc.y = 1.0f - 2.0f * uv.y; //turn upside down for DX
     ndc.z = 2.0f * LinearToExponentialDepth(uv.z, near, far) - 1.0f;
     
-    float4 worldPos = mul(float4(ndc, 1.0f), invProj);
-    worldPos = mul(worldPos, invView);
+    float4 worldPos = mul(float4(ndc, 1.0f), invViewProj);
     worldPos = worldPos / worldPos.w;
     return worldPos.rgb;
 }

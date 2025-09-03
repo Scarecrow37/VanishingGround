@@ -61,6 +61,7 @@ void SSRPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootConstantBufferView(_fxSSR.GetRootParameterIndex("cameraData"), cameraData);
     commandList->SetGraphicsRoot32BitConstants(_fxSSR.GetRootParameterIndex("bit32_4_ssrProperty"), 4, &ssrProperty, 0);
     _ownerScene->_frameQuad->Render(commandList);
+
     _renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_COPY_SOURCE);
     _meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_COPY_DEST);
     commandList->CopyResource(_meshRenderTarget->GetResource(), _renderTarget->GetResource());

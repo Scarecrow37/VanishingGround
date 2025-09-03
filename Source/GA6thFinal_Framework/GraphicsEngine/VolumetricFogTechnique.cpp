@@ -1,6 +1,8 @@
 ﻿#include "pch.h"
 #include "VolumetricFogTechnique.h"
-#include "LightInjectionPass.h"
+#include "FogLightInjectionPass.h"
+#include "FogLightAccmulatePass.h"
+#include "FogCompositePass.h"
 #include "RenderPass.h"
 
 VolumetricFogTechnique::VolumetricFogTechnique(){}
@@ -9,35 +11,57 @@ VolumetricFogTechnique::~VolumetricFogTechnique() {}
 
 void VolumetricFogTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 {
-    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, 240, 135, 6, 1, 1, 0,
+    auto desc = CD3DX12_RESOURCE_DESC::Tex3D(DXGI_FORMAT_R32G32B32A32_FLOAT, 
+                                             VOXEL_VOLUME_SIZEX, 
+                                             VOXEL_VOLUME_SIZEY,
+                                             VOXEL_VOLUME_SIZEZ, // 3D 깊이
+                                             1,                  // mipLevels
                                              D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
     // voxeltexture 만들기
-    _prevVoxelTexture = std::make_shared<UnorderedAccessView>();
-    _currVoxelTexture = std::make_shared<UnorderedAccessView>();
-    _prevVoxelTexture->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE3D, D3D12_SRV_DIMENSION_TEXTURE3D);
-    _currVoxelTexture->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE3D, D3D12_SRV_DIMENSION_TEXTURE3D);
-
+    _tempVoxelInjectionTexture3D[0] = std::make_shared<UnorderedAccessView>();
+    _tempVoxelInjectionTexture3D[1] = std::make_shared<UnorderedAccessView>();
+    _finalVoxelAccumulationTexture3D = std::make_shared<UnorderedAccessView>();
+    _tempVoxelInjectionTexture3D[0]->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE3D, D3D12_SRV_DIMENSION_TEXTURE3D);
+    _tempVoxelInjectionTexture3D[1]->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE3D, D3D12_SRV_DIMENSION_TEXTURE3D);
+    _finalVoxelAccumulationTexture3D->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE3D, D3D12_SRV_DIMENSION_TEXTURE3D);
     // 상수 버퍼 init
     _constantBuffer = std::make_shared<ConstantBufferView>();
     UINT size       = (sizeof(VolumetricFogData) + 255) & ~255;
     _constantBuffer->Initialize(size);
 
-    std::unique_ptr<RenderPass> pass = std::make_unique<LightInjectionPass>();
+    _volumetricFogBuffer = std::make_shared<ConstantBufferView>();
+    size                 = (sizeof(VolumetricFogCompositeData) + 255) & ~255;
+    _volumetricFogBuffer->Initialize(size);
+
+    std::unique_ptr<RenderPass> pass;
+    pass = std::make_unique<FogLightInjectionPass>();
+    pass->Initialize(_ownerScene, this, commandList);
+    AddRenderPass(std::move(pass));
+    pass = std::make_unique<FogLightAccmulatePass>();
+    pass->Initialize(_ownerScene, this, commandList);
+    AddRenderPass(std::move(pass));
+    pass = std::make_unique<FogCompositePass>();
     pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));
 }
 
 void VolumetricFogTechnique::Execute(ID3D12GraphicsCommandList* commandList) 
-{
+{   
     UpdateConstantBuffer();
     __super::Execute(commandList);
+
+    // 0->1 or 1->0
+    _readIndex = !_readIndex;
 }
 
 void VolumetricFogTechnique::UpdateConstantBuffer()
 {
     const auto& volumetricFogProperty =
         std::any_cast<const VolumetricFogProperty&>(_ownerScene->GetRenderPassProperty("VolumetricFogData"));
-
+    XMMATRIX view = _ownerScene->_camera->GetViewMatrix();
+    XMMATRIX proj = _ownerScene->_camera->GetProjectionMatrix();
+    XMMATRIX viewProj = XMMatrixMultiply(view, proj);
+    XMMATRIX invViewProj = XMMatrixInverse(nullptr, viewProj);
     // 상수 버퍼 관련 update
     VolumetricFogData fogData;
     fogData.Anisotropy = volumetricFogProperty.Anisotropy;
@@ -45,9 +69,20 @@ void VolumetricFogTechnique::UpdateConstantBuffer()
         Vector4(volumetricFogProperty.CustomNear, volumetricFogProperty.CustomFar, _ownerScene->_currentFrameIndex,
                 volumetricFogProperty.BlendWithPrevFrame);
     fogData.Density           = volumetricFogProperty.Density;
-    fogData.PreViewProjection = _ownerScene->_camera->GetPrevViewProjectionMatrix();
+    fogData.PreViewProjection     = _prevViewProjection;
+    fogData.InverseViewProjection = XMMatrixTranspose(invViewProj);
     fogData.Strength          = volumetricFogProperty.Strength;
     fogData.ThicknessFactor   = 0.01f;
-    fogData.VolumeSize        = Vector4(VOXEL_VOLUME_SIZEX, VOXEL_VOLUME_SIZEY, VOXEL_VOLUME_SIZEX, 0);
+    fogData.VolumeSize        = Vector4(VOXEL_VOLUME_SIZEX, VOXEL_VOLUME_SIZEY, VOXEL_VOLUME_SIZEZ, 0);
     _constantBuffer->UpdateBuffer(&fogData);
+
+
+    VolumetricFogCompositeData compositeData;
+    compositeData.BlendWithScene = volumetricFogProperty.BlendWithScene;
+    compositeData.CameraNearFar  = Vector4(volumetricFogProperty.CustomNear, volumetricFogProperty.CustomFar,1,1);
+    compositeData.ViewProj       = XMMatrixTranspose(viewProj);
+    compositeData.VoxelSize      = fogData.VolumeSize;
+    compositeData.InverseViewProjection = XMMatrixTranspose(invViewProj);
+    _volumetricFogBuffer->UpdateBuffer(&compositeData);
+    _prevViewProjection = viewProj;
 }
