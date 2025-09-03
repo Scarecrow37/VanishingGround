@@ -53,6 +53,7 @@ public:
 
 protected:
     void DeserializedReflectEvent() override;
+    void ImGuiDrawPropertysEvent() override;
 
 private:
     void UpdateContent();

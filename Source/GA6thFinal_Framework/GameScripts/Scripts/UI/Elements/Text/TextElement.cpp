@@ -80,7 +80,7 @@ void TextElement::ImGuiDrawPropertysEvent()
     if (_isDebug)
     {
         const std::string& guid = ReflectFields->Guid;
-        ImGuiDebug()("Font", guid);
+        ImGuiDebug()("GUID", guid);
 
         const auto [cx, cy] = ReflectFields->ContentSize;
         ImGuiDebug()("Content Size", cx, cy);

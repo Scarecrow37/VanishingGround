@@ -94,7 +94,7 @@ void ImageElement::ImGuiDrawPropertysEvent()
     {
         ImGuiDebug()("Sprite Size", _spriteOriginSize.cx, _spriteOriginSize.cy);
         const std::string& guid = ReflectFields->Guid;
-        ImGuiDebug()("Guid", guid);
+        ImGuiDebug()("GUID", guid);
     }
 }
 
@@ -164,6 +164,7 @@ void ImageElement::RequestResource()
         File::GuidRef requestedGuid = _guidRef;
         UmSceneManager.ResourceManager.RequestTextureResource(this, _guidRef, [this, requestedGuid]() {
             LoadTexture(requestedGuid);
+            UpdateWorldMatrix();
             _spriteOriginSize = _renderer->GetSize();
             const SIZE size = Size;
             UpdateRendererSize(size);
