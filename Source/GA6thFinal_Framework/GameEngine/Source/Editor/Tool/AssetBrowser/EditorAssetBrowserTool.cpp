@@ -413,6 +413,7 @@ void EditorAssetBrowserTool::ShowFolderEntries()
         int showType = ReflectFields->ShowType;
         int pushStyleVar = 0;
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(15.0f, 4.0f)); ++pushStyleVar;// 아이콘 간격 조정
+        // 엔트리 목록
         for (auto& asset : _focusFolderAssetDataList)
         {
             if (_search.PassFilter(asset->FileName.c_str()))
@@ -883,47 +884,51 @@ void EditorAssetBrowserTool::ProcessFolderEntryDragDrop(AssetData& asset)
 {
     if (true == asset.IsDirectory)
     {
-        const char* eventID = DragDropAsset::KEY;
-        if (ImGui::BeginDragDropTarget())
+        if (asset.AbleToDragTarget)
         {
-            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(eventID))
+            const char* eventID = DragDropAsset::KEY;
+            if (ImGui::BeginDragDropTarget())
             {
-                DragDropAsset::Data data = (*(DragDropAsset::Data*)payload->Data);
-                File::Path fromPath = data.GetPath();
-                File::Path toPath   = asset.Entry.path() / fromPath.filename();
-                _delayEvent.emplace_back([this, fromPath, toPath]()
-                    {
+                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(eventID))
+                {
+                    DragDropAsset::Data data     = (*(DragDropAsset::Data*)payload->Data);
+                    File::Path          fromPath = data.GetPath();
+                    File::Path          toPath   = asset.Entry.path() / fromPath.filename();
+                    _delayEvent.emplace_back([this, fromPath, toPath]() {
                         if (fs::exists(fromPath))
                         {
                             fs::rename(fromPath, toPath);
                         }
                     });
+                }
+                ImGui::EndDragDropTarget();
             }
-            ImGui::EndDragDropTarget();
         }
     }
-
-    const char* eventID = DragDropAsset::KEY;
-    if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+    if (asset.AbleToDragSource)
     {
-        DragDropAsset::Data data;
-        File::Path entryPath = asset.Entry.path();
-        static std::weak_ptr<File::Context> context;
-        static File::Path path;
-        static File::Guid guid;
-        context = UmFileSystem.GetContext<File::Context>(entryPath);
-        path = entryPath;
-        guid = path.ToGuid();
-        data.pContext = &context;
-        data.pPath    = &path;
-        data.pGuid    = &guid;
-        ImGui::SetDragDropPayload(eventID, &data, sizeof(DragDropAsset::Data));
-        if (asset.PreviewIconTexture)
+        const char* eventID = DragDropAsset::KEY;
+        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
         {
-            ImGui::Image((ImTextureID)asset.PreviewIconTexture->GetGPUHandle().ptr, ICON_WIDGET_SIZE);
+            DragDropAsset::Data                 data;
+            File::Path                          entryPath = asset.Entry.path();
+            static std::weak_ptr<File::Context> context;
+            static File::Path                   path;
+            static File::Guid                   guid;
+            context       = UmFileSystem.GetContext<File::Context>(entryPath);
+            path          = entryPath;
+            guid          = path.ToGuid();
+            data.pContext = &context;
+            data.pPath    = &path;
+            data.pGuid    = &guid;
+            ImGui::SetDragDropPayload(eventID, &data, sizeof(DragDropAsset::Data));
+            if (asset.PreviewIconTexture)
+            {
+                ImGui::Image((ImTextureID)asset.PreviewIconTexture->GetGPUHandle().ptr, ICON_WIDGET_SIZE);
+            }
+            ImGui::Text(asset.FileName.c_str());
+            ImGui::EndDragDropSource();
         }
-        ImGui::Text(asset.FileName.c_str());
-        ImGui::EndDragDropSource();
     }
 }
 
@@ -1325,14 +1330,8 @@ void EditorAssetBrowserTool::RefreshFocusFolderEntries()
             }
         }
 
-        static std::vector<FileEntry> entries;
-        entries.clear();
-        for (const auto& entry : fs::directory_iterator(_focusFolderPath))
-        {
-            entries.push_back(entry);
-        }
         // 폴더 내의 모든 파일을 읽어옴
-        for (const auto& entry : entries)
+        for (const auto& entry : fs::directory_iterator(_focusFolderPath))
         {
             std::filesystem::path extension   = entry.path().extension();
             bool                  isMetaFile  = extension == File::META_EXTENSION;
@@ -1350,7 +1349,7 @@ void EditorAssetBrowserTool::RefreshFocusFolderEntries()
             }
 
             AssetData& assetData = _focusFolderAssetDataMap[entry.path()];
-            assetData.Refesh(entry);
+            assetData.Refresh(entry);
 
             // 뷰 이름 설정
             ImVec2 iconWidgetSize = ICON_WIDGET_SIZE * _zoomScale;
@@ -1598,6 +1597,7 @@ EditorAssetBrowserTool::AssetData::AssetData(FileEntry entry)
     static std::unordered_set<File::Path> prefabFormat = {EGameObjectFactory::PREFAB_EXTENSION};
     static std::unordered_set<File::Path> vfxFormat = {".vfx"};
     static std::unordered_set<File::Path> animFormat = {AnimationEventTrack::EXTENSION};
+    static std::unordered_set<File::Path> settingFormat = {File::SETTING_EXTENSION};
 
     if (IsDirectory)
     {
@@ -1627,13 +1627,17 @@ EditorAssetBrowserTool::AssetData::AssetData(FileEntry entry)
     {
         PreviewIconTexture = UmResourceManager->LoadResource<Texture>(L"../GameEngine/Icon/Editor/Icon_File_Animation.png");
     }
+    else if (settingFormat.find(extension) != settingFormat.end())
+    {
+        PreviewIconTexture = UmResourceManager->LoadResource<Texture>(L"../GameEngine/Icon/Editor/Icon_File_Setting.png");
+    }
     else
     {
         PreviewIconTexture = UmResourceManager->LoadResource<Texture>(L"../GameEngine/Icon/Editor/Icon_File_Default.png");
     }
 }
 
-void EditorAssetBrowserTool::AssetData::Refesh(FileEntry entry) 
+void EditorAssetBrowserTool::AssetData::Refresh(FileEntry entry) 
 {
     Entry         = entry;
     LastWriteTime = File::GetFileLastWriteTime(entry);
@@ -1791,9 +1795,35 @@ void EditorAssetBrowserTool::InspectorDrawer::OnInspectorStay()
             oss << std::put_time(&tm, "%F %T"); // "YYYY-MM-DD HH:MM:SS" 형식
             ImGui::Text(oss.str().c_str());
 
-            ImGuiHelper::TextWithVerticalSeparator("File Size", offsetX);
-            uintmax_t size_mb = (uintmax_t)((float)_assetData->Entry.file_size() / (float)(1024.0 * 1024.0));
-            ImGui::Text("%lld MB", size_mb);
+            {
+                ImGuiHelper::TextWithVerticalSeparator("File Size", offsetX);
+
+                const char* units[]   = {"byte", "kb", "mb", "gb", "tb"};
+                double      size      = static_cast<double>(_assetData->Entry.file_size());
+                int         unitIndex = 0;
+
+                while (size >= 1024.0 && unitIndex < 4) // 1024씩 나누면서 단위 변경
+                {
+                    size /= 1024.0;
+                    ++unitIndex;
+                }
+
+                // 소수점 자릿수는 크기에 따라 다르게
+                if (size < 10.0 && unitIndex > 0)
+                    ImGui::Text("%.2f %s", size, units[unitIndex]);
+                else if (size < 100.0 && unitIndex > 0)
+                    ImGui::Text("%.1f %s", size, units[unitIndex]);
+                else
+                    ImGui::Text("%.0f %s", size, units[unitIndex]);
+            }
+
+            if (context)
+            {
+                File::MetaData& meta = context->GetMeta();
+                ImGuiHelper::TextWithVerticalSeparator("File Reference Count", offsetX);
+                size_t refCount = UmFileSystem.GetGuidRefCount(meta.GetGuid());
+                ImGui::Text("%lld", refCount);
+            }
         }
     }
     ImGui::Separator();

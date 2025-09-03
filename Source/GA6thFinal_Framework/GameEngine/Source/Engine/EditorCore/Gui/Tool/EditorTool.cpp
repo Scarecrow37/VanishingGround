@@ -236,6 +236,7 @@ void EditorTool::ProcessRenderFrame()
     bool isDrawable     = _isDrawable;
     bool isAlwaysFrame  = HasEditorToolFlags(EDITORTOOL_FLAGS_ALWAYS_FRAME);
     bool canOpenFrame   = true == isDrawable || true == isAlwaysFrame;
+    // 클리핑 테스트를 하여 프레임을 열 수 있는지 확인
     if (true == canOpenFrame)
     {
         OnFrameRender(); // [Callback] Begin 이후 클리핑 통과 시 콜백

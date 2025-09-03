@@ -312,6 +312,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Editor\Menu\Game\EditorGameMenu.h" />
     <ClInclude Include="Source\Editor\SceneGizmo\SceneGizmo.h" />
     <ClInclude Include="Source\Editor\Tool\RenderPassData\EditorRenderPassData.h" />
     <ClInclude Include="Source\Engine\EditorCore\Gui\Sequencer\EditorTimelineTrackSequencer.h" />
@@ -458,6 +459,7 @@
     <ClInclude Include="Source\Engine\TimelineCore\Track\TimelineEventTrack.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Editor\Menu\Game\EditorGameMenu.cpp" />
     <ClCompile Include="Source\Editor\SceneGizmo\SceneGizmo.cpp" />
     <ClCompile Include="Source\Editor\Tool\RenderPassData\EditorRenderPassData.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Gui\Sequencer\EditorTimelineTrackSequencer.cpp" />
