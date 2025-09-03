@@ -43,17 +43,18 @@ void EnemyDeadState::OnExit()
 
 void EnemyDeadState::OnUpdate() 
 {
+    // TODO : Restore
     Enemy& enemy = GetEnemy();
     AnimationComponent* animator = enemy.GetAnimationComponent();
-    MonsterHpView*      view     = enemy.GetMonsterHpView();
+    //MonsterHpView*      view     = enemy.GetMonsterHpView();
     if (animator)
     {
         if (animator->GetMainAnimationData().IsEnd())
         {
             enemy.gameObject->SetActive(false);
 
-            if (nullptr != view)
-                view->Disable();
+            //if (nullptr != view)
+            //    view->Disable();
         }
     }
 }
