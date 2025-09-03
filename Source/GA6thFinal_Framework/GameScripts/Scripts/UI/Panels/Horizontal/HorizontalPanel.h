@@ -12,6 +12,8 @@ public:
     HorizontalPanel();
 
 public:
+    REFLECT_PROPERTY()
+
     GETTER_ONLY(std::vector<HorizontalPanelSlot*>, Slots)
     {
         std::vector<HorizontalPanelSlot*> slots;

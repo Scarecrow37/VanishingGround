@@ -89,14 +89,14 @@ UMREAL_COMPONENT(UIRoot)
 #include "Scripts/UI/Elements/Dummy/DummyElement.h"
 UMREAL_COMPONENT(DummyElement)
 
-#include "Scripts/UI/Wrappers/Dummy/DummyWrapper.h"
-UMREAL_COMPONENT(DummyWrapper)
-
 #include "Scripts/UI/Elements/Image/ImageElement.h"
 UMREAL_COMPONENT(ImageElement)
 
 #include "Scripts/UI/Elements/Text/TextElement.h"
 UMREAL_COMPONENT(TextElement)
+
+#include "Scripts/UI/Wrappers/Dummy/DummyWrapper.h"
+UMREAL_COMPONENT(DummyWrapper)
 
 #include "Scripts/UI/Wrappers/Ratio/RatioWrapper.h"
 UMREAL_COMPONENT(RatioWrapper)
@@ -108,10 +108,10 @@ UMREAL_COMPONENT(GridPanelSlot)
 #include "Scripts/UI/Panels/Horizontal/HorizontalPanel.h"
 UMREAL_COMPONENT(HorizontalPanel)
 UMREAL_COMPONENT(HorizontalPanelSlot)
-//
-//#include "Scripts/UI/Panels/Description/DescriptionPanel.h"
-//UMREAL_COMPONENT(DescriptionPanel)
-//
+
+#include "Scripts/UI/Panels/Description/DescriptionPanel.h"
+UMREAL_COMPONENT(DescriptionPanel)
+
 //#include "Scripts/UI/Views/TurnQueue/TurnQueueView.h"
 //UMREAL_COMPONENT(TurnQueueView)
 //

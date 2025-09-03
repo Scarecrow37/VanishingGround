@@ -16,9 +16,9 @@ struct HexToColor
             return {0.0f, 0.0f, 0.0f, 1.0f}; // Invalid hex format
 
         std::string hexColor = hex;
-        hexColor = hexColor.substr(1);
+        hexColor             = hexColor.substr(1);
 
-        unsigned int r = 0, g = 0, b = 0, a = 255;
+        unsigned int      r = 0, g = 0, b = 0, a = 255;
         std::stringstream ss;
         ss << std::hex << hexColor.substr(0, 2);
         ss >> r;
@@ -36,7 +36,7 @@ struct HexToColor
             ss >> a;
         }
 
-        float red = static_cast<float>(r) / 255.0f;
+        float red   = static_cast<float>(r) / 255.0f;
         float green = static_cast<float>(g) / 255.0f;
         float blue  = static_cast<float>(b) / 255.0f;
         float alpha = static_cast<float>(a) / 255.0f;
@@ -54,10 +54,8 @@ struct ParseData
         if (content.empty())
             return elements;
 
-        pugi::xml_document       doc;
-        pugi::xml_parse_result   result = doc.load_string(content.c_str());
-
-        if (!result)
+        pugi::xml_document doc;
+        if (pugi::xml_parse_result result = doc.load_string(content.c_str()); !result)
         {
             UmLogger.Log(LogLevel::LEVEL_WARNING, std::format("XML parsing failed: {}", result.description()));
             return elements;
@@ -100,7 +98,6 @@ struct ParseData
         return elements;
     }
 };
-
 
 DescriptionPanel::DescriptionPanel()
 {
@@ -183,7 +180,8 @@ void DescriptionPanel::UpdateContent()
                 TextElement& element  = child->AddComponent<TextElement>();
                 auto [content, color] = std::get<TextAttributes>(Data);
                 element.SetFont(_guidRef);
-                element.IsFitContent = true;
+                element.HorizontalFillMode = FillMode::WRAP;
+                element.VerticalFillMode   = FillMode::WRAP;
                 element.Text         = content;
                 element.Color        = color;
             }
@@ -206,3 +204,4 @@ void DescriptionPanel::UpdateContent()
 
     _requestUpdate = true;
 }
+

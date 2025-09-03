@@ -11,6 +11,9 @@ protected:
 public:
     UIBaseComponent();
 
+public:
+    REFLECT_PROPERTY()
+
     protected:
     /// <summary>
     /// 이 컴포넌트를 소유한 게임 오브젝트에 다른 자식 게임 오브젝트가 추가되었을 때 호출됩니다.

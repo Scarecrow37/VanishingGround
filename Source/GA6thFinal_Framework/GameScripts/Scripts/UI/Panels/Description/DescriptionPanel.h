@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "UI/Panels/Horizontal/HorizontalPanel.h"
 
-enum class ElementType
+enum class ElementType : unsigned char
 {
     TEXT,
     IMAGE
@@ -32,7 +32,10 @@ public:
     DescriptionPanel();
 
 public:
-    REFLECT_PROPERTY(FontPath, Description)
+    REFLECT_PROPERTY(
+        FontPath, 
+        Description
+    )
 
     GETTER_ONLY(std::string, FontPath) { return _guidRef.ToPath().string(); }
     PROPERTY(FontPath)
