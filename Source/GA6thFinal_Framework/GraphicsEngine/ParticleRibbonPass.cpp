@@ -67,7 +67,7 @@ void ParticleRibbonPass::Begin(ID3D12GraphicsCommandList* commandList)
         for (int i = 0; i < totalribbonemitterindices.size(); i++)
         {
             std::sort(totalribbonemitterindices[i].begin(), totalribbonemitterindices[i].end(),
-                      [](const ribbonIndex& a, const ribbonIndex& b) -> bool { return a.ratio < b.ratio; });
+                      [](const RibbonIndex& a, const RibbonIndex& b) -> bool { return a.ratio < b.ratio; });
 
             auto size = totalribbonemitterindices[i].size();
             _ribbonIndices[i].resize(size);

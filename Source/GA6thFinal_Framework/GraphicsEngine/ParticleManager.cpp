@@ -297,7 +297,7 @@ UINT ParticleManager::GetRibbonCount(std::string_view sceneName)
     return _sceneResources[scenename]._updateResource->_ribbonTotalCount;
 }
 
-std::vector<std::vector<ribbonIndex>> ParticleManager::GetRibbonEmitterIndices(std::string_view sceneName) 
+std::vector<std::vector<RibbonIndex>> ParticleManager::GetRibbonEmitterIndices(std::string_view sceneName) 
 {
     auto scenename = std::string(sceneName);
     return _sceneResources[scenename]._updateResource->_ribbonIndices;
@@ -769,7 +769,7 @@ void ParticleManager::AwakeParticles(float deltaTime, ParticleUpdateResource* sc
                         
                         if (activeCount > 0)
                         {
-                            std::vector<ribbonIndex> emitterIndices;
+                            std::vector<RibbonIndex> emitterIndices;
                             emitterIndices.reserve(activeCount * 2);
                             float lifetime = emitter->GetParticleLifetime();
 
