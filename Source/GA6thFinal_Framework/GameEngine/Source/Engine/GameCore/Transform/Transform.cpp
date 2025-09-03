@@ -1,5 +1,4 @@
 ﻿#include "pch.h"
-#include <UmScripts.h>
 
 Transform::Transform(GameObject& owner)
     :
