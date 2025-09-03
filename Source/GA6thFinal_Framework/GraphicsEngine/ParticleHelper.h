@@ -111,8 +111,8 @@ enum class ParticleType
 }; 
 enum ParticleMiscFlag
 {
-    Distortion,
-    Blur,
+    DISTORTION,
+    BLUR,
 };
 
 

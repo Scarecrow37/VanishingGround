@@ -24,7 +24,10 @@ void EditorParticleEffectHierarchy::OnStartGui()
  {
      auto&             system     = Global::editorModule->GetDockWindowSystem();
      EditorDockWindow* effectdock  = system.GetDockWindow("EffectDock");
-     _editorParticleEffectDetails = effectdock->GetGui<EditorParticleEffectDetails>();
+     if (effectdock)
+     {
+         _editorParticleEffectDetails = effectdock->GetGui<EditorParticleEffectDetails>();
+     }
      //light settting
      {
          _directionalLight = new Light();
