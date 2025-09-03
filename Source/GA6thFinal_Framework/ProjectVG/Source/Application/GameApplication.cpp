@@ -1,6 +1,5 @@
 ﻿#include "GameApplication.h"
 #include "UmFramework.h"
-#include "UmScripts.h"
 
 int APIENTRY wWinMain(
     _In_ HINSTANCE hInstance,

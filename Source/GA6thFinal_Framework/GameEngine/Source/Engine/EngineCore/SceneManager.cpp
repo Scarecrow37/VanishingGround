@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
-#include "UmScripts.h"
+#include "Camera/CameraComponent.h"
+#include "Mesh/MeshComponent.h"
 
 using namespace Global;
 using namespace u8_literals;
