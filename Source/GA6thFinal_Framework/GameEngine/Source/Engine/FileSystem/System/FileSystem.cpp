@@ -345,6 +345,11 @@ const File::Path& EFileSystem::GetPathFromAssetID(int assetID) const
     return NULL_PATH;
 }
 
+const File::Guid& EFileSystem::GetGuidFromAssetID(int assetID) const
+{
+    return GetGuidFromPath(GetPathFromAssetID(assetID));
+}
+
 const File::Guid& EFileSystem::GetGuidFromPath(const File::Path& path) const
 {
     auto wpContext = GetContext(path);
