@@ -1,0 +1,29 @@
+﻿#include "pch.h"
+#include "UIBaseComponent.h"
+
+bool UIBaseComponent::_isDebug = false;
+
+UIBaseComponent::UIBaseComponent() : Component(TYPE::UI)
+{
+    
+}
+
+void UIBaseComponent::OnDrawDebug()
+{
+    Component::OnDrawDebug();
+
+    if (const bool isEnable = EnableInHierarchy; isEnable)
+    {
+        OnDrawDebugOverride();
+    }
+}
+
+void UIBaseComponent::OnDrawDebugSelected()
+{
+    Component::OnDrawDebugSelected();
+
+    if (const bool isEnable = EnableInHierarchy; isEnable)
+    {
+        OnDrawDebugSelectedOverride();
+    }
+}

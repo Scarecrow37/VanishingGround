@@ -85,7 +85,6 @@ UMREAL_COMPONENT(ParticleComponent)
 
 #include "Scripts/UI/UIRoot/UIRoot.h"
 UMREAL_COMPONENT(UIRoot)
-UMREAL_COMPONENT(UIRootSlot)
 
 #include "Scripts/UI/Elements/Dummy/DummyElement.h"
 UMREAL_COMPONENT(DummyElement)
@@ -96,11 +95,8 @@ UMREAL_COMPONENT(ImageElement)
 #include "Scripts/UI/Elements/Text/TextElement.h"
 UMREAL_COMPONENT(TextElement)
 
-#include "Scripts/UI/Wrappers/Padding/PaddingWrapper.h"
-UMREAL_COMPONENT(PaddingWrapper)
-
-#include "Scripts/UI/Wrappers/Center/CenterWrapper.h"
-UMREAL_COMPONENT(CenterWrapper)
+#include "Scripts/UI/Wrappers/Dummy/DummyWrapper.h"
+UMREAL_COMPONENT(DummyWrapper)
 
 #include "Scripts/UI/Wrappers/Ratio/RatioWrapper.h"
 UMREAL_COMPONENT(RatioWrapper)
@@ -109,9 +105,8 @@ UMREAL_COMPONENT(RatioWrapper)
 UMREAL_COMPONENT(GridPanel)
 UMREAL_COMPONENT(GridPanelSlot)
 
-#include "Scripts/UI/Panels/Anchor/AnchorPanel.h"
-UMREAL_COMPONENT(AnchorPanel)
-UMREAL_COMPONENT(AnchorPanelSlot)
+#include "Scripts/UI/Panels/Overlay/OverlayPanel.h"
+UMREAL_COMPONENT(OverlayPanel)
 
 #include "Scripts/UI/Panels/Horizontal/HorizontalPanel.h"
 UMREAL_COMPONENT(HorizontalPanel)
@@ -144,9 +139,9 @@ UMREAL_COMPONENT(TokenSystem)
 #include "Scripts/Test/TurnAction/TestActionComponent.h"
 UMREAL_COMPONENT(TestActionComponent)
 
-#include "Scripts/Test/Model/ModelTest.h"
-UMREAL_COMPONENT(ModelTest)
-UMREAL_COMPONENT(ViewTest)
+//#include "Scripts/Test/Model/ModelTest.h"
+//UMREAL_COMPONENT(ModelTest)
+//UMREAL_COMPONENT(ViewTest)
 
 #include "Scripts/Audio/AudioComponent.h"
 UMREAL_COMPONENT(AudioComponent)

@@ -1,10 +1,14 @@
 ﻿#pragma once
 
-class DummyElement : public UIComponent
+class OverlayPanel : public UIComponent
 {
-    USING_PROPERTY(DummyElement)
+    USING_PROPERTY(OverlayPanel)
+
 public:
-    DummyElement();
+    OverlayPanel();
+
+public:
+    REFLECT_PROPERTY()
 
 protected:
     SIZE MeasureOverride(SIZE availableSize) override;
@@ -12,5 +16,5 @@ protected:
 
 protected:
     REFLECT_FIELDS_BEGIN(UIComponent)
-    REFLECT_FIELDS_END(DummyElement)
+    REFLECT_FIELDS_END(OverlayPanel)
 };

@@ -1,10 +1,10 @@
 ﻿#pragma once
 
-class DummyElement : public UIComponent
+class DummyWrapper : public UIComponent
 {
-    USING_PROPERTY(DummyElement)
+    USING_PROPERTY(DummyWrapper)
 public:
-    DummyElement();
+    DummyWrapper();
 
 protected:
     SIZE MeasureOverride(SIZE availableSize) override;
@@ -12,5 +12,5 @@ protected:
 
 protected:
     REFLECT_FIELDS_BEGIN(UIComponent)
-    REFLECT_FIELDS_END(DummyElement)
+    REFLECT_FIELDS_END(DummyWrapper)
 };
