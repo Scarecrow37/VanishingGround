@@ -1,6 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "RatioWrapper.h"
 
+RatioWrapper::RatioWrapper() = default;
+
 SIZE RatioWrapper::MeasureOverride(const SIZE availableSize)
 {
     const FillMode horizontalFillMode = HorizontalFillMode;
