@@ -228,17 +228,16 @@ void CombatStartPhase::RegisterEnemyHP(const int index, const std::string& key, 
         const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(tag);
         if (const auto sharedGameObject = weakGameObject.lock())
         {
-            // TODO: Restore
-            //if (MonsterHpView* monsterHpView = sharedGameObject->GetComponent<MonsterHpView>();
-            //    nullptr != monsterHpView)
-            //{
-            //    monsterHpView->Watch(key);
-            //    _enemies[index]->SetMonsterHpView(monsterHpView);
-            //}
-            //else
-            //{
-            //    UmLogger.Log(LogLevel::LEVEL_ERROR, "MonsterHpView with tag '" + tag + "' not found.");
-            //}
+            if (MonsterHpView* monsterHpView = sharedGameObject->GetComponent<MonsterHpView>();
+                nullptr != monsterHpView)
+            {
+                monsterHpView->Watch(key);
+                _enemies[index]->SetMonsterHpView(monsterHpView);
+            }
+            else
+            {
+                UmLogger.Log(LogLevel::LEVEL_ERROR, "MonsterHpView with tag '" + tag + "' not found.");
+            }
         }
         else
         {

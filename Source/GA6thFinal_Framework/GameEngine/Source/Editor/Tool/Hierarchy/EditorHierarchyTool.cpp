@@ -436,6 +436,12 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
                     GameObjectKey, GameObject::Helper::GenerateUniqueName("Grid Panel"), &ui);
                 UmComponentFactory.AddComponentToObject(ui, "class GridPanel");
             }
+            if (ImGui::MenuItem("Overlay Panel"))
+            {
+                UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Overlay Panel"), &ui);
+                UmComponentFactory.AddComponentToObject(ui, "class OverlayPanel");
+            }
             if (ImGui::MenuItem("Horizontal Panel"))
             {
                 UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
