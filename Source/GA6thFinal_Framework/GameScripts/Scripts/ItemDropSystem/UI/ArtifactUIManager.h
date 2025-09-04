@@ -1,5 +1,9 @@
 ﻿#pragma once
 #include "UmFramework.h"
+
+class ImageElement;
+class GridPanel;
+
 class ArtifactUIManager : public Component
 {
     USING_PROPERTY(ArtifactUIManager)
@@ -29,6 +33,17 @@ public:
     ~ArtifactUIManager() override;
 
 public:
+    /// <summary>
+    /// Image Element들을 찾아서 등록합니다.
+    /// </summary>
+    void FindImageElements();
+
+    /// <summary>
+    /// Frame Image를 ItemDropUIRootManager의 값으로 설정합니다. 
+    /// </summary>
+    void UpdateFrameImage();
+
+public:
     REFLECT_PROPERTY()
 
 protected:
@@ -37,4 +52,13 @@ protected:
 
     void Reset() override;
     void Awake() override;
+
+    void ImGuiDrawPropertysEvent() override;
+
+private:
+    GridPanel*                 _frameGridPanel;
+    std::vector<ImageElement*> _frameImageElements;
+
+    GridPanel*                 _gridPanel;
+    std::vector<ImageElement*> _imageElements;
 };

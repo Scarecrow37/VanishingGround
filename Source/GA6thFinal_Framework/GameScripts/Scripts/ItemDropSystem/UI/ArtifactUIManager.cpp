@@ -1,9 +1,14 @@
 ﻿#include "pchScripts.h"
 #include "ArtifactUIManager.h"
+#include "UI/Panels/Grid/GridPanel.h"
+#include "UI/Elements/Image/ImageElement.h"
+#include "ItemDropSystem/UI/ItemDropUIRootManager.h"
 
 ArtifactUIManager::ArtifactUIManager()
 {
     static_instance = this;
+    _frameGridPanel = nullptr;
+    _gridPanel      = nullptr;
 }
 
 ArtifactUIManager::~ArtifactUIManager()
@@ -11,6 +16,23 @@ ArtifactUIManager::~ArtifactUIManager()
     if (this == static_instance)
     {
         static_instance = nullptr;
+    }
+}
+
+void ArtifactUIManager::UpdateFrameImage() 
+{
+    ItemDropUIRootManager* rootManager = ItemDropUIRootManager::GetInstance();
+    if (rootManager)
+    {
+        std::string frameAsstePath = rootManager->ArtifactsUIFrameAsset;
+        File::GuidRef guid = UmFileSystem.GetGuidFromPath(frameAsstePath);
+        if (false == guid.IsNull())
+        {
+            for (auto& imageElement : _frameImageElements)
+            {
+                imageElement->SetImage(guid);
+            }
+        }
     }
 }
 
@@ -29,6 +51,131 @@ void ArtifactUIManager::Awake()
     else
     {
         gameObject->AddTag(TAG);
+        FindImageElements();
+        UpdateFrameImage();
         Base::Awake();
     }
+}
+
+void ArtifactUIManager::ImGuiDrawPropertysEvent() 
+{
+    if (_frameImageElements.empty())
+    {
+        ImGui::Text((const char*)u8"Frame Grid Panel에 \"Frame Grid Panel\" Tag를 추가해주세요");
+    }
+    else
+    {
+        if (ImGui::TreeNodeEx("Frame Grid Panel"))
+        {
+            for (auto& imageElement : _frameImageElements)
+            {
+                ImGui::PushID(&imageElement);
+                ImGui::Selectable(imageElement->gameObject->ToString().data()); 
+                ImGui::PopID();
+            }
+            ImGui::TreePop();
+        }
+    }
+
+    if (_imageElements.empty())
+    {
+        ImGui::Text((const char*)u8"Grid Panel에 \"Grid Panel\" Tag를 추가해주세요");
+    }
+    else
+    {
+        if (ImGui::TreeNodeEx("Grid Panel"))
+        {
+            for (auto& imageElement : _imageElements)
+            {
+                ImGui::PushID(&imageElement);
+                ImGui::Selectable(imageElement->gameObject->ToString().data());
+                ImGui::PopID();
+            }
+            ImGui::TreePop();
+        }
+    }
+}
+
+void ArtifactUIManager::FindImageElements() 
+{
+    //frame 탐색
+    _frameImageElements.clear();
+    _frameGridPanel = nullptr;
+    Transform::ForeachBFS(transform, 
+    [this](Transform* curr) 
+    {
+        if (_frameGridPanel == nullptr)
+        {
+            if (curr->gameObject->CompareTag("Frame Grid Panel"))
+            {
+                _frameGridPanel = curr->gameObject->GetComponent<GridPanel>();
+            }
+        }
+    });
+
+    if (_frameGridPanel)
+    {
+        Transform& tr = _frameGridPanel->transform;
+        for (int i = 0; i < tr.ChildCount; i++)
+        {
+            Transform* child = tr.GetChild(i);
+            if (child)
+            {
+                ImageElement* frameImage = child->gameObject->GetComponent<ImageElement>();
+                if (nullptr == frameImage)
+                {
+                    child = child->GetChild(0);
+                    if (child)
+                    {
+                        frameImage = child->gameObject->GetComponent<ImageElement>();
+                    }
+                }
+
+                if (nullptr != frameImage)
+                {
+                    _frameImageElements.push_back(frameImage);
+                }
+            }
+        }
+    }
+
+    _imageElements.clear();
+    _gridPanel = nullptr;
+    Transform::ForeachBFS(transform, [this](Transform* curr) 
+    {
+        if (nullptr == _gridPanel)
+        {
+            if (curr->gameObject->CompareTag("Grid Panel"))
+            {
+                _gridPanel = curr->gameObject->GetComponent<GridPanel>();
+            }
+        }
+    });
+
+    if (_gridPanel)
+    {
+        Transform& tr = _gridPanel->transform;
+        for (int i = 0; i < tr.ChildCount; i++)
+        {
+            Transform* child = tr.GetChild(i);
+            if (child)
+            {
+                ImageElement* frameImage = child->gameObject->GetComponent<ImageElement>();
+                if (nullptr == frameImage)
+                {
+                    child = child->GetChild(0);
+                    if (child)
+                    {
+                        frameImage = child->gameObject->GetComponent<ImageElement>();
+                    }
+                }
+
+                if (nullptr != frameImage)
+                {
+                    _imageElements.push_back(frameImage);
+                }
+            }
+        }
+    }
+
 }
