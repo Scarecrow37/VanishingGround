@@ -123,6 +123,10 @@ public:
     const GuidRefTable&         GetGuidRefTable() const;
     /// <summary>해당 확장자에 대응되는 EventSubscriber를 std::unordered_set으로 받아옵니다.</summary>
     const EventSubscriberSet&   GetEventSubscribers(const File::FString& ext);
+    /// <summary>해당 경로에 대응되는 AssetID를 반환합니다. 실패할경우 0을 반환합니다.</summary>
+    int GetAssetIDFromPath(const File::Path& path) const;
+    /// <summary>해당 Guid에 대응되는 AssetID를 반환합니다. 실패할경우 0을 반환합니다.</summary>
+    int GetAssetIDFromGuid(const File::Guid& guid) const;
 
     /// <summary>프로젝트가 로드되어있는지 확인합니다.</summary>
     bool IsLoadedProject() const;
