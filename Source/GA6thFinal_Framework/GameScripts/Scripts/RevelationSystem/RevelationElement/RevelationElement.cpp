@@ -57,3 +57,12 @@ void RevelationElement::DeepCopyAction(const TurnAction& action)
         }
     }
 }
+
+DropItemInfo RevelationElement::GetItemInfo()
+{
+    DropItemInfo info
+    {
+        .ID = RevelationID,
+    };
+    return info;
+}
