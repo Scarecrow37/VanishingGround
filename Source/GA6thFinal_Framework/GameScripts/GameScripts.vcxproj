@@ -375,7 +375,7 @@
     <ClInclude Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.h" />
     <ClInclude Include="Scripts\ExcelParser\ImGuiColumnSheetParser.h" />
     <ClInclude Include="Scripts\ViewModels\Hp\HpViewModel.h" />
-    <ClInclude Include="Scripts\ViewModels\ItemDrop\Artifacts\DropArtifactsViewModel.h" />
+    <ClInclude Include="Scripts\ViewModels\ItemDrop\DropArtifacts\DropArtifactsViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Revelations\RevelationsViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\TurnQueue\TurnQueueViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Weapon\WeaponViewModel.h" />
@@ -540,7 +540,7 @@
     <ClCompile Include="Scripts\UI\Wrappers\Padding\PaddingWrapper.cpp" />
     <ClCompile Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.cpp" />
     <ClCompile Include="Scripts\ViewModels\Hp\HpViewModel.cpp" />
-    <ClCompile Include="Scripts\ViewModels\ItemDrop\Artifacts\DropArtifactsViewModel.cpp" />
+    <ClCompile Include="Scripts\ViewModels\ItemDrop\DropArtifacts\DropArtifactsViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Revelations\RevelationsViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\TurnQueue\TurnQueueViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Weapon\WeaponViewModel.cpp" />
