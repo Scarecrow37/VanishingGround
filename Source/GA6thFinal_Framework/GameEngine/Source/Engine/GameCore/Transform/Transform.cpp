@@ -323,7 +323,7 @@ void Transform::SetParentEx(Transform* p, bool worldPositionStays, bool callEven
             Transform* prevParent = this->_parent;
             ComputeLocalTransform();
             // 부모 적용
-            EraseParent(callEvent);
+            EraseParent(false);
             {
                 _parent = p;
 
@@ -338,6 +338,7 @@ void Transform::SetParentEx(Transform* p, bool worldPositionStays, bool callEven
 
             if (callEvent)
             {
+                CallUIDetachParent(this, prevParent);
                 CallUIAttachChild(p, this);
             }
         }
