@@ -63,11 +63,6 @@ void UnorderedAccessView::CreateUnorderedAccessView()
     CD3DX12_HEAP_PROPERTIES heapProperties(D3D12_HEAP_TYPE_DEFAULT);
     HRESULT                 hr = S_OK;
 
-    if (_uavDimension == D3D12_UAV_DIMENSION_TEXTURE3D)
-    {
-        _desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE3D;
-    }
-
     hr                         = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &_desc,
                                                                  D3D12_RESOURCE_STATE_UNORDERED_ACCESS, nullptr, IID_PPV_ARGS(&_resource));
     FAILED_CHECK_MESSAGE(hr, L"UnorderedAccessView::Initialize CreateCommittedResource Failed");
