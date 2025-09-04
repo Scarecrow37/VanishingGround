@@ -16,5 +16,4 @@ public:
 
 private:
     FX<GE::VS::QUAD, GE::PS::SSR>      _fxSSR;
-    SharedResource<RenderTarget>  _renderTarget;
 };

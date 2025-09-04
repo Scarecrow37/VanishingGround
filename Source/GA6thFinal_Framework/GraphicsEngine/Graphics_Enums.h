@@ -33,6 +33,7 @@ enum RenderTechniqueFlag : unsigned long long
     RAY_TRACING_TECH = 1 << 7,
     SSR_TECH         = 1 << 8,
     DISTORTION_TECH  = 1 << 9,
+    VOLUMETRIC_FOG_TECH =1<<10,
 };
 
 inline RenderTechniqueFlag operator|(RenderTechniqueFlag lhs, RenderTechniqueFlag rhs)
