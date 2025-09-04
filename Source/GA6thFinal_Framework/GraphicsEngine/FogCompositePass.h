@@ -22,5 +22,4 @@ private:
 private:
     VolumetricFogTechnique*                  _volumTech;
     FX<GE::VS::QUAD, GE::PS::VOLUMETRIC_FOG> _fx;
-    SharedResource<RenderTarget>             _renderTarget;
 };
