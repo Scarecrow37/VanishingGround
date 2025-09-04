@@ -77,4 +77,20 @@ namespace QTE
         }
         return true;
     }
+
+    void Track::SerializedReflectEvent() 
+    {
+        if (_eventTrack)
+        {
+            ReflectFields->TrackSerializeData = _eventTrack->SerializedReflectFields();
+        }
+    }
+
+    void Track::DeserializedReflectEvent() 
+    {
+        if (_eventTrack)
+        {
+            _eventTrack->DeserializedReflectFields(ReflectFields->TrackSerializeData);
+        }
+    }
 }

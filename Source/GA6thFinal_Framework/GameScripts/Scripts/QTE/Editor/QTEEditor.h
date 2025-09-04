@@ -11,6 +11,11 @@ public:
     void Show();
     void Open();
 
+
+    bool NewFileWithDialog();
+    bool LoadFileWithDialog();
+    bool SaveFileWithDialog();
+
 private:
     QTE::Track                _qteTrack;                // QTE 트랙
     bool                      _editorOpened = false;    // 에디터 열림 여부

@@ -3,6 +3,8 @@
 
 namespace QTE
 {
+    // QTE에 사용하는 트랙
+    // 타임라인 트랙, QTE 딜레이, 
     class Track : public ReflectSerializer
     {
     public:
@@ -21,12 +23,18 @@ namespace QTE
         bool SaveFile(const File::Path& filePath, bool overwrite = false);
         bool LoadFile(const File::Path& filePath);
 
+        const File::Path& GetFilePath() const { return _filePath; }
         std::weak_ptr<Timeline::EventTrack> GetEventTrack() { return _eventTrack; }
+
+    private:
+        void SerializedReflectEvent() override;
+        void DeserializedReflectEvent() override;
 
     private:
         File::Path _filePath = File::NULL_PATH;
         std::shared_ptr<Timeline::EventTrack> _eventTrack;
         REFLECT_FIELDS_BEGIN(ReflectSerializer)
+        std::string TrackSerializeData;
         REFLECT_FIELDS_END(Track)
     };
 } // namespace QTE
