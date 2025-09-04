@@ -1,14 +1,6 @@
 ﻿#pragma once
 
 constexpr UINT SWAPCHAIN_BUFFER_COUNT = 4;
-// volumetric fog medium
-constexpr UINT VOXEL_VOLUME_SIZEX      = 480;
-constexpr UINT VOXEL_VOLUME_SIZEY      = 170;
-constexpr UINT VOXEL_VOLUME_SIZEZ      = 64;
-//// volumetric fog high
-//constexpr UINT VOXEL_VOLUE_SIZEX = 240;
-//constexpr UINT VOXEL_VOLUE_SIZEY = 135;
-
 
 enum class FeatureLevel { LEVEL_11_0, LEVEL_12_0, LEVEL_12_1 };
 

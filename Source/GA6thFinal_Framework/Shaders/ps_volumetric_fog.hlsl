@@ -7,16 +7,36 @@ Texture3D<float4> fogGridTexture;
 
 cbuffer VolumetricFogCompositeData
 {
-    float4x4 ViewProj;
-    float4x4 InvViewProj;
+    matrix ViewProj;
+    matrix InvViewProj;
     float4 CameraNearFarPlanes;
     float4 VoxelSize;
     float BlendingWithSceneColorFactor;
 };
 
-float3 GetVolumetricFog(float3 inputColor, float3 worldPos, float nearPlane, float farPlane)
+// 노이즈 생성을 위한 함수
+float GetProceduralNoiseSample(uint3 p)
+{
+    p = p * 1664525u + 1013904223u;
+    p.x += p.y * p.z;
+    p.y += p.z * p.x;
+    p.z += p.x * p.y;
+    p ^= p >> 16u;
+    p.x += p.y * p.z;
+    p.y += p.z * p.x;
+    p.z += p.x * p.y;
+    p ^= p >> 16u;
+    return float(p.z) / 4294967295.0f;
+}
+
+float3 GetVolumetricFog(float3 inputColor, float3 worldPos, float nearPlane, float farPlane, float4 screenPos)
 {
     float3 uv = GetUVFromVolumetricFogVoxelWorldPos(worldPos, nearPlane, farPlane, ViewProj, VoxelSize.xyz);
+    
+    // 최종 샘플링 시 Z좌표에 노이즈를 추가하여 슬라이스 경계면을 디더링
+    float noise = GetProceduralNoiseSample(uint3(screenPos.xy, CameraNearFarPlanes.z)); // .z에 담긴 프레임 인덱스를 노이즈 시드로 사용
+    uv.z += (noise - 0.5f) / VoxelSize.z; // 1 복셀 깊이만큼의 노이즈 추가
+    
     float4 scatteredLight = fogGridTexture.SampleLevel(samLinear_clamp, uv, 0);
     return inputColor * scatteredLight.a + scatteredLight.rgb;
 }
@@ -38,6 +58,6 @@ float4 ps_main(PSInput input) : SV_Target0
         return inputColor;
     
     float3 color = GetVolumetricFog(inputColor.rgb / inputColor.a, worldPos.xyz / worldPos.w,
-                                    CameraNearFarPlanes.x, CameraNearFarPlanes.y);
+                                    CameraNearFarPlanes.x, CameraNearFarPlanes.y, input.position);
     return float4(lerp(inputColor.rgb, color, BlendingWithSceneColorFactor), 1.f);
 }

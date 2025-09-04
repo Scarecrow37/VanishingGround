@@ -9,6 +9,10 @@ constexpr UINT MAX_LIGHT              = MAX_DIRECTIONAL_LIGHT + MAX_POINT_LIGHT 
 constexpr UINT MAX_MIPMAP_LEVEL       = 5;
 constexpr UINT MAX_CASCADES           = 4;
 
+// volumetric fog medium
+constexpr UINT VOXEL_VOLUME_SIZEX = 240;
+constexpr UINT VOXEL_VOLUME_SIZEY = 135;
+constexpr UINT VOXEL_VOLUME_SIZEZ = 128;
 
 enum GBuffer { BASECOLOR, NORMAL, ORM, EMISSIVE, DEPTH, CUSTOMDEPTH, GBUFFER_END };
 

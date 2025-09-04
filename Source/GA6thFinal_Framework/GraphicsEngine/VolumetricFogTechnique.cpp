@@ -65,9 +65,9 @@ void VolumetricFogTechnique::UpdateConstantBuffer()
     // 상수 버퍼 관련 update
     VolumetricFogData fogData;
     fogData.Anisotropy = volumetricFogProperty.Anisotropy;
-    fogData.CameraNearFar_FrameIndex_PreviousFrameBlend =
-        Vector4(volumetricFogProperty.CustomNear, volumetricFogProperty.CustomFar, _ownerScene->_currentFrameIndex,
-                volumetricFogProperty.BlendWithPrevFrame);
+    fogData.CameraNearFar_PreviousFrameBlend = Vector4(
+        volumetricFogProperty.CustomNear, volumetricFogProperty.CustomFar, volumetricFogProperty.BlendWithPrevFrame,
+                1);
     fogData.Density           = volumetricFogProperty.Density;
     fogData.PreViewProjection     = _prevViewProjection;
     fogData.InverseViewProjection = XMMatrixTranspose(invViewProj);
@@ -79,7 +79,7 @@ void VolumetricFogTechnique::UpdateConstantBuffer()
 
     VolumetricFogCompositeData compositeData;
     compositeData.BlendWithScene = volumetricFogProperty.BlendWithScene;
-    compositeData.CameraNearFar  = Vector4(volumetricFogProperty.CustomNear, volumetricFogProperty.CustomFar,1,1);
+    compositeData.CameraNearFar  = Vector4(volumetricFogProperty.CustomNear, volumetricFogProperty.CustomFar, (float)_ownerScene->_currentFrameIndex, 1.f);
     compositeData.ViewProj       = XMMatrixTranspose(viewProj);
     compositeData.VoxelSize      = fogData.VolumeSize;
     compositeData.InverseViewProjection = XMMatrixTranspose(invViewProj);

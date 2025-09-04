@@ -77,32 +77,29 @@ void cs_main(uint3 Gid : SV_GroupID, uint3 GTid : SV_GroupThreadID, uint3 DTid :
     
     if (texCoord.x < fogdata.VolumeSize.x && texCoord.y < fogdata.VolumeSize.y && texCoord.z < fogdata.VolumeSize.z)
     {
-        // ---
-    // 거리에 따라 지터링 강도 조절
-    // 가까울수록 1.0, 멀어질수록 0.0에 가까워짐
-    float depth_based_jitter_strength = 1.0f - saturate(float(texCoord.z) / fogdata.VolumeSize.z);
-    depth_based_jitter_strength *= depth_based_jitter_strength; // 강도 변화를 더 급격하게 만듦
+        // 거리에 따라 지터링 강도 조절
+        // 가까울수록 1.0, 멀어질수록 0.0에 가까워짐
+        float depth_based_jitter_strength = 1.0f - saturate(float(texCoord.z) / fogdata.VolumeSize.z);
+        depth_based_jitter_strength *= depth_based_jitter_strength; // 강도 변화를 더 급격하게 만듦
 
-    float jitter = frac((GetProceduralNoiseSample(texCoord) - 0.5f) * (1.f - 0.000001) *
-                        fogdata.CameraNearFar_FrameIndex_PreviousFrameBlend.z) * depth_based_jitter_strength;
-    // ---
-        float3 voxelWorldPos = GetWorldPosFromVoxelID(texCoord, jitter, 
-                            fogdata.CameraNearFar_FrameIndex_PreviousFrameBlend.x, 
+        float jitter = frac((GetProceduralNoiseSample(texCoord) - 0.5f) * (1.f - 0.000001) * 1) * depth_based_jitter_strength;
+
+        float3 voxelWorldPos = GetWorldPosFromVoxelID(texCoord, jitter,
+                            fogdata.CameraNearFar_FrameIndex_PreviousFrameBlend.x,
                             fogdata.CameraNearFar_FrameIndex_PreviousFrameBlend.y, fogdata.InverseViewProj,
                             fogdata.VolumeSize.xyz);
-        float3 voxelWorldPosNoJitter = GetWorldPosFromVoxelID(texCoord, 0.0f, 
-                                    fogdata.CameraNearFar_FrameIndex_PreviousFrameBlend.x, 
-                                    fogdata.CameraNearFar_FrameIndex_PreviousFrameBlend.y, 
+        float3 voxelWorldPosNoJitter = GetWorldPosFromVoxelID(texCoord, 0.0f,
+                                    fogdata.CameraNearFar_FrameIndex_PreviousFrameBlend.x,
+                                    fogdata.CameraNearFar_FrameIndex_PreviousFrameBlend.y,
                                     fogdata.InverseViewProj, fogdata.VolumeSize.xyz);
-        //float3 debugColor = voxelWorldPos * 0.01f;
-        //VoxelWriteTexture[texCoord] = float4(debugColor, 0.1f);
+        
         float3 viewDir = normalize(cameraData.Position.xyz - voxelWorldPos);
 
         float3 lighting = float3(0.0, 0.0, 0.0);
-        float visibility = GetVisibillityCSM(voxelWorldPosNoJitter);
+        float visibility = GetVisibillityCSM(voxelWorldPos);
 
         if (visibility > Epsilon)
-            lighting += visibility * lightData.Directional[0].Color.xyz * 
+            lighting += visibility * lightData.Directional[0].Color.xyz *
                 HenyeyGreensteinPhaseFunction(viewDir, -lightData.Directional[0].Direction.xyz, fogdata.Anisotropy);
         
         float4 result = float4(lighting * fogdata.Strength * fogdata.Density, visibility * fogdata.Density);
@@ -110,14 +107,14 @@ void cs_main(uint3 Gid : SV_GroupID, uint3 GTid : SV_GroupThreadID, uint3 DTid :
         {
             float3 prevUV = GetUVFromVolumetricFogVoxelWorldPos(voxelWorldPosNoJitter,
                                                 fogdata.CameraNearFar_FrameIndex_PreviousFrameBlend.x,
-                                                fogdata.CameraNearFar_FrameIndex_PreviousFrameBlend.y, 
+                                                fogdata.CameraNearFar_FrameIndex_PreviousFrameBlend.y,
                                                 fogdata.PrevViewProj, fogdata.VolumeSize.xyz);
         
             if (prevUV.x >= 0.0f && prevUV.y >= 0.0f && prevUV.z >= 0.0f &&
                 prevUV.x <= 1.0f && prevUV.y <= 1.0f && prevUV.z <= 1.0f)
             {
                 float4 prevResult = VoxelReadTexture.SampleLevel(samLinear_clamp, prevUV, 0.0f);
-                result = lerp(result, prevResult, fogdata.CameraNearFar_FrameIndex_PreviousFrameBlend.w);
+                result = lerp(result, prevResult, fogdata.CameraNearFar_FrameIndex_PreviousFrameBlend.z);
             }
         }
 
