@@ -28,16 +28,11 @@ void RevelationElement::SerializedReflectEvent()
 
 void RevelationElement::DeserializedReflectEvent() 
 {
-    RevelationSystem* system        = RevelationSystem::GetInstance();
     const auto&       actionFactory = TurnActionFactory::GetActionFactory();
     auto              iter          = actionFactory.find(ReflectFields->ActionName.data());
-
-    if (system)
+    if (iter != actionFactory.end())
     {
-        if (iter != actionFactory.end())
-        {
-            _action.reset(iter->second());
-        }
+        _action.reset(iter->second());
     }
 }
 
