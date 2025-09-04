@@ -57,6 +57,8 @@ protected:
 
 private:
     void UpdateContent();
+    void EraseChild() const;
+    void MakeChild();
 
 protected:
     REFLECT_FIELDS_BEGIN(HorizontalPanel)
@@ -66,5 +68,5 @@ protected:
 
 private:
     File::GuidRef _guidRef;
-    bool          _requestUpdate = false;
+
 };
