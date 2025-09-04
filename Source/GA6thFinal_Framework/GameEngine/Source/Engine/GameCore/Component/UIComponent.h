@@ -20,6 +20,11 @@ struct MinSize
     SIZE operator()(const SIZE& lhs, const SIZE& rhs, bool useLhsWidth, bool useLhsHeight) const;
 };
 
+struct MaxSize
+{
+    SIZE operator()(const SIZE& lhs, const SIZE& rhs) const;
+};
+
 enum class HorizontalAlignment : char
 {
     LEFT,
@@ -233,6 +238,9 @@ protected:
 protected:
     void ImGuiDrawPropertysEvent() override;
     void DeserializedReflectEvent() override;
+
+    void Start() override;
+
 
 private:
     void ResetPlacement();

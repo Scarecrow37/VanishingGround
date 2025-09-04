@@ -64,6 +64,11 @@ SIZE MinSize::operator()(const SIZE& lhs, const SIZE& rhs, const bool useLhsWidt
                 .cy = useLhsHeight ? lhs.cy : std::min(lhs.cy, rhs.cy)};
 }
 
+SIZE MaxSize::operator()(const SIZE& lhs, const SIZE& rhs) const
+{
+    return SIZE{.cx = std::max(lhs.cx, rhs.cx), .cy = std::max(lhs.cy, rhs.cy)};
+}
+
 POINT AlignPoint::operator()(const HorizontalAlignment horizontal, const VerticalAlignment vertical,
                              const SIZE size) const
 {
@@ -115,6 +120,7 @@ void UIComponent::OnAttachChild(GameObject* childGameObject)
     UIBaseComponent::OnAttachChild(childGameObject);
 
     InvalidateMeasure();
+    InvalidateArrange();
 }
 
 void UIComponent::OnDetachParent(GameObject* previousParentGameObject)
@@ -122,6 +128,7 @@ void UIComponent::OnDetachParent(GameObject* previousParentGameObject)
     UIBaseComponent::OnDetachParent(previousParentGameObject);
 
     InvalidateMeasure();
+    InvalidateArrange();
 }
 
 void UIComponent::OnDrawDebugOverride()
@@ -187,9 +194,16 @@ void UIComponent::DeserializedReflectEvent()
     _requestedSize  = ActualSize;
 }
 
+void UIComponent::Start()
+{
+    UIBaseComponent::Start();
+
+    InvalidateMeasure();
+}
+
 void UIComponent::InvalidateMeasure()
 {
-    if (false == _isMeasureDirty)
+    if (const bool enableInHierarchy = EnableInHierarchy; true == enableInHierarchy && false == _isMeasureDirty)
     {
         UmUI.AddMeasureQueue(this);
 
@@ -204,7 +218,7 @@ void UIComponent::InvalidateMeasure()
 
 void UIComponent::InvalidateArrange()
 {
-    if (false == _isArrangeDirty)
+    if (const bool enableInHierarchy = EnableInHierarchy; true == enableInHierarchy && false == _isArrangeDirty)
     {
         UmUI.AddArrangeQueue(this);
 
