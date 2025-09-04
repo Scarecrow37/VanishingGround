@@ -14,20 +14,19 @@ public:
 
     static ArtifactUIManager* GetInstance(std::source_location location = std::source_location::current()) 
     {
-        if (false == static_instance->gameObject->IsValid())
-        {
-            static_instance = nullptr;
-        }
-
         if (static_instance)
         {
-            return static_instance;
+            if (false == static_instance->gameObject->IsValid())
+            {
+                static_instance = nullptr;
+            }
         }
-        else
+       
+        if (nullptr == static_instance)
         {
             UmLogger.Log(LogLevel::LEVEL_WARNING, u8"ArtifactUIManager가 존재하지 않습니다.", location);
-            return nullptr;
         }
+        return static_instance;
     }
     ArtifactUIManager();
     ~ArtifactUIManager() override;

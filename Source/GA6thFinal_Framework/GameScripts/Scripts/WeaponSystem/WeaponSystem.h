@@ -13,9 +13,12 @@ public:
     inline static constexpr size_t EQUIP_WEAPONS_SIZE = 4;
     inline static WeaponSystem* GetInstance() 
     { 
-        if (false == static_instance->gameObject->IsValid())
+        if (static_instance)
         {
-            static_instance = nullptr;
+            if (false == static_instance->gameObject->IsValid())
+            {
+                static_instance = nullptr;
+            }
         }
         return static_instance; 
     }

@@ -17,9 +17,12 @@ class TurnMode : public Component
 public:
     static TurnMode* GetInstance() 
     { 
-        if (false == static_instance->gameObject->IsValid())
+        if (static_instance)
         {
-            static_instance = nullptr;
+            if (false == static_instance->gameObject->IsValid())
+            {
+                static_instance = nullptr;
+            }
         }
 
         if (nullptr == static_instance)

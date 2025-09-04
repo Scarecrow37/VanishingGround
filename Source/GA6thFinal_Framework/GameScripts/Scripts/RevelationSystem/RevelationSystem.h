@@ -13,13 +13,17 @@ public:
     {
         if (static_instance)
         {
-            return static_instance; 
+            if (false == static_instance->gameObject->IsValid())
+            {
+                static_instance = nullptr;
+            }
         }
-        else
+
+        if (nullptr == static_instance)
         {
             UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Revelation System이 존재하지 않습니다.!!!!!!!!");
-            return nullptr;
         }
+        return static_instance; 
     }
 
 public:
