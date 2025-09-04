@@ -50,100 +50,105 @@ void EGameObjectFactory::WritePrefabGuid(const File::Path& path, YAML::Node& dat
 
 void EGameObjectFactory::ApplyPrefabInstanceChanges(const File::Guid& guid, YAML::Node& yaml) 
 {
-    auto findIter = _prefabInstanceList.find(guid);
-    if (findIter != _prefabInstanceList.end())
+    static EditorHierarchyTool* editorHierarchyTool = EditorHierarchyTool::GetTool();
+    if (editorHierarchyTool)
     {
-        auto& [guid, list] = *findIter;
-        std::erase_if(list, [](auto& waek) 
-        { 
-            std::shared_ptr<GameObject> instance = waek.lock();
-            return nullptr == instance || false == instance->IsValid();
-        });
+        auto findIter = _prefabInstanceList.find(guid);
+        if (findIter != _prefabInstanceList.end())
+        {
+            auto& [guid, list] = *findIter;
+            std::erase_if(list, [](auto& waek) 
+            { 
+                std::shared_ptr<GameObject> instance = waek.lock();
+                return nullptr == instance || false == instance->IsValid();
+            });
 
-        if (false == list.empty())
-        {     
-            std::vector<std::shared_ptr<GameObject>> instanceList;
-            for (auto& wptr : list)
-            {
-                if (false == wptr.expired())
+            if (false == list.empty())
+            {     
+                std::vector<std::shared_ptr<GameObject>> instanceList;
+                for (auto& wptr : list)
                 {
-                    instanceList.push_back(wptr.lock());
-                }
-            }
-            for (auto& gameObject : instanceList)
-            {
-                YAML::Node myYaml = SerializeToYaml(gameObject.get(), true);
-                auto prefabObjects = MakeObjectsGraphToYaml(&yaml, true, &myYaml);
-                if (false == prefabObjects.empty())
-                {
-                    std::vector<std::pair<GameObject*, GameObject*>> swapObjects;
-                    swapObjects.reserve(prefabObjects.size());
-                    int i = 0;
-                    Transform::ForeachBFS(gameObject->_transform, [&](Transform* curr) 
+                    if (false == wptr.expired())
                     {
+                        instanceList.push_back(wptr.lock());
+                    }
+                }
+                for (auto& gameObject : instanceList)
+                {
+                    YAML::Node myYaml = SerializeToYaml(gameObject.get(), true);
+                    auto prefabObjects = MakeObjectsGraphToYaml(&yaml, true, &myYaml);
+                    if (false == prefabObjects.empty())
+                    {
+                        std::vector<std::pair<GameObject*, GameObject*>> swapObjects;
+                        swapObjects.reserve(prefabObjects.size());
+                        int i = 0;
+                        Transform::ForeachBFS(gameObject->_transform, [&](Transform* curr) 
+                        {
+                            if (i < prefabObjects.size())
+                            {
+                                editorHierarchyTool->PushHierarchyObject(prefabObjects[i]);
+                                swapObjects.emplace_back(&curr->gameObject, prefabObjects[i].get());
+                            }
+                            else
+                            {
+                                GameObject::Destroy(curr->gameObject);
+                            }
+                            i++;
+                        });
+
+                        if (false == swapObjects.empty())
+                        {
+                            // 최상위 오브젝트 Transform 설정
+                            auto& [frontOrigin, frontPrefab] = swapObjects.front();
+                            frontPrefab->_ownerScene         = frontOrigin->_ownerScene;
+                            Transform* frontParent = frontOrigin->transform->Parent;
+	    					if (nullptr != frontParent)
+	    					{
+                                for (int childIndex = 0; childIndex < (int)frontParent->_childsList.size(); ++childIndex)
+                                {
+                                    if (&frontOrigin->_transform == frontParent->_childsList[childIndex])
+                                    {
+                                        frontPrefab->transform->SetParentToIndexEx(frontParent, childIndex, false, false);
+                                        break;
+                                    }
+                                }
+	    					}
+	    					else
+	    					{
+                                frontPrefab->transform->SetParentEx(frontParent, false, false);
+	    					}
+                         
+                            // Swap 이루어진 오브젝트들
+                            std::vector<std::shared_ptr<GameObject>> originInstances;
+                            originInstances.reserve(swapObjects.size());
+                            for (auto& [originObject, prefabObject] : swapObjects)
+                            {              
+                                originInstances.emplace_back(ESceneManager::Engine::SwapPrefabInstance(originObject, prefabObject));
+                            }
+                            // 소멸자 지연 호출
+                            originInstances.clear();
+                        }
+                       
+                        //프리팹과 구조가 다른 없는 오브젝트 추가
                         if (i < prefabObjects.size())
                         {
-                            swapObjects.emplace_back(&curr->gameObject, prefabObjects[i].get());
-                        }
-                        else
-                        {
-                            GameObject::Destroy(curr->gameObject);
-                        }
-                        i++;
-                    });
-
-                    if (false == swapObjects.empty())
-                    {
-                        // 최상위 오브젝트 Transform 설정
-                        auto& [frontOrigin, frontPrefab] = swapObjects.front();
-                        frontPrefab->_ownerScene         = frontOrigin->_ownerScene;
-                        Transform* frontParent = frontOrigin->transform->Parent;
-						if (nullptr != frontParent)
-						{
-                            for (int childIndex = 0; childIndex < (int)frontParent->_childsList.size(); ++childIndex)
+                            std::string_view ownerScene = prefabObjects[0]->_ownerScene;
+                            for (; i < prefabObjects.size(); i++)
                             {
-                                if (&frontOrigin->_transform == frontParent->_childsList[childIndex])
-                                {
-                                    frontPrefab->transform->SetParentToIndexEx(frontParent, childIndex, false, false);
-                                    break;
-                                }
+                                auto& curr        = prefabObjects[i];
+                                curr->_ownerScene = ownerScene;
+                                curr->_instanceID = InstanceID.CreateInstanceID();
+                                ESceneManager::Engine::AddGameObjectToLifeCycle(curr);
                             }
-						}
-						else
-						{
-                            frontPrefab->transform->SetParentEx(frontParent, false, false);
-						}
-                     
-                        // Swap 이루어진 오브젝트들
-                        std::vector<std::shared_ptr<GameObject>> originInstances;
-                        originInstances.reserve(swapObjects.size());
-                        for (auto& [originObject, prefabObject] : swapObjects)
-                        {
-                            originInstances.emplace_back(ESceneManager::Engine::SwapPrefabInstance(originObject, prefabObject));
                         }
-                        // 소멸자 지연 호출
-                        originInstances.clear();
+                        auto prefabRoot = prefabObjects.front().get();
+                        UmGameObjectFactory.UnpackPrefab(prefabRoot);
+                        UmGameObjectFactory.PackPrefab(prefabRoot, guid);
                     }
-                   
-                    //프리팹과 구조가 다른 없는 오브젝트 추가
-                    if (i < prefabObjects.size())
-                    {
-                        std::string_view ownerScene = prefabObjects[0]->_ownerScene;
-                        for (; i < prefabObjects.size(); i++)
-                        {
-                            auto& curr        = prefabObjects[i];
-                            curr->_ownerScene = ownerScene;
-                            curr->_instanceID = InstanceID.CreateInstanceID();
-                            ESceneManager::Engine::AddGameObjectToLifeCycle(curr);
-                        }
-                    }
-                    auto prefabRoot = prefabObjects.front().get();
-                    UmGameObjectFactory.UnpackPrefab(prefabRoot);
-                    UmGameObjectFactory.PackPrefab(prefabRoot, guid);
                 }
             }
         }
-    }
+    }   
 }
 
 void EGameObjectFactory::ErasePrefabItem(const File::Guid& guid) 
