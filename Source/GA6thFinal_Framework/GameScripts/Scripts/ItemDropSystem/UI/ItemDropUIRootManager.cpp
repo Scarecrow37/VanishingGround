@@ -3,6 +3,7 @@
 
 ItemDropUIRootManager::ItemDropUIRootManager()
 {
+    static_instance = this;
     ArtifactsUIFrameAsset.SetInputAutoEvent([this]() 
     {
         if (ImGui::BeginDragDropTarget())
@@ -36,22 +37,23 @@ void ItemDropUIRootManager::DeserializedReflectEvent()
 
 }
 
-void ItemDropUIRootManager::Awake()
+void ItemDropUIRootManager::Reset() 
 {
-    InitSingleTon();
-    gameObject->AddTag(ItemDropUIRootManager::TAG);
-    gameObject->ActiveSelf = false;
-    Base::Awake();
+    
 }
 
-void ItemDropUIRootManager::InitSingleTon() 
+void ItemDropUIRootManager::Awake()
 {
-    if (nullptr == static_instance)
+    if (this != static_instance)
     {
-        static_instance = this;
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"ItemDropUIRootManager는 하나만 존재해야 합니다.");
+        GameObject::Destroy(this);
     }
     else
     {
-        GameObject::Destroy(gameObject);
+        gameObject->AddTag(ItemDropUIRootManager::TAG);
+        gameObject->ActiveSelf = false;
+        Base::Awake();
     }
 }
+

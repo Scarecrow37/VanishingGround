@@ -17,6 +17,11 @@ class TurnMode : public Component
 public:
     static TurnMode* GetInstance() 
     { 
+        if (false == static_instance->gameObject->IsValid())
+        {
+            static_instance = nullptr;
+        }
+
         if (nullptr == static_instance)
         {
             UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Turn Mode가 존재하지 않습니다.");

@@ -14,6 +14,11 @@ public:
     /// <returns>없으면 nullptr</returns>
     static ItemDropUIRootManager* GetInstance(std::source_location location = std::source_location::current()) 
     { 
+        if (false == static_instance->gameObject->IsValid())
+        {
+            static_instance = nullptr;
+        }
+
         if (static_instance)
         {
             return static_instance;
@@ -49,8 +54,6 @@ protected:
     REFLECT_FIELDS_END(ItemDropUIRootManager)
 
     void DeserializedReflectEvent() override;
+    void Reset() override;
     void Awake() override;
-
-private:
-    void InitSingleTon();
 };

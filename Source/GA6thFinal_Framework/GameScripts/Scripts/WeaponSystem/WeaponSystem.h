@@ -11,7 +11,14 @@ class WeaponSystem : public Component
 
 public:
     inline static constexpr size_t EQUIP_WEAPONS_SIZE = 4;
-    inline static WeaponSystem* GetInstance() { return static_instance; }
+    inline static WeaponSystem* GetInstance() 
+    { 
+        if (false == static_instance->gameObject->IsValid())
+        {
+            static_instance = nullptr;
+        }
+        return static_instance; 
+    }
     REFLECT_PROPERTY(CurrentWeaponSlot)
 
 public:
