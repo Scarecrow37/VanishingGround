@@ -35,7 +35,6 @@ public:
 
 public:
     REFLECT_PROPERTY(
-        ArtifactsUIFrameAsset
     )
 
     GETTER_ONLY(std::string, ArtifactsUIFrameAsset)
@@ -54,6 +53,8 @@ protected:
     REFLECT_FIELDS_END(ItemDropUIRootManager)
 
     void DeserializedReflectEvent() override;
+    void ImGuiDrawPropertysEvent() override;
+
     void Reset() override;
     void Awake() override;
 };
