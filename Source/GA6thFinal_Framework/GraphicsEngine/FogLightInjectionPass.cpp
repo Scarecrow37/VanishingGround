@@ -55,12 +55,12 @@ void FogLightInjectionPass::End(ID3D12GraphicsCommandList* commandList) {}
 void FogLightInjectionPass::AddRenderPassDatas(std::string_view sceneName)
 {
     VolumetricFogProperty property;
-    property.Anisotropy         = 0.3;
-    property.Density            = 3.f;
-    property.Strength           = 15.f;
+    property.Anisotropy         = 0.001;
+    property.Density            = 10.f;
+    property.Strength           = 3.5f;
     property.BlendWithScene     = 1.f;
-    property.BlendWithPrevFrame = 0.95f;
-    property.CustomNear         = 0.5f;
+    property.BlendWithPrevFrame = 0.5f;
+    property.CustomNear         = 0.01f;
     property.CustomFar          = 1000.f;
     Global::renderPassDatas->AddRenderPassProperty(sceneName, "VolumetricFogData", property);
 }
