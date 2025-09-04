@@ -17,7 +17,7 @@ namespace Timeline
             FLAGS_ALLOW_DRAG_MIN_MAX_LINE       = 1 << 10, // Min/Max 프레임 라인 조정을 잠그는 기능
             FLAGS_ALLOW_DRAG_CURSOR_LINE        = 1 << 11, // 현재 커서 라인 조정을 잠그는 기능
             FLAGS_ALLOW_DRAG_CURRENT_LINE       = 1 << 12, // 현재 프레임 라인 조정을 잠그는 기능
-            FLAGS_ALLOW_DRAG_CONTEXT            = 1 << 13, // 현재 프레임 라인 조정을 잠그는 기능
+            FLAGS_ALLOW_DRAG_CONTEXT            = 1 << 13, // 이벤트 콘텍스트 조정을 잠그는 기능
 
             FLAGS_ALLOW_POPUP_CONTEXT_MENU      = 1 << 14, // Context 메뉴 허용 여부
             FLAGS_ALLOW_POPUP_LOWER_CANVAS_MENU = 1 << 15, // Context 메뉴 허용 여부

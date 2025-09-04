@@ -3,8 +3,13 @@
 
 QTEEditor::QTEEditor() 
 {
+    int flags = Timeline::SequencerEditor::FLAGS_ALLOW_POPUP_LOWER_CANVAS_MENU |
+                Timeline::SequencerEditor::FLAGS_ALLOW_POPUP_CONTEXT_MENU |
+                Timeline::SequencerEditor::FLAGS_ALLOW_DRAG_CONTEXT |
+                Timeline::SequencerEditor::FLAGS_HIDE_CURRENT_LINE |
+                Timeline::SequencerEditor::FLAGS_HIDE_MIN_MAX_LINE ;
+    _sequencerEditor.AddFlags(flags);
     _sequencerEditor.SetEventTrack(_qteTrack.GetEventTrack());
-    _sequencerEditor.AddFlags(Timeline::SequencerEditor::FLAGS_ALLOW_ALL_INPUT);
     auto& callback           = _sequencerEditor.GetCallback();
     callback.LowerFramePopup = [this](Timeline::EventTrack* editor) {
         if (ImGui::MenuItem("Add Note"))
