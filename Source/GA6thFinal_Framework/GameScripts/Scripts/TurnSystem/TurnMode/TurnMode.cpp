@@ -45,7 +45,10 @@ TurnMode::TurnMode()
     _roundCount(0), 
     _currTurnActor(nullptr)
 {
-    static_instance = this;
+    if (gameObject->IsValid())
+    {
+        static_instance = this;
+    }
 }
 TurnMode::~TurnMode()
 {
