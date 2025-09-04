@@ -1,15 +1,10 @@
 ﻿#include "pchScripts.h"
 #include "ItemDropUIRootManager.h"
-ItemDropUIRootManager::ItemDropUIRootManager() = default;
-ItemDropUIRootManager::~ItemDropUIRootManager()
-{
-    if (this == static_instance)
-    {
-        static_instance = nullptr;
-    }
 
+ItemDropUIRootManager::ItemDropUIRootManager()
+{
     ArtifactsUIFrameAsset.SetInputAutoEvent([this]() 
-    { 
+    {
         if (ImGui::BeginDragDropTarget())
         {
             if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
@@ -26,6 +21,14 @@ ItemDropUIRootManager::~ItemDropUIRootManager()
         }
         ImGuiHelper::HoveredToolTip(u8"유물 드랍 프레임 UI 에셋 경로입니다.");
     });
+}
+
+ItemDropUIRootManager::~ItemDropUIRootManager()
+{
+    if (this == static_instance)
+    {
+        static_instance = nullptr;
+    }
 }
 
 void ItemDropUIRootManager::DeserializedReflectEvent() 
