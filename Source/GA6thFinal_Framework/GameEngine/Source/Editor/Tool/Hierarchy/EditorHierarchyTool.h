@@ -13,6 +13,23 @@ public:
     static void SetFocusObject(const std::weak_ptr<GameObject>& object);
     static const std::weak_ptr<GameObject>& GetFocusObject() { return static_hierarchyFocusObjWeak; }
 
+    static EditorHierarchyTool* GetTool()
+    {
+        if constexpr (IS_EDITOR)
+        {
+            EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("SceneDock");
+            if (sceneDock)
+            {
+                EditorHierarchyTool* editorHierarchy = sceneDock->GetGui<EditorHierarchyTool>();
+                if (editorHierarchy)
+                {
+                    return editorHierarchy;
+                }
+            }
+        }
+        return nullptr;
+    }
+
     /// <summary>
     /// 하이러키 오브젝트들을 정리합니다.
     /// </summary>
