@@ -452,7 +452,8 @@ inline TComponent* GameObject::GetComponentDynamic() const
         if (nullptr != component)
         {
             result = dynamic_cast<TComponent*>(component.get());
-            break;
+            if (nullptr != result)
+                break;
         }
     }
     return result;

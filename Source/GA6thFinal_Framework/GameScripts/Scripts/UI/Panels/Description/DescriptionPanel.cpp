@@ -146,17 +146,33 @@ void DescriptionPanel::DeserializedReflectEvent()
     }
 }
 
+void DescriptionPanel::ImGuiDrawPropertysEvent()
+{
+    HorizontalPanel::ImGuiDrawPropertysEvent();
+
+    if (_isDebug)
+    {
+        const std::string& guid = ReflectFields->Guid;
+        ImGuiDebug()("Font GUID", guid);
+    }
+}
+
 void DescriptionPanel::UpdateContent()
 {
-    if (_requestUpdate)
-        return;
+    EraseChild();
+    MakeChild();
+    InvalidateMeasure();
+}
+
+void DescriptionPanel::EraseChild() const
+{
     Transform& transform = this->transform;
 
-    const int childCount = transform.GetChildCount();
+    const int                childCount = transform.GetChildCount();
     std::vector<GameObject*> children;
     for (int i = 0; i < childCount; ++i)
     {
-        const Transform* childTransform = transform.GetChild(i);
+        const Transform* childTransform  = transform.GetChild(i);
         GameObject&      childGameObject = childTransform->gameObject;
         children.push_back(&childGameObject);
     }
@@ -165,43 +181,44 @@ void DescriptionPanel::UpdateContent()
         GameObject::Destroy(child);
     }
     children.clear();
-
-    UmTime.Invoke(this, 0, [this]() {
-        Transform&        transform = this->transform;
-        const std::string text = ReflectFields->Description;
-
-        for (const std::vector<ElementData> elementData = ParseData()(text); const auto& [Type, Data] : elementData)
-        {
-            const std::shared_ptr<GameObject> child =
-                NewGameObject(GameObject::Helper::GenerateUniqueName("Text Element"));
-            switch (Type)
-            {
-            case ElementType::TEXT: {
-                TextElement& element  = child->AddComponent<TextElement>();
-                auto [content, color] = std::get<TextAttributes>(Data);
-                element.SetFont(_guidRef);
-                element.HorizontalFillMode = FillMode::WRAP;
-                element.VerticalFillMode   = FillMode::WRAP;
-                element.Text         = content;
-                element.Color        = color;
-            }
-            break;
-            case ElementType::IMAGE: {
-                child->AddComponent<RatioWrapper>();
-                const std::shared_ptr<GameObject> imageChild =
-                    NewGameObject(GameObject::Helper::GenerateUniqueName("Image Element"));
-                auto [guid]           = std::get<ImageAttributes>(Data);
-                ImageElement& element = imageChild->AddComponent<ImageElement>();
-                element.SetImage(guid);
-                imageChild->transform->SetParent(child->transform, true);
-            }
-            break;
-            }
-            child->transform->SetParent(transform, true);
-        }
-        _requestUpdate = false;
-    });
-
-    _requestUpdate = true;
 }
 
+void DescriptionPanel::MakeChild()
+{
+    Transform&        transform = this->transform;
+    const std::string text      = ReflectFields->Description;
+
+    for (const std::vector<ElementData> elementData = ParseData()(text); const auto& [Type, Data] : elementData)
+    {
+        const std::shared_ptr<GameObject> child =
+            NewGameObject(GameObject::Helper::GenerateUniqueName("Description Child"));
+        switch (Type)
+        {
+        case ElementType::TEXT: {
+            TextElement& element  = child->AddComponent<TextElement>();
+            auto [content, color] = std::get<TextAttributes>(Data);
+            element.SetFont(_guidRef);
+            element.HorizontalFillMode = FillMode::WRAP;
+            element.VerticalFillMode   = FillMode::WRAP;
+            element.Text               = content;
+            element.Color              = color;
+        }
+        break;
+        case ElementType::IMAGE: {
+            RatioWrapper& ratio      = child->AddComponent<RatioWrapper>();
+            ratio.HorizontalFillMode = FillMode::FILL;
+            ratio.VerticalFillMode   = FillMode::FILL;
+            const std::shared_ptr<GameObject> imageChild =
+                NewGameObject(GameObject::Helper::GenerateUniqueName("Image Element"));
+            auto [guid]           = std::get<ImageAttributes>(Data);
+            ImageElement& element = imageChild->AddComponent<ImageElement>();
+            element.SetImage(guid);
+            element.HorizontalFillMode = FillMode::FILL;
+            element.VerticalFillMode   = FillMode::FILL;
+            imageChild->transform->SetParent(child->transform, true);
+        }
+        break;
+        }
+        child->transform->SetParent(transform, true);
+    }
+}

@@ -105,6 +105,9 @@ UMREAL_COMPONENT(RatioWrapper)
 UMREAL_COMPONENT(GridPanel)
 UMREAL_COMPONENT(GridPanelSlot)
 
+#include "Scripts/UI/Panels/Overlay/OverlayPanel.h"
+UMREAL_COMPONENT(OverlayPanel)
+
 #include "Scripts/UI/Panels/Horizontal/HorizontalPanel.h"
 UMREAL_COMPONENT(HorizontalPanel)
 UMREAL_COMPONENT(HorizontalPanelSlot)
@@ -112,17 +115,17 @@ UMREAL_COMPONENT(HorizontalPanelSlot)
 #include "Scripts/UI/Panels/Description/DescriptionPanel.h"
 UMREAL_COMPONENT(DescriptionPanel)
 
-//#include "Scripts/UI/Views/TurnQueue/TurnQueueView.h"
-//UMREAL_COMPONENT(TurnQueueView)
-//
-//#include "Scripts/UI/Views/Weapon/WeaponView.h"
-//UMREAL_COMPONENT(WeaponView)
-//
-//#include "Scripts/UI/Views/MonsterHp/MonsterHpView.h"
-//UMREAL_COMPONENT(MonsterHpView)
-//
-//#include "Scripts/UI/Views/RevelationsView/RevelationsView.h"
-//UMREAL_COMPONENT(RevelationsView)
+#include "Scripts/UI/Views/TurnQueue/TurnQueueView.h"
+UMREAL_COMPONENT(TurnQueueView)
+
+#include "Scripts/UI/Views/Weapon/WeaponView.h"
+UMREAL_COMPONENT(WeaponView)
+
+#include "Scripts/UI/Views/MonsterHp/MonsterHpView.h"
+UMREAL_COMPONENT(MonsterHpView)
+
+#include "Scripts/UI/Views/RevelationsView/RevelationsView.h"
+UMREAL_COMPONENT(RevelationsView)
 
 #include "Scripts\WeaponSystem/WeaponSystem.h"
 UMREAL_COMPONENT(WeaponSystem)

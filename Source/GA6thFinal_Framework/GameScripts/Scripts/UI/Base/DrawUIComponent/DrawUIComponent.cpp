@@ -38,11 +38,11 @@ void DrawUIComponent::ImGuiDrawPropertysEvent()
     }
 }
 
-void DrawUIComponent::OnAttachChild(GameObject* childGameObject)
+SIZE DrawUIComponent::ArrangeOverride(const SIZE finalSize)
 {
-    UIComponent::OnAttachChild(childGameObject);
-
     RequestViewOrder();
+
+    return finalSize;
 }
 
 float DrawUIComponent::GetZOrder() const

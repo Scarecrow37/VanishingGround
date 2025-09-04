@@ -43,7 +43,7 @@ protected:
     virtual float GetZOrder() const;
 
     void ImGuiDrawPropertysEvent() override;
-    void OnAttachChild(GameObject* childGameObject) override;
+    SIZE ArrangeOverride(SIZE finalSize) override;
 
 private:
     void           RequestViewOrder() const;

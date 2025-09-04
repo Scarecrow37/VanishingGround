@@ -80,7 +80,7 @@ void TextElement::ImGuiDrawPropertysEvent()
     if (_isDebug)
     {
         const std::string& guid = ReflectFields->Guid;
-        ImGuiDebug()("Font", guid);
+        ImGuiDebug()("GUID", guid);
 
         const auto [cx, cy] = ReflectFields->ContentSize;
         ImGuiDebug()("Content Size", cx, cy);
@@ -109,6 +109,8 @@ SIZE TextElement::MeasureOverride(const SIZE availableSize)
 
 SIZE TextElement::ArrangeOverride(const SIZE finalSize)
 {
+    DrawUIComponent::ArrangeOverride(finalSize);
+
     const SIZE desiredSize = DesiredSize;
     const SIZE actualSize  = MinSize()(finalSize, desiredSize);
 
