@@ -7,6 +7,12 @@
 
 #define MAX_CASCADES 4
 
+struct MatrixData
+{
+    matrix World;
+    matrix InverseTranspose;
+};
+
 struct DirectionalLight
 {
     float3 Color;
@@ -90,4 +96,19 @@ struct CascadeData
     float CascadeSplits[MAX_CASCADES];
 };
 
+struct ParallaxMappingData
+{
+    float HeightScale;
+};
+struct VolumetricFogData
+{
+    float4x4 PrevViewProj;
+    float4x4 InverseViewProj;
+    float4 CameraNearFar_FrameIndex_PreviousFrameBlend; // x=near, y=far, z=frameIndex, w=prevBlend
+    float4 VolumeSize; // x=volX, y=volY, z=volZ
+    float Anisotropy;
+    float Density;
+    float Strength;
+    float ThicknessFactor;
+};
 #endif

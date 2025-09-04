@@ -30,7 +30,7 @@ public:
         class ParticleEffect* effect, SIZE_T maxParticles = 10000, float emissionRate = 1000.f,
         float emitterLifetime = 150.f, LocationShape locatorShape = LocationShape::SPHERE,
         Vector3 locationFactor = Vector3(1, 1, 1), ParticleType particleType = ParticleType::SPRITE,
-        std::wstring_view meshspritePath = L"../../../Resource/Assets/VFX/ParticleTexture/defaultSmoke.jpg");
+        std::wstring_view meshspritePath = L"");
     void                   DeleteEffect(class ParticleEffect* effect);
     void                   Update(const float deltaTime);
     void                   UpdateEditorLifeCycle();
@@ -47,7 +47,7 @@ public:
     ID3D12Resource*       GetComputeOutputResource(std::string_view sceneName);
 
     UINT                                  GetRibbonCount(std::string_view sceneName);
-    std::vector<std::vector<ribbonIndex>> GetRibbonEmitterIndices(std::string_view sceneName);
+    std::vector<std::vector<RibbonIndex>> GetRibbonEmitterIndices(std::string_view sceneName);
     std::vector<Texture*>                 GetActiveRibbonAlbedos(std::string_view sceneName);
     ID3D12Resource*                       GetRibbonOutputResource(std::string_view sceneName);
     UINT64                                GetComputeFenceValue(std::string_view sceneName);
@@ -144,8 +144,8 @@ private:
     
  
 
-    std::vector<std::vector<ribbonIndex>> _ribbonIndices;
-    std::vector<std::vector<ribbonIndex>> _ribbonEditorIndices;
+    std::vector<std::vector<RibbonIndex>> _ribbonIndices;
+    std::vector<std::vector<RibbonIndex>> _ribbonEditorIndices;
 
 
 

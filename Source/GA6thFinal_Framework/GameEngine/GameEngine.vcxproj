@@ -312,6 +312,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Editor\Menu\Game\EditorGameMenu.h" />
+    <ClInclude Include="Source\Editor\SceneGizmo\SceneGizmo.h" />
     <ClInclude Include="Source\Editor\Tool\RenderPassData\EditorRenderPassData.h" />
     <ClInclude Include="Source\Engine\EditorCore\Gui\Sequencer\EditorTimelineTrackSequencer.h" />
     <ClInclude Include="Source\Editor\Tool\Model\EditorModelInspector.h" />
@@ -320,6 +322,7 @@
     <ClInclude Include="Source\Engine\AppModule\ImGuiDX12Module.h" />
     <ClInclude Include="Source\Engine\AudioCore\AudioModule.h" />
     <ClInclude Include="Source\Engine\ClassCore\Delegate.hpp" />
+    <ClInclude Include="Source\Engine\EngineCore\GizmoManager.h" />
     <ClInclude Include="Source\Engine\EngineCore\UIManager.h" />
     <ClInclude Include="Source\Engine\GameCore\Component\UIBaseComponent.h" />
     <ClInclude Include="Source\Engine\GameCore\Component\UIComponent.h" />
@@ -459,6 +462,8 @@
     <ClInclude Include="Source\Engine\TimelineCore\Track\TimelineEventTrack.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Editor\Menu\Game\EditorGameMenu.cpp" />
+    <ClCompile Include="Source\Editor\SceneGizmo\SceneGizmo.cpp" />
     <ClCompile Include="Source\Editor\Tool\RenderPassData\EditorRenderPassData.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Gui\Sequencer\EditorTimelineTrackSequencer.cpp" />
     <ClCompile Include="Source\Editor\Tool\Model\EditorModelInspector.cpp" />
@@ -466,6 +471,7 @@
     <ClCompile Include="Source\Engine\AppModule\GraphicsModule.cpp" />
     <ClCompile Include="Source\Engine\AppModule\ImGuiDX12Module.cpp" />
     <ClCompile Include="Source\Engine\AudioCore\AudioModule.cpp" />
+    <ClCompile Include="Source\Engine\EngineCore\GizmoManager.cpp" />
     <ClCompile Include="Source\Engine\EngineCore\UIManager.cpp" />
     <ClCompile Include="Source\Engine\GameCore\Component\UIBaseComponent.cpp" />
     <ClCompile Include="Source\Engine\GameCore\Component\UIComponent.cpp" />

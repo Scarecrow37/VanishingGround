@@ -112,7 +112,7 @@ void ShadowMapPass::Draw(ID3D12GraphicsCommandList* commandList)
             // Static
             commandList->SetGraphicsRootSignature(_fxStaticShadow.GetRootSignature());
             commandList->SetGraphicsRootConstantBufferView(_fxStaticShadow.GetRootParameterIndex("cascadeData"), cascadeData);
-            frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxStaticShadow.GetRootParameterIndex("worldMatrices"), commandList);
+            frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxStaticShadow.GetRootParameterIndex("matrices"), commandList);
 
             commandList->SetPipelineState(_psos[STATIC_CULL_BACK].Get());
             DrawMeshes(commandList, STATIC_MESH, STATIC_CULL_BACK, i);
@@ -139,7 +139,7 @@ void ShadowMapPass::Draw(ID3D12GraphicsCommandList* commandList)
         // Skeletal
         commandList->SetGraphicsRootSignature(_fxSkeletalShadow.GetRootSignature());
         commandList->SetGraphicsRootConstantBufferView(_fxSkeletalShadow.GetRootParameterIndex("cascadeData"), cascadeData);
-        frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxSkeletalShadow.GetRootParameterIndex("worldMatrices"), commandList);
+        frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxSkeletalShadow.GetRootParameterIndex("matrices"), commandList);
         frameResource->SetFrameResource(FrameResourceType::BONE_MATRICES, _fxSkeletalShadow.GetRootParameterIndex("boneMatrices"), commandList);
 
         commandList->SetPipelineState(_psos[SKELETAL_CULL_BACK].Get());
@@ -296,11 +296,13 @@ void ShadowMapPass::UpdateCascades(const Vector3& lightDirection)
     for (uint32_t c = 0; c < MAX_CASCADES; ++c)
     {
         // 1. 해당 스플릿 z 범위로 카메라 뷰 절두체 8 코너 산출
-        BoundingFrustum splitFrust = camera->GetSplitFrustum(c == 0 ? nearZ : _cascadeData.CascadeSplits[c - 1], _cascadeData.CascadeSplits[c]);
-
+        BoundingFrustum worldFrustum = camera->GetFrustum();
+        worldFrustum.Near            = c == 0 ? nearZ : _cascadeData.CascadeSplits[c - 1];
+        worldFrustum.Far             = _cascadeData.CascadeSplits[c];
+        
         // 2. 절두체 코너들을 월드 좌표로 변환 → AABB 구함
         XMFLOAT3 corners[8];
-        splitFrust.GetCorners(corners);
+        worldFrustum.GetCorners(corners);
         XMVECTOR frustumCenter = XMVectorZero();
 
         for (auto& corner : corners)
@@ -318,7 +320,7 @@ void ShadowMapPass::UpdateCascades(const Vector3& lightDirection)
         radius = std::ceil(radius * 16.0f) / 16.0f;
 
         // 3. 라이트 뷰
-        XMVECTOR eye    = frustumCenter - lightDir * (radius + 100.0f);
+        XMVECTOR eye    = frustumCenter - lightDir * (radius + shadowMapProps.Offset1);
         XMVECTOR target = frustumCenter;
         XMVECTOR up     = XMVectorSet(0, 1, 0, 0);
 
@@ -328,7 +330,7 @@ void ShadowMapPass::UpdateCascades(const Vector3& lightDirection)
         XMMATRIX lightView = XMMatrixLookAtLH(eye, target, up);
 
         // 4. 라이트 공간 Orthographic Projection
-        XMMATRIX lightProj = XMMatrixOrthographicLH(radius * 2, radius * 2, 0.0f, radius * 2 + 200.0f);
+        XMMATRIX lightProj = XMMatrixOrthographicLH(radius * 2, radius * 2, 0.0f, radius * 2 + shadowMapProps.Offset2);
         XMStoreFloat4x4(&_cascadeData.ShadowVP[c], XMMatrixTranspose(lightView * lightProj));
     }
 

@@ -15,8 +15,8 @@ namespace EnemyAction
                 if (_animator->HasAnimationMappingKey("Attack1"))
                 {
                     _animator->ClearOverrideAnimations();
-                    _animator->ChangeMainAnimation("Attack1", true);
-                    _animator->ChangeMainAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
+                    _animator->SetNextAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE | ANIMATION_FLAG_USE_BLEND);
+                    _animator->ChangeMainAnimation("Attack1");
                 }
                 else
                 {
@@ -42,7 +42,6 @@ namespace EnemyAction
         if ("Attack" == label)
         {
             ProcessBattle(30);
-            PlaySoundFromKey("AttackHit0");
             if (_owner)
             {
                 _owner->TakeDamage(_owner->HP, false);

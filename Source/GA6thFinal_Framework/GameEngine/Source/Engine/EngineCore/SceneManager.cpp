@@ -124,6 +124,9 @@ void ESceneManager::Engine::CleanupSceneManager()
 
     //리소스
     SceneResourceManager::Engine::CleanUp(engineCore->SceneManager.ResourceManager);
+
+    //인풋
+    engineCore->SceneManager._inputSystem.CleanupInputReceivers();
 }
 
 void ESceneManager::Engine::SceneUpdate()
@@ -524,6 +527,20 @@ void ESceneManager::Engine::SetSceneSkyBoxPath(Scene& scene, std::string_view sk
     }
 }
 
+void ESceneManager::Engine::SetSceneIBLGuid(Scene& scene, const File::Guid& skyIBL) 
+{
+    scene._skyIBL = skyIBL;
+}
+
+void ESceneManager::Engine::SetSceneIBLPath(Scene& scene, std::string_view skyIBLPath) 
+{
+    File::Guid guid = UmFileSystem.GetGuidFromPath(skyIBLPath);
+    if (false == guid.IsNull())
+    {
+        SetSceneIBLGuid(scene, guid);
+    }
+}
+
 void ESceneManager::Engine::UpdateMatrix(GameObject* gameObject) 
 {
     gameObject->transform->UpdateMatrix();
@@ -661,13 +678,13 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
             }
         }
         _setting.MainScene = scene->Path;
+        SetRendererSkyBox(scene);              
         _addComponentsQueue.clear();
         _addGameObjectsQueue.clear();
         _waitAwakeVec.clear();
         _waitStartVec.clear();
         _lodedSceneList.clear();
         UmCommandManager.Clear();
-        SetRendererSkyBox(scene);
     }
     else
     {
@@ -931,12 +948,11 @@ void ESceneManager::ObjectsApplicationQuit()
         {
             for (auto& obj : _runtimeObjects)
             {
-                if (IsRuntimeActive(obj))
+                if (obj->IsValid())
                 {
                     for (auto& component : obj->_components)
                     {
-                        if (component->Enable)
-                            component->OnApplicationQuit();
+                        component->OnApplicationQuit();
                     }
                 }
             }
@@ -1049,50 +1065,40 @@ void ESceneManager::ObjectsDestroy()
 {
     //컴포넌트 삭제
     auto& [destroyComponentSet, destroyComponentQueue] = _destroyComponentsQueue;
-    for (auto& destroyComponent : destroyComponentQueue)
+    //OnDestroy 호출 도중 원본 큐 변형 방지를 위한 지연삭제
+    _destroyComponentsTemp = destroyComponentQueue;
+    destroyComponentSet.clear();
+    destroyComponentQueue.clear();
+    for (auto& destroyComponent : _destroyComponentsTemp)
     {
-        //OnDestroy 대상 호출
+        // OnDestroy 대상 호출
         if (_isPlay)
         {
-            if (destroyComponent->_gameObject->ActiveInHierarchy_property_getter())
-            {
-
-                if (destroyComponent->Enable)
-                {
-                    destroyComponent->OnDestroy();
-                }
-            }
+            destroyComponent->OnDestroy();
         }
 
-        //해당 컴포넌트를 오브젝트 배열에서 삭제.
+        // 해당 컴포넌트를 오브젝트 배열에서 삭제.
         std::vector<std::shared_ptr<Component>>& components = destroyComponent->_gameObject->_components;
-        std::erase_if(
-            components, 
-            [destroyComponent](std::shared_ptr<Component>& component)
-            {     
-                return destroyComponent == component.get();
-            }
-        );
+        std::erase_if(components, [destroyComponent](std::shared_ptr<Component>& component) {
+            return destroyComponent == component.get();
+        });
 
         NotInitDestroyComponentEraseToWaitVec(destroyComponent);
     }
 
     //오브젝트 삭제
     auto& [destroyObjectSet, destroyObjectQueue] = _destroyObjectsQueue;
-    for (auto& destroyObject : destroyObjectQueue)
+    // OnDestroy 호출 도중 원본 큐 변형 방지를 위한 복사 후 삭제
+    _destroyObjectTemp = destroyObjectQueue;
+    destroyObjectSet.clear();
+    destroyObjectQueue.clear();
+    for (auto& destroyObject : _destroyObjectTemp)
     {
-        //OnDestroy 대상 호출
-        if (destroyObject->ActiveInHierarchy_property_getter())
+        if (_isPlay)
         {
             for (auto& component : destroyObject->_components)
             {
-                if (_isPlay)
-                {
-                    if (component->Enable)
-                    {
-                        component->OnDestroy();
-                    }
-                }
+                component->OnDestroy();
                 NotInitDestroyComponentEraseToWaitVec(component.get());
             }
         }
@@ -1132,11 +1138,20 @@ void ESceneManager::ObjectsDestroy()
         _runtimeObjects.pop_back();
     }
 
-    //파괴 큐 초기화
-    destroyComponentSet.clear();
-    destroyComponentQueue.clear();
-    destroyObjectSet.clear();
-    destroyObjectQueue.clear();
+    //하이러키 에디터에 삭제 플래그 활성화
+    if constexpr (IS_EDITOR)
+    {
+        if (false == _destroyObjectTemp.empty())
+        {
+            static EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("SceneDock");
+            static EditorHierarchyTool* editorHierarchy = sceneDock->GetGui<EditorHierarchyTool>();
+            editorHierarchy->ActiveHierarchyCleanup();
+        }
+    }
+
+    //큐 초기화
+    _destroyComponentsTemp.clear();
+    _destroyObjectTemp.clear();
 }
 
 void ESceneManager::ObjectsAddRuntime()
@@ -1159,6 +1174,13 @@ void ESceneManager::ObjectsAddRuntime()
         }
         _runtimeObjects[id] = gameObject;
         GameObject::Engine::UpdateActiveInHierarchy(gameObject.get());     
+
+        if constexpr (IS_EDITOR)
+        {
+            static EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("SceneDock");
+            static EditorHierarchyTool* editorHierarchy = sceneDock->GetGui<EditorHierarchyTool>();
+            editorHierarchy->PushHierarchyObject(gameObject);
+        }
     }
 
     for (auto& [owner, component] : _addComponentsQueue)
@@ -1253,7 +1275,7 @@ void ESceneManager::SetObjectOwnerScene(GameObject* object, std::string_view sce
 
 void ESceneManager::SetRendererSkyBox(Scene* scene) 
 {
-    // 스카이 박스 로드
+    // ENV 로드
     if (STR_NULL != scene->_skyBox)
     {
         bool loadSkyBox = false;
@@ -1262,8 +1284,8 @@ void ESceneManager::SetRendererSkyBox(Scene* scene)
             File::Guid prevGuid = UmFileSystem.GetGuidFromPath(_prevScene);
             if (false == prevGuid.IsNull())
             {
-                Scene& prevSccene = _scenesMap[prevGuid];
-                if (prevSccene._skyBox != scene->_skyBox)
+                Scene& prevScene = _scenesMap[prevGuid];
+                if (prevScene._skyBox != scene->_skyBox)
                 {
                     loadSkyBox = true;
                 }
@@ -1283,21 +1305,69 @@ void ESceneManager::SetRendererSkyBox(Scene* scene)
             File::Path path = scene->_skyBox.ToPath();
             if (false == path.IsNull())
             {
-                UmGraphics.SetSkyBox("Game", path.c_str());
+                UmGraphics.SetEnvironmentSkyBox("Game", path.c_str());
 
                 if constexpr (IS_EDITOR)
                 {
-                    UmGraphics.SetSkyBox("Editor", path.c_str());
+                    UmGraphics.SetEnvironmentSkyBox("Editor", path.c_str());
                 }
             }
         }
     }
     else
     {
-        UmGraphics.ResetSkyBox("Game");
+        UmGraphics.ResetEnvironmentSkyBox("Game");
         if constexpr (IS_EDITOR)
         {
-            UmGraphics.ResetSkyBox("Editor");
+            UmGraphics.ResetEnvironmentSkyBox("Editor");
+        }
+    }
+
+    // IBL 로드
+    if (STR_NULL != scene->_skyIBL)
+    {
+        bool loadSkyBox = false;
+        if (STR_NULL != _prevScene)
+        {
+            File::Guid prevGuid = UmFileSystem.GetGuidFromPath(_prevScene);
+            if (false == prevGuid.IsNull())
+            {
+                Scene& prevScene = _scenesMap[prevGuid];
+                if (prevScene._skyIBL != scene->_skyIBL)
+                {
+                    loadSkyBox = true;
+                }
+            }
+            else
+            {
+                loadSkyBox = true;
+            }
+        }
+        else
+        {
+            loadSkyBox = true;
+        }
+
+        if (loadSkyBox)
+        {
+            File::Path path = scene->_skyIBL.ToPath();
+            if (false == path.IsNull())
+            {
+                UmGraphics.SetIBLSkyBox("Game", path.c_str());
+
+                if constexpr (IS_EDITOR)
+                {
+                    UmGraphics.SetIBLSkyBox("Editor", path.c_str());
+                }
+            }
+        }
+    }
+    else
+    {
+        UmGraphics.ResetIBLSkyBox("Game");
+        if constexpr (IS_EDITOR)
+        {
+            UmGraphics.ResetIBLSkyBox("Editor");
         }
     }
 }
@@ -1333,6 +1403,10 @@ YAML::Node ESceneManager::SerializeToYaml(const Scene& scene)
     if (false == targetScene._skyBox.ToPath().IsNull())
     {
         sceneNode["SkyBox"] = targetScene._skyBox.string();
+    }
+    if (false == targetScene._skyIBL.ToPath().IsNull())
+    {
+        sceneNode["SkyIBL"] = targetScene._skyIBL.string();
     }
 
     auto rootObjects = scene.GetRootGameObjects();
@@ -1421,11 +1495,38 @@ bool ESceneManager::SetSkyBox(const File::Path& path)
     }
 
     Engine::SetSceneSkyBoxGuid(*mainScene, guid);
-    UmGraphics.SetSkyBox("Game", path.c_str());
+    UmGraphics.SetEnvironmentSkyBox("Game", path.c_str());
 
     if constexpr (IS_EDITOR)
     {
-        UmGraphics.SetSkyBox("Editor", path.c_str());
+        UmGraphics.SetEnvironmentSkyBox("Editor", path.c_str());
+    }
+
+    mainScene->IsDirty = true;
+
+    return true;
+}
+
+bool ESceneManager::SetSkyIBL(const File::Path& path)
+{
+    Scene* mainScene = GetMainScene();
+    if (nullptr == mainScene)
+    {
+        return false;
+    }
+
+    File::Guid guid = path.ToGuid();
+    if (true == guid.IsNull())
+    {
+        return false;
+    }
+
+    Engine::SetSceneIBLGuid(*mainScene, guid);
+    UmGraphics.SetIBLSkyBox("Game", path.c_str());
+
+    if constexpr (IS_EDITOR)
+    {
+        UmGraphics.SetIBLSkyBox("Editor", path.c_str());
     }
 
     mainScene->IsDirty = true;
@@ -1507,6 +1608,16 @@ void ESceneManager::OnFileRegistered(const File::Path& path)
             {
                 scene._skyBox = sceneNode["SkyBox"].as<std::string>();
             }
+            if (sceneNode["SkyIBL"])
+            {
+                scene._skyIBL = sceneNode["SkyIBL"].as<std::string>();
+            }
+            else
+            {
+                // SkyIBL 노드가 없던 구 버전 씬 파일은 skyBox를 IBL로
+                scene._skyIBL = scene._skyBox;
+            }
+
             std::string nodeGuid = sceneNode["Guid"].as<std::string>();
             if (nodeGuid != guid)
             {
@@ -1586,6 +1697,15 @@ void ESceneManager::OnFileModified(const File::Path& path)
             if (node["SkyBox"])
             {
                 scene._skyBox = node["SkyBox"].as<std::string>();
+            }
+            if (node["SkyIBL"])
+            {
+                scene._skyIBL = node["SkyIBL"].as<std::string>();
+            }
+            else
+            {
+                // SkyIBL 노드가 없던 구 버전 씬 파일은 skyBox를 IBL로
+                scene._skyIBL = scene._skyBox;
             }
         }
         catch (const YAML::BadConversion& ex)
@@ -1794,7 +1914,7 @@ void ESceneManager::SceneResourceManager::Engine::CleanUp(SceneResourceManager& 
 }
 
 void ESceneManager::SceneResourceManager::RequestModelResource(const Component* component, const File::Guid& guid,
-                                                               const std::function<void()> func)
+                                                               const std::function<void()>& func)
 {
     if (component->gameObject->IsValid())
     {
@@ -1815,7 +1935,7 @@ void ESceneManager::SceneResourceManager::RequestModelResource(const Component* 
 }
 
 void ESceneManager::SceneResourceManager::RequestModelResource(const Component* component, const File::Path& path,
-                                                               const std::function<void()> func)
+                                                               const std::function<void()>& func)
 {
     if (component->gameObject->IsValid())
     {
@@ -1835,7 +1955,7 @@ void ESceneManager::SceneResourceManager::RequestModelResource(const Component* 
     }
 }
 
-void ESceneManager::SceneResourceManager::RequestTextureResource(const Component* component, const File::Guid& guid, const std::function<void()> func)
+void ESceneManager::SceneResourceManager::RequestTextureResource(const Component* component, const File::Guid& guid, const std::function<void()>& func)
 {
     if (component->gameObject->IsValid())
     {
@@ -1856,7 +1976,7 @@ void ESceneManager::SceneResourceManager::RequestTextureResource(const Component
 }
 
 void ESceneManager::SceneResourceManager::RequestTextureResource(const Component* component, const File::Path& path,
-                                                                 const std::function<void()> func)
+                                                                 const std::function<void()>& func)
 {
     if (component->gameObject->IsValid())
     {
@@ -1877,7 +1997,7 @@ void ESceneManager::SceneResourceManager::RequestTextureResource(const Component
 }
 
 void ESceneManager::SceneResourceManager::RequestFontResource(const Component* component, const File::Guid& guid,
-                                                              const std::function<void()> func)
+                                                              const std::function<void()>& func)
 {
     if (component->gameObject->IsValid())
     {
@@ -1898,7 +2018,7 @@ void ESceneManager::SceneResourceManager::RequestFontResource(const Component* c
 }
 
 void ESceneManager::SceneResourceManager::RequestFontResource(const Component* component, const File::Path& path,
-                                                              const std::function<void()> func)
+                                                              const std::function<void()>& func)
 {
     if (component->gameObject->IsValid())
     {
@@ -1961,8 +2081,8 @@ void ESceneManager::InputSystem::UpdateInput()
                 {
                     UpdateTracker(flag);
                 }
-            }        
-            
+            } 
+
             UpdateAnalogButtons();
             std::memset(_actionChecker.data(), 0, std::size(_actionChecker)); //중복 액션 방지용 기록 배열 초기화.
         }
@@ -1980,6 +2100,33 @@ void ESceneManager::InputSystem::UpdateInput()
 #endif
         }
 
+    }
+}
+
+void ESceneManager::InputSystem::RegisterInputReceiver(InputReceiver& receiver, int buttonIndex, int actionIndex, std::function<void(const Input::Controller& controller)> func)
+{
+    auto& receiverTarget = _receivers[buttonIndex][actionIndex];
+    if (nullptr == receiver._isDestroy)
+    {
+        //플래그 bool 값을 동적 할당
+        receiverTarget.emplace_back(std::make_shared<bool>(false), func);
+        receiver._isDestroy = receiverTarget.back().first;
+    }
+    else
+    {
+        //이미 등록된 리시버는 bool 값을 공유.
+        receiverTarget.emplace_back(receiver._isDestroy, func);
+    }
+}
+
+void ESceneManager::InputSystem::CleanupInputReceivers() 
+{
+    for (auto& actions : _receivers)
+    {
+        for (auto& inputReceivers : actions)
+        {
+            inputReceivers.clear();
+        }
     }
 }
 
@@ -2060,10 +2207,27 @@ void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
 
     int   actionIndex = static_cast<int>(action);
     auto& receivers = _receivers[buttonIndex][actionIndex];
-    for (auto& [instance, event] : receivers)
+    bool  activeErase = false;
+    for (auto& [isDestroy, event] : receivers)
     {
-        event(_inputController);
-        checker = true;
+        if (nullptr == isDestroy || true == *isDestroy)
+        {
+            activeErase = true;
+        }
+        else
+        {
+            event(_inputController);
+            checker = true;
+        }
+    }
+
+    if (true == activeErase)
+    {
+        std::erase_if(receivers, [](auto& pair) 
+        {
+            auto& [destroy, event] = pair;
+            return nullptr == destroy || *destroy;
+        });
     }
 }
 

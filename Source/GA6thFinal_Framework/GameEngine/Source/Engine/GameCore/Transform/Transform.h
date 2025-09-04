@@ -52,6 +52,7 @@ public:
     { 
         return _gameObject;
     }
+    //type : GameObject&
     //get : owner GameObject
     PROPERTY(gameObject)
 
@@ -61,29 +62,34 @@ public:
     }
     int GetChildCount();
     // https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform-childCount.html
+    // type : int
     // get : 자식의 개수를 반환합니다.
     // return : int
     PROPERTY(ChildCount)
 
     GETTER_ONLY(Transform*, Root) { return _root; }
     // https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform-root.html
+    // type : Transform*
     // get : 최상위 부모를 반환합니다.
     // return : Transform*
     PROPERTY(Root)
 
     GETTER_ONLY(Transform*, Parent) { return _parent; }
     // https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform-parent.html
+    // type : Transform*
     // get : 부모를 반환합니다.
     // return : Transform*
     PROPERTY(Parent)
 
     inline void SetChangeFlag() { _hasChanged = true; }
     GETTER_ONLY(bool, HasChanged) { return _hasChanged; }
-    // bool : Transform의 이번 프레임 변경 여부입니다. true면 이번 프레임에 행렬 계산 대상이 됩니다.
+    // type : bool
+    // get : Transform의 이번 프레임 변경 여부입니다. true면 이번 프레임에 행렬 계산 대상이 됩니다.
     PROPERTY(HasChanged)
 
     GETTER_ONLY(const Matrix&, LocalToWorldMatrix) { return GetWorldMatrix(); }
     /*
+    type : const Matrix&
     get : 로컬 정점을 World 행렬로 변환하는 행렬입니다.
     (Transform의 World Matrix 입니다).
     */
@@ -94,6 +100,7 @@ public:
         return GetInversWorldMatrix();
     }
     /*
+    type : const Matrix&
     get : 월드 행렬을 로컬 행렬로 변환하는 행렬입니다.
     (Transform의 World Invers Matrix 입니다.)
     */
@@ -101,6 +108,7 @@ public:
 
     GETTER_ONLY(const Matrix&, LocalToLocalMatrix) { return GetLocalMatrix(); }
     /*
+    type : const Matrix&
     get : 로컬 정점을 LocalMatrix 행렬로 변환하는 행렬입니다.
     (Transform의 Local Matrix 입니다.)
     */
@@ -115,7 +123,33 @@ public:
         _position   = value;
     }
     GETTER(const Vector3&, Position) { return _position; }
+    //type : const Vector3&
+    //get, set : 이 Transform의 로컬 위치입니다. 
     PROPERTY(Position)
+
+    SETTER(const Vector3&, WorldPosition) 
+    { 
+        SetWorldPosition(value);
+    }
+    GETTER(const Vector3&, WorldPosition) 
+    { 
+        return GetWorldPosition();
+    }
+    // type : const Vector3&
+    // get, set : 이 Transform의 월드 기준 위치입니다. 
+    PROPERTY(WorldPosition)
+
+    SETTER(const Vector3&, LocalPosition)
+    { 
+        Position = value; 
+    }
+    GETTER(const Vector3&, LocalPosition)
+    { 
+        return Position;
+    }
+    // type : const Vector3&
+    // get, set : 이 Transform의 로컬 위치입니다. 
+    PROPERTY(LocalPosition)
 
     SETTER(const Quaternion&, Rotation)
     {
@@ -127,15 +161,23 @@ public:
         _eulerAngle = _rotation.ToEuler() * Mathf::Rad2Deg;
     }
     GETTER(const Quaternion&, Rotation) { return _rotation; }
+    // type : const Quaternion&
+    // get, set : 이 Transform의 회전
     PROPERTY(Rotation)
 
     GETTER_ONLY(const Vector3&, Forward) { return _forward; }
+    // type : const Vector3&
+    // get : 이 Transform의 앞 방향 백터
     PROPERTY(Forward)
 
     GETTER_ONLY(const Vector3&, Up) { return _up; }
+    // type : const Vector3&
+    // get : 이 Transform의 위 방향 백터
     PROPERTY(Up)
 
     GETTER_ONLY(const Vector3&, Right) { return _right; }
+    // type : const Vector3&
+    // get : 이 Transform의 오른쪽 방향 백터
     PROPERTY(Right)
 
     SETTER(const Vector3&, EulerAngle)
@@ -149,6 +191,8 @@ public:
         _rotation = newRotation;
     }
     GETTER(const Vector3&, EulerAngle) { return _eulerAngle; }
+    // type : const Vector3&
+    // get, set : 오일러 각도
     PROPERTY(EulerAngle)
 
     SETTER(const Vector3&, Scale)
@@ -160,6 +204,8 @@ public:
         _scale = value;
     }
     GETTER(const Vector3&, Scale) { return _scale; }
+    // type : const Vector3&
+    // get, set : Transform의 Scale
     PROPERTY(Scale)
 
     REFLECT_PROPERTY(Position, EulerAngle, Scale)  
@@ -321,6 +367,21 @@ public:
     /// <returns></returns>
     const bool& HasChangedRef() const { return _hasChanged; }
 
+    /// <summary>
+    /// 월드 기준으로 위치를 설정합니다.
+    /// </summary>
+    /// <param name="position :">설정할 위치</param>
+    void SetWorldPosition(const Vector3& position);
+
+    /// <summary>
+    /// 월드 위치를 반환합니다.
+    /// </summary>
+    /// <returns></returns>
+    const Vector3& GetWorldPosition()
+    { 
+        return _worldPosition;
+    }
+
 private:
     GameObject& _gameObject;
 
@@ -365,6 +426,7 @@ protected:
 private:
     bool       _hasChanged;
     Vector3    _position;
+    Vector3    _worldPosition;
     Quaternion _rotation;
     Vector3    _forward;
     Vector3    _right;

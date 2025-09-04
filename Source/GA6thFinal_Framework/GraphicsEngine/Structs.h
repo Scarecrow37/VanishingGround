@@ -1,6 +1,12 @@
 ﻿#pragma once
 #include "Graphics_Structs.h"
 
+struct MatrixData
+{
+    Matrix World;
+    Matrix InverseTransposeWorld;
+};
+
 struct BoneMatrices
 {
     Matrix matrix[MAX_BONE_MATRIX];
@@ -38,6 +44,27 @@ struct CascadeData
 {
     Matrix ShadowVP[MAX_CASCADES];
     float  CascadeSplits[MAX_CASCADES];
+};
+
+struct VolumetricFogData
+{
+    XMMATRIX PreViewProjection;
+    XMMATRIX InverseViewProjection;
+    Vector4  CameraNearFar_PreviousFrameBlend; // x = near, y = far, z=prevBlend , w = padding
+    Vector4   VolumeSize;                                  // x = volX, y = volY, z = volZ
+    float    Anisotropy;
+    float    Density;
+    float    Strength;
+    float    ThicknessFactor;
+};
+
+struct VolumetricFogCompositeData
+{
+    XMMATRIX ViewProj;
+    XMMATRIX InverseViewProjection;
+    Vector4 CameraNearFar;
+    Vector4 VoxelSize;
+    float   BlendWithScene;
 };
 
 struct NumLight

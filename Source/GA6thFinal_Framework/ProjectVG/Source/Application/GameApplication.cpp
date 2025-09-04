@@ -38,6 +38,7 @@ GameApplication::GameApplication()
     else
     {
         _windowName = L"Project VG <DirectX12>";
+        SetStyleToBorderlessWindowed();
     }
 }
 
@@ -134,6 +135,7 @@ void GameApplication::BuildSceneDock()
     _sceneDock->RegisterGui<EditorPlayMenu>();
     _sceneDock->RegisterGui<EditorMenuTools>(_sceneDock);
     _sceneDock->RegisterGui<EditorSceneMenu>();
+    _sceneDock->RegisterGui<EditorGameMenu>();
 }
 
 void GameApplication::BuildModelDock()

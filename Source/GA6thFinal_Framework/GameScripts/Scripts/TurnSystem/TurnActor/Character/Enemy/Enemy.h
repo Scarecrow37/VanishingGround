@@ -3,6 +3,7 @@
 #include "Enum/EnemyEnum.h"
 #include "AI/EnemyAI.h"
 
+class ParticleComponent;
 class MonsterHpView;
 class EnemyStatsComponent;
 class FSMState;
@@ -40,6 +41,7 @@ public:
 private:
     EnemyAI _aiModel;
     EnemyStatsComponent* _enemyStats = nullptr;
+    ParticleComponent*   _hitParticle = nullptr; // 피격 이펙트 파티클
 
 protected:
     class FiniteStateMachine* _finiteStateMachine = nullptr;
@@ -87,6 +89,8 @@ protected:
     virtual void Revive() override;
     virtual void PlayTurn() override;
     CharacterStats* GetCharacterStats() override;
+
+    void InitParticle();
 
 private:
     virtual void OnCombatStart() override;

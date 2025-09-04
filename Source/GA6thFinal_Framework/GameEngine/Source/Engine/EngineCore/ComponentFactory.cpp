@@ -45,6 +45,9 @@ bool EComponentFactory::InitalizeComponentFactory()
         //커맨드 Clear
         UmCommandManager.Clear();
 
+        //Input Receiver Clear
+        ESceneManager::Engine::GetInputSystem().CleanupInputReceivers();
+
         //모든 컴포넌트 자원 회수
         for (auto& [key, wptr] : _componentInstanceVec)
         {

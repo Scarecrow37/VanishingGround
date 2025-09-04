@@ -43,56 +43,35 @@ void PlayerPlayTurnState::OnAwake()
     BindInputAction(ControllerButton::Y, Action::PRESSED, &GetFSM(), this, &PlayerPlayTurnState::PressedButtonY);
     BindInputAction(ControllerButton::Y, Action::RELEASED, &GetFSM(), this, &PlayerPlayTurnState::ReleasedButtonY);
 
-    Player&             player       = GetPlayer();
-    WeaponSystem*       weaponSystem = WeaponSystem::GetInstance();
-    const WeaponStats&  weapontype   = weaponSystem->GetCurrentWeaponStats();
-    AnimationComponent* weaponanim;
-    ParticleComponent*  weaponeffect;
-    weaponAnims.resize(3);
-    weaponEffects.resize(3);
-    
-    Transform* weapontransform = player.transform->Find("sword");
-    if (nullptr != weapontransform)
+    auto weaponList = GameObject::FindGameObjectsWithTag("Weapon");
+    for (const auto& weapon : weaponList)
     {
-        weaponanim   = weapontransform->gameObject->GetComponent<AnimationComponent>();
-        weaponeffect = weapontransform->gameObject->GetComponent<ParticleComponent>();
+        auto sharedWeapon = weapon.lock();
+        if (sharedWeapon)
+        {
+            WeaponType type = WeaponType::SWORD;
+            if (sharedWeapon->CompareTag("Sword")) 
+                type = WeaponType::SWORD;
+            else if (sharedWeapon->CompareTag("Dagger")) 
+                type = WeaponType::DAGGER;
+            else if (sharedWeapon->CompareTag("Mace")) 
+                type = WeaponType::WARHAMMER;
+            weaponAnims[(int)type]   = sharedWeapon->GetComponent<AnimationComponent>();
+            weaponEffects[(int)type] = sharedWeapon->GetComponent<ParticleComponent>();
+            if (weaponAnims[(int)type] != nullptr)
+            {
+                weaponAnims[(int)type]->StopCurrentAnimation();
+                weaponAnims[(int)type]->SetAnimationPostEventCallback([this](const Timeline::EventContext* context) {
+                    const std::string& label = context->GetLabel();
+                    if ("Attack" == label)
+                    {
+                        BattleOnAttackEvent();
+                    }
+                });
+            }
+            
+        }
     }
-    else
-    {
-        weaponanim   = nullptr;
-        weaponeffect = nullptr;
-    }
-    weaponAnims[0]   = weaponanim;
-    weaponEffects[0] = weaponeffect;
-
-    weapontransform = player.transform->Find("dagger");
-    if (nullptr != weapontransform)
-    {
-        weaponanim   = weapontransform->gameObject->GetComponent<AnimationComponent>();
-        weaponeffect = weapontransform->gameObject->GetComponent<ParticleComponent>();
-    }
-    else
-    {
-        weaponanim   = nullptr;
-        weaponeffect = nullptr;
-    }
-    weaponAnims[1]   = weaponanim;
-    weaponEffects[1] = weaponeffect;
-
-    weapontransform = player.transform->Find("mace");
-    if (nullptr != weapontransform)
-    {
-        weaponanim   = weapontransform->gameObject->GetComponent<AnimationComponent>();
-        weaponeffect = weapontransform->gameObject->GetComponent<ParticleComponent>();
-    }
-    else
-    {
-        weaponanim   = nullptr;
-        weaponeffect = nullptr;
-    }
-    weaponAnims[2]   = weaponanim;
-    weaponEffects[2] = weaponeffect;
-
 }
 
 void PlayerPlayTurnState::OnStart() 
@@ -111,6 +90,7 @@ void PlayerPlayTurnState::OnEnter()
 void PlayerPlayTurnState::OnExit() 
 {
     _inputState = InputState::NONE;
+    _attackTargets.clear();
 }
 
 
@@ -313,24 +293,7 @@ void PlayerPlayTurnState::UpdateAttackEventUI(float dt)
 {
     ImGui::Begin("Player Turn##9A48EE30-CB5F-48AC-9740-DDF8118AAC49");
     {
-        TurnMode* turnMode = TurnMode::GetInstance();
-        if (turnMode)
-        {
-            Player& player = GetPlayer();
-            if (_attackTargets.empty())
-            {
-                SetAttackEnd();
-            }
-            else
-            {
-                for (auto iter = _attackTargets.rbegin(); iter != _attackTargets.rend(); ++iter)
-                {
-                    PushWeaponAnimation(*iter);
-                }
-                _attackTargets.clear();
-            }
-            _inputState = InputState::NONE;
-        }
+        _inputState = InputState::NONE;
     }
     ImGui::End();
 }
@@ -353,29 +316,40 @@ void PlayerPlayTurnState::SetAttackReady()
 {
     Player& player = GetPlayer();
     auto* animator = player.GetAnimationComponent();
-    auto* audioTable = player.GetAudioTableComponent();
     if (animator)
     {
+        // 오버라이드 애니메이션 빌드 시작
         animator->BeginBuildOverrideAnimation();
         animator->ClearOverrideAnimations();
-        {
-            animator->PushOverrideAnimation("Attack_Ready_Loop", true);
-            animator->ChangeCurrentAnimationFlags(ANIMATION_FLAG_USE_LOOP);
-        }
-        {
-            animator->PushOverrideAnimation("Attack_Ready", true, [](const AnimationData& data) { return data.IsEnd(); });
-            animator->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
-        }
+
+        // 애니메이션 "Attack_Ready_Loop" USE_BLEND 및 USE_LOOP 플래그 설정 후  Push
+        animator->SetNextAnimationFlags(ANIMATION_FLAG_USE_BLEND | ANIMATION_FLAG_USE_LOOP);
+        animator->PushBackOverrideAnimation("Attack_Ready_Loop");
+        
+        // 애니메이션 "Attack_Ready" USE_BLEND 및 ALWAYS_UPDATE 플래그 설정 후 Push
+        animator->SetNextAnimationFlags(ANIMATION_FLAG_USE_BLEND | ANIMATION_FLAG_ALWAYS_UPDATE);
+        animator->PushBackOverrideAnimation("Attack_Ready");
+        animator->SetCurrentAnimationPopCondition([](const AnimationData& data) { return data.IsEnd(); });  // 애니메이션이 끝날 경우 Pop
+
+        // 애니메이션 빌드 종료
         animator->EndBuildOverrideAnimation();
     }
-    if (audioTable)
+
+    WeaponSystem*       weaponSystem = WeaponSystem::GetInstance();
+    const WeaponStats&  weaponStats  = weaponSystem->GetCurrentWeaponStats();
+    WeaponType          weaponType   = weaponStats.Type;
+    AnimationComponent* weaponAnim   = weaponAnims[(int)weaponType];
+    ParticleComponent*  weaponEffect = weaponEffects[(int)weaponType];
+
+    if (weaponAnim)
     {
-        audioTable->Play("Casting");
+        weaponAnim->BeginBuildOverrideAnimation();
     }
 }
 
 void PlayerPlayTurnState::SetAttack()
 {
+    // 애니메이션 처리
     Player& player   = GetPlayer();
     auto*   animator = player.GetAnimationComponent();
     auto*   audioTable = player.GetAudioTableComponent();
@@ -383,19 +357,65 @@ void PlayerPlayTurnState::SetAttack()
     {
         animator->BeginBuildOverrideAnimation();
         animator->ClearOverrideAnimations();
-        {
-            animator->PushOverrideAnimation("Attack_Loop", true);
-            animator->ChangeCurrentAnimationFlags(ANIMATION_FLAG_USE_LOOP);
-        }
-        {
-            animator->PushOverrideAnimation("Attack", true, [](const AnimationData& data) { return data.IsEnd(); });
-            animator->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
-        }
+
+        animator->SetNextAnimationFlags(ANIMATION_FLAG_USE_BLEND | ANIMATION_FLAG_USE_LOOP);
+        animator->PushBackOverrideAnimation("Attack_Loop");
+        
+        animator->SetNextAnimationFlags(ANIMATION_FLAG_USE_BLEND | ANIMATION_FLAG_ALWAYS_UPDATE);
+        animator->PushBackOverrideAnimation("Attack");
+        animator->SetCurrentAnimationPopCondition([](const AnimationData& data) { return data.IsEnd(); }); // 애니메이션이 끝날 경우 Pop
+
         animator->EndBuildOverrideAnimation();
     }
-    if (audioTable)
+
+    // 무기 애니메이션 및 이펙트 처리
+    WeaponSystem*       weaponSystem = WeaponSystem::GetInstance();
+    const WeaponStats&  weaponStats  = weaponSystem->GetCurrentWeaponStats();
+    WeaponType          weaponType   = weaponStats.Type;
+    AnimationComponent* weaponAnim   = weaponAnims[(int)weaponType];
+    ParticleComponent*  weaponEffect = weaponEffects[(int)weaponType];
+
+    // 무기 애니메이션 처리
+
+    if (weaponAnim)
     {
-        audioTable->Play("Shoot");
+        if (false == _attackTargets.empty())
+        {
+            // 무기 이펙트 처리
+            if (weaponEffect)
+            {
+                weaponEffect->PlayEffect();
+            }
+            bool isFirst = true;
+            for (auto& target : _attackTargets)
+            {
+                // 임시 랜덤 애니메이션
+                const auto& keymap = weaponAnim->GetAnimationKeyMap();
+                int         count = 0, randomIndex = Random::Range(0, (int)keymap.size() - 1);
+                for (auto& [key, value] : keymap)
+                {
+                    if (count == randomIndex)
+                    { // 무기 애니메이션 설정(중복 Push 허용)
+                        weaponAnim->PushBackOverrideAnimation(key, true);
+                        weaponAnim->SetCurrentAnimationPopCondition(
+                            [](const AnimationData& data) { return data.IsEnd(); }); // 애니메이션이 끝날 경우 Pop
+                        if (isFirst)
+                        {
+                            weaponAnim->SetCurrentAnimationPopCallback([this]() { SetAttackEnd(); });
+                            isFirst = false;
+                        }
+                    }
+                    ++count;
+                }
+            }
+            weaponAnim->PlayCurrentAnimation();
+        }
+        else
+        {   // 공격 대상이 없으면 애니메이션을 스킵
+            SetAttackEnd();
+        }
+
+        weaponAnim->EndBuildOverrideAnimation();
     }
 }
 
@@ -407,83 +427,52 @@ void PlayerPlayTurnState::SetAttackEnd()
     {
         animator->BeginBuildOverrideAnimation();
         animator->ClearOverrideAnimations();
-        {
-            animator->ChangeMainAnimation("Idle", true);
-            animator->ChangeMainAnimationFlags(ANIMATION_FLAG_USE_LOOP | ANIMATION_FLAG_RESET_FRAME);
+
+        // 메인 애니메이션을 Idle로 바꿈
+        animator->SetNextAnimationFlags(ANIMATION_FLAG_USE_BLEND | ANIMATION_FLAG_USE_LOOP | ANIMATION_FLAG_RESET_FRAME);
+        animator->ChangeMainAnimation("Idle");
+
+        // 애니메이션 "Attack_End"를 Push
+        animator->SetNextAnimationFlags(ANIMATION_FLAG_USE_BLEND | ANIMATION_FLAG_ALWAYS_UPDATE);
+        bool pushResult = animator->PushBackOverrideAnimation("Attack_End");
+        if (pushResult)
+        {   
+            animator->SetCurrentAnimationPopCondition([](const AnimationData& data) { return data.IsEnd(); }); // 애니메이션이 끝날 경우 Pop
+            animator->SetCurrentAnimationPopCallback([this]() { GetPlayer().EndTurn(); }); // Pop시 턴 종료
         }
+        else
         {
-            bool pushResult = animator->PushOverrideAnimation("Attack_End", true, [](const AnimationData& data) { return data.IsEnd(); });
-            if (pushResult)
-            {
-                animator->ChangeCurrentAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
-                animator->SetCurrentAnimationPopCallback([this]() {
-                    // 애니메이션이 끝날 시 턴 종료
-                    auto& player = GetPlayer();
-                    player.EndTurn();
-                });
-            }
-            else
-            {
-                // 애니메이션을 못넣었으면 바로 턴 종료
-                player.EndTurn();
-            }
+            // 애니메이션을 못넣었으면 바로 턴 종료
+            player.EndTurn();
         }
+
         animator->EndBuildOverrideAnimation();
     }
     else
     {
         player.EndTurn();
     }
+
+    // 무기 애니메이션 및 이펙트 처리
+    WeaponSystem*       weaponSystem = WeaponSystem::GetInstance();
+    const WeaponStats&  weaponStats  = weaponSystem->GetCurrentWeaponStats();
+    WeaponType          weaponType   = weaponStats.Type;
+    AnimationComponent* weaponAnim   = weaponAnims[(int)weaponType];
+    ParticleComponent*  weaponEffect = weaponEffects[(int)weaponType];
+
+    if (weaponEffect)
+    {
+        weaponEffect->StopEffect();
+    }
 }
 
-void PlayerPlayTurnState::PushWeaponAnimation(Battle::EnemyTargetFlag_ destEnemy)
+void PlayerPlayTurnState::BattleOnAttackEvent()
 {
-    Player&             player       = GetPlayer();
-    WeaponSystem*       weaponSystem = WeaponSystem::GetInstance();
-    const WeaponStats&  weapontype   = weaponSystem->GetCurrentWeaponStats();
-    AnimationComponent* weaponAnim   = nullptr;
-    ParticleComponent*  weaponEffect = nullptr;
-    switch (weapontype.Type)
+    if (!_attackTargets.empty())
     {
-    case WeaponType::SWORD:
-        weaponAnim = weaponAnims[0];
-        weaponEffect = weaponEffects[0];
-        break;
-    case WeaponType::DAGGER:
-        weaponAnim   = weaponAnims[1];
-        weaponEffect = weaponEffects[1];
-        break;
-    case WeaponType::WARHAMMER:
-        weaponAnim   = weaponAnims[2];
-        weaponEffect = weaponEffects[2];
-        break;
-    }
-
-    // 무기 애니메이션 Push
-    if (weaponAnim)
-    {
-        // 무기 이펙트 Play
-        if (weaponEffect)
-            weaponEffect->PlayEffect();
-
-        weaponAnim->PushOverrideAnimation("attack", true, [](const AnimationData& data) { return data.IsEnd(); });
-        // Pop시 Battle 호출
-        weaponAnim->SetCurrentAnimationPopCallback([this, weaponEffect, weaponAnim, destEnemy]() { 
-            Player& player = GetPlayer();
-            Battle()(player, destEnemy);
-            size_t count = weaponAnim->GetOverrideAnimationCount();
-            if (1 == count)
-            {
-                if (weaponEffect)
-                {
-                    weaponEffect->StopEffect();
-                }
-                SetAttackEnd();
-            }
-            });
-    }
-    else
-    {
-        Battle()(player, destEnemy);
+        auto&   target = _attackTargets.front();
+        Player& player = GetPlayer();
+        Battle()(player, target);
+        _attackTargets.pop_front();
     }
 }

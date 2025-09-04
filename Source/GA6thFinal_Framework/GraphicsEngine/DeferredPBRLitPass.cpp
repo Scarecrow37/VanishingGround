@@ -2,6 +2,7 @@
 #include "DeferredPBRLitPass.h"
 #include "SkyBox.h"
 #include "ShadowMapPass.h"
+#include "SSAOWritePass.h"
 
 DeferredPBRLitPass::~DeferredPBRLitPass() {}
 
@@ -29,10 +30,29 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
     //"BaseColor", "Normal", "ORM", "Emissive", "Depth", "CustomDepth"
     const auto& renderTargetGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
 
-    auto shadowMapPass = GetRenderPass<ShadowMapPass>();
+    auto shadowMapPass = _ownerTechnique->GetRenderPass<ShadowMapPass>();
+    auto ssaoPass      = _ownerTechnique->GetRenderPass<SSAOWritePass>();
 
-    if (nullptr == shadowMapPass)
+    if (nullptr == shadowMapPass || nullptr == ssaoPass)
         return;
+
+    D3D12_GPU_DESCRIPTOR_HANDLE brdf;
+    D3D12_GPU_DESCRIPTOR_HANDLE irradiance;
+    D3D12_GPU_DESCRIPTOR_HANDLE prefiltered;
+
+    if (_ownerScene->_skyBox->HasIBLTexture())
+    {
+        brdf        = _ownerScene->_skyBox->GetBrdfLUTSRV();
+        irradiance  = _ownerScene->_skyBox->GetIrradianceMapSRV();
+        prefiltered = _ownerScene->_skyBox->GetPrefilteredMapSRV();
+    }
+    else
+    {
+        auto defaultTexture = Global::resourceManager->LoadResource<Texture>("BlackTexture")->GetGPUHandle();
+        brdf                = defaultTexture;
+        irradiance          = defaultTexture;
+        prefiltered         = defaultTexture;
+    }
 
     commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_3_numLight"), 3, &_ownerScene->_numLight, 0);
     commandList->SetGraphicsRootConstantBufferView(_fx.GetRootParameterIndex("cameraData"), _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
@@ -45,7 +65,9 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("baseColorMap"), renderTargetGroup[GBuffer::BASECOLOR]->GetSRVHandle());
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("normalMap"), renderTargetGroup[GBuffer::NORMAL]->GetSRVHandle());
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("ormMap"), renderTargetGroup[GBuffer::ORM]->GetSRVHandle());
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("emissiveMap"), renderTargetGroup[GBuffer::EMISSIVE]->GetSRVHandle());
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("depthMap"), renderTargetGroup[GBuffer::DEPTH]->GetSRVHandle());
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("SSAOMap"), ssaoPass->GetAOTexture());
 
     _ownerScene->_frameQuad->Render(commandList);
 }

@@ -8,14 +8,15 @@ public:
     CommandSet()  = default;
     ~CommandSet() = default;
 
+public:
     ID3D12GraphicsCommandList* operator->() const { return _commandList.Get(); }
     operator ID3D12GraphicsCommandList*() const { return _commandList.Get(); }
+    operator ID3D12CommandAllocator*() const { return _commandAllocator.Get(); }
+
 
 public:
     void Initialize(CommandType type, std::wstring_view resourceName);
     void ExecuteCommand(CommandQueueType type = CommandQueueType::GRAPHICS_QUEUE);
-
-private:
     void Reset();
 
 public:

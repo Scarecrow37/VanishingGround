@@ -20,9 +20,10 @@ struct VSOutput
     float3 tangent       : TANGENT;
     float3 biTangent     : BINORMAL;
     float2 uv            : TEXCOORD;
+    float4 worldPosition : TEXCOORD1;
 };
 
-StructuredBuffer<matrix> worldMatrices;
+StructuredBuffer<MatrixData> matrices;
 StructuredBuffer<matrix> boneMatrices;
 
 VSOutput vs_main(VSInput input)
@@ -31,7 +32,9 @@ VSOutput vs_main(VSInput input)
     boneTransform += mul(input.blendWeights.y, boneMatrices[objectData.ID * objectData.Offset + input.blendIndices.y]);
     boneTransform += mul(input.blendWeights.z, boneMatrices[objectData.ID * objectData.Offset + input.blendIndices.z]);
     boneTransform += mul(input.blendWeights.w, boneMatrices[objectData.ID * objectData.Offset + input.blendIndices.w]);
-    matrix worldTransform = mul(boneTransform, worldMatrices[objectData.ID]);
+    
+    matrix worldTransform = mul(boneTransform, matrices[objectData.ID].World);
+    matrix inverseTranspose = mul(boneTransform, matrices[objectData.ID].InverseTranspose);
     
     VSOutput output = (VSOutput) 0;
     
@@ -39,9 +42,9 @@ VSOutput vs_main(VSInput input)
     output.position = mul(output.position, cameraData.View);
     output.position = mul(output.position, cameraData.Projection);
 
-    output.normal = normalize(mul(input.normal, (float3x3) worldTransform));
-    output.tangent = normalize(mul(input.tangent, (float3x3) worldTransform));
-    output.biTangent = normalize(mul(input.biTangent, (float3x3) worldTransform));
+    output.normal = normalize(mul(input.normal, (float3x3) inverseTranspose));
+    output.tangent = normalize(mul(input.tangent, (float3x3) inverseTranspose));
+    output.biTangent = normalize(mul(input.biTangent, (float3x3) inverseTranspose));
     
     output.uv = input.uv;
 

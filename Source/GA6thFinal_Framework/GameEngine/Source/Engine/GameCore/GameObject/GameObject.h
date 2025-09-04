@@ -162,7 +162,7 @@ public:
     /// 이 오브젝트가 속한 씬의 이름을 반환합니다.
     /// </summary>
     /// <returns></returns>
-    std::string_view GetOwnerSceneName()
+    const std::string& GetOwnerSceneName()
     {
         return _ownerScene;
     }
@@ -285,6 +285,7 @@ public:
     {   
         return _activeInHierarchy;
     }
+    // type : bool
     // get : 실제 활성화 여부 (부모가 false면 false)
     PROPERTY(ActiveInHierarchy);
 
@@ -292,7 +293,8 @@ public:
     { 
         return _transform;
     }
-    //get : object Transform
+    //type : Transform&
+    //get : 이 게임오브젝트의 Transform 입니다.
     PROPERTY(transform)
     
     SETTER(bool, ActiveSelf)
@@ -303,8 +305,8 @@ public:
     {
         return ReflectFields->_activeSelf;
     }
-    // get, set :
-    //  자신의 local active 여부 (실제 활성화 여부)
+    // type : bool
+    // get, set : 자신의 local active 여부 (실제 활성화 여부)
     PROPERTY(ActiveSelf);
    
     GETTER(bool, IsStatic)
@@ -315,8 +317,8 @@ public:
     {
         ReflectFields->_isStatic = value;
     }
-    // get, set :
-    //  게임 오브젝트에 대해 IsStatic 플래그가 설정되어 있는지 여부.
+    // type : bool
+    // get, set : 게임 오브젝트에 대해 IsStatic 플래그가 설정되어 있는지 여부.
     PROPERTY(IsStatic);
     
     GETTER(const std::string&, Name)
@@ -327,8 +329,8 @@ public:
     {
         ESceneManager::Engine::RenameGameObject(this, value);
     }
-    // get, set:
-    //  게임 오브젝트의 이름
+    // type : const std::string&
+    // get, set: 게임 오브젝트의 이름
     PROPERTY(Name)
 
     GETTER_ONLY(GameObject*, PrefabInstance) 
@@ -347,6 +349,10 @@ public:
     //get : 자신부터 부모중 프리팹 인스턴스가 존재하면 해당 포인터를 반환합니다.
     PROPERTY(PrefabInstance)
 
+    /// <summary>
+    /// 프리팹 인스턴스 여부를 반환합니다.
+    /// </summary>
+    /// <returns>bool</returns>
     bool IsPrefabInstance()
     {
         return _prefabGuid != STR_NULL;
@@ -356,7 +362,8 @@ public:
     { 
         return _prefabGuid.ToPath().string();
     }
-    //이 오브젝트가 참조하고있는 프리팹을 반환합니다.
+    // type : std::string
+    // get : 이 오브젝트가 참조하고있는 프리팹을 반환합니다.
     PROPERTY(PrefabPath)
 
     //에디터 편집을 허용할 프로퍼티.
@@ -365,6 +372,7 @@ public:
         ActiveSelf,
         IsStatic
     )
+
 private:
     Transform _transform;
 protected:
@@ -375,6 +383,7 @@ protected:
     std::set<std::string> _tags; //"SerializeVersion = 1" 부터 추가된 맴버.
     REFLECT_FIELDS_END(GameObject)
 
+    //Tag 편집용 Imgui Draw 함수
     void ImguiEditTags();
     
     /*
@@ -399,7 +408,10 @@ private:
 public:
     struct Engine
     {
+        /*오브젝트의 실제 Active 여부를 계산합니다.*/
         static void ResetActiveInHierarchy(GameObject* obj);
+
+        /*오브젝트의 Active 여부를 갱신합니다.*/
         static void UpdateActiveInHierarchy(GameObject* obj);
     };
   

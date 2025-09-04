@@ -212,4 +212,89 @@ float4 SampleCalculateMipLevel(Texture2D tex, SamplerState sam, float2 uv, float
     
     return tex.SampleLevel(sam, uv, safeMip);
 }
+
+float3 ReconstructWorldPos(float2 uv, float depth, matrix InvViewProj)
+{
+    uv.y = 1.0f - uv.y; // Flip Y
+    float4 clipPos = float4(uv * 2 - 1, depth, 1);
+    float4 worldPos = mul(clipPos, InvViewProj);
+    return worldPos.xyz / worldPos.w;
+}
+
+float3 ReconstructViewPos(float2 uv, float depth)
+{
+    uv.y = 1.0f - uv.y; // Flip Y coordinate for NDC
+    float2 ndc = uv * 2.0f - 1.0f; // NDC [-1, 1]
+    float4 clipPos = float4(ndc, depth, 1.0f);
+    float4 viewPos = mul(clipPos, cameraData.ProjectionInverse);
+    return viewPos.xyz / viewPos.w;
+}
+
+float2 ProjectToUV(float3 viewPos)
+{
+    float4 clipPos = mul(float4(viewPos, 1.0f), cameraData.Projection);
+    float2 ndc = clipPos.xy / clipPos.w;
+    float2 uv = ndc * 0.5f + 0.5f; // Convert NDC [-1, 1] to UV [0, 1]
+    uv.y = 1.0f - uv.y; // Flip Y coordinate for UV
+    return uv;
+}
+
+// volumetric fog function
+float LinearToExponentialDepth(float z, float nearPlaneZ, float farplaneZ)
+{
+    float z_buffer_params_y = farplaneZ / nearPlaneZ;
+    float z_buffer_params_x = 1.f - z_buffer_params_y;
+    
+    return (1.f / z - z_buffer_params_y) / z_buffer_params_x;
+}
+
+float ExponentialToLinearDepth(float z, float n, float f)
+{
+    float z_buffer_params_y = f / n;
+    float z_buffer_params_x = 1.0f - z_buffer_params_y;
+
+    return 1.0f / (z_buffer_params_x * z + z_buffer_params_y);
+}
+
+float3 GetWorldPosFromVoxelID(uint3 texCoord, float jitter, float near, float far, float4x4 invViewProj, float3 volumeSize)
+{
+    float viewZ = near * pow(far / near, min((float(texCoord.z) + 0.5f + jitter) / volumeSize.z, 1.0f));
+    float3 uv = float3((float(texCoord.x) + 0.5f) / volumeSize.x, (float(texCoord.y) + 0.5f) / volumeSize.y, viewZ / far);
+    
+    float3 ndc;
+    ndc.x = 2.0f * uv.x - 1.0f;
+    ndc.y = 1.0f - 2.0f * uv.y; //turn upside down for DX
+    ndc.z = 2.0f * LinearToExponentialDepth(uv.z, near, far) - 1.0f;
+    
+    float4 worldPos = mul(float4(ndc, 1.0f), invViewProj);
+    worldPos = worldPos / worldPos.w;
+    return worldPos.rgb;
+}
+
+float3 GetUVFromVolumetricFogVoxelWorldPos(float3 worldPos, float n, float f, matrix viewProj, float3 volumeSize)
+{
+    float4 ndc = mul(float4(worldPos, 1.0f), viewProj);
+    if (ndc.w > 0.0f)
+        ndc /= ndc.w;
+    
+    float3 uv;
+    uv.x = ndc.x * 0.5f + 0.5f;
+    uv.y = 0.5f - ndc.y * 0.5f; //turn upside down for DX
+    uv.z = ExponentialToLinearDepth(ndc.z * 0.5f + 0.5f, n, f);
+    
+    float2 params = float2(volumeSize.z / log2(f / n), -(volumeSize.z * log2(n) / log2(f / n)));
+    float view_z = uv.z * f;
+    uv.z = (max(log2(view_z) * params.x + params.y, 0.0f)) / volumeSize.z;
+    return uv;
+}
+
+// 위상함수
+float HenyeyGreensteinPhaseFunction(float3 viewDir, float3 lightDir, float g)
+{
+    float cosTheta = dot(viewDir, lightDir);
+    float denom = 1.f + pow(g, 2) + (2.f * g * cosTheta);
+    return (1.f / (4.f * PI)) * (1.f - pow(g, 2)) / max(pow(denom, 1.5f), Epsilon);
+}
+
+
 #endif

@@ -179,6 +179,11 @@ void Animator::SetLoop(bool isLoop)
     _isLoop = isLoop;
 }
 
+void Animator::SetAnimationEndCallback(std::function<void()> callback) 
+{
+    _onAnimationEndCallback = callback;
+}
+
 const std::vector<const char*>& Animator::GetAnimationNames() const
 {
     if (_animation)
@@ -234,12 +239,12 @@ void Animator::Update(const float deltaTime)
 	for (unsigned int i = 0; i < _maxSplit; i++)
 	{
 		const Animation::Channel& animation = _animation->_animations[_controllers[i].Animation.data()];
-        if (false == _isPause)
+        if (false == _isPause && _controllers[i].PlayTime < animation.LastTime)
         {
 		    _controllers[i].PlayTime += _controllers[i].Speed * deltaTime;
         }
 	
-		if (_controllers[i].PlayTime >= animation.LastTime)
+		if (_controllers[i].PlayTime > animation.LastTime)
 		{
             if (true == _isLoop)
             {
@@ -249,6 +254,10 @@ void Animator::Update(const float deltaTime)
             else
             {
                 _controllers[i].PlayTime = animation.LastTime;
+            }
+            if (_onAnimationEndCallback)
+            {
+                _onAnimationEndCallback();
             }
 		}
 	}
@@ -318,24 +327,22 @@ bool Animator::ChangeAnimation(const char* animation, const unsigned int ID, boo
 	if (iter == _animation->_animations.end())
 		return false;
 
-	if (!strcmp(_controllers[ID].Animation.data(), animation))
-		return false;
+	//if (!strcmp(_controllers[ID].Animation.data(), animation))
+	//	return false;
 
 	_isBlending = true;
+    _blends[ID].BlendTime  = 0.f;
+    _blends[ID].IsBlending = true;
     if (true == blending)
     {
-        _blends[ID].BlendTime  = 0.f;
-        _blends[ID].IsBlending = true;
-        _prevControllers[ID]   = _controllers[ID];
+        _prevControllers[ID] = _controllers[ID];
     }
     _controllers[ID].Animation = iter->first;
     _controllers[ID].PlayTime  = 0.f;
     _controllers[ID].LastTime  = iter->second.LastTime;
     if (false == blending)
     {
-        _blends[ID].BlendTime  = 0.f;
-        _blends[ID].IsBlending = false;
-        _prevControllers[ID]   = _controllers[ID];
+        _prevControllers[ID] = _controllers[ID];
     }
 
     return true;

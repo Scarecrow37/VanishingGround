@@ -9,13 +9,14 @@ constexpr UINT BRDF_LUT_SIZE        = 512;
 
 SkyBox::SkyBox()
     : _box{std::make_unique<Box>()}
-    , _hasTexture{false}
+    , _hasEnvTexture{false} 
+    , _hasIBLTexture{false}
 {
 }
 
 SkyBox::~SkyBox() {}
 
-void SkyBox::SetTexture(std::wstring_view path)
+void SkyBox::SetEnvironmentTexture(std::wstring_view path)
 {
     // HDR/EXR 이미지 로드
     ScratchImage image;
@@ -24,10 +25,10 @@ void SkyBox::SetTexture(std::wstring_view path)
     HRESULT hr = LoadFromHDRFile(path.data(), &metadata, image);
     if (FAILED(hr))
     {
-        _hasTexture = false;
+        _hasEnvTexture = false;
         return;
     }
-    FAILED_CHECK_MESSAGE(hr, L"SkyBox::SetTexture LoadFromHDRFile Failed");
+    FAILED_CHECK_MESSAGE(hr, L"SkyBox::SetEnvironmentTexture LoadFromHDRFile Failed");
 
     const Image* img = image.GetImage(0, 0, 0);
 
@@ -36,11 +37,11 @@ void SkyBox::SetTexture(std::wstring_view path)
     ID3D12GraphicsCommandList* commandList  = Global::device->GetCommandList();
 
     // DirectXTex에서 가져온 포맷 사용 (보통 R32G32B32A32_FLOAT)
-    _skyboxhdrTexture = CreateTexture2D(pDevice, static_cast<int>(metadata.width), static_cast<int>(metadata.height), metadata.format);
+    _skyboxhdrTexture[ENV] = CreateTexture2D(pDevice, static_cast<int>(metadata.width), static_cast<int>(metadata.height), metadata.format);
 
-    UploadToTexture2D(pDevice, commandList, _skyboxhdrTexture.Get(), img->pixels, imageSize);
+    UploadToTexture2D(pDevice, commandList, _skyboxhdrTexture[ENV].Get(), img->pixels, imageSize);
 
-    CreateHDRSRV(_skyboxhdrTexture.Get());
+    CreateHDRSRV(_skyboxhdrTexture[ENV].Get(), _hdrSRVHandles[ENV]);
 
     // CubeMap 생성
     commandList->SetPipelineState(_pipelineState[CUBE_MAP].Get());
@@ -50,13 +51,59 @@ void SkyBox::SetTexture(std::wstring_view path)
     commandList->SetDescriptorHeaps(1, &descriptorHeap);
 
     commandList->SetComputeRootSignature(_shader[CUBE_MAP]->GetRootSignature());
-    commandList->SetComputeRootDescriptorTable(_shader[CUBE_MAP]->GetRootParameterIndex("equirectangularMap"), _hdrSRVHandles.GPU);
-    commandList->SetComputeRootDescriptorTable(_shader[CUBE_MAP]->GetRootParameterIndex("cubeMap"), _cubeMap->GetUAVHandle());
+    commandList->SetComputeRootDescriptorTable(_shader[CUBE_MAP]->GetRootParameterIndex("equirectangularMap"), _hdrSRVHandles[ENV].GPU);
+    commandList->SetComputeRootDescriptorTable(_shader[CUBE_MAP]->GetRootParameterIndex("cubeMap"), _cubeMap[ENV]->GetUAVHandle());
+    commandList->SetComputeRoot32BitConstants(_shader[CUBE_MAP]->GetRootParameterIndex("bit32_1_cubeMapInfo"), 1, &CUBE_MAP_SIZE, 0);
+    commandList->Dispatch((CUBE_MAP_SIZE + 15) / 16, (CUBE_MAP_SIZE + 15) / 16, 6);
+
+    _cubeMap[ENV]->ResourceBarrier(commandList);
+    _cubeMap[ENV]->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+
+    _hasEnvTexture = true;
+}
+
+void SkyBox::SetIBLTexture(std::wstring_view path)
+{
+    // HDR/EXR 이미지 로드
+    ScratchImage image;
+    TexMetadata  metadata;
+
+    HRESULT hr = LoadFromHDRFile(path.data(), &metadata, image);
+    if (FAILED(hr))
+    {
+        _hasIBLTexture = false;
+        return;
+    }
+    FAILED_CHECK_MESSAGE(hr, L"SkyBox::SetIBLTexture LoadFromHDRFile Failed");
+
+    const Image* img = image.GetImage(0, 0, 0);
+
+    size_t                     imageSize    = img->slicePitch;
+    ID3D12Device*              pDevice      = Global::device->GetDevice();
+    ID3D12GraphicsCommandList* commandList  = Global::device->GetCommandList();
+
+    // DirectXTex에서 가져온 포맷 사용 (보통 R32G32B32A32_FLOAT)
+    _skyboxhdrTexture[IBL] = CreateTexture2D(pDevice, static_cast<int>(metadata.width), static_cast<int>(metadata.height), metadata.format);
+
+    UploadToTexture2D(pDevice, commandList, _skyboxhdrTexture[IBL].Get(), img->pixels, imageSize);
+
+    CreateHDRSRV(_skyboxhdrTexture[IBL].Get(), _hdrSRVHandles[IBL]);
+
+    // CubeMap 생성
+    commandList->SetPipelineState(_pipelineState[CUBE_MAP].Get());
+    commandList->SetComputeRootSignature(_shader[CUBE_MAP]->GetRootSignature());
+
+    auto descriptorHeap = Global::viewManager->GetShaderResourceHeap();
+    commandList->SetDescriptorHeaps(1, &descriptorHeap);
+
+    commandList->SetComputeRootSignature(_shader[CUBE_MAP]->GetRootSignature());
+    commandList->SetComputeRootDescriptorTable(_shader[CUBE_MAP]->GetRootParameterIndex("equirectangularMap"), _hdrSRVHandles[IBL].GPU);
+    commandList->SetComputeRootDescriptorTable(_shader[CUBE_MAP]->GetRootParameterIndex("cubeMap"), _cubeMap[IBL]->GetUAVHandle());
     commandList->SetComputeRoot32BitConstants(_shader[CUBE_MAP]->GetRootParameterIndex("bit32_1_cubeMapInfo"), 1, &CUBE_MAP_SIZE, 0);
     commandList->Dispatch((CUBE_MAP_SIZE + 15) / 16, (CUBE_MAP_SIZE + 15) / 16, 6);
     
-    _cubeMap->ResourceBarrier(commandList);
-    _cubeMap->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    _cubeMap[IBL]->ResourceBarrier(commandList);
+    _cubeMap[IBL]->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
     // BRDF LUT 생성
     commandList->SetPipelineState(_pipelineState[BRDF_LUT].Get());
@@ -86,14 +133,14 @@ void SkyBox::SetTexture(std::wstring_view path)
     // IrradianceMap 생성
     commandList->SetPipelineState(_pipelineState[IRRADIANCE_MAP].Get());
     commandList->SetComputeRootSignature(_shader[IRRADIANCE_MAP]->GetRootSignature());
-    commandList->SetComputeRootDescriptorTable(_shader[IRRADIANCE_MAP]->GetRootParameterIndex("environmentMap"), _cubeMap->GetSRVHandle());
+    commandList->SetComputeRootDescriptorTable(_shader[IRRADIANCE_MAP]->GetRootParameterIndex("environmentMap"), _cubeMap[IBL]->GetSRVHandle());
     commandList->SetComputeRootDescriptorTable(_shader[IRRADIANCE_MAP]->GetRootParameterIndex("irradianceMap"), _irradianceMap->GetUAVHandle());
     commandList->Dispatch((IRRADIANCE_MAP_SIZE + 15) / 16, (IRRADIANCE_MAP_SIZE + 15) / 16, 6);
 
     // PrefilteredMap 생성
     commandList->SetPipelineState(_pipelineState[PREFILTERED_MAP].Get());
     commandList->SetComputeRootSignature(_shader[PREFILTERED_MAP]->GetRootSignature());
-    commandList->SetComputeRootDescriptorTable(_shader[PREFILTERED_MAP]->GetRootParameterIndex("environmentMap"), _cubeMap->GetSRVHandle());
+    commandList->SetComputeRootDescriptorTable(_shader[PREFILTERED_MAP]->GetRootParameterIndex("environmentMap"), _cubeMap[IBL]->GetSRVHandle());
     commandList->SetComputeRootDescriptorTable(_shader[PREFILTERED_MAP]->GetRootParameterIndex("prefilteredMap"), _prefilteredMap->GetUAVHandle());
 
     const auto& desc = _prefilteredMap->GetResourceDesc();
@@ -114,7 +161,7 @@ void SkyBox::SetTexture(std::wstring_view path)
         commandList->Dispatch(dispatchX, dispatchY, 6);
     }
 
-    _hasTexture = true;
+    _hasIBLTexture = true;
 }
 
 void SkyBox::Initialize()
@@ -125,13 +172,15 @@ void SkyBox::Initialize()
     FAILED_CHECK_MESSAGE(hr, L"SkyBox::Initialize device->CreateDescriptorHeap Failed");
     CreatePipelineState();
 
-    _cubeMap        = std::make_unique<UnorderedAccessView>();
+    _cubeMap[ENV]   = std::make_unique<UnorderedAccessView>();
+    _cubeMap[IBL]   = std::make_unique<UnorderedAccessView>();
     _irradianceMap  = std::make_unique<UnorderedAccessView>();
     _prefilteredMap = std::make_unique<UnorderedAccessView>();
     _brdfLUT        = std::make_unique<UnorderedAccessView>();
 
     auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, CUBE_MAP_SIZE, CUBE_MAP_SIZE, 6, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-    _cubeMap->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE2DARRAY, D3D12_SRV_DIMENSION_TEXTURECUBE);
+    _cubeMap[IBL]->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE2DARRAY, D3D12_SRV_DIMENSION_TEXTURECUBE);
+    _cubeMap[ENV]->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE2DARRAY, D3D12_SRV_DIMENSION_TEXTURECUBE);
 
     desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, IRRADIANCE_MAP_SIZE, IRRADIANCE_MAP_SIZE, 6, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
     _irradianceMap->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE2DARRAY, D3D12_SRV_DIMENSION_TEXTURECUBE);
@@ -142,19 +191,24 @@ void SkyBox::Initialize()
     desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, BRDF_LUT_SIZE, BRDF_LUT_SIZE, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
     _brdfLUT->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE2D);
 
-    Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _hdrSRVHandles);
+    Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _hdrSRVHandles[ENV]);
+    Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _hdrSRVHandles[IBL]);
 }
 
 void SkyBox::Render(ID3D12GraphicsCommandList* commandList, UINT rootParameterIndex)
 {
-    commandList->SetGraphicsRootDescriptorTable(rootParameterIndex, _cubeMap->GetSRVHandle());
+    commandList->SetGraphicsRootDescriptorTable(rootParameterIndex, _cubeMap[ENV]->GetSRVHandle());
     _box->Render(commandList);
 }
 
-void SkyBox::ResetResource() 
+void SkyBox::ResetEnvironmentResource()
 {
-    _skyboxhdrTexture.Reset();
-    _hasTexture = false;
+    _hasEnvTexture = false;
+}
+
+void SkyBox::ResetIBLResource()
+{
+    _hasIBLTexture = false;
 }
 
 ComPtr<ID3D12Resource> SkyBox::CreateTexture2D(ID3D12Device* device, int w, int h, DXGI_FORMAT format)
@@ -201,10 +255,7 @@ ComPtr<ID3D12Resource> SkyBox::CreateCubeMap(ID3D12Device* device, UINT size, DX
     return texture;
 }
 
-void SkyBox::UploadToTexture2D(ID3D12Device* device, ID3D12GraphicsCommandList* commandList,
-                               ID3D12Resource* texture, 
-                               const void*     data,    
-                               size_t          dataSize)
+void SkyBox::UploadToTexture2D(ID3D12Device* device, ID3D12GraphicsCommandList* commandList, ID3D12Resource* texture, const void* data, size_t dataSize)
 {
     D3D12_RESOURCE_DESC texDesc = texture->GetDesc();
 
@@ -253,7 +304,7 @@ void SkyBox::UploadToTexture2D(ID3D12Device* device, ID3D12GraphicsCommandList* 
     Global::device->UploadResource(uploadResrouce);
 }
 
-void SkyBox::CreateHDRSRV(ID3D12Resource* resource)
+void SkyBox::CreateHDRSRV(ID3D12Resource* resource, DescriptorHandles& handles)
 {
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
     srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -261,7 +312,7 @@ void SkyBox::CreateHDRSRV(ID3D12Resource* resource)
     srvDesc.ViewDimension           = D3D12_SRV_DIMENSION_TEXTURE2D;
     srvDesc.Texture2D.MipLevels     = 1;
     
-    Global::device->GetDevice()->CreateShaderResourceView(resource, &srvDesc, _hdrSRVHandles.CPU);
+    Global::device->GetDevice()->CreateShaderResourceView(resource, &srvDesc, handles.CPU);
 }
 
 void SkyBox::CreatePipelineState()

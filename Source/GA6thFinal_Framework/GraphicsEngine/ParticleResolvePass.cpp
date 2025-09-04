@@ -8,8 +8,7 @@ ParticleResolvePass::~ParticleResolvePass() {}
 void ParticleResolvePass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
     __super::Initialize(ownerScene, ownerTechnique, commandList);
-    InitializeShader();
-    InitializePSO();
+    InitializeShaderAndPSO();
 }
 
 void ParticleResolvePass::Begin(ID3D12GraphicsCommandList* commandList)
@@ -24,11 +23,11 @@ void ParticleResolvePass::Begin(ID3D12GraphicsCommandList* commandList)
 void ParticleResolvePass::Draw(ID3D12GraphicsCommandList* commandList)
 {
     commandList->SetPipelineState(_pipelineState.Get());
-    commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
+    commandList->SetGraphicsRootSignature(_fx.GetRootSignature());
 
 
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("gAccumTex"), _accumlateBuffer->GetSRVHandle());
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("gRevealTex"), _revealageBuffer->GetSRVHandle());
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("gAccumTex"), _accumlateBuffer->GetSRVHandle());
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("gRevealTex"), _revealageBuffer->GetSRVHandle());
 
     _accumlateBuffer->ResourceBarrier(commandList);
     _revealageBuffer->ResourceBarrier(commandList);
@@ -49,16 +48,8 @@ void ParticleResolvePass::SetAccumulationBuffers(SharedResource<UnorderedAccessV
     _revealageBuffer = alpha;
 }
 
-void ParticleResolvePass::InitializeShader()
-{
-    _shader = std::make_unique<ShaderBuilder>();
-    _shader->BeginBuild();
-    _shader->SetShader(L"../Shaders/vs_quad.hlsl", ShaderBuilder::Type::VS);
-    _shader->SetShader(L"../Shaders/ps_particle_resolve.hlsl", ShaderBuilder::Type::PS);
-    _shader->EndBuild();
-}
 
-void ParticleResolvePass::InitializePSO()
+void ParticleResolvePass::InitializeShaderAndPSO() 
 {
     D3D12_BLEND_DESC blendDesc       = {};
     blendDesc.AlphaToCoverageEnable  = FALSE;
@@ -72,26 +63,19 @@ void ParticleResolvePass::InitializePSO()
     rtDesc.DestBlendAlpha            = D3D12_BLEND_ONE;
     rtDesc.BlendOpAlpha              = D3D12_BLEND_OP_ADD;
     rtDesc.RenderTargetWriteMask     = D3D12_COLOR_WRITE_ENABLE_ALL;
-    
 
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
-    ZeroMemory(&psoDesc, sizeof(psoDesc));
-    psoDesc.InputLayout                   = {nullptr, 0}; // No input layout
-    psoDesc.PrimitiveTopologyType         = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psoDesc.pRootSignature                = _shader->GetRootSignature();
-    psoDesc.VS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::VS);
-    psoDesc.PS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::PS);
-    psoDesc.InputLayout                   = _shader->GetInputLayout();
-    psoDesc.RTVFormats[0]                 = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    psoDesc.NumRenderTargets              = 1;
-    psoDesc.SampleMask                    = UINT_MAX;
-    psoDesc.RasterizerState               = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    //psoDesc.BlendState                    = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    psoDesc.BlendState                    = blendDesc;
-    psoDesc.DepthStencilState             = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-    psoDesc.DepthStencilState.DepthEnable = FALSE;
-    psoDesc.SampleDesc.Count              = 1;
-
-    ComPtr<ID3D12Device> device = Global::device->GetDevice();
-    device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&_pipelineState));
+    PipelineStateStream pss;
+    pss.RasterizerState                       = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    (&pss.RasterizerState)->CullMode          = D3D12_CULL_MODE_NONE;
+    (&pss.BlendState)->AlphaToCoverageEnable  = FALSE;
+    (&pss.BlendState)->IndependentBlendEnable = TRUE;
+    (&pss.BlendState)->RenderTarget[0]        = rtDesc;
+    pss.DepthStencilState                     = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+    (&pss.DepthStencilState)->DepthEnable     = FALSE;
+    pss.PrimitiveTopology                     = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    pss.RTVFormats                            = {{DXGI_FORMAT_R32G32B32A32_FLOAT}, 1};
+    _fx.SetPipelineStateStream(pss);
+    _pipelineState = Global::pipelineStateManager->GetPipelineState(pss);
 }
+
+
