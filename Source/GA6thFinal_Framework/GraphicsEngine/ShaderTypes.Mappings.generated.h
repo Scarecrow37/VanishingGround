@@ -25,13 +25,24 @@ namespace GE
     };
 
     inline const std::unordered_map<CS, std::wstring> enumToCSFileNameMap = {
+        {CS::COMPUTE_SPRITE, L"cs_compute_sprite.hlsl"},
+        {CS::PREFILTERED_MAP, L"cs_prefiltered_map.hlsl"},
+        {CS::DEPTH_EXTRACT, L"cs_depth_extract.hlsl"},
+        {CS::BRDF_LUT, L"cs_brdf_lut.hlsl"},
+        {CS::VALIDATE_SORT, L"cs_validate_sort.hlsl"},
+        {CS::PARTICLE_REORDER, L"cs_particle_reorder.hlsl"},
+        {CS::RADIX_HISTOGRAM, L"cs_radix_histogram.hlsl"},
+        {CS::LIGHT_ACCUMULATION, L"cs_light_accumulation.hlsl"},
         {CS::COMPUTE_RIBBON, L"cs_compute_ribbon.hlsl"},
         {CS::CUBE_TEXTURE_CONVERTOR, L"cs_cube_texture_convertor.hlsl"},
         {CS::IRRADIANCE_MAP, L"cs_irradiance_map.hlsl"},
         {CS::BRDF_LUT, L"cs_brdf_lut.hlsl"},
         {CS::SKELETAL_SKINNING, L"cs_skeletal_skinning.hlsl"},
-        {CS::PREFILTERED_MAP, L"cs_prefiltered_map.hlsl"},
-        {CS::COMPUTE_SPRITE, L"cs_compute_sprite.hlsl"}
+        {CS::RADIX_SCATTER, L"cs_radix_scatter.hlsl"},
+        {CS::COMPUTE_RIBBON, L"cs_compute_ribbon.hlsl"},
+        {CS::CUBE_TEXTURE_CONVERTOR, L"cs_cube_texture_convertor.hlsl"},
+        {CS::LIGHT_INJECTION, L"cs_light_injection.hlsl"},
+        {CS::PREFIX_SUM, L"cs_prefix_sum.hlsl"}
     };
 
     inline const std::unordered_map<PS, std::wstring> enumToPSFileNameMap = {
@@ -43,6 +54,7 @@ namespace GE
         {PS::SSR, L"ps_ssr.hlsl"},
         {PS::SKYBOX, L"ps_skybox.hlsl"},
         {PS::UI, L"ps_ui.hlsl"},
+        {PS::VOLUMETRIC_FOG, L"ps_volumetric_fog.hlsl"},
         {PS::ACCUMULATION, L"ps_accumulation.hlsl"},
         {PS::DOWN_SAMPLE, L"ps_down_sample.hlsl"},
         {PS::DISTORTION_RESOLVE, L"ps_distortion_resolve.hlsl"},
