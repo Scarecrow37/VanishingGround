@@ -12,10 +12,10 @@ public:
     void Open();
 
 private:
-    bool                      _editorOpened = false;
-    EditorDragState           _dragHandler;
-    QTE::Track                _qteTrack;        // QTE 트랙
-    Timeline::SequencerEditor _sequencerEditor; // 시퀀서 에디터
+    QTE::Track                _qteTrack;                // QTE 트랙
+    bool                      _editorOpened = false;    // 에디터 열림 여부
+    EditorDragState           _dragHandler;             // 드래그 핸들러
+    Timeline::SequencerEditor _sequencerEditor;         // 시퀀서 에디터
 
 /*
 QTE 파일 포함 정보

@@ -26,15 +26,15 @@ bool AnimationEventTrack::NewFile(const File::Path& filePath)
     std::ofstream fout(filePath);
     if (fout.is_open())
     {
-        SaveFile(filePath, true);
         fout.close();
+        return SaveFile(filePath, true);
     }
     return false;
 }
 
 bool AnimationEventTrack::SaveFile(const File::Path& filePath, bool overwrite)
 {
-    if (false == overwrite && false == exists(filePath))
+    if (false == overwrite && true == exists(filePath))
     {
         return false;
     }

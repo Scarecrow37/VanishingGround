@@ -25,8 +25,4 @@ private:
     // QTE 편집기
     QTEEditor&  GetEditor();
     void        OpenEditor();
-    bool                        _editorOpened = false;
-    EditorDragState             _dragHandler;
-    QTE::Track                  _qteTrack; // QTE 트랙
-    Timeline::SequencerEditor   _sequencerEditor; // 시퀀서 에디터
 };

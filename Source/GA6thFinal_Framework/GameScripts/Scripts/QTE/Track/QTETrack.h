@@ -27,7 +27,6 @@ namespace QTE
         File::Path _filePath = File::NULL_PATH;
         std::shared_ptr<Timeline::EventTrack> _eventTrack;
         REFLECT_FIELDS_BEGIN(ReflectSerializer)
-        std::string SerializeData;
         REFLECT_FIELDS_END(Track)
     };
 } // namespace QTE
