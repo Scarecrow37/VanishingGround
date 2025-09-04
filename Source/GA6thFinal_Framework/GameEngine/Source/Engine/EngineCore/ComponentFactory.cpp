@@ -140,12 +140,20 @@ bool EComponentFactory::InitalizeComponentFactory()
             //컴포넌트 존재하면 다시 생성
             newComponent = NewComponent(key);
         }
-        else
+        else 
         {
             //없어진 컴포넌트면 Missing으로 대체
             std::shared_ptr<MissingComponent> missing = NewMissingComponent();
-            missing->ReflectFields->typeName = key;
-            missing->ReflectFields->reflectData = reflectData;
+            if (false == isMissing)
+            {
+                missing->ReflectFields->typeName    = key;
+                missing->ReflectFields->reflectData = reflectData;
+            }
+            else
+            {
+                missing->ReflectFields->typeName    = missingTemp.ReflectFields->typeName;
+                missing->ReflectFields->reflectData = missingTemp.ReflectFields->reflectData;
+            }
             newComponent = std::move(missing);
         }
         ResetComponent(gameObject, newComponent);       // 엔진에서 사용하기 위해 초기화
