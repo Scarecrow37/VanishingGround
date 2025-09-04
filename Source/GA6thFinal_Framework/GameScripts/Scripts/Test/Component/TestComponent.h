@@ -70,4 +70,6 @@ protected:
 
     virtual void SerializedReflectEvent() override;
     virtual void DeserializedReflectEvent() override;
+
+    void ImGuiDrawPropertysEvent() override;
 };

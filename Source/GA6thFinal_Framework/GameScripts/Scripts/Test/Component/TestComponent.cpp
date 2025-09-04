@@ -97,3 +97,11 @@ void TestComponent::DeserializedReflectEvent()
     UmLogger.Log(LogLevel::LEVEL_DEBUG, "DeserializedReflectEvent");
 
 }
+
+void TestComponent::ImGuiDrawPropertysEvent() 
+{
+    if (ImGui::Button(u8"테스트 컴포넌트 추가"_c_str))
+    {
+        AddComponent<TestComponent>();
+    }
+}
