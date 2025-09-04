@@ -1,4 +1,5 @@
 ﻿#include "pch.h"
+#include "Camera/CameraComponent.h"
 #include "Editor/DynamicCamera/EditorDynamicCamera.h"
 
 EditorGameView::EditorGameView() 

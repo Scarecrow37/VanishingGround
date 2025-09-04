@@ -46,6 +46,7 @@ public:
         if (ReflectFields->Description != value)
         {
             ReflectFields->Description = value;
+            _requiresUpdate            = true;
             UpdateContent();
         }
     }
@@ -54,6 +55,8 @@ public:
 protected:
     void DeserializedReflectEvent() override;
     void ImGuiDrawPropertysEvent() override;
+
+    void Awake() override;
 
 private:
     void UpdateContent();
@@ -68,5 +71,6 @@ protected:
 
 private:
     File::GuidRef _guidRef;
+    bool          _requiresUpdate;
 
 };

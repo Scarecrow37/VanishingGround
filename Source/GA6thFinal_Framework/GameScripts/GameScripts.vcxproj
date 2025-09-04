@@ -361,7 +361,11 @@
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionFactory.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnSystemHelper.h" />
-    <ClInclude Include="Scripts\UI\Panels\Anchor\AnchorPanel.h" />
+    <ClInclude Include="Scripts\UI\Base\DrawUIComponent\DrawUIComponent.h" />
+    <ClInclude Include="Scripts\UI\Base\SlotComponent\SlotComponent.h" />
+    <ClInclude Include="Scripts\UI\Elements\Dummy\DummyElement.h" />
+    <ClInclude Include="Scripts\UI\Elements\Image\ImageElement.h" />
+    <ClInclude Include="Scripts\UI\Elements\Text\TextElement.h" />
     <ClInclude Include="Scripts\UI\Panels\Description\DescriptionPanel.h" />
     <ClInclude Include="Scripts\UI\Panels\Grid\GridPanel.h" />
     <ClInclude Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.h" />
@@ -516,7 +520,11 @@
     <ClCompile Include="Scripts\Particle\ParticleComponent.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\TurnAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnSystemHelper.cpp" />
-    <ClCompile Include="Scripts\UI\Panels\Anchor\AnchorPanel.cpp" />
+    <ClCompile Include="Scripts\UI\Base\DrawUIComponent\DrawUIComponent.cpp" />
+    <ClCompile Include="Scripts\UI\Base\SlotComponent\SlotComponent.cpp" />
+    <ClCompile Include="Scripts\UI\Elements\Dummy\DummyElement.cpp" />
+    <ClCompile Include="Scripts\UI\Elements\Image\ImageElement.cpp" />
+    <ClCompile Include="Scripts\UI\Elements\Text\TextElement.cpp" />
     <ClCompile Include="Scripts\UI\Panels\Description\DescriptionPanel.cpp" />
     <ClCompile Include="Scripts\UI\Panels\Grid\GridPanel.cpp" />
     <ClCompile Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.cpp" />

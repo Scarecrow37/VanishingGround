@@ -7,8 +7,8 @@ namespace UI
     class Manager
     {
     public:
-        void AddMeasureQueue(UIComponent* component);
-        void AddArrangeQueue(UIComponent* component);
+        void AddMeasureQueue(const UIComponent* component);
+        void AddArrangeQueue(const UIComponent* component);
 
         void Update(const SIZE& rootSize);
 
@@ -19,7 +19,7 @@ namespace UI
         void ClearQueues();
 
     private:
-        std::deque<UIComponent*> _measureQueue;
-        std::deque<UIComponent*> _arrangeQueue;
+        std::deque<std::weak_ptr<UIComponent>> _measureQueue;
+        std::deque<std::weak_ptr<UIComponent>> _arrangeQueue;
     };
 } // namespace UI

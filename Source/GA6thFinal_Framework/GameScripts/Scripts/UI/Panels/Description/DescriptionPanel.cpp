@@ -157,11 +157,22 @@ void DescriptionPanel::ImGuiDrawPropertysEvent()
     }
 }
 
+void DescriptionPanel::Awake()
+{
+    HorizontalPanel::Awake();
+
+    if (_requiresUpdate) UpdateContent();
+}
+
 void DescriptionPanel::UpdateContent()
 {
-    EraseChild();
-    MakeChild();
-    InvalidateMeasure();
+    if (const bool enableInHierarchy = EnableInHierarchy; enableInHierarchy && _requiresUpdate)
+    {
+        EraseChild();
+        MakeChild();
+        InvalidateMeasure();
+        _requiresUpdate = false;
+    }
 }
 
 void DescriptionPanel::EraseChild() const
