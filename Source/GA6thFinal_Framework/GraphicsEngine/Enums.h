@@ -19,3 +19,19 @@ enum GBuffer { BASECOLOR, NORMAL, ORM, EMISSIVE, DEPTH, CUSTOMDEPTH, GBUFFER_END
 enum DXRGBuffer { DXRNORMAL, DXRDEPTH, DXRCUSTOMDEPTH, DXRGBUFFER_END };
 
 enum FrameResourceType { TRANSFORM, BONE_MATRICES, MATERIAL, UI_TRANSFORM, UI_MATERIAL, VERTEX_BUFFER_ID, INDEX_BUFFER_ID, MESH_INSTANCE_ID, FRAME_TYPE_END };
+
+// Render technique order
+// 순서 보장을 위해서(환경설정에서 on off시 순서가 바뀌지 않도록 RenderScene은 Tech를 map으로 가지고 있음.)
+enum TechOrder : int
+{
+    SKYBOX = 0,
+    MESH_LIGHTING=1,
+    SSR           = 2,
+    VOLUMETRIC_FOG = 3,
+    PARTICLE       = 4,
+    EDITOR_DRAW    = 5,
+    BLOOM          = 6,
+    BLEND          = 7,
+    UI             = 8,
+    FONT           = 9,
+};
