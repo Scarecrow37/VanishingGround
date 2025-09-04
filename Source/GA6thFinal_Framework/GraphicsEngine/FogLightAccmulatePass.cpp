@@ -18,7 +18,7 @@ void FogLightAccmulatePass::Update(ID3D12GraphicsCommandList* commandList) {}
 
 void FogLightAccmulatePass::Begin(ID3D12GraphicsCommandList* commandList) 
 {
-    commandList->SetPipelineState(_pso.Get());
+    commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetComputeRootSignature(_shader->GetRootSignature());
 }
 
@@ -52,6 +52,6 @@ void FogLightAccmulatePass::InitShaderAndPSO()
     psoDesc.CS             = _shader->GetShaderByteCode(ShaderBuilder::Type::CS);
     psoDesc.Flags          = D3D12_PIPELINE_STATE_FLAG_NONE;
 
-    HRESULT hr = Global::device->GetDevice()->CreateComputePipelineState(&psoDesc, IID_PPV_ARGS(_pso.GetAddressOf()));
+    HRESULT hr = Global::device->GetDevice()->CreateComputePipelineState(&psoDesc, IID_PPV_ARGS(_pipelineState.GetAddressOf()));
     FAILED_CHECK_MESSAGE(hr, L"FogLightAccmulatePass::InitShader CreateComputePipelineState failed");
 }

@@ -22,5 +22,4 @@ private:
 private:
     VolumetricFogTechnique*              _volumTech;
     std::unique_ptr<class ShaderBuilder> _shader;
-    ComPtr<ID3D12PipelineState>          _pso;
 };
