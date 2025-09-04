@@ -38,19 +38,14 @@ void RevelationElement::DeserializedReflectEvent()
 
 void RevelationElement::DeepCopyAction(const TurnAction& action)
 {
-    RevelationSystem*  system        = RevelationSystem::GetInstance();
     const auto&        actionFactory = TurnActionFactory::GetActionFactory();
     const std::string& actionName    = action.ActionName;
     auto               iter          = actionFactory.find(actionName);
-
-    if (system)
+    if (iter != actionFactory.end())
     {
-        if (iter != actionFactory.end())
-        {
-            _action.reset(iter->second());
-            *_action = action;
-        }
-    }
+        _action.reset(iter->second());
+        *_action = action;
+    }  
 }
 
 DropItemInfo RevelationElement::GetItemInfo()
