@@ -67,13 +67,13 @@ void EditParallaxMappingProperty(std::any& property)
 void EditVolumetricFogProperty(std::any& property)
 {
     auto& forProperty = std::any_cast<VolumetricFogProperty&>(property);
-    ImGui::DragFloat("Anisotropy", &forProperty.Anisotropy, 0.0f, 0.001f, 1.f);
-    ImGui::DragFloat("Density", &forProperty.Density, 0.0f, 0.1f, 10.f);
-    ImGui::DragFloat("Strength", &forProperty.Strength, 0.f, 1.f, 100.f);
-    ImGui::DragFloat("BlendWithScene", &forProperty.BlendWithScene, 0.0f, 0.001f, 1.f);
-    ImGui::DragFloat("BlendWithPrevFrame", &forProperty.BlendWithPrevFrame, 0.0f, 0.001f, 1.f);
+    ImGui::DragFloat("Anisotropy", &forProperty.Anisotropy, 0.001f, 0.001f, 1.f);
+    ImGui::DragFloat("Density", &forProperty.Density, 0.001f, 0.1f, 10.f);
+    ImGui::DragFloat("Strength", &forProperty.Strength, 0.01f, 1.f, 100.f);
+    ImGui::DragFloat("BlendWithScene", &forProperty.BlendWithScene, 0.001f, 0.001f, 1.f);
+    ImGui::DragFloat("BlendWithPrevFrame", &forProperty.BlendWithPrevFrame, 0.001f, 0.001f, 1.f);
     ImGui::DragFloat("CustomNear", &forProperty.CustomNear, 0.01f, 0.01f, 10.f);
-    ImGui::DragFloat("CustomFar", &forProperty.CustomFar, 100.f, 2.f, 10000.f);
+    ImGui::DragFloat("CustomFar", &forProperty.CustomFar, 1.f, 100.f, 10000.f);
 }
 
 void EditorRenderPassData::OnFrameRender()
