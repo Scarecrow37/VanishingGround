@@ -9,6 +9,7 @@ namespace QTE
         Note()          = default;
         virtual ~Note() = default;
 
+        REFLECT_PROPERTY(WeaponAnimation)
         GETTER(std::string_view, WeaponAnimation) { return ReflectFields->WeaponAnimationKey; }
         SETTER(std::string_view, WeaponAnimation) { ReflectFields->WeaponAnimationKey = value; }
         PROPERTY(WeaponAnimation)
@@ -17,7 +18,5 @@ namespace QTE
         REFLECT_FIELDS_BEGIN(Timeline::EventContext)
         std::string WeaponAnimationKey;
         REFLECT_FIELDS_END(Note)
-        // 무기 애니메이션 키
-        // 
     };
 }

@@ -57,24 +57,28 @@ namespace ImGuiHelper
             float windowWidth = ImGui::GetWindowSize().x;
             float textWidth = ImGui::CalcTextSize(text).x;
             float weight = 0.0f;
+            float offset = 0.0f;
 
             switch (dir)
             {
             case ImGuiHelper::LEFT:
                 weight = 0.0f;
+                offset = ImGui::GetStyle().FramePadding.x;
                 break;
             case ImGuiHelper::RIGHT:
                 weight = 1.0f;
+                offset = -ImGui::GetStyle().FramePadding.x;
                 break;
             case ImGuiHelper::CENTER:
                 weight = 0.5f;
+                offset = 0.0f;
                 break;
             default:
                 break;
             }
 
             // 정렬에 맞게 X 위치를 조정
-            ImGui::SetCursorPosX((windowWidth - textWidth) * weight);
+            ImGui::SetCursorPosX((windowWidth - textWidth) * weight + offset);
             ImGui::Text("%s", text);
 
             ImGui::SetWindowFontScale(old);

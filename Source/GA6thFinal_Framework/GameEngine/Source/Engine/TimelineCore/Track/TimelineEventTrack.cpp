@@ -117,6 +117,12 @@ namespace Timeline
         {
             context = new EventContext();
         }
+
+        if (FLT_MIN == time)
+        {
+            time = GetCurrentFrame();
+        }
+
         context->SetEvent(typenameID);
         context->SetTime(time);
         context->ReflectFields->Label = label;

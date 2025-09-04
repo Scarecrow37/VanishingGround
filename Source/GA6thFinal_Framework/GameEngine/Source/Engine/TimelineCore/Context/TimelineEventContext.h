@@ -10,15 +10,15 @@ namespace Timeline
         EventContext()          = default;
         virtual ~EventContext() = default;
 
-        REFLECT_PROPERTY(ID, Label, EventType, Time)
-
+        //REFLECT_PROPERTY(ID, Label, EventType, Time)
+        REFLECT_PROPERTY()
         GETTER_ONLY(UINT, ID) { return ReflectFields->ContextID; }
         PROPERTY(ID)
+        GETTER_ONLY(std::string_view, EventType) { return ReflectFields->EventType.c_str(); }
+        PROPERTY(EventType)
         GETTER(std::string_view, Label) { return ReflectFields->Label; }
         SETTER(std::string_view, Label) { ReflectFields->Label = value; }
         PROPERTY(Label)
-        GETTER_ONLY(std::string_view, EventType) { return ReflectFields->EventType.c_str(); }
-        PROPERTY(EventType)
         GETTER_ONLY(float, Time) { return ReflectFields->Time; }
         PROPERTY(Time)
 
@@ -28,6 +28,7 @@ namespace Timeline
 
         void SetEvent(std::string_view typeNameID);
         void SetTime(float time);
+        void SetLabel(std::string_view label);
         bool IsValidID() const;
         bool IsSameEvent(const EventContext* other) const;
 

@@ -35,8 +35,14 @@ namespace Timeline
         void Pause();
 
     public:
+        /// <summary>
+        /// 새 이벤트를 추가하고 해당 이벤트의 컨텍스트를 반환합니다.
+        /// </summary>
+        /// <param name="label">이벤트를 식별하는 문자열입니다.</param>
+        /// <param name="time">이벤트가 발생하는 시간입니다. 기본 값을 넣을 경우 현재 프레임에 이벤트를 추가합니다.</param>
+        /// <returns>추가된 이벤트의 EventContext 포인터를 반환합니다.</returns>
         template <typename T> 
-        EventContext* AddEvent(std::string_view label, float time)
+        EventContext* AddEvent(std::string_view label, float time = FLT_MIN)
         {
             static_assert(std::is_base_of_v<EventContext, T>, "T is not derived from ITimelineEvent.");
             const char* key = typeid(T).name();
