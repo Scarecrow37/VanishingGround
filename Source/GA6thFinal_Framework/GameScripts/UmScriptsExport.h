@@ -169,5 +169,5 @@ UMREAL_COMPONENT(BGMManager)
 #include "Scripts\ItemDropSystem/UI/ItemDropUIRootManager.h"
 UMREAL_COMPONENT(ItemDropUIRootManager)
 
-#include "Scripts\ItemDropSystem/UI/ArtifactFrameUIManager.h"
-UMREAL_COMPONENT(ArtifactFrameUIManager)
+#include "Scripts\ItemDropSystem/UI/ArtifactUIManager.h"
+UMREAL_COMPONENT(ArtifactUIManager)

@@ -1,0 +1,40 @@
+﻿#pragma once
+#include "UmFramework.h"
+class ArtifactUIManager : public Component
+{
+    USING_PROPERTY(ArtifactUIManager)
+    inline static ArtifactUIManager* static_instance = nullptr;
+
+public:
+    inline static constexpr const char* TAG = "Artifact UI Manager";
+
+    static ArtifactUIManager* GetInstance(std::source_location location = std::source_location::current()) 
+    {
+        if (false == static_instance->gameObject->IsValid())
+        {
+            static_instance = nullptr;
+        }
+
+        if (static_instance)
+        {
+            return static_instance;
+        }
+        else
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"ArtifactUIManager가 존재하지 않습니다.", location);
+            return nullptr;
+        }
+    }
+    ArtifactUIManager();
+    ~ArtifactUIManager() override;
+
+public:
+    REFLECT_PROPERTY()
+
+protected:
+    REFLECT_FIELDS_BEGIN(Component)
+    REFLECT_FIELDS_END(ArtifactUIManager)
+
+    void Reset() override;
+    void Awake() override;
+};

@@ -1,12 +1,12 @@
 ﻿#include "pchScripts.h"
-#include "ArtifactFrameUIManager.h"
+#include "ArtifactUIManager.h"
 
-ArtifactFrameUIManager::ArtifactFrameUIManager()
+ArtifactUIManager::ArtifactUIManager()
 {
     static_instance = this;
 }
 
-ArtifactFrameUIManager::~ArtifactFrameUIManager()
+ArtifactUIManager::~ArtifactUIManager()
 {
     if (this == static_instance)
     {
@@ -14,12 +14,12 @@ ArtifactFrameUIManager::~ArtifactFrameUIManager()
     }
 }
 
-void ArtifactFrameUIManager::Reset() 
+void ArtifactUIManager::Reset() 
 {
     Base::Reset();
 }
 
-void ArtifactFrameUIManager::Awake() 
+void ArtifactUIManager::Awake() 
 {
     if (this != static_instance)
     {
