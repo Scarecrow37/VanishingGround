@@ -257,7 +257,7 @@ private:
     void ResetPlacement();
 
 protected:
-    REFLECT_FIELDS_BEGIN(Component)
+    REFLECT_FIELDS_BEGIN(UIBaseComponent)
     POINT ActualPosition;
     SIZE  ActualSize;
     POINT Offset;

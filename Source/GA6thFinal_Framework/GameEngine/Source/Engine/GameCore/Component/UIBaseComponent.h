@@ -14,7 +14,7 @@ public:
 public:
     REFLECT_PROPERTY()
 
-    protected:
+protected:
     /// <summary>
     /// 이 컴포넌트를 소유한 게임 오브젝트에 다른 자식 게임 오브젝트가 추가되었을 때 호출됩니다.
     /// </summary>
@@ -42,4 +42,8 @@ public:
 private:
     void OnDrawDebug() override;
     void OnDrawDebugSelected() override;
+
+protected:
+    REFLECT_FIELDS_BEGIN(Component)
+    REFLECT_FIELDS_END(UIBaseComponent)
 };

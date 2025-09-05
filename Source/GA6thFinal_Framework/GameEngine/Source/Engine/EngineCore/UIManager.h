@@ -1,9 +1,9 @@
 ﻿#pragma once
 
-    class UIComponent;
+class UIComponent;
+
 namespace UI
 {
-
     class Manager
     {
     public:

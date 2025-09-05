@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-class UIRootSlot;
-
 class UIRoot : public UIBaseComponent
 {
     USING_PROPERTY(UIRoot)
