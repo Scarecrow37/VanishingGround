@@ -106,7 +106,7 @@ void cs_main(uint3 Gid : SV_GroupID, uint3 GTid : SV_GroupThreadID, uint3 DTid :
         // fog
         lighting += fogValue * fogdata.FogIntensity;
         
-        float4 result = float4(lighting * fogdata.Strength * fogdata.Density, visibility * fogdata.Density);
+        float4 result = float4(lighting * fogdata.Strength * fogdata.Density,  fogdata.Density);
         
         //previous frame interpolation
         {
