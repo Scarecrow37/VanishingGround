@@ -110,7 +110,7 @@ struct VolumetricFogData
     float Density;
     float Strength;
     float ThicknessFactor;
-    float FogIntencity;
-    float LightShaftIntencity;
+    float FogIntensity;
+    float LightShaftIntensity;
 };
 #endif

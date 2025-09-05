@@ -74,8 +74,8 @@ void EditVolumetricFogProperty(std::any& property)
     ImGui::DragFloat("BlendWithPrevFrame", &fogProperty.BlendWithPrevFrame, 0.001f, 0.001f, 1.f);
     ImGui::DragFloat("CustomNear", &fogProperty.CustomNear, 0.01f, 0.01f, 10.f);
     ImGui::DragFloat("CustomFar", &fogProperty.CustomFar, 1.f, 100.f, 10000.f);
-    ImGui::DragFloat("FogIntencity", &fogProperty.FogIntencity, 0.01f, 0.f, 5.f);
-    ImGui::DragFloat("LightShaftIntencity", &fogProperty.LightShaftIntencity, 0.01f, 0.f, 5.f);
+    ImGui::DragFloat("FogIntensity", &fogProperty.FogIntensity, 0.01f, 0.f, 5.f);
+    ImGui::DragFloat("LightShaftIntensity", &fogProperty.LightShaftIntensity, 0.01f, 0.f, 5.f);
 }
 
 void EditorRenderPassData::OnFrameRender()
