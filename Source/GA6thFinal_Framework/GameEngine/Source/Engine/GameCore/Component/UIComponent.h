@@ -207,6 +207,10 @@ public:
     GETTER_ONLY(SIZE, ActualSize) { return ReflectFields->ActualSize; }
     PROPERTY(ActualSize)
 
+    GETTER(bool, IsFocus) { return ReflectFields->IsFocus; }
+    SETTER(bool, IsFocus) { ReflectFields->IsFocus = value; }
+    PROPERTY(IsFocus)
+
 public:
     void Measure(SIZE availableSize);
     void Arrange(POINT finalPosition, SIZE finalSize);
@@ -235,16 +239,6 @@ protected:
     /// <returns>실제로 배치된 요소의 크기(SIZE)를 반환합니다.</returns>
     virtual SIZE ArrangeOverride(SIZE finalSize) = 0;
 
-    /// <summary>
-    /// 포커스가 들어올 때 호출되는 가상 함수입니다.
-    /// </summary>
-    virtual void OnFocusIn() {};
-
-    /// <summary>
-    /// 포커스가 벗어날 때 호출되는 가상 함수입니다.
-    /// </summary>
-    virtual void OnFocusOut() {};
-
 protected:
     void ImGuiDrawPropertysEvent() override;
     void DeserializedReflectEvent() override;
@@ -271,6 +265,8 @@ protected:
     VerticalAlignment   VerticalAlignment;
     FillMode            HorizontalFillMode;
     FillMode            VerticalFillMode;
+
+    bool IsFocus;
     REFLECT_FIELDS_END(UIComponent)
 
 protected:

@@ -137,8 +137,9 @@ void UIComponent::OnDrawDebugOverride()
 
     const POINT absolutePoint = AbsolutePosition;
     const SIZE  size          = Size;
+    const bool  isFocus       = IsFocus;
 
-    DrawDebug()(absolutePoint, size, 1, Colors::White);
+    DrawDebug()(absolutePoint, size, 1, isFocus ? Colors::Purple : Colors::White);
 }
 
 void UIComponent::OnDrawDebugSelectedOverride()
@@ -147,8 +148,9 @@ void UIComponent::OnDrawDebugSelectedOverride()
 
     const POINT absolutePoint = AbsolutePosition;
     const SIZE  size          = Size;
+    const bool  isFocus       = IsFocus;
 
-    DrawDebug()(absolutePoint, size, 3, Colors::Yellow);
+    DrawDebug()(absolutePoint, size, 3, isFocus ? Colors::Purple : Colors::Yellow);
 }
 
 void UIComponent::ImGuiDrawPropertysEvent()
