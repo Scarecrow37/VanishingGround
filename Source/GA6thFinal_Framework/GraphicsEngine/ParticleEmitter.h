@@ -124,6 +124,7 @@ class MeshModule : public ParticleRenderModule
 public:
     void Initialize() override {};
 };
+
 class RibbonModule : public ParticleRenderModule
 {
 public:
@@ -146,6 +147,27 @@ protected:
     UMPARTICLE_PROPERTY_REF(Vector4, _endNormal, EndNormal, Vector4(0, 0, -1, 0));
     UMPARTICLE_PROPERTY_REF(Vector4, _ribbonVector, RibbonVector, Vector4(1, 0, 0, 0));
 };
+
+
+class MiscModule : public SpriteModule
+{
+public:
+    virtual ~MiscModule();
+
+protected:
+    /// <summary>
+    /// distortion = 0, blur = 1, 
+    /// </summary>
+    UMPARTICLE_PROPERTY(uint8_t, _bitFlag, BitFlag, 0);
+
+
+};
+
+
+
+
+
+
 
 class ParticleEmitter
 {
@@ -191,7 +213,7 @@ public:
     void Reset();
 
 
-    inline std::vector<class Particle*>& GetParticlePool() { return _particlePool; }
+    inline std::vector<class Particle>& GetParticlePool() { return _particlePool; }
 
     UINT GetActiveParticleCount() const { return (UINT)_activeParticleCount; }
 
@@ -220,6 +242,8 @@ protected:
     UMPARTICLE_PROPERTY_REF(Vector3, _emitterPosition, EmitterPosition, Vector3(0, 0, 0));
     Quaternion _emitterRotationQ = Quaternion::Identity;
     Vector3 _emitterRotationE = Vector3(0, 0, 0);
+    Vector3    _finalPos         = Vector3(0, 0, 0);
+
     
     UMPARTICLE_PROPERTY(bool, _activeFlag, ActiveFlag, true);
     UMPARTICLE_PROPERTY(float, _emitterAge, EmitterAge, 0.f);
@@ -236,7 +260,7 @@ protected:
 
     Matrix GetWorldMatrix() const { return _worldMatrix; }
 
-    std::vector<class Particle*> _particlePool;
+    std::vector<class Particle> _particlePool;
 
     void ScaleVelocity(Vector3 pos);
     void ScaleVelFromPoint(Vector3 pos);
@@ -245,12 +269,13 @@ protected:
 
     std::function<Vector3(void)> _velocityScalingFunciton;
 
+
+
 protected :
     float _emissionThreshold;
 
     // particle pooling
     SIZE_T             _activeParticleCount = 0;
-    std::stack<SIZE_T> _inactiveParticleIndices;
 
     // rotation, translation matrix for scene graph ( manager - system - emitter - particles )
 
@@ -259,6 +284,27 @@ protected :
     Matrix _worldMatrix;
 
     // initial value for particles for lerp
+
+    
+    class Light* _light = nullptr;
+
+    UMPARTICLE_PROPERTY(bool, _useLight, UseLight, false);
+    UMPARTICLE_PROPERTY(float, _lightIntensity, LightIntensity, 0);
+    UMPARTICLE_PROPERTY(float, _lightRange, LightRange, 0);
+    float _lightCurrentIntensity = 0;
+    float _lightCurrentRange     = 0;
+    UMPARTICLE_PROPERTY_REF(Vector3, _lightColor, LightColor, Vector3(0, 0, 0));
+    Vector3 _lightAttenuation = Vector3(0, 0, 0);
+    float   _endLightIntensity;
+
+public:
+    void InitializeLight(std::string_view scenenName);
+    void SetLightFlag(bool value);
+
+
+protected:
+
+
     UMPARTICLE_PROPERTY_REF(Vector3, _velocity, Velocity, Vector3(1, 1, 1));
     UMPARTICLE_PROPERTY_REF(Vector3, _velocityFactor, VelocityFactor, Vector3(0, 0, 0));
     UMPARTICLE_PROPERTY_REF(Vector3, _startColor, StartColor, Vector3(1, 1, 1));
@@ -270,7 +316,8 @@ protected :
 
     UMPARTICLE_PROPERTY(float, _particleLifetime, ParticleLifetime, 1.f);
     UMPARTICLE_PROPERTY(float, _particleMass, ParticleMass, 0.1f);
-    UMPARTICLE_PROPERTY_REF(Vector3, _particleDistributionOffset, ParticleDistributionOffset, Vector3(0,0,0));
+    UMPARTICLE_PROPERTY_REF(Vector3, _particleStartDistributionOffset, ParticleStartDistributionOffset, Vector3(0,0,0));
+    UMPARTICLE_PROPERTY_REF(Vector3, _particleEndDistributionOffset, ParticleEndDistributionOffset, Vector3(0,0,0));
 
     //w = drag flag
     UMPARTICLE_PROPERTY_REF(Vector4, _dragPoint, DragPoint, Vector4(0, 0, 0, 0));

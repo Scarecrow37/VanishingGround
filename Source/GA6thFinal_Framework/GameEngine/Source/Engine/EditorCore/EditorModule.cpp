@@ -238,13 +238,12 @@ void EditorModule::OnRequestedLoad()
 }
 
 EditorModule::EditorPlayMode::EditorPlayMode() 
+    : _isPause(false)
 {
-    
 }
 
 EditorModule::EditorPlayMode::~EditorPlayMode() 
 {
-
 }
 
 void EditorModule::EditorPlayMode::Play()

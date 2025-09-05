@@ -19,6 +19,8 @@ void EditShadowProperty(std::any& property)
     ImGui::DragFloat("Near Plane", &shadowProps.NearPlane, 0.01f, 0.01f, 100.0f);
     ImGui::DragFloat("Far Plane", &shadowProps.FarPlane, 0.1f, 0.1f, 1000.0f);
     ImGui::DragFloat("Split Factor", &shadowProps.SplitFactor, 0.01f, 0.01f, 1.0f);
+    ImGui::DragFloat("Offset1", &shadowProps.Offset1, 0.01f, 0.0f, 1000.0f);
+    ImGui::DragFloat("Offset2", &shadowProps.Offset2, 0.01f, 0.0f, 1000.0f);
 }
 
 void EditBloomProperty(std::any& property)
@@ -62,6 +64,19 @@ void EditParallaxMappingProperty(std::any& property)
     auto& parallaxProps = std::any_cast<ParallaxMappingProperty&>(property);
     ImGui::DragFloat("HeightScale", &parallaxProps.HeightScale, 0.001f, 0.0f, 5.f);
 }
+void EditVolumetricFogProperty(std::any& property)
+{
+    auto& fogProperty = std::any_cast<VolumetricFogProperty&>(property);
+    ImGui::DragFloat("Anisotropy", &fogProperty.Anisotropy, 0.001f, 0.001f, 1.f);
+    ImGui::DragFloat("Density", &fogProperty.Density, 0.01f, 0.1f, 10.f);
+    ImGui::DragFloat("Strength", &fogProperty.Strength, 0.1f, 1.f, 100.f);
+    ImGui::DragFloat("BlendWithScene", &fogProperty.BlendWithScene, 0.001f, 0.001f, 1.f);
+    ImGui::DragFloat("BlendWithPrevFrame", &fogProperty.BlendWithPrevFrame, 0.001f, 0.001f, 1.f);
+    ImGui::DragFloat("CustomFar", &fogProperty.CustomFar, 1.f, 1.f, 1000.f);
+    ImGui::DragFloat("FogIntensity", &fogProperty.FogIntensity, 0.01f, 0.f, 5.f);
+    ImGui::DragFloat("LightShaftIntensity", &fogProperty.LightShaftIntensity, 0.01f, 0.f, 5.f);
+}
+
 void EditorRenderPassData::OnFrameRender()
 {
     auto& renderPassProperties = UmGraphics.GetRenderPassProperties();
@@ -101,6 +116,10 @@ void EditorRenderPassData::OnFrameRender()
                         else if (property.type() == typeid(ParallaxMappingProperty))
                         {
                             EditParallaxMappingProperty(property);
+                        }
+                        else if (property.type() == typeid(VolumetricFogProperty))
+                        {
+                            EditVolumetricFogProperty(property);
                         }
                         ImGui::TreePop();
                     }

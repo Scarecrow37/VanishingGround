@@ -16,8 +16,7 @@ public:
     void End(ID3D12GraphicsCommandList* commandList) override;
 
 private:
-    void InitializeShader();
-    void InitializePSO();
+    void InitializeShaderAndPSO();
 
 private:
     SharedResource<UnorderedAccessView> _accumlateBuffer;
@@ -26,7 +25,9 @@ private:
     std::vector<int>                  _albedoTextureIDs;
     std::unique_ptr<StructuredBuffer> _textureIDBuffer;
 
-    std::vector<std::vector<UINT>>     _ribbonIndices;
+    std::vector<std::vector<UINT>>                 _ribbonIndices;
     std::vector<std::unique_ptr<StructuredBuffer>> _ribbonIndexBuffer;
+
+    FX<GE::VS::PARTICLE_RIBBON, GE::PS::PARTICLE_QUAD> _fx;
 
 };

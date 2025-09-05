@@ -7,15 +7,15 @@ public:
     EditorInspectorTool();
     virtual ~EditorInspectorTool();
 private:
-    virtual void OnStartGui() override;
+    void OnStartGui() override;
 
-    virtual void OnPreFrameBegin() override;
+    void OnPreFrameBegin() override;
 
-    virtual void OnPostFrameBegin() override;
+    void OnPostFrameBegin() override;
 
-    virtual void OnFrameRender() override;
+    void OnFrameRender() override;
 
-    virtual void OnFrameEnd() override;
+    void OnFrameEnd() override;
 
 public:
     /// <summary>

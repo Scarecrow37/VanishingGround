@@ -124,8 +124,32 @@ public:
     }
     GETTER(const Vector3&, Position) { return _position; }
     //type : const Vector3&
-    //get, set : 이 Transform의 위치
+    //get, set : 이 Transform의 로컬 위치입니다. 
     PROPERTY(Position)
+
+    SETTER(const Vector3&, WorldPosition) 
+    { 
+        SetWorldPosition(value);
+    }
+    GETTER(const Vector3&, WorldPosition) 
+    { 
+        return GetWorldPosition();
+    }
+    // type : const Vector3&
+    // get, set : 이 Transform의 월드 기준 위치입니다. 
+    PROPERTY(WorldPosition)
+
+    SETTER(const Vector3&, LocalPosition)
+    { 
+        Position = value; 
+    }
+    GETTER(const Vector3&, LocalPosition)
+    { 
+        return Position;
+    }
+    // type : const Vector3&
+    // get, set : 이 Transform의 로컬 위치입니다. 
+    PROPERTY(LocalPosition)
 
     SETTER(const Quaternion&, Rotation)
     {
@@ -343,6 +367,21 @@ public:
     /// <returns></returns>
     const bool& HasChangedRef() const { return _hasChanged; }
 
+    /// <summary>
+    /// 월드 기준으로 위치를 설정합니다.
+    /// </summary>
+    /// <param name="position :">설정할 위치</param>
+    void SetWorldPosition(const Vector3& position);
+
+    /// <summary>
+    /// 월드 위치를 반환합니다.
+    /// </summary>
+    /// <returns></returns>
+    const Vector3& GetWorldPosition()
+    { 
+        return _worldPosition;
+    }
+
 private:
     GameObject& _gameObject;
 
@@ -387,6 +426,7 @@ protected:
 private:
     bool       _hasChanged;
     Vector3    _position;
+    Vector3    _worldPosition;
     Quaternion _rotation;
     Vector3    _forward;
     Vector3    _right;

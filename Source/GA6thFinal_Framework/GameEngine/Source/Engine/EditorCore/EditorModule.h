@@ -5,7 +5,6 @@ class EditorMenu;
 class EditorDockWindow;
 class EditorModule;
 class EditorPopupBoxSystem;
-class EditorModule;
 
 #ifndef _SCRIPTS_PROJECT
 namespace Global
@@ -154,9 +153,10 @@ namespace Global
      virtual void OnRequestedLoad() override;
 
  private:
-     bool _isDebug = false;
-     std::string _imGuiIniDataFromIniFile; // ImGui 설정 데이터
-     std::string _imGuiIniDataFromSetting;
+     bool _isDebug = false;                         // 디버그 모드 여부
+
+     std::string _imGuiIniDataFromIniFile;          // ImGui 설정 데이터 (기본 ini 파일에서 불러온 값)
+     std::string _imGuiIniDataFromSetting;          // ImGui 설정 데이터 (에디터 세팅에서 불러온 값)
 
      EditorGuiSystem _guiSystem;                    // 에디터 도킹 윈도우 시스템
      EditorPopupBoxSystem _popupBoxSystem;          // 에디터 모달 팝업 시스템
@@ -192,9 +192,9 @@ namespace Global
         #else
         static constexpr bool _isPlay = true;
         #endif
-        File::Guid _playSceneGuid;
-        ImVec4 _playModeColors[ImGuiCol_COUNT];
-        bool _isPause;
+        File::Guid  _playSceneGuid;
+        ImVec4      _playModeColors[ImGuiCol_COUNT];
+        bool        _isPause;
     }
     PlayMode;
 

@@ -9,8 +9,7 @@ void ParticleSpritePass::Initialize(RenderScene* ownerScene, RenderTechnique* ow
 {
     __super::Initialize(ownerScene, ownerTechnique, commandList);
     
-    InitializeShader();
-    InitializePSO();
+    InitializeShaderAndPSO();
 
     //refactoring needed
     _albedoTextureIDs = std::vector<int>(100,-1);
@@ -57,33 +56,36 @@ void ParticleSpritePass::Draw(ID3D12GraphicsCommandList* commandList)
 
 
     commandList->SetPipelineState(_pipelineState.Get());
-    commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
+    commandList->SetGraphicsRootSignature(_fx.GetRootSignature());
     auto depthStencilBuffer = Global::multiRenderTargetManager->GetRenderTarget("Depth");
 
-    const auto&     resolution = Global::device->GetResolution();
+    auto            customDepthTarget = Global::multiRenderTargetManager->GetRenderTarget("CustomDepth");
+    const auto&     resolution        = customDepthTarget->GetResolution();
     PostProcessData postProcessData{.TexelSize = {1.f / (float)resolution.Width, 1.f / (float)resolution.Height}};
-    commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_6_postProcessData"), 6,
+    commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_6_postProcessData"), 6,
                                                &postProcessData, 0);
 
-
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("depthbuffer"),
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("depthbuffer"),
                                                 depthStencilBuffer->GetSRVHandle());
 
+    commandList->SetGraphicsRootShaderResourceView(_fx.GetRootParameterIndex("texID"),
+                                                   _textureIDBuffer->GetGPUVirtualAddress());
 
-    commandList->SetGraphicsRootShaderResourceView(_shader->GetRootParameterIndex("texID"), _textureIDBuffer->GetGPUVirtualAddress());
-
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("gAccumTex"), _accumlateBuffer->GetUAVHandle());
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("gRevealTex"), _revealageBuffer->GetUAVHandle());
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("gAccumTex"),
+                                                _accumlateBuffer->GetUAVHandle());
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("gRevealTex"),
+                                                _revealageBuffer->GetUAVHandle());
 
     auto outputResource = Global::particleManager->GetComputeOutputResource(_ownerScene->_name);
-    commandList->SetGraphicsRootShaderResourceView(_shader->GetRootParameterIndex("particleInfo"), outputResource->GetGPUVirtualAddress());
+    commandList->SetGraphicsRootShaderResourceView(_fx.GetRootParameterIndex("particleInfo"),
+                                                   outputResource->GetGPUVirtualAddress());
 
-    D3D12_GPU_DESCRIPTOR_HANDLE descHeapPtr = Global::viewManager->GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
+    D3D12_GPU_DESCRIPTOR_HANDLE descHeapPtr =
+        Global::viewManager->GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
 
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("textures"), descHeapPtr);
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("textures"), descHeapPtr);
 
-    
-        // 그래픽스 큐는 해당 Fence값에 도달할 때() 까지 대기
+    // 그래픽스 큐는 해당 Fence값에 도달할 때() 까지 대기
     // (일단 이렇게 하는데 이건 해당 컴퓨트 큐의 영향을 받는 명령어 직전에 호출해주는게 제일 좋음)
     UINT64 fence = Global::particleManager->GetComputeFenceValue(_ownerScene->_name);
     Global::commandController->WaitCommandQueue(GRAPHICS_QUEUE, COMPUTE_QUEUE, fence);
@@ -95,7 +97,8 @@ void ParticleSpritePass::Draw(ID3D12GraphicsCommandList* commandList)
 void ParticleSpritePass::End(ID3D12GraphicsCommandList* commandList)
 {
     ComPtr<ID3D12Resource> resource             = Global::particleManager->GetComputeOutputResource(_ownerScene->_name);
-    auto computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(resource.Get(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COMMON);
+    auto                   computeOutputBarrior = CD3DX12_RESOURCE_BARRIER::Transition(
+        resource.Get(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COMMON);
 
     commandList->ResourceBarrier(1, &computeOutputBarrior);
 
@@ -104,40 +107,18 @@ void ParticleSpritePass::End(ID3D12GraphicsCommandList* commandList)
     _revealageBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
-void ParticleSpritePass::InitializeShader() 
+void ParticleSpritePass::InitializeShaderAndPSO()
 {
-    _shader = std::make_unique<ShaderBuilder>();
-    _shader->BeginBuild();
-    _shader->SetShader(L"../Shaders/vs_particle_quad.hlsl", ShaderBuilder::Type::VS);
-    _shader->SetShader(L"../Shaders/ps_particle_quad.hlsl", ShaderBuilder::Type::PS);
-    _shader->EndBuild();
-}
-
-void ParticleSpritePass::InitializePSO() 
-{
-    // static two side.
-    ComPtr<ID3D12Device>               device = Global::device->GetDevice();
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc;
-    
-    ZeroMemory(&psodesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
-    psodesc.RasterizerState               = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    psodesc.RasterizerState.CullMode      = D3D12_CULL_MODE_NONE;
-    psodesc.BlendState                    = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    psodesc.DepthStencilState             = CommonStates::DepthDefault;
-    psodesc.DepthStencilState.DepthEnable = false;
-    psodesc.SampleMask                    = UINT_MAX;
-    psodesc.PrimitiveTopologyType         = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psodesc.InputLayout                   = _shader->GetInputLayout();
-    psodesc.NumRenderTargets              = 1;
-    psodesc.RTVFormats[0]                 = DXGI_FORMAT_R32_UINT;
-    psodesc.pRootSignature                = _shader->GetRootSignature();
-    psodesc.SampleDesc                    = {1, 0};
-    psodesc.VS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::VS);
-    psodesc.PS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::PS);
-    
-    HRESULT hr = S_OK;
-    hr         = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&_pipelineState));
-    FAILED_CHECK_MESSAGE(hr, L"ParticleSpritePass::InitializePSO device->CreateGraphicsPipelineState Failed");
+    PipelineStateStream pss;
+    pss.RasterizerState                   = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    (&pss.RasterizerState)->CullMode      = D3D12_CULL_MODE_NONE;
+    pss.BlendState                        = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    pss.DepthStencilState                 = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+    (&pss.DepthStencilState)->DepthEnable = FALSE;
+    pss.PrimitiveTopology                 = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    pss.RTVFormats                        = {{DXGI_FORMAT_R32_UINT}, 1};
+    _fx.SetPipelineStateStream(pss);
+    _pipelineState = Global::pipelineStateManager->GetPipelineState(pss);
 }
 
 void ParticleSpritePass::SetAccumulationBuffers(SharedResource<UnorderedAccessView> color, SharedResource<UnorderedAccessView> alpha)

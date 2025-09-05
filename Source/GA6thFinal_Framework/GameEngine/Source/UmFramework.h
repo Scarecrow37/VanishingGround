@@ -86,6 +86,7 @@ constexpr const char* STR_NULL = "null";
 #include <random>
 #include <algorithm>
 #include <numeric>
+#include <variant>
 
 //ThirdParty
 #include "pugixml/pugixml.hpp"
@@ -123,6 +124,7 @@ using namespace Microsoft::WRL;
 #include "Engine/Utility/EditorHelper.h"
 #include "Engine/Utility/Mathf.h"
 #include "Engine/Utility/OpenXLSXHelper.h"
+#include "Engine/Utility/BoxSpacing.h"
 
 //Class Core
 #include "Engine/ClassCore/Delegate.hpp"
@@ -156,6 +158,7 @@ using namespace Microsoft::WRL;
 
 //User Interface Module
 #include "../UserInterfaceModule/UserInterfaceModule.h"
+#include "Engine/EngineCore/UIManager.h"
 
 //CommandCore
 #include "Engine/CommandCore/CommandManager.h"
@@ -171,6 +174,7 @@ using namespace Microsoft::WRL;
 #include "Engine/EngineCore/ComponentFactory.h"
 #include "Engine/EngineCore/SceneManager.h"
 #include "Engine/EngineCore/FactoryRegister.h"
+#include "Engine/EngineCore/GizmoManager.h"
 #include "Engine/EngineCore/EngineCores.h" 
 
 //Editor Core
@@ -195,6 +199,8 @@ using namespace Microsoft::WRL;
 #include "Engine/GameCore/GameObject/GameObject.h"
 #include "Engine/GameCore/Component/Component.h"
 #include "Engine/GameCore/Component/MissingComponent.h"
+#include "Engine/GameCore/Component/UIBaseComponent.h"
+#include "Engine/GameCore/Component/UIComponent.h"
 #include "Engine/GameCore/InputReciver/InputReceiver.h"
 
 //Application Module
@@ -234,7 +240,6 @@ using namespace Microsoft::WRL;
 #include "Editor/Tool/ParticleEffect/EditorParticleEffectViewer.h"
 #include "Editor/Tool/ParticleEffect/EditorParticleEffectHierarchy.h"
 
-
 // Editor Menu
 #include "Editor/Menu/Project/EditorProjectMenu.h"
 #include "Editor/Menu/Window/EditorWindowMenu.h"
@@ -243,5 +248,8 @@ using namespace Microsoft::WRL;
 #include "Editor/Menu/Project/EditorBuildSettingMenu.h"
 #include "Editor/Menu/Play/EditorPlayMenu.h"
 #include "Editor/Menu/Model/EditorModelMenu.h"
+#include "Editor/Menu/Game/EditorGameMenu.h"
 
 #endif
+
+#include "Editor/SceneGizmo/SceneGizmo.h"

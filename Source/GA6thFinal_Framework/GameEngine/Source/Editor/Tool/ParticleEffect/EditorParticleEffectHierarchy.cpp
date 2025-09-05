@@ -1,8 +1,14 @@
 ﻿#include "pch.h"
 #include "EditorParticleEffectHierarchy.h"
+#include "GraphicsEngine/FBXConverter.h"
+#include "GraphicsEngine/Light.h"
+
 
  EditorParticleEffectHierarchy::EditorParticleEffectHierarchy() 
  {
+     _meshRenderer =
+         std::make_unique<MeshRenderer>(STATIC_MESH, _position, _scale, _quaternion, _worldMatrix, _isDirtyFlag);
+
      SetLabel("Hierarchy##particleeffect");
      SetDockLayout(ImGuiDir_Left);
  }
@@ -15,10 +21,29 @@
  }
 
 void EditorParticleEffectHierarchy::OnStartGui()
-{
-    auto&             system    = Global::editorModule->GetDockWindowSystem();
-    EditorDockWindow* modelDock = system.GetDockWindow("EffectDock");
-    _editorParticleEffectDetails         = modelDock->GetGui<EditorParticleEffectDetails>();
+ {
+     auto&             system     = Global::editorModule->GetDockWindowSystem();
+     EditorDockWindow* effectdock  = system.GetDockWindow("EffectDock");
+     if (effectdock)
+     {
+         _editorParticleEffectDetails = effectdock->GetGui<EditorParticleEffectDetails>();
+     }
+     //light settting
+     {
+         _directionalLight = new Light();
+         _color            = Vector3(1.f);
+         _ambient          = Vector3(1.f);
+         _direction        = Vector3(0.f, -1.f, 0.f);
+         _intensity        = 1.f;
+         _lightActivity    = true;
+         _directionalLight->SetDirectionalLight(_color, _ambient, _direction, _intensity);
+         _directionalLight->SetActive(&_lightActivity);
+         UmGraphics.RegisterComponent("ParticleEditor", _directionalLight);
+     }
+
+
+
+
 }
 
 void EditorParticleEffectHierarchy::OnEndGui()
@@ -32,6 +57,9 @@ void EditorParticleEffectHierarchy::OnPreFrameBegin()
 
 void EditorParticleEffectHierarchy::OnPostFrameBegin()
 {
+
+
+
     bool isnewbuttonpressed = ImGui::Button("New", {180, 50});
     if (true == isnewbuttonpressed)
     {
@@ -65,7 +93,6 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
             _curEffect = effect;
         }
     }
-
     ParticleEffect* effect = UmParticleManager->GetCurrentEditorEffect();
     if (nullptr != effect)
     {
@@ -86,23 +113,98 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
     }
 
 
-
-    bool isrefreshbutton = ImGui::Button("refresh", {100, 30});
-    if (true == isrefreshbutton)
+    // refresh button
     {
-        UmParticleManager->RefreshEditor();
+        bool isrefreshbutton = ImGui::Button("refresh", {100, 30});
+        if (true == isrefreshbutton && nullptr != _curEffect)
+        {
+            UmParticleManager->RefreshEditor();
+        }
+
+        ImGui::SameLine();
+
+        bool isAutorefresh = UmParticleManager->GetAutoRefresh();
+        ImGui::Checkbox("Auto Refresh", &isAutorefresh);
+        UmParticleManager->SetAutoRefresh(isAutorefresh);
+    }
+    
+    //time scale
+    {
+        float deltaScale = UmParticleManager->GetDeltaScale();
+        ImGui::SliderFloat("Time Speed", &deltaScale, 0.f, 2.f);
+        UmParticleManager->SetDeltaScale(deltaScale);
+    }
+
+
+    //env model load
+    {
+        _envmodelpath = std::filesystem::absolute(_envmodelpath);
+        ImGui::Text(_envmodelpath.string().c_str());
+        bool isLoadModelButtonPressed = ImGui::Button("load environment model", {250, 30});
+        if (true == isLoadModelButtonPressed)
+        {
+
+            HWND                    owner = UmApplication.GetHwnd();
+            LPCWSTR                 title = L"Load fbx file";
+            std::vector<File::Path> out;
+            if (File::ShowOpenFileDialog(UmApplication.GetHwnd(), title, L"",
+                                         {{L"Model Files (*.fbx;*.UmModel)", L"*.fbx; *.UmModel\0\0"}}, false, out))
+            {
+                _envmodelpath = out.front();
+            }
+            _envmodelpath = std::filesystem::absolute(_envmodelpath);
+            LoadEnvironmentModel(_envmodelpath);
+            ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.0f);
+        }
+        if (_envmodelpath != File::NULL_PATH)
+        {
+
+            bool isDirty = false;
+            {
+                ImGui::Text("Position: ");
+                ImGui::DragFloat3("##env position", &_position.x, 0.05f) ? isDirty = true : isDirty;
+                ImGui::SameLine();
+                if (ImGui::Button("Reset##env position"))
+                {
+                    _position = Vector3::Zero;
+                    isDirty   = true;
+                }
+            }
+            {
+                ImGui::Text("Rotation: ");
+                ImGui::DragFloat3("##env rotation", &_rotation.x, 0.05f) ? isDirty = true : isDirty;
+                ImGui::SameLine();
+                if (ImGui::Button("Reset##env rotation"))
+                {
+                    _rotation = Vector3::Zero;
+                    isDirty   = true;
+                }
+            }
+            {
+                ImGui::Text("Scale: ");
+                ImGui::DragFloat3("##env scale", &_scale.x, 0.05f) ? isDirty = true : isDirty;
+                ImGui::SameLine();
+                if (ImGui::Button("Reset##env scale"))
+                {
+                    _scale  = Vector3::One;
+                    isDirty = true;
+                }
+            }
+            if (isDirty)
+            {
+                Matrix matScale     = Matrix::CreateScale(_scale);
+                Matrix matRotation  = Matrix::CreateFromYawPitchRoll(_rotation.y, _rotation.x, _rotation.z);
+                Matrix matTranslate = Matrix::CreateTranslation(_position);
+                _quaternion         = Quaternion::CreateFromYawPitchRoll(_rotation.y, _rotation.x, _rotation.z);
+
+                // 변환 순서: S  R  T
+                _worldMatrix = matScale * matRotation * matTranslate;
+            }
+
+        }
 
     }
 
-    ImGui::SameLine();
-
-    bool isAutorefresh = UmParticleManager->GetAutoRefresh();
-    ImGui::Checkbox("Auto Refresh", &isAutorefresh);
-    UmParticleManager->SetAutoRefresh(isAutorefresh);
-
-    float deltaScale = UmParticleManager->GetDeltaScale();
-    ImGui::SliderFloat("Time Speed", &deltaScale, 0.f, 2.f);
-    UmParticleManager->SetDeltaScale(deltaScale);
 
     if (nullptr == UmParticleManager->GetCurrentEditorEffect())
     if (nullptr == effect)
@@ -114,8 +216,6 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
     ImGui::Text("current particle count : %d", UmParticleManager->GetTotalCount("ParticleEditor") +
                                                    UmParticleManager->GetRibbonCount("ParticleEditor"));
     ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.f);
-
-
 
     LocationShape   locationType;
     ParticleType  particleType;
@@ -204,6 +304,7 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
         {
             UmGraphics.LoadModelResource(std::wstring_view(currentmeshsurfacepath.wstring()), emitter);
         }
+        emitter->InitializeLight("ParticleEditor");
 
     }
     bool isSomeoneChanged   = false;
@@ -213,7 +314,7 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
         ImGuiTreeNodeFlags parent_flags = ImGuiTreeNodeFlags_OpenOnArrow;
         bool               parent_open  = ImGui::TreeNodeEx(_curEffect->GetEffectName().c_str(), parent_flags);
 
-        _curEffect->_position = &defaultpos;
+        _curEffect->_position = &_defaultpos;
         bool isHovered      = ImGui::IsItemHovered();
         bool isMouseClicked = ImGui::IsMouseClicked(0);
         if (true == isHovered && true == isMouseClicked)
@@ -291,4 +392,20 @@ void EditorParticleEffectHierarchy::OnFrameFocusExit()
 void EditorParticleEffectHierarchy::OnFramePopupOpened()
 {
 
+}
+
+void EditorParticleEffectHierarchy::LoadEnvironmentModel(const File::Path& path) 
+{
+    std::shared_ptr<Model> model = std::make_shared<Model>();
+    FBXConverter& fbxConverter = GetFBXConverter();
+    fbxConverter.ImportModel(path, model);
+    _meshRenderer->SetModel(model);
+    _meshRenderer->SetActive(&_isModelActive);
+    UmGraphics.RegisterComponent("ParticleEditor", _meshRenderer.get());
+}
+
+FBXConverter& EditorParticleEffectHierarchy::GetFBXConverter()
+{
+    static FBXConverter fbxConverter;
+    return fbxConverter;
 }

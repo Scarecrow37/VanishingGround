@@ -16,8 +16,7 @@ void ParticleRibbonPass::Initialize(RenderScene* ownerScene, RenderTechnique* ow
 {
     __super::Initialize(ownerScene, ownerTechnique, commandList);
 
-    InitializeShader();
-    InitializePSO();
+    InitializeShaderAndPSO();
 
     // refactoring needed
     _albedoTextureIDs = std::vector<int>(100, -1);
@@ -32,8 +31,6 @@ void ParticleRibbonPass::Initialize(RenderScene* ownerScene, RenderTechnique* ow
         _ribbonIndexBuffer[i] = std::make_unique<StructuredBuffer>();
         _ribbonIndexBuffer[i]->Initialize(sizeof(UINT), 100000);
     }
-
-
 }
 
 void ParticleRibbonPass::Begin(ID3D12GraphicsCommandList* commandList) 
@@ -70,8 +67,7 @@ void ParticleRibbonPass::Begin(ID3D12GraphicsCommandList* commandList)
         for (int i = 0; i < totalribbonemitterindices.size(); i++)
         {
             std::sort(totalribbonemitterindices[i].begin(), totalribbonemitterindices[i].end(),
-                      [](const ribbonIndex& a, const ribbonIndex& b) -> bool { return a.ratio < b.ratio; });
-
+                      [](const RibbonIndex& a, const RibbonIndex& b) -> bool { return a.ratio < b.ratio; });
 
             auto size = totalribbonemitterindices[i].size();
             _ribbonIndices[i].resize(size);
@@ -84,47 +80,46 @@ void ParticleRibbonPass::Begin(ID3D12GraphicsCommandList* commandList)
                                                         static_cast<UINT>(totalribbonemitterindices[i].size()));
         }
     }
-
-
-
 }
 
-void ParticleRibbonPass::Draw(ID3D12GraphicsCommandList* commandList) 
+void ParticleRibbonPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
 
     if (0 >= Global::particleManager->GetRibbonCount(_ownerScene->_name))
         return;
     commandList->SetPipelineState(_pipelineState.Get());
-    commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
+    commandList->SetGraphicsRootSignature(_fx.GetRootSignature());
     auto depthStencilBuffer = Global::multiRenderTargetManager->GetRenderTarget("Depth");
 
-    const auto&     mode = Global::device->GetMode();
+    auto        customDepthTarget = Global::multiRenderTargetManager->GetRenderTarget("CustomDepth");
+    const auto& mode              = customDepthTarget->GetResolution();
+
     PostProcessData postProcessData{.TexelSize = {1.f / (float)mode.Width, 1.f / (float)mode.Height}};
-    commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_6_postProcessData"), 6,
+    commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_6_postProcessData"), 6,
                                                &postProcessData, 0);
 
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("depthbuffer"),
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("depthbuffer"),
                                                 depthStencilBuffer->GetSRVHandle());
 
-        commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"),
+    commandList->SetGraphicsRootConstantBufferView(_fx.GetRootParameterIndex("cameraData"),
                                                    _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
 
-    commandList->SetGraphicsRootShaderResourceView(_shader->GetRootParameterIndex("texID"),
+    commandList->SetGraphicsRootShaderResourceView(_fx.GetRootParameterIndex("texID"),
                                                    _textureIDBuffer->GetGPUVirtualAddress());
 
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("gAccumTex"),
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("gAccumTex"),
                                                 _accumlateBuffer->GetUAVHandle());
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("gRevealTex"),
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("gRevealTex"),
                                                 _revealageBuffer->GetUAVHandle());
 
     auto outputResource = Global::particleManager->GetRibbonOutputResource(_ownerScene->_name);
-    commandList->SetGraphicsRootShaderResourceView(_shader->GetRootParameterIndex("particleInfo"),
+    commandList->SetGraphicsRootShaderResourceView(_fx.GetRootParameterIndex("particleInfo"),
                                                    outputResource->GetGPUVirtualAddress());
 
     D3D12_GPU_DESCRIPTOR_HANDLE descHeapPtr =
         Global::viewManager->GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
 
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("textures"), descHeapPtr);
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("textures"), descHeapPtr);
 
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
     D3D12_VERTEX_BUFFER_VIEW nullView{};
@@ -139,18 +134,12 @@ void ParticleRibbonPass::Draw(ID3D12GraphicsCommandList* commandList)
         UINT vertexCount = (ribbonSegmentCount - 1) * 2;
         if (vertexCount == 0)
             continue;
-        
-        commandList->SetGraphicsRoot32BitConstants(_shader->GetRootParameterIndex("bit32_1_ribbonVertexCount"), 1, &vertexCount, 0);
+        commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_1_ribbonVertexCount"), 1, &vertexCount, 0);
 
-        commandList->SetGraphicsRootShaderResourceView(_shader->GetRootParameterIndex("ribbonIndices"),
+        commandList->SetGraphicsRootShaderResourceView(_fx.GetRootParameterIndex("ribbonIndices"),
                                                        _ribbonIndexBuffer[i]->GetGPUVirtualAddress());
-
         commandList->DrawInstanced(vertexCount, 1, 0, 0);
     }
-
-
-
-
 }
 
 void ParticleRibbonPass::End(ID3D12GraphicsCommandList* commandList) 
@@ -166,37 +155,18 @@ void ParticleRibbonPass::End(ID3D12GraphicsCommandList* commandList)
     _revealageBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
-void ParticleRibbonPass::InitializeShader() 
+void ParticleRibbonPass::InitializeShaderAndPSO() 
 {
-    _shader = std::make_unique<ShaderBuilder>();
-    _shader->BeginBuild();
-    _shader->SetShader(L"../Shaders/vs_particle_ribbon.hlsl", ShaderBuilder::Type::VS);
-    _shader->SetShader(L"../Shaders/ps_particle_quad.hlsl", ShaderBuilder::Type::PS);
-    _shader->EndBuild();
-}
+    PipelineStateStream pss;
+    pss.RasterizerState                   = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    (&pss.RasterizerState)->CullMode      = D3D12_CULL_MODE_NONE;
+    pss.BlendState                        = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    pss.DepthStencilState                 = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+    (&pss.DepthStencilState)->DepthEnable = FALSE;
+    pss.PrimitiveTopology                 = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    pss.RTVFormats                        = {{DXGI_FORMAT_R32_UINT}, 1};
+    _fx.SetPipelineStateStream(pss);
+    _pipelineState = Global::pipelineStateManager->GetPipelineState(pss);
 
-void ParticleRibbonPass::InitializePSO()
-{ // static two side.
-    ComPtr<ID3D12Device>               device = Global::device->GetDevice();
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc;
 
-    ZeroMemory(&psodesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
-    psodesc.RasterizerState               = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    psodesc.RasterizerState.CullMode      = D3D12_CULL_MODE_NONE;
-    psodesc.BlendState                    = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    psodesc.DepthStencilState             = CommonStates::DepthDefault;
-    psodesc.DepthStencilState.DepthEnable = false;
-    psodesc.SampleMask                    = UINT_MAX;
-    psodesc.PrimitiveTopologyType         = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psodesc.InputLayout                   = { nullptr, 0 };
-    psodesc.NumRenderTargets              = 1;
-    psodesc.RTVFormats[0]                 = DXGI_FORMAT_R32_UINT;
-    psodesc.pRootSignature                = _shader->GetRootSignature();
-    psodesc.SampleDesc                    = {1, 0};
-    psodesc.VS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::VS);
-    psodesc.PS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::PS);
-
-    HRESULT hr = S_OK;
-    hr         = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&_pipelineState));
-    FAILED_CHECK_MESSAGE(hr, L"ParticleRibbonPass::InitializePSO device->CreateGraphicsPipelineState Failed");
 }

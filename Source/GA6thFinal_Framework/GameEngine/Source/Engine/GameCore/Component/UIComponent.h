@@ -1,0 +1,306 @@
+﻿#pragma once
+
+// POINT
+bool  operator==(const POINT& lhs, const POINT& rhs);
+bool  operator!=(const POINT& lhs, const POINT& rhs);
+POINT operator+(const POINT& lhs, const POINT& rhs);
+POINT operator-(const POINT& lhs, const POINT& rhs);
+POINT& operator+=(POINT& lhs, const POINT& rhs);
+
+// SIZE
+bool operator==(const SIZE& lhs, const SIZE& rhs);
+bool operator!=(const SIZE& lhs, const SIZE& rhs);
+SIZE operator+(const SIZE& lhs, const SIZE& rhs);
+SIZE operator-(const SIZE& lhs, const SIZE& rhs);
+SIZE& operator+=(SIZE& lhs, const SIZE& rhs);
+
+struct MinSize
+{
+    SIZE operator()(const SIZE& lhs, const SIZE& rhs) const;
+    SIZE operator()(const SIZE& lhs, const SIZE& rhs, bool useLhsWidth, bool useLhsHeight) const;
+};
+
+struct MaxSize
+{
+    SIZE operator()(const SIZE& lhs, const SIZE& rhs) const;
+};
+
+enum class HorizontalAlignment : char
+{
+    LEFT,
+    CENTER,
+    RIGHT
+};
+
+enum class VerticalAlignment : char
+{
+    TOP,
+    CENTER,
+    BOTTOM
+};
+
+struct AlignPoint
+{
+    POINT operator()(HorizontalAlignment horizontal, VerticalAlignment vertical, SIZE size) const;
+    LONG  operator()(HorizontalAlignment horizontal, LONG spareWidth) const;
+    LONG  operator()(VerticalAlignment vertical, LONG spareHeight) const;
+};
+
+enum class FillMode : char
+{
+    NONE,
+    WRAP,
+    FILL
+};
+
+class UIComponent : public UIBaseComponent
+{
+    friend class Transform;
+    USING_PROPERTY(UIComponent)
+
+public:
+    UIComponent();
+
+public:
+    REFLECT_PROPERTY(Point, Size, Padding, Margin, HorizontalAlign, VerticalAlign, HorizontalFillMode, VerticalFillMode)
+
+    GETTER(POINT, Point) { return ReflectFields->ActualPosition; }
+    SETTER(POINT, Point)
+    {
+        _requestedPoint = value;
+        InvalidateArrange();
+    }
+    PROPERTY(Point)
+
+    GETTER(SIZE, Size) { return ReflectFields->ActualSize; }
+    SETTER(SIZE, Size)
+    {
+        _requestedSize = value;
+        auto [actualWidth, actualHeight] = ReflectFields->ActualSize;
+        if (actualWidth != value.cx)
+            ReflectFields->HorizontalFillMode = FillMode::NONE;
+        if (actualHeight != value.cy)
+            ReflectFields->VerticalFillMode = FillMode::NONE;
+        InvalidateMeasure();
+    }
+    PROPERTY(Size)
+
+    GETTER(PADDING, Padding) { return PADDING(ReflectFields->Padding); }
+    SETTER(PADDING, Padding)
+    {
+        ReflectFields->Padding = static_cast<RECT>(value);
+        InvalidateMeasure();
+    }
+    PROPERTY(Padding)
+
+    GETTER(MARGIN, Margin) { return MARGIN(ReflectFields->Margin); }
+    SETTER(MARGIN, Margin)
+    {
+        ReflectFields->Margin = static_cast<RECT>(value);
+        InvalidateMeasure();
+    }
+    PROPERTY(Margin)
+
+    GETTER(HorizontalAlignment, HorizontalAlign) { return ReflectFields->HorizontalAlignment; }
+    SETTER(HorizontalAlignment, HorizontalAlign)
+    {
+        ReflectFields->HorizontalAlignment = value;
+        InvalidateArrange();
+    }
+    PROPERTY(HorizontalAlign)
+
+    GETTER(VerticalAlignment, VerticalAlign) { return ReflectFields->VerticalAlignment; }
+    SETTER(VerticalAlignment, VerticalAlign)
+    {
+        ReflectFields->VerticalAlignment = value;
+        InvalidateArrange();
+    }
+    PROPERTY(VerticalAlign)
+
+    GETTER(FillMode, HorizontalFillMode) { return ReflectFields->HorizontalFillMode; }
+    SETTER(FillMode, HorizontalFillMode)
+    {
+        ReflectFields->HorizontalFillMode = value;
+        InvalidateMeasure();
+    }
+    PROPERTY(HorizontalFillMode)
+
+    GETTER(FillMode, VerticalFillMode) { return ReflectFields->VerticalFillMode; }
+    SETTER(FillMode, VerticalFillMode)
+    {
+        ReflectFields->VerticalFillMode = value;
+        InvalidateMeasure();
+    }
+    PROPERTY(VerticalFillMode)
+
+
+    GETTER_ONLY(UIComponent*, Parent)
+    {
+        UIComponent*     parent    = nullptr;
+        const Transform&      transform = this->transform;
+        if (const Transform* parentTransform = transform.Parent; nullptr != parentTransform)
+        {
+            const GameObject& parentObject = parentTransform->gameObject;
+            parent                         = parentObject.GetComponentDynamic<UIComponent>();
+        }
+        return parent;
+    }
+    PROPERTY(Parent)
+
+    GETTER_ONLY(std::vector<UIComponent*>, Children)
+    {
+        std::vector<UIComponent*> children;
+        Transform&          transform = this->transform;
+        for (int i = 0; i < transform.GetChildCount(); ++i)
+        {
+            const Transform* child           = transform.GetChild(i);
+            GameObject&      gameObject      = child->gameObject;
+            std::vector<UIComponent*> childComponents = gameObject.GetComponents<UIComponent>();
+            std::ranges::move(childComponents, std::back_inserter(children));
+        }
+        return children;
+    }
+    PROPERTY(Children)
+
+    GETTER_ONLY(POINT, AbsolutePosition)
+    {
+        const POINT offset           = ReflectFields->Offset;
+        const MARGIN margin           = Margin;
+        const POINT  leftTopMargin    = margin.LeftTop();
+        const POINT actualPosition   = ReflectFields->ActualPosition;
+        const POINT absolutePosition = offset + leftTopMargin + actualPosition;
+        return absolutePosition;
+    }
+    PROPERTY(AbsolutePosition)
+
+    GETTER_ONLY(POINT, AbsoluteChildPosition)
+    {
+        const POINT absolutePosition      = AbsolutePosition;
+        const PADDING padding               = Padding;
+        const POINT   leftTopPadding        = padding.LeftTop();
+        const POINT absoluteChildPosition = absolutePosition + leftTopPadding;
+        return absoluteChildPosition;
+    }
+    PROPERTY(AbsoluteChildPosition)
+
+    GETTER_ONLY(bool, IsMeasureDirty)
+    {
+        return _isMeasureDirty;
+    }
+    PROPERTY(IsMeasureDirty)
+
+    GETTER_ONLY(bool, IsArrangeDirty)
+    {
+        return _isArrangeDirty;
+    }
+    PROPERTY(IsArrangeDirty)
+
+    GETTER_ONLY(SIZE, DesiredSize) { return ReflectFields->DesiredSize; }
+    PROPERTY(DesiredSize)
+
+    GETTER_ONLY(POINT, Offset) { return ReflectFields->Offset; }
+    PROPERTY(Offset)
+
+    GETTER_ONLY(POINT, ActualPosition) { return ReflectFields->ActualPosition; }
+    PROPERTY(ActualPosition)
+
+    GETTER_ONLY(SIZE, ActualSize) { return ReflectFields->ActualSize; }
+    PROPERTY(ActualSize)
+
+public:
+    void Measure(SIZE availableSize);
+    void Arrange(POINT finalPosition, SIZE finalSize);
+    void Arrange();
+
+    void InvalidateMeasure();
+    void InvalidateArrange();
+
+protected:
+    void OnAttachChild(GameObject* childGameObject) override;
+    void OnDetachParent(GameObject* previousParentGameObject) override;
+    void OnDrawDebugOverride() override;
+    void OnDrawDebugSelectedOverride() override;
+
+    /// <summary>
+    /// UI 컴포넌트의 측정 로직을 구현하는 함수입니다.
+    /// </summary>
+    /// <param name="availableSize">측정에 사용할 가용 크기입니다.</param>
+    /// <returns>측정된 요소의 크기(SIZE)를 반환합니다.</returns>
+    virtual SIZE MeasureOverride(SIZE availableSize) = 0;
+
+    /// <summary>
+    /// 지정된 최종 크기에 맞게 요소를 배치하고 실제 배치된 크기를 반환합니다.
+    /// </summary>
+    /// <param name="finalSize">배치에 사용할 최종 크기입니다.</param>
+    /// <returns>실제로 배치된 요소의 크기(SIZE)를 반환합니다.</returns>
+    virtual SIZE ArrangeOverride(SIZE finalSize)     = 0;
+
+protected:
+    void ImGuiDrawPropertysEvent() override;
+    void DeserializedReflectEvent() override;
+
+    void Start() override;
+
+
+private:
+    void ResetPlacement();
+
+protected:
+    REFLECT_FIELDS_BEGIN(Component)
+    POINT ActualPosition;
+    SIZE  ActualSize;
+    POINT Offset;
+    SIZE  DesiredSize;
+    SIZE  AvailableSize;
+
+    RECT Padding;
+    RECT Margin;
+
+    HorizontalAlignment HorizontalAlignment;
+    VerticalAlignment   VerticalAlignment;
+    FillMode            HorizontalFillMode;
+    FillMode            VerticalFillMode;
+    REFLECT_FIELDS_END(UIComponent)
+
+protected:
+    POINT _requestedPoint;
+    SIZE  _requestedSize;
+
+private:
+    bool _isMeasureDirty;
+    bool _isArrangeDirty;
+};
+
+struct ImGuiDebug
+{
+    void operator()(const char* label) const;
+    void operator()(const char* label, long x) const;
+    void operator()(const char* label, long x, long y) const;
+    void operator()(const char* label, unsigned int x) const;
+    void operator()(const char* label, int x) const;
+    void operator()(const char* label, const std::string& str) const;
+};
+
+struct DrawDebug
+{
+    void operator()(POINT point, SIZE size, int thickness, FXMVECTOR color) const;
+    void operator()(POINT pointA, POINT pointB, int thickness, bool isVertical, FXMVECTOR color) const;
+};
+
+// TODO 지울지 고민
+template <typename T>
+struct FindChildComponents
+{
+    std::vector<T*> operator()(Transform& parentTransform)
+    {
+        std::vector<T*> components;
+        for (int i = 0; i < parentTransform.GetChildCount(); ++i)
+        {
+            const Transform* child           = parentTransform.GetChild(i);
+            GameObject&      gameObject      = child->gameObject;
+            std::vector<T*>  childComponents = gameObject.GetComponents<T>();
+            std::move(childComponents.begin(), childComponents.end(), std::back_inserter(components));
+        }
+        return components;
+    }
+};
