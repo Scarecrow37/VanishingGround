@@ -201,11 +201,18 @@ void UIComponent::Start()
     InvalidateMeasure();
 }
 
+std::weak_ptr<UIComponent> UIComponent::GetUIWeakPtr() const
+{
+    const std::shared_ptr<UIComponent> uiComponent =
+        std::static_pointer_cast<UIComponent>(GetWeakPtr().lock());
+    return uiComponent;
+}
+
 void UIComponent::InvalidateMeasure()
 {
     if (const bool enableInHierarchy = EnableInHierarchy; true == enableInHierarchy && false == _isMeasureDirty)
     {
-        UmUI.AddMeasureQueue(this);
+        UmUI.AddMeasureQueue(GetUIWeakPtr());
 
         if (UIComponent* parent = Parent; nullptr != parent)
         {
@@ -220,7 +227,7 @@ void UIComponent::InvalidateArrange()
 {
     if (const bool enableInHierarchy = EnableInHierarchy; true == enableInHierarchy && false == _isArrangeDirty)
     {
-        UmUI.AddArrangeQueue(this);
+        UmUI.AddArrangeQueue(GetUIWeakPtr());
 
         _isArrangeDirty = true;
     }

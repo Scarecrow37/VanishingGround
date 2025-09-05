@@ -233,7 +233,17 @@ protected:
     /// </summary>
     /// <param name="finalSize">배치에 사용할 최종 크기입니다.</param>
     /// <returns>실제로 배치된 요소의 크기(SIZE)를 반환합니다.</returns>
-    virtual SIZE ArrangeOverride(SIZE finalSize)     = 0;
+    virtual SIZE ArrangeOverride(SIZE finalSize) = 0;
+
+    /// <summary>
+    /// 포커스가 들어올 때 호출되는 가상 함수입니다.
+    /// </summary>
+    virtual void OnFocusIn() {};
+
+    /// <summary>
+    /// 포커스가 벗어날 때 호출되는 가상 함수입니다.
+    /// </summary>
+    virtual void OnFocusOut() {};
 
 protected:
     void ImGuiDrawPropertysEvent() override;
@@ -241,6 +251,7 @@ protected:
 
     void Start() override;
 
+    std::weak_ptr<UIComponent> GetUIWeakPtr() const;
 
 private:
     void ResetPlacement();
