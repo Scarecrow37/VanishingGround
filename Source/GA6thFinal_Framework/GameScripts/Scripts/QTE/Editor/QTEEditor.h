@@ -24,16 +24,26 @@ private:
 
     void DrawPreview();
 
+    void DrawJudgeRange(std::pair<float, float> range, float circleRadius, ImU32 judgeCol, ImU32 bgCol = UINT_MAX - 1);
+    void DrawNote(Timeline::EventContext* context, float circleRadius, ImColor noteCol, ImColor bgCol);
+
+private:
+    float CalcNoteAlphaFromPositionX(float posX);
+
 private:
     QTE::Track                _qteTrack;                // QTE 트랙
     bool                      _editorOpened = false;    // 에디터 열림 여부
     EditorDragState           _dragHandler;             // 드래그 핸들러
     Timeline::SequencerEditor _sequencerEditor;         // 시퀀서 에디터
 
+    float _PerfectTimer     = 0.0f;  // 퍼펙트 시 나오는 이펙트 타이머
+    float _delayTimer       = 0.0f;  // 딜레이 타이머
     float _previewTimer     = 0.0f;  // 미리보기 타이머
     bool  _isPreviewPlaying = false; // 미리보기 재생 여부
     
+    std::unordered_set<int> _noteJudgeSet;
 
+    static constexpr float PERFECT_EFFECT_TIME = 0.5f;  // 퍼펙트 시 나오는 이펙트 시간
 /*
 QTE 파일 포함 정보
 1. QTE의 무기 타입 (검, 단검, 해머)

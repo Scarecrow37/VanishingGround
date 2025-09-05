@@ -30,6 +30,15 @@ void QTESystem::ImGuiDrawPropertysEvent()
     GetEditor().Show();
 }
 
+void QTESystem::StartQTE(QTE::Track* track) 
+{
+    if (track)
+    {
+        _qteTrack = track;
+
+    }
+}
+
 QTEEditor& QTESystem::GetEditor()
 {
     static QTEEditor editor;

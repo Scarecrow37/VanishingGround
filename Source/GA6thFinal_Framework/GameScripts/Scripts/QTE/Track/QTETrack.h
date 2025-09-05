@@ -23,9 +23,11 @@ namespace QTE
         bool SaveFile(const File::Path& filePath, bool overwrite = false);
         bool LoadFile(const File::Path& filePath);
 
+        inline void  SetQTESpeedScale(float scale) { ReflectFields->QTESpeedScale = scale; }
+        inline float GetQTESpeedScale() const { return ReflectFields->QTESpeedScale; }
+
         inline const File::Path& GetFilePath() const { return _filePath; }
         inline std::weak_ptr<Timeline::EventTrack> GetEventTrack() { return _eventTrack; }
-        inline float GetQTESpeedScale() const { return ReflectFields->QTESpeedScale; }
 
     private:
         void SerializedReflectEvent() override;
