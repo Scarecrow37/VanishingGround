@@ -62,8 +62,8 @@ void FogLightInjectionPass::AddRenderPassDatas(std::string_view sceneName)
     property.BlendWithPrevFrame = 0.5f;
     property.CustomNear         = 0.01f;
     property.CustomFar          = 1000.f;
-    property.FogIntencity       = 1.f;
-    property.LightShaftIntencity = 1.f;
+    property.FogIntensity       = 1.f;
+    property.LightShaftIntensity = 1.f;
     Global::renderPassDatas->AddRenderPassProperty(sceneName, "VolumetricFogData", property);
 }
 
