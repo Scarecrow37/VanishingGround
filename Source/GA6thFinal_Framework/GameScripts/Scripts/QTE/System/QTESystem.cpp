@@ -6,14 +6,14 @@
 QTESystem::QTESystem() 
 {
     // 전역 인스턴스는 하나만 존재해야 합니다.
-    assert(_staticInstance == nullptr, "QTESystem is already exist in scene");
+    assert(_staticInstance == nullptr && "QTESystem is already exist in scene");
     _staticInstance = this;
 }
 
 QTESystem::~QTESystem() 
 {
     // 전역 인스턴스는 하나만 존재해야 합니다.
-    assert(_staticInstance == this, "QTESystem instance is not this");
+    assert(_staticInstance == this && "QTESystem instance is not this");
     _staticInstance = nullptr;
 }
 

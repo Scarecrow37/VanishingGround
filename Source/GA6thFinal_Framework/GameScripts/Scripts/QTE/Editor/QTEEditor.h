@@ -11,16 +11,28 @@ public:
     void Show();
     void Open();
 
-
     bool NewFileWithDialog();
     bool LoadFileWithDialog();
     bool SaveFileWithDialog();
+
+private:
+    void ShowSystemDetail();
+    void ShowTrackDetail();
+    void ShowFilePathFrame();
+    void ShowSequencerFrame();
+    void ShowPreviewFrame();
+
+    void DrawPreview();
 
 private:
     QTE::Track                _qteTrack;                // QTE 트랙
     bool                      _editorOpened = false;    // 에디터 열림 여부
     EditorDragState           _dragHandler;             // 드래그 핸들러
     Timeline::SequencerEditor _sequencerEditor;         // 시퀀서 에디터
+
+    float _previewTimer     = 0.0f;  // 미리보기 타이머
+    bool  _isPreviewPlaying = false; // 미리보기 재생 여부
+    
 
 /*
 QTE 파일 포함 정보

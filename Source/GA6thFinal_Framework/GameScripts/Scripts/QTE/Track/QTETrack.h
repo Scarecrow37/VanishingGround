@@ -23,8 +23,9 @@ namespace QTE
         bool SaveFile(const File::Path& filePath, bool overwrite = false);
         bool LoadFile(const File::Path& filePath);
 
-        const File::Path& GetFilePath() const { return _filePath; }
-        std::weak_ptr<Timeline::EventTrack> GetEventTrack() { return _eventTrack; }
+        inline const File::Path& GetFilePath() const { return _filePath; }
+        inline std::weak_ptr<Timeline::EventTrack> GetEventTrack() { return _eventTrack; }
+        inline float GetQTESpeedScale() const { return ReflectFields->QTESpeedScale; }
 
     private:
         void SerializedReflectEvent() override;
@@ -35,6 +36,7 @@ namespace QTE
         std::shared_ptr<Timeline::EventTrack> _eventTrack;
         REFLECT_FIELDS_BEGIN(ReflectSerializer)
         std::string TrackSerializeData;
+        float       QTESpeedScale = 1.0f; // QTE 속도 배율
         REFLECT_FIELDS_END(Track)
     };
 } // namespace QTE
