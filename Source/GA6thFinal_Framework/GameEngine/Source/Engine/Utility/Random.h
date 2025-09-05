@@ -45,7 +45,7 @@ public:
     /// </summary>
     /// <param name="weights">가중치 목록 컨테이너</param>
     /// <returns>선택된 인덱스</returns>
-    template <typename T>
+    template <typename T, typename = std::enable_if_t<!std::is_integral<T>::value>>
     static int Index(const T& weights)
     {
         std::discrete_distribution<int> dist(weights.begin(), weights.end());
