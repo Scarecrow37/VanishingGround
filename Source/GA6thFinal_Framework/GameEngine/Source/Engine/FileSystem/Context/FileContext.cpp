@@ -16,7 +16,7 @@ namespace File
     bool Context::LoadMeta()
     {
         // 파일과 메타의 경로(확장자)를 헷갈리지 말자
-        File::Path metaPath = _path + UmFileSystem.GetMetaExt();
+        File::Path metaPath = _path + File::META_EXTENSION;
 
         // 처음엔 어차피 Null이므로 false가 반환된다.
         if (false == _meta.Move(metaPath))

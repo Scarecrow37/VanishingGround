@@ -152,6 +152,10 @@ void Application::Run()
             // Scene Logic Update
             ESceneManager::Engine::SceneUpdate();
 
+            // User Interface Update
+            // TODO: Erase Magic Number Resolution
+            Global::engineCore->UserInterface.Update({1920, 1080});
+
             // CameraUpdate, RenderQueueUpdate, Render
             Global::engineCore->Graphics.Update(deltaTime);
             Global::engineCore->Graphics.Render();

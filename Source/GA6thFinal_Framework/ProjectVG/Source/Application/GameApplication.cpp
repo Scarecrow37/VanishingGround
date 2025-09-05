@@ -1,6 +1,5 @@
 ﻿#include "GameApplication.h"
 #include "UmFramework.h"
-#include "UmScripts.h"
 
 int APIENTRY wWinMain(
     _In_ HINSTANCE hInstance,
@@ -136,6 +135,7 @@ void GameApplication::BuildSceneDock()
     _sceneDock->RegisterGui<EditorPlayMenu>();
     _sceneDock->RegisterGui<EditorMenuTools>(_sceneDock);
     _sceneDock->RegisterGui<EditorSceneMenu>();
+    _sceneDock->RegisterGui<EditorGameMenu>();
 }
 
 void GameApplication::BuildModelDock()

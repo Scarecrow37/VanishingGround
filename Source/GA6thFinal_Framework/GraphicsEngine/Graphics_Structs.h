@@ -98,12 +98,18 @@ struct ShadowPassProperty
 {
     bool operator==(const ShadowPassProperty& other) const
     {
-        return NearPlane == other.NearPlane && FarPlane == other.FarPlane && SplitFactor == other.SplitFactor;
+        return NearPlane == other.NearPlane && 
+               FarPlane == other.FarPlane && 
+               SplitFactor == other.SplitFactor && 
+               Offset1 == other.Offset1 &&
+               Offset2 == other.Offset2;
     }
 
     float NearPlane;
     float FarPlane;
     float SplitFactor;
+    float Offset1;
+    float Offset2;
 };
 
 struct BloomPassProperty
@@ -141,4 +147,15 @@ struct SSRPassProperty
 struct ParallaxMappingProperty
 {
     float HeightScale;
+};
+
+struct VolumetricFogProperty
+{
+    float Anisotropy;
+    float Density;
+    float Strength;
+    float BlendWithScene;
+    float BlendWithPrevFrame;
+    float CustomNear;
+    float CustomFar;
 };

@@ -43,9 +43,9 @@ void EnemyDeadState::OnExit()
 
 void EnemyDeadState::OnUpdate() 
 {
-    Enemy& enemy = GetEnemy();
-    AnimationComponent* animator = enemy.GetAnimationComponent();
-    MonsterHpView*      view     = enemy.GetMonsterHpView();
+    const Enemy& enemy = GetEnemy();
+    const AnimationComponent* animator = enemy.GetAnimationComponent();
+    const MonsterHpView*      view     = enemy.GetMonsterHpView();
     if (animator)
     {
         if (animator->GetMainAnimationData().IsEnd())
