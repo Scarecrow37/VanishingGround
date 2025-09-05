@@ -5,6 +5,9 @@ class RatioWrapper : public UIComponent
     USING_PROPERTY(RatioWrapper)
 
 public:
+    RatioWrapper();
+
+public:
     REFLECT_PROPERTY(Ratio)
 
     GETTER(float, Ratio) { return ReflectFields->Ratio; }
