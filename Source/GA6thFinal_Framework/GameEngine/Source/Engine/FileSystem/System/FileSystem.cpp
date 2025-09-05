@@ -345,6 +345,11 @@ const File::Path& EFileSystem::GetPathFromAssetID(int assetID) const
     return NULL_PATH;
 }
 
+const File::Guid& EFileSystem::GetGuidFromAssetID(int assetID) const
+{
+    return GetGuidFromPath(GetPathFromAssetID(assetID));
+}
+
 const File::Guid& EFileSystem::GetGuidFromPath(const File::Path& path) const
 {
     auto wpContext = GetContext(path);
@@ -408,6 +413,28 @@ const EFileSystem::EventSubscriberSet& EFileSystem::GetEventSubscribers(const Fi
         return itr->second;
     }
     return _extToSubscriberTable["null"];
+}
+
+int EFileSystem::GetAssetIDFromPath(const File::Path& path) const
+{
+    auto wpContext = GetContext(path);
+    if (false == wpContext.expired())
+    {
+        const MetaData& meta = wpContext.lock()->GetMeta();
+        return meta.GetAssetID();
+    }
+    return 0;
+}
+
+int EFileSystem::GetAssetIDFromGuid(const File::Guid& guid) const
+{
+    auto wpContext = GetContext(guid);
+    if (false == wpContext.expired())
+    {
+        const MetaData& meta = wpContext.lock()->GetMeta();
+        return meta.GetAssetID();
+    }
+    return 0;
 }
 
 bool EFileSystem::IsExistsAssetID(int assetID) const

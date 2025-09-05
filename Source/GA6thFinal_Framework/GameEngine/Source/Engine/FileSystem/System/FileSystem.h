@@ -115,12 +115,18 @@ public:
     const File::Path&           GetPathFromGuid(const File::Guid& guid) const;
     /// <summary>Path에 대응하는 Guid를 받아옵니다. (File::Path::ToGuid를 사용하세요.)</summary>
     const File::Guid&           GetGuidFromPath(const File::Path& path) const;
-    /// <summary>AssetID에 대응하는 Path를 받아옵니다. 유효하지 않는 AssetID면 빈 문자열을 반환합니다.</summary>
+    /// <summary>AssetID에 대응하는 Path를 받아옵니다. 유효하지 않는 AssetID면 빈 Path를 반환합니다.</summary>
     const File::Path&           GetPathFromAssetID(int assetID) const;
+    /// <summary>AssetID에 대응하는 Guid를 받아옵니다. 유효하지 않는 AssetID면 빈 Guid를 반환합니다.</summary>
+    const File::Guid&           GetGuidFromAssetID(int assetID) const;
     /// <summary>엔진에서 참조 중인 Guid와 해당 Guid의 참조 카운트를 저장하는 테이블을 반환합니다. GuidRef객체를 사용하지 않으면 해당 테이블에 등록되지 않습니다.</summary>
     const GuidRefTable&         GetGuidRefTable() const;
     /// <summary>해당 확장자에 대응되는 EventSubscriber를 std::unordered_set으로 받아옵니다.</summary>
     const EventSubscriberSet&   GetEventSubscribers(const File::FString& ext);
+    /// <summary>해당 경로에 대응되는 AssetID를 반환합니다. 실패할경우 0을 반환합니다.</summary>
+    int GetAssetIDFromPath(const File::Path& path) const;
+    /// <summary>해당 Guid에 대응되는 AssetID를 반환합니다. 실패할경우 0을 반환합니다.</summary>
+    int GetAssetIDFromGuid(const File::Guid& guid) const;
 
     /// <summary>프로젝트가 로드되어있는지 확인합니다.</summary>
     bool IsLoadedProject() const;

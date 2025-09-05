@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "UI/Panels/Horizontal/HorizontalPanel.h"
 
-enum class ElementType
+enum class ElementType : unsigned char
 {
     TEXT,
     IMAGE
@@ -32,7 +32,10 @@ public:
     DescriptionPanel();
 
 public:
-    REFLECT_PROPERTY(FontPath, Description)
+    REFLECT_PROPERTY(
+        FontPath, 
+        Description
+    )
 
     GETTER_ONLY(std::string, FontPath) { return _guidRef.ToPath().string(); }
     PROPERTY(FontPath)
@@ -43,6 +46,7 @@ public:
         if (ReflectFields->Description != value)
         {
             ReflectFields->Description = value;
+            _requiresUpdate            = true;
             UpdateContent();
         }
     }
@@ -50,9 +54,14 @@ public:
 
 protected:
     void DeserializedReflectEvent() override;
+    void ImGuiDrawPropertysEvent() override;
+
+    void Awake() override;
 
 private:
     void UpdateContent();
+    void EraseChild() const;
+    void MakeChild();
 
 protected:
     REFLECT_FIELDS_BEGIN(HorizontalPanel)
@@ -62,5 +71,6 @@ protected:
 
 private:
     File::GuidRef _guidRef;
-    bool          _requestUpdate = false;
+    bool          _requiresUpdate;
+
 };

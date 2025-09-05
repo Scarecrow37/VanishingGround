@@ -63,14 +63,14 @@ std::pair<GameObject*, RevelationUI> RevelationsView::FindRevelationUI(const std
     Transform& ownerTransform = transform;
 
     Transform* revelationTransform = nullptr;
-    Transform::ForeachBFS(ownerTransform, [&tag, &revelationObject, &revelationTransform](const Transform* transform) {
+    Transform::ForeachBFS(ownerTransform, [&tag, &revelationObject, &revelationTransform](Transform* transform) {
         if (revelationTransform)
             return;
         GameObject& object = transform->gameObject;
         if (object.CompareTag(tag))
         {
             revelationObject    = &object;
-            revelationTransform = &object.transform;
+            revelationTransform = transform;
         }
     });
 
