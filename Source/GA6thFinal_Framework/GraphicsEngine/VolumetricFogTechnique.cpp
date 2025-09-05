@@ -74,6 +74,8 @@ void VolumetricFogTechnique::UpdateConstantBuffer()
     fogData.Strength          = volumetricFogProperty.Strength;
     fogData.ThicknessFactor   = 0.01f;
     fogData.VolumeSize        = Vector4(VOXEL_VOLUME_SIZEX, VOXEL_VOLUME_SIZEY, VOXEL_VOLUME_SIZEZ, 0);
+    fogData.FogIntencity          = volumetricFogProperty.FogIntencity;
+    fogData.LightShaftIntencity   = volumetricFogProperty.LightShaftIntencity;
     _constantBuffer->UpdateBuffer(&fogData);
 
 

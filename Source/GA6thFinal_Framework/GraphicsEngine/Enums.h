@@ -24,14 +24,14 @@ enum FrameResourceType { TRANSFORM, BONE_MATRICES, MATERIAL, UI_TRANSFORM, UI_MA
 // 순서 보장을 위해서(환경설정에서 on off시 순서가 바뀌지 않도록 RenderScene은 Tech를 map으로 가지고 있음.)
 enum TechOrder : int
 {
-    SKYBOX = 0,
-    MESH_LIGHTING=1,
-    SSR           = 2,
-    VOLUMETRIC_FOG = 3,
-    PARTICLE       = 4,
-    EDITOR_DRAW    = 5,
-    BLOOM          = 6,
-    BLEND          = 7,
-    UI             = 8,
-    FONT           = 9,
+    TOSKYBOX = 0,
+    TOMESH_LIGHTING=1,
+    TOSSR           = 2,
+    TOVOLUMETRIC_FOG = 3,
+    TOPARTICLE       = 4,
+    TOEDITOR_DRAW    = 5,
+    TOBLOOM          = 6,
+    TOBLEND          = 7,
+    TOUI             = 8,
+    TOFONT           = 9,
 };

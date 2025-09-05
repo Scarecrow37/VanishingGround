@@ -158,4 +158,6 @@ struct VolumetricFogProperty
     float BlendWithPrevFrame;
     float CustomNear;
     float CustomFar;
+    float FogIntencity;
+    float LightShaftIntencity;
 };

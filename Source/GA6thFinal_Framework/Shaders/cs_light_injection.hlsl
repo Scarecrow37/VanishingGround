@@ -97,12 +97,21 @@ void cs_main(uint3 Gid : SV_GroupID, uint3 GTid : SV_GroupThreadID, uint3 DTid :
 
         float3 lighting = float3(0.0, 0.0, 0.0);
         float visibility = GetVisibillityCSM(voxelWorldPos);
-
         if (visibility > Epsilon)
-            lighting += visibility * lightData.Directional[0].Color.xyz *
-                HenyeyGreensteinPhaseFunction(viewDir, -lightData.Directional[0].Direction.xyz, fogdata.Anisotropy);
+            lighting +=
+                visibility * lightData.Directional[0].Color.xyz *
+                HenyeyGreensteinPhaseFunction(viewDir, -lightData.Directional[0].Direction.xyz, fogdata.Anisotropy) *
+                fogdata.LightShaftIntencity;
+        
+        visibility = 1.f;
+        if (visibility > Epsilon)
+            lighting +=
+                visibility * lightData.Directional[0].Color.xyz *
+                HenyeyGreensteinPhaseFunction(viewDir, -lightData.Directional[0].Direction.xyz, fogdata.Anisotropy) *
+                fogdata.FogIntencity;
         
         float4 result = float4(lighting * fogdata.Strength * fogdata.Density, visibility * fogdata.Density);
+        
         //previous frame interpolation
         {
             float3 prevUV = GetUVFromVolumetricFogVoxelWorldPos(voxelWorldPosNoJitter,

@@ -56,6 +56,8 @@ struct VolumetricFogData
     float    Density;
     float    Strength;
     float    ThicknessFactor;
+    float    FogIntencity;
+    float    LightShaftIntencity;
 };
 
 struct VolumetricFogCompositeData

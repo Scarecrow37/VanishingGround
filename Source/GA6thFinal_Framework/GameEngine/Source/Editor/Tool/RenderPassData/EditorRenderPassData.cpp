@@ -66,14 +66,16 @@ void EditParallaxMappingProperty(std::any& property)
 }
 void EditVolumetricFogProperty(std::any& property)
 {
-    auto& forProperty = std::any_cast<VolumetricFogProperty&>(property);
-    ImGui::DragFloat("Anisotropy", &forProperty.Anisotropy, 0.001f, 0.001f, 1.f);
-    ImGui::DragFloat("Density", &forProperty.Density, 0.001f, 0.1f, 10.f);
-    ImGui::DragFloat("Strength", &forProperty.Strength, 0.01f, 1.f, 100.f);
-    ImGui::DragFloat("BlendWithScene", &forProperty.BlendWithScene, 0.001f, 0.001f, 1.f);
-    ImGui::DragFloat("BlendWithPrevFrame", &forProperty.BlendWithPrevFrame, 0.001f, 0.001f, 1.f);
-    ImGui::DragFloat("CustomNear", &forProperty.CustomNear, 0.01f, 0.01f, 10.f);
-    ImGui::DragFloat("CustomFar", &forProperty.CustomFar, 1.f, 100.f, 10000.f);
+    auto& fogProperty = std::any_cast<VolumetricFogProperty&>(property);
+    ImGui::DragFloat("Anisotropy", &fogProperty.Anisotropy, 0.001f, 0.001f, 1.f);
+    ImGui::DragFloat("Density", &fogProperty.Density, 0.01f, 0.1f, 10.f);
+    ImGui::DragFloat("Strength", &fogProperty.Strength, 0.1f, 1.f, 100.f);
+    ImGui::DragFloat("BlendWithScene", &fogProperty.BlendWithScene, 0.001f, 0.001f, 1.f);
+    ImGui::DragFloat("BlendWithPrevFrame", &fogProperty.BlendWithPrevFrame, 0.001f, 0.001f, 1.f);
+    ImGui::DragFloat("CustomNear", &fogProperty.CustomNear, 0.01f, 0.01f, 10.f);
+    ImGui::DragFloat("CustomFar", &fogProperty.CustomFar, 1.f, 100.f, 10000.f);
+    ImGui::DragFloat("FogIntencity", &fogProperty.FogIntencity, 0.01f, 0.f, 5.f);
+    ImGui::DragFloat("LightShaftIntencity", &fogProperty.LightShaftIntencity, 0.01f, 0.f, 5.f);
 }
 
 void EditorRenderPassData::OnFrameRender()
