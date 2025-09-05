@@ -328,6 +328,7 @@
     <ClInclude Include="Source\Engine\GameCore\Component\UIBaseComponent.h" />
     <ClInclude Include="Source\Engine\GameCore\Component\UIComponent.h" />
     <ClInclude Include="Source\Engine\GameCore\Component\UINavigationComponent.h" />
+    <ClInclude Include="Source\Engine\GameCore\Component\UIRoot.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\RenderPassDataHelper.h" />
     <ClInclude Include="Source\Engine\TimelineCore\AnimationEventTrack.h" />
@@ -479,6 +480,7 @@
     <ClCompile Include="Source\Engine\GameCore\Component\UIBaseComponent.cpp" />
     <ClCompile Include="Source\Engine\GameCore\Component\UIComponent.cpp" />
     <ClCompile Include="Source\Engine\GameCore\Component\UINavigationComponent.cpp" />
+    <ClCompile Include="Source\Engine\GameCore\Component\UIRoot.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.cpp" />
     <ClCompile Include="Source\Engine\TimelineCore\AnimationEventTrack.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Utillity\EditorDragState.cpp" />

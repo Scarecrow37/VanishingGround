@@ -370,7 +370,6 @@
     <ClInclude Include="Scripts\UI\Panels\Grid\GridPanel.h" />
     <ClInclude Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.h" />
     <ClInclude Include="Scripts\UI\Panels\Overlay\OverlayPanel.h" />
-    <ClInclude Include="Scripts\UI\UIRoot\UIRoot.h" />
     <ClInclude Include="Scripts\UI\Views\MonsterHp\MonsterHpView.h" />
     <ClInclude Include="Scripts\UI\Views\RevelationsView\RevelationsView.h" />
     <ClInclude Include="Scripts\UI\Views\TurnQueue\TurnQueueView.h" />
@@ -530,7 +529,6 @@
     <ClCompile Include="Scripts\UI\Panels\Grid\GridPanel.cpp" />
     <ClCompile Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.cpp" />
     <ClCompile Include="Scripts\UI\Panels\Overlay\OverlayPanel.cpp" />
-    <ClCompile Include="Scripts\UI\UIRoot\UIRoot.cpp" />
     <ClCompile Include="Scripts\UI\Views\MonsterHp\MonsterHpView.cpp" />
     <ClCompile Include="Scripts\UI\Views\RevelationsView\RevelationsView.cpp" />
     <ClCompile Include="Scripts\UI\Views\TurnQueue\TurnQueueView.cpp" />
