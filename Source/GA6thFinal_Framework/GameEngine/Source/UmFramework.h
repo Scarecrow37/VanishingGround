@@ -86,6 +86,7 @@ constexpr const char* STR_NULL = "null";
 #include <random>
 #include <algorithm>
 #include <numeric>
+#include <variant>
 
 //ThirdParty
 #include "pugixml/pugixml.hpp"
@@ -123,6 +124,7 @@ using namespace Microsoft::WRL;
 #include "Engine/Utility/EditorHelper.h"
 #include "Engine/Utility/Mathf.h"
 #include "Engine/Utility/OpenXLSXHelper.h"
+#include "Engine/Utility/BoxSpacing.h"
 
 //Class Core
 #include "Engine/ClassCore/Delegate.hpp"
@@ -156,6 +158,7 @@ using namespace Microsoft::WRL;
 
 //User Interface Module
 #include "../UserInterfaceModule/UserInterfaceModule.h"
+#include "Engine/EngineCore/UIManager.h"
 
 //CommandCore
 #include "Engine/CommandCore/CommandManager.h"
@@ -196,6 +199,8 @@ using namespace Microsoft::WRL;
 #include "Engine/GameCore/GameObject/GameObject.h"
 #include "Engine/GameCore/Component/Component.h"
 #include "Engine/GameCore/Component/MissingComponent.h"
+#include "Engine/GameCore/Component/UIBaseComponent.h"
+#include "Engine/GameCore/Component/UIComponent.h"
 #include "Engine/GameCore/InputReciver/InputReceiver.h"
 
 //Application Module

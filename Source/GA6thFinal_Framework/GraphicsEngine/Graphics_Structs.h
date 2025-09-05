@@ -148,3 +148,16 @@ struct ParallaxMappingProperty
 {
     float HeightScale;
 };
+
+struct VolumetricFogProperty
+{
+    float Anisotropy;
+    float Density;
+    float Strength;
+    float BlendWithScene;
+    float BlendWithPrevFrame;
+    float CustomNear;
+    float CustomFar;
+    float FogIntensity;
+    float LightShaftIntensity;
+};

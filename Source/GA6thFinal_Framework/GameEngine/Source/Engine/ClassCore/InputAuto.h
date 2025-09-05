@@ -257,6 +257,23 @@ namespace ReflectHelper
                             }
                         }
                     }
+                    else if constexpr (isProperty && std::is_same_v<remove_view_type, BoxSpacing>)
+                    {
+                        BoxSpacing input = val;
+                        isEdit      = ImGui::DragInt4(name, reinterpret_cast<int*>(&input.left));
+
+                        if constexpr (isProperty == false || isSetter == true)
+                        {
+                            if (isEdit)
+                            {
+                                val = input;
+                            }
+                            if (ImGui::IsItemDeactivatedAfterEdit())
+                            {
+                                result = true;
+                            }
+                        }
+                    }
                     else if constexpr (isProperty && std::is_same_v<remove_view_type, DirectX::SimpleMath::Color>)
                     {
                         DirectX::SimpleMath::Color input = val;

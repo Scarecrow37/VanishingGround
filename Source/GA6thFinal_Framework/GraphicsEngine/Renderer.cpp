@@ -23,6 +23,7 @@
 #include "FontTechnique.h"
 #include "PBRLitTechnique.h"
 #include "SSRTechnique.h"
+#include "VolumetricFogTechnique.h"
 #include "ParticleRenderTechnique.h"
 #include "RayTracingTechnique.h"
 #include "SkyBoxRenderTechnique.h"
@@ -166,7 +167,10 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
     {
         scene->AddRenderTechnique(std::make_unique<SSRTechnique>());
     }
-
+    if (RenderTechniqueFlag::VOLUMETRIC_FOG_TECH & flag)
+    {
+        scene->AddRenderTechnique(std::make_unique<VolumetricFogTechnique>());
+    }
     if (RenderTechniqueFlag::PARTICLE_TECH & flag)
     {
         scene->AddRenderTechnique(std::make_unique<ParticleRenderTechnique>());

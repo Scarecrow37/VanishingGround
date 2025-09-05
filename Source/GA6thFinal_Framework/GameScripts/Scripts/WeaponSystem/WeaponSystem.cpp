@@ -3,7 +3,10 @@
 #include <WeaponSystem/WeaponTable/WeaponTableComponent.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
 
-WeaponSystem::WeaponSystem() = default;
+WeaponSystem::WeaponSystem()
+{
+    static_instance = this;
+}
 WeaponSystem::~WeaponSystem()
 {
     if (this == static_instance)
@@ -14,7 +17,7 @@ WeaponSystem::~WeaponSystem()
 
 void WeaponSystem::Reset() 
 {
-    static_instance = this;
+    
 }
 
 void WeaponSystem::Awake() 

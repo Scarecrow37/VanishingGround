@@ -1,8 +1,9 @@
 ﻿#include "pch.h"
-#include "UmScripts.h"
+#include "Mesh/MeshComponent.h"
+#include "Camera/CameraComponent.h"
+
 using namespace Global;
 using namespace u8_literals;
-
 
 #define SAFE_FREE(ptr) if(ptr != nullptr) free(ptr)
 
@@ -35,7 +36,8 @@ bool EComponentFactory::InitalizeComponentFactory()
             return false;
     }
 
-    static std::vector<std::tuple<GameObject*, std::string, int, std::string>> addList; //복구해야할 컴포넌트 항목들
+    using AddListTupleType = std::tuple<GameObject*, std::string, int, std::string>;
+    static std::vector<AddListTupleType> addList; // 복구해야할 컴포넌트 항목들
     addList.clear();
 
     SetForegroundWindow(UmApplication.GetHwnd());
@@ -62,6 +64,18 @@ bool EComponentFactory::InitalizeComponentFactory()
         FreeLibrary(m_scriptsDll);
         m_scriptsDll = NULL;
     }
+
+    //인스턴스 아이디에 따른 정렬
+    if (1 < addList.size())
+    {
+        std::ranges::sort(addList, [](AddListTupleType& tupleA, AddListTupleType& tupleB) 
+        {
+            auto& [objectA, keyA, indexA, dataA] = tupleA;
+            auto& [objectB, keyB, indexB, dataB] = tupleB;
+            return objectA->GetInstanceID() < objectB->GetInstanceID();
+        });
+    }
+
     _newScriptsFunctionMap.clear();
     m_NewScriptsKeyVec.clear();
 
@@ -139,12 +153,20 @@ bool EComponentFactory::InitalizeComponentFactory()
             //컴포넌트 존재하면 다시 생성
             newComponent = NewComponent(key);
         }
-        else
+        else 
         {
             //없어진 컴포넌트면 Missing으로 대체
             std::shared_ptr<MissingComponent> missing = NewMissingComponent();
-            missing->ReflectFields->typeName = key;
-            missing->ReflectFields->reflectData = reflectData;
+            if (false == isMissing)
+            {
+                missing->ReflectFields->typeName    = key;
+                missing->ReflectFields->reflectData = reflectData;
+            }
+            else
+            {
+                missing->ReflectFields->typeName    = missingTemp.ReflectFields->typeName;
+                missing->ReflectFields->reflectData = missingTemp.ReflectFields->reflectData;
+            }
             newComponent = std::move(missing);
         }
         ResetComponent(gameObject, newComponent);       // 엔진에서 사용하기 위해 초기화

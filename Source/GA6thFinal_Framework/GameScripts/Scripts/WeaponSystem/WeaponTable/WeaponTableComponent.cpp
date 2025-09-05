@@ -3,7 +3,11 @@
 
 using namespace u8_literals;
 
-WeaponTableComponent::WeaponTableComponent() = default;
+WeaponTableComponent::WeaponTableComponent()
+{
+    static_instance = this;
+}
+
 WeaponTableComponent::~WeaponTableComponent()
 {
     if (static_instance == this)
@@ -144,7 +148,6 @@ void WeaponTableComponent::ClampMultiplierStats(WeaponElement& weapon)
 
 void WeaponTableComponent::Reset() 
 {
-    static_instance = this;
     gameObject->AddTag(TAG);
 }
 

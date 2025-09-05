@@ -41,6 +41,7 @@ namespace GE
         TO_BACKBUFFER,
         UI,
         UP_SAMPLE,
+        VOLUMETRIC_FOG,
         WRITE_AO,
         END
      };
@@ -50,9 +51,17 @@ namespace GE
         COMPUTE_RIBBON,
         COMPUTE_SPRITE,
         CUBE_TEXTURE_CONVERTOR,
+        DEPTH_EXTRACT,
         IRRADIANCE_MAP,
+        LIGHT_ACCUMULATION,
+        LIGHT_INJECTION,
+        PARTICLE_REORDER,
         PREFILTERED_MAP,
+        PREFIX_SUM,
+        RADIX_HISTOGRAM,
+        RADIX_SCATTER,
         SKELETAL_SKINNING,
+        VALIDATE_SORT,
         END
      };
     enum class GS { NONE, END };
