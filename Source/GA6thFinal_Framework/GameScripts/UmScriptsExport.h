@@ -101,6 +101,9 @@ UMREAL_COMPONENT(DummyWrapper)
 #include "Scripts/UI/Wrappers/Ratio/RatioWrapper.h"
 UMREAL_COMPONENT(RatioWrapper)
 
+#include "Scripts/UI/Wrappers/Scrolling/ScrollingWrapper.h"
+UMREAL_COMPONENT(ScrollingWrapper)
+
 #include "Scripts/UI/Panels/Grid/GridPanel.h"
 UMREAL_COMPONENT(GridPanel)
 UMREAL_COMPONENT(GridPanelSlot)
