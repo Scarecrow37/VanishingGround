@@ -9,7 +9,7 @@ void RenderTarget::Initialize(const D3D12_RESOURCE_DESC& desc, FLOAT clearColor)
 
     _currentState = D3D12_RESOURCE_STATE_RENDER_TARGET;
 
-    _size = {(LONG)desc.Width, (LONG)desc.Height};
+    _resolution = {(LONG)desc.Width, (LONG)desc.Height};
 
     UINT mipLevelCount = 1;
 
@@ -114,7 +114,7 @@ void RenderTarget::ResizeResource(SIZE resolution)
                             .bottom = (LONG)(resolution.cy >> i)};
     }
 
-    _size = resolution;
+    _resolution = resolution;
 
     CreateRenderTargetView();
     CreateShaderResourceView();

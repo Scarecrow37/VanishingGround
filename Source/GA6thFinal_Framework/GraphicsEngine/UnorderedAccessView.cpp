@@ -30,7 +30,7 @@ void UnorderedAccessView::Initialize(const D3D12_RESOURCE_DESC& desc, D3D12_UAV_
     _uavDimension = uavDimension;
     _currentState = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
 
-    _size = {(LONG)desc.Width, (LONG)desc.Height};
+    _resolution = {(LONG)desc.Width, (LONG)desc.Height};
 
     CreateUnorderedAccessView();
 }

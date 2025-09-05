@@ -3,8 +3,8 @@
 
 void DepthStencilView::Initialize(const D3D12_RESOURCE_DESC& desc)
 {
-    _desc = desc;    
-    _size = {(LONG)desc.Width, (LONG)desc.Height};
+    _desc       = desc;
+    _resolution = {(LONG)desc.Width, (LONG)desc.Height};
 
     _currentState = D3D12_RESOURCE_STATE_PRESENT;
 
