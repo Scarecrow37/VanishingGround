@@ -322,6 +322,7 @@
     <ClInclude Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22013.h" />
     <ClInclude Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22014.h" />
     <ClInclude Include="Scripts\EnemyAction\EnemyActionBase.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\Interface\IDropItem.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.h" />
     <ClInclude Include="Scripts\Animation\AnimationComponent.h" />
@@ -379,6 +380,7 @@
     <ClInclude Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.h" />
     <ClInclude Include="Scripts\UI\Wrappers\Scrolling\ScrollingWrapper.h" />
     <ClInclude Include="Scripts\ViewModels\Hp\HpViewModel.h" />
+    <ClInclude Include="Scripts\ViewModels\ItemDrop\DropArtifacts\DropArtifactsViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Revelations\RevelationsViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\TurnQueue\TurnQueueViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Weapon\WeaponViewModel.h" />
@@ -452,6 +454,8 @@
     <ClInclude Include="Scripts\WeaponSystem\WeaponSystem.h" />
     <ClInclude Include="Scripts\Test\TurnAction\TestActionComponent.h" />
     <ClInclude Include="Scripts\Test\DevTools\LogOutput.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UI\ItemDropUIRootManager.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UI\ArtifactUIManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scripts\Audio\BGMManager.cpp" />
@@ -539,6 +543,7 @@
     <ClCompile Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.cpp" />
     <ClCompile Include="Scripts\UI\Wrappers\Scrolling\ScrollingWrapper.cpp" />
     <ClCompile Include="Scripts\ViewModels\Hp\HpViewModel.cpp" />
+    <ClCompile Include="Scripts\ViewModels\ItemDrop\DropArtifacts\DropArtifactsViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Revelations\RevelationsViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\TurnQueue\TurnQueueViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Weapon\WeaponViewModel.cpp" />
@@ -615,6 +620,8 @@
     <ClCompile Include="Scripts\WeaponSystem\WeaponSystem.cpp" />
     <ClCompile Include="Scripts\Test\TurnAction\TestActionComponent.cpp" />
     <ClCompile Include="Scripts\Test\DevTools\LogOutput.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UI\ItemDropUIRootManager.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UI\ArtifactUIManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
