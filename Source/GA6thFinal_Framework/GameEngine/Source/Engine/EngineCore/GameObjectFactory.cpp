@@ -125,7 +125,12 @@ void EGameObjectFactory::ApplyPrefabInstanceChanges(const File::Guid& guid, YAML
                             {              
                                 originInstances.emplace_back(ESceneManager::Engine::SwapPrefabInstance(originObject, prefabObject));
                             }
+
                             // 소멸자 지연 호출
+                            for (auto& origin : originInstances)
+                            {                        
+                                GameObject::Engine::ResetActiveInHierarchy(origin.get());
+                            }
                             originInstances.clear();
                         }
                        
