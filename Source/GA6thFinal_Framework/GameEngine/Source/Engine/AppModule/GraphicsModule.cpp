@@ -27,6 +27,7 @@ void GraphicsModule::PreInitialize()
 
     RenderTechniqueFlag flag = RenderTechniqueFlag::SKY_BOX_TECH | lightingFlag | 
                                RenderTechniqueFlag::PARTICLE_TECH |
+                               RenderTechniqueFlag::SCENE_TRANSITION_TECH |
                                RenderTechniqueFlag::BLOOM_TECH | RenderTechniqueFlag::UI_TECH |
                                RenderTechniqueFlag::FONT_TECH;
 
