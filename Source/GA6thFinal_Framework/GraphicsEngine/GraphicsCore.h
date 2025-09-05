@@ -16,6 +16,7 @@ public:
     D3D12_CPU_DESCRIPTOR_HANDLE GetBackBufferHandle() const;
     ID3D12GraphicsCommandList*  GetCommandList() const;
     RenderPassProperties&       GetRenderPassProperties() const;
+    const SIZE&                 GetResolution() const;
 
 public:
     void SetCamera(std::string_view renderSceneName, std::shared_ptr<Camera> camera) const;

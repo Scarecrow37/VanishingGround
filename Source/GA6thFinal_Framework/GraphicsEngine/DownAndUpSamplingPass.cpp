@@ -30,13 +30,13 @@ void DownAndUpSamplingPass::Initialize(RenderScene* ownerScene, RenderTechnique*
     _pingpongTarget[1] = MakeSharedResource<RenderTarget>();
 
     const auto& resolution = Global::device->GetResolution();
-    auto        desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, 
-                                                    resolution.Width >> 1, 
-                                                    resolution.Height >> 1, 
-                                                    1, 
-                                                    MAX_MIPMAP_LEVEL, 
-                                                    1, 
-                                                    0, 
+    auto        desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT,
+                                                    resolution.cx >> 1,
+                                                    resolution.cy >> 1,
+                                                    1,
+                                                    MAX_MIPMAP_LEVEL,
+                                                    1,
+                                                    0,
                                                     D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
     _pingpongTarget[0]->Initialize(desc, 0.247f);

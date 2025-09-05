@@ -45,9 +45,9 @@ void UI2DPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechniq
 
 void UI2DPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
-    const auto& resolution = Global::device->GetResolution();
+    const auto& size = Global::device->GetResolution();
 
-    _cameraData.Projection = XMMatrixTranspose(XMMatrixOrthographicOffCenterLH(0.f, (float)resolution.Width, (float)resolution.Height, 0.f, 0.1f, 1000.f));
+    _cameraData.Projection = XMMatrixTranspose(XMMatrixOrthographicOffCenterLH(0.f, (float)size.cx, (float)size.cy, 0.f, 0.1f, 1000.f));
     _cameraBuffer->UpdateBuffer(&_cameraData);
 
     __super::UpdateBuffer(commandList);

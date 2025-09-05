@@ -433,7 +433,7 @@ void RenderScene::CreateRenderTarget()
 {
     auto                         resolution = Global::device->GetResolution();
     SharedResource<RenderTarget> renderTarget;
-    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, resolution.Width, resolution.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, resolution.cy, resolution.cx, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
     _meshRenderTargetName = _name + "_MeshRenderTarget";
     renderTarget          = MakeSharedResource<RenderTarget>();

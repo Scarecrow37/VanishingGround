@@ -84,12 +84,6 @@ struct PostProcessData
     unsigned int MipLevel;
 };
 
-struct Resolution
-{
-    UINT Width;
-    UINT Height;
-};
-
 struct PipelineStateStream
 {
     CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE        RootSignature;

@@ -72,6 +72,11 @@ RenderPassProperties& GraphicsCore::GetRenderPassProperties() const
     return _renderPassDatas->GetRenderPassProperties();
 }
 
+const SIZE& GraphicsCore::GetResolution() const
+{
+    return _device->GetResolution();
+}
+
 void GraphicsCore::SetCamera(const std::string_view renderSceneName, std::shared_ptr<Camera> camera) const
 {
     _renderer->SetCamera(renderSceneName, camera);

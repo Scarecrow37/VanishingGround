@@ -9,7 +9,7 @@ void RenderTarget::Initialize(const D3D12_RESOURCE_DESC& desc, FLOAT clearColor)
 
     _currentState = D3D12_RESOURCE_STATE_RENDER_TARGET;
 
-    _resolution = {(UINT)desc.Width, (UINT)desc.Height};
+    _size = {(LONG)desc.Width, (LONG)desc.Height};
 
     UINT mipLevelCount = 1;
 
@@ -92,29 +92,29 @@ void RenderTarget::ClearRenderTarget(ID3D12GraphicsCommandList* commandList, UIN
     commandList->ClearRenderTargetView(_rtvHandles[mipLevel], _clearValue, 0, nullptr);
 }
 
-void RenderTarget::ResizeResource(Resolution resolution)
+void RenderTarget::ResizeResource(SIZE resolution)
 {
     _currentState = D3D12_RESOURCE_STATE_RENDER_TARGET;
 
-    _desc.Width = resolution.Width;
-    _desc.Height = resolution.Height;
+    _desc.Width = resolution.cx;
+    _desc.Height = resolution.cy;
 
     for (UINT i = 0; i < _rtvHandles.size(); i++)
     {
         _viewPorts[i]    = {.TopLeftX = 0.f,
                             .TopLeftY = 0.f,
-                            .Width    = (FLOAT)(resolution.Width >> i),
-                            .Height   = (FLOAT)(resolution.Height >> i),
+                            .Width    = (FLOAT)(resolution.cx >> i),
+                            .Height   = (FLOAT)(resolution.cy >> i),
                             .MinDepth = 0.f,
                             .MaxDepth = 1.f};
 
         _scissorRects[i] = {.left = 0, 
                             .top = 0, 
-                            .right = (LONG)(resolution.Width >> i), 
-                            .bottom = (LONG)(resolution.Height >> i)};
+                            .right = (LONG)(resolution.cx >> i), 
+                            .bottom = (LONG)(resolution.cy >> i)};
     }
 
-    _resolution      = resolution;
+    _size = resolution;
 
     CreateRenderTargetView();
     CreateShaderResourceView();

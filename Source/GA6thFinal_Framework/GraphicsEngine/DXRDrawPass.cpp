@@ -278,9 +278,9 @@ void DXRDrawPass::WriteCommand(ID3D12GraphicsCommandList* cmdList)
     _outputResourceUAV->TransitionResource(cmdList4.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
     D3D12_DISPATCH_RAYS_DESC rayTraceDesc{};
-    Resolution               resolution = _outputResourceUAV->GetResolution();
-    rayTraceDesc.Width                  = resolution.Width;
-    rayTraceDesc.Height                 = resolution.Height;
+    SIZE                     resolution = _outputResourceUAV->GetResolution();
+    rayTraceDesc.Width                  = resolution.cx;
+    rayTraceDesc.Height                 = resolution.cy;
     rayTraceDesc.Depth                  = 1;
 
     // raygen 1개

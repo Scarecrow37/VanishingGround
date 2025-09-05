@@ -15,11 +15,11 @@ void GaussianBlurModule::Initialize()
 
 void GaussianBlurModule::Execute(ID3D12GraphicsCommandList* commandList, D3D12_GPU_DESCRIPTOR_HANDLE input, RenderTarget* output, DXGI_FORMAT rtvFormat, BlurType type, UINT mipLevel)
 {
-    auto resolution   = output->GetResolution();
-    resolution.Width  = std::max(1u, resolution.Width >>= mipLevel);
-    resolution.Height = std::max(1u, resolution.Height >>= mipLevel);
+    auto resolution = output->GetResolution();
+    resolution.cx  = std::max(1l, resolution.cx >>= mipLevel);
+    resolution.cy = std::max(1l, resolution.cy >>= mipLevel);
 
-    PostProcessData postProcessData{.TexelSize = {1.0f / resolution.Width, 1.0f / resolution.Height},
+    PostProcessData postProcessData{.TexelSize = {1.0f / resolution.cx, 1.0f / resolution.cy},
                                     .MipLevel  = mipLevel};
 
     commandList->OMSetRenderTargets(1, &output->GetRTVHandle(mipLevel), FALSE, nullptr);
@@ -50,24 +50,21 @@ void GaussianBlurModule::Execute(ID3D12GraphicsCommandList* commandList, D3D12_G
 
 void GaussianBlurModule::Execute(ID3D12GraphicsCommandList* commandList, RenderTarget* input, RenderTarget* output, DXGI_FORMAT rtvFormat, BlurType type, UINT mipLevel)
 {
-    auto resolution   = output->GetResolution();
-    resolution.Width  = std::max(1u, resolution.Width >>= mipLevel);
-    resolution.Height = std::max(1u, resolution.Height >>= mipLevel);
+    auto resolution = output->GetResolution();
+    resolution.cx  = std::max(1l, resolution.cx >>= mipLevel);
+    resolution.cy = std::max(1l, resolution.cy >>= mipLevel);
 
     // resolution 기반 viewport 설정
     D3D12_VIEWPORT viewport = {
         0.0f, 0.0f,
-        static_cast<float>(resolution.Width),
-        static_cast<float>(resolution.Height),
+        static_cast<float>(resolution.cx),
+        static_cast<float>(resolution.cy),
         0.0f, 1.0f};
 
     // scissor rect 설정
-    D3D12_RECT scissorRect = {
-        0, 0,
-        static_cast<LONG>(resolution.Width), static_cast<LONG>(resolution.Height)};
+    D3D12_RECT scissorRect = {0, 0, resolution.cx, resolution.cy};
 
-    PostProcessData postProcessData{.TexelSize = {1.0f / resolution.Width, 1.0f / resolution.Height},
-                                    .MipLevel  = mipLevel};
+    PostProcessData postProcessData{.TexelSize = {1.0f / resolution.cx, 1.0f / resolution.cy}, .MipLevel = mipLevel};
 
     commandList->OMSetRenderTargets(1, &output->GetRTVHandle(mipLevel), FALSE, nullptr);
     commandList->RSSetViewports(1, &viewport);

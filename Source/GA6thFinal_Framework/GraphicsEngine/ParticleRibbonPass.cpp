@@ -92,9 +92,9 @@ void ParticleRibbonPass::Draw(ID3D12GraphicsCommandList* commandList)
     auto depthStencilBuffer = Global::multiRenderTargetManager->GetRenderTarget("Depth");
 
     auto        customDepthTarget = Global::multiRenderTargetManager->GetRenderTarget("CustomDepth");
-    const auto& mode              = customDepthTarget->GetResolution();
+    const auto& resolution        = customDepthTarget->GetResolution();
 
-    PostProcessData postProcessData{.TexelSize = {1.f / (float)mode.Width, 1.f / (float)mode.Height}};
+    PostProcessData postProcessData{.TexelSize = {1.f / (float)resolution.cx, 1.f / (float)resolution.cy}};
     commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_6_postProcessData"), 6,
                                                &postProcessData, 0);
 

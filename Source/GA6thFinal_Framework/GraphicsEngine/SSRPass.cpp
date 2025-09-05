@@ -10,8 +10,7 @@ void SSRPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechniqu
 {
     __super::Initialize(ownerScene, ownerTechnique, commandList);
     auto resolution = Global::device->GetResolution();
-    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, resolution.Width, resolution.Height, 1, 1,
-                                             1, 0,
+    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, resolution.cx, resolution.cy, 1, 1, 1, 0,
                                              D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
     PipelineStateStream pss;
