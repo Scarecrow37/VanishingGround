@@ -12,7 +12,7 @@ enum CommandQueueType { GRAPHICS_QUEUE, COMPUTE_QUEUE, COPY_QUEUE, COMMAND_QUEUE
 
 enum MeshType { STATIC_MESH, SKELETAL_MESH, MESH_TYPE_END };
 
-enum SpriteType { MODE_2D, MODE_25D, MODE_3D, SPRITE_TYPE_END };
+enum SpriteType { MODE_3D, MODE_25D, MODE_2D, SPRITE_TYPE_END };
 
 enum PostProcess
 {
@@ -22,18 +22,18 @@ enum PostProcess
 
 enum RenderTechniqueFlag : unsigned long long
 {
-    NONE             = 0,
-    SKY_BOX_TECH     = 1 << 0,
-    PBR_TECH         = 1 << 1,
-    BLOOM_TECH       = 1 << 2,
-    UI_TECH          = 1 << 3,
-    FONT_TECH        = 1 << 4,
-    EDITOR_DRAW_TECH = 1 << 5,
-    PARTICLE_TECH    = 1 << 6,
-    RAY_TRACING_TECH = 1 << 7,
-    SSR_TECH         = 1 << 8,
-    DISTORTION_TECH  = 1 << 9,
-    VOLUMETRIC_FOG_TECH =1<<10,
+    NONE                = 0,
+    SKY_BOX_TECH        = 1 << 0,
+    PBR_TECH            = 1 << 1,
+    BLOOM_TECH          = 1 << 2,
+    UI_TECH             = 1 << 3,
+    FONT_TECH           = 1 << 4,
+    EDITOR_DRAW_TECH    = 1 << 5,
+    PARTICLE_TECH       = 1 << 6,
+    RAY_TRACING_TECH    = 1 << 7,
+    SSR_TECH            = 1 << 8,
+    DISTORTION_TECH     = 1 << 9,
+    VOLUMETRIC_FOG_TECH = 1 << 10,
 };
 
 inline RenderTechniqueFlag operator|(RenderTechniqueFlag lhs, RenderTechniqueFlag rhs)

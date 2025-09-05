@@ -22,14 +22,14 @@ void FontTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
             D3D12_BLEND_DESC blendDesc       = {};
             blendDesc.AlphaToCoverageEnable  = FALSE;
             blendDesc.IndependentBlendEnable = FALSE;
-
+            
             auto& rtDesc                 = blendDesc.RenderTarget[0];
             rtDesc.BlendEnable           = TRUE;
             rtDesc.SrcBlend              = D3D12_BLEND_SRC_ALPHA;
             rtDesc.DestBlend             = D3D12_BLEND_INV_SRC_ALPHA;
             rtDesc.BlendOp               = D3D12_BLEND_OP_ADD;
-            rtDesc.SrcBlendAlpha         = D3D12_BLEND_ZERO;
-            rtDesc.DestBlendAlpha        = D3D12_BLEND_ONE;
+            rtDesc.SrcBlendAlpha         = D3D12_BLEND_ONE;
+            rtDesc.DestBlendAlpha        = D3D12_BLEND_INV_SRC_ALPHA;
             rtDesc.BlendOpAlpha          = D3D12_BLEND_OP_ADD;
             rtDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
