@@ -104,7 +104,7 @@ void cs_main(uint3 Gid : SV_GroupID, uint3 GTid : SV_GroupThreadID, uint3 DTid :
             lighting +=
                 visibility * fogValue * fogdata.LightShaftIntensity;
         // fog
-        lighting += lightData.Directional[0].Color.xy * fogValue * fogdata.FogIntensity;
+        lighting += fogValue * fogdata.FogIntensity;
         
         float4 result = float4(lighting * fogdata.Strength * fogdata.Density, visibility * fogdata.Density);
         
