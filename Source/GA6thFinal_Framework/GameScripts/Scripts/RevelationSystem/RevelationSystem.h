@@ -9,17 +9,21 @@ class RevelationSystem : public Component
     using ActionDataType = std::unordered_map<std::string, std::string>;
     using ElementDataType = std::vector<std::string>;
 public:
-    static RevelationSystem* GetInstance() 
+    static RevelationSystem* GetInstance(std::source_location location = std::source_location::current()) 
     {
         if (static_instance)
         {
-            return static_instance; 
+            if (false == static_instance->gameObject->IsValid())
+            {
+                static_instance = nullptr;
+            }
         }
-        else
+
+        if (nullptr == static_instance)
         {
-            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Revelation System이 존재하지 않습니다.!!!!!!!!");
-            return nullptr;
+            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Revelation System이 존재하지 않습니다.!!!!!!!!", location);
         }
+        return static_instance; 
     }
 
 public:

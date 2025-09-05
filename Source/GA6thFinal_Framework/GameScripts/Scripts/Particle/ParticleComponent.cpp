@@ -43,8 +43,15 @@ ParticleComponent::~ParticleComponent()
 void ParticleComponent::Update()
 {
 
+}
 
+void ParticleComponent::Start() 
+{
+    _skelMesh = GetComponent<SkeletalMeshRenderer>();
+}
 
+void ParticleComponent::Reset() 
+{
 
 }
 
@@ -88,22 +95,26 @@ void ParticleComponent::DeserializedReflectEvent()
 void ParticleComponent::ImGuiDrawPropertysEvent() 
 {
     SkeletalMeshRenderer* skelMesh = GetComponent<SkeletalMeshRenderer>();
-    auto&                 renderer   = skelMesh->Renderer;
-    auto&                 model      = renderer->GetModel();
-    const auto&           _boneNames = model->GetBoneNameList();
-
-    const char* comboLabel = (nullptr != skelMesh) ? ReflectFields->BoneNameToAttach.c_str() : "-";
-    if (ImGui::BeginCombo("##bone name", comboLabel))
+    if (nullptr != skelMesh)
     {
-        for (int i = 0; i < _boneNames.size(); ++i)
+
+        auto&       renderer   = skelMesh->Renderer;
+        auto&       model      = renderer->GetModel();
+        const auto& _boneNames = model->GetBoneNameList();
+
+        const char* comboLabel = (nullptr != skelMesh) ? ReflectFields->BoneNameToAttach.c_str() : "-";
+        if (ImGui::BeginCombo("##bone name", comboLabel))
         {
-            bool isSelected = ReflectFields->BoneNameToAttach == _boneNames[i];
-            if (ImGui::Selectable(_boneNames[i].c_str(), isSelected))
+            for (int i = 0; i < _boneNames.size(); ++i)
             {
-                ReflectFields->BoneNameToAttach = _boneNames[i];
+                bool isSelected = ReflectFields->BoneNameToAttach == _boneNames[i];
+                if (ImGui::Selectable(_boneNames[i].c_str(), isSelected))
+                {
+                    ReflectFields->BoneNameToAttach = _boneNames[i];
+                }
             }
+            ImGui::EndCombo();
         }
-        ImGui::EndCombo();
     }
 
 
@@ -233,5 +244,24 @@ void ParticleComponent::PlayEffect()
         _effect->Play();
     }
 
+}
+void ParticleComponent::SetGuid(const File::Path& filepath) 
+{
+    File::Guid guid = filepath.ToGuid();
+    _guidRef = guid;
+    ReflectFields->Guid = guid.string();
+    if (false == guid.IsNull())
+    {
+        LoadParticle();
+    }
 
+}
+void ParticleComponent::SetGuid(const File::Guid& fileguid)
+{
+    _guidRef = fileguid;
+    ReflectFields->Guid = fileguid.string();
+    if (false == fileguid.IsNull())
+    {
+        LoadParticle();
+    }
 }

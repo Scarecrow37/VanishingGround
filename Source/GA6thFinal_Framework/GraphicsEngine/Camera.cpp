@@ -80,4 +80,5 @@ void Camera::Update()
     _view  = XMMatrixInverse(nullptr, _world);
 
     _frustum.Transform(_worldFrustum, _world);
+
 }

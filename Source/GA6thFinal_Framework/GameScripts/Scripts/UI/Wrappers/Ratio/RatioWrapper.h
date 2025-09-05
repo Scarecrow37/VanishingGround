@@ -1,9 +1,11 @@
 ﻿#pragma once
-#include "UI/Base/EditablePlacementUIComponent/EditablePlacementUIComponent.h"
 
-class RatioWrapper : public EditablePlacementUIComponent
+class RatioWrapper : public UIComponent
 {
     USING_PROPERTY(RatioWrapper)
+
+public:
+    RatioWrapper();
 
 public:
     REFLECT_PROPERTY(Ratio)
@@ -11,23 +13,17 @@ public:
     GETTER(float, Ratio) { return ReflectFields->Ratio; }
     SETTER(float, Ratio)
     {
-        ReflectFields->Ratio = std::max(value, 0.1f);
-        OnPlacementChange();
+        ReflectFields->Ratio = std::clamp(value, 0.01f, 100.0f);
+        InvalidateMeasure();
     }
     PROPERTY(Ratio)
 
-public:
-    float GetRatio() const;
+protected:
+    SIZE MeasureOverride(SIZE availableSize) override;
+    SIZE ArrangeOverride(SIZE finalSize) override;
 
 protected:
-    void OnPlacementChange() override;
-    void OnAttachChild(GameObject* childGameObject) override;
-
-private:
-    void AssignChild(PlacementUIComponent& component) const;
-
-protected:
-    REFLECT_FIELDS_BEGIN(EditablePlacementUIComponent)
+    REFLECT_FIELDS_BEGIN(UIComponent)
     float Ratio = 1.0f;
     REFLECT_FIELDS_END(RatioWrapper)
 };

@@ -106,8 +106,17 @@ enum class ParticleType
 {
     SPRITE,
     MESH,
-    RIBBON
+    RIBBON,
+    MISC,
 }; 
+enum ParticleMiscFlag
+{
+    DISTORTION,
+    BLUR,
+};
+
+
+
 
 enum class VelocityScaleType
 {
@@ -117,7 +126,7 @@ enum class VelocityScaleType
     CUSTOM
 };
 
-struct ribbonIndex
+struct RibbonIndex
 {
     UINT  index = -1;
     float ratio = 0;
@@ -138,7 +147,7 @@ struct ParticleUpdateResource
     std::vector<class Particle>           _ribbonTotalParticles;
     std::vector<EmitterInfo>              _ribbonEmitterMatrix;
     std::vector<Texture*>                 _ribbonActiveEmitterAlbedos;
-    std::vector<std::vector<ribbonIndex>> _ribbonIndices;
+    std::vector<std::vector<RibbonIndex>> _ribbonIndices;
     UINT                                  _ribbonTotalCount = 0;
 
     ComPtr<ID3D12Resource> _particleInput;

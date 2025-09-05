@@ -52,3 +52,12 @@ void WeaponElement::DeepCopyAction(const TurnAction& rhs)
         *_action = rhs;
     }
 }
+
+DropItemInfo WeaponElement::GetItemInfo()
+{
+    DropItemInfo info
+    {
+        .ID = Stats.WeaponID,
+    };
+    return info;
+}

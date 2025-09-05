@@ -15,21 +15,6 @@ public:
     virtual void End(ID3D12GraphicsCommandList* commandList) {};
 
 protected:
-    template<typename T>
-    T* GetRenderPass()
-    {
-        for (auto& pass : _ownerTechnique->_renderPasses)
-        {
-            T* pointer = dynamic_cast<T*>(pass.get());
-            if (pointer)
-            {
-                return pointer;
-            }
-        }
-        return nullptr;
-    }
-
-protected:
     SharedResource<RenderTarget>   _meshRenderTarget;
     SharedResource<RenderTarget>   _finalRenderTarget;
     RenderScene*                   _ownerScene{nullptr};

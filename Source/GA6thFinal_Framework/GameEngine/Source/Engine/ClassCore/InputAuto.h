@@ -257,6 +257,23 @@ namespace ReflectHelper
                             }
                         }
                     }
+                    else if constexpr (isProperty && std::is_same_v<remove_view_type, BoxSpacing>)
+                    {
+                        BoxSpacing input = val;
+                        isEdit      = ImGui::DragInt4(name, reinterpret_cast<int*>(&input.left));
+
+                        if constexpr (isProperty == false || isSetter == true)
+                        {
+                            if (isEdit)
+                            {
+                                val = input;
+                            }
+                            if (ImGui::IsItemDeactivatedAfterEdit())
+                            {
+                                result = true;
+                            }
+                        }
+                    }
                     else if constexpr (isProperty && std::is_same_v<remove_view_type, DirectX::SimpleMath::Color>)
                     {
                         DirectX::SimpleMath::Color input = val;
@@ -334,10 +351,13 @@ namespace ReflectHelper
                                           std::is_base_of_v<Transform, owner_type>
                                          )
                             {   
-                               static std::unordered_map<void*, remove_view_type> prevValue;
+                               static thread_local std::unordered_map<void*, remove_view_type> prevValue;
                                if (ImGui::IsItemActivated())
                                {
-                                   prevValue[value] = val;
+                                   if (prevValue.find(value) == prevValue.end())
+                                   {
+                                       prevValue[value] = val;
+                                   }
                                }
                                if (result)
                                {   

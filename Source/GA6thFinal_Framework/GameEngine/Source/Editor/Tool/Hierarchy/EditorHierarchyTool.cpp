@@ -4,8 +4,8 @@
 #include "Command/PackPrefabCommand.h"
 #include "Command/SetParentCommand.h"
 #include "Editor/Tool/Scene/Command/EditorSceneCommands.h"
-
-#include "UmScripts.h"
+#include "Mesh/MeshComponent.h"
+#include "Camera/CameraComponent.h"
 
 using namespace u8_literals;
 using namespace Global;
@@ -335,7 +335,10 @@ EditorHierarchyTool::EditorHierarchyTool()
     SetDockLayout(ImGuiDir_Left);
 }
 
-EditorHierarchyTool::~EditorHierarchyTool() {}
+EditorHierarchyTool::~EditorHierarchyTool() 
+{
+
+}
 
 void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
 {
@@ -360,7 +363,7 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
                 GameObjectKey, GameObject::Helper::GenerateUniqueName("Main camera"), &camera);
 
             if (camera)
-            {
+            {             
                 CameraComponent& cameraComponent = camera->AddComponent<CameraComponent>();
                 cameraComponent.SetMainCamera();
             }
@@ -390,19 +393,19 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
         {
             UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                 GameObjectKey, GameObject::Helper::GenerateUniqueName("Directional light"), &light);
-            light->AddComponent<DirectionalLight>();
+            UmComponentFactory.AddComponentToObject(light, "class DirectionalLight");
         }
         if (ImGui::MenuItem("Point light"))
         {
             UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                 GameObjectKey, GameObject::Helper::GenerateUniqueName("Point light"), &light);
-            light->AddComponent<PointLight>();
+            UmComponentFactory.AddComponentToObject(light, "class PointLight");
         }
         if (ImGui::MenuItem("Spot light"))
         {
             UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                 GameObjectKey, GameObject::Helper::GenerateUniqueName("Spot light"), &light);
-            light->AddComponent<SpotLight>();
+            UmComponentFactory.AddComponentToObject(light, "class SpotLight");
         }
         ImGui::EndMenu();
 
@@ -419,14 +422,14 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
         {
             UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                 GameObjectKey, GameObject::Helper::GenerateUniqueName("Static Mesh"), &mesh);
-            mesh->AddComponent<StaticMeshRenderer>();
+            UmComponentFactory.AddComponentToObject(mesh, "class StaticMeshRenderer");
         }
         if (ImGui::MenuItem("Skeletal Mesh"))
         {
             UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                 GameObjectKey, GameObject::Helper::GenerateUniqueName("Skeletal Mesh"), &mesh);
-            mesh->AddComponent<SkeletalMeshRenderer>();
-            mesh->AddComponent<AnimationComponent>();
+            UmComponentFactory.AddComponentToObject(mesh, "class SkeletalMeshRenderer");
+            UmComponentFactory.AddComponentToObject(mesh, "class AnimationComponent");
         }
         ImGui::EndMenu();
     }
@@ -438,7 +441,7 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
         {
             UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                 GameObjectKey, GameObject::Helper::GenerateUniqueName("UI Root"), &ui);
-            ui->AddComponent<UIRoot>();
+            UmComponentFactory.AddComponentToObject(ui, "class UIRoot");
         }
         if (ImGui::BeginMenu("Panels"))
         {
@@ -446,47 +449,41 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
             {
                 UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                     GameObjectKey, GameObject::Helper::GenerateUniqueName("Grid Panel"), &ui);
-                ui->AddComponent<GridPanel>();
+                UmComponentFactory.AddComponentToObject(ui, "class GridPanel");
             }
-            if (ImGui::MenuItem("Anchor Panel"))
+            if (ImGui::MenuItem("Overlay Panel"))
             {
                 UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
-                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Anchor Panel"), &ui);
-                ui->AddComponent<AnchorPanel>();
+                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Overlay Panel"), &ui);
+                UmComponentFactory.AddComponentToObject(ui, "class OverlayPanel");
             }
             if (ImGui::MenuItem("Horizontal Panel"))
             {
                 UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                     GameObjectKey, GameObject::Helper::GenerateUniqueName("Horizontal Panel"), &ui);
-                ui->AddComponent<HorizontalPanel>();
+                UmComponentFactory.AddComponentToObject(ui, "class HorizontalPanel");
             }
             if (ImGui::MenuItem("Description Panel"))
             {
                 UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                     GameObjectKey, GameObject::Helper::GenerateUniqueName("Description Panel"), &ui);
-                ui->AddComponent<DescriptionPanel>();
+                UmComponentFactory.AddComponentToObject(ui, "class DescriptionPanel");
             }
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Wrappers"))
         {
-            if (ImGui::MenuItem("Padding Wrapper"))
+            if (ImGui::MenuItem("Dummy Wrapper"))
             {
                 UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
-                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Padding Wrapper"), &ui);
-                ui->AddComponent<PaddingWrapper>();
-            }
-            if (ImGui::MenuItem("Center Wrapper"))
-            {
-                UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
-                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Center Wrapper"), &ui);
-                ui->AddComponent<CenterWrapper>();
+                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Dummy Wrapper"), &ui);
+                UmComponentFactory.AddComponentToObject(ui, "class DummyWrapper");
             }
             if (ImGui::MenuItem("Ratio Wrapper"))
             {
                 UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                     GameObjectKey, GameObject::Helper::GenerateUniqueName("Ratio Wrapper"), &ui);
-                ui->AddComponent<RatioWrapper>();
+                UmComponentFactory.AddComponentToObject(ui, "class RatioWrapper");
             }
             ImGui::EndMenu();
         }
@@ -496,19 +493,19 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
             {
                 UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                     GameObjectKey, GameObject::Helper::GenerateUniqueName("Dummy Element"), &ui);
-                ui->AddComponent<DummyElement>();
+                UmComponentFactory.AddComponentToObject(ui, "class DummyElement");
             }
             if (ImGui::MenuItem("Image Element"))
             {
                 UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                     GameObjectKey, GameObject::Helper::GenerateUniqueName("Image Element"), &ui);
-                ui->AddComponent<ImageElement>();
+                UmComponentFactory.AddComponentToObject(ui, "class ImageElement");
             }
             if (ImGui::MenuItem("Text Element"))
             {
                 UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                     GameObjectKey, GameObject::Helper::GenerateUniqueName("Text Element"), &ui);
-                ui->AddComponent<TextElement>();
+                UmComponentFactory.AddComponentToObject(ui, "class TextElement");
             }
             ImGui::EndMenu();
         }
@@ -579,8 +576,9 @@ void EditorHierarchyTool::HierarchyDropEvent()
 void EditorHierarchyTool::HierarchyRightClickEvent() const
 {
     if (ImGui::BeginPopupContextWindow("HierarchyRightClickPopup", ImGuiPopupFlags_NoOpenOverItems |
-                                                                       ImGuiPopupFlags_MouseButtonRight |
-                                                                       ImGuiPopupFlags_NoOpenOverExistingPopup))
+                                                                   ImGuiPopupFlags_MouseButtonRight |
+                                                                   ImGuiPopupFlags_NoOpenOverExistingPopup)
+       )
     {
         ImGui::Text("New GameObject");
         ImGui::Separator();
@@ -597,102 +595,145 @@ void EditorHierarchyTool::HierarchyDrawTreeNode()
     ImGui::BeginChild("##E8DA04FA-E996-4718-8E2F-3138772C5A32", size);
     {
         HierarchyRightClickEvent();
+
+        //유효한 오브젝트만 남긴다.
+        if (_hierarchyObjectCleanup)
+        {
+            std::erase_if(_hierarchyObjects, [](const std::shared_ptr<GameObject>& object) 
+            {
+                return false == object->IsValid();
+            });
+            _hierarchyObjectCleanup = false;
+        }
+
+        //실제로 그릴 오브젝트 씬 별로 분류
+        _hierarchySceneIndex.clear();
+        _hierarchyRootObjects.clear();
+        _hierarchyDontDestroyOnLoadObjects.clear();
         const auto& scenes = engineCore->SceneManager.GetLoadedScenes();
         if (false == scenes.empty())
         {
-            for (auto& pScene : scenes)
+            //씬 이름 및 인덱스 정보 생성
+            for (auto& scene : scenes)
             {
-                ImGui::PushID(pScene);
+                const std::string& name = scene->Path;
+                _hierarchySceneIndex[name] = _hierarchyRootObjects.size();
+                _hierarchyRootObjects.emplace_back(name, std::vector<GameObject*>());
+            }
+
+            //분류 작업
+            for (auto& object : _hierarchyObjects)
+            {
+                if (nullptr == object->transform->Parent)
                 {
-                    Scene& scene = *pScene;
-                    if (scene.isLoaded == false)
-                        continue;
-
-                    std::string sName = scene.Name;
-                    bool        isCollapsingOpen =
-                        ImGui::CollapsingHeader(sName.c_str(), ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen);
-                    if (ImGui::BeginPopupContextItem("RightClick"))
+                    const std::string& ownerSceneName = object->GetOwnerSceneName();
+                    auto sceneIndexIter = _hierarchySceneIndex.find(ownerSceneName);
+                    if (sceneIndexIter != _hierarchySceneIndex.end())
                     {
-                        if (true == _isPlay)
-                        {
-                            ImGui::BeginDisabled();
-                        }
-
-                        if (ImGui::MenuItem("Save Scene"))
-                        {
-                            SaveScene(scene);
-                            ImGui::CloseCurrentPopup();
-                        }
-
-                        if (ImGui::MenuItem("Unload Scene"))
-                        {
-                            std::string path = scene.Path;
-                            UmSceneManager.UnloadScene(path);
-                            ImGui::CloseCurrentPopup();
-                        }
-
-                        if (true == _isPlay)
-                        {
-                            ImGui::EndDisabled();
-                        }
-                        ImGui::EndPopup();
+                        size_t sceneIndex = sceneIndexIter->second;
+                        _hierarchyRootObjects[sceneIndex].second.push_back(object.get());
                     }
-                    if (true == scene.IsDirty)
+                    else
                     {
-                        ImGui::SameLine();
-                        ImGui::Text("*");
-                    }
-                    if (isCollapsingOpen)
-                    {
-                        auto rootObjects = scene.GetRootGameObjects();
-                        for (auto& obj : rootObjects)
+                        if (ownerSceneName == ESceneManager::DONT_DESTROY_ON_LOAD_SCENE_NAME)
                         {
-                            GameObject* clickNode = nullptr;
-                            TransformTreeNode(obj->transform, focusObject, clickNode, static_isOpenFocusObj);
-                            if (clickNode)
-                            {
-                                auto& oldWp = EditorHierarchyTool::static_hierarchyFocusObjWeak;
-                                auto  newWp = clickNode->GetWeakPtr();
-                                if (false == EditorInspectorTool::IsLockFocus() &&
-                                    false == EditorInspectorTool::IsFocusObject(newWp))
-                                {
-                                    UmCommandManager.Do<Command::Hierarchy::FocusCommand>(oldWp, newWp);
-                                }
-                            }
+                            _hierarchyDontDestroyOnLoadObjects.push_back(object.get());
                         }
                     }
                 }
-                ImGui::PopID();
             }
-        }
-        if (_isPlay)
-        {
-            Scene* pDontDestroyOnLoad = UmSceneManager.GetDontDestroyOnLoadScene();
-            if (nullptr != pDontDestroyOnLoad)
+
+            //에디터 출력
+            for (auto& [scenePath, objects] : _hierarchyRootObjects)
             {
-                bool isCollapsingOpen =
-                    ImGui::CollapsingHeader("DontDestroyOnLoad", ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen);
-                if (isCollapsingOpen)
+                Scene* currScene = UmSceneManager.GetSceneByName(scenePath);
+                if (currScene)
                 {
-                    auto rootObjects = pDontDestroyOnLoad->GetRootGameObjects();
-                    for (auto& obj : rootObjects)
+                    Scene& scene = *currScene;
+                    std::string sceneName = scene.Name;
+                    ImGui::PushID(currScene);
                     {
-                        ImGui::PushID(obj.get());
+                        bool isCollapsingOpen = ImGui::CollapsingHeader(sceneName.c_str(), ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen);
+                        if (ImGui::BeginPopupContextItem("RightClick"))
                         {
-                            GameObject* clickNode = nullptr;
-                            TransformTreeNode(obj->transform, focusObject, clickNode, static_isOpenFocusObj);
-                            if (clickNode)
+                            if (true == _isPlay)
                             {
-                                auto& oldWp = EditorHierarchyTool::static_hierarchyFocusObjWeak;
-                                auto  newWp = clickNode->GetWeakPtr();
-                                if (false == EditorInspectorTool::IsLockFocus() &&
-                                    false == EditorInspectorTool::IsFocusObject(newWp))
+                                ImGui::BeginDisabled();
+                            }
+
+                            if (ImGui::MenuItem("Save Scene"))
+                            {
+                                SaveScene(scene);
+                                ImGui::CloseCurrentPopup();
+                            }
+
+                            if (ImGui::MenuItem("Unload Scene"))
+                            {
+                                UmSceneManager.UnloadScene(scenePath);
+                                ImGui::CloseCurrentPopup();
+                            }
+
+                            if (true == _isPlay)
+                            {
+                                ImGui::EndDisabled();
+                            }
+                            ImGui::EndPopup();
+                        }
+                        if (true == scene.IsDirty)
+                        {
+                            ImGui::SameLine();
+                            ImGui::Text("*");
+                        }
+                        if (isCollapsingOpen)
+                        {
+                            for (auto& obj : objects)
+                            {
+                                GameObject* clickNode = nullptr;
+                                TransformTreeNode(obj->transform, focusObject, clickNode, static_isOpenFocusObj);
+                                if (clickNode)
                                 {
-                                    UmCommandManager.Do<Command::Hierarchy::FocusCommand>(oldWp, newWp);
+                                    auto& oldWp = EditorHierarchyTool::static_hierarchyFocusObjWeak;
+                                    auto  newWp = clickNode->GetWeakPtr();
+                                    if (false == EditorInspectorTool::IsLockFocus() &&
+                                        false == EditorInspectorTool::IsFocusObject(newWp))
+                                    {
+                                        UmCommandManager.Do<Command::Hierarchy::FocusCommand>(oldWp, newWp);
+                                    }
                                 }
                             }
                         }
-                        ImGui::PopID();
+                    }
+                    ImGui::PopID();
+                }        
+            }
+
+            //DontDestroyOnLoad 오브젝트 항목들
+            if (_isPlay)
+            {
+                if (false == _hierarchyDontDestroyOnLoadObjects.empty())
+                {
+                    bool isCollapsingOpen = ImGui::CollapsingHeader("DontDestroyOnLoad", ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen);
+                    if (isCollapsingOpen)
+                    {
+                        for (auto& obj : _hierarchyDontDestroyOnLoadObjects)
+                        {
+                            ImGui::PushID(obj);
+                            {
+                                GameObject* clickNode = nullptr;
+                                TransformTreeNode(obj->transform, focusObject, clickNode, static_isOpenFocusObj);
+                                if (clickNode)
+                                {
+                                    auto& oldWp = EditorHierarchyTool::static_hierarchyFocusObjWeak;
+                                    auto  newWp = clickNode->GetWeakPtr();
+                                    if (false == EditorInspectorTool::IsLockFocus() &&
+                                        false == EditorInspectorTool::IsFocusObject(newWp))
+                                    {
+                                        UmCommandManager.Do<Command::Hierarchy::FocusCommand>(oldWp, newWp);
+                                    }
+                                }
+                            }
+                            ImGui::PopID();
+                        }
                     }
                 }
             }
@@ -724,7 +765,7 @@ void EditorHierarchyTool::KeyboardEvent()
 
             if (this->IsFocusFrame() || _editorSceneTool->IsFocusFrame() || _editorFindTool->IsFocusFrame())
             {
-                if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Delete, false))
+                if (ImGui::IsKeyPressed(ImGuiKey_Delete, false))
                 {
                     if (false == static_hierarchyFocusObjWeak.expired())
                     {
@@ -732,6 +773,13 @@ void EditorHierarchyTool::KeyboardEvent()
                         object->GetScene().IsDirty = true;
                         UmCommandManager.Do<Command::EditorScene::DestroyGameObjectCommand>(object.get());
                     }
+                }
+
+                if (ImGui::IsKeyPressed(ImGuiKey_Escape, false))
+                {
+                    const std::weak_ptr<GameObject>& old = EditorHierarchyTool::GetFocusObject();
+                    std::weak_ptr<GameObject>        empty;
+                    UmCommandManager.Do<Command::Hierarchy::FocusCommand>(old, empty);
                 }
             }
         }
@@ -764,13 +812,6 @@ void EditorHierarchyTool::KeyboardEvent()
                         UmCommandManager.Do<Command::EditorScene::PasteObjectCommand>(clipboardText);
                     }
                 }
-            }
-
-            if (ImGui::IsKeyPressed(ImGuiKey_Escape, false))
-            {
-                const std::weak_ptr<GameObject>& old = EditorHierarchyTool::GetFocusObject();
-                std::weak_ptr<GameObject> empty;
-                UmCommandManager.Do<Command::Hierarchy::FocusCommand>(old, empty);
             }
         }
     }

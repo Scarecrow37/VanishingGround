@@ -9,12 +9,23 @@ class EditorHierarchyTool;
 class EditorSceneTool
     : public EditorTool
 {
+    USING_PROPERTY(EditorSceneTool)
 public:
     EditorSceneTool();
     virtual ~EditorSceneTool();
 
     static void SetManipulateObject(std::weak_ptr<GameObject> object);
-
+    static EditorSceneTool* GetTool()
+    {
+        auto& dockSystem = Global::editorModule->GetDockWindowSystem();
+        EditorDockWindow* sceneDock  = dockSystem.GetDockWindow("SceneDock");
+        if (sceneDock)
+        {
+            EditorSceneTool* editorSceneTool = dockSystem.GetDockWindow("SceneDock")->GetGui<EditorSceneTool>();
+            return editorSceneTool;
+        }
+        return nullptr;
+    }
 public:
     const Matrix& GetCameraMatrix();
     void SetCameraToObject(std::weak_ptr<GameObject> destination);
@@ -39,6 +50,8 @@ private:
     void OnFrameFocusStay() override;
 
 private:
+    void LoadDefaultIcon();
+
     void UpdateKeyboardFrameFocus();
     void UpdateKeyboardFrameRender();
     void DragDropEvent();
@@ -126,6 +139,7 @@ protected:
     float  CameraPivot         = 0.f;
     bool   VertexSnapUse       = false;
     float  VertexSnapThreshold = 100.f;
+    bool   DrawGizmo           = true;
     REFLECT_FIELDS_END(EditorSceneTool)
 
     /*
@@ -148,6 +162,16 @@ public:
         ReflectFields->CameraPivot, 
         ReflectFields->CameraMoveSpeed
         )
+
+    GETTER(bool, DrawGizmo)
+    { 
+        return ReflectFields->DrawGizmo;
+    }
+    SETTER(bool, DrawGizmo)
+    {
+        ReflectFields->DrawGizmo = value;      
+    }
+    PROPERTY(DrawGizmo)
 
     void UpdateCameraSetting();
     void UpdateReflectFields();

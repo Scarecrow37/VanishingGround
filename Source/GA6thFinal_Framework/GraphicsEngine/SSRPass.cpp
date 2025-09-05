@@ -14,10 +14,6 @@ void SSRPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechniqu
                                              1, 0,
                                              D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
-    _renderTarget = MakeSharedResource<RenderTarget>();
-    _renderTarget->Initialize(desc, 1.f);
-    _renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-
     PipelineStateStream pss;
     pss.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
     pss.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
@@ -34,18 +30,19 @@ void SSRPass::AddRenderPassDatas(std::string_view sceneName)
     Global::renderPassDatas->AddRenderPassProperty(sceneName, "SSRPass", SSRPassProperty({0.3f, 0.34f, 200.f,2.f}));
 }
 
-void SSRPass::Begin(ID3D12GraphicsCommandList* commandList) 
-{
-    _renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    _renderTarget->ClearRenderTarget(commandList, 0);
-    commandList->OMSetRenderTargets(1, &_renderTarget->GetRTVHandle(), FALSE, nullptr);
-    commandList->RSSetViewports(1, &_renderTarget->GetViewport());
-    commandList->RSSetScissorRects(1, &_renderTarget->GetScissorRect());
-}
+void SSRPass::Begin(ID3D12GraphicsCommandList* commandList) {}
 
 void SSRPass::Draw(ID3D12GraphicsCommandList* commandList) 
 {
-    auto ssrProperty              = std::any_cast<SSRPassProperty>(_ownerScene->GetRenderPassProperty("SSRPass"));
+    auto renderTarget = Global::multiRenderTargetManager->GetAvailableRenderTarget();
+    renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    renderTarget->ClearRenderTarget(commandList, 0);
+    renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    renderTarget->ClearRenderTarget(commandList, 0);
+    commandList->OMSetRenderTargets(1, &renderTarget->GetRTVHandle(), FALSE, nullptr);
+    commandList->RSSetViewports(1, &renderTarget->GetViewport());
+    commandList->RSSetScissorRects(1, &renderTarget->GetScissorRect());
+    auto        ssrProperty       = std::any_cast<SSRPassProperty>(_ownerScene->GetRenderPassProperty("SSRPass"));
     const auto& renderTargetGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
     auto        cameraData        = _ownerScene->_cameraBuffer->GetGPUVirtualAddress();
     commandList->SetGraphicsRootSignature(_fxSSR.GetRootSignature());
@@ -61,10 +58,13 @@ void SSRPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootConstantBufferView(_fxSSR.GetRootParameterIndex("cameraData"), cameraData);
     commandList->SetGraphicsRoot32BitConstants(_fxSSR.GetRootParameterIndex("bit32_4_ssrProperty"), 4, &ssrProperty, 0);
     _ownerScene->_frameQuad->Render(commandList);
-    _renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_COPY_SOURCE);
+
+    renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_COPY_SOURCE);
     _meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_COPY_DEST);
-    commandList->CopyResource(_meshRenderTarget->GetResource(), _renderTarget->GetResource());
+    commandList->CopyResource(_meshRenderTarget->GetResource(), renderTarget->GetResource());
     _meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+
+    Global::multiRenderTargetManager->ReturnRenderTarget(renderTarget);
 }
 
 void SSRPass::End(ID3D12GraphicsCommandList* commandList) {}

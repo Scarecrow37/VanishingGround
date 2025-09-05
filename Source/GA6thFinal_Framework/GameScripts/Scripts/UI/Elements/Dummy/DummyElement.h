@@ -1,13 +1,16 @@
 ﻿#pragma once
-#include "UI/Base/EditablePlacementUIComponent/EditablePlacementUIComponent.h"
 
-class DummyElement : public EditablePlacementUIComponent
+class DummyElement : public UIComponent
 {
     USING_PROPERTY(DummyElement)
 public:
     DummyElement();
 
 protected:
-    REFLECT_FIELDS_BEGIN(EditablePlacementUIComponent)
+    SIZE MeasureOverride(SIZE availableSize) override;
+    SIZE ArrangeOverride(SIZE finalSize) override;
+
+protected:
+    REFLECT_FIELDS_BEGIN(UIComponent)
     REFLECT_FIELDS_END(DummyElement)
 };

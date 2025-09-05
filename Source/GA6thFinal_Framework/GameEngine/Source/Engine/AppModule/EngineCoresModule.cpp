@@ -17,6 +17,7 @@ void EngineCoresModule::ModuleUnInitialize()
     if constexpr (Application::IsEditor())
     {
         UmCommandManager.Clear();
+        EditorHierarchyTool::CleanupEditorObjects();
     }
     ESceneManager::Engine::CleanupSceneManager();
     ETimeSystem::Engine::CleanUpInvokeFuntions();
