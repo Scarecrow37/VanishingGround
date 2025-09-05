@@ -73,6 +73,12 @@ public:
     /// <returns></returns>
     const std::vector<std::shared_ptr<RevelationElement>>& GetPlayerElementList() { return _playerElementList; }
 
+    /// <summary>
+    /// 테이블의 모든 계시들을 반환합니다.
+    /// </summary>
+    /// <returns></returns>
+    const std::vector<RevelationElement*>& GetRevelationTableElements() { return _elementTableOrderID; }
+
 public:     
     /// <summary>
     /// 새로운 Element를 테이블에 추가합니다.

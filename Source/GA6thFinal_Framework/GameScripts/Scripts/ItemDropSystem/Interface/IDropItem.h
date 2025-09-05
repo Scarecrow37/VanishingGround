@@ -3,6 +3,7 @@
 struct DropItemInfo
 {
     int ID;
+    std::string_view Name;
 };
 
 /*보상 시스템에 등장 가능한 유물들은 다음 인터페이스를 상속받아야 합니다.*/
