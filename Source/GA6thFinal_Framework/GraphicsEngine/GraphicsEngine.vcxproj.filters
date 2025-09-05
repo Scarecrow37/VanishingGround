@@ -125,6 +125,7 @@
     <FxCompile Include="..\Shaders\ps_volumetric_fog.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\cs_particle_reorder.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AccelerationStructureManager.cpp">
@@ -416,9 +417,6 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="SpriteRenderer.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="SSAOTechnique.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="SSAOWritePass.cpp">
@@ -798,9 +796,6 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="SpriteRenderer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SSAOTechnique.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="SSAOWritePass.h">

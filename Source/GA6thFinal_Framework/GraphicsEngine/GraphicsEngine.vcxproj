@@ -430,7 +430,6 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClInclude Include="SkyBoxRenderTechnique.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="SpriteRenderer.h" />
-    <ClInclude Include="SSAOTechnique.h" />
     <ClInclude Include="SSAOWritePass.h" />
     <ClInclude Include="SSRPass.h" />
     <ClInclude Include="SSRTechnique.h" />
@@ -561,7 +560,6 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClCompile Include="SkyBoxRenderTechnique.cpp" />
     <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="SpriteRenderer.cpp" />
-    <ClCompile Include="SSAOTechnique.cpp" />
     <ClCompile Include="SSAOWritePass.cpp" />
     <ClCompile Include="SSRPass.cpp" />
     <ClCompile Include="SSRTechnique.cpp" />
