@@ -23,6 +23,7 @@ public:
     Watcher::System          Watcher;
     ParticleEffectSerializer ParticleSerializer;
     EGizmoManager            GizmoManager;
+    UI::Manager               UserInterface;
 
     ReflectHelper::ImGuiDraw::InputAutoSetting ImGuiDrawPropertysSetting;
 private:
@@ -83,6 +84,7 @@ namespace Global
 #define UmAudio UmCore->Audio
 #define UmWatcher UmCore->Watcher
 #define UmGizmoManager UmCore->GizmoManager
+#define UmUI UmCore->UserInterface
 
 // Graphics
 #define UmParticleSerializer UmCore->ParticleSerializer

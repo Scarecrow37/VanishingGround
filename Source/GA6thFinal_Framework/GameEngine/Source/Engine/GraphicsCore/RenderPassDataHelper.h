@@ -69,6 +69,8 @@ inline void SerializeVolumetricFogProperty(std::ostream& os, const VolumetricFog
     os << "        BlendWithPrevFrame = " << prop.BlendWithPrevFrame << "\n";
     os << "        CustomNear = " << prop.CustomNear << "\n";
     os << "        CustomFar = " << prop.CustomFar << "\n";
+    os << "        FogIntensity = " << prop.FogIntensity << "\n";
+    os << "        LightShaftIntensity = " << prop.LightShaftIntensity << "\n";
 }
 
 
@@ -196,6 +198,10 @@ inline void DeserializeVolumetricFogProperty(std::istream& is, VolumetricFogProp
             ss >> prop.CustomNear;
         else if (key == "CustomFar")
             ss >> prop.CustomFar;
+        else if (key == "FogIntensity")
+            ss >> prop.FogIntensity;
+        else if (key == "LightShaftIntensity")
+            ss >> prop.LightShaftIntensity;
     }
 }
 

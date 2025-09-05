@@ -16,9 +16,9 @@ struct HexToColor
             return {0.0f, 0.0f, 0.0f, 1.0f}; // Invalid hex format
 
         std::string hexColor = hex;
-        hexColor = hexColor.substr(1);
+        hexColor             = hexColor.substr(1);
 
-        unsigned int r = 0, g = 0, b = 0, a = 255;
+        unsigned int      r = 0, g = 0, b = 0, a = 255;
         std::stringstream ss;
         ss << std::hex << hexColor.substr(0, 2);
         ss >> r;
@@ -36,7 +36,7 @@ struct HexToColor
             ss >> a;
         }
 
-        float red = static_cast<float>(r) / 255.0f;
+        float red   = static_cast<float>(r) / 255.0f;
         float green = static_cast<float>(g) / 255.0f;
         float blue  = static_cast<float>(b) / 255.0f;
         float alpha = static_cast<float>(a) / 255.0f;
@@ -54,10 +54,8 @@ struct ParseData
         if (content.empty())
             return elements;
 
-        pugi::xml_document       doc;
-        pugi::xml_parse_result   result = doc.load_string(content.c_str());
-
-        if (!result)
+        pugi::xml_document doc;
+        if (pugi::xml_parse_result result = doc.load_string(content.c_str()); !result)
         {
             UmLogger.Log(LogLevel::LEVEL_WARNING, std::format("XML parsing failed: {}", result.description()));
             return elements;
@@ -100,7 +98,6 @@ struct ParseData
         return elements;
     }
 };
-
 
 DescriptionPanel::DescriptionPanel()
 {
@@ -149,17 +146,44 @@ void DescriptionPanel::DeserializedReflectEvent()
     }
 }
 
+void DescriptionPanel::ImGuiDrawPropertysEvent()
+{
+    HorizontalPanel::ImGuiDrawPropertysEvent();
+
+    if (_isDebug)
+    {
+        const std::string& guid = ReflectFields->Guid;
+        ImGuiDebug()("Font GUID", guid);
+    }
+}
+
+void DescriptionPanel::Awake()
+{
+    HorizontalPanel::Awake();
+
+    if (_requiresUpdate) UpdateContent();
+}
+
 void DescriptionPanel::UpdateContent()
 {
-    if (_requestUpdate)
-        return;
+    if (const bool enableInHierarchy = EnableInHierarchy; enableInHierarchy && _requiresUpdate)
+    {
+        EraseChild();
+        MakeChild();
+        InvalidateMeasure();
+        _requiresUpdate = false;
+    }
+}
+
+void DescriptionPanel::EraseChild() const
+{
     Transform& transform = this->transform;
 
-    const int childCount = transform.GetChildCount();
+    const int                childCount = transform.GetChildCount();
     std::vector<GameObject*> children;
     for (int i = 0; i < childCount; ++i)
     {
-        const Transform* childTransform = transform.GetChild(i);
+        const Transform* childTransform  = transform.GetChild(i);
         GameObject&      childGameObject = childTransform->gameObject;
         children.push_back(&childGameObject);
     }
@@ -168,41 +192,44 @@ void DescriptionPanel::UpdateContent()
         GameObject::Destroy(child);
     }
     children.clear();
+}
 
-    UmTime.Invoke(this, 0, [this]() {
-        Transform&        transform = this->transform;
-        const std::string text = ReflectFields->Description;
+void DescriptionPanel::MakeChild()
+{
+    Transform&        transform = this->transform;
+    const std::string text      = ReflectFields->Description;
 
-        for (const std::vector<ElementData> elementData = ParseData()(text); const auto& [Type, Data] : elementData)
+    for (const std::vector<ElementData> elementData = ParseData()(text); const auto& [Type, Data] : elementData)
+    {
+        const std::shared_ptr<GameObject> child =
+            NewGameObject(GameObject::Helper::GenerateUniqueName("Description Child"));
+        switch (Type)
         {
-            const std::shared_ptr<GameObject> child =
-                NewGameObject(GameObject::Helper::GenerateUniqueName("Text Element"));
-            switch (Type)
-            {
-            case ElementType::TEXT: {
-                TextElement& element  = child->AddComponent<TextElement>();
-                auto [content, color] = std::get<TextAttributes>(Data);
-                element.SetFont(_guidRef);
-                element.IsFitContent = true;
-                element.Text         = content;
-                element.Color        = color;
-            }
-            break;
-            case ElementType::IMAGE: {
-                child->AddComponent<RatioWrapper>();
-                const std::shared_ptr<GameObject> imageChild =
-                    NewGameObject(GameObject::Helper::GenerateUniqueName("Image Element"));
-                auto [guid]           = std::get<ImageAttributes>(Data);
-                ImageElement& element = imageChild->AddComponent<ImageElement>();
-                element.SetImage(guid);
-                imageChild->transform->SetParent(child->transform, true);
-            }
-            break;
-            }
-            child->transform->SetParent(transform, true);
+        case ElementType::TEXT: {
+            TextElement& element  = child->AddComponent<TextElement>();
+            auto [content, color] = std::get<TextAttributes>(Data);
+            element.SetFont(_guidRef);
+            element.HorizontalFillMode = FillMode::WRAP;
+            element.VerticalFillMode   = FillMode::WRAP;
+            element.Text               = content;
+            element.Color              = color;
         }
-        _requestUpdate = false;
-    });
-
-    _requestUpdate = true;
+        break;
+        case ElementType::IMAGE: {
+            RatioWrapper& ratio      = child->AddComponent<RatioWrapper>();
+            ratio.HorizontalFillMode = FillMode::FILL;
+            ratio.VerticalFillMode   = FillMode::FILL;
+            const std::shared_ptr<GameObject> imageChild =
+                NewGameObject(GameObject::Helper::GenerateUniqueName("Image Element"));
+            auto [guid]           = std::get<ImageAttributes>(Data);
+            ImageElement& element = imageChild->AddComponent<ImageElement>();
+            element.SetImage(guid);
+            element.HorizontalFillMode = FillMode::FILL;
+            element.VerticalFillMode   = FillMode::FILL;
+            imageChild->transform->SetParent(child->transform, true);
+        }
+        break;
+        }
+        child->transform->SetParent(transform, true);
+    }
 }

@@ -4,7 +4,7 @@
 #include "Editor/Tool/Scene/Command/EditorSceneCommands.h"
 #include "Editor/DynamicCamera/EditorDynamicCamera.h"
 #include "EditorSceneTool.h"
-#include "UmScripts.h"
+#include "Mesh/MeshComponent.h"
 
 using namespace u8_literals;
 

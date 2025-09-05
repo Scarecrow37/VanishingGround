@@ -22,11 +22,10 @@ void GraphicsModule::PreInitialize()
     UmFileSystem.RegisterFileEventSubscriber(&UmParticleSerializer, {".vfx"});
 
     RenderTechniqueFlag lightingFlag = RenderTechniqueFlag::NONE;
-    lightingFlag = _israytracing ? RenderTechniqueFlag::RAY_TRACING_TECH | RenderTechniqueFlag::VOLUMETRIC_FOG_TECH
-                                                     : RenderTechniqueFlag::PBR_TECH | RenderTechniqueFlag::SSR_TECH 
-                                                     | RenderTechniqueFlag::VOLUMETRIC_FOG_TECH;
+    lightingFlag = _israytracing ? RenderTechniqueFlag::RAY_TRACING_TECH : RenderTechniqueFlag::PBR_TECH | RenderTechniqueFlag::SSR_TECH;
 
-    RenderTechniqueFlag flag = RenderTechniqueFlag::SKY_BOX_TECH | lightingFlag | 
+    RenderTechniqueFlag flag = RenderTechniqueFlag::SKY_BOX_TECH | lightingFlag |
+                               RenderTechniqueFlag::VOLUMETRIC_FOG_TECH |
                                RenderTechniqueFlag::PARTICLE_TECH |
                                RenderTechniqueFlag::BLOOM_TECH | RenderTechniqueFlag::UI_TECH |
                                RenderTechniqueFlag::FONT_TECH;

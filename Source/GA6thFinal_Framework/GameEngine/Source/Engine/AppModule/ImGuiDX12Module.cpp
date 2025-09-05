@@ -1,6 +1,5 @@
 ﻿#include "pch.h"
 #include "ImGuiDX12Module.h"
-#include "UmScripts.h"
 
 void ImGuiDX12Module::PreInitialize()
 {

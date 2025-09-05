@@ -4,8 +4,8 @@
 #include "Command/PackPrefabCommand.h"
 #include "Command/SetParentCommand.h"
 #include "Editor/Tool/Scene/Command/EditorSceneCommands.h"
-
-#include "UmScripts.h"
+#include "Mesh/MeshComponent.h"
+#include "Camera/CameraComponent.h"
 
 using namespace u8_literals;
 using namespace Global;
@@ -363,7 +363,7 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
                 GameObjectKey, GameObject::Helper::GenerateUniqueName("Main camera"), &camera);
 
             if (camera)
-            {
+            {             
                 CameraComponent& cameraComponent = camera->AddComponent<CameraComponent>();
                 cameraComponent.SetMainCamera();
             }
@@ -393,19 +393,19 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
         {
             UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                 GameObjectKey, GameObject::Helper::GenerateUniqueName("Directional light"), &light);
-            light->AddComponent<DirectionalLight>();
+            UmComponentFactory.AddComponentToObject(light, "class DirectionalLight");
         }
         if (ImGui::MenuItem("Point light"))
         {
             UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                 GameObjectKey, GameObject::Helper::GenerateUniqueName("Point light"), &light);
-            light->AddComponent<PointLight>();
+            UmComponentFactory.AddComponentToObject(light, "class PointLight");
         }
         if (ImGui::MenuItem("Spot light"))
         {
             UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                 GameObjectKey, GameObject::Helper::GenerateUniqueName("Spot light"), &light);
-            light->AddComponent<SpotLight>();
+            UmComponentFactory.AddComponentToObject(light, "class SpotLight");
         }
         ImGui::EndMenu();
 
@@ -422,14 +422,14 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
         {
             UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                 GameObjectKey, GameObject::Helper::GenerateUniqueName("Static Mesh"), &mesh);
-            mesh->AddComponent<StaticMeshRenderer>();
+            UmComponentFactory.AddComponentToObject(mesh, "class StaticMeshRenderer");
         }
         if (ImGui::MenuItem("Skeletal Mesh"))
         {
             UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                 GameObjectKey, GameObject::Helper::GenerateUniqueName("Skeletal Mesh"), &mesh);
-            mesh->AddComponent<SkeletalMeshRenderer>();
-            mesh->AddComponent<AnimationComponent>();
+            UmComponentFactory.AddComponentToObject(mesh, "class SkeletalMeshRenderer");
+            UmComponentFactory.AddComponentToObject(mesh, "class AnimationComponent");
         }
         ImGui::EndMenu();
     }
@@ -441,7 +441,7 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
         {
             UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                 GameObjectKey, GameObject::Helper::GenerateUniqueName("UI Root"), &ui);
-            ui->AddComponent<UIRoot>();
+            UmComponentFactory.AddComponentToObject(ui, "class UIRoot");
         }
         if (ImGui::BeginMenu("Panels"))
         {
@@ -449,47 +449,41 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
             {
                 UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                     GameObjectKey, GameObject::Helper::GenerateUniqueName("Grid Panel"), &ui);
-                ui->AddComponent<GridPanel>();
+                UmComponentFactory.AddComponentToObject(ui, "class GridPanel");
             }
-            if (ImGui::MenuItem("Anchor Panel"))
+            if (ImGui::MenuItem("Overlay Panel"))
             {
                 UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
-                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Anchor Panel"), &ui);
-                ui->AddComponent<AnchorPanel>();
+                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Overlay Panel"), &ui);
+                UmComponentFactory.AddComponentToObject(ui, "class OverlayPanel");
             }
             if (ImGui::MenuItem("Horizontal Panel"))
             {
                 UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                     GameObjectKey, GameObject::Helper::GenerateUniqueName("Horizontal Panel"), &ui);
-                ui->AddComponent<HorizontalPanel>();
+                UmComponentFactory.AddComponentToObject(ui, "class HorizontalPanel");
             }
             if (ImGui::MenuItem("Description Panel"))
             {
                 UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                     GameObjectKey, GameObject::Helper::GenerateUniqueName("Description Panel"), &ui);
-                ui->AddComponent<DescriptionPanel>();
+                UmComponentFactory.AddComponentToObject(ui, "class DescriptionPanel");
             }
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Wrappers"))
         {
-            if (ImGui::MenuItem("Padding Wrapper"))
+            if (ImGui::MenuItem("Dummy Wrapper"))
             {
                 UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
-                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Padding Wrapper"), &ui);
-                ui->AddComponent<PaddingWrapper>();
-            }
-            if (ImGui::MenuItem("Center Wrapper"))
-            {
-                UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
-                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Center Wrapper"), &ui);
-                ui->AddComponent<CenterWrapper>();
+                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Dummy Wrapper"), &ui);
+                UmComponentFactory.AddComponentToObject(ui, "class DummyWrapper");
             }
             if (ImGui::MenuItem("Ratio Wrapper"))
             {
                 UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                     GameObjectKey, GameObject::Helper::GenerateUniqueName("Ratio Wrapper"), &ui);
-                ui->AddComponent<RatioWrapper>();
+                UmComponentFactory.AddComponentToObject(ui, "class RatioWrapper");
             }
             ImGui::EndMenu();
         }
@@ -499,19 +493,19 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
             {
                 UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                     GameObjectKey, GameObject::Helper::GenerateUniqueName("Dummy Element"), &ui);
-                ui->AddComponent<DummyElement>();
+                UmComponentFactory.AddComponentToObject(ui, "class DummyElement");
             }
             if (ImGui::MenuItem("Image Element"))
             {
                 UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                     GameObjectKey, GameObject::Helper::GenerateUniqueName("Image Element"), &ui);
-                ui->AddComponent<ImageElement>();
+                UmComponentFactory.AddComponentToObject(ui, "class ImageElement");
             }
             if (ImGui::MenuItem("Text Element"))
             {
                 UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                     GameObjectKey, GameObject::Helper::GenerateUniqueName("Text Element"), &ui);
-                ui->AddComponent<TextElement>();
+                UmComponentFactory.AddComponentToObject(ui, "class TextElement");
             }
             ImGui::EndMenu();
         }

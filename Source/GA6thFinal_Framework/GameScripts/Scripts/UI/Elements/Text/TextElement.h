@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "UI/Base/EditablePlacementUIComponent/EditablePlacementUIComponent.h"
+#include "UI/Base/DrawUIComponent/DrawUIComponent.h"
 
-class TextElement : public EditablePlacementUIComponent
+class TextElement : public DrawUIComponent
 {
     USING_PROPERTY(TextElement)
 
@@ -14,7 +14,7 @@ public:
     ~TextElement() override;
 
 public:
-    REFLECT_PROPERTY(FilePath, Text, Color, FontScale, IsFitContent)
+    REFLECT_PROPERTY(FilePath, Text, Color, FontScale)
 
     GETTER_ONLY(std::string, FilePath) { return _guidRef.ToPath().string(); }
     PROPERTY(FilePath)
@@ -25,8 +25,7 @@ public:
         ReflectFields->Text = value;
         UpdateText();
         UpdateContentSize();
-        if (ReflectFields->IsFitContent)
-            FitContent();
+        InvalidateMeasure();
     }
     PROPERTY(Text)
 
@@ -43,50 +42,43 @@ public:
     {
         ReflectFields->FontScale = std::max(0.0f, value);
         UpdateScale();
+        InvalidateMeasure();
     }
     PROPERTY(FontScale)
 
-    GETTER(bool, IsFitContent) { return ReflectFields->IsFitContent; }
-    SETTER(bool, IsFitContent)
-    {
-        ReflectFields->IsFitContent = value;
-        if (ReflectFields->IsFitContent)
-            FitContent();
-    }
-    PROPERTY(IsFitContent)
+    GETTER_ONLY(SIZE, ContentSize) { return ReflectFields->ContentSize; }
+    PROPERTY(ContentSize)
 
 public:
-    SIZE GetContentSize() const override;
     void SetFont(const File::GuidRef& guidRef);
 
 protected:
     void  Reset() override;
     void  DeserializedReflectEvent() override;
-    void  OnPlacementChange() override;
     float GetZOrder() const override;
+    void ImGuiDrawPropertysEvent() override;
+
+    SIZE MeasureOverride(SIZE availableSize) override;
+    SIZE ArrangeOverride(SIZE finalSize) override;
 
 private:
     void SetViewOrder(int viewOrder) override;
 
     void RequestResource();
     void LoadFont() const;
-    void PassProperty();
-    void UpdateAll();
+    void UpdateProperties();
     void UpdateText() const;
     void UpdateColor() const;
     void UpdatePosition() const;
     void UpdateScale() const;
     void UpdateContentSize();
 
-    void FitContent();
-
 protected:
-    REFLECT_FIELDS_BEGIN(EditablePlacementUIComponent)
+    REFLECT_FIELDS_BEGIN(DrawUIComponent)
     std::string          Guid;
     std::string          Text         = "Hello Um!";
     std::array<float, 4> Color        = {0.0f, 0.0f, 0.0f, 1.0f};
     float                FontScale    = 1.0f;
-    bool                 IsFitContent = false;
     SIZE                 ContentSize  = SIZE{};
     REFLECT_FIELDS_END(TextElement)
 
