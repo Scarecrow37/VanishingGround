@@ -163,3 +163,21 @@ UMREAL_COMPONENT(EnemyActionSystem)
 
 #include "Scripts\Audio/BGMManager.h"
 UMREAL_COMPONENT(BGMManager)
+
+#include "Scripts\Map/MapManager.h"
+UMREAL_COMPONENT(MapManager)
+
+#include "Scripts\Map/Stage.h"
+UMREAL_COMPONENT(Stage)
+
+#include "Scripts\Map/RewardPopup.h"
+UMREAL_COMPONENT(RewardPopup)
+
+#include "Scripts\Map/Views/StageView.h"
+UMREAL_COMPONENT(StageView)
+
+#include "Scripts\Map/Views/StageFocusView.h"
+UMREAL_COMPONENT(StageFocusView)
+
+#include "Scripts\Map/SmoothScroll.h"
+UMREAL_COMPONENT(SmoothScroll)
