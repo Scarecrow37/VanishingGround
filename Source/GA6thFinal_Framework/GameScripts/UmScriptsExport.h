@@ -172,7 +172,6 @@ UMREAL_COMPONENT(ArtifactUIManager)
 
 #include "Scripts\ItemDropSystem/ItemDropSystem.h"
 UMREAL_COMPONENT(ItemDropSystem)
-UMREAL_COMPONENT(BGMManager)
 
 #include "Scripts\Map/MapManager.h"
 UMREAL_COMPONENT(MapManager)
