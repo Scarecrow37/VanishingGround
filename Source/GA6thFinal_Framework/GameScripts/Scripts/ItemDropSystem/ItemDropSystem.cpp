@@ -126,7 +126,8 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
                 info.ID         = -1;
                 info.CategoryID = -1;
                 info.Name       = rfl::enum_to_string(grade);
-                info.Name += (const char*)u8" 등급 무기가 존재하지 않습니다.";
+                info.Name += (const char*)u8" 등급 ";
+                info.Name += rfl::enum_to_string(static_cast<WeaponType>(type));
                 return info;
             }
         };
@@ -149,7 +150,7 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
                 info.ID         = -1;
                 info.CategoryID = -1;
                 info.Name       = rfl::enum_to_string(grade);
-                info.Name       += (const char*)u8" 등급 계시가 존재하지 않습니다.";
+                info.Name       += (const char*)u8" 등급 계시";
                 return info;
             }
         };
