@@ -23,17 +23,27 @@ void FadePass::Update(ID3D12GraphicsCommandList* commadList)
         _fadeEnd   = transitionProp->_fadeEndColor;
         _fadeDuration = transitionProp->_fadeDuration;
         _fadeTimer    = 0;
+        _fadeMaintain = transitionProp->_fadeMaintain;
         Global::sceneTransitionCore->_sceneTransitionProps[_ownerScene->_name]->_fadeFlag = false;
     }
 
     if (true == _fadeFlag)
     {
         _fadeTimer += Global::renderer->GetDeltaTime();
+
+        _fadeColor = Vector4::Lerp(_fadeStart, _fadeEnd, _fadeTimer / _fadeDuration);
+
         if (_fadeTimer >= _fadeDuration)
         {
-            _fadeFlag = false;
+            _fadeColor = _fadeEnd;
+
+        }
+        if (_fadeTimer >= _fadeDuration+_fadeMaintain)
+        {
+            _fadeFlag  = false;
             _fadeTimer = 0;
         }
+
     }
 
 
@@ -59,9 +69,8 @@ void FadePass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootSignature(_fx.GetRootSignature());
 
     // test
-    float    ratio = _fadeTimer / _fadeDuration;
-    timestep t     = {_fadeStart,_fadeEnd, ratio};
-    commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_9_time"), 9, &t, 0);
+    timestep t     = {_fadeColor};
+    commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_4_time"), 4, &t, 0);
     _ownerScene->_frameQuad->Render(commandList);
 }
 

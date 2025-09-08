@@ -8,7 +8,7 @@ public:
     ~SceneTransitionComponent() override;
     USING_PROPERTY(SceneTransitionComponent)
 public:
-    REFLECT_PROPERTY(Duration)
+    REFLECT_PROPERTY(Duration,Maintain)
 
     
     GETTER(float, Duration) { return ReflectFields->Duration; }
@@ -19,6 +19,13 @@ public:
 
     }
     PROPERTY(Duration)
+    GETTER(float, Maintain) { return ReflectFields->Maintain; }
+    SETTER(float, Maintain)
+    {
+        ReflectFields->Maintain = value;
+        isDirty                 = true;
+    }
+    PROPERTY(Maintain)
 
 
 protected:
@@ -26,6 +33,7 @@ protected:
     std::array<float, 4> StartColorArray;
     std::array<float, 4> EndColorArray;
     float                Duration;
+    float                Maintain;
     REFLECT_FIELDS_END(SceneTransitionComponent)
 
     Vector4 _startColor{0, 0, 0, 0};

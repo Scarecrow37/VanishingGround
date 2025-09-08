@@ -3,9 +3,7 @@
 
 struct timestep
 {
-    Vector4 start{0, 0, 0, 0};
-    Vector4 end{0, 0, 0, 0};
-    float time = 0;
+    Vector4 color{0, 0, 0, 0};
 };
 
 class FadePass : public RenderPass
@@ -29,9 +27,10 @@ private:
     bool                           _fadeFlag = false;
     Vector4                        _fadeStart{0, 0, 0, 0};
     Vector4                        _fadeEnd{0, 0, 0, 0};
+    Vector4                        _fadeColor{0, 0, 0, 0};
     float                          _fadeDuration = 1.f;
     float                          _fadeTimer;
-    float                          _fadeStep;
+    float                          _fadeMaintain;
     FX<GE::VS::QUAD, GE::PS::FADE> _fx;
     // std::map<std::string, class Texture*> _fadeMaskTextures;
     

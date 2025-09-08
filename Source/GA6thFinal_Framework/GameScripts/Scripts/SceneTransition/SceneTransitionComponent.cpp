@@ -60,7 +60,7 @@ void SceneTransitionComponent::DeserializedReflectEvent()
 
 void SceneTransitionComponent::Fade(float duration, const Vector4& start, const Vector4& end) 
 {
-    UmTransition->Fade("Game", Duration, _startColor, _endColor);
-    UmTransition->Fade("Editor", Duration, _startColor, _endColor);
+    UmTransition->Fade("Game", Duration, _startColor, _endColor,Maintain);
+    UmTransition->Fade("Editor", Duration, _startColor, _endColor, Maintain);
 
 }
