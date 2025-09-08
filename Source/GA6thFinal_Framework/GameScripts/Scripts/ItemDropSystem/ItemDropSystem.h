@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "UmFramework.h"
-class IDropItem;
+#include "Interface/IDropItem.h"
 
 class ItemDropSystem : public Component
 {
@@ -22,9 +22,15 @@ public:
 
 public:
     /// <summary>
-    /// Artifact 아이템들을 랜덤으로 뽑아서 UI에 출력합니다.
+    /// Artifact 아이템들을 랜덤으로 뽑아서 정보를 반환합니다.
     /// </summary>
-    void RollArtifacts();
+    std::vector<DropItemInfo> RollArtifacts();
+    
+    /// <summary>
+    /// 현재 보상 아이템을 설정합니다. UI도 갱신됩니다.
+    /// </summary>
+    /// <param name="itemInfos :"></param>
+    void SetDropItem(const std::vector<DropItemInfo>& itemInfos);
 
 public:
     REFLECT_PROPERTY()
@@ -39,7 +45,6 @@ protected:
     void Awake() override;
 
 private:
-    MVVM::Model<std::vector<IDropItem*>> _dropItemsModel;
-    std::vector<IDropItem*> _dropItems;
+    MVVM::Model<std::vector<DropItemInfo>> _dropItemsModel;
 
 };

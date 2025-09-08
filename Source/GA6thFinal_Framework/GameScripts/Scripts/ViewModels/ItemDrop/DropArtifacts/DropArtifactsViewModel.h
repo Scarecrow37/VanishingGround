@@ -1,6 +1,5 @@
 ﻿#pragma once
-
-class IDropItem;
+#include "ItemDropSystem/Interface/IDropItem.h"
 
 struct DropArtifactsUIData
 {
@@ -8,12 +7,12 @@ struct DropArtifactsUIData
     File::Guid Frame;
 };
 
-class DropArtifactsViewModel final : MVVM::ViewModel<std::vector<IDropItem*>, std::vector<DropArtifactsUIData>>
+class DropArtifactsViewModel final : MVVM::ViewModel<std::vector<DropItemInfo>, std::vector<DropArtifactsUIData>>
 {
 public:
-    explicit DropArtifactsViewModel(MVVM::Model<std::vector<IDropItem*>>& model);
+    explicit DropArtifactsViewModel(MVVM::Model<std::vector<DropItemInfo>>& model);
 
-    std::vector<DropArtifactsUIData> Convert(const std::vector<IDropItem*>& value) override;
+    std::vector<DropArtifactsUIData> Convert(const std::vector<DropItemInfo>& value) override;
 
 private:
     std::vector<DropArtifactsUIData> _uiDatas;

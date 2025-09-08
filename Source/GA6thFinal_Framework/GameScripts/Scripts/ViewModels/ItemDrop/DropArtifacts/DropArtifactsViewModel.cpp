@@ -3,14 +3,14 @@
 #include "ItemDropSystem/Interface/IDropItem.h"
 #include "ItemDropSystem/UI/ItemDropUIRootManager.h"
 
-DropArtifactsViewModel::DropArtifactsViewModel(MVVM::Model<std::vector<IDropItem*>>& model) 
+DropArtifactsViewModel::DropArtifactsViewModel(MVVM::Model<std::vector<DropItemInfo>>& model) 
     : 
     ViewModel(model) 
 {
 
 }
 
-std::vector<DropArtifactsUIData> DropArtifactsViewModel::Convert(const std::vector<IDropItem*>& value)
+std::vector<DropArtifactsUIData> DropArtifactsViewModel::Convert(const std::vector<DropItemInfo>& value)
 {
     _uiDatas.clear();
     ItemDropUIRootManager* uiRootManager = ItemDropUIRootManager::GetInstance();
@@ -21,7 +21,7 @@ std::vector<DropArtifactsUIData> DropArtifactsViewModel::Convert(const std::vect
             File::Path framePath = (std::string)uiRootManager->ArtifactsUIFrameAsset;
             DropArtifactsUIData data
             {
-                .ActorPortrait = UmFileSystem.GetPathFromAssetID(item->GetItemInfo().ID).ToGuid(), 
+                .ActorPortrait = UmFileSystem.GetPathFromAssetID(item.ID).ToGuid(), 
                 .Frame         = framePath.ToGuid(),
             };
             _uiDatas.push_back(data);

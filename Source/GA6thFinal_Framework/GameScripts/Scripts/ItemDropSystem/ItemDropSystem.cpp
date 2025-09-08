@@ -8,8 +8,10 @@
 ItemDropSystem::ItemDropSystem() = default;
 ItemDropSystem::~ItemDropSystem() = default;
 
-void ItemDropSystem::RollArtifacts() 
+std::vector<DropItemInfo> ItemDropSystem::RollArtifacts()
 {  
+    std::vector<DropItemInfo> artifacts;
+
     //일단 임시로 그냥 단순 6개 랜덤
     RevelationSystem* revelationSystem = RevelationSystem::GetInstance();
     if (revelationSystem)
@@ -17,7 +19,7 @@ void ItemDropSystem::RollArtifacts()
         const auto& table = revelationSystem->GetRevelationTableElements();
         for (auto& revelation : table)
         {
-            _dropItems.push_back(revelation);
+            artifacts.push_back(revelation->GetItemInfo());
         }      
     }
     WeaponTableComponent* weaponTableComponent = WeaponTableComponent::GetInstance();
@@ -26,14 +28,21 @@ void ItemDropSystem::RollArtifacts()
         const auto& table = weaponTableComponent->GetWeaponTableElements();
         for (auto& weapon : table)
         {
-            _dropItems.push_back(weapon);
+            artifacts.push_back(weapon->GetItemInfo());
         }
     }
 
-    std::shuffle(_dropItems.begin(), _dropItems.end(), Random::GetEngine());
-    _dropItems.resize(6);
-    _dropItemsModel = _dropItems; //UI 갱신
-    _dropItems.clear(); //정리
+    if (false == artifacts.empty())
+    {
+        std::shuffle(artifacts.begin(), artifacts.end(), Random::GetEngine());
+        artifacts.resize(6);
+    }
+    return artifacts;
+}
+
+void ItemDropSystem::SetDropItem(const std::vector<DropItemInfo>& itemInfos) 
+{
+    _dropItemsModel = itemInfos;
 }
 
 void ItemDropSystem::ImGuiDrawPropertysEvent() 
@@ -42,13 +51,14 @@ void ItemDropSystem::ImGuiDrawPropertysEvent()
     {
         if (ImGui::Button("Roll Artifacts"))
         {
-            RollArtifacts();
+            std::vector<DropItemInfo> artifacts = RollArtifacts();
+            SetDropItem(artifacts);
         }
         const auto& model = _dropItemsModel;
         for (auto& item : model)
         {
-            DropItemInfo info = item->GetItemInfo();
-            ImGui::PushID(item);
+            const DropItemInfo& info = item;
+            ImGui::PushID(&info);
             ImGui::Selectable(info.Name.data());
             ImGui::PopID();
         }
