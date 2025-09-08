@@ -618,13 +618,14 @@ std::shared_ptr<Component> EComponentFactory::MakeComponentToYaml(GameObject* ow
         auto missing = NewMissingComponent();
         missing->DeserializedReflectFields(ReflectFields);
         const std::string& originalType = missing->ReflectFields->typeName;
+        const std::string& originReflectFields = missing->ReflectFields->reflectData;
 
         // 복구된 타입 이름으로 컴포넌트 생성을 다시 시도합니다.
         component = NewComponent(originalType);
         if (component)
         {
             ResetComponent(ownerObject, component);
-            component->DeserializedReflectFields(ReflectFields);
+            component->DeserializedReflectFields(originReflectFields);
         }
         else
         {
