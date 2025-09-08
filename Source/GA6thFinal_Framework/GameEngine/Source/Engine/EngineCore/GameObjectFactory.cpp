@@ -123,9 +123,18 @@ void EGameObjectFactory::ApplyPrefabInstanceChanges(const File::Guid& guid, YAML
                             originInstances.reserve(swapObjects.size());
                             for (auto& [originObject, prefabObject] : swapObjects)
                             {              
-                                originInstances.emplace_back(ESceneManager::Engine::SwapPrefabInstance(originObject, prefabObject));
+                                std::shared_ptr<GameObject> origin = ESceneManager::Engine::SwapPrefabInstance(originObject, prefabObject);
+                                if (origin)
+                                {
+                                    originInstances.push_back(std::move(origin));
+                                }
                             }
+
                             // 소멸자 지연 호출
+                            for (auto& origin : originInstances)
+                            {
+                                GameObject::Engine::ResetActiveInHierarchy(origin.get());
+                            }
                             originInstances.clear();
                         }
                        

@@ -9,7 +9,17 @@ class WeaponTableComponent : public Component
 
 public:
     inline static constexpr char TAG[] = "WeaponTable";
-    static WeaponTableComponent* GetInstance() { return static_instance; }
+    static WeaponTableComponent* GetInstance() 
+    { 
+        if (static_instance)
+        {
+            if (false == static_instance->gameObject->IsValid())
+            {
+                static_instance = nullptr;
+            }
+        }
+        return static_instance; 
+    }
 
 public:
     WeaponTableComponent();

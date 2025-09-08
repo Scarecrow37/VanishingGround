@@ -132,6 +132,10 @@
     <ClCompile Include="Scripts\UI\Views\RevelationsView\RevelationsView.cpp" />
     <ClCompile Include="Scripts\Audio\BGMManager.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnSystemHelper.cpp" />
+    <ClCompile Include="Scripts\UI\Panels\Overlay\OverlayPanel.cpp" />
+    <ClCompile Include="Scripts\UI\Views\TurnQueue\TurnQueueView.cpp" />
+    <ClCompile Include="Scripts\UI\Views\Weapon\WeaponView.cpp" />
+    <ClCompile Include="Scripts\UI\Wrappers\Scrolling\ScrollingWrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h" />
@@ -263,7 +267,6 @@
     <ClInclude Include="Scripts\Test\TurnAction\TestActionComponent.h" />
     <ClInclude Include="Scripts\Test\DevTools\LogOutput.h" />
     <ClInclude Include="Scripts\Audio\Table\AudioTableComponent.h" />
-    <ClInclude Include="Scripts\ExcelParser\ImGuiColumnSheetParser.h" />
     <ClInclude Include="Scripts\ViewModels\Hp\HpViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Revelations\RevelationsViewModel.h" />
     <ClInclude Include="Scripts\Audio\BGMManager.h" />
@@ -283,6 +286,10 @@
     <ClInclude Include="Scripts\Audio\BGMManager.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnSystemHelper.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionEnums.h" />
+    <ClInclude Include="Scripts\UI\Panels\Overlay\OverlayPanel.h" />
+    <ClInclude Include="Scripts\UI\Views\TurnQueue\TurnQueueView.h" />
+    <ClInclude Include="Scripts\UI\Views\Weapon\WeaponView.h" />
+    <ClInclude Include="Scripts\UI\Wrappers\Scrolling\ScrollingWrapper.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
