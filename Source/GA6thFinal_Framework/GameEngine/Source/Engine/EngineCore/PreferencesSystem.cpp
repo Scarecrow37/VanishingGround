@@ -20,17 +20,35 @@ void PreferencesSystem::SetSSR(std::string_view sceneName, bool enable)
     _graphicsController->SetSSR(sceneName, enable);
 }
 
-void PreferencesSystem::SetSSAO(bool enable) {}
+void PreferencesSystem::SetSSAO(bool enable)
+{
+    _graphicsController->SetSSAO("Game", enable);
+}
 
-void PreferencesSystem::SetSSAO(std::string_view sceneName, bool enable) {}
+void PreferencesSystem::SetSSAO(std::string_view sceneName, bool enable) 
+{
+    _graphicsController->SetSSAO(sceneName, enable);
+}
 
-void PreferencesSystem::SetVolumetricFog(bool enable) {}
+void PreferencesSystem::SetVolumetricFog(bool enable) 
+{
+    _graphicsController->SetVolumetricFog("Game", enable);
+}
 
-void PreferencesSystem::SetVolumetricFog(std::string_view sceneName, bool enable) {}
+void PreferencesSystem::SetVolumetricFog(std::string_view sceneName, bool enable) 
+{
+    _graphicsController->SetVolumetricFog(sceneName, enable);
+}
 
-void PreferencesSystem::SetBloom(bool enable) {}
+void PreferencesSystem::SetBloom(bool enable) 
+{
+    _graphicsController->SetBloom("Game", enable);
+}
 
-void PreferencesSystem::SetBloom(std::string_view sceneName, bool enable) {}
+void PreferencesSystem::SetBloom(std::string_view sceneName, bool enable) 
+{
+    _graphicsController->SetBloom(sceneName, enable);
+}
 
 void PreferencesSystem::SetRayTracing(bool enable) {}
 

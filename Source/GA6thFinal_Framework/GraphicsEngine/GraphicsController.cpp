@@ -3,10 +3,17 @@
 
 // render framework
 #include "RenderScene.h"
+#include "RenderTechnique.h"
+#include "RenderPass.h"
 
 // render technique
 #include "SSRTechnique.h"
 #include "PBRLitTechnique.h"
+#include "VolumetricFogTechnique.h"
+#include "BloomTechnique.h"
+
+// render pass
+#include "SSAOWritePass.h"
 
 GraphicsController::~GraphicsController() {}
 
@@ -22,4 +29,25 @@ void GraphicsController::SetSSAO(std::string_view sceneName, bool enable)
 {
     RenderScene* renderScene = Global::renderer->GetRenderScene(sceneName);
     auto         pbrTech     = renderScene->GetRenderTechnique<PBRLitTechnique>();
+    if (pbrTech)
+    {
+        auto ssaoPass = pbrTech->GetRenderPass<SSAOWritePass>();
+        ssaoPass->SetEnable(enable);
+    }
+}
+
+void GraphicsController::SetVolumetricFog(std::string_view sceneName, bool enable)
+{
+    RenderScene* renderScene = Global::renderer->GetRenderScene(sceneName);
+    auto         volumeTech  = renderScene->GetRenderTechnique<VolumetricFogTechnique>();
+    if (volumeTech)
+        volumeTech->SetEnable(enable);
+}
+
+void GraphicsController::SetBloom(std::string_view sceneName, bool enable)
+{
+    RenderScene* renderScene = Global::renderer->GetRenderScene(sceneName);
+    auto         bloomTech   = renderScene->GetRenderTechnique<BloomTechnique>();
+    if (bloomTech)
+        bloomTech->SetEnable(enable);
 }
