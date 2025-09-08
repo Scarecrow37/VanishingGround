@@ -18,9 +18,6 @@ void SSAOWritePass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTe
     _renderTarget->Initialize(desc, 1.f);
     _renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     InitShaderAndPSO();
-
-    commandList->OMSetRenderTargets(1, &_renderTarget->GetRTVHandle(), FALSE, nullptr);
-    _renderTarget->ClearRenderTarget(commandList, 0);
 }
 
 void SSAOWritePass::AddRenderPassDatas(std::string_view sceneName) 

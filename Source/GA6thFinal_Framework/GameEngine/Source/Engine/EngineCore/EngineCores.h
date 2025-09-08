@@ -86,7 +86,7 @@ namespace Global
 #define UmWatcher UmCore->Watcher
 #define UmGizmoManager UmCore->GizmoManager
 #define UmUI UmCore->UserInterface
-#define UmPrefernces UmCore->PreferencesSystem
+#define UmPreferences UmCore->PreferencesSystem
 // Graphics
 #define UmParticleSerializer UmCore->ParticleSerializer
 #define UmGraphics UmCore->Graphics

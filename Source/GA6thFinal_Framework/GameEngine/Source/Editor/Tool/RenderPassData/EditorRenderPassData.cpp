@@ -63,7 +63,7 @@ void EditParallaxMappingProperty(std::any& property)
 {
     auto& parallaxProps = std::any_cast<ParallaxMappingProperty&>(property);
     ImGui::DragFloat("HeightScale", &parallaxProps.HeightScale, 0.001f, 0.0f, 5.f);
-    ImGui::DragFloat("MipBias;", &parallaxProps.MipBias, 0.01f, 0.f, 15.f);
+    ImGui::DragFloat("MipBias", &parallaxProps.MipBias, 0.01f, 0.f, 15.f);
 }
 void EditVolumetricFogProperty(std::any& property)
 {

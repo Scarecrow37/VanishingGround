@@ -10,7 +10,7 @@ void EngineCoresModule::PreInitialize()
     
     const SIZE& clientSize = UmApplication.GetClientSize();
     UmGraphics.Initialize(engineCore->App.GetHwnd(), clientSize.cx, clientSize.cy, FeatureLevel::LEVEL_12_0, IS_EDITOR);
-    UmPrefernces.Initialize();
+    UmPreferences.Initialize();
 }
 
 void EngineCoresModule::ModuleUnInitialize()
