@@ -52,7 +52,8 @@ DropItemInfo RevelationElement::GetItemInfo()
 {
     DropItemInfo info
     {
-        .ID = RevelationID,
+        .ID = RevelationID, 
+        .Name = (const std::string&)ElementName,
     };
     return info;
 }

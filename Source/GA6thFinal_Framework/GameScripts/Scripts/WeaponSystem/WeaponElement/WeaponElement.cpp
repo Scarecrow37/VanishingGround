@@ -58,6 +58,7 @@ DropItemInfo WeaponElement::GetItemInfo()
     DropItemInfo info
     {
         .ID = Stats.WeaponID,
+        .Name = (const std::string&)Stats.WeaponName,
     };
     return info;
 }

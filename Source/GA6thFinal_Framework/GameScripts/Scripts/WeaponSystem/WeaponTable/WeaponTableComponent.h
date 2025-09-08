@@ -46,6 +46,12 @@ public:
     /// <returns></returns>
     const std::map<std::string, WeaponElement>& GetWeaponTable() { return _weaponTable; }
 
+    /// <summary>
+    /// 테이블의 모든 무기들을 반환합니다.
+    /// </summary>
+    /// <returns></returns>
+    const std::vector<WeaponElement*>& GetWeaponTableElements() { return _weaponTableIdOrder; }
+
     std::string SaveWeaponTable();
     bool        LoadWeaponTable(std::string_view data);
 

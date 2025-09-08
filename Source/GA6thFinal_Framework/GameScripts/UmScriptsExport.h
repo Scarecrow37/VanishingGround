@@ -170,5 +170,8 @@ UMREAL_COMPONENT(ItemDropUIRootManager)
 #include "Scripts\ItemDropSystem/UI/ArtifactUIManager.h"
 UMREAL_COMPONENT(ArtifactUIManager)
 
+#include "Scripts\ItemDropSystem/ItemDropSystem.h"
+UMREAL_COMPONENT(ItemDropSystem)
+
 #include "Scripts\SceneTransition/SceneTransitionComponent.h"
 UMREAL_COMPONENT(SceneTransitionComponent)
