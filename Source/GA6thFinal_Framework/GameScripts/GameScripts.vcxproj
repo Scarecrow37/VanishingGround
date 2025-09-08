@@ -322,8 +322,7 @@
 		<ClInclude Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22013.h" />
 		<ClInclude Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22014.h" />
 		<ClInclude Include="Scripts\EnemyAction\EnemyActionBase.h" />
-		<ClInclude Include="Scripts\Map\ViewModels\StageFocusViewModel.h" />
-		<ClInclude Include="Scripts\Map\ViewModels\StageViewModel.h" />
+		<ClInclude Include="Scripts\ItemDropSystem\Interface\IDropItem.h" />
 		<ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.h" />
 		<ClInclude Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.h" />
 		<ClInclude Include="Scripts\Animation\AnimationComponent.h" />
@@ -381,6 +380,7 @@
 		<ClInclude Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.h" />
 		<ClInclude Include="Scripts\UI\Wrappers\Scrolling\ScrollingWrapper.h" />
 		<ClInclude Include="Scripts\ViewModels\Hp\HpViewModel.h" />
+		<ClInclude Include="Scripts\ViewModels\ItemDrop\DropArtifacts\DropArtifactsViewModel.h" />
 		<ClInclude Include="Scripts\ViewModels\Revelations\RevelationsViewModel.h" />
 		<ClInclude Include="Scripts\ViewModels\TurnQueue\TurnQueueViewModel.h" />
 		<ClInclude Include="Scripts\ViewModels\Weapon\WeaponViewModel.h" />
@@ -454,12 +454,9 @@
 		<ClInclude Include="Scripts\WeaponSystem\WeaponSystem.h" />
 		<ClInclude Include="Scripts\Test\TurnAction\TestActionComponent.h" />
 		<ClInclude Include="Scripts\Test\DevTools\LogOutput.h" />
-		<ClInclude Include="Scripts\Map\MapManager.h" />
-		<ClInclude Include="Scripts\Map\Stage.h" />
-		<ClInclude Include="Scripts\Map\RewardPopup.h" />
-		<ClInclude Include="Scripts\Map\Views\StageView.h" />
-		<ClInclude Include="Scripts\Map\Views\StageFocusView.h" />
-		<ClInclude Include="Scripts\Map\SmoothScroll.h" />
+		<ClInclude Include="Scripts\ItemDropSystem\UI\ItemDropUIRootManager.h" />
+		<ClInclude Include="Scripts\ItemDropSystem\UI\ArtifactUIManager.h" />
+		<ClInclude Include="Scripts\ItemDropSystem\ItemDropSystem.h" />
 	</ItemGroup>
 	<ItemGroup>
 		<ClCompile Include="Scripts\Audio\BGMManager.cpp" />
@@ -482,8 +479,6 @@
 		<ClCompile Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22014.cpp" />
 		<ClCompile Include="Scripts\EnemyAction\EnemyActionBase.cpp" />
 		<ClCompile Include="Scripts\ExcelParser\ImGuiColumnSheetParser.cpp" />
-		<ClCompile Include="Scripts\Map\ViewModels\StageFocusViewModel.cpp" />
-		<ClCompile Include="Scripts\Map\ViewModels\StageViewModel.cpp" />
 		<ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.cpp" />
 		<ClCompile Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.cpp" />
 		<ClCompile Include="Scripts\Animation\AnimationComponent.cpp" />
@@ -549,6 +544,7 @@
 		<ClCompile Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.cpp" />
 		<ClCompile Include="Scripts\UI\Wrappers\Scrolling\ScrollingWrapper.cpp" />
 		<ClCompile Include="Scripts\ViewModels\Hp\HpViewModel.cpp" />
+		<ClCompile Include="Scripts\ViewModels\ItemDrop\DropArtifacts\DropArtifactsViewModel.cpp" />
 		<ClCompile Include="Scripts\ViewModels\Revelations\RevelationsViewModel.cpp" />
 		<ClCompile Include="Scripts\ViewModels\TurnQueue\TurnQueueViewModel.cpp" />
 		<ClCompile Include="Scripts\ViewModels\Weapon\WeaponViewModel.cpp" />
@@ -625,12 +621,9 @@
 		<ClCompile Include="Scripts\WeaponSystem\WeaponSystem.cpp" />
 		<ClCompile Include="Scripts\Test\TurnAction\TestActionComponent.cpp" />
 		<ClCompile Include="Scripts\Test\DevTools\LogOutput.cpp" />
-		<ClCompile Include="Scripts\Map\MapManager.cpp" />
-		<ClCompile Include="Scripts\Map\Stage.cpp" />
-		<ClCompile Include="Scripts\Map\RewardPopup.cpp" />
-		<ClCompile Include="Scripts\Map\Views\StageView.cpp" />
-		<ClCompile Include="Scripts\Map\Views\StageFocusView.cpp" />
-		<ClCompile Include="Scripts\Map\SmoothScroll.cpp" />
+		<ClCompile Include="Scripts\ItemDropSystem\UI\ItemDropUIRootManager.cpp" />
+		<ClCompile Include="Scripts\ItemDropSystem\UI\ArtifactUIManager.cpp" />
+		<ClCompile Include="Scripts\ItemDropSystem\ItemDropSystem.cpp" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="cpp.hint" />

@@ -28,32 +28,32 @@ void RevelationElement::SerializedReflectEvent()
 
 void RevelationElement::DeserializedReflectEvent() 
 {
-    RevelationSystem* system        = RevelationSystem::GetInstance();
     const auto&       actionFactory = TurnActionFactory::GetActionFactory();
     auto              iter          = actionFactory.find(ReflectFields->ActionName.data());
-
-    if (system)
+    if (iter != actionFactory.end())
     {
-        if (iter != actionFactory.end())
-        {
-            _action.reset(iter->second());
-        }
+        _action.reset(iter->second());
     }
 }
 
 void RevelationElement::DeepCopyAction(const TurnAction& action)
 {
-    RevelationSystem*  system        = RevelationSystem::GetInstance();
     const auto&        actionFactory = TurnActionFactory::GetActionFactory();
     const std::string& actionName    = action.ActionName;
     auto               iter          = actionFactory.find(actionName);
-
-    if (system)
+    if (iter != actionFactory.end())
     {
-        if (iter != actionFactory.end())
-        {
-            _action.reset(iter->second());
-            *_action = action;
-        }
-    }
+        _action.reset(iter->second());
+        *_action = action;
+    }  
+}
+
+DropItemInfo RevelationElement::GetItemInfo()
+{
+    DropItemInfo info
+    {
+        .ID = RevelationID, 
+        .Name = (const std::string&)ElementName,
+    };
+    return info;
 }

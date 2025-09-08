@@ -19,18 +19,24 @@ void RenderTechnique::AddRenderPassDatas(std::string_view sceneName)
 
 void RenderTechnique::Update(ID3D12GraphicsCommandList* commandList)
 {
-    for (auto& pass : _renderPasses)
+    if (_enable)
     {
-        pass->Update(commandList);
+        for (auto& pass : _renderPasses)
+        {
+            pass->Update(commandList);
+        }
     }
 }
 
 void RenderTechnique::Execute(ID3D12GraphicsCommandList* commandList)
 {
-    for (auto& pass : _renderPasses)
+    if (_enable)
     {
-        pass->Begin(commandList);
-        pass->Draw(commandList);
-        pass->End(commandList);
+        for (auto& pass : _renderPasses)
+        {
+            pass->Begin(commandList);
+            pass->Draw(commandList);
+            pass->End(commandList);
+        }
     }
 }

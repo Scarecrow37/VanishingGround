@@ -125,6 +125,13 @@ namespace MVVM
 
     public:
         Model() = default;
+        Model(const std::vector<T>& value) : ModelBase<std::vector<T>>(value) {}
+        Model& operator=(const std::vector<T>& value)
+        {
+            ModelBase<std::vector<T>>::_value = value;
+            ModelBase<std::vector<T>>::Notify();
+            return *this;
+        }
 
         void clear() noexcept
         {

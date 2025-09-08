@@ -481,6 +481,9 @@
     <ClCompile Include="FogCompositePass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="GraphicsController.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AccelerationStructureManager.h">
@@ -863,6 +866,9 @@
     </ClInclude>
     <ClInclude Include="DistortionTechnique.h" />
     <ClInclude Include="DistortionResolvePass.h" />
+    <ClInclude Include="GraphicsController.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Shaders\CommonData.hlsli">
