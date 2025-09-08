@@ -1,6 +1,6 @@
 ﻿#include "pch.h"
 #include "PreferencesSystem.h"
-#include "../GraphicsEngine/GraphicsConstroller.h"
+#include "../GraphicsEngine/GraphicsController.h"
 
 PreferencesSystem::PreferencesSystem() {}
 
@@ -8,16 +8,16 @@ PreferencesSystem::~PreferencesSystem() {}
 
 void PreferencesSystem::Initialize()
 {
-    _graphicsConstroller = std::make_unique<class GraphicsConstroller>();
+    _graphicsController = std::make_unique<class GraphicsController>();
 }
 
 void PreferencesSystem::SetSSR(bool enable) 
 {
-    _graphicsConstroller->SetSSR("Game", enable);
+    _graphicsController->SetSSR("Game", enable);
 }
 void PreferencesSystem::SetSSR(std::string_view sceneName, bool enable)
 {
-    _graphicsConstroller->SetSSR(sceneName, enable);
+    _graphicsController->SetSSR(sceneName, enable);
 }
 
 void PreferencesSystem::SetSSAO(bool enable) {}

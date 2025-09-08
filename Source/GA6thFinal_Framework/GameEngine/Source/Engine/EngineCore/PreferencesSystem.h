@@ -9,9 +9,9 @@ public:
 public:
     enum class TextureQuality
     {
-        Low,
-        Medium,
-        High
+        LOW,
+        MEDIUM,
+        HIGH,
     };
 
 public:
@@ -43,5 +43,5 @@ public:
     // Audio Setting
 
 private:
-    std::unique_ptr<class GraphicsConstroller> _graphicsConstroller;
+    std::unique_ptr<class GraphicsController> _graphicsController;
 };

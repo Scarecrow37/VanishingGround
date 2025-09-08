@@ -1,9 +1,9 @@
 ﻿#pragma once
-class GraphicsConstroller
+class GraphicsController
 {
 public:
-    GraphicsConstroller() = default;
-    ~GraphicsConstroller();
+    GraphicsController() = default;
+    ~GraphicsController();
 
 public:
     void SetSSR(std::string_view sceneName, bool enable);

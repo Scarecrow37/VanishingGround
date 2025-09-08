@@ -110,7 +110,7 @@ PSOutput WriteGuBuffer(PSInput input)
 {
     PSOutput output = (PSOutput) 0;
     
-    float mipOffset = bit32_2_gbufferData.mipBias;
+    float mipOffset = bit32_2_gbufferData.MipBias;
    
     uint diffuseID = material[objectData.ID].ID[DIFFUSE];
     uint normalID = material[objectData.ID].ID[NORMAL];

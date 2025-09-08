@@ -1,5 +1,5 @@
 ﻿#include "pch.h"
-#include "GraphicsConstroller.h"
+#include "GraphicsController.h"
 
 // render framework
 #include "RenderScene.h"
@@ -8,17 +8,17 @@
 #include "SSRTechnique.h"
 #include "PBRLitTechnique.h"
 
-GraphicsConstroller::~GraphicsConstroller() {}
+GraphicsController::~GraphicsController() {}
 
-void GraphicsConstroller::SetSSR(std::string_view sceneName, bool enable) 
+void GraphicsController::SetSSR(std::string_view sceneName, bool enable)
 {
     RenderScene* renderScene = Global::renderer->GetRenderScene(sceneName);
     auto ssrTech = renderScene->GetRenderTechnique<SSRTechnique>();
-    
-    ssrTech->SetEnable(enable);
+    if (ssrTech)
+       ssrTech->SetEnable(enable);
 }
 
-void GraphicsConstroller::SetSSAO(std::string_view sceneName, bool enable)
+void GraphicsController::SetSSAO(std::string_view sceneName, bool enable)
 {
     RenderScene* renderScene = Global::renderer->GetRenderScene(sceneName);
     auto         pbrTech     = renderScene->GetRenderTechnique<PBRLitTechnique>();

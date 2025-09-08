@@ -99,7 +99,7 @@ struct CascadeData
 struct GbufferData
 {
     float HeightScale;
-    float mipBias;
+    float MipBias;
 };
 
 struct VolumetricFogData
