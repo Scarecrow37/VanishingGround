@@ -16,6 +16,7 @@ public:
     D3D12_CPU_DESCRIPTOR_HANDLE GetBackBufferHandle() const;
     ID3D12GraphicsCommandList*  GetCommandList() const;
     RenderPassProperties&       GetRenderPassProperties() const;
+    class SceneTransitionCore*  GetSceneTransitionCore() const;
 
 public:
     void SetCamera(std::string_view renderSceneName, std::shared_ptr<Camera> camera) const;
@@ -77,6 +78,7 @@ private:
     class ModuleManager*              _moduleManager;
     class PipelineStateManager*       _pipelineStateManager;
     class ThreadPool*                 _threadPool;
+    class SceneTransitionCore*        _sceneTransitionCore;
 
 private:
     std::queue<std::function<void()>> _resourceLoadQueue;

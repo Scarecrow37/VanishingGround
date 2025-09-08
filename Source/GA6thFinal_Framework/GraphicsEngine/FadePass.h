@@ -3,9 +3,9 @@
 
 struct timestep
 {
-    float time = 0;
     Vector4 start{0, 0, 0, 0};
     Vector4 end{0, 0, 0, 0};
+    float time = 0;
 };
 
 class FadePass : public RenderPass
@@ -22,7 +22,6 @@ public:
     void Draw(ID3D12GraphicsCommandList* commandList) override;
     void End(ID3D12GraphicsCommandList* commandList) override;
 
-    void Fade(Vector4& start, Vector4& end, float time);
 
 private:
     void InitializeShaderAndPSO();

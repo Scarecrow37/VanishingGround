@@ -23,7 +23,8 @@ public:
     Watcher::System          Watcher;
     ParticleEffectSerializer ParticleSerializer;
     EGizmoManager            GizmoManager;
-    UI::Manager               UserInterface;
+    UI::Manager              UserInterface;
+
 
     ReflectHelper::ImGuiDraw::InputAutoSetting ImGuiDrawPropertysSetting;
 private:
@@ -91,3 +92,4 @@ namespace Global
 #define UmGraphics UmCore->Graphics
 #define UmParticleManager UmGraphics.GetParticleManager()
 #define UmResourceManager UmGraphics.GetResourceManager()
+#define UmTransition UmGraphics.GetSceneTransitionCore()

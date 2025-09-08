@@ -412,7 +412,6 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="RenderPass.h" />
     <ClInclude Include="RenderScene.h" />
-    <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="RenderTechnique.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ResourceBase.h" />
@@ -420,6 +419,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClInclude Include="FX.h" />
     <ClInclude Include="RTPipeline.h" />
     <ClInclude Include="RTPipelineBuilder.h" />
+    <ClInclude Include="SceneTransitionCore.h" />
     <ClInclude Include="SceneTransitionTechnique.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderBuilder.h" />
@@ -552,6 +552,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClCompile Include="FX.cpp" />
     <ClCompile Include="RTPipeline.cpp" />
     <ClCompile Include="RTPipelineBuilder.cpp" />
+    <ClCompile Include="SceneTransitionCore.cpp" />
     <ClCompile Include="SceneTransitionTechnique.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderBuilder.cpp" />

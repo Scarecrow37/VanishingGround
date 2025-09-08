@@ -194,6 +194,16 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
     // Blend Pass
     scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
 
+        // Scene Transition Effect
+    if (RenderTechniqueFlag::SCENE_TRANSITION_TECH & flag)
+    {
+        scene->AddRenderTechnique(std::make_unique<SceneTransitionTechnique>());
+    }
+
+
+
+
+
     // UI Pass
     if (RenderTechniqueFlag::UI_TECH & flag)
     {
@@ -202,12 +212,6 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
     if (RenderTechniqueFlag::FONT_TECH & flag)
     {
         scene->AddRenderTechnique(std::make_unique<FontTechnique>());
-    }
-
-    //Scene Transition Effect
-    if (RenderTechniqueFlag::SCENE_TRANSITION_TECH & flag)
-    {
-        scene->AddRenderTechnique(std::make_unique<SceneTransitionTechnique>());
     }
 
 
