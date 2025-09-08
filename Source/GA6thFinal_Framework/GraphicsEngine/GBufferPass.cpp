@@ -72,7 +72,7 @@ void GBufferPass::AddRenderPassDatas(std::string_view sceneName)
     Global::renderPassDatas->AddRenderPassImage(sceneName, "G-BufferPass", "ORM", _gBufferRenderTargets[2]->GetSRVHandle());
     Global::renderPassDatas->AddRenderPassImage(sceneName, "G-BufferPass", "Emissive", _gBufferRenderTargets[3]->GetSRVHandle());
     
-    Global::renderPassDatas->AddRenderPassProperty(sceneName, "G-BufferPass", ParallaxMappingProperty(1.f));
+    Global::renderPassDatas->AddRenderPassProperty(sceneName, "G-BufferPass", ParallaxMappingProperty(2.9f,0.f));
 }
 
 void GBufferPass::Update(ID3D12GraphicsCommandList* commadList)
@@ -226,6 +226,18 @@ void GBufferPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, int shaderT
     const auto& parallaxMappingProperty =
         std::any_cast<const ParallaxMappingProperty&>(_ownerScene->GetRenderPassProperty("G-BufferPass"));
 
+    switch (shaderType)
+    {
+    case STATIC_MESH:
+        commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_2_gbufferData"), 2,
+                                                   &parallaxMappingProperty, 0);
+        break;
+    case SKELETAL_MESH:
+        commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_2_gbufferData"), 2,
+                                                   &parallaxMappingProperty, 0);
+        break;
+    }
+
     for (auto& [mesh, instanceID, customDepth] : _renderDatas[meshType])
     {
         parameter[0] = instanceID;
@@ -235,13 +247,11 @@ void GBufferPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, int shaderT
         {
         case STATIC_MESH:
             commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_3_objectData"), 3, parameter, 0);
-            commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_1_parallaxProperty"),
-                                                       1, &parallaxMappingProperty, 0);
+
             break;
         case SKELETAL_MESH:
             commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_3_objectData"), 3, parameter, 0);
-            commandList->SetGraphicsRoot32BitConstants(
-                _fxSkeletalMesh.GetRootParameterIndex("bit32_1_parallaxProperty"), 1, &parallaxMappingProperty, 0);
+          
             break;
         }
 
