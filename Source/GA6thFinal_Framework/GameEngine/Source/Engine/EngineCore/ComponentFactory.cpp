@@ -602,20 +602,36 @@ std::shared_ptr<Component> EComponentFactory::MakeComponentToYaml(GameObject* ow
     }
     std::string Type = node["Type"].as<std::string>();
     std::string ReflectFields = node["ReflectFields"].as<std::string>();
+
+    // YAML 노드에 명시된 타입으로 컴포넌트 생성을 시도합니다.
     std::shared_ptr<Component> component = NewComponent(Type);
-    if (component == nullptr)
+    if (component)
     {
-        // 없어진 컴포넌트면 Missing으로 대체 
-        std::shared_ptr<MissingComponent> missing = NewMissingComponent();
-        missing->ReflectFields->typeName    = Type;
-        missing->ReflectFields->reflectData = ReflectFields;
-        component = missing;
-        ResetComponent(ownerObject, component);
-    }
-    else
-    {
+        // 생성에 성공하면 필드를 역직렬화합니다.
         ResetComponent(ownerObject, component);
         component->DeserializedReflectFields(ReflectFields);
     }
+    else
+    {
+        // 생성에 실패한 경우, 해당 컴포넌트는 삭제되었거나 이름이 변경되었을 수 있습니다.
+        // MissingComponent를 사용해 원본 데이터를 파싱하고 원래의 타입 이름을 찾습니다.
+        auto missing = NewMissingComponent();
+        missing->DeserializedReflectFields(ReflectFields);
+        const std::string& originalType = missing->ReflectFields->typeName;
+        const std::string& originReflectFields = missing->ReflectFields->reflectData;
+
+        // 복구된 타입 이름으로 컴포넌트 생성을 다시 시도합니다.
+        component = NewComponent(originalType);
+        if (component)
+        {
+            ResetComponent(ownerObject, component);
+            component->DeserializedReflectFields(originReflectFields);
+        }
+        else
+        {
+            component = missing;
+            ResetComponent(ownerObject, component);
+        }
+    }  
     return component;
 }
