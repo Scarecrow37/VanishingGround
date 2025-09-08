@@ -32,7 +32,7 @@ struct Material
 
 StructuredBuffer<Material> material;
 Texture2D textures[];
-ConstantBuffer<ParallaxMappingData> bit32_1_parallaxProperty;
+ConstantBuffer<GbufferData> bit32_2_gbufferData;
 
 // ---------------------- 유틸 ----------------------
 
@@ -109,7 +109,9 @@ int GetPOMRayStepsCount(float3 worldPos, float3 N)
 PSOutput WriteGuBuffer(PSInput input)
 {
     PSOutput output = (PSOutput) 0;
-
+    
+    float mipOffset = bit32_2_gbufferData.mipBias;
+   
     uint diffuseID = material[objectData.ID].ID[DIFFUSE];
     uint normalID = material[objectData.ID].ID[NORMAL];
     uint ORMID = material[objectData.ID].ID[ORM];
@@ -125,7 +127,7 @@ PSOutput WriteGuBuffer(PSInput input)
     float2 parallaxUV = input.uv;
 
     // 높이맵 미리 샘플 (원래 UV로): height==1은 평면 가정인 듯하니 동일 조건 유지
-    float height = textures[ORMID].Sample(samLinear_wrap, input.uv).a;
+    float height = textures[ORMID].SampleBias(samLinear_wrap, input.uv, mipOffset).a;
 
     if (height < 1.0f)
     {
@@ -142,7 +144,7 @@ PSOutput WriteGuBuffer(PSInput input)
 
             // 안전한 오프셋 공식: (xy / z) * scale
             float2 dirTS = normalize(viewDirTS.xy);
-            float scale = (bit32_1_parallaxProperty.HeightScale) / PARALLAX_HEIGHT_SCALE_DIVISOR * (1.0f - ndotv); // 시선이 비스듬할수록 강해짐
+            float scale = (bit32_2_gbufferData.HeightScale) / PARALLAX_HEIGHT_SCALE_DIVISOR * (1.0f - ndotv); // 시선이 비스듬할수록 강해짐
             float2 parallaxOffset = (dirTS / max(viewDirTS.z, 1e-4f)) * scale;
 
             // seam 폭주 방지를 위한 클램프(필요 시 수치 조정)
@@ -162,20 +164,20 @@ PSOutput WriteGuBuffer(PSInput input)
     }
 
     // 0. baseColor
-    output.baseColor = textures[diffuseID].Sample(samLinear_wrap, parallaxUV);
+    output.baseColor = textures[diffuseID].SampleBias(samLinear_wrap, parallaxUV, mipOffset);
 
     // 1. normal (TS→WS)
-    float3 normalTS = textures[normalID].Sample(samLinear_wrap, parallaxUV).xyz;
+    float3 normalTS = textures[normalID].SampleBias(samLinear_wrap, parallaxUV, mipOffset).xyz;
     normalTS = normalize(normalTS * 2.0f - 1.0f);
     float3 normalWS = normalize(mul(normalTS, TBN));
     output.normal = float4(normalWS, 1.0f);
 
     // 2. ORM
-    float4 ormSample = textures[ORMID].Sample(samLinear_wrap, parallaxUV);
+    float4 ormSample = textures[ORMID].SampleBias(samLinear_wrap, parallaxUV, mipOffset);
     output.orm = float4(ormSample.r, ormSample.g, ormSample.b, 1.0f);
 
     // 3. emissive
-    output.emissive = textures[emissiveID].Sample(samLinear_wrap, parallaxUV);
+    output.emissive = textures[emissiveID].SampleBias(samLinear_wrap, parallaxUV, mipOffset);
 
     // 4. depth (clip-space z 그대로 저장하던 기존 로직 유지)
     // 필요 시: LinearizeDepth(input.position.z, near, far)로 교체 가능
