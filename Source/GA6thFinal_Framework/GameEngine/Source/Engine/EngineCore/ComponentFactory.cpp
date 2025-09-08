@@ -607,9 +607,16 @@ std::shared_ptr<Component> EComponentFactory::MakeComponentToYaml(GameObject* ow
     {
         // 없어진 컴포넌트면 Missing으로 대체 
         std::shared_ptr<MissingComponent> missing = NewMissingComponent();
-        missing->ReflectFields->typeName    = Type;
-        missing->ReflectFields->reflectData = ReflectFields;
-        component = missing;
+        missing->DeserializedReflectFields(ReflectFields);
+        Type = missing->ReflectFields->typeName;
+        if (component = NewComponent(Type))
+        {
+            component->DeserializedReflectFields(missing->ReflectFields->reflectData);
+        }
+        else
+        {
+            component = missing;
+        }
         ResetComponent(ownerObject, component);
     }
     else
