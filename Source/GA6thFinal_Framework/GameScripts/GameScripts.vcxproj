@@ -302,6 +302,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\QTE\Editor\QTEPreviewer.h" />
+    <ClInclude Include="Scripts\QTE\Result\QTEResult.h" />
     <ClInclude Include="Scripts\QTE\Track\Note\QTENote.h" />
     <ClInclude Include="Scripts\QTE\Track\QTETrack.h" />
     <ClInclude Include="Scripts\QTE\Editor\QTEEditor.h" />
@@ -457,6 +459,7 @@
     <ClInclude Include="Scripts\Test\DevTools\LogOutput.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\QTE\Editor\QTEPreviewer.cpp" />
     <ClCompile Include="Scripts\QTE\Track\Note\QTENote.cpp" />
     <ClCompile Include="Scripts\QTE\Track\QTETrack.cpp" />
     <ClCompile Include="Scripts\QTE\Editor\QTEEditor.cpp" />

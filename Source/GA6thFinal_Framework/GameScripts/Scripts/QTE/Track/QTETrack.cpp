@@ -1,5 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "QTETrack.h"
+#include <WeaponSystem/WeaponSystem.h>
 
 namespace QTE
 {

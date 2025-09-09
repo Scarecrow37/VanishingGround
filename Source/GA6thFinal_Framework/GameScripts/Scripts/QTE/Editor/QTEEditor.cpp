@@ -1,6 +1,9 @@
 ﻿#include "pchScripts.h"
 #include "QTEEditor.h"
 #include <QTE/System/QTESystem.h>
+#include <QTE/Editor/QTEPreviewer.h>
+#include <WeaponSystem/WeaponSystem.h>
+#include <WeaponSystem/WeaponTable/WeaponTableComponent.h>
 
 QTEEditor::QTEEditor() 
 {
@@ -222,6 +225,32 @@ void QTEEditor::ShowTrackDetail()
             ImVec2 availSize  = ImGui::GetContentRegionAvail();
             float  labelWidth = ImClamp(availSize.x * 0.2f, 30.0f, 150.0f);
 
+            // Weapon ID
+            int weaponID = _qteTrack.GetWeaponID();
+            ImGuiHelper::TextWithVerticalSeparator("Weapon ID", labelWidth);
+            WeaponTableComponent* weaponTable = WeaponTableComponent::GetInstance();
+            if (weaponTable)
+            {
+                auto& table = weaponTable->GetWeaponTable();
+                if (ImGui::BeginCombo("##weapon_id", std::to_string(weaponID).c_str()))
+                {
+                    for (const auto& [name, weapon] : table)
+                    {
+                        bool isSelected = (weaponID == weapon.Stats.WeaponID);
+                        const std::string& label = weapon.Stats.WeaponName;
+                        if (ImGui::Selectable(label.c_str(), isSelected))
+                        {
+                            _qteTrack.SetWeaponID(weapon.Stats.WeaponID);
+                        }
+                        if (isSelected)
+                        {
+                            ImGui::SetItemDefaultFocus();
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
+            }
+
             // MinFrame
             float minFrame = track->GetMinFrame();
             ImGuiHelper::TextWithVerticalSeparator("Min Frame", labelWidth);
@@ -365,7 +394,7 @@ void QTEEditor::ShowSequencerFrame()
                     }
                     ImGui::EndTabItem();
                 }
-                if (ImGui::BeginTabItem("dummy tab2"))
+                if (ImGui::BeginTabItem("dummy tab"))
                 {
                     ImGui::EndTabItem();
                 }
@@ -468,27 +497,28 @@ void QTEEditor::ShowPreviewFrame()
     }
 }
 
-void QTEEditor::DrawPreview() 
+void QTEEditor::DrawPreview()
 {
     ImGui::BeginChild("##preview_canvas", ImVec2(0, 0), ImGuiChildFlags_Border);
     auto* window = ImGui::GetCurrentWindow();
     if (window && window->DrawList)
     {
-        auto   system    = QTESystem::GetInstance();
-        auto   track     = _qteTrack.GetEventTrack().lock();
+        auto system = QTESystem::GetInstance();
+        auto track  = _qteTrack.GetEventTrack().lock();
         if (system && track)
         {
-            float  circleRadius     = 30.0f;
-            auto*  drawList  = window->DrawList;
-            ImVec2 offset    = ImGui::GetCursorScreenPos();
-            ImVec2 availSize = ImGui::GetContentRegionAvail();
+            float                   circleRadius = 30.0f;
+            auto*                   drawList     = window->DrawList;
+            ImVec2                  offset       = ImGui::GetCursorScreenPos();
+            ImVec2                  availSize    = ImGui::GetContentRegionAvail();
             std::pair<float, float> perfectRange = system->GetPerfectJudgeRange();
             std::pair<float, float> normalRange  = system->GetNormalJudgeRange();
 
-            float bgAlpha  = (_PerfectTimer / PERFECT_EFFECT_TIME);
+            float bgAlpha = (_PerfectTimer / PERFECT_EFFECT_TIME);
             drawList->AddRectFilled(offset, offset + availSize, ImColor(0.2f, 0.2f, 0.2f, 1.0f));
 
-            DrawJudgeRange(normalRange, circleRadius, ImColor(100, 255, 100, 255), ImColor(0.3f, 0.3f, 0.3f, 0.5f + 0.5f * bgAlpha));
+            DrawJudgeRange(normalRange, circleRadius, ImColor(100, 255, 100, 255),
+                           ImColor(0.3f, 0.3f, 0.3f, 0.5f + 0.5f * bgAlpha));
             DrawJudgeRange(perfectRange, circleRadius, ImColor(140, 120, 170, 255));
 
             if (_PerfectTimer > 0.0f)
@@ -505,7 +535,7 @@ void QTEEditor::DrawPreview()
             }
         }
     }
-    
+
     ImGui::EndChild();
 }
 
@@ -517,9 +547,9 @@ void QTEEditor::DrawJudgeRange(std::pair<float, float> range, float circleRadius
     {
         auto* drawList = window->DrawList;
 
-        ImVec2 offset = ImGui::GetCursorScreenPos();
-        ImVec2 availSize = ImGui::GetContentRegionAvail();
-        float  centerPosFactor = system->GetJudgePosFactor(); 
+        ImVec2 offset          = ImGui::GetCursorScreenPos();
+        ImVec2 availSize       = ImGui::GetContentRegionAvail();
+        float  centerPosFactor = system->GetJudgePosFactor();
 
         auto& [min, max] = range;
         float centerPosX = availSize.x * centerPosFactor;
@@ -528,12 +558,14 @@ void QTEEditor::DrawJudgeRange(std::pair<float, float> range, float circleRadius
 
         if (bgCol != UINT_MAX - 1)
         {
-            drawList->AddRectFilled(offset + ImVec2(minPosX - circleRadius, 0.0f), offset + ImVec2(maxPosX + circleRadius, availSize.y), bgCol);
+            drawList->AddRectFilled(offset + ImVec2(minPosX - circleRadius, 0.0f),
+                                    offset + ImVec2(maxPosX + circleRadius, availSize.y), bgCol);
         }
-        
+
         drawList->AddCircleFilled(offset + ImVec2(minPosX, availSize.y * 0.5f), circleRadius, judgeCol);
         drawList->AddCircleFilled(offset + ImVec2(maxPosX, availSize.y * 0.5f), circleRadius, judgeCol);
-        drawList->AddRectFilled(offset + ImVec2(minPosX, availSize.y * 0.5f - circleRadius), offset + ImVec2(maxPosX, availSize.y * 0.5f + circleRadius), judgeCol);
+        drawList->AddRectFilled(offset + ImVec2(minPosX, availSize.y * 0.5f - circleRadius),
+                                offset + ImVec2(maxPosX, availSize.y * 0.5f + circleRadius), judgeCol);
     }
 }
 
@@ -543,13 +575,13 @@ void QTEEditor::DrawNote(Timeline::EventContext* context, float circleRadius, Im
     auto* system = QTESystem::GetInstance();
     if (system && window && window->DrawList)
     {
-        auto*  drawList         = window->DrawList;
-        ImVec2 offset           = ImGui::GetCursorScreenPos();
-        ImVec2 availSize        = ImGui::GetContentRegionAvail();
-        float  centerPosFactor  = system->GetJudgePosFactor(); 
-        float  centerPosX       = availSize.x * centerPosFactor;
-        float  noteTime         = context->Time;
-        float  posX             = (1.0f + _previewTimer - noteTime) * centerPosX;
+        auto*  drawList        = window->DrawList;
+        ImVec2 offset          = ImGui::GetCursorScreenPos();
+        ImVec2 availSize       = ImGui::GetContentRegionAvail();
+        float  centerPosFactor = system->GetJudgePosFactor();
+        float  centerPosX      = availSize.x * centerPosFactor;
+        float  noteTime        = context->Time;
+        float  posX            = (1.0f + _previewTimer - noteTime) * centerPosX;
         if (posX > availSize.x)
         {
             return;
@@ -558,13 +590,14 @@ void QTEEditor::DrawNote(Timeline::EventContext* context, float circleRadius, Im
         noteCol.Value.w *= alphaFactor;
         bgCol.Value.w *= alphaFactor;
 
-        ImRect noteBgRect = ImRect(offset + ImVec2(posX - circleRadius, 0.0f), offset + ImVec2(posX + circleRadius, availSize.y));
+        ImRect noteBgRect =
+            ImRect(offset + ImVec2(posX - circleRadius, 0.0f), offset + ImVec2(posX + circleRadius, availSize.y));
         drawList->AddRectFilled(noteBgRect.Min, noteBgRect.Max, bgCol);
         drawList->AddCircleFilled(offset + ImVec2(posX, availSize.y * 0.5f), circleRadius, noteCol);
 
         auto [min, max] = system->GetPerfectJudgeRange();
-        float minPosX    = centerPosX + (availSize.x * min);
-        float maxPosX    = centerPosX + (availSize.x * max);
+        float minPosX   = centerPosX + (availSize.x * min);
+        float maxPosX   = centerPosX + (availSize.x * max);
         if (posX >= minPosX)
         {
             if (_noteJudgeSet.find(context->ID) == _noteJudgeSet.end())
@@ -581,9 +614,9 @@ float QTEEditor::CalcNoteAlphaFromPositionX(float posX)
     auto system = QTESystem::GetInstance();
     if (system)
     {
-        ImVec2 availSize                = ImGui::GetContentRegionAvail();
-        auto [fadeInMin, fadeInMax]     = system->GetFadeInPosFactor();
-        auto [fadeOutMin, fadeOutMax]   = system->GetFadeOutPosFactor();
+        ImVec2 availSize              = ImGui::GetContentRegionAvail();
+        auto [fadeInMin, fadeInMax]   = system->GetFadeInPosFactor();
+        auto [fadeOutMin, fadeOutMax] = system->GetFadeOutPosFactor();
 
         float alpha = 1.0f;
 

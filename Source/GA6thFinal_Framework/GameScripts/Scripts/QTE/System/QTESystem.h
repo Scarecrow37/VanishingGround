@@ -1,33 +1,56 @@
 ﻿#pragma once
+#include <QTE/Result/QTEResult.h>
+#include <QTE/Editor/QTEPreviewer.h>
 
 class QTEEditor;
 namespace QTE
 {
     class Track;
+    class Note;
 } 
 
-class QTESystem : public Component
+class QTESystem : public Component, public InputReceiver
 {
     USING_PROPERTY(QTESystem)
     inline static QTESystem* _staticInstance = nullptr;
 public:
     QTESystem();
-    ~QTESystem() override;
+    virtual ~QTESystem();
     inline static QTESystem* GetInstance() { return _staticInstance; }
 
 private:
+    void Awake() override;
+    void Update() override;
+
     void SerializedReflectEvent() override;
     void DeserializedReflectEvent() override;
     void ImGuiDrawPropertysEvent() override;
 
 public:
-    /// <summary>
-    /// QTE 트랙을 통해 QTE를 시작합니다.
-    /// </summary>
-    /// <param name="track">시작할 QTE::Track 객체에 대한 포인터입니다.</param>
-    void StartQTE(QTE::Track* track);
+    void StartQTE();
+    void StartQTE(QTE::Track* qteTrack);
+
+private:
+    void ResetQTETimer();
+
+    void UpdateQTEDelay();
+    void UpdateQTETrack();
+
+    bool IsQTEDelayEnd();
+    bool IsQTETimeEnd();
+
+    QTE::ResultType GetQTEResult(QTE::Note* note);
+
+private:
+    void PressedQTEButton(Input::ControllerTypes::Button type = Input::ControllerTypes::X);
+    void PressedButtonX(const Input::Controller& controller);
+    void PressedButtonY(const Input::Controller& controller);
+    void PressedButtonB(const Input::Controller& controller);
 
 public:
+    inline bool  IsQTEPlaying() const { return _isQTEPlaying; }
+    inline float GetQTEDelayTime() const { return _delayTimer; }
+    inline float GetQTETime() const { return _qteTimer; }
 
     inline void  SetQTESpeedScale(float scale) { ReflectFields->QTESpeedScale = scale; }
     inline float GetQTESpeedScale() const { return ReflectFields->QTESpeedScale; }
@@ -46,22 +69,33 @@ public:
     inline void SetFadeOutPosFactor(float start, float end) { ReflectFields->FadeOutPosFactor = {start, end}; }
     inline std::pair<float, float> GetFadeOutPosFactor() const { return ReflectFields->FadeOutPosFactor; }
 
+    inline QTE::Track* GetCurrentQTETrack() const { return _currentQTETrack; }
+    inline const std::vector<QTE::Result>& GetCurrentQTEResultQueue() const { return _noteResultQueue; }
+
 private:
-    QTE::Track* _qteTrack           = nullptr;      // QTE 트랙
-    float       _delayTimer         = 0.0f;         // 딜레이 타이머
-    float       _qteTimer           = 0.0f;         // 미리보기 타이머
-    bool        _isQTEPlaying       = false;        // 미리보기 재생 여부
+    std::unordered_map<int, std::vector<QTE::Track>> _weaponIDToTrackTable;      // 무기 ID QTE 매핑 테이블
+
+    std::vector<QTE::Note*>     _noteAvailQueue;                    // 유효한 노트 큐
+    std::vector<QTE::Result>    _noteResultQueue;                   // 노트 결과 큐
+    size_t                      _currentNoteIndex = 0;              // 현재 가리키는 노트 인덱스
+    QTE::Track*                 _currentQTETrack  = nullptr;        // QTE 트랙
+
+    float                       _delayTimer     = 0.0f;             // 딜레이 타이머
+    float                       _qteTimer       = 0.0f;             // QTE 타이머
+    bool                        _isQTEPlaying   = false;            // QTE 실행 중 여부
 
     REFLECT_FIELDS_BEGIN(Component)
-    float QTESpeedScale     = 1.0f; // QTE 속도 배율
-    float DelayFromQTEStart = 0.0f; // QTE 시작 대기 시간
-    float JudgePosFactor = 0.8f; // 퍼펙트 노트 위치 비율 (0 ~ 1)
-    std::pair<float, float> PerfectJudgeRange = {-0.05f, 0.05f}; // 퍼펙트 판정 범위 (min - max)
-    std::pair<float, float> NormalJudgeRange  = {-0.1f, 0.1f}; // 노멀 판정 범위 (min - max)
-    std::pair<float, float> FadeInPosFactor = {0.0f, 0.1f}; 
-    std::pair<float, float> FadeOutPosFactor = {-0.1f, 0.1f}; 
+    float                   QTESpeedScale     = 1.0f;               // QTE 속도 배율
+    float                   DelayFromQTEStart = 0.0f;               // QTE 시작 대기 시간
+    float                   JudgePosFactor = 0.8f;                  // 퍼펙트 노트 위치 비율 (0 ~ 1)
+    std::pair<float, float> PerfectJudgeRange = {-0.05f, 0.05f};    // 퍼펙트 판정 범위 (min - max)
+    std::pair<float, float> NormalJudgeRange  = {-0.1f, 0.1f};      // 노멀 판정 범위 (min - max)
+    std::pair<float, float> FadeInPosFactor   = {0.0f, 0.1f};       // 페이드인 위치 비율 (0 ~ 1)
+    std::pair<float, float> FadeOutPosFactor  = {-0.1f, 0.1f};      // 페이드아웃 위치 비율 (-1 ~ 0)
+
+    std::unordered_map<int, std::string> WeaponQTETrackData;   // 리플렉트 필드
     REFLECT_FIELDS_END(QTESystem)
-    
+
     // QTE 편집기
     QTEEditor&  GetEditor();
 };
