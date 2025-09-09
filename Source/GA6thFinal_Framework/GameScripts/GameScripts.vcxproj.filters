@@ -136,6 +136,11 @@
     <ClCompile Include="Scripts\UI\Views\TurnQueue\TurnQueueView.cpp" />
     <ClCompile Include="Scripts\UI\Views\Weapon\WeaponView.cpp" />
     <ClCompile Include="Scripts\UI\Wrappers\Scrolling\ScrollingWrapper.cpp" />
+    <ClCompile Include="Scripts\ViewModels\ItemDrop\DropArtifacts\DropArtifactsViewModel.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UI\ItemDropUIRootManager.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UI\ArtifactUIManager.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\ItemDropSystem.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\Interface\IDropItem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h" />
@@ -290,6 +295,11 @@
     <ClInclude Include="Scripts\UI\Views\TurnQueue\TurnQueueView.h" />
     <ClInclude Include="Scripts\UI\Views\Weapon\WeaponView.h" />
     <ClInclude Include="Scripts\UI\Wrappers\Scrolling\ScrollingWrapper.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\Interface\IDropItem.h" />
+    <ClInclude Include="Scripts\ViewModels\ItemDrop\DropArtifacts\DropArtifactsViewModel.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UI\ItemDropUIRootManager.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UI\ArtifactUIManager.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\ItemDropSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
