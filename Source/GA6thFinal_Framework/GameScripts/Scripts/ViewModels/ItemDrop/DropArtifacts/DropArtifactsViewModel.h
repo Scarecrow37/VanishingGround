@@ -3,8 +3,9 @@
 
 struct DropArtifactsUIData
 {
-    File::Guid ActorPortrait;
     File::Guid Frame;
+    File::Guid Artifact;
+    File::Guid Category;
 };
 
 class DropArtifactsViewModel final : MVVM::ViewModel<std::vector<DropItemInfo>, std::vector<DropArtifactsUIData>>

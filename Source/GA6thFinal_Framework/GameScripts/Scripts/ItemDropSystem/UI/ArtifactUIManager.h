@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "UmFramework.h"
+#include "ItemDropSystem/Interface/IDropItem.h"
 
 class ImageElement;
 class GridPanel;
@@ -33,14 +34,9 @@ public:
 
 public:
     /// <summary>
-    /// Image Element들을 찾아서 등록합니다.
+    /// DropItemInfo에 따라 UI를 갱신합니다.
     /// </summary>
-    void FindImageElements();
-
-    /// <summary>
-    /// Frame Image를 ItemDropUIRootManager의 값으로 설정합니다. 
-    /// </summary>
-    void UpdateFrameImage();
+    void UpdateImageElements(const std::vector<DropItemInfo>& dropItemsInfo = std::vector<DropItemInfo>());
 
 public:
     REFLECT_PROPERTY()
@@ -54,10 +50,18 @@ protected:
 
     void ImGuiDrawPropertysEvent() override;
 
+    /// <summary>
+    /// Image Element들을 찾아서 등록합니다.
+    /// </summary>
+    void FindImageElements();
+
 private:
     GridPanel*                 _frameGridPanel;
     std::vector<ImageElement*> _frameImageElements;
 
     GridPanel*                 _gridPanel;
     std::vector<ImageElement*> _imageElements;
+
+    GridPanel*                 _categoryGridPanel;
+    std::vector<ImageElement*> _categoryimageElements;
 };

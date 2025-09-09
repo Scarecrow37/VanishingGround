@@ -551,10 +551,6 @@ bool WeaponTableComponent::ExcelToWeaponElement(WeaponElement& element, const st
                 {
                     stats.Grade = WeaponGrade::BIZARRE;
                 }
-                else if (WeaponStats::GetGradeID(WeaponGrade::LEGENDARY) == rarity)
-                {
-                    stats.Grade = WeaponGrade::LEGENDARY;
-                }
                 else
                 {
                     return false;

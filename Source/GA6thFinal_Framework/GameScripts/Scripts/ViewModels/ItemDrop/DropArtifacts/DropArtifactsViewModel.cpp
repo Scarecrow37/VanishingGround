@@ -21,8 +21,9 @@ std::vector<DropArtifactsUIData> DropArtifactsViewModel::Convert(const std::vect
             File::Path framePath = (std::string)uiRootManager->ArtifactsUIFrameAsset;
             DropArtifactsUIData data
             {
-                .ActorPortrait = UmFileSystem.GetPathFromAssetID(item.ID).ToGuid(), 
-                .Frame         = framePath.ToGuid(),
+                .Frame    = framePath.ToGuid(),
+                .Artifact = UmFileSystem.GetPathFromAssetID(item.ID).ToGuid(), 
+                .Category = UmFileSystem.GetPathFromAssetID(item.CategoryID).ToGuid(), 
             };
             _uiDatas.push_back(data);
         }

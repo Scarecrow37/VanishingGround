@@ -70,12 +70,12 @@ int WeaponElement::GetCategoryID() const
     switch (type)
     {
     case WeaponType::SWORD:
-        return -1;
+        return DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::SWORD);
     case WeaponType::DAGGER:
-        return -1;
+        return DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::DAGGER);
     case WeaponType::WARHAMMER:
-        return -1;
+        return DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::WARHAMMER);
     default:
-        return -1;
+        return 0;
     }
 }

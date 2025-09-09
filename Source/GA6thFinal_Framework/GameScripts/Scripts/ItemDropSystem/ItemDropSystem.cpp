@@ -20,13 +20,31 @@ namespace
 
     constexpr auto WeaponGradeArray = rfl::get_enumerator_array<WeaponGrade>();
     constexpr size_t WeaponGradeArraySize = WeaponGradeArray.size();
+
+    //계시 지우기 임시 클래스
+    class EraseRevelation : public IDropItem
+    {
+    public:     
+        DropItemInfo operator()() { return GetItemInfo(); }
+        DropItemInfo GetItemInfo() override 
+        { 
+            DropItemInfo info
+            {
+                .ID = 0, 
+                .CategoryID = DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::ERASE_REVELATION), 
+                .Name = (const char*)u8"계시 지우기 (테스트)",
+            };
+            return info; 
+        }
+    };
+
 } // namespace
 
 const size_t ItemDropSystem::ARTIFACT_TYPE_COUNT = ArtifactDropTypeArraySize; // 유물 카테고리 개수
 
 ItemDropSystem::ItemDropSystem()
 {
-    ReflectFields->MaxDropCount = {3, 3, 3, 3, 3, 2};
+    ReflectFields->MaxDropCount = {2, 2, 2, 6, 7, 2};
 }
 ItemDropSystem::~ItemDropSystem() = default;
 
@@ -169,6 +187,9 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
         case ArtifactDropType::REVELATION:
             artifact = RollRevelationRandomItem();
             break;
+        case ArtifactDropType::ERASE_REVELATION:
+            artifact = EraseRevelation()();
+            break;
         default:
             break;
         }      
@@ -180,6 +201,12 @@ void ItemDropSystem::SetDropItem(const std::array<DropItemInfo, ARTIFACT_DROP_CO
 {
     std::vector<DropItemInfo> dropItems(itemInfos.begin(), itemInfos.end());
     _dropItemsModel = dropItems;
+}
+
+void ItemDropSystem::SetStageClearCount(int count) 
+{
+    _stageClearCount = std::clamp(count, 0, 3);
+
 }
 
 void ItemDropSystem::ImGuiDrawPropertysEvent() 
@@ -206,9 +233,10 @@ void ItemDropSystem::ImGuiDrawMaxDropCount()
             {
                 if (ImGui::DragInt(str.data(), &MaxDropCount[i]))
                 {
-                    MaxDropCount[i] = std::clamp(MaxDropCount[i], 0, (int)ARTIFACT_DROP_COUNT);
+                    MaxDropCount[i] = std::clamp(MaxDropCount[i], 0, 99);
                 }
             }
+            i++;
         }
         ImGui::TreePop();
     }
@@ -227,7 +255,10 @@ void ItemDropSystem::ImGuiDrawTestRollArtifacts()
         if (ImGui::Button("Roll Artifacts"))
         {
             std::array<DropItemInfo, ARTIFACT_DROP_COUNT> artifacts = RollArtifacts();
-            SetDropItem(artifacts);
+            if (ArtifactUIManager* uiManager = ArtifactUIManager::GetInstance())
+            {
+                uiManager->UpdateImageElements(std::vector<DropItemInfo>(artifacts.begin(), artifacts.end()));
+            }
         }
 
         const auto& model = _dropItemsModel;
@@ -237,7 +268,7 @@ void ItemDropSystem::ImGuiDrawTestRollArtifacts()
             ImGui::PushID(&info);
             ImGui::Selectable(info.Name.data());
             ImGui::PopID();
-        }
+        }    
         ImGui::TreePop();
     }
     else
