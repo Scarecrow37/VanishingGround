@@ -36,5 +36,4 @@ void SceneTransitionComponent::DeserializedReflectEvent()
 void SceneTransitionComponent::Fade(float duration, float maintain, const Vector4& start, const Vector4& end)
 {
     UmTransition->Fade("Game", duration, start, end, maintain);
-    UmTransition->Fade("Editor", duration, start, end, maintain);
 }

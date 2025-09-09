@@ -1,10 +1,11 @@
 ﻿#include "pch.h"
 #include "SceneTransitionCore.h"
 
-SceneTransitionCore::SceneTransitionCore() {}
+SceneTransitionCore::SceneTransitionCore() = default;
 
 SceneTransitionCore::~SceneTransitionCore() 
 {
+    _sceneTransitionProps.clear();
 }
 
 void SceneTransitionCore::Fade(const char* sceneName, const float duration, const Vector4& start, const Vector4& end, const float maintain)
