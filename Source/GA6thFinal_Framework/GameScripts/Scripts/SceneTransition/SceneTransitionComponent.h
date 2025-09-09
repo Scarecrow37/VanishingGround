@@ -2,31 +2,27 @@
 #include "UmFramework.h"
 class SceneTransitionComponent : public Component
 {
-
 public:
     SceneTransitionComponent();
     ~SceneTransitionComponent() override;
+
     USING_PROPERTY(SceneTransitionComponent)
 public:
-    REFLECT_PROPERTY(Duration,Maintain)
+    REFLECT_PROPERTY(Duration, Maintain)
 
-    
     GETTER(float, Duration) { return ReflectFields->Duration; }
     SETTER(float, Duration)
     {
         ReflectFields->Duration = value;
-        isDirty                 = true;
-
     }
     PROPERTY(Duration)
+
     GETTER(float, Maintain) { return ReflectFields->Maintain; }
     SETTER(float, Maintain)
     {
         ReflectFields->Maintain = value;
-        isDirty                 = true;
     }
     PROPERTY(Maintain)
-
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
@@ -38,20 +34,11 @@ protected:
 
     Vector4 _startColor{0, 0, 0, 0};
     Vector4 _endColor{0, 0, 0, 0};
-    bool    isDirty = false;
 
-    void Update() override;
-    void Start() override;
-    void Reset() override;
     void ImGuiDrawPropertysEvent() override;
-
-        void SerializedReflectEvent() override;
+    void SerializedReflectEvent() override;
     void DeserializedReflectEvent() override;
 
-
-
-    void Fade(float duration, const Vector4& start, const Vector4& end);
-
-
-
+public:
+    void Fade(float duration, float maintain, const Vector4& start, const Vector4& end);
 };

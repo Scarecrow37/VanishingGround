@@ -37,7 +37,7 @@ public:
     void AddRenderPassDatas();
 
 public:
-    void UpdateRenderScene();
+    void UpdateRenderScene(const float deltaTime);
     void Execute();
 
 public:

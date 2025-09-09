@@ -1,59 +1,63 @@
 ﻿#include "pch.h"
 #include "FadePass.h"
 
-FadePass::FadePass() {}
+FadePass::FadePass() = default;
 
-FadePass::~FadePass() {}
+FadePass::~FadePass() = default;
 
 void FadePass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique,
                           ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene, ownerTechnique, commandList);
+    RenderPass::Initialize(ownerScene, ownerTechnique, commandList);
     InitializeShaderAndPSO();
 }
 
-void FadePass::Update(ID3D12GraphicsCommandList* commadList)
+void FadePass::Update(ID3D12GraphicsCommandList* commadList, const float deltaTime)
 {
-    SceneTransitionProperty* transitionProp = Global::sceneTransitionCore->_sceneTransitionProps[_ownerScene->_name];
-    if (nullptr != transitionProp && true == transitionProp->_fadeFlag)
+    auto& props = Global::sceneTransitionCore->_sceneTransitionProps;
+    auto  it    = props.find(_ownerScene->_name);
+    if (it != props.end())
     {
-        _fadeFlag = true;
-        _fadeStart = transitionProp->_fadeStartColor;
-        _fadeEnd   = transitionProp->_fadeEndColor;
-        _fadeDuration = transitionProp->_fadeDuration;
-        _fadeTimer    = 0;
-        _fadeMaintain = transitionProp->_fadeMaintain;
-        Global::sceneTransitionCore->_sceneTransitionProps[_ownerScene->_name]->_fadeFlag = false;
+        auto& transitionProp = it->second;
+        if (true == transitionProp._fadeFlag)
+        {
+            _fadeFlag         = true;
+            _fadeStart        = transitionProp._fadeStartColor;
+            _fadeEnd          = transitionProp._fadeEndColor;
+            _fadeDuration     = transitionProp._fadeDuration;
+            _fadeElapsedTimer = 0;
+            _fadeMaintain     = transitionProp._fadeMaintain;
+            transitionProp._fadeFlag = false;
+        }
     }
 
+    // (아래 코드는 기존과 동일)
     if (true == _fadeFlag)
     {
-        _fadeTimer += Global::renderer->GetDeltaTime();
-
-        _fadeColor = Vector4::Lerp(_fadeStart, _fadeEnd, _fadeTimer / _fadeDuration);
-
-        if (_fadeTimer >= _fadeDuration)
+        _fadeElapsedTimer += deltaTime;
+        if (0 != _fadeDuration)
+        {
+            _fadeColor = Vector4::Lerp(_fadeStart, _fadeEnd, _fadeElapsedTimer / _fadeDuration);
+        }
+        if (_fadeElapsedTimer >= _fadeDuration)
         {
             _fadeColor = _fadeEnd;
-
         }
-        if (_fadeTimer >= _fadeDuration+_fadeMaintain)
+        if (_fadeElapsedTimer >= _fadeDuration + _fadeMaintain)
         {
-            _fadeFlag  = false;
-            _fadeTimer = 0;
+            _fadeFlag         = false;
+            _fadeElapsedTimer = 0;
         }
-
     }
-
-
 }
 
 void FadePass::Begin(ID3D12GraphicsCommandList* commandList)
 {
     if (false == _fadeFlag)
+    {
         return;
+    }
     _finalRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
-
     commandList->OMSetRenderTargets(1, &_finalRenderTarget->GetRTVHandle(), FALSE, nullptr);
     commandList->RSSetViewports(1, &_finalRenderTarget->GetViewport());
     commandList->RSSetScissorRects(1, &_finalRenderTarget->GetScissorRect());
@@ -62,21 +66,21 @@ void FadePass::Begin(ID3D12GraphicsCommandList* commandList)
 void FadePass::Draw(ID3D12GraphicsCommandList* commandList)
 {
     if (false == _fadeFlag)
+    {
         return;
-
+    }
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_fx.GetRootSignature());
-
-    timestep t     = {_fadeColor};
-    commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_4_time"), 4, &t, 0);
+    commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_4_time"), 4, &_fadeColor, 0);
     _ownerScene->_frameQuad->Render(commandList);
 }
 
 void FadePass::End(ID3D12GraphicsCommandList* commandList)
 {
     if (false == _fadeFlag)
+    {
         return;
-
+    }
     _finalRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
@@ -90,7 +94,7 @@ void FadePass::InitializeShaderAndPSO()
     rtDesc.SrcBlend                  = D3D12_BLEND_SRC_ALPHA;
     rtDesc.DestBlend                 = D3D12_BLEND_INV_SRC_ALPHA;
     rtDesc.BlendOp                   = D3D12_BLEND_OP_ADD;
-    rtDesc.SrcBlendAlpha             = D3D12_BLEND_ONE;
+    rtDesc.SrcBlendAlpha             = D3D12_BLEND_ZERO;
     rtDesc.DestBlendAlpha            = D3D12_BLEND_ONE;
     rtDesc.BlendOpAlpha              = D3D12_BLEND_OP_ADD;
     rtDesc.RenderTargetWriteMask     = D3D12_COLOR_WRITE_ENABLE_ALL;

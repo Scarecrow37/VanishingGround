@@ -15,9 +15,9 @@ public:
     SceneTransitionCore();
     virtual ~SceneTransitionCore();
 
-    void Fade(std::string_view sceneName, const float duration, const Vector4& start, const Vector4& end,
+    void Fade(const char* sceneName, const float duration, const Vector4& start, const Vector4& end,
               const float maintain);
 
 public:
-    std::unordered_map<std::string, SceneTransitionProperty*> _sceneTransitionProps;
+    std::map<std::string, SceneTransitionProperty, std::less<>> _sceneTransitionProps;
 };

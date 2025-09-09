@@ -8,6 +8,4 @@ public:
 
 public:
     void Initialize(ID3D12GraphicsCommandList* commandList) override;
-
-
 };

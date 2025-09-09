@@ -1,11 +1,5 @@
 ﻿#pragma once
 #include "RenderPass.h"
-
-struct timestep
-{
-    Vector4 color{0, 0, 0, 0};
-};
-
 class FadePass : public RenderPass
 {
 public:
@@ -15,7 +9,7 @@ public:
 public:
     void Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique,
                     ID3D12GraphicsCommandList* commandList) override;
-    void Update(ID3D12GraphicsCommandList* commadList) override;
+    void Update(ID3D12GraphicsCommandList* commadList, const float deltaTime) override;
     void Begin(ID3D12GraphicsCommandList* commandList) override;
     void Draw(ID3D12GraphicsCommandList* commandList) override;
     void End(ID3D12GraphicsCommandList* commandList) override;
@@ -29,8 +23,8 @@ private:
     Vector4                        _fadeEnd{0, 0, 0, 0};
     Vector4                        _fadeColor{0, 0, 0, 0};
     float                          _fadeDuration = 1.f;
-    float                          _fadeTimer;
-    float                          _fadeMaintain;
+    float                          _fadeElapsedTimer = 0;
+    float                          _fadeMaintain     = 0;
     FX<GE::VS::QUAD, GE::PS::FADE> _fx;
     // std::map<std::string, class Texture*> _fadeMaskTextures;
     

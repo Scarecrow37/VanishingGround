@@ -18,7 +18,6 @@ public:
     std::shared_ptr<Camera>     GetCamera(std::string_view renderSceneName);
     RenderScene*                GetRenderScene(std::string_view renderSceneName);
     const float                 GetTotalTime() const { return _totalTime; }
-    const float                 GetDeltaTime() const { return _currentDeltaTime; }
 
 public:
     void SetCamera(std::string_view renderSceneName, std::shared_ptr<Camera> camera);
@@ -63,5 +62,4 @@ private:
     BaseMesh*                      _frameQuad;
 
     float _totalTime;
-    float _currentDeltaTime;
 };

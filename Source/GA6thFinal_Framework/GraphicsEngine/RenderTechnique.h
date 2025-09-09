@@ -15,7 +15,7 @@ public:
     void         AddRenderPassDatas(std::string_view sceneName);
     void         SetEnable(bool enable) { _enable = enable; }
     virtual void Initialize(ID3D12GraphicsCommandList* commandList) = 0;
-    virtual void Update(ID3D12GraphicsCommandList* commandList);
+    virtual void Update(ID3D12GraphicsCommandList* commandList, const float deltaTime);
     virtual void Execute(ID3D12GraphicsCommandList* commandList);
 
 public:

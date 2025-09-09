@@ -1,66 +1,40 @@
 ﻿#include "pchScripts.h"
 #include "SceneTransitionComponent.h"
 SceneTransitionComponent::SceneTransitionComponent() = default;
+
 SceneTransitionComponent::~SceneTransitionComponent() = default;
 
-void SceneTransitionComponent::Update() {}
-
-void SceneTransitionComponent::Start() {}
-
-void SceneTransitionComponent::Reset() {}
-
-void SceneTransitionComponent::ImGuiDrawPropertysEvent() 
+void SceneTransitionComponent::ImGuiDrawPropertysEvent()
 {
     ImGui::Text("Fade Start Color");
     ImGui::SameLine();
     bool result = ImGui::ColorEdit4("##Fade Start Color", (float*)&_startColor);
-    if (true == result)
-        isDirty = result;
 
     ImGui::Text("Fade End Color");
     ImGui::SameLine();
     result = ImGui::ColorEdit4("##Fade End Color", (float*)&_endColor);
-    if (true == result)
-        isDirty = result;
 
-    if (true == isDirty)
-    {
-        isDirty = false;
-    }
-
-    bool isFadeButtonPressed = ImGui::Button("Fade" ,{100, 40});
+    bool isFadeButtonPressed = ImGui::Button("Fade", {100, 40});
     if (true == isFadeButtonPressed)
     {
-        Fade(Duration, _startColor, _endColor);
+        Fade(Duration, Maintain, _startColor, _endColor);
     }
-
 }
 
-void SceneTransitionComponent::SerializedReflectEvent() 
+void SceneTransitionComponent::SerializedReflectEvent()
 {
-    ReflectFields->StartColorArray[0] = _startColor.x;
-    ReflectFields->StartColorArray[1] = _startColor.y;
-    ReflectFields->StartColorArray[2] = _startColor.z;
-    ReflectFields->StartColorArray[3] = _startColor.w;
-
-    ReflectFields->EndColorArray[0] = _endColor.x;
-    ReflectFields->EndColorArray[1] = _endColor.y;
-    ReflectFields->EndColorArray[2] = _endColor.z;
-    ReflectFields->EndColorArray[3] = _endColor.w;
-
+    memcpy(ReflectFields->StartColorArray.data(), &_startColor, sizeof(Vector4));
+    memcpy(ReflectFields->EndColorArray.data(), &_endColor, sizeof(Vector4));
 }
 
 void SceneTransitionComponent::DeserializedReflectEvent()
 {
-    _startColor = Vector4(ReflectFields->StartColorArray[0], ReflectFields->StartColorArray[1],
-                          ReflectFields->StartColorArray[2], ReflectFields->StartColorArray[3]);
-    _endColor   = Vector4(ReflectFields->EndColorArray[0], ReflectFields->EndColorArray[1],
-                          ReflectFields->EndColorArray[2], ReflectFields->EndColorArray[3]);
+    memcpy(&_startColor,ReflectFields->StartColorArray.data(), sizeof(Vector4));
+    memcpy(&_endColor, ReflectFields->EndColorArray.data(), sizeof(Vector4));
 }
 
-void SceneTransitionComponent::Fade(float duration, const Vector4& start, const Vector4& end) 
+void SceneTransitionComponent::Fade(float duration, float maintain, const Vector4& start, const Vector4& end)
 {
-    UmTransition->Fade("Game", Duration, _startColor, _endColor,Maintain);
-    UmTransition->Fade("Editor", Duration, _startColor, _endColor, Maintain);
-
+    UmTransition->Fade("Game", duration, start, end, maintain);
+    UmTransition->Fade("Editor", duration, start, end, maintain);
 }

@@ -174,10 +174,7 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
     if (RenderTechniqueFlag::PARTICLE_TECH & flag)
     {
         scene->AddRenderTechnique(std::make_unique<ParticleRenderTechnique>());
-        if ("Editor" == sceneName)
-            Global::particleManager->AddSceneResource(sceneName, "Game");
-        else
-            Global::particleManager->AddSceneResource(sceneName);
+        Global::particleManager->AddSceneResource(sceneName);
     }
     if (RenderTechniqueFlag::EDITOR_DRAW_TECH & flag)
     {
@@ -185,7 +182,6 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
     }
 
     // FinalRenderTarget Pass
-
     if (RenderTechniqueFlag::BLOOM_TECH & flag)
     {
         scene->AddRenderTechnique(std::make_unique<BloomTechnique>());
@@ -193,16 +189,6 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
     
     // Blend Pass
     scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
-
-        // Scene Transition Effect
-    if (RenderTechniqueFlag::SCENE_TRANSITION_TECH & flag)
-    {
-        scene->AddRenderTechnique(std::make_unique<SceneTransitionTechnique>());
-    }
-
-
-
-
 
     // UI Pass
     if (RenderTechniqueFlag::UI_TECH & flag)
@@ -213,8 +199,11 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
     {
         scene->AddRenderTechnique(std::make_unique<FontTechnique>());
     }
-
-
+    // Scene Transition Effect
+    if (RenderTechniqueFlag::SCENE_TRANSITION_TECH & flag)
+    {
+        scene->AddRenderTechnique(std::make_unique<SceneTransitionTechnique>());
+    }
 
     scene->AddRenderPassDatas();
 
@@ -322,10 +311,9 @@ void Renderer::Initialize()
 void Renderer::Update(const float deltaTime)
 {    
     _totalTime += deltaTime;
-    _currentDeltaTime = deltaTime;
     for (auto& renderScene : _renderScenes)
     {
-        renderScene.second->UpdateRenderScene();
+        renderScene.second->UpdateRenderScene(deltaTime);
     }
 }
 
