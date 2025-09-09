@@ -302,6 +302,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\ViewModels\Map\MapPlayerHPViewModel.h" />
     <ClInclude Include="Scripts\Audio\BGMManager.h" />
     <ClInclude Include="Scripts\Audio\Table\AudioTableComponent.h" />
     <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h" />
@@ -327,10 +328,10 @@
     <ClInclude Include="Scripts\Map\RewardPopup.h" />
     <ClInclude Include="Scripts\Map\SmoothScroll.h" />
     <ClInclude Include="Scripts\Map\Stage.h" />
-    <ClInclude Include="Scripts\Map\ViewModels\StageFocusViewModel.h" />
-    <ClInclude Include="Scripts\Map\ViewModels\StageViewModel.h" />
-    <ClInclude Include="Scripts\Map\Views\StageFocusView.h" />
-    <ClInclude Include="Scripts\Map\Views\StageView.h" />
+    <ClInclude Include="Scripts\ViewModels\Map\StageFocusViewModel.h" />
+    <ClInclude Include="Scripts\ViewModels\Map\StageViewModel.h" />
+    <ClInclude Include="Scripts\UI\Views\Map\StageFocusView.h" />
+    <ClInclude Include="Scripts\UI\Views\Map\StageView.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.h" />
     <ClInclude Include="Scripts\Animation\AnimationComponent.h" />
@@ -465,8 +466,10 @@
     <ClInclude Include="Scripts\ItemDropSystem\UI\ItemDropUIRootManager.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UI\ArtifactUIManager.h" />
     <ClInclude Include="Scripts\ItemDropSystem\ItemDropSystem.h" />
+    <ClInclude Include="Scripts\UI\Views\Map\MapPlayerHPView.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\ViewModels\Map\MapPlayerHPViewModel.cpp" />
     <ClCompile Include="Scripts\Audio\BGMManager.cpp" />
     <ClCompile Include="Scripts\Audio\Table\AudioTableComponent.cpp" />
     <ClCompile Include="Scripts\EnemyAction\Factory\EnemyActionFactory.cpp" />
@@ -491,10 +494,10 @@
     <ClCompile Include="Scripts\Map\RewardPopup.cpp" />
     <ClCompile Include="Scripts\Map\SmoothScroll.cpp" />
     <ClCompile Include="Scripts\Map\Stage.cpp" />
-    <ClCompile Include="Scripts\Map\ViewModels\StageFocusViewModel.cpp" />
-    <ClCompile Include="Scripts\Map\ViewModels\StageViewModel.cpp" />
-    <ClCompile Include="Scripts\Map\Views\StageFocusView.cpp" />
-    <ClCompile Include="Scripts\Map\Views\StageView.cpp" />
+    <ClCompile Include="Scripts\ViewModels\Map\StageFocusViewModel.cpp" />
+    <ClCompile Include="Scripts\ViewModels\Map\StageViewModel.cpp" />
+    <ClCompile Include="Scripts\UI\Views\Map\StageFocusView.cpp" />
+    <ClCompile Include="Scripts\UI\Views\Map\StageView.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.cpp" />
     <ClCompile Include="Scripts\Animation\AnimationComponent.cpp" />
@@ -640,6 +643,7 @@
     <ClCompile Include="Scripts\ItemDropSystem\UI\ItemDropUIRootManager.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UI\ArtifactUIManager.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\ItemDropSystem.cpp" />
+    <ClCompile Include="Scripts\UI\Views\Map\MapPlayerHPView.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

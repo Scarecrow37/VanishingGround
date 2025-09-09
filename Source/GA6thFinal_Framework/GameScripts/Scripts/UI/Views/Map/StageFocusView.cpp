@@ -2,7 +2,7 @@
 #include "StageFocusView.h"
 #include "Map/Stage.h"
 #include "Map/SmoothScroll.h"
-#include "Map/ViewModels/StageFocusViewModel.h"
+#include "ViewModels/Map/StageFocusViewModel.h"
 #include "UI/Elements/Image/ImageElement.h"
 
 StageFocusView::StageFocusView() = default;
@@ -47,9 +47,12 @@ void StageFocusView::Watch(const std::string& key)
             {
                 _scroll = scroll->GetComponent<SmoothScroll>();
                 
-                if (auto background = GameObject::Find("Background").lock(); background)
+                if (auto map = GameObject::Find("Map").lock(); map)
                 {
-                    _scrollSize = background->GetComponent<ImageElement>()->Size;
+                    if (auto background = map->transform->Find("Background"); background)
+                    {
+                        _scrollSize = background->gameObject->GetComponent<ImageElement>()->Size;
+                    }
                 }
             }
         }

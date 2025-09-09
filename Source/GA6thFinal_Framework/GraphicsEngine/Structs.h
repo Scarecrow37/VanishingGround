@@ -51,7 +51,7 @@ struct VolumetricFogData
     XMMATRIX PreViewProjection;
     XMMATRIX InverseViewProjection;
     Vector4  CameraNearFar_PreviousFrameBlend; // x = near, y = far, z=prevBlend , w = padding
-    Vector4   VolumeSize;                                  // x = volX, y = volY, z = volZ
+    Vector4  VolumeSize;                       // x = volX, y = volY, z = volZ
     float    FogAnisotropy;
     float    LightShaftAnisotropy;
     float    Density;
@@ -65,9 +65,9 @@ struct VolumetricFogCompositeData
 {
     XMMATRIX ViewProj;
     XMMATRIX InverseViewProjection;
-    Vector4 CameraNearFar;
-    Vector4 VoxelSize;
-    float   BlendWithScene;
+    Vector4  CameraNearFar;
+    Vector4  VoxelSize;
+    float    BlendWithScene;
 };
 
 struct GBufferData

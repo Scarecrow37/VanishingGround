@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Stats/CharacterStats.h"
+#include "ViewModels/Map/MapPlayerHPViewModel.h"
 
 struct PlayerStats : public CharacterStats
 {
@@ -15,7 +16,7 @@ struct PlayerStats : public CharacterStats
 
 protected:
     REFLECT_FIELDS_BEGIN(CharacterStats)
-    int Shield        = 0;
+    int Shield = 0;
     REFLECT_FIELDS_END(PlayerStats)
 
 public:
@@ -32,4 +33,18 @@ public:
     PlayerStats(const PlayerStats& rhs) { CopyStats(rhs); };
     PlayerStats& operator=(const PlayerStats& rhs) { return CopyStats(rhs); };
 
+public:
+    void RegisterHP(const std::string& key)
+    {
+        if (false == key.empty())
+        {
+            UmWatcher.Unregister<MapPlayerHPViewModel>(key);
+            int maxHp = MaxHP;
+            UmWatcher.Register<MapPlayerHPViewModel>(key, _currentHP, maxHp);
+        }
+        else
+        {
+            UmLogger.Log(LogLevel::LEVEL_ERROR, "RegisterHP key is empty.");
+        }
+    }
 };

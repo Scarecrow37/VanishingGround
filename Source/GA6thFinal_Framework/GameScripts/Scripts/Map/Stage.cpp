@@ -1,11 +1,11 @@
 ﻿#include "pchScripts.h"
 #include "Stage.h"
-#include "Map/ViewModels/StageViewModel.h"
+#include "ViewModels/Map/StageViewModel.h"
 
 Stage::Stage() = default;
 Stage::~Stage()
 {
-    UmWatcher.Unregister<StageViewModel>(ReflectFields->Key);
+    UmWatcher.Unregister<StageViewModel>(_key);
 }
 
 void Stage::DeserializedReflectEvent()
@@ -16,13 +16,13 @@ void Stage::DeserializedReflectEvent()
 void Stage::RegisterStage(const std::string& key, const File::Guid& enableImage, const File::Guid& disableImage)
 {
     UmWatcher.Register<StageViewModel>(key, _stageEnable, enableImage, disableImage);
-    ReflectFields->Key = key;
 }
 
 void Stage::UpdateData(const std::string& key, const File::Guid& enableImage, const File::Guid& disableImage)
 {
-    UmWatcher.Unregister<StageViewModel>(ReflectFields->Key);
+    UmWatcher.Unregister<StageViewModel>(key);
     UmWatcher.Register<StageViewModel>(key, _stageEnable, enableImage, disableImage);
+    _key = key;
     SetupStage();
 }
 

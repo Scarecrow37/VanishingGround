@@ -1,6 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "StageView.h"
-#include "Map/ViewModels/StageViewModel.h"
+#include "ViewModels/Map/StageViewModel.h"
 #include "UI/Elements/Image/ImageElement.h"
 
 StageView::StageView() = default;

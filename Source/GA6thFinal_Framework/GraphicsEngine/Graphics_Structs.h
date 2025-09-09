@@ -85,6 +85,12 @@ struct LightData
     float   float_3;
 };
 
+struct UIMaterialData
+{
+    UINT  Type;
+    float Fill;
+};
+
 struct GraphicsTransform
 {
     const Vector3&    Position;

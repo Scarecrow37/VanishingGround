@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "UmFramework.h"
 
 class SmoothScroll;
 class StageFocusView : public Component

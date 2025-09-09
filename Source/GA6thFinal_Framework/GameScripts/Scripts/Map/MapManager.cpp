@@ -1,17 +1,18 @@
 ﻿#include "pchScripts.h"
 #include "MapManager.h"
-
-#include "UI/UIRoot/UIRoot.h"
-#include "UI/Panels/Overlay/OverlayPanel.h"
-#include "UI/Elements/Image/ImageElement.h"
-#include "UI/Wrappers/Scrolling/ScrollingWrapper.h"
-
-#include "Map/Stage.h"
 #include "Map/RewardPopup.h"
 #include "Map/SmoothScroll.h"
-#include "Map/Views/StageView.h"
-#include "Map/ViewModels/StageFocusViewModel.h"
-#include "Map/Views/StageFocusView.h"
+#include "Map/Stage.h"
+#include "UI/Elements/Image/ImageElement.h"
+#include "UI/Panels/Overlay/OverlayPanel.h"
+#include "UI/UIRoot/UIRoot.h"
+#include "UI/Views/Map/StageFocusView.h"
+#include "UI/Views/Map/StageView.h"
+#include "UI/Wrappers/Scrolling/ScrollingWrapper.h"
+#include "ViewModels/Map/StageFocusViewModel.h"
+#include "TurnSystem/TurnActor/Character/Player/Player.h"
+#include "Stats/Player/PlayerStatsComponent.h"
+#include "ViewModels/Map/MapPlayerHPViewModel.h"
 
 static GameObject* thisPointer = nullptr;
 
@@ -66,6 +67,7 @@ MapManager::~MapManager()
     {
         thisPointer = nullptr;
         UmWatcher.Unregister<StageFocusViewModel>("StageFocus");
+        UmWatcher.Unregister<MapPlayerHPViewModel>("PlayerHP");
     }
 }
 
@@ -78,6 +80,9 @@ void MapManager::Awake()
 
         UmWatcher.Register<StageFocusViewModel>("StageFocus", _focusStage);
         SetupStage();
+
+        //Player::GetInstance()->GetComponent<PlayerStatsComponent>()->RegisterHP("PlayerHP");
+        UmWatcher.Register<MapPlayerHPViewModel>("PlayerHP", _playerHP, 100);        
     }
     else
     {        

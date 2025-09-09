@@ -26,6 +26,11 @@ void UITechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 
     _depthStencilView = MakeSharedResource<DepthStencilView>();
     _depthStencilView->Initialize(_ownerScene->_depthStencilView->GetDesc());
+
+    _uiMaterialDataBuffer = std::make_unique<ConstantBufferView>();
+    _uiMaterialDataBuffer->Initialize(sizeof(UIMaterialData) * MAX_UI_MATERIAL_DATA);
+    
+    _uiMaterialDatas.resize(MAX_UI_MATERIAL_DATA);
 }
 
 void UITechnique::Execute(ID3D12GraphicsCommandList* commandList)
@@ -43,8 +48,12 @@ void UITechnique::Execute(ID3D12GraphicsCommandList* commandList)
             continue;
 
         SpriteType type = component->GetType();
-        _renderDatas[type].push_back(index++);
+        _renderDatas[type].push_back(index);
+        _uiMaterialDatas[index] = component->GetMaterialData();
+        index++;
     }
+
+    _uiMaterialDataBuffer->UpdateBuffer(_uiMaterialDatas.data());
 
     __super::Execute(commandList);
 }

@@ -182,11 +182,14 @@ UMREAL_COMPONENT(Stage)
 #include "Scripts\Map/RewardPopup.h"
 UMREAL_COMPONENT(RewardPopup)
 
-#include "Scripts\Map/Views/StageView.h"
+#include "Scripts\UI/Views/Map/StageView.h"
 UMREAL_COMPONENT(StageView)
 
-#include "Scripts\Map/Views/StageFocusView.h"
+#include "Scripts\UI/Views/Map/StageFocusView.h"
 UMREAL_COMPONENT(StageFocusView)
 
-#include "Scripts\Map/SmoothScroll.h"
+#include "Scripts\Map\SmoothScroll.h"
 UMREAL_COMPONENT(SmoothScroll)
+
+#include "Scripts\UI/Views/Map/MapPlayerHPView.h"
+UMREAL_COMPONENT(MapPlayerHPView)

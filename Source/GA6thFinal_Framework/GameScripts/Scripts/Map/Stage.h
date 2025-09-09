@@ -13,7 +13,7 @@ public:
     int                       GetFirst() const { return _first; }
     int                       GetSecond() const { return _second; }
     bool                      IsEnable() const { return _stageEnable.Get(); }
-    const std::array<int, 6>& GetLevelItems() const { return ReflectFields->LevelItems; }
+    const std::array<int, 6>& GetDropItems() const { return ReflectFields->DropItems; }
 
 public:
     void SetStageEnable(bool enable) { Enable = enable; }
@@ -35,36 +35,35 @@ public:
     }
     PROPERTY(StageID)
 
-    GETTER(int, Level1_1) { return ReflectFields->LevelItems[0]; }
-    SETTER(int, Level1_1) { ReflectFields->LevelItems[0] = value; }
+    GETTER(int, Level1_1) { return ReflectFields->DropItems[0]; }
+    SETTER(int, Level1_1) { ReflectFields->DropItems[0] = value; }
     PROPERTY(Level1_1)
 
-    GETTER(int, Level1_2) { return ReflectFields->LevelItems[1]; }
-    SETTER(int, Level1_2) { ReflectFields->LevelItems[1] = value; }
+    GETTER(int, Level1_2) { return ReflectFields->DropItems[1]; }
+    SETTER(int, Level1_2) { ReflectFields->DropItems[1] = value; }
     PROPERTY(Level1_2)
 
-    GETTER(int, Level2_1) { return ReflectFields->LevelItems[2]; }
-    SETTER(int, Level2_1) { ReflectFields->LevelItems[2] = value; }
+    GETTER(int, Level2_1) { return ReflectFields->DropItems[2]; }
+    SETTER(int, Level2_1) { ReflectFields->DropItems[2] = value; }
     PROPERTY(Level2_1)
 
-    GETTER(int, Level2_2) { return ReflectFields->LevelItems[3]; }
-    SETTER(int, Level2_2) { ReflectFields->LevelItems[3] = value; }
+    GETTER(int, Level2_2) { return ReflectFields->DropItems[3]; }
+    SETTER(int, Level2_2) { ReflectFields->DropItems[3] = value; }
     PROPERTY(Level2_2)
 
-    GETTER(int, Level3_1) { return ReflectFields->LevelItems[4]; }
-    SETTER(int, Level3_1) { ReflectFields->LevelItems[4] = value; }
+    GETTER(int, Level3_1) { return ReflectFields->DropItems[4]; }
+    SETTER(int, Level3_1) { ReflectFields->DropItems[4] = value; }
     PROPERTY(Level3_1)
 
-    GETTER(int, Level3_2) { return ReflectFields->LevelItems[5]; }
-    SETTER(int, Level3_2) { ReflectFields->LevelItems[5] = value; }
+    GETTER(int, Level3_2) { return ReflectFields->DropItems[5]; }
+    SETTER(int, Level3_2) { ReflectFields->DropItems[5] = value; }
     PROPERTY(Level3_2)
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
     std::string        Stage;
     bool               Enable     = true;
-    std::array<int, 6> LevelItems = {0, 0, 0, 0, 0, 0};
-    std::string        Key;
+    std::array<int, 6> DropItems = {0, 0, 0, 0, 0, 0};
     REFLECT_FIELDS_END(Stage)
 
 protected:
@@ -75,6 +74,7 @@ private:
 
 private:
     MVVM::Model<bool> _stageEnable = true;
+    std::string       _key;
     int               _first  = 0;
     int               _second = 0;
 };

@@ -15,7 +15,6 @@ public:
 
 public:
     void Awake() override;
-    void Reset() override;
 
 public:
     REFLECT_PROPERTY()

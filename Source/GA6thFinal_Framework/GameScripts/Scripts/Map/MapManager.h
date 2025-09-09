@@ -19,7 +19,7 @@ public:
     void DeserializedReflectEvent() override;
 
 public:
-    REFLECT_PROPERTY(BackgroundImage, StageEnableImage, StageDisableImage, StageFocusImage, RewardPopupImage)
+    REFLECT_PROPERTY(BackgroundImage, StageEnableImage, StageDisableImage, StageFocusImage, RewardPopupImage, PlayerHP)
 
     GETTER(int, BackgroundImage) { return ReflectFields->AssetIDs[BACKGROUND]; }
     SETTER(int, BackgroundImage)
@@ -45,6 +45,10 @@ public:
     SETTER(int, RewardPopupImage) { ReflectFields->AssetIDs[REWARD_POPUP] = value; }
     PROPERTY(RewardPopupImage)
 
+    GETTER(int, PlayerHP) { return _playerHP; }
+    SETTER(int, PlayerHP) { _playerHP = value; }
+    PROPERTY(PlayerHP)
+
 protected:
     REFLECT_FIELDS_BEGIN(Component)
     std::array<int, MAX> AssetIDs;
@@ -64,6 +68,7 @@ private:
 
 private:    
     MVVM::Model<Stage*> _focusStage;
+    MVVM::Model<int>    _playerHP;
     int                 _firstElement  = 1;
     int                 _secondElement = 1;
     int                 _childCount    = 0;

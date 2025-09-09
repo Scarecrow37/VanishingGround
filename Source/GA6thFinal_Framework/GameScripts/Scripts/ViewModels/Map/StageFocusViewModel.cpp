@@ -1,7 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "StageFocusViewModel.h"
-#include "Map/Stage.h"
-#include "UI/Elements/Image/ImageElement.h"
+//#include "Map/Stage.h"
 
 StageFocusViewModel::StageFocusViewModel(MVVM::Model<Stage*>& model)
     : ViewModel(model) {}
