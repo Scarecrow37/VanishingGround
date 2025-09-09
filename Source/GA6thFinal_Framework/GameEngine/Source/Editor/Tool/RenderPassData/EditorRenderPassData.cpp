@@ -63,11 +63,13 @@ void EditParallaxMappingProperty(std::any& property)
 {
     auto& parallaxProps = std::any_cast<ParallaxMappingProperty&>(property);
     ImGui::DragFloat("HeightScale", &parallaxProps.HeightScale, 0.001f, 0.0f, 5.f);
+    ImGui::DragFloat("MipBias", &parallaxProps.MipBias, 0.01f, 0.f, 15.f);
 }
 void EditVolumetricFogProperty(std::any& property)
 {
     auto& fogProperty = std::any_cast<VolumetricFogProperty&>(property);
-    ImGui::DragFloat("Anisotropy", &fogProperty.Anisotropy, 0.001f, 0.001f, 1.f);
+    ImGui::DragFloat("FogAnisotropy", &fogProperty.FogAnisotropy, 0.001f, 0.001f, 1.f);
+    ImGui::DragFloat("LightShaftAnisotropy", &fogProperty.LightShaftAnisotropy, 0.001f, 0.001f, 1.f);
     ImGui::DragFloat("Density", &fogProperty.Density, 0.01f, 0.1f, 10.f);
     ImGui::DragFloat("Strength", &fogProperty.Strength, 0.1f, 1.f, 100.f);
     ImGui::DragFloat("BlendWithScene", &fogProperty.BlendWithScene, 0.001f, 0.001f, 1.f);

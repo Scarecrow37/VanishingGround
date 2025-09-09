@@ -326,6 +326,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClInclude Include="FogLightInjectionPass.h" />
     <ClInclude Include="DistortionResolvePass.h" />
     <ClInclude Include="DistortionTechnique.h" />
+    <ClInclude Include="GraphicsController.h" />
     <ClInclude Include="Module\AccumulationModule.h" />
     <ClInclude Include="Animation.h" />
     <ClInclude Include="AnimationCore.h" />
@@ -456,6 +457,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClCompile Include="FogLightInjectionPass.cpp" />
     <ClCompile Include="DistortionResolvePass.cpp" />
     <ClCompile Include="DistortionTechnique.cpp" />
+    <ClCompile Include="GraphicsController.cpp" />
     <ClCompile Include="Module\AccumulationModule.cpp" />
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="AnimationCore.cpp" />

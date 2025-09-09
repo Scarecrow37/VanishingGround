@@ -147,11 +147,13 @@ struct SSRPassProperty
 struct ParallaxMappingProperty
 {
     float HeightScale;
+    float MipBias;
 };
 
 struct VolumetricFogProperty
 {
-    float Anisotropy;
+    float FogAnisotropy;
+    float LightShaftAnisotropy;
     float Density;
     float Strength;
     float BlendWithScene;
