@@ -14,7 +14,6 @@ void FadePass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechniq
 
 void FadePass::Update(ID3D12GraphicsCommandList* commadList)
 {
-    // if (UmTransition._sceneTransitionProps[_ownerScene->_name])
     SceneTransitionProperty* transitionProp = Global::sceneTransitionCore->_sceneTransitionProps[_ownerScene->_name];
     if (nullptr != transitionProp && true == transitionProp->_fadeFlag)
     {
@@ -68,7 +67,6 @@ void FadePass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_fx.GetRootSignature());
 
-    // test
     timestep t     = {_fadeColor};
     commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_4_time"), 4, &t, 0);
     _ownerScene->_frameQuad->Render(commandList);

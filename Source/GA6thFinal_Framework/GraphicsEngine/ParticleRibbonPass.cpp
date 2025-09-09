@@ -84,20 +84,25 @@ void ParticleRibbonPass::Begin(ID3D12GraphicsCommandList* commandList)
 
 void ParticleRibbonPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
-
-    if (0 >= Global::particleManager->GetRibbonCount(_ownerScene->_name))
+    // Ribbon이 없으면 그냥 리턴
+    const auto ribbonCount = Global::particleManager->GetRibbonCount(_ownerScene->_name);
+    if (ribbonCount <= 0)
         return;
+
+    // 파이프라인과 루트 시그니처 설정
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_fx.GetRootSignature());
-    auto depthStencilBuffer = Global::multiRenderTargetManager->GetRenderTarget("Depth");
 
-    auto        customDepthTarget = Global::multiRenderTargetManager->GetRenderTarget("CustomDepth");
-    const auto& mode              = customDepthTarget->GetResolution();
+    auto        depthStencilBuffer = Global::multiRenderTargetManager->GetRenderTarget("Depth");
+    auto        customDepthTarget  = Global::multiRenderTargetManager->GetRenderTarget("CustomDepth");
+    const auto& resolution         = customDepthTarget->GetResolution();
 
-    PostProcessData postProcessData{.TexelSize = {1.f / (float)mode.Width, 1.f / (float)mode.Height}};
+    // PostProcess 데이터
+    PostProcessData postProcessData{.TexelSize = {1.f / resolution.Width, 1.f / resolution.Height}};
     commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_6_postProcessData"), 6,
                                                &postProcessData, 0);
 
+    // 루트 디스크립터 테이블 및 CBV/SRV 설정
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("depthbuffer"),
                                                 depthStencilBuffer->GetSRVHandle());
 
@@ -118,30 +123,26 @@ void ParticleRibbonPass::Draw(ID3D12GraphicsCommandList* commandList)
 
     D3D12_GPU_DESCRIPTOR_HANDLE descHeapPtr =
         Global::viewManager->GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
-
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("textures"), descHeapPtr);
 
+    // IA 설정: SV_VertexID 기반이므로 VertexBuffer 필요 없음
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-    D3D12_VERTEX_BUFFER_VIEW nullView{};
-    commandList->IASetVertexBuffers(0, 1, &nullView);
+    //commandList->IASetVertexBuffers(0, 0, nullptr);
+    //commandList->IASetIndexBuffer(nullptr);
 
-    for (int i = 0; i < _ribbonIndices.size(); ++i)
+    // Ribbon 각각 그리기
+    for (size_t i = 0; i < _ribbonIndices.size(); ++i)
     {
-        UINT ribbonSegmentCount = static_cast<UINT>(_ribbonIndices[i].size());
-        if (2 >= ribbonSegmentCount)
+        const UINT segmentCount = static_cast<UINT>(_ribbonIndices[i].size());
+        if (segmentCount <= 2)
             continue;
 
-        UINT vertexCount = (ribbonSegmentCount - 1) * 2;
-        if (vertexCount == 0)
-            continue;
+        const UINT vertexCount = (segmentCount - 1) * 2;
         commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_1_ribbonVertexCount"), 1, &vertexCount, 0);
-
-        commandList->SetGraphicsRootShaderResourceView(_fx.GetRootParameterIndex("ribbonIndices"),
-                                                       _ribbonIndexBuffer[i]->GetGPUVirtualAddress());
+        commandList->SetGraphicsRootShaderResourceView(_fx.GetRootParameterIndex("ribbonIndices"), _ribbonIndexBuffer[i]->GetGPUVirtualAddress());
         commandList->DrawInstanced(vertexCount, 1, 0, 0);
     }
 }
-
 void ParticleRibbonPass::End(ID3D12GraphicsCommandList* commandList) 
 {
     ComPtr<ID3D12Resource> resource             = Global::particleManager->GetComputeOutputResource(_ownerScene->_name);
@@ -154,9 +155,12 @@ void ParticleRibbonPass::End(ID3D12GraphicsCommandList* commandList)
     _accumlateBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     _revealageBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
-
 void ParticleRibbonPass::InitializeShaderAndPSO() 
 {
+    D3D12_INPUT_LAYOUT_DESC inputLayout = {};
+    inputLayout.pInputElementDescs = nullptr;
+    inputLayout.NumElements        = 0;
+
     PipelineStateStream pss;
     pss.RasterizerState                   = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
     (&pss.RasterizerState)->CullMode      = D3D12_CULL_MODE_NONE;
@@ -165,8 +169,8 @@ void ParticleRibbonPass::InitializeShaderAndPSO()
     (&pss.DepthStencilState)->DepthEnable = FALSE;
     pss.PrimitiveTopology                 = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
     pss.RTVFormats                        = {{DXGI_FORMAT_R32_UINT}, 1};
+    pss.InputLayout                       = inputLayout; // InputLayout 명시적 설정
+
     _fx.SetPipelineStateStream(pss);
     _pipelineState = Global::pipelineStateManager->GetPipelineState(pss);
-
-
 }
