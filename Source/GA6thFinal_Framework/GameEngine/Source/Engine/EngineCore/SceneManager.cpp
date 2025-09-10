@@ -426,7 +426,11 @@ void ESceneManager::Engine::DontDestroyOnLoadObject(GameObject* gameObject)
         {
             pDontDestroyScene->_isLoaded = true;
         }
-        gameObject->_ownerScene = DONT_DESTROY_ON_LOAD_SCENE_NAME;
+
+        Transform::ForeachBFS(gameObject->_transform, [](Transform * curr)
+        {
+            curr->gameObject->_ownerScene = DONT_DESTROY_ON_LOAD_SCENE_NAME;
+        });   
     }
 }
 
@@ -645,6 +649,7 @@ void ESceneManager::CreateEmptySceneAndLoad(std::string_view name, std::string_v
 
 void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
 {
+    static thread_local std::vector<Component*> onloadSceneTargets;
     if (false == UmComponentFactory.HasScript())
     {
         UmComponentFactory.InitalizeComponentFactory();
@@ -666,6 +671,12 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
                     continue;
 
                 GameObject::Destroy(obj.get());
+                
+                //이벤트 호출 대상
+                for (auto& component : obj->_components)
+                {
+                    onloadSceneTargets.push_back(component.get());
+                }
             }
         }
 
@@ -699,7 +710,26 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
             engineCore->Logger.Log(LogLevel::LEVEL_WARNING, u8"이미 로드된 씬은 추가 로드가 불가능합니다."_c_str);
             return;
         }
+
+        //이벤트 호출 대상
+        for (auto& obj : _runtimeObjects)
+        {
+            if (obj)
+            {
+                for (auto& component : obj->_components)
+                {
+                    onloadSceneTargets.push_back(component.get());
+                }
+            }
+        }
     }
+
+    //이벤트 호출
+    for (auto& component : onloadSceneTargets)
+    {
+        component->OnLoadScene(*scene, mode);
+    }
+    onloadSceneTargets.clear();
     _nextSceneGuid = scene->_guid;
 }
 
