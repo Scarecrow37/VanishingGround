@@ -9,7 +9,17 @@ class WeaponTableComponent : public Component
 
 public:
     inline static constexpr char TAG[] = "WeaponTable";
-    static WeaponTableComponent* GetInstance() { return static_instance; }
+    static WeaponTableComponent* GetInstance() 
+    { 
+        if (static_instance)
+        {
+            if (false == static_instance->gameObject->IsValid())
+            {
+                static_instance = nullptr;
+            }
+        }
+        return static_instance; 
+    }
 
 public:
     WeaponTableComponent();
@@ -35,6 +45,12 @@ public:
     /// </summary>
     /// <returns></returns>
     const std::map<std::string, WeaponElement>& GetWeaponTable() { return _weaponTable; }
+
+    /// <summary>
+    /// 테이블의 모든 무기들을 반환합니다.
+    /// </summary>
+    /// <returns></returns>
+    const std::vector<WeaponElement*>& GetWeaponTableElements() { return _weaponTableIdOrder; }
 
     std::string SaveWeaponTable();
     bool        LoadWeaponTable(std::string_view data);

@@ -459,7 +459,7 @@
     <ClInclude Include="Source\Engine\GameCore\Component\UIBaseComponent.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="PreferencesSystem.h">
+    <ClInclude Include="Source\Engine\EngineCore\PreferencesSystem.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\GameCore\Component\UINavigationComponent.h">
@@ -797,7 +797,7 @@
     <ClCompile Include="Source\Engine\GameCore\Component\UIBaseComponent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="PreferencesSystem.cpp">
+    <ClCompile Include="Source\Engine\EngineCore\PreferencesSystem.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GameCore\Component\UINavigationComponent.cpp">

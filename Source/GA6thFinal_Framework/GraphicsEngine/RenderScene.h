@@ -37,12 +37,27 @@ public:
     void AddRenderPassDatas();
 
 public:
-    void UpdateRenderScene();
+    void UpdateRenderScene(const float deltaTime);
     void Execute();
 
 public:
     void ResetEnvironmentSkyBox();
     void ResetIBLSkyBox();
+
+public:
+    template <typename T>
+    T* GetRenderTechnique()
+    {
+        for (auto& pass : _techniques)
+        {
+            T* pointer = dynamic_cast<T*>(pass.get());
+            if (pointer)
+            {
+                return pointer;
+            }
+        }
+        return nullptr;
+    }
 
 private:
     void UpdateGlobal();

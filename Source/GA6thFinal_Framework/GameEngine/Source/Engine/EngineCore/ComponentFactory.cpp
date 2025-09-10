@@ -36,7 +36,8 @@ bool EComponentFactory::InitalizeComponentFactory()
             return false;
     }
 
-    static std::vector<std::tuple<GameObject*, std::string, int, std::string>> addList; //복구해야할 컴포넌트 항목들
+    using AddListTupleType = std::tuple<GameObject*, std::string, int, std::string>;
+    static std::vector<AddListTupleType> addList; // 복구해야할 컴포넌트 항목들
     addList.clear();
 
     SetForegroundWindow(UmApplication.GetHwnd());
@@ -63,6 +64,18 @@ bool EComponentFactory::InitalizeComponentFactory()
         FreeLibrary(m_scriptsDll);
         m_scriptsDll = NULL;
     }
+
+    //인스턴스 아이디에 따른 정렬
+    if (1 < addList.size())
+    {
+        std::ranges::sort(addList, [](AddListTupleType& tupleA, AddListTupleType& tupleB) 
+        {
+            auto& [objectA, keyA, indexA, dataA] = tupleA;
+            auto& [objectB, keyB, indexB, dataB] = tupleB;
+            return objectA->GetInstanceID() < objectB->GetInstanceID();
+        });
+    }
+
     _newScriptsFunctionMap.clear();
     m_NewScriptsKeyVec.clear();
 
@@ -589,20 +602,36 @@ std::shared_ptr<Component> EComponentFactory::MakeComponentToYaml(GameObject* ow
     }
     std::string Type = node["Type"].as<std::string>();
     std::string ReflectFields = node["ReflectFields"].as<std::string>();
+
+    // YAML 노드에 명시된 타입으로 컴포넌트 생성을 시도합니다.
     std::shared_ptr<Component> component = NewComponent(Type);
-    if (component == nullptr)
+    if (component)
     {
-        // 없어진 컴포넌트면 Missing으로 대체 
-        std::shared_ptr<MissingComponent> missing = NewMissingComponent();
-        missing->ReflectFields->typeName    = Type;
-        missing->ReflectFields->reflectData = ReflectFields;
-        component = missing;
-        ResetComponent(ownerObject, component);
-    }
-    else
-    {
+        // 생성에 성공하면 필드를 역직렬화합니다.
         ResetComponent(ownerObject, component);
         component->DeserializedReflectFields(ReflectFields);
     }
+    else
+    {
+        // 생성에 실패한 경우, 해당 컴포넌트는 삭제되었거나 이름이 변경되었을 수 있습니다.
+        // MissingComponent를 사용해 원본 데이터를 파싱하고 원래의 타입 이름을 찾습니다.
+        auto missing = NewMissingComponent();
+        missing->DeserializedReflectFields(ReflectFields);
+        const std::string& originalType = missing->ReflectFields->typeName;
+        const std::string& originReflectFields = missing->ReflectFields->reflectData;
+
+        // 복구된 타입 이름으로 컴포넌트 생성을 다시 시도합니다.
+        component = NewComponent(originalType);
+        if (component)
+        {
+            ResetComponent(ownerObject, component);
+            component->DeserializedReflectFields(originReflectFields);
+        }
+        else
+        {
+            component = missing;
+            ResetComponent(ownerObject, component);
+        }
+    }  
     return component;
 }

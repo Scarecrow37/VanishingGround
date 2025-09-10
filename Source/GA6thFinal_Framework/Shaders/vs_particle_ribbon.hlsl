@@ -20,12 +20,6 @@ struct ParticleOutput
 };
 StructuredBuffer<ParticleOutput> particleInfo;
 
-struct VSInput
-{
-    uint vertexID : SV_VertexID; // 인스턴스 ID 추가
-
-};
-
 struct VSOutput
 {
     float4 position : SV_POSITION;
@@ -39,12 +33,12 @@ struct VSOutput
 
 };
 
-VSOutput vs_main(VSInput input)
+VSOutput vs_main(uint vertexID : SV_VertexID)
 {
     VSOutput o = (VSOutput) 0;
     int totalcount = bit32_1_ribbonVertexCount.count / 2;
 
-    uint current_idx = input.vertexID / 2;
+    uint current_idx = vertexID / 2;
     uint particleIndex = ribbonIndices[current_idx];
     ParticleOutput p = particleInfo[particleIndex];
     float3 pos_curr = p.position.xyz;
@@ -53,7 +47,7 @@ VSOutput vs_main(VSInput input)
     float3 offsetvector = normalize(p.paddings);
     
 
-    int isTop = (input.vertexID % 2 == 0) ? 1 : -1;
+    int isTop = (vertexID % 2 == 0) ? 1 : -1;
     float ribbonHalfWidth = p.FrameInfo.x * 0.5f;
 
     // --- 가장 기본적인 월드 위치 계산 ---

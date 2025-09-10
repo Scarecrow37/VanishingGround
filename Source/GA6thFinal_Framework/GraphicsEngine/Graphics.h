@@ -42,6 +42,7 @@ using namespace DirectX::SimpleMath;
 
 #include "ParticleEmitter.h"
 #include "ParticleEffect.h"
+#include "SceneTransitionCore.h"
 
 #include "ParticleManager.h"
 #include "ResourceManager.h"

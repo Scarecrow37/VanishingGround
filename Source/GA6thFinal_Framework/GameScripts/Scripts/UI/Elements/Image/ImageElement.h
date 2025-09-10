@@ -19,7 +19,16 @@ public:
     PROPERTY(FilePath)
 
 public:
+    /// <summary>
+    /// 이미지 파일을 지정된 GUID 참조로 설정합니다.
+    /// </summary>
+    /// <param name="guidRef">이미지 파일을 식별하는 File::GuidRef 참조입니다.</param>
     void SetImage(const File::GuidRef& guidRef);
+
+    /// <summary>
+    /// 스프라이트의 크기로 값을 초기화합니다.
+    /// </summary>
+    void ResetToSpriteSize();
 
 protected:
     void  Reset() override;
@@ -31,7 +40,6 @@ protected:
     SIZE MeasureOverride(SIZE availableSize) override;
     SIZE ArrangeOverride(SIZE finalSize) override;
 
-    void ResetToSpriteSize();
 
 private:
     void LoadTexture(const File::GuidRef& guid) const;

@@ -16,7 +16,7 @@ void FogLightInjectionPass::Initialize(RenderScene* ownerScene, RenderTechnique*
     _volumTech = dynamic_cast<VolumetricFogTechnique*>(ownerTechnique);
 }
 
-void FogLightInjectionPass::Update(ID3D12GraphicsCommandList* commandList) {}
+void FogLightInjectionPass::Update(ID3D12GraphicsCommandList* commandList, const float deltaTime) {}
 
 void FogLightInjectionPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
@@ -28,7 +28,7 @@ void FogLightInjectionPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
     int                         readIndex    = _volumTech->_readIndex ? 1 : 0;
     int                         writeIndex   = _volumTech->_readIndex ? 0 : 1;
-    auto                        pbrlitTech   = _ownerTechnique->GetRenderTechnique<PBRLitTechnique>();
+    auto                        pbrlitTech   = _ownerScene->GetRenderTechnique<PBRLitTechnique>();
     auto                        shadowpass   = pbrlitTech->GetRenderPass<ShadowMapPass>();
     D3D12_GPU_VIRTUAL_ADDRESS   cameraData   = _ownerScene->_cameraBuffer->GetGPUVirtualAddress();
     D3D12_GPU_VIRTUAL_ADDRESS   lightData    = _ownerScene->_lightBuffer->GetGPUVirtualAddress();
@@ -55,15 +55,16 @@ void FogLightInjectionPass::End(ID3D12GraphicsCommandList* commandList) {}
 void FogLightInjectionPass::AddRenderPassDatas(std::string_view sceneName)
 {
     VolumetricFogProperty property;
-    property.Anisotropy         = 0.001;
-    property.Density            = 10.f;
-    property.Strength           = 3.5f;
-    property.BlendWithScene     = 1.f;
-    property.BlendWithPrevFrame = 0.5f;
-    property.CustomNear         = 0.01f;
-    property.CustomFar          = 1000.f;
-    property.FogIntensity       = 1.f;
-    property.LightShaftIntensity = 1.f;
+    property.FogAnisotropy        = 0.001;
+    property.LightShaftAnisotropy = 0.001;
+    property.Density              = 10.f;
+    property.Strength             = 3.5f;
+    property.BlendWithScene       = 1.f;
+    property.BlendWithPrevFrame   = 0.5f;
+    property.CustomNear           = 0.01f;
+    property.CustomFar            = 1000.f;
+    property.FogIntensity         = 1.f;
+    property.LightShaftIntensity  = 1.f;
     Global::renderPassDatas->AddRenderPassProperty(sceneName, "VolumetricFogData", property);
 }
 

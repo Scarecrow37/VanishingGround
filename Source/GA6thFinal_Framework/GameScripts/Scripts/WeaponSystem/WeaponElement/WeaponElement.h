@@ -1,8 +1,9 @@
 ﻿#pragma once
+#include <ItemDropSystem/Interface/IDropItem.h>
 #include <TurnSystem/TurnAction/TurnAction.h>
 #include <Stats/Weapon/WeaponStats.h>
 
-class WeaponElement : public ReflectSerializer
+class WeaponElement : public ReflectSerializer, public IDropItem
 {
     friend class WeaponSystem;
     friend class WeaponTableComponent;
@@ -51,4 +52,8 @@ public:
 private:
     bool _showActionEditor = false;
     bool _showTableActionEditor = false;
+
+protected:
+    // IDropItem을(를) 통해 상속됨
+    DropItemInfo GetItemInfo() override;
 };

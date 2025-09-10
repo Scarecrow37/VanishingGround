@@ -163,3 +163,15 @@ UMREAL_COMPONENT(EnemyActionSystem)
 
 #include "Scripts\Audio/BGMManager.h"
 UMREAL_COMPONENT(BGMManager)
+
+#include "Scripts\ItemDropSystem/UI/ItemDropUIRootManager.h"
+UMREAL_COMPONENT(ItemDropUIRootManager)
+
+#include "Scripts\ItemDropSystem/UI/ArtifactUIManager.h"
+UMREAL_COMPONENT(ArtifactUIManager)
+
+#include "Scripts\ItemDropSystem/ItemDropSystem.h"
+UMREAL_COMPONENT(ItemDropSystem)
+
+#include "Scripts\SceneTransition/SceneTransitionComponent.h"
+UMREAL_COMPONENT(SceneTransitionComponent)
