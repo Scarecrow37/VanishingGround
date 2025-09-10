@@ -6,7 +6,6 @@
 #include "ItemDropSystem/UI/ArtifactUIManager.h"
 #include "ViewModels/ItemDrop/DropArtifacts/DropArtifactsViewModel.h"
 
-
 //내부 사용 구조체 및 enum
 namespace
 {
@@ -29,9 +28,24 @@ const size_t ItemDropSystem::ARTIFACT_TYPE_COUNT = ArtifactDropTypeArraySize; //
 ItemDropSystem::ItemDropSystem()
 {
     ReflectFields->MaxDropCount = {2, 2, 2, 6, 7, 2};
+
+    for (auto& weights : ReflectFields->WeaponGradeWeight)
+    {
+        weights.resize(WeaponGradeArraySize, 1.0 / (double)WeaponGradeArraySize);
+    }
+
+    for (auto& weights : ReflectFields->RevelationGradeWeight)
+    {
+        weights.resize(RevelationGradeArraySize, 1.0 / (double)RevelationGradeArraySize);
+    }
 }
 ItemDropSystem::~ItemDropSystem()
 {
+    if (this == static_instance)
+    {
+        static_instance = nullptr;
+    }
+
     UmWatcher.Unregister<DropArtifactsViewModel>(ItemDropSystem::WATCHER_KEY);
 }
 
@@ -95,27 +109,21 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
         ArtifactDropType type = dropCategory[randomCategoryIndex];
 
         //종류별 랜덤 뽑기
-        auto RollWeaponRandomGrade =[this](const std::array<double, WeaponGradeArraySize>& weight) -> WeaponGrade 
+        auto RollWeaponRandomGrade = [this](const std::vector<double>& weight) -> WeaponGrade 
         { 
             auto& [gradeStr, grade] = WeaponGradeArray[Random::Index(weight)];
             return grade;
         };
-        auto RollRevelationRandomGrade =[this](const std::array<double, RevelationGradeArraySize>& weight) -> RevelationGrade
+        auto RollRevelationRandomGrade =[this](const std::vector<double>& weight) -> RevelationGrade
         {
             auto& [gradeStr, grade] = RevelationGradeArray[Random::Index(weight)];
             return grade;
         };
 
-        //임시 가중치 추후 변경 필요.
-        std::array<double, WeaponGradeArraySize> weaponTempWeight{};
-        weaponTempWeight.fill(1.0 / WeaponGradeArraySize);
-        std::array<double, RevelationGradeArraySize> revelationTempWeight{};
-        revelationTempWeight.fill(1.0 / RevelationGradeArraySize);
-
         // 무기 랜덤 뽑기 함수
         auto RollWeaponRandomItem = [&](int type) -> DropItemInfo 
         {
-            WeaponGrade grade      = RollWeaponRandomGrade(weaponTempWeight);
+            WeaponGrade grade      = RollWeaponRandomGrade(ReflectFields->WeaponGradeWeight[_itemDropRateBonus]);
             int         gradeIndex = static_cast<int>(grade);
             auto&       itemTable  = weapons[type][gradeIndex];
             if (false == itemTable.empty())
@@ -139,7 +147,7 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
         // 계시 랜덤 뽑기 함수
         auto RollRevelationRandomItem = [&]() -> DropItemInfo
         {
-            RevelationGrade grade      = RollRevelationRandomGrade(revelationTempWeight);
+            RevelationGrade grade      = RollRevelationRandomGrade(ReflectFields->RevelationGradeWeight[_itemDropRateBonus]);
             int             gradeIndex = static_cast<int>(grade);
             auto&           itemTable  = revelations[gradeIndex];
             if (false == itemTable.empty())
@@ -195,43 +203,21 @@ void ItemDropSystem::SetDropItem(const std::array<DropItemInfo, ARTIFACT_DROP_CO
 void ItemDropSystem::SetStageClearCount(int count) 
 {
     _stageClearCount = std::clamp(count, 0, 3);
-
+    if (ArtifactUIManager* uiManager = ArtifactUIManager::GetInstance())
+    {
+        uiManager->UpdateUnlock();
+    }
 }
 
 void ItemDropSystem::ImGuiDrawPropertysEvent() 
 {
     if (ImGui::TreeNode("Artifacts"))
     {
-        ImGuiDrawMaxDropCount();
         ImGuiDrawTestRollArtifacts();   
+        ImGuiDrawMaxDropCount();
+        ImGuiDrawWeaponGradeWeight();
+        ImGuiDrawRevelationGradeWeight();
         ImGui::TreePop();
-    }
-}
-
-void ItemDropSystem::ImGuiDrawMaxDropCount() 
-{
-    auto TreeToolTip = []() { ImGuiHelper::HoveredToolTip(u8"한 스테이지에 카테고리별 드롭 횟수를 조절합니다."); };
-    if (ImGui::TreeNode("Max Drop Count"))
-    {
-        TreeToolTip();
-        int i = 0;
-        auto& MaxDropCount = ReflectFields->MaxDropCount;
-        for (auto& [str, value] : ArtifactDropTypeArray)
-        {
-            if (i < MaxDropCount.size())
-            {
-                if (ImGui::DragInt(str.data(), &MaxDropCount[i]))
-                {
-                    MaxDropCount[i] = std::clamp(MaxDropCount[i], 0, 99);
-                }
-            }
-            i++;
-        }
-        ImGui::TreePop();
-    }
-    else
-    {
-        TreeToolTip();
     }
 }
 
@@ -266,6 +252,148 @@ void ItemDropSystem::ImGuiDrawTestRollArtifacts()
     }
 }
 
+void ItemDropSystem::ImGuiDrawMaxDropCount()
+{
+    auto TreeToolTip = []() { ImGuiHelper::HoveredToolTip(u8"한 스테이지에 카테고리별 드롭 횟수를 조절합니다."); };
+    if (ImGui::TreeNode("Max Drop Count"))
+    {
+        TreeToolTip();
+        int   i            = 0;
+        auto& MaxDropCount = ReflectFields->MaxDropCount;
+        for (auto& [str, value] : ArtifactDropTypeArray)
+        {
+            if (i < MaxDropCount.size())
+            {
+                if (ImGui::DragInt(str.data(), &MaxDropCount[i]))
+                {
+                    MaxDropCount[i] = std::clamp(MaxDropCount[i], 0, 99);
+                }
+            }
+            i++;
+        }
+        ImGui::TreePop();
+    }
+    else
+    {
+        TreeToolTip();
+    }
+}
+
+void ItemDropSystem::ImGuiDrawWeaponGradeWeight()
+{
+    auto TreeToolTip = []() { ImGuiHelper::HoveredToolTip(u8"무기 등급별 드랍 확률을 조절합니다."); };
+    if (ImGui::TreeNode("Weapon Grade Weight"))
+    {
+        TreeToolTip();
+        if (ImGui::BeginTable("Weapon Grade Weight", WeaponGradeArraySize + 2,
+                              ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+        {
+            ImGui::TableSetupColumn("Rate Bonus");
+            for (auto& [str, value] : WeaponGradeArray)
+            {
+                ImGui::TableSetupColumn(str.data());
+            }
+            ImGui::TableSetupColumn("Total");
+            ImGui::TableHeadersRow();
+
+            int row = 0;
+            for (auto& weights : ReflectFields->WeaponGradeWeight)
+            {
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Selectable(std::to_string(row).c_str());
+                double totalPercent = 0.0;
+                size_t i = 1;
+                for (; i <= weights.size(); ++i)
+                {
+                    ImGui::TableSetColumnIndex((int)i);
+                    double& weight = weights[i - 1];
+                    ImGui::PushID(&weight);
+                    {
+                        double       weightPercent = weight * 100.0;
+                        const double min           = 1.0;
+                        const double max           = 100.0;
+                        if (ImGui::DragScalar("##inputDouble", ImGuiDataType_Double, &weightPercent, 1.f, &min, &max,
+                                              "%.3f"))
+                        {
+                            weight = weightPercent / 100.0;
+                        }
+                        totalPercent += weightPercent;
+                    }
+                    ImGui::PopID();
+                }
+                ImGui::TableSetColumnIndex((int)i);
+                ImGui::Selectable(std::format("{:.3f}", totalPercent).c_str());
+                ++row;
+            }
+            ImGui::EndTable();
+        }
+        ImGui::TreePop();
+    }
+    else
+    {
+        TreeToolTip();
+    }
+}
+
+void ItemDropSystem::ImGuiDrawRevelationGradeWeight() 
+{
+    auto TreeToolTip = []() { ImGuiHelper::HoveredToolTip(u8"계시 등급별 드랍 확률을 조절합니다."); };
+    if (ImGui::TreeNode("Revelation Grade Weight"))
+    {
+        TreeToolTip();
+        if (ImGui::BeginTable("Revelation Grade Weight", RevelationGradeArraySize + 2,
+                              ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+        {
+            ImGui::TableSetupColumn("Rate Bonus");
+            for (size_t i = 0; i < RevelationGradeArraySize; ++i)
+            {
+                auto& [str, value] = RevelationGradeArray[i];
+                ImGui::TableSetupColumn(str.data());
+            }
+            ImGui::TableSetupColumn("Total");
+            ImGui::TableHeadersRow();
+
+            int row = 0;
+            for (auto& weights : ReflectFields->RevelationGradeWeight)
+            {
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Selectable(std::to_string(row).c_str());
+                double totalPercent = 0.0;
+                size_t i = 1;
+                for (; i <= weights.size(); ++i)
+                {
+                    ImGui::TableSetColumnIndex((int)i);
+                    double& weight = weights[i - 1];
+                    ImGui::PushID(&weight);
+                    {
+                        double       weightPercent = weight * 100.0;
+                        const double min           = 1.0;
+                        const double max           = 100.0;
+                        if (ImGui::DragScalar("##inputDouble", ImGuiDataType_Double, &weightPercent, 1.f, &min, &max,
+                                              "%.3f"))
+                        {
+                            weight = weightPercent / 100.0;
+                        }
+                        totalPercent += weightPercent;
+                    }
+                    ImGui::PopID();
+                }
+                ImGui::TableSetColumnIndex((int)i);
+                ImGui::Selectable(std::format("{:.3f}", totalPercent).c_str());
+                ++row;
+            }
+            ImGui::EndTable();
+        }
+        ImGui::TreePop();
+    }
+    else
+    {
+        TreeToolTip();
+    }
+}
+
 void ItemDropSystem::SerializedReflectEvent() 
 {
 
@@ -273,17 +401,24 @@ void ItemDropSystem::SerializedReflectEvent()
 
 void ItemDropSystem::DeserializedReflectEvent() 
 {
-
+    for (auto& weights : ReflectFields->WeaponGradeWeight)
+    {
+        weights.resize(WeaponGradeArraySize);
+    }
+    for (auto& weights : ReflectFields->RevelationGradeWeight)
+    {
+        weights.resize(RevelationGradeArraySize);
+    }
 }
 
 void ItemDropSystem::Reset() 
 {
+    static_instance = this;
     ReflectFields->MaxDropCount.resize(ArtifactDropTypeArraySize);
 }
 
 void ItemDropSystem::Awake()
 {
-    static_instance = this;
     UmWatcher.Register<DropArtifactsViewModel>(ItemDropSystem::WATCHER_KEY, _dropItemsModel);
 }
 
