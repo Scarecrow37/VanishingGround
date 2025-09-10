@@ -209,14 +209,31 @@ void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
         {
             //bool 변경 대기열에 추가
             auto& [WaitSet, WaitVec, WaitValue] = value ? sceneManager._onEnableQueue : sceneManager._onDisableQueue;
+            auto& [notWaitSet, notWaitVec, notWaitValue] = value ? sceneManager._onDisableQueue :sceneManager._onEnableQueue;
             WaitValue.emplace_back(&gameObject->ReflectFields->_activeSelf);   
 
             //ActiveInHierarchy Update 대기열에 추가
             auto& [UpdateSet, UpdateQueue] = value ? sceneManager._updateEnableQueue : sceneManager._updateDisableQueue;
+            auto& [NotUpdateSet, NotUpdateQueue] = value ? sceneManager._updateDisableQueue : sceneManager._updateEnableQueue;
             auto [iter, result] = UpdateSet.insert(gameObject);
+            bool notUpdateErase = false;
             if (true == result)
             {
                 UpdateQueue.push_back(gameObject->GetWeakPtr());
+                if (auto findIter = NotUpdateSet.find(gameObject); findIter != NotUpdateSet.end())
+                {
+                    NotUpdateSet.erase(findIter);
+                    std::erase(notWaitValue, &gameObject->ReflectFields->_activeSelf);
+                    std::erase_if(NotUpdateQueue, [gameObject](const std::weak_ptr<GameObject>& weak) 
+                    {
+                        if (auto object = weak.lock())
+                        {
+                            return object.get() == gameObject;
+                        }
+                        return true;
+                    });
+                    notUpdateErase = true;
+                }
             }
 
             //컴포넌트들의 On__able 함수를 호출하도록 합니다.
@@ -241,6 +258,21 @@ void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
                                 if (result)
                                 {
                                     WaitVec.push_back(component);
+                                    if (notUpdateErase)
+                                    {
+                                        if (auto findIter = notWaitSet.find(component.get()); findIter != notWaitSet.end())
+                                        {
+                                            notWaitSet.erase(findIter);
+                                            std::erase_if(notWaitVec, [&component](const std::weak_ptr<Component>& weak) 
+                                            {
+                                                if (auto vecComponent = weak.lock())
+                                                {
+                                                    return vecComponent.get() == component.get();
+                                                }
+                                                return true;
+                                            });
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -263,6 +295,7 @@ void ESceneManager::Engine::SetComponentEnable(Component* component, bool value)
     {
         //컴포넌트의 On__able 함수를 호출하도록 합니다.
         auto& [WaitSet, WaitVec, WaitValue] = value ? sceneManager._onEnableQueue : sceneManager._onDisableQueue;
+        auto& [notWaitSet, notWaitVec, notWaitValue] = value ? sceneManager._onDisableQueue : sceneManager._onEnableQueue;
         WaitValue.emplace_back(&component->ReflectFields->_enable);
         if (component->gameObject->ActiveInHierarchy == true)
         {
@@ -270,6 +303,18 @@ void ESceneManager::Engine::SetComponentEnable(Component* component, bool value)
             if (result)
             {
                 WaitVec.push_back(component->GetWeakPtr());
+                if (auto findIter = notWaitSet.find(component); findIter != notWaitSet.end())
+                {
+                    notWaitSet.erase(findIter);
+                    std::erase_if(notWaitVec, [&component](const std::weak_ptr<Component>& weak) 
+                    {
+                        if (auto vecComponent = weak.lock())
+                        {
+                            return vecComponent.get() == component;
+                        }
+                        return true;
+                    });
+                }
             }           
         }
     }
