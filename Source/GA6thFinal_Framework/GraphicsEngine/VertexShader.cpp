@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "VertexShader.h"
 
-void VertexShader::LoadResource(const std::filesystem::path& filePath)
+void VertexShader::LoadResource(const std::filesystem::path& filePath, const std::function<void()>& callback)
 {
     CompileShader(filePath.c_str(), "vs_main", "vs_5_1");
 }

@@ -1962,6 +1962,7 @@ void ESceneManager::EraseSceneGUID(std::string_view sceneName, const File::Guid 
 template <typename T>
 void ESceneManager::SceneResourceManager::UpdateRenderResource(RenderResource<T>& resource)
 {
+    std::list<std::tuple<std::weak_ptr<Component>, File::Path, std::function<void()>>> tempResource;
     std::tuple<std::weak_ptr<Component>, File::Path, std::function<void()>> curr;
     while (false == resource.ResourceLoadQueue.empty())
     {
@@ -1979,10 +1980,22 @@ void ESceneManager::SceneResourceManager::UpdateRenderResource(RenderResource<T>
                         auto findIter = resource.RenderResource.find(path);
                         if (findIter == resource.RenderResource.end())
                         {
-                            auto newResource = UmResourceManager->LoadResource<T>(path.string());                       
+                            auto newResource = UmResourceManager->LoadResource<T>(path.string(), func);
                             resource.RenderResource[path] = newResource;
                         }
-                        func();
+                        else
+                        {
+                            std::shared_ptr<T> resource = UmResourceManager->LoadResource<T>(path.string(), func);
+                            if (resource->IsValid())
+                            {
+                                func();
+                            }
+                            else
+                            {
+                                tempResource.push_back(curr);
+                                continue;
+                            }
+                        }
                     }
                 }
                 else
@@ -1997,6 +2010,11 @@ void ESceneManager::SceneResourceManager::UpdateRenderResource(RenderResource<T>
                 }
             }
         }
+    }
+
+    for (auto& tuple : tempResource)
+    {
+        resource.ResourceLoadQueue.push(tuple);
     }
 }
 
