@@ -724,10 +724,13 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
         }
     }
 
-    //이벤트 호출
-    for (auto& component : onloadSceneTargets)
+    // 이벤트 호출
+    if (_isPlay)
     {
-        component->OnLoadScene(*scene, mode);
+        for (auto& component : onloadSceneTargets)
+        {
+            component->OnLoadScene(*scene, mode);
+        }
     }
     onloadSceneTargets.clear();
     _nextSceneGuid = scene->_guid;
