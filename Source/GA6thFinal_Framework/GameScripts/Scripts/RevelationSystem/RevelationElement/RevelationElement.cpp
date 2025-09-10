@@ -6,6 +6,7 @@
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 #include <TurnSystem/TurnAction/TurnActionFactory.h>
+#include <ItemDropSystem/UI/ItemDropUIRootManager.h>
 
 using namespace u8_literals;
 
@@ -50,10 +51,13 @@ void RevelationElement::DeepCopyAction(const TurnAction& action)
 
 DropItemInfo RevelationElement::GetItemInfo()
 {
+    int categoryID = DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::REVELATION);
     DropItemInfo info
     {
         .ID = RevelationID, 
+        .CategoryID = categoryID,
         .Name = (const std::string&)ElementName,
     };
     return info;
 }
+

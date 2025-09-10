@@ -57,6 +57,15 @@ void TestComponent::OnApplicationQuit()
     UmLogger.Log(LogLevel::LEVEL_DEBUG, "OnApplicationQuit!");
 }
 
+void TestComponent::OnLoadScene(Scene& scene, LoadSceneMode mode) 
+{
+    std::string message = "OnLoadScene! ";
+    message += (std::string)scene.Path;
+    message += ", ";
+    message += rfl::enum_to_string(mode);
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, message);
+}
+
 void TestComponent::Reset()
 {
     UmLogger.Log(LogLevel::LEVEL_DEBUG, "Reset!");
@@ -103,5 +112,19 @@ void TestComponent::ImGuiDrawPropertysEvent()
     if (ImGui::Button(u8"테스트 컴포넌트 추가"_c_str))
     {
         AddComponent<TestComponent>();
+    }
+    if (ImGui::Button(u8"오브젝트 Active 동시 변경 테스트"_c_str))
+    {
+        gameObject->SetActive(false);
+        gameObject->SetActive(true);
+        gameObject->SetActive(false);
+        gameObject->SetActive(true);
+    }
+    if (ImGui::Button(u8"컴포넌트 Active 동시 변경 테스트"_c_str))
+    {
+        Enable = false;
+        Enable = true;
+        Enable = false;
+        Enable = true;
     }
 }

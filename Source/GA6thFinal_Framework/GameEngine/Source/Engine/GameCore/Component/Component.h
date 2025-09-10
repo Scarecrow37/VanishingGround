@@ -102,6 +102,11 @@ protected:
     /// </summary>
     virtual void OnApplicationQuit() {};
 
+    /// <summary>
+    /// Scene Manager의 Load Scene이 요청되면 호출됩니다. (Active 여부와 무관합니다)
+    /// </summary>
+    virtual void OnLoadScene(Scene& loadScene, LoadSceneMode mode) {};
+
 public:
     /// <summary>
     /// <para> 에디터 Scene View에 DrawDebug를 그리기 위한 함수입니다. </para>

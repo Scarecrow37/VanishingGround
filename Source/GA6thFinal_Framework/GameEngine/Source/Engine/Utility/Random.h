@@ -67,6 +67,21 @@ public:
         return dist(engine);
     }
 
+    /// <summary>
+    /// 0부터 size-1 까지의 범위에서 균등 확률로 무작위 인덱스를 반환합니다.
+    /// </summary>
+    /// <param name="size">아이템의 개수 또는 범위의 크기</param>
+    /// <returns>0부터 size-1 사이의 랜덤 인덱스</returns>
+    static size_t Index(size_t size)
+    {
+        if (size == 0)
+        {
+            return 0;
+        }
+        std::uniform_int_distribution<size_t> dist(0, size - 1);
+        return dist(engine);
+    }
+
 private:
     static std::mt19937 engine;
 };
