@@ -14,7 +14,7 @@ void FogLightAccmulatePass::Initialize(RenderScene* ownerScene, RenderTechnique*
     _volumTech = dynamic_cast<VolumetricFogTechnique*>(ownerTechnique);
 }
 
-void FogLightAccmulatePass::Update(ID3D12GraphicsCommandList* commandList) {}
+void FogLightAccmulatePass::Update(ID3D12GraphicsCommandList* commandList, const float deltaTime) {}
 
 void FogLightAccmulatePass::Begin(ID3D12GraphicsCommandList* commandList) 
 {

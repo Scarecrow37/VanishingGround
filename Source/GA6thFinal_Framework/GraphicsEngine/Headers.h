@@ -38,3 +38,5 @@
 #include "DebugDrawCore.h"
 #include "RenderTechnique.h"
 #include "FX.h"
+
+#include "SceneTransitionCore.h"

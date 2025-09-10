@@ -457,6 +457,7 @@
     <ClInclude Include="Scripts\ItemDropSystem\UI\ItemDropUIRootManager.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UI\ArtifactUIManager.h" />
     <ClInclude Include="Scripts\ItemDropSystem\ItemDropSystem.h" />
+	<ClInclude Include="Scripts\SceneTransition\SceneTransitionComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scripts\Audio\BGMManager.cpp" />
@@ -479,7 +480,6 @@
     <ClCompile Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22014.cpp" />
     <ClCompile Include="Scripts\EnemyAction\EnemyActionBase.cpp" />
     <ClCompile Include="Scripts\ExcelParser\ImGuiColumnSheetParser.cpp" />
-    <ClCompile Include="Scripts\ItemDropSystem\Interface\IDropItem.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.cpp" />
     <ClCompile Include="Scripts\Animation\AnimationComponent.cpp" />
@@ -625,6 +625,7 @@
     <ClCompile Include="Scripts\ItemDropSystem\UI\ItemDropUIRootManager.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UI\ArtifactUIManager.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\ItemDropSystem.cpp" />
+    <ClCompile Include="Scripts\SceneTransition\SceneTransitionComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
