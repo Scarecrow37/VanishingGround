@@ -57,6 +57,15 @@ void TestComponent::OnApplicationQuit()
     UmLogger.Log(LogLevel::LEVEL_DEBUG, "OnApplicationQuit!");
 }
 
+void TestComponent::OnLoadScene(Scene& scene, LoadSceneMode mode) 
+{
+    std::string message = "OnLoadScene! ";
+    message += (std::string)scene.Path;
+    message += ", ";
+    message += rfl::enum_to_string(mode);
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, "OnLoadScene!");
+}
+
 void TestComponent::Reset()
 {
     UmLogger.Log(LogLevel::LEVEL_DEBUG, "Reset!");
