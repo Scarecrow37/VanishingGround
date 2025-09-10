@@ -35,7 +35,7 @@ public:
     void RegisterComponent(std::string_view renderSceneName, Light* component) const;
 
 public:
-    void LoadResource(std::wstring_view filePath, MeshRenderer* component, const std::function<void()>& callback);
+    void LoadResource(std::wstring_view filePath, MeshRenderer* component) const;
     void LoadResource(std::wstring_view filePath, SpriteRenderer* component) const;
     void LoadResource(std::wstring_view filePath, FontRenderer* component) const;
     void LoadTextureResource(std::wstring_view filePath, class ParticleEmitter* component) const;
@@ -80,7 +80,4 @@ private:
     class PipelineStateManager*       _pipelineStateManager;
     class ThreadPool*                 _threadPool;
     class SceneTransitionCore*        _sceneTransitionCore;
-
-private:
-    std::queue<std::function<void()>> _resourceLoadQueue;
 };

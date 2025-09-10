@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "ViewModels/Weapon/WeaponViewModel.h"
 
 class TextElement;
 class ImageElement;
@@ -36,4 +37,6 @@ private:
     TextElement*  _attackCount;
     DescriptionPanel* _description1;
     DescriptionPanel* _description2;
+
+    WeaponViewModel::Handle _watchHandle;
 };

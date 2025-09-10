@@ -29,7 +29,7 @@ public:
 public:
     void LoadAnimation(const struct aiScene* scene);
     // Resource을(를) 통해 상속됨
-    void LoadResource(const std::filesystem::path& filePath) override;
+    void LoadResource(const std::filesystem::path& filePath, const std::function<void()>& callback = nullptr) override;
 
 private:
     std::unordered_map<std::string, Channel> _animations;

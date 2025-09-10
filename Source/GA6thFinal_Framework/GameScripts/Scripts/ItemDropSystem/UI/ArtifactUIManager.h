@@ -1,5 +1,7 @@
 ﻿#pragma once
 #include "UmFramework.h"
+#include "ItemDropSystem/Interface/IDropItem.h"
+#include "ViewModels/ItemDrop/DropArtifacts/DropArtifactsViewModel.h"
 
 class ImageElement;
 class GridPanel;
@@ -33,14 +35,19 @@ public:
 
 public:
     /// <summary>
-    /// Image Element들을 찾아서 등록합니다.
+    /// DropItemInfo에 따라 UI를 갱신합니다.
     /// </summary>
-    void FindImageElements();
+    void UpdateImageElements(const std::vector<DropItemInfo>& dropItemsInfo);
 
     /// <summary>
-    /// Frame Image를 ItemDropUIRootManager의 값으로 설정합니다. 
+    /// DropArtifactsUIData에 따라 UI를 갱신합니다.
     /// </summary>
-    void UpdateFrameImage();
+    void UpdateImageElements(const std::vector<DropArtifactsUIData>& dropItemsInfo = std::vector<DropArtifactsUIData>());
+
+    /// <summary>
+    /// 보상 해금 정보 UI를 갱신합니다.
+    /// </summary>
+    void UpdateUnlock();
 
 public:
     REFLECT_PROPERTY()
@@ -51,8 +58,25 @@ protected:
 
     void Reset() override;
     void Awake() override;
+    void Start() override;
+    void OnDestroy() override;
 
     void ImGuiDrawPropertysEvent() override;
+
+    /// <summary>
+    /// Image Element들을 찾아서 등록합니다.
+    /// </summary>
+    void FindImageElements();
+
+    /// <summary>
+    /// UI 정보에 맞게 UI 이미지를 갱신합니다.
+    /// </summary>
+    void ImageUISetup(const std::vector<DropArtifactsUIData>& dropItemsInfo);
+
+    /// <summary>
+    /// UI 클리어 횟수정보에 맞게 UI Active를 갱신합니다.
+    /// </summary>
+    void ImageUIUnlock();
 
 private:
     GridPanel*                 _frameGridPanel;
@@ -60,4 +84,9 @@ private:
 
     GridPanel*                 _gridPanel;
     std::vector<ImageElement*> _imageElements;
+
+    GridPanel*                 _categoryGridPanel;
+    std::vector<ImageElement*> _categoryImageElements;
+
+    DropArtifactsViewModel::Handle _viewModleHandle;
 };

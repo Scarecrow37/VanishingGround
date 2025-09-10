@@ -30,6 +30,11 @@
 #include "UITechnique.h"
 #include "SceneTransitionTechnique.h"
 
+namespace Global
+{
+    D3D12_GPU_DESCRIPTOR_HANDLE dummyTextureHandle;
+}
+
 Renderer::Renderer() : _totalTime{0.f} {}
 
 Renderer::~Renderer() {}
@@ -487,14 +492,14 @@ void Renderer::CreateDefaultTexture()
 
     ID3D12GraphicsCommandList* commandList = Global::device->GetCommandList();
     UpdateSubresources(commandList, texture.Get(), uploadHeap.Get(), 0, 0, 1, &textureData);
-    CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-        texture.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(texture.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
     commandList->ResourceBarrier(1, &barrier);
 
     std::shared_ptr<Texture> textureResource = std::make_shared<Texture>();
     textureResource->SetResource(texture.Get());
     textureResource->CreateShaderResourceView();
+    Global::dummyTextureHandle = textureResource->GetGPUHandle();
 
     Global::resourceManager->AddResource("BlackTexture", textureResource);
     _defaultResource.push_back(textureResource);
