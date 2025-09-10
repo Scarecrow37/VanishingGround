@@ -147,7 +147,7 @@ void RenderScene::AddRenderPassDatas()
     }
 }
 
-void RenderScene::UpdateRenderScene()
+void RenderScene::UpdateRenderScene(const float deltaTime)
 {
     UpdateGlobal();
     UpdateObject();
@@ -166,7 +166,7 @@ void RenderScene::UpdateRenderScene()
     
     for (auto& technique : _techniques)
     {
-        technique->Update(_commandSet);
+        technique->Update(_commandSet, deltaTime);
     }
 }
 

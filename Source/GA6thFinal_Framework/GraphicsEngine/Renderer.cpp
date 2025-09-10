@@ -28,6 +28,7 @@
 #include "RayTracingTechnique.h"
 #include "SkyBoxRenderTechnique.h"
 #include "UITechnique.h"
+#include "SceneTransitionTechnique.h"
 
 Renderer::Renderer() : _totalTime{0.f} {}
 
@@ -173,10 +174,7 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
     if (RenderTechniqueFlag::PARTICLE_TECH & flag)
     {
         scene->AddRenderTechnique(std::make_unique<ParticleRenderTechnique>());
-        if ("Editor" == sceneName)
-            Global::particleManager->AddSceneResource(sceneName, "Game");
-        else
-            Global::particleManager->AddSceneResource(sceneName);
+        Global::particleManager->AddSceneResource(sceneName);
     }
     if (RenderTechniqueFlag::EDITOR_DRAW_TECH & flag)
     {
@@ -184,7 +182,6 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
     }
 
     // FinalRenderTarget Pass
-
     if (RenderTechniqueFlag::BLOOM_TECH & flag)
     {
         scene->AddRenderTechnique(std::make_unique<BloomTechnique>());
@@ -201,6 +198,11 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
     if (RenderTechniqueFlag::FONT_TECH & flag)
     {
         scene->AddRenderTechnique(std::make_unique<FontTechnique>());
+    }
+    // Scene Transition Effect
+    if (RenderTechniqueFlag::SCENE_TRANSITION_TECH & flag)
+    {
+        scene->AddRenderTechnique(std::make_unique<SceneTransitionTechnique>());
     }
 
     scene->AddRenderPassDatas();
@@ -311,7 +313,7 @@ void Renderer::Update(const float deltaTime)
     _totalTime += deltaTime;
     for (auto& renderScene : _renderScenes)
     {
-        renderScene.second->UpdateRenderScene();
+        renderScene.second->UpdateRenderScene(deltaTime);
     }
 }
 

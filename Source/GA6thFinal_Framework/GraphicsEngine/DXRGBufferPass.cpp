@@ -122,7 +122,7 @@ void DXRGBufferPass::End(ID3D12GraphicsCommandList* commandList)
     }
 }
 
-void DXRGBufferPass::Update(ID3D12GraphicsCommandList* commandList)
+void DXRGBufferPass::Update(ID3D12GraphicsCommandList* commandList, const float deltaTime)
 {
     for (auto& data : _renderDatas)
     {

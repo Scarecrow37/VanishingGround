@@ -75,7 +75,7 @@ void GBufferPass::AddRenderPassDatas(std::string_view sceneName)
     Global::renderPassDatas->AddRenderPassProperty(sceneName, "G-BufferPass", ParallaxMappingProperty(2.9f,0.f));
 }
 
-void GBufferPass::Update(ID3D12GraphicsCommandList* commadList)
+void GBufferPass::Update(ID3D12GraphicsCommandList* commadList, const float deltaTime)
 {    
     for (auto& data : _renderDatas)
     {

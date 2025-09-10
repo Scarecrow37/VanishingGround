@@ -40,7 +40,7 @@ void ShadowMapPass::AddRenderPassDatas(std::string_view sceneName)
     }
 }
 
-void ShadowMapPass::Update(ID3D12GraphicsCommandList* commandList)
+void ShadowMapPass::Update(ID3D12GraphicsCommandList* commandList, const float deltaTime)
 {
     int   mainLight    = 0;
     float maxIntensity = 0.0f;

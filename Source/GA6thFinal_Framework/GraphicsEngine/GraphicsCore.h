@@ -16,6 +16,7 @@ public:
     D3D12_CPU_DESCRIPTOR_HANDLE GetBackBufferHandle() const;
     ID3D12GraphicsCommandList*  GetCommandList() const;
     RenderPassProperties&       GetRenderPassProperties() const;
+    SceneTransitionCore*        GetSceneTransitionCore() const;
     const SIZE&                 GetResolution() const;
 
 public:
@@ -78,6 +79,7 @@ private:
     class ModuleManager*              _moduleManager;
     class PipelineStateManager*       _pipelineStateManager;
     class ThreadPool*                 _threadPool;
+    class SceneTransitionCore*        _sceneTransitionCore;
 
 private:
     std::queue<std::function<void()>> _resourceLoadQueue;

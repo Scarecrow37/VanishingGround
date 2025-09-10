@@ -15,7 +15,7 @@ void FogCompositePass::Initialize(RenderScene* ownerScene, RenderTechnique* owne
     _volumTech = dynamic_cast<VolumetricFogTechnique*>(ownerTechnique);
 }
 
-void FogCompositePass::Update(ID3D12GraphicsCommandList* commandList) {}
+void FogCompositePass::Update(ID3D12GraphicsCommandList* commandList, const float deltaTime) {}
 
 void FogCompositePass::Begin(ID3D12GraphicsCommandList* commandList) {}
 

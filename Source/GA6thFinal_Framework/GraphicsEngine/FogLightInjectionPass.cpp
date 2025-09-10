@@ -16,7 +16,7 @@ void FogLightInjectionPass::Initialize(RenderScene* ownerScene, RenderTechnique*
     _volumTech = dynamic_cast<VolumetricFogTechnique*>(ownerTechnique);
 }
 
-void FogLightInjectionPass::Update(ID3D12GraphicsCommandList* commandList) {}
+void FogLightInjectionPass::Update(ID3D12GraphicsCommandList* commandList, const float deltaTime) {}
 
 void FogLightInjectionPass::Begin(ID3D12GraphicsCommandList* commandList)
 {

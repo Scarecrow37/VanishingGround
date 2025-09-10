@@ -23,6 +23,9 @@ namespace Global
     ModuleManager*                                 moduleManager;
     PipelineStateManager*                          pipelineStateManager;
     ThreadPool*                                    threadPool;
+    SceneTransitionCore*                           sceneTransitionCore;
+
+
     bool                                           isRayTracing = false;
     std::unordered_map<std::wstring, std::wstring> shaderPathMappings;
 };
@@ -72,6 +75,11 @@ RenderPassProperties& GraphicsCore::GetRenderPassProperties() const
     return _renderPassDatas->GetRenderPassProperties();
 }
 
+SceneTransitionCore* GraphicsCore::GetSceneTransitionCore() const 
+{
+    return _sceneTransitionCore;
+}
+
 const SIZE& GraphicsCore::GetResolution() const
 {
     return _device->GetResolution();
@@ -109,6 +117,7 @@ void GraphicsCore::SyncGlobalVariable()
     Global::particleManager          = _particleManager;
     Global::dxResourceManager        = _dxResourceManager;
     Global::commandController        = _commandController;
+    Global::sceneTransitionCore      = _sceneTransitionCore;
 }
 
 void GraphicsCore::AddRenderScene(const std::string_view sceneName, const RenderTechniqueFlag flag) const
@@ -198,6 +207,7 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     _moduleManager            = new ModuleManager;
     _pipelineStateManager     = new PipelineStateManager;
     _threadPool               = new ThreadPool;
+    _sceneTransitionCore      = new SceneTransitionCore;
 
     Global::device                   = _device;
     Global::renderer                 = _renderer;
@@ -214,6 +224,7 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     Global::moduleManager            = _moduleManager;
     Global::pipelineStateManager     = _pipelineStateManager;
     Global::threadPool               = _threadPool;
+    Global::sceneTransitionCore      = _sceneTransitionCore;
 
     _device->SetUpDevice(hwnd, width, height, feature);
     _viewManager->Initialize();
@@ -282,6 +293,7 @@ void GraphicsCore::Finalize() const
     delete _animationCore;
     delete _renderer;
     delete _device;
+    delete _sceneTransitionCore;
 }
 
 void GraphicsCore::Flip() const
