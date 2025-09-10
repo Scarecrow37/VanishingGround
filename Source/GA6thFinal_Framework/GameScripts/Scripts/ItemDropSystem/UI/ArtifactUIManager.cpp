@@ -3,6 +3,8 @@
 #include "UI/Panels/Grid/GridPanel.h"
 #include "UI/Elements/Image/ImageElement.h"
 #include "ItemDropSystem/UI/ItemDropUIRootManager.h"
+#include "ItemDropSystem/ItemDropSystem.h"
+#include "ViewModels/ItemDrop/DropArtifacts/DropArtifactsViewModel.h"
 
 ArtifactUIManager::ArtifactUIManager()
 {
@@ -37,6 +39,19 @@ void ArtifactUIManager::Awake()
         gameObject->AddTag(TAG);
         Base::Awake();
     }
+}
+
+void ArtifactUIManager::Start() 
+{
+    UmWatcher.Watch<DropArtifactsViewModel, std::vector<DropArtifactsUIData>>
+    (ItemDropSystem::WATCHER_KEY, [weakPtr = GetWeakPtr()](const std::vector<DropArtifactsUIData>& datas)
+    {   
+        if (auto thisPtr = weakPtr.lock())
+        {
+            ArtifactUIManager* thisManager = static_cast<ArtifactUIManager*>(thisPtr.get());
+            thisManager->UpdateImageElements(datas);
+        }
+    });
 }
 
 void ArtifactUIManager::ImGuiDrawPropertysEvent() 
@@ -225,7 +240,13 @@ void ArtifactUIManager::FindImageElements()
     }
 }
 
-void ArtifactUIManager::UpdateImageElements(const std::vector<DropItemInfo>& dropItemsInfo)
+void ArtifactUIManager::UpdateImageElements(const std::vector<DropItemInfo>& dropItemsInfo) 
+{
+    std::vector<DropArtifactsUIData> uiDatas = DropArtifactsViewModel::ConvertData(dropItemsInfo);
+    UpdateImageElements(uiDatas);
+}
+
+void ArtifactUIManager::UpdateImageElements(const std::vector<DropArtifactsUIData>& dropItemsInfo)
 {
     FindImageElements();
     if (ItemDropUIRootManager* rootManager = ItemDropUIRootManager::GetInstance())
@@ -244,15 +265,9 @@ void ArtifactUIManager::UpdateImageElements(const std::vector<DropItemInfo>& dro
         //Artifact UI 업데이트
         for (size_t i = 0; i < dropItemsInfo.size(); i++)
         {       
-            const DropItemInfo& info         = dropItemsInfo[i];
-            const std::string&  itemName     = info.Name;
-
-            int                 categoryID   = info.CategoryID;
-            File::Guid          categoryGuid = UmFileSystem.GetGuidFromAssetID(categoryID);
-
-            int                 itemID       = info.ID;
-            File::Guid          itemGuid     = UmFileSystem.GetGuidFromAssetID(itemID);
-
+            const DropArtifactsUIData& info         = dropItemsInfo[i];
+            File::Guid                 categoryGuid = info.Category;
+            File::Guid                 itemGuid     = info.Artifact;
 
             if (false == itemGuid.IsNull())
             {

@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "UmFramework.h"
 #include "ItemDropSystem/Interface/IDropItem.h"
+#include "ViewModels/ItemDrop/DropArtifacts/DropArtifactsViewModel.h"
 
 class ImageElement;
 class GridPanel;
@@ -36,7 +37,12 @@ public:
     /// <summary>
     /// DropItemInfo에 따라 UI를 갱신합니다.
     /// </summary>
-    void UpdateImageElements(const std::vector<DropItemInfo>& dropItemsInfo = std::vector<DropItemInfo>());
+    void UpdateImageElements(const std::vector<DropItemInfo>& dropItemsInfo);
+
+    /// <summary>
+    /// DropArtifactsUIData에 따라 UI를 갱신합니다.
+    /// </summary>
+    void UpdateImageElements(const std::vector<DropArtifactsUIData>& dropItemsInfo = std::vector<DropArtifactsUIData>());
 
 public:
     REFLECT_PROPERTY()
@@ -47,6 +53,7 @@ protected:
 
     void Reset() override;
     void Awake() override;
+    void Start() override;
 
     void ImGuiDrawPropertysEvent() override;
 
