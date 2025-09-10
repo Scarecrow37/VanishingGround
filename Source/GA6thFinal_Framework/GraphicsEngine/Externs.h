@@ -18,4 +18,5 @@ namespace Global
     extern PipelineStateManager*     pipelineStateManager;
     extern ThreadPool*               threadPool;
     extern bool                      isRayTracing;
+    extern SceneTransitionCore*      sceneTransitionCore;
 }

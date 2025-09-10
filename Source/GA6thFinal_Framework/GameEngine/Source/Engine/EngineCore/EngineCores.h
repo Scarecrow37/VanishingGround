@@ -92,3 +92,4 @@ namespace Global
 #define UmGraphics UmCore->Graphics
 #define UmParticleManager UmGraphics.GetParticleManager()
 #define UmResourceManager UmGraphics.GetResourceManager()
+#define UmTransition UmGraphics.GetSceneTransitionCore()

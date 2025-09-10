@@ -58,8 +58,8 @@ private:
 
     // Scene To BackBuffer
     ComPtr<ID3D12PipelineState>                                   _pipelineState;
-    std::unique_ptr<ShaderBuilder>                                _shader;
-    BaseMesh*                                                     _frameQuad;
+    std::unique_ptr<ShaderBuilder> _shader;
+    BaseMesh*                      _frameQuad;
 
-    float                                                         _totalTime;
+    float _totalTime;
 };

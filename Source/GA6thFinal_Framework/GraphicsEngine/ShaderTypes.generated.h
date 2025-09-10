@@ -27,6 +27,7 @@ namespace GE
         DISTORTION_RESOLVE,
         DOWN_SAMPLE,
         DXRGBUFFER,
+        FADE,
         GAUSSIANBLUR_X,
         GAUSSIANBLUR_Y,
         GBUFFER,
