@@ -667,16 +667,16 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
         {
             if (obj)
             {
-                if (obj->_ownerScene == DONT_DESTROY_ON_LOAD_SCENE_NAME)
-                    continue;
-
-                GameObject::Destroy(obj.get());
-                
-                //이벤트 호출 대상
+                // 이벤트 호출 대상
                 for (auto& component : obj->_components)
                 {
                     onloadSceneTargets.push_back(component.get());
                 }
+
+                if (obj->_ownerScene == DONT_DESTROY_ON_LOAD_SCENE_NAME)
+                    continue;
+
+                GameObject::Destroy(obj.get());              
             }
         }
 
