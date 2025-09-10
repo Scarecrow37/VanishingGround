@@ -113,4 +113,18 @@ void TestComponent::ImGuiDrawPropertysEvent()
     {
         AddComponent<TestComponent>();
     }
+    if (ImGui::Button(u8"오브젝트 Active 동시 변경 테스트"_c_str))
+    {
+        gameObject->SetActive(false);
+        gameObject->SetActive(true);
+        gameObject->SetActive(false);
+        gameObject->SetActive(true);
+    }
+    if (ImGui::Button(u8"컴포넌트 Active 동시 변경 테스트"_c_str))
+    {
+        Enable = false;
+        Enable = true;
+        Enable = false;
+        Enable = true;
+    }
 }

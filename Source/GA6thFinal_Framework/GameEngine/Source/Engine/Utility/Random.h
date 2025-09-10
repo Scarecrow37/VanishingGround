@@ -74,7 +74,7 @@ public:
     /// <returns>0부터 size-1 사이의 랜덤 인덱스</returns>
     static size_t Index(size_t size)
     {
-        if (size <= 0)
+        if (size == 0)
         {
             return 0;
         }

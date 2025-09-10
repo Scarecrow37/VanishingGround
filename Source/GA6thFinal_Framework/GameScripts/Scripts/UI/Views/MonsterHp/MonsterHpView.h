@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "ViewModels/Hp/HpViewModel.h"
 
 class TextElement;
 
@@ -10,7 +11,7 @@ public:
     MonsterHpView();
 
 public:
-    void Watch(const std::string& key) const;
+    void Watch(const std::string& key);
     void Disable() const;
 
 protected:
@@ -25,4 +26,6 @@ protected:
 
 private:
     TextElement* _hpTextElement;
+
+    HpViewModel::Handle _watchHandle;
 };

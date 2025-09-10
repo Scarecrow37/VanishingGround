@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "ViewModels/TurnQueue/TurnQueueViewModel.h"
 
 class ImageElement;
 
@@ -29,4 +30,6 @@ private:
     ImageElement*                _firstTurnQueueFrameLeftWing;
     ImageElement*                _firstTurnQueueFrameRightWing;
     std::array<ImageElement*, 7> _turnQueuePortraits;
+
+    TurnQueueViewModel::Handle _watchHandle;
 };

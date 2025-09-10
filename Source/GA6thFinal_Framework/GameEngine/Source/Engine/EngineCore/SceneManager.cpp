@@ -214,6 +214,7 @@ void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
             //ActiveInHierarchy Update 대기열에 추가
             auto& [UpdateSet, UpdateQueue] = value ? sceneManager._updateEnableQueue : sceneManager._updateDisableQueue;
             auto [iter, result] = UpdateSet.insert(gameObject);
+            bool notUpdateErase = false;
             if (true == result)
             {
                 UpdateQueue.push_back(gameObject->GetWeakPtr());
@@ -253,6 +254,65 @@ void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
                 GameObject::Engine::UpdateActiveInHierarchy(gameObject);
             }
         }
+        else
+        {
+            bool originActiveSelf = gameObject->ReflectFields->_activeSelf;
+            auto& [notWaitSet, notWaitVec, notWaitValue] = value ? sceneManager._onDisableQueue :sceneManager._onEnableQueue;
+            auto& [notUpdateSet, notUpdateQueue] = value ? sceneManager._updateDisableQueue : sceneManager._updateEnableQueue;
+            //기존에 변경요청을 했으면 지우고 다시 설정
+            if (auto findIter = notUpdateSet.find(gameObject); findIter != notUpdateSet.end())
+            {
+                notUpdateSet.erase(findIter);
+                std::erase(notWaitValue, &gameObject->ReflectFields->_activeSelf);
+                std::erase_if(notUpdateQueue, [gameObject](const std::weak_ptr<GameObject>& weak) 
+                {
+                    if (auto object = weak.lock())
+                    {
+                        return object.get() == gameObject;
+                    }
+                    return true;
+                });
+
+                if (value == true)
+                {
+                    gameObject->ReflectFields->_activeSelf = true; // ActiveInHierarchy 검증용
+                    GameObject::Engine::UpdateActiveInHierarchy(gameObject);
+                }
+                Transform::ForeachDFS(gameObject->_transform, [&](Transform* curr) 
+                {
+                    if (curr->gameObject->ActiveInHierarchy == true)
+                    {
+                        for (auto& component : curr->gameObject->_components)
+                        {
+                            bool isEnable = component->ReflectFields->_enable;
+                            if (true == isEnable)
+                            {
+                                if (component->_initFlags.IsAwake() == true)
+                                {
+                                    if (auto findIter = notWaitSet.find(component.get()); findIter != notWaitSet.end())
+                                    {
+                                        notWaitSet.erase(findIter);
+                                        std::erase_if(notWaitVec, [&component](const std::weak_ptr<Component>& weak) 
+                                        {
+                                            if (auto vecComponent = weak.lock())
+                                            {
+                                                return vecComponent.get() == component.get();
+                                            }
+                                            return true;
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                if (value == true)
+                {
+                    gameObject->ReflectFields->_activeSelf = originActiveSelf; // ActiveInHierarchy 검증용
+                    GameObject::Engine::UpdateActiveInHierarchy(gameObject);
+                }
+            }
+        }
     }
 }
 
@@ -269,8 +329,25 @@ void ESceneManager::Engine::SetComponentEnable(Component* component, bool value)
             auto [iter, result] = WaitSet.insert(component);
             if (result)
             {
-                WaitVec.push_back(component->GetWeakPtr());
+                WaitVec.push_back(component->GetWeakPtr());           
             }           
+        }
+    }
+    else
+    {
+        auto& [notWaitSet, notWaitVec, notWaitValue] = value ? sceneManager._onDisableQueue : sceneManager._onEnableQueue;
+        if (auto findIter = notWaitSet.find(component); findIter != notWaitSet.end())
+        {
+            notWaitSet.erase(findIter);
+            std::erase(notWaitValue, &component->ReflectFields->_enable);
+            std::erase_if(notWaitVec, [&component](const std::weak_ptr<Component>& weak) 
+            {
+                if (auto vecComponent = weak.lock())
+                {
+                    return vecComponent.get() == component;
+                }
+                return true;
+            });
         }
     }
 }

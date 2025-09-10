@@ -59,6 +59,7 @@ protected:
     void Reset() override;
     void Awake() override;
     void Start() override;
+    void OnDestroy() override;
 
     void ImGuiDrawPropertysEvent() override;
 
@@ -86,4 +87,6 @@ private:
 
     GridPanel*                 _categoryGridPanel;
     std::vector<ImageElement*> _categoryImageElements;
+
+    DropArtifactsViewModel::Handle _viewModleHandle;
 };
