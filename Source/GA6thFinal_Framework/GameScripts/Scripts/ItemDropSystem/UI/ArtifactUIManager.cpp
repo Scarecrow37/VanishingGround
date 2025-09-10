@@ -304,7 +304,7 @@ void ArtifactUIManager::ImageUIUnlock()
         }
         for (auto& element : _categoryImageElements)
         {
-            element->Enable = false;
+            element->Enable = true;
         }
         const auto& [index1, index2] = GetIndices(clearCount);
         if (-1 != index1 && -1 != index2)
@@ -312,8 +312,8 @@ void ArtifactUIManager::ImageUIUnlock()
             _imageElements[index1]->Enable = true;
             _imageElements[index2]->Enable = true;
 
-            _categoryImageElements[index1]->Enable = true;
-            _categoryImageElements[index2]->Enable = true;
+            _categoryImageElements[index1]->Enable = false;
+            _categoryImageElements[index2]->Enable = false;
         }
     }
 }

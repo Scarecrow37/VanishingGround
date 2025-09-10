@@ -41,6 +41,11 @@ ItemDropSystem::ItemDropSystem()
 }
 ItemDropSystem::~ItemDropSystem()
 {
+    if (this == static_instance)
+    {
+        static_instance = nullptr;
+    }
+
     UmWatcher.Unregister<DropArtifactsViewModel>(ItemDropSystem::WATCHER_KEY);
 }
 
@@ -408,12 +413,12 @@ void ItemDropSystem::DeserializedReflectEvent()
 
 void ItemDropSystem::Reset() 
 {
+    static_instance = this;
     ReflectFields->MaxDropCount.resize(ArtifactDropTypeArraySize);
 }
 
 void ItemDropSystem::Awake()
 {
-    static_instance = this;
     UmWatcher.Register<DropArtifactsViewModel>(ItemDropSystem::WATCHER_KEY, _dropItemsModel);
 }
 
