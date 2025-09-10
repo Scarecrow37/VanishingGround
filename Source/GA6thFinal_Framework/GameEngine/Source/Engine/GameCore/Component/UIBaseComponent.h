@@ -1,5 +1,16 @@
 ﻿#pragma once
 
+using NavigationID = int;
+
+static constexpr NavigationID INVALID_NAVIGATION_ID = -1;
+
+struct NavigationKey
+{
+    std::string                  Name;
+    Input::Controller::Button    ButtonType;
+    Input::Controller::StickBias Bias;
+};
+
 class UIBaseComponent : public Component
 {
     friend class Transform;
@@ -22,6 +33,12 @@ protected:
     virtual void OnAttachChild(GameObject* childGameObject) {};
 
     /// <summary>
+    /// 이 컴포넌트를 소유한 게임 오브젝트가 다른 부모 게임 오브젝트에 추가되었을 때 호출됩니다.
+    /// </summary>
+    /// <param name="parentGameObject">연결될 부모 GameObject에 대한 포인터입니다.</param>
+    virtual void OnAttachParent(GameObject* parentGameObject) {};
+
+    /// <summary>
     /// 이 컴포넌트를 소유한 게임 오브젝트가 다른 부모 게임 오브젝트로부터 분리되었을 때 호출됩니다.
     /// </summary>
     /// <param name="previousParentGameObject">이전에 연결되어 있던 부모 GameObject에 대한 포인터입니다.</param>
@@ -38,6 +55,8 @@ protected:
     /// EnableInHierarchy가 true일 때만 호출됩니다.
     /// </summary>
     virtual void OnDrawDebugSelectedOverride() {};
+
+    void ImGuiDrawPropertysEvent() override;
 
 private:
     void OnDrawDebug() override;

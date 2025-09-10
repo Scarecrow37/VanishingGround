@@ -201,6 +201,8 @@ using namespace Microsoft::WRL;
 #include "Engine/GameCore/Component/MissingComponent.h"
 #include "Engine/GameCore/Component/UIBaseComponent.h"
 #include "Engine/GameCore/Component/UIComponent.h"
+#include "Engine/GameCore/Component/UIRoot.h"
+#include "Engine/GameCore/Component/UINavigationComponent.h"
 #include "Engine/GameCore/InputReciver/InputReceiver.h"
 
 //Application Module

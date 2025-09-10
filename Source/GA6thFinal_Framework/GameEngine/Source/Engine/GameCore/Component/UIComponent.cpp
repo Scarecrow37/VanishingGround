@@ -155,16 +155,11 @@ void UIComponent::OnDrawDebugSelectedOverride()
 
 void UIComponent::ImGuiDrawPropertysEvent()
 {
-    Component::ImGuiDrawPropertysEvent();
+    UIBaseComponent::ImGuiDrawPropertysEvent();
 
     if (ImGui::Button("Reset Placement"))
     {
         ResetPlacement();
-    }
-
-    if (ImGui::Button("Debug"))
-    {
-        _isDebug = !_isDebug;
     }
 
     if (_isDebug)
