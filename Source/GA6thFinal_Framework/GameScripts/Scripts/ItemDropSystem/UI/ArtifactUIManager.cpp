@@ -290,35 +290,43 @@ void ArtifactUIManager::ImageUISetup(const std::vector<DropArtifactsUIData>& dro
 
 void ArtifactUIManager::ImageUIUnlock() 
 {
-    auto GetIndices = [](int n)->std::pair<int, int>
+    auto GetIndices = [](int n)
     {
         if (n < 1)
         {
-            return {-1, -1};
+            return -1;
         }
-        int start_index = (n - 1) * 2;
-        return {start_index, start_index + 1};
+        int startIndex = (n - 1) * 2;
+        return startIndex + 1;
     };
 
     if (ItemDropSystem* system = ItemDropSystem::GetInstance())
     {
         int clearCount = system->StageClearCount;
-        for (auto& element : _imageElements)
+        int endIndex = GetIndices(clearCount);
+        for (int i = 0; i < _imageElements.size(); ++i)
         {
-            element->Enable = false;
+            ImageElement* element = _imageElements[i];
+            if (endIndex < i)
+            {
+                element->Enable = false;
+            }
+            else
+            {
+                element->Enable = true;
+            }
         }
-        for (auto& element : _categoryImageElements)
+        for (int i = 0; i < _categoryImageElements.size(); ++i)
         {
-            element->Enable = true;
-        }
-        const auto& [index1, index2] = GetIndices(clearCount);
-        if (-1 != index1 && -1 != index2)
-        {
-            _imageElements[index1]->Enable = true;
-            _imageElements[index2]->Enable = true;
-
-            _categoryImageElements[index1]->Enable = false;
-            _categoryImageElements[index2]->Enable = false;
+            ImageElement* element = _categoryImageElements[i];
+            if (endIndex < i)
+            {
+                element->Enable = true;
+            }
+            else
+            {
+                element->Enable = false;
+            }       
         }
     }
 }
