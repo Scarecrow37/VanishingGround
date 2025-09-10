@@ -125,7 +125,6 @@
     <FxCompile Include="..\Shaders\ps_volumetric_fog.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\cs_particle_reorder.hlsl" />
     <FxCompile Include="..\Shaders\ps_fade.hlsl" />
   </ItemGroup>
   <ItemGroup>
@@ -483,10 +482,11 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="GraphicsController.cpp">
-    <Filter>소스 파일</Filter>
+      <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="SceneTransitionTechnique.cpp" />
     <ClCompile Include="FadePass.cpp" />
+    <ClCompile Include="SceneTransitionCore.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AccelerationStructureManager.h">
@@ -874,6 +874,7 @@
     </ClInclude>
     <ClInclude Include="SceneTransitionTechnique.h" />
     <ClInclude Include="FadePass.h" />
+    <ClInclude Include="SceneTransitionCore.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Shaders\CommonData.hlsli">
