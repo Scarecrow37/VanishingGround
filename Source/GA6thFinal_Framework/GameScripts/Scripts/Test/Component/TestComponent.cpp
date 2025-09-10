@@ -63,7 +63,7 @@ void TestComponent::OnLoadScene(Scene& scene, LoadSceneMode mode)
     message += (std::string)scene.Path;
     message += ", ";
     message += rfl::enum_to_string(mode);
-    UmLogger.Log(LogLevel::LEVEL_DEBUG, "OnLoadScene!");
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, message);
 }
 
 void TestComponent::Reset()
