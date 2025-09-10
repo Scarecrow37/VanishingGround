@@ -17,15 +17,15 @@ void ParticleRibbonPass::Initialize(RenderScene* ownerScene, RenderTechnique* ow
 {
     RenderPass::Initialize(ownerScene, ownerTechnique, commandList);
     InitializeShaderAndPSO();
-    _albedoTextureIDs = std::vector<int>(100, -1);
+    _albedoTextureIDs = std::vector<int>(MAX_SEGMENTS, -1);
     _textureIDBuffer = std::make_unique<StructuredBuffer>();
-    _textureIDBuffer->Initialize(sizeof(int), 100);
-    _ribbonIndexBuffer.resize(100);
-    _ribbonIndices.resize(100);
-    for (int i = 0; i < 100; i++)
+    _textureIDBuffer->Initialize(sizeof(int), MAX_SEGMENTS);
+    _ribbonIndexBuffer.resize(MAX_SEGMENTS);
+    _ribbonIndices.resize(MAX_SEGMENTS);
+    for (int i = 0; i < MAX_SEGMENTS; i++)
     {
         _ribbonIndexBuffer[i] = std::make_unique<StructuredBuffer>();
-        _ribbonIndexBuffer[i]->Initialize(sizeof(UINT), 100000);
+        _ribbonIndexBuffer[i]->Initialize(sizeof(UINT), MAX_RIBBON_INDEX);
     }
 }
 

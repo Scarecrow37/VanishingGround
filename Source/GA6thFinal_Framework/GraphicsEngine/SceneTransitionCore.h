@@ -19,5 +19,5 @@ public:
               const float maintain);
 
 public:
-    std::map<std::string, SceneTransitionProperty, std::less<>> _sceneTransitionProps;
+    std::map<std::string, SceneTransitionProperty> _sceneTransitionProps;
 };

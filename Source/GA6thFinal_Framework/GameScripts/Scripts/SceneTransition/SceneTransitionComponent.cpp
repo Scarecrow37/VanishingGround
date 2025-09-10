@@ -6,14 +6,6 @@ SceneTransitionComponent::~SceneTransitionComponent() = default;
 
 void SceneTransitionComponent::ImGuiDrawPropertysEvent()
 {
-    ImGui::Text("Fade Start Color");
-    ImGui::SameLine();
-    bool result = ImGui::ColorEdit4("##Fade Start Color", (float*)&_startColor);
-
-    ImGui::Text("Fade End Color");
-    ImGui::SameLine();
-    result = ImGui::ColorEdit4("##Fade End Color", (float*)&_endColor);
-
     bool isFadeButtonPressed = ImGui::Button("Fade", {100, 40});
     if (true == isFadeButtonPressed)
     {
@@ -29,7 +21,7 @@ void SceneTransitionComponent::SerializedReflectEvent()
 
 void SceneTransitionComponent::DeserializedReflectEvent()
 {
-    memcpy(&_startColor,ReflectFields->StartColorArray.data(), sizeof(Vector4));
+    memcpy(&_startColor, ReflectFields->StartColorArray.data(), sizeof(Vector4));
     memcpy(&_endColor, ReflectFields->EndColorArray.data(), sizeof(Vector4));
 }
 

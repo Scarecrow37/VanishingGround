@@ -8,32 +8,34 @@ public:
 
     USING_PROPERTY(SceneTransitionComponent)
 public:
-    REFLECT_PROPERTY(Duration, Maintain)
+    REFLECT_PROPERTY(Duration, Maintain, StartColor, EndColor)
 
     GETTER(float, Duration) { return ReflectFields->Duration; }
-    SETTER(float, Duration)
-    {
-        ReflectFields->Duration = value;
-    }
+    SETTER(float, Duration) { ReflectFields->Duration = value; }
     PROPERTY(Duration)
 
     GETTER(float, Maintain) { return ReflectFields->Maintain; }
-    SETTER(float, Maintain)
-    {
-        ReflectFields->Maintain = value;
-    }
+    SETTER(float, Maintain) { ReflectFields->Maintain = value; }
     PROPERTY(Maintain)
+
+    GETTER(Color, StartColor) { return _startColor; }
+    SETTER(Color, StartColor) { _startColor = value; }
+    PROPERTY(StartColor)
+
+    GETTER(Color, EndColor) { return _endColor; }
+    SETTER(Color, EndColor) { _endColor = value; }
+    PROPERTY(EndColor)
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
     std::array<float, 4> StartColorArray;
     std::array<float, 4> EndColorArray;
-    float                Duration;
-    float                Maintain;
+    float Duration;
+    float Maintain;
     REFLECT_FIELDS_END(SceneTransitionComponent)
 
-    Vector4 _startColor{0, 0, 0, 0};
-    Vector4 _endColor{0, 0, 0, 0};
+    Color _startColor{0, 0, 0, 0};
+    Color _endColor{0, 0, 0, 0};
 
     void ImGuiDrawPropertysEvent() override;
     void SerializedReflectEvent() override;
