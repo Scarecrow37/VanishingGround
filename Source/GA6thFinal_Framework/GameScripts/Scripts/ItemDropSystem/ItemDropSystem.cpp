@@ -113,7 +113,7 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
         revelationTempWeight.fill(1.0 / RevelationGradeArraySize);
 
         // 무기 랜덤 뽑기 함수
-        auto RollWeaponRandomItem = [&](int type) 
+        auto RollWeaponRandomItem = [&](int type) -> DropItemInfo 
         {
             WeaponGrade grade      = RollWeaponRandomGrade(weaponTempWeight);
             int         gradeIndex = static_cast<int>(grade);
@@ -137,7 +137,7 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
             }
         };
         // 계시 랜덤 뽑기 함수
-        auto RollRevelationRandomItem = [&]() 
+        auto RollRevelationRandomItem = [&]() -> DropItemInfo
         {
             RevelationGrade grade      = RollRevelationRandomGrade(revelationTempWeight);
             int             gradeIndex = static_cast<int>(grade);
