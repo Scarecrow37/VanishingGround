@@ -43,7 +43,7 @@ void ArtifactUIManager::Awake()
 
 void ArtifactUIManager::Start() 
 {
-    UmWatcher.Watch<DropArtifactsViewModel, std::vector<DropArtifactsUIData>>
+    _viewModleHandle = UmWatcher.Watch<DropArtifactsViewModel, std::vector<DropArtifactsUIData>>
     (ItemDropSystem::WATCHER_KEY, [weakPtr = GetWeakPtr()](const std::vector<DropArtifactsUIData>& datas)
     {   
         if (auto thisPtr = weakPtr.lock())
@@ -52,6 +52,11 @@ void ArtifactUIManager::Start()
             thisManager->UpdateImageElements(datas);
         }
     });
+}
+
+void ArtifactUIManager::OnDestroy() 
+{
+    UmWatcher.Blind<DropArtifactsViewModel>(ItemDropSystem::WATCHER_KEY, _viewModleHandle);
 }
 
 void ArtifactUIManager::ImGuiDrawPropertysEvent() 
