@@ -1,5 +1,7 @@
 ﻿#pragma once
 #include "UmFramework.h"
+#include "ItemDropSystem/Interface/IDropItem.h"
+#include "ViewModels/ItemDrop/DropArtifacts/DropArtifactsViewModel.h"
 
 class ImageElement;
 class GridPanel;
@@ -33,14 +35,14 @@ public:
 
 public:
     /// <summary>
-    /// Image Element들을 찾아서 등록합니다.
+    /// DropItemInfo에 따라 UI를 갱신합니다.
     /// </summary>
-    void FindImageElements();
+    void UpdateImageElements(const std::vector<DropItemInfo>& dropItemsInfo);
 
     /// <summary>
-    /// Frame Image를 ItemDropUIRootManager의 값으로 설정합니다. 
+    /// DropArtifactsUIData에 따라 UI를 갱신합니다.
     /// </summary>
-    void UpdateFrameImage();
+    void UpdateImageElements(const std::vector<DropArtifactsUIData>& dropItemsInfo = std::vector<DropArtifactsUIData>());
 
 public:
     REFLECT_PROPERTY()
@@ -51,8 +53,15 @@ protected:
 
     void Reset() override;
     void Awake() override;
+    void Start() override;
+    void OnDestroy() override;
 
     void ImGuiDrawPropertysEvent() override;
+
+    /// <summary>
+    /// Image Element들을 찾아서 등록합니다.
+    /// </summary>
+    void FindImageElements();
 
 private:
     GridPanel*                 _frameGridPanel;
@@ -60,4 +69,9 @@ private:
 
     GridPanel*                 _gridPanel;
     std::vector<ImageElement*> _imageElements;
+
+    GridPanel*                 _categoryGridPanel;
+    std::vector<ImageElement*> _categoryimageElements;
+
+    DropArtifactsViewModel::Handle _viewModleHandle;
 };
