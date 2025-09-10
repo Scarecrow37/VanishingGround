@@ -44,6 +44,11 @@ public:
     /// </summary>
     void UpdateImageElements(const std::vector<DropArtifactsUIData>& dropItemsInfo = std::vector<DropArtifactsUIData>());
 
+    /// <summary>
+    /// 보상 해금 정보 UI를 갱신합니다.
+    /// </summary>
+    void UpdateUnlock();
+
 public:
     REFLECT_PROPERTY()
 
@@ -63,6 +68,16 @@ protected:
     /// </summary>
     void FindImageElements();
 
+    /// <summary>
+    /// UI 정보에 맞게 UI 이미지를 갱신합니다.
+    /// </summary>
+    void ImageUISetup(const std::vector<DropArtifactsUIData>& dropItemsInfo);
+
+    /// <summary>
+    /// UI 클리어 횟수정보에 맞게 UI Active를 갱신합니다.
+    /// </summary>
+    void ImageUIUnlock();
+
 private:
     GridPanel*                 _frameGridPanel;
     std::vector<ImageElement*> _frameImageElements;
@@ -71,7 +86,7 @@ private:
     std::vector<ImageElement*> _imageElements;
 
     GridPanel*                 _categoryGridPanel;
-    std::vector<ImageElement*> _categoryimageElements;
+    std::vector<ImageElement*> _categoryImageElements;
 
     DropArtifactsViewModel::Handle _viewModleHandle;
 };
