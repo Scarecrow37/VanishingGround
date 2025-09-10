@@ -6,11 +6,30 @@ namespace MVVM
     class ViewModel
     {
     public:
-        explicit ViewModel(Model<T>& model) : _callback(nullptr)
+        class Handle
+        {
+            friend class ViewModel<T, U>;
+
+            static constexpr size_t INVALID_INDEX = SIZE_MAX;
+
+        public:
+            Handle() : _index(INVALID_INDEX) {}
+            explicit Handle(const size_t index) : _index(index) {}
+
+        private:
+            size_t _index;
+        };
+
+        using Callback = std::function<void(U)>;
+
+    public:
+        explicit ViewModel(Model<T>& model)
         {
             model.AddObserver([this](T value) {
-                if (nullptr != _callback)
-                    _callback(Convert(value));
+                std::ranges::for_each(_callbacks, [this, &value](const Callback& callback) {
+                    if (nullptr != callback)
+                        callback(Convert(value));
+                });
             });
             model.Notify();
         }
@@ -21,9 +40,27 @@ namespace MVVM
         ViewModel& operator=(ViewModel&&)      = default;
         virtual ~ViewModel()                   = default;
 
-        void SetCallback(const std::function<void(U)>& callback)
+        Handle AddCallback(const Callback& callback)
         {
-            _callback = callback;
+            for (auto it = _callbacks.begin(); it != _callbacks.end(); ++it)
+            {
+                if (nullptr == *it)
+                {
+                    *it = callback;
+                    return Handle(std::distance(_callbacks.begin(), it));
+                }
+            }
+
+            _callbacks.push_back(callback);
+            return Handle(_callbacks.size() - 1);
+        }
+
+        void RemoveCallback(const Handle& handle)
+        {
+            if (handle._index < _callbacks.size())
+            {
+                _callbacks[handle._index] = nullptr;
+            }
         }
 
     protected:
@@ -31,6 +68,7 @@ namespace MVVM
         virtual U Convert(const T& value) = 0;
 
     private:
-        std::function<void(U)> _callback;
+        std::vector<Callback> _callbacks;
+
     };
 } // namespace MVVM
