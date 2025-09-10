@@ -97,7 +97,7 @@ void ArtifactUIManager::ImGuiDrawPropertysEvent()
         }
     }
 
-    if (_categoryimageElements.empty())
+    if (_categoryImageElements.empty())
     {
         ImGui::Text((const char*)u8"Category용 Grid Panel에 \"Category Grid Panel\" Tag를 추가해주세요");
     }
@@ -105,7 +105,7 @@ void ArtifactUIManager::ImGuiDrawPropertysEvent()
     {
         if (ImGui::TreeNodeEx("Category Grid Panel"))
         {
-            for (auto& imageElement : _categoryimageElements)
+            for (auto& imageElement : _categoryImageElements)
             {
                 ImGui::PushID(&imageElement);
                 ImGui::Selectable(imageElement->gameObject->ToString().data());
@@ -200,7 +200,7 @@ void ArtifactUIManager::FindImageElements()
     }
     
     //category 탐색
-    _categoryimageElements.clear();
+    _categoryImageElements.clear();
     _categoryGridPanel = nullptr;
     Transform::ForeachBFS(transform, [this](Transform* curr)
     {
@@ -233,25 +233,18 @@ void ArtifactUIManager::FindImageElements()
 
                 if (nullptr != categoryImage)
                 {
-                    _categoryimageElements.push_back(categoryImage);
+                    _categoryImageElements.push_back(categoryImage);
                 }
             }
         }
     }
 }
 
-void ArtifactUIManager::UpdateImageElements(const std::vector<DropItemInfo>& dropItemsInfo) 
+void ArtifactUIManager::ImageUISetup(const std::vector<DropArtifactsUIData>& dropItemsInfo) 
 {
-    std::vector<DropArtifactsUIData> uiDatas = DropArtifactsViewModel::ConvertData(dropItemsInfo);
-    UpdateImageElements(uiDatas);
-}
-
-void ArtifactUIManager::UpdateImageElements(const std::vector<DropArtifactsUIData>& dropItemsInfo)
-{
-    FindImageElements();
     if (ItemDropUIRootManager* rootManager = ItemDropUIRootManager::GetInstance())
     {
-        //Frame UI 업데이트
+        // Frame UI 업데이트
         std::string   frameAsstePath = rootManager->ArtifactsUIFrameAsset;
         File::GuidRef guid           = UmFileSystem.GetGuidFromPath(frameAsstePath);
         if (false == guid.IsNull())
@@ -261,10 +254,10 @@ void ArtifactUIManager::UpdateImageElements(const std::vector<DropArtifactsUIDat
                 imageElement->SetImage(guid);
             }
         }
-        
-        //Artifact UI 업데이트
+
+        // Artifact UI 업데이트
         for (size_t i = 0; i < dropItemsInfo.size(); i++)
-        {       
+        {
             const DropArtifactsUIData& info         = dropItemsInfo[i];
             File::Guid                 categoryGuid = info.Category;
             File::Guid                 itemGuid     = info.Artifact;
@@ -280,12 +273,66 @@ void ArtifactUIManager::UpdateImageElements(const std::vector<DropArtifactsUIDat
 
             if (false == categoryGuid.IsNull())
             {
-                if (i < _categoryimageElements.size())
+                if (i < _categoryImageElements.size())
                 {
-                    auto& imageElement = _categoryimageElements[i];
+                    auto& imageElement = _categoryImageElements[i];
                     imageElement->SetImage(categoryGuid);
                 }
             }
         }
     }
+}
+
+void ArtifactUIManager::ImageUIUnlock() 
+{
+    auto GetIndices = [](int n)->std::pair<int, int>
+    {
+        if (n < 1)
+        {
+            return {-1, -1};
+        }
+        int start_index = (n - 1) * 2;
+        return {start_index, start_index + 1};
+    };
+
+    if (ItemDropSystem* system = ItemDropSystem::GetInstance())
+    {
+        int clearCount = system->StageClearCount;
+        for (auto& element : _imageElements)
+        {
+            element->Enable = false;
+        }
+        for (auto& element : _categoryImageElements)
+        {
+            element->Enable = false;
+        }
+        const auto& [index1, index2] = GetIndices(clearCount);
+        if (-1 != index1 && -1 != index2)
+        {
+            _imageElements[index1]->Enable = true;
+            _imageElements[index2]->Enable = true;
+
+            _categoryImageElements[index1]->Enable = true;
+            _categoryImageElements[index2]->Enable = true;
+        }
+    }
+}
+
+void ArtifactUIManager::UpdateImageElements(const std::vector<DropItemInfo>& dropItemsInfo) 
+{
+    std::vector<DropArtifactsUIData> uiDatas = DropArtifactsViewModel::ConvertData(dropItemsInfo);
+    UpdateImageElements(uiDatas);
+}
+
+void ArtifactUIManager::UpdateImageElements(const std::vector<DropArtifactsUIData>& dropItemsInfo)
+{
+    FindImageElements();
+    ImageUISetup(dropItemsInfo);
+    ImageUIUnlock();
+}
+
+void ArtifactUIManager::UpdateUnlock() 
+{
+    FindImageElements();
+    ImageUIUnlock();
 }

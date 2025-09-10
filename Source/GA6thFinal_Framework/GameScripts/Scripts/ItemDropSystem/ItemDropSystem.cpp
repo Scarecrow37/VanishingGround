@@ -6,7 +6,6 @@
 #include "ItemDropSystem/UI/ArtifactUIManager.h"
 #include "ViewModels/ItemDrop/DropArtifacts/DropArtifactsViewModel.h"
 
-
 //내부 사용 구조체 및 enum
 namespace
 {
@@ -199,7 +198,10 @@ void ItemDropSystem::SetDropItem(const std::array<DropItemInfo, ARTIFACT_DROP_CO
 void ItemDropSystem::SetStageClearCount(int count) 
 {
     _stageClearCount = std::clamp(count, 0, 3);
-
+    if (ArtifactUIManager* uiManager = ArtifactUIManager::GetInstance())
+    {
+        uiManager->UpdateUnlock();
+    }
 }
 
 void ItemDropSystem::ImGuiDrawPropertysEvent() 

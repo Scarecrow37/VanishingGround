@@ -42,7 +42,8 @@ public:
 public:
     REFLECT_PROPERTY(
         StageClearCount,
-        ItemDropRateBonus)
+        ItemDropRateBonus
+    )
     
     GETTER(int, StageClearCount) { return _stageClearCount; }
     SETTER(int, StageClearCount) { SetStageClearCount(value); }
