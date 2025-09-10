@@ -7,6 +7,7 @@ class ItemDropSystem : public Component
     USING_PROPERTY(ItemDropSystem)
     inline static ItemDropSystem* static_instance = nullptr;
 public:
+    inline static const std::string WATCHER_KEY = "8940F3B8-1D49-4556-9588-5D423CAC794D";
     static const size_t ARTIFACT_TYPE_COUNT; // 유물 카테고리 개수
     static ItemDropSystem* GetInstance(std::source_location location = std::source_location::current()) 
     { 

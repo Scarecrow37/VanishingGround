@@ -4,6 +4,7 @@
 #include "WeaponSystem/WeaponTable/WeaponTableComponent.h"
 #include "RevelationSystem/RevelationSystem.h"
 #include "ItemDropSystem/UI/ArtifactUIManager.h"
+#include "ViewModels/ItemDrop/DropArtifacts/DropArtifactsViewModel.h"
 
 
 //내부 사용 구조체 및 enum
@@ -21,23 +22,6 @@ namespace
     constexpr auto WeaponGradeArray = rfl::get_enumerator_array<WeaponGrade>();
     constexpr size_t WeaponGradeArraySize = WeaponGradeArray.size();
 
-    //계시 지우기 임시 클래스
-    class EraseRevelation : public IDropItem
-    {
-    public:     
-        DropItemInfo operator()() { return GetItemInfo(); }
-        DropItemInfo GetItemInfo() override 
-        { 
-            DropItemInfo info
-            {
-                .ID = 0, 
-                .CategoryID = DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::ERASE_REVELATION), 
-                .Name = (const char*)u8"계시 지우기 (테스트)",
-            };
-            return info; 
-        }
-    };
-
 } // namespace
 
 const size_t ItemDropSystem::ARTIFACT_TYPE_COUNT = ArtifactDropTypeArraySize; // 유물 카테고리 개수
@@ -46,7 +30,10 @@ ItemDropSystem::ItemDropSystem()
 {
     ReflectFields->MaxDropCount = {2, 2, 2, 6, 7, 2};
 }
-ItemDropSystem::~ItemDropSystem() = default;
+ItemDropSystem::~ItemDropSystem()
+{
+    UmWatcher.Unregister<DropArtifactsViewModel>(ItemDropSystem::WATCHER_KEY);
+}
 
 std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
 {  
@@ -141,8 +128,8 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
             else
             {
                 DropItemInfo info{};
-                info.ID         = -1;
-                info.CategoryID = -1;
+                info.ID         = 0;
+                info.CategoryID = DropItemInfo::GetArtifactCategoryAssetID(static_cast<ArtifactDropType>(type));
                 info.Name       = rfl::enum_to_string(grade);
                 info.Name += (const char*)u8" 등급 ";
                 info.Name += rfl::enum_to_string(static_cast<WeaponType>(type));
@@ -165,8 +152,8 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
             else
             {
                 DropItemInfo info{};
-                info.ID         = -1;
-                info.CategoryID = -1;
+                info.ID         = 0;
+                info.CategoryID = DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::REVELATION);
                 info.Name       = rfl::enum_to_string(grade);
                 info.Name       += (const char*)u8" 등급 계시";
                 return info;
@@ -188,7 +175,9 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
             artifact = RollRevelationRandomItem();
             break;
         case ArtifactDropType::ERASE_REVELATION:
-            artifact = EraseRevelation()();
+            artifact.ID         = DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::ERASE_REVELATION);
+            artifact.CategoryID = DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::ERASE_REVELATION);
+            artifact.Name       = (const char*)u8"계시 지우기 (테스트)";
             break;
         default:
             break;
@@ -295,6 +284,7 @@ void ItemDropSystem::Reset()
 void ItemDropSystem::Awake()
 {
     static_instance = this;
+    UmWatcher.Register<DropArtifactsViewModel>(ItemDropSystem::WATCHER_KEY, _dropItemsModel);
 }
 
  
