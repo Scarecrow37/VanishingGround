@@ -60,8 +60,11 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
         for (auto& revelation : table)
         {
             RevelationGrade grade = revelation->Grade;
-            size_t          index = static_cast<size_t>(grade);
-            revelations[index].push_back(revelation);
+            if (RevelationGrade::EXTINCTION != grade)
+            {
+                size_t index = static_cast<size_t>(grade);
+                revelations[index].push_back(revelation);
+            }
         }      
     }
 
@@ -137,7 +140,7 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
             {
                 DropItemInfo info{};
                 info.ID         = 0;
-                info.CategoryID = DropItemInfo::GetArtifactCategoryAssetID(static_cast<ArtifactDropType>(type));
+                info.Category = static_cast<ArtifactDropType>(type);
                 info.Name       = rfl::enum_to_string(grade);
                 info.Name += (const char*)u8" 등급 ";
                 info.Name += rfl::enum_to_string(static_cast<WeaponType>(type));
@@ -161,7 +164,7 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
             {
                 DropItemInfo info{};
                 info.ID         = 0;
-                info.CategoryID = DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::REVELATION);
+                info.Category = ArtifactDropType::REVELATION;
                 info.Name       = rfl::enum_to_string(grade);
                 info.Name       += (const char*)u8" 등급 계시";
                 return info;
@@ -183,9 +186,9 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
             artifact = RollRevelationRandomItem();
             break;
         case ArtifactDropType::ERASE_REVELATION:
-            artifact.ID         = DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::ERASE_REVELATION);
-            artifact.CategoryID = DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::ERASE_REVELATION);
-            artifact.Name       = (const char*)u8"계시 지우기 (테스트)";
+            artifact.ID       = DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::ERASE_REVELATION);
+            artifact.Category = ArtifactDropType::ERASE_REVELATION;
+            artifact.Name     = (const char*)u8"계시 지우기 (테스트)";
             break;
         default:
             break;
