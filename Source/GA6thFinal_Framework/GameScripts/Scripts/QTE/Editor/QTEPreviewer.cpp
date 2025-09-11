@@ -58,7 +58,8 @@ void QTEPreviewer::Draw()
             for (size_t i = noteIndex; i < resultQueue.size(); ++i)
             {
                 const auto& result = resultQueue[i];
-                DrawNote(&result, circleRadius, ImColor(100, 100, 255, 255), ImColor(100, 100, 255, 100));
+                float       thickness = 3.0f;
+                DrawNote(&result, thickness, ImColor(100, 100, 255, 255), ImColor(100, 100, 255, 100));
             }
         }
     }
@@ -93,12 +94,13 @@ void QTEPreviewer::DrawJudgeRange(std::pair<float, float> range, float circleRad
         {
             ImVec2  offset          = ImGui::GetCursorScreenPos();
             ImVec2  availSize       = ImGui::GetContentRegionAvail();
-
+            float   systemSpeed     = system->GetQTESpeedScale();
+            float   trackSpeed      = track->GetQTESpeedScale();
             float   centerPosFactor = system->GetJudgePosFactor();
             float   centerPosX      = availSize.x * centerPosFactor;
             auto&   [min, max]      = range;
-            float   minPosX         = centerPosX * (1.0f + min);
-            float   maxPosX         = centerPosX * (1.0f + max);
+            float   minPosX         = centerPosX * (1.0f + min * systemSpeed * trackSpeed);
+            float   maxPosX         = centerPosX * (1.0f + max * systemSpeed * trackSpeed);
 
             if (bgCol != UINT_MAX - 1)
             {
@@ -125,8 +127,10 @@ void QTEPreviewer::DrawNote(const QTE::Result* result, float circleRadius, ImCol
         {
             ImVec2 offset          = ImGui::GetCursorScreenPos();
             ImVec2 availSize       = ImGui::GetContentRegionAvail();
-            float  timer           = system->GetQTETime();
-            float  noteTime        = context->Time;
+            float  systemSpeed     = system->GetQTESpeedScale();
+            float  trackSpeed      = track->GetQTESpeedScale();
+            float  timer           = system->GetQTETime() * systemSpeed * trackSpeed;
+            float  noteTime        = context->Time * systemSpeed * trackSpeed;
             float  centerPosFactor = system->GetJudgePosFactor();
             float  centerPosX      = availSize.x * centerPosFactor;
             float  posX            = centerPosX * (1.0f + timer - noteTime);

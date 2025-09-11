@@ -615,7 +615,8 @@ void QTEEditor::DrawPreview()
             }
             for (const auto& note : track->GetEventContextQueue())
             {
-                DrawNote(note, circleRadius, ImColor(100, 100, 255, 255), ImColor(100, 100, 255, 100));
+                float thickness = 3.0f;
+                DrawNote(note, thickness, ImColor(100, 100, 255, 255), ImColor(100, 100, 255, 100));
             }
         }
     }
@@ -630,16 +631,17 @@ void QTEEditor::DrawJudgeRange(std::pair<float, float> range, float circleRadius
     if (system && window)
     {
         auto* drawList = window->DrawList;
-        if (drawList)
+        if (drawList && _qteTrack)
         {
             ImVec2 offset           = ImGui::GetCursorScreenPos();
             ImVec2 availSize        = ImGui::GetContentRegionAvail();
             float  centerPosFactor  = system->GetJudgePosFactor();
-
+            float  systemSpeed      = system->GetQTESpeedScale();
+            float  trackSpeed       = _qteTrack->GetQTESpeedScale();
             auto& [min, max]        = range;
             float centerPosX        = availSize.x * centerPosFactor;
-            float minPosX           = centerPosX * (1.0f + min);
-            float maxPosX           = centerPosX * (1.0f + max);
+            float minPosX           = centerPosX * (1.0f + min * systemSpeed * trackSpeed);
+            float maxPosX           = centerPosX * (1.0f + max * systemSpeed * trackSpeed);
 
             if (bgCol != UINT_MAX - 1)
             {
@@ -662,7 +664,7 @@ void QTEEditor::DrawNote(Timeline::EventContext* context, float circleRadius, Im
     if (system && window)
     {
         auto* drawList = window->DrawList;
-        if (drawList && context)
+        if (drawList && context && _qteTrack)
         {
             ImVec2 offset           = ImGui::GetCursorScreenPos();
             ImVec2 availSize        = ImGui::GetContentRegionAvail();
