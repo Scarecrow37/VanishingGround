@@ -8,7 +8,9 @@
 
 ArtifactUIManager::ArtifactUIManager()
 {
-
+    _frameGridPanel    = nullptr;
+    _gridPanel         = nullptr;
+    _categoryGridPanel = nullptr;
 }
 
 ArtifactUIManager::~ArtifactUIManager()
@@ -22,9 +24,6 @@ ArtifactUIManager::~ArtifactUIManager()
 void ArtifactUIManager::Reset() 
 {
     static_instance    = this;
-    _frameGridPanel    = nullptr;
-    _gridPanel         = nullptr;
-    _categoryGridPanel = nullptr;
     Base::Reset();
 }
 
