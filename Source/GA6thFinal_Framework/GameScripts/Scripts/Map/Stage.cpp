@@ -60,7 +60,7 @@ void Stage::SetupStage()
     if (std::regex_match(ReflectFields->Stage, rx))
     {
         int consumed = 0;
-        std::sscanf(ReflectFields->Stage.c_str(), "%d - %d %n", &_first, &_second, &consumed) == 2 &&
+        std::sscanf(ReflectFields->Stage.c_str(), "%d-%d%n", &_first, &_second, &consumed) == 2 &&
             consumed == static_cast<int>(ReflectFields->Stage.size());
     }
 }
