@@ -5,33 +5,33 @@
 template <typename T>
 class SingletonObject
 {
-    inline static GameObject* SingletonObject = nullptr;
+    inline static GameObject* SingletonObjectStatic = nullptr;
 public:
     inline static GameObject* GetInstance(std::source_location location = std::source_location::current()) 
     { 
-        if (nullptr == SingletonObject)
+        if (nullptr == SingletonObjectStatic)
         {
             std::string message = typeid(SingletonObject<T>).name();
             message += (const char*)"가 존재하지 않습니다.";
             UmLogger.Log(LogLevel::LEVEL_WARNING, message, location);
         }
-        return SingletonObject; 
+        return SingletonObjectStatic; 
     }
 
 public:
     SingletonObject(T* owner) { _owner = owner; }
     ~SingletonObject()
     {
-        if (&_owner->gameObject == SingletonObject)
+        if (&_owner->gameObject == SingletonObjectStatic)
         {
-            SingletonObject = nullptr;
+            SingletonObjectStatic = nullptr;
         }
     }
 
     /// <summary>
     /// 이 오브젝트의 싱글톤 여부를 반환합니다.
     /// </summary>
-    bool IsSingleTon() { return &_owner->gameObject == SingletonObject; }
+    bool IsSingleTon() { return &_owner->gameObject == SingletonObjectStatic; }
 
     /// <summary>
     /// owner의 오브젝트를 싱글톤으로 설정합니다. (에디터 모드일때만 적용됩니다.)
@@ -40,7 +40,7 @@ public:
     {
         if (false == Global::IsPlay())
         {
-            SingletonObject = &_owner->gameObject;
+            SingletonObjectStatic = &_owner->gameObject;
         }
     }
 
@@ -53,12 +53,12 @@ public:
     {
         if (true == Global::IsPlay())
         {
-            if (nullptr == SingletonObject || SingletonObject == &_owner->gameObject)
+            if (nullptr == SingletonObjectStatic || SingletonObjectStatic == &_owner->gameObject)
             {
-                SingletonObject = &_owner->gameObject;
+                SingletonObjectStatic = &_owner->gameObject;
                 if (dontDestroyOnLoad)
                 {
-                    GameObject::DontDestroyOnLoad(SingletonObject);
+                    GameObject::DontDestroyOnLoad(SingletonObjectStatic);
                 }
                 return true;
             }
@@ -79,27 +79,27 @@ private:
 template <typename T>
 class SingletonComponent
 {
-    inline static T* SingletonComponent = nullptr;
+    inline static T* SingletonComponentStatic = nullptr;
 
 public:
     inline static T* GetInstance(std::source_location location = std::source_location::current()) 
     {
-        if (nullptr == SingletonComponent)
+        if (nullptr == SingletonComponentStatic)
         {
             std::string message = typeid(T).name();
             message += (const char*)"가 존재하지 않습니다.";
             UmLogger.Log(LogLevel::LEVEL_WARNING, message, location);
         }
-        return SingletonComponent; 
+        return SingletonComponentStatic; 
     }
 
 public:
     SingletonComponent(T* owner) { _owner = owner; }
     ~SingletonComponent()
     {
-        if (_owner == SingletonComponent)
+        if (_owner == SingletonComponentStatic)
         {
-            SingletonComponent = nullptr;
+            SingletonComponentStatic = nullptr;
         }
     }
     
@@ -107,7 +107,7 @@ public:
     /// 이 컴포넌트의 싱글톤 여부를 반환합니다.
     /// </summary>
     /// <returns>결과 bool</returns>
-    bool IsSingleTon() { return _owner == SingletonComponent; }
+    bool IsSingleTon() { return _owner == SingletonComponentStatic; }
       
     /// <summary>
     /// owner의 오브젝트를 싱글톤으로 설정합니다. (Reset에서 호출해야합니다.)
@@ -116,7 +116,7 @@ public:
     {
         if (false == Global::IsPlay())
         {
-            SingletonComponent = _owner;
+            SingletonComponentStatic = _owner;
         }
     }
 
@@ -128,9 +128,9 @@ public:
     {
         if (true == Global::IsPlay())
         {
-            if (nullptr == SingletonComponent)
+            if (nullptr == SingletonComponentStatic)
             {
-                SingletonComponent = _owner;
+                SingletonComponentStatic = _owner;
                 return true;
             }
             else
