@@ -8,6 +8,8 @@
 #include <Mesh/SkeletalMeshRenderer.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include <Particle/ParticleComponent.h>
+#include <PlayerSystem/PlayerSystem.h>
+
 //Condition
 #include "Condition/PlayerStartCondition.h"
 #include "Condition/PlayerExitCondition.h"
@@ -155,12 +157,16 @@ PlayerStatsComponent* Player::GetPlayerStats()
 {
     if (nullptr == _playerStats)
     {
-        _playerStats = GetComponent<PlayerStatsComponent>();
-        if (nullptr == _playerStats)
+        GameObject* playerSystem = SingletonObject<PlayerSystem>::GetInstance();
+        if (playerSystem)
         {
-            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"플레이어 스텟이 존재하지 않습니다.");
+            _playerStats = playerSystem->GetComponent<PlayerStatsComponent>();
         }
     }  
+    if (nullptr == _playerStats)
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"플레이어 시스템에 스텟이 존재하지 않습니다.");
+    }
     return _playerStats;
 }
 
