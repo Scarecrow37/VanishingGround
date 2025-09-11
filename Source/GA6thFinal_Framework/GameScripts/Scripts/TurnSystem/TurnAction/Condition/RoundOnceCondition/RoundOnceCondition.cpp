@@ -36,11 +36,7 @@ RoundOnceTrueCondition::RoundOnceAction::RoundOnceAction()
 {
     if (Global::IsPlay())
     {
-        TurnMode* turnMode = TurnMode::GetInstance();
-        if (turnMode)
-        {
-            turnMode->AddTurnAction(this);
-        }
+        _roundOnceActions.push_back(this);
     }
 }
 
