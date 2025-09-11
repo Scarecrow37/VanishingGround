@@ -20,20 +20,23 @@ public:
     }
 
     /// <summary>
-    /// owner의 오브젝트를 싱글톤으로 설정합니다.
+    /// owner의 오브젝트를 싱글톤으로 설정합니다. (에디터 모드일때만 적용됩니다.)
     /// </summary>
     void SetSingleTone()
     {
-        SingleToneObject = &_owner->gameObject;
+        if (false == Global::IsPlay())
+        {
+            SingleToneObject = &_owner->gameObject;
+        }
     }
 
     /// <summary>
-    /// owner의 오브젝트를 싱글톤으로 만듭니다. DontDestroyOnLoad로 등록되면 true를 반환합니다.
+    /// owner의 오브젝트를 싱글톤으로 만듭니다. DontDestroyOnLoad로 등록되면 true를 반환합니다. 플레이 모드일때만 적용됩니다.
     /// </summary>
     /// <returns>성공 여부</returns>
     bool TrySingleTone()
     {
-        if (Global::IsPlay())
+        if (true == Global::IsPlay())
         {
             if (nullptr == SingleToneObject || SingleToneObject == &_owner->gameObject)
             {
