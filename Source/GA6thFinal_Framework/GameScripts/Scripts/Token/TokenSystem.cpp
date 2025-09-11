@@ -3,21 +3,26 @@
 
 TokenSystem::TokenSystem() 
 {
-    _staticInstance = this;
+    
 }
 
 TokenSystem::~TokenSystem()
 {
-    if (this == _staticInstance)
-    {
-        _staticInstance = nullptr;
-    }
+
 }
 
 void TokenSystem::Reset()
 {
+    Base::Reset();
+    _singletonComponent.SetSingleTon();
     RegisterAllTokenInstance();
     SortByOrder();
+}
+
+void TokenSystem::Awake() 
+{
+    Base::Awake();
+    _singletonComponent.TrySingleTon();
 }
 
 void TokenSystem::OnDestroy() 

@@ -16,9 +16,9 @@ enum class ArtifactDropType
 /*아이템 정보 구조체*/
 struct DropItemInfo
 {
-    int         ID;         //아이템 아이디
-    int         CategoryID; //분류 아이디
-    std::string Name;       //아이템 이름
+    ArtifactDropType Category; // 분류 타입
+    int              ID;           // 아이템 아이디
+    std::string      Name;         // 아이템 이름
 
     /// <summary>
     /// ArtifactDropType으로 에셋 아이디를 반환합니다.

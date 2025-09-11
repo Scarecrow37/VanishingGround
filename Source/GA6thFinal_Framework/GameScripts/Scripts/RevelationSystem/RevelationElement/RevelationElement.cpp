@@ -51,11 +51,10 @@ void RevelationElement::DeepCopyAction(const TurnAction& action)
 
 DropItemInfo RevelationElement::GetItemInfo()
 {
-    int categoryID = DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::REVELATION);
     DropItemInfo info
     {
+        .Category = ArtifactDropType::REVELATION,
         .ID = RevelationID, 
-        .CategoryID = categoryID,
         .Name = (const std::string&)ElementName,
     };
     return info;

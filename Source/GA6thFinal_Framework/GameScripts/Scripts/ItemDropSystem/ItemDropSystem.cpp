@@ -3,6 +3,7 @@
 #include "WeaponSystem/WeaponSystem.h"
 #include "WeaponSystem/WeaponTable/WeaponTableComponent.h"
 #include "RevelationSystem/RevelationSystem.h"
+#include "ItemDropSystem/UI/ItemDropUIRootManager.h"
 #include "ItemDropSystem/UI/ArtifactUIManager.h"
 #include "ViewModels/ItemDrop/DropArtifacts/DropArtifactsViewModel.h"
 
@@ -41,17 +42,15 @@ ItemDropSystem::ItemDropSystem()
 }
 ItemDropSystem::~ItemDropSystem()
 {
-    if (this == static_instance)
+    if (_singletonComponent.IsSingleTon())
     {
-        static_instance = nullptr;
+        UmWatcher.Unregister<DropArtifactsViewModel>(ItemDropSystem::WATCHER_KEY);
     }
-
-    UmWatcher.Unregister<DropArtifactsViewModel>(ItemDropSystem::WATCHER_KEY);
 }
 
 std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
 {  
-    RevelationSystem* revelationSystem = RevelationSystem::GetInstance();
+    RevelationSystem* revelationSystem = SingletonComponent<RevelationSystem>::GetInstance();
     std::array<std::vector<RevelationElement*>, RevelationGradeArraySize> revelations{};
     if (revelationSystem)
     {
@@ -60,14 +59,17 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
         for (auto& revelation : table)
         {
             RevelationGrade grade = revelation->Grade;
-            size_t          index = static_cast<size_t>(grade);
-            revelations[index].push_back(revelation);
+            if (RevelationGrade::EXTINCTION != grade)
+            {
+                size_t index = static_cast<size_t>(grade);
+                revelations[index].push_back(revelation);
+            }
         }      
     }
 
     //무기 테이블에 대한 이중 배열. 첫번째는 무기 타입, 두번째는 무기 등급
     std::array<std::array<std::vector<WeaponElement*>, WeaponGradeArraySize>, WeaponTypeArraySize> weapons{};
-    WeaponTableComponent* weaponTableComponent = WeaponTableComponent::GetInstance();
+    WeaponTableComponent* weaponTableComponent = SingletonComponent<WeaponTableComponent>::GetInstance();
     if (weaponTableComponent)
     {
         // 등급별 무기 분류
@@ -137,7 +139,7 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
             {
                 DropItemInfo info{};
                 info.ID         = 0;
-                info.CategoryID = DropItemInfo::GetArtifactCategoryAssetID(static_cast<ArtifactDropType>(type));
+                info.Category = static_cast<ArtifactDropType>(type);
                 info.Name       = rfl::enum_to_string(grade);
                 info.Name += (const char*)u8" 등급 ";
                 info.Name += rfl::enum_to_string(static_cast<WeaponType>(type));
@@ -161,7 +163,7 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
             {
                 DropItemInfo info{};
                 info.ID         = 0;
-                info.CategoryID = DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::REVELATION);
+                info.Category = ArtifactDropType::REVELATION;
                 info.Name       = rfl::enum_to_string(grade);
                 info.Name       += (const char*)u8" 등급 계시";
                 return info;
@@ -183,9 +185,9 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
             artifact = RollRevelationRandomItem();
             break;
         case ArtifactDropType::ERASE_REVELATION:
-            artifact.ID         = DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::ERASE_REVELATION);
-            artifact.CategoryID = DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::ERASE_REVELATION);
-            artifact.Name       = (const char*)u8"계시 지우기 (테스트)";
+            artifact.ID       = DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::ERASE_REVELATION);
+            artifact.Category = ArtifactDropType::ERASE_REVELATION;
+            artifact.Name     = (const char*)u8"계시 지우기 (테스트)";
             break;
         default:
             break;
@@ -203,9 +205,17 @@ void ItemDropSystem::SetDropItem(const std::array<DropItemInfo, ARTIFACT_DROP_CO
 void ItemDropSystem::SetStageClearCount(int count) 
 {
     _stageClearCount = std::clamp(count, 0, 3);
-    if (ArtifactUIManager* uiManager = ArtifactUIManager::GetInstance())
+    if (ArtifactUIManager* uiManager = SingletonComponent<ArtifactUIManager>::GetInstance())
     {
         uiManager->UpdateUnlock();
+    }
+}
+
+void ItemDropSystem::PlayItemDropUISequence() 
+{
+    if (ItemDropUIRootManager* itemDropUIRootManager = SingletonComponent<ItemDropUIRootManager>::GetInstance())
+    {
+        itemDropUIRootManager->gameObject->ActiveSelf = true;
     }
 }
 
@@ -230,7 +240,7 @@ void ItemDropSystem::ImGuiDrawTestRollArtifacts()
         if (ImGui::Button("Roll Artifacts"))
         {
             std::array<DropItemInfo, ARTIFACT_DROP_COUNT> artifacts = RollArtifacts();
-            if (ArtifactUIManager* uiManager = ArtifactUIManager::GetInstance())
+            if (ArtifactUIManager* uiManager = SingletonComponent<ArtifactUIManager>::GetInstance())
             {
                 uiManager->UpdateImageElements(std::vector<DropItemInfo>(artifacts.begin(), artifacts.end()));
             }
@@ -413,13 +423,16 @@ void ItemDropSystem::DeserializedReflectEvent()
 
 void ItemDropSystem::Reset() 
 {
-    static_instance = this;
+    _singletonComponent.SetSingleTon();
     ReflectFields->MaxDropCount.resize(ArtifactDropTypeArraySize);
 }
 
 void ItemDropSystem::Awake()
 {
-    UmWatcher.Register<DropArtifactsViewModel>(ItemDropSystem::WATCHER_KEY, _dropItemsModel);
+    if (_singletonComponent.TrySingleTon())
+    {
+        UmWatcher.Register<DropArtifactsViewModel>(ItemDropSystem::WATCHER_KEY, _dropItemsModel);
+    }
 }
 
  

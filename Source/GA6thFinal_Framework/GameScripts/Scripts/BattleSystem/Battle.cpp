@@ -14,7 +14,7 @@
 
 void Battle::operator()(Player& attacker, EnemyTargetFlag targetFlag)
 {
-    TurnMode* turnMode = TurnMode::GetInstance();
+    TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
     if (turnMode)
     {
         turnMode->ApplyActions(
@@ -30,7 +30,7 @@ void Battle::operator()(Player& attacker, EnemyTargetFlag targetFlag)
 
 void Battle::operator()(Enemy& attacker, Player& target)
 {
-    TurnMode* turnMode = TurnMode::GetInstance();
+    TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
     if (turnMode)
     {
         BattleStart(attacker, target);
@@ -40,7 +40,7 @@ void Battle::operator()(Enemy& attacker, Player& target)
 std::vector<Enemy*> Battle::GetTargetsFromFlags(EnemyTargetFlag targetFlag)
 {
     std::vector<Enemy*> selectedTargets;
-    TurnMode* turnMode = TurnMode::GetInstance();
+    TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
     if (turnMode)
     {
         CombatStartPhase* combatStartPhase = turnMode->States->CombatStartPhase;
@@ -77,8 +77,8 @@ std::vector<Enemy*> Battle::GetTargetsFromFlags(EnemyTargetFlag targetFlag)
 
 void Battle::BattleStart(Player& attacker, Enemy& target)
 {
-    TurnMode*             turnMode             = TurnMode::GetInstance();
-    WeaponSystem*         weaponSystem         = WeaponSystem::GetInstance();
+    TurnMode*             turnMode             = SingletonComponent<TurnMode>::GetInstance();
+    WeaponSystem*         weaponSystem         = SingletonComponent<WeaponSystem>::GetInstance();
     PlayerStatsComponent* playerStatsComponent = attacker.GetPlayerStats();
     EnemyStatsComponent*  enemyStatsComponent  = target.GetEnemyStats();
     if (turnMode && weaponSystem && playerStatsComponent && enemyStatsComponent)
@@ -110,8 +110,8 @@ void Battle::BattleStart(Player& attacker, Enemy& target)
 
 void Battle::BattleStart(Enemy& attacker, Player& target) 
 {
-    TurnMode*             turnMode             = TurnMode::GetInstance();
-    WeaponSystem*         weaponSystem         = WeaponSystem::GetInstance();
+    TurnMode*             turnMode             = SingletonComponent<TurnMode>::GetInstance();
+    WeaponSystem*         weaponSystem         = SingletonComponent<WeaponSystem>::GetInstance();
     EnemyStatsComponent*  enemyStatsComponent  = attacker.GetEnemyStats();
     PlayerStatsComponent* playerStatsComponent = target.GetPlayerStats();
     if (turnMode && weaponSystem && playerStatsComponent && enemyStatsComponent)

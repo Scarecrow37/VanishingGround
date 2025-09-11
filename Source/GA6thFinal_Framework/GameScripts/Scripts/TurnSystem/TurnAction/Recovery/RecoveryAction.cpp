@@ -41,7 +41,7 @@ void RecoveryAction::OnEnemyDead(Enemy& enemy)
     {
         if (EvaluateConditions())
         {
-            if (TurnMode* turnMode = TurnMode::GetInstance())
+            if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
             {
                 CombatStartPhase* combatStartPhase = turnMode->States->CombatStartPhase;
                 if (combatStartPhase)

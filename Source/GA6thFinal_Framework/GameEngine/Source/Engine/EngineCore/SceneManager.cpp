@@ -508,6 +508,15 @@ void ESceneManager::Engine::DontDestroyOnLoadObject(GameObject* gameObject)
         {
             curr->gameObject->_ownerScene = DONT_DESTROY_ON_LOAD_SCENE_NAME;
         });   
+
+        if (nullptr != gameObject->transform->Parent)
+        {
+            Transform* parent = gameObject->transform->Parent;
+            if (parent->gameObject->_ownerScene != DONT_DESTROY_ON_LOAD_SCENE_NAME)
+            {
+                gameObject->transform->SetParent(nullptr);
+            }
+        }
     }
 }
 

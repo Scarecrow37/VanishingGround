@@ -2,18 +2,16 @@
 #include "ItemDropUIRootManager.h"
 #include "ItemDropSystem/UI/ArtifactUIManager.h"
 #include "ItemDropSystem/ItemDropSystem.h"
+#include "RevelationSystem/RevelationSystem.h"
 
 ItemDropUIRootManager::ItemDropUIRootManager()
 {
-    static_instance = this;
+    
 }
 
 ItemDropUIRootManager::~ItemDropUIRootManager()
 {
-    if (this == static_instance)
-    {
-        static_instance = nullptr;
-    }
+  
 }
 
 int ItemDropUIRootManager::GetArtifactCategoryAssetID(ArtifactDropType artifactDropType)
@@ -25,6 +23,59 @@ int ItemDropUIRootManager::GetArtifactCategoryAssetID(ArtifactDropType artifactD
         id = ReflectFields->ArtifactsCategoryAssetID[categoryIndex];
     }
     return id;
+}
+
+int ItemDropUIRootManager::GetArtifactIconID(DropItemInfo itemInfo)
+{
+    auto find = ReflectFields->ArtifactsIconIDMap.find(itemInfo.ID);
+    if (find != ReflectFields->ArtifactsIconIDMap.end())
+    {
+        return find->second;
+    }
+    else
+    {
+        auto GetRevelationDefaultIcon = [](const DropItemInfo& info) -> int
+        {
+            if (RevelationSystem* system = SingletonComponent<RevelationSystem>::GetInstance())
+            {
+                RevelationElement* element = system->FindElement(info.Name);
+                if (element)
+                {
+                    RevelationGrade grade = element->Grade;
+                    switch (grade)
+                    {
+                    case RevelationGrade::COMMON:
+                        return -202000;
+                    case RevelationGrade::RARE:
+                        return -202001;
+                    case RevelationGrade::LEGENDARY:
+                        return -202002;
+                    case RevelationGrade::EXTINCTION:
+                        return 0;
+                    default:
+                        break;
+                    }
+                }
+            }
+            return 0;
+        };
+
+        switch (itemInfo.Category)
+        {
+        case ArtifactDropType::DAGGER:
+            return -201000;
+        case ArtifactDropType::WARHAMMER:
+            return -201001;
+        case ArtifactDropType::SWORD:
+            return -201002;
+        case ArtifactDropType::REVELATION:
+            return GetRevelationDefaultIcon(itemInfo);
+        case ArtifactDropType::ERASE_REVELATION:
+            return DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::ERASE_REVELATION);
+        default:
+            return 0;
+        }
+    }
 }
 
 void ItemDropUIRootManager::DeserializedReflectEvent()
@@ -104,17 +155,12 @@ void ItemDropUIRootManager::ImGuiDrawArtifactUIAssetSetting()
 
 void ItemDropUIRootManager::Reset() 
 {
-    
+    _singletonComponent.SetSingleTon();
 }
 
 void ItemDropUIRootManager::Awake()
 {
-    if (this != static_instance)
-    {
-        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"ItemDropUIRootManager는 하나만 존재해야 합니다.");
-        GameObject::Destroy(this);
-    }
-    else
+    if (_singletonComponent.TrySingleTon())
     {
         gameObject->AddTag(ItemDropUIRootManager::TAG);
         gameObject->ActiveSelf = false;
