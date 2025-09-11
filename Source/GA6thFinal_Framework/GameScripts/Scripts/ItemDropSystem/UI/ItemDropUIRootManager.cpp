@@ -5,7 +5,7 @@
 
 ItemDropUIRootManager::ItemDropUIRootManager()
 {
-    static_instance = this;
+    
 }
 
 ItemDropUIRootManager::~ItemDropUIRootManager()
@@ -104,7 +104,7 @@ void ItemDropUIRootManager::ImGuiDrawArtifactUIAssetSetting()
 
 void ItemDropUIRootManager::Reset() 
 {
-    
+    static_instance = this;
 }
 
 void ItemDropUIRootManager::Awake()
