@@ -459,8 +459,6 @@ void QTEEditor::ShowPreviewFrame()
     {
         ImGui::BeginChild("preview_frame", ImVec2(0, 0), ImGuiChildFlags_Border, ImGuiWindowFlags_None);
 
-        float  globalSpeedScale = system->GetQTESpeedScale();
-        float  trackSpeedScale  = _qteTrack->GetQTESpeedScale();
         float  maxFrame         = track->GetMaxFrame();
         float  minFrame         = track->GetMinFrame();
         ImVec2 availSize        = ImGui::GetContentRegionAvail();
@@ -521,7 +519,7 @@ void QTEEditor::ShowPreviewFrame()
             }
             else
             {
-                _previewTimer += ImGui::GetIO().DeltaTime * trackSpeedScale * globalSpeedScale;
+                _previewTimer += ImGui::GetIO().DeltaTime;
             }
             track->SetCurrentFrame(_previewTimer, true);
             if (_previewTimer >= maxFrame)
@@ -593,26 +591,26 @@ void QTEEditor::DrawPreview()
         auto track  = _qteTrack->GetEventTrack().lock();
         if (system && track)
         {
-            float                   circleRadius = 30.0f;
+            float                   circleRadius = 15.0f;
             auto*                   drawList     = window->DrawList;
             ImVec2                  offset       = ImGui::GetCursorScreenPos();
             ImVec2                  availSize    = ImGui::GetContentRegionAvail();
             std::pair<float, float> perfectRange = system->GetPerfectJudgeRange();
             std::pair<float, float> normalRange  = system->GetNormalJudgeRange();
 
-            float bgAlpha = (_PerfectTimer / PERFECT_EFFECT_TIME);
+            float bgAlpha = (_perfectTimer / PERFECT_EFFECT_TIME);
             drawList->AddRectFilled(offset, offset + availSize, ImColor(0.2f, 0.2f, 0.2f, 1.0f));
 
             DrawJudgeRange(normalRange, circleRadius, ImColor(100, 255, 100, 255),
                            ImColor(0.3f, 0.3f, 0.3f, 0.5f + 0.5f * bgAlpha));
             DrawJudgeRange(perfectRange, circleRadius, ImColor(140, 120, 170, 255));
 
-            if (_PerfectTimer > 0.0f)
+            if (_perfectTimer > 0.0f)
             {
-                _PerfectTimer -= ImGui::GetIO().DeltaTime;
-                if (_PerfectTimer < 0.0f)
+                _perfectTimer -= ImGui::GetIO().DeltaTime;
+                if (_perfectTimer < 0.0f)
                 {
-                    _PerfectTimer = 0.0f;
+                    _perfectTimer = 0.0f;
                 }
             }
             for (const auto& note : track->GetEventContextQueue())
@@ -629,29 +627,31 @@ void QTEEditor::DrawJudgeRange(std::pair<float, float> range, float circleRadius
 {
     auto* window = ImGui::GetCurrentWindow();
     auto* system = QTESystem::GetInstance();
-    if (system && window && window->DrawList)
+    if (system && window)
     {
         auto* drawList = window->DrawList;
-
-        ImVec2 offset          = ImGui::GetCursorScreenPos();
-        ImVec2 availSize       = ImGui::GetContentRegionAvail();
-        float  centerPosFactor = system->GetJudgePosFactor();
-
-        auto& [min, max] = range;
-        float centerPosX = availSize.x * centerPosFactor;
-        float minPosX    = centerPosX + (availSize.x * min);
-        float maxPosX    = centerPosX + (availSize.x * max);
-
-        if (bgCol != UINT_MAX - 1)
+        if (drawList)
         {
-            drawList->AddRectFilled(offset + ImVec2(minPosX - circleRadius, 0.0f),
-                                    offset + ImVec2(maxPosX + circleRadius, availSize.y), bgCol);
-        }
+            ImVec2 offset           = ImGui::GetCursorScreenPos();
+            ImVec2 availSize        = ImGui::GetContentRegionAvail();
+            float  centerPosFactor  = system->GetJudgePosFactor();
 
-        drawList->AddCircleFilled(offset + ImVec2(minPosX, availSize.y * 0.5f), circleRadius, judgeCol);
-        drawList->AddCircleFilled(offset + ImVec2(maxPosX, availSize.y * 0.5f), circleRadius, judgeCol);
-        drawList->AddRectFilled(offset + ImVec2(minPosX, availSize.y * 0.5f - circleRadius),
-                                offset + ImVec2(maxPosX, availSize.y * 0.5f + circleRadius), judgeCol);
+            auto& [min, max]        = range;
+            float centerPosX        = availSize.x * centerPosFactor;
+            float minPosX           = centerPosX * (1.0f + min);
+            float maxPosX           = centerPosX * (1.0f + max);
+
+            if (bgCol != UINT_MAX - 1)
+            {
+                drawList->AddRectFilled(offset + ImVec2(minPosX - circleRadius, 0.0f),
+                                        offset + ImVec2(maxPosX + circleRadius, availSize.y), bgCol);
+            }
+
+            //drawList->AddCircleFilled(offset + ImVec2(minPosX, availSize.y * 0.5f), circleRadius, judgeCol);
+            //drawList->AddCircleFilled(offset + ImVec2(maxPosX, availSize.y * 0.5f), circleRadius, judgeCol);
+            drawList->AddRectFilled(offset + ImVec2(minPosX, availSize.y * 0.5f - circleRadius),
+                                    offset + ImVec2(maxPosX, availSize.y * 0.5f + circleRadius), judgeCol);
+        }
     }
 }
 
@@ -659,37 +659,43 @@ void QTEEditor::DrawNote(Timeline::EventContext* context, float circleRadius, Im
 {
     auto* window = ImGui::GetCurrentWindow();
     auto* system = QTESystem::GetInstance();
-    if (system && window && window->DrawList)
+    if (system && window)
     {
-        auto*  drawList        = window->DrawList;
-        ImVec2 offset          = ImGui::GetCursorScreenPos();
-        ImVec2 availSize       = ImGui::GetContentRegionAvail();
-        float  centerPosFactor = system->GetJudgePosFactor();
-        float  centerPosX      = availSize.x * centerPosFactor;
-        float  noteTime        = context->Time;
-        float  posX            = (1.0f + _previewTimer - noteTime) * centerPosX;
-        if (posX > availSize.x)
+        auto* drawList = window->DrawList;
+        if (drawList && context)
         {
-            return;
-        }
-        float alphaFactor = CalcNoteAlphaFromPositionX(posX);
-        noteCol.Value.w *= alphaFactor;
-        bgCol.Value.w *= alphaFactor;
-
-        ImRect noteBgRect =
-            ImRect(offset + ImVec2(posX - circleRadius, 0.0f), offset + ImVec2(posX + circleRadius, availSize.y));
-        drawList->AddRectFilled(noteBgRect.Min, noteBgRect.Max, bgCol);
-        drawList->AddCircleFilled(offset + ImVec2(posX, availSize.y * 0.5f), circleRadius, noteCol);
-
-        auto [min, max] = system->GetPerfectJudgeRange();
-        float minPosX   = centerPosX + (availSize.x * min);
-        float maxPosX   = centerPosX + (availSize.x * max);
-        if (posX >= minPosX)
-        {
-            if (_noteJudgeSet.find(context->ID) == _noteJudgeSet.end())
+            ImVec2 offset           = ImGui::GetCursorScreenPos();
+            ImVec2 availSize        = ImGui::GetContentRegionAvail();
+            float  systemSpeed      = system->GetQTESpeedScale();
+            float  trackSpeed       = _qteTrack->GetQTESpeedScale();
+            float  timer            = _previewTimer * systemSpeed * trackSpeed;
+            float  noteTime         = context->Time * systemSpeed * trackSpeed;
+            float  centerPosFactor  = system->GetJudgePosFactor();
+            float  centerPosX       = availSize.x * centerPosFactor;
+            float  posX             = centerPosX * (1.0f + (timer - noteTime));
+            if (posX > availSize.x)
             {
-                _noteJudgeSet.insert(context->ID);
-                _PerfectTimer = PERFECT_EFFECT_TIME;
+                return;
+            }
+            float alphaFactor = CalcNoteAlphaFromPositionX(posX);
+            noteCol.Value.w *= alphaFactor;
+            bgCol.Value.w *= alphaFactor;
+
+            ImRect noteBgRect =
+                ImRect(offset + ImVec2(posX - circleRadius, 0.0f), offset + ImVec2(posX + circleRadius, availSize.y));
+            drawList->AddRectFilled(noteBgRect.Min, noteBgRect.Max, bgCol);
+            //drawList->AddCircleFilled(offset + ImVec2(posX, availSize.y * 0.5f), circleRadius, noteCol);
+
+            auto [min, max] = system->GetPerfectJudgeRange();
+            float minPosX   = centerPosX + (availSize.x * min);
+            float maxPosX   = centerPosX + (availSize.x * max);
+            if (posX >= minPosX)
+            {
+                if (_noteJudgeSet.find(context->ID) == _noteJudgeSet.end())
+                {
+                    _noteJudgeSet.insert(context->ID);
+                    _perfectTimer = PERFECT_EFFECT_TIME;
+                }
             }
         }
     }

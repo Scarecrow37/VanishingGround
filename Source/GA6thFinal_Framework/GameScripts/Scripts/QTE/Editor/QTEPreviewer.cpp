@@ -31,15 +31,15 @@ void QTEPreviewer::Draw()
         {
             auto qteTrack = system->GetCurrentQTETrack();
 
-            float                   circleRadius = 30.0f;
+            float                   circleRadius = 15.0f;
             auto*                   drawList     = window->DrawList;
             ImVec2                  offset       = ImGui::GetCursorScreenPos();
             ImVec2                  availSize    = ImGui::GetContentRegionAvail();
             std::pair<float, float> perfectRange = system->GetPerfectJudgeRange();
             std::pair<float, float> normalRange  = system->GetNormalJudgeRange();
 
-            DrawJudgeRange(perfectRange, circleRadius, ImColor(140, 120, 170, 255));
             DrawJudgeRange(normalRange, circleRadius, ImColor(100, 255, 100, 255), ImColor(0.3f, 0.3f, 0.3f, 0.5f));
+            DrawJudgeRange(perfectRange, circleRadius, ImColor(140, 120, 170, 255));
             if (_effectTimer > 0.0f)
             {
                 _effectTimer -= ImGui::GetIO().DeltaTime;
@@ -55,7 +55,7 @@ void QTEPreviewer::Draw()
             }
             auto&  resultQueue = system->GetCurrentQTEResultQueue();
             size_t noteIndex   = system->GetCurrentNoteIndex();
-            for (size_t i = 0; i < noteIndex; ++i)
+            for (size_t i = noteIndex; i < resultQueue.size(); ++i)
             {
                 const auto& result = resultQueue[i];
                 DrawNote(&result, circleRadius, ImColor(100, 100, 255, 255), ImColor(100, 100, 255, 100));
@@ -85,27 +85,30 @@ void QTEPreviewer::DrawJudgeRange(std::pair<float, float> range, float circleRad
 {
     auto* window = ImGui::GetCurrentWindow();
     auto* system = QTESystem::GetInstance();
-    if (system && window && window->DrawList)
+    if (system && window)
     {
         auto* drawList = window->DrawList;
-
-        ImVec2 offset = ImGui::GetCursorScreenPos();
-        ImVec2 availSize = ImGui::GetContentRegionAvail();
-        float  centerPosFactor = system->GetJudgePosFactor(); 
-
-        auto& [min, max] = range;
-        float centerPosX = availSize.x * centerPosFactor;
-        float minPosX    = centerPosX + (availSize.x * min);
-        float maxPosX    = centerPosX + (availSize.x * max);
-
-        if (bgCol != UINT_MAX - 1)
+        auto* track    = system->GetCurrentQTETrack();
+        if (drawList && track)
         {
-            drawList->AddRectFilled(offset + ImVec2(minPosX - circleRadius, 0.0f), offset + ImVec2(maxPosX + circleRadius, availSize.y), bgCol);
+            ImVec2  offset          = ImGui::GetCursorScreenPos();
+            ImVec2  availSize       = ImGui::GetContentRegionAvail();
+
+            float   centerPosFactor = system->GetJudgePosFactor();
+            float   centerPosX      = availSize.x * centerPosFactor;
+            auto&   [min, max]      = range;
+            float   minPosX         = centerPosX * (1.0f + min);
+            float   maxPosX         = centerPosX * (1.0f + max);
+
+            if (bgCol != UINT_MAX - 1)
+            {
+                drawList->AddRectFilled(offset + ImVec2(minPosX - circleRadius, 0.0f), offset + ImVec2(maxPosX + circleRadius, availSize.y), bgCol);
+            }
+            
+            //drawList->AddCircleFilled(offset + ImVec2(minPosX, availSize.y * 0.5f), circleRadius, judgeCol);
+            //drawList->AddCircleFilled(offset + ImVec2(maxPosX, availSize.y * 0.5f), circleRadius, judgeCol);
+            drawList->AddRectFilled(offset + ImVec2(minPosX, availSize.y * 0.5f - circleRadius), offset + ImVec2(maxPosX, availSize.y * 0.5f + circleRadius), judgeCol);
         }
-        
-        drawList->AddCircleFilled(offset + ImVec2(minPosX, availSize.y * 0.5f), circleRadius, judgeCol);
-        drawList->AddCircleFilled(offset + ImVec2(maxPosX, availSize.y * 0.5f), circleRadius, judgeCol);
-        drawList->AddRectFilled(offset + ImVec2(minPosX, availSize.y * 0.5f - circleRadius), offset + ImVec2(maxPosX, availSize.y * 0.5f + circleRadius), judgeCol);
     }
 }
 
@@ -113,28 +116,33 @@ void QTEPreviewer::DrawNote(const QTE::Result* result, float circleRadius, ImCol
 {
     auto* window = ImGui::GetCurrentWindow();
     auto* system = QTESystem::GetInstance();
-    auto  context = result ? result->Note : nullptr;
-    if (system && window && window->DrawList && context)
+    if (system && window && result)
     {
-        auto*  drawList        = window->DrawList;
-        ImVec2 offset          = ImGui::GetCursorScreenPos();
-        ImVec2 availSize       = ImGui::GetContentRegionAvail();
-        float  centerPosFactor = system->GetJudgePosFactor();
-        float  centerPosX      = availSize.x * centerPosFactor;
-        float  noteTime        = context->Time;
-        float  timer           = system->GetQTETime();
-        float  posX            = (1.0f + timer - noteTime) * centerPosX;
-        if (posX > availSize.x)
+        auto* drawList = window->DrawList;
+        auto* track    = system->GetCurrentQTETrack();
+        auto* context  = result->Note;
+        if (drawList && track && context)
         {
-            return;
-        }
-        float alphaFactor = CalcNoteAlphaFromPositionX(posX);
-        noteCol.Value.w *= alphaFactor;
-        bgCol.Value.w *= alphaFactor;
+            ImVec2 offset          = ImGui::GetCursorScreenPos();
+            ImVec2 availSize       = ImGui::GetContentRegionAvail();
+            float  timer           = system->GetQTETime();
+            float  noteTime        = context->Time;
+            float  centerPosFactor = system->GetJudgePosFactor();
+            float  centerPosX      = availSize.x * centerPosFactor;
+            float  posX            = centerPosX * (1.0f + timer - noteTime);
+            if (posX > availSize.x)
+            {
+                return;
+            }
+            float alphaFactor = CalcNoteAlphaFromPositionX(posX);
+            noteCol.Value.w *= alphaFactor;
+            bgCol.Value.w *= alphaFactor;
 
-        ImRect noteBgRect = ImRect(offset + ImVec2(posX - circleRadius, 0.0f), offset + ImVec2(posX + circleRadius, availSize.y));
-        drawList->AddRectFilled(noteBgRect.Min, noteBgRect.Max, bgCol);
-        drawList->AddCircleFilled(offset + ImVec2(posX, availSize.y * 0.5f), circleRadius, noteCol);
+            ImRect noteBgRect =
+                ImRect(offset + ImVec2(posX - circleRadius, 0.0f), offset + ImVec2(posX + circleRadius, availSize.y));
+            drawList->AddRectFilled(noteBgRect.Min, noteBgRect.Max, bgCol);
+            //drawList->AddCircleFilled(offset + ImVec2(posX, availSize.y * 0.5f), circleRadius, noteCol);
+        }
     }
 }
 

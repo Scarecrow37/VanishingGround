@@ -41,7 +41,7 @@ private:
     EditorDragState           _dragHandler;             // 드래그 핸들러
     Timeline::SequencerEditor _sequencerEditor;         // 시퀀서 에디터
 
-    float _PerfectTimer     = 0.0f;  // 퍼펙트 시 나오는 이펙트 타이머
+    float _perfectTimer     = 0.0f;  // 퍼펙트 시 나오는 이펙트 타이머
     float _delayTimer       = 0.0f;  // 딜레이 타이머
     float _previewTimer     = 0.0f;  // 미리보기 타이머
     bool  _isPreviewPlaying = false; // 미리보기 재생 여부

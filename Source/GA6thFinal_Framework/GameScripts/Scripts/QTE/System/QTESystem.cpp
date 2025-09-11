@@ -258,13 +258,13 @@ QTE::ResultType QTESystem::GetQTEResult(QTE::Note* note)
     auto& [normalMin, normalMax]   = ReflectFields->NormalJudgeRange;
     if (note)
     {
-        float noteTime = _qteTimer - note->Time;
-        if (noteTime >= perfectMin && noteTime <= perfectMax)
+        float noteDelta = note->Time - _qteTimer;
+        if (noteDelta >= perfectMin && noteDelta <= perfectMax)
         {
             UmLogger.Log(LogLevel::LEVEL_DEBUG, (const char*)u8"퍼펙트!!");
             return QTE::QTE_RESULT_PERFECT;
         }
-        else if (noteTime >= normalMin && noteTime <= normalMax)
+        else if (noteDelta >= normalMin && noteDelta <= normalMax)
         {
             UmLogger.Log(LogLevel::LEVEL_DEBUG, (const char*)u8"일격!!");
             return QTE::QTE_RESULT_NORMAL;
@@ -319,10 +319,14 @@ void QTESystem::UpdateQTETrack()
         if (_qteTimer < maxFrame && _currentNoteIndex < _noteAvailQueue.size())
         {
             QTE::Note* curNote = _noteAvailQueue[_currentNoteIndex];
-            auto& [normalMin, normalMax] = ReflectFields->NormalJudgeRange;
-            if (curNote && _qteTimer + normalMax >= curNote->Time)
-            {   // 최대 일격 판정 시간이 지나갔는데 버튼을 누르지 않은 경우, MISS 처리
-                PressedQTEButton();
+            if (curNote)
+            {
+                float noteTime = curNote->Time;
+                auto& [normalMin, normalMax] = ReflectFields->NormalJudgeRange;
+                if (_qteTimer > noteTime + normalMax)
+                {  
+                    PressedQTEButton();  // 최대 일격 판정 시간이 지나갔는데 버튼을 누르지 않은 경우, MISS 처리
+                }
             }
         }
         else
