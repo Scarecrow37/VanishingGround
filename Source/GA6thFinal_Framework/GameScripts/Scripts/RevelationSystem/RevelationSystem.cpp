@@ -10,14 +10,12 @@ using namespace u8_literals;
 
 RevelationSystem::RevelationSystem() 
 {
-    static_instance = this;
     RevelationsPerRound.SetInputAutoEvent([]() { ImGuiHelper::HoveredToolTip(u8"라운드당 뽑는 계시 개수"); });
 }
 RevelationSystem::~RevelationSystem()
 {
-    if (this == static_instance)
+    if (_singletonComponent.IsSingleTon())
     {
-        static_instance = nullptr;
         UmWatcher.Unregister<RevelationsViewModel>("Revelations");
     }
 };
@@ -51,7 +49,7 @@ const std::shared_ptr<RevelationElement>& RevelationSystem::PushBackPlayerElemen
 
 void RevelationSystem::RollRoundElement()
 {
-    TurnMode* _turnMode = TurnMode::GetInstance();
+    TurnMode* _turnMode = SingletonComponent<TurnMode>::GetInstance();
 
     if (_turnMode)
     {
@@ -808,8 +806,13 @@ void RevelationSystem::EraseElementTableOrderID(RevelationElement& element)
 void RevelationSystem::Awake()
 {
     Component::Awake();
-    if (static_instance == this)
+    if (_singletonComponent.TrySingleTon())
     {
         UmWatcher.Register<RevelationsViewModel>("Revelations", _roundElementList);
     }
+}
+
+void RevelationSystem::Reset() 
+{
+    _singletonComponent.SetSingleTon();
 }

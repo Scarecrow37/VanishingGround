@@ -53,7 +53,7 @@ namespace EnemyAction
         const std::string& label = context->GetLabel();
         if ("Attack_1" == label || "Attack_2" == label)
         {
-            TurnMode* turnMode = TurnMode::GetInstance();
+            TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
             if (turnMode)
             {
                 turnMode->AddTurnAction(_tokenAction.get());

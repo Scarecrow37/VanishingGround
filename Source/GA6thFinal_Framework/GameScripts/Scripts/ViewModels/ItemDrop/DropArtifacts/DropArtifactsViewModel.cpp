@@ -32,7 +32,7 @@ namespace
 std::vector<DropArtifactsUIData> DropArtifactsViewModel::ConvertData(const std::vector<DropItemInfo>& value)
 {
     std::vector<DropArtifactsUIData> datas;
-    ItemDropUIRootManager* uiRootManager = ItemDropUIRootManager::GetInstance();
+    ItemDropUIRootManager*           uiRootManager = SingletonComponent<ItemDropUIRootManager>::GetInstance();
     if (uiRootManager)
     {
         File::Path framePath = (std::string)uiRootManager->ArtifactsUIFrameAsset;

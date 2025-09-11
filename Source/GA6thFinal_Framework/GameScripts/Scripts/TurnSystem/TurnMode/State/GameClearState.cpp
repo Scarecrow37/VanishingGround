@@ -16,7 +16,7 @@ void GameClearState::OnAwake() {}
 void GameClearState::OnEnter() 
 {
     UmLogger.Log(LogLevel::LEVEL_DEBUG, u8"게임 클리어!");
-    if (ItemDropSystem* system = ItemDropSystem::GetInstance())
+    if (ItemDropSystem* system = SingletonComponent<ItemDropSystem>::GetInstance())
     {
         system->PlayItemDropUISequence();
     }

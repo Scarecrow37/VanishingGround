@@ -1,36 +1,13 @@
 ﻿#pragma once
 #include "UmFramework.h"
 #include "ItemDropSystem/Interface/IDropItem.h"
+#include "Utility/SingletonHelper.h"
 
 class ItemDropUIRootManager : public Component
 {
     USING_PROPERTY(ItemDropUIRootManager)
-    inline static ItemDropUIRootManager* static_instance = nullptr;
 public:
     inline static constexpr const char* TAG = "Item Drop UI Root";
-
-    /// <summary>
-    /// ItemDropUIRootManager가 존재하면 포인터를 반환합니다.
-    /// </summary>
-    /// <param name="location :">기본 인자를 통해 해당 함수를 호출한 위치를 기록합니다.</param>
-    /// <returns>없으면 nullptr</returns>
-    static ItemDropUIRootManager* GetInstance(std::source_location location = std::source_location::current()) 
-    { 
-        if (static_instance)
-        {
-            if (false == static_instance->gameObject->IsValid())
-            {
-                static_instance = nullptr;
-            }
-        }
-        
-        if (nullptr == static_instance)
-        {
-            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Item Drop UI Root가 존재하지 않습니다.", location);
-        }
-        return static_instance;
-    }
-
     ItemDropUIRootManager();
     ~ItemDropUIRootManager() override;
 
@@ -76,4 +53,7 @@ protected:
 
     void Reset() override;
     void Awake() override;
+
+private:
+    SingletonComponent<ItemDropUIRootManager> _singletonComponent{this};
 };

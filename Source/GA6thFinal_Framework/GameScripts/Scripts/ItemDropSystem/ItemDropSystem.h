@@ -1,23 +1,15 @@
 ﻿#pragma once
 #include "UmFramework.h"
 #include "Interface/IDropItem.h"
+#include "Utility/SingletonHelper.h"
 
 class ItemDropSystem : public Component
 {
     USING_PROPERTY(ItemDropSystem)
-    inline static ItemDropSystem* static_instance = nullptr;
 public:
     inline static const std::string WATCHER_KEY = "8940F3B8-1D49-4556-9588-5D423CAC794D";
     static const size_t ARTIFACT_TYPE_COUNT; // 유물 카테고리 개수
     inline static constexpr int ITEM_DROP_RATE_BONUS_MAX = 5; //아이템 드롭 확률 보너스 최대 개수
-    static ItemDropSystem* GetInstance(std::source_location location = std::source_location::current()) 
-    { 
-        if (nullptr == static_instance)
-        {
-            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"ItemDropSystem가 존재하지 않습니다.", location);
-        }
-        return static_instance; 
-    }
 
     ItemDropSystem();
     ~ItemDropSystem() override;
@@ -91,6 +83,7 @@ protected:
     void Awake() override;
 
 private:
+    SingletonComponent<ItemDropSystem>     _singletonComponent{this};
     MVVM::Model<std::vector<DropItemInfo>> _dropItemsModel;
     int _stageClearCount = 0;
     int _itemDropRateBonus = 0;

@@ -11,10 +11,7 @@ ItemDropUIRootManager::ItemDropUIRootManager()
 
 ItemDropUIRootManager::~ItemDropUIRootManager()
 {
-    if (this == static_instance)
-    {
-        static_instance = nullptr;
-    }
+  
 }
 
 int ItemDropUIRootManager::GetArtifactCategoryAssetID(ArtifactDropType artifactDropType)
@@ -39,7 +36,7 @@ int ItemDropUIRootManager::GetArtifactIconID(DropItemInfo itemInfo)
     {
         auto GetRevelationDefaultIcon = [](const DropItemInfo& info) -> int
         {
-            if (RevelationSystem* system = RevelationSystem::GetInstance())
+            if (RevelationSystem* system = SingletonComponent<RevelationSystem>::GetInstance())
             {
                 RevelationElement* element = system->FindElement(info.Name);
                 if (element)
@@ -158,17 +155,12 @@ void ItemDropUIRootManager::ImGuiDrawArtifactUIAssetSetting()
 
 void ItemDropUIRootManager::Reset() 
 {
-    static_instance = this;
+    _singletonComponent.SetSingleTon();
 }
 
 void ItemDropUIRootManager::Awake()
 {
-    if (this != static_instance)
-    {
-        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"ItemDropUIRootManager는 하나만 존재해야 합니다.");
-        GameObject::Destroy(this);
-    }
-    else
+    if (_singletonComponent.TrySingleTon())
     {
         gameObject->AddTag(ItemDropUIRootManager::TAG);
         gameObject->ActiveSelf = false;

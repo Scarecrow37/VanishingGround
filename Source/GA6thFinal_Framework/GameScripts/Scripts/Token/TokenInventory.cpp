@@ -403,7 +403,7 @@ void TokenInventory::DrawImGuiDebugData()
         }
 
         static int id = 0;
-        const std::string& tokenName = TokenSystem::GetInstance()->GetTokenNameFromID(id);
+        const std::string& tokenName = SingletonComponent<TokenSystem>::GetInstance()->GetTokenNameFromID(id);
         if (ImGui::TreeNodeEx("Add or Remove Token##token inventory"))
         {
             if (ImGui::BeginCombo("##Add or Remove TokenStack", tokenName.c_str()))

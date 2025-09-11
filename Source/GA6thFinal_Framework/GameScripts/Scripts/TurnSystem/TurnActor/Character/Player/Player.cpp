@@ -27,26 +27,21 @@ Player::Player()
 
 Player::~Player()
 {
-    if (this == static_instance)
-    {
-        static_instance = nullptr;
-    }
+ 
 }
 
 void Player::Awake() 
 {
-    if (nullptr == static_instance)
+    if (_singletonComponent.TrySingleTon())
     {
-        static_instance = this;
-    }
-    Base::Awake();
-    gameObject->AddTag(TAG);
-    BuildPlayerFSM();
-    
+        Base::Awake();
+        gameObject->AddTag(TAG);
+        BuildPlayerFSM();
 
-    if (nullptr == GetPlayerStats())
-    {
-        UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Player Stats를 추가해주세요");
+        if (nullptr == GetPlayerStats())
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Player Stats를 추가해주세요");
+        }
     }
 }
 
@@ -67,7 +62,7 @@ void Player::DeserializedReflectEvent()
 
 int Player::GetSpeed()
 {
-    WeaponSystem* system = WeaponSystem::GetInstance();
+    WeaponSystem* system = SingletonComponent<WeaponSystem>::GetInstance();
     if (system)
     {
         return system->GetCurrentWeaponStats().Speed;
@@ -82,7 +77,7 @@ int Player::GetSpeed()
 int Player::GetRandomSpeed()
 {
 
-    WeaponSystem* system = WeaponSystem::GetInstance();
+    WeaponSystem* system = SingletonComponent<WeaponSystem>::GetInstance();
     if (system)
     {
         return system->GetCurrentWeaponStats().RandomSpeed;
@@ -97,7 +92,7 @@ int Player::GetRandomSpeed()
 void Player::PlayTurn()
 {
     Base::PlayTurn();
-    WeaponSystem* system = WeaponSystem::GetInstance();
+    WeaponSystem* system = SingletonComponent<WeaponSystem>::GetInstance();
     if (system)
     {
         const std::string& weaponName = system->GetCurrentWeaponStats().WeaponName;
@@ -119,7 +114,7 @@ void Player::EndTurn()
 void Player::Dead()
 {
     Base::Dead();
-    if (auto turnMode = TurnMode::GetInstance())
+    if (auto turnMode = SingletonComponent<TurnMode>::GetInstance())
     {
         turnMode->ApplyActions([this](TurnAction& action) { action.OnPlayerDead(*this); });
     }

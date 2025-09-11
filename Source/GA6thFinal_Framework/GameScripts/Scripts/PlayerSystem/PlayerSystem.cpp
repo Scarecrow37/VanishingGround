@@ -11,13 +11,13 @@ PlayerSystem::~PlayerSystem() = default;
 
 void PlayerSystem::Reset() 
 {
-    _singletonObject.SetSingleTone();
+    _singletonObject.SetSingleTon();
     CheckSystem();
 }
 
 void PlayerSystem::Awake()
 {
-    if (_singletonObject.TrySingleTone())
+    if (_singletonObject.TrySingleTon(true))
     {
        
     }

@@ -2,6 +2,7 @@
 #include "UmFramework.h"
 #include "ItemDropSystem/Interface/IDropItem.h"
 #include "ViewModels/ItemDrop/DropArtifacts/DropArtifactsViewModel.h"
+#include "Utility/SingletonHelper.h"
 
 class ImageElement;
 class GridPanel;
@@ -9,27 +10,9 @@ class GridPanel;
 class ArtifactUIManager : public Component
 {
     USING_PROPERTY(ArtifactUIManager)
-    inline static ArtifactUIManager* static_instance = nullptr;
 
 public:
     inline static constexpr const char* TAG = "Artifact UI Manager";
-
-    static ArtifactUIManager* GetInstance(std::source_location location = std::source_location::current()) 
-    {
-        if (static_instance)
-        {
-            if (false == static_instance->gameObject->IsValid())
-            {
-                static_instance = nullptr;
-            }
-        }
-       
-        if (nullptr == static_instance)
-        {
-            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"ArtifactUIManager가 존재하지 않습니다.", location);
-        }
-        return static_instance;
-    }
     ArtifactUIManager();
     ~ArtifactUIManager() override;
 
@@ -79,6 +62,8 @@ protected:
     void ImageUIUnlock();
 
 private:
+    SingletonComponent<ArtifactUIManager> _singletonComponent{this};
+
     GridPanel*                 _frameGridPanel;
     std::vector<ImageElement*> _frameImageElements;
 

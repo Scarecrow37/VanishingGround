@@ -42,17 +42,15 @@ ItemDropSystem::ItemDropSystem()
 }
 ItemDropSystem::~ItemDropSystem()
 {
-    if (this == static_instance)
+    if (_singletonComponent.IsSingleTon())
     {
-        static_instance = nullptr;
+        UmWatcher.Unregister<DropArtifactsViewModel>(ItemDropSystem::WATCHER_KEY);
     }
-
-    UmWatcher.Unregister<DropArtifactsViewModel>(ItemDropSystem::WATCHER_KEY);
 }
 
 std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
 {  
-    RevelationSystem* revelationSystem = RevelationSystem::GetInstance();
+    RevelationSystem* revelationSystem = SingletonComponent<RevelationSystem>::GetInstance();
     std::array<std::vector<RevelationElement*>, RevelationGradeArraySize> revelations{};
     if (revelationSystem)
     {
@@ -71,7 +69,7 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
 
     //무기 테이블에 대한 이중 배열. 첫번째는 무기 타입, 두번째는 무기 등급
     std::array<std::array<std::vector<WeaponElement*>, WeaponGradeArraySize>, WeaponTypeArraySize> weapons{};
-    WeaponTableComponent* weaponTableComponent = WeaponTableComponent::GetInstance();
+    WeaponTableComponent* weaponTableComponent = SingletonComponent<WeaponTableComponent>::GetInstance();
     if (weaponTableComponent)
     {
         // 등급별 무기 분류
@@ -207,7 +205,7 @@ void ItemDropSystem::SetDropItem(const std::array<DropItemInfo, ARTIFACT_DROP_CO
 void ItemDropSystem::SetStageClearCount(int count) 
 {
     _stageClearCount = std::clamp(count, 0, 3);
-    if (ArtifactUIManager* uiManager = ArtifactUIManager::GetInstance())
+    if (ArtifactUIManager* uiManager = SingletonComponent<ArtifactUIManager>::GetInstance())
     {
         uiManager->UpdateUnlock();
     }
@@ -215,7 +213,7 @@ void ItemDropSystem::SetStageClearCount(int count)
 
 void ItemDropSystem::PlayItemDropUISequence() 
 {
-    if (ItemDropUIRootManager* itemDropUIRootManager = ItemDropUIRootManager::GetInstance())
+    if (ItemDropUIRootManager* itemDropUIRootManager = SingletonComponent<ItemDropUIRootManager>::GetInstance())
     {
         itemDropUIRootManager->gameObject->ActiveSelf = true;
     }
@@ -242,7 +240,7 @@ void ItemDropSystem::ImGuiDrawTestRollArtifacts()
         if (ImGui::Button("Roll Artifacts"))
         {
             std::array<DropItemInfo, ARTIFACT_DROP_COUNT> artifacts = RollArtifacts();
-            if (ArtifactUIManager* uiManager = ArtifactUIManager::GetInstance())
+            if (ArtifactUIManager* uiManager = SingletonComponent<ArtifactUIManager>::GetInstance())
             {
                 uiManager->UpdateImageElements(std::vector<DropItemInfo>(artifacts.begin(), artifacts.end()));
             }
@@ -425,13 +423,16 @@ void ItemDropSystem::DeserializedReflectEvent()
 
 void ItemDropSystem::Reset() 
 {
-    static_instance = this;
+    _singletonComponent.SetSingleTon();
     ReflectFields->MaxDropCount.resize(ArtifactDropTypeArraySize);
 }
 
 void ItemDropSystem::Awake()
 {
-    UmWatcher.Register<DropArtifactsViewModel>(ItemDropSystem::WATCHER_KEY, _dropItemsModel);
+    if (_singletonComponent.TrySingleTon())
+    {
+        UmWatcher.Register<DropArtifactsViewModel>(ItemDropSystem::WATCHER_KEY, _dropItemsModel);
+    }
 }
 
  
