@@ -52,3 +52,30 @@ void WeaponElement::DeepCopyAction(const TurnAction& rhs)
         *_action = rhs;
     }
 }
+
+DropItemInfo WeaponElement::GetItemInfo()
+{
+    DropItemInfo info
+    {
+        .ID = Stats.WeaponID,
+        .CategoryID = GetCategoryID(),
+        .Name = (const std::string&)Stats.WeaponName,
+    };
+    return info;
+}
+
+int WeaponElement::GetCategoryID() const
+{
+    WeaponType type = Stats.Type;
+    switch (type)
+    {
+    case WeaponType::SWORD:
+        return DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::SWORD);
+    case WeaponType::DAGGER:
+        return DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::DAGGER);
+    case WeaponType::WARHAMMER:
+        return DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::WARHAMMER);
+    default:
+        return 0;
+    }
+}

@@ -96,19 +96,24 @@ struct CascadeData
     float CascadeSplits[MAX_CASCADES];
 };
 
-struct ParallaxMappingData
+struct GbufferData
 {
     float HeightScale;
+    float MipBias;
 };
+
 struct VolumetricFogData
 {
     float4x4 PrevViewProj;
     float4x4 InverseViewProj;
     float4 CameraNearFar_FrameIndex_PreviousFrameBlend; // x=near, y=far, z=frameIndex, w=prevBlend
     float4 VolumeSize; // x=volX, y=volY, z=volZ
-    float Anisotropy;
+    float FogAnisotropy;
+    float LightShaftAnisotropy;
     float Density;
     float Strength;
     float ThicknessFactor;
+    float FogIntensity;
+    float LightShaftIntensity;
 };
 #endif

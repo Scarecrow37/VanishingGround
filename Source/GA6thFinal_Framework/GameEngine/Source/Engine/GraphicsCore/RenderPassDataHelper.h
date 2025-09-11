@@ -62,13 +62,16 @@ inline void SerializeParallaxMappingProperty(std::ostream& os, const ParallaxMap
 inline void SerializeVolumetricFogProperty(std::ostream& os, const VolumetricFogProperty& prop)
 {
     os << "        Type = VolumetricFogProperty\n";
-    os << "        Anisotropy = " << prop.Anisotropy << "\n";
+    os << "        FogAnisotropy = " << prop.FogAnisotropy << "\n";
+    os << "        LightShaftAnisotropy = " << prop.LightShaftAnisotropy << "\n";
     os << "        Density = " << prop.Density << "\n";
     os << "        Strength = " << prop.Strength << "\n";
     os << "        BlendWithScene = " << prop.BlendWithScene << "\n";
     os << "        BlendWithPrevFrame = " << prop.BlendWithPrevFrame << "\n";
     os << "        CustomNear = " << prop.CustomNear << "\n";
     os << "        CustomFar = " << prop.CustomFar << "\n";
+    os << "        FogIntensity = " << prop.FogIntensity << "\n";
+    os << "        LightShaftIntensity = " << prop.LightShaftIntensity << "\n";
 }
 
 
@@ -182,8 +185,10 @@ inline void DeserializeVolumetricFogProperty(std::istream& is, VolumetricFogProp
     {
         std::stringstream ss(line);
         ss >> key >> equals;
-        if (key == "Anisotropy")
-            ss >> prop.Anisotropy;
+        if (key == "FogAnisotropy")
+            ss >> prop.FogAnisotropy;
+        if (key == "LightShaftAnisotropy")
+            ss >> prop.LightShaftAnisotropy;
         else if (key == "Density")
             ss >> prop.Density;
         else if (key == "Strength")
@@ -196,6 +201,10 @@ inline void DeserializeVolumetricFogProperty(std::istream& is, VolumetricFogProp
             ss >> prop.CustomNear;
         else if (key == "CustomFar")
             ss >> prop.CustomFar;
+        else if (key == "FogIntensity")
+            ss >> prop.FogIntensity;
+        else if (key == "LightShaftIntensity")
+            ss >> prop.LightShaftIntensity;
     }
 }
 

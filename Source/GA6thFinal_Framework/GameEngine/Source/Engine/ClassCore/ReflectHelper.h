@@ -374,27 +374,42 @@ namespace ReflectHelper
                                 {
                                     if constexpr (std::is_floating_point_v<FieldTpye>)
                                     {
-                                        value = yyjson_get_real(jsonVal);
+                                        if (yyjson_is_real(jsonVal))
+                                        {
+                                            value = yyjson_get_real(jsonVal);
+                                        }
                                     }
                                     else
                                     {
-                                        value = yyjson_get_sint(jsonVal);
+                                        if (yyjson_is_sint(jsonVal))
+                                        {
+                                            value = yyjson_get_sint(jsonVal);
+                                        }
                                     }                               
                                 }
                                 else if constexpr (std::is_unsigned_v<FieldTpye>)
                                 {
                                     if constexpr (std::is_same_v<bool, FieldTpye>)
                                     {
-                                        value = yyjson_get_bool(jsonVal);
+                                        if (yyjson_is_bool(jsonVal))
+                                        {
+                                            value = yyjson_get_bool(jsonVal);
+                                        }
                                     }
                                     else
                                     {
-                                        value = yyjson_get_uint(jsonVal);
+                                        if (yyjson_is_uint(jsonVal))
+                                        {
+                                            value = yyjson_get_uint(jsonVal);
+                                        }
                                     }
                                 }                                                          
                                 else if constexpr (std::is_same_v<FieldTpye, std::string>)
                                 {
-                                    value = yyjson_get_str(jsonVal);
+                                    if (yyjson_is_str(jsonVal))
+                                    {
+                                        value = yyjson_get_str(jsonVal);
+                                    }
                                 }
                                 else if constexpr (std::is_same_v<FieldTpye, SIZE>)
                                 {

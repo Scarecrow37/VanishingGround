@@ -323,6 +323,7 @@
     <ClInclude Include="Source\Engine\AudioCore\AudioModule.h" />
     <ClInclude Include="Source\Engine\ClassCore\Delegate.hpp" />
     <ClInclude Include="Source\Engine\EngineCore\GizmoManager.h" />
+    <ClInclude Include="Source\Engine\EngineCore\PreferencesSystem.h" />
     <ClInclude Include="Source\Engine\EngineCore\UIManager.h" />
     <ClInclude Include="Source\Engine\GameCore\Component\UIBaseComponent.h" />
     <ClInclude Include="Source\Engine\GameCore\Component\UIComponent.h" />
@@ -472,6 +473,7 @@
     <ClCompile Include="Source\Engine\AppModule\ImGuiDX12Module.cpp" />
     <ClCompile Include="Source\Engine\AudioCore\AudioModule.cpp" />
     <ClCompile Include="Source\Engine\EngineCore\GizmoManager.cpp" />
+    <ClCompile Include="Source\Engine\EngineCore\PreferencesSystem.cpp" />
     <ClCompile Include="Source\Engine\EngineCore\UIManager.cpp" />
     <ClCompile Include="Source\Engine\GameCore\Component\UIBaseComponent.cpp" />
     <ClCompile Include="Source\Engine\GameCore\Component\UIComponent.cpp" />

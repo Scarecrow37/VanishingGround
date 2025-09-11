@@ -5,16 +5,16 @@
 
 MonsterHpView::MonsterHpView() = default;
 
-void MonsterHpView::Watch(const std::string& key) const
+void MonsterHpView::Watch(const std::string& key)
 {
     if (false == key.empty())
     {
-        UmWatcher.Blind<HpViewModel>(key);
+        UmWatcher.Blind<HpViewModel>(key, _watchHandle);
         if (_hpTextElement)
             _hpTextElement->Enable = true;
         try
         {
-            UmWatcher.Watch<HpViewModel, float>(key, [this](const float value) {
+            _watchHandle = UmWatcher.Watch<HpViewModel, float>(key, [this](const float value) {
                 _hpTextElement->Text = std::to_string(static_cast<int>(value * 100)) + "%";
             });
         }

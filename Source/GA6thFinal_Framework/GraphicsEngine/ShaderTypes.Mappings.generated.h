@@ -53,6 +53,7 @@ namespace GE
         {PS::TO_BACKBUFFER, L"ps_to_backbuffer.hlsl"},
         {PS::SSR, L"ps_ssr.hlsl"},
         {PS::SKYBOX, L"ps_skybox.hlsl"},
+        {PS::UP_SAMPLE, L"ps_up_sample.hlsl"},
         {PS::UI, L"ps_ui.hlsl"},
         {PS::VOLUMETRIC_FOG, L"ps_volumetric_fog.hlsl"},
         {PS::ACCUMULATION, L"ps_accumulation.hlsl"},
@@ -65,7 +66,7 @@ namespace GE
         {PS::GBUFFER, L"ps_gbuffer.hlsl"},
         {PS::PBR_LIGHTING, L"ps_pbr_lighting.hlsl"},
         {PS::BRIGHT_EXTRACT, L"ps_bright_extract.hlsl"},
-        {PS::UP_SAMPLE, L"ps_up_sample.hlsl"},
+        {PS::FADE, L"ps_fade.hlsl"},
         {PS::DXRGBUFFER, L"ps_dxrgbuffer.hlsl"}
     };
 

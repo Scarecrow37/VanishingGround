@@ -147,7 +147,7 @@ void RenderScene::AddRenderPassDatas()
     }
 }
 
-void RenderScene::UpdateRenderScene()
+void RenderScene::UpdateRenderScene(const float deltaTime)
 {
     UpdateGlobal();
     UpdateObject();
@@ -166,7 +166,7 @@ void RenderScene::UpdateRenderScene()
     
     for (auto& technique : _techniques)
     {
-        technique->Update(_commandSet);
+        technique->Update(_commandSet, deltaTime);
     }
 }
 
@@ -360,7 +360,7 @@ void RenderScene::UpdateObject()
             else if (SKELETAL_MESH == type)
             {
                 _skeletalMeshInstanceIDs.push_back(instanceID);
-                _activeMeshes[type].emplace_back(materials[i], meshes[i].get(), customDepths[i], instanceID++, nullptr, skinnedBuffers[i].get());
+                _activeMeshes[type].emplace_back(materials[i], meshes[i].get(), customDepths[i], instanceID++, nullptr, Global::isRayTracing ? skinnedBuffers[i].get() : nullptr);
             }
         }
     }

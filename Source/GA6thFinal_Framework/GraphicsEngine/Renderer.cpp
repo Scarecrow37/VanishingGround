@@ -28,6 +28,12 @@
 #include "RayTracingTechnique.h"
 #include "SkyBoxRenderTechnique.h"
 #include "UITechnique.h"
+#include "SceneTransitionTechnique.h"
+
+namespace Global
+{
+    D3D12_GPU_DESCRIPTOR_HANDLE dummyTextureHandle;
+}
 
 Renderer::Renderer() : _totalTime{0.f} {}
 
@@ -173,10 +179,7 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
     if (RenderTechniqueFlag::PARTICLE_TECH & flag)
     {
         scene->AddRenderTechnique(std::make_unique<ParticleRenderTechnique>());
-        if ("Editor" == sceneName)
-            Global::particleManager->AddSceneResource(sceneName, "Game");
-        else
-            Global::particleManager->AddSceneResource(sceneName);
+        Global::particleManager->AddSceneResource(sceneName);
     }
     if (RenderTechniqueFlag::EDITOR_DRAW_TECH & flag)
     {
@@ -184,7 +187,6 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
     }
 
     // FinalRenderTarget Pass
-
     if (RenderTechniqueFlag::BLOOM_TECH & flag)
     {
         scene->AddRenderTechnique(std::make_unique<BloomTechnique>());
@@ -201,6 +203,11 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
     if (RenderTechniqueFlag::FONT_TECH & flag)
     {
         scene->AddRenderTechnique(std::make_unique<FontTechnique>());
+    }
+    // Scene Transition Effect
+    if (RenderTechniqueFlag::SCENE_TRANSITION_TECH & flag)
+    {
+        scene->AddRenderTechnique(std::make_unique<SceneTransitionTechnique>());
     }
 
     scene->AddRenderPassDatas();
@@ -311,7 +318,7 @@ void Renderer::Update(const float deltaTime)
     _totalTime += deltaTime;
     for (auto& renderScene : _renderScenes)
     {
-        renderScene.second->UpdateRenderScene();
+        renderScene.second->UpdateRenderScene(deltaTime);
     }
 }
 
@@ -485,14 +492,14 @@ void Renderer::CreateDefaultTexture()
 
     ID3D12GraphicsCommandList* commandList = Global::device->GetCommandList();
     UpdateSubresources(commandList, texture.Get(), uploadHeap.Get(), 0, 0, 1, &textureData);
-    CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-        texture.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(texture.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
     commandList->ResourceBarrier(1, &barrier);
 
     std::shared_ptr<Texture> textureResource = std::make_shared<Texture>();
     textureResource->SetResource(texture.Get());
     textureResource->CreateShaderResourceView();
+    Global::dummyTextureHandle = textureResource->GetGPUHandle();
 
     Global::resourceManager->AddResource("BlackTexture", textureResource);
     _defaultResource.push_back(textureResource);

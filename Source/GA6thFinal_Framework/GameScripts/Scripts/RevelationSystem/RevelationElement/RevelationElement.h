@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <ItemDropSystem/Interface/IDropItem.h>
 #include <TurnSystem/TurnAction/TurnAction.h>
 
 enum class RevelationGrade
@@ -18,8 +19,8 @@ enum class RevelationGrade
 /*
 * 계시의 정보를 가지고있는 class 입니다.
 */
-class RevelationElement : public ReflectSerializer
-{
+ class RevelationElement : public ReflectSerializer, public IDropItem
+ {
     friend class RevelationSystem;
     USING_PROPERTY(RevelationElement)
 public:
@@ -134,4 +135,7 @@ public:
         return CopyElement(rhs);
     }
 
-};
+public:
+    // IDropItem을(를) 통해 상속됨
+    DropItemInfo GetItemInfo() override;
+ };

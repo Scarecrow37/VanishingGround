@@ -6,6 +6,7 @@
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 #include <TurnSystem/TurnAction/TurnActionFactory.h>
+#include <ItemDropSystem/UI/ItemDropUIRootManager.h>
 
 using namespace u8_literals;
 
@@ -28,32 +29,35 @@ void RevelationElement::SerializedReflectEvent()
 
 void RevelationElement::DeserializedReflectEvent() 
 {
-    RevelationSystem* system        = RevelationSystem::GetInstance();
     const auto&       actionFactory = TurnActionFactory::GetActionFactory();
     auto              iter          = actionFactory.find(ReflectFields->ActionName.data());
-
-    if (system)
+    if (iter != actionFactory.end())
     {
-        if (iter != actionFactory.end())
-        {
-            _action.reset(iter->second());
-        }
+        _action.reset(iter->second());
     }
 }
 
 void RevelationElement::DeepCopyAction(const TurnAction& action)
 {
-    RevelationSystem*  system        = RevelationSystem::GetInstance();
     const auto&        actionFactory = TurnActionFactory::GetActionFactory();
     const std::string& actionName    = action.ActionName;
     auto               iter          = actionFactory.find(actionName);
-
-    if (system)
+    if (iter != actionFactory.end())
     {
-        if (iter != actionFactory.end())
-        {
-            _action.reset(iter->second());
-            *_action = action;
-        }
-    }
+        _action.reset(iter->second());
+        *_action = action;
+    }  
 }
+
+DropItemInfo RevelationElement::GetItemInfo()
+{
+    int categoryID = DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::REVELATION);
+    DropItemInfo info
+    {
+        .ID = RevelationID, 
+        .CategoryID = categoryID,
+        .Name = (const std::string&)ElementName,
+    };
+    return info;
+}
+

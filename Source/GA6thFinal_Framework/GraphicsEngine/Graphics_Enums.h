@@ -34,6 +34,7 @@ enum RenderTechniqueFlag : unsigned long long
     SSR_TECH         = 1 << 8,
     DISTORTION_TECH  = 1 << 9,
     VOLUMETRIC_FOG_TECH =1<<10,
+    SCENE_TRANSITION_TECH = 1 << 11,
 };
 
 inline RenderTechniqueFlag operator|(RenderTechniqueFlag lhs, RenderTechniqueFlag rhs)
