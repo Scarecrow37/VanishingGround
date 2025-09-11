@@ -3,6 +3,7 @@
 #include "WeaponSystem/WeaponSystem.h"
 #include "WeaponSystem/WeaponTable/WeaponTableComponent.h"
 #include "RevelationSystem/RevelationSystem.h"
+#include "ItemDropSystem/UI/ItemDropUIRootManager.h"
 #include "ItemDropSystem/UI/ArtifactUIManager.h"
 #include "ViewModels/ItemDrop/DropArtifacts/DropArtifactsViewModel.h"
 
@@ -209,6 +210,14 @@ void ItemDropSystem::SetStageClearCount(int count)
     if (ArtifactUIManager* uiManager = ArtifactUIManager::GetInstance())
     {
         uiManager->UpdateUnlock();
+    }
+}
+
+void ItemDropSystem::PlayItemDropUISequence() 
+{
+    if (ItemDropUIRootManager* itemDropUIRootManager = ItemDropUIRootManager::GetInstance())
+    {
+        itemDropUIRootManager->gameObject->ActiveSelf = true;
     }
 }
 

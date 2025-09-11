@@ -39,6 +39,11 @@ public:
     /// </summary>
     void SetStageClearCount(int count);
 
+    /// <summary>
+    /// 스테이지 클리어 UI 연출을 실행합니다.
+    /// </summary>
+    void PlayItemDropUISequence();
+
 public:
     REFLECT_PROPERTY(
         StageClearCount,
