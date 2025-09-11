@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "ViewModels/Map/StageViewModel.h"
 
 class StageView : public Component
 {
@@ -17,4 +18,7 @@ public:
 protected:
     REFLECT_FIELDS_BEGIN(Component)
     REFLECT_FIELDS_END(StageView)
+
+private:
+    StageViewModel::Handle _handle;
 };

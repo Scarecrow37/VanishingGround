@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "ViewModels/Map/MapPlayerHPViewModel.h"
 
 class TextElement;
 class MapPlayerHPView : public Component
@@ -20,5 +21,6 @@ protected:
     REFLECT_FIELDS_END(MapPlayerHPView)
 
 private:
-    TextElement* _hp{nullptr};
+    TextElement*                 _hp{nullptr};
+    MapPlayerHPViewModel::Handle _handle;
 };

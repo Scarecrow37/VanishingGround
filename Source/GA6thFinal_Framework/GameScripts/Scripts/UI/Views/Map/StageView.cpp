@@ -1,6 +1,5 @@
 ﻿#include "pchScripts.h"
 #include "StageView.h"
-#include "ViewModels/Map/StageViewModel.h"
 #include "UI/Elements/Image/ImageElement.h"
 
 StageView::StageView() = default;
@@ -10,10 +9,10 @@ void StageView::Watch(const std::string& key)
 {
     if (false == key.empty())
     {
-        UmWatcher.Blind<StageViewModel>(key);
+        UmWatcher.Blind<StageViewModel>(key, _handle);
         try
         {
-            UmWatcher.Watch<StageViewModel, File::Guid>(key, [this](const File::Guid value) { GetComponent<ImageElement>()->SetImage(value); });
+            _handle = UmWatcher.Watch<StageViewModel, File::Guid>(key, [this](const File::Guid value) { GetComponent<ImageElement>()->SetImage(value); });
         }
         catch (const std::exception& e)
         {

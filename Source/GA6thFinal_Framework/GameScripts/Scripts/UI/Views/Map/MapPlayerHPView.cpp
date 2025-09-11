@@ -2,14 +2,16 @@
 #include "MapPlayerHPView.h"
 #include "UI/Elements/Image/ImageElement.h"
 #include "UI/Elements/Text/TextElement.h"
-#include "ViewModels/Map/MapPlayerHPViewModel.h"
 
 MapPlayerHPView::MapPlayerHPView()  = default;
-MapPlayerHPView::~MapPlayerHPView() = default;
+
+MapPlayerHPView::~MapPlayerHPView()
+{
+    UmWatcher.Blind<MapPlayerHPViewModel>("PlayerHP", _handle);
+}
 
 void MapPlayerHPView::Awake()
-{
-    UmWatcher.Blind<MapPlayerHPViewModel>("PlayerHP");
+{    
     try
     {
         if (_hp = GetComponent<TextElement>(); nullptr == _hp)
@@ -17,7 +19,7 @@ void MapPlayerHPView::Awake()
             _hp = &AddComponent<TextElement>();
         }
 
-        UmWatcher.Watch<MapPlayerHPViewModel, PlayerHP>("PlayerHP", [this](const PlayerHP value) {
+        _handle = UmWatcher.Watch<MapPlayerHPViewModel, PlayerHP>("PlayerHP", [this](const PlayerHP value) {
             _hp->Text = std::format("{} / {}", value.CurrentHP, value.MaxHP);
 
             if (auto gage = GameObject::Find("Gage").lock(); gage)

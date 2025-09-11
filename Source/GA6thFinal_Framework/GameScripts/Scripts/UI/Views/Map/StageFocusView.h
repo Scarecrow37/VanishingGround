@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "ViewModels/Map/StageFocusViewModel.h"
 
 class SmoothScroll;
 class StageFocusView : public Component
@@ -10,7 +11,7 @@ public:
     ~StageFocusView() override;
 
 public:
-    void Watch(const std::string& key);
+    void Awake() override;
 
 public:
     REFLECT_PROPERTY()
@@ -20,6 +21,7 @@ protected:
     REFLECT_FIELDS_END(StageFocusView)
 
 private:
-    SmoothScroll* _scroll{nullptr};
-    SIZE          _scrollSize{};
+    SmoothScroll*               _scroll{nullptr};
+    SIZE                        _scrollSize{};
+    StageFocusViewModel::Handle _handle;
 };

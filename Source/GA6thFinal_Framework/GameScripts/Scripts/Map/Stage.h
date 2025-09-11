@@ -14,9 +14,10 @@ public:
     int                       GetSecond() const { return _second; }
     bool                      IsEnable() const { return _stageEnable.Get(); }
     const std::array<int, 6>& GetDropItems() const { return ReflectFields->DropItems; }
+    const std::string&        GetStagePath() const { return ReflectFields->StagePath; }
 
 public:
-    void SetStageEnable(bool enable) { Enable = enable; }
+    void SetStageEnable(bool enable) { ReflectFields->Enable = _stageEnable = enable; }
 
 public:
     void DeserializedReflectEvent() override;
@@ -26,10 +27,14 @@ public:
     void UpdateData(const std::string& key, const File::Guid& enableImage, const File::Guid& disableImage);
 
 public:
-    REFLECT_PROPERTY(StageID, Level1_1, Level1_2, Level2_1, Level2_2, Level3_1, Level3_2)
+    REFLECT_PROPERTY(StagePath, StageID, Level1_1, Level1_2, Level2_1, Level2_2, Level3_1, Level3_2)    
+
+    GETTER_ONLY(std::string, StagePath) { return ReflectFields->StagePath; }
+    PROPERTY(StagePath)
+
     GETTER(std::string, StageID) { return ReflectFields->Stage; }
     SETTER(std::string, StageID)
-    { 
+    {
         ReflectFields->Stage = value;
         SetupStage();
     }
@@ -62,7 +67,8 @@ public:
 protected:
     REFLECT_FIELDS_BEGIN(Component)
     std::string        Stage;
-    bool               Enable     = true;
+    std::string        StagePath;
+    bool               Enable    = true;
     std::array<int, 6> DropItems = {0, 0, 0, 0, 0, 0};
     REFLECT_FIELDS_END(Stage)
 

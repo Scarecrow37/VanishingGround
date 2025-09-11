@@ -18,6 +18,24 @@ static GameObject* thisPointer = nullptr;
 
 MapManager::MapManager()
 {
+    MapScenePath.SetInputAutoEvent([this]() {
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
+            {
+                DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
+                File::Path           path = data->GetPath();
+                const auto           extension = path.extension();
+
+                if (extension == L".UmScene")
+                {
+                    ReflectFields->MapScenePath = UmFileSystem.GetGuidFromPath(path).string();
+                }
+            }
+            ImGui::EndDragDropTarget();
+        }
+    });
+
     BackgroundImage.SetInputAutoEvent([this]() {
         if (ImGui::BeginDragDropTarget())
         {
@@ -48,7 +66,7 @@ MapManager::MapManager()
 
                 if (extension == L".png")
                 {
-                    ReflectFields->AssetIDs[index] = UmFileSystem.GetAssetIDFromGuid(data->GetGuid());                    
+                    ReflectFields->AssetIDs[index] = UmFileSystem.GetAssetIDFromGuid(data->GetGuid());
                 }
             }
             ImGui::EndDragDropTarget();
@@ -90,6 +108,11 @@ void MapManager::Awake()
     }
 }
 
+void MapManager::Start()
+{
+    _focusStage = FindStage(1, 1);
+}
+
 void MapManager::Reset()
 {
 }
@@ -111,11 +134,8 @@ void MapManager::Update()
             Stage* stage = FindStage(_firstElement + 1, _secondElement);
             if (stage)
             {
-                if (stage->IsEnable())
-                {
-                    _firstElement++;
-                    _focusStage = stage;
-                }
+                _firstElement++;
+                _focusStage = stage;
             }
         }
         if (ImGui::IsKeyPressed(ImGuiKey_GamepadDpadDown))
@@ -123,7 +143,7 @@ void MapManager::Update()
             Stage* stage = FindStage(_firstElement - 1, _secondElement);
             if (stage)
             {
-                if (stage->IsEnable())
+                if (_clearedStage < stage->GetFirst())
                 {
                     _firstElement--;
                     _focusStage = stage;
@@ -135,11 +155,8 @@ void MapManager::Update()
             Stage* stage = FindStage(_firstElement, _secondElement - 1);
             if (stage)
             {
-                if (stage->IsEnable())
-                {
-                    _secondElement--;
-                    _focusStage = stage;                    
-                }
+                _secondElement--;
+                _focusStage = stage;
             }
         }
         if (ImGui::IsKeyPressed(ImGuiKey_GamepadDpadRight))
@@ -147,18 +164,53 @@ void MapManager::Update()
             Stage* stage = FindStage(_firstElement, _secondElement + 1);
             if (stage)
             {
-                if (stage->IsEnable())
+                _secondElement++;
+                _focusStage = stage;
+            }
+        }
+        if (ImGui::IsKeyPressed(ImGuiKey_GamepadFaceDown))
+        {
+            if (nullptr != _focusStage)
+            {
+                if (Stage* stage = _focusStage->GetComponent<Stage>(); stage->IsEnable())
                 {
-                    _secondElement++;
-                    _focusStage = stage;
+                    stage->SetStageEnable(false);
+                    UmSceneManager.LoadScene(UmFileSystem.GetPathFromGuid(_focusStage->GetStagePath()).string());
+                    _clearedStage++;
                 }
             }
+        }
+        if (ImGui::IsKeyPressed(ImGuiKey_F2))
+        {
+            UmSceneManager.LoadScene(UmFileSystem.GetPathFromGuid(ReflectFields->MapScenePath).string());
         }
     }
 }
 
-void MapManager::DeserializedReflectEvent()
+void MapManager::OnLoadScene(Scene& loadScene, LoadSceneMode mode)
 {
+    std::string otherScene = loadScene.Path;
+    bool        isActive   = true;
+
+    if (UmFileSystem.GetPathFromGuid(ReflectFields->MapScenePath).string() == otherScene)
+    {
+        isActive = true;
+
+        _focusStage = FindStage(++_firstElement, 1);
+    }
+    else
+    {
+        isActive = false;
+    }
+
+    for (int i = 0; i < transform->ChildCount; i++)
+    {
+        auto child = transform->GetChild(i);
+        if (child)
+        {
+            child->gameObject->ActiveSelf = isActive;
+        }
+    }
 }
 
 void MapManager::ImGuiDrawPropertysEvent()
@@ -192,15 +244,17 @@ void MapManager::ImGuiDrawPropertysEvent()
 }
 
 void MapManager::ChageBackgroundImage(int assetID)
-{
-    auto background = GameObject::Find("Background").lock();
-
-    if (background)
+{    
+    if (auto rewardPopup = GameObject::Find("RewardPopup").lock(); rewardPopup)
     {
-        auto imageElement = background->GetComponent<ImageElement>();
-        if (imageElement)
+        if (auto background = rewardPopup->transform->Find("Background"); background)
         {
-            imageElement->SetImage(UmFileSystem.GetGuidFromAssetID(assetID));
+            auto imageElement = background->gameObject->GetComponent<ImageElement>();
+
+            if (imageElement)
+            {
+                imageElement->SetImage(UmFileSystem.GetGuidFromAssetID(assetID));
+            }
         }
     }
 }
@@ -239,6 +293,12 @@ void MapManager::DefaultSetting()
         auto stages = NewGameObject("Stages");
         stages->AddComponent<OverlayPanel>();
         stages->transform->SetParent(map->transform);
+        
+        auto stageFocus = NewGameObject("StageFocus");
+        stageFocus->transform->SetParent(map->transform);
+        auto& imageElement = stageFocus->AddComponent<ImageElement>();
+        imageElement.SetImage(UmFileSystem.GetGuidFromAssetID(ReflectFields->AssetIDs[STAGE_FOCUS]));        
+        // imageElement.ResetToSpriteSize();
     }
 }
 
@@ -278,16 +338,7 @@ void MapManager::SetupStage()
     if (auto scroll = GameObject::Find("Scroll").lock(); scroll)
     {
         _scroll = scroll->GetComponent<ScrollingWrapper>();
-    }
-
-    auto map = GameObject::Find("Map").lock();
-    if (map)
-    {
-        auto stageFocus = NewGameObject("StageFocus");
-        stageFocus->transform->SetParent(map->transform);
-        stageFocus->AddComponent<ImageElement>().SetImage(UmFileSystem.GetGuidFromAssetID(ReflectFields->AssetIDs[STAGE_FOCUS]));
-        stageFocus->AddComponent<StageFocusView>().Watch("StageFocus");
-    }
+    }    
 }
 
 Stage* MapManager::FindStage(int first, int second)

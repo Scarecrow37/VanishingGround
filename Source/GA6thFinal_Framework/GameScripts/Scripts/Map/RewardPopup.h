@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "UmFramework.h"
+#include "ViewModels/Map/StageFocusViewModel.h"
 
 class Stage;
 class RewardPopup : public Component
@@ -9,9 +9,6 @@ class RewardPopup : public Component
 public:
     RewardPopup();
     ~RewardPopup() override;
-
-public:
-    void SetFocusStage(Stage* stage);
 
 public:
     void Awake() override;
@@ -27,5 +24,6 @@ private:
     void SetupRewardIamge(std::string_view name, int id1, int id2);
 
 private:
-    Stage* _focusStage = nullptr;
+    Stage*                      _focusStage = nullptr;
+    StageFocusViewModel::Handle _handle;
 };

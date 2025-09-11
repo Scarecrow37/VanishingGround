@@ -175,7 +175,6 @@ UMREAL_COMPONENT(ItemDropSystem)
 
 #include "Scripts\SceneTransition/SceneTransitionComponent.h"
 UMREAL_COMPONENT(SceneTransitionComponent)
-UMREAL_COMPONENT(ItemDropSystem)
 
 #include "Scripts\Map/MapManager.h"
 UMREAL_COMPONENT(MapManager)

@@ -14,12 +14,16 @@ public:
 
 public:
     void Awake() override;
+    void Start() override;
     void Reset() override;
     void Update() override;
-    void DeserializedReflectEvent() override;
+    void OnLoadScene(Scene& loadScene, LoadSceneMode mode) override;
 
 public:
-    REFLECT_PROPERTY(BackgroundImage, StageEnableImage, StageDisableImage, StageFocusImage, RewardPopupImage, PlayerHP)
+    REFLECT_PROPERTY(MapScenePath, BackgroundImage, StageEnableImage, StageDisableImage, StageFocusImage, RewardPopupImage, PlayerHP)
+    
+    GETTER_ONLY(std::string, MapScenePath) { return ReflectFields->MapScenePath; }
+    PROPERTY(MapScenePath)
 
     GETTER(int, BackgroundImage) { return ReflectFields->AssetIDs[BACKGROUND]; }
     SETTER(int, BackgroundImage)
@@ -52,6 +56,7 @@ public:
 protected:
     REFLECT_FIELDS_BEGIN(Component)
     std::array<int, MAX> AssetIDs;
+    std::string          MapScenePath;
     REFLECT_FIELDS_END(MapManager)
 
 protected:
@@ -66,11 +71,13 @@ private:
 private:
     ScrollingWrapper* _scroll = nullptr;
 
-private:    
+private:
     MVVM::Model<Stage*> _focusStage;
     MVVM::Model<int>    _playerHP;
+    std::vector<Stage*> _stages;
     int                 _firstElement  = 1;
     int                 _secondElement = 1;
     int                 _childCount    = 0;
     float               _scrollSpeed   = 100.0f;
+    int                 _clearedStage  = 0;
 };

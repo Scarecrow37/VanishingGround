@@ -2,7 +2,27 @@
 #include "Stage.h"
 #include "ViewModels/Map/StageViewModel.h"
 
-Stage::Stage() = default;
+Stage::Stage()
+{
+    StagePath.SetInputAutoEvent([this]() {
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
+            {
+                DragDropAsset::Data* data      = static_cast<DragDropAsset::Data*>(payLoad->Data);
+                File::Path           path      = data->GetPath();
+                const auto           extension = path.extension();
+
+                if (extension == L".UmScene")
+                {
+                    ReflectFields->StagePath = UmFileSystem.GetGuidFromPath(path).string();
+                }
+            }
+            ImGui::EndDragDropTarget();
+        }
+    });
+}
+
 Stage::~Stage()
 {
     UmWatcher.Unregister<StageViewModel>(_key);
