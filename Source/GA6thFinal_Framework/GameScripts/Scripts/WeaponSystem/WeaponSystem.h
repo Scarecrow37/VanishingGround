@@ -103,6 +103,7 @@ protected:
     void Awake() override;
 
 private:
+
     /*현재 사용중인 무기 슬롯*/
     int _currentWeaponSlot = 0;
 

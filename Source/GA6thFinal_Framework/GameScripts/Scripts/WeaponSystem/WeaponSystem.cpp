@@ -5,7 +5,7 @@
 
 WeaponSystem::WeaponSystem()
 {
-    static_instance = this;
+
 }
 WeaponSystem::~WeaponSystem()
 {
@@ -17,12 +17,12 @@ WeaponSystem::~WeaponSystem()
 
 void WeaponSystem::Reset() 
 {
-    
+    static_instance = this;
 }
 
 void WeaponSystem::Awake() 
 {
-
+    
 }
 
 void WeaponSystem::SerializedReflectEvent()
