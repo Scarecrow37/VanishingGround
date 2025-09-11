@@ -11,7 +11,7 @@ UI25DPass::~UI25DPass() {}
 
 void UI25DPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene, ownerTechnique, commandList);
+    UIPassBase::Initialize(ownerScene, ownerTechnique, commandList);
 
     _cameraData.View = XMMatrixTranspose(XMMatrixLookAtLH({0.f, 0.f, -1.f}, {0.f, 0.f, 1.f}, {0.f, 1.f, 0.f}));
 
@@ -46,9 +46,9 @@ void UI25DPass::Begin(ID3D12GraphicsCommandList* commandList)
     _cameraData.Projection = XMMatrixTranspose(_ownerScene->_camera->GetProjectionMatrix());
     _cameraBuffer->UpdateBuffer(&_cameraData);
     
-    __super::UpdateBuffer(commandList);
+    UIPassBase::UpdateBuffer(commandList);
 
-    __super::Begin(commandList);
+    UIPassBase::Begin(commandList);
 }
 
 void UI25DPass::Draw(ID3D12GraphicsCommandList* commandList)

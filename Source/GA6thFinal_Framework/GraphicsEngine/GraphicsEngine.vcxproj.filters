@@ -239,9 +239,6 @@
     <ClCompile Include="FontRenderer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="FontTechnique.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="FrameResource.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -604,9 +601,6 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="FontRenderer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="FontTechnique.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="FrameResource.h">

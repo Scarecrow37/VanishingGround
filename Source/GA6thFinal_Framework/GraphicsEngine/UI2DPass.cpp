@@ -8,7 +8,7 @@ UI2DPass::UI2DPass(const std::vector<UINT>& instanceIDs)
 {
 }
 
-UI2DPass::~UI2DPass() {}
+UI2DPass::~UI2DPass() = default;
 
 void UI2DPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
@@ -34,10 +34,9 @@ void UI2DPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechniq
     pss.RasterizerState                       = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
     (&pss.RasterizerState)->CullMode          = D3D12_CULL_MODE_NONE;
     pss.DepthStencilState                     = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-    (&pss.DepthStencilState)->DepthEnable     = FALSE;
     pss.PrimitiveTopology                     = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
     pss.RTVFormats                            = {{DXGI_FORMAT_R32G32B32A32_FLOAT}, 1};
-    //pss.DSVFormat                             = _ownerScene->_depthStencilView->GetFormat();
+    pss.DSVFormat                             = _ownerScene->_depthStencilView->GetFormat();
 
     _fx.SetPipelineStateStream(pss);
     _pipelineState = Global::pipelineStateManager->GetPipelineState(pss);
@@ -50,13 +49,17 @@ void UI2DPass::Begin(ID3D12GraphicsCommandList* commandList)
     _cameraData.Projection = XMMatrixTranspose(XMMatrixOrthographicOffCenterLH(0.f, (float)size.cx, (float)size.cy, 0.f, 0.1f, 1000.f));
     _cameraBuffer->UpdateBuffer(&_cameraData);
 
-    __super::UpdateBuffer(commandList);
+    UIPassBase::UpdateBuffer(commandList);
 
     auto depthStencilView = static_cast<UITechnique*>(_ownerTechnique)->GetDepthStencilView();
     depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_DEPTH_WRITE);
     depthStencilView->ClearDepthStencilView(commandList);
 
-    __super::Begin(commandList);
+    _finalRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    commandList->OMSetRenderTargets(1, &_finalRenderTarget->GetRTVHandle(), FALSE, &depthStencilView->GetDSVHandle());
+
+    commandList->RSSetViewports(1, &_finalRenderTarget->GetViewport());
+    commandList->RSSetScissorRects(1, &_finalRenderTarget->GetScissorRect());
 }
 
 void UI2DPass::Draw(ID3D12GraphicsCommandList* commandList)

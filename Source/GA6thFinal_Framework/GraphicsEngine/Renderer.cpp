@@ -20,7 +20,6 @@
 #include "BlendTechnique.h"
 #include "BloomTechnique.h"
 #include "EditorDrawTechnique.h"
-#include "FontTechnique.h"
 #include "PBRLitTechnique.h"
 #include "SSRTechnique.h"
 #include "VolumetricFogTechnique.h"
@@ -199,10 +198,6 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
     if (RenderTechniqueFlag::UI_TECH & flag)
     {
         scene->AddRenderTechnique(std::make_unique<UITechnique>());
-    }
-    if (RenderTechniqueFlag::FONT_TECH & flag)
-    {
-        scene->AddRenderTechnique(std::make_unique<FontTechnique>());
     }
     // Scene Transition Effect
     if (RenderTechniqueFlag::SCENE_TRANSITION_TECH & flag)

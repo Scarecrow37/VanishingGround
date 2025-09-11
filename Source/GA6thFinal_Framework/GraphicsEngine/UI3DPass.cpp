@@ -7,11 +7,11 @@ UI3DPass::UI3DPass(const std::vector<UINT>& instanceIDs)
 {
 }
 
-UI3DPass::~UI3DPass() {}
+UI3DPass::~UI3DPass() = default;
 
 void UI3DPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene, ownerTechnique, commandList);
+    UIPassBase::Initialize(ownerScene, ownerTechnique, commandList);
 
     D3D12_RENDER_TARGET_BLEND_DESC rtDesc{};
     rtDesc.BlendEnable           = TRUE;

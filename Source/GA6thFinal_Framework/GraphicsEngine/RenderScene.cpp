@@ -427,6 +427,10 @@ void RenderScene::UpdateFont()
 {
     auto first = std::remove_if(_fontRenderQueue.begin(), _fontRenderQueue.end(), [](const auto& pair) { return *pair.first; });
     _fontRenderQueue.erase(first, _fontRenderQueue.end());
+
+    std::sort(_fontRenderQueue.begin(), _fontRenderQueue.end(), [](const auto& a, const auto& b) {
+        return a.second->GetPosition().z > b.second->GetPosition().z;
+    });
 }
 
 void RenderScene::CreateRenderTarget()
