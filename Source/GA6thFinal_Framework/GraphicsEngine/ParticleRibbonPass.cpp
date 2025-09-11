@@ -87,24 +87,16 @@ void ParticleRibbonPass::Draw(ID3D12GraphicsCommandList* commandList)
     const auto& resolution         = customDepthTarget->GetResolution();
 
     // PostProcess 데이터
-    PostProcessData postProcessData{.TexelSize = {1.f / resolution.Width, 1.f / resolution.Height}};
-    commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_6_postProcessData"), 6,
-                                               &postProcessData, 0);
-    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("depthbuffer"),
-                                                depthStencilBuffer->GetSRVHandle());
-    commandList->SetGraphicsRootConstantBufferView(_fx.GetRootParameterIndex("cameraData"),
-                                                   _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
-    commandList->SetGraphicsRootShaderResourceView(_fx.GetRootParameterIndex("texID"),
-                                                   _textureIDBuffer->GetGPUVirtualAddress());
-    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("gAccumTex"),
-                                                _accumlateBuffer->GetUAVHandle());
-    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("gRevealTex"),
-                                                _revealageBuffer->GetUAVHandle());
+    PostProcessData postProcessData{.TexelSize = {1.f / resolution.cx, 1.f / resolution.cy}};
+    commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_6_postProcessData"), 6, &postProcessData, 0);
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("depthbuffer"), depthStencilBuffer->GetSRVHandle());
+    commandList->SetGraphicsRootConstantBufferView(_fx.GetRootParameterIndex("cameraData"), _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
+    commandList->SetGraphicsRootShaderResourceView(_fx.GetRootParameterIndex("texID"), _textureIDBuffer->GetGPUVirtualAddress());
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("gAccumTex"), _accumlateBuffer->GetUAVHandle());
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("gRevealTex"), _revealageBuffer->GetUAVHandle());
     auto outputResource = Global::particleManager->GetRibbonOutputResource(_ownerScene->_name);
-    commandList->SetGraphicsRootShaderResourceView(_fx.GetRootParameterIndex("particleInfo"),
-                                                   outputResource->GetGPUVirtualAddress());
-    D3D12_GPU_DESCRIPTOR_HANDLE descHeapPtr =
-        Global::viewManager->GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
+    commandList->SetGraphicsRootShaderResourceView(_fx.GetRootParameterIndex("particleInfo"), outputResource->GetGPUVirtualAddress());
+    D3D12_GPU_DESCRIPTOR_HANDLE descHeapPtr = Global::viewManager->GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("textures"), descHeapPtr);
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
@@ -116,10 +108,8 @@ void ParticleRibbonPass::Draw(ID3D12GraphicsCommandList* commandList)
             continue;
         }
         const UINT vertexCount = (segmentCount - 1) * 2;
-        commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_1_ribbonVertexCount"), 1,
-                                                   &vertexCount, 0);
-        commandList->SetGraphicsRootShaderResourceView(_fx.GetRootParameterIndex("ribbonIndices"),
-                                                       _ribbonIndexBuffer[i]->GetGPUVirtualAddress());
+        commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_1_ribbonVertexCount"), 1, &vertexCount, 0);
+        commandList->SetGraphicsRootShaderResourceView(_fx.GetRootParameterIndex("ribbonIndices"), _ribbonIndexBuffer[i]->GetGPUVirtualAddress());
         commandList->DrawInstanced(vertexCount, 1, 0, 0);
     }
 }

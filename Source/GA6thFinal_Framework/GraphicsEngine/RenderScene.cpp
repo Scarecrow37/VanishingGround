@@ -355,12 +355,12 @@ void RenderScene::UpdateObject()
             if (STATIC_MESH == type)
             {
                 _staticMeshInstanceIDs.push_back(instanceID);
-                _activeMeshes[type].emplace_back(materials[i], meshes[i].get(), customDepths[i], instanceID++, nullptr, nullptr);
+                _activeMeshes[type].emplace_back(materials[i], meshes[i].get(), customDepths[i], instanceID++, &_matrices[instanceID].World, nullptr);
             }
             else if (SKELETAL_MESH == type)
             {
                 _skeletalMeshInstanceIDs.push_back(instanceID);
-                _activeMeshes[type].emplace_back(materials[i], meshes[i].get(), customDepths[i], instanceID++, nullptr, Global::isRayTracing ? skinnedBuffers[i].get() : nullptr);
+                _activeMeshes[type].emplace_back(materials[i], meshes[i].get(), customDepths[i], instanceID++, &_matrices[instanceID].World, Global::isRayTracing ? skinnedBuffers[i].get() : nullptr);
             }
         }
     }

@@ -69,7 +69,7 @@ struct MeshInfo
     class BaseMesh* Mesh;
     UINT            CustomDepth;
     UINT            InstanceID;
-    XMMATRIX*        TransposeWorldMatrix;
+    Matrix*        TransposeWorldMatrix;
     DXRSkeletalMesh* SkinnedInstance;
 };
 
