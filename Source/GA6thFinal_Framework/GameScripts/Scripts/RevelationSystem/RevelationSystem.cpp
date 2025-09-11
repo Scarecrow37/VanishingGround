@@ -18,8 +18,8 @@ RevelationSystem::~RevelationSystem()
     if (this == static_instance)
     {
         static_instance = nullptr;
+        UmWatcher.Unregister<RevelationsViewModel>("Revelations");
     }
-    UmWatcher.Unregister<RevelationsViewModel>("Revelations");
 };
 
 std::shared_ptr<RevelationElement> RevelationSystem::EquipPlayerElement(int slot, const RevelationElement& element)
@@ -808,6 +808,8 @@ void RevelationSystem::EraseElementTableOrderID(RevelationElement& element)
 void RevelationSystem::Awake()
 {
     Component::Awake();
-
-    UmWatcher.Register<RevelationsViewModel>("Revelations", _roundElementList);
+    if (static_instance == this)
+    {
+        UmWatcher.Register<RevelationsViewModel>("Revelations", _roundElementList);
+    }
 }
