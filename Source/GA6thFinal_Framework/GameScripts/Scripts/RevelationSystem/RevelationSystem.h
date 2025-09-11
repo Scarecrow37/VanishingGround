@@ -94,6 +94,13 @@ public:
     bool EraseElement(std::string_view elementName);
 
     /// <summary>
+    /// Element를 테이블에서 찾아서 존재하면 반환합니다.
+    /// </summary>
+    /// <param name="elementName :">찾을 계시 이름</param>
+    /// <returns>없으면 nullptr</returns>
+    RevelationElement* FindElement(const std::string& elementName);
+
+    /// <summary>
     /// ElementTable과 Action들을 Json으로 직렬화해 반환합니다.
     /// </summary>
     /// <returns></returns>

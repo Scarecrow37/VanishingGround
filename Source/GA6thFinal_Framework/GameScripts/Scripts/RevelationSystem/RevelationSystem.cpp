@@ -141,6 +141,16 @@ bool RevelationSystem::EraseElement(std::string_view elementName)
     return result;
 }
 
+RevelationElement* RevelationSystem::FindElement(const std::string& elementName)
+{
+    auto find = _elementsTable.find(elementName);
+    if (find != _elementsTable.end())
+    {
+        return &find->second;
+    }
+    return nullptr;
+}
+
 static ReflectHelper::ImGuiDraw::InputAutoSetting InitSetting()
 {
     ReflectHelper::ImGuiDraw::InputAutoSetting setting;
@@ -194,7 +204,10 @@ void RevelationSystem::ImGuiDrawElementTableEditor()
                 //ID
                 ImGui::TableSetColumnIndex(0);           
                 {
-                    ReflectHelper::ImGuiDraw::Private::InputAuto(element.RevelationID, setting);
+                    if (ReflectHelper::ImGuiDraw::Private::InputAuto(element.RevelationID, setting))
+                    {
+                        SortElementTableOrderID();
+                    }
                     RightClickContext();
                 }
 
