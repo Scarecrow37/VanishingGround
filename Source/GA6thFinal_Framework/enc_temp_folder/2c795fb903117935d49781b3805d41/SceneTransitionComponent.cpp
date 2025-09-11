@@ -60,28 +60,16 @@ void SceneTransitionComponent::DeserializedReflectEvent()
 void SceneTransitionComponent::OnDrawDebug() 
 {
     CalculateFade();
-    if (true == ReflectFields->Ease)
-    {
-        ImGui::PlotLines("Ease Graph", _easeLog.data(), (int)_easeLog.size(), 0, NULL, -0.5f, 1.5f, ImVec2(400, 150));
-    }
 }
 
 void SceneTransitionComponent::OnDrawDebugSelected() 
 {
     CalculateFade();
-    if (true == ReflectFields->Ease)
-    {
-        ImGui::PlotLines("Ease Graph", _easeLog.data(), (int)_easeLog.size(), 0, NULL, -0.5f, 1.5f, ImVec2(400, 150));
-    }
 }
 
 void SceneTransitionComponent::Update()
 {
     CalculateFade();
-    if (true == ReflectFields->Ease)
-    {
-        ImGui::PlotLines("Ease Graph", _easeLog.data(), (int)_easeLog.size(), 0, NULL, -0.5f, 1.5f, ImVec2(400, 150));
-    }
 }
 
 void SceneTransitionComponent::CalculateFade() 
@@ -104,6 +92,7 @@ void SceneTransitionComponent::CalculateFade()
     {
         step = Mathf::Ease((Mathf::EaseType)ReflectFields->EaseType, (Mathf::EaseFuncType)ReflectFields->EaseFuncType, ReflectFields->EaseThreshold, step);
         _easeLog.push_back(step);
+        ImGui::PlotLines("Ease Graph", _easeLog.data(), _easeLog.size(), 0, NULL, -0.5f, 1.5f, ImVec2(400, 150));
     }
     UmTransition->Fade("Game", Color::Lerp(StartColor, EndColor, step), true);
 }

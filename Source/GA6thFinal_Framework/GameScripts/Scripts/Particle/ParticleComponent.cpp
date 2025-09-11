@@ -43,6 +43,11 @@ ParticleComponent::~ParticleComponent()
 void ParticleComponent::Update()
 {
 
+    if (ImGui::IsKeyPressed(ImGuiKey_K))
+    {
+        PlayEffect();
+    }
+
 }
 
 void ParticleComponent::Start() 
