@@ -4,6 +4,7 @@
 #include "TurnSystem/TurnActor/TurnActor.h"
 #include <WeaponSystem/WeaponSystem.h>
 #include <DamageSystem/DamageSystem.h>
+#include "TurnSystem/TurnAction/Condition/RoundOnceCondition/RoundOnceCondition.h"
 
 //Condition
 #include "GameCore/FSM/AlwaysTransitionCondition.h"
@@ -250,6 +251,15 @@ void TurnMode::BuildTurnModeFSM()
     }
 }
 
+void TurnMode::AddRoundOnceActions() 
+{
+    for (auto& action : RoundOnceTrueCondition::RoundOnceAction::_roundOnceActions)
+    {
+        AddTurnAction(action);
+    }
+    RoundOnceTrueCondition::RoundOnceAction::_roundOnceActions.clear();
+}
+
 int TurnMode::GetRealRoundSpeed(const std::pair<int, TurnActor*>& turnActor)
 {
     bool isPlayer = IsPlayerActorSlot(turnActor);
@@ -292,6 +302,7 @@ void TurnMode::Awake()
     }
 
     BuildTurnModeFSM();
+    AddRoundOnceActions();
 }
 
 void TurnMode::ImGuiDrawPropertysEvent() 

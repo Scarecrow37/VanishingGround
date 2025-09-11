@@ -108,7 +108,7 @@ protected:
 
 private:
     void BuildTurnModeFSM();
-
+    void AddRoundOnceActions();
 
     /*slot 값을 통해 실제 RoundSpeed를 반환합니다.*/
     int GetRealRoundSpeed(const std::pair<int, TurnActor*>& turnActor);
