@@ -38,27 +38,46 @@ void QTEPreviewer::Draw()
             std::pair<float, float> perfectRange = system->GetPerfectJudgeRange();
             std::pair<float, float> normalRange  = system->GetNormalJudgeRange();
 
+            DrawJudgeRange(perfectRange, circleRadius, ImColor(140, 120, 170, 255));
+            DrawJudgeRange(normalRange, circleRadius, ImColor(100, 255, 100, 255), ImColor(0.3f, 0.3f, 0.3f, 0.5f));
             if (_effectTimer > 0.0f)
             {
                 _effectTimer -= ImGui::GetIO().DeltaTime;
-                float bgAlpha = (_effectTimer / PERFECT_EFFECT_TIME);
+                float   bgAlpha   = (_effectTimer / PERFECT_EFFECT_TIME);
+                float   radius    = circleRadius * 2.0f * (1.0f - (_effectTimer / PERFECT_EFFECT_TIME));
                 ImColor effectCol = _effectColor;
                 effectCol.Value.w *= bgAlpha;
-                DrawJudgeRange(normalRange, circleRadius, ImColor(100, 255, 100, 255), effectCol);
+                DrawJudgeRange(normalRange, radius, effectCol);
             }
             else
             {
                 _effectTimer = 0.0f;
-                DrawJudgeRange(normalRange, circleRadius, ImColor(100, 255, 100, 255), ImColor(0.3f, 0.3f, 0.3f, 0.5f));
             }
-            
-            DrawJudgeRange(perfectRange, circleRadius, ImColor(140, 120, 170, 255));
-            auto resultQueue = system->GetCurrentQTEResultQueue();
-            for (const auto& result : resultQueue)
+            auto&  resultQueue = system->GetCurrentQTEResultQueue();
+            size_t noteIndex   = system->GetCurrentNoteIndex();
+            for (size_t i = 0; i < noteIndex; ++i)
             {
+                const auto& result = resultQueue[i];
                 DrawNote(&result, circleRadius, ImColor(100, 100, 255, 255), ImColor(100, 100, 255, 100));
             }
         }
+    }
+}
+
+void QTEPreviewer::PressedNote(const QTE::Result* result)
+{
+    _effectTimer = PERFECT_EFFECT_TIME;
+    if (result->ResultType == QTE::QTE_RESULT_PERFECT)
+    {
+        _effectColor = PERFECT_EFFECT_COLOR;
+    }
+    else if (result->ResultType == QTE::QTE_RESULT_NORMAL)
+    {
+        _effectColor = NORMAL_EFFECT_COLOR;
+    }
+    else
+    {
+        _effectColor = MISS_EFFECT_COLOR;
     }
 }
 
@@ -116,16 +135,6 @@ void QTEPreviewer::DrawNote(const QTE::Result* result, float circleRadius, ImCol
         ImRect noteBgRect = ImRect(offset + ImVec2(posX - circleRadius, 0.0f), offset + ImVec2(posX + circleRadius, availSize.y));
         drawList->AddRectFilled(noteBgRect.Min, noteBgRect.Max, bgCol);
         drawList->AddCircleFilled(offset + ImVec2(posX, availSize.y * 0.5f), circleRadius, noteCol);
-
-        _effectTimer = PERFECT_EFFECT_TIME;
-        if (result->ResultType == QTE::QTE_RESULT_PERFECT)
-        {
-            _effectColor = PERFECT_EFFECT_COLOR;
-        }
-        else if (result->ResultType == QTE::QTE_RESULT_NORMAL)
-        {
-            _effectColor = NORMAL_EFFECT_COLOR;
-        }
     }
 }
 

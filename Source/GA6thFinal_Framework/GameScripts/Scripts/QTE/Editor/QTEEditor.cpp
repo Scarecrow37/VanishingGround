@@ -16,7 +16,7 @@ QTEEditor::QTEEditor()
                 Timeline::SequencerEditor::FLAGS_HIDE_CONTEXT_LABEL |
                 Timeline::SequencerEditor::FLAGS_DRAW_CONTEXT_LINE_VERTICAL ;
     _sequencerEditor.AddFlags(flags);
-    _sequencerEditor.SetEventTrack(_qteTrack.GetEventTrack());
+    
     auto& callback           = _sequencerEditor.GetCallback();
     callback.LowerFramePopup = [this](Timeline::EventTrack* track) {
         if (ImGui::MenuItem("Add Note"))
@@ -28,6 +28,8 @@ QTEEditor::QTEEditor()
             track->AddEvent<QTE::Note>("Note", ImClamp(frame, min, max));
         }
     };
+
+    _lastUsedPath = UmFileSystem.GetRootPath();
 }
 
 QTEEditor::~QTEEditor() 
@@ -69,61 +71,56 @@ void QTEEditor::Open()
     _editorOpened = true;
 }
 
-bool QTEEditor::NewFileWithDialog()
-{
-    File::Path                                  out;
-    HWND                                        owner       = UmApplication.GetHwnd();
-    LPCWSTR                                     title       = L"새 QTE 파일 만들기";
-    LPCWSTR                                     defaultPath = UmFileSystem.GetRootPath().c_str();
-    LPCWSTR                                     defaultName = QTE::Track::DEFAULT_NAME.c_str();
-    std::vector<std::pair<LPCWSTR, LPCWSTR>>    filters     = {{L"QTE 트랙 파일\0", L"*.UmQTETrack\0"}};
-    if (File::ShowSaveFileDialog(owner, title, defaultPath, defaultName, filters, out))
-    {
-        return _qteTrack.NewFile(out);
-    }
-    return false;
-}
-
 bool QTEEditor::LoadFileWithDialog()
 {
-    std::vector<File::Path>                     out;
-    HWND                                        owner       = UmApplication.GetHwnd();
-    LPCWSTR                                     title       = L"QTE 파일 열기";
-    LPCWSTR                                     defaultPath = UmFileSystem.GetRootPath().c_str();
-    std::vector<std::pair<LPCWSTR, LPCWSTR>>    filters     = {{L"QTE 트랙 파일\0", L"*.UmQTETrack\0"}, {L"All File\0", L"*.*\0"}};
-    if (File::ShowOpenFileDialog(owner, title, defaultPath, filters, false, out))
+    if (_qteTrack)
     {
-        return _qteTrack.LoadFile(out.front());
+        std::vector<File::Path>                  out;
+        HWND                                     owner   = UmApplication.GetHwnd();
+        LPCWSTR                                  title   = L"QTE 파일 열기";
+        std::vector<std::pair<LPCWSTR, LPCWSTR>> filters = {{L"QTE 트랙 파일\0", L"*.UmQTETrack\0"},
+                                                            {L"All File\0", L"*.*\0"}};
+        if (File::ShowOpenFileDialog(owner, title, _lastUsedPath.c_str(), filters, false, out))
+        {
+            _lastUsedPath = out.front().parent_path();
+            return _qteTrack->LoadFile(out.front());
+        }
     }
     return false;
 }
 
 bool QTEEditor::SaveFileWithDialog()
 {
-    File::Path                                  out;
-    HWND                                        owner        = UmApplication.GetHwnd();
-    LPCWSTR                                     title        = L"QTE 파일 저장";
-    LPCWSTR                                     defaultPath  = UmFileSystem.GetRootPath().c_str();
-    LPCWSTR                                     defaultName  = QTE::Track::DEFAULT_NAME.c_str();
-    if (File::ShowSaveFileDialog(owner, title, defaultPath, defaultName, {}, out))
+    if (_qteTrack)
     {
-        return _qteTrack.SaveFile(out);
+        File::Path out;
+        HWND       owner       = UmApplication.GetHwnd();
+        LPCWSTR    title       = L"QTE 파일 저장";
+        LPCWSTR    defaultName = QTE::Track::DEFAULT_NAME.c_str();
+        if (File::ShowSaveFileDialog(owner, title, _lastUsedPath.c_str(), defaultName, {}, out))
+        {
+            _lastUsedPath = out.parent_path();
+            return _qteTrack->SaveFile(out);
+        }
     }
     return false;
 }
 
 void QTEEditor::ShowSystemDetail()
 {
+
     ImVec2 availSize  = ImGui::GetContentRegionAvail();
     ImVec2 canvasSize = ImVec2(availSize.x * 0.3f, availSize.y);
     // QTE 시스템 정보
     ImGui::BeginChild("system_detail", canvasSize, ImGuiChildFlags_Border);
     {
-        ImVec2     availSize  = ImGui::GetContentRegionAvail();
-        float      labelWidth = availSize.x * 0.5f;
-        QTESystem* system     = QTESystem::GetInstance();
+        QTESystem* system = QTESystem::GetInstance();
         if (system)
         {
+            ImGui::BeginChild("system_props", ImVec2(0.0f, ImGui::GetContentRegionAvail().y * 0.4f), ImGuiChildFlags_Border);
+
+            float labelWidth = ImGui::GetContentRegionAvail().x * 0.5f;
+            ImGuiHelper::AlignedText("Properties", ImGuiHelper::LEFT, 0.8f);
             // 스피드
             float speed = system->GetQTESpeedScale();
             ImGuiHelper::TextWithVerticalSeparator("QTE Speed Scale", labelWidth);
@@ -185,20 +182,102 @@ void QTEEditor::ShowSystemDetail()
                 ImGuiHelper::HoveredToolTip((const char*)u8"QTE 판정 위치 비율입니다. (0 ~ 1)");
 
                 auto [inMin, inMax] = system->GetFadeInPosFactor();
+                auto [outMin, outMax] = system->GetFadeOutPosFactor();
                 ImGuiHelper::TextWithVerticalSeparator("Fade In Pos Factor", labelWidth);
-                if (ImGui::DragFloat2("##fade_in_pos_factor", &inMin, 0.01f, -1.0f, 1.0f))
+                if (ImGui::SliderFloat2("##fade_in_pos_factor", &inMin, 0.0f, 1.0f))
                 {
+                    auto [oldMin, oldMax] = system->GetFadeInPosFactor();
+                    // Min조작 = Max를 변경
+                    if (inMin != oldMin)
+                    {
+                        inMin = ImClamp(inMin, 0.0f, 1.0f);
+                        inMax = ImClamp(inMax, inMin, 1.0f);
+                    }
+                    // Max조작 = Min를 변경
+                    else if (inMax != oldMax)
+                    {
+                        inMax = ImClamp(inMax, 0.0f, 1.0f);
+                        inMin = ImClamp(inMin, 0.0f, inMax);
+                    }
+                    outMin = ImClamp(outMin, inMax, outMax);
+                    outMax = ImClamp(outMax, outMin, 1.0f);
                     system->SetFadeInPosFactor(inMin, inMax);
+                    system->SetFadeOutPosFactor(outMin, outMax);
                 }
                 ImGuiHelper::HoveredToolTip((const char*)u8"QTE 페이드인 위치 비율입니다. (0 ~ 1)");
-                auto [outMin, outMax] = system->GetFadeOutPosFactor();
                 ImGuiHelper::TextWithVerticalSeparator("Fade Out Pos Factor", labelWidth);
-                if (ImGui::DragFloat2("##fade_out_pos_factor", &outMin, 0.01f, -1.0f, 1.0f))
+                if (ImGui::SliderFloat2("##fade_out_pos_factor", &outMin, 0.0f, 1.0f))
                 {
+                    auto [oldMin, oldMax] = system->GetFadeOutPosFactor();
+                    // Min조작 = Max를 변경
+                    if (outMin != oldMin)
+                    {
+                        outMin = ImClamp(outMin, 0.0f, 1.0f);
+                        outMax = ImClamp(outMax, outMin, 1.0f);
+                    }
+                    // Max조작 = Min를 변경
+                    else if (outMax != oldMax)
+                    {
+                        outMax = ImClamp(outMax, 0.0f, 1.0f);
+                        outMin = ImClamp(outMin, 0.0f, outMax);
+                    }
+                    inMin = ImClamp(inMin, 0.0f, inMax);
+                    inMax = ImClamp(inMax, inMin, outMin);
+                    system->SetFadeInPosFactor(inMin, inMax);
                     system->SetFadeOutPosFactor(outMin, outMax);
                 }
                 ImGuiHelper::HoveredToolTip((const char*)u8"QTE 페이드아웃 위치 비율입니다. (-1 ~ 0)");
             }
+            ImGui::EndChild();
+            ImGui::BeginChild("system_tracks", ImVec2(0, 0), ImGuiChildFlags_Border);
+
+            // 무기 별 트랙 정보
+            ImGuiHelper::AlignedText("Track", ImGuiHelper::LEFT, 0.8f);
+            auto weaponTableComponent = WeaponTableComponent::GetInstance();
+            if (weaponTableComponent)
+            {
+                auto& weaponTable = weaponTableComponent->GetWeaponTable();
+                for (const auto& [weaponName, weapon] : weaponTable)
+                {
+                    int  weaponID   = weapon.Stats.WeaponID;
+                    auto trackTable = system->GetWeaponIDToTrackTable();
+                    auto itr        = trackTable.find(weaponID);
+                    bool valid      = (itr != trackTable.end() && false == itr->second.empty());
+                    bool selected   = (_qteTrack && _qteTrack->GetWeaponID() == weaponID);
+
+                    ImGuiHelper::StyleBuilder style;
+                    ImVec4 textCol = selected ? ImVec4(0.5f, 1.0f, 0.5f, 1.0f) : 
+                        (valid ? ImVec4(1.0f, 1.0f, 1.0f, 1.0f) : ImVec4(1.0f, 0.5f, 0.5f, 1.0f));
+                    style.PushStyleColor(ImGuiCol_Text, textCol);
+
+                    if (ImGui::TreeNodeEx(weaponName.c_str()))
+                    {
+                        style.PopStyle();
+                        int trackCount = 0;
+                        if (valid)
+                        {
+                            auto& trackVector = itr->second;
+                            for (const auto& track : trackVector)
+                            {
+                                ShowTrackFromWeapon(track, weaponName, weaponID, trackCount);
+                                ++trackCount;
+                            }
+                        }
+                        else
+                        {
+                            ImGui::TextDisabled("Invalid QTE Track");
+                        }
+
+                        ImGui::Separator();
+                        if (ImGui::Selectable("+ Add QTE Track"))
+                        {   
+                            system->AddMappingTrackToWeaponID(weaponID);
+                        }
+                        ImGui::TreePop();
+                    }
+                }
+            }
+            ImGui::EndChild();
         }
         else
         {
@@ -213,132 +292,95 @@ void QTEEditor::ShowTrackDetail()
     // QTE 트랙 정보
     ImGui::SameLine();
     ImVec2 canvasSize = ImGui::GetContentRegionAvail();
-    ImGui::BeginChild("track_detail", canvasSize, ImGuiChildFlags_Border, ImGuiWindowFlags_NoScrollWithMouse);
+    ImGui::BeginChild("track_detail", canvasSize, ImGuiChildFlags_Border, ImGuiWindowFlags_MenuBar);
     {
-        // File Path
-        ShowFilePathFrame();
+        // File Menu
+        ShowTrackDetailMenu();
 
         ImGui::BeginChild("##edit_frame", ImVec2(0, 0), ImGuiChildFlags_Border);
-        auto track = _qteTrack.GetEventTrack().lock();
-        if (track)
+        if (_qteTrack)
         {
-            ImVec2 availSize  = ImGui::GetContentRegionAvail();
-            float  labelWidth = ImClamp(availSize.x * 0.2f, 30.0f, 150.0f);
-
-            // Weapon ID
-            int weaponID = _qteTrack.GetWeaponID();
-            ImGuiHelper::TextWithVerticalSeparator("Weapon ID", labelWidth);
-            WeaponTableComponent* weaponTable = WeaponTableComponent::GetInstance();
-            if (weaponTable)
+            auto track = _qteTrack->GetEventTrack().lock();
+            if (track)
             {
-                auto& table = weaponTable->GetWeaponTable();
-                if (ImGui::BeginCombo("##weapon_id", std::to_string(weaponID).c_str()))
+                ImVec2 availSize  = ImGui::GetContentRegionAvail();
+                float  labelWidth = ImClamp(availSize.x * 0.2f, 30.0f, 150.0f);
+
+                // Weapon ID
+                int weaponID = _qteTrack->GetWeaponID();
+                ImGuiHelper::TextWithVerticalSeparator("Weapon ID", labelWidth);
+                ImGui::BeginDisabled();
+                ImGui::DragInt("##weapon_id", &weaponID);
+                ImGui::EndDisabled();
+
+                // MinFrame
+                float minFrame = track->GetMinFrame();
+                ImGuiHelper::TextWithVerticalSeparator("Min Frame", labelWidth);
+                if (ImGui::DragFloat("##min_frame", &minFrame, 0.1f))
                 {
-                    for (const auto& [name, weapon] : table)
-                    {
-                        bool isSelected = (weaponID == weapon.Stats.WeaponID);
-                        const std::string& label = weapon.Stats.WeaponName;
-                        if (ImGui::Selectable(label.c_str(), isSelected))
-                        {
-                            _qteTrack.SetWeaponID(weapon.Stats.WeaponID);
-                        }
-                        if (isSelected)
-                        {
-                            ImGui::SetItemDefaultFocus();
-                        }
-                    }
-                    ImGui::EndCombo();
+                    track->SetMinFrame(minFrame);
                 }
+
+                // MaxFrame
+                float maxFrame = track->GetMaxFrame();
+                ImGuiHelper::TextWithVerticalSeparator("Max Frame", labelWidth);
+                if (ImGui::DragFloat("##max_frame", &maxFrame, 0.1f))
+                {
+                    track->SetMaxFrame(maxFrame);
+                }
+
+                // Speed Scale
+                float speed = _qteTrack->GetQTESpeedScale();
+                ImGuiHelper::TextWithVerticalSeparator("Speed Scale", labelWidth);
+                if (ImGui::DragFloat("##speed_scale_frame", &speed, 0.01f))
+                {
+                    _qteTrack->SetQTESpeedScale(speed);
+                }
+
+                // Sequencer Frame
+                ShowSequencerFrame();
+
+                // Preview Frame
+                ShowPreviewFrame();
             }
-
-            // MinFrame
-            float minFrame = track->GetMinFrame();
-            ImGuiHelper::TextWithVerticalSeparator("Min Frame", labelWidth);
-            if (ImGui::DragFloat("##min_frame", &minFrame, 0.1f))
-            {
-                track->SetMinFrame(minFrame);
-            }
-
-            // MaxFrame
-            float maxFrame = track->GetMaxFrame();
-            ImGuiHelper::TextWithVerticalSeparator("Max Frame", labelWidth);
-            if (ImGui::DragFloat("##max_frame", &maxFrame, 0.1f))
-            {
-                track->SetMaxFrame(maxFrame);
-            }
-
-            // Speed Scale 
-            float speed = _qteTrack.GetQTESpeedScale();
-            ImGuiHelper::TextWithVerticalSeparator("Speed Scale", labelWidth);
-            if (ImGui::DragFloat("##speed_scale_frame", &speed, 0.01f))
-            {
-                _qteTrack.SetQTESpeedScale(speed);
-            }
-
-            // Sequencer Frame
-            ShowSequencerFrame();
-
-            // Preview Frame
-            ShowPreviewFrame();
         }
         ImGui::EndChild();
     }
     ImGui::EndChild();
 }
 
-void QTEEditor::ShowFilePathFrame() 
+void QTEEditor::ShowTrackDetailMenu()
 {
-    std::string pathStr     = _qteTrack.GetFilePath().generic_string();
-    ImVec2      buttonSize  = ImVec2(ImGui::GetItemRectSize().y, ImGui::GetItemRectSize().y);
-    float       fontSize    = ImGui::GetFontSize();
-    float       frameHeight = ImGui::GetFrameHeight();
-    float       height      = ImGui::GetTextLineHeightWithSpacing();
-    ImGui::BeginChild("##path_frame", ImVec2(0, fontSize + height), ImGuiChildFlags_Border);
-    ImGuiHelper::TextWithVerticalSeparator("QTE File Path");
-    // ImGui::BeginDisabled();
-    ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - (buttonSize.y * 3.0f) - 100.0f);
-    ImGui::InputText("##path_input", &pathStr, ImGuiInputTextFlags_ReadOnly | ImGuiInputTextFlags_AutoSelectAll);
-    // ImGui::EndDisabled();
-    if (ImGui::BeginItemTooltip())
+    if (ImGui::BeginMenuBar())
     {
-        ImGui::Text(pathStr.c_str());
-        ImGui::EndTooltip();
-    }
-    ImGui::SameLine();
-    if (ImGui::Button(EditorIcon::ICON_FILE, buttonSize))
-    {
-        NewFileWithDialog();
-    }
-    if (ImGui::IsItemHovered())
-        ImGui::SetTooltip("New QTE File");
-
-    ImGui::SameLine();
-    if (ImGui::Button(EditorIcon::ICON_FOLDER_OPEN, buttonSize))
-    {
-        LoadFileWithDialog();
-    }
-    if (ImGui::IsItemHovered())
-        ImGui::SetTooltip("Open QTE File");
-
-    ImGui::SameLine();
-    if (ImGui::Button(EditorIcon::ICON_FILE_SAVE, buttonSize))
-    {
-        const File::Path& filePath = _qteTrack.GetFilePath();
-        if (true == filePath.IsNull())
+        if (ImGui::BeginMenu("File"))
         {
-            SaveFileWithDialog();
+            bool valid = _qteTrack;
+            if (ImGui::MenuItem("Load Track", EditorIcon::ICON_FOLDER_OPEN, false, valid))
+            {
+                LoadFileWithDialog();
+            }
+            if (ImGui::MenuItem("Save Track", EditorIcon::ICON_FILE_SAVE, false, valid))
+            {  
+                const File::Path& filePath = _qteTrack->GetFilePath();
+                if (true == filePath.IsNull())
+                {
+                    SaveFileWithDialog();
+                }
+            }
+            ImGui::EndMenu();
         }
-        else
-        {
-            _qteTrack.SaveFile(filePath, true);
-        }
+        ImGui::EndMenuBar();
     }
-    ImGui::EndChild();
 }
 
 void QTEEditor::ShowSequencerFrame() 
 {
-    auto track = _qteTrack.GetEventTrack().lock();
+    if (nullptr == _qteTrack)
+    {
+        return;
+    }
+    auto track = _qteTrack->GetEventTrack().lock();
     if (track)
     {
         float heightScale = 0.6f;
@@ -407,14 +449,18 @@ void QTEEditor::ShowSequencerFrame()
 
 void QTEEditor::ShowPreviewFrame() 
 {
+    if (nullptr == _qteTrack)
+    {
+        return;
+    }
     auto system = QTESystem::GetInstance();
-    auto track  = _qteTrack.GetEventTrack().lock();
+    auto track  = _qteTrack->GetEventTrack().lock();
     if (system && track)
     {
         ImGui::BeginChild("preview_frame", ImVec2(0, 0), ImGuiChildFlags_Border, ImGuiWindowFlags_None);
 
         float  globalSpeedScale = system->GetQTESpeedScale();
-        float  trackSpeedScale  = _qteTrack.GetQTESpeedScale();
+        float  trackSpeedScale  = _qteTrack->GetQTESpeedScale();
         float  maxFrame         = track->GetMaxFrame();
         float  minFrame         = track->GetMinFrame();
         ImVec2 availSize        = ImGui::GetContentRegionAvail();
@@ -497,6 +543,46 @@ void QTEEditor::ShowPreviewFrame()
     }
 }
 
+void QTEEditor::ShowTrackFromWeapon(const QTE::Track* track, const std::string& weaponName, int weaponID, int index) 
+{
+    auto system = QTESystem::GetInstance();
+    bool selected = (_qteTrack == track);
+    if (nullptr == system || nullptr == track)
+    {
+        return;
+    }
+    std::string label = std::format("Track {}", index + 1);
+    if (ImGui::Selectable(label.c_str(), selected))
+    {
+        QTE::Track* track = system->GetMappingTrackToWeaponID(weaponID, index);
+        if (track)
+        {
+            _qteTrack = track;
+            _sequencerEditor.SetEventTrack(_qteTrack->GetEventTrack());
+        }
+    }
+    if (ImGui::BeginPopupContextItem())
+    {
+        if (ImGui::Selectable("- Delete QTE Track"))
+        {
+            std::wstring msg   = L"QTE 트랙을 삭제하시겠습니까?";
+            std::wstring title = L"Warning";
+            HWND         hwnd  = UmApplication.GetHwnd();
+
+            int msgResult = MessageBox(hwnd, msg.c_str(), title.c_str(), MB_YESNO);
+            if (msgResult == IDYES)
+            {
+                if (system->RemoveMappingTrackToWeaponID(weaponID, index))
+                {
+                    _qteTrack = nullptr;
+                    _sequencerEditor.SetEventTrack(std::weak_ptr<Timeline::EventTrack>());
+                }
+            }
+        }
+        ImGui::EndPopup();
+    }
+}
+
 void QTEEditor::DrawPreview()
 {
     ImGui::BeginChild("##preview_canvas", ImVec2(0, 0), ImGuiChildFlags_Border);
@@ -504,7 +590,7 @@ void QTEEditor::DrawPreview()
     if (window && window->DrawList)
     {
         auto system = QTESystem::GetInstance();
-        auto track  = _qteTrack.GetEventTrack().lock();
+        auto track  = _qteTrack->GetEventTrack().lock();
         if (system && track)
         {
             float                   circleRadius = 30.0f;

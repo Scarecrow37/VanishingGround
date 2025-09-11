@@ -224,9 +224,9 @@ namespace ImGuiHelper
 
     public:
         template <typename T>
-        void PushStyleVar(int idx, const T& color)
+        void PushStyleVar(int idx, const T& val)
         {
-            ImGui::PushStyleVar(idx, color);
+            ImGui::PushStyleVar(idx, val);
             ++_pushStyleVarCount;
         }
         template <typename T>

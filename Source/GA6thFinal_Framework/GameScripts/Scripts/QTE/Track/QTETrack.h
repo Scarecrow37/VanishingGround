@@ -35,7 +35,7 @@ namespace QTE
         inline float GetMinFrame() const { return _eventTrack ? _eventTrack->GetMinFrame() : 0.0f; }
         inline float GetMaxFrame() const { return _eventTrack ? _eventTrack->GetMaxFrame() : 0.0f; }
 
-    private:
+    public:
         void SerializedReflectEvent() override;
         void DeserializedReflectEvent() override;
 
@@ -44,8 +44,8 @@ namespace QTE
         std::shared_ptr<Timeline::EventTrack> _eventTrack;
         REFLECT_FIELDS_BEGIN(ReflectSerializer)
         int         WeaponID = -1;              // 사용할 무기 ID
-        std::string TrackSerializeData = "";    // 트랙 직렬화 데이터
         float       QTESpeedScale = 1.0f;       // QTE 속도 배율
+        std::string TrackSerializeData = "";    // 트랙 직렬화 데이터
         REFLECT_FIELDS_END(Track)
     };
 } // namespace QTE

@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include <QTE/Track/QTETrack.h>
 
+class WeaponElement;
+
 class QTEEditor
 {
 public:
@@ -11,16 +13,17 @@ public:
     void Show();
     void Open();
 
-    bool NewFileWithDialog();
     bool LoadFileWithDialog();
     bool SaveFileWithDialog();
 
 private:
     void ShowSystemDetail();
     void ShowTrackDetail();
-    void ShowFilePathFrame();
+    void ShowTrackDetailMenu();
     void ShowSequencerFrame();
     void ShowPreviewFrame();
+
+    void ShowTrackFromWeapon(const QTE::Track* track, const std::string& weaponName, int weaponID, int index);
 
     void DrawPreview();
 
@@ -31,7 +34,9 @@ private:
     float CalcNoteAlphaFromPositionX(float posX);
 
 private:
-    QTE::Track                _qteTrack;                // QTE 트랙
+    File::Path                _lastUsedPath;             // 기본 경로
+
+    QTE::Track*               _qteTrack = nullptr;                // QTE 트랙
     bool                      _editorOpened = false;    // 에디터 열림 여부
     EditorDragState           _dragHandler;             // 드래그 핸들러
     Timeline::SequencerEditor _sequencerEditor;         // 시퀀서 에디터
