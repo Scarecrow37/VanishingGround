@@ -5,6 +5,11 @@
 #include <directxtk12/DDSTextureLoader.h>
 #include <DirectXTex.h>
 
+bool Texture::IsValid() const
+{
+    return _handle.GPU.ptr != Global::dummyTextureHandle.ptr;
+}
+
 void Texture::SetResource(ID3D12Resource* resource)
 {
     _resource = resource;
@@ -30,11 +35,11 @@ void Texture::CreateShaderResourceView()
     _size.cy = (LONG)desc.Height;
 }
 
-void Texture::LoadResource(const std::filesystem::path& filePath)
+void Texture::LoadResource(const std::filesystem::path& filePath, const std::function<void()>& callback)
 {
-    _handle.GPU = Global::resourceManager->LoadResource<Texture>(L"BlackTexture")->GetGPUHandle();
+    _handle.GPU = Global::dummyTextureHandle;
 
-    Global::threadPool->AddTask(ThreadPool::ThreadType::ASYNK, [this, filePath](ID3D12GraphicsCommandList*)
+    Global::threadPool->AddTask(ThreadPool::ThreadType::ASYNK, [this, filePath, callback](ID3D12GraphicsCommandList*)
         {
             HRESULT       hr     = S_OK;
             ID3D12Device* device = Global::device->GetDevice();
@@ -59,5 +64,7 @@ void Texture::LoadResource(const std::filesystem::path& filePath)
             resUpload.End(Global::commandController->GetCommandQueue(CommandQueueType::GRAPHICS_QUEUE));
 
             CreateShaderResourceView();
+            
+            Global::resourceManager->EnqueueCallback(callback);
         });
 }
