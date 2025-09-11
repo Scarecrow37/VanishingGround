@@ -211,6 +211,16 @@ public:
     SETTER(bool, IsFocus) { ReflectFields->IsFocus = value; }
     PROPERTY(IsFocus)
 
+    GETTER_ONLY(POINT, AbsoluteCenterPoint)
+    {
+        const POINT absolute = AbsolutePosition;
+        const SIZE  size     = Size;
+        return POINT{
+        .x = absolute.x + size.cx / 2,
+        .y = absolute.y + size.cy / 2};
+    }
+    PROPERTY(AbsoluteCenterPoint)
+
 public:
     void Measure(SIZE availableSize);
     void Arrange(POINT finalPosition, SIZE finalSize);
@@ -285,13 +295,15 @@ struct ImGuiDebug
     void operator()(const char* label, long x, long y) const;
     void operator()(const char* label, unsigned int x) const;
     void operator()(const char* label, int x) const;
+    void operator()(const char* label, size_t x) const;
     void operator()(const char* label, const std::string& str) const;
 };
 
 struct DrawDebug
 {
-    void operator()(POINT point, SIZE size, int thickness, FXMVECTOR color) const;
-    void operator()(POINT pointA, POINT pointB, int thickness, bool isVertical, FXMVECTOR color) const;
+    void        operator()(POINT point, SIZE size, int thickness, FXMVECTOR color) const;
+    void        operator()(POINT pointA, POINT pointB, int thickness, bool isVertical, FXMVECTOR color) const;
+    static void Arrow(POINT pointA, POINT pointB, float arrowheadLength, FXMVECTOR color);
 };
 
 // TODO 지울지 고민

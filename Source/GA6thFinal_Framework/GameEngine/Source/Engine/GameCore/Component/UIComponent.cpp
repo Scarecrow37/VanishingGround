@@ -300,6 +300,12 @@ void ImGuiDebug::operator()(const char* label, const int x) const
     operator()(label);
 }
 
+void ImGuiDebug::operator()(const char* label, const size_t x) const
+{
+    ImGui::Text("%d", x);
+    operator()(label);
+}
+
 void ImGuiDebug::operator()(const char* label, const std::string& str) const
 {
     ImGui::Text(str.c_str());
@@ -343,4 +349,33 @@ void DrawDebug::operator()(const POINT pointA, const POINT pointB, const int thi
                                     isVertical ? static_cast<float>(pointB.y) : static_cast<float>(pointB.y + i)};
         UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&pointAOffset), XMLoadFloat2(&pointBOffset), color);
     }
+}
+
+void DrawDebug::Arrow(POINT pointA, POINT pointB, float arrowheadLength, FXMVECTOR color)
+{
+    const XMFLOAT2 start{static_cast<float>(pointA.x), static_cast<float>(pointA.y)};
+    const XMFLOAT2 end{static_cast<float>(pointB.x), static_cast<float>(pointB.y)};
+    const XMVECTOR startVector = XMLoadFloat2(&start);
+    const XMVECTOR endVector   = XMLoadFloat2(&end);
+
+    UmGraphics.DebugDraw2D("Editor", startVector, endVector, color);
+
+    // Arrowhead
+    XMVECTOR direction = XMVectorSubtract(startVector, endVector);
+    direction          = XMVector3Normalize(direction);
+
+    XMVECTOR headInOrigin = XMVectorScale(direction, arrowheadLength);
+    float    angle        = XMConvertToRadians(20.0f);
+
+    // right head
+    XMMATRIX rightRotationMatrix = XMMatrixRotationZ(angle);
+    XMVECTOR rightHead           = XMVector2Transform(headInOrigin, rightRotationMatrix);
+    rightHead                    = XMVectorAdd(rightHead, endVector);
+    UmGraphics.DebugDraw2D("Editor", rightHead, endVector, color);
+
+    // left head
+    XMMATRIX leftRotationMatrix = XMMatrixRotationZ(-angle);
+    XMVECTOR leftHead           = XMVector2Transform(headInOrigin, leftRotationMatrix);
+    leftHead                    = XMVectorAdd(leftHead, endVector);
+    UmGraphics.DebugDraw2D("Editor", leftHead, endVector, color);
 }

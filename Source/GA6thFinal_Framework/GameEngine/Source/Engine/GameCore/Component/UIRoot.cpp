@@ -45,6 +45,18 @@ void UIRoot::ReleaseNavigationID(const NavigationID id)
     }
 }
 
+void UIRoot::SetInitialFocus(UINavigationComponent* uiComponent)
+{
+    if (nullptr != uiComponent)
+    {
+        if (nullptr != _currentFocusNavigation)
+        {
+            _currentFocusNavigation->ResetInitialFocus();
+        }
+        ChangeFocusComponent(uiComponent);
+    }
+}
+
 std::optional<NavigationKey> UIRoot::GetPressedButton()
 {
     std::optional<NavigationKey> result = std::nullopt;
@@ -74,9 +86,18 @@ std::optional<NavigationKey> UIRoot::GetPressedButton()
     return result;
 }
 
+void UIRoot::Update()
+{
+    UIBaseComponent::Update();
+
+    UpdateNavigation();
+}
+
 void UIRoot::ImGuiDrawPropertysEvent()
 {
     UIBaseComponent::ImGuiDrawPropertysEvent();
+
+    ImGui::Checkbox("Enable Navigation On Editor", &_isEnabledNavigation);
 
     if (_isDebug)
     {
@@ -88,6 +109,29 @@ void UIRoot::ImGuiDrawPropertysEvent()
         {
             debug("Spare ID", spare);
         }
+    }
+}
+
+void UIRoot::OnDrawDebugOverride()
+{
+    UIBaseComponent::OnDrawDebugOverride();
+
+    EditorUpdate();
+}
+
+void UIRoot::OnDrawDebugSelectedOverride()
+{
+    UIBaseComponent::OnDrawDebugSelectedOverride();
+
+    EditorUpdate();
+}
+
+void UIRoot::EditorUpdate()
+{
+    if (_isEnabledNavigation)
+    {
+        _controller->UpdateState();
+        UpdateNavigation();
     }
 }
 
@@ -105,6 +149,78 @@ void UIRoot::Reset()
         catch (std::exception& exception)
         {
             UmLogger.Log(LogLevel::LEVEL_INFO, exception.what());
+        }
+    }
+}
+
+void UIRoot::UpdateNavigation()
+{
+    auto queue = _controller->GetButtonQueue();
+    std::ranges::for_each(queue, [this](const Input::Controller::Button button) {
+        if (nullptr != _currentFocusNavigation)
+        {
+            NavigationKey navigationKey;
+            navigationKey.ButtonType = button;
+            if (button == Input::Controller::Button::LEFT_THUMB_STICK)
+            {
+                navigationKey.Bias = _controller->GetLeftStickBias();
+            }
+            else if (button == Input::Controller::Button::RIGHT_THUMB_STICK)
+            {
+                navigationKey.Bias = _controller->GetRightStickBias();
+            }
+            const NavigationID navigationID = _currentFocusNavigation->GetNavigatedId(navigationKey);
+            UINavigationComponent* nextFocus    = FindNavigationComponent(navigationID);
+            ChangeFocusComponent(nextFocus);
+        }
+    });
+}
+
+UINavigationComponent* UIRoot::FindNavigationComponent(NavigationID id)
+{
+    UINavigationComponent* component = nullptr;
+    if (const auto iter = _navigationMap.find(id); iter != _navigationMap.end())
+    {
+        component = iter->second;
+    }
+    else
+    {
+        component = FindNavigationComponentInTransform(id);
+        _navigationMap.insert({id, component});
+    }
+    return component;
+}
+
+UINavigationComponent* UIRoot::FindNavigationComponentInTransform(NavigationID id) const
+{
+    UINavigationComponent* component     = nullptr;
+    Transform&             rootTransform = this->transform;
+    Transform::ForeachBFS(rootTransform, [&component, id](const Transform* transform) {
+        if (component == nullptr)
+        {
+            const GameObject& gameObject = transform->gameObject;
+            if (UINavigationComponent* navigationComponent = gameObject.GetComponentDynamic<UINavigationComponent>();
+                nullptr != navigationComponent && navigationComponent->ID == id)
+            {
+                component = navigationComponent;
+            }
+        }
+    });
+    return component;
+}
+
+void UIRoot::ChangeFocusComponent(UINavigationComponent* nextFocusComponent)
+{
+    if (nullptr != nextFocusComponent)
+    {
+        if (nullptr != _currentFocusNavigation)
+        {
+            _currentFocusNavigation->FocusOut();
+        }
+        _currentFocusNavigation = nextFocusComponent;
+        if (nullptr != _currentFocusNavigation)
+        {
+            _currentFocusNavigation->FocusIn();
         }
     }
 }

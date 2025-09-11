@@ -5,7 +5,7 @@ NavigationID UINavigationComponent::_toID = INVALID_NAVIGATION_ID;
 
 UINavigationComponent::UINavigationComponent() = default;
 
-void UINavigationComponent::OnFocusIn()
+void UINavigationComponent::FocusIn()
 {
     if (UIComponent* siblingUI = SiblingUI; nullptr != siblingUI)
     {
@@ -17,7 +17,7 @@ void UINavigationComponent::OnFocusIn()
     }
 }
 
-void UINavigationComponent::OnFocusOut()
+void UINavigationComponent::FocusOut()
 {
     if (UIComponent* siblingUI = SiblingUI; nullptr != siblingUI)
     {
@@ -27,6 +27,20 @@ void UINavigationComponent::OnFocusOut()
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, u8"UI Component를 찾을 수 없습니다.");
     }
+}
+
+void UINavigationComponent::SetInitialFocus()
+{
+    ReflectFields->IsInitialFocus = true;
+    if (UIRoot* root = Root; nullptr != root)
+    {
+        root->SetInitialFocus(this);
+    }
+}
+
+void UINavigationComponent::ResetInitialFocus()
+{
+    ReflectFields->IsInitialFocus = false;
 }
 
 UIComponent* UINavigationComponent::GetSiblingUI() const
@@ -76,8 +90,13 @@ void UINavigationComponent::ImGuiDrawPropertysEvent()
 {
     UIBaseComponent::ImGuiDrawPropertysEvent();
 
-    static NavigationImGuiStep step;
+    if (ImGui::Button("Set Initial Focus"))
+    {
+        SetInitialFocus();
+    }
 
+
+    static NavigationImGuiStep step;
     // TO
     {
         if (ImGui::Button("To"))
@@ -120,10 +139,12 @@ void UINavigationComponent::ImGuiDrawPropertysEvent()
         }
     }
 
+    // From
     if (step.IsPressedButton && _toID != INVALID_NAVIGATION_ID && _toID != ReflectFields->NavigationID &&
         ImGui::Button("From"))
     {
-
+        AddNavigationRoute(step.PressedKey, _toID);
+        _toID = INVALID_NAVIGATION_ID;
         step.Reset();
     }
 
@@ -132,15 +153,9 @@ void UINavigationComponent::ImGuiDrawPropertysEvent()
         const NavigationID id = ReflectFields->NavigationID;
         ImGuiDebug()("Navigation ID", id);
 
-        if (ImGui::Button("Focus In"))
-        {
-            OnFocusIn();
-        }
-
-        if (ImGui::Button("Focus Out"))
-        {
-            OnFocusOut();
-        }
+        const auto&  navigationInfos = ReflectFields->NavigationRoutes;
+        const size_t navigationCount = navigationInfos.size();
+        ImGuiDebug()("Navigation Count", navigationCount);
     }
 }
 
@@ -148,7 +163,25 @@ void UINavigationComponent::OnDrawDebugSelectedOverride()
 {
     UIBaseComponent::OnDrawDebugSelectedOverride();
 
-    // TODO Draw Navigation Route
+    if (const UIComponent* siblingUI = SiblingUI; nullptr != siblingUI)
+    {
+        POINT start = siblingUI->AbsoluteCenterPoint;
+        if (UIRoot* root  = Root; nullptr != root)
+        {
+            NavigationRoutes navigationInfos = ReflectFields->NavigationRoutes;
+            std::ranges::for_each(navigationInfos, [this, start, root](const auto& info) {
+                const auto [button, bias, toID] = info;
+                if (const UINavigationComponent* toNavigation = root->FindNavigationComponent(toID); nullptr != toNavigation)
+                {
+                    if (const UIComponent* toSiblingUI = toNavigation->SiblingUI; nullptr != toSiblingUI)
+                    {
+                        const POINT end = toSiblingUI->AbsoluteCenterPoint;
+                        DrawDebug::Arrow(start, end, 50.0f, Colors::Purple);
+                    }
+                }
+            });
+        }
+    }
 }
 
 void UINavigationComponent::OnAttachParent(GameObject* childGameObject)
@@ -186,6 +219,19 @@ void UINavigationComponent::DeserializedReflectEvent()
         if (UIRoot* uiRoot = Root; nullptr != uiRoot)
         {
             AcquireNavigationID(uiRoot);
+        }
+    }
+}
+
+void UINavigationComponent::Reset()
+{
+    UIBaseComponent::Reset();
+
+    if (const bool isInitialFocus = ReflectFields->IsInitialFocus; true == isInitialFocus)
+    {
+        if (UIRoot* uiRoot = Root; nullptr != uiRoot)
+        {
+            uiRoot->SetInitialFocus(this);
         }
     }
 }
@@ -238,27 +284,29 @@ void UINavigationComponent::ReleaseNavigationID(UIRoot* root)
 
 void UINavigationComponent::ClearNavigationRoute()
 {
-    //auto& buttons = ReflectFields->NavigationButtons;
-    //auto& biases  = ReflectFields->NavigationStickBiases;
-    //auto& toIDs   = ReflectFields->NavigationTo;
-    //buttons.clear();
-    //biases.clear();
-    //toIDs.clear();
+    NavigationRoutes& navigationInfos = ReflectFields->NavigationRoutes;
+    navigationInfos.clear();
 }
 
 void UINavigationComponent::AddNavigationRoute(const NavigationKey& key, const NavigationID toID)
 {
-    //auto& buttons = ReflectFields->NavigationButtons;
-    //auto& biases  = ReflectFields->NavigationStickBiases;
-    //auto& toIDs   = ReflectFields->NavigationTo;
-    //buttons.push_back(key.ButtonType);
-    //biases.push_back(key.Bias);
-    //toIDs.push_back(toID);
+    NavigationRoutes& navigationRoutes = ReflectFields->NavigationRoutes;
+    navigationRoutes.push_back({key.ButtonType, key.Bias, toID});
 }
 
-void UINavigationComponent::GetNavigatedId(const NavigationKey& key)
+NavigationID UINavigationComponent::GetNavigatedId(const NavigationKey& key)
 {
-    //auto& buttons = ReflectFields->NavigationButtons;
-    //auto& biases  = ReflectFields->NavigationStickBiases;
-    //auto& toIDs   = ReflectFields->NavigationTo;
+    NavigationRoutes& navigationInfos = ReflectFields->NavigationRoutes;
+    auto  result          = navigationInfos | std::views::filter([&key](const auto& info) {
+                      const auto [button, bias, toID] = info;
+                      return button == key.ButtonType && bias == key.Bias;
+                  }) |
+                  std::views::take(1) | std::views::elements<2>;
+
+    if (false == result.empty())
+    {
+        return *result.begin();
+    }
+
+    return INVALID_NAVIGATION_ID;
 }
