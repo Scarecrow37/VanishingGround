@@ -4,6 +4,7 @@
 #include "TurnSystem/TurnActor/TurnActor.h"
 #include <WeaponSystem/WeaponSystem.h>
 #include <DamageSystem/DamageSystem.h>
+#include "TurnSystem/TurnAction/Condition/RoundOnceCondition/RoundOnceCondition.h"
 
 //Condition
 #include "GameCore/FSM/AlwaysTransitionCondition.h"
@@ -45,18 +46,16 @@ TurnMode::TurnMode()
     _roundCount(0), 
     _currTurnActor(nullptr)
 {
-    static_instance = this;
+   
 }
 TurnMode::~TurnMode()
 {
-    if (static_instance == this)
+    if (_singletonComponent.IsSingleTon())
     {
-        static_instance = nullptr;
+        _turnList.Reset();
+        UmWatcher.Unregister<TurnQueueViewModel>("Turn Queue");
+        UmWatcher.Unregister<WeaponViewModel>("Weapon");
     }
-
-    _turnList.Reset();
-    UmWatcher.Unregister<TurnQueueViewModel>("Turn Queue");
-    UmWatcher.Unregister<WeaponViewModel>("Weapon");
 }
 
 Player* TurnMode::GetPlayer()
@@ -166,7 +165,7 @@ void TurnMode::StartFrontTurnActor()
             _currTurnActor = actorSlot.second;
             if (true == IsPlayerActorSlot(actorSlot))
             {
-                if (WeaponSystem* weaponSystem = WeaponSystem::GetInstance())
+                if (WeaponSystem* weaponSystem = SingletonComponent<WeaponSystem>::GetInstance())
                 {
                     weaponSystem->SetCurrentWeaponSlot(actorSlot.first);
                 }
@@ -250,6 +249,15 @@ void TurnMode::BuildTurnModeFSM()
     }
 }
 
+void TurnMode::AddRoundOnceActions() 
+{
+    for (auto& action : RoundOnceTrueCondition::RoundOnceAction::_roundOnceActions)
+    {
+        AddTurnAction(action);
+    }
+    RoundOnceTrueCondition::RoundOnceAction::_roundOnceActions.clear();
+}
+
 int TurnMode::GetRealRoundSpeed(const std::pair<int, TurnActor*>& turnActor)
 {
     bool isPlayer = IsPlayerActorSlot(turnActor);
@@ -257,7 +265,7 @@ int TurnMode::GetRealRoundSpeed(const std::pair<int, TurnActor*>& turnActor)
     int roundSpeed      = 0;
     if (isPlayer)
     {
-        WeaponSystem* weaponSystem = WeaponSystem::GetInstance();
+        WeaponSystem* weaponSystem = SingletonComponent<WeaponSystem>::GetInstance();
         if (weaponSystem)
         {
             roundSpeed = weaponSystem->GetRoundSpeedToSlot(slot);
@@ -276,22 +284,18 @@ int TurnMode::GetRealRoundSpeed(const std::pair<int, TurnActor*>& turnActor)
 
 void TurnMode::Reset() 
 {
-   
+    _singletonComponent.SetSingleTon();
 }
 
 void TurnMode::Awake()
 {
-    try
+    if (_singletonComponent.TrySingleTon())
     {
         UmWatcher.Register<TurnQueueViewModel>("Turn Queue", _turnList);
         UmWatcher.Register<WeaponViewModel>("Weapon", _currTurnActor);
     }
-    catch (const std::exception& e)
-    {
-        UmLogger.Log(LogLevel::LEVEL_ERROR, e.what());
-    }
-
     BuildTurnModeFSM();
+    AddRoundOnceActions();
 }
 
 void TurnMode::ImGuiDrawPropertysEvent() 

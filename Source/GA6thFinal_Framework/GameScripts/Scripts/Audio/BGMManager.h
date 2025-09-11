@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "UmFramework.h"
+#include "Utility/SingletonHelper.h"
 
 class AudioComponent;
 class BGMManager : public Component
@@ -9,8 +10,6 @@ class BGMManager : public Component
 public:
     BGMManager();
     ~BGMManager() override;
-    inline static BGMManager* _staticInstance;
-    inline static BGMManager* GetInstance() { return _staticInstance; }
 
 public:
     REFLECT_PROPERTY()
@@ -27,4 +26,6 @@ protected:
     AudioComponent* _audio = nullptr;
     REFLECT_FIELDS_BEGIN(Component)
     REFLECT_FIELDS_END(BGMManager)
+
+    SingletonComponent<BGMManager> _singletonComponent{this};
 };

@@ -11,7 +11,7 @@ using namespace u8_literals;
 std::vector<CharacterBase*> TurnSystemHelper::GetTargetCharacters(TurnTarget target)
 {
     std::vector<CharacterBase*> targetCharacters;
-    if (TurnMode* turnMode = TurnMode::GetInstance())
+    if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
     {
         auto lastAttacker    = Battle::GetLastAttacker().lock();
         auto lastTarget      = Battle::GetLastTarget().lock();

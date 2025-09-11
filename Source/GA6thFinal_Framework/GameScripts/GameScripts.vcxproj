@@ -469,6 +469,8 @@
     <ClInclude Include="Scripts\ItemDropSystem\UI\ArtifactUIManager.h" />
     <ClInclude Include="Scripts\ItemDropSystem\ItemDropSystem.h" />
     <ClInclude Include="Scripts\SceneTransition\SceneTransitionComponent.h" />
+    <ClInclude Include="Scripts\Utility\SingletonHelper.h" />
+    <ClInclude Include="Scripts\PlayerSystem\PlayerSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scripts\Audio\BGMManager.cpp" />
@@ -648,6 +650,7 @@
     <ClCompile Include="Scripts\ItemDropSystem\UI\ArtifactUIManager.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\ItemDropSystem.cpp" />
     <ClCompile Include="Scripts\SceneTransition\SceneTransitionComponent.cpp" />
+    <ClCompile Include="Scripts\PlayerSystem\PlayerSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

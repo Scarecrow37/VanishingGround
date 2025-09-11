@@ -5,24 +5,21 @@
 
 WeaponSystem::WeaponSystem()
 {
-    static_instance = this;
+
 }
 WeaponSystem::~WeaponSystem()
-{
-    if (this == static_instance)
-    {
-        static_instance = nullptr;
-    }
-}
-
-void WeaponSystem::Reset() 
 {
     
 }
 
+void WeaponSystem::Reset() 
+{
+    _singletonComponent.SetSingleTon();
+}
+
 void WeaponSystem::Awake() 
 {
-
+    _singletonComponent.TrySingleTon();
 }
 
 void WeaponSystem::SerializedReflectEvent()
@@ -77,7 +74,7 @@ void WeaponSystem::SetCurrentWeaponSlot(int slot)
         UmLogger.Log(LogLevel::LEVEL_DEBUG, "out of index");
         return;
     }
-    TurnMode* turnMode = TurnMode::GetInstance();
+    TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
     auto isPlay = Global::IsPlay();
     if (isPlay && turnMode)
     {
@@ -113,7 +110,7 @@ void WeaponSystem::ImguiEquipWeapons()
         {
             if (ImGui::MenuItem("Reset All"))
             {
-                WeaponTableComponent* weaponTableComponent = WeaponTableComponent::GetInstance();
+                WeaponTableComponent* weaponTableComponent = SingletonComponent<WeaponTableComponent>::GetInstance();
                 if (weaponTableComponent)
                 {
                     auto& weaponTable = weaponTableComponent->GetWeaponTable();
@@ -145,7 +142,7 @@ void WeaponSystem::ImguiEquipWeapons()
             {
                 if (ImGui::BeginMenu("Change"))
                 {
-                    WeaponTableComponent* weaponTable = WeaponTableComponent::GetInstance();
+                    WeaponTableComponent* weaponTable = SingletonComponent<WeaponTableComponent>::GetInstance();
                     if (weaponTable)
                     {
                         static ImGuiTextFilter filter;
@@ -175,7 +172,7 @@ void WeaponSystem::ImguiEquipWeapons()
 
         auto ValidWeaponInfo = [](const std::string& weaponName) 
         {
-            WeaponTableComponent* weaponTableComponent = WeaponTableComponent::GetInstance();
+            WeaponTableComponent* weaponTableComponent = SingletonComponent<WeaponTableComponent>::GetInstance();
             if (weaponTableComponent)
             {
                 const WeaponElement* element = weaponTableComponent->GetWeaponToName(weaponName);
@@ -223,7 +220,7 @@ void WeaponSystem::ImguiEquipWeapons()
             //무기 스텟 테이블 정보로 리셋
             if (true == resetWeponSelect)
             {
-                WeaponTableComponent* weaponTableComponent = WeaponTableComponent::GetInstance();
+                WeaponTableComponent* weaponTableComponent = SingletonComponent<WeaponTableComponent>::GetInstance();
                 if (weaponTableComponent)
                 {
                     auto& weaponTable = weaponTableComponent->GetWeaponTable();

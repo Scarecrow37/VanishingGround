@@ -1,14 +1,14 @@
 ﻿#include "pchScripts.h"
 #include "EnemyActionSystem.h"
 
-EnemyActionSystem::EnemyActionSystem() {}
+EnemyActionSystem::EnemyActionSystem() 
+{
+
+}
 
 EnemyActionSystem::~EnemyActionSystem()
 {
-    if (this == _staticInstance)
-    {
-        _staticInstance = nullptr;
-    }
+
     for (auto& [id, data] : _enemyActionTable)
     {
         if (data)
@@ -20,7 +20,12 @@ EnemyActionSystem::~EnemyActionSystem()
 
 void EnemyActionSystem::Reset() 
 {
-    _staticInstance = this;
+    _singletonComponent.SetSingleTon();
+}
+
+void EnemyActionSystem::Awake() 
+{
+    _singletonComponent.TrySingleTon();
 }
 
 void EnemyActionSystem::SerializedReflectEvent() 

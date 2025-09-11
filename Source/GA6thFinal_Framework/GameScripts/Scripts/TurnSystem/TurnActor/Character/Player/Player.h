@@ -1,18 +1,16 @@
 ﻿#pragma once
 #include "TurnSystem/TurnActor/Character/CharacterBase.h"
-#include <Stats/Weapon/WeaponStats.h>
+#include "Stats/Weapon/WeaponStats.h"
+#include "Utility/SingletonHelper.h"
 
 class FiniteStateMachine;
 class Player : public CharacterBase
 {
     USING_PROPERTY(Player)
-    inline static Player* static_instance = nullptr;
 
 public:
     inline static constexpr const char* TAG = "Player";
   
-
-
 public:
     REFLECT_PROPERTY(
         Shield
@@ -30,6 +28,8 @@ protected:
     REFLECT_FIELDS_END(Player)
 
 private:
+    SingletonComponent<Player> _singletonComponent{this};
+
     class PlayerStatsComponent* _playerStats = nullptr;
     int GetShield();
 
@@ -53,7 +53,6 @@ public:
     /*플레이어에게 피격을 가합니다.*/
     virtual void TakeDamage(int damage, bool playAnim = true) override;
 
-    inline static Player* GetInstance() { return static_instance; }
     FiniteStateMachine& GetFSM() { return *_finiteStateMachine; }
     const PlayerStates& GetFSMStates() { return _fsmStates; }
 

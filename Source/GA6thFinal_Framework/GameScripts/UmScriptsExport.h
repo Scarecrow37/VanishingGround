@@ -176,6 +176,10 @@ UMREAL_COMPONENT(ItemDropSystem)
 #include "Scripts\SceneTransition/SceneTransitionComponent.h"
 UMREAL_COMPONENT(SceneTransitionComponent)
 
+#include "Scripts\PlayerSystem/PlayerSystem.h"
+UMREAL_COMPONENT(PlayerSystem)
+UMREAL_COMPONENT(SceneTransitionComponent)
+
 #include "Scripts\Map/MapManager.h"
 UMREAL_COMPONENT(MapManager)
 
