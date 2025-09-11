@@ -55,10 +55,18 @@ public:
     /// <returns>실패시 0</returns>
     int GetArtifactCategoryAssetID(ArtifactDropType artifactDropType);
 
+    /// <summary>
+    /// 아이템 ID를 통해 아이콘 ID를 반환합니다.
+    /// </summary>
+    /// <param name="info :">아이템 정보</param>
+    /// <returns>아이콘 ID</returns>
+    int GetArtifactIconID(DropItemInfo info);
+
 protected:
     REFLECT_FIELDS_BEGIN(Component)
     std::string ArtifactsUIFrameAssetGuid;
     std::vector<int> ArtifactsCategoryAssetID;
+    std::unordered_map<int, int> ArtifactsIconIDMap;
     REFLECT_FIELDS_END(ItemDropUIRootManager)
 
     void DeserializedReflectEvent() override;
