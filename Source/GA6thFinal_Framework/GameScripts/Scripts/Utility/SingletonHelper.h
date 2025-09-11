@@ -35,7 +35,7 @@ public:
     {
         if (Global::IsPlay())
         {
-            if (nullptr == SingleToneObject)
+            if (nullptr == SingleToneObject || SingleToneObject == &_owner->gameObject)
             {
                 SingleToneObject = &_owner->gameObject;
                 GameObject::DontDestroyOnLoad(SingleToneObject);
@@ -43,7 +43,6 @@ public:
             }
             else
             {
-
                 std::string message = typeid(T).name();
                 message += (const char*)u8"는 싱글톤 오브젝트 입니다.";
                 UmLogger.Log(LogLevel::LEVEL_WARNING, message);
