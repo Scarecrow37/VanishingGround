@@ -15,6 +15,10 @@ RevelationSystem::RevelationSystem()
 }
 RevelationSystem::~RevelationSystem()
 {
+    if (this == static_instance)
+    {
+        static_instance = nullptr;
+    }
     UmWatcher.Unregister<RevelationsViewModel>("Revelations");
 };
 
