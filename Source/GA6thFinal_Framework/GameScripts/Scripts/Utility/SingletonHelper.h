@@ -46,12 +46,9 @@ public:
             }
             else
             {
-                std::string message = typeid(T).name();
-                message += (const char*)u8"는 싱글톤 오브젝트 입니다.";
-                UmLogger.Log(LogLevel::LEVEL_WARNING, message);
+                GameObject::Destroy(_owner->gameObject);
             }
         }
-        GameObject::Destroy(_owner->gameObject);
         return false;
     }
 
