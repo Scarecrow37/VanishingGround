@@ -21,32 +21,12 @@ void FadePass::Update(ID3D12GraphicsCommandList* commadList, const float deltaTi
         auto& transitionProp = it->second;
         if (true == transitionProp._fadeFlag)
         {
-            _fadeFlag         = true;
-            _fadeStart        = transitionProp._fadeStartColor;
-            _fadeEnd          = transitionProp._fadeEndColor;
-            _fadeDuration     = transitionProp._fadeDuration;
-            _fadeElapsedTimer = 0;
-            _fadeMaintain     = transitionProp._fadeMaintain;
-            transitionProp._fadeFlag = false;
+            _fadeFlag  = true;
+            _fadeColor = transitionProp._fadeColor;
         }
-    }
-
-    // (아래 코드는 기존과 동일)
-    if (true == _fadeFlag)
-    {
-        _fadeElapsedTimer += deltaTime;
-        if (0 != _fadeDuration)
+        else
         {
-            _fadeColor = Vector4::Lerp(_fadeStart, _fadeEnd, _fadeElapsedTimer / _fadeDuration);
-        }
-        if (_fadeElapsedTimer >= _fadeDuration)
-        {
-            _fadeColor = _fadeEnd;
-        }
-        if (_fadeElapsedTimer >= _fadeDuration + _fadeMaintain)
-        {
-            _fadeFlag         = false;
-            _fadeElapsedTimer = 0;
+            _fadeFlag = false;
         }
     }
 }

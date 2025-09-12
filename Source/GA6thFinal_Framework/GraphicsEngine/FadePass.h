@@ -19,12 +19,7 @@ private:
     void InitializeShaderAndPSO();
 
     bool                           _fadeFlag = false;
-    Vector4                        _fadeStart{0, 0, 0, 0};
-    Vector4                        _fadeEnd{0, 0, 0, 0};
     Vector4                        _fadeColor{0, 0, 0, 0};
-    float                          _fadeDuration = 1.f;
-    float                          _fadeElapsedTimer = 0;
-    float                          _fadeMaintain     = 0;
     FX<GE::VS::QUAD, GE::PS::FADE> _fx;
     // std::map<std::string, class Texture*> _fadeMaskTextures;
     
