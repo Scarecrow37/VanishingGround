@@ -6,8 +6,8 @@ MeshComponent::MeshComponent()
     Component(Component::TYPE::MESH),
     Renderer(_pMeshRenderer)
 {
-  
 }
+
 MeshComponent::~MeshComponent()
 {
     if (Renderer)
@@ -170,7 +170,6 @@ void MeshComponent::InitMaterial()
     if (ReflectFields->CustomDepth.size() < meshCount)
     {
         ReflectFields->BlendMode.resize(meshCount, 0);
-        ReflectFields->CullMode.resize(meshCount, 0);
         ReflectFields->IsTwoSided.resize(meshCount, false);
         ReflectFields->CustomDepth.resize(meshCount, PostProcess::BLOOM);
     }
@@ -181,7 +180,6 @@ void MeshComponent::InitMaterial()
 
         //materials[i].ShadingModel = (Material::ShadingModelType)ReflectFields->ShadingModel[i];
         materials[i].BlendMode    = (Material::BlendModeType)ReflectFields->BlendMode[i];
-        materials[i].CullMode     = (Material::CullModeType)ReflectFields->CullMode[i];
         materials[i].IsTwoSided   = ReflectFields->IsTwoSided[i];
     }
 

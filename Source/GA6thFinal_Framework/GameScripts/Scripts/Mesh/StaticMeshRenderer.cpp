@@ -42,7 +42,7 @@ void StaticMeshRenderer::LoadModel()
 
             Renderer->OnCustomDepth(PostProcess::BLOOM);
             transform->SetChangeFlag();
-            InitMaterial();            
+            InitMaterial();
         }
     }
 }
