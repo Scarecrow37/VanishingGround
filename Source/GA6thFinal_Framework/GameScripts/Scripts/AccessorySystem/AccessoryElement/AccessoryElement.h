@@ -35,7 +35,7 @@ public:
         case AccessoryGrade::RARE:
             return ImColor{45, 205, 255, 255};
         case AccessoryGrade::BIZARRE:
-            return ImColor{255, 0, 255, 0}; 
+            return ImColor{255, 0, 255, 255}; 
         case AccessoryGrade::LEGENDARY:
             return ImColor{245, 200, 0, 255};
         default:

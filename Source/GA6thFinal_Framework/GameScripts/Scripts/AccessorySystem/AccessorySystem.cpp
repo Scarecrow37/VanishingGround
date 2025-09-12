@@ -29,7 +29,7 @@ void AccessorySystem::ImGuiDrawPropertysEvent()
         ImVec2         size     = viewPort->Size * 0.75f;
         ImGui::SetNextWindowPos(center, ImGuiCond_Once, ImVec2(0.5f, 0.5f));
         ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
-        ImGui::Begin("Weapon Table Editor##1191B534-B4B7-425C-8638-EFE3B662DB9C", &_editorOnly.ShowTableEditor,
+        ImGui::Begin("Accessory Table Editor##1191B534-B4B7-425C-8638-EFE3B662DB9C", &_editorOnly.ShowTableEditor,
                      ImGuiWindowFlags_MenuBar);
 
         if (ImGui::BeginMenuBar())
@@ -39,7 +39,7 @@ void AccessorySystem::ImGuiDrawPropertysEvent()
                 std::wstring_view desktopPath = File::GetDesktopPath();
                 File::Path        out;
                 if (File::ShowSaveFileDialog(NULL, L"저장할 경로를 선택하세요.", desktopPath.data(),
-                                             L"WeaponTable.AsTable", {{L"장신구 테이블 파일\0", L"*.AsTable\0"}}, out))
+                                             L"AsTable.AsTable", {{L"장신구 테이블 파일\0", L"*.AsTable\0"}}, out))
                 {
                     bool isWrite = true;
                     if (std::filesystem::exists(out))
@@ -78,7 +78,7 @@ void AccessorySystem::ImGuiDrawPropertysEvent()
                 std::wstring_view       desktopPath = File::GetDesktopPath();
                 std::vector<File::Path> out;
                 if (File::ShowOpenFileDialog(NULL, L"로드할 파일을 선택하세요.", desktopPath.data(),
-                                             {{L"무기 테이블 파일\0", L"*.WpTable\0"}}, false, out))
+                                             {{L"장신구 테이블 파일\0", L"*.AsTable\0"}}, false, out))
                 {
                     if (std::filesystem::exists(out.front()))
                     {
@@ -211,7 +211,7 @@ void AccessorySystem::ImGuiTableEditor()
         ImGui::OpenPopup("Accessory Table Delete Modal Popup");
     }
 
-    if (ImGui::BeginPopupModal("Weapon Table Delete Modal Popup"))
+    if (ImGui::BeginPopupModal("Accessory Table Delete Modal Popup"))
     {
         ImGui::Text((const char*)u8"이 작업은 되돌릴 수 없습니다.");
         ImGui::Text("%s", _editorOnly.DeleteTableBuffer.c_str());
@@ -233,19 +233,19 @@ void AccessorySystem::ImGuiTableEditor()
         ImGui::EndPopup();
     }
 
-    static std::string newWeaponName;
-    ImGui::InputText("##New Weapon", &newWeaponName);
+    static std::string newAccessoryName;
+    ImGui::InputText("##New Accessory", &newAccessoryName);
     ImGui::SameLine();
-    if (ImGui::Button("New Weapon"))
+    if (ImGui::Button("New Accessory"))
     {
-        if (false == newWeaponName.empty())
+        if (false == newAccessoryName.empty())
         {
             AccessoryElement element;
-            element.SetName(newWeaponName);
+            element.SetName(newAccessoryName);
             bool result = InsertAccessory(element);
             if (true == result)
             {
-                newWeaponName.clear();
+                newAccessoryName.clear();
             }
         }
     }
@@ -257,7 +257,7 @@ void AccessorySystem::ImGuiDrawExcelParser()
 #ifdef _UMEDITOR
     if (ImGui::BeginPopupModal(u8"알림##Dirty Accessory Popup"_c_str))
     {
-        auto PopDirtyWeaponElement = [this]() {
+        auto PopDirtyAccessoryElement = [this]() {
             _editorOnly.ShowDirtyAccessoryPopup = false;
             _editorOnly.DirtyAccessoryQueue.pop();
             if (true == _editorOnly.DirtyAccessoryQueue.empty())
@@ -272,13 +272,13 @@ void AccessorySystem::ImGuiDrawExcelParser()
         ImGui::Separator();
         if (ImGui::Button("OK"))
         {
-            PopDirtyWeaponElement();
+            PopDirtyAccessoryElement();
             ImGui::CloseCurrentPopup();
         }
         ImGui::SameLine();
         if (ImGui::Button("Cancel"))
         {
-            PopDirtyWeaponElement();
+            PopDirtyAccessoryElement();
             EraseAccessory(element);
             ImGui::CloseCurrentPopup();
         }
@@ -287,7 +287,7 @@ void AccessorySystem::ImGuiDrawExcelParser()
 
     if (false == _editorOnly.DirtyAccessoryQueue.empty() && false == _editorOnly.ShowDirtyAccessoryPopup)
     {
-        ImGui::OpenPopup(u8"알림##Dirty Weapon Popup"_c_str);
+        ImGui::OpenPopup(u8"알림##Dirty Accessory Popup"_c_str);
         _editorOnly.ShowDirtyAccessoryPopup = true;
     }
 
@@ -505,13 +505,15 @@ void AccessorySystem::SortTableIDOrder()
 std::string AccessorySystem::SaveAccessoryTable()
 {
     ElementTableSerialized();
-    return ReflectHelper::json::SerializedObjet(ReflectFields->ElementTableData);
+    return rfl::json::write(ReflectFields->ElementTableData);
 }
 
 bool AccessorySystem::LoadAccessoryTable(const std::string& data)
 {
-    if (ReflectHelper::json::DeserializedObjet(ReflectFields->ElementTableData, data))
+    auto result = rfl::json::read<decltype(ReflectFields->ElementTableData)>(data.data());
+    if (result)
     {
+        ReflectFields->ElementTableData = result.value();
         ElementTableDeserialized();
         return true;
     }
