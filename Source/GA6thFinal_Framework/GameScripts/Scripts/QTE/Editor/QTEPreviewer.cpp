@@ -2,12 +2,13 @@
 #include "QTEPreviewer.h"
 #include <QTE/System/QTESystem.h>
 #include <QTE/Editor/QTEEditor.h>
+#include "Utility/SingletonHelper.h"
 
 void QTEPreviewer::Reset()
 {
     _noteMap.clear();
     _effectTimer = 0.0f;
-    auto system = QTESystem::GetInstance();
+    auto system  = SingletonComponent<QTESystem>::GetInstance();
     if (system && system->GetCurrentQTETrack())
     {
         auto resultQueue = system->GetCurrentQTEResultQueue();
@@ -26,7 +27,7 @@ void QTEPreviewer::Draw()
     auto* window = ImGui::GetCurrentWindow();
     if (window && window->DrawList)
     {
-        auto system = QTESystem::GetInstance();
+        auto system = SingletonComponent<QTESystem>::GetInstance();
         if (system && system->GetCurrentQTETrack())
         {
             auto qteTrack = system->GetCurrentQTETrack();
@@ -85,7 +86,7 @@ void QTEPreviewer::PressedNote(const QTE::Result* result)
 void QTEPreviewer::DrawJudgeRange(std::pair<float, float> range, float circleRadius, ImU32 judgeCol, ImU32 bgCol)
 {
     auto* window = ImGui::GetCurrentWindow();
-    auto* system = QTESystem::GetInstance();
+    auto* system = SingletonComponent<QTESystem>::GetInstance();
     if (system && window)
     {
         auto* drawList = window->DrawList;
@@ -117,7 +118,7 @@ void QTEPreviewer::DrawJudgeRange(std::pair<float, float> range, float circleRad
 void QTEPreviewer::DrawNote(const QTE::Result* result, float circleRadius, ImColor noteCol, ImColor bgCol)
 {
     auto* window = ImGui::GetCurrentWindow();
-    auto* system = QTESystem::GetInstance();
+    auto* system = SingletonComponent<QTESystem>::GetInstance();
     if (system && window && result)
     {
         auto* drawList = window->DrawList;
@@ -152,7 +153,7 @@ void QTEPreviewer::DrawNote(const QTE::Result* result, float circleRadius, ImCol
 
 float QTEPreviewer::CalcNoteAlphaFromPositionX(float posX)
 {
-    auto system = QTESystem::GetInstance();
+    auto system = SingletonComponent<QTESystem>::GetInstance();
     if (system)
     {
         ImVec2 availSize              = ImGui::GetContentRegionAvail();

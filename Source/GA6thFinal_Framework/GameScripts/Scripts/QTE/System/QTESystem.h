@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <QTE/Result/QTEResult.h>
 #include <QTE/Editor/QTEPreviewer.h>
+#include "Utility/SingletonHelper.h"
 
 class QTEEditor;
 namespace QTE

@@ -1,5 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "QTEEditor.h"
+#include "Utility/SingletonHelper.h"
 #include <QTE/System/QTESystem.h>
 #include <QTE/Editor/QTEPreviewer.h>
 #include <WeaponSystem/WeaponSystem.h>
@@ -114,7 +115,7 @@ void QTEEditor::ShowSystemDetail()
     // QTE 시스템 정보
     ImGui::BeginChild("system_detail", canvasSize, ImGuiChildFlags_Border);
     {
-        QTESystem* system = QTESystem::GetInstance();
+        QTESystem* system = SingletonComponent<QTESystem>::GetInstance();
         if (system)
         {
             ImGui::BeginChild("system_props", ImVec2(0.0f, ImGui::GetContentRegionAvail().y * 0.4f), ImGuiChildFlags_Border);
@@ -453,7 +454,7 @@ void QTEEditor::ShowPreviewFrame()
     {
         return;
     }
-    auto system = QTESystem::GetInstance();
+    auto system = SingletonComponent<QTESystem>::GetInstance();
     auto track  = _qteTrack->GetEventTrack().lock();
     if (system && track)
     {
@@ -543,7 +544,7 @@ void QTEEditor::ShowPreviewFrame()
 
 void QTEEditor::ShowTrackFromWeapon(const QTE::Track* track, const std::string& weaponName, int weaponID, int index) 
 {
-    auto system = QTESystem::GetInstance();
+    auto system   = SingletonComponent<QTESystem>::GetInstance();
     bool selected = (_qteTrack == track);
     if (nullptr == system || nullptr == track)
     {
@@ -587,7 +588,7 @@ void QTEEditor::DrawPreview()
     auto* window = ImGui::GetCurrentWindow();
     if (window && window->DrawList)
     {
-        auto system = QTESystem::GetInstance();
+        auto system = SingletonComponent<QTESystem>::GetInstance();
         auto track  = _qteTrack->GetEventTrack().lock();
         if (system && track)
         {
@@ -627,7 +628,7 @@ void QTEEditor::DrawPreview()
 void QTEEditor::DrawJudgeRange(std::pair<float, float> range, float circleRadius, ImU32 judgeCol, ImU32 bgCol)
 {
     auto* window = ImGui::GetCurrentWindow();
-    auto* system = QTESystem::GetInstance();
+    auto* system = SingletonComponent<QTESystem>::GetInstance();
     if (system && window)
     {
         auto* drawList = window->DrawList;
@@ -660,7 +661,7 @@ void QTEEditor::DrawJudgeRange(std::pair<float, float> range, float circleRadius
 void QTEEditor::DrawNote(Timeline::EventContext* context, float circleRadius, ImColor noteCol, ImColor bgCol)
 {
     auto* window = ImGui::GetCurrentWindow();
-    auto* system = QTESystem::GetInstance();
+    auto* system = SingletonComponent<QTESystem>::GetInstance();
     if (system && window)
     {
         auto* drawList = window->DrawList;
@@ -705,7 +706,7 @@ void QTEEditor::DrawNote(Timeline::EventContext* context, float circleRadius, Im
 
 float QTEEditor::CalcNoteAlphaFromPositionX(float posX)
 {
-    auto system = QTESystem::GetInstance();
+    auto system = SingletonComponent<QTESystem>::GetInstance();
     if (system)
     {
         ImVec2 availSize              = ImGui::GetContentRegionAvail();
