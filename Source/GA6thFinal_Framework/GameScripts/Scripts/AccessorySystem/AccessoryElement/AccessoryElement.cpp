@@ -22,20 +22,23 @@ void AccessoryElement::SerializedReflectEvent()
     if (_action)
     {
         ReflectFields->ActionName = _action->ActionName;
+        ReflectFields->ActionData = _action->SerializedReflectFields();
     }
     else
     {
         ReflectFields->ActionName = STR_NULL;
+        ReflectFields->ActionData = STR_NULL;
     }
 }
 
 void AccessoryElement::DeserializedReflectEvent() 
 {
     const auto& actionFactory = TurnActionFactory::GetActionFactory();
-    auto        iter          = actionFactory.find(ReflectFields->ActionName.data());
+    auto        iter          = actionFactory.find(ReflectFields->ActionName);
     if (iter != actionFactory.end())
     {
         _action.reset(iter->second());
+        _action->DeserializedReflectFields(ReflectFields->ActionData);
     }
 }
 
@@ -50,4 +53,13 @@ void AccessoryElement::DeepCopyAction(const TurnAction& action)
         _action.reset(iter->second());
         *_action = action;
     }
+}
+
+DropItemInfo AccessoryElement::GetItemInfo()
+{
+    DropItemInfo info;
+    info.Category = ArtifactDropType::ACCESSORY;
+    info.ID       = ReflectFields->ID;
+    info.Name     = ReflectFields->AccessoryName;
+    return info;
 }

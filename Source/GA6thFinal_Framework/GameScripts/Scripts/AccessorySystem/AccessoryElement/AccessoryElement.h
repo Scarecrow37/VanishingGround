@@ -69,6 +69,7 @@ protected:
     std::string    AccessoryName = STR_NULL;
     AccessoryGrade Grade         = AccessoryGrade::COMMON;
     std::string    ActionName    = STR_NULL; 
+    std::string    ActionData    = STR_NULL; 
     REFLECT_FIELDS_END(AccessoryElement)
 
     /// <summary>
@@ -103,4 +104,7 @@ public:
     AccessoryElement(const AccessoryElement& rhs) { CopyElement(rhs); }
     AccessoryElement& operator=(const AccessoryElement& rhs) { return CopyElement(rhs); }
 
+
+public:
+    DropItemInfo GetItemInfo() override;
 };
