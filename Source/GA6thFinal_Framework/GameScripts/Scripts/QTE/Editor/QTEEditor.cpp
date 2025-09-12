@@ -233,7 +233,7 @@ void QTEEditor::ShowSystemDetail()
 
             // 무기 별 트랙 정보
             ImGuiHelper::AlignedText("Track", ImGuiHelper::LEFT, 0.8f);
-            auto weaponTableComponent = WeaponTableComponent::GetInstance();
+            auto weaponTableComponent = SingletonComponent<WeaponTableComponent>::GetInstance();
             if (weaponTableComponent)
             {
                 auto& weaponTable = weaponTableComponent->GetWeaponTable();

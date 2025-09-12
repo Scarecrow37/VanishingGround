@@ -171,7 +171,7 @@ QTE::Track* QTESystem::GetMappingTrackToWeaponID(int weaponID, int index)
 void QTESystem::StartQTE()
 {
     // 현재 무기에 맞는 QTE 트랙을 선택
-    WeaponSystem* weaponSystem = WeaponSystem::GetInstance();
+    WeaponSystem* weaponSystem = SingletonComponent<WeaponSystem>::GetInstance();
     if (weaponSystem)
     {
         auto& weapon = weaponSystem->GetCurrentWeaponStats();
