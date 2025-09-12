@@ -358,8 +358,9 @@ namespace Mathf
                 }
             }
             if (t == points.back().first)
+            {
                 segment = n - 2;
-
+            }
             size_t i0 = (segment == 0) ? 0 : segment - 1;
             size_t i1 = segment;
             size_t i2 = segment + 1;
