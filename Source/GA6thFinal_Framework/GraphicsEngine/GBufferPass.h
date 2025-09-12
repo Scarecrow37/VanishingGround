@@ -4,16 +4,14 @@
 class BaseMesh;
 class GBufferPass : public RenderPass
 {    
-    enum MeshType
+    enum CullMode
     {
-        STATIC_CULL_BACK,
-        STATIC_CULL_FRONT,
-        STATIC_TWO_SIDED,
-        SKELETAL_CULL_BACK,
-        SKELETAL_CULL_FRONT,
-        SKELETAL_TWO_SIDED,
+        CULL_BACK,
+        CULL_FRONT,
+        TWO_SIDED,
         END
     };
+
     struct RenderData
     {
         BaseMesh* mesh;
@@ -35,15 +33,15 @@ public:
 
 private:
     void InitShaderAndPSO();
-    void DrawMeshes(ID3D12GraphicsCommandList* commandList, int shaderType, MeshType meshType);
+    void DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType meshType, Material::BlendModeType blendModeType, CullMode cullMode);
 
 private:
-    std::vector<ComPtr<ID3D12PipelineState>>                      _psos;
+    ComPtr<ID3D12PipelineState> _psos[MeshType::MESH_TYPE_END][Material::BlendModeType::BMT_END][CullMode::END];
     std::array<D3D12_CPU_DESCRIPTOR_HANDLE, GBuffer::GBUFFER_END> _gBufferHandles;
-    std::vector<RenderData>                                       _renderDatas[MeshType::END];
+    std::vector<RenderData> _renderDatas[MeshType::MESH_TYPE_END][Material::BlendModeType::BMT_END][CullMode::END];
 
     SharedResource<RenderTarget> _gBufferRenderTargets[4];
 
-    FX<GE::VS::STATIC_FR, GE::PS::GBUFFER>                        _fxStaticMesh;
-    FX<GE::VS::SKELETAL_FR, GE::PS::GBUFFER>                      _fxSkeletalMesh;
+    FX<GE::VS::STATIC_FR, GE::PS::GBUFFER>   _fxStaticMesh;
+    FX<GE::VS::SKELETAL_FR, GE::PS::GBUFFER> _fxSkeletalMesh;
 };

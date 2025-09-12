@@ -92,22 +92,23 @@ void MeshComponent::ImGuiDrawPropertysEvent()
                 ImGuiTableFlags flags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Sortable;
                 if (ImGui::BeginTable("##MeshComponent", 2, ImGuiTableFlags_Borders))
                 {
-                    //ImGui::TableNextRow();
-                    //{
-                    //    ImGui::TableNextColumn();
-                    //    {
-                    //        ImGui::Text("Shading Model");
-                    //    }
-                    //    ImGui::TableNextColumn();
-                    //    {
-                    //        static const char* names[] = {"Unlit", "Default Lit"};
-                    //        if (ImGui::Combo("##ShadingModel", (int*)&_materials[i].Mode, names, 2))
-                    //        {
-                    //            //_materials[i].CullMode;
-                    //        }
-                    //    }
-                    //    ImGui::TableNextColumn();
-                    //}
+                    ImGui::TableNextRow();
+                    {
+                        ImGui::TableNextColumn();
+                        {
+                            ImGui::Text("Blend Mode");
+                        }
+                        ImGui::TableNextColumn();
+                        {
+                            static const char* blendModeNames[] = {"Opaque", "Masked", "Translucent"};
+                            ImGui::Text("Blend Mode");
+                            if (ImGui::Combo("##BlendMode", (int*)&materials[i].BlendMode, blendModeNames, 3))
+                            {
+                                ReflectFields->BlendMode[i] = materials[i].BlendMode;
+                            }
+                        }
+                        ImGui::TableNextColumn();
+                    }
                     ImGui::TableNextRow();
                     {
                         ImGui::TableNextColumn();

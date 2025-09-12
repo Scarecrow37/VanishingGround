@@ -101,9 +101,7 @@ void ShadowMapPass::Draw(ID3D12GraphicsCommandList* commandList)
     auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
 
     if (_isDirtyFlag)
-    {
-        //PIXBeginEvent(PIX_COLOR_DEFAULT, L"StaticShadowMap");
-        //PIXSetMarker(PIX_COLOR_DEFAULT, "StaticShadowMap");
+    {        
         for (int i = 0; i < MAX_CASCADES; i++)
         {
             commandList->OMSetRenderTargets(0, nullptr, FALSE, &_staticShadowMapDSVs[i]);
@@ -111,6 +109,7 @@ void ShadowMapPass::Draw(ID3D12GraphicsCommandList* commandList)
 
             // Static
             commandList->SetGraphicsRootSignature(_fxStaticShadow.GetRootSignature());
+            commandList->SetGraphicsRootDescriptorTable(_fxStaticShadow.GetRootParameterIndex("textures"), resource);
             commandList->SetGraphicsRootConstantBufferView(_fxStaticShadow.GetRootParameterIndex("cascadeData"), cascadeData);
             frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxStaticShadow.GetRootParameterIndex("matrices"), commandList);
 
@@ -123,8 +122,7 @@ void ShadowMapPass::Draw(ID3D12GraphicsCommandList* commandList)
             commandList->SetPipelineState(_psos[STATIC_TWO_SIDED].Get());
             DrawMeshes(commandList, STATIC_MESH, STATIC_TWO_SIDED, i);
         }
-        //PIXSetMarker(commandList, PIX_COLOR_DEFAULT, L"Finish StaticShadowMap");
-        //PIXEndEvent();
+
         _isDirtyFlag = false;
     }
 
@@ -138,6 +136,7 @@ void ShadowMapPass::Draw(ID3D12GraphicsCommandList* commandList)
 
         // Skeletal
         commandList->SetGraphicsRootSignature(_fxSkeletalShadow.GetRootSignature());
+        commandList->SetGraphicsRootDescriptorTable(_fxSkeletalShadow.GetRootParameterIndex("textures"), resource);
         commandList->SetGraphicsRootConstantBufferView(_fxSkeletalShadow.GetRootParameterIndex("cascadeData"), cascadeData);
         frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxSkeletalShadow.GetRootParameterIndex("matrices"), commandList);
         frameResource->SetFrameResource(FrameResourceType::BONE_MATRICES, _fxSkeletalShadow.GetRootParameterIndex("boneMatrices"), commandList);
@@ -344,6 +343,19 @@ void ShadowMapPass::UpdateCascades(const Vector3& lightDirection)
 void ShadowMapPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, int shaderType, MeshType meshType, int cascadeIndex)
 {
     UINT parameter[4]{0, MAX_BONE_MATRIX, 0, 0};
+
+    const auto& parallaxMappingProperty = std::any_cast<const ParallaxMappingProperty&>(_ownerScene->GetRenderPassProperty("G-BufferPass"));
+
+    switch (shaderType)
+    {
+    case STATIC_MESH:
+        commandList->SetGraphicsRoot32BitConstants(_fxStaticShadow.GetRootParameterIndex("bit32_1_mipBias"), 1, &parallaxMappingProperty.MipBias, 0);
+        break;
+    case SKELETAL_MESH:
+        commandList->SetGraphicsRoot32BitConstants(_fxSkeletalShadow.GetRootParameterIndex("bit32_1_mipBias"), 1, &parallaxMappingProperty.MipBias, 0);
+        break;
+    }
+
     for (auto& [mesh, instanceID, customDepth] : _renderDatas[meshType])
     {
         parameter[0] = instanceID;
