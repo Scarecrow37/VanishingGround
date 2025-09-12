@@ -243,7 +243,7 @@ namespace Mathf
 
         // 같은 타입이면 기존 방식 사용
         if (inoutType == EASE_IN || inoutType == EASE_OUT)
-            return EaseTable[funcType*2+inoutType](t);
+            return EaseTable[funcType * 2 + inoutType](t);
 
         EaseFunc inFunc  = EaseTable[funcType * 2];
         EaseFunc outFunc = EaseTable[funcType * 2 + 1];
@@ -271,6 +271,116 @@ namespace Mathf
             {
                 float u = (t - threshold) / (1.0f - threshold);
                 return threshold + inFunc(u) * (1.0f - threshold);
+            }
+        }
+    }
+
+    // 단일 float Catmull-Rom 보간 함수 (4점)
+    inline float CatmullRomFloat(float t, float p0, float p1, float p2, float p3)
+    {
+        float t2 = t * t;
+        float t3 = t2 * t;
+        float a0 = -0.5f * p0 + 1.5f * p1 - 1.5f * p2 + 0.5f * p3;
+        float a1 = p0 - 2.5f * p1 + 2.0f * p2 - 0.5f * p3;
+        float a2 = -0.5f * p0 + 0.5f * p2;
+        float a3 = p1;
+        return a0 * t3 + a1 * t2 + a2 * t + a3;
+    }
+
+    // Vector3 Catmull-Rom 보간은 SimpleMath 함수 사용
+    inline Vector3 CatmullRomVector3(float t, const Vector3& p0, const Vector3& p1, const Vector3& p2,
+                                     const Vector3& p3)
+    {
+        return Vector3::CatmullRom(p0, p1, p2, p3, t);
+    }
+
+    // 보간 함수 템플릿, float 또는 Vector3 대응
+    template <typename T>
+    T CatmullRomSpline(const std::vector<std::pair<float, T>>& points, float t)
+    {
+        t = std::clamp(t, points.front().first, points.back().first);
+
+        size_t n = points.size();
+
+        // 2점이면 선형 보간
+        if (n == 2)
+        {
+            float t0     = points[0].first;
+            float t1     = points[1].first;
+            float localT = (t - t0) / (t1 - t0);
+
+            if constexpr (std::is_same_v<T, float>)
+            {
+                return points[0].second + localT * (points[1].second - points[0].second);
+            }
+            else
+            {
+                return points[0].second.Lerp(points[1].second, localT);
+            }
+        }
+        // 3점이면 중복점 만들기
+        else if (n == 3)
+        {
+            size_t segment = 0;
+            if (t >= points[1].first)
+                segment = 1;
+
+            float t0     = points[segment].first;
+            float t1     = points[segment + 1].first;
+            float localT = (t - t0) / (t1 - t0);
+
+            // 4점 만들기: p0, p1, p2, p3
+            const auto& p0 = (segment == 0) ? points[0].second : points[0].second;
+            const auto& p1 = points[segment].second;
+            const auto& p2 = points[segment + 1].second;
+            const auto& p3 = (segment == 0) ? points[2].second : points[2].second;
+
+            if constexpr (std::is_same_v<T, float>)
+            {
+                return CatmullRomFloat(localT, p0, p1, p2, p3);
+            }
+            else
+            {
+                return CatmullRomVector3(localT, p0, p1, p2, p3);
+            }
+        }
+        // 4개 이상 일반 구간 보간
+        else
+        {
+            // 구간 찾기
+            size_t segment = 0;
+            for (size_t i = 0; i < n - 1; ++i)
+            {
+                if (t >= points[i].first && t < points[i + 1].first)
+                {
+                    segment = i;
+                    break;
+                }
+            }
+            if (t == points.back().first)
+                segment = n - 2;
+
+            size_t i0 = (segment == 0) ? 0 : segment - 1;
+            size_t i1 = segment;
+            size_t i2 = segment + 1;
+            size_t i3 = (segment + 2 >= n) ? n - 1 : segment + 2;
+
+            float t0     = points[i1].first;
+            float t1     = points[i2].first;
+            float localT = (t - t0) / (t1 - t0);
+
+            const auto& p0 = points[i0].second;
+            const auto& p1 = points[i1].second;
+            const auto& p2 = points[i2].second;
+            const auto& p3 = points[i3].second;
+
+            if constexpr (std::is_same_v<T, float>)
+            {
+                return CatmullRomFloat(localT, p0, p1, p2, p3);
+            }
+            else
+            {
+                return CatmullRomVector3(localT, p0, p1, p2, p3);
             }
         }
     }
