@@ -16,10 +16,10 @@ void DXResourceManager::ResizeResource(DXGI_MODE_DESC prevMode)
         {
             auto resolution = resource->GetResolution();
 
-            if (resolution.Width == prevMode.Width && resolution.Height == prevMode.Height)
+            if (resolution.cx == prevMode.Width && resolution.cy == prevMode.Height)
             {
-                resolution.Width  = newMode.Width;
-                resolution.Height = newMode.Height;
+                resolution.cx  = newMode.Width;
+                resolution.cy = newMode.Height;
 
                 resource->ResizeResource(resolution);
             }

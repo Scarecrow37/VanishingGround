@@ -14,7 +14,7 @@ public:
 public:
     void Initialize(const D3D12_RESOURCE_DESC& desc);
     void ClearDepthStencilView(ID3D12GraphicsCommandList* commandList);
-    void ResizeResource(Resolution mode) override;
+    void ResizeResource(SIZE resolution) override;
 
 private:
     void CreateDepthStencilView();

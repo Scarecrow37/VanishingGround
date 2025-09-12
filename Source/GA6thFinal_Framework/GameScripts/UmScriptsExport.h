@@ -178,3 +178,24 @@ UMREAL_COMPONENT(SceneTransitionComponent)
 
 #include "Scripts\PlayerSystem/PlayerSystem.h"
 UMREAL_COMPONENT(PlayerSystem)
+
+#include "Scripts\Map/MapManager.h"
+UMREAL_COMPONENT(MapManager)
+
+#include "Scripts\Map/Stage.h"
+UMREAL_COMPONENT(Stage)
+
+#include "Scripts\Map/RewardPopup.h"
+UMREAL_COMPONENT(RewardPopup)
+
+#include "Scripts\UI/Views/Map/StageView.h"
+UMREAL_COMPONENT(StageView)
+
+#include "Scripts\UI/Views/Map/StageFocusView.h"
+UMREAL_COMPONENT(StageFocusView)
+
+#include "Scripts\Map\SmoothScroll.h"
+UMREAL_COMPONENT(SmoothScroll)
+
+#include "Scripts\UI/Views/Map/MapPlayerHPView.h"
+UMREAL_COMPONENT(MapPlayerHPView)

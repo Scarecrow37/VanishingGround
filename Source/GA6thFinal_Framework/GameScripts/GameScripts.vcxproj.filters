@@ -132,6 +132,10 @@
     <ClCompile Include="Scripts\UI\Views\RevelationsView\RevelationsView.cpp" />
     <ClCompile Include="Scripts\Audio\BGMManager.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnSystemHelper.cpp" />
+    <ClCompile Include="Scripts\Map\MapManager.cpp" />
+    <ClCompile Include="Scripts\Map\Stage.cpp" />
+    <ClCompile Include="Scripts\Map\RewardPopup.cpp" />
+    <ClCompile Include="Scripts\Map\ViewModels\StageViewModel.cpp" />
     <ClCompile Include="Scripts\UI\Panels\Overlay\OverlayPanel.cpp" />
     <ClCompile Include="Scripts\UI\Views\TurnQueue\TurnQueueView.cpp" />
     <ClCompile Include="Scripts\UI\Views\Weapon\WeaponView.cpp" />
@@ -291,6 +295,10 @@
     <ClInclude Include="Scripts\Audio\BGMManager.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnSystemHelper.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionEnums.h" />
+    <ClInclude Include="Scripts\Map\MapManager.h" />
+    <ClInclude Include="Scripts\Map\Stage.h" />
+    <ClInclude Include="Scripts\Map\RewardPopup.h" />
+    <ClInclude Include="Scripts\Map\ViewModels\StageViewModel.h" />
     <ClInclude Include="Scripts\UI\Panels\Overlay\OverlayPanel.h" />
     <ClInclude Include="Scripts\UI\Views\TurnQueue\TurnQueueView.h" />
     <ClInclude Include="Scripts\UI\Views\Weapon\WeaponView.h" />

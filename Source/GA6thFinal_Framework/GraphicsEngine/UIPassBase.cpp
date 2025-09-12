@@ -9,13 +9,11 @@ UIPassBase::UIPassBase(const std::vector<UINT>& instanceIDs)
 {
 }
 
-UIPassBase::~UIPassBase()
-{
-}
+UIPassBase::~UIPassBase() = default;
 
 void UIPassBase::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene, ownerTechnique, commandList);
+    RenderPass::Initialize(ownerScene, ownerTechnique, commandList);
 
     _instanceIDBuffer = std::make_unique<StructuredBuffer>();
     _instanceIDBuffer->Initialize(sizeof(UINT), 1000);

@@ -9,12 +9,15 @@ public:
 
 public:
     DepthStencilView* GetDepthStencilView() const { return _depthStencilView.Get(); }
+    ConstantBufferView* GetUIMaterialDataBuffer() const { return _uiMaterialDataBuffer.get(); }
 
 public:
     void Initialize(ID3D12GraphicsCommandList* commandList) override;
     void Execute(ID3D12GraphicsCommandList* commandList) override;
 
 private:
-    std::vector<UINT>                _renderDatas[SPRITE_TYPE_END];
-    SharedResource<DepthStencilView> _depthStencilView;
+    std::vector<UINT>                   _renderDatas[SPRITE_TYPE_END];
+    SharedResource<DepthStencilView>    _depthStencilView;
+    std::unique_ptr<ConstantBufferView> _uiMaterialDataBuffer;
+    std::vector<UIMaterialData>         _uiMaterialDatas;
 };

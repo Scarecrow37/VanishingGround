@@ -359,7 +359,7 @@ void ShaderBuilder::CreateRootSignatureDirect()
                 {
                     rootParam.ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
                     rootParam.Descriptor.ShaderRegister = bindDesc.BindPoint;
-                    rootParam.Descriptor.RegisterSpace  = 0;
+                    rootParam.Descriptor.RegisterSpace  = bindDesc.Space;
                     rootParam.ShaderVisibility          = visibility;
                 }
                 rootParameters.push_back(rootParam);
@@ -451,7 +451,7 @@ void ShaderBuilder::CreateRootSignatureDirect()
     if (nullptr != errorBlob)
     {
         std::filesystem::path errorMessage = static_cast<const char*>(errorBlob->GetBufferPointer());
-        GRAPHICS_ASSERT(FAILED(hr), errorMessage.c_str());
+        GRAPHICS_ASSERT(SUCCEEDED(hr), errorMessage.c_str());
     }
 
     // Root Signature 생성

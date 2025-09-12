@@ -335,7 +335,7 @@ void AccelerationStructureManager::BuildOrUpdateTLAS(ID3D12Device5* device, ID3D
 
     for (const auto& p : _pendingInstances)
     {
-        XMMATRIX*                      transoseWorld = p.meshInfo.TransposeWorldMatrix;
+        Matrix*                      transoseWorld = p.meshInfo.TransposeWorldMatrix;
         D3D12_RAYTRACING_INSTANCE_DESC desc{};
         memcpy(desc.Transform, transoseWorld, sizeof(desc.Transform));
         desc.InstanceID                          = p.InstanceID;
