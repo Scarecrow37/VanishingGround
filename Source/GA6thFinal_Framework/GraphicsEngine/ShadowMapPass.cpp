@@ -112,6 +112,7 @@ void ShadowMapPass::Draw(ID3D12GraphicsCommandList* commandList)
             commandList->SetGraphicsRootDescriptorTable(_fxStaticShadow.GetRootParameterIndex("textures"), resource);
             commandList->SetGraphicsRootConstantBufferView(_fxStaticShadow.GetRootParameterIndex("cascadeData"), cascadeData);
             frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxStaticShadow.GetRootParameterIndex("matrices"), commandList);
+            frameResource->SetFrameResource(FrameResourceType::MATERIAL, _fxStaticShadow.GetRootParameterIndex("material"), commandList);
 
             commandList->SetPipelineState(_psos[STATIC_CULL_BACK].Get());
             DrawMeshes(commandList, STATIC_MESH, STATIC_CULL_BACK, i);
@@ -140,6 +141,7 @@ void ShadowMapPass::Draw(ID3D12GraphicsCommandList* commandList)
         commandList->SetGraphicsRootConstantBufferView(_fxSkeletalShadow.GetRootParameterIndex("cascadeData"), cascadeData);
         frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxSkeletalShadow.GetRootParameterIndex("matrices"), commandList);
         frameResource->SetFrameResource(FrameResourceType::BONE_MATRICES, _fxSkeletalShadow.GetRootParameterIndex("boneMatrices"), commandList);
+        frameResource->SetFrameResource(FrameResourceType::MATERIAL, _fxSkeletalShadow.GetRootParameterIndex("material"), commandList);
 
         commandList->SetPipelineState(_psos[SKELETAL_CULL_BACK].Get());
         DrawMeshes(commandList, SKELETAL_MESH, SKELETAL_CULL_BACK, i);
@@ -351,6 +353,7 @@ void ShadowMapPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, int shade
     case STATIC_MESH:
         commandList->SetGraphicsRoot32BitConstants(_fxStaticShadow.GetRootParameterIndex("bit32_1_mipBias"), 1, &parallaxMappingProperty.MipBias, 0);
         break;
+
     case SKELETAL_MESH:
         commandList->SetGraphicsRoot32BitConstants(_fxSkeletalShadow.GetRootParameterIndex("bit32_1_mipBias"), 1, &parallaxMappingProperty.MipBias, 0);
         break;
@@ -367,6 +370,7 @@ void ShadowMapPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, int shade
         case STATIC_MESH:
             commandList->SetGraphicsRoot32BitConstants(_fxStaticShadow.GetRootParameterIndex("bit32_4_objectData2"), 4, parameter, 0);
             break;
+
         case SKELETAL_MESH:
             commandList->SetGraphicsRoot32BitConstants(_fxSkeletalShadow.GetRootParameterIndex("bit32_4_objectData2"), 4, parameter, 0);
             break;

@@ -17,15 +17,15 @@ struct MipBias
 };
 
 StructuredBuffer<Material> material;
-Texture2D textures[];
 ConstantBuffer<MipBias> bit32_1_mipBias;
+Texture2D textures[];
 
 #define DIFFUSE 0
 
 void ps_main(PS_INPUT input)
 {
     float mipBias = bit32_1_mipBias.MipBias;
-    uint diffuseID = material[objectData.ID].ID[DIFFUSE];
+    uint diffuseID = material[shadowData.ID].ID[DIFFUSE];
     
     float alpha = textures[diffuseID].SampleBias(samLinear_wrap, input.uv, mipBias).a;
 

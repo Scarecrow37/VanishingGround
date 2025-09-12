@@ -105,6 +105,9 @@ void GBufferPass::Update(ID3D12GraphicsCommandList* commadList, const float delt
 
             // cull_back, cull_front, cull_none
             int blendMode = (int)meshInfo.Material.BlendMode;
+            if (blendMode == Material::BlendModeType::TRANSLUCENT)
+                continue;
+
             int cullMode = (int)meshInfo.Material.CullMode;
             _renderDatas[i][blendMode][cullMode].emplace_back(meshInfo.Mesh, meshInfo.InstanceID, meshInfo.CustomDepth);
         }
@@ -127,7 +130,7 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
     auto  cameraData             = _ownerScene->_cameraBuffer->GetGPUVirtualAddress();
     auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
     
-    for (int i = 0; i < Material::BlendModeType::BMT_END; i++)
+    for (int i = 0; i < Material::BlendModeType::BMT_END - 1; i++)
     {
         // Static
         commandList->SetGraphicsRootSignature(_fxStaticMesh.GetRootSignature());
