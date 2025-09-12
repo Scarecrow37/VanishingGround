@@ -58,14 +58,20 @@ void SceneTransitionComponent::DeserializedReflectEvent()
     memcpy(&_endColor, ReflectFields->EndColorArray.data(), sizeof(Vector4));
 }
 
-void SceneTransitionComponent::OnDrawDebug() 
+void SceneTransitionComponent::OnDrawDebug()
 {
-    CalculateFade();
+    if (false == Global::IsPlay())
+    {
+        CalculateFade();
+    }
 }
 
-void SceneTransitionComponent::OnDrawDebugSelected() 
+void SceneTransitionComponent::OnDrawDebugSelected()
 {
-    CalculateFade();
+    if (false == Global::IsPlay())
+    {
+        CalculateFade();
+    }
 }
 
 void SceneTransitionComponent::Update()
