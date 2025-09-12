@@ -178,3 +178,6 @@ UMREAL_COMPONENT(SceneTransitionComponent)
 
 #include "Scripts\PlayerSystem/PlayerSystem.h"
 UMREAL_COMPONENT(PlayerSystem)
+
+#include "Scripts\AccessorySystem/AccessorySystem.h"
+UMREAL_COMPONENT(AccessorySystem)
