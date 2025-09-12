@@ -300,6 +300,7 @@ void ItemDropSystem::ImGuiDrawPropertysEvent()
         ImGuiDrawMaxDropCount();
         ImGuiDrawWeaponGradeWeight();
         ImGuiDrawRevelationGradeWeight();
+        ImGuiDrawAccessoryGradeWeight();
         ImGui::TreePop();
     }
 }
