@@ -57,8 +57,9 @@ public:
 protected:
     REFLECT_FIELDS_BEGIN(Component)
     std::vector<int> MaxDropCount; //카테고리별 드랍 가능한 최대 갯수
-    std::array<std::vector<double>, ITEM_DROP_RATE_BONUS_MAX> WeaponGradeWeight; // 무기 등급별 가중치
+    std::array<std::vector<double>, ITEM_DROP_RATE_BONUS_MAX> WeaponGradeWeight;     // 무기 등급별 가중치
     std::array<std::vector<double>, ITEM_DROP_RATE_BONUS_MAX> RevelationGradeWeight; // 계시 등급별 가중치
+    std::array<std::vector<double>, ITEM_DROP_RATE_BONUS_MAX> AccessoryGradeWeight;  // 장신구 등급별 가중치
     REFLECT_FIELDS_END(ItemDropSystem)
 
 protected:
@@ -75,6 +76,9 @@ protected:
 
     // 계시 드랍 보정 확률 조절용
     void ImGuiDrawRevelationGradeWeight();
+
+    // 장신구 드랍 보정 확률 조절용
+    void ImGuiDrawAccessoryGradeWeight();
 
     void SerializedReflectEvent() override;
     void DeserializedReflectEvent() override;
