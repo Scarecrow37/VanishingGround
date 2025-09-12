@@ -28,20 +28,20 @@ struct SkeletalMeshVertex : public StaticMeshVertex
 struct Material
 {
 #undef OPAQUE
-    enum class ShadingModelType
+    enum ShadingModelType
     {
         UNLIT,
         DEFAULTLIT,
-        END
-    } ShadingModel;
-    enum class BlendModeType
+        SMT_END
+    } ShadingModel = ShadingModelType::DEFAULTLIT;
+    enum BlendModeType
     {
         OPAQUE,
         MASKED,
         TRANSLUCENT,
-        END
-    } BlendMode;
-    enum class CullModeType
+        BMT_END
+    } BlendMode = BlendModeType::OPAQUE;
+    enum CullModeType
     {
         CULL_BACK,
         CULL_FRONT,

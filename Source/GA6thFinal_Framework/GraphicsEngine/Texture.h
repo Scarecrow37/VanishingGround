@@ -13,6 +13,8 @@ public:
 
 public:
     void SetResource(ID3D12Resource* resource);
+
+public:
     void CreateShaderResourceView();
 
 public:
