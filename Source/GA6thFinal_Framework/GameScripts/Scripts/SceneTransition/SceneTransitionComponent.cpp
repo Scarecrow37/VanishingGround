@@ -107,7 +107,7 @@ void SceneTransitionComponent::CalculateFade()
 void SceneTransitionComponent::Fade(float duration, float maintain, const Vector4& start, const Vector4& end)
 {
     _easeLog.clear();
-    if (0 != Duration)
+    if (0 != Duration && 0!= duration)
     {
         _fadeFlag = true;
         Duration  = duration;
