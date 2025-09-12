@@ -11,6 +11,12 @@ public:
     AccessorySystem();
     ~AccessorySystem() override;
 
+    /// <summary>
+    /// ID 순으로 정렬된 장신구 테이블을 반환합니다.
+    /// </summary>
+    /// <returns></returns>
+    const std::vector<AccessoryElement*> GetAccessoryTableElements() { return _elementTableOrderID; }
+
 public:
     REFLECT_PROPERTY()
 
