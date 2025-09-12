@@ -1,0 +1,53 @@
+﻿#include "pchScripts.h"
+#include "AccessoryElement.h"
+#include "TurnSystem/TurnAction/TurnActionFactory.h"
+
+AccessoryElement::AccessoryElement() 
+{
+
+}
+
+AccessoryElement::~AccessoryElement() 
+{
+
+}
+
+void AccessoryElement::ImGuiDrawPropertysEvent() 
+{
+
+}
+
+void AccessoryElement::SerializedReflectEvent() 
+{
+    if (_action)
+    {
+        ReflectFields->ActionName = _action->ActionName;
+    }
+    else
+    {
+        ReflectFields->ActionName = STR_NULL;
+    }
+}
+
+void AccessoryElement::DeserializedReflectEvent() 
+{
+    const auto& actionFactory = TurnActionFactory::GetActionFactory();
+    auto        iter          = actionFactory.find(ReflectFields->ActionName.data());
+    if (iter != actionFactory.end())
+    {
+        _action.reset(iter->second());
+    }
+}
+
+
+void AccessoryElement::DeepCopyAction(const TurnAction& action)
+{
+    const auto&        actionFactory = TurnActionFactory::GetActionFactory();
+    const std::string& actionName    = action.ActionName;
+    auto               iter          = actionFactory.find(actionName);
+    if (iter != actionFactory.end())
+    {
+        _action.reset(iter->second());
+        *_action = action;
+    }
+}
