@@ -133,6 +133,9 @@
     <FxCompile Include="..\Shaders\ps_shadow.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\ps_gbuffer_masked.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AccelerationStructureManager.cpp">

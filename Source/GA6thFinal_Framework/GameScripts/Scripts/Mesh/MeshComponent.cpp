@@ -118,7 +118,6 @@ void MeshComponent::ImGuiDrawPropertysEvent()
                         ImGui::TableNextColumn();
                         {
                             static const char* blendModeNames[] = {"Opaque", "Masked", "Translucent"};
-                            // Removed duplicate ImGui::Text("Blend Mode");
                             if (ImGui::Combo("##BlendMode", (int*)&materials[i].BlendMode, blendModeNames, 3))
                             {
                                 ReflectFields->BlendMode[i] = materials[i].BlendMode;
