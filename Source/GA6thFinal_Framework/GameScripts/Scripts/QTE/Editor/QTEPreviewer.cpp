@@ -92,15 +92,15 @@ void QTEPreviewer::DrawJudgeRange(std::pair<float, float> range, float circleRad
         auto* track    = system->GetCurrentQTETrack();
         if (drawList && track)
         {
-            ImVec2  offset          = ImGui::GetCursorScreenPos();
-            ImVec2  availSize       = ImGui::GetContentRegionAvail();
-            float   systemSpeed     = system->GetQTESpeedScale();
-            float   trackSpeed      = track->GetQTESpeedScale();
-            float   centerPosFactor = system->GetJudgePosFactor();
-            float   centerPosX      = availSize.x * centerPosFactor;
-            auto&   [min, max]      = range;
-            float   minPosX         = centerPosX * (1.0f + min * systemSpeed * trackSpeed);
-            float   maxPosX         = centerPosX * (1.0f + max * systemSpeed * trackSpeed);
+            ImVec2 offset           = ImGui::GetCursorScreenPos();
+            ImVec2 availSize        = ImGui::GetContentRegionAvail();
+            float  systemSpeed      = system->GetQTESpeedScale();
+            float  trackSpeed       = track->GetQTESpeedScale();
+            float  centerPosFactor  = system->GetJudgePosFactor();
+            float  centerPosX       = availSize.x * centerPosFactor;
+            auto&  [min, max]       = range;
+            float  minPosX          = centerPosX * (1.0f + min * systemSpeed * trackSpeed);
+            float  maxPosX          = centerPosX * (1.0f + max * systemSpeed * trackSpeed);
 
             if (bgCol != UINT_MAX - 1)
             {

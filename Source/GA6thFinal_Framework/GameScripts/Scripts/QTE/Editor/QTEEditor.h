@@ -34,9 +34,9 @@ private:
     float CalcNoteAlphaFromPositionX(float posX);
 
 private:
-    File::Path                _lastUsedPath;             // 기본 경로
+    File::Path                _lastUsedPath;            // 기본 경로
 
-    QTE::Track*               _qteTrack = nullptr;                // QTE 트랙
+    QTE::Track*               _qteTrack = nullptr;      // QTE 트랙
     bool                      _editorOpened = false;    // 에디터 열림 여부
     EditorDragState           _dragHandler;             // 드래그 핸들러
     Timeline::SequencerEditor _sequencerEditor;         // 시퀀서 에디터
