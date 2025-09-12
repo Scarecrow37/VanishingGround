@@ -42,7 +42,6 @@ ParticleComponent::~ParticleComponent()
 
 void ParticleComponent::Update()
 {
-
 }
 
 void ParticleComponent::Start() 
