@@ -9,7 +9,7 @@ Font::~Font()
 {
 }
 
-void Font::LoadResource(const std::filesystem::path& filePath)
+void Font::LoadResource(const std::filesystem::path& filePath, const std::function<void()>& callback)
 {
     ID3D12Device*       device = Global::device->GetDevice();
     ResourceUploadBatch resourceUpload(device);

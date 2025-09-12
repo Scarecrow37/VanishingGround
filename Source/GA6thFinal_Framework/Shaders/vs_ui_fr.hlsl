@@ -1,7 +1,7 @@
 #include "CommonData.hlsli"
 
 StructuredBuffer<matrix> matrices;
-StructuredBuffer<uint> IDs;
+StructuredBuffer<uint> IDs : register(t0, space0);
 
 struct VSInput
 {

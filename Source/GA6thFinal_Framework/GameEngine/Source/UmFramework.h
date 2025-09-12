@@ -87,6 +87,7 @@ constexpr const char* STR_NULL = "null";
 #include <algorithm>
 #include <numeric>
 #include <variant>
+#include <regex>
 
 //ThirdParty
 #include "pugixml/pugixml.hpp"

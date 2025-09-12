@@ -12,7 +12,9 @@ enum CommandQueueType { GRAPHICS_QUEUE, COMPUTE_QUEUE, COPY_QUEUE, COMMAND_QUEUE
 
 enum MeshType { STATIC_MESH, SKELETAL_MESH, MESH_TYPE_END };
 
-enum SpriteType { MODE_2D, MODE_25D, MODE_3D, SPRITE_TYPE_END };
+enum SpriteType { MODE_3D, MODE_25D, MODE_2D, SPRITE_TYPE_END };
+
+enum UIMaterialType { LINEAR_FILL = 1 };
 
 enum PostProcess
 {

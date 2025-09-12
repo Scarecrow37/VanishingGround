@@ -18,7 +18,7 @@ public:
 public:
     void Initialize(const D3D12_RESOURCE_DESC& desc, FLOAT clearColor);
     void ClearRenderTarget(ID3D12GraphicsCommandList* commandList, UINT mipLevel = 0);
-    void ResizeResource(Resolution resolution) override;
+    void ResizeResource(SIZE resolution) override;
 
 private:
     void CreateRenderTargetView();

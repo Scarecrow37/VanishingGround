@@ -11,6 +11,9 @@ public:
     virtual ~FontRenderer();
 
 public:
+    const Vector3& GetPosition() const { return _position; }
+
+public:
     void SetColor(const Vector4& color) { _color = color; }
     void SetPosition(const Vector3& position) { _position = position; }
     void SetScale(const Vector2& scale) { _scale = scale; }
