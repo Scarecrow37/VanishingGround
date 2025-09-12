@@ -28,6 +28,8 @@ namespace Global
 
     bool                                           isRayTracing = false;
     std::unordered_map<std::wstring, std::wstring> shaderPathMappings;
+    NGXDLSS                                        ngx;
+    DLSSState                                      dlssState;
 };
 
 ParticleManager* GraphicsCore::GetParticleManager() const
@@ -117,6 +119,11 @@ void GraphicsCore::SyncGlobalVariable()
     Global::particleManager          = _particleManager;
     Global::dxResourceManager        = _dxResourceManager;
     Global::commandController        = _commandController;
+    Global::debugDrawCore            = _debugDrawCore;
+    Global::renderPassDatas          = _renderPassDatas;
+    Global::moduleManager            = _moduleManager;
+    Global::pipelineStateManager     = _pipelineStateManager;
+    //Global::threadPool               = _threadPool;
     Global::sceneTransitionCore      = _sceneTransitionCore;
 }
 
@@ -229,7 +236,22 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     _moduleManager->Initialize();
     _threadPool->Initialize(5);
 
+    uint32_t rw = 0, rh = 0;
+    float    sharp = 0;
+    Global::ngx.SetMode(DlssPerfQuality::Balanced); // UI에서 변경 가능
+    Global::ngx.QueryOptimal(Global::ngx.Mode(), width, height, rw, rh, sharp);
+
+    Global::dlssState.RenderW              = rw;
+    Global::dlssState.RenderH              = rh;
+    Global::dlssState.RecommendedSharpness = sharp;
+
     auto commandList = _device->GetCommandList();
+
+    Global::ngx.CreateOrUpdateFeature(commandList, 
+                                      Global::dlssState.RenderW, Global::dlssState.RenderH,
+                                      Global::dlssState.DisplayW, Global::dlssState.DisplayH,
+                                      Global::dlssState.DepthInverted, Global::dlssState.HDR);
+
     commandList->Close();
 
     _commandController->ExecuteCommand(CommandQueueType::GRAPHICS_QUEUE, commandList);
@@ -239,6 +261,11 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     _device->ResetComputeCommands();
 
     _debugDrawCore->Initialize();
+
+    // DLSS 초기화
+    Global::dlssState.DisplayW = width;
+    Global::dlssState.DisplayH = height;
+
 }
 
 void GraphicsCore::UpdateAnimation(const float deltaTime) const

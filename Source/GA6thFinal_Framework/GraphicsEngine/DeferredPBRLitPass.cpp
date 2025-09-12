@@ -13,6 +13,11 @@ void DeferredPBRLitPass::Initialize(RenderScene* ownerScene, RenderTechnique* ow
     InitShaderAndPSO();
 }
 
+void DeferredPBRLitPass::AddRenderPassDatas(std::string_view sceneName)
+{
+    Global::renderPassDatas->AddRenderPassProperty(sceneName, "RimLightPass", RimLightPassProperty({{0.f, 1.f, 1.f}, 1.f, 1.f}));
+}
+
 void DeferredPBRLitPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
     _meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
@@ -54,7 +59,15 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
         prefiltered         = defaultTexture;
     }
 
-    commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_3_numLight"), 3, &_ownerScene->_numLight, 0);
+    const auto&     resolution = Global::device->GetResolution();
+    PostProcessData postProcessData{.ScreenSize      = {static_cast<float>(resolution.cx), static_cast<float>(resolution.cy)},
+                                    .PostProcessMask = PostProcess::RIMLIGHT};
+
+    const auto& rimLightProperty = std::any_cast<const RimLightPassProperty&>(_ownerScene->GetRenderPassProperty("RimLightPass"));
+
+    commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_3_numLight"), 3, &_ownerScene->_numLight, 0);                    
+    commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_6_postProcessData"), 6, &postProcessData, 0);
+    commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_5_rimLightProperty"), 5, &rimLightProperty, 0);
     commandList->SetGraphicsRootConstantBufferView(_fx.GetRootParameterIndex("cameraData"), _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
     commandList->SetGraphicsRootConstantBufferView(_fx.GetRootParameterIndex("lightData"), _ownerScene->_lightBuffer->GetGPUVirtualAddress());
     commandList->SetGraphicsRootConstantBufferView(_fx.GetRootParameterIndex("cascadeData"), shadowMapPass->GetCascadeDataCBV());
@@ -67,6 +80,7 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("ormMap"), renderTargetGroup[GBuffer::ORM]->GetSRVHandle());
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("emissiveMap"), renderTargetGroup[GBuffer::EMISSIVE]->GetSRVHandle());
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("depthMap"), renderTargetGroup[GBuffer::DEPTH]->GetSRVHandle());
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("customDepthMap"), renderTargetGroup[GBuffer::CUSTOMDEPTH]->GetSRVHandle());
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("SSAOMap"), ssaoPass->GetAOTexture());
 
     _ownerScene->_frameQuad->Render(commandList);

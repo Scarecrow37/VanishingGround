@@ -150,6 +150,13 @@ struct SSRPassProperty
     float ScreenFade;
 };
 
+struct RimLightPassProperty
+{
+    Vector3 Color;
+    float   Power;
+    float   Intensity;
+};
+
 struct ParallaxMappingProperty
 {
     float HeightScale;

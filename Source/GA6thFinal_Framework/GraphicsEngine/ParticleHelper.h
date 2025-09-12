@@ -90,9 +90,6 @@ struct __declspec(align(16)) MVPConstants
     float pad3[3]; // 12바이트 (총 16+16+12 = 44바이트)
 };
 
-
-
-
 enum class LocationShape
 {
     SPHERE,
@@ -102,6 +99,7 @@ enum class LocationShape
     TORUS,
     MESH_SURFACE
 };
+
 enum class ParticleType
 {
     SPRITE,
@@ -109,14 +107,12 @@ enum class ParticleType
     RIBBON,
     MISC,
 }; 
+
 enum ParticleMiscFlag
 {
     DISTORTION,
     BLUR,
 };
-
-
-
 
 enum class VelocityScaleType
 {

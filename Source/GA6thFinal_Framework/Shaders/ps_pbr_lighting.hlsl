@@ -15,7 +15,7 @@ Texture2D normalMap;
 Texture2D ormMap;
 Texture2D emissiveMap;
 Texture2D depthMap;
-Texture2D customDepthMap;
+Texture2D<uint> customDepthMap;
 Texture2D<float> SSAOMap;
 
 //Texture2D textures[];
@@ -27,6 +27,15 @@ Texture2D<float> SSAOMap;
 //#define WORLDPOSITION 4
 //#define DEPTH 5
 //#define CUMSTOMDEPTH 6
+
+struct RimLightProperty
+{
+    float3 Color;
+    float Power;
+    float Intensity;
+};
+
+ConstantBuffer<RimLightProperty> bit32_5_rimLightProperty;
 
 float4 ps_main(PSInput input) : SV_Target
 {
@@ -100,6 +109,11 @@ float4 ps_main(PSInput input) : SV_Target
         directLighting += CalculateSpot(light, normal, V, albedo, metallic, roughness, worldPosition);
     }
 
-    float3 color = directLighting + (ambientLighting * ssao) + emissive;
+    RimLightProperty property = bit32_5_rimLightProperty;
+    
+    float rim = saturate(1 - dot(V, normal));
+    rim = pow(rim, property.Power);
+    float3 rimColor = rim * property.Color * property.Intensity * CalculatePostProcessMask(customDepthMap, input.uv);
+    float3 color = directLighting + (ambientLighting * ssao) + emissive + rimColor;
     return float4(color, 1.0);
 }

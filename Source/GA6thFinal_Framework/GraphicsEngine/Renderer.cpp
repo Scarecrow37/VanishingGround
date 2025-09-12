@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "Renderer.h"
+#include "NGXDLSS.h"
 
 // Shader
 #include "VertexShader.h"
@@ -33,6 +34,9 @@ namespace Global
 {
     D3D12_GPU_DESCRIPTOR_HANDLE dummyTextureHandle;
 }
+
+extern NGXDLSS   g_ngx;
+extern DLSSState g_dlssState;
 
 Renderer::Renderer() : _totalTime{0.f} {}
 

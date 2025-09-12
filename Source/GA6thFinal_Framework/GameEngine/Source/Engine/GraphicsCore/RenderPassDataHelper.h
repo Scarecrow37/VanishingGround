@@ -75,6 +75,15 @@ inline void SerializeVolumetricFogProperty(std::ostream& os, const VolumetricFog
 }
 
 
+// RimLightPassProperty를 문자열로 변환
+inline void SerializeRimLightPassProperty(std::ostream& os, const RimLightPassProperty& prop)
+{
+    os << "        Type = RimLightPassProperty\n";
+    os << "        Color = " << prop.Color.x << " " << prop.Color.y << " " << prop.Color.z << "\n";
+    os << "        Power = " << prop.Power << "\n";
+    os << "        Intensity = " << prop.Intensity << "\n";
+}
+
 // 문자열에서 ShadowPassProperty를 복원
 inline void DeserializeShadowProperty(std::istream& is, ShadowPassProperty& prop)
 {
@@ -205,6 +214,29 @@ inline void DeserializeVolumetricFogProperty(std::istream& is, VolumetricFogProp
             ss >> prop.FogIntensity;
         else if (key == "LightShaftIntensity")
             ss >> prop.LightShaftIntensity;
+    }
+}
+
+// 문자열에서 RimLightPassProperty를 복원
+inline void DeserializeRimLightPassProperty(std::istream& is, RimLightPassProperty& prop)
+{
+    std::string line, key, equals;
+    while (std::getline(is, line) && line.find('}') == std::string::npos)
+    {
+        std::stringstream ss(line);
+        ss >> key >> equals;
+        if (key == "Color")
+        {
+            ss >> prop.Color.x >> prop.Color.y >> prop.Color.z;
+        }
+        else if (key == "Power")
+        {
+            ss >> prop.Power;
+        }
+        else if (key == "Intensity")
+        {
+            ss >> prop.Intensity;
+        }
     }
 }
 

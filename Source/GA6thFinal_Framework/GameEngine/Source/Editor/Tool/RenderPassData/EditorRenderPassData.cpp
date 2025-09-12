@@ -65,6 +65,7 @@ void EditParallaxMappingProperty(std::any& property)
     ImGui::DragFloat("HeightScale", &parallaxProps.HeightScale, 0.001f, 0.0f, 5.f);
     ImGui::DragFloat("MipBias", &parallaxProps.MipBias, 0.01f, 0.f, 15.f);
 }
+
 void EditVolumetricFogProperty(std::any& property)
 {
     auto& fogProperty = std::any_cast<VolumetricFogProperty&>(property);
@@ -77,6 +78,14 @@ void EditVolumetricFogProperty(std::any& property)
     ImGui::DragFloat("CustomFar", &fogProperty.CustomFar, 1.f, 1.f, 1000.f);
     ImGui::DragFloat("FogIntensity", &fogProperty.FogIntensity, 0.01f, 0.f, 5.f);
     ImGui::DragFloat("LightShaftIntensity", &fogProperty.LightShaftIntensity, 0.01f, 0.f, 5.f);
+}
+
+void EditRimLightProperty(std::any& property)
+{
+    auto& rimLightProps = std::any_cast<RimLightPassProperty&>(property);
+    ImGui::ColorEdit3("Rim Color", &rimLightProps.Color.x, ImGuiColorEditFlags_Float);
+    ImGui::DragFloat("Rim Intensity", &rimLightProps.Intensity, 0.01f, 0.f, 100.f);
+    ImGui::DragFloat("Rim Power", &rimLightProps.Power, 0.01f, 0.f, 100.f);
 }
 
 void EditorRenderPassData::OnFrameRender()

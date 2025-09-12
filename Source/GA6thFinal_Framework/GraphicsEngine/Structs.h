@@ -105,3 +105,14 @@ struct PipelineStateStream
     CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL         DepthStencilState;
     CD3DX12_PIPELINE_STATE_STREAM_BLEND_DESC            BlendState;
 };
+
+struct DLSSState
+{
+    uint32_t RenderW              = 0;
+    uint32_t RenderH              = 0;
+    uint32_t DisplayW             = 0;
+    uint32_t DisplayH             = 0;
+    float    RecommendedSharpness = 0.0f;
+    bool     DepthInverted        = true;  // 엔진에 맞게 설정
+    bool     HDR                  = false; // 톤매핑 전 선형 HDR + preExposure 전달 시 true
+};

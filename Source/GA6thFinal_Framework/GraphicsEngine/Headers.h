@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "Device.h"
+#include "NGXDLSS.h"
 
 #include "SharedResource.h"
 #include "ConstantBufferView.h"

@@ -14,9 +14,11 @@
 #ifdef _DEBUG
 #pragma comment(lib, "DirectXTex_d.lib")
 #pragma comment(lib, "DirectXTK12_d.lib")
+#pragma comment(lib, "nvsdk_ngx_d_dbg.lib")
 #else
 #pragma comment(lib, "DirectXTex.lib")
 #pragma comment(lib, "DirectXTK12.lib")
+#pragma comment(lib, "nvsdk_ngx_d.lib")
 #endif
 
 using namespace DirectX;

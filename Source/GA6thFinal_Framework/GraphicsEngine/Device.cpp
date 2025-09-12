@@ -1,19 +1,9 @@
 ﻿#include "pch.h"
 #include "Device.h"
 #include "d3dUtil.h"
+#include "NGXDLSS.h"
 
-// void Device::SignalComputeQueue(int fenceSlot)
-//{
-//     const UINT64 fenceValue = _fenceValues[fenceSlot]++;
-//     _computeCommandQueue->Signal(_graphicsFences[fenceSlot].Get(), fenceValue);
-//     _lastGraphicsFenceValues[fenceSlot] = fenceValue;
-// }
-// void Device::SignalGraphicsQueue(int fenceSlot)
-//{
-//     const UINT64 fenceValue = _fenceValues[fenceSlot]++;
-//     _commandQueue->Signal(_graphicsFences[fenceSlot].Get(), fenceValue);
-//     _lastGraphicsFenceValues[fenceSlot] = fenceValue;
-// }
+static NGXDLSS g_ngx;
 
 ComPtr<ID3D12Device5> Device::GetDevice5()
 {
@@ -543,6 +533,15 @@ void Device::CreateDeviceAndSwapChain(HWND hwnd, D3D_FEATURE_LEVEL feature)
 
     _graphicsMemory = std::make_unique<GraphicsMemory>(_device.Get());
     //_graphicsMemory->Allocate()
+
+    NGXInitDesc ngxInit;
+    ngxInit.device = _device.Get();
+    ngxInit.appDataPath = L".";
+
+    if (!g_ngx.Initialize(ngxInit))
+    {
+        int a = 0;
+    }
 }
 
 void Device::CreateBackBuffer()

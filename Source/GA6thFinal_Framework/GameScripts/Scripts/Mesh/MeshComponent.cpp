@@ -134,14 +134,23 @@ void MeshComponent::ImGuiDrawPropertysEvent()
                         {
                             if (ImGui::BeginCombo("##CustomDepth", "Drop Down List"))
                             {
-                                bool isBloom = customDepths[i] & PostProcess::BLOOM ? true : false;
-                                ImGuiHelper::TextWithVerticalSeparator("Bloom");
-                                if (ImGui::Checkbox("##Bloom", &isBloom))
-                                {
-                                    isBloom ? Renderer->OnCustomDepth(PostProcess::BLOOM, i) : 
-                                              Renderer->OffCustomDepth(PostProcess::BLOOM, i);
+                                auto CustomDepthEdit = [this, &customDepths, i](PostProcess flag, const char* text, const char* label)
+                                    { 
+                                        bool isActive = customDepths[i] & flag ? true : false;
+                                        ImGuiHelper::TextWithVerticalSeparator(text);
+                                        if (ImGui::Checkbox(label, &isActive))
+                                        {
+                                            isActive ? Renderer->OnCustomDepth(flag, i) : 
+                                                       Renderer->OffCustomDepth(flag, i);                                            
+                                        }
+                                    };
 
-                                }
+                                CustomDepthEdit(PostProcess::BLOOM, "Bloom", "##Bloom");
+                                CustomDepthEdit(PostProcess::OUTLINE, "Outline", "##Outline");
+                                CustomDepthEdit(PostProcess::SSAO, "SSAO", "##SSAO");
+                                CustomDepthEdit(PostProcess::SSR, "SSR", "##SSR");
+                                CustomDepthEdit(PostProcess::RIMLIGHT, "RIMLIGHT", "##RIMLIGHT");
+                               
 
                                 ReflectFields->CustomDepth[i] = customDepths[i];
                                 ImGui::EndCombo();
