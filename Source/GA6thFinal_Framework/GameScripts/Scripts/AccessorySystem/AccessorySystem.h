@@ -2,10 +2,28 @@
 #include "UmFramework.h"
 #include "Utility/SingletonHelper.h"
 #include "AccessoryElement/AccessoryElement.h"
+#include "ExcelParser/ImGuiColumnSheetParser.h"
 
 class AccessorySystem : public Component
 {
     USING_PROPERTY(AccessorySystem)
+public:
+    inline static constexpr int GetGradeID(AccessoryGrade grade)
+    {
+        switch (grade)
+        {
+        case AccessoryGrade::COMMON:
+            return 300000;
+        case AccessoryGrade::RARE:
+            return 300001;
+        case AccessoryGrade::BIZARRE:
+            return 300002;
+        case AccessoryGrade::LEGENDARY:
+            return 300003;
+        default:
+            return 0;
+        }
+    }
 
 public:
     AccessorySystem();
@@ -46,13 +64,45 @@ protected:
     void Awake() override;
 
 private:
+    void ElementTableSerialized();
+    void ElementTableDeserialized();
+
+private:
     SingletonComponent<AccessorySystem> _singletonComponent{this};
 
     std::map<std::string, AccessoryElement> _elementTable;        // 이름-액세서리 테이블
     std::vector<AccessoryElement*>          _elementTableOrderID; // 아이디 순 정렬된 테이블
 
 private:
-    void ElementTableSerialized();
-    void ElementTableDeserialized();
+    bool RenameAccessory(AccessoryElement& accessory, const std::string& newName);
+    bool InsertAccessory(AccessoryElement& accessory);
+    bool EraseAccessory(AccessoryElement& accessory);
+    void SortTableIDOrder();
+
+    std::string SaveAccessoryTable();
+    bool        LoadAccessoryTable(const std::string& data);
+
+    void ImGuiTableEditor();
+    void ImGuiDrawExcelParser();
+
+    bool ExcelAccessoryElement(AccessoryElement& element, const std::string& key, const std::string& data);
+
+private:
+    struct EditorOnly
+    {
+        bool ShowTableEditor = false;
+
+        std::string           DeleteTableBuffer = STR_NULL;
+        bool                  OpenDeletePopup   = false;
+        AccessoryElement*     SelectAccessory   = nullptr;
+        std::function<void()> RenameFunc;
+
+        ImGuiColumnSheetParser        ColumnParser{"1191B534-B4B7-425C-8638-EFE3B662DB9C", u8"ID"};
+        std::queue<AccessoryElement*> DirtyAccessoryQueue;
+        bool                          ShowDirtyAccessoryPopup = false;
+    };
+#ifdef _UMEDITOR
+    EditorOnly _editorOnly;
+#endif
 
 };

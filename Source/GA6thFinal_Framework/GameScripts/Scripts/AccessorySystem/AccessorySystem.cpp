@@ -2,6 +2,8 @@
 #include "AccessorySystem.h"
 #include "TurnSystem/TurnAction/TurnActionFactory.h"
 
+using namespace u8_literals;
+
 AccessorySystem::AccessorySystem()
 {
 
@@ -14,17 +16,389 @@ AccessorySystem::~AccessorySystem()
 
 void AccessorySystem::ImGuiDrawPropertysEvent() 
 {
+#ifdef _UMEDITOR
+    if (ImGui::Button("Table Editor"))
+    {
+        _editorOnly.ShowTableEditor = true;
+    }
 
+    if (_editorOnly.ShowTableEditor)
+    {
+        ImGuiViewport* viewPort = ImGui::GetMainViewport();
+        ImVec2         center   = viewPort->GetCenter();
+        ImVec2         size     = viewPort->Size * 0.75f;
+        ImGui::SetNextWindowPos(center, ImGuiCond_Once, ImVec2(0.5f, 0.5f));
+        ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
+        ImGui::Begin("Weapon Table Editor##1191B534-B4B7-425C-8638-EFE3B662DB9C", &_editorOnly.ShowTableEditor,
+                     ImGuiWindowFlags_MenuBar);
+
+        if (ImGui::BeginMenuBar())
+        {
+            if (ImGui::MenuItem("Save Table"))
+            {
+                std::wstring_view desktopPath = File::GetDesktopPath();
+                File::Path        out;
+                if (File::ShowSaveFileDialog(NULL, L"저장할 경로를 선택하세요.", desktopPath.data(),
+                                             L"WeaponTable.AsTable", {{L"장신구 테이블 파일\0", L"*.AsTable\0"}}, out))
+                {
+                    bool isWrite = true;
+                    if (std::filesystem::exists(out))
+                    {
+                        int result =
+                            MessageBoxW(UmApplication.GetHwnd(),      // 부모 윈도우 핸들
+                                        L"파일을 덮어쓰시겠습니까?",  // 메시지 내용 (설명)
+                                        L"이미 존재하는 파일입니다.", // 메시지 박스 제목
+                                        MB_OKCANCEL | MB_ICONQUESTION // 버튼 구성 (확인/취소) 및 아이콘(물음표)
+                            );
+                        switch (result)
+                        {
+                        case IDOK:
+                            isWrite = true;
+                            break;
+                        case IDCANCEL:
+                        default:
+                            isWrite = false;
+                            break;
+                        }
+                    }
+
+                    if (isWrite)
+                    {
+                        std::ofstream ofs(out, std::ios::trunc);
+                        if (ofs.is_open())
+                        {
+                            ofs << SaveAccessoryTable();
+                            ofs.close();
+                        }
+                    }
+                }
+            }
+            if (ImGui::MenuItem("Load Table"))
+            {
+                std::wstring_view       desktopPath = File::GetDesktopPath();
+                std::vector<File::Path> out;
+                if (File::ShowOpenFileDialog(NULL, L"로드할 파일을 선택하세요.", desktopPath.data(),
+                                             {{L"무기 테이블 파일\0", L"*.WpTable\0"}}, false, out))
+                {
+                    if (std::filesystem::exists(out.front()))
+                    {
+                        std::ifstream ifs(out.front());
+
+                        if (ifs.is_open())
+                        {
+                            std::string content((std::istreambuf_iterator<char>(ifs)),
+                                                std::istreambuf_iterator<char>());
+                            LoadAccessoryTable(content);
+                            ifs.close();
+                        }
+                    }
+                }
+                gameObject->GetScene().IsDirty = true;
+            }
+            ImGui::MenuItem("Excel Parser", "", &_editorOnly.ColumnParser.ShowParser);
+            ImGui::EndMenuBar();
+        }
+        ImGuiTableEditor();
+        ImGuiDrawExcelParser();
+        ImGui::End();
+    }
+#endif
+}
+
+void AccessorySystem::ImGuiTableEditor()
+{
+#ifdef _UMEDITOR
+    if (ImGui::BeginTable("Accessory Stats", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+    {
+        ImGui::TableSetupColumn((const char*)u8"ID");     // ID,
+        ImGui::TableSetupColumn((const char*)u8"이름");   // Name,
+        ImGui::TableSetupColumn((const char*)u8"등급");   // Grade,
+        ImGui::TableSetupColumn((const char*)u8"Action"); // Action
+        ImGui::TableHeadersRow();
+
+        int itemID = 0;
+        for (auto& element : _elementTableOrderID)
+        {
+            const std::string& key       = element->AccessoryName;
+            AccessoryElement&  accessory = *element;
+
+            auto RightClickContext = [&]() 
+            {
+                if (ImGui::BeginPopupContextItem())
+                {
+                    if (ImGui::MenuItem("Delete"))
+                    {
+                        _editorOnly.DeleteTableBuffer = key;
+                        _editorOnly.OpenDeletePopup   = true;
+                    }
+                    ImGui::EndPopup();
+                }
+            };
+            ImGui::PushID(itemID++);
+            {
+                static ReflectHelper::ImGuiDraw::InputAutoSetting setting = []() 
+                {
+                    ReflectHelper::ImGuiDraw::InputAutoSetting setting;
+                    setting._float.format = "%.1f";
+                    setting.ShowName      = false;
+                    return setting;
+                }();
+                ImGui::TableNextRow();
+                auto DrawColumnProperty = [&RightClickContext](auto& property, int index, std::string_view toolTip = "") 
+                {
+                    ImGui::TableSetColumnIndex(index);
+                    ReflectHelper::ImGuiDraw::Private::InputAuto(property, setting);
+                    if (false == toolTip.empty())
+                    {
+                        ImGuiHelper::HoveredToolTip(toolTip.data());
+                    }
+                    RightClickContext();
+                };
+
+                ImGui::TableSetColumnIndex(0);
+                {
+                    if (ReflectHelper::ImGuiDraw::Private::InputAuto(accessory.AccessoryID, setting))
+                    {
+                        SortTableIDOrder();
+                    }
+                }
+                ImGui::TableSetColumnIndex(1);
+                {
+                    static std::string renameBuffer;
+                    const std::string  originName = accessory.AccessoryName;
+                    renameBuffer                  = originName;
+                    bool input                    = ImGui::InputText("##name", &renameBuffer);
+                    if (input)
+                    {
+                        if (ImGui::IsItemDeactivatedAfterEdit())
+                        {
+                            if (renameBuffer != originName)
+                            {
+                                _editorOnly.SelectAccessory = &accessory;
+                                _editorOnly.RenameFunc      = [this, renameBuffer = renameBuffer, selectAccessory = _editorOnly.SelectAccessory]() 
+                                {
+                                    RenameAccessory(*selectAccessory, renameBuffer);
+                                };
+                                _editorOnly.SelectAccessory = nullptr;
+                            };
+                        }
+                    }
+                    RightClickContext();
+                };
+
+                ImGui::PushStyleColor(ImGuiCol_Text, accessory.GetGradeColor());
+                DrawColumnProperty(accessory.Grade, 2);
+                ImGui::PopStyleColor();
+                ImGui::TableSetColumnIndex(3);
+                {
+                    TurnAction::ImGuiDrawActionMaker(key, accessory._action, accessory._showActionEditor);
+                }
+            }
+            ImGui::PopID();
+        }
+        ImGui::EndTable();
+
+        if (_editorOnly.RenameFunc)
+        {
+            _editorOnly.RenameFunc();
+            _editorOnly.RenameFunc = nullptr;
+        }
+    }
+
+    if (_editorOnly.OpenDeletePopup)
+    {
+        _editorOnly.OpenDeletePopup = false;
+        ImGui::OpenPopup("Accessory Table Delete Modal Popup");
+    }
+
+    if (ImGui::BeginPopupModal("Weapon Table Delete Modal Popup"))
+    {
+        ImGui::Text((const char*)u8"이 작업은 되돌릴 수 없습니다.");
+        ImGui::Text("%s", _editorOnly.DeleteTableBuffer.c_str());
+        ImGui::SameLine();
+        ImGui::Text((const char*)u8"정말 삭제하시겠습니까?");
+        ImGui::Separator();
+        if (ImGui::Button("OK", ImVec2(120, 0)))
+        {
+            EraseAccessory(_elementTable[_editorOnly.DeleteTableBuffer]);
+            _editorOnly.DeleteTableBuffer = STR_NULL;
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Cancel", ImVec2(120, 0)) || ImGui::IsKeyReleased(ImGuiKey_Escape))
+        {
+            _editorOnly.DeleteTableBuffer = STR_NULL;
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+    }
+
+    static std::string newWeaponName;
+    ImGui::InputText("##New Weapon", &newWeaponName);
+    ImGui::SameLine();
+    if (ImGui::Button("New Weapon"))
+    {
+        if (false == newWeaponName.empty())
+        {
+            AccessoryElement element;
+            element.SetName(newWeaponName);
+            bool result = InsertAccessory(element);
+            if (true == result)
+            {
+                newWeaponName.clear();
+            }
+        }
+    }
+#endif
+}
+
+void AccessorySystem::ImGuiDrawExcelParser()
+{
+#ifdef _UMEDITOR
+    if (ImGui::BeginPopupModal(u8"알림##Dirty Accessory Popup"_c_str))
+    {
+        auto PopDirtyWeaponElement = [this]() {
+            _editorOnly.ShowDirtyAccessoryPopup = false;
+            _editorOnly.DirtyAccessoryQueue.pop();
+            if (true == _editorOnly.DirtyAccessoryQueue.empty())
+            {
+                _editorOnly.ColumnParser.ShowParser = false;
+            }
+        };
+
+        ImGui::Text(u8"올바르지 않은 형식입니다. 직접 입력해주세요."_c_str);
+        AccessoryElement& element = *_editorOnly.DirtyAccessoryQueue.front();
+        element.ImGuiDrawPropertys();
+        ImGui::Separator();
+        if (ImGui::Button("OK"))
+        {
+            PopDirtyWeaponElement();
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Cancel"))
+        {
+            PopDirtyWeaponElement();
+            EraseAccessory(element);
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+    }
+
+    if (false == _editorOnly.DirtyAccessoryQueue.empty() && false == _editorOnly.ShowDirtyAccessoryPopup)
+    {
+        ImGui::OpenPopup(u8"알림##Dirty Weapon Popup"_c_str);
+        _editorOnly.ShowDirtyAccessoryPopup = true;
+    }
+
+    auto ParserFunc = [&](ImGuiColumnSheetParser::ColumnDatas datas) 
+    {
+        AccessoryElement temp;
+        bool             result = true;
+        for (auto& [key, data] : datas)
+        {
+            result &= ExcelAccessoryElement(temp, key, data);
+        }
+        const std::string& name = temp.AccessoryName;
+        if (name != STR_NULL)
+        {
+            auto findIter = _elementTable.find(name);
+            if (findIter == _elementTable.end())
+            {
+                // 없으면 새로 생성
+                InsertAccessory(temp);
+            }
+            else
+            {
+                // 이미 있으면 액션 제외하고 복사
+                std::string originActionName               = findIter->second.ReflectFields->ActionName;
+                std::string originActionData               = findIter->second.ReflectFields->ActionData;
+                *findIter->second.ReflectFields            = *temp.ReflectFields;
+                findIter->second.ReflectFields->ActionName = std::move(originActionName);
+                findIter->second.ReflectFields->ActionData = std::move(originActionData);
+            }
+            if (false == result)
+            {
+                // 잘못된 데이터는 알림 팝업
+                AccessoryElement& element = _elementTable[name];
+                _editorOnly.DirtyAccessoryQueue.push(&element);
+            }
+        }
+    };
+    if (_editorOnly.ColumnParser.Draw(ParserFunc))
+    {
+        if (true == _editorOnly.DirtyAccessoryQueue.empty())
+        {
+            _editorOnly.ColumnParser.ShowParser = false;
+        }
+    }
+#endif
+}
+
+bool AccessorySystem::ExcelAccessoryElement(AccessoryElement& element, const std::string& key, const std::string& data)
+{
+    if (false == key.empty())
+    {
+        try
+        {
+            std::wstring wcharKey = U8ToWString(key);
+            if (L"ID" == wcharKey)
+            {
+                element.AccessoryID = std::stoi(data);
+            }
+            else if (L"Name" == wcharKey)
+            {
+                if (false == data.empty())
+                {
+                    element.SetName(data);
+                }
+            }
+            else if (L"Rarity" == wcharKey)
+            {
+                int rarity = std::stoi(data);
+
+                if (AccessorySystem::GetGradeID(AccessoryGrade::COMMON) == rarity)
+                {
+                    element.Grade = AccessoryGrade::COMMON;
+                }
+                else if (AccessorySystem::GetGradeID(AccessoryGrade::RARE) == rarity)
+                {
+                    element.Grade = AccessoryGrade::RARE;
+                }
+                else if (AccessorySystem::GetGradeID(AccessoryGrade::BIZARRE) == rarity)
+                {
+                    element.Grade = AccessoryGrade::BIZARRE;
+                }
+                else if (AccessorySystem::GetGradeID(AccessoryGrade::LEGENDARY) == rarity)
+                {
+                    element.Grade = AccessoryGrade::LEGENDARY;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+        catch (const std::invalid_argument&)
+        {
+            return false;
+        }
+        catch (const std::out_of_range&)
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 void AccessorySystem::SerializedReflectEvent() 
 {
-
+    ElementTableSerialized();
 }
 
 void AccessorySystem::DeserializedReflectEvent() 
 {
-
+    ElementTableDeserialized();
 }
 
 void AccessorySystem::Reset()
@@ -52,9 +426,94 @@ void AccessorySystem::ElementTableSerialized()
 void AccessorySystem::ElementTableDeserialized() 
 {
     _elementTable.clear();
+    _elementTableOrderID.clear();
     for (auto& [key, data] : ReflectFields->ElementTableData)
     {
         AccessoryElement element;
         element.DeserializedReflectFields(data);
+        InsertAccessory(element);
     }
+    SortTableIDOrder();
+}
+
+bool AccessorySystem::RenameAccessory(AccessoryElement& accessory, const std::string& newName)
+{
+    if (_elementTable.find(newName) == _elementTable.end())
+    {
+        AccessoryElement newElement = accessory;
+        if (EraseAccessory(accessory))
+        {
+            newElement.SetName(newName);
+            if (InsertAccessory(newElement))
+            {
+                return true;
+            }
+        }
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"존재하지 않는 장신구 입니다.");
+        return false;
+    }
+    UmLogger.Log(LogLevel::LEVEL_WARNING, u8"이미 존재하는 이름입니다.");
+    return false;
+}
+
+bool AccessorySystem::InsertAccessory(AccessoryElement& accessory)
+{
+    const std::string& name = accessory.AccessoryName;
+    auto [iter, result] = _elementTable.try_emplace(name, accessory);
+    if (result)
+    {
+        _elementTableOrderID.push_back(&iter->second);
+        SortTableIDOrder();
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool AccessorySystem::EraseAccessory(AccessoryElement& accessory)
+{
+    const std::string& name = accessory.AccessoryName;
+    auto findIter = _elementTable.find(name);
+    if (findIter != _elementTable.end())
+    {
+        std::erase_if(_elementTableOrderID, [&findIter](AccessoryElement* element) 
+        { 
+            return element == &findIter->second;
+        });
+        _elementTable.erase(findIter);
+        SortTableIDOrder();
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+void AccessorySystem::SortTableIDOrder()
+{
+    std::ranges::sort(_elementTableOrderID, [](AccessoryElement* elementA, AccessoryElement* elementB) 
+    {
+        int idA = elementA->AccessoryID; 
+        int idB = elementB->AccessoryID; 
+        return idA < idB;
+    });
+}
+
+std::string AccessorySystem::SaveAccessoryTable()
+{
+    ElementTableSerialized();
+    return ReflectHelper::json::SerializedObjet(ReflectFields->ElementTableData);
+}
+
+bool AccessorySystem::LoadAccessoryTable(const std::string& data)
+{
+    if (ReflectHelper::json::DeserializedObjet(ReflectFields->ElementTableData, data))
+    {
+        ElementTableDeserialized();
+        return true;
+    }
+    return false;
 }

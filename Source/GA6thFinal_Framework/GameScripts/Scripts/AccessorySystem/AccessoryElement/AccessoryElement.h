@@ -19,6 +19,7 @@ enum class AccessoryGrade
 
 class AccessoryElement : public ReflectSerializer, public IDropItem
 {
+    friend class AccessorySystem;
     USING_PROPERTY(AccessoryElement)
 public: 
     AccessoryElement();
@@ -53,10 +54,10 @@ public:
     //type : int
     PROPERTY(AccessoryID)
 
-    SETTER(const std::string&, AccessoryName) { ReflectFields->AccessoryName = value; }
-    GETTER(const std::string&, AccessoryName) { return ReflectFields->AccessoryName; }
+    GETTER_ONLY(const std::string&, AccessoryName) { return ReflectFields->AccessoryName; }
     //type : const std::string&
     PROPERTY(AccessoryName)
+    void SetName(std::string_view name) { ReflectFields->AccessoryName = name; }
 
     SETTER(AccessoryGrade, Grade) { ReflectFields->Grade = value; }
     GETTER(AccessoryGrade, Grade) { return ReflectFields->Grade; }
@@ -100,10 +101,12 @@ private:
         return *this;
     }
 
+private:
+    bool _showActionEditor = false;
+
 public:
     AccessoryElement(const AccessoryElement& rhs) { CopyElement(rhs); }
     AccessoryElement& operator=(const AccessoryElement& rhs) { return CopyElement(rhs); }
-
 
 public:
     DropItemInfo GetItemInfo() override;
