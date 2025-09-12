@@ -96,13 +96,13 @@ std::vector<TurnUIData> TurnQueueViewModel::Convert(const std::deque<std::pair<i
     {
         if (TurnMode::IsPlayerActorSlot(slotAndActor))
         {
-            WeaponSystem* weaponSystem = WeaponSystem::GetInstance();
-            const int           slotIndex    = slotAndActor.first;
-            WeaponStats& stats = weaponSystem->GetWeaponStatsAtIndex(slotIndex);
-            int weaponId   = stats.WeaponID;
-            File::GuidRef           frameGuid    = GetPlayerFrameGuid()();
-            File::GuidRef       portraitGuid = GetPortraitGuid()(weaponId);
-            TurnUIData data{.ActorPortrait = portraitGuid, .Frame = frameGuid};
+            WeaponSystem* weaponSystem = SingletonComponent<WeaponSystem>::GetInstance();
+            const int     slotIndex    = slotAndActor.first;
+            WeaponStats&  stats        = weaponSystem->GetWeaponStatsAtIndex(slotIndex);
+            int           weaponId     = stats.WeaponID;
+            File::GuidRef frameGuid    = GetPlayerFrameGuid()();
+            File::GuidRef portraitGuid = GetPortraitGuid()(weaponId);
+            TurnUIData    data{.ActorPortrait = portraitGuid, .Frame = frameGuid};
             _turnQueueData.push_back(data);
         }
         else

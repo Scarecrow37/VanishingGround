@@ -24,6 +24,7 @@ public:
     /// </summary>
     /// <param name="guidRef">이미지 파일을 식별하는 File::GuidRef 참조입니다.</param>
     void SetImage(const File::GuidRef& guidRef);
+    void SetLinearFill(float fill);
 
     /// <summary>
     /// 스프라이트의 크기로 값을 초기화합니다.

@@ -61,7 +61,7 @@ void ParticleSpritePass::Draw(ID3D12GraphicsCommandList* commandList)
 
     auto            customDepthTarget = Global::multiRenderTargetManager->GetRenderTarget("CustomDepth");
     const auto&     resolution        = customDepthTarget->GetResolution();
-    PostProcessData postProcessData{.TexelSize = {1.f / (float)resolution.Width, 1.f / (float)resolution.Height}};
+    PostProcessData postProcessData{.TexelSize = {1.f / (float)resolution.cx, 1.f / (float)resolution.cy}};
     commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_6_postProcessData"), 6,
                                                &postProcessData, 0);
 

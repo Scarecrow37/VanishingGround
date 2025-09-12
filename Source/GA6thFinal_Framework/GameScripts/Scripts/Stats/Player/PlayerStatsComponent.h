@@ -8,10 +8,15 @@ class PlayerStatsComponent : public TurnActorStatsComponent
 public:
     REFLECT_PROPERTY()
 
-    PlayerStats& GetStats() { return *_stats; }    
 public:
     PlayerStatsComponent();
     virtual ~PlayerStatsComponent();
+
+public:
+    PlayerStats& GetStats() { return *_stats; }
+
+public:
+    void RegisterHP(const std::string& key) const;
 
 protected:
     REFLECT_FIELDS_BEGIN(TurnActorStatsComponent)

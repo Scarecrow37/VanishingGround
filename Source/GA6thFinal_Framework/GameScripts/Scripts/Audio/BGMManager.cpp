@@ -5,10 +5,6 @@
 BGMManager::BGMManager() = default;
 BGMManager::~BGMManager()
 {
-    if (this == _staticInstance)
-    {
-        _staticInstance = nullptr;
-    }
     if (_audio)
     {
         _audio->Stop();
@@ -17,15 +13,18 @@ BGMManager::~BGMManager()
 
 void BGMManager::Reset() 
 {
-    _staticInstance = this;
+    _singletonComponent.SetSingleTon();
 }
 
 void BGMManager::Start()
 {
-    _audio = gameObject->GetComponent<AudioComponent>();
-    if (_audio)
+    if (_singletonComponent.TrySingleTon())
     {
-        _audio->Play();
+        _audio = gameObject->GetComponent<AudioComponent>();
+        if (_audio)
+        {
+            _audio->Play();
+        }
     }
 }
 

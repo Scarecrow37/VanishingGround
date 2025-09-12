@@ -3,8 +3,8 @@
 
 void DepthStencilView::Initialize(const D3D12_RESOURCE_DESC& desc)
 {
-    _desc = desc;    
-    _resolution = {(UINT)desc.Width, desc.Height};
+    _desc       = desc;
+    _resolution = {(LONG)desc.Width, (LONG)desc.Height};
 
     _currentState = D3D12_RESOURCE_STATE_PRESENT;
 
@@ -18,10 +18,10 @@ void DepthStencilView::ClearDepthStencilView(ID3D12GraphicsCommandList* commandL
     commandList->ClearDepthStencilView(_handle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0, nullptr);
 }
 
-void DepthStencilView::ResizeResource(Resolution resolution)
+void DepthStencilView::ResizeResource(SIZE resolution)
 {
-    _desc.Width   = resolution.Width;
-    _desc.Height  = resolution.Height;
+    _desc.Width   = resolution.cx;
+    _desc.Height  = resolution.cy;
     _resolution   = resolution;
     _currentState = D3D12_RESOURCE_STATE_PRESENT;
 

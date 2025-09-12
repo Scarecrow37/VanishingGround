@@ -44,7 +44,7 @@ void Enemy::Revive()
 void Enemy::Dead()
 {
     Base::Dead();
-    if (auto turnMode = TurnMode::GetInstance())
+    if (auto turnMode = SingletonComponent<TurnMode>::GetInstance())
     {
         turnMode->ApplyActions([this](TurnAction& action) { action.OnEnemyDead(*this); });
     }

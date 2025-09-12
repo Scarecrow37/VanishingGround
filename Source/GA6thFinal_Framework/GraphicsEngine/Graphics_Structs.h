@@ -69,7 +69,7 @@ struct MeshInfo
     class BaseMesh* Mesh;
     UINT            CustomDepth;
     UINT            InstanceID;
-    XMMATRIX*        TransposeWorldMatrix;
+    Matrix*        TransposeWorldMatrix;
     DXRSkeletalMesh* SkinnedInstance;
 };
 
@@ -83,6 +83,12 @@ struct LightData
     float   float_2;
     Vector3 float3_3;
     float   float_3;
+};
+
+struct UIMaterialData
+{
+    UINT  Type;
+    float Fill;
 };
 
 struct GraphicsTransform

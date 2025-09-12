@@ -8,7 +8,6 @@
 
 ArtifactUIManager::ArtifactUIManager()
 {
-    static_instance    = this;
     _frameGridPanel    = nullptr;
     _gridPanel         = nullptr;
     _categoryGridPanel = nullptr;
@@ -16,25 +15,18 @@ ArtifactUIManager::ArtifactUIManager()
 
 ArtifactUIManager::~ArtifactUIManager()
 {
-    if (this == static_instance)
-    {
-        static_instance = nullptr;
-    }
+
 }
 
 void ArtifactUIManager::Reset() 
 {
+    _singletonComponent.SetSingleTon();
     Base::Reset();
 }
 
 void ArtifactUIManager::Awake() 
 {
-    if (this != static_instance)
-    {
-        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"ArtifactFrameUIManager는 하나만 존재해야 합니다.");
-        GameObject::Destroy(this);
-    }
-    else
+    if (_singletonComponent.TrySingleTon())
     {
         gameObject->AddTag(TAG);
         Base::Awake();
@@ -247,7 +239,7 @@ void ArtifactUIManager::FindImageElements()
 
 void ArtifactUIManager::ImageUISetup(const std::vector<DropArtifactsUIData>& dropItemsInfo) 
 {
-    if (ItemDropUIRootManager* rootManager = ItemDropUIRootManager::GetInstance())
+    if (ItemDropUIRootManager* rootManager = SingletonComponent<ItemDropUIRootManager>::GetInstance())
     {
         // Frame UI 업데이트
         std::string   frameAsstePath = rootManager->ArtifactsUIFrameAsset;
@@ -300,7 +292,7 @@ void ArtifactUIManager::ImageUIUnlock()
         return startIndex + 1;
     };
 
-    if (ItemDropSystem* system = ItemDropSystem::GetInstance())
+    if (ItemDropSystem* system = SingletonComponent<ItemDropSystem>::GetInstance())
     {
         int clearCount = system->StageClearCount;
         int endIndex = GetIndices(clearCount);

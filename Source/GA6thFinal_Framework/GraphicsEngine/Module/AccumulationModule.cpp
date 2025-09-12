@@ -42,11 +42,8 @@ void AccumulationModule::Execute(ID3D12GraphicsCommandList* commandList, D3D12_G
 {
     const auto& resolution = output->GetResolution();
 
-    D3D12_VIEWPORT viewport{.Width  = static_cast<float>(resolution.Width),
-                            .Height = static_cast<float>(resolution.Height)};
-
-    D3D12_RECT scissorRect{.right  = static_cast<LONG>(resolution.Width),
-                           .bottom = static_cast<LONG>(resolution.Height)};
+    D3D12_VIEWPORT viewport{.Width = static_cast<float>(resolution.cx), .Height = static_cast<float>(resolution.cy)};
+    D3D12_RECT     scissorRect{.right = resolution.cx, .bottom = resolution.cy};
 
     commandList->OMSetRenderTargets(0, nullptr, FALSE, nullptr);
     commandList->RSSetViewports(1, &viewport);

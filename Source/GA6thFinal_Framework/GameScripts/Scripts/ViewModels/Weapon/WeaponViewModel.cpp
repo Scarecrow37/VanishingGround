@@ -208,7 +208,7 @@ WeaponUIData WeaponViewModel::Convert(TurnActor* const& value)
     if (nullptr != value && typeid(*value) == typeid(Player))
     {
         data.Enable                     = true;
-        WeaponSystem*      weaponSystem = WeaponSystem::GetInstance();
+        WeaponSystem*      weaponSystem = SingletonComponent<WeaponSystem>::GetInstance();
         const WeaponStats& state        = weaponSystem->GetCurrentWeaponStats();
         const int          weaponId     = state.WeaponID;
         const WeaponType   type         = state.Type;

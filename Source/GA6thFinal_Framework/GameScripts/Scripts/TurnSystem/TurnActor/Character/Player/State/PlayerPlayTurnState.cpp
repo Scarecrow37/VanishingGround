@@ -134,7 +134,7 @@ void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
         if (_attackButtonHeldTime >= _attackButtonHeldWaitTime)
         {
             _inputState = PlayerPlayTurnState::InputState::QUICK_TIME_EVENT;
-            WeaponSystem* weaponSystem = WeaponSystem::GetInstance();
+            WeaponSystem* weaponSystem = SingletonComponent<WeaponSystem>::GetInstance();
             if (weaponSystem)
             {
                 const WeaponStats& weapon = weaponSystem->GetCurrentWeaponStats();
@@ -219,8 +219,8 @@ void PlayerPlayTurnState::UpdateQuickTimeEventUI(float dt)
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.1f, 0.1f, 0.1f, 0.5f));
     ImGui::Begin("Player Turn##9A48EE30-CB5F-48AC-9740-DDF8118AAC49", nullptr, flags);
     {
-        WeaponSystem* weaponSystem = WeaponSystem::GetInstance();
-        TurnMode*     turnMode     = TurnMode::GetInstance();
+        WeaponSystem* weaponSystem = SingletonComponent<WeaponSystem>::GetInstance();
+        TurnMode*     turnMode     = SingletonComponent<TurnMode>::GetInstance();
         if (weaponSystem)
         {
             Player&      player = GetPlayer();
@@ -335,7 +335,7 @@ void PlayerPlayTurnState::SetAttackReady()
         animator->EndBuildOverrideAnimation();
     }
 
-    WeaponSystem*       weaponSystem = WeaponSystem::GetInstance();
+    WeaponSystem*       weaponSystem = SingletonComponent<WeaponSystem>::GetInstance();
     const WeaponStats&  weaponStats  = weaponSystem->GetCurrentWeaponStats();
     WeaponType          weaponType   = weaponStats.Type;
     AnimationComponent* weaponAnim   = weaponAnims[(int)weaponType];
@@ -369,7 +369,7 @@ void PlayerPlayTurnState::SetAttack()
     }
 
     // 무기 애니메이션 및 이펙트 처리
-    WeaponSystem*       weaponSystem = WeaponSystem::GetInstance();
+    WeaponSystem*       weaponSystem = SingletonComponent<WeaponSystem>::GetInstance();
     const WeaponStats&  weaponStats  = weaponSystem->GetCurrentWeaponStats();
     WeaponType          weaponType   = weaponStats.Type;
     AnimationComponent* weaponAnim   = weaponAnims[(int)weaponType];
@@ -454,7 +454,7 @@ void PlayerPlayTurnState::SetAttackEnd()
     }
 
     // 무기 애니메이션 및 이펙트 처리
-    WeaponSystem*       weaponSystem = WeaponSystem::GetInstance();
+    WeaponSystem*       weaponSystem = SingletonComponent<WeaponSystem>::GetInstance();
     const WeaponStats&  weaponStats  = weaponSystem->GetCurrentWeaponStats();
     WeaponType          weaponType   = weaponStats.Type;
     AnimationComponent* weaponAnim   = weaponAnims[(int)weaponType];

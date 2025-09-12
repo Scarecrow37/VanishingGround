@@ -10,9 +10,9 @@ TurnModeStateBase::~TurnModeStateBase() {}
 
 void TurnModeStateBase::OnStart() 
 {
-    _turnMode         = TurnMode::GetInstance();
-    _weaponSystem     = WeaponSystem::GetInstance();
-    _revelationSystem = RevelationSystem::GetInstance();
+    _turnMode         = SingletonComponent<TurnMode>::GetInstance();
+    _weaponSystem     = SingletonComponent<WeaponSystem>::GetInstance();
+    _revelationSystem = SingletonComponent<RevelationSystem>::GetInstance();
     if (_turnMode == nullptr)
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Game System에 Turn Mode가 존재하지 않습니다.");
