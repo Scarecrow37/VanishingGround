@@ -26,6 +26,24 @@ namespace
     constexpr auto AccessoryGradeArray = rfl::get_enumerator_array<AccessoryGrade>();
     constexpr size_t AccessoryGradeArraySize = AccessoryGradeArray.size();
 
+    /// <summary>
+    /// 유효한 가중치 배열로 설정합니다. (total 값이 0 이상으로)
+    /// </summary>
+    /// <param name="weights"></param>
+    void ResetValidWeights(std::vector<double>& weights) 
+    {
+        double total = 0.0;
+        for (auto& weight : weights)
+        {
+            total += weight;
+        }
+
+        if (total < static_cast<double>(Mathf::Epsilon))
+        {
+            std::fill(weights.begin(), weights.end(), 1.0 / static_cast<double>(weights.size()));
+        }
+    }
+
 } // namespace
 
 const size_t ItemDropSystem::ARTIFACT_TYPE_COUNT = ArtifactDropTypeArraySize; // 유물 카테고리 개수
@@ -42,6 +60,11 @@ ItemDropSystem::ItemDropSystem()
     for (auto& weights : ReflectFields->RevelationGradeWeight)
     {
         weights.resize(RevelationGradeArraySize, 1.0 / (double)RevelationGradeArraySize);
+    }
+
+    for (auto& weights : ReflectFields->AccessoryGradeWeight)
+    {
+        weights.resize(AccessoryGradeArraySize, 1.0 / (double)AccessoryGradeArraySize);
     }
 }
 ItemDropSystem::~ItemDropSystem()
@@ -88,6 +111,21 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
         }
     }
 
+    //장신구 테이블에 대한 배열.
+    std::array<std::vector<AccessoryElement*>, AccessoryGradeArraySize> accessories{};
+    AccessorySystem* accessorySystem = SingletonComponent<AccessorySystem>::GetInstance();
+    if (accessorySystem)
+    {
+        //Todo : 장신구는 중복 X 인벤토리에 있는거는 제외해야함
+        const auto& table = accessorySystem->GetAccessoryTableElements();
+        for (auto& accessory : table)
+        {
+            AccessoryGrade grade     = accessory->Grade;
+            size_t         typeIndex = static_cast<size_t>(grade);
+            accessories[typeIndex].push_back(accessory);
+        }
+    }
+
     std::array<DropItemInfo, ARTIFACT_DROP_COUNT> artifacts;      // 결과 담는 배열
     std::array<int, ArtifactDropTypeArraySize>    maxDropCount{}; // 중복 등장 카운트용
     for (size_t i = 0; i < maxDropCount.size(); ++i)
@@ -120,9 +158,14 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
             auto& [gradeStr, grade] = WeaponGradeArray[Random::Index(weight)];
             return grade;
         };
-        auto RollRevelationRandomGrade =[this](const std::vector<double>& weight) -> RevelationGrade
+        auto RollRevelationRandomGrade = [this](const std::vector<double>& weight) -> RevelationGrade
         {
             auto& [gradeStr, grade] = RevelationGradeArray[Random::Index(weight)];
+            return grade;
+        };
+        auto RollAccessoryRandomGrade = [this](const std::vector<double>& weight) -> AccessoryGrade
+        {
+            auto& [gradeStr, grade] = AccessoryGradeArray[Random::Index(weight)];
             return grade;
         };
 
@@ -173,6 +216,29 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
                 return info;
             }
         };
+        // 장신구 랜덤 뽑기 함수
+        auto RollAccessoryRandomItem = [&]() -> DropItemInfo
+        {
+            AccessoryGrade grade = RollAccessoryRandomGrade(ReflectFields->AccessoryGradeWeight[_itemDropRateBonus]);
+            int            gradeIndex = static_cast<int>(grade);
+            auto&          itemTable  = accessories[gradeIndex];
+            if (false == itemTable.empty())
+            {
+                size_t itemIndex = Random::Index(itemTable.size());
+                IDropItem* randomItem = itemTable[itemIndex];
+                itemTable.erase(itemTable.begin() + itemIndex);
+                return randomItem->GetItemInfo();
+            }
+            else
+            {
+                DropItemInfo info{};
+                info.ID       = 0;
+                info.Category = ArtifactDropType::ACCESSORY;
+                info.Name     = rfl::enum_to_string(grade);
+                info.Name += (const char*)u8" 등급 장신구";
+                return info;
+            }
+        };
 
         switch (type)
         {
@@ -184,6 +250,9 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
             break;
         case ArtifactDropType::WARHAMMER:
             artifact = RollWeaponRandomItem(static_cast<int>(WeaponType::WARHAMMER));
+            break;
+        case ArtifactDropType::ACCESSORY:
+            artifact = RollAccessoryRandomItem();
             break;
         case ArtifactDropType::REVELATION:
             artifact = RollRevelationRandomItem();
@@ -476,14 +545,19 @@ void ItemDropSystem::DeserializedReflectEvent()
     for (auto& weights : ReflectFields->WeaponGradeWeight)
     {
         weights.resize(WeaponGradeArraySize);
+        ResetValidWeights(weights);
     }
+   
     for (auto& weights : ReflectFields->RevelationGradeWeight)
     {
         weights.resize(RevelationGradeArraySize);
+        ResetValidWeights(weights);
     }
+
     for (auto& weights : ReflectFields->AccessoryGradeWeight)
     {
         weights.resize(AccessoryGradeArraySize);
+        ResetValidWeights(weights);
     }
 }
 
