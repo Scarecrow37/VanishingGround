@@ -36,6 +36,7 @@ void SceneTransitionComponent::ImGuiDrawPropertysEvent()
         }
         
         ImGui::SliderFloat("Shift Threshold", &ReflectFields->EaseThreshold, 0.f, 1.f);
+        ImGui::PlotLines("Ease Graph", _easeLog.data(), (int)_easeLog.size(), 0, NULL, -0.5f, 1.5f, ImVec2(400, 150));
     }
 
     bool isFadeButtonPressed = ImGui::Button("Fade", {100, 40});
@@ -60,32 +61,21 @@ void SceneTransitionComponent::DeserializedReflectEvent()
 void SceneTransitionComponent::OnDrawDebug() 
 {
     CalculateFade();
-    if (true == ReflectFields->Ease)
-    {
-        ImGui::PlotLines("Ease Graph", _easeLog.data(), (int)_easeLog.size(), 0, NULL, -0.5f, 1.5f, ImVec2(400, 150));
-    }
 }
 
 void SceneTransitionComponent::OnDrawDebugSelected() 
 {
     CalculateFade();
-    if (true == ReflectFields->Ease)
-    {
-        ImGui::PlotLines("Ease Graph", _easeLog.data(), (int)_easeLog.size(), 0, NULL, -0.5f, 1.5f, ImVec2(400, 150));
-    }
 }
 
 void SceneTransitionComponent::Update()
 {
     CalculateFade();
-    if (true == ReflectFields->Ease)
-    {
-        ImGui::PlotLines("Ease Graph", _easeLog.data(), (int)_easeLog.size(), 0, NULL, -0.5f, 1.5f, ImVec2(400, 150));
-    }
 }
 
 void SceneTransitionComponent::CalculateFade() 
 {
+
     if (false == _fadeFlag)
     {
         return;
