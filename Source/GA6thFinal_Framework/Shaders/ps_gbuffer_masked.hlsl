@@ -115,8 +115,8 @@ PSOutput WriteGuBuffer(PSInput input)
     float mipOffset = bit32_2_gbufferData.MipBias;
    
     uint diffuseID = material[objectData.ID].ID[DIFFUSE];
-    float alhpa = textures[diffuseID].SampleBias(samLinear_wrap, input.uv, mipOffset).a;
-    clip(alhpa - CUTOFF); // Masked Alpha Test
+    float alpha = textures[diffuseID].SampleBias(samLinear_wrap, input.uv, mipOffset).a;
+    clip(alpha - CUTOFF); // Masked Alpha Test
     
     uint normalID = material[objectData.ID].ID[NORMAL];
     uint ORMID = material[objectData.ID].ID[ORM];
