@@ -287,19 +287,10 @@ namespace Mathf
         return a0 * t3 + a1 * t2 + a2 * t + a3;
     }
 
-    // Vector3 Catmull-Rom 보간은 SimpleMath 함수 사용
-    inline Vector3 CatmullRomVector3(float t, const Vector3& p0, const Vector3& p1, const Vector3& p2,
-                                     const Vector3& p3)
-    {
-        return Vector3::CatmullRom(p0, p1, p2, p3, t);
-    }
-
     // 보간 함수 템플릿, float 또는 Vector3 대응
-    template <typename T>
-    T CatmullRomSpline(const std::vector<std::pair<float, T>>& points, float t)
+    inline float CatmullRomSpline(const std::vector<std::pair<float, float>>& points, float t)
     {
         t = std::clamp(t, points.front().first, points.back().first);
-
         size_t n = points.size();
 
         // 2점이면 선형 보간
@@ -308,15 +299,7 @@ namespace Mathf
             float t0     = points[0].first;
             float t1     = points[1].first;
             float localT = (t - t0) / (t1 - t0);
-
-            if constexpr (std::is_same_v<T, float>)
-            {
-                return points[0].second + localT * (points[1].second - points[0].second);
-            }
-            else
-            {
-                return points[0].second.Lerp(points[1].second, localT);
-            }
+            return points[0].second + localT * (points[1].second - points[0].second);
         }
         // 3점이면 중복점 만들기
         else if (n == 3)
@@ -335,14 +318,7 @@ namespace Mathf
             const auto& p2 = points[segment + 1].second;
             const auto& p3 = (segment == 0) ? points[2].second : points[2].second;
 
-            if constexpr (std::is_same_v<T, float>)
-            {
-                return CatmullRomFloat(localT, p0, p1, p2, p3);
-            }
-            else
-            {
-                return CatmullRomVector3(localT, p0, p1, p2, p3);
-            }
+            return CatmullRomFloat(localT, p0, p1, p2, p3);
         }
         // 4개 이상 일반 구간 보간
         else
@@ -375,14 +351,204 @@ namespace Mathf
             const auto& p2 = points[i2].second;
             const auto& p3 = points[i3].second;
 
-            if constexpr (std::is_same_v<T, float>)
-            {
-                return CatmullRomFloat(localT, p0, p1, p2, p3);
-            }
-            else
-            {
-                return CatmullRomVector3(localT, p0, p1, p2, p3);
-            }
+            return CatmullRomFloat(localT, p0, p1, p2, p3);
         }
     }
+    inline float CatmullRomSpline(const std::vector<float>& steps, const std::vector<float>& points, float t)
+    {
+        t        = std::clamp(t, steps.front(), steps.back());
+        size_t n = points.size();
+
+        // 2점이면 선형 보간
+        if (n == 2)
+        {
+            float t0     = steps[0];
+            float t1     = steps[1];
+            float localT = (t - t0) / (t1 - t0);
+            return points[0] + localT * (points[1] - points[0]);
+        }
+        // 3점이면 중복점 만들기
+        else if (n == 3)
+        {
+            size_t segment = 0;
+            if (t >= steps[1])
+                segment = 1;
+
+            float t0     = steps[segment];
+            float t1     = steps[segment + 1];
+            float localT = (t - t0) / (t1 - t0);
+
+            // 4점 만들기: p0, p1, p2, p3
+            const auto& p0 = (segment == 0) ? points[0] : points[0];
+            const auto& p1 = points[segment];
+            const auto& p2 = points[segment + 1];
+            const auto& p3 = (segment == 0) ? points[2] : points[2];
+
+            return CatmullRomFloat(localT, p0, p1, p2, p3);
+        }
+        // 4개 이상 일반 구간 보간
+        else
+        {
+            // 구간 찾기
+            size_t segment = 0;
+            for (size_t i = 0; i < n - 1; ++i)
+            {
+                if (t >= steps[i] && t < steps[i + 1])
+                {
+                    segment = i;
+                    break;
+                }
+            }
+            if (t == steps.back())
+            {
+                segment = n - 2;
+            }
+            size_t i0 = (segment == 0) ? 0 : segment - 1;
+            size_t i1 = segment;
+            size_t i2 = segment + 1;
+            size_t i3 = (segment + 2 >= n) ? n - 1 : segment + 2;
+
+            float t0     = steps[i1];
+            float t1     = steps[i2];
+            float localT = (t - t0) / (t1 - t0);
+
+            const auto& p0 = points[i0];
+            const auto& p1 = points[i1];
+            const auto& p2 = points[i2];
+            const auto& p3 = points[i3];
+
+            return CatmullRomFloat(localT, p0, p1, p2, p3);
+        }
+    }
+    inline Vector3 CatmullRomSpline(const std::vector<std::pair<float, Vector3>>& points, float t)
+    {
+        t = std::clamp(t, points.front().first, points.back().first);
+
+        size_t n = points.size();
+
+        // 2점이면 선형 보간
+        if (n == 2)
+        {
+            float t0     = points[0].first;
+            float t1     = points[1].first;
+            float localT = (t - t0) / (t1 - t0);
+            return Vector3::Lerp(points[0].second, points[1].second, localT);
+        }
+        // 3점이면 중복점 만들기
+        else if (n == 3)
+        {
+            size_t segment = 0;
+            if (t >= points[1].first)
+                segment = 1;
+
+            float t0     = points[segment].first;
+            float t1     = points[segment + 1].first;
+            float localT = (t - t0) / (t1 - t0);
+
+            // 4점 만들기: p0, p1, p2, p3
+            const auto& p0 = (segment == 0) ? points[0].second : points[0].second;
+            const auto& p1 = points[segment].second;
+            const auto& p2 = points[segment + 1].second;
+            const auto& p3 = (segment == 0) ? points[2].second : points[2].second;
+            return Vector3::CatmullRom(p0, p1, p2, p3, localT);
+        }
+        // 4개 이상 일반 구간 보간
+        else
+        {
+            // 구간 찾기
+            size_t segment = 0;
+            for (size_t i = 0; i < n - 1; ++i)
+            {
+                if (t >= points[i].first && t < points[i + 1].first)
+                {
+                    segment = i;
+                    break;
+                }
+            }
+            if (t == points.back().first)
+            {
+                segment = n - 2;
+            }
+            size_t i0 = (segment == 0) ? 0 : segment - 1;
+            size_t i1 = segment;
+            size_t i2 = segment + 1;
+            size_t i3 = (segment + 2 >= n) ? n - 1 : segment + 2;
+
+            float t0     = points[i1].first;
+            float t1     = points[i2].first;
+            float localT = (t - t0) / (t1 - t0);
+
+            const auto& p0 = points[i0].second;
+            const auto& p1 = points[i1].second;
+            const auto& p2 = points[i2].second;
+            const auto& p3 = points[i3].second;
+            return Vector3::CatmullRom(p0, p1, p2, p3, localT);
+        }
+    }
+    inline Vector3 CatmullRomSpline(const std::vector<float>& steps, const std::vector<Vector3>& points, float t)
+    {
+        t = std::clamp(t, steps.front(), steps.back());
+
+        size_t n = points.size();
+
+        // 2점이면 선형 보간
+        if (n == 2)
+        {
+            float t0     = steps[0];
+            float t1     = steps[1];
+            float localT = (t - t0) / (t1 - t0);
+            return Vector3::Lerp(points[0], points[1], localT);
+        }
+        // 3점이면 중복점 만들기
+        else if (n == 3)
+        {
+            size_t segment = 0;
+            if (t >= steps[1])
+                segment = 1;
+
+            float t0     = steps[segment];
+            float t1     = steps[segment + 1];
+            float localT = (t - t0) / (t1 - t0);
+
+            // 4점 만들기: p0, p1, p2, p3
+            const auto& p0 = (segment == 0) ? points[0] : points[0];
+            const auto& p1 = points[segment];
+            const auto& p2 = points[segment + 1];
+            const auto& p3 = (segment == 0) ? points[2] : points[2];
+            return Vector3::CatmullRom(p0, p1, p2, p3, localT);
+        }
+        // 4개 이상 일반 구간 보간
+        else
+        {
+            // 구간 찾기
+            size_t segment = 0;
+            for (size_t i = 0; i < n - 1; ++i)
+            {
+                if (t >= steps[i] && t < steps[i + 1])
+                {
+                    segment = i;
+                    break;
+                }
+            }
+            if (t == steps.back())
+            {
+                segment = n - 2;
+            }
+            size_t i0 = (segment == 0) ? 0 : segment - 1;
+            size_t i1 = segment;
+            size_t i2 = segment + 1;
+            size_t i3 = (segment + 2 >= n) ? n - 1 : segment + 2;
+
+            float t0     = steps[i1];
+            float t1     = steps[i2];
+            float localT = (t - t0) / (t1 - t0);
+
+            const auto& p0 = points[i0];
+            const auto& p1 = points[i1];
+            const auto& p2 = points[i2];
+            const auto& p3 = points[i3];
+            return Vector3::CatmullRom(p0, p1, p2, p3, localT);
+        }
+    }
+
 } // namespace Mathf

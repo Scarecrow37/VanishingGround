@@ -471,6 +471,7 @@
     <ClInclude Include="Scripts\SceneTransition\SceneTransitionComponent.h" />
     <ClInclude Include="Scripts\Utility\SingletonHelper.h" />
     <ClInclude Include="Scripts\PlayerSystem\PlayerSystem.h" />
+    <ClInclude Include="Scripts\Camera\UmCineMotion.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scripts\Audio\BGMManager.cpp" />
@@ -651,6 +652,7 @@
     <ClCompile Include="Scripts\ItemDropSystem\ItemDropSystem.cpp" />
     <ClCompile Include="Scripts\SceneTransition\SceneTransitionComponent.cpp" />
     <ClCompile Include="Scripts\PlayerSystem\PlayerSystem.cpp" />
+    <ClCompile Include="Scripts\Camera\UmCineMotion.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
