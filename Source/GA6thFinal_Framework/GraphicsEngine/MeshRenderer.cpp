@@ -32,7 +32,7 @@ std::shared_ptr<Animator> MeshRenderer::GetAnimator() const
 
 void MeshRenderer::SetModel(std::shared_ptr<Model> model)
 {
-    _model = model;    
+    _model = model;
 }
 
 void MeshRenderer::SetAnimator(std::shared_ptr<Animator> animator)

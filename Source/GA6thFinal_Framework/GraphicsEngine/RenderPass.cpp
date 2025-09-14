@@ -1,9 +1,9 @@
 ﻿#include "pch.h"
 #include "RenderPass.h"
 
-RenderPass::RenderPass() {}
+RenderPass::RenderPass() = default;
 
-RenderPass::~RenderPass() {}
+RenderPass::~RenderPass() = default;
 
 void RenderPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {

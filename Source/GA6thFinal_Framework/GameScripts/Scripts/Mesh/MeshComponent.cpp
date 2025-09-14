@@ -6,8 +6,8 @@ MeshComponent::MeshComponent()
     Component(Component::TYPE::MESH),
     Renderer(_pMeshRenderer)
 {
-  
 }
+
 MeshComponent::~MeshComponent()
 {
     if (Renderer)
@@ -48,6 +48,23 @@ void MeshComponent::MakeMeshRenderer(MeshType renderType, const Vector3& positio
     else
     {
         //assert(!"이미 MeshRenderer가 존재합니다.");
+    }
+}
+
+void MeshComponent::SerializedReflectEvent()
+{
+    const auto& model = Renderer->GetModel();
+
+    if (model)
+    {
+        auto&  materials = model->GetMaterials();
+        size_t meshCount = model->GetMeshCount();
+
+        for (size_t i = 0; i < meshCount; i++)
+        {
+            ReflectFields->BlendMode[i]  = materials[i].BlendMode;
+            ReflectFields->IsTwoSided[i] = materials[i].IsTwoSided;
+        }
     }
 }
 
@@ -92,22 +109,22 @@ void MeshComponent::ImGuiDrawPropertysEvent()
                 ImGuiTableFlags flags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Sortable;
                 if (ImGui::BeginTable("##MeshComponent", 2, ImGuiTableFlags_Borders))
                 {
-                    //ImGui::TableNextRow();
-                    //{
-                    //    ImGui::TableNextColumn();
-                    //    {
-                    //        ImGui::Text("Shading Model");
-                    //    }
-                    //    ImGui::TableNextColumn();
-                    //    {
-                    //        static const char* names[] = {"Unlit", "Default Lit"};
-                    //        if (ImGui::Combo("##ShadingModel", (int*)&_materials[i].Mode, names, 2))
-                    //        {
-                    //            //_materials[i].CullMode;
-                    //        }
-                    //    }
-                    //    ImGui::TableNextColumn();
-                    //}
+                    ImGui::TableNextRow();
+                    {
+                        ImGui::TableNextColumn();
+                        {
+                            ImGui::Text("Blend Mode");
+                        }
+                        ImGui::TableNextColumn();
+                        {
+                            static const char* blendModeNames[] = {"Opaque", "Masked", "Translucent"};
+                            if (ImGui::Combo("##BlendMode", (int*)&materials[i].BlendMode, blendModeNames, 3))
+                            {
+                                ReflectFields->BlendMode[i] = materials[i].BlendMode;
+                            }
+                        }
+                        ImGui::TableNextColumn();
+                    }
                     ImGui::TableNextRow();
                     {
                         ImGui::TableNextColumn();
@@ -169,7 +186,6 @@ void MeshComponent::InitMaterial()
     if (ReflectFields->CustomDepth.size() < meshCount)
     {
         ReflectFields->BlendMode.resize(meshCount, 0);
-        ReflectFields->CullMode.resize(meshCount, 0);
         ReflectFields->IsTwoSided.resize(meshCount, false);
         ReflectFields->CustomDepth.resize(meshCount, PostProcess::BLOOM);
     }
@@ -180,7 +196,6 @@ void MeshComponent::InitMaterial()
 
         //materials[i].ShadingModel = (Material::ShadingModelType)ReflectFields->ShadingModel[i];
         materials[i].BlendMode    = (Material::BlendModeType)ReflectFields->BlendMode[i];
-        materials[i].CullMode     = (Material::CullModeType)ReflectFields->CullMode[i];
         materials[i].IsTwoSided   = ReflectFields->IsTwoSided[i];
     }
 

@@ -4,8 +4,6 @@
 #include "ShadowMapPass.h"
 #include "SSAOWritePass.h"
 
-DeferredPBRLitPass::~DeferredPBRLitPass() {}
-
 void DeferredPBRLitPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
     __super::Initialize(ownerScene, ownerTechnique, commandList);
@@ -82,7 +80,6 @@ void DeferredPBRLitPass::InitShaderAndPSO()
     PipelineStateStream pss;
     pss.BlendState                        = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
     pss.RasterizerState                   = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    (&pss.RasterizerState)->CullMode      = D3D12_CULL_MODE_NONE;
     pss.DepthStencilState                 = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
     (&pss.DepthStencilState)->DepthEnable = FALSE;
     pss.PrimitiveTopology                 = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;

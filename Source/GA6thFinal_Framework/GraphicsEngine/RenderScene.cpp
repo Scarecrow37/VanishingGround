@@ -302,15 +302,27 @@ void RenderScene::UpdateObject()
     UINT instanceID = 0;
     for (auto& [isDestroy, component] : _meshRenderQueue)
     {
-        if (!_isDirtyFlag)
-            _isDirtyFlag = component->IsDirtyFlag();
-
         if (!component->IsActive())
+        {
             continue;
+        }
 
         const auto& model = component->GetModel();
-        if (!model)
+
+        if (nullptr == model)
+        {
             continue;
+        }
+
+        if (!_isDirtyFlag)
+        {
+            _isDirtyFlag = model->IsDirtyFlag() || component->IsDirtyFlag();
+
+            if (_isDirtyFlag)
+            {
+                model->SetDirtyFlag(false);
+            }
+        }
 
         const auto  type         = component->GetType();
         const auto& customDepths = component->GetCustomDepths();

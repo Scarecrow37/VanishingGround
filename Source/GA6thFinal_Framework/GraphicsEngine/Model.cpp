@@ -5,13 +5,11 @@
 #include "Skeleton.h"
 #include "Animation.h"
 
-Model::Model()
+Model::Model() : _isDirtyFlag(false) 
 {
 }
 
-Model::~Model()
-{
-}
+Model::~Model() = default;
 
 const std::vector<std::string>& Model::GetBoneNameList() const
 {
