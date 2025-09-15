@@ -14,6 +14,16 @@ AccessorySystem::~AccessorySystem()
 
 }
 
+bool AccessorySystem::EquipAccessory(const AccessoryElement& accessory)
+{
+    auto [iter, result] = _playerAccessoryItemSet.insert(accessory.AccessoryID);
+    if (result)
+    {
+        _playerAccessoryItems.emplace_back(accessory);
+    }
+    return result;
+}
+
 void AccessorySystem::ImGuiDrawPropertysEvent() 
 {
 #ifdef _UMEDITOR
