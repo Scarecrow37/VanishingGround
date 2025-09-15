@@ -8,13 +8,24 @@ EGizmoManager::EGizmoManager()
     _targetCamera = nullptr;
 }
 
-void EGizmoManager::SubmitSceneGizmo(SceneGizmo* gizmo)
+void EGizmoManager::SubmitSceneGizmoIcon(SceneGizmo* gizmo)
 {
     //활성화된 기즈모만 그림.
-    if (gizmo->_owner.gameObject->IsValid())
+    if (gizmo->_ownerComponenet.gameObject->IsValid())
     {
-        _sceneGizmos.emplace_back(gizmo->_owner.GetWeakPtr(), gizmo);
+        _sceneGizmosIcon.emplace_back(gizmo->_ownerComponenet.GetWeakPtr(), gizmo);
     }  
+}
+
+void EGizmoManager::SubminSceneImGuizmo(SceneGizmo* gizmo) 
+{
+    if (gizmo->_ownerComponenet.gameObject->IsValid())
+    {
+        if (nullptr != gizmo->_ownerMatrix)
+        {
+            _sceneImGuizmos.emplace_back(gizmo->_ownerComponenet.GetWeakPtr(), gizmo);
+        }
+    }
 }
 
 void EGizmoManager::BeginDraw(ImGuiWindow* targetWindow, Camera* camera) 
@@ -28,7 +39,7 @@ void EGizmoManager::Draw()
     if (_targetWindow && _targetCamera)
     {
         // 유효한 기즈모만 그린다.
-        std::erase_if(_sceneGizmos, 
+        std::erase_if(_sceneGizmosIcon, 
         [this](const std::pair<std::weak_ptr<Component>, SceneGizmo*>& pair) 
         {
             // 생명 여부 확인
@@ -38,7 +49,7 @@ void EGizmoManager::Draw()
             {
                 return true;
             }
-
+               
             // 프러스텀 컬링
             BoundingFrustum frustum;
             BoundingFrustum::CreateFromMatrix(frustum, _targetCamera->GetProjectionMatrix());
@@ -54,14 +65,13 @@ void EGizmoManager::Draw()
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.f, 0.f, 0.f, 0.f));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.0f, 0.0f, 0.0f, 0.0f)); 
-        for (auto& [weakOwner, gizmo] : _sceneGizmos)
+        for (auto& [weakOwner, gizmo] : _sceneGizmosIcon)
         {
             if (gizmo->_icon)
             {
                 ImGui::PushID(gizmo);
                 {
-                    ImVec2 screenPos;
-                    if (CalculateGizmoScreenPosition(*gizmo, &screenPos))
+                    if (ImVec2 screenPos; true == CalculateGizmoScreenPosition(*gizmo, &screenPos))
                     {
                         const ImGuiViewport*               viewport    = ImGui::GetMainViewport();
                         const D3D12_GPU_DESCRIPTOR_HANDLE& imageHandle = gizmo->_icon->GetGPUHandle();
@@ -72,9 +82,15 @@ void EGizmoManager::Draw()
                         ImGui::SetCursorPos(screenPos);
                         if (ImGui::ImageButton((ImTextureID)imageHandle.ptr, gizmo->Size))
                         {
-                            std::weak_ptr<GameObject> oldWp = EditorHierarchyTool::GetFocusObject();
-                            UmCommandManager.Do<Command::Hierarchy::FocusCommand>(
-                                oldWp, gizmo->_owner.gameObject->GetWeakPtr());
+                            if (gizmo->EventListener == nullptr)
+                            {
+                                std::weak_ptr<GameObject> oldWp = EditorHierarchyTool::GetFocusObject();
+                                UmCommandManager.Do<Command::Hierarchy::FocusCommand>(oldWp, gizmo->_ownerComponenet.gameObject->GetWeakPtr());
+                            }
+                            else
+                            {
+                                gizmo->EventListener.Invoke();
+                            }
                         }
                     }
                 }
@@ -93,7 +109,31 @@ void EGizmoManager::EndDraw()
 {
     _targetWindow = nullptr;
     _targetCamera = nullptr;
-    _sceneGizmos.clear();
+    _sceneGizmosIcon.clear();
+    _sceneImGuizmos.clear();
+}
+
+void EGizmoManager::DrawImGuizmo(ImGuiHelper::DrawManipulateDesc& desc)
+{
+    if (_targetCamera)
+    {
+        // 유효한 기즈모만 그린다.
+        std::erase_if(_sceneImGuizmos, [this](const std::pair<std::weak_ptr<Component>, SceneGizmo*>& pair) 
+        {
+            // 생명 여부 확인
+            const std::weak_ptr<Component>&  weakOwner = pair.first;
+            return weakOwner.expired();
+        });
+
+        for (auto& [weakOwner, gizmo] : _sceneImGuizmos)
+        {
+            ImGuiHelper::DrawManipulate(_targetCamera, gizmo->_ownerMatrix, desc);
+        }   
+    }
+    else
+    {
+        assert(!"BeginDraw를 먼저 호출해야 합니다.");
+    }
 }
 
 bool EGizmoManager::CalculateGizmoScreenPosition(SceneGizmo& gizmo, ImVec2* outScreenPos)
@@ -104,7 +144,8 @@ bool EGizmoManager::CalculateGizmoScreenPosition(SceneGizmo& gizmo, ImVec2* outS
     }
 
     //행렬 로드
-    const DirectX::XMMATRIX worldMatrix = DirectX::XMLoadFloat4x4(&gizmo._owner.transform->GetWorldMatrix());
+    const Matrix& targetMatrix = gizmo._ownerMatrix != nullptr ? *gizmo._ownerMatrix : gizmo._ownerComponenet.transform->GetWorldMatrix();
+    const DirectX::XMMATRIX worldMatrix = DirectX::XMLoadFloat4x4(&targetMatrix);
     const DirectX::XMMATRIX viewMatrix  = DirectX::XMLoadFloat4x4(&_targetCamera->GetViewMatrix());
     const DirectX::XMMATRIX projMatrix  = DirectX::XMLoadFloat4x4(&_targetCamera->GetProjectionMatrix());
 
