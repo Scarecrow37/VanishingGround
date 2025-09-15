@@ -58,6 +58,7 @@ struct NavigationImGuiStep
         IsPrepareTo    = false;
         IsWaitingInput = false;
         IsPressedButton = false;
+        PressedKey      = NavigationKey();
     }
 
     void PrepareTo(const bool isPrepareTo)
@@ -95,6 +96,11 @@ void UINavigationComponent::ImGuiDrawPropertysEvent()
         SetInitialFocus();
     }
 
+    if (ImGui::Button("Clear Navigation Route"))
+    {
+        ClearNavigationRoute();
+    }
+
 
     static NavigationImGuiStep step;
     // TO
@@ -113,7 +119,7 @@ void UINavigationComponent::ImGuiDrawPropertysEvent()
     }
 
     // Navigation Key
-    if (step.IsPrepareTo && _toID != ReflectFields->NavigationID)
+    if (step.IsPrepareTo)
     {
         if (ImGui::Button("Navigation Key"))
         {
@@ -140,8 +146,7 @@ void UINavigationComponent::ImGuiDrawPropertysEvent()
     }
 
     // From
-    if (step.IsPressedButton && _toID != INVALID_NAVIGATION_ID && _toID != ReflectFields->NavigationID &&
-        ImGui::Button("From"))
+    if (step.IsPressedButton && _toID != INVALID_NAVIGATION_ID && ImGui::Button("From"))
     {
         AddNavigationRoute(step.PressedKey, _toID);
         _toID = INVALID_NAVIGATION_ID;
@@ -153,9 +158,12 @@ void UINavigationComponent::ImGuiDrawPropertysEvent()
         const NavigationID id = ReflectFields->NavigationID;
         ImGuiDebug()("Navigation ID", id);
 
+        ImGui::Text("Navigation Route");
         const auto&  navigationInfos = ReflectFields->NavigationRoutes;
-        const size_t navigationCount = navigationInfos.size();
-        ImGuiDebug()("Navigation Count", navigationCount);
+        for (auto& [button, bias, name, toID] : navigationInfos)
+        {
+            ImGuiDebug()(name.c_str(), toID);
+        }
     }
 }
 
@@ -166,17 +174,23 @@ void UINavigationComponent::OnDrawDebugSelectedOverride()
     if (const UIComponent* siblingUI = SiblingUI; nullptr != siblingUI)
     {
         POINT start = siblingUI->AbsoluteCenterPoint;
+        RECT  rect  = siblingUI->AbsoluteRect;
         if (UIRoot* root  = Root; nullptr != root)
         {
             NavigationRoutes navigationInfos = ReflectFields->NavigationRoutes;
-            std::ranges::for_each(navigationInfos, [this, start, root](const auto& info) {
-                const auto [button, bias, toID] = info;
+            std::ranges::for_each(navigationInfos, [this, start, rect, root](const auto& info) {
+                const auto& [button, bias, name, toID] = info;
                 if (const UINavigationComponent* toNavigation = root->FindNavigationComponent(toID); nullptr != toNavigation)
                 {
                     if (const UIComponent* toSiblingUI = toNavigation->SiblingUI; nullptr != toSiblingUI)
                     {
                         const POINT end = toSiblingUI->AbsoluteCenterPoint;
-                        DrawDebug::Arrow(start, end, 50.0f, Colors::Purple);
+                        const RECT  toRect = toSiblingUI->AbsoluteRect;
+                        if (auto collisionPoints = DrawDebug()(start, end, rect, toRect); collisionPoints.has_value())
+                        {
+                            auto& [pointA, pointB] = collisionPoints.value();
+                            DrawDebug()(pointA, pointB, 50.0f, Colors::Purple);
+                        }
                     }
                 }
             });
@@ -291,17 +305,17 @@ void UINavigationComponent::ClearNavigationRoute()
 void UINavigationComponent::AddNavigationRoute(const NavigationKey& key, const NavigationID toID)
 {
     NavigationRoutes& navigationRoutes = ReflectFields->NavigationRoutes;
-    navigationRoutes.push_back({key.ButtonType, key.Bias, toID});
+    navigationRoutes.push_back({key.ButtonType, key.Bias, key.Name, toID});
 }
 
 NavigationID UINavigationComponent::GetNavigatedId(const NavigationKey& key)
 {
     NavigationRoutes& navigationInfos = ReflectFields->NavigationRoutes;
     auto  result          = navigationInfos | std::views::filter([&key](const auto& info) {
-                      const auto [button, bias, toID] = info;
+                      const auto& [button, bias, name, toID] = info;
                       return button == key.ButtonType && bias == key.Bias;
                   }) |
-                  std::views::take(1) | std::views::elements<2>;
+                  std::views::take(1) | std::views::elements<3>;
 
     if (false == result.empty())
     {

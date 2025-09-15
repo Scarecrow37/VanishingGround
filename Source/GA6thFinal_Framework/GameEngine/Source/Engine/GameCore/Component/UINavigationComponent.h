@@ -22,7 +22,7 @@ class UINavigationComponent : public UIBaseComponent
     friend class UIManager;
     USING_PROPERTY(UINavigationComponent)
 
-    using NavigationRoutes = std::vector<std::tuple<unsigned int, unsigned char, ::NavigationID>>;
+    using NavigationRoutes = std::vector<std::tuple<unsigned int, unsigned char, std::string, ::NavigationID>>;
 
     static NavigationID _toID;
 
@@ -48,7 +48,10 @@ public:
 public:
     virtual void FocusIn();
     virtual void FocusOut();
-    virtual void Submit() {}
+    virtual void Submit()
+    {
+        UmLogger.Log(LogLevel::LEVEL_INFO, u8"Submit");
+    }
 
     void SetInitialFocus();
     void ResetInitialFocus();
