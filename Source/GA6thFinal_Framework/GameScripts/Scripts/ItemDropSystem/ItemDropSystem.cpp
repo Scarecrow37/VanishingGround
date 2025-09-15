@@ -32,15 +32,18 @@ namespace
     /// <param name="weights"></param>
     void ResetValidWeights(std::vector<double>& weights) 
     {
-        double total = 0.0;
-        for (auto& weight : weights)
+        if (false == weights.empty())
         {
-            total += weight;
-        }
+            double total = 0.0;
+            for (auto& weight : weights)
+            {
+                total += weight;
+            }
 
-        if (total < static_cast<double>(Mathf::Epsilon))
-        {
-            std::fill(weights.begin(), weights.end(), 1.0 / static_cast<double>(weights.size()));
+            if (total < static_cast<double>(Mathf::Epsilon))
+            {
+                std::fill(weights.begin(), weights.end(), 1.0 / static_cast<double>(weights.size()));
+            }
         }
     }
 
