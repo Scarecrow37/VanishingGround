@@ -3,11 +3,13 @@
 
 #include "TurnSystem/TurnActor/Character/CharacterBase.h"
 #include "TurnSystem/TurnMode/TurnMode.h"
-#include <TurnSystem/TurnActor/Character/Player/Player.h>
-#include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
-#include <TurnSystem/TurnAction/TurnAction.h>
-#include <RevelationSystem/RevelationSystem.h>
-#include <WeaponSystem/WeaponSystem.h>
+#include "TurnSystem/TurnActor/Character/Player/Player.h"
+#include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
+#include "TurnSystem/TurnAction/TurnAction.h"
+#include "RevelationSystem/RevelationSystem.h"
+#include "WeaponSystem/WeaponSystem.h"
+#include "AccessorySystem/AccessorySystem.h"
+
 #include "Scripts/Stats/Enemy/EnemyStatsComponent.h"
 #include "UI/Views/MonsterHp/MonsterHpView.h"
 
@@ -128,13 +130,20 @@ void CombatStartPhase::NotifyCombatStart()
 
 void CombatStartPhase::AddValidActions()
 {
-    //무기 액션들
-    if (_weaponSystem)
+    //장신구 액션들 추가
+    if (_accessorySystem)
     {
-        for (auto& item : _weaponSystem->GetEquipWeapons())
+        for (auto& accessory : _accessorySystem->GetPlayerAccessoryItems())
         {
-
-        }
+            if (_turnMode)
+            {
+                TurnAction* action = accessory.GetAction();
+                if (action)
+                {
+                    _turnMode->AddTurnAction(action);
+                }
+            }
+        }     
     }
 }
 
