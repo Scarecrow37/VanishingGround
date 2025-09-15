@@ -166,7 +166,7 @@ public:
     template <typename T>
     bool AddTurnAction(T* action)
     {
-        static_assert(std::is_base_of_v<TurnAction, T>, "T is not derived from TurnAction.");
+        static_assert(std::is_base_of_v<TurnAction, std::remove_cvref_t<T>>, "T is not derived from TurnAction.");
         bool result = false;
         if (nullptr != action)
         {

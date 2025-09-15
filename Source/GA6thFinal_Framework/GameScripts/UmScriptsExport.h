@@ -199,3 +199,6 @@ UMREAL_COMPONENT(SmoothScroll)
 
 #include "Scripts\UI/Views/Map/MapPlayerHPView.h"
 UMREAL_COMPONENT(MapPlayerHPView)
+
+#include "Scripts\AccessorySystem/AccessorySystem.h"
+UMREAL_COMPONENT(AccessorySystem)

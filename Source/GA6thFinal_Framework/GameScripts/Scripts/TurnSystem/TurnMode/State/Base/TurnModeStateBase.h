@@ -17,4 +17,5 @@ protected:
     class TurnMode* _turnMode = nullptr;
     class WeaponSystem* _weaponSystem = nullptr;
     class RevelationSystem* _revelationSystem = nullptr;
+    class AccessorySystem*  _accessorySystem  = nullptr;
 };

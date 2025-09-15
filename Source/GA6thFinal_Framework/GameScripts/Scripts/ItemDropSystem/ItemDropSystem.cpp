@@ -3,6 +3,7 @@
 #include "WeaponSystem/WeaponSystem.h"
 #include "WeaponSystem/WeaponTable/WeaponTableComponent.h"
 #include "RevelationSystem/RevelationSystem.h"
+#include "AccessorySystem/AccessorySystem.h"
 #include "ItemDropSystem/UI/ItemDropUIRootManager.h"
 #include "ItemDropSystem/UI/ArtifactUIManager.h"
 #include "ViewModels/ItemDrop/DropArtifacts/DropArtifactsViewModel.h"
@@ -22,6 +23,30 @@ namespace
     constexpr auto WeaponGradeArray = rfl::get_enumerator_array<WeaponGrade>();
     constexpr size_t WeaponGradeArraySize = WeaponGradeArray.size();
 
+    constexpr auto AccessoryGradeArray = rfl::get_enumerator_array<AccessoryGrade>();
+    constexpr size_t AccessoryGradeArraySize = AccessoryGradeArray.size();
+
+    /// <summary>
+    /// 유효한 가중치 배열로 설정합니다. (total 값이 0 이상으로)
+    /// </summary>
+    /// <param name="weights"></param>
+    void ResetValidWeights(std::vector<double>& weights) 
+    {
+        if (false == weights.empty())
+        {
+            double total = 0.0;
+            for (auto& weight : weights)
+            {
+                total += weight;
+            }
+
+            if (total < static_cast<double>(Mathf::Epsilon))
+            {
+                std::fill(weights.begin(), weights.end(), 1.0 / static_cast<double>(weights.size()));
+            }
+        }
+    }
+
 } // namespace
 
 const size_t ItemDropSystem::ARTIFACT_TYPE_COUNT = ArtifactDropTypeArraySize; // 유물 카테고리 개수
@@ -38,6 +63,11 @@ ItemDropSystem::ItemDropSystem()
     for (auto& weights : ReflectFields->RevelationGradeWeight)
     {
         weights.resize(RevelationGradeArraySize, 1.0 / (double)RevelationGradeArraySize);
+    }
+
+    for (auto& weights : ReflectFields->AccessoryGradeWeight)
+    {
+        weights.resize(AccessoryGradeArraySize, 1.0 / (double)AccessoryGradeArraySize);
     }
 }
 ItemDropSystem::~ItemDropSystem()
@@ -84,6 +114,25 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
         }
     }
 
+    //장신구 테이블에 대한 배열.
+    std::array<std::vector<AccessoryElement*>, AccessoryGradeArraySize> accessories{};
+    AccessorySystem* accessorySystem = SingletonComponent<AccessorySystem>::GetInstance();
+    if (accessorySystem)
+    {
+        const auto& table = accessorySystem->GetAccessoryTableElements();
+        for (auto& accessory : table)
+        {
+            //중복 장신구는 제외
+            if (false == accessorySystem->HasPlayerAccessory(*accessory))
+            {
+                AccessoryGrade grade     = accessory->Grade;
+                size_t         typeIndex = static_cast<size_t>(grade);
+
+                accessories[typeIndex].push_back(accessory);
+            }
+        }
+    }
+
     std::array<DropItemInfo, ARTIFACT_DROP_COUNT> artifacts;      // 결과 담는 배열
     std::array<int, ArtifactDropTypeArraySize>    maxDropCount{}; // 중복 등장 카운트용
     for (size_t i = 0; i < maxDropCount.size(); ++i)
@@ -116,9 +165,14 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
             auto& [gradeStr, grade] = WeaponGradeArray[Random::Index(weight)];
             return grade;
         };
-        auto RollRevelationRandomGrade =[this](const std::vector<double>& weight) -> RevelationGrade
+        auto RollRevelationRandomGrade = [this](const std::vector<double>& weight) -> RevelationGrade
         {
             auto& [gradeStr, grade] = RevelationGradeArray[Random::Index(weight)];
+            return grade;
+        };
+        auto RollAccessoryRandomGrade = [this](const std::vector<double>& weight) -> AccessoryGrade
+        {
+            auto& [gradeStr, grade] = AccessoryGradeArray[Random::Index(weight)];
             return grade;
         };
 
@@ -169,6 +223,29 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
                 return info;
             }
         };
+        // 장신구 랜덤 뽑기 함수
+        auto RollAccessoryRandomItem = [&]() -> DropItemInfo
+        {
+            AccessoryGrade grade = RollAccessoryRandomGrade(ReflectFields->AccessoryGradeWeight[_itemDropRateBonus]);
+            int            gradeIndex = static_cast<int>(grade);
+            auto&          itemTable  = accessories[gradeIndex];
+            if (false == itemTable.empty())
+            {
+                size_t itemIndex = Random::Index(itemTable.size());
+                IDropItem* randomItem = itemTable[itemIndex];
+                itemTable.erase(itemTable.begin() + itemIndex);
+                return randomItem->GetItemInfo();
+            }
+            else
+            {
+                DropItemInfo info{};
+                info.ID       = 0;
+                info.Category = ArtifactDropType::ACCESSORY;
+                info.Name     = rfl::enum_to_string(grade);
+                info.Name += (const char*)u8" 등급 장신구";
+                return info;
+            }
+        };
 
         switch (type)
         {
@@ -180,6 +257,9 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
             break;
         case ArtifactDropType::WARHAMMER:
             artifact = RollWeaponRandomItem(static_cast<int>(WeaponType::WARHAMMER));
+            break;
+        case ArtifactDropType::ACCESSORY:
+            artifact = RollAccessoryRandomItem();
             break;
         case ArtifactDropType::REVELATION:
             artifact = RollRevelationRandomItem();
@@ -227,6 +307,7 @@ void ItemDropSystem::ImGuiDrawPropertysEvent()
         ImGuiDrawMaxDropCount();
         ImGuiDrawWeaponGradeWeight();
         ImGuiDrawRevelationGradeWeight();
+        ImGuiDrawAccessoryGradeWeight();
         ImGui::TreePop();
     }
 }
@@ -404,6 +485,64 @@ void ItemDropSystem::ImGuiDrawRevelationGradeWeight()
     }
 }
 
+void ItemDropSystem::ImGuiDrawAccessoryGradeWeight() 
+{
+    auto TreeToolTip = []() { ImGuiHelper::HoveredToolTip(u8"장신구 등급별 드랍 확률을 조절합니다."); };
+    if (ImGui::TreeNode("Accessory Grade Weight"))
+    {
+        TreeToolTip();
+        if (ImGui::BeginTable("Accessory Grade Weight", AccessoryGradeArraySize + 2,
+                              ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+        {
+            ImGui::TableSetupColumn("Rate Bonus");
+            for (size_t i = 0; i < AccessoryGradeArraySize; ++i)
+            {
+                auto& [str, value] = AccessoryGradeArray[i];
+                ImGui::TableSetupColumn(str.data());
+            }
+            ImGui::TableSetupColumn("Total");
+            ImGui::TableHeadersRow();
+
+            int row = 0;
+            for (auto& weights : ReflectFields->AccessoryGradeWeight)
+            {
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Selectable(std::to_string(row).c_str());
+                double totalPercent = 0.0;
+                size_t i            = 1;
+                for (; i <= weights.size(); ++i)
+                {
+                    ImGui::TableSetColumnIndex((int)i);
+                    double& weight = weights[i - 1];
+                    ImGui::PushID(&weight);
+                    {
+                        double       weightPercent = weight * 100.0;
+                        const double min           = 1.0;
+                        const double max           = 100.0;
+                        if (ImGui::DragScalar("##inputDouble", ImGuiDataType_Double, &weightPercent, 1.f, &min, &max,
+                                              "%.3f"))
+                        {
+                            weight = weightPercent / 100.0;
+                        }
+                        totalPercent += weightPercent;
+                    }
+                    ImGui::PopID();
+                }
+                ImGui::TableSetColumnIndex((int)i);
+                ImGui::Selectable(std::format("{:.3f}", totalPercent).c_str());
+                ++row;
+            }
+            ImGui::EndTable();
+        }
+        ImGui::TreePop();
+    }
+    else
+    {
+        TreeToolTip();
+    }
+}
+
 void ItemDropSystem::SerializedReflectEvent() 
 {
 
@@ -414,10 +553,19 @@ void ItemDropSystem::DeserializedReflectEvent()
     for (auto& weights : ReflectFields->WeaponGradeWeight)
     {
         weights.resize(WeaponGradeArraySize);
+        ResetValidWeights(weights);
     }
+   
     for (auto& weights : ReflectFields->RevelationGradeWeight)
     {
         weights.resize(RevelationGradeArraySize);
+        ResetValidWeights(weights);
+    }
+
+    for (auto& weights : ReflectFields->AccessoryGradeWeight)
+    {
+        weights.resize(AccessoryGradeArraySize);
+        ResetValidWeights(weights);
     }
 }
 
