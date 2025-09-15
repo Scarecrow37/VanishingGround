@@ -123,6 +123,7 @@ void AccessorySystem::ImGuiDrawPropertysEvent()
         ImGuiDrawExcelParser();
         ImGui::End();
     }
+    ImGuiDrawPlayerAccsessoryItems();
 #endif
 }
 
@@ -359,15 +360,20 @@ void AccessorySystem::ImGuiDrawExcelParser()
 void AccessorySystem::ImGuiDrawPlayerAccsessoryItems() 
 {
 #ifdef _UMEDITOR
-    if (ImGui::TreeNode("Player Items"))
+    if (ImGui::TreeNode("Player Accsessories"))
     {
         auto AccessorySelectCombo = [this](const char* prevValue) 
         {
             AccessoryElement* select = nullptr;
-            if (ImGui::BeginCombo("Accessory select", prevValue))
+            if (ImGui::BeginCombo("##Accessory select", prevValue))
             {
                 for (auto& tableAccessory : GetAccessoryTableElements())
                 {
+                    if (HasPlayerAccessory(tableAccessory->AccessoryID))
+                    {
+                        continue;
+                    }
+
                     const std::string& name = tableAccessory->AccessoryName;
                     if (ImGui::Selectable(name.c_str(), name == prevValue))
                     {
@@ -405,19 +411,22 @@ void AccessorySystem::ImGuiDrawPlayerAccsessoryItems()
         }
 
         static thread_local std::string equipAccessoryName = STR_NULL;
-        AccessoryElement* equipTarget = AccessorySelectCombo(equipAccessoryName.c_str());
-        if (equipTarget)
-        {
-            equipAccessoryName = equipTarget->AccessoryName;
-        }
-        ImGui::SameLine();
-        if (ImGui::Button("Equip Accessory"))
+        if (ImGui::Button("Equip"))
         {
             std::unique_ptr<AccessoryElement> newAccessory = MakeAccessoryToName(equipAccessoryName);
             if (newAccessory)
             {
-                EquipAccessory(*newAccessory);
+                if (EquipAccessory(*newAccessory))
+                {
+                    equipAccessoryName = STR_NULL;
+                }
             }
+        }
+        ImGui::SameLine();
+        AccessoryElement* equipTarget = AccessorySelectCombo(equipAccessoryName.c_str());
+        if (equipTarget)
+        {
+            equipAccessoryName = equipTarget->AccessoryName;
         }
         ImGui::TreePop();
     }

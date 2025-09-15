@@ -144,7 +144,7 @@ private:
 
 private:
     std::vector<AccessoryElement> _playerAccessoryItems;   // 플레이어가 장착중인 장신구
-    std::unordered_set<int>       _playerAccessoryItemSet; // 플레이어가 장착중인 장신구 ID 기록용 map (중복 방지)
+    std::unordered_set<int>       _playerAccessoryItemSet; // 플레이어가 장착중인 장신구 ID 기록용 set (중복 방지)
 
 private:
     bool RenameAccessory(AccessoryElement& accessory, const std::string& newName);
