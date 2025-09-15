@@ -17,7 +17,7 @@ public:
     void InitializeForBuffer(UINT elementSize, UINT elementCount);
     void ClearUnorderedAccessView(ID3D12GraphicsCommandList* commandList, UINT mipLevel = 0);
     void ResourceBarrier(ID3D12GraphicsCommandList* commandList);    
-    void ResizeResource(Resolution resolution) override;
+    void ResizeResource(SIZE resolution) override;
 
 private:
     void CreateUnorderedAccessView();

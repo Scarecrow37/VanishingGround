@@ -52,7 +52,7 @@ namespace MVVM
 
     public:
         operator T() const noexcept { return ModelBase<T>::_value; }
-        explicit operator bool() const noexcept { return ModelBase<T>::_value != 0; }
+        //explicit operator bool() const noexcept { return ModelBase<T>::_value != 0; }
 
     public:
         T Get() const { return ModelBase<T>::_value; }

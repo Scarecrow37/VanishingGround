@@ -91,20 +91,18 @@ void DebugDrawCore::Render()
         auto&          resolution = renderTarget->GetResolution();
         D3D12_VIEWPORT viewPort{.TopLeftX = 0.f,
                                 .TopLeftY = 0.f,
-                                .Width    = static_cast<FLOAT>(resolution.Width),
-                                .Height   = static_cast<FLOAT>(resolution.Height),
+                                .Width    = static_cast<FLOAT>(resolution.cx),
+                                .Height   = static_cast<FLOAT>(resolution.cy),
                                 .MinDepth = 0.f,
                                 .MaxDepth = 1.f};
-        D3D12_RECT     scissorRect{
-                .left = 0, .top = 0, .right = static_cast<LONG>(resolution.Width), .bottom = static_cast<LONG>(resolution.Height)};
+        D3D12_RECT     scissorRect{.left = 0, .top = 0, .right = resolution.cx, .bottom = resolution.cy};
 
         _commandSet->OMSetRenderTargets(1, &renderTarget->GetRTVHandle(), NULL, &renderScene->_depthStencilView->GetDSVHandle());
         _commandSet->RSSetViewports(1, &viewPort);
         _commandSet->RSSetScissorRects(1, &scissorRect);
 
         _basicEffect->SetView(XMMatrixLookAtLH({0.f, 0.f, -1.f}, {0.f, 0.f, 1.f}, {0.f, 1.f, 0.f}));
-        _basicEffect->SetProjection(
-            XMMatrixOrthographicOffCenterLH(0.f, (float)resolution.Width, (float)resolution.Height, 0.f, 0.1f, 1000.f));
+        _basicEffect->SetProjection(XMMatrixOrthographicOffCenterLH(0.f, (float)resolution.cx, (float)resolution.cy, 0.f, 0.1f, 1000.f));
         _basicEffect->Apply(_commandSet);
         _primitiveBatch->Begin(_commandSet);
 

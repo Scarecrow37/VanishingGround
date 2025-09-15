@@ -30,7 +30,7 @@ void UnorderedAccessView::Initialize(const D3D12_RESOURCE_DESC& desc, D3D12_UAV_
     _uavDimension = uavDimension;
     _currentState = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
 
-    _resolution = {(UINT)desc.Width, desc.Height};
+    _resolution = {(LONG)desc.Width, (LONG)desc.Height};
 
     CreateUnorderedAccessView();
 }
@@ -47,11 +47,11 @@ void UnorderedAccessView::ResourceBarrier(ID3D12GraphicsCommandList* commandList
     commandList->ResourceBarrier(1, &br);
 }
 
-void UnorderedAccessView::ResizeResource(Resolution resolution)
+void UnorderedAccessView::ResizeResource(SIZE resolution)
 {
     _currentState = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
-    _desc.Width = resolution.Width;
-    _desc.Height = resolution.Height;
+    _desc.Width   = resolution.cx;
+    _desc.Height  = resolution.cy;
 
     CreateUnorderedAccessView();
 }

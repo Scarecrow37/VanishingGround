@@ -25,9 +25,7 @@ SkeletalMeshRenderer::SkeletalMeshRenderer()
     });
 }
 
-SkeletalMeshRenderer::~SkeletalMeshRenderer() 
-{
-}
+SkeletalMeshRenderer::~SkeletalMeshRenderer() = default;
 
 void SkeletalMeshRenderer::Reset()
 {
@@ -37,26 +35,6 @@ void SkeletalMeshRenderer::Reset()
     {
         UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef, [this]() { LoadModel(); });
     } 
-}
-
-void SkeletalMeshRenderer::Awake() 
-{
-}
-
-void SkeletalMeshRenderer::Update()
-{
-}
-
-void SkeletalMeshRenderer::OnDestroy() 
-{
-}
-
-void SkeletalMeshRenderer::OnDrawDebug() 
-{
-}
-
-void SkeletalMeshRenderer::SerializedReflectEvent() 
-{
 }
 
 void SkeletalMeshRenderer::DeserializedReflectEvent() 

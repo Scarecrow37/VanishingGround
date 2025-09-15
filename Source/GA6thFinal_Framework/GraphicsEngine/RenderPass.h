@@ -20,7 +20,5 @@ protected:
     RenderScene*                   _ownerScene{nullptr};
     RenderTechnique*               _ownerTechnique{nullptr};
     RenderTarget*                  _sharedRenderTarget{nullptr};
-    std::unique_ptr<ShaderBuilder> _shader;
     ComPtr<ID3D12PipelineState>    _pipelineState;
-
 };
