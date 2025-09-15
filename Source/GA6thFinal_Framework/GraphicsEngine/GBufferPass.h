@@ -33,6 +33,9 @@ public:
     void Draw(ID3D12GraphicsCommandList* commandList) override;
     void End(ID3D12GraphicsCommandList* commandList) override;
 
+public:
+    void SetMipBias(float level) { mipBias = level;}
+
 private:
     void InitShaderAndPSO();
     void DrawMeshes(ID3D12GraphicsCommandList* commandList, int shaderType, MeshType meshType);
@@ -46,4 +49,6 @@ private:
 
     FX<GE::VS::STATIC_FR, GE::PS::GBUFFER>                        _fxStaticMesh;
     FX<GE::VS::SKELETAL_FR, GE::PS::GBUFFER>                      _fxSkeletalMesh;
+
+    float mipBias = 0.f;
 };

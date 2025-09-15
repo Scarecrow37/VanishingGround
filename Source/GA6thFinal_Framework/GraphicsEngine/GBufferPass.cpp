@@ -72,7 +72,7 @@ void GBufferPass::AddRenderPassDatas(std::string_view sceneName)
     Global::renderPassDatas->AddRenderPassImage(sceneName, "G-BufferPass", "ORM", _gBufferRenderTargets[2]->GetSRVHandle());
     Global::renderPassDatas->AddRenderPassImage(sceneName, "G-BufferPass", "Emissive", _gBufferRenderTargets[3]->GetSRVHandle());
     
-    Global::renderPassDatas->AddRenderPassProperty(sceneName, "G-BufferPass", ParallaxMappingProperty(2.9f,0.f));
+    Global::renderPassDatas->AddRenderPassProperty(sceneName, "G-BufferPass", GbufferProperty(2.9f,0.f));
 }
 
 void GBufferPass::Update(ID3D12GraphicsCommandList* commadList)
@@ -223,18 +223,18 @@ void GBufferPass::InitShaderAndPSO()
 void GBufferPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, int shaderType, MeshType meshType)
 {
     UINT parameter[3]{0, MAX_BONE_MATRIX, 0};
-    const auto& parallaxMappingProperty =
-        std::any_cast<const ParallaxMappingProperty&>(_ownerScene->GetRenderPassProperty("G-BufferPass"));
-
+    auto gbufferProperty =
+        std::any_cast<GbufferProperty>(_ownerScene->GetRenderPassProperty("G-BufferPass"));
+    gbufferProperty.MipBias = mipBias;
     switch (shaderType)
     {
     case STATIC_MESH:
         commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_2_gbufferData"), 2,
-                                                   &parallaxMappingProperty, 0);
+                                                   &gbufferProperty, 0);
         break;
     case SKELETAL_MESH:
         commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_2_gbufferData"), 2,
-                                                   &parallaxMappingProperty, 0);
+                                                   &gbufferProperty, 0);
         break;
     }
 

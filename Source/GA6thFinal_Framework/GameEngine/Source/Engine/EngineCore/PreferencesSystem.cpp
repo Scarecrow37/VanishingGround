@@ -54,9 +54,45 @@ void PreferencesSystem::SetRayTracing(bool enable) {}
 
 void PreferencesSystem::SetRayTracing(std::string_view sceneName, bool enable) {}
 
-void PreferencesSystem::SetTextureQuality(TextureQuality quality) {}
+void PreferencesSystem::SetTextureQuality(TextureQuality quality) 
+{
+    float bias = 0.f;
+    switch (quality)
+    {
+    case PreferencesSystem::TextureQuality::LOW:
+        bias = 3.f;  
+        break;
+    case PreferencesSystem::TextureQuality::MEDIUM:
+        bias = 1.5f;
+        break;
+    case PreferencesSystem::TextureQuality::HIGH:
+        bias = 0.f;
+        break;
+    default:
+        break;
+    }
+    _graphicsController->SetTextureQuality("Game",bias);
+}
 
-void PreferencesSystem::SetTextureQuality(std::string_view sceneName, TextureQuality quality) {}
+void PreferencesSystem::SetTextureQuality(std::string_view sceneName, TextureQuality quality) 
+{
+    float bias = 0.f;
+    switch (quality)
+    {
+    case PreferencesSystem::TextureQuality::LOW:
+        bias = 3.f;
+        break;
+    case PreferencesSystem::TextureQuality::MEDIUM:
+        bias = 1.5f;
+        break;
+    case PreferencesSystem::TextureQuality::HIGH:
+        bias = 0.f;
+        break;
+    default:
+        break;
+    }
+    _graphicsController->SetTextureQuality(sceneName, bias);
+}
 
 void PreferencesSystem::SetShadowQuality(int quality) {}
 

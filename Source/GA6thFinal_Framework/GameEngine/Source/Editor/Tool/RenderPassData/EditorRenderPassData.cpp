@@ -61,8 +61,8 @@ void EditSSRProperty(std::any& property)
 
 void EditParallaxMappingProperty(std::any& property)
 {
-    auto& parallaxProps = std::any_cast<ParallaxMappingProperty&>(property);
-    ImGui::DragFloat("HeightScale", &parallaxProps.HeightScale, 0.001f, 0.0f, 5.f);
+    auto& parallaxProps = std::any_cast<GbufferProperty&>(property);
+    ImGui::DragFloat("HeightScale", &parallaxProps.ParallaxHeightScale, 0.001f, 0.0f, 5.f);
     ImGui::DragFloat("MipBias", &parallaxProps.MipBias, 0.01f, 0.f, 15.f);
 }
 void EditVolumetricFogProperty(std::any& property)
@@ -115,7 +115,7 @@ void EditorRenderPassData::OnFrameRender()
                         {
                             EditSSRProperty(property);
                         }
-                        else if (property.type() == typeid(ParallaxMappingProperty))
+                        else if (property.type() == typeid(GbufferProperty))
                         {
                             EditParallaxMappingProperty(property);
                         }

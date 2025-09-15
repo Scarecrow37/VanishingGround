@@ -52,10 +52,10 @@ inline void SerializeSSRPassProperty(std::ostream& os, const SSRPassProperty& pr
 }
 
 // ParallaxMappingProperty를 문자열로 변환
-inline void SerializeParallaxMappingProperty(std::ostream& os, const ParallaxMappingProperty& prop)
+inline void SerializeParallaxMappingProperty(std::ostream& os, const GbufferProperty& prop)
 {
     os << "        Type = ParallaxMappingProperty\n";
-    os << "        HeightScale = " << prop.HeightScale << "\n";
+    os << "        HeightScale = " << prop.ParallaxHeightScale<< "\n";
 }
 
 // VolumetricFogProperty를 문자열로 변환
@@ -165,7 +165,7 @@ inline void DeserializeSSRPassProperty(std::istream& is, SSRPassProperty& prop)
 }
 
 // 문자열에서 ParallaxMappingProperty를 복원
-inline void DeserializeParallaxMappingProperty(std::istream& is, ParallaxMappingProperty& prop)
+inline void DeserializeParallaxMappingProperty(std::istream& is, GbufferProperty& prop)
 {
     std::string line, key, equals;
     while (std::getline(is, line) && line.find('}') == std::string::npos)
@@ -173,7 +173,7 @@ inline void DeserializeParallaxMappingProperty(std::istream& is, ParallaxMapping
         std::stringstream ss(line);
         ss >> key >> equals;
         if (key == "HeightScale")
-            ss >> prop.HeightScale;
+            ss >> prop.ParallaxHeightScale;
     }
 }
 
@@ -251,9 +251,9 @@ inline void SaveRenderPassData(const std::string& filePath)
             {
                 SerializeSSRPassProperty(outFile, std::any_cast<const SSRPassProperty&>(property));
             }
-            else if (property.type() == typeid(ParallaxMappingProperty))
+            else if (property.type() == typeid(GbufferProperty))
             {
-                SerializeParallaxMappingProperty(outFile, std::any_cast<const ParallaxMappingProperty&>(property));
+                SerializeParallaxMappingProperty(outFile, std::any_cast<const GbufferProperty&>(property));
             }
             else if (property.type() == typeid(VolumetricFogProperty))
             {
@@ -327,9 +327,9 @@ inline void LoadRenderPassData(const std::string& filePath)
                         {
                             DeserializeSSRPassProperty(inFile, std::any_cast<SSRPassProperty&>(property));
                         }
-                        else if (name == "ParallaxMappingProperty" && property.type() == typeid(ParallaxMappingProperty))
+                        else if (name == "ParallaxMappingProperty" && property.type() == typeid(GbufferProperty))
                         {
-                            DeserializeParallaxMappingProperty(inFile, std::any_cast<ParallaxMappingProperty&>(property));
+                            DeserializeParallaxMappingProperty(inFile, std::any_cast<GbufferProperty&>(property));
                         }
                         else if (name == "VolumetricFogProperty" && property.type() == typeid(VolumetricFogProperty))
                         {

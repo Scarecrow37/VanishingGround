@@ -14,6 +14,7 @@
 
 // render pass
 #include "SSAOWritePass.h"
+#include "GBufferPass.h"
 
 GraphicsController::~GraphicsController() {}
 
@@ -50,4 +51,12 @@ void GraphicsController::SetBloom(std::string_view sceneName, bool enable)
     auto         bloomTech   = renderScene->GetRenderTechnique<BloomTechnique>();
     if (bloomTech)
         bloomTech->SetEnable(enable);
+}
+
+void GraphicsController::SetTextureQuality(std::string_view sceneName, float quality)
+{
+    RenderScene* renderScene = Global::renderer->GetRenderScene(sceneName);
+    auto         pbrLitTech  = renderScene->GetRenderTechnique<PBRLitTechnique>();
+    auto         gubufferPass = pbrLitTech->GetRenderPass<GBufferPass>();
+    gubufferPass->SetMipBias(quality);
 }
