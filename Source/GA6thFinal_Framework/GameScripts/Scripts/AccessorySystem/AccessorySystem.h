@@ -36,6 +36,38 @@ public:
     const std::vector<AccessoryElement*> GetAccessoryTableElements() { return _elementTableOrderID; }
 
     /// <summary>
+    /// 장신구 테이블에 해당 이름의 장신구가 존재하는지 여부를 확인합니다.
+    /// </summary>
+    /// <param name="accessoryName :">장신구 이름</param>
+    /// <returns>존재 여부</returns>
+    bool IsAccessoryInTable(const std::string& accessoryName)
+    {
+        return _elementTable.find(accessoryName) != _elementTable.end();
+    }
+
+    /// <summary>
+    /// 장신구 테이블에 해당 이름의 장신구가 존재하는지 여부를 확인합니다.
+    /// </summary>
+    /// <param name="element :">확인할 장신구</param>
+    /// <returns>존재 여부</returns>
+    bool IsAccessoryInTable(const AccessoryElement& element) { return IsAccessoryInTable(element.AccessoryName);}
+
+    /// <summary>
+    /// 장신구 이름으로 테이블에서 생성합니다.
+    /// </summary>
+    /// <param name="name :">생성할 장신구 이름</param>
+    /// <returns>실패시 nullptr</returns>
+    std::unique_ptr<AccessoryElement> MakeAccessoryToName(const std::string& name)
+    { 
+        std::unique_ptr<AccessoryElement> accessory;
+        if (auto findIter = _elementTable.find(name); findIter != _elementTable.end())
+        {
+            accessory.reset(new AccessoryElement(findIter->second));
+        }
+        return accessory;
+    }
+
+    /// <summary>
     /// 플레이어가 착용중인 아이템을 반환합니다.
     /// </summary>
     /// <returns></returns>
@@ -47,6 +79,13 @@ public:
     /// <param name="accessory :">장착할 장신구</param>
     /// <returns>성공 여부</returns>
     bool EquipAccessory(const AccessoryElement& accessory);
+
+    /// <summary>
+    /// 장착된 장신구를 해제합니다. 
+    /// </summary>
+    /// <param name="accessory :">해제할 장신구</param>
+    /// <returns>성공 여부</returns>
+    bool UnequipAccessory(const AccessoryElement& accessory);
 
     /// <summary>
     /// 플레이어가 착용 목록에 존재하는 장신구인지 확인합니다.
@@ -68,6 +107,7 @@ public:
 protected:
     REFLECT_FIELDS_BEGIN(Component)
     std::vector<std::pair<std::string, std::string>> ElementTableData;
+    std::vector<std::string> PlayerAccessoriesNames;
     REFLECT_FIELDS_END(AccessorySystem)
 
     /// <summary>
@@ -93,6 +133,8 @@ protected:
 private:
     void ElementTableSerialized();
     void ElementTableDeserialized();
+    void PlayerAccessoriesSerialized();
+    void PlayerAccessoriesDeserialized();
 
 private:
     SingletonComponent<AccessorySystem> _singletonComponent{this};
@@ -115,6 +157,7 @@ private:
 
     void ImGuiTableEditor();
     void ImGuiDrawExcelParser();
+    void ImGuiDrawPlayerAccsessoryItems();
 
     bool ExcelAccessoryElement(AccessoryElement& element, const std::string& key, const std::string& data);
 

@@ -24,6 +24,17 @@ bool AccessorySystem::EquipAccessory(const AccessoryElement& accessory)
     return result;
 }
 
+bool AccessorySystem::UnequipAccessory(const AccessoryElement& accessory)
+{
+    size_t eraseCount = _playerAccessoryItemSet.erase(accessory.AccessoryID);
+    bool   result     = 0 < eraseCount;
+    if (result)
+    {
+        std::erase(_playerAccessoryItems, accessory);
+    }
+    return result;
+}
+
 void AccessorySystem::ImGuiDrawPropertysEvent() 
 {
 #ifdef _UMEDITOR
@@ -345,6 +356,74 @@ void AccessorySystem::ImGuiDrawExcelParser()
 #endif
 }
 
+void AccessorySystem::ImGuiDrawPlayerAccsessoryItems() 
+{
+#ifdef _UMEDITOR
+    if (ImGui::TreeNode("Player Items"))
+    {
+        auto AccessorySelectCombo = [this](const char* prevValue) 
+        {
+            AccessoryElement* select = nullptr;
+            if (ImGui::BeginCombo("Accessory select", prevValue))
+            {
+                for (auto& tableAccessory : GetAccessoryTableElements())
+                {
+                    const std::string& name = tableAccessory->AccessoryName;
+                    if (ImGui::Selectable(name.c_str(), name == prevValue))
+                    {
+                        select = tableAccessory;
+                    }
+                }
+                ImGui::EndCombo();
+            } 
+            return select;
+        };
+
+        AccessoryElement* unequipTarget = nullptr;
+        for (auto& accessory : _playerAccessoryItems)
+        {
+            ImGui::PushID(&accessory);
+            {
+                const std::string& name = accessory.AccessoryName;
+                AccessoryElement*  change = AccessorySelectCombo(name.c_str());
+                if (change)
+                {
+                    accessory = *change;
+                }
+
+                ImGui::SameLine();
+                if (ImGui::Button("Unequip"))
+                {
+                    unequipTarget = &accessory;
+                }
+            }
+            ImGui::PopID();
+        }
+        if (nullptr != unequipTarget)
+        {
+            UnequipAccessory(*unequipTarget);
+        }
+
+        static thread_local std::string equipAccessoryName = STR_NULL;
+        AccessoryElement* equipTarget = AccessorySelectCombo(equipAccessoryName.c_str());
+        if (equipTarget)
+        {
+            equipAccessoryName = equipTarget->AccessoryName;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Equip Accessory"))
+        {
+            std::unique_ptr<AccessoryElement> newAccessory = MakeAccessoryToName(equipAccessoryName);
+            if (newAccessory)
+            {
+                EquipAccessory(*newAccessory);
+            }
+        }
+        ImGui::TreePop();
+    }
+#endif
+}
+
 bool AccessorySystem::ExcelAccessoryElement(AccessoryElement& element, const std::string& key, const std::string& data)
 {
     if (false == key.empty())
@@ -404,11 +483,13 @@ bool AccessorySystem::ExcelAccessoryElement(AccessoryElement& element, const std
 void AccessorySystem::SerializedReflectEvent() 
 {
     ElementTableSerialized();
+    PlayerAccessoriesSerialized();
 }
 
 void AccessorySystem::DeserializedReflectEvent() 
 {
     ElementTableDeserialized();
+    PlayerAccessoriesDeserialized();
 }
 
 void AccessorySystem::Reset()
@@ -444,6 +525,30 @@ void AccessorySystem::ElementTableDeserialized()
         InsertAccessory(element);
     }
     SortTableIDOrder();
+}
+
+void AccessorySystem::PlayerAccessoriesSerialized() 
+{
+    ReflectFields->PlayerAccessoriesNames.clear();
+    for (auto& element : _playerAccessoryItems)
+    {
+        const std::string& name = element.AccessoryName;
+        ReflectFields->PlayerAccessoriesNames.push_back(name);
+    }
+}
+
+void AccessorySystem::PlayerAccessoriesDeserialized() 
+{
+    _playerAccessoryItems.clear();
+    _playerAccessoryItemSet.clear();
+    for (auto& name : ReflectFields->PlayerAccessoriesNames)
+    {
+        std::unique_ptr<AccessoryElement> element = MakeAccessoryToName(name);
+        if (element)
+        {
+            EquipAccessory(*element);
+        }
+    }
 }
 
 bool AccessorySystem::RenameAccessory(AccessoryElement& accessory, const std::string& newName)
