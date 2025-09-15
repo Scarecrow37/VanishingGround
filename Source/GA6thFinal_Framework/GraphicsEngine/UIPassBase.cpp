@@ -9,13 +9,11 @@ UIPassBase::UIPassBase(const std::vector<UINT>& instanceIDs)
 {
 }
 
-UIPassBase::~UIPassBase()
-{
-}
+UIPassBase::~UIPassBase() = default;
 
 void UIPassBase::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene, ownerTechnique, commandList);
+    RenderPass::Initialize(ownerScene, ownerTechnique, commandList);
 
     _instanceIDBuffer = std::make_unique<StructuredBuffer>();
     _instanceIDBuffer->Initialize(sizeof(UINT), 1000);
@@ -37,25 +35,6 @@ void UIPassBase::Begin(ID3D12GraphicsCommandList* commandList)
 
     commandList->RSSetViewports(1, &_finalRenderTarget->GetViewport());
     commandList->RSSetScissorRects(1, &_finalRenderTarget->GetScissorRect());
-}
-
-void UIPassBase::Draw(ID3D12GraphicsCommandList* commandList)
-{
-    commandList->SetPipelineState(_pipelineState.Get());
-    commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
-
-    UINT  currentBackBufferIndex = Global::device->GetCurrentBackBufferIndex();
-    auto  resource               = Global::viewManager->GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
-    auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
-
-    frameResource->SetFrameResource(FrameResourceType::UI_TRANSFORM, _shader->GetRootParameterIndex("matrices"), commandList);
-    frameResource->SetFrameResource(FrameResourceType::UI_MATERIAL, _shader->GetRootParameterIndex("material"), commandList);
-
-    commandList->SetGraphicsRootShaderResourceView(_shader->GetRootParameterIndex("IDs"), _instanceIDBuffer->GetGPUVirtualAddress());
-    commandList->SetGraphicsRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"), _cameraBuffer->GetGPUVirtualAddress());
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("textures"), resource);
-
-    _halfQuad->Render(commandList, (UINT)_instanceIDs.size());
 }
 
 void UIPassBase::End(ID3D12GraphicsCommandList* commandList)

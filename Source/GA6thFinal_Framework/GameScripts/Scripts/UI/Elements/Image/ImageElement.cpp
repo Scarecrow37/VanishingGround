@@ -35,6 +35,11 @@ void ImageElement::SetImage(const File::GuidRef& guidRef)
     RequestResource();
 }
 
+void ImageElement::SetLinearFill(float fill)
+{
+    _renderer->SetLinearFill(fill);
+}
+
 void ImageElement::Reset()
 {
     DrawUIComponent::Reset();
@@ -170,6 +175,7 @@ void ImageElement::RequestResource()
             _spriteOriginSize = _renderer->GetSize();
             const SIZE size = Size;
             UpdateRendererSize(size);
+            ResetToSpriteSize();
         });
     }
 }

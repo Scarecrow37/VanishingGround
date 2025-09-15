@@ -6,17 +6,14 @@
 #include "ShadowMapPass.h"
 #include "d3dUtil.h"
 
-FogLightInjectionPass::~FogLightInjectionPass() {}
+FogLightInjectionPass::~FogLightInjectionPass() = default;
 
-void FogLightInjectionPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique,
-                                       ID3D12GraphicsCommandList* commandList)
+void FogLightInjectionPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
     __super::Initialize(ownerScene, ownerTechnique, commandList);
     InitShaderAndPSO();
     _volumTech = dynamic_cast<VolumetricFogTechnique*>(ownerTechnique);
 }
-
-void FogLightInjectionPass::Update(ID3D12GraphicsCommandList* commandList) {}
 
 void FogLightInjectionPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
@@ -37,26 +34,22 @@ void FogLightInjectionPass::Draw(ID3D12GraphicsCommandList* commandList)
     D3D12_GPU_DESCRIPTOR_HANDLE shadowMap    = shadowpass->GetShadowMapSRV();
     auto                        preVoxelTex  = _volumTech->_tempVoxelInjectionTexture3D[readIndex];
     auto                        currVoxelTex = _volumTech->_tempVoxelInjectionTexture3D[writeIndex];
+
     commandList->SetComputeRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"), cameraData);
     commandList->SetComputeRootConstantBufferView(_shader->GetRootParameterIndex("lightData"), lightData);
     commandList->SetComputeRootConstantBufferView(_shader->GetRootParameterIndex("cascadeData"), cascadeData);
     commandList->SetComputeRootConstantBufferView(_shader->GetRootParameterIndex("fogdata"), fogData);
-    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("VoxelReadTexture"),
-                                               preVoxelTex->GetSRVHandle());
-    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("VoxelWriteTexture"),
-                                               currVoxelTex->GetUAVHandle());
-    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("ShadowMap"),
-                                               shadowpass->GetShadowMapSRV());
+    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("VoxelReadTexture"), preVoxelTex->GetSRVHandle());
+    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("VoxelWriteTexture"), currVoxelTex->GetUAVHandle());
+    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("ShadowMap"), shadowpass->GetShadowMapSRV());
     commandList->Dispatch(d3dUtil::Ceil(VOXEL_VOLUME_SIZEX , 8), d3dUtil::Ceil(VOXEL_VOLUME_SIZEY , 8),VOXEL_VOLUME_SIZEZ);
 }
-
-void FogLightInjectionPass::End(ID3D12GraphicsCommandList* commandList) {}
 
 void FogLightInjectionPass::AddRenderPassDatas(std::string_view sceneName)
 {
     VolumetricFogProperty property;
-    property.FogAnisotropy        = 0.001;
-    property.LightShaftAnisotropy = 0.001;
+    property.FogAnisotropy        = 0.001f;
+    property.LightShaftAnisotropy = 0.001f;
     property.Density              = 10.f;
     property.Strength             = 3.5f;
     property.BlendWithScene       = 1.f;

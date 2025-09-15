@@ -39,7 +39,7 @@ namespace EnemyAction
 
     void ActionBase::ProcessBattle(int damage, float damageScale)
     {
-        TurnMode* turnMode = TurnMode::GetInstance();
+        TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
         if (turnMode)
         {
             Enemy*  enemy  = _owner;

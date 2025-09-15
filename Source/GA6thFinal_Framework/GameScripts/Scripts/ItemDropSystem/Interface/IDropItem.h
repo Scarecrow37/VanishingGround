@@ -1,9 +1,31 @@
 ﻿#pragma once
 
+/* 유물 보상 개수 */ 
+constexpr size_t ARTIFACT_DROP_COUNT = 6; 
+
+/* 유물 보상에 등장 가능한 아이템 타입 */
+enum class ArtifactDropType
+{
+    SWORD,            // 검
+    DAGGER,           // 단검
+    WARHAMMER,        // 대형 망치
+    REVELATION,       // 계시
+    ERASE_REVELATION, // 계시 지우기
+};
+
+/*아이템 정보 구조체*/
 struct DropItemInfo
 {
-    int ID;
-    std::string_view Name;
+    ArtifactDropType Category; // 분류 타입
+    int              ID;           // 아이템 아이디
+    std::string      Name;         // 아이템 이름
+
+    /// <summary>
+    /// ArtifactDropType으로 에셋 아이디를 반환합니다.
+    /// </summary>
+    /// <param name="type :">변환할 타입</param>
+    /// <returns>실패시 0</returns>
+    static int GetArtifactCategoryAssetID(ArtifactDropType type);
 };
 
 /*보상 시스템에 등장 가능한 유물들은 다음 인터페이스를 상속받아야 합니다.*/
@@ -16,3 +38,4 @@ public:
     //아이템의 정보들을 반환합니다.
     virtual DropItemInfo GetItemInfo() = 0;
 };
+

@@ -14,7 +14,6 @@ enum class WeaponGrade
     COMMON,     //일반
     RARE,       //희귀
     BIZARRE,    //기이
-    LEGENDARY,  //전설
 };
 
 struct WeaponStats : public TurnActorStats
@@ -46,8 +45,6 @@ struct WeaponStats : public TurnActorStats
             return {0.27f, 0.447f, 0.77f, 1.f}; // 파랑
         case WeaponGrade::BIZARRE:
             return {1.f, 0.f, 1.f, 1.f}; // 보라
-        case WeaponGrade::LEGENDARY:
-            return {1.f, 0.85f, 0.4f, 1.f}; // 노랑
         default:
             return {0.5f, 0.5f, 0.5f, 1.f}; // 기본 회색
         }
@@ -63,8 +60,6 @@ struct WeaponStats : public TurnActorStats
             return 300001;
         case WeaponGrade::BIZARRE:
             return 300002;
-        case WeaponGrade::LEGENDARY:
-            return 300003;
         default:
             return -1;
         }

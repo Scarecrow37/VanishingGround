@@ -24,10 +24,7 @@ StaticMeshRenderer::StaticMeshRenderer()
     });    
 }
 
-StaticMeshRenderer::~StaticMeshRenderer() 
-{
-
-}
+StaticMeshRenderer::~StaticMeshRenderer() = default;
 
 void StaticMeshRenderer::LoadModel() 
 {
@@ -37,13 +34,12 @@ void StaticMeshRenderer::LoadModel()
         if (path != File::NULL_PATH)
         {
             std::wstring modelPath = U8ToWString(path);
-            UmGraphics.LoadResource(modelPath, Renderer.get(), [this]()
-            {
-                Renderer->OnCustomDepth(PostProcess::BLOOM);
-                transform->SetChangeFlag();
-                this->InitMaterial();
-            });
-            
+            UmGraphics.LoadResource(modelPath, Renderer.get());
+            Renderer->Initialize();
+
+            Renderer->OnCustomDepth(PostProcess::BLOOM);
+            transform->SetChangeFlag();
+            MeshComponent::InitMaterial();
         }
     }
 }
@@ -56,10 +52,6 @@ void StaticMeshRenderer::Reset()
     {
         UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef, [this]() { LoadModel(); });
     }
-}
-
-void StaticMeshRenderer::SerializedReflectEvent() 
-{
 }
 
 void StaticMeshRenderer::DeserializedReflectEvent() 

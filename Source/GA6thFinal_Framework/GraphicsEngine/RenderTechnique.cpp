@@ -17,13 +17,13 @@ void RenderTechnique::AddRenderPassDatas(std::string_view sceneName)
     }
 }
 
-void RenderTechnique::Update(ID3D12GraphicsCommandList* commandList)
+void RenderTechnique::Update(ID3D12GraphicsCommandList* commandList, const float deltaTime)
 {
     if (_enable)
     {
         for (auto& pass : _renderPasses)
         {
-            pass->Update(commandList);
+            pass->Update(commandList, deltaTime);
         }
     }
 }

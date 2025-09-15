@@ -8,6 +8,8 @@
 #include <Mesh/SkeletalMeshRenderer.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include <Particle/ParticleComponent.h>
+#include <PlayerSystem/PlayerSystem.h>
+
 //Condition
 #include "Condition/PlayerStartCondition.h"
 #include "Condition/PlayerExitCondition.h"
@@ -25,26 +27,21 @@ Player::Player()
 
 Player::~Player()
 {
-    if (this == static_instance)
-    {
-        static_instance = nullptr;
-    }
+ 
 }
 
 void Player::Awake() 
 {
-    if (nullptr == static_instance)
+    if (_singletonComponent.TrySingleTon())
     {
-        static_instance = this;
-    }
-    Base::Awake();
-    gameObject->AddTag(TAG);
-    BuildPlayerFSM();
-    
+        Base::Awake();
+        gameObject->AddTag(TAG);
+        BuildPlayerFSM();
 
-    if (nullptr == GetPlayerStats())
-    {
-        UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Player Stats를 추가해주세요");
+        if (nullptr == GetPlayerStats())
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Player Stats를 추가해주세요");
+        }
     }
 }
 
@@ -65,7 +62,7 @@ void Player::DeserializedReflectEvent()
 
 int Player::GetSpeed()
 {
-    WeaponSystem* system = WeaponSystem::GetInstance();
+    WeaponSystem* system = SingletonComponent<WeaponSystem>::GetInstance();
     if (system)
     {
         return system->GetCurrentWeaponStats().Speed;
@@ -80,7 +77,7 @@ int Player::GetSpeed()
 int Player::GetRandomSpeed()
 {
 
-    WeaponSystem* system = WeaponSystem::GetInstance();
+    WeaponSystem* system = SingletonComponent<WeaponSystem>::GetInstance();
     if (system)
     {
         return system->GetCurrentWeaponStats().RandomSpeed;
@@ -95,7 +92,7 @@ int Player::GetRandomSpeed()
 void Player::PlayTurn()
 {
     Base::PlayTurn();
-    WeaponSystem* system = WeaponSystem::GetInstance();
+    WeaponSystem* system = SingletonComponent<WeaponSystem>::GetInstance();
     if (system)
     {
         const std::string& weaponName = system->GetCurrentWeaponStats().WeaponName;
@@ -117,7 +114,7 @@ void Player::EndTurn()
 void Player::Dead()
 {
     Base::Dead();
-    if (auto turnMode = TurnMode::GetInstance())
+    if (auto turnMode = SingletonComponent<TurnMode>::GetInstance())
     {
         turnMode->ApplyActions([this](TurnAction& action) { action.OnPlayerDead(*this); });
     }
@@ -155,12 +152,16 @@ PlayerStatsComponent* Player::GetPlayerStats()
 {
     if (nullptr == _playerStats)
     {
-        _playerStats = GetComponent<PlayerStatsComponent>();
-        if (nullptr == _playerStats)
+        GameObject* playerSystem = SingletonObject<PlayerSystem>::GetInstance();
+        if (playerSystem)
         {
-            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"플레이어 스텟이 존재하지 않습니다.");
+            _playerStats = playerSystem->GetComponent<PlayerStatsComponent>();
         }
     }  
+    if (nullptr == _playerStats)
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"플레이어 시스템에 스텟이 존재하지 않습니다.");
+    }
     return _playerStats;
 }
 

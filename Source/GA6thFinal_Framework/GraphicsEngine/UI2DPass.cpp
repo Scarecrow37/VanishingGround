@@ -8,7 +8,7 @@ UI2DPass::UI2DPass(const std::vector<UINT>& instanceIDs)
 {
 }
 
-UI2DPass::~UI2DPass() {}
+UI2DPass::~UI2DPass() = default;
 
 void UI2DPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
@@ -21,8 +21,8 @@ void UI2DPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechniq
     rtDesc.SrcBlend              = D3D12_BLEND_SRC_ALPHA;
     rtDesc.DestBlend             = D3D12_BLEND_INV_SRC_ALPHA;
     rtDesc.BlendOp               = D3D12_BLEND_OP_ADD;
-    rtDesc.SrcBlendAlpha         = D3D12_BLEND_ZERO;
-    rtDesc.DestBlendAlpha        = D3D12_BLEND_ONE;
+    rtDesc.SrcBlendAlpha         = D3D12_BLEND_ONE;
+    rtDesc.DestBlendAlpha        = D3D12_BLEND_INV_SRC_ALPHA;
     rtDesc.BlendOpAlpha          = D3D12_BLEND_OP_ADD;
     rtDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
@@ -44,18 +44,22 @@ void UI2DPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechniq
 
 void UI2DPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
-    const auto& resolution = Global::device->GetResolution();
+    const auto& size = Global::device->GetResolution();
 
-    _cameraData.Projection = XMMatrixTranspose(XMMatrixOrthographicOffCenterLH(0.f, (float)resolution.Width, (float)resolution.Height, 0.f, 0.1f, 1000.f));
+    _cameraData.Projection = XMMatrixTranspose(XMMatrixOrthographicOffCenterLH(0.f, (float)size.cx, (float)size.cy, 0.f, 0.1f, 1000.f));
     _cameraBuffer->UpdateBuffer(&_cameraData);
 
-    __super::UpdateBuffer(commandList);
+    UIPassBase::UpdateBuffer(commandList);
 
     auto depthStencilView = static_cast<UITechnique*>(_ownerTechnique)->GetDepthStencilView();
     depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_DEPTH_WRITE);
     depthStencilView->ClearDepthStencilView(commandList);
 
-    __super::Begin(commandList);
+    _finalRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    commandList->OMSetRenderTargets(1, &_finalRenderTarget->GetRTVHandle(), FALSE, &depthStencilView->GetDSVHandle());
+
+    commandList->RSSetViewports(1, &_finalRenderTarget->GetViewport());
+    commandList->RSSetScissorRects(1, &_finalRenderTarget->GetScissorRect());
 }
 
 void UI2DPass::Draw(ID3D12GraphicsCommandList* commandList)
@@ -69,6 +73,9 @@ void UI2DPass::Draw(ID3D12GraphicsCommandList* commandList)
 
     frameResource->SetFrameResource(FrameResourceType::UI_TRANSFORM, _fx.GetRootParameterIndex("matrices"), commandList);
     frameResource->SetFrameResource(FrameResourceType::UI_MATERIAL, _fx.GetRootParameterIndex("material"), commandList);
+    
+    auto uiMaterialDataBuffer = static_cast<UITechnique*>(_ownerTechnique)->GetUIMaterialDataBuffer();
+    commandList->SetGraphicsRootShaderResourceView(_fx.GetRootParameterIndex("uiMaterialData"), uiMaterialDataBuffer->GetGPUVirtualAddress());
 
     commandList->SetGraphicsRootShaderResourceView(_fx.GetRootParameterIndex("IDs"), _instanceIDBuffer->GetGPUVirtualAddress());
     commandList->SetGraphicsRootConstantBufferView(_fx.GetRootParameterIndex("cameraData"), _cameraBuffer->GetGPUVirtualAddress());

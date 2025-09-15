@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <EnemyAction/EnemyActionBase.h>
+#include <Utility/SingletonHelper.h>
 
 class EnemyActionSystem  : public Component 
 {
@@ -7,11 +8,10 @@ public:
     USING_PROPERTY(EnemyActionSystem)
     EnemyActionSystem();
     ~EnemyActionSystem() override;
-    inline static EnemyActionSystem* _staticInstance;
-    inline static EnemyActionSystem* GetInstance() { return _staticInstance; }
 
 private:
     void Reset() override;
+    void Awake() override;
     void SerializedReflectEvent() override;
     void DeserializedReflectEvent() override;
     void ImGuiDrawPropertysEvent() override;
@@ -39,6 +39,10 @@ private:
     bool _isShowEditor = false;     // 에디터 모드 여부
     int  _selectedActionID = 0;     // 선택된 액션 ID
     EditorDragState _dragHandler;
+
+private:
+    SingletonComponent<EnemyActionSystem> _singletonComponent{this};
+
 };
 
 // 스킬 ID, 이름, 타입, 이벤트 트랙

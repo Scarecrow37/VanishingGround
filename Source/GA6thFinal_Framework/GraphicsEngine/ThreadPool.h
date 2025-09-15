@@ -12,6 +12,9 @@ public:
     ~ThreadPool();
 
 public:
+    bool IsParallelTaskDone() const;
+
+public:
     void AddTask(ThreadType type, const std::function<void(ID3D12GraphicsCommandList*)>& task);
 
 public:

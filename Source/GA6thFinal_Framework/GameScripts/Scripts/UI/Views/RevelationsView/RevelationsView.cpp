@@ -8,7 +8,7 @@
 
 RevelationsView::~RevelationsView()
 {
-    UmWatcher.Blind<RevelationsViewModel>("Revelations");
+    UmWatcher.Blind<RevelationsViewModel>("Revelations", _watchHandle);
 }
 
 void RevelationsView::Awake()
@@ -22,7 +22,7 @@ void RevelationsView::Start()
 {
     Component::Start();
 
-    UmWatcher.Watch<RevelationsViewModel, std::vector<RevelationUIData>>(
+    _watchHandle = UmWatcher.Watch<RevelationsViewModel, std::vector<RevelationUIData>>(
         "Revelations", [this](const std::vector<RevelationUIData>& revelations) {
             for (size_t i = 0; i < _revelationUis.size(); ++i)
             {

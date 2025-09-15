@@ -11,19 +11,19 @@ UI25DPass::~UI25DPass() {}
 
 void UI25DPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene, ownerTechnique, commandList);
+    UIPassBase::Initialize(ownerScene, ownerTechnique, commandList);
 
     _cameraData.View = XMMatrixTranspose(XMMatrixLookAtLH({0.f, 0.f, -1.f}, {0.f, 0.f, 1.f}, {0.f, 1.f, 0.f}));
 
-    D3D12_RENDER_TARGET_BLEND_DESC rtDesc{};
-    rtDesc.BlendEnable                    = TRUE;
-    rtDesc.SrcBlend                       = D3D12_BLEND_SRC_ALPHA;
-    rtDesc.DestBlend                      = D3D12_BLEND_INV_SRC_ALPHA;
-    rtDesc.BlendOp                        = D3D12_BLEND_OP_ADD;
-    rtDesc.SrcBlendAlpha                  = D3D12_BLEND_ZERO;
-    rtDesc.DestBlendAlpha                 = D3D12_BLEND_ONE;
-    rtDesc.BlendOpAlpha                   = D3D12_BLEND_OP_ADD;
-    rtDesc.RenderTargetWriteMask          = D3D12_COLOR_WRITE_ENABLE_ALL;
+    D3D12_RENDER_TARGET_BLEND_DESC rtDesc{};   
+    rtDesc.BlendEnable           = TRUE;
+    rtDesc.SrcBlend              = D3D12_BLEND_SRC_ALPHA;
+    rtDesc.DestBlend             = D3D12_BLEND_INV_SRC_ALPHA;
+    rtDesc.BlendOp               = D3D12_BLEND_OP_ADD;
+    rtDesc.SrcBlendAlpha         = D3D12_BLEND_ONE;
+    rtDesc.DestBlendAlpha        = D3D12_BLEND_INV_SRC_ALPHA;
+    rtDesc.BlendOpAlpha          = D3D12_BLEND_OP_ADD;
+    rtDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 
     PipelineStateStream pss;
     pss.BlendState                            = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
@@ -46,9 +46,9 @@ void UI25DPass::Begin(ID3D12GraphicsCommandList* commandList)
     _cameraData.Projection = XMMatrixTranspose(_ownerScene->_camera->GetProjectionMatrix());
     _cameraBuffer->UpdateBuffer(&_cameraData);
     
-    __super::UpdateBuffer(commandList);
+    UIPassBase::UpdateBuffer(commandList);
 
-    __super::Begin(commandList);
+    UIPassBase::Begin(commandList);
 }
 
 void UI25DPass::Draw(ID3D12GraphicsCommandList* commandList)

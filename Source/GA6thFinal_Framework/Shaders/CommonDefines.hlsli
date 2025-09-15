@@ -5,6 +5,7 @@
 #define Epsilon 0.0001
 #define Fdielectric  0.04
 #define KERNEL_SIZE 15
+#define CUTOFF 0.3333333
 
 #define objectData bit32_3_objectData
 #define numLight bit32_3_numLight

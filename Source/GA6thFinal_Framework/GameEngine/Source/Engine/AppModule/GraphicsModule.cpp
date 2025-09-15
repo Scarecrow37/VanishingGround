@@ -24,24 +24,25 @@ void GraphicsModule::PreInitialize()
     RenderTechniqueFlag lightingFlag = RenderTechniqueFlag::NONE;
     lightingFlag = _israytracing ? RenderTechniqueFlag::RAY_TRACING_TECH : RenderTechniqueFlag::PBR_TECH | RenderTechniqueFlag::SSR_TECH;
 
-    RenderTechniqueFlag flag = RenderTechniqueFlag::SKY_BOX_TECH | lightingFlag |
+    RenderTechniqueFlag defaultFlag = RenderTechniqueFlag::SKY_BOX_TECH | lightingFlag |
                                RenderTechniqueFlag::VOLUMETRIC_FOG_TECH |
                                RenderTechniqueFlag::PARTICLE_TECH |
                                RenderTechniqueFlag::BLOOM_TECH | RenderTechniqueFlag::UI_TECH |
                                RenderTechniqueFlag::FONT_TECH;
 
-    UmGraphics.AddRenderScene("Game", flag);
+    RenderTechniqueFlag gameSceneFlag = defaultFlag | RenderTechniqueFlag::SCENE_TRANSITION_TECH;
+    UmGraphics.AddRenderScene("Game", gameSceneFlag);
 
     if constexpr (IS_EDITOR)
     {
-        flag |= RenderTechniqueFlag::EDITOR_DRAW_TECH;
-        UmGraphics.AddRenderScene("Editor", flag);
+        RenderTechniqueFlag editorSceneFlag = defaultFlag | RenderTechniqueFlag::EDITOR_DRAW_TECH;
+        UmGraphics.AddRenderScene("Editor", editorSceneFlag);
 
-        flag = RenderTechniqueFlag::SKY_BOX_TECH | lightingFlag;
-        UmGraphics.AddRenderScene("ModelViewer", flag);
+        RenderTechniqueFlag modelViewerSceneFlag = RenderTechniqueFlag::SKY_BOX_TECH | lightingFlag;
+        UmGraphics.AddRenderScene("ModelViewer", modelViewerSceneFlag);
 
-        flag = RenderTechniqueFlag::PARTICLE_TECH | RenderTechniqueFlag::PBR_TECH | RenderTechniqueFlag::BLOOM_TECH;
-        UmGraphics.AddRenderScene("ParticleEditor", flag);
+        RenderTechniqueFlag particleEditorSceneFlag = RenderTechniqueFlag::PARTICLE_TECH | RenderTechniqueFlag::PBR_TECH | RenderTechniqueFlag::BLOOM_TECH;
+        UmGraphics.AddRenderScene("ParticleEditor", particleEditorSceneFlag);
     }
     else
     {

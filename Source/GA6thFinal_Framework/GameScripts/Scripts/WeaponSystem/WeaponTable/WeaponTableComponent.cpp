@@ -5,15 +5,12 @@ using namespace u8_literals;
 
 WeaponTableComponent::WeaponTableComponent()
 {
-    static_instance = this;
+    
 }
 
 WeaponTableComponent::~WeaponTableComponent()
 {
-    if (static_instance == this)
-    {
-        static_instance = nullptr;
-    }
+
 }
 
 const WeaponElement* WeaponTableComponent::GetWeaponToName(const std::string& name)
@@ -149,11 +146,12 @@ void WeaponTableComponent::ClampMultiplierStats(WeaponElement& weapon)
 void WeaponTableComponent::Reset() 
 {
     gameObject->AddTag(TAG);
+    _singletonComponent.SetSingleTon();
 }
 
 void WeaponTableComponent::Awake()
 {
-
+    _singletonComponent.TrySingleTon();
 }
 
 void WeaponTableComponent::ImGuiDrawPropertysEvent()
@@ -550,10 +548,6 @@ bool WeaponTableComponent::ExcelToWeaponElement(WeaponElement& element, const st
                 else if (WeaponStats::GetGradeID(WeaponGrade::BIZARRE) == rarity)
                 {
                     stats.Grade = WeaponGrade::BIZARRE;
-                }
-                else if (WeaponStats::GetGradeID(WeaponGrade::LEGENDARY) == rarity)
-                {
-                    stats.Grade = WeaponGrade::LEGENDARY;
                 }
                 else
                 {

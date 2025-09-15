@@ -62,7 +62,7 @@ void BrightExtractPass::Begin(ID3D12GraphicsCommandList* commandList)
 void BrightExtractPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
     const auto&     resolution = Global::device->GetResolution();
-    PostProcessData postProcessData{.ScreenSize      = {(float)resolution.Width, (float)resolution.Height},
+    PostProcessData postProcessData{.ScreenSize      = {(float)resolution.cx, (float)resolution.cy},
                                     .PostProcessMask = PostProcess::BLOOM};
 
     const auto& bloomProperty = std::any_cast<const BloomPassProperty&>(_ownerScene->GetRenderPassProperty("BloomPass"));
