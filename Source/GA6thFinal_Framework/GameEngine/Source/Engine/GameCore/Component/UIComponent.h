@@ -221,6 +221,18 @@ public:
     }
     PROPERTY(AbsoluteCenterPoint)
 
+    GETTER_ONLY(RECT, AbsoluteRect)
+    {
+        const POINT absolutePosition = AbsolutePosition;
+        const SIZE  size             = Size;
+        return RECT{
+        .left   = absolutePosition.x,
+        .top    = absolutePosition.y,
+        .right  = absolutePosition.x + size.cx,
+        .bottom = absolutePosition.y + size.cy};
+    }
+    PROPERTY(AbsoluteRect)
+
 public:
     void Measure(SIZE availableSize);
     void Arrange(POINT finalPosition, SIZE finalSize);
@@ -301,9 +313,43 @@ struct ImGuiDebug
 
 struct DrawDebug
 {
-    void        operator()(POINT point, SIZE size, int thickness, FXMVECTOR color) const;
-    void        operator()(POINT pointA, POINT pointB, int thickness, bool isVertical, FXMVECTOR color) const;
-    static void Arrow(POINT pointA, POINT pointB, float arrowheadLength, FXMVECTOR color);
+    /// <summary>
+    /// 지정된 두께와 색상으로 주어진 POINT와 SIZE를 사용하여 사각형을 그립니다.
+    /// </summary>
+    /// <param name="point">도형을 그릴 기준이 되는 POINT 객체입니다.</param>
+    /// <param name="size">도형의 크기를 지정하는 SIZE 객체입니다.</param>
+    /// <param name="thickness">도형의 테두리 두께를 나타내는 정수입니다.</param>
+    /// <param name="color">도형의 색상을 지정하는 FXMVECTOR 타입의 벡터입니다.</param>
+    void operator()(POINT point, SIZE size, int thickness, FXMVECTOR color) const;
+
+    /// <summary>
+    /// 두 점 사이에 선을 그립니다.
+    /// </summary>
+    /// <param name="pointA">선의 시작점입니다.</param>
+    /// <param name="pointB">선의 끝점입니다.</param>
+    /// <param name="thickness">선의 두께입니다.</param>
+    /// <param name="isVertical">선이 수직인지 여부를 나타내는 값입니다.</param>
+    /// <param name="color">선의 색상을 나타내는 벡터입니다.</param>
+    void operator()(POINT pointA, POINT pointB, int thickness, bool isVertical, FXMVECTOR color) const;
+
+    /// <summary>
+    /// 두 점 사이에 화살표를 그리고, 화살촉의 길이와 색상을 지정합니다.
+    /// </summary>
+    /// <param name="pointA">화살표의 시작점입니다.</param>
+    /// <param name="pointB">화살표의 끝점입니다.</param>
+    /// <param name="arrowheadLength">화살촉의 길이입니다.</param>
+    /// <param name="color">화살표의 색상입니다. FXMVECTOR 타입으로 지정합니다.</param>
+    void operator()(POINT pointA, POINT pointB, float arrowheadLength, FXMVECTOR color) const;
+
+    /// <summary>
+    /// 두 개의 POINT와 두 개의 RECT를 받아 충돌한 결과로 두 개의 POINT를 반환합니다.
+    /// </summary>
+    /// <param name="pointA">처리할 첫 번째 POINT입니다.</param>
+    /// <param name="pointB">처리할 두 번째 POINT입니다.</param>
+    /// <param name="rectA">첫 번째 POINT와 관련된 RECT입니다.</param>
+    /// <param name="rectB">두 번째 POINT와 관련된 RECT입니다.</param>
+    /// <returns>처리 결과로 반환되는 두 개의 POINT를 담은 std::pair입니다.</returns>
+    std::optional<std::pair<POINT, POINT>> operator()(POINT pointA, POINT pointB, RECT rectA, RECT rectB) const;
 };
 
 // TODO 지울지 고민

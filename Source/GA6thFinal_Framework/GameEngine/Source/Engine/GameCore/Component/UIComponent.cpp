@@ -351,7 +351,7 @@ void DrawDebug::operator()(const POINT pointA, const POINT pointB, const int thi
     }
 }
 
-void DrawDebug::Arrow(POINT pointA, POINT pointB, float arrowheadLength, FXMVECTOR color)
+void DrawDebug::operator()(POINT pointA, POINT pointB, float arrowheadLength, FXMVECTOR color) const
 {
     const XMFLOAT2 start{static_cast<float>(pointA.x), static_cast<float>(pointA.y)};
     const XMFLOAT2 end{static_cast<float>(pointB.x), static_cast<float>(pointB.y)};
@@ -378,4 +378,93 @@ void DrawDebug::Arrow(POINT pointA, POINT pointB, float arrowheadLength, FXMVECT
     XMVECTOR leftHead           = XMVector2Transform(headInOrigin, leftRotationMatrix);
     leftHead                    = XMVectorAdd(leftHead, endVector);
     UmGraphics.DebugDraw2D("Editor", leftHead, endVector, color);
+}
+
+namespace
+{
+    bool IntersectSegments(const XMVECTOR& p1, const XMVECTOR& p2, const XMVECTOR& q1, const XMVECTOR& q2,
+                           XMVECTOR& out)
+    {
+        const float x1 = XMVectorGetX(p1), y1 = XMVectorGetY(p1);
+        const float x2 = XMVectorGetX(p2), y2 = XMVectorGetY(p2);
+        const float x3 = XMVectorGetX(q1), y3 = XMVectorGetY(q1);
+        const float x4 = XMVectorGetX(q2), y4 = XMVectorGetY(q2);
+
+        const float dx1 = x2 - x1, dy1 = y2 - y1;
+        const float dx2 = x4 - x3, dy2 = y4 - y3;
+        const float det = dx1 * dy2 - dy1 * dx2;
+        if (fabs(det) < 1e-6f)
+            return false; // 평행
+
+        const float s = ((dx2) * (y1 - y3) - (dy2) * (x1 - x3)) / det;
+        const float t = ((dx1) * (y1 - y3) - (dy1) * (x1 - x3)) / det;
+
+        if (s < 0 || s > 1 || t < 0 || t > 1)
+            return false; // 교차 영역 밖
+        out = XMVectorSet(x1 + s * dx1, y1 + s * dy1, 0.0f, 0.0f);
+        return true;
+    }
+} // namespace
+
+std::optional<std::pair<POINT, POINT>> DrawDebug::operator()(POINT pointA, POINT pointB, RECT rectA, RECT rectB) const
+{
+    std::optional<std::pair<POINT, POINT>> result = std::nullopt;
+
+    XMVECTOR vectorA = XMVectorSet(static_cast<float>(pointA.x), static_cast<float>(pointA.y), 0.0f, 0.0f);
+    XMVECTOR vectorB = XMVectorSet(static_cast<float>(pointB.x), static_cast<float>(pointB.y), 0.0f, 0.0f);
+
+    XMVECTOR edgesA[4][2] = {
+        {XMVectorSet(static_cast<float>(rectA.left), static_cast<float>(rectA.top), 0.0f, 0.0f),
+         XMVectorSet(static_cast<float>(rectA.right), static_cast<float>(rectA.top), 0.0f, 0.0f)},
+        {XMVectorSet(static_cast<float>(rectA.right), static_cast<float>(rectA.top), 0.0f, 0.0f),
+         XMVectorSet(static_cast<float>(rectA.right), static_cast<float>(rectA.bottom), 0.0f, 0.0f)},
+        {XMVectorSet(static_cast<float>(rectA.right), static_cast<float>(rectA.bottom), 0.0f, 0.0f),
+         XMVectorSet(static_cast<float>(rectA.left), static_cast<float>(rectA.bottom), 0.0f, 0.0f)},
+        {XMVectorSet(static_cast<float>(rectA.left), static_cast<float>(rectA.bottom), 0.0f, 0.0f),
+         XMVectorSet(static_cast<float>(rectA.left), static_cast<float>(rectA.top), 0.0f, 0.0f)},
+    };
+
+    XMVECTOR edgesB[4][2] = {
+        {XMVectorSet(static_cast<float>(rectB.left), static_cast<float>(rectB.top), 0.0f, 0.0f),
+         XMVectorSet(static_cast<float>(rectB.right), static_cast<float>(rectB.top), 0.0f, 0.0f)},
+        {XMVectorSet(static_cast<float>(rectB.right), static_cast<float>(rectB.top), 0.0f, 0.0f),
+         XMVectorSet(static_cast<float>(rectB.right), static_cast<float>(rectB.bottom), 0.0f, 0.0f)},
+        {XMVectorSet(static_cast<float>(rectB.right), static_cast<float>(rectB.bottom), 0.0f, 0.0f),
+         XMVectorSet(static_cast<float>(rectB.left), static_cast<float>(rectB.bottom), 0.0f, 0.0f)},
+        {XMVectorSet(static_cast<float>(rectB.left), static_cast<float>(rectB.bottom), 0.0f, 0.0f),
+         XMVectorSet(static_cast<float>(rectB.left), static_cast<float>(rectB.top), 0.0f, 0.0f)},
+    };
+
+    XMVECTOR intersectionA, intersectionB;
+    bool     foundA = false, foundB = false;
+
+    for (const auto& edge : edgesA)
+    {
+        if (IntersectSegments(vectorA, vectorB, edge[0], edge[1], intersectionA))
+        {
+            foundA = true;
+            break;
+        }
+    }
+
+    for (const auto& edge : edgesB)
+    {
+        if (IntersectSegments(vectorA, vectorB, edge[0], edge[1], intersectionB))
+        {
+            foundB = true;
+            break;
+        }
+    }
+
+    if (foundA && foundB)
+    {
+        POINT intersectPointA = {.x = static_cast<LONG>(XMVectorGetX(intersectionA)),
+                                 .y = static_cast<LONG>(XMVectorGetY(intersectionA))};
+        POINT intersectPointB = {.x = static_cast<LONG>(XMVectorGetX(intersectionB)),
+                                 .y = static_cast<LONG>(XMVectorGetY(intersectionB))};
+        result                = std::make_pair(intersectPointA, intersectPointB);
+    }
+
+
+    return result;
 }
