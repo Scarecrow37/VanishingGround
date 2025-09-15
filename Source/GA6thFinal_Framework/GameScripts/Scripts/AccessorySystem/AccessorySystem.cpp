@@ -373,12 +373,13 @@ void AccessorySystem::ImGuiDrawPlayerAccsessoryItems()
                     {
                         continue;
                     }
-
+                    ImGui::PushStyleColor(ImGuiCol_Text, tableAccessory->GetGradeColor());
                     const std::string& name = tableAccessory->AccessoryName;
                     if (ImGui::Selectable(name.c_str(), name == prevValue))
                     {
                         select = tableAccessory;
                     }
+                    ImGui::PopStyleColor();
                 }
                 ImGui::EndCombo();
             } 
@@ -389,6 +390,7 @@ void AccessorySystem::ImGuiDrawPlayerAccsessoryItems()
         for (auto& accessory : _playerAccessoryItems)
         {
             ImGui::PushID(&accessory);
+            ImGui::PushStyleColor(ImGuiCol_Text, accessory.GetGradeColor());
             {
                 const std::string& name = accessory.AccessoryName;
                 AccessoryElement*  change = AccessorySelectCombo(name.c_str());
@@ -403,6 +405,7 @@ void AccessorySystem::ImGuiDrawPlayerAccsessoryItems()
                     unequipTarget = &accessory;
                 }
             }
+            ImGui::PopStyleColor();
             ImGui::PopID();
         }
         if (nullptr != unequipTarget)
