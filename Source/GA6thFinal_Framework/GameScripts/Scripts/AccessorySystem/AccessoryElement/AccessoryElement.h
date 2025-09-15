@@ -108,6 +108,9 @@ public:
     AccessoryElement(const AccessoryElement& rhs) { CopyElement(rhs); }
     AccessoryElement& operator=(const AccessoryElement& rhs) { return CopyElement(rhs); }
 
+    bool operator!=(const AccessoryElement& rhs) { return this->AccessoryID != rhs.AccessoryID; }
+    bool operator==(const AccessoryElement& rhs) { return this->AccessoryID == rhs.AccessoryID; }
+
 public:
     DropItemInfo GetItemInfo() override;
 };
