@@ -584,6 +584,12 @@ public:
         /// </summary>
         void CleanupInputReceivers();
 
+        /// <summary>
+        /// Controller를 반환합니다.
+        /// </summary>
+        /// <returns></returns>
+        Input::Controller& GetController() { return _inputController; }
+
     private:
         static constexpr size_t ACTION_COUNT = (size_t)Action::UNKNOWN;
         static constexpr size_t CONTROLLER_BUTTON_COUNT = (size_t)ControllerButton::UNKNOWN;

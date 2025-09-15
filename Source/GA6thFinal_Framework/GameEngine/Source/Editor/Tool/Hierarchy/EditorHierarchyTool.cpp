@@ -485,6 +485,12 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
                     GameObjectKey, GameObject::Helper::GenerateUniqueName("Ratio Wrapper"), &ui);
                 UmComponentFactory.AddComponentToObject(ui, "class RatioWrapper");
             }
+            if (ImGui::MenuItem("Scrolling Wrapper"))
+            {
+                UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Scrolling Wrapper"), &ui);
+                UmComponentFactory.AddComponentToObject(ui, "class ScrollingWrapper");
+            }
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Elements"))
