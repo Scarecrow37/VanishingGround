@@ -273,7 +273,12 @@ namespace MVVM
             return result;
         }
 
-
+        template <typename Modifier>
+        void at(size_type pos, Modifier modifier)
+        {
+            modifier(ModelBase<container_type>::_value.at(pos));
+            ModelBase<container_type>::Notify();
+        }
 
         template <typename UniformRandomBitGenerator>
         void shuffle(UniformRandomBitGenerator&& generator)
