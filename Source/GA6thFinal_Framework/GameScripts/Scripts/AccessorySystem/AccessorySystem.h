@@ -33,7 +33,7 @@ public:
     /// ID 순으로 정렬된 장신구 테이블을 반환합니다.
     /// </summary>
     /// <returns></returns>
-    const std::vector<AccessoryElement*> GetAccessoryTableElements() { return _elementTableOrderID; }
+    const std::vector<AccessoryElement*> GetAccessoryTableElements() const { return _elementTableOrderID; }
 
     /// <summary>
     /// 장신구 테이블에 해당 이름의 장신구가 존재하는지 여부를 확인합니다.
@@ -53,11 +53,11 @@ public:
     bool IsAccessoryInTable(const AccessoryElement& element) { return IsAccessoryInTable(element.AccessoryName);}
 
     /// <summary>
-    /// 장신구 이름으로 테이블에서 생성합니다.
+    /// 장신구 이름으로 테이블에서 가져옵니다.
     /// </summary>
     /// <param name="name :">생성할 장신구 이름</param>
     /// <returns>실패시 nullptr</returns>
-    std::unique_ptr<AccessoryElement> MakeAccessoryToName(const std::string& name)
+    std::unique_ptr<AccessoryElement> TryMakeAccessoryToName(const std::string& name)
     { 
         std::unique_ptr<AccessoryElement> accessory;
         if (auto findIter = _elementTable.find(name); findIter != _elementTable.end())

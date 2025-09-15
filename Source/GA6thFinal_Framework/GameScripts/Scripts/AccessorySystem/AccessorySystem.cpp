@@ -416,7 +416,7 @@ void AccessorySystem::ImGuiDrawPlayerAccsessoryItems()
         static thread_local std::string equipAccessoryName = STR_NULL;
         if (ImGui::Button("Equip"))
         {
-            std::unique_ptr<AccessoryElement> newAccessory = MakeAccessoryToName(equipAccessoryName);
+            std::unique_ptr<AccessoryElement> newAccessory = TryMakeAccessoryToName(equipAccessoryName);
             if (newAccessory)
             {
                 if (EquipAccessory(*newAccessory))
@@ -555,7 +555,7 @@ void AccessorySystem::PlayerAccessoriesDeserialized()
     _playerAccessoryItemSet.clear();
     for (auto& name : ReflectFields->PlayerAccessoriesNames)
     {
-        std::unique_ptr<AccessoryElement> element = MakeAccessoryToName(name);
+        std::unique_ptr<AccessoryElement> element = TryMakeAccessoryToName(name);
         if (element)
         {
             EquipAccessory(*element);
