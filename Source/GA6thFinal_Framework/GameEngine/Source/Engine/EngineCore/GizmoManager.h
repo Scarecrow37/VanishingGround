@@ -35,14 +35,14 @@ public:
     void Draw();
 
     /// <summary>
-    /// Draw를 종료합니다.
-    /// </summary>
-    void EndDraw();
-
-    /// <summary>
     /// 카메라 기준으로 ImGuizmo를 Draw합니다.
     /// </summary>
     void DrawImGuizmo(ImGuiHelper::DrawManipulateDesc& desc);
+
+    /// <summary>
+    /// Draw를 종료합니다.
+    /// </summary>
+    void EndDraw();
 
     /// <summary>
     /// 씬 기즈모 아이콘 큐를 반환합니다.

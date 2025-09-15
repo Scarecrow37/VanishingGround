@@ -9,6 +9,7 @@ public:
     {
         LIGHT,
         CAMERA,
+        TETHER
     };
 
     inline static constexpr const wchar_t* GetIconPath(DefaultIcon icon)
@@ -19,6 +20,8 @@ public:
             return L"../GameEngine/Icon/Gizmo/light.png";
         case SceneGizmo::DefaultIcon::CAMERA:
             return L"../GameEngine/Icon/Gizmo/camera.png";
+        case SceneGizmo::DefaultIcon::TETHER:
+            return L"../GameEngine/Icon/Gizmo/tether.png";
         default:
             return L"null";
         }

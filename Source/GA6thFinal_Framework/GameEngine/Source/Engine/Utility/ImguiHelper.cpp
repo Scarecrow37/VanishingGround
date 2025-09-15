@@ -167,6 +167,8 @@ static bool ImGuiHelper::DrawManipulate(
     Matrix* pObjectMatrix,
     DrawManipulateDesc& desc)
 {
+    ImGuizmo::PushID(pObjectMatrix);
+
     Camera* realCamera = nullptr;
     if (nullptr != pDynamicCamera)
     {
@@ -241,6 +243,7 @@ static bool ImGuiHelper::DrawManipulate(
     }
     */
 
+    ImGuizmo::PopID();
     return manipulateResult;
 }
 
