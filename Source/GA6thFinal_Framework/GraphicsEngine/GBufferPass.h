@@ -32,7 +32,7 @@ public:
     void End(ID3D12GraphicsCommandList* commandList) override;
 
 public:
-    void SetMipBias(float level) { mipBias = level;}
+    void SetMipBias(float level) { _mipBias = level; }
 
 private:
     void InitShaderAndPSO();
@@ -48,5 +48,5 @@ private:
     FX<GE::VS::STATIC_FR, GE::PS::GBUFFER>                        _fxStaticMesh;
     FX<GE::VS::SKELETAL_FR, GE::PS::GBUFFER>                      _fxSkeletalMesh;
 
-    float mipBias = 0.f;
+    float _mipBias = 0.f;
 };

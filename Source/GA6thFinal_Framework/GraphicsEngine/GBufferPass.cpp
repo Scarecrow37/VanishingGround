@@ -235,15 +235,17 @@ void GBufferPass::InitShaderAndPSO()
 void GBufferPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType meshType, Material::BlendModeType blendModeType, CullMode cullMode)
 {
     UINT parameter[3]{0, MAX_BONE_MATRIX, 0};
-    const auto& parallaxMappingProperty = std::any_cast<const ParallaxMappingProperty&>(_ownerScene->GetRenderPassProperty("G-BufferPass"));
+    const auto& gbuffuerProperty = std::any_cast<const GbufferProperty&>(_ownerScene->GetRenderPassProperty("G-BufferPass"));
 
     switch (meshType)
     {
     case STATIC_MESH:
-        commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_2_gbufferData"), 2, &parallaxMappingProperty, 0);
+        commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_2_gbufferData"), 2,
+                                                   &gbuffuerProperty, 0);
         break;
     case SKELETAL_MESH:
-        commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_2_gbufferData"), 2, &parallaxMappingProperty, 0);
+        commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_2_gbufferData"), 2,
+                                                   &gbuffuerProperty, 0);
         break;
     }
 

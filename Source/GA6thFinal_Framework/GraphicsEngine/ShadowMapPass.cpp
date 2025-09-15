@@ -346,7 +346,7 @@ void ShadowMapPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, int shade
 {
     UINT parameter[4]{0, MAX_BONE_MATRIX, 0, 0};
 
-    const auto& parallaxMappingProperty = std::any_cast<const ParallaxMappingProperty&>(_ownerScene->GetRenderPassProperty("G-BufferPass"));
+    const auto& parallaxMappingProperty = std::any_cast<const GbufferProperty&>(_ownerScene->GetRenderPassProperty("G-BufferPass"));
 
     switch (shaderType)
     {

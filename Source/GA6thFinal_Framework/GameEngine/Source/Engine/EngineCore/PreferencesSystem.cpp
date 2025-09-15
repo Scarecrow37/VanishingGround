@@ -71,7 +71,7 @@ void PreferencesSystem::SetTextureQuality(TextureQuality quality)
     default:
         break;
     }
-    _graphicsController->SetTextureQuality("Game",bias);
+    _graphicsController->SetTextureQuality("Game", bias);
 }
 
 void PreferencesSystem::SetTextureQuality(std::string_view sceneName, TextureQuality quality) 
