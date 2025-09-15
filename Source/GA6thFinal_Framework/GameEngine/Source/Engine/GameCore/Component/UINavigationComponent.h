@@ -48,10 +48,7 @@ public:
 public:
     virtual void FocusIn();
     virtual void FocusOut();
-    virtual void Submit()
-    {
-        UmLogger.Log(LogLevel::LEVEL_INFO, u8"Submit");
-    }
+    virtual void Submit() {}
 
     void SetInitialFocus();
     void ResetInitialFocus();
