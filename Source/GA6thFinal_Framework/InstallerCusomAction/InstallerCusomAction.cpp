@@ -22,7 +22,8 @@ int main(int argc, char* argv[])
             std::cout << arg << std::endl;
         }
 
-        fs::path exeFilePath = argv[0];
+        fs::path exeFilePath   = argv[0];
+        fs::path exeFolderPath = exeFilePath.parent_path();
         fs::path removePath = argv[2];
         std::vector<fs::path> removeFileList;
         std::vector<fs::path> removeDirList;
@@ -35,7 +36,10 @@ int main(int argc, char* argv[])
                 const fs::path& entryPath = entry.path();
                 if (entry.is_directory())
                 {
-                    removeDirList.emplace_back(entryPath);
+                    if (exeFolderPath != entryPath)
+                    {
+                        removeDirList.emplace_back(entryPath);
+                    }
                 }
                 else
                 {

@@ -499,7 +499,7 @@ void FBXConverter::LoadFromAssimp(const std::filesystem::path& filePath, Model* 
                 newPath.replace_filename(path);
             }
 
-            model->BindTexture(i, Global::resourceManager->LoadResource<Texture>(newPath));
+            model->BindTexture(i, Global::resourceManager->LoadResource<Texture>(newPath, [model]() { model->SetDirtyFlag(true); }));
         }
     }
 

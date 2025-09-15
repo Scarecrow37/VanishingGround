@@ -72,17 +72,22 @@ void GBufferPass::AddRenderPassDatas(std::string_view sceneName)
     Global::renderPassDatas->AddRenderPassImage(sceneName, "G-BufferPass", "ORM", _gBufferRenderTargets[2]->GetSRVHandle());
     Global::renderPassDatas->AddRenderPassImage(sceneName, "G-BufferPass", "Emissive", _gBufferRenderTargets[3]->GetSRVHandle());
     
-    Global::renderPassDatas->AddRenderPassProperty(sceneName, "G-BufferPass", ParallaxMappingProperty(1.f));
+    Global::renderPassDatas->AddRenderPassProperty(sceneName, "G-BufferPass", ParallaxMappingProperty(2.9f,0.f));
 }
 
-void GBufferPass::Update(ID3D12GraphicsCommandList* commadList)
-{    
-    for (auto& data : _renderDatas)
+void GBufferPass::Update(ID3D12GraphicsCommandList* commadList, const float deltaTime)
+{
+    for (auto& renderData : _renderDatas)
     {
-        data.clear();
+        for (auto& j : renderData)
+        {
+            for (auto& k : j)
+            {
+                k.clear();
+            }
+        }
     }
 
-    MeshType meshType = END;
     for (int i = 0; i < MESH_TYPE_END; i++)
     {
         for (auto& meshInfo : _ownerScene->_activeMeshes[i])
@@ -99,8 +104,12 @@ void GBufferPass::Update(ID3D12GraphicsCommandList* commadList)
             }
 
             // cull_back, cull_front, cull_none
-            meshType = MeshType(i * 3 + (int)meshInfo.Material.CullMode);
-            _renderDatas[meshType].emplace_back(meshInfo.Mesh, meshInfo.InstanceID, meshInfo.CustomDepth);
+            int blendMode = (int)meshInfo.Material.BlendMode;
+            if (blendMode == Material::BlendModeType::TRANSLUCENT)
+                continue;
+
+            int cullMode = (int)meshInfo.Material.CullMode;
+            _renderDatas[i][blendMode][cullMode].emplace_back(meshInfo.Mesh, meshInfo.InstanceID, meshInfo.CustomDepth);
         }
     }
 }
@@ -120,43 +129,44 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
     auto  resource               = Global::viewManager->GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
     auto  cameraData             = _ownerScene->_cameraBuffer->GetGPUVirtualAddress();
     auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
+    
+    for (int i = 0; i < Material::BlendModeType::BMT_END - 1; i++)
+    {
+        // Static
+        commandList->SetGraphicsRootSignature(_fxStaticMesh.GetRootSignature());
+        commandList->SetGraphicsRootDescriptorTable(_fxStaticMesh.GetRootParameterIndex("textures"), resource);
+        commandList->SetGraphicsRootConstantBufferView(_fxStaticMesh.GetRootParameterIndex("cameraData"), cameraData);
+        frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxStaticMesh.GetRootParameterIndex("matrices"), commandList);
+        frameResource->SetFrameResource(FrameResourceType::MATERIAL, _fxStaticMesh.GetRootParameterIndex("material"), commandList);
 
-    // Static
-    commandList->SetGraphicsRootSignature(_fxStaticMesh.GetRootSignature());
+        commandList->SetPipelineState(_psos[STATIC_MESH][i][CULL_BACK].Get());
+        DrawMeshes(commandList, STATIC_MESH, (Material::BlendModeType)i, CULL_BACK);
 
-    commandList->SetGraphicsRootDescriptorTable(_fxStaticMesh.GetRootParameterIndex("textures"), resource);
-    commandList->SetGraphicsRootConstantBufferView(_fxStaticMesh.GetRootParameterIndex("cameraData"), cameraData);
-    frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxStaticMesh.GetRootParameterIndex("matrices"), commandList);
-    frameResource->SetFrameResource(FrameResourceType::MATERIAL, _fxStaticMesh.GetRootParameterIndex("material"), commandList);
+        commandList->SetPipelineState(_psos[STATIC_MESH][i][CULL_FRONT].Get());
+        DrawMeshes(commandList, STATIC_MESH, (Material::BlendModeType)i, CULL_FRONT);
 
-    commandList->SetPipelineState(_psos[STATIC_CULL_BACK].Get());
-    DrawMeshes(commandList, STATIC_MESH, STATIC_CULL_BACK);
+        commandList->SetPipelineState(_psos[STATIC_MESH][i][TWO_SIDED].Get());
+        DrawMeshes(commandList, STATIC_MESH, (Material::BlendModeType)i, TWO_SIDED);
 
-    commandList->SetPipelineState(_psos[STATIC_CULL_FRONT].Get());
-    DrawMeshes(commandList, STATIC_MESH, STATIC_CULL_FRONT);
+        // Skeletal
+        commandList->SetGraphicsRootSignature(_fxSkeletalMesh.GetRootSignature());
+        commandList->SetGraphicsRootDescriptorTable(_fxSkeletalMesh.GetRootParameterIndex("textures"), resource);
+        commandList->SetGraphicsRootConstantBufferView(_fxSkeletalMesh.GetRootParameterIndex("cameraData"), cameraData);
+        frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxSkeletalMesh.GetRootParameterIndex("matrices"), commandList);
+        frameResource->SetFrameResource(FrameResourceType::BONE_MATRICES, _fxSkeletalMesh.GetRootParameterIndex("boneMatrices"), commandList);
+        frameResource->SetFrameResource(FrameResourceType::MATERIAL, _fxSkeletalMesh.GetRootParameterIndex("material"), commandList);
 
-    commandList->SetPipelineState(_psos[STATIC_TWO_SIDED].Get());    
-    DrawMeshes(commandList, STATIC_MESH, STATIC_TWO_SIDED);
+        commandList->SetPipelineState(_psos[SKELETAL_MESH][i][CULL_BACK].Get());
+        DrawMeshes(commandList, SKELETAL_MESH, (Material::BlendModeType)i, CULL_BACK);
 
-    // Skeletal
-    commandList->SetGraphicsRootSignature(_fxSkeletalMesh.GetRootSignature());
+        // Skeletal One Sided front
+        commandList->SetPipelineState(_psos[SKELETAL_MESH][i][CULL_FRONT].Get());
+        DrawMeshes(commandList, SKELETAL_MESH, (Material::BlendModeType)i, CULL_FRONT);
 
-    commandList->SetGraphicsRootDescriptorTable(_fxSkeletalMesh.GetRootParameterIndex("textures"), resource);
-    commandList->SetGraphicsRootConstantBufferView(_fxSkeletalMesh.GetRootParameterIndex("cameraData"), cameraData);
-    frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxSkeletalMesh.GetRootParameterIndex("matrices"), commandList);
-    frameResource->SetFrameResource(FrameResourceType::BONE_MATRICES, _fxSkeletalMesh.GetRootParameterIndex("boneMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResourceType::MATERIAL, _fxSkeletalMesh.GetRootParameterIndex("material"), commandList);
-
-    commandList->SetPipelineState(_psos[SKELETAL_CULL_BACK].Get());
-    DrawMeshes(commandList, SKELETAL_MESH, SKELETAL_CULL_BACK);
-
-    // Skeletal One Sided front
-    commandList->SetPipelineState(_psos[SKELETAL_CULL_FRONT].Get());
-    DrawMeshes(commandList, SKELETAL_MESH, SKELETAL_CULL_FRONT);
-
-    // Skeletal Two Sided
-    commandList->SetPipelineState(_psos[SKELETAL_TWO_SIDED].Get());
-    DrawMeshes(commandList, SKELETAL_MESH, SKELETAL_TWO_SIDED);
+        // Skeletal Two Sided
+        commandList->SetPipelineState(_psos[SKELETAL_MESH][i][TWO_SIDED].Get());
+        DrawMeshes(commandList, SKELETAL_MESH, (Material::BlendModeType)i, TWO_SIDED);
+    }
 }
 
 void GBufferPass::End(ID3D12GraphicsCommandList* commandList)
@@ -181,8 +191,6 @@ void GBufferPass::End(ID3D12GraphicsCommandList* commandList)
 
 void GBufferPass::InitShaderAndPSO()
 {
-    _psos.resize(MeshType::END);
-
     PipelineStateStream pss;
     pss.BlendState        = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
     pss.RasterizerState   = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
@@ -197,51 +205,60 @@ void GBufferPass::InitShaderAndPSO()
                              GBUFFER_END};
     pss.DSVFormat         = _ownerScene->_depthStencilView->GetFormat();
 
+    auto CreatePipelineStateStream = [this, &pss](int meshType, int blendMode)
+    {
+        (&pss.RasterizerState)->CullMode       = D3D12_CULL_MODE_BACK;
+        _psos[meshType][blendMode][CULL_BACK]  = Global::pipelineStateManager->GetPipelineState(pss);
+
+        (&pss.RasterizerState)->CullMode       = D3D12_CULL_MODE_FRONT;
+        _psos[meshType][blendMode][CULL_FRONT] = Global::pipelineStateManager->GetPipelineState(pss);
+
+        (&pss.RasterizerState)->CullMode       = D3D12_CULL_MODE_NONE;
+        _psos[meshType][blendMode][TWO_SIDED]  = Global::pipelineStateManager->GetPipelineState(pss);
+    };
+
     _fxStaticMesh.SetPipelineStateStream(pss);
-
-    (&pss.RasterizerState)->CullMode = D3D12_CULL_MODE_BACK;
-    _psos[STATIC_CULL_BACK]          = Global::pipelineStateManager->GetPipelineState(pss);
-
-    (&pss.RasterizerState)->CullMode = D3D12_CULL_MODE_FRONT;
-    _psos[STATIC_CULL_FRONT]         = Global::pipelineStateManager->GetPipelineState(pss);
-
-    (&pss.RasterizerState)->CullMode = D3D12_CULL_MODE_NONE;
-    _psos[STATIC_TWO_SIDED]          = Global::pipelineStateManager->GetPipelineState(pss);
+    CreatePipelineStateStream(STATIC_MESH, (int)Material::BlendModeType::OPAQUE);
 
     _fxSkeletalMesh.SetPipelineStateStream(pss);
+    CreatePipelineStateStream(SKELETAL_MESH, (int)Material::BlendModeType::OPAQUE);
 
-    (&pss.RasterizerState)->CullMode = D3D12_CULL_MODE_BACK;
-    _psos[SKELETAL_CULL_BACK]        = Global::pipelineStateManager->GetPipelineState(pss);
+    FX<GE::VS::STATIC_FR, GE::PS::GBUFFER_MASKED> fxStaticMeshMasked;
+    fxStaticMeshMasked.SetPipelineStateStream(pss);
+    CreatePipelineStateStream(STATIC_MESH, (int)Material::BlendModeType::MASKED);
 
-    (&pss.RasterizerState)->CullMode = D3D12_CULL_MODE_FRONT;
-    _psos[SKELETAL_CULL_FRONT]       = Global::pipelineStateManager->GetPipelineState(pss);
-
-    (&pss.RasterizerState)->CullMode = D3D12_CULL_MODE_NONE;
-    _psos[SKELETAL_TWO_SIDED]        = Global::pipelineStateManager->GetPipelineState(pss);
+    FX<GE::VS::SKELETAL_FR, GE::PS::GBUFFER_MASKED> fxSkeletalMeshMasked;
+    fxSkeletalMeshMasked.SetPipelineStateStream(pss);
+    CreatePipelineStateStream(SKELETAL_MESH, (int)Material::BlendModeType::MASKED);
 }
 
-void GBufferPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, int shaderType, MeshType meshType)
+void GBufferPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType meshType, Material::BlendModeType blendModeType, CullMode cullMode)
 {
     UINT parameter[3]{0, MAX_BONE_MATRIX, 0};
-    const auto& parallaxMappingProperty =
-        std::any_cast<const ParallaxMappingProperty&>(_ownerScene->GetRenderPassProperty("G-BufferPass"));
+    const auto& parallaxMappingProperty = std::any_cast<const ParallaxMappingProperty&>(_ownerScene->GetRenderPassProperty("G-BufferPass"));
 
-    for (auto& [mesh, instanceID, customDepth] : _renderDatas[meshType])
+    switch (meshType)
+    {
+    case STATIC_MESH:
+        commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_2_gbufferData"), 2, &parallaxMappingProperty, 0);
+        break;
+    case SKELETAL_MESH:
+        commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_2_gbufferData"), 2, &parallaxMappingProperty, 0);
+        break;
+    }
+
+    for (auto& [mesh, instanceID, customDepth] : _renderDatas[meshType][blendModeType][cullMode])
     {
         parameter[0] = instanceID;
         parameter[2] = customDepth;
 
-        switch (shaderType)
+        switch (meshType)
         {
         case STATIC_MESH:
             commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_3_objectData"), 3, parameter, 0);
-            commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_1_parallaxProperty"),
-                                                       1, &parallaxMappingProperty, 0);
             break;
         case SKELETAL_MESH:
-            commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_3_objectData"), 3, parameter, 0);
-            commandList->SetGraphicsRoot32BitConstants(
-                _fxSkeletalMesh.GetRootParameterIndex("bit32_1_parallaxProperty"), 1, &parallaxMappingProperty, 0);
+            commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_3_objectData"), 3, parameter, 0);          
             break;
         }
 

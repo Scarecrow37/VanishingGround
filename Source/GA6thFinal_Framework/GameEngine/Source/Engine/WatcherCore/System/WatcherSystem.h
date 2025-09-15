@@ -30,7 +30,7 @@ namespace Watcher
         template <typename T, typename... Args>
         void Register(const std::string& key, Args&&... args)
         {
-            if (!Registry<T>::Register(std::string(key), std::make_shared<T>(std::forward<Args>(args)...)))
+            if (!Registry<T>::Register(key, std::make_shared<T>(std::forward<Args>(args)...)))
             {
                 throw std::invalid_argument("Already registered key: " + key);
             }
@@ -39,11 +39,11 @@ namespace Watcher
         template <typename T>
         void Unregister(const std::string& key)
         {
-             Registry<T>::Unregister(std::string(key));
+             Registry<T>::Unregister(key);
         }
 
         template <typename T, typename U>
-        void Watch(const std::string& key, const std::function<void(U)>& callback)
+        typename T::Handle Watch(const std::string& key, const std::function<void(U)>& callback)
         {
             std::shared_ptr<T> viewModel;
             try
@@ -58,11 +58,11 @@ namespace Watcher
             {
                 throw std::logic_error("ViewModel is null for key: " + key);
             }
-            viewModel->SetCallback(callback);
+            return viewModel->AddCallback(callback);
         }
 
         template <typename T>
-        void Blind(const std::string& key)
+        void Blind(const std::string& key, const typename T::Handle& handle)
         {
             std::shared_ptr<T> viewModel;
             try
@@ -74,7 +74,7 @@ namespace Watcher
                 viewModel = nullptr;
             }
             if (nullptr != viewModel)
-                viewModel->SetCallback(nullptr);
+                viewModel->RemoveCallback(handle);
         }
     };
 } // namespace MVVM

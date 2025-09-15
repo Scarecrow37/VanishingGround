@@ -67,6 +67,7 @@ protected:
     virtual void FixedUpdate() override;
     virtual void OnDestroy() override;
     virtual void OnApplicationQuit() override;
+    virtual void OnLoadScene(Scene& scene, LoadSceneMode mode) override;
 
     virtual void SerializedReflectEvent() override;
     virtual void DeserializedReflectEvent() override;

@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "ViewModels/Revelations/RevelationsViewModel.h"
 
 class ImageElement;
 class TextElement;
@@ -35,4 +36,6 @@ protected:
 private:
     std::array<RevelationUI, 3> _revelationUis;
     std::array<GameObject*, 3>  _revelationObjects;
+
+    RevelationsViewModel::Handle _watchHandle;
 };

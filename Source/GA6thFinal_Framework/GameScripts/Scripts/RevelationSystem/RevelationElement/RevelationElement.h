@@ -135,7 +135,7 @@ public:
         return CopyElement(rhs);
     }
 
-protected:
+public:
     // IDropItem을(를) 통해 상속됨
     DropItemInfo GetItemInfo() override;
  };

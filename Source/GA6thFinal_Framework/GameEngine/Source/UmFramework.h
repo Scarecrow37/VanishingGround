@@ -87,6 +87,7 @@ constexpr const char* STR_NULL = "null";
 #include <algorithm>
 #include <numeric>
 #include <variant>
+#include <regex>
 
 //ThirdParty
 #include "pugixml/pugixml.hpp"
@@ -175,6 +176,7 @@ using namespace Microsoft::WRL;
 #include "Engine/EngineCore/SceneManager.h"
 #include "Engine/EngineCore/FactoryRegister.h"
 #include "Engine/EngineCore/GizmoManager.h"
+#include "Engine/EngineCore/PreferencesSystem.h"
 #include "Engine/EngineCore/EngineCores.h" 
 
 //Editor Core

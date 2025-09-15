@@ -25,6 +25,7 @@ XMVECTOR FontRenderer::GetStringSize() const
             return font->MeasureString(_text.c_str());
         }
     }
+
     return XMVectorZero();
 }
 void FontRenderer::SetFont(std::shared_ptr<Font> font)

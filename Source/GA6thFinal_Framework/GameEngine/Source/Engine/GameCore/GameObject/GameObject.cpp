@@ -119,10 +119,13 @@ void GameObject::OnInspectorStay()
     {
         if (result)
         {
-            Scene* ownerScene = UmSceneManager.GetSceneByName(_ownerScene);
-            if (ownerScene)
+            if (false == Global::IsPlay())
             {
-                ownerScene->IsDirty = true;
+                Scene* ownerScene = UmSceneManager.GetSceneByName(_ownerScene);
+                if (ownerScene)
+                {
+                    ownerScene->IsDirty = true;
+                }
             }
         }
     };

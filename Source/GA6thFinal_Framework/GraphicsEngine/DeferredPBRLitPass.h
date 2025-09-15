@@ -5,7 +5,7 @@ class DeferredPBRLitPass : public RenderPass
 {
 public:
     DeferredPBRLitPass() = default;
-    virtual ~DeferredPBRLitPass();
+    virtual ~DeferredPBRLitPass() = default;
 
 public:
     void Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList) override;   

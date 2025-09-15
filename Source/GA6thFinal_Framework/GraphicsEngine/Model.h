@@ -13,6 +13,8 @@ public:
     virtual ~Model();
 
 public:
+    bool                                                      IsValid() const override { return !_meshes.empty(); }
+    const bool                                                IsDirtyFlag() const { return _isDirtyFlag; }
     const std::shared_ptr<Animation>                          GetAnimation() const { return _animation; }
     const std::shared_ptr<Skeleton>                           GetSkeleton() const { return _skeleton; }
     const std::vector<std::unique_ptr<BaseMesh>>&             GetMeshes() const { return _meshes; }
@@ -24,6 +26,7 @@ public:
 
 public:
     void SetMaterial(const UINT meshIndex, const Material& material);
+    void SetDirtyFlag(bool isDirty) { _isDirtyFlag = isDirty; }
 
 public:
     void AddMesh(std::unique_ptr<BaseMesh> mesh);
@@ -32,7 +35,7 @@ public:
     void BindMaterial(const UINT meshIndex, const Material& material);
 
     // Resource을(를) 통해 상속됨
-    void LoadResource(const std::filesystem::path& filePath) override;
+    void LoadResource(const std::filesystem::path& filePath, const std::function<void()>& callback = nullptr) override;
 
 private:
     std::vector<std::unique_ptr<BaseMesh>>             _meshes;
@@ -40,4 +43,5 @@ private:
     std::vector<Material>                              _material;
     std::shared_ptr<Animation>                         _animation;
     std::shared_ptr<Skeleton>                          _skeleton;
+    std::atomic<bool>                                  _isDirtyFlag;
 };

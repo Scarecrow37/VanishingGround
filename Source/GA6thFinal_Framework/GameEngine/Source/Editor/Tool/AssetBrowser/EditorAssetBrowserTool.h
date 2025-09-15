@@ -22,6 +22,7 @@ class EditorAssetBrowserTool
     {
         SHOW_TYPE_LIST,
         SHOW_TYPE_ICON,
+        SHOW_TYPE_EDIT,
     };
     enum Flags
     {
@@ -66,6 +67,10 @@ private:
     inline static EditorAssetBrowserTool* _staticInstance = nullptr;
     static constexpr ImVec2               ICON_WIDGET_SIZE = ImVec2(100.0f, 100.0f); // 아이콘 위젯 크기
     static constexpr const char*          POPUP_ID         = "##popup";
+
+public:
+    /* Static 메서드 */
+    static bool ChangeAssetID(const File::Path& path, int changeID);
 
 public:
     inline const File::Path& GetCurrentFocusFolderPath() const { return _focusFolderPath; }
@@ -122,6 +127,7 @@ private:
     void ShowSearchBar();   
     void ShowFolderEntryToList(AssetData& asset);  
     void ShowFolderEntryToIcon(AssetData& asset);  
+    void ShowFolderEntryToEdit(AssetData& asset);  
     void ShowFolderEntryPopup(AssetData& asset);
     void ProcessFolderEntryDragDrop(AssetData& asset);
     void BeginFolderEntryFrame();
@@ -251,6 +257,6 @@ private:
     int                   ShowType    = SHOW_TYPE_LIST;                         // 현재 보여지는 타입 (리스트, 아이콘 등)
     std::pair<int, bool>  SortFlags   = {Compare::FLAGS_SORT_BY_NAME, true};    // 정렬 플래그 (예: 이름순, 날짜순 등)
     std::set<std::string> FavoriteFolders;                                      // 즐겨찾기 폴더 목록
-    std::array<float, 2>  ListColumnWidth = {0.4f, 0.7f};                       // 리스트 컬럼 비율 (이름, 마지막 수정 날짜, 유형)
+    std::array<float, 3>  ListColumnWidth = {0.4f, 0.65f, 0.75f};               // 리스트 컬럼 비율 (이름, 마지막 수정 날짜, 에셋 ID)
     REFLECT_FIELDS_END(EditorAssetBrowserTool)
 };

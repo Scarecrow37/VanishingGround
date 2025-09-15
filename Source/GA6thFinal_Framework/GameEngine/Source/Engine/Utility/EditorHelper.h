@@ -75,7 +75,7 @@ namespace EditorIcon
 
     constexpr const char* ICON_HELP                 = "\xef\x81\x99"; // f059
     constexpr const char* ICON_QUESTION             = "\xef\x81\x99"; // f059
-    constexpr const char* ICON_EDIT                 = "\xef\x83\x84"; // f044
+    constexpr const char* ICON_EDIT                 = "\xef\x81\x84"; // f044  
     constexpr const char* ICON_LIST                 = "\xEF\x80\xA2"; // f0a2  리스트-alt
     constexpr const char* ICON_IMAGE                = "\xEF\x80\xBE"; // f03e  이미지
     constexpr const char* ICON_IMAGES               = "\xEF\x8C\x82"; // f302  이미지s

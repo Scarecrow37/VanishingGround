@@ -11,8 +11,8 @@ void SSAOWritePass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTe
 {
     __super::Initialize(ownerScene, ownerTechnique, commandList);
     auto resolution = Global::device->GetResolution();
-    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8_UNORM, resolution.Width, resolution.Height, 1, 1, 1, 0,
-                                             D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+    auto desc       = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8_UNORM, resolution.cx, resolution.cy, 1, 1, 1, 0,
+                                                   D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
     
     _renderTarget = MakeSharedResource<RenderTarget>();
     _renderTarget->Initialize(desc, 1.f);
@@ -33,8 +33,8 @@ void SSAOWritePass::AddRenderPassDatas(std::string_view sceneName)
 void SSAOWritePass::Begin(ID3D12GraphicsCommandList* commandList) 
 {
     _renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    _renderTarget->ClearRenderTarget(commandList, 0);
     commandList->OMSetRenderTargets(1, &_renderTarget->GetRTVHandle(), FALSE, nullptr);
+    _renderTarget->ClearRenderTarget(commandList, 0);
     commandList->RSSetViewports(1, &_renderTarget->GetViewport());
     commandList->RSSetScissorRects(1, &_renderTarget->GetScissorRect());
 }

@@ -26,6 +26,11 @@ ThreadPool::~ThreadPool()
     }
 }
 
+bool ThreadPool::IsParallelTaskDone() const
+{
+    return _taskQueue[PARALLEL].empty() && (0 == _parallelRemainingTasks);
+}
+
 void ThreadPool::AddTask(ThreadType type, const std::function<void(ID3D12GraphicsCommandList*)>& task)
 {
     if (ThreadType::PARALLEL == type)

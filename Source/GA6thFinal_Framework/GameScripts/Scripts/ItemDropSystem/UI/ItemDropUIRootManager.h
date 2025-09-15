@@ -1,34 +1,13 @@
 ﻿#pragma once
 #include "UmFramework.h"
+#include "ItemDropSystem/Interface/IDropItem.h"
+#include "Utility/SingletonHelper.h"
+
 class ItemDropUIRootManager : public Component
 {
     USING_PROPERTY(ItemDropUIRootManager)
-    inline static ItemDropUIRootManager* static_instance = nullptr;
 public:
     inline static constexpr const char* TAG = "Item Drop UI Root";
-
-    /// <summary>
-    /// ItemDropUIRootManager가 존재하면 포인터를 반환합니다.
-    /// </summary>
-    /// <param name="location :">기본 인자를 통해 해당 함수를 호출한 위치를 기록합니다.</param>
-    /// <returns>없으면 nullptr</returns>
-    static ItemDropUIRootManager* GetInstance(std::source_location location = std::source_location::current()) 
-    { 
-        if (static_instance)
-        {
-            if (false == static_instance->gameObject->IsValid())
-            {
-                static_instance = nullptr;
-            }
-        }
-        
-        if (nullptr == static_instance)
-        {
-            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Item Drop UI Root가 존재하지 않습니다.", location);
-        }
-        return static_instance;
-    }
-
     ItemDropUIRootManager();
     ~ItemDropUIRootManager() override;
 
@@ -46,14 +25,35 @@ public:
     //유물 드랍 프레임 UI 에셋 경로입니다.
     PROPERTY(ArtifactsUIFrameAsset)
 
+    /// <summary>
+    /// 유물 드랍 타입에 따른 에셋 아이디를 반환합니다.
+    /// </summary>
+    /// <param name="artifactDropType :">가져올 아이디</param>
+    /// <returns>실패시 0</returns>
+    int GetArtifactCategoryAssetID(ArtifactDropType artifactDropType);
+
+    /// <summary>
+    /// 아이템 ID를 통해 아이콘 ID를 반환합니다.
+    /// </summary>
+    /// <param name="info :">아이템 정보</param>
+    /// <returns>아이콘 ID</returns>
+    int GetArtifactIconID(DropItemInfo info);
+
 protected:
     REFLECT_FIELDS_BEGIN(Component)
     std::string ArtifactsUIFrameAssetGuid;
+    std::vector<int> ArtifactsCategoryAssetID;
+    std::unordered_map<int, int> ArtifactsIconIDMap;
     REFLECT_FIELDS_END(ItemDropUIRootManager)
 
     void DeserializedReflectEvent() override;
     void ImGuiDrawPropertysEvent() override;
 
+    void ImGuiDrawArtifactUIAssetSetting();
+
     void Reset() override;
     void Awake() override;
+
+private:
+    SingletonComponent<ItemDropUIRootManager> _singletonComponent{this};
 };

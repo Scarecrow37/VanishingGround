@@ -4,7 +4,7 @@
 class TextDrawPass : public RenderPass
 {
 public:
-    TextDrawPass(SpriteBatch* spriteBatch);
+    TextDrawPass();
     virtual ~TextDrawPass();
 
 public:
@@ -12,7 +12,4 @@ public:
     void Begin(ID3D12GraphicsCommandList* commandList) override;
     void Draw(ID3D12GraphicsCommandList* commandList) override;
     void End(ID3D12GraphicsCommandList* commandList) override;
-
-private:
-    SpriteBatch* _spriteBatch;
 };
