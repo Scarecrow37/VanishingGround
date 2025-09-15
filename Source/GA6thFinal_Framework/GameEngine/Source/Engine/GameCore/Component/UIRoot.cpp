@@ -59,29 +59,40 @@ void UIRoot::SetInitialFocus(UINavigationComponent* uiComponent)
 
 std::optional<NavigationKey> UIRoot::GetPressedButton()
 {
+    static unsigned int currentButton = 0;
+    static unsigned int previousButton = 0;
+
     std::optional<NavigationKey> result = std::nullopt;
     if (nullptr != _controller)
     {
         _controller->UpdateState();
         if (const auto& queue = _controller->GetButtonQueue(); false == queue.empty())
         {
-            NavigationKey key;
-            key.ButtonType = queue.front();
-            key.Name       = Input::Controller::GetButtonName(key.ButtonType);
+            const Input::Controller::Button button = queue.front();
+            currentButton                    = button;
 
-            if (key.ButtonType == Input::Controller::Button::LEFT_THUMB_STICK)
+            if (currentButton != previousButton)
             {
-                key.Bias = _controller->GetLeftStickBias();
-                key.Name += " " + std::string(Input::Controller::GetStickBiasName(key.Bias));
-            }
-            else if (key.ButtonType == Input::Controller::Button::RIGHT_THUMB_STICK)
-            {
-                key.Bias = _controller->GetRightStickBias();
-                key.Name += " " + std::string(Input::Controller::GetStickBiasName(key.Bias));
-            }
+                NavigationKey key;
+                key.ButtonType = button;
+                key.Name       = Input::Controller::GetButtonName(key.ButtonType);
 
-            result = std::make_optional(key);
+                if (key.ButtonType == Input::Controller::Button::LEFT_THUMB_STICK)
+                {
+                    key.Bias = _controller->GetLeftStickBias();
+                    key.Name += " " + std::string(Input::Controller::GetStickBiasName(key.Bias));
+                }
+                else if (key.ButtonType == Input::Controller::Button::RIGHT_THUMB_STICK)
+                {
+                    key.Bias = _controller->GetRightStickBias();
+                    key.Name += " " + std::string(Input::Controller::GetStickBiasName(key.Bias));
+                }
+
+                result = std::make_optional(key);
+            }
         }
+        previousButton = currentButton;
+        currentButton  = 0;
     }
     return result;
 }
@@ -155,9 +166,22 @@ void UIRoot::Reset()
 
 void UIRoot::UpdateNavigation()
 {
+    static unsigned int currentButton = 0;
+    static unsigned int previousButton = 0;
+
     auto queue = _controller->GetButtonQueue();
     std::ranges::for_each(queue, [this](const Input::Controller::Button button) {
-        if (nullptr != _currentFocusNavigation)
+
+        if (_controller->IsButtonDown(button))
+        {
+            currentButton |= button;
+        }
+        else if (_controller->IsButtonUp(button))
+        {
+            currentButton &= ~button;
+        }
+
+        if (nullptr != _currentFocusNavigation && !(previousButton & button))
         {
             NavigationKey navigationKey;
             navigationKey.ButtonType = button;
@@ -171,9 +195,18 @@ void UIRoot::UpdateNavigation()
             }
             const NavigationID navigationID = _currentFocusNavigation->GetNavigatedId(navigationKey);
             UINavigationComponent* nextFocus    = FindNavigationComponent(navigationID);
-            ChangeFocusComponent(nextFocus);
+            if (_currentFocusNavigation == nextFocus)
+            {
+                _currentFocusNavigation->Submit();
+            }
+            else
+            {
+                ChangeFocusComponent(nextFocus);
+            }
         }
     });
+
+    previousButton = currentButton;
 }
 
 UINavigationComponent* UIRoot::FindNavigationComponent(NavigationID id)
