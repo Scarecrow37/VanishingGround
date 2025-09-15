@@ -116,13 +116,17 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
     AccessorySystem* accessorySystem = SingletonComponent<AccessorySystem>::GetInstance();
     if (accessorySystem)
     {
-        //Todo : 장신구는 중복 X 인벤토리에 있는거는 제외해야함
         const auto& table = accessorySystem->GetAccessoryTableElements();
         for (auto& accessory : table)
         {
-            AccessoryGrade grade     = accessory->Grade;
-            size_t         typeIndex = static_cast<size_t>(grade);
-            accessories[typeIndex].push_back(accessory);
+            //중복 장신구는 제외
+            if (false == accessorySystem->HasPlayerAccessory(*accessory))
+            {
+                AccessoryGrade grade     = accessory->Grade;
+                size_t         typeIndex = static_cast<size_t>(grade);
+
+                accessories[typeIndex].push_back(accessory);
+            }
         }
     }
 
