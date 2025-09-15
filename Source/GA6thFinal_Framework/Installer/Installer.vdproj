@@ -1179,6 +1179,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_1CCC9A6901B94FBF9ACEB2A55788FE63"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_1CFCB5B23AA84F4AAA293B1D90D81BEA"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -2079,12 +2085,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_3133BB45D90943568949F32E1DA6403E"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_3148C27510464BD794CA9B708586C8F6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -2236,12 +2236,6 @@
         "Entry"
         {
         "MsmKey" = "8:_34B596248A834188B4D36357486500DF"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_34D4000949934CD0815663432C9A3D18"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -6663,12 +6657,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_A4C9E992C55249DE9A4C93A869D711C8"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_A51C0029D4A749E6A96AD3E266941A5A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -7306,7 +7294,7 @@
         "Entry"
         {
         "MsmKey" = "8:_B5C7ED645EB10CE144326E0E545B6CFC"
-        "OwnerKey" = "8:_34D4000949934CD0815663432C9A3D18"
+        "OwnerKey" = "8:_B6D83F3E57E748A2B250CD5D2AF57798"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -7360,6 +7348,12 @@
         "Entry"
         {
         "MsmKey" = "8:_B6C267F189814EF2A8C3847C3164584B"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_B6D83F3E57E748A2B250CD5D2AF57798"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -10240,13 +10234,13 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_A4C9E992C55249DE9A4C93A869D711C8"
+        "OwnerKey" = "8:_72B84A6B25D1477C8EBF926F5925C7FC"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_72B84A6B25D1477C8EBF926F5925C7FC"
+        "OwnerKey" = "8:_B6D83F3E57E748A2B250CD5D2AF57798"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -10265,12 +10259,6 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_53B104709ED24E70998FC20874A4DA41"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_34D4000949934CD0815663432C9A3D18"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -10425,17 +10413,17 @@
     {
         "CustomAction"
         {
-            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_AC83E67DDD7A4E7DB3DB83E81AC792FC"
+            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_B228F1837919480E83B229D2CA646C0B"
             {
             "Name" = "8:InstallerCustomAction.exe"
             "Condition" = "8:"
-            "Object" = "8:_3133BB45D90943568949F32E1DA6403E"
+            "Object" = "8:_1CCC9A6901B94FBF9ACEB2A55788FE63"
             "FileType" = "3:2"
             "InstallAction" = "3:4"
             "Arguments" = "8:/Uninstall \"[TARGETDIR]\""
             "EntryPoint" = "8:"
             "Sequence" = "3:1"
-            "Identifier" = "8:_A15AE7E7_D9CD_4B0B_912A_3ADC6024A9DA"
+            "Identifier" = "8:_FB991E3E_E901_435E_B984_CA7001A15A4F"
             "InstallerClass" = "11:FALSE"
             "CustomActionData" = "8:"
             }
@@ -14342,6 +14330,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1CCC9A6901B94FBF9ACEB2A55788FE63"
+            {
+            "SourcePath" = "8:Action\\Release\\InstallerCustomAction.exe"
+            "TargetName" = "8:InstallerCustomAction.exe"
+            "Tag" = "8:"
+            "Folder" = "8:_D4EFFDC87AB44B8FA1183FA369F578E0"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1CFCB5B23AA84F4AAA293B1D90D81BEA"
             {
             "SourcePath" = "8:..\\GraphicsEngine\\ThirdParty\\include\\assimp\\quaternion.inl"
@@ -17364,26 +17372,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3133BB45D90943568949F32E1DA6403E"
-            {
-            "SourcePath" = "8:Action\\Release\\InstallerCustomAction.exe"
-            "TargetName" = "8:InstallerCustomAction.exe"
-            "Tag" = "8:"
-            "Folder" = "8:_D4EFFDC87AB44B8FA1183FA369F578E0"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3148C27510464BD794CA9B708586C8F6"
             {
             "SourcePath" = "8:..\\GameEngine\\Source\\Engine\\GraphicsCore\\RendererFileEvent.cpp"
@@ -17870,37 +17858,6 @@
             "TargetName" = "8:build_debug_editor.bat"
             "Tag" = "8:"
             "Folder" = "8:_9B8D1C5AD2534A69BF5E605D2FABE41C"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_34D4000949934CD0815663432C9A3D18"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:MakeSpriteFontCLI, Version=1.0.9389.18630, Culture=neutral, processorArchitecture=AMD64"
-                "ScatterAssemblies"
-                {
-                    "_34D4000949934CD0815663432C9A3D18"
-                    {
-                    "Name" = "8:MakeSpriteFontCLI.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:..\\GameEngine\\ThirdParty\\bin\\Release\\MakeSpriteFontCLI.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_D4EFFDC87AB44B8FA1183FA369F578E0"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -32657,37 +32614,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_A4C9E992C55249DE9A4C93A869D711C8"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:MakeSpriteFont, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_A4C9E992C55249DE9A4C93A869D711C8"
-                    {
-                    "Name" = "8:MakeSpriteFont.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:..\\GameEngine\\ThirdParty\\bin\\Release\\MakeSpriteFont.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_D4EFFDC87AB44B8FA1183FA369F578E0"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A51C0029D4A749E6A96AD3E266941A5A"
             {
             "SourcePath" = "8:..\\GraphicsEngine\\UI3DPass.h"
@@ -34835,7 +34761,7 @@
             "SharedLegacy" = "11:FALSE"
             "PackageAs" = "3:1"
             "Register" = "3:1"
-            "Exclude" = "11:FALSE"
+            "Exclude" = "11:TRUE"
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
@@ -34985,6 +34911,37 @@
             "TargetName" = "8:Parser_tagged_union.hpp"
             "Tag" = "8:"
             "Folder" = "8:_B4D9D458D01B4D128C32939C0DB6E95C"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_B6D83F3E57E748A2B250CD5D2AF57798"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:MakeSpriteFontCLI, Version=1.0.9389.18630, Culture=neutral, processorArchitecture=AMD64"
+                "ScatterAssemblies"
+                {
+                    "_B6D83F3E57E748A2B250CD5D2AF57798"
+                    {
+                    "Name" = "8:MakeSpriteFontCLI.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:..\\GameEngine\\ThirdParty\\bin\\Release\\MakeSpriteFontCLI.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_D4EFFDC87AB44B8FA1183FA369F578E0"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -47485,7 +47442,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Umreal Engine"
         "ProductCode" = "8:{10AB7CC2-B47E-4DBD-9ACE-F54BC1111F87}"
-        "PackageCode" = "8:{0EEFE3AC-A0F2-40DC-8C30-D790D308EF04}"
+        "PackageCode" = "8:{10E5877E-C52F-4E73-8B27-DF3DC62EE9D8}"
         "UpgradeCode" = "8:{43C62E9B-CAB0-4C45-9035-CFD2A4296D61}"
         "AspNetVersion" = "8:"
         "RestartWWWService" = "11:FALSE"
