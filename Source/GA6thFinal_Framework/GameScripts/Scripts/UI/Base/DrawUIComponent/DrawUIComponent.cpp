@@ -1,7 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "DrawUIComponent.h"
 
-#include "UI/UIRoot/UIRoot.h"
 
 void DrawUIComponent::RequestViewOrder() const
 {
@@ -38,14 +37,14 @@ void DrawUIComponent::ImGuiDrawPropertysEvent()
     }
 }
 
-SIZE DrawUIComponent::ArrangeOverride(const SIZE finalSize)
-{
-    RequestViewOrder();
-
-    return finalSize;
-}
-
 float DrawUIComponent::GetZOrder() const
 {
     return static_cast<float>(ReflectFields->ViewOrder);
+}
+
+void DrawUIComponent::OnAttachParent(GameObject* parentGameObject)
+{
+    UIComponent::OnAttachParent(parentGameObject);
+
+    RequestViewOrder();
 }
