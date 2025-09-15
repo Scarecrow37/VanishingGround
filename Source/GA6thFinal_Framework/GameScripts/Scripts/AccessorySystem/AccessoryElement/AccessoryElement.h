@@ -49,6 +49,8 @@ public:
         Grade
     )
 
+    TurnAction* GetAction() const { return _action.get(); }
+
     SETTER(int, AccessoryID) { ReflectFields->ID = value; }
     GETTER(int, AccessoryID) { return ReflectFields->ID; }
     //type : int
