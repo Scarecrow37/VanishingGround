@@ -131,17 +131,14 @@ void CombatStartPhase::NotifyCombatStart()
 void CombatStartPhase::AddValidActions()
 {
     //장신구 액션들 추가
-    if (_accessorySystem)
+    if (_accessorySystem && _turnMode)
     {
         for (auto& accessory : _accessorySystem->GetPlayerAccessoryItems())
         {
-            if (_turnMode)
+            TurnAction* action = accessory.GetAction();
+            if (action)
             {
-                TurnAction* action = accessory.GetAction();
-                if (action)
-                {
-                    _turnMode->AddTurnAction(action);
-                }
+                _turnMode->AddTurnAction(action);
             }
         }     
     }
