@@ -133,6 +133,8 @@ namespace MVVM
             return *this;
         }
 
+        const_reference operator[](size_type pos) const { return ModelBase<container_type>::_value[pos]; }
+
         void clear() noexcept
         {
             ModelBase<container_type>::_value.clear();
@@ -185,6 +187,8 @@ namespace MVVM
             ModelBase<container_type>::Notify();
             return size;
         }
+
+        const_reference at(size_type pos) const { return ModelBase<container_type>::_value.at(pos); }
 
         template <typename Modifier>
         void at(size_type pos, Modifier modifier)
