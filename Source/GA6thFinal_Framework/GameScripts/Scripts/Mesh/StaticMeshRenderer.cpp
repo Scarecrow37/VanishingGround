@@ -24,10 +24,7 @@ StaticMeshRenderer::StaticMeshRenderer()
     });    
 }
 
-StaticMeshRenderer::~StaticMeshRenderer() 
-{
-
-}
+StaticMeshRenderer::~StaticMeshRenderer() = default;
 
 void StaticMeshRenderer::LoadModel() 
 {
@@ -42,7 +39,7 @@ void StaticMeshRenderer::LoadModel()
 
             Renderer->OnCustomDepth(PostProcess::BLOOM);
             transform->SetChangeFlag();
-            InitMaterial();            
+            MeshComponent::InitMaterial();
         }
     }
 }
@@ -55,10 +52,6 @@ void StaticMeshRenderer::Reset()
     {
         UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef, [this]() { LoadModel(); });
     }
-}
-
-void StaticMeshRenderer::SerializedReflectEvent() 
-{
 }
 
 void StaticMeshRenderer::DeserializedReflectEvent() 

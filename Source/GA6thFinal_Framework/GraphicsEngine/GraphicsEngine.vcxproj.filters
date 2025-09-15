@@ -115,7 +115,6 @@
     <FxCompile Include="..\Shaders\vs_ui_fr.hlsl">
       <Filter>Shaders\vs</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\ps_distortion_resolve.hlsl" />
     <FxCompile Include="..\Shaders\cs_light_injection.hlsl">
       <Filter>Shaders\cs</Filter>
     </FxCompile>
@@ -125,7 +124,18 @@
     <FxCompile Include="..\Shaders\ps_volumetric_fog.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\ps_fade.hlsl" />
+    <FxCompile Include="..\Shaders\ps_distortion_resolve.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_fade.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_shadow.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_gbuffer_masked.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AccelerationStructureManager.cpp">
@@ -464,8 +474,6 @@
     <ClCompile Include="ViewManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="DistortionTechnique.cpp" />
-    <ClCompile Include="DistortionResolvePass.cpp" />
     <ClCompile Include="VolumetricFogTechnique.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -481,9 +489,24 @@
     <ClCompile Include="GraphicsController.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="SceneTransitionTechnique.cpp" />
-    <ClCompile Include="FadePass.cpp" />
-    <ClCompile Include="SceneTransitionCore.cpp" />
+    <ClCompile Include="DistortionResolvePass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="DistortionTechnique.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="FadePass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ForwardPBRLitPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneTransitionCore.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneTransitionTechnique.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AccelerationStructureManager.h">
@@ -861,14 +884,27 @@
     <ClInclude Include="FogCompositePass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="DistortionTechnique.h" />
-    <ClInclude Include="DistortionResolvePass.h" />
     <ClInclude Include="GraphicsController.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="SceneTransitionTechnique.h" />
-    <ClInclude Include="FadePass.h" />
-    <ClInclude Include="SceneTransitionCore.h" />
+    <ClInclude Include="DistortionResolvePass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="DistortionTechnique.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="FadePass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ForwardPBRLitPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneTransitionCore.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneTransitionTechnique.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Shaders\CommonData.hlsli">

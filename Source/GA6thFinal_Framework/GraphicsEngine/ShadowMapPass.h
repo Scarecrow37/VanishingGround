@@ -47,19 +47,17 @@ private:
     void CopyPreviousCascadeData(ID3D12GraphicsCommandList* commandList);
 
 private:
+    FX<GE::VS::STATIC_SHADOW_FR, GE::PS::SHADOW>   _fxStaticShadow;
+    FX<GE::VS::SKELETAL_SHADOW_FR, GE::PS::SHADOW> _fxSkeletalShadow;
+
     // 그림자 맵 리소스
-    ComPtr<ID3D12Resource>              _staticShadowMap;
-    D3D12_CPU_DESCRIPTOR_HANDLE         _staticShadowMapDSVs[MAX_CASCADES];
-    DescriptorHandles                   _staticShadowMapSRV;
-
-    ComPtr<ID3D12Resource>              _shadowMap;
-    D3D12_CPU_DESCRIPTOR_HANDLE         _shadowMapDSVs[MAX_CASCADES];
-    DescriptorHandles                   _shadowMapSRV;
-
-    std::unique_ptr<ConstantBufferView> _cascadeDataCBV;
-
-    FX<GE::VS::STATIC_SHADOW_FR>             _fxStaticShadow;
-    FX<GE::VS::SKELETAL_SHADOW_FR>           _fxSkeletalShadow;
+    ComPtr<ID3D12Resource>                   _staticShadowMap;
+    D3D12_CPU_DESCRIPTOR_HANDLE              _staticShadowMapDSVs[MAX_CASCADES];
+    DescriptorHandles                        _staticShadowMapSRV;
+    ComPtr<ID3D12Resource>                   _shadowMap;
+    D3D12_CPU_DESCRIPTOR_HANDLE              _shadowMapDSVs[MAX_CASCADES];
+    DescriptorHandles                        _shadowMapSRV;
+    std::unique_ptr<ConstantBufferView>      _cascadeDataCBV;
     std::vector<ComPtr<ID3D12PipelineState>> _psos;
     std::vector<RenderData>                  _renderDatas[MeshType::END];
 

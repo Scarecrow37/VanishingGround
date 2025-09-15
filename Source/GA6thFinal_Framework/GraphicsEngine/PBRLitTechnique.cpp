@@ -4,10 +4,11 @@
 #include "ShadowMapPass.h"
 #include "GBufferPass.h"
 #include "SSAOWritePass.h"
+#include "ForwardPBRLitPass.h"
 
-PBRLitTechnique::PBRLitTechnique() {}
+PBRLitTechnique::PBRLitTechnique() = default;
 
-PBRLitTechnique::~PBRLitTechnique() {}
+PBRLitTechnique::~PBRLitTechnique() = default;
 
 void PBRLitTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 {
@@ -26,6 +27,10 @@ void PBRLitTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
     AddRenderPass(std::move(pass));
 
     pass = std::make_unique<DeferredPBRLitPass>();
+    pass->Initialize(_ownerScene, this, commandList);
+    AddRenderPass(std::move(pass));
+
+    pass = std::make_unique<ForwardPBRLitPass>();
     pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));
 }
