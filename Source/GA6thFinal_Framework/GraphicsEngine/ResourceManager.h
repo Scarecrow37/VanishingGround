@@ -9,7 +9,7 @@ public:
 
 public:
 	template<typename T> requires (std::is_base_of_v<Resource, T>)
-	std::shared_ptr<T> LoadResource(std::filesystem::path filePath)
+    std::shared_ptr<T> LoadResource(std::filesystem::path filePath, const std::function<void()>& callback = nullptr)
 	{      
         if (true == std::filesystem::exists(filePath))
         {
@@ -28,7 +28,7 @@ public:
 		if (resource.expired())
 		{
             sharedResource = std::make_shared<T>();
-            sharedResource->LoadResource(filePath);
+            sharedResource->LoadResource(filePath, callback);
 
             _resources[typeid(T)][filePath] = sharedResource;
 		}
@@ -42,7 +42,13 @@ public:
         _resources[typeid(T)][filePath] = resource;
     }
 
+    void EnqueueCallback(const std::function<void()>& callback) { _callbackQueue.push(callback); }
+
+public:
+    void Update();
+
 private:
     std::unordered_map<std::type_index, std::unordered_map<std::wstring, std::weak_ptr<Resource>>> _resources;
+    Concurrency::concurrent_queue<std::function<void()>> _callbackQueue;
     std::mutex _mutex;
 };

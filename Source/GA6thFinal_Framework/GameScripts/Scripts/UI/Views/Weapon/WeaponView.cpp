@@ -10,7 +10,7 @@ WeaponView::WeaponView() = default;
 
 WeaponView::~WeaponView()
 {
-    UmWatcher.Blind<WeaponViewModel>("Weapon");
+    UmWatcher.Blind<WeaponViewModel>("Weapon", _watchHandle);
 }
 
 void WeaponView::Awake()
@@ -22,7 +22,7 @@ void WeaponView::Awake()
 void WeaponView::Start()
 {
     Component::Start();
-    UmWatcher.Watch<WeaponViewModel, WeaponUIData>("Weapon", [this](const WeaponUIData& value) {
+    _watchHandle = UmWatcher.Watch<WeaponViewModel, WeaponUIData>("Weapon", [this](const WeaponUIData& value) {
         if (value.Enable)
         {
             gameObject->ActiveSelf = true;

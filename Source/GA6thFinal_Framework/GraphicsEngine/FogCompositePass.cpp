@@ -9,13 +9,13 @@ void FogCompositePass::Initialize(RenderScene* ownerScene, RenderTechnique* owne
 {
     __super::Initialize(ownerScene, ownerTechnique, commandList);
     auto resolution = Global::device->GetResolution();
-    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, resolution.Width, resolution.Height, 1, 1,
+    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, resolution.cx, resolution.cy, 1, 1,
                                              1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
     InitShaderAndPSO();
     _volumTech = dynamic_cast<VolumetricFogTechnique*>(ownerTechnique);
 }
 
-void FogCompositePass::Update(ID3D12GraphicsCommandList* commandList) {}
+void FogCompositePass::Update(ID3D12GraphicsCommandList* commandList, const float deltaTime) {}
 
 void FogCompositePass::Begin(ID3D12GraphicsCommandList* commandList) {}
 
@@ -29,18 +29,16 @@ void FogCompositePass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->RSSetScissorRects(1, &renderTarget->GetScissorRect());
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_fx.GetRootSignature());
+
     const auto& renderTargetGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
     auto        compositeData     = _volumTech->GetVolumetricFogBufferView()->GetGPUVirtualAddress();
+
     commandList->SetGraphicsRootSignature(_fx.GetRootSignature());
     commandList->SetPipelineState(_pipelineState.Get());
-    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("screenMap"),
-                                                _meshRenderTarget->GetSRVHandle());
-    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("fogGridTexture"),
-                                                _volumTech->_finalVoxelAccumulationTexture3D->GetSRVHandle());
-    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("depthMap"),
-                                                renderTargetGroup[GBuffer::DEPTH]->GetSRVHandle());
-    commandList->SetGraphicsRootConstantBufferView(_fx.GetRootParameterIndex("VolumetricFogCompositeData"),
-                                                   compositeData);
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("screenMap"), _meshRenderTarget->GetSRVHandle());
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("fogGridTexture"), _volumTech->_finalVoxelAccumulationTexture3D->GetSRVHandle());
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("depthMap"), renderTargetGroup[GBuffer::DEPTH]->GetSRVHandle());
+    commandList->SetGraphicsRootConstantBufferView(_fx.GetRootParameterIndex("VolumetricFogCompositeData"), compositeData);
 
     _ownerScene->_frameQuad->Render(commandList);
     renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_COPY_SOURCE);

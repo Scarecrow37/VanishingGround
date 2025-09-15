@@ -9,7 +9,7 @@ public:
 public:
     virtual void Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList);
     virtual void AddRenderPassDatas(std::string_view sceneName) {};
-    virtual void Update(ID3D12GraphicsCommandList* commadList) {};
+    virtual void Update(ID3D12GraphicsCommandList* commandList, const float deltaTime) {};
     virtual void Begin(ID3D12GraphicsCommandList* commandList) {};
     virtual void Draw(ID3D12GraphicsCommandList* commandList) {};
     virtual void End(ID3D12GraphicsCommandList* commandList) {};
@@ -20,7 +20,5 @@ protected:
     RenderScene*                   _ownerScene{nullptr};
     RenderTechnique*               _ownerTechnique{nullptr};
     RenderTarget*                  _sharedRenderTarget{nullptr};
-    std::unique_ptr<ShaderBuilder> _shader;
     ComPtr<ID3D12PipelineState>    _pipelineState;
-
 };

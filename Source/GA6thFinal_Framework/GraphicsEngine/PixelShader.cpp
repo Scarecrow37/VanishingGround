@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "PixelShader.h"
 
-void PixelShader::LoadResource(const std::filesystem::path& filePath)
+void PixelShader::LoadResource(const std::filesystem::path& filePath, const std::function<void()>& callback)
 {
     CompileShader(filePath.c_str(), "ps_main", "ps_5_1");
 }

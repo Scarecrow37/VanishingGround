@@ -7,12 +7,15 @@ public:
     virtual ~Resource() = default;
 
 public:
+    virtual bool IsValid() const { return true; }
+
+public:
     const D3D12_CPU_DESCRIPTOR_HANDLE& GetCPUHandle() const { return _handle.CPU; }
     const D3D12_GPU_DESCRIPTOR_HANDLE& GetGPUHandle() const { return _handle.GPU; }
     const UINT& GetID() const { return _ID; }
 
 public:
-    virtual void LoadResource(const std::filesystem::path& filePath) = 0;
+    virtual void LoadResource(const std::filesystem::path& filePath, const std::function<void()>& callback = nullptr) = 0;
 
 protected:
     ComPtr<ID3D12Resource> _resource;

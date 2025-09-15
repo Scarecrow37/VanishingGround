@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "RevelationElement/RevelationElement.h"
 #include <ExcelParser/ImGuiColumnSheetParser.h>
+#include "Utility/SingletonHelper.h"
 
 class TurnAction;
 class RevelationSystem : public Component
@@ -8,24 +9,6 @@ class RevelationSystem : public Component
     USING_PROPERTY(RevelationSystem)      
     using ActionDataType = std::unordered_map<std::string, std::string>;
     using ElementDataType = std::vector<std::string>;
-public:
-    static RevelationSystem* GetInstance(std::source_location location = std::source_location::current()) 
-    {
-        if (static_instance)
-        {
-            if (false == static_instance->gameObject->IsValid())
-            {
-                static_instance = nullptr;
-            }
-        }
-
-        if (nullptr == static_instance)
-        {
-            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Revelation System이 존재하지 않습니다.!!!!!!!!", location);
-        }
-        return static_instance; 
-    }
-
 public:
     RevelationSystem();
     ~RevelationSystem() override;
@@ -73,6 +56,12 @@ public:
     /// <returns></returns>
     const std::vector<std::shared_ptr<RevelationElement>>& GetPlayerElementList() { return _playerElementList; }
 
+    /// <summary>
+    /// 테이블의 모든 계시들을 반환합니다.
+    /// </summary>
+    /// <returns></returns>
+    const std::vector<RevelationElement*>& GetRevelationTableElements() { return _elementTableOrderID; }
+
 public:     
     /// <summary>
     /// 새로운 Element를 테이블에 추가합니다.
@@ -86,6 +75,13 @@ public:
     /// <param name="elementName"></param>
     /// <returns></returns>
     bool EraseElement(std::string_view elementName);
+
+    /// <summary>
+    /// Element를 테이블에서 찾아서 존재하면 반환합니다.
+    /// </summary>
+    /// <param name="elementName :">찾을 계시 이름</param>
+    /// <returns>없으면 nullptr</returns>
+    RevelationElement* FindElement(const std::string& elementName);
 
     /// <summary>
     /// ElementTable과 Action들을 Json으로 직렬화해 반환합니다.
@@ -196,14 +192,12 @@ protected:
     void ImGuiDrawPropertysEvent() override;
 
 private:
-    inline static RevelationSystem* static_instance = nullptr;
-
-private:
     std::map<std::string, RevelationElement> _elementsTable; // 계시 테이블
     std::vector<RevelationElement*>          _elementTableOrderID;
     ImVec2                                   _tableEditorCenterPos{};
 
 private:
+    SingletonComponent<RevelationSystem>            _singletonComponent{this};
     std::vector<std::shared_ptr<RevelationElement>> _playerElementList;       // 플레이어가 사용중인 계시 (인벤토리)
     MVVM::Model<std::vector<std::shared_ptr<RevelationElement>>> _roundElementList;        // 이번 라운드에 효과가 발동된 계시 (뽑힌 계시)
     std::unordered_map<std::string, unsigned int>   _elementTotalAppearances; // 계시가 뽑힌 횟수
@@ -219,5 +213,6 @@ private:
 
 protected:
     void Awake() override;
+    void Reset() override;
 
 };

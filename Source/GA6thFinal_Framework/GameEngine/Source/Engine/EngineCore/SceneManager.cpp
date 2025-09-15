@@ -214,6 +214,7 @@ void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
             //ActiveInHierarchy Update 대기열에 추가
             auto& [UpdateSet, UpdateQueue] = value ? sceneManager._updateEnableQueue : sceneManager._updateDisableQueue;
             auto [iter, result] = UpdateSet.insert(gameObject);
+            bool notUpdateErase = false;
             if (true == result)
             {
                 UpdateQueue.push_back(gameObject->GetWeakPtr());
@@ -253,6 +254,65 @@ void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
                 GameObject::Engine::UpdateActiveInHierarchy(gameObject);
             }
         }
+        else
+        {
+            bool originActiveSelf = gameObject->ReflectFields->_activeSelf;
+            auto& [notWaitSet, notWaitVec, notWaitValue] = value ? sceneManager._onDisableQueue :sceneManager._onEnableQueue;
+            auto& [notUpdateSet, notUpdateQueue] = value ? sceneManager._updateDisableQueue : sceneManager._updateEnableQueue;
+            //기존에 변경요청을 했으면 지우고 다시 설정
+            if (auto findIter = notUpdateSet.find(gameObject); findIter != notUpdateSet.end())
+            {
+                notUpdateSet.erase(findIter);
+                std::erase(notWaitValue, &gameObject->ReflectFields->_activeSelf);
+                std::erase_if(notUpdateQueue, [gameObject](const std::weak_ptr<GameObject>& weak) 
+                {
+                    if (auto object = weak.lock())
+                    {
+                        return object.get() == gameObject;
+                    }
+                    return true;
+                });
+
+                if (value == true)
+                {
+                    gameObject->ReflectFields->_activeSelf = true; // ActiveInHierarchy 검증용
+                    GameObject::Engine::UpdateActiveInHierarchy(gameObject);
+                }
+                Transform::ForeachDFS(gameObject->_transform, [&](Transform* curr) 
+                {
+                    if (curr->gameObject->ActiveInHierarchy == true)
+                    {
+                        for (auto& component : curr->gameObject->_components)
+                        {
+                            bool isEnable = component->ReflectFields->_enable;
+                            if (true == isEnable)
+                            {
+                                if (component->_initFlags.IsAwake() == true)
+                                {
+                                    if (auto findIter = notWaitSet.find(component.get()); findIter != notWaitSet.end())
+                                    {
+                                        notWaitSet.erase(findIter);
+                                        std::erase_if(notWaitVec, [&component](const std::weak_ptr<Component>& weak) 
+                                        {
+                                            if (auto vecComponent = weak.lock())
+                                            {
+                                                return vecComponent.get() == component.get();
+                                            }
+                                            return true;
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                if (value == true)
+                {
+                    gameObject->ReflectFields->_activeSelf = originActiveSelf; // ActiveInHierarchy 검증용
+                    GameObject::Engine::UpdateActiveInHierarchy(gameObject);
+                }
+            }
+        }
     }
 }
 
@@ -269,8 +329,25 @@ void ESceneManager::Engine::SetComponentEnable(Component* component, bool value)
             auto [iter, result] = WaitSet.insert(component);
             if (result)
             {
-                WaitVec.push_back(component->GetWeakPtr());
+                WaitVec.push_back(component->GetWeakPtr());           
             }           
+        }
+    }
+    else
+    {
+        auto& [notWaitSet, notWaitVec, notWaitValue] = value ? sceneManager._onDisableQueue : sceneManager._onEnableQueue;
+        if (auto findIter = notWaitSet.find(component); findIter != notWaitSet.end())
+        {
+            notWaitSet.erase(findIter);
+            std::erase(notWaitValue, &component->ReflectFields->_enable);
+            std::erase_if(notWaitVec, [&component](const std::weak_ptr<Component>& weak) 
+            {
+                if (auto vecComponent = weak.lock())
+                {
+                    return vecComponent.get() == component;
+                }
+                return true;
+            });
         }
     }
 }
@@ -426,7 +503,20 @@ void ESceneManager::Engine::DontDestroyOnLoadObject(GameObject* gameObject)
         {
             pDontDestroyScene->_isLoaded = true;
         }
-        gameObject->_ownerScene = DONT_DESTROY_ON_LOAD_SCENE_NAME;
+
+        Transform::ForeachBFS(gameObject->_transform, [](Transform * curr)
+        {
+            curr->gameObject->_ownerScene = DONT_DESTROY_ON_LOAD_SCENE_NAME;
+        });   
+
+        if (nullptr != gameObject->transform->Parent)
+        {
+            Transform* parent = gameObject->transform->Parent;
+            if (parent->gameObject->_ownerScene != DONT_DESTROY_ON_LOAD_SCENE_NAME)
+            {
+                gameObject->transform->SetParent(nullptr);
+            }
+        }
     }
 }
 
@@ -645,6 +735,7 @@ void ESceneManager::CreateEmptySceneAndLoad(std::string_view name, std::string_v
 
 void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
 {
+    static thread_local std::vector<Component*> onloadSceneTargets;
     if (false == UmComponentFactory.HasScript())
     {
         UmComponentFactory.InitalizeComponentFactory();
@@ -662,10 +753,16 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
         {
             if (obj)
             {
+                // 이벤트 호출 대상
+                for (auto& component : obj->_components)
+                {
+                    onloadSceneTargets.push_back(component.get());
+                }
+
                 if (obj->_ownerScene == DONT_DESTROY_ON_LOAD_SCENE_NAME)
                     continue;
 
-                GameObject::Destroy(obj.get());
+                GameObject::Destroy(obj.get());              
             }
         }
 
@@ -699,7 +796,29 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
             engineCore->Logger.Log(LogLevel::LEVEL_WARNING, u8"이미 로드된 씬은 추가 로드가 불가능합니다."_c_str);
             return;
         }
+
+        //이벤트 호출 대상
+        for (auto& obj : _runtimeObjects)
+        {
+            if (obj)
+            {
+                for (auto& component : obj->_components)
+                {
+                    onloadSceneTargets.push_back(component.get());
+                }
+            }
+        }
     }
+
+    // 이벤트 호출
+    if (_isPlay)
+    {
+        for (auto& component : onloadSceneTargets)
+        {
+            component->OnLoadScene(*scene, mode);
+        }
+    }
+    onloadSceneTargets.clear();
     _nextSceneGuid = scene->_guid;
 }
 
@@ -1852,6 +1971,7 @@ void ESceneManager::EraseSceneGUID(std::string_view sceneName, const File::Guid 
 template <typename T>
 void ESceneManager::SceneResourceManager::UpdateRenderResource(RenderResource<T>& resource)
 {
+    std::list<std::tuple<std::weak_ptr<Component>, File::Path, std::function<void()>>> tempResource;
     std::tuple<std::weak_ptr<Component>, File::Path, std::function<void()>> curr;
     while (false == resource.ResourceLoadQueue.empty())
     {
@@ -1869,10 +1989,22 @@ void ESceneManager::SceneResourceManager::UpdateRenderResource(RenderResource<T>
                         auto findIter = resource.RenderResource.find(path);
                         if (findIter == resource.RenderResource.end())
                         {
-                            auto newResource = UmResourceManager->LoadResource<T>(path.string());                       
+                            auto newResource = UmResourceManager->LoadResource<T>(path.string(), func);
                             resource.RenderResource[path] = newResource;
                         }
-                        func();
+                        else
+                        {
+                            std::shared_ptr<T> resource = UmResourceManager->LoadResource<T>(path.string(), func);
+                            if (resource->IsValid())
+                            {
+                                func();
+                            }
+                            else
+                            {
+                                tempResource.push_back(curr);
+                                continue;
+                            }
+                        }
                     }
                 }
                 else
@@ -1887,6 +2019,11 @@ void ESceneManager::SceneResourceManager::UpdateRenderResource(RenderResource<T>
                 }
             }
         }
+    }
+
+    for (auto& tuple : tempResource)
+    {
+        resource.ResourceLoadQueue.push(tuple);
     }
 }
 

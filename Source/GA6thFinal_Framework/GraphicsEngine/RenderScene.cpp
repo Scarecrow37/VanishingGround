@@ -147,7 +147,7 @@ void RenderScene::AddRenderPassDatas()
     }
 }
 
-void RenderScene::UpdateRenderScene()
+void RenderScene::UpdateRenderScene(const float deltaTime)
 {
     UpdateGlobal();
     UpdateObject();
@@ -166,7 +166,7 @@ void RenderScene::UpdateRenderScene()
     
     for (auto& technique : _techniques)
     {
-        technique->Update(_commandSet);
+        technique->Update(_commandSet, deltaTime);
     }
 }
 
@@ -302,15 +302,27 @@ void RenderScene::UpdateObject()
     UINT instanceID = 0;
     for (auto& [isDestroy, component] : _meshRenderQueue)
     {
-        if (!_isDirtyFlag)
-            _isDirtyFlag = component->IsDirtyFlag();
-
         if (!component->IsActive())
+        {
             continue;
+        }
 
         const auto& model = component->GetModel();
-        if (!model)
+
+        if (nullptr == model)
+        {
             continue;
+        }
+
+        if (!_isDirtyFlag)
+        {
+            _isDirtyFlag = model->IsDirtyFlag() || component->IsDirtyFlag();
+
+            if (_isDirtyFlag)
+            {
+                model->SetDirtyFlag(false);
+            }
+        }
 
         const auto  type         = component->GetType();
         const auto& customDepths = component->GetCustomDepths();
@@ -355,12 +367,12 @@ void RenderScene::UpdateObject()
             if (STATIC_MESH == type)
             {
                 _staticMeshInstanceIDs.push_back(instanceID);
-                _activeMeshes[type].emplace_back(materials[i], meshes[i].get(), customDepths[i], instanceID++, nullptr, nullptr);
+                _activeMeshes[type].emplace_back(materials[i], meshes[i].get(), customDepths[i], instanceID++, &_matrices[instanceID].World, nullptr);
             }
             else if (SKELETAL_MESH == type)
             {
                 _skeletalMeshInstanceIDs.push_back(instanceID);
-                _activeMeshes[type].emplace_back(materials[i], meshes[i].get(), customDepths[i], instanceID++, nullptr, skinnedBuffers[i].get());
+                _activeMeshes[type].emplace_back(materials[i], meshes[i].get(), customDepths[i], instanceID++, &_matrices[instanceID].World, Global::isRayTracing ? skinnedBuffers[i].get() : nullptr);
             }
         }
     }
@@ -373,6 +385,11 @@ void RenderScene::UpdateUI()
 
     _uiMatrices.clear();
     _uiMaterials.clear();
+
+    std::sort(_uiRenderQueue.begin(), _uiRenderQueue.end(), [](const auto& a, const auto& b) {
+        return a.second->GetWorldMatrix()._43 > b.second->GetWorldMatrix()._43;
+    });
+
     for (auto& [isDestroy, component] : _uiRenderQueue)
     {
         if (!component->IsActive())
@@ -422,13 +439,17 @@ void RenderScene::UpdateFont()
 {
     auto first = std::remove_if(_fontRenderQueue.begin(), _fontRenderQueue.end(), [](const auto& pair) { return *pair.first; });
     _fontRenderQueue.erase(first, _fontRenderQueue.end());
+
+    std::sort(_fontRenderQueue.begin(), _fontRenderQueue.end(), [](const auto& a, const auto& b) {
+        return a.second->GetPosition().z > b.second->GetPosition().z;
+    });
 }
 
 void RenderScene::CreateRenderTarget()
 {
     auto                         resolution = Global::device->GetResolution();
     SharedResource<RenderTarget> renderTarget;
-    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, resolution.Width, resolution.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, resolution.cx, resolution.cy, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
     _meshRenderTargetName = _name + "_MeshRenderTarget";
     renderTarget          = MakeSharedResource<RenderTarget>();

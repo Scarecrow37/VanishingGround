@@ -64,7 +64,8 @@ void VolumetricFogTechnique::UpdateConstantBuffer()
     XMMATRIX invViewProj = XMMatrixInverse(nullptr, viewProj);
     // 상수 버퍼 관련 update
     VolumetricFogData fogData;
-    fogData.Anisotropy = volumetricFogProperty.Anisotropy;
+    fogData.FogAnisotropy                    = volumetricFogProperty.FogAnisotropy;
+    fogData.LightShaftAnisotropy             = volumetricFogProperty.LightShaftAnisotropy;
     fogData.CameraNearFar_PreviousFrameBlend = Vector4(
         volumetricFogProperty.CustomNear, volumetricFogProperty.CustomFar, volumetricFogProperty.BlendWithPrevFrame,
                 1);

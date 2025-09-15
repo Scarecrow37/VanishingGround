@@ -13,13 +13,8 @@ public:
 public:
 
 protected:
-    void Awake() override;
-    void Update() override;
-    void Reset() override;
-    void OnDestroy() override;
-    void OnDrawDebug() override;
+    void Reset() override;    
 
-    void SerializedReflectEvent() override;
     void DeserializedReflectEvent() override;
     void ImGuiDrawPropertysEvent() override;
 

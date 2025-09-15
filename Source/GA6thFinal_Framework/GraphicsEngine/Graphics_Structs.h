@@ -28,20 +28,20 @@ struct SkeletalMeshVertex : public StaticMeshVertex
 struct Material
 {
 #undef OPAQUE
-    enum class ShadingModelType
+    enum ShadingModelType
     {
         UNLIT,
         DEFAULTLIT,
-        END
-    } ShadingModel;
-    enum class BlendModeType
+        SMT_END
+    } ShadingModel = ShadingModelType::DEFAULTLIT;
+    enum BlendModeType
     {
         OPAQUE,
         MASKED,
         TRANSLUCENT,
-        END
-    } BlendMode;
-    enum class CullModeType
+        BMT_END
+    } BlendMode = BlendModeType::OPAQUE;
+    enum CullModeType
     {
         CULL_BACK,
         CULL_FRONT,
@@ -69,7 +69,7 @@ struct MeshInfo
     class BaseMesh* Mesh;
     UINT            CustomDepth;
     UINT            InstanceID;
-    XMMATRIX*        TransposeWorldMatrix;
+    Matrix*        TransposeWorldMatrix;
     DXRSkeletalMesh* SkinnedInstance;
 };
 
@@ -83,6 +83,12 @@ struct LightData
     float   float_2;
     Vector3 float3_3;
     float   float_3;
+};
+
+struct UIMaterialData
+{
+    UINT  Type;
+    float Fill;
 };
 
 struct GraphicsTransform
@@ -147,11 +153,13 @@ struct SSRPassProperty
 struct ParallaxMappingProperty
 {
     float HeightScale;
+    float MipBias;
 };
 
 struct VolumetricFogProperty
 {
-    float Anisotropy;
+    float FogAnisotropy;
+    float LightShaftAnisotropy;
     float Density;
     float Strength;
     float BlendWithScene;

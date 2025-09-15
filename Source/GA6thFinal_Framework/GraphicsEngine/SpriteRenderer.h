@@ -8,19 +8,21 @@ public:
     virtual ~SpriteRenderer();
 
 public:
-    const Matrix&    GetWorldMatrix() const { return _worldMatrix; }
-    const SpriteType GetType() const { return _type; }
-    const Texture*   GetTexture() const { return _texture.get(); }
-    const SIZE&      GetSize() const { return _size; }
+    const Matrix&         GetWorldMatrix() const { return _worldMatrix; }
+    const SpriteType      GetType() const { return _type; }
+    const Texture*        GetTexture() const { return _texture.get(); }
+    const SIZE&           GetSize() const { return _size; }
+    const UIMaterialData& GetMaterialData() const { return _materialData; }
 
-public:
     void SetType(SpriteType type) { _type = type; }
     void SetSize(SIZE size) { _size = size; }
     void SetTexture(std::shared_ptr<Texture> texture);
+    void SetLinearFill(float fill); 
 
 private:
     std::shared_ptr<Texture> _texture;
     const Matrix&            _worldMatrix;
     SpriteType               _type;
     SIZE                     _size;
+    UIMaterialData           _materialData;
 };

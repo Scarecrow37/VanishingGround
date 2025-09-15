@@ -8,7 +8,7 @@ TurnQueueView::TurnQueueView() = default;
 
 TurnQueueView::~TurnQueueView()
 {
-    UmWatcher.Blind<TurnQueueViewModel>("Turn Queue");
+    UmWatcher.Blind<TurnQueueViewModel>("Turn Queue", _watchHandle);
 }
 
 void TurnQueueView::Awake()
@@ -20,7 +20,7 @@ void TurnQueueView::Awake()
 void TurnQueueView::Start()
 {
     Component::Start();
-    UmWatcher.Watch<TurnQueueViewModel, std::vector<TurnUIData>>(
+    _watchHandle = UmWatcher.Watch<TurnQueueViewModel, std::vector<TurnUIData>>(
         "Turn Queue", [this](const std::vector<TurnUIData>& value) {
             const size_t dataSize = value.size();
             for (size_t i = 0; i < 7; ++i)

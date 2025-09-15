@@ -1,25 +1,14 @@
 ﻿#pragma once
 #include <WeaponSystem/WeaponElement/WeaponElement.h>
 #include <ExcelParser/ImGuiColumnSheetParser.h>
+#include "Utility/SingletonHelper.h"
 
 class WeaponTableComponent : public Component
 {
     USING_PROPERTY(WeaponTableComponent)
-    inline static WeaponTableComponent* static_instance = nullptr;
 
 public:
     inline static constexpr char TAG[] = "WeaponTable";
-    static WeaponTableComponent* GetInstance() 
-    { 
-        if (static_instance)
-        {
-            if (false == static_instance->gameObject->IsValid())
-            {
-                static_instance = nullptr;
-            }
-        }
-        return static_instance; 
-    }
 
 public:
     WeaponTableComponent();
@@ -45,6 +34,12 @@ public:
     /// </summary>
     /// <returns></returns>
     const std::map<std::string, WeaponElement>& GetWeaponTable() { return _weaponTable; }
+
+    /// <summary>
+    /// 테이블의 모든 무기들을 반환합니다.
+    /// </summary>
+    /// <returns></returns>
+    const std::vector<WeaponElement*>& GetWeaponTableElements() { return _weaponTableIdOrder; }
 
     std::string SaveWeaponTable();
     bool        LoadWeaponTable(std::string_view data);
@@ -102,6 +97,7 @@ private:
 #ifdef _UMEDITOR
     ImguiEvent _imguiEvent;
 #endif
+    SingletonComponent<WeaponTableComponent> _singletonComponent{this};
 
 private:
     /*테이블 편집기 ImGuiDraw 함수*/

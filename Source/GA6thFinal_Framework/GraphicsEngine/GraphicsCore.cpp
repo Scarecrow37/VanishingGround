@@ -23,6 +23,9 @@ namespace Global
     ModuleManager*                                 moduleManager;
     PipelineStateManager*                          pipelineStateManager;
     ThreadPool*                                    threadPool;
+    SceneTransitionCore*                           sceneTransitionCore;
+
+
     bool                                           isRayTracing = false;
     std::unordered_map<std::wstring, std::wstring> shaderPathMappings;
 };
@@ -72,6 +75,16 @@ RenderPassProperties& GraphicsCore::GetRenderPassProperties() const
     return _renderPassDatas->GetRenderPassProperties();
 }
 
+SceneTransitionCore* GraphicsCore::GetSceneTransitionCore() const 
+{
+    return _sceneTransitionCore;
+}
+
+const SIZE& GraphicsCore::GetResolution() const
+{
+    return _device->GetResolution();
+}
+
 void GraphicsCore::SetCamera(const std::string_view renderSceneName, std::shared_ptr<Camera> camera) const
 {
     _renderer->SetCamera(renderSceneName, camera);
@@ -104,6 +117,7 @@ void GraphicsCore::SyncGlobalVariable()
     Global::particleManager          = _particleManager;
     Global::dxResourceManager        = _dxResourceManager;
     Global::commandController        = _commandController;
+    Global::sceneTransitionCore      = _sceneTransitionCore;
 }
 
 void GraphicsCore::AddRenderScene(const std::string_view sceneName, const RenderTechniqueFlag flag) const
@@ -136,15 +150,9 @@ void GraphicsCore::RegisterComponent(const std::string_view renderSceneName, Lig
     _lightCore->RegisterLight(renderSceneName, component);
 }
 
-void GraphicsCore::LoadResource(std::wstring_view filePath, MeshRenderer* component, const std::function<void()>& callback)
+void GraphicsCore::LoadResource(std::wstring_view filePath, MeshRenderer* component) const
 {
     component->SetModel(_resourceManager->LoadResource<Model>(filePath));
-
-    _resourceLoadQueue.emplace([this, component, callback]()
-    {
-        component->Initialize();
-        callback();
-    });
 }
 
 void GraphicsCore::LoadResource(const std::wstring_view filePath, SpriteRenderer* component) const
@@ -193,6 +201,7 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     _moduleManager            = new ModuleManager;
     _pipelineStateManager     = new PipelineStateManager;
     _threadPool               = new ThreadPool;
+    _sceneTransitionCore      = new SceneTransitionCore;
 
     Global::device                   = _device;
     Global::renderer                 = _renderer;
@@ -209,6 +218,7 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     Global::moduleManager            = _moduleManager;
     Global::pipelineStateManager     = _pipelineStateManager;
     Global::threadPool               = _threadPool;
+    Global::sceneTransitionCore      = _sceneTransitionCore;
 
     _device->SetUpDevice(hwnd, width, height, feature);
     _viewManager->Initialize();
@@ -238,15 +248,8 @@ void GraphicsCore::UpdateAnimation(const float deltaTime) const
 
 void GraphicsCore::Update(const float deltaTime)
 {
-    _threadPool->Update();
-
-    while (!_resourceLoadQueue.empty())
-    {
-        auto task = _resourceLoadQueue.front();
-        task();
-        _resourceLoadQueue.pop();
-    }
-
+    _threadPool->Update();    
+    _resourceManager->Update();
     _particleManager->Update(deltaTime);
     _lightCore->Update(deltaTime);
     _renderer->Update(deltaTime);
@@ -277,6 +280,7 @@ void GraphicsCore::Finalize() const
     delete _animationCore;
     delete _renderer;
     delete _device;
+    delete _sceneTransitionCore;
 }
 
 void GraphicsCore::Flip() const

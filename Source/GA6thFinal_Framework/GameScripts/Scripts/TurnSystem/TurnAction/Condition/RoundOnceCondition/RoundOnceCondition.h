@@ -4,7 +4,7 @@
 //라운드당 한번만 True를 반환하는 조건 클래스 입니다.
 class RoundOnceTrueCondition : public TurnActionCondition
 {
-    friend class TurnAction;
+    friend class TurnMode;
     USING_PROPERTY(RoundOnceTrueCondition)
 public:
     RoundOnceTrueCondition()       = default;
@@ -16,9 +16,10 @@ public:
     
     void OnEvaluateConditions(bool result) override;
 
-private:
+public:
     struct RoundOnceAction : public TurnAction
     {
+        friend class TurnMode;
         RoundOnceAction();
         ~RoundOnceAction() override;
 
@@ -30,7 +31,10 @@ private:
         void               OnRoundStart() override;
     private:
         inline static const std::string NAME = "RoundOnceCondition";
+        inline static std::vector<RoundOnceAction*> _roundOnceActions; //라운드 스타트를 감지를 위해 TurnMode가 초기화 될때 이 액션들을 등록해줍니다.
     };
+
+private:
     RoundOnceAction _roundOnceAction;
 };
 
