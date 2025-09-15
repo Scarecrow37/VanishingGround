@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "UmFramework.h"
 #include "../TurnAction/TurnAction.h"
+#include "Utility/SingletonHelper.h"
 
 class FiniteStateMachine;
 class TurnActor;
@@ -13,25 +14,6 @@ class Player;
 class TurnMode : public Component
 {
     USING_PROPERTY(TurnMode)
-    inline static TurnMode* static_instance = nullptr;
-public:
-    static TurnMode* GetInstance() 
-    { 
-        if (static_instance)
-        {
-            if (false == static_instance->gameObject->IsValid())
-            {
-                static_instance = nullptr;
-            }
-        }
-
-        if (nullptr == static_instance)
-        {
-            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Turn Mode가 존재하지 않습니다.");
-        }
-        return static_instance;
-    }
-
 public:
     TurnMode();
     virtual ~TurnMode();
@@ -108,12 +90,14 @@ protected:
 
 private:
     void BuildTurnModeFSM();
-
+    void AddRoundOnceActions();
 
     /*slot 값을 통해 실제 RoundSpeed를 반환합니다.*/
     int GetRealRoundSpeed(const std::pair<int, TurnActor*>& turnActor);
 
 private:
+    SingletonComponent<TurnMode> _singletonComponent{this};
+
     FiniteStateMachine* _finiteStateMachine = nullptr;
 
     int _roundCount;
@@ -182,7 +166,7 @@ public:
     template <typename T>
     bool AddTurnAction(T* action)
     {
-        static_assert(std::is_base_of_v<TurnAction, T>, "T is not derived from TurnAction.");
+        static_assert(std::is_base_of_v<TurnAction, std::remove_cvref_t<T>>, "T is not derived from TurnAction.");
         bool result = false;
         if (nullptr != action)
         {

@@ -10,12 +10,14 @@ using namespace u8_literals;
 
 RevelationSystem::RevelationSystem() 
 {
-    static_instance = this;
     RevelationsPerRound.SetInputAutoEvent([]() { ImGuiHelper::HoveredToolTip(u8"라운드당 뽑는 계시 개수"); });
 }
 RevelationSystem::~RevelationSystem()
 {
-    UmWatcher.Unregister<RevelationsViewModel>("Revelations");
+    if (_singletonComponent.IsSingleTon())
+    {
+        UmWatcher.Unregister<RevelationsViewModel>("Revelations");
+    }
 };
 
 std::shared_ptr<RevelationElement> RevelationSystem::EquipPlayerElement(int slot, const RevelationElement& element)
@@ -47,7 +49,7 @@ const std::shared_ptr<RevelationElement>& RevelationSystem::PushBackPlayerElemen
 
 void RevelationSystem::RollRoundElement()
 {
-    TurnMode* _turnMode = TurnMode::GetInstance();
+    TurnMode* _turnMode = SingletonComponent<TurnMode>::GetInstance();
 
     if (_turnMode)
     {
@@ -141,6 +143,16 @@ bool RevelationSystem::EraseElement(std::string_view elementName)
     return result;
 }
 
+RevelationElement* RevelationSystem::FindElement(const std::string& elementName)
+{
+    auto find = _elementsTable.find(elementName);
+    if (find != _elementsTable.end())
+    {
+        return &find->second;
+    }
+    return nullptr;
+}
+
 static ReflectHelper::ImGuiDraw::InputAutoSetting InitSetting()
 {
     ReflectHelper::ImGuiDraw::InputAutoSetting setting;
@@ -194,7 +206,10 @@ void RevelationSystem::ImGuiDrawElementTableEditor()
                 //ID
                 ImGui::TableSetColumnIndex(0);           
                 {
-                    ReflectHelper::ImGuiDraw::Private::InputAuto(element.RevelationID, setting);
+                    if (ReflectHelper::ImGuiDraw::Private::InputAuto(element.RevelationID, setting))
+                    {
+                        SortElementTableOrderID();
+                    }
                     RightClickContext();
                 }
 
@@ -354,8 +369,8 @@ void RevelationSystem::ImGuiDrawExcelParser()
 
         if (STR_NULL != name)
         {
-            auto findWeaponIter = _elementsTable.find(name);
-            if (findWeaponIter == _elementsTable.end())
+            auto findIter = _elementsTable.find(name);
+            if (findIter == _elementsTable.end())
             {
                 // 없으면 새로 생성
                 InsertElement(temp);
@@ -363,9 +378,9 @@ void RevelationSystem::ImGuiDrawExcelParser()
             else
             {
                 // 이미 있으면 데이터만 복사(액션은 유지)
-                std::string originActionName                     = findWeaponIter->second.ReflectFields->ActionName;
-                *findWeaponIter->second.ReflectFields            = *temp.ReflectFields;
-                findWeaponIter->second.ReflectFields->ActionName = std::move(originActionName);
+                std::string originActionName               = findIter->second.ReflectFields->ActionName;
+                *findIter->second.ReflectFields            = *temp.ReflectFields;
+                findIter->second.ReflectFields->ActionName = std::move(originActionName);
             }
             if (false == result)
             {
@@ -791,6 +806,13 @@ void RevelationSystem::EraseElementTableOrderID(RevelationElement& element)
 void RevelationSystem::Awake()
 {
     Component::Awake();
+    if (_singletonComponent.TrySingleTon())
+    {
+        UmWatcher.Register<RevelationsViewModel>("Revelations", _roundElementList);
+    }
+}
 
-    UmWatcher.Register<RevelationsViewModel>("Revelations", _roundElementList);
+void RevelationSystem::Reset() 
+{
+    _singletonComponent.SetSingleTon();
 }

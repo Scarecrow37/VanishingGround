@@ -7,7 +7,7 @@ TestActionComponent::~TestActionComponent() = default;
 
 void TestActionComponent::Start() 
 {
-    TurnMode* turnMode = TurnMode::GetInstance();
+    TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
     if (turnMode)
     {
         _testAction.reset(new TestAction);

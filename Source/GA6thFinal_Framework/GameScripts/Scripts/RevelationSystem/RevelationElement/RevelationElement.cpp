@@ -6,6 +6,7 @@
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 #include <TurnSystem/TurnAction/TurnActionFactory.h>
+#include <ItemDropSystem/UI/ItemDropUIRootManager.h>
 
 using namespace u8_literals;
 
@@ -29,7 +30,7 @@ void RevelationElement::SerializedReflectEvent()
 void RevelationElement::DeserializedReflectEvent() 
 {
     const auto&       actionFactory = TurnActionFactory::GetActionFactory();
-    auto              iter          = actionFactory.find(ReflectFields->ActionName.data());
+    auto              iter          = actionFactory.find(ReflectFields->ActionName);
     if (iter != actionFactory.end())
     {
         _action.reset(iter->second());
@@ -52,8 +53,10 @@ DropItemInfo RevelationElement::GetItemInfo()
 {
     DropItemInfo info
     {
+        .Category = ArtifactDropType::REVELATION,
         .ID = RevelationID, 
         .Name = (const std::string&)ElementName,
     };
     return info;
 }
+

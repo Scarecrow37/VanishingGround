@@ -3,14 +3,23 @@
 #include "UI2DPass.h"
 #include "UI25DPass.h"
 #include "UI3DPass.h"
+#include "TextDrawPass.h"
 #include "SpriteRenderer.h"
 
-UITechnique::UITechnique() {}
+UITechnique::UITechnique() = default;
 
-UITechnique::~UITechnique() {}
+UITechnique::~UITechnique() = default;
 
 void UITechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 {
+    _depthStencilView = MakeSharedResource<DepthStencilView>();
+    _depthStencilView->Initialize(_ownerScene->_depthStencilView->GetDesc());
+
+    _uiMaterialDataBuffer = std::make_unique<ConstantBufferView>();
+    _uiMaterialDataBuffer->Initialize(sizeof(UIMaterialData) * MAX_UI_MATERIAL_DATA);
+    
+    _uiMaterialDatas.resize(MAX_UI_MATERIAL_DATA);
+
     std::unique_ptr<RenderPass> pass;
     pass = std::make_unique<UI2DPass>(_renderDatas[MODE_2D]);
     pass->Initialize(_ownerScene, this, commandList);
@@ -24,8 +33,9 @@ void UITechnique::Initialize(ID3D12GraphicsCommandList* commandList)
     pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));
 
-    _depthStencilView = MakeSharedResource<DepthStencilView>();
-    _depthStencilView->Initialize(_ownerScene->_depthStencilView->GetDesc());
+    pass = std::make_unique<TextDrawPass>();
+    pass->Initialize(_ownerScene, this, commandList);
+    AddRenderPass(std::move(pass));
 }
 
 void UITechnique::Execute(ID3D12GraphicsCommandList* commandList)
@@ -43,8 +53,12 @@ void UITechnique::Execute(ID3D12GraphicsCommandList* commandList)
             continue;
 
         SpriteType type = component->GetType();
-        _renderDatas[type].push_back(index++);
+        _renderDatas[type].push_back(index);
+        _uiMaterialDatas[index] = component->GetMaterialData();
+        index++;
     }
 
-    __super::Execute(commandList);
+    _uiMaterialDataBuffer->UpdateBuffer(_uiMaterialDatas.data());
+
+    RenderTechnique::Execute(commandList);
 }

@@ -2,6 +2,7 @@
 #include <Token/Token.h>
 #include <Token/Object/Bleed/BleedToken.h>
 #include <Token/Object/Poison/PoisonToken.h>
+#include <Utility/SingletonHelper.h>
 
 // @brief 토큰을 등록하는 매크로입니다. 이걸 사용하지 않으면 토큰이 System에 등록되지 않습니다.
 // @brief Include :
@@ -26,15 +27,14 @@ class Token;
 class TokenSystem : public Component
 {
     USING_PROPERTY(TokenSystem)
-    inline static TokenSystem* _staticInstance;
 
 public:
     TokenSystem();
     ~TokenSystem();
-    inline static TokenSystem* GetInstance() { return _staticInstance; }
 
 private:
     void Reset() override; 
+    void Awake() override;
     void OnDestroy() override;
     void OnDrawDebug() override;
 
@@ -117,6 +117,7 @@ private:
     static bool CreateTokenInstanceFromName(std::string_view tokenName, Token** ppToken);
 
 private:
+    SingletonComponent<TokenSystem> _singletonComponent{this};
     bool    _isOpenEditor = false;
     Token*  _selectedToken = nullptr;
     REFLECT_FIELDS_BEGIN(Component)

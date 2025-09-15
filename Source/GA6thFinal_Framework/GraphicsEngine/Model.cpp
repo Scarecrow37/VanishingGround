@@ -5,13 +5,11 @@
 #include "Skeleton.h"
 #include "Animation.h"
 
-Model::Model()
+Model::Model() : _isDirtyFlag(false) 
 {
 }
 
-Model::~Model()
-{
-}
+Model::~Model() = default;
 
 const std::vector<std::string>& Model::GetBoneNameList() const
 {
@@ -47,14 +45,15 @@ void Model::BindMaterial(const UINT meshIndex, const Material& material)
     _material[meshIndex] = material;
 }
 
-void Model::LoadResource(const std::filesystem::path& filePath)
+void Model::LoadResource(const std::filesystem::path& filePath, const std::function<void()>& callback)
 {   
     //FBXConverter fbxConverter;
     //fbxConverter.ImportModel(filePath, this);
 
-    Global::threadPool->AddTask(ThreadPool::ThreadType::PARALLEL, [this, filePath](ID3D12GraphicsCommandList* commandList)
+    Global::threadPool->AddTask(ThreadPool::ThreadType::PARALLEL, [this, filePath, callback](ID3D12GraphicsCommandList* commandList)
     {
         FBXConverter fbxConverter;
         fbxConverter.ImportModel(commandList, filePath, this);
+        Global::resourceManager->EnqueueCallback(callback);
     });
 }

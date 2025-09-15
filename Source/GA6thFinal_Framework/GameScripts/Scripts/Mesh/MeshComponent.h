@@ -47,6 +47,7 @@ protected:
     REFLECT_FIELDS_END(MeshComponent)
 
 protected:
+    void SerializedReflectEvent() override;
     void ImGuiDrawPropertysEvent() override;
 
 protected:

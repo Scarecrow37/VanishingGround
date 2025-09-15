@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "WeaponElement/WeaponElement.h"
+#include "Utility/SingletonHelper.h"
 
 /*
 *Player의 무기를 관리하는 시스템입니다.
@@ -7,21 +8,9 @@
 class WeaponSystem : public Component
 {
     USING_PROPERTY(WeaponSystem)
-    inline static WeaponSystem* static_instance = nullptr;
 
 public:
     inline static constexpr size_t EQUIP_WEAPONS_SIZE = 4;
-    inline static WeaponSystem* GetInstance() 
-    { 
-        if (static_instance)
-        {
-            if (false == static_instance->gameObject->IsValid())
-            {
-                static_instance = nullptr;
-            }
-        }
-        return static_instance; 
-    }
     REFLECT_PROPERTY(CurrentWeaponSlot)
 
 public:
@@ -109,8 +98,6 @@ private:
     /*장착된 무기들*/
     std::array<WeaponElement, EQUIP_WEAPONS_SIZE> _equipWeapons;
 
-    /*이번 라운드의 Weapon Speed의 순서 (속도 기준 내림차순)*/
-
     /*에디터용 무기 Imgui 함수*/
     void ImguiEquipWeapons();
 
@@ -118,7 +105,7 @@ private:
     void DeserializedReflectEvent() override;
     void ImGuiDrawPropertysEvent() override;
 
-public:
-
-
+private:
+    SingletonComponent<WeaponSystem> _singletonComponent{this};
+        
 };

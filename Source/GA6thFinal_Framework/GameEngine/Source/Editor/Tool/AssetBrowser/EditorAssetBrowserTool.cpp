@@ -426,6 +426,9 @@ void EditorAssetBrowserTool::ShowFolderEntries()
                 case EditorAssetBrowserTool::SHOW_TYPE_ICON:
                     ShowFolderEntryToIcon(*asset);
                     break;
+                case EditorAssetBrowserTool::SHOW_TYPE_EDIT:
+                    ShowFolderEntryToEdit(*asset);
+                    break;
                 default:
                     break;
                 }
@@ -551,19 +554,21 @@ void EditorAssetBrowserTool::ShowSearchBar()
     buttonStyle.PopStyle();
 
     // ---------------------------
-    // Show List/Icon
+    // Change View Type Button
     // ---------------------------
     bool isShowList = (ReflectFields->ShowType == SHOW_TYPE_LIST);
     bool isShowIcon = (ReflectFields->ShowType == SHOW_TYPE_ICON);
-    ImVec2 IconCusorPos = optionCursorPos - ImVec2(frameHeight, 0.0f);
-    ImVec2 ListCusorPos = IconCusorPos - ImVec2(frameHeight, 0.0f);
+    bool isShowEdit = (ReflectFields->ShowType == SHOW_TYPE_EDIT);
+    ImVec2 iconCusorPos = optionCursorPos - ImVec2(frameHeight, 0.0f);
+    ImVec2 listCusorPos = iconCusorPos - ImVec2(frameHeight, 0.0f);
+    ImVec2 editCusorPos = listCusorPos - ImVec2(frameHeight, 0.0f);
 
     {
         ImVec4 selectedColor = isShowIcon ? ImGui::GetStyleColorVec4(ImGuiCol_Header) : ImVec4(0, 0, 0, 0);
         buttonStyle.PushStyleColor(ImGuiCol_Button, selectedColor);
         buttonStyle.PushStyleColor(ImGuiCol_ButtonHovered, selectedColor * ImVec4(1.2f, 1.2f, 1.2f, 1.0f));
         buttonStyle.PushStyleColor(ImGuiCol_ButtonActive, selectedColor * ImVec4(0.8f, 0.8f, 0.8f, 1.0f));
-        ImGui::SetCursorScreenPos(IconCusorPos);
+        ImGui::SetCursorScreenPos(iconCusorPos);
         if (ImGui::Button(EditorIcon::ICON_IMAGES))
         {
             ReflectFields->ShowType = SHOW_TYPE_ICON;
@@ -576,10 +581,23 @@ void EditorAssetBrowserTool::ShowSearchBar()
         buttonStyle.PushStyleColor(ImGuiCol_Button, selectedColor);
         buttonStyle.PushStyleColor(ImGuiCol_ButtonHovered, selectedColor * ImVec4(1.2f, 1.2f, 1.2f, 1.0f));
         buttonStyle.PushStyleColor(ImGuiCol_ButtonActive, selectedColor * ImVec4(0.8f, 0.8f, 0.8f, 1.0f));
-        ImGui::SetCursorScreenPos(ListCusorPos);
+        ImGui::SetCursorScreenPos(listCusorPos);
         if (ImGui::Button(EditorIcon::ICON_LIST))
         {
             ReflectFields->ShowType = SHOW_TYPE_LIST;
+            _needRefresh            = true; // 새로고침 필요
+        }
+        buttonStyle.PopStyle();
+    }
+    {
+        ImVec4 selectedColor = isShowEdit ? ImGui::GetStyleColorVec4(ImGuiCol_Header) : ImVec4(0, 0, 0, 0);
+        buttonStyle.PushStyleColor(ImGuiCol_Button, selectedColor);
+        buttonStyle.PushStyleColor(ImGuiCol_ButtonHovered, selectedColor * ImVec4(1.2f, 1.2f, 1.2f, 1.0f));
+        buttonStyle.PushStyleColor(ImGuiCol_ButtonActive, selectedColor * ImVec4(0.8f, 0.8f, 0.8f, 1.0f));
+        ImGui::SetCursorScreenPos(editCusorPos);
+        if (ImGui::Button(EditorIcon::ICON_EDIT))
+        {
+            ReflectFields->ShowType = SHOW_TYPE_EDIT;
             _needRefresh            = true; // 새로고침 필요
         }
         buttonStyle.PopStyle();
@@ -592,6 +610,7 @@ void EditorAssetBrowserTool::ShowSearchBar()
 void EditorAssetBrowserTool::ShowFolderEntryToList(AssetData& asset)
 {
     auto& io = ImGui::GetIO();
+    auto& style = ImGui::GetStyle();
 
     auto  window = ImGui::GetCurrentWindow();
     float oldFontScale = window->FontWindowScale;
@@ -653,7 +672,7 @@ void EditorAssetBrowserTool::ShowFolderEntryToList(AssetData& asset)
     const char* icon = asset.IsDirectory ? EditorIcon::ICON_FOLDER : EditorIcon::ICON_FILE;
     ImGui::SetCursorPos(cursorPos);
     ImGui::TextUnformatted(icon);
-    ImGui::SameLine(cursorPos.x + fontSize);
+    ImGui::SameLine(cursorPos.x + fontSize + style.FramePadding.x);
     if (isRenaming)
     {
         ImGuiHelper::StyleBuilder textStyle;
@@ -671,13 +690,31 @@ void EditorAssetBrowserTool::ShowFolderEntryToList(AssetData& asset)
     }
     else
     {
-        ImGuiHelper::TextWithVerticalSeparator(asset.FileName.c_str(), availSpace.x * ReflectFields->ListColumnWidth[0]);
+        ImGui::TextUnformatted(asset.FileName.c_str());
+        ImGui::SameLine();
+
         std::ostringstream oss;
         std::tm            tm;
         localtime_s(&tm, &asset.LastWriteTime);
         oss << std::put_time(&tm, "%F %T"); // "YYYY-MM-DD HH:MM:SS" 형식
-        ImGuiHelper::TextWithVerticalSeparator(oss.str().c_str(), availSpace.x * ReflectFields->ListColumnWidth[1]);
-        //ImGui::SameLine();
+        ImGui::SetCursorPosX(availSpace.x * ReflectFields->ListColumnWidth[0] + style.FramePadding.x);
+        ImGui::TextUnformatted(oss.str().c_str());
+        ImGui::SameLine();
+
+        ImGui::SetCursorPosX(availSpace.x * ReflectFields->ListColumnWidth[1] + style.FramePadding.x);
+        if (asset.IsDirectory)
+        {
+            ImGui::TextUnformatted("-");
+        }
+        else
+        {
+            int         assetID = UmFileSystem.GetAssetIDFromPath(asset.Entry.path());
+            std::string idStr   = std::to_string(assetID);
+            ImGui::TextUnformatted(idStr.c_str());
+        }
+        ImGui::SameLine();
+
+        ImGui::SetCursorPosX(availSpace.x * ReflectFields->ListColumnWidth[2] + style.FramePadding.x);
         if (asset.IsDirectory)
         {
             ImGui::TextUnformatted(u8"폴더"_c_str);
@@ -838,6 +875,77 @@ void EditorAssetBrowserTool::ShowFolderEntryToIcon(AssetData& asset)
     }
 }
 
+void EditorAssetBrowserTool::ShowFolderEntryToEdit(AssetData& asset) 
+{
+    auto& io    = ImGui::GetIO();
+    auto& style = ImGui::GetStyle();
+
+    auto  window       = ImGui::GetCurrentWindow();
+    float oldFontScale = window->FontWindowScale;
+    ImGui::SetWindowFontScale(_zoomScale);
+
+    bool isItemReleasedLeft  = false;
+    bool isItemClickedLeft   = false;
+    bool isItemClickedRight  = false;
+    bool isItemFocusedNav    = false;
+    bool isItemDoubleClicked = false;
+
+    bool   isFocused  = (_focusEntryPath == asset.Entry.path());
+    float  fontSize   = ImGui::GetFontSize();
+    float  textHeight = ImGui::GetTextLineHeightWithSpacing();
+    ImVec2 availSpace = ImGui::GetContentRegionAvail();
+    ImVec2 widgetSize = ImVec2(availSpace.x, textHeight);
+    ImVec2 cursorPos  = ImGui::GetCursorPos();
+    ImVec4 bgCol      = isFocused ? ImGui::GetStyleColorVec4(ImGuiCol_Header) : ImVec4(0, 0, 0, 0);
+
+    ImGui::PushID(&asset);
+
+    const char* icon = asset.IsDirectory ? EditorIcon::ICON_FOLDER : EditorIcon::ICON_FILE;
+    ImGui::SetCursorPos(cursorPos);
+    ImGui::TextUnformatted(icon);
+    ImGui::SameLine(cursorPos.x + fontSize + style.FramePadding.x);
+    
+    ImGui::TextUnformatted(asset.FileName.c_str());
+    ImGui::SameLine();
+
+    std::ostringstream oss;
+    std::tm            tm;
+    localtime_s(&tm, &asset.LastWriteTime);
+    oss << std::put_time(&tm, "%F %T"); // "YYYY-MM-DD HH:MM:SS" 형식
+    ImGui::SetCursorPosX(availSpace.x * ReflectFields->ListColumnWidth[0] + style.FramePadding.x);
+    ImGui::TextUnformatted(oss.str().c_str());
+    ImGui::SameLine();
+
+    ImGui::SetCursorPosX(availSpace.x * ReflectFields->ListColumnWidth[1] + style.FramePadding.x);
+    if (asset.IsDirectory)
+    {
+        ImGui::TextUnformatted("-");
+    }
+    else
+    {
+        int assetID = UmFileSystem.GetAssetIDFromPath(asset.Entry.path());
+        ImGui::SetNextItemWidth(availSpace.x * (ReflectFields->ListColumnWidth[2] - ReflectFields->ListColumnWidth[1]) - (style.FramePadding.x * 2.0f));
+        if (ImGui::InputInt("##asset_id", &assetID, 0, 0, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_AutoSelectAll))
+        {
+            EditorAssetBrowserTool::ChangeAssetID(asset.Entry.path(), assetID);
+        }
+    }
+    ImGui::SameLine();
+
+    ImGui::SetCursorPosX(availSpace.x * ReflectFields->ListColumnWidth[2] + style.FramePadding.x);
+    if (asset.IsDirectory)
+    {
+        ImGui::TextUnformatted(u8"폴더"_c_str);
+    }
+    else
+    {
+        std::string formatLabel = std::format("{} {}", asset.Extension.c_str(), u8"파일"_c_str);
+        ImGui::TextUnformatted(formatLabel.c_str());
+    }
+
+    ImGui::PopID();
+}
+
 void EditorAssetBrowserTool::ShowFolderEntryPopup(AssetData& asset) 
 {
     if (ImGui::BeginPopup(POPUP_ID))
@@ -986,12 +1094,21 @@ void EditorAssetBrowserTool::BeginFolderEntryFrame()
     float  frameHeight = ImGui::GetFrameHeight();
     switch (showType)
     {
+        case EditorAssetBrowserTool::SHOW_TYPE_ICON:
+        {
+            break;
+        }
         case EditorAssetBrowserTool::SHOW_TYPE_LIST:
         {
+            // SHOW_TYPE_EDIT과 동일
+        }
+        case EditorAssetBrowserTool::SHOW_TYPE_EDIT: 
+        {
             ImGui::BeginChild("Column", ImVec2(availSpace.x, frameHeight));
-            ImGuiHelper::TextWithVerticalSeparator(u8"이름"_c_str, availSpace.x * ReflectFields->ListColumnWidth[0]);
-            ImGuiHelper::TextWithVerticalSeparator(u8"수정한 날짜"_c_str, availSpace.x * ReflectFields->ListColumnWidth[1]);
-            ImGui::TextUnformatted(u8"파일 유형"_c_str);
+            ImGuiHelper::TextWithVerticalSeparator(u8" 이름"_c_str, availSpace.x * ReflectFields->ListColumnWidth[0]);
+            ImGuiHelper::TextWithVerticalSeparator(u8" 수정한 날짜"_c_str, availSpace.x * ReflectFields->ListColumnWidth[1]);
+            ImGuiHelper::TextWithVerticalSeparator(u8" 에셋 ID"_c_str, availSpace.x * ReflectFields->ListColumnWidth[2]);
+            ImGui::TextUnformatted(u8" 파일 유형"_c_str);
             ImGui::EndChild();
             break;
         }
@@ -1220,13 +1337,13 @@ void EditorAssetBrowserTool::ProcessInput()
     bool isFileCopying = (_copyBuffer.first == 0);
     bool isFileCutting = (_copyBuffer.first == 1);
 
+    bool isKeyCtrlDown   = ImGui::IsKeyDown(ImGuiKey_LeftCtrl);
     bool isMouseXbutton1 = ImGui::IsMouseClicked(ImGuiMouseButton_XButton1, false);
     bool isMouseXbutton2 = ImGui::IsMouseClicked(ImGuiMouseButton_XButton2, false);
     bool isKeyEnter      = ImGui::IsKeyPressed(ImGuiKey_Enter, false);
     bool isKeyDelete     = ImGui::IsKeyPressed(ImGuiKey_Delete, false);
     bool isKeyBackSpace  = ImGui::IsKeyPressed(ImGuiKey_Backspace, false);
     bool isKeyEsc        = ImGui::IsKeyPressed(ImGuiKey_Escape, false);
-    bool isKeyCtrl       = ImGui::IsKeyDown(ImGuiKey_LeftCtrl);
     bool isKeyF2         = ImGui::IsKeyPressed(ImGuiKey_F2, false);
     bool isKeyC          = ImGui::IsKeyPressed(ImGuiKey_C, false);
     bool isKeyX          = ImGui::IsKeyPressed(ImGuiKey_X, false);
@@ -1286,7 +1403,7 @@ void EditorAssetBrowserTool::ProcessInput()
     {
         RedoPath();
     }
-    if (isKeyCtrl)
+    if (isKeyCtrlDown)
     {
         float wheelY = ImGui::GetIO().MouseWheel;
         if (wheelY != 0.0f)
@@ -1531,6 +1648,23 @@ void EditorAssetBrowserTool::RemoveFavoriteFolder(const File::Path& path)
     ReflectFields->FavoriteFolders.erase(pathStr);
 }
 
+bool EditorAssetBrowserTool::ChangeAssetID(const File::Path& path, int changeID)
+{
+    if (UmFileSystem.IsExistsAssetID(changeID))
+    {
+        Global::editorModule->OpenPopupBox(u8"이미 존재하는 Asset ID입니다."_c_str, [path, changeID]() {
+            EditorAssetBrowserTool::ShowAlreadyAssetIDPopupBox(path, changeID);
+        });
+        return false; // 중복된 AssetID가 있으면 처리 중지
+    }
+    else
+    {
+        auto weakContext = UmFileSystem.GetContext(path);
+        UmFileSystem.ChangeAssetID(weakContext, changeID);
+        return true;
+    }
+}
+
 bool EditorAssetBrowserTool::Compare::operator()(const AssetData* a, const AssetData* b) const
 {
     if (a->Order != b->Order)
@@ -1765,25 +1899,14 @@ void EditorAssetBrowserTool::InspectorDrawer::OnInspectorStay()
                 ImGuiHelper::TextWithVerticalSeparator("AssetID", offsetX);
                 ImGuiHelper::StyleBuilder assetIDStyle;
                 File::MetaData& meta = context->GetMeta();
-                int assetId = meta.GetAssetID();
-                bool isUnique = _assetPath == UmFileSystem.GetPathFromAssetID(assetId);
+                int assetID = meta.GetAssetID();
+                bool isUnique = _assetPath == UmFileSystem.GetPathFromAssetID(assetID);
                 ImU32 borderColor = isUnique ? IM_COL32(100, 255, 100, 255) : IM_COL32(255, 100, 100, 255);
                 assetIDStyle.PushStyleVar(ImGuiStyleVar_FrameBorderSize, 2.0f); // 테두리 두께 
                 assetIDStyle.PushStyleColor(ImGuiCol_Border, borderColor);
-                if (ImGui::InputInt("##asset_id", &assetId, 0, 0, ImGuiInputTextFlags_EnterReturnsTrue))
+                if (ImGui::InputInt("##asset_id", &assetID, 0, 0, ImGuiInputTextFlags_EnterReturnsTrue))
                 {
-                    if (UmFileSystem.IsExistsAssetID(assetId))
-                    {
-                        File::Path path = _assetData->Entry.path();
-                        Global::editorModule->OpenPopupBox(u8"이미 존재하는 Asset ID입니다."_c_str, [this, path, assetId]() {
-                            EditorAssetBrowserTool::ShowAlreadyAssetIDPopupBox(path, assetId);
-                        });
-                        return; // 중복된 AssetID가 있으면 처리 중지
-                    }
-                    else
-                    {
-                        UmFileSystem.ChangeAssetID(context, assetId);
-                    }
+                    EditorAssetBrowserTool::ChangeAssetID(_assetData->Entry.path(), assetID);
                 }
                 assetIDStyle.PopStyle();
             }

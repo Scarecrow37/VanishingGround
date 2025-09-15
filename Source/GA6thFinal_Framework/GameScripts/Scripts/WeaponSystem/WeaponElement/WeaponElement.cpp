@@ -57,8 +57,25 @@ DropItemInfo WeaponElement::GetItemInfo()
 {
     DropItemInfo info
     {
+        .Category = GetCategoryType(),
         .ID = Stats.WeaponID,
         .Name = (const std::string&)Stats.WeaponName,
     };
     return info;
+}
+
+ArtifactDropType WeaponElement::GetCategoryType() const
+{
+    WeaponType type = Stats.Type;
+    switch (type)
+    {
+    case WeaponType::SWORD:
+        return ArtifactDropType::SWORD;
+    case WeaponType::DAGGER:
+        return ArtifactDropType::DAGGER;
+    case WeaponType::WARHAMMER:
+        return ArtifactDropType::WARHAMMER;
+    default:
+        return ArtifactDropType::SWORD;
+    }
 }

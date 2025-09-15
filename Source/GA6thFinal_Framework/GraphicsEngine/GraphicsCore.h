@@ -16,7 +16,8 @@ public:
     D3D12_CPU_DESCRIPTOR_HANDLE GetBackBufferHandle() const;
     ID3D12GraphicsCommandList*  GetCommandList() const;
     RenderPassProperties&       GetRenderPassProperties() const;
-    SceneTransitionCore*  GetSceneTransitionCore() const;
+    SceneTransitionCore*        GetSceneTransitionCore() const;
+    const SIZE&                 GetResolution() const;
 
 public:
     void SetCamera(std::string_view renderSceneName, std::shared_ptr<Camera> camera) const;
@@ -34,7 +35,7 @@ public:
     void RegisterComponent(std::string_view renderSceneName, Light* component) const;
 
 public:
-    void LoadResource(std::wstring_view filePath, MeshRenderer* component, const std::function<void()>& callback);
+    void LoadResource(std::wstring_view filePath, MeshRenderer* component) const;
     void LoadResource(std::wstring_view filePath, SpriteRenderer* component) const;
     void LoadResource(std::wstring_view filePath, FontRenderer* component) const;
     void LoadTextureResource(std::wstring_view filePath, class ParticleEmitter* component) const;
@@ -79,7 +80,4 @@ private:
     class PipelineStateManager*       _pipelineStateManager;
     class ThreadPool*                 _threadPool;
     class SceneTransitionCore*        _sceneTransitionCore;
-
-private:
-    std::queue<std::function<void()>> _resourceLoadQueue;
 };

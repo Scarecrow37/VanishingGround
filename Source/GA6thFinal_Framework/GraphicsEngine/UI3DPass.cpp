@@ -7,19 +7,19 @@ UI3DPass::UI3DPass(const std::vector<UINT>& instanceIDs)
 {
 }
 
-UI3DPass::~UI3DPass() {}
+UI3DPass::~UI3DPass() = default;
 
 void UI3DPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene, ownerTechnique, commandList);
+    UIPassBase::Initialize(ownerScene, ownerTechnique, commandList);
 
     D3D12_RENDER_TARGET_BLEND_DESC rtDesc{};
     rtDesc.BlendEnable           = TRUE;
     rtDesc.SrcBlend              = D3D12_BLEND_SRC_ALPHA;
     rtDesc.DestBlend             = D3D12_BLEND_INV_SRC_ALPHA;
     rtDesc.BlendOp               = D3D12_BLEND_OP_ADD;
-    rtDesc.SrcBlendAlpha         = D3D12_BLEND_ZERO;
-    rtDesc.DestBlendAlpha        = D3D12_BLEND_ONE;
+    rtDesc.SrcBlendAlpha         = D3D12_BLEND_ONE;
+    rtDesc.DestBlendAlpha        = D3D12_BLEND_INV_SRC_ALPHA;
     rtDesc.BlendOpAlpha          = D3D12_BLEND_OP_ADD;
     rtDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 

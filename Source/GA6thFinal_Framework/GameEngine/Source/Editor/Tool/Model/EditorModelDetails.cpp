@@ -338,11 +338,11 @@ void EditorModelDetails::OnFrameRender()
                 {
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
-                    const char* blendModeNames[] = {"Opaque", "Masked", "Translucent", "Additive", "Modulate"};
+                    const char* blendModeNames[] = {"Opaque", "Masked", "Translucent"};
                     ImGui::Text("Blend Mode");
 
                     ImGui::TableNextColumn();
-                    ImGui::Combo("##blendMode", (int*)&material.BlendMode, blendModeNames, (int)Material::BlendModeType::END);
+                    ImGui::Combo("##blendMode", (int*)&material.BlendMode, blendModeNames, (int)Material::BlendModeType::BMT_END);
 
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
@@ -350,7 +350,7 @@ void EditorModelDetails::OnFrameRender()
                     ImGui::Text("Shading Model");
 
                     ImGui::TableNextColumn();
-                    ImGui::Combo("##shadingModel", (int*)&material.ShadingModel, shadingModelNames, (int)Material::ShadingModelType::END);
+                    ImGui::Combo("##shadingModel", (int*)&material.ShadingModel, shadingModelNames, (int)Material::ShadingModelType::SMT_END);
 
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();

@@ -131,10 +131,23 @@
     <ClCompile Include="Scripts\UI\Views\RevelationsView\RevelationsView.cpp" />
     <ClCompile Include="Scripts\Audio\BGMManager.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnSystemHelper.cpp" />
+    <ClCompile Include="Scripts\Map\MapManager.cpp" />
+    <ClCompile Include="Scripts\Map\Stage.cpp" />
+    <ClCompile Include="Scripts\Map\RewardPopup.cpp" />
+    <ClCompile Include="Scripts\Map\ViewModels\StageViewModel.cpp" />
     <ClCompile Include="Scripts\UI\Panels\Overlay\OverlayPanel.cpp" />
     <ClCompile Include="Scripts\UI\Views\TurnQueue\TurnQueueView.cpp" />
     <ClCompile Include="Scripts\UI\Views\Weapon\WeaponView.cpp" />
     <ClCompile Include="Scripts\UI\Wrappers\Scrolling\ScrollingWrapper.cpp" />
+    <ClCompile Include="Scripts\ViewModels\ItemDrop\DropArtifacts\DropArtifactsViewModel.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UI\ItemDropUIRootManager.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UI\ArtifactUIManager.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\ItemDropSystem.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\Interface\IDropItem.cpp" />
+    <ClCompile Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.cpp" />
+    <ClCompile Include="Scripts\SceneTransition\SceneTransitionComponent.cpp" />
+    <ClCompile Include="Scripts\PlayerSystem\PlayerSystem.cpp" />
+    <ClCompile Include="Scripts\AccessorySystem\AccessorySystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h" />
@@ -284,10 +297,25 @@
     <ClInclude Include="Scripts\Audio\BGMManager.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnSystemHelper.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionEnums.h" />
+    <ClInclude Include="Scripts\Map\MapManager.h" />
+    <ClInclude Include="Scripts\Map\Stage.h" />
+    <ClInclude Include="Scripts\Map\RewardPopup.h" />
+    <ClInclude Include="Scripts\Map\ViewModels\StageViewModel.h" />
     <ClInclude Include="Scripts\UI\Panels\Overlay\OverlayPanel.h" />
     <ClInclude Include="Scripts\UI\Views\TurnQueue\TurnQueueView.h" />
     <ClInclude Include="Scripts\UI\Views\Weapon\WeaponView.h" />
     <ClInclude Include="Scripts\UI\Wrappers\Scrolling\ScrollingWrapper.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\Interface\IDropItem.h" />
+    <ClInclude Include="Scripts\ViewModels\ItemDrop\DropArtifacts\DropArtifactsViewModel.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UI\ItemDropUIRootManager.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UI\ArtifactUIManager.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\ItemDropSystem.h" />
+    <ClInclude Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.h" />
+    <ClInclude Include="Scripts\ExcelParser\ImGuiColumnSheetParser.h" />
+    <ClInclude Include="Scripts\SceneTransition\SceneTransitionComponent.h" />
+    <ClInclude Include="Scripts\Utility\SingletonHelper.h" />
+    <ClInclude Include="Scripts\PlayerSystem\PlayerSystem.h" />
+    <ClInclude Include="Scripts\AccessorySystem\AccessorySystem.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

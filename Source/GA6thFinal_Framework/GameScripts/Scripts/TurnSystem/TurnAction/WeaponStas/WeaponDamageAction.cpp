@@ -47,7 +47,7 @@ void WeaponDamageAction::OnPlayerQTEResult(Player& player)
 { 
     if (TriggerType::QTE_END == ReflectFields->Trigger && EvaluateConditions())
     {
-        WeaponSystem* weaponSystem = WeaponSystem::GetInstance();
+        WeaponSystem* weaponSystem = SingletonComponent<WeaponSystem>::GetInstance();
         if (weaponSystem)
         {
            WeaponStats& stats = weaponSystem->GetCurrentWeaponStats();
