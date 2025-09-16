@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "UmFramework.h"
+#include "DLLExportDefine.h"
 #include "Utility/SingletonHelper.h"
 
 class ConsumableSystem : public Component

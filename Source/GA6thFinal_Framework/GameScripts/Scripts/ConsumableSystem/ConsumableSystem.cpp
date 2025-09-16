@@ -1,6 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "ConsumableSystem.h"
 
+UMREAL_COMPONENT(ConsumableSystem)
+
 ConsumableSystem::ConsumableSystem()
 {
 
