@@ -43,7 +43,7 @@ private:
 
     // 매 프레임 실행되는 핵심 로직
     void UpdateCascades(const Vector3& lightDirection);
-    void DrawMeshes(ID3D12GraphicsCommandList* commandList, int shaderType, MeshType meshType, int cascadeIndex);
+    void DrawMeshes(ID3D12GraphicsCommandList* commandList, int shaderType, MeshType meshType, int cascadedIndex);
     void CopyPreviousCascadeData(ID3D12GraphicsCommandList* commandList);
 
 private:
@@ -65,7 +65,7 @@ private:
     CascadeData    _cascadeData;
     D3D12_VIEWPORT _viewport;
     D3D12_RECT     _scissorRect;
-    UINT           _shadowMapSize = 2048; // 그림자 맵 해상도
+    UINT           _shadowMapSize = 2048;
 
     // 디버그용
     DescriptorHandles _debugHandles[MAX_CASCADES];

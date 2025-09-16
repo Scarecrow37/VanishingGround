@@ -17,6 +17,19 @@ struct MaterialID
     UINT ID[4];
 };
 
+struct ObjectData
+{
+    UINT  InstanceID;
+    UINT  MaxBoneMatrix;
+    UINT  CustomDepth;
+    FLOAT Alpha;
+};
+
+struct ShadowObjectData : public ObjectData
+{
+    UINT CascadedIndex;
+};
+
 struct CameraData
 {
     XMMATRIX View;

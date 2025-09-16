@@ -30,7 +30,7 @@ void FogCompositePass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_fx.GetRootSignature());
 
-    const auto& renderTargetGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
+    const auto& renderTargetGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("G-Buffer");
     auto        compositeData     = _volumTech->GetVolumetricFogBufferView()->GetGPUVirtualAddress();
 
     commandList->SetGraphicsRootSignature(_fx.GetRootSignature());

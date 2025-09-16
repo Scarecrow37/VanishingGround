@@ -34,9 +34,9 @@ namespace Global
     D3D12_GPU_DESCRIPTOR_HANDLE dummyTextureHandle;
 }
 
-Renderer::Renderer() : _totalTime{0.f} {}
+Renderer::Renderer() = default;
 
-Renderer::~Renderer() {}
+Renderer::~Renderer() = default;
 
 D3D12_GPU_DESCRIPTOR_HANDLE Renderer::GetRenderSceneImage(std::string_view renderSceneName)
 {
@@ -277,40 +277,23 @@ void Renderer::Initialize()
 {
     CreateDefaultResource();
 
-    _shader = std::make_unique<ShaderBuilder>();
+    PipelineStateStream pss;
+    pss.BlendState                        = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    pss.RasterizerState                   = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    pss.DepthStencilState                 = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+    (&pss.DepthStencilState)->DepthEnable = FALSE;
+    pss.PrimitiveTopology                 = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    pss.RTVFormats                        = {{Global::device->GetBackBufferFormat()}, 1};
 
-    _shader->BeginBuild();
-    _shader->SetShader(L"../Shaders/vs_quad.hlsl", ShaderBuilder::Type::VS);
-    _shader->SetShader(L"../Shaders/ps_to_backbuffer.hlsl", ShaderBuilder::Type::PS);
-    _shader->EndBuild();
-
-    ID3D12Device*                      device = Global::device->GetDevice();
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc{};
-    psodesc.RasterizerState               = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    psodesc.BlendState                    = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    psodesc.DepthStencilState             = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-    psodesc.DepthStencilState.DepthEnable = FALSE;
-    psodesc.SampleMask                    = UINT_MAX;
-    psodesc.PrimitiveTopologyType         = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psodesc.InputLayout                   = _shader->GetInputLayout();
-    psodesc.NumRenderTargets              = 1;
-    psodesc.RTVFormats[0]                 = Global::device->GetBackBufferFormat();
-    psodesc.pRootSignature                = _shader->GetRootSignature();
-    psodesc.SampleDesc                    = {1, 0};
-    psodesc.VS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::VS);
-    psodesc.PS                            = _shader->GetShaderByteCode(ShaderBuilder::Type::PS);
-
-    HRESULT hr = S_OK;
-    hr         = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&_pipelineState));
-    FAILED_CHECK_MESSAGE(hr, L"Renderer::Initialize device->CreateGraphicsPipelineState Failed");
+    _fx.SetPipelineStateStream(pss);
+    _pipelineState = Global::pipelineStateManager->GetPipelineState(pss);
 
     auto quadModel = Global::resourceManager->LoadResource<Model>(L"Quad");
     _frameQuad     = quadModel->GetMeshes().front().get();
 }
 
 void Renderer::Update(const float deltaTime)
-{    
-    _totalTime += deltaTime;
+{
     for (auto& renderScene : _renderScenes)
     {
         renderScene.second->UpdateRenderScene(deltaTime);
@@ -361,11 +344,11 @@ void Renderer::RenderToBackBuffer()
     commandList->RSSetScissorRects(1, &Global::device->GetMainScissorRect());
 
     commandList->SetPipelineState(_pipelineState.Get());
-    commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
+    commandList->SetGraphicsRootSignature(_fx.GetRootSignature());
 
     auto descriptorHeap = Global::viewManager->GetShaderResourceHeap();
     commandList->SetDescriptorHeaps(1, &descriptorHeap);
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("screenTexture"), scene->GetFinalImage());
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("screenTexture"), scene->GetFinalImage());
 
     _frameQuad->Render(commandList);
 }
@@ -534,6 +517,34 @@ void Renderer::CreateDefaultRenderTarget()
     desc.Width  = resolution.cx;
     desc.Height = resolution.cy;
     Global::multiRenderTargetManager->InitializeRenderTargetPool(4, desc);
+        
+    auto& renderTargetManager = Global::multiRenderTargetManager;
+    std::initializer_list<std::string_view> renderTargetNames = {"BaseColor", "Normal", "ORM", "Emissive",  "Depth",  "CustomDepth"};
+    
+    auto first = renderTargetNames.begin();
+    for (UINT i = 0; i <= GBuffer::EMISSIVE; ++i)
+    {
+        renderTarget = MakeSharedResource<RenderTarget>();
+        renderTarget->Initialize(desc, 0.247f);
+        renderTargetManager->AddRenderTarget(*(first + i), renderTarget);
+    }
+
+    renderTarget = MakeSharedResource<RenderTarget>();
+    desc.Format  = DXGI_FORMAT_R32_FLOAT;
+    renderTarget->Initialize(desc, 1.f);
+    renderTargetManager->AddRenderTarget(*(first + GBuffer::DEPTH), renderTarget);
+
+    renderTarget = MakeSharedResource<RenderTarget>();
+    desc.Format  = DXGI_FORMAT_R32_UINT;
+    renderTarget->Initialize(desc, 0.f);
+    renderTargetManager->AddRenderTarget(*(first + GBuffer::CUSTOMDEPTH), renderTarget);
+
+    // Deferred G-Buffer
+    renderTargetManager->AddRenderTargetGroup("G-Buffer", renderTargetNames);
+
+    // Forward G-Buffer
+    renderTargetNames = {"Normal", "Depth", "CustomDepth"};
+    renderTargetManager->AddRenderTargetGroup("Forward G-Buffer", renderTargetNames);
 }
 
 void Renderer::CreateDefaultShader()
