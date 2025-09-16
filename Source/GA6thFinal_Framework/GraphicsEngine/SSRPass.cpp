@@ -45,7 +45,7 @@ void SSRPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->RSSetScissorRects(1, &renderTarget->GetScissorRect());
 
     auto        ssrProperty       = std::any_cast<SSRPassProperty>(_ownerScene->GetRenderPassProperty("SSRPass"));
-    const auto& renderTargetGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
+    const auto& renderTargetGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("G-Buffer");
     auto        cameraData        = _ownerScene->_cameraBuffer->GetGPUVirtualAddress();
 
     commandList->SetGraphicsRootSignature(_fxSSR.GetRootSignature());

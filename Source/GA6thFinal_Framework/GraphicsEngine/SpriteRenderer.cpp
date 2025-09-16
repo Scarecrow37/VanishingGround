@@ -29,5 +29,5 @@ void SpriteRenderer::SetLinearFill(float fill)
 
 void SpriteRenderer::SetAlpha(const float alpha)
 {
-    _material.Alpha = alpha;
+    _alpha = std::clamp(alpha, 0.f, 1.f);
 }

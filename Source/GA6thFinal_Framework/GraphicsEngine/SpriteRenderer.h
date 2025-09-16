@@ -13,6 +13,7 @@ public:
     const Texture*        GetTexture() const { return _texture.get(); }
     const SIZE&           GetSize() const { return _size; }
     const UIMaterialData& GetMaterialData() const { return _materialData; }
+    const float           GetAlpha() const { return _alpha; }
 
     void SetType(SpriteType type) { _type = type; }
     void SetSize(SIZE size) { _size = size; }
@@ -25,6 +26,6 @@ private:
     const Matrix&            _worldMatrix;
     SpriteType               _type;
     SIZE                     _size;
-    UIMaterial               _material;
     UIMaterialData           _materialData;
+    float                    _alpha;
 };
