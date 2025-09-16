@@ -52,7 +52,7 @@ namespace Input
             NormalizeStick(xState.Gamepad.sThumbRX, xState.Gamepad.sThumbRY, XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);
         state.LeftTrigger      = NormalizeTrigger(xState.Gamepad.bLeftTrigger, XINPUT_GAMEPAD_TRIGGER_THRESHOLD);
         state.RightTrigger     = NormalizeTrigger(xState.Gamepad.bRightTrigger, XINPUT_GAMEPAD_TRIGGER_THRESHOLD);
-        unsigned short buttons = xState.Gamepad.wButtons;
+        unsigned int buttons = xState.Gamepad.wButtons;
         if (state.LeftThumbStickAxis.Magnitude > 0)
             buttons |= ControllerTypes::LEFT_THUMB_STICK;
         if (state.RightThumbStickAxis.Magnitude > 0)

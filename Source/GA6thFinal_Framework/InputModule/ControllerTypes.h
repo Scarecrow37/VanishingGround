@@ -35,6 +35,15 @@ namespace Input::ControllerTypes
         float Magnitude;
     };
 
+    enum StickBias : unsigned char
+    {
+        UNBIASED,
+        LEFT,
+        RIGHT,
+        UP,
+        DOWN
+    };
+
     using TriggerValue = float;
 
     struct State

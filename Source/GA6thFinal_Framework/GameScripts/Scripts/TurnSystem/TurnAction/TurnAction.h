@@ -50,7 +50,7 @@ public:
     /// <summary>
     /// 이 액션의 life cycle이 활성화 되어있는지 확인합니다.
     /// </summary>
-    bool IsValidAction() { return _isDestroy != nullptr; }
+    bool IsValidAction() const { return _isDestroy != nullptr; }
 
     /// <summary>
     /// 등록된 Condition 객체들의 조건을 평가합니다.

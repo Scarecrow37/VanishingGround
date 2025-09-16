@@ -107,24 +107,136 @@ void TestComponent::DeserializedReflectEvent()
 
 }
 
-void TestComponent::ImGuiDrawPropertysEvent() 
+void TestComponent::ImGuiDrawPropertysEvent()
 {
-    if (ImGui::Button(u8"테스트 컴포넌트 추가"_c_str))
+#ifdef _UMEDITOR
+    if (ImGui::TreeNode("Add Component test"))
     {
-        AddComponent<TestComponent>();
+        if (ImGui::Button(u8"테스트 컴포넌트 추가"_c_str))
+        {
+            AddComponent<TestComponent>();
+        }
+        ImGui::TreePop();
     }
-    if (ImGui::Button(u8"오브젝트 Active 동시 변경 테스트"_c_str))
+
+    if (ImGui::TreeNode("Set Active test"))
     {
-        gameObject->SetActive(false);
-        gameObject->SetActive(true);
-        gameObject->SetActive(false);
-        gameObject->SetActive(true);
+        if (ImGui::Button(u8"오브젝트 Active 동시 변경 테스트"_c_str))
+        {
+            gameObject->SetActive(false);
+            gameObject->SetActive(true);
+            gameObject->SetActive(false);
+            gameObject->SetActive(true);
+        }
+        if (ImGui::Button(u8"컴포넌트 Active 동시 변경 테스트"_c_str))
+        {
+            Enable = false;
+            Enable = true;
+            Enable = false;
+            Enable = true;
+        }
+        ImGui::TreePop();
     }
-    if (ImGui::Button(u8"컴포넌트 Active 동시 변경 테스트"_c_str))
+
+    ImGuiDrawEditGimzmoes();
+#endif
+}
+
+void TestComponent::OnDrawDebug() 
+{
+#ifdef _UMEDITOR
+
+#endif
+}
+
+void TestComponent::OnDrawDebugSelected() 
+{
+#ifdef _UMEDITOR
+    DrawGizmoIcon();
+    DrawGuizmo();
+#endif
+}
+
+void TestComponent::PushGizmo()
+{
+#ifdef _UMEDITOR
+    int size = (int)_gizmoes.size();
+    auto& [gizmo, matrix, icon] = _gizmoes.emplace_back(this, Matrix::Identity, SceneGizmo::DefaultIcon::TETHER);
+    gizmo.SetIconTexture(icon);
+    gizmo.EventListener.AddListener([this, index = size]() { _selectGizmoIndex = index; });
+
+    //matrix 포인터 이동하기 때문에 다시 설정해야함.
+    for (auto& [gizmo, matrix, icon] : _gizmoes)
     {
-        Enable = false;
-        Enable = true;
-        Enable = false;
-        Enable = true;
+        gizmo.SetOwnerMatrix(matrix);
     }
+#endif
+}
+
+void TestComponent::PopGizmo() 
+{
+#ifdef _UMEDITOR
+    _gizmoes.pop_back();
+#endif
+}
+
+void TestComponent::DrawGuizmo() 
+{
+#ifdef _UMEDITOR
+    if (0 <= _selectGizmoIndex && _selectGizmoIndex < _gizmoes.size())
+    {
+        auto& [gizmo, matrix, icon] = _gizmoes[_selectGizmoIndex];
+        gizmo.DrawImGuizmo();
+    }
+#endif
+}
+
+void TestComponent::DrawGizmoIcon() 
+{
+#ifdef _UMEDITOR
+    for (auto& [gizmo, matrix, icon] : _gizmoes)
+    {
+        gizmo.DrawIcon();
+    }
+#endif
+}
+
+void TestComponent::ImGuiDrawEditGimzmoes()
+{
+#ifdef _UMEDITOR
+    if (ImGui::TreeNode("Gizmo test"))
+    {
+        for (auto& [gizmo, matrix, gizmoIcon] : _gizmoes)
+        {
+            ImGui::PushID(&gizmo);
+            constexpr auto defaultIcons = rfl::get_enumerator_array<SceneGizmo::DefaultIcon>();
+            std::string    iconName     = rfl::enum_to_string(gizmoIcon);
+            if (ImGui::BeginCombo("##gizmo icon", iconName.c_str()))
+            {
+                int id = 0;
+                for (auto& [name, icon] : defaultIcons)
+                {
+                    ImGui::PushID(id++);
+                    if (ImGui::Selectable(name.data(), name == iconName))
+                    {
+                        gizmoIcon = icon;
+                        gizmo.SetIconTexture(gizmoIcon);
+                    }
+                    ImGui::PopID();
+                }
+                ImGui::EndCombo();
+            }
+            ImGui::PopID();
+        }
+        if (ImGui::Button("Push gizmo"))
+        {
+            PushGizmo();
+        }
+        if (ImGui::Button("Pop gizmo"))
+        {
+            PopGizmo();
+        }
+        ImGui::TreePop();
+    }
+#endif
 }

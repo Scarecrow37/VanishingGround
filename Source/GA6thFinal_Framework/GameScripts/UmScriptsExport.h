@@ -83,8 +83,8 @@ UMREAL_COMPONENT(FPSCounter)
 #include "Scripts\Particle/ParticleComponent.h"
 UMREAL_COMPONENT(ParticleComponent)
 
-#include "Scripts/UI/UIRoot/UIRoot.h"
 UMREAL_COMPONENT(UIRoot)
+UMREAL_COMPONENT(UINavigationComponent)
 
 #include "Scripts/UI/Elements/Dummy/DummyElement.h"
 UMREAL_COMPONENT(DummyElement)
@@ -199,6 +199,9 @@ UMREAL_COMPONENT(SmoothScroll)
 
 #include "Scripts\UI/Views/Map/MapPlayerHPView.h"
 UMREAL_COMPONENT(MapPlayerHPView)
+
+#include "Scripts\AccessorySystem/AccessorySystem.h"
+UMREAL_COMPONENT(AccessorySystem)
 
 #include "Scripts/QTE/System/QTESystem.h"
 UMREAL_COMPONENT(QTESystem)

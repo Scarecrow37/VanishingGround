@@ -127,6 +127,7 @@ void EditorSceneTool::OnFrameRender()
         DrawManipulate();
         if (ReflectFields->DrawGizmo)
         {
+            UmGizmoManager.DrawImGuizmo(_drawManipulateDesc);
             UmGizmoManager.Draw();
         }
         RayPicker();
@@ -727,10 +728,6 @@ void EditorSceneTool::RayPicker()
                     {
                         break;
                     }
-                }
-                if (false == intersects)
-                {
-                    EditorInspectorTool::ResetFocusObject();
                 }
             }
         }

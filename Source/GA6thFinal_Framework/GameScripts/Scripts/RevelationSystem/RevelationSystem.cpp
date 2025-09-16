@@ -369,8 +369,8 @@ void RevelationSystem::ImGuiDrawExcelParser()
 
         if (STR_NULL != name)
         {
-            auto findWeaponIter = _elementsTable.find(name);
-            if (findWeaponIter == _elementsTable.end())
+            auto findIter = _elementsTable.find(name);
+            if (findIter == _elementsTable.end())
             {
                 // 없으면 새로 생성
                 InsertElement(temp);
@@ -378,9 +378,9 @@ void RevelationSystem::ImGuiDrawExcelParser()
             else
             {
                 // 이미 있으면 데이터만 복사(액션은 유지)
-                std::string originActionName                     = findWeaponIter->second.ReflectFields->ActionName;
-                *findWeaponIter->second.ReflectFields            = *temp.ReflectFields;
-                findWeaponIter->second.ReflectFields->ActionName = std::move(originActionName);
+                std::string originActionName               = findIter->second.ReflectFields->ActionName;
+                *findIter->second.ReflectFields            = *temp.ReflectFields;
+                findIter->second.ReflectFields->ActionName = std::move(originActionName);
             }
             if (false == result)
             {

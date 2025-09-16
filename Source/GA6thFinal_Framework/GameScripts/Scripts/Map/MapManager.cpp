@@ -5,7 +5,6 @@
 #include "Map/Stage.h"
 #include "UI/Elements/Image/ImageElement.h"
 #include "UI/Panels/Overlay/OverlayPanel.h"
-#include "UI/UIRoot/UIRoot.h"
 #include "UI/Views/Map/StageFocusView.h"
 #include "UI/Views/Map/StageView.h"
 #include "UI/Wrappers/Scrolling/ScrollingWrapper.h"

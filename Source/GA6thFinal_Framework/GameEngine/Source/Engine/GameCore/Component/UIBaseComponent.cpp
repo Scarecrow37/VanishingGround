@@ -8,6 +8,16 @@ UIBaseComponent::UIBaseComponent() : Component(TYPE::UI)
     
 }
 
+void UIBaseComponent::ImGuiDrawPropertysEvent()
+{
+    Component::ImGuiDrawPropertysEvent();
+
+    if (ImGui::Button("Debug"))
+    {
+        _isDebug = !_isDebug;
+    }
+}
+
 void UIBaseComponent::OnDrawDebug()
 {
     Component::OnDrawDebug();

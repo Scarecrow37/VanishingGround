@@ -28,10 +28,11 @@ private:
     class WeaponSystem*           _weaponSystem         = nullptr;
     class WeaponTableComponent*   _weaponTableComponent = nullptr;
     class RevelationSystem*       _revelationSystem     = nullptr;
+    class AccessorySystem*        _accessorySystem      = nullptr;
     class ItemDropSystem*         _itemDropSystem       = nullptr;
     class PlayerStatsComponent*   _playerStatsComponent = nullptr;
 
-    private:
+private:
     void CheckSystem();
 
 };
