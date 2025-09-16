@@ -3,25 +3,36 @@
 #include "CameraComponent.h"
 class UmCineMotion : public CameraComponent
 {
+    inline static constexpr float SHAKE_FREQUENCY = 0.35f;
+
     USING_PROPERTY(UmCineMotion)
+public:
+    REFLECT_PROPERTY(RailSpeed, ShakeIntensity, ShakeDuration)
+    GETTER(float, RailSpeed) { return ReflectFields->RailSpeed; }
+    SETTER(float, RailSpeed) { ReflectFields->RailSpeed = value; }
+    PROPERTY(RailSpeed)
+    GETTER(float, ShakeIntensity) { return _shakeIntensity; }
+    SETTER(float, ShakeIntensity) { _shakeIntensity = value; }
+    PROPERTY(ShakeIntensity)
+    GETTER(float, ShakeDuration) { return _shakeDuration; }
+    SETTER(float, ShakeDuration) { _shakeDuration = value; }
+    PROPERTY(ShakeDuration)
 
 public:
     UmCineMotion();
     ~UmCineMotion() override;
 
-public:
-    REFLECT_PROPERTY()
 
 protected:
     REFLECT_FIELDS_BEGIN(CameraComponent)
-    float                RailSpeed = 1.f;
+    float              RailSpeed = 1.f;
     std::vector<float> PositionXTethers;
     std::vector<float> PositionYTethers;
     std::vector<float> PositionZTethers;
     std::vector<float> RotationXTethers;
     std::vector<float> RotationYTethers;
     std::vector<float> RotationZTethers;
-    std::vector<float>   TimestepTethers;
+    std::vector<float> TimestepTethers;
     REFLECT_FIELDS_END(UmCineMotion)
 
 
@@ -34,14 +45,22 @@ protected:
     void SerializedReflectEvent() override;
     void RunRail();
 
+    void    UndoTether();
+    void    ClearTethers();
+    void    DrawRail();
+    void    BeginShake(float duration, float intensity);
+    Vector3 GetShakeOffset(float intensity, float time);
+
+    void ApplyTransform();
+
+
  public:
     void AddTether(float timestep);
     void AddTetherAuto();
-    void UndoTether();
-    void ClearTethers();
     void StartRail();
     void PauseRail();
     void StopRail();
+    void Shake();
 
 
 protected:
@@ -52,4 +71,11 @@ protected:
     float                _speed           = 1.f;
     bool                 _railfFlag       = false;
     bool                 _pauseFlag       = false;
+
+    float _shakeIntensity    = 0.f;
+    float _shakeElapsedTimer = 0.f;
+    float _shakeDuration     = 0.f;
+    bool  _shakeFlag         = false;
+
+    Vector3 _targetPos = {0, 0, 0};
 };

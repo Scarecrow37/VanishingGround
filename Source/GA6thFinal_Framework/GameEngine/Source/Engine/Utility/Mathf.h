@@ -14,6 +14,7 @@ namespace Mathf
 
     enum EaseFuncType
     {
+        LINEAR,
         SINE,
         CUBIC,
         QUAD,
@@ -220,7 +221,7 @@ namespace Mathf
     
     inline const std::vector<std::string> EaseNameTable = {"In", "Out", "In-Out", "Out-In"};
 
-    inline const std::vector<std::string> EaseFuncNameTable = {"Sine", "Cubic",    "Quad", "Quart",   "Quint",
+    inline const std::vector<std::string> EaseFuncNameTable = {"Linear","Sine", "Cubic",    "Quad", "Quart",   "Quint",
                                                                "Expo", "Circular", "Back", "Elastic", "Bounce"};
 
     inline const std::array<EaseFunc, EaseFuncType::COUNT * 2> EaseTable = {
@@ -239,6 +240,10 @@ namespace Mathf
                       float threshold = 0.5f, float t = 0.f)
     {
         t         = std::clamp(t, 0.0f, 1.0f);
+        if (EaseFuncType::LINEAR == funcType)
+        {
+            return t;
+        }
         threshold = std::clamp(threshold, 0.0f, 1.0f);
 
         // 같은 타입이면 기존 방식 사용

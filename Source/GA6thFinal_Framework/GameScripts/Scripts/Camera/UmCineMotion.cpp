@@ -9,53 +9,28 @@ void UmCineMotion::OnDrawDebug()
     if (false == Global::IsPlay())
     {
         RunRail();
+        Shake();
+        ApplyTransform();
     }
 }
 
 void UmCineMotion::OnDrawDebugSelected()
 {
     CameraComponent::OnDrawDebugSelected();
-    if (false == _posTethers.empty())
-    {
-        // tether points
-        {
-            for (auto& pos : _posTethers)
-            {
-                UmGraphics.DebugDraw3D("Editor", BoundingSphere(pos, 0.2f), Colors::HotPink);
-            }
-        }
-        // interpolated points
-        {
-            Vector3 step = {0, 0, 0};
-            if (_posTethers.size() > 2)
-            {
-                float max      = ReflectFields->TimestepTethers[_posTethers.size() - 1];
-                float timestep = max / 200;
-                for (float i = 0; i < max; i += timestep)
-                {
-                    step = Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _posTethers, i);
-                    UmGraphics.DebugDraw3D("Editor", BoundingSphere(step, 0.1f), DEBUG_COLOR);
-                }
-            }
-            else if (_posTethers.size() == 2)
-            {
-                for (float i = 0; i <= 1; i += 0.005f)
-                {
-                    step = Vector3::Lerp(_posTethers[0], _posTethers[1], i);
-                    UmGraphics.DebugDraw3D("Editor", BoundingSphere(step, 0.1f), DEBUG_COLOR);
-                }
-            }
-        }
-    }
+    DrawRail();
     if (false == Global::IsPlay())
     {
         RunRail();
+        Shake();
+        ApplyTransform();
     }
 }
 
 void UmCineMotion::Update()
 {
     RunRail();
+    Shake();
+    ApplyTransform();
 }
 
 void UmCineMotion::ImGuiDrawPropertysEvent()
@@ -79,22 +54,30 @@ void UmCineMotion::ImGuiDrawPropertysEvent()
         {
             ClearTethers();
         }
+        bool isPlayPressed = ImGui::Button("Start Rail", {150, 50});
+        if (true == isPlayPressed)
+        {
+            StartRail();
+        }
+        ImGui::SameLine();
+        bool isPausePressed = ImGui::Button("Pause Rail", {150, 50});
+        if (true == isPausePressed)
+        {
+            PauseRail();
+        }
+        ImGui::SameLine();
+        bool isStopPressed = ImGui::Button("Stop Rail", {150, 50});
+        if (true == isStopPressed)
+        {
+            StopRail();
+        }
     }
-
-    bool isPlayPressed = ImGui::Button("Start Rail", {150, 50});
-    if (true == isPlayPressed)
     {
-        StartRail();
-    }
-    bool isPausePressed = ImGui::Button("Pause Rail", {150, 50});
-    if (true == isPausePressed)
-    {
-        PauseRail();
-    }
-    bool isStopPressed = ImGui::Button("Stop Rail", {150, 50});
-    if (true == isStopPressed)
-    {
-        StopRail();
+        bool isShakePressed = ImGui::Button("Shake", {150, 50});
+        if (true == isShakePressed)
+        {
+            BeginShake(_shakeDuration,_shakeIntensity);
+        }
     }
 }
 
@@ -163,6 +146,85 @@ void UmCineMotion::StopRail()
     _moveTimer = 0;
     _pauseFlag = false;
     _railfFlag = false;
+    if (false == _posTethers.empty())
+    {
+        transform->Position = _posTethers[0];
+        transform->EulerAngle = _rotTethers[0];
+    }
+}
+
+void UmCineMotion::Shake() 
+{
+    if (true == _shakeFlag)
+    {
+        _shakeElapsedTimer += UmTime.DeltaTime();
+        _targetPos += GetShakeOffset(_shakeIntensity, _shakeElapsedTimer);
+        if (_shakeElapsedTimer >= _shakeDuration)
+        {
+            _shakeFlag         = false;
+            _shakeElapsedTimer = 0;
+        }
+    }
+}
+
+void UmCineMotion::DrawRail() 
+{
+    if (false == _posTethers.empty())
+    {
+        // tether points
+        {
+            for (auto& pos : _posTethers)
+            {
+                UmGraphics.DebugDraw3D("Editor", BoundingSphere(pos, 0.2f), Colors::Red);
+            }
+        }
+        // interpolated points
+        {
+            Vector3 step = {0, 0, 0};
+            if (_posTethers.size() > 2)
+            {
+                float max      = ReflectFields->TimestepTethers[_posTethers.size() - 1];
+                float timestep = max / 100;
+                for (float i = 0; i < max; i += timestep)
+                {
+                    step = Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _posTethers, i);
+                    UmGraphics.DebugDraw3D("Editor", BoundingSphere(step, 0.05f), DEBUG_COLOR);
+                }
+            }
+            else if (_posTethers.size() == 2)
+            {
+                for (float i = 0; i <= 1; i += 0.01f)
+                {
+                    step = Vector3::Lerp(_posTethers[0], _posTethers[1], i);
+                    UmGraphics.DebugDraw3D("Editor", BoundingSphere(step, 0.05f), DEBUG_COLOR);
+                }
+            }
+        }
+    }
+}
+
+void UmCineMotion::BeginShake(float duration, float intensity) 
+{
+    _shakeFlag = true;
+    _shakeDuration = duration;
+    _shakeIntensity = intensity;
+    _shakeElapsedTimer = 0.f;
+}
+
+DirectX::SimpleMath::Vector3 UmCineMotion::GetShakeOffset(float intensity, float time) 
+{
+    if (intensity <= 0.0f)
+        return Vector3(0, 0, 0);
+    float shakeX = sin(time * SHAKE_FREQUENCY + rand()) * intensity;
+    float shakeY = cos(time * SHAKE_FREQUENCY + rand()) * intensity;
+    float shakeZ = sin((time + 0.5f) * SHAKE_FREQUENCY + +rand()) * intensity; // z는 보통 진폭 작게
+
+    return Vector3(shakeX, shakeY, shakeZ);
+}
+
+void UmCineMotion::ApplyTransform() 
+{
+    transform->Position = _targetPos;
 }
 
 void UmCineMotion::RunRail() 
@@ -175,7 +237,7 @@ void UmCineMotion::RunRail()
         }
         Vector3 angle = Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _rotTethers, _moveTimer);
         Vector3 position = Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _posTethers, _moveTimer);
-        transform->Position = position;
+        _targetPos            = position;
         transform->EulerAngle = angle;
     }
 }
@@ -191,7 +253,7 @@ void UmCineMotion::DeserializedReflectEvent()
                                ReflectFields->PositionZTethers[i]});
         _rotTethers.push_back({ReflectFields->RotationXTethers[i], ReflectFields->RotationYTethers[i],
                                ReflectFields->RotationZTethers[i]});
-    }
+     }
 }
 
 void UmCineMotion::SerializedReflectEvent()
