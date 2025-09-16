@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "DLLExportDefine.h"
 #include "ExcelParser/ImGuiColumnSheetParser.h"
+#include "Utility/SingletonHelper.h"
 
 class ExcelDataSystem : public Component
 {
@@ -9,6 +10,9 @@ class ExcelDataSystem : public Component
 public:
     ExcelDataSystem();
     ~ExcelDataSystem() override;
+
+private:
+    SingletonObject<ExcelDataSystem> _singletonObject;
 
 public:
     REFLECT_PROPERTY()
@@ -21,6 +25,8 @@ protected:
     DataBaseType DataBase;
     REFLECT_FIELDS_END(ExcelDataSystem)
 
+    void Reset() override;
+    void Awake() override;
     void ImGuiDrawPropertysEvent() override;
 
 private:
@@ -28,5 +34,6 @@ private:
     ImGuiColumnSheetParser _excelParser;
 #endif
     void ImGuiDrawExcelParserEdit();
+    void ImGuiDrawDataSheetView();
 
 };
