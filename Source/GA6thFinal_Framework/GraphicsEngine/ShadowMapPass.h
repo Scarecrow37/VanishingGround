@@ -65,7 +65,7 @@ private:
     CascadeData    _cascadeData;
     D3D12_VIEWPORT _viewport;
     D3D12_RECT     _scissorRect;
-    UINT           _shadowMapSize = 4096; // 그림자 맵 해상도
+    UINT           _shadowMapSize = 2048;
 
     // 디버그용
     DescriptorHandles _debugHandles[MAX_CASCADES];
