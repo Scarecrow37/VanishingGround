@@ -89,7 +89,7 @@ PSOutput ps_main(PSInput input)
         DirectionalLight light = lightData.Directional[i];
         
         float shadow = CalculateShadow(worldPosition, normal, light.Direction, shadowMap);
-        directLighting += CalculateDirectional(light, normal, V, albedo.rgb, metallic, roughness) * shadow * 0.001;
+        directLighting += CalculateDirectional(light, normal, V, albedo.rgb, metallic, roughness) * shadow;
         ambientLighting += ambient * light.Ambient;
     }
     
