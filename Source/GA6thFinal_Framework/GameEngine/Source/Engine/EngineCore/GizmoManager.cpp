@@ -57,9 +57,11 @@ void EGizmoManager::Draw()
 
             BoundingBox box;
             box.Extents = {2, 2, 2};
+            SceneGizmo&   gizmo       = *pair.second;
+            const Matrix& worldMatrix =  gizmo._ownerMatrix != nullptr ? *gizmo._ownerMatrix : gizmo._ownerComponenet.transform->GetWorldMatrix();
             box.Transform(box, owner->transform->GetWorldMatrix());
-
-            return false == frustum.Intersects(box);
+            bool intersect = false == frustum.Intersects(box);
+            return intersect;
         });
 
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
