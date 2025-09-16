@@ -1,5 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "QTESystem.h"
+#include <QTE/UI/QTEUIManager.h>
 #include <QTE/Editor/QTEEditor.h>
 #include <QTE/Track/QTETrack.h>
 #include <WeaponSystem/WeaponSystem.h>
@@ -35,6 +36,15 @@ void QTESystem::Awake()
         BindInputAction(ControllerButton::Y, Action::PRESSED, this, this, &QTESystem::PressedButtonY);
         BindInputAction(ControllerButton::B, Action::PRESSED, this, this, &QTESystem::PressedButtonB);
     }
+    else
+    {
+        UmLogger.Log(LogLevel::LEVEL_ERROR, (const char*)u8"씬에 QTESystem이 2개 이상 존재하는지 확인해주세요.");
+    }
+}
+
+void QTESystem::Start() 
+{
+    _qteUIManager = SingletonComponent<QTEUIManager>::GetInstance();
 }
 
 void QTESystem::Update()
@@ -388,4 +398,44 @@ void QTESystem::PressedButtonB(const Input::Controller& controller)
 {
     // Handle button B pressed
     PressedQTEButton(Input::ControllerTypes::Button::B);
+}
+
+void QTESystem::ProcessQTEEnterEvent() 
+{
+    if (_qteUIManager)
+    {
+        _qteUIManager->OnQTEEnter();
+    }
+}
+
+void QTESystem::ProcessQTEFailEvent() 
+{
+    if (_qteUIManager)
+    {
+        _qteUIManager->OnQTEFail();
+    }
+}
+
+void QTESystem::ProcessQTESuccessEvent() 
+{
+    if (_qteUIManager)
+    {
+        _qteUIManager->OnQTESuccess();
+    }
+}
+
+void QTESystem::ProcessQTEStayEvent() 
+{
+    if (_qteUIManager)
+    {
+        _qteUIManager->OnQTEStay();
+    }
+}
+
+void QTESystem::ProcessQTEExitEvent() 
+{
+    if (_qteUIManager)
+    {
+        _qteUIManager->OnQTEExit();
+    }
 }

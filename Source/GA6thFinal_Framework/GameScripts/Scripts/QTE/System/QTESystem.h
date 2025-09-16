@@ -3,6 +3,7 @@
 #include <QTE/Editor/QTEPreviewer.h>
 #include "Utility/SingletonHelper.h"
 
+class QTEUIManager;
 class QTEEditor;
 namespace QTE
 {
@@ -24,6 +25,7 @@ public:
 private:
     void Reset() override;
     void Awake() override;
+    void Start() override;
     void Update() override;
 
     void SerializedReflectEvent() override;
@@ -75,6 +77,12 @@ private:
     void PressedButtonY(const Input::Controller& controller);
     void PressedButtonB(const Input::Controller& controller);
 
+    void ProcessQTEEnterEvent();
+    void ProcessQTEFailEvent();
+    void ProcessQTESuccessEvent();
+    void ProcessQTEStayEvent();
+    void ProcessQTEExitEvent();
+
 public:
     inline bool  IsQTEPlaying() const { return _isQTEPlaying; }
     inline float GetQTEDelayTime() const { return _delayTimer; }
@@ -107,12 +115,14 @@ public:
 private:
     SingletonComponent<QTESystem> _singletonComponent{this};
 
+    QTEUIManager* _qteUIManager;
+
     std::unordered_map<int, std::vector<QTE::Track*>> _weaponIDToTrackTable;    // 무기 ID QTE 매핑 테이블
 
+    QTE::Track*                 _currentQTETrack  = nullptr;                    // QTE 트랙
+    size_t                      _currentNoteIndex = 0;                          // 현재 가리키는 노트 인덱스
     std::vector<QTE::Note*>     _noteAvailQueue;                                // 유효한 노트 큐
     std::vector<QTE::Result>    _noteResultQueue;                               // 노트 결과 큐
-    size_t                      _currentNoteIndex = 0;                          // 현재 가리키는 노트 인덱스
-    QTE::Track*                 _currentQTETrack  = nullptr;                    // QTE 트랙
 
     float                       _delayTimer     = 0.0f;                         // 딜레이 타이머
     float                       _qteTimer       = 0.0f;                         // QTE 타이머

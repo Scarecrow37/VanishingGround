@@ -202,3 +202,6 @@ UMREAL_COMPONENT(MapPlayerHPView)
 
 #include "Scripts/QTE/System/QTESystem.h"
 UMREAL_COMPONENT(QTESystem)
+
+#include "Scripts\QTE/UI/QTEUIManager.h"
+UMREAL_COMPONENT(QTEUIManager)
