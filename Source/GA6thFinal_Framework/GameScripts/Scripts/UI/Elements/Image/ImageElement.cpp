@@ -115,8 +115,6 @@ SIZE ImageElement::MeasureOverride(const SIZE availableSize)
 
 SIZE ImageElement::ArrangeOverride(const SIZE finalSize)
 {
-    DrawUIComponent::ArrangeOverride(finalSize);
-
     const SIZE desiredSize = DesiredSize;
     const SIZE actualSize  = MinSize()(finalSize, desiredSize);
 

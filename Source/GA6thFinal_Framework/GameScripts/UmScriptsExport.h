@@ -83,8 +83,8 @@ UMREAL_COMPONENT(FPSCounter)
 #include "Scripts\Particle/ParticleComponent.h"
 UMREAL_COMPONENT(ParticleComponent)
 
-#include "Scripts/UI/UIRoot/UIRoot.h"
 UMREAL_COMPONENT(UIRoot)
+UMREAL_COMPONENT(UINavigationComponent)
 
 #include "Scripts/UI/Elements/Dummy/DummyElement.h"
 UMREAL_COMPONENT(DummyElement)
