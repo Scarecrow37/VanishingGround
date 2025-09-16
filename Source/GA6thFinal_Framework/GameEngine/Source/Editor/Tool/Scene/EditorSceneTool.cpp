@@ -127,8 +127,8 @@ void EditorSceneTool::OnFrameRender()
         DrawManipulate();
         if (ReflectFields->DrawGizmo)
         {
-            UmGizmoManager.DrawImGuizmo(_drawManipulateDesc);
             UmGizmoManager.Draw();
+            UmGizmoManager.DrawImGuizmo(_drawManipulateDesc);
         }
         RayPicker();
         VertexSnap();
@@ -287,9 +287,11 @@ void EditorSceneTool::DrawManipulate()
 
             ImGuizmo::SetDrawlist();
             ImGuizmo::SetRect(_sceneClienttLeft, _sceneClientTop, _sceneClientWidth, _sceneClientHeight);
+            ImGuizmo::PushID(pObjectMatrix);
             _isUseManipulate = ImGuiHelper::DrawManipulate(pDynamicCamera, pObjectMatrix, _drawManipulateDesc);
             _isUsing         = ImGuizmo::IsUsing();
             _isOver          = ImGuizmo::IsOver();
+            ImGuizmo::PopID();
 
             // 마우스를 움직인 경우에만 Moved 플래그 설정
             if (true == _isUsing && true == isMouseMoved)
