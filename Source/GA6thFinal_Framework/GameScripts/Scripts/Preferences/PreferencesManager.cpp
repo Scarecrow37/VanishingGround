@@ -7,6 +7,7 @@ PreferencesManager::~PreferencesManager() = default;
 void PreferencesManager::Reset()
 {
     BindInputAction(ControllerButton::BACK, Action::PRESSED, this, &PreferencesManager::OnPreferencesWindow);
+    BindInputAction(ControllerButton::START, Action::PRESSED, this, &PreferencesManager::OffPreferencesWindow);
 }
 
 void PreferencesManager::Awake()
@@ -23,4 +24,10 @@ void PreferencesManager::OnPreferencesWindow(const Input::Controller&)
 {
     auto pannel = GameObject::Find("PreferencesPannel");
     pannel.lock()->SetActive(true);
+}
+
+void PreferencesManager::OffPreferencesWindow(const Input::Controller&)
+{
+    auto pannel = GameObject::Find("PreferencesPannel");
+    pannel.lock()->SetActive(false);
 }

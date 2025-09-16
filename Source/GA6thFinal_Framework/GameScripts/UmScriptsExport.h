@@ -202,3 +202,12 @@ UMREAL_COMPONENT(MapPlayerHPView)
 
 #include "Scripts\AccessorySystem/AccessorySystem.h"
 UMREAL_COMPONENT(AccessorySystem)
+
+#include "Scripts\Preferences\PreferencesManager.h"
+UMREAL_COMPONENT(PreferencesManager)
+
+#include "Scripts\Preferences/PrefrencesWindow.h"
+UMREAL_COMPONENT(PrefrencesWindow)
+
+#include "Scripts\UINavigation/TempNavigationComponent.h"
+UMREAL_COMPONENT(TempNavigationComponent)

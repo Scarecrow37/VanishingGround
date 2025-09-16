@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="DebugEditor|Win32">
@@ -329,6 +329,8 @@
     <ClInclude Include="Scripts\Map\RewardPopup.h" />
     <ClInclude Include="Scripts\Map\SmoothScroll.h" />
     <ClInclude Include="Scripts\Map\Stage.h" />
+    <ClInclude Include="Scripts\Preferences\PreferencesManager.h" />
+    <ClInclude Include="Scripts\Preferences\PrefrencesWindow.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.h" />
     <ClInclude Include="Scripts\Animation\AnimationComponent.h" />
@@ -368,6 +370,7 @@
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionFactory.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnSystemHelper.h" />
+    <ClInclude Include="Scripts\UINavigation\TempNavigationComponent.h" />
     <ClInclude Include="Scripts\UI\Base\DrawUIComponent\DrawUIComponent.h" />
     <ClInclude Include="Scripts\UI\Base\SlotComponent\SlotComponent.h" />
     <ClInclude Include="Scripts\UI\Elements\Dummy\DummyElement.h" />
@@ -500,6 +503,8 @@
     <ClCompile Include="Scripts\Map\RewardPopup.cpp" />
     <ClCompile Include="Scripts\Map\SmoothScroll.cpp" />
     <ClCompile Include="Scripts\Map\Stage.cpp" />
+    <ClCompile Include="Scripts\Preferences\PreferencesManager.cpp" />
+    <ClCompile Include="Scripts\Preferences\PrefrencesWindow.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.cpp" />
     <ClCompile Include="Scripts\Animation\AnimationComponent.cpp" />
@@ -547,6 +552,7 @@
     <ClCompile Include="Scripts\Particle\ParticleComponent.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\TurnAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnSystemHelper.cpp" />
+    <ClCompile Include="Scripts\UINavigation\TempNavigationComponent.cpp" />
     <ClCompile Include="Scripts\UI\Base\DrawUIComponent\DrawUIComponent.cpp" />
     <ClCompile Include="Scripts\UI\Base\SlotComponent\SlotComponent.cpp" />
     <ClCompile Include="Scripts\UI\Elements\Dummy\DummyElement.cpp" />

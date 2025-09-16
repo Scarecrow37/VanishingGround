@@ -15,6 +15,8 @@ public:
 
 private:
     void OnPreferencesWindow(const Input::Controller&);
+    // 임시
+    void OffPreferencesWindow(const Input::Controller&);
 
 public:
     REFLECT_PROPERTY()
