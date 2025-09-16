@@ -73,7 +73,7 @@ void ForwardPBRLitPass::Update(ID3D12GraphicsCommandList* commandList, const flo
     {
         for (auto& activeMeshe : _ownerScene->_activeMeshes[i])
         {
-            if (activeMeshe.Material.BlendMode != Material::BlendModeType::TRANSLUCENT)
+            if (activeMeshe.Material.BlendMode != Material::BlendModeType::TRANSLUCENT && 0.f != activeMeshe.Material.Alpha)
                 continue;
 
             XMVECTOR center      = XMLoadFloat3(&activeMeshe.Mesh->GetBoundingBox().Center);
@@ -137,9 +137,8 @@ void ForwardPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
     auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
     
     auto shadowMapPass = _ownerTechnique->GetRenderPass<ShadowMapPass>();
-    auto ssaoPass      = _ownerTechnique->GetRenderPass<SSAOWritePass>();
 
-    if (nullptr == shadowMapPass || nullptr == ssaoPass)
+    if (nullptr == shadowMapPass)
         return;
 
     D3D12_GPU_DESCRIPTOR_HANDLE brdf;
@@ -170,7 +169,6 @@ void ForwardPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootDescriptorTable(_fxStaticMesh.GetRootParameterIndex("irradianceMap"), irradiance);
     commandList->SetGraphicsRootDescriptorTable(_fxStaticMesh.GetRootParameterIndex("prefilteredMap"), prefiltered);
     commandList->SetGraphicsRootDescriptorTable(_fxStaticMesh.GetRootParameterIndex("brdfLUT"), brdf);
-    commandList->SetGraphicsRootDescriptorTable(_fxStaticMesh.GetRootParameterIndex("SSAOMap"), ssaoPass->GetAOTexture());
     commandList->SetGraphicsRootDescriptorTable(_fxStaticMesh.GetRootParameterIndex("textures"), resource);
 
     frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxStaticMesh.GetRootParameterIndex("matrices"), commandList);
@@ -195,7 +193,6 @@ void ForwardPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootDescriptorTable(_fxSkeletalMesh.GetRootParameterIndex("irradianceMap"), irradiance);
     commandList->SetGraphicsRootDescriptorTable(_fxSkeletalMesh.GetRootParameterIndex("prefilteredMap"), prefiltered);
     commandList->SetGraphicsRootDescriptorTable(_fxSkeletalMesh.GetRootParameterIndex("brdfLUT"), brdf);
-    commandList->SetGraphicsRootDescriptorTable(_fxSkeletalMesh.GetRootParameterIndex("SSAOMap"), ssaoPass->GetAOTexture());
     commandList->SetGraphicsRootDescriptorTable(_fxSkeletalMesh.GetRootParameterIndex("textures"), resource);
 
     frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxSkeletalMesh.GetRootParameterIndex("matrices"), commandList);

@@ -34,7 +34,6 @@ Texture2DArray shadowMap;
 TextureCube irradianceMap;
 TextureCube prefilteredMap;
 Texture2D brdfLUT;
-Texture2D<float> SSAOMap;
 Texture2D textures[];
 
 PSOutput ps_main(PSInput input)
@@ -48,17 +47,15 @@ PSOutput ps_main(PSInput input)
     
     float mimBias = bit32_2_gbufferData.MipBias;
     float alpha = data.Alpha;
-    
-    float4 albedo = textures[diffuseID].SampleBias(samLinear_wrap, input.uv, mimBias);
-    
-    clip(albedo.a * alpha - Epsilon);
-    albedo.rgb = GammaToLinearSpace(albedo.rgb);
-    
+        
     float3 T = input.tangent;
     float3 B = input.biTangent;
     float3 N = input.normal;
     OrthonormalizeTBN(T, B, N);
     float3x3 TBN = float3x3(T, B, N);
+    
+    float4 albedo = textures[diffuseID].SampleBias(samLinear_wrap, input.uv, mimBias);      
+    albedo.rgb = GammaToLinearSpace(albedo.rgb);
 
     float3 emissive = textures[emissiveID].SampleBias(samLinear_wrap, input.uv, mimBias).rgb;
     emissive = GammaToLinearSpace(emissive);
@@ -72,7 +69,6 @@ PSOutput ps_main(PSInput input)
     float roughness = orm.g;
     float metallic = orm.b;
     
-    float ssao = SSAOMap.SampleLevel(samLinear_wrap, input.uv, 0).r;
     float3 viewPos = cameraData.Position.xyz;
         
     float3 worldPosition = input.worldPosition.xyz;
@@ -107,7 +103,7 @@ PSOutput ps_main(PSInput input)
         directLighting += CalculateSpot(light, normal, V, albedo.rgb, metallic, roughness, worldPosition);
     }
 
-    float3 color = directLighting + (ambientLighting * ssao) + emissive;
+    float3 color = directLighting + (ambientLighting * ao) + emissive;
     
     PSOutput output = (PSOutput) 0;
     output.color = float4(color, albedo.a * alpha);

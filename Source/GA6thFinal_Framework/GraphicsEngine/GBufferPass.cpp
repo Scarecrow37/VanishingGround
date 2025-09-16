@@ -58,7 +58,7 @@ void GBufferPass::Update(ID3D12GraphicsCommandList* commadList, const float delt
         for (auto& meshInfo : _ownerScene->_activeMeshes[i])
         {
             int blendMode = (int)meshInfo.Material.BlendMode;
-            if (blendMode == Material::BlendModeType::TRANSLUCENT)
+            if (blendMode == Material::BlendModeType::TRANSLUCENT && 0.f < meshInfo.Material.Alpha)
                 continue;
 
             const auto& cameraFrustum = _ownerScene->_camera->GetWorldFrustum();

@@ -53,17 +53,20 @@ void MeshComponent::MakeMeshRenderer(MeshType renderType, const Vector3& positio
 
 void MeshComponent::SerializedReflectEvent()
 {
-    const auto& model = Renderer->GetModel();
-
-    if (model)
+    if (Renderer)
     {
-        auto&  materials = model->GetMaterials();
-        size_t meshCount = model->GetMeshCount();
+        const auto& model = Renderer->GetModel();
 
-        for (size_t i = 0; i < meshCount; i++)
+        if (model)
         {
-            ReflectFields->BlendMode[i]  = materials[i].BlendMode;
-            ReflectFields->IsTwoSided[i] = materials[i].IsTwoSided;
+            auto&  materials = model->GetMaterials();
+            size_t meshCount = model->GetMeshCount();
+
+            for (size_t i = 0; i < meshCount; i++)
+            {
+                ReflectFields->BlendMode[i]  = materials[i].BlendMode;
+                ReflectFields->IsTwoSided[i] = materials[i].IsTwoSided;
+            }
         }
     }
 }
