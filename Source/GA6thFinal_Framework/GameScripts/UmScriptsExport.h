@@ -202,3 +202,6 @@ UMREAL_COMPONENT(MapPlayerHPView)
 
 #include "Scripts\AccessorySystem/AccessorySystem.h"
 UMREAL_COMPONENT(AccessorySystem)
+
+#include "Scripts\ConsumableSystem/ConsumableSystem.h"
+UMREAL_COMPONENT(ConsumableSystem)
