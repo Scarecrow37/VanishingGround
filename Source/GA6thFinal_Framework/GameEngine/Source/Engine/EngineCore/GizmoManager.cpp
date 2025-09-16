@@ -59,7 +59,7 @@ void EGizmoManager::Draw()
             box.Extents = {2, 2, 2};
             SceneGizmo&   gizmo       = *pair.second;
             const Matrix& worldMatrix =  gizmo._ownerMatrix != nullptr ? *gizmo._ownerMatrix : gizmo._ownerComponenet.transform->GetWorldMatrix();
-            box.Transform(box, owner->transform->GetWorldMatrix());
+            box.Transform(box, worldMatrix);
             bool intersect = false == frustum.Intersects(box);
             return intersect;
         });
