@@ -199,3 +199,9 @@ UMREAL_COMPONENT(SmoothScroll)
 
 #include "Scripts\UI/Views/Map/MapPlayerHPView.h"
 UMREAL_COMPONENT(MapPlayerHPView)
+
+#include "Scripts\Preferences\PreferencesManager.h"
+UMREAL_COMPONENT(PreferencesManager)
+
+#include "Scripts\Preferences/PrefrencesWindow.h"
+UMREAL_COMPONENT(PrefrencesWindow)
