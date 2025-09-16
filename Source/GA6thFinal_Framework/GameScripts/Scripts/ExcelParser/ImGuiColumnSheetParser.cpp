@@ -106,12 +106,15 @@ bool ImGuiColumnSheetParser::Apply(const std::function<void(const ColumnDatas& d
         for (size_t row = 0; row < _sheetDatas.front().second.size(); ++row)
         {
             columnDatas.clear();
+            bool emptyColumns = true;
             for (auto& [key, datas] : _sheetDatas)
             {
-                columnDatas.emplace_back(std::cref(key), std::cref(datas[row]));
+                auto& data = datas[row];
+                emptyColumns &= data.empty();
+                columnDatas.emplace_back(std::cref(key), std::cref(data));
             }
 
-            if (false == columnDatas.empty())
+            if (false == emptyColumns && false == columnDatas.empty())
             {
                 callBackFunc(columnDatas);
             }
