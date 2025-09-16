@@ -29,11 +29,13 @@ struct PSInput
 
 uint ps_main(PSInput input) : SV_Target
 {
+    PostProcessData data = bit32_6_postProcessData;
+    
     float d = input.depth;
     
-    float2 depthbufferuv = input.position.xy * postProcessData.TexelSize;;
+    float2 depthBufferUV = input.position.xy * data.TexelSize;
     
-    float destDepth = depthbuffer.Sample(samPoint_wrap, depthbufferuv).r;
+    float destDepth = depthbuffer.Sample(samPoint_wrap, depthBufferUV).r;
     clip(destDepth - d);
     
     clip(input.color.a - 0.001f);

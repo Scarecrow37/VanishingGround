@@ -7,7 +7,6 @@ struct VSInput
     float4 position : POSITION;
     float2 uv : TEXCOORD;
     uint InstanceID : SV_InstanceID; // 인스턴스 ID 추가
-
 };
 
 struct VSOutput
@@ -20,7 +19,6 @@ struct VSOutput
     float4 color : COLOR0;
     float depth : TEXCOORD1;
     nointerpolation int emitterIndex : CUSTOM_FLAG;
-
 };
 
 VSOutput vs_main(VSInput input)

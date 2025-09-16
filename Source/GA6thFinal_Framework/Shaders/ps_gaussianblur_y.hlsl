@@ -10,15 +10,17 @@ Texture2D sourceTexture;
 
 float4 ps_main(PS_INPUT input) : SV_TARGET
 {    
+    PostProcessData data = bit32_6_postProcessData;
+    
     //float indices[KERNEL_SIZE] = { -7, -6, -5, -4, -3, -2, -1, 0, +1, +2, +3, +4, +5, +6, +7 };
     float indices[9] = {  -4, -3, -2, -1, 0, +1, +2, +3, +4};
-    float2 step = float2(0, 1) * postProcessData.TexelSize;
+    float2 step = float2(0, 1) * data.TexelSize;
     float4 result = 0.0f;
     
     [unroll]
     for (int i = 0; i < 9; i++)
     {
-        result += sourceTexture.SampleLevel(samLinear_clamp, float2(input.uv + indices[i] * step), postProcessData.MipLevel) * GaussianWeight[i];
+        result += sourceTexture.SampleLevel(samLinear_clamp, float2(input.uv + indices[i] * step), data.MipLevel) * GaussianWeight[i];
     }
     
     return float4(result.rgb, 1);

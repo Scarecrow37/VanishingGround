@@ -11,17 +11,19 @@ namespace GE
     };
 
     inline const std::unordered_map<VS, std::wstring> enumToVSFileNameMap = {
-        {VS::GRID, L"vs_grid.hlsl"},
         {VS::SKELETAL_FR, L"vs_skeletal_fr.hlsl"},
-        {VS::PARTICLE_RIBBON, L"vs_particle_ribbon.hlsl"},
-        {VS::STATIC_FR, L"vs_static_fr.hlsl"},
-        {VS::SKYBOX, L"vs_skybox.hlsl"},
-        {VS::UI_FR, L"vs_ui_fr.hlsl"},
-        {VS::PARTICLE_FULLSCREEN, L"vs_particle_fullscreen.hlsl"},
-        {VS::QUAD, L"vs_quad.hlsl"},
-        {VS::SKELETAL_SHADOW_FR, L"vs_skeletal_shadow_fr.hlsl"},
+        {VS::STATIC_FORWARD_FR, L"vs_static_forward_fr.hlsl"},
         {VS::PARTICLE_QUAD, L"vs_particle_quad.hlsl"},
-        {VS::STATIC_SHADOW_FR, L"vs_static_shadow_fr.hlsl"}
+        {VS::UI_FR, L"vs_ui_fr.hlsl"},
+        {VS::PARTICLE_RIBBON, L"vs_particle_ribbon.hlsl"},
+        {VS::QUAD, L"vs_quad.hlsl"},
+        {VS::SKYBOX, L"vs_skybox.hlsl"},
+        {VS::STATIC_SHADOW_FR, L"vs_static_shadow_fr.hlsl"},
+        {VS::PARTICLE_FULLSCREEN, L"vs_particle_fullscreen.hlsl"},
+        {VS::SKELETAL_SHADOW_FR, L"vs_skeletal_shadow_fr.hlsl"},
+        {VS::GRID, L"vs_grid.hlsl"},
+        {VS::SKELETAL_FORWARD_FR, L"vs_skeletal_forward_fr.hlsl"},
+        {VS::STATIC_FR, L"vs_static_fr.hlsl"}
     };
 
     inline const std::unordered_map<CS, std::wstring> enumToCSFileNameMap = {
@@ -43,9 +45,10 @@ namespace GE
         {PS::PARTICLE_QUAD, L"ps_particle_quad.hlsl"},
         {PS::GAUSSIANBLUR_X, L"ps_gaussianblur_x.hlsl"},
         {PS::WRITE_AO, L"ps_write_ao.hlsl"},
-        {PS::SHADOW, L"ps_shadow.hlsl"},
+        {PS::PBR_LIGHTING, L"ps_pbr_lighting.hlsl"},
         {PS::SSR, L"ps_ssr.hlsl"},
         {PS::SKYBOX, L"ps_skybox.hlsl"},
+        {PS::SHADOW, L"ps_shadow.hlsl"},
         {PS::UP_SAMPLE, L"ps_up_sample.hlsl"},
         {PS::TO_BACKBUFFER, L"ps_to_backbuffer.hlsl"},
         {PS::VOLUMETRIC_FOG, L"ps_volumetric_fog.hlsl"},
@@ -57,7 +60,7 @@ namespace GE
         {PS::OUTLINE, L"ps_outline.hlsl"},
         {PS::GRID, L"ps_grid.hlsl"},
         {PS::GBUFFER, L"ps_gbuffer.hlsl"},
-        {PS::PBR_LIGHTING, L"ps_pbr_lighting.hlsl"},
+        {PS::FORWARD_PBR_LIGHTING, L"ps_forward_pbr_lighting.hlsl"},
         {PS::BRIGHT_EXTRACT, L"ps_bright_extract.hlsl"},
         {PS::FADE, L"ps_fade.hlsl"},
         {PS::DXRGBUFFER, L"ps_dxrgbuffer.hlsl"}

@@ -75,10 +75,15 @@ struct ObjectData
     uint ID;
     uint Offset;
     uint CustomDepth;
+    float Alpha;
 };
 
-struct ObjectData2 : ObjectData
+struct ShadowObjectData
 {
+    uint ID;
+    uint Offset;
+    uint CustomDepth;
+    float Alpha;
     uint CascadeIndex;
 };
 

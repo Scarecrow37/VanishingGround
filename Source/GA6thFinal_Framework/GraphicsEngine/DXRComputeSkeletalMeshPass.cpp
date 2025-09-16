@@ -55,7 +55,7 @@ void DXRComputeSkeletalMeshPass::Dispatch(ID3D12GraphicsCommandList* commandList
     UINT parameter[3]{0, MAX_BONE_MATRIX, 0};
     parameter[0] = meshInfo.InstanceID;
     parameter[2] = vibuffer->_vertexCount;
-    commandList->SetComputeRoot32BitConstants(_shader->GetRootParameterIndex("bit32_3_objectData"), 3, parameter, 0);
+    commandList->SetComputeRoot32BitConstants(_shader->GetRootParameterIndex("bit32_4_objectData"), 3, parameter, 0);
 
     UINT threadGroupsX = (vibuffer->_vertexCount + 255) / 256;
     commandList->Dispatch(threadGroupsX, 1, 1);
