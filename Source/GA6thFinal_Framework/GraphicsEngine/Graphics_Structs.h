@@ -173,9 +173,3 @@ struct VolumetricFogProperty
     float FogIntensity;
     float LightShaftIntensity;
 };
-
-struct UIMaterial
-{
-    UINT  ID;
-    float Alpha;
-};

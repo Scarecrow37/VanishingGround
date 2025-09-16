@@ -441,7 +441,7 @@ void RenderScene::UpdateUI()
         world = XMMatrixTranspose(scale * world * translation);
         _uiMatrices.push_back(world);
 
-        UIMaterial material{.ID = texture->GetID(), .Alpha = 1.f};
+        UIMaterial material{.ID = texture->GetID(), .Alpha = component->GetAlpha()};
         _uiMaterials.push_back(material);
     }
 }
