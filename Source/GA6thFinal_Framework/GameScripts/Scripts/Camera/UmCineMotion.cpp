@@ -224,7 +224,10 @@ DirectX::SimpleMath::Vector3 UmCineMotion::GetShakeOffset(float intensity, float
 
 void UmCineMotion::ApplyTransform() 
 {
-    transform->Position = _targetPos;
+    if (true == _railFlag)
+    {
+        transform->Position = _targetPos;
+    }
 }
 
 void UmCineMotion::RunRail() 
