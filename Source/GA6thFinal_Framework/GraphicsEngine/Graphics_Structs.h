@@ -33,21 +33,22 @@ struct Material
         UNLIT,
         DEFAULTLIT,
         SMT_END
-    } ShadingModel = ShadingModelType::DEFAULTLIT;
+    } ShadingModel{};
     enum BlendModeType
     {
         OPAQUE,
         MASKED,
         TRANSLUCENT,
         BMT_END
-    } BlendMode = BlendModeType::OPAQUE;
+    } BlendMode{};
     enum CullModeType
     {
         CULL_BACK,
         CULL_FRONT,
         CULL_NONE
-    } CullMode;
-    bool IsTwoSided;
+    } CullMode{};
+    float Alpha = 1.f;
+    bool IsTwoSided = false;
 };
 
 struct DescriptorHandles

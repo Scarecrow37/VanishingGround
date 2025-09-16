@@ -182,7 +182,7 @@ void RenderScene::Execute()
     meshRenderTarget->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_RENDER_TARGET);
     meshRenderTarget->ClearRenderTarget(_commandSet);
 
-    const auto& gBuffers = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
+    const auto& gBuffers = Global::multiRenderTargetManager->GetRenderTargetGroup("G-Buffer");
     for (auto& buffer : gBuffers)
     {
         buffer->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_RENDER_TARGET);

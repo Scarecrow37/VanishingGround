@@ -8,43 +8,8 @@
 GBufferPass::~GBufferPass() {}
 
 void GBufferPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
-{
-    static bool isInitialized = false;
-    if (!isInitialized)
-    {
-        auto  mode                = Global::device->GetMode();
-        auto& renderTargetManager = Global::multiRenderTargetManager;
-
-        auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, mode.Width, mode.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
-
-        std::initializer_list<std::string_view> renderTargetNames = {
-            "BaseColor", "Normal", "ORM", "Emissive", "Depth", "CustomDepth"};
-        auto first = renderTargetNames.begin();
-
-        SharedResource<RenderTarget> renderTarget;
-        for (UINT i = 0; i <= GBuffer::EMISSIVE; ++i)
-        {
-            renderTarget = MakeSharedResource<RenderTarget>();
-            renderTarget->Initialize(desc, 0.247f);
-            renderTargetManager->AddRenderTarget(*(first + i), renderTarget);
-        }
-
-        renderTarget = MakeSharedResource<RenderTarget>();
-        desc.Format  = DXGI_FORMAT_R32_FLOAT;
-        renderTarget->Initialize(desc, 1.f);
-        renderTargetManager->AddRenderTarget(*(first + GBuffer::DEPTH), renderTarget);
-
-        renderTarget = MakeSharedResource<RenderTarget>();
-        desc.Format  = DXGI_FORMAT_R32_UINT;
-        renderTarget->Initialize(desc, 0.f);
-        renderTargetManager->AddRenderTarget(*(first + GBuffer::CUSTOMDEPTH), renderTarget);
-
-        renderTargetManager->AddRenderTargetGroup("GBuffer", renderTargetNames);        
-
-        isInitialized = true;
-    }
-
-    const auto& gBufferGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
+{    
+    const auto& gBufferGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("G-Buffer");
 
     for (UINT i = 0; i < GBuffer::GBUFFER_END; i++)
     {
@@ -52,7 +17,7 @@ void GBufferPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTech
         _gBufferHandles[i] = gBufferGroup[i]->GetRTVHandle();
     }
 
-    __super::Initialize(ownerScene, ownerTechnique, commandList);
+    RenderPass::Initialize(ownerScene, ownerTechnique, commandList);
 
     InitShaderAndPSO();
 }
@@ -92,6 +57,10 @@ void GBufferPass::Update(ID3D12GraphicsCommandList* commadList, const float delt
     {
         for (auto& meshInfo : _ownerScene->_activeMeshes[i])
         {
+            int blendMode = (int)meshInfo.Material.BlendMode;
+            if (blendMode == Material::BlendModeType::TRANSLUCENT)
+                continue;
+
             const auto& cameraFrustum = _ownerScene->_camera->GetWorldFrustum();
             
             BoundingOrientedBox boundingOrientedBox;
@@ -103,11 +72,6 @@ void GBufferPass::Update(ID3D12GraphicsCommandList* commadList, const float delt
                 continue;
             }
 
-            // cull_back, cull_front, cull_none
-            int blendMode = (int)meshInfo.Material.BlendMode;
-            if (blendMode == Material::BlendModeType::TRANSLUCENT)
-                continue;
-
             int cullMode = (int)meshInfo.Material.CullMode;
             _renderDatas[i][blendMode][cullMode].emplace_back(meshInfo.Mesh, meshInfo.InstanceID, meshInfo.CustomDepth);
         }
@@ -116,7 +80,7 @@ void GBufferPass::Update(ID3D12GraphicsCommandList* commadList, const float delt
 
 void GBufferPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
-    const auto& gBufferGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
+    const auto& gBufferGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("G-Buffer");
 
     commandList->OMSetRenderTargets(GBuffer::GBUFFER_END, _gBufferHandles.data(), FALSE, &_ownerScene->_depthStencilView->GetDSVHandle());
     commandList->RSSetViewports(1, &gBufferGroup[0]->GetViewport());
@@ -159,11 +123,9 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
         commandList->SetPipelineState(_psos[SKELETAL_MESH][i][CULL_BACK].Get());
         DrawMeshes(commandList, SKELETAL_MESH, (Material::BlendModeType)i, CULL_BACK);
 
-        // Skeletal One Sided front
         commandList->SetPipelineState(_psos[SKELETAL_MESH][i][CULL_FRONT].Get());
         DrawMeshes(commandList, SKELETAL_MESH, (Material::BlendModeType)i, CULL_FRONT);
 
-        // Skeletal Two Sided
         commandList->SetPipelineState(_psos[SKELETAL_MESH][i][TWO_SIDED].Get());
         DrawMeshes(commandList, SKELETAL_MESH, (Material::BlendModeType)i, TWO_SIDED);
     }
@@ -171,7 +133,7 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
 
 void GBufferPass::End(ID3D12GraphicsCommandList* commandList)
 {
-    const auto& gBufferGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
+    const auto& gBufferGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("G-Buffer");
 
     for (int i = 0; i < 4; i++)
     {

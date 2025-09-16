@@ -17,7 +17,6 @@ public:
     D3D12_GPU_DESCRIPTOR_HANDLE GetRenderSceneImage(std::string_view renderSceneName);
     std::shared_ptr<Camera>     GetCamera(std::string_view renderSceneName);
     RenderScene*                GetRenderScene(std::string_view renderSceneName);
-    const float                 GetTotalTime() const { return _totalTime; }
 
 public:
     void SetCamera(std::string_view renderSceneName, std::shared_ptr<Camera> camera);
@@ -57,9 +56,7 @@ private:
     std::string_view                                              _currentSceneName;
 
     // Scene To BackBuffer
-    ComPtr<ID3D12PipelineState>                                   _pipelineState;
-    std::unique_ptr<ShaderBuilder> _shader;
-    BaseMesh*                      _frameQuad;
-
-    float _totalTime;
+    FX<GE::VS::QUAD, GE::PS::TO_BACKBUFFER> _fx;
+    ComPtr<ID3D12PipelineState>             _pipelineState;
+    BaseMesh*                               _frameQuad;
 };
