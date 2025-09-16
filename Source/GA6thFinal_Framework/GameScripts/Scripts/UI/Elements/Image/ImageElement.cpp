@@ -162,6 +162,14 @@ void ImageElement::UpdateRendererSize(const SIZE size) const
     }
 }
 
+void ImageElement::UpdateRendererAlpha(const float alpha) const
+{
+    if (nullptr != _renderer)
+    {
+        _renderer->SetAlpha(alpha);
+    }
+}
+
 void ImageElement::RequestResource() 
 {
     if (false == _guidRef.IsNull())
@@ -171,8 +179,13 @@ void ImageElement::RequestResource()
             LoadTexture(requestedGuid);
             UpdateWorldMatrix();
             _spriteOriginSize = _renderer->GetSize();
+
             const SIZE size = Size;
             UpdateRendererSize(size);
+
+            const float alpha = Alpha;
+            UpdateRendererAlpha(alpha);
+
             ResetToSpriteSize();
         });
     }
