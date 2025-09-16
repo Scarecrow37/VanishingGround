@@ -224,7 +224,7 @@ DirectX::SimpleMath::Vector3 UmCineMotion::GetShakeOffset(float intensity, float
 
 void UmCineMotion::ApplyTransform() 
 {
-    if (true == _railFlag)
+    if (true == _railfFlag)
     {
         transform->Position = _targetPos;
     }
