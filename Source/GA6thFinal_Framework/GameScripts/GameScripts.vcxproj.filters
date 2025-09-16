@@ -143,6 +143,10 @@
     <ClCompile Include="Scripts\ItemDropSystem\UI\ArtifactUIManager.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\ItemDropSystem.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\Interface\IDropItem.cpp" />
+    <ClCompile Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.cpp" />
+    <ClCompile Include="Scripts\SceneTransition\SceneTransitionComponent.cpp" />
+    <ClCompile Include="Scripts\PlayerSystem\PlayerSystem.cpp" />
+    <ClCompile Include="Scripts\AccessorySystem\AccessorySystem.cpp" />
     <ClCompile Include="Scripts\Map\SmoothScroll.cpp" />
     <ClCompile Include="Scripts\UI\Views\Map\MapPlayerHPView.cpp" />
     <ClCompile Include="Scripts\UI\Views\Map\StageFocusView.cpp" />
@@ -150,11 +154,6 @@
     <ClCompile Include="Scripts\ViewModels\Map\MapPlayerHPViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Map\StageFocusViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Map\StageViewModel.cpp" />
-    <ClCompile Include="Scripts\SceneTransition\SceneTransitionComponent.cpp" />
-    <ClCompile Include="Scripts\PlayerSystem\PlayerSystem.cpp" />
-    <ClCompile Include="Scripts\Camera\UmCineMotion.cpp" />
-    <ClCompile Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.cpp" />
-    <ClCompile Include="Scripts\AccessorySystem\AccessorySystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h" />
@@ -329,7 +328,7 @@
     <ClInclude Include="Scripts\ViewModels\Map\MapPlayerHPViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Map\StageFocusViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Map\StageViewModel.h" />
-    <ClInclude Include="Scripts\Camera\UmCineMotion.h" />
+    <ClInclude Include="DLLExportDefine.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

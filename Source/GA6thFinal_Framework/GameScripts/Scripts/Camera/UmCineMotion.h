@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "DLLExportDefine.h"
 #include "UmFramework.h"
 #include "CameraComponent.h"
 class UmCineMotion : public CameraComponent
@@ -7,7 +8,7 @@ class UmCineMotion : public CameraComponent
 
     USING_PROPERTY(UmCineMotion)
 public:
-    REFLECT_PROPERTY(RailSpeed, ShakeIntensity, ShakeDuration)
+    REFLECT_PROPERTY(RailSpeed, ShakeIntensity, ShakeDuration,Current)
     GETTER(float, RailSpeed) { return ReflectFields->RailSpeed; }
     SETTER(float, RailSpeed) { ReflectFields->RailSpeed = value; }
     PROPERTY(RailSpeed)
@@ -17,6 +18,13 @@ public:
     GETTER(float, ShakeDuration) { return _shakeDuration; }
     SETTER(float, ShakeDuration) { _shakeDuration = value; }
     PROPERTY(ShakeDuration)
+    GETTER(float, Current) { return _currentPos; }
+    SETTER(float, Current) {
+        _currentPos = std::clamp(value,0.f,1.f); 
+    }
+    PROPERTY(Current)
+
+
 
 public:
     UmCineMotion();
@@ -71,11 +79,15 @@ protected:
     float                _speed           = 1.f;
     bool                 _railfFlag       = false;
     bool                 _pauseFlag       = false;
+    float                _currentPos       = 0.f;
 
     float _shakeIntensity    = 0.f;
     float _shakeElapsedTimer = 0.f;
     float _shakeDuration     = 0.f;
     bool  _shakeFlag         = false;
 
+
+
     Vector3 _targetPos = {0, 0, 0};
 };
+

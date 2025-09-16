@@ -1,5 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "UmCineMotion.h"
+UMREAL_COMPONENT(UmCineMotion)
+
 UmCineMotion::UmCineMotion()  = default;
 UmCineMotion::~UmCineMotion() = default;
 
@@ -228,6 +230,7 @@ void UmCineMotion::ApplyTransform()
     {
         transform->Position = _targetPos;
     }
+
 }
 
 void UmCineMotion::RunRail() 
@@ -243,6 +246,16 @@ void UmCineMotion::RunRail()
         _targetPos            = position;
         transform->EulerAngle = angle;
     }
+    else if (ReflectFields->TimestepTethers.size()>2)
+    {
+        Vector3 angle =
+            Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _rotTethers, _currentPos * _totalRailLength);
+        Vector3 position =
+            Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _posTethers, _currentPos * _totalRailLength);
+        _targetPos            = position;
+        transform->EulerAngle = angle;
+    }
+
 }
 
 void UmCineMotion::DeserializedReflectEvent()
@@ -254,6 +267,7 @@ void UmCineMotion::DeserializedReflectEvent()
     {
         _posTethers.push_back({ReflectFields->PositionXTethers[i], ReflectFields->PositionYTethers[i],
                                ReflectFields->PositionZTethers[i]});
+
         _rotTethers.push_back({ReflectFields->RotationXTethers[i], ReflectFields->RotationYTethers[i],
                                ReflectFields->RotationZTethers[i]});
      }
