@@ -29,8 +29,9 @@ void QTEUIManager::OnQTENotePressed(QTE::ResultType result)
 
 void QTEUIManager::OnQTEStay() 
 {
-    // TODO : QTE 노트 위치 및 알파 렌더
-    if (nullptr == _qteOverlayPanel)
+    if (nullptr == _qteOverlayPanel ||
+        nullptr == _qteBackGroundUI ||
+        nullptr == _qteJudgeNoteUI  )
     {
         return;
     }
@@ -42,16 +43,16 @@ void QTEUIManager::OnQTEStay()
         if (track)
         {
             const float qteTime  = system->GetQTETime();
-            const POINT judgePos = _qteJudgeNoteUI->Point;
+            const POINT judgePos = _qteJudgeNoteUI->AbsolutePosition;
             const auto& notes    = system->GetCurrentQTEAvailQueue();
             for (const auto& note : notes)
             {
                 if (note)
                 {
-                    const int     id      = note->ID;
-                    const float   time    = note->Time;
+                    const int     id     = note->ID;
+                    const float   time   = note->Time;
 
-                    ImageElement* noteUI  = FindNoteUIFromNoteID(id);
+                    ImageElement* noteUI = FindNoteUIFromNoteID(id);
                     if (noteUI)
                     {
                         GameObject& object      = noteUI->gameObject;
@@ -177,12 +178,17 @@ void QTEUIManager::FindUIComponents()
     _qteJudgeNoteUI = nullptr;
 
     Transform::ForeachBFS(transform, [this](Transform* curr) {
-        if (_qteOverlayPanel == nullptr)
+        if (!_qteOverlayPanel && curr->gameObject->CompareTag("QTE Panel"))
         {
-            if (curr->gameObject->CompareTag("QTE Panel"))
-            {
-                _qteOverlayPanel = curr->gameObject->GetComponent<OverlayPanel>();
-            }
+            _qteOverlayPanel = curr->gameObject->GetComponent<OverlayPanel>();
+        }
+        else if (!_qteBackGroundUI && curr->gameObject->CompareTag("QTE Background"))
+        {
+            _qteBackGroundUI = curr->gameObject->GetComponent<ImageElement>();
+        }
+        else if (!_qteJudgeNoteUI && curr->gameObject->CompareTag("QTE Judge Note"))
+        {
+            _qteJudgeNoteUI = curr->gameObject->GetComponent<ImageElement>();
         }
     });
 
@@ -190,32 +196,13 @@ void QTEUIManager::FindUIComponents()
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"QTE UI Panel을 찾지 못했습니다.");
     }
-    else
+    if (nullptr == _qteBackGroundUI)
     {
-        Transform& tr = _qteOverlayPanel->transform;
-        for (int i = 0; i < tr.ChildCount; i++)
-        {
-            Transform* child = tr.GetChild(i);
-            if (child)
-            {
-                if (child->gameObject->CompareTag("QTE Background"))
-                {
-                    _qteBackGroundUI = child->gameObject->GetComponent<ImageElement>();
-                }
-                else if (child->gameObject->CompareTag("QTE Judge Note"))
-                {
-                    _qteJudgeNoteUI = child->gameObject->GetComponent<ImageElement>();
-                }
-            }
-        }
-        if (nullptr == _qteBackGroundUI)
-        {
-            UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"QTE Background UI를 찾지 못했습니다.");
-        }
-        if (nullptr == _qteJudgeNoteUI)
-        {
-            UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"QTE Judge Note UI를 찾지 못했습니다.");
-        }
+        UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"QTE Background UI를 찾지 못했습니다.");
+    }
+    if (nullptr == _qteJudgeNoteUI)
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"QTE Judge Note UI를 찾지 못했습니다.");
     }
 }
 
@@ -237,7 +224,7 @@ void QTEUIManager::SpawnQTENotesFromCurrentTrack()
                     ImageElement* imageElement = clone->GetComponent<ImageElement>();
                     if (imageElement)
                     {
-                        imageElement->transform->SetParent(_qteOverlayPanel->transform, false);
+                        imageElement->transform->SetParent(transform, false);
                         _noteSpawnTable[note->ID] = imageElement;
                     }
                 }
