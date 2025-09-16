@@ -58,7 +58,7 @@ void GBufferPass::Update(ID3D12GraphicsCommandList* commadList, const float delt
         for (auto& meshInfo : _ownerScene->_activeMeshes[i])
         {
             int blendMode = (int)meshInfo.Material.BlendMode;
-            if (blendMode == Material::BlendModeType::TRANSLUCENT && 0.f < meshInfo.Material.Alpha)
+            if (blendMode == Material::BlendModeType::TRANSLUCENT)
                 continue;
 
             const auto& cameraFrustum = _ownerScene->_camera->GetWorldFrustum();
@@ -217,10 +217,10 @@ void GBufferPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType me
         switch (meshType)
         {
         case STATIC_MESH:
-            commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_3_objectData"), 3, parameter, 0);
+            commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_4_objectData"), 3, parameter, 0);
             break;
         case SKELETAL_MESH:
-            commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_3_objectData"), 3, parameter, 0);          
+            commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_4_objectData"), 3, parameter, 0);          
             break;
         }
 

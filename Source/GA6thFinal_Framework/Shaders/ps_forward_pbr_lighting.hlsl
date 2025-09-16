@@ -38,7 +38,7 @@ Texture2D textures[];
 
 PSOutput ps_main(PSInput input)
 {    
-    TranslucentObjectData data = bit32_4_translucentObjectData;
+    ObjectData data = bit32_4_objectData;
     
     uint diffuseID = material[data.ID].ID[DIFFUSE];
     uint normalID = material[data.ID].ID[NORMAL];

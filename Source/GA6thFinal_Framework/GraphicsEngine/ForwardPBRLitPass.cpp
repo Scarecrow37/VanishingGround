@@ -73,7 +73,7 @@ void ForwardPBRLitPass::Update(ID3D12GraphicsCommandList* commandList, const flo
     {
         for (auto& activeMeshe : _ownerScene->_activeMeshes[i])
         {
-            if (activeMeshe.Material.BlendMode != Material::BlendModeType::TRANSLUCENT && 0.f != activeMeshe.Material.Alpha)
+            if (activeMeshe.Material.BlendMode != Material::BlendModeType::TRANSLUCENT || 0.f == activeMeshe.Material.Alpha)
                 continue;
 
             XMVECTOR center      = XMLoadFloat3(&activeMeshe.Mesh->GetBoundingBox().Center);

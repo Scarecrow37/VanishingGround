@@ -24,7 +24,7 @@ StructuredBuffer<MatrixData> matrices;
 
 VSOutput vs_main(VSInput input)
 {
-    ObjectData data = bit32_3_objectData;
+    ObjectData data = bit32_4_objectData;
     
     VSOutput output = (VSOutput) 0;
     

@@ -23,7 +23,7 @@ StructuredBuffer<matrix> boneMatrices;
 
 VSOutput vs_main(VSInput input)
 {
-    ShadowObjectData data = bit32_4_shadowObjectData;
+    ShadowObjectData data = bit32_5_shadowObjectData;
     
     uint instanceID = data.ID;
     uint cascadeIndex = data.CascadeIndex;

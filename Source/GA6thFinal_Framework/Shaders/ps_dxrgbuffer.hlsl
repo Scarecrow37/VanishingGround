@@ -35,7 +35,7 @@ float3 CalculateNormal(float3 sampledNormal, float3 tangent, float3 bitangent, f
 
 PSOutput WriteGuBuffer(PSInput input)
 {
-    ObjectData data = bit32_3_objectData;
+    ObjectData data = bit32_4_objectData;
     
     PSOutput output = (PSOutput) 0;
     uint normalID = material[data.ID].ID[NORMAL];

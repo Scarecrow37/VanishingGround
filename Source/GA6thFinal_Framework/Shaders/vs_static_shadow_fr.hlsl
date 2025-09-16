@@ -20,7 +20,7 @@ StructuredBuffer<MatrixData> matrices;
 
 VSOutput vs_main(VSInput input)
 {
-    ShadowObjectData data = bit32_4_shadowObjectData;
+    ShadowObjectData data = bit32_5_shadowObjectData;
     
     VSOutput output = (VSOutput) 0;
 

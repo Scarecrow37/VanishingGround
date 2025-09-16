@@ -110,7 +110,7 @@ int GetPOMRayStepsCount(float3 worldPos, float3 N)
 
 PSOutput WriteGuBuffer(PSInput input)
 {
-    ObjectData data = bit32_3_objectData;
+    ObjectData data = bit32_4_objectData;
     
     PSOutput output = (PSOutput) 0;
     

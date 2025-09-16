@@ -27,7 +27,7 @@ StructuredBuffer<matrix> boneMatrices;
 [numthreads(256, 1, 1)]
 void cs_main(uint3 dispatchThreadID : SV_DispatchThreadID)
 {
-    ObjectData data = bit32_3_objectData;
+    ObjectData data = bit32_4_objectData;
     
     uint vertexIndex = dispatchThreadID.x;
     // custom depth is used to objects vertex count

@@ -199,11 +199,11 @@ void DXRGBufferPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, int shad
         switch (shaderType)
         {
         case STATIC_MESH:
-            commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_3_objectData"), 3, parameter, 0);
+            commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_4_objectData"), 3, parameter, 0);
             break;
 
         case SKELETAL_MESH:
-            commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_3_objectData"), 3, parameter, 0);
+            commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_4_objectData"), 3, parameter, 0);
             break;
         }
 

@@ -28,7 +28,7 @@ StructuredBuffer<matrix> boneMatrices;
 
 VSOutput vs_main(VSInput input)
 {
-    ObjectData data = bit32_3_objectData;
+    ObjectData data = bit32_4_objectData;
     
     matrix boneTransform = mul(input.blendWeights.x, boneMatrices[data.ID * data.Offset + input.blendIndices.x]);
     boneTransform += mul(input.blendWeights.y, boneMatrices[data.ID * data.Offset + input.blendIndices.y]);
