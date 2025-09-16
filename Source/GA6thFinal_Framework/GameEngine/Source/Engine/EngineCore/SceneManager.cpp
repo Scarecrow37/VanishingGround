@@ -1984,17 +1984,31 @@ void ESceneManager::SceneResourceManager::UpdateRenderResource(RenderResource<T>
                 {
                     if (component->_gameObject->IsValid())
                     {
+                        auto SafeCallbackFunc = [weakPtr, path, func]() 
+                        {
+                            if (std::shared_ptr<Component> component = weakPtr.lock())
+                            {
+                                if (true == std::filesystem::exists(path))
+                                {
+                                    if (component->_gameObject->IsValid())
+                                    {
+                                        func();
+                                    }
+                                }
+                            }
+                        };
+
                         path = std::filesystem::absolute(path);
                         path = path.generic_string();
                         auto findIter = resource.RenderResource.find(path);
                         if (findIter == resource.RenderResource.end())
                         {
-                            auto newResource = UmResourceManager->LoadResource<T>(path.string(), func);
+                            auto newResource = UmResourceManager->LoadResource<T>(path.string(), SafeCallbackFunc);
                             resource.RenderResource[path] = newResource;
                         }
                         else
                         {
-                            std::shared_ptr<T> resource = UmResourceManager->LoadResource<T>(path.string(), func);
+                            std::shared_ptr<T> resource = UmResourceManager->LoadResource<T>(path.string(), SafeCallbackFunc);
                             if (resource->IsValid())
                             {
                                 func();
