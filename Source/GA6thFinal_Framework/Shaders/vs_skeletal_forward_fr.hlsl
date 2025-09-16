@@ -40,7 +40,9 @@ VSOutput vs_main(VSInput input)
     
     VSOutput output = (VSOutput) 0;
     
-    output.position = mul(input.position, worldTransform);   
+    output.position = mul(input.position, worldTransform);
+    output.worldPosition = output.position;
+    
     output.position = mul(output.position, cameraData.View);
     output.position = mul(output.position, cameraData.Projection);
 

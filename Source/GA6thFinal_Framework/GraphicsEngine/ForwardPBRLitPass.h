@@ -21,9 +21,9 @@ class ForwardPBRLitPass : public RenderPass
 
     struct ForwardData
     {
-        UINT InstanceID;
-        UINT MaxBoneMatrix;
-        UINT CustomDepth;
+        UINT  InstanceID;
+        UINT  MaxBoneMatrix;
+        UINT  CustomDepth;
         FLOAT Alpha;
     };
 public:

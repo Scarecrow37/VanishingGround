@@ -63,15 +63,18 @@ struct SkeletalMeshInstance
     D3D12_VERTEX_BUFFER_VIEW                   VertexBufferView;
     UINT                                       VertexCount = 0;
 };
+
 class DXRSkeletalMesh;
+class BaseMesh;
 struct MeshInfo
 {
-    Material        Material;
-    class BaseMesh* Mesh;
-    UINT            CustomDepth;
-    UINT            InstanceID;
-    Matrix*        TransposeWorldMatrix;
+    Material         Material;
+    BaseMesh*        Mesh;
     DXRSkeletalMesh* SkinnedInstance;
+    Matrix*          TransposeWorldMatrix;
+    UINT             CustomDepth;
+    UINT             InstanceID;
+    float            DepthKey;
 };
 
 struct LightData

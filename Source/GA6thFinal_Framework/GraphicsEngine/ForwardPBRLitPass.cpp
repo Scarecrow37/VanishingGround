@@ -12,22 +12,23 @@ void ForwardPBRLitPass::Initialize(RenderScene* ownerScene, RenderTechnique* own
     RenderPass::Initialize(ownerScene, ownerTechnique, commandList);
 
     D3D12_RENDER_TARGET_BLEND_DESC rtDesc{};
-    rtDesc.BlendEnable           = TRUE;
-    rtDesc.SrcBlend              = D3D12_BLEND_SRC_ALPHA;
-    rtDesc.DestBlend             = D3D12_BLEND_INV_SRC_ALPHA;
+    rtDesc.SrcBlend              = D3D12_BLEND_ONE;
+    rtDesc.DestBlend             = D3D12_BLEND_ZERO;
     rtDesc.BlendOp               = D3D12_BLEND_OP_ADD;
     rtDesc.SrcBlendAlpha         = D3D12_BLEND_ONE;
-    rtDesc.DestBlendAlpha        = D3D12_BLEND_INV_SRC_ALPHA;
+    rtDesc.DestBlendAlpha        = D3D12_BLEND_ZERO;
     rtDesc.BlendOpAlpha          = D3D12_BLEND_OP_ADD;
     rtDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-       
+           
     PipelineStateStream pss;
     pss.BlendState                            = CD3DX12_BLEND_DESC(CommonStates::NonPremultiplied);
     (&pss.BlendState)->AlphaToCoverageEnable  = FALSE;
     (&pss.BlendState)->IndependentBlendEnable = TRUE;
-    //(&pss.BlendState)->RenderTarget[0]        = rtDesc;
+    (&pss.BlendState)->RenderTarget[1]        = rtDesc;
+    (&pss.BlendState)->RenderTarget[2]        = rtDesc;
+    (&pss.BlendState)->RenderTarget[3]        = rtDesc;
     pss.RasterizerState                       = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    pss.DepthStencilState                     = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+    pss.DepthStencilState                     = CD3DX12_DEPTH_STENCIL_DESC(CommonStates::DepthRead);
     pss.DSVFormat                             = _ownerScene->_depthStencilView->GetFormat();
     pss.PrimitiveTopology                     = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
     pss.RTVFormats                            = {{DXGI_FORMAT_R32G32B32A32_FLOAT, // Result
@@ -65,6 +66,8 @@ void ForwardPBRLitPass::Update(ID3D12GraphicsCommandList* commandList, const flo
         }
     }
 
+    XMVECTOR cameraPosition = _ownerScene->_camera->GetPosition();
+    XMVECTOR cameraForward  = -_ownerScene->_camera->GetWorldMatrix().Forward();
     std::vector<std::pair<int, MeshInfo*>> translucentMeshes;
     for (int i = 0; i < MESH_TYPE_END; i++)
     {
@@ -73,19 +76,17 @@ void ForwardPBRLitPass::Update(ID3D12GraphicsCommandList* commandList, const flo
             if (activeMeshe.Material.BlendMode != Material::BlendModeType::TRANSLUCENT)
                 continue;
 
+            XMVECTOR center      = XMLoadFloat3(&activeMeshe.Mesh->GetBoundingBox().Center);
+            XMVECTOR dot         = XMVector3Dot(center - cameraPosition, cameraForward);
+            activeMeshe.DepthKey = dot.m128_f32[0];
             translucentMeshes.emplace_back(i, &activeMeshe);
         }
     }
 
-    const Matrix view = _ownerScene->_camera->GetViewMatrix();
-    std::sort(translucentMeshes.begin(), translucentMeshes.end(), [this, view](const std::pair<int, MeshInfo*>& a, const
-    std::pair<int, MeshInfo*>& b)
-    {
-        XMMATRIX wvA = (*a.second->TransposeWorldMatrix) * view;
-        XMMATRIX wvB = (*b.second->TransposeWorldMatrix) * view;
-
-        return wvA.r[3].m128_f32[2] > wvB.r[3].m128_f32[2];
-    });
+    std::stable_sort(translucentMeshes.begin(), translucentMeshes.end(),
+                     [this](const std::pair<int, MeshInfo*>& a, const std::pair<int, MeshInfo*>& b) {
+                         return a.second->DepthKey > b.second->DepthKey;
+                     });
 
     for (auto& [meshType, meshInfo] : translucentMeshes)
     {
@@ -107,7 +108,7 @@ void ForwardPBRLitPass::Update(ID3D12GraphicsCommandList* commandList, const flo
 
 void ForwardPBRLitPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
-    _ownerScene->_depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+    _ownerScene->_depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_DEPTH_READ);
     _meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
     const auto& renderTargetGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("Forward G-Buffer");

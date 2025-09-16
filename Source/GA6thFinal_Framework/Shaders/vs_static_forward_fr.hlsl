@@ -30,6 +30,7 @@ VSOutput vs_main(VSInput input)
     
     output.position = mul(input.position, matrices[data.ID].World);
     output.worldPosition = output.position;
+    
     output.position = mul(output.position, cameraData.View);
     output.position = mul(output.position, cameraData.Projection);       
     
