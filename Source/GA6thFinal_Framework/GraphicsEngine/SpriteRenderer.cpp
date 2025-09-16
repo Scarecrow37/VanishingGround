@@ -26,3 +26,8 @@ void SpriteRenderer::SetLinearFill(float fill)
     UIMaterialData materialData{.Type = UIMaterialType::LINEAR_FILL, .Fill = fill};
     _materialData = materialData;
 }
+
+void SpriteRenderer::SetAlpha(const float alpha)
+{
+    _material.Alpha = alpha;
+}
