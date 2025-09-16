@@ -43,7 +43,7 @@ private:
 
     // 매 프레임 실행되는 핵심 로직
     void UpdateCascades(const Vector3& lightDirection);
-    void DrawMeshes(ID3D12GraphicsCommandList* commandList, int shaderType, MeshType meshType, int cascadeIndex);
+    void DrawMeshes(ID3D12GraphicsCommandList* commandList, int shaderType, MeshType meshType, int cascadedIndex);
     void CopyPreviousCascadeData(ID3D12GraphicsCommandList* commandList);
 
 private:

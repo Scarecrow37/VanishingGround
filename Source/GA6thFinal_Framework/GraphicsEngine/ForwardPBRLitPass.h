@@ -18,14 +18,7 @@ class ForwardPBRLitPass : public RenderPass
         UINT      InstanceID;
         UINT      CustomDepth;
     };
-
-    struct ForwardData
-    {
-        UINT  InstanceID;
-        UINT  MaxBoneMatrix;
-        UINT  CustomDepth;
-        FLOAT Alpha;
-    };
+    
 public:
     ForwardPBRLitPass() = default;
     virtual ~ForwardPBRLitPass();

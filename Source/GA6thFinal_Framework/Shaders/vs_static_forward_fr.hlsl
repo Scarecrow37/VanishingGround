@@ -26,7 +26,7 @@ VSOutput vs_main(VSInput input)
 {
     VSOutput output = (VSOutput) 0;
     
-    TranslucentObjectData data = bit32_4_translucentObjectData;
+    ObjectData data = bit32_4_objectData;
     
     output.position = mul(input.position, matrices[data.ID].World);
     output.worldPosition = output.position;

@@ -234,7 +234,7 @@ void ForwardPBRLitPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshT
         break;
     }
 
-    ForwardData parameter = {.MaxBoneMatrix = MAX_BONE_MATRIX};
+    ObjectData parameter = {.MaxBoneMatrix = MAX_BONE_MATRIX};
     for (auto& [mesh, alpha, instanceID, customDepth] : _renderDatas[meshType][cullMode])
     {
         parameter.InstanceID  = instanceID;

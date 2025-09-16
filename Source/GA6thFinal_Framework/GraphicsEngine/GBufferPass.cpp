@@ -196,7 +196,6 @@ void GBufferPass::InitShaderAndPSO()
 
 void GBufferPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType meshType, Material::BlendModeType blendModeType, CullMode cullMode)
 {
-    UINT parameter[3]{0, MAX_BONE_MATRIX, 0};
     const auto& parallaxMappingProperty = std::any_cast<const ParallaxMappingProperty&>(_ownerScene->GetRenderPassProperty("G-BufferPass"));
 
     switch (meshType)
@@ -209,18 +208,19 @@ void GBufferPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType me
         break;
     }
 
+    ObjectData parameter{.MaxBoneMatrix = MAX_BONE_MATRIX};
     for (auto& [mesh, instanceID, customDepth] : _renderDatas[meshType][blendModeType][cullMode])
     {
-        parameter[0] = instanceID;
-        parameter[2] = customDepth;
+        parameter.InstanceID  = instanceID;
+        parameter.CustomDepth = customDepth;
 
         switch (meshType)
         {
         case STATIC_MESH:
-            commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_4_objectData"), 3, parameter, 0);
+            commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_4_objectData"), 4, &parameter, 0);
             break;
         case SKELETAL_MESH:
-            commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_4_objectData"), 3, parameter, 0);          
+            commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_4_objectData"), 4, &parameter, 0);
             break;
         }
 
