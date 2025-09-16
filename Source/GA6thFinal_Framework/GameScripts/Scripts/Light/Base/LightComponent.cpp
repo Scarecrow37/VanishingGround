@@ -40,7 +40,7 @@ void LightComponent::Reset()
 void LightComponent::OnDrawDebug() 
 {
 #ifdef _UMEDITOR
-    _gizmo.Draw();
+    _gizmo.DrawIcon();
 #endif
 }
 

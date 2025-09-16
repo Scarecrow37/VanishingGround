@@ -17,12 +17,14 @@ public:
     void SetType(SpriteType type) { _type = type; }
     void SetSize(SIZE size) { _size = size; }
     void SetTexture(std::shared_ptr<Texture> texture);
-    void SetLinearFill(float fill); 
+    void SetLinearFill(float fill);
+    void SetAlpha(float alpha);
 
 private:
     std::shared_ptr<Texture> _texture;
     const Matrix&            _worldMatrix;
     SpriteType               _type;
     SIZE                     _size;
+    UIMaterial               _material;
     UIMaterialData           _materialData;
 };

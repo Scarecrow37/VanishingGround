@@ -73,5 +73,5 @@ private:
     GridPanel*                 _categoryGridPanel;
     std::vector<ImageElement*> _categoryImageElements;
 
-    DropArtifactsViewModel::Handle _viewModleHandle;
+    DropArtifactsViewModel::Handle _viewModelHandle;
 };

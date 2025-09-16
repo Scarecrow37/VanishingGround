@@ -109,8 +109,6 @@ SIZE TextElement::MeasureOverride(const SIZE availableSize)
 
 SIZE TextElement::ArrangeOverride(const SIZE finalSize)
 {
-    DrawUIComponent::ArrangeOverride(finalSize);
-
     const SIZE desiredSize = DesiredSize;
     const SIZE actualSize  = MinSize()(finalSize, desiredSize);
 

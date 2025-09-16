@@ -14,8 +14,12 @@ void MonsterHpView::Watch(const std::string& key)
             _hpTextElement->Enable = true;
         try
         {
-            _watchHandle = UmWatcher.Watch<HpViewModel, float>(key, [this](const float value) {
-                _hpTextElement->Text = std::to_string(static_cast<int>(value * 100)) + "%";
+            _watchHandle = UmWatcher.Watch<HpViewModel, float>(key, [this](const float value) 
+            {
+                if (_hpTextElement)
+                {
+                    _hpTextElement->Text = std::to_string(static_cast<int>(value * 100)) + "%";
+                }
             });
         }
         catch (const std::exception& e)

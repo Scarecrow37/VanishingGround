@@ -42,8 +42,8 @@ protected:
     /// <returns>계산된 Z-Order</returns>
     virtual float GetZOrder() const;
 
+    void OnAttachParent(GameObject* parentGameObject) override;
     void ImGuiDrawPropertysEvent() override;
-    SIZE ArrangeOverride(SIZE finalSize) override;
 
 private:
     void           RequestViewOrder() const;

@@ -50,7 +50,7 @@ void CameraComponent::DeserializedReflectEvent()
 void CameraComponent::OnDrawDebug() 
 {
 #ifdef _UMEDITOR
-    _gizmo.Draw();
+    _gizmo.DrawIcon();
 #endif
 }
 

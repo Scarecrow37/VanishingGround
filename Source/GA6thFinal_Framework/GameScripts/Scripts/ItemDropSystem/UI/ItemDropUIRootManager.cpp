@@ -68,10 +68,12 @@ int ItemDropUIRootManager::GetArtifactIconID(DropItemInfo itemInfo)
             return -201001;
         case ArtifactDropType::SWORD:
             return -201002;
+        case ArtifactDropType::ACCESSORY:
+            return DropItemInfo::GetArtifactCategoryAssetID(itemInfo.Category);
         case ArtifactDropType::REVELATION:
             return GetRevelationDefaultIcon(itemInfo);
         case ArtifactDropType::ERASE_REVELATION:
-            return DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::ERASE_REVELATION);
+            return DropItemInfo::GetArtifactCategoryAssetID(itemInfo.Category);
         default:
             return 0;
         }

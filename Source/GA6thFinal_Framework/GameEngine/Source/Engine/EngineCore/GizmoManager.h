@@ -14,7 +14,13 @@ public:
     /// 이번 프레임에 렌더링할 기즈모를 등록합니다.
     /// </summary>
     /// <param name="gizmo :">그릴 대상</param>
-    void SubmitSceneGizmo(SceneGizmo* gizmo);
+    void SubmitSceneGizmoIcon(SceneGizmo* gizmo);
+
+    /// <summary>
+    /// 이번 프레임에 렌더링할 ImGuizmo를 등록합니다.
+    /// </summary>
+    /// <param name="gizmo"></param>
+    void SubminSceneImGuizmo(SceneGizmo* gizmo);
 
     /// <summary>
     /// 대상 Window와 Camera 기준으로 Gizmo를 그릴 준비를 합니다.
@@ -29,21 +35,30 @@ public:
     void Draw();
 
     /// <summary>
+    /// 카메라 기준으로 ImGuizmo를 Draw합니다.
+    /// </summary>
+    void DrawImGuizmo(ImGuiHelper::DrawManipulateDesc& desc);
+
+    /// <summary>
     /// Draw를 종료합니다.
     /// </summary>
     void EndDraw();
 
     /// <summary>
-    /// 씬 기즈모 큐를 반환합니다.
+    /// 씬 기즈모 아이콘 큐를 반환합니다.
     /// </summary>
-    /// <returns>씬 기즈모 큐</returns>
-    const SceneGizmoQueue& GetSceneGizmoQueue() 
-    { 
-        return _sceneGizmos; 
-    }
+    /// <returns>씬 기즈모 아이콘 큐</returns>
+    const SceneGizmoQueue& GetSceneGizmoIconQueue() { return _sceneGizmosIcon; }
+
+    /// <summary>
+    /// 씬 ImGuizmo 큐를 반환합니다.
+    /// </summary>
+    /// <returns>ImGuizmo 큐</returns>
+    const SceneGizmoQueue& GetSceneImGuizmoQueue() { return _sceneImGuizmos; }
 
 private:
-    SceneGizmoQueue _sceneGizmos;
+    SceneGizmoQueue _sceneGizmosIcon;
+    SceneGizmoQueue _sceneImGuizmos;
     ImGuiWindow*    _targetWindow;
     Camera*         _targetCamera;
 
