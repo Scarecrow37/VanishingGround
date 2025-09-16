@@ -562,7 +562,7 @@ void Transform::CallUIAttachChild(Transform* target, Transform* newChild)
                 Component* component = gameObject.GetComponentAtIndex<Component>(i);
                 if (Component::TYPE::UI == component->GetType())
                 {
-                    UIBaseComponent* uiBaseComponent    = static_cast<UIBaseComponent*>(component);
+                    UIBaseComponent* uiBaseComponent = static_cast<UIBaseComponent*>(component);
                     GameObject*  newChildObject = nullptr;
                     if (newChild)
                     {
@@ -572,7 +572,29 @@ void Transform::CallUIAttachChild(Transform* target, Transform* newChild)
                 }
             }
         }
-    } 
+    }
+
+    if (newChild)
+    {
+        GameObject& gameObject = newChild->gameObject;
+        if (gameObject.IsValid())
+        {
+            for (size_t i = 0; i < gameObject.GetComponentCount(); ++i)
+            {
+                Component* component = gameObject.GetComponentAtIndex<Component>(i);
+                if (Component::TYPE::UI == component->GetType())
+                {
+                    UIBaseComponent* uiBaseComponent = static_cast<UIBaseComponent*>(component);
+                    GameObject*      targetObject  = nullptr;
+                    if (target)
+                    {
+                        targetObject = &target->gameObject;
+                    }
+                    uiBaseComponent->OnAttachParent(targetObject);
+                }
+            }
+        }
+    }
 }
 
 bool Transform::CheckValidTransform(Transform* target)

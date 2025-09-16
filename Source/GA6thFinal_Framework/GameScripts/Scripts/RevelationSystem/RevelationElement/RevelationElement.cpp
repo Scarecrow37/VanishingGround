@@ -30,7 +30,7 @@ void RevelationElement::SerializedReflectEvent()
 void RevelationElement::DeserializedReflectEvent() 
 {
     const auto&       actionFactory = TurnActionFactory::GetActionFactory();
-    auto              iter          = actionFactory.find(ReflectFields->ActionName.data());
+    auto              iter          = actionFactory.find(ReflectFields->ActionName);
     if (iter != actionFactory.end())
     {
         _action.reset(iter->second());

@@ -1,14 +1,14 @@
 ﻿#pragma once
 
-    class UIComponent;
+class UIComponent;
+
 namespace UI
 {
-
     class Manager
     {
     public:
-        void AddMeasureQueue(const UIComponent* component);
-        void AddArrangeQueue(const UIComponent* component);
+        void AddMeasureQueue(const std::weak_ptr<UIComponent>& component);
+        void AddArrangeQueue(const std::weak_ptr<UIComponent>& component);
 
         void Update(const SIZE& rootSize);
 

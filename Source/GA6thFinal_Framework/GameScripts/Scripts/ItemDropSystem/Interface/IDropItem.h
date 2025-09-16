@@ -9,8 +9,10 @@ enum class ArtifactDropType
     SWORD,            // 검
     DAGGER,           // 단검
     WARHAMMER,        // 대형 망치
+    ACCESSORY,        // 장신구
     REVELATION,       // 계시
     ERASE_REVELATION, // 계시 지우기
+    Consumable,       //소모품
 };
 
 /*아이템 정보 구조체*/

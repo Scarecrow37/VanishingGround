@@ -220,7 +220,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/bigobj /Zm200 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -241,7 +241,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/bigobj /Zm200 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -264,7 +264,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/bigobj /Zm200 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -289,7 +289,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/bigobj /Zm200 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -302,6 +302,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="DLLExportDefine.h" />
+    <ClInclude Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.h" />
     <ClInclude Include="Scripts\Audio\BGMManager.h" />
     <ClInclude Include="Scripts\Audio\Table\AudioTableComponent.h" />
     <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h" />
@@ -376,7 +378,6 @@
     <ClInclude Include="Scripts\UI\Panels\Grid\GridPanel.h" />
     <ClInclude Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.h" />
     <ClInclude Include="Scripts\UI\Panels\Overlay\OverlayPanel.h" />
-    <ClInclude Include="Scripts\UI\UIRoot\UIRoot.h" />
     <ClInclude Include="Scripts\UI\Views\Map\MapPlayerHPView.h" />
     <ClInclude Include="Scripts\UI\Views\Map\StageFocusView.h" />
     <ClInclude Include="Scripts\UI\Views\Map\StageView.h" />
@@ -471,8 +472,10 @@
     <ClInclude Include="Scripts\SceneTransition\SceneTransitionComponent.h" />
     <ClInclude Include="Scripts\Utility\SingletonHelper.h" />
     <ClInclude Include="Scripts\PlayerSystem\PlayerSystem.h" />
+    <ClInclude Include="Scripts\AccessorySystem\AccessorySystem.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.cpp" />
     <ClCompile Include="Scripts\Audio\BGMManager.cpp" />
     <ClCompile Include="Scripts\Audio\Table\AudioTableComponent.cpp" />
     <ClCompile Include="Scripts\EnemyAction\Factory\EnemyActionFactory.cpp" />
@@ -554,7 +557,6 @@
     <ClCompile Include="Scripts\UI\Panels\Grid\GridPanel.cpp" />
     <ClCompile Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.cpp" />
     <ClCompile Include="Scripts\UI\Panels\Overlay\OverlayPanel.cpp" />
-    <ClCompile Include="Scripts\UI\UIRoot\UIRoot.cpp" />
     <ClCompile Include="Scripts\UI\Views\Map\MapPlayerHPView.cpp" />
     <ClCompile Include="Scripts\UI\Views\Map\StageFocusView.cpp" />
     <ClCompile Include="Scripts\UI\Views\Map\StageView.cpp" />
@@ -651,6 +653,7 @@
     <ClCompile Include="Scripts\ItemDropSystem\ItemDropSystem.cpp" />
     <ClCompile Include="Scripts\SceneTransition\SceneTransitionComponent.cpp" />
     <ClCompile Include="Scripts\PlayerSystem\PlayerSystem.cpp" />
+    <ClCompile Include="Scripts\AccessorySystem\AccessorySystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

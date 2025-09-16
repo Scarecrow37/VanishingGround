@@ -72,7 +72,16 @@ bool EComponentFactory::InitalizeComponentFactory()
         {
             auto& [objectA, keyA, indexA, dataA] = tupleA;
             auto& [objectB, keyB, indexB, dataB] = tupleB;
-            return objectA->GetInstanceID() < objectB->GetInstanceID();
+            int instanceIDA                      = objectA->GetInstanceID();
+            int instanceIDB                      = objectB->GetInstanceID();
+            if (instanceIDA != instanceIDB)
+            {
+                return instanceIDA < instanceIDB;
+            }
+            else
+            {
+                return indexA < indexB;
+            }
         });
     }
 
