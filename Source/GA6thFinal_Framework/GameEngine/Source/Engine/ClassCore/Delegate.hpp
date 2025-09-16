@@ -1,6 +1,6 @@
 ﻿#pragma once
 template <typename... Args>
-class Delegate
+class UmDelegate
 {
 public:
     using FunctionType = std::function<void(Args...)>;
@@ -75,6 +75,11 @@ public:
         _listeners.clear();
         _handleToIndexMap.clear();
     }
+
+    // Clear Stats Check
+    operator bool() const { return _listeners.empty(); }
+    bool operator==(std::nullptr_t) const { return _listeners.empty(); }
+    bool operator!=(std::nullptr_t) const { return false == _listeners.empty(); }
 
 private:
     // Stores <Handle, Function> pairs for fast iteration.

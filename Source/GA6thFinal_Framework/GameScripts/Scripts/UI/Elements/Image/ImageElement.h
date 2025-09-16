@@ -14,9 +14,19 @@ public:
     ~ImageElement() override;
 
 public:
-    REFLECT_PROPERTY(FilePath)
+    REFLECT_PROPERTY(FilePath, Alpha)
+
     GETTER_ONLY(std::string, FilePath) { return _guidRef.ToPath().string(); }
     PROPERTY(FilePath)
+
+    GETTER(float, Alpha) { return ReflectFields->Alpha; }
+    SETTER(float, Alpha)
+    {
+        const float clampedAlpha = std::clamp(value, 0.0f, 1.0f);
+        ReflectFields->Alpha     = clampedAlpha;
+        UpdateRendererAlpha(clampedAlpha);
+    }
+    PROPERTY(Alpha)
 
 public:
     /// <summary>
@@ -24,6 +34,11 @@ public:
     /// </summary>
     /// <param name="guidRef">이미지 파일을 식별하는 File::GuidRef 참조입니다.</param>
     void SetImage(const File::GuidRef& guidRef);
+
+    /// <summary>
+    /// 선형 채우기 값을 설정합니다. 현재 좌우 채우기 모드에서만 적용됩니다.
+    /// </summary>
+    /// <param name="fill">설정할 선형 채우기 값입니다. 0.0f에서 1.0f 사이의 값을 가집니다.</param>
     void SetLinearFill(float fill);
 
     /// <summary>
@@ -45,12 +60,14 @@ protected:
 private:
     void LoadTexture(const File::GuidRef& guid) const;
     void UpdateWorldMatrix();
-    void UpdateRendererSize(const SIZE size) const;
+    void UpdateRendererSize(SIZE size) const;
+    void UpdateRendererAlpha(float alpha) const;
     void RequestResource();
 
 protected:
     REFLECT_FIELDS_BEGIN(DrawUIComponent)
     std::string Guid;
+    float       Alpha = 1.0f;
     REFLECT_FIELDS_END(ImageElement)
 
 private:

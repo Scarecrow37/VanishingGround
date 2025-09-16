@@ -29,6 +29,12 @@ namespace Input
         using ThumbStickAxis = ControllerTypes::ThumbStickAxis;
 
         /// <summary>
+        /// 엄지 막대의 편향에 대한 정보입니다.
+        /// X축과, Y축의 값을 비교하여 상하좌우로 편향되었는지 나타냅니다.
+        /// </summary>
+        using StickBias = ControllerTypes::StickBias;
+
+        /// <summary>
         /// 컨트롤러의 Trigger의 누름 정도에 대한 값입니다.
         /// 값의 범위는 0.0 ~ 1.0 사이입니다.
         /// </summary>
@@ -59,6 +65,69 @@ namespace Input
             {"LEFT_TRIGGER", Button::LEFT_TRIGGER},
             {"RIGHT_TRIGGER", Button::RIGHT_TRIGGER},
         };
+
+    public:
+        static constexpr const char* GetButtonName(const Button button) noexcept
+        {
+            switch (button)
+            {
+            case Button::DPAD_UP:
+                return "DPAD_UP";
+            case Button::DPAD_DOWN:
+                return "DPAD_DOWN";
+            case Button::DPAD_LEFT:
+                return "DPAD_LEFT";
+            case Button::DPAD_RIGHT:
+                return "DPAD_RIGHT";
+            case Button::START:
+                return "START";
+            case Button::BACK:
+                return "BACK";
+            case Button::LEFT_THUMB_BUTTON:
+                return "LEFT_THUMB_BUTTON";
+            case Button::RIGHT_THUMB_BUTTON:
+                return "RIGHT_THUMB_BUTTON";
+            case Button::LEFT_SHOULDER:
+                return "LEFT_SHOULDER";
+            case Button::RIGHT_SHOULDER:
+                return "RIGHT_SHOULDER";
+            case Button::A:
+                return "A";
+            case Button::B:
+                return "B";
+            case Button::X:
+                return "X";
+            case Button::Y:
+                return "Y";
+            case Button::LEFT_THUMB_STICK:
+                return "LEFT_THUMB_STICK";
+            case Button::RIGHT_THUMB_STICK:
+                return "RIGHT_THUMB_STICK";
+            case Button::LEFT_TRIGGER:
+                return "LEFT_TRIGGER";
+            case Button::RIGHT_TRIGGER:
+                return "RIGHT_TRIGGER";
+            }
+
+            return "UNKNOWN_BUTTON";
+        }
+        static constexpr const char* GetStickBiasName(const StickBias bias) noexcept
+        {
+            switch (bias)
+            {
+            case StickBias::UNBIASED:
+                return "UNBIASED";
+            case StickBias::UP:
+                return "UP";
+            case StickBias::DOWN:
+                return "DOWN";
+            case StickBias::LEFT:
+                return "LEFT";
+            case StickBias::RIGHT:
+                return "RIGHT";
+            }
+            return "UNKNOWN_BIAS";
+        }
 
     public:
         explicit Controller(const Adapter* adapter);
@@ -94,6 +163,18 @@ namespace Input
         /// </summary>
         /// <returns>오른쪽 엄지스틱의 축 값을 나타내는 ThumbStickAxis 객체를 반환합니다.</returns>
         [[nodiscard]] ThumbStickAxis GetRightThumbStickAxis() const noexcept;
+
+        /// <summary>
+        /// 왼쪽 스틱의 편향 값을 반환합니다.
+        /// </summary>
+        /// <returns>왼쪽 스틱의 편향을 나타내는 StickBias 값입니다.</returns>
+        [[nodiscard]] StickBias GetLeftStickBias(float threshold = 0.01f) const noexcept;
+
+        /// <summary>
+        /// 오른쪽 스틱의 편향 값을 반환합니다.
+        /// </summary>
+        /// <returns>오른쪽 스틱의 편향을 나타내는 StickBias 값입니다.</returns>
+        [[nodiscard]] StickBias GetRightStickBias(float threshold = 0.01f) const noexcept;
 
         /// <summary>
         /// 왼쪽 트리거의 값을 반환합니다.

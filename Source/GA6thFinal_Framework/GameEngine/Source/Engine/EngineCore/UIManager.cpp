@@ -2,18 +2,14 @@
 #include "UIManager.h"
 
 
-void UI::Manager::AddMeasureQueue(const UIComponent* component)
+void UI::Manager::AddMeasureQueue(const std::weak_ptr<UIComponent>& component)
 {
-    const std::shared_ptr<UIComponent> uiComponent =
-        std::static_pointer_cast<UIComponent>(component->GetWeakPtr().lock());
-    _measureQueue.push_back(uiComponent);
+    _measureQueue.push_back(component);
 }
 
-void UI::Manager::AddArrangeQueue(const UIComponent* component)
+void UI::Manager::AddArrangeQueue(const std::weak_ptr<UIComponent>& component)
 {
-    const std::shared_ptr<UIComponent> uiComponent =
-        std::static_pointer_cast<UIComponent>(component->GetWeakPtr().lock());
-    _arrangeQueue.push_back(uiComponent);
+    _arrangeQueue.push_back(component);
 }
 
 void UI::Manager::Update(const SIZE& rootSize)
