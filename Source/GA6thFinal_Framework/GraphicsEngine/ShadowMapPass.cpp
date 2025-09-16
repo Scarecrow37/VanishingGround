@@ -368,11 +368,11 @@ void ShadowMapPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, int shade
         switch (shaderType)
         {
         case STATIC_MESH:
-            commandList->SetGraphicsRoot32BitConstants(_fxStaticShadow.GetRootParameterIndex("bit32_4_objectData2"), 4, parameter, 0);
+            commandList->SetGraphicsRoot32BitConstants(_fxStaticShadow.GetRootParameterIndex("bit32_4_shadowObjectData"), 4, parameter, 0);
             break;
 
         case SKELETAL_MESH:
-            commandList->SetGraphicsRoot32BitConstants(_fxSkeletalShadow.GetRootParameterIndex("bit32_4_objectData2"), 4, parameter, 0);
+            commandList->SetGraphicsRoot32BitConstants(_fxSkeletalShadow.GetRootParameterIndex("bit32_4_shadowObjectData"), 4, parameter, 0);
             break;
         }
 

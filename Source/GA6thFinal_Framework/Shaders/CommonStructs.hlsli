@@ -77,9 +77,20 @@ struct ObjectData
     uint CustomDepth;
 };
 
-struct ObjectData2 : ObjectData
+struct ShadowObjectData
 {
+    uint ID;
+    uint Offset;
+    uint CustomDepth;
     uint CascadeIndex;
+};
+
+struct TranslucentObjectData
+{
+    uint ID;
+    uint Offset;
+    uint CustomDepth;
+    float Alpha;
 };
 
 struct PostProcessData

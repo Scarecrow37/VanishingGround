@@ -43,7 +43,7 @@ void SSAOWritePass::Draw(ID3D12GraphicsCommandList* commandList)
 {
     const auto& ssaoProperty =
         std::any_cast<const SSAOPassProperty&>(_ownerScene->GetRenderPassProperty("SSAOWritePass"));
-    const auto& renderTargetGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
+    const auto& renderTargetGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("G-Buffer");
     auto        cameraData        = _ownerScene->_cameraBuffer->GetGPUVirtualAddress();
     commandList->SetGraphicsRootSignature(_fxSSAOWrite.GetRootSignature());
     commandList->SetPipelineState(_pipelineState.Get());

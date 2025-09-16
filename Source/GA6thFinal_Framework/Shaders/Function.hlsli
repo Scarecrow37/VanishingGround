@@ -126,8 +126,11 @@ inline float3 CalculateSpot(SpotLight light, float3 N, float3 V, float3 albedo, 
 
 inline float CalculatePostProcessMask(Texture2D<uint> customDepthTexture, float2 uv)
 {
-    uint mask = customDepthTexture.Load(int3(uv * postProcessData.ScreenSize, 0));
-    float result = min(postProcessData.PostProcessMask & mask, 1);
+    PostProcessData data = bit32_6_postProcessData;
+    
+    uint mask = customDepthTexture.Load(int3(uv * data.ScreenSize, 0));
+    float result = min(data.PostProcessMask & mask, 1);
+    
     return result;
 }
 
@@ -296,5 +299,11 @@ float HenyeyGreensteinPhaseFunction(float3 viewDir, float3 lightDir, float g)
     return (1.f / (4.f * PI)) * (1.f - pow(g, 2)) / max(pow(denom, 1.5f), Epsilon);
 }
 
-
+// TBN 직교정규화: tangent를 normal에 대해 그램-슈미트, bitangent는 cross로 재구축
+void OrthonormalizeTBN(inout float3 T, inout float3 B, inout float3 N)
+{
+    N = normalize(N);
+    T = normalize(T - N * dot(T, N));
+    B = normalize(cross(N, T));
+}
 #endif

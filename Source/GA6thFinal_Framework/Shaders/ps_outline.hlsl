@@ -14,7 +14,7 @@ RWTexture2D<float4> accumulation;
 
 void ps_main(PS_INPUT input)
 {   
-    PostProcessData data = postProcessData;
+    PostProcessData data = bit32_6_postProcessData;
     
     float centerDepth = depthTexture.Sample(samPoint_clamp, input.uv).r;
     float3 centerNormal = normalize(normalTexture.Sample(samPoint_clamp, input.uv).xyz); // [-1, 1] 범위로 복원

@@ -10,8 +10,9 @@ ConstantBuffer<CascadeData> cascadeData : register(b1);
 ConstantBuffer<LightData> lightData : register(b2);
 ConstantBuffer<NumLight> bit32_3_numLight : register(b3);
 ConstantBuffer<ObjectData> bit32_3_objectData : register(b4);
-ConstantBuffer<ObjectData2> bit32_4_objectData2 : register(b5);
-ConstantBuffer<PostProcessData> bit32_6_postProcessData : register(b6);
+ConstantBuffer<ShadowObjectData> bit32_4_shadowObjectData : register(b5);
+ConstantBuffer<TranslucentObjectData> bit32_4_translucentObjectData : register(b6);
+ConstantBuffer<PostProcessData> bit32_6_postProcessData : register(b7);
     
 static const float GaussianWeight[] =
 {
