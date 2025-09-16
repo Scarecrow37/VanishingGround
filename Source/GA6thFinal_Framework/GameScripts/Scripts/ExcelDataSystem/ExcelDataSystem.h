@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "UmFramework.h"
+#include "DLLExportDefine.h"
 #include "ExcelParser/ImGuiColumnSheetParser.h"
 
 class ExcelDataSystem : public Component

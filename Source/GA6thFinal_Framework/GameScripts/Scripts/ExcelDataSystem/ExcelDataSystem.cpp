@@ -1,5 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "ExcelDataSystem.h"
+
+UMREAL_COMPONENT(ExcelDataSystem)
+
 ExcelDataSystem::ExcelDataSystem() 
     : 
     _excelParser{"64F8C1F9-344D-4D36-A232-47E68DA36134", u8"ID"} 

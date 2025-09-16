@@ -180,6 +180,3 @@ UMREAL_COMPONENT(MapPlayerHPView)
 
 #include "Scripts\AccessorySystem/AccessorySystem.h"
 UMREAL_COMPONENT(AccessorySystem)
-
-#include "Scripts\ExcelDataSystem/ExcelDataSystem.h"
-UMREAL_COMPONENT(ExcelDataSystem)
