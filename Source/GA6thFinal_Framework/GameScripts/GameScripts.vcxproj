@@ -302,6 +302,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="DLLExportDefine.h" />
     <ClInclude Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.h" />
     <ClInclude Include="Scripts\Audio\BGMManager.h" />
     <ClInclude Include="Scripts\Audio\Table\AudioTableComponent.h" />
