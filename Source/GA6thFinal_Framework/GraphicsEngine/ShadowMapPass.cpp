@@ -342,10 +342,8 @@ void ShadowMapPass::UpdateCascades(const Vector3& lightDirection)
     _previousShadowPassProperty = shadowMapProps;
 }
 
-void ShadowMapPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, int shaderType, MeshType meshType, int cascadeIndex)
+void ShadowMapPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, int shaderType, MeshType meshType, int cascadedIndex)
 {
-    UINT parameter[4]{0, MAX_BONE_MATRIX, 0, 0};
-
     const auto& parallaxMappingProperty = std::any_cast<const ParallaxMappingProperty&>(_ownerScene->GetRenderPassProperty("G-BufferPass"));
 
     switch (shaderType)
@@ -359,20 +357,21 @@ void ShadowMapPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, int shade
         break;
     }
 
+    ShadowObjectData parameter{{.MaxBoneMatrix = MAX_BONE_MATRIX}};
     for (auto& [mesh, instanceID, customDepth] : _renderDatas[meshType])
     {
-        parameter[0] = instanceID;
-        parameter[2] = customDepth;
-        parameter[3] = cascadeIndex;
+        parameter.InstanceID = instanceID;
+        parameter.CustomDepth = customDepth;
+        parameter.CascadedIndex = cascadedIndex;
 
         switch (shaderType)
         {
         case STATIC_MESH:
-            commandList->SetGraphicsRoot32BitConstants(_fxStaticShadow.GetRootParameterIndex("bit32_4_objectData2"), 4, parameter, 0);
+            commandList->SetGraphicsRoot32BitConstants(_fxStaticShadow.GetRootParameterIndex("bit32_5_shadowObjectData"), 5, &parameter, 0);
             break;
 
         case SKELETAL_MESH:
-            commandList->SetGraphicsRoot32BitConstants(_fxSkeletalShadow.GetRootParameterIndex("bit32_4_objectData2"), 4, parameter, 0);
+            commandList->SetGraphicsRoot32BitConstants(_fxSkeletalShadow.GetRootParameterIndex("bit32_5_shadowObjectData"), 5, &parameter, 0);
             break;
         }
 

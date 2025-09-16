@@ -24,8 +24,10 @@ Texture2D textures[];
 
 void ps_main(PS_INPUT input)
 {
+    ShadowObjectData data = bit32_5_shadowObjectData;
+    
     float mipBias = bit32_1_mipBias.MipBias;
-    uint diffuseID = material[shadowData.ID].ID[DIFFUSE];
+    uint diffuseID = material[data.ID].ID[DIFFUSE];
     
     float alpha = textures[diffuseID].SampleBias(samLinear_wrap, input.uv, mipBias).a;
 
