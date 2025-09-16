@@ -6,6 +6,8 @@
 #include "ItemDropSystem/ItemDropSystem.h"
 #include "Stats/Player/PlayerStatsComponent.h"
 #include "AccessorySystem/AccessorySystem.h"
+#include "ConsumableSystem/ConsumableSystem.h"
+#include "UI/Elements/Image/ImageElement.h"
 
 PlayerSystem::PlayerSystem() = default;
 PlayerSystem::~PlayerSystem() = default;
@@ -53,6 +55,7 @@ void PlayerSystem::ImGuiDrawPropertysEvent()
     CheckMessage(_weaponTableComponent);
     CheckMessage(_revelationSystem);
     CheckMessage(_accessorySystem);
+    CheckMessage(_consumableSystem);
     CheckMessage(_itemDropSystem);
     CheckMessage(_playerStatsComponent);
 }
@@ -63,6 +66,7 @@ void PlayerSystem::CheckSystem()
     _weaponTableComponent = GetComponent<WeaponTableComponent>();
     _revelationSystem     = GetComponent<RevelationSystem>();
     _accessorySystem      = GetComponent<AccessorySystem>();
+    _consumableSystem     = GetComponent<ConsumableSystem>();
     _itemDropSystem       = GetComponent<ItemDropSystem>();
     _playerStatsComponent = GetComponent<PlayerStatsComponent>();
 }

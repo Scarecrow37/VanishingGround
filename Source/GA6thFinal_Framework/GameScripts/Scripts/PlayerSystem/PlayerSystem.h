@@ -29,6 +29,7 @@ private:
     class WeaponTableComponent*   _weaponTableComponent = nullptr;
     class RevelationSystem*       _revelationSystem     = nullptr;
     class AccessorySystem*        _accessorySystem      = nullptr;
+    class ConsumableSystem*       _consumableSystem     = nullptr;
     class ItemDropSystem*         _itemDropSystem       = nullptr;
     class PlayerStatsComponent*   _playerStatsComponent = nullptr;
 
