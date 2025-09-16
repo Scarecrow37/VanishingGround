@@ -27,16 +27,18 @@ StructuredBuffer<matrix> boneMatrices;
 [numthreads(256, 1, 1)]
 void cs_main(uint3 dispatchThreadID : SV_DispatchThreadID)
 {
+    ObjectData data = bit32_4_objectData;
+    
     uint vertexIndex = dispatchThreadID.x;
     // custom depth is used to objects vertex count
-    if (vertexIndex >= objectData.CustomDepth)
+    if (vertexIndex >= data.CustomDepth)
         return;
     Vertex input = vertices[vertexIndex];
-    matrix boneTransform = mul(input.blendWeights.x, boneMatrices[objectData.ID * objectData.Offset + input.blendIndices.x]);
-    boneTransform += mul(input.blendWeights.y, boneMatrices[objectData.ID * objectData.Offset + input.blendIndices.y]);
-    boneTransform += mul(input.blendWeights.z, boneMatrices[objectData.ID * objectData.Offset + input.blendIndices.z]);
-    boneTransform += mul(input.blendWeights.w, boneMatrices[objectData.ID * objectData.Offset + input.blendIndices.w]);
-    
+    matrix boneTransform = mul(input.blendWeights.x, boneMatrices[data.ID * data.Offset + input.blendIndices.x]);
+    boneTransform += mul(input.blendWeights.y, boneMatrices[data.ID * data.Offset + input.blendIndices.y]);
+    boneTransform += mul(input.blendWeights.z, boneMatrices[data.ID * data.Offset + input.blendIndices.z]);
+    boneTransform += mul(input.blendWeights.w, boneMatrices[data.ID * data.Offset + input.blendIndices.w]);
+
     SkinnedVertex output;
     output.position = mul(input.position, boneTransform);
     

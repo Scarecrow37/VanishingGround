@@ -1,4 +1,5 @@
 #include "Function.hlsli"
+
 TextureCube evnTexture;
 struct VSOutput
 {

@@ -20,10 +20,12 @@ StructuredBuffer<MatrixData> matrices;
 
 VSOutput vs_main(VSInput input)
 {
+    ShadowObjectData data = bit32_5_shadowObjectData;
+    
     VSOutput output = (VSOutput) 0;
 
-    uint instanceID = shadowData.ID;
-    uint cascadeIndex = shadowData.CascadeIndex;
+    uint instanceID = data.ID;
+    uint cascadeIndex = data.CascadeIndex;
 
     output.position = mul(input.position, matrices[instanceID].World);
     output.position = mul(output.position, cascadeData.ShadowVP[cascadeIndex]);

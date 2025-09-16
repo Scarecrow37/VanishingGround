@@ -23,13 +23,15 @@ StructuredBuffer<matrix> boneMatrices;
 
 VSOutput vs_main(VSInput input)
 {
-    uint instanceID = shadowData.ID;
-    uint cascadeIndex = shadowData.CascadeIndex;
+    ShadowObjectData data = bit32_5_shadowObjectData;
+    
+    uint instanceID = data.ID;
+    uint cascadeIndex = data.CascadeIndex;
 
-    matrix boneTransform = mul(input.blendWeights.x, boneMatrices[instanceID * shadowData.Offset + input.blendIndices.x]);
-    boneTransform       += mul(input.blendWeights.y, boneMatrices[instanceID * shadowData.Offset + input.blendIndices.y]);
-    boneTransform       += mul(input.blendWeights.z, boneMatrices[instanceID * shadowData.Offset + input.blendIndices.z]);
-    boneTransform       += mul(input.blendWeights.w, boneMatrices[instanceID * shadowData.Offset + input.blendIndices.w]);
+    matrix boneTransform = mul(input.blendWeights.x, boneMatrices[instanceID * data.Offset + input.blendIndices.x]);
+    boneTransform       += mul(input.blendWeights.y, boneMatrices[instanceID * data.Offset + input.blendIndices.y]);
+    boneTransform       += mul(input.blendWeights.z, boneMatrices[instanceID * data.Offset + input.blendIndices.z]);
+    boneTransform       += mul(input.blendWeights.w, boneMatrices[instanceID * data.Offset + input.blendIndices.w]);
 
     matrix worldTransform = mul(boneTransform, matrices[instanceID].World);
     

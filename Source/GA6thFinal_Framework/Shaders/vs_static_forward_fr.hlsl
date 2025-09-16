@@ -24,12 +24,13 @@ StructuredBuffer<MatrixData> matrices;
 
 VSOutput vs_main(VSInput input)
 {
-    ObjectData data = bit32_4_objectData;
-    
     VSOutput output = (VSOutput) 0;
+    
+    ObjectData data = bit32_4_objectData;
     
     output.position = mul(input.position, matrices[data.ID].World);
     output.worldPosition = output.position;
+    
     output.position = mul(output.position, cameraData.View);
     output.position = mul(output.position, cameraData.Projection);       
     

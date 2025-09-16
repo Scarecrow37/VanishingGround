@@ -15,13 +15,11 @@ UMREALSCRIPTS_DECLSPEC void InitalizeUmrealScript(const std::shared_ptr<EngineCo
 static bool IncludeInProject(const std::filesystem::path& filePath);
 
 constexpr const wchar_t* SCRIPT_PROJECT_PATH   = L"..\\GameScripts";
-constexpr const wchar_t* UMREAL_SCRIPTS_HEADER = L"..\\GameScripts\\UmScriptsExport.h";
 
 UMREALSCRIPTS_DECLSPEC void CreateUmrealcSriptFile(const char* fileName)
 {
     using namespace std::string_literals;
-    if (!std::filesystem::exists(SCRIPT_PROJECT_PATH) || 
-        !std::filesystem::exists(UMREAL_SCRIPTS_HEADER)
+    if (!std::filesystem::exists(SCRIPT_PROJECT_PATH)
         )
     {
         MessageBox(engineCore->App.GetHwnd(),
@@ -36,7 +34,6 @@ UMREALSCRIPTS_DECLSPEC void CreateUmrealcSriptFile(const char* fileName)
     std::filesystem::path filePath = SCRIPT_PROJECT_PATH / include;
     std::wstring ClassName = include.filename();
     std::string  typeIdName = "class " + include.filename().string();
-    std::wstring ScriptsHeaderData = std::format(L"#include \"{}.h\"", include.c_str());
     std::wstring UmrealScriptsHeaderData = std::format(L"UMREAL_COMPONENT({})", ClassName.c_str());
     filePath.replace_extension(L".h");
     if (std::filesystem::exists(filePath))
@@ -56,23 +53,14 @@ UMREALSCRIPTS_DECLSPEC void CreateUmrealcSriptFile(const char* fileName)
     }
     else
     {
-        std::wofstream wofs(UMREAL_SCRIPTS_HEADER, std::ios::app);
-        if (wofs.is_open())
-        {
-            wofs << L"\n";
-            wofs << L"\n" << ScriptsHeaderData;
-            wofs << L"\n" << UmrealScriptsHeaderData;
-        }
-        wofs.close();
-
         std::filesystem::create_directories(filePath.parent_path());
 
         //h 파일 생성
-        wofs.open(filePath, std::ios::trunc);
+        std::wofstream wofs(filePath, std::ios::trunc);
         if (wofs.is_open())
         {
             wofs <<             LR"(#pragma once)"                                                  << L"\n";
-            wofs <<             LR"(#include "UmFramework.h")"                                      << L"\n";
+            wofs <<             LR"(#include "DLLExportDefine.h")"                                  << L"\n";
             wofs <<   std::format(L"class {} : public Component", ClassName)                        << L"\n";
             wofs <<             LR"({)"                                                             << L"\n";
             wofs <<   std::format(L"    USING_PROPERTY({})", ClassName)                             << L"\n";
@@ -87,7 +75,8 @@ UMREALSCRIPTS_DECLSPEC void CreateUmrealcSriptFile(const char* fileName)
             wofs <<             LR"(protected:)"                                                    << L"\n";
             wofs <<             LR"(    REFLECT_FIELDS_BEGIN(Component))"                           << L"\n";
             wofs <<   std::format(L"    REFLECT_FIELDS_END({})", ClassName)                         << L"\n";
-            wofs <<             LR"(};)" << L"\n";
+            wofs <<             LR"(};)"                                                            << L"\n";
+            wofs <<             LR"()"                                                              << L"\n";
         }
         wofs.close();
 
@@ -98,6 +87,9 @@ UMREALSCRIPTS_DECLSPEC void CreateUmrealcSriptFile(const char* fileName)
         {
             wofs << std::format(L"#include \"pchScripts.h\"")                        << L"\n";
             wofs << std::format(L"#include \"{}.h\"", ClassName)                     << L"\n";
+            wofs << L"" << L"\n";
+            wofs << UmrealScriptsHeaderData                                          << L"\n";
+            wofs << L"" << L"\n";
             wofs << std::format(L"{0}::{0}() = default;", ClassName)                 << L"\n";
             wofs << std::format(L"{0}::~{0}() = default;", ClassName)                << L"\n";
         }
