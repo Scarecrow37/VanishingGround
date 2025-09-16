@@ -25,7 +25,10 @@ ImageElement::ImageElement()
 ImageElement::~ImageElement()
 {
     if (_renderer)
+    {
         _renderer->SetDestroy();
+        _renderer = nullptr;
+    }
 }
 
 void ImageElement::SetImage(const File::GuidRef& guidRef)

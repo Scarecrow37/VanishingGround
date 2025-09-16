@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "UmFramework.h"
-#include "Utility/SingletonHelper.h"
+#include <QTE/Result/QTEResult.h>
+#include <Utility/SingletonHelper.h>
 
 namespace QTE
 {
@@ -24,8 +25,7 @@ public:
     PROPERTY(FilePath)
 
     void OnQTEEnter();
-    void OnQTEFail();
-    void OnQTESuccess();
+    void OnQTENotePressed(QTE::ResultType result);
     void OnQTEStay();
     void OnQTEExit();
 

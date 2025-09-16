@@ -39,7 +39,7 @@ public:
     /// <param name="weaponID">매핑 트랙을 추가할 무기의 ID입니다.</param>
     /// <param name="path">추가할 트랙의 파일 경로입니다.</param>
     /// <returns>매핑 트랙 추가가 성공하면 true, 실패하면 false를 반환합니다.</returns>
-    bool        AddMappingTrackToWeaponID(int weaponID, const File::Path& path = File::NULL_PATH);
+    bool AddMappingTrackToWeaponID(int weaponID, const File::Path& path = File::NULL_PATH);
 
     /// <summary>
     /// weaponID와 관련된 매핑 트랙을 제거합니다. index가 -1이면 마지막 매핑 트랙을 제거합니다.
@@ -47,7 +47,7 @@ public:
     /// <param name="weaponID">매핑을 제거할 무기의 ID입니다.</param>
     /// <param name="index">제거할 매핑 트랙의 인덱스입니다. 기본값은 -1로, 마지막 매핑 트랙을 제거합니다.</param>
     /// <returns>매핑이 성공적으로 제거되면 true를 반환하고, 그렇지 않으면 false를 반환합니다.</returns>
-    bool        RemoveMappingTrackToWeaponID(int weaponID, int index = -1);
+    bool RemoveMappingTrackToWeaponID(int weaponID, int index = -1);
 
     /// <summary>
     /// weaponID와 선택적 인덱스에 해당하는 매핑된 트랙을 반환합니다.
@@ -78,13 +78,12 @@ private:
     void PressedButtonB(const Input::Controller& controller);
 
     void ProcessQTEEnterEvent();
-    void ProcessQTEFailEvent();
-    void ProcessQTESuccessEvent();
+    void ProcessQTENotePressedEvent(QTE::ResultType result);
     void ProcessQTEStayEvent();
     void ProcessQTEExitEvent();
 
 public:
-    inline bool  IsQTEPlaying() const { return _isQTEPlaying; }
+    inline bool  IsQTEPlaying() const { return _currQTEPlaying; }
     inline float GetQTEDelayTime() const { return _delayTimer; }
     inline float GetQTETime() const { return _qteTimer; }
 
@@ -126,7 +125,8 @@ private:
 
     float                       _delayTimer     = 0.0f;                         // 딜레이 타이머
     float                       _qteTimer       = 0.0f;                         // QTE 타이머
-    bool                        _isQTEPlaying   = false;                        // QTE 실행 중 여부
+    bool                        _currQTEPlaying = false;                        // 현재 QTE가 실행 중인지 여부
+    bool                        _prevQTEPlaying = false;                        // 이전 프레임에서 QTE가 실행 중이었는지 여부
 
     REFLECT_FIELDS_BEGIN(Component)
     float                   QTESpeedScale       = 1.0f;                         // QTE 속도 배율

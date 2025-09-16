@@ -49,33 +49,18 @@ void QTESystem::Start()
 
 void QTESystem::Update()
 {
-    if (_isQTEPlaying && _currentQTETrack)
+    if (true == _currQTEPlaying && false == _prevQTEPlaying)
     {
-        UpdateQTEDelay();
-        if (IsQTEDelayEnd())
-        {
-            UpdateQTETrack();
-        }
-        ImGuiWindow* sceneWindow = ImGui::FindWindowByName("Scene");
-        if (sceneWindow)
-        {
-            ImGui::SetNextWindowSize(sceneWindow->Size);
-            ImGui::SetNextWindowPos(sceneWindow->Pos);
-        }
-        else
-        {
-            const SIZE& size = UmApplication.GetClientSize();
-            ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver);
-            ImGui::SetNextWindowPos(ImVec2((float)size.cx / 2.0f, 100.0f), ImGuiCond_FirstUseEver);
-        }
-        ImGuiHelper::StyleBuilder style;
-        style.PushStyleColor(ImGuiCol_FrameBg, ImVec4(0, 0, 0, 0));
-        ImGui::Begin("QTE Preview", nullptr);
-        {
-            style.PopStyle();
-            QTEPreviewer::Draw();
-        }
-        ImGui::End();
+        ProcessQTEEnterEvent();
+    }
+    _prevQTEPlaying = _currQTEPlaying;
+    if (true == _currQTEPlaying)
+    {
+        ProcessQTEStayEvent();
+    }
+    if (false == _currQTEPlaying && true == _prevQTEPlaying)
+    {
+        ProcessQTEExitEvent();
     }
 }
 
@@ -211,7 +196,7 @@ void QTESystem::StartQTE()
 
 void QTESystem::StartQTE(QTE::Track* qteTrack)
 {
-    if (_isQTEPlaying)
+    if (_currQTEPlaying)
     {
         UmLogger.Log(
             LogLevel::LEVEL_WARNING,
@@ -219,7 +204,7 @@ void QTESystem::StartQTE(QTE::Track* qteTrack)
         return;
     }
 
-    _isQTEPlaying = true;
+    _currQTEPlaying = true;
     _currentNoteIndex = 0;
     _noteAvailQueue.clear();
     _noteResultQueue.clear();
@@ -246,6 +231,8 @@ void QTESystem::StartQTE(QTE::Track* qteTrack)
             }
         }
     }
+
+    ProcessQTEEnterEvent();
 }
 
 bool QTESystem::IsQTEDelayEnd()
@@ -324,7 +311,7 @@ void QTESystem::UpdateQTEDelay()
 
 void QTESystem::UpdateQTETrack()
 {
-    if (_isQTEPlaying && _currentQTETrack)
+    if (_currQTEPlaying && _currentQTETrack)
     {
         auto track = _currentQTETrack->GetEventTrack().lock();
         if (track)
@@ -349,7 +336,7 @@ void QTESystem::UpdateQTETrack()
             }
             else
             {
-                _isQTEPlaying = false;
+                _currQTEPlaying = false;
             }
         }
     }
@@ -363,7 +350,7 @@ QTEEditor& QTESystem::GetEditor()
 
 void QTESystem::PressedQTEButton(Input::ControllerTypes::Button type) 
 {
-    if (_isQTEPlaying)
+    if (_currQTEPlaying)
     {
         if (_currentNoteIndex >= _noteAvailQueue.size())
         {
@@ -379,6 +366,8 @@ void QTESystem::PressedQTEButton(Input::ControllerTypes::Button type)
         result.TimeDelta        = curNote ? _qteTimer - curNote->Time : 0.0f;
 
         QTEPreviewer::PressedNote(&result);
+
+        ProcessQTENotePressedEvent(result.ResultType);
     }
 }
 
@@ -408,19 +397,11 @@ void QTESystem::ProcessQTEEnterEvent()
     }
 }
 
-void QTESystem::ProcessQTEFailEvent() 
+void QTESystem::ProcessQTENotePressedEvent(QTE::ResultType result)
 {
     if (_qteUIManager)
     {
-        _qteUIManager->OnQTEFail();
-    }
-}
-
-void QTESystem::ProcessQTESuccessEvent() 
-{
-    if (_qteUIManager)
-    {
-        _qteUIManager->OnQTESuccess();
+        _qteUIManager->OnQTENotePressed(result);
     }
 }
 
@@ -429,6 +410,34 @@ void QTESystem::ProcessQTEStayEvent()
     if (_qteUIManager)
     {
         _qteUIManager->OnQTEStay();
+    }
+    if (_currQTEPlaying && _currentQTETrack)
+    {
+        UpdateQTEDelay();
+        if (IsQTEDelayEnd())
+        {
+            UpdateQTETrack();
+        }
+        // ImGuiWindow* sceneWindow = ImGui::FindWindowByName("Scene");
+        // if (sceneWindow)
+        //{
+        //     ImGui::SetNextWindowSize(sceneWindow->Size);
+        //     ImGui::SetNextWindowPos(sceneWindow->Pos);
+        // }
+        // else
+        //{
+        //     const SIZE& size = UmApplication.GetClientSize();
+        //     ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver);
+        //     ImGui::SetNextWindowPos(ImVec2((float)size.cx / 2.0f, 100.0f), ImGuiCond_FirstUseEver);
+        // }
+        // ImGuiHelper::StyleBuilder style;
+        // style.PushStyleColor(ImGuiCol_FrameBg, ImVec4(0, 0, 0, 0));
+        // ImGui::Begin("QTE Preview", nullptr);
+        //{
+        //     style.PopStyle();
+        //     QTEPreviewer::Draw();
+        // }
+        // ImGui::End();
     }
 }
 

@@ -22,14 +22,9 @@ void QTEUIManager::OnQTEEnter()
     }
 }
 
-void QTEUIManager::OnQTEFail() 
+void QTEUIManager::OnQTENotePressed(QTE::ResultType result)
 {
-    // TODO : QTE 실패 Effect
-}
-
-void QTEUIManager::OnQTESuccess() 
-{
-    // TODO : QTE 성공 Effect
+    // TODO : QTE Effect
 }
 
 void QTEUIManager::OnQTEStay() 
@@ -55,6 +50,7 @@ void QTEUIManager::OnQTEStay()
                 {
                     const int     id      = note->ID;
                     const float   time    = note->Time;
+
                     ImageElement* noteUI  = FindNoteUIFromNoteID(id);
                     if (noteUI)
                     {
@@ -64,21 +60,19 @@ void QTEUIManager::OnQTEStay()
                         float       alphaFactor = CalculateNoteAlpha(posFactor);
                         if (posFactor > 0.0f)
                         {
-                            object.ActiveSelf = true;
-
-                            const float notePosX = (float)_qtePanelPos.x * posFactor;
-                            noteUI->Point        = POINT{(LONG)notePosX, oldPoint.y};
-                            noteUI->Alpha        = alphaFactor;
+                            float notePosX      = (float)judgePos.x * posFactor;
+                            noteUI->Point       = POINT{(LONG)notePosX, oldPoint.y};
+                            noteUI->Alpha       = alphaFactor;
+                            object.ActiveSelf   = true;
                         }
                         else
                         {
-                            object.ActiveSelf = false;
+                            object.ActiveSelf   = false;
                         }
                     }
                 }
             }
         }
-        
     }
 }
 
@@ -152,6 +146,22 @@ void QTEUIManager::DeserializedReflectEvent()
 
 void QTEUIManager::ImGuiDrawPropertysEvent() 
 {
+    if (nullptr == _qteOverlayPanel)
+    {
+        ImGui::TextUnformatted((const char*)u8"QTE OverlayPanel UI가 없습니다.");
+    }
+    if (nullptr == _qteBackGroundUI)
+    {
+        ImGui::TextUnformatted((const char*)u8"QTE BackGround UI가 없습니다.");
+    }
+    if (nullptr == _qteJudgeNoteUI)
+    {
+        ImGui::TextUnformatted((const char*)u8"QTE JudgeNote UI가 없습니다.");
+    }
+    if (ImGui::Button((const char*)u8"새로고침"))
+    {
+        FindUIComponents();
+    }
 }
 
 void QTEUIManager::SetNotePrefabGuid(const File::Guid& guid) 
