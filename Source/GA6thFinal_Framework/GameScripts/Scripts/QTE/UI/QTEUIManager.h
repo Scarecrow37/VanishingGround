@@ -41,32 +41,42 @@ private:
 
 public:
     void SetNotePrefabGuid(const File::Guid& guid);
+    void SetUIAlpha(float factor);
 
 private:
+    void UpdateUITransformData();
     void FindUIComponents();
     void SpawnQTENotesFromCurrentTrack();
     void ClearAllQTENotes();
 
     float CalculateNotePosXFactor(float noteTime, float totalTime);
+    float CalculateNotePosXAbsolute(float noteTime, float totalTime);
+    float CalculateNotePosXAbsolute(float posFactor);
     float CalculateNoteAlpha(float posFactor);
+
+    float GetJudgeNotePosXFactor() const;
 
     ImageElement* FindNoteUIFromNoteID(int noteID) const;
 
 private:
     SingletonComponent<QTEUIManager>    _singletonComponent{this};
-    QTESystem*                          _qteSystem = nullptr;
-    OverlayPanel*                       _qteOverlayPanel = nullptr;
-    ImageElement*                       _qteBackGroundUI = nullptr;
-    ImageElement*                       _qteJudgeNoteUI = nullptr;
+    QTESystem*                          _qteSystem          = nullptr;
+    OverlayPanel*                       _qteOverlayPanel    = nullptr;
+    ImageElement*                       _qteBackgroundUI    = nullptr;
+    ImageElement*                       _qteNoteLineUI      = nullptr;
+    ImageElement*                       _qteJudgeNoteUI     = nullptr;
 
     File::GuidRef                       _notePrefabGuid = File::NULL_GUID;
     std::unordered_map<int, ImageElement*> _noteSpawnTable = {};
 
-    POINT   _qtePanelPos  = {0, 0};
-    SIZE    _qtePanelSize = {0, 0};
+    Vector2 _qtePanelPos  = Vector2::Zero;
+    Vector2 _qtePanelSize = Vector2::Zero;
+    Vector2 _qteJudgePos  = Vector2::Zero;
+    Vector2 _qteJudgeSize = Vector2::Zero;
 
     REFLECT_FIELDS_BEGIN(Component)
     std::string NotePrefabGuid; // QTE 노트 프리팹 GUID
     REFLECT_FIELDS_END(QTEUIManager)
 
+    float _qteUIAlphaFactor = 0.0f;
 };

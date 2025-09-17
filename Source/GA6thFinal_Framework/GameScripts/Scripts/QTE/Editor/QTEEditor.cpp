@@ -2,7 +2,6 @@
 #include "QTEEditor.h"
 #include "Utility/SingletonHelper.h"
 #include <QTE/System/QTESystem.h>
-#include <QTE/Editor/QTEPreviewer.h>
 #include <WeaponSystem/WeaponSystem.h>
 #include <WeaponSystem/WeaponTable/WeaponTableComponent.h>
 
@@ -174,14 +173,6 @@ void QTEEditor::ShowSystemDetail()
             ImGui::Separator();
             ImGuiHelper::AlignedText("Visual", ImGuiHelper::LEFT, 0.8f);
             {
-                float factor = system->GetJudgePosFactor();
-                ImGuiHelper::TextWithVerticalSeparator("Perfect Note Pos Factor", labelWidth);
-                if (ImGui::DragFloat("##perfect_note_pos_factor", &factor, 0.01f, 0.0f, 1.0f))
-                {
-                    system->SetJudgePosFactor(factor);
-                }
-                ImGuiHelper::HoveredToolTip((const char*)u8"QTE 판정 위치 비율입니다. (0 ~ 1)");
-
                 auto [inMin, inMax] = system->GetFadeInPosFactor();
                 auto [outMin, outMax] = system->GetFadeOutPosFactor();
                 ImGuiHelper::TextWithVerticalSeparator("Fade In Pos Factor", labelWidth);
@@ -227,7 +218,7 @@ void QTEEditor::ShowSystemDetail()
                     system->SetFadeInPosFactor(inMin, inMax);
                     system->SetFadeOutPosFactor(outMin, outMax);
                 }
-                ImGuiHelper::HoveredToolTip((const char*)u8"QTE 페이드아웃 위치 비율입니다. (-1 ~ 0)");
+                ImGuiHelper::HoveredToolTip((const char*)u8"QTE 페이드아웃 위치 비율입니다. (0 ~ 1)");
             }
             ImGui::EndChild();
             ImGui::BeginChild("system_tracks", ImVec2(0, 0), ImGuiChildFlags_Border);
@@ -636,7 +627,7 @@ void QTEEditor::DrawJudgeRange(std::pair<float, float> range, float circleRadius
         {
             ImVec2 offset           = ImGui::GetCursorScreenPos();
             ImVec2 availSize        = ImGui::GetContentRegionAvail();
-            float  centerPosFactor  = system->GetJudgePosFactor();
+            float  centerPosFactor  = 0.8f;
             float  systemSpeed      = system->GetQTESpeedScale();
             float  trackSpeed       = _qteTrack->GetQTESpeedScale();
             auto& [min, max]        = range;
@@ -673,7 +664,7 @@ void QTEEditor::DrawNote(Timeline::EventContext* context, float circleRadius, Im
             float  trackSpeed       = _qteTrack->GetQTESpeedScale();
             float  timer            = _previewTimer * systemSpeed * trackSpeed;
             float  noteTime         = context->Time * systemSpeed * trackSpeed;
-            float  centerPosFactor  = system->GetJudgePosFactor();
+            float  centerPosFactor  = 0.8f;
             float  centerPosX       = availSize.x * centerPosFactor;
             float  posX             = centerPosX * (1.0f + (timer - noteTime));
             if (posX > availSize.x)

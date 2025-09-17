@@ -365,8 +365,6 @@ void QTESystem::PressedQTEButton(Input::ControllerTypes::Button type)
         result.ResultType       = GetQTEResult(curNote);
         result.TimeDelta        = curNote ? _qteTimer - curNote->Time : 0.0f;
 
-        QTEPreviewer::PressedNote(&result);
-
         ProcessQTENotePressedEvent(result.ResultType);
     }
 }

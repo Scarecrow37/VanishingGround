@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include <QTE/Result/QTEResult.h>
-#include <QTE/Editor/QTEPreviewer.h>
 #include "Utility/SingletonHelper.h"
 
 class QTEUIManager;
@@ -91,8 +90,6 @@ public:
     inline float GetQTESpeedScale() const { return ReflectFields->QTESpeedScale; }
     inline void  SetDelayFromQTEStart(float delay) { ReflectFields->DelayFromQTEStart = delay; }
     inline float GetDelayFromQTEStart() const { return ReflectFields->DelayFromQTEStart; }
-    inline void  SetJudgePosFactor(float factor) { ReflectFields->JudgePosFactor = factor; }
-    inline float GetJudgePosFactor() const { return ReflectFields->JudgePosFactor; }
 
     inline void SetPerfectJudgeRange(float start, float end) { ReflectFields->PerfectJudgeRange = {start, end}; }
     inline std::pair<float, float> GetPerfectJudgeRange() const { return ReflectFields->PerfectJudgeRange; }
@@ -131,7 +128,6 @@ private:
     REFLECT_FIELDS_BEGIN(Component)
     float                   QTESpeedScale       = 1.0f;                         // QTE 속도 배율
     float                   DelayFromQTEStart   = 0.0f;                         // QTE 시작 대기 시간
-    float                   JudgePosFactor      = 0.8f;                         // 퍼펙트 노트 위치 비율 (0 ~ 1)
     std::pair<float, float> PerfectJudgeRange   = {-0.05f, 0.05f};              // 퍼펙트 판정 범위 (min - max)
     std::pair<float, float> NormalJudgeRange    = {-0.1f, 0.1f};                // 노멀 판정 범위 (min - max)
     std::pair<float, float> FadeInPosFactor     = {0.0f, 0.0f};                 // 페이드인 위치 비율 (0 ~ 1)
