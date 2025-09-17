@@ -1,0 +1,206 @@
+﻿#include "pchScripts.h"
+#include "TextureLMH.h"
+#include "PreferencesButton.h"
+TextureLMH::TextureLMH() {}
+TextureLMH::~TextureLMH() = default;
+
+void TextureLMH::Awake()
+{
+    // 자주사용할 게임오브젝트 포인터
+    GetChildObject();
+    
+    // 양옆 화살표 숨기기
+    _leftArrow->SetActive(false);
+    _rightArrow->SetActive(false);
+    
+
+    for (size_t i = 0; i < TextureQuality::TEXTURE_QUALITY_END; ++i)
+    {
+        _focus[i]->SetActive(false);
+        _nonFocus[i]->SetActive(false);
+    }
+    // 기본값 상.
+    SetQuality(_quality);
+}
+
+void TextureLMH::Start() {}
+
+void TextureLMH::Reset()
+{
+    UINavigationComponent::Reset();
+    
+    BindInputAction(ControllerButton::DPAD_RIGHT, Action::PRESSED, this, &TextureLMH::UpQuality);
+    BindInputAction(ControllerButton::DPAD_LEFT, Action::PRESSED, this, &TextureLMH::DownQuality);
+    BindInputAction(ControllerButton::LEFT_THUMB_STICK, Action::PRESSED, this, &TextureLMH::UpDownStickQuality);
+}
+
+void TextureLMH::Update() {}
+
+void TextureLMH::FocusIn()
+{
+    UINavigationComponent::FocusIn();
+
+    _isFocus = true;
+    FocusPref(true);
+    _leftArrow->SetActive(true);
+    _rightArrow->SetActive(true);
+    _nonFocus[_quality]->SetActive(false);
+    SetQuality(_quality);
+}
+
+void TextureLMH::FocusOut()
+{
+    UINavigationComponent::FocusOut();
+
+    _isFocus = false;
+    FocusPref(false);
+    _leftArrow->SetActive(false);
+    _rightArrow->SetActive(false);
+
+    SetQuality(_quality);
+}
+
+void TextureLMH::Submit() {}
+
+void TextureLMH::SerializedReflectEvent() {}
+
+void TextureLMH::DeserializedReflectEvent()
+{
+    UINavigationComponent::DeserializedReflectEvent();
+}
+
+void TextureLMH::FocusPref(bool isfocus)
+{
+    if (nullptr == _pref)
+    {
+        GetChildObject();
+    }
+    auto prefButton = _pref->GetComponent<PreferencesButton>();
+    prefButton->OnFocus(isfocus);
+}
+
+void TextureLMH::GetChildObject()
+{
+    // 자주사용할 게임오브젝트 포인터
+    int childCnt = transform->Parent->GetChildCount();
+    for (int i = 0; i < childCnt; ++i)
+    {
+        Transform* child = transform->Parent->GetChild(i);
+        if (nullptr == child)
+            continue;
+        if (child->gameObject->CompareTag("LeftArrow"))
+        {
+            _leftArrow = &(child->gameObject);
+        }
+        if (child->gameObject->CompareTag("RightArrow"))
+        {
+            _rightArrow = &(child->gameObject);
+        }
+        if (child->gameObject->CompareTag("Pref"))
+        {
+            _pref = &(child->gameObject);
+        }
+    }
+    
+    childCnt = transform->GetChildCount();
+    for (int i = 0; i < childCnt; ++i)
+    {
+        Transform* child = transform->GetChild(i);
+        if (nullptr == child)
+            continue;
+        if (child->gameObject->CompareTag("LowFocus"))
+        {
+            _focus[TextureQuality::TEXTURE_QUALITY_LOW] = &(child->gameObject);
+        }
+        if (child->gameObject->CompareTag("LowNonFocus"))
+        {
+            _nonFocus[TextureQuality::TEXTURE_QUALITY_LOW] = &(child->gameObject);
+        }
+        if (child->gameObject->CompareTag("MediumFocus"))
+        {
+            _focus[TextureQuality::TEXTURE_QUALITY_MEDIUM] = &(child->gameObject);
+        }
+        if (child->gameObject->CompareTag("MediumNonFocus"))
+        {
+            _nonFocus[TextureQuality::TEXTURE_QUALITY_MEDIUM] = &(child->gameObject);
+        }
+        if (child->gameObject->CompareTag("HighFocus"))
+        {
+            _focus[TextureQuality::TEXTURE_QUALITY_HIGH] = &(child->gameObject);
+        }
+        if (child->gameObject->CompareTag("HighNonFocus"))
+        {
+            _nonFocus[TextureQuality::TEXTURE_QUALITY_HIGH] = &(child->gameObject);
+        }
+    }
+}
+
+void TextureLMH::SetQuality(int quality) 
+{
+    if (_isFocus)
+    {
+        switch (quality)
+        {
+        case TEXTURE_QUALITY_LOW:
+            _focus[TEXTURE_QUALITY_LOW]->SetActive(true);
+            break;
+        case TEXTURE_QUALITY_MEDIUM:
+            _focus[TEXTURE_QUALITY_MEDIUM]->SetActive(true);
+            break;
+        case TEXTURE_QUALITY_HIGH:
+            _focus[TEXTURE_QUALITY_HIGH]->SetActive(true);
+            break;
+        default:
+            break;
+        }
+    }
+    else if (!_isFocus)
+    {
+        switch (quality)
+        {
+        case TEXTURE_QUALITY_LOW:
+            _nonFocus[TEXTURE_QUALITY_LOW]->SetActive(true);
+            break;
+        case TEXTURE_QUALITY_MEDIUM:
+            _nonFocus[TEXTURE_QUALITY_MEDIUM]->SetActive(true);
+            break;
+        case TEXTURE_QUALITY_HIGH:
+            _nonFocus[TEXTURE_QUALITY_HIGH]->SetActive(true);
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+void TextureLMH::UpQuality(const Input::Controller& controller) 
+{
+    if (_isFocus)
+    {
+        _focus[_quality]->SetActive(false);
+        _quality = (_quality + 1) % TextureQuality::TEXTURE_QUALITY_END;
+        SetQuality(_quality);
+    }
+}
+
+void TextureLMH::DownQuality(const Input::Controller& controller)
+{
+    if (_isFocus)
+    {
+        _focus[_quality]->SetActive(false);
+        _quality = (_quality + 2) % TextureQuality::TEXTURE_QUALITY_END;
+        SetQuality(_quality);
+    }
+}
+
+void TextureLMH::UpDownStickQuality(const Input::Controller& controller)
+{
+    if (Input::Controller::StickBias::LEFT == controller.GetLeftStickBias())
+    {
+        DownQuality(controller);
+    }
+    else if (Input::Controller::StickBias::RIGHT == controller.GetLeftStickBias())
+    {
+        UpQuality(controller);
+    }
+}

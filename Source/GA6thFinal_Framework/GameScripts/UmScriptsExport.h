@@ -120,9 +120,9 @@ UMREAL_COMPONENT(TokenSystem)
 #include "Scripts/Test/TurnAction/TestActionComponent.h"
 UMREAL_COMPONENT(TestActionComponent)
 
-//#include "Scripts/Test/Model/ModelTest.h"
-//UMREAL_COMPONENT(ModelTest)
-//UMREAL_COMPONENT(ViewTest)
+// #include "Scripts/Test/Model/ModelTest.h"
+// UMREAL_COMPONENT(ModelTest)
+// UMREAL_COMPONENT(ViewTest)
 
 #include "Scripts/Audio/AudioComponent.h"
 UMREAL_COMPONENT(AudioComponent)
@@ -189,3 +189,12 @@ UMREAL_COMPONENT(PrefrencesWindow)
 
 #include "Scripts\UINavigation/TempNavigationComponent.h"
 UMREAL_COMPONENT(TempNavigationComponent)
+
+#include "Scripts\Preferences\Button/PreferencesButton.h"
+UMREAL_COMPONENT(PreferencesButton)
+
+#include "Scripts\Preferences\Button/EnableButton.h"
+UMREAL_COMPONENT(EnableButton)
+
+#include "Scripts\Preferences\Button/TextureLMH.h"
+UMREAL_COMPONENT(TextureLMH)
