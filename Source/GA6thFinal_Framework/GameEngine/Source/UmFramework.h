@@ -135,6 +135,9 @@ using namespace Microsoft::WRL;
 //Input Module
 #include "../InputModule/InputModule.h"
 
+//Audio Module
+#include "../AudioModule/AudioModule.h"
+
 //Application Core
 #include "Engine/AppModule/Interface/IAppModule.h"
 #include "Engine/ApplicationCore/Application.h"
@@ -154,8 +157,7 @@ using namespace Microsoft::WRL;
 #include "Engine/FileSystem/FileSystemModule.h"
 
 //Audio Core
-#include "../AudioModule/AudioModule.h"
-#include "Engine/AudioCore/AudioModule.h"
+#include "Engine/AudioCore/Manager/AudioManager.h"
 
 //User Interface Module
 #include "../UserInterfaceModule/UserInterfaceModule.h"
@@ -211,6 +213,7 @@ using namespace Microsoft::WRL;
 #include "Engine/AppModule/EngineCoresModule.h"
 #include "Engine/AppModule/ImGuiDX12Module.h"
 #include "Engine/AppModule/GraphicsModule.h"
+#include "Engine/AppModule/AudioModule.h"
 
 //DragDropTypes
 #include "Editor/DragDropTypes/DragDropTransform.h"

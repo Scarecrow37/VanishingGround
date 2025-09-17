@@ -309,7 +309,7 @@
     <ClInclude Include="Source\Engine\ClassCore\Delegate.hpp">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\AudioCore\AudioModule.h">
+    <ClInclude Include="Source\Engine\AppModule\AudioModule.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Editor\Tool\Model\EditorModelInspector.h">
@@ -466,6 +466,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Engine\GameCore\Component\UIRoot.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\AudioCore\Manager\AudioManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -752,7 +755,7 @@
     <ClCompile Include="Source\Engine\Utility\YAMLHelper.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\AudioCore\AudioModule.cpp">
+    <ClCompile Include="Source\Engine\AppModule\AudioModule.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\Tool\Model\EditorModelInspector.cpp">
@@ -804,6 +807,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\GameCore\Component\UIRoot.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\AudioCore\Manager\AudioManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

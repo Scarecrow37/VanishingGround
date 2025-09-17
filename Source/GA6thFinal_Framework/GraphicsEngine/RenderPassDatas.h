@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-using RenderPassDataPair = std::pair<std::any, std::unordered_map<std::string, std::vector<D3D12_GPU_DESCRIPTOR_HANDLE>>>;
-using RenderPassProperties = std::unordered_map<std::string, std::unordered_map<std::string, RenderPassDataPair>>;
+using RenderPassProperties = std::unordered_map<std::string, std::any>;
+using RenderPassImages = std::unordered_map<std::string, std::unordered_map<std::string, std::unordered_map<std::string, std::vector<D3D12_GPU_DESCRIPTOR_HANDLE>>>>;
 
 class RenderPassDatas
 {
@@ -10,22 +10,22 @@ public:
     ~RenderPassDatas() = default;
 
 public:
+    const std::any&         GetRenderPassProperty(std::string_view passName) const { return _renderPassProperties.at(passName.data()); }
     RenderPassProperties&   GetRenderPassProperties() { return _renderPassProperties; }
-    const std::any&         GetRenderPassProperty(std::string_view sceneName, std::string_view passName) const;
+    const RenderPassImages& GetRenderPassImages() const { return _renderPassImages; }
 
 public:
     void AddRenderPassImage(std::string_view sceneName, std::string_view passName, std::string_view dataName, D3D12_GPU_DESCRIPTOR_HANDLE handle)
     {
-        auto& [property, handles] = _renderPassProperties[sceneName.data()][passName.data()];
-        handles[dataName.data()].push_back(handle);
+        _renderPassImages[sceneName.data()][passName.data()][dataName.data()].push_back(handle);
     }
 
-    void AddRenderPassProperty(std::string_view sceneName, std::string_view passName, std::any value)
+    void AddRenderPassProperty(std::string_view passName, std::any value)
     {
-        auto& [property, handles] = _renderPassProperties[sceneName.data()][passName.data()];
-        property                  = value;
+        _renderPassProperties.try_emplace(passName.data(), value);
     }
 
 private:
+    RenderPassImages     _renderPassImages;
     RenderPassProperties _renderPassProperties;
 };

@@ -7,16 +7,13 @@ class AudioTableComponent : public Component
 public:
     AudioTableComponent();
 
-public:
-    Audio::Handle Play(const std::string& key) const;
-
 protected:
     void ImGuiDrawPropertysEvent() override;
     void Reset() override;
 
 private:
     void LoadAudio();
-    void LoadAudio(const std::string& key, const File::Guid& guid);
+    void LoadAudio(const std::string& key, const File::GuidRef& guid);
 
     void PlaySelectedAudio();
     void StopSelectedAudio();
@@ -32,7 +29,6 @@ private:
     std::string _newPathString;
 
     std::string   _selectedAudioKey;
-    Audio::Handle _selectedAudioHandle;
 
-    std::unordered_map<std::string, Audio::Source> _audioSources;
+    std::unordered_map<std::string, std::vector<Audio::Handle>> _audioHandles;
 };

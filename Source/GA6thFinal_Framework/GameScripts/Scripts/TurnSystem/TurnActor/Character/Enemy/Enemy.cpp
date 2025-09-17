@@ -16,7 +16,6 @@
 #include "State/EnemyDeadState.h"
 
 #include <Particle/ParticleComponent.h>
-#include <Audio/Table/AudioTableComponent.h>
 
 Enemy::Enemy()
 {

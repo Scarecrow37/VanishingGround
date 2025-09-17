@@ -23,7 +23,7 @@ void BlendPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechni
 
 void BlendPass::AddRenderPassDatas(std::string_view sceneName)
 {
-    Global::renderPassDatas->AddRenderPassProperty(sceneName, "ToneMappingPass", ToneMappingProperty({{1.f, 1.f, 1.f}, 1.f, 1.f, 1.f}));
+    Global::renderPassDatas->AddRenderPassProperty("ToneMappingPass", ToneMappingProperty({{1.f, 1.f, 1.f}, 1.f, 1.f, 1.f}));
 }
 
 void BlendPass::Begin(ID3D12GraphicsCommandList* commandList)
@@ -43,7 +43,7 @@ void BlendPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_fx.GetRootSignature());
 
-    const auto& toneMappingProperty = std::any_cast<const ToneMappingProperty&>(_ownerScene->GetRenderPassProperty("ToneMappingPass"));
+    const auto& toneMappingProperty = std::any_cast<const ToneMappingProperty&>(Global::renderPassDatas->GetRenderPassProperty("ToneMappingPass"));
 
     commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_6_tonMappingProperty"), 6, &toneMappingProperty, 0);
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("screenTexture"), _meshRenderTarget->GetSRVHandle());

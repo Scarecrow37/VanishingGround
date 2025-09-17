@@ -25,6 +25,16 @@ struct ObjectData
     FLOAT Alpha;
 };
 
+struct UIMaterial
+{
+    UINT  ID;
+    float Alpha;
+    UINT  NumColmn;
+    UINT  NumRow;
+    UINT  ColumnIndex;
+    UINT  RowIndex;
+};
+
 struct ShadowObjectData : public ObjectData
 {
     UINT CascadedIndex;
@@ -96,12 +106,6 @@ struct PostProcessData
     Vector2      TexelSize;
     unsigned int PostProcessMask;
     unsigned int MipLevel;
-};
-
-struct UIMaterial
-{
-    UINT  ID;
-    float Alpha;
 };
 
 struct PipelineStateStream
