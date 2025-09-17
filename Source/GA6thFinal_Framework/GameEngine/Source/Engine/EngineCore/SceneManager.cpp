@@ -141,15 +141,16 @@ void ESceneManager::Engine::SceneFinalUpdate()
 
 void ESceneManager::SceneUpdate()
 {
-    ObjectsInputUpdate();
-    while (ETimeSystem::Engine::TimeSystemFixedUpdate())
+    ObjectsInputUpdate();                                // Input System 콜백은 항상 업데이트 주기보다 먼저 실행됨.
+    while (ETimeSystem::Engine::TimeSystemFixedUpdate()) // Fixed Update는 한 프레임에 여러번 호출 가능함
     {
-        ObjectsFixedUpdate();
+        ObjectsFixedUpdate();   
     }
-    ObjectsUpdate();
-    ObjectsLateUpdate();
+    ObjectsUpdate();                                     // 메인 로직 업데이트
+    ObjectsLateUpdate();                                 // 두번째 로직 업데이트
 
-    ObjectsAddRuntime();
+    //로직 업데이트 이후 요청된 라이프 사이클들은 아래에서 반드시 실행 (이번 프레임에 바로 처리되야함)
+    ObjectsAddRuntime();                                
     SceneResourceManager::Engine::Update(ResourceManager);
     ObjectsOnEnable();
     ObjectsOnDisable();
@@ -159,8 +160,9 @@ void ESceneManager::SceneUpdate()
     ObjectsDestroy();
     ObjectsMatrixUpdate();
     ObjectsAddLoadScene();
+
 #ifdef _UMEDITOR
-    _isPlay = editorModule->PlayMode.IsPlay();
+    _isPlay = editorModule->PlayMode.IsPlay(); //플레이 갱신은 마지막에 해야함. 
 #endif
 }
 
