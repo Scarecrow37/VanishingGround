@@ -241,6 +241,14 @@ void UINavigationComponent::Reset()
 {
     UIBaseComponent::Reset();
 
+    if (const NavigationID id = ReflectFields->NavigationID; id == INVALID_NAVIGATION_ID)
+    {
+        if (UIRoot* uiRoot = Root; nullptr != uiRoot)
+        {
+            AcquireNavigationID(uiRoot);
+        }
+    }
+
     if (const bool isInitialFocus = ReflectFields->IsInitialFocus; true == isInitialFocus)
     {
         if (UIRoot* uiRoot = Root; nullptr != uiRoot)
