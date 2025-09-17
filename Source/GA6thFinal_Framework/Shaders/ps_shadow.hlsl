@@ -1,6 +1,6 @@
 #include "CommonData.hlsli"
 
-struct PS_INPUT
+struct PSInput
 {
     float4 position : SV_POSITION;
     float2 uv : TEXCOORD;
@@ -22,7 +22,7 @@ Texture2D textures[];
 
 #define DIFFUSE 0
 
-void ps_main(PS_INPUT input)
+void ps_main(PSInput input)
 {
     ShadowObjectData data = bit32_5_shadowObjectData;
     
