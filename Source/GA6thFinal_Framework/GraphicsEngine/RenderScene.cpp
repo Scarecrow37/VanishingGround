@@ -28,11 +28,6 @@ D3D12_GPU_DESCRIPTOR_HANDLE RenderScene::GetFinalImage()
     return finalTarget->GetSRVHandle();
 }
 
-const std::any& RenderScene::GetRenderPassProperty(std::string_view passName) const
-{
-    return Global::renderPassDatas->GetRenderPassProperty(_name, passName);
-}
-
 SharedResource<RenderTarget> RenderScene::GetSharedRenderTarget() const
 {
     return _sharedRenderTarget[_currentFrameIndex];
@@ -182,7 +177,7 @@ void RenderScene::Execute()
     meshRenderTarget->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_RENDER_TARGET);
     meshRenderTarget->ClearRenderTarget(_commandSet);
 
-    const auto& gBuffers = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
+    const auto& gBuffers = Global::multiRenderTargetManager->GetRenderTargetGroup("G-Buffer");
     for (auto& buffer : gBuffers)
     {
         buffer->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_RENDER_TARGET);
@@ -298,7 +293,7 @@ void RenderScene::UpdateObject()
 
     Vector3 lightDirection = (_lightDatas[mainLight].float3_1);
     lightDirection.Normalize();
-
+    
     UINT instanceID = 0;
     for (auto& [isDestroy, component] : _meshRenderQueue)
     {
@@ -314,7 +309,7 @@ void RenderScene::UpdateObject()
             continue;
         }
 
-        if (!_isDirtyFlag)
+        /*if (!_isDirtyFlag)
         {
             _isDirtyFlag = model->IsDirtyFlag() || component->IsDirtyFlag();
 
@@ -322,7 +317,7 @@ void RenderScene::UpdateObject()
             {
                 model->SetDirtyFlag(false);
             }
-        }
+        }*/
 
         const auto  type         = component->GetType();
         const auto& customDepths = component->GetCustomDepths();
@@ -364,16 +359,27 @@ void RenderScene::UpdateObject()
             }
 
             _materialIDs.push_back(materialID);
+
+            MeshInfo meshInfo{.Material             = materials[i],
+                              .Mesh                 = meshes[i].get(),
+                              .SkinnedInstance      = Global::isRayTracing ? skinnedBuffers[i].get() : nullptr,
+                              .TransposeWorldMatrix = &_matrices[instanceID].World,
+                              .CustomDepth          = customDepths[i],
+                              .InstanceID           = instanceID,
+                              .DepthKey             = 0.f};            
+
+            _activeMeshes[type].emplace_back(meshInfo);
+
             if (STATIC_MESH == type)
             {
                 _staticMeshInstanceIDs.push_back(instanceID);
-                _activeMeshes[type].emplace_back(materials[i], meshes[i].get(), customDepths[i], instanceID++, &_matrices[instanceID].World, nullptr);
             }
             else if (SKELETAL_MESH == type)
             {
                 _skeletalMeshInstanceIDs.push_back(instanceID);
-                _activeMeshes[type].emplace_back(materials[i], meshes[i].get(), customDepths[i], instanceID++, &_matrices[instanceID].World, Global::isRayTracing ? skinnedBuffers[i].get() : nullptr);
             }
+
+            instanceID++;
         }
     }
 }
@@ -430,7 +436,7 @@ void RenderScene::UpdateUI()
         world = XMMatrixTranspose(scale * world * translation);
         _uiMatrices.push_back(world);
 
-        UIMaterial material{.ID = texture->GetID(), .Alpha = 1.f};
+        UIMaterial material{.ID = texture->GetID(), .Alpha = component->GetAlpha()};
         _uiMaterials.push_back(material);
     }
 }

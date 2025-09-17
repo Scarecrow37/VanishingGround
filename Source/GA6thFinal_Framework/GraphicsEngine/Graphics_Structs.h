@@ -33,21 +33,22 @@ struct Material
         UNLIT,
         DEFAULTLIT,
         SMT_END
-    } ShadingModel = ShadingModelType::DEFAULTLIT;
+    } ShadingModel{};
     enum BlendModeType
     {
         OPAQUE,
         MASKED,
         TRANSLUCENT,
         BMT_END
-    } BlendMode = BlendModeType::OPAQUE;
+    } BlendMode{};
     enum CullModeType
     {
         CULL_BACK,
         CULL_FRONT,
         CULL_NONE
-    } CullMode;
-    bool IsTwoSided;
+    } CullMode{};
+    float Alpha = 1.f;
+    bool IsTwoSided = false;
 };
 
 struct DescriptorHandles
@@ -62,15 +63,18 @@ struct SkeletalMeshInstance
     D3D12_VERTEX_BUFFER_VIEW                   VertexBufferView;
     UINT                                       VertexCount = 0;
 };
+
 class DXRSkeletalMesh;
+class BaseMesh;
 struct MeshInfo
 {
-    Material        Material;
-    class BaseMesh* Mesh;
-    UINT            CustomDepth;
-    UINT            InstanceID;
-    Matrix*        TransposeWorldMatrix;
+    Material         Material;
+    BaseMesh*        Mesh;
     DXRSkeletalMesh* SkinnedInstance;
+    Matrix*          TransposeWorldMatrix;
+    UINT             CustomDepth;
+    UINT             InstanceID;
+    float            DepthKey;
 };
 
 struct LightData
@@ -102,20 +106,9 @@ struct GraphicsTransform
 
 struct ShadowPassProperty
 {
-    bool operator==(const ShadowPassProperty& other) const
-    {
-        return NearPlane == other.NearPlane && 
-               FarPlane == other.FarPlane && 
-               SplitFactor == other.SplitFactor && 
-               Offset1 == other.Offset1 &&
-               Offset2 == other.Offset2;
-    }
-
     float NearPlane;
     float FarPlane;
     float SplitFactor;
-    float Offset1;
-    float Offset2;
 };
 
 struct BloomPassProperty
@@ -168,10 +161,4 @@ struct VolumetricFogProperty
     float CustomFar;
     float FogIntensity;
     float LightShaftIntensity;
-};
-
-struct UIMaterial
-{
-    UINT  ID;
-    float Alpha;
 };

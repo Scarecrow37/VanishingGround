@@ -17,6 +17,19 @@ struct MaterialID
     UINT ID[4];
 };
 
+struct ObjectData
+{
+    UINT  InstanceID;
+    UINT  MaxBoneMatrix;
+    UINT  CustomDepth;
+    FLOAT Alpha;
+};
+
+struct ShadowObjectData : public ObjectData
+{
+    UINT CascadedIndex;
+};
+
 struct CameraData
 {
     XMMATRIX View;
@@ -83,6 +96,12 @@ struct PostProcessData
     Vector2      TexelSize;
     unsigned int PostProcessMask;
     unsigned int MipLevel;
+};
+
+struct UIMaterial
+{
+    UINT  ID;
+    float Alpha;
 };
 
 struct PipelineStateStream

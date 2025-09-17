@@ -638,7 +638,12 @@ std::shared_ptr<Component> EComponentFactory::MakeComponentToYaml(GameObject* ow
         }
         else
         {
-            component = missing;
+            if (Type != typeid(MissingComponent).name())
+            {
+                missing->ReflectFields->typeName    = Type;
+                missing->ReflectFields->reflectData = ReflectFields;
+            }
+            component = std::move(missing);
             ResetComponent(ownerObject, component);
         }
     }  

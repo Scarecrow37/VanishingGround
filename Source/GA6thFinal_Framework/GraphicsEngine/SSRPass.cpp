@@ -27,7 +27,7 @@ void SSRPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechniqu
 
 void SSRPass::AddRenderPassDatas(std::string_view sceneName) 
 {
-    Global::renderPassDatas->AddRenderPassProperty(sceneName, "SSRPass", SSRPassProperty({0.3f, 0.34f, 200.f,2.f}));
+    Global::renderPassDatas->AddRenderPassProperty("SSRPass", SSRPassProperty({0.3f, 0.34f, 200.f,2.f}));
 }
 
 void SSRPass::Begin(ID3D12GraphicsCommandList* commandList) {}
@@ -44,8 +44,8 @@ void SSRPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->RSSetViewports(1, &renderTarget->GetViewport());
     commandList->RSSetScissorRects(1, &renderTarget->GetScissorRect());
 
-    auto        ssrProperty       = std::any_cast<SSRPassProperty>(_ownerScene->GetRenderPassProperty("SSRPass"));
-    const auto& renderTargetGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
+    auto        ssrProperty       = std::any_cast<SSRPassProperty>(Global::renderPassDatas->GetRenderPassProperty("SSRPass"));
+    const auto& renderTargetGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("G-Buffer");
     auto        cameraData        = _ownerScene->_cameraBuffer->GetGPUVirtualAddress();
 
     commandList->SetGraphicsRootSignature(_fxSSR.GetRootSignature());

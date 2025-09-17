@@ -41,7 +41,7 @@ void DXRGBufferPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerT
         isInitialized = true;
     }
 
-    const auto& gBufferGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
+    const auto& gBufferGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("G-Buffer");
 
     for (UINT i = 0; i < DXRGBuffer::DXRGBUFFER_END; i++)
     {
@@ -55,7 +55,7 @@ void DXRGBufferPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerT
 
 void DXRGBufferPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
-    const auto& gBufferGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
+    const auto& gBufferGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("G-Buffer");
 
     commandList->OMSetRenderTargets(DXRGBuffer::DXRGBUFFER_END, _gBufferHandles.data(), FALSE, &_ownerScene->_depthStencilView->GetDSVHandle());
     commandList->RSSetViewports(1, &gBufferGroup[0]->GetViewport());
@@ -114,7 +114,7 @@ void DXRGBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
 
 void DXRGBufferPass::End(ID3D12GraphicsCommandList* commandList)
 {
-    const auto& gBufferGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
+    const auto& gBufferGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("G-Buffer");
 
     for (auto& gBuffer : gBufferGroup)
     {
@@ -199,12 +199,11 @@ void DXRGBufferPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, int shad
         switch (shaderType)
         {
         case STATIC_MESH:
-            commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_3_objectData"), 3,
-                                                       parameter, 0);
+            commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_4_objectData"), 3, parameter, 0);
             break;
+
         case SKELETAL_MESH:
-            commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_3_objectData"), 3,
-                                                       parameter, 0);
+            commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_4_objectData"), 3, parameter, 0);
             break;
         }
 

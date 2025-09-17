@@ -26,7 +26,7 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootSignature(_fx.GetRootSignature());
 
     //"BaseColor", "Normal", "ORM", "Emissive", "Depth", "CustomDepth"
-    const auto& renderTargetGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
+    const auto& renderTargetGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("G-Buffer");
 
     auto shadowMapPass = _ownerTechnique->GetRenderPass<ShadowMapPass>();
     auto ssaoPass      = _ownerTechnique->GetRenderPass<SSAOWritePass>();

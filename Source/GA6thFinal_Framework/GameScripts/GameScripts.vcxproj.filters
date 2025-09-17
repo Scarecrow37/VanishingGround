@@ -324,6 +324,7 @@
     <ClInclude Include="Scripts\ViewModels\Map\MapPlayerHPViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Map\StageFocusViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Map\StageViewModel.h" />
+    <ClInclude Include="DLLExportDefine.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

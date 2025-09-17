@@ -128,6 +128,21 @@ void MeshComponent::ImGuiDrawPropertysEvent()
                         }
                         ImGui::TableNextColumn();
                     }
+                    if (materials[i].BlendMode == Material::BlendModeType::TRANSLUCENT)
+                    {
+                        ImGui::TableNextRow();
+                        {
+                            ImGui::TableNextColumn();
+                            {
+                                ImGui::Text("Alpha");
+                            }
+                            ImGui::TableNextColumn();
+                            {
+                                ImGui::DragFloat("##Alpha", &materials[i].Alpha, 0.01f, 0.f, 1.f);
+                            }
+                            ImGui::TableNextColumn();
+                        }
+                    }
                     ImGui::TableNextRow();
                     {
                         ImGui::TableNextColumn();
