@@ -120,9 +120,9 @@ UMREAL_COMPONENT(TokenSystem)
 #include "Scripts/Test/TurnAction/TestActionComponent.h"
 UMREAL_COMPONENT(TestActionComponent)
 
-//#include "Scripts/Test/Model/ModelTest.h"
-//UMREAL_COMPONENT(ModelTest)
-//UMREAL_COMPONENT(ViewTest)
+// #include "Scripts/Test/Model/ModelTest.h"
+// UMREAL_COMPONENT(ModelTest)
+// UMREAL_COMPONENT(ViewTest)
 
 #include "Scripts/Audio/AudioTableComponent.h"
 UMREAL_COMPONENT(AudioTableComponent)
@@ -171,6 +171,3 @@ UMREAL_COMPONENT(SmoothScroll)
 
 #include "Scripts\UI/Views/Map/MapPlayerHPView.h"
 UMREAL_COMPONENT(MapPlayerHPView)
-
-#include "Scripts\AccessorySystem/AccessorySystem.h"
-UMREAL_COMPONENT(AccessorySystem)

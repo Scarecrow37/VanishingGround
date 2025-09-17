@@ -201,10 +201,12 @@ void GBufferPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType me
     switch (meshType)
     {
     case STATIC_MESH:
-        commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_2_gbufferData"), 2, &parallaxMappingProperty, 0);
+        commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_2_gbufferData"), 2,
+                                                   &parallaxMappingProperty, 0);
         break;
     case SKELETAL_MESH:
-        commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_2_gbufferData"), 2, &parallaxMappingProperty, 0);
+        commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_2_gbufferData"), 2,
+                                                   &parallaxMappingProperty, 0);
         break;
     }
 
