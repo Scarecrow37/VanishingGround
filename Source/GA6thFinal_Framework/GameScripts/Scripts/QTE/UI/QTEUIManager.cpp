@@ -57,7 +57,7 @@ void QTEUIManager::OnQTEStay()
                     if (noteUI)
                     {
                         GameObject& object      = noteUI->gameObject;
-                        if (QTE::QTE_RESULT_NONE != result.ResultType)
+                        if (QTE::QTE_RESULT_NONE != result.ResultType && 0 != result.PressedButton)
                         {
                             // 이미 판정이 난 노트는 비활성화
                             object.ActiveSelf   = false;

@@ -5,6 +5,8 @@
 #include <QTE/Track/QTETrack.h>
 #include <WeaponSystem/WeaponSystem.h>
 
+UMREAL_COMPONENT(QTESystem)
+
 QTESystem::QTESystem() 
 {
 }
@@ -223,7 +225,7 @@ void QTESystem::StartQTE(QTE::Track* qteTrack)
         auto track = qteTrack->GetEventTrack().lock();
         if (track)
         {
-            _qteTimer = track->GetMinFrame();
+            _qteTimer = track->GetMinFrame() - GetDelayFromQTEStart();
 
             // 유효한 노트 큐 생성
             auto& noteQueue = track->GetEventContextQueue();
@@ -244,15 +246,19 @@ void QTESystem::StartQTE(QTE::Track* qteTrack)
     ProcessQTEEnterEvent();
 }
 
-bool QTESystem::IsQTEDelayEnd()
+void QTESystem::PlayQTE() 
 {
-    if (_delayTimer > 0.0f)
+    if (IsQTEPlaying())
     {
-        return false;
+        _qtePaused = false;
     }
-    else
+}
+
+void QTESystem::PauseQTE() 
+{
+    if (IsQTEPlaying())
     {
-        return true;
+        _qtePaused = true;
     }
 }
 
@@ -280,7 +286,7 @@ QTE::ResultType QTESystem::GetQTEResult(QTE::Note* note)
     {
         auto& [perfectMin, perfectMax]  = ReflectFields->PerfectJudgeRange;
         auto& [normalMin, normalMax]    = ReflectFields->NormalJudgeRange;
-        float noteDelta                 = note->Time - _qteTimer;
+        float noteDelta                 = _qteTimer - note->Time;
         if (noteDelta >= perfectMin && noteDelta <= perfectMax)
         {
             UmLogger.Log(LogLevel::LEVEL_DEBUG, (const char*)u8"퍼펙트!!");
@@ -300,24 +306,6 @@ QTE::ResultType QTESystem::GetQTEResult(QTE::Note* note)
     return QTE::QTE_RESULT_NONE;
 }
 
-void QTESystem::ResetQTETimer()
-{
-    _delayTimer = 0.0f;
-    _qteTimer   = 0.0f;
-}
-
-void QTESystem::UpdateQTEDelay()
-{
-    if (_delayTimer > 0.0f)
-    {
-        _delayTimer -= UmTime.DeltaTime();
-    }
-    else
-    {
-        _delayTimer = 0.0f;
-    }
-}
-
 void QTESystem::UpdateQTETrack()
 {
     if (_currQTEPlaying && _currentQTETrack)
@@ -325,8 +313,10 @@ void QTESystem::UpdateQTETrack()
         auto track = _currentQTETrack->GetEventTrack().lock();
         if (track)
         {
-            _qteTimer += UmTime.DeltaTime();
-
+            if (false == _qtePaused)
+            {
+                _qteTimer += UmTime.DeltaTime();
+            }
             float minFrame = track->GetMinFrame();
             float maxFrame = track->GetMaxFrame();
 
@@ -335,9 +325,9 @@ void QTESystem::UpdateQTETrack()
                 QTE::Note* curNote = _noteAvailQueue[_currentNoteIndex];
                 if (curNote)
                 {
-                    float noteTime               = curNote->Time;
-                    auto& [normalMin, normalMax] = ReflectFields->NormalJudgeRange;
-                    if (_qteTimer > noteTime + normalMax)
+                    float noteTime             = curNote->Time;
+                    auto& [validMin, validMax] = ReflectFields->ValidJudgeRange;
+                    if (_qteTimer > noteTime + validMax)
                     {
                         PressedQTEButton(); // 최대 일격 판정 시간이 지나갔는데 버튼을 누르지 않은 경우, MISS 처리
                     }
@@ -357,22 +347,42 @@ QTEEditor& QTESystem::GetEditor()
     return editor;
 }
 
-void QTESystem::PressedQTEButton(Input::ControllerTypes::Button type) 
+bool QTESystem::CanPressQTEButton()
+{
+    if (_currQTEPlaying && _currentNoteIndex < _noteAvailQueue.size())
+    {
+        QTE::Note* curNote = _noteAvailQueue[_currentNoteIndex];
+        return CanPressQTEButton(curNote);
+    }
+    return false;
+}
+
+bool QTESystem::CanPressQTEButton(QTE::Note* note)
+{
+    if (note)
+    {
+        auto& [min, max] = ReflectFields->ValidJudgeRange;
+        float noteDelta  = _qteTimer - note->Time;
+        if (noteDelta >= min && noteDelta <= max)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void QTESystem::PressedQTEButton(unsigned int buttonType)
 {
     if (_currQTEPlaying)
     {
-        if (_currentNoteIndex >= _noteAvailQueue.size())
-        {
-            return;
-        }
-        QTE::Note*   curNote    = _noteAvailQueue[_currentNoteIndex];
-        QTE::Result& result     = _noteResultQueue[_currentNoteIndex];
+        QTE::Note*   curNote = _noteAvailQueue[_currentNoteIndex];
+        QTE::Result& result  = _noteResultQueue[_currentNoteIndex];
         ++_currentNoteIndex;
 
-        result.Note             = curNote;
-        result.PressedButton    = type;
-        result.ResultType       = GetQTEResult(curNote);
-        result.TimeDelta        = curNote ? _qteTimer - curNote->Time : 0.0f;
+        result.Note          = curNote;
+        result.ResultType    = GetQTEResult(curNote);
+        result.TimeDelta     = curNote ? _qteTimer - curNote->Time : 0.0f;
+        result.PressedButton = buttonType;
 
         ProcessQTENotePressedEvent(result.ResultType);
     }
@@ -381,19 +391,28 @@ void QTESystem::PressedQTEButton(Input::ControllerTypes::Button type)
 void QTESystem::PressedButtonX(const Input::Controller& controller)
 {
     // Handle button X pressed
-    PressedQTEButton(Input::ControllerTypes::Button::X);
+    if (CanPressQTEButton())
+    {
+        PressedQTEButton(static_cast<unsigned int>(Input::ControllerTypes::Button::X));
+    }
 }
 
 void QTESystem::PressedButtonY(const Input::Controller& controller)
 {
     // Handle button Y pressed
-    PressedQTEButton(Input::ControllerTypes::Button::Y);
+    if (CanPressQTEButton())
+    {
+        PressedQTEButton(static_cast<unsigned int>(Input::ControllerTypes::Button::Y));
+    }
 }
 
 void QTESystem::PressedButtonB(const Input::Controller& controller)
 {
     // Handle button B pressed
-    PressedQTEButton(Input::ControllerTypes::Button::B);
+    if (CanPressQTEButton())
+    {
+        PressedQTEButton(static_cast<unsigned int>(Input::ControllerTypes::Button::B));
+    }
 }
 
 void QTESystem::ProcessQTEEnterEvent() 
@@ -420,31 +439,7 @@ void QTESystem::ProcessQTEStayEvent()
     }
     if (_currQTEPlaying && _currentQTETrack)
     {
-        UpdateQTEDelay();
-        if (IsQTEDelayEnd())
-        {
-            UpdateQTETrack();
-        }
-        // ImGuiWindow* sceneWindow = ImGui::FindWindowByName("Scene");
-        // if (sceneWindow)
-        //{
-        //     ImGui::SetNextWindowSize(sceneWindow->Size);
-        //     ImGui::SetNextWindowPos(sceneWindow->Pos);
-        // }
-        // else
-        //{
-        //     const SIZE& size = UmApplication.GetClientSize();
-        //     ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver);
-        //     ImGui::SetNextWindowPos(ImVec2((float)size.cx / 2.0f, 100.0f), ImGuiCond_FirstUseEver);
-        // }
-        // ImGuiHelper::StyleBuilder style;
-        // style.PushStyleColor(ImGuiCol_FrameBg, ImVec4(0, 0, 0, 0));
-        // ImGui::Begin("QTE Preview", nullptr);
-        //{
-        //     style.PopStyle();
-        //     QTEPreviewer::Draw();
-        // }
-        // ImGui::End();
+        UpdateQTETrack();
     }
 }
 

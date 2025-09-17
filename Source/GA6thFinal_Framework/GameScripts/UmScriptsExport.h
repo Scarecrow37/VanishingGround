@@ -181,8 +181,5 @@ UMREAL_COMPONENT(MapPlayerHPView)
 #include "Scripts\AccessorySystem/AccessorySystem.h"
 UMREAL_COMPONENT(AccessorySystem)
 
-#include "Scripts/QTE/System/QTESystem.h"
-UMREAL_COMPONENT(QTESystem)
-
 #include "Scripts\QTE/UI/QTEUIManager.h"
 UMREAL_COMPONENT(QTEUIManager)

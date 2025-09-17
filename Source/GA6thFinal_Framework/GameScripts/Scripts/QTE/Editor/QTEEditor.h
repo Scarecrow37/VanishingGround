@@ -27,7 +27,7 @@ private:
 
     void DrawPreview();
 
-    void DrawJudgeRange(std::pair<float, float> range, float circleRadius, ImU32 judgeCol, ImU32 bgCol = UINT_MAX - 1);
+    void DrawJudgeRange(std::pair<float, float> range, ImU32 judgeCol, ImU32 bgCol = UINT_MAX - 1);
     void DrawNote(Timeline::EventContext* context, float circleRadius, ImColor noteCol, ImColor bgCol);
 
 private:

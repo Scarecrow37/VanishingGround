@@ -62,13 +62,12 @@ private:
     ImageElement* FindNoteUIFromNoteID(int noteID) const;
 
 private:
-    QTESystem*                          _qteSystem          = nullptr;
-    OverlayPanel*                       _qteOverlayPanel    = nullptr;
-    ImageElement*                       _qteBackgroundUI    = nullptr;
-    ImageElement*                       _qteNoteLineUI      = nullptr;
-    ImageElement*                       _qteJudgeNoteUI     = nullptr;
-
-    File::GuidRef                       _notePrefabGuid = File::NULL_GUID;
+    QTESystem*      _qteSystem          = nullptr;
+    OverlayPanel*   _qteOverlayPanel    = nullptr;
+    ImageElement*   _qteBackgroundUI    = nullptr;
+    ImageElement*   _qteNoteLineUI      = nullptr;
+    ImageElement*   _qteJudgeNoteUI     = nullptr;
+    File::GuidRef   _notePrefabGuid     = File::NULL_GUID;
     std::unordered_map<int, ImageElement*> _noteSpawnTable = {};
 
     Vector2 _qtePanelPos  = Vector2::Zero;

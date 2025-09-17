@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "DLLExportDefine.h"
 #include <QTE/Result/QTEResult.h>
 #include "Utility/SingletonHelper.h"
 
@@ -63,18 +64,15 @@ public:
     void PauseQTE();
 
 private:
-    void ResetQTETimer();
-
-    void UpdateQTEDelay();
     void UpdateQTETrack();
-
-    bool IsQTEDelayEnd();
     bool IsQTETimeEnd();
 
     QTE::ResultType GetQTEResult(QTE::Note* note);
 
 private:
-    void PressedQTEButton(Input::ControllerTypes::Button type = Input::ControllerTypes::X);
+    bool CanPressQTEButton();
+    bool CanPressQTEButton(QTE::Note* note);
+    void PressedQTEButton(unsigned int buttonType = 0);
     void PressedButtonX(const Input::Controller& controller);
     void PressedButtonY(const Input::Controller& controller);
     void PressedButtonB(const Input::Controller& controller);
@@ -86,7 +84,6 @@ private:
 
 public:
     inline bool  IsQTEPlaying() const { return _currQTEPlaying; }
-    inline float GetQTEDelayTime() const { return _delayTimer; }
     inline float GetQTETime() const { return _qteTimer; }
 
     inline void  SetQTESpeedScale(float scale) { ReflectFields->QTESpeedScale = scale; }
@@ -94,6 +91,8 @@ public:
     inline void  SetDelayFromQTEStart(float delay) { ReflectFields->DelayFromQTEStart = delay; }
     inline float GetDelayFromQTEStart() const { return ReflectFields->DelayFromQTEStart; }
 
+    inline void SetValidJudgeRange(float start, float end) { ReflectFields->ValidJudgeRange = {start, end}; }
+    inline std::pair<float, float> GetValidJudgeRange() const { return ReflectFields->ValidJudgeRange; }
     inline void SetPerfectJudgeRange(float start, float end) { ReflectFields->PerfectJudgeRange = {start, end}; }
     inline std::pair<float, float> GetPerfectJudgeRange() const { return ReflectFields->PerfectJudgeRange; }
     inline void SetNormalJudgeRange(float start, float end) { ReflectFields->NormalJudgeRange = {start, end}; }
@@ -121,7 +120,7 @@ private:
     std::vector<QTE::Note*>     _noteAvailQueue;                                // 유효한 노트 큐
     std::vector<QTE::Result>    _noteResultQueue;                               // 노트 결과 큐
 
-    float                       _delayTimer     = 0.0f;                         // 딜레이 타이머
+    bool                        _qtePaused      = false;                        // QTE 일시정지 여부
     float                       _qteTimer       = 0.0f;                         // QTE 타이머
     bool                        _currQTEPlaying = false;                        // 현재 QTE가 실행 중인지 여부
     bool                        _prevQTEPlaying = false;                        // 이전 프레임에서 QTE가 실행 중이었는지 여부
@@ -131,6 +130,7 @@ private:
     float                   DelayFromQTEStart   = 0.0f;                         // QTE 시작 대기 시간
     std::pair<float, float> PerfectJudgeRange   = {-0.05f, 0.05f};              // 퍼펙트 판정 범위 (min - max)
     std::pair<float, float> NormalJudgeRange    = {-0.1f, 0.1f};                // 노멀 판정 범위 (min - max)
+    std::pair<float, float> ValidJudgeRange     = {-0.3f, 0.3f};                // 유효 판정 범위 (min - max)
     std::pair<float, float> FadeInPosFactor     = {0.0f, 0.0f};                 // 페이드인 위치 비율 (0 ~ 1)
     std::pair<float, float> FadeOutPosFactor    = {1.0f, 1.0f};                 // 페이드아웃 위치 비율 (0 ~ 1)
 

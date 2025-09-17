@@ -170,6 +170,21 @@ void QTEEditor::ShowSystemDetail()
                 ImGuiHelper::HoveredToolTip((const char*)u8"QTE 일격 판정 범위입니다. 단위: ms");
             }
 
+            // 유효 판정 범위
+            {
+                auto [min, max] = system->GetValidJudgeRange();
+                // ms 단위로 변환
+                min *= 1000.0f;
+                max *= 1000.0f;
+                ImGuiHelper::TextWithVerticalSeparator("QTE Valid Judge Range", labelWidth);
+                if (ImGui::DragFloat2("##qte_valid_range", &min, 0.01f))
+                {
+                    // s 단위로 변환
+                    system->SetValidJudgeRange(min * 0.001f, max * 0.001f);
+                }
+                ImGuiHelper::HoveredToolTip((const char*)u8"QTE 유효 판정 범위입니다. 단위: ms");
+            }
+
             // Visul
             ImGui::Separator();
             ImGuiHelper::AlignedText("Visual", ImGuiHelper::LEFT, 0.8f);
@@ -586,13 +601,14 @@ void QTEEditor::DrawPreview()
             ImVec2                  availSize    = ImGui::GetContentRegionAvail();
             std::pair<float, float> perfectRange = system->GetPerfectJudgeRange();
             std::pair<float, float> normalRange  = system->GetNormalJudgeRange();
+            std::pair<float, float> validRange   = system->GetValidJudgeRange();
 
             float bgAlpha = (_perfectTimer / PERFECT_EFFECT_TIME);
             drawList->AddRectFilled(offset, offset + availSize, ImColor(0.2f, 0.2f, 0.2f, 1.0f));
 
-            DrawJudgeRange(normalRange, circleRadius, ImColor(100, 255, 100, 255),
-                           ImColor(0.3f, 0.3f, 0.3f, 0.5f + 0.5f * bgAlpha));
-            DrawJudgeRange(perfectRange, circleRadius, ImColor(140, 120, 170, 255));
+            DrawJudgeRange(validRange, ImColor(0.3f, 0.3f, 0.3f, 1.0f), ImColor(0.3f, 0.3f, 0.3f, 0.5f + 0.5f * bgAlpha));
+            DrawJudgeRange(normalRange, ImColor(100, 255, 100, 255));
+            DrawJudgeRange(perfectRange, ImColor(140, 120, 170, 255));
 
             if (_perfectTimer > 0.0f)
             {
@@ -613,7 +629,7 @@ void QTEEditor::DrawPreview()
     ImGui::EndChild();
 }
 
-void QTEEditor::DrawJudgeRange(std::pair<float, float> range, float circleRadius, ImU32 judgeCol, ImU32 bgCol)
+void QTEEditor::DrawJudgeRange(std::pair<float, float> range, ImU32 judgeCol, ImU32 bgCol)
 {
     auto* window = ImGui::GetCurrentWindow();
     auto* system = SingletonComponent<QTESystem>::GetInstance();
@@ -634,14 +650,14 @@ void QTEEditor::DrawJudgeRange(std::pair<float, float> range, float circleRadius
 
             if (bgCol != UINT_MAX - 1)
             {
-                drawList->AddRectFilled(offset + ImVec2(minPosX - circleRadius, 0.0f),
-                                        offset + ImVec2(maxPosX + circleRadius, availSize.y), bgCol);
+                drawList->AddRectFilled(offset + ImVec2(minPosX, 0.0f),
+                                        offset + ImVec2(maxPosX, availSize.y), bgCol);
             }
 
             //drawList->AddCircleFilled(offset + ImVec2(minPosX, availSize.y * 0.5f), circleRadius, judgeCol);
             //drawList->AddCircleFilled(offset + ImVec2(maxPosX, availSize.y * 0.5f), circleRadius, judgeCol);
-            drawList->AddRectFilled(offset + ImVec2(minPosX, availSize.y * 0.5f - circleRadius),
-                                    offset + ImVec2(maxPosX, availSize.y * 0.5f + circleRadius), judgeCol);
+            drawList->AddRectFilled(offset + ImVec2(minPosX, availSize.y * 0.3f),
+                                    offset + ImVec2(maxPosX, availSize.y * 0.7f), judgeCol);
         }
     }
 }
