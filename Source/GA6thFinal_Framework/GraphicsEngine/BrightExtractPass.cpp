@@ -46,7 +46,7 @@ void BrightExtractPass::AddRenderPassDatas(std::string_view sceneName)
     srvDesc.Texture2D.MipLevels              = 1;
     device->CreateShaderResourceView(_finalTexture.Get(), &srvDesc, _finalHandle.CPU);
 
-    Global::renderPassDatas->AddRenderPassProperty(sceneName, "BloomPass", BloomPassProperty({1.f, 1.f, 0.2f}));
+    Global::renderPassDatas->AddRenderPassProperty("BloomPass", BloomPassProperty({1.f, 1.f, 0.2f}));
     Global::renderPassDatas->AddRenderPassImage(sceneName, "BloomPass", "BrightExtractTexture", _finalHandle.GPU);
 }
 
@@ -65,7 +65,7 @@ void BrightExtractPass::Draw(ID3D12GraphicsCommandList* commandList)
     PostProcessData postProcessData{.ScreenSize      = {(float)resolution.cx, (float)resolution.cy},
                                     .PostProcessMask = PostProcess::BLOOM};
 
-    const auto& bloomProperty = std::any_cast<const BloomPassProperty&>(_ownerScene->GetRenderPassProperty("BloomPass"));
+    const auto& bloomProperty = std::any_cast<const BloomPassProperty&>(Global::renderPassDatas->GetRenderPassProperty("BloomPass"));
 
     auto customDepthTarget = Global::multiRenderTargetManager->GetRenderTarget("CustomDepth");
 

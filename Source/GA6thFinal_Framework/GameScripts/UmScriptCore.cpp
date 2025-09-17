@@ -77,7 +77,6 @@ UMREALSCRIPTS_DECLSPEC void CreateUmrealcSriptFile(const char* fileName)
             wofs <<   std::format(L"    REFLECT_FIELDS_END({})", ClassName)                         << L"\n";
             wofs <<             LR"(};)"                                                            << L"\n";
             wofs <<             LR"()"                                                              << L"\n";
-            wofs <<             UmrealScriptsHeaderData                                             << L"\n";
         }
         wofs.close();
 
@@ -88,6 +87,9 @@ UMREALSCRIPTS_DECLSPEC void CreateUmrealcSriptFile(const char* fileName)
         {
             wofs << std::format(L"#include \"pchScripts.h\"")                        << L"\n";
             wofs << std::format(L"#include \"{}.h\"", ClassName)                     << L"\n";
+            wofs << L"" << L"\n";
+            wofs << UmrealScriptsHeaderData                                          << L"\n";
+            wofs << L"" << L"\n";
             wofs << std::format(L"{0}::{0}() = default;", ClassName)                 << L"\n";
             wofs << std::format(L"{0}::~{0}() = default;", ClassName)                << L"\n";
         }

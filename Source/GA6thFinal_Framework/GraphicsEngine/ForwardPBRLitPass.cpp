@@ -135,8 +135,7 @@ void ForwardPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
     auto  cameraData             = _ownerScene->_cameraBuffer->GetGPUVirtualAddress();
     auto  lightData              = _ownerScene->_lightBuffer->GetGPUVirtualAddress();
     auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
-    
-    auto shadowMapPass = _ownerTechnique->GetRenderPass<ShadowMapPass>();
+    auto  shadowMapPass          = _ownerTechnique->GetRenderPass<ShadowMapPass>();
 
     if (nullptr == shadowMapPass)
         return;
@@ -222,7 +221,7 @@ void ForwardPBRLitPass::End(ID3D12GraphicsCommandList* commandList)
 
 void ForwardPBRLitPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType meshType, CullMode cullMode)
 {
-    const auto& parallaxMappingProperty = std::any_cast<const ParallaxMappingProperty&>(_ownerScene->GetRenderPassProperty("G-BufferPass"));
+    const auto& parallaxMappingProperty = std::any_cast<const ParallaxMappingProperty&>(Global::renderPassDatas->GetRenderPassProperty("G-BufferPass"));
 
     switch (meshType)
     {

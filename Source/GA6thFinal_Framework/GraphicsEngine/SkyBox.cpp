@@ -166,7 +166,7 @@ void SkyBox::SetIBLTexture(std::wstring_view path)
 
 void SkyBox::Initialize()
 {
-    _box->InitializeInverted(1000.f, 1000.f, 1000.f, 0);
+    _box->InitializeInverted(500.f, 500.f, 500.f, 0);
     HRESULT hr = S_OK;
 
     FAILED_CHECK_MESSAGE(hr, L"SkyBox::Initialize device->CreateDescriptorHeap Failed");

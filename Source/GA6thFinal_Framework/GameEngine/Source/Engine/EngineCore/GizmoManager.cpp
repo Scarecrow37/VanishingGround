@@ -129,7 +129,9 @@ void EGizmoManager::DrawImGuizmo(ImGuiHelper::DrawManipulateDesc& desc)
 
         for (auto& [weakOwner, gizmo] : _sceneImGuizmos)
         {
+            ImGuizmo::PushID(&gizmo);
             ImGuiHelper::DrawManipulate(_targetCamera, gizmo->_ownerMatrix, desc);
+            ImGuizmo::PopID();
         }   
     }
     else
