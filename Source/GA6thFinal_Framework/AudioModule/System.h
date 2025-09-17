@@ -12,12 +12,16 @@ namespace Audio
     /// </summary>
     class System
     {
+        static constexpr size_t MAX_POOL_SIZE = 64;
+
         struct SourceVoice
         {
             Generation           Generation;
             Callback             Callback;
             IXAudio2SourceVoice* Voice;
         };
+
+        using VoicePool = std::vector<SourceVoice>;
 
 
     public:
@@ -53,9 +57,8 @@ namespace Audio
         /// 지정된 파일 경로에서 웨이브 파일로부터 사운드 소스를 생성합니다.
         /// </summary>
         /// <param name="filePath">웨이브 파일의 경로를 나타내는 std::filesystem::path 객체입니다.</param>
-        /// <param name="isLoop">사운드가 반복 재생될지 여부를 지정하는 불리언 값입니다. 기본값은 false입니다.</param>
         /// <returns>생성된 사운드 소스를 나타내는 Source 객체를 반환합니다.</returns>
-        static Source CreateSoundFromWave(const std::filesystem::path& filePath, bool isLoop = false);
+        static Source CreateSoundFromWave(const std::filesystem::path& filePath);
 
         /// <summary>
         /// 사운드 소스를 재생하고 핸들을 반환합니다.
@@ -83,7 +86,7 @@ namespace Audio
         IXAudio2* _xAudio2;
         IXAudio2MasteringVoice*  _masteringVoice = nullptr;
 
-        std::unordered_map<WaveFormatHash, std::vector<SourceVoice>> _sourceVoices;
+        std::unordered_map<WaveFormatHash, VoicePool> _voicePools;
 
 
         struct OnBufferEnd
