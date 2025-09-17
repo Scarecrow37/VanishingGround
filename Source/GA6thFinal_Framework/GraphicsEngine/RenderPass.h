@@ -14,6 +14,13 @@ public:
     virtual void Draw(ID3D12GraphicsCommandList* commandList) {};
     virtual void End(ID3D12GraphicsCommandList* commandList) {};
 
+public:
+    void SetEnable(bool enable) { _enable = enable; }
+    bool IsEnable() { return _enable; }
+
+private:
+    bool _enable = true;
+
 protected:
     SharedResource<RenderTarget>   _meshRenderTarget;
     SharedResource<RenderTarget>   _finalRenderTarget;
