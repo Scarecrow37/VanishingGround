@@ -248,6 +248,10 @@ EditorModule::EditorPlayMode::~EditorPlayMode()
 
 void EditorModule::EditorPlayMode::Play()
 {
+    if (_isPause)
+    {
+        Pause();
+    }
     if (false == _isPlay)
     {
         UmCommandManager.Clear();
@@ -298,6 +302,10 @@ void EditorModule::EditorPlayMode::Stop()
 {
     if (true == _isPlay)
     {
+        if (_isPause)
+        {
+            Pause();
+        }
         UmCommandManager.Clear();
 
         for (const auto& object : ESceneManager::Engine::GetRuntimeObjects())
