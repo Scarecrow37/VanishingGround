@@ -123,7 +123,7 @@ namespace Audio
 
             WaveFormatHash operator()(const WAVEFORMATEXTENSIBLE& waveFormat) const
             {
-                WaveFormatHash seed = Seed++;
+                WaveFormatHash seed = 0;
                 Combine(seed, waveFormat.Format.wFormatTag);
                 Combine(seed, waveFormat.Format.nChannels);
                 Combine(seed, waveFormat.Format.nSamplesPerSec);
@@ -141,11 +141,7 @@ namespace Audio
                 Combine(seed, data4);
                 return seed;
             }
-
-            static WaveFormatHash Seed;
         };
-
-        WaveFormatHash GetWaveFormatHash::Seed = 0;
     } // namespace
 
     System::System() = default;
@@ -169,11 +165,12 @@ namespace Audio
 
     System::~System() = default;
 
-    void System::Initialize()
+    void System::Initialize(const bool isDebug)
     {
         constexpr ThrowIfFailed throwIfFailed;
 
-        throwIfFailed(XAudio2Create(&_xAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR), "Failed to create XAudio2 instance");
+        throwIfFailed(XAudio2Create(&_xAudio2, isDebug ? XAUDIO2_DEBUG_ENGINE : 0, XAUDIO2_DEFAULT_PROCESSOR),
+                      "Failed to create XAudio2 instance");
 
         throwIfFailed(_xAudio2->CreateMasteringVoice(&_masteringVoice), "Failed to create mastering voice");
     }
@@ -200,6 +197,20 @@ namespace Audio
         }
         _sourceVoices.clear();
         _xAudio2->Release();
+    }
+
+    void System::TurnOnDebugMode() const
+    {
+        XAUDIO2_DEBUG_CONFIGURATION debugConfig{};
+        debugConfig.TraceMask = XAUDIO2_LOG_ERRORS | XAUDIO2_LOG_WARNINGS | XAUDIO2_LOG_INFO | XAUDIO2_LOG_DETAIL |
+                                XAUDIO2_LOG_API_CALLS | XAUDIO2_LOG_FUNC_CALLS;
+        _xAudio2->SetDebugConfiguration(&debugConfig);
+    }
+
+    void System::TurnOffDebugMode() const
+    {
+        constexpr XAUDIO2_DEBUG_CONFIGURATION debugConfig{};
+        _xAudio2->SetDebugConfiguration(&debugConfig);
     }
 
     Source System::CreateSoundFromWave(const std::filesystem::path& filePath, const bool isLoop)
@@ -261,62 +272,49 @@ namespace Audio
 
         constexpr ThrowIfFailed throwIfFailed;
 
-        // 초기화
-        const WaveFormatHash hash        = GetWaveFormatHash()(sound._format);
-        Generation           generation  = 0;
-        Index                index       = 0;
-        IXAudio2SourceVoice* sourceVoice = nullptr;
+        // Format 해싱
+        const WaveFormatHash hash = GetWaveFormatHash()(sound._format);
 
         // Format에 맞는 Pool 찾기
-        std::vector<SourceVoice>* sourceVoices = nullptr;
-        if (!_sourceVoices.contains(hash)) // 없으면 생성
-        {
-            _sourceVoices.try_emplace(hash, std::vector<SourceVoice>{});
-        }
-        sourceVoices = &_sourceVoices.at(hash);
+        auto [iter, succeed] = _sourceVoices.try_emplace(hash, std::vector<SourceVoice>{});
+        std::vector<SourceVoice>& sourceVoices = iter->second;
 
         // 미사용 Voice 찾기
-        auto unusedSourceVoiceIterator = std::ranges::find_if(*sourceVoices, [](const SourceVoice& sv) {
+        auto unusedSourceVoiceIterator = std::ranges::find_if(sourceVoices, [](const SourceVoice& sv) {
             static IsUnusedGeneration isUnusedGeneration;
             return isUnusedGeneration(sv.Generation);
         });
 
-        const bool notFound = unusedSourceVoiceIterator == sourceVoices->end();
+        const bool notFound = unusedSourceVoiceIterator == sourceVoices.end();
 
         if (notFound) // 없으면 SourceVoice 생성
         {
-            sourceVoices->push_back(
-                SourceVoice{
-                    .Generation = 0,
-                    .Callback = Callback([this](const Handle& handle) { if (IsValidHandle(handle)) ReleaseVoice(handle); }),
-                    .Voice = nullptr
-                });
-            unusedSourceVoiceIterator = std::prev(sourceVoices->end());
+            unusedSourceVoiceIterator =
+                sourceVoices.emplace(sourceVoices.end(), 0, Callback(OnBufferEnd(this)), nullptr);
         }
 
-        auto& [Generation, Callback, Voice] = *unusedSourceVoiceIterator;
+        auto& [unusedSourceVoiceGeneration, unusedSourceVoiceCallback, unusedSourceVoice] = *unusedSourceVoiceIterator;
 
-        generation = IncreaseGeneration()(Generation);
-        index      = std::distance(sourceVoices->begin(), unusedSourceVoiceIterator);
+        IncreaseGeneration()(unusedSourceVoiceGeneration);
+        const Index index = std::distance(sourceVoices.begin(), unusedSourceVoiceIterator);
 
         // Handle 생성
-        const Handle handle = {hash, index, generation};
+        const Handle handle = {hash, index, unusedSourceVoiceGeneration};
         // Callback 갱신
-        Callback.SetHandle(handle);
+        unusedSourceVoiceCallback.SetHandle(handle);
 
         // 필요시 IXAudio2SourceVoice 생성
         if (notFound)
         {
-            throwIfFailed(_xAudio2->CreateSourceVoice(&Voice, reinterpret_cast<const WAVEFORMATEX*>(&sound._format), 0,
-                                                      XAUDIO2_DEFAULT_FREQ_RATIO, &Callback),
+            throwIfFailed(_xAudio2->CreateSourceVoice(&unusedSourceVoice,
+                                                      reinterpret_cast<const WAVEFORMATEX*>(&sound._format), NULL,
+                                                      XAUDIO2_DEFAULT_FREQ_RATIO, &unusedSourceVoiceCallback),
                           "Failed to create source voice.");
         }
 
-        sourceVoice = Voice;
-
         // Submit 후 시작
-        throwIfFailed(sourceVoice->SubmitSourceBuffer(&sound._buffer), "Failed to submit source buffer.");
-        throwIfFailed(sourceVoice->Start(0), "Failed to start source voice.");
+        throwIfFailed(unusedSourceVoice->SubmitSourceBuffer(&sound._buffer), "Failed to submit source buffer.");
+        throwIfFailed(unusedSourceVoice->Start(0), "Failed to start source voice.");
 
         return handle;
     }
@@ -349,10 +347,20 @@ namespace Audio
         constexpr ThrowIfFailed      throwIfFailed;
         constexpr IncreaseGeneration increaseGeneration;
 
-        auto& [Generation, Callback, Voice] = _sourceVoices.at(handle._hash).at(handle._index);
-        throwIfFailed(Voice->FlushSourceBuffers(), "Failed to flush source buffers.");
-        Callback.SetHandle(Handle());
-        increaseGeneration(Generation);
+        auto& [generation, callback, voice] = _sourceVoices.at(handle._hash).at(handle._index);
+        throwIfFailed(voice->FlushSourceBuffers(), "Failed to flush source buffers.");
+        callback.SetHandle(Handle());
+        increaseGeneration(generation);
+    }
+
+    System::OnBufferEnd::OnBufferEnd(Audio::System* system) : System(system) {}
+
+    void System::OnBufferEnd::operator()(const Handle& handle) const
+    {
+        if (nullptr != System && System->IsValidHandle(handle))
+        {
+            System->ReleaseVoice(handle);
+        }
     }
 
 } // namespace Audio
