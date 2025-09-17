@@ -59,6 +59,9 @@ public:
     void StartQTE();
     void StartQTE(QTE::Track* qteTrack);
 
+    void PlayQTE();
+    void PauseQTE();
+
 private:
     void ResetQTETimer();
 
@@ -110,8 +113,6 @@ public:
 
 private:
     SingletonComponent<QTESystem> _singletonComponent{this};
-
-    QTEUIManager* _qteUIManager;
 
     std::unordered_map<int, std::vector<QTE::Track*>> _weaponIDToTrackTable;    // 무기 ID QTE 매핑 테이블
 

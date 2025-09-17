@@ -44,7 +44,6 @@ void QTESystem::Awake()
 
 void QTESystem::Start() 
 {
-    _qteUIManager = SingletonComponent<QTEUIManager>::GetInstance();
 }
 
 void QTESystem::Update()
@@ -291,7 +290,7 @@ QTE::ResultType QTESystem::GetQTEResult(QTE::Note* note)
     return QTE::QTE_RESULT_NONE;
 }
 
-void QTESystem::ResetQTETimer() 
+void QTESystem::ResetQTETimer()
 {
     _delayTimer = 0.0f;
     _qteTimer   = 0.0f;
@@ -389,25 +388,25 @@ void QTESystem::PressedButtonB(const Input::Controller& controller)
 
 void QTESystem::ProcessQTEEnterEvent() 
 {
-    if (_qteUIManager)
+    if (QTEUIManager::GetInstance())
     {
-        _qteUIManager->OnQTEEnter();
+        QTEUIManager::GetInstance()->OnQTEEnter();
     }
 }
 
 void QTESystem::ProcessQTENotePressedEvent(QTE::ResultType result)
 {
-    if (_qteUIManager)
+    if (QTEUIManager::GetInstance())
     {
-        _qteUIManager->OnQTENotePressed(result);
+        QTEUIManager::GetInstance()->OnQTENotePressed(result);
     }
 }
 
 void QTESystem::ProcessQTEStayEvent() 
 {
-    if (_qteUIManager)
+    if (QTEUIManager::GetInstance())
     {
-        _qteUIManager->OnQTEStay();
+        QTEUIManager::GetInstance()->OnQTEStay();
     }
     if (_currQTEPlaying && _currentQTETrack)
     {
@@ -441,8 +440,8 @@ void QTESystem::ProcessQTEStayEvent()
 
 void QTESystem::ProcessQTEExitEvent() 
 {
-    if (_qteUIManager)
+    if (QTEUIManager::GetInstance())
     {
-        _qteUIManager->OnQTEExit();
+        QTEUIManager::GetInstance()->OnQTEExit();
     }
 }

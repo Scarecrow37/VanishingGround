@@ -18,6 +18,8 @@ class QTEUIManager : public Component
 public:
     QTEUIManager();
     ~QTEUIManager() override;
+    inline static QTEUIManager* _staticInstance;
+    inline static QTEUIManager* GetInstance() { return _staticInstance; }
 
 public:
     REFLECT_PROPERTY(FilePath)
@@ -34,6 +36,9 @@ private:
     void Awake() override;
     void Start() override;
     void Update() override;
+    void OnEnable() override;
+    void OnDisable() override;
+    void OnDestroy() override;
 
     void SerializedReflectEvent() override;
     void DeserializedReflectEvent() override;
@@ -59,7 +64,6 @@ private:
     ImageElement* FindNoteUIFromNoteID(int noteID) const;
 
 private:
-    SingletonComponent<QTEUIManager>    _singletonComponent{this};
     QTESystem*                          _qteSystem          = nullptr;
     OverlayPanel*                       _qteOverlayPanel    = nullptr;
     ImageElement*                       _qteBackgroundUI    = nullptr;
@@ -78,5 +82,67 @@ private:
     std::string NotePrefabGuid; // QTE 노트 프리팹 GUID
     REFLECT_FIELDS_END(QTEUIManager)
 
-    float _qteUIAlphaFactor = 0.0f;
+    class Fader
+    {
+    public:
+        enum Mode { FADE_NONE, FADE_IN, FADE_OUT };
+
+        Fader() = default;
+        ~Fader() = default;
+        
+    public:
+        /// <summary>모드에 따라 페이드를 갱신합니다. 0~1 사이의 Factor를 반환합니다.</summary>
+        float Fade();
+        /// <summary>페이드 인이 종료되었는지 반환합니다.</summary>
+        bool IsFadeInEnd() const;
+        /// <summary>페이드 아웃이 종료되었는지 반환합니다.</summary>
+        bool IsFadeOutEnd() const;
+
+        /// <summary>
+        /// 페이드 인이 끝났을 때 호출될 콜백 함수를 설정합니다. 생명관리를 하지 않으므로 사용 시 주의해야 합니다.
+        /// </summary>
+        /// <param name="callback">페이드 인 종료 시 실행할 콜백 함수입니다.</param>
+        void SetOnFadeInEndCallback(const std::function<void()>& callback);
+
+        /// <summary>
+        /// 페이드 아웃이 끝날 때 호출될 콜백 함수를 설정합니다. 생명관리를 하지 않으므로 사용 시 주의해야 합니다.
+        /// </summary>
+        /// <param name="callback">페이드 아웃 종료 시 실행할 콜백 함수입니다.</param>
+        void SetOnFadeOutEndCallback(const std::function<void()>& callback);
+
+        void SetFadeMode(Mode mode);
+        void SetDuration(float duration);
+        void SetTimer(float timer);
+        void SetFadeInType(Mathf::EaseType type, Mathf::EaseFuncType func);
+        void SetFadeOutType(Mathf::EaseType type, Mathf::EaseFuncType func);
+
+        inline Mode  GetFadeMode() const { return _fadeMode; }
+        inline float GetFadeFactor() const { return _fadeFactor; }
+        inline float GetDuration() const { return _duration; }
+        inline Mathf::EaseType     GetFadeInEaseType() const { return _fadeInEaseType; }
+        inline Mathf::EaseFuncType GetFadeInFuncType() const { return _fadeInFuncType; }
+        inline Mathf::EaseType     GetFadeOutEaseType() const { return _fadeOutEaseType; }
+        inline Mathf::EaseFuncType GetFadeOutFuncType() const { return _fadeOutFuncType; }
+
+    private:
+        /// <summary>FadeIn을 갱신합니다. 0~1 사이의 Factor를 반환합니다.</summary>
+        float FadeIn();
+        /// <summary>FadeOut을 갱신합니다. 0~1 사이의 Factor를 반환합니다.</summary>
+        float FadeOut();
+
+    private:
+        float _duration   = 0.0f;
+        float _timer      = 0.0f;
+        float _fadeFactor = 0.0f;
+        Mode  _fadeMode   = FADE_NONE;
+
+        Mathf::EaseType     _fadeInEaseType = Mathf::EASE_IN;
+        Mathf::EaseFuncType _fadeInFuncType = Mathf::SINE;
+        Mathf::EaseType     _fadeOutEaseType = Mathf::EASE_OUT;
+        Mathf::EaseFuncType _fadeOutFuncType = Mathf::SINE;
+
+        std::function<void()> _onFadeInEndCallback = nullptr;
+        std::function<void()> _onFadeOutEndCallback = nullptr;
+    };
+    Fader _fader;
 };

@@ -49,12 +49,4 @@ private:
     std::unordered_set<int> _noteJudgeSet;
 
     static constexpr float PERFECT_EFFECT_TIME = 0.5f;  // 퍼펙트 시 나오는 이펙트 시간
-/*
-QTE 파일 포함 정보
-1. QTE의 무기 타입 (검, 단검, 해머)
-2. QTE 노트 배치 정보
-3. QTE 노트당 무슨 무기 애니메이션을 쓸건지, 
-4. 무기 애니메이션 이벤트 트랙(+사운드까지 넣어서)
-5. 몇 초 후에 QTE를 재생할건지(대기시간)
-*/
 };

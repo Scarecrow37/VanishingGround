@@ -68,6 +68,7 @@ void QTEEditor::Show()
 
 void QTEEditor::Open() 
 {
+    _qteTrack     = nullptr;
     _editorOpened = true;
 }
 
