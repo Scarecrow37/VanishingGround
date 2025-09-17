@@ -19,7 +19,7 @@ public:
     GraphicsCore             Graphics;
     ECommandManager          CommandManager;
     EFactoryRegister         FactoryRegister;
-    Audio::System            Audio;
+    Audio::Manager           Audio;
     Watcher::System          Watcher;
     ParticleEffectSerializer ParticleSerializer;
     EGizmoManager            GizmoManager;
