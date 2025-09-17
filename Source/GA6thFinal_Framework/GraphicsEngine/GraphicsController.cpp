@@ -55,8 +55,7 @@ void GraphicsController::SetBloom(std::string_view sceneName, bool enable)
 
 void GraphicsController::SetTextureQuality(std::string_view sceneName, float quality)
 {
-    RenderScene* renderScene = Global::renderer->GetRenderScene(sceneName);
-    const auto& property = std::any_cast<const GbufferProperty&>(renderScene->GetRenderPassProperty("G-BufferPass"));
-    auto& prop = const_cast<GbufferProperty&>(property);
+    const auto& property = std::any_cast<const ParallaxMappingProperty&>(Global::renderPassDatas->GetRenderPassProperty("G-BufferPass"));
+    auto& prop = const_cast<ParallaxMappingProperty&>(property);
     prop.MipBias             = quality;
 }

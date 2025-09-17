@@ -1,6 +1,10 @@
 ﻿#include "pchScripts.h"
 #include "PreferencesManager.h"
 #include "PrefrencesWindow.h"
+
+UMREAL_COMPONENT(PreferencesManager)
+
+
 PreferencesManager::PreferencesManager() = default;
 PreferencesManager::~PreferencesManager() = default;
 

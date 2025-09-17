@@ -143,9 +143,9 @@ struct SSRPassProperty
     float ScreenFade;
 };
 
-struct GbufferProperty
+struct ParallaxMappingProperty
 {
-    float ParallaxHeightScale;
+    float HeightScale;
     float MipBias;
 };
 

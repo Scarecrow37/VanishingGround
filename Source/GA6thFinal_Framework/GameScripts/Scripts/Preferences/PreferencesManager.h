@@ -1,5 +1,6 @@
-﻿#pragma once
-#include "UmFramework.h"
+﻿#pragma once 
+#include "DLLExportDefine.h"
+
 class PreferencesManager : public Component, public InputReceiver
 {
     USING_PROPERTY(PreferencesManager)

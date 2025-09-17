@@ -1,6 +1,9 @@
 ﻿#include "pchScripts.h"
 #include "TextureLMH.h"
 #include "PreferencesButton.h"
+
+UMREAL_COMPONENT(TextureLMH)
+
 TextureLMH::TextureLMH() {}
 TextureLMH::~TextureLMH() = default;
 

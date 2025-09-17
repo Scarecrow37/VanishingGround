@@ -2,6 +2,9 @@
 #include "EnableButton.h"
 #include "PreferencesButton.h"
 #include "Scripts/UI/Elements/Image/ImageElement.h"
+
+UMREAL_COMPONENT(EnableButton)
+
 EnableButton::EnableButton()
 {
     OnFocus.SetInputAutoEvent([this]() {

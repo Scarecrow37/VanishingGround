@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "UmFramework.h"
+#include "DLLExportDefine.h"
 
 class TextureLMH : public UINavigationComponent, public InputReceiver
 {

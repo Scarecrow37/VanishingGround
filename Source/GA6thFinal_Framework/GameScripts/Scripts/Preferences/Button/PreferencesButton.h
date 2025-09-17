@@ -1,6 +1,5 @@
 ﻿#pragma once
-#include "UmFramework.h"
-
+#include "DLLExportDefine.h"
 class PreferencesButton : public Component
 {
     USING_PROPERTY(PreferencesButton)

@@ -171,24 +171,3 @@ UMREAL_COMPONENT(SmoothScroll)
 
 #include "Scripts\UI/Views/Map/MapPlayerHPView.h"
 UMREAL_COMPONENT(MapPlayerHPView)
-
-#include "Scripts\AccessorySystem/AccessorySystem.h"
-UMREAL_COMPONENT(AccessorySystem)
-
-#include "Scripts\Preferences\PreferencesManager.h"
-UMREAL_COMPONENT(PreferencesManager)
-
-#include "Scripts\Preferences/PrefrencesWindow.h"
-UMREAL_COMPONENT(PrefrencesWindow)
-
-#include "Scripts\UINavigation/TempNavigationComponent.h"
-UMREAL_COMPONENT(TempNavigationComponent)
-
-#include "Scripts\Preferences\Button/PreferencesButton.h"
-UMREAL_COMPONENT(PreferencesButton)
-
-#include "Scripts\Preferences\Button/EnableButton.h"
-UMREAL_COMPONENT(EnableButton)
-
-#include "Scripts\Preferences\Button/TextureLMH.h"
-UMREAL_COMPONENT(TextureLMH)

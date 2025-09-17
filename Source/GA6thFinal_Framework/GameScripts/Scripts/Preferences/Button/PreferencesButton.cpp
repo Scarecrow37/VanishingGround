@@ -1,6 +1,9 @@
 ﻿#include "pchScripts.h"
 #include "PreferencesButton.h"
 #include "Scripts/UI/Elements/Image/ImageElement.h"
+
+UMREAL_COMPONENT(PreferencesButton)
+
 PreferencesButton::PreferencesButton()
 {
     OnFilePath.SetInputAutoEvent([this]() {

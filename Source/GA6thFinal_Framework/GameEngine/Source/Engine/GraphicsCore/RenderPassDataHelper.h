@@ -50,7 +50,7 @@ inline void SerializeSSRPassProperty(std::ostream& os, const SSRPassProperty& pr
 }
 
 // ParallaxMappingProperty를 문자열로 변환
-inline void SerializeParallaxMappingProperty(std::ostream& os, const GbufferProperty& prop)
+inline void SerializeParallaxMappingProperty(std::ostream& os, const ParallaxMappingProperty& prop)
 {
     os << "    Type = ParallaxMappingProperty\n";
     os << "    HeightScale = " << prop.HeightScale << "\n";
@@ -161,7 +161,7 @@ inline void DeserializeSSRPassProperty(std::istream& is, SSRPassProperty& prop)
 }
 
 // 문자열에서 ParallaxMappingProperty를 복원
-inline void DeserializeParallaxMappingProperty(std::istream& is, GbufferProperty& prop)
+inline void DeserializeParallaxMappingProperty(std::istream& is, ParallaxMappingProperty& prop)
 {
     std::string line, key, equals;
     while (std::getline(is, line) && line.find('}') == std::string::npos)
@@ -169,7 +169,7 @@ inline void DeserializeParallaxMappingProperty(std::istream& is, GbufferProperty
         std::stringstream ss(line);
         ss >> key >> equals;
         if (key == "HeightScale")
-            ss >> prop.ParallaxHeightScale;
+            ss >> prop.HeightScale;
     }
 }
 
