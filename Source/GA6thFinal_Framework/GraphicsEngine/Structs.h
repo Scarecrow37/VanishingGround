@@ -98,6 +98,12 @@ struct PostProcessData
     unsigned int MipLevel;
 };
 
+struct UIMaterial
+{
+    UINT  ID;
+    float Alpha;
+};
+
 struct PipelineStateStream
 {
     CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE        RootSignature;
