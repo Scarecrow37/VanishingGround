@@ -103,6 +103,16 @@ void QTESystem::DeserializedReflectEvent()
 void QTESystem::ImGuiDrawPropertysEvent()
 {
     GetEditor().Show();
+    
+    if (ImGui::TreeNodeEx("Debug##debug"))
+    {
+        if (_currentQTETrack)
+        {
+            ImGui::SliderFloat("Frame Timer", &_qteTimer, _currentQTETrack->GetMinFrame(), _currentQTETrack->GetMaxFrame());
+        }
+        ImGui::TreePop();
+    }
+    
     if (ImGui::Button("Open QTE Editor"))
     {
         GetEditor().Open();

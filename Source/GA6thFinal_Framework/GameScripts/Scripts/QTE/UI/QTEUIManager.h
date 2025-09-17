@@ -55,11 +55,9 @@ private:
     void ClearAllQTENotes();
 
     float CalculateNotePosXFactor(float noteTime, float totalTime);
-    float CalculateNotePosXAbsolute(float noteTime, float totalTime);
-    float CalculateNotePosXAbsolute(float posFactor);
+    float CalculateNotePosX(float noteTime, float totalTime);
+    float CalculateNotePosX(float posFactor);
     float CalculateNoteAlpha(float posFactor);
-
-    float GetJudgeNotePosXFactor() const;
 
     ImageElement* FindNoteUIFromNoteID(int noteID) const;
 

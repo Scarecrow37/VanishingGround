@@ -60,26 +60,29 @@ void QTEUIManager::OnQTEStay()
                         if (QTE::QTE_RESULT_NONE != result.ResultType)
                         {
                             // 이미 판정이 난 노트는 비활성화
-                            noteUI->Alpha       = 0.0f;
                             object.ActiveSelf   = false;
                             continue;
                         }
+                        SIZE  noteSize = noteUI->Size;
+                        POINT oldPoint = noteUI->Point;
 
-                        POINT oldPoint    = noteUI->Point;
-                        float notePosX    = CalculateNotePosXAbsolute(time, qteTime);
-                              
-                        float notePosXToPanel = notePosX - _qtePanelPos.x;
-                        float notePosXFactorToPanel = notePosXToPanel / _qtePanelSize.x;
-                        float alphaFactor = CalculateNoteAlpha(notePosXFactorToPanel);
-                        if (alphaFactor > 0.0f)
+                        float notePosXFactor    = CalculateNotePosXFactor(time, qteTime);
+                        float perfectPos        = _qteJudgePos.x + (_qteJudgeSize.x * 0.5f) - _qtePanelPos.x;
+                        float notePosX          = perfectPos * notePosXFactor;
+                        
+                        // 포지션은 판정노트가 1.0 기준이지만 알파는 라인 끝을 기준으로 계산
+                        float alphaFactor       = notePosX / _qtePanelSize.x;
+                        float alpha             = CalculateNoteAlpha(alphaFactor);
+
+                        if (alpha > 0.0f)
                         {
-                            noteUI->Point       = POINT{(LONG)notePosX, oldPoint.y};
-                            noteUI->Alpha       = alphaFactor;
+                            float notePosAbsX   = notePosX - ((float)noteSize.cx * 0.5f) + _qtePanelPos.x;
+                            noteUI->Point       = POINT{(LONG)notePosAbsX, oldPoint.y};
+                            noteUI->Alpha       = alpha;
                             object.ActiveSelf   = true;
                         }
                         else
                         {
-                            noteUI->Alpha       = 0.0f;
                             object.ActiveSelf   = false;
                         }
                     }
@@ -216,12 +219,6 @@ void QTEUIManager::SetUIAlpha(float factor)
     }
 }
 
-float QTEUIManager::GetJudgeNotePosXFactor() const
-{
-    float judgePosXToPanel = _qteJudgePos.x - _qtePanelPos.x;
-    return _qtePanelSize.x / judgePosXToPanel;
-}
-
 void QTEUIManager::UpdateUITransformData()
 {
     if (_qteOverlayPanel)
@@ -342,26 +339,25 @@ float QTEUIManager::CalculateNotePosXFactor(float noteTime, float totalTime)
     return factor;
 }
 
-float QTEUIManager::CalculateNotePosXAbsolute(float noteTime, float totalTime)
+float QTEUIManager::CalculateNotePosX(float noteTime, float totalTime)
 {
     float factor = CalculateNotePosXFactor(noteTime, totalTime);
-    return CalculateNotePosXAbsolute(factor);
+    return CalculateNotePosX(factor);
 }
 
-float QTEUIManager::CalculateNotePosXAbsolute(float posFactor)
+float QTEUIManager::CalculateNotePosX(float posFactor)
 {
-    return _qteJudgePos.x * posFactor;
+    return (_qteJudgePos.x + (_qteJudgeSize.x * 0.5f) - _qtePanelPos.x) * posFactor;
 }
 
 float QTEUIManager::CalculateNoteAlpha(float posFactor)
 {
     auto system = SingletonComponent<QTESystem>::GetInstance();
+    float alpha = 1.0f;
     if (system)
     {
         auto [fadeInMin, fadeInMax]   = system->GetFadeInPosFactor();
         auto [fadeOutMin, fadeOutMax] = system->GetFadeOutPosFactor();
-
-        float alpha = 1.0f;
 
         if (posFactor < fadeInMin)
         {
@@ -381,10 +377,8 @@ float QTEUIManager::CalculateNoteAlpha(float posFactor)
             float t = (posFactor - fadeOutMin) / (fadeOutMax - fadeOutMin);
             alpha   = 1.0f - t; // 1 → 0 보간
         }
-
-        return alpha;
     }
-    return 1.0f;
+    return alpha;
 }
 
 ImageElement* QTEUIManager::FindNoteUIFromNoteID(int noteID) const

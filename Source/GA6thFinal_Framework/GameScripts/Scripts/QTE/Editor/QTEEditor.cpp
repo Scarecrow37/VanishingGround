@@ -355,11 +355,7 @@ void QTEEditor::ShowTrackDetailMenu()
             }
             if (ImGui::MenuItem("Save Track", EditorIcon::ICON_FILE_SAVE, false, valid))
             {  
-                const File::Path& filePath = _qteTrack->GetFilePath();
-                if (true == filePath.IsNull())
-                {
-                    SaveFileWithDialog();
-                }
+                SaveFileWithDialog();
             }
             ImGui::EndMenu();
         }
