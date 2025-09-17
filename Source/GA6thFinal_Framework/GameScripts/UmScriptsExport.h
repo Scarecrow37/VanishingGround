@@ -124,10 +124,7 @@ UMREAL_COMPONENT(TestActionComponent)
 // UMREAL_COMPONENT(ModelTest)
 // UMREAL_COMPONENT(ViewTest)
 
-#include "Scripts/Audio/AudioComponent.h"
-UMREAL_COMPONENT(AudioComponent)
-
-#include "Scripts/Audio/Table/AudioTableComponent.h"
+#include "Scripts/Audio/AudioTableComponent.h"
 UMREAL_COMPONENT(AudioTableComponent)
 
 #include "Scripts/Animation/AnimationComponent.h"
@@ -138,9 +135,6 @@ UMREAL_COMPONENT(LogOutput)
 
 #include "Scripts/EnemyAction/System/EnemyActionSystem.h"
 UMREAL_COMPONENT(EnemyActionSystem)
-
-#include "Scripts\Audio/BGMManager.h"
-UMREAL_COMPONENT(BGMManager)
 
 #include "Scripts\ItemDropSystem/UI/ItemDropUIRootManager.h"
 UMREAL_COMPONENT(ItemDropUIRootManager)

@@ -2,10 +2,9 @@
 #include "FogCompositePass.h"
 #include "VolumetricFogTechnique.h"
 
-FogCompositePass::~FogCompositePass() {}
+FogCompositePass::~FogCompositePass() = default;
 
-void FogCompositePass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique,
-                                  ID3D12GraphicsCommandList* commandList)
+void FogCompositePass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
     __super::Initialize(ownerScene, ownerTechnique, commandList);
     auto resolution = Global::device->GetResolution();
@@ -14,10 +13,6 @@ void FogCompositePass::Initialize(RenderScene* ownerScene, RenderTechnique* owne
     InitShaderAndPSO();
     _volumTech = dynamic_cast<VolumetricFogTechnique*>(ownerTechnique);
 }
-
-void FogCompositePass::Update(ID3D12GraphicsCommandList* commandList, const float deltaTime) {}
-
-void FogCompositePass::Begin(ID3D12GraphicsCommandList* commandList) {}
 
 void FogCompositePass::Draw(ID3D12GraphicsCommandList* commandList) 
 {
@@ -30,7 +25,7 @@ void FogCompositePass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_fx.GetRootSignature());
 
-    const auto& renderTargetGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
+    const auto& renderTargetGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("G-Buffer");
     auto        compositeData     = _volumTech->GetVolumetricFogBufferView()->GetGPUVirtualAddress();
 
     commandList->SetGraphicsRootSignature(_fx.GetRootSignature());
@@ -48,10 +43,6 @@ void FogCompositePass::Draw(ID3D12GraphicsCommandList* commandList)
 
     Global::multiRenderTargetManager->ReturnRenderTarget(renderTarget);
 }
-
-void FogCompositePass::End(ID3D12GraphicsCommandList* commandList) {}
-
-void FogCompositePass::AddRenderPassDatas(std::string_view sceneName) {}
 
 void FogCompositePass::InitShaderAndPSO()
 {

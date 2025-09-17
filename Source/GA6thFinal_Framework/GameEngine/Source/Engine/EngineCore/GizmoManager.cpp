@@ -6,6 +6,7 @@ EGizmoManager::EGizmoManager()
 {
     _targetWindow = nullptr;
     _targetCamera = nullptr;
+    _guizmoState  = GuizmoState::IDLE;
 }
 
 void EGizmoManager::SubmitSceneGizmoIcon(SceneGizmo* gizmo)
@@ -30,11 +31,12 @@ void EGizmoManager::SubminSceneImGuizmo(SceneGizmo* gizmo)
 
 void EGizmoManager::BeginDraw(ImGuiWindow* targetWindow, Camera* camera) 
 {
+    _isOver       = false;
     _targetWindow = targetWindow;
     _targetCamera = camera;
 }
 
-void EGizmoManager::Draw()
+void EGizmoManager::Draw(bool enableButton)
 {
     if (_targetWindow && _targetCamera)
     {
@@ -72,6 +74,7 @@ void EGizmoManager::Draw()
             if (gizmo->_icon)
             {
                 ImGui::PushID(gizmo);
+                ImGuizmo::PushID(&gizmo);
                 {
                     if (ImVec2 screenPos; true == CalculateGizmoScreenPosition(*gizmo, &screenPos))
                     {
@@ -82,20 +85,28 @@ void EGizmoManager::Draw()
                         screenPos.x -= gizmo->Size.x * 0.5f;
                         screenPos.y -= gizmo->Size.y * 0.5f;
                         ImGui::SetCursorPos(screenPos);
-                        if (ImGui::ImageButton((ImTextureID)imageHandle.ptr, gizmo->Size))
+                        if (false == enableButton)
                         {
-                            if (gizmo->EventListener == nullptr)
+                            ImGui::Image((ImTextureID)imageHandle.ptr, gizmo->Size);
+                        }
+                        else
+                        {
+                            if (ImGui::ImageButton((ImTextureID)imageHandle.ptr, gizmo->Size, {0, 0}, {1, 1}, 0))
                             {
-                                std::weak_ptr<GameObject> oldWp = EditorHierarchyTool::GetFocusObject();
-                                UmCommandManager.Do<Command::Hierarchy::FocusCommand>(oldWp, gizmo->_ownerComponenet.gameObject->GetWeakPtr());
-                            }
-                            else
-                            {
-                                gizmo->EventListener.Invoke();
+                                if (gizmo->EventListener == nullptr)
+                                {
+                                    std::weak_ptr<GameObject> oldWp = EditorHierarchyTool::GetFocusObject();
+                                    UmCommandManager.Do<Command::Hierarchy::FocusCommand>(oldWp, gizmo->_ownerComponenet.gameObject->GetWeakPtr());
+                                }
+                                else
+                                {
+                                    gizmo->EventListener.Invoke();
+                                }
                             }
                         }
                     }
                 }
+                ImGuizmo::PopID();
                 ImGui::PopID();
             }
         }
@@ -109,6 +120,7 @@ void EGizmoManager::Draw()
 
 void EGizmoManager::EndDraw() 
 {
+    _isOver       = false;
     _targetWindow = nullptr;
     _targetCamera = nullptr;
     _sceneGizmosIcon.clear();
@@ -127,10 +139,45 @@ void EGizmoManager::DrawImGuizmo(ImGuiHelper::DrawManipulateDesc& desc)
             return weakOwner.expired();
         });
 
+        bool useManipulate = false;
         for (auto& [weakOwner, gizmo] : _sceneImGuizmos)
         {
+            ImGuizmo::PushID(&gizmo);
             ImGuiHelper::DrawManipulate(_targetCamera, gizmo->_ownerMatrix, desc);
+            useManipulate |= ImGuizmo::IsUsing();
+            _isOver |= ImGuizmo::IsOver();
+            ImGuizmo::PopID();
         }   
+        
+        if (useManipulate)
+        {
+            switch (_guizmoState)
+            {
+            case EGizmoManager::GuizmoState::IDLE:
+                _guizmoState = EGizmoManager::GuizmoState::START;
+                break;
+            case EGizmoManager::GuizmoState::START:
+                _guizmoState = EGizmoManager::GuizmoState::USING;
+                break;
+            default:
+                break;
+            }
+        }
+        else
+        {
+            switch (_guizmoState)
+            {
+            case EGizmoManager::GuizmoState::START:
+            case EGizmoManager::GuizmoState::USING:
+                _guizmoState = EGizmoManager::GuizmoState::END;
+                break;
+            case EGizmoManager::GuizmoState::END:
+                _guizmoState = EGizmoManager::GuizmoState::IDLE;
+                break;
+            default:
+                break;
+            }
+        }
     }
     else
     {

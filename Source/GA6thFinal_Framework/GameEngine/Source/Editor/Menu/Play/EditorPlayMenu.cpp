@@ -9,8 +9,18 @@ void EditorPlayMenu::OnMenu()
     {
         editorModule->PlayMode.Play();
     }
-    static const std::string pause = std::format("{} Pause", EditorIcon::ICON_PAUSE);
-    if (true == ImGui::Button(pause.c_str()))
+    static const std::string yesPause = std::format("{} Pause", EditorIcon::ICON_PLAY);
+    static const std::string noPause = std::format("{} Pause", EditorIcon::ICON_PAUSE);
+    bool pushPause = false;
+    if (true == editorModule->PlayMode.IsPause())
+    {
+        pushPause = ImGui::Button(yesPause.c_str());
+    }
+    else
+    {
+        pushPause = ImGui::Button(noPause.c_str());
+    }
+    if (pushPause)
     {
         editorModule->PlayMode.Pause();
     }

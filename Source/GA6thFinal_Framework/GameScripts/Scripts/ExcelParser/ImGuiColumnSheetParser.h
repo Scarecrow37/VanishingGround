@@ -41,6 +41,30 @@ public:
     const ParsedDatas& GetParsedDatas() const { return _sheetDatas; }
 
     /// <summary>
+    /// 선택된 시트 이름을 반환합니다.
+    /// </summary>
+    /// <returns></returns>
+    const std::string& GetSelectSheetName() const { return _selectSheetName; }
+
+    size_t GetColumnCount() const 
+    { 
+        if (false == _sheetDatas.empty())
+        {
+            return _sheetDatas.size();
+        }
+        return 0;
+    }
+
+    size_t GetRawCount() const
+    {
+        if (false == _sheetDatas.empty())
+        {      
+            return _sheetDatas.front().second.size();
+        }
+        return 0;
+    }
+
+    /// <summary>
     /// 파싱된 데이터들을 정리합니다. (*ShowParser가 false가 되면 자동으로 정리됩니다.)
     /// </summary>
     void ClearParsedDatas() 

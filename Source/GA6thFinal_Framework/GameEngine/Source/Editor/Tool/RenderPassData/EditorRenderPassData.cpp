@@ -2,131 +2,385 @@
 #include "EditorRenderPassData.h"
 #include "Engine/GraphicsCore/RenderPassDataHelper.h"
 
+void CenterText(const char* text)
+{
+    if (text == nullptr) return;
+    float columnWidth = ImGui::GetColumnWidth();
+    float textWidth = ImGui::CalcTextSize(text).x;
+    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - textWidth) * 0.5f);
+    ImGui::TextUnformatted(text);
+}
+
 EditorRenderPassData::EditorRenderPassData()
 {
     SetLabel("RenderPassData");
     SetDockLayout(ImGuiDir_Right);
 }
 
-EditorRenderPassData::~EditorRenderPassData()
-{
-}
+EditorRenderPassData::~EditorRenderPassData() = default;
 
 void EditShadowProperty(std::any& property)
 {
     auto& shadowProps = std::any_cast<ShadowPassProperty&>(property);
 
-    ImGui::DragFloat("Near Plane", &shadowProps.NearPlane, 0.01f, 0.01f, 100.0f);
-    ImGui::DragFloat("Far Plane", &shadowProps.FarPlane, 0.1f, 0.1f, 1000.0f);
-    ImGui::DragFloat("Split Factor", &shadowProps.SplitFactor, 0.01f, 0.01f, 1.0f);
-    ImGui::DragFloat("Offset1", &shadowProps.Offset1, 0.01f, 0.0f, 1000.0f);
-    ImGui::DragFloat("Offset2", &shadowProps.Offset2, 0.01f, 0.0f, 1000.0f);
+    if (ImGui::BeginTable("Shadow Properties", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+    {
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Near Plane");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##NearPlane", &shadowProps.NearPlane, 0.01f, 0.01f, 100.0f, "%.2f");
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Far Plane");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##FarPlane", &shadowProps.FarPlane, 0.1f, 0.1f, 10000.0f, "%.1f");
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Split Factor");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::SliderFloat("##SplitFactor", &shadowProps.SplitFactor, 0.0f, 1.0f, "%.2f");
+        ImGui::PopItemWidth();
+
+        ImGui::EndTable();
+    }
 }
 
 void EditBloomProperty(std::any& property)
 {
     auto& bloomProps = std::any_cast<BloomPassProperty&>(property);
-    ImGui::DragFloat("Threshold", &bloomProps.Threshold, 0.01f, 0.0f, 100.0f);
-    ImGui::DragFloat("Intensity", &bloomProps.Intensity, 0.01f, 0.0f, 100.0f);
-    ImGui::DragFloat("Bloom Knee", &bloomProps.BloomKnee, 0.01f, 0.0f, 100.0f);
+
+    if (ImGui::BeginTable("Bloom Properties", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+    {
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Threshold");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##Threshold", &bloomProps.Threshold, 0.01f, 0.0f, 100.0f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Intensity");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##Intensity", &bloomProps.Intensity, 0.01f, 0.0f, 100.0f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Bloom Knee");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##BloomKnee", &bloomProps.BloomKnee, 0.01f, 0.0f, 100.0f);
+        ImGui::PopItemWidth();
+
+        ImGui::EndTable();
+    }
 }
 
 void EditToneMappingProperty(std::any& property)
 {
     auto& toneMappingProps = std::any_cast<ToneMappingProperty&>(property);
-    ImGui::DragFloat("Exposure", &toneMappingProps.Exposure, 0.01f, -10.f, 10.0f);
-    ImGui::DragFloat("Saturation", &toneMappingProps.Saturation, 0.01f, 0.0f, 2.0f);
-    ImGui::DragFloat("Contrast", &toneMappingProps.Contrast, 0.01f, 0.0f, 2.0f);
-    ImGui::ColorEdit3("White Balance", &toneMappingProps.WhiteBalance.x, ImGuiColorEditFlags_Float);
+
+    if (ImGui::BeginTable("Tone Mapping Properties", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+    {
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Exposure");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##Exposure", &toneMappingProps.Exposure, 0.01f, -10.f, 10.0f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Saturation");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##Saturation", &toneMappingProps.Saturation, 0.01f, 0.0f, 2.0f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Contrast");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##Contrast", &toneMappingProps.Contrast, 0.01f, 0.0f, 2.0f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("White Balance");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::ColorEdit3("##WhiteBalance", &toneMappingProps.WhiteBalance.x, ImGuiColorEditFlags_Float);
+        ImGui::PopItemWidth();
+
+        ImGui::EndTable();
+    }
 }
 
 void EditSSAOProperty(std::any& property)
 {
     auto& ssaoProps = std::any_cast<SSAOPassProperty&>(property);
-    ImGui::DragFloat("Radius", &ssaoProps.Radius, 0.01f, 0.f, 50.f);
-    ImGui::DragFloat("FallOff", &ssaoProps.Falloff, 0.001f, 0.f, 5.0f);
-    ImGui::DragFloat("StrengthFactor", &ssaoProps.StrengthFactor, 0.01f, 0.1f, 5.f);
-    ImGui::DragFloat("ContrastFactor", &ssaoProps.ContrastFactor, 0.01f, 0.1f, 5.f);
-    ImGui::DragFloat("Threshold", &ssaoProps.Threshold, 0.0005f, 0.f, 1.f);
+
+    if (ImGui::BeginTable("SSAO Properties", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+    {
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Radius");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##Radius", &ssaoProps.Radius, 0.01f, 0.f, 50.f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("FallOff");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##FallOff", &ssaoProps.Falloff, 0.001f, 0.f, 5.0f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("StrengthFactor");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##StrengthFactor", &ssaoProps.StrengthFactor, 0.01f, 0.1f, 5.f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("ContrastFactor");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##ContrastFactor", &ssaoProps.ContrastFactor, 0.01f, 0.1f, 5.f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Threshold");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##Threshold", &ssaoProps.Threshold, 0.0005f, 0.f, 1.f);
+        ImGui::PopItemWidth();
+
+        ImGui::EndTable();
+    }
 }
 
 void EditSSRProperty(std::any& property)
 {
     auto& ssrProps = std::any_cast<SSRPassProperty&>(property);
-    ImGui::DragFloat("MaxThickness", &ssrProps.MaxThickness, 0.01f, 0.01f, 10.f);
-    ImGui::DragFloat("StepSize", &ssrProps.StepSize, 0.01f, 0.01f, 10.f);
-    ImGui::DragFloat("MaxRayCount", &ssrProps.MaxRayCount, 1.f, 32.f, 200.f);
-    ImGui::DragFloat("ScreenFade", &ssrProps.ScreenFade, 0.01f, 0.01f, 10.f);
+
+    if (ImGui::BeginTable("SSR Properties", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+    {
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Max Thickness");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##MaxThickness", &ssrProps.MaxThickness, 0.01f, 0.01f, 10.f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Step Size");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##StepSize", &ssrProps.StepSize, 0.01f, 0.01f, 10.f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Max Ray Count");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##MaxRayCount", &ssrProps.MaxRayCount, 1.f, 32.f, 200.f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Screen Fade");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##ScreenFade", &ssrProps.ScreenFade, 0.01f, 0.01f, 10.f);
+        ImGui::PopItemWidth();
+
+        ImGui::EndTable();
+    }
 }
 
 void EditParallaxMappingProperty(std::any& property)
 {
-    auto& parallaxProps = std::any_cast<GbufferProperty&>(property);
-    ImGui::DragFloat("HeightScale", &parallaxProps.ParallaxHeightScale, 0.001f, 0.0f, 5.f);
-    ImGui::DragFloat("MipBias", &parallaxProps.MipBias, 0.01f, 0.f, 15.f);
+    auto& parallaxProps = std::any_cast<ParallaxMappingProperty&>(property);
+
+    if (ImGui::BeginTable("Parallax Mapping Properties", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+    {
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Height Scale");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##HeightScale", &parallaxProps.HeightScale, 0.001f, 0.0f, 5.f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Mip Bias");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##MipBias", &parallaxProps.MipBias, 0.01f, 0.f, 15.f);
+        ImGui::PopItemWidth();
+
+        ImGui::EndTable();
+    }
 }
 void EditVolumetricFogProperty(std::any& property)
 {
     auto& fogProperty = std::any_cast<VolumetricFogProperty&>(property);
-    ImGui::DragFloat("FogAnisotropy", &fogProperty.FogAnisotropy, 0.001f, 0.001f, 1.f);
-    ImGui::DragFloat("LightShaftAnisotropy", &fogProperty.LightShaftAnisotropy, 0.001f, 0.001f, 1.f);
-    ImGui::DragFloat("Density", &fogProperty.Density, 0.01f, 0.1f, 10.f);
-    ImGui::DragFloat("Strength", &fogProperty.Strength, 0.1f, 1.f, 100.f);
-    ImGui::DragFloat("BlendWithScene", &fogProperty.BlendWithScene, 0.001f, 0.001f, 1.f);
-    ImGui::DragFloat("BlendWithPrevFrame", &fogProperty.BlendWithPrevFrame, 0.001f, 0.001f, 1.f);
-    ImGui::DragFloat("CustomFar", &fogProperty.CustomFar, 1.f, 1.f, 1000.f);
-    ImGui::DragFloat("FogIntensity", &fogProperty.FogIntensity, 0.01f, 0.f, 5.f);
-    ImGui::DragFloat("LightShaftIntensity", &fogProperty.LightShaftIntensity, 0.01f, 0.f, 5.f);
+
+    if (ImGui::BeginTable("Volumetric Fog Properties", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+    {
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Custom Far");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##CustomFar", &fogProperty.CustomFar, 1.f, 1.f, 1000.f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Fog Anisotropy");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##FogAnisotropy", &fogProperty.FogAnisotropy, 0.001f, 0.001f, 1.f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Light Shaft Anisotropy");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##LightShaftAnisotropy", &fogProperty.LightShaftAnisotropy, 0.001f, 0.001f, 1.f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Density");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##Density", &fogProperty.Density, 0.01f, 0.1f, 10.f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Strength");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##Strength", &fogProperty.Strength, 0.1f, 1.f, 100.f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Blend With Scene");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##BlendWithScene", &fogProperty.BlendWithScene, 0.001f, 0.001f, 1.f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Blend With Prev Frame");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##BlendWithPrevFrame", &fogProperty.BlendWithPrevFrame, 0.001f, 0.001f, 1.f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Fog Intensity");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##FogIntensity", &fogProperty.FogIntensity, 0.01f, 0.f, 5.f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Light Shaft Intensity");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##LightShaftIntensity", &fogProperty.LightShaftIntensity, 0.01f, 0.f, 5.f);
+        ImGui::PopItemWidth();
+
+        ImGui::EndTable();
+    }
 }
 
 void EditorRenderPassData::OnFrameRender()
 {
-    auto& renderPassProperties = UmGraphics.GetRenderPassProperties();
-
-    for (auto& [sceneName, properties] : renderPassProperties)
+    if (ImGui::TreeNodeEx("Properties"))
     {
-        if (ImGui::TreeNodeEx(sceneName.c_str()))
+        auto& renderPassProperties = UmGraphics.GetRenderPassProperties();
+        for (auto& [passName, property] : renderPassProperties)
         {
-            for (auto& [passName, pair] : properties)
+            if (ImGui::TreeNodeEx(passName.c_str()))
             {
-                if (ImGui::TreeNodeEx(passName.c_str()))
+                if (property.type() == typeid(ShadowPassProperty))
                 {
-                    auto& [property, images] = pair;
-                    
-                    if (ImGui::TreeNodeEx("Properties"))
-                    {
-                        if (property.type() == typeid(ShadowPassProperty))
-                        {                            
-                            EditShadowProperty(property);
-                        }
-                        else if (property.type() == typeid(BloomPassProperty))
-                        {
-                            EditBloomProperty(property);
-                        }
-                        else if (property.type() == typeid(ToneMappingProperty))
-                        {
-                            EditToneMappingProperty(property);
-                        }
-                        else if (property.type() == typeid(SSAOPassProperty))
-                        {
-                            EditSSAOProperty(property);
-                        }
-                        else if (property.type() == typeid(SSRPassProperty))
-                        {
-                            EditSSRProperty(property);
-                        }
-                        else if (property.type() == typeid(GbufferProperty))
-                        {
-                            EditParallaxMappingProperty(property);
-                        }
-                        else if (property.type() == typeid(VolumetricFogProperty))
-                        {
-                            EditVolumetricFogProperty(property);
-                        }
-                        ImGui::TreePop();
-                    }
+                    EditShadowProperty(property);
+                }
+                else if (property.type() == typeid(BloomPassProperty))
+                {
+                    EditBloomProperty(property);
+                }
+                else if (property.type() == typeid(ToneMappingProperty))
+                {
+                    EditToneMappingProperty(property);
+                }
+                else if (property.type() == typeid(SSAOPassProperty))
+                {
+                    EditSSAOProperty(property);
+                }
+                else if (property.type() == typeid(SSRPassProperty))
+                {
+                    EditSSRProperty(property);
+                }
+                else if (property.type() == typeid(ParallaxMappingProperty))
+                {
+                    EditParallaxMappingProperty(property);
+                }
+                else if (property.type() == typeid(VolumetricFogProperty))
+                {
+                    EditVolumetricFogProperty(property);
+                }
+                ImGui::TreePop();
+            }
+        }
+        ImGui::TreePop();
+    }
 
-                    if (ImGui::TreeNodeEx("Images"))
+    if (ImGui::TreeNodeEx("Images"))
+    {
+        const auto& renderPassImages = UmGraphics.GetRenderPassImages();
+        for (const auto& [sceneName, passes] : renderPassImages)
+        {
+            if (ImGui::TreeNodeEx((sceneName).c_str()))
+            {
+                for (const auto& [passName, images] : passes)
+                {
+                    if (ImGui::TreeNodeEx(passName.c_str()))
                     {
                         for (const auto& [dataName, handles] : images)
                         {
@@ -135,19 +389,21 @@ void EditorRenderPassData::OnFrameRender()
                                 for (const auto& handle : handles)
                                 {
                                     ImVec2 availSize = ImGui::GetContentRegionAvail();
-                                    ImGui::Image((ImTextureID)handle.ptr, ImVec2(availSize.x * 0.5f, availSize.x * 0.5f));
+                                    ImGui::Image((ImTextureID)handle.ptr,
+                                                 ImVec2(availSize.x * 0.5f, availSize.x * 0.5f));
                                 }
                                 ImGui::TreePop();
                             }
                         }
                         ImGui::TreePop();
                     }
-                    ImGui::TreePop();
                 }
+                ImGui::TreePop();
             }
-            ImGui::TreePop();
         }
+        ImGui::TreePop();
     }
+
     if (ImGui::Button("SaveData"))
     {
         std::vector<std::pair<LPCWSTR, LPCWSTR>> filters = {{L"Save Files (*.inl)", L"*.inl\0\0"}};
