@@ -19,7 +19,11 @@ EnableButton::EnableButton()
                     _onFocusImage              = data->GetGuid();
                     ReflectFields->OnFocusGuid = _onFocusImage.string();
                     auto image            = GetComponent<ImageElement>();
-                    image->SetImage(_onFocusImage);
+                    if (nullptr != image)
+                    {
+                        image->SetImage(_onFocusImage);
+                    }
+
                 }
             }
             ImGui::EndDragDropTarget();
@@ -38,7 +42,8 @@ EnableButton::EnableButton()
                     _onNonFocusImage              = data->GetGuid();
                     ReflectFields->OnNonFocusGuid = _onNonFocusImage.string();
                     auto image             = GetComponent<ImageElement>();
-                    image->SetImage(_onNonFocusImage);
+                    if (nullptr != image)
+                        image->SetImage(_onNonFocusImage);
                 }
             }
             ImGui::EndDragDropTarget();
@@ -57,7 +62,8 @@ EnableButton::EnableButton()
                     _offFocusImage              = data->GetGuid();
                     ReflectFields->OffFocusGuid = _offFocusImage.string();
                     auto image                  = GetComponent<ImageElement>();
-                    image->SetImage(_offFocusImage);
+                    if (nullptr != image)
+                        image->SetImage(_offFocusImage);
                 }
             }
             ImGui::EndDragDropTarget();
@@ -76,7 +82,8 @@ EnableButton::EnableButton()
                     _offNonFocusImage              = data->GetGuid();
                     ReflectFields->OffNonFocusGuid= _offNonFocusImage.string();
                     auto image                 = GetComponent<ImageElement>();
-                    image->SetImage(_offNonFocusImage);
+                    if (nullptr != image)
+                        image->SetImage(_offNonFocusImage);
                 }
             }
             ImGui::EndDragDropTarget();
@@ -99,7 +106,8 @@ void EnableButton::Awake()
     if (!_onNonFocusImage.IsNull())
     {
         auto image = GetComponent<ImageElement>();
-        image->SetImage(_onNonFocusImage);
+        if (nullptr != image)
+            image->SetImage(_onNonFocusImage);
         _isOptionOn = true;
     }
 
@@ -127,14 +135,16 @@ void EnableButton::FocusIn()
 
     _isFocus   = true;
     auto image = GetComponent<ImageElement>();
-
-    if (_isOptionOn)
+    if (nullptr != image)
     {
-        image->SetImage(_onFocusImage);
-    }
-    else
-    {
-        image->SetImage(_offFocusImage);
+        if (_isOptionOn)
+        {
+            image->SetImage(_onFocusImage);
+        }
+        else
+        {
+            image->SetImage(_offFocusImage);
+        }
     }
     FocusPref(true);
     _leftArrow->SetActive(true);
@@ -147,14 +157,16 @@ void EnableButton::FocusOut()
 
     _isFocus = false;
     auto image = GetComponent<ImageElement>();
-
-    if (_isOptionOn)
+    if (nullptr != image)
     {
-        image->SetImage(_onNonFocusImage);
-    }
-    else
-    {
-        image->SetImage(_offNonFocusImage);
+        if (_isOptionOn)
+        {
+            image->SetImage(_onNonFocusImage);
+        }
+        else
+        {
+            image->SetImage(_offNonFocusImage);
+        }
     }
     FocusPref(false);
     _leftArrow->SetActive(false);
@@ -188,12 +200,14 @@ void EnableButton::ChangeOptionDpad(const Input::Controller& controller)
         if (_isOptionOn)
         {
             auto image = GetComponent<ImageElement>();
-            image->SetImage(_onFocusImage);
+            if (nullptr != image)
+                image->SetImage(_onFocusImage);
         }
         else
         {
             auto image = GetComponent<ImageElement>();
-            image->SetImage(_offFocusImage);
+            if (nullptr != image)
+                image->SetImage(_offFocusImage);
         }
     }
 }
@@ -209,14 +223,14 @@ void EnableButton::ChangeOptionStick(const Input::Controller& controller)
             if (_isOptionOn)
             {
                 auto image = GetComponent<ImageElement>();
-                image->SetImage(_onFocusImage);
-                //image->Point = {541, -12};
+                if (nullptr != image)
+                    image->SetImage(_onFocusImage);
             }
             else
             {
                 auto image = GetComponent<ImageElement>();
-                image->SetImage(_offFocusImage);
-                //image->Point = {520, -12};
+                if (nullptr != image)
+                    image->SetImage(_offFocusImage);
             }
         }
     }
@@ -229,7 +243,8 @@ void EnableButton::FocusPref(bool isfocus)
         GetChildObject();
     }
     auto prefButton = _pref->GetComponent<PreferencesButton>();
-    prefButton->OnFocus(isfocus);
+    if (nullptr != prefButton)
+        prefButton->OnFocus(isfocus);
 }
 
 void EnableButton::GetChildObject()
