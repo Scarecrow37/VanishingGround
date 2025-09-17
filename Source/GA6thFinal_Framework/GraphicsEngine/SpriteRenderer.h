@@ -15,9 +15,9 @@ public:
     const SIZE&           GetOriginSize() const { return _origin; }    
     const float           GetAlpha() const { return _alpha; }
     const UIMaterialData& GetMaterialData() const { return _materialData; }
-    const UINT            GetNumCulumn() const { return _numCulumn; }
+    const UINT            GetNumColumn() const { return _numColumn; }
     const UINT            GetNumRow() const { return _numRow; }
-    const UINT            GetCulumnIndex() const { return _culumnIndex; }
+    const UINT            GetColumnIndex() const { return _columnIndex; }
     const UINT            GetRowIndex() const { return _rowIndex; }
 
 public:
@@ -26,8 +26,8 @@ public:
     void SetTexture(std::shared_ptr<Texture> texture);
     void SetLinearFill(float fill);
     void SetAlpha(float alpha);
-    void SetAtlas(UINT culumn, UINT row);
-    void SetAtlasIndex(UINT culumnIndex, UINT rowIndex);
+    void SetAtlas(UINT column, UINT row);
+    void SetAtlasIndex(UINT columnIndex, UINT rowIndex);
 
 private:
     std::shared_ptr<Texture> _texture;
@@ -36,9 +36,9 @@ private:
     SIZE                     _origin;
     UIMaterialData           _materialData;
     SpriteType               _type;
-    UINT                     _numCulumn;
+    UINT                     _numColumn;
     UINT                     _numRow;
-    UINT                     _culumnIndex;
+    UINT                     _columnIndex;
     UINT                     _rowIndex;
     float                    _alpha;
 };

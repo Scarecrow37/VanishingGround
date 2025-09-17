@@ -33,11 +33,11 @@ float4 ps_main(PSInput input) : SV_Target
 {
     uint index = IDs[input.instanceID];
     
-    float2 culmn_row = (float2) material[index].atlas.xy;
+    float2 column_row = (float2) material[index].atlas.xy;
     float2 current = (float2) material[index].atlas.zw;
-    
-    float2 offset = 1 / culmn_row;
-    float2 uv = input.uv / culmn_row;
+
+    float2 offset = 1 / column_row;
+    float2 uv = input.uv / column_row;
 
     float4 color = textures[material[index].ID].Sample(samLinear_wrap, offset * current + uv);
     color.a *= material[index].alpha;

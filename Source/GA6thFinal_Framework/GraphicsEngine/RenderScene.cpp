@@ -438,9 +438,9 @@ void RenderScene::UpdateUI()
 
         UIMaterial uiMaterial{.ID          = texture->GetID(),
                               .Alpha       = component->GetAlpha(),
-                              .NumCulmn    = component->GetNumCulumn(),
+                              .NumColmn    = component->GetNumColumn(),
                               .NumRow      = component->GetNumRow(),
-                              .CulumnIndex = component->GetCulumnIndex(),
+                              .ColumnIndex = component->GetColumnIndex(),
                               .RowIndex    = component->GetRowIndex()};
         _uiMaterials.push_back(uiMaterial);
     }

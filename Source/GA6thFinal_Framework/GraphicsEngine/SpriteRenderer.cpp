@@ -7,9 +7,9 @@ SpriteRenderer::SpriteRenderer(const Matrix& world, SpriteType type)
     , _size()
     , _materialData()
     , _alpha(1.f)
-    , _numCulumn(1)
+    , _numColumn(1)
     , _numRow(1)
-    , _culumnIndex(0)
+    , _columnIndex(0)
     , _rowIndex(0)
 {
 }
@@ -38,14 +38,14 @@ void SpriteRenderer::SetAlpha(const float alpha)
     _alpha = std::clamp(alpha, 0.f, 1.f);
 }
 
-void SpriteRenderer::SetAtlas(UINT culumn, UINT row)
+void SpriteRenderer::SetAtlas(UINT column, UINT row)
 {
-    _numCulumn = std::max(culumn, 1u);
+    _numColumn = std::max(column, 1u);
     _numRow    = std::max(row, 1u);
 }
 
-void SpriteRenderer::SetAtlasIndex(UINT culumnIndex, UINT rowIndex)
+void SpriteRenderer::SetAtlasIndex(UINT columnIndex, UINT rowIndex)
 {
-    _culumnIndex = std::min(culumnIndex, _numCulumn - 1);
+    _columnIndex = std::min(columnIndex, _numColumn - 1);
     _rowIndex    = std::min(rowIndex, _numRow - 1);
 }

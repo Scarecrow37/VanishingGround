@@ -14,7 +14,7 @@ public:
     ~ImageElement() override;
 
 public:
-    REFLECT_PROPERTY(FilePath, Alpha, Culumn, Row, CulumnIndex, RowIndex)
+    REFLECT_PROPERTY(FilePath, Alpha, Column, Row, ColumnIndex, RowIndex)
 
     GETTER_ONLY(std::string, FilePath) { return _guidRef.ToPath().string(); }
     PROPERTY(FilePath)
@@ -27,36 +27,38 @@ public:
         UpdateRendererAlpha(clampedAlpha);
     }
     PROPERTY(Alpha)
-    
-    GETTER(int, Culumn) { return ReflectFields->Culumn; }
-    SETTER(int, Culumn)
+
+    GETTER(int, Column) { return ReflectFields->Column; }
+    SETTER(int, Column)
     {
-        ReflectFields->Culumn = std::min(0, ReflectFields->Culumn);
-        if (_renderer) _renderer->SetAtlas(ReflectFields->Culumn, ReflectFields->Row);
+        ReflectFields->Column = std::max(1, ReflectFields->Column);
+        if (_renderer)
+            _renderer->SetAtlas(ReflectFields->Column, ReflectFields->Row);
     }
-    PROPERTY(Culumn)
+    PROPERTY(Column)
 
     GETTER(int, Row) { return ReflectFields->Row; }
     SETTER(int, Row)
     {
-        ReflectFields->Row = std::min(0, ReflectFields->Row);
-        if (_renderer) _renderer->SetAtlas(ReflectFields->Culumn, ReflectFields->Row);
+        ReflectFields->Row = std::max(1, ReflectFields->Row);
+        if (_renderer)
+            _renderer->SetAtlas(ReflectFields->Column, ReflectFields->Row);
     }
     PROPERTY(Row)
 
-    GETTER(int, CulumnIndex) { return ReflectFields->CulumnIndex; }
-    SETTER(int, CulumnIndex)
+    GETTER(int, ColumnIndex) { return ReflectFields->ColumnIndex; }
+    SETTER(int, ColumnIndex)
     {
-        ReflectFields->CulumnIndex = std::clamp(value, 0, ReflectFields->Culumn);
-        if (_renderer) _renderer->SetAtlasIndex(ReflectFields->CulumnIndex, ReflectFields->RowIndex);
+        ReflectFields->ColumnIndex = std::clamp(value, 0, ReflectFields->Column - 1);
+        if (_renderer) _renderer->SetAtlasIndex(ReflectFields->ColumnIndex, ReflectFields->RowIndex);
     }
-    PROPERTY(CulumnIndex)
+    PROPERTY(ColumnIndex)
 
     GETTER(int, RowIndex) { return ReflectFields->RowIndex; }
     SETTER(int, RowIndex)
     {
-        ReflectFields->RowIndex = std::clamp(value, 0, ReflectFields->Row);
-        if (_renderer) _renderer->SetAtlasIndex(ReflectFields->CulumnIndex, ReflectFields->RowIndex);
+        ReflectFields->RowIndex = std::clamp(value, 0, ReflectFields->Row - 1);
+        if (_renderer) _renderer->SetAtlasIndex(ReflectFields->ColumnIndex, ReflectFields->RowIndex);
     }
     PROPERTY(RowIndex)
 
@@ -100,9 +102,9 @@ protected:
     REFLECT_FIELDS_BEGIN(DrawUIComponent)
     std::string Guid;
     float       Alpha = 1.0f;
-    int         Culumn = 1;
+    int         Column = 1;
     int         Row    = 1;
-    int         CulumnIndex = 0;
+    int         ColumnIndex = 0;
     int         RowIndex    = 0;
     REFLECT_FIELDS_END(ImageElement)
 

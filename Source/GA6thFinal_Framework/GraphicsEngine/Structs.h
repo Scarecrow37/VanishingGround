@@ -29,9 +29,9 @@ struct UIMaterial
 {
     UINT  ID;
     float Alpha;
-    UINT  NumCulmn;
+    UINT  NumColmn;
     UINT  NumRow;
-    UINT  CulumnIndex;
+    UINT  ColumnIndex;
     UINT  RowIndex;
 };
 
