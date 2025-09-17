@@ -20,6 +20,11 @@ void UmCineMotion::OnDrawDebugSelected()
 {
     CameraComponent::OnDrawDebugSelected();
     DrawRail();
+#ifdef _UMEDITOR
+    UpdateTetherFromGizmo();
+    DrawGizmoIcon();
+    DrawGuizmo();
+#endif
     if (false == Global::IsPlay())
     {
         RunRail();
@@ -39,22 +44,53 @@ void UmCineMotion::ImGuiDrawPropertysEvent()
 {
     CameraComponent::ImGuiDrawPropertysEvent();
     {
+        if (false == _posTethers.empty())
+        {
+            Vector3     comboLabelPos = _posTethers[_selectedTether == -1 ? 0 : _selectedTether];
+            Vector3     comboLabelRot = _rotTethers[_selectedTether == -1 ? 0 : _selectedTether];
+            std::string comboLabel = std::to_string(comboLabelPos.x) + ", " + std::to_string(comboLabelPos.y) + ", " +
+                                     std::to_string(comboLabelPos.z) + " / " + std::to_string(comboLabelRot.x) + ", " +
+                                     std::to_string(comboLabelRot.y) + ", " + std::to_string(comboLabelRot.z);
+            if (ImGui::BeginCombo("##Tethers", comboLabel.c_str()))
+            {
+                for (int i = 0; i < _posTethers.size(); ++i)
+                {
+                    bool        isSelected = _selectedTether == i;
+                    std::string selected = std::to_string(_posTethers[i].x) + ", " + std::to_string(_posTethers[i].y) +
+                                           ", " + std::to_string(_posTethers[i].z);
+                    if (ImGui::Selectable(selected.c_str(), isSelected))
+                    {
+                        _selectedTether = i;
+                    }
+                }
+                ImGui::EndCombo();
+            }
+        }
         bool isAddTetherButtonPressed = ImGui::Button("Add Tether Here", {150, 50});
         if (true == isAddTetherButtonPressed)
         {
-            AddTetherAuto();
+            if (false == _railFlag)
+            {
+                AddTetherAuto();
+            }
         }
         ImGui::SameLine();
         bool isUndoPressed = ImGui::Button("Undo Tether ", {150, 50});
         if (true == isUndoPressed)
         {
-            UndoTether();
+            if (false == _railFlag)
+            {
+                UndoTether();
+            }
         }
         ImGui::SameLine();
         bool isClearPressed = ImGui::Button("Clear Tethers", {150, 50});
         if (true == isClearPressed)
         {
-            ClearTethers();
+            if (false == _railFlag)
+            {
+                ClearTethers();
+            }
         }
         bool isPlayPressed = ImGui::Button("Start Rail", {150, 50});
         if (true == isPlayPressed)
@@ -81,6 +117,8 @@ void UmCineMotion::ImGuiDrawPropertysEvent()
             BeginShake(_shakeDuration,_shakeIntensity);
         }
     }
+
+
 }
 
 void UmCineMotion::AddTether(float timestep)
@@ -88,6 +126,7 @@ void UmCineMotion::AddTether(float timestep)
     ReflectFields->TimestepTethers.push_back(timestep);
     _posTethers.push_back(transform->GetWorldPosition());
     _rotTethers.push_back(transform->EulerAngle);
+    _railFlag = false;
 }
 
 void UmCineMotion::AddTetherAuto() 
@@ -98,19 +137,16 @@ void UmCineMotion::AddTetherAuto()
         float   dx     = curPosition.x - _posTethers[_posTethers.size() - 1].x;
         float   dy     = curPosition.y - _posTethers[_posTethers.size() - 1].y;
         float   dz     = curPosition.z - _posTethers[_posTethers.size() - 1].z;
-        float length = Vector3(dx, dy, dz).Length();
-        _totalRailLength += length;
-        ReflectFields->TimestepTethers.push_back(_totalRailLength);
-        _posTethers.push_back(transform->GetWorldPosition());
-        _rotTethers.push_back(transform->EulerAngle);
-
+        float length = std::max(Vector3(dx, dy, dz).Length(),0.1f);
+        ReflectFields->RailLength += length;
     }
-    else
-    {
-        ReflectFields->TimestepTethers.push_back(0);
-        _posTethers.push_back(transform->GetWorldPosition());
-        _rotTethers.push_back(transform->EulerAngle);
-    }
+    ReflectFields->TimestepTethers.push_back(ReflectFields->RailLength);
+    _posTethers.push_back(transform->GetWorldPosition());
+    _rotTethers.push_back(transform->EulerAngle);
+#ifdef _UMEDITOR
+    PushGizmo();
+#endif
+    _railFlag = false;
 }
 
 void UmCineMotion::UndoTether()
@@ -119,35 +155,46 @@ void UmCineMotion::UndoTether()
     {
         return;
     }
-    _totalRailLength -= ReflectFields->TimestepTethers.back();
+    ReflectFields->RailLength -= ReflectFields->TimestepTethers.back();
     ReflectFields->TimestepTethers.pop_back();
     _posTethers.pop_back();
     _rotTethers.pop_back();
+#ifdef _UMEDITOR
+    PopGizmo();
+#endif
+
+    _railFlag = false;
 }
 
 void UmCineMotion::ClearTethers() 
 {
+    ReflectFields->RailLength = 0;
     ReflectFields->TimestepTethers.clear();
     _posTethers.clear();
     _rotTethers.clear();
+#ifdef _UMEDITOR
+    ClearGizmo();
+#endif
+    _railFlag = false;
 }
 
 void UmCineMotion::StartRail() 
 {
-    _railfFlag = true;
+    _railFlag = true;
     _pauseFlag = false;
 }
 
 void UmCineMotion::PauseRail() 
 {
+    _railFlag = true;
     _pauseFlag = true;
 }
 
 void UmCineMotion::StopRail() 
 {
     _moveTimer = 0;
-    _pauseFlag = false;
-    _railfFlag = false;
+    _pauseFlag = true;
+    _railFlag = false;
     if (false == _posTethers.empty())
     {
         transform->Position = _posTethers[0];
@@ -175,9 +222,12 @@ void UmCineMotion::DrawRail()
     {
         // tether points
         {
-            for (auto& pos : _posTethers)
+            for (int i = 0;i<_posTethers.size();i++)
             {
-                UmGraphics.DebugDraw3D("Editor", BoundingSphere(pos, 0.2f), Colors::Red);
+                if (i ==_selectedTether)
+                    UmGraphics.DebugDraw3D("Editor", BoundingSphere(_posTethers[i], 0.2f), Colors::Yellow);
+                else
+                    UmGraphics.DebugDraw3D("Editor", BoundingSphere(_posTethers[i], 0.2f), Colors::Red);
             }
         }
         // interpolated points
@@ -219,43 +269,44 @@ DirectX::SimpleMath::Vector3 UmCineMotion::GetShakeOffset(float intensity, float
         return Vector3(0, 0, 0);
     float shakeX = sin(time * SHAKE_FREQUENCY + rand()) * intensity;
     float shakeY = cos(time * SHAKE_FREQUENCY + rand()) * intensity;
-    float shakeZ = sin((time + 0.5f) * SHAKE_FREQUENCY + +rand()) * intensity; // z는 보통 진폭 작게
+    float shakeZ = sin((time + 0.5f) * SHAKE_FREQUENCY + +rand()) * intensity;
 
     return Vector3(shakeX, shakeY, shakeZ);
 }
 
 void UmCineMotion::ApplyTransform() 
 {
-    if (true == _railfFlag)
+    if (true == _railFlag)
     {
+        transform->EulerAngle = _targetAngle;
         transform->Position = _targetPos;
     }
-
 }
 
 void UmCineMotion::RunRail() 
 {
-    if (true == _railfFlag)
+    if (true == _railFlag)
     {
         if (false == _pauseFlag)
         {
             _moveTimer += UmTime.DeltaTime() * ReflectFields->RailSpeed;
+            _moveTimer = std::clamp(_moveTimer, 0.f, ReflectFields->RailLength);
+            _currentStep = _moveTimer / ReflectFields->RailLength * 100.f;
         }
-        Vector3 angle = Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _rotTethers, _moveTimer);
-        Vector3 position = Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _posTethers, _moveTimer);
-        _targetPos            = position;
-        transform->EulerAngle = angle;
-    }
-    else if (ReflectFields->TimestepTethers.size()>2)
-    {
-        Vector3 angle =
-            Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _rotTethers, _currentPos * _totalRailLength);
-        Vector3 position =
-            Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _posTethers, _currentPos * _totalRailLength);
-        _targetPos            = position;
-        transform->EulerAngle = angle;
     }
 
+    Vector3 angle = {0, 0, 0};
+    Vector3 position = {0, 0, 0};
+
+    if (ReflectFields->TimestepTethers.size() > 1)
+    {
+        angle    = Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _rotTethers,
+                                           _currentStep * ReflectFields->RailLength * 0.01f);
+        position = Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _posTethers,
+                                           _currentStep * ReflectFields->RailLength * 0.01f);
+    }
+    _targetPos                                = position;
+    _targetAngle                              = angle;
 }
 
 void UmCineMotion::DeserializedReflectEvent()
@@ -275,6 +326,13 @@ void UmCineMotion::DeserializedReflectEvent()
 
 void UmCineMotion::SerializedReflectEvent()
 {
+    ReflectFields->PositionXTethers.clear();
+    ReflectFields->PositionYTethers.clear();
+    ReflectFields->PositionZTethers.clear();
+    ReflectFields->RotationXTethers.clear();
+    ReflectFields->RotationYTethers.clear();
+    ReflectFields->RotationZTethers.clear();
+
     for (auto& pos : _posTethers)
     {
         ReflectFields->PositionXTethers.push_back(pos.x);
@@ -289,3 +347,60 @@ void UmCineMotion::SerializedReflectEvent()
     }
 }
 
+#ifdef _UMEDITOR
+
+void UmCineMotion::UpdateTetherFromGizmo() 
+{
+    for (int i = 0; i < _gizmoes.size();i++)
+    {
+        auto& [gizmo, mat, icon] = _gizmoes[i];
+        Vector3 scale;
+        Quaternion rot;
+        mat.Decompose(scale, rot, _posTethers[i]);
+        _rotTethers[i] = rot.ToEuler();
+    }
+}
+
+void UmCineMotion::PushGizmo() 
+{
+    int size                    = (int)_gizmoes.size();
+    Matrix world                = transform->GetWorldMatrix();
+    auto& [gizmo, matrix, icon] = _gizmoes.emplace_back(this, world, SceneGizmo::DefaultIcon::TETHER);
+    gizmo.SetIconTexture(icon);
+    gizmo.EventListener.AddListener([this, index = size]() { _selectedTether = index; });
+
+    // matrix 포인터 이동하기 때문에 다시 설정해야함.
+    for (auto& [gizmo, matrix, icon] : _gizmoes)
+    {
+        gizmo.SetOwnerMatrix(matrix);
+    }
+}
+
+void UmCineMotion::PopGizmo() 
+{
+    _gizmoes.pop_back();
+}
+
+void UmCineMotion::ClearGizmo() 
+{
+    _gizmoes.clear();
+}
+
+void UmCineMotion::DrawGuizmo() 
+{
+    if (0 <= _selectedTether && _selectedTether < _gizmoes.size())
+    {
+        auto& [gizmo, matrix, icon] = _gizmoes[_selectedTether];
+        gizmo.DrawImGuizmo();
+    }
+}
+
+void UmCineMotion::DrawGizmoIcon() 
+{
+    for (auto& [gizmo, matrix, icon] : _gizmoes)
+    {
+        gizmo.DrawIcon();
+    }
+}
+
+#endif
