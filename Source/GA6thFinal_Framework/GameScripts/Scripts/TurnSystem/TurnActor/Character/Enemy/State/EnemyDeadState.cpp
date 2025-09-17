@@ -5,7 +5,6 @@
 
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 #include <Animation/AnimationComponent.h>
-#include <Audio/Table/AudioTableComponent.h>
 
 REGISTER_CLASS(FSMStateFactory, EnemyDeadState)
 
@@ -31,7 +30,7 @@ void EnemyDeadState::OnEnter()
         animator->EndBuildOverrideAnimation();
         if (audioTable)
         {
-            audioTable->Play("Dead0");
+            UmAudio.Play("Dead0");
         }
     }
 }
