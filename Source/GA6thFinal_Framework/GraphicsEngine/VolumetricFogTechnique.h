@@ -7,7 +7,9 @@ class VolumetricFogTechnique : public RenderTechnique
 public:
     VolumetricFogTechnique();
     virtual ~VolumetricFogTechnique();
-    ConstantBufferView*  GetConstantBufferView() { return _constantBuffer.get(); }
+
+public:
+    ConstantBufferView* GetConstantBufferView() { return _constantBuffer.get(); }
     ConstantBufferView* GetVolumetricFogBufferView() { return _volumetricFogBuffer.get(); }
 
 public:

@@ -5,7 +5,7 @@
 #define MAX_POINT_LIGHT 32
 #define MAX_SPOT_LIGHT 16
 
-#define MAX_CASCADES 4
+#define MAX_CASCADES 3
 
 struct MatrixData
 {
@@ -98,7 +98,7 @@ struct PostProcessData
 struct CascadeData
 {
     matrix ShadowVP[MAX_CASCADES];
-    float CascadeSplits[MAX_CASCADES];
+    float3 CascadeSplits; // x=split1, y=split2, z=split3
 };
 
 struct GbufferData

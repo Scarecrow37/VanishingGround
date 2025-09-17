@@ -28,11 +28,6 @@ D3D12_GPU_DESCRIPTOR_HANDLE RenderScene::GetFinalImage()
     return finalTarget->GetSRVHandle();
 }
 
-const std::any& RenderScene::GetRenderPassProperty(std::string_view passName) const
-{
-    return Global::renderPassDatas->GetRenderPassProperty(_name, passName);
-}
-
 SharedResource<RenderTarget> RenderScene::GetSharedRenderTarget() const
 {
     return _sharedRenderTarget[_currentFrameIndex];
@@ -314,7 +309,7 @@ void RenderScene::UpdateObject()
             continue;
         }
 
-        if (!_isDirtyFlag)
+        /*if (!_isDirtyFlag)
         {
             _isDirtyFlag = model->IsDirtyFlag() || component->IsDirtyFlag();
 
@@ -322,7 +317,7 @@ void RenderScene::UpdateObject()
             {
                 model->SetDirtyFlag(false);
             }
-        }
+        }*/
 
         const auto  type         = component->GetType();
         const auto& customDepths = component->GetCustomDepths();

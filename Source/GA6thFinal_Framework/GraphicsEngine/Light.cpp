@@ -7,7 +7,7 @@ Light::Light()
     _data.Intensity = 1.f;
 }
 
-Light::~Light() {}
+Light::~Light() = default;
 
 void Light::SetDirectionalLight(const Vector3& color, const Vector3& ambient, const Vector3& direction,
                                 const float& intensity)
