@@ -304,12 +304,10 @@
   <ItemGroup>
     <ClInclude Include="DLLExportDefine.h" />
     <ClInclude Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.h" />
-    <ClInclude Include="Scripts\Audio\BGMManager.h" />
-    <ClInclude Include="Scripts\Audio\Table\AudioTableComponent.h" />
+    <ClInclude Include="Scripts\Audio\AudioTableComponent.h" />
     <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h" />
     <ClInclude Include="Scripts\EnemyAction\ActionData\EnemyActionData.h" />
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
-    <ClInclude Include="Scripts\Audio\AudioComponent.h" />
     <ClInclude Include="Scripts\BattleSystem\Battle.h" />
     <ClInclude Include="Scripts\ColorUtils\ColorUtils.h" />
     <ClInclude Include="Scripts\EnemyAction\System\EnemyActionSystem.h" />
@@ -477,11 +475,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.cpp" />
-    <ClCompile Include="Scripts\Audio\BGMManager.cpp" />
-    <ClCompile Include="Scripts\Audio\Table\AudioTableComponent.cpp" />
+    <ClCompile Include="Scripts\Audio\AudioTableComponent.cpp" />
     <ClCompile Include="Scripts\EnemyAction\Factory\EnemyActionFactory.cpp" />
     <ClCompile Include="Scripts\EnemyAction\ActionData\EnemyActionData.cpp" />
-    <ClCompile Include="Scripts\Audio\AudioComponent.cpp" />
     <ClCompile Include="Scripts\BattleSystem\Battle.cpp" />
     <ClCompile Include="Scripts\ColorUtils\ColorUtils.cpp" />
     <ClCompile Include="Scripts\EnemyAction\System\EnemyActionSystem.cpp" />

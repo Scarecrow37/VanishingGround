@@ -12,12 +12,16 @@ namespace Audio
     /// </summary>
     class System
     {
+        static constexpr size_t MAX_POOL_SIZE = 64;
+
         struct SourceVoice
         {
             Generation           Generation;
             Callback             Callback;
             IXAudio2SourceVoice* Voice;
         };
+
+        using VoicePool = std::vector<SourceVoice>;
 
 
     public:
@@ -32,17 +36,29 @@ namespace Audio
         /// 초기화 작업을 수행합니다. 최초 1회 호출되어야 합니다.
         /// 호출하기 전 CoInitializeEx()가 MTA로 호출되어야 합니다.
         /// </summary>
-        void Initialize();
+        void Initialize(bool isDebug = false);
 
+        /// <summary>
+        /// 객체 또는 프로세스를 종료하거나 정리합니다.
+        /// </summary>
         void Finalize();
+
+        /// <summary>
+        /// 디버그 모드를 활성화합니다.
+        /// </summary>
+        void TurnOnDebugMode() const;
+
+        /// <summary>
+        /// 디버그 모드를 끕니다.
+        /// </summary>
+        void TurnOffDebugMode() const;
 
         /// <summary>
         /// 지정된 파일 경로에서 웨이브 파일로부터 사운드 소스를 생성합니다.
         /// </summary>
         /// <param name="filePath">웨이브 파일의 경로를 나타내는 std::filesystem::path 객체입니다.</param>
-        /// <param name="isLoop">사운드가 반복 재생될지 여부를 지정하는 불리언 값입니다. 기본값은 false입니다.</param>
         /// <returns>생성된 사운드 소스를 나타내는 Source 객체를 반환합니다.</returns>
-        static Source CreateSoundFromWave(const std::filesystem::path& filePath, bool isLoop = false);
+        static Source CreateSoundFromWave(const std::filesystem::path& filePath);
 
         /// <summary>
         /// 사운드 소스를 재생하고 핸들을 반환합니다.
@@ -70,6 +86,16 @@ namespace Audio
         IXAudio2* _xAudio2;
         IXAudio2MasteringVoice*  _masteringVoice = nullptr;
 
-        std::unordered_map<WaveFormatHash, std::vector<SourceVoice>> _sourceVoices;
+        std::unordered_map<WaveFormatHash, VoicePool> _voicePools;
+
+
+        struct OnBufferEnd
+        {
+            explicit OnBufferEnd(System* system);
+
+            void operator()(const Handle& handle) const;
+
+            System* System;
+        };
     };
 } // namespace Audio

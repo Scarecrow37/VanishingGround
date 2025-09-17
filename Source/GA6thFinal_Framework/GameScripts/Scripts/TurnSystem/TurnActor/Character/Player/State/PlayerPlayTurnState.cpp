@@ -7,7 +7,6 @@
 #include <TurnSystem/TurnMode/State/CombatStartPhase.h>
 #include <WeaponSystem/WeaponSystem.h>
 #include <Animation/AnimationComponent.h>
-#include <Audio/Table/AudioTableComponent.h>
 #include <Particle/ParticleComponent.h>
 
 using namespace u8_literals;
