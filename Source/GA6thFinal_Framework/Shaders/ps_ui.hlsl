@@ -9,14 +9,15 @@ struct PSInput
 
 struct Material
 {
-    uint textureID;
-    float Alpha;
+    uint ID;
+    float alpha;
+    uint4 atlas;
 };
 
 struct UIMaterialData
 {
-    uint Type;
-    float Fill;
+    uint type;
+    float fill;
 };
 
 StructuredBuffer<Material> material;
@@ -32,13 +33,19 @@ float4 ps_main(PSInput input) : SV_Target
 {
     uint index = IDs[input.instanceID];
     
-    float4 color = textures[material[index].textureID].Sample(samLinear_wrap, input.uv);
-    color.a *= material[index].Alpha;
+    float2 culmn_row = (float2) material[index].atlas.xy;
+    float2 current = (float2) material[index].atlas.zw;
+    
+    float2 offset = 1 / culmn_row;
+    float2 uv = input.uv / culmn_row;
+
+    float4 color = textures[material[index].ID].Sample(samLinear_wrap, offset * current + uv);
+    color.a *= material[index].alpha;
         
-    switch (uiMaterialData[index].Type)
+    switch (uiMaterialData[index].type)
     {
         case LINEAR_FILL:
-            clip(uiMaterialData[index].Fill - input.uv.x);
+            clip(uiMaterialData[index].fill - input.uv.x);
             break;
     }
 
