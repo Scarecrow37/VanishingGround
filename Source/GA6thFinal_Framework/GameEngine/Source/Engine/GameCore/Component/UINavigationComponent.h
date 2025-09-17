@@ -46,12 +46,36 @@ public:
     PROPERTY(ID)
 
 public:
+    /// <summary>
+    /// 포커스를 설정합니다.
+    /// </summary>
+    void Focus();
+
+    /// <summary>
+    /// 포커스가 들어올 때 호출되는 함수입니다.
+    /// </summary>
     virtual void FocusIn();
+
+    /// <summary>
+    /// 포커스가 해당 객체에서 벗어날 때 호출되는 함수입니다.
+    /// </summary>
     virtual void FocusOut();
+
+    /// <summary>
+    /// Navigation Route로 자신을 설정하고, 해당 Route를 실행하게 되면 호출되는 함수입니다.
+    /// </summary>
     virtual void Submit() {}
 
-    void SetInitialFocus();
-    void ResetInitialFocus();
+    /// <summary>
+    /// 초기 포커스로 설정합니다.
+    /// </summary>
+    void SetInitialFocus() const;
+
+    /// <summary>
+    /// NavigationKey를 받아 해당하는 NavigationID를 반환합니다.
+    /// </summary>
+    /// <param name="key">탐색에 사용되는 NavigationKey 객체입니다.</param>
+    /// <returns>입력된 NavigationKey에 대응하는 NavigationID입니다.</returns>
     NavigationID GetNavigatedId(const NavigationKey& key);
 
 protected:
@@ -79,6 +103,5 @@ protected:
     REFLECT_FIELDS_BEGIN(UIBaseComponent)
     NavigationID    NavigationID = INVALID_NAVIGATION_ID;
     NavigationRoutes NavigationRoutes;
-    bool            IsInitialFocus = false;
     REFLECT_FIELDS_END(UINavigationComponent)
 };

@@ -110,8 +110,7 @@ LONG AlignPoint::operator()(const VerticalAlignment vertical, const LONG spareHe
 }
 
 UIComponent::UIComponent()
-    : _requestedPoint{}, _requestedSize{}, _isMeasureDirty(false),
-      _isArrangeDirty(false)
+    : _requestedPoint{}, _requestedSize{}, _isFocus(false), _isMeasureDirty(false), _isArrangeDirty(false)
 {
 }
 

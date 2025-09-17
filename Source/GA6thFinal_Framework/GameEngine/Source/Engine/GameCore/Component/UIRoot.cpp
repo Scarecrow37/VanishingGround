@@ -45,15 +45,11 @@ void UIRoot::ReleaseNavigationID(const NavigationID id)
     }
 }
 
-void UIRoot::SetInitialFocus(UINavigationComponent* uiComponent)
+void UIRoot::SetInitialFocus(const UINavigationComponent* uiComponent)
 {
     if (nullptr != uiComponent)
     {
-        if (nullptr != _currentFocusNavigation)
-        {
-            _currentFocusNavigation->ResetInitialFocus();
-        }
-        ChangeFocusComponent(uiComponent);
+        ReflectFields->InitialFocusID = uiComponent->ID;
     }
 }
 
@@ -108,8 +104,6 @@ void UIRoot::ImGuiDrawPropertysEvent()
 {
     UIBaseComponent::ImGuiDrawPropertysEvent();
 
-    ImGui::Checkbox("Enable Navigation On Editor", &_isEnabledNavigation);
-
     if (_isDebug)
     {
         constexpr ImGuiDebug debug;
@@ -120,29 +114,15 @@ void UIRoot::ImGuiDrawPropertysEvent()
         {
             debug("Spare ID", spare);
         }
-    }
-}
 
-void UIRoot::OnDrawDebugOverride()
-{
-    UIBaseComponent::OnDrawDebugOverride();
-
-    EditorUpdate();
-}
-
-void UIRoot::OnDrawDebugSelectedOverride()
-{
-    UIBaseComponent::OnDrawDebugSelectedOverride();
-
-    EditorUpdate();
-}
-
-void UIRoot::EditorUpdate()
-{
-    if (_isEnabledNavigation)
-    {
-        _controller->UpdateState();
-        UpdateNavigation();
+        if (const UINavigationComponent* currentFocus = _currentFocusNavigation; nullptr != currentFocus)
+        {
+            debug("Current Focus ID", currentFocus->ID);
+        }
+        else
+        {
+            debug("Current Focus ID", "NULL");
+        }
     }
 }
 
@@ -162,6 +142,15 @@ void UIRoot::Reset()
             UmLogger.Log(LogLevel::LEVEL_INFO, exception.what());
         }
     }
+}
+
+void UIRoot::Awake()
+{
+    UIBaseComponent::Awake();
+
+    const NavigationID     initialFocusID        = ReflectFields->InitialFocusID;
+    UINavigationComponent* initialFocusComponent = FindNavigationComponent(initialFocusID);
+    ChangeFocusComponent(initialFocusComponent);
 }
 
 void UIRoot::UpdateNavigation()

@@ -5,6 +5,18 @@ NavigationID UINavigationComponent::_toID = INVALID_NAVIGATION_ID;
 
 UINavigationComponent::UINavigationComponent() = default;
 
+void UINavigationComponent::Focus()
+{
+    if (UIRoot* root = Root; nullptr != root)
+    {
+        root->ChangeFocusComponent(this);
+    }
+    else
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"UI Root를 찾을 수 없습니다.");
+    }
+}
+
 void UINavigationComponent::FocusIn()
 {
     if (UIComponent* siblingUI = SiblingUI; nullptr != siblingUI)
@@ -29,18 +41,12 @@ void UINavigationComponent::FocusOut()
     }
 }
 
-void UINavigationComponent::SetInitialFocus()
+void UINavigationComponent::SetInitialFocus() const
 {
-    ReflectFields->IsInitialFocus = true;
     if (UIRoot* root = Root; nullptr != root)
     {
         root->SetInitialFocus(this);
     }
-}
-
-void UINavigationComponent::ResetInitialFocus()
-{
-    ReflectFields->IsInitialFocus = false;
 }
 
 UIComponent* UINavigationComponent::GetSiblingUI() const
@@ -246,14 +252,6 @@ void UINavigationComponent::Reset()
         if (UIRoot* uiRoot = Root; nullptr != uiRoot)
         {
             AcquireNavigationID(uiRoot);
-        }
-    }
-
-    if (const bool isInitialFocus = ReflectFields->IsInitialFocus; true == isInitialFocus)
-    {
-        if (UIRoot* uiRoot = Root; nullptr != uiRoot)
-        {
-            uiRoot->SetInitialFocus(this);
         }
     }
 }

@@ -207,8 +207,8 @@ public:
     GETTER_ONLY(SIZE, ActualSize) { return ReflectFields->ActualSize; }
     PROPERTY(ActualSize)
 
-    GETTER(bool, IsFocus) { return ReflectFields->IsFocus; }
-    SETTER(bool, IsFocus) { ReflectFields->IsFocus = value; }
+    GETTER(bool, IsFocus) { return _isFocus; }
+    SETTER(bool, IsFocus) { _isFocus = value; }
     PROPERTY(IsFocus)
 
     GETTER_ONLY(POINT, AbsoluteCenterPoint)
@@ -288,7 +288,6 @@ protected:
     FillMode            HorizontalFillMode;
     FillMode            VerticalFillMode;
 
-    bool IsFocus;
     REFLECT_FIELDS_END(UIComponent)
 
 protected:
@@ -296,6 +295,7 @@ protected:
     SIZE  _requestedSize;
 
 private:
+    bool _isFocus;
     bool _isMeasureDirty;
     bool _isArrangeDirty;
 };
