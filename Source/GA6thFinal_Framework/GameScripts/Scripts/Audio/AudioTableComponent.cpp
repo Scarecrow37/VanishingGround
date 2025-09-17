@@ -184,12 +184,16 @@ void AudioTableComponent::ImGuiDrawPropertysEvent()
 
             // Existing Keys
             EraseLater eraseLater(&audioMappingKeys);
-            for (auto& [key, pathString] : audioMappingKeys)
+            for (auto& [key, guidString] : audioMappingKeys)
             {
                 const bool isSelected = _selectedAudioKey == key;
                 ImGui::PushID(key.data());
                 ImGui::TableNextRow();
-                Row()(key, pathString, isSelected, [key, &eraseLater]() {
+                File::Guid  guid(guidString); 
+                File::Path  path           = guid.ToPath();
+                File::Path  filename       = path.filename();
+                std::string filenameString = filename.string();
+                Row()(key, filenameString, isSelected, [key, &eraseLater]() {
                     eraseLater(key);
                 });
                 ImGui::PopID();
