@@ -145,7 +145,6 @@ void ExcelDataSystem::ImGuiDrawDataSheetView()
                 auto&                           dataBase        = ReflectFields->DataBase;
                 if (ImGui::BeginCombo("Select sheet", viewerSheetName.c_str()))
                 {
-                    std::string_view deleteKey = STR_NULL;
                     for (auto& [key, dataPair] : dataBase)
                     {
                         if (ImGui::Selectable(key.c_str(), key == viewerSheetName))
