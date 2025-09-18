@@ -324,6 +324,14 @@ void EditVolumetricFogProperty(std::any& property)
         ImGui::DragFloat("##LightShaftIntensity", &fogProperty.LightShaftIntensity, 0.01f, 0.f, 5.f);
         ImGui::PopItemWidth();
 
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Fog Color");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::ColorEdit3("##FogColor", fogProperty.FogColor);
+        ImGui::PopItemWidth();
+
         ImGui::EndTable();
     }
 }
