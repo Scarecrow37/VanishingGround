@@ -63,31 +63,39 @@ public:
     /// <summary>
     /// 데이터 시트에서 데이터를 가져옵니다.
     /// </summary>
-    /// <param name="rowKey :">row Key</param>
-    /// <param name="columnIndex :">column Index</param>
-    /// <returns>실패시 FIND_STR_FAIL을 반환합니다.</returns>
-    std::string_view FindData(const std::string& rowKey, size_t columnIndex);
-
-    /// <summary>
-    /// 데이터 시트에서 데이터를 가져옵니다.
-    /// </summary>
     /// <param name="rowIndex :">row index</param>
     /// <param name="columnKey :">column key</param>
     /// <returns>실패시 FIND_STR_FAIL을 반환합니다.</returns>
     std::string_view FindData(size_t rowIndex, const std::string& columnKey);
 
     /// <summary>
-    /// 데이터 시트에서 데이터를 가져옵니다.
+    /// 데이터 시트에서 Row의 Column 데이터들을 가져옵니다.
     /// </summary>
-    /// <param name="rowKey :">row index</param>
-    /// <param name="columnKey :">column key</param>
-    /// <returns>실패시 FIND_STR_FAIL을 반환합니다.</returns>
-    std::string_view FindData(const std::string& rowKey, const std::string& columnKey);
+    /// <param name="rowIndex :">가져올 데이터의 Row 인덱스</param>
+    /// <returns>실패시 nullptr</returns>
+    const std::vector<std::string>* GetColumnDatas(size_t rowIndex);
+
+    /// <summary>
+    /// 데이터 시트에서 해당 columnIndex에 rowKey 데이터가 있는 동일한 Row의 모든 데이터를 반환합니다.
+    /// </summary>
+    /// <param name="rowKey"></param>
+    /// <param name="columnIndex"></param>
+    /// <returns></returns>
+    const std::vector<std::string>* GetColumnDatas(const std::string& rowKey, size_t columnIndex);
+
+    /// <summary>
+    /// 데이터 시트에서 해당 columnKey에 rowKey 데이터가 있는 동일한 Row의 모든 데이터를 반환합니다.
+    /// </summary>
+    /// <param name="rowKey :">가져올 데이터 Row 인덱스를 찾기 위한 문자열y</param>
+    /// <param name="columnKey :">찾을 Row 데이터가 존재하는 Column key</param>
+    /// <returns></returns>
+    const std::vector<std::string>* GetColumnDatas(const std::string& rowKey, const std::string& columnKey);
 
 private:
     friend class ExcelDataSystem;
-    ExcelDataBase(const DataBaseType& dataBase);
-    const DataBaseType& _dataBase;
+    ExcelDataBase(const std::string& dataBaseKey);
+    const std::string _key;
+
 };
 
 class ExcelDataSystem : public Component
@@ -102,14 +110,22 @@ public:
     using ExcelSystemMapType = std::unordered_map<std::string, ExcelDataBase::DataBaseType>;
 
     /// <summary>
-    /// 시트 이름을 키값으로 엑셀 데이터 베이스를 반환합니다. 없으면 nullptr을 반환합니다.
+    /// 시트 이름을 키값으로 엑셀 데이터베이스를 반환합니다. 없으면 nullptr을 반환합니다.
     /// </summary>
     /// <param name="sheetName :">원하는 시트 이름</param>
     /// <returns>동적 할당된 ExcelDataBase</returns>
     std::unique_ptr<ExcelDataBase> FindExcelDataBase(const std::string& sheetName);
 
+    /// <summary>
+    /// 원본 데이터 베이스의 포인터를 반환합니다. 없으면 nullptr을 반환합니다. (데이터를 찾을때는 FindExcelDataBase를 이용해야합니다.)
+    /// </summary>
+    /// <param name="sheetName :">원하는 시트 이름</param>
+    /// <returns>해당 시트 데이터 베이스의 포언터</returns>
+    const ExcelDataBase::DataBaseType* GetRowDataBase(const std::string& sheetName);
+
 private:
     SingletonObject<ExcelDataSystem> _singletonObject;
+    SingletonComponent<ExcelDataSystem> _singletonComponent;
 
 public:
     REFLECT_PROPERTY()
@@ -129,5 +145,5 @@ private:
 #endif
     void ImGuiDrawExcelParserEdit();
     void ImGuiDrawDataSheetView();
-
+    void ImGuiDrawFindTest(const std::string& viewerSheetName);
 };
