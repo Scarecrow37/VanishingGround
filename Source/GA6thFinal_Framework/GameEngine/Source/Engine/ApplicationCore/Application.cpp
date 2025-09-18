@@ -132,9 +132,6 @@ void Application::Run()
         }
         else
         {
-            //Is Play Update
-            UmCore->UpdateIsPlay();
-
             // Time System Update
             ETimeSystem::Engine::TimeSystemUpdate();
             float deltaTime = engineCore->Time.DeltaTime();
@@ -147,6 +144,7 @@ void Application::Run()
             {
                 _filesystemModule->Update();
                 Global::editorModule->Update();
+                Global::engineCore->UpdateIsPlay(); //에디터 업데이트 이후 플레이 여부 갱신 해야함
             }
 
             // AnimationUpdate
