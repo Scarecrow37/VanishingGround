@@ -132,6 +132,9 @@ void Application::Run()
         }
         else
         {
+            //Is Play Update
+            UmCore->UpdateIsPlay();
+
             // Time System Update
             ETimeSystem::Engine::TimeSystemUpdate();
             float deltaTime = engineCore->Time.DeltaTime();
