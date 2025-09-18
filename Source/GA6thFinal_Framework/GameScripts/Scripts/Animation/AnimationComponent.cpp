@@ -338,7 +338,7 @@ void AnimationComponent::ImGuiDrawPropertysEvent()
         }
         _delayProcess.clear();
 
-        if (false == Global::IsPlay())
+        if (false == UmCore->IsPlay())
         {
             // 애니메이터가 해당 객체만 사용 중이라면 reset합니다.
             UpdateNullAnimator();

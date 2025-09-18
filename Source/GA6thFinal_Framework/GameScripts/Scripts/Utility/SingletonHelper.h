@@ -38,7 +38,7 @@ public:
     /// </summary>
     void SetSingleTon()
     {
-        if (false == Global::IsPlay())
+        if (false == UmCore->IsPlay())
         {
             SingletonObjectStatic = &_owner->gameObject;
         }
@@ -51,7 +51,7 @@ public:
     /// <returns>성공 여부</returns>
     bool TrySingleTon(bool dontDestroyOnLoad)
     {
-        if (true == Global::IsPlay())
+        if (true == UmCore->IsPlay())
         {
             if (nullptr == SingletonObjectStatic || SingletonObjectStatic == &_owner->gameObject)
             {
@@ -114,7 +114,7 @@ public:
     /// </summary>
     void SetSingleTon()
     {
-        if (false == Global::IsPlay())
+        if (false == UmCore->IsPlay())
         {
             SingletonComponentStatic = _owner;
         }
@@ -126,7 +126,7 @@ public:
     /// <returns>성공 여부</returns>
     bool TrySingleTon()
     {
-        if (true == Global::IsPlay())
+        if (true == UmCore->IsPlay())
         {
             if (nullptr == SingletonComponentStatic)
             {
