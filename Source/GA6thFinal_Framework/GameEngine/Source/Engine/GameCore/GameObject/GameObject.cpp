@@ -119,7 +119,7 @@ void GameObject::OnInspectorStay()
     {
         if (result)
         {
-            if (false == Global::IsPlay())
+            if (false == UmCore->IsPlay())
             {
                 Scene* ownerScene = UmSceneManager.GetSceneByName(_ownerScene);
                 if (ownerScene)

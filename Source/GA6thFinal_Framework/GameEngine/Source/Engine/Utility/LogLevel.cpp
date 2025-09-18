@@ -8,7 +8,7 @@ LogLocation::LogLocation(const nullptr_t& null)
 
 LogLocation::LogLocation(const std::source_location& location)
 {
-    LogLocation::EngineLocationInfo& locationInfo = engineCore->LocationInfo;
+    LogLocation::EngineLocationInfo& locationInfo = engineCore->_locationInfo;
     {
         auto [iter, result] = locationInfo.lineInfoSet.insert(location.line());
         const uint_least32_t& value = *iter;

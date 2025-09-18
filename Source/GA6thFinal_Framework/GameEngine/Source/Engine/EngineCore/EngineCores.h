@@ -3,11 +3,18 @@
 // 엔진 코어들을 모아놓은 관리 클래스
 class EngineCores
 {
+    friend class Application;
     friend LogLocation::LogLocation(const std::source_location& location);
 
 public:
     EngineCores(Application& app);
     ~EngineCores();
+
+#ifdef _UMEDITOR
+    bool IsPlay() const { return _isPlay; }
+#else
+    inline static constexpr bool IsPlay() { return true; }
+#endif
 
     ETimeSystem              Time;
     ESceneManager            SceneManager;
@@ -28,7 +35,13 @@ public:
 
     ReflectHelper::ImGuiDraw::InputAutoSetting ImGuiDrawPropertysSetting;
 private:
-    LogLocation::EngineLocationInfo LocationInfo;
+    LogLocation::EngineLocationInfo _locationInfo;
+
+private:
+    void UpdateIsPlay();
+#ifdef _UMEDITOR
+    bool _isPlay;
+#endif
 };
 
 // 안전한 접근 및 DLL에서 엔진 코어를 접근하기 위한 Wrapper 구조체
