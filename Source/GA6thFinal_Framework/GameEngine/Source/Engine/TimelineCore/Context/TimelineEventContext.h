@@ -31,11 +31,15 @@ namespace Timeline
         bool IsValidID() const;
         bool IsSameEvent(const EventContext* other) const;
 
-        virtual void OnNotify() {};
+        /// <summary>
+        /// 알림이 발생했을 때 호출되는 가상 함수입니다. 호출 시 동작할 동작을 오버라이딩하여 구현해야합니다.
+        /// </summary>
+        virtual void OnNotify() {}
+        virtual void ImGuiDrawPropertysEvent() {}
 
     protected:
         /// <summary>
-        /// typeID를 통해 이벤트를 생성해야하는 인터페이스 함수입니다.
+        /// typeID를 통해 콘텍스트를 생성해야하는 인터페이스 함수입니다.
         /// </summary>
         /// <param name="typeNameID">해당 이벤트의 typenameID</param>
         virtual void RequireEvent(std::string_view typeNameID) {};
