@@ -52,7 +52,7 @@ float4 ps_main(PSInput pin) : SV_Target0
 {
     // 노이즈 샘플
     float2 nUV = FlowUV(pin.uv, noiseTiling, noiseScroll, t);
-    float n = NoiseTex.Sample(LinearClamp, nUV).r;
+    float n = NoiseTex.Sample(samLinear_clamp, nUV).r;
 
     // 진행선: 아래(uv.y=0)에서 위(uv.y=1)로
     // 만약 텍스처가 상단이 0이라면 uv.y를 (1-uv.y)로 바꾸세요.
@@ -69,21 +69,21 @@ float4 ps_main(PSInput pin) : SV_Target0
 
     // 가장자리 근처만 UV 왜곡(열기 슈머)
     float2 kUV = FlowUV(pin.uv, distortTiling, distortScroll, t);
-    float2 k2 = NoiseTex.Sample(LinearClamp, kUV).rg * 2.0 - 1.0;
+    float2 k2 = NoiseTex.Sample(samLinear_clamp, kUV).rg * 2.0 - 1.0;
     float2 uvD = pin.uv + k2 * (distortStrength * e);
 
-    float4 baseCol = BaseTex.Sample(LinearClamp, uvD);
-
+    //float4 baseCol = Base.Sample(samLinear_clamp, uvD);
+    float4 baseCol = 0;
+    
     // 그을음 적용
     float scorchFactor = lerp(1.0, 0.35, s);
     baseCol.rgb *= scorchFactor;
 
     // 가장자리 발광: 램프 x=e (0~1)
-    float3 edgeGlow = EdgeRampTex.Sample(LinearClamp, float2(e, 0.5)).rgb * (e * glowIntensity);
+    float3 edgeGlow = EdgeRampTex.Sample(samLinear_clamp, float2(e, 0.5)).rgb * (e * glowIntensity);
 
     float3 finalRGB = baseCol.rgb + edgeGlow;
     float finalA = baseCol.a;
 
-    o.color = float4(finalRGB, finalA);
-    return o;
+    return float4(finalRGB, finalA);
 }
