@@ -6,6 +6,11 @@ struct PSInput
     float2 uv : TEXCOORD;
 };
 
+cbuffer bit32_1_isssao
+{
+    uint UseSSAO;
+};
+
 Texture2DArray shadowMap;
 TextureCube irradianceMap;
 TextureCube prefilteredMap;
@@ -36,7 +41,9 @@ float4 ps_main(PSInput input) : SV_Target
     float roughness = orm.g;
     float metallic = orm.b;
     
-    float ssao = SSAOMap.SampleLevel(samLinear_wrap, input.uv,0).r;
+    float ssao = 1;
+    if (1==UseSSAO)
+        ssao = SSAOMap.SampleLevel(samLinear_wrap, input.uv, 0).r;
     float3 viewPos = cameraData.Position.xyz;
     
     float4 NDC = float4(input.uv * 2.0 - 1, depth, 1.0);
