@@ -2,6 +2,8 @@
 #include "SkeletalMeshRenderer.h"
 #include <Animation/AnimationComponent.h>
 
+UMREAL_COMPONENT(SkeletalMeshRenderer)
+
 SkeletalMeshRenderer::SkeletalMeshRenderer() 
 {
     FilePath.SetInputAutoEvent([this]() 

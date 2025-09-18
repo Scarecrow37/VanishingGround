@@ -1,5 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "TokenSystem.h"
+#include "DLLExportDefine.h"
+
+UMREAL_COMPONENT(TokenSystem)
 
 TokenSystem::TokenSystem() 
 {

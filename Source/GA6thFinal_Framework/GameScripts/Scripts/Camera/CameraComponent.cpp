@@ -1,5 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "CameraComponent.h"
+#include "DLLExportDefine.h"
+
+UMREAL_COMPONENT(CameraComponent)
 
 CameraComponent::CameraComponent() 
     : 

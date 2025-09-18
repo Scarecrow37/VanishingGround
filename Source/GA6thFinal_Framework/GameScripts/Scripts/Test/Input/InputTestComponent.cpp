@@ -1,5 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "InputTestComponent.h"
+
+UMREAL_COMPONENT(InputTestComponent)
+
 InputTestComponent::InputTestComponent()
 {
     _leftTrriger = 0.f;

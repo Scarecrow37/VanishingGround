@@ -6,6 +6,8 @@
 #include "UI/Elements/Text/TextElement.h"
 #include "UI/Panels/Description/DescriptionPanel.h"
 
+UMREAL_COMPONENT(WeaponView)
+
 WeaponView::WeaponView() = default;
 
 WeaponView::~WeaponView()

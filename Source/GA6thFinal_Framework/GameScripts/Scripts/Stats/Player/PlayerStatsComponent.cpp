@@ -1,6 +1,9 @@
 ﻿#include "pchScripts.h"
 #include "PlayerStatsComponent.h"
 #include "PlayerStats.h"
+#include "DLLExportDefine.h"
+
+UMREAL_COMPONENT(PlayerStatsComponent)
 
 PlayerStatsComponent::PlayerStatsComponent() = default;
 PlayerStatsComponent::~PlayerStatsComponent() = default;

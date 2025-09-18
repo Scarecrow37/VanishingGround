@@ -1,5 +1,9 @@
 ﻿#include "pchScripts.h"
 #include "GridPanel.h"
+#include "DLLExportDefine.h"
+
+UMREAL_COMPONENT(GridPanel)
+UMREAL_COMPONENT(GridPanelSlot)
 
 GridPanelSlot::GridPanelSlot() = default;
 

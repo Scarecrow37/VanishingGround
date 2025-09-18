@@ -2,6 +2,9 @@
 #include "MapPlayerHPView.h"
 #include "UI/Elements/Image/ImageElement.h"
 #include "UI/Elements/Text/TextElement.h"
+#include "DLLExportDefine.h"
+
+UMREAL_COMPONENT(MapPlayerHPView)
 
 MapPlayerHPView::MapPlayerHPView()  = default;
 

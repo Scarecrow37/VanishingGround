@@ -1,6 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "DummyElement.h"
 
+UMREAL_COMPONENT(DummyElement)
+
 DummyElement::DummyElement() = default;
 
 SIZE DummyElement::MeasureOverride(const SIZE availableSize)

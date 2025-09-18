@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "DLLExportDefine.h"    
+    
 
 class TestComponent : public Component
 {

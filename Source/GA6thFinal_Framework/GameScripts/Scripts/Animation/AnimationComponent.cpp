@@ -1,6 +1,9 @@
 ﻿#include "pchScripts.h"
 #include "AnimationComponent.h"
 #include <Mesh/SkeletalMeshRenderer.h>
+#include "DLLExportDefine.h"
+
+UMREAL_COMPONENT(AnimationComponent)
 
 void AnimationComponent::Reset() 
 {

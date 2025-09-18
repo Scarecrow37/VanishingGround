@@ -1,6 +1,10 @@
 ﻿#include "pchScripts.h"
 #include "HorizontalPanel.h"
 #include <numeric>
+#include "DLLExportDefine.h"
+
+UMREAL_COMPONENT(HorizontalPanel)
+UMREAL_COMPONENT(HorizontalPanelSlot)
 
 HorizontalPanel::HorizontalPanel() = default;
 

@@ -2,6 +2,9 @@
 #include "WeaponSystem.h"
 #include <WeaponSystem/WeaponTable/WeaponTableComponent.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
+#include "DLLExportDefine.h"
+
+UMREAL_COMPONENT(WeaponSystem)
 
 WeaponSystem::WeaponSystem()
 {

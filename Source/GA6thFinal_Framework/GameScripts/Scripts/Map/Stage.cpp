@@ -1,6 +1,9 @@
 ﻿#include "pchScripts.h"
 #include "Stage.h"
 #include "ViewModels/Map/StageViewModel.h"
+#include "DLLExportDefine.h"
+
+UMREAL_COMPONENT(Stage)
 
 Stage::Stage()
 {
