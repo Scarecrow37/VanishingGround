@@ -8,6 +8,9 @@
 #include "ItemDropSystem/UI/ArtifactUIManager.h"
 #include "ViewModels/ItemDrop/DropArtifacts/DropArtifactsViewModel.h"
 
+
+UMREAL_COMPONENT(ItemDropSystem)
+
 //내부 사용 구조체 및 enum
 namespace
 {

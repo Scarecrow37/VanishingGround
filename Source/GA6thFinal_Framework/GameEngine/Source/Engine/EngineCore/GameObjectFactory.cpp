@@ -342,11 +342,11 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
 
     bool isPrefabInstance = false;
     int nodeIndex = 0;
-    for (auto node : nodes)
+    for (auto currIter = nodes.begin(); currIter != nodes.end(); ++currIter)
     {
         // 오브젝트 초기화
         std::shared_ptr<GameObject> currObject;
-        YAML::Node& currNode = node;
+        const YAML::Node& currNode = *currIter;
         std::string Type = currNode["Type"].as<std::string>();
         File::Guid prefabGuid = STR_NULL;
         if (currNode["Prefab"])
@@ -371,9 +371,9 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
             auto findParentIter = transformParentLevelMap.find(parentIndex);
             if (findParentIter != transformParentLevelMap.end())
             {
-                auto& parent = findParentIter->second;
-				if (false == isPrefabObject || STR_NULL == parent->_prefabGuid)
-				{
+                if (false == parentPrefabObjectsMap.empty())
+                {
+                    auto&      parent       = findParentIter->second;
                     Transform* findPrefabTr = &parent->_transform;
                     while (nullptr != findPrefabTr)
                     {
@@ -385,7 +385,7 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
                     }
 
                     if (findPrefabTr)
-                    {
+                    {              
                         auto iterPrefabFindIter = parentPrefabObjectsMap.find(&findPrefabTr->_gameObject);
                         if (iterPrefabFindIter != parentPrefabObjectsMap.end())
                         {
@@ -396,17 +396,13 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
                                 queue.pop();
                                 isEmptyObject = false;
                             }
-							else
-							{
-                                isValidNode = false;
-							}
-                        }
-                    }          
-				}    
-				else
-				{
-                    isValidNode = false;
-				}
+                            else
+                            {
+                                parentPrefabObjectsMap.erase(iterPrefabFindIter);
+                            }
+                        }                                              
+                    }        
+                }          
             }
 			else
 			{
@@ -416,7 +412,8 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
              
         if (isValidNode)
         {
-            if (nullptr == currObject)
+            bool callSetParnet = true;
+            if (nullptr == currObject) 
             {
                 if (isPrefabObject && 0 < nodeIndex)
                 {
@@ -433,10 +430,7 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
                         for (int i = 1; i < objects.size(); ++i)
                         {
                             auto& obj = objects[i];
-                            if (obj->_prefabGuid == STR_NULL)
-                            {
-                                queue.push(obj);
-                            }
+                            queue.push(obj);                           
                         }
                     }
                 }
@@ -451,6 +445,10 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
                     ParsingYamlToGameObject(currObject.get(), currNode);
                 }
             }
+            else
+            {
+                callSetParnet = false; // 이미 프리팹에서 부모 설정 완료했기 때문에 호출할 필요 없음
+            }
 
             // 프리팹 추적
             if (isPrefabObject)
@@ -461,14 +459,18 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
                     instanceList.emplace_back(currObject);
                     if (nullptr != pSceneObjectNode)
                     {
-                        const YAML::Node& currSceneNodes = *sceneNodes;
-                        ParsingYamlToGameObject(currObject.get(), currSceneNodes);
+                        if (sceneNodes != pSceneObjectNode->end())
+                        {
+                            const YAML::Node& currSceneNodes = *sceneNodes;
+                            ParsingYamlToGameObject(currObject.get(), currSceneNodes);
+                        }
+                        else
+                        {
+                            pSceneObjectNode = nullptr;
+                        }
                     }
                 }
-                else
-                {
-                    currObject->_prefabGuid = prefabGuid;
-                }
+                currObject->_prefabGuid = prefabGuid;
                 isPrefabInstance = true;
             }
 
@@ -476,11 +478,14 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
             transformParentLevelMap[transformIndex] = currObject;
             if (parentIndex != transformIndex)
             {
-                if ((isPrefabObject && 0 <= parentIndex) || (isEmptyObject && 0 <= parentIndex))
+                if (callSetParnet)
                 {
-                    Transform* pParent = &transformParentLevelMap[parentIndex]->_transform;
-                    currObject->_transform.SetParentEx(pParent, false, false);                  
-                }			
+                    if ((isPrefabObject && 0 <= parentIndex) || (isEmptyObject && 0 <= parentIndex))
+                    {
+                        Transform* pParent = &transformParentLevelMap[parentIndex]->_transform;
+                        currObject->_transform.SetParentEx(pParent, false, false);
+                    }
+                }	
             }
 
             // 컴포넌트들 역직렬화
@@ -528,8 +533,7 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
                         const YAML::Node& currSceneNodes = *sceneNodes;
                         if (sceneComponentNodeIter != currSceneNodes["Components"].end())
                         {
-                            bool result =
-                                UmComponentFactory.ParsingYamlToOverrideFlags(component, *sceneComponentNodeIter);
+                            bool result = UmComponentFactory.ParsingYamlToOverrideFlags(component, *sceneComponentNodeIter);
                             if (true == result)
                             {
                                 ++sceneComponentNodeIter;
@@ -556,10 +560,97 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
         ++nodeIndex;
     }
 
-    //게임 오브젝트의 _activeInHierarchy 계산
-    for (auto& object : makeList)
-    {
-        GameObject::Engine::ResetActiveInHierarchy(object.get());
+    if (false == makeList.empty())
+    {            
+        //원본 프리팹과 달라서 변경해야할 오브젝트 대상
+        std::unordered_set<GameObject*> eraseTargetMap;
+        eraseTargetMap.reserve(makeList.size());
+        std::vector<std::shared_ptr<GameObject>> pushTargetPrefabObjects;
+        pushTargetPrefabObjects.reserve(makeList.size());
+
+        // 게임 오브젝트의 _activeInHierarchy 계산
+        for (size_t i = 0; i < makeList.size(); ++i)
+        {
+            bool resetHierarchy = true;
+            auto& object = makeList[i];
+            if (false == useResource)
+            {
+                const File::Guid& objectPrefabGuid = object->_prefabGuid;
+                if (objectPrefabGuid != STR_NULL)
+                {
+                    auto prefabIter = _prefabObjectMap.find(objectPrefabGuid);
+                    if (prefabIter != _prefabObjectMap.end())
+                    {
+                        // 원본 프리팹과 계층구조 일치하도록 변경.
+                        auto&  originPrefabRoot      = prefabIter->second.front();
+                        size_t originDescendantCount = 0;
+                        Transform::ForeachExDFS(originPrefabRoot->_transform, false, [&originDescendantCount](Transform* curr) 
+                        { 
+                            ++originDescendantCount; 
+                        });
+
+                        size_t currObjDescedantCount = 0;
+                        Transform::ForeachExDFS(object->_transform, false, [&](Transform* curr) 
+                        {
+                            ++currObjDescedantCount;
+                            if (originDescendantCount < currObjDescedantCount)
+                            {
+                                eraseTargetMap.insert(&curr->_gameObject);
+                            }
+                        });
+
+                        if (originDescendantCount < currObjDescedantCount)
+                        {
+                            resetHierarchy = false;
+                        }
+                    }
+                }
+                
+                //프리팹에만 있어서 추가 해야하는 오브젝트들
+                auto iterPrefabFindIter = parentPrefabObjectsMap.find(object.get());
+                if (iterPrefabFindIter != parentPrefabObjectsMap.end())
+                {
+                    auto& queue = iterPrefabFindIter->second;
+                    while (false == queue.empty())
+                    {
+                        pushTargetPrefabObjects.push_back(std::move(queue.front()));
+                        queue.pop();
+                    }
+                    parentPrefabObjectsMap.erase(iterPrefabFindIter);                   
+                }                                              
+            }
+
+            if (resetHierarchy)
+            {
+                GameObject::Engine::ResetActiveInHierarchy(object.get());
+            }
+        }
+
+        // 원본 프리팹과 달라서 지워야할 오브젝트 제거
+        if (false == eraseTargetMap.empty())
+        {
+            std::erase_if(makeList, [&eraseTargetMap](auto& gameObject) 
+            { 
+                return eraseTargetMap.find(gameObject.get()) != eraseTargetMap.end();
+            });
+        }
+
+        //원본 프리팹과 달라서 추가해야할 오브젝트 추가
+        if (false == pushTargetPrefabObjects.empty())
+        {
+            for (auto& pushObject : pushTargetPrefabObjects)
+            {
+                makeList.push_back(std::move(pushObject));
+            }
+
+            //BFS 기준으로 재정렬 해야함
+            pushTargetPrefabObjects.clear();
+            Transform::ForeachExBFS(makeList.front()->_transform, false, [&pushTargetPrefabObjects](Transform* curr) 
+            {
+                pushTargetPrefabObjects.push_back(curr->_gameObject.GetWeakPtr().lock());
+            });
+            makeList = std::move(pushTargetPrefabObjects);
+        }
     }
     return makeList;
 }
@@ -600,6 +691,7 @@ std::shared_ptr<GameObject> EGameObjectFactory::DeserializeToGuid(const File::Gu
     }
     YAML::Node yamlData = SerializeToYaml(prefabIter->second[0].get());
     auto pObject = DeserializeToYaml(&yamlData, sceneNode);
+    PackPrefab(pObject.get(), guid);
     return pObject;
 }
 
@@ -622,6 +714,11 @@ std::shared_ptr<GameObject> EGameObjectFactory::DeserializeToSceneObject(YAML::N
 
 void EGameObjectFactory::WriteGameObjectFile(Transform* transform, std::string_view outPath)
 {
+    if (true == Global::IsPlay())
+    {
+        return; //플레이 할때는 불가능
+    }
+
     namespace fs     = std::filesystem;
     using fsPath     = std::filesystem::path;
     fsPath writePath = UmFileSystem.GetAssetPath();
@@ -848,10 +945,6 @@ void EGameObjectFactory::ParsingYamlToGameObject(GameObject* pObject, const YAML
 {
     const int SerializeVersion = objectNode["SerializeVersion"].as<int>();
 
-    if (objectNode["Prefab"])
-    {
-        pObject->_prefabGuid = objectNode["Prefab"].as<std::string>();
-    }
     std::string ReflectFields = objectNode["ReflectFields"].as<std::string>(); 
     yyjson_doc* jsonDoc  = yyjson_read(ReflectFields.c_str(), ReflectFields.size(), 0);
     yyjson_val* jsonRoot = yyjson_doc_get_root(jsonDoc);

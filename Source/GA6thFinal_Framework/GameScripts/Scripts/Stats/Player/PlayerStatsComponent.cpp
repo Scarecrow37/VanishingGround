@@ -2,6 +2,9 @@
 #include "PlayerStatsComponent.h"
 #include "PlayerStats.h"
 
+
+UMREAL_COMPONENT(PlayerStatsComponent)
+
 PlayerStatsComponent::PlayerStatsComponent() = default;
 PlayerStatsComponent::~PlayerStatsComponent() = default;
 

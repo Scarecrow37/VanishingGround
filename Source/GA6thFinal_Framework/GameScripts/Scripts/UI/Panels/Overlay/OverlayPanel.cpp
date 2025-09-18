@@ -1,6 +1,9 @@
 ﻿#include "pchScripts.h"
 #include "OverlayPanel.h"
 
+
+UMREAL_COMPONENT(OverlayPanel)
+
 OverlayPanel::OverlayPanel() = default;
 
 SIZE OverlayPanel::MeasureOverride(SIZE availableSize)

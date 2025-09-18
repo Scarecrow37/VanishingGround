@@ -3,6 +3,9 @@
 #include "UI/Elements/Image/ImageElement.h"
 #include "UI/Elements/Text/TextElement.h"
 
+
+UMREAL_COMPONENT(MapPlayerHPView)
+
 MapPlayerHPView::MapPlayerHPView()  = default;
 
 MapPlayerHPView::~MapPlayerHPView()

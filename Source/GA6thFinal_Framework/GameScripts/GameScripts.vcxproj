@@ -304,12 +304,10 @@
   <ItemGroup>
     <ClInclude Include="DLLExportDefine.h" />
     <ClInclude Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.h" />
-    <ClInclude Include="Scripts\Audio\BGMManager.h" />
-    <ClInclude Include="Scripts\Audio\Table\AudioTableComponent.h" />
+    <ClInclude Include="Scripts\Audio\AudioTableComponent.h" />
     <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h" />
     <ClInclude Include="Scripts\EnemyAction\ActionData\EnemyActionData.h" />
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
-    <ClInclude Include="Scripts\Audio\AudioComponent.h" />
     <ClInclude Include="Scripts\BattleSystem\Battle.h" />
     <ClInclude Include="Scripts\ColorUtils\ColorUtils.h" />
     <ClInclude Include="Scripts\EnemyAction\System\EnemyActionSystem.h" />
@@ -331,6 +329,11 @@
     <ClInclude Include="Scripts\Map\RewardPopup.h" />
     <ClInclude Include="Scripts\Map\SmoothScroll.h" />
     <ClInclude Include="Scripts\Map\Stage.h" />
+    <ClInclude Include="Scripts\Preferences\Button\EnableButton.h" />
+    <ClInclude Include="Scripts\Preferences\Button\PreferencesButton.h" />
+    <ClInclude Include="Scripts\Preferences\Button\TextureLMH.h" />
+    <ClInclude Include="Scripts\Preferences\PreferencesManager.h" />
+    <ClInclude Include="Scripts\Preferences\PrefrencesWindow.h" />
     <ClInclude Include="Scripts\QTE\Editor\QTEEditor.h" />
     <ClInclude Include="Scripts\QTE\Result\QTEResult.h" />
     <ClInclude Include="Scripts\QTE\System\QTESystem.h" />
@@ -376,6 +379,7 @@
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionFactory.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnSystemHelper.h" />
+    <ClInclude Include="Scripts\UINavigation\TempNavigationComponent.h" />
     <ClInclude Include="Scripts\UI\Base\DrawUIComponent\DrawUIComponent.h" />
     <ClInclude Include="Scripts\UI\Base\SlotComponent\SlotComponent.h" />
     <ClInclude Include="Scripts\UI\Elements\Dummy\DummyElement.h" />
@@ -483,11 +487,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.cpp" />
-    <ClCompile Include="Scripts\Audio\BGMManager.cpp" />
-    <ClCompile Include="Scripts\Audio\Table\AudioTableComponent.cpp" />
+    <ClCompile Include="Scripts\Audio\AudioTableComponent.cpp" />
     <ClCompile Include="Scripts\EnemyAction\Factory\EnemyActionFactory.cpp" />
     <ClCompile Include="Scripts\EnemyAction\ActionData\EnemyActionData.cpp" />
-    <ClCompile Include="Scripts\Audio\AudioComponent.cpp" />
     <ClCompile Include="Scripts\BattleSystem\Battle.cpp" />
     <ClCompile Include="Scripts\ColorUtils\ColorUtils.cpp" />
     <ClCompile Include="Scripts\EnemyAction\System\EnemyActionSystem.cpp" />
@@ -509,6 +511,11 @@
     <ClCompile Include="Scripts\Map\RewardPopup.cpp" />
     <ClCompile Include="Scripts\Map\SmoothScroll.cpp" />
     <ClCompile Include="Scripts\Map\Stage.cpp" />
+    <ClCompile Include="Scripts\Preferences\Button\EnableButton.cpp" />
+    <ClCompile Include="Scripts\Preferences\Button\PreferencesButton.cpp" />
+    <ClCompile Include="Scripts\Preferences\Button\TextureLMH.cpp" />
+    <ClCompile Include="Scripts\Preferences\PreferencesManager.cpp" />
+    <ClCompile Include="Scripts\Preferences\PrefrencesWindow.cpp" />
     <ClCompile Include="Scripts\QTE\Editor\QTEEditor.cpp" />
     <ClCompile Include="Scripts\QTE\System\QTESystem.cpp" />
     <ClCompile Include="Scripts\QTE\Track\Note\QTENote.cpp" />
@@ -561,6 +568,7 @@
     <ClCompile Include="Scripts\Particle\ParticleComponent.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\TurnAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnSystemHelper.cpp" />
+    <ClCompile Include="Scripts\UINavigation\TempNavigationComponent.cpp" />
     <ClCompile Include="Scripts\UI\Base\DrawUIComponent\DrawUIComponent.cpp" />
     <ClCompile Include="Scripts\UI\Base\SlotComponent\SlotComponent.cpp" />
     <ClCompile Include="Scripts\UI\Elements\Dummy\DummyElement.cpp" />

@@ -5,9 +5,9 @@
 #include "FogCompositePass.h"
 #include "RenderPass.h"
 
-VolumetricFogTechnique::VolumetricFogTechnique(){}
+VolumetricFogTechnique::VolumetricFogTechnique() = default;
 
-VolumetricFogTechnique::~VolumetricFogTechnique() {}
+VolumetricFogTechnique::~VolumetricFogTechnique() = default;
 
 void VolumetricFogTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 {
@@ -37,9 +37,11 @@ void VolumetricFogTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
     pass = std::make_unique<FogLightInjectionPass>();
     pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));
+
     pass = std::make_unique<FogLightAccmulatePass>();
     pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));
+
     pass = std::make_unique<FogCompositePass>();
     pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));
@@ -56,12 +58,13 @@ void VolumetricFogTechnique::Execute(ID3D12GraphicsCommandList* commandList)
 
 void VolumetricFogTechnique::UpdateConstantBuffer()
 {
-    const auto& volumetricFogProperty =
-        std::any_cast<const VolumetricFogProperty&>(_ownerScene->GetRenderPassProperty("VolumetricFogData"));
+    const auto& volumetricFogProperty = std::any_cast<const VolumetricFogProperty&>(Global::renderPassDatas->GetRenderPassProperty("VolumetricFogData"));
+
     XMMATRIX view = _ownerScene->_camera->GetViewMatrix();
     XMMATRIX proj = _ownerScene->_camera->GetProjectionMatrix();
     XMMATRIX viewProj = XMMatrixMultiply(view, proj);
     XMMATRIX invViewProj = XMMatrixInverse(nullptr, viewProj);
+
     // 상수 버퍼 관련 update
     VolumetricFogData fogData;
     fogData.FogAnisotropy                    = volumetricFogProperty.FogAnisotropy;

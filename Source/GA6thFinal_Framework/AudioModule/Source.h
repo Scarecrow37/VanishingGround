@@ -20,10 +20,11 @@ namespace Audio
         ~Source();
 
     protected:
-        Source(const WAVEFORMATEXTENSIBLE& format, const XAUDIO2_BUFFER& buffer);
+        Source(const WAVEFORMATEXTENSIBLE& format, const BYTE* buffer, UINT32 bytes);
 
     private:
         WAVEFORMATEXTENSIBLE _format;
-        XAUDIO2_BUFFER       _buffer;
+        const BYTE*          _buffer;
+        UINT32               _bytes;
     };
 } // namespace Audio

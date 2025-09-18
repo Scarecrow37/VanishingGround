@@ -1,6 +1,9 @@
 ﻿#include "pchScripts.h"
 #include "EnemyActionSystem.h"
 
+
+UMREAL_COMPONENT(EnemyActionSystem)
+
 EnemyActionSystem::EnemyActionSystem() 
 {
 

@@ -2,6 +2,8 @@
 #include "AccessorySystem.h"
 #include "TurnSystem/TurnAction/TurnActionFactory.h"
 
+UMREAL_COMPONENT(AccessorySystem)
+
 using namespace u8_literals;
 
 AccessorySystem::AccessorySystem()

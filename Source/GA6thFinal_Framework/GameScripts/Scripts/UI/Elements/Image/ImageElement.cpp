@@ -1,6 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "ImageElement.h"
 
+UMREAL_COMPONENT(ImageElement)
+
 ImageElement::ImageElement()
 {
     FilePath.SetInputAutoEvent([this]() {

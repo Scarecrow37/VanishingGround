@@ -1,7 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "CharacterBase.h"
 
-#include "Audio/Table/AudioTableComponent.h"
+#include "Audio/AudioTableComponent.h"
 #include "Stats/CharacterStats.h"
 #include "TurnSystem/TurnMode/TurnMode.h"
 

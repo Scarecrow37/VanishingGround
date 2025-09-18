@@ -1,6 +1,9 @@
 ﻿#include "pchScripts.h"
 #include "WeaponTableComponent.h"
 
+
+UMREAL_COMPONENT(WeaponTableComponent)
+
 using namespace u8_literals;
 
 WeaponTableComponent::WeaponTableComponent()

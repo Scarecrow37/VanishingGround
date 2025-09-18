@@ -334,7 +334,27 @@ bool Transform::IsDescendantOf(Transform* potentialAncestor) const
     {
         if (currentParent == potentialAncestor)
             return true;
+
         currentParent = currentParent->_parent;
+    }
+    return false;
+}
+
+bool Transform::IsPrefabDescendantOf(Transform* target) const
+{
+    const File::Guid& targetGuid = target->_gameObject.PrefabGuid;
+    const Transform*  current    = this;
+    while (current)
+    {
+        if (targetGuid != STR_NULL)
+        {
+            const File::Guid& currentGuid = current->_gameObject.PrefabGuid;
+            if (currentGuid == targetGuid)
+            {
+                return true;
+            }
+        }
+        current = current->_parent;
     }
     return false;
 }
@@ -456,6 +476,14 @@ void Transform::SetParentEx(Transform* p, bool worldPositionStays, bool callEven
                 {
                     return;
                 }
+
+                #ifdef _UMEDITOR
+                if (true == p->IsPrefabDescendantOf(this))
+                {
+                    UmLogger.Log(LogLevel::LEVEL_WARNING, u8"자신의 프리팹을 자식으로 넣을 수 없습니다.");
+                    return;
+                }
+                #endif 
             }
 
             Transform* prevParent = this->_parent;

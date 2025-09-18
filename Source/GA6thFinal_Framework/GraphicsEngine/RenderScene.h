@@ -19,7 +19,6 @@ public:
     std::shared_ptr<Camera>      GetCamera() const { return _camera; }
     D3D12_GPU_DESCRIPTOR_HANDLE  GetFinalImage();
     SkyBox*                      GetSkyBox() { return _skyBox.get(); };
-    const std::any&              GetRenderPassProperty(std::string_view passName) const;
     SharedResource<RenderTarget> GetSharedRenderTarget() const;
     const bool                   IsDirtyFlag() const { return _isDirtyFlag; }
 

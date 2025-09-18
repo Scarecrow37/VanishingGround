@@ -34,9 +34,12 @@ void RenderTechnique::Execute(ID3D12GraphicsCommandList* commandList)
     {
         for (auto& pass : _renderPasses)
         {
-            pass->Begin(commandList);
-            pass->Draw(commandList);
-            pass->End(commandList);
+            if (pass->IsEnable())
+            {
+                pass->Begin(commandList);
+                pass->Draw(commandList);
+                pass->End(commandList);
+            }
         }
     }
 }

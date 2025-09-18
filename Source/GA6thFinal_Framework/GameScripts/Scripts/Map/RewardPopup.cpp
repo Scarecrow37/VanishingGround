@@ -3,6 +3,9 @@
 #include "UI/Elements/Image/ImageElement.h"
 #include "Map/Stage.h"
 
+
+UMREAL_COMPONENT(RewardPopup)
+
 RewardPopup::RewardPopup() = default;
 RewardPopup::~RewardPopup()
 {
