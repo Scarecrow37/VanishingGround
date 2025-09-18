@@ -1,10 +1,8 @@
-﻿#pragma once 
-
+﻿#pragma once
 
 class PreferencesManager : public Component, public InputReceiver
 {
     USING_PROPERTY(PreferencesManager)
-
 public:
     PreferencesManager();
     ~PreferencesManager() override;
@@ -12,7 +10,9 @@ public:
 public:
     void Reset() override;
     void Awake() override;
-    void Update() override;
+
+public:
+    void SetGraphicsOptions(std::string_view option, bool enable);
 
 private:
     void OnPreferencesWindow(const Input::Controller&);
@@ -27,5 +27,6 @@ protected:
     REFLECT_FIELDS_END(PreferencesManager)
 
 private:
-    MVVM::Model<bool> _buttonEnable;
+    GameObject*                        _preferencesPannel;
+    std::map<std::string, GameObject*> _graphicsOption;
 };

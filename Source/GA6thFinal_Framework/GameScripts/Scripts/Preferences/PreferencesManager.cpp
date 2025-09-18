@@ -15,29 +15,37 @@ void PreferencesManager::Reset()
 
 void PreferencesManager::Awake()
 {
-    auto pannel = GameObject::Find("PreferencesPannel");
-    if (nullptr == pannel.lock())
+    _preferencesPannel = GameObject::Find("PreferencesPannel").lock().get();
+    if (nullptr == _preferencesPannel)
         UmLogger.Log(LogLevel::LEVEL_ERROR, "환경설정 패널이 없습니다!");
-    else if (nullptr != pannel.lock())
-        pannel.lock()->SetActive(false);
+    else if (nullptr != _preferencesPannel)
+        _preferencesPannel->SetActive(false);
 }
 
-void PreferencesManager::Update() {}
+void PreferencesManager::SetGraphicsOptions(std::string_view option, bool enable) 
+{
+    if ("SSR" == option)
+        UmPreferences.SetSSR(enable);
+    else if ("SSAO" == option)
+        UmPreferences.SetSSAO(enable);
+    else if ("Bloom" == option)
+        UmPreferences.SetBloom(enable);
+    else if ("VolumetricFog" == option)
+        UmPreferences.SetVolumetricFog(enable);
+}
 
 void PreferencesManager::OnPreferencesWindow(const Input::Controller&)
 {
-    auto pannel = GameObject::Find("PreferencesPannel");
-    if (nullptr == pannel.lock())
+    if (nullptr == _preferencesPannel)
         UmLogger.Log(LogLevel::LEVEL_ERROR, "환경설정 패널이 없습니다!");
-    else if (nullptr != pannel.lock())
-        pannel.lock()->SetActive(true);
+    else if (nullptr != _preferencesPannel)
+        _preferencesPannel->SetActive(true);
 }
 
 void PreferencesManager::OffPreferencesWindow(const Input::Controller&)
 {
-    auto pannel = GameObject::Find("PreferencesPannel");
-    if (nullptr == pannel.lock())
+    if (nullptr == _preferencesPannel)
         UmLogger.Log(LogLevel::LEVEL_ERROR, "환경설정 패널이 없습니다!");
-    else if (nullptr != pannel.lock())
-        pannel.lock()->SetActive(false);
+    else if (nullptr != _preferencesPannel)
+        _preferencesPannel->SetActive(false);
 }

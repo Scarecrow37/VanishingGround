@@ -5,6 +5,8 @@ class EnableButton : public UINavigationComponent,public InputReceiver
 {
     USING_PROPERTY(EnableButton)
 
+    std::vector<const char*> _grphicsOptions = {"SSR", "SSAO", "Bloom", "VolumetricFog"};
+
 public:
     EnableButton();
     ~EnableButton() override;
@@ -16,7 +18,7 @@ public:
     void Update() override;
 
 public:
-    REFLECT_PROPERTY(OnFocus,OnNonFocus,OffFocus,OffNonFocus)
+    REFLECT_PROPERTY(OnFocus,OnNonFocus,OffFocus,OffNonFocus,CurrentOption)
 
     GETTER_ONLY(std::string, OnFocus) { return _onFocusImage.ToPath().string(); }
     PROPERTY(OnFocus)
@@ -29,6 +31,9 @@ public:
 
     GETTER_ONLY(std::string, OffNonFocus) { return _offNonFocusImage.ToPath().string(); }
     PROPERTY(OffNonFocus)
+    
+    GETTER_ONLY(std::string, CurrentOption) { return _currentOption; }
+    PROPERTY(CurrentOption)
 
 protected:
     void FocusIn() override;
@@ -42,6 +47,7 @@ private:
     void ChangeOptionStick(const Input::Controller&);
     void FocusPref(bool isfocus);
     void GetChildObject();
+    void ChangeOption();
 
 protected:
     REFLECT_FIELDS_BEGIN(UINavigationComponent)
@@ -49,6 +55,7 @@ protected:
     std::string OnNonFocusGuid;
     std::string OffFocusGuid;
     std::string OffNonFocusGuid;
+    std::string CurrentOptionStr;
     REFLECT_FIELDS_END(EnableButton)
 private:
     File::GuidRef _onFocusImage;
@@ -57,9 +64,13 @@ private:
     File::GuidRef _offNonFocusImage;
     bool          _isOptionOn = true;
     bool          _isFocus    = false;
-
+   
 private:
     GameObject* _leftArrow;
     GameObject* _rightArrow;
     GameObject* _pref;
+    class PreferencesManager* _preferencesManager;
+
+    int _currentOptionInt = 0;
+    std::string _currentOption;
 };
