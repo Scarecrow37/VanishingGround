@@ -4,6 +4,9 @@
 #include "ItemDropSystem/ItemDropSystem.h"
 #include "RevelationSystem/RevelationSystem.h"
 
+
+UMREAL_COMPONENT(ItemDropUIRootManager)
+
 ItemDropUIRootManager::ItemDropUIRootManager()
 {
     

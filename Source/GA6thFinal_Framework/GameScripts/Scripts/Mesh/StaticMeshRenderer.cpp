@@ -1,6 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "StaticMeshRenderer.h"
 
+UMREAL_COMPONENT(StaticMeshRenderer)
+
 StaticMeshRenderer::StaticMeshRenderer() 
 {    
     FilePath.SetInputAutoEvent([this]()

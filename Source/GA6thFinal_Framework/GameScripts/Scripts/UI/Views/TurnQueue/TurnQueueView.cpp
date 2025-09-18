@@ -4,6 +4,8 @@
 #include "ViewModels/TurnQueue/TurnQueueViewModel.h"
 #include "UI/Elements/Image/ImageElement.h"
 
+UMREAL_COMPONENT(TurnQueueView)
+
 TurnQueueView::TurnQueueView() = default;
 
 TurnQueueView::~TurnQueueView()

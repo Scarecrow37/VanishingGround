@@ -4,6 +4,9 @@
 #include "Map/SmoothScroll.h"
 #include "UI/Elements/Image/ImageElement.h"
 
+
+UMREAL_COMPONENT(StageFocusView)
+
 StageFocusView::StageFocusView() = default;
 
 StageFocusView::~StageFocusView()

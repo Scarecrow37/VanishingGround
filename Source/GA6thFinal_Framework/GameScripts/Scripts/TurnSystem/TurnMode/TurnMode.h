@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "UmFramework.h"
 #include "../TurnAction/TurnAction.h"
 #include "Utility/SingletonHelper.h"
 

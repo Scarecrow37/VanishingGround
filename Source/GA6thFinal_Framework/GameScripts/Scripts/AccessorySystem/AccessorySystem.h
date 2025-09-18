@@ -1,8 +1,8 @@
 ﻿#pragma once
+
 #include "Utility/SingletonHelper.h"
 #include "AccessoryElement/AccessoryElement.h"
 #include "ExcelParser/ImGuiColumnSheetParser.h"
-#include "DLLExportDefine.h"
 
 class AccessorySystem : public Component
 {

@@ -6,6 +6,8 @@
 #include "Scripts/UI/Panels/Description/DescriptionPanel.h"
 #include "ViewModels/Revelations/RevelationsViewModel.h"
 
+UMREAL_COMPONENT(RevelationsView)
+
 RevelationsView::~RevelationsView()
 {
     UmWatcher.Blind<RevelationsViewModel>("Revelations", _watchHandle);
