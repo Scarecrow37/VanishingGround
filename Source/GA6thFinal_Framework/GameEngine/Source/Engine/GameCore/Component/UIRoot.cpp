@@ -156,6 +156,8 @@ void UIRoot::Reset()
             UmLogger.Log(LogLevel::LEVEL_INFO, exception.what());
         }
     }
+
+    SortViewOrder();
 }
 
 void UIRoot::Awake()

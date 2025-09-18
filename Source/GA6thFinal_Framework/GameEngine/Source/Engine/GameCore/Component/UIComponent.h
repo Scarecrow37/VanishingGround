@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+class UIRoot;
 // POINT
 bool  operator==(const POINT& lhs, const POINT& rhs);
 bool  operator!=(const POINT& lhs, const POINT& rhs);
@@ -57,6 +58,9 @@ class UIComponent : public UIBaseComponent
 {
     friend class Transform;
     USING_PROPERTY(UIComponent)
+
+private:
+    static UIRoot* GetRoot(const GameObject& obj);
 
 public:
     UIComponent();
@@ -233,6 +237,19 @@ public:
     }
     PROPERTY(AbsoluteRect)
 
+    GETTER_ONLY(UIRoot*, Root)
+    {
+        UIRoot*          uiRoot    = nullptr;
+        const Transform& transform = this->transform;
+        if (const Transform* rootTransform = transform.Root; nullptr != rootTransform)
+        {
+            const GameObject& rootGameObject = rootTransform->gameObject;
+            uiRoot                           = GetRoot(rootGameObject);
+        }
+        return uiRoot;
+    }
+    PROPERTY(Root)
+
 public:
     void Measure(SIZE availableSize);
     void Arrange(POINT finalPosition, SIZE finalSize);
@@ -242,10 +259,12 @@ public:
     void InvalidateArrange();
 
 protected:
+    void OnAttachParent(GameObject* parentGameObject) override;
     void OnAttachChild(GameObject* childGameObject) override;
     void OnDetachParent(GameObject* previousParentGameObject) override;
     void OnDrawDebugOverride() override;
     void OnDrawDebugSelectedOverride() override;
+    void RequestViewOrder() const;
 
     /// <summary>
     /// UI 컴포넌트의 측정 로직을 구현하는 함수입니다.
