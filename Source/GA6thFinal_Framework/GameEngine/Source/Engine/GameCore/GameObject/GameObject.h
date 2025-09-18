@@ -366,6 +366,11 @@ public:
     // get : 이 오브젝트가 참조하고있는 프리팹을 반환합니다.
     PROPERTY(PrefabPath)
 
+    GETTER_ONLY(const File::Guid&, PrefabGuid) { return _prefabGuid; }
+    // type : const File::Guid&
+    // get : 이 오브젝트가 참조하고있는 프리팹 GUID를 반환합니다.
+    PROPERTY(PrefabGuid)
+
     //에디터 편집을 허용할 프로퍼티.
     REFLECT_PROPERTY(
         Name,

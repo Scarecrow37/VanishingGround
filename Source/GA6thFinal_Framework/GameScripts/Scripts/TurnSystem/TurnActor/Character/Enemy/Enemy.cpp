@@ -16,7 +16,8 @@
 #include "State/EnemyDeadState.h"
 
 #include <Particle/ParticleComponent.h>
-#include <Audio/Table/AudioTableComponent.h>
+
+UMREAL_COMPONENT(Enemy)
 
 Enemy::Enemy()
 {

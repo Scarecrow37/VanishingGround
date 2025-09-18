@@ -7,7 +7,7 @@ constexpr UINT MAX_POINT_LIGHT        = 32;
 constexpr UINT MAX_SPOT_LIGHT         = 16;
 constexpr UINT MAX_LIGHT              = MAX_DIRECTIONAL_LIGHT + MAX_POINT_LIGHT + MAX_SPOT_LIGHT;
 constexpr UINT MAX_MIPMAP_LEVEL       = 5;
-constexpr UINT MAX_CASCADES           = 4;
+constexpr UINT MAX_CASCADES           = 3;
 constexpr UINT MAX_UI_MATERIAL_DATA   = 256;
 
 // volumetric fog medium

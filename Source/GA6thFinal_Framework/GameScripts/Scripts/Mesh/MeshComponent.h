@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "UmFramework.h"
 
 class MeshComponent abstract : public Component
 {

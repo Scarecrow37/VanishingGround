@@ -28,11 +28,6 @@ D3D12_GPU_DESCRIPTOR_HANDLE RenderScene::GetFinalImage()
     return finalTarget->GetSRVHandle();
 }
 
-const std::any& RenderScene::GetRenderPassProperty(std::string_view passName) const
-{
-    return Global::renderPassDatas->GetRenderPassProperty(_name, passName);
-}
-
 SharedResource<RenderTarget> RenderScene::GetSharedRenderTarget() const
 {
     return _sharedRenderTarget[_currentFrameIndex];
@@ -314,7 +309,7 @@ void RenderScene::UpdateObject()
             continue;
         }
 
-        if (!_isDirtyFlag)
+        /*if (!_isDirtyFlag)
         {
             _isDirtyFlag = model->IsDirtyFlag() || component->IsDirtyFlag();
 
@@ -322,7 +317,7 @@ void RenderScene::UpdateObject()
             {
                 model->SetDirtyFlag(false);
             }
-        }
+        }*/
 
         const auto  type         = component->GetType();
         const auto& customDepths = component->GetCustomDepths();
@@ -410,39 +405,44 @@ void RenderScene::UpdateUI()
         if (nullptr == texture)
             continue;
 
-        auto     size = component->GetSize();
-        XMMATRIX world = component->GetWorldMatrix();
-        XMMATRIX scale = XMMatrixIdentity();
+        auto     size        = component->GetSize();
+        XMMATRIX world       = component->GetWorldMatrix();
+        XMMATRIX scale       = XMMatrixIdentity();
         XMMATRIX translation = XMMatrixIdentity();
 
         switch (component->GetType())
         {
-        case SpriteType::MODE_2D:
-            scale = XMMatrixScaling((float)size.cx, (float)-size.cy, 1.f);
-            translation = XMMatrixTranslation(size.cx * 0.5f, size.cy * 0.5f, 0.f);
-            break;
-        case SpriteType::MODE_3D:
-        {
-            XMVECTOR s, r, t;
-            XMMatrixDecompose(&s, &r, &t, world);
+            case SpriteType::MODE_2D:
+                scale = XMMatrixScaling((float)size.cx, (float)-size.cy, 1.f);
+                translation = XMMatrixTranslation(size.cx * 0.5f, size.cy * 0.5f, 0.f);
+                break;
+            case SpriteType::MODE_3D:
+            {
+                XMVECTOR s, r, t;
+                XMMatrixDecompose(&s, &r, &t, world);
 
-            XMVECTOR combine = XMQuaternionMultiply(r, _camera->GetRotation());
-            world = XMMatrixScalingFromVector(s) * XMMatrixRotationQuaternion(combine) * XMMatrixTranslationFromVector(t);
-            [[fallthrough]];
-        }
-        case SpriteType::MODE_25D:
-        {
-            float ratio = (float)size.cx / (float)size.cy;
-            scale       = XMMatrixScaling(ratio, 1.f, 1.f);
-            break;
-        }
+                XMVECTOR combine = XMQuaternionMultiply(r, _camera->GetRotation());
+                world = XMMatrixScalingFromVector(s) * XMMatrixRotationQuaternion(combine) * XMMatrixTranslationFromVector(t);
+                [[fallthrough]];
+            }
+            case SpriteType::MODE_25D:
+            {
+                float ratio = (float)size.cx / (float)size.cy;
+                scale       = XMMatrixScaling(ratio, 1.f, 1.f);
+                break;
+            }
         }
         
         world = XMMatrixTranspose(scale * world * translation);
         _uiMatrices.push_back(world);
 
-        UIMaterial material{.ID = texture->GetID(), .Alpha = component->GetAlpha()};
-        _uiMaterials.push_back(material);
+        UIMaterial uiMaterial{.ID          = texture->GetID(),
+                              .Alpha       = component->GetAlpha(),
+                              .NumColmn    = component->GetNumColumn(),
+                              .NumRow      = component->GetNumRow(),
+                              .ColumnIndex = component->GetColumnIndex(),
+                              .RowIndex    = component->GetRowIndex()};
+        _uiMaterials.push_back(uiMaterial);
     }
 }
 

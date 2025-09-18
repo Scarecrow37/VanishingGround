@@ -60,7 +60,6 @@ UMREALSCRIPTS_DECLSPEC void CreateUmrealcSriptFile(const char* fileName)
         if (wofs.is_open())
         {
             wofs <<             LR"(#pragma once)"                                                  << L"\n";
-            wofs <<             LR"(#include "DLLExportDefine.h")"                                  << L"\n";
             wofs <<   std::format(L"class {} : public Component", ClassName)                        << L"\n";
             wofs <<             LR"({)"                                                             << L"\n";
             wofs <<   std::format(L"    USING_PROPERTY({})", ClassName)                             << L"\n";

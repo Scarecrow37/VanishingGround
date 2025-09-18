@@ -3,6 +3,9 @@
 #include <WeaponSystem/WeaponTable/WeaponTableComponent.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
 
+
+UMREAL_COMPONENT(WeaponSystem)
+
 WeaponSystem::WeaponSystem()
 {
 

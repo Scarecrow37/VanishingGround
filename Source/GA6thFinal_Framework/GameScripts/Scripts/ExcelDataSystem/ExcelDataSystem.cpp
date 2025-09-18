@@ -28,10 +28,6 @@ void ExcelDataSystem::Awake()
 
 void ExcelDataSystem::ImGuiDrawPropertysEvent()
 {
-    if (ImGui::Button("Excel parser"))
-    {
-        _excelParser.ShowParser = true;
-    }
     ImGuiDrawExcelParserEdit();
     ImGuiDrawDataSheetView();
 }
@@ -39,6 +35,11 @@ void ExcelDataSystem::ImGuiDrawPropertysEvent()
 void ExcelDataSystem::ImGuiDrawExcelParserEdit()
 {
 #ifdef _UMEDITOR
+    if (ImGui::Button("Excel parser"))
+    {
+        _excelParser.ShowParser = true;
+    }
+
     if (_excelParser.Draw())
     {
         const std::string& selectSheetName = _excelParser.GetSelectSheetName();
@@ -51,7 +52,7 @@ void ExcelDataSystem::ImGuiDrawExcelParserEdit()
         dataSheet.clear();
         size_t dataIndex = 0;
         _excelParser.Apply([&](const ImGuiColumnSheetParser::ColumnDatas& datas) 
-        { 
+        {   
             for (auto& pair : datas)
             {
                 const std::string& key = pair.first;

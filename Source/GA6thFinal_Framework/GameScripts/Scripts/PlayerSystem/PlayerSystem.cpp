@@ -9,6 +9,9 @@
 #include "ConsumableSystem/ConsumableSystem.h"
 #include "UI/Elements/Image/ImageElement.h"
 
+
+UMREAL_COMPONENT(PlayerSystem)
+
 PlayerSystem::PlayerSystem() = default;
 PlayerSystem::~PlayerSystem() = default;
 

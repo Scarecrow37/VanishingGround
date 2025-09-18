@@ -1,7 +1,10 @@
 ﻿#include "pchScripts.h"
 #include "SmoothScroll.h"
 
+
 #include "UI/Wrappers/Scrolling/ScrollingWrapper.h"
+
+UMREAL_COMPONENT(SmoothScroll)
 
 SmoothScroll::SmoothScroll() = default;
 SmoothScroll::~SmoothScroll() = default;

@@ -1,6 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "RatioWrapper.h"
 
+UMREAL_COMPONENT(RatioWrapper)
+
 RatioWrapper::RatioWrapper() = default;
 
 SIZE RatioWrapper::MeasureOverride(const SIZE availableSize)

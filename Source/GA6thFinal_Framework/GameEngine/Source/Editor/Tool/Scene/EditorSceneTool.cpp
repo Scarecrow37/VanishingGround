@@ -111,8 +111,9 @@ void EditorSceneTool::OnPostFrameBegin()
 
 void EditorSceneTool::OnFrameRender() 
 {
+    EGizmoManager& gizmoManager = UmGizmoManager;
     _window = ImGui::GetCurrentWindow();
-    UmGizmoManager.BeginDraw(_window, _camera->GetCamera().get());
+    gizmoManager.BeginDraw(_window, _camera->GetCamera().get());
     {
         if (_isHoveredWindow)
         {
@@ -127,8 +128,10 @@ void EditorSceneTool::OnFrameRender()
         DrawManipulate();
         if (ReflectFields->DrawGizmo)
         {
-            UmGizmoManager.DrawImGuizmo(_drawManipulateDesc);
-            UmGizmoManager.Draw();
+            gizmoManager.DrawImGuizmo(_drawManipulateDesc);
+            bool enableGizmoButton = false == gizmoManager.IsOverImGuizmo();
+            enableGizmoButton &= false == _isOver;
+            gizmoManager.Draw(enableGizmoButton);
         }
         RayPicker();
         VertexSnap();
@@ -287,9 +290,11 @@ void EditorSceneTool::DrawManipulate()
 
             ImGuizmo::SetDrawlist();
             ImGuizmo::SetRect(_sceneClienttLeft, _sceneClientTop, _sceneClientWidth, _sceneClientHeight);
+            ImGuizmo::PushID(pObjectMatrix);
             _isUseManipulate = ImGuiHelper::DrawManipulate(pDynamicCamera, pObjectMatrix, _drawManipulateDesc);
             _isUsing         = ImGuizmo::IsUsing();
             _isOver          = ImGuizmo::IsOver();
+            ImGuizmo::PopID();
 
             // 마우스를 움직인 경우에만 Moved 플래그 설정
             if (true == _isUsing && true == isMouseMoved)
@@ -641,9 +646,12 @@ void EditorSceneTool::DrawSceneView()
 
 void EditorSceneTool::RayPicker() 
 {
+    bool isSceneGuizmoUsing = EGizmoManager::GuizmoState::IDLE != UmGizmoManager.GetImGuizmoState();
     if (false == _isOver && 
         false == _isUsingStart && 
-        false == _isUsingEnd)
+        false == _isUsingEnd &&
+        false == isSceneGuizmoUsing
+        )
     {
         bool isLeftAltDown = ImGui::IsKeyDown(ImGuiKey_LeftAlt);
         if (false == isLeftAltDown && IsFocusFrame() && _isHoveredWindow && ImGui::IsKeyReleased(ImGuiKey_MouseLeft))

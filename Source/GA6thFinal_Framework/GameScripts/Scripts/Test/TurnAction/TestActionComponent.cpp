@@ -2,6 +2,9 @@
 #include "TestActionComponent.h"
 #include <TurnSystem/TurnMode/TurnMode.h>
 
+
+UMREAL_COMPONENT(TestActionComponent)
+
 TestActionComponent::TestActionComponent() = default;
 TestActionComponent::~TestActionComponent() = default;
 

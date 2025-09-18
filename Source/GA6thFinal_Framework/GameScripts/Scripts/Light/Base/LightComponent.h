@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "UmFramework.h"
+
 
 class LightComponent : public Component
 {
