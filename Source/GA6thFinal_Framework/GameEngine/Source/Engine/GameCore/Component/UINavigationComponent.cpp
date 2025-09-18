@@ -314,6 +314,15 @@ void UINavigationComponent::AddNavigationRoute(const NavigationKey& key, const N
     navigationRoutes.push_back({key.ButtonType, key.Bias, key.Name, toID});
 }
 
+void UINavigationComponent::RemoveNavigationRoute(const NavigationKey& key)
+{
+    NavigationRoutes& navigationInfos = ReflectFields->NavigationRoutes;
+    std::erase_if(navigationInfos, [&key](const auto& info) {
+        const auto& [button, bias, name, toID] = info;
+        return button == key.ButtonType && bias == key.Bias;
+    });
+}
+
 NavigationID UINavigationComponent::GetNavigatedId(const NavigationKey& key)
 {
     NavigationRoutes& navigationInfos = ReflectFields->NavigationRoutes;

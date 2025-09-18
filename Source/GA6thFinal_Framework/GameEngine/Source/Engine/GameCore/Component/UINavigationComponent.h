@@ -78,6 +78,24 @@ public:
     /// <returns>입력된 NavigationKey에 대응하는 NavigationID입니다.</returns>
     NavigationID GetNavigatedId(const NavigationKey& key);
 
+    /// <summary>
+    /// 네비게이션 키와 목적지 ID를 사용하여 네비게이션 경로를 추가합니다.
+    /// </summary>
+    /// <param name="key">경로를 추가할 때 사용할 네비게이션 키입니다.</param>
+    /// <param name="toID">경로가 연결될 목적지의 네비게이션 ID입니다.</param>
+    void AddNavigationRoute(const NavigationKey& key, NavigationID toID);
+
+    /// <summary>
+    /// 지정된 NavigationKey에 해당하는 내비게이션 경로를 제거합니다.
+    /// </summary>
+    /// <param name="key">제거할 내비게이션 경로를 식별하는 NavigationKey 객체입니다.</param>
+    void RemoveNavigationRoute(const NavigationKey& key);
+
+    /// <summary>
+    /// 내비게이션 경로를 초기화합니다.
+    /// </summary>
+    void ClearNavigationRoute();
+
 protected:
     UIComponent* GetSiblingUI() const;
 
@@ -95,9 +113,6 @@ private:
     static UIRoot* GetRoot(const GameObject& gameObject);
     void           AcquireNavigationID(UIRoot* root);
     void           ReleaseNavigationID(UIRoot* root);
-
-    void ClearNavigationRoute();
-    void AddNavigationRoute(const NavigationKey& key, NavigationID toID);
 
 protected:
     REFLECT_FIELDS_BEGIN(UIBaseComponent)
