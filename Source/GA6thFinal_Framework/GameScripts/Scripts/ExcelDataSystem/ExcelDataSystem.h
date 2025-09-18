@@ -37,12 +37,52 @@ public:
     std::string_view FindColumnKey(size_t columnIndex);
 
     /// <summary>
+    /// 해당 columnIndex에 Row key의 인덱스를 반환합니다.
+    /// </summary>
+    /// <param name="rowKey :">찾을 문자열 데이터</param>
+    /// <param name="columnIndex :">탐색할 column index</param>
+    /// <returns>실패시 ExcelDataBase::FIND_INDEX_FAIL</returns>
+    size_t FindRowIndex(const std::string& rowKey, size_t columnIndex);
+
+    /// <summary>
+    /// 해당 column key에 row key의 인덱스를 반환합니다.
+    /// </summary>
+    /// <param name="rowKey :">찾을 문자열 데이터</param>
+    /// <param name="columnIndex :">탐색할 column 키 index</param>
+    /// <returns>실패시 ExcelDataBase::FIND_INDEX_FAIL</returns>
+    size_t FindRowIndex(const std::string& rowKey, const std::string& columnKey);
+
+    /// <summary>
     /// 데이터 시트에서 데이터를 가져옵니다.
     /// </summary>
     /// <param name="rowIndex :">row Index</param>
     /// <param name="columnIndex :">column Index</param>
     /// <returns>실패시 FIND_STR_FAIL을 반환합니다.</returns>
     std::string_view FindData(size_t rowIndex, size_t columnIndex);
+
+    /// <summary>
+    /// 데이터 시트에서 데이터를 가져옵니다.
+    /// </summary>
+    /// <param name="rowKey :">row Key</param>
+    /// <param name="columnIndex :">column Index</param>
+    /// <returns>실패시 FIND_STR_FAIL을 반환합니다.</returns>
+    std::string_view FindData(const std::string& rowKey, size_t columnIndex);
+
+    /// <summary>
+    /// 데이터 시트에서 데이터를 가져옵니다.
+    /// </summary>
+    /// <param name="rowIndex :">row index</param>
+    /// <param name="columnKey :">column key</param>
+    /// <returns>실패시 FIND_STR_FAIL을 반환합니다.</returns>
+    std::string_view FindData(size_t rowIndex, const std::string& columnKey);
+
+    /// <summary>
+    /// 데이터 시트에서 데이터를 가져옵니다.
+    /// </summary>
+    /// <param name="rowKey :">row index</param>
+    /// <param name="columnKey :">column key</param>
+    /// <returns>실패시 FIND_STR_FAIL을 반환합니다.</returns>
+    std::string_view FindData(const std::string& rowKey, const std::string& columnKey);
 
 private:
     friend class ExcelDataSystem;
@@ -66,7 +106,7 @@ public:
     /// </summary>
     /// <param name="sheetName :">원하는 시트 이름</param>
     /// <returns>동적 할당된 ExcelDataBase</returns>
-    std::unique_ptr<ExcelDataBase> GetExcelDataBase(const std::string& sheetName);
+    std::unique_ptr<ExcelDataBase> FindExcelDataBase(const std::string& sheetName);
 
 private:
     SingletonObject<ExcelDataSystem> _singletonObject;
