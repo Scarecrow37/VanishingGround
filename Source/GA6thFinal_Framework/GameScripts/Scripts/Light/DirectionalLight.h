@@ -1,5 +1,7 @@
 ﻿#pragma once
 #include "Base/LightComponent.h"
+
+
 class DirectionalLight : public LightComponent
 {
     USING_PROPERTY(DirectionalLight)

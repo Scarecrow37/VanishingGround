@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "UmFramework.h"
+
 class InputTestComponent : public Component, public InputReceiver
 {
     USING_PROPERTY(InputTestComponent)

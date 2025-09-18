@@ -6,6 +6,9 @@
 #include "ItemDropSystem/ItemDropSystem.h"
 #include "ViewModels/ItemDrop/DropArtifacts/DropArtifactsViewModel.h"
 
+
+UMREAL_COMPONENT(ArtifactUIManager)
+
 ArtifactUIManager::ArtifactUIManager()
 {
     _frameGridPanel    = nullptr;

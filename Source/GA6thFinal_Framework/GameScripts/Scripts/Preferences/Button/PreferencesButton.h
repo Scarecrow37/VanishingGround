@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "DLLExportDefine.h"
+
 class PreferencesButton : public Component
 {
     USING_PROPERTY(PreferencesButton)

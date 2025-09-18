@@ -1,6 +1,10 @@
 ﻿#include "pchScripts.h"
 #include "GridPanel.h"
 
+
+UMREAL_COMPONENT(GridPanel)
+UMREAL_COMPONENT(GridPanelSlot)
+
 GridPanelSlot::GridPanelSlot() = default;
 
 void GridPanelSlot::ImGuiDrawPropertysEvent()

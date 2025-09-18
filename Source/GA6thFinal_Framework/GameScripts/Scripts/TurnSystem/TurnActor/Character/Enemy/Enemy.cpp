@@ -17,6 +17,8 @@
 
 #include <Particle/ParticleComponent.h>
 
+UMREAL_COMPONENT(Enemy)
+
 Enemy::Enemy()
 {
 

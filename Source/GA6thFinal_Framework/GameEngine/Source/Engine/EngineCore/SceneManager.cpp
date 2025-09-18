@@ -141,26 +141,29 @@ void ESceneManager::Engine::SceneFinalUpdate()
 
 void ESceneManager::SceneUpdate()
 {
-#ifdef _UMEDITOR
-    _isPlay = editorModule->PlayMode.IsPlay();
-#endif
-    ObjectsAddRuntime();
+    ObjectsInputUpdate();                                // Input System 콜백은 항상 업데이트 주기보다 먼저 실행됨.
+    while (ETimeSystem::Engine::TimeSystemFixedUpdate()) // Fixed Update는 한 프레임에 여러번 호출 가능함
+    {
+        ObjectsFixedUpdate();   
+    }
+    ObjectsUpdate();                                     // 메인 로직 업데이트
+    ObjectsLateUpdate();                                 // 두번째 로직 업데이트
+
+    //로직 업데이트 이후 요청된 라이프 사이클들은 아래에서 반드시 실행 (이번 프레임에 바로 처리되야함)
+    ObjectsAddRuntime();                                
     SceneResourceManager::Engine::Update(ResourceManager);
     ObjectsOnEnable();
+    ObjectsOnDisable();
     ObjectsAwake();
     ObjectsStart();
-    ObjectsInputUpdate();
-    while (ETimeSystem::Engine::TimeSystemFixedUpdate())
-    {
-        ObjectsFixedUpdate();
-    }
-    ObjectsUpdate();
-    ObjectsLateUpdate();
     ObjectsApplicationQuit();
-    ObjectsOnDisable();
     ObjectsDestroy();
     ObjectsMatrixUpdate();
     ObjectsAddLoadScene();
+
+#ifdef _UMEDITOR
+    _isPlay = editorModule->PlayMode.IsPlay(); //플레이 갱신은 마지막에 해야함. 
+#endif
 }
 
 void ESceneManager::SceneFinalUpdate() 
@@ -324,13 +327,13 @@ void ESceneManager::Engine::SetComponentEnable(Component* component, bool value)
         //컴포넌트의 On__able 함수를 호출하도록 합니다.
         auto& [WaitSet, WaitVec, WaitValue] = value ? sceneManager._onEnableQueue : sceneManager._onDisableQueue;
         WaitValue.emplace_back(&component->ReflectFields->_enable);
-        if (component->gameObject->ActiveInHierarchy == true)
+        if (component->gameObject->_activeInHierarchy == true)
         {
             auto [iter, result] = WaitSet.insert(component);
             if (result)
             {
-                WaitVec.push_back(component->GetWeakPtr());           
-            }           
+                WaitVec.push_back(component->GetWeakPtr());
+            }   
         }
     }
     else
@@ -895,39 +898,33 @@ void ESceneManager::ObjectsAwake()
 {
     for (auto& component : _waitAwakeVec)
     {
-        if (component->_gameObject->ActiveInHierarchy_property_getter())
+        if (component->_enableInHierarchy)
         {
             component->Awake();
             component->_initFlags.SetAwake();
-            if (component->ReflectFields->_enable)
-            {
-                component->OnEnable();
-            }
+            component->OnEnable();
         }
     }
     std::erase_if(_waitAwakeVec, [](auto& component)
-        {
-            return component->_gameObject->ActiveInHierarchy_property_getter();
-        });
+    {
+        return component->_enableInHierarchy;
+    });
 }
 
 void ESceneManager::ObjectsStart()
 {
     for (auto& component : _waitStartVec)
     {
-        if (component->_gameObject->ActiveInHierarchy_property_getter())
+        if (component->_enableInHierarchy)
         {
-            if (component->ReflectFields->_enable)
-            {
-                component->Start();
-                component->_initFlags.SetStart();
-            }
+            component->Start();
+            component->_initFlags.SetStart();
         }
     }
     std::erase_if(_waitStartVec, [](auto& component)
-        {
-            return component->_gameObject->ActiveInHierarchy_property_getter();
-        });
+    {
+        return component->_enableInHierarchy;
+    });
 }
 
 void ESceneManager::ObjectsInputUpdate() 
@@ -1114,7 +1111,7 @@ void ESceneManager::ObjectsOnEnable()
     for (auto& component : validComponents)
     {
         component->UpdateEnableInHierarchy();
-        if (_isPlay)
+        if (_isPlay && component->_initFlags.IsAwake())
         {
             component->OnEnable();
         }
@@ -1165,7 +1162,7 @@ void ESceneManager::ObjectsOnDisable()
     for (auto& component : validComponents)
     {
         component->UpdateEnableInHierarchy();
-        if (_isPlay)
+        if (_isPlay && component->_initFlags.IsStart())
         {
             component->OnDisable();
         }
@@ -1325,7 +1322,7 @@ void ESceneManager::ObjectsAddRuntime()
 
 bool ESceneManager::IsRuntimeActive(std::shared_ptr<GameObject>& obj)
 {
-    return obj.get() != nullptr && obj->ActiveInHierarchy_property_getter() && obj->IsValid();
+    return obj.get() != nullptr && obj->_activeInHierarchy && obj->IsValid();
 }
 
 void ESceneManager::NotInitDestroyComponentEraseToWaitVec(Component* destroyComponent)

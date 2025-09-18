@@ -1,10 +1,13 @@
 ﻿#include "pchScripts.h"
+
 #include "RevelationSystem.h"
 
 #include "ViewModels/Revelations/RevelationsViewModel.h"
 
 #include <TurnSystem/TurnAction/TurnActionFactory.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
+
+UMREAL_COMPONENT(RevelationSystem)
 
 using namespace u8_literals;
 

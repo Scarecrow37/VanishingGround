@@ -1,5 +1,9 @@
 ﻿#include "pchScripts.h"
 #include "LogOutput.h"
+
+
+UMREAL_COMPONENT(LogOutput)
+
 LogOutput::LogOutput()
 {
     _isShowLog     = true;
