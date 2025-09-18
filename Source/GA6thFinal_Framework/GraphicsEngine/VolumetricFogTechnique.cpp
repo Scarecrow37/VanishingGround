@@ -70,16 +70,17 @@ void VolumetricFogTechnique::UpdateConstantBuffer()
     fogData.FogAnisotropy                    = volumetricFogProperty.FogAnisotropy;
     fogData.LightShaftAnisotropy             = volumetricFogProperty.LightShaftAnisotropy;
     fogData.CameraNearFar_PreviousFrameBlend = Vector4(
-        volumetricFogProperty.CustomNear, volumetricFogProperty.CustomFar, volumetricFogProperty.BlendWithPrevFrame,
-                1);
-    fogData.Density           = volumetricFogProperty.Density;
+        volumetricFogProperty.CustomNear, volumetricFogProperty.CustomFar, volumetricFogProperty.BlendWithPrevFrame, 1);
+    fogData.Density               = volumetricFogProperty.Density;
     fogData.PreViewProjection     = _prevViewProjection;
     fogData.InverseViewProjection = XMMatrixTranspose(invViewProj);
-    fogData.Strength          = volumetricFogProperty.Strength;
-    fogData.ThicknessFactor   = 0.01f;
-    fogData.VolumeSize        = Vector4(VOXEL_VOLUME_SIZEX, VOXEL_VOLUME_SIZEY, VOXEL_VOLUME_SIZEZ, 0);
+    fogData.Strength              = volumetricFogProperty.Strength;
+    fogData.ThicknessFactor       = 0.01f;
+    fogData.VolumeSize            = Vector4(VOXEL_VOLUME_SIZEX, VOXEL_VOLUME_SIZEY, VOXEL_VOLUME_SIZEZ, 0);
     fogData.FogIntensity          = volumetricFogProperty.FogIntensity;
     fogData.LightShaftIntensity   = volumetricFogProperty.LightShaftIntensity;
+    fogData.FogColor              = Vector4(volumetricFogProperty.FogColor[0], volumetricFogProperty.FogColor[1],
+                                            volumetricFogProperty.FogColor[2], 1);
     _constantBuffer->UpdateBuffer(&fogData);
 
 

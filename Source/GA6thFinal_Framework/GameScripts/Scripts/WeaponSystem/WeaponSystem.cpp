@@ -78,7 +78,7 @@ void WeaponSystem::SetCurrentWeaponSlot(int slot)
         return;
     }
     TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
-    auto isPlay = Global::IsPlay();
+    auto isPlay = UmCore->IsPlay();
     if (isPlay && turnMode)
     {
         WeaponElement& curr = _equipWeapons[_currentWeaponSlot];
