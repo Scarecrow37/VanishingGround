@@ -617,7 +617,6 @@ void RevelationSystem::ImGuiDrawPropertysEvent()
                 {
                     auto ParserFunc = [&](ExcelDataBase& dataBase) 
                     {
-                        size_t columnCount = dataBase.ColumnCount();
                         size_t rowCount = dataBase.RowCount();
                         for (size_t row = 0; row < rowCount; ++row)
                         {
