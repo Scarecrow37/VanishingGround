@@ -17,8 +17,7 @@ namespace Timeline
                     const auto           extension = path.extension();
                     if (extension == L".wav")
                     {
-                        _audioGuid               = data->GetGuid();
-                        ReflectFields->AudioGuid = _audioGuid.string();
+                        SetAudioFromPath(path);
                     }
                 }
                 ImGui::EndDragDropTarget();
@@ -37,12 +36,12 @@ namespace Timeline
 
     void AudioEventContext::SerializedReflectEvent() 
     {
-        ReflectFields->AudioGuid = _audioGuid.string();
+        ReflectFields->AudioAssetID = UmFileSystem.GetAssetIDFromGuid(_audioGuid);
     }
     
     void AudioEventContext::DeserializedReflectEvent() 
     {
-        _audioGuid = ReflectFields->AudioGuid;
+        _audioGuid = UmFileSystem.GetGuidFromAssetID(ReflectFields->AudioAssetID);
         UmAudio.LoadSound(_audioGuid.string(), _audioGuid);
     }
 
@@ -53,12 +52,12 @@ namespace Timeline
     void AudioEventContext::SetAudioFromGuid(const File::Guid& guid) 
     {
         _audioGuid = guid;
-        ReflectFields->AudioGuid = _audioGuid.string();
+        ReflectFields->AudioAssetID = UmFileSystem.GetAssetIDFromGuid(_audioGuid);
     }
 
     void AudioEventContext::SetAudioFromPath(const File::Path& path) 
     {
         _audioGuid = path.ToGuid();
-        ReflectFields->AudioGuid = _audioGuid.string();
+        ReflectFields->AudioAssetID = UmFileSystem.GetAssetIDFromGuid(_audioGuid);
     }
 }

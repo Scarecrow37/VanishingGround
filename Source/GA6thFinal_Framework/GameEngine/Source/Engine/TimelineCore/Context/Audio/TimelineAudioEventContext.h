@@ -34,7 +34,7 @@ namespace Timeline
         float      _volume = 1.0f;
 
         REFLECT_FIELDS_BEGIN(EventContext)
-        std::string AudioGuid = "";
+        int AudioAssetID = 0;
         REFLECT_FIELDS_END(AudioEventContext)
     };
 
