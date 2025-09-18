@@ -7,7 +7,7 @@
 #include "ItemDropSystem/UI/ItemDropUIRootManager.h"
 #include "ItemDropSystem/UI/ArtifactUIManager.h"
 #include "ViewModels/ItemDrop/DropArtifacts/DropArtifactsViewModel.h"
-#include "DLLExportDefine.h"
+
 
 UMREAL_COMPONENT(ItemDropSystem)
 

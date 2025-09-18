@@ -1,7 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "TestActionComponent.h"
 #include <TurnSystem/TurnMode/TurnMode.h>
-#include "DLLExportDefine.h"
+
 
 UMREAL_COMPONENT(TestActionComponent)
 

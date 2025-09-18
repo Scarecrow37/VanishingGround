@@ -1,6 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "AudioTableComponent.h"
-#include "DLLExportDefine.h"
+
 
 UMREAL_COMPONENT(AudioTableComponent)
 

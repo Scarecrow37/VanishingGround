@@ -1,5 +1,5 @@
 ﻿#include "pchScripts.h"
-#include "DLLExportDefine.h"
+
 #include "RevelationSystem.h"
 
 #include "ViewModels/Revelations/RevelationsViewModel.h"

@@ -3,7 +3,7 @@
 #include "ItemDropSystem/UI/ArtifactUIManager.h"
 #include "ItemDropSystem/ItemDropSystem.h"
 #include "RevelationSystem/RevelationSystem.h"
-#include "DLLExportDefine.h"
+
 
 UMREAL_COMPONENT(ItemDropUIRootManager)
 

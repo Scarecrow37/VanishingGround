@@ -2,7 +2,7 @@
 #include "RewardPopup.h"
 #include "UI/Elements/Image/ImageElement.h"
 #include "Map/Stage.h"
-#include "DLLExportDefine.h"
+
 
 UMREAL_COMPONENT(RewardPopup)
 

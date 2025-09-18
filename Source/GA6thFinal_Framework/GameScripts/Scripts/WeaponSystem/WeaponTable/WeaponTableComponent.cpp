@@ -1,6 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "WeaponTableComponent.h"
-#include "DLLExportDefine.h"
+
 
 UMREAL_COMPONENT(WeaponTableComponent)
 

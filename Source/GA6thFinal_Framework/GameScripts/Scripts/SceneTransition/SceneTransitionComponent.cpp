@@ -1,6 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "SceneTransitionComponent.h"
-#include "DLLExportDefine.h"
+
 
 UMREAL_COMPONENT(SceneTransitionComponent)
 

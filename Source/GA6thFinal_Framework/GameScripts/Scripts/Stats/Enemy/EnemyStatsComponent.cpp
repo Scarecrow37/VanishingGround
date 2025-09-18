@@ -1,7 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "EnemyStats.h"
 #include "EnemyStatsComponent.h"
-#include "DLLExportDefine.h"
+
 
 UMREAL_COMPONENT(EnemyStatsComponent)
 
