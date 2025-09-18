@@ -93,6 +93,58 @@ struct NavigationImGuiStep
     NavigationKey PressedKey;
 };
 
+namespace
+{
+    struct EraseLater
+    {
+        using Container = UINavigationComponent::NavigationRoutes;
+        explicit EraseLater(Container* map) : ContainerPointer(map) {}
+        EraseLater(const EraseLater&)                = delete;
+        EraseLater& operator=(const EraseLater&)     = delete;
+        EraseLater(EraseLater&&) noexcept            = delete;
+        EraseLater& operator=(EraseLater&&) noexcept = delete;
+        ~EraseLater()
+        {
+            std::erase_if(*ContainerPointer, [this](const auto& route) {
+                auto& [button, bias, name, toID] = route;
+                return NamesToErase.contains(name);
+            });
+            NamesToErase.clear();
+        }
+
+        void operator()(const std::string& name) { NamesToErase.emplace(name); }
+
+        Container*            ContainerPointer;
+        std::set<std::string> NamesToErase;
+    };
+
+
+    struct Row
+    {
+        void operator()(const std::string& name, int id, const std::function<void()>& deleteCallback) const
+        {
+            ImGui::TableSetColumnIndex(0);
+            ImVec2 availSize = ImGui::GetContentRegionAvail();
+            ImGui::SetNextItemWidth(availSize.x);
+            ImGui::Selectable(name.c_str());
+
+            ImGui::TableSetColumnIndex(1);
+            availSize = ImGui::GetContentRegionAvail();
+            ImGui::SetNextItemWidth(availSize.x - 60.f);
+            ImGui::BeginDisabled();
+            ImGui::InputInt("##id", &id, 0);
+            ImGui::EndDisabled();
+
+            const float height = ImGui::GetItemRectSize().y;
+            ImGui::SameLine();
+            if (ImGui::Button("-", ImVec2(height, height)))
+            {
+                deleteCallback();
+            }
+        }
+    };
+} // namespace
+
 void UINavigationComponent::ImGuiDrawPropertysEvent()
 {
     UIBaseComponent::ImGuiDrawPropertysEvent();
@@ -102,11 +154,37 @@ void UINavigationComponent::ImGuiDrawPropertysEvent()
         SetInitialFocus();
     }
 
-    if (ImGui::Button("Clear Navigation Route"))
+    if (ImGui::TreeNodeEx("Navigation Route"))
     {
-        ClearNavigationRoute();
-    }
+        if (ImGui::BeginTable("NavigationRouteTable##Detail", 2, ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_RowBg))
+        {
+            ImGui::TableSetupColumn("Input", ImGuiTableColumnFlags_WidthStretch, 0.5f);
+            ImGui::TableSetupColumn("Destination ID", ImGuiTableColumnFlags_WidthStretch, 0.5f);
+            ImGui::TableHeadersRow();
 
+            NavigationRoutes& navigationRoutes = ReflectFields->NavigationRoutes;
+            EraseLater        eraseLater(&navigationRoutes);
+
+            // Existing Routes
+            std::ranges::for_each(navigationRoutes, [this, &eraseLater](auto& tuple) {
+                auto& [button, bias, name, toID] = tuple;
+                ImGui::PushID(name.c_str());
+                ImGui::TableNextRow();
+                Row()(name, toID, [&eraseLater, &name]() { eraseLater(name); });
+
+                ImGui::PopID();
+            });
+
+            ImGui::EndTable();
+        }
+
+        if (ImGui::Button("Clear Navigation Route"))
+        {
+            ClearNavigationRoute();
+        }
+
+        ImGui::TreePop();
+    }
 
     static NavigationImGuiStep step;
     // TO
@@ -163,13 +241,6 @@ void UINavigationComponent::ImGuiDrawPropertysEvent()
     {
         const NavigationID id = ReflectFields->NavigationID;
         ImGuiDebug()("Navigation ID", id);
-
-        ImGui::Text("Navigation Route");
-        const auto&  navigationInfos = ReflectFields->NavigationRoutes;
-        for (auto& [button, bias, name, toID] : navigationInfos)
-        {
-            ImGuiDebug()(name.c_str(), toID);
-        }
     }
 }
 
@@ -204,13 +275,13 @@ void UINavigationComponent::OnDrawDebugSelectedOverride()
     }
 }
 
-void UINavigationComponent::OnAttachParent(GameObject* childGameObject)
+void UINavigationComponent::OnAttachParent(GameObject* parentGameObject)
 {
-    UIBaseComponent::OnAttachParent(childGameObject);
+    UIBaseComponent::OnAttachParent(parentGameObject);
 
-    if (nullptr != childGameObject)
+    if (nullptr != parentGameObject)
     {
-        if (UIRoot* uiRoot = GetRoot(*childGameObject); nullptr != uiRoot)
+        if (UIRoot* uiRoot = GetRoot(*parentGameObject); nullptr != uiRoot)
         {
             AcquireNavigationID(uiRoot);
         }

@@ -22,6 +22,7 @@ class UINavigationComponent : public UIBaseComponent
     friend class UIManager;
     USING_PROPERTY(UINavigationComponent)
 
+public:
     using NavigationRoutes = std::vector<std::tuple<unsigned int, unsigned char, std::string, ::NavigationID>>;
 
     static NavigationID _toID;
@@ -102,7 +103,7 @@ protected:
     void ImGuiDrawPropertysEvent() override;
     void OnDrawDebugSelectedOverride() override;
 
-    void OnAttachParent(GameObject* childGameObject) override;
+    void OnAttachParent(GameObject* parentGameObject) override;
     void OnDetachParent(GameObject* previousParentGameObject) override;
 
     void DeserializedReflectEvent() override;
