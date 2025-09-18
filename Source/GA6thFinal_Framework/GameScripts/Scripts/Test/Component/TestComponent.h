@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "UmFramework.h"
+#include "DLLExportDefine.h"    
 
 class TestComponent : public Component
 {

@@ -1,6 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "TestComponent.h"
 
+UMREAL_COMPONENT(TestComponent)
+
 TestComponent::TestComponent()
 {
     ObjectDrop.SetInputAutoEvent([this]
@@ -43,7 +45,7 @@ void TestComponent::FixedUpdate()
 void TestComponent::OnDestroy()
 {
     std::string message = "OnDestroy!";
-    message += "Frame : ";
+    message += " Frame : ";
     message += std::to_string(UmTime.FrameCount());
     UmLogger.Log(LogLevel::LEVEL_DEBUG, message);
 }
@@ -51,7 +53,7 @@ void TestComponent::OnDestroy()
 void TestComponent::OnApplicationQuit()
 {
     std::string message = "OnApplicationQuit!";
-    message += "Frame : ";
+    message += " Frame : ";
     message += std::to_string(UmTime.FrameCount());
     UmLogger.Log(LogLevel::LEVEL_DEBUG, message);
 }
@@ -62,7 +64,7 @@ void TestComponent::OnLoadScene(Scene& scene, LoadSceneMode mode)
     message += (std::string)scene.Path;
     message += ", ";
     message += rfl::enum_to_string(mode);
-    message += "Frame : ";
+    message += " Frame : ";
     message += std::to_string(UmTime.FrameCount());
     UmLogger.Log(LogLevel::LEVEL_DEBUG, message);
 }
@@ -70,15 +72,17 @@ void TestComponent::OnLoadScene(Scene& scene, LoadSceneMode mode)
 void TestComponent::Reset()
 {
     std::string message = "Reset!";
-    message += "Frame : ";
+    message += " Frame : ";
     message += std::to_string(UmTime.FrameCount());
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, message);
 }
 
 void TestComponent::Awake()
 {
     std::string message = "Awake!";
-    message += "Frame : ";
+    message += " Frame : ";
     message += std::to_string(UmTime.FrameCount());
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, message);
     if (ReflectFields->TestDontDestroyOnLoad)
     {
         GameObject::DontDestroyOnLoad(gameObject);
@@ -88,36 +92,41 @@ void TestComponent::Awake()
 void TestComponent::Start()
 {
     std::string message = "Start!";
-    message += "Frame : ";
+    message += " Frame : ";
     message += std::to_string(UmTime.FrameCount());
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, message);
 }
 
 void TestComponent::OnEnable()
 {
     std::string message = "OnEnable!";
-    message += "Frame : ";
+    message += " Frame : ";
     message += std::to_string(UmTime.FrameCount());
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, message);
 }
 
 void TestComponent::OnDisable()
 {
     std::string message = "OnDisable!";
-    message += "Frame : ";
+    message += " Frame : ";
     message += std::to_string(UmTime.FrameCount());
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, message);
 }
 
 void TestComponent::SerializedReflectEvent()
 {
     std::string message = "SerializedReflectEvent!";
-    message += "Frame : ";
+    message += " Frame : ";
     message += std::to_string(UmTime.FrameCount());
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, message);
 }
 
 void TestComponent::DeserializedReflectEvent()
 {
     std::string message = "DeserializedReflectEvent!";
-    message += "Frame : ";
+    message += " Frame : ";
     message += std::to_string(UmTime.FrameCount());
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, message);
 }
 
 void TestComponent::ImGuiDrawPropertysEvent()
