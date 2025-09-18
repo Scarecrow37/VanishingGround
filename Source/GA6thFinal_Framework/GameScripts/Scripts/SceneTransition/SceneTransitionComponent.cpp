@@ -64,7 +64,7 @@ void SceneTransitionComponent::DeserializedReflectEvent()
 
 void SceneTransitionComponent::OnDrawDebug()
 {
-    if (false == Global::IsPlay())
+    if (false == UmCore->IsPlay())
     {
         CalculateFade();
     }
@@ -72,7 +72,7 @@ void SceneTransitionComponent::OnDrawDebug()
 
 void SceneTransitionComponent::OnDrawDebugSelected()
 {
-    if (false == Global::IsPlay())
+    if (false == UmCore->IsPlay())
     {
         CalculateFade();
     }

@@ -34,7 +34,7 @@ void RoundOnceTrueCondition::OnEvaluateConditions(bool result)
 
 RoundOnceTrueCondition::RoundOnceAction::RoundOnceAction()
 {
-    if (Global::IsPlay())
+    if (UmCore->IsPlay())
     {
         _roundOnceActions.push_back(this);
     }
