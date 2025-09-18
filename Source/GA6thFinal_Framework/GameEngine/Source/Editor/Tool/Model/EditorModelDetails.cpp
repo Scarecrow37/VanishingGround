@@ -417,6 +417,7 @@ void EditorModelDetails::ImportModel(const File::Path& path)
     fbxConverter.ImportModel(path, model);
     _meshRenderer->SetModel(model);
     _meshRenderer->SetActive(&_isModelActive);
+    _meshRenderer->Initialize();
     _filePath = path;
     _filePath.replace_extension("UmModel");
 
