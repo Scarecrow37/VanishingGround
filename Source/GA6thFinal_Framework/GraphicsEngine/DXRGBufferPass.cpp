@@ -49,7 +49,7 @@ void DXRGBufferPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerT
         _gBufferHandles[i] = gBufferGroup[i]->GetRTVHandle();
     }
 
-    __super::Initialize(ownerScene, ownerTechnique, commandList);
+    RenderPass::Initialize(ownerScene, ownerTechnique, commandList);
     InitShaderAndPSO();
 }
 

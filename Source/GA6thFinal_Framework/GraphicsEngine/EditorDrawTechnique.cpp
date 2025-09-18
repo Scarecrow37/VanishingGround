@@ -18,8 +18,3 @@ void EditorDrawTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
     pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));
 }
-
-void EditorDrawTechnique::Execute(ID3D12GraphicsCommandList* commandList)
-{    
-    __super::Execute(commandList);
-}

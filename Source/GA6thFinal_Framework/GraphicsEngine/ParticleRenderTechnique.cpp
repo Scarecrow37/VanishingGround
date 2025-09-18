@@ -4,9 +4,9 @@
 #include "ParticleRibbonPass.h"
 #include "ParticleRenderTechnique.h"
 
- ParticleRenderTechnique::ParticleRenderTechnique() {}
+ ParticleRenderTechnique::ParticleRenderTechnique() = default;
 
- ParticleRenderTechnique::~ParticleRenderTechnique() {}
+ ParticleRenderTechnique::~ParticleRenderTechnique() = default;
 
  void ParticleRenderTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 {
@@ -25,12 +25,6 @@
     InitializeParticleResolvePass(commandList);
 }
 
-void ParticleRenderTechnique::Execute(ID3D12GraphicsCommandList* commandList)
-{
-    //Global::particleManager->SetCurrentRenderScene(_ownerScene);
-    __super::Execute(commandList);
-}
-
 void ParticleRenderTechnique::InitializeSpriteParticlePass(ID3D12GraphicsCommandList* commandList)
 {
     std::unique_ptr<ParticleSpritePass> spritepass = std::make_unique<ParticleSpritePass>();
@@ -45,8 +39,6 @@ void ParticleRenderTechnique::InitializeRibbonParticlePass(ID3D12GraphicsCommand
     ribbonpass->Initialize(_ownerScene, this, commandList);
     ribbonpass->SetAccumulationBuffers(_accumlateBuffer, _revealageBuffer);
     AddRenderPass(std::move(ribbonpass));
-
-
 }
 
 void ParticleRenderTechnique::InitializeParticleResolvePass(ID3D12GraphicsCommandList* commandList)
