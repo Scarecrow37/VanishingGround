@@ -91,6 +91,18 @@ public:
     /// <returns></returns>
     const std::vector<std::string>* GetColumnDatas(std::u8string_view rowKey, std::u8string_view columnKey);
 
+    /// <summary>
+    /// Row Count
+    /// </summary>
+    /// <returns>Row Count</returns>
+    size_t RowCount() const;
+    
+    /// <summary>
+    /// Column Count
+    /// </summary>
+    /// <returns>Column Count</returns>
+    size_t ColumnCount();
+
 private:
     friend class ExcelDataSystem;
     ExcelDataBase(const std::string& dataBaseKey);

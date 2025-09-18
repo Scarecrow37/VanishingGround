@@ -538,6 +538,37 @@ const std::vector<std::string>* ExcelDataBase::GetColumnDatas(std::u8string_view
     return result;
 }
 
+size_t ExcelDataBase::RowCount() const
+{
+    size_t result = 0;
+    if (ExcelDataSystem* system = SingletonComponent<ExcelDataSystem>::GetInstance()) // 댕글링 방지
+    {
+        if (const DataBaseType* dataBase = system->GetRowDataBase(_key))
+        {
+            auto& [columnIndexKeyMap, keyIndexMap, dataSheet] = *dataBase;
+            result = dataSheet.size();
+        }
+    }
+    return result;
+}
+
+size_t ExcelDataBase::ColumnCount()
+{
+    size_t result = 0;
+    if (ExcelDataSystem* system = SingletonComponent<ExcelDataSystem>::GetInstance()) // 댕글링 방지
+    {
+        if (const DataBaseType* dataBase = system->GetRowDataBase(_key))
+        {
+            auto& [columnIndexKeyMap, keyIndexMap, dataSheet] = *dataBase;
+            if (false == dataSheet.empty())
+            {
+                result = dataSheet.front().size();
+            }
+        }
+    }
+    return result;
+}
+
 ExcelDataBase::ExcelDataBase(const std::string& dataBaseKey) 
     : 
     _key((const char8_t*)dataBaseKey.data()) 
