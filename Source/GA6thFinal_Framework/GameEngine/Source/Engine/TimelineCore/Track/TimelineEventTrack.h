@@ -38,7 +38,7 @@ namespace Timeline
         template <typename T> 
         EventContext* AddEvent(std::string_view label, float time)
         {
-            static_assert(std::is_base_of_v<EventContext, T>, "T is not derived from ITimelineEvent.");
+            static_assert(std::is_base_of_v<EventContext, T>, "T is not derived from EventContext.");
             const char* key = typeid(T).name();
             return AddEventEx(label, key, time);
         }

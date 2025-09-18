@@ -99,6 +99,7 @@ void EditorAnimationTrackTool::UpdateTimeline()
             auto eventTrack = _animationEventTrack.GetActiveEventTrack();
             if (nullptr != eventTrack)
             {
+                eventTrack->AddFlags(Timeline::EVENT_TRCK_FLAGS_NOTIFY_DISABLED);
                 eventTrack->SetMinFrame(0.0f);
                 eventTrack->SetMaxFrame(animator->GetCurrentAnimationLastTime());
                 eventTrack->SetCurrentFrame(animator->GetCurrentAnimationPlayTime());
@@ -553,43 +554,45 @@ void EditorAnimationTrackTool::ShowEventTrackEditTab(std::shared_ptr<Timeline::E
         UINT             id    = context->ID;
         ImVec2           availSize  = ImGui::GetContentRegionAvail();
         float            labelWidth = availSize.x * 0.2f;
-        {
-            char buf[128];
-            strcpy_s(buf, label.data());
-            ImGuiHelper::TextWithVerticalSeparator("Label", labelWidth);
-            if (ImGui::InputText("##TrackLabel", buf, sizeof(buf)))
-            {
-                context->Label = buf;
-            }
-            ImGuiHelper::TextWithVerticalSeparator("Time", labelWidth);
-            if (ImGui::InputFloat("##TrackTime", &time, 0, 0))
-            {
-                float minFrame = track->GetMinFrame();
-                float maxFrame = track->GetMaxFrame();
-                time = ImClamp(time, minFrame, maxFrame);
-                track->ChangeContextTime(contextID, time);
-            }
-        }
-        ImGui::Separator();
-        {
-            ImGuiHelper::TextWithVerticalSeparator("Event", labelWidth);
-            std::string_view eventTypeName = context->EventType;
-            auto table = Timeline::EventTrack::GetInstanceConstructors();
-            if (ImGui::BeginCombo("##EventName", eventTypeName.data() + 6))
-            {
-                for (const auto& [key, func] : table)
-                {
-                    std::string curEvent(eventTypeName);
-                    bool isSelected = (curEvent == key);
-                    const char* label = key.c_str() + 6;
-                    if (ImGui::Selectable(label, isSelected))
-                    {
-                        context->SetEvent(key);
-                    }
-                }
-                ImGui::EndCombo();
-            }
-        }
+        //{
+        //    char buf[128];
+        //    strcpy_s(buf, label.data());
+        //    ImGuiHelper::TextWithVerticalSeparator("Label", labelWidth);
+        //    if (ImGui::InputText("##TrackLabel", buf, sizeof(buf)))
+        //    {
+        //        context->Label = buf;
+        //    }
+        //    ImGuiHelper::TextWithVerticalSeparator("Time", labelWidth);
+        //    if (ImGui::InputFloat("##TrackTime", &time, 0, 0))
+        //    {
+        //        float minFrame = track->GetMinFrame();
+        //        float maxFrame = track->GetMaxFrame();
+        //        time = ImClamp(time, minFrame, maxFrame);
+        //        track->ChangeContextTime(contextID, time);
+        //    }
+        //}
+        context->ImGuiDrawPropertys();
+
+        //ImGui::Separator();
+        //{
+        //    ImGuiHelper::TextWithVerticalSeparator("Event", labelWidth);
+        //    std::string_view eventTypeName = context->EventType;
+        //    auto table = Timeline::EventTrack::GetInstanceConstructors();
+        //    if (ImGui::BeginCombo("##EventName", eventTypeName.data() + 6))
+        //    {
+        //        for (const auto& [key, func] : table)
+        //        {
+        //            std::string curEvent(eventTypeName);
+        //            bool isSelected = (curEvent == key);
+        //            const char* label = key.c_str() + 6;
+        //            if (ImGui::Selectable(label, isSelected))
+        //            {
+        //                context->SetEvent(key);
+        //            }
+        //        }
+        //        ImGui::EndCombo();
+        //    }
+        //}
 
         ImGui::PopID();
     }
@@ -622,13 +625,22 @@ void EditorAnimationTrackTool::ShowAvailableEventTracks()
 
 void EditorAnimationTrackTool::LowerFramePopup() 
 {
-    if (ImGui::MenuItem("Add Empty Event"))
+    if (ImGui::MenuItem("+ Add Empty Event"))
     {
         auto track = _animationEventTrack.GetActiveEventTrack();
         if (track && _sequencer)
         {
             float currentFrame = _sequencer->GetMouseCursorFrame();
             track->AddEvent<Timeline::EventContext>("New Event", currentFrame);
+        }
+    }
+    if (ImGui::MenuItem("+ Add Audio Event"))
+    {
+        auto track = _animationEventTrack.GetActiveEventTrack();
+        if (track && _sequencer)
+        {
+            float currentFrame = _sequencer->GetMouseCursorFrame();
+            track->AddEvent<Timeline::AudioEventContext>("New Audio Event", currentFrame);
         }
     }
 }
