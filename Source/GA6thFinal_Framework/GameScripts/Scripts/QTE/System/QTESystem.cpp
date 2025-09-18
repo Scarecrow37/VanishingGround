@@ -409,9 +409,10 @@ void QTESystem::PressedButtonB(const Input::Controller& controller)
 
 void QTESystem::ProcessQTEEnterEvent() 
 {
-    if (QTEUIManager::GetInstance())
+    QTEUIManager* uiManager = QTEUIManager::GetInstance();
+    if (uiManager)
     {
-        QTEUIManager::GetInstance()->OnQTEEnter();
+        uiManager->OnQTEEnter();
     }
     TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
     if (turnMode)
@@ -429,17 +430,19 @@ void QTESystem::ProcessQTEEnterEvent()
 
 void QTESystem::ProcessQTENotePressedEvent(QTE::ResultType result)
 {
-    if (QTEUIManager::GetInstance())
+    QTEUIManager* uiManager = QTEUIManager::GetInstance();
+    if (uiManager)
     {
-        QTEUIManager::GetInstance()->OnQTENotePressed(result);
+        uiManager->OnQTENotePressed(result);
     }
 }
 
 void QTESystem::ProcessQTEStayEvent() 
 {
-    if (QTEUIManager::GetInstance())
+    QTEUIManager* uiManager = QTEUIManager::GetInstance();
+    if (uiManager)
     {
-        QTEUIManager::GetInstance()->OnQTEStay();
+        uiManager->OnQTEStay();
     }
     if (_currQTEPlaying && _currentQTETrack)
     {
@@ -449,9 +452,10 @@ void QTESystem::ProcessQTEStayEvent()
 
 void QTESystem::ProcessQTEExitEvent() 
 {
-    if (QTEUIManager::GetInstance())
+    QTEUIManager* uiManager = QTEUIManager::GetInstance();
+    if (uiManager)
     {
-        QTEUIManager::GetInstance()->OnQTEExit();
+        uiManager->OnQTEExit();
     }
     TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
     if (turnMode)
