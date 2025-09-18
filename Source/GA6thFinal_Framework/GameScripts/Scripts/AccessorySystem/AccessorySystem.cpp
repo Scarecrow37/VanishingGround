@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "AccessorySystem.h"
 #include "TurnSystem/TurnAction/TurnActionFactory.h"
+#include "ExcelDataSystem/ExcelDataSystem.h"
 
 UMREAL_COMPONENT(AccessorySystem)
 
@@ -118,7 +119,62 @@ void AccessorySystem::ImGuiDrawPropertysEvent()
                 }
                 gameObject->GetScene().IsDirty = true;
             }
-            ImGui::MenuItem("Excel Parser", "", &_editorOnly.ColumnParser.ShowParser);
+            if (ImGui::MenuItem("Excel Parser"))
+            {
+                auto ParserFunc = [&](ExcelDataBase& dataBase) 
+                {
+                    constexpr std::array<std::u8string_view, 3> keyInfos{u8"ID", u8"Name", u8"Rarity"};
+
+                    size_t rowCount = dataBase.RowCount();
+                    for (size_t row = 0; row < rowCount; row++)
+                    {
+                        AccessoryElement temp;
+                        bool             result = true;
+
+                        for (auto& key : keyInfos)
+                        {
+                            std::string_view data = dataBase.FindData(row, key);
+                            result &= ExcelAccessoryElement(temp, (const char*)key.data(), data.data());
+                        }
+                        const std::string& name = temp.AccessoryName;
+                        if (name != STR_NULL)
+                        {
+                            auto findIter = _elementTable.find(name);
+                            if (findIter == _elementTable.end())
+                            {
+                                // 없으면 새로 생성
+                                InsertAccessory(temp);
+                            }
+                            else
+                            {
+                                // 이미 있으면 액션 제외하고 복사
+                                std::string originActionName               = findIter->second.ReflectFields->ActionName;
+                                std::string originActionData               = findIter->second.ReflectFields->ActionData;
+                                *findIter->second.ReflectFields            = *temp.ReflectFields;
+                                findIter->second.ReflectFields->ActionName = std::move(originActionName);
+                                findIter->second.ReflectFields->ActionData = std::move(originActionData);
+                            }
+                            if (false == result)
+                            {
+                                // 잘못된 데이터는 알림 팝업
+                                AccessoryElement& element = _elementTable[name];
+                                _editorOnly.DirtyAccessoryQueue.push(&element);
+                            }
+                        }
+                    }                
+                };
+
+                if (ExcelDataSystem* dataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
+                {
+                    if (std::unique_ptr<ExcelDataBase> dataBase = dataSystem->FindExcelDataBase(u8"장신구"))
+                    {
+                        if (dataBase)
+                        {
+                            ParserFunc(*dataBase);
+                        }
+                    }
+                }
+            }
             ImGui::EndMenuBar();
         }
         ImGuiTableEditor();
@@ -284,10 +340,6 @@ void AccessorySystem::ImGuiDrawExcelParser()
         auto PopDirtyAccessoryElement = [this]() {
             _editorOnly.ShowDirtyAccessoryPopup = false;
             _editorOnly.DirtyAccessoryQueue.pop();
-            if (true == _editorOnly.DirtyAccessoryQueue.empty())
-            {
-                _editorOnly.ColumnParser.ShowParser = false;
-            }
         };
 
         ImGui::Text(u8"올바르지 않은 형식입니다. 직접 입력해주세요."_c_str);
@@ -313,48 +365,6 @@ void AccessorySystem::ImGuiDrawExcelParser()
     {
         ImGui::OpenPopup(u8"알림##Dirty Accessory Popup"_c_str);
         _editorOnly.ShowDirtyAccessoryPopup = true;
-    }
-
-    auto ParserFunc = [&](ImGuiColumnSheetParser::ColumnDatas datas) 
-    {
-        AccessoryElement temp;
-        bool             result = true;
-        for (auto& [key, data] : datas)
-        {
-            result &= ExcelAccessoryElement(temp, key, data);
-        }
-        const std::string& name = temp.AccessoryName;
-        if (name != STR_NULL)
-        {
-            auto findIter = _elementTable.find(name);
-            if (findIter == _elementTable.end())
-            {
-                // 없으면 새로 생성
-                InsertAccessory(temp);
-            }
-            else
-            {
-                // 이미 있으면 액션 제외하고 복사
-                std::string originActionName               = findIter->second.ReflectFields->ActionName;
-                std::string originActionData               = findIter->second.ReflectFields->ActionData;
-                *findIter->second.ReflectFields            = *temp.ReflectFields;
-                findIter->second.ReflectFields->ActionName = std::move(originActionName);
-                findIter->second.ReflectFields->ActionData = std::move(originActionData);
-            }
-            if (false == result)
-            {
-                // 잘못된 데이터는 알림 팝업
-                AccessoryElement& element = _elementTable[name];
-                _editorOnly.DirtyAccessoryQueue.push(&element);
-            }
-        }
-    };
-    if (_editorOnly.ColumnParser.Draw(ParserFunc))
-    {
-        if (true == _editorOnly.DirtyAccessoryQueue.empty())
-        {
-            _editorOnly.ColumnParser.ShowParser = false;
-        }
     }
 #endif
 }
