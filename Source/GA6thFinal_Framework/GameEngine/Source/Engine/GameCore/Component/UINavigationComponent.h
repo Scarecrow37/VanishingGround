@@ -97,6 +97,13 @@ public:
     /// </summary>
     void ClearNavigationRoute();
 
+    /// <summary>
+    /// NavigationID를 변경하여 탐색 목적지를 업데이트합니다.
+    /// </summary>
+    /// <param name="fromId">현재 탐색 목적지의 NavigationID입니다.</param>
+    /// <param name="toId">새로운 탐색 목적지의 NavigationID입니다.</param>
+    void ChangeNavigationDestinationID(NavigationID fromId, NavigationID toId);
+
 protected:
     UIComponent* GetSiblingUI() const;
 

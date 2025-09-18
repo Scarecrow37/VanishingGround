@@ -149,6 +149,9 @@ void UINavigationComponent::ImGuiDrawPropertysEvent()
 {
     UIBaseComponent::ImGuiDrawPropertysEvent();
 
+    const NavigationID id = ReflectFields->NavigationID;
+    ImGuiDebug()("Navigation ID", id);
+
     if (ImGui::Button("Set Initial Focus"))
     {
         SetInitialFocus();
@@ -237,11 +240,6 @@ void UINavigationComponent::ImGuiDrawPropertysEvent()
         step.Reset();
     }
 
-    if (_isDebug)
-    {
-        const NavigationID id = ReflectFields->NavigationID;
-        ImGuiDebug()("Navigation ID", id);
-    }
 }
 
 void UINavigationComponent::OnDrawDebugSelectedOverride()
@@ -356,8 +354,9 @@ void UINavigationComponent::AcquireNavigationID(UIRoot* root)
 {
     if (nullptr != root)
     {
-        const NavigationID newID    = root->AcquireNavigationID();
-        ReflectFields->NavigationID = newID;
+        const NavigationID tempID = ReflectFields->NavigationID;
+        const NavigationID newID    = root->AcquireNavigationID(tempID);
+        ReflectFields->NavigationID  = newID;
     }
 }
 
@@ -367,8 +366,8 @@ void UINavigationComponent::ReleaseNavigationID(UIRoot* root)
     {
         if (const NavigationID id = ReflectFields->NavigationID; INVALID_NAVIGATION_ID != id)
         {
-            root->ReleaseNavigationID(id);
-            ReflectFields->NavigationID = INVALID_NAVIGATION_ID;
+            const NavigationID tempId = root->ReleaseNavigationID(id);
+            ReflectFields->NavigationID = tempId;
         }
     }
 }
@@ -377,6 +376,18 @@ void UINavigationComponent::ClearNavigationRoute()
 {
     NavigationRoutes& navigationInfos = ReflectFields->NavigationRoutes;
     navigationInfos.clear();
+}
+
+void UINavigationComponent::ChangeNavigationDestinationID(NavigationID fromId, NavigationID toId)
+{
+    NavigationRoutes& navigationInfos = ReflectFields->NavigationRoutes;
+    std::ranges::for_each(navigationInfos, [fromId, toId](auto& info) {
+        auto& [button, bias, name, toID] = info;
+        if (toID == fromId)
+        {
+            toID = toId;
+        }
+    });
 }
 
 void UINavigationComponent::AddNavigationRoute(const NavigationKey& key, const NavigationID toID)
