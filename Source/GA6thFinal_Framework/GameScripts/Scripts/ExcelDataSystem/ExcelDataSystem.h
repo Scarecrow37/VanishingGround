@@ -27,7 +27,7 @@ public:
     /// </summary>
     /// <param name="columnKeyName :">찾을 Column의 키 문자열</param>
     /// <returns>실패시 ExcelDataBase::FIND_INDEX_FAIL를 반환합니다.</returns>
-    size_t FindColumnIndex(const std::string& columnKeyName);
+    size_t FindColumnIndex(std::u8string_view columnKeyName);
 
     /// <summary>
     /// 해당 인덱스에 해당하는 Column key를 반환합니다.
@@ -42,7 +42,7 @@ public:
     /// <param name="rowKey :">찾을 문자열 데이터</param>
     /// <param name="columnIndex :">탐색할 column index</param>
     /// <returns>실패시 ExcelDataBase::FIND_INDEX_FAIL</returns>
-    size_t FindRowIndex(const std::string& rowKey, size_t columnIndex);
+    size_t FindRowIndex(std::u8string_view rowKey, size_t columnIndex);
 
     /// <summary>
     /// 해당 column key에 row key의 인덱스를 반환합니다.
@@ -50,7 +50,7 @@ public:
     /// <param name="rowKey :">찾을 문자열 데이터</param>
     /// <param name="columnIndex :">탐색할 column 키 index</param>
     /// <returns>실패시 ExcelDataBase::FIND_INDEX_FAIL</returns>
-    size_t FindRowIndex(const std::string& rowKey, const std::string& columnKey);
+    size_t FindRowIndex(std::u8string_view rowKey, std::u8string_view columnKey);
 
     /// <summary>
     /// 데이터 시트에서 데이터를 가져옵니다.
@@ -66,7 +66,7 @@ public:
     /// <param name="rowIndex :">row index</param>
     /// <param name="columnKey :">column key</param>
     /// <returns>실패시 FIND_STR_FAIL을 반환합니다.</returns>
-    std::string_view FindData(size_t rowIndex, const std::string& columnKey);
+    std::string_view FindData(size_t rowIndex, std::u8string_view columnKey);
 
     /// <summary>
     /// 데이터 시트에서 Row의 Column 데이터들을 가져옵니다.
@@ -81,7 +81,7 @@ public:
     /// <param name="rowKey"></param>
     /// <param name="columnIndex"></param>
     /// <returns></returns>
-    const std::vector<std::string>* GetColumnDatas(const std::string& rowKey, size_t columnIndex);
+    const std::vector<std::string>* GetColumnDatas(std::u8string_view rowKey, size_t columnIndex);
 
     /// <summary>
     /// 데이터 시트에서 해당 columnKey에 rowKey 데이터가 있는 동일한 Row의 모든 데이터를 반환합니다.
@@ -89,12 +89,12 @@ public:
     /// <param name="rowKey :">가져올 데이터 Row 인덱스를 찾기 위한 문자열y</param>
     /// <param name="columnKey :">찾을 Row 데이터가 존재하는 Column key</param>
     /// <returns></returns>
-    const std::vector<std::string>* GetColumnDatas(const std::string& rowKey, const std::string& columnKey);
+    const std::vector<std::string>* GetColumnDatas(std::u8string_view rowKey, std::u8string_view columnKey);
 
 private:
     friend class ExcelDataSystem;
     ExcelDataBase(const std::string& dataBaseKey);
-    const std::string _key;
+    const std::u8string _key;
 
 };
 
@@ -114,14 +114,14 @@ public:
     /// </summary>
     /// <param name="sheetName :">원하는 시트 이름</param>
     /// <returns>동적 할당된 ExcelDataBase</returns>
-    std::unique_ptr<ExcelDataBase> FindExcelDataBase(const std::string& sheetName);
+    std::unique_ptr<ExcelDataBase> FindExcelDataBase(std::u8string_view sheetName);
 
     /// <summary>
     /// 원본 데이터 베이스의 포인터를 반환합니다. 없으면 nullptr을 반환합니다. (데이터를 찾을때는 FindExcelDataBase를 이용해야합니다.)
     /// </summary>
     /// <param name="sheetName :">원하는 시트 이름</param>
     /// <returns>해당 시트 데이터 베이스의 포언터</returns>
-    const ExcelDataBase::DataBaseType* GetRowDataBase(const std::string& sheetName);
+    const ExcelDataBase::DataBaseType* GetRowDataBase(std::u8string_view sheetName);
 
 private:
     SingletonObject<ExcelDataSystem> _singletonObject;
