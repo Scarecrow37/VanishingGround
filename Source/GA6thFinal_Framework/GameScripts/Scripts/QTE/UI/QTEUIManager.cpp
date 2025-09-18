@@ -5,6 +5,9 @@
 #include <UI/Panels/Overlay/OverlayPanel.h>
 #include <UI/Elements/Image/ImageElement.h>
 
+
+UMREAL_COMPONENT(QTEUIManager)
+
 QTEUIManager::QTEUIManager() = default;
 QTEUIManager::~QTEUIManager() = default;
 
@@ -28,8 +31,9 @@ void QTEUIManager::OnQTENotePressed(QTE::ResultType result)
 
 void QTEUIManager::OnQTEStay() 
 {
+    // UI가 하나라도 존재하지 않으면 실행하지 않음
     if (nullptr == _qteOverlayPanel ||
-        nullptr == _qteNoteLineUI ||
+        nullptr == _qteNoteLineUI   ||
         nullptr == _qteBackgroundUI ||
         nullptr == _qteJudgeNoteUI  )
     {
@@ -57,9 +61,8 @@ void QTEUIManager::OnQTEStay()
                     if (noteUI)
                     {
                         GameObject& object      = noteUI->gameObject;
-                        if (QTE::QTE_RESULT_NONE != result.ResultType && 0 != result.PressedButton)
-                        {
-                            // 이미 판정이 난 노트는 비활성화
+                        if (result.IsValidResult() && result.IsPressedButton())
+                        {   // 이미 누른 판정이 난 노트는 비활성화
                             object.ActiveSelf   = false;
                             continue;
                         }
@@ -68,7 +71,7 @@ void QTEUIManager::OnQTEStay()
 
                         float notePosXFactor    = CalculateNotePosXFactor(time, qteTime);
                         float perfectPos        = _qteJudgePos.x + (_qteJudgeSize.x * 0.5f) - _qtePanelPos.x;
-                        float notePosX          = perfectPos * notePosXFactor;
+                        float notePosX          = perfectPos * notePosXFactor; // 패널 기준에서의 노트 좌표
                         
                         // 포지션은 판정노트가 1.0 기준이지만 알파는 라인 끝을 기준으로 계산
                         float alphaFactor       = notePosX / _qtePanelSize.x;
@@ -76,7 +79,7 @@ void QTEUIManager::OnQTEStay()
 
                         if (alpha > 0.0f)
                         {
-                            float notePosAbsX   = notePosX - ((float)noteSize.cx * 0.5f) + _qtePanelPos.x;
+                            float notePosAbsX   = notePosX - ((float)noteSize.cx * 0.5f) + _qtePanelPos.x; // 절대 좌표로 변환
                             noteUI->Point       = POINT{(LONG)notePosAbsX, oldPoint.y};
                             noteUI->Alpha       = alpha;
                             object.ActiveSelf   = true;
@@ -94,9 +97,8 @@ void QTEUIManager::OnQTEStay()
 
 void QTEUIManager::OnQTEExit() 
 {
-    // 오브젝트 비활성화 QTE UI 페이드 아웃 
+    // QTE UI 페이드 아웃 
     _fader.SetFadeMode(Fader::FADE_OUT);
-    _fader.SetOnFadeOutEndCallback([this]() { gameObject->ActiveSelf = false; });
     
     // QTE 종료 시 노트 오브젝트 정리
     ClearAllQTENotes();
@@ -105,6 +107,7 @@ void QTEUIManager::OnQTEExit()
 void QTEUIManager::Reset() 
 {
     _staticInstance = this;
+
     FilePath.SetInputAutoEvent([this]() {
         if (ImGui::BeginDragDropTarget())
         {
@@ -133,11 +136,15 @@ void QTEUIManager::Awake()
 
 void QTEUIManager::Start()
 {
+    _qteSystem = SingletonComponent<QTESystem>::GetInstance();
+    
     _fader.SetDuration(1.0f);
     _fader.SetFadeInType(Mathf::EASE_IN, Mathf::SINE);
     _fader.SetFadeOutType(Mathf::EASE_OUT, Mathf::SINE);
-    _qteSystem = SingletonComponent<QTESystem>::GetInstance();
+    _fader.SetOnFadeOutEndCallback([this]() { gameObject->ActiveSelf = false; });
+    
     FindUIComponents();
+    
     UpdateUITransformData();
 }
 

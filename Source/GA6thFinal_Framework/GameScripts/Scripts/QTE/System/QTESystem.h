@@ -59,14 +59,14 @@ public:
 
     void StartQTE();
     void StartQTE(QTE::Track* qteTrack);
+    void PauseQTE(bool pause);
 
-    void PlayQTE();
-    void PauseQTE();
-
-private:
-    void UpdateQTETrack();
     bool IsQTETimeEnd();
 
+private:
+    void ClearTrack();
+    void ClearQueue();
+    void UpdateQTETrack();
     QTE::ResultType GetQTEResult(QTE::Note* note);
 
 private:

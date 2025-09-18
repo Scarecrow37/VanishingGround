@@ -3,7 +3,10 @@
 #include <QTE/UI/QTEUIManager.h>
 #include <QTE/Editor/QTEEditor.h>
 #include <QTE/Track/QTETrack.h>
+
 #include <WeaponSystem/WeaponSystem.h>
+#include <TurnSystem/TurnActor/Character/CharacterBase.h>
+#include <TurnSystem/TurnMode/TurnMode.h>
 
 UMREAL_COMPONENT(QTESystem)
 
@@ -13,16 +16,7 @@ QTESystem::QTESystem()
 
 QTESystem::~QTESystem() 
 {
-    for (auto& [weaponID, trackList] : _weaponIDToTrackTable)
-    {
-        for (auto& track : trackList)
-        {
-            if (track)
-            {
-                delete track;
-            }
-        }
-    }
+    ClearTrack();
 }
 
 void QTESystem::Reset()
@@ -79,17 +73,7 @@ void QTESystem::SerializedReflectEvent()
 
 void QTESystem::DeserializedReflectEvent() 
 {
-    for (auto& trackList : _weaponIDToTrackTable)
-    {
-        for (auto& track : trackList.second)
-        {
-            if (track)
-            {
-                delete track;
-            }
-        }
-    }
-    _weaponIDToTrackTable.clear();
+    ClearTrack();
     for (auto& [weaponID, trackDataList] : ReflectFields->WeaponQTETrackData)
     {
         for (auto& trackData : trackDataList)
@@ -216,9 +200,8 @@ void QTESystem::StartQTE(QTE::Track* qteTrack)
     }
 
     _currQTEPlaying = true;
-    _currentNoteIndex = 0;
-    _noteAvailQueue.clear();
-    _noteResultQueue.clear();
+    PauseQTE(false);
+    ClearQueue();
 
     if (qteTrack)
     {
@@ -246,19 +229,11 @@ void QTESystem::StartQTE(QTE::Track* qteTrack)
     ProcessQTEEnterEvent();
 }
 
-void QTESystem::PlayQTE() 
+void QTESystem::PauseQTE(bool pause) 
 {
     if (IsQTEPlaying())
     {
-        _qtePaused = false;
-    }
-}
-
-void QTESystem::PauseQTE() 
-{
-    if (IsQTEPlaying())
-    {
-        _qtePaused = true;
+        _qtePaused = pause;
     }
 }
 
@@ -266,15 +241,10 @@ bool QTESystem::IsQTETimeEnd()
 {
     if (_currentQTETrack)
     {
-        auto track = _currentQTETrack->GetEventTrack().lock();
-        if (track)
+        float maxFrame = _currentQTETrack->GetMaxFrame();
+        if (_qteTimer >= maxFrame)
         {
-            float minFrame = track->GetMinFrame();
-            float maxFrame = track->GetMaxFrame();
-            if (_qteTimer >= maxFrame)
-            {
-                return true;
-            }
+            return true;
         }
     }
     return false;
@@ -304,6 +274,28 @@ QTE::ResultType QTESystem::GetQTEResult(QTE::Note* note)
         }
     }
     return QTE::QTE_RESULT_NONE;
+}
+
+void QTESystem::ClearTrack()
+{
+    for (auto& [weaponID, trackList] : _weaponIDToTrackTable)
+    {
+        for (auto& track : trackList)
+        {
+            if (track)
+            {
+                delete track;
+            }
+        }
+    }
+    _weaponIDToTrackTable.clear();
+}
+
+void QTESystem::ClearQueue()
+{
+    _currentNoteIndex = 0;
+    _noteAvailQueue.clear();
+    _noteResultQueue.clear();
 }
 
 void QTESystem::UpdateQTETrack()
@@ -421,6 +413,18 @@ void QTESystem::ProcessQTEEnterEvent()
     {
         QTEUIManager::GetInstance()->OnQTEEnter();
     }
+    TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
+    if (turnMode)
+    {
+        for (auto& character : turnMode->GetCharacters())
+        {
+            if (character)
+            {
+                character->OnQTEStart();
+            }
+        }
+        turnMode->ApplyActions([](TurnAction& turnAction) { turnAction.OnQTEStart(); });
+    }
 }
 
 void QTESystem::ProcessQTENotePressedEvent(QTE::ResultType result)
@@ -448,5 +452,17 @@ void QTESystem::ProcessQTEExitEvent()
     if (QTEUIManager::GetInstance())
     {
         QTEUIManager::GetInstance()->OnQTEExit();
+    }
+    TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
+    if (turnMode)
+    {
+        for (auto& character : turnMode->GetCharacters())
+        {
+            if (character)
+            {
+                character->OnQTEEnd();
+            }
+        }
+        turnMode->ApplyActions([](TurnAction& turnAction) { turnAction.OnQTEEnd(); });
     }
 }

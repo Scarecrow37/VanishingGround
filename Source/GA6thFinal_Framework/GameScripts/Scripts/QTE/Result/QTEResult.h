@@ -16,10 +16,13 @@ namespace QTE
     {
         Result() = default;
         Result(Note* note) : Note(note) {}
-        int             PressedButton = 0;
+        unsigned int    PressedButton = 0;
         Note*           Note        = nullptr;              // 결과에 해당하는 노트
         ResultType      ResultType  = QTE_RESULT_NONE;      // 결과 타입
         float           TimeDelta   = 0.0f;                 // 누른 시간과 퍼펙트 시간 차이 (초)
+
+        inline bool IsPressedButton() const { return PressedButton != 0; }
+        inline bool IsValidResult() const { return ResultType != QTE_RESULT_NONE; }
     };
 
     inline static const char* QTEResultToString(ResultType result)

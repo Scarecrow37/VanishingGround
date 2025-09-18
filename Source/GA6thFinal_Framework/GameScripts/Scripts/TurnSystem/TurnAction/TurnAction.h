@@ -198,6 +198,12 @@ public:
     {
     }
 
+    /// <summary>QTE가 시작할 때 호출됩니다.</summary>
+    virtual void OnQTEStart() {};
+
+    /// <summary>QTE가 끝날 때 호출됩니다.</summary>
+    virtual void OnQTEEnd() {};
+
 public:
     REFLECT_PROPERTY(ActionName, ActionInfo, LogicOperator)
 
