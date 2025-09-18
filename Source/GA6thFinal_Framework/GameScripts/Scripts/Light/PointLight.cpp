@@ -1,6 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "PointLight.h"
 
+UMREAL_COMPONENT(PointLight)
+
 PointLight::PointLight()
 {
    

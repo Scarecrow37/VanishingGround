@@ -41,6 +41,8 @@
 #include <Stats/Enemy/EnemyStatsComponent.h>
 #include <Stats/Enemy/EnemyStats.h>
 
+UMREAL_COMPONENT(TurnMode)
+
 TurnMode::TurnMode() 
     : 
     _roundCount(0), 

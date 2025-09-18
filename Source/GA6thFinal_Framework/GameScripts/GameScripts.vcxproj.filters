@@ -3,7 +3,6 @@
   <ItemGroup>
     <ClCompile Include="Scripts\EnemyAction\Factory\EnemyActionFactory.cpp" />
     <ClCompile Include="Scripts\EnemyAction\ActionData\EnemyActionData.cpp" />
-    <ClCompile Include="Scripts\Audio\AudioComponent.cpp" />
     <ClCompile Include="Scripts\BattleSystem\Battle.cpp" />
     <ClCompile Include="Scripts\ColorUtils\ColorUtils.cpp" />
     <ClCompile Include="Scripts\EnemyAction\System\EnemyActionSystem.cpp" />
@@ -112,11 +111,10 @@
     <ClCompile Include="Scripts\WeaponSystem\WeaponSystem.cpp" />
     <ClCompile Include="Scripts\Test\TurnAction\TestActionComponent.cpp" />
     <ClCompile Include="Scripts\Test\DevTools\LogOutput.cpp" />
-    <ClCompile Include="Scripts\Audio\Table\AudioTableComponent.cpp" />
+    <ClCompile Include="Scripts\Audio\AudioTableComponent.cpp" />
     <ClCompile Include="Scripts\ExcelParser\ImGuiColumnSheetParser.cpp" />
     <ClCompile Include="Scripts\ViewModels\Hp\HpViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Revelations\RevelationsViewModel.cpp" />
-    <ClCompile Include="Scripts\Audio\BGMManager.cpp" />
     <ClCompile Include="Scripts\UI\Elements\Dummy\DummyElement.cpp" />
     <ClCompile Include="Scripts\UI\Wrappers\Dummy\DummyWrapper.cpp" />
     <ClCompile Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.cpp" />
@@ -129,7 +127,6 @@
     <ClCompile Include="Scripts\UI\Panels\Description\DescriptionPanel.cpp" />
     <ClCompile Include="Scripts\UI\Views\MonsterHp\MonsterHpView.cpp" />
     <ClCompile Include="Scripts\UI\Views\RevelationsView\RevelationsView.cpp" />
-    <ClCompile Include="Scripts\Audio\BGMManager.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnSystemHelper.cpp" />
     <ClCompile Include="Scripts\Map\MapManager.cpp" />
     <ClCompile Include="Scripts\Map\Stage.cpp" />
@@ -154,12 +151,18 @@
     <ClCompile Include="Scripts\ViewModels\Map\MapPlayerHPViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Map\StageFocusViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Map\StageViewModel.cpp" />
+    <ClCompile Include="Scripts\ExcelDataSystem\ExcelDataSystem.cpp" />
+    <ClCompile Include="Scripts\Preferences\Button\EnableButton.cpp" />
+    <ClCompile Include="Scripts\Preferences\Button\PreferencesButton.cpp" />
+    <ClCompile Include="Scripts\Preferences\Button\TextureLMH.cpp" />
+    <ClCompile Include="Scripts\Preferences\PreferencesManager.cpp" />
+    <ClCompile Include="Scripts\Preferences\PrefrencesWindow.cpp" />
+    <ClCompile Include="Scripts\UINavigation\TempNavigationComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h" />
     <ClInclude Include="Scripts\EnemyAction\ActionData\EnemyActionData.h" />
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
-    <ClInclude Include="Scripts\Audio\AudioComponent.h" />
     <ClInclude Include="Scripts\BattleSystem\Battle.h" />
     <ClInclude Include="Scripts\ColorUtils\ColorUtils.h" />
     <ClInclude Include="Scripts\EnemyAction\System\EnemyActionSystem.h" />
@@ -284,10 +287,9 @@
     <ClInclude Include="Scripts\WeaponSystem\WeaponSystem.h" />
     <ClInclude Include="Scripts\Test\TurnAction\TestActionComponent.h" />
     <ClInclude Include="Scripts\Test\DevTools\LogOutput.h" />
-    <ClInclude Include="Scripts\Audio\Table\AudioTableComponent.h" />
+    <ClInclude Include="Scripts\Audio\AudioTableComponent.h" />
     <ClInclude Include="Scripts\ViewModels\Hp\HpViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Revelations\RevelationsViewModel.h" />
-    <ClInclude Include="Scripts\Audio\BGMManager.h" />
     <ClInclude Include="Scripts\UI\Elements\Dummy\DummyElement.h" />
     <ClInclude Include="Scripts\UI\Wrappers\Dummy\DummyWrapper.h" />
     <ClInclude Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.h" />
@@ -300,7 +302,6 @@
     <ClInclude Include="Scripts\UI\Panels\Description\DescriptionPanel.h" />
     <ClInclude Include="Scripts\UI\Views\MonsterHp\MonsterHpView.h" />
     <ClInclude Include="Scripts\UI\Views\RevelationsView\RevelationsView.h" />
-    <ClInclude Include="Scripts\Audio\BGMManager.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnSystemHelper.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionEnums.h" />
     <ClInclude Include="Scripts\Map\MapManager.h" />
@@ -329,6 +330,13 @@
     <ClInclude Include="Scripts\ViewModels\Map\StageFocusViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Map\StageViewModel.h" />
     <ClInclude Include="DLLExportDefine.h" />
+    <ClInclude Include="Scripts\ExcelDataSystem\ExcelDataSystem.h" />
+    <ClInclude Include="Scripts\Preferences\Button\EnableButton.h" />
+    <ClInclude Include="Scripts\Preferences\Button\PreferencesButton.h" />
+    <ClInclude Include="Scripts\Preferences\Button\TextureLMH.h" />
+    <ClInclude Include="Scripts\Preferences\PreferencesManager.h" />
+    <ClInclude Include="Scripts\Preferences\PrefrencesWindow.h" />
+    <ClInclude Include="Scripts\UINavigation\TempNavigationComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

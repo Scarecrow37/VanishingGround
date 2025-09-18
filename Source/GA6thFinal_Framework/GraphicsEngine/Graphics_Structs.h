@@ -161,4 +161,5 @@ struct VolumetricFogProperty
     float CustomFar;
     float FogIntensity;
     float LightShaftIntensity;
+    float FogColor[4];
 };

@@ -8,7 +8,7 @@ void DrawUIComponent::RequestViewOrder() const
     {
         uiRoot->SortViewOrder();
     }
-    else if (false == Global::IsPlay())
+    else if (false == UmCore->IsPlay())
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, u8"UI Component는 UIRoot의 하위에 있어야 합니다.");
     }

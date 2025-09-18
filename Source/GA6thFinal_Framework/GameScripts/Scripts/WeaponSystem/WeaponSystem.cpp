@@ -3,6 +3,9 @@
 #include <WeaponSystem/WeaponTable/WeaponTableComponent.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
 
+
+UMREAL_COMPONENT(WeaponSystem)
+
 WeaponSystem::WeaponSystem()
 {
 
@@ -75,7 +78,7 @@ void WeaponSystem::SetCurrentWeaponSlot(int slot)
         return;
     }
     TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
-    auto isPlay = Global::IsPlay();
+    auto isPlay = UmCore->IsPlay();
     if (isPlay && turnMode)
     {
         WeaponElement& curr = _equipWeapons[_currentWeaponSlot];

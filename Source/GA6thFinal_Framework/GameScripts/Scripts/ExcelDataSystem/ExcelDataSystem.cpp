@@ -5,7 +5,9 @@ UMREAL_COMPONENT(ExcelDataSystem)
 
 ExcelDataSystem::ExcelDataSystem() 
     : 
+#ifdef _UMEDITOR
     _excelParser{"64F8C1F9-344D-4D36-A232-47E68DA36134", u8"ID"}, 
+#endif
     _singletonObject{this}
 {
 
@@ -28,10 +30,6 @@ void ExcelDataSystem::Awake()
 
 void ExcelDataSystem::ImGuiDrawPropertysEvent()
 {
-    if (ImGui::Button("Excel parser"))
-    {
-        _excelParser.ShowParser = true;
-    }
     ImGuiDrawExcelParserEdit();
     ImGuiDrawDataSheetView();
 }
@@ -39,6 +37,11 @@ void ExcelDataSystem::ImGuiDrawPropertysEvent()
 void ExcelDataSystem::ImGuiDrawExcelParserEdit()
 {
 #ifdef _UMEDITOR
+    if (ImGui::Button("Excel parser"))
+    {
+        _excelParser.ShowParser = true;
+    }
+
     if (_excelParser.Draw())
     {
         const std::string& selectSheetName = _excelParser.GetSelectSheetName();
@@ -51,7 +54,7 @@ void ExcelDataSystem::ImGuiDrawExcelParserEdit()
         dataSheet.clear();
         size_t dataIndex = 0;
         _excelParser.Apply([&](const ImGuiColumnSheetParser::ColumnDatas& datas) 
-        { 
+        {   
             for (auto& pair : datas)
             {
                 const std::string& key = pair.first;

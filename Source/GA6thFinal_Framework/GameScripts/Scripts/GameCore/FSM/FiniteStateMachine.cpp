@@ -1,6 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "FiniteStateMachine.h"
 
+UMREAL_COMPONENT(FiniteStateMachine)
+
 using namespace u8_literals;
 
 constexpr int ORDER_MIN = std::numeric_limits<int>::min();

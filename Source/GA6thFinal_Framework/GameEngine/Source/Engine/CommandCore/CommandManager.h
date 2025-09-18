@@ -12,7 +12,7 @@ public:
         static_assert(std::is_base_of<UmCommand, T>::value, "T is not based ICommand");
         std::shared_ptr<UmCommand> ptr = std::make_shared<T>(args...);
         bool result = ptr->Execute();
-        if (true == result && false == Global::IsPlay())
+        if (true == result && false == IsPlayMode())
         {
             _undoStack.push_back(ptr);
             _redoStack.clear();
@@ -48,7 +48,8 @@ public:
 
 private:
     void ClampCommandStack();
-    
+    bool IsPlayMode();
+
 private:
     CommandQueue _undoStack;
     CommandQueue _redoStack;

@@ -2,6 +2,7 @@
 #include <Mesh/SkeletalMeshRenderer.h>
 #include "ParticleComponent.h"
 
+UMREAL_COMPONENT(ParticleComponent)
 
 ParticleComponent::ParticleComponent()
 {

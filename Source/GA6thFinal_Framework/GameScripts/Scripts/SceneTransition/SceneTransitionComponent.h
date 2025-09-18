@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "UmFramework.h"
+
 class SceneTransitionComponent : public Component
 {
 public:

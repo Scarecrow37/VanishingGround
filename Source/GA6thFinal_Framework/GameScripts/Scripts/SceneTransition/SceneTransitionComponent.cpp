@@ -1,5 +1,9 @@
 ﻿#include "pchScripts.h"
 #include "SceneTransitionComponent.h"
+
+
+UMREAL_COMPONENT(SceneTransitionComponent)
+
 SceneTransitionComponent::SceneTransitionComponent() = default;
 
 SceneTransitionComponent::~SceneTransitionComponent() = default;
@@ -60,7 +64,7 @@ void SceneTransitionComponent::DeserializedReflectEvent()
 
 void SceneTransitionComponent::OnDrawDebug()
 {
-    if (false == Global::IsPlay())
+    if (false == UmCore->IsPlay())
     {
         CalculateFade();
     }
@@ -68,7 +72,7 @@ void SceneTransitionComponent::OnDrawDebug()
 
 void SceneTransitionComponent::OnDrawDebugSelected()
 {
-    if (false == Global::IsPlay())
+    if (false == UmCore->IsPlay())
     {
         CalculateFade();
     }

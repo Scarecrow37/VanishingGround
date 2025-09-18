@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+
 class RatioWrapper : public UIComponent
 {
     USING_PROPERTY(RatioWrapper)
