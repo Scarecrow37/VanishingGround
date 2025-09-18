@@ -20,6 +20,23 @@ void PreferencesManager::Awake()
         UmLogger.Log(LogLevel::LEVEL_ERROR, "환경설정 패널이 없습니다!");
     else if (nullptr != _preferencesPannel)
         _preferencesPannel->SetActive(false);
+
+    // 엔진에서 현제 저장된 설정값 적용
+    SetGraphicsOptions("SSR", UmPreferences.IsSSR());
+    SetGraphicsOptions("SSAO", UmPreferences.IsSSAO());
+    SetGraphicsOptions("Bloom", UmPreferences.IsBloom());
+    SetGraphicsOptions("VolumetricFog", UmPreferences.IsVolumFog());
+    switch (UmPreferences.GetTextureQuality())
+    {
+    case 0:
+        SetGraphicsQuality(PreferencesSystem::TextureQuality::LOW);
+    case 1:
+        SetGraphicsQuality(PreferencesSystem::TextureQuality::MEDIUM);
+    case 2:
+        SetGraphicsQuality(PreferencesSystem::TextureQuality::HIGH);
+    default:
+        break;
+    }
 }
 
 void PreferencesManager::SetGraphicsOptions(std::string_view option, bool enable) 
@@ -32,6 +49,10 @@ void PreferencesManager::SetGraphicsOptions(std::string_view option, bool enable
         UmPreferences.SetBloom(enable);
     else if ("VolumetricFog" == option)
         UmPreferences.SetVolumetricFog(enable);
+}
+void PreferencesManager::SetGraphicsQuality(PreferencesSystem::TextureQuality quality)
+{
+    UmPreferences.SetTextureQuality(quality);
 }
 
 void PreferencesManager::OnPreferencesWindow(const Input::Controller&)

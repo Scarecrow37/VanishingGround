@@ -13,6 +13,7 @@ public:
 
 public:
     void SetGraphicsOptions(std::string_view option, bool enable);
+    void SetGraphicsQuality(PreferencesSystem::TextureQuality quality);
 
 private:
     void OnPreferencesWindow(const Input::Controller&);

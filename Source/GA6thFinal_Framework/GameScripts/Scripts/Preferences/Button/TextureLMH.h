@@ -54,4 +54,6 @@ private:
     GameObject* _pref;
     GameObject* _focus[TextureQuality::TEXTURE_QUALITY_END];
     GameObject* _nonFocus[TextureQuality::TEXTURE_QUALITY_END];
+
+    class PreferencesManager* _preferencesManager;
 };

@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "TextureLMH.h"
 #include "PreferencesButton.h"
+#include "Scripts/Preferences/PreferencesManager.h"
 
 UMREAL_COMPONENT(TextureLMH)
 
@@ -22,11 +23,18 @@ void TextureLMH::Awake()
         _focus[i]->SetActive(false);
         _nonFocus[i]->SetActive(false);
     }
-    // 기본값 상.
+    
     SetQuality(_quality);
 }
 
-void TextureLMH::Start() {}
+void TextureLMH::Start()
+{
+    // 관리 매니저 객체
+    GameObject* manager = GameObject::Find("PreferencesManager").lock().get();
+    _preferencesManager = manager->GetComponent<PreferencesManager>();
+    if (nullptr == _preferencesManager)
+        UmLogger.Log(LogLevel::LEVEL_WARNING, "Preferences manager not registered!");
+}
 
 void TextureLMH::Reset()
 {
@@ -146,12 +154,15 @@ void TextureLMH::SetQuality(int quality)
         {
         case TEXTURE_QUALITY_LOW:
             _focus[TEXTURE_QUALITY_LOW]->SetActive(true);
+            _preferencesManager->SetGraphicsQuality(PreferencesSystem::TextureQuality::LOW);
             break;
         case TEXTURE_QUALITY_MEDIUM:
             _focus[TEXTURE_QUALITY_MEDIUM]->SetActive(true);
+            _preferencesManager->SetGraphicsQuality(PreferencesSystem::TextureQuality::MEDIUM);
             break;
         case TEXTURE_QUALITY_HIGH:
             _focus[TEXTURE_QUALITY_HIGH]->SetActive(true);
+            _preferencesManager->SetGraphicsQuality(PreferencesSystem::TextureQuality::HIGH);
             break;
         default:
             break;

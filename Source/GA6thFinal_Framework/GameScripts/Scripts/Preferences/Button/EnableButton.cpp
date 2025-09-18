@@ -108,13 +108,33 @@ void EnableButton::Awake()
     // 자주사용할 게임오브젝트 포인터
     GetChildObject();
 
-    // 이미지 기본값
+    // 초기값
     if (!_onNonFocusImage.IsNull())
     {
+        bool option;
+        if ("SSR" == _currentOption)
+            option = UmPreferences.IsSSR();
+        else if ("SSAO" == _currentOption)
+            option = UmPreferences.IsSSAO();
+        else if ("Bloom" == _currentOption)
+            option = UmPreferences.IsBloom();
+        else if ("VolumetricFog" == _currentOption)
+            option = UmPreferences.IsVolumFog();
+        
         auto image = GetComponent<ImageElement>();
         if (nullptr != image)
-            image->SetImage(_onNonFocusImage);
-        _isOptionOn = true;
+        {
+            if (option)
+            {
+                image->SetImage(_onNonFocusImage);
+                _isOptionOn = option;
+            }
+            else
+            {
+                image->SetImage(_offNonFocusImage);
+                _isOptionOn = option;
+            }
+        }
     }
 
     // 양옆 화살표 숨기기
