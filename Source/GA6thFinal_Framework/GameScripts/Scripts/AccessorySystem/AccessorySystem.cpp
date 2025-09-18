@@ -168,10 +168,7 @@ void AccessorySystem::ImGuiDrawPropertysEvent()
                 {
                     if (std::unique_ptr<ExcelDataBase> dataBase = dataSystem->FindExcelDataBase(u8"장신구"))
                     {
-                        if (dataBase)
-                        {
-                            ParserFunc(*dataBase);
-                        }
+                        ParserFunc(*dataBase);
                     }
                 }
             }
