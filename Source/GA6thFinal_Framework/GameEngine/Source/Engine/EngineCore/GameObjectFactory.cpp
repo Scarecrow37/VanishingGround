@@ -714,7 +714,7 @@ std::shared_ptr<GameObject> EGameObjectFactory::DeserializeToSceneObject(YAML::N
 
 void EGameObjectFactory::WriteGameObjectFile(Transform* transform, std::string_view outPath)
 {
-    if (true == Global::IsPlay())
+    if (true == UmCore->IsPlay())
     {
         return; //플레이 할때는 불가능
     }

@@ -97,7 +97,7 @@ void cs_main(uint3 Gid : SV_GroupID, uint3 GTid : SV_GroupThreadID, uint3 DTid :
 
         float3 lighting = float3(0.0, 0.0, 0.0);
         float visibility = GetVisibillityCSM(voxelWorldPos);
-        float fogValue = lightData.Directional[0].Color.xyz *
+        float3 fogValue = lightData.Directional[0].Color.xyz *
                 HenyeyGreensteinPhaseFunction(viewDir, -lightData.Directional[0].Direction.xyz, fogdata.LightShaftAnisotropy);
         // light shaft
         if (visibility > Epsilon)
@@ -105,7 +105,7 @@ void cs_main(uint3 Gid : SV_GroupID, uint3 GTid : SV_GroupThreadID, uint3 DTid :
                 visibility * fogValue * fogdata.LightShaftIntensity;
         // fog
         float3 fixedLightDir = float3(0.0f, 1.0f, 0.0f);
-        fogValue = lightData.Directional[0].Color.xyz *
+        fogValue = fogdata.FogColor.xyz *
                 HenyeyGreensteinPhaseFunction(viewDir, -fixedLightDir, fogdata.FogAnisotropy);
         lighting += fogValue * fogdata.FogIntensity;
         

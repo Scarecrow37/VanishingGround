@@ -69,6 +69,7 @@ struct VolumetricFogData
     XMMATRIX InverseViewProjection;
     Vector4  CameraNearFar_PreviousFrameBlend; // x = near, y = far, z=prevBlend , w = padding
     Vector4  VolumeSize;                       // x = volX, y = volY, z = volZ
+    Vector4  FogColor;
     float    FogAnisotropy;
     float    LightShaftAnisotropy;
     float    Density;
