@@ -81,10 +81,6 @@ public:
     {
         _requestedSize = value;
         auto [actualWidth, actualHeight] = ReflectFields->ActualSize;
-        if (actualWidth != value.cx)
-            ReflectFields->HorizontalFillMode = FillMode::NONE;
-        if (actualHeight != value.cy)
-            ReflectFields->VerticalFillMode = FillMode::NONE;
         InvalidateMeasure();
     }
     PROPERTY(Size)
