@@ -12,7 +12,7 @@ public:
         if (nullptr == SingletonObjectStatic)
         {
             std::string message = typeid(SingletonObject<T>).name();
-            message += (const char*)"가 존재하지 않습니다.";
+            message += (const char*)u8"가 존재하지 않습니다.";
             UmLogger.Log(LogLevel::LEVEL_WARNING, message, location);
         }
         return SingletonObjectStatic; 
@@ -87,7 +87,7 @@ public:
         if (nullptr == SingletonComponentStatic)
         {
             std::string message = typeid(T).name();
-            message += (const char*)"가 존재하지 않습니다.";
+            message += (const char*)u8"가 존재하지 않습니다.";
             UmLogger.Log(LogLevel::LEVEL_WARNING, message, location);
         }
         return SingletonComponentStatic; 
