@@ -10,13 +10,17 @@ namespace Timeline
         ~AudioEventContext() override;
 
     public:
-        REFLECT_PROPERTY(Path, Volume) 
+        REFLECT_PROPERTY(AssetID, Path, Volume) 
 
-        GETTER_ONLY(std::string, Path) { return _audioGuid.ToPath().string(); }
+        GETTER_ONLY(std::string, Path) { return UmFileSystem.GetPathFromAssetID(ReflectFields->AudioAssetID).string(); }
         PROPERTY(Path)
 
-        GETTER(float, Volume) { return _volume; }
-        SETTER(float, Volume) { _volume = std::clamp(value, 0.0f, 1.0f); }
+        GETTER(int, AssetID) { return ReflectFields->AudioAssetID; }
+        SETTER(int, AssetID) { ReflectFields->AudioAssetID = value; }
+        PROPERTY(AssetID)
+
+        GETTER(float, Volume) { return ReflectFields->Volume; }
+        SETTER(float, Volume) { ReflectFields->Volume = std::clamp(value, 0.0f, 1.0f); }
         PROPERTY(Volume)
 
         void OnNotify() override;
@@ -30,11 +34,11 @@ namespace Timeline
         void SetAudioFromPath(const File::Path& path);
 
     protected:
-        File::Guid _audioGuid = File::NULL_GUID;
-        float      _volume = 1.0f;
-
+        File::Guid _guid = File::NULL_GUID;
+        std::string _guidStr = "";
         REFLECT_FIELDS_BEGIN(EventContext)
         int AudioAssetID = 0;
+        float Volume = 1.0f;
         REFLECT_FIELDS_END(AudioEventContext)
     };
 

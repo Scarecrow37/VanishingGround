@@ -23,6 +23,22 @@ namespace Timeline
                 ImGui::EndDragDropTarget();
             }
         });
+        AssetID.SetInputAutoEvent([this]() {
+            if (ImGui::BeginDragDropTarget())
+            {
+                if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
+                {
+                    DragDropAsset::Data* data      = static_cast<DragDropAsset::Data*>(payLoad->Data);
+                    File::Path           path      = data->GetPath();
+                    const auto           extension = path.extension();
+                    if (extension == L".wav")
+                    {
+                        SetAudioFromPath(path);
+                    }
+                }
+                ImGui::EndDragDropTarget();
+            }
+        });
     }
 
     AudioEventContext::~AudioEventContext() 
@@ -31,18 +47,18 @@ namespace Timeline
 
     void AudioEventContext::OnNotify() 
     {
-        UmAudio.Play(_audioGuid.string());
+        UmAudio.Play(_guidStr);
     }
 
     void AudioEventContext::SerializedReflectEvent() 
     {
-        ReflectFields->AudioAssetID = UmFileSystem.GetAssetIDFromGuid(_audioGuid);
     }
     
     void AudioEventContext::DeserializedReflectEvent() 
     {
-        _audioGuid = UmFileSystem.GetGuidFromAssetID(ReflectFields->AudioAssetID);
-        UmAudio.LoadSound(_audioGuid.string(), _audioGuid);
+        _guid = UmFileSystem.GetGuidFromAssetID(ReflectFields->AudioAssetID);
+        _guidStr = _guid.string();
+        UmAudio.LoadSound(_guidStr, _guid);
     }
 
     void AudioEventContext::ImGuiDrawPropertysEvent() 
@@ -51,13 +67,15 @@ namespace Timeline
 
     void AudioEventContext::SetAudioFromGuid(const File::Guid& guid) 
     {
-        _audioGuid = guid;
-        ReflectFields->AudioAssetID = UmFileSystem.GetAssetIDFromGuid(_audioGuid);
+        _guid = guid;
+        _guidStr = _guid.string();
+        ReflectFields->AudioAssetID = UmFileSystem.GetAssetIDFromGuid(guid);
     }
 
     void AudioEventContext::SetAudioFromPath(const File::Path& path) 
     {
-        _audioGuid = path.ToGuid();
-        ReflectFields->AudioAssetID = UmFileSystem.GetAssetIDFromGuid(_audioGuid);
+        _guid = path.ToGuid();
+        _guidStr = _guid.string();
+        ReflectFields->AudioAssetID = UmFileSystem.GetAssetIDFromGuid(_guid);
     }
 }
