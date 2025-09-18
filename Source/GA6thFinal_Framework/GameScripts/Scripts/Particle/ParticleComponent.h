@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "UmFramework.h"
+    
 class ParticleComponent : public Component
 {
     USING_PROPERTY(ParticleComponent)

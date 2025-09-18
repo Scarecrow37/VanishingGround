@@ -2,6 +2,9 @@
 #include "AnimationComponent.h"
 #include <Mesh/SkeletalMeshRenderer.h>
 
+
+UMREAL_COMPONENT(AnimationComponent)
+
 void AnimationComponent::Reset() 
 {
     SetAnimator(GetComponent<SkeletalMeshRenderer>());

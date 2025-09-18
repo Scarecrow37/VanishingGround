@@ -13,7 +13,10 @@
 #include "Stats/Player/PlayerStatsComponent.h"
 #include "ViewModels/Map/MapPlayerHPViewModel.h"
 
+
 static GameObject* thisPointer = nullptr;
+
+UMREAL_COMPONENT(MapManager)
 
 MapManager::MapManager()
 {

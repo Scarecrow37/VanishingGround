@@ -3,6 +3,9 @@
 #include "ViewModels/Map/StageViewModel.h"
 #include "MapManager.h"
 
+
+UMREAL_COMPONENT(Stage)
+
 Stage::Stage()
 {
     StagePath.SetInputAutoEvent([this]() {

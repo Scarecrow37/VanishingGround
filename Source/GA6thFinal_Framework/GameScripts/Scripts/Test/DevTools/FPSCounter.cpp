@@ -1,5 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "FPSCounter.h"
+
+UMREAL_COMPONENT(FPSCounter)
+
 FPSCounter::FPSCounter()
 {
     _frameCount = 0;

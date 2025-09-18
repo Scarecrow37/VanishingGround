@@ -1,6 +1,9 @@
 ﻿#include "pchScripts.h"
 #include "AudioTableComponent.h"
 
+
+UMREAL_COMPONENT(AudioTableComponent)
+
 AudioTableComponent::AudioTableComponent() = default;
 
 namespace

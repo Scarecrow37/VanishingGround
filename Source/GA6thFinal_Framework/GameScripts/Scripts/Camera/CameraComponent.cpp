@@ -1,6 +1,9 @@
 ﻿#include "pchScripts.h"
 #include "CameraComponent.h"
 
+
+UMREAL_COMPONENT(CameraComponent)
+
 CameraComponent::CameraComponent() 
     : 
     Component(TYPE::CAMERA),

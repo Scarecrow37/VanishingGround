@@ -31,6 +31,9 @@ public:
     void Draw(ID3D12GraphicsCommandList* commandList) override;
     void End(ID3D12GraphicsCommandList* commandList) override;
 
+public:
+    void SetMipBias(float level) { _mipBias = level; }
+
 private:
     void InitShaderAndPSO();
     void DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType meshType, Material::BlendModeType blendModeType, CullMode cullMode);
@@ -42,6 +45,8 @@ private:
 
     SharedResource<RenderTarget> _gBufferRenderTargets[4];
 
-    FX<GE::VS::STATIC_FR, GE::PS::GBUFFER>   _fxStaticMesh;
-    FX<GE::VS::SKELETAL_FR, GE::PS::GBUFFER> _fxSkeletalMesh;
+    FX<GE::VS::STATIC_FR, GE::PS::GBUFFER>                        _fxStaticMesh;
+    FX<GE::VS::SKELETAL_FR, GE::PS::GBUFFER>                      _fxSkeletalMesh;
+
+    float _mipBias = 0.f;
 };

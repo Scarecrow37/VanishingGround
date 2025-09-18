@@ -113,6 +113,7 @@ struct VolumetricFogData
     float4x4 InverseViewProj;
     float4 CameraNearFar_FrameIndex_PreviousFrameBlend; // x=near, y=far, z=frameIndex, w=prevBlend
     float4 VolumeSize; // x=volX, y=volY, z=volZ
+    float4 FogColor;
     float FogAnisotropy;
     float LightShaftAnisotropy;
     float Density;

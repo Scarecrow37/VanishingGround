@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "UmFramework.h"
+
 class LogOutput : public Component
 {
     USING_PROPERTY(LogOutput)

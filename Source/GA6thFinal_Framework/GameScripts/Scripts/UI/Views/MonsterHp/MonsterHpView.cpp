@@ -3,6 +3,8 @@
 #include "Scripts/UI/Elements/Text/TextElement.h"
 #include "ViewModels/HP/HpViewModel.h"
 
+UMREAL_COMPONENT(MonsterHpView)
+
 MonsterHpView::MonsterHpView() = default;
 
 void MonsterHpView::Watch(const std::string& key)

@@ -1,6 +1,9 @@
 ﻿#include "pchScripts.h"
 #include "TokenSystem.h"
 
+
+UMREAL_COMPONENT(TokenSystem)
+
 TokenSystem::TokenSystem() 
 {
     
