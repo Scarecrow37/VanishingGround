@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "UmFramework.h"
 
 class Stage;
 class ScrollingWrapper;
@@ -13,9 +12,10 @@ public:
     ~MapManager() override;
 
 public:
+    void SetFocusStage(Stage* stage);
+
+public:
     void Awake() override;
-    void Start() override;
-    void Reset() override;
     void Update() override;
     void OnLoadScene(Scene& loadScene, LoadSceneMode mode) override;
 
@@ -66,7 +66,6 @@ private:
     void ChageBackgroundImage(int assetID);
     void DefaultSetting();
     void SetupStage();
-    Stage* FindStage(int first, int second);
 
 private:
     ScrollingWrapper* _scroll = nullptr;
@@ -75,9 +74,7 @@ private:
     MVVM::Model<Stage*> _focusStage;
     MVVM::Model<int>    _playerHP;
     std::vector<Stage*> _stages;
-    int                 _firstElement  = 1;
-    int                 _secondElement = 1;
-    int                 _childCount    = 0;
-    float               _scrollSpeed   = 100.0f;
-    int                 _clearedStage  = 0;
+    int                 _childCount   = 0;
+    float               _scrollSpeed  = 100.0f;
+    int                 _clearedStage = 0;
 };

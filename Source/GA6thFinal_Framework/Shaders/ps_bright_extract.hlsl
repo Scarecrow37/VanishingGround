@@ -1,7 +1,7 @@
 #include "CommonData.hlsli"
 #include "Function.hlsli"
 
-struct PS_INPUT
+struct PSInput
 {
     float4 position : SV_POSITION;
     float2 uv : TEXCOORD;
@@ -19,7 +19,7 @@ Texture2D<uint> customDepthTexture;
 
 ConstantBuffer<BloomProperty> bit32_3_bloomProperty;
 
-float4 ps_main(PS_INPUT input) : SV_TARGET
+float4 ps_main(PSInput input) : SV_TARGET
 {
     float4 color = screenTexture.Sample(samLinear_wrap, input.uv);
 

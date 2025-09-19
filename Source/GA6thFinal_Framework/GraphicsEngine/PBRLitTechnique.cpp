@@ -34,8 +34,3 @@ void PBRLitTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
     pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));
 }
-
-void PBRLitTechnique::Execute(ID3D12GraphicsCommandList* commandList)
-{
-    __super::Execute(commandList);
-}
