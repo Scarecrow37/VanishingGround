@@ -27,10 +27,13 @@ namespace ReflectHelper
                     bool  isEdit = false;
                     bool  result = false;
                     auto& val = *value;
-
-                    if constexpr (isLock == true)
+                    
+                    if constexpr (false == std::is_same_v<remove_view_type, std::string>)
                     {
-                        ImGui::BeginDisabled();
+                        if constexpr (isLock == true)
+                        {
+                            ImGui::BeginDisabled();
+                        }
                     }
 
                     if constexpr (std::is_same_v<remove_view_type, int>)
@@ -136,11 +139,25 @@ namespace ReflectHelper
                         {
                             input = val;
                         }
-                        isEdit = ImGui::InputText(name,
-                            &input,
-                            setting._string.flags,
-                            setting._string.callback,
-                            setting._string.user_data);
+
+                        if constexpr (isLock == true)
+                        {
+                            isEdit = ImGui::InputText(
+                                name,
+                                &input,
+                                setting._string.flags | ImGuiInputTextFlags_ReadOnly,
+                                setting._string.callback,
+                                setting._string.user_data);
+                        }
+                        else
+                        {
+                            isEdit = ImGui::InputText(
+                                name,
+                                &input,
+                                setting._string.flags,
+                                setting._string.callback,
+                                setting._string.user_data);
+                        }
 
                         if constexpr (isProperty == false || isSetter == true)
                         {
@@ -331,9 +348,13 @@ namespace ReflectHelper
                                               typeid(val).name(), name)
                                       .c_str());
                     }
-                    if constexpr (isLock == true)
+
+                    if constexpr (false == std::is_same_v<remove_view_type, std::string>)
                     {
-                        ImGui::EndDisabled();
+                        if constexpr (isLock == true)
+                        {
+                            ImGui::EndDisabled();
+                        }
                     }
                     if constexpr (isProperty == true)
                     {
