@@ -50,7 +50,7 @@ void VolumetricFogTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 void VolumetricFogTechnique::Execute(ID3D12GraphicsCommandList* commandList) 
 {   
     UpdateConstantBuffer();
-    __super::Execute(commandList);
+    RenderTechnique::Execute(commandList);
 
     // 0->1 or 1->0
     _readIndex = !_readIndex;

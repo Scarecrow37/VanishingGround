@@ -3,6 +3,8 @@
 
 UMREAL_COMPONENT(ExcelDataSystem)
 
+using namespace u8_literals;
+
 ExcelDataSystem::ExcelDataSystem() 
     : 
 #ifdef _UMEDITOR
@@ -19,12 +21,12 @@ ExcelDataSystem::~ExcelDataSystem()
 
 }
 
-std::unique_ptr<ExcelDataBase> ExcelDataSystem::FindExcelDataBase(const std::string& sheetName)
+std::unique_ptr<ExcelDataBase> ExcelDataSystem::FindExcelDataBase(std::u8string_view sheetName)
 {
     std::unique_ptr<ExcelDataBase> excelDataBase;
 
     auto& dataBase = ReflectFields->DataBase;
-    auto  findIter = dataBase.find(sheetName);
+    auto  findIter = dataBase.find((const char*)sheetName.data());
     if (findIter != dataBase.end())
     {
         excelDataBase.reset(new ExcelDataBase(findIter->first));
@@ -32,12 +34,12 @@ std::unique_ptr<ExcelDataBase> ExcelDataSystem::FindExcelDataBase(const std::str
     return excelDataBase;
 }
 
-const ExcelDataBase::DataBaseType* ExcelDataSystem::GetRowDataBase(const std::string& sheetName)
+const ExcelDataBase::DataBaseType* ExcelDataSystem::GetRowDataBase(std::u8string_view sheetName)
 {
     ExcelDataBase::DataBaseType* result = nullptr;
 
     auto& dataBase = ReflectFields->DataBase;
-    auto  findIter = dataBase.find(sheetName);
+    auto  findIter = dataBase.find((const char*)sheetName.data());
     if (findIter != dataBase.end())
     {
         result = &findIter->second;
@@ -206,10 +208,11 @@ void ExcelDataSystem::ImGuiDrawDataSheetView()
 #endif
 }
 
-void ExcelDataSystem::ImGuiDrawFindTest(const std::string& viewerSheetName)
+void ExcelDataSystem::ImGuiDrawFindTest(const std::string& viewerSheetNameStr)
 {
     if (ImGui::TreeNode("Find Test"))
     {
+        std::u8string_view viewerSheetName = (const char8_t*)viewerSheetNameStr.data();
         if (ImGui::TreeNode("Column Index"))
         {
             static std::string buffer;
@@ -219,7 +222,7 @@ void ExcelDataSystem::ImGuiDrawFindTest(const std::string& viewerSheetName)
             if (ImGui::Button("Find Column Index"))
             {
                 std::unique_ptr<ExcelDataBase> dataBase = FindExcelDataBase(viewerSheetName);
-                result                                  = dataBase->FindColumnIndex(buffer.c_str());
+                result = dataBase->FindColumnIndex((const char8_t*)buffer.c_str());
             }
             ImGui::Text((const char*)u8"결과 :");
             if (result != ExcelDataBase::FIND_INDEX_FAIL)
@@ -238,7 +241,7 @@ void ExcelDataSystem::ImGuiDrawFindTest(const std::string& viewerSheetName)
             if (ImGui::Button("Find Column Key"))
             {
                 std::unique_ptr<ExcelDataBase> dataBase = FindExcelDataBase(viewerSheetName);
-                result                                  = dataBase->FindColumnKey((size_t)buffer);
+                result = dataBase->FindColumnKey((size_t)buffer);
             }
             ImGui::Text((const char*)u8"결과 :");
             if (result != ExcelDataBase::FIND_STR_FAIL)
@@ -258,7 +261,7 @@ void ExcelDataSystem::ImGuiDrawFindTest(const std::string& viewerSheetName)
             if (ImGui::Button("Find Row Index"))
             {
                 std::unique_ptr<ExcelDataBase> dataBase = FindExcelDataBase(viewerSheetName);
-                result                                  = dataBase->FindRowIndex(rowKeyBuffer, columnKeyBuffer);
+                result = dataBase->FindRowIndex((const char8_t*)rowKeyBuffer, (const char8_t*)columnKeyBuffer);
             }
             ImGui::Text((const char*)u8"결과 :");
             if (result != ExcelDataBase::FIND_INDEX_FAIL)
@@ -278,7 +281,7 @@ void ExcelDataSystem::ImGuiDrawFindTest(const std::string& viewerSheetName)
             if (ImGui::Button("Find Data"))
             {
                 std::unique_ptr<ExcelDataBase> dataBase = FindExcelDataBase(viewerSheetName);
-                result                                  = dataBase->FindData((size_t)rowIndexBuffer, columnKeyBuffer);
+                result = dataBase->FindData((size_t)rowIndexBuffer, (const char8_t*)columnKeyBuffer);
             }
             ImGui::Text((const char*)u8"결과 :");
             if (result != ExcelDataBase::FIND_STR_FAIL)
@@ -346,7 +349,7 @@ void ExcelDataSystem::ImGuiDrawFindTest(const std::string& viewerSheetName)
                 if (ImGui::Button("Get##GetColumnDatas_Keys"))
                 {
                     std::unique_ptr<ExcelDataBase>  dataBase = FindExcelDataBase(viewerSheetName);
-                    const std::vector<std::string>* dataPtr  = dataBase->GetColumnDatas(rowKey, colKey);
+                    const std::vector<std::string>* dataPtr  = dataBase->GetColumnDatas((const char8_t*)rowKey, (const char8_t*)colKey);
                     if (dataPtr)
                     {
                         result_datas = *dataPtr;
@@ -390,7 +393,7 @@ ExcelDataBase::ExcelDataBase(const ExcelDataBase& rhs)
 
 }
 
-size_t ExcelDataBase::FindColumnIndex(const std::string& columnKeyName)
+size_t ExcelDataBase::FindColumnIndex(std::u8string_view columnKeyName)
 {
     size_t result = FIND_INDEX_FAIL;
     if (ExcelDataSystem* system = SingletonComponent<ExcelDataSystem>::GetInstance()) //댕글링 방지
@@ -398,7 +401,7 @@ size_t ExcelDataBase::FindColumnIndex(const std::string& columnKeyName)
         if (const DataBaseType* dataBase = system->GetRowDataBase(_key))
         {
             auto& [columnIndexKeyMap, keyIndexMap, dataSheet] = *dataBase;
-            auto findIter = keyIndexMap.find(columnKeyName);
+            auto findIter = keyIndexMap.find((const char*)columnKeyName.data());
             if (findIter != keyIndexMap.end())
             {
                 auto& [columnIndex, rowIndexMap] = findIter->second;
@@ -426,7 +429,7 @@ std::string_view ExcelDataBase::FindColumnKey(size_t columnIndex)
     return result;
 }
 
-size_t ExcelDataBase::FindRowIndex(const std::string& rowKey, size_t columnIndex)
+size_t ExcelDataBase::FindRowIndex(std::u8string_view rowKey, size_t columnIndex)
 {
     size_t result = FIND_INDEX_FAIL;
     if (ExcelDataSystem* system = SingletonComponent<ExcelDataSystem>::GetInstance()) // 댕글링 방지
@@ -441,7 +444,7 @@ size_t ExcelDataBase::FindRowIndex(const std::string& rowKey, size_t columnIndex
                 if (columnIter != keyIndexMap.end())
                 {
                     auto& [columnIndex, rowIndexMap] = columnIter->second;
-                    auto rowIter                     = rowIndexMap.find(rowKey);
+                    auto rowIter                     = rowIndexMap.find((const char*)rowKey.data());
                     if (rowIter != rowIndexMap.end())
                     {
                         result = rowIter->second;
@@ -453,7 +456,7 @@ size_t ExcelDataBase::FindRowIndex(const std::string& rowKey, size_t columnIndex
     return result;
 }
 
-size_t ExcelDataBase::FindRowIndex(const std::string& rowKey, const std::string& columnKey)
+size_t ExcelDataBase::FindRowIndex(std::u8string_view rowKey, std::u8string_view columnKey)
 {
     size_t result = FIND_INDEX_FAIL;
     size_t columnIndex = FindColumnIndex(columnKey);
@@ -485,7 +488,7 @@ std::string_view ExcelDataBase::FindData(size_t rowIndex, size_t columnIndex)
     return result;
 }
 
-std::string_view ExcelDataBase::FindData(size_t rowIndex, const std::string& columnKey)
+std::string_view ExcelDataBase::FindData(size_t rowIndex, std::u8string_view columnKey)
 {
     std::string_view result = FIND_STR_FAIL;
     size_t columnIndex = FindColumnIndex(columnKey);
@@ -513,7 +516,7 @@ const std::vector<std::string>* ExcelDataBase::GetColumnDatas(size_t rowIndex)
     return result;
 }
 
-const std::vector<std::string>* ExcelDataBase::GetColumnDatas(const std::string& rowKey, size_t columnIndex)
+const std::vector<std::string>* ExcelDataBase::GetColumnDatas(std::u8string_view rowKey, size_t columnIndex)
 {
     const std::vector<std::string>* result = nullptr;
     size_t rowIndex = FindRowIndex(rowKey, columnIndex);
@@ -524,7 +527,7 @@ const std::vector<std::string>* ExcelDataBase::GetColumnDatas(const std::string&
     return result;
 }
 
-const std::vector<std::string>* ExcelDataBase::GetColumnDatas(const std::string& rowKey, const std::string& columnKey)
+const std::vector<std::string>* ExcelDataBase::GetColumnDatas(std::u8string_view rowKey, std::u8string_view columnKey)
 {
     const std::vector<std::string>* result = nullptr;
     size_t columnIndex = FindColumnIndex(columnKey);
@@ -535,9 +538,40 @@ const std::vector<std::string>* ExcelDataBase::GetColumnDatas(const std::string&
     return result;
 }
 
+size_t ExcelDataBase::RowCount() const
+{
+    size_t result = 0;
+    if (ExcelDataSystem* system = SingletonComponent<ExcelDataSystem>::GetInstance()) // 댕글링 방지
+    {
+        if (const DataBaseType* dataBase = system->GetRowDataBase(_key))
+        {
+            auto& [columnIndexKeyMap, keyIndexMap, dataSheet] = *dataBase;
+            result = dataSheet.size();
+        }
+    }
+    return result;
+}
+
+size_t ExcelDataBase::ColumnCount()
+{
+    size_t result = 0;
+    if (ExcelDataSystem* system = SingletonComponent<ExcelDataSystem>::GetInstance()) // 댕글링 방지
+    {
+        if (const DataBaseType* dataBase = system->GetRowDataBase(_key))
+        {
+            auto& [columnIndexKeyMap, keyIndexMap, dataSheet] = *dataBase;
+            if (false == dataSheet.empty())
+            {
+                result = dataSheet.front().size();
+            }
+        }
+    }
+    return result;
+}
+
 ExcelDataBase::ExcelDataBase(const std::string& dataBaseKey) 
     : 
-    _key(dataBaseKey) 
+    _key((const char8_t*)dataBaseKey.data()) 
 {
 
 }

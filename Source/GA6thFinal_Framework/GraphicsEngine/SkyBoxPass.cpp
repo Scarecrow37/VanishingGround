@@ -2,13 +2,13 @@
 #include "SkyBoxPass.h"
 #include "SkyBox.h"
 
-SkyBoxPass::SkyBoxPass() {}
+SkyBoxPass::SkyBoxPass() = default;
 
-SkyBoxPass::~SkyBoxPass() {}
+SkyBoxPass::~SkyBoxPass() = default;
 
 void SkyBoxPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene, ownerTechnique, commandList);
+    RenderPass::Initialize(ownerScene, ownerTechnique, commandList);
 
     _skyBox = _ownerScene->GetSkyBox();
     InitShaderAndPSO();
@@ -32,10 +32,6 @@ void SkyBoxPass::Draw(ID3D12GraphicsCommandList* commandList)
         commandList->SetPipelineState(_pipelineState.Get());
         _skyBox->Render(commandList, _fx.GetRootParameterIndex("evnTexture"));
     }
-}
-
-void SkyBoxPass::End(ID3D12GraphicsCommandList* commandList) 
-{
 }
 
 void SkyBoxPass::InitShaderAndPSO() 
