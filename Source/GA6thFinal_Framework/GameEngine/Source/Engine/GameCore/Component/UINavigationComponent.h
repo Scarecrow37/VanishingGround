@@ -22,7 +22,11 @@ class UINavigationComponent : public UIBaseComponent
     friend class UIManager;
     USING_PROPERTY(UINavigationComponent)
 
+public:
     using NavigationRoutes = std::vector<std::tuple<unsigned int, unsigned char, std::string, ::NavigationID>>;
+
+private:
+    static UIRoot*      GetRoot(const GameObject& gameObject);
 
     static NavigationID _toID;
 
@@ -46,13 +50,68 @@ public:
     PROPERTY(ID)
 
 public:
+    /// <summary>
+    /// 포커스를 설정합니다.
+    /// </summary>
+    void Focus();
+
+    /// <summary>
+    /// 포커스가 들어올 때 호출되는 함수입니다.
+    /// </summary>
     virtual void FocusIn();
+
+    /// <summary>
+    /// 포커스가 해당 객체에서 벗어날 때 호출되는 함수입니다.
+    /// </summary>
     virtual void FocusOut();
+
+    /// <summary>
+    /// Navigation Route로 자신을 설정하고, 해당 Route를 실행하게 되면 호출되는 함수입니다.
+    /// </summary>
     virtual void Submit() {}
 
-    void SetInitialFocus();
-    void ResetInitialFocus();
+    /// <summary>
+    /// 초기 포커스로 설정합니다.
+    /// </summary>
+    void SetInitialFocus() const;
+
+    /// <summary>
+    /// NavigationKey를 받아 해당하는 NavigationID를 반환합니다.
+    /// </summary>
+    /// <param name="key">탐색에 사용되는 NavigationKey 객체입니다.</param>
+    /// <returns>입력된 NavigationKey에 대응하는 NavigationID입니다.</returns>
     NavigationID GetNavigatedId(const NavigationKey& key);
+
+    /// <summary>
+    /// 네비게이션 키와 목적지 ID를 사용하여 네비게이션 경로를 추가합니다.
+    /// </summary>
+    /// <param name="key">경로를 추가할 때 사용할 네비게이션 키입니다.</param>
+    /// <param name="toID">경로가 연결될 목적지의 네비게이션 ID입니다.</param>
+    void AddNavigationRoute(const NavigationKey& key, NavigationID toID);
+
+    /// <summary>
+    /// 지정된 NavigationKey에 해당하는 내비게이션 경로를 제거합니다.
+    /// </summary>
+    /// <param name="key">제거할 내비게이션 경로를 식별하는 NavigationKey 객체입니다.</param>
+    void RemoveNavigationRoute(const NavigationKey& key);
+
+    /// <summary>
+    /// 내비게이션 경로를 초기화합니다.
+    /// </summary>
+    void ClearNavigationRoute();
+
+    /// <summary>
+    /// NavigationID를 변경하여 탐색 목적지를 업데이트합니다.
+    /// </summary>
+    /// <param name="fromId">현재 탐색 목적지의 NavigationID입니다.</param>
+    /// <param name="toId">새로운 탐색 목적지의 NavigationID입니다.</param>
+    void ChangeNavigationDestinationID(NavigationID fromId, NavigationID toId);
+
+    /// <summary>
+    /// UIRoot 객체에서 내비게이션 ID를 획득합니다.
+    /// </summary>
+    /// <param name="root">내비게이션 ID를 획득할 대상 UIRoot 객체의 포인터입니다.</param>
+    void           AcquireNavigationID(UIRoot* root);
 
 protected:
     UIComponent* GetSiblingUI() const;
@@ -60,7 +119,7 @@ protected:
     void ImGuiDrawPropertysEvent() override;
     void OnDrawDebugSelectedOverride() override;
 
-    void OnAttachParent(GameObject* childGameObject) override;
+    void OnAttachParent(GameObject* parentGameObject) override;
     void OnDetachParent(GameObject* previousParentGameObject) override;
 
     void DeserializedReflectEvent() override;
@@ -68,17 +127,11 @@ protected:
     void Reset() override;
 
 private:
-    static UIRoot* GetRoot(const GameObject& gameObject);
-    void           AcquireNavigationID(UIRoot* root);
     void           ReleaseNavigationID(UIRoot* root);
-
-    void ClearNavigationRoute();
-    void AddNavigationRoute(const NavigationKey& key, NavigationID toID);
 
 protected:
     REFLECT_FIELDS_BEGIN(UIBaseComponent)
     NavigationID    NavigationID = INVALID_NAVIGATION_ID;
     NavigationRoutes NavigationRoutes;
-    bool            IsInitialFocus = false;
     REFLECT_FIELDS_END(UINavigationComponent)
 };
