@@ -1,7 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "AudioTableComponent.h"
 
-
+REGISTER_CLASS(Timeline::EventTrack, Timeline::AudioEventContext)
 UMREAL_COMPONENT(AudioTableComponent)
 
 AudioTableComponent::AudioTableComponent() = default;

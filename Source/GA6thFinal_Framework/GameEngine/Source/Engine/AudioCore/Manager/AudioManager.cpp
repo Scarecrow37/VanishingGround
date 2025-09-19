@@ -21,10 +21,10 @@ void Audio::Manager::Finalize()
 
 void Audio::Manager::LoadSound(const std::string& key, const File::GuidRef& guid)
 {
-    if (guid != File::NULL_GUID)
+    const File::Path& path = guid.ToPath();
+    if (false == path.IsNull())
     {
-        const File::Path& path   = guid.ToPath();
-        Source            source = _system.CreateSoundFromWave(path);
+        Source source = _system.CreateSoundFromWave(path);
         if (const auto [iterator, isSucceed] = _sources.try_emplace(key, std::move(source)); false == isSucceed)
         {
             const std::string errorMsg = std::format("Audio Source with key '{}' already Loaded.", key);

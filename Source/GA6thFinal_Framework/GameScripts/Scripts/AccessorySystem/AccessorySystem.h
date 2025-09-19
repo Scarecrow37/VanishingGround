@@ -171,7 +171,6 @@ private:
         AccessoryElement*     SelectAccessory   = nullptr;
         std::function<void()> RenameFunc;
 
-        ImGuiColumnSheetParser        ColumnParser{"1191B534-B4B7-425C-8638-EFE3B662DB9C", u8"ID"};
         std::queue<AccessoryElement*> DirtyAccessoryQueue;
         bool                          ShowDirtyAccessoryPopup = false;
     };
