@@ -11,7 +11,7 @@ public:
     ~MapPlayerHPView() override;
 
 public:
-    void Awake() override;
+    void Start() override;
 
 public:
     REFLECT_PROPERTY()
