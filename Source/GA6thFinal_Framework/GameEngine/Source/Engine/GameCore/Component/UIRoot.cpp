@@ -225,7 +225,11 @@ void UIRoot::UpdateNavigationMap()
             nullptr != navigationComponent)
         {
             const NavigationID id = navigationComponent->ID;
-            _navigationMap.try_emplace(id, navigationComponent);
+            if (auto [iter, succeed] = _navigationMap.try_emplace(id, navigationComponent);
+                !succeed && iter->second != navigationComponent)
+            {
+                navigationComponent->AcquireNavigationID(this);
+            }
         }
     });
 }

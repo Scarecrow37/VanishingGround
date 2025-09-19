@@ -80,7 +80,6 @@ public:
     SETTER(SIZE, Size)
     {
         _requestedSize = value;
-        auto [actualWidth, actualHeight] = ReflectFields->ActualSize;
         InvalidateMeasure();
     }
     PROPERTY(Size)

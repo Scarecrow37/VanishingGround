@@ -25,6 +25,9 @@ class UINavigationComponent : public UIBaseComponent
 public:
     using NavigationRoutes = std::vector<std::tuple<unsigned int, unsigned char, std::string, ::NavigationID>>;
 
+private:
+    static UIRoot*      GetRoot(const GameObject& gameObject);
+
     static NavigationID _toID;
 
 public:
@@ -104,6 +107,12 @@ public:
     /// <param name="toId">새로운 탐색 목적지의 NavigationID입니다.</param>
     void ChangeNavigationDestinationID(NavigationID fromId, NavigationID toId);
 
+    /// <summary>
+    /// UIRoot 객체에서 내비게이션 ID를 획득합니다.
+    /// </summary>
+    /// <param name="root">내비게이션 ID를 획득할 대상 UIRoot 객체의 포인터입니다.</param>
+    void           AcquireNavigationID(UIRoot* root);
+
 protected:
     UIComponent* GetSiblingUI() const;
 
@@ -118,8 +127,6 @@ protected:
     void Reset() override;
 
 private:
-    static UIRoot* GetRoot(const GameObject& gameObject);
-    void           AcquireNavigationID(UIRoot* root);
     void           ReleaseNavigationID(UIRoot* root);
 
 protected:
