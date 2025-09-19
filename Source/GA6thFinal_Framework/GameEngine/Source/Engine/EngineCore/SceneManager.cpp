@@ -322,37 +322,41 @@ void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
 void ESceneManager::Engine::SetComponentEnable(Component* component, bool value)
 {
     ESceneManager& sceneManager = UmSceneManager;
-    if (component && component->ReflectFields->_enable != value)
+    if (component)
     {
-        //컴포넌트의 On__able 함수를 호출하도록 합니다.
-        auto& [WaitSet, WaitVec, WaitValue] = value ? sceneManager._onEnableQueue : sceneManager._onDisableQueue;
-        WaitValue.emplace_back(&component->ReflectFields->_enable);
-        if (component->gameObject->_activeInHierarchy == true)
+        if (component->ReflectFields->_enable != value)
         {
-            auto [iter, result] = WaitSet.insert(component);
-            if (result)
+            // 컴포넌트의 On__able 함수를 호출하도록 합니다.
+            auto& [WaitSet, WaitVec, WaitValue] = value ? sceneManager._onEnableQueue : sceneManager._onDisableQueue;
+            WaitValue.emplace_back(&component->ReflectFields->_enable);
+            if (component->gameObject->_activeInHierarchy == true)
             {
-                WaitVec.push_back(component->GetWeakPtr());
-            }   
-        }
-    }
-    else
-    {
-        auto& [notWaitSet, notWaitVec, notWaitValue] = value ? sceneManager._onDisableQueue : sceneManager._onEnableQueue;
-        if (auto findIter = notWaitSet.find(component); findIter != notWaitSet.end())
-        {
-            notWaitSet.erase(findIter);
-            std::erase(notWaitValue, &component->ReflectFields->_enable);
-            std::erase_if(notWaitVec, [&component](const std::weak_ptr<Component>& weak) 
-            {
-                if (auto vecComponent = weak.lock())
+                auto [iter, result] = WaitSet.insert(component);
+                if (result)
                 {
-                    return vecComponent.get() == component;
+                    WaitVec.push_back(component->GetWeakPtr());
                 }
-                return true;
-            });
+            }
         }
-    }
+        else
+        {
+            auto& [notWaitSet, notWaitVec, notWaitValue] =
+                value ? sceneManager._onDisableQueue : sceneManager._onEnableQueue;
+            if (auto findIter = notWaitSet.find(component); findIter != notWaitSet.end())
+            {
+                notWaitSet.erase(findIter);
+                std::erase(notWaitValue, &component->ReflectFields->_enable);
+                std::erase_if(notWaitVec, [&component](const std::weak_ptr<Component>& weak) {
+                    if (auto vecComponent = weak.lock())
+                    {
+                        return vecComponent.get() == component;
+                    }
+                    return true;
+                });
+            }
+        }
+
+    } 
 }
 
 std::weak_ptr<GameObject> ESceneManager::Engine::FindGameObjectWithName(std::string_view name)
