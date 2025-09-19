@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include "UmFramework.h"
 
-
 class TextureLMH : public UINavigationComponent, public InputReceiver
 {
     USING_PROPERTY(TextureLMH)
@@ -45,8 +44,11 @@ protected:
     REFLECT_FIELDS_BEGIN(UINavigationComponent)
     REFLECT_FIELDS_END(TextureLMH)
 private:
-    bool          _isFocus    = false;
-    int _quality = TEXTURE_QUALITY_HIGH;
+    bool _isFocus        = false;
+    bool _isOptionDirty  = false;
+    bool _isOptionUp     = false;
+    bool _isOptionDown   = false;
+    int  _quality        = TEXTURE_QUALITY_HIGH;
 
 private:
     GameObject* _leftArrow;

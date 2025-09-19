@@ -39,6 +39,29 @@ void PreferencesManager::Awake()
     }
 }
 
+void PreferencesManager::Update() 
+{
+    if (_isOpenDirty)
+    {
+        if (_isOpen)
+        {
+            if (nullptr == _preferencesPannel)
+                UmLogger.Log(LogLevel::LEVEL_ERROR, "환경설정 패널이 없습니다!");
+            else if (nullptr != _preferencesPannel)
+                _preferencesPannel->SetActive(true);
+            _isOpenDirty = false;
+        }
+        else
+        {
+            if (nullptr == _preferencesPannel)
+                UmLogger.Log(LogLevel::LEVEL_ERROR, "환경설정 패널이 없습니다!");
+            else if (nullptr != _preferencesPannel)
+                _preferencesPannel->SetActive(false);
+            _isOpenDirty = false;
+        }
+    }
+}
+
 void PreferencesManager::SetGraphicsOptions(std::string_view option, bool enable) 
 {
     if ("SSR" == option)
@@ -57,16 +80,12 @@ void PreferencesManager::SetGraphicsQuality(PreferencesSystem::TextureQuality qu
 
 void PreferencesManager::OnPreferencesWindow(const Input::Controller&)
 {
-    if (nullptr == _preferencesPannel)
-        UmLogger.Log(LogLevel::LEVEL_ERROR, "환경설정 패널이 없습니다!");
-    else if (nullptr != _preferencesPannel)
-        _preferencesPannel->SetActive(true);
+    _isOpen = true;
+    _isOpenDirty = true;
 }
 
 void PreferencesManager::OffPreferencesWindow(const Input::Controller&)
 {
-    if (nullptr == _preferencesPannel)
-        UmLogger.Log(LogLevel::LEVEL_ERROR, "환경설정 패널이 없습니다!");
-    else if (nullptr != _preferencesPannel)
-        _preferencesPannel->SetActive(false);
+    _isOpen = false;
+    _isOpenDirty = true;
 }

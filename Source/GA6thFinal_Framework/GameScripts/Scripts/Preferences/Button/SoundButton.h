@@ -25,22 +25,27 @@ private:
     void ControlVolumeDown(const Input::Controller& controller);
     void ControlVolumeStick(const Input::Controller& controller);
     void GetChildObject();
+    void ChangeVolume(int delta);
+    void UpdateUIForFocus();
 
 protected:
-    REFLECT_FIELDS_BEGIN(Component)
+    REFLECT_FIELDS_BEGIN(UINavigationComponent)
     REFLECT_FIELDS_END(SoundButton)
 private:
-    GameObject*                 _leftArrow;
-    GameObject*                 _rightArrow;
-    GameObject*                 _title[2];
-    GameObject*                 _volumeBar;
-    GameObject*                 _volumeNum;
-    std::vector<GameObject*>     _volumeBarsFocus;
-    std::vector<GameObject*>     _volumeBarsNonFocus;
-    std::vector<GameObject*>     _volumeNumFocus;
-    std::vector<GameObject*>     _volumeNumNonFocus;
-    class PreferencesManager*   _preferencesManager;
+    GameObject*               _leftArrow;
+    GameObject*               _rightArrow;
+    GameObject*               _title[2];
+    GameObject*               _volumeBar;
+    GameObject*               _volumeNum;
+    std::vector<GameObject*>  _volumeBarsFocus;
+    std::vector<GameObject*>  _volumeBarsNonFocus;
+    std::vector<GameObject*>  _volumeNumFocus;
+    std::vector<GameObject*>  _volumeNumNonFocus;
+    class PreferencesManager* _preferencesManager;
 
-    int _currentVolume  = MaxVolume;
+    int  _currentVolume = MaxVolume;
     bool _isFocus       = false;
+    bool _isVolumeUp    = false;
+    bool _isVolumeDown  = false;
+    bool _isOptionDirty = false;
 };

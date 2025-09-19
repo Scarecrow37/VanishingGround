@@ -10,6 +10,7 @@ public:
 public:
     void Reset() override;
     void Awake() override;
+    void Update() override;
 
 public:
     void SetGraphicsOptions(std::string_view option, bool enable);
@@ -28,6 +29,8 @@ protected:
     REFLECT_FIELDS_END(PreferencesManager)
 
 private:
+    bool                               _isOpen      = false;
+    bool                               _isOpenDirty = false;
     GameObject*                        _preferencesPannel;
     std::map<std::string, GameObject*> _graphicsOption;
 };

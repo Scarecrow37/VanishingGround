@@ -159,28 +159,61 @@ void EnableButton::Reset()
     BindInputAction(ControllerButton::LEFT_THUMB_STICK, Action::PRESSED, this, &EnableButton::ChangeOptionStick);
 }
 
-void EnableButton::Update() {}
+void EnableButton::Update() 
+{
+    if (_isOptionDirty)
+    {
+        if (_isFocus)
+        {
+            FocusPref(true);
+            _leftArrow->SetActive(true);
+            _rightArrow->SetActive(true);
+            if (_isOptionOn)
+            {
+                auto image = GetComponent<ImageElement>();
+                if (nullptr != image)
+                    image->SetImage(_onFocusImage);
+                ChangeOption();
+            }
+            else
+            {
+                auto image = GetComponent<ImageElement>();
+                if (nullptr != image)
+                    image->SetImage(_offFocusImage);
+                ChangeOption();
+            }
+        }
+        else
+        {
+            FocusPref(false);
+            _leftArrow->SetActive(false);
+            _rightArrow->SetActive(false);
+
+            if (_isOptionOn)
+            {
+                auto image = GetComponent<ImageElement>();
+                if (nullptr != image)
+                    image->SetImage(_onNonFocusImage);
+                ChangeOption();
+            }
+            else
+            {
+                auto image = GetComponent<ImageElement>();
+                if (nullptr != image)
+                    image->SetImage(_offNonFocusImage);
+                ChangeOption();
+            }
+        }
+        _isOptionDirty = false;
+    }
+}
 
 void EnableButton::FocusIn()
 {
     UINavigationComponent::FocusIn();
 
     _isFocus   = true;
-    auto image = GetComponent<ImageElement>();
-    if (nullptr != image)
-    {
-        if (_isOptionOn)
-        {
-            image->SetImage(_onFocusImage);
-        }
-        else
-        {
-            image->SetImage(_offFocusImage);
-        }
-    }
-    FocusPref(true);
-    _leftArrow->SetActive(true);
-    _rightArrow->SetActive(true);
+    _isOptionDirty = true;
 }
 
 void EnableButton::FocusOut()
@@ -188,21 +221,7 @@ void EnableButton::FocusOut()
     UINavigationComponent::FocusOut();
 
     _isFocus   = false;
-    auto image = GetComponent<ImageElement>();
-    if (nullptr != image)
-    {
-        if (_isOptionOn)
-        {
-            image->SetImage(_onNonFocusImage);
-        }
-        else
-        {
-            image->SetImage(_offNonFocusImage);
-        }
-    }
-    FocusPref(false);
-    _leftArrow->SetActive(false);
-    _rightArrow->SetActive(false);
+    _isOptionDirty = true;
 }
 
 void EnableButton::Submit() {}
@@ -231,20 +250,7 @@ void EnableButton::ChangeOptionDpad(const Input::Controller& controller)
     if (_isFocus)
     {
         _isOptionOn = !_isOptionOn;
-        if (_isOptionOn)
-        {
-            auto image = GetComponent<ImageElement>();
-            if (nullptr != image)
-                image->SetImage(_onFocusImage);
-            ChangeOption();
-        }
-        else
-        {
-            auto image = GetComponent<ImageElement>();
-            if (nullptr != image)
-                image->SetImage(_offFocusImage);
-            ChangeOption();
-        }
+        _isOptionDirty = true;
     }
 }
 
@@ -256,20 +262,7 @@ void EnableButton::ChangeOptionStick(const Input::Controller& controller)
             Input::Controller::StickBias::RIGHT == controller.GetLeftStickBias())
         {
             _isOptionOn = !_isOptionOn;
-            if (_isOptionOn)
-            {
-                auto image = GetComponent<ImageElement>();
-                if (nullptr != image)
-                    image->SetImage(_onFocusImage);
-                ChangeOption();
-            }
-            else
-            {
-                auto image = GetComponent<ImageElement>();
-                if (nullptr != image)
-                    image->SetImage(_offFocusImage);
-                ChangeOption();
-            }
+            _isOptionDirty = true;
         }
     }
 }

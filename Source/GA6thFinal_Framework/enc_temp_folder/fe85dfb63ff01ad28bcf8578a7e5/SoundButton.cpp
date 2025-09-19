@@ -51,110 +51,89 @@ void SoundButton::Reset()
     BindInputAction(ControllerButton::DPAD_RIGHT, Action::PRESSED, this, &SoundButton::ControlVolumeUp);
     BindInputAction(ControllerButton::LEFT_THUMB_STICK, Action::PRESSED, this, &SoundButton::ControlVolumeStick);
 }
-void SoundButton::Update()
-{
-    if (!_isOptionDirty)
-        return;
 
-    if (_isVolumeUp)
-    {
-        ChangeVolume(+1);
-        _isVolumeUp = false;
-    }
-    else if (_isVolumeDown)
-    {
-        ChangeVolume(-1);
-        _isVolumeDown = false;
-    }
+void SoundButton::Update() {}
 
-    UpdateUIForFocus();
-    _isOptionDirty = false;
-}
-
-void SoundButton::ChangeVolume(int delta)
-{
-    // 현재 볼륨 끄기
-    _volumeNumFocus[_currentVolume]->SetActive(false);
-    _volumeNumNonFocus[_currentVolume]->SetActive(false);
-    if (_currentVolume > 0)
-    {
-        _volumeBarsFocus[_currentVolume - 1]->SetActive(false);
-        _volumeBarsNonFocus[_currentVolume - 1]->SetActive(false);
-    }
-
-    // 볼륨 값 갱신
-    _currentVolume = std::clamp(_currentVolume + delta, 0, MaxVolume);
-
-    // 새로운 볼륨 켜기 (포커스 여부에 따라 분리)
-    if (_isFocus)
-    {
-        _volumeNumFocus[_currentVolume]->SetActive(true);
-        if (_currentVolume > 0)
-            _volumeBarsFocus[_currentVolume - 1]->SetActive(true);
-    }
-    else
-    {
-        _volumeNumNonFocus[_currentVolume]->SetActive(true);
-        if (_currentVolume > 0)
-            _volumeBarsNonFocus[_currentVolume - 1]->SetActive(true);
-    }
-}
-
-void SoundButton::UpdateUIForFocus()
-{
-    // 화살표
-    _leftArrow->SetActive(_isFocus);
-    _rightArrow->SetActive(_isFocus);
-
-    // 타이틀
-    _title[true]->SetActive(_isFocus);
-    _title[false]->SetActive(!_isFocus);
-
-    // 볼륨 숫자
-    for (size_t i = 0; i < _volumeNumFocus.size(); ++i)
-    {
-        _volumeNumFocus[i]->SetActive(_isFocus && i == _currentVolume);
-        _volumeNumNonFocus[i]->SetActive(!_isFocus && i == _currentVolume);
-    }
-
-    // 볼륨 바
-    for (size_t i = 0; i < _volumeBarsFocus.size(); ++i)
-    {
-        _volumeBarsFocus[i]->SetActive(_isFocus && i < _currentVolume);
-        _volumeBarsNonFocus[i]->SetActive(!_isFocus && i < _currentVolume);
-    }
-}
-
-void SoundButton::FocusIn()
+void SoundButton::FocusIn() 
 {
     UINavigationComponent::FocusIn();
 
-    _isFocus       = true;
-    _isOptionDirty = true;
+    _isFocus = true;
+
+    _leftArrow->SetActive(true);
+    _rightArrow->SetActive(true);
+
+    _title[true]->SetActive(true);   
+    _title[false]->SetActive(false);
+
+    _volumeNumFocus[_currentVolume]->SetActive(true);
+    _volumeNumNonFocus[_currentVolume]->SetActive(false);
+
+    if (_currentVolume > 0)
+    {
+        _volumeBarsFocus[_currentVolume - 1]->SetActive(true);
+        _volumeBarsNonFocus[_currentVolume - 1]->SetActive(false);
+    }
 }
 
-void SoundButton::FocusOut()
+void SoundButton::FocusOut() 
 {
     UINavigationComponent::FocusOut();
 
-    _isFocus       = false;
-    _isOptionDirty = true;
+    _isFocus = false;
+
+    _leftArrow->SetActive(false);
+    _rightArrow->SetActive(false);
+
+    _title[true]->SetActive(false);
+    _title[false]->SetActive(true);
+
+    _volumeNumFocus[_currentVolume]->SetActive(false);
+    _volumeNumNonFocus[_currentVolume]->SetActive(true);
+
+    if (_currentVolume > 0)
+    {
+        _volumeBarsFocus[_currentVolume - 1]->SetActive(false);
+        _volumeBarsNonFocus[_currentVolume - 1]->SetActive(true);
+    }
 }
 
 void SoundButton::ControlVolumeUp(const Input::Controller& controller)
 {
     if (!_isFocus)
         return;
-    _isOptionDirty = true;
-    _isVolumeUp    = true;
+
+    _volumeNumFocus[_currentVolume]->SetActive(false);
+
+    if (_currentVolume > 0)
+        _volumeBarsFocus[_currentVolume - 1]->SetActive(false);
+
+    if (_currentVolume < MaxVolume)
+        _currentVolume++;
+
+    _volumeNumFocus[_currentVolume]->SetActive(true);
+
+    if (_currentVolume > 0)
+        _volumeBarsFocus[_currentVolume - 1]->SetActive(true);
 }
 
-void SoundButton::ControlVolumeDown(const Input::Controller& controller)
+void SoundButton::ControlVolumeDown(const Input::Controller& controller) 
 {
     if (!_isFocus)
         return;
-    _isOptionDirty = true;
-    _isVolumeDown  = true;
+
+    _volumeNumFocus[_currentVolume]->SetActive(false);
+
+    if (_currentVolume > 0)
+        _volumeBarsFocus[_currentVolume - 1]->SetActive(false);
+
+    if (_currentVolume > 0)
+        _currentVolume--;
+
+    _volumeNumFocus[_currentVolume]->SetActive(true);
+
+    if (_currentVolume > 0)
+        _volumeBarsFocus[_currentVolume - 1]->SetActive(true);
 }
 
 void SoundButton::ControlVolumeStick(const Input::Controller& controller)

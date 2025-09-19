@@ -64,7 +64,8 @@ private:
     File::GuidRef _offNonFocusImage;
     bool          _isOptionOn = true;
     bool          _isFocus    = false;
-   
+    bool          _isOptionDirty = false;
+
 private:
     GameObject* _leftArrow;
     GameObject* _rightArrow;
