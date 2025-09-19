@@ -12,7 +12,7 @@ public:
         if (nullptr == SingletonObjectStatic)
         {
             std::string message = typeid(SingletonObject<T>).name();
-            message += (const char*)"가 존재하지 않습니다.";
+            message += (const char*)u8"가 존재하지 않습니다.";
             UmLogger.Log(LogLevel::LEVEL_WARNING, message, location);
         }
         return SingletonObjectStatic; 
@@ -87,7 +87,7 @@ public:
         if (nullptr == SingletonComponentStatic)
         {
             std::string message = typeid(T).name();
-            message += (const char*)"가 존재하지 않습니다.";
+            message += (const char*)u8"가 존재하지 않습니다.";
             UmLogger.Log(LogLevel::LEVEL_WARNING, message, location);
         }
         return SingletonComponentStatic; 
@@ -110,7 +110,7 @@ public:
     bool IsSingleTon() { return _owner == SingletonComponentStatic; }
       
     /// <summary>
-    /// owner의 오브젝트를 싱글톤으로 설정합니다. (Reset에서 호출해야합니다.)
+    /// owner의 컴포넌트를 싱글톤으로 설정합니다. (Reset에서 호출해야합니다.)
     /// </summary>
     void SetSingleTon()
     {
@@ -121,7 +121,7 @@ public:
     }
 
     /// <summary>
-    /// owner의 오브젝트를 싱글톤으로 만듭니다. 싱글톤 객체로 등록되면 true를 반환합니다. (Awake에서 호출해야합니다.)
+    /// owner의 컴포넌트 싱글톤으로 만듭니다. 싱글톤 객체로 등록되면 true를 반환합니다. (Awake에서 호출해야합니다.)
     /// </summary>
     /// <returns>성공 여부</returns>
     bool TrySingleTon()

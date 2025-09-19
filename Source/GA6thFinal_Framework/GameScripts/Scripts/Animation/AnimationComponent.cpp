@@ -164,6 +164,7 @@ void AnimationComponent::ImGuiDrawPropertysEvent()
 
         if (ImGui::TreeNodeEx("Animation Event Track##details"))
         {
+            ImGui::Checkbox("Disable Animation Notify", &ReflectFields->DisableAnimationNotify);
             ImGui::BeginDisabled();
             std::string path = _filePath.string();
             ImGuiHelper::TextWithVerticalSeparator("Event Track Asset");
@@ -415,6 +416,8 @@ void AnimationComponent::UpdateAnimation(AnimationData& animData)
             auto eventTrack = _eventTrack.GetEventTrack(animData._animationName);
             if (eventTrack)
             {
+                ReflectFields->DisableAnimationNotify ? eventTrack->AddFlags(Timeline::EVENT_TRCK_FLAGS_NOTIFY_DISABLED)
+                                                      : eventTrack->RemoveFlags(Timeline::EVENT_TRCK_FLAGS_NOTIFY_DISABLED);
                 eventTrack->SetPreNotifyCallback(_preEventCallback);
                 eventTrack->SetPostNotifyCallback(_postEventCallback);
                 eventTrack->SetCurrentFrame(animData._elapsedFrame);
