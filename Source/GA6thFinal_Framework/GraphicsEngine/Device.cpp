@@ -2,19 +2,6 @@
 #include "Device.h"
 #include "d3dUtil.h"
 
-// void Device::SignalComputeQueue(int fenceSlot)
-//{
-//     const UINT64 fenceValue = _fenceValues[fenceSlot]++;
-//     _computeCommandQueue->Signal(_graphicsFences[fenceSlot].Get(), fenceValue);
-//     _lastGraphicsFenceValues[fenceSlot] = fenceValue;
-// }
-// void Device::SignalGraphicsQueue(int fenceSlot)
-//{
-//     const UINT64 fenceValue = _fenceValues[fenceSlot]++;
-//     _commandQueue->Signal(_graphicsFences[fenceSlot].Get(), fenceValue);
-//     _lastGraphicsFenceValues[fenceSlot] = fenceValue;
-// }
-
 ComPtr<ID3D12Device5> Device::GetDevice5()
 {
     ComPtr<ID3D12Device5> result;
@@ -147,8 +134,7 @@ void Device::ResetComputeCommands()
 
 void Device::Execute()
 {
-    auto br = CD3DX12_RESOURCE_BARRIER::Transition(_swapChainBuffer[_renderTargetIndex].Get(),
-                                                   D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+    auto br = CD3DX12_RESOURCE_BARRIER::Transition(_swapChainBuffer[_renderTargetIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
     _commandList->ResourceBarrier(1, &br);
 
     _computeCommandList->Close();
@@ -161,13 +147,10 @@ void Device::Execute()
 
     // Wait for Compute Commands to finish
     UINT64 computeFence = commandController->SignalCommandQueue(CommandQueueType::COMPUTE_QUEUE);
-    commandController->WaitCommandQueue(CommandQueueType::GRAPHICS_QUEUE, CommandQueueType::COMPUTE_QUEUE,
-                                        computeFence);
+    commandController->WaitCommandQueue(CommandQueueType::GRAPHICS_QUEUE, CommandQueueType::COMPUTE_QUEUE, computeFence);
 
     // Draw Graphics Commands
     commandController->ExecuteCommand(CommandQueueType::GRAPHICS_QUEUE, _commandList.Get());
-
-
 }
 
 void Device::UpdateBuffer(ComPtr<ID3D12Resource>& buffer, void* data, UINT size)

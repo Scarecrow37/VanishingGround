@@ -2,9 +2,9 @@
 #include "SkyBoxRenderTechnique.h"
 #include "SkyBoxPass.h"
 
-SkyBoxRenderTechnique::SkyBoxRenderTechnique() {}
+SkyBoxRenderTechnique::SkyBoxRenderTechnique() = default;
 
-SkyBoxRenderTechnique::~SkyBoxRenderTechnique() {}
+SkyBoxRenderTechnique::~SkyBoxRenderTechnique() = default;
 
 void SkyBoxRenderTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 {
@@ -13,9 +13,4 @@ void SkyBoxRenderTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
     pass = std::make_unique<SkyBoxPass>();
     pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));
-}
-
-void SkyBoxRenderTechnique::Execute(ID3D12GraphicsCommandList* commandList)
-{
-    __super::Execute(commandList);
 }

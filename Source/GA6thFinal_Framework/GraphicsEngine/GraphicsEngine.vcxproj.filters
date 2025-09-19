@@ -145,6 +145,9 @@
     <FxCompile Include="..\Shaders\vs_static_forward_fr.hlsl">
       <Filter>Shaders\vs</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\ps_burn_dissolve.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AccelerationStructureManager.cpp">

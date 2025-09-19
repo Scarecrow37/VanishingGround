@@ -1,26 +1,32 @@
 ﻿#include "pchScripts.h"
 #include "MonsterHpView.h"
 #include "Scripts/UI/Elements/Text/TextElement.h"
-#include "ViewModels/HP/HpViewModel.h"
+#include "ViewModels/Hp/CharacterHPViewModel.h"
 
 UMREAL_COMPONENT(MonsterHpView)
 
-MonsterHpView::MonsterHpView() = default;
+MonsterHpView::MonsterHpView()
+{
+    _hpTextElement = nullptr;
+}
 
 void MonsterHpView::Watch(const std::string& key)
 {
     if (false == key.empty())
     {
-        UmWatcher.Blind<HpViewModel>(key, _watchHandle);
+        UmWatcher.Blind<CharacterHPViewModel>(key, _watchHandle);
         if (_hpTextElement)
             _hpTextElement->Enable = true;
         try
         {
-            _watchHandle = UmWatcher.Watch<HpViewModel, float>(key, [this](const float value) 
+            _watchHandle = UmWatcher.Watch<CharacterHPViewModel, CharacterHP>(key, [this](const CharacterHP& value) 
             {
                 if (_hpTextElement)
                 {
-                    _hpTextElement->Text = std::to_string(static_cast<int>(value * 100)) + "%";
+                    std::string hp = std::to_string(value.CurrentHP);
+                    hp += "/";
+                    hp += std::to_string(value.MaxHP);
+                    _hpTextElement->Text = hp;
                 }
             });
         }

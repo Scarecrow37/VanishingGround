@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "UmFramework.h"
 
 class Stage;
 class ScrollingWrapper;
@@ -13,14 +12,15 @@ public:
     ~MapManager() override;
 
 public:
+    void SetFocusStage(Stage* stage);
+
+public:
     void Awake() override;
-    void Start() override;
-    void Reset() override;
     void Update() override;
     void OnLoadScene(Scene& loadScene, LoadSceneMode mode) override;
 
 public:
-    REFLECT_PROPERTY(MapScenePath, BackgroundImage, StageEnableImage, StageDisableImage, StageFocusImage, RewardPopupImage, PlayerHP)
+    REFLECT_PROPERTY(MapScenePath, BackgroundImage, StageEnableImage, StageDisableImage, StageFocusImage, RewardPopupImage)
     
     GETTER_ONLY(std::string, MapScenePath) { return ReflectFields->MapScenePath; }
     PROPERTY(MapScenePath)
@@ -49,10 +49,6 @@ public:
     SETTER(int, RewardPopupImage) { ReflectFields->AssetIDs[REWARD_POPUP] = value; }
     PROPERTY(RewardPopupImage)
 
-    GETTER(int, PlayerHP) { return _playerHP; }
-    SETTER(int, PlayerHP) { _playerHP = value; }
-    PROPERTY(PlayerHP)
-
 protected:
     REFLECT_FIELDS_BEGIN(Component)
     std::array<int, MAX> AssetIDs;
@@ -66,18 +62,14 @@ private:
     void ChageBackgroundImage(int assetID);
     void DefaultSetting();
     void SetupStage();
-    Stage* FindStage(int first, int second);
 
 private:
     ScrollingWrapper* _scroll = nullptr;
 
 private:
     MVVM::Model<Stage*> _focusStage;
-    MVVM::Model<int>    _playerHP;
     std::vector<Stage*> _stages;
-    int                 _firstElement  = 1;
-    int                 _secondElement = 1;
-    int                 _childCount    = 0;
-    float               _scrollSpeed   = 100.0f;
-    int                 _clearedStage  = 0;
+    int                 _childCount   = 0;
+    float               _scrollSpeed  = 100.0f;
+    int                 _clearedStage = 0;
 };

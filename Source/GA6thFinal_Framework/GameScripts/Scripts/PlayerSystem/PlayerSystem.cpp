@@ -6,9 +6,54 @@
 #include "ItemDropSystem/ItemDropSystem.h"
 #include "Stats/Player/PlayerStatsComponent.h"
 #include "AccessorySystem/AccessorySystem.h"
-
+#include "ConsumableSystem/ConsumableSystem.h"
+#include "UI/Elements/Image/ImageElement.h"
+#include "Stats/Player/PlayerStats.h"
 
 UMREAL_COMPONENT(PlayerSystem)
+
+namespace
+{
+    template <typename T>
+    bool CheckMessage(T* ptr)
+    {
+        bool        result = true;
+        std::string message;
+        message = typeid(T).name();
+        if (nullptr == ptr)
+        {
+            message += (const char*)u8" 컴포넌트를 추가해주세요";
+            result = false;
+        }
+        else
+        {
+            message += " ok";
+            result = true;
+        }
+        ImGui::Text(message.c_str());
+        return result;
+    }
+
+    template <typename T>
+    bool CheckWithLog(T* ptr)
+    {
+        bool        result  = true;
+        std::string message = (const char*)u8"플레이어 시스템에 ";
+        message             = typeid(T).name();
+        if (nullptr == ptr)
+        {
+            message += (const char*)u8" 컴포넌트를 추가해주세요";
+            result = false;
+            UmLogger.Log(LogLevel::LEVEL_WARNING, message);
+        }
+        else
+        {
+            message += " ok";
+            result = true;
+        }
+        return result;
+    }
+} 
 
 PlayerSystem::PlayerSystem() = default;
 PlayerSystem::~PlayerSystem() = default;
@@ -23,26 +68,24 @@ void PlayerSystem::Awake()
 {
     if (_singletonObject.TrySingleTon(true))
     {
-       
+        CheckSystem();
+        if (true == CheckWithLog(_playerStatsComponent))
+        {
+            PlayerStats& stats = _playerStatsComponent->GetStats();
+            stats.RegisterHP();
+        }
     }
 }
 
-namespace
+void PlayerSystem::OnDestroy() 
 {
-    template<typename T>
-    void CheckMessage(T* ptr)
+    if (_singletonObject.IsSingleTon())
     {
-        std::string message;
-        message = typeid(T).name();
-        if (nullptr == ptr)
+        if (true == CheckWithLog(_playerStatsComponent))
         {
-            message += (const char*)u8" 컴포넌트를 추가해주세요";
+            PlayerStats& stats = _playerStatsComponent->GetStats();
+            stats.UnregisterHP();
         }
-        else
-        {
-            message += " ok";
-        }
-        ImGui::Text(message.c_str());
     }
 }
 
@@ -56,6 +99,7 @@ void PlayerSystem::ImGuiDrawPropertysEvent()
     CheckMessage(_weaponTableComponent);
     CheckMessage(_revelationSystem);
     CheckMessage(_accessorySystem);
+    CheckMessage(_consumableSystem);
     CheckMessage(_itemDropSystem);
     CheckMessage(_playerStatsComponent);
 }
@@ -66,6 +110,7 @@ void PlayerSystem::CheckSystem()
     _weaponTableComponent = GetComponent<WeaponTableComponent>();
     _revelationSystem     = GetComponent<RevelationSystem>();
     _accessorySystem      = GetComponent<AccessorySystem>();
+    _consumableSystem     = GetComponent<ConsumableSystem>();
     _itemDropSystem       = GetComponent<ItemDropSystem>();
     _playerStatsComponent = GetComponent<PlayerStatsComponent>();
 }

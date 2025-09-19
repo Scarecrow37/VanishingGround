@@ -50,6 +50,52 @@ void RenderTarget::Initialize(const D3D12_RESOURCE_DESC& desc, FLOAT clearColor)
     CreateShaderResourceView();
 }
 
+void RenderTarget::Initialize(const D3D12_RESOURCE_DESC& desc, FLOAT clearColor[4])
+{
+    _clearValue = {clearColor[0], clearColor[1], clearColor[2], clearColor[3]};
+
+    _desc = desc;
+
+    _currentState = D3D12_RESOURCE_STATE_RENDER_TARGET;
+
+    _resolution = {(LONG)desc.Width, (LONG)desc.Height};
+
+    UINT mipLevelCount = 1;
+
+    if (_desc.MipLevels != 1)
+    {
+        UINT maxValue = std::max((UINT)desc.Width, desc.Height);
+        while (maxValue > 0)
+        {
+            maxValue /= 2;
+            mipLevelCount++;
+        }
+    }
+
+    _rtvHandles.resize(mipLevelCount);
+    _viewPorts.resize(mipLevelCount);
+    _scissorRects.resize(mipLevelCount);
+
+    for (UINT i = 0; i < mipLevelCount; i++)
+    {
+        _viewPorts[i] = {.TopLeftX = 0.f,
+                         .TopLeftY = 0.f,
+                         .Width    = (FLOAT)(desc.Width >> i),
+                         .Height   = (FLOAT)(desc.Height >> i),
+                         .MinDepth = 0.f,
+                         .MaxDepth = 1.f};
+
+        _scissorRects[i] = {.left = 0, .top = 0, .right = (LONG)(desc.Width >> i), .bottom = (LONG)(desc.Height >> i)};
+
+        Global::viewManager->AddDescriptorHeap(ViewManager::Type::RENDER_TARGET, _rtvHandles[i]);
+    }
+
+    CreateRenderTargetView();
+
+    Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _srvHandle, &_ID);
+    CreateShaderResourceView();
+}
+
 void RenderTarget::CreateRenderTargetView()
 {        
     CD3DX12_HEAP_PROPERTIES property(D3D12_HEAP_TYPE_DEFAULT);

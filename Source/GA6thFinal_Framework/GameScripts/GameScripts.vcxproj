@@ -305,6 +305,7 @@
     <ClInclude Include="DLLExportDefine.h" />
     <ClInclude Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.h" />
     <ClInclude Include="Scripts\Audio\AudioTableComponent.h" />
+    <ClInclude Include="Scripts\ConsumableSystem\ConsumableSystem.h" />
     <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h" />
     <ClInclude Include="Scripts\EnemyAction\ActionData\EnemyActionData.h" />
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
@@ -325,6 +326,7 @@
     <ClInclude Include="Scripts\ExcelDataSystem\ExcelDataSystem.h" />
     <ClInclude Include="Scripts\ExcelParser\ImGuiColumnSheetParser.h" />
     <ClInclude Include="Scripts\ItemDropSystem\Interface\IDropItem.h" />
+    <ClInclude Include="Scripts\MainMenu\MainMenuNavigationBase.h" />
     <ClInclude Include="Scripts\Map\MapManager.h" />
     <ClInclude Include="Scripts\Map\RewardPopup.h" />
     <ClInclude Include="Scripts\Map\SmoothScroll.h" />
@@ -393,9 +395,8 @@
     <ClInclude Include="Scripts\UI\Wrappers\Dummy\DummyWrapper.h" />
     <ClInclude Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.h" />
     <ClInclude Include="Scripts\UI\Wrappers\Scrolling\ScrollingWrapper.h" />
-    <ClInclude Include="Scripts\ViewModels\Hp\HpViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\ItemDrop\DropArtifacts\DropArtifactsViewModel.h" />
-    <ClInclude Include="Scripts\ViewModels\Map\MapPlayerHPViewModel.h" />
+    <ClInclude Include="Scripts\ViewModels\Hp\CharacterHPViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Map\StageFocusViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Map\StageViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Revelations\RevelationsViewModel.h" />
@@ -478,11 +479,16 @@
     <ClInclude Include="Scripts\Utility\SingletonHelper.h" />
     <ClInclude Include="Scripts\PlayerSystem\PlayerSystem.h" />
     <ClInclude Include="Scripts\AccessorySystem\AccessorySystem.h" />
+    <ClInclude Include="Scripts\MainMenu\NewGame.h" />
+    <ClInclude Include="Scripts\MainMenu\Option.h" />
+    <ClInclude Include="Scripts\MainMenu\Credits.h" />
+    <ClInclude Include="Scripts\MainMenu\Quit.h" />
     <ClInclude Include="Scripts\Camera\UmCineMotion.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.cpp" />
     <ClCompile Include="Scripts\Audio\AudioTableComponent.cpp" />
+    <ClCompile Include="Scripts\ConsumableSystem\ConsumableSystem.cpp" />
     <ClCompile Include="Scripts\EnemyAction\Factory\EnemyActionFactory.cpp" />
     <ClCompile Include="Scripts\EnemyAction\ActionData\EnemyActionData.cpp" />
     <ClCompile Include="Scripts\BattleSystem\Battle.cpp" />
@@ -502,6 +508,7 @@
     <ClCompile Include="Scripts\ExcelDataSystem\ExcelDataSystem.cpp" />
     <ClCompile Include="Scripts\ExcelParser\ImGuiColumnSheetParser.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\Interface\IDropItem.cpp" />
+    <ClCompile Include="Scripts\MainMenu\MainMenuNavigationBase.cpp" />
     <ClCompile Include="Scripts\Map\MapManager.cpp" />
     <ClCompile Include="Scripts\Map\RewardPopup.cpp" />
     <ClCompile Include="Scripts\Map\SmoothScroll.cpp" />
@@ -578,9 +585,8 @@
     <ClCompile Include="Scripts\UI\Wrappers\Dummy\DummyWrapper.cpp" />
     <ClCompile Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.cpp" />
     <ClCompile Include="Scripts\UI\Wrappers\Scrolling\ScrollingWrapper.cpp" />
-    <ClCompile Include="Scripts\ViewModels\Hp\HpViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\ItemDrop\DropArtifacts\DropArtifactsViewModel.cpp" />
-    <ClCompile Include="Scripts\ViewModels\Map\MapPlayerHPViewModel.cpp" />
+    <ClCompile Include="Scripts\ViewModels\Hp\CharacterHPViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Map\StageFocusViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Map\StageViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Revelations\RevelationsViewModel.cpp" />
@@ -665,6 +671,10 @@
     <ClCompile Include="Scripts\SceneTransition\SceneTransitionComponent.cpp" />
     <ClCompile Include="Scripts\PlayerSystem\PlayerSystem.cpp" />
     <ClCompile Include="Scripts\AccessorySystem\AccessorySystem.cpp" />
+    <ClCompile Include="Scripts\MainMenu\NewGame.cpp" />
+    <ClCompile Include="Scripts\MainMenu\Option.cpp" />
+    <ClCompile Include="Scripts\MainMenu\Credits.cpp" />
+    <ClCompile Include="Scripts\MainMenu\Quit.cpp" />
     <ClCompile Include="Scripts\Camera\UmCineMotion.cpp" />
   </ItemGroup>
   <ItemGroup>
