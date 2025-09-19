@@ -198,11 +198,11 @@ void TextureLMH::DownQuality(const Input::Controller& controller)
 
 void TextureLMH::UpDownStickQuality(const Input::Controller& controller)
 {
-    if (Input::Controller::StickBias::LEFT == controller.GetLeftStickBias())
+    if (Input::Controller::StickBias::BIAS_LEFT == controller.GetLeftStickBias())
     {
         DownQuality(controller);
     }
-    else if (Input::Controller::StickBias::RIGHT == controller.GetLeftStickBias())
+    else if (Input::Controller::StickBias::BIAS_RIGHT == controller.GetLeftStickBias())
     {
         UpQuality(controller);
     }

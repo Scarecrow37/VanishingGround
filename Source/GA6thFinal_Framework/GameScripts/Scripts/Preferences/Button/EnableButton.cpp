@@ -216,8 +216,8 @@ void EnableButton::ChangeOptionStick(const Input::Controller& controller)
 {
     if (_isFocus)
     {
-        if (Input::Controller::StickBias::LEFT == controller.GetLeftStickBias() ||
-            Input::Controller::StickBias::RIGHT == controller.GetLeftStickBias())
+        if (Input::Controller::StickBias::BIAS_LEFT == controller.GetLeftStickBias() ||
+            Input::Controller::StickBias::BIAS_RIGHT == controller.GetLeftStickBias())
         {
             _isOptionOn = !_isOptionOn;
             if (_isOptionOn)
