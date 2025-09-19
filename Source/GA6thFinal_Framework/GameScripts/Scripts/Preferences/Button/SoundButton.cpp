@@ -4,10 +4,19 @@
 
 UMREAL_COMPONENT(SoundButton)
 
-SoundButton::SoundButton()  = default;
+SoundButton::SoundButton()
+{
+    CurrentOption.SetInputAutoEvent([this]() {
+        if (ImGui::Combo("VolumeOptions", &_currentOptionInt, VolumeOptions.data(), (int)VolumeOptions.size()))
+        {
+            _currentOption = VolumeOptions[_currentOptionInt];
+        }
+    });
+}
+
 SoundButton::~SoundButton() = default;
 
-void SoundButton::Awake() 
+void SoundButton::Awake()
 {
     GetChildObject();
 
@@ -33,9 +42,17 @@ void SoundButton::Awake()
     {
         _volumeBarsNonFocus[_currentVolume - 1]->SetActive(true);
     }
+    _currentVolume = MaxVolume;
+    if ("MasterVolume" == _currentOption)
+        _currentVolume = static_cast<int>(UmPreferences.GetMasterVolume() * MaxVolume);
+    else if ("BGMVolume" == _currentOption)
+        _currentVolume = static_cast<int>(UmPreferences.GetBGMVolume() * MaxVolume);       
+    else if ("SFXVolume" == _currentOption)
+        _currentVolume = static_cast<int>(UmPreferences.GetSFXVolume() * MaxVolume);
+    _isOptionDirty = true;
 }
 
-void SoundButton::Start() 
+void SoundButton::Start()
 {
     // 관리 매니저 객체
     GameObject* manager = GameObject::Find("PreferencesManager").lock().get();
@@ -91,6 +108,7 @@ void SoundButton::ChangeVolume(int delta)
         _volumeNumFocus[_currentVolume]->SetActive(true);
         if (_currentVolume > 0)
             _volumeBarsFocus[_currentVolume - 1]->SetActive(true);
+        _preferencesManager->SetVolume(_currentOption, (float)_currentVolume);
     }
     else
     {
@@ -139,6 +157,17 @@ void SoundButton::FocusOut()
 
     _isFocus       = false;
     _isOptionDirty = true;
+}
+
+void SoundButton::SerializedReflectEvent() 
+{
+    ReflectFields->CurrentOptionStr = _currentOption;
+}
+
+void SoundButton::DeserializedReflectEvent() 
+{
+    UINavigationComponent::DeserializedReflectEvent();
+    _currentOption = ReflectFields->CurrentOptionStr;
 }
 
 void SoundButton::ControlVolumeUp(const Input::Controller& controller)

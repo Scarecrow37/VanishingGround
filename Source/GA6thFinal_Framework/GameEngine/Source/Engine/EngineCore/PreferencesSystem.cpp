@@ -106,6 +106,42 @@ void PreferencesSystem::SetShadowQuality(int quality) {}
 
 void PreferencesSystem::SetShadowQuality(std::string_view sceneName, int quality) {}
 
+void PreferencesSystem::SetMasterVolume(float value, float maxVolume) 
+{
+    assert(0 < maxVolume && L"Max Volume must bigger than 0");
+    // 0~1의값
+    _masterVolume = value / maxVolume;
+    _masterVolume = std::clamp(_masterVolume, 0.f, 1.f);
+    // 오디오 시스템한테 요청하기
+    std::string logMessage = "Current Master volume : ";
+    std::string volumestr  = std::to_string(_masterVolume);
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, logMessage + volumestr);
+}
+
+void PreferencesSystem::SetBGMVolume(float value, float maxVolume) 
+{
+    assert(0 < maxVolume && L"Max Volume must bigger than 0");
+    // 0~1의값
+    _BGMVolume = value / maxVolume;
+    _BGMVolume = std::clamp(_BGMVolume, 0.f, 1.f);
+    // 오디오 시스템한테 요청하기 실제 세팅시 마스터 볼륨과 곱해서 세팅할 것
+    std::string logMessage = "Current BGM volume : ";
+    std::string volumestr  = std::to_string(_BGMVolume);
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, logMessage + volumestr);
+}
+
+void PreferencesSystem::SetSFXVolume(float value, float maxVolume) 
+{
+    assert(0 < maxVolume && L"Max Volume must bigger than 0");
+    // 0~1의값
+    _SFXVolume = value / maxVolume;
+    _SFXVolume = std::clamp(_SFXVolume, 0.f, 1.f);
+    // 오디오 시스템한테 요청하기 실제 세팅시 마스터 볼륨과 곱해서 세팅할 것
+    std::string logMessage = "Current SFX volume : ";
+    std::string volumestr  = std::to_string(_SFXVolume);
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, logMessage + volumestr);
+}
+
 void PreferencesSystem::OnPostRequestedSave()
 {
     auto filePath = UmFileSystem.GetBuildSettingPath();
@@ -126,7 +162,10 @@ void PreferencesSystem::OnPostRequestedSave()
     outFile << "SSAO : " << _onSSAO << "\n";
     outFile << "Bloom : " << _onBloom << "\n";
     outFile << "VolumetricFog : " << _onVolumFog << "\n";
-    outFile << "TextureQuality : " << _textureQuality;
+    outFile << "TextureQuality : " << _textureQuality << "\n";
+    outFile << "MasterVolume : " << _masterVolume << "\n";
+    outFile << "SFXVolume : " << _SFXVolume << "\n";
+    outFile << "BGMVolume : " << _BGMVolume;
 }
 
 void PreferencesSystem::OnPostRequestedLoad() 
@@ -159,7 +198,13 @@ void PreferencesSystem::OnPostRequestedLoad()
             _onVolumFog = (value == "1");
         else if (key == "TextureQuality")
             _textureQuality = std::stoi(value);
-        
+        else if (key == "MasterVolume")
+            _masterVolume = std::stof(value);
+        else if (key == "SFXVolume")
+            _SFXVolume = std::stof(value);
+        else if (key == "BGMVolume")
+            _BGMVolume = std::stof(value);
+                  
     }
 
 }

@@ -1,5 +1,5 @@
 ﻿#pragma once
-constexpr int MaxVolume = 10;
+
 class SoundButton : public UINavigationComponent, public InputReceiver
 {
     USING_PROPERTY(SoundButton)
@@ -15,10 +15,17 @@ public:
     void Update() override;
 
 public:
-    REFLECT_PROPERTY()
+    REFLECT_PROPERTY(CurrentOption)
+
+    GETTER_ONLY(std::string, CurrentOption) { return _currentOption; }
+    PROPERTY(CurrentOption)
+
 protected:
     void FocusIn() override;
     void FocusOut() override;
+
+    void SerializedReflectEvent() override;
+    void DeserializedReflectEvent() override;
 
 private:
     void ControlVolumeUp(const Input::Controller& controller);
@@ -30,6 +37,7 @@ private:
 
 protected:
     REFLECT_FIELDS_BEGIN(UINavigationComponent)
+    std::string CurrentOptionStr;
     REFLECT_FIELDS_END(SoundButton)
 private:
     GameObject*               _leftArrow;
@@ -43,9 +51,11 @@ private:
     std::vector<GameObject*>  _volumeNumNonFocus;
     class PreferencesManager* _preferencesManager;
 
-    int  _currentVolume = MaxVolume;
-    bool _isFocus       = false;
-    bool _isVolumeUp    = false;
-    bool _isVolumeDown  = false;
-    bool _isOptionDirty = false;
+    int         _currentVolume = MaxVolume;
+    bool        _isFocus       = false;
+    bool        _isVolumeUp    = false;
+    bool        _isVolumeDown  = false;
+    bool        _isOptionDirty = false;
+    int         _currentOptionInt = 0;
+    std::string _currentOption;
 };

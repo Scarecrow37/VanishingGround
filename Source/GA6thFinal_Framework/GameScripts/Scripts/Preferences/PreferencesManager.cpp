@@ -21,25 +21,31 @@ void PreferencesManager::Awake()
     else if (nullptr != _preferencesPannel)
         _preferencesPannel->SetActive(false);
 
-    // 엔진에서 현제 저장된 설정값 적용
+    // 엔진에서 현재 저장된 설정값 적용
     SetGraphicsOptions("SSR", UmPreferences.IsSSR());
     SetGraphicsOptions("SSAO", UmPreferences.IsSSAO());
     SetGraphicsOptions("Bloom", UmPreferences.IsBloom());
     SetGraphicsOptions("VolumetricFog", UmPreferences.IsVolumFog());
+    SetVolume("MasterVolume", static_cast<int>(UmPreferences.GetMasterVolume() * MaxVolume));
+    SetVolume("BGMVolume", static_cast<int>(UmPreferences.GetBGMVolume() * MaxVolume));
+    SetVolume("SFXVolume", static_cast<int>(UmPreferences.GetSFXVolume() * MaxVolume));
     switch (UmPreferences.GetTextureQuality())
     {
     case 0:
         SetGraphicsQuality(PreferencesSystem::TextureQuality::LOW);
+        break;
     case 1:
         SetGraphicsQuality(PreferencesSystem::TextureQuality::MEDIUM);
+        break;
     case 2:
         SetGraphicsQuality(PreferencesSystem::TextureQuality::HIGH);
+        break;
     default:
         break;
     }
 }
 
-void PreferencesManager::Update() 
+void PreferencesManager::Update()
 {
     if (_isOpenDirty)
     {
@@ -62,7 +68,7 @@ void PreferencesManager::Update()
     }
 }
 
-void PreferencesManager::SetGraphicsOptions(std::string_view option, bool enable) 
+void PreferencesManager::SetGraphicsOptions(std::string_view option, bool enable)
 {
     if ("SSR" == option)
         UmPreferences.SetSSR(enable);
@@ -78,14 +84,30 @@ void PreferencesManager::SetGraphicsQuality(PreferencesSystem::TextureQuality qu
     UmPreferences.SetTextureQuality(quality);
 }
 
+void PreferencesManager::SetVolume(std::string_view option, int value)
+{
+    if ("MasterVolume" == option)
+    {
+        UmPreferences.SetMasterVolume((float)value, (float)MaxVolume);
+    }
+    else if ("BGMVolume" == option)
+    {
+        UmPreferences.SetBGMVolume((float)value, (float)MaxVolume);
+    }
+    else if ("SFXVolume" == option)
+    {
+        UmPreferences.SetSFXVolume((float)value, (float)MaxVolume);
+    }
+}
+
 void PreferencesManager::OnPreferencesWindow(const Input::Controller&)
 {
-    _isOpen = true;
+    _isOpen      = true;
     _isOpenDirty = true;
 }
 
 void PreferencesManager::OffPreferencesWindow(const Input::Controller&)
 {
-    _isOpen = false;
+    _isOpen      = false;
     _isOpenDirty = true;
 }

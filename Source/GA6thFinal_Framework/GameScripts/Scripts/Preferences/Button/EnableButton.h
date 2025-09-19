@@ -5,8 +5,6 @@ class EnableButton : public UINavigationComponent,public InputReceiver
 {
     USING_PROPERTY(EnableButton)
 
-    std::vector<const char*> _grphicsOptions = {"SSR", "SSAO", "Bloom", "VolumetricFog"};
-
 public:
     EnableButton();
     ~EnableButton() override;

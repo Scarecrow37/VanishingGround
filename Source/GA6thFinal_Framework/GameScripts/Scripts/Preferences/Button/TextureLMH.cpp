@@ -22,7 +22,7 @@ void TextureLMH::Awake()
         _focus[i]->SetActive(false);
         _nonFocus[i]->SetActive(false);
     }
-
+    _quality = UmPreferences.GetTextureQuality();
     SetQuality(_quality);
 }
 

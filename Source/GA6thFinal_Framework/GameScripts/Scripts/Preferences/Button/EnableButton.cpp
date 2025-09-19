@@ -91,9 +91,9 @@ EnableButton::EnableButton()
     });
 
     CurrentOption.SetInputAutoEvent([this]() {
-        if (ImGui::Combo("GraphicsOptions", &_currentOptionInt, _grphicsOptions.data(), (int)_grphicsOptions.size()))
+        if (ImGui::Combo("GraphicsOptions", &_currentOptionInt, GrphicsOptions.data(), (int)GrphicsOptions.size()))
         {
-            _currentOption = _grphicsOptions[_currentOptionInt];
+            _currentOption = GrphicsOptions[_currentOptionInt];
         }
     });
 }
