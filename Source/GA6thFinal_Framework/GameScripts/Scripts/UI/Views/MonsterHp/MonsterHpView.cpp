@@ -1,7 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "MonsterHpView.h"
 #include "Scripts/UI/Elements/Text/TextElement.h"
-#include "ViewModels/Map/MapPlayerHPViewModel.h"
+#include "ViewModels/Hp/CharacterHPViewModel.h"
 
 UMREAL_COMPONENT(MonsterHpView)
 
