@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "Stats/CharacterStats.h"
-#include "ViewModels/Map/MapPlayerHPViewModel.h"
+#include "ViewModels/Hp/CharacterHPViewModel.h"
 
 struct PlayerStats : public CharacterStats
 {
@@ -39,13 +39,13 @@ public:
     void RegisterHP()
     {
         std::string key = MODEL_HP_KEY;
-        UmWatcher.Unregister<MapPlayerHPViewModel>(key);
-        UmWatcher.Register<MapPlayerHPViewModel>(key, _hpModel);
+        UmWatcher.Unregister<CharacterHPViewModel>(key);
+        UmWatcher.Register<CharacterHPViewModel>(key, _hpModel);
     }
 
     void UnregisterHP()
     {
         std::string key = MODEL_HP_KEY;
-        UmWatcher.Unregister<MapPlayerHPViewModel>(key);
+        UmWatcher.Unregister<CharacterHPViewModel>(key);
     }
 };

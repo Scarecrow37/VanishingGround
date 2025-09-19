@@ -10,7 +10,7 @@ MapPlayerHPView::MapPlayerHPView()  = default;
 
 MapPlayerHPView::~MapPlayerHPView()
 {
-    UmWatcher.Blind<MapPlayerHPViewModel>(PlayerStats::MODEL_HP_KEY, _handle);
+    UmWatcher.Blind<CharacterHPViewModel>(PlayerStats::MODEL_HP_KEY, _handle);
 }
 
 void MapPlayerHPView::Start()
@@ -22,7 +22,7 @@ void MapPlayerHPView::Start()
             _hp = &AddComponent<TextElement>();
         }
 
-        _handle = UmWatcher.Watch<MapPlayerHPViewModel, PlayerHP>(PlayerStats::MODEL_HP_KEY, [this](const PlayerHP value) 
+        _handle = UmWatcher.Watch<CharacterHPViewModel, CharacterHP>(PlayerStats::MODEL_HP_KEY, [this](const CharacterHP value) 
         {
             _hp->Text = std::format("{} / {}", value.CurrentHP, value.MaxHP);
 

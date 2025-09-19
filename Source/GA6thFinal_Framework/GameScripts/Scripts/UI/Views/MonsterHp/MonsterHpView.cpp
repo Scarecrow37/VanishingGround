@@ -14,12 +14,12 @@ void MonsterHpView::Watch(const std::string& key)
 {
     if (false == key.empty())
     {
-        UmWatcher.Blind<MapPlayerHPViewModel>(key, _watchHandle);
+        UmWatcher.Blind<CharacterHPViewModel>(key, _watchHandle);
         if (_hpTextElement)
             _hpTextElement->Enable = true;
         try
         {
-            _watchHandle = UmWatcher.Watch<MapPlayerHPViewModel, PlayerHP>(key, [this](const PlayerHP& value) 
+            _watchHandle = UmWatcher.Watch<CharacterHPViewModel, CharacterHP>(key, [this](const CharacterHP& value) 
             {
                 if (_hpTextElement)
                 {

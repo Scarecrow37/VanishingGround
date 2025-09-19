@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "ViewModels/Map/MapPlayerHPViewModel.h"
+#include "ViewModels/Hp/CharacterHPViewModel.h"
 
 class TextElement;
 class MapPlayerHPView : public Component
@@ -22,5 +22,5 @@ protected:
 
 private:
     TextElement*                 _hp{nullptr};
-    MapPlayerHPViewModel::Handle _handle;
+    CharacterHPViewModel::Handle _handle;
 };
