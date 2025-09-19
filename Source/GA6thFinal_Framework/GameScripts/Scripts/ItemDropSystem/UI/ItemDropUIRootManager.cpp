@@ -194,6 +194,10 @@ void ItemDropUIRootManager::ImGuiDrawArtifactUIAssetSetting()
 void ItemDropUIRootManager::Reset() 
 {
     _singletonComponent.SetSingleTon();
+    if (true == UmCore->IsPlay())
+    {
+        gameObject->ActiveSelf = true;
+    }
 }
 
 void ItemDropUIRootManager::Awake()
