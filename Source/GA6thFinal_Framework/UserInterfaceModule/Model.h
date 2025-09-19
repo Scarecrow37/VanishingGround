@@ -42,10 +42,19 @@ namespace MVVM
     {
     public:
         Model() = default;
+
         Model(const T& value) : ModelBase<T>(value) {}
+
         Model& operator=(const T& value)
         {
             ModelBase<T>::_value = value;
+            ModelBase<T>::Notify();
+            return *this;
+        }
+
+        Model& operator=(T&& value) noexcept(std::is_nothrow_move_assignable_v<T>)
+        {
+            ModelBase<T>::_value = std::move(value);
             ModelBase<T>::Notify();
             return *this;
         }
@@ -125,10 +134,19 @@ namespace MVVM
 
     public:
         Model() = default;
+        
         Model(const std::vector<T>& value) : ModelBase<std::vector<T>>(value) {}
+        
         Model& operator=(const std::vector<T>& value)
         {
             ModelBase<std::vector<T>>::_value = value;
+            ModelBase<std::vector<T>>::Notify();
+            return *this;
+        }
+
+        Model& operator=(std::vector<T>&& value) noexcept(std::is_nothrow_move_assignable_v<std::vector<T>>)
+        {
+            ModelBase<std::vector<T>>::_value = std::move(value);
             ModelBase<std::vector<T>>::Notify();
             return *this;
         }
@@ -236,7 +254,7 @@ namespace MVVM
             return *this;
         }
 
-        Model& operator=(std::deque<T>&& value)
+        Model& operator=(std::deque<T>&& value) noexcept(std::is_nothrow_move_assignable_v<std::deque<T>>)
         {
             ModelBase<std::deque<T>>::_value = std::move(value);
             ModelBase<std::deque<T>>::Notify();
