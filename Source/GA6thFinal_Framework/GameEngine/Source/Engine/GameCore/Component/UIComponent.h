@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+class UIRoot;
 // POINT
 bool  operator==(const POINT& lhs, const POINT& rhs);
 bool  operator!=(const POINT& lhs, const POINT& rhs);
@@ -58,6 +59,9 @@ class UIComponent : public UIBaseComponent
     friend class Transform;
     USING_PROPERTY(UIComponent)
 
+private:
+    static UIRoot* GetRoot(const GameObject& obj);
+
 public:
     UIComponent();
 
@@ -76,11 +80,6 @@ public:
     SETTER(SIZE, Size)
     {
         _requestedSize = value;
-        auto [actualWidth, actualHeight] = ReflectFields->ActualSize;
-        if (actualWidth != value.cx)
-            ReflectFields->HorizontalFillMode = FillMode::NONE;
-        if (actualHeight != value.cy)
-            ReflectFields->VerticalFillMode = FillMode::NONE;
         InvalidateMeasure();
     }
     PROPERTY(Size)
@@ -207,8 +206,8 @@ public:
     GETTER_ONLY(SIZE, ActualSize) { return ReflectFields->ActualSize; }
     PROPERTY(ActualSize)
 
-    GETTER(bool, IsFocus) { return ReflectFields->IsFocus; }
-    SETTER(bool, IsFocus) { ReflectFields->IsFocus = value; }
+    GETTER(bool, IsFocus) { return _isFocus; }
+    SETTER(bool, IsFocus) { _isFocus = value; }
     PROPERTY(IsFocus)
 
     GETTER_ONLY(POINT, AbsoluteCenterPoint)
@@ -233,6 +232,19 @@ public:
     }
     PROPERTY(AbsoluteRect)
 
+    GETTER_ONLY(UIRoot*, Root)
+    {
+        UIRoot*          uiRoot    = nullptr;
+        const Transform& transform = this->transform;
+        if (const Transform* rootTransform = transform.Root; nullptr != rootTransform)
+        {
+            const GameObject& rootGameObject = rootTransform->gameObject;
+            uiRoot                           = GetRoot(rootGameObject);
+        }
+        return uiRoot;
+    }
+    PROPERTY(Root)
+
 public:
     void Measure(SIZE availableSize);
     void Arrange(POINT finalPosition, SIZE finalSize);
@@ -242,10 +254,12 @@ public:
     void InvalidateArrange();
 
 protected:
+    void OnAttachParent(GameObject* parentGameObject) override;
     void OnAttachChild(GameObject* childGameObject) override;
     void OnDetachParent(GameObject* previousParentGameObject) override;
     void OnDrawDebugOverride() override;
     void OnDrawDebugSelectedOverride() override;
+    void RequestViewOrder() const;
 
     /// <summary>
     /// UI 컴포넌트의 측정 로직을 구현하는 함수입니다.
@@ -288,7 +302,6 @@ protected:
     FillMode            HorizontalFillMode;
     FillMode            VerticalFillMode;
 
-    bool IsFocus;
     REFLECT_FIELDS_END(UIComponent)
 
 protected:
@@ -296,6 +309,7 @@ protected:
     SIZE  _requestedSize;
 
 private:
+    bool _isFocus;
     bool _isMeasureDirty;
     bool _isArrangeDirty;
 };

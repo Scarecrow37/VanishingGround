@@ -15,20 +15,6 @@ public:
     DrawUIComponent();
 
 public:
-    GETTER_ONLY(UIRoot*, Root)
-    {
-        UIRoot*          uiRoot    = nullptr;
-        const Transform& transform = this->transform;
-        if (const Transform* rootTransform = transform.Root; nullptr != rootTransform)
-        {
-            const GameObject& rootGameObject = rootTransform->gameObject;
-            uiRoot                           = GetRoot(rootGameObject);
-        }
-        return uiRoot;
-    }
-    PROPERTY(Root)
-
-public:
     /// <summary>
     /// View Order를 설정합니다.
     /// </summary>
@@ -42,11 +28,9 @@ protected:
     /// <returns>계산된 Z-Order</returns>
     virtual float GetZOrder() const;
 
-    void OnAttachParent(GameObject* parentGameObject) override;
     void ImGuiDrawPropertysEvent() override;
 
 private:
-    void           RequestViewOrder() const;
     static UIRoot* GetRoot(const GameObject& rootGameObject);
 
 protected:
