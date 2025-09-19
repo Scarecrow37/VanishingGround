@@ -326,6 +326,7 @@
     <ClInclude Include="Scripts\ExcelDataSystem\ExcelDataSystem.h" />
     <ClInclude Include="Scripts\ExcelParser\ImGuiColumnSheetParser.h" />
     <ClInclude Include="Scripts\ItemDropSystem\Interface\IDropItem.h" />
+    <ClInclude Include="Scripts\MainMenu\MainMenuNavigationBase.h" />
     <ClInclude Include="Scripts\Map\MapManager.h" />
     <ClInclude Include="Scripts\Map\RewardPopup.h" />
     <ClInclude Include="Scripts\Map\SmoothScroll.h" />
@@ -479,6 +480,10 @@
     <ClInclude Include="Scripts\Utility\SingletonHelper.h" />
     <ClInclude Include="Scripts\PlayerSystem\PlayerSystem.h" />
     <ClInclude Include="Scripts\AccessorySystem\AccessorySystem.h" />
+    <ClInclude Include="Scripts\MainMenu\NewGame.h" />
+    <ClInclude Include="Scripts\MainMenu\Option.h" />
+    <ClInclude Include="Scripts\MainMenu\Credits.h" />
+    <ClInclude Include="Scripts\MainMenu\Quit.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.cpp" />
@@ -503,6 +508,7 @@
     <ClCompile Include="Scripts\ExcelDataSystem\ExcelDataSystem.cpp" />
     <ClCompile Include="Scripts\ExcelParser\ImGuiColumnSheetParser.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\Interface\IDropItem.cpp" />
+    <ClCompile Include="Scripts\MainMenu\MainMenuNavigationBase.cpp" />
     <ClCompile Include="Scripts\Map\MapManager.cpp" />
     <ClCompile Include="Scripts\Map\RewardPopup.cpp" />
     <ClCompile Include="Scripts\Map\SmoothScroll.cpp" />
@@ -666,6 +672,10 @@
     <ClCompile Include="Scripts\SceneTransition\SceneTransitionComponent.cpp" />
     <ClCompile Include="Scripts\PlayerSystem\PlayerSystem.cpp" />
     <ClCompile Include="Scripts\AccessorySystem\AccessorySystem.cpp" />
+    <ClCompile Include="Scripts\MainMenu\NewGame.cpp" />
+    <ClCompile Include="Scripts\MainMenu\Option.cpp" />
+    <ClCompile Include="Scripts\MainMenu\Credits.cpp" />
+    <ClCompile Include="Scripts\MainMenu\Quit.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

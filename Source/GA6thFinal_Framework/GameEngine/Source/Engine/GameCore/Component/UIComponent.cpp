@@ -109,9 +109,13 @@ LONG AlignPoint::operator()(const VerticalAlignment vertical, const LONG spareHe
     return verticalAlign;
 }
 
+UIRoot* UIComponent::GetRoot(const GameObject& obj)
+{
+    return obj.GetComponent<UIRoot>();
+}
+
 UIComponent::UIComponent()
-    : _requestedPoint{}, _requestedSize{}, _isMeasureDirty(false),
-      _isArrangeDirty(false)
+    : _requestedPoint{}, _requestedSize{}, _isFocus(false), _isMeasureDirty(false), _isArrangeDirty(false)
 {
 }
 
@@ -151,6 +155,18 @@ void UIComponent::OnDrawDebugSelectedOverride()
     const bool  isFocus       = IsFocus;
 
     DrawDebug()(absolutePoint, size, 3, isFocus ? Colors::Purple : Colors::Yellow);
+}
+
+void UIComponent::RequestViewOrder() const
+{
+    if (const UIRoot* uiRoot = this->Root; nullptr != uiRoot)
+    {
+        uiRoot->SortViewOrder();
+    }
+    else if (false == UmCore->IsPlay())
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"UI Component는 UIRoot의 하위에 있어야 합니다.");
+    }
 }
 
 void UIComponent::ImGuiDrawPropertysEvent()
@@ -228,6 +244,15 @@ void UIComponent::InvalidateArrange()
 
         _isArrangeDirty = true;
     }
+}
+
+void UIComponent::OnAttachParent(GameObject* parentGameObject)
+{
+    UIBaseComponent::OnAttachParent(parentGameObject);
+
+    RequestViewOrder();
+    InvalidateMeasure();
+    InvalidateArrange();
 }
 
 void UIComponent::Measure(const SIZE availableSize)

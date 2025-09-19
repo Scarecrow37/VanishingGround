@@ -1,13 +1,13 @@
 ﻿#include "pch.h"
 #include "EndlessGridPass.h"
 
-EndlessGridPass::EndlessGridPass() {}
+EndlessGridPass::EndlessGridPass() = default;
 
-EndlessGridPass::~EndlessGridPass() {}
+EndlessGridPass::~EndlessGridPass() = default;
 
 void EndlessGridPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene, ownerTechnique, commandList);
+    RenderPass::Initialize(ownerScene, ownerTechnique, commandList);
 
     D3D12_RENDER_TARGET_BLEND_DESC rtDesc{};
     rtDesc.BlendEnable               = TRUE;

@@ -23,37 +23,40 @@ void UIRoot::SortViewOrder() const
     });
 }
 
-NavigationID UIRoot::AcquireNavigationID()
+NavigationID UIRoot::AcquireNavigationID(const NavigationID tempID)
 {
-    if (std::set<NavigationID>& spareID = ReflectFields->SpareID; spareID.empty())
+    const NavigationID newID = GetSpareID();
+    if (tempID < INVALID_NAVIGATION_ID)
     {
-        return ReflectFields->LastID++;
+        UpdateNavigationMap();
+        ChangeNavigationID(tempID, newID);
+        _navigationMap.erase(tempID);
+        return newID;
     }
-    else
-    {
-        const NavigationID id = *spareID.begin();
-        spareID.erase(spareID.begin());
-        return id;
-    }
+    return newID;
 }
 
-void UIRoot::ReleaseNavigationID(const NavigationID id)
+NavigationID UIRoot::ReleaseNavigationID(const NavigationID id)
 {
-    if (INVALID_NAVIGATION_ID != id)
+    if (id > INVALID_NAVIGATION_ID)
     {
+        const NavigationID tempID = -id;
+
+        ChangeNavigationID(id, tempID);
+        _navigationMap.erase(id);
+
         ReflectFields->SpareID.insert(id);
+
+        return tempID;
     }
+    return INVALID_NAVIGATION_ID;
 }
 
-void UIRoot::SetInitialFocus(UINavigationComponent* uiComponent)
+void UIRoot::SetInitialFocus(const UINavigationComponent* uiComponent)
 {
     if (nullptr != uiComponent)
     {
-        if (nullptr != _currentFocusNavigation)
-        {
-            _currentFocusNavigation->ResetInitialFocus();
-        }
-        ChangeFocusComponent(uiComponent);
+        ReflectFields->InitialFocusID = uiComponent->ID;
     }
 }
 
@@ -108,41 +111,32 @@ void UIRoot::ImGuiDrawPropertysEvent()
 {
     UIBaseComponent::ImGuiDrawPropertysEvent();
 
-    ImGui::Checkbox("Enable Navigation On Editor", &_isEnabledNavigation);
-
     if (_isDebug)
     {
         constexpr ImGuiDebug debug;
+
+        const NavigationID initialFocusID = ReflectFields->InitialFocusID;
+        debug("Initial Focus ID", initialFocusID);
+
         const NavigationID id = ReflectFields->LastID;
         debug("Last ID", id);
 
-        for (const std::set<NavigationID>& spareID = ReflectFields->SpareID; const NavigationID spare : spareID)
+        for (const std::unordered_set<NavigationID>& spareID = ReflectFields->SpareID; const NavigationID spare : spareID)
         {
             debug("Spare ID", spare);
         }
-    }
-}
 
-void UIRoot::OnDrawDebugOverride()
-{
-    UIBaseComponent::OnDrawDebugOverride();
+        if (const UINavigationComponent* currentFocus = _currentFocusNavigation; nullptr != currentFocus)
+        {
+            debug("Current Focus ID", currentFocus->ID);
+        }
+        else
+        {
+            debug("Current Focus ID", "NULL");
+        }
 
-    EditorUpdate();
-}
-
-void UIRoot::OnDrawDebugSelectedOverride()
-{
-    UIBaseComponent::OnDrawDebugSelectedOverride();
-
-    EditorUpdate();
-}
-
-void UIRoot::EditorUpdate()
-{
-    if (_isEnabledNavigation)
-    {
-        _controller->UpdateState();
-        UpdateNavigation();
+        const size_t navigationCount = _navigationMap.size();
+        debug("Navigation Map Count", navigationCount);
     }
 }
 
@@ -162,6 +156,19 @@ void UIRoot::Reset()
             UmLogger.Log(LogLevel::LEVEL_INFO, exception.what());
         }
     }
+
+    SortViewOrder();
+}
+
+void UIRoot::Start()
+{
+    UIBaseComponent::Start();
+
+    UpdateNavigationMap();
+
+    const NavigationID     initialFocusID        = ReflectFields->InitialFocusID;
+    UINavigationComponent* initialFocusComponent = FindNavigationComponent(initialFocusID);
+    ChangeFocusComponent(initialFocusComponent);
 }
 
 void UIRoot::UpdateNavigation()
@@ -209,6 +216,47 @@ void UIRoot::UpdateNavigation()
     previousButton = currentButton;
 }
 
+void UIRoot::UpdateNavigationMap()
+{
+    Transform& rootTransform = this->transform;
+    Transform::ForeachBFS(rootTransform, [this](const Transform* transform) {
+        const GameObject& gameObject = transform->gameObject;
+        if (UINavigationComponent* navigationComponent = gameObject.GetComponentDynamic<UINavigationComponent>();
+            nullptr != navigationComponent)
+        {
+            const NavigationID id = navigationComponent->ID;
+            if (auto [iter, succeed] = _navigationMap.try_emplace(id, navigationComponent);
+                !succeed && iter->second != navigationComponent)
+            {
+                navigationComponent->AcquireNavigationID(this);
+            }
+        }
+    });
+}
+
+void UIRoot::ChangeNavigationID(NavigationID from, NavigationID to)
+{
+    UpdateNavigationMap();
+    std::ranges::for_each(_navigationMap, [from, to](auto& idComponentPair) {
+        auto& [id, component] = idComponentPair;
+        component->ChangeNavigationDestinationID(from, to);
+    });
+}
+
+NavigationID UIRoot::GetSpareID()
+{
+    if (std::unordered_set<NavigationID>& spareID = ReflectFields->SpareID; spareID.empty())
+    {
+        return ReflectFields->LastID++;
+    }
+    else
+    {
+        const NavigationID id = *spareID.begin();
+        spareID.erase(spareID.begin());
+        return id;
+    }
+}
+
 UINavigationComponent* UIRoot::FindNavigationComponent(NavigationID id)
 {
     UINavigationComponent* component = nullptr;
@@ -219,7 +267,10 @@ UINavigationComponent* UIRoot::FindNavigationComponent(NavigationID id)
     else
     {
         component = FindNavigationComponentInTransform(id);
-        _navigationMap.insert({id, component});
+        if (nullptr != component)
+        {
+            _navigationMap.insert({id, component});
+        }
     }
     return component;
 }

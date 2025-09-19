@@ -1,7 +1,7 @@
 #include "CommonData.hlsli"
 #include "Function.hlsli"
 
-struct PS_INPUT
+struct PSInput
 {
     float4 position : SV_POSITION;
     float2 uv : TEXCOORD;
@@ -38,7 +38,7 @@ Texture2D sourceTexture;
 
 ConstantBuffer<TonMappingProperty> bit32_6_tonMappingProperty;
 
-float4 ps_main(PS_INPUT input) : SV_TARGET
+float4 ps_main(PSInput input) : SV_TARGET
 {
     float3 hdrColor = screenTexture.Sample(samLinear_wrap, input.uv).rgb;
     float3 postProcessColor = sourceTexture.Sample(samLinear_wrap, input.uv).rgb;

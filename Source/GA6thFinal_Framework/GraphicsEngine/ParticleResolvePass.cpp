@@ -1,13 +1,13 @@
 ﻿#include "pch.h"
 #include "ParticleResolvePass.h"
 
-ParticleResolvePass::ParticleResolvePass() {}
+ParticleResolvePass::ParticleResolvePass() = default;
 
-ParticleResolvePass::~ParticleResolvePass() {}
+ParticleResolvePass::~ParticleResolvePass() = default;
 
 void ParticleResolvePass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene, ownerTechnique, commandList);
+    RenderPass::Initialize(ownerScene, ownerTechnique, commandList);
     InitializeShaderAndPSO();
 }
 
