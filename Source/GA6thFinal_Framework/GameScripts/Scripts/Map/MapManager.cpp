@@ -11,7 +11,7 @@
 #include "ViewModels/Map/StageFocusViewModel.h"
 #include "TurnSystem/TurnActor/Character/Player/Player.h"
 #include "Stats/Player/PlayerStatsComponent.h"
-#include "ViewModels/Map/MapPlayerHPViewModel.h"
+#include "ViewModels/Hp/CharacterHPViewModel.h"
 #include "Utility/SingletonHelper.h"
 #include "ItemDropSystem/ItemDropSystem.h"
 
