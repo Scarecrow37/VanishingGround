@@ -300,6 +300,16 @@ void EditorModule::EditorPlayMode::Stop()
             Pause();
         }
         UmCommandManager.Clear();
+        for (const auto& object : ESceneManager::Engine::GetRuntimeObjects())
+        {
+            if (object)
+            {
+                if (object->GetOwnerSceneName() == ESceneManager::DONT_DESTROY_ON_LOAD_SCENE_NAME)
+                {
+                    GameObject::Destroy(object.get());
+                }
+            }
+        }
         UmSceneManager.LoadScene(_playSceneGuid.ToPath().string());
         Global::editorModule->SetGuiThemeStyle();
 
