@@ -23,5 +23,9 @@ void Font::LoadResource(const std::filesystem::path& filePath, const std::functi
 
     uploadFinish.wait();
 
+    if (callback)
+    {
+        callback();
+    }
     _font->SetDefaultCharacter(L'_');
 }

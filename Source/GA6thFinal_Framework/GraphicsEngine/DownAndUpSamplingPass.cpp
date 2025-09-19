@@ -9,7 +9,7 @@ DownAndUpSamplingPass::~DownAndUpSamplingPass() = default;
 
 void DownAndUpSamplingPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene, ownerTechnique, commandList);
+    RenderPass::Initialize(ownerScene, ownerTechnique, commandList);
 
     PipelineStateStream pss;
     pss.BlendState                        = CD3DX12_BLEND_DESC(D3D12_DEFAULT);

@@ -1,7 +1,7 @@
 #include "CommonData.hlsli"
 #include "Function.hlsli"
 
-struct PS_INPUT
+struct PSInput
 {
     float4 position : SV_POSITION;
     float2 uv : TEXCOORD;
@@ -12,7 +12,7 @@ Texture2D<float4> normalTexture;
 Texture2D<uint> customDepthTexture;
 RWTexture2D<float4> accumulation;
 
-void ps_main(PS_INPUT input)
+void ps_main(PSInput input)
 {   
     PostProcessData data = bit32_6_postProcessData;
     

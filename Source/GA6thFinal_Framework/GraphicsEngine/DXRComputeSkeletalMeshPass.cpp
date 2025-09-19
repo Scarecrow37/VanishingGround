@@ -9,12 +9,11 @@
 #include "ShaderBuilder.h"
 #include "Structs.h"
 
-DXRComputeSkeletalMeshPass::~DXRComputeSkeletalMeshPass() {}
+DXRComputeSkeletalMeshPass::~DXRComputeSkeletalMeshPass() = default;
 
-void DXRComputeSkeletalMeshPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique,
-                                            ID3D12GraphicsCommandList* commandList)
+void DXRComputeSkeletalMeshPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene, ownerTechnique, commandList);
+    RenderPass::Initialize(ownerScene, ownerTechnique, commandList);
     InitShaderAndPSO();
 }
 

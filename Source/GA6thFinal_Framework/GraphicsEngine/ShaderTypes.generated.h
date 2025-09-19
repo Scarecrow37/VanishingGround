@@ -26,6 +26,7 @@ namespace GE
         ACCUMULATION,
         BLEND,
         BRIGHT_EXTRACT,
+        BURN_DISSOLVE,
         DISTORTION_RESOLVE,
         DOWN_SAMPLE,
         DXRGBUFFER,
