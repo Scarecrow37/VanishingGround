@@ -13,8 +13,6 @@ CharacterHPViewModel::CharacterHPViewModel(MVVM::Model<std::pair<int, int>>& mod
 
 CharacterHP CharacterHPViewModel::Convert(const std::pair<int, int>& value)
 {  
-    CharacterHP playerHP{100, 100};
-    playerHP.CurrentHP = value.first;
-    playerHP.MaxHP     = value.second;
+    CharacterHP playerHP{value.first, value.second};
     return playerHP;
 }
