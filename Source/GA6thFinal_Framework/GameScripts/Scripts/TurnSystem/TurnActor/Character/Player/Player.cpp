@@ -20,6 +20,7 @@
 #include "State/PlayerPlayTurnState.h"
 #include "State/PlayerDeadState.h"
 
+UMREAL_COMPONENT(Player)
 
 Player::Player()
 {

@@ -2,6 +2,10 @@
 #include "HorizontalPanel.h"
 #include <numeric>
 
+
+UMREAL_COMPONENT(HorizontalPanel)
+UMREAL_COMPONENT(HorizontalPanelSlot)
+
 HorizontalPanel::HorizontalPanel() = default;
 
 void HorizontalPanel::OnAttachChild(GameObject* childGameObject)

@@ -2,6 +2,9 @@
 #include "StageView.h"
 #include "UI/Elements/Image/ImageElement.h"
 
+
+UMREAL_COMPONENT(StageView)
+
 StageView::StageView() = default;
 StageView::~StageView() = default;
 

@@ -1,6 +1,10 @@
 ﻿#include "pchScripts.h"
 #include "EnemyStats.h"
 #include "EnemyStatsComponent.h"
+
+
+UMREAL_COMPONENT(EnemyStatsComponent)
+
 EnemyStatsComponent::EnemyStatsComponent() = default;
 EnemyStatsComponent::~EnemyStatsComponent() = default;
 

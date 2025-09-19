@@ -25,6 +25,16 @@ struct ObjectData
     FLOAT Alpha;
 };
 
+struct UIMaterial
+{
+    UINT  ID;
+    float Alpha;
+    UINT  NumColmn;
+    UINT  NumRow;
+    UINT  ColumnIndex;
+    UINT  RowIndex;
+};
+
 struct ShadowObjectData : public ObjectData
 {
     UINT CascadedIndex;
@@ -59,6 +69,7 @@ struct VolumetricFogData
     XMMATRIX InverseViewProjection;
     Vector4  CameraNearFar_PreviousFrameBlend; // x = near, y = far, z=prevBlend , w = padding
     Vector4  VolumeSize;                       // x = volX, y = volY, z = volZ
+    Vector4  FogColor;
     float    FogAnisotropy;
     float    LightShaftAnisotropy;
     float    Density;
@@ -96,12 +107,6 @@ struct PostProcessData
     Vector2      TexelSize;
     unsigned int PostProcessMask;
     unsigned int MipLevel;
-};
-
-struct UIMaterial
-{
-    UINT  ID;
-    float Alpha;
 };
 
 struct PipelineStateStream

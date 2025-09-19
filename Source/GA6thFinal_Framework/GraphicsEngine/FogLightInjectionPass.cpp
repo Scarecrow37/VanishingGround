@@ -58,7 +58,11 @@ void FogLightInjectionPass::AddRenderPassDatas(std::string_view sceneName)
     property.CustomFar            = 1000.f;
     property.FogIntensity         = 1.f;
     property.LightShaftIntensity  = 1.f;
-    Global::renderPassDatas->AddRenderPassProperty(sceneName, "VolumetricFogData", property);
+    property.FogColor[0]          = 1.f;
+    property.FogColor[1]          = 1.f;
+    property.FogColor[2]          = 1.f;
+    property.FogColor[3]          = 1.f;
+    Global::renderPassDatas->AddRenderPassProperty("VolumetricFogData", property);
 }
 
 void FogLightInjectionPass::InitShaderAndPSO()

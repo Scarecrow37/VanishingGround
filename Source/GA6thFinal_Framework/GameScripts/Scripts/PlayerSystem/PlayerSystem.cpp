@@ -7,6 +7,9 @@
 #include "Stats/Player/PlayerStatsComponent.h"
 #include "AccessorySystem/AccessorySystem.h"
 
+
+UMREAL_COMPONENT(PlayerSystem)
+
 PlayerSystem::PlayerSystem() = default;
 PlayerSystem::~PlayerSystem() = default;
 

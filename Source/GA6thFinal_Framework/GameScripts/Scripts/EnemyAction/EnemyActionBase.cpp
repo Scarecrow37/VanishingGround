@@ -6,7 +6,6 @@
 #include <BattleSystem/Battle.h>
 #include <Stats/Enemy/EnemyStatsComponent.h>
 #include <Stats/Enemy/EnemyStats.h>
-#include <Audio/Table/AudioTableComponent.h>
 
 namespace EnemyAction
 {

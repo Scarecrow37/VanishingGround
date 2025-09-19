@@ -8,6 +8,13 @@ EngineCores::EngineCores(Application& app)
 }
 EngineCores::~EngineCores() = default;
 
+void EngineCores::UpdateIsPlay() 
+{
+#ifdef _UMEDITOR
+    _isPlay = Global::editorModule->PlayMode.IsPlay();
+#endif
+}
+
 namespace Global
 {
     SafeEngineCoresPtr engineCore{};

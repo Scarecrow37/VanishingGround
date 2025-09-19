@@ -75,6 +75,11 @@ RenderPassProperties& GraphicsCore::GetRenderPassProperties() const
     return _renderPassDatas->GetRenderPassProperties();
 }
 
+const RenderPassImages& GraphicsCore::GetRenderPassImages() const
+{
+    return _renderPassDatas->GetRenderPassImages();
+}
+
 SceneTransitionCore* GraphicsCore::GetSceneTransitionCore() const 
 {
     return _sceneTransitionCore;

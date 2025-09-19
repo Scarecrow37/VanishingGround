@@ -1,5 +1,9 @@
 ﻿#include "pchScripts.h"
 #include "WeaponTableComponent.h"
+#include "ExcelDataSystem/ExcelDataSystem.h"
+
+
+UMREAL_COMPONENT(WeaponTableComponent)
 
 using namespace u8_literals;
 
@@ -235,7 +239,63 @@ void WeaponTableComponent::ImGuiDrawPropertysEvent()
                 }
                 gameObject->GetScene().IsDirty = true;
             }
-            ImGui::MenuItem("Excel Parser", "", &_imguiEvent.ColumnParser.ShowParser);
+            if (ImGui::MenuItem("Excel Parser"))
+            {                
+                auto ParserFunc = [&](ExcelDataBase& dataBase) 
+                {
+                    constexpr std::array<std::u8string_view, 9> keyInfos{
+                        u8"ID",         
+                        u8"Name",        
+                        u8"Rarity", 
+                        u8"Type",     
+                        u8"HitDamage",
+                        u8"CritDamage", 
+                        u8"AttackCount", 
+                        u8"Speed",  
+                        u8"giveChain"
+                    };
+                    size_t rowCount = dataBase.RowCount();
+                    for (size_t row = 0; row < rowCount; ++row)
+                    {
+                        WeaponElement temp;
+                        bool          result = true;
+                        for (auto& key: keyInfos)
+                        {
+                            std::string_view data = dataBase.FindData(row, key);
+                            result &= ExcelToWeaponElement(temp, (const char*)key.data(), data.data());
+                        }
+                        const std::string& name = temp.Stats.WeaponName;
+                        if (name != WeaponStats::DEFAULT_NAME)
+                        {
+                            auto findWeaponIter = _weaponTable.find(name);
+                            if (findWeaponIter == _weaponTable.end())
+                            {
+                                // 없으면 새로 생성
+                                InsertWeapon(temp);
+                            }
+                            else
+                            {
+                                // 이미 있으면 스텟만 복사
+                                findWeaponIter->second.Stats = temp.Stats;
+                            }
+                            if (false == result)
+                            {
+                                // 잘못된 데이터는 알림 팝업
+                                WeaponElement& element = _weaponTable[name];
+                                _imguiEvent.DirtyWeaponElementQueue.push(&element);
+                            }
+                        }
+                    }               
+                };
+
+                if (ExcelDataSystem* dataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
+                {
+                    if (std::unique_ptr<ExcelDataBase> dataBase = dataSystem->FindExcelDataBase(u8"무기"))
+                    {
+                        ParserFunc(*dataBase);
+                    }                
+                }
+            }
             ImGui::EndMenuBar();
         }
         ImGuiTableEditor();
@@ -423,10 +483,6 @@ void WeaponTableComponent::ImGuiDrawExcelParser()
         {
             _imguiEvent.ShowDirtyWeaponPopup = false;
             _imguiEvent.DirtyWeaponElementQueue.pop();
-            if (true == _imguiEvent.DirtyWeaponElementQueue.empty())
-            {
-                _imguiEvent.ColumnParser.ShowParser = false;
-            }
         };
 
         ImGui::Text(u8"올바르지 않은 형식입니다. 직접 입력해주세요."_c_str);
@@ -453,45 +509,6 @@ void WeaponTableComponent::ImGuiDrawExcelParser()
         ImGui::OpenPopup(u8"알림##Dirty Weapon Popup"_c_str);
         _imguiEvent.ShowDirtyWeaponPopup = true;
     }
-
-    auto ParserFunc = [&](ImGuiColumnSheetParser::ColumnDatas datas) 
-    {
-        WeaponElement temp;
-        bool          result = true;
-        for (auto& [key, data] : datas)
-        {
-            result &= ExcelToWeaponElement(temp, key, data);           
-        }
-        const std::string& name = temp.Stats.WeaponName;
-        if (name != WeaponStats::DEFAULT_NAME)
-        {
-            auto findWeaponIter = _weaponTable.find(name);
-            if (findWeaponIter == _weaponTable.end())
-            {
-                // 없으면 새로 생성
-                InsertWeapon(temp);
-            }
-            else
-            {
-                // 이미 있으면 스텟만 복사
-                findWeaponIter->second.Stats = temp.Stats;
-            }
-            if (false == result)
-            {
-                // 잘못된 데이터는 알림 팝업
-                WeaponElement& element = _weaponTable[name];
-                _imguiEvent.DirtyWeaponElementQueue.push(&element);
-            }
-        }
-    };
-    if (_imguiEvent.ColumnParser.Draw(ParserFunc))
-    {
-        if (true == _imguiEvent.DirtyWeaponElementQueue.empty())
-        {
-            _imguiEvent.ColumnParser.ShowParser = false;
-        }
-    }
-
 #endif
 }
 

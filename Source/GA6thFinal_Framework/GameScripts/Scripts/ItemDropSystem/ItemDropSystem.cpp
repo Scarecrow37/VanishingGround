@@ -8,6 +8,9 @@
 #include "ItemDropSystem/UI/ArtifactUIManager.h"
 #include "ViewModels/ItemDrop/DropArtifacts/DropArtifactsViewModel.h"
 
+
+UMREAL_COMPONENT(ItemDropSystem)
+
 //내부 사용 구조체 및 enum
 namespace
 {
@@ -72,10 +75,7 @@ ItemDropSystem::ItemDropSystem()
 }
 ItemDropSystem::~ItemDropSystem()
 {
-    if (_singletonComponent.IsSingleTon())
-    {
-        UmWatcher.Unregister<DropArtifactsViewModel>(ItemDropSystem::WATCHER_KEY);
-    }
+
 }
 
 std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
@@ -580,6 +580,14 @@ void ItemDropSystem::Awake()
     if (_singletonComponent.TrySingleTon())
     {
         UmWatcher.Register<DropArtifactsViewModel>(ItemDropSystem::WATCHER_KEY, _dropItemsModel);
+    }   
+}
+
+void ItemDropSystem::OnDestroy() 
+{
+    if (_singletonComponent.IsSingleTon())
+    {
+        UmWatcher.Unregister<DropArtifactsViewModel>(ItemDropSystem::WATCHER_KEY);
     }
 }
 

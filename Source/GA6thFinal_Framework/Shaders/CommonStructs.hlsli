@@ -5,7 +5,7 @@
 #define MAX_POINT_LIGHT 32
 #define MAX_SPOT_LIGHT 16
 
-#define MAX_CASCADES 4
+#define MAX_CASCADES 3
 
 struct MatrixData
 {
@@ -98,7 +98,7 @@ struct PostProcessData
 struct CascadeData
 {
     matrix ShadowVP[MAX_CASCADES];
-    float CascadeSplits[MAX_CASCADES];
+    float3 CascadeSplits; // x=split1, y=split2, z=split3
 };
 
 struct GbufferData
@@ -113,6 +113,7 @@ struct VolumetricFogData
     float4x4 InverseViewProj;
     float4 CameraNearFar_FrameIndex_PreviousFrameBlend; // x=near, y=far, z=frameIndex, w=prevBlend
     float4 VolumeSize; // x=volX, y=volY, z=volZ
+    float4 FogColor;
     float FogAnisotropy;
     float LightShaftAnisotropy;
     float Density;

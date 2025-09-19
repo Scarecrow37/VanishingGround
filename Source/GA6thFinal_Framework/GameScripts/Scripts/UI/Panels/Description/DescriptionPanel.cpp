@@ -6,6 +6,8 @@
 #include "UI/Elements/Image/ImageElement.h"
 #include "UI/Wrappers/Ratio/RatioWrapper.h"
 
+UMREAL_COMPONENT(DescriptionPanel)
+
 struct HexToColor
 {
     Color operator()(const std::string& hex) const

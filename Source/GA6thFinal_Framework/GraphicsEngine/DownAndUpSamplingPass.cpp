@@ -67,7 +67,7 @@ void DownAndUpSamplingPass::AddRenderPassDatas(std::string_view sceneName)
     srvDesc.Texture2D.MipLevels             = 1;
     device->CreateShaderResourceView(_finalTexture.Get(), &srvDesc, _finalHandle.CPU);
 
-    Global::renderPassDatas->AddRenderPassProperty(sceneName, "BloomPass", BloomPassProperty({1.f, 1.f, 0.2f}));
+    Global::renderPassDatas->AddRenderPassProperty("BloomPass", BloomPassProperty({1.f, 1.f, 0.2f}));
     Global::renderPassDatas->AddRenderPassImage(sceneName, "BloomPass", "BloomTexture", _finalHandle.GPU);
 }
 

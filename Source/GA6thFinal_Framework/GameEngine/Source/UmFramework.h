@@ -20,20 +20,6 @@ constexpr bool IS_EDITOR = true;
 constexpr bool IS_EDITOR = false;
 #endif
 
-namespace Global
-{
-    //게임 플레이중 여부를 반환합니다.
-#ifdef _UMEDITOR
-    extern constexpr bool IsPlay();
-#else
-    // 게임 플레이중 여부를 반환합니다.
-    constexpr bool IsPlay()
-    {
-        return true;
-    }
-#endif
-}
-
 // 프로젝트 설정 파일들 모아두는 폴더
 constexpr const wchar_t* PROJECT_SETTING_PATH = L"ProjectSettings"; 
 // 빌드 설정 파일 모아두는 폴더
@@ -135,6 +121,9 @@ using namespace Microsoft::WRL;
 //Input Module
 #include "../InputModule/InputModule.h"
 
+//Audio Module
+#include "../AudioModule/AudioModule.h"
+
 //Application Core
 #include "Engine/AppModule/Interface/IAppModule.h"
 #include "Engine/ApplicationCore/Application.h"
@@ -154,8 +143,7 @@ using namespace Microsoft::WRL;
 #include "Engine/FileSystem/FileSystemModule.h"
 
 //Audio Core
-#include "../AudioModule/AudioModule.h"
-#include "Engine/AudioCore/AudioModule.h"
+#include "Engine/AudioCore/Manager/AudioManager.h"
 
 //User Interface Module
 #include "../UserInterfaceModule/UserInterfaceModule.h"
@@ -211,6 +199,7 @@ using namespace Microsoft::WRL;
 #include "Engine/AppModule/EngineCoresModule.h"
 #include "Engine/AppModule/ImGuiDX12Module.h"
 #include "Engine/AppModule/GraphicsModule.h"
+#include "Engine/AppModule/AudioModule.h"
 
 //DragDropTypes
 #include "Editor/DragDropTypes/DragDropTransform.h"
@@ -218,6 +207,7 @@ using namespace Microsoft::WRL;
 
 //Timeline System
 #include "Engine/TimelineCore/Context/TimelineEventContext.h"
+#include "Engine/TimelineCore/Context/Audio/TimelineAudioEventContext.h"
 #include "Engine/TimelineCore/Track/TimelineEventTrack.h"
 #include "Engine/TimelineCore/AnimationEventTrack.h"
 

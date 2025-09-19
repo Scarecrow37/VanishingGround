@@ -133,7 +133,6 @@ private:
         std::string                    DeleteTableBuffer = STR_NULL;
         bool                           OpenDeletePopup   = false;
 
-        ImGuiColumnSheetParser         ExcelParser{"FD7989C6-FD1B-4B38-8B50-DB8E6274C439", u8"Name"};
         std::queue<RevelationElement*> DirtyRevelationElementQueue;
         bool                           ShowDirtyElementPopup = false;
     };

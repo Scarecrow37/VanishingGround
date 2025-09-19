@@ -1,6 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "TextElement.h"
 
+UMREAL_COMPONENT(TextElement)
+
 TextElement::TextElement()
 {
     FilePath.SetInputAutoEvent([this]() {

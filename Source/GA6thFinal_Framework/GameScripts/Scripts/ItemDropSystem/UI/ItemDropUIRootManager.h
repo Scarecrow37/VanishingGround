@@ -43,7 +43,6 @@ protected:
     REFLECT_FIELDS_BEGIN(Component)
     std::string ArtifactsUIFrameAssetGuid;
     std::vector<int> ArtifactsCategoryAssetID;
-    std::unordered_map<int, int> ArtifactsIconIDMap;
     REFLECT_FIELDS_END(ItemDropUIRootManager)
 
     void DeserializedReflectEvent() override;

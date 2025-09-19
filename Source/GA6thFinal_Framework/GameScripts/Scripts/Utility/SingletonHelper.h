@@ -12,7 +12,7 @@ public:
         if (nullptr == SingletonObjectStatic)
         {
             std::string message = typeid(SingletonObject<T>).name();
-            message += (const char*)"가 존재하지 않습니다.";
+            message += (const char*)u8"가 존재하지 않습니다.";
             UmLogger.Log(LogLevel::LEVEL_WARNING, message, location);
         }
         return SingletonObjectStatic; 
@@ -38,7 +38,7 @@ public:
     /// </summary>
     void SetSingleTon()
     {
-        if (false == Global::IsPlay())
+        if (false == UmCore->IsPlay())
         {
             SingletonObjectStatic = &_owner->gameObject;
         }
@@ -51,7 +51,7 @@ public:
     /// <returns>성공 여부</returns>
     bool TrySingleTon(bool dontDestroyOnLoad)
     {
-        if (true == Global::IsPlay())
+        if (true == UmCore->IsPlay())
         {
             if (nullptr == SingletonObjectStatic || SingletonObjectStatic == &_owner->gameObject)
             {
@@ -87,7 +87,7 @@ public:
         if (nullptr == SingletonComponentStatic)
         {
             std::string message = typeid(T).name();
-            message += (const char*)"가 존재하지 않습니다.";
+            message += (const char*)u8"가 존재하지 않습니다.";
             UmLogger.Log(LogLevel::LEVEL_WARNING, message, location);
         }
         return SingletonComponentStatic; 
@@ -114,7 +114,7 @@ public:
     /// </summary>
     void SetSingleTon()
     {
-        if (false == Global::IsPlay())
+        if (false == UmCore->IsPlay())
         {
             SingletonComponentStatic = _owner;
         }
@@ -126,7 +126,7 @@ public:
     /// <returns>성공 여부</returns>
     bool TrySingleTon()
     {
-        if (true == Global::IsPlay())
+        if (true == UmCore->IsPlay())
         {
             if (nullptr == SingletonComponentStatic)
             {
