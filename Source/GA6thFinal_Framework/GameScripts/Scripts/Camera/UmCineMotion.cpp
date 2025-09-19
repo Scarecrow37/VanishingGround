@@ -8,7 +8,7 @@ UmCineMotion::~UmCineMotion() = default;
 void UmCineMotion::OnDrawDebug()
 {
     CameraComponent::OnDrawDebug();
-    if (false == Global::IsPlay())
+    if (false == UmCore->IsPlay())
     {
         RunRail();
         Shake();
@@ -27,7 +27,7 @@ void UmCineMotion::OnDrawDebugSelected()
         DrawGuizmo();
 #endif
 
-    if (false == Global::IsPlay())
+    if (false == UmCore->IsPlay())
     {
             RunRail();
             Shake();
@@ -129,19 +129,6 @@ void UmCineMotion::ImGuiDrawPropertysEvent()
             BeginShake(_shakeDuration, _shakeIntensity,_shakeFrequency);
         }
     }
-    //{
-    //    bool isDronePressed = ImGui::Button("Begin Drone", {150, 50});
-    //    if (true == isDronePressed)
-    //    {
-    //        BeginDroneRecording();
-    //    }
-
-    //    bool isDroneEndPressed = ImGui::Button("End Drone", {150, 50});
-    //    if (true == isDroneEndPressed)
-    //    {
-    //        EndDroneRecording();
-    //    }
-    //}
 }
 
 void UmCineMotion::AddTether(float timestep)
@@ -265,10 +252,7 @@ void UmCineMotion::DrawRail()
                 shaft.Extents     = {0.01f, 0.01f, 0.2f};
                 shaft.Orientation = rotation;
                 UmGraphics.DebugDraw3D("Editor", shaft, Colors::Cyan);
-
-  
             }
-
         }
         // interpolated points
         {
@@ -320,14 +304,24 @@ void UmCineMotion::BeginShake(float duration, float intensity, float frequency)
 
 DirectX::SimpleMath::Vector3 UmCineMotion::GetShakeOffset(float intensity, float frequency, float time)
 {
-    if (intensity <= 0.0f)
-    {
+    if (intensity <= 0.0f || frequency <= 0.0f)
         return Vector3(0, 0, 0);
-    }
-    float shakeX = sin(time * frequency + rand()) * intensity;
-    float shakeY = cos(time * frequency + rand()) * intensity;
-    float shakeZ = sin((time + 0.5f) * frequency + +rand()) * intensity;
-    return Vector3(shakeX, shakeY, shakeZ);
+
+    const float freq = std::clamp(frequency, 0.01f, 100.0f);
+
+    const float t = time * freq;
+
+    constexpr int   kOctaves    = 4;   
+    constexpr float kLacunarity = 2.0f;
+    constexpr float kGain       = 0.5f;
+
+    const float nx = Mathf::FBM1D(t + 37.173f, kOctaves, kLacunarity, kGain);
+    const float ny = Mathf::FBM1D(t + 101.719f, kOctaves, kLacunarity, kGain);
+    const float nz = Mathf::FBM1D(t + 223.357f, kOctaves, kLacunarity, kGain); 
+
+    const float amp = intensity;
+
+    return Vector3(nx * amp, ny * amp, nz * amp);
 }
 
 void UmCineMotion::ApplyTransform()
@@ -378,7 +372,9 @@ void UmCineMotion::DeserializedReflectEvent()
         _rotTethers.push_back({ReflectFields->RotationXTethers[i], ReflectFields->RotationYTethers[i],
                                ReflectFields->RotationZTethers[i], ReflectFields->RotationWTethers[i]} );
         Matrix world = Matrix::CreateFromQuaternion(_rotTethers[i]) * Matrix::CreateTranslation(_posTethers[i]);
+#ifdef _UMEDITOR
         PushGizmo(world);
+#endif
     }
 }
 
@@ -437,7 +433,6 @@ void UmCineMotion::PushGizmo(const Matrix& world)
     gizmo.SetIconTexture(icon);
     gizmo.EventListener.AddListener([this, index = size]() { _selectedTether = index; });
 
-    // matrix 포인터 이동하기 때문에 다시 설정해야함.
     for (auto& [gizmo, matrix, icon] : _gizmoes)
     {
         gizmo.SetOwnerMatrix(matrix);

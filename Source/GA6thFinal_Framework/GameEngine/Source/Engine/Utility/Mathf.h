@@ -565,7 +565,6 @@ namespace Mathf
             return Quaternion::Lerp(q1, q2_copy, t); // 거의 일치하면 Lerp
         return Quaternion::Slerp(q1, q2_copy, t);
     }
-
     inline Quaternion CatmullRomSpline(const std::vector<float>& steps, const std::vector<Quaternion>& points, float t)
     {
         size_t n = points.size();
@@ -635,6 +634,48 @@ namespace Mathf
 
         return SafeSlerp(s4, s5, localT);
     }
+    inline float Hash11(float p)
+    {
+        float s = sinf(p * 127.1f) * 43758.5453f;
+        return s - floorf(s); // frac
+    }
+    inline float Perlin1D(float x)
+    {
+        float i0 = floorf(x);
+        float i1 = i0 + 1.0f;
+        float f  = x - i0; // [0,1) within cell
 
+        // gradient ±1
+        float g0 = (Hash11(i0) < 0.5f) ? -1.0f : 1.0f;
+        float g1 = (Hash11(i1) < 0.5f) ? -1.0f : 1.0f;
 
+        // 거리에 대한 기여
+        float d0 = g0 * (f);        // dot at left
+        float d1 = g1 * (f - 1.0f); // dot at right
+
+        // Perlin fade (S-curve)
+        float u = f * f * (3.0f - 2.0f * f);
+
+        // 선형 보간
+        float v = d0 + (d1 - d0) * u; // 이론상 [-1,1] 범주
+        return v;
+    }
+    inline float FBM1D(float x, int octaves = 3, float lacunarity = 2.0f, float gain = 0.5f)
+    {
+        float amp  = 1.0f;
+        float freq = 1.0f;
+        float sum  = 0.0f;
+        float norm = 0.0f;
+
+        for (int i = 0; i < octaves; ++i)
+        {
+            sum += amp * Perlin1D(x * freq);
+            norm += amp;
+            freq *= lacunarity;
+            amp *= gain;
+        }
+
+        // [-1,1] 정도로 정규화
+        return (norm > 0.0f) ? (sum / norm) : 0.0f;
+    }
 } // namespace Mathf
