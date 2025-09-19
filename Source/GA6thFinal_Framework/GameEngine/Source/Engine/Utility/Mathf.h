@@ -318,10 +318,10 @@ namespace Mathf
             float localT = (t - t0) / (t1 - t0);
 
             // 4점 만들기: p0, p1, p2, p3
-            const auto& p0 = (segment == 0) ? points[0].second : points[0].second;
+            const auto& p0 = points[0].second;
             const auto& p1 = points[segment].second;
             const auto& p2 = points[segment + 1].second;
-            const auto& p3 = (segment == 0) ? points[2].second : points[2].second;
+            const auto& p3 = points[2].second;
 
             return CatmullRomFloat(localT, p0, p1, p2, p3);
         }
@@ -384,10 +384,10 @@ namespace Mathf
             float localT = (t - t0) / (t1 - t0);
 
             // 4점 만들기: p0, p1, p2, p3
-            const auto& p0 = (segment == 0) ? points[0] : points[0];
+            const auto& p0 = points[0];
             const auto& p1 = points[segment];
             const auto& p2 = points[segment + 1];
-            const auto& p3 = (segment == 0) ? points[2] : points[2];
+            const auto& p3 = points[2];
 
             return CatmullRomFloat(localT, p0, p1, p2, p3);
         }
@@ -451,10 +451,10 @@ namespace Mathf
             float localT = (t - t0) / (t1 - t0);
 
             // 4점 만들기: p0, p1, p2, p3
-            const auto& p0 = (segment == 0) ? points[0].second : points[0].second;
+            const auto& p0 = points[0].second;
             const auto& p1 = points[segment].second;
             const auto& p2 = points[segment + 1].second;
-            const auto& p3 = (segment == 0) ? points[2].second : points[2].second;
+            const auto& p3 = points[2].second;
             return Vector3::CatmullRom(p0, p1, p2, p3, localT);
         }
         // 4개 이상 일반 구간 보간
@@ -516,10 +516,10 @@ namespace Mathf
             float localT = (t - t0) / (t1 - t0);
 
             // 4점 만들기: p0, p1, p2, p3
-            const auto& p0 = (segment == 0) ? points[0] : points[0];
+            const auto& p0 = points[0];
             const auto& p1 = points[segment];
             const auto& p2 = points[segment + 1];
-            const auto& p3 = (segment == 0) ? points[2] : points[2];
+            const auto& p3 = points[2];
             return Vector3::CatmullRom(p0, p1, p2, p3, localT);
         }
         // 4개 이상 일반 구간 보간
