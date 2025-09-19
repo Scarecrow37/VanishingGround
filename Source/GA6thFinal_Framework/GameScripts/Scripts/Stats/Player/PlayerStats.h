@@ -4,6 +4,8 @@
 
 struct PlayerStats : public CharacterStats
 {
+    inline static constexpr const char* MODEL_HP_KEY = "A5576328-0510-4E9C-A161-0868109710A9";
+
     USING_PROPERTY(PlayerStats)
     PlayerStats() = default;
     ~PlayerStats() override = default;
@@ -34,17 +36,16 @@ public:
     PlayerStats& operator=(const PlayerStats& rhs) { return CopyStats(rhs); };
 
 public:
-    void RegisterHP(const std::string& key)
+    void RegisterHP()
     {
-        if (false == key.empty())
-        {
-            UmWatcher.Unregister<MapPlayerHPViewModel>(key);
-            int maxHp = MaxHP;
-            UmWatcher.Register<MapPlayerHPViewModel>(key, _currentHP, maxHp);
-        }
-        else
-        {
-            UmLogger.Log(LogLevel::LEVEL_ERROR, "RegisterHP key is empty.");
-        }
+        std::string key = MODEL_HP_KEY;
+        UmWatcher.Unregister<MapPlayerHPViewModel>(key);
+        UmWatcher.Register<MapPlayerHPViewModel>(key, _hpModel);
+    }
+
+    void UnregisterHP()
+    {
+        std::string key = MODEL_HP_KEY;
+        UmWatcher.Unregister<MapPlayerHPViewModel>(key);
     }
 };
