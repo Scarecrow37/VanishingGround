@@ -192,7 +192,10 @@ bool EComponentFactory::InitalizeComponentFactory()
             if (reflectData.empty() == false)
             {
                 newComponent->DeserializedReflectFields(reflectData); // 데이터 복구
-                newComponent->Reset();
+                if (gameObject->IsValid())
+                {
+                    newComponent->Reset();
+                }
             }          
             newComponent->UpdateEnableInHierarchy();
         }     
