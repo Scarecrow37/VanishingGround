@@ -7,6 +7,8 @@
 #include <TurnSystem/TurnAction/TurnActionFactory.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
 
+#include "ExcelDataSystem/ExcelDataSystem.h"
+
 UMREAL_COMPONENT(RevelationSystem)
 
 using namespace u8_literals;
@@ -328,10 +330,6 @@ void RevelationSystem::ImGuiDrawExcelParser()
         {
             _imguiEvent.ShowDirtyElementPopup = false;
             _imguiEvent.DirtyRevelationElementQueue.pop();
-            if (true == _imguiEvent.DirtyRevelationElementQueue.empty())
-            {
-                _imguiEvent.ExcelParser.ShowParser = false;
-            }
         };
 
         ImGui::Text(u8"올바르지 않은 형식입니다. 직접 입력해주세요."_c_str);
@@ -358,47 +356,6 @@ void RevelationSystem::ImGuiDrawExcelParser()
     {
         ImGui::OpenPopup(u8"알림##Dirty Revelation Popup"_c_str);
         _imguiEvent.ShowDirtyElementPopup = true;
-    }
-
-    auto ParserFunc = [&](ImGuiColumnSheetParser::ColumnDatas datas) 
-    {
-        RevelationElement temp;
-        bool              result = true;
-        for (auto& [key, data] : datas)
-        {
-            result &= ExcelToRevelationElement(temp, key, data);
-        }
-        const std::string& name = temp.ElementName;
-
-        if (STR_NULL != name)
-        {
-            auto findIter = _elementsTable.find(name);
-            if (findIter == _elementsTable.end())
-            {
-                // 없으면 새로 생성
-                InsertElement(temp);
-            }
-            else
-            {
-                // 이미 있으면 데이터만 복사(액션은 유지)
-                std::string originActionName               = findIter->second.ReflectFields->ActionName;
-                *findIter->second.ReflectFields            = *temp.ReflectFields;
-                findIter->second.ReflectFields->ActionName = std::move(originActionName);
-            }
-            if (false == result)
-            {
-                // 잘못된 데이터는 알림 팝업
-                RevelationElement& element = _elementsTable[name];
-                _imguiEvent.DirtyRevelationElementQueue.push(&element);
-            }
-        }       
-    };
-    if (_imguiEvent.ExcelParser.Draw(ParserFunc))
-    {
-        if (true == _imguiEvent.DirtyRevelationElementQueue.empty())
-        {
-            _imguiEvent.ExcelParser.ShowParser = false;
-        }
     }
 #endif
 }
@@ -656,7 +613,58 @@ void RevelationSystem::ImGuiDrawPropertysEvent()
                     }
                     gameObject->GetScene().IsDirty = true;
                 }
-                ImGui::MenuItem("Excel Parser", nullptr, &_imguiEvent.ExcelParser.ShowParser);
+                if (ImGui::MenuItem("Excel Parser"))
+                {
+                    auto ParserFunc = [&](ExcelDataBase& dataBase) 
+                    {
+                        size_t rowCount = dataBase.RowCount();
+                        for (size_t row = 0; row < rowCount; ++row)
+                        {
+                            RevelationElement temp;
+                            bool              result = true;
+                            constexpr std::array<std::u8string_view, 3> keyInfos{u8"ID", u8"Name", u8"Rarity"};
+
+                            for (auto& key : keyInfos)
+                            {
+                                std::string_view data = dataBase.FindData(row, key);
+                                result &= ExcelToRevelationElement(temp, (const char*)key.data(), data.data());
+                            }
+
+                            const std::string& name = temp.ElementName;
+                            if (STR_NULL != name)
+                            {
+                                auto findIter = _elementsTable.find(name);
+                                if (findIter == _elementsTable.end())
+                                {
+                                    // 없으면 새로 생성
+                                    InsertElement(temp);
+                                }
+                                else
+                                {
+                                    // 이미 있으면 데이터만 복사(액션은 유지)
+                                    std::string originActionName    = findIter->second.ReflectFields->ActionName;
+                                    *findIter->second.ReflectFields = *temp.ReflectFields;
+                                    findIter->second.ReflectFields->ActionName = std::move(originActionName);
+                                }
+                                if (false == result)
+                                {
+                                    // 잘못된 데이터는 알림 팝업
+                                    RevelationElement& element = _elementsTable[name];
+                                    _imguiEvent.DirtyRevelationElementQueue.push(&element);
+                                }
+                            }
+                        }                     
+                    };
+
+                    if (ExcelDataSystem* excelSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
+                    {
+                        std::unique_ptr<ExcelDataBase> dataBase = excelSystem->FindExcelDataBase(u8"계시");
+                        if (dataBase)
+                        {
+                            ParserFunc(*dataBase);
+                        }
+                    }
+                }
                 ImGui::EndMenuBar();
             }
 

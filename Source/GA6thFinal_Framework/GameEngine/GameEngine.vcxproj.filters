@@ -471,6 +471,9 @@
     <ClInclude Include="Source\Engine\AudioCore\Manager\AudioManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\TimelineCore\Context\Audio\TimelineAudioEventContext.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\pch.cpp">
@@ -810,6 +813,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\AudioCore\Manager\AudioManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\TimelineCore\Context\Audio\TimelineAudioEventContext.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
