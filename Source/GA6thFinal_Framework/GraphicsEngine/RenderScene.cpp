@@ -519,7 +519,7 @@ void RenderScene::CreateFrameResource()
         _frameResources[i]->AddFrameResource(sizeof(XMMATRIX), MAX_OBJECTS);
 
         // UI Material
-        _frameResources[i]->AddFrameResource(sizeof(XMMATRIX), MAX_OBJECTS);
+        _frameResources[i]->AddFrameResource(sizeof(UIMaterial), MAX_OBJECTS);
 
         // Vertex Buffer ID
         _frameResources[i]->AddFrameResource(sizeof(VertexBufferID), MAX_OBJECTS);

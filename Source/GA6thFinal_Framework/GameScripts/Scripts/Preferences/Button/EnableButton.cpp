@@ -111,7 +111,7 @@ void EnableButton::Awake()
     // 초기값
     if (!_onNonFocusImage.IsNull())
     {
-        bool option;
+        bool option = true;
         if ("SSR" == _currentOption)
             option = UmPreferences.IsSSR();
         else if ("SSAO" == _currentOption)
