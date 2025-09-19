@@ -23,7 +23,8 @@ class UINavigationComponent : public UIBaseComponent
     USING_PROPERTY(UINavigationComponent)
 
 public:
-    using NavigationRoutes = std::vector<std::tuple<unsigned int, unsigned char, std::string, ::NavigationID>>;
+    using NavigationRoute  = std::tuple<unsigned int, unsigned char, std::string, ::NavigationID>;
+    using NavigationRoutes = std::vector<NavigationRoute>;
 
 private:
     static UIRoot*      GetRoot(const GameObject& gameObject);
