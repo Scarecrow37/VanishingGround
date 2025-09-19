@@ -33,19 +33,11 @@ protected:
     void OnExit() override;
     void OnUpdate() override;
 
-private:
-    void UpdateAttackButtonHeld(float dt);
     void PressedButtonA(const Input::Controller& controller);
     void ReleasedButtonA(const Input::Controller& controller);
-    
-    void PressedButtonX(const Input::Controller& controller);
-    void ReleasedButtonX(const Input::Controller& controller);
 
-    void PressedButtonY(const Input::Controller& controller);
-    void ReleasedButtonY(const Input::Controller& controller);
-
-    void PressedButtonB(const Input::Controller& controller);
-    void ReleasedButtonB(const Input::Controller& controller);
+private:
+    void UpdateAttackButtonHeld(float dt);
     
     void UpdateActionSelectionUI(float dt);
     void UpdateQuickTimeEventUI(float dt);
@@ -65,7 +57,7 @@ private:
 private:
     bool       _setImguiPosCenter;
     InputState _inputState;
-    bool       _isDownAttackButton;
+    bool       _isDownAButton;
     float      _attackButtonHeldTime;
     float      _attackButtonHeldWaitTime;
     int        _attackRemaining; // 공격 남은 횟수
@@ -74,5 +66,4 @@ private:
     std::map<int, class AnimationComponent*> weaponAnims;
     std::map<int, class ParticleComponent*> weaponEffects;
     
-
 };

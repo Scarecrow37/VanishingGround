@@ -317,6 +317,18 @@ void CharacterBase::OnTokenRemoved(int tokenID)
     _tokenInventory.NotifyTokenRemoved(tokenID);
 }
 
+void CharacterBase::OnQTEStart() 
+{
+    Base::OnQTEStart();
+    _tokenInventory.NotifyQTEStart();
+}
+
+void CharacterBase::OnQTEEnd() 
+{
+    Base::OnQTEEnd();
+    _tokenInventory.NotifyQTEEnd();
+}
+
 void CharacterBase::OnNotifiedAnimationEvent(const Timeline::EventContext* context) 
 {
 }

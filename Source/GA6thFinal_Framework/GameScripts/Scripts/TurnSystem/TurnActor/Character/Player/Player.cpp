@@ -256,6 +256,16 @@ void Player::OnTokenRemoved(int tokenID)
     Base::OnTokenRemoved(tokenID);
 }
 
+void Player::OnQTEStart() 
+{
+    Base::OnQTEStart();
+}
+
+void Player::OnQTEEnd() 
+{
+    Base::OnQTEEnd();
+}
+
 void Player::OnNotifiedAnimationEvent(const Timeline::EventContext* context)
 {
     auto* modelTransform = transform->Find(MODEL_NAME);
@@ -272,8 +282,4 @@ void Player::OnNotifiedAnimationEvent(const Timeline::EventContext* context)
     {
         particlecomponent->StopEffect();
     }
-        
-
-
-
 }

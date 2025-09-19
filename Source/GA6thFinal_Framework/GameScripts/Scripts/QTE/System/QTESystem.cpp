@@ -200,6 +200,8 @@ void QTESystem::StartQTE(QTE::Track* qteTrack)
     }
 
     _currQTEPlaying = true;
+    _qteFadeInEnd   = false;
+    _qteFadeOutEnd  = false;
     PauseQTE(false);
     ClearQueue();
 
@@ -300,7 +302,13 @@ void QTESystem::ClearQueue()
 
 void QTESystem::UpdateQTETrack()
 {
-    if (_currQTEPlaying && _currentQTETrack)
+    if (false == _currQTEPlaying ||
+        true  == _qteFadeInEnd ||
+        false == _qteFadeOutEnd)
+    {
+        return;
+    }
+    if (_currentQTETrack)
     {
         auto track = _currentQTETrack->GetEventTrack().lock();
         if (track)
@@ -444,10 +452,7 @@ void QTESystem::ProcessQTEStayEvent()
     {
         uiManager->OnQTEStay();
     }
-    if (_currQTEPlaying && _currentQTETrack)
-    {
-        UpdateQTETrack();
-    }
+    UpdateQTETrack();
 }
 
 void QTESystem::ProcessQTEExitEvent() 
@@ -469,4 +474,14 @@ void QTESystem::ProcessQTEExitEvent()
         }
         turnMode->ApplyActions([](TurnAction& turnAction) { turnAction.OnQTEEnd(); });
     }
+}
+
+void QTESystem::ProcessQTEFadeInEndEvent() 
+{
+    _qteFadeInEnd = true;
+}
+
+void QTESystem::ProcessQTEFadeOutEndEvent() 
+{
+    _qteFadeOutEnd = true;
 }

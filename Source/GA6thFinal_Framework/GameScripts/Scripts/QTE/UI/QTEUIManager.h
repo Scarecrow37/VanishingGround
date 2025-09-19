@@ -36,7 +36,11 @@ public:
     /// <param name="guid">설정할 File::Guid 객체입니다.</param>
     void SetNotePrefabGuid(const File::Guid& guid);
 
-    /// <summary>QTE 관련 UI의 알파 값을 설정합니다.</summary>
+    /// <summary>QTE 백그라운드 UI의 알파 값을 설정합니다.</summary>
+    /// <param name="factor">설정할 UI의 알파 값입니다. 0.0f에서 1.0f 사이의 값을 가집니다.</param>
+    void SetBackgroundUIAlpha(float factor);
+
+    /// <summary>QTE 관련 UI의 알파 값을 설정합니다. (백그라운드는 제외입니다.)</summary>
     /// <param name="factor">설정할 UI의 알파 값입니다. 0.0f에서 1.0f 사이의 값을 가집니다.</param>
     void SetUIAlpha(float factor);
 
@@ -67,7 +71,6 @@ private:
     ImageElement* FindNoteUIFromNoteID(int noteID) const;
 
 private:
-    QTESystem*      _qteSystem          = nullptr;
     OverlayPanel*   _qteOverlayPanel    = nullptr;
     ImageElement*   _qteBackgroundUI    = nullptr;
     ImageElement*   _qteNoteLineUI      = nullptr;

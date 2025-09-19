@@ -16,6 +16,7 @@ namespace QTE
 /// </summary>
 class QTESystem : public Component, public InputReceiver
 {
+    friend class QTEUIManager;
     USING_PROPERTY(QTESystem)
 
 public:
@@ -81,6 +82,8 @@ private:
     void ProcessQTENotePressedEvent(QTE::ResultType result);
     void ProcessQTEStayEvent();
     void ProcessQTEExitEvent();
+    void ProcessQTEFadeInEndEvent();
+    void ProcessQTEFadeOutEndEvent();
 
 public:
     inline bool  IsQTEPlaying() const { return _currQTEPlaying; }
@@ -120,8 +123,10 @@ private:
     std::vector<QTE::Note*>     _noteAvailQueue;                                // 유효한 노트 큐
     std::vector<QTE::Result>    _noteResultQueue;                               // 노트 결과 큐
 
-    bool                        _qtePaused      = false;                        // QTE 일시정지 여부
     float                       _qteTimer       = 0.0f;                         // QTE 타이머
+    bool                        _qteFadeInEnd   = false;                        // QTE 페이드 인 종료 여부
+    bool                        _qteFadeOutEnd  = false;                        // QTE 페이드 아웃 종료 여부
+    bool                        _qtePaused      = false;                        // QTE 일시정지 여부
     bool                        _currQTEPlaying = false;                        // 현재 QTE가 실행 중인지 여부
     bool                        _prevQTEPlaying = false;                        // 이전 프레임에서 QTE가 실행 중이었는지 여부
 

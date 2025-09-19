@@ -136,12 +136,22 @@ void QTEUIManager::Awake()
 
 void QTEUIManager::Start()
 {
-    _qteSystem = SingletonComponent<QTESystem>::GetInstance();
-    
     _fader.SetDuration(1.0f);
     _fader.SetFadeInType(Mathf::EASE_IN, Mathf::SINE);
     _fader.SetFadeOutType(Mathf::EASE_OUT, Mathf::SINE);
-    _fader.SetOnFadeOutEndCallback([this]() { gameObject->ActiveSelf = false; });
+    _fader.SetOnFadeInEndCallback([this]() {
+        if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
+        {
+            system->ProcessQTEFadeInEndEvent();
+        }
+    });
+    _fader.SetOnFadeOutEndCallback([this]() {
+        gameObject->ActiveSelf = false;
+        if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
+        {
+            system->ProcessQTEFadeOutEndEvent();
+        }
+    });
     
     FindUIComponents();
     
@@ -209,13 +219,18 @@ void QTEUIManager::SetNotePrefabGuid(const File::Guid& guid)
     ReflectFields->NotePrefabGuid = guid.string();
 }
 
-void QTEUIManager::SetUIAlpha(float factor) 
+void QTEUIManager::SetBackgroundUIAlpha(float factor) 
 {
     factor = std::clamp(factor, 0.0f, 1.0f);
     if (_qteBackgroundUI)
     {
         _qteBackgroundUI->Alpha = factor;
     }
+}
+
+void QTEUIManager::SetUIAlpha(float factor) 
+{
+    factor = std::clamp(factor, 0.0f, 1.0f);
     if (_qteNoteLineUI)
     {
         _qteNoteLineUI->Alpha = factor;
@@ -287,10 +302,10 @@ void QTEUIManager::FindUIComponents()
 
 void QTEUIManager::SpawnQTENotesFromCurrentTrack()
 {
-    if (_qteSystem && _qteOverlayPanel)
+    if (SingletonComponent<QTESystem>::GetInstance() && _qteOverlayPanel)
     {
         ClearAllQTENotes();
-        const auto& notes  = _qteSystem->GetCurrentQTEAvailQueue();
+        const auto& notes  = SingletonComponent<QTESystem>::GetInstance()->GetCurrentQTEAvailQueue();
         const auto* prefab = UmGameObjectFactory.GetOriginPrefab(_notePrefabGuid);
         for (auto& note : notes)
         {   // 노트 프리팹을 복제해서 비활성화 상태로 대기열에 추가

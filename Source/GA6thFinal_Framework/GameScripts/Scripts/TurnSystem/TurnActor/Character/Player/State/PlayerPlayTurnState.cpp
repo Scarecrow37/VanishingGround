@@ -1,13 +1,18 @@
 ﻿#include "pchScripts.h"
 #include "PlayerPlayTurnState.h"
-#include <GameCore/FSM/FiniteStateMachine.h>
-#include <TurnSystem/TurnActor/Character/Player/Player.h>
-#include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
-#include <TurnSystem/TurnMode/TurnMode.h>
-#include <TurnSystem/TurnMode/State/CombatStartPhase.h>
-#include <WeaponSystem/WeaponSystem.h>
 #include <Animation/AnimationComponent.h>
 #include <Particle/ParticleComponent.h>
+#include <GameCore/FSM/FiniteStateMachine.h>
+
+#include <QTE/System/QTESystem.h>
+#include <QTE/UI/QTEUIManager.h>
+#include <WeaponSystem/WeaponSystem.h>
+
+#include <TurnSystem/TurnMode/TurnMode.h>
+#include <TurnSystem/TurnMode/State/CombatStartPhase.h>
+#include <TurnSystem/TurnActor/Character/Player/Player.h>
+#include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
+
 
 using namespace u8_literals;
 
@@ -17,9 +22,8 @@ PlayerPlayTurnState::PlayerPlayTurnState()
 {
     _setImguiPosCenter        = false;
     _inputState               = InputState::NONE;
-    _isDownAttackButton       = false;
     _attackButtonHeldTime     = 0.f;
-    _attackButtonHeldWaitTime = 1.5f;
+    _attackButtonHeldWaitTime = 2.0f;
     _attackRemaining          = 0;
 }
 
@@ -30,17 +34,8 @@ PlayerPlayTurnState::~PlayerPlayTurnState()
 
 void PlayerPlayTurnState::OnAwake() 
 {
-    //BindInputAction(ControllerButton::A, Action::PRESSED, &GetFSM(), this, &PlayerPlayTurnState::PressedButtonA);
-    //BindInputAction(ControllerButton::A, Action::RELEASED, &GetFSM(), this, &PlayerPlayTurnState::ReleasedButtonA);
-    //
-    //BindInputAction(ControllerButton::B, Action::PRESSED, &GetFSM(), this, &PlayerPlayTurnState::PressedButtonB);
-    //BindInputAction(ControllerButton::B, Action::RELEASED, &GetFSM(), this, &PlayerPlayTurnState::ReleasedButtonB);
-    //
-    //BindInputAction(ControllerButton::X, Action::PRESSED, &GetFSM(), this, &PlayerPlayTurnState::PressedButtonX);
-    //BindInputAction(ControllerButton::X, Action::RELEASED, &GetFSM(), this, &PlayerPlayTurnState::ReleasedButtonX);
-    //
-    //BindInputAction(ControllerButton::Y, Action::PRESSED, &GetFSM(), this, &PlayerPlayTurnState::PressedButtonY);
-    //BindInputAction(ControllerButton::Y, Action::RELEASED, &GetFSM(), this, &PlayerPlayTurnState::ReleasedButtonY);
+    BindInputAction(ControllerButton::A, Action::PRESSED, &GetFSM(), this, &PlayerPlayTurnState::PressedButtonA);
+    BindInputAction(ControllerButton::A, Action::RELEASED, &GetFSM(), this, &PlayerPlayTurnState::ReleasedButtonA);
 
     auto weaponList = GameObject::FindGameObjectsWithTag("Weapon");
     for (const auto& weapon : weaponList)
@@ -80,7 +75,6 @@ void PlayerPlayTurnState::OnStart()
 void PlayerPlayTurnState::OnEnter() 
 {
     _inputState           = InputState::ACTION_SELECTION;
-    _isDownAttackButton   = false;
     _setImguiPosCenter    = true;
     _attackButtonHeldTime = 0;
     _attackRemaining      = 0;
@@ -108,16 +102,16 @@ void PlayerPlayTurnState::OnUpdate()
     float dt = UmTime.DeltaTime();
     switch (_inputState)
     {
-    case PlayerPlayTurnState::InputState::NONE:
+    case InputState::NONE:
         break;
-    case PlayerPlayTurnState::InputState::ACTION_SELECTION:
-        UpdateAttackButtonHeld(dt);
+    case InputState::ACTION_SELECTION:
         UpdateActionSelectionUI(dt);
+        UpdateAttackButtonHeld(dt);
         break;
-    case PlayerPlayTurnState::InputState::QUICK_TIME_EVENT:
+    case InputState::QUICK_TIME_EVENT:
         UpdateQuickTimeEventUI(dt);
         break;
-    case PlayerPlayTurnState::InputState::ATTACK_EVENT:
+    case InputState::ATTACK_EVENT:
         UpdateAttackEventUI(dt);
         break;
     default:
@@ -125,73 +119,33 @@ void PlayerPlayTurnState::OnUpdate()
     }
 }
 
-void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt) 
-{
-    if (_isDownAttackButton)
-    {
-        _attackButtonHeldTime += dt;
-        if (_attackButtonHeldTime >= _attackButtonHeldWaitTime)
-        {
-            _inputState = PlayerPlayTurnState::InputState::QUICK_TIME_EVENT;
-            WeaponSystem* weaponSystem = SingletonComponent<WeaponSystem>::GetInstance();
-            if (weaponSystem)
-            {
-                const WeaponStats& weapon = weaponSystem->GetCurrentWeaponStats();
-                _attackRemaining = weapon.AttackCount;
-                _setImguiPosCenter = true;
-                _attackTargets.clear();
-            }
-            SetAttackReady();
-        }
-    }
-}
-
 void PlayerPlayTurnState::PressedButtonA(const Input::Controller& controller)
 {
-    if (_inputState == InputState::ACTION_SELECTION)
+    _isDownAButton = true;
+}
+
+void PlayerPlayTurnState::ReleasedButtonA(const Input::Controller& controller)
+{
+    _isDownAButton = false;
+}
+
+void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
+{
+    if (_attackButtonHeldTime >= _attackButtonHeldWaitTime)
     {
-        _isDownAttackButton = true;
+        if (QTESystem* qteSystem = SingletonComponent<QTESystem>::GetInstance())
+        {
+            _inputState = InputState::QUICK_TIME_EVENT;
+            qteSystem->StartQTE();
+            SetAttackReady();
+        }
+        else
+        {
+            // TODO: 예외 처리
+        }
     }
-
-}
-
-void PlayerPlayTurnState::ReleasedButtonA(const Input::Controller& controller) 
-{
-    if (_inputState == InputState::ACTION_SELECTION)
-    {
-        _attackButtonHeldTime = 0.f;
-        _isDownAttackButton = false;
-    }
-}
-
-void PlayerPlayTurnState::PressedButtonX(const Input::Controller& controller) 
-{
-    PushAttackTarget(Battle::ENEMY_TARGET_FLAG_LEFT);
-}
-
-void PlayerPlayTurnState::ReleasedButtonX(const Input::Controller& controller) 
-{
-
-}
-
-void PlayerPlayTurnState::PressedButtonY(const Input::Controller& controller) 
-{
-    PushAttackTarget(Battle::ENEMY_TARGET_FLAG_MIDDLE);
-}
-
-void PlayerPlayTurnState::ReleasedButtonY(const Input::Controller& controller) 
-{
-
-}
-
-void PlayerPlayTurnState::PressedButtonB(const Input::Controller& controller) 
-{
-    PushAttackTarget(Battle::ENEMY_TARGET_FLAG_RIGHT);
-}
-
-void PlayerPlayTurnState::ReleasedButtonB(const Input::Controller& controller) 
-{
-
+    _attackButtonHeldTime += _isDownAButton ? UmTime.DeltaTime() : -UmTime.DeltaTime();
+    _attackButtonHeldTime = std::clamp(_attackButtonHeldTime, 0.f, _attackButtonHeldWaitTime);
 }
 
 void PlayerPlayTurnState::UpdateActionSelectionUI(float dt) 
@@ -203,10 +157,13 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
         if (ImGui::Button((const char*)u8"A를 눌러 공격 진입"))
         {
             _attackButtonHeldTime = _attackButtonHeldWaitTime;
-            _isDownAttackButton   = true;
         }
         float t = _attackButtonHeldTime / _attackButtonHeldWaitTime;
         ImGui::ProgressBar(t);
+        if (QTEUIManager* uiManager = QTEUIManager::GetInstance())
+        {
+            uiManager->SetBackgroundUIAlpha(t);
+        }
     }
     ImGui::End();
     ImGui::PopStyleColor();
