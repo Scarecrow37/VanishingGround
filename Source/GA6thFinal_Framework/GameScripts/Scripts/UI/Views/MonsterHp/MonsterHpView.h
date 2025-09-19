@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "ViewModels/Hp/HpViewModel.h"
+#include "ViewModels/Hp/CharacterHPViewModel.h"
 
 class TextElement;
 
@@ -27,5 +27,5 @@ protected:
 private:
     TextElement* _hpTextElement;
 
-    HpViewModel::Handle _watchHandle;
+    CharacterHPViewModel::Handle _watchHandle;
 };

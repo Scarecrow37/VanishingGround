@@ -20,7 +20,7 @@ public:
     void OnLoadScene(Scene& loadScene, LoadSceneMode mode) override;
 
 public:
-    REFLECT_PROPERTY(MapScenePath, BackgroundImage, StageEnableImage, StageDisableImage, StageFocusImage, RewardPopupImage, PlayerHP)
+    REFLECT_PROPERTY(MapScenePath, BackgroundImage, StageEnableImage, StageDisableImage, StageFocusImage, RewardPopupImage)
     
     GETTER_ONLY(std::string, MapScenePath) { return ReflectFields->MapScenePath; }
     PROPERTY(MapScenePath)
@@ -49,10 +49,6 @@ public:
     SETTER(int, RewardPopupImage) { ReflectFields->AssetIDs[REWARD_POPUP] = value; }
     PROPERTY(RewardPopupImage)
 
-    GETTER(int, PlayerHP) { return _playerHP; }
-    SETTER(int, PlayerHP) { _playerHP = value; }
-    PROPERTY(PlayerHP)
-
 protected:
     REFLECT_FIELDS_BEGIN(Component)
     std::array<int, MAX> AssetIDs;
@@ -72,7 +68,6 @@ private:
 
 private:
     MVVM::Model<Stage*> _focusStage;
-    MVVM::Model<int>    _playerHP;
     std::vector<Stage*> _stages;
     int                 _childCount   = 0;
     float               _scrollSpeed  = 100.0f;

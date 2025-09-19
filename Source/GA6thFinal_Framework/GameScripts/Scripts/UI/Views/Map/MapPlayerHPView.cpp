@@ -2,7 +2,7 @@
 #include "MapPlayerHPView.h"
 #include "UI/Elements/Image/ImageElement.h"
 #include "UI/Elements/Text/TextElement.h"
-
+#include "Stats/Player/PlayerStats.h"
 
 UMREAL_COMPONENT(MapPlayerHPView)
 
@@ -10,10 +10,10 @@ MapPlayerHPView::MapPlayerHPView()  = default;
 
 MapPlayerHPView::~MapPlayerHPView()
 {
-    UmWatcher.Blind<MapPlayerHPViewModel>("PlayerHP", _handle);
+    UmWatcher.Blind<CharacterHPViewModel>(PlayerStats::MODEL_HP_KEY, _handle);
 }
 
-void MapPlayerHPView::Awake()
+void MapPlayerHPView::Start()
 {    
     try
     {
@@ -22,7 +22,8 @@ void MapPlayerHPView::Awake()
             _hp = &AddComponent<TextElement>();
         }
 
-        _handle = UmWatcher.Watch<MapPlayerHPViewModel, PlayerHP>("PlayerHP", [this](const PlayerHP value) {
+        _handle = UmWatcher.Watch<CharacterHPViewModel, CharacterHP>(PlayerStats::MODEL_HP_KEY, [this](const CharacterHP value) 
+        {
             _hp->Text = std::format("{} / {}", value.CurrentHP, value.MaxHP);
 
             if (auto gage = GameObject::Find("Gage").lock(); gage)
