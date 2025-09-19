@@ -555,5 +555,86 @@ namespace Mathf
             return Vector3::CatmullRom(p0, p1, p2, p3, localT);
         }
     }
+    inline Quaternion SafeSlerp(const Quaternion& q1, const Quaternion& q2, float t)
+    {
+        float      dot     = q1.Dot(q2);
+        Quaternion q2_copy = q2;
+        if (dot < 0.0f)
+            q2_copy = -q2; // 짧은 경로
+        if (fabs(dot) > 0.9995f)
+            return Quaternion::Lerp(q1, q2_copy, t); // 거의 일치하면 Lerp
+        return Quaternion::Slerp(q1, q2_copy, t);
+    }
+
+    inline Quaternion CatmullRomSpline(const std::vector<float>& steps, const std::vector<Quaternion>& points, float t)
+    {
+        size_t n = points.size();
+        if (n == 0)
+            return Quaternion::Identity;
+        if (n == 1)
+            return points[0];
+
+        if (t <= steps.front())
+            return points.front();
+        if (t >= steps.back())
+            return points.back();
+
+        // 구간 찾기
+        size_t i = 0;
+        while (i < n - 1 && t > steps[i + 1])
+            i++;
+
+        float t0     = steps[i];
+        float t1     = steps[i + 1];
+        float localT = (t - t0) / (t1 - t0);
+        localT       = std::clamp(localT, 0.0f, 1.0f);
+
+        // 2점일 경우
+        if (n == 2)
+        {
+            return SafeSlerp(points[0], points[1], localT);
+        }
+
+        // 3점일 경우
+        if (n == 3 || i == n - 2)
+        {
+            Quaternion p0 = points[(i == 0) ? i : i - 1];
+            Quaternion p1 = points[i];
+            Quaternion p2 = points[i + 1];
+
+            if (p1.Dot(p0) < 0.0f)
+                p0 = -p0;
+            if (p1.Dot(p2) < 0.0f)
+                p2 = -p2;
+
+            // 간단 Catmull-Rom 근사
+            Quaternion s1 = SafeSlerp(p0, p1, 0.5f + localT * 0.5f);
+            Quaternion s2 = SafeSlerp(p1, p2, localT);
+            return SafeSlerp(s1, s2, 0.5f);
+        }
+
+        // 4점 이상
+        Quaternion p0 = points[(i == 0) ? i : i - 1];
+        Quaternion p1 = points[i];
+        Quaternion p2 = points[i + 1];
+        Quaternion p3 = points[i + 2];
+
+        if (p1.Dot(p0) < 0.0f)
+            p0 = -p0;
+        if (p1.Dot(p2) < 0.0f)
+            p2 = -p2;
+        if (p2.Dot(p3) < 0.0f)
+            p3 = -p3;
+
+        Quaternion s1 = SafeSlerp(p0, p1, 0.5f + localT * 0.5f);
+        Quaternion s2 = SafeSlerp(p1, p2, localT);
+        Quaternion s3 = SafeSlerp(p2, p3, 0.5f * localT);
+
+        Quaternion s4 = SafeSlerp(s1, s2, 0.5f);
+        Quaternion s5 = SafeSlerp(s2, s3, 0.5f);
+
+        return SafeSlerp(s4, s5, localT);
+    }
+
 
 } // namespace Mathf
