@@ -192,6 +192,7 @@ void UINavigationComponent::ImGuiDrawPropertysEvent()
                 {
                     lastKey = pressedKey.value();
                     keyInput = lastKey.Name;
+                    isSelected = false;
                 }
             }
 
