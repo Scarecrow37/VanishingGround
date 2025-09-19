@@ -160,9 +160,9 @@ void UIRoot::Reset()
     SortViewOrder();
 }
 
-void UIRoot::Awake()
+void UIRoot::Start()
 {
-    UIBaseComponent::Awake();
+    UIBaseComponent::Start();
 
     UpdateNavigationMap();
 
