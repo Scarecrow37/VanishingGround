@@ -229,6 +229,20 @@ namespace MVVM
     public:
         Model() = default;
 
+        Model& operator=(const std::deque<T>& value)
+        {
+            ModelBase<std::deque<T>>::_value = value;
+            ModelBase<std::deque<T>>::Notify();
+            return *this;
+        }
+
+        Model& operator=(std::deque<T>&& value)
+        {
+            ModelBase<std::deque<T>>::_value = std::move(value);
+            ModelBase<std::deque<T>>::Notify();
+            return *this;
+        }
+
         void clear() noexcept
         {
             ModelBase<container_type>::_value.clear();
