@@ -112,7 +112,7 @@ public:
     /// UIRoot 객체에서 내비게이션 ID를 획득합니다.
     /// </summary>
     /// <param name="root">내비게이션 ID를 획득할 대상 UIRoot 객체의 포인터입니다.</param>
-    void           AcquireNavigationID(UIRoot* root);
+    void AcquireNavigationID(UIRoot* root);
 
 protected:
     UIComponent* GetSiblingUI() const;
@@ -128,7 +128,7 @@ protected:
     void Reset() override;
 
 private:
-    void           ReleaseNavigationID(UIRoot* root);
+    void ReleaseNavigationID(UIRoot* root);
 
 protected:
     REFLECT_FIELDS_BEGIN(UIBaseComponent)

@@ -160,8 +160,8 @@ void UINavigationComponent::ImGuiDrawPropertysEvent()
     {
         if (ImGui::BeginTable("NavigationRouteTable##Detail", 2, ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_RowBg))
         {
-            ImGui::TableSetupColumn("Input", ImGuiTableColumnFlags_WidthStretch, 0.5f);
-            ImGui::TableSetupColumn("Destination ID", ImGuiTableColumnFlags_WidthStretch, 0.5f);
+            ImGui::TableSetupColumn("Input", ImGuiTableColumnFlags_WidthStretch, 0.4f);
+            ImGui::TableSetupColumn("Destination ID", ImGuiTableColumnFlags_WidthStretch, 0.6f);
             ImGui::TableHeadersRow();
 
             NavigationRoutes& navigationRoutes = ReflectFields->NavigationRoutes;
@@ -178,6 +178,45 @@ void UINavigationComponent::ImGuiDrawPropertysEvent()
 
                 ImGui::PopID();
             });
+
+            // New Key
+            static bool           isSelected     = false;
+            constexpr const char* defaultMessage = "Click to receive input.";
+            static std::string    keyInput       = defaultMessage;
+            static NavigationID   idInput        = INVALID_NAVIGATION_ID;
+            static NavigationKey  lastKey;
+
+            if (isSelected)
+            {
+                if (const std::optional<NavigationKey> pressedKey = UIRoot::GetPressedButton(); pressedKey.has_value())
+                {
+                    lastKey = pressedKey.value();
+                    keyInput = lastKey.Name;
+                }
+            }
+
+            ImGui::TableNextRow();
+
+            ImGui::TableSetColumnIndex(0);
+            ImVec2 availSize = ImGui::GetContentRegionAvail();
+            ImGui::SetNextItemWidth(availSize.x);
+            ImGui::Selectable(keyInput.c_str(), &isSelected);
+
+            ImGui::TableSetColumnIndex(1);
+            availSize = ImGui::GetContentRegionAvail();
+            ImGui::SetNextItemWidth(availSize.x - 60.f);
+            ImGui::InputInt("##id", &idInput, 0);
+
+            const float height = ImGui::GetItemRectSize().y;
+            ImGui::SameLine();
+            if (false == lastKey.Name.empty() && idInput != INVALID_NAVIGATION_ID && ImGui::Button("+", ImVec2(height, height)))
+            {
+                AddNavigationRoute(lastKey, idInput);
+                isSelected = false;
+                keyInput   = defaultMessage;
+                idInput    = INVALID_NAVIGATION_ID;
+                lastKey    = NavigationKey();
+            }
 
             ImGui::EndTable();
         }
