@@ -75,10 +75,7 @@ ItemDropSystem::ItemDropSystem()
 }
 ItemDropSystem::~ItemDropSystem()
 {
-    if (_singletonComponent.IsSingleTon())
-    {
-        UmWatcher.Unregister<DropArtifactsViewModel>(ItemDropSystem::WATCHER_KEY);
-    }
+
 }
 
 std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
@@ -583,6 +580,14 @@ void ItemDropSystem::Awake()
     if (_singletonComponent.TrySingleTon())
     {
         UmWatcher.Register<DropArtifactsViewModel>(ItemDropSystem::WATCHER_KEY, _dropItemsModel);
+    }   
+}
+
+void ItemDropSystem::OnDestroy() 
+{
+    if (_singletonComponent.IsSingleTon())
+    {
+        UmWatcher.Unregister<DropArtifactsViewModel>(ItemDropSystem::WATCHER_KEY);
     }
 }
 

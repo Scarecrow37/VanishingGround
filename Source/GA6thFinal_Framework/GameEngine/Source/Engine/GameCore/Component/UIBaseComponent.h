@@ -2,7 +2,7 @@
 
 using NavigationID = int;
 
-static constexpr NavigationID INVALID_NAVIGATION_ID = -1;
+static constexpr NavigationID INVALID_NAVIGATION_ID = 0;
 
 struct NavigationKey
 {

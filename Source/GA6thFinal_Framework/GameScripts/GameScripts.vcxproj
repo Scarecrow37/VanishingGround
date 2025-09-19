@@ -305,6 +305,7 @@
     <ClInclude Include="DLLExportDefine.h" />
     <ClInclude Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.h" />
     <ClInclude Include="Scripts\Audio\AudioTableComponent.h" />
+    <ClInclude Include="Scripts\ConsumableSystem\ConsumableSystem.h" />
     <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h" />
     <ClInclude Include="Scripts\EnemyAction\ActionData\EnemyActionData.h" />
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
@@ -488,6 +489,7 @@
   <ItemGroup>
     <ClCompile Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.cpp" />
     <ClCompile Include="Scripts\Audio\AudioTableComponent.cpp" />
+    <ClCompile Include="Scripts\ConsumableSystem\ConsumableSystem.cpp" />
     <ClCompile Include="Scripts\EnemyAction\Factory\EnemyActionFactory.cpp" />
     <ClCompile Include="Scripts\EnemyAction\ActionData\EnemyActionData.cpp" />
     <ClCompile Include="Scripts\BattleSystem\Battle.cpp" />
