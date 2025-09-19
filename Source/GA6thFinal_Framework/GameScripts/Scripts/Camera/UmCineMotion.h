@@ -78,7 +78,6 @@ protected:
     std::vector<Vector3> _posTethers;
     std::vector<Quaternion> _rotTethers;
     float                   _moveTimer         = 0.f;
-    float                   _speed             = 1.f;
     bool                    _railFlag          = false;
     bool                    _pauseFlag         = false;
     float                   _currentStep       = 0.f;

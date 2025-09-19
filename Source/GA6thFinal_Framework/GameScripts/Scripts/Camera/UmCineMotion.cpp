@@ -216,20 +216,6 @@ void UmCineMotion::StopRail()
     _railFlag  = false;
 }
 
-void UmCineMotion::Shake()
-{
-    if (true == _shakeFlag)
-    {
-        _shakeElapsedTimer += UmTime.DeltaTime();
-        _targetPos += GetShakeOffset(_shakeIntensity, _shakeFrequency, _shakeElapsedTimer);
-        if (_shakeElapsedTimer >= _shakeDuration)
-        {
-            _shakeFlag         = false;
-            _shakeElapsedTimer = 0;
-        }
-    }
-}
-
 void UmCineMotion::DrawRail()
 {
     if (false == _posTethers.empty())
@@ -245,7 +231,7 @@ void UmCineMotion::DrawRail()
             }
             for (int i = 0; i < _rotTethers.size(); i++)
             {
-                Quaternion rotation = _rotTethers[i];
+                Quaternion          rotation = _rotTethers[i];
                 Vector3             forward  = Vector3::Transform(Vector3::Forward, rotation);
                 BoundingOrientedBox shaft;
                 shaft.Center      = _posTethers[i] - forward * 0.2f;
@@ -256,7 +242,7 @@ void UmCineMotion::DrawRail()
         }
         // interpolated points
         {
-            Vector3 posStep = {0, 0, 0};
+            Vector3    posStep = {0, 0, 0};
             Quaternion rotStep = Quaternion::Identity;
             if (_posTethers.size() >= 2)
             {
@@ -266,11 +252,11 @@ void UmCineMotion::DrawRail()
                 {
                     posStep = Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _posTethers, i);
                     UmGraphics.DebugDraw3D("Editor", BoundingSphere(posStep, 0.05f), DEBUG_COLOR);
-                    
-                    rotStep             = Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _rotTethers, i);
+
+                    rotStep = Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _rotTethers, i);
                     Vector3             forward = Vector3::Transform(Vector3::Forward, rotStep);
-                    Vector3             up = Vector3::Transform(Vector3::Up, rotStep);
-                    Vector3             right = Vector3::Transform(Vector3::Right, rotStep);
+                    Vector3             up      = Vector3::Transform(Vector3::Up, rotStep);
+                    Vector3             right   = Vector3::Transform(Vector3::Right, rotStep);
                     BoundingOrientedBox shaft;
                     shaft.Center      = posStep - forward * 0.1f;
                     shaft.Extents     = {0.01f, 0.01f, 0.1f};
@@ -286,9 +272,55 @@ void UmCineMotion::DrawRail()
                     shaft.Center      = posStep - forward * 0.18f + right * 0.02f;
                     shaft.Orientation = rotStep * Quaternion::CreateFromAxisAngle(up, -45 * Mathf::Deg2Rad);
                     UmGraphics.DebugDraw3D("Editor", shaft, Colors::Coral);
-                  
                 }
             }
+        }
+    }
+}
+
+void UmCineMotion::RunRail()
+{
+    if (true == _railFlag)
+    {
+        if (false == _pauseFlag)
+        {
+            _moveTimer += UmTime.DeltaTime() * ReflectFields->RailSpeed;
+            _moveTimer   = std::clamp(_moveTimer, 0.f, ReflectFields->RailLength);
+            if (ReflectFields->RailLength > 0.f)
+            {
+                _currentStep = _moveTimer / ReflectFields->RailLength * 100.f;
+            }
+            else
+            {
+                _currentStep = 0.f;
+            }
+        }
+    }
+
+    Quaternion angle    = Quaternion::Identity;
+    Vector3    position = {0, 0, 0};
+
+    if (ReflectFields->TimestepTethers.size() > 1)
+    {
+        angle    = Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _rotTethers,
+                                           _currentStep * ReflectFields->RailLength * 0.01f);
+        position = Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _posTethers,
+                                           _currentStep * ReflectFields->RailLength * 0.01f);
+    }
+    _targetPos   = position;
+    _targetAngle = angle;
+}
+
+void UmCineMotion::Shake()
+{
+    if (true == _shakeFlag)
+    {
+        _shakeElapsedTimer += UmTime.DeltaTime();
+        _targetPos += GetShakeOffset(_shakeIntensity, _shakeFrequency, _shakeElapsedTimer);
+        if (_shakeElapsedTimer >= _shakeDuration)
+        {
+            _shakeFlag         = false;
+            _shakeElapsedTimer = 0;
         }
     }
 }
@@ -331,32 +363,6 @@ void UmCineMotion::ApplyTransform()
         transform->Rotation = _targetAngle;
         transform->Position   = _targetPos;
     }
-}
-
-void UmCineMotion::RunRail()
-{
-    if (true == _railFlag)
-    {
-        if (false == _pauseFlag)
-        {
-            _moveTimer += UmTime.DeltaTime() * ReflectFields->RailSpeed;
-            _moveTimer   = std::clamp(_moveTimer, 0.f, ReflectFields->RailLength);
-            _currentStep = _moveTimer / ReflectFields->RailLength * 100.f;
-        }
-    }
-
-    Quaternion angle    = Quaternion::Identity;
-    Vector3 position = {0, 0, 0};
-
-    if (ReflectFields->TimestepTethers.size() > 1)
-    {
-        angle    = Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _rotTethers,
-                                           _currentStep * ReflectFields->RailLength * 0.01f);
-        position = Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _posTethers,
-                                           _currentStep * ReflectFields->RailLength * 0.01f);
-    }
-    _targetPos   = position;
-    _targetAngle = angle;
 }
 
 void UmCineMotion::DeserializedReflectEvent()
