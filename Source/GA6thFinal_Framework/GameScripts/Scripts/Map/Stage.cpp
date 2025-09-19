@@ -2,7 +2,7 @@
 #include "Stage.h"
 #include "ViewModels/Map/StageViewModel.h"
 #include "MapManager.h"
-
+#include "ItemDropSystem/ItemDropSystem.h"
 
 UMREAL_COMPONENT(Stage)
 
@@ -44,17 +44,6 @@ void Stage::UpdateData(const std::string& key, const File::Guid& enableImage, co
     _key = key;
 }
 
-void Stage::Start()
-{
-    if (ReflectFields->Basefields.get().IsInitialFocus)
-    {
-        if (auto manager = GameObject::Find("MapManager").lock(); manager)
-        {
-            manager->GetComponent<MapManager>()->SetFocusStage(this);
-        }
-    }
-}
-
 void Stage::FocusIn()
 {
     UINavigationComponent::FocusIn();
@@ -80,4 +69,17 @@ void Stage::Submit()
 
     UmSceneManager.LoadScene(stagePath);
     _stageEnable = false;
+}
+
+void Stage::Start()
+{
+    if (auto instance = SingletonComponent<ItemDropSystem>::GetInstance(); instance)
+    {
+        _dropItemInfos = instance->RollArtifacts();
+
+        for (int i = 0; i < ARTIFACT_DROP_COUNT; i++)
+        {
+            _dropItemAssetIDs[i] = DropItemInfo::GetArtifactCategoryAssetID(_dropItemInfos[i].Category);
+        }
+    }
 }

@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "UmFramework.h"
 
 class Stage;
 class ScrollingWrapper;
@@ -75,7 +74,7 @@ private:
     MVVM::Model<Stage*> _focusStage;
     MVVM::Model<int>    _playerHP;
     std::vector<Stage*> _stages;
-    int                 _childCount    = 0;
-    float               _scrollSpeed   = 100.0f;
-    int                 _clearedStage  = 0;
+    int                 _childCount   = 0;
+    float               _scrollSpeed  = 100.0f;
+    int                 _clearedStage = 0;
 };

@@ -12,7 +12,8 @@
 #include "TurnSystem/TurnActor/Character/Player/Player.h"
 #include "Stats/Player/PlayerStatsComponent.h"
 #include "ViewModels/Map/MapPlayerHPViewModel.h"
-
+#include "Utility/SingletonHelper.h"
+#include "ItemDropSystem/ItemDropSystem.h"
 
 static GameObject* thisPointer = nullptr;
 
@@ -110,7 +111,7 @@ void MapManager::Awake()
         SetupStage();
 
         //Player::GetInstance()->GetComponent<PlayerStatsComponent>()->RegisterHP("PlayerHP");
-        UmWatcher.Register<MapPlayerHPViewModel>("PlayerHP", _playerHP, 100);        
+        UmWatcher.Register<MapPlayerHPViewModel>("PlayerHP", _playerHP, 100);
     }
     else
     {        
