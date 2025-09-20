@@ -892,7 +892,7 @@ void ESceneManager::ObjectsAwake()
     }
     std::erase_if(_waitAwakeVec, [](auto& component)
     {
-        return component->_enableInHierarchy;
+        return component->_initFlags.IsAwake();
     });
 }
 
@@ -908,7 +908,7 @@ void ESceneManager::ObjectsStart()
     }
     std::erase_if(_waitStartVec, [](auto& component)
     {
-        return component->_enableInHierarchy;
+        return component->_initFlags.IsStart();
     });
 }
 
