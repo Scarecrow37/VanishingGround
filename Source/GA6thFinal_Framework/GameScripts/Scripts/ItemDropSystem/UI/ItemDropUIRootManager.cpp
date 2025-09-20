@@ -205,8 +205,15 @@ void ItemDropUIRootManager::Awake()
     if (_singletonComponent.TrySingleTon())
     {
         gameObject->AddTag(ItemDropUIRootManager::TAG);
-        gameObject->ActiveSelf = false;
         Base::Awake();
+    }
+}
+
+void ItemDropUIRootManager::Start() 
+{
+    if (_singletonComponent.IsSingleTon())
+    {
+        gameObject->ActiveSelf = false;
     }
 }
 
