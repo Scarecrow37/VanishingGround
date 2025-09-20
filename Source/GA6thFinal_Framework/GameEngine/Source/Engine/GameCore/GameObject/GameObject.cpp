@@ -597,6 +597,7 @@ void GameObject::Engine::ResetActiveInHierarchy(GameObject* obj)
     for (auto& component : obj->_components)
     {
         component->UpdateEnableInHierarchy();
+        component->_prevFrameEnableInHierarchy = component->_enableInHierarchy;
     }
 }
 
