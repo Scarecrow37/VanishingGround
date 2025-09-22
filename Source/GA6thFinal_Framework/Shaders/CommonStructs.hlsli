@@ -122,4 +122,12 @@ struct VolumetricFogData
     float FogIntensity;
     float LightShaftIntensity;
 };
+
+struct OITNode
+{
+    float4 Color;
+    float Depth;
+    uint Next;
+};
+
 #endif

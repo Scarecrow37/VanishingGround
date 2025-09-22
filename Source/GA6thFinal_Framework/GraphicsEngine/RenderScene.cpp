@@ -64,7 +64,7 @@ void RenderScene::InitializeRenderScene()
     _accumulationBuffer = MakeSharedResource<UnorderedAccessView>();
 
     auto desc = CD3DX12_RESOURCE_DESC::Tex2D(mode.Format, mode.Width, mode.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-    _accumulationBuffer->Initialize(desc);
+    _accumulationBuffer->InitializeAsTexture(desc, UnorderedAccessView::UAVSliceType::PER_MIP, true);
     _accumulationBuffer->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
     Global::dxResourceManager->AddResource(_accumulationBuffer);
@@ -171,7 +171,7 @@ void RenderScene::Execute()
     _commandSet->SetDescriptorHeaps(1, &descriptorHeap);
 
     _accumulationBuffer->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-    _accumulationBuffer->ClearUnorderedAccessView(_commandSet);
+    _accumulationBuffer->ClearUnorderedAccessView(_commandSet, Vector4(0.f, 0.f, 0.f, 1.f));
 
     auto meshRenderTarget = Global::multiRenderTargetManager->GetRenderTarget(_meshRenderTargetName);
     meshRenderTarget->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_RENDER_TARGET);
@@ -392,9 +392,9 @@ void RenderScene::UpdateUI()
     _uiMatrices.clear();
     _uiMaterials.clear();
 
-    std::sort(_uiRenderQueue.begin(), _uiRenderQueue.end(), [](const auto& a, const auto& b) {
+    /*std::sort(_uiRenderQueue.begin(), _uiRenderQueue.end(), [](const auto& a, const auto& b) {
         return a.second->GetWorldMatrix()._43 > b.second->GetWorldMatrix()._43;
-    });
+    });*/
 
     for (auto& [isDestroy, component] : _uiRenderQueue)
     {
