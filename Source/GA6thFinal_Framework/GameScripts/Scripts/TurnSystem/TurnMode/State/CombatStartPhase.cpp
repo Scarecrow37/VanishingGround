@@ -104,6 +104,12 @@ void CombatStartPhase::OnEnter()
     UmTime.Invoke(&GetFSM(), 3.f, [this]() 
     { 
         this->_phaseEnd = true; 
+        
+        if (auto turnQueue = GameObject::FindWithTag("Turn Queue Horizontal Panenl").lock())
+        {
+            turnQueue->ActiveSelf = true;
+        }
+
         if (auto HUD = GameObject::FindWithTag("Character HUD Group").lock())
         {
             HUD->ActiveSelf = true;

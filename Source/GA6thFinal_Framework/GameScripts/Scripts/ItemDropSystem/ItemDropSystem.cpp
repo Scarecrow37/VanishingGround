@@ -299,6 +299,11 @@ void ItemDropSystem::PlayItemDropUISequence()
         StageClearCount = StageClearCount + 1;
     }
 
+    if (auto turnQueue = GameObject::FindWithTag("Turn Queue Panel").lock())
+    {
+        turnQueue->ActiveSelf = false;
+    }
+
     if (auto HUD = GameObject::FindWithTag("Character HUD Group").lock())
     {
         HUD->ActiveSelf = false;
