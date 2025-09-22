@@ -18,14 +18,13 @@ void PlayerHPTextView::Start()
 {    
     try
     {
-        if (_hp = GetComponent<TextElement>(); nullptr == _hp)
-        {
-            _hp = &AddComponent<TextElement>();
-        }
-
+        _hp = GetComponent<TextElement>();
         _handle = UmWatcher.Watch<CharacterHPViewModel, CharacterHP>(PlayerStats::MODEL_HP_KEY, [this](const CharacterHP value) 
         {
-            _hp->Text = std::format("{} / {}", value.CurrentHP, value.MaxHP);
+            if (_hp)
+            {
+                _hp->Text = std::format("{} / {}", value.CurrentHP, value.MaxHP);
+            }
         });
     }
     catch (const std::exception& e)
