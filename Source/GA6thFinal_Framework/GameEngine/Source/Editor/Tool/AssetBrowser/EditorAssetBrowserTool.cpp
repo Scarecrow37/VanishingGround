@@ -944,6 +944,9 @@ void EditorAssetBrowserTool::ShowFolderEntryToEdit(AssetData& asset)
     }
 
     ImGui::PopID();
+
+    ImGui::SetWindowFontScale(oldFontScale);
+    ImGui::Separator();
 }
 
 void EditorAssetBrowserTool::ShowFolderEntryPopup(AssetData& asset) 
