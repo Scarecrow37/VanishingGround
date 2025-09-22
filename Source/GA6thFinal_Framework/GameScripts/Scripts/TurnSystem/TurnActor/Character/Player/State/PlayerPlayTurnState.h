@@ -45,16 +45,12 @@ private:
     void UpdateQuickTimeEventUI(float dt);
     void UpdateAttackEventUI(float dt);
 
-    bool IsAttackable() const;
-    void PushAttackTarget(Battle::EnemyTargetFlag_ target);
-
     // Animation
     void SetAttackReady();
     void SetAttack();
     void SetAttackEnd();
 
     // Callback //
-    void BattleOnAttackEvent();
     void BattleOnHitEvent(const QTE::Result& result);
 
     Battle::EnemyTargetFlag_ GetAttackTargetFromButton(unsigned int button) const;
@@ -66,10 +62,6 @@ private:
     float      _attackButtonHeldTime;
     float      _attackButtonHeldWaitTime;
     int        _attackRemaining; // 공격 남은 횟수
-    std::deque<Battle::EnemyTargetFlag_> _attackTargets;
-
-    std::map<int, class AnimationComponent*> weaponAnims;
-    std::map<int, class ParticleComponent*> weaponEffects;
     
 };
 

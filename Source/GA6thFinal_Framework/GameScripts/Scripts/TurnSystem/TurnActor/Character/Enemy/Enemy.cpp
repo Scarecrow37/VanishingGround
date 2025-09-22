@@ -232,8 +232,8 @@ void Enemy::OnNotifiedAnimationEvent(const Timeline::EventContext* context)
     {
         if ("Hit" == context->GetLabel())
         {
-            _hitParticle->StopEffect();
             _hitParticle->PlayEffect();
+            _hitParticle->StopEffect();
         }
     }
 }
