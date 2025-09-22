@@ -79,7 +79,7 @@ struct GetPortraitGuid
 
     File::Guid operator()(const int weaponId) const
     {
-        File::GuidRef portraitGuid;
+        File::Guid portraitGuid;
         if (ExcelDataSystem* dataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
         {
             if (std::unique_ptr<ExcelDataBase> dataBase = dataSystem->FindExcelDataBase(u8"무기"))
