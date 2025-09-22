@@ -74,7 +74,7 @@ void TurnQueueView::Start()
     _watchHandle = UmWatcher.Watch<TurnQueueViewModel, std::vector<TurnUIData>>("Turn Queue", [this](const std::vector<TurnUIData>& value) 
     {
        const size_t dataSize = value.size();
-       for (size_t i = 0; i < 7; ++i)
+       for (size_t i = 0; i < _turnQueueFrames.size(); ++i)
        {
            if (i < dataSize)
            {

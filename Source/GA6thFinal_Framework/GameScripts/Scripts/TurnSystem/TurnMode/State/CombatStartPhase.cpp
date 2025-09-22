@@ -105,7 +105,7 @@ void CombatStartPhase::OnEnter()
     { 
         this->_phaseEnd = true; 
         
-        if (auto turnQueue = GameObject::FindWithTag("Turn Queue Horizontal Panenl").lock())
+        if (auto turnQueue = GameObject::FindWithTag("Turn Queue Panel").lock())
         {
             turnQueue->ActiveSelf = true;
         }
