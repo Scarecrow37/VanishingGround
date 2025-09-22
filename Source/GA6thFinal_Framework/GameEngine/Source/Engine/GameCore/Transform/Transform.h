@@ -382,6 +382,20 @@ public:
         return _worldPosition;
     }
 
+    /// <summary>
+    /// 자식을 DFS로 순회하면서 해당 테그가 존재하는 오브젝트들을 반환합니다.
+    /// </summary>
+    /// <param name="tag :">찾을 태그</param>
+    /// <returns>찾은 자식들</returns>
+    std::vector<GameObject*> FindDFSwithTag(const std::string& tag);
+
+    /// <summary>
+    /// 자식을 BFS로 순회하면서 해당 테그가 존재하는 오브젝트들을 반환합니다.
+    /// </summary>
+    /// <param name="tag :">찾을 태그</param>
+    /// <returns>찾은 자식들</returns>
+    std::vector<GameObject*> FindBFSwithTag(const std::string& tag);
+
 private:
     GameObject& _gameObject;
 

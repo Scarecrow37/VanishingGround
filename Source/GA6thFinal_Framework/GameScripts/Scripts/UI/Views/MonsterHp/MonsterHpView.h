@@ -2,13 +2,14 @@
 #include "ViewModels/Hp/CharacterHPViewModel.h"
 
 class TextElement;
+class ImageElement;
 
-class MonsterHpView : public Component
+class MonsterHpTextView : public Component
 {
-    USING_PROPERTY(MonsterHpView)
+    USING_PROPERTY(MonsterHpTextView)
 
 public:
-    MonsterHpView();
+    MonsterHpTextView();
 
 public:
     void Watch(const std::string& key);
@@ -22,10 +23,35 @@ private:
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
-    REFLECT_FIELDS_END(MonsterHpView)
+    REFLECT_FIELDS_END(MonsterHpTextView)
 
 private:
     TextElement* _hpTextElement;
+    CharacterHPViewModel::Handle _watchHandle;
+};
 
+class MonsterHpImageView : public Component
+{
+    USING_PROPERTY(MonsterHpImageView)
+
+public:
+    MonsterHpImageView();
+
+public:
+    void Watch(const std::string& key);
+    void Disable() const;
+
+protected:
+    void Awake() override;
+
+private:
+    void FindTextElement();
+
+protected:
+    REFLECT_FIELDS_BEGIN(Component)
+    REFLECT_FIELDS_END(MonsterHpImageView)
+
+private:
+    ImageElement*                _hpImageElement;
     CharacterHPViewModel::Handle _watchHandle;
 };

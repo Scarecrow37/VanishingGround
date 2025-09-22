@@ -52,6 +52,7 @@ protected:
 
     void Reset() override;
     void Awake() override;
+    void Start() override;
 
 private:
     SingletonComponent<ItemDropUIRootManager> _singletonComponent{this};

@@ -107,6 +107,20 @@ protected:
     /// </summary>
     virtual void OnLoadScene(Scene& loadScene, LoadSceneMode mode) {};
 
+    /// <summary>
+    /// <para> 직렬화 직전 자동으로 호출되는 이벤트 함수입니다.  </para>
+    /// <para> 직접 override 해서 사용합니다.                  </para>
+    /// <para> 부모의 가상함수를 직접 호출하지 않아도 호출됩니다.</para>
+    /// </summary>
+    virtual void SerializedReflectEvent() {};
+
+    /// <summary>
+    /// <para> 역직렬화 이후 자동으로 호출되는 이벤트 함수 입니다.  </para>
+    /// <para> 직접 override 해서 사용합니다.                     </para>
+    /// /// <para> 부모의 가상함수를 직접 호출하지 않아도 호출됩니다.</para>
+    /// </summary>
+    virtual void DeserializedReflectEvent() {};
+
 public:
     /// <summary>
     /// <para> 에디터 Scene View에 DrawDebug를 그리기 위한 함수입니다. </para>
@@ -268,6 +282,7 @@ private:
     GameObject* _gameObject;
     std::weak_ptr<Component> _weakPtr;
     bool _enableInHierarchy;
+    bool _prevFrameEnableInHierarchy;
 
 private:
     /// <summary>
