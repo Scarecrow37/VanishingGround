@@ -27,6 +27,7 @@
 #include "RayTracingTechnique.h"
 #include "SkyBoxRenderTechnique.h"
 #include "UITechnique.h"
+#include "UITechnique_OIT.h"
 #include "SceneTransitionTechnique.h"
 
 namespace Global
@@ -197,7 +198,8 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
     // UI Pass
     if (RenderTechniqueFlag::UI_TECH & flag)
     {
-        scene->AddRenderTechnique(std::make_unique<UITechnique>());
+        //scene->AddRenderTechnique(std::make_unique<UITechnique>());
+        scene->AddRenderTechnique(std::make_unique<UITechnique_OIT>());
     }
     // Scene Transition Effect
     if (RenderTechniqueFlag::SCENE_TRANSITION_TECH & flag)
