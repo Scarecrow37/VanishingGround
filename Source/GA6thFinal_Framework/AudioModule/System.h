@@ -44,6 +44,11 @@ namespace Audio
         void Finalize();
 
         /// <summary>
+        /// 음성 풀을 초기화하여 모든 음성 리소스를 제거합니다.
+        /// </summary>
+        void ClearVoicePool();
+
+        /// <summary>
         /// 디버그 모드를 활성화합니다.
         /// </summary>
         void TurnOnDebugMode() const;
