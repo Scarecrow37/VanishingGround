@@ -115,7 +115,9 @@ void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
         }
         else
         {
-            // TODO: 예외 처리
+            // 예외 처리
+            Player& player = GetPlayer();
+            player.EndTurn();
         }
     }
     _attackButtonHeldTime += _isDownAButton ? UmTime.DeltaTime() : -UmTime.DeltaTime();

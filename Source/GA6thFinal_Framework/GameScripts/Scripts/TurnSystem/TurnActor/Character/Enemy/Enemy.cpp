@@ -232,6 +232,7 @@ void Enemy::OnNotifiedAnimationEvent(const Timeline::EventContext* context)
     {
         if ("Hit" == context->GetLabel())
         {
+            // TODO: 이거 왜 이후에 스탑하는게 더 자연스럽게 나옴? 질문 필요
             _hitParticle->PlayEffect();
             _hitParticle->StopEffect();
         }
