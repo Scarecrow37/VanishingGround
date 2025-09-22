@@ -66,27 +66,6 @@ struct GetRevelationDescription
     }
 };
 
-struct GetGradeIcon
-{
-    File::Guid operator()(const int revelationID) const
-    {
-        File::Guid iconGuid;
-        if (ExcelDataSystem* system = SingletonComponent<ExcelDataSystem>::GetInstance())
-        {
-            if (std::unique_ptr<ExcelDataBase> db = system->FindExcelDataBase(u8"계시"))
-            {
-                std::string idStr = std::to_string(revelationID);
-                size_t      index = db->FindRowIndex((const char8_t*)idStr.c_str(), u8"ID");
-                if (index != ExcelDataBase::FIND_INDEX_FAIL)
-                {
-                    //TODO : ID 찾는 로직 필요 (아직 데이터 안정해짐)
-                }
-            }
-        }
-        return iconGuid;
-    }
-};
-
 RevelationsViewModel::RevelationsViewModel(MVVM::Model<std::vector<std::shared_ptr<RevelationElement>>>& model)
     : ViewModel(model)
 {
@@ -106,7 +85,7 @@ std::vector<RevelationUIData> RevelationsViewModel::Convert(
 
         uiData.Name        = revelationElement->ElementName;
         uiData.Icon        = GetRevelationIcon()(revelationID);
-        uiData.Grade       = GetGradeIcon()(revelationID);
+        uiData.Grade       = revelationElement->Grade;
         uiData.Description = GetRevelationDescription()(revelationID);
 
         _uiData.push_back(uiData);

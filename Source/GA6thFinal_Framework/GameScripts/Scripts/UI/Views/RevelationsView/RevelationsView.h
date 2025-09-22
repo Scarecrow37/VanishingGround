@@ -8,7 +8,7 @@ class DescriptionPanel;
 struct RevelationUI
 {
     ImageElement* IconElement;
-    ImageElement* GradeElement;
+    std::vector<ImageElement*> GradeElements;
     TextElement*  NameElement;
     DescriptionPanel* DescriptionElement;
 };

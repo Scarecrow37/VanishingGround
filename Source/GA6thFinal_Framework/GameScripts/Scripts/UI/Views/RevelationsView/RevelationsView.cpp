@@ -37,8 +37,18 @@ void RevelationsView::Start()
                         _revelationUis[i].NameElement->Text = revelations[i].Name;
                     if (nullptr != _revelationUis[i].DescriptionElement)
                         _revelationUis[i].DescriptionElement->Description = revelations[i].Description;
-                    if (nullptr != _revelationUis[i].GradeElement)
-                        _revelationUis[i].GradeElement->SetImage(revelations[i].Grade);
+                    if (false != _revelationUis[i].GradeElements.size())
+                    {
+                        size_t index = static_cast<size_t>(revelations[i].Grade);
+                        for (auto& ui : _revelationUis[i].GradeElements)
+                        {
+                            ui->Enable = false;
+                        }
+                        if (index < _revelationUis[i].GradeElements.size())
+                        {
+                            _revelationUis[i].GradeElements[index]->Enable = true;
+                        }
+                    }
                 }
             }
         });
@@ -88,9 +98,9 @@ std::pair<GameObject*, RevelationUI> RevelationsView::FindRevelationUI(const std
             {
                 revelationUI.NameElement = object.GetComponent<TextElement>();
             }
-            if (nullptr == revelationUI.GradeElement && object.CompareTag("Grade"))
+            if (object.CompareTag("Grade"))
             {
-                revelationUI.GradeElement = object.GetComponent<ImageElement>();
+                revelationUI.GradeElements.push_back(object.GetComponent<ImageElement>());
             }
             if (nullptr == revelationUI.DescriptionElement && object.CompareTag("Description"))
             {
@@ -106,7 +116,7 @@ std::pair<GameObject*, RevelationUI> RevelationsView::FindRevelationUI(const std
         {
             UmLogger.Log(LogLevel::LEVEL_WARNING, "Name Element with tag '" + tag + "' not found.");
         }
-        if (nullptr == revelationUI.GradeElement)
+        if (true == revelationUI.GradeElements.empty())
         {
             UmLogger.Log(LogLevel::LEVEL_WARNING, "Grade Element with tag '" + tag + "' not found.");
         }
