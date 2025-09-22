@@ -988,6 +988,43 @@ void ParticleManager::UpdateMvpConstant(float deltaTime, ParticleRenderResource*
 
 void ParticleManager::AddSceneResource(std::string_view sceneName)
 {
+    if (sceneName == "Editor")
+    {
+        std::wstring wSceneName;
+        wSceneName.assign(sceneName.begin(), sceneName.end());
+
+        ParticleSceneResource newSceneResource;
+        newSceneResource._name = sceneName;
+
+        UINT                   particleOutputSize = _maxParticles * sizeof(ParticleOutput);
+        UINT                   mvpConstantSize    = sizeof(MVPConstants);
+        newSceneResource._updateResource          = _sceneResources["Game"]._updateResource;
+        newSceneResource._renderResource          = new ParticleRenderResource();
+        newSceneResource._renderResource->_name   = sceneName;
+        {
+            {
+                CreateUAVBuffer(newSceneResource._renderResource->_simulationOutput, particleOutputSize,
+                                sizeof(ParticleOutput));
+                auto outputname = (wSceneName + L" output");
+                newSceneResource._renderResource->_simulationOutput->SetName(outputname.c_str());
+
+                CreateUAVBuffer(newSceneResource._renderResource->_ribbonSimulationOutput, particleOutputSize,
+                                sizeof(ParticleOutput));
+                auto ribbonoutputname = (wSceneName + L" ribbon output");
+                newSceneResource._renderResource->_ribbonSimulationOutput->SetName(outputname.c_str());
+            }
+            {
+                CreateConstantBuffer(newSceneResource._renderResource->_mvpConstant, mvpConstantSize);
+                auto mvpconstantsname = (wSceneName + L" mvp constants");
+                newSceneResource._renderResource->_mvpConstant->SetName(mvpconstantsname.c_str());
+            }
+        }
+
+        _sceneResources[std::string(sceneName)] = newSceneResource;
+        InitializeComputeCommandObject(sceneName);
+        return;
+    }
+
     std::wstring wSceneName;
     wSceneName.assign(sceneName.begin(), sceneName.end());
 
