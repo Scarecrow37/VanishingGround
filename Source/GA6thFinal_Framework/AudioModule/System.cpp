@@ -264,7 +264,7 @@ namespace Audio
         return Source{wfx, audioData, static_cast<UINT32>(dataSize)};
     }
 
-    Handle System::Play(const Source& sound, bool isLoop)
+    Handle System::Play(const Source& sound, const bool isLoop)
     {
         if (_xAudio2 == nullptr)
             throw AudioException("Audio manager is not initialized.");
