@@ -70,7 +70,7 @@ namespace Audio
         /// </summary>
         /// <param name="sound">재생할 사운드 소스입니다.</param>
         /// <returns>재생 중인 사운드를 제어할 수 있는 Handle 객체를 반환합니다.</returns>
-        [[nodiscard]] Handle Play(const Source& sound);
+        [[nodiscard]] Handle Play(const Source& sound, bool isLoop);
 
         /// <summary>
         /// 지정된 핸들에 대한 재생 작업을 중지합니다.

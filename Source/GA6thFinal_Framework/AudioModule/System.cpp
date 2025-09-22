@@ -264,7 +264,7 @@ namespace Audio
         return Source{wfx, audioData, static_cast<UINT32>(dataSize)};
     }
 
-    Handle System::Play(const Source& sound)
+    Handle System::Play(const Source& sound, bool isLoop)
     {
         if (_xAudio2 == nullptr)
             throw AudioException("Audio manager is not initialized.");
@@ -324,7 +324,7 @@ namespace Audio
         buffer.PlayLength = 0; // 0이면 전체 재생
         buffer.LoopBegin  = 0;
         buffer.LoopLength = 0; // 0이면 전체 루프
-        buffer.LoopCount  = XAUDIO2_NO_LOOP_REGION;
+        buffer.LoopCount  = isLoop ? XAUDIO2_LOOP_INFINITE : XAUDIO2_NO_LOOP_REGION;
         buffer.pContext   = nullptr;
 
         // Submit 후 시작
