@@ -11,7 +11,7 @@ PlayerHPTextView::PlayerHPTextView()  = default;
 
 PlayerHPTextView::~PlayerHPTextView()
 {
-    UmWatcher.Blind<CharacterHPViewModel>(PlayerStats::MODEL_HP_KEY, _handle);
+   
 }
 
 void PlayerHPTextView::Start()
@@ -32,6 +32,11 @@ void PlayerHPTextView::Start()
         UmLogger.Log(LogLevel::LEVEL_ERROR, "Watch Failed.");
         UmLogger.Log(LogLevel::LEVEL_ERROR, e.what());
     }
+}
+
+void PlayerHPTextView::OnDestroy() 
+{
+    UmWatcher.Blind<CharacterHPViewModel>(PlayerStats::MODEL_HP_KEY, _handle);
 }
 
 
