@@ -543,8 +543,7 @@ void Renderer::CreateDefaultRenderTarget()
     renderTargetManager->AddRenderTargetGroup("G-Buffer", renderTargetNames);
 
     // Forward G-Buffer
-    std::initializer_list<std::string_view> forwardRenderTargetNames = {"Normal", "Depth", "CustomDepth"};
-    renderTargetManager->AddRenderTargetGroup("Forward G-Buffer", forwardRenderTargetNames);
+    renderTargetManager->AddRenderTargetGroup("Forward G-Buffer", {"Normal", "Depth", "CustomDepth"});
 }
 
 void Renderer::CreateDefaultShader()
