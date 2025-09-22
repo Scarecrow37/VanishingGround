@@ -779,7 +779,7 @@ void ParticleManager::AwakeParticles(float deltaTime, ParticleUpdateResource* sc
                                 particle.SetEmitterIndex(ribbonEmitterIndex);
 
                                 scene->_ribbonTotalParticles.push_back(particle);
-                                scene->_ribbonTotalParticles.push_back(particle);
+                                //scene->_ribbonTotalParticles.push_back(particle);
                                 
                                 emitterIndices.push_back({ribbonparticleIndex++, particle.GetAge() / lifetime});
                                 emitterIndices.push_back({ribbonparticleIndex++, particle.GetAge() / lifetime});
@@ -798,7 +798,7 @@ void ParticleManager::AwakeParticles(float deltaTime, ParticleUpdateResource* sc
     }
     // 최종 파티클 수 업데이트
     scene->_totalCount = (UINT)scene->_totalParticles.size();
-    scene->_ribbonTotalCount = (UINT)(scene->_ribbonTotalParticles.size());
+    scene->_ribbonTotalCount = (UINT)(scene->_ribbonTotalParticles.size()*2);
 }
 
 void ParticleManager::DispatchSprite(float deltaTime, std::string sceneName) 
