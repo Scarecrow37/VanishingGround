@@ -392,10 +392,6 @@ void RenderScene::UpdateUI()
     _uiMatrices.clear();
     _uiMaterials.clear();
 
-    /*std::sort(_uiRenderQueue.begin(), _uiRenderQueue.end(), [](const auto& a, const auto& b) {
-        return a.second->GetWorldMatrix()._43 > b.second->GetWorldMatrix()._43;
-    });*/
-
     for (auto& [isDestroy, component] : _uiRenderQueue)
     {
         if (!component->IsActive())

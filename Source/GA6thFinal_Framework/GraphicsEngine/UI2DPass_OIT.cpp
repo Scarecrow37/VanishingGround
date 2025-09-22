@@ -17,12 +17,12 @@ void UI2DPass_OIT::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTec
     _cameraData.View = XMMatrixTranspose(XMMatrixLookAtLH({0.f, 0.f, -1.f}, {0.f, 0.f, 1.f}, {0.f, 1.f, 0.f}));
 
     PipelineStateStream pss;
-    pss.BlendState                            = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    pss.RasterizerState                       = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    (&pss.RasterizerState)->CullMode          = D3D12_CULL_MODE_NONE;
-    pss.DepthStencilState                     = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-    pss.PrimitiveTopology                     = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    pss.DSVFormat                             = _ownerScene->_depthStencilView->GetFormat();
+    pss.BlendState                   = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    pss.RasterizerState              = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    (&pss.RasterizerState)->CullMode = D3D12_CULL_MODE_NONE;
+    pss.DepthStencilState            = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+    pss.PrimitiveTopology            = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    pss.DSVFormat                    = _ownerScene->_depthStencilView->GetFormat();
 
     _fx.SetPipelineStateStream(pss);
     _pipelineState = Global::pipelineStateManager->GetPipelineState(pss);
