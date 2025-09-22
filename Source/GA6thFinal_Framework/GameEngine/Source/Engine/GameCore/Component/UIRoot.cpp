@@ -159,8 +159,6 @@ void UIRoot::Reset()
             UmLogger.Log(LogLevel::LEVEL_INFO, exception.what());
         }
     }
-
-    SortViewOrder();
 }
 
 void UIRoot::Start()
@@ -172,6 +170,8 @@ void UIRoot::Start()
     const NavigationID     initialFocusID        = ReflectFields->InitialFocusID;
     UINavigationComponent* initialFocusComponent = FindNavigationComponent(initialFocusID);
     ChangeFocusComponent(initialFocusComponent);
+
+    SortViewOrder();
 }
 
 void UIRoot::UpdateNavigation()
