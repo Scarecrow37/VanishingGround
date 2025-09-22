@@ -258,21 +258,21 @@ public:
     /// </summary>
     /// <param name="tag :">추가할 태그</param>
     /// <returns>성공 여부</returns>
-    bool AddTag(std::string_view tag);
+    bool AddTag(const std::string& tag);
 
     /// <summary>
     /// 태그를 제거합니다.
     /// </summary>
     /// <param name="tag :">추가할 태그</param>
     /// <returns>성공 여부</returns>
-    bool RemoveTag(std::string_view tag);
+    bool RemoveTag(const std::string& tag);
 
     /// <summary>
     /// 이 오브젝트에 해당 태그 존재 여부를 반환합니다.
     /// </summary>
     /// <param name="tag :">태그</param>
     /// <returns>존재 여부</returns>
-    bool CompareTag(std::string_view tag);
+    bool CompareTag(const std::string& tag);
 
  private:
     //IEditorObject에서 상속됨

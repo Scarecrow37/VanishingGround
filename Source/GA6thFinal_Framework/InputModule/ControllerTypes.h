@@ -8,6 +8,7 @@ namespace Input::ControllerTypes
 
     enum Button : unsigned int
     {
+        UNDEFINED          = 0x00000,
         DPAD_UP            = 0x00001,
         DPAD_DOWN          = 0x00002,
         DPAD_LEFT          = 0x00004,
@@ -28,6 +29,14 @@ namespace Input::ControllerTypes
         RIGHT_THUMB_STICK  = 0x20000,
     };
 
+    enum StateFlag : unsigned char
+    {
+        STATE_UNCHANGED = 0,
+        STATE_DOWN,
+        STATE_UP,
+        STATE_REPEAT
+    };
+
     struct ThumbStickAxis
     {
         float X;
@@ -37,11 +46,15 @@ namespace Input::ControllerTypes
 
     enum StickBias : unsigned char
     {
-        UNBIASED,
-        LEFT,
-        RIGHT,
-        UP,
-        DOWN
+        UNBIASED = 0,
+        BIAS_UP,
+        BIAS_DOWN,
+        BIAS_RIGHT,
+        BIAS_LEFT,
+        BIAS_UP_LEFT,
+        BIAS_UP_RIGHT,
+        BIAS_DOWN_RIGHT,
+        BIAS_DOWN_LEFT
     };
 
     using TriggerValue = float;
@@ -57,4 +70,13 @@ namespace Input::ControllerTypes
         TriggerValue   RightTrigger;
         Button         Buttons;
     };
+
+    struct ButtonState
+    {
+        Button    Button;
+        StickBias Bias;
+        StateFlag Flag;
+    };
+
+    using ButtonQueue = std::vector<ButtonState>;
 } // namespace Input::ControllerTypes

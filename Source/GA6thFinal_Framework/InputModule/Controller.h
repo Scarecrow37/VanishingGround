@@ -22,6 +22,16 @@ namespace Input
         using Button = ControllerTypes::Button;
 
         /// <summary>
+        /// ControllerTypes 네임스페이스의 ButtonState 타입에 대한 별칭을 정의합니다.
+        /// </summary>
+        using ButtonState = ControllerTypes::ButtonState;
+
+        /// <summary>
+        /// ControllerTypes::ButtonQueue 타입에 대한 별칭을 ButtonQueue로 정의합니다.
+        /// </summary>
+        using ButtonQueue = ControllerTypes::ButtonQueue;
+
+        /// <summary>
         /// 엄지 막대의 위치에 대한 값입니다.
         /// X축, Y축 모두 값의 범위는 -1.0 ~ 1.0 사이입니다.
         /// magnitude는 벡터의 크기를 나타내며, 0.0 ~ 1.0 사이의 값을 가집니다.
@@ -44,6 +54,11 @@ namespace Input
         /// 컨트롤러의 현재 상태를 나타내는 구조체입니다.
         /// </summary>
         using State = ControllerTypes::State;
+
+        /// <summary>
+        /// ControllerTypes 네임스페이스의 StateFlag 타입에 대한 별칭을 정의합니다.
+        /// </summary>
+        using StateFlag = ControllerTypes::StateFlag;
 
         static constexpr std::pair<const char*, Button> BUTTON_FLAG_LIST[] = {
             {"DPAD_UP", Button::DPAD_UP},
@@ -71,6 +86,8 @@ namespace Input
         {
             switch (button)
             {
+            case Button::UNDEFINED:
+                return "UNDEFINED";
             case Button::DPAD_UP:
                 return "DPAD_UP";
             case Button::DPAD_DOWN:
@@ -117,14 +134,22 @@ namespace Input
             {
             case StickBias::UNBIASED:
                 return "UNBIASED";
-            case StickBias::UP:
+            case StickBias::BIAS_UP:
                 return "UP";
-            case StickBias::DOWN:
+            case StickBias::BIAS_DOWN:
                 return "DOWN";
-            case StickBias::LEFT:
+            case StickBias::BIAS_LEFT:
                 return "LEFT";
-            case StickBias::RIGHT:
+            case StickBias::BIAS_RIGHT:
                 return "RIGHT";
+            case StickBias::BIAS_UP_LEFT:
+                return "UP_LEFT";
+            case StickBias::BIAS_UP_RIGHT:
+                return "UP_RIGHT";
+            case StickBias::BIAS_DOWN_LEFT:
+                return "DOWN_LEFT";
+            case StickBias::BIAS_DOWN_RIGHT:
+                return "DOWN_RIGHT";
             }
             return "UNKNOWN_BIAS";
         }
@@ -168,13 +193,13 @@ namespace Input
         /// 왼쪽 스틱의 편향 값을 반환합니다.
         /// </summary>
         /// <returns>왼쪽 스틱의 편향을 나타내는 StickBias 값입니다.</returns>
-        [[nodiscard]] StickBias GetLeftStickBias(float threshold = 0.01f) const noexcept;
+        [[nodiscard]] StickBias GetLeftStickBias() const noexcept;
 
         /// <summary>
         /// 오른쪽 스틱의 편향 값을 반환합니다.
         /// </summary>
         /// <returns>오른쪽 스틱의 편향을 나타내는 StickBias 값입니다.</returns>
-        [[nodiscard]] StickBias GetRightStickBias(float threshold = 0.01f) const noexcept;
+        [[nodiscard]] StickBias GetRightStickBias() const noexcept;
 
         /// <summary>
         /// 왼쪽 트리거의 값을 반환합니다.
@@ -212,13 +237,18 @@ namespace Input
         /// 버튼 큐를 반환합니다. 큐는 매 업데이트마다 갱신됩니다.
         /// </summary>
         /// <returns>저장된 Button 객체들의 std::queue를 반환합니다.</returns>
-        [[nodiscard]] std::vector<Button> GetButtonQueue() const noexcept;
+        [[nodiscard]] ButtonQueue GetButtonQueue() const noexcept;
+
+    private:
+        void UpdateStickBias();
 
     private:
         const Adapter* _adapter;
 
-        ID                  _id;
-        State               _state;
-        std::vector<Button> _queue;
+        ID          _id;
+        State       _state;
+        ButtonQueue _queue;
+        StickBias   _leftStickBias;
+        StickBias   _rightStickBias;
     };
 } // namespace Input
