@@ -216,21 +216,6 @@ void UmCineMotion::StopRail()
     _railFlag  = false;
 }
 
-void UmCineMotion::Shake()
-{
-    if (true == _shakeFlag)
-    {
-        _shakeElapsedTimer += UmTime.DeltaTime();
-        Vector3 offset = GetShakeOffset(_shakeIntensity, _shakeFrequency, _shakeElapsedTimer);
-        _targetPos += offset;
-        if (_shakeElapsedTimer >= _shakeDuration)
-        {
-            _shakeFlag         = false;
-            _shakeElapsedTimer = 0;
-        }
-    }
-}
-
 void UmCineMotion::DrawRail()
 {
     if (false == _posTethers.empty())
@@ -306,47 +291,6 @@ void UmCineMotion::DrawRail()
                 }
             }
         }
-    }
-}
-
-void UmCineMotion::BeginShake(float duration, float intensity, float frequency)
-{
-    _shakeFlag         = true;
-    _shakeDuration     = duration;
-    _shakeIntensity    = intensity;
-    _shakeFrequency    = frequency;
-    _shakeElapsedTimer = 0.f;
-}
-
-DirectX::SimpleMath::Vector3 UmCineMotion::GetShakeOffset(float intensity, float frequency, float time)
-{
-    if (intensity <= 0.0f || frequency <= 0.0f)
-        return Vector3(0, 0, 0);
-
-    const float freq = std::clamp(frequency, 0.01f, 100.0f);
-
-    const float t = time * freq;
-
-    constexpr int   kOctaves    = 4;    // 옥타브 수(3~5 정도 추천)
-    constexpr float kLacunarity = 2.0f; // 각 옥타브 주파수 배수
-    constexpr float kGain       = 0.5f; // 각 옥타브 진폭 감쇠
-
-    // 축별로 상호 독립적인 오프셋(상수)을 줘서 상관을 낮춤
-    const float nx = Mathf::FBM1D(t + 37.173f, kOctaves, kLacunarity, kGain);  // [-1,1]
-    const float ny = Mathf::FBM1D(t + 101.719f, kOctaves, kLacunarity, kGain); // [-1,1]
-    const float nz = Mathf::FBM1D(t + 223.357f, kOctaves, kLacunarity, kGain); // [-1,1]
-
-    const float amp = intensity;
-
-    return Vector3(nx * amp, ny * amp, nz * amp);
-}
-
-void UmCineMotion::ApplyTransform()
-{
-    if (true == _railFlag)
-    {
-        transform->Rotation = _targetAngle;
-        transform->Position = _targetPos;
     }
 }
 
