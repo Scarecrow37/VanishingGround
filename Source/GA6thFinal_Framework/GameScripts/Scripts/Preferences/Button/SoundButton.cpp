@@ -201,11 +201,11 @@ void SoundButton::ControlVolumeStick(const Input::Controller& controller)
         return;
 
     auto bias = controller.GetLeftStickBias();
-    if (bias == Input::Controller::StickBias::LEFT)
+    if (bias == Input::Controller::StickBias::BIAS_LEFT)
     {
         ControlVolumeDown(controller);
     }
-    else if (bias == Input::Controller::StickBias::RIGHT)
+    else if (bias == Input::Controller::StickBias::BIAS_RIGHT)
     {
         ControlVolumeUp(controller);
     }
