@@ -16,7 +16,7 @@ public:
     PlayerStats& GetStats() { return *_stats; }
 
 public:
-    void RegisterHP(const std::string& key) const;
+    void RegisterHP() const;
 
 protected:
     REFLECT_FIELDS_BEGIN(TurnActorStatsComponent)

@@ -207,6 +207,14 @@ void UIComponent::DeserializedReflectEvent()
     _requestedSize  = ActualSize;
 }
 
+void UIComponent::Reset()
+{
+    UIBaseComponent::Reset();
+
+    InvalidateMeasure();
+    InvalidateArrange();
+}
+
 void UIComponent::Start()
 {
     UIBaseComponent::Start();

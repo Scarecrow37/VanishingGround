@@ -160,8 +160,8 @@ void UINavigationComponent::ImGuiDrawPropertysEvent()
     {
         if (ImGui::BeginTable("NavigationRouteTable##Detail", 2, ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_RowBg))
         {
-            ImGui::TableSetupColumn("Input", ImGuiTableColumnFlags_WidthStretch, 0.4f);
-            ImGui::TableSetupColumn("Destination ID", ImGuiTableColumnFlags_WidthStretch, 0.6f);
+            ImGui::TableSetupColumn("Input", ImGuiTableColumnFlags_WidthStretch, 0.6f);
+            ImGui::TableSetupColumn("Destination ID", ImGuiTableColumnFlags_WidthStretch, 0.4f);
             ImGui::TableHeadersRow();
 
             NavigationRoutes& navigationRoutes = ReflectFields->NavigationRoutes;

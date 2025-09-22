@@ -11,7 +11,7 @@
 #include "ViewModels/Map/StageFocusViewModel.h"
 #include "TurnSystem/TurnActor/Character/Player/Player.h"
 #include "Stats/Player/PlayerStatsComponent.h"
-#include "ViewModels/Map/MapPlayerHPViewModel.h"
+#include "ViewModels/Hp/CharacterHPViewModel.h"
 #include "Utility/SingletonHelper.h"
 #include "ItemDropSystem/ItemDropSystem.h"
 
@@ -88,7 +88,6 @@ MapManager::~MapManager()
     {
         thisPointer = nullptr;
         UmWatcher.Unregister<StageFocusViewModel>("StageFocus");
-        UmWatcher.Unregister<MapPlayerHPViewModel>("PlayerHP");
     }
 }
 
@@ -109,9 +108,6 @@ void MapManager::Awake()
 
         UmWatcher.Register<StageFocusViewModel>("StageFocus", _focusStage);
         SetupStage();
-
-        //Player::GetInstance()->GetComponent<PlayerStatsComponent>()->RegisterHP("PlayerHP");
-        UmWatcher.Register<MapPlayerHPViewModel>("PlayerHP", _playerHP, 100);
     }
     else
     {        

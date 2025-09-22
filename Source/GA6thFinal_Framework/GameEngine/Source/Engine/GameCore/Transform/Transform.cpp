@@ -633,3 +633,32 @@ bool Transform::CheckValidTransform(Transform* target)
     }
     return false;
 }
+
+
+std::vector<GameObject*> Transform::FindDFSwithTag(const std::string& tag)
+{
+    std::vector<GameObject*> findResult;
+    Transform::ForeachDFS(*this, [&](Transform* curr) 
+    { 
+        GameObject& object = curr->gameObject;
+        if (true == object.CompareTag(tag))
+        {
+            findResult.push_back(&object);
+        }
+    });
+    return findResult;
+}
+
+std::vector<GameObject*> Transform::FindBFSwithTag(const std::string& tag)
+{
+    std::vector<GameObject*> findResult;
+    Transform::ForeachBFS(*this, [&](Transform* curr) 
+    {
+        GameObject& object = curr->gameObject;
+        if (true == object.CompareTag(tag))
+        {
+            findResult.push_back(&object);
+        }
+    });
+    return findResult;
+}

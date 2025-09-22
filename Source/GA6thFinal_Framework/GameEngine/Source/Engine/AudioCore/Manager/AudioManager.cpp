@@ -19,6 +19,11 @@ void Audio::Manager::Finalize()
     _system.Finalize();
 }
 
+void Audio::Manager::ClearVoicePool()
+{
+    _system.ClearVoicePool();
+}
+
 void Audio::Manager::LoadSound(const std::string& key, const File::GuidRef& guid)
 {
     const File::Path& path = guid.ToPath();
@@ -33,14 +38,14 @@ void Audio::Manager::LoadSound(const std::string& key, const File::GuidRef& guid
     }
 }
 
-Audio::Handle Audio::Manager::Play(const std::string& key)
+Audio::Handle Audio::Manager::Play(const std::string& key, const bool isLoop)
 {
     if (!key.empty())
     {
         try
         {
             const auto& sound = _sources.at(key);
-            return _system.Play(sound);
+            return _system.Play(sound, isLoop);
         }
         catch (const std::out_of_range& exception)
         {

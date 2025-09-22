@@ -2,9 +2,15 @@
 #include "Controller.h"
 #include "Adapter.h"
 
+#include <algorithm>
+
 namespace Input
 {
-    Controller::Controller(const Adapter* adapter) : _adapter(adapter), _id(ControllerTypes::INVALID_ID), _state{} {}
+    Controller::Controller(const Adapter* adapter)
+        : _adapter(adapter), _id(ControllerTypes::INVALID_ID), _state{}, _leftStickBias(StickBias::UNBIASED),
+          _rightStickBias(StickBias::UNBIASED)
+    {
+    }
 
     void Controller::Connect()
     {
@@ -28,6 +34,7 @@ namespace Input
         {
             _state = _adapter->ReceiveState(_id);
             _queue = _adapter->ReceiveQueue(_id);
+            UpdateStickBias();
         }
         catch (const DeviceNotConnectedException&)
         {
@@ -46,30 +53,14 @@ namespace Input
         return _state.RightThumbStickAxis;
     }
 
-    struct AxisToBias
+    Controller::StickBias Controller::GetLeftStickBias() const noexcept
     {
-        Controller::StickBias operator()(const Controller::ThumbStickAxis& axis, const float threshold) const noexcept
-        {
-            Controller::StickBias bias;
-            if (axis.Magnitude < threshold)
-                bias = Controller::StickBias::UNBIASED;
-            else if (std::abs(axis.X) > std::abs(axis.Y))
-                bias = axis.X > 0 ? Controller::StickBias::RIGHT : Controller::StickBias::LEFT;
-            else
-                bias = axis.Y > 0 ? Controller::StickBias::UP : Controller::StickBias::DOWN;
-
-            return bias;
-        }
-    };
-
-    Controller::StickBias Controller::GetLeftStickBias(const float threshold) const noexcept
-    {
-        return AxisToBias()(GetLeftThumbStickAxis(), threshold);
+        return _leftStickBias;
     }
 
-    Controller::StickBias Controller::GetRightStickBias(const float threshold) const noexcept
+    Controller::StickBias Controller::GetRightStickBias() const noexcept
     {
-        return AxisToBias()(GetRightThumbStickAxis(), threshold);
+        return _rightStickBias;
     }
 
     Controller::TriggerValue Controller::GetLeftTrigger() const noexcept
@@ -97,9 +88,25 @@ namespace Input
         return _id;
     }
 
-    std::vector<Controller::Button> Controller::GetButtonQueue() const noexcept
+    Controller::ButtonQueue Controller::GetButtonQueue() const noexcept
     {
         return _queue;
+    }
+
+    void Controller::UpdateStickBias()
+    {
+        _leftStickBias  = StickBias::UNBIASED;
+        _rightStickBias = StickBias::UNBIASED;
+        std::ranges::for_each(_queue, [this](const ButtonState& buttonState) {
+            if (buttonState.Button == Button::LEFT_THUMB_STICK)
+            {
+                _leftStickBias = buttonState.Bias;
+            }
+            else if (buttonState.Button == Button::RIGHT_THUMB_STICK)
+            {
+                _rightStickBias = buttonState.Bias;
+            }
+        });
     }
 
 } // namespace Input
