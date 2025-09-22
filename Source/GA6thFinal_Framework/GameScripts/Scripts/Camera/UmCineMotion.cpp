@@ -22,16 +22,16 @@ void UmCineMotion::OnDrawDebugSelected()
     DrawRail();
 
 #ifdef _UMEDITOR
-        UpdateTetherFromGizmo();
-        DrawGizmoIcon();
-        DrawGuizmo();
+    UpdateTetherFromGizmo();
+    DrawGizmoIcon();
+    DrawGuizmo();
 #endif
 
     if (false == UmCore->IsPlay())
     {
-            RunRail();
-            Shake();
-            ApplyTransform();
+        RunRail();
+        Shake();
+        ApplyTransform();
     }
 }
 
@@ -48,8 +48,8 @@ void UmCineMotion::ImGuiDrawPropertysEvent()
     {
         if (false == _posTethers.empty())
         {
-            Vector3     comboLabelPos = _posTethers[_selectedTether == -1 ? 0 : _selectedTether];
-            Vector3     comboLabelRot = _rotTethers[_selectedTether == -1 ? 0 : _selectedTether].ToEuler();
+            Vector3 comboLabelPos = _posTethers[_selectedTether == -1 ? 0 : _selectedTether];
+            Vector3 comboLabelRot = _rotTethers[_selectedTether == -1 ? 0 : _selectedTether].ToEuler() * Mathf::Rad2Deg;
             std::string comboLabel = std::to_string(comboLabelPos.x) + ", " + std::to_string(comboLabelPos.y) + ", " +
                                      std::to_string(comboLabelPos.z) + " / " + std::to_string(comboLabelRot.x) + ", " +
                                      std::to_string(comboLabelRot.y) + ", " + std::to_string(comboLabelRot.z);
@@ -57,7 +57,7 @@ void UmCineMotion::ImGuiDrawPropertysEvent()
             {
                 for (int i = 0; i < _posTethers.size(); ++i)
                 {
-                    bool        isSelected = _selectedTether == i;
+                    bool    isSelected  = _selectedTether == i;
                     Vector3 selectedRot = _rotTethers[i].ToEuler() * Mathf::Rad2Deg;
 
                     std::string selected = std::to_string(_posTethers[i].x) + ", " + std::to_string(_posTethers[i].y) +
@@ -126,7 +126,7 @@ void UmCineMotion::ImGuiDrawPropertysEvent()
         bool isShakePressed = ImGui::Button("Shake", {150, 50});
         if (true == isShakePressed)
         {
-            BeginShake(_shakeDuration, _shakeIntensity,_shakeFrequency);
+            BeginShake(_shakeDuration, _shakeIntensity, _shakeFrequency);
         }
     }
 }
@@ -185,7 +185,7 @@ void UmCineMotion::ClearTethers()
     ReflectFields->TimestepTethers.clear();
     _posTethers.clear();
     _rotTethers.clear();
-    _railFlag = false;
+    _railFlag       = false;
     _selectedTether = -1;
 #ifdef _UMEDITOR
     ClearGizmo();
@@ -198,7 +198,7 @@ void UmCineMotion::StartRail()
     _pauseFlag = false;
     if (false == _posTethers.empty())
     {
-        transform->Position   = _posTethers[0];
+        transform->Position = _posTethers[0];
         transform->Rotation = _rotTethers[0];
     }
 }
@@ -216,6 +216,21 @@ void UmCineMotion::StopRail()
     _railFlag  = false;
 }
 
+void UmCineMotion::Shake()
+{
+    if (true == _shakeFlag)
+    {
+        _shakeElapsedTimer += UmTime.DeltaTime();
+        Vector3 offset = GetShakeOffset(_shakeIntensity, _shakeFrequency, _shakeElapsedTimer);
+        _targetPos += offset;
+        if (_shakeElapsedTimer >= _shakeDuration)
+        {
+            _shakeFlag         = false;
+            _shakeElapsedTimer = 0;
+        }
+    }
+}
+
 void UmCineMotion::DrawRail()
 {
     if (false == _posTethers.empty())
@@ -231,13 +246,29 @@ void UmCineMotion::DrawRail()
             }
             for (int i = 0; i < _rotTethers.size(); i++)
             {
-                Quaternion          rotation = _rotTethers[i];
-                Vector3             forward  = Vector3::Transform(Vector3::Forward, rotation);
+                Quaternion rotation = _rotTethers[i];
+                Vector3    forward  = Vector3::Transform(Vector3::Forward, rotation);
+                Vector3    up       = Vector3::Transform(Vector3::Up, rotation);
+                Vector3    right    = Vector3::Transform(Vector3::Right, rotation);
+
+
                 BoundingOrientedBox shaft;
                 shaft.Center      = _posTethers[i] - forward * 0.2f;
                 shaft.Extents     = {0.01f, 0.01f, 0.2f};
                 shaft.Orientation = rotation;
                 UmGraphics.DebugDraw3D("Editor", shaft, Colors::Cyan);
+
+                shaft.Extents     = {0.005f, 0.005f, 0.05f};
+                shaft.Center      = _posTethers[i] - forward * 0.38f - right * 0.03f;
+                shaft.Orientation = rotation * Quaternion::CreateFromAxisAngle(up, 45 * Mathf::Deg2Rad);
+                UmGraphics.DebugDraw3D("Editor", shaft, Colors::Cyan);
+
+                shaft.Extents     = {0.005f, 0.005f, 0.05f};
+                shaft.Center      = _posTethers[i] - forward * 0.38f + right * 0.03f;
+                shaft.Orientation = rotation * Quaternion::CreateFromAxisAngle(up, -45 * Mathf::Deg2Rad);
+                UmGraphics.DebugDraw3D("Editor", shaft, Colors::Cyan);
+
+
             }
         }
         // interpolated points
@@ -275,6 +306,47 @@ void UmCineMotion::DrawRail()
                 }
             }
         }
+    }
+}
+
+void UmCineMotion::BeginShake(float duration, float intensity, float frequency)
+{
+    _shakeFlag         = true;
+    _shakeDuration     = duration;
+    _shakeIntensity    = intensity;
+    _shakeFrequency    = frequency;
+    _shakeElapsedTimer = 0.f;
+}
+
+DirectX::SimpleMath::Vector3 UmCineMotion::GetShakeOffset(float intensity, float frequency, float time)
+{
+    if (intensity <= 0.0f || frequency <= 0.0f)
+        return Vector3(0, 0, 0);
+
+    const float freq = std::clamp(frequency, 0.01f, 100.0f);
+
+    const float t = time * freq;
+
+    constexpr int   kOctaves    = 4;    // 옥타브 수(3~5 정도 추천)
+    constexpr float kLacunarity = 2.0f; // 각 옥타브 주파수 배수
+    constexpr float kGain       = 0.5f; // 각 옥타브 진폭 감쇠
+
+    // 축별로 상호 독립적인 오프셋(상수)을 줘서 상관을 낮춤
+    const float nx = Mathf::FBM1D(t + 37.173f, kOctaves, kLacunarity, kGain);  // [-1,1]
+    const float ny = Mathf::FBM1D(t + 101.719f, kOctaves, kLacunarity, kGain); // [-1,1]
+    const float nz = Mathf::FBM1D(t + 223.357f, kOctaves, kLacunarity, kGain); // [-1,1]
+
+    const float amp = intensity;
+
+    return Vector3(nx * amp, ny * amp, nz * amp);
+}
+
+void UmCineMotion::ApplyTransform()
+{
+    if (true == _railFlag)
+    {
+        transform->Rotation = _targetAngle;
+        transform->Position = _targetPos;
     }
 }
 
@@ -376,7 +448,7 @@ void UmCineMotion::DeserializedReflectEvent()
                                ReflectFields->PositionZTethers[i]});
 
         _rotTethers.push_back({ReflectFields->RotationXTethers[i], ReflectFields->RotationYTethers[i],
-                               ReflectFields->RotationZTethers[i], ReflectFields->RotationWTethers[i]} );
+                               ReflectFields->RotationZTethers[i], ReflectFields->RotationWTethers[i]});
         Matrix world = Matrix::CreateFromQuaternion(_rotTethers[i]) * Matrix::CreateTranslation(_posTethers[i]);
 #ifdef _UMEDITOR
         PushGizmo(world);
@@ -428,13 +500,11 @@ void UmCineMotion::UpdateTetherFromGizmo()
         ReflectFields->RailLength += length;
         ReflectFields->TimestepTethers[i] = ReflectFields->RailLength;
     }
-
-
 }
 
 void UmCineMotion::PushGizmo(const Matrix& world)
 {
-    int    size  = (int)_gizmoes.size();
+    int size                    = (int)_gizmoes.size();
     auto& [gizmo, matrix, icon] = _gizmoes.emplace_back(this, world, SceneGizmo::DefaultIcon::TETHER);
     gizmo.SetIconTexture(icon);
     gizmo.EventListener.AddListener([this, index = size]() { _selectedTether = index; });

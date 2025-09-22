@@ -557,82 +557,72 @@ namespace Mathf
     }
     inline Quaternion SafeSlerp(const Quaternion& q1, const Quaternion& q2, float t)
     {
-        float      dot     = q1.Dot(q2);
-        Quaternion q2_copy = q2;
-        if (dot < 0.0f)
-            q2_copy = -q2; // 짧은 경로
-        if (fabs(dot) > 0.9995f)
-            return Quaternion::Lerp(q1, q2_copy, t); // 거의 일치하면 Lerp
-        return Quaternion::Slerp(q1, q2_copy, t);
+        return (ref.Dot(q) < 0.0f) ? Quaternion(-q.x, -q.y, -q.z, -q.w) : q;
     }
     inline Quaternion CatmullRomSpline(const std::vector<float>& steps, const std::vector<Quaternion>& points, float t)
     {
-        size_t n = points.size();
+        const size_t n = points.size();
         if (n == 0)
             return Quaternion::Identity;
         if (n == 1)
             return points[0];
 
+        // 길이 일치 전제(필요하면 assert)
+        assert(steps.size() == points.size() && "steps와 points의 길이는 같아야 함이다");
+
+        // 요청한 엣지 리턴 분기
         if (t <= steps.front())
             return points.front();
         if (t >= steps.back())
             return points.back();
 
-        // 구간 찾기
-        size_t i = 0;
-        while (i < n - 1 && t > steps[i + 1])
-            i++;
-
-        float t0     = steps[i];
-        float t1     = steps[i + 1];
-        float localT = (t - t0) / (t1 - t0);
-        localT       = std::clamp(localT, 0.0f, 1.0f);
-
-        // 2점일 경우
-        if (n == 2)
+        // 세그먼트 찾기: steps[i1] <= t < steps[i2]
+        auto   it = std::upper_bound(steps.begin(), steps.end(), t);
+        size_t i1 = size_t(it - steps.begin() - 1);
+        size_t i2 = i1 + 1;
+        if (i1 >= n - 1)
         {
-            return SafeSlerp(points[0], points[1], localT);
+            i1 = n - 2;
+            i2 = n - 1;
         }
 
-        // 3점일 경우
-        if (n == 3 || i == n - 2)
+        // 양 끝 보정 인덱스
+        size_t i0 = (i1 == 0) ? 0 : i1 - 1;
+        size_t i3 = (i2 + 1 >= n) ? n - 1 : i2 + 1;
+
+        // 기준 p1에 대해 반구 정렬
+        const Quaternion& p1ref = points[i1];
+        Quaternion        p0    = AlignHemisphere(points[i0], p1ref);
+        Quaternion        p1    = p1ref;
+        Quaternion        p2    = AlignHemisphere(points[i2], p1ref);
+        Quaternion        p3    = AlignHemisphere(points[i3], p1ref);
+
+        // 로컬 파라미터 u ∈ [0,1]
+        float denom = steps[i2] - steps[i1];
+        if (denom <= 1e-7f)
+            return p1; // 축퇴 방지
+        const float u = (t - steps[i1]) / denom;
+
+        // 큰 회전 구간 보호용 Slerp 폴백(임계값은 상황에 맞게 조정)
         {
-            Quaternion p0 = points[(i == 0) ? i : i - 1];
-            Quaternion p1 = points[i];
-            Quaternion p2 = points[i + 1];
-
-            if (p1.Dot(p0) < 0.0f)
-                p0 = -p0;
-            if (p1.Dot(p2) < 0.0f)
-                p2 = -p2;
-
-            // 간단 Catmull-Rom 근사
-            Quaternion s1 = SafeSlerp(p0, p1, 0.5f + localT * 0.5f);
-            Quaternion s2 = SafeSlerp(p1, p2, localT);
-            return SafeSlerp(s1, s2, 0.5f);
+            float d                  = std::fabs(p1.Dot(p2));
+            d                        = std::min(1.0f, std::max(0.0f, d));
+            const float     angle    = std::acos(d); // [0, π]
+            constexpr float kBigTurn = 1.7453293f;   // ≈ 100°
+            if (angle > kBigTurn)
+            {
+                Quaternion r = SafeSlerp(p1, p2, u);
+                r            = AlignHemisphere(r, p1);
+                r.Normalize();
+                return r;
+            }
         }
 
-        // 4점 이상
-        Quaternion p0 = points[(i == 0) ? i : i - 1];
-        Quaternion p1 = points[i];
-        Quaternion p2 = points[i + 1];
-        Quaternion p3 = points[i + 2];
-
-        if (p1.Dot(p0) < 0.0f)
-            p0 = -p0;
-        if (p1.Dot(p2) < 0.0f)
-            p2 = -p2;
-        if (p2.Dot(p3) < 0.0f)
-            p3 = -p3;
-
-        Quaternion s1 = SafeSlerp(p0, p1, 0.5f + localT * 0.5f);
-        Quaternion s2 = SafeSlerp(p1, p2, localT);
-        Quaternion s3 = SafeSlerp(p2, p3, 0.5f * localT);
-
-        Quaternion s4 = SafeSlerp(s1, s2, 0.5f);
-        Quaternion s5 = SafeSlerp(s2, s3, 0.5f);
-
-        return SafeSlerp(s4, s5, localT);
+        // R^4 Catmull-Rom 보간
+        Quaternion r = CatmullRomUniform4D(p0, p1, p2, p3, u);
+        r            = AlignHemisphere(r, p1);
+        r.Normalize();
+        return r;
     }
     inline float Hash11(float p)
     {

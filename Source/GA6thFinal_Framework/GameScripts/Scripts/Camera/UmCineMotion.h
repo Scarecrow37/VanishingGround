@@ -54,12 +54,12 @@ protected:
     void DeserializedReflectEvent() override;
     void SerializedReflectEvent() override;
 
-    void    UndoTether();
-    void    ClearTethers();
-    void    DrawRail();
-    void    RunRail();
+    void UndoTether();
+    void ClearTethers();
+    void DrawRail();
+    void RunRail();
 
-    void    BeginShake(float duration, float intensity , float frequency);
+    void    BeginShake(float duration, float intensity, float frequency);
     Vector3 GetShakeOffset(float intensity, float frequency, float time);
 
     void ApplyTransform();
@@ -75,7 +75,7 @@ protected:
     void Shake();
 
 protected:
-    std::vector<Vector3> _posTethers;
+    std::vector<Vector3>    _posTethers;
     std::vector<Quaternion> _rotTethers;
     float                   _moveTimer         = 0.f;
     bool                    _railFlag          = false;
