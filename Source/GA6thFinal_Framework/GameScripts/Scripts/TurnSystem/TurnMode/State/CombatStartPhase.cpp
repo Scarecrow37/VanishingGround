@@ -53,7 +53,6 @@ void CombatStartPhase::ResetCharacterStats()
             if (nullptr != character)
             {
                 const auto& type = typeid(*character);
-                character->Revive();
                 _characters.push_back(character);
                 if (typeid(Player) == type)
                 {
@@ -80,6 +79,10 @@ void CombatStartPhase::OnAwake()
     ResetCharacterStats();
     SortEnemies();
     RegisterEnemiesHP();
+    ReviveEnemies();
+
+    //임시 코드 (게임 시작시 실행되어야함)
+    _player->Revive();
 }
 
 void CombatStartPhase::OnStart() 
@@ -234,15 +237,24 @@ void CombatStartPhase::RegisterEnemyHP(const int index, const std::string& key, 
         const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(tag);
         if (const auto sharedGameObject = weakGameObject.lock())
         {
-            if (MonsterHpView* monsterHpView = sharedGameObject->GetComponent<MonsterHpView>();
-                nullptr != monsterHpView)
+            if (MonsterHpTextView* monsterHpView = sharedGameObject->GetComponent<MonsterHpTextView>())
             {
                 monsterHpView->Watch(key);
-                _enemies[index]->SetMonsterHpView(monsterHpView);
+                _enemies[index]->SetMonsterHpTextView(monsterHpView);             
             }
             else
             {
-                UmLogger.Log(LogLevel::LEVEL_ERROR, "MonsterHpView with tag '" + tag + "' not found.");
+                UmLogger.Log(LogLevel::LEVEL_ERROR, "MonsterHpTextView with tag '" + tag + "' not found.");
+            }
+
+            if (MonsterHpImageView* monsterHpView = sharedGameObject->GetComponent<MonsterHpImageView>())
+            {
+                monsterHpView->Watch(key);
+                _enemies[index]->SetMonsterHpImageView(monsterHpView);
+            }             
+            else
+            {
+                UmLogger.Log(LogLevel::LEVEL_ERROR, "MonsterHpImageView with tag '" + tag + "' not found.");
             }
         }
         else
@@ -252,7 +264,14 @@ void CombatStartPhase::RegisterEnemyHP(const int index, const std::string& key, 
     }
     else
     {
-        UmLogger.Log(LogLevel::LEVEL_ERROR,
-                     "EnemyStatsComponent not found for enemy at index " + std::to_string(index));
+        UmLogger.Log(LogLevel::LEVEL_ERROR, "EnemyStatsComponent not found for enemy at index " + std::to_string(index));
+    }
+}
+
+void CombatStartPhase::ReviveEnemies() 
+{
+    for (auto& enemy : _enemies)
+    {
+        enemy->CharacterBase::Revive();
     }
 }

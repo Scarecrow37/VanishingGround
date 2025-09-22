@@ -124,9 +124,14 @@ EnemyStatsComponent* Enemy::GetEnemyStats()
     return _enemyStats;
 }
 
-void Enemy::SetMonsterHpView(MonsterHpView* view)
+void Enemy::SetMonsterHpImageView(MonsterHpImageView* view) 
 {
-    _monsterHpView = view;
+    _monsterHpImageView = view;
+}
+
+void Enemy::SetMonsterHpTextView(MonsterHpTextView* view)
+{
+    _monsterHpTextView = view;
 }
 
 void Enemy::BuildEnemyFSM()
