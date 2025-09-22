@@ -14,6 +14,7 @@ namespace Mathf
 
     enum EaseFuncType
     {
+        LINEAR,
         SINE,
         CUBIC,
         QUAD,
@@ -220,7 +221,7 @@ namespace Mathf
     
     inline const std::vector<std::string> EaseNameTable = {"In", "Out", "In-Out", "Out-In"};
 
-    inline const std::vector<std::string> EaseFuncNameTable = {"Sine", "Cubic",    "Quad", "Quart",   "Quint",
+    inline const std::vector<std::string> EaseFuncNameTable = {"Linear","Sine", "Cubic",    "Quad", "Quart",   "Quint",
                                                                "Expo", "Circular", "Back", "Elastic", "Bounce"};
 
     inline const std::array<EaseFunc, EaseFuncType::COUNT * 2> EaseTable = {
@@ -239,6 +240,10 @@ namespace Mathf
                       float threshold = 0.5f, float t = 0.f)
     {
         t         = std::clamp(t, 0.0f, 1.0f);
+        if (EaseFuncType::LINEAR == funcType)
+        {
+            return t;
+        }
         threshold = std::clamp(threshold, 0.0f, 1.0f);
 
         // 같은 타입이면 기존 방식 사용
@@ -275,7 +280,6 @@ namespace Mathf
         }
     }
 
-    // 단일 float Catmull-Rom 보간 함수 (4점)
     inline float CatmullRomFloat(float t, float p0, float p1, float p2, float p3)
     {
         float t2 = t * t;
@@ -286,20 +290,9 @@ namespace Mathf
         float a3 = p1;
         return a0 * t3 + a1 * t2 + a2 * t + a3;
     }
-
-    // Vector3 Catmull-Rom 보간은 SimpleMath 함수 사용
-    inline Vector3 CatmullRomVector3(float t, const Vector3& p0, const Vector3& p1, const Vector3& p2,
-                                     const Vector3& p3)
-    {
-        return Vector3::CatmullRom(p0, p1, p2, p3, t);
-    }
-
-    // 보간 함수 템플릿, float 또는 Vector3 대응
-    template <typename T>
-    T CatmullRomSpline(const std::vector<std::pair<float, T>>& points, float t)
+    inline float CatmullRomSpline(const std::vector<std::pair<float, float>>& points, float t)
     {
         t = std::clamp(t, points.front().first, points.back().first);
-
         size_t n = points.size();
 
         // 2점이면 선형 보간
@@ -308,15 +301,7 @@ namespace Mathf
             float t0     = points[0].first;
             float t1     = points[1].first;
             float localT = (t - t0) / (t1 - t0);
-
-            if constexpr (std::is_same_v<T, float>)
-            {
-                return points[0].second + localT * (points[1].second - points[0].second);
-            }
-            else
-            {
-                return points[0].second.Lerp(points[1].second, localT);
-            }
+            return points[0].second + localT * (points[1].second - points[0].second);
         }
         // 3점이면 중복점 만들기
         else if (n == 3)
@@ -330,19 +315,12 @@ namespace Mathf
             float localT = (t - t0) / (t1 - t0);
 
             // 4점 만들기: p0, p1, p2, p3
-            const auto& p0 = (segment == 0) ? points[0].second : points[0].second;
+            const auto& p0 = points[0].second;
             const auto& p1 = points[segment].second;
             const auto& p2 = points[segment + 1].second;
-            const auto& p3 = (segment == 0) ? points[2].second : points[2].second;
+            const auto& p3 = points[2].second;
 
-            if constexpr (std::is_same_v<T, float>)
-            {
-                return CatmullRomFloat(localT, p0, p1, p2, p3);
-            }
-            else
-            {
-                return CatmullRomVector3(localT, p0, p1, p2, p3);
-            }
+            return CatmullRomFloat(localT, p0, p1, p2, p3);
         }
         // 4개 이상 일반 구간 보간
         else
@@ -375,14 +353,373 @@ namespace Mathf
             const auto& p2 = points[i2].second;
             const auto& p3 = points[i3].second;
 
-            if constexpr (std::is_same_v<T, float>)
-            {
-                return CatmullRomFloat(localT, p0, p1, p2, p3);
-            }
-            else
-            {
-                return CatmullRomVector3(localT, p0, p1, p2, p3);
-            }
+            return CatmullRomFloat(localT, p0, p1, p2, p3);
         }
     }
+    inline float CatmullRomSpline(const std::vector<float>& steps, const std::vector<float>& points, float t)
+    {
+        t        = std::clamp(t, steps.front(), steps.back());
+        size_t n = points.size();
+
+        // 2점이면 선형 보간
+        if (n == 2)
+        {
+            float t0     = steps[0];
+            float t1     = steps[1];
+            float localT = (t - t0) / (t1 - t0);
+            return points[0] + localT * (points[1] - points[0]);
+        }
+        // 3점이면 중복점 만들기
+        else if (n == 3)
+        {
+            size_t segment = 0;
+            if (t >= steps[1])
+                segment = 1;
+
+            float t0     = steps[segment];
+            float t1     = steps[segment + 1];
+            float localT = (t - t0) / (t1 - t0);
+
+            // 4점 만들기: p0, p1, p2, p3
+            const auto& p0 = points[0];
+            const auto& p1 = points[segment];
+            const auto& p2 = points[segment + 1];
+            const auto& p3 = points[2];
+
+            return CatmullRomFloat(localT, p0, p1, p2, p3);
+        }
+        // 4개 이상 일반 구간 보간
+        else
+        {
+            // 구간 찾기
+            size_t segment = 0;
+            for (size_t i = 0; i < n - 1; ++i)
+            {
+                if (t >= steps[i] && t < steps[i + 1])
+                {
+                    segment = i;
+                    break;
+                }
+            }
+            if (t == steps.back())
+            {
+                segment = n - 2;
+            }
+            size_t i0 = (segment == 0) ? 0 : segment - 1;
+            size_t i1 = segment;
+            size_t i2 = segment + 1;
+            size_t i3 = (segment + 2 >= n) ? n - 1 : segment + 2;
+
+            float t0     = steps[i1];
+            float t1     = steps[i2];
+            float localT = (t - t0) / (t1 - t0);
+
+            const auto& p0 = points[i0];
+            const auto& p1 = points[i1];
+            const auto& p2 = points[i2];
+            const auto& p3 = points[i3];
+
+            return CatmullRomFloat(localT, p0, p1, p2, p3);
+        }
+    }
+    inline Vector3 CatmullRomSpline(const std::vector<std::pair<float, Vector3>>& points, float t)
+    {
+        t = std::clamp(t, points.front().first, points.back().first);
+
+        size_t n = points.size();
+
+        // 2점이면 선형 보간
+        if (n == 2)
+        {
+            float t0     = points[0].first;
+            float t1     = points[1].first;
+            float localT = (t - t0) / (t1 - t0);
+            return Vector3::Lerp(points[0].second, points[1].second, localT);
+        }
+        // 3점이면 중복점 만들기
+        else if (n == 3)
+        {
+            size_t segment = 0;
+            if (t >= points[1].first)
+                segment = 1;
+
+            float t0     = points[segment].first;
+            float t1     = points[segment + 1].first;
+            float localT = (t - t0) / (t1 - t0);
+
+            // 4점 만들기: p0, p1, p2, p3
+            const auto& p0 = points[0].second;
+            const auto& p1 = points[segment].second;
+            const auto& p2 = points[segment + 1].second;
+            const auto& p3 = points[2].second;
+            return Vector3::CatmullRom(p0, p1, p2, p3, localT);
+        }
+        // 4개 이상 일반 구간 보간
+        else
+        {
+            // 구간 찾기
+            size_t segment = 0;
+            for (size_t i = 0; i < n - 1; ++i)
+            {
+                if (t >= points[i].first && t < points[i + 1].first)
+                {
+                    segment = i;
+                    break;
+                }
+            }
+            if (t == points.back().first)
+            {
+                segment = n - 2;
+            }
+            size_t i0 = (segment == 0) ? 0 : segment - 1;
+            size_t i1 = segment;
+            size_t i2 = segment + 1;
+            size_t i3 = (segment + 2 >= n) ? n - 1 : segment + 2;
+
+            float t0     = points[i1].first;
+            float t1     = points[i2].first;
+            float localT = (t - t0) / (t1 - t0);
+
+            const auto& p0 = points[i0].second;
+            const auto& p1 = points[i1].second;
+            const auto& p2 = points[i2].second;
+            const auto& p3 = points[i3].second;
+            return Vector3::CatmullRom(p0, p1, p2, p3, localT);
+        }
+    }
+    inline Vector3 CatmullRomSpline(const std::vector<float>& steps, const std::vector<Vector3>& points, float t)
+    {
+        t = std::clamp(t, steps.front(), steps.back());
+
+        size_t n = points.size();
+
+        // 2점이면 선형 보간
+        if (n == 2)
+        {
+            float t0     = steps[0];
+            float t1     = steps[1];
+            float localT = (t - t0) / (t1 - t0);
+            return Vector3::Lerp(points[0], points[1], localT);
+        }
+        // 3점이면 중복점 만들기
+        else if (n == 3)
+        {
+            size_t segment = 0;
+            if (t >= steps[1])
+                segment = 1;
+
+            float t0     = steps[segment];
+            float t1     = steps[segment + 1];
+            float localT = (t - t0) / (t1 - t0);
+
+            // 4점 만들기: p0, p1, p2, p3
+            const auto& p0 = points[0];
+            const auto& p1 = points[segment];
+            const auto& p2 = points[segment + 1];
+            const auto& p3 = points[2];
+            return Vector3::CatmullRom(p0, p1, p2, p3, localT);
+        }
+        // 4개 이상 일반 구간 보간
+        else
+        {
+            // 구간 찾기
+            size_t segment = 0;
+            for (size_t i = 0; i < n - 1; ++i)
+            {
+                if (t >= steps[i] && t < steps[i + 1])
+                {
+                    segment = i;
+                    break;
+                }
+            }
+            if (t == steps.back())
+            {
+                segment = n - 2;
+            }
+            size_t i0 = (segment == 0) ? 0 : segment - 1;
+            size_t i1 = segment;
+            size_t i2 = segment + 1;
+            size_t i3 = (segment + 2 >= n) ? n - 1 : segment + 2;
+
+            float t0     = steps[i1];
+            float t1     = steps[i2];
+            float localT = (t - t0) / (t1 - t0);
+
+            const auto& p0 = points[i0];
+            const auto& p1 = points[i1];
+            const auto& p2 = points[i2];
+            const auto& p3 = points[i3];
+            return Vector3::CatmullRom(p0, p1, p2, p3, localT);
+        }
+    }
+    inline Quaternion AlignHemisphere(const Quaternion& q, const Quaternion& ref)
+    {
+        return (ref.Dot(q) < 0.0f) ? Quaternion(-q.x, -q.y, -q.z, -q.w) : q;
+    }
+    inline Quaternion SafeSlerp(Quaternion a, Quaternion b, float t)
+    {
+        a.Normalize();
+        b.Normalize();
+
+        float dot = a.Dot(b);
+        if (dot < 0.0f) // 반구 정렬
+        {
+            b   = Quaternion(-b.x, -b.y, -b.z, -b.w);
+            dot = -dot;
+        }
+
+        // acos 도메인 보호
+        dot = std::max(-1.0f, std::min(1.0f, dot));
+
+        // 거의 동일 각: nlerp
+        constexpr float kNearlyOne = 0.9995f; // ≈ 1.6°
+        if (dot > kNearlyOne)
+        {
+            Quaternion r{a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t, a.w + (b.w - a.w) * t};
+            r.Normalize();
+            return r;
+        }
+
+        const float theta    = std::acos(dot);
+        const float sinTheta = std::sin(theta);
+        if (sinTheta < 1e-6f) // 극소각 보호
+            return a;
+
+        const float s0 = std::sin((1.0f - t) * theta) / sinTheta;
+        const float s1 = std::sin(t * theta) / sinTheta;
+
+        Quaternion r{a.x * s0 + b.x * s1, a.y * s0 + b.y * s1, a.z * s0 + b.z * s1, a.w * s0 + b.w * s1};
+        r.Normalize();
+        return r;
+    }
+    inline Quaternion CatmullRomUniform4D(const Quaternion& q0, const Quaternion& q1, const Quaternion& q2, const Quaternion& q3, float u)
+    {
+        const float u2 = u * u;
+        const float u3 = u2 * u;
+
+        // 표준 Catmull-Rom(텐션 0)
+        const float c0 = -0.5f * u3 + 1.0f * u2 - 0.5f * u;
+        const float c1 = 1.5f * u3 - 2.5f * u2 + 1.0f;
+        const float c2 = -1.5f * u3 + 2.0f * u2 + 0.5f * u;
+        const float c3 = 0.5f * u3 - 0.5f * u2;
+
+        Quaternion r{};
+        r.x = c0 * q0.x + c1 * q1.x + c2 * q2.x + c3 * q3.x;
+        r.y = c0 * q0.y + c1 * q1.y + c2 * q2.y + c3 * q3.y;
+        r.z = c0 * q0.z + c1 * q1.z + c2 * q2.z + c3 * q3.z;
+        r.w = c0 * q0.w + c1 * q1.w + c2 * q2.w + c3 * q3.w;
+        r.Normalize();
+        return r;
+    }
+    inline Quaternion CatmullRomSpline(const std::vector<float>& steps, const std::vector<Quaternion>& points, float t)
+    {
+        const size_t n = points.size();
+        if (n == 0)
+            return Quaternion::Identity;
+        if (n == 1)
+            return points[0];
+
+        // 길이 일치 전제(필요하면 assert)
+        assert(steps.size() == points.size() && "steps와 points의 길이는 같아야 함이다");
+
+        // 요청한 엣지 리턴 분기
+        if (t <= steps.front())
+            return points.front();
+        if (t >= steps.back())
+            return points.back();
+
+        // 세그먼트 찾기: steps[i1] <= t < steps[i2]
+        auto   it = std::upper_bound(steps.begin(), steps.end(), t);
+        size_t i1 = size_t(it - steps.begin() - 1);
+        size_t i2 = i1 + 1;
+        if (i1 >= n - 1)
+        {
+            i1 = n - 2;
+            i2 = n - 1;
+        }
+
+        // 양 끝 보정 인덱스
+        size_t i0 = (i1 == 0) ? 0 : i1 - 1;
+        size_t i3 = (i2 + 1 >= n) ? n - 1 : i2 + 1;
+
+        // 기준 p1에 대해 반구 정렬
+        const Quaternion& p1ref = points[i1];
+        Quaternion        p0    = AlignHemisphere(points[i0], p1ref);
+        Quaternion        p1    = p1ref;
+        Quaternion        p2    = AlignHemisphere(points[i2], p1ref);
+        Quaternion        p3    = AlignHemisphere(points[i3], p1ref);
+
+        // 로컬 파라미터 u ∈ [0,1]
+        float denom = steps[i2] - steps[i1];
+        if (denom <= 1e-7f)
+            return p1; // 축퇴 방지
+        const float u = (t - steps[i1]) / denom;
+
+        // 큰 회전 구간 보호용 Slerp 폴백(임계값은 상황에 맞게 조정)
+        {
+            float d                  = std::fabs(p1.Dot(p2));
+            d                        = std::min(1.0f, std::max(0.0f, d));
+            const float     angle    = std::acos(d); // [0, π]
+            constexpr float kBigTurn = 1.7453293f;   // ≈ 100°
+            if (angle > kBigTurn)
+            {
+                Quaternion r = SafeSlerp(p1, p2, u);
+                r            = AlignHemisphere(r, p1);
+                r.Normalize();
+                return r;
+            }
+        }
+
+        // R^4 Catmull-Rom 보간
+        Quaternion r = CatmullRomUniform4D(p0, p1, p2, p3, u);
+        r            = AlignHemisphere(r, p1);
+        r.Normalize();
+        return r;
+    }
+    
+    inline float Hash11(float p)
+    {
+        float s = sinf(p * 127.1f) * 43758.5453f;
+        return s - floorf(s); // frac
+    }
+    inline float Perlin1D(float x)
+    {
+        float i0 = floorf(x);
+        float i1 = i0 + 1.0f;
+        float f  = x - i0; // [0,1) within cell
+
+        // gradient ±1
+        float g0 = (Hash11(i0) < 0.5f) ? -1.0f : 1.0f;
+        float g1 = (Hash11(i1) < 0.5f) ? -1.0f : 1.0f;
+
+        // 거리에 대한 기여
+        float d0 = g0 * (f);        // dot at left
+        float d1 = g1 * (f - 1.0f); // dot at right
+
+        // Perlin fade (S-curve)
+        float u = f * f * (3.0f - 2.0f * f);
+
+        // 선형 보간
+        float v = d0 + (d1 - d0) * u; // 이론상 [-1,1] 범주
+        return v;
+    }
+    inline float FBM1D(float x, int octaves = 3, float lacunarity = 2.0f, float gain = 0.5f)
+    {
+        float amp  = 1.0f;
+        float freq = 1.0f;
+        float sum  = 0.0f;
+        float norm = 0.0f;
+
+        for (int i = 0; i < octaves; ++i)
+        {
+            sum += amp * Perlin1D(x * freq);
+            norm += amp;
+            freq *= lacunarity;
+            amp *= gain;
+        }
+
+        // [-1,1] 정도로 정규화
+        return (norm > 0.0f) ? (sum / norm) : 0.0f;
+    }
+
 } // namespace Mathf

@@ -483,6 +483,7 @@
     <ClInclude Include="Scripts\MainMenu\Option.h" />
     <ClInclude Include="Scripts\MainMenu\Credits.h" />
     <ClInclude Include="Scripts\MainMenu\Quit.h" />
+    <ClInclude Include="Scripts\Camera\UmCineMotion.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.cpp" />
@@ -674,6 +675,7 @@
     <ClCompile Include="Scripts\MainMenu\Option.cpp" />
     <ClCompile Include="Scripts\MainMenu\Credits.cpp" />
     <ClCompile Include="Scripts\MainMenu\Quit.cpp" />
+    <ClCompile Include="Scripts\Camera\UmCineMotion.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
