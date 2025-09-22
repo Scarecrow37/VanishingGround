@@ -27,10 +27,8 @@ void FogLightAccmulatePass::Draw(ID3D12GraphicsCommandList* commandList)
     auto finalaccumulateTex = _volumTech->_finalVoxelAccumulationTexture3D;
     D3D12_GPU_VIRTUAL_ADDRESS fogData      = _volumTech->GetConstantBufferView()->GetGPUVirtualAddress();
     commandList->SetComputeRootConstantBufferView(_shader->GetRootParameterIndex("fogdata"), fogData);
-    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("VoxelReadTexture"),
-                                               injectionTex->GetSRVHandle());
-    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("VoxelWriteTexture"),
-                                               finalaccumulateTex->GetUAVHandle());
+    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("VoxelReadTexture"), injectionTex->GetSRVHandle());
+    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("VoxelWriteTexture"), finalaccumulateTex->GetUAVHandle());
     commandList->Dispatch(d3dUtil::Ceil(VOXEL_VOLUME_SIZEX , 8), d3dUtil::Ceil(VOXEL_VOLUME_SIZEY ,8), 1);
 }
 
