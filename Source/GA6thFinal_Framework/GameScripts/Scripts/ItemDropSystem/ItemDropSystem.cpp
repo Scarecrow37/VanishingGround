@@ -298,6 +298,11 @@ void ItemDropSystem::PlayItemDropUISequence()
         itemDropUIRootManager->gameObject->ActiveSelf = true;
         StageClearCount = StageClearCount + 1;
     }
+
+    if (auto HUD = GameObject::FindWithTag("Character HUD Group").lock())
+    {
+        HUD->ActiveSelf = false;
+    }
 }
 
 void ItemDropSystem::ImGuiDrawPropertysEvent() 
