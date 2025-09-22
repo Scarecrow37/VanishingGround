@@ -278,7 +278,7 @@ protected:
 protected:
     void ImGuiDrawPropertysEvent() override;
     void DeserializedReflectEvent() override;
-
+    void Reset() override;
     void Start() override;
 
     std::weak_ptr<UIComponent> GetUIWeakPtr() const;
