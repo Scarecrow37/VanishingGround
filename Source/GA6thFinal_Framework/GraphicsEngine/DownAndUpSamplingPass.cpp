@@ -31,8 +31,8 @@ void DownAndUpSamplingPass::Initialize(RenderScene* ownerScene, RenderTechnique*
 
     const auto& resolution = Global::device->GetResolution();
     auto        desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT,
-                                                    resolution.cx >> 1,
-                                                    resolution.cy >> 1,
+                                                    resolution.cx >> 2,
+                                                    resolution.cy >> 2,
                                                     1,
                                                     MAX_MIPMAP_LEVEL,
                                                     1,

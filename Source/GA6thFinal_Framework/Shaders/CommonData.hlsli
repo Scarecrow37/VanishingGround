@@ -12,20 +12,34 @@ ConstantBuffer<NumLight> bit32_3_numLight : register(b3);
 ConstantBuffer<ObjectData> bit32_4_objectData : register(b4);
 ConstantBuffer<ShadowObjectData> bit32_5_shadowObjectData : register(b5);
 ConstantBuffer<PostProcessData> bit32_6_postProcessData : register(b6);
-    
+
+// Gaussian weights
+// 5-tab
 static const float GaussianWeight[] =
 {
-    0.013519569015984728,
-    0.047662179108871855,
-    0.11723004402070096,
-    0.20116755999375591,
-    0.240841295721373,
-    0.20116755999375591,
-    0.11723004402070096,
-    0.047662179108871855,
-    0.013519569015984728
+    0.06136, 0.24477, 0.38774, 0.24477, 0.06136
 };
 
+// 7-tab
+//static const float GaussianWeight[] =
+//{
+//    0.028002, 0.065984, 0.121703, 0.159576, 0.121703, 0.065984, 0.028002
+//};
+// 9-tab
+//static const float GaussianWeight[] =
+//{
+//    0.013519569015984728,
+//    0.047662179108871855,
+//    0.11723004402070096,
+//    0.20116755999375591,
+//    0.240841295721373,
+//    0.20116755999375591,
+//    0.11723004402070096,
+//    0.047662179108871855,
+//    0.013519569015984728
+//};
+
+// 15-tab
 //static const float GaussianWeight[] =
 //{
 //    0.004429, 0.008118, 0.014273, 0.023234, 0.034757,
