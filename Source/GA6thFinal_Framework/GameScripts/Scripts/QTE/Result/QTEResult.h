@@ -14,6 +14,8 @@ namespace QTE
 
     struct Result
     {
+        using Callback = std::function<void(const std::vector<QTE::Result>&)>;
+
         Result() = default;
         Result(Note* note) : Note(note) {}
         unsigned int    PressedButton = 0;

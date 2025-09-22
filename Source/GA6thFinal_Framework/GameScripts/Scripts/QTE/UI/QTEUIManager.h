@@ -59,6 +59,7 @@ private:
 
 private:
     void UpdateUITransformData();
+    bool CheckUIValid();
     void FindUIComponents();
     void SpawnQTENotesFromCurrentTrack();
     void ClearAllQTENotes();

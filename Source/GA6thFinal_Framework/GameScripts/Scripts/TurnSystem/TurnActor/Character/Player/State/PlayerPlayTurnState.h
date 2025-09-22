@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Base/PlayerStateBase.h"
 #include <BattleSystem/Battle.h>
-
+#include <QTE/Result/QTEResult.h>
 class Enemy;
 
 /*
@@ -33,6 +33,8 @@ protected:
     void OnExit() override;
     void OnUpdate() override;
 
+    void OnQTEFinish(const std::vector<QTE::Result>& results);
+    
     void PressedButtonA(const Input::Controller& controller);
     void ReleasedButtonA(const Input::Controller& controller);
 
@@ -53,6 +55,9 @@ private:
 
     // Callback //
     void BattleOnAttackEvent();
+    void BattleOnHitEvent(const QTE::Result& result);
+
+    Battle::EnemyTargetFlag_ GetAttackTargetFromButton(unsigned int button) const;
 
 private:
     bool       _setImguiPosCenter;
@@ -66,4 +71,80 @@ private:
     std::map<int, class AnimationComponent*> weaponAnims;
     std::map<int, class ParticleComponent*> weaponEffects;
     
+};
+
+
+#include <Stats/Weapon/WeaponStats.h>
+#include <Utility/SingletonHelper.h>
+
+class AnimationComponent;
+class ParticleComponent;
+class WeaponModelManager;
+
+class WeaponModelData
+{
+    friend class WeaponModelManager;
+
+public:
+    WeaponModelData() : _index(SIZE_MAX) {}
+    WeaponModelData(size_t index, WeaponType type, GameObject* gameObject, AnimationComponent* animation,
+                    ParticleComponent* particle)
+        : _index(index)
+        , Type(type)
+        , GameObject(gameObject)
+        , Animation(animation)
+        , Particle(particle)
+    {
+    }
+
+    const WeaponType    Type        = WeaponType::SWORD;
+    GameObject*         GameObject  = nullptr;
+    AnimationComponent* Animation   = nullptr;
+    ParticleComponent*  Particle    = nullptr;
+
+    inline bool IsValid() const { return GameObject != nullptr && Animation != nullptr && Particle != nullptr; }
+
+private:
+    size_t _index = SIZE_MAX;
+};
+
+class WeaponModelManager : public Component
+{
+    USING_PROPERTY(WeaponModelManager)
+
+    using AnimationPool = std::vector<class AnimationComponent*>;
+    using ParticlePool  = std::vector<class ParticleComponent*>;
+public:
+    WeaponModelManager();
+    ~WeaponModelManager();
+
+    const File::Guid& GetWeaponPrefabGuid(WeaponType type) const;
+
+    WeaponModelData RequestAvailableWeapon(WeaponType type);
+    bool            ReturnWeaponModel(WeaponModelData data);
+
+private:
+    void Awake() override;
+    void Start() override;
+    void Update() override;
+    void OnDestroy() override;
+
+    void SerializedReflectEvent() override;
+    void DeserializedReflectEvent() override;
+    void ImGuiDrawPropertysEvent() override;
+
+private:
+    SingletonComponent<WeaponModelManager> _singletonComponent{this};
+
+    std::unordered_map<WeaponType, File::Guid>          _weaponPrefabGuidTable;
+    std::unordered_map<WeaponType, AnimationPool>       _weaponAnimationTable;
+    std::unordered_map<WeaponType, ParticlePool>        _weaponParticleTable;
+    std::unordered_map<WeaponType, std::stack<size_t>>  _availableWeaponIndicesTable;
+
+
+    REFLECT_FIELDS_BEGIN(Component)
+    std::unordered_map<std::string, std::string> WeaponPrefabGuidTable;
+    REFLECT_FIELDS_END(WeaponModelManager)
+
+    constexpr static int WEAPON_POOLING_SIZE = 10;
 };

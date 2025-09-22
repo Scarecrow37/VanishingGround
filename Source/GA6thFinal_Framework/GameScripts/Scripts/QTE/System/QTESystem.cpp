@@ -168,7 +168,7 @@ QTE::Track* QTESystem::GetMappingTrackToWeaponID(int weaponID, int index)
     return nullptr;
 }
 
-void QTESystem::StartQTE()
+void QTESystem::StartQTE(QTE::Result::Callback callback)
 {
     // 현재 무기에 맞는 QTE 트랙을 선택
     WeaponSystem* weaponSystem = SingletonComponent<WeaponSystem>::GetInstance();
@@ -183,13 +183,13 @@ void QTESystem::StartQTE()
             {
                 int index        = Random::Range(0, (int)trackVector.size() - 1);
                 _currentQTETrack = trackVector[index];
-                StartQTE(_currentQTETrack);
+                StartQTE(_currentQTETrack, callback);
             }
         }
     }
 }
 
-void QTESystem::StartQTE(QTE::Track* qteTrack)
+void QTESystem::StartQTE(QTE::Track* qteTrack, QTE::Result::Callback callback)
 {
     if (_currQTEPlaying)
     {
@@ -198,7 +198,7 @@ void QTESystem::StartQTE(QTE::Track* qteTrack)
             (const char*)u8"QTE가 진행 중인 상태에서 QTE 시작 요청을 한번 더 했습니다. 다시 한번 확인해주세요.");
         return;
     }
-
+    _onQTEFinishCallback = callback;
     _currQTEPlaying = true;
     _qteFadeInEnd   = false;
     _qteFadeOutEnd  = false;
@@ -302,9 +302,7 @@ void QTESystem::ClearQueue()
 
 void QTESystem::UpdateQTETrack()
 {
-    if (false == _currQTEPlaying ||
-        true  == _qteFadeInEnd ||
-        false == _qteFadeOutEnd)
+    if (false == _currQTEPlaying || false == _qteFadeInEnd)
     {
         return;
     }
@@ -484,4 +482,9 @@ void QTESystem::ProcessQTEFadeInEndEvent()
 void QTESystem::ProcessQTEFadeOutEndEvent() 
 {
     _qteFadeOutEnd = true;
+    if (_onQTEFinishCallback)
+    {
+        _onQTEFinishCallback(_noteResultQueue);
+        _onQTEFinishCallback = nullptr;
+    }
 }

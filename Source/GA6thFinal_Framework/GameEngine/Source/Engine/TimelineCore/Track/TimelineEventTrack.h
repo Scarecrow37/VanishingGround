@@ -51,9 +51,13 @@ namespace Timeline
         EventContext*   AddEventEx(std::string_view label, std::string_view typenameID, float time, UINT id = UINT_MAX);
         bool            RemoveContext(EventContext** context);
         bool            RemoveContextFromID(UINT id);
+        std::string     CopyContext(EventContext* dest);
+        EventContext*   PasteContext(EventContext* target);
+        EventContext*   PasteContext(const EventTypeName& eventName, std::string_view serializeData);
         bool            ChangeContextTime(UINT id, float time);
         bool            ChangeContextEvent(UINT id, std::string_view typeNameID);
         EventContext*   GetContextFromID(UINT id) const;
+        EventContext*   GetContextFromLabel(std::string_view label) const;
 
         void            Sort();
         void            SetMinFrame(float minFrame);

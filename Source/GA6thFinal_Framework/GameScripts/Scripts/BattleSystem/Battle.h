@@ -39,6 +39,8 @@ public:
         return ENEMY_TARGET_FLAGS[buttonIndex].first;
     }
 
+    static std::vector<Enemy*> GetTargetsFromFlags(EnemyTargetFlag targetFlag);
+    
     /// <summary>
     /// 플레이어로 공격을 수행합니다.
     /// </summary>
@@ -87,7 +89,6 @@ private:
     inline static std::weak_ptr<Enemy>         lastTargetEnemy;
 
 private:
-    static std::vector<Enemy*> GetTargetsFromFlags(EnemyTargetFlag targetFlag);
     static void BattleStart(Player& attacker, Enemy& target);
     static void BattleStart(Enemy& attacker, Player& target);
 

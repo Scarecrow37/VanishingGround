@@ -16,6 +16,7 @@ namespace QTE
 /// </summary>
 class QTESystem : public Component, public InputReceiver
 {
+
     friend class QTEUIManager;
     USING_PROPERTY(QTESystem)
 
@@ -58,8 +59,12 @@ public:
     /// <returns>QTE::Track 객체에 대한 포인터를 반환합니다. 해당 weaponID와 인덱스에 매핑된 트랙이 없으면 nullptr일 수 있습니다.</returns>
     QTE::Track* GetMappingTrackToWeaponID(int weaponID, int index = 0);
 
-    void StartQTE();
-    void StartQTE(QTE::Track* qteTrack);
+    /// <summary>
+    /// QTE(퀵 타임 이벤트)를 시작하며, 선택적으로 QTE종료 시 콜백 함수를 실행합니다.
+    /// </summary>
+    /// <param name="callback">QTE가 종료되었을 때 호출되는 선택적 콜백 함수입니다. 기본값은 nullptr입니다.</param>
+    void StartQTE(QTE::Result::Callback callback = nullptr);
+    void StartQTE(QTE::Track* qteTrack, QTE::Result::Callback callback = nullptr);
     void PauseQTE(bool pause);
 
     bool IsQTETimeEnd();
@@ -129,6 +134,8 @@ private:
     bool                        _qtePaused      = false;                        // QTE 일시정지 여부
     bool                        _currQTEPlaying = false;                        // 현재 QTE가 실행 중인지 여부
     bool                        _prevQTEPlaying = false;                        // 이전 프레임에서 QTE가 실행 중이었는지 여부
+
+    QTE::Result::Callback _onQTEFinishCallback = nullptr; // QTE 페이드 인 종료 콜백
 
     REFLECT_FIELDS_BEGIN(Component)
     float                   QTESpeedScale       = 1.0f;                         // QTE 속도 배율

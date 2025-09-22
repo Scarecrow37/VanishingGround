@@ -10,8 +10,7 @@ namespace Timeline
         EventContext()          = default;
         virtual ~EventContext() = default;
 
-        //REFLECT_PROPERTY(ID, Label, EventType, Time)
-        REFLECT_PROPERTY()
+        REFLECT_PROPERTY(ID, Label, EventType, Time)
         GETTER_ONLY(UINT, ID) { return ReflectFields->ContextID; }
         PROPERTY(ID)
         GETTER_ONLY(std::string_view, EventType) { return ReflectFields->EventType.c_str(); }

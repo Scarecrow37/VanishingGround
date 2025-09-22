@@ -13,6 +13,10 @@ QTEUIManager::~QTEUIManager() = default;
 
 void QTEUIManager::OnQTEEnter() 
 {
+    if (false == CheckUIValid())
+    {
+        FindUIComponents();
+    }
     // 오브젝트 활성화 QTE UI 페이드 인 시작
     gameObject->ActiveSelf = true;
     _fader.SetFadeMode(Fader::FADE_IN);
@@ -161,6 +165,7 @@ void QTEUIManager::Start()
 void QTEUIManager::Update() 
 {
     float alpha = _fader.Fade();
+    SetBackgroundUIAlpha(alpha);
     SetUIAlpha(alpha);
 }
 
@@ -261,6 +266,11 @@ void QTEUIManager::UpdateUITransformData()
     }
 }
 
+bool QTEUIManager::CheckUIValid()
+{
+    return _qteOverlayPanel && _qteBackgroundUI && _qteNoteLineUI && _qteJudgeNoteUI;
+}
+
 void QTEUIManager::FindUIComponents()
 {
     _qteOverlayPanel = nullptr;
@@ -319,6 +329,7 @@ void QTEUIManager::SpawnQTENotesFromCurrentTrack()
                     if (imageElement)
                     {
                         imageElement->transform->SetParent(transform, false);
+                        imageElement->Point       = POINT(-LONG_MAX, 0); // 화면 밖으로 이동
                         _noteSpawnTable[note->ID] = imageElement;
                     }
                 }

@@ -6,6 +6,7 @@
 
 #include <QTE/System/QTESystem.h>
 #include <QTE/UI/QTEUIManager.h>
+#include <QTE/Track/QTETrack.h>
 #include <WeaponSystem/WeaponSystem.h>
 
 #include <TurnSystem/TurnMode/TurnMode.h>
@@ -57,7 +58,7 @@ void PlayerPlayTurnState::OnAwake()
                 weaponAnims[(int)type]->StopCurrentAnimation();
                 weaponAnims[(int)type]->SetAnimationPostEventCallback([this](const Timeline::EventContext* context) {
                     const std::string& label = context->GetLabel();
-                    if ("Attack" == label)
+                    if ("Hit" == label)
                     {
                         BattleOnAttackEvent();
                     }
@@ -109,7 +110,7 @@ void PlayerPlayTurnState::OnUpdate()
         UpdateAttackButtonHeld(dt);
         break;
     case InputState::QUICK_TIME_EVENT:
-        UpdateQuickTimeEventUI(dt);
+        //UpdateQuickTimeEventUI(dt);
         break;
     case InputState::ATTACK_EVENT:
         UpdateAttackEventUI(dt);
@@ -136,7 +137,7 @@ void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
         if (QTESystem* qteSystem = SingletonComponent<QTESystem>::GetInstance())
         {
             _inputState = InputState::QUICK_TIME_EVENT;
-            qteSystem->StartQTE();
+            qteSystem->StartQTE([this](const std::vector<QTE::Result>& results) { OnQTEFinish(results); });
             SetAttackReady();
         }
         else
@@ -160,10 +161,6 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
         }
         float t = _attackButtonHeldTime / _attackButtonHeldWaitTime;
         ImGui::ProgressBar(t);
-        if (QTEUIManager* uiManager = QTEUIManager::GetInstance())
-        {
-            uiManager->SetBackgroundUIAlpha(t);
-        }
     }
     ImGui::End();
     ImGui::PopStyleColor();
@@ -306,73 +303,73 @@ void PlayerPlayTurnState::SetAttackReady()
 void PlayerPlayTurnState::SetAttack()
 {
     // 애니메이션 처리
-    Player& player   = GetPlayer();
-    auto*   animator = player.GetAnimationComponent();
-    auto*   audioTable = player.GetAudioTableComponent();
-    if (animator)
-    {
-        animator->BeginBuildOverrideAnimation();
-        animator->ClearOverrideAnimations();
-
-        animator->SetNextAnimationFlags(ANIMATION_FLAG_USE_BLEND | ANIMATION_FLAG_USE_LOOP);
-        animator->PushBackOverrideAnimation("Attack_Loop");
-        
-        animator->SetNextAnimationFlags(ANIMATION_FLAG_USE_BLEND | ANIMATION_FLAG_ALWAYS_UPDATE);
-        animator->PushBackOverrideAnimation("Attack");
-        animator->SetCurrentAnimationPopCondition([](const AnimationData& data) { return data.IsEnd(); }); // 애니메이션이 끝날 경우 Pop
-
-        animator->EndBuildOverrideAnimation();
-    }
-
-    // 무기 애니메이션 및 이펙트 처리
-    WeaponSystem*       weaponSystem = SingletonComponent<WeaponSystem>::GetInstance();
-    const WeaponStats&  weaponStats  = weaponSystem->GetCurrentWeaponStats();
-    WeaponType          weaponType   = weaponStats.Type;
-    AnimationComponent* weaponAnim   = weaponAnims[(int)weaponType];
-    ParticleComponent*  weaponEffect = weaponEffects[(int)weaponType];
-
-    // 무기 애니메이션 처리
-
-    if (weaponAnim)
-    {
-        if (false == _attackTargets.empty())
-        {
-            // 무기 이펙트 처리
-            if (weaponEffect)
-            {
-                weaponEffect->PlayEffect();
-            }
-            bool isFirst = true;
-            for (auto& target : _attackTargets)
-            {
-                // 임시 랜덤 애니메이션
-                const auto& keymap = weaponAnim->GetAnimationKeyMap();
-                int         count = 0, randomIndex = Random::Range(0, (int)keymap.size() - 1);
-                for (auto& [key, value] : keymap)
-                {
-                    if (count == randomIndex)
-                    { // 무기 애니메이션 설정(중복 Push 허용)
-                        weaponAnim->PushBackOverrideAnimation(key, true);
-                        weaponAnim->SetCurrentAnimationPopCondition(
-                            [](const AnimationData& data) { return data.IsEnd(); }); // 애니메이션이 끝날 경우 Pop
-                        if (isFirst)
-                        {
-                            weaponAnim->SetCurrentAnimationPopCallback([this]() { SetAttackEnd(); });
-                            isFirst = false;
-                        }
-                    }
-                    ++count;
-                }
-            }
-            weaponAnim->PlayCurrentAnimation();
-        }
-        else
-        {   // 공격 대상이 없으면 애니메이션을 스킵
-            SetAttackEnd();
-        }
-
-        weaponAnim->EndBuildOverrideAnimation();
-    }
+    //Player& player   = GetPlayer();
+    //auto*   animator = player.GetAnimationComponent();
+    //auto*   audioTable = player.GetAudioTableComponent();
+    //if (animator)
+    //{
+    //    animator->BeginBuildOverrideAnimation();
+    //    animator->ClearOverrideAnimations();
+    //
+    //    animator->SetNextAnimationFlags(ANIMATION_FLAG_USE_BLEND | ANIMATION_FLAG_USE_LOOP);
+    //    animator->PushBackOverrideAnimation("Attack_Loop");
+    //    
+    //    animator->SetNextAnimationFlags(ANIMATION_FLAG_USE_BLEND | ANIMATION_FLAG_ALWAYS_UPDATE);
+    //    animator->PushBackOverrideAnimation("Attack");
+    //    animator->SetCurrentAnimationPopCondition([](const AnimationData& data) { return data.IsEnd(); }); // 애니메이션이 끝날 경우 Pop
+    //
+    //    animator->EndBuildOverrideAnimation();
+    //}
+    //
+    //// 무기 애니메이션 및 이펙트 처리
+    //WeaponSystem*       weaponSystem = SingletonComponent<WeaponSystem>::GetInstance();
+    //const WeaponStats&  weaponStats  = weaponSystem->GetCurrentWeaponStats();
+    //WeaponType          weaponType   = weaponStats.Type;
+    //AnimationComponent* weaponAnim   = weaponAnims[(int)weaponType];
+    //ParticleComponent*  weaponEffect = weaponEffects[(int)weaponType];
+    //
+    //// 무기 애니메이션 처리
+    //
+    //if (weaponAnim)
+    //{
+    //    if (false == _attackTargets.empty())
+    //    {
+    //        // 무기 이펙트 처리
+    //        if (weaponEffect)
+    //        {
+    //            weaponEffect->PlayEffect();
+    //        }
+    //        bool isFirst = true;
+    //        for (auto& target : _attackTargets)
+    //        {
+    //            // 임시 랜덤 애니메이션
+    //            const auto& keymap = weaponAnim->GetAnimationKeyMap();
+    //            int         count = 0, randomIndex = Random::Range(0, (int)keymap.size() - 1);
+    //            for (auto& [key, value] : keymap)
+    //            {
+    //                if (count == randomIndex)
+    //                { // 무기 애니메이션 설정(중복 Push 허용)
+    //                    weaponAnim->PushBackOverrideAnimation(key, true);
+    //                    weaponAnim->SetCurrentAnimationPopCondition(
+    //                        [](const AnimationData& data) { return data.IsEnd(); }); // 애니메이션이 끝날 경우 Pop
+    //                    if (isFirst)
+    //                    {
+    //                        weaponAnim->SetCurrentAnimationPopCallback([this]() { SetAttackEnd(); });
+    //                        isFirst = false;
+    //                    }
+    //                }
+    //                ++count;
+    //            }
+    //        }
+    //        weaponAnim->PlayCurrentAnimation();
+    //    }
+    //    else
+    //    {   // 공격 대상이 없으면 애니메이션을 스킵
+    //        SetAttackEnd();
+    //    }
+    //
+    //    weaponAnim->EndBuildOverrideAnimation();
+    //}
 }
 
 void PlayerPlayTurnState::SetAttackEnd()
@@ -430,5 +427,298 @@ void PlayerPlayTurnState::BattleOnAttackEvent()
         Player& player = GetPlayer();
         Battle()(player, target);
         _attackTargets.pop_front();
+    }
+}
+
+void PlayerPlayTurnState::BattleOnHitEvent(const QTE::Result& result) 
+{
+    Battle::EnemyTargetFlag_ target = GetAttackTargetFromButton(result.PressedButton);
+    Player& player = GetPlayer();
+    Battle()(player, target);
+}
+
+Battle::EnemyTargetFlag_ PlayerPlayTurnState::GetAttackTargetFromButton(unsigned int button) const
+{
+    Battle::EnemyTargetFlag_ target;
+    switch (button)
+    {
+    case Input::Controller::Button::X:
+        target = Battle::EnemyTargetFlag_::ENEMY_TARGET_FLAG_LEFT;
+        break;
+    case Input::Controller::Button::Y:
+        target = Battle::EnemyTargetFlag_::ENEMY_TARGET_FLAG_MIDDLE;
+        break;
+    case Input::Controller::Button::B:
+        target = Battle::EnemyTargetFlag_::ENEMY_TARGET_FLAG_RIGHT;
+        break;
+    default: // 없으면 LEFT로 기본 설정
+        target = Battle::EnemyTargetFlag_::ENEMY_TARGET_FLAG_LEFT;
+        break;
+    }
+    return target;
+}
+
+void PlayerPlayTurnState::OnQTEFinish(const std::vector<QTE::Result>& results) 
+{
+    SetAttack();
+    for (const auto& result : results)
+    {   
+
+        QTE::Note* note = result.Note;
+        if (result.IsValidResult() && note)
+        {
+            float noteTime = note->Time;
+            //_attackTargets.push_back(target);
+            WeaponModelManager* weaponModelManager = SingletonComponent<WeaponModelManager>::GetInstance();
+            WeaponSystem*       weaponSystem       = SingletonComponent<WeaponSystem>::GetInstance();
+
+            if (weaponModelManager && weaponSystem)
+            {
+                const WeaponStats& weaponStats = weaponSystem->GetCurrentWeaponStats();
+                WeaponType         weaponType  = weaponStats.Type;
+
+                auto modelData = weaponModelManager->RequestAvailableWeapon(weaponType);
+                if (modelData.IsValid())
+                {
+                    modelData.GameObject->ActiveSelf = false;
+
+                    // 1. 무기 모델의 위치 설정
+                    //Battle::EnemyTargetFlag_ target  = GetAttackTargetFromButton(result.PressedButton);
+                    //auto                     enemies = Battle::GetTargetsFromFlags(target);
+                    //if (false == enemies.empty())
+                    //{
+                    //    Enemy* enemy = enemies.front();
+                    //    if (enemy)
+                    //    {
+                    //        if (GameObject& player = GetPlayer().gameObject)
+                    //        {
+                    //            Vector3 enemyPos  = enemy->transform->GetWorldPosition();
+                    //            Vector3 playerPos = player.transform->GetWorldPosition();
+                    //            Vector3 dir       = DirectX::XMVector3Normalize(playerPos - enemyPos);
+                    //
+                    //            const Vector3 distance = dir * 10.0f;
+                    //            modelData.GameObject->transform->SetWorldPosition(enemyPos + distance, false);
+                    //
+                    //            // modelData.GameObject->transform->LookAt(playerPos);
+                    //        }
+                    //    }
+                    //}
+
+                    // 2. 노트에 맞는 애니메이션 설정 및 애니메이션 종료 콜백 등록
+                    modelData.Animation->StopCurrentAnimation();
+                    modelData.Animation->ChangeMainAnimation(note->WeaponAnimation);
+                    modelData.Animation->SetMainAnimationEndCallback([weaponModelManager, modelData]() {
+                        if (modelData.IsValid())
+                        {
+                            modelData.Particle->StopEffect();
+                        }
+                        weaponModelManager->ReturnWeaponModel(modelData);
+                    });
+
+                    // 3. 애니메이션 Hit 이벤트 콜백 등록
+                    auto& animName  = modelData.Animation->GetAnimationNameFromKey(note->WeaponAnimation);
+                    auto& animTrack = modelData.Animation->GetAnimationEventTrack();
+                    auto  track     = animTrack.GetEventTrack(animName);
+                    if (track)
+                    {
+                        track->SetPostNotifyCallback([this, &result, modelData](const Timeline::EventContext* context) {
+                            if (modelData.IsValid())
+                            {
+                                if (context->GetLabel() == "Hit")
+                                {
+                                    BattleOnHitEvent(result);
+                                }
+                            }
+                        });
+
+                        if (Timeline::EventContext* context = track->GetContextFromLabel("Hit"))
+                        {
+                            float hitTime = context->Time;
+                            float delta   = noteTime - hitTime;
+                            UmTime.Invoke(delta, [this, modelData]() {
+                                if (modelData.IsValid())
+                                {
+                                    modelData.GameObject->ActiveSelf = true;
+                                    modelData.Particle->PlayEffect();
+                                    modelData.Animation->PlayCurrentAnimation();
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+UMREAL_COMPONENT(WeaponModelManager)
+
+WeaponModelManager::WeaponModelManager() = default;
+
+WeaponModelManager::~WeaponModelManager() = default;
+
+const File::Guid& WeaponModelManager::GetWeaponPrefabGuid(WeaponType type) const
+{
+    auto iter = _weaponPrefabGuidTable.find(type);
+    if (iter != _weaponPrefabGuidTable.end())
+    {
+        return iter->second;
+    }
+    return File::NULL_GUID;
+}
+
+WeaponModelData WeaponModelManager::RequestAvailableWeapon(WeaponType type)
+{
+    auto& animationPool = _weaponAnimationTable[type];
+    auto& particlePool  = _weaponParticleTable[type];
+    auto& availableIndices = _availableWeaponIndicesTable[type];
+    if (false == availableIndices.empty())
+    {
+        size_t index = availableIndices.top();
+        availableIndices.pop();
+        AnimationComponent* animation = animationPool[index];
+        ParticleComponent*  particle  = particlePool[index];
+        GameObject*         gameObject = animation ? &animation->gameObject : nullptr;
+
+        if (gameObject)
+        {
+            gameObject->ActiveSelf = true;
+        }
+
+        return WeaponModelData(index, type, gameObject, animation, particle);
+    }
+    return WeaponModelData();
+}
+
+bool WeaponModelManager::ReturnWeaponModel(WeaponModelData data)
+{
+    if (data.IsValid())
+    {
+        if (GameObject& object = data.Animation->gameObject)
+        {
+            _availableWeaponIndicesTable[data.Type].push(data._index);
+            object.ActiveSelf = false;
+            data.Animation  = nullptr;
+            data.Particle   = nullptr;
+            data.GameObject = nullptr;
+            return true;
+        }
+    }
+    return false;
+}
+
+void WeaponModelManager::Awake()
+{
+    if (_singletonComponent.TrySingleTon())
+    {
+    }
+    else
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"WeaponModelManager는 싱글톤 컴포넌트입니다. 중복 생성할 수 없습니다.");
+        return;
+    }
+}
+
+void WeaponModelManager::Start() 
+{
+    for (auto& [type, guid] : _weaponPrefabGuidTable)
+    {
+        const auto* prefab = UmGameObjectFactory.GetOriginPrefab(guid);
+        if (prefab && prefab->front())
+        {
+            for (size_t i = 0; i < WEAPON_POOLING_SIZE; ++i)
+            {
+                GameObject* clone = GameObject::Instantiate(prefab->front().get());
+                if (clone)
+                {
+                    clone->transform->SetParent(transform, false);
+                    std::string typeStr = rfl::enum_to_string(type);
+                    clone->AddTag(typeStr.c_str());
+                    clone->SetActive(false);
+                    AnimationComponent* animation = clone->GetComponent<AnimationComponent>();
+                    ParticleComponent*  particle  = clone->GetComponent<ParticleComponent>();
+                    if (animation)
+                    {
+                        _weaponAnimationTable[type].push_back(animation);
+                    }
+                    if (particle)
+                    {
+                        _weaponParticleTable[type].push_back(particle);
+                    }
+                    _availableWeaponIndicesTable[type].push(i);
+                }
+            }
+        }
+    }
+}
+
+void WeaponModelManager::Update() 
+{
+}
+
+void WeaponModelManager::OnDestroy() 
+{
+}
+
+void WeaponModelManager::SerializedReflectEvent() 
+{
+}
+
+void WeaponModelManager::DeserializedReflectEvent() 
+{
+    for (auto& [typeStr, guid] : ReflectFields->WeaponPrefabGuidTable)
+    {
+        auto type = rfl::string_to_enum<WeaponType>(typeStr);
+        _weaponPrefabGuidTable[type.value()] = File::Guid(guid);
+    }
+}
+
+void WeaponModelManager::ImGuiDrawPropertysEvent() 
+{
+    if (ImGui::TreeNodeEx("Weapon Prefab GUID", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        constexpr auto   WeaponTypeArray     = rfl::get_enumerator_array<WeaponType>();
+        constexpr size_t WeaponTypeArraySize = WeaponTypeArray.size();
+        for (auto& [name, type] : WeaponTypeArray)
+        {
+            ImGui::PushID(name.data());
+
+            std::string& guidStr = ReflectFields->WeaponPrefabGuidTable[name.data()];
+            File::Guid&  guid = _weaponPrefabGuidTable[type];
+            std::string  pathStr = guid.ToPath().string();
+            ImGuiHelper::TextWithVerticalSeparator(name.data(), 150.0f);
+            ImGui::SameLine();
+            ImGui::InputText("##weapon_guid", &pathStr, ImGuiInputTextFlags_ReadOnly);
+            ImGuiHelper::HoveredToolTip(pathStr.c_str());
+            if (false == UmCore->IsPlay() && ImGui::BeginDragDropTarget())
+            {
+                if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
+                {
+                    DragDropAsset::Data* data      = static_cast<DragDropAsset::Data*>(payLoad->Data);
+                    const File::Path&    path      = data->GetPath();
+                    const File::Path&    extension = path.extension();
+                    if (extension == L".UmPrefab")
+                    {
+                        
+                        guidStr = data->GetGuid().string();
+                        guid    = data->GetGuid();
+                    }
+                    else
+                    {
+                        UmLogger.Log(LogLevel::LEVEL_WARNING,
+                                     (const char*)u8"프리팹은 .UmPrefab 파일만 지정할 수 있습니다.");
+                    }
+                }
+                ImGui::EndDragDropTarget();
+            }
+
+            ImGui::PopID();
+        }
+        ImGui::TreePop();
+    }
+    if (ImGui::TreeNodeEx("Invalid Instances", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+
     }
 }
