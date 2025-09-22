@@ -385,6 +385,7 @@
     <ClInclude Include="Scripts\UI\Panels\Grid\GridPanel.h" />
     <ClInclude Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.h" />
     <ClInclude Include="Scripts\UI\Panels\Overlay\OverlayPanel.h" />
+    <ClInclude Include="Scripts\UI\Views\MonsterChain\MonsterChainView.h" />
     <ClInclude Include="Scripts\UI\Views\PlayerHP\PlayerHPView.h" />
     <ClInclude Include="Scripts\UI\Views\Map\StageFocusView.h" />
     <ClInclude Include="Scripts\UI\Views\Map\StageView.h" />
@@ -395,6 +396,7 @@
     <ClInclude Include="Scripts\UI\Wrappers\Dummy\DummyWrapper.h" />
     <ClInclude Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.h" />
     <ClInclude Include="Scripts\UI\Wrappers\Scrolling\ScrollingWrapper.h" />
+    <ClInclude Include="Scripts\ViewModels\Chain\ChainCountViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\ItemDrop\DropArtifacts\DropArtifactsViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Hp\CharacterHPViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Map\StageFocusViewModel.h" />
@@ -574,6 +576,7 @@
     <ClCompile Include="Scripts\UI\Panels\Grid\GridPanel.cpp" />
     <ClCompile Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.cpp" />
     <ClCompile Include="Scripts\UI\Panels\Overlay\OverlayPanel.cpp" />
+    <ClCompile Include="Scripts\UI\Views\MonsterChain\MonsterChainView.cpp" />
     <ClCompile Include="Scripts\UI\Views\PlayerHP\PlayerHPView.cpp" />
     <ClCompile Include="Scripts\UI\Views\Map\StageFocusView.cpp" />
     <ClCompile Include="Scripts\UI\Views\Map\StageView.cpp" />
@@ -584,6 +587,7 @@
     <ClCompile Include="Scripts\UI\Wrappers\Dummy\DummyWrapper.cpp" />
     <ClCompile Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.cpp" />
     <ClCompile Include="Scripts\UI\Wrappers\Scrolling\ScrollingWrapper.cpp" />
+    <ClCompile Include="Scripts\ViewModels\Chain\ChainCountViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\ItemDrop\DropArtifacts\DropArtifactsViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Hp\CharacterHPViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Map\StageFocusViewModel.cpp" />
