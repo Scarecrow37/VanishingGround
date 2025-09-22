@@ -30,9 +30,16 @@ void TextureLMH::Start()
 {
     // 관리 매니저 객체
     GameObject* manager = GameObject::Find("PreferencesManager").lock().get();
-    _preferencesManager = manager->GetComponent<PreferencesManager>();
-    if (nullptr == _preferencesManager)
+    if (manager)
+    {
+        _preferencesManager = manager->GetComponent<PreferencesManager>();
+        if (nullptr == _preferencesManager)
+            UmLogger.Log(LogLevel::LEVEL_WARNING, "Preferences manager not registered!");
+    }
+    else
+    {
         UmLogger.Log(LogLevel::LEVEL_WARNING, "Preferences manager not registered!");
+    }
 }
 
 void TextureLMH::Reset()

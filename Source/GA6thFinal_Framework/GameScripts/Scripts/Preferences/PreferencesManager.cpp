@@ -10,7 +10,6 @@ PreferencesManager::~PreferencesManager() = default;
 void PreferencesManager::Reset()
 {
     BindInputAction(ControllerButton::BACK, Action::PRESSED, this, &PreferencesManager::OnPreferencesWindow);
-    BindInputAction(ControllerButton::START, Action::PRESSED, this, &PreferencesManager::OffPreferencesWindow);
 }
 
 void PreferencesManager::Awake()
@@ -66,6 +65,20 @@ void PreferencesManager::Update()
             _isOpenDirty = false;
         }
     }
+    if (_isOpenAbandonDirty)
+    {
+        if (_isOpenAbandonButton)
+        {
+            OnAbandonButtonComponent();
+            OffPreferencsButtonComponent();
+        }
+        else
+        {
+            OnPreferencsButtonComponent();
+            OffAbandonButtonComponent();
+        }
+        _isOpenAbandonDirty = false;
+    }
 }
 
 void PreferencesManager::SetGraphicsOptions(std::string_view option, bool enable)
@@ -106,8 +119,62 @@ void PreferencesManager::OnPreferencesWindow(const Input::Controller&)
     _isOpenDirty = true;
 }
 
-void PreferencesManager::OffPreferencesWindow(const Input::Controller&)
+void PreferencesManager::OffPreferencesWindow()
 {
     _isOpen      = false;
     _isOpenDirty = true;
+}
+
+void PreferencesManager::AddPreferencesButton(Component* comps) 
+{
+    _preferencesButtons.push_back(comps);
+}
+
+void PreferencesManager::AddAbandonButton(Component* comps)
+{
+    _abandonButtons.push_back(comps);
+}
+
+void PreferencesManager::OpenAbadonButtons()
+{
+    _isOpenAbandonDirty  = true;
+    _isOpenAbandonButton = true;
+}
+
+void PreferencesManager::CloseAbandonButtons()
+{
+    _isOpenAbandonDirty  = true;
+    _isOpenAbandonButton = false;
+}
+
+void PreferencesManager::OffAbandonButtonComponent() 
+{
+    for (auto& comp:_abandonButtons)
+    {
+        comp->Enable = false;
+    }
+}
+
+void PreferencesManager::OffPreferencsButtonComponent() 
+{
+    for (auto& comp : _preferencesButtons)
+    {
+        comp->Enable = false;
+    }
+}
+
+void PreferencesManager::OnAbandonButtonComponent() 
+{
+    for (auto& comp : _abandonButtons)
+    {
+        comp->Enable = true;
+    }
+}
+
+void PreferencesManager::OnPreferencsButtonComponent() 
+{
+    for (auto& comp : _preferencesButtons)
+    {
+        comp->Enable = true;
+    }
 }

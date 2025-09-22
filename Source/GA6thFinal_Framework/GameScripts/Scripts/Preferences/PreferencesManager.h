@@ -20,11 +20,21 @@ public:
 
     // master, BGM, SFX
     void SetVolume(std::string_view option, int value);
+    void OffPreferencesWindow();
+
+
+public:
+    void AddPreferencesButton(Component* comps);
+    void AddAbandonButton(Component* comps);
+    void OpenAbadonButtons();
+    void CloseAbandonButtons();
 
 private:
     void OnPreferencesWindow(const Input::Controller&);
-    // 임시
-    void OffPreferencesWindow(const Input::Controller&);
+    void OffAbandonButtonComponent();
+    void OffPreferencsButtonComponent();
+    void OnAbandonButtonComponent();
+    void OnPreferencsButtonComponent();
 
 public:
     REFLECT_PROPERTY()
@@ -39,4 +49,9 @@ private:
     GameObject*                        _preferencesPannel;
     std::map<std::string, GameObject*> _graphicsOption;
     std::map<std::string, float>       _soundOption;
+
+    std::vector<Component*> _preferencesButtons;
+    std::vector<Component*> _abandonButtons;
+    bool                    _isOpenAbandonButton = false;
+    bool                    _isOpenAbandonDirty  = false;
 };

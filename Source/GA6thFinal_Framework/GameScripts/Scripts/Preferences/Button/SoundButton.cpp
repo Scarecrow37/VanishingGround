@@ -50,15 +50,24 @@ void SoundButton::Awake()
     else if ("SFXVolume" == _currentOption)
         _currentVolume = static_cast<int>(UmPreferences.GetSFXVolume() * MaxVolume);
     _isOptionDirty = true;
+
 }
 
 void SoundButton::Start()
 {
     // 관리 매니저 객체
     GameObject* manager = GameObject::Find("PreferencesManager").lock().get();
-    _preferencesManager = manager->GetComponent<PreferencesManager>();
-    if (nullptr == _preferencesManager)
+    if (manager)
+    {
+        _preferencesManager = manager->GetComponent<PreferencesManager>();
+        if (nullptr == _preferencesManager)
+            UmLogger.Log(LogLevel::LEVEL_WARNING, "Preferences manager not registered!");
+    }
+    else
+    {
         UmLogger.Log(LogLevel::LEVEL_WARNING, "Preferences manager not registered!");
+    }
+    _preferencesManager->AddPreferencesButton(this);
 }
 
 void SoundButton::Reset()
@@ -108,7 +117,7 @@ void SoundButton::ChangeVolume(int delta)
         _volumeNumFocus[_currentVolume]->SetActive(true);
         if (_currentVolume > 0)
             _volumeBarsFocus[_currentVolume - 1]->SetActive(true);
-        _preferencesManager->SetVolume(_currentOption, (float)_currentVolume);
+        _preferencesManager->SetVolume(_currentOption,_currentVolume);
     }
     else
     {

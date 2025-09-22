@@ -140,15 +140,24 @@ void EnableButton::Awake()
     // 양옆 화살표 숨기기
     _leftArrow->SetActive(false);
     _rightArrow->SetActive(false);
+
 }
 
 void EnableButton::Start() 
 {
     // 관리 매니저 객체
     GameObject* manager = GameObject::Find("PreferencesManager").lock().get();
-    _preferencesManager = manager->GetComponent<PreferencesManager>();
-    if (nullptr == _preferencesManager)
+    if (manager)
+    {
+        _preferencesManager = manager->GetComponent<PreferencesManager>();
+        if (nullptr == _preferencesManager)
+            UmLogger.Log(LogLevel::LEVEL_WARNING, "Preferences manager not registered!");
+    }
+    else
+    {
         UmLogger.Log(LogLevel::LEVEL_WARNING, "Preferences manager not registered!");
+    }
+    _preferencesManager->AddPreferencesButton(this);
 }
 
 void EnableButton::Reset()
