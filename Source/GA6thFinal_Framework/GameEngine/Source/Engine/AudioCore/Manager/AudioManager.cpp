@@ -19,6 +19,11 @@ void Audio::Manager::Finalize()
     _system.Finalize();
 }
 
+void Audio::Manager::ClearVoicePool()
+{
+    _system.ClearVoicePool();
+}
+
 void Audio::Manager::LoadSound(const std::string& key, const File::GuidRef& guid)
 {
     const File::Path& path = guid.ToPath();

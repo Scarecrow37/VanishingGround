@@ -7,6 +7,7 @@ namespace Audio
     public:
         void Initialize();
         void Finalize();
+        void ClearVoicePool();
 
         void LoadSound(const std::string& key, const File::GuidRef& guid);
 

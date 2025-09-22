@@ -22,7 +22,7 @@ DXRDrawPass::~DXRDrawPass() {}
 void DXRDrawPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique,
                              ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene, ownerTechnique, commandList);
+    RenderPass::Initialize(ownerScene, ownerTechnique, commandList);
     CreateStateObject();
     CreateShaderResource();
 }

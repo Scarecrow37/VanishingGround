@@ -3,9 +3,9 @@
 #include "BrightExtractPass.h"
 #include "DownAndUpSamplingPass.h"
 
-BloomTechnique::BloomTechnique() {}
+BloomTechnique::BloomTechnique() = default;
 
-BloomTechnique::~BloomTechnique() {}
+BloomTechnique::~BloomTechnique() = default;
 
 void BloomTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 {    
@@ -17,9 +17,4 @@ void BloomTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
     pass = std::make_unique<DownAndUpSamplingPass>();
     pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));
-}
-
-void BloomTechnique::Execute(ID3D12GraphicsCommandList* commandList)
-{
-    __super::Execute(commandList);
 }

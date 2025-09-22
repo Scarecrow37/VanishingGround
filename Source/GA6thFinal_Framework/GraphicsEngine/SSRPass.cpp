@@ -1,14 +1,13 @@
 ﻿#include "pch.h"
 #include "SSRPass.h"
 
-SSRPass::SSRPass() {}
+SSRPass::SSRPass() = default;
 
-SSRPass::~SSRPass() {}
+SSRPass::~SSRPass() = default;
 
-void SSRPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique,
-                         ID3D12GraphicsCommandList* commandList)
+void SSRPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene, ownerTechnique, commandList);
+    RenderPass::Initialize(ownerScene, ownerTechnique, commandList);
     auto resolution = Global::device->GetResolution();
     auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, resolution.cx, resolution.cy, 1, 1, 1, 0,
                                              D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
@@ -29,8 +28,6 @@ void SSRPass::AddRenderPassDatas(std::string_view sceneName)
 {
     Global::renderPassDatas->AddRenderPassProperty("SSRPass", SSRPassProperty({0.3f, 0.34f, 200.f,2.f}));
 }
-
-void SSRPass::Begin(ID3D12GraphicsCommandList* commandList) {}
 
 void SSRPass::Draw(ID3D12GraphicsCommandList* commandList) 
 {
@@ -65,5 +62,3 @@ void SSRPass::Draw(ID3D12GraphicsCommandList* commandList)
 
     Global::multiRenderTargetManager->ReturnRenderTarget(renderTarget);
 }
-
-void SSRPass::End(ID3D12GraphicsCommandList* commandList) {}

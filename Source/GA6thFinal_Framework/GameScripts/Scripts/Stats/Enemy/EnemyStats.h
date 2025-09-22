@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "Stats/CharacterStats.h"
-#include "ViewModels/HP/HpViewModel.h"
+#include "ViewModels/Hp/CharacterHPViewModel.h"
 
 struct EnemyStats : public CharacterStats
 {
@@ -51,9 +51,8 @@ public:
     {
         if (false == key.empty())
         {
-            UmWatcher.Unregister<HpViewModel>(key);
-            int maxHp = MaxHP;
-            UmWatcher.Register<HpViewModel>(key, _currentHP, maxHp);
+            UmWatcher.Unregister<CharacterHPViewModel>(key);
+            UmWatcher.Register<CharacterHPViewModel>(key, _hpModel);
         }
         else
         {

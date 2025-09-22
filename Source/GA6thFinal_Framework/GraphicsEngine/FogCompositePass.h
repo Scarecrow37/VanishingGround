@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "RenderPass.h"
+
 class VolumetricFogTechnique;
 class FogCompositePass : public RenderPass
 {

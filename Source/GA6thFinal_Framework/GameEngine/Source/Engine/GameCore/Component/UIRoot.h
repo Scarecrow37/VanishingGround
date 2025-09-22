@@ -31,7 +31,7 @@ public:
 protected:
     void ImGuiDrawPropertysEvent() override;
     void Reset() override;
-    void Awake() override;
+    void Start() override;
 
 private:
     void UpdateNavigation();

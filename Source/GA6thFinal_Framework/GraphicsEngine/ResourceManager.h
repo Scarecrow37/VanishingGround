@@ -32,6 +32,16 @@ public:
 
             _resources[typeid(T)][filePath] = sharedResource;
 		}
+        else
+        {
+            if (sharedResource->IsValid())
+            {
+                if (callback)
+                {
+                    callback();
+                }
+            }
+        }
 
 		return sharedResource;
 	}

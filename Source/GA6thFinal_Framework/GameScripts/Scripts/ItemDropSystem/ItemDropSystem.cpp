@@ -296,6 +296,7 @@ void ItemDropSystem::PlayItemDropUISequence()
     if (ItemDropUIRootManager* itemDropUIRootManager = SingletonComponent<ItemDropUIRootManager>::GetInstance())
     {
         itemDropUIRootManager->gameObject->ActiveSelf = true;
+        StageClearCount = StageClearCount + 1;
     }
 }
 

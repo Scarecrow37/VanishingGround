@@ -53,4 +53,5 @@ private:
     void SortEnemies();
     void RegisterEnemiesHP() const;
     void RegisterEnemyHP(int index, const std::string& key, const std::string& tag) const;
+    void ReviveEnemies();
 };

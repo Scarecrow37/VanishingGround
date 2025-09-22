@@ -191,7 +191,7 @@ void ImageElement::RequestResource()
             const float alpha = Alpha;
             UpdateRendererAlpha(alpha);
 
-            ResetToSpriteSize();
+            //ResetToSpriteSize();
         });
     }
 }
