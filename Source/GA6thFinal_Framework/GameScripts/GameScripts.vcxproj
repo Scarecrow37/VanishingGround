@@ -385,7 +385,7 @@
     <ClInclude Include="Scripts\UI\Panels\Grid\GridPanel.h" />
     <ClInclude Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.h" />
     <ClInclude Include="Scripts\UI\Panels\Overlay\OverlayPanel.h" />
-    <ClInclude Include="Scripts\UI\Views\Map\MapPlayerHPView.h" />
+    <ClInclude Include="Scripts\UI\Views\PlayerHP\PlayerHPView.h" />
     <ClInclude Include="Scripts\UI\Views\Map\StageFocusView.h" />
     <ClInclude Include="Scripts\UI\Views\Map\StageView.h" />
     <ClInclude Include="Scripts\UI\Views\MonsterHp\MonsterHpView.h" />
@@ -483,6 +483,7 @@
     <ClInclude Include="Scripts\MainMenu\Option.h" />
     <ClInclude Include="Scripts\MainMenu\Credits.h" />
     <ClInclude Include="Scripts\MainMenu\Quit.h" />
+    <ClInclude Include="Scripts\Camera\UmCineMotion.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.cpp" />
@@ -574,7 +575,7 @@
     <ClCompile Include="Scripts\UI\Panels\Grid\GridPanel.cpp" />
     <ClCompile Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.cpp" />
     <ClCompile Include="Scripts\UI\Panels\Overlay\OverlayPanel.cpp" />
-    <ClCompile Include="Scripts\UI\Views\Map\MapPlayerHPView.cpp" />
+    <ClCompile Include="Scripts\UI\Views\PlayerHP\PlayerHPView.cpp" />
     <ClCompile Include="Scripts\UI\Views\Map\StageFocusView.cpp" />
     <ClCompile Include="Scripts\UI\Views\Map\StageView.cpp" />
     <ClCompile Include="Scripts\UI\Views\MonsterHp\MonsterHpView.cpp" />
@@ -674,6 +675,7 @@
     <ClCompile Include="Scripts\MainMenu\Option.cpp" />
     <ClCompile Include="Scripts\MainMenu\Credits.cpp" />
     <ClCompile Include="Scripts\MainMenu\Quit.cpp" />
+    <ClCompile Include="Scripts\Camera\UmCineMotion.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
