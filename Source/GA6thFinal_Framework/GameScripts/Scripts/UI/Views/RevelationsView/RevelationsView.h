@@ -8,9 +8,9 @@ class DescriptionPanel;
 struct RevelationUI
 {
     ImageElement* IconElement;
+    ImageElement* GradeElement;
     TextElement*  NameElement;
-    DescriptionPanel* Description1Element;
-    DescriptionPanel* Description2Element;
+    DescriptionPanel* DescriptionElement;
 };
 
 class RevelationsView : public Component
@@ -34,8 +34,8 @@ protected:
     REFLECT_FIELDS_END(RevelationsView)
 
 private:
-    std::array<RevelationUI, 3> _revelationUis;
-    std::array<GameObject*, 3>  _revelationObjects;
+    std::array<RevelationUI, 3> _revelationUis{};
+    std::array<GameObject*, 3>  _revelationObjects{};
 
     RevelationsViewModel::Handle _watchHandle;
 };

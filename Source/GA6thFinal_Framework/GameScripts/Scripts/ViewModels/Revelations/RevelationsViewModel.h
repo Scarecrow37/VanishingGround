@@ -4,10 +4,10 @@ class RevelationElement;
 
 struct RevelationUIData
 {
-    std::string   Name;
-    File::Guid    Icon;
-    std::wstring  Description1;
-    std::wstring  Description2;
+    std::string  Name;
+    File::Guid   Icon;
+    File::Guid   Grade;
+    std::string  Description;
 };
 
 class RevelationsViewModel final
