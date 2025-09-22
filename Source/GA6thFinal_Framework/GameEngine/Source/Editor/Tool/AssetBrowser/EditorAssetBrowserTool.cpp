@@ -929,6 +929,18 @@ void EditorAssetBrowserTool::ShowFolderEntryToEdit(AssetData& asset)
         {
             EditorAssetBrowserTool::ChangeAssetID(asset.Entry.path(), assetID);
         }
+        if (ImGui::BeginPopupContextItem())
+        {
+            if (ImGui::MenuItem("Give Empty Asset ID"))
+            {
+                EditorAssetBrowserTool::ChangeAssetID(asset.Entry.path(), 0);
+            }
+            if (ImGui::MenuItem("Give Automatic Asset ID"))
+            {
+                EditorAssetBrowserTool::ChangeAutomaticAssetID(asset);
+            }
+            ImGui::EndPopup();
+        }
     }
     ImGui::SameLine();
 
@@ -1083,6 +1095,46 @@ void EditorAssetBrowserTool::UpdateFolderEntriesInput()
         if (ImGui::MenuItem("Copy Path"))
         {
             File::CopyPathToClipBoard(_focusFolderPath);
+        }
+
+        ImGuiHelper::Separator(3.0f);
+        if (ImGui::MenuItem("Reset AssetID All File"))
+        {
+            for (auto& asset : _focusFolderAssetDataList)
+            {
+                if (asset && false == asset->IsDirectory)
+                {
+                    EditorAssetBrowserTool::ChangeAssetID(asset->Entry.path(), 0);
+                }
+            }
+        }
+        if (ImGui::BeginMenu("Give Automatic Asset ID"))
+        {
+            if (ImGui::MenuItem("All File"))
+            {   
+                for (auto& asset : _focusFolderAssetDataList)
+                {
+                    if (asset && false == asset->IsDirectory)
+                    {
+                        EditorAssetBrowserTool::ChangeAutomaticAssetID(*asset);
+                    }
+                }
+            }
+            if (ImGui::MenuItem("Only '0'"))
+            {
+                for (auto& asset : _focusFolderAssetDataList)
+                {
+                    if (asset && false == asset->IsDirectory)
+                    {
+                        int assetID = UmFileSystem.GetAssetIDFromPath(asset->Entry.path());
+                        if (0 == assetID)
+                        {
+                            EditorAssetBrowserTool::ChangeAutomaticAssetID(*asset);
+                        }
+                    }
+                }
+            }
+            ImGui::EndMenu();
         }
         ImGui::EndPopup();
     }
@@ -1666,6 +1718,21 @@ bool EditorAssetBrowserTool::ChangeAssetID(const File::Path& path, int changeID)
         UmFileSystem.ChangeAssetID(weakContext, changeID);
         return true;
     }
+}
+
+bool EditorAssetBrowserTool::ChangeAutomaticAssetID(const AssetData& asset)
+{
+    size_t pos = 0;
+    int    id  = 0;
+    try
+    {
+        id = std::stoi(asset.FileName, &pos); // 앞 숫자만 추출
+    }
+    catch (const std::exception&)
+    {
+        id = 0;
+    }
+    return EditorAssetBrowserTool::ChangeAssetID(asset.Entry.path(), id);
 }
 
 bool EditorAssetBrowserTool::Compare::operator()(const AssetData* a, const AssetData* b) const
