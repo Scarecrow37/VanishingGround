@@ -303,6 +303,11 @@ void ItemDropSystem::PlayItemDropUISequence()
     {
         HUD->ActiveSelf = false;
     }
+
+    if (auto revelationPanel = GameObject::FindWithTag("Revelations Panel").lock())
+    {
+        revelationPanel->ActiveSelf = false;
+    }
 }
 
 void ItemDropSystem::ImGuiDrawPropertysEvent() 
