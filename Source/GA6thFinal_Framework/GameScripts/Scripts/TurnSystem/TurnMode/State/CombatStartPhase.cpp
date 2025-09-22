@@ -101,7 +101,24 @@ void CombatStartPhase::OnEnter()
     UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"배틀 시작...3");
     UmTime.Invoke(&GetFSM(), 1.f, [this]() { UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"배틀 시작...2"); });
     UmTime.Invoke(&GetFSM(), 2.f, [this]() { UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"배틀 시작...1"); });
-    UmTime.Invoke(&GetFSM(), 3.f, [this]() { this->_phaseEnd = true; });
+    UmTime.Invoke(&GetFSM(), 3.f, [this]() 
+    { 
+        this->_phaseEnd = true; 
+        if (auto HUD = GameObject::FindWithTag("Character HUD Group").lock())
+        {
+            HUD->ActiveSelf = true;
+        }
+
+        if (auto revelationPanel = GameObject::FindWithTag("Revelations Panel").lock())
+        {
+            revelationPanel->ActiveSelf = true;
+        }
+
+        if (auto weaponPanel = GameObject::FindWithTag("Weapon Panel").lock())
+        {
+            weaponPanel->ActiveSelf = true;
+        }       
+    });
 
     NotifyCombatStart();
     Battle::ResetLastCharacter();

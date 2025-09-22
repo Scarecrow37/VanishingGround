@@ -52,6 +52,8 @@ void RevelationsView::Start()
                 }
             }
         });
+
+    gameObject->ActiveSelf = false;
 }
 
 void RevelationsView::FindRevelationUIs()

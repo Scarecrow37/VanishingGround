@@ -81,10 +81,10 @@ WeaponUIData WeaponViewModel::Convert(TurnActor* const& value)
         const WeaponType   type         = state.Type;
         data.WeaponIcon                 = GetWeaponIcon()(weaponId);
         data.WeaponName                 = state.WeaponName;
-        data.HitDamage                  = state.HitDamage;
-        data.CriticalDamage             = state.CriticalDamage;
-        data.Speed                      = state.Speed;
-        data.AttackCount                = state.AttackCount;
+        data.HitDamage                  = std::to_string(state.HitDamage);
+        data.CriticalDamage             = std::to_string(state.CriticalDamage);
+        data.Speed                      = std::to_string(state.Speed);
+        data.AttackCount                = std::to_string(state.AttackCount);
         data.Description                = GetWeaponDescription()(weaponId);
     }
     else

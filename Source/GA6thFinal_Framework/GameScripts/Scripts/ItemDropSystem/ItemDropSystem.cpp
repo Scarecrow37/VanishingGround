@@ -308,6 +308,11 @@ void ItemDropSystem::PlayItemDropUISequence()
     {
         revelationPanel->ActiveSelf = false;
     }
+
+    if (auto weaponPanel = GameObject::FindWithTag("Weapon Panel").lock())
+    {
+        weaponPanel->ActiveSelf = false;
+    }
 }
 
 void ItemDropSystem::ImGuiDrawPropertysEvent() 

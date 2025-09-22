@@ -56,6 +56,11 @@ void WeaponView::Start()
     {
         if (value.Enable)
         {
+            if (false == gameObject->ActiveSelf)
+            {
+                gameObject->ActiveSelf = true;
+            }
+
             if (_nameUI)
                 _nameUI->Text = value.WeaponName;
 
