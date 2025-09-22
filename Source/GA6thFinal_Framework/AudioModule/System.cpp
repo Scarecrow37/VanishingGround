@@ -183,6 +183,17 @@ namespace Audio
             _masteringVoice = nullptr;
         }
 
+        ClearVoicePool();
+
+        if (_xAudio2)
+        {
+            _xAudio2->Release();
+            _xAudio2 = nullptr;
+        }
+    }
+
+    void System::ClearVoicePool()
+    {
         for (auto& voiceVector : _voicePools | std::views::values)
         {
             for (auto& sourceVoice : voiceVector)
@@ -196,7 +207,6 @@ namespace Audio
             voiceVector.clear();
         }
         _voicePools.clear();
-        _xAudio2->Release();
     }
 
     void System::TurnOnDebugMode() const
