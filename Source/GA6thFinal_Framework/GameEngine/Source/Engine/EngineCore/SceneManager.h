@@ -197,28 +197,28 @@ public:
         /// </summary>
         /// <param name="name :">찾을 오브젝트의 이름</param>
         /// <returns>성공시 weak_ptr에 담아줍니다.</returns>
-        static std::weak_ptr<GameObject> FindGameObjectWithName(std::string_view name);
+        static std::weak_ptr<GameObject> FindGameObjectWithName(const std::string& name);
 
         /// <summary>
         /// 게임 오브젝트의 이름으로 오브젝트를 탐색해 전부 반환합니다.
         /// </summary>
         /// <param name="name :">찾을 오브젝트의 이름</param>
         /// <returns>성공시 weak_ptr에 담아줍니다.</returns>
-        static std::vector<std::weak_ptr<GameObject>> FindGameObjectsWithName(std::string_view name);
+        static std::vector<std::weak_ptr<GameObject>> FindGameObjectsWithName(const std::string& name);
 
         /// <summary>
         /// 게임 오브젝트의 태그로 오브젝트를 탐색합니다.
         /// </summary>
         /// <param name="tag :">찾을 오브젝트의 태그</param>
         /// <returns>성공시 weak_ptr에 담아줍니다.</returns>
-        static std::weak_ptr<GameObject> FindGameObjectWithTag(std::string_view tag);
+        static std::weak_ptr<GameObject> FindGameObjectWithTag(const std::string& tag);
 
         /// <summary>
         /// 게임 오브젝트의 태그로 오브젝트를 탐색해 전부 반환합니다.
         /// </summary>
         /// <param name="tag :">찾을 오브젝트의 태그</param>
         /// <returns>성공시 weak_ptr에 담아줍니다.</returns>
-        static std::vector<std::weak_ptr<GameObject>> FindGameObjectsWithTag(std::string_view tag);
+        static std::vector<std::weak_ptr<GameObject>> FindGameObjectsWithTag(const std::string& tag);
 
         /// <summary>
         /// 게임 오브젝트의 이름을 변경합니다.

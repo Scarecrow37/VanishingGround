@@ -340,10 +340,10 @@ void ESceneManager::Engine::SetComponentEnable(Component* component, bool value)
     } 
 }
 
-std::weak_ptr<GameObject> ESceneManager::Engine::FindGameObjectWithName(std::string_view name)
+std::weak_ptr<GameObject> ESceneManager::Engine::FindGameObjectWithName(const std::string& name)
 {
     std::weak_ptr<GameObject> findObject;
-    auto findIter = engineCore->SceneManager._runtimeObjectsUnorderedMap.find(name.data());
+    auto findIter = engineCore->SceneManager._runtimeObjectsUnorderedMap.find(name);
     if (findIter != engineCore->SceneManager._runtimeObjectsUnorderedMap.end() && !findIter->second.empty())
     {
         for (auto& object : findIter->second)
@@ -358,10 +358,10 @@ std::weak_ptr<GameObject> ESceneManager::Engine::FindGameObjectWithName(std::str
     return findObject;
 }
 
-std::vector<std::weak_ptr<GameObject>> ESceneManager::Engine::FindGameObjectsWithName(std::string_view name)
+std::vector<std::weak_ptr<GameObject>> ESceneManager::Engine::FindGameObjectsWithName(const std::string& name)
 {
     std::vector<std::weak_ptr<GameObject>> findObjects;
-    auto findIter = engineCore->SceneManager._runtimeObjectsUnorderedMap.find(name.data());
+    auto findIter = engineCore->SceneManager._runtimeObjectsUnorderedMap.find(name);
     if (findIter != engineCore->SceneManager._runtimeObjectsUnorderedMap.end() && !findIter->second.empty())
     {
         for (auto& obj : findIter->second)
@@ -375,10 +375,10 @@ std::vector<std::weak_ptr<GameObject>> ESceneManager::Engine::FindGameObjectsWit
     return findObjects;
 }
 
-std::weak_ptr<GameObject> ESceneManager::Engine::FindGameObjectWithTag(std::string_view tag)
+std::weak_ptr<GameObject> ESceneManager::Engine::FindGameObjectWithTag(const std::string& tag)
 {
     std::weak_ptr<GameObject> findObject;
-    auto findIter = engineCore->SceneManager._runtimeObjectsTagMap.find(tag.data());
+    auto findIter = engineCore->SceneManager._runtimeObjectsTagMap.find(tag);
     if (findIter != engineCore->SceneManager._runtimeObjectsTagMap.end() && !findIter->second.empty())
     {
         for (auto& object : findIter->second)
@@ -393,10 +393,10 @@ std::weak_ptr<GameObject> ESceneManager::Engine::FindGameObjectWithTag(std::stri
     return findObject;
 }
 
-std::vector<std::weak_ptr<GameObject>> ESceneManager::Engine::FindGameObjectsWithTag(std::string_view tag)
+std::vector<std::weak_ptr<GameObject>> ESceneManager::Engine::FindGameObjectsWithTag(const std::string& tag)
 {
     std::vector<std::weak_ptr<GameObject>> findObjects;
-    auto findIter = engineCore->SceneManager._runtimeObjectsTagMap.find(tag.data());
+    auto findIter = engineCore->SceneManager._runtimeObjectsTagMap.find(tag);
     if (findIter != engineCore->SceneManager._runtimeObjectsTagMap.end() && !findIter->second.empty())
     {
         for (auto& obj : findIter->second)
