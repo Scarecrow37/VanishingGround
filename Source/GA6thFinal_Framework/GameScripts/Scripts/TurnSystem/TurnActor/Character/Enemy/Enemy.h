@@ -4,7 +4,8 @@
 #include "AI/EnemyAI.h"
 
 class ParticleComponent;
-class MonsterHpView;
+class MonsterHpTextView;
+class MonsterHpImageView;
 class EnemyStatsComponent;
 class FSMState;
 
@@ -37,6 +38,7 @@ protected:
 
 public:
     virtual int GetSpeed() override;
+    virtual void Revive() override;
 
 private:
     EnemyAI _aiModel;
@@ -71,11 +73,15 @@ public:
     EnemyStatsComponent* GetEnemyStats();
 
 public:
-    MonsterHpView* GetMonsterHpView() const { return _monsterHpView; }
-    void SetMonsterHpView(MonsterHpView* view);
+    MonsterHpTextView* GetMonsterHpTextView() const { return _monsterHpTextView; }
+    void SetMonsterHpTextView(MonsterHpTextView* view);
+
+    MonsterHpImageView* GetMonsterHpImageView() const { return _monsterHpImageView; }
+    void SetMonsterHpImageView(MonsterHpImageView* view);
 
 private:
-    MonsterHpView* _monsterHpView = nullptr;
+    MonsterHpTextView* _monsterHpTextView = nullptr;
+    MonsterHpImageView* _monsterHpImageView = nullptr;
 
 protected:
     /// <summary>
@@ -86,7 +92,6 @@ protected:
 
     virtual void Update();
 
-    virtual void Revive() override;
     virtual void PlayTurn() override;
     CharacterStats* GetCharacterStats() override;
 
