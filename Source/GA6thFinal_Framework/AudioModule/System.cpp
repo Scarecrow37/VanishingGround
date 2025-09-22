@@ -184,7 +184,12 @@ namespace Audio
         }
 
         ClearVoicePool();
-        _xAudio2->Release();
+
+        if (_xAudio2)
+        {
+            _xAudio2->Release();
+            _xAudio2 = nullptr;
+        }
     }
 
     void System::ClearVoicePool()
