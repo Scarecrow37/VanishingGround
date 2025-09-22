@@ -27,8 +27,6 @@ protected:
     REFLECT_FIELDS_END(TurnQueueView)
 
 private:
-    ImageElement*                _firstTurnQueueFrameLeftWing;
-    ImageElement*                _firstTurnQueueFrameRightWing;
     std::array<ImageElement*, 7> _turnQueueFrames{};
     std::array<ImageElement*, 7> _turnQueuePortraits{};
 

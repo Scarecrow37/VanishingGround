@@ -8,8 +8,7 @@ UMREAL_COMPONENT(TurnQueueView)
 
 TurnQueueView::TurnQueueView()
 {
-    _firstTurnQueueFrameLeftWing = nullptr;
-    _firstTurnQueueFrameRightWing = nullptr;
+   
 }
 
 TurnQueueView::~TurnQueueView()
@@ -24,22 +23,6 @@ void TurnQueueView::ImGuiDrawPropertysEvent()
         if (ImGui::Button("Find Childs"))
         {
             InitializeFramesAndPortraits();
-        }
-        if (_firstTurnQueueFrameLeftWing)
-        {
-            ImGui::Text("1st Turn Frame Left : ok");
-        }
-        else
-        {
-            ImGui::Text("1st Turn Frame Left : nullptr");
-        }
-        if (_firstTurnQueueFrameRightWing)
-        {
-            ImGui::Text("1st Turn Frame Right : ok");
-        }
-        else
-        {
-            ImGui::Text("1st Turn Frame Right : nullptr");
         }
         if (ImGui::TreeNode("Frames"))
         {
@@ -119,34 +102,7 @@ void TurnQueueView::Start()
            }
 
        }
-       if (dataSize == 0)
-       {
-           if (nullptr != _firstTurnQueueFrameLeftWing)
-               _firstTurnQueueFrameLeftWing->Enable = false;
-           if (nullptr != _firstTurnQueueFrameRightWing)
-               _firstTurnQueueFrameRightWing->Enable = false;
-       }
-       else
-       {
-           if (nullptr != _firstTurnQueueFrameLeftWing)
-               _firstTurnQueueFrameLeftWing->Enable = true;
-           if (nullptr != _firstTurnQueueFrameRightWing)
-               _firstTurnQueueFrameRightWing->Enable = true;
-       }
     });
-
-    // Disable
-    for (size_t i = 0; i < 7; ++i)
-    {
-        if (nullptr != _turnQueueFrames[i])
-            _turnQueueFrames[i]->Enable = false;
-        if (nullptr != _turnQueuePortraits[i])
-            _turnQueuePortraits[i]->Enable = false;
-    }
-    if (nullptr != _firstTurnQueueFrameLeftWing)
-        _firstTurnQueueFrameLeftWing->Enable = false;
-    if (nullptr != _firstTurnQueueFrameRightWing)
-        _firstTurnQueueFrameRightWing->Enable = false;
 }
 
 enum class FindResult
@@ -192,8 +148,6 @@ void TurnQueueView::InitializeFramesAndPortraits()
 {
     FindFramesWithTag("Frame Element");
     FindPortraitsWithTag("Turn Element");
-    _firstTurnQueueFrameLeftWing  = FindImageElementWithTag("1st Turn Frame Left");
-    _firstTurnQueueFrameRightWing = FindImageElementWithTag("1st Turn Frame Right");
 }
 
 void TurnQueueView::FindFramesWithTag(const std::string& tag) 
