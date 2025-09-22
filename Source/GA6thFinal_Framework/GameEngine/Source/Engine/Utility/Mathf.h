@@ -280,7 +280,6 @@ namespace Mathf
         }
     }
 
-    // 단일 float Catmull-Rom 보간 함수 (4점)
     inline float CatmullRomFloat(float t, float p0, float p1, float p2, float p3)
     {
         float t2 = t * t;
@@ -291,8 +290,6 @@ namespace Mathf
         float a3 = p1;
         return a0 * t3 + a1 * t2 + a2 * t + a3;
     }
-
-    // 보간 함수 템플릿, float 또는 Vector3 대응
     inline float CatmullRomSpline(const std::vector<std::pair<float, float>>& points, float t)
     {
         t = std::clamp(t, points.front().first, points.back().first);
@@ -555,9 +552,64 @@ namespace Mathf
             return Vector3::CatmullRom(p0, p1, p2, p3, localT);
         }
     }
-    inline Quaternion SafeSlerp(const Quaternion& q1, const Quaternion& q2, float t)
+    inline Quaternion AlignHemisphere(const Quaternion& q, const Quaternion& ref)
     {
         return (ref.Dot(q) < 0.0f) ? Quaternion(-q.x, -q.y, -q.z, -q.w) : q;
+    }
+    inline Quaternion SafeSlerp(Quaternion a, Quaternion b, float t)
+    {
+        a.Normalize();
+        b.Normalize();
+
+        float dot = a.Dot(b);
+        if (dot < 0.0f) // 반구 정렬
+        {
+            b   = Quaternion(-b.x, -b.y, -b.z, -b.w);
+            dot = -dot;
+        }
+
+        // acos 도메인 보호
+        dot = std::max(-1.0f, std::min(1.0f, dot));
+
+        // 거의 동일 각: nlerp
+        constexpr float kNearlyOne = 0.9995f; // ≈ 1.6°
+        if (dot > kNearlyOne)
+        {
+            Quaternion r{a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t, a.w + (b.w - a.w) * t};
+            r.Normalize();
+            return r;
+        }
+
+        const float theta    = std::acos(dot);
+        const float sinTheta = std::sin(theta);
+        if (sinTheta < 1e-6f) // 극소각 보호
+            return a;
+
+        const float s0 = std::sin((1.0f - t) * theta) / sinTheta;
+        const float s1 = std::sin(t * theta) / sinTheta;
+
+        Quaternion r{a.x * s0 + b.x * s1, a.y * s0 + b.y * s1, a.z * s0 + b.z * s1, a.w * s0 + b.w * s1};
+        r.Normalize();
+        return r;
+    }
+    inline Quaternion CatmullRomUniform4D(const Quaternion& q0, const Quaternion& q1, const Quaternion& q2, const Quaternion& q3, float u)
+    {
+        const float u2 = u * u;
+        const float u3 = u2 * u;
+
+        // 표준 Catmull-Rom(텐션 0)
+        const float c0 = -0.5f * u3 + 1.0f * u2 - 0.5f * u;
+        const float c1 = 1.5f * u3 - 2.5f * u2 + 1.0f;
+        const float c2 = -1.5f * u3 + 2.0f * u2 + 0.5f * u;
+        const float c3 = 0.5f * u3 - 0.5f * u2;
+
+        Quaternion r{};
+        r.x = c0 * q0.x + c1 * q1.x + c2 * q2.x + c3 * q3.x;
+        r.y = c0 * q0.y + c1 * q1.y + c2 * q2.y + c3 * q3.y;
+        r.z = c0 * q0.z + c1 * q1.z + c2 * q2.z + c3 * q3.z;
+        r.w = c0 * q0.w + c1 * q1.w + c2 * q2.w + c3 * q3.w;
+        r.Normalize();
+        return r;
     }
     inline Quaternion CatmullRomSpline(const std::vector<float>& steps, const std::vector<Quaternion>& points, float t)
     {
@@ -624,6 +676,7 @@ namespace Mathf
         r.Normalize();
         return r;
     }
+    
     inline float Hash11(float p)
     {
         float s = sinf(p * 127.1f) * 43758.5453f;
@@ -668,4 +721,5 @@ namespace Mathf
         // [-1,1] 정도로 정규화
         return (norm > 0.0f) ? (sum / norm) : 0.0f;
     }
+
 } // namespace Mathf
