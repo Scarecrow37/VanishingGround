@@ -5,9 +5,9 @@
 
 struct GetRevelationIcon
 {
-    File::GuidRef operator()(const int revelationID) const
+    File::Guid operator()(const int revelationID) const
     {
-        File::GuidRef iconGuid;
+        File::Guid iconGuid;
         switch (revelationID)
         {
         case 13010: // 곡예
@@ -202,6 +202,7 @@ struct GetRevelationDescription
 RevelationsViewModel::RevelationsViewModel(MVVM::Model<std::vector<std::shared_ptr<RevelationElement>>>& model)
     : ViewModel(model)
 {
+
 }
 
 std::vector<RevelationUIData> RevelationsViewModel::Convert(

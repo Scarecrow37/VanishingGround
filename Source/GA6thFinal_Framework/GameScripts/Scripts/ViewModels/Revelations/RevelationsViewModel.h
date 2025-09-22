@@ -5,7 +5,7 @@ class RevelationElement;
 struct RevelationUIData
 {
     std::string   Name;
-    File::GuidRef Icon;
+    File::Guid    Icon;
     std::wstring  Description1;
     std::wstring  Description2;
 };
