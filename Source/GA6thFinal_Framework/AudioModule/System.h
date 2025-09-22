@@ -44,6 +44,11 @@ namespace Audio
         void Finalize();
 
         /// <summary>
+        /// 음성 풀을 초기화하여 모든 음성 리소스를 제거합니다.
+        /// </summary>
+        void ClearVoicePool();
+
+        /// <summary>
         /// 디버그 모드를 활성화합니다.
         /// </summary>
         void TurnOnDebugMode() const;
@@ -64,8 +69,9 @@ namespace Audio
         /// 사운드 소스를 재생하고 핸들을 반환합니다.
         /// </summary>
         /// <param name="sound">재생할 사운드 소스입니다.</param>
+        /// <param name="isLoop">반복 재생 여부입니다.</param>
         /// <returns>재생 중인 사운드를 제어할 수 있는 Handle 객체를 반환합니다.</returns>
-        [[nodiscard]] Handle Play(const Source& sound);
+        [[nodiscard]] Handle Play(const Source& sound, bool isLoop);
 
         /// <summary>
         /// 지정된 핸들에 대한 재생 작업을 중지합니다.

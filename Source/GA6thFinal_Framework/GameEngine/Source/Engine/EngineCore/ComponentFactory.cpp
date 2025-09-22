@@ -45,6 +45,8 @@ bool EComponentFactory::InitalizeComponentFactory()
     {
         //커맨드 Clear
         UmCommandManager.Clear();
+        //오디오 Clear
+        UmAudio.ClearVoicePool();
 
         //Input Receiver Clear
         ESceneManager::Engine::GetInputSystem().CleanupInputReceivers();
@@ -230,6 +232,10 @@ void EComponentFactory::UninitalizeComponentFactory()
             }
         }
         _componentInstanceVec.clear();
+
+        // 오디오 Clear
+        UmAudio.ClearVoicePool();
+
         FreeLibrary(m_scriptsDll);
         m_scriptsDll = NULL;
     }
