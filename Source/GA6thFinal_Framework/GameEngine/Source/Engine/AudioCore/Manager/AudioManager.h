@@ -11,7 +11,7 @@ namespace Audio
 
         void LoadSound(const std::string& key, const File::GuidRef& guid);
 
-        Handle Play(const std::string& key);
+        Handle Play(const std::string& key, bool isLoop = false);
         void   Stop(const Handle& handle);
 
     private:
