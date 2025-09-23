@@ -103,8 +103,6 @@ void TurnQueueView::Start()
 
        }
     });
-
-    gameObject->ActiveSelf = false;
 }
 
 enum class FindResult
@@ -152,7 +150,7 @@ void TurnQueueView::InitializeFramesAndPortraits()
     {
         FindFramesWithTag("Frame Element");
         FindPortraitsWithTag("Turn Element");
-        _turnQueueHorizontalPanenl->ActiveSelf = false;
+        gameObject->ActiveSelf = false;
     }
     else
     {
