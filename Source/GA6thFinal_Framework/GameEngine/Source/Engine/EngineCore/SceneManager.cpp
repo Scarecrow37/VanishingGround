@@ -1256,6 +1256,7 @@ void ESceneManager::ObjectsAddRuntime()
                 component->gameObject->_transform._hasChanged = true;
             }
             component->UpdateEnableInHierarchy();
+            component->Reset();
         }
     }
 
