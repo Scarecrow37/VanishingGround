@@ -108,7 +108,9 @@ void EGameObjectFactory::ApplyPrefabInstanceChanges(const File::Guid& guid, YAML
                                 {
                                     if (&frontOrigin->_transform == frontParent->_childsList[childIndex])
                                     {
-                                        frontPrefab->transform->SetParentToIndexEx(frontParent, childIndex, false, false);
+                                        Transform* prefabTransform = &frontPrefab->transform;
+                                        frontParent->_childsList[childIndex] = prefabTransform;
+                                        frontOrigin->_transform.EraseParent(false);
                                         break;
                                     }
                                 }
@@ -528,7 +530,7 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
                         component = currObject->GetComponentAtIndex<Component>(componentIndex);
                     }
 
-                    if (pSceneObjectNode)
+                    if (component && pSceneObjectNode)
                     {
                         const YAML::Node& currSceneNodes = *sceneNodes;
                         if (sceneComponentNodeIter != currSceneNodes["Components"].end())
