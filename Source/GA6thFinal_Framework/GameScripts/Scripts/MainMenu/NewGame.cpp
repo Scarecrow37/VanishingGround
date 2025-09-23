@@ -1,5 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "NewGame.h"
+#include "SceneTransition/SceneTransitionComponent.h"
 
 UMREAL_COMPONENT(NewGame)
 
@@ -25,5 +26,8 @@ NewGame::~NewGame() = default;
 
 void NewGame::Submit()
 {
-    UmSceneManager.LoadScene(ReflectFields->NextScene);
+    GetComponent<SceneTransitionComponent>()->Fade("in", [this]() 
+        { 
+            UmSceneManager.LoadScene(ReflectFields->NextScene); 
+        });
 }
