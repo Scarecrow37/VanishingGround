@@ -45,12 +45,10 @@ private:
     void UpdateQuickTimeEventUI(float dt);
     void UpdateAttackEventUI(float dt);
 
-    // Animation
     void SetAttackReady();
     void SetAttack();
     void SetAttackEnd();
 
-    // Callback //
     void BattleOnHitEvent(const QTE::Result& result);
 
     Battle::EnemyTargetFlag_ GetAttackTargetFromButton(unsigned int button) const;

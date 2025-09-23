@@ -343,6 +343,7 @@ void PlayerPlayTurnState::OnQTEFinish(const std::vector<QTE::Result>& results)
         QTE::Note* note = result.Note;
         if (result.IsValidResult() && note)
         {
+            bool  pushedAnimation = false;
             float noteTime = note->Time;
             //_attackTargets.push_back(target);
             WeaponModelManager* weaponModelManager = SingletonComponent<WeaponModelManager>::GetInstance();
@@ -358,29 +359,7 @@ void PlayerPlayTurnState::OnQTEFinish(const std::vector<QTE::Result>& results)
                 {
                     modelData.GameObject->ActiveSelf = false;
 
-                    // 1. 무기 모델의 위치 설정
-                    Battle::EnemyTargetFlag_ target  = GetAttackTargetFromButton(result.PressedButton);
-                    auto                     enemies = Battle::GetTargetsFromFlags(target);
-                    if (false == enemies.empty())
-                    {
-                        Enemy* enemy = enemies.front();
-                        if (enemy)
-                        {
-                            if (GameObject& player = GetPlayer().gameObject)
-                            {
-                                Vector3 enemyPos  = enemy->transform->GetWorldPosition();
-                                Vector3 playerPos = player.transform->GetWorldPosition();
-                                Vector3 dir       = DirectX::XMVector3Normalize(playerPos - enemyPos);
-                                
-                                const Vector3 distance = dir * 1.0f;
-                                modelData.GameObject->transform->SetWorldPosition(enemyPos + distance);
-                    
-                                // modelData.GameObject->transform->LookAt(playerPos);
-                            }
-                        }
-                    }
-
-                    // 2. 노트에 맞는 애니메이션 설정 및 애니메이션 종료 콜백 등록
+                    // 노트에 맞는 애니메이션 설정 및 애니메이션 종료 콜백 등록
                     if (modelData.Animation->ChangeMainAnimation(note->WeaponAnimation))
                     {
                         modelData.Animation->StopCurrentAnimation();
@@ -409,7 +388,7 @@ void PlayerPlayTurnState::OnQTEFinish(const std::vector<QTE::Result>& results)
                                 }
                             });
 
-                        // 3. 애니메이션 Hit 이벤트 콜백 등록
+                        // 애니메이션 Hit 이벤트 콜백 등록
                         auto& animName  = modelData.Animation->GetAnimationNameFromKey(note->WeaponAnimation);
                         auto& animTrack = modelData.Animation->GetAnimationEventTrack();
                         auto  track     = animTrack.GetEventTrack(animName);
@@ -417,7 +396,7 @@ void PlayerPlayTurnState::OnQTEFinish(const std::vector<QTE::Result>& results)
                         {
                             if (Timeline::EventContext* context = track->GetContextFromLabel("Hit"))
                             {
-                                ++_attackRemaining;
+                                pushedAnimation = true;
                                 float hitTime = context->Time;
                                 float delta   = noteTime - hitTime;
                                 UmTime.Invoke(delta, [this, modelData]() {
@@ -430,8 +409,45 @@ void PlayerPlayTurnState::OnQTEFinish(const std::vector<QTE::Result>& results)
                                 });
                             }
                         }
+
+                        // 무기 모델의 위치 설정
+                        Battle::EnemyTargetFlag_ target  = GetAttackTargetFromButton(result.PressedButton);
+                        auto                     enemies = Battle::GetTargetsFromFlags(target);
+                        if (false == enemies.empty())
+                        {
+                            Enemy* enemy = enemies.front();
+                            if (enemy)
+                            {
+                                if (GameObject& player = GetPlayer().gameObject)
+                                {
+                                    Vector3 enemyPos  = enemy->transform->GetWorldPosition();
+                                    Vector3 playerPos = player.transform->GetWorldPosition();
+                                    Vector3 dir       = DirectX::XMVector3Normalize(playerPos - enemyPos);
+
+                                    const Vector3 distance = dir * 1.0f;
+                                    modelData.GameObject->transform->SetWorldPosition(enemyPos + distance);
+
+                                    // modelData.GameObject->transform->LookAt(playerPos);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {  
+                        // 애니메이션이 없을 경우 바로 모델 반납
+                        weaponModelManager->ReturnWeaponModel(modelData);
                     }
                 }
+            }
+            if (pushedAnimation)
+            {
+                // 애니메이션이 성공적으로 푸쉬 되었을 경우 공격 남은 횟수 증가
+                ++_attackRemaining;
+            }
+            else
+            {
+                // 애니메이션이 없을 경우 바로 공격 처리
+                BattleOnHitEvent(result);
             }
         }
     }

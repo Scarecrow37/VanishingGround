@@ -160,6 +160,9 @@ void QTEUIManager::Start()
     FindUIComponents();
     
     UpdateUITransformData();
+
+    SetUIAlpha(0.0f);
+    SetBackgroundUIAlpha(0.0f);
 }
 
 void QTEUIManager::Update() 
