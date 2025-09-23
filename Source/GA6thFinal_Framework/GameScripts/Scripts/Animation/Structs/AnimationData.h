@@ -47,7 +47,7 @@ private:
     std::function<bool(const AnimationData&)> _popCondition = nullptr;      // return true일 시 Pop
     std::function<void()>                     _onPopCallback = nullptr;     // Pop 시 호출할 콜백 함수
     std::function<void()>                     _onEnterCallback = nullptr;   // Pop 시 호출할 콜백 함수
-    std::function<void()>                     _onExitCallback  = nullptr;     // End 시 호출할 콜백 함수
+    std::function<void()>                     _onExitCallback  = nullptr;   // End 시 호출할 콜백 함수
     std::function<void()>                     _onEndCallback = nullptr;     // End 시 호출할 콜백 함수
 
     inline void SetFlag(AnimationFlags flag) { _flag = flag; }

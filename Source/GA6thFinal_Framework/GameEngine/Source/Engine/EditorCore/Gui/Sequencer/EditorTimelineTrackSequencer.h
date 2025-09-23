@@ -17,7 +17,7 @@ namespace Timeline
             FLAGS_ALLOW_DRAG_MIN_MAX_LINE       = 1 << 10, // Min/Max 프레임 라인 조정을 잠그는 기능
             FLAGS_ALLOW_DRAG_CURSOR_LINE        = 1 << 11, // 현재 커서 라인 조정을 잠그는 기능
             FLAGS_ALLOW_DRAG_CURRENT_LINE       = 1 << 12, // 현재 프레임 라인 조정을 잠그는 기능
-            FLAGS_ALLOW_DRAG_CONTEXT            = 1 << 13, // 현재 프레임 라인 조정을 잠그는 기능
+            FLAGS_ALLOW_DRAG_CONTEXT            = 1 << 13, // 이벤트 콘텍스트 조정을 잠그는 기능
 
             FLAGS_ALLOW_POPUP_CONTEXT_MENU      = 1 << 14, // Context 메뉴 허용 여부
             FLAGS_ALLOW_POPUP_LOWER_CANVAS_MENU = 1 << 15, // Context 메뉴 허용 여부
@@ -28,7 +28,9 @@ namespace Timeline
             FLAGS_HIDE_CURRENT_LINE             = 1 << 22, // 현재 프레임 라인 숨김 여부
             FLAGS_HIDE_CONTEXT                  = 1 << 23, // 컨텍스트 숨김 여부
             FLAGS_HIDE_CONTEXT_LINE             = 1 << 24, // 컨텍스트 라인 숨김 여부
-            FLAGS_HIDE_CONTEXT_LEBEL            = 1 << 25, // 컨텍스트 라인 숨김 여부
+            FLAGS_HIDE_CONTEXT_LABEL            = 1 << 25, // 컨텍스트 레이블 숨김 여부
+
+            FLAGS_DRAW_CONTEXT_LINE_VERTICAL    = 1 << 30, // 컨텍스트 라인 수직 그리기 여부(이 플래그가 없으면 수평으로 그려짐)
 
             // 모든 입력 허용
             FLAGS_ALLOW_ALL_INPUT = FLAGS_ALLOW_POPUP_CONTEXT_MENU | 
@@ -132,6 +134,9 @@ namespace Timeline
         inline void   ToggleFlags(UINT flags) { _flags ^= flags; }
         inline bool   HasFlags(UINT flags) const { return (_flags & flags) != 0; }
 
+        inline float GetFrameFromMousePos() { return _mouseFrame; }
+        inline float GetFrameFromIndicate() { return _indicateFrame; }
+
     private:
         bool    Begin();
         void    End();
@@ -209,7 +214,7 @@ namespace Timeline
 
         ImVec2 _indicatePos;            // 현재 상호작용 등에 사용하는 커서 위치 (스냅, 클램핑 등의 영향을 받아 마우스 커서 위치와 다를 수 있음)
         ImVec2 _canvasIndicatePos;      // 캔버스 내에서의 _indicatePos
-        float  _indicateFrame;          // 현재 표시되는 프레임 (클리핑 등으로 인해 마우스 커서가 위치한 프레임과 다를 수 있음)
+        float  _indicateFrame;          // 현재 표시되는 프레임 (클램핑 등으로 인해 마우스 커서가 위치한 프레임과 다를 수 있음)
 
         float _unitToScaledSize;        // 단위 크기를 스케일링한 값 (줌 적용된 단위 크기)
 
