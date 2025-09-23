@@ -89,13 +89,14 @@ private:
 	std::vector<Matrix>						_prevTransforms;
 	std::vector<int>						_blendMatrixMask;
 
-	std::unordered_map<std::string, int>	_boneMask;
-	Matrix									_root;
-	std::vector<Controller>					_controllers;
-	std::vector<Controller>					_prevControllers;
-	std::shared_ptr<Animation>				_animation;
-	std::vector<Blend>						_blends;
-	std::shared_ptr<Skeleton>				_skeleton;
+    std::unordered_map<std::string, Matrix> _finalBoneMap;
+    std::unordered_map<std::string, int>    _boneMask;
+    Matrix                                  _root;
+    std::vector<Controller>                 _controllers;
+    std::vector<Controller>                 _prevControllers;
+    std::shared_ptr<Animation>              _animation;
+    std::vector<Blend>                      _blends;
+    std::shared_ptr<Skeleton>               _skeleton;
 
 	unsigned int							_maxSplit{ 0 };	
 	bool                                    _isBlending{false};
