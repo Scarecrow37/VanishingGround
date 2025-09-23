@@ -1,6 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "RestartStageNavi.h"
 
+UMREAL_COMPONENT(RestartStageNavi)
+
 RestartStageNavi::RestartStageNavi() = default;
 
 RestartStageNavi::~RestartStageNavi() = default;
