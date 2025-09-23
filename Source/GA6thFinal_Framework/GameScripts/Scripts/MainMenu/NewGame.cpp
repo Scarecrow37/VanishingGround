@@ -25,5 +25,6 @@ NewGame::~NewGame() = default;
 
 void NewGame::Submit()
 {
-    UmSceneManager.LoadScene(ReflectFields->NextSceneGuid);
+    File::Path path = File::Guid(ReflectFields->NextSceneGuid).ToPath();
+    UmSceneManager.LoadScene(path.string());
 }
