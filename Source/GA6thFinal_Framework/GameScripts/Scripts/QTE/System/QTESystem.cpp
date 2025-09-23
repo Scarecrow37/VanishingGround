@@ -430,7 +430,11 @@ void QTESystem::ProcessQTEEnterEvent()
                 character->OnQTEStart();
             }
         }
-        turnMode->ApplyActions([](TurnAction& turnAction) { turnAction.OnQTEStart(); });
+        Player* player = turnMode->GetPlayer();
+        if (player)
+        {
+            turnMode->ApplyActions([player](TurnAction& turnAction) { turnAction.OnPlayerQTEStart(*player); });
+        }
     }
 }
 
@@ -470,7 +474,11 @@ void QTESystem::ProcessQTEExitEvent()
                 character->OnQTEEnd();
             }
         }
-        turnMode->ApplyActions([](TurnAction& turnAction) { turnAction.OnQTEEnd(); });
+        Player* player = turnMode->GetPlayer();
+        if (player)
+        {
+            turnMode->ApplyActions([player](TurnAction& turnAction) { turnAction.OnPlayerQTEResult(*player); });
+        }
     }
 }
 

@@ -135,6 +135,12 @@ public:
     virtual void OnEnemyDead(Enemy& enemy) {}
 
     /// <summary>
+    /// QTE가 시작할 때 호출됩니다. 
+    /// </summary>
+    /// <param name="player"></param>
+    virtual void OnPlayerQTEStart(Player& player) {}
+
+    /// <summary>
     /// 플레이어 QTE 판정 종료후 호출됩니다.
     /// </summary>
     /// <param name="player"></param>
@@ -197,21 +203,9 @@ public:
     {
     }
 
-    /// <summary>QTE가 시작할 때 호출됩니다.</summary>
-    virtual void OnQTEStart() {}
-
-    /// <summary>QTE가 끝날 때 호출됩니다.</summary>
-    virtual void OnQTEEnd() {}
-
     /// <summary>Player가 공격할 때 MISS등 관계 여부 상관 없이 데미지 계산 전에 호출됩니다.</summary>
     virtual void OnPlayerBattlePreCalculate(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
                                      Enemy& target, EnemyStats& targetStats, const QTE::Result& result)
-    {
-    }
-
-    /// <summary>Player가 공격할 때 MISS등 관계 여부 상관 없이 데미지 계산 전에 호출됩니다.</summary>
-    virtual void OnPlayerBattlePostCalculate(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
-                                            Enemy& target, EnemyStats& targetStats, const QTE::Result& result)
     {
     }
 
