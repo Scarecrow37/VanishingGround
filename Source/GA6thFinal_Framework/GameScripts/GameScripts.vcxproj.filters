@@ -165,6 +165,8 @@
     <ClCompile Include="Scripts\MainMenu\Quit.cpp" />
     <ClCompile Include="Scripts\ViewModels\Chain\ChainCountViewModel.cpp" />
     <ClCompile Include="Scripts\UI\Views\MonsterChain\MonsterChainView.cpp" />
+    <ClCompile Include="Scripts\QTE\System\QTESystem.cpp" />
+    <ClCompile Include="Scripts\QTE\Editor\QTEEditor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h" />
@@ -351,6 +353,8 @@
     <ClInclude Include="Scripts\MainMenu\Option.h" />
     <ClInclude Include="Scripts\MainMenu\Credits.h" />
     <ClInclude Include="Scripts\MainMenu\Quit.h" />
+    <ClInclude Include="Scripts\QTE\System\QTESystem.h" />
+    <ClInclude Include="Scripts\QTE\Editor\QTEEditor.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

@@ -215,6 +215,40 @@ void TokenInventory::NotifyTokenRemoved(int tokenID)
     }
 }
 
+void TokenInventory::NotifyQTEStart()
+{
+    const auto& instances = TokenSystem::GetTokenInstances();
+    for (auto& instance : instances)
+    {
+        Token* token = instance;
+        if (token)
+        {
+            int count = GetTokenStackFromID(token->GetTokenID());
+            if (0 < count)
+            {
+                token->OnQTEStart(_owner);
+            }
+        }
+    }
+}
+
+void TokenInventory::NotifyQTEEnd()
+{
+    const auto& instances = TokenSystem::GetTokenInstances();
+    for (auto& instance : instances)
+    {
+        Token* token = instance;
+        if (token)
+        {
+            int count = GetTokenStackFromID(token->GetTokenID());
+            if (0 < count)
+            {
+                token->OnQTEEnd(_owner);
+            }
+        }
+    }
+}
+
 void TokenInventory::AddTokenStackFromID(int tokenID, int count /* = 1 */)
 {
     if (0 == count)

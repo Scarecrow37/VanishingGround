@@ -1,0 +1,56 @@
+﻿#pragma once
+
+namespace QTE
+{
+    class Note;
+
+    enum ResultType
+    {
+        QTE_RESULT_NONE = 0,
+        QTE_RESULT_PERFECT,
+        QTE_RESULT_NORMAL,
+        QTE_RESULT_MISS
+    };
+
+    struct Result
+    {
+        using Button    = Input::Controller::Button;
+        using Callback  = std::function<void(const std::vector<QTE::Result>&)>;
+
+        Result() = default;
+        Result(Note* note) : Note(note) {}
+
+        Button          PressedButton   = Button::UNDEFINED;    // 누른 버튼 (Input::Controller::Button)
+        Note*           Note            = nullptr;              // 결과에 해당하는 노트
+        ResultType      ResultType      = QTE_RESULT_NONE;      // 결과 타입
+        float           TimeDelta       = 0.0f;                 // 누른 시간과 퍼펙트 시간 차이 (초)
+
+        // 누른 버튼이 존재하는지 여부
+        inline bool IsPressedButton() const { return PressedButton != Input::Controller::Button::UNDEFINED; }
+
+        // 유효한 결과인지 여부
+        inline bool IsValidResult() const { return ResultType != QTE_RESULT_NONE; }
+
+        // 히트 여부 (치명타 or 일격)
+        inline bool IsHit() const { return ResultType == QTE_RESULT_PERFECT || ResultType == QTE_RESULT_NORMAL; }
+    };
+
+    inline static const char* QTEResultToString(ResultType result)
+    {
+        switch (result)
+        {
+        case ResultType::QTE_RESULT_NONE:
+            return "None";
+        case ResultType::QTE_RESULT_PERFECT:
+            return "Perfect";
+        case ResultType::QTE_RESULT_NORMAL:
+            return "Normal";
+        case ResultType::QTE_RESULT_MISS:
+            return "Miss";
+        default:
+            return "Unknown";
+        }
+    }
+}
+
+

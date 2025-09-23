@@ -341,6 +341,12 @@
     <ClInclude Include="Scripts\Preferences\Button\TextureLMH.h" />
     <ClInclude Include="Scripts\Preferences\PreferencesManager.h" />
     <ClInclude Include="Scripts\Preferences\PrefrencesWindow.h" />
+    <ClInclude Include="Scripts\QTE\Editor\QTEEditor.h" />
+    <ClInclude Include="Scripts\QTE\Result\QTEResult.h" />
+    <ClInclude Include="Scripts\QTE\System\QTESystem.h" />
+    <ClInclude Include="Scripts\QTE\Track\Note\QTENote.h" />
+    <ClInclude Include="Scripts\QTE\Track\QTETrack.h" />
+    <ClInclude Include="Scripts\QTE\UI\QTEUIManager.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.h" />
     <ClInclude Include="Scripts\Animation\AnimationComponent.h" />
@@ -491,6 +497,7 @@
     <ClInclude Include="Scripts\MainMenu\Credits.h" />
     <ClInclude Include="Scripts\MainMenu\Quit.h" />
     <ClInclude Include="Scripts\Camera\UmCineMotion.h" />
+    <ClInclude Include="Scripts\WeaponModelManager\WeaponModelManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.cpp" />
@@ -530,11 +537,17 @@
     <ClCompile Include="Scripts\Preferences\Button\TextureLMH.cpp" />
     <ClCompile Include="Scripts\Preferences\PreferencesManager.cpp" />
     <ClCompile Include="Scripts\Preferences\PrefrencesWindow.cpp" />
+    <ClCompile Include="Scripts\QTE\Editor\QTEEditor.cpp" />
+    <ClCompile Include="Scripts\QTE\System\QTESystem.cpp" />
+    <ClCompile Include="Scripts\QTE\Track\Note\QTENote.cpp" />
+    <ClCompile Include="Scripts\QTE\Track\QTETrack.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\QTEUIManager.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.cpp" />
     <ClCompile Include="Scripts\Animation\AnimationComponent.cpp" />
     <ClCompile Include="Scripts\Animation\Structs\AnimationData.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Recovery\RecoveryAction.cpp" />
+    <ClCompile Include="Scripts\WeaponModelManager\WeaponModelManager.cpp" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionEnums.h">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
