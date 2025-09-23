@@ -322,6 +322,7 @@ void UINavigationComponent::OnAttachParent(GameObject* parentGameObject)
     {
         if (UIRoot* uiRoot = GetRoot(*parentGameObject); nullptr != uiRoot)
         {
+            uiRoot->CheckNavigationIdFlawless(this);
             AcquireNavigationID(uiRoot);
         }
     }
@@ -411,6 +412,11 @@ void UINavigationComponent::ReleaseNavigationID(UIRoot* root)
             ReflectFields->NavigationID = tempId;
         }
     }
+}
+
+void UINavigationComponent::SetID(const NavigationID id)
+{
+    ReflectFields->NavigationID = id;
 }
 
 void UINavigationComponent::ClearNavigationRoute()
