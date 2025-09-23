@@ -13,7 +13,7 @@ NewGame::NewGame()
                 const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
                 if (const auto extension = data->GetPath().extension(); extension == L".UmScene")
                 {
-                    ReflectFields->NextScene = data->GetPath().string();
+                    ReflectFields->NextSceneGuid = data->GetGuid().string();
                 }
             }
             ImGui::EndDragDropTarget();
@@ -25,5 +25,5 @@ NewGame::~NewGame() = default;
 
 void NewGame::Submit()
 {
-    UmSceneManager.LoadScene(ReflectFields->NextScene);
+    UmSceneManager.LoadScene(ReflectFields->NextSceneGuid);
 }
