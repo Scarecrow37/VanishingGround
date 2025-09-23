@@ -181,24 +181,16 @@ void CharacterBase::Dead()
     _tokenInventory.NotifyDead();
 }
 
-void CharacterBase::TakeDamage(int damage, bool playAnim)
+void CharacterBase::TakeDamage(int damage, bool playAnim) 
 {
-    if (TurnActor::STATE::Dead == GetActorState())
-    {
-        GameObject& owner = gameObject;
-        std::string msg = std::format("{}{}", owner.ToString(), (const char*)u8" 대한 공격 빗나감.");
-        UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
-        return;
-    }
-       
     CharacterStats* stats = GetCharacterStats();
     if (stats)
     {
         stats->CurrentHP -= damage;
-        stats->CurrentHP = std::clamp((int)stats->CurrentHP, 0, (int)stats->MaxHP);
+        stats->CurrentHP  = std::clamp((int)stats->CurrentHP, 0, (int)stats->MaxHP);
         GameObject& owner = gameObject;
-        std::string msg = std::format("{}{} {}{}", owner.ToString(), (const char*)u8"이(가)", damage,
-            (const char*)u8"의 피해를 입었습니다.");
+        std::string msg   = std::format("{}{} {}{}", owner.ToString(), (const char*)u8"이(가)", damage,
+                                        (const char*)u8"의 피해를 입었습니다.");
         UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
     }
     if (playAnim && _animationComponent)
@@ -208,10 +200,51 @@ void CharacterBase::TakeDamage(int damage, bool playAnim)
         bool pushResult = _animationComponent->PushBackOverrideAnimation("Hit");
         if (pushResult)
         {
-            _animationComponent->SetCurrentAnimationPopCondition([](const AnimationData& data) { return data.IsEnd(); }); // 애니메이션이 끝날 경우 Pop
+            _animationComponent->SetCurrentAnimationPopCondition(
+                [](const AnimationData& data) { return data.IsEnd(); }); // 애니메이션이 끝날 경우 Pop
         }
         _animationComponent->EndBuildOverrideAnimation();
     }
+}
+
+void CharacterBase::TakeDamage(int damage, const QTE::Result& result, bool playAnim)
+{
+    if (TurnActor::STATE::Dead == GetActorState())
+    {
+        GameObject& owner = gameObject;
+        std::string msg = std::format("{}{}", owner.ToString(), (const char*)u8" 대한 공격 빗나감.");
+        UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
+        return;
+    }
+    if (QTE::QTE_RESULT_MISS == result.ResultType)
+    {
+        GameObject& owner = gameObject;
+        std::string msg   = std::format("{}{}", owner.ToString(), (const char*)u8" 대한 공격 빗나감.");
+        UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
+        return;
+    }
+
+    switch (result.ResultType)
+    {
+        case QTE::QTE_RESULT_PERFECT:
+        {
+            GameObject& owner = gameObject;
+            std::string msg   = std::format("{}{}", owner.ToString(), (const char*)u8" 대한 공격 치명타!!");
+            UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
+            break;
+        }
+        case QTE::QTE_RESULT_NORMAL:
+        {
+            GameObject& owner = gameObject;
+            std::string msg   = std::format("{}{}", owner.ToString(), (const char*)u8" 대한 공격 일격!!");
+            UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
+            break;
+        }
+        default:
+            break;
+    }
+       
+    TakeDamage(damage, playAnim);
 }
 
 void CharacterBase::TakeChain(int chainDamage) 

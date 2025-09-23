@@ -311,7 +311,7 @@ void PlayerPlayTurnState::BattleOnHitEvent(const QTE::Result& result)
 {
     Battle::EnemyTargetFlag_ target = GetAttackTargetFromButton(result.PressedButton);
     Player& player = GetPlayer();
-    Battle()(player, target);
+    Battle()(player, target, result);
 }
 
 Battle::EnemyTargetFlag_ PlayerPlayTurnState::GetAttackTargetFromButton(unsigned int button) const

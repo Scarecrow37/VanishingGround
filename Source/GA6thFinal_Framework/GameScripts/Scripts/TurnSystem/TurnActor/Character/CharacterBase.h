@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <QTE/Result/QTEResult.h>
 #include "TurnSystem/TurnActor/TurnActor.h"
 #include "Token/TokenInventory.h"
 #include "Animation/Structs/AnimationData.h"
@@ -62,6 +63,7 @@ public:
     virtual void Revive() override;
     virtual void Dead() override;
     virtual void TakeDamage(int damage, bool playAnim = true);
+    virtual void TakeDamage(int damage, const QTE::Result& result, bool playAnim = true);
     virtual void TakeChain(int chainDamage);
 
     // 연격 수를 설정합니다.

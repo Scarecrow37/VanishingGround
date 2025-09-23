@@ -51,11 +51,18 @@ void Enemy::Dead()
     }
 }
 
-void Enemy::TakeDamage(int damage, bool playAnim)
+void Enemy::TakeDamage(int damage, bool playAnim) 
 {
     // 혹시나 그럴 일 없겠지만 중간에 계산할 연산이 또 있다면 재연산
     int takeDamage = damage;
     Base::TakeDamage(takeDamage, playAnim);
+}
+
+void Enemy::TakeDamage(int damage, const QTE::Result& result, bool playAnim)
+{
+    // 혹시나 그럴 일 없겠지만 중간에 계산할 연산이 또 있다면 재연산
+    int takeDamage = damage;
+    Base::TakeDamage(takeDamage, result, playAnim);
 }
 
 void Enemy::Awake()

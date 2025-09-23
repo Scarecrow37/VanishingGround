@@ -46,13 +46,13 @@ bool WeaponModelManager::ReturnWeaponModel(WeaponModelData data)
 {
     if (data.IsValid())
     {
-        if (GameObject& object = data.Animation->gameObject)
+        if (GameObject* object = &data.Animation->gameObject)
         {
             _availableWeaponIndicesTable[data.Type].push(data._index);
-            object.ActiveSelf = false;
-            data.Animation    = nullptr;
-            data.Particle     = nullptr;
-            data.GameObject   = nullptr;
+            object->ActiveSelf  = false;
+            data.Animation      = nullptr;
+            data.Particle       = nullptr;
+            data.GameObject     = nullptr;
             return true;
         }
     }
@@ -122,10 +122,10 @@ void WeaponModelManager::DeserializedReflectEvent()
 
 void WeaponModelManager::ImGuiDrawPropertysEvent()
 {
+    constexpr auto   WeaponTypeArray     = rfl::get_enumerator_array<WeaponType>();
+    constexpr size_t WeaponTypeArraySize = WeaponTypeArray.size();
     if (ImGui::TreeNodeEx("Weapon Prefab GUID", ImGuiTreeNodeFlags_DefaultOpen))
     {
-        constexpr auto   WeaponTypeArray     = rfl::get_enumerator_array<WeaponType>();
-        constexpr size_t WeaponTypeArraySize = WeaponTypeArray.size();
         for (auto& [name, type] : WeaponTypeArray)
         {
             ImGui::PushID(name.data());
@@ -165,6 +165,16 @@ void WeaponModelManager::ImGuiDrawPropertysEvent()
     }
     if (ImGui::TreeNodeEx("Invalid Instances", ImGuiTreeNodeFlags_DefaultOpen))
     {
+        for (auto& [name, type] : WeaponTypeArray)
+        {
+            ImGui::PushID(name.data());
+            ImGuiHelper::TextWithVerticalSeparator(name.data(), 150.0f);
+            ImGui::SameLine();
+            size_t availableCount = _availableWeaponIndicesTable[type].size();
+            size_t totalCount     = _weaponAnimationTable[type].size();
+            ImGui::Text("%s : %zu / %zu", name.data(), availableCount, totalCount);
+            ImGui::PopID();
+        }
         ImGui::TreePop();
     }
 }

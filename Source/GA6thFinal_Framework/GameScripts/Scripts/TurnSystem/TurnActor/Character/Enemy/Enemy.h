@@ -64,6 +64,7 @@ public:
     virtual void Dead() override;
     /*Enemy에게 피격을 가합니다.*/
     virtual void TakeDamage(int damage, bool playAnim = true) override;
+    virtual void TakeDamage(int damage, const QTE::Result& result, bool playAnim = true) override;
 
     inline EnemyAI&            GetAIModel() { return _aiModel; }
     inline FiniteStateMachine& GetFSM() { return *_finiteStateMachine; }
