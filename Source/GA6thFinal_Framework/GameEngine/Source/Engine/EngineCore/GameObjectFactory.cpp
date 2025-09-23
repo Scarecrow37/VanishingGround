@@ -1,4 +1,5 @@
 ﻿#include "pch.h"
+
 using namespace Global;
 using namespace u8_literals;
 
@@ -774,6 +775,29 @@ void EGameObjectFactory::WriteGameObjectFile(Transform* transform, std::string_v
 
 bool EGameObjectFactory::PackPrefab(GameObject* targetObject, const File::Guid& guid)
 {
+    // UI 내비게이션은 프리팹 금지
+    bool isNavi = false;
+    Transform::ForeachBFS(targetObject->_transform, [&isNavi](Transform* curr) 
+    {
+        GameObject& currObject = curr->_gameObject;
+        for (auto& component : currObject._components)
+        {
+            if (Component::TYPE::UI == component->GetType())
+            {
+                if (UINavigationComponent* navi = dynamic_cast<UINavigationComponent*>(component.get()))
+                {
+                    isNavi = true;
+                }
+            }
+        }
+    });
+
+    if (isNavi)
+    {
+        UnpackPrefab(targetObject);
+        return false;
+    }
+
     if (targetObject->IsPrefabInstance() == false)
     {
         if (_prefabObjectMap.find(guid) != _prefabObjectMap.end())
