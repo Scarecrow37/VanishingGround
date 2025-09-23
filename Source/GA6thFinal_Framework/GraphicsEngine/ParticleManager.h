@@ -31,7 +31,7 @@ public:
         float emitterLifetime = 150.f, LocationShape locatorShape = LocationShape::SPHERE,
         Vector3 locationFactor = Vector3(1, 1, 1), ParticleType particleType = ParticleType::SPRITE,
         std::wstring_view meshspritePath = L"");
-    void                   DeleteEffect(class ParticleEffect* effect);
+    void                   DeleteEffect(class ParticleEffect* effect, const std::string& sceneName);
     void                   Update(const float deltaTime);
     void                   UpdateEditorLifeCycle();
     void                   RefreshEditor();
