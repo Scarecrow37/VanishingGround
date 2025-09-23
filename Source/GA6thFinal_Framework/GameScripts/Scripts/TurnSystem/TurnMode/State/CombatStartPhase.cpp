@@ -124,6 +124,11 @@ void CombatStartPhase::OnEnter()
         {
             weaponPanel->ActiveSelf = true;
         }       
+         
+        if (auto accessoriesPanel = GameObject::FindWithTag("Accessories Panel").lock())
+        {
+            accessoriesPanel->ActiveSelf = true;
+        }
     });
 
     NotifyCombatStart();

@@ -42,7 +42,7 @@ public:
         }
     }
 
-    ImU32 GetGradeColor()
+    ImU32 GetGradeColor() const
     {
         AccessoryGrade grade = ReflectFields->Grade;
         return GetGradeImGuiColor(grade);
