@@ -125,20 +125,20 @@ ParticleEmitter* ParticleManager::RegisterEmitter(class ParticleEffect* effect, 
 void ParticleManager::DeleteEffect(ParticleEffect* target ,const std::string& sceneName)
 {
     target->SetRemoveFlag(true);
-    for (auto& updateresource : _particleUpdateResources)
+    for (auto it = _particleUpdateResources.begin(); it != _particleUpdateResources.end(); ++it)
     {
-            for (auto it = updateresource->_sceneEffects.begin(); it != updateresource->_sceneEffects.end();)
-            {
-                if (target == (*it))
-                {
-                    delete *it; // 메모리 해제
-                    it = updateresource->_sceneEffects.erase(it);
-                }
-                else
-                {
-                    ++it;
-                }
-            }
+        if (sceneName != (*it)->_name)
+            continue;
+
+        auto& effects = (*it)->_sceneEffects;
+        auto  it2     = std::find(effects.begin(), effects.end(), target);
+        if (it2 != effects.end())
+        {
+            delete *it2;       
+            effects.erase(it2);
+        }
+
+        break;
     }
 }
 void ParticleManager::Update(const float deltaTime)

@@ -78,13 +78,7 @@ protected:
     void            ImGuiDrawPropertysEvent() override;
 
 private:
-    bool  _isPlaying = false;
-    float age        = 0.f;
-    float lifetime   = 0.f;
-    bool  isplaying  = false;
     void  LoadParticle();
-    bool  isDirty = false;
-
     
     class SkeletalMeshRenderer* _skelMesh;
     Vector3 _positionVector{0.f, .0f, 0.f};

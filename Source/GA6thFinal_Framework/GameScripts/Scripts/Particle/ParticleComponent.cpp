@@ -41,9 +41,7 @@ ParticleComponent::~ParticleComponent()
     }
 }
 
-void ParticleComponent::Update()
-{
-    }
+void ParticleComponent::Update() {}
 
 void ParticleComponent::Start() 
 {
@@ -51,10 +49,7 @@ void ParticleComponent::Start()
 
 }
 
-void ParticleComponent::Reset() 
-{   
-
-}
+void ParticleComponent::Reset() {}
 
 void ParticleComponent::SerializedReflectEvent()
 {
@@ -92,22 +87,30 @@ void ParticleComponent::ImGuiDrawPropertysEvent()
     SkeletalMeshRenderer* skelMesh = GetComponent<SkeletalMeshRenderer>();
     if (nullptr != skelMesh)
     {
-        auto&       renderer   = skelMesh->Renderer;
-        auto&       model      = renderer->GetModel();
-        const auto& _boneNames = model->GetBoneNameList();
-
-        const char* comboLabel = (nullptr != skelMesh) ? ReflectFields->BoneNameToAttach.c_str() : "-";
-        if (ImGui::BeginCombo("##bone name", comboLabel))
+        auto& renderer = skelMesh->Renderer;
+        if (nullptr != renderer)
         {
-            for (int i = 0; i < _boneNames.size(); ++i)
+            auto& model = renderer->GetModel();
+            if (nullptr != model)
             {
-                bool isSelected = ReflectFields->BoneNameToAttach == _boneNames[i];
-                if (ImGui::Selectable(_boneNames[i].c_str(), isSelected))
+                const auto& _boneNames = model->GetBoneNameList();
+                if (false == _boneNames.empty())
                 {
-                    ReflectFields->BoneNameToAttach = _boneNames[i];
+                    const char* comboLabel = (nullptr != skelMesh) ? ReflectFields->BoneNameToAttach.c_str() : "-";
+                    if (ImGui::BeginCombo("##bone name", comboLabel))
+                    {
+                        for (int i = 0; i < _boneNames.size(); ++i)
+                        {
+                            bool isSelected = ReflectFields->BoneNameToAttach == _boneNames[i];
+                            if (ImGui::Selectable(_boneNames[i].c_str(), isSelected))
+                            {
+                                ReflectFields->BoneNameToAttach = _boneNames[i];
+                            }
+                        }
+                        ImGui::EndCombo();
+                    }
                 }
             }
-            ImGui::EndCombo();
         }
     }
 
@@ -126,8 +129,6 @@ void ParticleComponent::ImGuiDrawPropertysEvent()
             StopEffect();
         }
     }
-
-
 }
 
 void ParticleComponent::OnDestroy()
