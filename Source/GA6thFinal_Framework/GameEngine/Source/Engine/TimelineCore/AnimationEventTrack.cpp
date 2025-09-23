@@ -23,13 +23,7 @@ bool AnimationEventTrack::IsLoadedFile() const
 bool AnimationEventTrack::NewFile(const File::Path& filePath)
 {
     Clear();
-    std::ofstream fout(filePath);
-    if (fout.is_open())
-    {
-        fout.close();
-        return SaveFile(filePath, true);
-    }
-    return false;
+    return SaveFile(filePath, true);
 }
 
 bool AnimationEventTrack::SaveFile(const File::Path& filePath, bool overwrite)
@@ -39,7 +33,7 @@ bool AnimationEventTrack::SaveFile(const File::Path& filePath, bool overwrite)
         return false;
     }
     std::ofstream fout(filePath);
-    if (true == fout.is_open())
+    if (fout.is_open())
     {
         YAML::Node  node;
         node["EventTrackTable"] = SerializedReflectFields();

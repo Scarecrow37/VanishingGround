@@ -81,7 +81,7 @@ private:
 private:
     bool CanPressQTEButton();
     bool CanPressQTEButton(QTE::Note* note);
-    void PressedQTEButton(unsigned int buttonType = 0);
+    void PressedQTEButton(Input::Controller::Button buttonType = 0);
     void PressedButtonX(const Input::Controller& controller);
     void PressedButtonY(const Input::Controller& controller);
     void PressedButtonB(const Input::Controller& controller);

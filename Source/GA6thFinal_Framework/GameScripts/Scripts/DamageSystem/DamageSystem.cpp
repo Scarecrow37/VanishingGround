@@ -14,10 +14,12 @@ int DamageSystem::CalculateDamage(const PlayerInfo& attacker, const EnemyInfo& t
         case QTE::ResultType::QTE_RESULT_PERFECT: {
             hitDamage                = attacker._weaponStats.CriticalDamage;
             criticalDamageMultiplier = attacker._weaponStats.CriticalDamageMultiplier;
+            break;
         }
         case QTE::ResultType::QTE_RESULT_NORMAL: {
             hitDamage                = attacker._weaponStats.HitDamage;
             criticalDamageMultiplier = attacker._weaponStats.HitDamageMultiplier;
+            break;
         }
         case QTE::ResultType::QTE_RESULT_MISS: {
             break;

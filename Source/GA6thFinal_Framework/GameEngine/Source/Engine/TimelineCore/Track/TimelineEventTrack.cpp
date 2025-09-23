@@ -159,38 +159,6 @@ namespace Timeline
         }
         return false;
     }
-    std::string EventTrack::CopyContext(EventContext* dest)
-    {
-        if (nullptr != dest)
-        {
-            return dest->SerializedReflectFields();
-        }
-        return "";
-    }
-    EventContext* EventTrack::PasteContext(EventContext* target)
-    {
-        if (nullptr == target)
-        {
-            return nullptr;
-        }
-        EventContext* context = AddEventEx(target->GetLabel(), target->GetEventType(), target->Time);
-        return context;
-    }
-
-    EventContext* EventTrack::PasteContext(const EventTypeName& eventName, std::string_view serializeData)
-    {
-        EventContext* context = NewInstanceWithKey(eventName);
-        if (nullptr == context)
-        {
-            context = new EventContext();
-        }
-        context->DeserializedReflectFields(serializeData);
-        _contextQueue.push_back(context);
-        _contextTable[GetUniqueID()] = context;
-        Sort();
-        return context;
-    }
-
     bool EventTrack::ChangeContextTime(UINT id, float time)
     {
         EventContext* context = GetContextFromID(id);

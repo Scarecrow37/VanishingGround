@@ -363,7 +363,7 @@ bool QTESystem::CanPressQTEButton(QTE::Note* note)
     return false;
 }
 
-void QTESystem::PressedQTEButton(unsigned int buttonType)
+void QTESystem::PressedQTEButton(Input::Controller::Button buttonType)
 {
     if (_currQTEPlaying)
     {
@@ -385,7 +385,7 @@ void QTESystem::PressedButtonX(const Input::Controller& controller)
     // Handle button X pressed
     if (CanPressQTEButton())
     {
-        PressedQTEButton(static_cast<unsigned int>(Input::ControllerTypes::Button::X));
+        PressedQTEButton(Input::ControllerTypes::Button::X);
     }
 }
 
@@ -394,7 +394,7 @@ void QTESystem::PressedButtonY(const Input::Controller& controller)
     // Handle button Y pressed
     if (CanPressQTEButton())
     {
-        PressedQTEButton(static_cast<unsigned int>(Input::ControllerTypes::Button::Y));
+        PressedQTEButton(Input::ControllerTypes::Button::Y);
     }
 }
 
@@ -403,7 +403,7 @@ void QTESystem::PressedButtonB(const Input::Controller& controller)
     // Handle button B pressed
     if (CanPressQTEButton())
     {
-        PressedQTEButton(static_cast<unsigned int>(Input::ControllerTypes::Button::B));
+        PressedQTEButton(Input::ControllerTypes::Button::B);
     }
 }
 

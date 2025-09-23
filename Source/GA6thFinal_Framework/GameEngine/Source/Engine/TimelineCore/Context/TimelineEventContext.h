@@ -13,7 +13,7 @@ namespace Timeline
         REFLECT_PROPERTY(ID, Label, EventType, Time)
         GETTER_ONLY(UINT, ID) { return ReflectFields->ContextID; }
         PROPERTY(ID)
-        GETTER_ONLY(std::string_view, EventType) { return ReflectFields->EventType.c_str(); }
+        GETTER_ONLY(std::string_view, EventType) { return ReflectFields->EventType; }
         PROPERTY(EventType)
         GETTER(std::string_view, Label) { return ReflectFields->Label; }
         SETTER(std::string_view, Label) { ReflectFields->Label = value; }
