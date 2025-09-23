@@ -215,9 +215,8 @@ void DXRDrawPass::CreateShaderResource()
     auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, mode.Width, mode.Height, 1, 1, 1, 0,
                                              D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 
-    _outputResourceUAV->Initialize(desc);
+    _outputResourceUAV->InitializeAsTexture(desc, UnorderedAccessView::UAVSliceType::PER_MIP, false);
     Global::dxResourceManager->AddResource(_outputResourceUAV);
-    _outputResourceUAV->TransitionResource(cmdlist, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 }
 
 void DXRDrawPass::UpdateFrameResource(ID3D12GraphicsCommandList* commandList)
