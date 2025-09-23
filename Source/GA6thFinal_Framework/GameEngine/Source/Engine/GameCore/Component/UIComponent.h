@@ -89,6 +89,7 @@ public:
     {
         ReflectFields->Padding = static_cast<RECT>(value);
         InvalidateMeasure();
+        InvalidateArrange();
     }
     PROPERTY(Padding)
 
@@ -97,6 +98,7 @@ public:
     {
         ReflectFields->Margin = static_cast<RECT>(value);
         InvalidateMeasure();
+        InvalidateArrange();
     }
     PROPERTY(Margin)
 
