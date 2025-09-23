@@ -46,6 +46,7 @@ namespace GE
         SSR,
         TO_BACKBUFFER,
         UI,
+        UI_OIT,
         UP_SAMPLE,
         VOLUMETRIC_FOG,
         WRITE_AO,
@@ -61,6 +62,7 @@ namespace GE
         LIGHT_ACCUMULATION,
         LIGHT_INJECTION,
         PREFILTERED_MAP,
+        RESOLVE_UI,
         SKELETAL_SKINNING,
         END
      };
