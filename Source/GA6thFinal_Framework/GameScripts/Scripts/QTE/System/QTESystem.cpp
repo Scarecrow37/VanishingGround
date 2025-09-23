@@ -430,6 +430,8 @@ void QTESystem::ProcessQTEEnterEvent()
             turnMode->ApplyActions([player](TurnAction& turnAction) { turnAction.OnPlayerQTEStart(*player); });
         }
     }
+
+    CombatUIActive(false);
 }
 
 void QTESystem::ProcessQTENotePressedEvent(QTE::ResultType result)
@@ -474,6 +476,8 @@ void QTESystem::ProcessQTEExitEvent()
             turnMode->ApplyActions([player](TurnAction& turnAction) { turnAction.OnPlayerQTEResult(*player); });
         }
     }
+
+    CombatUIActive(true);
 }
 
 void QTESystem::ProcessQTEFadeInEndEvent() 
@@ -488,5 +492,33 @@ void QTESystem::ProcessQTEFadeOutEndEvent()
     {
         _onQTEFinishCallback(_noteResultQueue);
         _onQTEFinishCallback = nullptr;
+    }
+}
+
+void QTESystem::CombatUIActive(bool active) 
+{
+    if (auto turnQueue = GameObject::FindWithTag("Turn Queue Panel").lock())
+    {
+        turnQueue->ActiveSelf = active;
+    }
+
+    if (auto HUD = GameObject::FindWithTag("Character HUD Group").lock())
+    {
+        HUD->ActiveSelf = active;
+    }
+
+    if (auto revelationPanel = GameObject::FindWithTag("Revelations Panel").lock())
+    {
+        revelationPanel->ActiveSelf = active;
+    }
+
+    if (auto weaponPanel = GameObject::FindWithTag("Weapon Panel").lock())
+    {
+        weaponPanel->ActiveSelf = active;
+    }
+
+    if (auto accessoriesPanel = GameObject::FindWithTag("Accessories Panel").lock())
+    {
+        accessoriesPanel->ActiveSelf = active;
     }
 }
