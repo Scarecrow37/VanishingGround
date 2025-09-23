@@ -76,8 +76,10 @@ protected:
     void            SerializedReflectEvent() override;
     void            DeserializedReflectEvent() override;
     void            ImGuiDrawPropertysEvent() override;
+    void            Awake() override;
+    void            OnEnable() override;
 
-private:
+ private:
     void  LoadParticle();
     
     class SkeletalMeshRenderer* _skelMesh;

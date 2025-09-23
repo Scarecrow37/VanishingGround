@@ -45,7 +45,6 @@ void ParticleComponent::Update() {}
 
 void ParticleComponent::Start() 
 {
-    FollowBoneMatrix();
 
 }
 
@@ -129,6 +128,14 @@ void ParticleComponent::ImGuiDrawPropertysEvent()
             StopEffect();
         }
     }
+}
+
+void ParticleComponent::Awake()
+{
+}
+
+void ParticleComponent::OnEnable()
+{
 }
 
 void ParticleComponent::OnDestroy()
@@ -228,6 +235,7 @@ void ParticleComponent::PlayEffect()
 {
     if (nullptr != _effect)
     {
+        FollowBoneMatrix();
         _effect->Play();
     }
 
