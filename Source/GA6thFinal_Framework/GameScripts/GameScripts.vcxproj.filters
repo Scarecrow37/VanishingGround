@@ -113,7 +113,6 @@
     <ClCompile Include="Scripts\Test\DevTools\LogOutput.cpp" />
     <ClCompile Include="Scripts\Audio\AudioTableComponent.cpp" />
     <ClCompile Include="Scripts\ExcelParser\ImGuiColumnSheetParser.cpp" />
-    <ClCompile Include="Scripts\ViewModels\Hp\HpViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Revelations\RevelationsViewModel.cpp" />
     <ClCompile Include="Scripts\UI\Elements\Dummy\DummyElement.cpp" />
     <ClCompile Include="Scripts\UI\Wrappers\Dummy\DummyWrapper.cpp" />
@@ -145,10 +144,8 @@
     <ClCompile Include="Scripts\PlayerSystem\PlayerSystem.cpp" />
     <ClCompile Include="Scripts\AccessorySystem\AccessorySystem.cpp" />
     <ClCompile Include="Scripts\Map\SmoothScroll.cpp" />
-    <ClCompile Include="Scripts\UI\Views\Map\MapPlayerHPView.cpp" />
     <ClCompile Include="Scripts\UI\Views\Map\StageFocusView.cpp" />
     <ClCompile Include="Scripts\UI\Views\Map\StageView.cpp" />
-    <ClCompile Include="Scripts\ViewModels\Map\MapPlayerHPViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Map\StageFocusViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Map\StageViewModel.cpp" />
     <ClCompile Include="Scripts\ExcelDataSystem\ExcelDataSystem.cpp" />
@@ -158,6 +155,16 @@
     <ClCompile Include="Scripts\Preferences\PreferencesManager.cpp" />
     <ClCompile Include="Scripts\Preferences\PrefrencesWindow.cpp" />
     <ClCompile Include="Scripts\UINavigation\TempNavigationComponent.cpp" />
+    <ClCompile Include="Scripts\ConsumableSystem\ConsumableSystem.cpp" />
+    <ClCompile Include="Scripts\MainMenu\MainMenuNavigationBase.cpp" />
+    <ClCompile Include="Scripts\UI\Views\PlayerHP\PlayerHPView.cpp" />
+    <ClCompile Include="Scripts\ViewModels\Hp\CharacterHPViewModel.cpp" />
+    <ClCompile Include="Scripts\MainMenu\NewGame.cpp" />
+    <ClCompile Include="Scripts\MainMenu\Option.cpp" />
+    <ClCompile Include="Scripts\MainMenu\Credits.cpp" />
+    <ClCompile Include="Scripts\MainMenu\Quit.cpp" />
+    <ClCompile Include="Scripts\ViewModels\Chain\ChainCountViewModel.cpp" />
+    <ClCompile Include="Scripts\UI\Views\MonsterChain\MonsterChainView.cpp" />
     <ClCompile Include="Scripts\QTE\System\QTESystem.cpp" />
     <ClCompile Include="Scripts\QTE\Editor\QTEEditor.cpp" />
   </ItemGroup>
@@ -290,7 +297,6 @@
     <ClInclude Include="Scripts\Test\TurnAction\TestActionComponent.h" />
     <ClInclude Include="Scripts\Test\DevTools\LogOutput.h" />
     <ClInclude Include="Scripts\Audio\AudioTableComponent.h" />
-    <ClInclude Include="Scripts\ViewModels\Hp\HpViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Revelations\RevelationsViewModel.h" />
     <ClInclude Include="Scripts\UI\Elements\Dummy\DummyElement.h" />
     <ClInclude Include="Scripts\UI\Wrappers\Dummy\DummyWrapper.h" />
@@ -325,10 +331,8 @@
     <ClInclude Include="Scripts\PlayerSystem\PlayerSystem.h" />
     <ClInclude Include="Scripts\AccessorySystem\AccessorySystem.h" />
     <ClInclude Include="Scripts\Map\SmoothScroll.h" />
-    <ClInclude Include="Scripts\UI\Views\Map\MapPlayerHPView.h" />
     <ClInclude Include="Scripts\UI\Views\Map\StageFocusView.h" />
     <ClInclude Include="Scripts\UI\Views\Map\StageView.h" />
-    <ClInclude Include="Scripts\ViewModels\Map\MapPlayerHPViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Map\StageFocusViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Map\StageViewModel.h" />
     <ClInclude Include="DLLExportDefine.h" />
@@ -339,6 +343,16 @@
     <ClInclude Include="Scripts\Preferences\PreferencesManager.h" />
     <ClInclude Include="Scripts\Preferences\PrefrencesWindow.h" />
     <ClInclude Include="Scripts\UINavigation\TempNavigationComponent.h" />
+    <ClInclude Include="Scripts\ConsumableSystem\ConsumableSystem.h" />
+    <ClInclude Include="Scripts\MainMenu\MainMenuNavigationBase.h" />
+    <ClInclude Include="Scripts\UI\Views\MonsterChain\MonsterChainView.h" />
+    <ClInclude Include="Scripts\UI\Views\PlayerHP\PlayerHPView.h" />
+    <ClInclude Include="Scripts\ViewModels\Chain\ChainCountViewModel.h" />
+    <ClInclude Include="Scripts\ViewModels\Hp\CharacterHPViewModel.h" />
+    <ClInclude Include="Scripts\MainMenu\NewGame.h" />
+    <ClInclude Include="Scripts\MainMenu\Option.h" />
+    <ClInclude Include="Scripts\MainMenu\Credits.h" />
+    <ClInclude Include="Scripts\MainMenu\Quit.h" />
     <ClInclude Include="Scripts\QTE\System\QTESystem.h" />
     <ClInclude Include="Scripts\QTE\Editor\QTEEditor.h" />
   </ItemGroup>

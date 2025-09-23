@@ -159,8 +159,6 @@ void UIRoot::Reset()
             UmLogger.Log(LogLevel::LEVEL_INFO, exception.what());
         }
     }
-
-    SortViewOrder();
 }
 
 void UIRoot::Start()
@@ -172,6 +170,8 @@ void UIRoot::Start()
     const NavigationID     initialFocusID        = ReflectFields->InitialFocusID;
     UINavigationComponent* initialFocusComponent = FindNavigationComponent(initialFocusID);
     ChangeFocusComponent(initialFocusComponent);
+
+    SortViewOrder();
 }
 
 void UIRoot::UpdateNavigation()
@@ -184,15 +184,18 @@ void UIRoot::UpdateNavigation()
         {
             const NavigationKey navigationKey = ButtonStateToNavigationKey()(buttonState);
 
-            const NavigationID navigationID = _currentFocusNavigation->GetNavigatedId(navigationKey);
-            if (UINavigationComponent* nextFocus = FindNavigationComponent(navigationID);
-                _currentFocusNavigation == nextFocus)
+            if (const NavigationID navigationID = _currentFocusNavigation->GetNavigatedId(navigationKey);
+                navigationID != INVALID_NAVIGATION_ID)
             {
-                _currentFocusNavigation->Submit();
-            }
-            else
-            {
-                ChangeFocusComponent(nextFocus);
+                if (UINavigationComponent* nextFocus = FindNavigationComponent(navigationID);
+                    _currentFocusNavigation == nextFocus)
+                {
+                    _currentFocusNavigation->Submit();
+                }
+                else
+                {
+                    ChangeFocusComponent(nextFocus);
+                }
             }
         }
     });
