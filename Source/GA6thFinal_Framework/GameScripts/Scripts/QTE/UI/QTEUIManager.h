@@ -10,6 +10,7 @@ namespace QTE
 class QTESystem;
 class OverlayPanel;
 class ImageElement;
+class CameraComponent;
 
 class QTEUIManager : public Component
 {
@@ -48,9 +49,19 @@ public:
     /// <param name="factor">설정할 UI의 알파 값입니다. 0.0f에서 1.0f 사이의 값을 가집니다.</param>
     void SetBackgroundUIAlpha(float factor);
 
+    /// <summary>
+    /// 가이드 노트의 알파 값을 설정합니다.
+    /// </summary>
+    /// <param name="factor">설정할 알파 값입니다. 0.0f에서 1.0f 사이의 값을 가집니다.</param>
+    void SetGuideNoteAlpha(float factor);
+
     /// <summary>QTE 관련 UI의 알파 값을 설정합니다. (백그라운드는 제외입니다.)</summary>
     /// <param name="factor">설정할 UI의 알파 값입니다. 0.0f에서 1.0f 사이의 값을 가집니다.</param>
     void SetUIAlpha(float factor);
+
+    /// <summary>객체의 활성 상태를 설정합니다.</summary>
+    /// <param name="active">객체를 활성화할지 여부를 지정하는 불리언 값입니다.</param>
+    void SetActive(bool active);
 
 private:
     void Reset() override;
@@ -80,10 +91,15 @@ private:
     ImageElement* FindNoteUIFromNoteID(int noteID) const;
 
 private:
+
+
     OverlayPanel*   _qteOverlayPanel    = nullptr;
     ImageElement*   _qteBackgroundUI    = nullptr;
     ImageElement*   _qteNoteLineUI      = nullptr;
     ImageElement*   _qteJudgeNoteUI     = nullptr;
+    ImageElement*   _qteGuideNoteX      = nullptr;
+    ImageElement*   _qteGuideNoteY      = nullptr;
+    ImageElement*   _qteGuideNoteB      = nullptr;
     File::GuidRef   _notePrefabGuid     = File::NULL_GUID;
     std::unordered_map<int, ImageElement*> _noteSpawnTable = {};
 

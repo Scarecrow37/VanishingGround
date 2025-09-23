@@ -50,6 +50,11 @@ void PlayerPlayTurnState::OnEnter()
     _setImguiPosCenter    = true;
     _attackButtonHeldTime = 0;
     _attackRemaining      = 0;
+
+    if (QTEUIManager* qteUIManager = QTEUIManager::GetInstance())
+    {
+        qteUIManager->Refesh();
+    }
 }
 
 void PlayerPlayTurnState::OnExit() 
@@ -136,6 +141,15 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
         }
         float t = _attackButtonHeldTime / _attackButtonHeldWaitTime;
         ImGui::ProgressBar(t);
+        QTESystem*      qteSystem = SingletonComponent<QTESystem>::GetInstance();
+        QTEUIManager*   qteUIManager = QTEUIManager::GetInstance(); 
+        if (qteSystem && qteUIManager)
+        {
+            qteSystem->CombatUIActive(!_isDownAButton);
+            qteUIManager->SetBackgroundUIAlpha(t);
+            qteUIManager->SetUIAlpha(0.0f);
+            qteUIManager->SetActive(true);
+        }
     }
     ImGui::End();
     ImGui::PopStyleColor();

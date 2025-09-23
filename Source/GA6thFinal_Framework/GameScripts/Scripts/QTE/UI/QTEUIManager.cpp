@@ -4,7 +4,10 @@
 #include <QTE/Track/QTETrack.h>
 #include <UI/Panels/Overlay/OverlayPanel.h>
 #include <UI/Elements/Image/ImageElement.h>
+#include <Camera/CameraComponent.h>
 
+#include <BattleSystem/Battle.h>
+#include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 
 UMREAL_COMPONENT(QTEUIManager)
 
@@ -155,6 +158,7 @@ void QTEUIManager::Start()
         if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
         {
             system->ProcessQTEFadeInEndEvent();
+            _fader.SetFadeMode(Fader::FADE_NONE);
         }
     });
     _fader.SetOnFadeOutEndCallback([this]() {
@@ -162,6 +166,7 @@ void QTEUIManager::Start()
         if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
         {
             system->ProcessQTEFadeOutEndEvent();
+            _fader.SetFadeMode(Fader::FADE_NONE);
         }
     });
 }
@@ -169,8 +174,23 @@ void QTEUIManager::Start()
 void QTEUIManager::Update() 
 {
     float alpha = _fader.Fade();
-    SetBackgroundUIAlpha(alpha);
-    SetUIAlpha(alpha);
+    auto  mode  = _fader.GetFadeMode();
+    switch (mode)
+    {
+        case QTEUIManager::Fader::FADE_NONE:
+            break;
+        case QTEUIManager::Fader::FADE_IN: {
+            SetUIAlpha(alpha);
+            break;
+        }
+        case QTEUIManager::Fader::FADE_OUT: {
+            SetUIAlpha(alpha);
+            SetBackgroundUIAlpha(alpha);
+            break;
+        }
+        default:
+            break;
+    }
 }
 
 void QTEUIManager::OnEnable() 
@@ -237,7 +257,24 @@ void QTEUIManager::SetBackgroundUIAlpha(float factor)
     }
 }
 
-void QTEUIManager::SetUIAlpha(float factor) 
+void QTEUIManager::SetGuideNoteAlpha(float factor) 
+{
+    factor = std::clamp(factor, 0.0f, 1.0f);
+    if (_qteGuideNoteX)
+    {
+        _qteGuideNoteX->Alpha = factor;
+    }
+    if (_qteGuideNoteY)
+    {
+        _qteGuideNoteY->Alpha = factor;
+    }
+    if (_qteGuideNoteB)
+    {
+        _qteGuideNoteB->Alpha = factor;
+    }
+}
+
+void QTEUIManager::SetUIAlpha(float factor)
 {
     factor = std::clamp(factor, 0.0f, 1.0f);
     if (_qteNoteLineUI)
@@ -248,6 +285,11 @@ void QTEUIManager::SetUIAlpha(float factor)
     {
         _qteJudgeNoteUI->Alpha = factor;
     }
+}
+
+void QTEUIManager::SetActive(bool active) 
+{
+    gameObject->ActiveSelf = active;
 }
 
 void QTEUIManager::UpdateUITransformData()
@@ -268,6 +310,33 @@ void QTEUIManager::UpdateUITransformData()
         SIZE size     = _qteJudgeNoteUI->Size;
         _qteJudgeSize = Vector2((float)size.cx, (float)size.cy);
     }
+
+    CameraComponent* camera = CameraComponent::MainCamera();
+    if (camera)
+    {
+        auto enemies = Battle::GetTargetsFromFlags(Battle::ENEMY_TARGET_FLAG_ALL);
+        if (3 == enemies.size())
+        {
+            auto* left   = enemies[0];
+            auto* middle = enemies[0];
+            auto* right  = enemies[0];
+            if (left && _qteGuideNoteX)
+            {
+                Vector3 pos = camera->WorldToViewport(left->transform->GetWorldPosition());
+                _qteGuideNoteX->Point = POINT((LONG)pos.x, (LONG)pos.y);
+            }
+            if (middle && _qteGuideNoteY)
+            {
+                Vector3 pos = camera->WorldToViewport(middle->transform->GetWorldPosition());
+                _qteGuideNoteX->Point = POINT((LONG)pos.x, (LONG)pos.y);
+            }
+            if (right && _qteGuideNoteB)
+            {
+                Vector3 pos = camera->WorldToViewport(right->transform->GetWorldPosition());
+                _qteGuideNoteX->Point = POINT((LONG)pos.x, (LONG)pos.y);
+            }
+        }
+    }
 }
 
 bool QTEUIManager::CheckUIValid()
@@ -277,9 +346,13 @@ bool QTEUIManager::CheckUIValid()
 
 void QTEUIManager::FindUIComponents()
 {
-    _qteOverlayPanel = nullptr;
-    _qteNoteLineUI = nullptr;
-    _qteJudgeNoteUI = nullptr;
+    _qteOverlayPanel    = nullptr;
+    _qteBackgroundUI    = nullptr;
+    _qteNoteLineUI      = nullptr;
+    _qteJudgeNoteUI     = nullptr;
+    _qteGuideNoteX      = nullptr;
+    _qteGuideNoteY      = nullptr;
+    _qteGuideNoteB      = nullptr;
 
     Transform::ForeachBFS(transform, [this](Transform* curr) {
         if (!_qteOverlayPanel && curr->gameObject->CompareTag("QTE Panel"))
@@ -298,6 +371,18 @@ void QTEUIManager::FindUIComponents()
         {
             _qteJudgeNoteUI = curr->gameObject->GetComponent<ImageElement>();
         }
+        else if (!_qteGuideNoteX && curr->gameObject->CompareTag("Guide Note X"))
+        {
+            _qteGuideNoteX = curr->gameObject->GetComponent<ImageElement>();
+        }
+        else if (!_qteGuideNoteY && curr->gameObject->CompareTag("Guide Note Y"))
+        {
+            _qteGuideNoteY = curr->gameObject->GetComponent<ImageElement>();
+        }
+        else if (!_qteGuideNoteB && curr->gameObject->CompareTag("Guide Note B"))
+        {
+            _qteGuideNoteB = curr->gameObject->GetComponent<ImageElement>();
+        }
     });
 
     if (nullptr == _qteOverlayPanel)
@@ -311,6 +396,18 @@ void QTEUIManager::FindUIComponents()
     if (nullptr == _qteJudgeNoteUI)
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"QTE Judge Note UI를 찾지 못했습니다.");
+    }
+    if (nullptr == _qteGuideNoteX)
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Guide Note X를 찾지 못했습니다.");
+    }
+    if (nullptr == _qteGuideNoteY)
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Guide Note Y를 찾지 못했습니다.");
+    }
+    if (nullptr == _qteGuideNoteB)
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Guide Note B를 찾지 못했습니다.");
     }
 }
 

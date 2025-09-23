@@ -72,6 +72,12 @@ public:
     /// <param name="pause"></param>
     void PauseQTE(bool pause);
 
+    /// <summary>
+    /// 전투 UI의 활성화 상태를 설정합니다.
+    /// </summary>
+    /// <param name="active">전투 UI를 활성화할지 여부를 지정하는 불리언 값입니다.</param>
+    void CombatUIActive(bool active);
+
 private:
     void ClearTrack();
     void ClearQueue();
@@ -93,7 +99,6 @@ private:
     void ProcessQTEFadeInEndEvent();
     void ProcessQTEFadeOutEndEvent();
 
-    void CombatUIActive(bool active);
 
 public:
     inline bool  IsQTEPlaying() const { return _currQTEPlaying; }
