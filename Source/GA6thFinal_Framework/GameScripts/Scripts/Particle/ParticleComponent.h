@@ -40,19 +40,14 @@ public:
     }
     PROPERTY(AttachToBoneMatrix)
 
-
-
-
-
-
     GETTER_ONLY(const ParticleEffect*, Effect) { return _effect; }
     PROPERTY(Effect)
-
 
     void PlayEffect();
     void StopEffect();
     void SetGuid(const File::Path& filepath);
     void SetGuid(const File::Guid& fileguid);
+    void FollowBoneMatrix();
 
 public:
     ParticleComponent();
@@ -72,15 +67,15 @@ protected:
     REFLECT_FIELDS_END(ParticleComponent)
 
     ParticleEffect* _effect;
+
     void            Update() override;
     void            Start() override;
     void            Reset() override;
+    void            OnDestroy() override;
 
     void            SerializedReflectEvent() override;
     void            DeserializedReflectEvent() override;
     void            ImGuiDrawPropertysEvent() override;
-
-
 
 private:
     bool  _isPlaying = false;
@@ -90,7 +85,6 @@ private:
     void  LoadParticle();
     bool  isDirty = false;
 
-    void FollowBoneMatrix();
     
     class SkeletalMeshRenderer* _skelMesh;
     Vector3 _positionVector{0.f, .0f, 0.f};

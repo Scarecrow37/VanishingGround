@@ -71,23 +71,19 @@ void ParticleEffect::Update(float deltaTime)
             _scaleMatrix = Matrix::CreateScale(*_scale);
         else
             _scaleMatrix = Matrix::Identity;
-
-
     }
 
-    if (false == _followBoneFlag)
+    if (false == *_followBoneFlag)
     {
-
         if (nullptr != _parentWorldMatrix)
             _worldMatrix = _scaleMatrix * _rotationMatrix * _translationMatrix * *_parentWorldMatrix;
         else
             _worldMatrix = _scaleMatrix * _rotationMatrix * _translationMatrix;
     }
-    else
+    else if ( nullptr != _boneWorldMatrix)
     {
         _worldMatrix = _scaleMatrix * _rotationMatrix * _translationMatrix *(*_boneWorldMatrix) * *_parentWorldMatrix;
     }
-
 
     for (auto emitter : _particleEmitters)
     {
@@ -95,7 +91,6 @@ void ParticleEffect::Update(float deltaTime)
         emitter->Update(deltaTime);
     }
     {
-
         for (auto emitter : _particleEmitters)
         {
             if (true == emitter->GetActiveFlag())
@@ -110,8 +105,6 @@ void ParticleEffect::Update(float deltaTime)
             _age       = 0;
         }
     }
-
-
 }
 
 ParticleEmitter* ParticleEffect::AddEmitter(SIZE_T maxParticles /*= 100000*/, float emissionRate /*= 500.f*/,

@@ -1948,7 +1948,7 @@ void ESceneManager::SceneResourceManager::UpdateRenderResource(RenderResource<T>
                         }
                         else
                         {
-                            std::shared_ptr<T> resource = UmResourceManager->LoadResource<T>(path.string(), SafeCallbackFunc);
+                            std::shared_ptr<T> resource = UmResourceManager->LoadResource<T>(path.string(), nullptr);
                             if (resource->IsValid())
                             {
                                 func();
