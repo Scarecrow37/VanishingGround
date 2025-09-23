@@ -227,7 +227,6 @@ void ParticleComponent::PlayEffect()
 {
     if (nullptr != _effect)
     {
-        //FollowBoneMatrix();
         _effect->Play();
     }
 
