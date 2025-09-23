@@ -1,6 +1,6 @@
 ﻿#pragma once
 constexpr int                        MaxVolume      = 10;
-constexpr std::array<const char*, 4> GrphicsOptions = {"SSR", "SSAO", "Bloom", "VolumetricFog"};
+constexpr std::array<const char*, 4> GraphicsOptions = {"SSR", "SSAO", "Bloom", "VolumetricFog"};
 constexpr std::array<const char*, 3> VolumeOptions  = {"MasterVolume", "BGMVolume", "SFXVolume"};
 class PreferencesManager : public Component, public InputReceiver
 {

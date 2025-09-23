@@ -147,11 +147,7 @@ void PreferencesSystem::OnPostRequestedSave()
     auto filePath = UmFileSystem.GetBuildSettingPath();
     filePath /= "Preferences.inl";
     
-    std::filesystem::path path(filePath);
-    
-    path.replace_extension(".inl");
-    
-    std::ofstream outFile(path);
+    std::ofstream outFile(filePath);
 
     if (!outFile.is_open())
     {
@@ -166,6 +162,7 @@ void PreferencesSystem::OnPostRequestedSave()
     outFile << "MasterVolume : " << _masterVolume << "\n";
     outFile << "SFXVolume : " << _SFXVolume << "\n";
     outFile << "BGMVolume : " << _BGMVolume;
+    outFile.close();
 }
 
 void PreferencesSystem::OnPostRequestedLoad() 
@@ -206,5 +203,6 @@ void PreferencesSystem::OnPostRequestedLoad()
             _BGMVolume = std::stof(value);
                   
     }
+    infile.close();
 
 }
