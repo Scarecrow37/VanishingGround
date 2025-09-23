@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "EnableButton.h"
 #include "PreferencesButton.h"
+#include "Scripts/Preferences/PreferencesManager.h"
 #include "Scripts/UI/Elements/Image/ImageElement.h"
 
 UMREAL_COMPONENT(EnableButton)
@@ -18,12 +19,11 @@ EnableButton::EnableButton()
                 {
                     _onFocusImage              = data->GetGuid();
                     ReflectFields->OnFocusGuid = _onFocusImage.string();
-                    auto image            = GetComponent<ImageElement>();
+                    auto image                 = GetComponent<ImageElement>();
                     if (nullptr != image)
                     {
                         image->SetImage(_onFocusImage);
                     }
-
                 }
             }
             ImGui::EndDragDropTarget();
@@ -41,7 +41,7 @@ EnableButton::EnableButton()
                 {
                     _onNonFocusImage              = data->GetGuid();
                     ReflectFields->OnNonFocusGuid = _onNonFocusImage.string();
-                    auto image             = GetComponent<ImageElement>();
+                    auto image                    = GetComponent<ImageElement>();
                     if (nullptr != image)
                         image->SetImage(_onNonFocusImage);
                 }
@@ -80,8 +80,8 @@ EnableButton::EnableButton()
                 if (const auto extension = data->GetPath().extension(); extension == L".png" || extension == L".jpeg")
                 {
                     _offNonFocusImage              = data->GetGuid();
-                    ReflectFields->OffNonFocusGuid= _offNonFocusImage.string();
-                    auto image                 = GetComponent<ImageElement>();
+                    ReflectFields->OffNonFocusGuid = _offNonFocusImage.string();
+                    auto image                     = GetComponent<ImageElement>();
                     if (nullptr != image)
                         image->SetImage(_offNonFocusImage);
                 }
@@ -90,10 +90,16 @@ EnableButton::EnableButton()
         }
     });
 
+    CurrentOption.SetInputAutoEvent([this]() {
+        if (ImGui::Combo("GraphicsOptions", &_currentOptionInt, GraphicsOptions.data(), (int)GraphicsOptions.size()))
+        {
+            _currentOption = GraphicsOptions[_currentOptionInt];
+        }
+    });
 }
 EnableButton::~EnableButton() = default;
 
-void EnableButton::Awake() 
+void EnableButton::Awake()
 {
     UmSceneManager.ResourceManager.RequestTextureResource(this, _onFocusImage, []() {});
     UmSceneManager.ResourceManager.RequestTextureResource(this, _onNonFocusImage, []() {});
@@ -102,23 +108,53 @@ void EnableButton::Awake()
     // 자주사용할 게임오브젝트 포인터
     GetChildObject();
 
-    // 이미지 기본값
+    // 초기값
     if (!_onNonFocusImage.IsNull())
     {
+        bool option = true;
+        if ("SSR" == _currentOption)
+            option = UmPreferences.IsSSR();
+        else if ("SSAO" == _currentOption)
+            option = UmPreferences.IsSSAO();
+        else if ("Bloom" == _currentOption)
+            option = UmPreferences.IsBloom();
+        else if ("VolumetricFog" == _currentOption)
+            option = UmPreferences.IsVolumFog();
+        
         auto image = GetComponent<ImageElement>();
         if (nullptr != image)
-            image->SetImage(_onNonFocusImage);
-        _isOptionOn = true;
+        {
+            if (option)
+            {
+                image->SetImage(_onNonFocusImage);
+                _isOptionOn = option;
+            }
+            else
+            {
+                image->SetImage(_offNonFocusImage);
+                _isOptionOn = option;
+            }
+        }
     }
 
     // 양옆 화살표 숨기기
     _leftArrow->SetActive(false);
     _rightArrow->SetActive(false);
 
+    // 관리 매니저 객체
+    GameObject* manager = GameObject::Find("PreferencesManager").lock().get();
+    if (manager)
+    {
+        _preferencesManager = manager->GetComponent<PreferencesManager>();
+        if (nullptr == _preferencesManager)
+            UmLogger.Log(LogLevel::LEVEL_WARNING, "Preferences manager not registered!");
+    }
+    else
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, "Preferences manager not registered!");
+    }
+    _preferencesManager->AddPreferencesButton(this);
 }
-
-void EnableButton::Start() {}
-
 void EnableButton::Reset()
 {
     UINavigationComponent::Reset();
@@ -127,69 +163,99 @@ void EnableButton::Reset()
     BindInputAction(ControllerButton::LEFT_THUMB_STICK, Action::PRESSED, this, &EnableButton::ChangeOptionStick);
 }
 
-void EnableButton::Update() {}
+void EnableButton::Update() 
+{
+    if (_isOptionDirty)
+    {
+        if (_isFocus)
+        {
+            FocusPref(true);
+            _leftArrow->SetActive(true);
+            _rightArrow->SetActive(true);
+            if (_isOptionOn)
+            {
+                auto image = GetComponent<ImageElement>();
+                if (nullptr != image)
+                    image->SetImage(_onFocusImage);
+                ChangeOption();
+            }
+            else
+            {
+                auto image = GetComponent<ImageElement>();
+                if (nullptr != image)
+                    image->SetImage(_offFocusImage);
+                ChangeOption();
+            }
+        }
+        else
+        {
+            FocusPref(false);
+            _leftArrow->SetActive(false);
+            _rightArrow->SetActive(false);
+
+            if (_isOptionOn)
+            {
+                auto image = GetComponent<ImageElement>();
+                if (nullptr != image)
+                    image->SetImage(_onNonFocusImage);
+                ChangeOption();
+            }
+            else
+            {
+                auto image = GetComponent<ImageElement>();
+                if (nullptr != image)
+                    image->SetImage(_offNonFocusImage);
+                ChangeOption();
+            }
+        }
+        _isOptionDirty = false;
+    }
+}
+
+void EnableButton::OnEnable()
+{
+    bool preferencesIsOpen = _preferencesManager->IsOpen();
+    if ("SSR" == _currentOption && !preferencesIsOpen)
+    {
+        Focus();
+    }
+}
 
 void EnableButton::FocusIn()
 {
     UINavigationComponent::FocusIn();
 
     _isFocus   = true;
-    auto image = GetComponent<ImageElement>();
-    if (nullptr != image)
-    {
-        if (_isOptionOn)
-        {
-            image->SetImage(_onFocusImage);
-        }
-        else
-        {
-            image->SetImage(_offFocusImage);
-        }
-    }
-    FocusPref(true);
-    _leftArrow->SetActive(true);
-    _rightArrow->SetActive(true);
+    _isOptionDirty = true;
 }
 
-void EnableButton::FocusOut() 
+void EnableButton::FocusOut()
 {
     UINavigationComponent::FocusOut();
 
-    _isFocus = false;
-    auto image = GetComponent<ImageElement>();
-    if (nullptr != image)
-    {
-        if (_isOptionOn)
-        {
-            image->SetImage(_onNonFocusImage);
-        }
-        else
-        {
-            image->SetImage(_offNonFocusImage);
-        }
-    }
-    FocusPref(false);
-    _leftArrow->SetActive(false);
-    _rightArrow->SetActive(false);
+    _isFocus   = false;
+    _isOptionDirty = true;
 }
 
 void EnableButton::Submit() {}
 
 void EnableButton::SerializedReflectEvent()
 {
-    ReflectFields->OnFocusGuid = _onFocusImage.string();
-    ReflectFields->OnNonFocusGuid = _onNonFocusImage.string();
-    ReflectFields->OffFocusGuid = _offFocusImage.string();
-    ReflectFields->OffNonFocusGuid = _offNonFocusImage.string();
+    ReflectFields->OnFocusGuid      = _onFocusImage.string();
+    ReflectFields->OnNonFocusGuid   = _onNonFocusImage.string();
+    ReflectFields->OffFocusGuid     = _offFocusImage.string();
+    ReflectFields->OffNonFocusGuid  = _offNonFocusImage.string();
+    ReflectFields->CurrentOptionStr = _currentOption;
 }
 
-void EnableButton::DeserializedReflectEvent() 
+void EnableButton::DeserializedReflectEvent()
 {
     UINavigationComponent::DeserializedReflectEvent();
-    _onFocusImage = ReflectFields->OnFocusGuid;
-    _onNonFocusImage = ReflectFields->OnNonFocusGuid;
-    _offFocusImage = ReflectFields->OffFocusGuid;
+    _onFocusImage     = ReflectFields->OnFocusGuid;
+    _onNonFocusImage  = ReflectFields->OnNonFocusGuid;
+    _offFocusImage    = ReflectFields->OffFocusGuid;
     _offNonFocusImage = ReflectFields->OffNonFocusGuid;
+    _currentOption    = ReflectFields->CurrentOptionStr;
 }
 
 void EnableButton::ChangeOptionDpad(const Input::Controller& controller)
@@ -197,18 +263,7 @@ void EnableButton::ChangeOptionDpad(const Input::Controller& controller)
     if (_isFocus)
     {
         _isOptionOn = !_isOptionOn;
-        if (_isOptionOn)
-        {
-            auto image = GetComponent<ImageElement>();
-            if (nullptr != image)
-                image->SetImage(_onFocusImage);
-        }
-        else
-        {
-            auto image = GetComponent<ImageElement>();
-            if (nullptr != image)
-                image->SetImage(_offFocusImage);
-        }
+        _isOptionDirty = true;
     }
 }
 
@@ -220,23 +275,12 @@ void EnableButton::ChangeOptionStick(const Input::Controller& controller)
             Input::Controller::StickBias::BIAS_RIGHT == controller.GetLeftStickBias())
         {
             _isOptionOn = !_isOptionOn;
-            if (_isOptionOn)
-            {
-                auto image = GetComponent<ImageElement>();
-                if (nullptr != image)
-                    image->SetImage(_onFocusImage);
-            }
-            else
-            {
-                auto image = GetComponent<ImageElement>();
-                if (nullptr != image)
-                    image->SetImage(_offFocusImage);
-            }
+            _isOptionDirty = true;
         }
     }
 }
 
-void EnableButton::FocusPref(bool isfocus) 
+void EnableButton::FocusPref(bool isfocus)
 {
     if (nullptr == _pref)
     {
@@ -269,4 +313,10 @@ void EnableButton::GetChildObject()
             _pref = &(child->gameObject);
         }
     }
+}
+
+void EnableButton::ChangeOption()
+{
+    if (nullptr != _preferencesManager)
+        _preferencesManager->SetGraphicsOptions(_currentOption, _isOptionOn);
 }

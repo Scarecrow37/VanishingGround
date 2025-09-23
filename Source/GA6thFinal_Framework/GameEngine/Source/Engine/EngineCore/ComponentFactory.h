@@ -162,7 +162,7 @@ public:
     /// </summary>
     /// <param name="component :">추가할 컴포넌트</param>
     /// <param name="onReset :">Reset 함수 호출 여부</param>
-    void PushBackComponentToObject(std::shared_ptr<Component>& component, bool onReset = true);
+    void PushBackComponentToObject(std::shared_ptr<Component>& component);
 
     /// <summary>
     /// 컴포넌트를 오브젝트에 바로 추가합니다.

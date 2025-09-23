@@ -62,7 +62,7 @@ int ItemDropUIRootManager::GetArtifactIconID(DropItemInfo itemInfo)
             size_t rowIndex = dataBase->FindRowIndex(u8Name, u8"Name");
             if (rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
             {
-                std::string_view id = dataBase->FindData(rowIndex, u8"Icon ID");
+                std::string_view id = dataBase->FindData(rowIndex, u8"Big Icon ID");
                 if (id != ExcelDataBase::FIND_STR_FAIL)
                 {
                     return std::stoi(id.data());

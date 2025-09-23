@@ -71,6 +71,7 @@ private:
 public:
     /* Static 메서드 */
     static bool ChangeAssetID(const File::Path& path, int changeID);
+    static bool ChangeAutomaticAssetID(const AssetData& asset);
 
 public:
     inline const File::Path& GetCurrentFocusFolderPath() const { return _focusFolderPath; }
