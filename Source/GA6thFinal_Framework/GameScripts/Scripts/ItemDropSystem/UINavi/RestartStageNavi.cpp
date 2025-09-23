@@ -10,16 +10,13 @@ void RestartStageNavi::Submit()
     {
         const std::string path = scene->Path;
         auto*             sceneTrans = GetComponent<SceneTransitionComponent>();
-        sceneTrans->Fade("in", [&]() { UmSceneManager.LoadScene(path); });
+        sceneTrans->Fade("in", [this, path]() { UmSceneManager.LoadScene(path); });
     }
 }
 
 void RestartStageNavi::OnEnable()
 {
     UINavigationComponent::OnEnable();
-
-    auto* sceneTrans = GetComponent<SceneTransitionComponent>();
-    sceneTrans->Fade("out", nullptr);
 
     Focus();
 }
