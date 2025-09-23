@@ -14,8 +14,6 @@ void AbandonNoButton::Awake()
     if (nullptr == _abandonPannel)
         UmLogger.Log(LogLevel::LEVEL_ERROR, "Abandon Pannel is not Created");
 
-    GameObject* abandonButtonPaanel = GameObject::Find("AbandonButtonPannel").lock().get();
-    _abandonButton                  = abandonButtonPaanel->GetComponent<AbandonButton>();
     GameObject* preferencesManager  = GameObject::Find("PreferencesManager").lock().get();
     if (preferencesManager)
     {

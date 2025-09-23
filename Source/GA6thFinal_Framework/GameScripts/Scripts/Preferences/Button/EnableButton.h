@@ -11,9 +11,9 @@ public:
 
 public:
     void Awake() override;
-    void Start() override;
     void Reset() override;
     void Update() override;
+    void OnEnable() override;
 
 public:
     REFLECT_PROPERTY(OnFocus,OnNonFocus,OffFocus,OffNonFocus,CurrentOption)

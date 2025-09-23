@@ -141,10 +141,6 @@ void EnableButton::Awake()
     _leftArrow->SetActive(false);
     _rightArrow->SetActive(false);
 
-}
-
-void EnableButton::Start() 
-{
     // 관리 매니저 객체
     GameObject* manager = GameObject::Find("PreferencesManager").lock().get();
     if (manager)
@@ -159,7 +155,6 @@ void EnableButton::Start()
     }
     _preferencesManager->AddPreferencesButton(this);
 }
-
 void EnableButton::Reset()
 {
     UINavigationComponent::Reset();
@@ -214,6 +209,15 @@ void EnableButton::Update()
             }
         }
         _isOptionDirty = false;
+    }
+}
+
+void EnableButton::OnEnable()
+{
+    bool preferencesIsOpen = _preferencesManager->IsOpen();
+    if ("SSR" == _currentOption && !preferencesIsOpen)
+    {
+        Focus();
     }
 }
 

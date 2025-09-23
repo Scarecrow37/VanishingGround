@@ -23,6 +23,5 @@ protected:
 private:
     bool        _dirtyFlag = false;
     GameObject* _abandonPannel;
-    class AbandonButton* _abandonButton;
 };
 

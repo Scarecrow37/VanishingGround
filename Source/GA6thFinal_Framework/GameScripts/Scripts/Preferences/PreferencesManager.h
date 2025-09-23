@@ -13,6 +13,7 @@ public:
     void Reset() override;
     void Awake() override;
     void Update() override;
+    void LateUpdate() override;
 
 public:
     void SetGraphicsOptions(std::string_view option, bool enable);
@@ -29,6 +30,9 @@ public:
     void OpenAbadonButtons();
     void CloseAbandonButtons();
 
+    void GoToMainMenu();
+    bool IsOpen() { return _opened; }
+
 private:
     void OnPreferencesWindow(const Input::Controller&);
     void OffAbandonButtonComponent();
@@ -37,14 +41,19 @@ private:
     void OnPreferencsButtonComponent();
 
 public:
-    REFLECT_PROPERTY()
+    REFLECT_PROPERTY(MainMenuScene)
+    GETTER_ONLY(std::string, MainMenuScene) { return ReflectFields->MainMenuSceneStr; }
+    PROPERTY(MainMenuScene)
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
+    std::string MainMenuSceneStr;
     REFLECT_FIELDS_END(PreferencesManager)
 
 private:
     bool                               _isOpen      = false;
+    bool                               _opened      = false;
+    bool                               _openedDirty = false;
     bool                               _isOpenDirty = false;
     GameObject*                        _preferencesPannel;
     std::map<std::string, GameObject*> _graphicsOption;
@@ -54,4 +63,5 @@ private:
     std::vector<Component*> _abandonButtons;
     bool                    _isOpenAbandonButton = false;
     bool                    _isOpenAbandonDirty  = false;
+    bool                    _changeMainMenuSceneDirty = false;
 };

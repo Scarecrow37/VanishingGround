@@ -4,7 +4,24 @@
 
 UMREAL_COMPONENT(PreferencesManager)
 
-PreferencesManager::PreferencesManager()  = default;
+PreferencesManager::PreferencesManager()
+{
+    MainMenuScene.SetInputAutoEvent([this]() {
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
+            {
+                const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
+                if (const auto extension = data->GetPath().extension(); extension == L".UmScene")
+                {
+                    ReflectFields->MainMenuSceneStr = data->GetPath().string();
+                }
+            }
+            ImGui::EndDragDropTarget();
+        }
+    });
+}
+
 PreferencesManager::~PreferencesManager() = default;
 
 void PreferencesManager::Reset()
@@ -46,6 +63,12 @@ void PreferencesManager::Awake()
 
 void PreferencesManager::Update()
 {
+    if (_openedDirty)
+    {
+        _opened = true;
+        _openedDirty = false;
+    }
+
     if (_isOpenDirty)
     {
         if (_isOpen)
@@ -54,7 +77,7 @@ void PreferencesManager::Update()
                 UmLogger.Log(LogLevel::LEVEL_ERROR, "환경설정 패널이 없습니다!");
             else if (nullptr != _preferencesPannel)
                 _preferencesPannel->SetActive(true);
-            _isOpenDirty = false;
+            _openedDirty      = true;
         }
         else
         {
@@ -62,8 +85,9 @@ void PreferencesManager::Update()
                 UmLogger.Log(LogLevel::LEVEL_ERROR, "환경설정 패널이 없습니다!");
             else if (nullptr != _preferencesPannel)
                 _preferencesPannel->SetActive(false);
-            _isOpenDirty = false;
+            _opened       = false;
         }
+        _isOpenDirty = false;
     }
     if (_isOpenAbandonDirty)
     {
@@ -78,6 +102,15 @@ void PreferencesManager::Update()
             OffAbandonButtonComponent();
         }
         _isOpenAbandonDirty = false;
+    }
+}
+
+void PreferencesManager::LateUpdate()
+{
+    if (_changeMainMenuSceneDirty)
+    {
+        _changeMainMenuSceneDirty = false;
+        UmSceneManager.LoadScene(ReflectFields->MainMenuSceneStr);
     }
 }
 
@@ -125,7 +158,8 @@ void PreferencesManager::OffPreferencesWindow()
     _isOpenDirty = true;
 }
 
-void PreferencesManager::AddPreferencesButton(Component* comps) 
+
+void PreferencesManager::AddPreferencesButton(Component* comps)
 {
     _preferencesButtons.push_back(comps);
 }
@@ -145,6 +179,11 @@ void PreferencesManager::CloseAbandonButtons()
 {
     _isOpenAbandonDirty  = true;
     _isOpenAbandonButton = false;
+}
+
+void PreferencesManager::GoToMainMenu()
+{
+    _changeMainMenuSceneDirty = true;
 }
 
 void PreferencesManager::OffAbandonButtonComponent() 
