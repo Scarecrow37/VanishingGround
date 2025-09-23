@@ -23,8 +23,14 @@ namespace QTE
         ResultType      ResultType  = QTE_RESULT_NONE;      // 결과 타입
         float           TimeDelta   = 0.0f;                 // 누른 시간과 퍼펙트 시간 차이 (초)
 
+        // 누른 버튼이 존재하는지 여부
         inline bool IsPressedButton() const { return PressedButton != 0; }
+
+        // 유효한 결과인지 여부
         inline bool IsValidResult() const { return ResultType != QTE_RESULT_NONE; }
+
+        // 히트 여부 (치명타 or 일격)
+        inline bool IsHit() const { return ResultType == QTE_RESULT_PERFECT || ResultType == QTE_RESULT_NORMAL; }
     };
 
     inline static const char* QTEResultToString(ResultType result)
