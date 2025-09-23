@@ -108,6 +108,12 @@ void QTEUIManager::OnQTEExit()
     ClearAllQTENotes();
 }
 
+void QTEUIManager::Refesh() 
+{
+    FindUIComponents();
+    UpdateUITransformData();
+}
+
 void QTEUIManager::Reset() 
 {
     _staticInstance = this;
@@ -136,6 +142,8 @@ void QTEUIManager::Reset()
 
 void QTEUIManager::Awake() 
 {
+    FindUIComponents();
+    UpdateUITransformData();
 }
 
 void QTEUIManager::Start()
@@ -156,13 +164,6 @@ void QTEUIManager::Start()
             system->ProcessQTEFadeOutEndEvent();
         }
     });
-    
-    FindUIComponents();
-    
-    UpdateUITransformData();
-
-    SetUIAlpha(0.0f);
-    SetBackgroundUIAlpha(0.0f);
 }
 
 void QTEUIManager::Update() 

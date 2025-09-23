@@ -46,7 +46,6 @@ public:
         if (ReflectFields->Description != value)
         {
             ReflectFields->Description = value;
-            _requiresUpdate            = true;
             UpdateContent();
         }
     }
@@ -71,6 +70,5 @@ protected:
 
 private:
     File::GuidRef _guidRef;
-    bool          _requiresUpdate;
 
 };

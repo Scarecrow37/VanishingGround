@@ -14,17 +14,19 @@ namespace QTE
 
     struct Result
     {
-        using Callback = std::function<void(const std::vector<QTE::Result>&)>;
+        using Button    = Input::Controller::Button;
+        using Callback  = std::function<void(const std::vector<QTE::Result>&)>;
 
         Result() = default;
         Result(Note* note) : Note(note) {}
-        unsigned int    PressedButton = 0;
-        Note*           Note        = nullptr;              // 결과에 해당하는 노트
-        ResultType      ResultType  = QTE_RESULT_NONE;      // 결과 타입
-        float           TimeDelta   = 0.0f;                 // 누른 시간과 퍼펙트 시간 차이 (초)
+
+        Button          PressedButton   = Button::UNDEFINED;    // 누른 버튼 (Input::Controller::Button)
+        Note*           Note            = nullptr;              // 결과에 해당하는 노트
+        ResultType      ResultType      = QTE_RESULT_NONE;      // 결과 타입
+        float           TimeDelta       = 0.0f;                 // 누른 시간과 퍼펙트 시간 차이 (초)
 
         // 누른 버튼이 존재하는지 여부
-        inline bool IsPressedButton() const { return PressedButton != 0; }
+        inline bool IsPressedButton() const { return PressedButton != Input::Controller::Button::UNDEFINED; }
 
         // 유효한 결과인지 여부
         inline bool IsValidResult() const { return ResultType != QTE_RESULT_NONE; }

@@ -75,11 +75,21 @@ public:
     }
     PROPERTY(Horizontal)
 
+    GETTER_ONLY(LONG, Line) { return ReflectFields->Line; }
+    PROPERTY(Line)
+
 public:
     HorizontalPanelSlot();
 
 protected:
+    void ImGuiDrawPropertysEvent() override;
+
+private:
+    void SetLine(LONG line);
+
+protected:
     REFLECT_FIELDS_BEGIN(SlotComponent)
-    bool         IsStretch = false;
+    bool IsStretch = false;
+    LONG Line      = 0;
     REFLECT_FIELDS_END(HorizontalPanelSlot)
 };

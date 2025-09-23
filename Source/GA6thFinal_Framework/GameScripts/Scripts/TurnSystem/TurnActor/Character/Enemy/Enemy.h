@@ -4,8 +4,6 @@
 #include "AI/EnemyAI.h"
 
 class ParticleComponent;
-class MonsterHpTextView;
-class MonsterHpImageView;
 class EnemyStatsComponent;
 class FSMState;
 
@@ -74,15 +72,11 @@ public:
     EnemyStatsComponent* GetEnemyStats();
 
 public:
-    MonsterHpTextView* GetMonsterHpTextView() const { return _monsterHpTextView; }
-    void SetMonsterHpTextView(MonsterHpTextView* view);
-
-    MonsterHpImageView* GetMonsterHpImageView() const { return _monsterHpImageView; }
-    void SetMonsterHpImageView(MonsterHpImageView* view);
+    GameObject* GetMonsterHUD() const { return _monsterHUD; }
+    void SetMonsterHUD(GameObject* HUD);
 
 private:
-    MonsterHpTextView* _monsterHpTextView = nullptr;
-    MonsterHpImageView* _monsterHpImageView = nullptr;
+    GameObject* _monsterHUD = nullptr;
 
 protected:
     virtual void Awake();

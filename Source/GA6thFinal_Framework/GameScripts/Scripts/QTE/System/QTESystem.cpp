@@ -36,6 +36,13 @@ void QTESystem::Awake()
     {
         UmLogger.Log(LogLevel::LEVEL_ERROR, (const char*)u8"씬에 QTESystem이 2개 이상 존재하는지 확인해주세요.");
     }
+
+    if (QTEUIManager* uiManager = QTEUIManager::GetInstance())
+    {
+        uiManager->Refesh();
+        uiManager->SetUIAlpha(0.0f);
+        uiManager->SetBackgroundUIAlpha(0.0f);
+    }
 }
 
 void QTESystem::Start() 
@@ -356,7 +363,7 @@ bool QTESystem::CanPressQTEButton(QTE::Note* note)
     return false;
 }
 
-void QTESystem::PressedQTEButton(unsigned int buttonType)
+void QTESystem::PressedQTEButton(Input::Controller::Button buttonType)
 {
     if (_currQTEPlaying)
     {
@@ -378,7 +385,7 @@ void QTESystem::PressedButtonX(const Input::Controller& controller)
     // Handle button X pressed
     if (CanPressQTEButton())
     {
-        PressedQTEButton(static_cast<unsigned int>(Input::ControllerTypes::Button::X));
+        PressedQTEButton(Input::ControllerTypes::Button::X);
     }
 }
 
@@ -387,7 +394,7 @@ void QTESystem::PressedButtonY(const Input::Controller& controller)
     // Handle button Y pressed
     if (CanPressQTEButton())
     {
-        PressedQTEButton(static_cast<unsigned int>(Input::ControllerTypes::Button::Y));
+        PressedQTEButton(Input::ControllerTypes::Button::Y);
     }
 }
 
@@ -396,7 +403,7 @@ void QTESystem::PressedButtonB(const Input::Controller& controller)
     // Handle button B pressed
     if (CanPressQTEButton())
     {
-        PressedQTEButton(static_cast<unsigned int>(Input::ControllerTypes::Button::B));
+        PressedQTEButton(Input::ControllerTypes::Button::B);
     }
 }
 

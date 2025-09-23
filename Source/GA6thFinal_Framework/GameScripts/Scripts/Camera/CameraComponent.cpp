@@ -76,9 +76,13 @@ Vector3 CameraComponent::ViewportToWorld(const Vector3& screenPos)
 {
     if (_camera)
     {
-        const float camNear     = _camera->GetNearZ();
-        const float camFar      = _camera->GetFarZ();
-        const SIZE& resolution  = UmGraphics.GetResolution();
+        const float camNear             = _camera->GetNearZ();
+        const float camFar              = _camera->GetFarZ();
+        const SIZE& resolution          = UmGraphics.GetResolution();
+        if (resolution.cx <= 0 || resolution.cy <= 0)
+        {
+            return Vector3::Zero;
+        }
 
         Vector3 ndc;
         ndc.x = (screenPos.x / (float)resolution.cx) * 2.0f - 1.0f;

@@ -9,9 +9,7 @@ namespace QTE
     {
     }
 
-    Track::~Track() 
-    {
-    }
+    Track::~Track() = default;
 
     void Track::Clear()
     {
@@ -30,13 +28,7 @@ namespace QTE
     bool Track::NewFile(const File::Path& filePath)
     {
         Clear();
-        std::ofstream fout(filePath);
-        if (fout.is_open())
-        {
-            fout.close();
-            return SaveFile(filePath, true);
-        }
-        return false;
+        return SaveFile(filePath, true);
     }
 
     bool Track::SaveFile(const File::Path& filePath, bool overwrite)

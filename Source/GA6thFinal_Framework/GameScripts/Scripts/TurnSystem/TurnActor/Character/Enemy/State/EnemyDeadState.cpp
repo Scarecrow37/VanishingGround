@@ -44,20 +44,15 @@ void EnemyDeadState::OnUpdate()
 {
     const Enemy& enemy = GetEnemy();
     const AnimationComponent* animator  = enemy.GetAnimationComponent();
-    const MonsterHpTextView*  textView  = enemy.GetMonsterHpTextView();
-    const MonsterHpImageView* imageView = enemy.GetMonsterHpImageView();
-
     if (animator)
     {
         if (animator->GetMainAnimationData().IsEnd())
         {
             enemy.gameObject->SetActive(false);
 
-            if (nullptr != textView)
-                textView->Disable();
-
-            if (nullptr != imageView)
-                imageView->Disable();
+            GameObject* monsterHUD = enemy.GetMonsterHUD();
+            if (nullptr != monsterHUD)
+                monsterHUD->ActiveSelf = false;
         }
     }
 }

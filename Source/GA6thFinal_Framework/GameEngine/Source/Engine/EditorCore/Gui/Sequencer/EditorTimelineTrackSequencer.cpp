@@ -926,6 +926,11 @@ namespace Timeline
     void SequencerEditor::Helper::DrawContext(SequencerEditor* editor, ImDrawList* drawList, EventContext* context,
                                               int groupIndex, const ImRect& rect, const ImVec2& offset)
     {
+        if (nullptr == editor || nullptr == drawList || nullptr == context)
+        {
+            return;
+        }
+
         UINT             id     = context->ID;
         float            time   = context->Time;
         std::string_view label  = context->Label;

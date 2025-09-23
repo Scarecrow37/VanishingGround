@@ -41,19 +41,15 @@ namespace Timeline
         /// <param name="label">이벤트를 식별하는 문자열입니다.</param>
         /// <param name="time">이벤트가 발생하는 시간입니다. 기본 값을 넣을 경우 현재 프레임에 이벤트를 추가합니다.</param>
         /// <returns>추가된 이벤트의 EventContext 포인터를 반환합니다.</returns>
-        template <typename T> 
+        template <typename T> requires std::is_base_of_v<EventContext, T>
         EventContext* AddEvent(std::string_view label, float time = FLT_MIN)
         {
-            static_assert(std::is_base_of_v<EventContext, T>, "T is not derived from EventContext.");
             const char* key = typeid(T).name();
             return AddEventEx(label, key, time);
         }
         EventContext*   AddEventEx(std::string_view label, std::string_view typenameID, float time, UINT id = UINT_MAX);
         bool            RemoveContext(EventContext** context);
         bool            RemoveContextFromID(UINT id);
-        std::string     CopyContext(EventContext* dest);
-        EventContext*   PasteContext(EventContext* target);
-        EventContext*   PasteContext(const EventTypeName& eventName, std::string_view serializeData);
         bool            ChangeContextTime(UINT id, float time);
         bool            ChangeContextEvent(UINT id, std::string_view typeNameID);
         EventContext*   GetContextFromID(UINT id) const;
