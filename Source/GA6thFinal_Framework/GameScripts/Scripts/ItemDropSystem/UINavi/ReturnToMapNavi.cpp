@@ -1,5 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "ReturnToMapNavi.h"
+#include "SceneTransition/SceneTransitionComponent.h"
 
 UMREAL_COMPONENT(ReturnToMapNavi)
 
@@ -26,7 +27,8 @@ ReturnToMapNavi::ReturnToMapNavi()
 void ReturnToMapNavi::Submit() 
 {
     const File::Path path = _guidRef.ToPath();
-    UmSceneManager.LoadScene(path.string());
+    auto*            sceneTrans = GetComponent<SceneTransitionComponent>();
+    sceneTrans->Fade("in", [&]() { UmSceneManager.LoadScene(path.string()); });
 }
 
 void ReturnToMapNavi::DeserializedReflectEvent()

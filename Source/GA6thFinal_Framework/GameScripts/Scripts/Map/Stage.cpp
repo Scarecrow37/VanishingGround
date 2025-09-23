@@ -68,9 +68,8 @@ void Stage::Submit()
         return;
     }
     auto* sceneTrans = GetComponent<SceneTransitionComponent>();
-    sceneTrans->Fade("in", [&]() {
+    sceneTrans->Fade("in", [this, stagePath]() {
         UmSceneManager.LoadScene(stagePath);
-        sceneTrans->Fade("out", nullptr);
     });
     _stageEnable = false;
 }
