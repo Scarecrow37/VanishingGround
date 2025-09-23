@@ -326,6 +326,7 @@
     <ClInclude Include="Scripts\ExcelDataSystem\ExcelDataSystem.h" />
     <ClInclude Include="Scripts\ExcelParser\ImGuiColumnSheetParser.h" />
     <ClInclude Include="Scripts\ItemDropSystem\Interface\IDropItem.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UINavi\RestartStageNavi.h" />
     <ClInclude Include="Scripts\MainMenu\MainMenuNavigationBase.h" />
     <ClInclude Include="Scripts\Map\MapManager.h" />
     <ClInclude Include="Scripts\Map\RewardPopup.h" />
@@ -396,6 +397,7 @@
     <ClInclude Include="Scripts\UI\Panels\Grid\GridPanel.h" />
     <ClInclude Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.h" />
     <ClInclude Include="Scripts\UI\Panels\Overlay\OverlayPanel.h" />
+    <ClInclude Include="Scripts\UI\Views\Accessories\AccessoriesView.h" />
     <ClInclude Include="Scripts\UI\Views\MonsterChain\MonsterChainView.h" />
     <ClInclude Include="Scripts\UI\Views\PlayerHP\PlayerHPView.h" />
     <ClInclude Include="Scripts\UI\Views\Map\StageFocusView.h" />
@@ -407,6 +409,7 @@
     <ClInclude Include="Scripts\UI\Wrappers\Dummy\DummyWrapper.h" />
     <ClInclude Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.h" />
     <ClInclude Include="Scripts\UI\Wrappers\Scrolling\ScrollingWrapper.h" />
+    <ClInclude Include="Scripts\ViewModels\Accessories\AccessoriesViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Chain\ChainCountViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\ItemDrop\DropArtifacts\DropArtifactsViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Hp\CharacterHPViewModel.h" />
@@ -522,6 +525,7 @@
     <ClCompile Include="Scripts\ExcelDataSystem\ExcelDataSystem.cpp" />
     <ClCompile Include="Scripts\ExcelParser\ImGuiColumnSheetParser.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\Interface\IDropItem.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UINavi\RestartStageNavi.cpp" />
     <ClCompile Include="Scripts\MainMenu\MainMenuNavigationBase.cpp" />
     <ClCompile Include="Scripts\Map\MapManager.cpp" />
     <ClCompile Include="Scripts\Map\RewardPopup.cpp" />
@@ -611,6 +615,7 @@
     <ClCompile Include="Scripts\UI\Wrappers\Dummy\DummyWrapper.cpp" />
     <ClCompile Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.cpp" />
     <ClCompile Include="Scripts\UI\Wrappers\Scrolling\ScrollingWrapper.cpp" />
+    <ClCompile Include="Scripts\ViewModels\Accessories\AccessoriesViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Chain\ChainCountViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\ItemDrop\DropArtifacts\DropArtifactsViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Hp\CharacterHPViewModel.cpp" />
@@ -703,6 +708,7 @@
     <ClCompile Include="Scripts\MainMenu\Credits.cpp" />
     <ClCompile Include="Scripts\MainMenu\Quit.cpp" />
     <ClCompile Include="Scripts\Camera\UmCineMotion.cpp" />
+    <ClCompile Include="Scripts\UI\Views\Accessories\AccessoriesView.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

@@ -93,6 +93,8 @@ private:
     void ProcessQTEFadeInEndEvent();
     void ProcessQTEFadeOutEndEvent();
 
+    void CombatUIActive(bool active);
+
 public:
     inline bool  IsQTEPlaying() const { return _currQTEPlaying; }
     inline float GetQTETime() const { return _qteTimer; }

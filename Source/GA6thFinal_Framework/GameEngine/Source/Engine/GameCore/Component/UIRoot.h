@@ -23,6 +23,7 @@ public:
     void SortViewOrder() const;
     void SetInitialFocus(const UINavigationComponent* uiComponent);
     void ChangeFocusComponent(UINavigationComponent* nextFocusComponent);
+    void CheckNavigationIdFlawless(const UIBaseComponent* newComponent);
 
     NavigationID           AcquireNavigationID(NavigationID tempID);
     NavigationID           ReleaseNavigationID(NavigationID id);
@@ -36,6 +37,7 @@ protected:
 private:
     void UpdateNavigation();
     void UpdateNavigationMap();
+    void UpdateNavigationMap(Transform& exceptTransform);
     void ChangeNavigationID(NavigationID from, NavigationID to);
 
     NavigationID           GetSpareID();

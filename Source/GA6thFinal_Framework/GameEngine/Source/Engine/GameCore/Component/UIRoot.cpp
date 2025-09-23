@@ -201,6 +201,31 @@ void UIRoot::UpdateNavigation()
     });
 }
 
+void UIRoot::UpdateNavigationMap(Transform& exceptTransform)
+{
+    std::set<Transform*> exceptTransforms;
+    exceptTransforms.emplace(&exceptTransform);
+    Transform::ForeachBFS(exceptTransform, [&exceptTransforms](Transform* t) { exceptTransforms.emplace(t); });
+
+    Transform& rootTransform = this->transform;
+    Transform::ForeachBFS(rootTransform, [this, &exceptTransforms](Transform* transform) {
+        if (false == exceptTransforms.contains(transform))
+        {
+            const GameObject& gameObject = transform->gameObject;
+            if (UINavigationComponent* navigationComponent = gameObject.GetComponentDynamic<UINavigationComponent>();
+                nullptr != navigationComponent)
+            {
+                const NavigationID id = navigationComponent->ID;
+                if (auto [iter, succeed] = _navigationMap.try_emplace(id, navigationComponent);
+                    !succeed && iter->second != navigationComponent)
+                {
+                    navigationComponent->AcquireNavigationID(this);
+                }
+            }
+        }
+    });
+}
+
 void UIRoot::UpdateNavigationMap()
 {
     Transform& rootTransform = this->transform;
@@ -291,5 +316,42 @@ void UIRoot::ChangeFocusComponent(UINavigationComponent* nextFocusComponent)
         {
             _currentFocusNavigation->FocusIn();
         }
+    }
+}
+
+void UIRoot::CheckNavigationIdFlawless(const UIBaseComponent* newComponent)
+{
+    if (nullptr != newComponent)
+    {
+        Transform& transform = newComponent->transform;
+        UpdateNavigationMap(transform);
+
+        std::vector<UINavigationComponent*> uiNavigationComponents;
+
+        Transform::ForeachBFS(transform, [this, &uiNavigationComponents](const Transform* dfsTransform) {
+            const GameObject& gameObject = dfsTransform->gameObject;
+            if (UINavigationComponent* navigationComponent = gameObject.GetComponentDynamic<UINavigationComponent>();
+                nullptr != navigationComponent)
+            {
+                uiNavigationComponents.push_back(navigationComponent);
+            }
+        });
+
+        std::ranges::for_each(uiNavigationComponents, [this, &uiNavigationComponents](
+                                                          UINavigationComponent* navigationComponent) {
+            if (const NavigationID prevID = navigationComponent->ID; prevID > INVALID_NAVIGATION_ID)
+            {
+                if (const auto iter = _navigationMap.find(prevID);
+                    iter != _navigationMap.end() && iter->second != navigationComponent)
+                {
+                    const NavigationID newID = GetSpareID();
+                    navigationComponent->SetID(newID);
+                    std::ranges::for_each(uiNavigationComponents,
+                                          [this, prevID, newID](UINavigationComponent* otherNavigationComponent) {
+                                              otherNavigationComponent->ChangeNavigationDestinationID(prevID, newID);
+                                          });
+                }
+            }
+        });
     }
 }
