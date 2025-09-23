@@ -2,6 +2,7 @@
 #include "AccessorySystem.h"
 #include "TurnSystem/TurnAction/TurnActionFactory.h"
 #include "ExcelDataSystem/ExcelDataSystem.h"
+#include "UI/Views/Accessories/AccessoriesView.h"
 
 UMREAL_COMPONENT(AccessorySystem)
 
@@ -22,7 +23,7 @@ bool AccessorySystem::EquipAccessory(const AccessoryElement& accessory)
     auto [iter, result] = _playerAccessoryItemSet.insert(accessory.AccessoryID);
     if (result)
     {
-        _playerAccessoryItems.emplace_back(accessory);
+        _playerAccessoryItems.push_back(accessory);
     }
     return result;
 }
@@ -33,7 +34,7 @@ bool AccessorySystem::UnequipAccessory(const AccessoryElement& accessory)
     bool   result     = 0 < eraseCount;
     if (result)
     {
-        std::erase(_playerAccessoryItems, accessory);
+        _playerAccessoryItems.erase(accessory);
     }
     return result;
 }
@@ -396,8 +397,10 @@ void AccessorySystem::ImGuiDrawPlayerAccsessoryItems()
         };
 
         AccessoryElement* unequipTarget = nullptr;
-        for (auto& accessory : _playerAccessoryItems)
+        const auto& items =_playerAccessoryItems;
+        for (size_t i = 0; i < items.size(); ++i)
         {
+            const auto& accessory = _playerAccessoryItems.at(i);
             ImGui::PushID(&accessory);
             ImGui::PushStyleColor(ImGuiCol_Text, accessory.GetGradeColor());
             {
@@ -405,13 +408,19 @@ void AccessorySystem::ImGuiDrawPlayerAccsessoryItems()
                 AccessoryElement*  change = AccessorySelectCombo(name.c_str());
                 if (change)
                 {
-                    accessory = *change;
+                    _playerAccessoryItems.at(i, [&](AccessoryElement& element) 
+                    { 
+                        element = *change;
+                    });
                 }
 
                 ImGui::SameLine();
                 if (ImGui::Button("Unequip"))
                 {
-                    unequipTarget = &accessory;
+                    _playerAccessoryItems.at(i, [&](AccessoryElement& element) 
+                    {
+                        unequipTarget = &element;
+                    });
                 }
             }
             ImGui::PopStyleColor();
@@ -522,7 +531,15 @@ void AccessorySystem::Awake()
 {
     if (_singletonComponent.TrySingleTon())
     {
+        UmWatcher.Register<AccessoriesViewModel>(AccessoriesView::VIEW_KEY, _playerAccessoryItems);
+    }
+}
 
+void AccessorySystem::OnDestroy() 
+{
+    if (_singletonComponent.IsSingleTon())
+    {
+        UmWatcher.Unregister<AccessoriesViewModel>(AccessoriesView::VIEW_KEY);
     }
 }
 
@@ -551,7 +568,8 @@ void AccessorySystem::ElementTableDeserialized()
 void AccessorySystem::PlayerAccessoriesSerialized() 
 {
     ReflectFields->PlayerAccessoriesNames.clear();
-    for (auto& element : _playerAccessoryItems)
+    const auto& elements = _playerAccessoryItems;
+    for (auto& element : elements)
     {
         const std::string& name = element.AccessoryName;
         ReflectFields->PlayerAccessoriesNames.push_back(name);

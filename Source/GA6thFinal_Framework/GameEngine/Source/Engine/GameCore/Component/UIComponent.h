@@ -262,6 +262,7 @@ protected:
     void OnDrawDebugOverride() override;
     void OnDrawDebugSelectedOverride() override;
     void RequestViewOrder() const;
+    void RequestCheckNavigationIdFlawless() const;
 
     /// <summary>
     /// UI 컴포넌트의 측정 로직을 구현하는 함수입니다.
