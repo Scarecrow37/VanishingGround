@@ -12,7 +12,7 @@ ReturnToMapNavi::ReturnToMapNavi()
             {
 
                 const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
-                if (const auto extension = data->GetPath().extension(); extension == L".png" || extension == L".jpeg")
+                if (const auto extension = data->GetPath().extension(); extension == L".UmScene")
                 {
                     _guidRef                = data->GetGuid();
                     ReflectFields->MapScene = _guidRef.string();

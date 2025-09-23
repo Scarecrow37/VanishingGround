@@ -63,6 +63,10 @@ public:
     /// <param name="active">객체를 활성화할지 여부를 지정하는 불리언 값입니다.</param>
     void SetActive(bool active);
 
+    void StartShowQTEGuideNote();
+    void StartHideQTEGuideNote();
+    void UpdateGuideNoteUI();
+
 private:
     void Reset() override;
     void Awake() override;
@@ -92,14 +96,10 @@ private:
 
 private:
 
-
     OverlayPanel*   _qteOverlayPanel    = nullptr;
     ImageElement*   _qteBackgroundUI    = nullptr;
     ImageElement*   _qteNoteLineUI      = nullptr;
     ImageElement*   _qteJudgeNoteUI     = nullptr;
-    ImageElement*   _qteGuideNoteX      = nullptr;
-    ImageElement*   _qteGuideNoteY      = nullptr;
-    ImageElement*   _qteGuideNoteB      = nullptr;
     File::GuidRef   _notePrefabGuid     = File::NULL_GUID;
     std::unordered_map<int, ImageElement*> _noteSpawnTable = {};
 
@@ -201,5 +201,15 @@ private:
         std::function<void()> _onFadeInEndCallback = nullptr;
         std::function<void()> _onFadeOutEndCallback = nullptr;
     };
-    Fader _fader;
+    Fader _mainFader;
+
+    float         _xybOutTimer      = 0.0f;
+    ImageElement* _qteGuideNoteX    = nullptr;
+    ImageElement* _qteGuideNoteY    = nullptr;
+    ImageElement* _qteGuideNoteB    = nullptr;
+    Vector3       _qteGuideNoteXPos = Vector3::Zero;
+    Vector3       _qteGuideNoteYPos = Vector3::Zero;
+    Vector3       _qteGuideNoteBPos = Vector3::Zero;
+    Fader         _xybAlphaFader;
+    Fader         _xybPointFader;
 };

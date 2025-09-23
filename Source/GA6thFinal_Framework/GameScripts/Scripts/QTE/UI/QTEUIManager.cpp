@@ -22,7 +22,7 @@ void QTEUIManager::OnQTEEnter()
     }
     // 오브젝트 활성화 QTE UI 페이드 인 시작
     gameObject->ActiveSelf = true;
-    _fader.SetFadeMode(Fader::FADE_IN);
+    _mainFader.SetFadeMode(Fader::FADE_IN);
     
     // QTE UI 위치 및 크기 데이터 저장
     UpdateUITransformData();
@@ -105,7 +105,7 @@ void QTEUIManager::OnQTEStay()
 void QTEUIManager::OnQTEExit() 
 {
     // QTE UI 페이드 아웃 
-    _fader.SetFadeMode(Fader::FADE_OUT);
+    _mainFader.SetFadeMode(Fader::FADE_OUT);
     
     // QTE 종료 시 노트 오브젝트 정리
     ClearAllQTENotes();
@@ -151,46 +151,58 @@ void QTEUIManager::Awake()
 
 void QTEUIManager::Start()
 {
-    _fader.SetDuration(1.0f);
-    _fader.SetFadeInType(Mathf::EASE_IN, Mathf::SINE);
-    _fader.SetFadeOutType(Mathf::EASE_OUT, Mathf::SINE);
-    _fader.SetOnFadeInEndCallback([this]() {
+    _mainFader.SetDuration(1.0f);
+    _mainFader.SetFadeInType(Mathf::EASE_IN, Mathf::SINE);
+    _mainFader.SetFadeOutType(Mathf::EASE_OUT, Mathf::SINE);
+    _mainFader.SetOnFadeInEndCallback([this]() {
         if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
         {
             system->ProcessQTEFadeInEndEvent();
-            _fader.SetFadeMode(Fader::FADE_NONE);
+            _mainFader.SetFadeMode(Fader::FADE_NONE);
         }
     });
-    _fader.SetOnFadeOutEndCallback([this]() {
+    _mainFader.SetOnFadeOutEndCallback([this]() {
         gameObject->ActiveSelf = false;
         if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
         {
             system->ProcessQTEFadeOutEndEvent();
-            _fader.SetFadeMode(Fader::FADE_NONE);
+            _mainFader.SetFadeMode(Fader::FADE_NONE);
         }
     });
+
+    _xybAlphaFader.SetFadeInType(Mathf::EASE_IN, Mathf::SINE);
+    _xybAlphaFader.SetFadeOutType(Mathf::EASE_OUT, Mathf::SINE);
+    _xybAlphaFader.SetOnFadeInEndCallback([this]() { _xybAlphaFader.SetFadeMode(Fader::FADE_NONE); });
+    _xybAlphaFader.SetOnFadeOutEndCallback([this]() { _xybAlphaFader.SetFadeMode(Fader::FADE_NONE); });
+
+    _xybPointFader.SetFadeInType(Mathf::EASE_OUT, Mathf::SINE);
+    _xybPointFader.SetFadeOutType(Mathf::EASE_OUT, Mathf::SINE);
+    _xybPointFader.SetOnFadeInEndCallback([this]() { _xybPointFader.SetFadeMode(Fader::FADE_NONE); });
+    _xybPointFader.SetOnFadeOutEndCallback([this]() { _xybPointFader.SetFadeMode(Fader::FADE_NONE); });
 }
 
 void QTEUIManager::Update() 
 {
-    float alpha = _fader.Fade();
-    auto  mode  = _fader.GetFadeMode();
+    float factor = _mainFader.Fade();
+    auto  mode  = _mainFader.GetFadeMode();
     switch (mode)
     {
         case QTEUIManager::Fader::FADE_NONE:
             break;
         case QTEUIManager::Fader::FADE_IN: {
-            SetUIAlpha(alpha);
+            SetUIAlpha(factor);
             break;
         }
         case QTEUIManager::Fader::FADE_OUT: {
-            SetUIAlpha(alpha);
-            SetBackgroundUIAlpha(alpha);
+            SetUIAlpha(factor);
+            SetBackgroundUIAlpha(factor);
             break;
         }
         default:
             break;
     }
+
+    UpdateGuideNoteUI();
 }
 
 void QTEUIManager::OnEnable() 
@@ -292,6 +304,72 @@ void QTEUIManager::SetActive(bool active)
     gameObject->ActiveSelf = active;
 }
 
+void QTEUIManager::StartShowQTEGuideNote() 
+{
+    _xybOutTimer = 0.0f;
+    _xybPointFader.SetTimer(0.0f);
+    _xybAlphaFader.SetTimer(0.0f);
+
+    _xybAlphaFader.SetDuration(0.5f);
+    _xybPointFader.SetDuration(1.0f);
+    _xybAlphaFader.SetFadeMode(Fader::FADE_IN);
+    _xybPointFader.SetFadeMode(Fader::FADE_IN);
+}
+
+void QTEUIManager::StartHideQTEGuideNote() 
+{
+    _xybAlphaFader.SetDuration(0.5f);
+    _xybPointFader.SetDuration(1.0f);
+    _xybAlphaFader.SetFadeMode(Fader::FADE_OUT);
+    _xybPointFader.SetFadeMode(Fader::FADE_OUT);
+}
+
+void QTEUIManager::UpdateGuideNoteUI() 
+{
+    _xybAlphaFader.Fade();
+    _xybPointFader.Fade();
+
+    POINT point;
+    const SIZE& resolution  = UmGraphics.GetResolution();
+    const float minY        = static_cast<float>(resolution.cy);
+    const float alphaFactor = _xybAlphaFader.GetFadeFactor();
+    const float pointFactor = _xybPointFader.GetFadeFactor();
+    
+    if (_qteGuideNoteX)
+    {
+        SIZE size             = _qteGuideNoteX->Size;
+        point.x               = (LONG)_qteGuideNoteXPos.x - size.cx / 2;
+        point.y               = (LONG)std::lerp(minY, 0, pointFactor) - size.cy / 2;
+        _qteGuideNoteX->Point = point;
+        _qteGuideNoteX->Alpha = alphaFactor;
+    }
+    if (_qteGuideNoteY)
+    {
+        SIZE size             = _qteGuideNoteY->Size;
+        point.x               = (LONG)_qteGuideNoteYPos.x - size.cx / 2;
+        point.y               = (LONG)std::lerp(minY, 0, pointFactor) - size.cy / 2;
+        _qteGuideNoteY->Point = point;
+        _qteGuideNoteY->Alpha = alphaFactor;
+    }
+    if (_qteGuideNoteB)
+    {
+        SIZE size             = _qteGuideNoteB->Size;
+        point.x               = (LONG)_qteGuideNoteBPos.x - size.cx / 2;
+        point.y               = (LONG)std::lerp(minY, 0, pointFactor) - size.cy / 2;
+        _qteGuideNoteB->Point = point;
+        _qteGuideNoteB->Alpha = alphaFactor;
+    }
+
+    if (_xybPointFader.IsFadeInEnd())
+    {
+        _xybOutTimer += UmTime.DeltaTime();
+        if (_xybOutTimer >= 1.0f)
+        {
+            StartHideQTEGuideNote();
+        }
+    }
+}
+
 void QTEUIManager::UpdateUITransformData()
 {
     if (_qteOverlayPanel)
@@ -318,22 +396,19 @@ void QTEUIManager::UpdateUITransformData()
         if (3 == enemies.size())
         {
             auto* left   = enemies[0];
-            auto* middle = enemies[0];
-            auto* right  = enemies[0];
+            auto* middle = enemies[1];
+            auto* right  = enemies[2];
             if (left && _qteGuideNoteX)
             {
-                Vector3 pos = camera->WorldToViewport(left->transform->GetWorldPosition());
-                _qteGuideNoteX->Point = POINT((LONG)pos.x, (LONG)pos.y);
+                _qteGuideNoteXPos = camera->WorldToViewport(left->transform->GetWorldPosition());
             }
             if (middle && _qteGuideNoteY)
             {
-                Vector3 pos = camera->WorldToViewport(middle->transform->GetWorldPosition());
-                _qteGuideNoteX->Point = POINT((LONG)pos.x, (LONG)pos.y);
+                _qteGuideNoteYPos = camera->WorldToViewport(middle->transform->GetWorldPosition());
             }
             if (right && _qteGuideNoteB)
             {
-                Vector3 pos = camera->WorldToViewport(right->transform->GetWorldPosition());
-                _qteGuideNoteX->Point = POINT((LONG)pos.x, (LONG)pos.y);
+                _qteGuideNoteBPos = camera->WorldToViewport(right->transform->GetWorldPosition());
             }
         }
     }

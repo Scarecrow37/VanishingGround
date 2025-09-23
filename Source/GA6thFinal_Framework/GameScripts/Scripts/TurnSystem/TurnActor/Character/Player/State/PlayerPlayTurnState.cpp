@@ -101,11 +101,19 @@ void PlayerPlayTurnState::OnUpdate()
 void PlayerPlayTurnState::PressedButtonA(const Input::Controller& controller)
 {
     _isDownAButton = true;
+    if (QTEUIManager* qteUIManager = QTEUIManager::GetInstance())
+    {
+        qteUIManager->StartShowQTEGuideNote();
+    }
 }
 
 void PlayerPlayTurnState::ReleasedButtonA(const Input::Controller& controller)
 {
     _isDownAButton = false;
+    if (QTEUIManager* qteUIManager = QTEUIManager::GetInstance())
+    {
+        qteUIManager->StartHideQTEGuideNote();
+    }
 }
 
 void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
@@ -131,28 +139,28 @@ void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
 
 void PlayerPlayTurnState::UpdateActionSelectionUI(float dt) 
 {
-    ImGuiWindowFlags flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar;
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.1f, 0.1f, 0.1f, 0.5f));
-    ImGui::Begin("Player Turn##9A48EE30-CB5F-48AC-9740-DDF8118AAC49", nullptr, flags);
+    //ImGuiWindowFlags flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar;
+    //ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.1f, 0.1f, 0.1f, 0.5f));
+    //ImGui::Begin("Player Turn##9A48EE30-CB5F-48AC-9740-DDF8118AAC49", nullptr, flags);
+    //{
+    //    if (ImGui::Button((const char*)u8"A를 눌러 공격 진입"))
+    //    {
+    //        _attackButtonHeldTime = _attackButtonHeldWaitTime;
+    //    }
+    //}
+    //ImGui::End();
+    //ImGui::PopStyleColor();
+
+    float t = _attackButtonHeldTime / _attackButtonHeldWaitTime;
+    QTESystem*    qteSystem    = SingletonComponent<QTESystem>::GetInstance();
+    QTEUIManager* qteUIManager = QTEUIManager::GetInstance();
+    if (qteSystem && qteUIManager)
     {
-        if (ImGui::Button((const char*)u8"A를 눌러 공격 진입"))
-        {
-            _attackButtonHeldTime = _attackButtonHeldWaitTime;
-        }
-        float t = _attackButtonHeldTime / _attackButtonHeldWaitTime;
-        ImGui::ProgressBar(t);
-        QTESystem*      qteSystem = SingletonComponent<QTESystem>::GetInstance();
-        QTEUIManager*   qteUIManager = QTEUIManager::GetInstance(); 
-        if (qteSystem && qteUIManager)
-        {
-            qteSystem->CombatUIActive(!_isDownAButton);
-            qteUIManager->SetBackgroundUIAlpha(t);
-            qteUIManager->SetUIAlpha(0.0f);
-            qteUIManager->SetActive(true);
-        }
+        qteSystem->CombatUIActive(!_isDownAButton);
+        qteUIManager->SetBackgroundUIAlpha(t);
+        qteUIManager->SetUIAlpha(0.0f);
+        qteUIManager->SetActive(true);
     }
-    ImGui::End();
-    ImGui::PopStyleColor();
 }
 
 void PlayerPlayTurnState::UpdateQuickTimeEventUI(float dt)
