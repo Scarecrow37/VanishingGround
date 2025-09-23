@@ -110,6 +110,12 @@ void EGameObjectFactory::ApplyPrefabInstanceChanges(const File::Guid& guid, YAML
                                     {
                                         Transform* prefabTransform = &frontPrefab->transform;
                                         frontParent->_childsList[childIndex] = prefabTransform;
+                                        prefabTransform->_parent             = frontParent;
+                                        prefabTransform->_root               = frontParent->_root;
+                                        if (nullptr == prefabTransform->_root)
+                                        {
+                                            prefabTransform->_root = prefabTransform->_parent;
+                                        }
                                         frontOrigin->_transform.EraseParent(false);
                                         break;
                                     }
