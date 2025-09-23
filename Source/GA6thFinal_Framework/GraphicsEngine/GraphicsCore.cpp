@@ -123,6 +123,7 @@ void GraphicsCore::SyncGlobalVariable()
     Global::dxResourceManager        = _dxResourceManager;
     Global::commandController        = _commandController;
     Global::sceneTransitionCore      = _sceneTransitionCore;
+    Global::renderPassDatas          = _renderPassDatas;
 }
 
 void GraphicsCore::AddRenderScene(const std::string_view sceneName, const RenderTechniqueFlag flag) const

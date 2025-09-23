@@ -331,8 +331,13 @@
     <ClInclude Include="Scripts\Map\RewardPopup.h" />
     <ClInclude Include="Scripts\Map\SmoothScroll.h" />
     <ClInclude Include="Scripts\Map\Stage.h" />
+    <ClInclude Include="Scripts\Preferences\Button\AbandonButton.h" />
+    <ClInclude Include="Scripts\Preferences\Button\AbandonNoButton.h" />
+    <ClInclude Include="Scripts\Preferences\Button\AbandonYesButton.h" />
+    <ClInclude Include="Scripts\Preferences\Button\BackButton.h" />
     <ClInclude Include="Scripts\Preferences\Button\EnableButton.h" />
     <ClInclude Include="Scripts\Preferences\Button\PreferencesButton.h" />
+    <ClInclude Include="Scripts\Preferences\Button\SoundButton.h" />
     <ClInclude Include="Scripts\Preferences\Button\TextureLMH.h" />
     <ClInclude Include="Scripts\Preferences\PreferencesManager.h" />
     <ClInclude Include="Scripts\Preferences\PrefrencesWindow.h" />
@@ -515,8 +520,13 @@
     <ClCompile Include="Scripts\Map\RewardPopup.cpp" />
     <ClCompile Include="Scripts\Map\SmoothScroll.cpp" />
     <ClCompile Include="Scripts\Map\Stage.cpp" />
+    <ClCompile Include="Scripts\Preferences\Button\AbandonButton.cpp" />
+    <ClCompile Include="Scripts\Preferences\Button\AbandonNoButton.cpp" />
+    <ClCompile Include="Scripts\Preferences\Button\AbandonYesButton.cpp" />
+    <ClCompile Include="Scripts\Preferences\Button\BackButton.cpp" />
     <ClCompile Include="Scripts\Preferences\Button\EnableButton.cpp" />
     <ClCompile Include="Scripts\Preferences\Button\PreferencesButton.cpp" />
+    <ClCompile Include="Scripts\Preferences\Button\SoundButton.cpp" />
     <ClCompile Include="Scripts\Preferences\Button\TextureLMH.cpp" />
     <ClCompile Include="Scripts\Preferences\PreferencesManager.cpp" />
     <ClCompile Include="Scripts\Preferences\PrefrencesWindow.cpp" />
