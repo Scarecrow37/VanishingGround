@@ -13,6 +13,7 @@ class ImageElement;
 
 class QTEUIManager : public Component
 {
+    friend class QTESystem;
     USING_PROPERTY(QTEUIManager)
 
 public:
@@ -26,6 +27,7 @@ public:
     GETTER_ONLY(std::string, FilePath) { return _notePrefabGuid.ToPath().string(); }
     PROPERTY(FilePath)
 
+private:
     void OnQTEEnter();
     void OnQTENotePressed(QTE::ResultType result);
     void OnQTEStay();
@@ -36,6 +38,7 @@ public:
     /// <param name="guid">설정할 File::Guid 객체입니다.</param>
     void SetNotePrefabGuid(const File::Guid& guid);
 
+    // TODO: 나중에 블러로 변경 가능성 있음
     /// <summary>QTE 백그라운드 UI의 알파 값을 설정합니다.</summary>
     /// <param name="factor">설정할 UI의 알파 값입니다. 0.0f에서 1.0f 사이의 값을 가집니다.</param>
     void SetBackgroundUIAlpha(float factor);

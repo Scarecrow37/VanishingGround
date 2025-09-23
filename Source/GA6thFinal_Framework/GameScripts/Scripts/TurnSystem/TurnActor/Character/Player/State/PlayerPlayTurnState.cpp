@@ -337,7 +337,6 @@ Battle::EnemyTargetFlag_ PlayerPlayTurnState::GetAttackTargetFromButton(unsigned
 
 void PlayerPlayTurnState::OnQTEFinish(const std::vector<QTE::Result>& results) 
 {
-    SetAttack();
     for (const auto& result : results)
     {   
 
@@ -382,55 +381,66 @@ void PlayerPlayTurnState::OnQTEFinish(const std::vector<QTE::Result>& results)
                     }
 
                     // 2. 노트에 맞는 애니메이션 설정 및 애니메이션 종료 콜백 등록
-                    modelData.Animation->ChangeMainAnimation(note->WeaponAnimation);
-                    modelData.Animation->StopCurrentAnimation();
-                    modelData.Animation->SetMainAnimationEndCallback([this, weaponModelManager, modelData]() {
-                        if (modelData.IsValid())
-                        {
-                            modelData.Animation->StopCurrentAnimation();
-                            modelData.Particle->StopEffect();
-                            modelData.GameObject->ActiveSelf = false;
-                        }
-                        weaponModelManager->ReturnWeaponModel(modelData);
-                        --_attackRemaining;
-                        if (0 >= _attackRemaining)
-                        {
-                            SetAttackEnd();
-                        }
-                    });
-                    modelData.Animation->SetAnimationPostEventCallback([this, &result, modelData](const Timeline::EventContext* context) {
-                        if (modelData.IsValid())
-                        {
-                            if (context->GetLabel() == "Hit")
-                            {
-                                BattleOnHitEvent(result);
-                            }
-                        }
-                    });
-
-                    // 3. 애니메이션 Hit 이벤트 콜백 등록
-                    auto& animName  = modelData.Animation->GetAnimationNameFromKey(note->WeaponAnimation);
-                    auto& animTrack = modelData.Animation->GetAnimationEventTrack();
-                    auto  track     = animTrack.GetEventTrack(animName);
-                    if (track)
+                    if (modelData.Animation->ChangeMainAnimation(note->WeaponAnimation))
                     {
-                        if (Timeline::EventContext* context = track->GetContextFromLabel("Hit"))
-                        {
-                            ++_attackRemaining;
-                            float hitTime = context->Time;
-                            float delta   = noteTime - hitTime;
-                            UmTime.Invoke(delta, [this, modelData]() {
+                        modelData.Animation->StopCurrentAnimation();
+                        modelData.Animation->SetMainAnimationEndCallback([this, weaponModelManager, modelData]() {
+                            if (modelData.IsValid())
+                            {
+                                modelData.Animation->StopCurrentAnimation();
+                                modelData.Particle->StopEffect();
+                                modelData.GameObject->ActiveSelf = false;
+                            }
+                            weaponModelManager->ReturnWeaponModel(modelData);
+                            --_attackRemaining;
+                            if (0 >= _attackRemaining)
+                            {
+                                SetAttackEnd();
+                            }
+                        });
+                        modelData.Animation->SetAnimationPostEventCallback(
+                            [this, &result, modelData](const Timeline::EventContext* context) {
                                 if (modelData.IsValid())
                                 {
-                                    modelData.GameObject->ActiveSelf = true;
-                                    modelData.Animation->PlayCurrentAnimation();
-                                    modelData.Particle->PlayEffect();
+                                    if (context->GetLabel() == "Hit")
+                                    {
+                                        BattleOnHitEvent(result);
+                                    }
                                 }
                             });
+
+                        // 3. 애니메이션 Hit 이벤트 콜백 등록
+                        auto& animName  = modelData.Animation->GetAnimationNameFromKey(note->WeaponAnimation);
+                        auto& animTrack = modelData.Animation->GetAnimationEventTrack();
+                        auto  track     = animTrack.GetEventTrack(animName);
+                        if (track)
+                        {
+                            if (Timeline::EventContext* context = track->GetContextFromLabel("Hit"))
+                            {
+                                ++_attackRemaining;
+                                float hitTime = context->Time;
+                                float delta   = noteTime - hitTime;
+                                UmTime.Invoke(delta, [this, modelData]() {
+                                    if (modelData.IsValid())
+                                    {
+                                        modelData.GameObject->ActiveSelf = true;
+                                        modelData.Animation->PlayCurrentAnimation();
+                                        modelData.Particle->PlayEffect();
+                                    }
+                                });
+                            }
                         }
                     }
                 }
             }
         }
+    }
+    if (0 < _attackRemaining)
+    {   // 공격이 하나라도 있을 경우에 공격 애니메이션 실행
+        SetAttack();
+    }
+    else
+    {   // 모종의 이유로 공격이 하나도 없을 경우에 교착상태를 방지하기 위한 처리
+        SetAttackEnd();
     }
 }
