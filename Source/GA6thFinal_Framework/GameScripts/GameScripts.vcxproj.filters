@@ -167,6 +167,20 @@
     <ClCompile Include="Scripts\UI\Views\MonsterChain\MonsterChainView.cpp" />
     <ClCompile Include="Scripts\QTE\System\QTESystem.cpp" />
     <ClCompile Include="Scripts\QTE\Editor\QTEEditor.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UINavi\RestartStageNavi.cpp" />
+    <ClCompile Include="Scripts\Preferences\Button\AbandonButton.cpp" />
+    <ClCompile Include="Scripts\Preferences\Button\AbandonNoButton.cpp" />
+    <ClCompile Include="Scripts\Preferences\Button\AbandonYesButton.cpp" />
+    <ClCompile Include="Scripts\Preferences\Button\BackButton.cpp" />
+    <ClCompile Include="Scripts\Preferences\Button\SoundButton.cpp" />
+    <ClCompile Include="Scripts\QTE\Track\Note\QTENote.cpp" />
+    <ClCompile Include="Scripts\QTE\Track\QTETrack.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\QTEUIManager.cpp" />
+    <ClCompile Include="Scripts\WeaponModelManager\WeaponModelManager.cpp" />
+    <ClCompile Include="Scripts\ViewModels\Accessories\AccessoriesViewModel.cpp" />
+    <ClCompile Include="Scripts\Camera\UmCineMotion.cpp" />
+    <ClCompile Include="Scripts\UI\Views\Accessories\AccessoriesView.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UINavi\ReturnToMapNavi.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h" />
@@ -355,6 +369,21 @@
     <ClInclude Include="Scripts\MainMenu\Quit.h" />
     <ClInclude Include="Scripts\QTE\System\QTESystem.h" />
     <ClInclude Include="Scripts\QTE\Editor\QTEEditor.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UINavi\RestartStageNavi.h" />
+    <ClInclude Include="Scripts\Preferences\Button\AbandonButton.h" />
+    <ClInclude Include="Scripts\Preferences\Button\AbandonNoButton.h" />
+    <ClInclude Include="Scripts\Preferences\Button\AbandonYesButton.h" />
+    <ClInclude Include="Scripts\Preferences\Button\BackButton.h" />
+    <ClInclude Include="Scripts\Preferences\Button\SoundButton.h" />
+    <ClInclude Include="Scripts\QTE\Result\QTEResult.h" />
+    <ClInclude Include="Scripts\QTE\Track\Note\QTENote.h" />
+    <ClInclude Include="Scripts\QTE\Track\QTETrack.h" />
+    <ClInclude Include="Scripts\QTE\UI\QTEUIManager.h" />
+    <ClInclude Include="Scripts\UI\Views\Accessories\AccessoriesView.h" />
+    <ClInclude Include="Scripts\ViewModels\Accessories\AccessoriesViewModel.h" />
+    <ClInclude Include="Scripts\Camera\UmCineMotion.h" />
+    <ClInclude Include="Scripts\WeaponModelManager\WeaponModelManager.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UINavi\ReturnToMapNavi.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

@@ -3,26 +3,18 @@
 
 UMREAL_COMPONENT(RestartStageNavi)
 
-RestartStageNavi::RestartStageNavi() = default;
-
-RestartStageNavi::~RestartStageNavi() = default;
-
-void RestartStageNavi::FocusIn()
-{
-
-}
-
-void RestartStageNavi::FocusOut() 
-{
-
-}
-
 void RestartStageNavi::Submit() 
 {
-    Scene* scene = UmSceneManager.GetMainScene();
-    if (scene)
+    if (const Scene* scene = UmSceneManager.GetMainScene())
     {
-        std::string path = scene->Path;
+        const std::string path = scene->Path;
         UmSceneManager.LoadScene(path);
     }
+}
+
+void RestartStageNavi::OnEnable()
+{
+    UINavigationComponent::OnEnable();
+
+    Focus();
 }
