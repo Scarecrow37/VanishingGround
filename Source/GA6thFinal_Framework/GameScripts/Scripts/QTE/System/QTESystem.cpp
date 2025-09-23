@@ -239,19 +239,6 @@ void QTESystem::PauseQTE(bool pause)
     }
 }
 
-bool QTESystem::IsQTETimeEnd()
-{
-    if (_currentQTETrack)
-    {
-        float maxFrame = _currentQTETrack->GetMaxFrame();
-        if (_qteTimer >= maxFrame)
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
 QTE::ResultType QTESystem::GetQTEResult(QTE::Note* note)
 {
     if (note)

@@ -393,7 +393,7 @@ void PlayerPlayTurnState::OnQTEFinish(const std::vector<QTE::Result>& results)
                         }
                         weaponModelManager->ReturnWeaponModel(modelData);
                         --_attackRemaining;
-                        if (0 == _attackRemaining)
+                        if (0 >= _attackRemaining)
                         {
                             SetAttackEnd();
                         }
