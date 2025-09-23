@@ -26,6 +26,9 @@ void AbandonButton::Awake()
         PreferencesManager* manager = preferencesManager->GetComponent<PreferencesManager>();
         manager->AddPreferencesButton(this);
     }
+    std::string currSceneName = UmSceneManager.GetMainScene()->Name;
+    if ("MainMenu" == currSceneName)
+        gameObject->SetActive(false);
 }
 
 void AbandonButton::Update() 

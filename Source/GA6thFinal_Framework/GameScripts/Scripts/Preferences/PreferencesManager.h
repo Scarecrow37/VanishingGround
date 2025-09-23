@@ -29,7 +29,7 @@ public:
     void AddAbandonButton(Component* comps);
     void OpenAbadonButtons();
     void CloseAbandonButtons();
-
+    void OnPreferencesWindow();
     void GoToMainMenu();
     bool IsOpen() { return _opened; }
 

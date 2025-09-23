@@ -26,7 +26,9 @@ PreferencesManager::~PreferencesManager() = default;
 
 void PreferencesManager::Reset()
 {
-    BindInputAction(ControllerButton::BACK, Action::PRESSED, this, &PreferencesManager::OnPreferencesWindow);
+    std::string currSceneName = UmSceneManager.GetMainScene()->Name;
+    if ("MainMenu" != currSceneName)
+        BindInputAction(ControllerButton::BACK, Action::PRESSED, this, &PreferencesManager::OnPreferencesWindow);
 }
 
 void PreferencesManager::Awake()
@@ -179,6 +181,12 @@ void PreferencesManager::CloseAbandonButtons()
 {
     _isOpenAbandonDirty  = true;
     _isOpenAbandonButton = false;
+}
+
+void PreferencesManager::OnPreferencesWindow() 
+{
+    _isOpen      = true;
+    _isOpenDirty = true;
 }
 
 void PreferencesManager::GoToMainMenu()
