@@ -122,7 +122,7 @@ ParticleEmitter* ParticleManager::RegisterEmitter(class ParticleEffect* effect, 
     return newEmitter;
 }
 
-void ParticleManager::DeleteEffect(ParticleEffect* target ,const std::string& sceneName)
+void ParticleManager::DeleteEffect(ParticleEffect* target, const std::string& sceneName)
 {
     target->SetRemoveFlag(true);
     for (auto it = _particleUpdateResources.begin(); it != _particleUpdateResources.end(); ++it)
