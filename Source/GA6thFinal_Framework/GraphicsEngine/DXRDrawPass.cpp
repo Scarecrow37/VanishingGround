@@ -311,7 +311,6 @@ void DXRDrawPass::WriteCommand(ID3D12GraphicsCommandList* cmdList)
     cmdList4->SetComputeRoot32BitConstants(2, 3, &_ownerScene->_numLight, 0);
     frameResource->SetComputeFrameResource(FrameResourceType::VERTEX_BUFFER_ID, 3, cmdList4.Get());
     frameResource->SetComputeFrameResource(FrameResourceType::INDEX_BUFFER_ID, 4, cmdList4.Get());
-    frameResource->SetComputeFrameResource(FrameResourceType::MATERIAL, 5, cmdList4.Get());
     frameResource->SetComputeFrameResource(FrameResourceType::MESH_INSTANCE_ID, 6, cmdList4.Get());
 
     cmdList4->SetPipelineState1(_pso.Get());

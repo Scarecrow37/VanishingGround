@@ -1,6 +1,6 @@
 #include "CommonData.hlsli"
 
-StructuredBuffer<matrix> matrices;
+StructuredBuffer<matrix> ui_matrices;
 StructuredBuffer<uint> IDs : register(t0, space0);
 
 struct VSInput
@@ -24,7 +24,7 @@ VSOutput vs_main(VSInput input)
     float4 position = float4(input.position.xyz, 1);
     uint ID = IDs[input.instanceID];
         
-    output.position = mul(position, matrices[ID]);
+    output.position = mul(position, ui_matrices[ID]);
     output.position = mul(output.position, cameraData.View);
     output.position = mul(output.position, cameraData.Projection);
     

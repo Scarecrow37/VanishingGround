@@ -64,19 +64,6 @@ struct SkeletalMeshInstance
     UINT                                       VertexCount = 0;
 };
 
-class DXRSkeletalMesh;
-class BaseMesh;
-struct MeshInfo
-{
-    Material         Material;
-    BaseMesh*        Mesh;
-    DXRSkeletalMesh* SkinnedInstance;
-    Matrix*          TransposeWorldMatrix;
-    UINT             CustomDepth;
-    UINT             InstanceID;
-    float            DepthKey;
-};
-
 struct LightData
 {
     Vector3 Color;
