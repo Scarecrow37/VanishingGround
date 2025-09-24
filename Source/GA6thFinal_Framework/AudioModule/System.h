@@ -60,6 +60,11 @@ namespace Audio
         void ClearVoicePool();
 
         /// <summary>
+        /// 그룹 풀을 초기화합니다.
+        /// </summary>
+        void ClearGroupPool();
+
+        /// <summary>
         /// 디버그 모드를 활성화합니다.
         /// </summary>
         void TurnOnDebugMode() const;

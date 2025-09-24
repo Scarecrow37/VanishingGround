@@ -179,6 +179,8 @@ namespace Audio
     {
         ClearVoicePool();
 
+        ClearGroupPool();
+
         if (_masteringVoice)
         {
             _masteringVoice->DestroyVoice();
@@ -207,6 +209,19 @@ namespace Audio
             voiceVector.clear();
         }
         _voicePools.clear();
+    }
+
+    void System::ClearGroupPool()
+    {
+        for (auto& submixVoice : _groupPool)
+        {
+            if (submixVoice.Voice)
+            {
+                submixVoice.Voice->DestroyVoice();
+                submixVoice.Voice = nullptr;
+            }
+        }
+        _groupPool.clear();
     }
 
     void System::TurnOnDebugMode() const
