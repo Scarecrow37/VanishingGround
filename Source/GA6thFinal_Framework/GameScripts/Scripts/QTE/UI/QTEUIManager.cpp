@@ -252,6 +252,18 @@ void QTEUIManager::ImGuiDrawPropertysEvent()
     {
         FindUIComponents();
     }
+
+    if (ImGui::TreeNodeEx("Debug##qte_manager", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        ImGui::Text((const char*)u8"QTE Panel Absolute Pos : (%.1f, %.1f)", _qtePanelPos.x, _qtePanelPos.y);
+        ImGui::Text((const char*)u8"QTE Judge Absolute Pos : (%.1f, %.1f)", _qteJudgePos.x, _qteJudgePos.y);
+        // Guide Note Pos
+        ImGui::Text((const char*)u8"Guide Note X Absolute Pos : (%.1f, %.1f)", _qteGuideNoteXPos.x, _qteGuideNoteXPos.y);
+        ImGui::Text((const char*)u8"Guide Note Y Absolute Pos : (%.1f, %.1f)", _qteGuideNoteYPos.x, _qteGuideNoteYPos.y);
+        ImGui::Text((const char*)u8"Guide Note B Absolute Pos : (%.1f, %.1f)", _qteGuideNoteBPos.x, _qteGuideNoteBPos.y);
+
+        ImGui::TreePop();
+    }
 }
 
 void QTEUIManager::SetNotePrefabGuid(const File::Guid& guid) 
