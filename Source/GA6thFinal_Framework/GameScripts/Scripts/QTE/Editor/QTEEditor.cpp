@@ -85,7 +85,7 @@ bool QTEEditor::NewFileWithDialog(QTE::Track* qteTrack)
     {
         int result = MessageBox(UmApplication.GetHwnd(), L"기존 파일을 저장하시겠습니까?",
                                 L"주의", MB_YESNO);
-        if (result != IDYES)
+        if (result == IDYES)
         {
             _editTrack.SaveFile(File::NULL_PATH, true);
         }
