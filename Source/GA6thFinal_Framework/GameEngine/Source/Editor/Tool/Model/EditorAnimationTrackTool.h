@@ -23,9 +23,6 @@ private:
     void SerializedReflectEvent() override;
     void DeserializedReflectEvent() override;
 
-public:
-    void GetModelDetailsToolInDock();
-
 private:
     void UpdateTimeline();
 
@@ -49,7 +46,8 @@ private:
 
     void ShowAvailableEventTracks();
 
-    void LowerFramePopup();
+    void LowerFramePopup(Timeline::EventTrack* track);
+    void ContextPopup(Timeline::EventTrack* track, Timeline::EventContext& context);
 
     const std::string& GetCurrentDetailAnimName();
     const std::string& GetCurrentEventTrackmName();
@@ -64,4 +62,7 @@ private:
 
     // DetailFrame
     std::string _tabLabel[2] = {"List", "Edit"};
+    ImGuiID     _tabID[2]    = {0, 0};
+
+    std::string _copyBuffer;
 };

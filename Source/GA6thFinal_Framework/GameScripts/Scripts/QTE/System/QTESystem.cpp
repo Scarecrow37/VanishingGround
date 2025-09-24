@@ -50,6 +50,24 @@ void QTESystem::Start()
 
 void QTESystem::Update()
 {
+#ifdef _UMEDITOR
+    if (IsQTEPlaying())
+    {
+        if (ImGui::IsKeyPressed(ImGuiKey_X, false))
+        {
+            PressedQTEButton(Input::ControllerTypes::Button::X);
+        }
+        if (ImGui::IsKeyPressed(ImGuiKey_Y, false))
+        {
+            PressedQTEButton(Input::ControllerTypes::Button::Y);
+        }
+        if (ImGui::IsKeyPressed(ImGuiKey_B, false))
+        {
+            PressedQTEButton(Input::ControllerTypes::Button::B);
+        }
+    }
+#endif // _UMEDITOR
+
     if (true == _currQTEPlaying && false == _prevQTEPlaying)
     {
         ProcessQTEEnterEvent();

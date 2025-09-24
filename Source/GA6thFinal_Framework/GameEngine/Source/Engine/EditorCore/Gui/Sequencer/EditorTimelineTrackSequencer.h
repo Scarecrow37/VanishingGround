@@ -61,7 +61,7 @@ namespace Timeline
         {
             std::function<void(Timeline::EventTrack*)> LowerFramePopup;
             std::function<void(Timeline::EventTrack*)> UpperFramePopup;
-            std::function<void(Timeline::EventTrack*, const EventContext&)> ContextPopup;
+            std::function<void(Timeline::EventTrack*, EventContext&)> ContextPopup;
         };
 
     public:

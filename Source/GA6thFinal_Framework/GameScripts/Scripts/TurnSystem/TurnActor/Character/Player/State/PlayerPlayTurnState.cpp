@@ -143,6 +143,10 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.1f, 0.1f, 0.1f, 0.5f));
     ImGui::Begin("Player Turn##9A48EE30-CB5F-48AC-9740-DDF8118AAC49", nullptr, flags);
     {
+#ifdef _UMEDITOR
+        _isDownAButton = ImGui::IsKeyDown(ImGuiKey_A);
+#endif // ISEDITOR
+
         auto enemies = Battle::GetTargetsFromFlags(Battle::ENEMY_TARGET_FLAG_ALL);
         if (ImGui::Button((const char*)u8"[적] 전멸"))
         {

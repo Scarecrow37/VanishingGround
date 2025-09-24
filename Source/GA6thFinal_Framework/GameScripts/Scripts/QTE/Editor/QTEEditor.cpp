@@ -17,15 +17,34 @@ QTEEditor::QTEEditor()
                 Timeline::SequencerEditor::FLAGS_DRAW_CONTEXT_LINE_VERTICAL ;
     _sequencerEditor.SetFlags(flags);
     
-    auto& callback           = _sequencerEditor.GetCallback();
+    auto& callback = _sequencerEditor.GetCallback();
     callback.LowerFramePopup = [this](Timeline::EventTrack* track) {
-        if (ImGui::MenuItem("Add Note"))
+        if (track)
         {
-            float min, max, frame;
-            min     = track->GetMinFrame();
-            max     = track->GetMaxFrame();
-            frame   = _sequencerEditor.GetFrameFromIndicate();
-            track->AddEvent<QTE::Note>("Note", ImClamp(frame, min, max));
+            if (ImGui::MenuItem("Paste Note"))
+            {
+                float currentFrame = _sequencerEditor.GetFrameFromIndicate();
+                track->PasteContext(_copyBuffer, currentFrame);
+            }
+            ImGui::Separator();
+            if (ImGui::MenuItem("Add Note"))
+            {
+                float min, max, frame;
+                min   = track->GetMinFrame();
+                max   = track->GetMaxFrame();
+                frame = _sequencerEditor.GetFrameFromIndicate();
+                track->AddEvent<QTE::Note>("Note", ImClamp(frame, min, max));
+            }
+        }
+    };
+
+    callback.ContextPopup = [this](Timeline::EventTrack* track, Timeline::EventContext& context) {
+        if (track)
+        {
+            if (ImGui::MenuItem("Copy Note"))
+            {
+                _copyBuffer = track->CopyContext(&context);
+            }
         }
     };
 

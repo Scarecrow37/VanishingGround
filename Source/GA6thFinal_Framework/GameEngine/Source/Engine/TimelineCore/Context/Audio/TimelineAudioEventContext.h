@@ -10,14 +10,7 @@ namespace Timeline
         ~AudioEventContext() override;
 
     public:
-        REFLECT_PROPERTY(AssetID, Path, Volume) 
-
-        GETTER_ONLY(std::string, Path) { return UmFileSystem.GetPathFromAssetID(ReflectFields->AudioAssetID).string(); }
-        PROPERTY(Path)
-
-        GETTER(int, AssetID) { return ReflectFields->AudioAssetID; }
-        SETTER(int, AssetID) { ReflectFields->AudioAssetID = value; }
-        PROPERTY(AssetID)
+        REFLECT_PROPERTY(Volume) 
 
         GETTER(float, Volume) { return ReflectFields->Volume; }
         SETTER(float, Volume) { ReflectFields->Volume = std::clamp(value, 0.0f, 1.0f); }
@@ -30,16 +23,23 @@ namespace Timeline
         void ImGuiDrawPropertysEvent() override;
 
     public:
-        void SetAudioFromGuid(const File::Guid& guid);
-        void SetAudioFromPath(const File::Path& path);
+        bool AddAudioFromAssetID(int assetID);
+        bool RemoveAudioFromAssetID(int assetID);
+
+    private:
+        void ListenAudioFileDragDropEvent();
 
     protected:
-        File::Guid _guid = File::NULL_GUID;
-        std::string _guidStr = "";
+        std::map<int, std::string> _audioGuidTable; // AssetID - GuidStr
+        float _totalWeight = 0.0f;
+
         REFLECT_FIELDS_BEGIN(EventContext)
-        int AudioAssetID = 0;
         float Volume = 1.0f;
+        std::map<int, float> AudioDataTable; // AssetID - Weight
         REFLECT_FIELDS_END(AudioEventContext)
+
+        inline static bool _isShowPath = false;
+        inline static int _newAssetID;
     };
 
 }; // namespace Timeline
