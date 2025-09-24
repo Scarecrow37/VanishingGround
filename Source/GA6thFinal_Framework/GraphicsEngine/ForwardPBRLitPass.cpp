@@ -92,14 +92,14 @@ void ForwardPBRLitPass::Update(ID3D12GraphicsCommandList* commandList, const flo
     {
         const auto& cameraFrustum = _ownerScene->_camera->GetWorldFrustum();
 
-        BoundingOrientedBox boundingOrientedBox;
+        /*BoundingOrientedBox boundingOrientedBox;
         const auto&         meshBoundingBox = meshInfo->Mesh->GetBoundingBox();
         meshBoundingBox.Transform(boundingOrientedBox, XMMatrixTranspose(_ownerScene->_matrices[meshInfo->InstanceData.MatrixID].World));
 
         if (!cameraFrustum.Intersects(boundingOrientedBox))
         {
             continue;
-        }
+        }*/
 
         int cullMode = (int)meshInfo->Material.CullMode;
         _renderDatas[meshType][cullMode].emplace_back(meshInfo->Mesh, &meshInfo->InstanceData);

@@ -362,11 +362,13 @@ void ShadowMapPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType 
     UINT parameter[2]{cascadedIndex, offset};
     UINT instanceCount = 0;
     BaseMesh* previousMesh  = nullptr;
+    BaseMesh* currentMesh   = nullptr;
     for (auto& meshInfo : _meshInfos[meshType][cullMode])
     {
         if (nullptr == previousMesh)
         {
-            previousMesh = meshInfo->Mesh;
+            currentMesh   = meshInfo->Mesh;
+            previousMesh  = meshInfo->Mesh;
             instanceCount = 1;
             continue;
         }
@@ -386,12 +388,29 @@ void ShadowMapPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType 
 
             previousMesh->Render(commandList, instanceCount);
             previousMesh = meshInfo->Mesh;
-            offset += instanceCount;
+            parameter[1] += instanceCount;
             instanceCount = 1;
         }
         else
         {
             instanceCount++;
         }
+
+        currentMesh = meshInfo->Mesh;
+    }
+
+    if (nullptr != currentMesh)
+    {
+        switch (meshType)
+        {
+        case STATIC_MESH:
+            commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_2_shadowMeshData"), 2, &parameter, 0);
+            break;
+        case SKELETAL_MESH:
+            commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_2_shadowMeshData"), 2, &parameter, 0);
+            break;
+        }
+
+        currentMesh->Render(commandList, instanceCount);
     }
 }

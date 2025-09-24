@@ -280,18 +280,18 @@ void GBufferPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType me
         currentMesh = meshInfo->Mesh;
     }
 
-    switch (meshType)
+    if (nullptr != currentMesh)
     {
-    case STATIC_MESH:
-        commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_1_offset"), 1, &offset, 0);
-        break;
-    case SKELETAL_MESH:
-        commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_1_offset"), 1, &offset, 0);
-        break;
-    }
+        switch (meshType)
+        {
+        case STATIC_MESH:
+            commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_1_offset"), 1, &offset, 0);
+            break;
+        case SKELETAL_MESH:
+            commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_1_offset"), 1, &offset, 0);
+            break;
+        }
 
-    if (nullptr != currentMesh && currentMesh == previousMesh)
-    {
         currentMesh->Render(commandList, instanceCount);
     }
 }

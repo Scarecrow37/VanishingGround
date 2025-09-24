@@ -22,8 +22,8 @@ struct VSOutput
 
 struct ShadowMeshData
 {
-    uint Offset;
     uint CascadeIndex;
+    uint Offset;
 };
 
 ConstantBuffer<ShadowMeshData> bit32_2_shadowMeshData;
