@@ -37,14 +37,15 @@ namespace QTE
         {
             return false;
         }
-        std::ofstream fout(filePath);
+        const File::Path& path = filePath == File::NULL_PATH ? GetFilePath() : filePath;
+        std::ofstream     fout(path);
         if (true == fout.is_open())
         {
             YAML::Node node;
             node["SerializeData"] = SerializedReflectFields();
             fout << node;
             fout.close();
-            _filePath = filePath;
+            _filePath = path;
             return true;
         }
         return false;

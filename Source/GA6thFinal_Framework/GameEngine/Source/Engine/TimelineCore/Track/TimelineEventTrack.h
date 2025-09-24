@@ -54,6 +54,21 @@ namespace Timeline
         bool            ChangeContextEvent(UINT id, std::string_view typeNameID);
         EventContext*   GetContextFromID(UINT id) const;
         EventContext*   GetContextFromLabel(std::string_view label) const;
+        template <typename T>
+        T*              GetContextFromLabel(std::string_view label) const
+        {
+            EventContext* context = GetContextFromLabel(label);
+            if (context)
+            {
+                const char* keyT = typeid(T).name();
+                const auto& key  = context->GetEventType();
+                if (key == keyT)
+                {
+                    return static_cast<T*>(context);
+                }
+            }
+            return nullptr;
+        }
 
         void            Sort();
         void            SetMinFrame(float minFrame);

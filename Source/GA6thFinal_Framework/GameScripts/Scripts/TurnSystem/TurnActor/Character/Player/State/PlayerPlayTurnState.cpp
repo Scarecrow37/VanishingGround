@@ -462,8 +462,9 @@ void PlayerPlayTurnState::OnQTEFinish(const std::vector<QTE::Result>& results)
                             if (Timeline::EventContext* context = track->GetContextFromLabel("Hit"))
                             {
                                 pushedAnimation = true;
-                                float hitTime = context->Time;
-                                float delta   = noteTime - hitTime;
+                                float hitTime   = context->Time;
+                                float delay     = note->GetWeaponAnimationDelay();
+                                float delta     = noteTime - hitTime + delay;
                                 UmTime.Invoke(delta, [this, modelData]() {
                                     if (modelData.IsValid())
                                     {
