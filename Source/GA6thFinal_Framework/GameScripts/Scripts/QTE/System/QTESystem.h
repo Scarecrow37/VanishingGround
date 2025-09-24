@@ -11,10 +11,7 @@ namespace QTE
     class Note;
 } 
 
-/// <summary>
-/// 콜백으로 책임회피?
-/// </summary>
-class QTESystem : public Component, public InputReceiver
+class QTESystem : public Component, public InputReceiver, public File::FileEventSubscriber
 {
 
     friend class QTEUIManager;
@@ -29,6 +26,7 @@ private:
     void Awake() override;
     void Start() override;
     void Update() override;
+    void OnDestroy() override;
 
     void SerializedReflectEvent() override;
     void DeserializedReflectEvent() override;
@@ -41,7 +39,7 @@ public:
     /// <param name="weaponID">매핑 트랙을 추가할 무기의 ID입니다.</param>
     /// <param name="path">추가할 트랙의 파일 경로입니다.</param>
     /// <returns>매핑 트랙 추가가 성공하면 true, 실패하면 false를 반환합니다.</returns>
-    bool AddMappingTrackToWeaponID(int weaponID, const File::Path& path = File::NULL_PATH);
+    QTE::Track* AddMappingTrackToWeaponID(int weaponID, const File::Path& path = File::NULL_PATH);
 
     /// <summary>
     /// weaponID와 관련된 매핑 트랙을 제거합니다. index가 -1이면 마지막 매핑 트랙을 제거합니다.
@@ -155,7 +153,7 @@ private:
     std::pair<float, float> FadeInPosFactor     = {0.0f, 0.0f};                 // 페이드인 위치 비율 (0 ~ 1)
     std::pair<float, float> FadeOutPosFactor    = {1.0f, 1.0f};                 // 페이드아웃 위치 비율 (0 ~ 1)
 
-    std::unordered_map<int, std::vector<std::string>> WeaponQTETrackData;       // 무기 ID 별 QTE 트랙 파일 경로
+    std::unordered_map<int, std::vector<std::string>> WeaponQTETrackGuids;      // 무기 ID 별 QTE 트랙 파일 Guid
     REFLECT_FIELDS_END(QTESystem)
 
     // QTE 편집기

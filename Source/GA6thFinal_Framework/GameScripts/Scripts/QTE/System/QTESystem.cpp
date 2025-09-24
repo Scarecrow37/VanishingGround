@@ -16,7 +16,6 @@ QTESystem::QTESystem()
 
 QTESystem::~QTESystem() 
 {
-    ClearTrack();
 }
 
 void QTESystem::Reset()
@@ -66,14 +65,20 @@ void QTESystem::Update()
     }
 }
 
+void QTESystem::OnDestroy() 
+{
+    ClearTrack();
+}
+
 void QTESystem::SerializedReflectEvent()
 {
-    ReflectFields->WeaponQTETrackData.clear();
+    ReflectFields->WeaponQTETrackGuids.clear();
     for (auto& [weaponID, trackList] : _weaponIDToTrackTable)
     {
         for (auto& track : trackList)
         {
-            ReflectFields->WeaponQTETrackData[weaponID].emplace_back(track->SerializedReflectFields());
+            const File::Guid& guid = track->GetFilePath().ToGuid();
+            ReflectFields->WeaponQTETrackGuids[weaponID].emplace_back(guid.string());
         }
     }
 }
@@ -81,14 +86,23 @@ void QTESystem::SerializedReflectEvent()
 void QTESystem::DeserializedReflectEvent() 
 {
     ClearTrack();
-    for (auto& [weaponID, trackDataList] : ReflectFields->WeaponQTETrackData)
+    for (auto& [weaponID, guids] : ReflectFields->WeaponQTETrackGuids)
     {
-        for (auto& trackData : trackDataList)
+        for (auto& guidStr : guids)
         {
             QTE::Track* track = new QTE::Track;
             auto& trackVector = _weaponIDToTrackTable[weaponID];
-            track->DeserializedReflectFields(trackData);
-            trackVector.push_back(track);
+            File::Guid guid(guidStr);
+            if (track->LoadFile(guid))
+            {
+                trackVector.push_back(track);
+            }
+            else
+            {
+                std::string message = std::format("{} {}", (const char*)u8"QTE 트랙 파일 로드에 실패했습니다. 파일 경로: ", guid.ToPath().string());
+                UmLogger.Log(LogLevel::LEVEL_ERROR, message);
+                delete track;
+            }
         }
     }
 }
@@ -116,20 +130,19 @@ void QTESystem::ImGuiDrawPropertysEvent()
     }
 }
 
-bool QTESystem::AddMappingTrackToWeaponID(int weaponID, const File::Path& path)
+QTE::Track* QTESystem::AddMappingTrackToWeaponID(int weaponID, const File::Path& path)
 {
     QTE::Track* track = new QTE::Track;
     auto&       trackVector = _weaponIDToTrackTable[weaponID];
     trackVector.push_back(track);
-    track->SetWeaponID(weaponID);
 
     // 기본 경로가 아닌 경우 파일 로드 시도
     if (File::NULL_PATH != path && false == track->LoadFile(path))
     {
         UmLogger.Log(LogLevel::LEVEL_ERROR, (const char*)u8"QTE 트랙 파일 로드에 실패했습니다.");
-        return false;
+        return nullptr;
     }
-    return true;
+    return track;
 }
 
 bool QTESystem::RemoveMappingTrackToWeaponID(int weaponID, int index)
