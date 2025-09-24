@@ -65,6 +65,8 @@ public:
 
     void StartShowQTEGuideNote();
     void StartHideQTEGuideNote();
+
+    void UpdateQTEUI();
     void UpdateGuideNoteUI();
 
 private:
@@ -81,7 +83,8 @@ private:
     void ImGuiDrawPropertysEvent() override;
 
 private:
-    void UpdateUITransformData();
+    void RefreshQTEUITransformData();
+    bool RefreshGuideNoteUITransformData();
     bool CheckUIValid();
     void FindUIComponents();
     void SpawnQTENotesFromCurrentTrack();
@@ -110,6 +113,7 @@ private:
 
     REFLECT_FIELDS_BEGIN(Component)
     std::string NotePrefabGuid; // QTE 노트 프리팹 GUID
+    float       GuideNoteDuration = 1.0f;
     REFLECT_FIELDS_END(QTEUIManager)
 
     class Fader
@@ -203,13 +207,13 @@ private:
     };
     Fader _mainFader;
 
+    Fader         _xybAlphaFader;
+    Fader         _xybPointFader;
     float         _xybOutTimer      = 0.0f;
     ImageElement* _qteGuideNoteX    = nullptr;
     ImageElement* _qteGuideNoteY    = nullptr;
     ImageElement* _qteGuideNoteB    = nullptr;
-    Vector3       _qteGuideNoteXPos = Vector3::Zero;
-    Vector3       _qteGuideNoteYPos = Vector3::Zero;
-    Vector3       _qteGuideNoteBPos = Vector3::Zero;
-    Fader         _xybAlphaFader;
-    Fader         _xybPointFader;
+    Vector3       _enemyXPos        = Vector3::Zero;
+    Vector3       _enemyYPos        = Vector3::Zero;
+    Vector3       _enemyBPos        = Vector3::Zero;
 };
