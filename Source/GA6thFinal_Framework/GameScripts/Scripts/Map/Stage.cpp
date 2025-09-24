@@ -3,6 +3,7 @@
 #include "ViewModels/Map/StageViewModel.h"
 #include "MapManager.h"
 #include "ItemDropSystem/ItemDropSystem.h"
+#include "SceneTransition/SceneTransitionComponent.h"
 
 UMREAL_COMPONENT(Stage)
 
@@ -66,8 +67,10 @@ void Stage::Submit()
     {
         return;
     }
-
-    UmSceneManager.LoadScene(stagePath);
+    auto* sceneTrans = GetComponent<SceneTransitionComponent>();
+    sceneTrans->Fade("in", [this, stagePath]() {
+        UmSceneManager.LoadScene(stagePath);
+    });
     _stageEnable = false;
 }
 

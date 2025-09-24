@@ -117,6 +117,12 @@ namespace Timeline
         {
             context = new EventContext();
         }
+
+        if (FLT_MIN == time)
+        {
+            time = GetCurrentFrame();
+        }
+
         context->SetEvent(typenameID);
         context->SetTime(time);
         context->ReflectFields->Label = label;
@@ -180,6 +186,17 @@ namespace Timeline
         if (it != _contextTable.end())
         {
             return it->second;
+        }
+        return nullptr;
+    }
+    EventContext* EventTrack::GetContextFromLabel(std::string_view label) const
+    {
+        for (const auto& context : _contextQueue)
+        {
+            if (context && context->GetLabel() == label)
+            {
+                return context;
+            }
         }
         return nullptr;
     }

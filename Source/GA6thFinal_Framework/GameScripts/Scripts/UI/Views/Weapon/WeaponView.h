@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "ViewModels/Weapon/WeaponViewModel.h"
+#include "Utility/SingletonHelper.h"
 
 class TextElement;
 class ImageElement;
@@ -13,30 +14,48 @@ public:
     WeaponView();
     ~WeaponView() override;
 
+public:
+    void Focus(bool value);
+
 protected:
     void Awake() override;
     void Start() override;
 
 private:
-    void                 FindElements();
-    static ImageElement* FindImageElement(const std::string& tag, GameObject& object);
-    static TextElement*  FindTextElement(const std::string& tag, GameObject& object);
-    static DescriptionPanel* FindDescriptionPanel(const std::string& tag, GameObject& object);
+    void FindElements();
+    void FindBackgroundUI();
+    void FindTextInfoUI();
+    void FindDiscriptionUI();
+    void FindIconUI();
+    void FindNameUI();
+
+    struct BackgroundUI
+    {
+        GameObject*   BackGroundPanel = nullptr;
+        ImageElement* ImageOn         = nullptr;
+        ImageElement* ImageOff        = nullptr;
+    };
+
+    struct TextInfoUI
+    {
+        GameObject*  TextInfoPanel = nullptr;
+        TextElement* Damage        = nullptr;
+        TextElement* Critical      = nullptr;
+        TextElement* AttackCount   = nullptr;
+        TextElement* Speed         = nullptr;
+    };
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
     REFLECT_FIELDS_END(WeaponView)
 
 private:
-    ImageElement* _background;
-    TextElement*  _weaponName;
-    ImageElement* _weaponImage;
-    TextElement*  _hitDamage;
-    TextElement*  _criticalDamage;
-    TextElement*  _speed;
-    TextElement*  _attackCount;
-    DescriptionPanel* _description1;
-    DescriptionPanel* _description2;
+    BackgroundUI                   _backgroundUI;
+    TextInfoUI                     _textInfoUI;
+    DescriptionPanel*              _descriptionUI;
+    ImageElement*                  _iconUI;
+    TextElement*                   _nameUI;
 
-    WeaponViewModel::Handle _watchHandle;
+    SingletonComponent<WeaponView> _singletonComponent;
+    WeaponViewModel::Handle        _watchHandle;
 };

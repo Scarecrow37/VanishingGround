@@ -20,6 +20,8 @@ struct NavigationInfoHash
 class UINavigationComponent : public UIBaseComponent
 {
     friend class UIManager;
+    friend class UIRoot;
+
     USING_PROPERTY(UINavigationComponent)
 
 public:
@@ -129,6 +131,7 @@ protected:
 
 private:
     void ReleaseNavigationID(UIRoot* root);
+    void SetID(NavigationID id);
 
 protected:
     REFLECT_FIELDS_BEGIN(UIBaseComponent)

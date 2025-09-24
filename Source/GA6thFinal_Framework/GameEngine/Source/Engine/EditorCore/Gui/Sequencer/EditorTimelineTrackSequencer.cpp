@@ -926,25 +926,39 @@ namespace Timeline
     void SequencerEditor::Helper::DrawContext(SequencerEditor* editor, ImDrawList* drawList, EventContext* context,
                                               int groupIndex, const ImRect& rect, const ImVec2& offset)
     {
-        UINT             id    = context->ID;
-        float            time  = context->Time;
-        std::string_view label = context->Label;
+        if (nullptr == editor || nullptr == drawList || nullptr == context)
+        {
+            return;
+        }
 
-        float  unitSize     = editor->_unitToScaledSize;
-        float  linePerFrame = (float)editor->GetLineUnit();
-        bool   isSelected   = (id == editor->_seletedContextID);
-        ImU32  color        = isSelected ? editor->ReflectFields->ContextColor[3] :editor->ReflectFields->ContextColor[0];
+        UINT             id     = context->ID;
+        float            time   = context->Time;
+        std::string_view label  = context->Label;
+
+        float  unitSize         = editor->_unitToScaledSize;
+        float  linePerFrame     = (float)editor->GetLineUnit();
+        bool   isSelected       = (id == editor->_seletedContextID);
+        ImU32  color            = isSelected ? editor->ReflectFields->ContextColor[3] :editor->ReflectFields->ContextColor[0];
+        ImVec2 center           = rect.GetCenter();
         
         if (false == editor->HasFlags(FLAGS_HIDE_CONTEXT_LINE))
         {
-            ImVec2 start = offset + ImVec2((float)groupIndex * unitSize, 0.0f);
-            ImVec2 end   = offset + ImVec2(((float)groupIndex + linePerFrame) * unitSize, 0.0f);
-            drawList->AddLine(start, end, color, 1.0f);
+            if (editor->HasFlags(FLAGS_DRAW_CONTEXT_LINE_VERTICAL))
+            {
+                ImVec2 start = ImVec2(center.x, editor->_canvasRectLower.Min.y);
+                ImVec2 end   = ImVec2(center.x, editor->_canvasRectLower.Max.y);
+                drawList->AddLine(start, end, color, 1.0f);
+            }
+            else
+            {
+                ImVec2 start = offset + ImVec2((float)groupIndex * unitSize, 0.0f);
+                ImVec2 end   = offset + ImVec2(((float)groupIndex + linePerFrame) * unitSize, 0.0f);
+                drawList->AddLine(start, end, color, 1.0f);
+            }
         }
 
         // mainRect
         float  halfWidth = rect.GetWidth() * 0.5f;
-        ImVec2 center    = rect.GetCenter();
         ImVec2 points[4] = {center + ImVec2(0.0f, halfWidth),
                             center + ImVec2(-halfWidth, 0.0f),
                             center + ImVec2(0.0f, -halfWidth),
@@ -952,7 +966,7 @@ namespace Timeline
 
         PathLines(drawList, points, 4);
         drawList->PathFillConvex(color);
-        if (false == editor->HasFlags(FLAGS_HIDE_CONTEXT_LEBEL))
+        if (false == editor->HasFlags(FLAGS_HIDE_CONTEXT_LABEL))
         {
             // labelRect
             ImVec2 textSize   = ImGui::CalcTextSize(label.data());

@@ -14,11 +14,11 @@ public:
 
 public:
     REFLECT_PROPERTY(NextScene)
-    GETTER_ONLY(std::string, NextScene) { return ReflectFields->NextScene; }
+    GETTER_ONLY(std::string, NextScene) { return File::Guid(ReflectFields->NextSceneGuid).ToPath().string(); }
     PROPERTY(NextScene)
 
 protected:
     REFLECT_FIELDS_BEGIN(MainMenuNavigationBase)
-    std::string NextScene;
+    std::string NextSceneGuid;
     REFLECT_FIELDS_END(NewGame)
 };

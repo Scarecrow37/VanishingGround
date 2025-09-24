@@ -76,7 +76,7 @@ protected:
 
     MVVM::Model<std::pair<int, int>> _hpModel;
     int _currentHP = 100;
-    int _currentChainCount = 0;
+    MVVM::Model<int> _currentChainCount = 0;
     int _currentChainRoundCount = 0;
 };
 
