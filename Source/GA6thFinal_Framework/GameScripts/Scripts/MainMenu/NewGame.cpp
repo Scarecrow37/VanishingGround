@@ -14,7 +14,7 @@ NewGame::NewGame()
                 const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
                 if (const auto extension = data->GetPath().extension(); extension == L".UmScene")
                 {
-                    ReflectFields->NextScene = data->GetPath().string();
+                    ReflectFields->NextSceneGuid = data->GetGuid().string();
                 }
             }
             ImGui::EndDragDropTarget();
@@ -28,6 +28,7 @@ void NewGame::Submit()
 {
     GetComponent<SceneTransitionComponent>()->Fade("in", [this]() 
         { 
-            UmSceneManager.LoadScene(ReflectFields->NextScene); 
+            File::Path path = File::Guid(ReflectFields->NextSceneGuid).ToPath();
+            UmSceneManager.LoadScene(path.string());
         });
 }

@@ -22,7 +22,10 @@ void Option::Update()
     if (_onDirtyFlag)
     {
         _onDirtyFlag = false;
-        _preferencesManager->OnPreferencesWindow();
+        if (_preferencesManager)
+        {
+            _preferencesManager->OnPreferencesWindow(this);
+        }
     }
 }
 

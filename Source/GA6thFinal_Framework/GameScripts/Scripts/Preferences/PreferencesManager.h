@@ -29,7 +29,7 @@ public:
     void AddAbandonButton(Component* comps);
     void OpenAbadonButtons();
     void CloseAbandonButtons();
-    void OnPreferencesWindow();
+    void OnPreferencesWindow(UINavigationComponent* backComponent);
     void GoToMainMenu();
     bool IsOpen() { return _opened; }
 
@@ -64,4 +64,5 @@ private:
     bool                    _isOpenAbandonButton = false;
     bool                    _isOpenAbandonDirty  = false;
     bool                    _changeMainMenuSceneDirty = false;
+    UINavigationComponent*  _backComponent            = nullptr;
 };

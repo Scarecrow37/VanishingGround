@@ -37,9 +37,9 @@ void QTESystem::Awake()
         UmLogger.Log(LogLevel::LEVEL_ERROR, (const char*)u8"씬에 QTESystem이 2개 이상 존재하는지 확인해주세요.");
     }
 
-    if (QTEUIManager* uiManager = QTEUIManager::GetInstance())
+    if (QTEUIManager* uiManager = QTEUIManager::GetInstance(); uiManager)
     {
-        uiManager->Refesh();
+        uiManager->Refresh();
         uiManager->SetUIAlpha(0.0f);
         uiManager->SetBackgroundUIAlpha(0.0f);
     }

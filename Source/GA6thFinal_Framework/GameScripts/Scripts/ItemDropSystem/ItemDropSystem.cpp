@@ -299,6 +299,15 @@ void ItemDropSystem::PlayItemDropUISequence()
         StageClearCount = StageClearCount + 1;
     }
 
+    if (auto restartButton = GameObject::FindWithTag("Restart Button").lock())
+    {
+        UINavigationComponent* nav = restartButton->GetComponentDynamic<UINavigationComponent>();
+        if (nullptr != nav)
+        {
+            nav->Focus();
+        }
+    }
+
     if (auto turnQueue = GameObject::FindWithTag("Turn Queue Panel").lock())
     {
         turnQueue->ActiveSelf = false;
