@@ -31,6 +31,9 @@
     <Filter Include="Callback">
       <UniqueIdentifier>{40658823-65b1-4088-9110-95e0fafe74cb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Handle\AudioHadle">
+      <UniqueIdentifier>{88eebea4-703a-475d-82b7-b38878b3a62b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -48,9 +51,6 @@
     <ClInclude Include="Types.h">
       <Filter>Types</Filter>
     </ClInclude>
-    <ClInclude Include="AudioHandle.h">
-      <Filter>Handle</Filter>
-    </ClInclude>
     <ClInclude Include="System.h">
       <Filter>System</Filter>
     </ClInclude>
@@ -59,6 +59,12 @@
     </ClInclude>
     <ClInclude Include="Callback.h">
       <Filter>Callback</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioHandle.h">
+      <Filter>Handle\AudioHadle</Filter>
+    </ClInclude>
+    <ClInclude Include="Handle.h">
+      <Filter>Handle</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -74,14 +80,17 @@
     <ClCompile Include="Types.cpp">
       <Filter>Types</Filter>
     </ClCompile>
-    <ClCompile Include="AudioHandle.cpp">
-      <Filter>Handle</Filter>
-    </ClCompile>
     <ClCompile Include="Source.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Callback.cpp">
       <Filter>Callback</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioHandle.cpp">
+      <Filter>Handle\AudioHadle</Filter>
+    </ClCompile>
+    <ClCompile Include="Handle.cpp">
+      <Filter>Handle</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -1,12 +1,11 @@
 ﻿#pragma once
-#include "Handle.h"
 
 namespace Audio
 {
     /// <summary>
-    /// 현재 사용중인 Audio 제어에 사용하는 AudioHandle 객체입니다.
+    /// Audio System에서 사용되는 Handle 객체입니다.
     /// </summary>
-    class AudioHandle : public Handle
+    class Handle
     {
         friend class System;
 
@@ -14,12 +13,13 @@ namespace Audio
         /// <summary>
         /// 기본 생성자로 생성된 핸들은 유효하지 않습니다.
         /// </summary>
-        AudioHandle();
+        Handle();
 
     protected:
-        AudioHandle(WaveFormatHash hash, Index index, Generation generation);
+        Handle(Index index, Generation generation);
 
     private:
-        WaveFormatHash _hash;
+        Index      _index;
+        Generation _generation;
     };
 } // namespace Audio
