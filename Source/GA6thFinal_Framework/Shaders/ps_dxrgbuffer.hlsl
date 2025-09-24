@@ -35,21 +35,23 @@ float3 CalculateNormal(float3 sampledNormal, float3 tangent, float3 bitangent, f
 
 PSOutput WriteGuBuffer(PSInput input)
 {
-    ObjectData data = bit32_4_objectData;
-    
     PSOutput output = (PSOutput) 0;
-    uint normalID = material[data.ID].ID[NORMAL];
     
-    //output.baseColor.rgb = pow(output.baseColor.rgb, 2.2);
-    // 1. normal
-    float3 normal = textures[normalID].Sample(samLinear_wrap, input.uv).xyz;
-    normal = CalculateNormal(normal, input.tangent, input.biTangent, input.normal);
-    output.normal = float4(normal, 1.f);
+    //ObjectData data = bit32_4_objectData;
     
-    //5. depth
-    output.depth = input.position.z;
-    // SWTODO : 나중에 마스킹값 받는거 처리
-    output.customDepth = data.CustomDepth;
+    //uint normalID = material[data.ID].ID[NORMAL];
+    
+    ////output.baseColor.rgb = pow(output.baseColor.rgb, 2.2);
+    //// 1. normal
+    //float3 normal = textures[normalID].Sample(samLinear_wrap, input.uv).xyz;
+    //normal = CalculateNormal(normal, input.tangent, input.biTangent, input.normal);
+    //output.normal = float4(normal, 1.f);
+    
+    ////5. depth
+    //output.depth = input.position.z;
+    //// SWTODO : 나중에 마스킹값 받는거 처리
+    //output.customDepth = data.CustomDepth;
+    
     return output;
 }
 

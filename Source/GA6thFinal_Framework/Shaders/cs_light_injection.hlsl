@@ -33,23 +33,25 @@ float GetVisibillityCSM(float3 voxelWorldPos)
 {
     // 거리 기반 cascade 선택 
     float dist = length(voxelWorldPos - cameraData.Position.xyz);
-    uint cid = 3;
-    if (dist < cascadeData.CascadeSplits[0])
+    uint cid = 2;
+    
+    if (dist < cascadeData.CascadeSplits.x)
         cid = 0;
-    else if (dist < cascadeData.CascadeSplits[1])
+    else if (dist < cascadeData.CascadeSplits.y)
         cid = 1;
-    else if (dist < cascadeData.CascadeSplits[2])
-        cid = 2;
     else
-        cid = 3;
+        cid = 2;
     
     float4 shadowPosLS = mul(float4(voxelWorldPos, 1.f), cascadeData.ShadowVP[cid]);
+    
     if (abs(shadowPosLS.w) < Epsilon)
         return 0.f;
+    
     shadowPosLS.xyz /= shadowPosLS.w;
     
     float2 shadowUV = shadowPosLS.xy * 0.5f + 0.5f;
     shadowUV.y = 1.f - shadowUV.y;
+    
     if (shadowUV.x < 0.0f || shadowUV.x > 1.0f || shadowUV.y < 0.0f || shadowUV.y > 1.0f)
     {
         return 1.0f;
@@ -101,8 +103,7 @@ void cs_main(uint3 Gid : SV_GroupID, uint3 GTid : SV_GroupThreadID, uint3 DTid :
                 HenyeyGreensteinPhaseFunction(viewDir, -lightData.Directional[0].Direction.xyz, fogdata.LightShaftAnisotropy);
         // light shaft
         if (visibility > Epsilon)
-            lighting +=
-                visibility * fogValue * fogdata.LightShaftIntensity;
+            lighting += visibility * fogValue * fogdata.LightShaftIntensity;
         // fog
         float3 fixedLightDir = float3(0.0f, 1.0f, 0.0f);
         fogValue = fogdata.FogColor.xyz *
