@@ -109,9 +109,13 @@ LONG AlignPoint::operator()(const VerticalAlignment vertical, const LONG spareHe
     return verticalAlign;
 }
 
+UIRoot* UIComponent::GetRoot(const GameObject& obj)
+{
+    return obj.GetComponent<UIRoot>();
+}
+
 UIComponent::UIComponent()
-    : _requestedPoint{}, _requestedSize{}, _isMeasureDirty(false),
-      _isArrangeDirty(false)
+    : _requestedPoint{}, _requestedSize{}, _isFocus(false), _isMeasureDirty(false), _isArrangeDirty(false)
 {
 }
 
@@ -137,8 +141,9 @@ void UIComponent::OnDrawDebugOverride()
 
     const POINT absolutePoint = AbsolutePosition;
     const SIZE  size          = Size;
+    const bool  isFocus       = IsFocus;
 
-    DrawDebug()(absolutePoint, size, 1, Colors::White);
+    DrawDebug()(absolutePoint, size, 1, isFocus ? Colors::Purple : Colors::White);
 }
 
 void UIComponent::OnDrawDebugSelectedOverride()
@@ -147,22 +152,42 @@ void UIComponent::OnDrawDebugSelectedOverride()
 
     const POINT absolutePoint = AbsolutePosition;
     const SIZE  size          = Size;
+    const bool  isFocus       = IsFocus;
 
-    DrawDebug()(absolutePoint, size, 3, Colors::Yellow);
+    DrawDebug()(absolutePoint, size, 3, isFocus ? Colors::Purple : Colors::Yellow);
+}
+
+void UIComponent::RequestViewOrder() const
+{
+    if (const UIRoot* uiRoot = this->Root; nullptr != uiRoot)
+    {
+        uiRoot->SortViewOrder();
+    }
+    else if (false == UmCore->IsPlay())
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"UI Component는 UIRoot의 하위에 있어야 합니다.");
+    }
+}
+
+void UIComponent::RequestCheckNavigationIdFlawless() const
+{
+    if (UIRoot* uiRoot = this->Root; nullptr != uiRoot)
+    {
+        uiRoot->CheckNavigationIdFlawless(this);
+    }
+    else if (false == UmCore->IsPlay())
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"UI Component는 UIRoot의 하위에 있어야 합니다.");
+    }
 }
 
 void UIComponent::ImGuiDrawPropertysEvent()
 {
-    Component::ImGuiDrawPropertysEvent();
+    UIBaseComponent::ImGuiDrawPropertysEvent();
 
     if (ImGui::Button("Reset Placement"))
     {
         ResetPlacement();
-    }
-
-    if (ImGui::Button("Debug"))
-    {
-        _isDebug = !_isDebug;
     }
 
     if (_isDebug)
@@ -194,6 +219,14 @@ void UIComponent::DeserializedReflectEvent()
     _requestedSize  = ActualSize;
 }
 
+void UIComponent::Reset()
+{
+    UIBaseComponent::Reset();
+
+    InvalidateMeasure();
+    InvalidateArrange();
+}
+
 void UIComponent::Start()
 {
     UIBaseComponent::Start();
@@ -201,11 +234,18 @@ void UIComponent::Start()
     InvalidateMeasure();
 }
 
+std::weak_ptr<UIComponent> UIComponent::GetUIWeakPtr() const
+{
+    const std::shared_ptr<UIComponent> uiComponent =
+        std::static_pointer_cast<UIComponent>(GetWeakPtr().lock());
+    return uiComponent;
+}
+
 void UIComponent::InvalidateMeasure()
 {
     if (const bool enableInHierarchy = EnableInHierarchy; true == enableInHierarchy && false == _isMeasureDirty)
     {
-        UmUI.AddMeasureQueue(this);
+        UmUI.AddMeasureQueue(GetUIWeakPtr());
 
         if (UIComponent* parent = Parent; nullptr != parent)
         {
@@ -220,10 +260,20 @@ void UIComponent::InvalidateArrange()
 {
     if (const bool enableInHierarchy = EnableInHierarchy; true == enableInHierarchy && false == _isArrangeDirty)
     {
-        UmUI.AddArrangeQueue(this);
+        UmUI.AddArrangeQueue(GetUIWeakPtr());
 
         _isArrangeDirty = true;
     }
+}
+
+void UIComponent::OnAttachParent(GameObject* parentGameObject)
+{
+    UIBaseComponent::OnAttachParent(parentGameObject);
+
+    RequestViewOrder();
+    RequestCheckNavigationIdFlawless();
+    InvalidateMeasure();
+    InvalidateArrange();
 }
 
 void UIComponent::Measure(const SIZE availableSize)
@@ -296,6 +346,12 @@ void ImGuiDebug::operator()(const char* label, const int x) const
     operator()(label);
 }
 
+void ImGuiDebug::operator()(const char* label, const size_t x) const
+{
+    ImGui::Text("%d", x);
+    operator()(label);
+}
+
 void ImGuiDebug::operator()(const char* label, const std::string& str) const
 {
     ImGui::Text(str.c_str());
@@ -339,4 +395,122 @@ void DrawDebug::operator()(const POINT pointA, const POINT pointB, const int thi
                                     isVertical ? static_cast<float>(pointB.y) : static_cast<float>(pointB.y + i)};
         UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&pointAOffset), XMLoadFloat2(&pointBOffset), color);
     }
+}
+
+void DrawDebug::operator()(POINT pointA, POINT pointB, float arrowheadLength, FXMVECTOR color) const
+{
+    const XMFLOAT2 start{static_cast<float>(pointA.x), static_cast<float>(pointA.y)};
+    const XMFLOAT2 end{static_cast<float>(pointB.x), static_cast<float>(pointB.y)};
+    const XMVECTOR startVector = XMLoadFloat2(&start);
+    const XMVECTOR endVector   = XMLoadFloat2(&end);
+
+    UmGraphics.DebugDraw2D("Editor", startVector, endVector, color);
+
+    // Arrowhead
+    XMVECTOR direction = XMVectorSubtract(startVector, endVector);
+    direction          = XMVector3Normalize(direction);
+
+    XMVECTOR headInOrigin = XMVectorScale(direction, arrowheadLength);
+    float    angle        = XMConvertToRadians(20.0f);
+
+    // right head
+    XMMATRIX rightRotationMatrix = XMMatrixRotationZ(angle);
+    XMVECTOR rightHead           = XMVector2Transform(headInOrigin, rightRotationMatrix);
+    rightHead                    = XMVectorAdd(rightHead, endVector);
+    UmGraphics.DebugDraw2D("Editor", rightHead, endVector, color);
+
+    // left head
+    XMMATRIX leftRotationMatrix = XMMatrixRotationZ(-angle);
+    XMVECTOR leftHead           = XMVector2Transform(headInOrigin, leftRotationMatrix);
+    leftHead                    = XMVectorAdd(leftHead, endVector);
+    UmGraphics.DebugDraw2D("Editor", leftHead, endVector, color);
+}
+
+namespace
+{
+    bool IntersectSegments(const XMVECTOR& p1, const XMVECTOR& p2, const XMVECTOR& q1, const XMVECTOR& q2,
+                           XMVECTOR& out)
+    {
+        const float x1 = XMVectorGetX(p1), y1 = XMVectorGetY(p1);
+        const float x2 = XMVectorGetX(p2), y2 = XMVectorGetY(p2);
+        const float x3 = XMVectorGetX(q1), y3 = XMVectorGetY(q1);
+        const float x4 = XMVectorGetX(q2), y4 = XMVectorGetY(q2);
+
+        const float dx1 = x2 - x1, dy1 = y2 - y1;
+        const float dx2 = x4 - x3, dy2 = y4 - y3;
+        const float det = dx1 * dy2 - dy1 * dx2;
+        if (fabs(det) < 1e-6f)
+            return false; // 평행
+
+        const float s = ((dx2) * (y1 - y3) - (dy2) * (x1 - x3)) / det;
+        const float t = ((dx1) * (y1 - y3) - (dy1) * (x1 - x3)) / det;
+
+        if (s < 0 || s > 1 || t < 0 || t > 1)
+            return false; // 교차 영역 밖
+        out = XMVectorSet(x1 + s * dx1, y1 + s * dy1, 0.0f, 0.0f);
+        return true;
+    }
+} // namespace
+
+std::optional<std::pair<POINT, POINT>> DrawDebug::operator()(POINT pointA, POINT pointB, RECT rectA, RECT rectB) const
+{
+    std::optional<std::pair<POINT, POINT>> result = std::nullopt;
+
+    XMVECTOR vectorA = XMVectorSet(static_cast<float>(pointA.x), static_cast<float>(pointA.y), 0.0f, 0.0f);
+    XMVECTOR vectorB = XMVectorSet(static_cast<float>(pointB.x), static_cast<float>(pointB.y), 0.0f, 0.0f);
+
+    XMVECTOR edgesA[4][2] = {
+        {XMVectorSet(static_cast<float>(rectA.left), static_cast<float>(rectA.top), 0.0f, 0.0f),
+         XMVectorSet(static_cast<float>(rectA.right), static_cast<float>(rectA.top), 0.0f, 0.0f)},
+        {XMVectorSet(static_cast<float>(rectA.right), static_cast<float>(rectA.top), 0.0f, 0.0f),
+         XMVectorSet(static_cast<float>(rectA.right), static_cast<float>(rectA.bottom), 0.0f, 0.0f)},
+        {XMVectorSet(static_cast<float>(rectA.right), static_cast<float>(rectA.bottom), 0.0f, 0.0f),
+         XMVectorSet(static_cast<float>(rectA.left), static_cast<float>(rectA.bottom), 0.0f, 0.0f)},
+        {XMVectorSet(static_cast<float>(rectA.left), static_cast<float>(rectA.bottom), 0.0f, 0.0f),
+         XMVectorSet(static_cast<float>(rectA.left), static_cast<float>(rectA.top), 0.0f, 0.0f)},
+    };
+
+    XMVECTOR edgesB[4][2] = {
+        {XMVectorSet(static_cast<float>(rectB.left), static_cast<float>(rectB.top), 0.0f, 0.0f),
+         XMVectorSet(static_cast<float>(rectB.right), static_cast<float>(rectB.top), 0.0f, 0.0f)},
+        {XMVectorSet(static_cast<float>(rectB.right), static_cast<float>(rectB.top), 0.0f, 0.0f),
+         XMVectorSet(static_cast<float>(rectB.right), static_cast<float>(rectB.bottom), 0.0f, 0.0f)},
+        {XMVectorSet(static_cast<float>(rectB.right), static_cast<float>(rectB.bottom), 0.0f, 0.0f),
+         XMVectorSet(static_cast<float>(rectB.left), static_cast<float>(rectB.bottom), 0.0f, 0.0f)},
+        {XMVectorSet(static_cast<float>(rectB.left), static_cast<float>(rectB.bottom), 0.0f, 0.0f),
+         XMVectorSet(static_cast<float>(rectB.left), static_cast<float>(rectB.top), 0.0f, 0.0f)},
+    };
+
+    XMVECTOR intersectionA, intersectionB;
+    bool     foundA = false, foundB = false;
+
+    for (const auto& edge : edgesA)
+    {
+        if (IntersectSegments(vectorA, vectorB, edge[0], edge[1], intersectionA))
+        {
+            foundA = true;
+            break;
+        }
+    }
+
+    for (const auto& edge : edgesB)
+    {
+        if (IntersectSegments(vectorA, vectorB, edge[0], edge[1], intersectionB))
+        {
+            foundB = true;
+            break;
+        }
+    }
+
+    if (foundA && foundB)
+    {
+        POINT intersectPointA = {.x = static_cast<LONG>(XMVectorGetX(intersectionA)),
+                                 .y = static_cast<LONG>(XMVectorGetY(intersectionA))};
+        POINT intersectPointB = {.x = static_cast<LONG>(XMVectorGetX(intersectionB)),
+                                 .y = static_cast<LONG>(XMVectorGetY(intersectionB))};
+        result                = std::make_pair(intersectPointA, intersectPointB);
+    }
+
+
+    return result;
 }

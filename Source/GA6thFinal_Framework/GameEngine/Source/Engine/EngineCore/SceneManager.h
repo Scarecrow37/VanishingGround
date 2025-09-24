@@ -197,28 +197,28 @@ public:
         /// </summary>
         /// <param name="name :">찾을 오브젝트의 이름</param>
         /// <returns>성공시 weak_ptr에 담아줍니다.</returns>
-        static std::weak_ptr<GameObject> FindGameObjectWithName(std::string_view name);
+        static std::weak_ptr<GameObject> FindGameObjectWithName(const std::string& name);
 
         /// <summary>
         /// 게임 오브젝트의 이름으로 오브젝트를 탐색해 전부 반환합니다.
         /// </summary>
         /// <param name="name :">찾을 오브젝트의 이름</param>
         /// <returns>성공시 weak_ptr에 담아줍니다.</returns>
-        static std::vector<std::weak_ptr<GameObject>> FindGameObjectsWithName(std::string_view name);
+        static std::vector<std::weak_ptr<GameObject>> FindGameObjectsWithName(const std::string& name);
 
         /// <summary>
         /// 게임 오브젝트의 태그로 오브젝트를 탐색합니다.
         /// </summary>
         /// <param name="tag :">찾을 오브젝트의 태그</param>
         /// <returns>성공시 weak_ptr에 담아줍니다.</returns>
-        static std::weak_ptr<GameObject> FindGameObjectWithTag(std::string_view tag);
+        static std::weak_ptr<GameObject> FindGameObjectWithTag(const std::string& tag);
 
         /// <summary>
         /// 게임 오브젝트의 태그로 오브젝트를 탐색해 전부 반환합니다.
         /// </summary>
         /// <param name="tag :">찾을 오브젝트의 태그</param>
         /// <returns>성공시 weak_ptr에 담아줍니다.</returns>
-        static std::vector<std::weak_ptr<GameObject>> FindGameObjectsWithTag(std::string_view tag);
+        static std::vector<std::weak_ptr<GameObject>> FindGameObjectsWithTag(const std::string& tag);
 
         /// <summary>
         /// 게임 오브젝트의 이름을 변경합니다.
@@ -584,6 +584,12 @@ public:
         /// </summary>
         void CleanupInputReceivers();
 
+        /// <summary>
+        /// Controller를 반환합니다.
+        /// </summary>
+        /// <returns></returns>
+        Input::Controller& GetController() { return _inputController; }
+
     private:
         static constexpr size_t ACTION_COUNT = (size_t)Action::UNKNOWN;
         static constexpr size_t CONTROLLER_BUTTON_COUNT = (size_t)ControllerButton::UNKNOWN;
@@ -615,29 +621,33 @@ private:
     static constexpr bool _isPlay = true;
 #endif
 
+private:
     //Life cycle 을 수행. 클라에서 매틱 호출해야함.
     void SceneUpdate();
  
 private:
-    void ObjectsAddRuntime();        //추가 대기중인 오브젝트, 컴포넌트를 라이프 사이클에 포함시킵니다.
-    void ObjectsAwake();             //Awake 예정인 컴포넌트들의 Awake 함수를 호출합니다.
-    void ObjectsOnEnable();          //OnEnable 예정인 컴포넌트들의 OnEnable 함수를 호출합니다.
-    void ObjectsStart();             //Start 예정인 컴포넌트들의 Start 함수를 호출합니다.
     void ObjectsInputUpdate();       //Input을 사용하는 Component들의 Event를 Update합니다.
     void ObjectsFixedUpdate();       //FixedUpdate를 호출합니다.
     void ObjectsUpdate();            //Update 를 호출합니다.
     void ObjectsLateUpdate();        //LateUpdate를 호출합니다.
-    void ObjectsApplicationQuit();   //OnApplicationQuit를 호출합니다.
+
+    void ObjectsAddRuntime();        //추가 대기중인 오브젝트, 컴포넌트를 라이프 사이클에 포함시킵니다.
+    void ObjectsOnEnable();          //OnEnable 예정인 컴포넌트들의 OnEnable 함수를 호출합니다.
     void ObjectsOnDisable();         //OnDisable 예정인 컴포넌트들의 OnDisable 함수를 호출해줍니다.
+    void ObjectsAwake();             //Awake 예정인 컴포넌트들의 Awake 함수를 호출합니다.
+    void ObjectsStart();             //Start 예정인 컴포넌트들의 Start 함수를 호출합니다.
+    void ObjectsApplicationQuit();   //OnApplicationQuit를 호출합니다.
     void ObjectsDestroy();           //Destroy 예정인 컴포넌트들의 OnDestroy 함수를 호출 한 뒤 파괴합니다.
     void ObjectsMatrixUpdate();      //오브젝트들의 행렬을 업데이트합니다.
     void ObjectsAddLoadScene();      //다음에 로드할 씬의 오브젝트들을 추가합니다.
 
 private:
+    //마지막 씬 업데이트를 수행. 클라에서 매틱 호출해야함.
     void SceneFinalUpdate();
 
 private:
-    void ObjectsTransformFlagReset();
+    void ObjectsTransformFlagReset();       //Trnasofrm의 DirtyFlag를 초기화합니다.
+    void ObjectsPrevFrameEnableUpdate();    //이전 프레임의 Enable 여부를 갱신합니다.
 
 private:
     /*게임오브젝트의 Life cycle 수행 여부를 확인하는 함수*/
@@ -706,12 +716,9 @@ private:
     std::vector<std::shared_ptr<Component>> _waitStartVec;
 
     //OnEnable, OnDisable을 set과 같이 관리
-    using OnComponentQueue =  std::tuple<std::unordered_set<Component*>, std::vector<std::weak_ptr<Component>>, std::vector<bool*>>;   
-    using OnGameObjectQueue = std::pair<std::unordered_set<GameObject*>, std::vector<std::weak_ptr<GameObject>>>;
+    using OnComponentQueue =  std::pair<std::unordered_set<Component*>, std::vector<std::weak_ptr<Component>>>;   
     OnComponentQueue  _onEnableQueue;
     OnComponentQueue  _onDisableQueue;
-    OnGameObjectQueue _updateEnableQueue;
-    OnGameObjectQueue _updateDisableQueue;
 
     //Scene에 실행중인 Render component들
     std::vector<std::weak_ptr<MeshComponent>> _runtimeMeshComponents;

@@ -122,22 +122,23 @@ ParticleEmitter* ParticleManager::RegisterEmitter(class ParticleEffect* effect, 
     return newEmitter;
 }
 
-void ParticleManager::DeleteEffect(ParticleEffect* target)
+void ParticleManager::DeleteEffect(ParticleEffect* target, const std::string& sceneName)
 {
     target->SetRemoveFlag(true);
-
-    // erase_if 전에 메모리 해제
-    for (auto it = _particleEffects.begin(); it != _particleEffects.end();)
+    for (auto it = _particleUpdateResources.begin(); it != _particleUpdateResources.end(); ++it)
     {
-        if (target == (*it))
+        if (sceneName != (*it)->_name)
+            continue;
+
+        auto& effects = (*it)->_sceneEffects;
+        auto  it2     = std::find(effects.begin(), effects.end(), target);
+        if (it2 != effects.end())
         {
-            delete *it; // 메모리 해제
-            it = _particleEffects.erase(it);
+            delete *it2;       
+            effects.erase(it2);
         }
-        else
-        {
-            ++it;
-        }
+
+        break;
     }
 }
 void ParticleManager::Update(const float deltaTime)
@@ -988,6 +989,43 @@ void ParticleManager::UpdateMvpConstant(float deltaTime, ParticleRenderResource*
 
 void ParticleManager::AddSceneResource(std::string_view sceneName)
 {
+    if (sceneName == "Editor")
+    {
+        std::wstring wSceneName;
+        wSceneName.assign(sceneName.begin(), sceneName.end());
+
+        ParticleSceneResource newSceneResource;
+        newSceneResource._name = sceneName;
+
+        UINT                   particleOutputSize = _maxParticles * sizeof(ParticleOutput);
+        UINT                   mvpConstantSize    = sizeof(MVPConstants);
+        newSceneResource._updateResource          = _sceneResources["Game"]._updateResource;
+        newSceneResource._renderResource          = new ParticleRenderResource();
+        newSceneResource._renderResource->_name   = sceneName;
+        {
+            {
+                CreateUAVBuffer(newSceneResource._renderResource->_simulationOutput, particleOutputSize,
+                                sizeof(ParticleOutput));
+                auto outputname = (wSceneName + L" output");
+                newSceneResource._renderResource->_simulationOutput->SetName(outputname.c_str());
+
+                CreateUAVBuffer(newSceneResource._renderResource->_ribbonSimulationOutput, particleOutputSize,
+                                sizeof(ParticleOutput));
+                auto ribbonoutputname = (wSceneName + L" ribbon output");
+                newSceneResource._renderResource->_ribbonSimulationOutput->SetName(outputname.c_str());
+            }
+            {
+                CreateConstantBuffer(newSceneResource._renderResource->_mvpConstant, mvpConstantSize);
+                auto mvpconstantsname = (wSceneName + L" mvp constants");
+                newSceneResource._renderResource->_mvpConstant->SetName(mvpconstantsname.c_str());
+            }
+        }
+
+        _sceneResources[std::string(sceneName)] = newSceneResource;
+        InitializeComputeCommandObject(sceneName);
+        return;
+    }
+
     std::wstring wSceneName;
     wSceneName.assign(sceneName.begin(), sceneName.end());
 

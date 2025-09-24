@@ -11,21 +11,24 @@ namespace GE
     };
 
     inline const std::unordered_map<VS, std::wstring> enumToVSFileNameMap = {
-        {VS::GRID, L"vs_grid.hlsl"},
         {VS::SKELETAL_FR, L"vs_skeletal_fr.hlsl"},
-        {VS::PARTICLE_RIBBON, L"vs_particle_ribbon.hlsl"},
-        {VS::STATIC_FR, L"vs_static_fr.hlsl"},
-        {VS::SKYBOX, L"vs_skybox.hlsl"},
-        {VS::UI_FR, L"vs_ui_fr.hlsl"},
-        {VS::PARTICLE_FULLSCREEN, L"vs_particle_fullscreen.hlsl"},
-        {VS::QUAD, L"vs_quad.hlsl"},
-        {VS::SKELETAL_SHADOW_FR, L"vs_skeletal_shadow_fr.hlsl"},
+        {VS::STATIC_FORWARD_FR, L"vs_static_forward_fr.hlsl"},
         {VS::PARTICLE_QUAD, L"vs_particle_quad.hlsl"},
-        {VS::STATIC_SHADOW_FR, L"vs_static_shadow_fr.hlsl"}
+        {VS::UI_FR, L"vs_ui_fr.hlsl"},
+        {VS::PARTICLE_RIBBON, L"vs_particle_ribbon.hlsl"},
+        {VS::QUAD, L"vs_quad.hlsl"},
+        {VS::SKYBOX, L"vs_skybox.hlsl"},
+        {VS::STATIC_SHADOW_FR, L"vs_static_shadow_fr.hlsl"},
+        {VS::PARTICLE_FULLSCREEN, L"vs_particle_fullscreen.hlsl"},
+        {VS::SKELETAL_SHADOW_FR, L"vs_skeletal_shadow_fr.hlsl"},
+        {VS::GRID, L"vs_grid.hlsl"},
+        {VS::SKELETAL_FORWARD_FR, L"vs_skeletal_forward_fr.hlsl"},
+        {VS::STATIC_FR, L"vs_static_fr.hlsl"}
     };
 
     inline const std::unordered_map<CS, std::wstring> enumToCSFileNameMap = {
         {CS::COMPUTE_RIBBON, L"cs_compute_ribbon.hlsl"},
+        {CS::RESOLVE_UI, L"cs_resolve_ui.hlsl"},
         {CS::CUBE_TEXTURE_CONVERTOR, L"cs_cube_texture_convertor.hlsl"},
         {CS::LIGHT_INJECTION, L"cs_light_injection.hlsl"},
         {CS::LIGHT_ACCUMULATION, L"cs_light_accumulation.hlsl"},
@@ -37,30 +40,33 @@ namespace GE
     };
 
     inline const std::unordered_map<PS, std::wstring> enumToPSFileNameMap = {
-        {PS::BLEND, L"ps_blend.hlsl"},
-        {PS::UI, L"ps_ui.hlsl"},
+        {PS::GBUFFER_MASKED, L"ps_gbuffer_masked.hlsl"},
+        {PS::SHADOW, L"ps_shadow.hlsl"},
+        {PS::WRITE_AO, L"ps_write_ao.hlsl"},
         {PS::PARTICLE_RESOLVE, L"ps_particle_resolve.hlsl"},
+        {PS::FADE, L"ps_fade.hlsl"},
+        {PS::OUTLINE, L"ps_outline.hlsl"},
+        {PS::UP_SAMPLE, L"ps_up_sample.hlsl"},
+        {PS::SSR, L"ps_ssr.hlsl"},
+        {PS::VOLUMETRIC_FOG, L"ps_volumetric_fog.hlsl"},
+        {PS::GRID, L"ps_grid.hlsl"},
+        {PS::BURN_DISSOLVE, L"ps_burn_dissolve.hlsl"},
+        {PS::GBUFFER, L"ps_gbuffer.hlsl"},
+        {PS::UI, L"ps_ui.hlsl"},
+        {PS::DISTORTION_RESOLVE, L"ps_distortion_resolve.hlsl"},
         {PS::PARTICLE_QUAD, L"ps_particle_quad.hlsl"},
         {PS::GAUSSIANBLUR_X, L"ps_gaussianblur_x.hlsl"},
-        {PS::WRITE_AO, L"ps_write_ao.hlsl"},
-        {PS::SHADOW, L"ps_shadow.hlsl"},
-        {PS::SSR, L"ps_ssr.hlsl"},
-        {PS::SKYBOX, L"ps_skybox.hlsl"},
-        {PS::UP_SAMPLE, L"ps_up_sample.hlsl"},
         {PS::TO_BACKBUFFER, L"ps_to_backbuffer.hlsl"},
-        {PS::VOLUMETRIC_FOG, L"ps_volumetric_fog.hlsl"},
-        {PS::ACCUMULATION, L"ps_accumulation.hlsl"},
-        {PS::DOWN_SAMPLE, L"ps_down_sample.hlsl"},
-        {PS::DISTORTION_RESOLVE, L"ps_distortion_resolve.hlsl"},
-        {PS::GAUSSIANBLUR_Y, L"ps_gaussianblur_y.hlsl"},
-        {PS::GBUFFER_MASKED, L"ps_gbuffer_masked.hlsl"},
-        {PS::OUTLINE, L"ps_outline.hlsl"},
-        {PS::GRID, L"ps_grid.hlsl"},
-        {PS::GBUFFER, L"ps_gbuffer.hlsl"},
-        {PS::PBR_LIGHTING, L"ps_pbr_lighting.hlsl"},
         {PS::BRIGHT_EXTRACT, L"ps_bright_extract.hlsl"},
-        {PS::FADE, L"ps_fade.hlsl"},
-        {PS::DXRGBUFFER, L"ps_dxrgbuffer.hlsl"}
+        {PS::ACCUMULATION, L"ps_accumulation.hlsl"},
+        {PS::FORWARD_PBR_LIGHTING, L"ps_forward_pbr_lighting.hlsl"},
+        {PS::DXRGBUFFER, L"ps_dxrgbuffer.hlsl"},
+        {PS::GAUSSIANBLUR_Y, L"ps_gaussianblur_y.hlsl"},
+        {PS::UI_OIT, L"ps_ui_oit.hlsl"},
+        {PS::DOWN_SAMPLE, L"ps_down_sample.hlsl"},
+        {PS::PBR_LIGHTING, L"ps_pbr_lighting.hlsl"},
+        {PS::SKYBOX, L"ps_skybox.hlsl"},
+        {PS::BLEND, L"ps_blend.hlsl"}
     };
 
     inline const std::unordered_map<HS, std::wstring> enumToHSFileNameMap = {

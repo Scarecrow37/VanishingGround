@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "UmFramework.h"
+    
 
 class TestComponent : public Component
 {
@@ -73,4 +73,20 @@ protected:
     virtual void DeserializedReflectEvent() override;
 
     void ImGuiDrawPropertysEvent() override;
+
+    void OnDrawDebug() override;
+    void OnDrawDebugSelected() override;
+
+private:
+#ifdef _UMEDITOR
+    std::vector<std::tuple<SceneGizmo, Matrix, SceneGizmo::DefaultIcon>> _gizmoes;
+    int _selectGizmoIndex = -1;
+#endif
+
+private:
+    void PushGizmo();
+    void PopGizmo();
+    void DrawGuizmo();
+    void DrawGizmoIcon();
+    void ImGuiDrawEditGimzmoes();
 };

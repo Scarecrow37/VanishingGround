@@ -42,10 +42,19 @@ namespace MVVM
     {
     public:
         Model() = default;
+
         Model(const T& value) : ModelBase<T>(value) {}
+
         Model& operator=(const T& value)
         {
             ModelBase<T>::_value = value;
+            ModelBase<T>::Notify();
+            return *this;
+        }
+
+        Model& operator=(T&& value) noexcept(std::is_nothrow_move_assignable_v<T>)
+        {
+            ModelBase<T>::_value = std::move(value);
             ModelBase<T>::Notify();
             return *this;
         }
@@ -125,13 +134,24 @@ namespace MVVM
 
     public:
         Model() = default;
+        
         Model(const std::vector<T>& value) : ModelBase<std::vector<T>>(value) {}
+        
         Model& operator=(const std::vector<T>& value)
         {
             ModelBase<std::vector<T>>::_value = value;
             ModelBase<std::vector<T>>::Notify();
             return *this;
         }
+
+        Model& operator=(std::vector<T>&& value) noexcept(std::is_nothrow_move_assignable_v<std::vector<T>>)
+        {
+            ModelBase<std::vector<T>>::_value = std::move(value);
+            ModelBase<std::vector<T>>::Notify();
+            return *this;
+        }
+
+        const_reference operator[](size_type pos) const { return ModelBase<container_type>::_value[pos]; }
 
         void clear() noexcept
         {
@@ -186,10 +206,26 @@ namespace MVVM
             return size;
         }
 
+        const_reference at(size_type pos) const { return ModelBase<container_type>::_value.at(pos); }
+
+        template <typename Modifier>
+        void at(size_type pos, Modifier modifier)
+        {
+            modifier(ModelBase<container_type>::_value.at(pos));
+            ModelBase<container_type>::Notify();
+        }
+
         template <typename UniformRandomBitGenerator>
         void shuffle(UniformRandomBitGenerator&& generator)
         {
             std::ranges::shuffle(ModelBase<container_type>::_value, std::forward<UniformRandomBitGenerator>(generator));
+            ModelBase<container_type>::Notify();
+        }
+
+        template <typename Modifier>
+        void for_each(Modifier modifier)
+        {
+            std::ranges::for_each(ModelBase<container_type>::_value, modifier);
             ModelBase<container_type>::Notify();
         }
 
@@ -217,6 +253,20 @@ namespace MVVM
 
     public:
         Model() = default;
+
+        Model& operator=(const std::deque<T>& value)
+        {
+            ModelBase<std::deque<T>>::_value = value;
+            ModelBase<std::deque<T>>::Notify();
+            return *this;
+        }
+
+        Model& operator=(std::deque<T>&& value) noexcept(std::is_nothrow_move_assignable_v<std::deque<T>>)
+        {
+            ModelBase<std::deque<T>>::_value = std::move(value);
+            ModelBase<std::deque<T>>::Notify();
+            return *this;
+        }
 
         void clear() noexcept
         {
@@ -272,8 +322,6 @@ namespace MVVM
             ModelBase<container_type>::Notify();
             return result;
         }
-
-
 
         template <typename UniformRandomBitGenerator>
         void shuffle(UniformRandomBitGenerator&& generator)

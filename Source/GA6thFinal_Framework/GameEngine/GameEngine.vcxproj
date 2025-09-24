@@ -315,18 +315,21 @@
     <ClInclude Include="Source\Editor\Menu\Game\EditorGameMenu.h" />
     <ClInclude Include="Source\Editor\SceneGizmo\SceneGizmo.h" />
     <ClInclude Include="Source\Editor\Tool\RenderPassData\EditorRenderPassData.h" />
+    <ClInclude Include="Source\Engine\AudioCore\Manager\AudioManager.h" />
     <ClInclude Include="Source\Engine\EditorCore\Gui\Sequencer\EditorTimelineTrackSequencer.h" />
     <ClInclude Include="Source\Editor\Tool\Model\EditorModelInspector.h" />
     <ClInclude Include="Source\Editor\Tool\Model\EditorAnimationTrackTool.h" />
     <ClInclude Include="Source\Engine\AppModule\GraphicsModule.h" />
     <ClInclude Include="Source\Engine\AppModule\ImGuiDX12Module.h" />
-    <ClInclude Include="Source\Engine\AudioCore\AudioModule.h" />
+    <ClInclude Include="Source\Engine\AppModule\AudioModule.h" />
     <ClInclude Include="Source\Engine\ClassCore\Delegate.hpp" />
     <ClInclude Include="Source\Engine\EngineCore\GizmoManager.h" />
     <ClInclude Include="Source\Engine\EngineCore\PreferencesSystem.h" />
     <ClInclude Include="Source\Engine\EngineCore\UIManager.h" />
     <ClInclude Include="Source\Engine\GameCore\Component\UIBaseComponent.h" />
     <ClInclude Include="Source\Engine\GameCore\Component\UIComponent.h" />
+    <ClInclude Include="Source\Engine\GameCore\Component\UINavigationComponent.h" />
+    <ClInclude Include="Source\Engine\GameCore\Component\UIRoot.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\RenderPassDataHelper.h" />
     <ClInclude Include="Source\Engine\TimelineCore\AnimationEventTrack.h" />
@@ -461,22 +464,26 @@
     <ClInclude Include="ThirdParty\include\UmYaml-cpp.h" />
     <ClInclude Include="Source\Engine\TimelineCore\Context\TimelineEventContext.h" />
     <ClInclude Include="Source\Engine\TimelineCore\Track\TimelineEventTrack.h" />
+    <ClInclude Include="Source\Engine\TimelineCore\Context\Audio\TimelineAudioEventContext.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Editor\Menu\Game\EditorGameMenu.cpp" />
     <ClCompile Include="Source\Editor\SceneGizmo\SceneGizmo.cpp" />
     <ClCompile Include="Source\Editor\Tool\RenderPassData\EditorRenderPassData.cpp" />
+    <ClCompile Include="Source\Engine\AudioCore\Manager\AudioManager.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Gui\Sequencer\EditorTimelineTrackSequencer.cpp" />
     <ClCompile Include="Source\Editor\Tool\Model\EditorModelInspector.cpp" />
     <ClCompile Include="Source\Editor\Tool\Model\EditorAnimationTrackTool.cpp" />
     <ClCompile Include="Source\Engine\AppModule\GraphicsModule.cpp" />
     <ClCompile Include="Source\Engine\AppModule\ImGuiDX12Module.cpp" />
-    <ClCompile Include="Source\Engine\AudioCore\AudioModule.cpp" />
+    <ClCompile Include="Source\Engine\AppModule\AudioModule.cpp" />
     <ClCompile Include="Source\Engine\EngineCore\GizmoManager.cpp" />
     <ClCompile Include="Source\Engine\EngineCore\PreferencesSystem.cpp" />
     <ClCompile Include="Source\Engine\EngineCore\UIManager.cpp" />
     <ClCompile Include="Source\Engine\GameCore\Component\UIBaseComponent.cpp" />
     <ClCompile Include="Source\Engine\GameCore\Component\UIComponent.cpp" />
+    <ClCompile Include="Source\Engine\GameCore\Component\UINavigationComponent.cpp" />
+    <ClCompile Include="Source\Engine\GameCore\Component\UIRoot.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.cpp" />
     <ClCompile Include="Source\Engine\TimelineCore\AnimationEventTrack.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Utillity\EditorDragState.cpp" />
@@ -620,6 +627,7 @@
     </ClCompile>
     <ClCompile Include="Source\Engine\TimelineCore\Context\TimelineEventContext.cpp" />
     <ClCompile Include="Source\Engine\TimelineCore\Track\TimelineEventTrack.cpp" />
+    <ClCompile Include="Source\Engine\TimelineCore\Context\Audio\TimelineAudioEventContext.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

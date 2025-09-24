@@ -20,6 +20,7 @@
 #include "State/PlayerPlayTurnState.h"
 #include "State/PlayerDeadState.h"
 
+UMREAL_COMPONENT(Player)
 
 Player::Player()
 {
@@ -120,14 +121,20 @@ void Player::Dead()
     }
 }
 
-void Player::TakeDamage(int damage, bool playAnim)
+void Player::TakeDamage(int damage, bool playAnim) 
+{
+    int takeDamage = damage;
+    Base::TakeDamage(takeDamage, playAnim);
+}
+
+void Player::TakeDamage(int damage, const QTE::Result& result, bool playAnim)
 {  
     // TODO: 피격 애니메이션 재생
     // 예외 사항 - 피격 애니메이션 재생 종료 후 원래 애니메이션으로 돌아가야함.
 
     // 혹시나 그럴 일 없겠지만 중간에 계산할 연산이 또 있다면 재연산
     int takeDamage = damage;
-    Base::TakeDamage(takeDamage, playAnim);
+    Base::TakeDamage(takeDamage, result, playAnim);
 }
 
 
@@ -255,6 +262,16 @@ void Player::OnTokenRemoved(int tokenID)
     Base::OnTokenRemoved(tokenID);
 }
 
+void Player::OnQTEStart() 
+{
+    Base::OnQTEStart();
+}
+
+void Player::OnQTEEnd() 
+{
+    Base::OnQTEEnd();
+}
+
 void Player::OnNotifiedAnimationEvent(const Timeline::EventContext* context)
 {
     auto* modelTransform = transform->Find(MODEL_NAME);
@@ -271,8 +288,4 @@ void Player::OnNotifiedAnimationEvent(const Timeline::EventContext* context)
     {
         particlecomponent->StopEffect();
     }
-        
-
-
-
 }

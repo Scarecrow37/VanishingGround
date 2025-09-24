@@ -4,7 +4,6 @@ struct Bone
 {
     Matrix            Offset;
     Matrix            Local;
-    Matrix            Final;
     std::string       Name;
     std::vector<Bone> Children;
     int               ID;

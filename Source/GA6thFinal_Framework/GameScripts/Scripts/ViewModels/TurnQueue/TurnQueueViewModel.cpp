@@ -6,81 +6,83 @@
 #include "TurnSystem/TurnMode/TurnMode.h"
 #include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
 #include "WeaponSystem/WeaponSystem.h"
-
-struct GetEnemyFrameGuid
-{
-    File::GuidRef operator()() const
-    {
-        const File::Path& path = UmFileSystem.GetPathFromAssetID(110053);
-        return path.ToGuid();
-    }
-};
-
-struct GetPlayerFrameGuid
-{
-    File::GuidRef operator()() const
-    {
-        const File::Path& path = UmFileSystem.GetPathFromAssetID(110052);
-        return path.ToGuid();
-    }
-};
+#include "ExcelDataSystem/ExcelDataSystem.h"
+#include "Utility/SingletonHelper.h"
 
 struct GetPortraitGuid
 {
-    File::GuidRef operator()(const EnemyType enemyType) const
+    File::Guid operator()(const EnemyType enemyType) const
     {
-        File::GuidRef portraitGuid;
-        switch (enemyType)
+        File::Guid portraitGuid;
+        if (ExcelDataSystem* dataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
         {
-        case EnemyType::MONSTER_A:
-            [[fallthrough]];
-        case EnemyType::MONSTER_B:
-            [[fallthrough]];
-        case EnemyType::MONSTER_C:
-            const File::Path& path = UmFileSystem.GetPathFromAssetID(113301);
-            portraitGuid = path.ToGuid();
+            if (std::unique_ptr<ExcelDataBase> dataBase = dataSystem->FindExcelDataBase(u8"에셋 테이블"))
+            {
+                int assetID = 0;
+                switch (enemyType)
+                {
+                    case EnemyType::MONSTER_A: 
+                    {
+                        size_t rowIndex = dataBase->FindRowIndex(u8"몬스터A_턴", u8"Note");
+                        if (rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
+                        {
+                            std::string_view data = dataBase->FindData(rowIndex, u8"ID");
+                            assetID               = std::stoi(data.data());
+                        }
+                        break;
+                    }
+                    case EnemyType::MONSTER_B: 
+                    {
+                        size_t rowIndex = dataBase->FindRowIndex(u8"몬스터B_턴", u8"Note");
+                        if (rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
+                        {
+                            std::string_view data = dataBase->FindData(rowIndex, u8"ID");
+                            assetID               = std::stoi(data.data());
+                        }
+                        break;
+                    }
+                    case EnemyType::MONSTER_C: 
+                    {
+                        size_t rowIndex = dataBase->FindRowIndex(u8"몬스터C_턴", u8"Note");
+                        if (rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
+                        {
+                            std::string_view data = dataBase->FindData(rowIndex, u8"ID");
+                            assetID               = std::stoi(data.data());
+                        }
+                        break;
+                    }            
+                }
+                portraitGuid = UmFileSystem.GetGuidFromAssetID(assetID);
+            }
         }
+
         return portraitGuid;
     }
 
-    File::GuidRef operator()(const int weaponId) const
+    File::Guid operator()(const int weaponId) const
     {
-        File::GuidRef portraitGuid;
-        switch (weaponId)
+        File::Guid portraitGuid;
+        if (ExcelDataSystem* dataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
         {
-        case 11004: // 녹슨자의 검
-        {
-            const File::Path& path = UmFileSystem.GetPathFromAssetID(113000);
-            portraitGuid           = path.ToGuid();
+            if (std::unique_ptr<ExcelDataBase> dataBase = dataSystem->FindExcelDataBase(u8"무기"))
+            {
+                std::string idStr = std::to_string(weaponId);
+                size_t rowIndex = dataBase->FindRowIndex((const char8_t*)idStr.c_str(), u8"ID");
+                if (rowIndex != dataBase->FIND_INDEX_FAIL)
+                {
+                    std::string_view data    = dataBase->FindData(rowIndex, u8"Turn Icon ID");
+                    int              assetID = std::stoi(data.data());
+                    portraitGuid             = UmFileSystem.GetGuidFromAssetID(assetID);
+                    if (portraitGuid.IsNull())
+                    {
+                        UmLogger.Log(LogLevel::LEVEL_WARNING, "Unknown weapon ID: " + std::to_string(assetID));
+                    }
+                }
+            }
         }
-        break;
-        case 11200: // 돌격 대장의 망치
-        {
-            const File::Path& path = UmFileSystem.GetPathFromAssetID(113200);
-            portraitGuid           = path.ToGuid();
-        }
-        break;
-        case 11000: // 돌파자의 장검
-        {
-            const File::Path& path = UmFileSystem.GetPathFromAssetID(113001);
-            portraitGuid           = path.ToGuid();
-        }
-        break;
-        case 11101: // 제물의 단검
-        {
-            const File::Path& path = UmFileSystem.GetPathFromAssetID(113100);
-            portraitGuid           = path.ToGuid();
-        }
-        break;
-        default:
-            UmLogger.Log(LogLevel::LEVEL_WARNING, "Unknown weapon ID: " + std::to_string(weaponId));
-            portraitGuid = File::NULL_GUID; // Default to SWORD
-            break;
-        }
-        return portraitGuid;
+       return portraitGuid;
     }
 };
-
 
 TurnQueueViewModel::TurnQueueViewModel(MVVM::Model<std::deque<std::pair<int, TurnActor*>>>& model)
     : ViewModel(model)
@@ -92,6 +94,7 @@ std::vector<TurnUIData> TurnQueueViewModel::Convert(const std::deque<std::pair<i
 {
     _turnQueueData.clear();
 
+    bool isFocus = true;
     for (const auto & slotAndActor : value)
     {
         if (TurnMode::IsPlayerActorSlot(slotAndActor))
@@ -100,8 +103,8 @@ std::vector<TurnUIData> TurnQueueViewModel::Convert(const std::deque<std::pair<i
             const int     slotIndex    = slotAndActor.first;
             WeaponStats&  stats        = weaponSystem->GetWeaponStatsAtIndex(slotIndex);
             int           weaponId     = stats.WeaponID;
-            File::GuidRef frameGuid    = GetPlayerFrameGuid()();
-            File::GuidRef portraitGuid = GetPortraitGuid()(weaponId);
+            File::Guid    frameGuid    = isFocus ? UmFileSystem.GetGuidFromAssetID(110054) : UmFileSystem.GetGuidFromAssetID(110052);
+            File::Guid portraitGuid    = GetPortraitGuid()(weaponId);
             TurnUIData    data{.ActorPortrait = portraitGuid, .Frame = frameGuid};
             _turnQueueData.push_back(data);
         }
@@ -112,8 +115,8 @@ std::vector<TurnUIData> TurnQueueViewModel::Convert(const std::deque<std::pair<i
             {
 
                 const EnemyType enemyType = enemy->Type;
-                const File::GuidRef portraitGuid = GetPortraitGuid()(enemyType);
-                const File::GuidRef frameGuid    = GetEnemyFrameGuid()();
+                const File::Guid portraitGuid = GetPortraitGuid()(enemyType);
+                const File::Guid frameGuid    = isFocus ? UmFileSystem.GetGuidFromAssetID(110055) : UmFileSystem.GetGuidFromAssetID(110053);
                 TurnUIData    data{.ActorPortrait = portraitGuid, .Frame = frameGuid};
                 _turnQueueData.push_back(data);
             }
@@ -122,6 +125,11 @@ std::vector<TurnUIData> TurnQueueViewModel::Convert(const std::deque<std::pair<i
                 UmLogger.Log(LogLevel::LEVEL_WARNING, "Actor가 Player도 Enemy도 아닙니다.");
             }
 
+        }
+
+        if (isFocus)
+        {
+            isFocus = false;
         }
     }
 

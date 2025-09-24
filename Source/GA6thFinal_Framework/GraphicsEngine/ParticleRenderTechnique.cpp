@@ -4,9 +4,9 @@
 #include "ParticleRibbonPass.h"
 #include "ParticleRenderTechnique.h"
 
- ParticleRenderTechnique::ParticleRenderTechnique() {}
+ ParticleRenderTechnique::ParticleRenderTechnique() = default;
 
- ParticleRenderTechnique::~ParticleRenderTechnique() {}
+ ParticleRenderTechnique::~ParticleRenderTechnique() = default;
 
  void ParticleRenderTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 {
@@ -25,12 +25,6 @@
     InitializeParticleResolvePass(commandList);
 }
 
-void ParticleRenderTechnique::Execute(ID3D12GraphicsCommandList* commandList)
-{
-    //Global::particleManager->SetCurrentRenderScene(_ownerScene);
-    __super::Execute(commandList);
-}
-
 void ParticleRenderTechnique::InitializeSpriteParticlePass(ID3D12GraphicsCommandList* commandList)
 {
     std::unique_ptr<ParticleSpritePass> spritepass = std::make_unique<ParticleSpritePass>();
@@ -45,8 +39,6 @@ void ParticleRenderTechnique::InitializeRibbonParticlePass(ID3D12GraphicsCommand
     ribbonpass->Initialize(_ownerScene, this, commandList);
     ribbonpass->SetAccumulationBuffers(_accumlateBuffer, _revealageBuffer);
     AddRenderPass(std::move(ribbonpass));
-
-
 }
 
 void ParticleRenderTechnique::InitializeParticleResolvePass(ID3D12GraphicsCommandList* commandList)
@@ -68,11 +60,11 @@ void ParticleRenderTechnique::CreateWBOITResources()
     DXGI_MODE_DESC mode = Global::device->GetMode();
     mode.Format         = DXGI_FORMAT_R16G16B16A16_FLOAT;
     auto desc = CD3DX12_RESOURCE_DESC::Tex2D(mode.Format, mode.Width, mode.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-    _accumlateBuffer->Initialize(desc);
+    _accumlateBuffer->InitializeAsTexture(desc, UnorderedAccessView::UAVSliceType::PER_MIP, true);
 
     mode.Format = DXGI_FORMAT_R16_FLOAT;
     desc        = CD3DX12_RESOURCE_DESC::Tex2D(mode.Format, mode.Width, mode.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-    _revealageBuffer->Initialize(desc);
+    _revealageBuffer->InitializeAsTexture(desc, UnorderedAccessView::UAVSliceType::PER_MIP, true);
     _accumlateBuffer->SetName(L"particle accum");
     _revealageBuffer->SetName(L"particle reveal");
 }

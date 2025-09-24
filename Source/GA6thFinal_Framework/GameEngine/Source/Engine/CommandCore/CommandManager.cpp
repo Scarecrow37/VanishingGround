@@ -112,3 +112,8 @@ void ECommandManager::ClampCommandStack()
         _redoStack.pop_front();
     }
 }
+
+bool ECommandManager::IsPlayMode()
+{
+    return UmCore->IsPlay();
+}

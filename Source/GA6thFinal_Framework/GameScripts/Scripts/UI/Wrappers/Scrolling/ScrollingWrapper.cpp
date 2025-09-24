@@ -1,6 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "ScrollingWrapper.h"
 
+UMREAL_COMPONENT(ScrollingWrapper)
+
 ScrollingWrapper::ScrollingWrapper() = default;
 
 SIZE ScrollingWrapper::MeasureOverride(const SIZE availableSize)

@@ -29,7 +29,7 @@ public:
 public:
     const Matrix& GetCameraMatrix();
     void SetCameraToObject(std::weak_ptr<GameObject> destination);
-    bool          IsMouseHoveredWindow() const { return _isHoveredWindow; }
+    bool IsMouseHoveredWindow() const { return _isHoveredWindow; }
 
 private:
     inline static EditorSceneTool* pSceneTool = nullptr;

@@ -1,22 +1,24 @@
 ﻿#pragma once
-#include "UmFramework.h"
+#include "Utility/SingletonHelper.h"
+
 class SceneTransitionComponent : public Component
 {
+    // easetype, easefunctype, threshold
+    using EasingPreset = std::tuple<UINT, UINT, float>;
+    // startcolor, endcolor, easingpreset, duration
+    using FadePreset = std::tuple<std::array<float, 4>, std::array<float, 4>, EasingPreset, float>;
+
 public:
     SceneTransitionComponent();
-    ~SceneTransitionComponent() override;
+    virtual ~SceneTransitionComponent();
 
-    USING_PROPERTY(SceneTransitionComponent)
+    USING_PROPERTY(SceneTransitionComponent);
 public:
-    REFLECT_PROPERTY(Duration, Maintain, StartColor, EndColor, Easing)
+    REFLECT_PROPERTY(Duration, StartColor, EndColor, Easing , PresetName)
 
     GETTER(float, Duration) { return ReflectFields->Duration; }
     SETTER(float, Duration) { ReflectFields->Duration = value; }
     PROPERTY(Duration)
-
-    GETTER(float, Maintain) { return ReflectFields->Maintain; }
-    SETTER(float, Maintain) { ReflectFields->Maintain = value; }
-    PROPERTY(Maintain)
 
     GETTER(Color, StartColor) { return _startColor; }
     SETTER(Color, StartColor) { _startColor = value; }
@@ -30,16 +32,20 @@ public:
     SETTER(bool, Easing) { ReflectFields->Ease = value; }
     PROPERTY(Easing)
 
+    GETTER(std::string, PresetName) { return _currentPresetName; }
+    SETTER(std::string, PresetName) { _currentPresetName = value; }
+    PROPERTY(PresetName)
+
 protected:
     REFLECT_FIELDS_BEGIN(Component)
     std::array<float, 4> StartColorArray;
     std::array<float, 4> EndColorArray;
     float                Duration;
-    float                Maintain;
     bool                 Ease;
     UINT                 EaseType = 0;
     UINT                 EaseFuncType   = 0;
     float                EaseThreshold = 0.5f;
+    std::unordered_map<std::string, FadePreset> FadePresets;
     REFLECT_FIELDS_END(SceneTransitionComponent)
 
     Color              _startColor;
@@ -47,7 +53,8 @@ protected:
     float              _fadeElapsedTimer = 0.f;
     bool               _fadeFlag         = false;
     std::vector<float> _easeLog;
-
+    std::string        _currentPresetName = "";
+    std::string        _selectedName      = "-";
 
     void ImGuiDrawPropertysEvent() override;
     void SerializedReflectEvent() override;
@@ -58,6 +65,29 @@ protected:
 
     void CalculateFade();
 
+
+ //void Reset() override;
+
+
+ //void Awake() override;
+
+
+ //void OnDestroy() override;
+
+ //private:
+    //SingletonComponent<SceneTransitionComponent> _singletonComponent{this};
+
+
 public:
-    void Fade(float duration, float maintain, const Vector4& start, const Vector4& end);
+    void Fade(float duration, const Vector4& start, const Vector4& end, std::function<void()> callback);
+    void Fade(Mathf::EaseType easetype, Mathf::EaseFuncType easefunctype, float duration, const Vector4& start,
+              const Vector4& end, std::function<void()> callback);
+    void Fade(std::string_view presetName, std::function<void(void)> callback);
+    void SetFadeCallback(std::function<void(void)> callback);
+    void AddFadePreset();
+
+private:
+    bool                      _callbackFlag = true;
+    std::function<void(void)> _fadeCallBackFunction;
+
 };

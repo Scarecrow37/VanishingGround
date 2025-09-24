@@ -136,6 +136,24 @@
     <FxCompile Include="..\Shaders\ps_gbuffer_masked.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\ps_forward_pbr_lighting.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\vs_skeletal_forward_fr.hlsl">
+      <Filter>Shaders\vs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\vs_static_forward_fr.hlsl">
+      <Filter>Shaders\vs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_burn_dissolve.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_ui_oit.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\cs_resolve_ui.hlsl">
+      <Filter>Shaders\cs</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AccelerationStructureManager.cpp">
@@ -505,6 +523,24 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="SceneTransitionTechnique.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="UI2DPass_OIT.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="UI3DPass_OIT.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="UI25DPass_OIT.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="UIPassBase_OIT.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="UITechnique_OIT.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="UIResolvePass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -903,6 +939,24 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="SceneTransitionTechnique.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="UI2DPass_OIT.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="UI3DPass_OIT.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="UI25DPass_OIT.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="UIPassBase_OIT.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="UITechnique_OIT.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="UIResolvePass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

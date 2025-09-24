@@ -4,8 +4,16 @@
 #define MAX_DIRECTIONAL_LIGHT 4
 #define MAX_POINT_LIGHT 32
 #define MAX_SPOT_LIGHT 16
+#define MAX_BONE_MATRIX 256
+#define MAX_CASCADES 3
 
-#define MAX_CASCADES 4
+struct InstanceData
+{
+    uint4 MaterialID;
+    uint  MatrixID;
+    uint  CustomDepth;
+    float Alpha;
+};
 
 struct MatrixData
 {
@@ -70,18 +78,6 @@ struct LightData
     SpotLight Spot[MAX_SPOT_LIGHT];
 };
 
-struct ObjectData
-{
-    uint ID;
-    uint Offset;
-    uint CustomDepth;
-};
-
-struct ObjectData2 : ObjectData
-{
-    uint CascadeIndex;
-};
-
 struct PostProcessData
 {
     float2 ScreenSize;
@@ -93,7 +89,7 @@ struct PostProcessData
 struct CascadeData
 {
     matrix ShadowVP[MAX_CASCADES];
-    float CascadeSplits[MAX_CASCADES];
+    float3 CascadeSplits; // x=split1, y=split2, z=split3
 };
 
 struct GbufferData
@@ -108,6 +104,7 @@ struct VolumetricFogData
     float4x4 InverseViewProj;
     float4 CameraNearFar_FrameIndex_PreviousFrameBlend; // x=near, y=far, z=frameIndex, w=prevBlend
     float4 VolumeSize; // x=volX, y=volY, z=volZ
+    float4 FogColor;
     float FogAnisotropy;
     float LightShaftAnisotropy;
     float Density;
@@ -116,4 +113,12 @@ struct VolumetricFogData
     float FogIntensity;
     float LightShaftIntensity;
 };
+
+struct OITNode
+{
+    float4 Color;
+    float Depth;
+    uint Next;
+};
+
 #endif

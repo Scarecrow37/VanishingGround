@@ -41,6 +41,8 @@
 #include <Stats/Enemy/EnemyStatsComponent.h>
 #include <Stats/Enemy/EnemyStats.h>
 
+UMREAL_COMPONENT(TurnMode)
+
 TurnMode::TurnMode() 
     : 
     _roundCount(0), 
@@ -89,7 +91,7 @@ const std::vector<CharacterBase*>& TurnMode::GetCharacters()
 
 void TurnMode::MakeTurnList() 
 {
-    _turnList.clear();
+    std::deque<std::pair<int, TurnActor*>> turnList;
     auto players = GameObject::FindGameObjectsWithTag(Player::TAG);
     for (auto& weak : players)
     {
@@ -101,7 +103,7 @@ void TurnMode::MakeTurnList()
             {
                 for (int i = 0; i < WeaponSystem::EQUIP_WEAPONS_SIZE; i++)
                 {
-                    _turnList.emplace_back(i, player);
+                    turnList.emplace_back(i, player);
                 }
             }
         }
@@ -116,10 +118,12 @@ void TurnMode::MakeTurnList()
             Enemy* enemy = object->GetComponent<Enemy>();
             if (nullptr != enemy)
             {
-                _turnList.emplace_back(-1, enemy);
+                turnList.emplace_back(-1, enemy);
             }
         }
     }
+
+    _turnList = std::move(turnList);
 }
 
 void TurnMode::SortTurnList()

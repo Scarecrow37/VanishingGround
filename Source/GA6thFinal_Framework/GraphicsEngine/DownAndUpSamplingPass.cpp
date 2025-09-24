@@ -9,7 +9,7 @@ DownAndUpSamplingPass::~DownAndUpSamplingPass() = default;
 
 void DownAndUpSamplingPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene, ownerTechnique, commandList);
+    RenderPass::Initialize(ownerScene, ownerTechnique, commandList);
 
     PipelineStateStream pss;
     pss.BlendState                        = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
@@ -31,8 +31,8 @@ void DownAndUpSamplingPass::Initialize(RenderScene* ownerScene, RenderTechnique*
 
     const auto& resolution = Global::device->GetResolution();
     auto        desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT,
-                                                    resolution.cx >> 1,
-                                                    resolution.cy >> 1,
+                                                    resolution.cx >> 2,
+                                                    resolution.cy >> 2,
                                                     1,
                                                     MAX_MIPMAP_LEVEL,
                                                     1,
@@ -67,7 +67,7 @@ void DownAndUpSamplingPass::AddRenderPassDatas(std::string_view sceneName)
     srvDesc.Texture2D.MipLevels             = 1;
     device->CreateShaderResourceView(_finalTexture.Get(), &srvDesc, _finalHandle.CPU);
 
-    Global::renderPassDatas->AddRenderPassProperty(sceneName, "BloomPass", BloomPassProperty({1.f, 1.f, 0.2f}));
+    Global::renderPassDatas->AddRenderPassProperty("BloomPass", BloomPassProperty({1.f, 1.f, 0.2f}));
     Global::renderPassDatas->AddRenderPassImage(sceneName, "BloomPass", "BloomTexture", _finalHandle.GPU);
 }
 

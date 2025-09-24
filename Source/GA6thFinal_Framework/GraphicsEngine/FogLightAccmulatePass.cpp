@@ -4,17 +4,15 @@
 #include "d3dUtil.h"
 #include "ShaderBuilder.h"
 
-FogLightAccmulatePass::~FogLightAccmulatePass() {}
+FogLightAccmulatePass::~FogLightAccmulatePass() = default;
 
 void FogLightAccmulatePass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique,
                                        ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene, ownerTechnique, commandList);
+    RenderPass::Initialize(ownerScene, ownerTechnique, commandList);
     InitShaderAndPSO();
     _volumTech = dynamic_cast<VolumetricFogTechnique*>(ownerTechnique);
 }
-
-void FogLightAccmulatePass::Update(ID3D12GraphicsCommandList* commandList, const float deltaTime) {}
 
 void FogLightAccmulatePass::Begin(ID3D12GraphicsCommandList* commandList) 
 {
@@ -29,16 +27,10 @@ void FogLightAccmulatePass::Draw(ID3D12GraphicsCommandList* commandList)
     auto finalaccumulateTex = _volumTech->_finalVoxelAccumulationTexture3D;
     D3D12_GPU_VIRTUAL_ADDRESS fogData      = _volumTech->GetConstantBufferView()->GetGPUVirtualAddress();
     commandList->SetComputeRootConstantBufferView(_shader->GetRootParameterIndex("fogdata"), fogData);
-    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("VoxelReadTexture"),
-                                               injectionTex->GetSRVHandle());
-    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("VoxelWriteTexture"),
-                                               finalaccumulateTex->GetUAVHandle());
+    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("VoxelReadTexture"), injectionTex->GetSRVHandle());
+    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("VoxelWriteTexture"), finalaccumulateTex->GetUAVHandle());
     commandList->Dispatch(d3dUtil::Ceil(VOXEL_VOLUME_SIZEX , 8), d3dUtil::Ceil(VOXEL_VOLUME_SIZEY ,8), 1);
 }
-
-void FogLightAccmulatePass::End(ID3D12GraphicsCommandList* commandList) {}
-
-void FogLightAccmulatePass::AddRenderPassDatas(std::string_view sceneName) {}
 
 void FogLightAccmulatePass::InitShaderAndPSO()
 {

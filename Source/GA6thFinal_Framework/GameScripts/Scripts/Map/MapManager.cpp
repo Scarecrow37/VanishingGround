@@ -5,16 +5,20 @@
 #include "Map/Stage.h"
 #include "UI/Elements/Image/ImageElement.h"
 #include "UI/Panels/Overlay/OverlayPanel.h"
-#include "UI/UIRoot/UIRoot.h"
 #include "UI/Views/Map/StageFocusView.h"
 #include "UI/Views/Map/StageView.h"
 #include "UI/Wrappers/Scrolling/ScrollingWrapper.h"
 #include "ViewModels/Map/StageFocusViewModel.h"
 #include "TurnSystem/TurnActor/Character/Player/Player.h"
 #include "Stats/Player/PlayerStatsComponent.h"
-#include "ViewModels/Map/MapPlayerHPViewModel.h"
+#include "ViewModels/Hp/CharacterHPViewModel.h"
+#include "Utility/SingletonHelper.h"
+#include "ItemDropSystem/ItemDropSystem.h"
+#include "SceneTransition/SceneTransitionComponent.h"
 
 static GameObject* thisPointer = nullptr;
+
+UMREAL_COMPONENT(MapManager)
 
 MapManager::MapManager()
 {
@@ -85,7 +89,14 @@ MapManager::~MapManager()
     {
         thisPointer = nullptr;
         UmWatcher.Unregister<StageFocusViewModel>("StageFocus");
-        UmWatcher.Unregister<MapPlayerHPViewModel>("PlayerHP");
+    }
+}
+
+void MapManager::SetFocusStage(Stage* stage)
+{
+    if (stage)
+    {
+        _focusStage = stage;
     }
 }
 
@@ -98,23 +109,13 @@ void MapManager::Awake()
 
         UmWatcher.Register<StageFocusViewModel>("StageFocus", _focusStage);
         SetupStage();
-
-        //Player::GetInstance()->GetComponent<PlayerStatsComponent>()->RegisterHP("PlayerHP");
-        UmWatcher.Register<MapPlayerHPViewModel>("PlayerHP", _playerHP, 100);        
     }
     else
     {        
         GameObject::Destroy(gameObject);
     }
-}
-
-void MapManager::Start()
-{
-    _focusStage = FindStage(1, 1);
-}
-
-void MapManager::Reset()
-{
+    auto* sceneTrans = GetComponent<SceneTransitionComponent>();
+    sceneTrans->Fade("out", nullptr);
 }
 
 void MapManager::Update()
@@ -128,57 +129,6 @@ void MapManager::Update()
         if (ImGui::IsKeyDown(ImGuiKey_GamepadRStickDown))
         {
             _scroll->Scroll += 1.f * UmTime.DeltaTime();
-        }
-        if (ImGui::IsKeyPressed(ImGuiKey_GamepadDpadUp))
-        {
-            Stage* stage = FindStage(_firstElement + 1, _secondElement);
-            if (stage)
-            {
-                _firstElement++;
-                _focusStage = stage;
-            }
-        }
-        if (ImGui::IsKeyPressed(ImGuiKey_GamepadDpadDown))
-        {
-            Stage* stage = FindStage(_firstElement - 1, _secondElement);
-            if (stage)
-            {
-                if (_clearedStage < stage->GetFirst())
-                {
-                    _firstElement--;
-                    _focusStage = stage;
-                }
-            }
-        }
-        if (ImGui::IsKeyPressed(ImGuiKey_GamepadDpadLeft))
-        {
-            Stage* stage = FindStage(_firstElement, _secondElement - 1);
-            if (stage)
-            {
-                _secondElement--;
-                _focusStage = stage;
-            }
-        }
-        if (ImGui::IsKeyPressed(ImGuiKey_GamepadDpadRight))
-        {
-            Stage* stage = FindStage(_firstElement, _secondElement + 1);
-            if (stage)
-            {
-                _secondElement++;
-                _focusStage = stage;
-            }
-        }
-        if (ImGui::IsKeyPressed(ImGuiKey_GamepadFaceDown))
-        {
-            if (nullptr != _focusStage)
-            {
-                if (Stage* stage = _focusStage->GetComponent<Stage>(); stage->IsEnable())
-                {
-                    stage->SetStageEnable(false);
-                    UmSceneManager.LoadScene(UmFileSystem.GetPathFromGuid(_focusStage->GetStagePath()).string());
-                    _clearedStage++;
-                }
-            }
         }
         if (ImGui::IsKeyPressed(ImGuiKey_F2))
         {
@@ -195,8 +145,6 @@ void MapManager::OnLoadScene(Scene& loadScene, LoadSceneMode mode)
     if (UmFileSystem.GetPathFromGuid(ReflectFields->MapScenePath).string() == otherScene)
     {
         isActive = true;
-
-        _focusStage = FindStage(++_firstElement, 1);
     }
     else
     {
@@ -211,6 +159,7 @@ void MapManager::OnLoadScene(Scene& loadScene, LoadSceneMode mode)
             child->gameObject->ActiveSelf = isActive;
         }
     }
+
 }
 
 void MapManager::ImGuiDrawPropertysEvent()
@@ -310,7 +259,7 @@ void MapManager::SetupStage()
     {
         _childCount = stages->transform->GetChildCount();
 
-        for (int i = 0; i < _childCount; i++)
+        for (int i = 0; i < _childCount; i++) 
         {
             auto child = stages->transform->GetChild(i);
             if (child)
@@ -329,8 +278,6 @@ void MapManager::SetupStage()
                 {
                     stageView->Watch(key);
                 }
-
-                stage->SetStageEnable(true);
             }
         }
     }
@@ -339,34 +286,4 @@ void MapManager::SetupStage()
     {
         _scroll = scroll->GetComponent<ScrollingWrapper>();
     }    
-}
-
-Stage* MapManager::FindStage(int first, int second)
-{
-    auto stages = GameObject::Find("Stages").lock();
-
-    if (stages)
-    {
-        int count = stages->transform->GetChildCount();
-
-        for (int i = 0; i < count; i++)
-        {
-            auto child = stages->transform->GetChild(i);
-
-            if (child)
-            {
-                auto stage = child->gameObject->GetComponent<Stage>();
-
-                if (stage)
-                {
-                    if (stage->GetFirst() == first && stage->GetSecond() == second)
-                    {
-                        return stage;
-                    }
-                }
-            }
-        }
-    }
-
-    return nullptr;
 }

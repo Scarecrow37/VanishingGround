@@ -100,24 +100,14 @@ void ESceneManager::Engine::CleanupSceneManager()
     engineCore->SceneManager._waitStartVec.clear();
 
     // OnEnable 큐
-    auto& [enableSet, enableVec, enableValue] = engineCore->SceneManager._onEnableQueue;
+    auto& [enableSet, enableVec] = engineCore->SceneManager._onEnableQueue;
     enableSet.clear();
     enableVec.clear();
-    enableValue.clear();
 
     // OnDisable 큐
-    auto& [disableSet, disableVec, disableValue] = engineCore->SceneManager._onDisableQueue;
+    auto& [disableSet, disableVec] = engineCore->SceneManager._onDisableQueue;
     disableSet.clear();
     disableVec.clear();
-    disableValue.clear();
-
-    //하이러키 Update 큐
-    auto& [enableUpdateSet, enableUpdateQueue] = engineCore->SceneManager._updateEnableQueue;
-    enableUpdateSet.clear();
-    enableUpdateQueue.clear();
-    auto& [disableUpdateSet, disableUpdateQueue] = engineCore->SceneManager._updateDisableQueue;
-    disableUpdateSet.clear();
-    disableUpdateQueue.clear();
 
     //Render component들
     engineCore->SceneManager._runtimeMeshComponents.clear();
@@ -141,31 +131,35 @@ void ESceneManager::Engine::SceneFinalUpdate()
 
 void ESceneManager::SceneUpdate()
 {
-#ifdef _UMEDITOR
-    _isPlay = editorModule->PlayMode.IsPlay();
-#endif
-    ObjectsAddRuntime();
+    ObjectsInputUpdate();                                // Input System 콜백은 항상 업데이트 주기보다 먼저 실행됨.
+    while (ETimeSystem::Engine::TimeSystemFixedUpdate()) // Fixed Update는 한 프레임에 여러번 호출 가능함
+    {
+        ObjectsFixedUpdate();   
+    }
+    ObjectsUpdate();                                     // 메인 로직 업데이트
+    ObjectsLateUpdate();                                 // 두번째 로직 업데이트
+
+    //로직 업데이트 이후 요청된 라이프 사이클들은 아래에서 반드시 실행 (이번 프레임에 바로 처리되야함)
+    ObjectsAddRuntime();                                
     SceneResourceManager::Engine::Update(ResourceManager);
     ObjectsOnEnable();
+    ObjectsOnDisable();
     ObjectsAwake();
     ObjectsStart();
-    ObjectsInputUpdate();
-    while (ETimeSystem::Engine::TimeSystemFixedUpdate())
-    {
-        ObjectsFixedUpdate();
-    }
-    ObjectsUpdate();
-    ObjectsLateUpdate();
     ObjectsApplicationQuit();
-    ObjectsOnDisable();
     ObjectsDestroy();
     ObjectsMatrixUpdate();
     ObjectsAddLoadScene();
+
+#ifdef _UMEDITOR
+    _isPlay = editorModule->PlayMode.IsPlay(); //플레이 갱신은 마지막에 해야함. 
+#endif
 }
 
 void ESceneManager::SceneFinalUpdate() 
 {
     ObjectsTransformFlagReset();
+    ObjectsPrevFrameEnableUpdate();
 }
 
 void ESceneManager::ObjectsTransformFlagReset() 
@@ -175,6 +169,20 @@ void ESceneManager::ObjectsTransformFlagReset()
         if (nullptr != obj && obj->_transform._hasChanged == true)
         {
             obj->_transform._hasChanged = false;
+        }
+    }
+}
+
+void ESceneManager::ObjectsPrevFrameEnableUpdate()
+{
+    for (auto& obj : _runtimeObjects)
+    {
+        if (nullptr != obj)
+        {
+            for (auto& component : obj->_components)
+            {
+                component->_prevFrameEnableInHierarchy = component->_enableInHierarchy;
+            }
         }
     }
 }
@@ -207,155 +215,135 @@ void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
         GameObject* gameObject = pObject;
         if (gameObject->ReflectFields->_activeSelf != value)
         {
-            //bool 변경 대기열에 추가
-            auto& [WaitSet, WaitVec, WaitValue] = value ? sceneManager._onEnableQueue : sceneManager._onDisableQueue;
-            WaitValue.emplace_back(&gameObject->ReflectFields->_activeSelf);   
-
-            //ActiveInHierarchy Update 대기열에 추가
-            auto& [UpdateSet, UpdateQueue] = value ? sceneManager._updateEnableQueue : sceneManager._updateDisableQueue;
-            auto [iter, result] = UpdateSet.insert(gameObject);
-            bool notUpdateErase = false;
-            if (true == result)
-            {
-                UpdateQueue.push_back(gameObject->GetWeakPtr());
-            }
-
-            //컴포넌트들의 On__able 함수를 호출하도록 합니다.
-            if (value == true)
-            {
-                gameObject->ReflectFields->_activeSelf = true; //ActiveInHierarchy 검증용  
+            // true로 변경시 값 적용 후 대기열 추가
+            if (true == value)
+            {            
+                gameObject->ReflectFields->_activeSelf = value;
                 GameObject::Engine::UpdateActiveInHierarchy(gameObject);
             }
+            
+            // 컴포넌트들의 On__able 함수를 호출하도록 합니다.
+            auto& [WaitSet, WaitVec] = value ? sceneManager._onEnableQueue : sceneManager._onDisableQueue;
             Transform::ForeachDFS(gameObject->_transform, 
             [&](Transform* curr) 
             {
-                if (curr->gameObject->ActiveInHierarchy == true)
+                if (curr->gameObject->_activeInHierarchy == true)
                 {
                     for (auto& component : curr->gameObject->_components)
                     {
-                        bool isEnable = component->ReflectFields->_enable;
-                        if (true == isEnable)
+                        if (true == component->ReflectFields->_enable)
                         {
                             if (component->_initFlags.IsAwake() == true)
                             {
-                                auto [iter, result] = WaitSet.insert(component.get());
-                                if (result)
+                                if (component->_prevFrameEnableInHierarchy != value)
                                 {
-                                    WaitVec.push_back(component);
+                                    auto [iter, result] = WaitSet.insert(component.get());
+                                    if (result)
+                                    {
+                                        WaitVec.push_back(component);
+                                    }
                                 }
                             }
                         }
                     }
                 }                   
             });  
-            if (value == true)
+            
+            // false로 변경시 대기열 추가 후 값 적용
+            if (false == value)
             {
-                gameObject->ReflectFields->_activeSelf = false; //ActiveInHierarchy 검증용
+                gameObject->ReflectFields->_activeSelf = value;
                 GameObject::Engine::UpdateActiveInHierarchy(gameObject);
             }
-        }
-        else
-        {
-            bool originActiveSelf = gameObject->ReflectFields->_activeSelf;
-            auto& [notWaitSet, notWaitVec, notWaitValue] = value ? sceneManager._onDisableQueue :sceneManager._onEnableQueue;
-            auto& [notUpdateSet, notUpdateQueue] = value ? sceneManager._updateDisableQueue : sceneManager._updateEnableQueue;
-            //기존에 변경요청을 했으면 지우고 다시 설정
-            if (auto findIter = notUpdateSet.find(gameObject); findIter != notUpdateSet.end())
+
+            // 기존에 변경요청을 했으면 On__able 함수 대기열에서 제거
+            auto& [notWaitSet, notWaitVec] = value ? sceneManager._onDisableQueue : sceneManager._onEnableQueue;
+            Transform::ForeachDFS(gameObject->_transform, [&](Transform* curr) 
             {
-                notUpdateSet.erase(findIter);
-                std::erase(notWaitValue, &gameObject->ReflectFields->_activeSelf);
-                std::erase_if(notUpdateQueue, [gameObject](const std::weak_ptr<GameObject>& weak) 
+                // vector 대기열에서 제거
+                std::erase_if(notWaitVec, [&notWaitSet](const std::weak_ptr<Component>& weak) 
                 {
-                    if (auto object = weak.lock())
+                    if (auto component = weak.lock())
                     {
-                        return object.get() == gameObject;
+                        return notWaitSet.find(component.get()) != notWaitSet.end();
                     }
                     return true;
                 });
 
-                if (value == true)
+                // set에서 제거
+                for (auto& component : curr->gameObject->_components)
                 {
-                    gameObject->ReflectFields->_activeSelf = true; // ActiveInHierarchy 검증용
-                    GameObject::Engine::UpdateActiveInHierarchy(gameObject);
-                }
-                Transform::ForeachDFS(gameObject->_transform, [&](Transform* curr) 
-                {
-                    if (curr->gameObject->ActiveInHierarchy == true)
+                    if (component->_initFlags.IsAwake() == true)
                     {
-                        for (auto& component : curr->gameObject->_components)
+                        if (auto findIter = notWaitSet.find(component.get()); findIter != notWaitSet.end())
                         {
-                            bool isEnable = component->ReflectFields->_enable;
-                            if (true == isEnable)
-                            {
-                                if (component->_initFlags.IsAwake() == true)
-                                {
-                                    if (auto findIter = notWaitSet.find(component.get()); findIter != notWaitSet.end())
-                                    {
-                                        notWaitSet.erase(findIter);
-                                        std::erase_if(notWaitVec, [&component](const std::weak_ptr<Component>& weak) 
-                                        {
-                                            if (auto vecComponent = weak.lock())
-                                            {
-                                                return vecComponent.get() == component.get();
-                                            }
-                                            return true;
-                                        });
-                                    }
-                                }
-                            }
+                            notWaitSet.erase(findIter);
                         }
                     }
-                });
-                if (value == true)
-                {
-                    gameObject->ReflectFields->_activeSelf = originActiveSelf; // ActiveInHierarchy 검증용
-                    GameObject::Engine::UpdateActiveInHierarchy(gameObject);
                 }
-            }
+            });
+
         }
-    }
+    }    
 }
 
 void ESceneManager::Engine::SetComponentEnable(Component* component, bool value)
 {
     ESceneManager& sceneManager = UmSceneManager;
-    if (component && component->ReflectFields->_enable != value)
+    if (component)
     {
-        //컴포넌트의 On__able 함수를 호출하도록 합니다.
-        auto& [WaitSet, WaitVec, WaitValue] = value ? sceneManager._onEnableQueue : sceneManager._onDisableQueue;
-        WaitValue.emplace_back(&component->ReflectFields->_enable);
-        if (component->gameObject->ActiveInHierarchy == true)
-        {
-            auto [iter, result] = WaitSet.insert(component);
-            if (result)
+        if (component->ReflectFields->_enable != value)
+        {        
+            // true로 변경시 값 적용 후 대기열 추가
+            if (true == value)
             {
-                WaitVec.push_back(component->GetWeakPtr());           
-            }           
-        }
-    }
-    else
-    {
-        auto& [notWaitSet, notWaitVec, notWaitValue] = value ? sceneManager._onDisableQueue : sceneManager._onEnableQueue;
-        if (auto findIter = notWaitSet.find(component); findIter != notWaitSet.end())
-        {
-            notWaitSet.erase(findIter);
-            std::erase(notWaitValue, &component->ReflectFields->_enable);
-            std::erase_if(notWaitVec, [&component](const std::weak_ptr<Component>& weak) 
+                component->ReflectFields->_enable = value;
+                component->UpdateEnableInHierarchy();
+            }
+
+            // 컴포넌트의 On__able 함수를 호출하도록 대기열에 추가
+            auto& [WaitSet, WaitVec] = value ? sceneManager._onEnableQueue : sceneManager._onDisableQueue;
+            if (component->_enableInHierarchy == true)
             {
-                if (auto vecComponent = weak.lock())
+                if (component->_prevFrameEnableInHierarchy != value)
                 {
-                    return vecComponent.get() == component;
+                    auto [iter, result] = WaitSet.insert(component);
+                    if (result)
+                    {
+                        WaitVec.push_back(component->GetWeakPtr());
+                    }
                 }
-                return true;
-            });
+            }
+
+            // false로 변경시 대기열 추가 후 값 적용
+            if (false == value)
+            {
+                component->ReflectFields->_enable = value;
+                component->UpdateEnableInHierarchy();
+            }
+
+            // 기존에 변경요청을 했으면 On__able 함수 대기열에서 제거
+            auto& [notWaitSet, notWaitVec] = value ? sceneManager._onDisableQueue : sceneManager._onEnableQueue;
+            if (auto findIter = notWaitSet.find(component); findIter != notWaitSet.end())
+            {
+                notWaitSet.erase(findIter);
+                std::erase_if(notWaitVec, [&component](const std::weak_ptr<Component>& weak) 
+                {
+                    if (auto vecComponent = weak.lock())
+                    {
+                        return vecComponent.get() == component;
+                    }
+                    return true;
+                });
+            }
         }
-    }
+    } 
 }
 
-std::weak_ptr<GameObject> ESceneManager::Engine::FindGameObjectWithName(std::string_view name)
+std::weak_ptr<GameObject> ESceneManager::Engine::FindGameObjectWithName(const std::string& name)
 {
     std::weak_ptr<GameObject> findObject;
-    auto findIter = engineCore->SceneManager._runtimeObjectsUnorderedMap.find(name.data());
+    auto findIter = engineCore->SceneManager._runtimeObjectsUnorderedMap.find(name);
     if (findIter != engineCore->SceneManager._runtimeObjectsUnorderedMap.end() && !findIter->second.empty())
     {
         for (auto& object : findIter->second)
@@ -370,10 +358,10 @@ std::weak_ptr<GameObject> ESceneManager::Engine::FindGameObjectWithName(std::str
     return findObject;
 }
 
-std::vector<std::weak_ptr<GameObject>> ESceneManager::Engine::FindGameObjectsWithName(std::string_view name)
+std::vector<std::weak_ptr<GameObject>> ESceneManager::Engine::FindGameObjectsWithName(const std::string& name)
 {
     std::vector<std::weak_ptr<GameObject>> findObjects;
-    auto findIter = engineCore->SceneManager._runtimeObjectsUnorderedMap.find(name.data());
+    auto findIter = engineCore->SceneManager._runtimeObjectsUnorderedMap.find(name);
     if (findIter != engineCore->SceneManager._runtimeObjectsUnorderedMap.end() && !findIter->second.empty())
     {
         for (auto& obj : findIter->second)
@@ -387,10 +375,10 @@ std::vector<std::weak_ptr<GameObject>> ESceneManager::Engine::FindGameObjectsWit
     return findObjects;
 }
 
-std::weak_ptr<GameObject> ESceneManager::Engine::FindGameObjectWithTag(std::string_view tag)
+std::weak_ptr<GameObject> ESceneManager::Engine::FindGameObjectWithTag(const std::string& tag)
 {
     std::weak_ptr<GameObject> findObject;
-    auto findIter = engineCore->SceneManager._runtimeObjectsTagMap.find(tag.data());
+    auto findIter = engineCore->SceneManager._runtimeObjectsTagMap.find(tag);
     if (findIter != engineCore->SceneManager._runtimeObjectsTagMap.end() && !findIter->second.empty())
     {
         for (auto& object : findIter->second)
@@ -405,10 +393,10 @@ std::weak_ptr<GameObject> ESceneManager::Engine::FindGameObjectWithTag(std::stri
     return findObject;
 }
 
-std::vector<std::weak_ptr<GameObject>> ESceneManager::Engine::FindGameObjectsWithTag(std::string_view tag)
+std::vector<std::weak_ptr<GameObject>> ESceneManager::Engine::FindGameObjectsWithTag(const std::string& tag)
 {
     std::vector<std::weak_ptr<GameObject>> findObjects;
-    auto findIter = engineCore->SceneManager._runtimeObjectsTagMap.find(tag.data());
+    auto findIter = engineCore->SceneManager._runtimeObjectsTagMap.find(tag);
     if (findIter != engineCore->SceneManager._runtimeObjectsTagMap.end() && !findIter->second.empty())
     {
         for (auto& obj : findIter->second)
@@ -895,39 +883,33 @@ void ESceneManager::ObjectsAwake()
 {
     for (auto& component : _waitAwakeVec)
     {
-        if (component->_gameObject->ActiveInHierarchy_property_getter())
+        if (component->_enableInHierarchy)
         {
             component->Awake();
             component->_initFlags.SetAwake();
-            if (component->ReflectFields->_enable)
-            {
-                component->OnEnable();
-            }
+            component->OnEnable();
         }
     }
     std::erase_if(_waitAwakeVec, [](auto& component)
-        {
-            return component->_gameObject->ActiveInHierarchy_property_getter();
-        });
+    {
+        return component->_initFlags.IsAwake();
+    });
 }
 
 void ESceneManager::ObjectsStart()
 {
     for (auto& component : _waitStartVec)
     {
-        if (component->_gameObject->ActiveInHierarchy_property_getter())
+        if (component->_enableInHierarchy)
         {
-            if (component->ReflectFields->_enable)
-            {
-                component->Start();
-                component->_initFlags.SetStart();
-            }
+            component->Start();
+            component->_initFlags.SetStart();
         }
     }
     std::erase_if(_waitStartVec, [](auto& component)
-        {
-            return component->_gameObject->ActiveInHierarchy_property_getter();
-        });
+    {
+        return component->_initFlags.IsStart();
+    });
 }
 
 void ESceneManager::ObjectsInputUpdate() 
@@ -1081,80 +1063,41 @@ void ESceneManager::ObjectsApplicationQuit()
 
 void ESceneManager::ObjectsOnEnable()
 {
-    auto& [OnEnableSet, OnEnableVec, OnEnableValue] = _onEnableQueue;
-    auto& [UpdateSet, UpdateQueue] = _updateEnableQueue;
-    for (auto& value : OnEnableValue)
-    {
-        *value = true;  
-    }
-      
-    static thread_local std::vector<std::shared_ptr<GameObject>> validObjects;
-    validObjects.reserve(UpdateQueue.size());
-    for (auto& weakObj : UpdateQueue)
-    {
-        if (const auto& object = weakObj.lock())
-        {
-            validObjects.push_back(std::move(object));
-        }  
-    }
-    for (auto& object : validObjects)
-    {
-        GameObject::Engine::UpdateActiveInHierarchy(object.get());
-    }
-
+    // 컴포넌트들의 이벤트 함수 호출
+    auto& [onEnableSet, onEnableVec] = _onEnableQueue;
     static thread_local std::vector<std::shared_ptr<Component>> validComponents;
-    validComponents.reserve(OnEnableVec.size());
-    for (auto& weakComponent : OnEnableVec)
+    validComponents.reserve(onEnableVec.size());
+
+    // 안전하게 복사
+    for (auto& weakComponent : onEnableVec)
     {
         if (const auto& component = weakComponent.lock())
         {
             validComponents.push_back(std::move(component));
         }
     }
+    onEnableSet.clear();
+    onEnableVec.clear();
+
+    // 이벤트 호출
     for (auto& component : validComponents)
     {
-        component->UpdateEnableInHierarchy();
-        if (_isPlay)
+        if (_isPlay && component->_initFlags.IsAwake())
         {
             component->OnEnable();
         }
     }
-    
-    validObjects.clear();
     validComponents.clear();
-    OnEnableSet.clear();
-    OnEnableVec.clear();
-    OnEnableValue.clear();
-    UpdateQueue.clear();
-    UpdateSet.clear();
-    UpdateQueue.clear();
 }
 
 void ESceneManager::ObjectsOnDisable()
 {
-    auto& [OnDisableSet, OnDisableVec, OnDisableValue] = _onDisableQueue;
-    auto& [UpdateSet, UpdateQueue] = _updateDisableQueue;
-    for (auto& value : OnDisableValue)
-    {
-        *value = false;
-    }
-
-    static thread_local std::vector<std::shared_ptr<GameObject>> validObjects;
-    validObjects.reserve(UpdateQueue.size());
-    for (auto& weakObj : UpdateQueue)
-    {
-        if (const auto& object = weakObj.lock())
-        {
-            validObjects.push_back(std::move(object));
-        }
-    }
-    for (auto& object : validObjects)
-    {
-        GameObject::Engine::UpdateActiveInHierarchy(object.get());       
-    }
-
+    // 컴포넌트들의 이벤트 함수 호출
+    auto& [OnDisableSet, OnDisableVec] = _onDisableQueue;
     static thread_local std::vector<std::shared_ptr<Component>> validComponents;
     validComponents.reserve(OnDisableVec.size());
+
+    // 안전하게 복사
     for (auto& weakComponent : OnDisableVec)
     {
         if (const auto& component = weakComponent.lock())
@@ -1162,22 +1105,18 @@ void ESceneManager::ObjectsOnDisable()
             validComponents.push_back(std::move(component));
         }
     }
+    OnDisableSet.clear();
+    OnDisableVec.clear();
+
+    // 이벤트 호출
     for (auto& component : validComponents)
     {
-        component->UpdateEnableInHierarchy();
-        if (_isPlay)
+        if (_isPlay && component->_initFlags.IsStart())
         {
             component->OnDisable();
         }
     }
-    
-    validObjects.clear();
     validComponents.clear();
-    OnDisableSet.clear();
-    OnDisableVec.clear();
-    OnDisableValue.clear();
-    UpdateSet.clear();
-    UpdateQueue.clear();
 }
 
 void ESceneManager::ObjectsDestroy()
@@ -1198,7 +1137,8 @@ void ESceneManager::ObjectsDestroy()
 
         // 해당 컴포넌트를 오브젝트 배열에서 삭제.
         std::vector<std::shared_ptr<Component>>& components = destroyComponent->_gameObject->_components;
-        std::erase_if(components, [destroyComponent](std::shared_ptr<Component>& component) {
+        std::erase_if(components, [destroyComponent](std::shared_ptr<Component>& component) 
+        {
             return destroyComponent == component.get();
         });
 
@@ -1316,6 +1256,7 @@ void ESceneManager::ObjectsAddRuntime()
                 component->gameObject->_transform._hasChanged = true;
             }
             component->UpdateEnableInHierarchy();
+            component->Reset();
         }
     }
 
@@ -1325,7 +1266,7 @@ void ESceneManager::ObjectsAddRuntime()
 
 bool ESceneManager::IsRuntimeActive(std::shared_ptr<GameObject>& obj)
 {
-    return obj.get() != nullptr && obj->ActiveInHierarchy_property_getter() && obj->IsValid();
+    return obj.get() != nullptr && obj->_activeInHierarchy && obj->IsValid();
 }
 
 void ESceneManager::NotInitDestroyComponentEraseToWaitVec(Component* destroyComponent)
@@ -1984,17 +1925,31 @@ void ESceneManager::SceneResourceManager::UpdateRenderResource(RenderResource<T>
                 {
                     if (component->_gameObject->IsValid())
                     {
+                        auto SafeCallbackFunc = [weakPtr, path, func]() 
+                        {
+                            if (std::shared_ptr<Component> component = weakPtr.lock())
+                            {
+                                if (true == std::filesystem::exists(path))
+                                {
+                                    if (component->_gameObject->IsValid())
+                                    {
+                                        func();
+                                    }
+                                }
+                            }
+                        };
+
                         path = std::filesystem::absolute(path);
                         path = path.generic_string();
                         auto findIter = resource.RenderResource.find(path);
                         if (findIter == resource.RenderResource.end())
                         {
-                            auto newResource = UmResourceManager->LoadResource<T>(path.string(), func);
+                            auto newResource = UmResourceManager->LoadResource<T>(path.string(), SafeCallbackFunc);
                             resource.RenderResource[path] = newResource;
                         }
                         else
                         {
-                            std::shared_ptr<T> resource = UmResourceManager->LoadResource<T>(path.string(), func);
+                            std::shared_ptr<T> resource = UmResourceManager->LoadResource<T>(path.string(), nullptr);
                             if (resource->IsValid())
                             {
                                 func();
@@ -2216,7 +2171,8 @@ void ESceneManager::InputSystem::UpdateInput()
             {
                 for (const auto& flag : queue)
                 {
-                    UpdateTracker(flag);
+                    // TODO: 시우야 확인해줘
+                    UpdateTracker(flag.Button);
                 }
             } 
 

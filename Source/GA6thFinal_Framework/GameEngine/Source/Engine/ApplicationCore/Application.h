@@ -49,10 +49,14 @@ private:
     static LRESULT CALLBACK    WndProc(HWND hwnd, UINT msg, WPARAM wParam,
                                        LPARAM lParam);
 public:
+#ifdef _UMEDITOR
+    void Quit(std::source_location location = std::source_location::current());
+#else
     /// <summary>
     /// 앱을 종료합니다.
     /// </summary>
     inline void Quit() { _isQuit = true; }
+#endif // _UMEDITOR
 
     /// <summary>
     /// 앱 종료 여부를 반환합니다. 컴포넌트에서는 OnApplicationQuit 함수를 호출하기 때문에 사용할 필요 없습니다.
@@ -150,7 +154,7 @@ private:
     void UnInitModules();
 
 private:
-    class ImGuiDX12Module*  _imguiDX12Module = nullptr;
+    class ImGuiDX12Module*  _imguiDX12Module  = nullptr;
     class FileSystemModule* _filesystemModule = nullptr;
     class AudioModule*      _audioModule      = nullptr;
 

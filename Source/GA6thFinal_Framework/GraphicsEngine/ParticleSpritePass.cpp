@@ -1,13 +1,13 @@
 ﻿#include "pch.h"
 #include "ParticleSpritePass.h"
 
-ParticleSpritePass::ParticleSpritePass() {}
+ParticleSpritePass::ParticleSpritePass() = default;
 
-ParticleSpritePass::~ParticleSpritePass() {}
+ParticleSpritePass::~ParticleSpritePass() = default;
 
 void ParticleSpritePass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene, ownerTechnique, commandList);
+    RenderPass::Initialize(ownerScene, ownerTechnique, commandList);
     
     InitializeShaderAndPSO();
 
@@ -26,8 +26,8 @@ void ParticleSpritePass::Begin(ID3D12GraphicsCommandList* commandList)
 
    // _ownerScene->_depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_DEPTH_READ);
 
-    _accumlateBuffer->ClearUnorderedAccessView(commandList);
-    _revealageBuffer->ClearUnorderedAccessView(commandList);
+    _accumlateBuffer->ClearUnorderedAccessView(commandList, Vector4(0.f, 0.f, 0.f, 0.f));
+    _revealageBuffer->ClearUnorderedAccessView(commandList, Vector4(0.f, 0.f, 0.f, 0.f));
 
     commandList->OMSetRenderTargets(1, &customDepthTarget->GetRTVHandle(), FALSE, nullptr);
     commandList->RSSetViewports(1, &customDepthTarget->GetViewport());

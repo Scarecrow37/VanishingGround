@@ -10,9 +10,9 @@ namespace Input
     {
     public:
         Adapter() = default;
-        [[nodiscard]] ControllerTypes::ID                  Connect() const noexcept;
-        [[nodiscard]] ControllerTypes::State               ReceiveState(ControllerTypes::ID id) const;
-        [[nodiscard]] std::vector<ControllerTypes::Button> ReceiveQueue(ControllerTypes::ID id) const;
+        [[nodiscard]] ControllerTypes::ID          Connect() const noexcept;
+        [[nodiscard]] ControllerTypes::State       ReceiveState(ControllerTypes::ID id) const;
+        [[nodiscard]] ControllerTypes::ButtonQueue ReceiveQueue(ControllerTypes::ID id) const;
 
     private:
         static ControllerTypes::TriggerValue NormalizeTrigger(unsigned char triggerValue, unsigned char thresholdValue);

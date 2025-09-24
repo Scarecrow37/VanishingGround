@@ -4,11 +4,62 @@
 #include "ViewModels/TurnQueue/TurnQueueViewModel.h"
 #include "UI/Elements/Image/ImageElement.h"
 
-TurnQueueView::TurnQueueView() = default;
+UMREAL_COMPONENT(TurnQueueView)
+
+TurnQueueView::TurnQueueView()
+{
+   
+}
 
 TurnQueueView::~TurnQueueView()
 {
     UmWatcher.Blind<TurnQueueViewModel>("Turn Queue", _watchHandle);
+}
+
+void TurnQueueView::ImGuiDrawPropertysEvent() 
+{
+    if (ImGui::TreeNode("Childs Test"))
+    {
+        if (ImGui::Button("Find Childs"))
+        {
+            InitializeFramesAndPortraits();
+        }
+        if (ImGui::TreeNode("Frames"))
+        {
+            for (size_t i = 0; i < _turnQueueFrames.size(); i++)
+            {
+                std::string message = std::to_string(i);
+                if (_turnQueueFrames[i])
+                {
+                    message += " frame ok";
+                }
+                else
+                {
+                    message += " frame nullptr";
+                }
+                ImGui::Text(message.c_str());
+            }
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNode("Portraits"))
+        {
+            for (size_t i = 0; i < _turnQueuePortraits.size(); i++)
+            {
+                std::string message = std::to_string(i);
+                if (_turnQueuePortraits[i])
+                {
+                    message += " portraits ok";
+                }
+                else
+                {
+                    message += " portraits nullptr";
+                }
+                ImGui::Text(message.c_str());
+            }
+            ImGui::TreePop();
+        }
+        ImGui::TreePop();
+    }
 }
 
 void TurnQueueView::Awake()
@@ -20,65 +71,38 @@ void TurnQueueView::Awake()
 void TurnQueueView::Start()
 {
     Component::Start();
-    _watchHandle = UmWatcher.Watch<TurnQueueViewModel, std::vector<TurnUIData>>(
-        "Turn Queue", [this](const std::vector<TurnUIData>& value) {
-            const size_t dataSize = value.size();
-            for (size_t i = 0; i < 7; ++i)
-            {
-                if (i < dataSize)
-                {
-                    if (nullptr != _turnQueueFrames[i])
-                    {
-                        _turnQueueFrames[i]->Enable = true;
-                        _turnQueueFrames[i]->SetImage(value[i].Frame);
-                    }
-                    if (nullptr != _turnQueuePortraits[i])
-                    {
-                        _turnQueuePortraits[i]->Enable = true;
-                        _turnQueuePortraits[i]->SetImage(value[i].ActorPortrait);
-                    }
-                }
-                else
-                {
-                    if (nullptr != _turnQueueFrames[i])
-                    {
-                        _turnQueueFrames[i]->Enable = false;
-                    }
-                    if (nullptr != _turnQueuePortraits[i])
-                    {
-                        _turnQueuePortraits[i]->Enable = false;
-                    }
-                }
-
-            }
-            if (dataSize == 0)
-            {
-                if (nullptr != _firstTurnQueueFrameLeftWing)
-                    _firstTurnQueueFrameLeftWing->Enable = false;
-                if (nullptr != _firstTurnQueueFrameRightWing)
-                    _firstTurnQueueFrameRightWing->Enable = false;
-            }
-            else
-            {
-                if (nullptr != _firstTurnQueueFrameLeftWing)
-                    _firstTurnQueueFrameLeftWing->Enable = true;
-                if (nullptr != _firstTurnQueueFrameRightWing)
-                    _firstTurnQueueFrameRightWing->Enable = true;
-            }
-        });
-
-    // Disable
-    for (size_t i = 0; i < 7; ++i)
+    _watchHandle = UmWatcher.Watch<TurnQueueViewModel, std::vector<TurnUIData>>("Turn Queue", [this](const std::vector<TurnUIData>& value) 
     {
-        if (nullptr != _turnQueueFrames[i])
-            _turnQueueFrames[i]->Enable = false;
-        if (nullptr != _turnQueuePortraits[i])
-            _turnQueuePortraits[i]->Enable = false;
-    }
-    if (nullptr != _firstTurnQueueFrameLeftWing)
-        _firstTurnQueueFrameLeftWing->Enable = false;
-    if (nullptr != _firstTurnQueueFrameRightWing)
-        _firstTurnQueueFrameRightWing->Enable = false;
+       const size_t dataSize = value.size();
+       for (size_t i = 0; i < _turnQueueFrames.size(); ++i)
+       {
+           if (i < dataSize)
+           {
+               if (nullptr != _turnQueueFrames[i])
+               {
+                   _turnQueueFrames[i]->Enable = true;
+                   _turnQueueFrames[i]->SetImage(value[i].Frame);
+               }
+               if (nullptr != _turnQueuePortraits[i])
+               {
+                   _turnQueuePortraits[i]->Enable = true;
+                   _turnQueuePortraits[i]->SetImage(value[i].ActorPortrait);
+               }
+           }
+           else
+           {
+               if (nullptr != _turnQueueFrames[i])
+               {
+                   _turnQueueFrames[i]->Enable = false;
+               }
+               if (nullptr != _turnQueuePortraits[i])
+               {
+                   _turnQueuePortraits[i]->Enable = false;
+               }
+           }
+
+       }
+    });
 }
 
 enum class FindResult
@@ -90,26 +114,21 @@ enum class FindResult
 
 ImageElement* TurnQueueView::FindImageElementWithTag(const std::string& tag) const
 {
-    const GameObject& owner          = gameObject;
-    Transform&        ownerTransform = owner.transform;
-    FindResult        result         = FindResult::NOT_EXIST_GAME_OBJECT;
-    ImageElement*     element        = nullptr;
-    Transform::ForeachBFS(ownerTransform, [&tag, &element, &result](const Transform* transform) {
-        if (result != FindResult::NOT_EXIST_GAME_OBJECT)
-            return;
-        if (GameObject& object = transform->gameObject; object.CompareTag(tag))
+    FindResult    result   = FindResult::NOT_EXIST_GAME_OBJECT;
+    ImageElement* element  = nullptr;
+    std::vector<GameObject*> findResult = _turnQueueHorizontalPanenl->transform->FindBFSwithTag(tag);
+    if (false == findResult.empty())
+    {
+        GameObject* object = findResult.front();
+        if (element = object->GetComponent<ImageElement>())
         {
-            if (ImageElement* imageElement = object.GetComponent<ImageElement>(); nullptr != imageElement)
-            {
-                element = imageElement;
-                result          = FindResult::FIND;
-            }
-            else
-            {
-                result = FindResult::NOT_EXIST_IMAGE_ELEMENT;
-            }
+            result = FindResult::FIND;
         }
-    });
+        else
+        {
+            result = FindResult::NOT_EXIST_IMAGE_ELEMENT;
+        }
+    }
 
     if (result == FindResult::NOT_EXIST_IMAGE_ELEMENT)
     {
@@ -124,29 +143,51 @@ ImageElement* TurnQueueView::FindImageElementWithTag(const std::string& tag) con
     return element;
 }
 
-void TurnQueueView::FindFramesWithTag(const std::string& tag, const size_t index)
-{
-    _turnQueueFrames[index] = FindImageElementWithTag(tag + " Frame");
-}
-
-void TurnQueueView::FindPortraitsWithTag(const std::string& tag, const size_t index)
-{
-    _turnQueuePortraits[index] = FindImageElementWithTag(tag + " Portrait");
-}
 
 void TurnQueueView::InitializeFramesAndPortraits()
 {
-    FindFramesWithTag("1st Turn", 0);
-    _firstTurnQueueFrameLeftWing = FindImageElementWithTag("1st Turn Frame Right");
-    _firstTurnQueueFrameRightWing = FindImageElementWithTag("1st Turn Frame Left");
-    FindPortraitsWithTag("1st Turn", 0);
-    FindFramesWithTag("2nd Turn", 1);
-    FindPortraitsWithTag("2nd Turn", 1);
-    FindFramesWithTag("3rd Turn", 2);
-    FindPortraitsWithTag("3rd Turn", 2);
-    for (size_t i = 3; i < 7; ++i)
+    if (_turnQueueHorizontalPanenl = GameObject::FindWithTag("Turn Queue Horizontal Panenl").lock().get())
     {
-        FindFramesWithTag(std::to_string(i + 1) + "th Turn", i);
-        FindPortraitsWithTag(std::to_string(i + 1) + "th Turn", i);
+        FindFramesWithTag("Frame Element");
+        FindPortraitsWithTag("Turn Element");
+        gameObject->ActiveSelf = false;
+    }
+    else
+    {
+        std::u8string message = u8"Turn Queue Horizontal Panenl이 존재하지 않습니다.";
+        UmLogger.Log(LogLevel::LEVEL_WARNING, message);
+    }
+}
+
+void TurnQueueView::FindFramesWithTag(const std::string& tag) 
+{
+    std::vector<GameObject*> findResult = _turnQueueHorizontalPanenl->transform->FindBFSwithTag(tag);
+    for (size_t i = 0; i < findResult.size(); ++i)
+    {
+        if (i < _turnQueueFrames.size())
+        {
+            GameObject* object = findResult[i];
+            if (_turnQueueFrames[i] = object->GetComponent<ImageElement>(); nullptr == _turnQueueFrames[i])
+            {
+                UmLogger.Log(LogLevel::LEVEL_WARNING, tag + (const char*)u8" GameObject에 ImageElement가 없습니다.");
+            }
+        }
+    }
+}
+
+void TurnQueueView::FindPortraitsWithTag(const std::string& tag) 
+{
+
+    std::vector<GameObject*> findResult = _turnQueueHorizontalPanenl->transform->FindBFSwithTag(tag);
+    for (size_t i = 0; i < findResult.size(); ++i)
+    {
+        if (i < _turnQueuePortraits.size())
+        {
+            GameObject* object = findResult[i];
+            if (_turnQueuePortraits[i] = object->GetComponent<ImageElement>(); nullptr == _turnQueuePortraits[i])
+            {
+                UmLogger.Log(LogLevel::LEVEL_WARNING, tag + (const char*)u8" GameObject에 ImageElement가 없습니다.");
+            }
+        }
     }
 }

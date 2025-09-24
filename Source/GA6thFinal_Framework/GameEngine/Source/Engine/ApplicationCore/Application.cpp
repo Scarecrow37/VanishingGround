@@ -29,6 +29,13 @@ LRESULT CALLBACK Application::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
     return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
+#ifdef _UMEDITOR
+void Application::Quit(std::source_location location) 
+{
+    UmLogger.Log(LogLevel::LEVEL_DEBUG, u8"게임 종료 요청이 호출되었습니다.", location);
+}
+#endif //  _UMEDITOR
+
 Application::Application()
 {
     if (App)
@@ -144,6 +151,7 @@ void Application::Run()
             {
                 _filesystemModule->Update();
                 Global::editorModule->Update();
+                Global::engineCore->UpdateIsPlay(); //에디터 업데이트 이후 플레이 여부 갱신 해야함
             }
 
             // AnimationUpdate

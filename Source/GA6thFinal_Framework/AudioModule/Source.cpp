@@ -3,18 +3,19 @@
 
 namespace Audio
 {
-    Source::Source(const WAVEFORMATEXTENSIBLE& format, const XAUDIO2_BUFFER& buffer) : _format(format), _buffer(buffer)
-    {
-    }
-
     Source::~Source()
     {
-        delete[] _buffer.pAudioData;
+        delete[] _buffer;
     }
 
-    Source::Source(Source&& other) noexcept : _format(other._format), _buffer(other._buffer)
+    Source::Source(const WAVEFORMATEXTENSIBLE& format, const BYTE* buffer, const UINT32 bytes)
+        : _format(format), _buffer(buffer), _bytes(bytes)
     {
-        other._buffer.pAudioData = nullptr;
+    }
+
+    Source::Source(Source&& other) noexcept : _format(other._format), _buffer(other._buffer), _bytes(other._bytes)
+    {
+        other._buffer = nullptr;
     }
 
     Source& Source::operator=(Source&& other) noexcept
@@ -23,7 +24,8 @@ namespace Audio
             return *this;
         _format                  = other._format;
         _buffer                  = other._buffer;
-        other._buffer.pAudioData = nullptr; // Prevent double deletion
+        _bytes                   = other._bytes;
+        other._buffer = nullptr; // Prevent double deletion
         return *this;
     }
 } // namespace Audio

@@ -2,6 +2,7 @@
 #include <Mesh/SkeletalMeshRenderer.h>
 #include "ParticleComponent.h"
 
+UMREAL_COMPONENT(ParticleComponent)
 
 ParticleComponent::ParticleComponent()
 {
@@ -35,24 +36,19 @@ ParticleComponent::~ParticleComponent()
     if (_effect)
     {
         _effect->SetActiveFlag(false);
-        UmParticleManager->DeleteEffect(_effect);
+        UmParticleManager->DeleteEffect(_effect, "Game");
         _effect = nullptr;
     }
 }
 
-void ParticleComponent::Update()
-{
-}
+void ParticleComponent::Update() {}
 
 void ParticleComponent::Start() 
 {
-    _skelMesh = GetComponent<SkeletalMeshRenderer>();
-}
-
-void ParticleComponent::Reset() 
-{
 
 }
+
+void ParticleComponent::Reset() {}
 
 void ParticleComponent::SerializedReflectEvent()
 {
@@ -68,14 +64,8 @@ void ParticleComponent::SerializedReflectEvent()
     ReflectFields->ScaleArray[1] = Scale->y;
     ReflectFields->ScaleArray[2] = Scale->z;
 
-    //ReflectFields->AttachToBoneMatrix = _effect->_followBoneFlag;
-
     ReflectFields->Guid = _guidRef.string();
-
-
 }
-
-
 
 void ParticleComponent::DeserializedReflectEvent()
 {
@@ -96,26 +86,32 @@ void ParticleComponent::ImGuiDrawPropertysEvent()
     SkeletalMeshRenderer* skelMesh = GetComponent<SkeletalMeshRenderer>();
     if (nullptr != skelMesh)
     {
-
-        auto&       renderer   = skelMesh->Renderer;
-        auto&       model      = renderer->GetModel();
-        const auto& _boneNames = model->GetBoneNameList();
-
-        const char* comboLabel = (nullptr != skelMesh) ? ReflectFields->BoneNameToAttach.c_str() : "-";
-        if (ImGui::BeginCombo("##bone name", comboLabel))
+        auto& renderer = skelMesh->Renderer;
+        if (nullptr != renderer)
         {
-            for (int i = 0; i < _boneNames.size(); ++i)
+            auto& model = renderer->GetModel();
+            if (nullptr != model)
             {
-                bool isSelected = ReflectFields->BoneNameToAttach == _boneNames[i];
-                if (ImGui::Selectable(_boneNames[i].c_str(), isSelected))
+                const auto& _boneNames = model->GetBoneNameList();
+                if (false == _boneNames.empty())
                 {
-                    ReflectFields->BoneNameToAttach = _boneNames[i];
+                    const char* comboLabel = (nullptr != skelMesh) ? ReflectFields->BoneNameToAttach.c_str() : "-";
+                    if (ImGui::BeginCombo("##bone name", comboLabel))
+                    {
+                        for (int i = 0; i < _boneNames.size(); ++i)
+                        {
+                            bool isSelected = ReflectFields->BoneNameToAttach == _boneNames[i];
+                            if (ImGui::Selectable(_boneNames[i].c_str(), isSelected))
+                            {
+                                ReflectFields->BoneNameToAttach = _boneNames[i];
+                            }
+                        }
+                        ImGui::EndCombo();
+                    }
                 }
             }
-            ImGui::EndCombo();
         }
     }
-
 
     if (ImGui::Button("Play"))
     {
@@ -123,7 +119,6 @@ void ParticleComponent::ImGuiDrawPropertysEvent()
         {
             PlayEffect();
         }
-        
     }
     ImGui::SameLine();
     if (ImGui::Button("Stop"))
@@ -135,7 +130,22 @@ void ParticleComponent::ImGuiDrawPropertysEvent()
     }
 }
 
+void ParticleComponent::Awake()
+{
+}
 
+void ParticleComponent::OnEnable()
+{
+}
+
+void ParticleComponent::OnDestroy()
+{
+    if (_effect)
+    {
+        _effect->SetActiveFlag(false);
+        UmParticleManager->DeleteEffect(_effect, "Game");
+    }
+}
 
 void ParticleComponent::LoadParticle() 
 {
@@ -182,16 +192,14 @@ void ParticleComponent::LoadParticle()
                         UmGraphics.LoadModelResource(std::wstring_view(absolutePath.wstring()), emitter);
                     }
 
-                }
+                } 
                 _effect->SetPlayFlag(false);
                 _effect->SetActiveFlag(false);
                 _effect->_position = &_positionVector;
                 _effect->_rotation = &_rotationVector;
                 _effect->_scale    = &_scaleVector;
                 _effect->_parentWorldMatrix = &transform->GetWorldMatrix();
-                //
-
-
+                _effect->_followBoneFlag    = &(ReflectFields->AttachToBoneMatrix);
             });
         else
             UmSceneManager.ResourceManager.RequestTextureResource(this, guid, []() {});
@@ -203,27 +211,16 @@ void ParticleComponent::FollowBoneMatrix()
 {
     if (true == AttachToBoneMatrix)
     {
-
-        SkeletalMeshRenderer* skelMesh = GetComponent<SkeletalMeshRenderer>();
-
-        if (skelMesh != nullptr)
+        _skelMesh = GetComponent<SkeletalMeshRenderer>();
+        if (_skelMesh != nullptr)
         {
             if (ReflectFields->BoneNameToAttach != "")
             {
-
                 _effect->_boneWorldMatrix =
-                    skelMesh->Renderer->GetAnimator()->FindBoneMatrix(ReflectFields->BoneNameToAttach.c_str());
-                _effect->_followBoneFlag = true;
+                    _skelMesh->Renderer->GetAnimator()->FindBoneMatrix(ReflectFields->BoneNameToAttach.c_str());
             }
         }
     }
-    else
-    {
-        _effect->_followBoneFlag = false;
-
-    }
-
-
 }
 
 void ParticleComponent::StopEffect()
@@ -238,7 +235,6 @@ void ParticleComponent::PlayEffect()
 {
     if (nullptr != _effect)
     {
-
         FollowBoneMatrix();
         _effect->Play();
     }
@@ -253,7 +249,6 @@ void ParticleComponent::SetGuid(const File::Path& filepath)
     {
         LoadParticle();
     }
-
 }
 void ParticleComponent::SetGuid(const File::Guid& fileguid)
 {

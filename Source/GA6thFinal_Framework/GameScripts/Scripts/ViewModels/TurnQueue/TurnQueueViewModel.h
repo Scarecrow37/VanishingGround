@@ -4,8 +4,8 @@ class TurnActor;
 
 struct TurnUIData
 {
-    File::GuidRef ActorPortrait;
-    File::GuidRef Frame;
+    File::Guid ActorPortrait;
+    File::Guid Frame;
 };
 
 class TurnQueueViewModel final : public MVVM::ViewModel<std::deque<std::pair<int, TurnActor*>>, std::vector<TurnUIData>>

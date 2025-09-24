@@ -1,5 +1,7 @@
-#include "CommonData.hlsli"
+#include "Function.hlsli"
+
 #define PARALLAX_HEIGHT_SCALE_DIVISOR 200
+
 struct PSInput
 {
     float4 position : SV_POSITION;
@@ -8,6 +10,10 @@ struct PSInput
     float3 biTangent : BINORMAL;
     float2 uv : TEXCOORD;
     float4 worldPosition : TEXCOORD1;
+    
+    nointerpolation uint4 materialID : TEXCOORD2;
+    nointerpolation uint customDepth : TEXCOORD3;
+    nointerpolation float alpha : TEXCOORD4;
 };
 
 struct PSOutput
@@ -25,26 +31,12 @@ struct PSOutput
 #define ORM       2
 #define EMISSIVE  3
 
-struct Material
-{
-    uint ID[4];
-};
-
-StructuredBuffer<Material> material;
 Texture2D textures[];
 ConstantBuffer<GbufferData> bit32_2_gbufferData;
 
 // ---------------------- 유틸 ----------------------
 
 static const float EPSILON_POM = 1e-5f;
-
-// TBN 직교정규화: tangent를 normal에 대해 그램-슈미트, bitangent는 cross로 재구축
-void OrthonormalizeTBN(inout float3 T, inout float3 B, inout float3 N)
-{
-    N = normalize(N);
-    T = normalize(T - N * dot(T, N));
-    B = normalize(cross(N, T));
-}
 
 // 원래 코드의 POM 누적 (SampleGrad 유지)
 float2 CalculatePOMUVOffset(float2 parallaxOffset, float2 uv, int numSteps, uint ORMID)
@@ -112,10 +104,10 @@ PSOutput WriteGuBuffer(PSInput input)
     
     float mipOffset = bit32_2_gbufferData.MipBias;
    
-    uint diffuseID = material[objectData.ID].ID[DIFFUSE];
-    uint normalID = material[objectData.ID].ID[NORMAL];
-    uint ORMID = material[objectData.ID].ID[ORM];
-    uint emissiveID = material[objectData.ID].ID[EMISSIVE];
+    uint diffuseID = input.materialID[DIFFUSE];
+    uint normalID = input.materialID[NORMAL];
+    uint ORMID = input.materialID[ORM];
+    uint emissiveID = input.materialID[EMISSIVE];
 
     // TBN 직교정규화 (심/왜곡 구간 안정화에 중요)
     float3 T = input.tangent;
@@ -184,7 +176,7 @@ PSOutput WriteGuBuffer(PSInput input)
     output.depth = input.position.z;
 
     // 5. customDepth
-    output.customDepth = objectData.CustomDepth;
+    output.customDepth = input.customDepth;
 
     return output;
 }

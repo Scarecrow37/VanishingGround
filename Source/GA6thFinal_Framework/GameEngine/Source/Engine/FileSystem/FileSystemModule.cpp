@@ -29,7 +29,7 @@ void FileSystemModule::ModuleInitialize()
         UmFileSystem.ObserverSetUp([this](const Event& event) { RecieveFileEvent(event); });
     }
 
-    auto accessExt = {".UmAnimEvent"};
+    auto accessExt = {".UmAnimEvent", ".UmQTETrack"};
     UmFileSystem.RegisterFileEventSubscriber(this, accessExt);
 
     try
@@ -151,7 +151,7 @@ void FileSystemModule::ProcessDropFile(const HDROP hDrop)
         UmFileSystem.RequestDragDropFile(path);
 
         File::Path extension = path.extension();
-        if (false == Global::IsPlay() && File::PROJECT_EXTENSION == extension)
+        if (false == UmCore->IsPlay() && File::PROJECT_EXTENSION == extension)
         {
             UmFileSystem.SaveProjectWithMessageBox();
             UmFileSystem.LoadProjectWithMessageBox(path);
