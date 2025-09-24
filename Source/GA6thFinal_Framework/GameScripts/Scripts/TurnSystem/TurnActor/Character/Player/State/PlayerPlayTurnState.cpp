@@ -53,7 +53,7 @@ void PlayerPlayTurnState::OnEnter()
 
     if (QTEUIManager* qteUIManager = QTEUIManager::GetInstance())
     {
-        qteUIManager->Refesh();
+        qteUIManager->Refresh();
     }
 }
 

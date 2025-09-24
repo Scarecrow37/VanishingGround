@@ -111,7 +111,7 @@ void QTEUIManager::OnQTEExit()
     ClearAllQTENotes();
 }
 
-void QTEUIManager::Refesh() 
+void QTEUIManager::Refresh() 
 {
     FindUIComponents();
     UpdateUITransformData();
@@ -393,7 +393,7 @@ void QTEUIManager::UpdateUITransformData()
     if (camera)
     {
         auto enemies = Battle::GetTargetsFromFlags(Battle::ENEMY_TARGET_FLAG_ALL);
-        if (3 == enemies.size())
+        if (3 <= enemies.size())
         {
             auto* left   = enemies[0];
             auto* middle = enemies[1];

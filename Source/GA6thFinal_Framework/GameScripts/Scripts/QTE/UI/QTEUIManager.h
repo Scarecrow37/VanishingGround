@@ -38,7 +38,7 @@ public:
     /// <summary>
     /// UI데이터를 갱신합니다.
     /// </summary>
-    void Refesh();
+    void Refresh();
 
     /// <summary>노트 프리팹의 GUID를 설정합니다. 해당 프리팹을 통해 QTE 노트 UI가 생성됩니다.</summary>
     /// <param name="guid">설정할 File::Guid 객체입니다.</param>

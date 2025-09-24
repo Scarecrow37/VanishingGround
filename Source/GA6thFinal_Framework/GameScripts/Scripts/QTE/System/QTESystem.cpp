@@ -39,7 +39,7 @@ void QTESystem::Awake()
 
     if (QTEUIManager* uiManager = QTEUIManager::GetInstance(); uiManager)
     {
-        uiManager->Refesh();
+        uiManager->Refresh();
         uiManager->SetUIAlpha(0.0f);
         uiManager->SetBackgroundUIAlpha(0.0f);
     }
