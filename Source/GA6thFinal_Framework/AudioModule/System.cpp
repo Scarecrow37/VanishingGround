@@ -177,13 +177,13 @@ namespace Audio
 
     void System::Finalize()
     {
+        ClearVoicePool();
+
         if (_masteringVoice)
         {
             _masteringVoice->DestroyVoice();
             _masteringVoice = nullptr;
         }
-
-        ClearVoicePool();
 
         if (_xAudio2)
         {
