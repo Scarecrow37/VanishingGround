@@ -175,10 +175,9 @@ namespace Global
         EditorPlayMode();
         ~EditorPlayMode();
 
-        constexpr bool IsPlay() const
-        {
-            return _isPlay;
-        }
+        constexpr bool IsPlay() const{ return _isPlay; }
+        bool IsPause() const { return _isPause; }
+
         void Play();
         void Pause();
         void Stop();

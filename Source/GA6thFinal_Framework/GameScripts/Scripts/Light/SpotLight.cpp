@@ -1,5 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "SpotLight.h"
+
+UMREAL_COMPONENT(SpotLight)
+
 SpotLight::SpotLight() = default;
 SpotLight::~SpotLight() = default;
 

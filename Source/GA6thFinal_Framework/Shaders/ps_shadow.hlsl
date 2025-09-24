@@ -1,9 +1,11 @@
 #include "CommonData.hlsli"
 
-struct PS_INPUT
+struct PSInput
 {
     float4 position : SV_POSITION;
     float2 uv : TEXCOORD;
+    
+    nointerpolation uint4 materialID : TEXCOORD1;
 };
 
 struct Material
@@ -16,16 +18,15 @@ struct MipBias
     float MipBias;
 };
 
-StructuredBuffer<Material> material;
 ConstantBuffer<MipBias> bit32_1_mipBias;
 Texture2D textures[];
 
 #define DIFFUSE 0
 
-void ps_main(PS_INPUT input)
-{
+void ps_main(PSInput input)
+{    
     float mipBias = bit32_1_mipBias.MipBias;
-    uint diffuseID = material[shadowData.ID].ID[DIFFUSE];
+    uint diffuseID = input.materialID[DIFFUSE];
     
     float alpha = textures[diffuseID].SampleBias(samLinear_wrap, input.uv, mipBias).a;
 

@@ -19,7 +19,6 @@ public:
     std::shared_ptr<Camera>      GetCamera() const { return _camera; }
     D3D12_GPU_DESCRIPTOR_HANDLE  GetFinalImage();
     SkyBox*                      GetSkyBox() { return _skyBox.get(); };
-    const std::any&              GetRenderPassProperty(std::string_view passName) const;
     SharedResource<RenderTarget> GetSharedRenderTarget() const;
     const bool                   IsDirtyFlag() const { return _isDirtyFlag; }
 
@@ -91,7 +90,6 @@ public:
     std::vector<LightData>                      _lightDatas;
     std::vector<MatrixData>                     _matrices;
     std::vector<BoneMatrices>                   _boneMatrices;
-    std::vector<MaterialID>                     _materialIDs;
     std::vector<XMMATRIX>                       _uiMatrices;
     std::vector<UIMaterial>                     _uiMaterials;
     std::vector<MeshInstanceID>                 _staticMeshInstanceIDs;

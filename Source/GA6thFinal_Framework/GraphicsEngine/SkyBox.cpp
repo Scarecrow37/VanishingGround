@@ -166,7 +166,7 @@ void SkyBox::SetIBLTexture(std::wstring_view path)
 
 void SkyBox::Initialize()
 {
-    _box->InitializeInverted(1000.f, 1000.f, 1000.f, 0);
+    _box->InitializeInverted(500.f, 500.f, 500.f, 0);
     HRESULT hr = S_OK;
 
     FAILED_CHECK_MESSAGE(hr, L"SkyBox::Initialize device->CreateDescriptorHeap Failed");
@@ -179,17 +179,17 @@ void SkyBox::Initialize()
     _brdfLUT        = std::make_unique<UnorderedAccessView>();
 
     auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, CUBE_MAP_SIZE, CUBE_MAP_SIZE, 6, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-    _cubeMap[IBL]->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE2DARRAY, D3D12_SRV_DIMENSION_TEXTURECUBE);
-    _cubeMap[ENV]->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE2DARRAY, D3D12_SRV_DIMENSION_TEXTURECUBE);
+    _cubeMap[IBL]->InitializeAsTexture(desc, UnorderedAccessView::UAVSliceType::PER_MIP, true, D3D12_SRV_DIMENSION_TEXTURECUBE);
+    _cubeMap[ENV]->InitializeAsTexture(desc, UnorderedAccessView::UAVSliceType::PER_MIP, true, D3D12_SRV_DIMENSION_TEXTURECUBE);
 
     desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, IRRADIANCE_MAP_SIZE, IRRADIANCE_MAP_SIZE, 6, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-    _irradianceMap->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE2DARRAY, D3D12_SRV_DIMENSION_TEXTURECUBE);
+    _irradianceMap->InitializeAsTexture(desc, UnorderedAccessView::UAVSliceType::PER_MIP, true, D3D12_SRV_DIMENSION_TEXTURECUBE);
 
     desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, PREFILTERED_MAP_SIZE, PREFILTERED_MAP_SIZE, 6, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-    _prefilteredMap->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE2DARRAY, D3D12_SRV_DIMENSION_TEXTURECUBE);
+    _prefilteredMap->InitializeAsTexture(desc, UnorderedAccessView::UAVSliceType::PER_MIP, true, D3D12_SRV_DIMENSION_TEXTURECUBE);
 
     desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, BRDF_LUT_SIZE, BRDF_LUT_SIZE, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-    _brdfLUT->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE2D);
+    _brdfLUT->InitializeAsTexture(desc, UnorderedAccessView::UAVSliceType::PER_MIP, true, D3D12_SRV_DIMENSION_TEXTURE2D);
 
     Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _hdrSRVHandles[ENV]);
     Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _hdrSRVHandles[IBL]);

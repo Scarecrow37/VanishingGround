@@ -2,6 +2,9 @@
 #include "AnimationComponent.h"
 #include <Mesh/SkeletalMeshRenderer.h>
 
+
+UMREAL_COMPONENT(AnimationComponent)
+
 void AnimationComponent::Reset() 
 {
     SetAnimator(GetComponent<SkeletalMeshRenderer>());
@@ -161,6 +164,7 @@ void AnimationComponent::ImGuiDrawPropertysEvent()
 
         if (ImGui::TreeNodeEx("Animation Event Track##details"))
         {
+            ImGui::Checkbox("Disable Animation Notify", &ReflectFields->DisableAnimationNotify);
             ImGui::BeginDisabled();
             std::string path = _filePath.string();
             ImGuiHelper::TextWithVerticalSeparator("Event Track Asset");
@@ -335,7 +339,7 @@ void AnimationComponent::ImGuiDrawPropertysEvent()
         }
         _delayProcess.clear();
 
-        if (false == Global::IsPlay())
+        if (false == UmCore->IsPlay())
         {
             // 애니메이터가 해당 객체만 사용 중이라면 reset합니다.
             UpdateNullAnimator();
@@ -412,6 +416,8 @@ void AnimationComponent::UpdateAnimation(AnimationData& animData)
             auto eventTrack = _eventTrack.GetEventTrack(animData._animationName);
             if (eventTrack)
             {
+                ReflectFields->DisableAnimationNotify ? eventTrack->AddFlags(Timeline::EVENT_TRCK_FLAGS_NOTIFY_DISABLED)
+                                                      : eventTrack->RemoveFlags(Timeline::EVENT_TRCK_FLAGS_NOTIFY_DISABLED);
                 eventTrack->SetPreNotifyCallback(_preEventCallback);
                 eventTrack->SetPostNotifyCallback(_postEventCallback);
                 eventTrack->SetCurrentFrame(animData._elapsedFrame);

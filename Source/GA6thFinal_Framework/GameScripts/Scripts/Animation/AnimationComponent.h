@@ -176,18 +176,23 @@ public:
     /// 타임라인 이벤트가 호출되기 전에 호출될 콜백 함수를 설정합니다.
     /// </summary>
     /// <param name="callback">Timeline::EventContext 포인터를 인자로 받아 bool 값을 반환하는 콜백 함수입니다. 이벤트 발생 전 호출됩니다.</param>
-    void SetAnimationPreEventCallback(std::function<bool(const Timeline::EventContext*)> callback) { _preEventCallback = callback; }
+    inline void SetAnimationPreEventCallback(std::function<bool(const Timeline::EventContext*)> callback) { _preEventCallback = callback; }
     /// <summary>
     /// 타임라인 이벤트가 호출된 이후에 호출될 콜백 함수를 설정합니다.
     /// </summary>
     /// <param name="callback">Timeline::EventContext 포인터를 인자로 받는 콜백 함수 객체입니다. 이벤트 발생 후 호출됩니다.</param>
-    void SetAnimationPostEventCallback(std::function<void(const Timeline::EventContext*)> callback) { _postEventCallback = callback; }
+    inline void SetAnimationPostEventCallback(std::function<void(const Timeline::EventContext*)> callback) { _postEventCallback = callback; }
     /// <summary>
     /// 이 함수는 내부의 AnimationEventTrack 객체에 대한 참조를 반환합니다.
     /// </summary>
     /// <returns>내부에 저장된 AnimationEventTrack 객체에 대한 참조를 반환합니다.</returns>
-    inline AnimationEventTrack& GetEventTrack() { return _eventTrack; }
-
+    inline AnimationEventTrack& GetAnimationEventTrack() { return _eventTrack; }
+    inline std::shared_ptr<Timeline::EventTrack> GetCurrentEventTrack() { return _eventTrack.GetEventTrack(GetTopAnimationDataEx().GetAnimationName()); }
+    /// <summary>
+    /// 애니메이션 알림 기능을 활성화 또는 비활성화합니다.
+    /// </summary>
+    /// <param name="disable">애니메이션 알림을 비활성화할지 여부를 지정하는 불리언 값입니다.</param>
+    inline void SetDisableAnimationNotify(bool disable) { ReflectFields->DisableAnimationNotify = disable; }
 
     // ==Animation Mapping==  //
     
@@ -237,6 +242,7 @@ private:
     int         MainAnimationFlags  = ANIMATION_FLAG_NONE;
     bool        MainAnimationSpeed  = true;
     std::string AnimEventTrackGuid  = "";
+    bool        DisableAnimationNotify = false;
     std::map<std::string, std::string> AnimationKeyMap;
     REFLECT_FIELDS_END(AnimationComponent)
 

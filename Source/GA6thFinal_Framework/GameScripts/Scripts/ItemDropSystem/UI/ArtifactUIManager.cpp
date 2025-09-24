@@ -6,6 +6,9 @@
 #include "ItemDropSystem/ItemDropSystem.h"
 #include "ViewModels/ItemDrop/DropArtifacts/DropArtifactsViewModel.h"
 
+
+UMREAL_COMPONENT(ArtifactUIManager)
+
 ArtifactUIManager::ArtifactUIManager()
 {
     _frameGridPanel    = nullptr;
@@ -35,7 +38,7 @@ void ArtifactUIManager::Awake()
 
 void ArtifactUIManager::Start() 
 {
-    _viewModleHandle = UmWatcher.Watch<DropArtifactsViewModel, std::vector<DropArtifactsUIData>>
+    _viewModelHandle = UmWatcher.Watch<DropArtifactsViewModel, std::vector<DropArtifactsUIData>>
     (ItemDropSystem::WATCHER_KEY, [weakPtr = GetWeakPtr()](const std::vector<DropArtifactsUIData>& datas)
     {   
         if (auto thisPtr = weakPtr.lock())
@@ -48,7 +51,7 @@ void ArtifactUIManager::Start()
 
 void ArtifactUIManager::OnDestroy() 
 {
-    UmWatcher.Blind<DropArtifactsViewModel>(ItemDropSystem::WATCHER_KEY, _viewModleHandle);
+    UmWatcher.Blind<DropArtifactsViewModel>(ItemDropSystem::WATCHER_KEY, _viewModelHandle);
 }
 
 void ArtifactUIManager::ImGuiDrawPropertysEvent() 

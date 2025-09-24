@@ -16,12 +16,12 @@ GameObject* GameObject::Instantiate(GameObject& gameObject)
     return pObject.get();
 }
 
-std::vector<std::weak_ptr<GameObject>> GameObject::FindGameObjectsWithTag(std::string_view tag)
+std::vector<std::weak_ptr<GameObject>> GameObject::FindGameObjectsWithTag(const std::string& tag)
 {
     return ESceneManager::Engine::FindGameObjectsWithTag(tag);
 }
 
-std::weak_ptr<GameObject> GameObject::FindWithTag(std::string_view tag)
+std::weak_ptr<GameObject> GameObject::FindWithTag(const std::string& tag)
 {
     return ESceneManager::Engine::FindGameObjectWithTag(tag);
 }
@@ -119,7 +119,7 @@ void GameObject::OnInspectorStay()
     {
         if (result)
         {
-            if (false == Global::IsPlay())
+            if (false == UmCore->IsPlay())
             {
                 Scene* ownerScene = UmSceneManager.GetSceneByName(_ownerScene);
                 if (ownerScene)
@@ -541,9 +541,9 @@ std::weak_ptr<ITimeInvoker> GameObject::GetWeakInvoker()
     return std::weak_ptr<ITimeInvoker>(ptr);
 }
 
-bool GameObject::AddTag(std::string_view tag)
+bool GameObject::AddTag(const std::string& tag)
 {
-    auto [iter, result] = ReflectFields->_tags.insert(tag.data());
+    auto [iter, result] = ReflectFields->_tags.insert(tag);
     if (true == result)
     {
         ESceneManager::Engine::InsertGameObjectTag(this, tag);
@@ -551,16 +551,16 @@ bool GameObject::AddTag(std::string_view tag)
     return result;
 }
 
-bool GameObject::RemoveTag(std::string_view tag) 
+bool GameObject::RemoveTag(const std::string& tag)
 {
     ESceneManager::Engine::EraseGameObjectTag(this, tag);
-    auto result = ReflectFields->_tags.erase(tag.data());
+    auto result = ReflectFields->_tags.erase(tag);
     return 0 < result;
 }
 
-bool GameObject::CompareTag(std::string_view tag)
+bool GameObject::CompareTag(const std::string& tag)
 {
-    bool result = ReflectFields->_tags.find(tag.data()) != ReflectFields->_tags.end();
+    bool result = ReflectFields->_tags.find(tag) != ReflectFields->_tags.end();
     return result;
 }
 
@@ -597,6 +597,7 @@ void GameObject::Engine::ResetActiveInHierarchy(GameObject* obj)
     for (auto& component : obj->_components)
     {
         component->UpdateEnableInHierarchy();
+        component->_prevFrameEnableInHierarchy = component->_enableInHierarchy;
     }
 }
 

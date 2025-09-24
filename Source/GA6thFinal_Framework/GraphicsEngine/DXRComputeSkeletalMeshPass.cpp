@@ -9,12 +9,11 @@
 #include "ShaderBuilder.h"
 #include "Structs.h"
 
-DXRComputeSkeletalMeshPass::~DXRComputeSkeletalMeshPass() {}
+DXRComputeSkeletalMeshPass::~DXRComputeSkeletalMeshPass() = default;
 
-void DXRComputeSkeletalMeshPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique,
-                                            ID3D12GraphicsCommandList* commandList)
+void DXRComputeSkeletalMeshPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene, ownerTechnique, commandList);
+    RenderPass::Initialize(ownerScene, ownerTechnique, commandList);
     InitShaderAndPSO();
 }
 
@@ -37,7 +36,7 @@ void DXRComputeSkeletalMeshPass::End(ID3D12GraphicsCommandList* commandList) {}
 
 void DXRComputeSkeletalMeshPass::Dispatch(ID3D12GraphicsCommandList* commandList, MeshInfo meshInfo)
 {
-    auto& skeletalInstances = meshInfo.SkinnedInstance;
+    /*auto& skeletalInstances = meshInfo.SkinnedInstance;
 
     ID3D12Resource* resource = skeletalInstances->GetUpdateVertexBuffer();
     VIBuffer*       vibuffer = skeletalInstances->GetVIBuffer();
@@ -55,12 +54,11 @@ void DXRComputeSkeletalMeshPass::Dispatch(ID3D12GraphicsCommandList* commandList
     UINT parameter[3]{0, MAX_BONE_MATRIX, 0};
     parameter[0] = meshInfo.InstanceID;
     parameter[2] = vibuffer->_vertexCount;
-    commandList->SetComputeRoot32BitConstants(_shader->GetRootParameterIndex("bit32_3_objectData"), 3, parameter, 0);
+    commandList->SetComputeRoot32BitConstants(_shader->GetRootParameterIndex("bit32_4_objectData"), 3, parameter, 0);
 
     UINT threadGroupsX = (vibuffer->_vertexCount + 255) / 256;
     commandList->Dispatch(threadGroupsX, 1, 1);
-    br = CD3DX12_RESOURCE_BARRIER::Transition(resource, D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-                                              D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+    br = CD3DX12_RESOURCE_BARRIER::Transition(resource, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);*/
 }
 
 void DXRComputeSkeletalMeshPass::InitShaderAndPSO()

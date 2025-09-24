@@ -23,10 +23,10 @@ protected:
 
 public:
     /// <summary>
-    /// 이름으로 무기를 찾아 Stats를 반환합니다. 존재하지 않으면 nullptr을 반환합니다.
+    /// 이름으로 무기를 찾아 반환합니다. 존재하지 않으면 nullptr을 반환합니다.
     /// </summary>
     /// <param name="name :">찾을 무기 이름</param>
-    /// <returns>찾은 무기 Stats 정보</returns>
+    /// <returns>찾은 무기 정보</returns>
     const WeaponElement* GetWeaponToName(const std::string& name);
 
     /// <summary>
@@ -89,7 +89,6 @@ private:
         WeaponElement*        SelectWeapon      = nullptr;
         std::function<void()> RenameFunc;
 
-        ImGuiColumnSheetParser     ColumnParser{"87159CF2-3513-401C-B7C9-5C7C7E7F6167", u8"giveChain"};
         std::queue<WeaponElement*> DirtyWeaponElementQueue;
         bool                       ShowDirtyWeaponPopup = false;
     };

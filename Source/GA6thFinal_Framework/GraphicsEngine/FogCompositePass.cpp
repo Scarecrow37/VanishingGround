@@ -2,22 +2,17 @@
 #include "FogCompositePass.h"
 #include "VolumetricFogTechnique.h"
 
-FogCompositePass::~FogCompositePass() {}
+FogCompositePass::~FogCompositePass() = default;
 
-void FogCompositePass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique,
-                                  ID3D12GraphicsCommandList* commandList)
+void FogCompositePass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
-    __super::Initialize(ownerScene, ownerTechnique, commandList);
+    RenderPass::Initialize(ownerScene, ownerTechnique, commandList);
     auto resolution = Global::device->GetResolution();
     auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, resolution.cx, resolution.cy, 1, 1,
                                              1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
     InitShaderAndPSO();
     _volumTech = dynamic_cast<VolumetricFogTechnique*>(ownerTechnique);
 }
-
-void FogCompositePass::Update(ID3D12GraphicsCommandList* commandList, const float deltaTime) {}
-
-void FogCompositePass::Begin(ID3D12GraphicsCommandList* commandList) {}
 
 void FogCompositePass::Draw(ID3D12GraphicsCommandList* commandList) 
 {
@@ -30,7 +25,7 @@ void FogCompositePass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_fx.GetRootSignature());
 
-    const auto& renderTargetGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
+    const auto& renderTargetGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("G-Buffer");
     auto        compositeData     = _volumTech->GetVolumetricFogBufferView()->GetGPUVirtualAddress();
 
     commandList->SetGraphicsRootSignature(_fx.GetRootSignature());
@@ -48,10 +43,6 @@ void FogCompositePass::Draw(ID3D12GraphicsCommandList* commandList)
 
     Global::multiRenderTargetManager->ReturnRenderTarget(renderTarget);
 }
-
-void FogCompositePass::End(ID3D12GraphicsCommandList* commandList) {}
-
-void FogCompositePass::AddRenderPassDatas(std::string_view sceneName) {}
 
 void FogCompositePass::InitShaderAndPSO()
 {

@@ -6,6 +6,8 @@
 #include "UI/Elements/Image/ImageElement.h"
 #include "UI/Wrappers/Ratio/RatioWrapper.h"
 
+UMREAL_COMPONENT(DescriptionPanel)
+
 struct HexToColor
 {
     Color operator()(const std::string& hex) const
@@ -111,6 +113,7 @@ DescriptionPanel::DescriptionPanel()
                 {
                     _guidRef            = data->GetGuid();
                     ReflectFields->Guid = _guidRef.string();
+                    UpdateContent();
                 }
             }
             ImGui::EndDragDropTarget();
@@ -161,17 +164,16 @@ void DescriptionPanel::Awake()
 {
     HorizontalPanel::Awake();
 
-    if (_requiresUpdate) UpdateContent();
+    UpdateContent();
 }
 
 void DescriptionPanel::UpdateContent()
 {
-    if (const bool enableInHierarchy = EnableInHierarchy; enableInHierarchy && _requiresUpdate)
+    if (const bool enableInHierarchy = EnableInHierarchy; enableInHierarchy)
     {
         EraseChild();
         MakeChild();
         InvalidateMeasure();
-        _requiresUpdate = false;
     }
 }
 

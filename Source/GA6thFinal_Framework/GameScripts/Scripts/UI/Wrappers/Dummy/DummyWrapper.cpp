@@ -1,6 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "DummyWrapper.h"
 
+UMREAL_COMPONENT(DummyWrapper)
+
 DummyWrapper::DummyWrapper() = default;
 
 SIZE DummyWrapper::MeasureOverride(const SIZE availableSize)

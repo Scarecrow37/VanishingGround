@@ -75,6 +75,11 @@ RenderPassProperties& GraphicsCore::GetRenderPassProperties() const
     return _renderPassDatas->GetRenderPassProperties();
 }
 
+const RenderPassImages& GraphicsCore::GetRenderPassImages() const
+{
+    return _renderPassDatas->GetRenderPassImages();
+}
+
 SceneTransitionCore* GraphicsCore::GetSceneTransitionCore() const 
 {
     return _sceneTransitionCore;
@@ -118,6 +123,7 @@ void GraphicsCore::SyncGlobalVariable()
     Global::dxResourceManager        = _dxResourceManager;
     Global::commandController        = _commandController;
     Global::sceneTransitionCore      = _sceneTransitionCore;
+    Global::renderPassDatas          = _renderPassDatas;
 }
 
 void GraphicsCore::AddRenderScene(const std::string_view sceneName, const RenderTechniqueFlag flag) const

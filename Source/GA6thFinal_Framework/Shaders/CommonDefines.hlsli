@@ -6,10 +6,7 @@
 #define Fdielectric  0.04
 #define KERNEL_SIZE 15
 #define CUTOFF 0.3333333
-
-#define objectData bit32_3_objectData
-#define numLight bit32_3_numLight
-#define postProcessData bit32_6_postProcessData
-#define shadowData bit32_4_objectData2
+#define OIT_NULL 0xFFFFFFFF
+#define OIT_MAX_LOCAL 32
 
 #endif

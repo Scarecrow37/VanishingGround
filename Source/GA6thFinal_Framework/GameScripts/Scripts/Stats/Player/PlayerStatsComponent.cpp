@@ -2,13 +2,16 @@
 #include "PlayerStatsComponent.h"
 #include "PlayerStats.h"
 
+
+UMREAL_COMPONENT(PlayerStatsComponent)
+
 PlayerStatsComponent::PlayerStatsComponent() = default;
 PlayerStatsComponent::~PlayerStatsComponent() = default;
 
-void PlayerStatsComponent::RegisterHP(const std::string& key) const
+void PlayerStatsComponent::RegisterHP() const
 {
     if (nullptr != _stats)
-        _stats->RegisterHP(key);
+        _stats->RegisterHP();
 }
 
 TurnActorStats* PlayerStatsComponent::NewTurnActorStats()

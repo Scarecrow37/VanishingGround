@@ -14,24 +14,11 @@ Animator::~Animator()
 
 const Matrix* Animator::FindBoneMatrix(const char* boneName) const
 {
-    Bone& rootBone = _skeleton->GetRootBone();
+    auto iter = _finalBoneMap.find(boneName);
 
-    std::queue<Bone*> bfs;
-    bfs.push(&rootBone);
-
-    while (!bfs.empty())
+    if (iter != _finalBoneMap.end())
     {
-        Bone* curr = bfs.front();
-        bfs.pop();
-
-        if (boneName == curr->Name)
-        {
-            return &curr->Final;
-        }
-        for (auto& child : curr->Children)
-        {
-            bfs.push(&child);
-        }
+        return &iter->second;
     }
 
     return nullptr;
@@ -443,8 +430,8 @@ void Animator::UpdateAnimationTransform(Bone& skeletion,
 
 	if (-1 != skeletion.ID)
 	{
-		skeletion.Final = globalTransform;
-		transforms[skeletion.ID] = XMMatrixTranspose(skeletion.Offset * globalTransform);
+        _finalBoneMap[skeletion.Name] = globalTransform;
+        transforms[skeletion.ID]      = XMMatrixTranspose(skeletion.Offset * globalTransform);
 	}
 
 	for (Bone& child : skeletion.Children)

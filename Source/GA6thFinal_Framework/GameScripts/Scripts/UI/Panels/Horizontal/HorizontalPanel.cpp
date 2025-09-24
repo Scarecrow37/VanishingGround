@@ -2,6 +2,10 @@
 #include "HorizontalPanel.h"
 #include <numeric>
 
+
+UMREAL_COMPONENT(HorizontalPanel)
+UMREAL_COMPONENT(HorizontalPanelSlot)
+
 HorizontalPanel::HorizontalPanel() = default;
 
 void HorizontalPanel::OnAttachChild(GameObject* childGameObject)
@@ -23,53 +27,79 @@ SIZE HorizontalPanel::MeasureOverride(const SIZE availableSize)
     const SIZE    childrenAvailableSize = desiredSize - padding.Size();
 
     const std::vector<UIComponent*> children = Children;
-    SIZE                            childrenDesiredSize{};
 
-    LONG stretchCount = 0;
+    LONG              currentLine = 0;
+    std::vector<std::pair<SIZE, LONG>> childrenDesiredSizePerLine;
+    childrenDesiredSizePerLine.push_back(std::make_pair(SIZE{}, 0));
 
-    std::ranges::for_each(children, [childrenAvailableSize, &childrenDesiredSize, &stretchCount](UIComponent* child) {
-        if (const HorizontalPanelSlot* slot = child->GetComponent<HorizontalPanelSlot>(); nullptr != slot)
+    std::ranges::for_each(children, [childrenAvailableSize, &childrenDesiredSizePerLine,
+                                     &currentLine](UIComponent* child) {
+        if (HorizontalPanelSlot* slot = child->GetComponent<HorizontalPanelSlot>(); nullptr != slot)
         {
             if (const bool isStretch = slot->IsStretch; false == isStretch)
             {
-                const SIZE childAvailableSize{.cx = childrenAvailableSize.cx - childrenDesiredSize.cx,
-                                              .cy = childrenAvailableSize.cy};
+                const SIZE childAvailableSize{.cx = childrenAvailableSize.cx, .cy = childrenAvailableSize.cy};
                 child->Measure(childAvailableSize);
                 const SIZE childDesiredSize = child->DesiredSize;
-                childrenDesiredSize.cx += childDesiredSize.cx;
-                childrenDesiredSize.cy = std::max(childrenDesiredSize.cy, childDesiredSize.cy);
+                if (childrenDesiredSizePerLine[currentLine].first.cx + childDesiredSize.cx > childAvailableSize.cx)
+                {
+                    ++currentLine;
+                    childrenDesiredSizePerLine.push_back(std::make_pair(SIZE{}, 0));
+                }
+                childrenDesiredSizePerLine[currentLine].first.cx += childDesiredSize.cx;
+                childrenDesiredSizePerLine[currentLine].first.cy =
+                    std::max(childrenDesiredSizePerLine[currentLine].first.cy, childDesiredSize.cy);
+                slot->SetLine(currentLine);
             }
             else
             {
-                ++stretchCount;
+                ++childrenDesiredSizePerLine[currentLine].second;
             }
         }
     });
 
-    if (stretchCount > 0)
-    {
-        const LONG stretchedWidth = (childrenAvailableSize.cx - childrenDesiredSize.cx) / stretchCount;
+    std::vector<LONG> stretchWidths;
+    stretchWidths.resize(childrenDesiredSizePerLine.size(), 0);
 
-        std::ranges::for_each(
-            children, [childrenAvailableSize, &childrenDesiredSize, stretchedWidth](UIComponent* child) {
-            if (const HorizontalPanelSlot* slot = child->GetComponent<HorizontalPanelSlot>(); nullptr != slot)
+    for (LONG line = 0; line < static_cast<LONG>(childrenDesiredSizePerLine.size()); ++line)
+    {
+        const LONG stretchCount = childrenDesiredSizePerLine[line].second;
+        if (stretchCount > 0)
+        {
+            const LONG stretchedWidth = (childrenAvailableSize.cx - childrenDesiredSizePerLine[line].first.cx) / stretchCount;
+            stretchWidths[line]      = stretchedWidth;
+        }
+    }
+
+    std::ranges::for_each(
+        children, [childrenAvailableSize, &childrenDesiredSizePerLine, &stretchWidths](UIComponent* child) {
+        if (const HorizontalPanelSlot* slot = child->GetComponent<HorizontalPanelSlot>(); nullptr != slot)
+        {
+            if (const bool isStretch = slot->IsStretch; true == isStretch)
             {
-                if (const bool isStretch = slot->IsStretch; true == isStretch)
-                {
-                    const SIZE childAvailableSize{.cx = stretchedWidth, .cy = childrenAvailableSize.cy};
-                    child->Measure(childAvailableSize);
-                    const SIZE childDesiredSize = child->DesiredSize;
-                    childrenDesiredSize.cx += childDesiredSize.cx;
-                    childrenDesiredSize.cy = std::max(childrenDesiredSize.cy, childDesiredSize.cy);
-                }
+                const LONG line           = slot->Line;
+                const LONG stretchedWidth = stretchWidths[line];
+                const SIZE childAvailableSize{.cx = stretchedWidth, .cy = childrenAvailableSize.cy};
+                child->Measure(childAvailableSize);
+                const SIZE childDesiredSize = child->DesiredSize;
+                childrenDesiredSizePerLine[line].first.cx += childDesiredSize.cx;
+                childrenDesiredSizePerLine[line].first.cy =
+                    std::max(childrenDesiredSizePerLine[line].first.cy, childDesiredSize.cy);
             }
-        });
+        }
+    });
+
+    SIZE contentSize{};
+    for (const auto& [lineWidth, lineHeight] : childrenDesiredSizePerLine | std::views::keys)
+    {
+        contentSize.cx = std::max(contentSize.cx, lineWidth);
+        contentSize.cy += lineHeight;
     }
 
     if (horizontalFillMode == FillMode::WRAP)
-        desiredSize.cx = childrenDesiredSize.cx + padding.Horizontal();
+        desiredSize.cx = contentSize.cx + padding.Horizontal();
     if (verticalFillMode == FillMode::WRAP)
-        desiredSize.cy = childrenDesiredSize.cy + padding.Vertical();
+        desiredSize.cy = contentSize.cy + padding.Vertical();
 
     return desiredSize;
 }
@@ -83,44 +113,61 @@ SIZE HorizontalPanel::ArrangeOverride(const SIZE finalSize)
 
     std::vector<UIComponent*> children = Children;
 
-    LONG stretchCount = 0;
-    SIZE childrenDesiredSize{};
+    std::vector<SIZE> childrenDesiredSizes;
 
-    std::ranges::for_each(children, [&stretchCount, &childrenDesiredSize](const UIComponent* child) {
+    std::ranges::for_each(children, [&childrenDesiredSizes](const UIComponent* child) {
         if (const HorizontalPanelSlot* slot = child->GetComponent<HorizontalPanelSlot>(); nullptr != slot)
         {
-            if (const bool isStretch = slot->IsStretch; true == isStretch)
+            const LONG line = slot->Line;
+            if (childrenDesiredSizes.size() < static_cast<size_t>(line + 1L))
             {
-                ++stretchCount;
+                childrenDesiredSizes.resize(line + 1L, SIZE{});
             }
-
             const SIZE childDesiredSize = child->DesiredSize;
-            childrenDesiredSize.cx += childDesiredSize.cx;
-            childrenDesiredSize.cy = std::max(childrenDesiredSize.cy, childDesiredSize.cy);
+            childrenDesiredSizes[line].cx += childDesiredSize.cx;
+            childrenDesiredSizes[line].cy = std::max(childrenDesiredSizes[line].cy, childDesiredSize.cy);
         }
     });
 
+    SIZE contentSize{};
+    for (const auto& [lineWidth, lineHeight] : childrenDesiredSizes)
+    {
+        contentSize.cy += lineHeight;
+    }
+
     const HorizontalAlignment horizontalAlign = HorizontalAlign;
     const VerticalAlignment   verticalAlign   = VerticalAlign;
-    LONG alignPositionX = AlignPoint()(horizontalAlign, childrenAvailableSize.cx - childrenDesiredSize.cx);
-    if (stretchCount > 0)
-        alignPositionX = 0;
 
-    LONG childrenDesiredWidth = 0;
+    LONG defaultVerticalAlignPosition = AlignPoint()(verticalAlign, childrenAvailableSize.cy - contentSize.cy);
 
-    std::ranges::for_each(children, [this, childrenAvailableSize, verticalAlign, &childrenDesiredWidth, alignPositionX](UIComponent* child) {
+    std::vector<POINT>        alignPositionPerLine;
+    alignPositionPerLine.resize(childrenDesiredSizes.size(), POINT{});
+    LONG accumulatedHeight = 0;
+
+    for (size_t line = 0; line < childrenDesiredSizes.size(); ++line)
+    {
+        const auto& [lineWidth, lineHeight]         = childrenDesiredSizes[line];
+        alignPositionPerLine[line].x = AlignPoint()(horizontalAlign, childrenAvailableSize.cx - lineWidth);
+        alignPositionPerLine[line].y = defaultVerticalAlignPosition + accumulatedHeight;
+        accumulatedHeight += lineHeight;
+    }
+
+    std::vector<LONG> childrenDesiredWidthPerLine;
+    childrenDesiredWidthPerLine.resize(childrenDesiredSizes.size(), 0);
+
+    std::ranges::for_each(children, [this, &childrenDesiredWidthPerLine, &alignPositionPerLine](UIComponent* child) {
         if (const HorizontalPanelSlot* slot = child->GetComponent<HorizontalPanelSlot>(); nullptr != slot)
         {
             const SIZE childAvailableSize = child->DesiredSize;
 
             const POINT absolutePosition = AbsoluteChildPosition;
-            const LONG  alignPositionY = AlignPoint()(verticalAlign, childrenAvailableSize.cy - childAvailableSize.cy);
-            const POINT alignPoint{.x = alignPositionX + childrenDesiredWidth, .y = alignPositionY};
-            const POINT childPosition = absolutePosition + alignPoint;
+            POINT       alignPosition    = alignPositionPerLine[slot->Line];
+            alignPosition.x += childrenDesiredWidthPerLine[slot->Line];
+            const POINT childPosition = absolutePosition + alignPosition;
 
             child->Arrange(childPosition, childAvailableSize);
 
-            childrenDesiredWidth += childAvailableSize.cx;
+            childrenDesiredWidthPerLine[slot->Line] += childAvailableSize.cx;
         }
     });
 
@@ -133,3 +180,19 @@ std::vector<HorizontalPanelSlot*> HorizontalPanel::GetSlots(const GameObject& pa
 }
 
 HorizontalPanelSlot::HorizontalPanelSlot() = default;
+
+void HorizontalPanelSlot::ImGuiDrawPropertysEvent()
+{
+    SlotComponent::ImGuiDrawPropertysEvent();
+
+    if (_isDebug)
+    {
+        const LONG line = ReflectFields->Line;
+        ImGuiDebug()("Line", line);
+    }
+}
+
+void HorizontalPanelSlot::SetLine(const LONG line)
+{
+    ReflectFields->Line = line;
+}

@@ -70,6 +70,16 @@ public:
     /// </summary>
     void NotifyTokenRemoved(int tokenID);
 
+    /// <summary>
+    /// QTE가 시작될 때 호출됩니다.
+    /// </summary>
+    void NotifyQTEStart();
+
+    /// <summary>
+    /// QTE가 끝날 때 호출됩니다.
+    /// </summary>
+    void NotifyQTEEnd();
+
 public:
     /// <summary>
     /// 토큰 스택을 카운트만큼 추가합니다. 

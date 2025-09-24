@@ -4,8 +4,9 @@ Component::Component(TYPE type)
     : 
     _className(), 
     _gameObject(&staticDummyObject),
-    _type(type),
-    _enableInHierarchy(true)
+    _type(type), 
+    _enableInHierarchy(true), 
+    _prevFrameEnableInHierarchy(true)
 {
 
 }
@@ -15,7 +16,8 @@ Component::~Component()
     UnsetOverrideFlags();
 }
 
-Component::InitFlags::InitFlags() :
+Component::InitFlags::InitFlags() 
+    :
     _isAwake(false),
     _isStart(false)
 {

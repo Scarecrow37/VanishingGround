@@ -2,9 +2,15 @@
 #include "Controller.h"
 #include "Adapter.h"
 
+#include <algorithm>
+
 namespace Input
 {
-    Controller::Controller(const Adapter* adapter) : _adapter(adapter), _id(ControllerTypes::INVALID_ID), _state{} {}
+    Controller::Controller(const Adapter* adapter)
+        : _adapter(adapter), _id(ControllerTypes::INVALID_ID), _state{}, _leftStickBias(StickBias::UNBIASED),
+          _rightStickBias(StickBias::UNBIASED)
+    {
+    }
 
     void Controller::Connect()
     {
@@ -28,6 +34,7 @@ namespace Input
         {
             _state = _adapter->ReceiveState(_id);
             _queue = _adapter->ReceiveQueue(_id);
+            UpdateStickBias();
         }
         catch (const DeviceNotConnectedException&)
         {
@@ -44,6 +51,16 @@ namespace Input
     Controller::ThumbStickAxis Controller::GetRightThumbStickAxis() const noexcept
     {
         return _state.RightThumbStickAxis;
+    }
+
+    Controller::StickBias Controller::GetLeftStickBias() const noexcept
+    {
+        return _leftStickBias;
+    }
+
+    Controller::StickBias Controller::GetRightStickBias() const noexcept
+    {
+        return _rightStickBias;
     }
 
     Controller::TriggerValue Controller::GetLeftTrigger() const noexcept
@@ -71,9 +88,25 @@ namespace Input
         return _id;
     }
 
-    std::vector<Controller::Button> Controller::GetButtonQueue() const noexcept
+    Controller::ButtonQueue Controller::GetButtonQueue() const noexcept
     {
         return _queue;
+    }
+
+    void Controller::UpdateStickBias()
+    {
+        _leftStickBias  = StickBias::UNBIASED;
+        _rightStickBias = StickBias::UNBIASED;
+        std::ranges::for_each(_queue, [this](const ButtonState& buttonState) {
+            if (buttonState.Button == Button::LEFT_THUMB_STICK)
+            {
+                _leftStickBias = buttonState.Bias;
+            }
+            else if (buttonState.Button == Button::RIGHT_THUMB_STICK)
+            {
+                _rightStickBias = buttonState.Bias;
+            }
+        });
     }
 
 } // namespace Input

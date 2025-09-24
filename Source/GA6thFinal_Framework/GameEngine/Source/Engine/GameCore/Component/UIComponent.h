@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+class UIRoot;
 // POINT
 bool  operator==(const POINT& lhs, const POINT& rhs);
 bool  operator!=(const POINT& lhs, const POINT& rhs);
@@ -58,6 +59,9 @@ class UIComponent : public UIBaseComponent
     friend class Transform;
     USING_PROPERTY(UIComponent)
 
+private:
+    static UIRoot* GetRoot(const GameObject& obj);
+
 public:
     UIComponent();
 
@@ -76,11 +80,6 @@ public:
     SETTER(SIZE, Size)
     {
         _requestedSize = value;
-        auto [actualWidth, actualHeight] = ReflectFields->ActualSize;
-        if (actualWidth != value.cx)
-            ReflectFields->HorizontalFillMode = FillMode::NONE;
-        if (actualHeight != value.cy)
-            ReflectFields->VerticalFillMode = FillMode::NONE;
         InvalidateMeasure();
     }
     PROPERTY(Size)
@@ -90,6 +89,7 @@ public:
     {
         ReflectFields->Padding = static_cast<RECT>(value);
         InvalidateMeasure();
+        InvalidateArrange();
     }
     PROPERTY(Padding)
 
@@ -98,6 +98,7 @@ public:
     {
         ReflectFields->Margin = static_cast<RECT>(value);
         InvalidateMeasure();
+        InvalidateArrange();
     }
     PROPERTY(Margin)
 
@@ -207,6 +208,45 @@ public:
     GETTER_ONLY(SIZE, ActualSize) { return ReflectFields->ActualSize; }
     PROPERTY(ActualSize)
 
+    GETTER(bool, IsFocus) { return _isFocus; }
+    SETTER(bool, IsFocus) { _isFocus = value; }
+    PROPERTY(IsFocus)
+
+    GETTER_ONLY(POINT, AbsoluteCenterPoint)
+    {
+        const POINT absolute = AbsolutePosition;
+        const SIZE  size     = Size;
+        return POINT{
+        .x = absolute.x + size.cx / 2,
+        .y = absolute.y + size.cy / 2};
+    }
+    PROPERTY(AbsoluteCenterPoint)
+
+    GETTER_ONLY(RECT, AbsoluteRect)
+    {
+        const POINT absolutePosition = AbsolutePosition;
+        const SIZE  size             = Size;
+        return RECT{
+        .left   = absolutePosition.x,
+        .top    = absolutePosition.y,
+        .right  = absolutePosition.x + size.cx,
+        .bottom = absolutePosition.y + size.cy};
+    }
+    PROPERTY(AbsoluteRect)
+
+    GETTER_ONLY(UIRoot*, Root)
+    {
+        UIRoot*          uiRoot    = nullptr;
+        const Transform& transform = this->transform;
+        if (const Transform* rootTransform = transform.Root; nullptr != rootTransform)
+        {
+            const GameObject& rootGameObject = rootTransform->gameObject;
+            uiRoot                           = GetRoot(rootGameObject);
+        }
+        return uiRoot;
+    }
+    PROPERTY(Root)
+
 public:
     void Measure(SIZE availableSize);
     void Arrange(POINT finalPosition, SIZE finalSize);
@@ -216,10 +256,13 @@ public:
     void InvalidateArrange();
 
 protected:
+    void OnAttachParent(GameObject* parentGameObject) override;
     void OnAttachChild(GameObject* childGameObject) override;
     void OnDetachParent(GameObject* previousParentGameObject) override;
     void OnDrawDebugOverride() override;
     void OnDrawDebugSelectedOverride() override;
+    void RequestViewOrder() const;
+    void RequestCheckNavigationIdFlawless() const;
 
     /// <summary>
     /// UI 컴포넌트의 측정 로직을 구현하는 함수입니다.
@@ -233,20 +276,21 @@ protected:
     /// </summary>
     /// <param name="finalSize">배치에 사용할 최종 크기입니다.</param>
     /// <returns>실제로 배치된 요소의 크기(SIZE)를 반환합니다.</returns>
-    virtual SIZE ArrangeOverride(SIZE finalSize)     = 0;
+    virtual SIZE ArrangeOverride(SIZE finalSize) = 0;
 
 protected:
     void ImGuiDrawPropertysEvent() override;
     void DeserializedReflectEvent() override;
-
+    void Reset() override;
     void Start() override;
 
+    std::weak_ptr<UIComponent> GetUIWeakPtr() const;
 
 private:
     void ResetPlacement();
 
 protected:
-    REFLECT_FIELDS_BEGIN(Component)
+    REFLECT_FIELDS_BEGIN(UIBaseComponent)
     POINT ActualPosition;
     SIZE  ActualSize;
     POINT Offset;
@@ -260,6 +304,7 @@ protected:
     VerticalAlignment   VerticalAlignment;
     FillMode            HorizontalFillMode;
     FillMode            VerticalFillMode;
+
     REFLECT_FIELDS_END(UIComponent)
 
 protected:
@@ -267,6 +312,7 @@ protected:
     SIZE  _requestedSize;
 
 private:
+    bool _isFocus;
     bool _isMeasureDirty;
     bool _isArrangeDirty;
 };
@@ -278,13 +324,49 @@ struct ImGuiDebug
     void operator()(const char* label, long x, long y) const;
     void operator()(const char* label, unsigned int x) const;
     void operator()(const char* label, int x) const;
+    void operator()(const char* label, size_t x) const;
     void operator()(const char* label, const std::string& str) const;
 };
 
 struct DrawDebug
 {
+    /// <summary>
+    /// 지정된 두께와 색상으로 주어진 POINT와 SIZE를 사용하여 사각형을 그립니다.
+    /// </summary>
+    /// <param name="point">도형을 그릴 기준이 되는 POINT 객체입니다.</param>
+    /// <param name="size">도형의 크기를 지정하는 SIZE 객체입니다.</param>
+    /// <param name="thickness">도형의 테두리 두께를 나타내는 정수입니다.</param>
+    /// <param name="color">도형의 색상을 지정하는 FXMVECTOR 타입의 벡터입니다.</param>
     void operator()(POINT point, SIZE size, int thickness, FXMVECTOR color) const;
+
+    /// <summary>
+    /// 두 점 사이에 선을 그립니다.
+    /// </summary>
+    /// <param name="pointA">선의 시작점입니다.</param>
+    /// <param name="pointB">선의 끝점입니다.</param>
+    /// <param name="thickness">선의 두께입니다.</param>
+    /// <param name="isVertical">선이 수직인지 여부를 나타내는 값입니다.</param>
+    /// <param name="color">선의 색상을 나타내는 벡터입니다.</param>
     void operator()(POINT pointA, POINT pointB, int thickness, bool isVertical, FXMVECTOR color) const;
+
+    /// <summary>
+    /// 두 점 사이에 화살표를 그리고, 화살촉의 길이와 색상을 지정합니다.
+    /// </summary>
+    /// <param name="pointA">화살표의 시작점입니다.</param>
+    /// <param name="pointB">화살표의 끝점입니다.</param>
+    /// <param name="arrowheadLength">화살촉의 길이입니다.</param>
+    /// <param name="color">화살표의 색상입니다. FXMVECTOR 타입으로 지정합니다.</param>
+    void operator()(POINT pointA, POINT pointB, float arrowheadLength, FXMVECTOR color) const;
+
+    /// <summary>
+    /// 두 개의 POINT와 두 개의 RECT를 받아 충돌한 결과로 두 개의 POINT를 반환합니다.
+    /// </summary>
+    /// <param name="pointA">처리할 첫 번째 POINT입니다.</param>
+    /// <param name="pointB">처리할 두 번째 POINT입니다.</param>
+    /// <param name="rectA">첫 번째 POINT와 관련된 RECT입니다.</param>
+    /// <param name="rectB">두 번째 POINT와 관련된 RECT입니다.</param>
+    /// <returns>처리 결과로 반환되는 두 개의 POINT를 담은 std::pair입니다.</returns>
+    std::optional<std::pair<POINT, POINT>> operator()(POINT pointA, POINT pointB, RECT rectA, RECT rectB) const;
 };
 
 // TODO 지울지 고민

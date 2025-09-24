@@ -12,15 +12,34 @@ struct BoneMatrices
     Matrix matrix[MAX_BONE_MATRIX];
 };
 
-struct MaterialID
+struct InstanceData
 {
-    UINT ID[4];
+    UINT  MaterialID[4];
+    UINT  MatrixID;
+    UINT  CustomDepth;
+    FLOAT Alpha;
+};
+
+class DXRSkeletalMesh;
+class BaseMesh;
+struct MeshInfo
+{
+    InstanceData     InstanceData;
+    Material         Material;
+    BaseMesh*        Mesh;
+    DXRSkeletalMesh* SkinnedInstance;
+    Matrix*          TransposeWorldMatrix;
+    float            DepthKey;
 };
 
 struct UIMaterial
 {
-    UINT ID;
-    float Alpha;
+    UINT  ID;
+    FLOAT Alpha;
+    UINT  NumColmn;
+    UINT  NumRow;
+    UINT  ColumnIndex;
+    UINT  RowIndex;
 };
 
 struct CameraData
@@ -52,6 +71,7 @@ struct VolumetricFogData
     XMMATRIX InverseViewProjection;
     Vector4  CameraNearFar_PreviousFrameBlend; // x = near, y = far, z=prevBlend , w = padding
     Vector4  VolumeSize;                       // x = volX, y = volY, z = volZ
+    Vector4  FogColor;
     float    FogAnisotropy;
     float    LightShaftAnisotropy;
     float    Density;

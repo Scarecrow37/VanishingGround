@@ -240,7 +240,6 @@ static bool ImGuiHelper::DrawManipulate(
         }
     }
     */
-
     return manipulateResult;
 }
 

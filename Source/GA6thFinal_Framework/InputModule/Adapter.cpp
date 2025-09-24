@@ -52,7 +52,7 @@ namespace Input
             NormalizeStick(xState.Gamepad.sThumbRX, xState.Gamepad.sThumbRY, XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);
         state.LeftTrigger      = NormalizeTrigger(xState.Gamepad.bLeftTrigger, XINPUT_GAMEPAD_TRIGGER_THRESHOLD);
         state.RightTrigger     = NormalizeTrigger(xState.Gamepad.bRightTrigger, XINPUT_GAMEPAD_TRIGGER_THRESHOLD);
-        unsigned short buttons = xState.Gamepad.wButtons;
+        unsigned int buttons = xState.Gamepad.wButtons;
         if (state.LeftThumbStickAxis.Magnitude > 0)
             buttons |= ControllerTypes::LEFT_THUMB_STICK;
         if (state.RightThumbStickAxis.Magnitude > 0)
@@ -69,69 +69,161 @@ namespace Input
 
     namespace
     {
-        ControllerTypes::Button VirtualKeyToButton(const WORD virtualKey)
+        struct StrokeToButton
         {
-            switch (virtualKey)
+            using ButtonAndBias = std::pair<ControllerTypes::Button, ControllerTypes::StickBias>;
+            ButtonAndBias operator()(const WORD virtualKey) const
             {
-            case VK_PAD_A:
-                return ControllerTypes::A;
-            case VK_PAD_B:
-                return ControllerTypes::B;
-            case VK_PAD_X:
-                return ControllerTypes::X;
-            case VK_PAD_Y:
-                return ControllerTypes::Y;
-            case VK_PAD_LSHOULDER:
-                return ControllerTypes::LEFT_SHOULDER;
-            case VK_PAD_RSHOULDER:
-                return ControllerTypes::RIGHT_SHOULDER;
-            case VK_PAD_LTRIGGER:
-                return ControllerTypes::LEFT_TRIGGER;
-            case VK_PAD_RTRIGGER:
-                return ControllerTypes::RIGHT_TRIGGER;
-            case VK_PAD_DPAD_UP:
-                return ControllerTypes::DPAD_UP;
-            case VK_PAD_DPAD_DOWN:
-                return ControllerTypes::DPAD_DOWN;
-            case VK_PAD_DPAD_LEFT:
-                return ControllerTypes::DPAD_LEFT;
-            case VK_PAD_DPAD_RIGHT:
-                return ControllerTypes::DPAD_RIGHT;
-            case VK_PAD_START:
-                return ControllerTypes::START;
-            case VK_PAD_BACK:
-                return ControllerTypes::BACK;
-            case VK_PAD_LTHUMB_PRESS:
-                return ControllerTypes::LEFT_THUMB_BUTTON;
-            case VK_PAD_RTHUMB_PRESS:
-                return ControllerTypes::RIGHT_THUMB_BUTTON;
-            case VK_PAD_LTHUMB_UP:
-            case VK_PAD_LTHUMB_DOWN:
-            case VK_PAD_LTHUMB_RIGHT:
-            case VK_PAD_LTHUMB_LEFT:
-            case VK_PAD_LTHUMB_UPLEFT:
-            case VK_PAD_LTHUMB_UPRIGHT:
-            case VK_PAD_LTHUMB_DOWNRIGHT:
-            case VK_PAD_LTHUMB_DOWNLEFT:
-                return ControllerTypes::LEFT_THUMB_STICK;
-            case VK_PAD_RTHUMB_UP:
-            case VK_PAD_RTHUMB_DOWN:
-            case VK_PAD_RTHUMB_RIGHT:
-            case VK_PAD_RTHUMB_LEFT:
-            case VK_PAD_RTHUMB_UPLEFT:
-            case VK_PAD_RTHUMB_UPRIGHT:
-            case VK_PAD_RTHUMB_DOWNRIGHT:
-            case VK_PAD_RTHUMB_DOWNLEFT:
-                return ControllerTypes::RIGHT_THUMB_STICK;
-            default:
-                return static_cast<ControllerTypes::Button>(0);
+                ButtonAndBias result =
+                    std::make_pair(ControllerTypes::Button::UNDEFINED, ControllerTypes::StickBias::UNBIASED);
+                switch (virtualKey)
+                {
+                case VK_PAD_A:
+                    result.first = ControllerTypes::A;
+                    break;
+                case VK_PAD_B:
+                    result.first = ControllerTypes::B;
+                    break;
+                case VK_PAD_X:
+                    result.first = ControllerTypes::X;
+                    break;
+                case VK_PAD_Y:
+                    result.first = ControllerTypes::Y;
+                    break;
+                case VK_PAD_LSHOULDER:
+                    result.first = ControllerTypes::LEFT_SHOULDER;
+                    break;
+                case VK_PAD_RSHOULDER:
+                    result.first = ControllerTypes::RIGHT_SHOULDER;
+                    break;
+                case VK_PAD_LTRIGGER:
+                    result.first = ControllerTypes::LEFT_TRIGGER;
+                    break;
+                case VK_PAD_RTRIGGER:
+                    result.first = ControllerTypes::RIGHT_TRIGGER;
+                    break;
+                case VK_PAD_DPAD_UP:
+                    result.first = ControllerTypes::DPAD_UP;
+                    break;
+                case VK_PAD_DPAD_DOWN:
+                    result.first = ControllerTypes::DPAD_DOWN;
+                    break;
+                case VK_PAD_DPAD_LEFT:
+                    result.first = ControllerTypes::DPAD_LEFT;
+                    break;
+                case VK_PAD_DPAD_RIGHT:
+                    result.first = ControllerTypes::DPAD_RIGHT;
+                    break;
+                case VK_PAD_START:
+                    result.first = ControllerTypes::START;
+                    break;
+                case VK_PAD_BACK:
+                    result.first = ControllerTypes::BACK;
+                    break;
+                case VK_PAD_LTHUMB_PRESS:
+                    result.first = ControllerTypes::LEFT_THUMB_BUTTON;
+                    break;
+                case VK_PAD_RTHUMB_PRESS:
+                    result.first = ControllerTypes::RIGHT_THUMB_BUTTON;
+                    break;
+                case VK_PAD_LTHUMB_UP:
+                    result.first  = ControllerTypes::LEFT_THUMB_STICK;
+                    result.second = ControllerTypes::StickBias::BIAS_UP;
+                    break;
+                case VK_PAD_LTHUMB_DOWN:
+                    result.first  = ControllerTypes::LEFT_THUMB_STICK;
+                    result.second = ControllerTypes::StickBias::BIAS_DOWN;
+                    break;
+                case VK_PAD_LTHUMB_RIGHT:
+                    result.first  = ControllerTypes::LEFT_THUMB_STICK;
+                    result.second = ControllerTypes::StickBias::BIAS_RIGHT;
+                    break;
+                case VK_PAD_LTHUMB_LEFT:
+                    result.first  = ControllerTypes::LEFT_THUMB_STICK;
+                    result.second = ControllerTypes::StickBias::BIAS_LEFT;
+                    break;
+                case VK_PAD_LTHUMB_UPLEFT:
+                    result.first  = ControllerTypes::LEFT_THUMB_STICK;
+                    result.second = ControllerTypes::StickBias::BIAS_UP_LEFT;
+                    break;
+                case VK_PAD_LTHUMB_UPRIGHT:
+                    result.first  = ControllerTypes::LEFT_THUMB_STICK;
+                    result.second = ControllerTypes::StickBias::BIAS_UP_RIGHT;
+                    break;
+                case VK_PAD_LTHUMB_DOWNRIGHT:
+                    result.first  = ControllerTypes::LEFT_THUMB_STICK;
+                    result.second = ControllerTypes::StickBias::BIAS_DOWN_RIGHT;
+                    break;
+                case VK_PAD_LTHUMB_DOWNLEFT:
+                    result.first  = ControllerTypes::LEFT_THUMB_STICK;
+                    result.second = ControllerTypes::StickBias::BIAS_DOWN_LEFT;
+                    break;
+                case VK_PAD_RTHUMB_UP:
+                    result.first  = ControllerTypes::RIGHT_THUMB_STICK;
+                    result.second = ControllerTypes::StickBias::BIAS_UP;
+                    break;
+                case VK_PAD_RTHUMB_DOWN:
+                    result.first  = ControllerTypes::RIGHT_THUMB_STICK;
+                    result.second = ControllerTypes::StickBias::BIAS_DOWN;
+                    break;
+                case VK_PAD_RTHUMB_RIGHT:
+                    result.first  = ControllerTypes::RIGHT_THUMB_STICK;
+                    result.second = ControllerTypes::StickBias::BIAS_RIGHT;
+                    break;
+                case VK_PAD_RTHUMB_LEFT:
+                    result.first  = ControllerTypes::RIGHT_THUMB_STICK;
+                    result.second = ControllerTypes::StickBias::BIAS_LEFT;
+                    break;
+                case VK_PAD_RTHUMB_UPLEFT:
+                    result.first  = ControllerTypes::RIGHT_THUMB_STICK;
+                    result.second = ControllerTypes::StickBias::BIAS_UP_LEFT;
+                    break;
+                case VK_PAD_RTHUMB_UPRIGHT:
+                    result.first  = ControllerTypes::RIGHT_THUMB_STICK;
+                    result.second = ControllerTypes::StickBias::BIAS_UP_RIGHT;
+                    break;
+                case VK_PAD_RTHUMB_DOWNRIGHT:
+                    result.first  = ControllerTypes::RIGHT_THUMB_STICK;
+                    result.second = ControllerTypes::StickBias::BIAS_DOWN_RIGHT;
+                    break;
+                case VK_PAD_RTHUMB_DOWNLEFT:
+                    result.first  = ControllerTypes::RIGHT_THUMB_STICK;
+                    result.second = ControllerTypes::StickBias::BIAS_DOWN_LEFT;
+                    break;
+                default:
+                    break;
+                }
+                return result;
             }
-        }
+        };
+        struct FlagToStateFlag
+        {
+            ControllerTypes::StateFlag operator()(const WORD flag) const
+            {
+                ControllerTypes::StateFlag result = ControllerTypes::STATE_UNCHANGED;
+                switch (flag)
+                {
+                case XINPUT_KEYSTROKE_KEYDOWN:
+                    result = ControllerTypes::STATE_DOWN;
+                    break;
+                case XINPUT_KEYSTROKE_KEYUP:
+                    result = ControllerTypes::STATE_UP;
+                    break;
+                case XINPUT_KEYSTROKE_REPEAT:
+                    result = ControllerTypes::STATE_REPEAT;
+                    break;
+                default:
+                    result = ControllerTypes::STATE_UNCHANGED;
+                    break;
+                }
+                return result;
+            }
+        };
     } // namespace
 
-    std::vector<ControllerTypes::Button> Adapter::ReceiveQueue(const ControllerTypes::ID id) const
+    ControllerTypes::ButtonQueue Adapter::ReceiveQueue(const ControllerTypes::ID id) const
     {
-        std::vector<ControllerTypes::Button> queue;
+        ControllerTypes::ButtonQueue queue;
 
         DWORD result = ERROR_SUCCESS;
 
@@ -142,8 +234,12 @@ namespace Input
 
             if (result == ERROR_SUCCESS)
             {
-                if (xKeystroke.Flags & XINPUT_KEYSTROKE_KEYDOWN || xKeystroke.Flags & XINPUT_KEYSTROKE_KEYUP)
-                    queue.push_back(VirtualKeyToButton(xKeystroke.VirtualKey));
+                ControllerTypes::ButtonState state = {};
+                auto [button, bias]                = StrokeToButton()(xKeystroke.VirtualKey);
+                state.Button                       = button;
+                state.Bias                         = bias;
+                state.Flag                         = FlagToStateFlag()(xKeystroke.Flags);
+                queue.push_back(state);
             }
             else if (result == ERROR_DEVICE_NOT_CONNECTED)
             {

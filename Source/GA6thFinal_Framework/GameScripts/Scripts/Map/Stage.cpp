@@ -1,6 +1,11 @@
 ﻿#include "pchScripts.h"
 #include "Stage.h"
 #include "ViewModels/Map/StageViewModel.h"
+#include "MapManager.h"
+#include "ItemDropSystem/ItemDropSystem.h"
+#include "SceneTransition/SceneTransitionComponent.h"
+
+UMREAL_COMPONENT(Stage)
 
 Stage::Stage()
 {
@@ -28,11 +33,6 @@ Stage::~Stage()
     UmWatcher.Unregister<StageViewModel>(_key);
 }
 
-void Stage::DeserializedReflectEvent()
-{
-    _stageEnable.Set(ReflectFields->Enable);
-}
-
 void Stage::RegisterStage(const std::string& key, const File::Guid& enableImage, const File::Guid& disableImage)
 {
     UmWatcher.Register<StageViewModel>(key, _stageEnable, enableImage, disableImage);
@@ -43,24 +43,46 @@ void Stage::UpdateData(const std::string& key, const File::Guid& enableImage, co
     UmWatcher.Unregister<StageViewModel>(key);
     UmWatcher.Register<StageViewModel>(key, _stageEnable, enableImage, disableImage);
     _key = key;
-    SetupStage();
 }
 
-void Stage::ImGuiDrawPropertysEvent()
+void Stage::FocusIn()
 {
-    if (ImGui::Checkbox("EnableStage", &ReflectFields->Enable))
+    UINavigationComponent::FocusIn();
+
+    if (auto manager = GameObject::Find("MapManager").lock(); manager)
     {
-        _stageEnable = ReflectFields->Enable;
+        manager->GetComponent<MapManager>()->SetFocusStage(this);
     }
 }
 
-void Stage::SetupStage()
+void Stage::Submit()
 {
-    static const std::regex rx(R"(^\d+-\d+$)");
-    if (std::regex_match(ReflectFields->Stage, rx))
+    if (!_stageEnable)
     {
-        int consumed = 0;
-        std::sscanf(ReflectFields->Stage.c_str(), "%d-%d%n", &_first, &_second, &consumed) == 2 &&
-            consumed == static_cast<int>(ReflectFields->Stage.size());
+        return;
+    }
+
+    std::string stagePath = UmFileSystem.GetPathFromGuid(ReflectFields->StagePath).string();
+    if (stagePath.empty())
+    {
+        return;
+    }
+    auto* sceneTrans = GetComponent<SceneTransitionComponent>();
+    sceneTrans->Fade("in", [this, stagePath]() {
+        UmSceneManager.LoadScene(stagePath);
+    });
+    _stageEnable = false;
+}
+
+void Stage::Start()
+{
+    if (auto instance = SingletonComponent<ItemDropSystem>::GetInstance(); instance)
+    {
+        _dropItemInfos = instance->RollArtifacts();
+
+        for (int i = 0; i < ARTIFACT_DROP_COUNT; i++)
+        {
+            _dropItemAssetIDs[i] = DropItemInfo::GetArtifactCategoryAssetID(_dropItemInfos[i].Category);
+        }
     }
 }

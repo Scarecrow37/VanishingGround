@@ -12,6 +12,10 @@ namespace Timeline
     {
         ReflectFields->Time = time;
     }
+    void EventContext::SetLabel(std::string_view label) 
+    {
+        ReflectFields->Label = label;
+    }
     bool EventContext::IsValidID() const
     {
         return ReflectFields->ContextID != UINT_MAX;

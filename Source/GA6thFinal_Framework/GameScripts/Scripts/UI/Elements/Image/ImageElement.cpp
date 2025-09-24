@@ -1,6 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "ImageElement.h"
 
+UMREAL_COMPONENT(ImageElement)
+
 ImageElement::ImageElement()
 {
     FilePath.SetInputAutoEvent([this]() {
@@ -25,7 +27,10 @@ ImageElement::ImageElement()
 ImageElement::~ImageElement()
 {
     if (_renderer)
+    {
         _renderer->SetDestroy();
+        _renderer = nullptr;
+    }
 }
 
 void ImageElement::SetImage(const File::GuidRef& guidRef)
@@ -115,8 +120,6 @@ SIZE ImageElement::MeasureOverride(const SIZE availableSize)
 
 SIZE ImageElement::ArrangeOverride(const SIZE finalSize)
 {
-    DrawUIComponent::ArrangeOverride(finalSize);
-
     const SIZE desiredSize = DesiredSize;
     const SIZE actualSize  = MinSize()(finalSize, desiredSize);
 
@@ -164,6 +167,14 @@ void ImageElement::UpdateRendererSize(const SIZE size) const
     }
 }
 
+void ImageElement::UpdateRendererAlpha(const float alpha) const
+{
+    if (nullptr != _renderer)
+    {
+        _renderer->SetAlpha(alpha);
+    }
+}
+
 void ImageElement::RequestResource() 
 {
     if (false == _guidRef.IsNull())
@@ -173,9 +184,14 @@ void ImageElement::RequestResource()
             LoadTexture(requestedGuid);
             UpdateWorldMatrix();
             _spriteOriginSize = _renderer->GetSize();
+
             const SIZE size = Size;
             UpdateRendererSize(size);
-            ResetToSpriteSize();
+
+            const float alpha = Alpha;
+            UpdateRendererAlpha(alpha);
+
+            //ResetToSpriteSize();
         });
     }
 }

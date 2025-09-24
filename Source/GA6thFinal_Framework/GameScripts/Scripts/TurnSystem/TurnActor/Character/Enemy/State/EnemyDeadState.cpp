@@ -5,7 +5,6 @@
 
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 #include <Animation/AnimationComponent.h>
-#include <Audio/Table/AudioTableComponent.h>
 
 REGISTER_CLASS(FSMStateFactory, EnemyDeadState)
 
@@ -31,7 +30,7 @@ void EnemyDeadState::OnEnter()
         animator->EndBuildOverrideAnimation();
         if (audioTable)
         {
-            audioTable->Play("Dead0");
+            UmAudio.Play("Dead0");
         }
     }
 }
@@ -44,16 +43,16 @@ void EnemyDeadState::OnExit()
 void EnemyDeadState::OnUpdate() 
 {
     const Enemy& enemy = GetEnemy();
-    const AnimationComponent* animator = enemy.GetAnimationComponent();
-    const MonsterHpView*      view     = enemy.GetMonsterHpView();
+    const AnimationComponent* animator  = enemy.GetAnimationComponent();
     if (animator)
     {
         if (animator->GetMainAnimationData().IsEnd())
         {
             enemy.gameObject->SetActive(false);
 
-            if (nullptr != view)
-                view->Disable();
+            GameObject* monsterHUD = enemy.GetMonsterHUD();
+            if (nullptr != monsterHUD)
+                monsterHUD->ActiveSelf = false;
         }
     }
 }

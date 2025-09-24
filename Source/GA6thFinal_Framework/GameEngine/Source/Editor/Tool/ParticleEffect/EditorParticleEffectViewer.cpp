@@ -21,7 +21,8 @@ void EditorParticleEffectViewer::OnStartGui()
     std::shared_ptr<Camera> camera = UmGraphics.GetCamera("ParticleEditor");
     assert(nullptr != camera && L"Camera is nullptr");
     _camera->SetTarget(camera);
-    _camera->SetPosition(Vector3(0.f, 0.f, -30.f));
+    _camera->SetPosition(Vector3(0.f, 0.f, -10.f));
+    _camera->SetMoveSpeed(1.f);
     SIZE size = UmCore->App.GetClientSize();
     camera->SetupPerspective(45.f, (float)size.cx / (float)size.cy, 0.1f, 1000.f);
 
@@ -98,6 +99,12 @@ void EditorParticleEffectViewer::OnFrameRender()
     }
     ImGui::PopStyleColor();
     ImGui::PopStyleVar();
+    float camSpeed = _camera->GetMoveSpeed();
+    if (ImGui::IsKeyPressed(ImGuiKey_C))
+        camSpeed += 0.1f;
+    if (ImGui::IsKeyPressed(ImGuiKey_V))
+        camSpeed -= 0.1f;
+    _camera->SetMoveSpeed(camSpeed);
     _camera->Update();
 }
 

@@ -382,6 +382,20 @@ public:
         return _worldPosition;
     }
 
+    /// <summary>
+    /// 자식을 DFS로 순회하면서 해당 테그가 존재하는 오브젝트들을 반환합니다.
+    /// </summary>
+    /// <param name="tag :">찾을 태그</param>
+    /// <returns>찾은 자식들</returns>
+    std::vector<GameObject*> FindDFSwithTag(const std::string& tag);
+
+    /// <summary>
+    /// 자식을 BFS로 순회하면서 해당 테그가 존재하는 오브젝트들을 반환합니다.
+    /// </summary>
+    /// <param name="tag :">찾을 태그</param>
+    /// <returns>찾은 자식들</returns>
+    std::vector<GameObject*> FindBFSwithTag(const std::string& tag);
+
 private:
     GameObject& _gameObject;
 
@@ -405,9 +419,16 @@ private:
     /// <summary>
     /// 모든 부모를 확인하면서 전달받은 Transform이 존재하는지 확인합니다.
     /// </summary>
-    /// <param name="potentialAncestor :">부모로 설정할 대상</param>
+    /// <param name="potentialAncestor :">확인할 대상</param>
     /// <returns>존재 여부</returns>
     bool IsDescendantOf(Transform* potentialAncestor) const;
+
+    /// <summary>
+    /// 모든 부모를 확인하면서 전달받은 Prefab Guid가 존재하는지 확인합니다.
+    /// </summary>
+    /// <param name="potentialAncestor">확인할 대상</param>
+    /// <returns></returns>
+    bool IsPrefabDescendantOf(Transform* target) const;
 
 protected:
     /*직렬화 전 호출되는 함수*/

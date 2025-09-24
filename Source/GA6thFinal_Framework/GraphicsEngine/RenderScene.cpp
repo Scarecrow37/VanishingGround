@@ -28,11 +28,6 @@ D3D12_GPU_DESCRIPTOR_HANDLE RenderScene::GetFinalImage()
     return finalTarget->GetSRVHandle();
 }
 
-const std::any& RenderScene::GetRenderPassProperty(std::string_view passName) const
-{
-    return Global::renderPassDatas->GetRenderPassProperty(_name, passName);
-}
-
 SharedResource<RenderTarget> RenderScene::GetSharedRenderTarget() const
 {
     return _sharedRenderTarget[_currentFrameIndex];
@@ -69,7 +64,7 @@ void RenderScene::InitializeRenderScene()
     _accumulationBuffer = MakeSharedResource<UnorderedAccessView>();
 
     auto desc = CD3DX12_RESOURCE_DESC::Tex2D(mode.Format, mode.Width, mode.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-    _accumulationBuffer->Initialize(desc);
+    _accumulationBuffer->InitializeAsTexture(desc, UnorderedAccessView::UAVSliceType::PER_MIP, true);
     _accumulationBuffer->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
     Global::dxResourceManager->AddResource(_accumulationBuffer);
@@ -158,9 +153,9 @@ void RenderScene::UpdateRenderScene(const float deltaTime)
     {
         _accelerationStructureManager->RemoveUnUsedStaticMeshes(_activeMeshes[STATIC_MESH], _activeMeshes[SKELETAL_MESH]);
     }
+
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::TRANSFORM, _matrices.data(), (UINT)_matrices.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::BONE_MATRICES, _boneMatrices.data(), (UINT)_boneMatrices.size());
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::MATERIAL, _materialIDs.data(), (UINT)_materialIDs.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::UI_TRANSFORM, _uiMatrices.data(), (UINT)_uiMatrices.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::UI_MATERIAL, _uiMaterials.data(), (UINT)_uiMaterials.size());
     
@@ -176,13 +171,13 @@ void RenderScene::Execute()
     _commandSet->SetDescriptorHeaps(1, &descriptorHeap);
 
     _accumulationBuffer->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-    _accumulationBuffer->ClearUnorderedAccessView(_commandSet);
+    _accumulationBuffer->ClearUnorderedAccessView(_commandSet, Vector4(0.f, 0.f, 0.f, 1.f));
 
     auto meshRenderTarget = Global::multiRenderTargetManager->GetRenderTarget(_meshRenderTargetName);
     meshRenderTarget->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_RENDER_TARGET);
     meshRenderTarget->ClearRenderTarget(_commandSet);
 
-    const auto& gBuffers = Global::multiRenderTargetManager->GetRenderTargetGroup("GBuffer");
+    const auto& gBuffers = Global::multiRenderTargetManager->GetRenderTargetGroup("G-Buffer");
     for (auto& buffer : gBuffers)
     {
         buffer->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_RENDER_TARGET);
@@ -269,21 +264,7 @@ void RenderScene::UpdateObject()
 {
     auto first = std::remove_if(_meshRenderQueue.begin(), _meshRenderQueue.end(), [](const auto& pair) { return *pair.first; });
     _meshRenderQueue.erase(first, _meshRenderQueue.end());
-
-    size_t currentSize = _meshRenderQueue.size();
-    if (_prevSize != currentSize)
-        _isDirtyFlag = true;
-
-    _prevSize = currentSize;
-
-    _activeMeshes[STATIC_MESH].clear();
-    _activeMeshes[SKELETAL_MESH].clear();
-    _matrices.clear();
-    _boneMatrices.clear();
-    _materialIDs.clear();
-    _staticMeshInstanceIDs.clear();
-    _skeletalMeshInstanceIDs.clear();
-
+    
     int   mainLight    = 0;
     float maxIntensity = 0.0f;
 
@@ -297,9 +278,16 @@ void RenderScene::UpdateObject()
     }
 
     Vector3 lightDirection = (_lightDatas[mainLight].float3_1);
-    lightDirection.Normalize();
+    lightDirection.Normalize();   
 
-    UINT instanceID = 0;
+    _activeMeshes[STATIC_MESH].clear();
+    _activeMeshes[SKELETAL_MESH].clear();
+    _matrices.clear();
+    _boneMatrices.clear();
+    _staticMeshInstanceIDs.clear();
+    _skeletalMeshInstanceIDs.clear();
+
+    UINT index = 0;
     for (auto& [isDestroy, component] : _meshRenderQueue)
     {
         if (!component->IsActive())
@@ -312,16 +300,6 @@ void RenderScene::UpdateObject()
         if (nullptr == model)
         {
             continue;
-        }
-
-        if (!_isDirtyFlag)
-        {
-            _isDirtyFlag = model->IsDirtyFlag() || component->IsDirtyFlag();
-
-            if (_isDirtyFlag)
-            {
-                model->SetDirtyFlag(false);
-            }
         }
 
         const auto  type         = component->GetType();
@@ -341,12 +319,15 @@ void RenderScene::UpdateObject()
             if (animator) memcpy(&boneMatrices, animator->GetAnimationTransform(), sizeof(BoneMatrices));
         }
 
+        _matrices.push_back(matrixData);
+        _boneMatrices.push_back(boneMatrices);
+
         auto& skinnedBuffers = component->GetDXRSkeletalMeshes();
         UINT size = (UINT)meshes.size();
+                
         for (UINT i = 0; i < size; i++)
         {
-            _matrices.push_back(matrixData);
-            _boneMatrices.push_back(boneMatrices);
+            InstanceData instanceData{};
 
             if (materials[i].IsTwoSided)
             {
@@ -357,24 +338,37 @@ void RenderScene::UpdateObject()
                 materials[i].CullMode = determinant < 0.f ? Material::CullModeType::CULL_FRONT : Material::CullModeType::CULL_BACK;
             }
 
-            MaterialID materialID{};
             for (UINT j = 0; j < 4; j++)
             {
-                materialID.ID[j] = textures[i][j]->GetID();
+                instanceData.MaterialID[j] = textures[i][j]->GetID();
             }
 
-            _materialIDs.push_back(materialID);
-            if (STATIC_MESH == type)
-            {
-                _staticMeshInstanceIDs.push_back(instanceID);
-                _activeMeshes[type].emplace_back(materials[i], meshes[i].get(), customDepths[i], instanceID++, &_matrices[instanceID].World, nullptr);
-            }
-            else if (SKELETAL_MESH == type)
-            {
-                _skeletalMeshInstanceIDs.push_back(instanceID);
-                _activeMeshes[type].emplace_back(materials[i], meshes[i].get(), customDepths[i], instanceID++, &_matrices[instanceID].World, Global::isRayTracing ? skinnedBuffers[i].get() : nullptr);
-            }
+            instanceData.CustomDepth = customDepths[i];
+            instanceData.MatrixID    = index;
+            instanceData.Alpha       = materials[i].Alpha;
+
+            _activeMeshes[type].emplace_back(instanceData, 
+                                             materials[i], 
+                                             meshes[i].get(),
+                                             Global::isRayTracing ? skinnedBuffers[i].get() : nullptr,
+                                             &_matrices[index].World, 0.f);
         }
+
+        if (SKELETAL_MESH == type)
+        {
+            _skeletalMeshInstanceIDs.push_back(index);
+        }
+        else if (STATIC_MESH == type)
+        {
+            _staticMeshInstanceIDs.push_back(index);
+        }
+        index++;
+    }
+
+    for (auto& activeMesh : _activeMeshes)
+    {
+        std::stable_sort(activeMesh.begin(), activeMesh.end(),
+                         [](const auto& a, const auto& b) { return a.Mesh > b.Mesh; });
     }
 }
 
@@ -386,10 +380,6 @@ void RenderScene::UpdateUI()
     _uiMatrices.clear();
     _uiMaterials.clear();
 
-    std::sort(_uiRenderQueue.begin(), _uiRenderQueue.end(), [](const auto& a, const auto& b) {
-        return a.second->GetWorldMatrix()._43 > b.second->GetWorldMatrix()._43;
-    });
-
     for (auto& [isDestroy, component] : _uiRenderQueue)
     {
         if (!component->IsActive())
@@ -399,39 +389,44 @@ void RenderScene::UpdateUI()
         if (nullptr == texture)
             continue;
 
-        auto     size = component->GetSize();
-        XMMATRIX world = component->GetWorldMatrix();
-        XMMATRIX scale = XMMatrixIdentity();
+        auto     size        = component->GetSize();
+        XMMATRIX world       = component->GetWorldMatrix();
+        XMMATRIX scale       = XMMatrixIdentity();
         XMMATRIX translation = XMMatrixIdentity();
 
         switch (component->GetType())
         {
-        case SpriteType::MODE_2D:
-            scale = XMMatrixScaling((float)size.cx, (float)-size.cy, 1.f);
-            translation = XMMatrixTranslation(size.cx * 0.5f, size.cy * 0.5f, 0.f);
-            break;
-        case SpriteType::MODE_3D:
-        {
-            XMVECTOR s, r, t;
-            XMMatrixDecompose(&s, &r, &t, world);
+            case SpriteType::MODE_2D:
+                scale = XMMatrixScaling((float)size.cx, (float)-size.cy, 1.f);
+                translation = XMMatrixTranslation(size.cx * 0.5f, size.cy * 0.5f, 0.f);
+                break;
+            case SpriteType::MODE_3D:
+            {
+                XMVECTOR s, r, t;
+                XMMatrixDecompose(&s, &r, &t, world);
 
-            XMVECTOR combine = XMQuaternionMultiply(r, _camera->GetRotation());
-            world = XMMatrixScalingFromVector(s) * XMMatrixRotationQuaternion(combine) * XMMatrixTranslationFromVector(t);
-            [[fallthrough]];
-        }
-        case SpriteType::MODE_25D:
-        {
-            float ratio = (float)size.cx / (float)size.cy;
-            scale       = XMMatrixScaling(ratio, 1.f, 1.f);
-            break;
-        }
+                XMVECTOR combine = XMQuaternionMultiply(r, _camera->GetRotation());
+                world = XMMatrixScalingFromVector(s) * XMMatrixRotationQuaternion(combine) * XMMatrixTranslationFromVector(t);
+                [[fallthrough]];
+            }
+            case SpriteType::MODE_25D:
+            {
+                float ratio = (float)size.cx / (float)size.cy;
+                scale       = XMMatrixScaling(ratio, 1.f, 1.f);
+                break;
+            }
         }
         
         world = XMMatrixTranspose(scale * world * translation);
         _uiMatrices.push_back(world);
 
-        UIMaterial material{.ID = texture->GetID(), .Alpha = 1.f};
-        _uiMaterials.push_back(material);
+        UIMaterial uiMaterial{.ID          = texture->GetID(),
+                              .Alpha       = component->GetAlpha(),
+                              .NumColmn    = component->GetNumColumn(),
+                              .NumRow      = component->GetNumRow(),
+                              .ColumnIndex = component->GetColumnIndex(),
+                              .RowIndex    = component->GetRowIndex()};
+        _uiMaterials.push_back(uiMaterial);
     }
 }
 
@@ -440,9 +435,8 @@ void RenderScene::UpdateFont()
     auto first = std::remove_if(_fontRenderQueue.begin(), _fontRenderQueue.end(), [](const auto& pair) { return *pair.first; });
     _fontRenderQueue.erase(first, _fontRenderQueue.end());
 
-    std::sort(_fontRenderQueue.begin(), _fontRenderQueue.end(), [](const auto& a, const auto& b) {
-        return a.second->GetPosition().z > b.second->GetPosition().z;
-    });
+    std::sort(_fontRenderQueue.begin(), _fontRenderQueue.end(),
+              [](const auto& a, const auto& b) { return a.second->GetPosition().z > b.second->GetPosition().z; });
 }
 
 void RenderScene::CreateRenderTarget()
@@ -489,8 +483,7 @@ void RenderScene::CreateDepthStencil()
 void RenderScene::CreateFrameResource()
 {
     _frameResources.resize(SWAPCHAIN_BUFFER_COUNT);
-
-    constexpr UINT MAX_OBJECTS = 1000;
+    
     for (UINT i = 0; i < SWAPCHAIN_BUFFER_COUNT; ++i)
     {
         _frameResources[i] = std::make_unique<FrameResource>();
@@ -499,16 +492,13 @@ void RenderScene::CreateFrameResource()
         _frameResources[i]->AddFrameResource(sizeof(MatrixData), MAX_OBJECTS);
 
         // Object BoneTransform
-        _frameResources[i]->AddFrameResource(sizeof(XMMATRIX) * MAX_BONE_MATRIX, MAX_OBJECTS);
-
-        // Material
-        _frameResources[i]->AddFrameResource(sizeof(MaterialID), MAX_OBJECTS);
+        _frameResources[i]->AddFrameResource(sizeof(BoneMatrices), MAX_OBJECTS);
 
         // UI Transform
         _frameResources[i]->AddFrameResource(sizeof(XMMATRIX), MAX_OBJECTS);
 
         // UI Material
-        _frameResources[i]->AddFrameResource(sizeof(XMMATRIX), MAX_OBJECTS);
+        _frameResources[i]->AddFrameResource(sizeof(UIMaterial), MAX_OBJECTS);
 
         // Vertex Buffer ID
         _frameResources[i]->AddFrameResource(sizeof(VertexBufferID), MAX_OBJECTS);

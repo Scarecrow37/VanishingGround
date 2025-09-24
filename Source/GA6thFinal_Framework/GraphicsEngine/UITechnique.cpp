@@ -31,7 +31,7 @@ void UITechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 
     pass = std::make_unique<UI3DPass>(_renderDatas[MODE_3D]);
     pass->Initialize(_ownerScene, this, commandList);
-    AddRenderPass(std::move(pass));
+    AddRenderPass(std::move(pass));    
 
     pass = std::make_unique<TextDrawPass>();
     pass->Initialize(_ownerScene, this, commandList);
