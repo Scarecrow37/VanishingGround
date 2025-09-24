@@ -28,7 +28,7 @@ void ReturnToMapNavi::Submit()
 {
     const File::Path path = _guidRef.ToPath();
     auto*            sceneTrans = GetComponent<SceneTransitionComponent>();
-    sceneTrans->Fade("in", [&]() { UmSceneManager.LoadScene(path.string()); });
+    sceneTrans->Fade("in", [this, path]() { UmSceneManager.LoadScene(path.string()); });
 }
 
 void ReturnToMapNavi::DeserializedReflectEvent()
