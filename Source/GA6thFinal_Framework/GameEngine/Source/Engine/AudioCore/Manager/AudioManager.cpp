@@ -8,6 +8,11 @@ void Audio::Manager::Initialize()
     {
         _system.TurnOnDebugMode();
     }
+
+    for (unsigned char group = 0; group < GROUP_MAX; ++group)
+    {
+        _groups.emplace(static_cast<Group>(group), _system.CreateGroup());
+    }
 }
 
 void Audio::Manager::Finalize()
@@ -38,14 +43,16 @@ void Audio::Manager::LoadSound(const std::string& key, const File::GuidRef& guid
     }
 }
 
-Audio::AudioHandle Audio::Manager::Play(const std::string& key, const bool isLoop)
+Audio::AudioHandle Audio::Manager::Play(const std::string& key, const Group group, const bool isLoop)
 {
     if (!key.empty())
     {
         try
         {
-            const auto& sound = _sources.at(key);
-            return _system.Play(sound, isLoop);
+            const auto& sound       = _sources.at(key);
+            auto& groupHandle = _groups.at(group);
+
+            return _system.Play(sound, std::span(&groupHandle, 1), isLoop);
         }
         catch (const std::out_of_range& exception)
         {
