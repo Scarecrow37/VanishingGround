@@ -3,6 +3,7 @@
 #include <Animation/AnimationComponent.h>
 #include <Particle/ParticleComponent.h>
 #include <GameCore/FSM/FiniteStateMachine.h>
+#include <Camera/UmCineMotion.h>
 
 #include <QTE/System/QTESystem.h>
 #include <QTE/UI/QTEUIManager.h>
@@ -369,6 +370,11 @@ void PlayerPlayTurnState::SetAttackEnd()
     else
     {
         player.EndTurn();
+    }
+    auto camera = dynamic_cast<UmCineMotion*>(CameraComponent::MainCamera());
+    if (camera)
+    {
+        camera->StartRail(true);
     }
 }
 

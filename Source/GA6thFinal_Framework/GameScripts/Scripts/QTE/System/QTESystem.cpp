@@ -7,6 +7,7 @@
 #include <WeaponSystem/WeaponSystem.h>
 #include <TurnSystem/TurnActor/Character/CharacterBase.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
+#include "Camera/UmCineMotion.h"
 
 UMREAL_COMPONENT(QTESystem)
 
@@ -31,6 +32,7 @@ void QTESystem::Awake()
         BindInputAction(ControllerButton::X, Action::PRESSED, this, this, &QTESystem::PressedButtonX);
         BindInputAction(ControllerButton::Y, Action::PRESSED, this, this, &QTESystem::PressedButtonY);
         BindInputAction(ControllerButton::B, Action::PRESSED, this, this, &QTESystem::PressedButtonB);
+
     }
     else
     {
@@ -43,10 +45,12 @@ void QTESystem::Awake()
         uiManager->SetUIAlpha(0.0f);
         uiManager->SetBackgroundUIAlpha(0.0f);
     }
+
 }
 
 void QTESystem::Start() 
 {
+
 }
 
 void QTESystem::Update()
@@ -492,6 +496,11 @@ void QTESystem::ProcessQTEFadeOutEndEvent()
     {
         _onQTEFinishCallback(_noteResultQueue);
         _onQTEFinishCallback = nullptr;
+    }
+    auto camera = dynamic_cast<UmCineMotion*>(CameraComponent::MainCamera());
+    if (camera)
+    {
+        camera->StartRail(false);
     }
 }
 
