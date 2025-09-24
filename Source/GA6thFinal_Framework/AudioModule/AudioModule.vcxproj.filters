@@ -34,6 +34,9 @@
     <Filter Include="Handle\AudioHadle">
       <UniqueIdentifier>{88eebea4-703a-475d-82b7-b38878b3a62b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Handle\GroupHandle">
+      <UniqueIdentifier>{a114e4bd-a211-492c-bf07-f08ff217f821}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -66,6 +69,9 @@
     <ClInclude Include="Handle.h">
       <Filter>Handle</Filter>
     </ClInclude>
+    <ClInclude Include="GroupHandle.h">
+      <Filter>Handle\GroupHandle</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -91,6 +97,9 @@
     </ClCompile>
     <ClCompile Include="Handle.cpp">
       <Filter>Handle</Filter>
+    </ClCompile>
+    <ClCompile Include="GroupHandle.cpp">
+      <Filter>Handle\GroupHandle</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
