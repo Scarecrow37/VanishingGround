@@ -12,13 +12,6 @@ class GBufferPass : public RenderPass
         END
     };
 
-    struct RenderData
-    {
-        BaseMesh* mesh;
-        UINT      instanceID;
-        UINT      customDepth;
-    };
-
 public:
     GBufferPass() = default;
     virtual ~GBufferPass();
@@ -26,27 +19,26 @@ public:
 public:
     void Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList) override;
     void AddRenderPassDatas(std::string_view sceneName) override;
-    void Update(ID3D12GraphicsCommandList* commadList, const float deltaTime) override;
+    void Update(ID3D12GraphicsCommandList* commandList, const float deltaTime) override;
     void Begin(ID3D12GraphicsCommandList* commandList) override;
     void Draw(ID3D12GraphicsCommandList* commandList) override;
     void End(ID3D12GraphicsCommandList* commandList) override;
 
-public:
-    void SetMipBias(float level) { _mipBias = level; }
-
 private:
     void InitShaderAndPSO();
-    void DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType meshType, Material::BlendModeType blendModeType, CullMode cullMode);
+    void DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType meshType, Material::BlendModeType blendModeType, CullMode cullMode, UINT offset);
 
 private:
-    ComPtr<ID3D12PipelineState> _psos[MeshType::MESH_TYPE_END][Material::BlendModeType::BMT_END - 1][CullMode::END];
+    std::vector<MeshInfo*> _mesheInfos[MeshType::MESH_TYPE_END][Material::BlendModeType::BMT_END - 1][CullMode::END];
     std::array<D3D12_CPU_DESCRIPTOR_HANDLE, GBuffer::GBUFFER_END> _gBufferHandles;
-    std::vector<RenderData> _renderDatas[MeshType::MESH_TYPE_END][Material::BlendModeType::BMT_END - 1][CullMode::END];
+    ComPtr<ID3D12PipelineState> _psos[MeshType::MESH_TYPE_END][Material::BlendModeType::BMT_END - 1][CullMode::END];
+    
+    std::vector<InstanceData>         _instanceDatas;
+    std::unique_ptr<StructuredBuffer> _instanceDatasBuffer;
 
+    FX<GE::VS::STATIC_FR, GE::PS::GBUFFER>   _fxStaticMesh;
+    FX<GE::VS::SKELETAL_FR, GE::PS::GBUFFER> _fxSkeletalMesh;
+
+    // Debug
     SharedResource<RenderTarget> _gBufferRenderTargets[4];
-
-    FX<GE::VS::STATIC_FR, GE::PS::GBUFFER>                        _fxStaticMesh;
-    FX<GE::VS::SKELETAL_FR, GE::PS::GBUFFER>                      _fxSkeletalMesh;
-
-    float _mipBias = 0.f;
 };

@@ -9,6 +9,7 @@ constexpr UINT MAX_LIGHT              = MAX_DIRECTIONAL_LIGHT + MAX_POINT_LIGHT 
 constexpr UINT MAX_MIPMAP_LEVEL       = 5;
 constexpr UINT MAX_CASCADES           = 3;
 constexpr UINT MAX_UI_MATERIAL_DATA   = 256;
+constexpr UINT MAX_OBJECTS            = 1000;
 
 // volumetric fog medium
 constexpr UINT VOXEL_VOLUME_SIZEX = 240;
@@ -19,7 +20,7 @@ enum GBuffer { BASECOLOR, NORMAL, ORM, EMISSIVE, DEPTH, CUSTOMDEPTH, GBUFFER_END
 
 enum DXRGBuffer { DXRNORMAL, DXRDEPTH, DXRCUSTOMDEPTH, DXRGBUFFER_END };
 
-enum FrameResourceType { TRANSFORM, BONE_MATRICES, MATERIAL, UI_TRANSFORM, UI_MATERIAL, VERTEX_BUFFER_ID, INDEX_BUFFER_ID, MESH_INSTANCE_ID, FRAME_TYPE_END };
+enum FrameResourceType { TRANSFORM, BONE_MATRICES, UI_TRANSFORM, UI_MATERIAL, VERTEX_BUFFER_ID, INDEX_BUFFER_ID, MESH_INSTANCE_ID, FRAME_TYPE_END };
 
 // Render technique order
 // 순서 보장을 위해서(환경설정에서 on off시 순서가 바뀌지 않도록 RenderScene은 Tech를 map으로 가지고 있음.)

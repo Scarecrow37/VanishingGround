@@ -8,29 +8,39 @@ struct VSInput
     float3 biTangent    : BINORMAL;
     float2 uv           : TEXCOORD;
     float2 lightUV      : TEXCOORD1;
+    
+    uint instanceID : SV_InstanceID;
 };
 
 struct VSOutput
 {
     float4 position     : SV_POSITION;
     float2 uv           : TEXCOORD;
+    
+    nointerpolation uint4 materialID : TEXCOORD1;
 };
 
-StructuredBuffer<MatrixData> matrices;
+struct ShadowMeshData
+{
+    uint CascadeIndex;
+    uint Offset;
+};
+
+ConstantBuffer<ShadowMeshData> bit32_2_shadowMeshData;
 
 VSOutput vs_main(VSInput input)
 {
-    ShadowObjectData data = bit32_5_shadowObjectData;
+    uint offset = bit32_2_shadowMeshData.Offset;
+    uint cascadeIndex = bit32_2_shadowMeshData.CascadeIndex;
+    InstanceData data = instanceData[input.instanceID + offset];
     
     VSOutput output = (VSOutput) 0;
 
-    uint instanceID = data.ID;
-    uint cascadeIndex = data.CascadeIndex;
-
-    output.position = mul(input.position, matrices[instanceID].World);
+    output.position = mul(input.position, matrices[data.MatrixID].World);
     output.position = mul(output.position, cascadeData.ShadowVP[cascadeIndex]);
 
     output.uv = input.uv;
+    output.materialID = data.MaterialID;
 
     return output;
 }
