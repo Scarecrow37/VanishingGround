@@ -25,7 +25,7 @@ void QTEUIManager::OnQTEEnter()
     _mainFader.SetFadeMode(Fader::FADE_IN);
     
     // QTE UI 위치 및 크기 데이터 저장
-    UpdateUITransformData();
+    RefreshQTEUITransformData();
 
     // QTE 시작 시 현재 트랙에 맞게 노트 오브젝트 스폰
     SpawnQTENotesFromCurrentTrack();
@@ -114,7 +114,7 @@ void QTEUIManager::OnQTEExit()
 void QTEUIManager::Refresh() 
 {
     FindUIComponents();
-    UpdateUITransformData();
+    RefreshQTEUITransformData();
 }
 
 void QTEUIManager::Reset() 
@@ -146,7 +146,6 @@ void QTEUIManager::Reset()
 void QTEUIManager::Awake() 
 {
     FindUIComponents();
-    UpdateUITransformData();
 }
 
 void QTEUIManager::Start()
@@ -183,25 +182,7 @@ void QTEUIManager::Start()
 
 void QTEUIManager::Update() 
 {
-    float factor = _mainFader.Fade();
-    auto  mode  = _mainFader.GetFadeMode();
-    switch (mode)
-    {
-        case QTEUIManager::Fader::FADE_NONE:
-            break;
-        case QTEUIManager::Fader::FADE_IN: {
-            SetUIAlpha(factor);
-            break;
-        }
-        case QTEUIManager::Fader::FADE_OUT: {
-            SetUIAlpha(factor);
-            SetBackgroundUIAlpha(factor);
-            break;
-        }
-        default:
-            break;
-    }
-
+    UpdateQTEUI();
     UpdateGuideNoteUI();
 }
 
@@ -258,9 +239,9 @@ void QTEUIManager::ImGuiDrawPropertysEvent()
         ImGui::Text((const char*)u8"QTE Panel Absolute Pos : (%.1f, %.1f)", _qtePanelPos.x, _qtePanelPos.y);
         ImGui::Text((const char*)u8"QTE Judge Absolute Pos : (%.1f, %.1f)", _qteJudgePos.x, _qteJudgePos.y);
         // Guide Note Pos
-        ImGui::Text((const char*)u8"Guide Note X Absolute Pos : (%.1f, %.1f)", _qteGuideNoteXPos.x, _qteGuideNoteXPos.y);
-        ImGui::Text((const char*)u8"Guide Note Y Absolute Pos : (%.1f, %.1f)", _qteGuideNoteYPos.x, _qteGuideNoteYPos.y);
-        ImGui::Text((const char*)u8"Guide Note B Absolute Pos : (%.1f, %.1f)", _qteGuideNoteBPos.x, _qteGuideNoteBPos.y);
+        ImGui::Text((const char*)u8"Guide Note X Absolute Pos : (%.1f, %.1f)", _enemyXPos.x, _enemyXPos.y);
+        ImGui::Text((const char*)u8"Guide Note Y Absolute Pos : (%.1f, %.1f)", _enemyYPos.x, _enemyYPos.y);
+        ImGui::Text((const char*)u8"Guide Note B Absolute Pos : (%.1f, %.1f)", _enemyBPos.x, _enemyBPos.y);
 
         ImGui::TreePop();
     }
@@ -318,14 +299,17 @@ void QTEUIManager::SetActive(bool active)
 
 void QTEUIManager::StartShowQTEGuideNote() 
 {
-    _xybOutTimer = 0.0f;
-    _xybPointFader.SetTimer(0.0f);
-    _xybAlphaFader.SetTimer(0.0f);
+    if (RefreshGuideNoteUITransformData())
+    {
+        _xybOutTimer = 0.0f;
+        _xybPointFader.SetTimer(0.0f);
+        _xybAlphaFader.SetTimer(0.0f);
 
-    _xybAlphaFader.SetDuration(0.5f);
-    _xybPointFader.SetDuration(1.0f);
-    _xybAlphaFader.SetFadeMode(Fader::FADE_IN);
-    _xybPointFader.SetFadeMode(Fader::FADE_IN);
+        _xybAlphaFader.SetDuration(0.5f);
+        _xybPointFader.SetDuration(1.0f);
+        _xybAlphaFader.SetFadeMode(Fader::FADE_IN);
+        _xybPointFader.SetFadeMode(Fader::FADE_IN);
+    }
 }
 
 void QTEUIManager::StartHideQTEGuideNote() 
@@ -336,21 +320,43 @@ void QTEUIManager::StartHideQTEGuideNote()
     _xybPointFader.SetFadeMode(Fader::FADE_OUT);
 }
 
-void QTEUIManager::UpdateGuideNoteUI() 
+void QTEUIManager::UpdateQTEUI() 
+{
+    float factor = _mainFader.Fade();
+    auto  mode   = _mainFader.GetFadeMode();
+    switch (mode)
+    {
+    case QTEUIManager::Fader::FADE_NONE:
+        break;
+    case QTEUIManager::Fader::FADE_IN: {
+        SetUIAlpha(factor);
+        break;
+    }
+    case QTEUIManager::Fader::FADE_OUT: {
+        SetUIAlpha(factor);
+        SetBackgroundUIAlpha(factor);
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+void QTEUIManager::UpdateGuideNoteUI()
 {
     _xybAlphaFader.Fade();
     _xybPointFader.Fade();
 
     POINT point;
     const SIZE& resolution  = UmGraphics.GetResolution();
-    const float minY        = static_cast<float>(resolution.cy);
+    const float minY        = static_cast<float>(resolution.cy) * 0.5f;
     const float alphaFactor = _xybAlphaFader.GetFadeFactor();
     const float pointFactor = _xybPointFader.GetFadeFactor();
     
     if (_qteGuideNoteX)
     {
         SIZE size             = _qteGuideNoteX->Size;
-        point.x               = (LONG)_qteGuideNoteXPos.x - size.cx / 2;
+        point.x               = (LONG)_enemyXPos.x - size.cx / 2;
         point.y               = (LONG)std::lerp(minY, 0, pointFactor) - size.cy / 2;
         _qteGuideNoteX->Point = point;
         _qteGuideNoteX->Alpha = alphaFactor;
@@ -358,7 +364,7 @@ void QTEUIManager::UpdateGuideNoteUI()
     if (_qteGuideNoteY)
     {
         SIZE size             = _qteGuideNoteY->Size;
-        point.x               = (LONG)_qteGuideNoteYPos.x - size.cx / 2;
+        point.x               = (LONG)_enemyYPos.x - size.cx / 2;
         point.y               = (LONG)std::lerp(minY, 0, pointFactor) - size.cy / 2;
         _qteGuideNoteY->Point = point;
         _qteGuideNoteY->Alpha = alphaFactor;
@@ -366,7 +372,7 @@ void QTEUIManager::UpdateGuideNoteUI()
     if (_qteGuideNoteB)
     {
         SIZE size             = _qteGuideNoteB->Size;
-        point.x               = (LONG)_qteGuideNoteBPos.x - size.cx / 2;
+        point.x               = (LONG)_enemyBPos.x - size.cx / 2;
         point.y               = (LONG)std::lerp(minY, 0, pointFactor) - size.cy / 2;
         _qteGuideNoteB->Point = point;
         _qteGuideNoteB->Alpha = alphaFactor;
@@ -375,14 +381,14 @@ void QTEUIManager::UpdateGuideNoteUI()
     if (_xybPointFader.IsFadeInEnd())
     {
         _xybOutTimer += UmTime.DeltaTime();
-        if (_xybOutTimer >= 1.0f)
+        if (_xybOutTimer >= ReflectFields->GuideNoteDuration)
         {
             StartHideQTEGuideNote();
         }
     }
 }
 
-void QTEUIManager::UpdateUITransformData()
+void QTEUIManager::RefreshQTEUITransformData()
 {
     if (_qteOverlayPanel)
     {
@@ -400,30 +406,35 @@ void QTEUIManager::UpdateUITransformData()
         SIZE size     = _qteJudgeNoteUI->Size;
         _qteJudgeSize = Vector2((float)size.cx, (float)size.cy);
     }
+}
 
+bool QTEUIManager::RefreshGuideNoteUITransformData()
+{
     CameraComponent* camera = CameraComponent::MainCamera();
     if (camera)
     {
         auto enemies = Battle::GetTargetsFromFlags(Battle::ENEMY_TARGET_FLAG_ALL);
         if (3 <= enemies.size())
         {
-            auto* left   = enemies[0];
-            auto* middle = enemies[1];
-            auto* right  = enemies[2];
-            if (left && _qteGuideNoteX)
+            bool  validX = enemies[0] && _qteGuideNoteY;
+            bool  validY = enemies[1] && _qteGuideNoteX;
+            bool  validB = enemies[2] && _qteGuideNoteB;
+            if (validX)
             {
-                _qteGuideNoteXPos = camera->WorldToViewport(left->transform->GetWorldPosition());
+                _enemyXPos = camera->WorldToViewport(enemies[0]->transform->GetWorldPosition());
             }
-            if (middle && _qteGuideNoteY)
+            if (validY)
             {
-                _qteGuideNoteYPos = camera->WorldToViewport(middle->transform->GetWorldPosition());
+                _enemyYPos = camera->WorldToViewport(enemies[1]->transform->GetWorldPosition());
             }
-            if (right && _qteGuideNoteB)
+            if (validB)
             {
-                _qteGuideNoteBPos = camera->WorldToViewport(right->transform->GetWorldPosition());
+                _enemyBPos = camera->WorldToViewport(enemies[2]->transform->GetWorldPosition());
             }
+            return true;
         }
     }
+    return false;
 }
 
 bool QTEUIManager::CheckUIValid()

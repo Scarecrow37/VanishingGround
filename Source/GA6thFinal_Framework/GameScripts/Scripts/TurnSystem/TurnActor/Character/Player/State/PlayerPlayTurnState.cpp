@@ -139,17 +139,60 @@ void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
 
 void PlayerPlayTurnState::UpdateActionSelectionUI(float dt) 
 {
-    //ImGuiWindowFlags flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar;
-    //ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.1f, 0.1f, 0.1f, 0.5f));
-    //ImGui::Begin("Player Turn##9A48EE30-CB5F-48AC-9740-DDF8118AAC49", nullptr, flags);
-    //{
-    //    if (ImGui::Button((const char*)u8"A를 눌러 공격 진입"))
-    //    {
-    //        _attackButtonHeldTime = _attackButtonHeldWaitTime;
-    //    }
-    //}
-    //ImGui::End();
-    //ImGui::PopStyleColor();
+    ImGuiWindowFlags flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar;
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.1f, 0.1f, 0.1f, 0.5f));
+    ImGui::Begin("Player Turn##9A48EE30-CB5F-48AC-9740-DDF8118AAC49", nullptr, flags);
+    {
+        auto enemies = Battle::GetTargetsFromFlags(Battle::ENEMY_TARGET_FLAG_ALL);
+        if (ImGui::Button((const char*)u8"[적] 전멸"))
+        {
+            for (auto& enemy : enemies)
+            {
+                if (enemy)
+                {
+                    enemy->Dead();
+                }
+            }
+        }
+
+        if (ImGui::Button((const char*)u8"[적 LEFT] 자살"))
+        {
+            if (enemies.size() >= 1 && enemies[0])
+                enemies[0]->Dead();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button((const char*)u8"[적 MIDDLE] 자살"))
+        {
+            if (enemies.size() >= 2 && enemies[1])
+                enemies[1]->Dead();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button((const char*)u8"[적 RIGHT] 자살"))
+        {
+            if (enemies.size() >= 3 && enemies[2])
+                enemies[2]->Dead();
+        }
+        ImGui::SameLine();
+
+        ImGui::Separator();
+        Player& player = GetPlayer();
+        if (ImGui::Button((const char*)u8"[플레이어] 자해"))
+        {
+            player.TakeDamage(10);
+        }
+        ImGui::SameLine();
+        if (ImGui::Button((const char*)u8"[플레이어] 자살"))
+        {
+            player.Dead();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button((const char*)u8"[플레이어] 턴 종료"))
+        {
+            player.EndTurn();
+        }
+    }
+    ImGui::End();
+    ImGui::PopStyleColor();
 
     float t = _attackButtonHeldTime / _attackButtonHeldWaitTime;
     QTESystem*    qteSystem    = SingletonComponent<QTESystem>::GetInstance();
