@@ -153,6 +153,22 @@ void SceneTransitionComponent::CalculateFade()
     }
     UmTransition->Fade("Game", Color::Lerp(StartColor, EndColor, step), true);
 }
+
+//void SceneTransitionComponent::Reset()
+//{
+//    throw std::logic_error("The method or operation is not implemented.");
+//}
+//
+//void SceneTransitionComponent::Awake()
+//{
+//    throw std::logic_error("The method or operation is not implemented.");
+//}
+//
+//void SceneTransitionComponent::OnDestroy()
+//{
+//    throw std::logic_error("The method or operation is not implemented.");
+//}
+
 void SceneTransitionComponent::Fade(float duration, const Vector4& start, const Vector4& end,
                                     std::function<void()> callback)
 {
