@@ -6,6 +6,7 @@ namespace Audio
     class Source;
     class SoundPlayer;
     class AudioHandle;
+    class GroupHandle;
 
     /// <summary>
     /// 오디오 소스를 관리하고 재생, 정지, 생성 등의 기능을 제공하는 클래스입니다.
@@ -23,6 +24,16 @@ namespace Audio
 
         using VoicePool = std::vector<SourceVoice>;
 
+        struct SubmixVoice
+        {
+            Generation           Generation;
+            UINT32               Channels;
+            UINT32               SampleRate;
+            IXAudio2SubmixVoice* Voice;
+            std::list<AudioHandle> AttachedVoices;
+        };
+
+        using GroupPool = std::vector<SubmixVoice>;
 
     public:
         System();
@@ -70,8 +81,10 @@ namespace Audio
         /// </summary>
         /// <param name="sound">재생할 사운드 소스입니다.</param>
         /// <param name="isLoop">반복 재생 여부입니다.</param>
+        /// <param name="groups">사운드가 재생될 그룹들입니다.</param>
         /// <returns>재생 중인 사운드를 제어할 수 있는 AudioHandle 객체를 반환합니다.</returns>
-        [[nodiscard]] AudioHandle Play(const Source& sound, bool isLoop);
+        [[nodiscard]] AudioHandle Play(const Source& sound, std::span<GroupHandle> groups = {},
+                                       bool isLoop = false);
 
         /// <summary>
         /// 지정된 핸들에 대한 재생 작업을 중지합니다.
@@ -86,14 +99,26 @@ namespace Audio
         /// <returns>핸들이 유효하면 true, 그렇지 않으면 false를 반환합니다.</returns>
         [[nodiscard]] bool IsValidHandle(const AudioHandle& handle) const noexcept;
 
+        /// <summary>
+        /// GroupHandle이 유효한 핸들인지 확인합니다.
+        /// </summary>
+        /// <param name="handle">검사할 GroupHandle 객체입니다.</param>
+        /// <returns>핸들이 유효하면 true, 그렇지 않으면 false를 반환합니다.</returns>
+        [[nodiscard]] bool IsValidHandle(const GroupHandle& handle) const noexcept;
+
+        GroupHandle CreateGroup(UINT32 channels = 2, UINT32 sampleRate = 44100);
+
+        void ReleaseGroup(const GroupHandle& handle);
+
     private:
         void ReleaseVoice(const AudioHandle& handle);
+        void DetachOutput(const AudioHandle& handle) const;
 
-        IXAudio2* _xAudio2;
-        IXAudio2MasteringVoice*  _masteringVoice = nullptr;
+        IXAudio2*               _xAudio2;
+        IXAudio2MasteringVoice* _masteringVoice = nullptr;
 
         std::unordered_map<WaveFormatHash, VoicePool> _voicePools;
-
+        GroupPool                                     _groupPool;
 
         struct OnBufferEnd
         {
