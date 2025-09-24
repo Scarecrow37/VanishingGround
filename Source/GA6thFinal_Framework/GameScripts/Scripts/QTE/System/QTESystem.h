@@ -99,7 +99,6 @@ private:
     void ProcessQTEFadeInEndEvent();
     void ProcessQTEFadeOutEndEvent();
 
-
 public:
     inline bool  IsQTEPlaying() const { return _currQTEPlaying; }
     inline float GetQTETime() const { return _qteTimer; }
@@ -133,19 +132,19 @@ private:
 
     std::unordered_map<int, std::vector<QTE::Track*>> _weaponIDToTrackTable;    // 무기 ID QTE 매핑 테이블
 
-    QTE::Track*                 _currentQTETrack  = nullptr;                    // QTE 트랙
-    size_t                      _currentNoteIndex = 0;                          // 현재 가리키는 노트 인덱스
+    QTE::Track*                 _currentQTETrack    = nullptr;                  // QTE 트랙
+    size_t                      _currentNoteIndex   = 0;                        // 현재 가리키는 노트 인덱스
     std::vector<QTE::Note*>     _noteAvailQueue;                                // 유효한 노트 큐
     std::vector<QTE::Result>    _noteResultQueue;                               // 노트 결과 큐
 
-    float                       _qteTimer       = 0.0f;                         // QTE 타이머
-    bool                        _qteFadeInEnd   = false;                        // QTE 페이드 인 종료 여부
-    bool                        _qteFadeOutEnd  = false;                        // QTE 페이드 아웃 종료 여부
-    bool                        _qtePaused      = false;                        // QTE 일시정지 여부
-    bool                        _currQTEPlaying = false;                        // 현재 QTE가 실행 중인지 여부
-    bool                        _prevQTEPlaying = false;                        // 이전 프레임에서 QTE가 실행 중이었는지 여부
+    float                       _qteTimer           = 0.0f;                     // QTE 타이머
+    bool                        _qteFadeInEnd       = false;                    // QTE 페이드 인 종료 여부
+    bool                        _qteFadeOutEnd      = false;                    // QTE 페이드 아웃 종료 여부
+    bool                        _qtePaused          = false;                    // QTE 일시정지 여부
+    bool                        _currQTEPlaying     = false;                    // 현재 QTE가 실행 중인지 여부
+    bool                        _prevQTEPlaying     = false;                    // 이전 프레임에서 QTE가 실행 중이었는지 여부
 
-    QTE::Result::Callback _onQTEFinishCallback = nullptr; // QTE 페이드 인 종료 콜백
+    QTE::Result::Callback _onQTEFinishCallback = nullptr;                       // QTE 페이드 인 종료 콜백
 
     REFLECT_FIELDS_BEGIN(Component)
     float                   QTESpeedScale       = 1.0f;                         // QTE 속도 배율
