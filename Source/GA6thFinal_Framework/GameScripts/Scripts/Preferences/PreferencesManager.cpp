@@ -158,6 +158,11 @@ void PreferencesManager::OffPreferencesWindow()
 {
     _isOpen      = false;
     _isOpenDirty = true;
+    if (_backComponent)
+    {
+        _backComponent->Focus();
+    }
+    _backComponent = nullptr;
 }
 
 
@@ -183,10 +188,11 @@ void PreferencesManager::CloseAbandonButtons()
     _isOpenAbandonButton = false;
 }
 
-void PreferencesManager::OnPreferencesWindow() 
+void PreferencesManager::OnPreferencesWindow(UINavigationComponent* backComponent) 
 {
     _isOpen      = true;
     _isOpenDirty = true;
+    _backComponent = backComponent;
 }
 
 void PreferencesManager::GoToMainMenu()

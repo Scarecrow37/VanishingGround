@@ -33,7 +33,7 @@ Vector3 CameraComponent::WorldToNDC(const Vector3& worldPos)
 
 Vector3 CameraComponent::WorldToNDC(const Vector3& worldPos, const Matrix& viewMatrix, const Matrix& projMatrix)
 {
-    Matrix vp = projMatrix * viewMatrix;
+    Matrix vp = viewMatrix * projMatrix;
 
     // 월드좌표 >> 클립공간
     Vector4 wolrd   = Vector4(worldPos.x, worldPos.y, worldPos.z, 1.0f);
@@ -76,9 +76,9 @@ Vector3 CameraComponent::ViewportToWorld(const Vector3& screenPos)
 {
     if (_camera)
     {
-        const float camNear             = _camera->GetNearZ();
-        const float camFar              = _camera->GetFarZ();
-        const SIZE& resolution          = UmGraphics.GetResolution();
+        const float camNear     = _camera->GetNearZ();
+        const float camFar      = _camera->GetFarZ();
+        const SIZE& resolution  = UmGraphics.GetResolution();
         if (resolution.cx <= 0 || resolution.cy <= 0)
         {
             return Vector3::Zero;

@@ -4,7 +4,10 @@
 #include <QTE/Track/QTETrack.h>
 #include <UI/Panels/Overlay/OverlayPanel.h>
 #include <UI/Elements/Image/ImageElement.h>
+#include <Camera/CameraComponent.h>
 
+#include <BattleSystem/Battle.h>
+#include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 
 UMREAL_COMPONENT(QTEUIManager)
 
@@ -19,7 +22,7 @@ void QTEUIManager::OnQTEEnter()
     }
     // 오브젝트 활성화 QTE UI 페이드 인 시작
     gameObject->ActiveSelf = true;
-    _fader.SetFadeMode(Fader::FADE_IN);
+    _mainFader.SetFadeMode(Fader::FADE_IN);
     
     // QTE UI 위치 및 크기 데이터 저장
     UpdateUITransformData();
@@ -102,13 +105,13 @@ void QTEUIManager::OnQTEStay()
 void QTEUIManager::OnQTEExit() 
 {
     // QTE UI 페이드 아웃 
-    _fader.SetFadeMode(Fader::FADE_OUT);
+    _mainFader.SetFadeMode(Fader::FADE_OUT);
     
     // QTE 종료 시 노트 오브젝트 정리
     ClearAllQTENotes();
 }
 
-void QTEUIManager::Refesh() 
+void QTEUIManager::Refresh() 
 {
     FindUIComponents();
     UpdateUITransformData();
@@ -148,29 +151,58 @@ void QTEUIManager::Awake()
 
 void QTEUIManager::Start()
 {
-    _fader.SetDuration(1.0f);
-    _fader.SetFadeInType(Mathf::EASE_IN, Mathf::SINE);
-    _fader.SetFadeOutType(Mathf::EASE_OUT, Mathf::SINE);
-    _fader.SetOnFadeInEndCallback([this]() {
+    _mainFader.SetDuration(1.0f);
+    _mainFader.SetFadeInType(Mathf::EASE_IN, Mathf::SINE);
+    _mainFader.SetFadeOutType(Mathf::EASE_OUT, Mathf::SINE);
+    _mainFader.SetOnFadeInEndCallback([this]() {
         if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
         {
             system->ProcessQTEFadeInEndEvent();
+            _mainFader.SetFadeMode(Fader::FADE_NONE);
         }
     });
-    _fader.SetOnFadeOutEndCallback([this]() {
+    _mainFader.SetOnFadeOutEndCallback([this]() {
         gameObject->ActiveSelf = false;
         if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
         {
             system->ProcessQTEFadeOutEndEvent();
+            _mainFader.SetFadeMode(Fader::FADE_NONE);
         }
     });
+
+    _xybAlphaFader.SetFadeInType(Mathf::EASE_IN, Mathf::SINE);
+    _xybAlphaFader.SetFadeOutType(Mathf::EASE_OUT, Mathf::SINE);
+    _xybAlphaFader.SetOnFadeInEndCallback([this]() { _xybAlphaFader.SetFadeMode(Fader::FADE_NONE); });
+    _xybAlphaFader.SetOnFadeOutEndCallback([this]() { _xybAlphaFader.SetFadeMode(Fader::FADE_NONE); });
+
+    _xybPointFader.SetFadeInType(Mathf::EASE_OUT, Mathf::SINE);
+    _xybPointFader.SetFadeOutType(Mathf::EASE_OUT, Mathf::SINE);
+    _xybPointFader.SetOnFadeInEndCallback([this]() { _xybPointFader.SetFadeMode(Fader::FADE_NONE); });
+    _xybPointFader.SetOnFadeOutEndCallback([this]() { _xybPointFader.SetFadeMode(Fader::FADE_NONE); });
 }
 
 void QTEUIManager::Update() 
 {
-    float alpha = _fader.Fade();
-    SetBackgroundUIAlpha(alpha);
-    SetUIAlpha(alpha);
+    float factor = _mainFader.Fade();
+    auto  mode  = _mainFader.GetFadeMode();
+    switch (mode)
+    {
+        case QTEUIManager::Fader::FADE_NONE:
+            break;
+        case QTEUIManager::Fader::FADE_IN: {
+            SetUIAlpha(factor);
+            break;
+        }
+        case QTEUIManager::Fader::FADE_OUT: {
+            SetUIAlpha(factor);
+            SetBackgroundUIAlpha(factor);
+            break;
+        }
+        default:
+            break;
+    }
+
+    UpdateGuideNoteUI();
 }
 
 void QTEUIManager::OnEnable() 
@@ -220,6 +252,18 @@ void QTEUIManager::ImGuiDrawPropertysEvent()
     {
         FindUIComponents();
     }
+
+    if (ImGui::TreeNodeEx("Debug##qte_manager", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        ImGui::Text((const char*)u8"QTE Panel Absolute Pos : (%.1f, %.1f)", _qtePanelPos.x, _qtePanelPos.y);
+        ImGui::Text((const char*)u8"QTE Judge Absolute Pos : (%.1f, %.1f)", _qteJudgePos.x, _qteJudgePos.y);
+        // Guide Note Pos
+        ImGui::Text((const char*)u8"Guide Note X Absolute Pos : (%.1f, %.1f)", _qteGuideNoteXPos.x, _qteGuideNoteXPos.y);
+        ImGui::Text((const char*)u8"Guide Note Y Absolute Pos : (%.1f, %.1f)", _qteGuideNoteYPos.x, _qteGuideNoteYPos.y);
+        ImGui::Text((const char*)u8"Guide Note B Absolute Pos : (%.1f, %.1f)", _qteGuideNoteBPos.x, _qteGuideNoteBPos.y);
+
+        ImGui::TreePop();
+    }
 }
 
 void QTEUIManager::SetNotePrefabGuid(const File::Guid& guid) 
@@ -237,7 +281,24 @@ void QTEUIManager::SetBackgroundUIAlpha(float factor)
     }
 }
 
-void QTEUIManager::SetUIAlpha(float factor) 
+void QTEUIManager::SetGuideNoteAlpha(float factor) 
+{
+    factor = std::clamp(factor, 0.0f, 1.0f);
+    if (_qteGuideNoteX)
+    {
+        _qteGuideNoteX->Alpha = factor;
+    }
+    if (_qteGuideNoteY)
+    {
+        _qteGuideNoteY->Alpha = factor;
+    }
+    if (_qteGuideNoteB)
+    {
+        _qteGuideNoteB->Alpha = factor;
+    }
+}
+
+void QTEUIManager::SetUIAlpha(float factor)
 {
     factor = std::clamp(factor, 0.0f, 1.0f);
     if (_qteNoteLineUI)
@@ -247,6 +308,77 @@ void QTEUIManager::SetUIAlpha(float factor)
     if (_qteJudgeNoteUI)
     {
         _qteJudgeNoteUI->Alpha = factor;
+    }
+}
+
+void QTEUIManager::SetActive(bool active) 
+{
+    gameObject->ActiveSelf = active;
+}
+
+void QTEUIManager::StartShowQTEGuideNote() 
+{
+    _xybOutTimer = 0.0f;
+    _xybPointFader.SetTimer(0.0f);
+    _xybAlphaFader.SetTimer(0.0f);
+
+    _xybAlphaFader.SetDuration(0.5f);
+    _xybPointFader.SetDuration(1.0f);
+    _xybAlphaFader.SetFadeMode(Fader::FADE_IN);
+    _xybPointFader.SetFadeMode(Fader::FADE_IN);
+}
+
+void QTEUIManager::StartHideQTEGuideNote() 
+{
+    _xybAlphaFader.SetDuration(0.5f);
+    _xybPointFader.SetDuration(1.0f);
+    _xybAlphaFader.SetFadeMode(Fader::FADE_OUT);
+    _xybPointFader.SetFadeMode(Fader::FADE_OUT);
+}
+
+void QTEUIManager::UpdateGuideNoteUI() 
+{
+    _xybAlphaFader.Fade();
+    _xybPointFader.Fade();
+
+    POINT point;
+    const SIZE& resolution  = UmGraphics.GetResolution();
+    const float minY        = static_cast<float>(resolution.cy);
+    const float alphaFactor = _xybAlphaFader.GetFadeFactor();
+    const float pointFactor = _xybPointFader.GetFadeFactor();
+    
+    if (_qteGuideNoteX)
+    {
+        SIZE size             = _qteGuideNoteX->Size;
+        point.x               = (LONG)_qteGuideNoteXPos.x - size.cx / 2;
+        point.y               = (LONG)std::lerp(minY, 0, pointFactor) - size.cy / 2;
+        _qteGuideNoteX->Point = point;
+        _qteGuideNoteX->Alpha = alphaFactor;
+    }
+    if (_qteGuideNoteY)
+    {
+        SIZE size             = _qteGuideNoteY->Size;
+        point.x               = (LONG)_qteGuideNoteYPos.x - size.cx / 2;
+        point.y               = (LONG)std::lerp(minY, 0, pointFactor) - size.cy / 2;
+        _qteGuideNoteY->Point = point;
+        _qteGuideNoteY->Alpha = alphaFactor;
+    }
+    if (_qteGuideNoteB)
+    {
+        SIZE size             = _qteGuideNoteB->Size;
+        point.x               = (LONG)_qteGuideNoteBPos.x - size.cx / 2;
+        point.y               = (LONG)std::lerp(minY, 0, pointFactor) - size.cy / 2;
+        _qteGuideNoteB->Point = point;
+        _qteGuideNoteB->Alpha = alphaFactor;
+    }
+
+    if (_xybPointFader.IsFadeInEnd())
+    {
+        _xybOutTimer += UmTime.DeltaTime();
+        if (_xybOutTimer >= 1.0f)
+        {
+            StartHideQTEGuideNote();
+        }
     }
 }
 
@@ -268,6 +400,30 @@ void QTEUIManager::UpdateUITransformData()
         SIZE size     = _qteJudgeNoteUI->Size;
         _qteJudgeSize = Vector2((float)size.cx, (float)size.cy);
     }
+
+    CameraComponent* camera = CameraComponent::MainCamera();
+    if (camera)
+    {
+        auto enemies = Battle::GetTargetsFromFlags(Battle::ENEMY_TARGET_FLAG_ALL);
+        if (3 <= enemies.size())
+        {
+            auto* left   = enemies[0];
+            auto* middle = enemies[1];
+            auto* right  = enemies[2];
+            if (left && _qteGuideNoteX)
+            {
+                _qteGuideNoteXPos = camera->WorldToViewport(left->transform->GetWorldPosition());
+            }
+            if (middle && _qteGuideNoteY)
+            {
+                _qteGuideNoteYPos = camera->WorldToViewport(middle->transform->GetWorldPosition());
+            }
+            if (right && _qteGuideNoteB)
+            {
+                _qteGuideNoteBPos = camera->WorldToViewport(right->transform->GetWorldPosition());
+            }
+        }
+    }
 }
 
 bool QTEUIManager::CheckUIValid()
@@ -277,9 +433,13 @@ bool QTEUIManager::CheckUIValid()
 
 void QTEUIManager::FindUIComponents()
 {
-    _qteOverlayPanel = nullptr;
-    _qteNoteLineUI = nullptr;
-    _qteJudgeNoteUI = nullptr;
+    _qteOverlayPanel    = nullptr;
+    _qteBackgroundUI    = nullptr;
+    _qteNoteLineUI      = nullptr;
+    _qteJudgeNoteUI     = nullptr;
+    _qteGuideNoteX      = nullptr;
+    _qteGuideNoteY      = nullptr;
+    _qteGuideNoteB      = nullptr;
 
     Transform::ForeachBFS(transform, [this](Transform* curr) {
         if (!_qteOverlayPanel && curr->gameObject->CompareTag("QTE Panel"))
@@ -298,6 +458,18 @@ void QTEUIManager::FindUIComponents()
         {
             _qteJudgeNoteUI = curr->gameObject->GetComponent<ImageElement>();
         }
+        else if (!_qteGuideNoteX && curr->gameObject->CompareTag("Guide Note X"))
+        {
+            _qteGuideNoteX = curr->gameObject->GetComponent<ImageElement>();
+        }
+        else if (!_qteGuideNoteY && curr->gameObject->CompareTag("Guide Note Y"))
+        {
+            _qteGuideNoteY = curr->gameObject->GetComponent<ImageElement>();
+        }
+        else if (!_qteGuideNoteB && curr->gameObject->CompareTag("Guide Note B"))
+        {
+            _qteGuideNoteB = curr->gameObject->GetComponent<ImageElement>();
+        }
     });
 
     if (nullptr == _qteOverlayPanel)
@@ -311,6 +483,18 @@ void QTEUIManager::FindUIComponents()
     if (nullptr == _qteJudgeNoteUI)
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"QTE Judge Note UI를 찾지 못했습니다.");
+    }
+    if (nullptr == _qteGuideNoteX)
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Guide Note X를 찾지 못했습니다.");
+    }
+    if (nullptr == _qteGuideNoteY)
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Guide Note Y를 찾지 못했습니다.");
+    }
+    if (nullptr == _qteGuideNoteB)
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Guide Note B를 찾지 못했습니다.");
     }
 }
 

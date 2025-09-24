@@ -10,6 +10,7 @@ namespace QTE
 class QTESystem;
 class OverlayPanel;
 class ImageElement;
+class CameraComponent;
 
 class QTEUIManager : public Component
 {
@@ -37,7 +38,7 @@ public:
     /// <summary>
     /// UI데이터를 갱신합니다.
     /// </summary>
-    void Refesh();
+    void Refresh();
 
     /// <summary>노트 프리팹의 GUID를 설정합니다. 해당 프리팹을 통해 QTE 노트 UI가 생성됩니다.</summary>
     /// <param name="guid">설정할 File::Guid 객체입니다.</param>
@@ -48,9 +49,23 @@ public:
     /// <param name="factor">설정할 UI의 알파 값입니다. 0.0f에서 1.0f 사이의 값을 가집니다.</param>
     void SetBackgroundUIAlpha(float factor);
 
+    /// <summary>
+    /// 가이드 노트의 알파 값을 설정합니다.
+    /// </summary>
+    /// <param name="factor">설정할 알파 값입니다. 0.0f에서 1.0f 사이의 값을 가집니다.</param>
+    void SetGuideNoteAlpha(float factor);
+
     /// <summary>QTE 관련 UI의 알파 값을 설정합니다. (백그라운드는 제외입니다.)</summary>
     /// <param name="factor">설정할 UI의 알파 값입니다. 0.0f에서 1.0f 사이의 값을 가집니다.</param>
     void SetUIAlpha(float factor);
+
+    /// <summary>객체의 활성 상태를 설정합니다.</summary>
+    /// <param name="active">객체를 활성화할지 여부를 지정하는 불리언 값입니다.</param>
+    void SetActive(bool active);
+
+    void StartShowQTEGuideNote();
+    void StartHideQTEGuideNote();
+    void UpdateGuideNoteUI();
 
 private:
     void Reset() override;
@@ -80,6 +95,7 @@ private:
     ImageElement* FindNoteUIFromNoteID(int noteID) const;
 
 private:
+
     OverlayPanel*   _qteOverlayPanel    = nullptr;
     ImageElement*   _qteBackgroundUI    = nullptr;
     ImageElement*   _qteNoteLineUI      = nullptr;
@@ -185,5 +201,15 @@ private:
         std::function<void()> _onFadeInEndCallback = nullptr;
         std::function<void()> _onFadeOutEndCallback = nullptr;
     };
-    Fader _fader;
+    Fader _mainFader;
+
+    float         _xybOutTimer      = 0.0f;
+    ImageElement* _qteGuideNoteX    = nullptr;
+    ImageElement* _qteGuideNoteY    = nullptr;
+    ImageElement* _qteGuideNoteB    = nullptr;
+    Vector3       _qteGuideNoteXPos = Vector3::Zero;
+    Vector3       _qteGuideNoteYPos = Vector3::Zero;
+    Vector3       _qteGuideNoteBPos = Vector3::Zero;
+    Fader         _xybAlphaFader;
+    Fader         _xybPointFader;
 };
