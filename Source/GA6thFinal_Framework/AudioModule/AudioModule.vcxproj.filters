@@ -48,7 +48,7 @@
     <ClInclude Include="Types.h">
       <Filter>Types</Filter>
     </ClInclude>
-    <ClInclude Include="Handle.h">
+    <ClInclude Include="AudioHandle.h">
       <Filter>Handle</Filter>
     </ClInclude>
     <ClInclude Include="System.h">
@@ -74,7 +74,7 @@
     <ClCompile Include="Types.cpp">
       <Filter>Types</Filter>
     </ClCompile>
-    <ClCompile Include="Handle.cpp">
+    <ClCompile Include="AudioHandle.cpp">
       <Filter>Handle</Filter>
     </ClCompile>
     <ClCompile Include="Source.cpp">

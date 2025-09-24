@@ -264,7 +264,7 @@ namespace Audio
         return Source{wfx, audioData, static_cast<UINT32>(dataSize)};
     }
 
-    Handle System::Play(const Source& sound, const bool isLoop)
+    AudioHandle System::Play(const Source& sound, const bool isLoop)
     {
         if (_xAudio2 == nullptr)
             throw AudioException("Audio manager is not initialized.");
@@ -301,8 +301,8 @@ namespace Audio
         IncreaseGeneration()(unusedSourceVoiceGeneration);
         const Index index = std::distance(sourceVoices.begin(), unusedSourceVoiceIterator);
 
-        // Handle 생성
-        const Handle handle = {hash, index, unusedSourceVoiceGeneration};
+        // AudioHandle 생성
+        const AudioHandle handle = {hash, index, unusedSourceVoiceGeneration};
         // Callback 갱신
         unusedSourceVoiceCallback.SetHandle(handle);
 
@@ -334,7 +334,7 @@ namespace Audio
         return handle;
     }
 
-    void System::Stop(const Handle& handle)
+    void System::Stop(const AudioHandle& handle)
     {
         if (!IsValidHandle(handle))
             throw InvalidHandleException("Invalid handle provided to Stop.");
@@ -347,7 +347,7 @@ namespace Audio
         ReleaseVoice(handle);
     }
 
-    bool System::IsValidHandle(const Handle& handle) const noexcept
+    bool System::IsValidHandle(const AudioHandle& handle) const noexcept
     {
         if (_voicePools.contains(handle._hash))
         {
@@ -363,7 +363,7 @@ namespace Audio
         return false;
     }
 
-    void System::ReleaseVoice(const Handle& handle)
+    void System::ReleaseVoice(const AudioHandle& handle)
     {
         if (!IsValidHandle(handle))
             throw InvalidHandleException("Invalid handle provided to ReleaseVoice.");
@@ -373,13 +373,13 @@ namespace Audio
 
         auto& [generation, callback, voice] = _voicePools.at(handle._hash).at(handle._index);
         throwIfFailed(voice->FlushSourceBuffers(), "Failed to flush source buffers.");
-        callback.SetHandle(Handle());
+        callback.SetHandle(AudioHandle());
         increaseGeneration(generation);
     }
 
     System::OnBufferEnd::OnBufferEnd(Audio::System* system) : System(system) {}
 
-    void System::OnBufferEnd::operator()(const Handle& handle) const
+    void System::OnBufferEnd::operator()(const AudioHandle& handle) const
     {
         if (nullptr != System && System->IsValidHandle(handle))
         {

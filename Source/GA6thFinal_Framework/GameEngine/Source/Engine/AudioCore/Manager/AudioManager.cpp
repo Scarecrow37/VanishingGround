@@ -38,7 +38,7 @@ void Audio::Manager::LoadSound(const std::string& key, const File::GuidRef& guid
     }
 }
 
-Audio::Handle Audio::Manager::Play(const std::string& key, const bool isLoop)
+Audio::AudioHandle Audio::Manager::Play(const std::string& key, const bool isLoop)
 {
     if (!key.empty())
     {
@@ -70,10 +70,10 @@ Audio::Handle Audio::Manager::Play(const std::string& key, const bool isLoop)
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, "Empty Key.");
     }
-    return Handle{};
+    return AudioHandle{};
 }
 
-void Audio::Manager::Stop(const Handle& handle)
+void Audio::Manager::Stop(const AudioHandle& handle)
 {
     if (_system.IsValidHandle(handle))
     {
