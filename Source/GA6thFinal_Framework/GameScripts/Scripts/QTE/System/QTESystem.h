@@ -11,7 +11,7 @@ namespace QTE
     class Note;
 } 
 
-class QTESystem : public Component, public InputReceiver, public File::FileEventSubscriber
+class QTESystem : public Component, public InputReceiver
 {
 
     friend class QTEUIManager;
