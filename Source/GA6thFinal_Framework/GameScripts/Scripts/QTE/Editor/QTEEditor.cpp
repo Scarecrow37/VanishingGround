@@ -43,6 +43,7 @@ void QTEEditor::Show()
 {
     if (_editorOpened)
     {
+        ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver);
         ImGui::Begin("QTE Editor", &_editorOpened, ImGuiWindowFlags_NoMove);
         ImRect tabRect  = ImGuiHelper::GetWindowTabBarRect();
         ImVec2 mousePos = ImGui::GetMousePos();
