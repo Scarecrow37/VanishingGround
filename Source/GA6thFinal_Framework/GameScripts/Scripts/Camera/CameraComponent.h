@@ -92,6 +92,29 @@ public:
         }
     }
 
+    /// <summary>
+    /// 월드 좌표를 NDC(-1 ~ 1)로 변환합니다.
+    /// </summary>
+    /// <param name="wolrdPos">변환할 월드 좌표를 나타내는 Vector3 객체입니다.</param>
+    /// <returns>변환된 NDC 좌표를 나타내는 Vector3 객체를 반환합니다.</returns>
+    Vector3 WorldToNDC(const Vector3& wolrdPos);
+    static Vector3 WorldToNDC(const Vector3& wolrdPos, const Matrix& viewMatrix, const Matrix& projMatrix);
+
+    /// <summary>
+    /// 월드 좌표를 뷰포트 좌표로 변환합니다.
+    /// </summary>
+    /// <param name="worldPos">변환할 월드 좌표를 나타내는 Vector3 객체입니다.</param>
+    /// <returns>변환된 뷰포트 좌표를 나타내는 Vector3 객체입니다.</returns>
+    Vector3 WorldToViewport(const Vector3& worldPos);
+    static Vector3 WorldToViewport(const Vector3& worldPos, const Matrix& viewMatrix, const Matrix& projMatrix);
+
+    /// <summary>
+    /// 뷰포트 좌표를 월드 좌표로 변환합니다.
+    /// </summary>
+    /// <param name="screenPos">변환할 뷰포트 좌표를 나타내는 Vector3 값입니다.</param>
+    /// <returns>변환된 월드 좌표를 나타내는 Vector3 값입니다.</returns>
+    Vector3 ViewportToWorld(const Vector3& screenPos);
+
 public:
     GETTER(float, FOV) { return ReflectFields->FovDegree; }
     SETTER(float, FOV) 

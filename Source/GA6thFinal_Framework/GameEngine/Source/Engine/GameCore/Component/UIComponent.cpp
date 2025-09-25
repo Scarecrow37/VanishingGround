@@ -169,6 +169,18 @@ void UIComponent::RequestViewOrder() const
     }
 }
 
+void UIComponent::RequestCheckNavigationIdFlawless() const
+{
+    if (UIRoot* uiRoot = this->Root; nullptr != uiRoot)
+    {
+        uiRoot->CheckNavigationIdFlawless(this);
+    }
+    else if (false == UmCore->IsPlay())
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"UI Component는 UIRoot의 하위에 있어야 합니다.");
+    }
+}
+
 void UIComponent::ImGuiDrawPropertysEvent()
 {
     UIBaseComponent::ImGuiDrawPropertysEvent();
@@ -205,6 +217,14 @@ void UIComponent::DeserializedReflectEvent()
 
     _requestedPoint = ActualPosition;
     _requestedSize  = ActualSize;
+}
+
+void UIComponent::Reset()
+{
+    UIBaseComponent::Reset();
+
+    InvalidateMeasure();
+    InvalidateArrange();
 }
 
 void UIComponent::Start()
@@ -251,6 +271,7 @@ void UIComponent::OnAttachParent(GameObject* parentGameObject)
     UIBaseComponent::OnAttachParent(parentGameObject);
 
     RequestViewOrder();
+    RequestCheckNavigationIdFlawless();
     InvalidateMeasure();
     InvalidateArrange();
 }

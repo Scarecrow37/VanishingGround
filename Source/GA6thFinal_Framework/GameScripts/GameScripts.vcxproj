@@ -326,16 +326,30 @@
     <ClInclude Include="Scripts\ExcelDataSystem\ExcelDataSystem.h" />
     <ClInclude Include="Scripts\ExcelParser\ImGuiColumnSheetParser.h" />
     <ClInclude Include="Scripts\ItemDropSystem\Interface\IDropItem.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UINavi\RestartStageNavi.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UINavi\ReturnToMapNavi.h" />
     <ClInclude Include="Scripts\MainMenu\MainMenuNavigationBase.h" />
     <ClInclude Include="Scripts\Map\MapManager.h" />
     <ClInclude Include="Scripts\Map\RewardPopup.h" />
     <ClInclude Include="Scripts\Map\SmoothScroll.h" />
     <ClInclude Include="Scripts\Map\Stage.h" />
+    <ClInclude Include="Scripts\Preferences\Button\AbandonButton.h" />
+    <ClInclude Include="Scripts\Preferences\Button\AbandonNoButton.h" />
+    <ClInclude Include="Scripts\Preferences\Button\AbandonYesButton.h" />
+    <ClInclude Include="Scripts\Preferences\Button\BackButton.h" />
     <ClInclude Include="Scripts\Preferences\Button\EnableButton.h" />
     <ClInclude Include="Scripts\Preferences\Button\PreferencesButton.h" />
+    <ClInclude Include="Scripts\Preferences\Button\SoundButton.h" />
     <ClInclude Include="Scripts\Preferences\Button\TextureLMH.h" />
     <ClInclude Include="Scripts\Preferences\PreferencesManager.h" />
     <ClInclude Include="Scripts\Preferences\PrefrencesWindow.h" />
+    <ClInclude Include="Scripts\QTE\Editor\QTEEditor.h" />
+    <ClInclude Include="Scripts\QTE\Result\QTEResult.h" />
+    <ClInclude Include="Scripts\QTE\System\QTESystem.h" />
+    <ClInclude Include="Scripts\QTE\Track\Note\QTENote.h" />
+    <ClInclude Include="Scripts\QTE\Track\QTETrack.h" />
+    <ClInclude Include="Scripts\QTE\UI\QTEUIManager.h" />
+    <ClInclude Include="Scripts\SceneTransition\TempTransition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.h" />
     <ClInclude Include="Scripts\Animation\AnimationComponent.h" />
@@ -385,6 +399,8 @@
     <ClInclude Include="Scripts\UI\Panels\Grid\GridPanel.h" />
     <ClInclude Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.h" />
     <ClInclude Include="Scripts\UI\Panels\Overlay\OverlayPanel.h" />
+    <ClInclude Include="Scripts\UI\Views\Accessories\AccessoriesView.h" />
+    <ClInclude Include="Scripts\UI\Views\MonsterChain\MonsterChainView.h" />
     <ClInclude Include="Scripts\UI\Views\PlayerHP\PlayerHPView.h" />
     <ClInclude Include="Scripts\UI\Views\Map\StageFocusView.h" />
     <ClInclude Include="Scripts\UI\Views\Map\StageView.h" />
@@ -395,6 +411,8 @@
     <ClInclude Include="Scripts\UI\Wrappers\Dummy\DummyWrapper.h" />
     <ClInclude Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.h" />
     <ClInclude Include="Scripts\UI\Wrappers\Scrolling\ScrollingWrapper.h" />
+    <ClInclude Include="Scripts\ViewModels\Accessories\AccessoriesViewModel.h" />
+    <ClInclude Include="Scripts\ViewModels\Chain\ChainCountViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\ItemDrop\DropArtifacts\DropArtifactsViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Hp\CharacterHPViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Map\StageFocusViewModel.h" />
@@ -484,6 +502,7 @@
     <ClInclude Include="Scripts\MainMenu\Credits.h" />
     <ClInclude Include="Scripts\MainMenu\Quit.h" />
     <ClInclude Include="Scripts\Camera\UmCineMotion.h" />
+    <ClInclude Include="Scripts\WeaponModelManager\WeaponModelManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.cpp" />
@@ -508,21 +527,35 @@
     <ClCompile Include="Scripts\ExcelDataSystem\ExcelDataSystem.cpp" />
     <ClCompile Include="Scripts\ExcelParser\ImGuiColumnSheetParser.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\Interface\IDropItem.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UINavi\RestartStageNavi.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UINavi\ReturnToMapNavi.cpp" />
     <ClCompile Include="Scripts\MainMenu\MainMenuNavigationBase.cpp" />
     <ClCompile Include="Scripts\Map\MapManager.cpp" />
     <ClCompile Include="Scripts\Map\RewardPopup.cpp" />
     <ClCompile Include="Scripts\Map\SmoothScroll.cpp" />
     <ClCompile Include="Scripts\Map\Stage.cpp" />
+    <ClCompile Include="Scripts\Preferences\Button\AbandonButton.cpp" />
+    <ClCompile Include="Scripts\Preferences\Button\AbandonNoButton.cpp" />
+    <ClCompile Include="Scripts\Preferences\Button\AbandonYesButton.cpp" />
+    <ClCompile Include="Scripts\Preferences\Button\BackButton.cpp" />
     <ClCompile Include="Scripts\Preferences\Button\EnableButton.cpp" />
     <ClCompile Include="Scripts\Preferences\Button\PreferencesButton.cpp" />
+    <ClCompile Include="Scripts\Preferences\Button\SoundButton.cpp" />
     <ClCompile Include="Scripts\Preferences\Button\TextureLMH.cpp" />
     <ClCompile Include="Scripts\Preferences\PreferencesManager.cpp" />
     <ClCompile Include="Scripts\Preferences\PrefrencesWindow.cpp" />
+    <ClCompile Include="Scripts\QTE\Editor\QTEEditor.cpp" />
+    <ClCompile Include="Scripts\QTE\System\QTESystem.cpp" />
+    <ClCompile Include="Scripts\QTE\Track\Note\QTENote.cpp" />
+    <ClCompile Include="Scripts\QTE\Track\QTETrack.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\QTEUIManager.cpp" />
+    <ClCompile Include="Scripts\SceneTransition\TempTransition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.cpp" />
     <ClCompile Include="Scripts\Animation\AnimationComponent.cpp" />
     <ClCompile Include="Scripts\Animation\Structs\AnimationData.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Recovery\RecoveryAction.cpp" />
+    <ClCompile Include="Scripts\WeaponModelManager\WeaponModelManager.cpp" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionEnums.h">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
@@ -575,6 +608,7 @@
     <ClCompile Include="Scripts\UI\Panels\Grid\GridPanel.cpp" />
     <ClCompile Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.cpp" />
     <ClCompile Include="Scripts\UI\Panels\Overlay\OverlayPanel.cpp" />
+    <ClCompile Include="Scripts\UI\Views\MonsterChain\MonsterChainView.cpp" />
     <ClCompile Include="Scripts\UI\Views\PlayerHP\PlayerHPView.cpp" />
     <ClCompile Include="Scripts\UI\Views\Map\StageFocusView.cpp" />
     <ClCompile Include="Scripts\UI\Views\Map\StageView.cpp" />
@@ -585,6 +619,8 @@
     <ClCompile Include="Scripts\UI\Wrappers\Dummy\DummyWrapper.cpp" />
     <ClCompile Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.cpp" />
     <ClCompile Include="Scripts\UI\Wrappers\Scrolling\ScrollingWrapper.cpp" />
+    <ClCompile Include="Scripts\ViewModels\Accessories\AccessoriesViewModel.cpp" />
+    <ClCompile Include="Scripts\ViewModels\Chain\ChainCountViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\ItemDrop\DropArtifacts\DropArtifactsViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Hp\CharacterHPViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Map\StageFocusViewModel.cpp" />
@@ -676,6 +712,7 @@
     <ClCompile Include="Scripts\MainMenu\Credits.cpp" />
     <ClCompile Include="Scripts\MainMenu\Quit.cpp" />
     <ClCompile Include="Scripts\Camera\UmCineMotion.cpp" />
+    <ClCompile Include="Scripts\UI\Views\Accessories\AccessoriesView.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

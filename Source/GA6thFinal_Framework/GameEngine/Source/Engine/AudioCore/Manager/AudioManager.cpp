@@ -8,6 +8,11 @@ void Audio::Manager::Initialize()
     {
         _system.TurnOnDebugMode();
     }
+
+    for (unsigned char group = 0; group < GROUP_MAX; ++group)
+    {
+        _groups.emplace(static_cast<Group>(group), _system.CreateGroup());
+    }
 }
 
 void Audio::Manager::Finalize()
@@ -19,10 +24,14 @@ void Audio::Manager::Finalize()
     _system.Finalize();
 }
 
-void Audio::Manager::LoadSound(const std::string& key, const File::GuidRef& guid)
+void Audio::Manager::ClearVoicePool()
 {
-    const File::Path& path = guid.ToPath();
-    if (false == path.IsNull())
+    _system.ClearVoicePool();
+}
+
+void Audio::Manager::LoadSound(const std::string& key, const File::Guid& guid)
+{
+    if (const File::Path& path = guid.ToPath(); false == path.IsNull())
     {
         Source source = _system.CreateSoundFromWave(path);
         if (const auto [iterator, isSucceed] = _sources.try_emplace(key, std::move(source)); false == isSucceed)
@@ -33,14 +42,16 @@ void Audio::Manager::LoadSound(const std::string& key, const File::GuidRef& guid
     }
 }
 
-Audio::Handle Audio::Manager::Play(const std::string& key)
+Audio::AudioHandle Audio::Manager::Play(const std::string& key, const Group group, const bool isLoop)
 {
     if (!key.empty())
     {
         try
         {
-            const auto& sound = _sources.at(key);
-            return _system.Play(sound);
+            const auto& sound       = _sources.at(key);
+            auto& groupHandle = _groups.at(group);
+
+            return _system.Play(sound, std::span(&groupHandle, 1), isLoop);
         }
         catch (const std::out_of_range& exception)
         {
@@ -65,10 +76,10 @@ Audio::Handle Audio::Manager::Play(const std::string& key)
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, "Empty Key.");
     }
-    return Handle{};
+    return AudioHandle{};
 }
 
-void Audio::Manager::Stop(const Handle& handle)
+void Audio::Manager::Stop(const AudioHandle& handle)
 {
     if (_system.IsValidHandle(handle))
     {
@@ -92,5 +103,71 @@ void Audio::Manager::Stop(const Handle& handle)
     else
     {
         UmLogger.Log(LogLevel::LEVEL_INFO, "Invalid handle.");
+    }
+}
+
+void Audio::Manager::SetVolume(const AudioHandle& handle, const float volume) const
+{
+    try
+    {
+        _system.SetVolume(handle, volume);
+    }
+    catch (const AudioException& exception)
+    {
+        const std::string errorMessage = std::format("Audio Error when set volume.");
+        UmLogger.Log(LogLevel::LEVEL_ERROR, errorMessage);
+        UmLogger.Log(LogLevel::LEVEL_ERROR, exception.what());
+    }
+    catch (const std::exception& exception)
+    {
+        const std::string errorMessage = std::format("Unknown Error when set volume.");
+        UmLogger.Log(LogLevel::LEVEL_ERROR, errorMessage);
+        UmLogger.Log(LogLevel::LEVEL_ERROR, exception.what());
+    }
+}
+
+void Audio::Manager::SetVolume(const Group group, const float volume) const
+{
+    try
+    {
+        _system.SetVolume(_groups.at(group), volume);
+    }
+    catch (const std::out_of_range& exception)
+    {
+        const std::string errorMessage = std::format("Audio group does not exist.");
+        UmLogger.Log(LogLevel::LEVEL_ERROR, errorMessage);
+        UmLogger.Log(LogLevel::LEVEL_ERROR, exception.what());
+    }
+    catch (const AudioException& exception)
+    {
+        const std::string errorMessage = std::format("Audio Error when set volume.");
+        UmLogger.Log(LogLevel::LEVEL_ERROR, errorMessage);
+        UmLogger.Log(LogLevel::LEVEL_ERROR, exception.what());
+    }
+    catch (const std::exception& exception)
+    {
+        const std::string errorMessage = std::format("Unknown Error when set volume.");
+        UmLogger.Log(LogLevel::LEVEL_ERROR, errorMessage);
+        UmLogger.Log(LogLevel::LEVEL_ERROR, exception.what());
+    }
+}
+
+void Audio::Manager::SetVolume(const float volume) const
+{
+    try
+    {
+        _system.SetVolume(volume);
+    }
+    catch (const AudioException& exception)
+    {
+        const std::string errorMessage = std::format("Audio Error when set volume.");
+        UmLogger.Log(LogLevel::LEVEL_ERROR, errorMessage);
+        UmLogger.Log(LogLevel::LEVEL_ERROR, exception.what());
+    }
+    catch (const std::exception& exception)
+    {
+        const std::string errorMessage = std::format("Unknown Error when set volume.");
+        UmLogger.Log(LogLevel::LEVEL_ERROR, errorMessage);
+        UmLogger.Log(LogLevel::LEVEL_ERROR, exception.what());
     }
 }

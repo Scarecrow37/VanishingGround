@@ -306,4 +306,12 @@ void OrthonormalizeTBN(inout float3 T, inout float3 B, inout float3 N)
     T = normalize(T - N * dot(T, N));
     B = normalize(cross(N, T));
 }
+
+uint OITAllocNode(RWByteAddressBuffer nodeCounter)
+{
+    uint old;
+    nodeCounter.InterlockedAdd(0, 1, old);
+    return old;
+}
+
 #endif

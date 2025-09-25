@@ -186,7 +186,8 @@ public:
     /// 이 함수는 내부의 AnimationEventTrack 객체에 대한 참조를 반환합니다.
     /// </summary>
     /// <returns>내부에 저장된 AnimationEventTrack 객체에 대한 참조를 반환합니다.</returns>
-    inline AnimationEventTrack& GetEventTrack() { return _eventTrack; }
+    inline AnimationEventTrack& GetAnimationEventTrack() { return _eventTrack; }
+    inline std::shared_ptr<Timeline::EventTrack> GetCurrentEventTrack() { return _eventTrack.GetEventTrack(GetTopAnimationDataEx().GetAnimationName()); }
     /// <summary>
     /// 애니메이션 알림 기능을 활성화 또는 비활성화합니다.
     /// </summary>

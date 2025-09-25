@@ -14,6 +14,7 @@
 #include "ViewModels/Hp/CharacterHPViewModel.h"
 #include "Utility/SingletonHelper.h"
 #include "ItemDropSystem/ItemDropSystem.h"
+#include "SceneTransition/SceneTransitionComponent.h"
 
 static GameObject* thisPointer = nullptr;
 
@@ -113,6 +114,8 @@ void MapManager::Awake()
     {        
         GameObject::Destroy(gameObject);
     }
+    auto* sceneTrans = GetComponent<SceneTransitionComponent>();
+    sceneTrans->Fade("out", nullptr);
 }
 
 void MapManager::Update()
@@ -156,6 +159,7 @@ void MapManager::OnLoadScene(Scene& loadScene, LoadSceneMode mode)
             child->gameObject->ActiveSelf = isActive;
         }
     }
+
 }
 
 void MapManager::ImGuiDrawPropertysEvent()

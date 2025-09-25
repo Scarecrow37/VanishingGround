@@ -12,7 +12,7 @@
 #include <Stats/Enemy/EnemyStats.h>
 #include <Stats/Enemy/EnemyStatsComponent.h>
 
-void Battle::operator()(Player& attacker, EnemyTargetFlag targetFlag)
+void Battle::operator()(Player& attacker, EnemyTargetFlag targetFlag, const QTE::Result& result)
 {
     TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
     if (turnMode)
@@ -23,7 +23,7 @@ void Battle::operator()(Player& attacker, EnemyTargetFlag targetFlag)
         std::vector<Enemy*> targets = GetTargetsFromFlags(targetFlag);
         for (auto& enemy : targets)
         {
-            BattleStart(attacker, *enemy);
+            BattleStart(attacker, *enemy, result);
         }
     }
 }
@@ -75,7 +75,7 @@ std::vector<Enemy*> Battle::GetTargetsFromFlags(EnemyTargetFlag targetFlag)
     return selectedTargets;
 }
 
-void Battle::BattleStart(Player& attacker, Enemy& target)
+void Battle::BattleStart(Player& attacker, Enemy& target, const QTE::Result& result)
 {
     TurnMode*             turnMode             = SingletonComponent<TurnMode>::GetInstance();
     WeaponSystem*         weaponSystem         = SingletonComponent<WeaponSystem>::GetInstance();
@@ -94,17 +94,29 @@ void Battle::BattleStart(Player& attacker, Enemy& target)
         PlayerInfo playerInfo(attacker, weaponStats, playerStats);
         EnemyInfo  enemyInfo(target, enemyStats);
 
-        turnMode->ApplyActions([&](TurnAction& action) {
-            action.OnPlayerBattleCaculateChainModifier(attacker, playerStats, weaponStats, target, enemyStats);
-        });
-        int chainDamage = DamageSystem::CalculateChainDamage(playerInfo, enemyInfo);
-        target.TakeChain(chainDamage);
+        int chainDamage = 0;
+        int damage      = 0;
 
         turnMode->ApplyActions([&](TurnAction& action) {
-            action.OnPlayerBattleCalculateDamageModifier(attacker, playerStats, weaponStats, target, enemyStats);
+            action.OnPlayerBattlePreCalculate(attacker, playerStats, weaponStats, target, enemyStats, result);
         });
-        int damage = DamageSystem::CalculateDamage(playerInfo, enemyInfo);
-        target.TakeDamage(damage);
+
+        if (QTE::QTE_RESULT_MISS != result.ResultType && QTE::QTE_RESULT_NONE != result.ResultType)
+        {
+            turnMode->ApplyActions([&](TurnAction& action) {
+                action.OnPlayerBattleCalculateChainModifier(attacker, playerStats, weaponStats, target, enemyStats);
+            });
+            chainDamage = DamageSystem::CalculateChainDamage(playerInfo, enemyInfo);
+            target.TakeChain(chainDamage);
+
+            turnMode->ApplyActions([&](TurnAction& action) {
+                action.OnPlayerBattleCalculateDamageModifier(attacker, playerStats, weaponStats, target, enemyStats);
+            });
+            damage = DamageSystem::CalculateDamage(playerInfo, enemyInfo, result);
+        }
+
+        // 미스여도 TakeDamage를 호출. 어차피 내부에서 미스처리를 하기 때문 (판정에 따른 이펙트 출력때문에... 나중에 PlayEffect를 따로 만들까? 싶음)
+        target.TakeDamage(damage, result);
     }
 }
 

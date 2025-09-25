@@ -45,6 +45,8 @@ bool EComponentFactory::InitalizeComponentFactory()
     {
         //커맨드 Clear
         UmCommandManager.Clear();
+        //오디오 Clear
+        UmAudio.ClearVoicePool();
 
         //Input Receiver Clear
         ESceneManager::Engine::GetInputSystem().CleanupInputReceivers();
@@ -230,6 +232,10 @@ void EComponentFactory::UninitalizeComponentFactory()
             }
         }
         _componentInstanceVec.clear();
+
+        // 오디오 Clear
+        UmAudio.ClearVoicePool();
+
         FreeLibrary(m_scriptsDll);
         m_scriptsDll = NULL;
     }
@@ -407,7 +413,7 @@ Component* EComponentFactory::AddComponentToYamlNow(GameObject* ownerObject, YAM
     std::shared_ptr<Component> component;
     if (component = MakeComponentToYaml(ownerObject, componentNode))
     {
-        PushBackComponentToObject(component, false);   
+        PushBackComponentToObject(component);   
     }
     else
     {
@@ -418,18 +424,14 @@ Component* EComponentFactory::AddComponentToYamlNow(GameObject* ownerObject, YAM
 
 void EComponentFactory::Engine::PushBackComponentToObject(std::shared_ptr<Component>& component) 
 {
-    UmComponentFactory.PushBackComponentToObject(component, true);
+    UmComponentFactory.PushBackComponentToObject(component);
 }
 
-void EComponentFactory::PushBackComponentToObject(std::shared_ptr<Component>& component, bool onReset)
+void EComponentFactory::PushBackComponentToObject(std::shared_ptr<Component>& component)
 {
     if (component->_gameObject)
     {
         component->_gameObject->_components.emplace_back(component);
-        if (onReset)
-        {
-            component->Reset();
-        }
     }
     else
     {

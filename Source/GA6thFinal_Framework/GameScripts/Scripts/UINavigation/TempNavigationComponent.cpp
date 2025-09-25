@@ -1,6 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "TempNavigationComponent.h"
 
+//UMREAL_COMPONENT(UINavigationComponent);
+
 TempNavigationComponent::TempNavigationComponent() = default;
 
 void TempNavigationComponent::FocusIn() 

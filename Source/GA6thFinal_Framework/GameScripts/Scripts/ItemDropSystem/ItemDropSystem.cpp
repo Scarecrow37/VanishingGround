@@ -298,6 +298,35 @@ void ItemDropSystem::PlayItemDropUISequence()
         itemDropUIRootManager->gameObject->ActiveSelf = true;
         StageClearCount = StageClearCount + 1;
     }
+
+    if (auto restartButton = GameObject::FindWithTag("Restart Button").lock())
+    {
+        UINavigationComponent* nav = restartButton->GetComponentDynamic<UINavigationComponent>();
+        if (nullptr != nav)
+        {
+            nav->Focus();
+        }
+    }
+
+    if (auto turnQueue = GameObject::FindWithTag("Turn Queue Panel").lock())
+    {
+        turnQueue->ActiveSelf = false;
+    }
+
+    if (auto HUD = GameObject::FindWithTag("Character HUD Group").lock())
+    {
+        HUD->ActiveSelf = false;
+    }
+
+    if (auto revelationPanel = GameObject::FindWithTag("Revelations Panel").lock())
+    {
+        revelationPanel->ActiveSelf = false;
+    }
+
+    if (auto weaponPanel = GameObject::FindWithTag("Weapon Panel").lock())
+    {
+        weaponPanel->ActiveSelf = false;
+    }
 }
 
 void ItemDropSystem::ImGuiDrawPropertysEvent() 

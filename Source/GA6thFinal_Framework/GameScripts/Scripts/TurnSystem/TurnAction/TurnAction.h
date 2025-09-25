@@ -135,6 +135,12 @@ public:
     virtual void OnEnemyDead(Enemy& enemy) {}
 
     /// <summary>
+    /// QTE가 시작할 때 호출됩니다. 
+    /// </summary>
+    /// <param name="player"></param>
+    virtual void OnPlayerQTEStart(Player& player) {}
+
+    /// <summary>
     /// 플레이어 QTE 판정 종료후 호출됩니다.
     /// </summary>
     /// <param name="player"></param>
@@ -146,7 +152,6 @@ public:
     /// <param name="targetFlag"></param>
     virtual void OnPlayerBattleTargetSelected(Battle::EnemyTargetFlag& targetFlag) {}
 
-
     /// <summary>
     /// 플레이어의 연격 데미지 계산 전에 호출됩니다.
     /// </summary>
@@ -155,7 +160,7 @@ public:
     /// <param name="weaponStats"></param>
     /// <param name="target"></param>
     /// <param name="targetStats"></param>
-    virtual void OnPlayerBattleCaculateChainModifier(Player& attacker, PlayerStats& attackerStats,
+    virtual void OnPlayerBattleCalculateChainModifier(Player& attacker, PlayerStats& attackerStats,
                                                      WeaponStats& weaponStats, Enemy& target, EnemyStats& targetStats)
     {
     }
@@ -195,6 +200,12 @@ public:
     /// <param name="targetStats"></param>
     virtual void OnEnemyBattleCalculateChainModifier(Enemy& attacker, EnemyStats& attackerStats, Player& target,
                                                      PlayerStats& targetStats)
+    {
+    }
+
+    /// <summary>Player가 공격할 때 MISS등 관계 여부 상관 없이 데미지 계산 전에 호출됩니다.</summary>
+    virtual void OnPlayerBattlePreCalculate(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
+                                     Enemy& target, EnemyStats& targetStats, const QTE::Result& result)
     {
     }
 

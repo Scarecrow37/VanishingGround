@@ -9,24 +9,6 @@
 #include "ExcelDataSystem/ExcelDataSystem.h"
 #include "Utility/SingletonHelper.h"
 
-struct GetEnemyFrameGuid
-{
-    File::Guid operator()() const
-    {
-        const File::Path& path = UmFileSystem.GetPathFromAssetID(110053);
-        return path.ToGuid();
-    }
-};
-
-struct GetPlayerFrameGuid
-{
-    File::Guid operator()() const
-    {
-        const File::Path& path = UmFileSystem.GetPathFromAssetID(110052);
-        return path.ToGuid();
-    }
-};
-
 struct GetPortraitGuid
 {
     File::Guid operator()(const EnemyType enemyType) const
@@ -102,7 +84,6 @@ struct GetPortraitGuid
     }
 };
 
-
 TurnQueueViewModel::TurnQueueViewModel(MVVM::Model<std::deque<std::pair<int, TurnActor*>>>& model)
     : ViewModel(model)
 {
@@ -113,6 +94,7 @@ std::vector<TurnUIData> TurnQueueViewModel::Convert(const std::deque<std::pair<i
 {
     _turnQueueData.clear();
 
+    bool isFocus = true;
     for (const auto & slotAndActor : value)
     {
         if (TurnMode::IsPlayerActorSlot(slotAndActor))
@@ -121,8 +103,8 @@ std::vector<TurnUIData> TurnQueueViewModel::Convert(const std::deque<std::pair<i
             const int     slotIndex    = slotAndActor.first;
             WeaponStats&  stats        = weaponSystem->GetWeaponStatsAtIndex(slotIndex);
             int           weaponId     = stats.WeaponID;
-            File::GuidRef frameGuid    = GetPlayerFrameGuid()();
-            File::GuidRef portraitGuid = GetPortraitGuid()(weaponId);
+            File::Guid    frameGuid    = isFocus ? UmFileSystem.GetGuidFromAssetID(110054) : UmFileSystem.GetGuidFromAssetID(110052);
+            File::Guid portraitGuid    = GetPortraitGuid()(weaponId);
             TurnUIData    data{.ActorPortrait = portraitGuid, .Frame = frameGuid};
             _turnQueueData.push_back(data);
         }
@@ -133,8 +115,8 @@ std::vector<TurnUIData> TurnQueueViewModel::Convert(const std::deque<std::pair<i
             {
 
                 const EnemyType enemyType = enemy->Type;
-                const File::GuidRef portraitGuid = GetPortraitGuid()(enemyType);
-                const File::GuidRef frameGuid    = GetEnemyFrameGuid()();
+                const File::Guid portraitGuid = GetPortraitGuid()(enemyType);
+                const File::Guid frameGuid    = isFocus ? UmFileSystem.GetGuidFromAssetID(110055) : UmFileSystem.GetGuidFromAssetID(110053);
                 TurnUIData    data{.ActorPortrait = portraitGuid, .Frame = frameGuid};
                 _turnQueueData.push_back(data);
             }
@@ -143,6 +125,11 @@ std::vector<TurnUIData> TurnQueueViewModel::Convert(const std::deque<std::pair<i
                 UmLogger.Log(LogLevel::LEVEL_WARNING, "Actor가 Player도 Enemy도 아닙니다.");
             }
 
+        }
+
+        if (isFocus)
+        {
+            isFocus = false;
         }
     }
 
