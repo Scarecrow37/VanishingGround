@@ -45,10 +45,10 @@ namespace QTE
         OverallResult() = default;
         ~OverallResult() = default;
 
-        int PerfectCount = 0;
-        int NormalCount = 0;
-        int MissCount = 0;
-        int ResultFlags; // 결과 비트 플래그
+        int PerfectCount    = 0; // 치명타 카운트
+        int NormalCount     = 0; // 일격 카운트
+        int MissCount       = 0; // 빗나감 카운트
+        int ResultFlags     = 0; // 결과 산출 비트 플래그
 
         std::vector<NoteResult> NoteResults; // 노트 결과 리스트
 
@@ -63,13 +63,13 @@ namespace QTE
                    CompareResult(QTE_RESULT_ALL_CRIT);
         }
         
-        /// <summary>초기 상태로 되돌립니다..</summary>
+        /// <summary>초기 상태로 되돌립니다.</summary>
         inline void Clear() 
         { 
             PerfectCount = 0;
             NormalCount  = 0;
             MissCount    = 0;
-            ResultFlags  = 0;
+            ResultFlags  = QTE_RESULT_NONE;
             NoteResults.clear();
         }
 
@@ -80,6 +80,7 @@ namespace QTE
             bool allCrit = PerfectCount >= total;
             bool overHit = (PerfectCount + NormalCount) >= total;
 
+            ResultFlags  = QTE_RESULT_NONE;
             ResultFlags |= allCrit ? QTE_RESULT_ALL_CRIT : QTE_RESULT_ALL_CRIT_FAIL;
             ResultFlags |= overHit ? QTE_RESULT_OVER_HIT : QTE_RESULT_OVER_HIT_FAIL;
         }
