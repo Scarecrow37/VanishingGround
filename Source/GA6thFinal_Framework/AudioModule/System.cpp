@@ -491,6 +491,31 @@ namespace Audio
         attachedVoices.clear();
     }
 
+    void System::SetVolume(const float volume) const
+    {
+        const float newVolume = std::clamp(volume, 0.0f, 1.0f);
+        ThrowIfFailed()(_masteringVoice->SetVolume(newVolume), "Failed to set master volume.");
+    }
+
+    void System::SetVolume(const GroupHandle& handle, const float volume) const
+    {
+        if (IsValidHandle(handle))
+        {
+            const float newVolume = std::clamp(volume, 0.0f, 1.0f);
+            ThrowIfFailed()(_groupPool.at(handle._index).Voice->SetVolume(newVolume), "Failed to set group volume.");
+        }
+    }
+
+    void System::SetVolume(const AudioHandle& handle, const float volume) const
+    {
+        if (IsValidHandle(handle))
+        {
+            const float newVolume = std::clamp(volume, 0.0f, 1.0f);
+            ThrowIfFailed()(_voicePools.at(handle._hash).at(handle._index).Voice->SetVolume(newVolume),
+                            "Failed to set source voice volume.");
+        }
+    }
+
     void System::ReleaseVoice(const AudioHandle& handle)
     {
         if (!IsValidHandle(handle))
