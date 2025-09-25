@@ -1,11 +1,12 @@
 ﻿#pragma once
+#include "Handle.h"
 
 namespace Audio
 {
     /// <summary>
-    /// Audio System에서 사용되는 Handle 객체입니다.
+    /// 현재 사용중인 Group 제어에 사용하는 GroupHandle 객체입니다.
     /// </summary>
-    class Handle
+    class GroupHandle : public Handle
     {
         friend class System;
 
@@ -13,13 +14,10 @@ namespace Audio
         /// <summary>
         /// 기본 생성자로 생성된 핸들은 유효하지 않습니다.
         /// </summary>
-        Handle();
+        GroupHandle();
 
     protected:
-        Handle(Index index, Generation generation);
+        GroupHandle(Index index, Generation generation);
 
-    private:
-        Index      _index;
-        Generation _generation;
     };
 } // namespace Audio
