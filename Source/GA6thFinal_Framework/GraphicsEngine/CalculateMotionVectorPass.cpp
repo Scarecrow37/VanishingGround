@@ -10,7 +10,7 @@ void CalculateMotionVectorPass::Initialize(RenderScene* ownerScene, RenderTechni
 {
     RenderPass::Initialize(ownerScene, ownerTechique, commadList);
     InitShaderAndPSO();
-    _ssgiTech = dynamic_cast<SSGITechnique*>(_ownerTechnique);
+    _ssgiTech = dynamic_cast<SSGITechnique*>(ownerTechique);
 }
 
 void CalculateMotionVectorPass::Begin(ID3D12GraphicsCommandList* commandList) 
@@ -37,7 +37,7 @@ void CalculateMotionVectorPass::InitShaderAndPSO()
 {
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();
-    _shader->SetShader(L"../Shader/cs_calculate_motion_vector.hlsl", ShaderBuilder::Type::CS);
+    _shader->SetShader(L"../Shaders/cs_calculate_motion_vector.hlsl", ShaderBuilder::Type::CS);
     _shader->EndBuild();
 
     D3D12_COMPUTE_PIPELINE_STATE_DESC psoDesc{};
