@@ -2,6 +2,9 @@
 #include "SSGITechnique.h"
 #include "RenderScene.h"
 
+// render pass
+#include "CalculateMotionVectorPass.h"
+
 SSGITechnique::SSGITechnique() {}
 
 SSGITechnique::~SSGITechnique() {}
@@ -12,9 +15,11 @@ void SSGITechnique::Initialize(ID3D12GraphicsCommandList* commandList)
     _GIHalf2D[0]       = std::make_shared<UnorderedAccessView>();
     _GIHalf2D[1]       = std::make_shared<UnorderedAccessView>();
     _constantBuffer    = std::make_shared<ConstantBufferView>();
+    UINT size          = (sizeof(SSGIData) + 255) & ~255;
+    _constantBuffer->Initialize(size);
     auto res = Global::device->GetResolution();
     // motion vector
-    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, res.cx, res.cy, 1, 0, 1, 0,
+    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32_FLOAT, res.cx, res.cy, 1, 0, 1, 0,
                                              D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
     _motionVectorTex2D->InitializeAsTexture(desc, UnorderedAccessView::UAVSliceType::PER_MIP, true,
                                             D3D12_SRV_DIMENSION_TEXTURE2D);
@@ -36,11 +41,17 @@ void SSGITechnique::Initialize(ID3D12GraphicsCommandList* commandList)
     property.DepthSigma     = 2.f;
     property.NormalSigma    = 128.f;
     Global::renderPassDatas->AddRenderPassProperty("SSGIData", property);
+
+    std::unique_ptr<RenderPass> pass;
+    pass = std::make_unique<CalculateMotionVectorPass>();
+    pass->Initialize(_ownerScene, this, commandList);
+    AddRenderPass(std::move(pass));
 }
 
 void SSGITechnique::Execute(ID3D12GraphicsCommandList* commandList)
 {
     RenderTechnique::Execute(commandList);
+    UpdateConstantBuffer();
     _currIndex = !_currIndex;
 }
 
@@ -58,8 +69,8 @@ void SSGITechnique::UpdateConstantBuffer()
 
     // 상수 버퍼 관련 update
     SSGIData data;
-    data.PreViewProj = _prevVP;
-    data.InverseViewProjection = invViewProj;
+    data.PreViewProj           = XMMatrixTranspose(_prevVP);
+    data.InverseViewProjection = XMMatrixTranspose(invViewProj);
     data.ScreenSize            = Vector2(res.cx, res.cy);
     data.Radius                = ssgiProperty.DepthSigma;
     data.Thickness             = ssgiProperty.Thickness;
