@@ -111,9 +111,39 @@ namespace Audio
         /// <returns>핸들이 유효하면 true, 그렇지 않으면 false를 반환합니다.</returns>
         [[nodiscard]] bool IsValidHandle(const GroupHandle& handle) const noexcept;
 
+        /// <summary>
+        /// 새 오디오 그룹을 생성합니다.
+        /// </summary>
+        /// <param name="channels">오디오 그룹의 채널 수입니다. 기본값은 2입니다.</param>
+        /// <param name="sampleRate">오디오 그룹의 샘플레이트(Hz)입니다. 기본값은 44100입니다.</param>
+        /// <returns>생성된 오디오 그룹을 나타내는 GroupHandle입니다.</returns>
         GroupHandle CreateGroup(UINT32 channels = 2, UINT32 sampleRate = 44100);
 
+        /// <summary>
+        /// 지정된 그룹 핸들을 해제합니다.
+        /// </summary>
+        /// <param name="handle">해제할 그룹을 나타내는 GroupHandle 참조입니다.</param>
         void ReleaseGroup(const GroupHandle& handle);
+
+        /// <summary>
+        /// 마스터 볼륨을 설정합니다.
+        /// </summary>
+        /// <param name="volume">설정할 마스터 볼륨 값입니다. 값은 0 ~ 1 사이의 값입니다.</param>
+        void SetVolume(float volume) const;
+
+        /// <summary>
+        /// 지정된 그룹의 볼륨을 설정합니다.
+        /// </summary>
+        /// <param name="handle">볼륨을 설정할 그룹을 식별하는 GroupHandle 참조입니다.</param>
+        /// <param name="volume">설정할 볼륨 값입니다. 값은 0 ~ 1 사이의 값입니다.</param>
+        void SetVolume(const GroupHandle& handle, float volume) const;
+
+        /// <summary>
+        /// 오디오 핸들의 볼륨을 설정합니다.
+        /// </summary>
+        /// <param name="handle">볼륨을 설정할 오디오 핸들입니다.</param>
+        /// <param name="volume">설정할 볼륨 값입니다. 값은 0 ~ 1 사이의 값입니다.</param>
+        void SetVolume(const AudioHandle& handle, float volume) const;
 
     private:
         void ReleaseVoice(const AudioHandle& handle);
