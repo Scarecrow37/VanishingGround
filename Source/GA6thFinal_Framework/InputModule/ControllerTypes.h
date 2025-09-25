@@ -79,4 +79,6 @@ namespace Input::ControllerTypes
     };
 
     using ButtonQueue = std::vector<ButtonState>;
+
+    using MotorSpeed = unsigned short;
 } // namespace Input::ControllerTypes
