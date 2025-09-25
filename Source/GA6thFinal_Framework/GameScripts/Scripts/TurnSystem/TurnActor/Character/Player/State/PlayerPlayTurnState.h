@@ -33,8 +33,8 @@ protected:
     void OnExit() override;
     void OnUpdate() override;
 
-    void OnQTEFinish(const std::vector<QTE::Result>& results);
-    
+    void OnQTEFinish(const QTE::OverallResult& results);
+
     void PressedButtonA(const Input::Controller& controller);
     void ReleasedButtonA(const Input::Controller& controller);
 
@@ -49,7 +49,7 @@ private:
     void SetAttack();
     void SetAttackEnd();
 
-    void BattleOnHitEvent(const QTE::Result& result);
+    void BattleOnHitEvent(const QTE::NoteResult& result);
 
     Battle::EnemyTargetFlag_ GetAttackTargetFromButton(unsigned int button) const;
 

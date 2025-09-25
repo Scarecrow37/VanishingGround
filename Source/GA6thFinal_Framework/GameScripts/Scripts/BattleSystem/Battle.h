@@ -47,7 +47,7 @@ public:
     /// </summary>
     /// <param name="attacker :">공격자</param>
     /// <param name="target :">대상</param>
-    void operator()(Player& attacker, EnemyTargetFlag targetFlag, const QTE::Result& result);
+    void operator()(Player& attacker, EnemyTargetFlag targetFlag, const QTE::NoteResult& result);
 
     /// <summary>
     /// 적으로 공격을 수행합니다.
@@ -90,7 +90,7 @@ private:
     inline static std::weak_ptr<Enemy>         lastTargetEnemy;
 
 private:
-    static void BattleStart(Player& attacker, Enemy& target, const QTE::Result& result);
+    static void BattleStart(Player& attacker, Enemy& target, const QTE::NoteResult& result);
     static void BattleStart(Enemy& attacker, Player& target);
 
 };

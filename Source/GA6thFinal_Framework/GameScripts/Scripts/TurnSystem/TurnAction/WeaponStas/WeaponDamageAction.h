@@ -70,7 +70,7 @@ protected:
 
     void SerializedReflectEvent() override;
     void DeserializedReflectEvent() override;
-    void OnPlayerQTEResult(Player& player) override; 
+    void OnPlayerQTEResult(Player& player, const QTE::OverallResult& result) override; 
 
 private:
     void UpdateActionInfo();

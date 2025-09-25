@@ -123,7 +123,7 @@ void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
         if (QTESystem* qteSystem = SingletonComponent<QTESystem>::GetInstance())
         {
             _inputState = InputState::QUICK_TIME_EVENT;
-            qteSystem->StartQTE([this](const std::vector<QTE::Result>& results) { OnQTEFinish(results); });
+            qteSystem->StartQTE([this](const QTE::OverallResult& results) { OnQTEFinish(results); });
             SetAttackReady();
         }
         else
@@ -372,7 +372,7 @@ void PlayerPlayTurnState::SetAttackEnd()
     }
 }
 
-void PlayerPlayTurnState::BattleOnHitEvent(const QTE::Result& result) 
+void PlayerPlayTurnState::BattleOnHitEvent(const QTE::NoteResult& result) 
 {
     Battle::EnemyTargetFlag_ target = GetAttackTargetFromButton(result.PressedButton);
     Player& player = GetPlayer();
@@ -400,9 +400,10 @@ Battle::EnemyTargetFlag_ PlayerPlayTurnState::GetAttackTargetFromButton(unsigned
     return target;
 }
 
-void PlayerPlayTurnState::OnQTEFinish(const std::vector<QTE::Result>& results) 
+void PlayerPlayTurnState::OnQTEFinish(const QTE::OverallResult& results)
 {
-    for (const auto& result : results)
+    const auto& noteResults = results.NoteResults;
+    for (const auto& result : noteResults)
     {   
 
         QTE::Note* note = result.Note;
