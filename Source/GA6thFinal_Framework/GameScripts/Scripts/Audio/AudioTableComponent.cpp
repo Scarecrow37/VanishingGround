@@ -245,9 +245,9 @@ void AudioTableComponent::LoadAudio(const std::string& key, const File::GuidRef&
 
 void AudioTableComponent::PlaySelectedAudio()
 {
-    auto [iter, succeed] = _audioHandles.try_emplace(_selectedAudioKey, std::vector<Audio::Handle>());
-    std::vector<Audio::Handle>& handles = iter->second;
-    const Audio::Handle handle = UmAudio.Play(_selectedAudioKey);
+    auto [iter, succeed] = _audioHandles.try_emplace(_selectedAudioKey, std::vector<Audio::AudioHandle>());
+    std::vector<Audio::AudioHandle>& handles = iter->second;
+    const Audio::AudioHandle handle = UmAudio.Play(_selectedAudioKey);
     handles.push_back(handle);
 }
 
@@ -255,8 +255,8 @@ void AudioTableComponent::StopSelectedAudio()
 {
     try
     {
-        std::vector<Audio::Handle>& handles = _audioHandles.at(_selectedAudioKey);
-        std::ranges::for_each(handles, [](const Audio::Handle& handle) {
+        std::vector<Audio::AudioHandle>& handles = _audioHandles.at(_selectedAudioKey);
+        std::ranges::for_each(handles, [](const Audio::AudioHandle& handle) {
             UmAudio.Stop(handle); });
         handles.clear();
     }

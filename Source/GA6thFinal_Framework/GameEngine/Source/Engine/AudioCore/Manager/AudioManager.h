@@ -2,6 +2,13 @@
 
 namespace Audio
 {
+    enum Group : unsigned char
+    {
+        GROUP_EFFECT,
+        GROUP_BGM,
+        GROUP_MAX
+    };
+
     class Manager
     {
     public:
@@ -11,12 +18,13 @@ namespace Audio
 
         void LoadSound(const std::string& key, const File::GuidRef& guid);
 
-        Handle Play(const std::string& key, bool isLoop = false);
-        void   Stop(const Handle& handle);
+        AudioHandle Play(const std::string& key, Group group = GROUP_EFFECT, bool isLoop = false);
+        void        Stop(const AudioHandle& handle);
 
     private:
         System _system;
 
         std::unordered_map<std::string, Source> _sources;
+        std::unordered_map<Group, GroupHandle>  _groups;
     };
 }
