@@ -72,7 +72,7 @@ namespace Timeline
                     ImGui::PushID(assetID);
                     ImGui::TableNextRow();
                     {
-                        std::string label = _isShowPath ? path.string() : std::to_string(assetID);
+                        std::string label = _isShowPath ? path.IsNull() ? "failed to find path" : path.string() : std::to_string(assetID);
                         ImGui::TableSetColumnIndex(0);
                         ImGui::TextUnformatted(label.c_str());
                         ImGuiHelper::HoveredToolTip(label.c_str());

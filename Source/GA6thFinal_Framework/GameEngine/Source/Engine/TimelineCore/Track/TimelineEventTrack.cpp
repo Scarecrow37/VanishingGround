@@ -229,7 +229,7 @@ namespace Timeline
         {
             if (_contextQueue[i] && _contextQueue[i]->ID == id)
             {
-                if (i > 0 && i - 1 < _contextQueue.size())
+                if (i > 0)
                 {
                     return _contextQueue[i - 1];
                 }

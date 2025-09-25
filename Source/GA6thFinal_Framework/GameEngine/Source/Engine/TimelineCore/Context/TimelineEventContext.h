@@ -47,7 +47,7 @@ namespace Timeline
             {
                 const char* typeNameT = typeid(T).name();
                 const auto& keyTypeName  = context->GetEventType();
-                if (typeNameT == keyTypeName)
+                if (keyTypeName == typeNameT)
                 {
                     return static_cast<T*>(context);
                 }
