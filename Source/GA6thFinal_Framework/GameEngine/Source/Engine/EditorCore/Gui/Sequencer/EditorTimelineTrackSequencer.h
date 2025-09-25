@@ -129,6 +129,7 @@ namespace Timeline
         inline float  GetSnapCursorFrame() const { return _indicateFrame; }
         inline float  GetIndicateCursorFrame() const { return _indicateFrame; }
                       
+        inline void   SetFlags(UINT flags) { _flags = flags; }
         inline void   AddFlags(UINT flags) { _flags |= flags; }
         inline void   RemoveFlags(UINT flags) { _flags &= ~flags; }
         inline void   ToggleFlags(UINT flags) { _flags ^= flags; }

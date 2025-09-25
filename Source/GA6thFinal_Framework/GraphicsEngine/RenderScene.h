@@ -90,7 +90,6 @@ public:
     std::vector<LightData>                      _lightDatas;
     std::vector<MatrixData>                     _matrices;
     std::vector<BoneMatrices>                   _boneMatrices;
-    std::vector<MaterialID>                     _materialIDs;
     std::vector<XMMATRIX>                       _uiMatrices;
     std::vector<UIMaterial>                     _uiMaterials;
     std::vector<MeshInstanceID>                 _staticMeshInstanceIDs;

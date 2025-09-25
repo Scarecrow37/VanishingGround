@@ -21,22 +21,26 @@ struct VSOutput
     float3 biTangent     : BINORMAL;
     float2 uv            : TEXCOORD;
     float4 worldPosition : TEXCOORD1;
+    
+    nointerpolation uint4 materialID : TEXCOORD2;
+    nointerpolation uint customDepth : TEXCOORD3;
+    nointerpolation float alpha : TEXCOORD4;
 };
 
-StructuredBuffer<MatrixData> matrices;
+ConstantBuffer<InstanceData> bit32_7_instanceData;
 StructuredBuffer<matrix> boneMatrices;
 
 VSOutput vs_main(VSInput input)
 {
-    ObjectData data = bit32_4_objectData;
+    InstanceData data = bit32_7_instanceData;
     
-    matrix boneTransform = mul(input.blendWeights.x, boneMatrices[data.ID * data.Offset + input.blendIndices.x]);
-    boneTransform += mul(input.blendWeights.y, boneMatrices[data.ID * data.Offset + input.blendIndices.y]);
-    boneTransform += mul(input.blendWeights.z, boneMatrices[data.ID * data.Offset + input.blendIndices.z]);
-    boneTransform += mul(input.blendWeights.w, boneMatrices[data.ID * data.Offset + input.blendIndices.w]);
+    matrix boneTransform = mul(input.blendWeights.x, boneMatrices[data.MatrixID * MAX_BONE_MATRIX + input.blendIndices.x]);
+    boneTransform += mul(input.blendWeights.y, boneMatrices[data.MatrixID * MAX_BONE_MATRIX + input.blendIndices.y]);
+    boneTransform += mul(input.blendWeights.z, boneMatrices[data.MatrixID * MAX_BONE_MATRIX + input.blendIndices.z]);
+    boneTransform += mul(input.blendWeights.w, boneMatrices[data.MatrixID * MAX_BONE_MATRIX + input.blendIndices.w]);
     
-    matrix worldTransform = mul(boneTransform, matrices[data.ID].World);
-    matrix inverseTranspose = mul(boneTransform, matrices[data.ID].InverseTranspose);
+    matrix worldTransform = mul(boneTransform, matrices[data.MatrixID].World);
+    matrix inverseTranspose = mul(boneTransform, matrices[data.MatrixID].InverseTranspose);
     
     VSOutput output = (VSOutput) 0;
     
@@ -51,6 +55,9 @@ VSOutput vs_main(VSInput input)
     output.biTangent = normalize(mul(input.biTangent, (float3x3) inverseTranspose));
     
     output.uv = input.uv;
+    output.materialID = data.MaterialID;
+    output.customDepth = data.CustomDepth;
+    output.alpha = data.Alpha;
 
     return output;
 }
