@@ -321,6 +321,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AccelerationStructureManager.h" />
+    <ClInclude Include="CalculateMotionVectorPass.h" />
     <ClInclude Include="FogCompositePass.h" />
     <ClInclude Include="FogLightAccmulatePass.h" />
     <ClInclude Include="FogLightInjectionPass.h" />
@@ -435,6 +436,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="SpriteRenderer.h" />
     <ClInclude Include="SSAOWritePass.h" />
+    <ClInclude Include="SSGITechnique.h" />
     <ClInclude Include="SSRPass.h" />
     <ClInclude Include="SSRTechnique.h" />
     <ClInclude Include="Structs.h" />
@@ -461,6 +463,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AccelerationStructureManager.cpp" />
+    <ClCompile Include="CalculateMotionVectorPass.cpp" />
     <ClCompile Include="FogCompositePass.cpp" />
     <ClCompile Include="FogLightAccmulatePass.cpp" />
     <ClCompile Include="FogLightInjectionPass.cpp" />
@@ -575,6 +578,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="SpriteRenderer.cpp" />
     <ClCompile Include="SSAOWritePass.cpp" />
+    <ClCompile Include="SSGITechnique.cpp" />
     <ClCompile Include="SSRPass.cpp" />
     <ClCompile Include="SSRTechnique.cpp" />
     <ClCompile Include="StructuredBuffer.cpp" />
