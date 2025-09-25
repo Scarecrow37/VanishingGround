@@ -209,7 +209,7 @@ using namespace Microsoft::WRL;
 #include "Engine/TimelineCore/Context/TimelineEventContext.h"
 #include "Engine/TimelineCore/Context/Audio/TimelineAudioEventContext.h"
 #include "Engine/TimelineCore/Track/TimelineEventTrack.h"
-#include "Engine/TimelineCore/AnimationEventTrack.h"
+#include "Engine/TimelineCore/Animation/AnimationEventTrack.h"
 
 //컴포넌트는 접근 안하는 헤더들
 #ifndef _SCRIPTS_PROJECT
