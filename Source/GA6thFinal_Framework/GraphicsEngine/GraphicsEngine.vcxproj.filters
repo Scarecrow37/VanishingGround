@@ -154,6 +154,9 @@
     <FxCompile Include="..\Shaders\cs_resolve_ui.hlsl">
       <Filter>Shaders\cs</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\cs_calculate_motion_vector.hlsl">
+      <Filter>Shaders\cs</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AccelerationStructureManager.cpp">
