@@ -12,11 +12,19 @@ public:
     void Execute(ID3D12GraphicsCommandList* commandList) override;
 
 public:
+    ConstantBufferView* GetConstantBufferView() { return _constantBuffer.get(); }
+
+public:
     std::shared_ptr<UnorderedAccessView> _motionVectorTex2D;
     // prev, half 돌려쓸 예정
     std::shared_ptr<UnorderedAccessView> _GIHalf2D[2];
     bool                                 _currIndex = false;
 
 private:
+    void UpdateConstantBuffer();
+
+private:
+    std::shared_ptr<ConstantBufferView> _constantBuffer;
+
     XMMATRIX _prevVP{XMMatrixIdentity()};
 };

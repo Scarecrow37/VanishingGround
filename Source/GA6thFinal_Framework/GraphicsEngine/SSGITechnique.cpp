@@ -11,7 +11,7 @@ void SSGITechnique::Initialize(ID3D12GraphicsCommandList* commandList)
     _motionVectorTex2D = std::make_shared<UnorderedAccessView>();
     _GIHalf2D[0]       = std::make_shared<UnorderedAccessView>();
     _GIHalf2D[1]       = std::make_shared<UnorderedAccessView>();
-
+    _constantBuffer    = std::make_shared<ConstantBufferView>();
     auto res = Global::device->GetResolution();
     // motion vector
     auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, res.cx, res.cy, 1, 0, 1, 0,
@@ -25,15 +25,51 @@ void SSGITechnique::Initialize(ID3D12GraphicsCommandList* commandList)
                                       D3D12_SRV_DIMENSION_TEXTURE2D);
     _GIHalf2D[1]->InitializeAsTexture(desc, UnorderedAccessView::UAVSliceType::PER_MIP, true,
                                       D3D12_SRV_DIMENSION_TEXTURE2D);
+
+    SSGIProperty property;
+    property.Radius = 1.f;
+    property.Thickness = 0.05f;
+    property.NumSample = 16;
+    property.Intencity = 1.f;
+    property.Intencity = 1.f;
+    property.TemporalWeight = 0.85f;
+    property.DepthSigma     = 2.f;
+    property.NormalSigma    = 128.f;
+    Global::renderPassDatas->AddRenderPassProperty("SSGIData", property);
 }
 
 void SSGITechnique::Execute(ID3D12GraphicsCommandList* commandList)
 {
     RenderTechnique::Execute(commandList);
-
-    XMMATRIX view = _ownerScene->_camera->GetViewMatrix();
-    XMMATRIX proj = _ownerScene->_camera->GetProjectionMatrix();
-
-    _prevVP    = XMMatrixMultiply(view, proj);
     _currIndex = !_currIndex;
+}
+
+void SSGITechnique::UpdateConstantBuffer()
+{
+    const auto& ssgiProperty = std::any_cast<const SSGIProperty&>(
+        Global::renderPassDatas->GetRenderPassProperty("SSGIData"));
+
+    XMMATRIX view        = _ownerScene->_camera->GetViewMatrix();
+    XMMATRIX proj        = _ownerScene->_camera->GetProjectionMatrix();
+    XMMATRIX viewProj    = XMMatrixMultiply(view, proj);
+    XMMATRIX invViewProj = XMMatrixInverse(nullptr, viewProj);
+
+    auto res = Global::device->GetResolution();
+
+    // 상수 버퍼 관련 update
+    SSGIData data;
+    data.PreViewProj = _prevVP;
+    data.InverseViewProjection = invViewProj;
+    data.ScreenSize            = Vector2(res.cx, res.cy);
+    data.Radius                = ssgiProperty.DepthSigma;
+    data.Thickness             = ssgiProperty.Thickness;
+    data.NumSample             = ssgiProperty.NumSample;
+    data.Intencity             = ssgiProperty.Intencity;
+    data.TemporalWeight        = ssgiProperty.TemporalWeight;
+    data.DepthSigma            = ssgiProperty.DepthSigma;
+    data.NormalSigma           = ssgiProperty.NormalSigma;
+
+    _constantBuffer->UpdateBuffer(&data);
+
+    _prevVP    = viewProj;
 }
