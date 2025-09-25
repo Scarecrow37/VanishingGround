@@ -31,11 +31,11 @@
     <Filter Include="Callback">
       <UniqueIdentifier>{40658823-65b1-4088-9110-95e0fafe74cb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Handle\AudioHadle">
-      <UniqueIdentifier>{88eebea4-703a-475d-82b7-b38878b3a62b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Handle\GroupHandle">
       <UniqueIdentifier>{a114e4bd-a211-492c-bf07-f08ff217f821}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Handle\AudioHandle">
+      <UniqueIdentifier>{88eebea4-703a-475d-82b7-b38878b3a62b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -64,7 +64,7 @@
       <Filter>Callback</Filter>
     </ClInclude>
     <ClInclude Include="AudioHandle.h">
-      <Filter>Handle\AudioHadle</Filter>
+      <Filter>Handle\AudioHandle</Filter>
     </ClInclude>
     <ClInclude Include="Handle.h">
       <Filter>Handle</Filter>
@@ -93,7 +93,7 @@
       <Filter>Callback</Filter>
     </ClCompile>
     <ClCompile Include="AudioHandle.cpp">
-      <Filter>Handle\AudioHadle</Filter>
+      <Filter>Handle\AudioHandle</Filter>
     </ClCompile>
     <ClCompile Include="Handle.cpp">
       <Filter>Handle</Filter>
