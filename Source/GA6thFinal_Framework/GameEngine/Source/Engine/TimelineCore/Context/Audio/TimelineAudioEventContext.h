@@ -2,6 +2,10 @@
 
 namespace Timeline
 {
+    /// <summary>
+    /// AudioEvent는 기본적으로 루프와 그룹 설정을 지원하지 않습니다.
+    /// 루프 설정을 하게되는 경우 해제의 책임을 지는 객체가 없기 때문입니다...
+    /// </summary>
     class AudioEventContext : public EventContext
     {
     public:
@@ -11,7 +15,7 @@ namespace Timeline
 
     public:
         REFLECT_PROPERTY(Volume) 
-
+        
         GETTER(float, Volume) { return ReflectFields->Volume; }
         SETTER(float, Volume) { ReflectFields->Volume = std::clamp(value, 0.0f, 1.0f); }
         PROPERTY(Volume)
@@ -22,6 +26,8 @@ namespace Timeline
         void DeserializedReflectEvent() override;
         void ImGuiDrawPropertysEvent() override;
 
+        inline float        GetVolume() const { return ReflectFields->Volume; }
+
     public:
         bool AddAudioFromAssetID(int assetID);
         bool RemoveAudioFromAssetID(int assetID);
@@ -30,11 +36,10 @@ namespace Timeline
         void ListenAudioFileDragDropEvent();
 
     protected:
-        std::map<int, std::string> _audioGuidTable; // AssetID - GuidStr
         float _totalWeight = 0.0f;
 
         REFLECT_FIELDS_BEGIN(EventContext)
-        float Volume = 1.0f;
+        float                Volume = 1.0f;
         std::map<int, float> AudioDataTable; // AssetID - Weight
         REFLECT_FIELDS_END(AudioEventContext)
 

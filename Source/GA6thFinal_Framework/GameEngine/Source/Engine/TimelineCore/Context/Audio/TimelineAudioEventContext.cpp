@@ -23,7 +23,8 @@ namespace Timeline
             if (randomWeight <= currentWeight)
             {
                 const File::Guid& guid = UmFileSystem.GetGuidFromAssetID(assetID);
-                UmAudio.Play(guid.string());
+                auto hAudio = UmAudio.Play(guid.string());
+                UmAudio.SetVolume(hAudio, ReflectFields->Volume);
                 break;
             }
         }
@@ -41,9 +42,7 @@ namespace Timeline
             const File::Guid& guid = UmFileSystem.GetGuidFromAssetID(assetID);
             if (false == guid.IsNull())
             {
-                std::string guidStr = guid.string();
-                _audioGuidTable[assetID] = guidStr;
-                UmAudio.LoadSound(guidStr, guid);
+                UmAudio.LoadSound(guid.string(), guid);
             }
         }
     }
@@ -55,7 +54,7 @@ namespace Timeline
 
         if (ImGui::TreeNodeEx("AudioList", ImGuiTreeNodeFlags_DefaultOpen))
         {
-            const float  height = ImGui::GetItemRectSize().y + ImGui::GetStyle().FramePadding.y;
+            const float  height = ImGui::GetItemRectSize().y + ImGui::GetStyle().FramePadding.y * 2.0f;
             const ImVec2 buttonSize = ImVec2(height, height);
 
             if (ImGui::BeginTable("ContextTable", 2, ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_RowBg))
@@ -83,7 +82,7 @@ namespace Timeline
                         ImGui::TableSetColumnIndex(1);
                         ImVec2 availSize = ImGui::GetContentRegionAvail();
                         ImGui::SetNextItemWidth(availSize.x - 60.0f);
-                        ImGui::DragFloat("##Weight", &weight, 0.01f, 0.0f, 100.0f);
+                        ImGui::DragFloat("##Weight", &weight, 0.01f, 0.0f, 100.0f, "%.1f");
 
                         ImGui::SameLine();
                         if (ImGui::Button("-", buttonSize))
