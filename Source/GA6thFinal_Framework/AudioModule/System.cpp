@@ -177,13 +177,15 @@ namespace Audio
 
     void System::Finalize()
     {
+        ClearVoicePool();
+
+        ClearGroupPool();
+
         if (_masteringVoice)
         {
             _masteringVoice->DestroyVoice();
             _masteringVoice = nullptr;
         }
-
-        ClearVoicePool();
 
         if (_xAudio2)
         {
@@ -207,6 +209,19 @@ namespace Audio
             voiceVector.clear();
         }
         _voicePools.clear();
+    }
+
+    void System::ClearGroupPool()
+    {
+        for (auto& submixVoice : _groupPool)
+        {
+            if (submixVoice.Voice)
+            {
+                submixVoice.Voice->DestroyVoice();
+                submixVoice.Voice = nullptr;
+            }
+        }
+        _groupPool.clear();
     }
 
     void System::TurnOnDebugMode() const
@@ -264,12 +279,12 @@ namespace Audio
         return Source{wfx, audioData, static_cast<UINT32>(dataSize)};
     }
 
-    Handle System::Play(const Source& sound, const bool isLoop)
+    AudioHandle System::Play(const Source& sound, std::span<GroupHandle> groups, const bool isLoop)
     {
         if (_xAudio2 == nullptr)
             throw AudioException("Audio manager is not initialized.");
 
-        constexpr ThrowIfFailed throwIfFailed;
+        constexpr IncreaseGeneration increaseGeneration;
 
         // Format 해싱
         const WaveFormatHash hash = GetWaveFormatHash()(sound._format);
@@ -298,43 +313,101 @@ namespace Audio
 
         auto& [unusedSourceVoiceGeneration, unusedSourceVoiceCallback, unusedSourceVoice] = *unusedSourceVoiceIterator;
 
-        IncreaseGeneration()(unusedSourceVoiceGeneration);
+        increaseGeneration(unusedSourceVoiceGeneration);
         const Index index = std::distance(sourceVoices.begin(), unusedSourceVoiceIterator);
 
-        // Handle 생성
-        const Handle handle = {hash, index, unusedSourceVoiceGeneration};
+        // AudioHandle 생성
+        const AudioHandle handle = {hash, index, unusedSourceVoiceGeneration};
         // Callback 갱신
         unusedSourceVoiceCallback.SetHandle(handle);
 
-        // 필요시 IXAudio2SourceVoice 생성
-        if (nullptr == unusedSourceVoice)
+        try
         {
-            throwIfFailed(_xAudio2->CreateSourceVoice(&unusedSourceVoice,
-                                                      reinterpret_cast<const WAVEFORMATEX*>(&sound._format), NULL,
-                                                      XAUDIO2_DEFAULT_FREQ_RATIO, &unusedSourceVoiceCallback),
-                          "Failed to create source voice.");
+            constexpr ThrowIfFailed throwIfFailed;
+
+            // 필요시 IXAudio2SourceVoice 생성
+            if (nullptr == unusedSourceVoice)
+            {
+                throwIfFailed(_xAudio2->CreateSourceVoice(&unusedSourceVoice,
+                                                          reinterpret_cast<const WAVEFORMATEX*>(&sound._format), NULL,
+                                                          XAUDIO2_DEFAULT_FREQ_RATIO, &unusedSourceVoiceCallback),
+                              "Failed to create source voice.");
+            }
+
+            // XAUDIO2_BUFFER 설정
+            XAUDIO2_BUFFER buffer{};
+            buffer.Flags      = NULL;
+            buffer.AudioBytes = sound._bytes;
+            buffer.pAudioData = sound._buffer;
+            buffer.PlayBegin  = 0;
+            buffer.PlayLength = 0; // 0이면 전체 재생
+            buffer.LoopBegin  = 0;
+            buffer.LoopLength = 0; // 0이면 전체 루프
+            buffer.LoopCount  = isLoop ? XAUDIO2_LOOP_INFINITE : XAUDIO2_NO_LOOP_REGION;
+            buffer.pContext   = nullptr;
+
+            // Submit 후 시작
+            throwIfFailed(unusedSourceVoice->SubmitSourceBuffer(&buffer), "Failed to submit source buffer.");
+
+            // Group 설정
+            if (groups.empty() == false)
+            {
+                std::vector<XAUDIO2_SEND_DESCRIPTOR> sendDescriptors;
+                sendDescriptors.reserve(groups.size());
+
+                const GroupHandle& firstGroupHandle = groups.front();
+                if (false == IsValidHandle(firstGroupHandle))
+                {
+                    throw InvalidHandleException("Invalid group handle provided.");
+                }
+
+                const SubmixVoice& firstSubmixVoice = _groupPool.at(firstGroupHandle._index);
+
+                const UINT32 channel = firstSubmixVoice.Channels;
+                const UINT32 sampleRate = firstSubmixVoice.SampleRate;
+
+                std::unordered_set<Index> uniqueIndices;
+                for (auto& group : groups)
+                {
+                    if (auto [_, isUnique] = uniqueIndices.emplace(group._index); false == isUnique)
+                    {
+                        throw AudioException("Duplicate group handles are not allowed.");
+                    }
+
+                    if (false == IsValidHandle(group))
+                    {
+                        throw InvalidHandleException("Invalid group handle provided.");
+                    }
+
+                    SubmixVoice& submixVoice = _groupPool.at(group._index);
+                    if (submixVoice.Channels != channel || submixVoice.SampleRate != sampleRate)
+                    {
+                        throw AudioException("All groups must have the same channel count and sample rate.");
+                    }
+
+                    sendDescriptors.emplace_back(NULL, submixVoice.Voice);
+
+                    std::erase_if(submixVoice.AttachedVoices,
+                                  [this](const AudioHandle& attachedVoice) { return !IsValidHandle(attachedVoice); });
+                    submixVoice.AttachedVoices.push_back(handle);
+                }
+                const XAUDIO2_VOICE_SENDS voiceSends{.SendCount = static_cast<UINT32>(groups.size()), .pSends = sendDescriptors.data()};
+
+                throwIfFailed(unusedSourceVoice->SetOutputVoices(&voiceSends), "Failed to set output voices.");
+            }
+
+            throwIfFailed(unusedSourceVoice->Start(0), "Failed to start source voice.");
         }
-
-        // XAUDIO2_BUFFER 설정
-        XAUDIO2_BUFFER buffer{};
-        buffer.Flags      = NULL;
-        buffer.AudioBytes = sound._bytes;
-        buffer.pAudioData = sound._buffer;
-        buffer.PlayBegin  = 0;
-        buffer.PlayLength = 0; // 0이면 전체 재생
-        buffer.LoopBegin  = 0;
-        buffer.LoopLength = 0; // 0이면 전체 루프
-        buffer.LoopCount  = isLoop ? XAUDIO2_LOOP_INFINITE : XAUDIO2_NO_LOOP_REGION;
-        buffer.pContext   = nullptr;
-
-        // Submit 후 시작
-        throwIfFailed(unusedSourceVoice->SubmitSourceBuffer(&buffer), "Failed to submit source buffer.");
-        throwIfFailed(unusedSourceVoice->Start(0), "Failed to start source voice.");
+        catch (...)
+        {
+            increaseGeneration(unusedSourceVoiceGeneration);
+            throw;
+        }
 
         return handle;
     }
 
-    void System::Stop(const Handle& handle)
+    void System::Stop(const AudioHandle& handle)
     {
         if (!IsValidHandle(handle))
             throw InvalidHandleException("Invalid handle provided to Stop.");
@@ -347,7 +420,7 @@ namespace Audio
         ReleaseVoice(handle);
     }
 
-    bool System::IsValidHandle(const Handle& handle) const noexcept
+    bool System::IsValidHandle(const AudioHandle& handle) const noexcept
     {
         if (_voicePools.contains(handle._hash))
         {
@@ -363,7 +436,87 @@ namespace Audio
         return false;
     }
 
-    void System::ReleaseVoice(const Handle& handle)
+    bool System::IsValidHandle(const GroupHandle& handle) const noexcept
+    {
+        if (handle._index >= 0 && static_cast<decltype(_groupPool.size())>(handle._index) < _groupPool.size())
+        {
+            const SubmixVoice& group = _groupPool.at(handle._index);
+            return handle._generation == group.Generation;
+        }
+        return false;
+    }
+
+    GroupHandle System::CreateGroup(const UINT32 channels, const UINT32 sampleRate)
+    {
+        constexpr ThrowIfFailed      throwIfFailed;
+        constexpr IncreaseGeneration increaseGeneration;
+
+        for (size_t i = 0; i < _groupPool.size(); ++i)
+        {
+            constexpr IsUnusedGeneration isUnusedGeneration;
+
+            if (auto& submixVoice = _groupPool[i]; isUnusedGeneration(submixVoice.Generation) &&
+                                                   submixVoice.Voice != nullptr && submixVoice.Channels == channels &&
+                                                   submixVoice.SampleRate == sampleRate)
+            {
+                increaseGeneration(submixVoice.Generation);
+                return GroupHandle{static_cast<Index>(i), submixVoice.Generation};
+            }
+        }
+
+        SubmixVoice& newSubmixVoice =
+            _groupPool.emplace_back(0, channels, sampleRate, nullptr, std::list<AudioHandle>());
+
+
+        throwIfFailed(_xAudio2->CreateSubmixVoice(&newSubmixVoice.Voice, channels, sampleRate),
+                      "Failed to create submix voice.");
+
+        const Generation generation = increaseGeneration(newSubmixVoice.Generation);
+        const Index index = static_cast<Index>(_groupPool.size() - 1);
+
+        return GroupHandle{index, generation}; 
+    }
+
+    void System::ReleaseGroup(const GroupHandle& handle)
+    {
+        if (!IsValidHandle(handle))
+            throw InvalidHandleException("Invalid group handle provided to ReleaseGroup.");
+
+        auto& [generation, channels, sampleRate, voice, attachedVoices] = _groupPool.at(handle._index);
+        IncreaseGeneration()(generation);
+        std::ranges::for_each(attachedVoices, [this](const AudioHandle& attachedVoice) {
+            if (IsValidHandle(attachedVoice))
+                DetachOutput(attachedVoice);
+        });
+        attachedVoices.clear();
+    }
+
+    void System::SetVolume(const float volume) const
+    {
+        const float newVolume = std::clamp(volume, 0.0f, 1.0f);
+        ThrowIfFailed()(_masteringVoice->SetVolume(newVolume), "Failed to set master volume.");
+    }
+
+    void System::SetVolume(const GroupHandle& handle, const float volume) const
+    {
+        if (IsValidHandle(handle))
+        {
+            const float newVolume = std::clamp(volume, 0.0f, 1.0f);
+            ThrowIfFailed()(_groupPool.at(handle._index).Voice->SetVolume(newVolume), "Failed to set group volume.");
+        }
+    }
+
+    void System::SetVolume(const AudioHandle& handle, const float volume) const
+    {
+        if (IsValidHandle(handle))
+        {
+            const float newVolume = std::clamp(volume, 0.0f, 1.0f);
+            ThrowIfFailed()(_voicePools.at(handle._hash).at(handle._index).Voice->SetVolume(newVolume),
+                            "Failed to set source voice volume.");
+        }
+    }
+
+    void System::ReleaseVoice(const AudioHandle& handle)
     {
         if (!IsValidHandle(handle))
             throw InvalidHandleException("Invalid handle provided to ReleaseVoice.");
@@ -373,13 +526,24 @@ namespace Audio
 
         auto& [generation, callback, voice] = _voicePools.at(handle._hash).at(handle._index);
         throwIfFailed(voice->FlushSourceBuffers(), "Failed to flush source buffers.");
-        callback.SetHandle(Handle());
+        callback.SetHandle(AudioHandle());
         increaseGeneration(generation);
+    }
+
+    void System::DetachOutput(const AudioHandle& handle) const
+    {
+        if (!IsValidHandle(handle))
+            throw InvalidHandleException("Invalid handle provided to DetachOutput.");
+
+        if (IXAudio2SourceVoice* voice = _voicePools.at(handle._hash).at(handle._index).Voice; nullptr != voice)
+        {
+            ThrowIfFailed()(voice->SetOutputVoices(nullptr), "Failed to detach output voices.");
+        }
     }
 
     System::OnBufferEnd::OnBufferEnd(Audio::System* system) : System(system) {}
 
-    void System::OnBufferEnd::operator()(const Handle& handle) const
+    void System::OnBufferEnd::operator()(const AudioHandle& handle) const
     {
         if (nullptr != System && System->IsValidHandle(handle))
         {

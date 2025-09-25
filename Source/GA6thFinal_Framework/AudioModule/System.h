@@ -5,7 +5,8 @@ namespace Audio
 {
     class Source;
     class SoundPlayer;
-    class Handle;
+    class AudioHandle;
+    class GroupHandle;
 
     /// <summary>
     /// 오디오 소스를 관리하고 재생, 정지, 생성 등의 기능을 제공하는 클래스입니다.
@@ -23,6 +24,16 @@ namespace Audio
 
         using VoicePool = std::vector<SourceVoice>;
 
+        struct SubmixVoice
+        {
+            Generation           Generation;
+            UINT32               Channels;
+            UINT32               SampleRate;
+            IXAudio2SubmixVoice* Voice;
+            std::list<AudioHandle> AttachedVoices;
+        };
+
+        using GroupPool = std::vector<SubmixVoice>;
 
     public:
         System();
@@ -49,6 +60,11 @@ namespace Audio
         void ClearVoicePool();
 
         /// <summary>
+        /// 그룹 풀을 초기화합니다.
+        /// </summary>
+        void ClearGroupPool();
+
+        /// <summary>
         /// 디버그 모드를 활성화합니다.
         /// </summary>
         void TurnOnDebugMode() const;
@@ -70,36 +86,80 @@ namespace Audio
         /// </summary>
         /// <param name="sound">재생할 사운드 소스입니다.</param>
         /// <param name="isLoop">반복 재생 여부입니다.</param>
-        /// <returns>재생 중인 사운드를 제어할 수 있는 Handle 객체를 반환합니다.</returns>
-        [[nodiscard]] Handle Play(const Source& sound, bool isLoop);
+        /// <param name="groups">사운드가 재생될 그룹들입니다.</param>
+        /// <returns>재생 중인 사운드를 제어할 수 있는 AudioHandle 객체를 반환합니다.</returns>
+        [[nodiscard]] AudioHandle Play(const Source& sound, std::span<GroupHandle> groups = {},
+                                       bool isLoop = false);
 
         /// <summary>
         /// 지정된 핸들에 대한 재생 작업을 중지합니다.
         /// </summary>
-        /// <param name="handle">중지할 작업을 나타내는 Handle 객체의 상수 참조입니다.</param>
-        void Stop(const Handle& handle);
+        /// <param name="handle">중지할 작업을 나타내는 AudioHandle 객체의 상수 참조입니다.</param>
+        void Stop(const AudioHandle& handle);
 
         /// <summary>
-        /// Handle 객체가 유효한지 확인합니다.
+        /// AudioHandle 객체가 유효한지 확인합니다.
         /// </summary>
-        /// <param name="handle">유효성을 검사할 Handle 객체입니다.</param>
+        /// <param name="handle">유효성을 검사할 AudioHandle 객체입니다.</param>
         /// <returns>핸들이 유효하면 true, 그렇지 않으면 false를 반환합니다.</returns>
-        [[nodiscard]] bool IsValidHandle(const Handle& handle) const noexcept;
+        [[nodiscard]] bool IsValidHandle(const AudioHandle& handle) const noexcept;
+
+        /// <summary>
+        /// GroupHandle이 유효한 핸들인지 확인합니다.
+        /// </summary>
+        /// <param name="handle">검사할 GroupHandle 객체입니다.</param>
+        /// <returns>핸들이 유효하면 true, 그렇지 않으면 false를 반환합니다.</returns>
+        [[nodiscard]] bool IsValidHandle(const GroupHandle& handle) const noexcept;
+
+        /// <summary>
+        /// 새 오디오 그룹을 생성합니다.
+        /// </summary>
+        /// <param name="channels">오디오 그룹의 채널 수입니다. 기본값은 2입니다.</param>
+        /// <param name="sampleRate">오디오 그룹의 샘플레이트(Hz)입니다. 기본값은 44100입니다.</param>
+        /// <returns>생성된 오디오 그룹을 나타내는 GroupHandle입니다.</returns>
+        GroupHandle CreateGroup(UINT32 channels = 2, UINT32 sampleRate = 44100);
+
+        /// <summary>
+        /// 지정된 그룹 핸들을 해제합니다.
+        /// </summary>
+        /// <param name="handle">해제할 그룹을 나타내는 GroupHandle 참조입니다.</param>
+        void ReleaseGroup(const GroupHandle& handle);
+
+        /// <summary>
+        /// 마스터 볼륨을 설정합니다.
+        /// </summary>
+        /// <param name="volume">설정할 마스터 볼륨 값입니다. 값은 0 ~ 1 사이의 값입니다.</param>
+        void SetVolume(float volume) const;
+
+        /// <summary>
+        /// 지정된 그룹의 볼륨을 설정합니다.
+        /// </summary>
+        /// <param name="handle">볼륨을 설정할 그룹을 식별하는 GroupHandle 참조입니다.</param>
+        /// <param name="volume">설정할 볼륨 값입니다. 값은 0 ~ 1 사이의 값입니다.</param>
+        void SetVolume(const GroupHandle& handle, float volume) const;
+
+        /// <summary>
+        /// 오디오 핸들의 볼륨을 설정합니다.
+        /// </summary>
+        /// <param name="handle">볼륨을 설정할 오디오 핸들입니다.</param>
+        /// <param name="volume">설정할 볼륨 값입니다. 값은 0 ~ 1 사이의 값입니다.</param>
+        void SetVolume(const AudioHandle& handle, float volume) const;
 
     private:
-        void ReleaseVoice(const Handle& handle);
+        void ReleaseVoice(const AudioHandle& handle);
+        void DetachOutput(const AudioHandle& handle) const;
 
-        IXAudio2* _xAudio2;
-        IXAudio2MasteringVoice*  _masteringVoice = nullptr;
+        IXAudio2*               _xAudio2;
+        IXAudio2MasteringVoice* _masteringVoice = nullptr;
 
         std::unordered_map<WaveFormatHash, VoicePool> _voicePools;
-
+        GroupPool                                     _groupPool;
 
         struct OnBufferEnd
         {
             explicit OnBufferEnd(System* system);
 
-            void operator()(const Handle& handle) const;
+            void operator()(const AudioHandle& handle) const;
 
             System* System;
         };
