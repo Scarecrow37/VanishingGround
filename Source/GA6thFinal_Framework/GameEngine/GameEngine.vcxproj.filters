@@ -282,7 +282,7 @@
     <ClInclude Include="Source\Engine\EditorCore\Utillity\EditorDragState.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Engine\TimelineCore\AnimationEventTrack.h">
+    <ClInclude Include="Source\Engine\TimelineCore\Animation\AnimationEventTrack.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Source\Editor\Tool\Model\EditorAnimationTrackTool.h">
@@ -734,7 +734,7 @@
     <ClCompile Include="Source\Engine\GameCore\InputReciver\InputReceiver.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Engine\TimelineCore\AnimationEventTrack.cpp">
+    <ClCompile Include="Source\Engine\TimelineCore\Animation\AnimationEventTrack.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Editor\Tool\Model\EditorAnimationTrackTool.cpp">
