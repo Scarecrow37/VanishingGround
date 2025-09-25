@@ -93,6 +93,32 @@ namespace Input
         return _queue;
     }
 
+    void Controller::Vibrate(const ControllerTypes::MotorSpeed leftMotorSpeed,
+        const ControllerTypes::MotorSpeed rightMotorSpeed) const
+    {
+        _adapter->SetVibration(_id, leftMotorSpeed, rightMotorSpeed);
+    }
+
+    void Controller::Vibrate(const ControllerTypes::MotorSpeed leftMotorSpeed, const ControllerTypes::MotorSpeed rightMotorSpeed,
+        std::chrono::milliseconds duration) const
+    {
+        _adapter->SetVibration(_id, leftMotorSpeed, rightMotorSpeed);
+        [[maybe_unused]] std::future result = std::async(std::launch::async, [this, duration]() {
+            std::this_thread::sleep_for(duration);
+            _adapter->SetVibration(_id, 0, 0);
+        });
+    }
+
+    void Controller::Vibrate(const ControllerTypes::Vibration& vibration) const
+    {
+        _adapter->SetVibration(_id, vibration.LeftMotorSpeed, vibration.RightMotorSpeed);
+        const std::chrono::milliseconds duration = vibration.Duration;
+        [[maybe_unused]] std::future    result   = std::async(std::launch::async, [this, duration]() {
+            std::this_thread::sleep_for(duration);
+            _adapter->SetVibration(_id, 0, 0);
+        });
+    }
+
     void Controller::UpdateStickBias()
     {
         _leftStickBias  = StickBias::UNBIASED;
