@@ -55,7 +55,8 @@ namespace Timeline
 
         if (ImGui::TreeNodeEx("AudioList", ImGuiTreeNodeFlags_DefaultOpen))
         {
-            const float height = ImGui::GetItemRectSize().y;
+            const float  height = ImGui::GetItemRectSize().y + ImGui::GetStyle().FramePadding.y;
+            const ImVec2 buttonSize = ImVec2(height, height);
 
             if (ImGui::BeginTable("ContextTable", 2, ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_RowBg))
             {
@@ -85,7 +86,7 @@ namespace Timeline
                         ImGui::DragFloat("##Weight", &weight, 0.01f, 0.0f, 100.0f);
 
                         ImGui::SameLine();
-                        if (ImGui::Button("-", ImVec2(height, height)))
+                        if (ImGui::Button("-", buttonSize))
                         {
                             RemoveAudioFromAssetID(assetID);
                         }
@@ -103,7 +104,7 @@ namespace Timeline
             }
             ListenAudioFileDragDropEvent();
             ImGui::SameLine();
-            if (ImGui::Button("+", ImVec2(height, height)))
+            if (ImGui::Button("+", buttonSize))
             {
                 AddAudioFromAssetID(_newAssetID);
                 _newAssetID = 0;

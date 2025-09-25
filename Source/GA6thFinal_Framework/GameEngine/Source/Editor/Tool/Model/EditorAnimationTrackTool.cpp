@@ -37,9 +37,12 @@ void EditorAnimationTrackTool::OnStartGui()
     _modelDetails    = dock->GetGui<EditorModelDetails>();
     _sequencer = new Timeline::SequencerEditor();
     _sequencer->AddFlags(Timeline::SequencerEditor::FLAGS_ALLOW_ALL_INPUT);
-    _sequencer->GetCallback().LowerFramePopup = [this](Timeline::EventTrack* track) { LowerFramePopup(track); };
-    _sequencer->GetCallback().ContextPopup    = [this](Timeline::EventTrack* track, Timeline::EventContext& context) {
+    _sequencer->GetCallback().LowerFramePopup = [this](Timeline::EventTrack& track) { LowerFramePopup(track); };
+    _sequencer->GetCallback().ContextPopup    = [this](Timeline::EventTrack& track, Timeline::EventContext& context) {
         ContextPopup(track, context);
+    };
+    _sequencer->GetCallback().ContextDoubleClick = [this](Timeline::EventTrack& track, Timeline::EventContext& context) {
+        FocusDetailTabItem(1);
     };
 }
 
@@ -85,7 +88,7 @@ void EditorAnimationTrackTool::OnFrameFocusStay()
             }
             if (ImGui::IsKeyPressed(ImGuiKey_V))
             {
-                float time = _sequencer->GetMouseCursorFrame();
+                float time = _sequencer->GetFrameFromIndicate();
                 track->PasteContext(_copyBuffer, time);
             }
             if (ImGui::IsKeyPressed(ImGuiKey_RightArrow))
@@ -109,7 +112,18 @@ void EditorAnimationTrackTool::OnFrameFocusStay()
         {
             if (ImGui::IsKeyPressed(ImGuiKey_Delete, false))
             {
+                Timeline::EventContext* context;
+                UINT                    nextId = 0;
+                if (context = track->GetPrevContextFromID(id))
+                {
+                    nextId = context->ID;
+                }
+                else if (context = track->GetNextContextFromID(id))
+                {
+                    nextId = context->ID;
+                }
                 track->RemoveContextFromID(id);
+                _sequencer->SetSelectedContextID(nextId);
             }
             if (ImGui::IsKeyPressed(ImGuiKey_RightArrow) || ImGui::IsKeyPressed(ImGuiKey_UpArrow))
             {
@@ -367,28 +381,34 @@ void EditorAnimationTrackTool::DrawDetails()
     auto curTimeline = _animationEventTrack.GetActiveEventTrack();
     if (ImGui::BeginTabBar("##AnimationTrackTabs"))
     {
-        ImGuiWindow* window = ImGui::GetCurrentWindow();
-        if (window)
-        {
-            _tabID[0] = window->GetID(_tabLabel[0].c_str());
-            _tabID[1] = window->GetID(_tabLabel[1].c_str());
-        }
-        if (ImGui::BeginTabItem(_tabLabel[0].c_str()))
+        if (ImGui::BeginTabItem(TAB_LABEL[0]))
         {
             if (ShowEventTrackList(curTimeline))
             {
-                if (ImGuiTabBar* tabbar = ImGui::GetCurrentTabBar())
-                {
-                    tabbar->NextSelectedTabId = _tabID[1];
-                }
+                FocusDetailTabItem(1);
             }
             ImGui::EndTabItem();
         }
-        if (ImGui::BeginTabItem(_tabLabel[1].c_str()))
+        if (ImGui::BeginTabItem(TAB_LABEL[1]))
         {
             UINT selected = _sequencer->GetSelectedContextID();
             ShowEventTrackEditTab(curTimeline, selected);
             ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem(TAB_LABEL[2]))
+        {
+            if (_sequencer)
+            {
+                _sequencer->ShowDebugData();
+            }
+            ImGui::EndTabItem();
+        }
+
+        if (_tabbar = ImGui::GetCurrentTabBar())
+        {
+            auto& tabItems = _tabbar->Tabs;
+            _tabItem[0]    = &tabItems[0];
+            _tabItem[1]    = &tabItems[1];
         }
         ImGui::EndTabBar();
     }
@@ -594,50 +614,7 @@ void EditorAnimationTrackTool::ShowEventTrackEditTab(std::shared_ptr<Timeline::E
     {
         ImGui::PushID(track.get());
 
-        std::string_view label = context->Label;
-        float            time  = context->Time;
-        UINT             id    = context->ID;
-        ImVec2           availSize  = ImGui::GetContentRegionAvail();
-        float            labelWidth = availSize.x * 0.2f;
-        //{
-        //    char buf[128];
-        //    strcpy_s(buf, label.data());
-        //    ImGuiHelper::TextWithVerticalSeparator("Label", labelWidth);
-        //    if (ImGui::InputText("##TrackLabel", buf, sizeof(buf)))
-        //    {
-        //        context->Label = buf;
-        //    }
-        //    ImGuiHelper::TextWithVerticalSeparator("Time", labelWidth);
-        //    if (ImGui::InputFloat("##TrackTime", &time, 0, 0))
-        //    {
-        //        float minFrame = track->GetMinFrame();
-        //        float maxFrame = track->GetMaxFrame();
-        //        time = ImClamp(time, minFrame, maxFrame);
-        //        track->ChangeContextTime(contextID, time);
-        //    }
-        //}
         context->ImGuiDrawPropertys();
-
-        //ImGui::Separator();
-        //{
-        //    ImGuiHelper::TextWithVerticalSeparator("Event", labelWidth);
-        //    std::string_view eventTypeName = context->EventType;
-        //    auto table = Timeline::EventTrack::GetInstanceConstructors();
-        //    if (ImGui::BeginCombo("##EventName", eventTypeName.data() + 6))
-        //    {
-        //        for (const auto& [key, func] : table)
-        //        {
-        //            std::string curEvent(eventTypeName);
-        //            bool isSelected = (curEvent == key);
-        //            const char* label = key.c_str() + 6;
-        //            if (ImGui::Selectable(label, isSelected))
-        //            {
-        //                context->SetEvent(key);
-        //            }
-        //        }
-        //        ImGui::EndCombo();
-        //    }
-        //}
 
         ImGui::PopID();
     }
@@ -668,43 +645,48 @@ void EditorAnimationTrackTool::ShowAvailableEventTracks()
     }
 }
 
-void EditorAnimationTrackTool::LowerFramePopup(Timeline::EventTrack* track)
+void EditorAnimationTrackTool::FocusDetailTabItem(int index) 
 {
-    if (track)
+    if (nullptr != _tabbar && index >= 0 && index < 2)
     {
-        if (ImGui::MenuItem("Paste Event"))
+        if (_tabItem[index])
         {
-            float time = _sequencer->GetMouseCursorFrame();
-            track->PasteContext(_copyBuffer, time);
-        }
-        ImGui::Separator();
-        if (ImGui::MenuItem("+ Add Empty Event"))
-        {
-            if (_sequencer)
-            {
-                float currentFrame = _sequencer->GetMouseCursorFrame();
-                track->AddEvent<Timeline::EventContext>("New Event", currentFrame);
-            }
-        }
-        if (ImGui::MenuItem("+ Add Audio Event"))
-        {
-            if (_sequencer)
-            {
-                float currentFrame = _sequencer->GetMouseCursorFrame();
-                track->AddEvent<Timeline::AudioEventContext>("New Audio Event", currentFrame);
-            }
+            _tabbar->NextSelectedTabId = _tabItem[index]->ID;
         }
     }
 }
 
-void EditorAnimationTrackTool::ContextPopup(Timeline::EventTrack* track, Timeline::EventContext& context)
+void EditorAnimationTrackTool::LowerFramePopup(Timeline::EventTrack& track)
 {
-    if (track)
+    if (ImGui::MenuItem("Paste Event"))
     {
-        if (ImGui::MenuItem("Copy Event"))
+        float time = _sequencer->GetFrameFromIndicate();
+        track.PasteContext(_copyBuffer, time);
+    }
+    ImGui::Separator();
+    if (ImGui::MenuItem("+ Add Empty Event"))
+    {
+        if (_sequencer)
         {
-            _copyBuffer = track->CopyContext(&context);
+            float currentFrame = _sequencer->GetFrameFromIndicate();
+            track.AddEvent<Timeline::EventContext>("New Event", currentFrame);
         }
+    }
+    if (ImGui::MenuItem("+ Add Audio Event"))
+    {
+        if (_sequencer)
+        {
+            float currentFrame = _sequencer->GetFrameFromIndicate();
+            track.AddEvent<Timeline::AudioEventContext>("New Audio Event", currentFrame);
+        }
+    }
+}
+
+void EditorAnimationTrackTool::ContextPopup(Timeline::EventTrack& track, Timeline::EventContext& context)
+{
+    if (ImGui::MenuItem("Copy Event"))
+    {
+        _copyBuffer = track.CopyContext(&context);
     }
 }
 

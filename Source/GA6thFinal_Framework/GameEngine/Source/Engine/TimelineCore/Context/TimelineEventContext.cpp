@@ -6,7 +6,6 @@ namespace Timeline
     void EventContext::SetEvent(std::string_view typeNameID) 
     {
         ReflectFields->EventType = typeNameID;
-        RequireEvent(typeNameID);
     }
     void EventContext::SetTime(float time) 
     {

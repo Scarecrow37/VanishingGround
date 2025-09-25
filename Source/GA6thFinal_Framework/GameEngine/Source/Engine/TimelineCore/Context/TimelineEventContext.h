@@ -40,9 +40,6 @@ namespace Timeline
         /// <summary>
         /// EventContext를 지정된 타입으로 캐스팅합니다.
         /// </summary>
-        /// <typeparam name="T">캐스팅할 대상 타입입니다.</typeparam>
-        /// <param name="context">캐스팅할 EventContext 객체의 포인터입니다.</param>
-        /// <returns>T 타입의 포인터로 캐스팅된 객체입니다. 캐스팅이 실패하면 nullptr을 반환할 수 있습니다.</returns>
         template <typename T>
         T* Cast(EventContext* context)
         {
@@ -59,11 +56,8 @@ namespace Timeline
         }
 
         /// <summary>
-        /// EventContext 포인터를 지정된 타입으로 안전하게 캐스팅합니다.
+        /// EventContext 포인터를 지정된 타입으로 dynamic_cast를 시도합니다.
         /// </summary>
-        /// <typeparam name="T">캐스팅할 대상 타입입니다.</typeparam>
-        /// <param name="context">캐스팅할 EventContext 포인터입니다.</param>
-        /// <returns>캐스팅이 성공하면 T 타입의 포인터를 반환하고, 실패하거나 context가 nullptr이면 nullptr를 반환합니다.</returns>
         template <typename T>
         T* SafeCast(EventContext* context)
         {
@@ -73,13 +67,6 @@ namespace Timeline
             }
             return nullptr;
         }
-
-    protected:
-        /// <summary>
-        /// typeID를 통해 콘텍스트를 생성해야하는 가상 함수입니다.
-        /// </summary>
-        /// <param name="typeNameID">해당 이벤트의 typenameID</param>
-        virtual void RequireEvent(std::string_view typeNameID) {};
 
     protected:
         REFLECT_FIELDS_BEGIN(ReflectSerializer)

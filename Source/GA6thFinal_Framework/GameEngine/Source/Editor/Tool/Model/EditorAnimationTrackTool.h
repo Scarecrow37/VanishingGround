@@ -40,14 +40,14 @@ private:
     void RemoveEventTrackFromAnimation(std::string_view animKey);
     void AddEvent(std::string_view label, std::string_view animKey, std::string_view typeNameID, float time = FLT_MAX);
     
-
     bool ShowEventTrackList(std::shared_ptr<Timeline::EventTrack> track);
     void ShowEventTrackEditTab(std::shared_ptr<Timeline::EventTrack> track, UINT contextID);
-
     void ShowAvailableEventTracks();
 
-    void LowerFramePopup(Timeline::EventTrack* track);
-    void ContextPopup(Timeline::EventTrack* track, Timeline::EventContext& context);
+    void FocusDetailTabItem(int index);
+
+    void LowerFramePopup(Timeline::EventTrack& track);
+    void ContextPopup(Timeline::EventTrack& track, Timeline::EventContext& context);
 
     const std::string& GetCurrentDetailAnimName();
     const std::string& GetCurrentEventTrackmName();
@@ -60,9 +60,12 @@ private:
     AnimationEventTrack _animationEventTrack;
     std::queue<std::function<void()>> _eventQueue;
 
-    // DetailFrame
-    std::string _tabLabel[2] = {"List", "Edit"};
-    ImGuiID     _tabID[2]    = {0, 0};
-
     std::string _copyBuffer;
+
+    // DetailFrame
+    ImGuiTabBar*  _tabbar     = nullptr;
+    ImGuiTabItem* _tabItem[3] = {nullptr, nullptr, nullptr};
+
+    inline static constexpr const char* TAB_LABEL[] = {"List", "Edit", "Debug"};
+
 };

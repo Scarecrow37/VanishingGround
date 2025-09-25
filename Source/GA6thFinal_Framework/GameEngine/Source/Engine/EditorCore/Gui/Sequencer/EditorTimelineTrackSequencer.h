@@ -56,12 +56,13 @@ namespace Timeline
             ImVec2 End;
         };
 
-        // 팝업 콜백 함수 (로우 포인터를 인자로 넘겨도 safe함)
+        // 콜백 함수 (로우 포인터를 인자로 넘겨도 safe함)
         struct Callback
         {
-            std::function<void(Timeline::EventTrack*)> LowerFramePopup;
-            std::function<void(Timeline::EventTrack*)> UpperFramePopup;
-            std::function<void(Timeline::EventTrack*, EventContext&)> ContextPopup;
+            std::function<void(Timeline::EventTrack&)> LowerFramePopup;
+            std::function<void(Timeline::EventTrack&)> UpperFramePopup;
+            std::function<void(Timeline::EventTrack&, EventContext&)> ContextPopup;
+            std::function<void(Timeline::EventTrack&, EventContext&)> ContextDoubleClick;
         };
 
     public:
@@ -124,10 +125,6 @@ namespace Timeline
 
         inline void   SetSelectedContextID(UINT id = 0) { _seletedContextID = id; }
         inline UINT   GetSelectedContextID() const { return _seletedContextID; }
-
-        inline float  GetMouseCursorFrame() const { return _mouseFrame; }
-        inline float  GetSnapCursorFrame() const { return _indicateFrame; }
-        inline float  GetIndicateCursorFrame() const { return _indicateFrame; }
                       
         inline void   SetFlags(UINT flags) { _flags = flags; }
         inline void   AddFlags(UINT flags) { _flags |= flags; }
@@ -135,8 +132,8 @@ namespace Timeline
         inline void   ToggleFlags(UINT flags) { _flags ^= flags; }
         inline bool   HasFlags(UINT flags) const { return (_flags & flags) != 0; }
 
-        inline float GetFrameFromMousePos() { return _mouseFrame; }
-        inline float GetFrameFromIndicate() { return _indicateFrame; }
+        inline float  GetFrameFromMousePos() { return _mouseFrame; }
+        inline float  GetFrameFromIndicate() { return _indicateFrame; }
 
     private:
         bool    Begin();

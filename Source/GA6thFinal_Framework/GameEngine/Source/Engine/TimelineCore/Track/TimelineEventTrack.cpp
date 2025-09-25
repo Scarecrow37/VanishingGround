@@ -148,6 +148,7 @@ namespace Timeline
         }
         context->DeserializedReflectFields(serialData);
         context->ReflectFields->ContextID = uniqueID;
+        context->ReflectFields->Time      = time;
         _contextQueue.push_back(context);
         _contextTable[uniqueID] = context;
         Sort();
