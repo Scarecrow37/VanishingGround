@@ -3,6 +3,10 @@
 
 namespace Timeline
 {
+    void EventContext::SetGameObject(GameObject* obj) 
+    {
+        _gameObject = obj;
+    }
     void EventContext::SetEvent(std::string_view typeNameID) 
     {
         ReflectFields->EventType = typeNameID;

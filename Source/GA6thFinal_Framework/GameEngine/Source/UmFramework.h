@@ -208,6 +208,7 @@ using namespace Microsoft::WRL;
 //Timeline System
 #include "Engine/TimelineCore/Context/TimelineEventContext.h"
 #include "Engine/TimelineCore/Context/Audio/TimelineAudioEventContext.h"
+#include "Engine/TimelineCore/Context/Particle/TimelineParticleEventContext.h"
 #include "Engine/TimelineCore/Track/TimelineEventTrack.h"
 #include "Engine/TimelineCore/Animation/AnimationEventTrack.h"
 
