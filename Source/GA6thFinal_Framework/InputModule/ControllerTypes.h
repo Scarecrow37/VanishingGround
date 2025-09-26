@@ -89,6 +89,8 @@ namespace Input::ControllerTypes
         std::chrono::milliseconds Duration;
     };
 
+    static constexpr Vibration VIBRATION_EMPTY{
+        .LeftMotorSpeed = 0, .RightMotorSpeed = 0, .Duration = std::chrono::milliseconds(0)};
     static constexpr Vibration VIBRATION_VEHICLE_REVVING{
         .LeftMotorSpeed = 22000, .RightMotorSpeed = 7000, .Duration = std::chrono::milliseconds(300)};
     static constexpr Vibration VIBRATION_EXPLOSION{
