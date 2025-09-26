@@ -328,6 +328,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClInclude Include="DistortionResolvePass.h" />
     <ClInclude Include="DistortionTechnique.h" />
     <ClInclude Include="ForwardPBRLitPass.h" />
+    <ClInclude Include="GenerateSSGIPass.h" />
     <ClInclude Include="GraphicsController.h" />
     <ClInclude Include="FadePass.h" />
     <ClInclude Include="Module\AccumulationModule.h" />
@@ -470,6 +471,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClCompile Include="DistortionResolvePass.cpp" />
     <ClCompile Include="DistortionTechnique.cpp" />
     <ClCompile Include="ForwardPBRLitPass.cpp" />
+    <ClCompile Include="GenerateSSGIPass.cpp" />
     <ClCompile Include="GraphicsController.cpp" />
     <ClCompile Include="FadePass.cpp" />
     <ClCompile Include="Module\AccumulationModule.cpp" />
@@ -647,6 +649,12 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="..\Shaders\cs_cube_texture_convertor.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\cs_generate_ssgi.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>

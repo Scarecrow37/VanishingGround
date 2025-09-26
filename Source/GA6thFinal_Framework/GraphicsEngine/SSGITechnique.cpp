@@ -4,6 +4,7 @@
 
 // render pass
 #include "CalculateMotionVectorPass.h"
+#include "GenerateSSGIPass.h"
 
 SSGITechnique::SSGITechnique() {}
 
@@ -32,11 +33,11 @@ void SSGITechnique::Initialize(ID3D12GraphicsCommandList* commandList)
                                       D3D12_SRV_DIMENSION_TEXTURE2D);
 
     SSGIProperty property;
-    property.Radius = 1.f;
-    property.Thickness = 0.05f;
-    property.NumSample = 16;
-    property.Intencity = 1.f;
-    property.Intencity = 1.f;
+    property.Radius         = 1.f;
+    property.Thickness      = 0.05f;
+    property.NumSample      = 16;
+    property.Intencity      = 1.f;
+    property.Intencity      = 1.f;
     property.TemporalWeight = 0.85f;
     property.DepthSigma     = 2.f;
     property.NormalSigma    = 128.f;
@@ -44,6 +45,9 @@ void SSGITechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 
     std::unique_ptr<RenderPass> pass;
     pass = std::make_unique<CalculateMotionVectorPass>();
+    pass->Initialize(_ownerScene, this, commandList);
+    AddRenderPass(std::move(pass));
+    pass = std::make_unique<GenerateSSGIPass>();
     pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));
 }

@@ -157,6 +157,9 @@
     <FxCompile Include="..\Shaders\cs_calculate_motion_vector.hlsl">
       <Filter>Shaders\cs</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\cs_generate_ssgi.hlsl">
+      <Filter>Shaders\cs</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AccelerationStructureManager.cpp">
@@ -550,6 +553,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="CalculateMotionVectorPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="GenerateSSGIPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -972,6 +978,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="CalculateMotionVectorPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GenerateSSGIPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
