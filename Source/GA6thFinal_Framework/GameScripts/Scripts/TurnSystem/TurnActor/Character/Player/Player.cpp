@@ -127,7 +127,7 @@ void Player::TakeDamage(int damage, bool playAnim)
     Base::TakeDamage(takeDamage, playAnim);
 }
 
-void Player::TakeDamage(int damage, const QTE::Result& result, bool playAnim)
+void Player::TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim)
 {  
     // TODO: 피격 애니메이션 재생
     // 예외 사항 - 피격 애니메이션 재생 종료 후 원래 애니메이션으로 돌아가야함.

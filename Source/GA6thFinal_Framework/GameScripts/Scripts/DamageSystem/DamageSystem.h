@@ -41,7 +41,7 @@ private:
 class DamageSystem : public Component
 {
 public:
-    static int CalculateDamage(const PlayerInfo& attacker, const EnemyInfo& target, const QTE::Result& result);
+    static int CalculateDamage(const PlayerInfo& attacker, const EnemyInfo& target, const QTE::NoteResult& result);
     static int CalculateChainDamage(const PlayerInfo& attacker, const EnemyInfo& target);
 
     static int CalculateDamage(const EnemyInfo& attacker, const PlayerInfo& target);

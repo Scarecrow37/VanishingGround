@@ -144,7 +144,7 @@ public:
     /// 플레이어 QTE 판정 종료후 호출됩니다.
     /// </summary>
     /// <param name="player"></param>
-    virtual void OnPlayerQTEResult(Player& player) {}
+    virtual void OnPlayerQTEResult(Player& player, const QTE::OverallResult& result) {}
 
     /// <summary>
     /// 플레이어가 공격할 적을 선택한 뒤 호출됩니다.
@@ -205,7 +205,7 @@ public:
 
     /// <summary>Player가 공격할 때 MISS등 관계 여부 상관 없이 데미지 계산 전에 호출됩니다.</summary>
     virtual void OnPlayerBattlePreCalculate(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
-                                     Enemy& target, EnemyStats& targetStats, const QTE::Result& result)
+                                     Enemy& target, EnemyStats& targetStats, const QTE::NoteResult& result)
     {
     }
 

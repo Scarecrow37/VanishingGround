@@ -88,7 +88,10 @@ void GBufferPass::Update(ID3D12GraphicsCommandList* commandList, const float del
                 _instanceDatas.emplace_back(meshInfo->InstanceData);
             }
         }
+    }
 
+    for (int i = 0; i < Material::BlendModeType::BMT_END - 1; i++)
+    {
         for (int j = 0; j < CullMode::END; j++)
         {
             for (auto& meshInfo : _mesheInfos[SKELETAL_MESH][i][j])

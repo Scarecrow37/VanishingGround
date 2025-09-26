@@ -58,12 +58,3 @@ namespace EnemyAction
         
     };
 } // namespace EnemyAction
-
-class TimelineEvent : public Timeline::EventContext
-{
-public:
-    TimelineEvent();
-
-private:
-    void RequireEvent(std::string_view typeNameID) override {}
-};

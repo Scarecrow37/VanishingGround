@@ -17,15 +17,28 @@ QTEEditor::QTEEditor()
                 Timeline::SequencerEditor::FLAGS_DRAW_CONTEXT_LINE_VERTICAL ;
     _sequencerEditor.SetFlags(flags);
     
-    auto& callback           = _sequencerEditor.GetCallback();
-    callback.LowerFramePopup = [this](Timeline::EventTrack* track) {
+    auto& callback = _sequencerEditor.GetCallback();
+    callback.LowerFramePopup = [this](Timeline::EventTrack& track) {
+        if (ImGui::MenuItem("Paste Note"))
+        {
+            float time = _sequencerEditor.GetFrameFromIndicate();
+            track.PasteContext(_copyBuffer, time);
+        }
+        ImGui::Separator();
         if (ImGui::MenuItem("Add Note"))
         {
             float min, max, frame;
-            min     = track->GetMinFrame();
-            max     = track->GetMaxFrame();
-            frame   = _sequencerEditor.GetFrameFromIndicate();
-            track->AddEvent<QTE::Note>("Note", ImClamp(frame, min, max));
+            min   = track.GetMinFrame();
+            max   = track.GetMaxFrame();
+            frame = _sequencerEditor.GetFrameFromIndicate();
+            track.AddEvent<QTE::Note>("Note", ImClamp(frame, min, max));
+        }
+    };
+
+    callback.ContextPopup = [this](Timeline::EventTrack& track, Timeline::EventContext& context) {
+        if (ImGui::MenuItem("Copy Note"))
+        {
+            _copyBuffer = track.CopyContext(&context);
         }
     };
 
@@ -43,6 +56,7 @@ void QTEEditor::Show()
 {
     if (_editorOpened)
     {
+        ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver);
         ImGui::Begin("QTE Editor", &_editorOpened, ImGuiWindowFlags_NoMove);
         ImRect tabRect  = ImGuiHelper::GetWindowTabBarRect();
         ImVec2 mousePos = ImGui::GetMousePos();
@@ -64,6 +78,8 @@ void QTEEditor::Show()
             ImGui::SameLine();
             ShowTrackDetail();
         }
+
+        ProcessInputEvent();
 
         ImGui::End();
     }
@@ -659,6 +675,82 @@ void QTEEditor::ShowTrackFromWeapon(const QTE::Track* track, const std::string& 
             }
         }
         ImGui::EndPopup();
+    }
+}
+
+void QTEEditor::ProcessInputEvent() 
+{
+    auto        track    = _editTrack.GetEventTrack().lock();
+    UINT        id       = _sequencerEditor.GetSelectedContextID();
+    const float minFrame = _editTrack.GetMinFrame();
+    const float maxFrame = _editTrack.GetMaxFrame();
+    if (track)
+    {
+        if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
+        {
+
+            if (ImGui::IsKeyPressed(ImGuiKey_C))
+            {
+                _copyBuffer = track->CopyContextFromID(id);
+            }
+            if (ImGui::IsKeyPressed(ImGuiKey_V))
+            {
+                float time = _sequencerEditor.GetFrameFromMousePos();
+                track->PasteContext(_copyBuffer, time);
+            }
+            if (ImGui::IsKeyPressed(ImGuiKey_RightArrow))
+            {
+                if (Timeline::EventContext* context = track->GetContextFromID(id))
+                {
+                    float newTime = ImClamp(context->Time + 0.1f, minFrame, maxFrame);
+                    track->ChangeContextTime(id, newTime);
+                }
+            }
+            if (ImGui::IsKeyPressed(ImGuiKey_LeftArrow))
+            {
+                if (Timeline::EventContext* context = track->GetContextFromID(id))
+                {
+                    float newTime = ImClamp(context->Time - 0.1f, minFrame, maxFrame);
+                    track->ChangeContextTime(id, newTime);
+                }
+            }
+        }
+        else
+        {
+            if (ImGui::IsKeyPressed(ImGuiKey_Delete, false))
+            {
+                Timeline::EventContext* context;
+                UINT                    nextId = 0;
+                if (context = track->GetPrevContextFromID(id))
+                {
+                    nextId = context->ID;
+                }
+                else if (context = track->GetNextContextFromID(id))
+                {
+                    nextId = context->ID;
+                }
+                track->RemoveContextFromID(id);
+                _sequencerEditor.SetSelectedContextID(nextId);
+            }
+            if (ImGui::IsKeyPressed(ImGuiKey_RightArrow) || ImGui::IsKeyPressed(ImGuiKey_UpArrow))
+            {
+                if (Timeline::EventContext* context = track->GetNextContextFromID(id))
+                {
+                    UINT nextId = context->ID;
+                    _sequencerEditor.SetSelectedContextID(nextId);
+                    _sequencerEditor.SetViewPositionFromID(nextId, Timeline::SequencerEditor::ALIGN_CENTER);
+                }
+            }
+            if (ImGui::IsKeyPressed(ImGuiKey_LeftArrow) || ImGui::IsKeyPressed(ImGuiKey_DownArrow))
+            {
+                if (Timeline::EventContext* context = track->GetPrevContextFromID(id))
+                {
+                    UINT prevId = context->ID;
+                    _sequencerEditor.SetSelectedContextID(prevId);
+                    _sequencerEditor.SetViewPositionFromID(prevId, Timeline::SequencerEditor::ALIGN_CENTER);
+                }
+            }
+        }
     }
 }
 
