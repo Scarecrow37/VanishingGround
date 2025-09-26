@@ -30,7 +30,7 @@ void EnemyDeadState::OnEnter()
         animator->EndBuildOverrideAnimation();
         if (audioTable)
         {
-            UmAudio.Play("Dead0");
+            UmAudio.Play("Dead");
         }
     }
 }
