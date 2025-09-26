@@ -573,7 +573,7 @@ void AnimationComponent::BeginBuildOverrideAnimation()
     if (false == _isBuildingOverrideAnimation)
     {
         _isBuildingOverrideAnimation = true;
-        _dirtyWhenBuildingOverrideAnimation = false;
+        _prevBeginBuildAnimatonData = &GetTopAnimationData();
     }
     else
     {
@@ -587,13 +587,13 @@ void AnimationComponent::EndBuildOverrideAnimation()
     if (_isBuildingOverrideAnimation)
     {
         _isBuildingOverrideAnimation = false;
-        // Build 중에 한 작업이 없다면 무시
-        if (false == _dirtyWhenBuildingOverrideAnimation)
+        // 마지막 애니메이션 데이터가 달라졌을때만
+        if (_prevBeginBuildAnimatonData != &GetTopAnimationData())
         {
-            return;
+            AnimationData& animData = GetTopAnimationDataEx();
+            SetAnimationEx(animData);
         }
-        AnimationData& animData = GetTopAnimationDataEx();
-        SetAnimationEx(animData);
+        _prevBeginBuildAnimatonData = nullptr;
     }
     else
     {
@@ -630,7 +630,6 @@ bool AnimationComponent::PushBackOverrideAnimation(std::string_view animKey, boo
                 SetAnimationEx(animData);
             }
             _lastAnimationData = &animData;
-            _dirtyWhenBuildingOverrideAnimation = true;
             return true;
         }
     }
@@ -692,7 +691,6 @@ void AnimationComponent::PopOverrideAnimation()
         SetAnimationEx(nextData);
     }
     _lastAnimationData = &nextData;
-    _dirtyWhenBuildingOverrideAnimation = true;
 }
 
 bool AnimationComponent::ChangeCurrentAnimation(std::string_view animKey) 

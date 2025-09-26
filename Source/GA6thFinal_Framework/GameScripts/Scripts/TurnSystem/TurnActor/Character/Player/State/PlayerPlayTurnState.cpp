@@ -383,6 +383,23 @@ void PlayerPlayTurnState::BattleOnHitEvent(const QTE::NoteResult& result)
     Battle::EnemyTargetFlag_ target = GetAttackTargetFromButton(result.PressedButton);
     Player& player = GetPlayer();
     Battle()(player, target, result);
+    switch (result.Result)
+    {
+    case QTE::QTE_RESULT_PERFECT: {
+        UmAudio.Play("-31000");
+        break;
+    }
+    case QTE::QTE_RESULT_NORMAL: {
+        UmAudio.Play("-31010");
+        break;
+    }
+    case QTE::QTE_RESULT_MISS: {
+        UmAudio.Play("-31020");
+        break;
+    }
+    default:
+        break;
+    }
 }
 
 Battle::EnemyTargetFlag_ PlayerPlayTurnState::GetAttackTargetFromButton(unsigned int button) const

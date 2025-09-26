@@ -230,7 +230,7 @@ private:
     std::deque<AnimationData>  _overrideAnimationStack; 
     AnimationData*             _lastAnimationData = nullptr;
     bool                       _isBuildingOverrideAnimation = false;
-    int                        _dirtyWhenBuildingOverrideAnimation = false;
+    const AnimationData*       _prevBeginBuildAnimatonData = nullptr;
     
     std::pair<bool, AnimationFlags> _nextAnimationFlag; // 다음 애니메이션 데이터 (first: isValid, second: NextAnimationData)
     

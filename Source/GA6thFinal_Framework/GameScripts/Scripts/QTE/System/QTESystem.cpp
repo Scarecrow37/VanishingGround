@@ -414,14 +414,23 @@ void QTESystem::PressedQTEButton(Input::Controller::Button buttonType)
         switch (result.Result)
         {
             case QTE::QTE_RESULT_PERFECT:
+            {
                 ++_overallResult.PerfectCount;
+                UmAudio.Play("-21000");
                 break;
+            }
             case QTE::QTE_RESULT_NORMAL:
+            {
                 ++_overallResult.NormalCount;
+                UmAudio.Play("-21010");
                 break;
+            }
             case QTE::QTE_RESULT_MISS:
+            {
                 ++_overallResult.MissCount;
+                UmAudio.Play("-21020");
                 break;
+            }
             default:
                 break;
         }
