@@ -49,6 +49,7 @@ namespace Timeline
         const char* mode = _isShowPath ? "Show AssetID" : "Show Path";
         ImGui::Checkbox(mode, &_isShowPath);
 
+        static std::vector<int> removeList;
         if (ImGui::TreeNodeEx("AudioList", ImGuiTreeNodeFlags_DefaultOpen))
         {
             const float  height = ImGui::GetItemRectSize().y + ImGui::GetStyle().FramePadding.y * 2.0f;
@@ -84,7 +85,7 @@ namespace Timeline
                         ImGui::SameLine();
                         if (ImGui::Button("-", buttonSize))
                         {
-                            RemoveAudioFromAssetID(assetID);
+                            removeList.push_back(assetID);
                         }
                     }
                     ImGui::PopID();
@@ -95,7 +96,7 @@ namespace Timeline
             ImGui::SetNextItemWidth(availSize.x - 60.0f);
             if (ImGui::InputInt("##new_file", &_newAssetID, 0, 0, ImGuiInputTextFlags_EnterReturnsTrue))
             {
-                AddAudioFromAssetID(_newAssetID);
+                removeList.push_back(_newAssetID);
                 _newAssetID = 0;
             }
             ListenAudioFileDragDropEvent();
@@ -105,8 +106,15 @@ namespace Timeline
                 AddAudioFromAssetID(_newAssetID);
                 _newAssetID = 0;
             }
-
             ImGui::TreePop();
+        }
+        if (false == removeList.empty())
+        {
+            for (int assetID : removeList)
+            {
+                RemoveAudioFromAssetID(assetID);
+            }
+            removeList.clear();
         }
     }
 
