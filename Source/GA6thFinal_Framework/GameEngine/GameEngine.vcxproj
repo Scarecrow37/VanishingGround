@@ -371,6 +371,7 @@
     <ClInclude Include="Source\Engine\EditorCore\Gui\PopupBox\EditorPopupBox.h" />
     <ClInclude Include="Source\Engine\EditorCore\System\EditorPopupBoxSystem.h" />
     <ClInclude Include="Source\Editor\DragDropTypes\DragDropAsset.h" />
+    <ClInclude Include="Source\Engine\TimelineCore\Context\Input\TimelineInputEventContext.h" />
     <ClInclude Include="Source\Engine\Utility\BoxSpacing.h" />
     <ClInclude Include="Source\Engine\Utility\EditorHelper.h" />
     <ClInclude Include="Source\Editor\DragDropTypes\DragDropTransform.h" />
@@ -543,6 +544,7 @@
     <ClCompile Include="Source\Engine\EditorCore\Gui\PopupBox\EditorPopupBox.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\System\EditorPopupBoxSystem.cpp" />
     <ClCompile Include="Source\Editor\DragDropTypes\DragDropAsset.cpp" />
+    <ClCompile Include="Source\Engine\TimelineCore\Context\Input\TimelineInputEventContext.cpp" />
     <ClCompile Include="Source\Engine\Utility\BoxSpacing.cpp" />
     <ClCompile Include="Source\Engine\Utility\EditorHelper.cpp" />
     <ClCompile Include="Source\Editor\Menu\Project\EditorProjectMenu.cpp" />

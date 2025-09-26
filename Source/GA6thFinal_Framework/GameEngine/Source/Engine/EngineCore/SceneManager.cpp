@@ -2228,6 +2228,11 @@ void ESceneManager::InputSystem::Vibrate(const Input::ControllerTypes::Vibration
     _inputController.Vibrate(vibration);
 }
 
+void ESceneManager::InputSystem::StopVibration() 
+{
+    _inputController.Vibrate(0, 0);
+}
+
 void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
 {
     int   buttonIndex = std::countr_zero((unsigned int)button);

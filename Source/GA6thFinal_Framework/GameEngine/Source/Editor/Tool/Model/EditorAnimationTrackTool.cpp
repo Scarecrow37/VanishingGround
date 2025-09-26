@@ -683,6 +683,11 @@ void EditorAnimationTrackTool::LowerFramePopup(Timeline::EventTrack& track)
             float currentFrame = _sequencer->GetFrameFromIndicate();
             track.AddEvent<Timeline::ParticleEventContext>("New Particle Event", currentFrame);
         }
+        if (ImGui::MenuItem("+ Add Input Event"))
+        {
+            float currentFrame = _sequencer->GetFrameFromIndicate();
+            track.AddEvent<Timeline::InputEventContext>("New Input Event", currentFrame);
+        }
     }
 }
 
