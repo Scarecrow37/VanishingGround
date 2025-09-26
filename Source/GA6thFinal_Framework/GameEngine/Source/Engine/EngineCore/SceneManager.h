@@ -590,6 +590,12 @@ public:
         /// <returns></returns>
         Input::Controller& GetController() { return _inputController; }
 
+        /// <summary>
+        /// 컨트롤러의 진동을 설정합니다.
+        /// </summary>
+        /// <param name="vibration">적용할 진동 설정을 나타내는 Vibration 구조체입니다.</param>
+        void Vibrate(Input::ControllerTypes::Vibration vibration);
+
     private:
         static constexpr size_t ACTION_COUNT = (size_t)Action::UNKNOWN;
         static constexpr size_t CONTROLLER_BUTTON_COUNT = (size_t)ControllerButton::UNKNOWN;
