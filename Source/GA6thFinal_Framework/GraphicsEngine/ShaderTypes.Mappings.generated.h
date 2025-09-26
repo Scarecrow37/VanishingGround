@@ -22,6 +22,7 @@ namespace GE
         {VS::PARTICLE_FULLSCREEN, L"vs_particle_fullscreen.hlsl"},
         {VS::SKELETAL_SHADOW_FR, L"vs_skeletal_shadow_fr.hlsl"},
         {VS::GRID, L"vs_grid.hlsl"},
+        {VS::SDF_FONT_FR, L"vs_sdf_font_fr.hlsl"},
         {VS::SKELETAL_FORWARD_FR, L"vs_skeletal_forward_fr.hlsl"},
         {VS::STATIC_FR, L"vs_static_fr.hlsl"}
     };
@@ -50,7 +51,7 @@ namespace GE
         {PS::SSR, L"ps_ssr.hlsl"},
         {PS::VOLUMETRIC_FOG, L"ps_volumetric_fog.hlsl"},
         {PS::GRID, L"ps_grid.hlsl"},
-        {PS::BURN_DISSOLVE, L"ps_burn_dissolve.hlsl"},
+        {PS::SDF_FONT, L"ps_sdf_font.hlsl"},
         {PS::GBUFFER, L"ps_gbuffer.hlsl"},
         {PS::UI, L"ps_ui.hlsl"},
         {PS::DISTORTION_RESOLVE, L"ps_distortion_resolve.hlsl"},
@@ -64,6 +65,7 @@ namespace GE
         {PS::GAUSSIANBLUR_Y, L"ps_gaussianblur_y.hlsl"},
         {PS::UI_OIT, L"ps_ui_oit.hlsl"},
         {PS::DOWN_SAMPLE, L"ps_down_sample.hlsl"},
+        {PS::BURN_DISSOLVE, L"ps_burn_dissolve.hlsl"},
         {PS::PBR_LIGHTING, L"ps_pbr_lighting.hlsl"},
         {PS::SKYBOX, L"ps_skybox.hlsl"},
         {PS::BLEND, L"ps_blend.hlsl"}

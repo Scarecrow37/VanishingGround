@@ -1,8 +1,8 @@
 ﻿#pragma once
 
-using VertexBufferID         = UINT;
-using IndexBufferID          = UINT;
-using MeshInstanceID   = UINT;
+using VertexBufferID = UINT;
+using IndexBufferID  = UINT;
+using MeshInstanceID = UINT;
 
 struct Vertex
 {

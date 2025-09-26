@@ -36,7 +36,7 @@ using namespace DirectX::SimpleMath;
 #include "BaseMesh.h"
 
 #include "MeshRenderer.h"
-#include "FontRenderer.h"
+#include "TextRenderer.h"
 #include "SpriteRenderer.h"
 #include "CommandSet.h"
 

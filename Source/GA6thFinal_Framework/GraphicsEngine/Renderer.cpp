@@ -238,7 +238,20 @@ void Renderer::RegisterRenderQueue(std::string_view sceneName, SpriteRenderer* c
     scene->RegisterOnRenderQueue(component);
 }
 
-void Renderer::RegisterRenderQueue(std::string_view sceneName, FontRenderer* component)
+void Renderer::RegisterRenderQueue(std::string_view sceneName, TextRenderer* component)
+{
+    auto iter = _renderScenes.find(sceneName.data());
+
+    if (iter == _renderScenes.end())
+    {
+        GRAPHICS_ASSERT(false, L"Renderer::RegisterRenderQueue : Render Scene Not Registered.");
+    }
+
+    auto& scene = iter->second;
+    scene->RegisterOnRenderQueue(component);
+}
+
+void Renderer::RegisterRenderQueue(std::string_view sceneName, SDFTextRenderer* component)
 {
     auto iter = _renderScenes.find(sceneName.data());
 

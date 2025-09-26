@@ -12,9 +12,7 @@ UI2DPass_OIT::~UI2DPass_OIT() = default;
 
 void UI2DPass_OIT::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
-    UIPassBase_OIT::Initialize(ownerScene, ownerTechnique, commandList);
-
-    _cameraData.View = XMMatrixTranspose(XMMatrixLookAtLH({0.f, 0.f, -1.f}, {0.f, 0.f, 1.f}, {0.f, 1.f, 0.f}));
+    UIPassBase_OIT::Initialize(ownerScene, ownerTechnique, commandList);    
 
     PipelineStateStream pss;
     pss.BlendState                   = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
@@ -26,30 +24,16 @@ void UI2DPass_OIT::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTec
 
     _fx.SetPipelineStateStream(pss);
     _pipelineState = Global::pipelineStateManager->GetPipelineState(pss);
+
+    _depthStencilView = static_cast<UITechnique_OIT*>(_ownerTechnique)->GetDepthStencilView();
+    _cameraBuffer     = static_cast<UITechnique_OIT*>(_ownerTechnique)->GetCameraBuffer(MODE_2D);
 }
 
 void UI2DPass_OIT::Begin(ID3D12GraphicsCommandList* commandList)
-{
-    auto depthStencilView = static_cast<UITechnique_OIT*>(_ownerTechnique)->GetDepthStencilView();
-    depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-    depthStencilView->ClearDepthStencilView(commandList);
-
-    _nodesBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-    _headBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-    _atomicCounterBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-
-    UINT value[4] = {UINT_MAX, UINT_MAX, UINT_MAX, UINT_MAX};
-    _headBuffer->ClearUnorderedAccessView(commandList, value);
-    _atomicCounterBuffer->ClearUnorderedAccessView(commandList, Vector4(0, 0, 0, 0));
-
-    const auto& size = Global::device->GetResolution();
-
-    _cameraData.Projection = XMMatrixTranspose(XMMatrixOrthographicOffCenterLH(0.f, (float)size.cx, (float)size.cy, 0.f, 0.1f, 1000.f));
-    _cameraBuffer->UpdateBuffer(&_cameraData);
-
+{    
     UIPassBase_OIT::UpdateBuffer(commandList);
 
-    commandList->OMSetRenderTargets(0, nullptr, FALSE, &depthStencilView->GetDSVHandle());
+    commandList->OMSetRenderTargets(0, nullptr, FALSE, &_depthStencilView->GetDSVHandle());
     commandList->RSSetViewports(1, &_finalRenderTarget->GetViewport());
     commandList->RSSetScissorRects(1, &_finalRenderTarget->GetScissorRect());
 }
@@ -71,10 +55,10 @@ void UI2DPass_OIT::Draw(ID3D12GraphicsCommandList* commandList)
 
     commandList->SetGraphicsRootShaderResourceView(_fx.GetRootParameterIndex("IDs"), _instanceIDBuffer->GetGPUVirtualAddress());
     commandList->SetGraphicsRootConstantBufferView(_fx.GetRootParameterIndex("cameraData"), _cameraBuffer->GetGPUVirtualAddress());
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("textures"), resource);
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("OITHead"), _headBuffer->GetUAVHandle());
     commandList->SetGraphicsRootUnorderedAccessView(_fx.GetRootParameterIndex("OITNodes"), _nodesBuffer->GetGPUVirtualAddress());
     commandList->SetGraphicsRootUnorderedAccessView(_fx.GetRootParameterIndex("OITCounter"), _atomicCounterBuffer->GetGPUVirtualAddress());
-    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("textures"), resource);
 
     _halfQuad->Render(commandList, (UINT)_instanceIDs->size());
 }

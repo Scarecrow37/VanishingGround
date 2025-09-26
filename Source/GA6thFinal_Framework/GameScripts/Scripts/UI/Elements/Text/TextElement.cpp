@@ -42,7 +42,7 @@ void TextElement::Reset()
 
     try
     {
-        _renderer = std::make_unique<FontRenderer>();
+        _renderer = std::make_unique<TextRenderer>();
         UmGraphics.RegisterComponent("Game", _renderer.get());
         if (IS_EDITOR)
         {
