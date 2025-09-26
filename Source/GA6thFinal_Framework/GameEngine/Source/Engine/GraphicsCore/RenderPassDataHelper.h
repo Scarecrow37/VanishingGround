@@ -74,6 +74,19 @@ inline void SerializeVolumetricFogProperty(std::ostream& os, const VolumetricFog
        << prop.FogColor[3] << "\n";
 }
 
+// SSGIProperty를 문자열로 변환
+inline void SerializeSSGIProperty(std::ostream& os, const SSGIProperty& prop)
+{
+    os << "    Type = SSGIProperty\n";
+    os << "    Radius = " << prop.Radius << "\n";
+    os << "    Thickness = " << prop.Thickness << "\n";
+    os << "    NumSample = " << prop.NumSample << "\n";
+    os << "    Intencity = " << prop.Intencity << "\n";
+    os << "    TemporalWeight = " << prop.TemporalWeight << "\n";
+    os << "    DepthSigma = " << prop.DepthSigma << "\n";
+    os << "    NormalSigma = " << prop.NormalSigma << "\n";
+}
+
 
 // 문자열에서 ShadowPassProperty를 복원
 inline void DeserializeShadowProperty(std::istream& is, ShadowPassProperty& prop)
@@ -208,6 +221,31 @@ inline void DeserializeVolumetricFogProperty(std::istream& is, VolumetricFogProp
     }
 }
 
+// 문자열에서 SSGIProperty를 복원
+inline void DeserializeSSGIProperty(std::istream& is, SSGIProperty& prop)
+{
+    std::string line, key, equals;
+    while (std::getline(is, line) && line.find('}') == std::string::npos)
+    {
+        std::stringstream ss(line);
+        ss >> key >> equals;
+        if (key == "Radius")
+            ss >> prop.Radius;
+        if (key == "Thickness")
+            ss >> prop.Thickness;
+        else if (key == "NumSample")
+            ss >> prop.NumSample;
+        else if (key == "Intencity")
+            ss >> prop.Intencity;
+        else if (key == "TemporalWeight")
+            ss >> prop.TemporalWeight;
+        else if (key == "DepthSigma")
+            ss >> prop.DepthSigma;
+        else if (key == "NormalSigma")
+            ss >> prop.NormalSigma;
+    }
+}
+
 inline void SaveRenderPassData(const std::string& filePath)
 {
 	std::filesystem::path path(filePath);
@@ -253,6 +291,10 @@ inline void SaveRenderPassData(const std::string& filePath)
         else if (property.type() == typeid(VolumetricFogProperty))
         {
             SerializeVolumetricFogProperty(outFile, std::any_cast<const VolumetricFogProperty&>(property));
+        }
+        else if (property.type() == typeid(SSGIProperty))
+        {
+            SerializeSSGIProperty(outFile, std::any_cast<const SSGIProperty&>(property));
         }
         outFile << "}\n";
     }
@@ -329,6 +371,7 @@ inline void LoadRenderPassData(const std::string& filePath)
                             else if (typeName == "SSRPassProperty") DeserializeSSRPassProperty(inFile, std::any_cast<SSRPassProperty&>(property));
                             else if (typeName == "ParallaxMappingProperty") DeserializeParallaxMappingProperty(inFile, std::any_cast<ParallaxMappingProperty&>(property));
                             else if (typeName == "VolumetricFogProperty") DeserializeVolumetricFogProperty(inFile, std::any_cast<VolumetricFogProperty&>(property));
+                            else if (typeName == "SSGIProperty") DeserializeSSGIProperty(inFile, std::any_cast<SSGIProperty&>(property));
                         }
                         else
                         {

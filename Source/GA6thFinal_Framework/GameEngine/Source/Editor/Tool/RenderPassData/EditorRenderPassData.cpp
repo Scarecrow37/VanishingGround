@@ -336,6 +336,72 @@ void EditVolumetricFogProperty(std::any& property)
     }
 }
 
+void EditSSGIProperty(std::any& property)
+{
+    auto& giProperty = std::any_cast<SSGIProperty&>(property);
+
+    if (ImGui::BeginTable("Volumetric Fog Properties", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+    {
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Radius");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##Radius", &giProperty.Radius, 0.01f, 0.1f, 4.f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Thickness");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##Thickness", &giProperty.Thickness, 0.0001f, 0.01f, 0.15f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("NumSamplle");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragInt("##NumSamplle", &giProperty.NumSample, 1, 8, 16);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Intencity");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##Intencity", &giProperty.Intencity, 0.01f, 0.0f, 2.f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("TemporalWeight");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##TemporalWeight", &giProperty.TemporalWeight, 0.01f, 0.7f, 0.95f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("DepthSigma");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##DepthSigma", &giProperty.DepthSigma, 0.01f, 0.5f, 5.f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("NormalSigma");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##NormalSigma", &giProperty.NormalSigma, 1.f, 16.f, 256.f);
+        ImGui::PopItemWidth();
+
+        ImGui::EndTable();
+    }
+}
+
 void EditorRenderPassData::OnFrameRender()
 {
     if (ImGui::TreeNodeEx("Properties"))
@@ -372,6 +438,10 @@ void EditorRenderPassData::OnFrameRender()
                 else if (property.type() == typeid(VolumetricFogProperty))
                 {
                     EditVolumetricFogProperty(property);
+                }
+                else if (property.type() == typeid(SSGIProperty))
+                {
+                    EditSSGIProperty(property);
                 }
                 ImGui::TreePop();
             }
