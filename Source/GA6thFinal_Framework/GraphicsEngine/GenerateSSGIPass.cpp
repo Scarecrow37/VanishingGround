@@ -25,11 +25,10 @@ void GenerateSSGIPass::Draw(ID3D12GraphicsCommandList* commandList)
     D3D12_GPU_VIRTUAL_ADDRESS giData       = _ssgiTech->GetConstantBufferView()->GetGPUVirtualAddress();
     D3D12_GPU_VIRTUAL_ADDRESS cameraData   = _ownerScene->_cameraBuffer->GetGPUVirtualAddress();
     int                       currentIndex = _ssgiTech->_currIndex;
-    currentIndex                           = 0;
     auto                      currGITex    = _ssgiTech->_GIHalf2D[currentIndex];
     const auto&               gbuffers     = Global::multiRenderTargetManager->GetRenderTargetGroup("G-Buffer");
     SIZE                      res          = Global::device->GetResolution();
-    SIZE                      halfRes      = SIZE((res.cx / 2.f), (res.cy / 2.f));
+    SIZE                      halfRes      = SIZE((int)(res.cx / 2.f), (int)(res.cy / 2.f));
     commandList->SetComputeRootConstantBufferView(_shader->GetRootParameterIndex("ssgiData"), giData);
     commandList->SetComputeRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"), cameraData);
     commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("screenDepth"),
@@ -43,12 +42,6 @@ void GenerateSSGIPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("SSGI_Result"),
                                                currGITex->GetUAVHandle());
     commandList->Dispatch((halfRes.cx + 15) / 16, (halfRes.cy + 15) / 16, 1);
-}
-
-void GenerateSSGIPass::AddRenderPassDatas(std::string_view sceneName)
-{
-    Global::renderPassDatas->AddRenderPassImage(sceneName, "GenerateSSGIPass", "SSGITexture",
-                                                _ssgiTech->_GIHalf2D[0]->GetSRVHandle());
 }
 
 void GenerateSSGIPass::InitShaderAnsPSO() 

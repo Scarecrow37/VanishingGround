@@ -5,6 +5,7 @@
 // render pass
 #include "CalculateMotionVectorPass.h"
 #include "GenerateSSGIPass.h"
+#include "GITemporalPass.h"
 
 SSGITechnique::SSGITechnique() {}
 
@@ -15,6 +16,7 @@ void SSGITechnique::Initialize(ID3D12GraphicsCommandList* commandList)
     _motionVectorTex2D = std::make_shared<UnorderedAccessView>();
     _GIHalf2D[0]       = std::make_shared<UnorderedAccessView>();
     _GIHalf2D[1]       = std::make_shared<UnorderedAccessView>();
+    _GITemporalHalf       = std::make_shared<UnorderedAccessView>();
     _constantBuffer    = std::make_shared<ConstantBufferView>();
     UINT size          = (sizeof(SSGIData) + 255) & ~255;
     _constantBuffer->Initialize(size);
@@ -31,7 +33,8 @@ void SSGITechnique::Initialize(ID3D12GraphicsCommandList* commandList)
                                       D3D12_SRV_DIMENSION_TEXTURE2D);
     _GIHalf2D[1]->InitializeAsTexture(desc, UnorderedAccessView::UAVSliceType::PER_MIP, true,
                                       D3D12_SRV_DIMENSION_TEXTURE2D);
-
+    _GITemporalHalf->InitializeAsTexture(desc, UnorderedAccessView::UAVSliceType::PER_MIP, true,
+                                         D3D12_SRV_DIMENSION_TEXTURE2D);
     SSGIProperty property;
     property.Radius         = 1.f;
     property.Thickness      = 0.05f;
@@ -48,6 +51,9 @@ void SSGITechnique::Initialize(ID3D12GraphicsCommandList* commandList)
     pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));
     pass = std::make_unique<GenerateSSGIPass>();
+    pass->Initialize(_ownerScene, this, commandList);
+    AddRenderPass(std::move(pass));
+    pass = std::make_unique<GITemporalPass>();
     pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));
 }
@@ -76,7 +82,7 @@ void SSGITechnique::UpdateConstantBuffer()
     data.PreViewProj           = XMMatrixTranspose(_prevVP);
     data.InverseViewProjection = XMMatrixTranspose(invViewProj);
     data.ScreenSize            = Vector2(res.cx, res.cy);
-    data.Radius                = ssgiProperty.DepthSigma;
+    data.Radius                = ssgiProperty.Radius;
     data.Thickness             = ssgiProperty.Thickness;
     data.NumSample             = ssgiProperty.NumSample;
     data.Intencity             = ssgiProperty.Intencity;

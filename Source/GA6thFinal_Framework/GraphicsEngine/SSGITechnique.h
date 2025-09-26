@@ -18,6 +18,7 @@ public:
     std::shared_ptr<UnorderedAccessView> _motionVectorTex2D;
     // prev, half 돌려쓸 예정
     std::shared_ptr<UnorderedAccessView> _GIHalf2D[2];
+    std::shared_ptr<UnorderedAccessView> _GITemporalHalf;
     bool                                 _currIndex = false;
 
 private:

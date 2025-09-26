@@ -457,6 +457,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClInclude Include="UITechnique.h" />
     <ClInclude Include="UITechnique_OIT.h" />
     <ClInclude Include="UnorderedAccessView.h" />
+    <ClInclude Include="GITemporalPass.h" />
     <ClInclude Include="VertexShader.h" />
     <ClInclude Include="VIBuffer.h" />
     <ClInclude Include="ViewManager.h" />
@@ -605,6 +606,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClCompile Include="UITechnique.cpp" />
     <ClCompile Include="UITechnique_OIT.cpp" />
     <ClCompile Include="UnorderedAccessView.cpp" />
+    <ClCompile Include="GITemporalPass.cpp" />
     <ClCompile Include="VertexShader.cpp" />
     <ClCompile Include="VIBuffer.cpp" />
     <ClCompile Include="ViewManager.cpp" />
@@ -691,6 +693,12 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="..\Shaders\cs_skeletal_skinning.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\cs_ssgi_temporal.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
