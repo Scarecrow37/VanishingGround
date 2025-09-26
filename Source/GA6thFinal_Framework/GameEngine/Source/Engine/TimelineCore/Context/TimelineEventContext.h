@@ -35,14 +35,38 @@ namespace Timeline
         /// 알림이 발생했을 때 호출되는 가상 함수입니다. 호출 시 동작할 동작을 오버라이딩하여 구현해야합니다.
         /// </summary>
         virtual void OnNotify() {}
-        virtual void ImGuiDrawPropertysEvent() {}
+        virtual void ImGuiDrawPropertysEvent() override {}
 
-    protected:
         /// <summary>
-        /// typeID를 통해 콘텍스트를 생성해야하는 인터페이스 함수입니다.
+        /// EventContext를 지정된 타입으로 캐스팅합니다.
         /// </summary>
-        /// <param name="typeNameID">해당 이벤트의 typenameID</param>
-        virtual void RequireEvent(std::string_view typeNameID) {};
+        template <typename T>
+        T* Cast(EventContext* context)
+        {
+            if (context)
+            {
+                const char* typeNameT = typeid(T).name();
+                const auto& keyTypeName  = context->GetEventType();
+                if (keyTypeName == typeNameT)
+                {
+                    return static_cast<T*>(context);
+                }
+            }
+            return nullptr;
+        }
+
+        /// <summary>
+        /// EventContext 포인터를 지정된 타입으로 dynamic_cast를 시도합니다.
+        /// </summary>
+        template <typename T>
+        T* SafeCast(EventContext* context)
+        {
+            if (context)
+            {
+                return dynamic_cast<T*>(context);
+            }
+            return nullptr;
+        }
 
     protected:
         REFLECT_FIELDS_BEGIN(ReflectSerializer)

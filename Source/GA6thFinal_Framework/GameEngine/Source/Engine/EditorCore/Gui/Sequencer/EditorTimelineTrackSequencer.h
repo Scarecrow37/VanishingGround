@@ -4,10 +4,11 @@ namespace Timeline
 {
     class EventTrack;
     class EventContext;
+
     class SequencerEditor : public ReflectSerializer
     {
     public:
-        enum Flags
+        enum Flags : UINT
         {
             FLAGS_NONE                          = 0,
 
@@ -56,12 +57,13 @@ namespace Timeline
             ImVec2 End;
         };
 
-        // 팝업 콜백 함수 (로우 포인터를 인자로 넘겨도 safe함)
+        // 콜백 함수 (로우 포인터를 인자로 넘겨도 safe함)
         struct Callback
         {
-            std::function<void(Timeline::EventTrack*)> LowerFramePopup;
-            std::function<void(Timeline::EventTrack*)> UpperFramePopup;
-            std::function<void(Timeline::EventTrack*, const EventContext&)> ContextPopup;
+            std::function<void(Timeline::EventTrack&)> LowerFramePopup;
+            std::function<void(Timeline::EventTrack&)> UpperFramePopup;
+            std::function<void(Timeline::EventTrack&, EventContext&)> ContextPopup;
+            std::function<void(Timeline::EventTrack&, EventContext&)> ContextDoubleClick;
         };
 
     public:
@@ -77,39 +79,34 @@ namespace Timeline
 
         void ShowDebugData();
 
-        /// <summary>
-        /// Sequencer에서 사용할 TimelineSystem을 설정합니다.
-        /// </summary>
-        /// <param name="system">해당 System에 대한 shared_ptr입니다.</param>
+        /// <summary>Sequencer에서 사용할 TimelineSystem을 설정합니다.</summary>
+        /// <param name="system">해당 System에 대한 weak_ptr입니다.</param>
         void SetEventTrack(std::weak_ptr<EventTrack> system);
 
         inline Callback& GetCallback() { return _callback; }
 
-        /// <summary>
-        /// 시퀀서 에디터가 차지할 크기를 설정합니다. 각 원소가 0일 시 자동으로 크기를 조정합니다.
-        /// </summary>
+        /// <summary>시퀀서 에디터가 차지할 크기를 설정합니다. 각 원소가 0일 시 자동으로 크기를 조정합니다.</summary>
         /// <param name="size">설정할 시퀀서의 크기.</param>
         inline void SetSequencerSize(const ImVec2& size) { _sequencerSize = size; }
 
-        /// <summary>
-        /// Sequencer의 Gui영역을 반환합니다.
-        /// </summary>
-        /// <returns>Gui영역의 ImRect</returns>
+        /// <summary>마우스 위치의 프레임을 반환합니다.</returns>
+        inline float GetFrameFromMousePos() { return _mouseFrame; }
+
+        /// <summary>Sequencer가 가리키는 실제 프레임을 반환합니다.</summary>
+        inline float GetFrameFromIndicate() { return _indicateFrame; }
+
+        /// <summary>Sequencer의 Gui영역을 반환합니다.</summary>
         inline ImRect GetFrameRect() const { return _frameRect; }
 
-        /// <summary>
-        /// Sequencer의 Gui영역 크기를 반환합니다.
-        /// </summary>
-        /// <returns>Gui영역의 크기 ImVec2</returns>
+        /// <summary>Sequencer의 Gui영역 크기를 반환합니다.</summary>
         inline ImVec2 GetRectSize() const { return _frameRect.GetSize(); }
 
-        /// <summary>
-        /// Sequencer의 Gui영역 위치를 반환합니다.
-        /// </summary>
-        /// <returns>Gui영역의 위치 ImVec2</returns>
+        /// <summary>Sequencer의 Gui영역 위치를 반환합니다.</summary>
         inline ImVec2 GetRectPosition() const { return _frameRect.Min; }
 
+        /// <summary>Sequencer의 뷰 포지션을 반환합니다.</summary>
         inline ImVec2 GetViewPosition() const { return _viewPos; }
+
         inline void   AddViewPositionDelay(const ImVec2& pos) { _targetViewPos += pos; }
         inline void   AddViewPosition(const ImVec2& pos) { _viewPos += pos; _targetViewPos += pos; }
         inline void   SetViewPositionDelay(const ImVec2& pos) { _targetViewPos = pos; }
@@ -124,19 +121,12 @@ namespace Timeline
 
         inline void   SetSelectedContextID(UINT id = 0) { _seletedContextID = id; }
         inline UINT   GetSelectedContextID() const { return _seletedContextID; }
-
-        inline float  GetMouseCursorFrame() const { return _mouseFrame; }
-        inline float  GetSnapCursorFrame() const { return _indicateFrame; }
-        inline float  GetIndicateCursorFrame() const { return _indicateFrame; }
                       
         inline void   SetFlags(UINT flags) { _flags = flags; }
         inline void   AddFlags(UINT flags) { _flags |= flags; }
         inline void   RemoveFlags(UINT flags) { _flags &= ~flags; }
         inline void   ToggleFlags(UINT flags) { _flags ^= flags; }
         inline bool   HasFlags(UINT flags) const { return (_flags & flags) != 0; }
-
-        inline float GetFrameFromMousePos() { return _mouseFrame; }
-        inline float GetFrameFromIndicate() { return _indicateFrame; }
 
     private:
         bool    Begin();
