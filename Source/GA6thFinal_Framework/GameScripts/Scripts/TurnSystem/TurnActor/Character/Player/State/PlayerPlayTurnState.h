@@ -57,6 +57,7 @@ private:
     bool       _setImguiPosCenter;
     InputState _inputState;
     bool       _isDownAButton;
+    bool       _isDownAKey;
     float      _attackButtonHeldTime;
     float      _attackButtonHeldWaitTime;
     int        _attackRemaining; // 공격 남은 횟수

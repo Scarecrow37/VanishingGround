@@ -133,7 +133,7 @@ void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
             player.EndTurn();
         }
     }
-    _attackButtonHeldTime += _isDownAButton ? UmTime.DeltaTime() : -UmTime.DeltaTime();
+    _attackButtonHeldTime += _isDownAButton || _isDownAKey ? UmTime.DeltaTime() : -UmTime.DeltaTime();
     _attackButtonHeldTime = std::clamp(_attackButtonHeldTime, 0.f, _attackButtonHeldWaitTime);
 }
 
@@ -144,7 +144,8 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
     ImGui::Begin("Player Turn##9A48EE30-CB5F-48AC-9740-DDF8118AAC49", nullptr, flags);
     {
 #ifdef _UMEDITOR
-        _isDownAButton = ImGui::IsKeyDown(ImGuiKey_A);
+
+        _isDownAKey = ImGui::IsKeyDown(ImGuiKey_A);
 #endif // ISEDITOR
 
         auto enemies = Battle::GetTargetsFromFlags(Battle::ENEMY_TARGET_FLAG_ALL);
@@ -203,7 +204,8 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
     QTEUIManager* qteUIManager = QTEUIManager::GetInstance();
     if (qteSystem && qteUIManager)
     {
-        qteSystem->CombatUIActive(!_isDownAButton);
+        bool input = _isDownAKey || _isDownAButton;
+        qteSystem->CombatUIActive(!input);
         qteUIManager->SetBackgroundUIAlpha(t);
         qteUIManager->SetUIAlpha(0.0f);
         qteUIManager->SetActive(true);
