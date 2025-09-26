@@ -112,5 +112,3 @@ namespace QTE
         }
     }
 }
-
-
