@@ -573,6 +573,7 @@ void AnimationComponent::BeginBuildOverrideAnimation()
     if (false == _isBuildingOverrideAnimation)
     {
         _isBuildingOverrideAnimation = true;
+        _dirtyWhenBuildingOverrideAnimation = false;
     }
     else
     {
@@ -586,7 +587,12 @@ void AnimationComponent::EndBuildOverrideAnimation()
     if (_isBuildingOverrideAnimation)
     {
         _isBuildingOverrideAnimation = false;
-        AnimationData& animData      = GetTopAnimationDataEx();
+        // Build 중에 한 작업이 없다면 무시
+        if (false == _dirtyWhenBuildingOverrideAnimation)
+        {
+            return;
+        }
+        AnimationData& animData = GetTopAnimationDataEx();
         SetAnimationEx(animData);
     }
     else
@@ -601,18 +607,17 @@ bool AnimationComponent::PushBackOverrideAnimation(std::string_view animKey, boo
     _nextAnimationFlag.first = false;
     if (_animator)
     {
+        std::string animName(animKey);
+        GetAnimationNameEx(animKey, animName);
         // 중복 애니메이션을 허용하지 않는 경우
         if (false == allowOverlap)
         {
             const AnimationData& topData = GetTopAnimationData();
-            const std::string&   topKey  = GetAnimationNameFromKey(topData._animationName);
-            if (topKey == animKey)
+            if (animName == topData._animationName)
             {
                 return false;
             }
         }
-        std::string animName(animKey);
-        GetAnimationNameEx(animKey, animName);
         if (_animator->HasAnimation(animName.c_str()))
         {
             AnimationData& topData = GetTopAnimationDataEx();
@@ -625,6 +630,7 @@ bool AnimationComponent::PushBackOverrideAnimation(std::string_view animKey, boo
                 SetAnimationEx(animData);
             }
             _lastAnimationData = &animData;
+            _dirtyWhenBuildingOverrideAnimation = true;
             return true;
         }
     }
@@ -668,6 +674,11 @@ bool AnimationComponent::PushFrontOverrideAnimation(std::string_view animKey, bo
 
 void AnimationComponent::PopOverrideAnimation() 
 {
+    if (_overrideAnimationStack.empty())
+    {
+        return;
+    }
+
     if (_currentAnimationData && _currentAnimationData->_onExitCallback)
     {
         _currentAnimationData->_onExitCallback();
@@ -681,6 +692,7 @@ void AnimationComponent::PopOverrideAnimation()
         SetAnimationEx(nextData);
     }
     _lastAnimationData = &nextData;
+    _dirtyWhenBuildingOverrideAnimation = true;
 }
 
 bool AnimationComponent::ChangeCurrentAnimation(std::string_view animKey) 

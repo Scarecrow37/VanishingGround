@@ -96,7 +96,7 @@ namespace Timeline
             ImGui::SetNextItemWidth(availSize.x - 60.0f);
             if (ImGui::InputInt("##new_file", &_newAssetID, 0, 0, ImGuiInputTextFlags_EnterReturnsTrue))
             {
-                removeList.push_back(_newAssetID);
+                AddAudioFromAssetID(_newAssetID);
                 _newAssetID = 0;
             }
             ListenAudioFileDragDropEvent();
