@@ -22,9 +22,11 @@ namespace Timeline
             currentWeight += weight;
             if (randomWeight <= currentWeight)
             {
-                const File::Guid& guid = UmFileSystem.GetGuidFromAssetID(assetID);
-                auto hAudio = UmAudio.Play(guid.string());
+                std::string key = std::to_string(assetID);
+                auto hAudio = UmAudio.Play(key);
                 UmAudio.SetVolume(hAudio, ReflectFields->Volume);
+                key += "Notify Play Sound";
+                UmLogger.Log(LogLevel::LEVEL_DEBUG, key);
                 break;
             }
         }
@@ -39,11 +41,6 @@ namespace Timeline
         for (auto& [assetID, weight] : ReflectFields->AudioDataTable)
         {
             _totalWeight += weight;
-            const File::Guid& guid = UmFileSystem.GetGuidFromAssetID(assetID);
-            if (false == guid.IsNull())
-            {
-                UmAudio.LoadSound(guid.string(), guid);
-            }
         }
     }
 
@@ -52,6 +49,7 @@ namespace Timeline
         const char* mode = _isShowPath ? "Show AssetID" : "Show Path";
         ImGui::Checkbox(mode, &_isShowPath);
 
+        static std::vector<int> removeList;
         if (ImGui::TreeNodeEx("AudioList", ImGuiTreeNodeFlags_DefaultOpen))
         {
             const float  height = ImGui::GetItemRectSize().y + ImGui::GetStyle().FramePadding.y * 2.0f;
@@ -87,7 +85,7 @@ namespace Timeline
                         ImGui::SameLine();
                         if (ImGui::Button("-", buttonSize))
                         {
-                            RemoveAudioFromAssetID(assetID);
+                            removeList.push_back(assetID);
                         }
                     }
                     ImGui::PopID();
@@ -98,7 +96,7 @@ namespace Timeline
             ImGui::SetNextItemWidth(availSize.x - 60.0f);
             if (ImGui::InputInt("##new_file", &_newAssetID, 0, 0, ImGuiInputTextFlags_EnterReturnsTrue))
             {
-                AddAudioFromAssetID(_newAssetID);
+                removeList.push_back(_newAssetID);
                 _newAssetID = 0;
             }
             ListenAudioFileDragDropEvent();
@@ -108,8 +106,15 @@ namespace Timeline
                 AddAudioFromAssetID(_newAssetID);
                 _newAssetID = 0;
             }
-
             ImGui::TreePop();
+        }
+        if (false == removeList.empty())
+        {
+            for (int assetID : removeList)
+            {
+                RemoveAudioFromAssetID(assetID);
+            }
+            removeList.clear();
         }
     }
 

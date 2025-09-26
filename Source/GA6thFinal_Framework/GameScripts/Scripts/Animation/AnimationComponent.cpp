@@ -605,7 +605,8 @@ bool AnimationComponent::PushBackOverrideAnimation(std::string_view animKey, boo
         if (false == allowOverlap)
         {
             const AnimationData& topData = GetTopAnimationData();
-            if(topData._animationName == animKey)
+            const std::string&   topKey  = GetAnimationNameFromKey(topData._animationName);
+            if (topKey == animKey)
             {
                 return false;
             }
