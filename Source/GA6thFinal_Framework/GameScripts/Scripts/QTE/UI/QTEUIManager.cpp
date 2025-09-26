@@ -55,8 +55,8 @@ void QTEUIManager::OnQTEStay()
         {
             const float qteTime  = system->GetQTETime();
             const POINT judgePos = _qteJudgeNoteUI->Point;
-            const auto& results  = system->GetCurrentQTEResultQueue();
-            for (const auto& result : results)
+            const auto& overall  = system->GetQTEOverallResult();
+            for (const auto& result : overall.NoteResults)
             {
                 QTE::Note* note = result.Note;
                 if (note)

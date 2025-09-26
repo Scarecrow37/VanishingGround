@@ -12,7 +12,7 @@
 #include <Stats/Enemy/EnemyStats.h>
 #include <Stats/Enemy/EnemyStatsComponent.h>
 
-void Battle::operator()(Player& attacker, EnemyTargetFlag targetFlag, const QTE::Result& result)
+void Battle::operator()(Player& attacker, EnemyTargetFlag targetFlag, const QTE::NoteResult& result)
 {
     TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
     if (turnMode)
@@ -75,7 +75,7 @@ std::vector<Enemy*> Battle::GetTargetsFromFlags(EnemyTargetFlag targetFlag)
     return selectedTargets;
 }
 
-void Battle::BattleStart(Player& attacker, Enemy& target, const QTE::Result& result)
+void Battle::BattleStart(Player& attacker, Enemy& target, const QTE::NoteResult& result)
 {
     TurnMode*             turnMode             = SingletonComponent<TurnMode>::GetInstance();
     WeaponSystem*         weaponSystem         = SingletonComponent<WeaponSystem>::GetInstance();
@@ -101,7 +101,7 @@ void Battle::BattleStart(Player& attacker, Enemy& target, const QTE::Result& res
             action.OnPlayerBattlePreCalculate(attacker, playerStats, weaponStats, target, enemyStats, result);
         });
 
-        if (QTE::QTE_RESULT_MISS != result.ResultType && QTE::QTE_RESULT_NONE != result.ResultType)
+        if (result.IsHit())
         {
             turnMode->ApplyActions([&](TurnAction& action) {
                 action.OnPlayerBattleCalculateChainModifier(attacker, playerStats, weaponStats, target, enemyStats);
