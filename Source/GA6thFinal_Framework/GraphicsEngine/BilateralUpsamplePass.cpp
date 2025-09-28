@@ -55,6 +55,6 @@ void BilateralUpsamplePass::Draw(ID3D12GraphicsCommandList* commandList)
 
 void BilateralUpsamplePass::AddRenderPassDatas(std::string_view sceneName)
 {
-    Global::renderPassDatas->AddRenderPassImage(sceneName, "GenerateSSGIPass", "SSGITexture",
+    Global::renderPassDatas->AddRenderPassImage(sceneName, "BilateralUpsamplePass", "SSGIFinalTexture",
                                                 _ssgiTech->_finalGITex->GetSRVHandle());
 }
