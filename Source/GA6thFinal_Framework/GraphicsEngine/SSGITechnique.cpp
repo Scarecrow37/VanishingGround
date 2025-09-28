@@ -6,6 +6,7 @@
 #include "CalculateMotionVectorPass.h"
 #include "GenerateSSGIPass.h"
 #include "GITemporalPass.h"
+#include "BilateralUpsamplePass.h"
 
 SSGITechnique::SSGITechnique() {}
 
@@ -35,6 +36,12 @@ void SSGITechnique::Initialize(ID3D12GraphicsCommandList* commandList)
                                       D3D12_SRV_DIMENSION_TEXTURE2D);
     _GITemporalHalf->InitializeAsTexture(desc, UnorderedAccessView::UAVSliceType::PER_MIP, true,
                                          D3D12_SRV_DIMENSION_TEXTURE2D);
+
+    _finalGITex = MakeSharedResource<RenderTarget>();
+    desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, res.cx, res.cy, 1,
+                                             MAX_MIPMAP_LEVEL, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+
+    _finalGITex->Initialize(desc, 0.247f);
     SSGIProperty property;
     property.Radius         = 1.f;
     property.Thickness      = 0.05f;
@@ -54,6 +61,9 @@ void SSGITechnique::Initialize(ID3D12GraphicsCommandList* commandList)
     pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));
     pass = std::make_unique<GITemporalPass>();
+    pass->Initialize(_ownerScene, this, commandList);
+    AddRenderPass(std::move(pass));
+    pass = std::make_unique<BilateralUpsamplePass>();
     pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));
 }
@@ -81,7 +91,7 @@ void SSGITechnique::UpdateConstantBuffer()
     SSGIData data;
     data.PreViewProj           = XMMatrixTranspose(_prevVP);
     data.InverseViewProjection = XMMatrixTranspose(invViewProj);
-    data.ScreenSize            = Vector2(res.cx, res.cy);
+    data.ScreenSize            = Vector2((float)res.cx, (float)res.cy);
     data.Radius                = ssgiProperty.Radius;
     data.Thickness             = ssgiProperty.Thickness;
     data.NumSample             = ssgiProperty.NumSample;

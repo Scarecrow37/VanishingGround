@@ -19,6 +19,7 @@ public:
     // prev, half 돌려쓸 예정
     std::shared_ptr<UnorderedAccessView> _GIHalf2D[2];
     std::shared_ptr<UnorderedAccessView> _GITemporalHalf;
+    SharedResource<RenderTarget>         _finalGITex;
     bool                                 _currIndex = false;
 
 private:
