@@ -41,12 +41,6 @@ void GITemporalPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->Dispatch((halfRes.cx + 15) / 16, (halfRes.cy + 15) / 16, 1);
 }
 
-void GITemporalPass::AddRenderPassDatas(std::string_view sceneName) 
-{
-    Global::renderPassDatas->AddRenderPassImage(sceneName, "GenerateSSGIPass", "SSGITexture",
-                                                _ssgiTech->_GITemporalHalf->GetSRVHandle());
-}
-
 void GITemporalPass::InitShaderAnsPSO()
 {
     _shader = std::make_unique<ShaderBuilder>();

@@ -11,7 +11,6 @@ public:
                     ID3D12GraphicsCommandList* commandList) override;
     void Begin(ID3D12GraphicsCommandList* commandList) override;
     void Draw(ID3D12GraphicsCommandList* commandList) override;
-    void AddRenderPassDatas(std::string_view sceneName) override;
 
 private:
     void InitShaderAnsPSO();
