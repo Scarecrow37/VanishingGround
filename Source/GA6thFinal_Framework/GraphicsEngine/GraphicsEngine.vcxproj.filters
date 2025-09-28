@@ -163,6 +163,9 @@
     <FxCompile Include="..\Shaders\cs_ssgi_temporal.hlsl">
       <Filter>Shaders\cs</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\ps_bilateral_up_sample.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AccelerationStructureManager.cpp">
@@ -563,6 +566,9 @@
     </ClCompile>
     <ClCompile Include="GITemporalPass.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="BilateralUpsamplePass.cpp">
+      <Filter>헤더 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -991,6 +997,9 @@
     </ClInclude>
     <ClInclude Include="GITemporalPass.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="BilateralUpsamplePass.h">
+      <Filter>소스 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
