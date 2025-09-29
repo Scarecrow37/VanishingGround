@@ -79,5 +79,5 @@ void FogLightInjectionPass::InitShaderAndPSO()
 
     HRESULT hr =
         Global::device->GetDevice()->CreateComputePipelineState(&psoDesc, IID_PPV_ARGS(_pipelineState.GetAddressOf()));
-    FAILED_CHECK_MESSAGE(hr, L"DXRComputeSkeletalMeshPass::InitShaderAndPSO CreateComputePipelineState failed");
+    FAILED_CHECK_MESSAGE(hr, L"FogLightInjectionPass::InitShaderAndPSO CreateComputePipelineState failed");
 }

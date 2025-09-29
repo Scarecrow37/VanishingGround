@@ -72,7 +72,7 @@ void VolumetricFogTechnique::UpdateConstantBuffer()
     fogData.CameraNearFar_PreviousFrameBlend = Vector4(
         volumetricFogProperty.CustomNear, volumetricFogProperty.CustomFar, volumetricFogProperty.BlendWithPrevFrame, 1);
     fogData.Density               = volumetricFogProperty.Density;
-    fogData.PreViewProjection     = _prevViewProjection;
+    fogData.PreViewProjection     = XMMatrixTranspose(_prevViewProjection);
     fogData.InverseViewProjection = XMMatrixTranspose(invViewProj);
     fogData.Strength              = volumetricFogProperty.Strength;
     fogData.ThicknessFactor       = 0.01f;
