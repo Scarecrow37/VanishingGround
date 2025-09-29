@@ -154,6 +154,21 @@
     <FxCompile Include="..\Shaders\cs_resolve_ui.hlsl">
       <Filter>Shaders\cs</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\cs_calculate_motion_vector.hlsl">
+      <Filter>Shaders\cs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\cs_generate_ssgi.hlsl">
+      <Filter>Shaders\cs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\cs_ssgi_temporal.hlsl">
+      <Filter>Shaders\cs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_bilateral_up_sample.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_ssgi_composite.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AccelerationStructureManager.cpp">
@@ -541,6 +556,24 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="UIResolvePass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="SSGITechnique.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CalculateMotionVectorPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="GenerateSSGIPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="GITemporalPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="BilateralUpsamplePass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="SSGICompositePass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -957,6 +990,24 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="UIResolvePass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SSGITechnique.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CalculateMotionVectorPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GenerateSSGIPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GITemporalPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SSGICompositePass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="BilateralUpsamplePass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
