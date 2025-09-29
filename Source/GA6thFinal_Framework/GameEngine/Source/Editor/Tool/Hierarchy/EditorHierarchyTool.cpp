@@ -607,7 +607,7 @@ void EditorHierarchyTool::HierarchyDrawTreeNode()
         {
             std::erase_if(_hierarchyObjects, [](const std::weak_ptr<GameObject>& object) 
             {
-                return false == object.expired();
+                return object.expired();
             });
             _hierarchyObjectCleanup = false;
         }
