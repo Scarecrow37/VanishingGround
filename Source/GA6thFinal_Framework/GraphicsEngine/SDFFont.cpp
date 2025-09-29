@@ -67,13 +67,13 @@ void SDFFont::ParseAtlas(yyjson_val* atlasVal)
 {
     if (nullptr == atlasVal)
         return;
-
-    _atlas.Type          = yyjson_get_str(yyjson_obj_get(atlasVal, "type"));
-    _atlas.DistanceRange = yyjson_get_real(yyjson_obj_get(atlasVal, "distanceRange"));
-    _atlas.Size          = yyjson_get_real(yyjson_obj_get(atlasVal, "size"));
-    _atlas.Width         = yyjson_get_real(yyjson_obj_get(atlasVal, "width"));
-    _atlas.Height        = yyjson_get_real(yyjson_obj_get(atlasVal, "height"));
-    _atlas.YOrigin       = yyjson_get_str(yyjson_obj_get(atlasVal, "yOrigin"));
+    
+    _atlas.Type    = yyjson_get_str(yyjson_obj_get(atlasVal, "type"));
+    _atlas.YOrigin = yyjson_get_str(yyjson_obj_get(atlasVal, "yOrigin"));
+    yyjsonValuteTypeHelper(yyjson_obj_get(atlasVal, "distanceRange"), _atlas.DistanceRange);
+    yyjsonValuteTypeHelper(yyjson_obj_get(atlasVal, "size"), _atlas.Size);
+    yyjsonValuteTypeHelper(yyjson_obj_get(atlasVal, "width"), _atlas.Width);
+    yyjsonValuteTypeHelper(yyjson_obj_get(atlasVal, "height"), _atlas.Height);
 }
 
 void SDFFont::ParseMetrics(yyjson_val* metricsVal)
@@ -81,12 +81,12 @@ void SDFFont::ParseMetrics(yyjson_val* metricsVal)
     if (nullptr == metricsVal)
         return;
 
-    _metrics.EmSize             = yyjson_get_real(yyjson_obj_get(metricsVal, "emSize"));
-    _metrics.LineHeight         = yyjson_get_real(yyjson_obj_get(metricsVal, "lineHeight"));
-    _metrics.Ascender           = yyjson_get_real(yyjson_obj_get(metricsVal, "ascender"));
-    _metrics.Descender          = yyjson_get_real(yyjson_obj_get(metricsVal, "descender"));
-    _metrics.UnderlineY         = yyjson_get_real(yyjson_obj_get(metricsVal, "underlineY"));
-    _metrics.UnderlineThickness = yyjson_get_real(yyjson_obj_get(metricsVal, "underlineThickness"));
+    yyjsonValuteTypeHelper(yyjson_obj_get(metricsVal, "emSize"), _metrics.EmSize);
+    yyjsonValuteTypeHelper(yyjson_obj_get(metricsVal, "lineHeight"), _metrics.LineHeight);
+    yyjsonValuteTypeHelper(yyjson_obj_get(metricsVal, "ascender"), _metrics.Ascender);
+    yyjsonValuteTypeHelper(yyjson_obj_get(metricsVal, "descender"), _metrics.Descender);
+    yyjsonValuteTypeHelper(yyjson_obj_get(metricsVal, "underlineY"), _metrics.UnderlineY);
+    yyjsonValuteTypeHelper(yyjson_obj_get(metricsVal, "underlineThickness"), _metrics.UnderlineThickness);
 }
 
 void SDFFont::ParseGlyphs(yyjson_val* glyphsValue)
@@ -101,26 +101,31 @@ void SDFFont::ParseGlyphs(yyjson_val* glyphsValue)
         SDF::Glyph glyph{};
 
         glyph.Unicode = yyjson_get_uint(yyjson_obj_get(value, "unicode"));
-        glyph.Advance = yyjson_get_real(yyjson_obj_get(value, "advance"));
+        yyjsonValuteTypeHelper(yyjson_obj_get(value, "advance"), glyph.Advance);
 
         yyjson_val* planeBoundsValue = yyjson_obj_get(value, "planeBounds");
         if (planeBoundsValue)
         {
-            glyph.PlaneBounds.Left   = yyjson_get_real(yyjson_obj_get(planeBoundsValue, "left"));
-            glyph.PlaneBounds.Bottom = yyjson_get_real(yyjson_obj_get(planeBoundsValue, "bottom"));
-            glyph.PlaneBounds.Right  = yyjson_get_real(yyjson_obj_get(planeBoundsValue, "right"));
-            glyph.PlaneBounds.Top    = yyjson_get_real(yyjson_obj_get(planeBoundsValue, "top"));
+            yyjsonValuteTypeHelper(yyjson_obj_get(planeBoundsValue, "left"), glyph.PlaneBounds.Left);
+            yyjsonValuteTypeHelper(yyjson_obj_get(planeBoundsValue, "bottom"), glyph.PlaneBounds.Bottom);
+            yyjsonValuteTypeHelper(yyjson_obj_get(planeBoundsValue, "right"), glyph.PlaneBounds.Right);
+            yyjsonValuteTypeHelper(yyjson_obj_get(planeBoundsValue, "top"), glyph.PlaneBounds.Top);
         }
 
         yyjson_val* atlasBoundsValue = yyjson_obj_get(value, "atlasBounds");
         if (atlasBoundsValue)
         {
-            glyph.AtlasBounds.Left   = yyjson_get_real(yyjson_obj_get(atlasBoundsValue, "left"));
-            glyph.AtlasBounds.Bottom = yyjson_get_real(yyjson_obj_get(atlasBoundsValue, "bottom"));
-            glyph.AtlasBounds.Right  = yyjson_get_real(yyjson_obj_get(atlasBoundsValue, "right"));
-            glyph.AtlasBounds.Top    = yyjson_get_real(yyjson_obj_get(atlasBoundsValue, "top"));
+            yyjsonValuteTypeHelper(yyjson_obj_get(atlasBoundsValue, "left"), glyph.AtlasBounds.Left);
+            yyjsonValuteTypeHelper(yyjson_obj_get(atlasBoundsValue, "bottom"), glyph.AtlasBounds.Bottom);
+            yyjsonValuteTypeHelper(yyjson_obj_get(atlasBoundsValue, "right"), glyph.AtlasBounds.Right);
+            yyjsonValuteTypeHelper(yyjson_obj_get(atlasBoundsValue, "top"), glyph.AtlasBounds.Top);
         }
 
-        _glyphs[glyph.Unicode] = glyph;
+        _glyphs[static_cast<wchar_t>(glyph.Unicode)] = glyph;
     }
+}
+
+void SDFFont::yyjsonValuteTypeHelper(yyjson_val* value, float& data)
+{
+    data = yyjson_is_real(value) ? yyjson_get_real(value) : (float)yyjson_get_sint(value);
 }

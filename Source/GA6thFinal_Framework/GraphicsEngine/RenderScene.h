@@ -94,7 +94,6 @@ public:
     std::vector<BoneMatrices>                   _boneMatrices;
     std::vector<Matrix>                         _uiMatrices;
     std::vector<UIMaterial>                     _uiMaterials;
-    std::vector<Matrix>                         _textMatrices;
     std::vector<MeshInstanceID>                 _staticMeshInstanceIDs;
     std::vector<MeshInstanceID>                 _skeletalMeshInstanceIDs;
     std::shared_ptr<Camera>                     _camera;

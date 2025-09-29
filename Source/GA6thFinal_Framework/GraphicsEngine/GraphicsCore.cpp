@@ -165,7 +165,9 @@ void GraphicsCore::RegisterComponent(std::string_view renderSceneName, ISDFTextR
 
 void GraphicsCore::CreateSDFTextRenderer(class ISDFTextRenderer** component) const
 {
-    *component = new SDFTextRenderer;
+    SDFTextRenderer* textRenderer = new SDFTextRenderer;
+    textRenderer->Initialize();
+    *component = textRenderer;
 }
 
 void GraphicsCore::LoadResource(std::wstring_view filePath, MeshRenderer* component) const

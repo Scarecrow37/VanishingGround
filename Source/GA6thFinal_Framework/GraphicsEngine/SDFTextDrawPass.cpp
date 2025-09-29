@@ -3,10 +3,7 @@
 #include "UITechnique_OIT.h"
 #include "SDFTextRenderer.h"
 
-SDFTextDrawPass::SDFTextDrawPass(const std::vector<UINT>* instanceIDs)
-    : UIPassBase_OIT(instanceIDs)
-{
-}
+SDFTextDrawPass::SDFTextDrawPass() = default;
 
 SDFTextDrawPass::~SDFTextDrawPass() = default;
 
@@ -29,6 +26,17 @@ void SDFTextDrawPass::Initialize(RenderScene* ownerScene, RenderTechnique* owner
     _cameraBuffer     = static_cast<UITechnique_OIT*>(_ownerTechnique)->GetCameraBuffer(MODE_2D);
 }
 
+void SDFTextDrawPass::Update(ID3D12GraphicsCommandList* commandList, const float deltaTime)
+{
+    for (auto& [isDestroy, component] : _ownerScene->_sdfTextRenderQueue)
+    {
+        if (!component || !component->IsActive())
+            continue;       
+
+        component->Update(commandList);
+    }
+}
+
 void SDFTextDrawPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
     _depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_DEPTH_READ);
@@ -40,11 +48,16 @@ void SDFTextDrawPass::Begin(ID3D12GraphicsCommandList* commandList)
 
 void SDFTextDrawPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
+    UINT  currentBackBufferIndex = Global::device->GetCurrentBackBufferIndex();
+    auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
+
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_fx.GetRootSignature());
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("OITHead"), _headBuffer->GetUAVHandle());
     commandList->SetGraphicsRootUnorderedAccessView(_fx.GetRootParameterIndex("OITNodes"), _nodesBuffer->GetGPUVirtualAddress());  
     commandList->SetGraphicsRootUnorderedAccessView(_fx.GetRootParameterIndex("OITCounter"), _atomicCounterBuffer->GetGPUVirtualAddress());
+    commandList->SetGraphicsRootConstantBufferView(_fx.GetRootParameterIndex("cameraData"), _cameraBuffer->GetGPUVirtualAddress());
+
 
     UINT index = 0;
     for (auto& [isDestroy, component] : _ownerScene->_sdfTextRenderQueue)
@@ -52,8 +65,7 @@ void SDFTextDrawPass::Draw(ID3D12GraphicsCommandList* commandList)
         if (!component || !component->IsActive())
             continue;
         
-        commandList->SetComputeRoot32BitConstants(_fx.GetRootParameterIndex("bit32_1_instanceID"), 1, &(*_instanceIDs)[index++], 0);
-        commandList->SetComputeRoot32BitConstants(_fx.GetRootParameterIndex("bit32_4_fontColor"), 4, &component->GetColor(), 0);
+        commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_4_fontColor"), 4, &component->GetColor(), 0);
         commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("sdfTexture"), component->GetFontTextureHandle());
 
         component->Render(commandList);

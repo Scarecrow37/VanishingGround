@@ -175,7 +175,6 @@ void RenderScene::UpdateRenderScene(const float deltaTime)
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::BONE_MATRICES, _boneMatrices.data(), (UINT)_boneMatrices.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::UI_TRANSFORM, _uiMatrices.data(), (UINT)_uiMatrices.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::UI_MATERIAL, _uiMaterials.data(), (UINT)_uiMaterials.size());
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::TEXT_TRANSFORM, _textMatrices.data(), (UINT)_textMatrices.size());
     
     for (auto& technique : _techniques)
     {
@@ -397,7 +396,6 @@ void RenderScene::UpdateUI()
 
     _uiMatrices.clear();
     _uiMaterials.clear();
-
     for (auto& [isDestroy, component] : _uiRenderQueue)
     {
         if (!component->IsActive())
@@ -449,20 +447,6 @@ void RenderScene::UpdateUI()
     // Text
     auto iter_text = std::remove_if(_sdfTextRenderQueue.begin(), _sdfTextRenderQueue.end(), [](const auto& pair) { return *pair.first; });
     _sdfTextRenderQueue.erase(iter_text, _sdfTextRenderQueue.end());
-
-    for (auto& [isDestroy, component] : _sdfTextRenderQueue)
-    {
-        if (!component->IsActive())
-            continue;
-
-        //XMMATRIX scale       = XMMatrixScaling((float)size.cx, (float)-size.cy, 1.f);
-        XMMATRIX world       = component->GetWorldMatrix();
-        Vector2  size        = component->GetSize();
-        XMMATRIX translation = XMMatrixTranslation(size.x * 0.5f, size.y * 0.5f, 0.f);
-
-        _textMatrices.emplace_back(XMMatrixTranspose(world * translation));
-    }
-
 }
 
 void RenderScene::CreateRenderTarget()
@@ -521,7 +505,7 @@ void RenderScene::CreateFrameResource()
         _frameResources[i]->AddFrameResource(sizeof(BoneMatrices), MAX_OBJECTS);
 
         // UI Transform
-        _frameResources[i]->AddFrameResource(sizeof(XMMATRIX), MAX_OBJECTS);
+        _frameResources[i]->AddFrameResource(sizeof(Matrix), MAX_OBJECTS);
 
         // UI Material
         _frameResources[i]->AddFrameResource(sizeof(UIMaterial), MAX_OBJECTS);
@@ -533,7 +517,7 @@ void RenderScene::CreateFrameResource()
         _frameResources[i]->AddFrameResource(sizeof(IndexBufferID), MAX_OBJECTS);
 
         //  Mesh Instance ID
-        _frameResources[i]->AddFrameResource(sizeof(MeshInstanceID), MAX_OBJECTS);
+        _frameResources[i]->AddFrameResource(sizeof(MeshInstanceID), MAX_OBJECTS);        
     }
 
     _cameraBuffer = std::make_unique<ConstantBufferView>();

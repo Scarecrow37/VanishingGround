@@ -10,7 +10,7 @@ public:
     ~TestSDFTextRenderer() override;
 
 public:
-    REFLECT_PROPERTY(FilePath, Text, Color, FontScale)
+    REFLECT_PROPERTY(FilePath, Text, Color, FontScale, PositionX, PositionY)
 
     GETTER_ONLY(std::string, FilePath) { return _guidRef.ToPath().string(); }
     PROPERTY(FilePath)
@@ -39,6 +39,22 @@ public:
     }
     PROPERTY(FontScale)
 
+    GETTER(float, PositionX) { return ReflectFields->PosX; }
+    SETTER(float, PositionX)
+    {
+        ReflectFields->PosX = value;
+        UpdatePosition();
+    }
+    PROPERTY(PositionX)
+
+    GETTER(float, PositionY) { return ReflectFields->PosY; }
+    SETTER(float, PositionY)
+    {
+        ReflectFields->PosY = value;
+        UpdatePosition();
+    }
+    PROPERTY(PositionY)
+
 public:
     void SetFont(const File::GuidRef& guidRef);
 
@@ -49,6 +65,7 @@ private:
     void UpdateText() const;
     void UpdateColor() const;
     void UpdateScale() const;
+    void UpdatePosition() const;
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
@@ -56,6 +73,8 @@ protected:
     std::string          Text      = "Hello Um!";
     std::array<float, 4> Color     = {0.0f, 0.0f, 0.0f, 1.0f};
     float                FontScale = 1.0f;
+    float                PosX      = 0.f;
+    float                PosY      = 0.f;
     REFLECT_FIELDS_END(TestSDFTextRenderer)
 
 private:

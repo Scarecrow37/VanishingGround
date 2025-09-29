@@ -21,19 +21,21 @@ TestSDFTextRenderer::TestSDFTextRenderer()
             }
             ImGui::EndDragDropTarget();
         }
-    });
-
-    UmGraphics.CreateSDFTextRenderer(&_renderer);
+    });    
 }
 
-TestSDFTextRenderer::~TestSDFTextRenderer() = default;
+TestSDFTextRenderer::~TestSDFTextRenderer()
+{
+    if (_renderer)
+        _renderer->Release();
+}
 
 void TestSDFTextRenderer::SetFont(const File::GuidRef& guidRef)
 {
     _guidRef = guidRef;
     ReflectFields->Guid = _guidRef.string();
 
-    if (false == _guidRef.IsNull())
+    UmSceneManager.ResourceManager.RequestSDFFontResource(this, _guidRef, [this]()
     {
         if (nullptr != _renderer)
         {
@@ -44,11 +46,13 @@ void TestSDFTextRenderer::SetFont(const File::GuidRef& guidRef)
                 UmGraphics.LoadResource(filePath, _renderer);
             }
         }
-    }
+    });
 }
 
 void TestSDFTextRenderer::Reset()
 {
+    UmGraphics.CreateSDFTextRenderer(&_renderer);
+
     UmGraphics.RegisterComponent("Game", _renderer);
     if (IS_EDITOR)
     {
@@ -77,6 +81,14 @@ void TestSDFTextRenderer::UpdateScale() const
 {
     if (nullptr != _renderer)
     {
-        _renderer->SetScale(ReflectFields->FontScale);
+        _renderer->SetFontSize(ReflectFields->FontScale);
+    }
+}
+
+void TestSDFTextRenderer::UpdatePosition() const
+{
+    if (nullptr != _renderer)
+    {
+        _renderer->SetPosition(Vector3(ReflectFields->PosX, ReflectFields->PosY, 0.0f));
     }
 }

@@ -57,7 +57,7 @@ void UITechnique_OIT::Initialize(ID3D12GraphicsCommandList* commandList)
     pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));*/
 
-    pass = std::make_unique<SDFTextDrawPass>(&_instanceIDs[MODE_TEXT]);
+    pass = std::make_unique<SDFTextDrawPass>();
     pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));
 
@@ -89,15 +89,6 @@ void UITechnique_OIT::Execute(ID3D12GraphicsCommandList* commandList)
         _instanceIDs[type].push_back(index);
         _uiMaterialDatas[index] = component->GetMaterialData();
         index++;
-    }
-
-    index = 0;
-    for (auto& [isDestroy, component] : _ownerScene->_sdfTextRenderQueue)
-    {
-        if (!component->IsActive())
-            continue;
-
-        _instanceIDs[MODE_TEXT].push_back(index++);
     }
 
     _uiMaterialDataBuffer->UpdateBuffer(_uiMaterialDatas.data());
