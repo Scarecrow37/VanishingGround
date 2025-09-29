@@ -112,10 +112,8 @@ void PreferencesSystem::SetMasterVolume(float value, float maxVolume)
     // 0~1의값
     _masterVolume = value / maxVolume;
     _masterVolume = std::clamp(_masterVolume, 0.f, 1.f);
-    // 오디오 시스템한테 요청하기
-    std::string logMessage = "Current Master volume : ";
-    std::string volumestr  = std::to_string(_masterVolume);
-    UmLogger.Log(LogLevel::LEVEL_DEBUG, logMessage + volumestr);
+
+    UmAudio.SetVolume(_masterVolume);
 }
 
 void PreferencesSystem::SetBGMVolume(float value, float maxVolume) 
@@ -124,10 +122,8 @@ void PreferencesSystem::SetBGMVolume(float value, float maxVolume)
     // 0~1의값
     _BGMVolume = value / maxVolume;
     _BGMVolume = std::clamp(_BGMVolume, 0.f, 1.f);
-    // 오디오 시스템한테 요청하기 실제 세팅시 마스터 볼륨과 곱해서 세팅할 것
-    std::string logMessage = "Current BGM volume : ";
-    std::string volumestr  = std::to_string(_BGMVolume);
-    UmLogger.Log(LogLevel::LEVEL_DEBUG, logMessage + volumestr);
+
+    UmAudio.SetVolume(Audio::GROUP_BGM, _BGMVolume);
 }
 
 void PreferencesSystem::SetSFXVolume(float value, float maxVolume) 
@@ -136,10 +132,8 @@ void PreferencesSystem::SetSFXVolume(float value, float maxVolume)
     // 0~1의값
     _SFXVolume = value / maxVolume;
     _SFXVolume = std::clamp(_SFXVolume, 0.f, 1.f);
-    // 오디오 시스템한테 요청하기 실제 세팅시 마스터 볼륨과 곱해서 세팅할 것
-    std::string logMessage = "Current SFX volume : ";
-    std::string volumestr  = std::to_string(_SFXVolume);
-    UmLogger.Log(LogLevel::LEVEL_DEBUG, logMessage + volumestr);
+
+    UmAudio.SetVolume(Audio::GROUP_EFFECT, _SFXVolume);
 }
 
 void PreferencesSystem::OnPostRequestedSave()
