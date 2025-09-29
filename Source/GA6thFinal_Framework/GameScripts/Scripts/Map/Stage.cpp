@@ -69,8 +69,15 @@ void Stage::Submit()
     }
 
     GameObject* transitionManager = SingletonObject<TransitionManager>::GetInstance();
-    transitionManager->GetComponent<TransitionManager>()->SceneTransitionFade(
-        "in", "out", [stagePath]() { UmSceneManager.LoadScene(stagePath); });
+    if (transitionManager)
+    {
+        auto transitionComponent = transitionManager->GetComponent<TransitionManager>();
+        if (transitionComponent)
+        {
+            transitionComponent->SceneTransitionFade("in", "out",
+                                                     [stagePath]() { UmSceneManager.LoadScene(stagePath); });
+        }
+    }
     _stageEnable = false;
 }
 

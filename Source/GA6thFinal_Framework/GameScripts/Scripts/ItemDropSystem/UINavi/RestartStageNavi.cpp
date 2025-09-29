@@ -9,11 +9,15 @@ void RestartStageNavi::Submit()
     if (const Scene* scene = UmSceneManager.GetMainScene())
     {
         const std::string& path = scene->Path;
-
         GameObject* transitionManager = SingletonObject<TransitionManager>::GetInstance();
-        transitionManager->GetComponent<TransitionManager>()->SceneTransitionFade(
-            "in", "out", [path]() { UmSceneManager.LoadScene(path); });
-
+        if (transitionManager)
+        {
+            auto transitionComponent = transitionManager->GetComponent<TransitionManager>();
+            if (transitionComponent)
+            {
+                transitionComponent->SceneTransitionFade("in", "out", [path]() { UmSceneManager.LoadScene(path); });
+            }
+        }
     }
 }
 
