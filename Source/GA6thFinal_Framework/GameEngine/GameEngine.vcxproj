@@ -332,7 +332,7 @@
     <ClInclude Include="Source\Engine\GameCore\Component\UIRoot.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\RenderPassDataHelper.h" />
-    <ClInclude Include="Source\Engine\TimelineCore\AnimationEventTrack.h" />
+    <ClInclude Include="Source\Engine\TimelineCore\Animation\AnimationEventTrack.h" />
     <ClInclude Include="Source\Engine\EditorCore\Utillity\EditorDragState.h" />
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.h" />
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.h" />
@@ -485,7 +485,7 @@
     <ClCompile Include="Source\Engine\GameCore\Component\UINavigationComponent.cpp" />
     <ClCompile Include="Source\Engine\GameCore\Component\UIRoot.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.cpp" />
-    <ClCompile Include="Source\Engine\TimelineCore\AnimationEventTrack.cpp" />
+    <ClCompile Include="Source\Engine\TimelineCore\Animation\AnimationEventTrack.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Utillity\EditorDragState.cpp" />
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.cpp" />
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.cpp" />

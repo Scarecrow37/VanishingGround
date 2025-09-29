@@ -34,7 +34,7 @@ ESceneManager::ESceneManager()
 }
 ESceneManager::~ESceneManager()
 {
-    
+
 }
 
 void ESceneManager::LoadSettingFile() 
@@ -2221,6 +2221,11 @@ void ESceneManager::InputSystem::CleanupInputReceivers()
             inputReceivers.clear();
         }
     }
+}
+
+void ESceneManager::InputSystem::Vibrate(const Input::ControllerTypes::Vibration vibration)
+{
+    _inputController.Vibrate(vibration);
 }
 
 void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
