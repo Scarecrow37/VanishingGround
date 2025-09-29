@@ -9,6 +9,10 @@ TempTransition::~TempTransition() = default;
 
 void TempTransition::Awake()
 {
-    auto* sceneTrans = GetComponent<SceneTransitionComponent>();
-    sceneTrans->Fade("out", nullptr);
+    if (_singletonObject.TrySingleTon(true))
+    {
+        auto* sceneTrans = GetComponent<SceneTransitionComponent>();
+        sceneTrans->Fade("out", nullptr); 
+    }
+
 }
