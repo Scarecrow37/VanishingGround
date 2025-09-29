@@ -42,7 +42,11 @@ private:
 
 public:
     REFLECT_PROPERTY(MainMenuScene)
-    GETTER_ONLY(std::string, MainMenuScene) { return ReflectFields->MainMenuSceneStr; }
+    GETTER_ONLY(std::string, MainMenuScene) 
+    {
+        File::Guid guid = ReflectFields->MainMenuSceneStr;
+        return guid.ToPath().string(); 
+    }
     PROPERTY(MainMenuScene)
 
 protected:

@@ -1,6 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "NewGame.h"
-#include "SceneTransition/SceneTransitionComponent.h"
+#include "SceneTransition/TransitionManager.h"
 
 UMREAL_COMPONENT(NewGame)
 
@@ -26,9 +26,14 @@ NewGame::~NewGame() = default;
 
 void NewGame::Submit()
 {
-    GetComponent<SceneTransitionComponent>()->Fade("in", [this]() 
-        { 
-            File::Path path = File::Guid(ReflectFields->NextSceneGuid).ToPath();
-            UmSceneManager.LoadScene(path.string());
-        });
+    File::Path  path              = File::Guid(ReflectFields->NextSceneGuid).ToPath();
+    GameObject* transitionManager = SingletonObject<TransitionManager>::GetInstance();
+    if (transitionManager)
+    {
+        auto transitionComponent = transitionManager->GetComponent<TransitionManager>();
+        if (transitionComponent)
+        {
+            transitionComponent->SceneTransitionFade("in", "out", [path]() { UmSceneManager.LoadScene(path.string()); });
+        }
+    }
 }

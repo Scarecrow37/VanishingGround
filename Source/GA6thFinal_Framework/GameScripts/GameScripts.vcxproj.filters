@@ -182,6 +182,7 @@
     <ClCompile Include="Scripts\UI\Views\Accessories\AccessoriesView.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UINavi\ReturnToMapNavi.cpp" />
     <ClCompile Include="Scripts\SceneTransition\TempTransition.cpp" />
+    <ClCompile Include="Scripts\SceneTransition\TransitionManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h" />
@@ -386,6 +387,7 @@
     <ClInclude Include="Scripts\WeaponModelManager\WeaponModelManager.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UINavi\ReturnToMapNavi.h" />
     <ClInclude Include="Scripts\SceneTransition\TempTransition.h" />
+    <ClInclude Include="Scripts\SceneTransition\TransitionManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
