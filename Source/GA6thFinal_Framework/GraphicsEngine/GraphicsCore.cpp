@@ -95,12 +95,12 @@ void GraphicsCore::SetCamera(const std::string_view renderSceneName, std::shared
     _renderer->SetCamera(renderSceneName, camera);
 }
 
-void GraphicsCore::SetEnvironmentSkyBox(std::string_view renderSceneName, std::wstring_view filePath) const
+void GraphicsCore::SetEnvironmentSkyBox(const std::string_view renderSceneName, const std::wstring_view filePath) const
 {
     _renderer->SetEnvironmentSkyBox(renderSceneName, filePath);
 }
 
-void GraphicsCore::SetIBLSkyBox(std::string_view renderSceneName, std::wstring_view filePath) const
+void GraphicsCore::SetIBLSkyBox(const std::string_view renderSceneName, const std::wstring_view filePath) const
 {
     _renderer->SetIBLSkyBox(renderSceneName, filePath);
 }
@@ -156,7 +156,7 @@ void GraphicsCore::RegisterComponent(const std::string_view renderSceneName, Lig
     _lightCore->RegisterLight(renderSceneName, component);
 }
 
-void GraphicsCore::LoadResource(std::wstring_view filePath, MeshRenderer* component) const
+void GraphicsCore::LoadResource(const std::wstring_view filePath, MeshRenderer* component) const
 {
     component->SetModel(_resourceManager->LoadResource<Model>(filePath));
 }
@@ -171,7 +171,7 @@ void GraphicsCore::LoadResource(const std::wstring_view filePath, FontRenderer* 
     component->SetFont(_resourceManager->LoadResource<Font>(filePath));
 }
 
-void GraphicsCore::LoadTextureResource(std::wstring_view filePath, ParticleEmitter* component) const
+void GraphicsCore::LoadTextureResource(const std::wstring_view filePath, ParticleEmitter* component) const
 {
     if (ParticleType::SPRITE == component->_particleType)
     {
@@ -184,7 +184,7 @@ void GraphicsCore::LoadTextureResource(std::wstring_view filePath, ParticleEmitt
             ->SetAlbedoTexture(_resourceManager->LoadResource<Texture>(filePath.data()));
     }
 }
-void GraphicsCore::LoadModelResource(std::wstring_view filePath, ParticleEmitter* component) const
+void GraphicsCore::LoadModelResource(const std::wstring_view filePath, ParticleEmitter* component) const
 {
     static_cast<MeshSurfaceLocator*>(component->_emitLocator)->SetModelPath(filePath.data());
     static_cast<MeshSurfaceLocator*>(component->_emitLocator)->LoadVerticesFromModel(_resourceManager->LoadResource<Model>(filePath.data()));
@@ -294,12 +294,12 @@ void GraphicsCore::Flip() const
     _renderer->Flip();
 }
 
-void GraphicsCore::ResetEnvironmentSkyBox(std::string_view sceneName) const
+void GraphicsCore::ResetEnvironmentSkyBox(const std::string_view sceneName) const
 {
     _renderer->ResetEnvironmentSkyBox(sceneName);
 }
 
-void GraphicsCore::ResetIBLSkyBox(std::string_view sceneName) const
+void GraphicsCore::ResetIBLSkyBox(const std::string_view sceneName) const
 {
     _renderer->ResetIBLSkyBox(sceneName);
 }
@@ -357,4 +357,9 @@ void XM_CALLCONV GraphicsCore::DebugDraw2D(const std::string_view sceneName, FXM
                                            FXMVECTOR color) const
 {
     _debugDrawCore->DrawLine(sceneName, pointA, pointB, color);
+}
+
+void GraphicsCore::DebugDraw2D(const std::string_view sceneName, FXMVECTOR origin, const float radius, FXMVECTOR color) const
+{
+    _debugDrawCore->DrawCircle(sceneName, origin, radius, color);
 }

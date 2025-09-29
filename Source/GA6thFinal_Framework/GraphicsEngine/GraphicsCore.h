@@ -63,6 +63,7 @@ public:
     void XM_CALLCONV DebugDraw3D(std::string_view sceneName, FXMVECTOR position, FXMVECTOR direction, float range, float innerCone, float outerCone, FXMVECTOR color = DirectX::Colors::White) const;
     void XM_CALLCONV DebugDraw2D(std::string_view sceneName, FXMVECTOR pointA, FXMVECTOR pointB, FXMVECTOR pointC, GXMVECTOR pointD, HXMVECTOR color = DirectX::Colors::White) const;
     void XM_CALLCONV DebugDraw2D(std::string_view sceneName, FXMVECTOR pointA, FXMVECTOR pointB, FXMVECTOR color = DirectX::Colors::White) const;
+    void XM_CALLCONV DebugDraw2D(std::string_view sceneName, FXMVECTOR origin, float radius, FXMVECTOR color = DirectX::Colors::White) const;
 
 private:
     class Device*                     _device;
