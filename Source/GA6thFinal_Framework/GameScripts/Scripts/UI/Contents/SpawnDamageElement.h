@@ -1,8 +1,8 @@
 ﻿#pragma once
 
-class DamageElement : public UIComponent
+class SpawnDamageElement : public UIComponent
 {
-    USING_PROPERTY(DamageElement)
+    USING_PROPERTY(SpawnDamageElement)
 
 public:
     REFLECT_PROPERTY(Radius)
@@ -22,7 +22,7 @@ protected:
 protected:
     REFLECT_FIELDS_BEGIN(UIComponent)
     float Radius = 1.0f;
-    REFLECT_FIELDS_END(DamageElement)
+    REFLECT_FIELDS_END(SpawnDamageElement)
 
-
+    UIComponent* _child;
 };

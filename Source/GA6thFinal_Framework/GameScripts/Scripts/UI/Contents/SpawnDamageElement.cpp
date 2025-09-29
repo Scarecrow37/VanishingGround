@@ -1,10 +1,10 @@
 ﻿#include "pchScripts.h"
-#include "DamageElement.h"
+#include "SpawnDamageElement.h"
 
-UMREAL_COMPONENT(DamageElement)
+UMREAL_COMPONENT(SpawnDamageElement)
 
 
-SIZE DamageElement::MeasureOverride(const SIZE availableSize)
+SIZE SpawnDamageElement::MeasureOverride(const SIZE availableSize)
 {
     const FillMode horizontalFillMode = HorizontalFillMode;
     const FillMode verticalFillMode   = VerticalFillMode;
@@ -28,7 +28,7 @@ SIZE DamageElement::MeasureOverride(const SIZE availableSize)
     return desiredSize;
 }
 
-SIZE DamageElement::ArrangeOverride(const SIZE finalSize)
+SIZE SpawnDamageElement::ArrangeOverride(const SIZE finalSize)
 {
     const SIZE    desiredSize        = DesiredSize;
     const SIZE    actualSize         = MinSize()(finalSize, desiredSize);
@@ -48,7 +48,7 @@ SIZE DamageElement::ArrangeOverride(const SIZE finalSize)
     return actualSize;
 }
 
-void DamageElement::OnDrawDebugSelectedOverride()
+void SpawnDamageElement::OnDrawDebugSelectedOverride()
 {
     UIComponent::OnDrawDebugSelectedOverride();
 
@@ -58,7 +58,7 @@ void DamageElement::OnDrawDebugSelectedOverride()
     DrawDebug()(center, radius, Colors::Red);
 }
 
-void DamageElement::Start()
+void SpawnDamageElement::Start()
 {
     UIComponent::Start();
 
