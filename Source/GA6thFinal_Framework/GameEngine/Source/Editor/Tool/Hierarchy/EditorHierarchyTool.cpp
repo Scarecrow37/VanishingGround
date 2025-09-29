@@ -613,9 +613,6 @@ void EditorHierarchyTool::HierarchyDrawTreeNode()
         }
 
         //실제로 그릴 오브젝트 씬 별로 분류
-        _hierarchySceneIndex.clear();
-        _hierarchyRootObjects.clear();
-        _hierarchyDontDestroyOnLoadObjects.clear();
         const auto& scenes = engineCore->SceneManager.GetLoadedScenes();
         if (false == scenes.empty())
         {
@@ -754,6 +751,9 @@ void EditorHierarchyTool::HierarchyDrawTreeNode()
         }
         ImGui::EndChild();
     }
+    _hierarchySceneIndex.clear();
+    _hierarchyRootObjects.clear();
+    _hierarchyDontDestroyOnLoadObjects.clear();
 }
 
 void EditorHierarchyTool::KeyboardEvent()
