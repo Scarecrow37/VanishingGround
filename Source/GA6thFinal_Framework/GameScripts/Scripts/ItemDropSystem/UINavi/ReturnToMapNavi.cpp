@@ -25,9 +25,9 @@ ReturnToMapNavi::ReturnToMapNavi()
 
 void ReturnToMapNavi::Submit() 
 {
-    const File::Path path = _guidRef.ToPath();
-    GameObject* transitionmanager = SingletonObject<TransitionManager>::GetInstance();
-    transitionmanager->GetComponent<TransitionManager>()->SceneTransitionFade(
+    const File::Path& path = _guidRef.ToPath();
+    GameObject* transitionManager = SingletonObject<TransitionManager>::GetInstance();
+    transitionManager->GetComponent<TransitionManager>()->SceneTransitionFade(
         "in", "out", [path]() { UmSceneManager.LoadScene(path.string()); });
 }
 
