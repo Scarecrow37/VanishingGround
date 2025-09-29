@@ -1,4 +1,3 @@
-#include "CommonData.hlsli"
 #include "Function.hlsli"
 
 // Constant buffer

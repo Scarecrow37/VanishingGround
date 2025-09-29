@@ -1,6 +1,4 @@
-#include "CommonData.hlsli"
 #include "Function.hlsli"
-#include "CommonStructs.hlsli"
 
 Texture2D<float> depthMap;
 RWTexture2D<float2> motionVector;
