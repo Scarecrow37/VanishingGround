@@ -4,20 +4,21 @@
 
 class ParticleManager
 {
+    using EffectID = void*;
 public:
     ParticleManager();
     virtual ~ParticleManager();
 
     void                   Initialize(UINT maxParticles);
-    class ParticleEffect*  RegisterEffect(int id, const std::string& keyString, std::string_view sceneName);
+    class ParticleEffect*  RegisterEffect(EffectID id, const std::string& keyString, std::string_view sceneName);
     class ParticleEffect*  RegisterEffectOnEditor();
-    void                   DeleteEffect(int id, const std::string& keyString, const std::string& sceneName);
-    void                   PlayEffect(int id, const std::string& keyString);
-    void                   StopEffect(int id, const std::string& keyString);
-    void                   SetActiveFlag(int id, const std::string& keyString, bool flag);
-    void                   SetRemoveFlag(int id, const std::string& keyString, bool flag);
-    void                   SetFollowBoneFlag(int id, const std::string& keyString, bool* flag);
-    void                   SetBoneMatrix(int id, const std::string& keyString, const Matrix* boneMatrix);
+    void                   DeleteEffect(EffectID id, const std::string& keyString, const std::string& sceneName);
+    void                   PlayEffect(EffectID id, const std::string& keyString);
+    void                   StopEffect(EffectID id, const std::string& keyString);
+    void                   SetActiveFlag(EffectID id, const std::string& keyString, bool flag);
+    void                   SetRemoveFlag(EffectID id, const std::string& keyString, bool flag);
+    void                   SetFollowBoneFlag(EffectID id, const std::string& keyString, bool* flag);
+    void                   SetBoneMatrix(EffectID id, const std::string& keyString, const Matrix* boneMatrix);
     void                   ChangeTexture();
 
     /// <summary>
@@ -161,9 +162,8 @@ private:
     float _elapsedTimer = 0.f;
     int   nameingIndex  = 0;
 
-    std::unordered_map<int, std::unordered_map<std::string,  ParticleEffect*>> _effectIDTable;
+    std::unordered_map<EffectID, std::unordered_map<std::string, ParticleEffect*>> _effectIDTable;
 
     UMPARTICLE_PROPERTY(float, _deltaScale, DeltaScale, 1.f);
-
 
 };

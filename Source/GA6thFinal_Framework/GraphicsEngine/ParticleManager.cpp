@@ -61,7 +61,7 @@ void ParticleManager::Initialize(UINT maxParticles)
 
 }
 
-ParticleEffect* ParticleManager::RegisterEffect(int id, const std::string& keyString, std::string_view sceneName)
+ParticleEffect* ParticleManager::RegisterEffect(EffectID id, const std::string& keyString, std::string_view sceneName)
 {
     auto newEffect = new ParticleEffect();
     newEffect->Initialize(this);
@@ -249,20 +249,20 @@ void ParticleManager::RefreshEditor()
     _editorRefreshFlag = true;
 }
 
-void ParticleManager::DeleteEffect(int id, const std::string& keyString, const std::string& sceneName) 
+void ParticleManager::DeleteEffect(EffectID id, const std::string& keyString, const std::string& sceneName)
 {
     auto effectID = _effectIDTable.find(id);
     if (effectID == _effectIDTable.end())
     {
         return;
     }
-    auto effectList = (*effectID).second;
+    auto effectList       = (*effectID).second;
     auto targetEffectIter = effectList.find(keyString);
     if (targetEffectIter == effectList.end())
     {
         return;
     }
-    
+
     auto target = (*targetEffectIter).second;
     target->SetRemoveFlag(true);
 
@@ -271,10 +271,9 @@ void ParticleManager::DeleteEffect(int id, const std::string& keyString, const s
     {
         _effectIDTable.erase(effectID);
     }
-
 }
 
-void ParticleManager::PlayEffect(int id, const std::string& keyString) 
+void ParticleManager::PlayEffect(EffectID id, const std::string& keyString)
 {
     auto effectID = _effectIDTable.find(id);
     if (effectID == _effectIDTable.end())
@@ -291,7 +290,7 @@ void ParticleManager::PlayEffect(int id, const std::string& keyString)
     target->Play();
 }
 
-void ParticleManager::StopEffect(int id, const std::string& keyString) 
+void ParticleManager::StopEffect(EffectID id, const std::string& keyString)
 {
     auto effectID = _effectIDTable.find(id);
     if (effectID == _effectIDTable.end())
@@ -308,7 +307,7 @@ void ParticleManager::StopEffect(int id, const std::string& keyString)
     target->Stop();
 }
 
-void ParticleManager::SetActiveFlag(int id, const std::string& keyString, bool flag) 
+void ParticleManager::SetActiveFlag(EffectID id, const std::string& keyString, bool flag)
 {
     auto effectID = _effectIDTable.find(id);
     if (effectID == _effectIDTable.end())
@@ -325,7 +324,7 @@ void ParticleManager::SetActiveFlag(int id, const std::string& keyString, bool f
     target->SetActiveFlag(flag);
 }
 
-void ParticleManager::SetRemoveFlag(int id, const std::string& keyString, bool flag) 
+void ParticleManager::SetRemoveFlag(EffectID id, const std::string& keyString, bool flag)
 {
     auto effectID = _effectIDTable.find(id);
     if (effectID == _effectIDTable.end())
@@ -342,8 +341,7 @@ void ParticleManager::SetRemoveFlag(int id, const std::string& keyString, bool f
     target->SetRemoveFlag(flag);
 }
 
-
-void ParticleManager::SetFollowBoneFlag(int id, const std::string& keyString, bool* flag) 
+void ParticleManager::SetFollowBoneFlag(EffectID id, const std::string& keyString, bool* flag)
 {
     auto effectID = _effectIDTable.find(id);
     if (effectID == _effectIDTable.end())
@@ -356,11 +354,11 @@ void ParticleManager::SetFollowBoneFlag(int id, const std::string& keyString, bo
     {
         return;
     }
-    auto target              = (*targetEffectIter).second;
+    auto target             = (*targetEffectIter).second;
     target->_followBoneFlag = flag;
 }
 
-void ParticleManager::SetBoneMatrix(int id, const std::string& keyString, const Matrix* boneMatrix) 
+void ParticleManager::SetBoneMatrix(EffectID id, const std::string& keyString, const Matrix* boneMatrix)
 {
     auto effectID = _effectIDTable.find(id);
     if (effectID == _effectIDTable.end())

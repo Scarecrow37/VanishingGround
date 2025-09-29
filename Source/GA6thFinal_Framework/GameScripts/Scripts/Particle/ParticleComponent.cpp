@@ -6,7 +6,6 @@ UMREAL_COMPONENT(ParticleComponent)
 
 ParticleComponent::ParticleComponent()
 {
-    _objectInstanceID = gameObject->GetInstanceID();
     FilePath.SetInputAutoEvent([this]() {
         if (ImGui::BeginDragDropTarget())
         {
@@ -35,8 +34,8 @@ ParticleComponent::~ParticleComponent()
     
     for (auto& key : ReflectFields->EffectNameTable)
     {
-        UmParticleManager->SetActiveFlag(_objectInstanceID, key, false);
-        UmParticleManager->DeleteEffect(_objectInstanceID, key, "Game");
+        UmParticleManager->SetActiveFlag(this, key, false);
+        UmParticleManager->DeleteEffect(this, key, "Game");
     }
 }
 
@@ -217,7 +216,7 @@ void ParticleComponent::LoadParticle(const std::string& keyString)
                     UmSceneManager.ResourceManager.RequestTextureResource(
                         this, guid, [this, assetGuid, keyString]() {
                             ReflectFields->GuidMap[keyString] = assetGuid.string();
-                        auto effect = UmParticleSerializer.Deserialize(_objectInstanceID, keyString, assetGuid.ToPath(),
+                        auto effect = UmParticleSerializer.Deserialize(this, keyString, assetGuid.ToPath(),
                                                                            false, "Game");
                             for (auto& emitter : effect->GetEmitterList())
                             {
@@ -269,7 +268,7 @@ void ParticleComponent::LoadParticle(const std::string& keyString)
 
                                             ReflectFields->GuidMap[keyString] = assetGuid.string();
                                             auto effect                       = UmParticleSerializer.Deserialize(
-                                                _objectInstanceID, keyString, assetGuid.ToPath(), false, "Game");
+                                                this, keyString, assetGuid.ToPath(), false, "Game");
                                            
                                             for (auto& emitter : effect->GetEmitterList())
                                             {
@@ -321,7 +320,7 @@ void ParticleComponent::FollowBoneMatrix(const std::string& key)
                 if (it2 != ReflectFields->BoneNameMap.end())
                 {
                     UmParticleManager->SetBoneMatrix(
-                        _objectInstanceID,
+                        this,
                         key, 
                         _skelMesh->Renderer->GetAnimator()->FindBoneMatrix(ReflectFields->BoneNameMap[key].c_str()));
                 }
@@ -333,19 +332,19 @@ void ParticleComponent::FollowBoneMatrix(const std::string& key)
 void ParticleComponent::PlayEffect(const std::string& key)
 {
     FollowBoneMatrix(key);
-    UmParticleManager->PlayEffect(_objectInstanceID, key);
+    UmParticleManager->PlayEffect(this, key);
 }
 
 void ParticleComponent::StopEffect(const std::string& key)
 {
-    UmParticleManager->StopEffect(_objectInstanceID, key);
+    UmParticleManager->StopEffect(this, key);
 }
 
 void ParticleComponent::StopAll() 
 {
     for (auto& key : ReflectFields->EffectNameTable)
     {
-        UmParticleManager->PlayEffect(_objectInstanceID, key);
+        UmParticleManager->PlayEffect(this, key);
     }
 }
 
@@ -353,7 +352,7 @@ void ParticleComponent::ClearEffectList()
 {
     for (auto& effectKey : ReflectFields->EffectNameTable)
     {
-        UmParticleManager->DeleteEffect(_objectInstanceID, effectKey, "Game");
+        UmParticleManager->DeleteEffect(this, effectKey, "Game");
     }
 
     ReflectFields->EffectNameTable.clear();
