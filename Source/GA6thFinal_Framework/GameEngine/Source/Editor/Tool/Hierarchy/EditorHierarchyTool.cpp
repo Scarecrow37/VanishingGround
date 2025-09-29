@@ -605,9 +605,9 @@ void EditorHierarchyTool::HierarchyDrawTreeNode()
         //유효한 오브젝트만 남긴다.
         if (_hierarchyObjectCleanup)
         {
-            std::erase_if(_hierarchyObjects, [](const std::shared_ptr<GameObject>& object) 
+            std::erase_if(_hierarchyObjects, [](const std::weak_ptr<GameObject>& object) 
             {
-                return false == object->IsValid();
+                return object.expired();
             });
             _hierarchyObjectCleanup = false;
         }
@@ -624,28 +624,36 @@ void EditorHierarchyTool::HierarchyDrawTreeNode()
             {
                 const std::string& name = scene->Path;
                 _hierarchySceneIndex[name] = _hierarchyRootObjects.size();
-                _hierarchyRootObjects.emplace_back(name, std::vector<GameObject*>());
+                _hierarchyRootObjects.emplace_back(name, std::vector<std::shared_ptr<GameObject>>());
             }
 
             //분류 작업
-            for (auto& object : _hierarchyObjects)
+            for (auto& weakObject : _hierarchyObjects)
             {
-                if (nullptr == object->transform->Parent)
+                std::shared_ptr<GameObject> object = weakObject.lock();
+                if (object)
                 {
-                    const std::string& ownerSceneName = object->GetOwnerSceneName();
-                    auto sceneIndexIter = _hierarchySceneIndex.find(ownerSceneName);
-                    if (sceneIndexIter != _hierarchySceneIndex.end())
+                    if (nullptr == object->transform->Parent)
                     {
-                        size_t sceneIndex = sceneIndexIter->second;
-                        _hierarchyRootObjects[sceneIndex].second.push_back(object.get());
-                    }
-                    else
-                    {
-                        if (ownerSceneName == ESceneManager::DONT_DESTROY_ON_LOAD_SCENE_NAME)
+                        const std::string& ownerSceneName = object->GetOwnerSceneName();
+                        auto               sceneIndexIter = _hierarchySceneIndex.find(ownerSceneName);
+                        if (sceneIndexIter != _hierarchySceneIndex.end())
                         {
-                            _hierarchyDontDestroyOnLoadObjects.push_back(object.get());
+                            size_t sceneIndex = sceneIndexIter->second;
+                            _hierarchyRootObjects[sceneIndex].second.push_back(object);
+                        }
+                        else
+                        {
+                            if (ownerSceneName == ESceneManager::DONT_DESTROY_ON_LOAD_SCENE_NAME)
+                            {
+                                _hierarchyDontDestroyOnLoadObjects.push_back(std::move(object));
+                            }
                         }
                     }
+                }           
+                else
+                {
+                    _hierarchyObjectCleanup = true;
                 }
             }
 
@@ -723,7 +731,7 @@ void EditorHierarchyTool::HierarchyDrawTreeNode()
                     {
                         for (auto& obj : _hierarchyDontDestroyOnLoadObjects)
                         {
-                            ImGui::PushID(obj);
+                            ImGui::PushID(obj.get());
                             {
                                 GameObject* clickNode = nullptr;
                                 TransformTreeNode(obj->transform, focusObject, clickNode, static_isOpenFocusObj);
