@@ -56,7 +56,7 @@ namespace GE
         {PS::BILATERAL_UP_SAMPLE, L"ps_bilateral_up_sample.hlsl"},
         {PS::GRID, L"ps_grid.hlsl"},
         {PS::VOLUMETRIC_FOG, L"ps_volumetric_fog.hlsl"},
-        {PS::BURN_DISSOLVE, L"ps_burn_dissolve.hlsl"},
+        {PS::SDF_FONT, L"ps_sdf_font.hlsl"},
         {PS::GBUFFER, L"ps_gbuffer.hlsl"},
         {PS::UI, L"ps_ui.hlsl"},
         {PS::DISTORTION_RESOLVE, L"ps_distortion_resolve.hlsl"},
