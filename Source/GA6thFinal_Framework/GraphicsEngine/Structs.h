@@ -81,6 +81,20 @@ struct VolumetricFogData
     float    LightShaftIntensity;
 };
 
+struct SSGIData
+{
+    XMMATRIX PreViewProj;
+    XMMATRIX InverseViewProjection;
+    Vector2  ScreenSize;
+    float    Radius;
+    float    Thickness;
+    int      NumSample;
+    float    Intensity;
+    float    TemporalWeight;
+    float    DepthSigma;
+    float    NormalSigma;
+};
+
 struct VolumetricFogCompositeData
 {
     XMMATRIX ViewProj;
