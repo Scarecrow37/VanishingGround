@@ -355,7 +355,7 @@ void EditSSGIProperty(std::any& property)
         CenterText("Thickness");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
-        ImGui::DragFloat("##Thickness", &giProperty.Thickness, 0.0001f, 0.01f, 0.15f);
+        ImGui::DragFloat("##Thickness", &giProperty.Thickness, 0.001f, 0.01f, 150.f);
         ImGui::PopItemWidth();
 
         ImGui::TableNextRow();
@@ -363,7 +363,7 @@ void EditSSGIProperty(std::any& property)
         CenterText("NumSamplle");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
-        ImGui::DragInt("##NumSamplle", &giProperty.NumSample, 1, 8, 16);
+        ImGui::DragInt("##NumSamplle", &giProperty.NumSample, 1, 1, 16);
         ImGui::PopItemWidth();
 
         ImGui::TableNextRow();
@@ -371,7 +371,7 @@ void EditSSGIProperty(std::any& property)
         CenterText("Intencity");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
-        ImGui::DragFloat("##Intencity", &giProperty.Intencity, 0.01f, 0.0f, 2.f);
+        ImGui::DragFloat("##Intencity", &giProperty.Intencity, 0.1f, 0.0f, 500.f);
         ImGui::PopItemWidth();
 
         ImGui::TableNextRow();
