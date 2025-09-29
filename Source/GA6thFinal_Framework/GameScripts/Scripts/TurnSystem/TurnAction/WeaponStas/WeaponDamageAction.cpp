@@ -43,7 +43,7 @@ void WeaponDamageAction::DeserializedReflectEvent()
     UpdateActionInfo();
 }
 
-void WeaponDamageAction::OnPlayerQTEResult(Player& player) 
+void WeaponDamageAction::OnPlayerQTEResult(Player& player, const QTE::OverallResult& result) 
 { 
     if (TriggerType::QTE_END == ReflectFields->Trigger && EvaluateConditions())
     {

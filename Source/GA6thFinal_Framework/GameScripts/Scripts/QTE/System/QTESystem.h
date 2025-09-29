@@ -11,11 +11,9 @@ namespace QTE
     class Note;
 } 
 
-/// <summary>
-/// 콜백으로 책임회피?
-/// </summary>
 class QTESystem : public Component, public InputReceiver
 {
+    using Callback = std::function<void(const QTE::OverallResult&)>;
 
     friend class QTEUIManager;
     USING_PROPERTY(QTESystem)
@@ -29,6 +27,7 @@ private:
     void Awake() override;
     void Start() override;
     void Update() override;
+    void OnDestroy() override;
 
     void SerializedReflectEvent() override;
     void DeserializedReflectEvent() override;
@@ -41,7 +40,7 @@ public:
     /// <param name="weaponID">매핑 트랙을 추가할 무기의 ID입니다.</param>
     /// <param name="path">추가할 트랙의 파일 경로입니다.</param>
     /// <returns>매핑 트랙 추가가 성공하면 true, 실패하면 false를 반환합니다.</returns>
-    bool AddMappingTrackToWeaponID(int weaponID, const File::Path& path = File::NULL_PATH);
+    QTE::Track* AddMappingTrackToWeaponID(int weaponID, const File::Path& path = File::NULL_PATH);
 
     /// <summary>
     /// weaponID와 관련된 매핑 트랙을 제거합니다. index가 -1이면 마지막 매핑 트랙을 제거합니다.
@@ -63,8 +62,8 @@ public:
     /// QTE(퀵 타임 이벤트)를 시작하며, 선택적으로 QTE종료 시 콜백 함수를 실행합니다.
     /// </summary>
     /// <param name="callback">QTE가 종료되었을 때 호출되는 선택적 콜백 함수입니다. 기본값은 nullptr입니다.</param>
-    void StartQTE(QTE::Result::Callback callback = nullptr);
-    void StartQTE(QTE::Track* qteTrack, QTE::Result::Callback callback = nullptr);
+    void StartQTE(Callback callback = nullptr);
+    void StartQTE(QTE::Track* qteTrack, Callback callback = nullptr);
 
     /// <summary>
     /// QTE를 일시정지하거나 재개합니다. QTE플레이 중이 아니라면 무시됩니다.
@@ -121,8 +120,8 @@ public:
     inline std::pair<float, float> GetFadeOutPosFactor() const { return ReflectFields->FadeOutPosFactor; }
 
     inline QTE::Track* GetCurrentQTETrack() const { return _currentQTETrack; }
-    inline const std::vector<QTE::Result>& GetCurrentQTEResultQueue() const { return _noteResultQueue; }
     inline const std::vector<QTE::Note*>&  GetCurrentQTEAvailQueue() const { return _noteAvailQueue; }
+    inline const QTE::OverallResult& GetQTEOverallResult() const { return _overallResult; }
     inline const std::unordered_map<int, std::vector<QTE::Track*>>& GetWeaponIDToTrackTable() const { return _weaponIDToTrackTable; }
 
     inline size_t GetCurrentNoteIndex() const { return _currentNoteIndex; }
@@ -135,7 +134,7 @@ private:
     QTE::Track*                 _currentQTETrack    = nullptr;                  // QTE 트랙
     size_t                      _currentNoteIndex   = 0;                        // 현재 가리키는 노트 인덱스
     std::vector<QTE::Note*>     _noteAvailQueue;                                // 유효한 노트 큐
-    std::vector<QTE::Result>    _noteResultQueue;                               // 노트 결과 큐
+    QTE::OverallResult          _overallResult;                                 // QTE 결과
 
     float                       _qteTimer           = 0.0f;                     // QTE 타이머
     bool                        _qteFadeInEnd       = false;                    // QTE 페이드 인 종료 여부
@@ -144,7 +143,7 @@ private:
     bool                        _currQTEPlaying     = false;                    // 현재 QTE가 실행 중인지 여부
     bool                        _prevQTEPlaying     = false;                    // 이전 프레임에서 QTE가 실행 중이었는지 여부
 
-    QTE::Result::Callback _onQTEFinishCallback = nullptr;                       // QTE 페이드 인 종료 콜백
+    Callback                    _onQTEFinishCallback = nullptr;                 // QTE 페이드 인 종료 콜백
 
     REFLECT_FIELDS_BEGIN(Component)
     float                   QTESpeedScale       = 1.0f;                         // QTE 속도 배율
@@ -155,7 +154,7 @@ private:
     std::pair<float, float> FadeInPosFactor     = {0.0f, 0.0f};                 // 페이드인 위치 비율 (0 ~ 1)
     std::pair<float, float> FadeOutPosFactor    = {1.0f, 1.0f};                 // 페이드아웃 위치 비율 (0 ~ 1)
 
-    std::unordered_map<int, std::vector<std::string>> WeaponQTETrackData;       // 무기 ID 별 QTE 트랙 파일 경로
+    std::unordered_map<int, std::vector<std::string>> WeaponQTETrackGuids;      // 무기 ID 별 QTE 트랙 파일 Guid
     REFLECT_FIELDS_END(QTESystem)
 
     // QTE 편집기

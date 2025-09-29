@@ -23,9 +23,6 @@ namespace QTE
         bool SaveFile(const File::Path& filePath, bool overwrite = false);
         bool LoadFile(const File::Path& filePath);
 
-        inline void SetWeaponID(int id) { ReflectFields->WeaponID = id; }
-        inline int  GetWeaponID() const { return ReflectFields->WeaponID; }
-
         inline void  SetQTESpeedScale(float scale) { ReflectFields->QTESpeedScale = scale; }
         inline float GetQTESpeedScale() const { return ReflectFields->QTESpeedScale; }
 
@@ -43,7 +40,6 @@ namespace QTE
         File::Path _filePath = File::NULL_PATH;
         std::shared_ptr<Timeline::EventTrack> _eventTrack;
         REFLECT_FIELDS_BEGIN(ReflectSerializer)
-        int         WeaponID = -1;              // 사용할 무기 ID
         float       QTESpeedScale = 1.0f;       // QTE 속도 배율
         std::string TrackSerializeData = "";    // 트랙 직렬화 데이터
         REFLECT_FIELDS_END(Track)

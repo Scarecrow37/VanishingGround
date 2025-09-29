@@ -36,7 +36,7 @@ void DXRComputeSkeletalMeshPass::End(ID3D12GraphicsCommandList* commandList) {}
 
 void DXRComputeSkeletalMeshPass::Dispatch(ID3D12GraphicsCommandList* commandList, MeshInfo meshInfo)
 {
-    auto& skeletalInstances = meshInfo.SkinnedInstance;
+    /*auto& skeletalInstances = meshInfo.SkinnedInstance;
 
     ID3D12Resource* resource = skeletalInstances->GetUpdateVertexBuffer();
     VIBuffer*       vibuffer = skeletalInstances->GetVIBuffer();
@@ -58,8 +58,7 @@ void DXRComputeSkeletalMeshPass::Dispatch(ID3D12GraphicsCommandList* commandList
 
     UINT threadGroupsX = (vibuffer->_vertexCount + 255) / 256;
     commandList->Dispatch(threadGroupsX, 1, 1);
-    br = CD3DX12_RESOURCE_BARRIER::Transition(resource, D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-                                              D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+    br = CD3DX12_RESOURCE_BARRIER::Transition(resource, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);*/
 }
 
 void DXRComputeSkeletalMeshPass::InitShaderAndPSO()
