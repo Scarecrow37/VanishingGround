@@ -12,8 +12,10 @@ void AbandonYesButton::Awake()
     GameObject* preferencesManager = GameObject::Find("PreferencesManager").lock().get();
     if (preferencesManager)
     {
-        PreferencesManager* manager = preferencesManager->GetComponent<PreferencesManager>();
-        manager->AddAbandonButton(this);
+        if (PreferencesManager* manager = preferencesManager->GetComponent<PreferencesManager>())
+        {
+            manager->AddAbandonButton(this);
+        }
     }
 }
 
@@ -24,10 +26,12 @@ void AbandonYesButton::Update()
         GameObject* preferencesManager = GameObject::Find("PreferencesManager").lock().get();
         if (preferencesManager)
         {
-            PreferencesManager* manager = preferencesManager->GetComponent<PreferencesManager>();
-            _dirtyFlag = false;
-            manager->CloseAbandonButtons();
-            manager->GoToMainMenu();
+            if (PreferencesManager* manager = preferencesManager->GetComponent<PreferencesManager>())
+            {
+                _dirtyFlag = false;
+                manager->CloseAbandonButtons();
+                manager->GoToMainMenu();
+            }
         }
         else
         {
@@ -44,4 +48,5 @@ void AbandonYesButton::Reset()
 void AbandonYesButton::DirtyOffFlag(const Input::Controller&)
 {
     _dirtyFlag = true;
+    UmAudio.Play("-40020");
 }

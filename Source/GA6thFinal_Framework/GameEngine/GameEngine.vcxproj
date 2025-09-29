@@ -465,6 +465,7 @@
     <ClInclude Include="Source\Engine\TimelineCore\Context\TimelineEventContext.h" />
     <ClInclude Include="Source\Engine\TimelineCore\Track\TimelineEventTrack.h" />
     <ClInclude Include="Source\Engine\TimelineCore\Context\Audio\TimelineAudioEventContext.h" />
+    <ClInclude Include="Source\Engine\GameCore\Component\UISFXNavigationComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Editor\Menu\Game\EditorGameMenu.cpp" />
@@ -628,6 +629,7 @@
     <ClCompile Include="Source\Engine\TimelineCore\Context\TimelineEventContext.cpp" />
     <ClCompile Include="Source\Engine\TimelineCore\Track\TimelineEventTrack.cpp" />
     <ClCompile Include="Source\Engine\TimelineCore\Context\Audio\TimelineAudioEventContext.cpp" />
+    <ClCompile Include="Source\Engine\GameCore\Component\UISFXNavigationComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 class TextElement;
-class MainMenuNavigationBase : public UINavigationComponent
+class MainMenuNavigationBase : public UISFXNavigationComponent
 {
     USING_PROPERTY(MainMenuNavigationBase)
 
@@ -20,7 +20,7 @@ public:
     REFLECT_PROPERTY()
 
 protected:
-    REFLECT_FIELDS_BEGIN(UINavigationComponent)
+    REFLECT_FIELDS_BEGIN(UISFXNavigationComponent)
     REFLECT_FIELDS_END(MainMenuNavigationBase)
 
 private:

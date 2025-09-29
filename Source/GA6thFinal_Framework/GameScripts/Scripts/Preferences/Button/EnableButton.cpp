@@ -223,7 +223,7 @@ void EnableButton::OnEnable()
 
 void EnableButton::FocusIn()
 {
-    UINavigationComponent::FocusIn();
+    Base::FocusIn();
 
     _isFocus   = true;
     _isOptionDirty = true;
@@ -264,6 +264,7 @@ void EnableButton::ChangeOptionDpad(const Input::Controller& controller)
     {
         _isOptionOn = !_isOptionOn;
         _isOptionDirty = true;
+        UmAudio.Play("-40000");
     }
 }
 
@@ -276,6 +277,7 @@ void EnableButton::ChangeOptionStick(const Input::Controller& controller)
         {
             _isOptionOn = !_isOptionOn;
             _isOptionDirty = true;
+            UmAudio.Play("-40000");
         }
     }
 }

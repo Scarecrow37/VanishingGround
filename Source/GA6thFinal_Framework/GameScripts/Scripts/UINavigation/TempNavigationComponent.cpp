@@ -7,7 +7,7 @@ TempNavigationComponent::TempNavigationComponent() = default;
 
 void TempNavigationComponent::FocusIn() 
 {
-    UINavigationComponent::FocusIn();
+    Base::FocusIn();
 
     UmLogger.Log(LogLevel::LEVEL_INFO, "Focus In");
 }

@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-class RestartStageNavi : public UINavigationComponent
+class RestartStageNavi : public UISFXNavigationComponent
 {
     USING_PROPERTY(RestartStageNavi)
 
@@ -14,7 +14,7 @@ protected:
     void OnEnable() override;
 
 protected:
-    REFLECT_FIELDS_BEGIN(UINavigationComponent)
+    REFLECT_FIELDS_BEGIN(UISFXNavigationComponent)
     REFLECT_FIELDS_END(RestartStageNavi)
 
 };

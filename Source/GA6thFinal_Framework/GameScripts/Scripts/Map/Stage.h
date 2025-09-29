@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "ItemDropSystem/Interface/IDropItem.h"
 
-class Stage : public UINavigationComponent
+class Stage : public UISFXNavigationComponent
 {
     USING_PROPERTY(Stage)
 
@@ -31,7 +31,7 @@ public:
     PROPERTY(StagePath)
 
 protected:
-    REFLECT_FIELDS_BEGIN(UINavigationComponent)
+    REFLECT_FIELDS_BEGIN(UISFXNavigationComponent)
     std::string        StagePath;
     REFLECT_FIELDS_END(Stage)
 
