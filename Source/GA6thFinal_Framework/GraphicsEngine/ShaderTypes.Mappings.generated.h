@@ -47,6 +47,7 @@ namespace GE
         {PS::SHADOW, L"ps_shadow.hlsl"},
         {PS::WRITE_AO, L"ps_write_ao.hlsl"},
         {PS::PARTICLE_RESOLVE, L"ps_particle_resolve.hlsl"},
+        {PS::SSGI_COMPOSITE, L"ps_ssgi_composite.hlsl"},
         {PS::FADE, L"ps_fade.hlsl"},
         {PS::OUTLINE, L"ps_outline.hlsl"},
         {PS::UP_SAMPLE, L"ps_up_sample.hlsl"},

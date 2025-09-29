@@ -44,6 +44,7 @@ namespace GE
         PBR_LIGHTING,
         SHADOW,
         SKYBOX,
+        SSGI_COMPOSITE,
         SSR,
         TO_BACKBUFFER,
         UI,
