@@ -12,9 +12,10 @@ PreferencesManager::PreferencesManager()
             if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
             {
                 const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
-                if (const auto extension = data->GetPath().extension(); extension == L".UmScene")
+                File::Path path = data->GetPath();
+                if (const auto extension = path.extension(); extension == L".UmScene")
                 {
-                    ReflectFields->MainMenuSceneStr = data->GetPath().string();
+                    ReflectFields->MainMenuSceneStr = data->GetGuid().string();
                 }
             }
             ImGui::EndDragDropTarget();
@@ -112,7 +113,11 @@ void PreferencesManager::LateUpdate()
     if (_changeMainMenuSceneDirty)
     {
         _changeMainMenuSceneDirty = false;
-        UmSceneManager.LoadScene(ReflectFields->MainMenuSceneStr);
+        File::Guid sceneGuid      = ReflectFields->MainMenuSceneStr;
+        if (File::Path path = sceneGuid.ToPath(); false == path.IsNull())
+        {
+            UmSceneManager.LoadScene(path.string());
+        }  
     }
 }
 
