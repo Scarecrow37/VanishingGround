@@ -69,7 +69,7 @@ private:
     void ParseAtlas(yyjson_val* atlasValue);
     void ParseMetrics(yyjson_val* metricsValue);
     void ParseGlyphs(yyjson_val* glyphsValue);
-    void yyjsonValuteTypeHelper(yyjson_val* value, float& data);
+    void yyjsonValueTypeHelper(yyjson_val* value, float& data);
 
 private:
     SDF::Atlas                    _atlas;
