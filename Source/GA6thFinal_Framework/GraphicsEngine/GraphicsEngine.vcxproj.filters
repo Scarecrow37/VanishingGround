@@ -154,11 +154,20 @@
     <FxCompile Include="..\Shaders\cs_resolve_ui.hlsl">
       <Filter>Shaders\cs</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\ps_sdf_font.hlsl">
+    <FxCompile Include="..\Shaders\cs_calculate_motion_vector.hlsl">
+      <Filter>Shaders\cs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\cs_generate_ssgi.hlsl">
+      <Filter>Shaders\cs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\cs_ssgi_temporal.hlsl">
+      <Filter>Shaders\cs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_bilateral_up_sample.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\vs_sdf_font_fr.hlsl">
-      <Filter>Shaders\vs</Filter>
+    <FxCompile Include="..\Shaders\ps_ssgi_composite.hlsl">
+      <Filter>Shaders\ps</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
@@ -549,13 +558,22 @@
     <ClCompile Include="UIResolvePass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="SDFFont.cpp">
+    <ClCompile Include="SSGITechnique.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="SDFTextDrawPass.cpp">
+    <ClCompile Include="CalculateMotionVectorPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="SDFTextRenderer.cpp">
+    <ClCompile Include="GenerateSSGIPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="GITemporalPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="BilateralUpsamplePass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="SSGICompositePass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -974,19 +992,22 @@
     <ClInclude Include="UIResolvePass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Interface\IGraphicsBase.h">
+    <ClInclude Include="SSGITechnique.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Interface\ISDFTextRenderer.h">
+    <ClInclude Include="CalculateMotionVectorPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="SDFTextRenderer.h">
+    <ClInclude Include="GenerateSSGIPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="SDFTextDrawPass.h">
+    <ClInclude Include="GITemporalPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="SDFFont.h">
+    <ClInclude Include="SSGICompositePass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="BilateralUpsamplePass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

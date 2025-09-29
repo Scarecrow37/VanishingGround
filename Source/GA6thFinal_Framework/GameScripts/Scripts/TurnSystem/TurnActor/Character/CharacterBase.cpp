@@ -207,7 +207,7 @@ void CharacterBase::TakeDamage(int damage, bool playAnim)
     }
 }
 
-void CharacterBase::TakeDamage(int damage, const QTE::Result& result, bool playAnim)
+void CharacterBase::TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim)
 {
     if (TurnActor::STATE::Dead == GetActorState())
     {
@@ -216,7 +216,7 @@ void CharacterBase::TakeDamage(int damage, const QTE::Result& result, bool playA
         UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
         return;
     }
-    if (QTE::QTE_RESULT_MISS == result.ResultType)
+    if (QTE::QTE_RESULT_MISS == result.Result)
     {
         GameObject& owner = gameObject;
         std::string msg   = std::format("{}{}", owner.ToString(), (const char*)u8" 대한 공격 빗나감.");
@@ -224,7 +224,7 @@ void CharacterBase::TakeDamage(int damage, const QTE::Result& result, bool playA
         return;
     }
 
-    switch (result.ResultType)
+    switch (result.Result)
     {
         case QTE::QTE_RESULT_PERFECT:
         {

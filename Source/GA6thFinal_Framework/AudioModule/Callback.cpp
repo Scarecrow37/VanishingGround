@@ -3,7 +3,7 @@
 
 namespace Audio
 {
-    Callback::Callback(const std::function<void(Handle handle)>& onBufferEnd) : _onBufferEnd(onBufferEnd) {}
+    Callback::Callback(const std::function<void(AudioHandle handle)>& onBufferEnd) : _onBufferEnd(onBufferEnd) {}
 
     void Callback::OnBufferEnd(void* pBufferContext)
     {
@@ -11,7 +11,7 @@ namespace Audio
             _onBufferEnd(_handle);
     }
 
-    void Callback::SetHandle(const Handle& handle)
+    void Callback::SetHandle(const AudioHandle& handle)
     {
         _handle = handle;
     }

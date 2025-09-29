@@ -503,7 +503,9 @@
 		<ClInclude Include="Scripts\MainMenu\Quit.h" />
 		<ClInclude Include="Scripts\Camera\UmCineMotion.h" />
 		<ClInclude Include="Scripts\WeaponModelManager\WeaponModelManager.h" />
-		<ClInclude Include="Scripts\Test\SDF\TestSDFTextRenderer.h" />
+		<ClInclude Include="Scripts\Test\Audio\TestAudioComponent.h" />
+		<ClInclude Include="Scripts\SceneTransition\TransitionManager.h" />
+		<ClInclude Include="Scripts\Camera\CameraManager.h" />
 	</ItemGroup>
 	<ItemGroup>
 		<ClCompile Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.cpp" />
@@ -714,7 +716,9 @@
 		<ClCompile Include="Scripts\MainMenu\Quit.cpp" />
 		<ClCompile Include="Scripts\Camera\UmCineMotion.cpp" />
 		<ClCompile Include="Scripts\UI\Views\Accessories\AccessoriesView.cpp" />
-		<ClCompile Include="Scripts\Test\SDF\TestSDFTextRenderer.cpp" />
+		<ClCompile Include="Scripts\Test\Audio\TestAudioComponent.cpp" />
+		<ClCompile Include="Scripts\SceneTransition\TransitionManager.cpp" />
+		<ClCompile Include="Scripts\Camera\CameraManager.cpp" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="cpp.hint" />

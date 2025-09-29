@@ -321,12 +321,15 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AccelerationStructureManager.h" />
+    <ClInclude Include="BilateralUpsamplePass.h" />
+    <ClInclude Include="CalculateMotionVectorPass.h" />
     <ClInclude Include="FogCompositePass.h" />
     <ClInclude Include="FogLightAccmulatePass.h" />
     <ClInclude Include="FogLightInjectionPass.h" />
     <ClInclude Include="DistortionResolvePass.h" />
     <ClInclude Include="DistortionTechnique.h" />
     <ClInclude Include="ForwardPBRLitPass.h" />
+    <ClInclude Include="GenerateSSGIPass.h" />
     <ClInclude Include="GraphicsController.h" />
     <ClInclude Include="FadePass.h" />
     <ClInclude Include="Interface\IGraphicsBase.h" />
@@ -439,6 +442,8 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="SpriteRenderer.h" />
     <ClInclude Include="SSAOWritePass.h" />
+    <ClInclude Include="SSGICompositePass.h" />
+    <ClInclude Include="SSGITechnique.h" />
     <ClInclude Include="SSRPass.h" />
     <ClInclude Include="SSRTechnique.h" />
     <ClInclude Include="Structs.h" />
@@ -459,6 +464,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClInclude Include="UITechnique.h" />
     <ClInclude Include="UITechnique_OIT.h" />
     <ClInclude Include="UnorderedAccessView.h" />
+    <ClInclude Include="GITemporalPass.h" />
     <ClInclude Include="VertexShader.h" />
     <ClInclude Include="VIBuffer.h" />
     <ClInclude Include="ViewManager.h" />
@@ -466,12 +472,15 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AccelerationStructureManager.cpp" />
+    <ClCompile Include="BilateralUpsamplePass.cpp" />
+    <ClCompile Include="CalculateMotionVectorPass.cpp" />
     <ClCompile Include="FogCompositePass.cpp" />
     <ClCompile Include="FogLightAccmulatePass.cpp" />
     <ClCompile Include="FogLightInjectionPass.cpp" />
     <ClCompile Include="DistortionResolvePass.cpp" />
     <ClCompile Include="DistortionTechnique.cpp" />
     <ClCompile Include="ForwardPBRLitPass.cpp" />
+    <ClCompile Include="GenerateSSGIPass.cpp" />
     <ClCompile Include="GraphicsController.cpp" />
     <ClCompile Include="FadePass.cpp" />
     <ClCompile Include="Module\AccumulationModule.cpp" />
@@ -582,6 +591,8 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="SpriteRenderer.cpp" />
     <ClCompile Include="SSAOWritePass.cpp" />
+    <ClCompile Include="SSGICompositePass.cpp" />
+    <ClCompile Include="SSGITechnique.cpp" />
     <ClCompile Include="SSRPass.cpp" />
     <ClCompile Include="SSRTechnique.cpp" />
     <ClCompile Include="StructuredBuffer.cpp" />
@@ -607,6 +618,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClCompile Include="UITechnique.cpp" />
     <ClCompile Include="UITechnique_OIT.cpp" />
     <ClCompile Include="UnorderedAccessView.cpp" />
+    <ClCompile Include="GITemporalPass.cpp" />
     <ClCompile Include="VertexShader.cpp" />
     <ClCompile Include="VIBuffer.cpp" />
     <ClCompile Include="ViewManager.cpp" />
@@ -632,6 +644,12 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">true</ExcludedFromBuild>
     </FxCompile>
+    <FxCompile Include="..\Shaders\cs_calculate_motion_vector.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="..\Shaders\cs_compute_ribbon.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">true</ExcludedFromBuild>
@@ -645,6 +663,12 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="..\Shaders\cs_cube_texture_convertor.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\cs_generate_ssgi.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -686,7 +710,19 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">true</ExcludedFromBuild>
     </FxCompile>
+    <FxCompile Include="..\Shaders\cs_ssgi_temporal.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="..\Shaders\ps_accumulation.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_bilateral_up_sample.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -807,6 +843,12 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="..\Shaders\ps_skybox.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_ssgi_composite.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>

@@ -28,16 +28,19 @@ namespace GE
     };
 
     inline const std::unordered_map<CS, std::wstring> enumToCSFileNameMap = {
-        {CS::COMPUTE_RIBBON, L"cs_compute_ribbon.hlsl"},
-        {CS::RESOLVE_UI, L"cs_resolve_ui.hlsl"},
+        {CS::COMPUTE_SPRITE, L"cs_compute_sprite.hlsl"},
+        {CS::PREFILTERED_MAP, L"cs_prefiltered_map.hlsl"},
         {CS::CUBE_TEXTURE_CONVERTOR, L"cs_cube_texture_convertor.hlsl"},
-        {CS::LIGHT_INJECTION, L"cs_light_injection.hlsl"},
+        {CS::BRDF_LUT, L"cs_brdf_lut.hlsl"},
+        {CS::GENERATE_SSGI, L"cs_generate_ssgi.hlsl"},
         {CS::LIGHT_ACCUMULATION, L"cs_light_accumulation.hlsl"},
         {CS::IRRADIANCE_MAP, L"cs_irradiance_map.hlsl"},
-        {CS::BRDF_LUT, L"cs_brdf_lut.hlsl"},
         {CS::SKELETAL_SKINNING, L"cs_skeletal_skinning.hlsl"},
-        {CS::PREFILTERED_MAP, L"cs_prefiltered_map.hlsl"},
-        {CS::COMPUTE_SPRITE, L"cs_compute_sprite.hlsl"}
+        {CS::CALCULATE_MOTION_VECTOR, L"cs_calculate_motion_vector.hlsl"},
+        {CS::COMPUTE_RIBBON, L"cs_compute_ribbon.hlsl"},
+        {CS::SSGI_TEMPORAL, L"cs_ssgi_temporal.hlsl"},
+        {CS::LIGHT_INJECTION, L"cs_light_injection.hlsl"},
+        {CS::RESOLVE_UI, L"cs_resolve_ui.hlsl"}
     };
 
     inline const std::unordered_map<PS, std::wstring> enumToPSFileNameMap = {
@@ -45,13 +48,15 @@ namespace GE
         {PS::SHADOW, L"ps_shadow.hlsl"},
         {PS::WRITE_AO, L"ps_write_ao.hlsl"},
         {PS::PARTICLE_RESOLVE, L"ps_particle_resolve.hlsl"},
+        {PS::SSGI_COMPOSITE, L"ps_ssgi_composite.hlsl"},
         {PS::FADE, L"ps_fade.hlsl"},
         {PS::OUTLINE, L"ps_outline.hlsl"},
         {PS::UP_SAMPLE, L"ps_up_sample.hlsl"},
         {PS::SSR, L"ps_ssr.hlsl"},
-        {PS::VOLUMETRIC_FOG, L"ps_volumetric_fog.hlsl"},
+        {PS::BILATERAL_UP_SAMPLE, L"ps_bilateral_up_sample.hlsl"},
         {PS::GRID, L"ps_grid.hlsl"},
-        {PS::SDF_FONT, L"ps_sdf_font.hlsl"},
+        {PS::VOLUMETRIC_FOG, L"ps_volumetric_fog.hlsl"},
+        {PS::BURN_DISSOLVE, L"ps_burn_dissolve.hlsl"},
         {PS::GBUFFER, L"ps_gbuffer.hlsl"},
         {PS::UI, L"ps_ui.hlsl"},
         {PS::DISTORTION_RESOLVE, L"ps_distortion_resolve.hlsl"},

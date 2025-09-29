@@ -29,6 +29,7 @@
 #include "UITechnique.h"
 #include "UITechnique_OIT.h"
 #include "SceneTransitionTechnique.h"
+#include "SSGITechnique.h"
 
 namespace Global
 {
@@ -171,6 +172,10 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
     if (RenderTechniqueFlag::SSR_TECH & flag)
     {
         scene->AddRenderTechnique(std::make_unique<SSRTechnique>());
+    }
+    if (RenderTechniqueFlag::SSGI_TECH & flag)
+    {
+        scene->AddRenderTechnique(std::make_unique<SSGITechnique>());
     }
     if (RenderTechniqueFlag::VOLUMETRIC_FOG_TECH & flag)
     {

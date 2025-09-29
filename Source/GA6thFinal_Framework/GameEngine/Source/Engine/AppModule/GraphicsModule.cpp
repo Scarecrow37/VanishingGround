@@ -24,7 +24,8 @@ void GraphicsModule::PreInitialize()
     RenderTechniqueFlag lightingFlag = RenderTechniqueFlag::NONE;
     lightingFlag = _israytracing ? RenderTechniqueFlag::RAY_TRACING_TECH : RenderTechniqueFlag::PBR_TECH | RenderTechniqueFlag::SSR_TECH;
 
-    RenderTechniqueFlag defaultFlag = RenderTechniqueFlag::SKY_BOX_TECH | lightingFlag |
+    RenderTechniqueFlag defaultFlag = RenderTechniqueFlag::SKY_BOX_TECH | lightingFlag | 
+                               RenderTechniqueFlag::SSGI_TECH |
                                RenderTechniqueFlag::VOLUMETRIC_FOG_TECH |
                                RenderTechniqueFlag::PARTICLE_TECH |
                                RenderTechniqueFlag::BLOOM_TECH | RenderTechniqueFlag::UI_TECH |

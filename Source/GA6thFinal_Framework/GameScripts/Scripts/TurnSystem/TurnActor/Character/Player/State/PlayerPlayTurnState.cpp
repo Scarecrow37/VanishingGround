@@ -3,6 +3,7 @@
 #include <Animation/AnimationComponent.h>
 #include <Particle/ParticleComponent.h>
 #include <GameCore/FSM/FiniteStateMachine.h>
+#include <Camera/UmCineMotion.h>
 
 #include <QTE/System/QTESystem.h>
 #include <QTE/UI/QTEUIManager.h>
@@ -123,7 +124,7 @@ void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
         if (QTESystem* qteSystem = SingletonComponent<QTESystem>::GetInstance())
         {
             _inputState = InputState::QUICK_TIME_EVENT;
-            qteSystem->StartQTE([this](const std::vector<QTE::Result>& results) { OnQTEFinish(results); });
+            qteSystem->StartQTE([this](const QTE::OverallResult& results) { OnQTEFinish(results); });
             SetAttackReady();
         }
         else
@@ -133,7 +134,7 @@ void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
             player.EndTurn();
         }
     }
-    _attackButtonHeldTime += _isDownAButton ? UmTime.DeltaTime() : -UmTime.DeltaTime();
+    _attackButtonHeldTime += _isDownAButton || _isDownAKey ? UmTime.DeltaTime() : -UmTime.DeltaTime();
     _attackButtonHeldTime = std::clamp(_attackButtonHeldTime, 0.f, _attackButtonHeldWaitTime);
 }
 
@@ -143,6 +144,11 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.1f, 0.1f, 0.1f, 0.5f));
     ImGui::Begin("Player Turn##9A48EE30-CB5F-48AC-9740-DDF8118AAC49", nullptr, flags);
     {
+#ifdef _UMEDITOR
+
+        _isDownAKey = ImGui::IsKeyDown(ImGuiKey_A);
+#endif // ISEDITOR
+
         auto enemies = Battle::GetTargetsFromFlags(Battle::ENEMY_TARGET_FLAG_ALL);
         if (ImGui::Button((const char*)u8"[적] 전멸"))
         {
@@ -199,7 +205,8 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
     QTEUIManager* qteUIManager = QTEUIManager::GetInstance();
     if (qteSystem && qteUIManager)
     {
-        qteSystem->CombatUIActive(!_isDownAButton);
+        bool input = _isDownAKey || _isDownAButton;
+        qteSystem->CombatUIActive(!input);
         qteUIManager->SetBackgroundUIAlpha(t);
         qteUIManager->SetUIAlpha(0.0f);
         qteUIManager->SetActive(true);
@@ -370,9 +377,14 @@ void PlayerPlayTurnState::SetAttackEnd()
     {
         player.EndTurn();
     }
+    auto camera = dynamic_cast<UmCineMotion*>(CameraComponent::MainCamera());
+    if (camera)
+    {
+        camera->StartRail(true);
+    }
 }
 
-void PlayerPlayTurnState::BattleOnHitEvent(const QTE::Result& result) 
+void PlayerPlayTurnState::BattleOnHitEvent(const QTE::NoteResult& result) 
 {
     Battle::EnemyTargetFlag_ target = GetAttackTargetFromButton(result.PressedButton);
     Player& player = GetPlayer();
@@ -400,9 +412,10 @@ Battle::EnemyTargetFlag_ PlayerPlayTurnState::GetAttackTargetFromButton(unsigned
     return target;
 }
 
-void PlayerPlayTurnState::OnQTEFinish(const std::vector<QTE::Result>& results) 
+void PlayerPlayTurnState::OnQTEFinish(const QTE::OverallResult& results)
 {
-    for (const auto& result : results)
+    const auto& noteResults = results.NoteResults;
+    for (const auto& result : noteResults)
     {   
 
         QTE::Note* note = result.Note;
