@@ -90,7 +90,7 @@ void cs_main(uint3 dtid : SV_DispatchThreadID)
         }
     }
 
-    float3 outputColor = (totalW > 0.0f) ? (indirect / totalW) * ssgiData.Intencity : float3(0, 0, 0);
+    float3 outputColor = (totalW > 0.0f) ? (indirect / totalW) * ssgiData.Intensity : float3(0, 0, 0);
     outputColor *= albedo;
 
     SSGI_Result[dtid.xy] = float4(outputColor, 1.0f);

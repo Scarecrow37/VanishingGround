@@ -340,7 +340,7 @@ void EditSSGIProperty(std::any& property)
 {
     auto& giProperty = std::any_cast<SSGIProperty&>(property);
 
-    if (ImGui::BeginTable("Volumetric Fog Properties", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+    if (ImGui::BeginTable("SSGI Properties", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
     {
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
@@ -360,18 +360,18 @@ void EditSSGIProperty(std::any& property)
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("NumSamplle");
+        CenterText("NumSample");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
-        ImGui::DragInt("##NumSamplle", &giProperty.NumSample, 1, 1, 16);
+        ImGui::DragInt("##NumSample", &giProperty.NumSample, 1, 1, 16);
         ImGui::PopItemWidth();
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("Intencity");
+        CenterText("Intensity");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
-        ImGui::DragFloat("##Intencity", &giProperty.Intencity, 0.1f, 0.0f, 500.f);
+        ImGui::DragFloat("##Intensity", &giProperty.Intensity, 0.1f, 0.0f, 500.f);
         ImGui::PopItemWidth();
 
         ImGui::TableNextRow();

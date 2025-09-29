@@ -47,8 +47,7 @@ void SSGITechnique::Initialize(ID3D12GraphicsCommandList* commandList)
     property.Radius         = 1.f;
     property.Thickness      = 0.05f;
     property.NumSample      = 16;
-    property.Intencity      = 1.f;
-    property.Intencity      = 1.f;
+    property.Intensity      = 1.f;
     property.TemporalWeight = 0.85f;
     property.DepthSigma     = 2.f;
     property.NormalSigma    = 128.f;
@@ -99,7 +98,7 @@ void SSGITechnique::UpdateConstantBuffer()
     data.Radius                = ssgiProperty.Radius;
     data.Thickness             = ssgiProperty.Thickness;
     data.NumSample             = ssgiProperty.NumSample;
-    data.Intencity             = ssgiProperty.Intencity;
+    data.Intensity             = ssgiProperty.Intensity;
     data.TemporalWeight        = ssgiProperty.TemporalWeight;
     data.DepthSigma            = ssgiProperty.DepthSigma;
     data.NormalSigma           = ssgiProperty.NormalSigma;

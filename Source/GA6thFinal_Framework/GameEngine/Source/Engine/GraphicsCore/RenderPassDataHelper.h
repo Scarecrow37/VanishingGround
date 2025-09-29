@@ -81,7 +81,7 @@ inline void SerializeSSGIProperty(std::ostream& os, const SSGIProperty& prop)
     os << "    Radius = " << prop.Radius << "\n";
     os << "    Thickness = " << prop.Thickness << "\n";
     os << "    NumSample = " << prop.NumSample << "\n";
-    os << "    Intencity = " << prop.Intencity << "\n";
+    os << "    Intensity = " << prop.Intensity << "\n";
     os << "    TemporalWeight = " << prop.TemporalWeight << "\n";
     os << "    DepthSigma = " << prop.DepthSigma << "\n";
     os << "    NormalSigma = " << prop.NormalSigma << "\n";
@@ -198,7 +198,7 @@ inline void DeserializeVolumetricFogProperty(std::istream& is, VolumetricFogProp
         ss >> key >> equals;
         if (key == "FogAnisotropy")
             ss >> prop.FogAnisotropy;
-        if (key == "LightShaftAnisotropy")
+        else if (key == "LightShaftAnisotropy")
             ss >> prop.LightShaftAnisotropy;
         else if (key == "Density")
             ss >> prop.Density;
@@ -235,8 +235,8 @@ inline void DeserializeSSGIProperty(std::istream& is, SSGIProperty& prop)
             ss >> prop.Thickness;
         else if (key == "NumSample")
             ss >> prop.NumSample;
-        else if (key == "Intencity")
-            ss >> prop.Intencity;
+        else if (key == "Intensity")
+            ss >> prop.Intensity;
         else if (key == "TemporalWeight")
             ss >> prop.TemporalWeight;
         else if (key == "DepthSigma")

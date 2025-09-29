@@ -123,7 +123,7 @@ struct SSGIData
     float Radius;
     float Thickness;
     int NumSample;
-    float Intencity;
+    float Intensity;
     float TemporalWeight;
     float DepthSigma;
     float NormalSigma;

@@ -156,7 +156,7 @@ struct SSGIProperty
     float Radius;//0.1~4.0
     float Thickness;//0.01~0.15
     int   NumSample;//8~16
-    float Intencity;//0~2.0;
+    float Intensity;      // 0~2.0;
     float TemporalWeight;//이전프레임 가중치 //0.7~0.95
     float DepthSigma;//0.5~5.0
     float NormalSigma;//16~256
