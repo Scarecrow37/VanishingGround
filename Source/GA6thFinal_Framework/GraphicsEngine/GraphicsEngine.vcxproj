@@ -438,6 +438,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="SpriteRenderer.h" />
     <ClInclude Include="SSAOWritePass.h" />
+    <ClInclude Include="SSGICompositePass.h" />
     <ClInclude Include="SSGITechnique.h" />
     <ClInclude Include="SSRPass.h" />
     <ClInclude Include="SSRTechnique.h" />
@@ -583,6 +584,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="SpriteRenderer.cpp" />
     <ClCompile Include="SSAOWritePass.cpp" />
+    <ClCompile Include="SSGICompositePass.cpp" />
     <ClCompile Include="SSGITechnique.cpp" />
     <ClCompile Include="SSRPass.cpp" />
     <ClCompile Include="SSRTechnique.cpp" />
@@ -827,6 +829,12 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="..\Shaders\ps_skybox.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_ssgi_composite.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>

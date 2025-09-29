@@ -7,6 +7,7 @@
 #include "GenerateSSGIPass.h"
 #include "GITemporalPass.h"
 #include "BilateralUpsamplePass.h"
+#include "SSGICompositePass.h"
 
 SSGITechnique::SSGITechnique() {}
 
@@ -64,6 +65,9 @@ void SSGITechnique::Initialize(ID3D12GraphicsCommandList* commandList)
     pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));
     pass = std::make_unique<BilateralUpsamplePass>();
+    pass->Initialize(_ownerScene, this, commandList);
+    AddRenderPass(std::move(pass));
+    pass = std::make_unique<SSGICompositePass>();
     pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));
 }
