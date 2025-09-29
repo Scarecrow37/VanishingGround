@@ -31,8 +31,6 @@ void SSRPass::Draw(ID3D12GraphicsCommandList* commandList)
     auto renderTarget = Global::multiRenderTargetManager->GetAvailableRenderTarget();
     renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
     renderTarget->ClearRenderTarget(commandList, 0);
-    renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    renderTarget->ClearRenderTarget(commandList, 0);
 
     commandList->OMSetRenderTargets(1, &renderTarget->GetRTVHandle(), FALSE, nullptr);
     commandList->RSSetViewports(1, &renderTarget->GetViewport());
