@@ -27,7 +27,13 @@ NewGame::~NewGame() = default;
 void NewGame::Submit()
 {
     File::Path  path              = File::Guid(ReflectFields->NextSceneGuid).ToPath();
-    GameObject* transitionmanager = SingletonObject<TransitionManager>::GetInstance();
-    transitionmanager->GetComponent<TransitionManager>()->SceneTransitionFade(
-        "in", "out", [path]() { UmSceneManager.LoadScene(path.string()); });
+    GameObject* transitionManager = SingletonObject<TransitionManager>::GetInstance();
+    if (transitionManager)
+    {
+        auto transitionComponent = transitionManager->GetComponent<TransitionManager>();
+        if (transitionComponent)
+        {
+            transitionComponent->SceneTransitionFade("in", "out", [path]() { UmSceneManager.LoadScene(path.string()); });
+        }
+    }
 }

@@ -10,10 +10,16 @@ TransitionManager::~TransitionManager() = default;
 void TransitionManager::SceneTransitionFade(std::string_view inPreset, std::string_view outPreset,
                                             std::function<void(void)> callback)
 {
-    _transitionController->Fade(inPreset, [callback, outPreset, this]() {
-        callback();
-        _transitionController->Fade(outPreset, nullptr);
-    });
+    if (nullptr != _transitionController)
+    {
+        _transitionController->Fade(inPreset, [callback, outPreset, this]() {
+            if (nullptr != callback)
+            {
+                callback();
+            }
+            _transitionController->Fade(outPreset, nullptr);
+        });
+    }
 }
 
 void TransitionManager::Awake()

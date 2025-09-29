@@ -23,12 +23,19 @@ ReturnToMapNavi::ReturnToMapNavi()
     });
 }
 
-void ReturnToMapNavi::Submit() 
+void ReturnToMapNavi::Submit()
 {
-    const File::Path path = _guidRef.ToPath();
-    GameObject* transitionmanager = SingletonObject<TransitionManager>::GetInstance();
-    transitionmanager->GetComponent<TransitionManager>()->SceneTransitionFade(
-        "in", "out", [path]() { UmSceneManager.LoadScene(path.string()); });
+    const File::Path& path = _guidRef.ToPath();
+
+    GameObject* transitionManager = SingletonObject<TransitionManager>::GetInstance();
+    if (transitionManager)
+    {
+        auto transitionComponent = transitionManager->GetComponent<TransitionManager>();
+        if (transitionComponent)
+        {
+            transitionComponent->SceneTransitionFade("in", "out", [path]() { UmSceneManager.LoadScene(path.string()); });
+        }
+    }
 }
 
 void ReturnToMapNavi::DeserializedReflectEvent()
