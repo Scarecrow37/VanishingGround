@@ -266,9 +266,11 @@ void ParticleComponent::LoadParticle(const std::string& keyString)
                                 else
                                     UmSceneManager.ResourceManager.RequestModelResource(
                                         this, guid, [this, assetGuid, keyString]() {
+
                                             ReflectFields->GuidMap[keyString] = assetGuid.string();
                                             auto effect                       = UmParticleSerializer.Deserialize(
                                                 _objectInstanceID, keyString, assetGuid.ToPath(), false, "Game");
+                                           
                                             for (auto& emitter : effect->GetEmitterList())
                                             {
                                                 File::Path absolutePath =
@@ -276,6 +278,7 @@ void ParticleComponent::LoadParticle(const std::string& keyString)
                                                 absolutePath = std::filesystem::absolute(absolutePath).generic_string();
                                                 UmGraphics.LoadTextureResource(
                                                     std::wstring_view(absolutePath.wstring()), emitter);
+                                                
                                                 if (LocationShape::MESH_SURFACE == emitter->_locationType)
                                                 {
                                                     MeshSurfaceLocator* locator =
@@ -286,6 +289,7 @@ void ParticleComponent::LoadParticle(const std::string& keyString)
                                                     UmGraphics.LoadModelResource(
                                                         std::wstring_view(absolutePath.wstring()), emitter);
                                                 }
+
                                             }
                                             effect->SetPlayFlag(false);
                                             effect->SetActiveFlag(false);
