@@ -13,7 +13,10 @@ void TransitionManager::SceneTransitionFade(std::string_view inPreset, std::stri
     if (nullptr != _transitionController)
     {
         _transitionController->Fade(inPreset, [callback, outPreset, this]() {
-            callback();
+            if (nullptr != callback)
+            {
+                callback();
+            }
             _transitionController->Fade(outPreset, nullptr);
         });
     }
