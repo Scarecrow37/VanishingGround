@@ -35,6 +35,7 @@
 #include "directxtk12/SpriteBatch.h"
 #include "directxtk12/SpriteFont.h"
 #include "DirectXTex.h"
+#include "yyjson/yyjson.h"
 
 #include <d3dcompiler.h>
 #include <dbghelp.h>

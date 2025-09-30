@@ -7,7 +7,8 @@ class Camera;
 class MeshRenderer;
 class SkyBox;
 class SpriteRenderer;
-class FontRenderer;
+class TextRenderer;
+class SDFTextRenderer;
 class AccelerationStructureManager;
 class RenderScene
 {
@@ -31,7 +32,8 @@ public:
     void InitializeRenderScene();
     void RegisterOnRenderQueue(MeshRenderer* component);
     void RegisterOnRenderQueue(SpriteRenderer* component);
-    void RegisterOnRenderQueue(FontRenderer* component);
+    void RegisterOnRenderQueue(TextRenderer* component);
+    void RegisterOnRenderQueue(SDFTextRenderer* component);
     void AddRenderTechnique(std::unique_ptr<RenderTechnique> technique);
     void AddRenderPassDatas();
 
@@ -62,7 +64,6 @@ private:
     void UpdateGlobal();
     void UpdateObject();
     void UpdateUI();
-    void UpdateFont();
 
  private:
     void CreateRenderTarget();
@@ -77,11 +78,12 @@ public:
     std::string _meshRenderTargetName;
     std::string _finalTargetName;
 
-    std::vector<std::unique_ptr<RenderTechnique>>                  _techniques;
-    std::vector<std::pair<std::unique_ptr<bool>, MeshRenderer*>>   _meshRenderQueue;
-    std::vector<MeshInfo>                                          _activeMeshes[MESH_TYPE_END];
-    std::vector<std::pair<std::unique_ptr<bool>, SpriteRenderer*>> _uiRenderQueue;
-    std::vector<std::pair<std::unique_ptr<bool>, FontRenderer*>>   _fontRenderQueue;
+    std::vector<std::unique_ptr<RenderTechnique>>                   _techniques;
+    std::vector<std::pair<std::unique_ptr<bool>, MeshRenderer*>>    _meshRenderQueue;
+    std::vector<std::pair<std::unique_ptr<bool>, SpriteRenderer*>>  _uiRenderQueue;
+    std::vector<std::pair<std::unique_ptr<bool>, TextRenderer*>>    _textRenderQueue;
+    std::vector<std::pair<std::unique_ptr<bool>, SDFTextRenderer*>> _sdfTextRenderQueue;
+    std::vector<MeshInfo>                                           _activeMeshes[MESH_TYPE_END];
 
     CommandSet _commandSet;
 
@@ -90,7 +92,7 @@ public:
     std::vector<LightData>                      _lightDatas;
     std::vector<MatrixData>                     _matrices;
     std::vector<BoneMatrices>                   _boneMatrices;
-    std::vector<XMMATRIX>                       _uiMatrices;
+    std::vector<Matrix>                         _uiMatrices;
     std::vector<UIMaterial>                     _uiMaterials;
     std::vector<MeshInstanceID>                 _staticMeshInstanceIDs;
     std::vector<MeshInstanceID>                 _skeletalMeshInstanceIDs;

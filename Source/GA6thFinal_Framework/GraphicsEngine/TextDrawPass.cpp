@@ -1,6 +1,6 @@
 ﻿#include "pch.h"
 #include "TextDrawPass.h"
-#include "FontRenderer.h"
+#include "TextRenderer.h"
 #include "UITechnique_OIT.h"
 
 static std::unique_ptr<SpriteBatch> spriteBatch;
@@ -75,7 +75,7 @@ void TextDrawPass::Begin(ID3D12GraphicsCommandList* commandList)
 
 void TextDrawPass::Draw(ID3D12GraphicsCommandList* commandList)
 {    
-    for (auto& [isDestroy, component] : _ownerScene->_fontRenderQueue)
+    for (auto& [isDestroy, component] : _ownerScene->_textRenderQueue)
     {
         if (!component->IsActive())
             continue;

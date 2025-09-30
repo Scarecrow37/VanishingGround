@@ -314,4 +314,10 @@ uint OITAllocNode(RWByteAddressBuffer nodeCounter)
     return old;
 }
 
+float4 Premultiply(float4 color)
+{
+    color.rgb *= color.a;
+    return color;
+}
+
 #endif
