@@ -390,6 +390,7 @@ void PlayerPlayTurnState::OnQTEFinish()
                                 if (modelData.IsValid())
                                 {
                                     modelData.Animation->StopCurrentAnimation();
+                                    modelData.Particle->StopEffect("weapon");
                                     modelData.Particle->StopEffect();
                                 }
                                 weaponModelManager->ReturnWeaponModel(modelData);
@@ -433,7 +434,7 @@ void PlayerPlayTurnState::OnQTEFinish()
                                         {
                                             modelData.GameObject->ActiveSelf = true;
                                             modelData.Animation->PlayCurrentAnimation();
-                                            modelData.Particle->PlayEffect();
+                                            modelData.Particle->PlayEffect("weapon");
                                         }
                                     });
                                 }

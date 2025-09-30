@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "SkeletalMeshRenderer.h"
 #include <Animation/AnimationComponent.h>
+#include <Particle/ParticleComponent.h>
 
 UMREAL_COMPONENT(SkeletalMeshRenderer)
 
@@ -102,4 +103,10 @@ void SkeletalMeshRenderer::OnChangedModel()
         const auto& animator = Renderer->GetAnimator();
         animationComponent->SetAnimator(animator);
     }
+    /*ParticleComponent* particleComponent = GetComponent<ParticleComponent>();
+    if (Renderer && particleComponent)
+    {
+        const auto& animator = Renderer->GetAnimator();
+        particleComponent->SetAnimator(animator.get());
+    }*/
 }

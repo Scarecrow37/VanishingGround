@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
-#include "ParticleManager.h"
 #include "ParticleEmitter.h"
 #include "ParticleEffect.h"
+#include "ParticleManager.h"
 
 ParticleManager::ParticleManager() {}
 
@@ -61,7 +61,7 @@ void ParticleManager::Initialize(UINT maxParticles)
 
 }
 
-ParticleEffect* ParticleManager::RegisterEffect(std::string_view sceneName)
+ParticleEffect* ParticleManager::RegisterEffect(EffectID id, const std::string& keyString, std::string_view sceneName)
 {
     auto newEffect = new ParticleEffect();
     newEffect->Initialize(this);
@@ -70,6 +70,8 @@ ParticleEffect* ParticleManager::RegisterEffect(std::string_view sceneName)
 
     auto scenename = std::string(sceneName);
     _sceneResources[scenename]._updateResource->_sceneEffects.push_back(newEffect);
+
+    _effectIDTable[id][keyString] = newEffect;
     return newEffect;
 }
 
@@ -110,7 +112,7 @@ void ParticleManager::ChangeTexture()
 
 }
 
-ParticleEmitter* ParticleManager::RegisterEmitter(class ParticleEffect* effect, SIZE_T maxParticles /*= 100000*/,
+ParticleEmitter* ParticleManager::RegisterEmitter(ParticleEffect* effect, SIZE_T maxParticles /*= 100000*/,
                                                   float emissionRate /*= 500.f*/, float emitterLifetime /*= 5.f*/,
                                                   LocationShape     locatorShape /*= LocationShape::SPHERE*/,
                                                   Vector3           locationFactor /*= Vector3(1, 1, 1)*/,
@@ -122,25 +124,6 @@ ParticleEmitter* ParticleManager::RegisterEmitter(class ParticleEffect* effect, 
     return newEmitter;
 }
 
-void ParticleManager::DeleteEffect(ParticleEffect* target, const std::string& sceneName)
-{
-    target->SetRemoveFlag(true);
-    for (auto it = _particleUpdateResources.begin(); it != _particleUpdateResources.end(); ++it)
-    {
-        if (sceneName != (*it)->_name)
-            continue;
-
-        auto& effects = (*it)->_sceneEffects;
-        auto  it2     = std::find(effects.begin(), effects.end(), target);
-        if (it2 != effects.end())
-        {
-            delete *it2;       
-            effects.erase(it2);
-        }
-
-        break;
-    }
-}
 void ParticleManager::Update(const float deltaTime)
 {
     float delta = deltaTime * _deltaScale;
@@ -266,6 +249,131 @@ void ParticleManager::RefreshEditor()
     _editorRefreshFlag = true;
 }
 
+void ParticleManager::DeleteEffect(EffectID id, const std::string& keyString, const std::string& sceneName)
+{
+    auto effectID = _effectIDTable.find(id);
+    if (effectID == _effectIDTable.end())
+    {
+        return;
+    }
+    auto effectList       = (*effectID).second;
+    auto targetEffectIter = effectList.find(keyString);
+    if (targetEffectIter == effectList.end())
+    {
+        return;
+    }
+
+    auto target = (*targetEffectIter).second;
+    target->SetRemoveFlag(true);
+
+    effectList.erase(targetEffectIter);
+    if (effectList.empty())
+    {
+        _effectIDTable.erase(effectID);
+    }
+}
+
+void ParticleManager::PlayEffect(EffectID id, const std::string& keyString)
+{
+    auto effectID = _effectIDTable.find(id);
+    if (effectID == _effectIDTable.end())
+    {
+        return;
+    }
+    auto effectList       = (*effectID).second;
+    auto targetEffectIter = effectList.find(keyString);
+    if (targetEffectIter == effectList.end())
+    {
+        return;
+    }
+    auto target = (*targetEffectIter).second;
+    target->Play();
+}
+
+void ParticleManager::StopEffect(EffectID id, const std::string& keyString)
+{
+    auto effectID = _effectIDTable.find(id);
+    if (effectID == _effectIDTable.end())
+    {
+        return;
+    }
+    auto effectList       = (*effectID).second;
+    auto targetEffectIter = effectList.find(keyString);
+    if (targetEffectIter == effectList.end())
+    {
+        return;
+    }
+    auto target = (*targetEffectIter).second;
+    target->Stop();
+}
+
+void ParticleManager::SetActiveFlag(EffectID id, const std::string& keyString, bool flag)
+{
+    auto effectID = _effectIDTable.find(id);
+    if (effectID == _effectIDTable.end())
+    {
+        return;
+    }
+    auto effectList       = (*effectID).second;
+    auto targetEffectIter = effectList.find(keyString);
+    if (targetEffectIter == effectList.end())
+    {
+        return;
+    }
+    auto target = (*targetEffectIter).second;
+    target->SetActiveFlag(flag);
+}
+
+void ParticleManager::SetRemoveFlag(EffectID id, const std::string& keyString, bool flag)
+{
+    auto effectID = _effectIDTable.find(id);
+    if (effectID == _effectIDTable.end())
+    {
+        return;
+    }
+    auto effectList       = (*effectID).second;
+    auto targetEffectIter = effectList.find(keyString);
+    if (targetEffectIter == effectList.end())
+    {
+        return;
+    }
+    auto target = (*targetEffectIter).second;
+    target->SetRemoveFlag(flag);
+}
+
+void ParticleManager::SetFollowBoneFlag(EffectID id, const std::string& keyString, bool* flag)
+{
+    auto effectID = _effectIDTable.find(id);
+    if (effectID == _effectIDTable.end())
+    {
+        return;
+    }
+    auto effectList       = (*effectID).second;
+    auto targetEffectIter = effectList.find(keyString);
+    if (targetEffectIter == effectList.end())
+    {
+        return;
+    }
+    auto target             = (*targetEffectIter).second;
+    target->_followBoneFlag = flag;
+}
+
+void ParticleManager::SetBoneMatrix(EffectID id, const std::string& keyString, const Matrix* boneMatrix)
+{
+    auto effectID = _effectIDTable.find(id);
+    if (effectID == _effectIDTable.end())
+    {
+        return;
+    }
+    auto effectList       = (*effectID).second;
+    auto targetEffectIter = effectList.find(keyString);
+    if (targetEffectIter == effectList.end())
+    {
+        return;
+    }
+    auto target              = (*targetEffectIter).second;
+    target->_boneWorldMatrix = boneMatrix;
+}
 
 UINT ParticleManager::GetMaxCount() 
 {
@@ -780,7 +888,7 @@ void ParticleManager::AwakeParticles(float deltaTime, ParticleUpdateResource* sc
                                 particle.SetEmitterIndex(ribbonEmitterIndex);
 
                                 scene->_ribbonTotalParticles.push_back(particle);
-                                scene->_ribbonTotalParticles.push_back(particle);
+                                //scene->_ribbonTotalParticles.push_back(particle);
                                 
                                 emitterIndices.push_back({ribbonparticleIndex++, particle.GetAge() / lifetime});
                                 emitterIndices.push_back({ribbonparticleIndex++, particle.GetAge() / lifetime});
@@ -799,7 +907,7 @@ void ParticleManager::AwakeParticles(float deltaTime, ParticleUpdateResource* sc
     }
     // 최종 파티클 수 업데이트
     scene->_totalCount = (UINT)scene->_totalParticles.size();
-    scene->_ribbonTotalCount = (UINT)(scene->_ribbonTotalParticles.size());
+    scene->_ribbonTotalCount = (UINT)(scene->_ribbonTotalParticles.size()*2);
 }
 
 void ParticleManager::DispatchSprite(float deltaTime, std::string sceneName) 
