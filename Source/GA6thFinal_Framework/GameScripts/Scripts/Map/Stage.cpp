@@ -48,10 +48,9 @@ void Stage::UpdateData(const std::string& key, const File::Guid& enableImage, co
 void Stage::FocusIn()
 {
     UINavigationComponent::FocusIn();
-
-    if (auto manager = GameObject::Find("MapManager").lock(); manager)
+    if (MapManager* manager = SingletonComponent<MapManager>::GetInstance())
     {
-        manager->GetComponent<MapManager>()->SetFocusStage(this);
+        manager->SetFocusStage(this);
     }
 }
 
@@ -90,6 +89,11 @@ void Stage::Start()
         for (int i = 0; i < ARTIFACT_DROP_COUNT; i++)
         {
             _dropItemAssetIDs[i] = DropItemInfo::GetArtifactCategoryAssetID(_dropItemInfos[i].Category);
+        }
+
+        if (MapManager* mapManager = SingletonComponent<MapManager>::GetInstance())
+        {
+            mapManager->UINotify();
         }
     }
 }
