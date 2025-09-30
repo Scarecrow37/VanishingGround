@@ -61,5 +61,8 @@ private:
     float      _attackButtonHeldTime;
     float      _attackButtonHeldWaitTime;
     int        _attackRemaining; // 공격 남은 횟수
+
+    //== Debug == //
+    bool       _showDebugUI = false;
     
 };

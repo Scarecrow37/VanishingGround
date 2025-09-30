@@ -145,57 +145,59 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
     ImGui::Begin("Player Turn##9A48EE30-CB5F-48AC-9740-DDF8118AAC49", nullptr, flags);
     {
 #ifdef _UMEDITOR
-        _isDownAKey = ImGui::IsKeyDown(ImGuiKey_A);
+        _isDownAKey = ImGui::IsKeyDown(ImGuiKey_A); // 에디터에서는 키보드 인풋도 받음
 #endif // ISEDITOR
 
-        auto enemies = Battle::GetTargetsFromFlags(Battle::ENEMY_TARGET_FLAG_ALL);
-        if (ImGui::Button((const char*)u8"[적] 전멸"))
+        _showDebugUI = ImGui::IsKeyPressed(ImGuiKey_F12, false) ? !_showDebugUI : _showDebugUI;
+        if (_showDebugUI)
         {
-            for (auto& enemy : enemies)
+            auto enemies = Battle::GetTargetsFromFlags(Battle::ENEMY_TARGET_FLAG_ALL);
+            if (ImGui::Button((const char*)u8"[적] 전멸"))
             {
-                if (enemy)
+                for (auto& enemy : enemies)
                 {
-                    enemy->Dead();
+                    if (enemy)
+                        enemy->Dead();
                 }
             }
-        }
+            if (ImGui::Button((const char*)u8"[적 LEFT] 자살"))
+            {
+                if (enemies.size() >= 1 && enemies[0])
+                    enemies[0]->Dead();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button((const char*)u8"[적 MIDDLE] 자살"))
+            {
+                if (enemies.size() >= 2 && enemies[1])
+                    enemies[1]->Dead();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button((const char*)u8"[적 RIGHT] 자살"))
+            {
+                if (enemies.size() >= 3 && enemies[2])
+                    enemies[2]->Dead();
+            }
+            ImGui::SameLine();
 
-        if (ImGui::Button((const char*)u8"[적 LEFT] 자살"))
-        {
-            if (enemies.size() >= 1 && enemies[0])
-                enemies[0]->Dead();
-        }
-        ImGui::SameLine();
-        if (ImGui::Button((const char*)u8"[적 MIDDLE] 자살"))
-        {
-            if (enemies.size() >= 2 && enemies[1])
-                enemies[1]->Dead();
-        }
-        ImGui::SameLine();
-        if (ImGui::Button((const char*)u8"[적 RIGHT] 자살"))
-        {
-            if (enemies.size() >= 3 && enemies[2])
-                enemies[2]->Dead();
-        }
-        ImGui::SameLine();
-
-        ImGui::Separator();
-        Player& player = GetPlayer();
-        if (ImGui::Button((const char*)u8"[플레이어] 자해"))
-        {
-            player.TakeDamage(10);
-        }
-        ImGui::SameLine();
-        if (ImGui::Button((const char*)u8"[플레이어] 자살"))
-        {
-            player.Dead();
-        }
-        ImGui::SameLine();
-        if (ImGui::Button((const char*)u8"[플레이어] 턴 종료"))
-        {
-            player.EndTurn();
+            ImGui::Separator();
+            Player& player = GetPlayer();
+            if (ImGui::Button((const char*)u8"[플레이어] 자해"))
+            {
+                player.TakeDamage(10);
+            }
+            ImGui::SameLine();
+            if (ImGui::Button((const char*)u8"[플레이어] 자살"))
+            {
+                player.Dead();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button((const char*)u8"[플레이어] 턴 종료"))
+            {
+                player.EndTurn();
+            }
         }
     }
+        
     ImGui::End();
     ImGui::PopStyleColor();
 
@@ -214,78 +216,6 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
 
 void PlayerPlayTurnState::UpdateQuickTimeEventUI(float dt)
 {
-    //ImGuiWindowFlags flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar;
-    //ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.1f, 0.1f, 0.1f, 0.5f));
-    //ImGui::Begin("Player Turn##9A48EE30-CB5F-48AC-9740-DDF8118AAC49", nullptr, flags);
-    //{
-    //    WeaponSystem* weaponSystem = SingletonComponent<WeaponSystem>::GetInstance();
-    //    TurnMode*     turnMode     = SingletonComponent<TurnMode>::GetInstance();
-    //    if (weaponSystem)
-    //    {
-    //        Player&      player = GetPlayer();
-    //        WeaponStats& weapon = const_cast<WeaponStats&>(weaponSystem->GetCurrentWeaponStats());
-    //        ImGui::BeginDisabled();
-    //        ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.WeaponName, UmCore->ImGuiDrawPropertysSetting);
-    //        ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.Type, UmCore->ImGuiDrawPropertysSetting);
-    //        ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.HitDamage, UmCore->ImGuiDrawPropertysSetting);
-    //        ReflectHelper::ImGuiDraw::Private::InputAuto(weapon.CriticalDamage, UmCore->ImGuiDrawPropertysSetting);
-    //        ImGui::EndDisabled();
-    //        ImGui::Separator();
-    //
-    //        ImGui::Text((const char*)u8"X, Y, B를 눌러 공격하세요.");
-    //        ImGui::Text((const char*)u8"남은 공격 횟수 : %d", _attackRemaining);
-    //        int index = 0;
-    //        for (auto& [name, value] : Battle::ENEMY_TARGET_FLAGS)
-    //        {
-    //            if (ImGui::Button(name))
-    //            {
-    //                PushAttackTarget(value);
-    //            }      
-    //            constexpr int lastIndex = std::size(Battle::ENEMY_TARGET_FLAGS) - 1;
-    //            if (index < lastIndex)
-    //            {
-    //                ImGui::SameLine();
-    //            }
-    //            index++;
-    //        }
-    //
-    //        ImGui::Separator();
-    //        if (ImGui::Button((const char*)u8"[테스트] 자해"))
-    //        {
-    //            player.TakeDamage(10);
-    //        }
-    //        ImGui::SameLine();
-    //        if (ImGui::Button((const char*)u8"[테스트] 자살"))
-    //        {
-    //            player.Dead();
-    //        }
-    //        ImGui::SameLine();
-    //        if (ImGui::Button((const char*)u8"[테스트] 턴 종료"))
-    //        {
-    //            _attackRemaining = 0;
-    //        }
-    //        for (auto& target : _attackTargets)
-    //        {
-    //            ImGui::Text(Battle::EnemyTargetFlagToString(target).data());
-    //        }
-    //
-    //        if (_attackRemaining == 0)
-    //        {
-    //            _inputState = InputState::ATTACK_EVENT;
-    //            if (turnMode)
-    //            {
-    //                turnMode->ApplyActions([&player](TurnAction& action) { action.OnPlayerQTEResult(player); });
-    //            }
-    //            SetAttack();
-    //        }
-    //    }
-    //    else
-    //    {
-    //        UmLogger.Message(LogLevel::LEVEL_DEBUG, u8"Weapon System이 존재하지 않습니다.");
-    //    }
-    //}
-    //ImGui::End();
-    //ImGui::PopStyleColor();
 }
 
 void PlayerPlayTurnState::UpdateAttackEventUI(float dt)
