@@ -43,7 +43,10 @@ void ParticleComponent::Update() {}
 
 void ParticleComponent::Start() {}
 
-void ParticleComponent::Reset() {}
+void ParticleComponent::Reset() 
+{
+   
+}
 
 void ParticleComponent::SerializedReflectEvent()
 {
@@ -218,20 +221,21 @@ void ParticleComponent::LoadParticle(const std::string& keyString)
                             ReflectFields->GuidMap[keyString] = assetGuid.string();
                         auto effect = UmParticleSerializer.Deserialize(this, keyString, assetGuid.ToPath(),
                                                                            false, "Game");
-                            for (auto& emitter : effect->GetEmitterList())
-                            {
-                                File::Path absolutePath = emitter->_particleRenderModule->GetModelAndTexturePath();
-                                absolutePath            = std::filesystem::absolute(absolutePath).generic_string();
-                                UmGraphics.LoadTextureResource(std::wstring_view(absolutePath.wstring()), emitter);
-                            }
-                            effect->SetPlayFlag(false);
-                            effect->SetActiveFlag(false);
-                            effect->_position          = &_positionVector[keyString];
-                            effect->_rotation          = &_rotationVector[keyString];
-                            effect->_scale             = &_scaleVector[keyString];
-                            effect->_parentWorldMatrix = &transform->GetWorldMatrix();
-                            effect->_followBoneFlag    = &(ReflectFields->AttachFlagMap[keyString]);
-                        });
+                        for (auto& emitter : effect->GetEmitterList())
+                        {
+                            File::Path absolutePath = emitter->_particleRenderModule->GetModelAndTexturePath();
+                            absolutePath            = std::filesystem::absolute(absolutePath).generic_string();
+                            UmGraphics.LoadTextureResource(std::wstring_view(absolutePath.wstring()), emitter);
+                        }
+                        effect->SetPlayFlag(false);
+                        effect->SetActiveFlag(false);
+                        effect->_position          = &_positionVector[keyString];
+                        effect->_rotation          = &_rotationVector[keyString];
+                        effect->_scale             = &_scaleVector[keyString];
+                        effect->_parentWorldMatrix = &transform->GetWorldMatrix();
+                        effect->_followBoneFlag    = &(ReflectFields->AttachFlagMap[keyString]);
+                        FollowBoneMatrix(keyString);
+                    });
                 else
                     UmSceneManager.ResourceManager.RequestTextureResource(this, guid, []() {});
             }
@@ -297,6 +301,7 @@ void ParticleComponent::LoadParticle(const std::string& keyString)
                                             effect->_scale             = &_scaleVector[keyString];
                                             effect->_parentWorldMatrix = &transform->GetWorldMatrix();
                                             effect->_followBoneFlag    = &(ReflectFields->AttachFlagMap[keyString]);
+                                            FollowBoneMatrix(keyString);
                                         });
                             }
                         });
@@ -313,8 +318,7 @@ void ParticleComponent::FollowBoneMatrix(const std::string& key)
     {
         if (true == (*it).second)
         {
-            _skelMesh = GetComponent<SkeletalMeshRenderer>();
-            if (_skelMesh != nullptr)
+            if (_animator != nullptr)
             {
                 auto it2 = ReflectFields->BoneNameMap.find(key);
                 if (it2 != ReflectFields->BoneNameMap.end())
@@ -322,11 +326,21 @@ void ParticleComponent::FollowBoneMatrix(const std::string& key)
                     UmParticleManager->SetBoneMatrix(
                         this,
                         key, 
-                        _skelMesh->Renderer->GetAnimator()->FindBoneMatrix(ReflectFields->BoneNameMap[key].c_str()));
+                        _animator->FindBoneMatrix(ReflectFields->BoneNameMap[key].c_str()));
                 }
             }
         }
     }
+}
+
+void ParticleComponent::SetAnimator(class Animator* animator)
+{
+    _animator = animator;
+    for (auto& keyString : ReflectFields->EffectNameTable)
+    {
+        FollowBoneMatrix(keyString);
+    }
+
 }
 
 void ParticleComponent::PlayEffect(const std::string& key)

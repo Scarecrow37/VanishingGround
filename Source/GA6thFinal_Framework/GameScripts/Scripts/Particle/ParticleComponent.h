@@ -110,6 +110,7 @@ public:
     void RegisterEffectFromGuid(const File::Path& filepath, const std::string& key);
     void RegisterEffectFromGuid(const File::Guid& fileguid, const std::string& key);
     void FollowBoneMatrix(const std::string& key);
+    void SetAnimator(class Animator* animator);
 
 public:
     ParticleComponent();
@@ -162,4 +163,6 @@ protected:
     Vector3     _zeroVec          = {0, 0, 0};
 
     EffectID _objectInstanceID = -1;
+
+    class Animator* _animator = nullptr;
 };

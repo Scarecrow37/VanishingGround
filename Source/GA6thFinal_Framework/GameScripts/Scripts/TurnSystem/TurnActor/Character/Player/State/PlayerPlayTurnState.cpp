@@ -446,7 +446,7 @@ void PlayerPlayTurnState::OnQTEFinish(const QTE::OverallResult& results)
                             {
                                 modelData.Animation->StopCurrentAnimation();
                                 int id = modelData.GameObject->GetInstanceID();
-                                UmParticleManager->PlayEffect(modelData.Particle, "weapon");
+                                UmParticleManager->StopEffect(modelData.Particle, "weapon");
                                 modelData.GameObject->ActiveSelf = false;
                             }
                             weaponModelManager->ReturnWeaponModel(modelData);
