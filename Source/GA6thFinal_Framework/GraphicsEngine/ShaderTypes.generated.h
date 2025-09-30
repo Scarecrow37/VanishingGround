@@ -24,6 +24,7 @@ namespace GE
     enum class PS { 
         NONE,
         ACCUMULATION,
+        BILATERAL_UP_SAMPLE,
         BLEND,
         BRIGHT_EXTRACT,
         BURN_DISSOLVE,
@@ -43,6 +44,7 @@ namespace GE
         PBR_LIGHTING,
         SHADOW,
         SKYBOX,
+        SSGI_COMPOSITE,
         SSR,
         TO_BACKBUFFER,
         UI,
@@ -55,15 +57,18 @@ namespace GE
     enum class CS { 
         NONE,
         BRDF_LUT,
+        CALCULATE_MOTION_VECTOR,
         COMPUTE_RIBBON,
         COMPUTE_SPRITE,
         CUBE_TEXTURE_CONVERTOR,
+        GENERATE_SSGI,
         IRRADIANCE_MAP,
         LIGHT_ACCUMULATION,
         LIGHT_INJECTION,
         PREFILTERED_MAP,
         RESOLVE_UI,
         SKELETAL_SKINNING,
+        SSGI_TEMPORAL,
         END
      };
     enum class GS { NONE, END };

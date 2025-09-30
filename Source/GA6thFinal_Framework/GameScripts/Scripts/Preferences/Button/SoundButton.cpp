@@ -119,12 +119,6 @@ void SoundButton::ChangeVolume(int delta)
             _volumeBarsFocus[_currentVolume - 1]->SetActive(true);
         _preferencesManager->SetVolume(_currentOption,_currentVolume);
     }
-    else
-    {
-        _volumeNumNonFocus[_currentVolume]->SetActive(true);
-        if (_currentVolume > 0)
-            _volumeBarsNonFocus[_currentVolume - 1]->SetActive(true);
-    }
 }
 
 void SoundButton::UpdateUIForFocus()

@@ -69,7 +69,7 @@ protected:
  public:
     void AddTether(float timestep);
     void AddTetherAuto();
-    void StartRail();
+    void StartRail(bool isReverse);
     void PauseRail();
     void StopRail();
     void Shake();
@@ -89,7 +89,8 @@ protected:
     Vector3                 _targetPos         = Vector3::Zero;
     Quaternion              _targetAngle       = Quaternion::Identity;
     UINT                    _selectedTether    = -1;
-
+    bool                    _reverseFlag       = false;
+    
 #ifdef _UMEDITOR
     void                                                                 UpdateTetherFromGizmo();
     void                                                                 PushGizmo(const Matrix& world);

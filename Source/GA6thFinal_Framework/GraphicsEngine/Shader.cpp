@@ -16,6 +16,8 @@ void Shader::CompileShader(std::wstring_view filePath, std::string_view entry, s
     hr = D3DCompileFromFile(filePath.data(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, entry.data(),
                             shaderModel.data(), flags, 0, &_blob, &error);
 
+    FAILED_CHECK_MESSAGE(SUCCEEDED(hr), L"Shader Compile Error!");
+
     if (nullptr != error)
     {
         std::filesystem::path errorMessage = static_cast<const char*>(error->GetBufferPointer());
