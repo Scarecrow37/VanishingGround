@@ -391,7 +391,6 @@ void PlayerPlayTurnState::OnQTEFinish()
                                 {
                                     modelData.Animation->StopCurrentAnimation();
                                     modelData.Particle->StopEffect("weapon");
-                                    modelData.Particle->StopEffect();
                                 }
                                 weaponModelManager->ReturnWeaponModel(modelData);
                                 --_attackRemaining;
