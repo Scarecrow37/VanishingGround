@@ -387,6 +387,8 @@
     <ClInclude Include="Scripts\Stats\Player\PlayerStats.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionFactory.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerWinCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerWinState.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnSystemHelper.h" />
     <ClInclude Include="Scripts\UINavigation\TempNavigationComponent.h" />
     <ClInclude Include="Scripts\UI\Base\DrawUIComponent\DrawUIComponent.h" />
@@ -556,6 +558,8 @@
     <ClCompile Include="Scripts\Animation\AnimationComponent.cpp" />
     <ClCompile Include="Scripts\Animation\Structs\AnimationData.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Recovery\RecoveryAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerWinCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerWinState.cpp" />
     <ClCompile Include="Scripts\WeaponModelManager\WeaponModelManager.cpp" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionEnums.h">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
