@@ -14,4 +14,6 @@ public:
 
 private:
     FX<GE::VS::UI_FR, GE::PS::UI_OIT> _fx;
+    DepthStencilView*                 _depthStencilView{nullptr};
+    ConstantBufferView*               _cameraBuffer{nullptr};
 };

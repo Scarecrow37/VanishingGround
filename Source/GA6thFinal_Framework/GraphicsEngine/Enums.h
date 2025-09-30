@@ -10,6 +10,7 @@ constexpr UINT MAX_MIPMAP_LEVEL       = 5;
 constexpr UINT MAX_CASCADES           = 3;
 constexpr UINT MAX_UI_MATERIAL_DATA   = 512;
 constexpr UINT MAX_OBJECTS            = 1000;
+constexpr UINT MAX_CHARS              = 512;
 
 // volumetric fog medium
 constexpr UINT VOXEL_VOLUME_SIZEX = 240;
@@ -26,9 +27,9 @@ enum FrameResourceType { TRANSFORM, BONE_MATRICES, UI_TRANSFORM, UI_MATERIAL, VE
 // 순서 보장을 위해서(환경설정에서 on off시 순서가 바뀌지 않도록 RenderScene은 Tech를 map으로 가지고 있음.)
 enum TechOrder : int
 {
-    TOSKYBOX = 0,
-    TOMESH_LIGHTING=1,
-    TOSSR           = 2,
+    TOSKYBOX         = 0,
+    TOMESH_LIGHTING  = 1,
+    TOSSR            = 2,
     TOVOLUMETRIC_FOG = 3,
     TOPARTICLE       = 4,
     TOEDITOR_DRAW    = 5,

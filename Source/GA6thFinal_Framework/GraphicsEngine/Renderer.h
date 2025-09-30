@@ -6,7 +6,7 @@ class MeshRenderer;
 class RendererFileEvent;
 class Resource;
 class SpriteRenderer;
-class FontRenderer;
+class TextRenderer;
 class Renderer
 {
 public:
@@ -28,7 +28,8 @@ public:
     void AddRenderScene(std::string_view sceneName, RenderTechniqueFlag flag);
     void RegisterRenderQueue(std::string_view sceneName, MeshRenderer* component);
     void RegisterRenderQueue(std::string_view sceneName, SpriteRenderer* component);
-    void RegisterRenderQueue(std::string_view sceneName, FontRenderer* component);
+    void RegisterRenderQueue(std::string_view sceneName, TextRenderer* component);
+    void RegisterRenderQueue(std::string_view sceneName, SDFTextRenderer* component);
 
 public:
     void ResetEnvironmentSkyBox(std::string_view sceneName);

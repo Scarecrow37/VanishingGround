@@ -349,6 +349,7 @@
     <ClInclude Include="Scripts\QTE\Track\Note\QTENote.h" />
     <ClInclude Include="Scripts\QTE\Track\QTETrack.h" />
     <ClInclude Include="Scripts\QTE\UI\QTEUIManager.h" />
+    <ClInclude Include="Scripts\Test\SDF\TestSDFTextRenderer.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.h" />
     <ClInclude Include="Scripts\Animation\AnimationComponent.h" />
@@ -391,11 +392,8 @@
     <ClInclude Include="Scripts\UINavigation\TempNavigationComponent.h" />
     <ClInclude Include="Scripts\UI\Base\DrawUIComponent\DrawUIComponent.h" />
     <ClInclude Include="Scripts\UI\Base\SlotComponent\SlotComponent.h" />
-    <ClInclude Include="Scripts\UI\Contents\DamageElement.h" />
-    <ClInclude Include="Scripts\UI\Contents\SpawnDamagePanel.h" />
     <ClInclude Include="Scripts\UI\Elements\Dummy\DummyElement.h" />
     <ClInclude Include="Scripts\UI\Elements\Image\ImageElement.h" />
-    <ClInclude Include="Scripts\UI\Elements\SpriteAnimation\SpriteAnimationElement.h" />
     <ClInclude Include="Scripts\UI\Elements\Text\TextElement.h" />
     <ClInclude Include="Scripts\UI\Panels\Description\DescriptionPanel.h" />
     <ClInclude Include="Scripts\UI\Panels\Grid\GridPanel.h" />
@@ -554,14 +552,12 @@
     <ClCompile Include="Scripts\QTE\Track\Note\QTENote.cpp" />
     <ClCompile Include="Scripts\QTE\Track\QTETrack.cpp" />
     <ClCompile Include="Scripts\QTE\UI\QTEUIManager.cpp" />
+    <ClCompile Include="Scripts\Test\SDF\TestSDFTextRenderer.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.cpp" />
     <ClCompile Include="Scripts\Animation\AnimationComponent.cpp" />
     <ClCompile Include="Scripts\Animation\Structs\AnimationData.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Recovery\RecoveryAction.cpp" />
-    <ClCompile Include="Scripts\UI\Contents\DamageElement.cpp" />
-    <ClCompile Include="Scripts\UI\Contents\SpawnDamagePanel.cpp" />
-    <ClCompile Include="Scripts\UI\Elements\SpriteAnimation\SpriteAnimationElement.cpp" />
     <ClCompile Include="Scripts\WeaponModelManager\WeaponModelManager.cpp" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionEnums.h">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>

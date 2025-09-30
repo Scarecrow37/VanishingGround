@@ -3,10 +3,7 @@
 
 UMREAL_COMPONENT(PointLight)
 
-PointLight::PointLight()
-{
-   
-}
+PointLight::PointLight() {}
 PointLight::~PointLight() = default;
 
 void PointLight::DeserializedReflectEvent()
