@@ -34,7 +34,7 @@ private:
 
     // 매 프레임 실행되는 핵심 로직
     void UpdateCascades(const Vector3& lightDirection);
-    void DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType meshType, CullMode cullMode, UINT offset, UINT cascadedIndex);
+    void DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType meshType, CullMode cullMode, UINT offset);
 
 private:
     ComPtr<ID3D12PipelineState>                    _psos[MeshType::MESH_TYPE_END][CullMode::END];
@@ -47,7 +47,7 @@ private:
 
     // 그림자 맵 리소스
     ComPtr<ID3D12Resource>                   _shadowMap;
-    D3D12_CPU_DESCRIPTOR_HANDLE              _shadowMapDSVs[MAX_CASCADES];
+    D3D12_CPU_DESCRIPTOR_HANDLE              _shadowMapDSV;
     DescriptorHandles                        _shadowMapSRV;
     std::unique_ptr<ConstantBufferView>      _cascadeDataCBV;
 
