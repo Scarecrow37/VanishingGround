@@ -12,7 +12,6 @@ public:
     void Update(ID3D12GraphicsCommandList* commandList, const float deltaTime) override;
     void Begin(ID3D12GraphicsCommandList* commandList) override;
     void Draw(ID3D12GraphicsCommandList* commandList) override;
-    void End(ID3D12GraphicsCommandList* commandList) override;
 
 private:
     FX<GE::VS::SDF_FONT_FR, GE::PS::SDF_FONT> _fx;

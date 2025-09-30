@@ -58,7 +58,6 @@ void SDFTextDrawPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootUnorderedAccessView(_fx.GetRootParameterIndex("OITCounter"), _atomicCounterBuffer->GetGPUVirtualAddress());
     commandList->SetGraphicsRootConstantBufferView(_fx.GetRootParameterIndex("cameraData"), _cameraBuffer->GetGPUVirtualAddress());
 
-
     UINT index = 0;
     for (auto& [isDestroy, component] : _ownerScene->_sdfTextRenderQueue)
     {
@@ -70,8 +69,4 @@ void SDFTextDrawPass::Draw(ID3D12GraphicsCommandList* commandList)
 
         component->Render(commandList);
     }
-}
-
-void SDFTextDrawPass::End(ID3D12GraphicsCommandList* commandList)
-{
 }
