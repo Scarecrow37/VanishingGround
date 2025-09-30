@@ -42,7 +42,7 @@ GameApplication::GameApplication()
     }
 
     //덤프 설정
-    SetUnhandledExceptionFilter(CustomUnhandledExceptionFilter);
+    //SetUnhandledExceptionFilter(CustomUnhandledExceptionFilter);
 }
 
 GameApplication::~GameApplication()
