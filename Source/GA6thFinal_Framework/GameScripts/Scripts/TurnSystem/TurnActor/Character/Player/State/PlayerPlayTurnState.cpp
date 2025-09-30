@@ -27,6 +27,8 @@ PlayerPlayTurnState::PlayerPlayTurnState()
     _attackButtonHeldTime     = 0.f;
     _attackButtonHeldWaitTime = 1.0f;
     _attackRemaining          = 0;
+    _isDownAButton            = false;
+    _isDownAKey               = false;
 }
 
 PlayerPlayTurnState::~PlayerPlayTurnState() 

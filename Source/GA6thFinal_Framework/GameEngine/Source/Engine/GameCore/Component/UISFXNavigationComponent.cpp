@@ -3,7 +3,7 @@
 
 UISFXNavigationComponent::UISFXNavigationComponent()
 {
-    _focusInAudioID = DEFAULT_FOCUSE_IN_SOUND_ID;
+    _focusInAudioID = DEFAULT_FOCUS_IN_SOUND_ID;
 }
 
 UISFXNavigationComponent::~UISFXNavigationComponent() = default;
