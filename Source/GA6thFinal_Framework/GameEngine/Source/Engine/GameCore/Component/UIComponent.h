@@ -222,6 +222,15 @@ public:
     }
     PROPERTY(AbsoluteCenterPoint)
 
+    GETTER_ONLY(POINT, CenterPoint)
+    {
+        const SIZE  size  = Size;
+        return POINT{
+        .x = size.cx / 2,
+        .y = size.cy / 2};
+    }
+    PROPERTY(CenterPoint)
+
     GETTER_ONLY(RECT, AbsoluteRect)
     {
         const POINT absolutePosition = AbsolutePosition;
