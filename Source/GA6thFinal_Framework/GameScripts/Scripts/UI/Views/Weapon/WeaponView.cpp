@@ -62,8 +62,11 @@ void WeaponView::Start()
             }
 
             if (_nameUI)
+            {
                 _nameUI->Text = value.WeaponName;
-
+                _nameUI->Color = value.GradeColor;
+            }
+                
             if (_iconUI)
                 _iconUI->SetImage(value.WeaponIcon);
 
