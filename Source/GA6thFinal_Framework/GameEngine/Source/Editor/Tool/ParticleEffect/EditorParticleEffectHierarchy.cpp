@@ -57,9 +57,6 @@ void EditorParticleEffectHierarchy::OnPreFrameBegin()
 
 void EditorParticleEffectHierarchy::OnPostFrameBegin()
 {
-
-
-
     bool isnewbuttonpressed = ImGui::Button("New", {180, 50});
     if (true == isnewbuttonpressed)
     {
@@ -83,7 +80,7 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
         if (File::ShowOpenFileDialog(owner, title, L"", {{L"\0", L"*.vfx*\0"}}, false, out))
         {
             // TODO:: 모듈에 있는 시리얼라이저 가져와야 함
-            auto effect = UmParticleSerializer.Deserialize(out.front(), true, "ParticleEditor");
+            auto effect = UmParticleSerializer.Deserialize(0, "", out.front(), true, "ParticleEditor");
             for (auto emitter : effect->GetEmitterList())
             {
                 emitter->_particleRenderModule->Initialize();
@@ -200,11 +197,8 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
                 // 변환 순서: S  R  T
                 _worldMatrix = matScale * matRotation * matTranslate;
             }
-
         }
-
     }
-
 
     if (nullptr == UmParticleManager->GetCurrentEditorEffect())
     if (nullptr == effect)
