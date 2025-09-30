@@ -57,15 +57,15 @@ void QTESystem::Update()
 #ifdef _UMEDITOR
     if (IsQTEPlaying())
     {
-        if (ImGui::IsKeyPressed(ImGuiKey_X, false))
+        if (ImGui::IsKeyPressed(ImGuiKey_LeftArrow, false))
         {
             PressedQTEButton(Input::ControllerTypes::Button::X);
         }
-        if (ImGui::IsKeyPressed(ImGuiKey_Y, false))
+        if (ImGui::IsKeyPressed(ImGuiKey_UpArrow, false))
         {
             PressedQTEButton(Input::ControllerTypes::Button::Y);
         }
-        if (ImGui::IsKeyPressed(ImGuiKey_B, false))
+        if (ImGui::IsKeyPressed(ImGuiKey_RightArrow, false))
         {
             PressedQTEButton(Input::ControllerTypes::Button::B);
         }
