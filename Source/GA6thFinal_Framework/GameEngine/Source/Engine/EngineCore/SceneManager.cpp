@@ -1175,8 +1175,7 @@ void ESceneManager::ObjectsDestroy()
             }
             else
             {
-                std::erase_if(_addGameObjectsQueue, 
-                [destroyObject, this](std::shared_ptr<GameObject>& object) 
+                std::erase_if(_addGameObjectsQueue, [destroyObject, this](std::shared_ptr<GameObject>& object) 
                 {
                     bool erase = object.get() == destroyObject;
                     if (erase)
