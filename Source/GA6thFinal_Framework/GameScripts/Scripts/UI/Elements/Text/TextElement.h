@@ -84,7 +84,7 @@ protected:
     REFLECT_FIELDS_END(TextElement)
 
 private:
-    std::unique_ptr<FontRenderer> _renderer;
+    std::unique_ptr<TextRenderer> _renderer;
     File::GuidRef                 _guidRef;
 
 };

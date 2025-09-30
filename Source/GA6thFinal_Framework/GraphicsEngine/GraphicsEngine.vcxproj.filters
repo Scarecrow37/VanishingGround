@@ -279,7 +279,7 @@
     <ClCompile Include="Font.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="FontRenderer.cpp">
+    <ClCompile Include="TextRenderer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="FrameResource.cpp">
@@ -695,7 +695,7 @@
     <ClInclude Include="Font.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="FontRenderer.h">
+    <ClInclude Include="TextRenderer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="FrameResource.h">

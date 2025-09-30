@@ -332,6 +332,8 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClInclude Include="GenerateSSGIPass.h" />
     <ClInclude Include="GraphicsController.h" />
     <ClInclude Include="FadePass.h" />
+    <ClInclude Include="Interface\IGraphicsBase.h" />
+    <ClInclude Include="Interface\ISDFTextRenderer.h" />
     <ClInclude Include="Module\AccumulationModule.h" />
     <ClInclude Include="Animation.h" />
     <ClInclude Include="AnimationCore.h" />
@@ -374,7 +376,9 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClInclude Include="Externs.h" />
     <ClInclude Include="FBXConverter.h" />
     <ClInclude Include="Font.h" />
-    <ClInclude Include="FontRenderer.h" />
+    <ClInclude Include="SDFFont.h" />
+    <ClInclude Include="TextRenderer.h" />
+    <ClInclude Include="SDFTextRenderer.h" />
     <ClInclude Include="FrameResource.h" />
     <ClInclude Include="GBufferPass.h" />
     <ClInclude Include="GeometryGenerator.h" />
@@ -446,6 +450,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClInclude Include="Structs.h" />
     <ClInclude Include="StructuredBuffer.h" />
     <ClInclude Include="TextDrawPass.h" />
+    <ClInclude Include="SDFTextDrawPass.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="ThreadPool.h" />
     <ClInclude Include="UI25DPass.h" />
@@ -517,7 +522,9 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClCompile Include="ExportAssociation.cpp" />
     <ClCompile Include="FBXConverter.cpp" />
     <ClCompile Include="Font.cpp" />
-    <ClCompile Include="FontRenderer.cpp" />
+    <ClCompile Include="SDFFont.cpp" />
+    <ClCompile Include="TextRenderer.cpp" />
+    <ClCompile Include="SDFTextRenderer.cpp" />
     <ClCompile Include="FrameResource.cpp" />
     <ClCompile Include="GBufferPass.cpp" />
     <ClCompile Include="GeometryGenerator.cpp" />
@@ -592,6 +599,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClCompile Include="SSRTechnique.cpp" />
     <ClCompile Include="StructuredBuffer.cpp" />
     <ClCompile Include="TextDrawPass.cpp" />
+    <ClCompile Include="SDFTextDrawPass.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="ThirdParty\source\DebugDraw.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -824,6 +832,12 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">true</ExcludedFromBuild>
     </FxCompile>
+    <FxCompile Include="..\Shaders\ps_sdf_font.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="..\Shaders\ps_shadow.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">true</ExcludedFromBuild>
@@ -915,6 +929,12 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="..\Shaders\vs_quad.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\vs_sdf_font_fr.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
