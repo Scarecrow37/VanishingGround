@@ -60,7 +60,7 @@ void PlayerPlayTurnState::OnEnter()
 
 void PlayerPlayTurnState::OnExit() 
 {
-    _inputState = InputState::NONE;
+    _inputState             = InputState::NONE;
     _attackRemaining        = 0;
     _attackButtonHeldTime   = 0.0f;
     _isDownAButton          = false;
@@ -124,7 +124,7 @@ void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
         if (QTESystem* qteSystem = SingletonComponent<QTESystem>::GetInstance())
         {
             _inputState = InputState::QUICK_TIME_EVENT;
-            qteSystem->StartQTE([this](const QTE::OverallResult& results) { OnQTEFinish(results); });
+            qteSystem->StartQTE([this](const QTE::OverallResult& results) { SetAttack(); });
             SetAttackReady();
         }
         else
@@ -339,6 +339,7 @@ void PlayerPlayTurnState::SetAttack()
         animator->SetNextAnimationFlags(ANIMATION_FLAG_USE_BLEND | ANIMATION_FLAG_ALWAYS_UPDATE);
         animator->PushBackOverrideAnimation("Attack");
         animator->SetCurrentAnimationPopCondition([](const AnimationData& data) { return data.IsEnd(); }); // 애니메이션이 끝날 경우 Pop
+        animator->SetCurrentAnimationPopCallback([this]() { OnQTEFinish(); });
     
         animator->EndBuildOverrideAnimation();
     }
@@ -346,6 +347,7 @@ void PlayerPlayTurnState::SetAttack()
 
 void PlayerPlayTurnState::SetAttackEnd()
 {
+    bool succeed = false;
     Player& player   = GetPlayer();
     auto*   animator = player.GetAnimationComponent();
     if (animator)
@@ -359,24 +361,19 @@ void PlayerPlayTurnState::SetAttackEnd()
 
         // 애니메이션 "Attack_End"를 Push
         animator->SetNextAnimationFlags(ANIMATION_FLAG_USE_BLEND | ANIMATION_FLAG_ALWAYS_UPDATE);
-        bool pushResult = animator->PushBackOverrideAnimation("Attack_End");
-        if (pushResult)
+        succeed = animator->PushBackOverrideAnimation("Attack_End");
+        if (succeed)
         {   
             animator->SetCurrentAnimationPopCondition([](const AnimationData& data) { return data.IsEnd(); }); // 애니메이션이 끝날 경우 Pop
             animator->SetCurrentAnimationPopCallback([this]() { GetPlayer().EndTurn(); }); // Pop시 턴 종료
         }
-        else
-        {
-            // 애니메이션을 못넣었으면 바로 턴 종료
-            player.EndTurn();
-        }
-
         animator->EndBuildOverrideAnimation();
     }
-    else
+    if (false == succeed)
     {
         player.EndTurn();
     }
+
     auto camera = dynamic_cast<UmCineMotion*>(CameraComponent::MainCamera());
     if (camera)
     {
@@ -429,130 +426,136 @@ Battle::EnemyTargetFlag_ PlayerPlayTurnState::GetAttackTargetFromButton(unsigned
     return target;
 }
 
-void PlayerPlayTurnState::OnQTEFinish(const QTE::OverallResult& results)
+void PlayerPlayTurnState::OnQTEFinish()
 {
-    const auto& noteResults = results.NoteResults;
-    for (const auto& result : noteResults)
-    {   
+    float min = 0.0f; // 첫 무기 공격을 0초로 맞추고 나머지도 당겨오기 위한 변수
+    const float offset = 0.3f;
 
-        QTE::Note* note = result.Note;
-        if (result.IsValidResult() && note)
+    QTESystem* qteSystem = SingletonComponent<QTESystem>::GetInstance();
+    if (qteSystem)
+    {
+        const QTE::OverallResult& results = qteSystem->GetQTEOverallResult();
+        const auto& noteResults = results.NoteResults;
+        for (const auto& result : noteResults)
         {
-            bool  pushedAnimation = false;
-            float noteTime = note->Time;
-            //_attackTargets.push_back(target);
-            WeaponModelManager* weaponModelManager = SingletonComponent<WeaponModelManager>::GetInstance();
-            WeaponSystem*       weaponSystem       = SingletonComponent<WeaponSystem>::GetInstance();
-
-            if (weaponModelManager && weaponSystem)
+            float qteDelay  = qteSystem->GetDelayFromQTEStart();
+            QTE::Note* note = result.Note;
+            if (note && result.IsValidResult())
             {
-                const WeaponStats& weaponStats = weaponSystem->GetCurrentWeaponStats();
-                WeaponType         weaponType  = weaponStats.Type;
+                bool  validModel = false;
+                bool  validAnim  = false;
+                bool  validEvent = false;
+                float noteTime   = note->Time;
+                //_attackTargets.push_back(target);
+                WeaponModelManager* weaponModelManager = SingletonComponent<WeaponModelManager>::GetInstance();
+                WeaponSystem*       weaponSystem       = SingletonComponent<WeaponSystem>::GetInstance();
 
-                auto modelData = weaponModelManager->RequestAvailableWeapon(weaponType);
-                if (modelData.IsValid())
+                if (weaponModelManager && weaponSystem)
                 {
-                    modelData.GameObject->ActiveSelf = false;
+                    const WeaponStats& weaponStats = weaponSystem->GetCurrentWeaponStats();
+                    WeaponType         weaponType  = weaponStats.Type;
 
-                    // 노트에 맞는 애니메이션 설정 및 애니메이션 종료 콜백 등록
-                    if (modelData.Animation->ChangeMainAnimation(note->WeaponAnimation))
+                    auto modelData = weaponModelManager->RequestAvailableWeapon(weaponType);
+                    if (validModel = modelData.IsValid())
                     {
-                        modelData.Animation->StopCurrentAnimation();
-                        modelData.Animation->SetMainAnimationEndCallback([this, weaponModelManager, modelData]() {
-                            if (modelData.IsValid())
-                            {
-                                modelData.Animation->StopCurrentAnimation();
-                                modelData.Particle->StopEffect();
-                                modelData.GameObject->ActiveSelf = false;
-                            }
-                            weaponModelManager->ReturnWeaponModel(modelData);
-                            --_attackRemaining;
-                            if (0 >= _attackRemaining)
-                            {
-                                SetAttackEnd();
-                            }
-                        });
-                        modelData.Animation->SetAnimationPostEventCallback(
-                            [this, &result, modelData](const Timeline::EventContext* context) {
+                        modelData.GameObject->ActiveSelf = false;
+
+                        // 노트에 맞는 애니메이션 설정 및 애니메이션 종료 콜백 등록
+                        if (validAnim = modelData.Animation->ChangeMainAnimation(note->WeaponAnimation))
+                        {
+                            ++_attackRemaining;
+                            modelData.Animation->StopCurrentAnimation();
+                            modelData.Animation->SetMainAnimationEndCallback([this, weaponModelManager, modelData]() {
                                 if (modelData.IsValid())
                                 {
-                                    if (context->GetLabel() == "Hit")
-                                    {
-                                        BattleOnHitEvent(result);
-                                    }
+                                    modelData.Animation->StopCurrentAnimation();
+                                    modelData.Particle->StopEffect();
+                                }
+                                weaponModelManager->ReturnWeaponModel(modelData);
+                                --_attackRemaining;
+                                if (0 >= _attackRemaining)
+                                {
+                                    SetAttackEnd();
                                 }
                             });
-
-                        // 애니메이션 Hit 이벤트 콜백 등록
-                        auto& animName  = modelData.Animation->GetAnimationNameFromKey(note->WeaponAnimation);
-                        auto& animTrack = modelData.Animation->GetAnimationEventTrack();
-                        auto  track     = animTrack.GetEventTrack(animName);
-                        if (track)
-                        {
-                            if (Timeline::EventContext* context = track->GetContextFromLabel("Hit"))
-                            {
-                                pushedAnimation = true;
-                                float hitTime   = context->Time;
-                                float delay     = note->GetWeaponAnimationDelay();
-                                float delta     = noteTime - hitTime + delay;
-                                UmTime.Invoke(delta, [this, modelData]() {
+                            modelData.Animation->SetAnimationPostEventCallback(
+                                [this, &result, modelData](const Timeline::EventContext* context) {
                                     if (modelData.IsValid())
                                     {
-                                        modelData.GameObject->ActiveSelf = true;
-                                        modelData.Animation->PlayCurrentAnimation();
-                                        modelData.Particle->PlayEffect();
+                                        if (context->GetLabel() == "Hit")
+                                        {
+                                            BattleOnHitEvent(result);
+                                        }
                                     }
                                 });
-                            }
-                        }
 
-                        // 무기 모델의 위치 설정
-                        Battle::EnemyTargetFlag_ target  = GetAttackTargetFromButton(result.PressedButton);
-                        auto                     enemies = Battle::GetTargetsFromFlags(target);
-                        if (false == enemies.empty())
-                        {
-                            Enemy* enemy = enemies.front();
-                            if (enemy)
+                            // 애니메이션 Hit 이벤트 콜백 등록
+                            auto& animName  = modelData.Animation->GetAnimationNameFromKey(note->WeaponAnimation);
+                            auto& animTrack = modelData.Animation->GetAnimationEventTrack();
+                            auto  track     = animTrack.GetEventTrack(animName);
+                            if (track)
                             {
-                                if (GameObject& player = GetPlayer().gameObject)
+                                if (Timeline::EventContext* context = track->GetContextFromLabel("Hit"))
                                 {
-                                    Vector3 enemyPos  = enemy->transform->GetWorldPosition();
-                                    Vector3 playerPos = player.transform->GetWorldPosition();
-                                    Vector3 dir       = DirectX::XMVector3Normalize(playerPos - enemyPos);
+                                    validEvent      = true;
+                                    float hitTime   = context->Time;
+                                    float noteDelay = note->GetWeaponAnimationDelay();
+                                    float delta     = noteTime - hitTime + noteDelay + qteDelay - min;
+                                    if (0.0f == min)
+                                    {
+                                        min   = delta;
+                                        delta  = 0.0f;
+                                    }
+                                    delta += offset;
+                                    UmTime.Invoke(delta, [this, modelData]() {
+                                        if (modelData.IsValid())
+                                        {
+                                            modelData.GameObject->ActiveSelf = true;
+                                            modelData.Animation->PlayCurrentAnimation();
+                                            modelData.Particle->PlayEffect();
+                                        }
+                                    });
+                                }
+                            }
 
-                                    const Vector3 distance = dir * 1.0f;
-                                    modelData.GameObject->transform->SetWorldPosition(enemyPos + distance);
+                            // 무기 모델의 위치 설정
+                            Battle::EnemyTargetFlag_ target  = GetAttackTargetFromButton(result.PressedButton);
+                            auto                     enemies = Battle::GetTargetsFromFlags(target);
+                            if (false == enemies.empty())
+                            {
+                                Enemy* enemy = enemies.front();
+                                if (enemy)
+                                {
+                                    if (GameObject& player = GetPlayer().gameObject)
+                                    {
+                                        Vector3 enemyPos  = enemy->transform->GetWorldPosition();
+                                        Vector3 playerPos = player.transform->GetWorldPosition();
+                                        Vector3 dir       = DirectX::XMVector3Normalize(playerPos - enemyPos);
 
-                                    // modelData.GameObject->transform->LookAt(playerPos);
+                                        const Vector3 distance = dir * 1.0f;
+                                        modelData.GameObject->transform->SetWorldPosition(enemyPos + distance);
+
+                                        //modelData.GameObject->transform->LookAt(playerPos);
+                                    }
                                 }
                             }
                         }
                     }
-                    else
-                    {  
-                        // 애니메이션이 없을 경우 바로 모델 반납
+                    if (false == validAnim)
+                    {
                         weaponModelManager->ReturnWeaponModel(modelData);
+                        --_attackRemaining;
                     }
                 }
-            }
-            if (pushedAnimation)
-            {
-                // 애니메이션이 성공적으로 푸쉬 되었을 경우 공격 남은 횟수 증가
-                ++_attackRemaining;
-            }
-            else
-            {
-                // 애니메이션이 없을 경우 바로 공격 처리
-                BattleOnHitEvent(result);
+                if (false == validEvent)
+                {   // 애니메이션이 없을 경우 바로 공격 처리
+                    BattleOnHitEvent(result);
+                }
             }
         }
     }
-    if (0 < _attackRemaining)
-    {   // 공격이 하나라도 있을 경우에 공격 애니메이션 실행
-        SetAttack();
-    }
-    else
-    {   // 모종의 이유로 공격이 하나도 없을 경우에 교착상태를 방지하기 위한 처리
+    if (0 >= _attackRemaining)
+    { // 모종의 이유로 공격이 하나도 없을 경우에 교착상태를 방지하기 위한 처리
         SetAttackEnd();
     }
 }

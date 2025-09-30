@@ -33,7 +33,7 @@ protected:
     void OnExit() override;
     void OnUpdate() override;
 
-    void OnQTEFinish(const QTE::OverallResult& results);
+    void OnQTEFinish();
 
     void PressedButtonA(const Input::Controller& controller);
     void ReleasedButtonA(const Input::Controller& controller);
