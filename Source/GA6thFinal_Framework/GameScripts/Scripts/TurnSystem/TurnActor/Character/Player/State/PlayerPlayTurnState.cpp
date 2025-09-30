@@ -53,6 +53,7 @@ void PlayerPlayTurnState::OnEnter()
     if (QTEUIManager* qteUIManager = QTEUIManager::GetInstance())
     {
         qteUIManager->Refresh();
+        qteUIManager->SetGuideNoteActive(true);
     }
 }
 
@@ -199,6 +200,7 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
         qteUIManager->SetBackgroundUIAlpha(t);
         qteUIManager->SetUIAlpha(0.0f);
         qteUIManager->SetActive(true);
+        qteUIManager->SetGuideNoteActive(!input);
     }
 }
 

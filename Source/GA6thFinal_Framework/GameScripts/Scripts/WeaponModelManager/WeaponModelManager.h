@@ -56,7 +56,7 @@ private:
     void DeserializedReflectEvent() override;
     void ImGuiDrawPropertysEvent() override;
 
-    void UpdatePosition();
+    void UpdateOffsetPosition();
 
 private:
     SingletonComponent<WeaponModelManager> _singletonComponent{this};

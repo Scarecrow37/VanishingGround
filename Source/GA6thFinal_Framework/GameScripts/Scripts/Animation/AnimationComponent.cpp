@@ -573,7 +573,15 @@ void AnimationComponent::BeginBuildOverrideAnimation()
     if (false == _isBuildingOverrideAnimation)
     {
         _isBuildingOverrideAnimation = true;
-        _prevBeginBuildAnimatonData = &GetTopAnimationData();
+        // 비어있으면 널
+        if (_overrideAnimationStack.empty())
+        {
+            _prevBeginBuildAnimatonData = nullptr;
+        }
+        else
+        {
+            _prevBeginBuildAnimatonData = &GetTopAnimationData();
+        }
     }
     else
     {

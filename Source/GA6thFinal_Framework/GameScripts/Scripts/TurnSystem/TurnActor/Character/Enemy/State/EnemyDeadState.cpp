@@ -26,6 +26,21 @@ void EnemyDeadState::OnEnter()
         animator->ClearOverrideAnimations();
         animator->SetNextAnimationFlags(ANIMATION_FLAG_USE_BLEND);
         animator->ChangeMainAnimation("Dead");
+        animator->SetCurrentAnimationEndCallback([this]() {
+            // 사망 애니메이션 종료 시 처리할 내용이 있으면 여기에 작성
+            const Enemy& enemy = GetEnemy();
+            const AnimationComponent* animator = enemy.GetAnimationComponent();
+            if (animator)
+            {
+                enemy.gameObject->SetActive(false);
+
+                GameObject* monsterHUD = enemy.GetMonsterHUD();
+                if (nullptr != monsterHUD)
+                {
+                    monsterHUD->ActiveSelf = false;
+                }
+            }
+        });
         animator->EndBuildOverrideAnimation();
     }
 }
@@ -37,19 +52,6 @@ void EnemyDeadState::OnExit()
 
 void EnemyDeadState::OnUpdate() 
 {
-    const Enemy& enemy = GetEnemy();
-    const AnimationComponent* animator = enemy.GetAnimationComponent();
-    if (animator)
-    {
-        if (animator->GetMainAnimationData().IsEnd())
-        {
-            enemy.gameObject->SetActive(false);
-
-            GameObject* monsterHUD = enemy.GetMonsterHUD();
-            if (nullptr != monsterHUD)
-                monsterHUD->ActiveSelf = false;
-        }
-    }
 }
 
 void EnemyDeadState::OnNotifiedAnimationEvent(const Timeline::EventContext* context) 

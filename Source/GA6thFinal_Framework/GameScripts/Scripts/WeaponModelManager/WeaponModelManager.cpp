@@ -162,7 +162,6 @@ void WeaponModelManager::ImGuiDrawPropertysEvent()
                     const File::Path&    extension = path.extension();
                     if (extension == L".UmPrefab")
                     {
-
                         guidStr = data->GetGuid().string();
                         guid    = data->GetGuid();
                     }
@@ -176,7 +175,7 @@ void WeaponModelManager::ImGuiDrawPropertysEvent()
             }
 
             ImGuiHelper::TextWithVerticalSeparator("Offset", 150.0f);
-            if (ImGui::DragFloat3("Offset", ReflectFields->WeaponPrefabOffsetTable[name.data()].data(), 1.0f))
+            if (ImGui::DragFloat3("##offset", ReflectFields->WeaponPrefabOffsetTable[name.data()].data(), 1.0f))
             {
                 UpdateOffsetPosition();
             }
