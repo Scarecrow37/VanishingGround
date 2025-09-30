@@ -23,7 +23,6 @@ REGISTER_CLASS(FSMStateFactory, PlayerPlayTurnState)
 
 PlayerPlayTurnState::PlayerPlayTurnState() 
 {
-    _setImguiPosCenter        = false;
     _inputState               = InputState::NONE;
     _attackButtonHeldTime     = 0.f;
     _attackButtonHeldWaitTime = 1.0f;
@@ -48,7 +47,6 @@ void PlayerPlayTurnState::OnStart()
 void PlayerPlayTurnState::OnEnter() 
 {
     _inputState           = InputState::ACTION_SELECTION;
-    _setImguiPosCenter    = true;
     _attackButtonHeldTime = 0;
     _attackRemaining      = 0;
 
@@ -69,16 +67,6 @@ void PlayerPlayTurnState::OnExit()
 
 void PlayerPlayTurnState::OnUpdate() 
 {
-    if (true == _setImguiPosCenter)
-    {
-        ImGuiViewport* viewport  = ImGui::GetMainViewport();
-        ImVec2         centerPos = ImVec2(viewport->Pos.x + (viewport->Size.x - 500.0f) * 0.5f,
-                                          viewport->Pos.y + (viewport->Size.y - 500.0f) * 0.5f);
-
-        ImGui::SetNextWindowPos(centerPos);
-        _setImguiPosCenter = false;
-    }
-
     float dt = UmTime.DeltaTime();
     switch (_inputState)
     {
@@ -138,18 +126,18 @@ void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
     _attackButtonHeldTime = std::clamp(_attackButtonHeldTime, 0.f, _attackButtonHeldWaitTime);
 }
 
-void PlayerPlayTurnState::UpdateActionSelectionUI(float dt) 
+void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
 {
-    ImGuiWindowFlags flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar;
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.1f, 0.1f, 0.1f, 0.5f));
-    ImGui::Begin("Player Turn##9A48EE30-CB5F-48AC-9740-DDF8118AAC49", nullptr, flags);
-    {
 #ifdef _UMEDITOR
-        _isDownAKey = ImGui::IsKeyDown(ImGuiKey_A); // 에디터에서는 키보드 인풋도 받음
-#endif // ISEDITOR
+    _isDownAKey = ImGui::IsKeyDown(ImGuiKey_A); // 에디터에서는 키보드 인풋도 받음
+#endif                                          // ISEDITOR
 
-        _showDebugUI = ImGui::IsKeyPressed(ImGuiKey_F12, false) ? !_showDebugUI : _showDebugUI;
-        if (_showDebugUI)
+    _showDebugUI = ImGui::IsKeyPressed(ImGuiKey_F12, false) ? !_showDebugUI : _showDebugUI;
+    if (_showDebugUI)
+    {
+        ImGuiWindowFlags flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar;
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.1f, 0.1f, 0.1f, 0.5f));
+        ImGui::Begin("Player Turn##9A48EE30-CB5F-48AC-9740-DDF8118AAC49", nullptr, flags);
         {
             auto enemies = Battle::GetTargetsFromFlags(Battle::ENEMY_TARGET_FLAG_ALL);
             if (ImGui::Button((const char*)u8"[적] 전멸"))
@@ -195,13 +183,13 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
             {
                 player.EndTurn();
             }
+
+            ImGui::End();
+            ImGui::PopStyleColor();
         }
     }
-        
-    ImGui::End();
-    ImGui::PopStyleColor();
-
     float t = _attackButtonHeldTime / _attackButtonHeldWaitTime;
+
     QTESystem*    qteSystem    = SingletonComponent<QTESystem>::GetInstance();
     QTEUIManager* qteUIManager = QTEUIManager::GetInstance();
     if (qteSystem && qteUIManager)
