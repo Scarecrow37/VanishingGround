@@ -113,7 +113,7 @@ namespace Timeline
         void            SetMinFrame(float minFrame);
         void            SetMaxFrame(float maxFrame);
         void            SetCurrentFrame(float frame, bool pass = false);
-        void            SetOwnerGameObject(GameObject* obj);
+        void            SetOwnerGameObject(std::weak_ptr<GameObject> weakObj);
 
         inline void     SetFlags(EventTrackFlags flags) { ReflectFields->Flags = flags; }
         inline void     AddFlags(EventTrackFlags flags) { ReflectFields->Flags |= flags; }
@@ -140,7 +140,7 @@ namespace Timeline
         inline UINT     GetUniqueID() { return ++ReflectFields->UniqueID; }
 
     private:
-        GameObject* _gameObject; // 이벤트를 실행할 게임 오브젝트. (필요에 의해 초기화합니다.)
+        std::weak_ptr<GameObject> _gameObject; // 이벤트를 실행할 게임 오브젝트. (필요에 의해 초기화합니다.)
 
         float _currFrame;
         float _prevFrame;

@@ -869,7 +869,7 @@ void AnimationComponent::SetAnimationEventTrackFromGuid(const File::Guid& guid)
         {
             if (track)
             {
-                track->SetOwnerGameObject(&gameObject);
+                track->SetOwnerGameObject(gameObject->GetWeakPtr());
             }
         }
     }

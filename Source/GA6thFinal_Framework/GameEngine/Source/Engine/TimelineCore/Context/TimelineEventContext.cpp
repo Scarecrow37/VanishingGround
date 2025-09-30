@@ -3,9 +3,9 @@
 
 namespace Timeline
 {
-    void EventContext::SetGameObject(GameObject* obj) 
+    void EventContext::SetGameObject(std::weak_ptr<GameObject> weakObj) 
     {
-        _gameObject = obj;
+        _gameObject = weakObj;
     }
     void EventContext::SetEvent(std::string_view typeNameID) 
     {

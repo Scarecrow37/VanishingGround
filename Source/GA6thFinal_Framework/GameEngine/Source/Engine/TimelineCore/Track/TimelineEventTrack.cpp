@@ -314,13 +314,13 @@ namespace Timeline
             _prevFrame = _currFrame;
         }
     }
-    void EventTrack::SetOwnerGameObject(GameObject* obj) 
+    void EventTrack::SetOwnerGameObject(std::weak_ptr<GameObject> weakObj) 
     {
         for (auto& context : _contextQueue)
         {
             if (context)
             {
-                context->SetGameObject(obj);
+                context->SetGameObject(weakObj);
             }
         }
     }

@@ -12,13 +12,27 @@ namespace Timeline
 
     void ParticleEventContext::OnNotify()
     {
-        if (GameObject* gameObject = GetGameObject())
+        if (auto gameObject = GetGameObject().lock())
         {
             if (ParticleComponent* particle = gameObject->GetComponent<ParticleComponent>())
             {
-                if (ReflectFields->Trigger == TRIGGER_EFFECT_PLAY_AND_STOP)
+                switch (ReflectFields->Trigger)
                 {
-                    // UmTime.Invoke();
+                    case TRIGGER_EFFECT_PLAY:
+                        UmParticleManager->PlayEffect(particle, ReflectFields->EffectKey);
+                        break;
+                    case TRIGGER_EFFECT_STOP:
+                        UmParticleManager->StopEffect(particle, ReflectFields->EffectKey);
+                        break;
+                    case TRIGGER_EFFECT_PLAY_AND_STOP: {
+                        // 일정 시간 후에 정지.
+                        UmTime.Invoke(ReflectFields->TimeToStop, [this, particle]() {
+                            UmParticleManager->StopEffect(particle, ReflectFields->EffectKey);
+                        });
+                        break;
+                }
+                default:
+                    break;
                 }
             }
         }

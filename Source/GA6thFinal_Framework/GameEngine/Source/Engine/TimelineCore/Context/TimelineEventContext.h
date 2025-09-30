@@ -24,9 +24,9 @@ namespace Timeline
         inline const std::string& GetLabel()        const { return ReflectFields->Label; }
         inline const std::string& GetEventType()    const { return ReflectFields->EventType; }
         inline float              GetTime()         const { return ReflectFields->Time; }
-        inline GameObject*        GetGameObject()   const { return _gameObject; }
+        inline std::weak_ptr<GameObject> GetGameObject() const { return _gameObject; }
 
-        void SetGameObject(GameObject* obj);
+        void SetGameObject(std::weak_ptr<GameObject> obj);
         void SetEvent(std::string_view typeNameID);
         void SetTime(float time);
         void SetLabel(std::string_view label);
@@ -71,7 +71,7 @@ namespace Timeline
         }
 
     protected:
-        GameObject* _gameObject = nullptr;
+        std::weak_ptr<GameObject> _gameObject;
 
         REFLECT_FIELDS_BEGIN(ReflectSerializer)
         UINT        ContextID       = UINT_MAX;
