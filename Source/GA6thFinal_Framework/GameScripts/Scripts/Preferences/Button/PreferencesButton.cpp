@@ -50,7 +50,8 @@ void PreferencesButton::Awake()
     if (!_offImage.IsNull())
     {
         auto image = GetComponent<ImageElement>();
-        image->SetImage(_offImage);
+        if (image)
+            image->SetImage(_offImage);
     }
 }
 
@@ -63,13 +64,16 @@ void PreferencesButton::Update() {}
 void PreferencesButton::OnFocus(bool focus)
 {
     auto image = GetComponent<ImageElement>();
-    if (focus)
+    if (image)
     {
-        image->SetImage(_onImage);
-    }
-    else
-    {
-        image->SetImage(_offImage);
+        if (focus)
+        {
+            image->SetImage(_onImage);
+        }
+        else
+        {
+            image->SetImage(_offImage);
+        }
     }
 }
 

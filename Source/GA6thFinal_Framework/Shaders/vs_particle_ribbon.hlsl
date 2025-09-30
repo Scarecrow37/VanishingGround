@@ -59,11 +59,12 @@ VSOutput vs_main(uint vertexID : SV_VertexID)
 
     // UV 및 나머지 데이터
     float u = (float)current_idx / (float)(totalcount - 1);
-    float v = 1-(1.0f + isTop) * 0.5f;
+    float v = (float)(vertexID % 2);
     o.uv = float2(u, v);
 
     o.color = p.Color;
     o.depth = o.position.z / o.position.w;
+    o.emitterIndex = p.EmitterIndex;
 
     return o;
 }

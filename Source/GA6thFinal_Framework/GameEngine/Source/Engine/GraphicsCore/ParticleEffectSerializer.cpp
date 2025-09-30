@@ -41,9 +41,9 @@ void ParticleEffectSerializer::RegisterDeserializers()
         _serializers[{1, 0}] = [this](std::ofstream& os, ParticleEffect* effect, File::Path destPath) {
             this->Serialize_1_0(os, effect, destPath);
         };
-        _deserializers[{1, 0}] = [this](std::ifstream& is, bool isEditor,
+        _deserializers[{1, 0}] = [this](EffectID id, const std::string& keyString, std::ifstream& is, bool isEditor,
                                         std::string_view sceneName) -> ParticleEffect* {
-            return this->Deserialize_1_0(is, isEditor, sceneName);
+            return this->Deserialize_1_0(id, keyString, is, isEditor, sceneName);
         };
         _preDeserializers[{1, 0}] = [this](std::ifstream& is) { this->PreDeserialize_1_0(is); };
     }
@@ -52,55 +52,51 @@ void ParticleEffectSerializer::RegisterDeserializers()
         _serializers[{1, 1}] = [this](std::ofstream& os, ParticleEffect* effect, File::Path destPath) {
             this->Serialize_1_1(os, effect, destPath);
         };
-        _deserializers[{1, 1}] = [this](std::ifstream& is, bool isEditor,
+        _deserializers[{1, 1}] = [this](EffectID id, const std::string& keyString, std::ifstream& is, bool isEditor,
                                         std::string_view sceneName) -> ParticleEffect* {
-            return this->Deserialize_1_1(is, isEditor, sceneName);
+            return this->Deserialize_1_1(id, keyString, is, isEditor, sceneName);
         };
         _preDeserializers[{1, 1}] = [this](std::ifstream& is) { this->PreDeserialize_1_1(is); };
     }
 
-    //1.2
-    // texture serialize - path -> guid
+    // 1.2
+    //  texture serialize - path -> guid
     {
         _serializers[{1, 2}] = [this](std::ofstream& os, ParticleEffect* effect, File::Path destPath) {
             this->Serialize_1_2(os, effect, destPath);
         };
-        _deserializers[{1, 2}] = [this](std::ifstream& is, bool isEditor,
+        _deserializers[{1, 2}] = [this](EffectID id, const std::string& keyString, std::ifstream& is, bool isEditor,
                                         std::string_view sceneName) -> ParticleEffect* {
-            return this->Deserialize_1_2(is, isEditor, sceneName);
+            return this->Deserialize_1_2(id, keyString, is, isEditor, sceneName);
         };
         _preDeserializers[{1, 2}] = [this](std::ifstream& is) { this->PreDeserialize_1_2(is); };
     }
 
-    
     // 1.3
-    //scale by velocity added
+    // scale by velocity added
     {
         _serializers[{1, 3}] = [this](std::ofstream& os, ParticleEffect* effect, File::Path destPath) {
             this->Serialize_1_3(os, effect, destPath);
         };
-        _deserializers[{1, 3}] = [this](std::ifstream& is, bool isEditor,
+        _deserializers[{1, 3}] = [this](EffectID id, const std::string& keyString, std::ifstream& is, bool isEditor,
                                         std::string_view sceneName) -> ParticleEffect* {
-            return this->Deserialize_1_3(is, isEditor, sceneName);
+            return this->Deserialize_1_3(id, keyString, is, isEditor, sceneName);
         };
         _preDeserializers[{1, 3}] = [this](std::ifstream& is) { this->PreDeserialize_1_3(is); };
     }
 
-        // 1.4
+    // 1.4
     // light prop added
     {
         _serializers[{1, 4}] = [this](std::ofstream& os, ParticleEffect* effect, File::Path destPath) {
             this->Serialize_1_4(os, effect, destPath);
         };
-        _deserializers[{1, 4}] = [this](std::ifstream& is, bool isEditor,
+        _deserializers[{1, 4}] = [this](EffectID id, const std::string& keyString, std::ifstream& is, bool isEditor,
                                         std::string_view sceneName) -> ParticleEffect* {
-            return this->Deserialize_1_4(is, isEditor, sceneName);
+            return this->Deserialize_1_4(id, keyString, is, isEditor, sceneName);
         };
         _preDeserializers[{1, 4}] = [this](std::ifstream& is) { this->PreDeserialize_1_4(is); };
     }
-
-
-
 }
 
 void ParticleEffectSerializer::Serialize(ParticleEffect* effect, File::Path destPath)
@@ -116,10 +112,9 @@ void ParticleEffectSerializer::Serialize(ParticleEffect* effect, File::Path dest
     os.write(reinterpret_cast<const char*>(&majorVersion), sizeof(majorVersion));
     os.write(reinterpret_cast<const char*>(&minorVersion), sizeof(minorVersion));
     _serializers[{majorVersion, minorVersion}](os, effect, destPath);
-
-
 }
-ParticleEffect* ParticleEffectSerializer::Deserialize(File::Path filepath,bool isEditor,std::string_view sceneName)
+ParticleEffect* ParticleEffectSerializer::Deserialize(EffectID id, const std::string& keyString, File::Path filepath,
+                                                      bool isEditor, std::string_view sceneName)
 {
     std::ifstream is(filepath.string(), std::ios::binary);
     if (!is.is_open())
@@ -134,12 +129,10 @@ ParticleEffect* ParticleEffectSerializer::Deserialize(File::Path filepath,bool i
         auto it = _deserializers.find({majorVersion, minorVersion});
         if (it != _deserializers.end())
         {
-            return (*it).second(is, isEditor, sceneName);
+            return (*it).second(id, keyString, is, isEditor, sceneName);
         }
     }
     return nullptr;
-   
-
 }
 void ParticleEffectSerializer::PreDeserialize(File::Path filepath)
 {
@@ -162,7 +155,7 @@ void ParticleEffectSerializer::PreDeserialize(File::Path filepath)
     }
 }
 
-void ParticleEffectSerializer::Serialize_1_0(std::ofstream& os, ParticleEffect* effect, File::Path destPath) 
+void ParticleEffectSerializer::Serialize_1_0(std::ofstream& os, ParticleEffect* effect, File::Path destPath)
 {
 
     const std::string effectname = effect->GetEffectName();
@@ -384,11 +377,9 @@ void ParticleEffectSerializer::Serialize_1_0(std::ofstream& os, ParticleEffect* 
         }
     }
     os.close();
-
-
-
 }
-ParticleEffect* ParticleEffectSerializer::Deserialize_1_0(std::ifstream& is, bool isEditor, std::string_view sceneName)
+ParticleEffect* ParticleEffectSerializer::Deserialize_1_0(EffectID id, const std::string& keyString, std::ifstream& is,
+                                                          bool isEditor, std::string_view sceneName)
 {
     uint32_t nameLen = 0;
     is.read(reinterpret_cast<char*>(&nameLen), sizeof(nameLen));
@@ -405,7 +396,7 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_0(std::ifstream& is, boo
     else
     {
         auto scenename = std::string(sceneName);
-        newEffect = UmParticleManager->RegisterEffect(scenename);
+        newEffect      = UmParticleManager->RegisterEffect(id, keyString, scenename);
     }
     newEffect->SetLifetime(lifetime);
     newEffect->SetEffectName(effectname);
@@ -560,7 +551,7 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_0(std::ifstream& is, boo
     is.close();
     return newEffect;
 }
-void ParticleEffectSerializer::PreDeserialize_1_0(std::ifstream& is) 
+void ParticleEffectSerializer::PreDeserialize_1_0(std::ifstream& is)
 {
     UsedTexturePaths.clear();
     UsedModelPaths.clear();
@@ -679,13 +670,9 @@ void ParticleEffectSerializer::PreDeserialize_1_0(std::ifstream& is)
     }
 
     is.close();
-
-
-
-
 }
 
-void ParticleEffectSerializer::Serialize_1_1(std::ofstream& os, ParticleEffect* effect, File::Path destPath) 
+void ParticleEffectSerializer::Serialize_1_1(std::ofstream& os, ParticleEffect* effect, File::Path destPath)
 {
 
     const std::string effectname = effect->GetEffectName();
@@ -900,9 +887,9 @@ void ParticleEffectSerializer::Serialize_1_1(std::ofstream& os, ParticleEffect* 
         else if (ParticleType::RIBBON == emitter->_particleType)
         {
             // frame info
-            Vector4 startNormal = static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetStartNormal();
-            Vector4 endNormal   = static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetEndNormal();
-            Vector4 ribbonVector   = static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetRibbonVector();
+            Vector4 startNormal  = static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetStartNormal();
+            Vector4 endNormal    = static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetEndNormal();
+            Vector4 ribbonVector = static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetRibbonVector();
             os.write(reinterpret_cast<const char*>(&startNormal), sizeof(startNormal));
             os.write(reinterpret_cast<const char*>(&endNormal), sizeof(endNormal));
             os.write(reinterpret_cast<const char*>(&ribbonVector), sizeof(ribbonVector));
@@ -910,7 +897,8 @@ void ParticleEffectSerializer::Serialize_1_1(std::ofstream& os, ParticleEffect* 
     }
     os.close();
 }
-ParticleEffect* ParticleEffectSerializer::Deserialize_1_1(std::ifstream& is, bool isEditor, std::string_view sceneName)
+ParticleEffect* ParticleEffectSerializer::Deserialize_1_1(EffectID id, const std::string& keyString, std::ifstream& is,
+                                                          bool isEditor, std::string_view sceneName)
 {
     uint32_t nameLen = 0;
     is.read(reinterpret_cast<char*>(&nameLen), sizeof(nameLen));
@@ -927,7 +915,7 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_1(std::ifstream& is, boo
     else
     {
         auto scenename = std::string(sceneName);
-        newEffect      = UmParticleManager->RegisterEffect(scenename);
+        newEffect      = UmParticleManager->RegisterEffect(id, keyString, scenename);
     }
     newEffect->SetLifetime(lifetime);
     newEffect->SetEffectName(effectname);
@@ -1084,7 +1072,7 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_1(std::ifstream& is, boo
     is.close();
     return newEffect;
 }
-void ParticleEffectSerializer::PreDeserialize_1_1(std::ifstream& is) 
+void ParticleEffectSerializer::PreDeserialize_1_1(std::ifstream& is)
 {
     UsedTexturePaths.clear();
     UsedModelPaths.clear();
@@ -1205,7 +1193,6 @@ void ParticleEffectSerializer::PreDeserialize_1_1(std::ifstream& is)
     }
 
     is.close();
-
 }
 
 void ParticleEffectSerializer::Serialize_1_2(std::ofstream& os, ParticleEffect* effect, File::Path destPath)
@@ -1263,9 +1250,9 @@ void ParticleEffectSerializer::Serialize_1_2(std::ofstream& os, ParticleEffect* 
             {
                 auto       meshlocator = static_cast<MeshSurfaceLocator*>(emitter->_emitLocator);
                 File::Path path        = meshlocator->GetModelPath();
-                path                    = std::filesystem::absolute(path).generic_string();
-                File::Guid guid        = path.ToGuid();
-                std::string guidstring  = guid.string();
+                path                   = std::filesystem::absolute(path).generic_string();
+                File::Guid  guid       = path.ToGuid();
+                std::string guidstring = guid.string();
 
                 SIZE_T nameLen = guidstring.length();
                 os.write(reinterpret_cast<const char*>(&nameLen), sizeof(nameLen));
@@ -1407,9 +1394,9 @@ void ParticleEffectSerializer::Serialize_1_2(std::ofstream& os, ParticleEffect* 
         {
             File::Path modeltexturepath = emitter->_particleRenderModule->GetModelAndTexturePath();
             modeltexturepath            = std::filesystem::absolute(modeltexturepath).generic_string();
-            File::Guid guid                 = modeltexturepath.ToGuid();
-            std::string guidstring       = guid.string();           
-            SIZE_T      size                 = guidstring.length();
+            File::Guid  guid            = modeltexturepath.ToGuid();
+            std::string guidstring      = guid.string();
+            SIZE_T      size            = guidstring.length();
             os.write(reinterpret_cast<const char*>(&size), sizeof(size));
             os.write(guidstring.c_str(), size);
         }
@@ -1433,7 +1420,8 @@ void ParticleEffectSerializer::Serialize_1_2(std::ofstream& os, ParticleEffect* 
     }
     os.close();
 }
-ParticleEffect* ParticleEffectSerializer::Deserialize_1_2(std::ifstream& is, bool isEditor, std::string_view sceneName)
+ParticleEffect* ParticleEffectSerializer::Deserialize_1_2(EffectID id, const std::string& keyString, std::ifstream& is,
+                                                          bool isEditor, std::string_view sceneName)
 {
     uint32_t nameLen = 0;
     is.read(reinterpret_cast<char*>(&nameLen), sizeof(nameLen));
@@ -1450,7 +1438,7 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_2(std::ifstream& is, boo
     else
     {
         auto scenename = std::string(sceneName);
-        newEffect      = UmParticleManager->RegisterEffect(scenename);
+        newEffect      = UmParticleManager->RegisterEffect(id, keyString, scenename);
     }
     newEffect->SetLifetime(lifetime);
     newEffect->SetEffectName(effectname);
@@ -1509,7 +1497,6 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_2(std::ifstream& is, boo
             is.read(reinterpret_cast<char*>(&nameLen), sizeof(nameLen));
             modelpath = std::string(nameLen, '\0');
             is.read(&modelpath[0], nameLen);
-
         }
 
         is.read(reinterpret_cast<char*>(&locatorFactor), sizeof(locatorFactor));
@@ -1540,7 +1527,7 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_2(std::ifstream& is, boo
         is.read(reinterpret_cast<char*>(&size), sizeof(size));
         std::string texturepath(size, '\0');
         is.read(&texturepath[0], size);
-        File::Guid guid = texturepath;
+        File::Guid guid             = texturepath;
         File::Path modelTexturePath = guid.ToPath();
 
         Vector4 frameInfo{};
@@ -1556,9 +1543,9 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_2(std::ifstream& is, boo
         }
 
         {
-            auto emitter = UmParticleManager->RegisterEmitter(
-                newEffect, static_cast<SIZE_T>(maxParticles), emissionRate, emitterLifetime, locationType,
-                locatorFactor, particleType, modelTexturePath.wstring());
+            auto emitter = UmParticleManager->RegisterEmitter(newEffect, static_cast<SIZE_T>(maxParticles),
+                                                              emissionRate, emitterLifetime, locationType,
+                                                              locatorFactor, particleType, modelTexturePath.wstring());
             {
                 File::Path absolutePath = emitter->_particleRenderModule->GetModelAndTexturePath();
                 absolutePath            = std::filesystem::absolute(absolutePath).generic_string();
@@ -1710,10 +1697,6 @@ void ParticleEffectSerializer::PreDeserialize_1_2(std::ifstream& is)
         is.read(&texturepath[0], size);
         File::Guid guid = texturepath;
         File::Path path = guid.ToPath();
-
-
-
-
 
         Vector4 frameInfo{};
         if (particleType == ParticleType::SPRITE)
@@ -1970,7 +1953,8 @@ void ParticleEffectSerializer::Serialize_1_3(std::ofstream& os, ParticleEffect* 
     }
     os.close();
 }
-ParticleEffect* ParticleEffectSerializer::Deserialize_1_3(std::ifstream& is, bool isEditor, std::string_view sceneName)
+ParticleEffect* ParticleEffectSerializer::Deserialize_1_3(EffectID id, const std::string& keyString, std::ifstream& is,
+                                                          bool isEditor, std::string_view sceneName)
 {
     uint32_t nameLen = 0;
     is.read(reinterpret_cast<char*>(&nameLen), sizeof(nameLen));
@@ -1987,7 +1971,7 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_3(std::ifstream& is, boo
     else
     {
         auto scenename = std::string(sceneName);
-        newEffect      = UmParticleManager->RegisterEffect(scenename);
+        newEffect      = UmParticleManager->RegisterEffect(id, keyString, scenename);
     }
     newEffect->SetLifetime(lifetime);
     newEffect->SetEffectName(effectname);
@@ -2038,7 +2022,6 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_3(std::ifstream& is, boo
         Vector3 axis;
         bool    scalevelFlag;
 
-
         is.read(reinterpret_cast<char*>(&useWorldSpace), sizeof(useWorldSpace));
         is.read(reinterpret_cast<char*>(&emitterPosition), sizeof(emitterPosition));
         is.read(reinterpret_cast<char*>(&emitterRotationE), sizeof(emitterRotationE));
@@ -2071,7 +2054,6 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_3(std::ifstream& is, boo
         is.read(reinterpret_cast<char*>(&endScale), sizeof(endScale));
         is.read(reinterpret_cast<char*>(&axis), sizeof(axis));
         is.read(reinterpret_cast<char*>(&scalevelFlag), sizeof(scalevelFlag));
-
 
         is.read(reinterpret_cast<char*>(&particleMass), sizeof(particleMass));
         is.read(reinterpret_cast<char*>(&distributionOffset), sizeof(distributionOffset));
@@ -2303,7 +2285,7 @@ void ParticleEffectSerializer::Serialize_1_4(std::ofstream& os, ParticleEffect* 
         os.write(reinterpret_cast<const char*>(&nameLen), sizeof(nameLen));
         os.write(emittername.c_str(), nameLen);
 
-        //light flag
+        // light flag
         {
             auto temp = emitter->GetUseLight();
             os.write(reinterpret_cast<const char*>(&temp), sizeof(temp));
@@ -2324,7 +2306,6 @@ void ParticleEffectSerializer::Serialize_1_4(std::ofstream& os, ParticleEffect* 
                 auto temp = emitter->GetLightColor();
                 os.write(reinterpret_cast<const char*>(&temp), sizeof(temp));
             }
-
         }
         // worldspaceflag
         {
@@ -2543,7 +2524,8 @@ void ParticleEffectSerializer::Serialize_1_4(std::ofstream& os, ParticleEffect* 
     }
     os.close();
 }
-ParticleEffect* ParticleEffectSerializer::Deserialize_1_4(std::ifstream& is, bool isEditor, std::string_view sceneName)
+ParticleEffect* ParticleEffectSerializer::Deserialize_1_4(EffectID id, const std::string& keyString, std::ifstream& is,
+                                                          bool isEditor, std::string_view sceneName)
 {
     uint32_t nameLen = 0;
     is.read(reinterpret_cast<char*>(&nameLen), sizeof(nameLen));
@@ -2560,7 +2542,7 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_4(std::ifstream& is, boo
     else
     {
         auto scenename = std::string(sceneName);
-        newEffect      = UmParticleManager->RegisterEffect(scenename);
+        newEffect      = UmParticleManager->RegisterEffect(id, keyString, scenename);
     }
     newEffect->SetLifetime(lifetime);
     newEffect->SetEffectName(effectname);

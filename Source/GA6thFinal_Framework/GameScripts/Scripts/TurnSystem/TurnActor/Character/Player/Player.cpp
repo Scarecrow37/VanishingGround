@@ -288,10 +288,10 @@ void Player::OnNotifiedAnimationEvent(const Timeline::EventContext* context)
         return;
     if ("castingStart" == context->GetLabel())
     {
-        particlecomponent->PlayEffect();
+        particlecomponent->PlayEffect("handglow");
     }
     if ("attackEnd" == context->GetLabel())
     {
-        particlecomponent->StopEffect();
+        particlecomponent->StopEffect("handglow");
     }
 }
