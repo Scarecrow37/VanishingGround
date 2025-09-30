@@ -41,6 +41,7 @@ public:
     ~WeaponModelManager();
 
     const File::Guid& GetWeaponPrefabGuid(WeaponType type) const;
+    Vector3 GetWeaponOffset(WeaponType type) const;
 
     WeaponModelData RequestAvailableWeapon(WeaponType type);
     bool            ReturnWeaponModel(WeaponModelData data);
@@ -55,6 +56,8 @@ private:
     void DeserializedReflectEvent() override;
     void ImGuiDrawPropertysEvent() override;
 
+    void UpdatePosition();
+
 private:
     SingletonComponent<WeaponModelManager> _singletonComponent{this};
 
@@ -62,6 +65,8 @@ private:
     std::unordered_map<WeaponType, AnimationPool>      _weaponAnimationTable;
     std::unordered_map<WeaponType, ParticlePool>       _weaponParticleTable;
     std::unordered_map<WeaponType, std::stack<size_t>> _availableWeaponIndicesTable;
+
+    std::unordered_map<WeaponType, Vector3>            _availableWeaponOffsetsTable;
 
     REFLECT_FIELDS_BEGIN(Component)
     std::unordered_map<std::string, std::string> WeaponPrefabGuidTable;

@@ -449,10 +449,9 @@ void PlayerPlayTurnState::OnQTEFinish()
                                         Vector3 playerPos = player.transform->GetWorldPosition();
                                         Vector3 dir       = DirectX::XMVector3Normalize(playerPos - enemyPos);
 
-                                        const Vector3 distance = dir * 1.0f;
+                                        const Vector3 offset   = weaponModelManager->GetWeaponOffset(weaponType);
+                                        const Vector3 distance = offset * dir;
                                         modelData.GameObject->transform->SetWorldPosition(enemyPos + distance);
-
-                                        //modelData.GameObject->transform->LookAt(playerPos);
                                     }
                                 }
                             }
