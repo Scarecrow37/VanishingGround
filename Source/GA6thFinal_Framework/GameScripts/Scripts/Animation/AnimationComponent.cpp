@@ -846,18 +846,25 @@ void AnimationComponent::SetAnimator(std::shared_ptr<Animator> animator)
 
 void AnimationComponent::SetAnimationEventTrackFromPath(const File::Path& path) 
 {
-    _guidRef  = path;
-    _filePath = path;
-    _eventTrack.LoadFile(_filePath);
-    ReflectFields->AnimEventTrackGuid = _guidRef.string();
+    SetAnimationEventTrackFromGuid(path.ToGuid());
 }
 
 void AnimationComponent::SetAnimationEventTrackFromGuid(const File::Guid& guid) 
 {
     _guidRef  = guid;
     _filePath = guid;
-    _eventTrack.LoadFile(_filePath);
     ReflectFields->AnimEventTrackGuid = _guidRef.string();
+    if (_eventTrack.LoadFile(_filePath))
+    {
+        const auto& table = _eventTrack.GetEventTrackTable();
+        for (const auto& [_, track] : table)
+        {
+            if (track)
+            {
+                track->SetOwnerGameObject(&gameObject);
+            }
+        }
+    }
 }
 
 void AnimationComponent::AddAnimationMappingKey(std::string_view key, std::string_view animKey)

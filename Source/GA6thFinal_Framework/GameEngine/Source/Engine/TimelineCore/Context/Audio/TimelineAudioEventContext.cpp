@@ -5,7 +5,7 @@ REGISTER_CLASS(Timeline::EventTrack, Timeline::AudioEventContext)
 
 namespace Timeline
 {
-    AudioEventContext::AudioEventContext() = default;
+    AudioEventContext::AudioEventContext()  = default;
     AudioEventContext::~AudioEventContext() = default;
 
     void AudioEventContext::OnNotify() 
