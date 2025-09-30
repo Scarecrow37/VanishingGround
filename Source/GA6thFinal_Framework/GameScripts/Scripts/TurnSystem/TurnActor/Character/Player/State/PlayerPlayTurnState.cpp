@@ -484,7 +484,7 @@ void PlayerPlayTurnState::OnQTEFinish(const QTE::OverallResult& results)
                                     {
                                         modelData.GameObject->ActiveSelf = true;
                                         modelData.Animation->PlayCurrentAnimation();
-                                        //modelData.Particle->PlayEffect();
+                                        modelData.Particle->FollowBoneMatrix("weapon");
                                         UmParticleManager->PlayEffect(modelData.Particle, "weapon");
                                     }
                                 });

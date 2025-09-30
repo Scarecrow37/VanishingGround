@@ -101,9 +101,9 @@ void ParticleComponent::ImGuiDrawPropertysEvent()
         auto it = ReflectFields->GuidMap.find(_currentEffectKey);
         if (it != ReflectFields->GuidMap.end())
         {
-            File::Guid  fileGuid = (*it).second;
-            File::Path filePath = fileGuid.ToPath();
-            std::string fileString = filePath.string();
+            const File::Guid& fileGuid   = (*it).second;
+            const File::Path& filePath   = fileGuid.ToPath();
+            const std::string&       fileString = filePath.string();
             ImGui::Text(fileString.c_str());
         }
     }
@@ -234,7 +234,6 @@ void ParticleComponent::LoadParticle(const std::string& keyString)
                         effect->_scale             = &_scaleVector[keyString];
                         effect->_parentWorldMatrix = &transform->GetWorldMatrix();
                         effect->_followBoneFlag    = &(ReflectFields->AttachFlagMap[keyString]);
-                        FollowBoneMatrix(keyString);
                     });
                 else
                     UmSceneManager.ResourceManager.RequestTextureResource(this, guid, []() {});
@@ -273,34 +272,40 @@ void ParticleComponent::LoadParticle(const std::string& keyString)
                                             ReflectFields->GuidMap[keyString] = assetGuid.string();
                                             auto effect                       = UmParticleSerializer.Deserialize(
                                                 this, keyString, assetGuid.ToPath(), false, "Game");
-                                           
-                                            for (auto& emitter : effect->GetEmitterList())
+                                            if (effect)
                                             {
-                                                File::Path absolutePath =
-                                                    emitter->_particleRenderModule->GetModelAndTexturePath();
-                                                absolutePath = std::filesystem::absolute(absolutePath).generic_string();
-                                                UmGraphics.LoadTextureResource(
-                                                    std::wstring_view(absolutePath.wstring()), emitter);
-                                                
-                                                if (LocationShape::MESH_SURFACE == emitter->_locationType)
+                                                for (auto& emitter : effect->GetEmitterList())
                                                 {
-                                                    MeshSurfaceLocator* locator =
-                                                        static_cast<MeshSurfaceLocator*>(emitter->_emitLocator);
-                                                    File::Path absolutePath = locator->GetModelPath();
+                                                    File::Path absolutePath =
+                                                        emitter->_particleRenderModule->GetModelAndTexturePath();
                                                     absolutePath =
                                                         std::filesystem::absolute(absolutePath).generic_string();
-                                                    UmGraphics.LoadModelResource(
+                                                    UmGraphics.LoadTextureResource(
                                                         std::wstring_view(absolutePath.wstring()), emitter);
+
+                                                    if (LocationShape::MESH_SURFACE == emitter->_locationType)
+                                                    {
+                                                        MeshSurfaceLocator* locator =
+                                                            static_cast<MeshSurfaceLocator*>(emitter->_emitLocator);
+                                                        if (locator)
+                                                        {
+                                                            File::Path absolutePath = locator->GetModelPath();
+                                                            absolutePath = std::filesystem::absolute(absolutePath)
+                                                                               .generic_string();
+                                                            UmGraphics.LoadModelResource(
+                                                                std::wstring_view(absolutePath.wstring()), emitter);
+                                                        }
+                                                    }
                                                 }
+                                                effect->SetPlayFlag(false);
+                                                effect->SetActiveFlag(false);
+                                                effect->_position          = &_positionVector[keyString];
+                                                effect->_rotation          = &_rotationVector[keyString];
+                                                effect->_scale             = &_scaleVector[keyString];
+                                                effect->_parentWorldMatrix = &transform->GetWorldMatrix();
+                                                effect->_followBoneFlag    = &(ReflectFields->AttachFlagMap[keyString]);
+                                                FollowBoneMatrix(keyString);
                                             }
-                                            effect->SetPlayFlag(false);
-                                            effect->SetActiveFlag(false);
-                                            effect->_position          = &_positionVector[keyString];
-                                            effect->_rotation          = &_rotationVector[keyString];
-                                            effect->_scale             = &_scaleVector[keyString];
-                                            effect->_parentWorldMatrix = &transform->GetWorldMatrix();
-                                            effect->_followBoneFlag    = &(ReflectFields->AttachFlagMap[keyString]);
-                                            FollowBoneMatrix(keyString);
                                         });
                             }
                         });
@@ -317,18 +322,26 @@ void ParticleComponent::FollowBoneMatrix(const std::string& key)
     {
         if (true == (*it).second)
         {
-            if (_animator != nullptr)
+            SkeletalMeshRenderer* skelMesh = GetComponent<SkeletalMeshRenderer>();
+            if (skelMesh != nullptr)
             {
                 auto it2 = ReflectFields->BoneNameMap.find(key);
                 if (it2 != ReflectFields->BoneNameMap.end())
                 {
                     UmParticleManager->SetBoneMatrix(
-                        this,
-                        key, 
-                        _animator->FindBoneMatrix(ReflectFields->BoneNameMap[key].c_str()));
+                        this, key,
+                        skelMesh->Renderer->GetAnimator()->FindBoneMatrix(ReflectFields->BoneNameMap[key].c_str()));
                 }
             }
         }
+    }
+}
+
+void ParticleComponent::FollowBoneMatrix() 
+{
+    for (auto& keyString : ReflectFields->EffectNameTable)
+    {
+        FollowBoneMatrix(keyString);
     }
 }
 

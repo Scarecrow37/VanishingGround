@@ -110,6 +110,7 @@ public:
     void RegisterEffectFromGuid(const File::Path& filepath, const std::string& key);
     void RegisterEffectFromGuid(const File::Guid& fileguid, const std::string& key);
     void FollowBoneMatrix(const std::string& key);
+    void FollowBoneMatrix();
     void SetAnimator(class Animator* animator);
 
 public:
