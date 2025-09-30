@@ -181,8 +181,12 @@
     <ClCompile Include="Scripts\Camera\UmCineMotion.cpp" />
     <ClCompile Include="Scripts\UI\Views\Accessories\AccessoriesView.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UINavi\ReturnToMapNavi.cpp" />
-    <ClCompile Include="Scripts\SceneTransition\TempTransition.cpp" />
     <ClCompile Include="Scripts\SceneTransition\TransitionManager.cpp" />
+    <ClCompile Include="Scripts\UI\Contents\DamageElement.cpp" />
+    <ClCompile Include="Scripts\UI\Contents\SpawnDamagePanel.cpp" />
+    <ClCompile Include="Scripts\Test\Audio\TestAudioComponent.cpp" />
+    <ClCompile Include="Scripts\Camera\CameraManager.cpp" />
+    <ClCompile Include="Scripts\UI\Elements\SpriteAnimation\SpriteAnimationElement.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h" />
@@ -386,8 +390,12 @@
     <ClInclude Include="Scripts\Camera\UmCineMotion.h" />
     <ClInclude Include="Scripts\WeaponModelManager\WeaponModelManager.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UINavi\ReturnToMapNavi.h" />
-    <ClInclude Include="Scripts\SceneTransition\TempTransition.h" />
     <ClInclude Include="Scripts\SceneTransition\TransitionManager.h" />
+    <ClInclude Include="Scripts\UI\Contents\DamageElement.h" />
+    <ClInclude Include="Scripts\UI\Contents\SpawnDamagePanel.h" />
+    <ClInclude Include="Scripts\Test\Audio\TestAudioComponent.h" />
+    <ClInclude Include="Scripts\Camera\CameraManager.h" />
+    <ClInclude Include="Scripts\UI\Elements\SpriteAnimation\SpriteAnimationElement.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
