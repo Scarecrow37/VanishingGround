@@ -356,7 +356,7 @@ void ParticleComponent::StopAll()
 {
     for (auto& key : ReflectFields->EffectNameTable)
     {
-        UmParticleManager->PlayEffect(this, key);
+        UmParticleManager->StopEffect(this, key);
     }
 }
 
