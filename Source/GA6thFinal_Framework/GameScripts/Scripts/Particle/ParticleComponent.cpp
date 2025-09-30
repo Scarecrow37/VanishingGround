@@ -43,10 +43,7 @@ void ParticleComponent::Update() {}
 
 void ParticleComponent::Start() {}
 
-void ParticleComponent::Reset() 
-{
-   
-}
+void ParticleComponent::Reset() {}
 
 void ParticleComponent::SerializedReflectEvent()
 {

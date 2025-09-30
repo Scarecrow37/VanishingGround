@@ -445,8 +445,7 @@ void PlayerPlayTurnState::OnQTEFinish(const QTE::OverallResult& results)
                             if (modelData.IsValid())
                             {
                                 modelData.Animation->StopCurrentAnimation();
-                                int id = modelData.GameObject->GetInstanceID();
-                                UmParticleManager->StopEffect(modelData.Particle, "weapon");
+                                modelData.Particle->StopEffect("weapon");
                                 modelData.GameObject->ActiveSelf = false;
                             }
                             weaponModelManager->ReturnWeaponModel(modelData);
@@ -484,8 +483,7 @@ void PlayerPlayTurnState::OnQTEFinish(const QTE::OverallResult& results)
                                     {
                                         modelData.GameObject->ActiveSelf = true;
                                         modelData.Animation->PlayCurrentAnimation();
-                                        modelData.Particle->FollowBoneMatrix("weapon");
-                                        UmParticleManager->PlayEffect(modelData.Particle, "weapon");
+                                        modelData.Particle->PlayEffect("weapon");
                                     }
                                 });
                             }
