@@ -42,7 +42,6 @@ public:
 protected:
     REFLECT_FIELDS_BEGIN(Component)
     std::string ArtifactsUIFrameAssetGuid;
-    std::vector<int> ArtifactsCategoryAssetID;
     REFLECT_FIELDS_END(ItemDropUIRootManager)
 
     void DeserializedReflectEvent() override;

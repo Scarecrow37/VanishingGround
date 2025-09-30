@@ -20,10 +20,48 @@ ItemDropUIRootManager::~ItemDropUIRootManager()
 int ItemDropUIRootManager::GetArtifactCategoryAssetID(ArtifactDropType artifactDropType)
 {
     int id = 0;
-    size_t categoryIndex = static_cast<size_t>(artifactDropType);
-    if (categoryIndex < ReflectFields->ArtifactsCategoryAssetID.size())
+    if (ExcelDataSystem* excelDataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
     {
-        id = ReflectFields->ArtifactsCategoryAssetID[categoryIndex];
+        std::unique_ptr<ExcelDataBase> dataBase;
+        dataBase = excelDataSystem->FindExcelDataBase(u8"전투");
+        if (dataBase)
+        {
+            std::string_view data;
+            constexpr std::u8string_view columnKey = u8"Description";
+            size_t rowIndex = ExcelDataBase::FIND_INDEX_FAIL;
+            switch (artifactDropType)
+            {
+            case ArtifactDropType::SWORD:
+                rowIndex = dataBase->FindRowIndex(u8"보상_검", columnKey);
+                break;
+            case ArtifactDropType::DAGGER:
+                rowIndex = dataBase->FindRowIndex(u8"보상_단검", columnKey);
+                break;
+            case ArtifactDropType::WARHAMMER:
+                rowIndex = dataBase->FindRowIndex(u8"보상_대형망치", columnKey);
+                break;
+            case ArtifactDropType::ACCESSORY:
+                rowIndex = dataBase->FindRowIndex(u8"보상_장신구", columnKey);
+                break;
+            case ArtifactDropType::REVELATION:
+                rowIndex = dataBase->FindRowIndex(u8"보상_계시", columnKey);
+                break;
+            case ArtifactDropType::ERASE_REVELATION:
+                rowIndex = dataBase->FindRowIndex(u8"보상_계시 지우기", columnKey);
+                break;
+            default:
+                break;
+            }
+
+            if (rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
+            {
+                data = dataBase->FindData(rowIndex, u8"ID");
+                if (data != ExcelDataBase::FIND_STR_FAIL)
+                {
+                    id = std::stoi(data.data());
+                }
+            }
+        }
     }
     return id;
 }
