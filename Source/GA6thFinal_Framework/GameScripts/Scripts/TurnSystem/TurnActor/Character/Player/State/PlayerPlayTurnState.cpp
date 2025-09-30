@@ -26,7 +26,7 @@ PlayerPlayTurnState::PlayerPlayTurnState()
     _setImguiPosCenter        = false;
     _inputState               = InputState::NONE;
     _attackButtonHeldTime     = 0.f;
-    _attackButtonHeldWaitTime = 2.0f;
+    _attackButtonHeldWaitTime = 1.0f;
     _attackRemaining          = 0;
 }
 
@@ -145,7 +145,6 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
     ImGui::Begin("Player Turn##9A48EE30-CB5F-48AC-9740-DDF8118AAC49", nullptr, flags);
     {
 #ifdef _UMEDITOR
-
         _isDownAKey = ImGui::IsKeyDown(ImGuiKey_A);
 #endif // ISEDITOR
 
