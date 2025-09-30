@@ -138,8 +138,10 @@ void EnableButton::Awake()
     }
 
     // 양옆 화살표 숨기기
-    _leftArrow->SetActive(false);
-    _rightArrow->SetActive(false);
+    if (_leftArrow)
+        _leftArrow->SetActive(false);
+    if (_rightArrow)
+        _rightArrow->SetActive(false);
 
     // 관리 매니저 객체
     GameObject* manager = GameObject::Find("PreferencesManager").lock().get();
@@ -148,12 +150,15 @@ void EnableButton::Awake()
         _preferencesManager = manager->GetComponent<PreferencesManager>();
         if (nullptr == _preferencesManager)
             UmLogger.Log(LogLevel::LEVEL_WARNING, "Preferences manager not registered!");
+        else
+        {
+           _preferencesManager->AddPreferencesButton(this);
+        }
     }
     else
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, "Preferences manager not registered!");
     }
-    _preferencesManager->AddPreferencesButton(this);
 }
 void EnableButton::Reset()
 {
@@ -170,8 +175,10 @@ void EnableButton::Update()
         if (_isFocus)
         {
             FocusPref(true);
-            _leftArrow->SetActive(true);
-            _rightArrow->SetActive(true);
+            if (_leftArrow)
+                _leftArrow->SetActive(true);
+            if (_rightArrow)
+                _rightArrow->SetActive(true);
             if (_isOptionOn)
             {
                 auto image = GetComponent<ImageElement>();
@@ -190,8 +197,10 @@ void EnableButton::Update()
         else
         {
             FocusPref(false);
-            _leftArrow->SetActive(false);
-            _rightArrow->SetActive(false);
+            if (_leftArrow)
+                _leftArrow->SetActive(false);
+            if (_rightArrow)
+                _rightArrow->SetActive(false);
 
             if (_isOptionOn)
             {
@@ -214,10 +223,13 @@ void EnableButton::Update()
 
 void EnableButton::OnEnable()
 {
-    bool preferencesIsOpen = _preferencesManager->IsOpen();
-    if ("SSR" == _currentOption && !preferencesIsOpen)
+    if (_preferencesManager)
     {
-        Focus();
+        bool preferencesIsOpen = _preferencesManager->IsOpen();
+        if ("SSR" == _currentOption && !preferencesIsOpen)
+        {
+            Focus();
+        }
     }
 }
 
@@ -317,6 +329,6 @@ void EnableButton::GetChildObject()
 
 void EnableButton::ChangeOption()
 {
-    if (nullptr != _preferencesManager)
+    if (_preferencesManager)
         _preferencesManager->SetGraphicsOptions(_currentOption, _isOptionOn);
 }
