@@ -12,10 +12,9 @@ void AbandonYesButton::Awake()
     GameObject* preferencesManager = GameObject::Find("PreferencesManager").lock().get();
     if (preferencesManager)
     {
-        if (PreferencesManager* manager = preferencesManager->GetComponent<PreferencesManager>())
-        {
+        PreferencesManager* manager = preferencesManager->GetComponent<PreferencesManager>();
+        if (manager)
             manager->AddAbandonButton(this);
-        }
     }
 }
 
@@ -26,9 +25,10 @@ void AbandonYesButton::Update()
         GameObject* preferencesManager = GameObject::Find("PreferencesManager").lock().get();
         if (preferencesManager)
         {
-            if (PreferencesManager* manager = preferencesManager->GetComponent<PreferencesManager>())
+            PreferencesManager* manager = preferencesManager->GetComponent<PreferencesManager>();
+            _dirtyFlag = false;
+            if (manager)
             {
-                _dirtyFlag = false;
                 manager->CloseAbandonButtons();
                 manager->GoToMainMenu();
             }

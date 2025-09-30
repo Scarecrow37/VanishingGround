@@ -17,10 +17,9 @@ void AbandonNoButton::Awake()
     GameObject* preferencesManager  = GameObject::Find("PreferencesManager").lock().get();
     if (preferencesManager)
     {
-        if (PreferencesManager* manager = preferencesManager->GetComponent<PreferencesManager>())
-        {
+        PreferencesManager* manager = preferencesManager->GetComponent<PreferencesManager>();
+        if (manager)
             manager->AddAbandonButton(this);
-        }
     }
 }
 
@@ -28,14 +27,14 @@ void AbandonNoButton::Update()
 {
     if (_dirtyFlag)
     {
-        _abandonPannel->SetActive(false);
+        if (_abandonPannel)
+            _abandonPannel->SetActive(false);
         GameObject* preferencesManager = GameObject::Find("PreferencesManager").lock().get();
         if (preferencesManager)
         {
-            if (PreferencesManager* manager = preferencesManager->GetComponent<PreferencesManager>())
-            {
+            PreferencesManager* manager = preferencesManager->GetComponent<PreferencesManager>();
+            if (manager)
                 manager->CloseAbandonButtons();
-            }
         }
         _dirtyFlag = false;
     }

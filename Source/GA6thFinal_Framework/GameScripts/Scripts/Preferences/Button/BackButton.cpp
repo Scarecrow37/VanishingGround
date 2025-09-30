@@ -16,8 +16,8 @@ void BackButton::Awake()
         _preferencesManager = manager->GetComponent<PreferencesManager>();
         if (nullptr == _preferencesManager)
             UmLogger.Log(LogLevel::LEVEL_WARNING, "Preferences manager not registered!");
-
-        _preferencesManager->AddPreferencesButton(this);
+        if (_preferencesManager)
+            _preferencesManager->AddPreferencesButton(this);
     }
     else
     {
@@ -30,7 +30,8 @@ void BackButton::Update()
 {
     if (_dirtyFlag)
     {
-        _preferencesManager->OffPreferencesWindow();
+        if (_preferencesManager)
+            _preferencesManager->OffPreferencesWindow();
         _dirtyFlag = false;
     }
 }
