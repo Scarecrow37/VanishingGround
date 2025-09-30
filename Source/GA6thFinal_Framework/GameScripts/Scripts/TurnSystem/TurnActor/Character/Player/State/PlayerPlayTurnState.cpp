@@ -396,7 +396,7 @@ void PlayerPlayTurnState::BattleOnHitEvent(const QTE::NoteResult& result)
         break;
     }
     case QTE::QTE_RESULT_MISS: {
-        UmAudio.Play("-31020");
+        //UmAudio.Play("-31020");
         break;
     }
     default:
@@ -445,7 +445,7 @@ void PlayerPlayTurnState::OnQTEFinish()
                 bool  validAnim  = false;
                 bool  validEvent = false;
                 float noteTime   = note->Time;
-                //_attackTargets.push_back(target);
+
                 WeaponModelManager* weaponModelManager = SingletonComponent<WeaponModelManager>::GetInstance();
                 WeaponSystem*       weaponSystem       = SingletonComponent<WeaponSystem>::GetInstance();
 

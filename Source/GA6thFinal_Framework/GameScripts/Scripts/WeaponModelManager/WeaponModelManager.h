@@ -65,6 +65,7 @@ private:
 
     REFLECT_FIELDS_BEGIN(Component)
     std::unordered_map<std::string, std::string> WeaponPrefabGuidTable;
+    std::unordered_map<std::string, std::array<float, 3>> WeaponPrefabOffsetTable;
     REFLECT_FIELDS_END(WeaponModelManager)
 
     constexpr static int WEAPON_POOLING_SIZE = 10;

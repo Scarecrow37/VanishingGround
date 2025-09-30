@@ -20,7 +20,6 @@ void EnemyDeadState::OnEnter()
     Enemy& enemy = GetEnemy();
     enemy.Dead();
     AnimationComponent* animator = enemy.GetAnimationComponent();
-    AudioTableComponent* audioTable = enemy.GetAudioTableComponent();
     if (animator && false == _dontChangeAnimation)
     {
         animator->BeginBuildOverrideAnimation();
@@ -28,10 +27,6 @@ void EnemyDeadState::OnEnter()
         animator->SetNextAnimationFlags(ANIMATION_FLAG_USE_BLEND);
         animator->ChangeMainAnimation("Dead");
         animator->EndBuildOverrideAnimation();
-        if (audioTable)
-        {
-            UmAudio.Play("Dead");
-        }
     }
 }
 
@@ -43,7 +38,7 @@ void EnemyDeadState::OnExit()
 void EnemyDeadState::OnUpdate() 
 {
     const Enemy& enemy = GetEnemy();
-    const AnimationComponent* animator  = enemy.GetAnimationComponent();
+    const AnimationComponent* animator = enemy.GetAnimationComponent();
     if (animator)
     {
         if (animator->GetMainAnimationData().IsEnd())

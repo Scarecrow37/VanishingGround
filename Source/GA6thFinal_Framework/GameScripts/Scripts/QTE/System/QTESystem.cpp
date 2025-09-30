@@ -441,7 +441,7 @@ void QTESystem::PressedQTEButton(Input::Controller::Button buttonType)
             case QTE::QTE_RESULT_MISS:
             {
                 ++_overallResult.MissCount;
-                UmAudio.Play("-21020");
+                //UmAudio.Play("-21020");
                 inputSystem.Vibrate(MISS_VIBRATION);
                 break;
             }
@@ -549,8 +549,9 @@ void QTESystem::ProcessQTEExitEvent()
         Player* player = turnMode->GetPlayer();
         if (player)
         {
-            turnMode->ApplyActions(
-                [player, this](TurnAction& turnAction) { turnAction.OnPlayerQTEResult(*player, _overallResult); });
+            turnMode->ApplyActions([player, this](TurnAction& turnAction) {
+                turnAction.OnPlayerQTEResult(*player, _overallResult); 
+                });
         }
     }
 

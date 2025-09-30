@@ -113,7 +113,7 @@ private:
 
     REFLECT_FIELDS_BEGIN(Component)
     std::string NotePrefabGuid; // QTE 노트 프리팹 GUID
-    float       GuideNoteDuration = 1.0f;
+    float       GuideNoteDuration = 0.5f;
     REFLECT_FIELDS_END(QTEUIManager)
 
     class Fader
