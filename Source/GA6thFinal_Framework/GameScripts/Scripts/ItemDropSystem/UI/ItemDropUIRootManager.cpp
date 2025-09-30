@@ -156,7 +156,7 @@ int ItemDropUIRootManager::GetArtifactIconID(DropItemInfo itemInfo)
 
 void ItemDropUIRootManager::DeserializedReflectEvent()
 {
-    ReflectFields->ArtifactsCategoryAssetID.resize(rfl::get_enumerator_array<ArtifactDropType>().size());
+    
 }
 
 void ItemDropUIRootManager::ImGuiDrawPropertysEvent()
@@ -188,43 +188,6 @@ void ItemDropUIRootManager::ImGuiDrawArtifactUIAssetSetting()
         }
         ImGuiHelper::HoveredToolTip(u8"유물 드랍 프레임 UI 에셋 경로입니다.");
 
-        if (ImGui::TreeNodeEx("Artifact Category Asset Setting", ImGuiTreeNodeFlags_DefaultOpen))   
-        {
-            ImGuiHelper::HoveredToolTip(u8"유물 카테고리 UI 에셋 ID 입니다.");
-            int i = 0;
-            for (auto& id : ReflectFields->ArtifactsCategoryAssetID)
-            {
-                constexpr auto     category  = rfl::get_enumerator_array<ArtifactDropType>();
-                static std::string inputBuff = STR_NULL;
-                inputBuff = UmFileSystem.GetPathFromAssetID(id).string();
-                if (inputBuff.empty())
-                {
-                    inputBuff = STR_NULL;
-                }              
-                auto& [str, value] = category[i];
-                ImGui::DragInt(str.data(), &id);
-                if (ImGui::BeginDragDropTarget())
-                {
-                    if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
-                    {
-                        DragDropAsset::Data* data      = static_cast<DragDropAsset::Data*>(payLoad->Data);
-                        File::Path           path      = data->GetPath();
-                        const auto           extension = path.extension();
-                        if (extension == L".png" || extension == L".dds")
-                        {
-                            if (int assetID = UmFileSystem.GetAssetIDFromPath(path); 0 != assetID)
-                            {
-                                id = assetID;
-                            }
-                        }
-                    }
-                    ImGui::EndDragDropTarget();
-                }
-                ImGuiHelper::HoveredToolTip(inputBuff);
-                ++i;
-            }
-            ImGui::TreePop();
-        }
         ImGui::TreePop();
     }
 }
