@@ -292,7 +292,6 @@ void ParticleComponent::LoadParticle(const std::string& keyString)
                                                     UmGraphics.LoadModelResource(
                                                         std::wstring_view(absolutePath.wstring()), emitter);
                                                 }
-
                                             }
                                             effect->SetPlayFlag(false);
                                             effect->SetActiveFlag(false);
@@ -340,7 +339,6 @@ void ParticleComponent::SetAnimator(class Animator* animator)
     {
         FollowBoneMatrix(keyString);
     }
-
 }
 
 void ParticleComponent::PlayEffect(const std::string& key)

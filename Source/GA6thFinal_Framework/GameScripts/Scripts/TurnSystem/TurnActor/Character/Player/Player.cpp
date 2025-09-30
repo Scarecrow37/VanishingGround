@@ -282,7 +282,6 @@ void Player::OnNotifiedAnimationEvent(const Timeline::EventContext* context)
         return;
     if ("castingStart" == context->GetLabel())
     {
-        //particlecomponent->PlayEffect();
         UmParticleManager->PlayEffect(particlecomponent, "handglow");
     }
     if ("attackEnd" == context->GetLabel())
