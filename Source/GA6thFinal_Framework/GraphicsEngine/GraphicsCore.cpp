@@ -2,9 +2,11 @@
 #include "GraphicsCore.h"
 #include "MeshRenderer.h"
 #include "SpriteRenderer.h"
-#include "FontRenderer.h"
+#include "TextRenderer.h"
+#include "SDFTextRenderer.h"
 #include "ParticleEmitter.h"
 #include "Font.h"
+#include "SDFFont.h"
 
 namespace Global
 {
@@ -146,7 +148,7 @@ void GraphicsCore::RegisterComponent(const std::string_view renderSceneName, Spr
     _renderer->RegisterRenderQueue(renderSceneName, component);
 }
 
-void GraphicsCore::RegisterComponent(const std::string_view renderSceneName, FontRenderer* component) const
+void GraphicsCore::RegisterComponent(const std::string_view renderSceneName, TextRenderer* component) const
 {
     _renderer->RegisterRenderQueue(renderSceneName, component);
 }
@@ -154,6 +156,18 @@ void GraphicsCore::RegisterComponent(const std::string_view renderSceneName, Fon
 void GraphicsCore::RegisterComponent(const std::string_view renderSceneName, Light* component) const
 {
     _lightCore->RegisterLight(renderSceneName, component);
+}
+
+void GraphicsCore::RegisterComponent(std::string_view renderSceneName, ISDFTextRenderer* component) const
+{
+    _renderer->RegisterRenderQueue(renderSceneName, static_cast<SDFTextRenderer*>(component));
+}
+
+void GraphicsCore::CreateSDFTextRenderer(class ISDFTextRenderer** component) const
+{
+    SDFTextRenderer* textRenderer = new SDFTextRenderer;
+    textRenderer->Initialize();
+    *component = textRenderer;
 }
 
 void GraphicsCore::LoadResource(std::wstring_view filePath, MeshRenderer* component) const
@@ -166,9 +180,14 @@ void GraphicsCore::LoadResource(const std::wstring_view filePath, SpriteRenderer
     component->SetTexture(_resourceManager->LoadResource<Texture>(filePath));
 }
 
-void GraphicsCore::LoadResource(const std::wstring_view filePath, FontRenderer* component) const
+void GraphicsCore::LoadResource(const std::wstring_view filePath, TextRenderer* component) const
 {
     component->SetFont(_resourceManager->LoadResource<Font>(filePath));
+}
+
+void GraphicsCore::LoadResource(std::wstring_view filePath, ISDFTextRenderer* component) const
+{
+    static_cast<SDFTextRenderer*>(component)->SetFont(_resourceManager->LoadResource<SDFFont>(filePath));
 }
 
 void GraphicsCore::LoadTextureResource(std::wstring_view filePath, ParticleEmitter* component) const

@@ -9,7 +9,8 @@
 #include "RenderTechnique.h"
 #include "SkyBox.h"
 #include "SpriteRenderer.h"
-#include "FontRenderer.h"
+#include "TextRenderer.h"
+#include "SDFTextRenderer.h"
 #include "AccelerationStructureManager.h"
 
 RenderScene::RenderScene(std::string_view name)
@@ -110,21 +111,38 @@ void RenderScene::RegisterOnRenderQueue(SpriteRenderer* component)
     component->_isDestroyeds.push_back(_uiRenderQueue.back().first.get());
 }
 
-void RenderScene::RegisterOnRenderQueue(FontRenderer* component)
+void RenderScene::RegisterOnRenderQueue(TextRenderer* component)
 {
     if (nullptr == component)
         return;
 
-    auto iter = std::find_if(_fontRenderQueue.begin(), _fontRenderQueue.end(), [](const auto& pair) { return !pair.first.get(); });
+    auto iter = std::find_if(_textRenderQueue.begin(), _textRenderQueue.end(), [](const auto& pair) { return !pair.first.get(); });
 
-    if (iter != _fontRenderQueue.end())
+    if (iter != _textRenderQueue.end())
     {
         GRAPHICS_ASSERT(false, L"RenderScene::RegisterRenderQueue : Already registered component.");
         return;
     }
 
-    _fontRenderQueue.emplace_back(std::make_unique<bool>(false), component);
-    component->_isDestroyeds.push_back(_fontRenderQueue.back().first.get());
+    _textRenderQueue.emplace_back(std::make_unique<bool>(false), component);
+    component->_isDestroyeds.push_back(_textRenderQueue.back().first.get());
+}
+
+void RenderScene::RegisterOnRenderQueue(SDFTextRenderer* component)
+{
+    if (nullptr == component)
+        return;
+
+    auto iter = std::find_if(_sdfTextRenderQueue.begin(), _sdfTextRenderQueue.end(), [](const auto& pair) { return !pair.first.get(); });
+
+    if (iter != _sdfTextRenderQueue.end())
+    {
+        GRAPHICS_ASSERT(false, L"RenderScene::RegisterRenderQueue : Already registered component.");
+        return;
+    }
+
+    _sdfTextRenderQueue.emplace_back(std::make_unique<bool>(false), component);
+    component->_isDestroyeds.push_back(_sdfTextRenderQueue.back().first.get());
 }
 
 void RenderScene::AddRenderTechnique(std::unique_ptr<RenderTechnique> technique)
@@ -147,7 +165,6 @@ void RenderScene::UpdateRenderScene(const float deltaTime)
     UpdateGlobal();
     UpdateObject();
     UpdateUI();
-    UpdateFont();
 
     if (Global::isRayTracing)
     {
@@ -374,12 +391,11 @@ void RenderScene::UpdateObject()
 
 void RenderScene::UpdateUI()
 {    
-    auto first = std::remove_if(_uiRenderQueue.begin(), _uiRenderQueue.end(), [](const auto& pair) { return *pair.first; });
-    _uiRenderQueue.erase(first, _uiRenderQueue.end());
+    auto iter_ui = std::remove_if(_uiRenderQueue.begin(), _uiRenderQueue.end(), [](const auto& pair) { return *pair.first; });
+    _uiRenderQueue.erase(iter_ui, _uiRenderQueue.end());
 
     _uiMatrices.clear();
     _uiMaterials.clear();
-
     for (auto& [isDestroy, component] : _uiRenderQueue)
     {
         if (!component->IsActive())
@@ -417,8 +433,7 @@ void RenderScene::UpdateUI()
             }
         }
         
-        world = XMMatrixTranspose(scale * world * translation);
-        _uiMatrices.push_back(world);
+        _uiMatrices.emplace_back(XMMatrixTranspose(scale * world * translation));
 
         UIMaterial uiMaterial{.ID          = texture->GetID(),
                               .Alpha       = component->GetAlpha(),
@@ -428,15 +443,10 @@ void RenderScene::UpdateUI()
                               .RowIndex    = component->GetRowIndex()};
         _uiMaterials.push_back(uiMaterial);
     }
-}
 
-void RenderScene::UpdateFont()
-{
-    auto first = std::remove_if(_fontRenderQueue.begin(), _fontRenderQueue.end(), [](const auto& pair) { return *pair.first; });
-    _fontRenderQueue.erase(first, _fontRenderQueue.end());
-
-    std::sort(_fontRenderQueue.begin(), _fontRenderQueue.end(),
-              [](const auto& a, const auto& b) { return a.second->GetPosition().z > b.second->GetPosition().z; });
+    // Text
+    auto iter_text = std::remove_if(_sdfTextRenderQueue.begin(), _sdfTextRenderQueue.end(), [](const auto& pair) { return *pair.first; });
+    _sdfTextRenderQueue.erase(iter_text, _sdfTextRenderQueue.end());
 }
 
 void RenderScene::CreateRenderTarget()
@@ -495,7 +505,7 @@ void RenderScene::CreateFrameResource()
         _frameResources[i]->AddFrameResource(sizeof(BoneMatrices), MAX_OBJECTS);
 
         // UI Transform
-        _frameResources[i]->AddFrameResource(sizeof(XMMATRIX), MAX_OBJECTS);
+        _frameResources[i]->AddFrameResource(sizeof(Matrix), MAX_OBJECTS);
 
         // UI Material
         _frameResources[i]->AddFrameResource(sizeof(UIMaterial), MAX_OBJECTS);
@@ -507,7 +517,7 @@ void RenderScene::CreateFrameResource()
         _frameResources[i]->AddFrameResource(sizeof(IndexBufferID), MAX_OBJECTS);
 
         //  Mesh Instance ID
-        _frameResources[i]->AddFrameResource(sizeof(MeshInstanceID), MAX_OBJECTS);
+        _frameResources[i]->AddFrameResource(sizeof(MeshInstanceID), MAX_OBJECTS);        
     }
 
     _cameraBuffer = std::make_unique<ConstantBufferView>();
