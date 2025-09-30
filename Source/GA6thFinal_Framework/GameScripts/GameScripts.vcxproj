@@ -350,6 +350,7 @@
     <ClInclude Include="Scripts\QTE\Track\QTETrack.h" />
     <ClInclude Include="Scripts\QTE\UI\QTEUIManager.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\LastQTEResultCondition\LastQTEResultCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.h" />
     <ClInclude Include="Scripts\Animation\AnimationComponent.h" />
     <ClInclude Include="Scripts\Animation\Structs\AnimationData.h" />
@@ -554,6 +555,7 @@
     <ClCompile Include="Scripts\QTE\Track\QTETrack.cpp" />
     <ClCompile Include="Scripts\QTE\UI\QTEUIManager.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\LastQTEResultCondition\LastQTEResultCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.cpp" />
     <ClCompile Include="Scripts\Animation\AnimationComponent.cpp" />
     <ClCompile Include="Scripts\Animation\Structs\AnimationData.cpp" />
