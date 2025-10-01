@@ -182,9 +182,11 @@
     <ClCompile Include="Scripts\UI\Views\Accessories\AccessoriesView.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UINavi\ReturnToMapNavi.cpp" />
     <ClCompile Include="Scripts\SceneTransition\TransitionManager.cpp" />
-    <ClCompile Include="Scripts\Test\SDF\TestSDFTextRenderer.cpp" />
+    <ClCompile Include="Scripts\UI\Contents\DamageElement.cpp" />
+    <ClCompile Include="Scripts\UI\Contents\SpawnDamagePanel.cpp" />
     <ClCompile Include="Scripts\Test\Audio\TestAudioComponent.cpp" />
     <ClCompile Include="Scripts\Camera\CameraManager.cpp" />
+    <ClCompile Include="Scripts\UI\Elements\SpriteAnimation\SpriteAnimationElement.cpp" />
     <ClCompile Include="Scripts\Audio\BGMManager.cpp" />
     <ClCompile Include="Scripts\Audio\BGMComponent.cpp" />
     <ClCompile Include="Scripts\Utility\FadeHelper.cpp" />
@@ -392,9 +394,11 @@
     <ClInclude Include="Scripts\WeaponModelManager\WeaponModelManager.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UINavi\ReturnToMapNavi.h" />
     <ClInclude Include="Scripts\SceneTransition\TransitionManager.h" />
-    <ClInclude Include="Scripts\Test\SDF\TestSDFTextRenderer.h" />
+    <ClInclude Include="Scripts\UI\Contents\DamageElement.h" />
+    <ClInclude Include="Scripts\UI\Contents\SpawnDamagePanel.h" />
     <ClInclude Include="Scripts\Test\Audio\TestAudioComponent.h" />
     <ClInclude Include="Scripts\Camera\CameraManager.h" />
+    <ClInclude Include="Scripts\UI\Elements\SpriteAnimation\SpriteAnimationElement.h" />
     <ClInclude Include="Scripts\Audio\BGMManager.h" />
     <ClInclude Include="Scripts\Audio\BGMComponent.h" />
     <ClInclude Include="Scripts\Utility\FadeHelper.h" />
