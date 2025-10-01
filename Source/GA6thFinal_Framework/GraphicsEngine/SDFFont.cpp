@@ -7,7 +7,11 @@ SDFFont::~SDFFont() = default;
 
 bool SDFFont::IsValid() const
 {
-    return _texture->IsValid();
+    if (_texture)
+    {
+        return _texture->IsValid();
+    }
+    return false;
 }
 
 void SDFFont::LoadResource(const std::filesystem::path& filePath, const std::function<void()>& callback)

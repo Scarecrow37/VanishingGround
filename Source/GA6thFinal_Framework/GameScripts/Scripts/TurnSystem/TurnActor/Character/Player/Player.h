@@ -41,6 +41,7 @@ private:
         class PlayerWaitTurnState* PlayerWaitTurnState = nullptr;
         class PlayerPlayTurnState* PlayerPlayTurnState = nullptr;
         class PlayerDeadState*     PlayerDeadState     = nullptr;
+        class PlayerWinState*      PlayerWinState      = nullptr;
     } 
     _fsmStates;
 public:

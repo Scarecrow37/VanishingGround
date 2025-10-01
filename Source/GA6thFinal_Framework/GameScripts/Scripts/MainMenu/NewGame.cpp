@@ -1,6 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "NewGame.h"
 #include "SceneTransition/TransitionManager.h"
+#include "PlayerSystem/PlayerSystem.h"
+#include "Map/MapManager.h"
 
 UMREAL_COMPONENT(NewGame)
 
@@ -33,7 +35,18 @@ void NewGame::Submit()
         auto transitionComponent = transitionManager->GetComponent<TransitionManager>();
         if (transitionComponent)
         {
-            transitionComponent->SceneTransitionFade("in", "out", [path]() { UmSceneManager.LoadScene(path.string()); });
+            transitionComponent->SceneTransitionFade("in", "out", [path]()                 
+            { 
+               UmSceneManager.LoadScene(path.string()); 
+               if (PlayerSystem* playerSystem = SingletonComponent<PlayerSystem>::GetInstance())
+               {
+                   playerSystem->SetStatsGameStart();
+               }
+               if (GameObject* mapManager = SingletonObject<MapManager>::GetInstance())
+               {
+                   GameObject::Destroy(mapManager);
+               }            
+            });
         }
     }
 }

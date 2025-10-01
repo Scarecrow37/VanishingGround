@@ -14,11 +14,13 @@
 #include "Condition/PlayerStartCondition.h"
 #include "Condition/PlayerExitCondition.h"
 #include "Condition/PlayerDeadCondition.h"
+#include "Condition/PlayerWinCondition.h"   
 
 //State
 #include "State/PlayerWaitTurnState.h"
 #include "State/PlayerPlayTurnState.h"
 #include "State/PlayerDeadState.h"
+#include "State/PlayerWinState.h"
 
 UMREAL_COMPONENT(Player)
 
@@ -197,11 +199,13 @@ void Player::BuildPlayerFSM()
         _finiteStateMachine->AddCondition<PlayerStartCondition>();
         _finiteStateMachine->AddCondition<PlayerExitCondition>();
         _finiteStateMachine->AddCondition<PlayerDeadCondition>();
+        _finiteStateMachine->AddCondition<PlayerWinCondition>();
 
         //States
         _fsmStates.PlayerWaitTurnState = _finiteStateMachine->AddState<PlayerWaitTurnState>();
         _fsmStates.PlayerPlayTurnState = _finiteStateMachine->AddState<PlayerPlayTurnState>();
         _fsmStates.PlayerDeadState     = _finiteStateMachine->AddState<PlayerDeadState>();
+        _fsmStates.PlayerWinState      = _finiteStateMachine->AddState<PlayerWinState>();
 
         //Transition
         _finiteStateMachine->AddTransition<PlayerWaitTurnState, PlayerStartCondition, PlayerPlayTurnState>();
@@ -209,6 +213,8 @@ void Player::BuildPlayerFSM()
 
         _finiteStateMachine->AddTransition<PlayerDeadCondition, PlayerDeadState>();
         _finiteStateMachine->AddTransition<PlayerDeadState, PlayerExitCondition, PlayerWaitTurnState>();
+
+        _finiteStateMachine->AddTransition<PlayerWinCondition, PlayerWinState>();
 
         //Entry
         _finiteStateMachine->SetEntryState<PlayerWaitTurnState>();

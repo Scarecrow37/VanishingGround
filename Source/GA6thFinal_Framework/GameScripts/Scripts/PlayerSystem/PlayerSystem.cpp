@@ -58,9 +58,37 @@ namespace
 PlayerSystem::PlayerSystem() = default;
 PlayerSystem::~PlayerSystem() = default;
 
+void PlayerSystem::SetStatsGameStart() 
+{
+    if (_singletonObject.IsSingleTon())
+    {
+        if (_playerStatsComponent)
+        {
+            PlayerStats& stats           = _playerStatsComponent->GetStats();
+            stats.CurrentHP              = stats.MaxHP;
+            stats.CurrentChainCount      = 0;
+            stats.CurrentChainRoundCount = stats.MaxChainRoundCount;
+        }      
+    }
+}
+
+void PlayerSystem::SetStatsCombatStart() 
+{
+    if (_singletonObject.IsSingleTon())
+    {
+        if (_playerStatsComponent)
+        {
+            PlayerStats& stats           = _playerStatsComponent->GetStats();
+            stats.CurrentChainCount      = 0;
+            stats.CurrentChainRoundCount = stats.MaxChainRoundCount;
+        }        
+    }
+}
+
 void PlayerSystem::Reset() 
 {
     _singletonObject.SetSingleTon();
+    _singletonComponent.SetSingleTon();
     CheckSystem();
 }
 
@@ -68,12 +96,21 @@ void PlayerSystem::Awake()
 {
     if (_singletonObject.TrySingleTon(true))
     {
+        _singletonComponent.TrySingleTon();
         CheckSystem();
         if (true == CheckWithLog(_playerStatsComponent))
         {
             PlayerStats& stats = _playerStatsComponent->GetStats();
             stats.RegisterHP();
         }
+    }
+}
+
+void PlayerSystem::Start() 
+{
+    if (ReflectFields->RevivePlayer)
+    {
+        SetStatsGameStart();
     }
 }
 
