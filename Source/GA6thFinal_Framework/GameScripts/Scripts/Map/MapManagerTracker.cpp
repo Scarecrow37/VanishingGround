@@ -10,9 +10,9 @@ MapManagerTracker::~MapManagerTracker() = default;
 void MapManagerTracker::Start() 
 {
     Base::Start();
-    if (MapManager* manager = SingletonComponent<MapManager>::GetInstance())
+    if (GameObject* manager = SingletonObject<MapManager>::GetInstance())
     {
-        if (manager->EnableInHierarchy)
+        if (manager->ActiveInHierarchy)
         {
             GameObject::DontDestroyOnLoad(gameObject);
             transform->SetParent(manager->transform);
