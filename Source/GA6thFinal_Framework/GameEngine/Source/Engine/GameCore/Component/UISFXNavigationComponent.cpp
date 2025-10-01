@@ -11,5 +11,8 @@ UISFXNavigationComponent::~UISFXNavigationComponent() = default;
 void UISFXNavigationComponent::FocusIn(const FocusCallType callType)
 {
     Base::FocusIn(callType);
-    UmAudio.Play(_focusInAudioID);
+    if (callType != FocusCallType::INITIAL)
+    {
+        UmAudio.Play(_focusInAudioID);
+    }
 }
