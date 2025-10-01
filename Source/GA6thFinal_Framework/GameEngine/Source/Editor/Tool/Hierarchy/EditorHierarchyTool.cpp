@@ -513,6 +513,12 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
                     GameObjectKey, GameObject::Helper::GenerateUniqueName("Text Element"), &ui);
                 UmComponentFactory.AddComponentToObject(ui, "class TextElement");
             }
+            if (ImGui::MenuItem("Sprite Animation Element"))
+            {
+                 UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Sprite Animation Element"), &ui);
+                UmComponentFactory.AddComponentToObject(ui, "class SpriteAnimationElement");
+            }
             ImGui::EndMenu();
         }
         ImGui::EndMenu();
