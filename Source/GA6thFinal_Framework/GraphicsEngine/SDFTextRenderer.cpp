@@ -19,7 +19,7 @@ bool SDFTextRenderer::IsActive() const
 }
 
 Vector2 SDFTextRenderer::GetStringSize() const
-{
+{    
     return _size * _fontSize;
 }
 
@@ -37,12 +37,16 @@ void SDFTextRenderer::SetFont(std::shared_ptr<SDFFont> font)
 {
     _font = font;
     _dirty = true;
+
+    MeasureString();
 }
 
 void SDFTextRenderer::SetText(const wchar_t* text)
 {
     _text = text;
     _dirty = true;
+
+    MeasureString();
 }
 
 void SDFTextRenderer::SetFontSize(const float fontSize)
@@ -169,11 +173,6 @@ void SDFTextRenderer::Update(ID3D12GraphicsCommandList* commandList)
             float quadRight  = cursorX + planeRight;
             float quadTop    = cursorY - planeTop;
 
-            calculatedBounds[0] = std::min(calculatedBounds[0], quadLeft);
-            calculatedBounds[1] = std::min(calculatedBounds[1], quadTop);
-            calculatedBounds[2] = std::max(calculatedBounds[2], quadRight);
-            calculatedBounds[3] = std::max(calculatedBounds[3], quadBottom);
-
             _vertices[_charCount * 4 + 0] = Vertex{{quadLeft, quadTop, 0.f, 1.f}, {u0, v0}};
             _vertices[_charCount * 4 + 1] = Vertex{{quadRight, quadTop, 0.f, 1.f}, {u1, v0}};
             _vertices[_charCount * 4 + 2] = Vertex{{quadRight, quadBottom, 0.f, 1.f}, {u1, v1}};
@@ -181,15 +180,6 @@ void SDFTextRenderer::Update(ID3D12GraphicsCommandList* commandList)
 
             cursorX += glyph->Advance;
             _charCount++;
-        }
-
-        if (_charCount > 0)
-        {
-            _size = Vector2(calculatedBounds[2] - calculatedBounds[0], calculatedBounds[3] - calculatedBounds[1]);
-        }
-        else
-        {
-            _size = Vector2::Zero;
         }
 
         if (0 == _charCount)
@@ -225,4 +215,61 @@ void SDFTextRenderer::Render(ID3D12GraphicsCommandList* commandList)
     commandList->IASetVertexBuffers(0, 1, &_vertexBufferView);
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     commandList->DrawIndexedInstanced(static_cast<UINT>(_charCount) * 6, 1, 0, 0, 0);
+}
+
+void SDFTextRenderer::MeasureString()
+{
+    const auto& metricsInfo         = _font->GetMetricsInfo();
+    float       calculatedBounds[4] = {FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX};
+    int         cursorX             = 0;
+    int         cursorY             = 0;
+    int         charCount           = 0;
+
+    for (wchar_t wc : _text)
+    {
+        if (_charCount >= MAX_CHARS)
+            break;
+
+        if (wc == L'\n')
+        {
+            cursorX = 0;
+            cursorY += (int)metricsInfo.LineHeight;
+            continue;
+        }
+
+        const SDF::Glyph* glyph = _font->GetGlyph(wc);
+        if (!glyph)
+        {
+            glyph = _font->GetGlyph(L'□'); // Use a default character
+            if (!glyph)
+                continue;
+        }
+
+        float planeLeft   = glyph->PlaneBounds.Left;
+        float planeBottom = glyph->PlaneBounds.Bottom;
+        float planeRight  = glyph->PlaneBounds.Right;
+        float planeTop    = glyph->PlaneBounds.Top;
+
+        float quadLeft   = cursorX + planeLeft;
+        float quadBottom = cursorY - planeBottom;
+        float quadRight  = cursorX + planeRight;
+        float quadTop    = cursorY - planeTop;
+
+        calculatedBounds[0] = std::min(calculatedBounds[0], quadLeft);
+        calculatedBounds[1] = std::min(calculatedBounds[1], quadTop);
+        calculatedBounds[2] = std::max(calculatedBounds[2], quadRight);
+        calculatedBounds[3] = std::max(calculatedBounds[3], quadBottom);
+
+        cursorX += (int)glyph->Advance;
+        charCount++;
+    }
+
+    if (charCount > 0)
+    {
+        _size = Vector2(calculatedBounds[2] - calculatedBounds[0], calculatedBounds[3] - calculatedBounds[1]);
+    }
+    else
+    {
+        _size = Vector2::Zero;
+    }
 }
