@@ -73,8 +73,16 @@ void Stage::Submit()
         auto transitionComponent = transitionManager->GetComponent<TransitionManager>();
         if (transitionComponent)
         {
-            transitionComponent->SceneTransitionFade("in", "out",
-                                                     [stagePath]() { UmSceneManager.LoadScene(stagePath); });
+            std::array<DropItemInfo, ARTIFACT_DROP_COUNT>& droptable = _dropItemInfos;
+            transitionComponent->SceneTransitionFade("in", "out", [stagePath, droptable]() 
+            { 
+                UmSceneManager.LoadScene(stagePath); 
+                if (auto instance = SingletonComponent<ItemDropSystem>::GetInstance(); instance)
+                {
+                    instance->StageClearCount = 0;
+                    instance->SetDropItem(droptable);
+                }
+            });
         }
     }
     _stageEnable = false;
