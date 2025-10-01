@@ -1251,8 +1251,11 @@ void ESceneManager::ObjectsAddRuntime()
         }
     }
 
+    //임시 큐
+    static thread_local std::vector<Component*> addQueue;
+    addQueue.clear();
     for (auto& [owner, component] : _addComponentsQueue)
-    {
+    {   
         if (owner.expired() == false)
         {
             if (_isPlay)
@@ -1264,11 +1267,18 @@ void ESceneManager::ObjectsAddRuntime()
             {
                 component->gameObject->_transform._hasChanged = true;
             }
-            component->UpdateEnableInHierarchy();
-            component->Reset();
+            addQueue.push_back(component.get());
         }
     }
 
+    //안전하게 원본 배열에서 복사 후 이벤트 호출
+    for (auto& component : addQueue)
+    {
+        component->UpdateEnableInHierarchy();
+        component->Reset();
+    }
+
+    //정리
     _addGameObjectsQueue.clear();
     _addComponentsQueue.clear();
 }
