@@ -47,6 +47,7 @@ protected:
     SIZE ArrangeOverride(SIZE finalSize) override;
 
     void OnDrawDebugSelectedOverride() override;
+    void DeserializedReflectEvent() override;
 
     void Awake() override;
     void Reset() override;

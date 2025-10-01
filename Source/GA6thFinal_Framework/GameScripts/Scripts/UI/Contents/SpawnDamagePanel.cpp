@@ -80,6 +80,17 @@ void SpawnDamagePanel::OnDrawDebugSelectedOverride()
     DrawDebug()(center, radius, Colors::Red);
 }
 
+void SpawnDamagePanel::DeserializedReflectEvent()
+{
+    UIComponent::DeserializedReflectEvent();
+
+    const File::Guid guid = ReflectFields->Guid;
+    if (const auto path = guid.ToPath(); !path.IsNull())
+    {
+        _guidRef = path.ToGuid();
+    }
+}
+
 void SpawnDamagePanel::Awake()
 {
     UIComponent::Awake();
