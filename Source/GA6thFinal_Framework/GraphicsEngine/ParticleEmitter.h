@@ -57,14 +57,14 @@ public:
     void                  SetModelPath(std::wstring_view filepath);
     void    LoadVerticesFromModel(std::shared_ptr<class Model> model);
     std::filesystem::path GetModelPath() const { return _targetModelPath; }
-    
-
 
 private:
     std::wstring                 _targetModelPath = L"";
     std::shared_ptr<class Model> _targetModel;
     std::vector<UINT>            _vertexCountPerMesh;
     UINT                         _totalVertexCount = 0;
+    Vector4                      _minCoord         = {0, 0, 0, 0};
+    Vector4                      _maxCoord         = {0, 0, 0, 0};
 };
 
 /// <summary>

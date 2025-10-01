@@ -134,21 +134,72 @@ void MeshSurfaceLocator::SetModelPath(std::wstring_view filepath)
     _targetModelPath = filepath;
 }
 
-void MeshSurfaceLocator::LoadVerticesFromModel(std::shared_ptr<class Model> model) 
+void MeshSurfaceLocator::LoadVerticesFromModel(std::shared_ptr<class Model> model)
 {
     _targetModel = std::move(model);
     _vertexCountPerMesh.clear();
-    _totalVertexCount = 0;
+    _totalVertexCount = 0u;
+
+    // 전역 min/max 초기화
+    using DirectX::SimpleMath::Vector3;
+    using DirectX::SimpleMath::Vector4;
+
+    // 아직 값이 없음을 표시하기 위한 플래그
+    bool    inited = false;
+    Vector3 vmin{}, vmax{};
+
     for (auto& mesh : _targetModel->GetMeshes())
     {
-        char* tempvertex;
-        UINT  stride;
-        UINT  size;
-        mesh->GetVertexInfo(tempvertex, stride, size);
-        _vertexCountPerMesh.push_back(size);
-        _totalVertexCount += size;
+        char* vertices = nullptr;
+        UINT  stride   = 0;
+        UINT  sizeB    = 0; // 바이트 단위 크기
+        mesh->GetVertexInfo(vertices, stride, sizeB);
+
+        // 방어 코드: stride와 sizeB가 유효한지 확인
+        if (vertices == nullptr || stride == 0 || sizeB < sizeof(StaticMeshVertex))
+            continue;
+
+        const UINT count = sizeB / stride; // 정점 개수
+        _vertexCountPerMesh.push_back(count);
+        _totalVertexCount += count;
+
+        // 정점 순회하며 min/max 갱신
+        for (UINT i = 0; i < count; ++i)
+        {
+            const StaticMeshVertex* vtx = reinterpret_cast<const StaticMeshVertex*>(vertices + i * stride);
+            const Vector3           p(vtx->Position.x, vtx->Position.y, vtx->Position.z);
+
+            if (!inited)
+            {
+                vmin = vmax = p;
+                inited      = true;
+            }
+            else
+            {
+                vmin.x = std::min(vmin.x, p.x);
+                vmin.y = std::min(vmin.y, p.y);
+                vmin.z = std::min(vmin.z, p.z);
+
+                vmax.x = std::max(vmax.x, p.x);
+                vmax.y = std::max(vmax.y, p.y);
+                vmax.z = std::max(vmax.z, p.z);
+            }
+        }
+    }
+
+    // 멤버에 기록 (w는 0으로)
+    if (inited)
+    {
+        _minCoord = Vector4(vmin.x, vmin.y, vmin.z, 0.0f);
+        _maxCoord = Vector4(vmax.x, vmax.y, vmax.z, 0.0f);
+    }
+    else
+    {
+        _minCoord = Vector4(0, 0, 0, 0);
+        _maxCoord = Vector4(0, 0, 0, 0);
     }
 }
+
 
 void SpriteModule::Initialize()
 {
@@ -402,14 +453,10 @@ void ParticleEmitter::Update(float deltaTime)
         }
     }
 
-
-
-
     _emitterAge += deltaTime;
     if (_emitterAge >= _emitterLifetime -_particleLifetime)
     {
         _endFlag = true;
-        //return;
     }
     if (_emitterAge >= _emitterLifetime)
     {
@@ -429,9 +476,6 @@ void ParticleEmitter::Update(float deltaTime)
             _lightCurrentIntensity = (float)std::lerp(0, _lightIntensity, _activeParticleCount / value);
         _lightCurrentRange = _lightRange;
     }
-
-
-
 }
 
 
