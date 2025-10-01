@@ -17,7 +17,7 @@ void GraphicsModule::PreInitialize()
 {
     _rendererFileEvent = std::make_unique<RendererFileEvent>();
     UmFileSystem.RegisterFileEventSubscriber(_rendererFileEvent.get(),
-                                             {".png", ".dds", ".fbx", ".hdr", ".UmModel", ".sfont", ".jpg"});
+                                             {".png", ".dds", ".fbx", ".hdr", ".UmModel", ".sfont", ".jpg", ".inl"});
 
     UmFileSystem.RegisterFileEventSubscriber(&UmParticleSerializer, {".vfx"});
 

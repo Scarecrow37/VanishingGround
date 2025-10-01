@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "PreferencesManager.h"
 #include "PrefrencesWindow.h"
+#include "Map/MapManager.h"
 
 UMREAL_COMPONENT(PreferencesManager)
 
@@ -28,12 +29,12 @@ PreferencesManager::~PreferencesManager() = default;
 void PreferencesManager::Reset()
 {
     std::string currSceneName = UmSceneManager.GetMainScene()->Name;
-    if ("MainMenu" != currSceneName)
-        BindInputAction(ControllerButton::BACK, Action::PRESSED, this, &PreferencesManager::OnPreferencesWindow);
 }
 
 void PreferencesManager::Awake()
 {
+    _singletonComponent.TrySingleTon();
+
     _preferencesPannel = GameObject::Find("PreferencesPannel").lock().get();
     if (nullptr == _preferencesPannel)
         UmLogger.Log(LogLevel::LEVEL_ERROR, "환경설정 패널이 없습니다!");
