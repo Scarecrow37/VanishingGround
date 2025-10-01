@@ -9,4 +9,5 @@ struct CharacterHUDGroup
     OverlayPanel* EnemyHUDPanel[3] = {nullptr, nullptr, nullptr}; // Left, Middle, Right
 
     bool FindUI();
+    bool IsValid();
 };
