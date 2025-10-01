@@ -349,13 +349,13 @@ void QTEUIManager::UpdateQTEUI()
     auto  mode   = _mainFader.GetFadeMode();
     switch (mode)
     {
-    case QTEUIManager::Fader::FADE_NONE:
+    case Fader::FADE_NONE:
         break;
-    case QTEUIManager::Fader::FADE_IN: {
+    case Fader::FADE_IN: {
         SetUIAlpha(factor);
         break;
     }
-    case QTEUIManager::Fader::FADE_OUT: {
+    case Fader::FADE_OUT: {
         SetUIAlpha(factor);
         SetBackgroundUIAlpha(factor);
         break;
@@ -655,115 +655,4 @@ ImageElement* QTEUIManager::FindNoteUIFromNoteID(int noteID) const
         return itr->second;
     }
     return nullptr;
-}
-
-void QTEUIManager::Fader::SetFadeMode(Mode mode) 
-{
-    _fadeMode = mode;
-}
-
-void QTEUIManager::Fader::SetDuration(float duration)
-{
-    _duration = std::max(duration, 0.0f);
-}
-
-void QTEUIManager::Fader::SetTimer(float timer) 
-{
-    _timer = std::clamp(timer, 0.0f, _duration);
-}
-
-void QTEUIManager::Fader::SetFadeInType(Mathf::EaseType type, Mathf::EaseFuncType func) 
-{
-    _fadeInEaseType = type;
-    _fadeInFuncType = func;
-}
-
-void QTEUIManager::Fader::SetFadeOutType(Mathf::EaseType type, Mathf::EaseFuncType func) 
-{
-    _fadeOutEaseType = type;
-    _fadeOutFuncType = func;
-}
-
-void QTEUIManager::Fader::SetOnFadeInEndCallback(const std::function<void()>& callback)
-{
-    _onFadeInEndCallback = callback;
-}
-
-void QTEUIManager::Fader::SetOnFadeOutEndCallback(const std::function<void()>& callback) 
-{
-    _onFadeOutEndCallback = callback;
-}
-
-float QTEUIManager::Fader::Fade()
-{
-    switch (_fadeMode)
-    {
-    case QTEUIManager::Fader::FADE_NONE:
-        break;
-    case QTEUIManager::Fader::FADE_IN:
-    {
-        if (IsFadeInEnd())
-        {
-            return 1.0f;
-        }
-        else
-        {
-            FadeIn();
-            break;
-        }
-    }
-    case QTEUIManager::Fader::FADE_OUT:
-    {
-        if (IsFadeOutEnd())
-        {
-            return 0.0f;
-        }
-        else
-        {
-            FadeOut();
-            break;
-        }
-    }
-    default:
-        break;
-    }
-    return _fadeFactor;
-}
-
-float QTEUIManager::Fader::FadeIn()
-{
-    _timer += UmTime.DeltaTime();
-    _timer = std::min(_timer, _duration);
-
-    float factor = std::min(_timer / _duration, 1.0f);
-    _fadeFactor  = Mathf::Ease(_fadeInEaseType, _fadeInFuncType, 0.5f, factor);
-    if (IsFadeInEnd() && _onFadeInEndCallback)
-    {
-        _onFadeInEndCallback();
-    }
-    return _fadeFactor;
-}
-
-float QTEUIManager::Fader::FadeOut()
-{
-    _timer -= UmTime.DeltaTime();
-    _timer = std::max(_timer, 0.0f);
-
-    float factor = std::max(_timer / _duration, 0.0f);
-    _fadeFactor  = Mathf::Ease(_fadeOutEaseType, _fadeOutFuncType, 0.5f, factor);
-    if (IsFadeOutEnd() && _onFadeOutEndCallback)
-    {
-        _onFadeOutEndCallback();
-    }
-    return _fadeFactor;
-}
-
-bool QTEUIManager::Fader::IsFadeInEnd() const
-{
-    return 0.9999f <= _fadeFactor;
-}
-
-bool QTEUIManager::Fader::IsFadeOutEnd() const
-{
-    return 0.0001f >= _fadeFactor;
 }

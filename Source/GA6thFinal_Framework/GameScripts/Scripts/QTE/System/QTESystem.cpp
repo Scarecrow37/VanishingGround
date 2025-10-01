@@ -412,6 +412,11 @@ void QTESystem::PressedQTEButton(Input::Controller::Button buttonType)
 {
     if (_currQTEPlaying)
     {
+        if (_currentNoteIndex >= _noteAvailQueue.size())
+        {
+            return;
+        }
+
         QTE::Note*       curNote = _noteAvailQueue[_currentNoteIndex];
         QTE::NoteResult& result  = _overallResult.NoteResults[_currentNoteIndex];
         ++_currentNoteIndex;
