@@ -164,6 +164,7 @@ void CharacterBase::Revive()
     if (stats)
     {
         stats->CurrentHP = stats->MaxHP;
+        stats->CurrentChainCount = stats->MaxChainRoundCount;
     }
 }
 
