@@ -882,9 +882,9 @@ Scene* ESceneManager::GetSceneByName(std::string_view name)
 
 void ESceneManager::ObjectsAwake()
 {
-    static thread_local std::vector<std::shared_ptr<Component>> awakeVector;
+    static thread_local std::vector<Component*> awakeVector;
     awakeVector.clear();
-    awakeVector = _waitAwakeVec;
+    std::ranges::transform(_waitAwakeVec, std::back_inserter(awakeVector), [](const std::shared_ptr<Component>& ptr) { return ptr.get(); });
     for (auto& component : awakeVector)
     {
         if (component->_enableInHierarchy)
@@ -902,9 +902,9 @@ void ESceneManager::ObjectsAwake()
 
 void ESceneManager::ObjectsStart()
 {
-    static thread_local std::vector<std::shared_ptr<Component>> startVector;
+    static thread_local std::vector<Component*> startVector;
     startVector.clear();
-    startVector = _waitStartVec;
+    std::ranges::transform(_waitStartVec, std::back_inserter(startVector), [](const std::shared_ptr<Component>& ptr) { return ptr.get(); });
     for (auto& component : startVector)
     {
         if (component->_enableInHierarchy)
