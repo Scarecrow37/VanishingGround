@@ -9,6 +9,7 @@
 #include "RevelationSystem/RevelationSystem.h"
 #include "WeaponSystem/WeaponSystem.h"
 #include "AccessorySystem/AccessorySystem.h"
+#include "PlayerSystem/PlayerSystem.h"
 
 #include "Scripts/Stats/Enemy/EnemyStatsComponent.h"
 #include "UI/Views/MonsterHp/MonsterHpView.h"
@@ -83,9 +84,7 @@ void CombatStartPhase::OnAwake()
     RegisterEnemiesHP();
     RegisterEnemiesChain();
     ReviveEnemies();
-
-    //임시 코드 (게임 시작시 실행되어야함)
-    _player->Revive();
+    ResetPlayer();
 }
 
 void CombatStartPhase::OnStart() 
@@ -373,5 +372,14 @@ void CombatStartPhase::ReviveEnemies()
     for (auto& enemy : _enemies)
     {
         enemy->CharacterBase::Revive();
+    }
+}
+
+void CombatStartPhase::ResetPlayer() 
+{
+    PlayerSystem* playerSystem = SingletonComponent<PlayerSystem>::GetInstance();
+    if (playerSystem)
+    {
+        playerSystem->SetStatsCombatStart();
     }
 }
