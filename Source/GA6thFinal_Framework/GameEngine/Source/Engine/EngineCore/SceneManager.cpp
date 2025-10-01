@@ -1142,8 +1142,6 @@ void ESceneManager::ObjectsDestroy()
         {
             return destroyComponent == component.get();
         });
-
-        NotInitDestroyComponentEraseToWaitVec(destroyComponent);
     }
 
     //오브젝트 삭제
@@ -1159,7 +1157,6 @@ void ESceneManager::ObjectsDestroy()
             for (auto& component : destroyObject->_components)
             {
                 component->OnDestroy();
-                NotInitDestroyComponentEraseToWaitVec(component.get());
             }
         }
 
@@ -1330,6 +1327,7 @@ void ESceneManager::AddDestroyComponentQueue(Component* component)
         if (result)
         {
             vec.push_back(component);
+            NotInitDestroyComponentEraseToWaitVec(component);
         }
     }
 }
@@ -1443,11 +1441,15 @@ void ESceneManager::AddDestroyObjectQueue(GameObject* gameObject)
     if (gameObject->IsValid())
     {
         auto& [set, vec] = engineCore->SceneManager._destroyObjectsQueue;
-        Transform::ForeachDFS(gameObject->_transform, [&set, &vec](Transform* pTransform) {
+        Transform::ForeachDFS(gameObject->_transform, [this, &set, &vec](Transform* pTransform) {
             auto [iter, result] = set.insert(&pTransform->gameObject);
             if (result)
             {
                 vec.push_back(&pTransform->gameObject);
+                for (auto& component : pTransform->_gameObject._components)
+                {
+                    NotInitDestroyComponentEraseToWaitVec(component.get());
+                }
             }
         });
     }
