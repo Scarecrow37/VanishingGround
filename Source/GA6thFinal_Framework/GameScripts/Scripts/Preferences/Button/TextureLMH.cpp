@@ -114,18 +114,17 @@ void TextureLMH::Update()
     }
 }
 
-
-void TextureLMH::FocusIn()
+void TextureLMH::FocusIn(const FocusCallType callType)
 {
-    Base::FocusIn();
+    Base::FocusIn(callType);
 
     _isFocus       = true;
     _isOptionDirty = true;
 }
 
-void TextureLMH::FocusOut()
+void TextureLMH::FocusOut(const FocusCallType callType)
 {
-    Base::FocusOut();
+    Base::FocusOut(callType);
 
     _isFocus       = false;
     _isOptionDirty = true;
@@ -140,7 +139,7 @@ void TextureLMH::DeserializedReflectEvent()
     UINavigationComponent::DeserializedReflectEvent();
 }
 
-void TextureLMH::FocusPref(bool isfocus)
+void TextureLMH::FocusPref(const bool isfocus)
 {
     if (nullptr == _pref)
     {
@@ -207,7 +206,7 @@ void TextureLMH::GetChildObject()
     }
 }
 
-void TextureLMH::SetQuality(int quality)
+void TextureLMH::SetQuality(const int quality)
 {
     // quality 범위 체크
     if (quality < 0 || quality >= TextureQuality::TEXTURE_QUALITY_END)

@@ -79,7 +79,7 @@ void RestartStageNavi::Submit()
     }
 }
 
-void RestartStageNavi::FocusIn() 
+void RestartStageNavi::FocusIn(FocusCallType callType)
 {
     using namespace RestartUtility;
 
@@ -97,7 +97,7 @@ void RestartStageNavi::FocusIn()
     }
 }
 
-void RestartStageNavi::FocusOut() 
+void RestartStageNavi::FocusOut(FocusCallType callType) 
 {
     using namespace RestartUtility;
 
