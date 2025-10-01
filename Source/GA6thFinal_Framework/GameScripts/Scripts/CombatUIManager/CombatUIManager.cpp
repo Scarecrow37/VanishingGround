@@ -11,6 +11,7 @@ CombatUIManager::~CombatUIManager() = default;
 void CombatUIManager::Refresh()
 {
     _charactorHUDGroup.FindUI();
+    _charactorHUDGroup.RefreshEnemiesPosition();
 }
 
 void CombatUIManager::SetActiveUI(bool active) 
@@ -34,6 +35,18 @@ void CombatUIManager::Awake()
     {
         Refresh();
     }
+}
+
+void CombatUIManager::Update() 
+{
+    if (_charactorHUDGroup.IsValid())
+    {
+        _charactorHUDGroup.RefreshUIPosition();
+    }
+}
+
+void CombatUIManager::FixedUpdate() 
+{
 }
 
 void CombatUIManager::ImGuiDrawPropertysEvent() 

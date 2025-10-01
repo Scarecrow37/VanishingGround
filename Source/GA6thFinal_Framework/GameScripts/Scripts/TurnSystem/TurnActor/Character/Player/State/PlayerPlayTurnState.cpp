@@ -16,6 +16,8 @@
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 
+#include <CombatUIManager/CombatUIManager.h>
+
 
 using namespace u8_literals;
 
@@ -87,6 +89,11 @@ void PlayerPlayTurnState::OnUpdate()
         break;
     default:
         break;
+    }
+
+    if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        combatUIManager->Refresh();
     }
 }
 

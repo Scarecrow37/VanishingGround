@@ -20,6 +20,8 @@ public:
     /// </summary>
     void Refresh();
 
+    void RefreshPosition();
+
     /// <summary>
     /// UI의 활성화 상태를 설정합니다.
     /// </summary>
@@ -29,6 +31,8 @@ public:
 protected:
     void Reset() override;
     void Awake() override;
+    void Update() override;
+    void FixedUpdate() override;
     void ImGuiDrawPropertysEvent() override;
     void SerializedReflectEvent() override;
     void DeserializedReflectEvent() override;
