@@ -92,3 +92,11 @@ void TestSDFTextRenderer::UpdatePosition() const
         _renderer->SetPosition(Vector3(ReflectFields->PosX, ReflectFields->PosY, 0.0f));
     }
 }
+
+void TestSDFTextRenderer::UpdateFontWeight() const
+{
+    if (_renderer != nullptr)
+    {
+        _renderer->SetFontWeight(ReflectFields->FontWeight);
+    }
+}

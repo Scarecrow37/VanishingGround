@@ -14,9 +14,15 @@ public:
     // ISDFTextRenderer을(를) 통해 상속됨
     bool    IsActive() const override;
     Vector2 GetStringSize() const override;
+    Vector2 MeasureString(const wchar_t* text);
 
     D3D12_GPU_DESCRIPTOR_HANDLE GetFontTextureHandle() const;
     const Vector4&              GetColor() const { return _color; }
+    const float                 GetFontWeight() const { return _fontWeight; }
+    const SDFFont*              GetFont() const { return _font.get(); }
+    const Vector3&              GetRotation() const { return _rotation; }
+    const Vector3&              GetPosition() const { return _position; }
+    const float                 GetFontSize() const { return _fontSize; }
 
 public:
     void SetFont(std::shared_ptr<SDFFont> font);
@@ -26,6 +32,7 @@ public:
     void SetRotation(const Vector3& rotation) override;
     void SetPosition(const Vector3& position) override;
     void SetColor(const Vector4& color) override;
+    void SetFontWeight(const float fontWeight) override;
 
 public:
     void Release() override;
@@ -51,6 +58,7 @@ private:
     Vector3                  _position;
     Vector2                  _size;
     float                    _fontSize;
+    float                    _fontWeight;
     UINT                     _charCount = 0;
     bool                     _dirty = false;
 
