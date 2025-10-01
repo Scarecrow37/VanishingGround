@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Utility/SingletonHelper.h"
 
 class Stage;
 class ScrollingWrapper;
@@ -18,6 +19,8 @@ public:
     void Awake() override;
     void Update() override;
     void OnLoadScene(Scene& loadScene, LoadSceneMode mode) override;
+
+    void UINotify() const { _focusStage.Notify(); }
 
 public:
     REFLECT_PROPERTY(MapScenePath, BackgroundImage, StageEnableImage, StageDisableImage, StageFocusImage, RewardPopupImage)
@@ -72,4 +75,8 @@ private:
     int                 _childCount   = 0;
     float               _scrollSpeed  = 100.0f;
     int                 _clearedStage = 0;
+
+private:
+    SingletonObject<MapManager>    _singletonObject{this};
+    SingletonComponent<MapManager> _singletonComponent{this};
 };

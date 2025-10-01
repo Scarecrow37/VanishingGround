@@ -40,6 +40,9 @@ GameApplication::GameApplication()
         _windowName = L"Project VG <DirectX12>";
         SetStyleToBorderlessWindowed();
     }
+
+    //덤프 설정
+    //SetUnhandledExceptionFilter(CustomUnhandledExceptionFilter);
 }
 
 GameApplication::~GameApplication()

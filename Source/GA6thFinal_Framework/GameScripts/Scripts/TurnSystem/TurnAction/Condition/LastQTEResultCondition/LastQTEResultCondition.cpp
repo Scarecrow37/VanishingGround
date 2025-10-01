@@ -1,0 +1,69 @@
+﻿#include "pchScripts.h"
+#include "LastQTEResultCondition.h"
+#include "QTE/System/QTESystem.h"
+
+REGISTER_TURN_ACTION_CONDITION(LastQTEResultCondition)
+
+LastQTEResultCondition::LastQTEResultCondition()
+{
+    UpdateConditionInfo();
+}
+
+LastQTEResultCondition::~LastQTEResultCondition() = default;
+
+bool LastQTEResultCondition::Evaluate()
+{
+    if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
+    {
+        const QTE::OverallResult& overall = system->GetQTEOverallResult();
+        ResultType type    = ReflectFields->Type;
+        switch (type)
+        {
+        case LastQTEResultCondition::ResultType::ALL_CRIT:
+            return overall.CompareResult(QTE::QTE_RESULT_ALL_CRIT);
+        case LastQTEResultCondition::ResultType::OVER_HIT:
+            return overall.CompareResult(QTE::QTE_RESULT_OVER_HIT);
+        default:
+            return false;
+        }
+    }
+    return false;
+}
+
+void LastQTEResultCondition::DrawImguiEditor() 
+{
+    const std::array<std::string_view, 2> tooltips = {
+        (const char*)u8"치명적", 
+        (const char*)u8"무결점"
+    };
+
+    ImGuiHelper::EnumCombo<ResultType>("QTE Type", ReflectFields->Type, [this](const std::pair<std::string_view, ResultType>& pair) 
+    { 
+        ReflectFields->Type = pair.second;
+        UpdateConditionInfo();
+    },
+    &tooltips);
+}
+
+const std::string& LastQTEResultCondition::GetConditionInfo() const
+{
+    return conditionInfo;
+}
+
+void LastQTEResultCondition::UpdateConditionInfo()
+{
+    conditionInfo = (const char*)u8"마지막 QTE 결과가 ";
+    ResultType type = ReflectFields->Type;
+    switch (type)
+    {
+    case LastQTEResultCondition::ResultType::ALL_CRIT:
+        conditionInfo += (const char*)u8"치명적";
+        break;
+    case LastQTEResultCondition::ResultType::OVER_HIT:
+        conditionInfo += (const char*)u8"무결점";
+        break;
+    default:
+        conditionInfo = STR_NULL;
+        break;
+    }
+}

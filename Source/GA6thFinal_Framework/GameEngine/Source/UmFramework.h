@@ -100,23 +100,23 @@ using namespace Microsoft::WRL;
 // Graphics
 #include "../GraphicsEngine/Graphics.h"
 
+//Class Core
+#include "Engine/ClassCore/Delegate.hpp"
+#include "Engine/ClassCore/TProperty.hpp"
+#include "Engine/ClassCore/ReflectHelper.h"
+
 //Utility
 #include "Engine/Utility/Random.h"
 #include "Engine/Utility/LogLevel.h"
 #include "Engine/Utility/utfHelper.h"
 #include "Engine/Utility/DumpUtility.h"
 #include "Engine/Utility/dllUtility.h"
-#include "Engine/Utility/ImGuiHelper.h"
 #include "Engine/Utility/stlHelper.h"
 #include "Engine/Utility/EditorHelper.h"
 #include "Engine/Utility/Mathf.h"
 #include "Engine/Utility/OpenXLSXHelper.h"
 #include "Engine/Utility/BoxSpacing.h"
-
-//Class Core
-#include "Engine/ClassCore/Delegate.hpp"
-#include "Engine/ClassCore/TProperty.hpp"
-#include "Engine/ClassCore/ReflectHelper.h"
+#include "Engine/Utility/ImGuiHelper.h"
 
 //Input Module
 #include "../InputModule/InputModule.h"
