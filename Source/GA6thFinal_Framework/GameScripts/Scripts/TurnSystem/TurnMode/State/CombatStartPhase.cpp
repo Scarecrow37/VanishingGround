@@ -95,6 +95,9 @@ void CombatStartPhase::OnStart()
 
 void CombatStartPhase::OnEnter() 
 {
+    /// 사운드
+    UmAudio.Play("-20000");
+
     _turnMode->ResetRoundCount();
     AddValidActions();
 

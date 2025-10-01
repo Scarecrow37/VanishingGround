@@ -54,9 +54,9 @@ void QTESystem::Start()
 
 void QTESystem::Update()
 {
-#ifdef _UMEDITOR
     if (IsQTEPlaying())
     {
+#ifdef _UMEDITOR
         if (ImGui::IsKeyPressed(ImGuiKey_X, false))
         {
             PressedQTEButton(Input::ControllerTypes::Button::X);
@@ -69,9 +69,15 @@ void QTESystem::Update()
         {
             PressedQTEButton(Input::ControllerTypes::Button::B);
         }
-    }
 #endif // _UMEDITOR
 
+        auto& [controller, button] = _nextControllerEvent;
+        if (controller)
+        {
+            PressedQTEButton(button);
+            controller = nullptr;
+        }
+    }
     if (true == _currQTEPlaying && false == _prevQTEPlaying)
     {
         ProcessQTEEnterEvent();
@@ -415,17 +421,30 @@ void QTESystem::PressedQTEButton(Input::Controller::Button buttonType)
         result.TimeDelta     = curNote ? _qteTimer - curNote->Time : 0.0f;
         result.PressedButton = buttonType;
 
+        auto& inputSystem = ESceneManager::Engine::GetInputSystem();
         switch (result.Result)
         {
             case QTE::QTE_RESULT_PERFECT:
+            {
                 ++_overallResult.PerfectCount;
+                UmAudio.Play("-21000");
+                inputSystem.Vibrate(PERFECT_VIBRATION);
                 break;
+            }
             case QTE::QTE_RESULT_NORMAL:
+            {
                 ++_overallResult.NormalCount;
+                UmAudio.Play("-21010");
+                inputSystem.Vibrate(NORMAL_VIBRATION);
                 break;
+            }
             case QTE::QTE_RESULT_MISS:
+            {
                 ++_overallResult.MissCount;
+                //UmAudio.Play("-21020");
+                inputSystem.Vibrate(MISS_VIBRATION);
                 break;
+            }
             default:
                 break;
         }
@@ -439,7 +458,7 @@ void QTESystem::PressedButtonX(const Input::Controller& controller)
     // Handle button X pressed
     if (CanPressQTEButton())
     {
-        PressedQTEButton(Input::ControllerTypes::Button::X);
+        _nextControllerEvent = {&controller, Input::ControllerTypes::Button::X};
     }
 }
 
@@ -448,7 +467,7 @@ void QTESystem::PressedButtonY(const Input::Controller& controller)
     // Handle button Y pressed
     if (CanPressQTEButton())
     {
-        PressedQTEButton(Input::ControllerTypes::Button::Y);
+        _nextControllerEvent = {&controller, Input::ControllerTypes::Button::Y};
     }
 }
 
@@ -457,7 +476,7 @@ void QTESystem::PressedButtonB(const Input::Controller& controller)
     // Handle button B pressed
     if (CanPressQTEButton())
     {
-        PressedQTEButton(Input::ControllerTypes::Button::B);
+        _nextControllerEvent = {&controller, Input::ControllerTypes::Button::B};
     }
 }
 
@@ -530,8 +549,9 @@ void QTESystem::ProcessQTEExitEvent()
         Player* player = turnMode->GetPlayer();
         if (player)
         {
-            turnMode->ApplyActions(
-                [player, this](TurnAction& turnAction) { turnAction.OnPlayerQTEResult(*player, _overallResult); });
+            turnMode->ApplyActions([player, this](TurnAction& turnAction) {
+                turnAction.OnPlayerQTEResult(*player, _overallResult); 
+                });
         }
     }
 

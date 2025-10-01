@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-class SoundButton : public UINavigationComponent, public InputReceiver
+class SoundButton : public UISFXNavigationComponent, public InputReceiver
 {
     USING_PROPERTY(SoundButton)
 
@@ -36,7 +36,7 @@ private:
     void UpdateUIForFocus();
 
 protected:
-    REFLECT_FIELDS_BEGIN(UINavigationComponent)
+    REFLECT_FIELDS_BEGIN(UISFXNavigationComponent)
     std::string CurrentOptionStr;
     REFLECT_FIELDS_END(SoundButton)
 private:

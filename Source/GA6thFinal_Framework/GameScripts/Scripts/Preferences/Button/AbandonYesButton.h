@@ -1,5 +1,5 @@
 ﻿#pragma once
-class AbandonYesButton : public Component,public InputReceiver
+class AbandonYesButton : public Component ,public InputReceiver
 {
     USING_PROPERTY(AbandonYesButton)
 
