@@ -13,15 +13,16 @@ void MainMenuNavigationBase::Awake()
     _textElement = GetComponent<TextElement>();
 }
 
-void MainMenuNavigationBase::FocusIn()
+void MainMenuNavigationBase::FocusIn(const FocusCallType callType)
 {
+    Base::FocusIn(callType);
     if (_textElement)
     {
         _textElement->Color = DirectX::SimpleMath::Color(0.0f, 1.0f, 1.0f, 1.0f);
     }
 }
 
-void MainMenuNavigationBase::FocusOut()
+void MainMenuNavigationBase::FocusOut(FocusCallType callType)
 {
     if (_textElement)
     {

@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "UmFramework.h"
 
-class TextureLMH : public UINavigationComponent, public InputReceiver
+class TextureLMH : public UISFXNavigationComponent, public InputReceiver
 {
     USING_PROPERTY(TextureLMH)
     enum TextureQuality
@@ -25,8 +25,8 @@ public:
 public:
     REFLECT_PROPERTY()
 protected:
-    void FocusIn() override;
-    void FocusOut() override;
+    void FocusIn(FocusCallType callType) override;
+    void FocusOut(FocusCallType callType) override;
     void Submit() override;
 
     void SerializedReflectEvent() override;
@@ -41,7 +41,7 @@ private:
     void UpDownStickQuality(const Input::Controller& controller);
 
 protected:
-    REFLECT_FIELDS_BEGIN(UINavigationComponent)
+    REFLECT_FIELDS_BEGIN(UISFXNavigationComponent)
     REFLECT_FIELDS_END(TextureLMH)
 private:
     bool _isFocus        = false;

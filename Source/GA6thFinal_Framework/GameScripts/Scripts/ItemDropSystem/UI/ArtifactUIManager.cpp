@@ -47,6 +47,11 @@ void ArtifactUIManager::Start()
             thisManager->UpdateImageElements(datas);
         }
     });
+
+    if (ItemDropSystem* system = SingletonComponent<ItemDropSystem>::GetInstance())
+    {
+        system->NotifyUIModel();
+    }
 }
 
 void ArtifactUIManager::OnDestroy() 

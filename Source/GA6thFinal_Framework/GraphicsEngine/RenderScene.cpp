@@ -175,6 +175,7 @@ void RenderScene::UpdateRenderScene(const float deltaTime)
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::BONE_MATRICES, _boneMatrices.data(), (UINT)_boneMatrices.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::UI_TRANSFORM, _uiMatrices.data(), (UINT)_uiMatrices.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::UI_MATERIAL, _uiMaterials.data(), (UINT)_uiMaterials.size());
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::TEXT_MATRICES, _textMatrices.data(), (UINT)_textMatrices.size());
     
     for (auto& technique : _techniques)
     {
@@ -447,6 +448,22 @@ void RenderScene::UpdateUI()
     // Text
     auto iter_text = std::remove_if(_sdfTextRenderQueue.begin(), _sdfTextRenderQueue.end(), [](const auto& pair) { return *pair.first; });
     _sdfTextRenderQueue.erase(iter_text, _sdfTextRenderQueue.end());
+
+    _textMatrices.clear();
+    for (auto& [isDestroy, component] : _sdfTextRenderQueue)
+    {
+        if (!component->IsActive())
+            continue;
+
+        const Vector2 textSize = component->GetStringSize();
+        const float   fontSize = component->GetFontSize();
+
+        XMMATRIX scale       = XMMatrixScaling(fontSize, fontSize, 1.f);
+        XMMATRIX rotation    = XMMatrixRotationQuaternion(Quaternion::CreateFromYawPitchRoll(component->GetRotation()));
+        XMMATRIX translation = XMMatrixTranslationFromVector(component->GetPosition());
+        XMMATRIX offset      = XMMatrixTranslation(0.f, textSize.y, 0.f);
+        _textMatrices.emplace_back(XMMatrixTranspose(scale * rotation * translation * offset));
+    }
 }
 
 void RenderScene::CreateRenderTarget()
@@ -509,6 +526,9 @@ void RenderScene::CreateFrameResource()
 
         // UI Material
         _frameResources[i]->AddFrameResource(sizeof(UIMaterial), MAX_OBJECTS);
+
+        // Text Transform
+        _frameResources[i]->AddFrameResource(sizeof(Matrix), MAX_OBJECTS);
 
         // Vertex Buffer ID
         _frameResources[i]->AddFrameResource(sizeof(VertexBufferID), MAX_OBJECTS);

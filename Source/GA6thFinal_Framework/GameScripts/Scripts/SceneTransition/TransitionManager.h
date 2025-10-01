@@ -9,6 +9,8 @@ public:
     ~TransitionManager() override;
     void SceneTransitionFade(std::string_view inPreset, std::string_view outPreset, std::function<void(void)> callback);
 
+    bool IsTransitioning() const { return _isTransitioning; }
+
 public:
     REFLECT_PROPERTY()
 
@@ -21,5 +23,7 @@ protected:
 private:
     SingletonObject<TransitionManager> _singletonObject{this};
     class SceneTransitionComponent* _transitionController = nullptr;
+
+    bool _isTransitioning = false;
 
 };

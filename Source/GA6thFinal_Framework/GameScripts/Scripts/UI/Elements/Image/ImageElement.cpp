@@ -33,7 +33,7 @@ ImageElement::~ImageElement()
     }
 }
 
-void ImageElement::SetImage(const File::GuidRef& guidRef)
+void ImageElement::SetImage(const File::Guid& guidRef)
 {
     _guidRef = guidRef;
     ReflectFields->Guid = _guidRef.string();
@@ -129,9 +129,27 @@ SIZE ImageElement::ArrangeOverride(const SIZE finalSize)
     return actualSize;
 }
 
+void ImageElement::UpdateAtlas()
+{
+    if (_renderer)
+    {
+        _renderer->SetAtlas(ReflectFields->Column, ReflectFields->Row);
+    }
+}
+
+void ImageElement::UpdateAtlasIndex()
+{
+    if (_renderer)
+    {
+        _renderer->SetAtlasIndex(ReflectFields->ColumnIndex, ReflectFields->RowIndex);
+    }
+}
+
 void ImageElement::ResetToSpriteSize()
 {
-    _requestedSize = _spriteOriginSize;
+    const int column = ReflectFields->Column;
+    const int row    = ReflectFields->Row;
+    _requestedSize = SIZE{_spriteOriginSize.cx / column, _spriteOriginSize.cy / row};
     InvalidateMeasure();
 }
 
@@ -190,6 +208,9 @@ void ImageElement::RequestResource()
 
             const float alpha = Alpha;
             UpdateRendererAlpha(alpha);
+
+            UpdateAtlas();
+            UpdateAtlasIndex();
 
             //ResetToSpriteSize();
         });

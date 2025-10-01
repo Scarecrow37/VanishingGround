@@ -14,8 +14,7 @@
 #include "ViewModels/Hp/CharacterHPViewModel.h"
 #include "Utility/SingletonHelper.h"
 #include "ItemDropSystem/ItemDropSystem.h"
-
-static GameObject* thisPointer = nullptr;
+#include "Preferences/PreferencesManager.h"
 
 UMREAL_COMPONENT(MapManager)
 
@@ -84,9 +83,8 @@ MapManager::MapManager()
 
 MapManager::~MapManager()
 {
-    if (&gameObject == thisPointer)
+    if (_singletonObject.IsSingleTon())
     {
-        thisPointer = nullptr;
         UmWatcher.Unregister<StageFocusViewModel>("StageFocus");
     }
 }
@@ -101,19 +99,15 @@ void MapManager::SetFocusStage(Stage* stage)
 
 void MapManager::Awake()
 {    
-    if (nullptr == thisPointer)
+    if (_singletonObject.TrySingleTon(true))
     {        
-        GameObject::DontDestroyOnLoad(gameObject);
-        thisPointer = &gameObject;
+        _singletonComponent.TrySingleTon();
 
         UmWatcher.Register<StageFocusViewModel>("StageFocus", _focusStage);
         SetupStage();
-    }
-    else
-    {        
-        GameObject::Destroy(gameObject);
-    }
 
+        BindInputAction(ControllerButton::BACK, Action::PRESSED, this, &MapManager::PreferencesKeyDown);
+    }
 }
 
 void MapManager::Update()
@@ -132,6 +126,15 @@ void MapManager::Update()
         {
             UmSceneManager.LoadScene(UmFileSystem.GetPathFromGuid(ReflectFields->MapScenePath).string());
         }
+    }
+
+    if (_lastFocusStage != nullptr)
+    {
+        if (PreferencesManager* manager = SingletonComponent<PreferencesManager>::GetInstance())
+        {
+            manager->OnPreferencesWindow(_lastFocusStage);
+        }  
+        _lastFocusStage = nullptr;
     }
 }
 
@@ -283,4 +286,15 @@ void MapManager::SetupStage()
     {
         _scroll = scroll->GetComponent<ScrollingWrapper>();
     }    
+}
+
+void MapManager::PreferencesKeyDown(const Input::Controller&) 
+{
+    _focusStage.Apply([this](Stage* stage) 
+    { 
+        if (true == stage->EnableInHierarchy)
+        {
+            _lastFocusStage = stage; 
+        }               
+    });
 }

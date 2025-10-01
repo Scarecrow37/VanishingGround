@@ -76,22 +76,27 @@ struct ParseData
             }
             else if (std::strcmp(node.name(), "Image") == 0)
             {
-                File::GuidRef guidRef;
+                File::Guid guid;
                 if (auto guidAttribute = node.attribute("guid"); !guidAttribute.empty())
                 {
-                    guidRef = File::GuidRef(node.attribute("guid").as_string());
+                    guid = File::Guid(node.attribute("guid").as_string());
                 }
                 else if (auto pathAttribute = node.attribute("path"); !pathAttribute.empty())
                 {
                     File::Path path = File::Path(pathAttribute.as_string());
-                    guidRef         = path.ToGuid();
+                    guid = path.ToGuid();
+                }
+                else if (auto assetAttribute = node.attribute("asset"); !assetAttribute.empty())
+                {
+                    int id = std::stoi(assetAttribute.as_string());
+                    guid   = UmFileSystem.GetGuidFromAssetID(id);
                 }
                 else
                 {
                     UmLogger.Log(LogLevel::LEVEL_WARNING, "Image element missing 'guid' or 'path' attribute.");
                     continue; // Skip this element if no valid guid or path is provided
                 }
-                ImageAttributes attributes{.Guid = guidRef};
+                ImageAttributes attributes{.Guid = guid};
                 ElementData     elementData{.Type = ElementType::IMAGE, .Data = attributes};
                 elements.push_back(elementData);
             }
@@ -215,6 +220,7 @@ void DescriptionPanel::MakeChild()
             element.VerticalFillMode   = FillMode::WRAP;
             element.Text               = content;
             element.Color              = color;
+            element.FontScale          = ReflectFields->FontScale;
         }
         break;
         case ElementType::IMAGE: {

@@ -15,7 +15,7 @@ struct TextAttributes
 
 struct ImageAttributes
 {
-    File::GuidRef Guid;
+    File::Guid Guid;
 };
 
 struct ElementData
@@ -32,10 +32,7 @@ public:
     DescriptionPanel();
 
 public:
-    REFLECT_PROPERTY(
-        FontPath, 
-        Description
-    )
+    REFLECT_PROPERTY(FontPath, Description, FontScale)
 
     GETTER_ONLY(std::string, FontPath) { return _guidRef.ToPath().string(); }
     PROPERTY(FontPath)
@@ -50,6 +47,17 @@ public:
         }
     }
     PROPERTY(Description)
+
+    GETTER(float, FontScale) { return ReflectFields->FontScale; }
+    SETTER(float, FontScale)
+    {
+        if (ReflectFields->FontScale != value)
+        {
+            ReflectFields->FontScale = value;
+            UpdateContent();
+        }
+    }
+    PROPERTY(FontScale)
 
 protected:
     void DeserializedReflectEvent() override;
@@ -66,9 +74,9 @@ protected:
     REFLECT_FIELDS_BEGIN(HorizontalPanel)
     std::string Guid;
     std::string Description;
+    float       FontScale;
     REFLECT_FIELDS_END(DescriptionPanel)
 
 private:
     File::GuidRef _guidRef;
-
 };

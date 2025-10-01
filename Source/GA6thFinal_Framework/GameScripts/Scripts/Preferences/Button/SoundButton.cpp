@@ -59,8 +59,8 @@ void SoundButton::Awake()
         _currentVolume = static_cast<int>(UmPreferences.GetBGMVolume() * MaxVolume);       
     else if ("SFXVolume" == _currentOption)
         _currentVolume = static_cast<int>(UmPreferences.GetSFXVolume() * MaxVolume);
-    _isOptionDirty = true;
-
+    //_isOptionDirty = true;
+    ChangeVolume(0);
 }
 
 void SoundButton::Start()
@@ -94,24 +94,24 @@ void SoundButton::Reset()
 void SoundButton::Update()
 {
     if (!_isOptionDirty)
-        return;
-
-    if (_isVolumeUp)
     {
-        ChangeVolume(+1);
-        _isVolumeUp = false;
-    }
-    else if (_isVolumeDown)
-    {
-        ChangeVolume(-1);
-        _isVolumeDown = false;
+        if (_isVolumeUp)
+        {
+            ChangeVolume(+1);
+            _isVolumeUp = false;
+        }
+        else if (_isVolumeDown)
+        {
+            ChangeVolume(-1);
+            _isVolumeDown = false;
+        }
     }
 
     UpdateUIForFocus();
     _isOptionDirty = false;
 }
 
-void SoundButton::ChangeVolume(int delta)
+void SoundButton::ChangeVolume(const int delta)
 {
     // 현재 볼륨 끄기
     if (_volumeNumFocus[_currentVolume])
@@ -177,18 +177,17 @@ void SoundButton::UpdateUIForFocus()
     }
 }
 
-
-void SoundButton::FocusIn()
+void SoundButton::FocusIn(const FocusCallType callType)
 {
-    UINavigationComponent::FocusIn();
+    Base::FocusIn(callType);
 
     _isFocus       = true;
     _isOptionDirty = true;
 }
 
-void SoundButton::FocusOut()
+void SoundButton::FocusOut(const FocusCallType callType)
 {
-    UINavigationComponent::FocusOut();
+    UINavigationComponent::FocusOut(callType);
 
     _isFocus       = false;
     _isOptionDirty = true;
@@ -211,6 +210,7 @@ void SoundButton::ControlVolumeUp(const Input::Controller& controller)
         return;
     _isOptionDirty = true;
     _isVolumeUp    = true;
+    UmAudio.Play("-40000");
 }
 
 void SoundButton::ControlVolumeDown(const Input::Controller& controller)
@@ -219,6 +219,7 @@ void SoundButton::ControlVolumeDown(const Input::Controller& controller)
         return;
     _isOptionDirty = true;
     _isVolumeDown  = true;
+    UmAudio.Play("-40000");
 }
 
 void SoundButton::ControlVolumeStick(const Input::Controller& controller)

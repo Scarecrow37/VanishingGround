@@ -44,6 +44,10 @@ public:
         {
             DeepCopyAction(*rhs._action);
         }
+        else
+        {
+            _action.reset();
+        }
         return *this;     
     }
     WeaponElement(const WeaponElement& rhs) { CopyElement(rhs); }

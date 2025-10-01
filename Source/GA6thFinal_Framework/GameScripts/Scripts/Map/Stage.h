@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "ItemDropSystem/Interface/IDropItem.h"
 
-class Stage : public UINavigationComponent
+class Stage : public UISFXNavigationComponent
 {
     USING_PROPERTY(Stage)
 
@@ -18,21 +18,25 @@ public:
     void UpdateData(const std::string& key, const File::Guid& enableImage, const File::Guid& disableImage);
 
 public:
-    void FocusIn() override;
+    void FocusIn(FocusCallType callType) override;
     void Submit() override;
 
 public:
     void Start() override;
 
 public:
-    REFLECT_PROPERTY(StagePath)
+    REFLECT_PROPERTY(StagePath, LightingPath)
 
     GETTER_ONLY(std::string, StagePath) { return ReflectFields->StagePath; }
     PROPERTY(StagePath)
 
+    GETTER_ONLY(std::string, LightingPath) { return ReflectFields->LightingPath; }
+    PROPERTY(LightingPath)
+
 protected:
-    REFLECT_FIELDS_BEGIN(UINavigationComponent)
-    std::string        StagePath;
+    REFLECT_FIELDS_BEGIN(UISFXNavigationComponent)
+    std::string StagePath;
+    std::string LightingPath;
     REFLECT_FIELDS_END(Stage)
 
 private:
