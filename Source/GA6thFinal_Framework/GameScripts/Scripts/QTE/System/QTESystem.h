@@ -14,6 +14,7 @@ namespace QTE
 class QTESystem : public Component, public InputReceiver
 {
     using Callback = std::function<void(const QTE::OverallResult&)>;
+    using ControllerState = std::pair<const Input::Controller*, Input::ControllerTypes::Button>;
 
     friend class QTEUIManager;
     USING_PROPERTY(QTESystem)
@@ -145,6 +146,8 @@ private:
 
     Callback                    _onQTEFinishCallback = nullptr;                 // QTE 페이드 인 종료 콜백
 
+    ControllerState             _nextControllerEvent = {nullptr, Input::ControllerTypes::UNDEFINED};
+
     REFLECT_FIELDS_BEGIN(Component)
     float                   QTESpeedScale       = 1.0f;                         // QTE 속도 배율
     float                   DelayFromQTEStart   = 0.0f;                         // QTE 시작 대기 시간
@@ -159,4 +162,19 @@ private:
 
     // QTE 편집기
     QTEEditor&  GetEditor();
+
+    inline static constexpr Input::ControllerTypes::Vibration PERFECT_VIBRATION{
+        .LeftMotorSpeed  = (unsigned short)(0.8f * 65535.0f),
+        .RightMotorSpeed = (unsigned short)(1.0f * 65535.0f), 
+        .Duration = std::chrono::milliseconds(220)};
+
+    inline static constexpr Input::ControllerTypes::Vibration NORMAL_VIBRATION{
+        .LeftMotorSpeed  = (unsigned short)(0.3f * 65535.0f),
+        .RightMotorSpeed = (unsigned short)(0.5f * 65535.0f),
+        .Duration        = std::chrono::milliseconds(150)};
+
+    inline static constexpr Input::ControllerTypes::Vibration MISS_VIBRATION{
+        .LeftMotorSpeed  = (unsigned short)(0.2f * 65535.0f),
+        .RightMotorSpeed = (unsigned short)(0.7f * 65535.0f),
+        .Duration        = std::chrono::milliseconds(150)};
 };

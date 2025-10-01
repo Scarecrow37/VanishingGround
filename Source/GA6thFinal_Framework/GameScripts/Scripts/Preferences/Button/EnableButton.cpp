@@ -233,17 +233,17 @@ void EnableButton::OnEnable()
     }
 }
 
-void EnableButton::FocusIn()
+void EnableButton::FocusIn(const FocusCallType callType)
 {
-    UINavigationComponent::FocusIn();
+    Base::FocusIn(callType);
 
     _isFocus   = true;
     _isOptionDirty = true;
 }
 
-void EnableButton::FocusOut()
+void EnableButton::FocusOut(const FocusCallType callType)
 {
-    UINavigationComponent::FocusOut();
+    UINavigationComponent::FocusOut(callType);
 
     _isFocus   = false;
     _isOptionDirty = true;
@@ -276,6 +276,7 @@ void EnableButton::ChangeOptionDpad(const Input::Controller& controller)
     {
         _isOptionOn = !_isOptionOn;
         _isOptionDirty = true;
+        UmAudio.Play("-40000");
     }
 }
 
@@ -288,11 +289,12 @@ void EnableButton::ChangeOptionStick(const Input::Controller& controller)
         {
             _isOptionOn = !_isOptionOn;
             _isOptionDirty = true;
+            UmAudio.Play("-40000");
         }
     }
 }
 
-void EnableButton::FocusPref(bool isfocus)
+void EnableButton::FocusPref(const bool isfocus)
 {
     if (nullptr == _pref)
     {

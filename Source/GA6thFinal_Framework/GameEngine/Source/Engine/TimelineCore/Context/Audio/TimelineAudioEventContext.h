@@ -26,7 +26,7 @@ namespace Timeline
         void DeserializedReflectEvent() override;
         void ImGuiDrawPropertysEvent() override;
 
-        inline float        GetVolume() const { return ReflectFields->Volume; }
+        inline float GetVolume() const { return ReflectFields->Volume; }
 
     public:
         bool AddAudioFromAssetID(int assetID);

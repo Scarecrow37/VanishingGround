@@ -48,4 +48,5 @@ void AbandonNoButton::Reset()
 void AbandonNoButton::DirtyOffFlag(const Input::Controller&) 
 {
     _dirtyFlag = true;
+    UmAudio.Play("-40030");
 }

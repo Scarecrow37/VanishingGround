@@ -36,6 +36,11 @@ public:
     /// </summary>
     void PlayItemDropUISequence();
 
+    /// <summary>
+    /// UI 모델을 Notify 합니다.
+    /// </summary>
+    void NotifyUIModel() { _dropItemsModel.Notify(); }
+
 public:
     REFLECT_PROPERTY(
         StageClearCount,

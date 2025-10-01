@@ -15,7 +15,7 @@ struct TextAttributes
 
 struct ImageAttributes
 {
-    File::GuidRef Guid;
+    File::Guid Guid;
 };
 
 struct ElementData

@@ -107,12 +107,17 @@ void UIRoot::Update()
 {
     UIBaseComponent::Update();
 
-    UpdateNavigation();
+    UpdateNavigation(); 
 }
 
 void UIRoot::ImGuiDrawPropertysEvent()
 {
     UIBaseComponent::ImGuiDrawPropertysEvent();
+
+    if (ImGui::Button("Reset View Order"))
+    {
+        SortViewOrder();
+    }
 
     if (_isDebug)
     {
@@ -169,7 +174,7 @@ void UIRoot::Start()
 
     const NavigationID     initialFocusID        = ReflectFields->InitialFocusID;
     UINavigationComponent* initialFocusComponent = FindNavigationComponent(initialFocusID);
-    ChangeFocusComponent(initialFocusComponent);
+    ChangeFocusComponent(initialFocusComponent, FocusCallType::INITIAL);
 
     SortViewOrder();
 }
@@ -194,7 +199,7 @@ void UIRoot::UpdateNavigation()
                 }
                 else
                 {
-                    ChangeFocusComponent(nextFocus);
+                    ChangeFocusComponent(nextFocus, FocusCallType::INPUT);
                 }
             }
         }
@@ -303,20 +308,25 @@ UINavigationComponent* UIRoot::FindNavigationComponentInTransform(NavigationID i
     return component;
 }
 
-void UIRoot::ChangeFocusComponent(UINavigationComponent* nextFocusComponent)
+void UIRoot::ChangeFocusComponent(UINavigationComponent* nextFocusComponent, FocusCallType callType)
 {
     if (nullptr != nextFocusComponent)
     {
         if (nullptr != _currentFocusNavigation)
         {
-            _currentFocusNavigation->FocusOut();
+            _currentFocusNavigation->FocusOut(callType);
         }
         _currentFocusNavigation = nextFocusComponent;
         if (nullptr != _currentFocusNavigation)
         {
-            _currentFocusNavigation->FocusIn();
+            _currentFocusNavigation->FocusIn(callType);
         }
     }
+}
+
+void UIRoot::RequestChangeFocusComponent(UINavigationComponent* nextFocusComponent)
+{
+    ChangeFocusComponent(nextFocusComponent, FocusCallType::FORCED);
 }
 
 void UIRoot::CheckNavigationIdFlawless(const UIBaseComponent* newComponent)

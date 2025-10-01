@@ -314,6 +314,16 @@ namespace Timeline
             _prevFrame = _currFrame;
         }
     }
+    void EventTrack::SetOwnerGameObject(std::weak_ptr<GameObject> weakObj) 
+    {
+        for (auto& context : _contextQueue)
+        {
+            if (context)
+            {
+                context->SetGameObject(weakObj);
+            }
+        }
+    }
     void EventTrack::RequestNotify(float startTime, float endTime)
     {
         if (startTime >= endTime || true == HasFlags(EVENT_TRCK_FLAGS_NOTIFY_DISABLED))
