@@ -15,6 +15,7 @@ void MainMenuNavigationBase::Awake()
 
 void MainMenuNavigationBase::FocusIn()
 {
+    Base::FocusIn();
     if (_textElement)
     {
         _textElement->Color = DirectX::SimpleMath::Color(0.0f, 1.0f, 1.0f, 1.0f);

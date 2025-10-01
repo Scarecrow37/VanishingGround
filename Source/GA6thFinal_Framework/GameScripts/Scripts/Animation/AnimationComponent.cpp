@@ -573,6 +573,15 @@ void AnimationComponent::BeginBuildOverrideAnimation()
     if (false == _isBuildingOverrideAnimation)
     {
         _isBuildingOverrideAnimation = true;
+        // 비어있으면 널
+        if (_overrideAnimationStack.empty())
+        {
+            _prevBeginBuildAnimatonData = nullptr;
+        }
+        else
+        {
+            _prevBeginBuildAnimatonData = &GetTopAnimationData();
+        }
     }
     else
     {
@@ -586,8 +595,13 @@ void AnimationComponent::EndBuildOverrideAnimation()
     if (_isBuildingOverrideAnimation)
     {
         _isBuildingOverrideAnimation = false;
-        AnimationData& animData      = GetTopAnimationDataEx();
-        SetAnimationEx(animData);
+        // 마지막 애니메이션 데이터가 달라졌을때만
+        if (_prevBeginBuildAnimatonData != &GetTopAnimationData())
+        {
+            AnimationData& animData = GetTopAnimationDataEx();
+            SetAnimationEx(animData);
+        }
+        _prevBeginBuildAnimatonData = nullptr;
     }
     else
     {
@@ -601,18 +615,17 @@ bool AnimationComponent::PushBackOverrideAnimation(std::string_view animKey, boo
     _nextAnimationFlag.first = false;
     if (_animator)
     {
+        std::string animName(animKey);
+        GetAnimationNameEx(animKey, animName);
         // 중복 애니메이션을 허용하지 않는 경우
         if (false == allowOverlap)
         {
             const AnimationData& topData = GetTopAnimationData();
-            const std::string&   topKey  = GetAnimationNameFromKey(topData._animationName);
-            if (topKey == animKey)
+            if (animName == topData._animationName)
             {
                 return false;
             }
         }
-        std::string animName(animKey);
-        GetAnimationNameEx(animKey, animName);
         if (_animator->HasAnimation(animName.c_str()))
         {
             AnimationData& topData = GetTopAnimationDataEx();
@@ -668,6 +681,11 @@ bool AnimationComponent::PushFrontOverrideAnimation(std::string_view animKey, bo
 
 void AnimationComponent::PopOverrideAnimation() 
 {
+    if (_overrideAnimationStack.empty())
+    {
+        return;
+    }
+
     if (_currentAnimationData && _currentAnimationData->_onExitCallback)
     {
         _currentAnimationData->_onExitCallback();
@@ -836,18 +854,25 @@ void AnimationComponent::SetAnimator(std::shared_ptr<Animator> animator)
 
 void AnimationComponent::SetAnimationEventTrackFromPath(const File::Path& path) 
 {
-    _guidRef  = path;
-    _filePath = path;
-    _eventTrack.LoadFile(_filePath);
-    ReflectFields->AnimEventTrackGuid = _guidRef.string();
+    SetAnimationEventTrackFromGuid(path.ToGuid());
 }
 
 void AnimationComponent::SetAnimationEventTrackFromGuid(const File::Guid& guid) 
 {
     _guidRef  = guid;
     _filePath = guid;
-    _eventTrack.LoadFile(_filePath);
     ReflectFields->AnimEventTrackGuid = _guidRef.string();
+    if (_eventTrack.LoadFile(_filePath))
+    {
+        const auto& table = _eventTrack.GetEventTrackTable();
+        for (const auto& [_, track] : table)
+        {
+            if (track)
+            {
+                track->SetOwnerGameObject(gameObject->GetWeakPtr());
+            }
+        }
+    }
 }
 
 void AnimationComponent::AddAnimationMappingKey(std::string_view key, std::string_view animKey)

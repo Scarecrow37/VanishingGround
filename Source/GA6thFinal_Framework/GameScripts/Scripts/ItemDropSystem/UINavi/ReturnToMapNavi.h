@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-class ReturnToMapNavi : public UINavigationComponent
+class ReturnToMapNavi : public UISFXNavigationComponent
 {
     USING_PROPERTY(ReturnToMapNavi)
 
@@ -22,7 +22,7 @@ protected:
     void DeserializedReflectEvent() override;
 
 protected:
-    REFLECT_FIELDS_BEGIN(UINavigationComponent)
+    REFLECT_FIELDS_BEGIN(UISFXNavigationComponent)
     std::string MapScene;
     REFLECT_FIELDS_END(ReturnToMapNavi)
 

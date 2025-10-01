@@ -49,11 +49,10 @@ public:
     /// <param name="factor">설정할 UI의 알파 값입니다. 0.0f에서 1.0f 사이의 값을 가집니다.</param>
     void SetBackgroundUIAlpha(float factor);
 
-    /// <summary>
-    /// 가이드 노트의 알파 값을 설정합니다.
-    /// </summary>
-    /// <param name="factor">설정할 알파 값입니다. 0.0f에서 1.0f 사이의 값을 가집니다.</param>
-    void SetGuideNoteAlpha(float factor);
+    /// <summary>QTE 가이드 노트의 알파 값을 설정합니다.</summary>
+    /// <param name="factor">설정할 UI의 알파 값입니다. 0.0f에서 1.0f 사이의 값을 가집니다.</param>
+    void SetGuideNoteUIAlpha(float factor);
+    void SetGuideNoteActive(bool active);
 
     /// <summary>QTE 관련 UI의 알파 값을 설정합니다. (백그라운드는 제외입니다.)</summary>
     /// <param name="factor">설정할 UI의 알파 값입니다. 0.0f에서 1.0f 사이의 값을 가집니다.</param>
@@ -113,7 +112,7 @@ private:
 
     REFLECT_FIELDS_BEGIN(Component)
     std::string NotePrefabGuid; // QTE 노트 프리팹 GUID
-    float       GuideNoteDuration = 1.0f;
+    float       GuideNoteDuration = 0.5f;
     REFLECT_FIELDS_END(QTEUIManager)
 
     class Fader

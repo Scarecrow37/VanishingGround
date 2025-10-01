@@ -6,14 +6,17 @@ constexpr uint32_t MINOR_VERSION  = 4;
 
 class ParticleEffectSerializer : public File::FileEventSubscriber
 {
+    using EffectID = void*;
+     
 private:
-    using Serializer = std::function<void(std::ofstream& , ParticleEffect* , File::Path )>;
-    using Deserializer = std::function<ParticleEffect*(std::ifstream&, bool, std::string_view)>;
+    using Serializer = std::function<void(std::ofstream&, ParticleEffect*, File::Path)>;
+    using Deserializer =
+        std::function<ParticleEffect*(EffectID, const std::string&, std::ifstream&, bool, std::string_view)>;
     using Predeserializer = std::function<void(std::ifstream&)>;
-    using VersionSet = std::pair<uint32_t, uint32_t>;
+    using VersionSet      = std::pair<uint32_t, uint32_t>;
 
-    std::map<VersionSet, Serializer> _serializers;
-    std::map<VersionSet, Deserializer>              _deserializers;
+    std::map<VersionSet, Serializer>      _serializers;
+    std::map<VersionSet, Deserializer>    _deserializers;
     std::map<VersionSet, Predeserializer> _preDeserializers;
 
     void RegisterDeserializers();
@@ -43,28 +46,33 @@ public:
 
     //versions
     void            Serialize(class ParticleEffect* effect, File::Path destPath);
-    ParticleEffect* Deserialize(File::Path filepath, bool isEditor, std::string_view sceneName);
+    ParticleEffect* Deserialize(EffectID id, const std::string& keyString, File::Path filepath, bool isEditor,
+                                std::string_view sceneName);
     void            PreDeserialize(File::Path filePath);
 
     void            Serialize_1_0(std::ofstream& os, ParticleEffect* effect, File::Path destPath);
-    ParticleEffect* Deserialize_1_0(std::ifstream& is, bool isEditor, std::string_view sceneName);
+    ParticleEffect* Deserialize_1_0(EffectID id, const std::string& keyString, std::ifstream& is, bool isEditor,
+                                    std::string_view sceneName);
     void            PreDeserialize_1_0(std::ifstream& is);
 
-    
     void            Serialize_1_1(std::ofstream& os, ParticleEffect* effect, File::Path destPath);
-    ParticleEffect* Deserialize_1_1(std::ifstream& is, bool isEditor, std::string_view sceneName);
+    ParticleEffect* Deserialize_1_1(EffectID id, const std::string& keyString, std::ifstream& is, bool isEditor,
+                                    std::string_view sceneName);
     void            PreDeserialize_1_1(std::ifstream& is);
 
     void            Serialize_1_2(std::ofstream& os, ParticleEffect* effect, File::Path destPath);
-    ParticleEffect* Deserialize_1_2(std::ifstream& is, bool isEditor, std::string_view sceneName);
+    ParticleEffect* Deserialize_1_2(EffectID id, const std::string& keyString, std::ifstream& is, bool isEditor,
+                                    std::string_view sceneName);
     void            PreDeserialize_1_2(std::ifstream& is);
 
     void            Serialize_1_3(std::ofstream& os, ParticleEffect* effect, File::Path destPath);
-    ParticleEffect* Deserialize_1_3(std::ifstream& is, bool isEditor, std::string_view sceneName);
+    ParticleEffect* Deserialize_1_3(EffectID id, const std::string& keyString, std::ifstream& is, bool isEditor,
+                                    std::string_view sceneName);
     void            PreDeserialize_1_3(std::ifstream& is);
 
     void            Serialize_1_4(std::ofstream& os, ParticleEffect* effect, File::Path destPath);
-    ParticleEffect* Deserialize_1_4(std::ifstream& is, bool isEditor, std::string_view sceneName);
+    ParticleEffect* Deserialize_1_4(EffectID id, const std::string& keyString, std::ifstream& is, bool isEditor,
+                                    std::string_view sceneName);
     void            PreDeserialize_1_4(std::ifstream& is);
 
 

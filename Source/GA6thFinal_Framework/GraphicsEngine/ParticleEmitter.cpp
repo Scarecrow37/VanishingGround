@@ -267,7 +267,11 @@ Texture* RibbonModule::GetAlbedoTexture() const
      _particleRenderModule = nullptr;
      
      if (nullptr != _light)
+     {
          _light->SetDestroy();
+         delete _light;
+         _light = nullptr;
+     }
 
  }
 

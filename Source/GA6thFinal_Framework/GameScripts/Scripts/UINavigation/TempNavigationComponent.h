@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-class TempNavigationComponent : public UINavigationComponent
+class TempNavigationComponent : public UISFXNavigationComponent
 {
     USING_PROPERTY(TempNavigationComponent)
 
@@ -16,6 +16,6 @@ protected:
     void Submit() override;
 
 protected:
-    REFLECT_FIELDS_BEGIN(UINavigationComponent)
+    REFLECT_FIELDS_BEGIN(UISFXNavigationComponent)
     REFLECT_FIELDS_END(TempNavigationComponent)
 };
