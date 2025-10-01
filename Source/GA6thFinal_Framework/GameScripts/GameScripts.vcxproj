@@ -302,6 +302,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\BattleSystem\Battle.h" />
     <ClInclude Include="Scripts\Utility\FadeHelper.h" />
     <ClInclude Include="Scripts\Audio\BGMComponent.h" />
     <ClInclude Include="DLLExportDefine.h" />
@@ -312,7 +313,6 @@
     <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h" />
     <ClInclude Include="Scripts\EnemyAction\ActionData\EnemyActionData.h" />
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
-    <ClInclude Include="Scripts\BattleSystem\Battle.h" />
     <ClInclude Include="Scripts\ColorUtils\ColorUtils.h" />
     <ClInclude Include="Scripts\EnemyAction\System\EnemyActionSystem.h" />
     <ClInclude Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22000.h" />
@@ -513,6 +513,7 @@
     <ClInclude Include="Scripts\Camera\CameraManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\BattleSystem\Battle.cpp" />
     <ClCompile Include="Scripts\Utility\FadeHelper.cpp" />
     <ClCompile Include="Scripts\Audio\BGMComponent.cpp" />
     <ClCompile Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.cpp" />
@@ -521,7 +522,6 @@
     <ClCompile Include="Scripts\ConsumableSystem\ConsumableSystem.cpp" />
     <ClCompile Include="Scripts\EnemyAction\Factory\EnemyActionFactory.cpp" />
     <ClCompile Include="Scripts\EnemyAction\ActionData\EnemyActionData.cpp" />
-    <ClCompile Include="Scripts\BattleSystem\Battle.cpp" />
     <ClCompile Include="Scripts\ColorUtils\ColorUtils.cpp" />
     <ClCompile Include="Scripts\EnemyAction\System\EnemyActionSystem.cpp" />
     <ClCompile Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22000.cpp" />

@@ -200,9 +200,9 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
         bool input = _isDownAKey || _isDownAButton;
         qteSystem->CombatUIActive(!input);
         qteUIManager->SetBackgroundUIAlpha(t);
+        qteUIManager->SetGuideNoteUIAlpha(1.0f - t);
         qteUIManager->SetUIAlpha(0.0f);
         qteUIManager->SetActive(true);
-        qteUIManager->SetGuideNoteActive(!input);
     }
 }
 

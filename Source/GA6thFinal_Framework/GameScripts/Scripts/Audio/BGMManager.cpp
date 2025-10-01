@@ -8,7 +8,7 @@ BGMManager::BGMManager()
     _currBGMFader.SetFadeInType(Mathf::EaseType::EASE_IN, Mathf::EaseFuncType::SINE);
     _currBGMFader.SetDuration(FADE_DURATION);
 
-    _prevBGMFader.SetFadeOutType(Mathf::EaseType::EASE_OUT, Mathf::EaseFuncType::SINE);
+    _prevBGMFader.SetFadeInType(Mathf::EaseType::EASE_OUT, Mathf::EaseFuncType::SINE);
     _prevBGMFader.SetDuration(FADE_DURATION);
     _prevBGMFader.SetOnFadeInEndCallback([this]() {
         UmAudio.Stop(_prevBGMHandle);
