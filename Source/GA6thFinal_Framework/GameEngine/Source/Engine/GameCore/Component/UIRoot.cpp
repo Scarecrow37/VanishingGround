@@ -114,6 +114,11 @@ void UIRoot::ImGuiDrawPropertysEvent()
 {
     UIBaseComponent::ImGuiDrawPropertysEvent();
 
+    if (ImGui::Button("Reset View Order"))
+    {
+        SortViewOrder();
+    }
+
     if (_isDebug)
     {
         constexpr ImGuiDebug debug;
