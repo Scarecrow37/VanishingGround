@@ -220,6 +220,7 @@ void DescriptionPanel::MakeChild()
             element.VerticalFillMode   = FillMode::WRAP;
             element.Text               = content;
             element.Color              = color;
+            element.FontScale          = ReflectFields->FontScale;
         }
         break;
         case ElementType::IMAGE: {
