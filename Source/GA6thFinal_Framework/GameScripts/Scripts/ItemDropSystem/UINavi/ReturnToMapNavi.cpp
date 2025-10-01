@@ -1,6 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "ReturnToMapNavi.h"
-#include "SceneTransition/TransitionManager.h"
+#include "SceneTransition/SceneTransitionComponent.h"
 #include "ExcelDataSystem/ExcelDataSystem.h"
 #include "UI/Elements/Image/ImageElement.h"
 
@@ -90,10 +90,10 @@ void ReturnToMapNavi::Submit()
 {
     const File::Path& path = _guidRef.ToPath();
 
-    GameObject* transitionManager = SingletonObject<TransitionManager>::GetInstance();
+    GameObject* transitionManager = SingletonObject<SceneTransitionComponent>::GetInstance();
     if (transitionManager)
     {
-        auto transitionComponent = transitionManager->GetComponent<TransitionManager>();
+        auto transitionComponent = transitionManager->GetComponent<SceneTransitionComponent>();
         if (transitionComponent)
         {
             transitionComponent->SceneTransitionFade("in", "out", [path]() { UmSceneManager.LoadScene(path.string()); });
