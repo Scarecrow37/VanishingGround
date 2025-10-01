@@ -152,6 +152,11 @@ void ReturnToMapNavi::Start()
 {
     using namespace ReturnUtility;
     Base::Start();
-    _imageElement = GetComponent<ImageElement>();
     CheckImageElementWithLog(_imageElement);
+}
+
+void ReturnToMapNavi::Awake() 
+{
+    Base::Awake();
+    _imageElement = GetComponent<ImageElement>();
 }

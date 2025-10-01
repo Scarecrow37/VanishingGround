@@ -29,6 +29,7 @@ public:
     void FocusOut() override;
 
 protected:
+    void Awake() override;
     void Start() override;
     void OnEnable() override;
 

@@ -37,6 +37,7 @@ public:
 protected:
     void DeserializedReflectEvent() override;
     void Start() override;
+    void Awake() override;
 
 protected:
     REFLECT_FIELDS_BEGIN(UISFXNavigationComponent)

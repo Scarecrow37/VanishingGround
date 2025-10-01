@@ -115,11 +115,16 @@ void RestartStageNavi::FocusOut()
     }
 }
 
-void RestartStageNavi::Start() 
+void RestartStageNavi::Awake() 
+{
+    Base::Awake();
+    _imageElement = GetComponent<ImageElement>();
+}
+
+void RestartStageNavi::Start()
 {
     using namespace RestartUtility;
     Base::Start();
-    _imageElement = GetComponent<ImageElement>();
     CheckImageElementWithLog(_imageElement);
 }
 
