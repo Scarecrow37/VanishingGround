@@ -76,5 +76,24 @@ namespace Watcher
             if (nullptr != viewModel)
                 viewModel->RemoveCallback(handle);
         }
+
+        template <typename T>
+        void Notify(const std::string& key)
+        {
+            std::shared_ptr<T> viewModel;
+            try
+            {
+                viewModel = Registry<T>::Get(key);
+            }
+            catch (std::out_of_range&)
+            {
+                throw std::invalid_argument("ViewModel not found for key: " + key);
+            }
+            if (nullptr == viewModel)
+            {
+                throw std::logic_error("ViewModel is null for key: " + key);
+            }
+            viewModel->Notify();
+        }
     };
 } // namespace MVVM
