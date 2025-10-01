@@ -882,7 +882,10 @@ Scene* ESceneManager::GetSceneByName(std::string_view name)
 
 void ESceneManager::ObjectsAwake()
 {
-    for (auto& component : _waitAwakeVec)
+    static thread_local std::vector<std::shared_ptr<Component>> awakeVector;
+    awakeVector.clear();
+    awakeVector = _waitAwakeVec;
+    for (auto& component : awakeVector)
     {
         if (component->_enableInHierarchy)
         {
@@ -899,7 +902,10 @@ void ESceneManager::ObjectsAwake()
 
 void ESceneManager::ObjectsStart()
 {
-    for (auto& component : _waitStartVec)
+    static thread_local std::vector<std::shared_ptr<Component>> startVector;
+    startVector.clear();
+    startVector = _waitStartVec;
+    for (auto& component : startVector)
     {
         if (component->_enableInHierarchy)
         {
@@ -908,7 +914,7 @@ void ESceneManager::ObjectsStart()
         }
     }
     std::erase_if(_waitStartVec, [](auto& component)
-    {
+    { 
         return component->_initFlags.IsStart();
     });
 }
