@@ -17,7 +17,6 @@ public:
 
 public:
     void Awake() override;
-    void Start() override;
     void Update() override;
     void OnLoadScene(Scene& loadScene, LoadSceneMode mode) override;
 
