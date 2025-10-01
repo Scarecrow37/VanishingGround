@@ -110,6 +110,16 @@ void MapManager::Awake()
     }
 }
 
+void MapManager::Start() 
+{
+    //이 방법 말고는 방법이 없어요....
+    if (auto preferencesUI = GameObject::Find("PreferencesPannel").lock())
+    {
+        GameObject::DontDestroyOnLoad(preferencesUI.get());
+        preferencesUI->transform->SetParent(transform);
+    }
+}
+
 void MapManager::Update()
 {
     if (_scroll)
@@ -146,11 +156,15 @@ void MapManager::OnLoadScene(Scene& loadScene, LoadSceneMode mode)
     if (UmFileSystem.GetPathFromGuid(ReflectFields->MapScenePath).string() == otherScene)
     {
         isActive = true;
+        if (auto preferencesUI = GameObject::Find("PreferencesPannel").lock())
+        {
+            GameObject::DontDestroyOnLoad(preferencesUI.get());
+            preferencesUI->transform->SetParent(transform);
+        }
     }
     else
     {
         isActive = false;
-        // 설정 UI는 한개만 존재해야함.
         if (Transform* preferences = transform->Find("PreferencesPannel"))
         {
             GameObject::Destroy(preferences->gameObject);
