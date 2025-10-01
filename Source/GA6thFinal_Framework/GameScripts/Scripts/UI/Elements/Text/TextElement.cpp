@@ -99,13 +99,11 @@ SIZE TextElement::MeasureOverride(const SIZE availableSize)
                                  verticalFillMode == FillMode::FILL);
 
     const auto [contentWidth, contentHeight] = ReflectFields->ContentSize;
-    const LONG scaledContentWidth  = static_cast<LONG>(static_cast<float>(contentWidth) * ReflectFields->FontScale);
-    const LONG scaledContentHeight = static_cast<LONG>(static_cast<float>(contentHeight) * ReflectFields->FontScale);
 
     if (horizontalFillMode == FillMode::WRAP)
-        desiredSize.cx = scaledContentWidth;
+        desiredSize.cx = contentWidth;
     if (verticalFillMode == FillMode::WRAP)
-        desiredSize.cy = scaledContentHeight;
+        desiredSize.cy = contentHeight;
 
     return desiredSize;
 }
