@@ -1,6 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "NewGame.h"
-#include "SceneTransition/TransitionManager.h"
+#include "SceneTransition/SceneTransitionComponent.h"
 #include "PlayerSystem/PlayerSystem.h"
 #include "Map/MapManager.h"
 
@@ -29,10 +29,10 @@ NewGame::~NewGame() = default;
 void NewGame::Submit()
 {
     File::Path  path              = File::Guid(ReflectFields->NextSceneGuid).ToPath();
-    GameObject* transitionManager = SingletonObject<TransitionManager>::GetInstance();
+    GameObject* transitionManager = SingletonObject<SceneTransitionComponent>::GetInstance();
     if (transitionManager)
     {
-        auto transitionComponent = transitionManager->GetComponent<TransitionManager>();
+        auto transitionComponent = transitionManager->GetComponent<SceneTransitionComponent>();
         if (transitionComponent)
         {
             transitionComponent->SceneTransitionFade("in", "out", [path]()                 

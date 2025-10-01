@@ -3,7 +3,7 @@
 #include "ViewModels/Map/StageViewModel.h"
 #include "MapManager.h"
 #include "ItemDropSystem/ItemDropSystem.h"
-#include "SceneTransition/TransitionManager.h"
+#include "SceneTransition/SceneTransitionComponent.h"
 
 UMREAL_COMPONENT(Stage)
 
@@ -67,10 +67,10 @@ void Stage::Submit()
         return;
     }
 
-    GameObject* transitionManager = SingletonObject<TransitionManager>::GetInstance();
+    GameObject* transitionManager = SingletonObject<SceneTransitionComponent>::GetInstance();
     if (transitionManager)
     {
-        auto transitionComponent = transitionManager->GetComponent<TransitionManager>();
+        auto transitionComponent = transitionManager->GetComponent<SceneTransitionComponent>();
         if (transitionComponent)
         {
             std::array<DropItemInfo, ARTIFACT_DROP_COUNT>& droptable = _dropItemInfos;
