@@ -1,5 +1,7 @@
 ﻿#pragma once
 #include "UmFrameWork.h"
+#include <QTE/Result/QTEResult.h>
+
 class Enemy;
 struct EnemyStats;
 class Player;
@@ -39,7 +41,7 @@ private:
 class DamageSystem : public Component
 {
 public:
-    static int CalculateDamage(const PlayerInfo& attacker, const EnemyInfo& target);
+    static int CalculateDamage(const PlayerInfo& attacker, const EnemyInfo& target, const QTE::NoteResult& result);
     static int CalculateChainDamage(const PlayerInfo& attacker, const EnemyInfo& target);
 
     static int CalculateDamage(const EnemyInfo& attacker, const PlayerInfo& target);

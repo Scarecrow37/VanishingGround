@@ -62,6 +62,7 @@ public:
     virtual void Dead() override;
     /*Enemy에게 피격을 가합니다.*/
     virtual void TakeDamage(int damage, bool playAnim = true) override;
+    virtual void TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim = true) override;
 
     inline EnemyAI&            GetAIModel() { return _aiModel; }
     inline FiniteStateMachine& GetFSM() { return *_finiteStateMachine; }
@@ -78,12 +79,7 @@ private:
     GameObject* _monsterHUD = nullptr;
 
 protected:
-    /// <summary>
-    /// <para> 이 함수는 항상 Start 함수 전에 호출되며 프리팹이 인스턴스화 된 직후에 호출됩니다.                </para>
-    /// <para> 게임 오브젝트의 Active가 false 상태인 경우 Awake 함수는 true가 될때까지 호출되지 않습니다.      </para>
-    /// </summary>
     virtual void Awake();
-
     virtual void Update();
 
     virtual void PlayTurn() override;
@@ -92,15 +88,15 @@ protected:
     void InitParticle();
 
 private:
-    virtual void OnCombatStart() override;
-    virtual void OnRoundStart() override;
-    virtual void OnRoundEnd() override;
-    virtual void OnEachTurnStart(CharacterBase* destination) override;
-    virtual void OnTurnStart() override;
-    virtual void OnTurnEnd() override;
-    virtual void OnHit() override;
-    virtual void OnKill(CharacterBase* destination) override;
-    virtual void OnTokenAdded(int tokenID) override;
-    virtual void OnTokenRemoved(int tokenID) override;
-    virtual void OnNotifiedAnimationEvent(const Timeline::EventContext* context) override;
+    void OnCombatStart() override;
+    void OnRoundStart() override;
+    void OnRoundEnd() override;
+    void OnEachTurnStart(CharacterBase* destination) override;
+    void OnTurnStart() override;
+    void OnTurnEnd() override;
+    void OnHit() override;
+    void OnKill(CharacterBase* destination) override;
+    void OnTokenAdded(int tokenID) override;
+    void OnTokenRemoved(int tokenID) override;
+    void OnNotifiedAnimationEvent(const Timeline::EventContext* context) override;
 };

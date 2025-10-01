@@ -8,24 +8,26 @@ namespace EnemyAction
 {
     void Action22013::OnActionEnter() 
     {
+        bool result = false;
         if (_animator)
         {
-            _animator->BeginBuildOverrideAnimation();
+            if (_animator->HasAnimationMappingKey("Attack1"))
             {
-                if (_animator->HasAnimationMappingKey("Attack1"))
+                _animator->BeginBuildOverrideAnimation();
+
+                _animator->ClearOverrideAnimations();
+                _animator->SetNextAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE | ANIMATION_FLAG_USE_BLEND);
+                result = _animator->PushBackOverrideAnimation("Attack1");
+                if (result)
                 {
-                    _animator->ClearOverrideAnimations();
-                    _animator->SetNextAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE | ANIMATION_FLAG_USE_BLEND);
-                    _animator->ChangeMainAnimation("Attack1");
+                    _animator->SetCurrentAnimationPopCondition([](const AnimationData& data) { return data.IsEnd(); }); // 애니메이션이 끝날 경우 Pop
+                    _animator->SetCurrentAnimationPopCallback([this]() { SetActionEnd(); });
                 }
-                else
-                {
-                    SetActionEnd();
-                }
+
+                _animator->EndBuildOverrideAnimation();
             }
-            _animator->EndBuildOverrideAnimation();
         }
-        else
+        if (false == result)
         {
             SetActionEnd();
         }

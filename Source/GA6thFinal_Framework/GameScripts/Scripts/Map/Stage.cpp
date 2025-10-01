@@ -3,6 +3,7 @@
 #include "ViewModels/Map/StageViewModel.h"
 #include "MapManager.h"
 #include "ItemDropSystem/ItemDropSystem.h"
+#include "SceneTransition/TransitionManager.h"
 
 UMREAL_COMPONENT(Stage)
 
@@ -46,7 +47,7 @@ void Stage::UpdateData(const std::string& key, const File::Guid& enableImage, co
 
 void Stage::FocusIn(FocusCallType callType)
 {
-    UINavigationComponent::FocusIn(callType);
+    Base::FocusIn(callType);
 
     if (auto manager = GameObject::Find("MapManager").lock(); manager)
     {
@@ -67,7 +68,16 @@ void Stage::Submit()
         return;
     }
 
-    UmSceneManager.LoadScene(stagePath);
+    GameObject* transitionManager = SingletonObject<TransitionManager>::GetInstance();
+    if (transitionManager)
+    {
+        auto transitionComponent = transitionManager->GetComponent<TransitionManager>();
+        if (transitionComponent)
+        {
+            transitionComponent->SceneTransitionFade("in", "out",
+                                                     [stagePath]() { UmSceneManager.LoadScene(stagePath); });
+        }
+    }
     _stageEnable = false;
 }
 

@@ -11,6 +11,7 @@ namespace GE
         PARTICLE_QUAD,
         PARTICLE_RIBBON,
         QUAD,
+        SDF_FONT_FR,
         SKELETAL_FORWARD_FR,
         SKELETAL_FR,
         SKELETAL_SHADOW_FR,
@@ -24,6 +25,7 @@ namespace GE
     enum class PS { 
         NONE,
         ACCUMULATION,
+        BILATERAL_UP_SAMPLE,
         BLEND,
         BRIGHT_EXTRACT,
         BURN_DISSOLVE,
@@ -41,8 +43,10 @@ namespace GE
         PARTICLE_QUAD,
         PARTICLE_RESOLVE,
         PBR_LIGHTING,
+        SDF_FONT,
         SHADOW,
         SKYBOX,
+        SSGI_COMPOSITE,
         SSR,
         TO_BACKBUFFER,
         UI,
@@ -55,15 +59,18 @@ namespace GE
     enum class CS { 
         NONE,
         BRDF_LUT,
+        CALCULATE_MOTION_VECTOR,
         COMPUTE_RIBBON,
         COMPUTE_SPRITE,
         CUBE_TEXTURE_CONVERTOR,
+        GENERATE_SSGI,
         IRRADIANCE_MAP,
         LIGHT_ACCUMULATION,
         LIGHT_INJECTION,
         PREFILTERED_MAP,
         RESOLVE_UI,
         SKELETAL_SKINNING,
+        SSGI_TEMPORAL,
         END
      };
     enum class GS { NONE, END };

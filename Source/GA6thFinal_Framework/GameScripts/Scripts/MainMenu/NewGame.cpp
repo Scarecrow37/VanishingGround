@@ -1,5 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "NewGame.h"
+#include "SceneTransition/TransitionManager.h"
 
 UMREAL_COMPONENT(NewGame)
 
@@ -13,7 +14,7 @@ NewGame::NewGame()
                 const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
                 if (const auto extension = data->GetPath().extension(); extension == L".UmScene")
                 {
-                    ReflectFields->NextScene = data->GetPath().string();
+                    ReflectFields->NextSceneGuid = data->GetGuid().string();
                 }
             }
             ImGui::EndDragDropTarget();
@@ -25,5 +26,14 @@ NewGame::~NewGame() = default;
 
 void NewGame::Submit()
 {
-    UmSceneManager.LoadScene(ReflectFields->NextScene);
+    File::Path  path              = File::Guid(ReflectFields->NextSceneGuid).ToPath();
+    GameObject* transitionManager = SingletonObject<TransitionManager>::GetInstance();
+    if (transitionManager)
+    {
+        auto transitionComponent = transitionManager->GetComponent<TransitionManager>();
+        if (transitionComponent)
+        {
+            transitionComponent->SceneTransitionFade("in", "out", [path]() { UmSceneManager.LoadScene(path.string()); });
+        }
+    }
 }

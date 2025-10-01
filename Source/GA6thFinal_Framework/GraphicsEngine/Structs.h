@@ -12,32 +12,34 @@ struct BoneMatrices
     Matrix matrix[MAX_BONE_MATRIX];
 };
 
-struct MaterialID
+struct InstanceData
 {
-    UINT ID[4];
-};
-
-struct ObjectData
-{
-    UINT  InstanceID;
-    UINT  MaxBoneMatrix;
+    UINT  MaterialID[4];
+    UINT  MatrixID;
     UINT  CustomDepth;
     FLOAT Alpha;
+};
+
+class DXRSkeletalMesh;
+class BaseMesh;
+struct MeshInfo
+{
+    InstanceData     InstanceData;
+    Material         Material;
+    BaseMesh*        Mesh;
+    DXRSkeletalMesh* SkinnedInstance;
+    Matrix*          TransposeWorldMatrix;
+    float            DepthKey;
 };
 
 struct UIMaterial
 {
     UINT  ID;
-    float Alpha;
+    FLOAT Alpha;
     UINT  NumColmn;
     UINT  NumRow;
     UINT  ColumnIndex;
     UINT  RowIndex;
-};
-
-struct ShadowObjectData : public ObjectData
-{
-    UINT CascadedIndex;
 };
 
 struct CameraData
@@ -77,6 +79,20 @@ struct VolumetricFogData
     float    ThicknessFactor;
     float    FogIntensity;
     float    LightShaftIntensity;
+};
+
+struct SSGIData
+{
+    XMMATRIX PreViewProj;
+    XMMATRIX InverseViewProjection;
+    Vector2  ScreenSize;
+    float    Radius;
+    float    Thickness;
+    int      NumSample;
+    float    Intensity;
+    float    TemporalWeight;
+    float    DepthSigma;
+    float    NormalSigma;
 };
 
 struct VolumetricFogCompositeData

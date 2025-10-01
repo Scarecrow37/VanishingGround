@@ -43,6 +43,7 @@ public:
     {
         ReflectFields->FontScale = std::max(0.0f, value);
         UpdateScale();
+        UpdateContentSize();
         InvalidateMeasure();
     }
     PROPERTY(FontScale)
@@ -79,12 +80,11 @@ protected:
     std::string          Guid;
     std::string          Text         = "Hello Um!";
     std::array<float, 4> Color        = {0.0f, 0.0f, 0.0f, 1.0f};
-    float                FontScale    = 1.0f;
+    float                FontScale    = 32.0f;
     SIZE                 ContentSize  = SIZE{};
     REFLECT_FIELDS_END(TextElement)
 
 private:
-    std::unique_ptr<FontRenderer> _renderer;
-    File::GuidRef                 _guidRef;
-
+    ISDFTextRenderer* _renderer;
+    File::GuidRef     _guidRef;
 };

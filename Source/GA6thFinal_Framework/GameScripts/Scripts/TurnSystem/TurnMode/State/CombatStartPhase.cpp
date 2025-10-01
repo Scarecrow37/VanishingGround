@@ -95,6 +95,9 @@ void CombatStartPhase::OnStart()
 
 void CombatStartPhase::OnEnter() 
 {
+    /// 사운드
+    UmAudio.Play("-20000");
+
     _turnMode->ResetRoundCount();
     AddValidActions();
 
@@ -124,6 +127,11 @@ void CombatStartPhase::OnEnter()
         {
             weaponPanel->ActiveSelf = true;
         }       
+         
+        if (auto accessoriesPanel = GameObject::FindWithTag("Accessories Panel").lock())
+        {
+            accessoriesPanel->ActiveSelf = true;
+        }
     });
 
     NotifyCombatStart();

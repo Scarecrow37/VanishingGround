@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Base/PlayerStateBase.h"
 #include <BattleSystem/Battle.h>
-
+#include <QTE/Result/QTEResult.h>
 class Enemy;
 
 /*
@@ -33,46 +33,35 @@ protected:
     void OnExit() override;
     void OnUpdate() override;
 
-private:
-    void UpdateAttackButtonHeld(float dt);
+    void OnQTEFinish();
+
     void PressedButtonA(const Input::Controller& controller);
     void ReleasedButtonA(const Input::Controller& controller);
-    
-    void PressedButtonX(const Input::Controller& controller);
-    void ReleasedButtonX(const Input::Controller& controller);
 
-    void PressedButtonY(const Input::Controller& controller);
-    void ReleasedButtonY(const Input::Controller& controller);
-
-    void PressedButtonB(const Input::Controller& controller);
-    void ReleasedButtonB(const Input::Controller& controller);
+private:
+    void UpdateAttackButtonHeld(float dt);
     
     void UpdateActionSelectionUI(float dt);
     void UpdateQuickTimeEventUI(float dt);
     void UpdateAttackEventUI(float dt);
 
-    bool IsAttackable() const;
-    void PushAttackTarget(Battle::EnemyTargetFlag_ target);
-
-    // Animation
     void SetAttackReady();
     void SetAttack();
     void SetAttackEnd();
 
-    // Callback //
-    void BattleOnAttackEvent();
+    void BattleOnHitEvent(const QTE::NoteResult& result);
+
+    Battle::EnemyTargetFlag_ GetAttackTargetFromButton(unsigned int button) const;
 
 private:
-    bool       _setImguiPosCenter;
     InputState _inputState;
-    bool       _isDownAttackButton;
+    int        _attackRemaining;        // 공격 남은 횟수
+    bool       _isDownAButton;          // QTE 시작 버튼 (패드)
+    bool       _isDownAKey;             // QTE 시작 버튼 (키보드)
     float      _attackButtonHeldTime;
     float      _attackButtonHeldWaitTime;
-    int        _attackRemaining; // 공격 남은 횟수
-    std::deque<Battle::EnemyTargetFlag_> _attackTargets;
 
-    std::map<int, class AnimationComponent*> weaponAnims;
-    std::map<int, class ParticleComponent*> weaponEffects;
+    //== Debug == //
+    bool       _showDebugUI = false;
     
-
 };

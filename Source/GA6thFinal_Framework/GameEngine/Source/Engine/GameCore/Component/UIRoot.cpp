@@ -336,16 +336,25 @@ void UIRoot::CheckNavigationIdFlawless(const UIBaseComponent* newComponent)
         Transform& transform = newComponent->transform;
         UpdateNavigationMap(transform);
 
+        NavigationID maxID = INVALID_NAVIGATION_ID;
+
         std::vector<UINavigationComponent*> uiNavigationComponents;
 
-        Transform::ForeachBFS(transform, [this, &uiNavigationComponents](const Transform* dfsTransform) {
+        Transform::ForeachBFS(transform, [this, &uiNavigationComponents, &maxID](const Transform* dfsTransform) {
             const GameObject& gameObject = dfsTransform->gameObject;
             if (UINavigationComponent* navigationComponent = gameObject.GetComponentDynamic<UINavigationComponent>();
                 nullptr != navigationComponent)
             {
                 uiNavigationComponents.push_back(navigationComponent);
+                NavigationID id = navigationComponent->ID;
+                maxID           = std::max(maxID, id);
             }
         });
+
+        if (ReflectFields->LastID <= maxID)
+        {
+            ReflectFields->LastID = maxID + 1;
+        }
 
         std::ranges::for_each(uiNavigationComponents, [this, &uiNavigationComponents](
                                                           UINavigationComponent* navigationComponent) {

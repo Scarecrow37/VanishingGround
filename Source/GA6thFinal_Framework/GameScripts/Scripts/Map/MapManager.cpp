@@ -113,6 +113,7 @@ void MapManager::Awake()
     {        
         GameObject::Destroy(gameObject);
     }
+
 }
 
 void MapManager::Update()

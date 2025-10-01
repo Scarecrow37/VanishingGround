@@ -18,13 +18,15 @@ void AbandonButton::Awake()
         if (child->gameObject->CompareTag("AbandonInfoPannel"))
             _abandonPannel = &(child->gameObject);
     }
-    _abandonPannel->SetActive(false);
+    if (_abandonPannel)
+        _abandonPannel->SetActive(false);
 
     GameObject* preferencesManager = GameObject::Find("PreferencesManager").lock().get();
     if (preferencesManager)
     {
         PreferencesManager* manager = preferencesManager->GetComponent<PreferencesManager>();
-        manager->AddPreferencesButton(this);
+        if (manager)
+            manager->AddPreferencesButton(this);
     }
     std::string currSceneName = UmSceneManager.GetMainScene()->Name;
     if ("MainMenu" == currSceneName)
@@ -35,12 +37,14 @@ void AbandonButton::Update()
 {
     if (_dirtyFlag)
     {
-        _abandonPannel->SetActive(true);
+        if (_abandonPannel)
+            _abandonPannel->SetActive(true);
         GameObject* preferencesManager = GameObject::Find("PreferencesManager").lock().get();
         if (preferencesManager)
         {
             PreferencesManager* manager = preferencesManager->GetComponent<PreferencesManager>();
-            manager->OpenAbadonButtons();
+            if (manager)
+                manager->OpenAbadonButtons();
         }
         _dirtyFlag = false;
     }
@@ -54,4 +58,5 @@ void AbandonButton::Reset()
 void AbandonButton::DirtyOnFlag(const Input::Controller&) 
 {
     _dirtyFlag = true;
+    UmAudio.Play("-40020");
 }

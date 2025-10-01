@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include "Utility/SingletonHelper.h"
+
 class SceneTransitionComponent : public Component
 {
     // easetype, easefunctype, threshold
@@ -62,6 +64,18 @@ protected:
     void Update() override;
 
     void CalculateFade();
+
+
+ //void Reset() override;
+
+
+ //void Awake() override;
+
+
+ //void OnDestroy() override;
+
+ //private:
+    //SingletonComponent<SceneTransitionComponent> _singletonComponent{this};
 
 
 public:

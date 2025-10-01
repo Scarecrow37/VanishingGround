@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+class ISDFTextRenderer;
 class GraphicsCore
 {
 public:
@@ -32,13 +33,18 @@ public:
     void RegisterComponent(Animator* component) const;
     void RegisterComponent(std::string_view renderSceneName, MeshRenderer* component) const;
     void RegisterComponent(std::string_view renderSceneName, SpriteRenderer* component) const;
-    void RegisterComponent(std::string_view renderSceneName, FontRenderer* component) const;
+    void RegisterComponent(std::string_view renderSceneName, TextRenderer* component) const;
     void RegisterComponent(std::string_view renderSceneName, Light* component) const;
+    void RegisterComponent(std::string_view renderSceneName, ISDFTextRenderer* component) const;
+
+public:
+    void CreateSDFTextRenderer(ISDFTextRenderer** component) const;
 
 public:
     void LoadResource(std::wstring_view filePath, MeshRenderer* component) const;
     void LoadResource(std::wstring_view filePath, SpriteRenderer* component) const;
-    void LoadResource(std::wstring_view filePath, FontRenderer* component) const;
+    void LoadResource(std::wstring_view filePath, TextRenderer* component) const;
+    void LoadResource(std::wstring_view filePath, ISDFTextRenderer* component) const;
     void LoadTextureResource(std::wstring_view filePath, class ParticleEmitter* component) const;
     void LoadModelResource(std::wstring_view filePath, class ParticleEmitter* component) const;
 
@@ -63,6 +69,7 @@ public:
     void XM_CALLCONV DebugDraw3D(std::string_view sceneName, FXMVECTOR position, FXMVECTOR direction, float range, float innerCone, float outerCone, FXMVECTOR color = DirectX::Colors::White) const;
     void XM_CALLCONV DebugDraw2D(std::string_view sceneName, FXMVECTOR pointA, FXMVECTOR pointB, FXMVECTOR pointC, GXMVECTOR pointD, HXMVECTOR color = DirectX::Colors::White) const;
     void XM_CALLCONV DebugDraw2D(std::string_view sceneName, FXMVECTOR pointA, FXMVECTOR pointB, FXMVECTOR color = DirectX::Colors::White) const;
+    void XM_CALLCONV DebugDraw2D(std::string_view sceneName, FXMVECTOR origin, float radius, FXMVECTOR color = DirectX::Colors::White) const;
 
 private:
     class Device*                     _device;

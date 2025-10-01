@@ -29,7 +29,7 @@ public:
     void AddAbandonButton(Component* comps);
     void OpenAbadonButtons();
     void CloseAbandonButtons();
-    void OnPreferencesWindow();
+    void OnPreferencesWindow(UINavigationComponent* backComponent);
     void GoToMainMenu();
     bool IsOpen() { return _opened; }
 
@@ -42,7 +42,11 @@ private:
 
 public:
     REFLECT_PROPERTY(MainMenuScene)
-    GETTER_ONLY(std::string, MainMenuScene) { return ReflectFields->MainMenuSceneStr; }
+    GETTER_ONLY(std::string, MainMenuScene) 
+    {
+        File::Guid guid = ReflectFields->MainMenuSceneStr;
+        return guid.ToPath().string(); 
+    }
     PROPERTY(MainMenuScene)
 
 protected:
@@ -64,4 +68,5 @@ private:
     bool                    _isOpenAbandonButton = false;
     bool                    _isOpenAbandonDirty  = false;
     bool                    _changeMainMenuSceneDirty = false;
+    UINavigationComponent*  _backComponent            = nullptr;
 };

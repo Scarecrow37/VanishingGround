@@ -18,7 +18,8 @@ void AbandonNoButton::Awake()
     if (preferencesManager)
     {
         PreferencesManager* manager = preferencesManager->GetComponent<PreferencesManager>();
-        manager->AddAbandonButton(this);
+        if (manager)
+            manager->AddAbandonButton(this);
     }
 }
 
@@ -26,12 +27,14 @@ void AbandonNoButton::Update()
 {
     if (_dirtyFlag)
     {
-        _abandonPannel->SetActive(false);
+        if (_abandonPannel)
+            _abandonPannel->SetActive(false);
         GameObject* preferencesManager = GameObject::Find("PreferencesManager").lock().get();
         if (preferencesManager)
         {
             PreferencesManager* manager = preferencesManager->GetComponent<PreferencesManager>();
-            manager->CloseAbandonButtons();
+            if (manager)
+                manager->CloseAbandonButtons();
         }
         _dirtyFlag = false;
     }
@@ -45,4 +48,5 @@ void AbandonNoButton::Reset()
 void AbandonNoButton::DirtyOffFlag(const Input::Controller&) 
 {
     _dirtyFlag = true;
+    UmAudio.Play("-40030");
 }

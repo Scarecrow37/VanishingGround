@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 
-class EnableButton : public UINavigationComponent,public InputReceiver
+class EnableButton : public UISFXNavigationComponent,public InputReceiver
 {
     USING_PROPERTY(EnableButton)
 
@@ -48,7 +48,7 @@ private:
     void ChangeOption();
 
 protected:
-    REFLECT_FIELDS_BEGIN(UINavigationComponent)
+    REFLECT_FIELDS_BEGIN(UISFXNavigationComponent)
     std::string OnFocusGuid;
     std::string OnNonFocusGuid;
     std::string OffFocusGuid;

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="DebugEditor|Win32">
@@ -302,9 +302,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\Utility\FadeHelper.h" />
+    <ClInclude Include="Scripts\Audio\BGMComponent.h" />
     <ClInclude Include="DLLExportDefine.h" />
     <ClInclude Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.h" />
     <ClInclude Include="Scripts\Audio\AudioTableComponent.h" />
+    <ClInclude Include="Scripts\Audio\BGMManager.h" />
     <ClInclude Include="Scripts\ConsumableSystem\ConsumableSystem.h" />
     <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h" />
     <ClInclude Include="Scripts\EnemyAction\ActionData\EnemyActionData.h" />
@@ -326,6 +329,8 @@
     <ClInclude Include="Scripts\ExcelDataSystem\ExcelDataSystem.h" />
     <ClInclude Include="Scripts\ExcelParser\ImGuiColumnSheetParser.h" />
     <ClInclude Include="Scripts\ItemDropSystem\Interface\IDropItem.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UINavi\RestartStageNavi.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UINavi\ReturnToMapNavi.h" />
     <ClInclude Include="Scripts\MainMenu\MainMenuNavigationBase.h" />
     <ClInclude Include="Scripts\Map\MapManager.h" />
     <ClInclude Include="Scripts\Map\RewardPopup.h" />
@@ -341,6 +346,12 @@
     <ClInclude Include="Scripts\Preferences\Button\TextureLMH.h" />
     <ClInclude Include="Scripts\Preferences\PreferencesManager.h" />
     <ClInclude Include="Scripts\Preferences\PrefrencesWindow.h" />
+    <ClInclude Include="Scripts\QTE\Editor\QTEEditor.h" />
+    <ClInclude Include="Scripts\QTE\Result\QTEResult.h" />
+    <ClInclude Include="Scripts\QTE\System\QTESystem.h" />
+    <ClInclude Include="Scripts\QTE\Track\Note\QTENote.h" />
+    <ClInclude Include="Scripts\QTE\Track\QTETrack.h" />
+    <ClInclude Include="Scripts\QTE\UI\QTEUIManager.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.h" />
     <ClInclude Include="Scripts\Animation\AnimationComponent.h" />
@@ -383,13 +394,17 @@
     <ClInclude Include="Scripts\UINavigation\TempNavigationComponent.h" />
     <ClInclude Include="Scripts\UI\Base\DrawUIComponent\DrawUIComponent.h" />
     <ClInclude Include="Scripts\UI\Base\SlotComponent\SlotComponent.h" />
+    <ClInclude Include="Scripts\UI\Contents\DamageElement.h" />
+    <ClInclude Include="Scripts\UI\Contents\SpawnDamagePanel.h" />
     <ClInclude Include="Scripts\UI\Elements\Dummy\DummyElement.h" />
     <ClInclude Include="Scripts\UI\Elements\Image\ImageElement.h" />
+    <ClInclude Include="Scripts\UI\Elements\SpriteAnimation\SpriteAnimationElement.h" />
     <ClInclude Include="Scripts\UI\Elements\Text\TextElement.h" />
     <ClInclude Include="Scripts\UI\Panels\Description\DescriptionPanel.h" />
     <ClInclude Include="Scripts\UI\Panels\Grid\GridPanel.h" />
     <ClInclude Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.h" />
     <ClInclude Include="Scripts\UI\Panels\Overlay\OverlayPanel.h" />
+    <ClInclude Include="Scripts\UI\Views\Accessories\AccessoriesView.h" />
     <ClInclude Include="Scripts\UI\Views\MonsterChain\MonsterChainView.h" />
     <ClInclude Include="Scripts\UI\Views\PlayerHP\PlayerHPView.h" />
     <ClInclude Include="Scripts\UI\Views\Map\StageFocusView.h" />
@@ -401,6 +416,7 @@
     <ClInclude Include="Scripts\UI\Wrappers\Dummy\DummyWrapper.h" />
     <ClInclude Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.h" />
     <ClInclude Include="Scripts\UI\Wrappers\Scrolling\ScrollingWrapper.h" />
+    <ClInclude Include="Scripts\ViewModels\Accessories\AccessoriesViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Chain\ChainCountViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\ItemDrop\DropArtifacts\DropArtifactsViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Hp\CharacterHPViewModel.h" />
@@ -491,10 +507,17 @@
     <ClInclude Include="Scripts\MainMenu\Credits.h" />
     <ClInclude Include="Scripts\MainMenu\Quit.h" />
     <ClInclude Include="Scripts\Camera\UmCineMotion.h" />
+    <ClInclude Include="Scripts\WeaponModelManager\WeaponModelManager.h" />
+    <ClInclude Include="Scripts\Test\Audio\TestAudioComponent.h" />
+    <ClInclude Include="Scripts\SceneTransition\TransitionManager.h" />
+    <ClInclude Include="Scripts\Camera\CameraManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\Utility\FadeHelper.cpp" />
+    <ClCompile Include="Scripts\Audio\BGMComponent.cpp" />
     <ClCompile Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.cpp" />
     <ClCompile Include="Scripts\Audio\AudioTableComponent.cpp" />
+    <ClCompile Include="Scripts\Audio\BGMManager.cpp" />
     <ClCompile Include="Scripts\ConsumableSystem\ConsumableSystem.cpp" />
     <ClCompile Include="Scripts\EnemyAction\Factory\EnemyActionFactory.cpp" />
     <ClCompile Include="Scripts\EnemyAction\ActionData\EnemyActionData.cpp" />
@@ -515,6 +538,8 @@
     <ClCompile Include="Scripts\ExcelDataSystem\ExcelDataSystem.cpp" />
     <ClCompile Include="Scripts\ExcelParser\ImGuiColumnSheetParser.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\Interface\IDropItem.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UINavi\RestartStageNavi.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UINavi\ReturnToMapNavi.cpp" />
     <ClCompile Include="Scripts\MainMenu\MainMenuNavigationBase.cpp" />
     <ClCompile Include="Scripts\Map\MapManager.cpp" />
     <ClCompile Include="Scripts\Map\RewardPopup.cpp" />
@@ -530,11 +555,20 @@
     <ClCompile Include="Scripts\Preferences\Button\TextureLMH.cpp" />
     <ClCompile Include="Scripts\Preferences\PreferencesManager.cpp" />
     <ClCompile Include="Scripts\Preferences\PrefrencesWindow.cpp" />
+    <ClCompile Include="Scripts\QTE\Editor\QTEEditor.cpp" />
+    <ClCompile Include="Scripts\QTE\System\QTESystem.cpp" />
+    <ClCompile Include="Scripts\QTE\Track\Note\QTENote.cpp" />
+    <ClCompile Include="Scripts\QTE\Track\QTETrack.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\QTEUIManager.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.cpp" />
     <ClCompile Include="Scripts\Animation\AnimationComponent.cpp" />
     <ClCompile Include="Scripts\Animation\Structs\AnimationData.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Recovery\RecoveryAction.cpp" />
+    <ClCompile Include="Scripts\UI\Contents\DamageElement.cpp" />
+    <ClCompile Include="Scripts\UI\Contents\SpawnDamagePanel.cpp" />
+    <ClCompile Include="Scripts\UI\Elements\SpriteAnimation\SpriteAnimationElement.cpp" />
+    <ClCompile Include="Scripts\WeaponModelManager\WeaponModelManager.cpp" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionEnums.h">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">NotUsing</PrecompiledHeader>
@@ -598,6 +632,7 @@
     <ClCompile Include="Scripts\UI\Wrappers\Dummy\DummyWrapper.cpp" />
     <ClCompile Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.cpp" />
     <ClCompile Include="Scripts\UI\Wrappers\Scrolling\ScrollingWrapper.cpp" />
+    <ClCompile Include="Scripts\ViewModels\Accessories\AccessoriesViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Chain\ChainCountViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\ItemDrop\DropArtifacts\DropArtifactsViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Hp\CharacterHPViewModel.cpp" />
@@ -690,6 +725,10 @@
     <ClCompile Include="Scripts\MainMenu\Credits.cpp" />
     <ClCompile Include="Scripts\MainMenu\Quit.cpp" />
     <ClCompile Include="Scripts\Camera\UmCineMotion.cpp" />
+    <ClCompile Include="Scripts\UI\Views\Accessories\AccessoriesView.cpp" />
+    <ClCompile Include="Scripts\Test\Audio\TestAudioComponent.cpp" />
+    <ClCompile Include="Scripts\SceneTransition\TransitionManager.cpp" />
+    <ClCompile Include="Scripts\Camera\CameraManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

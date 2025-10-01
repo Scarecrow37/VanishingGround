@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "Camera/CameraComponent.h"
 #include "Mesh/MeshComponent.h"
+#include "GraphicsEngine/SDFFont.h"
 
 using namespace Global;
 using namespace u8_literals;
@@ -34,7 +35,7 @@ ESceneManager::ESceneManager()
 }
 ESceneManager::~ESceneManager()
 {
-    
+
 }
 
 void ESceneManager::LoadSettingFile() 
@@ -1204,7 +1205,10 @@ void ESceneManager::ObjectsDestroy()
         {
             static EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("SceneDock");
             static EditorHierarchyTool* editorHierarchy = sceneDock->GetGui<EditorHierarchyTool>();
-            editorHierarchy->ActiveHierarchyCleanup();
+            if (editorHierarchy)
+            {
+                 editorHierarchy->ActiveHierarchyCleanup();
+            }
         }
     }
 
@@ -1238,7 +1242,10 @@ void ESceneManager::ObjectsAddRuntime()
         {
             static EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("SceneDock");
             static EditorHierarchyTool* editorHierarchy = sceneDock->GetGui<EditorHierarchyTool>();
-            editorHierarchy->PushHierarchyObject(gameObject);
+            if (editorHierarchy)
+            {
+                editorHierarchy->PushHierarchyObject(gameObject);
+            }
         }
     }
 
@@ -1990,6 +1997,7 @@ void ESceneManager::SceneResourceManager::Engine::Update(SceneResourceManager& m
         manager.UpdateRenderResource(manager._models);
         manager.UpdateRenderResource(manager._textures);
         manager.UpdateRenderResource(manager._fonts);
+        manager.UpdateRenderResource(manager._sdfFonts);
     }
 }
 
@@ -2130,6 +2138,46 @@ void ESceneManager::SceneResourceManager::RequestFontResource(const Component* c
     }
 }
 
+void ESceneManager::SceneResourceManager::RequestSDFFontResource(const Component* component, const File::Guid& guid,
+                                                                 const std::function<void()>& func)
+{
+    if (component->gameObject->IsValid())
+    {
+        File::Path path = UmFileSystem.GetPathFromGuid(guid);
+        if (false == path.IsNull())
+        {
+            RequestSDFFontResource(component, path, func);
+        }
+        else
+        {
+            std::string_view   componentName = component->ClassName();
+            const std::string& objectName    = component->gameObject->Name;
+            std::string msg = std::format("{}{}{} {}", guid.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ", objectName, componentName);
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+        }
+    }
+}
+
+void ESceneManager::SceneResourceManager::RequestSDFFontResource(const Component* component, const File::Path& path,
+                                                                 const std::function<void()>& func)
+{
+    if (component->gameObject->IsValid())
+    {
+        if (true == std::filesystem::exists(path))
+        {
+            auto tuple = std::make_tuple(component->GetWeakPtr(), path, func);
+            _sdfFonts.ResourceLoadQueue.push(tuple);
+        }
+        else
+        {
+            std::string_view   componentName = component->ClassName();
+            const std::string& objectName    = component->gameObject->Name;
+            std::string msg = std::format("{}{}{} {}", path.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ", objectName, componentName);
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+        }
+    }
+}
+
 ESceneManager::SceneResourceManager::SceneResourceManager() 
 {
 
@@ -2221,6 +2269,16 @@ void ESceneManager::InputSystem::CleanupInputReceivers()
             inputReceivers.clear();
         }
     }
+}
+
+void ESceneManager::InputSystem::Vibrate(const Input::ControllerTypes::Vibration vibration)
+{
+    _inputController.Vibrate(vibration);
+}
+
+void ESceneManager::InputSystem::StopVibration() 
+{
+    _inputController.Vibrate(0, 0);
 }
 
 void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)

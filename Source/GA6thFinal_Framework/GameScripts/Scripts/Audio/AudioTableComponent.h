@@ -30,5 +30,5 @@ private:
 
     std::string   _selectedAudioKey;
 
-    std::unordered_map<std::string, std::vector<Audio::Handle>> _audioHandles;
+    std::unordered_map<std::string, std::vector<Audio::AudioHandle>> _audioHandles;
 };

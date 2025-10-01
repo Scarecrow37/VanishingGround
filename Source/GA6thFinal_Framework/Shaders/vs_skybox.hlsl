@@ -1,4 +1,5 @@
 #include "CommonData.hlsli"
+
 struct VSInput
 {
     float4 position : POSITION;

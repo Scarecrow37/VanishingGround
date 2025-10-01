@@ -34,14 +34,6 @@ Texture2D textures[];
 static const uint BASIC = 0;
 static const uint LINEAR_FILL = 1;
 
-float4 Premultiply(float4 color)
-{
-    color.rgb *= color.a;
-    return color;
-}
-
-#define FRAME_NODE_CAPACITY 8294400
-
 void ps_main(PSInput input)
 {
     uint index = IDs[input.instanceID];

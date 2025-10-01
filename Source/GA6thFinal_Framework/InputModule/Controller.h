@@ -239,8 +239,30 @@ namespace Input
         /// <returns>저장된 Button 객체들의 std::queue를 반환합니다.</returns>
         [[nodiscard]] ButtonQueue GetButtonQueue() const noexcept;
 
+        /// <summary>
+        /// 컨트롤러의 왼쪽 및 오른쪽 모터를 진동시킵니다. 진동을 종료하고 싶으면 진동 속도를 0으로 설정하면 됩니다.
+        /// </summary>
+        /// <param name="leftMotorSpeed">왼쪽 모터의 진동 속도.</param>
+        /// <param name="rightMotorSpeed">오른쪽 모터의 진동 속도.</param>
+        void Vibrate(ControllerTypes::MotorSpeed leftMotorSpeed, ControllerTypes::MotorSpeed rightMotorSpeed) const;
+
+        /// <summary>
+        /// 컨트롤러에 지정된 진동을 적용합니다.
+        /// </summary>
+        /// <param name="vibration">적용할 진동 설정을 나타내는 ControllerTypes::Vibration 객체입니다.</param>
+        void Vibrate(const ControllerTypes::Vibration& vibration);
+
     private:
         void UpdateStickBias();
+        void UpdateVibration();
+
+        /// <summary>
+        /// 컨트롤러의 진동을 지정된 모터 속도와 지속 시간으로 활성화합니다.
+        /// </summary>
+        /// <param name="leftMotorSpeed">왼쪽 모터의 진동 속도.</param>
+        /// <param name="rightMotorSpeed">오른쪽 모터의 진동 속도.</param>
+        /// <param name="duration">진동이 지속될 시간(밀리초 단위).</param>
+        void Vibrate(ControllerTypes::MotorSpeed leftMotorSpeed, ControllerTypes::MotorSpeed rightMotorSpeed, std::chrono::milliseconds duration);
 
     private:
         const Adapter* _adapter;
@@ -250,5 +272,10 @@ namespace Input
         ButtonQueue _queue;
         StickBias   _leftStickBias;
         StickBias   _rightStickBias;
+
+        ControllerTypes::Vibration _nextVibration;
+        std::mutex              _vibrationMutex;
+        std::condition_variable _vibrationConditionVariable;
+        std::future<void>       _vibrationFuture;
     };
 } // namespace Input
