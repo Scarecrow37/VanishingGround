@@ -291,7 +291,7 @@ bool SceneTransitionComponent::IsTransitioning()
 void SceneTransitionComponent::SceneTransitionFade(std::string_view inPreset, std::string_view outPreset,
                                                    std::function<void(void)> callback)
 {
-    if (false == _fadeFlag&& false == _transitionLock)
+    if (false == _transitionLock)
     {
         Fade(inPreset, [callback, outPreset, this]() {
             if (nullptr != callback)
