@@ -33,7 +33,7 @@ ImageElement::~ImageElement()
     }
 }
 
-void ImageElement::SetImage(const File::GuidRef& guidRef)
+void ImageElement::SetImage(const File::Guid& guidRef)
 {
     _guidRef = guidRef;
     ReflectFields->Guid = _guidRef.string();

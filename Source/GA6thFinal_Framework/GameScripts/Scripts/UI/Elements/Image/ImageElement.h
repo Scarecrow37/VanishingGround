@@ -68,7 +68,7 @@ public:
     /// 이미지 파일을 지정된 GUID 참조로 설정합니다.
     /// </summary>
     /// <param name="guidRef">이미지 파일을 식별하는 File::GuidRef 참조입니다.</param>
-    void SetImage(const File::GuidRef& guidRef);
+    void SetImage(const File::Guid& guidRef);
 
     /// <summary>
     /// 선형 채우기 값을 설정합니다. 현재 좌우 채우기 모드에서만 적용됩니다.
