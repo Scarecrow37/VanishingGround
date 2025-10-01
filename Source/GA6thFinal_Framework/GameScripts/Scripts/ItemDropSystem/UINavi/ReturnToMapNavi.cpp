@@ -101,7 +101,7 @@ void ReturnToMapNavi::Submit()
     }
 }
 
-void ReturnToMapNavi::FocusIn() 
+void ReturnToMapNavi::FocusIn(FocusCallType callType) 
 {
     using namespace ReturnUtility;
 
@@ -119,7 +119,7 @@ void ReturnToMapNavi::FocusIn()
     }
 }
 
-void ReturnToMapNavi::FocusOut() 
+void ReturnToMapNavi::FocusOut(FocusCallType callType) 
 {
      using namespace ReturnUtility;
 
