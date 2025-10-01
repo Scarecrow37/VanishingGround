@@ -151,15 +151,7 @@ void MapManager::OnLoadScene(Scene& loadScene, LoadSceneMode mode)
     {
         isActive = false;
     }
-
-    for (int i = 0; i < transform->ChildCount; i++)
-    {
-        auto child = transform->GetChild(i);
-        if (child)
-        {
-            child->gameObject->ActiveSelf = isActive;
-        }
-    }
+    gameObject->SetActive(isActive);
 }
 
 void MapManager::ImGuiDrawPropertysEvent()
