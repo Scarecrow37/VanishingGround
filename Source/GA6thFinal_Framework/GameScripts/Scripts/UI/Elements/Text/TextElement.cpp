@@ -185,6 +185,14 @@ void TextElement::UpdateScale() const
     }
 }
 
+void TextElement::UpdateWeight() const
+{
+    if (nullptr != _renderer)
+    {
+        //_renderer->SetFontWeight(ReflectFields->FontWeight);
+    }
+}
+
 void TextElement::UpdateContentSize()
 {
     if (nullptr != _renderer)

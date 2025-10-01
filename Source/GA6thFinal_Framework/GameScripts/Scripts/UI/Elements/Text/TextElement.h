@@ -48,6 +48,17 @@ public:
     }
     PROPERTY(FontScale)
 
+    GETTER(float, FontWeight) { return ReflectFields->FontWeight; }
+    SETTER(float, FontWeight)
+    {
+        ReflectFields->FontWeight = std::clamp(value, 0.0f, 1.0f);
+        UpdateWeight();
+        UpdateContentSize();
+        InvalidateMeasure();
+    }
+    PROPERTY(FontWeight)
+
+
     GETTER_ONLY(SIZE, ContentSize) { return ReflectFields->ContentSize; }
     PROPERTY(ContentSize)
 
@@ -73,6 +84,7 @@ private:
     void UpdateColor() const;
     void UpdatePosition() const;
     void UpdateScale() const;
+    void UpdateWeight() const;
     void UpdateContentSize();
 
 protected:
@@ -82,6 +94,7 @@ protected:
     std::array<float, 4> Color        = {0.0f, 0.0f, 0.0f, 1.0f};
     float                FontScale    = 32.0f;
     SIZE                 ContentSize  = SIZE{};
+    float                FontWeight   = 0.5f;
     REFLECT_FIELDS_END(TextElement)
 
 private:
