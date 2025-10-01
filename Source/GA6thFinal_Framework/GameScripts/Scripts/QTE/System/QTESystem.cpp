@@ -585,6 +585,11 @@ void QTESystem::ProcessQTEFadeOutEndEvent()
 
 void QTESystem::CombatUIActive(bool active) 
 {
+    if (auto consumablePanel = GameObject::FindWithTag("Consumable Panel").lock())
+    {
+        consumablePanel->ActiveSelf = active;
+    }
+
     if (auto turnQueue = GameObject::FindWithTag("Turn Queue Panel").lock())
     {
         turnQueue->ActiveSelf = active;

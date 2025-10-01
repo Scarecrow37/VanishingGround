@@ -16,6 +16,8 @@ QTEUIManager::~QTEUIManager() = default;
 
 void QTEUIManager::OnQTEEnter() 
 {
+    SetGuideNoteActive(false);
+
     if (false == CheckUIValid())
     {
         FindUIComponents();
@@ -165,6 +167,9 @@ void QTEUIManager::Start()
     _mainFader.SetOnFadeOutEndCallback([this]() {
         SetUIAlpha(0.0f);
         SetBackgroundUIAlpha(0.0f);
+        SetGuideNoteUIAlpha(1.0f);
+        SetGuideNoteActive(true);
+
         if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
         {
             system->ProcessQTEFadeOutEndEvent();
@@ -176,7 +181,7 @@ void QTEUIManager::Start()
     //_xybAlphaFader.SetFadeOutType(Mathf::EASE_OUT, Mathf::SINE);
     //_xybAlphaFader.SetOnFadeInEndCallback([this]() { _xybAlphaFader.SetFadeMode(Fader::FADE_NONE); });
     //_xybAlphaFader.SetOnFadeOutEndCallback([this]() { _xybAlphaFader.SetFadeMode(Fader::FADE_NONE); });
-
+    //
     //_xybPointFader.SetFadeInType(Mathf::EASE_OUT, Mathf::SINE);
     //_xybPointFader.SetFadeOutType(Mathf::EASE_OUT, Mathf::SINE);
     //_xybPointFader.SetOnFadeInEndCallback([this]() { _xybPointFader.SetFadeMode(Fader::FADE_NONE); });
@@ -384,7 +389,7 @@ void QTEUIManager::UpdateGuideNoteUI()
         point.x               = (LONG)_enemyXPos.x - size.cx / 2;
         point.y               = (LONG)(size.cy * 2.0f);
         _qteGuideNoteX->Point = point;
-        _qteGuideNoteX->Alpha = alphaFactor;
+        //_qteGuideNoteX->Alpha = alphaFactor;
     }
     if (_qteGuideNoteY)
     {
@@ -392,7 +397,7 @@ void QTEUIManager::UpdateGuideNoteUI()
         point.x               = (LONG)_enemyYPos.x - size.cx / 2;
         point.y               = (LONG)(size.cy * 2.0f);
         _qteGuideNoteY->Point = point;
-        _qteGuideNoteY->Alpha = alphaFactor;
+        //_qteGuideNoteY->Alpha = alphaFactor;
     }
     if (_qteGuideNoteB)
     {
@@ -401,7 +406,7 @@ void QTEUIManager::UpdateGuideNoteUI()
         point.y               = (LONG)(size.cy * 2.0f);
         //point.y               = (LONG)std::lerp(minY, 0, pointFactor) - size.cy / 2;
         _qteGuideNoteB->Point = point;
-        _qteGuideNoteB->Alpha = alphaFactor;
+        //_qteGuideNoteB->Alpha = alphaFactor;
     }
 
     //if (_xybPointFader.IsFadeInEnd())
