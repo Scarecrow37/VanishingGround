@@ -8,8 +8,8 @@ UISFXNavigationComponent::UISFXNavigationComponent()
 
 UISFXNavigationComponent::~UISFXNavigationComponent() = default;
 
-void UISFXNavigationComponent::FocusIn()
+void UISFXNavigationComponent::FocusIn(const FocusCallType callType)
 {
-    Base::FocusIn();
+    Base::FocusIn(callType);
     UmAudio.Play(_focusInAudioID);
 }

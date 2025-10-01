@@ -15,7 +15,7 @@ public:
     PROPERTY(FocusInAudioID)
 
 protected:
-    void FocusIn() override;
+    void FocusIn(FocusCallType callType) override;
 
 protected:
     REFLECT_FIELDS_BEGIN(UINavigationComponent)
