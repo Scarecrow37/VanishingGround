@@ -64,7 +64,7 @@ void BGMManager::Update()
     float currFactor = _currBGMFader.Fade();
     float prevFactor = _prevBGMFader.Fade();
     UmAudio.SetVolume(_currBGMHandle, _volume * currFactor);
-    UmAudio.SetVolume(_prevBGMHandle, 1.0f - (_volume * prevFactor));
+    UmAudio.SetVolume(_prevBGMHandle, _volume * (1.0f - prevFactor));
 }
 
 void BGMManager::OnDestroy()
