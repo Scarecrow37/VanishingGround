@@ -316,6 +316,8 @@
     <ClInclude Include="Scripts\Camera\CameraManager.h" />
     <ClInclude Include="Scripts\Camera\UmCineMotion.h" />
     <ClInclude Include="Scripts\ColorUtils\ColorUtils.h" />
+    <ClInclude Include="Scripts\CombatUIManager\CharacterHUD\CharactorHUDGroup.h" />
+    <ClInclude Include="Scripts\CombatUIManager\CombatUIManager.h" />
     <ClInclude Include="Scripts\ConsumableSystem\ConsumableSystem.h" />
     <ClInclude Include="Scripts\DamageSystem\DamageSystem.h" />
     <ClInclude Include="Scripts\EnemyAction\ActionData\EnemyActionData.h" />
@@ -542,6 +544,8 @@
     <ClCompile Include="Scripts\Camera\CameraManager.cpp" />
     <ClCompile Include="Scripts\Camera\UmCineMotion.cpp" />
     <ClCompile Include="Scripts\ColorUtils\ColorUtils.cpp" />
+    <ClCompile Include="Scripts\CombatUIManager\CharacterHUD\CharactorHUDGroup.cpp" />
+    <ClCompile Include="Scripts\CombatUIManager\CombatUIManager.cpp" />
     <ClCompile Include="Scripts\ConsumableSystem\ConsumableSystem.cpp" />
     <ClCompile Include="Scripts\DamageSystem\DamageSystem.cpp" />
     <ClCompile Include="Scripts\EnemyAction\ActionData\EnemyActionData.cpp" />
