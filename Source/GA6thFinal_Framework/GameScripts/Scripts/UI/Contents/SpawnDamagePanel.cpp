@@ -4,7 +4,24 @@
 
 UMREAL_COMPONENT(SpawnDamagePanel)
 
-SpawnDamagePanel::SpawnDamagePanel() = default;
+SpawnDamagePanel::SpawnDamagePanel()
+{
+    FilePath.SetInputAutoEvent([this]() {
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
+            {
+                const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
+                if (const auto extension = data->GetPath().extension(); extension == L".png")
+                {
+                    _guidRef            = data->GetGuid();
+                    ReflectFields->Guid = _guidRef.string();
+                }
+            }
+            ImGui::EndDragDropTarget();
+        }
+    });
+}
 
 SIZE SpawnDamagePanel::MeasureOverride(const SIZE availableSize)
 {
@@ -104,7 +121,8 @@ DamageElement* SpawnDamagePanel::MakeDamage() const
     damageElement.Point                             = point;
     damageElement.Size                              = {50, 20};
     const LONG distance                             = static_cast<LONG>((1 - RadiusRatio) * Radius);
-    damageElement.Setup(distance, angle, LifeTime, point);
+    std::array<std::string, 1> revelations  = {"하늘베기"};
+    damageElement.Setup(distance, angle, LifeTime, point, _guidRef, FontScale, Color, "100", revelations);
     child->transform->SetParent(transform, true);
     return &damageElement;
 }
