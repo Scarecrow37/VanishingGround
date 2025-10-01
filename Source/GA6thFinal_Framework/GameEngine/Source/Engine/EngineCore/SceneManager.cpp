@@ -148,19 +148,19 @@ void ESceneManager::SceneUpdate()
     ObjectsAwake();
     ObjectsStart();
     ObjectsApplicationQuit();
-    ObjectsDestroy();
     ObjectsMatrixUpdate();
-    ObjectsAddLoadScene();
-
-#ifdef _UMEDITOR
-    _isPlay = editorModule->PlayMode.IsPlay(); //플레이 갱신은 마지막에 해야함. 
-#endif
 }
 
 void ESceneManager::SceneFinalUpdate() 
 {
+    //그래픽스 Flip 이후 실행해야할 로직들
+    ObjectsDestroy();
+    ObjectsAddLoadScene();
     ObjectsTransformFlagReset();
     ObjectsPrevFrameEnableUpdate();
+#ifdef _UMEDITOR
+    _isPlay = editorModule->PlayMode.IsPlay(); // 플레이 갱신은 마지막에 해야함.
+#endif
 }
 
 void ESceneManager::ObjectsTransformFlagReset() 
@@ -1176,8 +1176,7 @@ void ESceneManager::ObjectsDestroy()
             }
             else
             {
-                std::erase_if(_addGameObjectsQueue, 
-                [destroyObject, this](std::shared_ptr<GameObject>& object) 
+                std::erase_if(_addGameObjectsQueue, [destroyObject, this](std::shared_ptr<GameObject>& object) 
                 {
                     bool erase = object.get() == destroyObject;
                     if (erase)

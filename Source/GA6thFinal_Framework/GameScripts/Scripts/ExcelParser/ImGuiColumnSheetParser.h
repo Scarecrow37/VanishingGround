@@ -78,6 +78,11 @@ public:
     /// 파서의 ImGui::Begin에 연결된 bool 값입니다. false일때 로드된 데이터가 전부 Clear 됩니다.
     /// </summary>
     bool ShowParser = false;
+
+    /// <summary>
+    /// 파서의 빈 데이터 허용치 입니다.
+    /// </summary>
+    unsigned int ParserThreshold = 3;
 private:
     std::string                           _id;
     std::wstring                          _lastOpenFolder;

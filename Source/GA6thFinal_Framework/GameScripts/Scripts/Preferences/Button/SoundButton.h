@@ -51,7 +51,7 @@ private:
     std::vector<GameObject*>  _volumeNumNonFocus;
     class PreferencesManager* _preferencesManager;
 
-    int         _currentVolume = MaxVolume;
+    int         _currentVolume = 10;
     bool        _isFocus       = false;
     bool        _isVolumeUp    = false;
     bool        _isVolumeDown  = false;

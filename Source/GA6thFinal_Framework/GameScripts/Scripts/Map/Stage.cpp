@@ -47,11 +47,10 @@ void Stage::UpdateData(const std::string& key, const File::Guid& enableImage, co
 
 void Stage::FocusIn(FocusCallType callType)
 {
-    Base::FocusIn(callType);
-
-    if (auto manager = GameObject::Find("MapManager").lock(); manager)
+    UINavigationComponent::FocusIn(callType);
+    if (MapManager* manager = SingletonComponent<MapManager>::GetInstance())
     {
-        manager->GetComponent<MapManager>()->SetFocusStage(this);
+        manager->SetFocusStage(this);
     }
 }
 
@@ -74,8 +73,16 @@ void Stage::Submit()
         auto transitionComponent = transitionManager->GetComponent<TransitionManager>();
         if (transitionComponent)
         {
-            transitionComponent->SceneTransitionFade("in", "out",
-                                                     [stagePath]() { UmSceneManager.LoadScene(stagePath); });
+            std::array<DropItemInfo, ARTIFACT_DROP_COUNT>& droptable = _dropItemInfos;
+            transitionComponent->SceneTransitionFade("in", "out", [stagePath, droptable]() 
+            { 
+                UmSceneManager.LoadScene(stagePath); 
+                if (auto instance = SingletonComponent<ItemDropSystem>::GetInstance(); instance)
+                {
+                    instance->StageClearCount = 0;
+                    instance->SetDropItem(droptable);
+                }
+            });
         }
     }
     _stageEnable = false;
@@ -90,6 +97,11 @@ void Stage::Start()
         for (int i = 0; i < ARTIFACT_DROP_COUNT; i++)
         {
             _dropItemAssetIDs[i] = DropItemInfo::GetArtifactCategoryAssetID(_dropItemInfos[i].Category);
+        }
+
+        if (MapManager* mapManager = SingletonComponent<MapManager>::GetInstance())
+        {
+            mapManager->UINotify();
         }
     }
 }

@@ -15,8 +15,6 @@
 #include "Utility/SingletonHelper.h"
 #include "ItemDropSystem/ItemDropSystem.h"
 
-static GameObject* thisPointer = nullptr;
-
 UMREAL_COMPONENT(MapManager)
 
 MapManager::MapManager()
@@ -84,9 +82,8 @@ MapManager::MapManager()
 
 MapManager::~MapManager()
 {
-    if (&gameObject == thisPointer)
+    if (_singletonObject.IsSingleTon())
     {
-        thisPointer = nullptr;
         UmWatcher.Unregister<StageFocusViewModel>("StageFocus");
     }
 }
@@ -101,19 +98,13 @@ void MapManager::SetFocusStage(Stage* stage)
 
 void MapManager::Awake()
 {    
-    if (nullptr == thisPointer)
+    if (_singletonObject.TrySingleTon(true))
     {        
-        GameObject::DontDestroyOnLoad(gameObject);
-        thisPointer = &gameObject;
+        _singletonComponent.TrySingleTon();
 
         UmWatcher.Register<StageFocusViewModel>("StageFocus", _focusStage);
         SetupStage();
     }
-    else
-    {        
-        GameObject::Destroy(gameObject);
-    }
-
 }
 
 void MapManager::Update()
