@@ -147,10 +147,7 @@ void CharacterBase::ClearState()
     CharacterStats* stats = GetCharacterStats();
     if (stats)
     {
-        stats->CurrentHP                = MaxHP;
-        stats->CurrentChainCount        = 0;
-        stats->CurrentChainRoundCount   = MaxChainRoundCount;
-        _tokenInventory.AddTokenStackFromID(16008, stats->StunResistance);
+        _tokenInventory.AddTokenStackFromID(16008, stats->StunResistance);    
     }
     if (_animationComponent)
     {
@@ -167,6 +164,7 @@ void CharacterBase::Revive()
     if (stats)
     {
         stats->CurrentHP = stats->MaxHP;
+        stats->CurrentChainCount = stats->MaxChainRoundCount;
     }
 }
 
