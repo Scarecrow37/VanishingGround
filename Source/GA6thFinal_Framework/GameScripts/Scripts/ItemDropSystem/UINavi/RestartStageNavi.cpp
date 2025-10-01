@@ -3,6 +3,7 @@
 #include "SceneTransition/SceneTransitionComponent.h"
 #include "ExcelDataSystem/ExcelDataSystem.h"
 #include "UI/Elements/Image/ImageElement.h"
+#include "ItemDropSystem/ItemDropSystem.h"
 
 UMREAL_COMPONENT(RestartStageNavi)
 
@@ -64,16 +65,25 @@ RestartStageNavi::RestartStageNavi()
 
 void RestartStageNavi::Submit()
 {
-    if (const Scene* scene = UmSceneManager.GetMainScene())
+    int clearCount = 0;
+    if (ItemDropSystem* dropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
     {
-        const std::string& path = scene->Path;
-        GameObject*        transitionManager = SingletonObject<SceneTransitionComponent>::GetInstance();
-        if (transitionManager)
+        clearCount = dropSystem->StageClearCount;
+    }
+
+    if (clearCount < 3)
+    {
+        if (const Scene* scene = UmSceneManager.GetMainScene())
         {
-            auto transitionComponent = transitionManager->GetComponent<SceneTransitionComponent>();
-            if (transitionComponent)
+            const std::string& path              = scene->Path;
+            GameObject*        transitionManager = SingletonObject<SceneTransitionComponent>::GetInstance();
+            if (transitionManager)
             {
-                transitionComponent->SceneTransitionFade("in", "out", [path]() { UmSceneManager.LoadScene(path); });
+                auto transitionComponent = transitionManager->GetComponent<SceneTransitionComponent>();
+                if (transitionComponent)
+                {
+                    transitionComponent->SceneTransitionFade("in", "out", [path]() { UmSceneManager.LoadScene(path); });
+                }
             }
         }
     }
