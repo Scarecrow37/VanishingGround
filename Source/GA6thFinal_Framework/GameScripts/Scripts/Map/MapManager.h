@@ -3,7 +3,7 @@
 
 class Stage;
 class ScrollingWrapper;
-class MapManager : public Component
+class MapManager : public Component, public InputReceiver
 {
     enum AssetIDs { BACKGROUND, STAGE_ENABLE, STAGE_DISABLE, STAGE_FOCUS, REWARD_POPUP, MAX };
     USING_PROPERTY(MapManager)
@@ -79,4 +79,9 @@ private:
 private:
     SingletonObject<MapManager>    _singletonObject{this};
     SingletonComponent<MapManager> _singletonComponent{this};
+
+    Stage* _lastFocusStage = nullptr;
+    void PreferencesKeyDown(const Input::Controller&);
+
+
 };

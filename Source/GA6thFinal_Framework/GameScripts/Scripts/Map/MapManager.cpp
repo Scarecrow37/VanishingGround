@@ -14,6 +14,7 @@
 #include "ViewModels/Hp/CharacterHPViewModel.h"
 #include "Utility/SingletonHelper.h"
 #include "ItemDropSystem/ItemDropSystem.h"
+#include "Preferences/PreferencesManager.h"
 
 UMREAL_COMPONENT(MapManager)
 
@@ -104,6 +105,8 @@ void MapManager::Awake()
 
         UmWatcher.Register<StageFocusViewModel>("StageFocus", _focusStage);
         SetupStage();
+
+        BindInputAction(ControllerButton::BACK, Action::PRESSED, this, &MapManager::PreferencesKeyDown);
     }
 }
 
@@ -123,6 +126,15 @@ void MapManager::Update()
         {
             UmSceneManager.LoadScene(UmFileSystem.GetPathFromGuid(ReflectFields->MapScenePath).string());
         }
+    }
+
+    if (_lastFocusStage != nullptr)
+    {
+        if (PreferencesManager* manager = SingletonComponent<PreferencesManager>::GetInstance())
+        {
+            manager->OnPreferencesWindow(_lastFocusStage);
+        }  
+        _lastFocusStage = nullptr;
     }
 }
 
@@ -274,4 +286,15 @@ void MapManager::SetupStage()
     {
         _scroll = scroll->GetComponent<ScrollingWrapper>();
     }    
+}
+
+void MapManager::PreferencesKeyDown(const Input::Controller&) 
+{
+    _focusStage.Apply([this](Stage* stage) 
+    { 
+        if (true == stage->EnableInHierarchy)
+        {
+            _lastFocusStage = stage; 
+        }               
+    });
 }

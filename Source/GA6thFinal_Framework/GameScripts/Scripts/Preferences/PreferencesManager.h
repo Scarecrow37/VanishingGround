@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include "Utility/SingletonHelper.h"
+
 constexpr int                        MaxVolume      = 10;
 constexpr std::array<const char*, 4> GraphicsOptions = {"SSR", "SSAO", "Bloom", "VolumetricFog"};
 constexpr std::array<const char*, 3> VolumeOptions  = {"MasterVolume", "BGMVolume", "SFXVolume"};
@@ -69,4 +71,8 @@ private:
     bool                    _isOpenAbandonDirty  = false;
     bool                    _changeMainMenuSceneDirty = false;
     UINavigationComponent*  _backComponent            = nullptr;
+
+private:
+    SingletonComponent<PreferencesManager> _singletonComponent{this};
+
 };
