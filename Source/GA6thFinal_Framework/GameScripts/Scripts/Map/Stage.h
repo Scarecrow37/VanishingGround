@@ -25,14 +25,18 @@ public:
     void Start() override;
 
 public:
-    REFLECT_PROPERTY(StagePath)
+    REFLECT_PROPERTY(StagePath, LightingPath)
 
     GETTER_ONLY(std::string, StagePath) { return ReflectFields->StagePath; }
     PROPERTY(StagePath)
 
+    GETTER_ONLY(std::string, LightingPath) { return ReflectFields->LightingPath; }
+    PROPERTY(LightingPath)
+
 protected:
     REFLECT_FIELDS_BEGIN(UISFXNavigationComponent)
-    std::string        StagePath;
+    std::string StagePath;
+    std::string LightingPath;
     REFLECT_FIELDS_END(Stage)
 
 private:
