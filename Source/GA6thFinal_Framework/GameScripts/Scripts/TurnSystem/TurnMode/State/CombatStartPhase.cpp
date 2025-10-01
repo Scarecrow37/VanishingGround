@@ -382,4 +382,10 @@ void CombatStartPhase::ResetPlayer()
     {
         playerSystem->SetStatsCombatStart();
     }
+
+    //플레이어는 체력 회복하면 안됨.
+    if (_player)
+    {
+        _player->TurnActor::Revive();
+    }
 }
