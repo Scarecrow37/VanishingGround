@@ -10,30 +10,12 @@ CombatUIManager::~CombatUIManager() = default;
 
 void CombatUIManager::Refresh()
 {
-    if (auto turnQueue = GameObject::FindWithTag("Turn Queue Panel").lock())
-    {
-        turnQueue->ActiveSelf = true;
-    }
+    _charactorHUDGroup.FindUI();
+}
 
-    if (auto HUD = GameObject::FindWithTag("Character HUD Group").lock())
-    {
-        HUD->ActiveSelf = true;
-    }
-
-    if (auto revelationPanel = GameObject::FindWithTag("Revelations Panel").lock())
-    {
-        revelationPanel->ActiveSelf = true;
-    }
-
-    if (auto weaponPanel = GameObject::FindWithTag("Weapon Panel").lock())
-    {
-        weaponPanel->ActiveSelf = true;
-    }
-
-    if (auto accessoriesPanel = GameObject::FindWithTag("Accessories Panel").lock())
-    {
-        accessoriesPanel->ActiveSelf = true;
-    }
+void CombatUIManager::SetActiveUI(bool active) 
+{
+    // TODO: 전투 UI 활성화/비활성화 구현
 }
 
 void CombatUIManager::Reset()
@@ -50,7 +32,6 @@ void CombatUIManager::Awake()
     if (_singletonObject.TrySingleTon(true) &&
         _singletonComponent.TrySingleTon())
     {
-        // Initialization code here
         Refresh();
     }
 }

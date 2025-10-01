@@ -10,4 +10,5 @@ struct CharacterHUDGroup
 
     bool FindUI();
     bool IsValid();
+    void ActiveUI(bool active);
 };

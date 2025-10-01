@@ -38,3 +38,11 @@ bool CharacterHUDGroup::IsValid()
 {
     return GroupPanel && PlayerHUDPanel && EnemyHUDPanel[0] && EnemyHUDPanel[1] && EnemyHUDPanel[2];
 }
+
+void CharacterHUDGroup::ActiveUI(bool active) 
+{
+    if (IsValid())
+    {
+        // TODO: 그룹 패널 활성화/비활성화
+    }
+}

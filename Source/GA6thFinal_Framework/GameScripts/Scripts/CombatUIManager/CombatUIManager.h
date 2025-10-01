@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include <Utility/SingletonHelper.h>
 
+#include <CombatUIManager/CharacterHUD/CharactorHUDGroup.h>
+
 class OverlayPanel;
 class ImageElement;
 
@@ -18,6 +20,12 @@ public:
     /// </summary>
     void Refresh();
 
+    /// <summary>
+    /// UI의 활성화 상태를 설정합니다.
+    /// </summary>
+    /// <param name="active">UI를 활성화할지 여부</param>
+    void SetActiveUI(bool active);
+
 protected:
     void Reset() override;
     void Awake() override;
@@ -28,6 +36,8 @@ protected:
 private:
     SingletonObject<CombatUIManager> _singletonObject{this};
     SingletonComponent<CombatUIManager> _singletonComponent{this};
+
+    CharacterHUDGroup _charactorHUDGroup;
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
