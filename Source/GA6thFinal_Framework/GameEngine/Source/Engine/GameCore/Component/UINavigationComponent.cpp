@@ -9,7 +9,7 @@ void UINavigationComponent::Focus()
 {
     if (UIRoot* root = Root; nullptr != root)
     {
-        root->ChangeFocusComponent(this);
+        root->RequestChangeFocusComponent(this);
     }
     else
     {
@@ -17,7 +17,7 @@ void UINavigationComponent::Focus()
     }
 }
 
-void UINavigationComponent::FocusIn()
+void UINavigationComponent::FocusIn(FocusCallType callType)
 {
     if (UIComponent* siblingUI = SiblingUI; nullptr != siblingUI)
     {
@@ -29,7 +29,7 @@ void UINavigationComponent::FocusIn()
     }
 }
 
-void UINavigationComponent::FocusOut()
+void UINavigationComponent::FocusOut(FocusCallType callType)
 {
     if (UIComponent* siblingUI = SiblingUI; nullptr != siblingUI)
     {

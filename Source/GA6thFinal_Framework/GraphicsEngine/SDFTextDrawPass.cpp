@@ -82,7 +82,7 @@ void SDFTextDrawPass::Draw(ID3D12GraphicsCommandList* commandList)
         sdfParams.DistanceRange   = atlasInfo.DistanceRange;
         sdfParams.FontWeight      = component->GetFontWeight();
 
-        commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_4_fontColor"), 4, &component->GetColor(), 0);        
+        commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_4_fontColor"), 4, &component->GetColor(), 0);
         commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_3_sdfParams"), 3, &sdfParams, 0);
         commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("sdfTexture"), component->GetFontTextureHandle());
 
