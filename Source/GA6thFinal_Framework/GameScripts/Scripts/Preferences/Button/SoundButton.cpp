@@ -97,7 +97,7 @@ void SoundButton::Update()
     _isOptionDirty = false;
 }
 
-void SoundButton::ChangeVolume(int delta)
+void SoundButton::ChangeVolume(const int delta)
 {
     // 현재 볼륨 끄기
     _volumeNumFocus[_currentVolume]->SetActive(false);
@@ -152,17 +152,17 @@ void SoundButton::UpdateUIForFocus()
     }
 }
 
-void SoundButton::FocusIn()
+void SoundButton::FocusIn(const FocusCallType callType)
 {
-    UINavigationComponent::FocusIn();
+    UINavigationComponent::FocusIn(callType);
 
     _isFocus       = true;
     _isOptionDirty = true;
 }
 
-void SoundButton::FocusOut()
+void SoundButton::FocusOut(const FocusCallType callType)
 {
-    UINavigationComponent::FocusOut();
+    UINavigationComponent::FocusOut(callType);
 
     _isFocus       = false;
     _isOptionDirty = true;

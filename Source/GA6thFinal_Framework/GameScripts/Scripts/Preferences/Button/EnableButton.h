@@ -34,8 +34,8 @@ public:
     PROPERTY(CurrentOption)
 
 protected:
-    void FocusIn() override;
-    void FocusOut() override;
+    void FocusIn(FocusCallType callType) override;
+    void FocusOut(FocusCallType callType) override;
     void Submit() override;
 
     void SerializedReflectEvent() override;

@@ -13,7 +13,7 @@ void MainMenuNavigationBase::Awake()
     _textElement = GetComponent<TextElement>();
 }
 
-void MainMenuNavigationBase::FocusIn()
+void MainMenuNavigationBase::FocusIn(FocusCallType callType)
 {
     if (_textElement)
     {
@@ -21,7 +21,7 @@ void MainMenuNavigationBase::FocusIn()
     }
 }
 
-void MainMenuNavigationBase::FocusOut()
+void MainMenuNavigationBase::FocusOut(FocusCallType callType)
 {
     if (_textElement)
     {

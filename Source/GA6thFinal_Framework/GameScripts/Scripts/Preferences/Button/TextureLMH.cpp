@@ -86,9 +86,9 @@ void TextureLMH::Update()
     }
 }
 
-void TextureLMH::FocusIn()
+void TextureLMH::FocusIn(const FocusCallType callType)
 {
-    UINavigationComponent::FocusIn();
+    UINavigationComponent::FocusIn(callType);
 
     _isFocus       = true;
     _isOptionDirty = true;
@@ -99,9 +99,9 @@ void TextureLMH::FocusIn()
     // SetQuality(_quality);
 }
 
-void TextureLMH::FocusOut()
+void TextureLMH::FocusOut(const FocusCallType callType)
 {
-    UINavigationComponent::FocusOut();
+    UINavigationComponent::FocusOut(callType);
 
     _isFocus       = false;
     _isOptionDirty = true;
@@ -121,7 +121,7 @@ void TextureLMH::DeserializedReflectEvent()
     UINavigationComponent::DeserializedReflectEvent();
 }
 
-void TextureLMH::FocusPref(bool isfocus)
+void TextureLMH::FocusPref(const bool isfocus)
 {
     if (nullptr == _pref)
     {
@@ -187,7 +187,7 @@ void TextureLMH::GetChildObject()
     }
 }
 
-void TextureLMH::SetQuality(int quality)
+void TextureLMH::SetQuality(const int quality)
 {
     if (_isFocus)
     {

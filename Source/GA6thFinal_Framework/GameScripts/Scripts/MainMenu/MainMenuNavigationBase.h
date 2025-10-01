@@ -13,8 +13,8 @@ public:
     void Awake() override;
 
 public:
-    void FocusIn() override;
-    void FocusOut() override;
+    void FocusIn(FocusCallType callType) override;
+    void FocusOut(FocusCallType callType) override;
 
 public:
     REFLECT_PROPERTY()

@@ -44,9 +44,9 @@ void Stage::UpdateData(const std::string& key, const File::Guid& enableImage, co
     _key = key;
 }
 
-void Stage::FocusIn()
+void Stage::FocusIn(FocusCallType callType)
 {
-    UINavigationComponent::FocusIn();
+    UINavigationComponent::FocusIn(callType);
 
     if (auto manager = GameObject::Find("MapManager").lock(); manager)
     {

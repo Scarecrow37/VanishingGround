@@ -18,7 +18,7 @@ public:
     void UpdateData(const std::string& key, const File::Guid& enableImage, const File::Guid& disableImage);
 
 public:
-    void FocusIn() override;
+    void FocusIn(FocusCallType callType) override;
     void Submit() override;
 
 public:
