@@ -287,11 +287,14 @@ void MapManager::SetupStage()
 
 void MapManager::PreferencesKeyDown(const Input::Controller&) 
 {
-    _focusStage.Apply([this](Stage* stage) 
-    { 
-        if (true == stage->EnableInHierarchy)
+    if (EnableInHierarchy)
+    {
+        _focusStage.Apply([this](Stage* stage) 
         {
-            _lastFocusStage = stage; 
-        }               
-    });
+            if (true == stage->EnableInHierarchy)
+            {
+                _lastFocusStage = stage;
+            }
+        });
+    }
 }
