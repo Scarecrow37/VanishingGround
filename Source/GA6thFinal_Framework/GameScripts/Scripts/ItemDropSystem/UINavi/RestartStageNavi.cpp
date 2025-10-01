@@ -18,7 +18,7 @@ namespace RestartUtility
                 std::u8string_view rowKey;
                 switch (type)
                 {
-                case RestartStageNavi::SelectBoxType::DEFALUT:
+                case RestartStageNavi::SelectBoxType::DEFAULT:
                     rowKey = u8"선택버튼_0";
                     break;
                 case RestartStageNavi::SelectBoxType::FOCUS :
@@ -103,7 +103,7 @@ void RestartStageNavi::FocusOut()
 
     if (CheckImageElementWithLog(_imageElement))
     {
-        File::Guid guid = GetSelectBox(SelectBoxType::DEFALUT);
+        File::Guid guid = GetSelectBox(SelectBoxType::DEFAULT);
         if (guid.IsNull())
         {
             UmLogger.Log(LogLevel::LEVEL_WARNING, u8"일반 이미지를 찾을 수 없습니다.");

@@ -7,7 +7,7 @@ class RestartStageNavi : public UISFXNavigationComponent
 public:
     enum class SelectBoxType
     {
-        DEFALUT,
+        DEFAULT,
         FOCUS
     };
 

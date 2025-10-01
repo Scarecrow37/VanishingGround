@@ -7,7 +7,7 @@ class ReturnToMapNavi : public UISFXNavigationComponent
 public:
     enum class SelectBoxType
     {
-        DEFALUT,
+        DEFAULT,
         FOCUS
     };
 
