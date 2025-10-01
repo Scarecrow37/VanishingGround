@@ -38,7 +38,6 @@ protected:
     void DeserializedReflectEvent() override;
 
 private:
-    SingletonObject<CombatUIManager> _singletonObject{this};
     SingletonComponent<CombatUIManager> _singletonComponent{this};
 
     CharacterHUDGroup _charactorHUDGroup;
