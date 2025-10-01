@@ -1,6 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "RestartStageNavi.h"
-#include "SceneTransition/TransitionManager.h"
+#include "SceneTransition/SceneTransitionComponent.h"
 #include "ExcelDataSystem/ExcelDataSystem.h"
 #include "UI/Elements/Image/ImageElement.h"
 
@@ -67,10 +67,10 @@ void RestartStageNavi::Submit()
     if (const Scene* scene = UmSceneManager.GetMainScene())
     {
         const std::string& path = scene->Path;
-        GameObject* transitionManager = SingletonObject<TransitionManager>::GetInstance();
+        GameObject*        transitionManager = SingletonObject<SceneTransitionComponent>::GetInstance();
         if (transitionManager)
         {
-            auto transitionComponent = transitionManager->GetComponent<TransitionManager>();
+            auto transitionComponent = transitionManager->GetComponent<SceneTransitionComponent>();
             if (transitionComponent)
             {
                 transitionComponent->SceneTransitionFade("in", "out", [path]() { UmSceneManager.LoadScene(path); });
