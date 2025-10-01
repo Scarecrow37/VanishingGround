@@ -117,7 +117,7 @@ void TextureLMH::Update()
 
 void TextureLMH::FocusIn()
 {
-    UINavigationComponent::FocusIn();
+    Base::FocusIn();
 
     _isFocus       = true;
     _isOptionDirty = true;
@@ -125,7 +125,7 @@ void TextureLMH::FocusIn()
 
 void TextureLMH::FocusOut()
 {
-    UINavigationComponent::FocusOut();
+    Base::FocusOut();
 
     _isFocus       = false;
     _isOptionDirty = true;
@@ -277,6 +277,7 @@ void TextureLMH::UpQuality(const Input::Controller& controller)
     {
         _isOptionDirty = true;
         _isOptionUp    = true;
+        UmAudio.Play("-40000");
     }
 }
 
@@ -286,6 +287,7 @@ void TextureLMH::DownQuality(const Input::Controller& controller)
     {
         _isOptionDirty = true;
         _isOptionDown  = true;
+        UmAudio.Play("-40000");
     }
 }
 

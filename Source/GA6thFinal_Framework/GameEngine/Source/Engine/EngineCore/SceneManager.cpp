@@ -1204,7 +1204,10 @@ void ESceneManager::ObjectsDestroy()
         {
             static EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("SceneDock");
             static EditorHierarchyTool* editorHierarchy = sceneDock->GetGui<EditorHierarchyTool>();
-            editorHierarchy->ActiveHierarchyCleanup();
+            if (editorHierarchy)
+            {
+                 editorHierarchy->ActiveHierarchyCleanup();
+            }
         }
     }
 
@@ -1238,7 +1241,10 @@ void ESceneManager::ObjectsAddRuntime()
         {
             static EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("SceneDock");
             static EditorHierarchyTool* editorHierarchy = sceneDock->GetGui<EditorHierarchyTool>();
-            editorHierarchy->PushHierarchyObject(gameObject);
+            if (editorHierarchy)
+            {
+                editorHierarchy->PushHierarchyObject(gameObject);
+            }
         }
     }
 
@@ -2267,6 +2273,11 @@ void ESceneManager::InputSystem::CleanupInputReceivers()
 void ESceneManager::InputSystem::Vibrate(const Input::ControllerTypes::Vibration vibration)
 {
     _inputController.Vibrate(vibration);
+}
+
+void ESceneManager::InputSystem::StopVibration() 
+{
+    _inputController.Vibrate(0, 0);
 }
 
 void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)

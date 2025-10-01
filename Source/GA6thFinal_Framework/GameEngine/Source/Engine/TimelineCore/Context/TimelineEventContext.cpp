@@ -3,6 +3,10 @@
 
 namespace Timeline
 {
+    void EventContext::SetGameObject(std::weak_ptr<GameObject> weakObj) 
+    {
+        _gameObject = weakObj;
+    }
     void EventContext::SetEvent(std::string_view typeNameID) 
     {
         ReflectFields->EventType = typeNameID;

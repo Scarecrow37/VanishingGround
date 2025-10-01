@@ -301,7 +301,6 @@ void ParticleComponent::LoadParticle(const std::string& keyString)
                                                 effect->_scale             = &_scaleVector[keyString];
                                                 effect->_parentWorldMatrix = &transform->GetWorldMatrix();
                                                 effect->_followBoneFlag    = &(ReflectFields->AttachFlagMap[keyString]);
-                                                FollowBoneMatrix(keyString);
                                             }
                                         });
                             }
@@ -325,9 +324,12 @@ void ParticleComponent::FollowBoneMatrix(const std::string& key)
                 auto it2 = ReflectFields->BoneNameMap.find(key);
                 if (it2 != ReflectFields->BoneNameMap.end())
                 {
-                    UmParticleManager->SetBoneMatrix(
-                        this, key,
-                        skelMesh->Renderer->GetAnimator()->FindBoneMatrix(ReflectFields->BoneNameMap[key].c_str()));
+                    if (skelMesh->Renderer && skelMesh->Renderer->GetAnimator())
+                    {
+                        UmParticleManager->SetBoneMatrix(
+                            this, key,
+                            skelMesh->Renderer->GetAnimator()->FindBoneMatrix(ReflectFields->BoneNameMap[key].c_str()));
+                    }
                 }
             }
         }

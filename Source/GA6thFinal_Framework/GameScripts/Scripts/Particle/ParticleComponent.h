@@ -98,7 +98,7 @@ public:
         if (it != ReflectFields->AttachFlagMap.end())
         {
             (*it).second = value;
-            FollowBoneMatrix(_currentEffectKey);
+            //FollowBoneMatrix(_currentEffectKey);
         }
     }
     PROPERTY(AttachToBoneMatrix)
