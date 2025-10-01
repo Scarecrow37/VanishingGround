@@ -174,10 +174,10 @@ void SDFTextRenderer::Update(ID3D12GraphicsCommandList* commandList)
             calculatedBounds[2] = std::max(calculatedBounds[2], quadRight);
             calculatedBounds[3] = std::max(calculatedBounds[3], quadBottom);
 
-            _vertices[_charCount * 4 + 0] = Vertex{{quadLeft, quadTop, _position.z, 1.f}, {u0, v0}};
-            _vertices[_charCount * 4 + 1] = Vertex{{quadRight, quadTop, _position.z, 1.f}, {u1, v0}};
-            _vertices[_charCount * 4 + 2] = Vertex{{quadRight, quadBottom, _position.z, 1.f}, {u1, v1}};
-            _vertices[_charCount * 4 + 3] = Vertex{{quadLeft, quadBottom, _position.z, 1.f}, {u0, v1}};
+            _vertices[_charCount * 4 + 0] = Vertex{{quadLeft, quadTop, 0.f, 1.f}, {u0, v0}};
+            _vertices[_charCount * 4 + 1] = Vertex{{quadRight, quadTop, 0.f, 1.f}, {u1, v0}};
+            _vertices[_charCount * 4 + 2] = Vertex{{quadRight, quadBottom, 0.f, 1.f}, {u1, v1}};
+            _vertices[_charCount * 4 + 3] = Vertex{{quadLeft, quadBottom, 0.f, 1.f}, {u0, v1}};
 
             cursorX += glyph->Advance;
             _charCount++;
