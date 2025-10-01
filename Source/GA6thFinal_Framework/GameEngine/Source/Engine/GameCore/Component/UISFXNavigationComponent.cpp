@@ -10,5 +10,6 @@ UISFXNavigationComponent::~UISFXNavigationComponent() = default;
 
 void UISFXNavigationComponent::FocusIn()
 {
+    Base::FocusIn();
     UmAudio.Play(_focusInAudioID);
 }

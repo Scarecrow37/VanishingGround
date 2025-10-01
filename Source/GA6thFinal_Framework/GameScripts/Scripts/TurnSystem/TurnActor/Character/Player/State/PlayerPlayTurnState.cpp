@@ -135,7 +135,7 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
     _isDownAKey = ImGui::IsKeyDown(ImGuiKey_A); // 에디터에서는 키보드 인풋도 받음
 #endif                                          // ISEDITOR
 
-    _showDebugUI = ImGui::IsKeyPressed(ImGuiKey_F12, false) ? !_showDebugUI : _showDebugUI;
+    _showDebugUI = ImGui::IsKeyPressed(ImGuiKey_F3, false) ? !_showDebugUI : _showDebugUI;
     if (_showDebugUI)
     {
         ImGuiWindowFlags flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar;
