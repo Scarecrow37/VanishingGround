@@ -25,4 +25,5 @@ protected:
 
 private:
     TextElement* _textElement;
+    Color        _color;
 };
