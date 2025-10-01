@@ -11,6 +11,7 @@ CombatUIManager::~CombatUIManager() = default;
 void CombatUIManager::Refresh()
 {
     _charactorHUDGroup.FindUI();
+    _charactorHUDGroup.RefreshEnemiesPosition();
 }
 
 void CombatUIManager::SetActiveUI(bool active) 
@@ -20,7 +21,6 @@ void CombatUIManager::SetActiveUI(bool active)
 
 void CombatUIManager::Reset()
 {
-    _singletonObject.SetSingleTon();
     _singletonComponent.SetSingleTon();
 }
 
@@ -29,11 +29,22 @@ void CombatUIManager::Awake()
     BindInputAction(ControllerButton::BACK, Action::PRESSED, this,
                     &CombatUIManager::PreferencesKeyDown);  // 옵션 창 키 바인딩
 
-    if (_singletonObject.TrySingleTon(true) &&
-        _singletonComponent.TrySingleTon())
+    if (_singletonComponent.TrySingleTon())
     {
         Refresh();
     }
+}
+
+void CombatUIManager::Update() 
+{
+    if (_charactorHUDGroup.IsValid())
+    {
+        _charactorHUDGroup.RefreshUIPosition();
+    }
+}
+
+void CombatUIManager::FixedUpdate() 
+{
 }
 
 void CombatUIManager::ImGuiDrawPropertysEvent() 
