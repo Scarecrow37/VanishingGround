@@ -221,8 +221,8 @@ void SDFTextRenderer::MeasureString()
 {
     const auto& metricsInfo         = _font->GetMetricsInfo();
     float       calculatedBounds[4] = {FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX};
-    int         cursorX             = 0;
-    int         cursorY             = 0;
+    float       cursorX             = 0;
+    float       cursorY             = 0;
     int         charCount           = 0;
 
     for (wchar_t wc : _text)
@@ -260,7 +260,7 @@ void SDFTextRenderer::MeasureString()
         calculatedBounds[2] = std::max(calculatedBounds[2], quadRight);
         calculatedBounds[3] = std::max(calculatedBounds[3], quadBottom);
 
-        cursorX += (int)glyph->Advance;
+        cursorX += glyph->Advance;
         charCount++;
     }
 
