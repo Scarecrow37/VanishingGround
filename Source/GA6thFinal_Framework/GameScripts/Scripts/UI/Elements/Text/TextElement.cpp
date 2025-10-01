@@ -187,7 +187,7 @@ void TextElement::UpdateWeight() const
 {
     if (nullptr != _renderer)
     {
-        //_renderer->SetFontWeight(ReflectFields->FontWeight);
+        _renderer->SetFontWeight(ReflectFields->FontWeight);
     }
 }
 
