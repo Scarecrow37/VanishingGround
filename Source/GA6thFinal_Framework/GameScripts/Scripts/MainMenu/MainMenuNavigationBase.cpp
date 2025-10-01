@@ -25,6 +25,7 @@ void MainMenuNavigationBase::FocusIn(const FocusCallType callType)
         Color color         = _color;
         color.w             = 1.f;
         _textElement->Color = color;
+        _textElement->FontWeight = 1.0f;
     }
 }
 
@@ -33,5 +34,6 @@ void MainMenuNavigationBase::FocusOut(FocusCallType callType)
     if (_textElement)
     {
         _textElement->Color = _color;
+        _textElement->FontWeight = 0.5f;
     }
 }
