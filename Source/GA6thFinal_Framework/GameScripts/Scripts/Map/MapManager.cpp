@@ -150,6 +150,11 @@ void MapManager::OnLoadScene(Scene& loadScene, LoadSceneMode mode)
     else
     {
         isActive = false;
+        // 설정 UI는 한개만 존재해야함.
+        if (Transform* preferences = transform->Find("PreferencesPannel"))
+        {
+            GameObject::Destroy(preferences->gameObject);
+        }
     }
     gameObject->SetActive(isActive);
 }
