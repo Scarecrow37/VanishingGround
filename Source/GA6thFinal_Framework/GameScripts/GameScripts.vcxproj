@@ -302,6 +302,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\LastQTEResultCondition\LastQTEResultCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerWinCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerWinState.h" />
     <ClInclude Include="Scripts\Utility\FadeHelper.h" />
     <ClInclude Include="Scripts\Audio\BGMComponent.h" />
     <ClInclude Include="DLLExportDefine.h" />
@@ -513,6 +516,9 @@
     <ClInclude Include="Scripts\Camera\CameraManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\LastQTEResultCondition\LastQTEResultCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerWinCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerWinState.cpp" />
     <ClCompile Include="Scripts\Utility\FadeHelper.cpp" />
     <ClCompile Include="Scripts\Audio\BGMComponent.cpp" />
     <ClCompile Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.cpp" />
