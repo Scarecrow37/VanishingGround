@@ -5,11 +5,6 @@ float Median(float r, float g, float b)
     return max(min(r, g), min(max(r, g), b));
 }
 
-float Median(float3 value)
-{
-    return max(min(value.r, value.g), min(max(value.r, value.g), value.b));
-}
-
 struct PSInput
 {
     float4 position : SV_POSITION;
