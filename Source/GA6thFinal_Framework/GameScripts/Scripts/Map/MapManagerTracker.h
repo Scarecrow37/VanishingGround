@@ -15,6 +15,6 @@ protected:
     REFLECT_FIELDS_BEGIN(Component)
     REFLECT_FIELDS_END(MapManagerTracker)
 
-    void Start() override;
+    void Awake() override;
 };
 

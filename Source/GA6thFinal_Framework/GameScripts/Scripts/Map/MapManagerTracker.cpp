@@ -7,9 +7,9 @@ UMREAL_COMPONENT(MapManagerTracker)
 MapManagerTracker::MapManagerTracker() = default;
 MapManagerTracker::~MapManagerTracker() = default;
 
-void MapManagerTracker::Start() 
+void MapManagerTracker::Awake() 
 {
-    Base::Start();
+    Base::Awake();
     if (GameObject* manager = SingletonObject<MapManager>::GetInstance())
     {
         if (manager->ActiveInHierarchy)
