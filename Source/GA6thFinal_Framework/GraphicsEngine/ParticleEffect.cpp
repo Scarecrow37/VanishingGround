@@ -3,39 +3,28 @@
 #include "ParticleEmitter.h"
 #include "ParticleEffect.h"
 
- ParticleEffect::~ParticleEffect() 
- {
-     // 1. ParticleEmitter 객체들 정리
-     for (auto emitter : _particleEmitters)
-     {
-         if (emitter)
+ ParticleEffect::ParticleEffect() = default;
+ParticleEffect::~ParticleEffect()
+{
+    for (auto emitter : _particleEmitters)
+    {
+        if (emitter)
             delete emitter;
-     }
-     _particleEmitters.clear();
- }
-
-
-
- ParticleEffect::ParticleEffect(const ParticleEffect& other) 
-         : _rotation(other._rotation), _position(other._position), _age(0), _lifetime(other._lifetime),
-       _activeFlag(other._activeFlag), _effectName(other._effectName), _playFlag(other._playFlag),
-       namingIndex(other.namingIndex), emitterNamingIndex(other.emitterNamingIndex)
- {
-     _particleEmitters.reserve(other._particleEmitters.size());
-     for (auto* srcEmitter : other._particleEmitters)
-     {
-         // Assumes ParticleEmitter has a proper copy constructor
-         ParticleEmitter* cloned = new ParticleEmitter(*srcEmitter);
-         cloned->Initialize(srcEmitter->GetMaxParticles(), srcEmitter->GetEmissionRate(),
-                            srcEmitter->GetEmitterLifetime(), srcEmitter->_locationType,
-                            srcEmitter->_emitLocator->GetFactor(), srcEmitter->_particleType,
-                            srcEmitter->_particleRenderModule->GetModelAndTexturePath());
-         _particleEmitters.push_back(cloned);
-     }
- }
-
- void ParticleEffect::Initialize(class ParticleManager* particleManager) {}
-
+    }
+    _particleEmitters.clear();
+}
+ParticleEmitter* ParticleEffect::AddEmitter(SIZE_T maxParticles, float emissionRate, float emitterLifetime,
+                                            LocationShape locatorShape, Vector3 locationFactor,
+                                            ParticleType particleType, std::wstring_view meshspritePath)
+{
+    auto newEmitter = new ParticleEmitter();
+    newEmitter->Initialize(maxParticles, emissionRate, emitterLifetime, locatorShape, locationFactor, particleType,
+                           meshspritePath);
+    std::string name = "Emitter " + std::to_string(_namingIndex) + "-" + std::to_string(_emitterNamingIndex++);
+    newEmitter->SetEmitterName(name);
+    _particleEmitters.push_back(newEmitter);
+    return newEmitter;
+}
 void ParticleEffect::Update(float deltaTime)
 {
     _age += deltaTime;
@@ -46,7 +35,7 @@ void ParticleEffect::Update(float deltaTime)
         {
             emitter->SetActiveFlag(false);
         }
-        _playFlag   = false;
+        _playFlag = false;
         if (true == _isPlaying)
         {
             _isPlaying = false;
@@ -55,31 +44,21 @@ void ParticleEffect::Update(float deltaTime)
         return;
     }
     {
-
-        if (nullptr != _position)
-            _translationMatrix = Matrix::CreateTranslation(*_position);
-        else
-            _translationMatrix = Matrix::Identity;
-
-        if (nullptr != _rotation)
-            _rotationMatrix = Matrix::CreateFromQuaternion(
-                Quaternion::CreateFromYawPitchRoll(*_rotation));
-        else
-            _rotationMatrix = Matrix::Identity;
-
-        if (nullptr != _scale)
-            _scaleMatrix = Matrix::CreateScale(*_scale);
-        else
-            _scaleMatrix = Matrix::Identity;
+        _translationMatrix = nullptr != _position ? Matrix::CreateTranslation(*_position) : Matrix::Identity;
+        _rotationMatrix    = nullptr != _rotation
+                                 ? Matrix::CreateFromQuaternion(Quaternion::CreateFromYawPitchRoll(*_rotation))
+                                 : Matrix::Identity;
+        _scaleMatrix       = nullptr != _scale ? Matrix::CreateScale(*_scale) : Matrix::Identity;
     }
     if (nullptr != _parentWorldMatrix)
     {
         if (nullptr != _followBoneFlag && false == *_followBoneFlag)
         {
+            _worldMatrix = _scaleMatrix * _rotationMatrix * _translationMatrix;
             if (nullptr != _parentWorldMatrix)
-                _worldMatrix = _scaleMatrix * _rotationMatrix * _translationMatrix * *_parentWorldMatrix;
-            else
-                _worldMatrix = _scaleMatrix * _rotationMatrix * _translationMatrix;
+            {
+                _worldMatrix *= *_parentWorldMatrix;
+            }
         }
         else if (nullptr != _boneWorldMatrix)
         {
@@ -109,33 +88,15 @@ void ParticleEffect::Update(float deltaTime)
         }
     }
 }
-
-ParticleEmitter* ParticleEffect::AddEmitter(SIZE_T maxParticles /*= 100000*/, float emissionRate /*= 500.f*/,
-                                float emitterLifetime /*= 5.f*/, LocationShape locatorShape /*= LocationShape::SPHERE*/,
-                                            Vector3       locationFactor /*= Vector3(1, 1, 1)*/,
-                                            ParticleType  particleType /*= ParticleType::SPRITE*/,
-                                            std::wstring_view meshspritePath /*= L""*/)
-{
-    auto newEmitter = new ParticleEmitter();
-    newEmitter->Initialize(maxParticles, emissionRate, emitterLifetime, locatorShape, locationFactor,particleType,meshspritePath);
-    std::string name = "Emitter " + std::to_string(namingIndex) + "-" + std::to_string(emitterNamingIndex++);
-    newEmitter->SetEmitterName(name);
-    _particleEmitters.push_back(newEmitter);
-    return newEmitter;
-}
-
-void ParticleEffect::RemoveEmitter(ParticleEmitter* target) 
-{
-    target->SetRemoveFlag(true);
-   
-}
-
-class ParticleEmitter* ParticleEffect::GetEmitter(size_t emitterIndex) 
+class ParticleEmitter* ParticleEffect::GetEmitter(size_t emitterIndex)
 {
     return _particleEmitters[emitterIndex];
 }
-
-void ParticleEffect::UpdateParticleLifeCycle(float deltaTime) 
+void ParticleEffect::RemoveEmitter(ParticleEmitter* target)
+{
+    target->SetRemoveFlag(true);
+}
+void ParticleEffect::UpdateParticleLifeCycle(float deltaTime)
 {
     for (auto emitter : _particleEmitters)
     {
@@ -145,8 +106,7 @@ void ParticleEffect::UpdateParticleLifeCycle(float deltaTime)
         }
     }
 }
-
-void ParticleEffect::Play() 
+void ParticleEffect::Play()
 {
     if (false == _isPlaying)
     {
@@ -154,23 +114,20 @@ void ParticleEffect::Play()
         _isPlaying  = true;
         _activeFlag = true;
 
-        _isEnding   = false;
-        _age        = 0;
+        _isEnding = false;
+        _age      = 0;
         for (auto& emitter : _particleEmitters)
         {
             emitter->Reset();
             emitter->SetActiveFlag(true);
         }
-
     }
 }
-
-void ParticleEffect::Stop() 
+void ParticleEffect::Stop()
 {
     if (false == _isEnding)
     {
-
-        _isEnding = true;
+        _isEnding  = true;
         _isPlaying = false;
         for (auto& emitter : _particleEmitters)
         {
@@ -178,8 +135,7 @@ void ParticleEffect::Stop()
         }
     }
 }
-
-void ParticleEffect::Reset() 
+void ParticleEffect::Reset()
 {
     _age = 0;
     for (auto emitter : _particleEmitters)
@@ -188,7 +144,6 @@ void ParticleEffect::Reset()
     }
     _activeFlag = true;
 }
-
 void ParticleEffect::FlushEmitters()
 {
     for (auto it = _particleEmitters.begin(); it != _particleEmitters.end();)
@@ -203,4 +158,24 @@ void ParticleEffect::FlushEmitters()
             ++it;
         }
     }
+}
+void ParticleEffect::SetPosition(Vector3* position)
+{
+    _position = position;
+}
+void ParticleEffect::SetRotation(Vector3* rotation)
+{
+    _rotation = rotation;
+}
+void ParticleEffect::SetScale(Vector3* scale)
+{
+    _scale = scale;
+}
+void ParticleEffect::SetBoneFollowFlag(bool* flag) 
+{
+    _followBoneFlag = flag;
+}
+void ParticleEffect::SetBoneMatrix(const Matrix* matrix) 
+{
+    _boneWorldMatrix = matrix;
 }

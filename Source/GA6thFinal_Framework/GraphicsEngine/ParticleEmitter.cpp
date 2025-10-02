@@ -2,327 +2,68 @@
 #include "Particle.h"
 #include "ParticleEmitter.h"
 #include "Light.h"
-#include "Model.h"
-/////////////////////////////////////////////////
-void EmitLocator::RandomInitialize() 
-{
-    _randomGenerator = std::mt19937(_randomizer());
-    _randomRange     = std::uniform_real_distribution<float>(-1.f, 1.f);
-    _randomVal       = std::bind(_randomRange, _randomGenerator);
-}
 
- MeshSurfaceLocator::~MeshSurfaceLocator() 
- {
-     _targetModel = nullptr;
- }
-
-DirectX::SimpleMath::Vector3 CubeLocator::EmitLocate() 
+ParticleEmitter::ParticleEmitter() = default;
+ParticleEmitter::~ParticleEmitter()
 {
-    return {_randomVal() * _factor.x, _randomVal() * _factor.y, _randomVal() * _factor.z};
-}
+    _particlePool.clear();
 
-DirectX::SimpleMath::Vector3 CylinderLocator::EmitLocate() 
-{
-    Vector2 location = {_randomVal(), _randomVal()};
-    while (location.Length() > 1)
+    delete _emitLocator;
+    _emitLocator = nullptr;
+
+    delete _particleRenderModule;
+    _particleRenderModule = nullptr;
+
+    if (nullptr != _light)
     {
-        location = {_randomVal(), _randomVal()};
-    }
-    return {location.x * _factor.x, _randomVal() * _factor.y / 2, location.y * _factor.z};
-}
-
-DirectX::SimpleMath::Vector3 ConeLocator::EmitLocate() 
-{
-    float   locationY     = (_randomVal() + 1) / 2 * _factor.y;
-    float   sectionRadius = locationY * std::tan(_factor.x);
-    Vector3 location      = Vector3(_randomVal(), 0, _randomVal());
-    while (location.Length() > 1)
-    {
-        location = {_randomVal(), 0, _randomVal()};
-    }
-    location *= sectionRadius;
-    location.y = locationY;
-    return location;
-}
-
-DirectX::SimpleMath::Vector3 TorusLocator::EmitLocate() 
-{
-    if (_factor.x <= _factor.z)
-    {
-        _factor.z = _factor.x - 0.1f;
-    }
-    // 랜덤 값을 [0,1] 범위로 매핑
-    auto mapTo01 = [&]() { return (_randomVal() + 1.0f) * 0.5f; };
-
-    // 각도는 균등 분포 [0, 2π]
-    float angle = 2.0f * XM_PI * mapTo01();
-
-
-    float radius = _randomVal();
-    radius *= (_factor.x - _factor.z) / 2;
-    radius += (_factor.x + _factor.z) / 2;
-
-
-    float height = _randomVal();
-    float temp   = std::sqrt((_factor.x - radius) * (radius - _factor.z));
-    height *= temp;
-    height *= _factor.y;
-
-
-    // 극좌표를 직교좌표로 변환
-    Vector3 location;
-    location.x = radius * std::cos(angle);
-    location.y = height;
-    location.z = radius * std::sin(angle);
-
-    // 스케일 적용
-    return location;
-}
-
-DirectX::SimpleMath::Vector3 SphereLocator::EmitLocate()
-{
-  
-   // 방향 벡터 생성 (단위 구면에서 균등 분포)
-    Vector3 direction;
-    do
-    {
-        direction = {_randomVal(), _randomVal(), _randomVal()};
-    } while (direction.LengthSquared() > 1.0f);
-
-
-    return {direction.x * _factor.x, direction.y * _factor.y, direction.z * _factor.z};
-}
-
-DirectX::SimpleMath::Vector3 MeshSurfaceLocator::EmitLocate() 
-{
-    if (nullptr != _targetModel)
-    {
-        float temp  = ((_randomVal() + 1) * 0.5f);
-        UINT index = static_cast<UINT>(temp* (_totalVertexCount-1));
-        UINT  tempIdx = 0;
-        int   meshIdx = 0;
-        int   vertexoffset = 0;
-        for (auto count : _vertexCountPerMesh)
-        {
-            if (index >= tempIdx && index < tempIdx + count)
-            {
-                vertexoffset = index - tempIdx;
-                break;
-            }
-            tempIdx += count;
-            meshIdx++;
-        }
-
-        char* vertices;
-        UINT  stride, size;
-        auto& mesh = _targetModel->GetMeshes()[meshIdx];
-        mesh->GetVertexInfo(vertices, stride, size);
-        
-        StaticMeshVertex* targetVertex = reinterpret_cast<StaticMeshVertex*>(vertices);
-        targetVertex += vertexoffset;
-
-        return Vector3(targetVertex->Position.x * _factor.x, targetVertex->Position.y * _factor.y,
-                       targetVertex->Position.z * _factor.z);
-    }
-
-    else
-        return {0, 0, 0};
-}
-
-void MeshSurfaceLocator::SetModelPath(std::wstring_view filepath) 
-{
-    _targetModelPath = filepath;
-}
-
-void MeshSurfaceLocator::LoadVerticesFromModel(std::shared_ptr<class Model> model) 
-{
-    _targetModel = std::move(model);
-    _vertexCountPerMesh.clear();
-    _totalVertexCount = 0;
-    for (auto& mesh : _targetModel->GetMeshes())
-    {
-        char* tempvertex;
-        UINT  stride;
-        UINT  size;
-        mesh->GetVertexInfo(tempvertex, stride, size);
-        _vertexCountPerMesh.push_back(size);
-        _totalVertexCount += size;
+        _light->SetDestroy();
+        delete _light;
+        _light = nullptr;
     }
 }
-
-void SpriteModule::Initialize()
+ParticleEmitter::ParticleEmitter(const ParticleEmitter& other)
+    : _particleType(other._particleType), _locationType(other._locationType), _velocityType(other._velocityType),
+      _emitterRotationQ(other._emitterRotationQ), _emitterRotationE(other._emitterRotationE),
+      _emitterPosition(other._emitterPosition)
 {
-    
+    _emitterLifetime                 = other.GetEmitterLifetime();
+    _maxParticles                    = other.GetMaxParticles();
+    _emissionRate                    = other.GetEmissionRate();
+    _startDelay                      = other.GetStartDelay();
+    _spawnBurstFlag                  = other.GetSpawnBurstFlag();
+    _spawnBurstCount                 = other.GetSpawnBurstCount();
+    _emitterName                     = other.GetEmitterName();
+    _velocityFactor                  = other.GetVelocityFactor();
+    _startColor                      = other.GetStartColor();
+    _startOpacity                    = other.GetStartOpacity();
+    _endColor                        = other.GetEndColor();
+    _endOpacity                      = other.GetEndOpacity();
+    _startScale                      = other.GetStartScale();
+    _endScale                        = other.GetEndScale();
+    _particleLifetime                = other.GetParticleLifetime();
+    _particleMass                    = other.GetParticleMass();
+    _particleStartDistributionOffset = other.GetParticleStartDistributionOffset();
+    _particleEndDistributionOffset   = other.GetParticleEndDistributionOffset();
+    _dragPoint                       = other.GetDragPoint();
+    _dragForce                       = other.GetDragForce();
 }
-
-void RibbonModule::Initialize() 
-{
-}
-
-
- SpriteModule::~SpriteModule() 
- {
-     _albedoTexture = nullptr;
- }
-
-void SpriteModule::SetFrameInfo(Vector4 frameInfo) 
-{
-    _initialFrameInfo = frameInfo;
-    CalculateFrameInfos();
-}
-
-void SpriteModule::SetFrameInfo(int widthCount, int heightCount, int startIndex, int totalCount) 
-{
-    _initialFrameInfo =
-        Vector4((float)widthCount, (float)heightCount, (float)startIndex, static_cast<float>(totalCount));
-    CalculateFrameInfos();
-}
-
-
-DirectX::SimpleMath::Vector4 SpriteModule::GetInitialFrameInfo() const 
-{
-    return _initialFrameInfo;
-}
-
-Texture* SpriteModule::GetNormalTexture() const 
-{
-    return _normalTexture.get();
-}
-
-void SpriteModule::CalculateFrameInfos() 
-{
-    _preCalculatedFrameInfos.clear();
-    Vector2 offset = {1.f / _initialFrameInfo.x, 1 / _initialFrameInfo.y};
-    for (int i = 0;i < _initialFrameInfo.w;++i)
-    {
-
-        Vector4 newFrame = {0, 0, 1, 1};
-        UINT    x        = i % (UINT)_initialFrameInfo.x;
-        UINT    y        = i / (UINT)_initialFrameInfo.x;
-
-        newFrame.x = x * offset.x;
-        newFrame.y = y * offset.y;
-        newFrame.z = newFrame.x + offset.x;
-        newFrame.w = newFrame.y + offset.y;
-        _preCalculatedFrameInfos.push_back(newFrame);
-    }
-}
-
-
-RibbonModule::~RibbonModule() 
-{
-    _albedoTexture = nullptr;
-}
-
-void SpriteModule::SetAlbedoTexture(std::shared_ptr<class Texture> texture) 
-{
-    _albedoTexture = std::move(texture);
-}
-
-void RibbonModule::SetAlbedoTexture(std::shared_ptr<class Texture> texture) 
-{
-    _albedoTexture = std::move(texture);
-}
-
-void SpriteModule::ChangeAlbedoTexture(std::wstring_view filePath)
-{
-    _isAlbedoTextureChanged = true;
-    _modelAndTexturePath = filePath;
-    
-}
-
-
-void RibbonModule::ChangeAlbedoTexture(std::wstring_view filePath)
-{
-    _isAlbedoTextureChanged = true;
-    _modelAndTexturePath    = filePath;
-}
-
-Texture* SpriteModule::GetAlbedoTexture() const
-{
-    return _albedoTexture.get();
-}
-
-Texture* RibbonModule::GetAlbedoTexture() const 
-{
-    return _albedoTexture.get();
-}
-
-
-
-/////////////////////////////////////////////////
-
-
-
-
-
- ParticleEmitter::~ParticleEmitter() 
- {
-     _particlePool.clear();
-
-     delete _emitLocator;
-     _emitLocator = nullptr;
-
-     delete _particleRenderModule;
-     _particleRenderModule = nullptr;
-     
-     if (nullptr != _light)
-     {
-         _light->SetDestroy();
-         delete _light;
-         _light = nullptr;
-     }
-
- }
-
- ParticleEmitter::ParticleEmitter(const ParticleEmitter& other) 
-         : _particleType(other._particleType), _locationType(other._locationType), _velocityType(other._velocityType),
-       _emitterRotationQ(other._emitterRotationQ), _emitterRotationE(other._emitterRotationE),_emitterPosition(other._emitterPosition)
- {
-     _emitterLifetime                 = other.GetEmitterLifetime();
-     _maxParticles                    = other.GetMaxParticles();
-     _emissionRate                    = other.GetEmissionRate();
-     _startDelay                      = other.GetStartDelay();
-     _spawnBurstFlag                  = other.GetSpawnBurstFlag();
-     _spawnBurstCount                 = other.GetSpawnBurstCount();
-     _emitterName                     = other.GetEmitterName();
-     _velocityFactor                  = other.GetVelocityFactor();
-     _startColor                      = other.GetStartColor();
-     _startOpacity                    = other.GetStartOpacity();
-     _endColor                        = other.GetEndColor();
-     _endOpacity                      = other.GetEndOpacity();
-     _startScale                      = other.GetStartScale();
-     _endScale                        = other.GetEndScale();
-     _particleLifetime                = other.GetParticleLifetime();
-     _particleMass                    = other.GetParticleMass();
-     _particleStartDistributionOffset = other.GetParticleStartDistributionOffset();
-     _particleEndDistributionOffset   = other.GetParticleEndDistributionOffset();
-     _dragPoint                       = other.GetDragPoint();
-     _dragForce                       = other.GetDragForce();
-
-
-
- }
- void ParticleEmitter::SetLocatorFactor(const Vector3& factor) 
+void ParticleEmitter::SetLocatorFactor(const Vector3& factor)
 {
     _emitLocator->SetFactor(factor);
 }
-
-void ParticleEmitter::SetVelocityType(VelocityScaleType velType) 
+void ParticleEmitter::SetVelocityType(VelocityScaleType velType)
 {
     _velocityType = velType;
 }
-
-
 void ParticleEmitter::Initialize(SIZE_T maxParticles /*= 100000*/, float emissionRate /*= 500.f*/,
-                                 float         emitterLifetime /*= 5.f*/,
-                                 LocationShape locatorShape /*= LocationShape::SPHERE*/,
-                                 Vector3       locationFactor /*= Vector3(1,1,1)*/,
-                                  ParticleType  particleType /*= ParticleType::SPRITE*/,
-                                  std::wstring_view  meshspritePath /*= L""*/)
- {
+                                 float             emitterLifetime /*= 5.f*/,
+                                 LocationShape     locatorShape /*= LocationShape::SPHERE*/,
+                                 Vector3           locationFactor /*= Vector3(1,1,1)*/,
+                                 ParticleType      particleType /*= ParticleType::SPRITE*/,
+                                 std::wstring_view meshspritePath /*= L""*/)
+{
     _emitterLifetime = emitterLifetime;
-    _particleType = particleType;
+    _particleType    = particleType;
     switch (particleType)
     {
     case ParticleType::SPRITE:
@@ -341,10 +82,11 @@ void ParticleEmitter::Initialize(SIZE_T maxParticles /*= 100000*/, float emissio
     if (meshspritePath == L"")
     {
         _particleRenderModule->SetModelAndTexturePath(L"BlackTexture");
-
     }
     else
+    {
         _particleRenderModule->SetModelAndTexturePath(meshspritePath);
+    }
 
     _locationType = locatorShape;
     switch (_locationType)
@@ -372,20 +114,13 @@ void ParticleEmitter::Initialize(SIZE_T maxParticles /*= 100000*/, float emissio
         _emitLocator = new SphereLocator();
         break;
     }
-
     _emitLocator->RandomInitialize();
     _emitLocator->SetFactor(locationFactor);
     _maxParticles = maxParticles;
     _emissionRate = emissionRate;
     _particlePool.resize(_maxParticles);
-
-
-
-
 }
-
-
-void ParticleEmitter::Update(float deltaTime) 
+void ParticleEmitter::Update(float deltaTime)
 {
     if (false == _delayFlag)
     {
@@ -402,14 +137,11 @@ void ParticleEmitter::Update(float deltaTime)
         }
     }
 
-
-
-
     _emitterAge += deltaTime;
-    if (_emitterAge >= _emitterLifetime -_particleLifetime)
+    if (_emitterAge >= _emitterLifetime - _particleLifetime)
     {
         _endFlag = true;
-        //return;
+        // return;
     }
     if (_emitterAge >= _emitterLifetime)
     {
@@ -429,13 +161,8 @@ void ParticleEmitter::Update(float deltaTime)
             _lightCurrentIntensity = (float)std::lerp(0, _lightIntensity, _activeParticleCount / value);
         _lightCurrentRange = _lightRange;
     }
-
-
-
 }
-
-
-void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime) 
+void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime)
 {
     // 수명 다한 파티클 비활성화
     for (int i = 0; i < _activeParticleCount; ++i)
@@ -450,7 +177,6 @@ void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime)
     }
     if (true == _endFlag)
     {
-
         if (_activeParticleCount == 0)
         {
             _activeFlag = false;
@@ -471,7 +197,7 @@ void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime)
         newParticles = static_cast<size_t>(_emissionThreshold);
         _emissionThreshold -= newParticles;
     }
-    
+
     size_t availableSlots = _maxParticles - _activeParticleCount;
     if (newParticles > availableSlots)
     {
@@ -484,11 +210,8 @@ void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime)
         _activeParticleCount++;
     }
 }
-
-
-void ParticleEmitter::FlushTextureResource() 
+void ParticleEmitter::FlushTextureResource()
 {
-
     if (ParticleType::SPRITE == _particleType)
     {
         SpriteModule* spritemodule = static_cast<SpriteModule*>(_particleRenderModule);
@@ -500,7 +223,6 @@ void ParticleEmitter::FlushTextureResource()
             Global::particleManager->RefreshEditor();
         }
     }
-
     if (ParticleType::RIBBON == _particleType)
     {
         RibbonModule* ribbonmodule = static_cast<RibbonModule*>(_particleRenderModule);
@@ -512,10 +234,8 @@ void ParticleEmitter::FlushTextureResource()
             Global::particleManager->RefreshEditor();
         }
     }
-
 }
-
-void ParticleEmitter::Reset() 
+void ParticleEmitter::Reset()
 {
     _delayFlag = _activeFlag = false;
     _isSpawnBursted          = false;
@@ -525,8 +245,17 @@ void ParticleEmitter::Reset()
     _activeParticleCount     = 0;
     _emissionThreshold       = 0;
 }
-
-void ParticleEmitter::InitializeLocator(LocationShape locatorShape , Vector3 factor) 
+void ParticleEmitter::SetEmitterRotationQ(const Quaternion& value)
+{
+    _emitterRotationQ = value;
+    _emitterRotationE = _emitterRotationQ.ToEuler();
+}
+void ParticleEmitter::SetEmitterRotationE(const Vector3& value)
+{
+    _emitterRotationE = value;
+    _emitterRotationQ = Quaternion::CreateFromYawPitchRoll(_emitterRotationE);
+}
+void ParticleEmitter::InitializeLocator(LocationShape locatorShape, Vector3 factor)
 {
     switch (locatorShape)
     {
@@ -548,25 +277,20 @@ void ParticleEmitter::InitializeLocator(LocationShape locatorShape , Vector3 fac
     case LocationShape::MESH_SURFACE:
         _emitLocator = new MeshSurfaceLocator();
         break;
-
     }
     _emitLocator->SetFactor(factor);
     _emitLocator->RandomInitialize();
-
 }
-
-void ParticleEmitter::AwakeParticle(UINT index) 
+void ParticleEmitter::AwakeParticle(UINT index)
 {
     Vector3 offset = {_emitLocator->_randomVal(), _emitLocator->_randomVal(), _emitLocator->_randomVal()};
-
     Vector4 location = {1, 1, 1, 1};
-    Vector3 tempPos = _emitLocator->EmitLocate();
+    Vector3 tempPos  = _emitLocator->EmitLocate();
     float   ratio    = 0;
     if (_emitterLifetime <= _particleLifetime)
         ratio = _emitterAge / _emitterLifetime;
     else
         ratio = _emitterAge / (_emitterLifetime - _particleLifetime);
-
 
     Vector3 currentOffset = Vector3::Lerp(_particleStartDistributionOffset, _particleEndDistributionOffset, ratio);
 
@@ -576,25 +300,17 @@ void ParticleEmitter::AwakeParticle(UINT index)
 
     if (_useWorldSpace)
     {
-		location = Vector4::Transform(location, _worldMatrix);
-	}
+        location = Vector4::Transform(location, _worldMatrix);
+    }
 
     _particlePool[index].SetPosition(location);
     ScaleVelocity({location.x, location.y, location.z});
     Vector3 finalVelocity = _velocity;
-    finalVelocity = Vector3::TransformNormal(_velocity, _worldMatrix);
+    finalVelocity         = Vector3::TransformNormal(_velocity, _worldMatrix);
     _particlePool[index].SetVelocity(finalVelocity);
-
+    _particlePool[index].SetAxis(GetScaleByVelocityFlag() ? finalVelocity : _particleAxis);
     _particlePool[index].SetAge(0.f);
     _particlePool[index].SetMass(_particleMass);
-
-
-
-    if (true == GetScaleByVelocityFlag())
-        _particlePool[index].SetAxis(finalVelocity);
-    else
-        _particlePool[index].SetAxis(_particleAxis);
-
 
     if (ParticleType::SPRITE == _particleType)
     {
@@ -602,18 +318,15 @@ void ParticleEmitter::AwakeParticle(UINT index)
         Vector4 frameInfo    = {spritemodule->GetFrameDuration(), 0, 0, 0};
         _particlePool[index].SetFrameinfo(frameInfo);
     }
-        _particlePool[index].SetInitialMatrix(_worldMatrix.Transpose());
-
+    _particlePool[index].SetInitialMatrix(_worldMatrix.Transpose());
 }
-
-void ParticleEmitter::ScaleVelocity(Vector3 pos) 
+void ParticleEmitter::ScaleVelocity(Vector3 pos)
 {
     switch (_velocityType)
     {
     case VelocityScaleType::LINEAR:
         _velocity = _velocityFactor;
         break;
-        // scale, radius
     case VelocityScaleType::CONE:
 
     case VelocityScaleType::POINT:
@@ -626,25 +339,16 @@ void ParticleEmitter::ScaleVelocity(Vector3 pos)
         _velocity = _velocityFactor;
         break;
     }
-
 }
-
-void ParticleEmitter::ScaleVelFromPoint(Vector3 pos) 
+void ParticleEmitter::ScaleVelFromPoint(Vector3 pos)
 {
-    Vector4 vel = {pos.x, pos.y, pos.z, 0};
+    Vector4 vel       = {pos.x, pos.y, pos.z, 0};
     Vector3 direction = {vel.x, vel.y, vel.z};
     direction.Normalize();
     _velocity = direction * _velocityFactor.x;
 }
-
-void ParticleEmitter::ScaleVelInCone(Vector3 pos) 
-{
-
-
-
-}
-
-void ParticleEmitter::InitializeLight(std::string_view scenenName) 
+void ParticleEmitter::ScaleVelInCone(Vector3 pos) {}
+void ParticleEmitter::InitializeLight(std::string_view scenenName)
 {
     _light = new Light();
     _light->SetPointLight(_lightColor, _finalPos, _lightAttenuation, _lightCurrentRange, _lightCurrentIntensity);
@@ -656,7 +360,6 @@ void ParticleEmitter::InitializeLight(std::string_view scenenName)
         Global::lightCore->RegisterLight("Editor", _light);
     }
 }
-
 void ParticleEmitter::SetLightFlag(bool value) 
 {
     _useLight = value;
@@ -664,8 +367,4 @@ void ParticleEmitter::SetLightFlag(bool value)
         _light->SetActive(&_activeFlag);
     else if (_light)
         _light->SetActive(&_useLight);
-
-
-
 }
-

@@ -64,7 +64,6 @@ void ParticleManager::Initialize(UINT maxParticles)
 ParticleEffect* ParticleManager::RegisterEffect(EffectID id, const std::string& keyString, std::string_view sceneName)
 {
     auto newEffect = new ParticleEffect();
-    newEffect->Initialize(this);
     std::string name = "Effect" + std::to_string(nameingIndex++);
     newEffect->SetEffectName(name);
 
@@ -78,7 +77,6 @@ ParticleEffect* ParticleManager::RegisterEffect(EffectID id, const std::string& 
 class ParticleEffect* ParticleManager::RegisterEffectOnEditor()
 {
     auto newEffect = new ParticleEffect();
-    newEffect->Initialize(this);
     std::string name = "Effect" + std::to_string(nameingIndex++);
     newEffect->SetEffectName(name);
 
@@ -355,7 +353,7 @@ void ParticleManager::SetFollowBoneFlag(EffectID id, const std::string& keyStrin
         return;
     }
     auto target             = (*targetEffectIter).second;
-    target->_followBoneFlag = flag;
+    target->SetBoneFollowFlag(flag);
 }
 
 void ParticleManager::SetBoneMatrix(EffectID id, const std::string& keyString, const Matrix* boneMatrix)
@@ -372,7 +370,7 @@ void ParticleManager::SetBoneMatrix(EffectID id, const std::string& keyString, c
         return;
     }
     auto target              = (*targetEffectIter).second;
-    target->_boneWorldMatrix = boneMatrix;
+    target->SetBoneMatrix(boneMatrix);
 }
 
 UINT ParticleManager::GetMaxCount() 
