@@ -158,10 +158,11 @@ namespace Timeline
     {
         for (auto it = _contextQueue.begin(); it != _contextQueue.end(); ++it)
         {
-            if ((*it)->ID == id)
+            auto* context = *it;
+            if (context && context->ID == id)
             {
-                delete (*it);
-                _contextQueue.erase(it);
+                delete context;
+                it = _contextQueue.erase(it);
                 _contextTable.erase(id);
                 return true;
             }

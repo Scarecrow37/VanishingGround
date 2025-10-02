@@ -122,17 +122,23 @@ YAML::Node EditorGuiSystem::SaveGuiSettingToMemory()
 
     for (auto& [label, dock] : _dockWindowTable)
     {
-        auto& table = dock->GetRefToolTable();
-
-        YAML::Node dockNode;
-        
-        for (auto& [className, tool] : table)
+        if (dock)
         {
-            dockNode[className] = tool->SerializedReflectFields();
-        }
-        dockNode["Fields"] = dock->SerializedReflectFields();
+            auto& table = dock->GetRefToolTable();
 
-        rootNode[label] = dockNode;
+            YAML::Node dockNode;
+            
+            for (auto& [className, tool] : table)
+            {
+                if (tool)
+                {
+                    dockNode[className] = tool->SerializedReflectFields();
+                }
+            }
+            dockNode["Fields"] = dock->SerializedReflectFields();
+
+            rootNode[label] = dockNode;
+        }
     }
 
     return rootNode;
@@ -142,20 +148,22 @@ void EditorGuiSystem::LoadGuiSettingFromMemory(YAML::Node node)
 {
     for (auto& [label, dock] : _dockWindowTable)
     {
-        auto& table   = dock->GetRefToolTable();
-        auto dockNode = node[label];
-
-        if (dockNode["Fields"])
+        if (dock)
         {
-            std::string serializeData = dockNode["Fields"].as<std::string>();
-            dock->DeserializedReflectFields(serializeData);
-        }
-        for (auto& [className, tool] : table)
-        {
-            if (dockNode[className])
+            auto& table   = dock->GetRefToolTable();
+            auto dockNode = node[label];
+            if (dockNode["Fields"])
             {
-                std::string serializeData = dockNode[className].as<std::string>();
-                tool->DeserializedReflectFields(serializeData);
+                std::string serializeData = dockNode["Fields"].as<std::string>();
+                dock->DeserializedReflectFields(serializeData);
+            }
+            for (auto& [className, tool] : table)
+            {
+                if (tool && dockNode[className])
+                {
+                    std::string serializeData = dockNode[className].as<std::string>();
+                    tool->DeserializedReflectFields(serializeData);
+                }
             }
         }
     }
