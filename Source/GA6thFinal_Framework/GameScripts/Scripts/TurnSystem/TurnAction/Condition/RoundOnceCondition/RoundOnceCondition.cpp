@@ -43,6 +43,11 @@ RoundOnceTrueCondition::RoundOnceAction::RoundOnceAction()
 RoundOnceTrueCondition::RoundOnceAction::~RoundOnceAction()
 {
     SetDestroy();
+    auto iter = std::ranges::find(_roundOnceActions, this);
+    if (iter != _roundOnceActions.end())
+    {
+        _roundOnceActions.erase(iter);
+    }
 }
 
 const std::string& RoundOnceTrueCondition::RoundOnceAction::GetActionName()
