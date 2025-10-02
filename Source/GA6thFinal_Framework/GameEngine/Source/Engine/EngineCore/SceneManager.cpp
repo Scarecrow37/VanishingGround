@@ -882,7 +882,10 @@ Scene* ESceneManager::GetSceneByName(std::string_view name)
 
 void ESceneManager::ObjectsAwake()
 {
-    for (auto& component : _waitAwakeVec)
+    static thread_local std::vector<Component*> awakeVector;
+    awakeVector.clear();
+    std::ranges::transform(_waitAwakeVec, std::back_inserter(awakeVector), [](const std::shared_ptr<Component>& ptr) { return ptr.get(); });
+    for (auto& component : awakeVector)
     {
         if (component->_enableInHierarchy)
         {
@@ -899,7 +902,10 @@ void ESceneManager::ObjectsAwake()
 
 void ESceneManager::ObjectsStart()
 {
-    for (auto& component : _waitStartVec)
+    static thread_local std::vector<Component*> startVector;
+    startVector.clear();
+    std::ranges::transform(_waitStartVec, std::back_inserter(startVector), [](const std::shared_ptr<Component>& ptr) { return ptr.get(); });
+    for (auto& component : startVector)
     {
         if (component->_enableInHierarchy)
         {
@@ -908,7 +914,7 @@ void ESceneManager::ObjectsStart()
         }
     }
     std::erase_if(_waitStartVec, [](auto& component)
-    {
+    { 
         return component->_initFlags.IsStart();
     });
 }
@@ -1142,8 +1148,6 @@ void ESceneManager::ObjectsDestroy()
         {
             return destroyComponent == component.get();
         });
-
-        NotInitDestroyComponentEraseToWaitVec(destroyComponent);
     }
 
     //오브젝트 삭제
@@ -1159,7 +1163,6 @@ void ESceneManager::ObjectsDestroy()
             for (auto& component : destroyObject->_components)
             {
                 component->OnDestroy();
-                NotInitDestroyComponentEraseToWaitVec(component.get());
             }
         }
 
@@ -1248,8 +1251,11 @@ void ESceneManager::ObjectsAddRuntime()
         }
     }
 
+    //임시 큐
+    static thread_local std::vector<Component*> addQueue;
+    addQueue.clear();
     for (auto& [owner, component] : _addComponentsQueue)
-    {
+    {   
         if (owner.expired() == false)
         {
             if (_isPlay)
@@ -1261,11 +1267,18 @@ void ESceneManager::ObjectsAddRuntime()
             {
                 component->gameObject->_transform._hasChanged = true;
             }
-            component->UpdateEnableInHierarchy();
-            component->Reset();
+            addQueue.push_back(component.get());
         }
     }
 
+    //안전하게 원본 배열에서 복사 후 이벤트 호출
+    for (auto& component : addQueue)
+    {
+        component->UpdateEnableInHierarchy();
+        component->Reset();
+    }
+
+    //정리
     _addGameObjectsQueue.clear();
     _addComponentsQueue.clear();
 }
@@ -1330,6 +1343,7 @@ void ESceneManager::AddDestroyComponentQueue(Component* component)
         if (result)
         {
             vec.push_back(component);
+            NotInitDestroyComponentEraseToWaitVec(component);
         }
     }
 }
@@ -1443,11 +1457,15 @@ void ESceneManager::AddDestroyObjectQueue(GameObject* gameObject)
     if (gameObject->IsValid())
     {
         auto& [set, vec] = engineCore->SceneManager._destroyObjectsQueue;
-        Transform::ForeachDFS(gameObject->_transform, [&set, &vec](Transform* pTransform) {
+        Transform::ForeachDFS(gameObject->_transform, [this, &set, &vec](Transform* pTransform) {
             auto [iter, result] = set.insert(&pTransform->gameObject);
             if (result)
             {
                 vec.push_back(&pTransform->gameObject);
+                for (auto& component : pTransform->_gameObject._components)
+                {
+                    NotInitDestroyComponentEraseToWaitVec(component.get());
+                }
             }
         });
     }

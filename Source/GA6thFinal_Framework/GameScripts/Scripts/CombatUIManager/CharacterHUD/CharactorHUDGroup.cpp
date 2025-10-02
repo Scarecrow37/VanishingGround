@@ -54,28 +54,29 @@ void CharacterHUDGroup::ActiveUI(bool active)
     }
 }
 
-void CharacterHUDGroup::RefreshUIPosition() 
+void CharacterHUDGroup::RefreshUIPosition()
 {
     POINT       point;
-    const SIZE& resolution  = UmGraphics.GetResolution();
-    const float offsetY = -150.0f;
+    const SIZE& resolution = UmGraphics.GetResolution();
 
     for (size_t i = 0; i < 3; ++i)
     {
+        const float offsetY = -150.0f;
         if (EnemyHUDPanel[i])
         {
-            SIZE size       = EnemyHUDPanel[i]->Size;
-            point.x         = (LONG)(EnemyPosition[i].x - size.cx / 2);
-            point.y         = (LONG)(EnemyPosition[i].y - size.cy + offsetY);
+            SIZE size               = EnemyHUDPanel[i]->Size;
+            point.x                 = (LONG)(EnemyPosition[i].x - size.cx / 2);
+            point.y                 = (LONG)(EnemyPosition[i].y - size.cy + offsetY);
             EnemyHUDPanel[i]->Point = point;
         }
     }
 
     if (PlayerHUDPanel)
     {
-        SIZE size       = PlayerHUDPanel->Size;
-        point.x         = (LONG)(PlayerPosition.x - size.cx / 2);
-        point.y         = (LONG)(PlayerPosition.y - size.cy + offsetY);
+        const float offsetY   = -800.0f;
+        SIZE        size      = PlayerHUDPanel->Size;
+        point.x               = (LONG)(PlayerPosition.x - size.cx / 2);
+        point.y               = (LONG)(PlayerPosition.y - size.cy + offsetY);
         PlayerHUDPanel->Point = point;
     }
 }

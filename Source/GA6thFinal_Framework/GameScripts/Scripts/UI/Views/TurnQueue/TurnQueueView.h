@@ -21,6 +21,9 @@ private:
     void InitializeFramesAndPortraits();
     void          FindFramesWithTag(const std::string& tag);
     void          FindPortraitsWithTag(const std::string& tag);
+    void          FindButtonIconsWithTag(const std::string& tag);
+
+    void          DisableButtonIcons();
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
@@ -30,6 +33,16 @@ private:
     GameObject*                  _turnQueueHorizontalPanenl = nullptr;
     std::array<ImageElement*, 6> _turnQueueFrames{};
     std::array<ImageElement*, 6> _turnQueuePortraits{};
-
+    struct ButtonIconImage
+    {
+        ImageElement* X = nullptr;
+        ImageElement* Y = nullptr;
+        ImageElement* B = nullptr;
+    };
+    std::array<ButtonIconImage, 6> _turnQueueButtonIcons{};
     TurnQueueViewModel::Handle _watchHandle;
+
+private:
+    void DisableButtonIcons(ButtonIconImage& image);
+    void UpdateButtonIcons(ButtonIconImage& image, TurnUIData::ActorType type);
 };
