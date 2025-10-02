@@ -21,6 +21,11 @@ public:
     /// </summary>
     void SetStatsCombatStart();
 
+    /// <summary>
+    /// 플레이어 체력 UI 갱신합니다.
+    /// </summary>
+    void NotifyPlayerHP();
+
 public:
     REFLECT_PROPERTY
     (

@@ -4,6 +4,7 @@
 struct RevelationUIData
 {
     std::string     Name;
+    Color           NameColor;
     File::Guid      Icon;
     RevelationGrade Grade;
     std::string     Description;

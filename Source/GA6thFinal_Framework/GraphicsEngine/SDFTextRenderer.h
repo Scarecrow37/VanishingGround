@@ -14,7 +14,6 @@ public:
     // ISDFTextRenderer을(를) 통해 상속됨
     bool    IsActive() const override;
     Vector2 GetStringSize() const override;
-    Vector2 MeasureString(const wchar_t* text);
 
     D3D12_GPU_DESCRIPTOR_HANDLE GetFontTextureHandle() const;
     const Vector4&              GetColor() const { return _color; }
@@ -43,6 +42,9 @@ public:
 public:
     void Update(ID3D12GraphicsCommandList* commandList);
     void Render(ID3D12GraphicsCommandList* commandList);
+
+private:
+    void MeasureString();
 
 private:
     std::vector<bool*> _isDestroyeds;

@@ -150,16 +150,12 @@ void MapManager::OnLoadScene(Scene& loadScene, LoadSceneMode mode)
     else
     {
         isActive = false;
-    }
-
-    for (int i = 0; i < transform->ChildCount; i++)
-    {
-        auto child = transform->GetChild(i);
-        if (child)
+        if (Transform* preferences = transform->Find("PreferencesPannel"))
         {
-            child->gameObject->ActiveSelf = isActive;
+            GameObject::Destroy(preferences->gameObject);
         }
     }
+    gameObject->SetActive(isActive);
 }
 
 void MapManager::ImGuiDrawPropertysEvent()
@@ -290,11 +286,14 @@ void MapManager::SetupStage()
 
 void MapManager::PreferencesKeyDown(const Input::Controller&) 
 {
-    _focusStage.Apply([this](Stage* stage) 
-    { 
-        if (true == stage->EnableInHierarchy)
+    if (EnableInHierarchy)
+    {
+        _focusStage.Apply([this](Stage* stage) 
         {
-            _lastFocusStage = stage; 
-        }               
-    });
+            if (true == stage->EnableInHierarchy)
+            {
+                _lastFocusStage = stage;
+            }
+        });
+    }
 }
