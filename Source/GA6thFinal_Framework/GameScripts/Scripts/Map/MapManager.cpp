@@ -146,12 +146,14 @@ void MapManager::Update()
             if (stage)
             {
                 const std::string& stageName = stage->gameObject->Name;
-                char thisHeader = stageName.at(6);
-                if (curHeader == thisHeader)
-                {
-                    ImGui::SameLine();
+                if (stageName.length() > 6) {
+                    char thisHeader = stageName.at(6);
+                    if (curHeader == thisHeader)
+                    {
+                        ImGui::SameLine();
+                    }
+                    curHeader = thisHeader;
                 }
-                curHeader = thisHeader;
                 if (ImGui::Button(stageName.c_str()))
                 {
                     stage->Submit();
