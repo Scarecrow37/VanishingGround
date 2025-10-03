@@ -136,6 +136,34 @@ void MapManager::Update()
         }  
         _lastFocusStage = nullptr;
     }
+
+    Debugger()([this]{
+        // 아래는 디버그용 코드입니다.
+        ImGuiHelper::AlignedText("Map Select", ImGuiHelper::LEFT, 0.8f);
+        char curHeader = '0';
+        for (const auto& stage : _stages)
+        {
+            if (stage)
+            {
+                const std::string& stageName = stage->gameObject->Name;
+                char thisHeader = stageName.at(6);
+                if (curHeader == thisHeader)
+                {
+                    ImGui::SameLine();
+                }
+                curHeader = thisHeader;
+                if (ImGui::Button(stageName.c_str()))
+                {
+                    stage->Submit();
+                }
+            }
+        }
+        ImGui::Separator();
+        if (ImGui::Button("Preferences"))
+        {
+            OpenPreferencesWindow();
+        }
+    });
 }
 
 void MapManager::OnLoadScene(Scene& loadScene, LoadSceneMode mode)
@@ -264,6 +292,7 @@ void MapManager::SetupStage()
                 auto        stage = child->gameObject->GetComponent<Stage>();
                 if (stage)
                 {
+                    _stages.push_back(stage);
                     stage->UpdateData(key, 
                                       UmFileSystem.GetGuidFromAssetID(ReflectFields->AssetIDs[STAGE_ENABLE]),
                                       UmFileSystem.GetGuidFromAssetID(ReflectFields->AssetIDs[STAGE_DISABLE]));
@@ -286,10 +315,14 @@ void MapManager::SetupStage()
 
 void MapManager::PreferencesKeyDown(const Input::Controller&) 
 {
+    OpenPreferencesWindow();
+}
+
+void MapManager::OpenPreferencesWindow()
+{
     if (EnableInHierarchy)
     {
-        _focusStage.Apply([this](Stage* stage) 
-        {
+        _focusStage.Apply([this](Stage* stage) {
             if (true == stage->EnableInHierarchy)
             {
                 _lastFocusStage = stage;
