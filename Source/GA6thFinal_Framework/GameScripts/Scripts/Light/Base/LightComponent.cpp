@@ -7,12 +7,7 @@ LightComponent::LightComponent()
     _light(std::make_unique<Light>()),
     Lighting(*_light)
 {
-    Lighting.SetActive(&EnableInHierarchy);
-    UmGraphics.RegisterComponent("Game", _light.get());
-    if constexpr (IS_EDITOR)
-    {
-        UmGraphics.RegisterComponent("Editor", _light.get());
-    }
+
 }
 
 LightComponent::~LightComponent() 
@@ -35,6 +30,12 @@ void LightComponent::Reset()
 #ifdef _UMEDITOR
     _gizmo.SetIconTexture(SceneGizmo::DefaultIcon::LIGHT);
 #endif
+    Lighting.SetActive(&EnableInHierarchy);
+    UmGraphics.RegisterComponent("Game", _light.get());
+    if constexpr (IS_EDITOR)
+    {
+        UmGraphics.RegisterComponent("Editor", _light.get());
+    }
 }
 
 void LightComponent::OnDrawDebug() 
