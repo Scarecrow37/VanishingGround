@@ -114,7 +114,7 @@ DescriptionPanel::DescriptionPanel()
             if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
             {
                 const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
-                if (const auto extension = data->GetPath().extension(); extension == L".UmFont")
+                if (const auto extension = data->GetPath().extension(); extension == L".png")
                 {
                     _guidRef            = data->GetGuid();
                     ReflectFields->Guid = _guidRef.string();
