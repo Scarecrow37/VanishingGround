@@ -14,8 +14,8 @@ SpawnDamagePanel::SpawnDamagePanel()
                 const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
                 if (const auto extension = data->GetPath().extension(); extension == L".png")
                 {
-                    _guidRef            = data->GetGuid();
-                    ReflectFields->Guid = _guidRef.string();
+                    _Guid            = data->GetGuid();
+                    ReflectFields->Guid = _Guid.string();
                 }
             }
             ImGui::EndDragDropTarget();
@@ -87,7 +87,7 @@ void SpawnDamagePanel::DeserializedReflectEvent()
     const File::Guid guid = ReflectFields->Guid;
     if (const auto path = guid.ToPath(); !path.IsNull())
     {
-        _guidRef = path.ToGuid();
+        _Guid = path.ToGuid();
     }
 }
 
@@ -133,7 +133,7 @@ DamageElement* SpawnDamagePanel::MakeDamage() const
     damageElement.Size                              = {50, 20};
     const LONG distance                             = static_cast<LONG>((1 - RadiusRatio) * Radius);
     std::array<std::string, 1> revelations  = {"하늘베기"};
-    damageElement.Setup(distance, angle, LifeTime, point, _guidRef, FontScale, Color, "100", revelations);
+    damageElement.Setup(distance, angle, LifeTime, point, _Guid, FontScale, Color, "100", revelations);
     child->transform->SetParent(transform, true);
     return &damageElement;
 }

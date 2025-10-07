@@ -14,8 +14,8 @@ ImageElement::ImageElement()
                 const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
                 if (const auto extension = data->GetPath().extension(); extension == L".png" || extension == L".jpeg")
                 {
-                    _guidRef            = data->GetGuid();
-                    ReflectFields->Guid = _guidRef.string();
+                    _Guid            = data->GetGuid();
+                    ReflectFields->Guid = _Guid.string();
                     RequestResource();
                 }
             }
@@ -33,10 +33,10 @@ ImageElement::~ImageElement()
     }
 }
 
-void ImageElement::SetImage(const File::Guid& guidRef)
+void ImageElement::SetImage(const File::Guid& Guid)
 {
-    _guidRef = guidRef;
-    ReflectFields->Guid = _guidRef.string();
+    _Guid = Guid;
+    ReflectFields->Guid = _Guid.string();
     RequestResource();
 }
 
@@ -75,7 +75,7 @@ void ImageElement::DeserializedReflectEvent()
     const File::Guid guid = ReflectFields->Guid;
     if (const auto path = guid.ToPath(); !path.IsNull())
     {
-        _guidRef = path.ToGuid();
+        _Guid = path.ToGuid();
     }
 }
 
@@ -153,7 +153,7 @@ void ImageElement::ResetToSpriteSize()
     InvalidateMeasure();
 }
 
-void ImageElement::LoadTexture(const File::GuidRef& guid) const
+void ImageElement::LoadTexture(const File::Guid& guid) const
 {
     if (nullptr != _renderer)
     {
@@ -195,10 +195,10 @@ void ImageElement::UpdateRendererAlpha(const float alpha) const
 
 void ImageElement::RequestResource() 
 {
-    if (false == _guidRef.IsNull())
+    if (false == _Guid.IsNull())
     {
-        File::GuidRef requestedGuid = _guidRef;
-        UmSceneManager.ResourceManager.RequestTextureResource(this, _guidRef, [this, requestedGuid]() {
+        File::Guid requestedGuid = _Guid;
+        UmSceneManager.ResourceManager.RequestTextureResource(this, _Guid, [this, requestedGuid]() {
             LoadTexture(requestedGuid);
             UpdateWorldMatrix();
             _spriteOriginSize = _renderer->GetSize();

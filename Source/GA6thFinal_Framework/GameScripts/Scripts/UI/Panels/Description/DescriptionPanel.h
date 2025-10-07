@@ -34,7 +34,7 @@ public:
 public:
     REFLECT_PROPERTY(FontPath, Description, FontScale)
 
-    GETTER_ONLY(std::string, FontPath) { return _guidRef.ToPath().string(); }
+    GETTER_ONLY(std::string, FontPath) { return _Guid.ToPath().string(); }
     PROPERTY(FontPath)
 
     GETTER(std::string, Description) { return ReflectFields->Description; }
@@ -78,5 +78,5 @@ protected:
     REFLECT_FIELDS_END(DescriptionPanel)
 
 private:
-    File::GuidRef _guidRef;
+    File::Guid _Guid;
 };
