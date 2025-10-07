@@ -7,12 +7,11 @@ EditorGuiSystem::EditorGuiSystem()
 
 EditorGuiSystem::~EditorGuiSystem() 
 {
-    for (auto& window : _dockWindowList)
+    for (auto gui : _dockWindowList)
     {
-        if (nullptr != window)
+        if (gui)
         {
-            delete window;
-            window = nullptr;
+            delete gui;
         }
     }
     _dockWindowList.clear();
@@ -23,7 +22,7 @@ void EditorGuiSystem::OnTickGui()
 {
     for (auto& window : _dockWindowList)
     {
-        if (nullptr != window)
+        if (window)
         {
             window->OnTickGui();
         }
@@ -34,7 +33,7 @@ void EditorGuiSystem::OnStartGui()
 {
     for (auto& window : _dockWindowList)
     {
-        if (nullptr != window)
+        if (window)
         {
             window->OnStartGui();
         }
@@ -45,10 +44,9 @@ void EditorGuiSystem::OnDrawGui()
 {
     for (auto& window : _dockWindowList)
     {
-        if (nullptr != window)
+        if (window)
         {
-            bool isOpen = window->IsVisible();
-            if (true == isOpen)
+            if (window->IsVisible())
             {
                 window->OnDrawGui();
             }
@@ -60,47 +58,53 @@ void EditorGuiSystem::OnEndGui()
 {
     for (auto& window : _dockWindowList)
     {
-        if (nullptr != window)
+        if (window)
         {
             window->OnEndGui();
         }
     }
 }
 
-EditorDockWindow* EditorGuiSystem::RegisterDockWindow(const std::string& label, EditorDockWindow* parent)
+EditorDockWindow* EditorGuiSystem::CreateDockWindow(const char* label, const char* parentLabel)
 {
-    EditorDockWindow* instance;
-    auto itr = _dockWindowTable.find(label);
-    if (itr == _dockWindowTable.end())
+    DockID id       = ImHashStr(label);
+    bool   contains = _dockWindowTable.contains(id);
+    if (false == contains)
     {
-        instance = new EditorDockWindow;
-        instance->SetLabel(label.c_str());
-        _dockWindowTable[label] = instance;
-        if (nullptr != parent)
+        EditorDockWindow* dock = new EditorDockWindow();
+        dock->SetLabel(label);
+        _dockWindowTable[id] = dock;
+        if (parentLabel)
         {
-            parent->RegisterChildDockWindow(instance);
+            if (EditorDockWindow* parent = GetDockWindow(parentLabel))
+            {
+                parent->RegisterChildDockWindow(dock);
+            }
         }
         else
         {
-            _dockWindowList.push_back(instance);
+            _dockWindowList.push_back(dock);
         }
+        return dock;
+    }
+    return nullptr;
+}
+
+EditorDockWindow* EditorGuiSystem::GetDockWindow(const char* label) const
+{
+    DockID id = ImHashStr(label);
+    auto   it = _dockWindowTable.find(id);
+    if (_dockWindowTable.end() == it)
+    {
+        return nullptr;
     }
     else
     {
-        instance = itr->second;
+        return it->second;
     }
-    return instance;
 }
 
-EditorDockWindow* EditorGuiSystem::GetDockWindow(const std::string& label) const
-{
-    auto itr = _dockWindowTable.find(label);
-    if (_dockWindowTable.end() == itr)
-        return nullptr;
-    return itr->second;
-}
-
-EditorDockWindow* EditorGuiSystem::operator[](const std::string& label) const
+EditorDockWindow* EditorGuiSystem::operator[](const char* label) const
 {
     return GetDockWindow(label);
 }
