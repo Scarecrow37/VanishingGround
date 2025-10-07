@@ -10,6 +10,9 @@ public:
     void                   SetFactor(const Vector3 factor) { _factor = factor; }
     std::function<float()> _randomVal;
 
+    virtual class MeshSurfaceLocator*       AsMeshSurfaceLocator() { return nullptr; }
+    virtual const class MeshSurfaceLocator* AsMeshSurfaceLocator() const { return nullptr; }
+
 protected:
     Vector3                               _factor = {100, 100, 100};
     std::random_device                    _randomizer;
@@ -53,6 +56,9 @@ public:
     void                  SetModelPath(std::wstring_view filepath);
     void                  LoadVerticesFromModel(std::shared_ptr<class Model> model);
     std::filesystem::path GetModelPath() const { return _targetModelPath; }
+
+    MeshSurfaceLocator*       AsMeshSurfaceLocator() override { return this; }
+    const MeshSurfaceLocator* AsMeshSurfaceLocator() const override { return this; }
 
 private:
     std::wstring                 _targetModelPath = L"";

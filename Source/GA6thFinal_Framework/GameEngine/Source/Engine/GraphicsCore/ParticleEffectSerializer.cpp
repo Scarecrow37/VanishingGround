@@ -208,7 +208,7 @@ void ParticleEffectSerializer::Serialize_1_0(std::ofstream& os, ParticleEffect* 
             os.write(reinterpret_cast<const char*>(&temp), sizeof(temp));
             if (LocationShape::MESH_SURFACE == emitter->_locationType)
             {
-                auto       meshlocator = static_cast<MeshSurfaceLocator*>(emitter->_emitLocator);
+                auto       meshlocator = emitter->_emitLocator->AsMeshSurfaceLocator();
                 File::Path modelPath   = meshlocator->GetModelPath();
                 SIZE_T     nameLen     = modelPath.string().size();
                 os.write(reinterpret_cast<const char*>(&nameLen), sizeof(nameLen));
@@ -363,15 +363,17 @@ void ParticleEffectSerializer::Serialize_1_0(std::ofstream& os, ParticleEffect* 
 
         if (ParticleType::SPRITE == emitter->_particleType)
         {
-            // frame info
-            Vector4 frameinfo = static_cast<SpriteModule*>(emitter->_particleRenderModule)->GetInitialFrameInfo();
-            os.write(reinterpret_cast<const char*>(&frameinfo), sizeof(frameinfo));
+            if (auto spriteModule = emitter->_particleRenderModule->AsSprite())
+            {
+                Vector4 frameinfo = spriteModule->GetInitialFrameInfo();
+                os.write(reinterpret_cast<const char*>(&frameinfo), sizeof(frameinfo));
+            }
         }
         else if (ParticleType::RIBBON == emitter->_particleType)
         {
-            // frame info
-            Vector4 startNormal = static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetStartNormal();
-            Vector4 endNormal   = static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetEndNormal();
+            auto    ribbonModule = emitter->_particleRenderModule->AsRibbon();
+            Vector4 startNormal  = ribbonModule->GetStartNormal();
+            Vector4 endNormal    = ribbonModule->GetEndNormal();
             os.write(reinterpret_cast<const char*>(&startNormal), sizeof(startNormal));
             os.write(reinterpret_cast<const char*>(&endNormal), sizeof(endNormal));
         }
@@ -503,7 +505,7 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_0(EffectID id, const std
         {
             auto emitter = UmParticleManager->RegisterEmitter(
                 newEffect, static_cast<SIZE_T>(maxParticles), emissionRate, emitterLifetime, locationType,
-                locatorFactor, particleType, std::wstring_view(modelTexturePath));
+                locatorFactor, particleType, modelTexturePath);
             if (isEditor)
             {
                 File::Path absolutePath = emitter->_particleRenderModule->GetModelAndTexturePath();
@@ -511,9 +513,9 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_0(EffectID id, const std
                 UmGraphics.LoadTextureResource(std::wstring_view(absolutePath.wstring()), emitter);
                 if (LocationShape::MESH_SURFACE == emitter->_locationType)
                 {
-                    MeshSurfaceLocator* locator      = static_cast<MeshSurfaceLocator*>(emitter->_emitLocator);
-                    File::Path          absolutePath = locator->GetModelPath();
-                    absolutePath                     = std::filesystem::absolute(absolutePath).generic_string();
+                    auto       meshLocator  = emitter->_emitLocator->AsMeshSurfaceLocator();
+                    File::Path absolutePath = meshLocator->GetModelPath();
+                    absolutePath            = std::filesystem::absolute(absolutePath).generic_string();
                     UmGraphics.LoadModelResource(std::wstring_view(absolutePath.wstring()), emitter);
                 }
             }
@@ -541,9 +543,11 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_0(EffectID id, const std
             emitter->SetVortexForce(vortexForce);
             if (particleType == ParticleType::RIBBON)
             {
-                RibbonModule* ribbon = static_cast<RibbonModule*>(emitter->_particleRenderModule);
-                ribbon->SetStartNormal(startnormal);
-                ribbon->SetEndNormal(endnormal);
+                if (auto ribbonModule = emitter->_particleRenderModule->AsRibbon())
+                {
+                    ribbonModule->SetStartNormal(startnormal);
+                    ribbonModule->SetEndNormal(endnormal);
+                }
             }
         }
     }
@@ -725,7 +729,7 @@ void ParticleEffectSerializer::Serialize_1_1(std::ofstream& os, ParticleEffect* 
             os.write(reinterpret_cast<const char*>(&temp), sizeof(temp));
             if (LocationShape::MESH_SURFACE == emitter->_locationType)
             {
-                auto       meshlocator = static_cast<MeshSurfaceLocator*>(emitter->_emitLocator);
+                auto       meshlocator = emitter->_emitLocator->AsMeshSurfaceLocator();
                 File::Path modelPath   = meshlocator->GetModelPath();
                 SIZE_T     nameLen     = modelPath.string().size();
                 os.write(reinterpret_cast<const char*>(&nameLen), sizeof(nameLen));
@@ -880,19 +884,23 @@ void ParticleEffectSerializer::Serialize_1_1(std::ofstream& os, ParticleEffect* 
 
         if (ParticleType::SPRITE == emitter->_particleType)
         {
-            // frame info
-            Vector4 frameinfo = static_cast<SpriteModule*>(emitter->_particleRenderModule)->GetInitialFrameInfo();
-            os.write(reinterpret_cast<const char*>(&frameinfo), sizeof(frameinfo));
+            if (auto spriteModule = emitter->_particleRenderModule->AsSprite())
+            {
+                Vector4 frameinfo = spriteModule->GetInitialFrameInfo();
+                os.write(reinterpret_cast<const char*>(&frameinfo), sizeof(frameinfo));
+            }
         }
         else if (ParticleType::RIBBON == emitter->_particleType)
         {
-            // frame info
-            Vector4 startNormal  = static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetStartNormal();
-            Vector4 endNormal    = static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetEndNormal();
-            Vector4 ribbonVector = static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetRibbonVector();
-            os.write(reinterpret_cast<const char*>(&startNormal), sizeof(startNormal));
-            os.write(reinterpret_cast<const char*>(&endNormal), sizeof(endNormal));
-            os.write(reinterpret_cast<const char*>(&ribbonVector), sizeof(ribbonVector));
+            if (auto ribbonModule = emitter->_particleRenderModule->AsRibbon())
+            {
+                Vector4 startNormal  = ribbonModule->GetStartNormal();
+                Vector4 endNormal    = ribbonModule->GetEndNormal();
+                Vector4 ribbonVector = ribbonModule->GetRibbonVector();
+                os.write(reinterpret_cast<const char*>(&startNormal), sizeof(startNormal));
+                os.write(reinterpret_cast<const char*>(&endNormal), sizeof(endNormal));
+                os.write(reinterpret_cast<const char*>(&ribbonVector), sizeof(ribbonVector));
+            }
         }
     }
     os.close();
@@ -1024,16 +1032,15 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_1(EffectID id, const std
         {
             auto emitter = UmParticleManager->RegisterEmitter(
                 newEffect, static_cast<SIZE_T>(maxParticles), emissionRate, emitterLifetime, locationType,
-                locatorFactor, particleType, std::wstring_view(modelTexturePath));
+                                                              locatorFactor, particleType, modelTexturePath);
             {
                 File::Path absolutePath = emitter->_particleRenderModule->GetModelAndTexturePath();
                 absolutePath            = std::filesystem::absolute(absolutePath).generic_string();
                 UmGraphics.LoadTextureResource(std::wstring_view(absolutePath.wstring()), emitter);
                 if (LocationShape::MESH_SURFACE == emitter->_locationType)
                 {
-                    MeshSurfaceLocator* locator      = static_cast<MeshSurfaceLocator*>(emitter->_emitLocator);
-                    File::Path          absolutePath = modelpath;
-                    absolutePath                     = std::filesystem::absolute(absolutePath).generic_string();
+                    File::Path absolutePath = modelpath;
+                    absolutePath            = std::filesystem::absolute(absolutePath).generic_string();
                     UmGraphics.LoadModelResource(std::wstring_view(absolutePath.wstring()), emitter);
                 }
             }
@@ -1061,10 +1068,12 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_1(EffectID id, const std
             emitter->SetVortexForce(vortexForce);
             if (particleType == ParticleType::RIBBON)
             {
-                RibbonModule* ribbon = static_cast<RibbonModule*>(emitter->_particleRenderModule);
-                ribbon->SetStartNormal(startnormal);
-                ribbon->SetEndNormal(endnormal);
-                ribbon->SetRibbonVector(ribbonvector);
+                if (auto ribbonModule = emitter->_particleRenderModule->AsRibbon())
+                {
+                    ribbonModule->SetStartNormal(startnormal);
+                    ribbonModule->SetEndNormal(endnormal);
+                    ribbonModule->SetRibbonVector(ribbonvector);
+                }
             }
         }
     }
@@ -1248,7 +1257,7 @@ void ParticleEffectSerializer::Serialize_1_2(std::ofstream& os, ParticleEffect* 
             os.write(reinterpret_cast<const char*>(&temp), sizeof(temp));
             if (LocationShape::MESH_SURFACE == emitter->_locationType)
             {
-                auto       meshlocator = static_cast<MeshSurfaceLocator*>(emitter->_emitLocator);
+                auto       meshlocator = emitter->_emitLocator->AsMeshSurfaceLocator();
                 File::Path path        = meshlocator->GetModelPath();
                 path                   = std::filesystem::absolute(path).generic_string();
                 File::Guid  guid       = path.ToGuid();
@@ -1403,19 +1412,23 @@ void ParticleEffectSerializer::Serialize_1_2(std::ofstream& os, ParticleEffect* 
 
         if (ParticleType::SPRITE == emitter->_particleType)
         {
-            // frame info
-            Vector4 frameinfo = static_cast<SpriteModule*>(emitter->_particleRenderModule)->GetInitialFrameInfo();
-            os.write(reinterpret_cast<const char*>(&frameinfo), sizeof(frameinfo));
+            if (auto spriteModule = emitter->_particleRenderModule->AsSprite())
+            {
+                Vector4 frameinfo = spriteModule->GetInitialFrameInfo();
+                os.write(reinterpret_cast<const char*>(&frameinfo), sizeof(frameinfo));
+            }
         }
         else if (ParticleType::RIBBON == emitter->_particleType)
         {
-            // frame info
-            Vector4 startNormal  = static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetStartNormal();
-            Vector4 endNormal    = static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetEndNormal();
-            Vector4 ribbonVector = static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetRibbonVector();
-            os.write(reinterpret_cast<const char*>(&startNormal), sizeof(startNormal));
-            os.write(reinterpret_cast<const char*>(&endNormal), sizeof(endNormal));
-            os.write(reinterpret_cast<const char*>(&ribbonVector), sizeof(ribbonVector));
+            if (auto ribbonModule = emitter->_particleRenderModule->AsRibbon())
+            {
+                Vector4 startNormal  = ribbonModule->GetStartNormal();
+                Vector4 endNormal    = ribbonModule->GetEndNormal();
+                Vector4 ribbonVector = ribbonModule->GetRibbonVector();
+                os.write(reinterpret_cast<const char*>(&startNormal), sizeof(startNormal));
+                os.write(reinterpret_cast<const char*>(&endNormal), sizeof(endNormal));
+                os.write(reinterpret_cast<const char*>(&ribbonVector), sizeof(ribbonVector));
+            }
         }
     }
     os.close();
@@ -1552,7 +1565,6 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_2(EffectID id, const std
                 UmGraphics.LoadTextureResource(std::wstring_view(absolutePath.wstring()), emitter);
                 if (LocationShape::MESH_SURFACE == emitter->_locationType)
                 {
-                    MeshSurfaceLocator* locator      = static_cast<MeshSurfaceLocator*>(emitter->_emitLocator);
                     File::Guid          guid         = modelpath;
                     File::Path          absolutePath = guid.ToPath();
                     absolutePath                     = std::filesystem::absolute(absolutePath).generic_string();
@@ -1583,10 +1595,12 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_2(EffectID id, const std
             emitter->SetVortexForce(vortexForce);
             if (particleType == ParticleType::RIBBON)
             {
-                RibbonModule* ribbon = static_cast<RibbonModule*>(emitter->_particleRenderModule);
-                ribbon->SetStartNormal(startnormal);
-                ribbon->SetEndNormal(endnormal);
-                ribbon->SetRibbonVector(ribbonvector);
+                if (auto ribbonModule = emitter->_particleRenderModule->AsRibbon())
+                {
+                    ribbonModule->SetStartNormal(startnormal);
+                    ribbonModule->SetEndNormal(endnormal);
+                    ribbonModule->SetRibbonVector(ribbonvector);
+                }
             }
         }
     }
@@ -1769,7 +1783,7 @@ void ParticleEffectSerializer::Serialize_1_3(std::ofstream& os, ParticleEffect* 
             os.write(reinterpret_cast<const char*>(&temp), sizeof(temp));
             if (LocationShape::MESH_SURFACE == emitter->_locationType)
             {
-                auto       meshlocator = static_cast<MeshSurfaceLocator*>(emitter->_emitLocator);
+                auto       meshlocator = emitter->_emitLocator->AsMeshSurfaceLocator();
                 File::Path path        = meshlocator->GetModelPath();
                 path                   = std::filesystem::absolute(path).generic_string();
                 File::Guid  guid       = path.ToGuid();
@@ -1936,19 +1950,23 @@ void ParticleEffectSerializer::Serialize_1_3(std::ofstream& os, ParticleEffect* 
 
         if (ParticleType::SPRITE == emitter->_particleType)
         {
-            // frame info
-            Vector4 frameinfo = static_cast<SpriteModule*>(emitter->_particleRenderModule)->GetInitialFrameInfo();
-            os.write(reinterpret_cast<const char*>(&frameinfo), sizeof(frameinfo));
+            if (auto spriteModule = emitter->_particleRenderModule->AsSprite())
+            {
+                Vector4 frameinfo = spriteModule->GetInitialFrameInfo();
+                os.write(reinterpret_cast<const char*>(&frameinfo), sizeof(frameinfo));
+            }
         }
         else if (ParticleType::RIBBON == emitter->_particleType)
         {
-            // frame info
-            Vector4 startNormal  = static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetStartNormal();
-            Vector4 endNormal    = static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetEndNormal();
-            Vector4 ribbonVector = static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetRibbonVector();
-            os.write(reinterpret_cast<const char*>(&startNormal), sizeof(startNormal));
-            os.write(reinterpret_cast<const char*>(&endNormal), sizeof(endNormal));
-            os.write(reinterpret_cast<const char*>(&ribbonVector), sizeof(ribbonVector));
+            if (auto ribbonModule = emitter->_particleRenderModule->AsRibbon())
+            {
+                Vector4 startNormal  = ribbonModule->GetStartNormal();
+                Vector4 endNormal    = ribbonModule->GetEndNormal();
+                Vector4 ribbonVector = ribbonModule->GetRibbonVector();
+                os.write(reinterpret_cast<const char*>(&startNormal), sizeof(startNormal));
+                os.write(reinterpret_cast<const char*>(&endNormal), sizeof(endNormal));
+                os.write(reinterpret_cast<const char*>(&ribbonVector), sizeof(ribbonVector));
+            }
         }
     }
     os.close();
@@ -2092,10 +2110,9 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_3(EffectID id, const std
                 UmGraphics.LoadTextureResource(std::wstring_view(absolutePath.wstring()), emitter);
                 if (LocationShape::MESH_SURFACE == emitter->_locationType)
                 {
-                    MeshSurfaceLocator* locator      = static_cast<MeshSurfaceLocator*>(emitter->_emitLocator);
-                    File::Guid          guid         = modelpath;
-                    File::Path          absolutePath = guid.ToPath();
-                    absolutePath                     = std::filesystem::absolute(absolutePath).generic_string();
+                    File::Guid guid           = modelpath;
+                    File::Path   absolutePath = guid.ToPath();
+                    absolutePath              = std::filesystem::absolute(absolutePath).generic_string();
                     UmGraphics.LoadModelResource(std::wstring_view(absolutePath.wstring()), emitter);
                 }
             }
@@ -2125,10 +2142,12 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_3(EffectID id, const std
             emitter->SetScaleByVelocityFlag(scalevelFlag);
             if (particleType == ParticleType::RIBBON)
             {
-                RibbonModule* ribbon = static_cast<RibbonModule*>(emitter->_particleRenderModule);
-                ribbon->SetStartNormal(startnormal);
-                ribbon->SetEndNormal(endnormal);
-                ribbon->SetRibbonVector(ribbonvector);
+                if (auto ribbonModule = emitter->_particleRenderModule->AsRibbon())
+                {
+                    ribbonModule->SetStartNormal(startnormal);
+                    ribbonModule->SetEndNormal(endnormal);
+                    ribbonModule->SetRibbonVector(ribbonvector);
+                }
             }
         }
     }
@@ -2337,7 +2356,7 @@ void ParticleEffectSerializer::Serialize_1_4(std::ofstream& os, ParticleEffect* 
             os.write(reinterpret_cast<const char*>(&temp), sizeof(temp));
             if (LocationShape::MESH_SURFACE == emitter->_locationType)
             {
-                auto       meshlocator = static_cast<MeshSurfaceLocator*>(emitter->_emitLocator);
+                auto       meshlocator = emitter->_emitLocator->AsMeshSurfaceLocator();
                 File::Path path        = meshlocator->GetModelPath();
                 path                   = std::filesystem::absolute(path).generic_string();
                 File::Guid  guid       = path.ToGuid();
@@ -2507,19 +2526,23 @@ void ParticleEffectSerializer::Serialize_1_4(std::ofstream& os, ParticleEffect* 
 
         if (ParticleType::SPRITE == emitter->_particleType)
         {
-            // frame info
-            Vector4 frameinfo = static_cast<SpriteModule*>(emitter->_particleRenderModule)->GetInitialFrameInfo();
-            os.write(reinterpret_cast<const char*>(&frameinfo), sizeof(frameinfo));
+            if (auto spriteModule = emitter->_particleRenderModule->AsSprite())
+            {
+                Vector4 frameinfo = spriteModule->GetInitialFrameInfo();
+                os.write(reinterpret_cast<const char*>(&frameinfo), sizeof(frameinfo));
+            }
         }
         else if (ParticleType::RIBBON == emitter->_particleType)
         {
-            // frame info
-            Vector4 startNormal  = static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetStartNormal();
-            Vector4 endNormal    = static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetEndNormal();
-            Vector4 ribbonVector = static_cast<RibbonModule*>(emitter->_particleRenderModule)->GetRibbonVector();
-            os.write(reinterpret_cast<const char*>(&startNormal), sizeof(startNormal));
-            os.write(reinterpret_cast<const char*>(&endNormal), sizeof(endNormal));
-            os.write(reinterpret_cast<const char*>(&ribbonVector), sizeof(ribbonVector));
+            if (auto ribbonModule = emitter->_particleRenderModule->AsRibbon())
+            {
+                Vector4 startNormal  = ribbonModule->GetStartNormal();
+                Vector4 endNormal    = ribbonModule->GetEndNormal();
+                Vector4 ribbonVector = ribbonModule->GetRibbonVector();
+                os.write(reinterpret_cast<const char*>(&startNormal), sizeof(startNormal));
+                os.write(reinterpret_cast<const char*>(&endNormal), sizeof(endNormal));
+                os.write(reinterpret_cast<const char*>(&ribbonVector), sizeof(ribbonVector));
+            }
         }
     }
     os.close();
@@ -2674,12 +2697,11 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_4(EffectID id, const std
             
             if (true == uselight)
             {
-                emitter->InitializeLight(sceneName);
                 emitter->SetUseLight(uselight);
                 emitter->SetLightIntensity(lightintensity);
                 emitter->SetLightRange(lightrange);
                 emitter->SetLightColor(lightcolor);
-                emitter->SetLightFlag(uselight);
+                emitter->InitializeLight(sceneName);
             }
             {
                 File::Path absolutePath = emitter->_particleRenderModule->GetModelAndTexturePath();
@@ -2687,7 +2709,6 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_4(EffectID id, const std
                 UmGraphics.LoadTextureResource(std::wstring_view(absolutePath.wstring()), emitter);
                 if (LocationShape::MESH_SURFACE == emitter->_locationType)
                 {
-                    MeshSurfaceLocator* locator      = static_cast<MeshSurfaceLocator*>(emitter->_emitLocator);
                     File::Guid          guid         = modelpath;
                     File::Path          absolutePath = guid.ToPath();
                     absolutePath                     = std::filesystem::absolute(absolutePath).generic_string();
@@ -2721,10 +2742,12 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_4(EffectID id, const std
             emitter->SetScaleByVelocityFlag(scalevelFlag);
             if (particleType == ParticleType::RIBBON)
             {
-                RibbonModule* ribbon = static_cast<RibbonModule*>(emitter->_particleRenderModule);
-                ribbon->SetStartNormal(startnormal);
-                ribbon->SetEndNormal(endnormal);
-                ribbon->SetRibbonVector(ribbonvector);
+                if (auto ribbonModule = emitter->_particleRenderModule->AsRibbon())
+                {
+                    ribbonModule->SetStartNormal(startnormal);
+                    ribbonModule->SetEndNormal(endnormal);
+                    ribbonModule->SetRibbonVector(ribbonvector);
+                }
             }
         }
     }

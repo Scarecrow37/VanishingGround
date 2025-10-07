@@ -1,11 +1,9 @@
 ﻿#pragma once
 #define MAX_PARTICLE 1000000
-// 초기값이 있는 멤버 변수 선언 매크로
 #define PROP_DECL_INIT(type, varName, initValue)                                                                       \
 protected:                                                                                                             \
     type varName = initValue;
 
-// 기존 getter/setter 매크로는 그대로 사용
 #define PROP_GET(type, varName, FuncName)                                                                              \
 public:                                                                                                                \
     type Get##FuncName() const                                                                                         \
@@ -34,7 +32,6 @@ public:                                                                         
         varName = value;                                                                                               \
     }
 
-// 초기값이 있는 property 전체 매크로
 #define UMPARTICLE_PROPERTY(type, varName, FuncName, initValue)                                                        \
     PROP_DECL_INIT(type, varName, initValue)                                                                           \
     PROP_GET(type, varName, FuncName)                                                                                  \
@@ -115,9 +112,6 @@ enum ParticleMiscFlag
     BLUR,
 };
 
-
-
-
 enum class VelocityScaleType
 {
     LINEAR,
@@ -132,12 +126,11 @@ struct RibbonIndex
     float ratio = 0;
 };
 
-
 struct ParticleUpdateResource
 {
     std::string _name;
 
-    std::vector<class ParticleEffect*>     _sceneEffects;
+    std::vector<std::unique_ptr<class ParticleEffect>> _sceneEffects;
 
     std::vector<class Particle>           _totalParticles;
     std::vector<EmitterInfo>              _emitterMatrix;
@@ -171,10 +164,9 @@ struct ParticleRenderResource
 
 struct ParticleSceneResource
 {
-    std::string                       _name;
-    ComPtr<ID3D12GraphicsCommandList> _commandList;
-    ComPtr<ID3D12CommandAllocator>    _commandAllocator;
-    ParticleUpdateResource*           _updateResource;
-    ParticleRenderResource*           _renderResource;
+    std::string                             _name;
+    ComPtr<ID3D12GraphicsCommandList>       _commandList;
+    ComPtr<ID3D12CommandAllocator>          _commandAllocator;
+    std::shared_ptr<ParticleUpdateResource> _updateResource;
+    std::unique_ptr<ParticleRenderResource> _renderResource;
 };
-

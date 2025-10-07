@@ -28,7 +28,8 @@ class ParticleEmitter
     UMPARTICLE_PROPERTY(bool, _useWorldSpace, UseWorldSpace, true);
     UMPARTICLE_PROPERTY_REF(Matrix, _effectWorldMatrix, EffectWorldMatrix, Matrix::Identity);
     UMPARTICLE_PROPERTY_REF(Vector3, _emitterPosition, EmitterPosition, Vector3(0, 0, 0));
-    UMPARTICLE_PROPERTY_REF(Vector3, _particleStartDistributionOffset, ParticleStartDistributionOffset, Vector3(0, 0, 0));
+    UMPARTICLE_PROPERTY_REF(Vector3, _particleStartDistributionOffset, ParticleStartDistributionOffset,
+                            Vector3(0, 0, 0));
     UMPARTICLE_PROPERTY_REF(Vector3, _particleEndDistributionOffset, ParticleEndDistributionOffset, Vector3(0, 0, 0));
     UMPARTICLE_PROPERTY_REF(Vector3, _particleAxis, ParticleAxis, Vector3(0, 0, 0));
     UMPARTICLE_PROPERTY(bool, _scaleByVelocityFlag, ScaleByVelocityFlag, false);
@@ -46,38 +47,32 @@ class ParticleEmitter
     UMPARTICLE_PROPERTY_REF(Vector4, _dragPoint, DragPoint, Vector4(0, 0, 0, 0));
     UMPARTICLE_PROPERTY_REF(Vector4, _dragForce, DragForce, Vector4(0, 0, 0, 0));
     UMPARTICLE_PROPERTY_REF(Vector4, _vortexForce, VortexForce, Vector4(0.00001f, 0.f, 0.f, 0));
-    
+
 public:
     ParticleEmitter();
-    virtual ~ParticleEmitter();
-    ParticleEmitter(const ParticleEmitter& other);
+    ~ParticleEmitter();
 
-    /// <summary>
-    /// particle rendering type
-    /// determine which type to render(ex) sprite, mesh, ribbon)
-    /// </summary>
-    ParticleType          _particleType;
-    ParticleRenderModule* _particleRenderModule;
+    ParticleEmitter(const ParticleEmitter&)                = delete;
+    ParticleEmitter& operator=(const ParticleEmitter&)     = delete;
+    ParticleEmitter(ParticleEmitter&&) noexcept            = default;
+    ParticleEmitter& operator=(ParticleEmitter&&) noexcept = default;
 
-    /// <summary>
-    /// location shape type
-    /// determine which shape to emit particle in
-    /// </summary>
-    LocationShape _locationType;
-    EmitLocator*  _emitLocator;
-    void          SetLocatorFactor(const Vector3& factor);
-
-    /// <summary>
-    /// velocity scale type
-    /// determine which type to scale velocity(ex) linear, in cone, from point)
-    /// </summary>
+    /// 렌더 타입 / 로케이터 타입 (값 타입)
+    ParticleType      _particleType = ParticleType::SPRITE;
+    LocationShape     _locationType = LocationShape::SPHERE;
     VelocityScaleType _velocityType = VelocityScaleType::LINEAR;
-    void              SetVelocityType(VelocityScaleType velType);
+
+    std::unique_ptr<ParticleRenderModule> _particleRenderModule;
+    std::unique_ptr<EmitLocator>          _emitLocator;
+    std::unique_ptr<Light>                _particlePointLight;
+
+    void SetLocatorFactor(const Vector3& factor);
+    void SetVelocityType(VelocityScaleType velType);
 
 public:
     void Initialize(SIZE_T maxParticles = 100000, float emissionRate = 500.f, float emitterLifetime = 5.f,
                     LocationShape locatorShape = LocationShape::SPHERE, Vector3 locationFactor = Vector3(1, 1, 1),
-                    ParticleType particleType = ParticleType::SPRITE, std::wstring_view meshspritePath = L"");
+                    ParticleType particleType = ParticleType::SPRITE, std::wstring meshspritePath = L"");
     void Update(float deltaTime);
     void UpdateParticleLifeCycle(float deltaTime);
     void FlushTextureResource();
@@ -91,35 +86,34 @@ public:
     const Vector3&                      GetEmitterRotationE() const { return _emitterRotationE; }
     void                                SetEmitterRotationE(const Vector3& value);
 
-    void                                InitializeLight(std::string_view scenenName);
-    void                                SetLightFlag(bool value);
+    void InitializeLight(std::string_view scenenName);
+    void InitializeEditorLight();
 
 protected:
-    void                         InitializeLocator(LocationShape locatorShape, Vector3 factor);
-    void                         AwakeParticle(UINT index);
-    void                         ScaleVelocity(Vector3 pos);
-    void                         ScaleVelFromPoint(Vector3 pos);
-    void                         ScaleVelInCone(Vector3 pos);
+    void InitializeLocator(LocationShape locatorShape, Vector3 factor);
+    void AwakeParticle(UINT index);
+    void ScaleVelocity(Vector3 pos);
+    void ScaleVelFromPoint(Vector3 pos);
+    void ScaleVelInCone(Vector3 pos);
 
-    std::vector<class Particle>  _particlePool;
-    SIZE_T                       _activeParticleCount     = 0;
-    Matrix                       _translationMatrix       = Matrix::Identity;
-    Matrix                       _rotationMatrix          = Matrix::Identity;
-    Matrix                       _worldMatrix             = Matrix::Identity;
-    Quaternion                   _emitterRotationQ        = Quaternion::Identity;
-    Vector3                      _emitterRotationE        = Vector3(0, 0, 0);
-    Vector3                      _finalPos                = Vector3(0, 0, 0);
+    std::vector<class Particle> _particlePool;
+    SIZE_T                      _activeParticleCount = 0;
+    Matrix                      _translationMatrix   = Matrix::Identity;
+    Matrix                      _rotationMatrix      = Matrix::Identity;
+    Matrix                      _worldMatrix         = Matrix::Identity;
+    Quaternion                  _emitterRotationQ    = Quaternion::Identity;
+    Vector3                     _emitterRotationE    = Vector3(0, 0, 0);
+    Vector3                     _finalPos            = Vector3(0, 0, 0);
 
-    bool                         _delayFlag               = false;
-    float                        _delayTimer              = 0.f;
-    bool                         _isSpawnBursted          = false;
-    float                        _emissionThreshold       = 0;
-    
-    class Light*                 _light                   = nullptr;
-    float                        _lightCurrentIntensity   = 0;
-    float                        _lightCurrentRange       = 0;
-    Vector3                      _lightAttenuation        = Vector3(0, 0, 0);
-    float                        _endLightIntensity       = 0;
-    
-    std::function<Vector3(void)> _velocityScalingFunciton = nullptr;
+    bool  _delayFlag         = false;
+    float _delayTimer        = 0.f;
+    bool  _isSpawnBursted    = false;
+    float _emissionThreshold = 0;
+
+    float   _lightCurrentIntensity = 0;
+    float   _lightCurrentRange     = 0;
+    Vector3 _lightAttenuation      = Vector3(0, 0, 0);
+    float   _endLightIntensity     = 0;
+
+    std::function<Vector3(void)> _velocityScalingFunciton = nullptr; // 기존 이름 유지
 };

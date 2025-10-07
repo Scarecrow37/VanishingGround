@@ -298,7 +298,7 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
         {
             UmGraphics.LoadModelResource(std::wstring_view(currentmeshsurfacepath.wstring()), emitter);
         }
-        emitter->InitializeLight("ParticleEditor");
+        emitter->InitializeEditorLight();
 
     }
     bool isSomeoneChanged   = false;
@@ -308,7 +308,7 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
         ImGuiTreeNodeFlags parent_flags = ImGuiTreeNodeFlags_OpenOnArrow;
         bool               parent_open  = ImGui::TreeNodeEx(_curEffect->GetEffectName().c_str(), parent_flags);
 
-        _curEffect->_position = &_defaultpos;
+        _curEffect->SetPosition(&_defaultpos);
         bool isHovered      = ImGui::IsItemHovered();
         bool isMouseClicked = ImGui::IsMouseClicked(0);
         if (true == isHovered && true == isMouseClicked)
@@ -337,7 +337,6 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
                     }
                     if (emitter == _curEmitter)
                     {
-
                         ImGui::SameLine();
                         ImVec2 buttonSize(120.0f, 25.0f);                // 버튼 크기 지정
                         float  avail = ImGui::GetContentRegionAvail().x; // 현재 남은 가로 공간

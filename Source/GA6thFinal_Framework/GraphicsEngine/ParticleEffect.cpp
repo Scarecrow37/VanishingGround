@@ -3,112 +3,128 @@
 #include "ParticleEmitter.h"
 #include "ParticleEffect.h"
 
- ParticleEffect::ParticleEffect() = default;
-ParticleEffect::~ParticleEffect()
-{
-    for (auto emitter : _particleEmitters)
-    {
-        if (emitter)
-            delete emitter;
-    }
-    _particleEmitters.clear();
-}
+ParticleEffect::ParticleEffect()  = default;
+ParticleEffect::~ParticleEffect() = default; // unique_ptr가 정리함
+
 ParticleEmitter* ParticleEffect::AddEmitter(SIZE_T maxParticles, float emissionRate, float emitterLifetime,
                                             LocationShape locatorShape, Vector3 locationFactor,
-                                            ParticleType particleType, std::wstring_view meshspritePath)
+                                            ParticleType particleType, std::wstring meshspritePath) // view -> wstring
 {
-    auto newEmitter = new ParticleEmitter();
-    newEmitter->Initialize(maxParticles, emissionRate, emitterLifetime, locatorShape, locationFactor, particleType,
-                           meshspritePath);
+    // 힙 객체를 소유하도록 unique_ptr로 생성
+    auto&            uptr    = _particleEmitters.emplace_back(std::make_unique<ParticleEmitter>());
+    ParticleEmitter* emitter = uptr.get(); // 외부에는 비소유 포인터 전달
+
+    // 주의: Initialize 내부에서 meshspritePath를 view로만 보관하면 안 됨(반드시 복사 저장)
+    emitter->Initialize(maxParticles, emissionRate, emitterLifetime, locatorShape, locationFactor, particleType,
+                        meshspritePath);
+
     std::string name = "Emitter " + std::to_string(_namingIndex) + "-" + std::to_string(_emitterNamingIndex++);
-    newEmitter->SetEmitterName(name);
-    _particleEmitters.push_back(newEmitter);
-    return newEmitter;
+    emitter->SetEmitterName(name);
+
+    return emitter; 
 }
+
 void ParticleEffect::Update(float deltaTime)
 {
     _age += deltaTime;
     if (_age >= _lifetime)
     {
         _activeFlag = false;
-        for (auto emitter : _particleEmitters)
+        for (auto& uptr : _particleEmitters)
         {
-            emitter->SetActiveFlag(false);
+            if (uptr)
+                uptr->SetActiveFlag(false);
         }
         _playFlag = false;
-        if (true == _isPlaying)
+        if (_isPlaying)
         {
             _isPlaying = false;
             _age       = 0;
         }
         return;
     }
+
+    _translationMatrix = (_position != nullptr) ? Matrix::CreateTranslation(*_position) : Matrix::Identity;
+    _rotationMatrix    = (_rotation != nullptr)
+                             ? Matrix::CreateFromQuaternion(Quaternion::CreateFromYawPitchRoll(*_rotation))
+                             : Matrix::Identity;
+    _scaleMatrix       = (_scale != nullptr) ? Matrix::CreateScale(*_scale) : Matrix::Identity;
+
+    if (_parentWorldMatrix != nullptr)
     {
-        _translationMatrix = nullptr != _position ? Matrix::CreateTranslation(*_position) : Matrix::Identity;
-        _rotationMatrix    = nullptr != _rotation
-                                 ? Matrix::CreateFromQuaternion(Quaternion::CreateFromYawPitchRoll(*_rotation))
-                                 : Matrix::Identity;
-        _scaleMatrix       = nullptr != _scale ? Matrix::CreateScale(*_scale) : Matrix::Identity;
-    }
-    if (nullptr != _parentWorldMatrix)
-    {
-        if (nullptr != _followBoneFlag && false == *_followBoneFlag)
+        if (_followBoneFlag != nullptr && (*_followBoneFlag == false))
         {
             _worldMatrix = _scaleMatrix * _rotationMatrix * _translationMatrix;
-            if (nullptr != _parentWorldMatrix)
-            {
-                _worldMatrix *= *_parentWorldMatrix;
-            }
+            _worldMatrix *= *_parentWorldMatrix;
         }
-        else if (nullptr != _boneWorldMatrix)
+        else if (_boneWorldMatrix != nullptr)
         {
             _worldMatrix =
-                _scaleMatrix * _rotationMatrix * _translationMatrix * (*_boneWorldMatrix) * *_parentWorldMatrix;
+                _scaleMatrix * _rotationMatrix * _translationMatrix * (*_boneWorldMatrix) * (*_parentWorldMatrix);
         }
     }
 
-    for (auto emitter : _particleEmitters)
+    for (auto& uptr : _particleEmitters)
     {
+        auto* emitter = uptr.get();
         emitter->SetEffectWorldMatrix(_worldMatrix);
         emitter->Update(deltaTime);
     }
+
+    // 모든 emitter가 비활성화되면 종료 상태로 전환
     {
-        for (auto emitter : _particleEmitters)
+        for (auto& uptr : _particleEmitters)
         {
-            if (true == emitter->GetActiveFlag())
+            if (uptr->GetActiveFlag())
                 return;
         }
         _activeFlag = false;
         _playFlag   = false;
         _isEnding   = false;
-        if (true == _isPlaying)
+        if (_isPlaying)
         {
             _isPlaying = false;
             _age       = 0;
         }
     }
 }
+
 class ParticleEmitter* ParticleEffect::GetEmitter(size_t emitterIndex)
 {
-    return _particleEmitters[emitterIndex];
+    // 범위 체크(안전)
+    if (emitterIndex >= _particleEmitters.size())
+        return nullptr;
+    return _particleEmitters[emitterIndex].get();
 }
+
+std::vector<class ParticleEmitter*> ParticleEffect::GetEmitterList() const
+{
+    std::vector<ParticleEmitter*> list;
+    list.reserve(_particleEmitters.size());
+    for (auto const& uptr : _particleEmitters)
+        list.push_back(uptr.get());
+    return list; // 비소유 포인터 목록 반환
+}
+
 void ParticleEffect::RemoveEmitter(ParticleEmitter* target)
 {
+    if (!target)
+        return;
     target->SetRemoveFlag(true);
 }
+
 void ParticleEffect::UpdateParticleLifeCycle(float deltaTime)
 {
-    for (auto emitter : _particleEmitters)
+    for (auto& uptr : _particleEmitters)
     {
-        if (true == emitter->GetActiveFlag())
-        {
-            emitter->UpdateParticleLifeCycle(deltaTime);
-        }
+        if (uptr->GetActiveFlag())
+            uptr->UpdateParticleLifeCycle(deltaTime);
     }
 }
+
 void ParticleEffect::Play()
 {
-    if (false == _isPlaying)
+    if (!_isPlaying)
     {
         _playFlag   = true;
         _isPlaying  = true;
@@ -116,49 +132,50 @@ void ParticleEffect::Play()
 
         _isEnding = false;
         _age      = 0;
-        for (auto& emitter : _particleEmitters)
+        for (auto& uptr : _particleEmitters)
         {
-            emitter->Reset();
-            emitter->SetActiveFlag(true);
+            uptr->Reset();
+            uptr->SetActiveFlag(true);
         }
     }
 }
+
 void ParticleEffect::Stop()
 {
-    if (false == _isEnding)
+    if (!_isEnding)
     {
         _isEnding  = true;
         _isPlaying = false;
-        for (auto& emitter : _particleEmitters)
+        for (auto& uptr : _particleEmitters)
         {
-            emitter->SetEndFlag(true);
+            uptr->SetEndFlag(true);
         }
     }
 }
+
 void ParticleEffect::Reset()
 {
     _age = 0;
-    for (auto emitter : _particleEmitters)
-    {
-        emitter->Reset();
-    }
+    for (auto& uptr : _particleEmitters)
+        uptr->Reset();
     _activeFlag = true;
 }
+
 void ParticleEffect::FlushEmitters()
 {
-    for (auto it = _particleEmitters.begin(); it != _particleEmitters.end();)
-    {
-        if ((*it)->GetRemoveFlag())
-        {
-            delete *it; // 메모리 해제
-            it = _particleEmitters.erase(it);
-        }
-        else
-        {
-            ++it;
-        }
-    }
+    std::erase_if(_particleEmitters, [](std::unique_ptr<ParticleEmitter>& p) { return p->GetRemoveFlag(); });
 }
+
+void ParticleEffect::SetRemoveFlag(bool flag)
+{
+    _removeFlag = flag;
+}
+
+bool ParticleEffect::GetRemoveFlag() const
+{
+    return _removeFlag;
+}
+
 void ParticleEffect::SetPosition(Vector3* position)
 {
     _position = position;
@@ -171,11 +188,15 @@ void ParticleEffect::SetScale(Vector3* scale)
 {
     _scale = scale;
 }
-void ParticleEffect::SetBoneFollowFlag(bool* flag) 
+void ParticleEffect::SetBoneFollowFlag(bool* flag)
 {
     _followBoneFlag = flag;
 }
-void ParticleEffect::SetBoneMatrix(const Matrix* matrix) 
+void ParticleEffect::SetBoneMatrix(const Matrix* matrix)
 {
     _boneWorldMatrix = matrix;
+}
+void ParticleEffect::SetParentMatrix(const Matrix* matrix) 
+{
+    _parentWorldMatrix = matrix;
 }

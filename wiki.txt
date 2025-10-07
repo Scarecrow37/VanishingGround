@@ -1,0 +1,972 @@
+﻿Skip to content Navigation MenuToggle navigation  
+Sign in 
+Appearance settings Platform  
+GitHub Copilot 
+Write better code with AI 
+GitHub Spark New 
+Build and deploy intelligent apps 
+GitHub Models New 
+Manage and compare prompts 
+GitHub Advanced Security 
+Find and fix vulnerabilities 
+Actions 
+Automate any workflow Codespaces 
+Instant dev environments 
+Issues 
+Plan and track work 
+Code Review 
+Manage code changes 
+Discussions 
+Collaborate outside of code 
+Code Search 
+Find more, search less Explore
+ 
+Why GitHub 
+Documentation 
+GitHub Skills 
+Blog 
+Integrations
+ 
+GitHub Marketplace 
+MCP Registry 
+View all features 
+Solutions  
+By company size
+ 
+Enterprises 
+Small and medium teams 
+Startups 
+Nonprofits By use case
+ 
+App Modernization 
+DevSecOps 
+DevOps 
+CI/CD 
+View all use cases By industry
+ 
+Healthcare 
+Financial services 
+Manufacturing 
+Government 
+View all industries 
+View all solutions 
+Resources  
+Topics
+ 
+AI 
+DevOps 
+Security 
+Software Development 
+View all Explore
+ 
+Learning Pathways 
+Events & Webinars 
+Ebooks & Whitepapers 
+Customer Stories 
+Partners 
+Executive Insights 
+Open Source  
+GitHub Sponsors 
+Fund open source developers 
+The ReadME Project 
+GitHub community articles 
+Repositories
+ 
+Topics 
+Trending 
+Collections 
+Enterprise  
+Enterprise platform 
+AI-powered developer platform 
+Available add-ons
+ 
+GitHub Advanced Security 
+Enterprise-grade security features 
+Copilot for business 
+Enterprise-grade AI features 
+Premium Support 
+Enterprise-grade 24/7 support 
+Pricing
+ 
+Search or jump to... 
+  
+Search code, repositories, users, issues, pull requests...Search  Clear 
+Search syntax tips Provide feedback 
+ 
+ 
+We read every piece of feedback, and take your input very seriously.
+  Include my email address so I can be contacted 
+CancelSubmit feedback 
+Saved searches 
+Use saved searches to filter your results more quickly
+ 
+ 
+ 
+Name   
+Query  
+To see all available qualifiers, see our documentation. 
+CancelCreate saved search 
+Sign in 
+Sign up 
+Appearance settings 
+Resetting focus 
+You signed in with another tab or window. Reload to refresh your session. You signed out in another tab or window. Reload to refresh your session. You switched accounts on another tab or window. Reload to refresh your session.Dismiss alert 
+ 
+{{ message }}
+Scarecrow37 / VanishingGround Public Notifications You must be signed in to change notification settings Fork 0 Star 0 
+Code Issues 5 
+Pull requests 2 
+Actions Projects 0 
+Wiki Security 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Insights Additional navigation options Code 
+Issues 
+Pull requests 
+Actions 
+Projects 
+Wiki 
+Security 
+Insights 
+[Rule] CPP Coding ConventionsJump to bottom Do_Suha edited this page Apr 2, 2025 · 3 revisions 
+소개
+Project Vanishing Ground에서 사용하는 C++ 언어의 Coding Conventions에 대해 정리한 Wiki입니다. 특정 Convention을 찾으실 때에는 Ctrl + F를 사용하면 좋습니다.
+목표
+Project Vanishing Ground의 C++ Conventions의 목표는 다음과 같습니다.
+가독성의 증대
+저희는 Team Project를 진행하면서 동료들의 코드를 읽거나 동료들에게 자신이 작성한 코드를 공유하며 소통하기를 바랍니다. 이러한 소통의 과정에서 서로의 코드가 마치 자신이 작성하는 것처럼 읽을 수 있다면 코드 분석 시간도 감소할 뿐더러 본질적인 기술적 대화에 더 많은 시간을 할애할 수 있고 더 나아가 동료의 코드를 신뢰함으로서 협업이 매끄럽게 진행되는 것을 기대할 수 있습니다.
+수정의 용이
+동료가 작성한 코드를 수정해야 할 때가 올지도 모릅니다. 심지어 자신이 작성한 코드도 1-2달이 지나면 코드를 다시 분석하는 데에 많은 시간이 소요됩니다. Coding Convention은 자신 또는 동료가 작성한 코드를 다시 수정해야 할 경우 코드를 직관적으로 파악하고 빠르게 수정하여 버그를 해결하는 데에 원활하도록 도와줍니다.
+예측 가능한 API
+체계적으로 작성된 Coding Convention은 API에 대하여 항상 Document를 참조하는 것이 아니라 해당 기능을 예측하게 도와주고 또한 API가 존재하는 지에 대한 여부도 Code 작성 시기에 확인 할 수 있도록 합니다. 이는 개발 속도를 빠르게 만들며 필요하나 존재하지 않는 API에 대한 빠른 피드백을 할 수 있도록 합니다.
+원활한 디버깅
+좋은 Coding Convention은 디버깅을 수월하게 진행하도록 만든다고 믿습니다. 명시적 타입 작성, 좋은 명명 규칙, 함수 Signature의 일관성은 코드를 작성하고 사용할 때 뿐만 아니라 타입에 맞는 대입, 이름에 어울리는 값, 매개변수의 전달 등 Convention과 Data를 비교하며 디버깅을 진행할 수 있습니다.
+
+
+
+추가 요청
+추가로 필요한 Convention이 있으면 여기에 추가해주시면 됩니다.
+예시) 지역 변수 
+멤버 변수 초기화 방법 (25/03/31 추가) 
+enum scope 제한 (25/03/31 추가) 
+디버깅 친화 코드 (25/03/31 추가) 
+리터럴 비교 코드 안정성 (25/03/31 추가) 
+매직 넘버 (25/03/31 추가) 
+Folder 방식 (25/04/02 추가) 
+접근 한정자 (25/04/02 추가) 
+static & extern 키워드 (규칙 없음: 용도에 맞게 사용) 
+Global 변수 스타일 변경 (25/04/02 수정) 
+namespace 규칙 (25/04/02 추가) 
+
+
+
+요약
+// Coding Conventions Cheat Sheet
+
+// Macro
+#define MY_MACRO(x, y) ((x) + (y)) // use inline function instead
+
+// Constant Macro
+#define CONSTANT_MACRO 10; // use constexpr instead
+
+// Namespace
+namespace MyNamespace
+{
+    // Using Declaration
+    using MyType = int;
+    typedef int MyType;
+
+    namespace Global
+    {
+        // Global Variant
+        int globalVariant;
+    }
+
+    // Struct
+    struct MyStruct
+    {
+        // Field
+        int StructField;
+    };
+
+    // Interface
+    struct IMyInterface
+    {
+        // InterfaceFunction
+        virtual void InterfaceFunction() = 0;
+    };
+
+    // Function Object
+    struct FunctionObject
+    {
+        int operator()(const int myParameter) const
+        {
+            return myParameter;
+        }
+    };
+
+    // Class
+    class MyClass
+    {
+    public:
+        static constexpr int COMPILE_TIME_CONSTANT = 20;
+
+        MyClass() = default;
+
+        // Member Function
+        int MemberFunction() const
+        {
+            return _myPrivateMember * 2;
+        }
+
+        // Getter
+        int GetMemberVariant() const
+        {
+            return _myPrivateMember;
+        }
+
+        // Setter
+        void SetMemberVariant(const int myParameter)
+        {
+            _myPrivateMember = myParameter;
+        }
+
+        // Get State Managed Pointer
+        int* GetStatePointer() const
+        {
+            return _statePointer;
+        }
+
+        // Create Allocated Data
+        void CreateAllocatedData(int** pointerContainer)
+        {
+            *pointerContainer = new int;
+        }
+
+        // Public Member
+        int MyPublicMember;
+
+    private:
+        // Private Member
+        int _myPrivateMember;
+
+        // State Managed Pointer
+        int* _statePointer;
+    };
+}
+
+명명 규칙
+클래스
+클래스
+조건접두사규칙접미사
+Class.Pascal Case.
+class MyClass
+{
+    ...
+}
+구조체
+구조체
+조건접두사규칙접미사
+Struct.Pascal Case.
+struct MyStruct
+{
+    ...
+}
+인터페이스
+조건접두사규칙접미사
+InterfaceIPascal Case.
+struct IMyInterface
+{
+    ...
+}
+함수 객체
+조건접두사규칙접미사
+Function Object.Pascal Case.
+struct FunctionObject
+{
+    int operator()()
+    {
+        ...
+    }
+}
+변수
+지역 변수
+조건접두사규칙접미사
+Local Variable.Camel Case.
+void Function()
+{
+    int myVariable;
+}
+매개 변수
+조건접두사규칙접미사
+Parameter.Camel Case.
+void SetMemberVariable(int myParameter)
+{
+    ...
+}
+비공개 멤버 변수
+조건접두사규칙접미사
+Private Member_Camel Case.
+class MyClass
+{
+    ...
+private:
+    int _myMember;
+}
+공개 멤버 변수
+조건접두사규칙접미사
+Public Member.Pascal Case.
+class MyClass
+{
+public:
+    int MyMemeber;
+    ...
+}struct MyStruct
+{
+    int StructField;
+}
+전역 변수
+조건접두사규칙접미사
+Global.Global namespace & Camel Case.
+namespace Global
+{
+    int globalVariant;
+}
+컴파일 타임 상수
+조건접두사규칙접미사
+Constant.Upper Snake Case.
+constexpr int COMPILE_TIME_CONSTANT = 10;
+매크로 상수
+조건접두사규칙접미사
+Macro Constant.Upper Snake Case.
+#define MY_MACRO 10
+열거형
+지정 범위 열거형
+조건접두사규칙접미사
+Enum Classs.Pascal Case.
+enum class MyEnum
+{
+    ...
+}
+열거형
+조건접두사규칙접미사
+Enum.Pascal Case.
+enum MyEnum
+{
+    ...
+}
+열거 상수
+조건접두사규칙접미사
+Enum Constant Field.Upper Snake Case.
+enum class MyEnumClass
+{
+    ENUM_FIELD1,
+    ENUM_FIELD2
+}
+
+enum MyEnum
+{
+    ENUM_FIELD1,
+    ENUM_FIELD2
+}
+네임스페이스
+조건접두사규칙접미사
+Namespace.Pascal Case.
+namespace MyNamespace
+{
+    ...
+}
+함수
+전역 함수
+조건접두사규칙접미사
+Static Function.Pascal Case.
+static int StaticFunction()
+{
+    ...
+}
+멤버 함수
+조건접두사규칙접미사
+Normal Function.Pascal Case.
+class MyClass
+{
+public:
+    int MemberFunction()
+    {
+        ...
+    }
+}
+인터페이스 함수
+조건접두사규칙접미사
+Interface Function.Pascal Case.
+struct IMyInterface
+{
+    virtual int InterfaceFunction() = 0;
+}
+매크로
+조건접두사규칙접미사
+Macro.Upper Snake Case.
+#define MY_MACRO(x, y) ((x) + (y))
+타입
+재정의
+조건접두사규칙접미사
+Declaration.Pascal Case.
+using MyType = int;
+typedef int MyType;
+템플릿
+템플릿 매개 변수
+조건접두사규칙접미사
+Template Parameter.T,U,V.../Args.
+template<typename T, typename U, typename Args>
+void TemplateFunctions(const T& parameter, const U& anotherParameter, Args... ParameterPack)
+{
+    ...
+}
+코드 스타일
+간격
+코드 시작
+코드 시작 간격은 띄어쓰기 4개로 한다. 
+int Function()
+{
+    // Any Code Start
+}
+줄 바꿈
+코드 블록 괄호
+코드 블록 괄호는 줄을 바꿔서 작성한다. 
+int Function()
+{
+    ...
+}
+한 줄 if문
+retrun, break, continue 등 단순 명령어만 if문 (+ if else, else)을 축약해서 한 줄로 작성 할 수 있다. 
+void Function(int* pointer)
+{
+    if (pointer == nullptr) return;
+}
+길어진 if 조건
+if의 조건이 길어질 때에는 조건마다 줄 바꿈을 할 수 있다. 
+다만 이때 모든 매개변수를 줄 바꿈 해야한다. 
+// bad
+if (condition1 == true, condition2 == false,
+    condition3 == true, condition4 == false)
+{
+    ///
+}
+
+// good
+if (condition1 == true, condition2 == false, condition3 == true, condition4 == false)
+{
+    ///
+}
+
+// good
+if (condition1 == true,
+    condition2 == false,
+    condition3 == true,
+    condition4 == false)
+{
+    ///
+}
+길어진 매개 변수
+매개 변수가 길어질 때에는 매개변수마다 줄 바꿈을 할 수 있다. 
+다만 이때 모든 매개변수를 줄 바꿈 해야한다. 
+// bad
+int a = Function(parameter1, parameter2, 
+                 parameter3, parameter4);
+
+// good
+int a = Function(parameter1, parameter2, parameter3, parameter4);
+
+// good
+int a = Function(parameter1,
+                 parameter2,
+                 parameter3,
+                 parameter4);
+작성 요령
+Getter & Setter & Factory
+Getter 함수는 앞에 'Get' 접두사를 반드시 붙인다. 
+Setter 함수는 앞에 'Set' 접두사를 반드시 붙인다. 
+Factory 함수(내부에서 동적 할당 후 반환)는 'Create' 접두사를 반드시 붙인다. 
+위 내용을 지킬 수 없는 함수는 분리하여 작성한다. 
+Boolean
+Boolean 타입의 변수는 종류를 불문하고 앞에 'is', 'was', 'can' 등 상황에 맞는 접두사를 반드시 붙인다. 
+Boolean 타입을 반환하는 Getter 함수는 앞에 'IS', 'Was', 'Can' 등 상황에 맞는 접두사를 반드시 'Get'대신 붙인다. 
+class MyClass
+{
+public:
+    bool IsActive
+    {
+        return _isActive;
+    }
+private:
+    bool _isActive;
+}
+매크로
+매크로는 특별한 경우(코드 생성 등)가 아니면 작성하지 않는다. 
+매크로 함수는 inline 또는 static 함수로 대체하여 사용한다. 
+매크로 상수는 constexpr로 대체하여 사용한다. 
+타입 재정의
+타입 재정의는 typedef 보다 using을 사용한다. 
+typedef int MyType; // bad
+using MyType = int; // good
+포인터의 구분
+상태가 관리되는 포인터에 대한 Getter는 반환 타입에 포인터 타입을 작성한다. 
+상태가 관리되지 않는 포인터에 대한 Create는 매개변수에 Double Pointer 타입으로 작성한다. 
+이때 Create 함수를 호출한 Caller는 해당 Pointer의 해제 책임이 있다. 
+class Manager
+{
+public:
+    int* GetHandle()
+    {
+        return _handle;
+    }
+
+    void CreateResource(int** handle)
+    {
+        *handle = new int();
+    }
+private:
+    int* _handle;
+}
+enum
+enum을 구분 용도로 사용한다면 enum class를 사용하도록 한다. 
+enum을 상수 용도로 사용한다면 namespace와 staic constant variable을 사용하는게 좋다. 
+다만 class 내부와 같이 namespace를 선언 할 수 없다면 enum을 그대로 사용한다. 
+enum의 scope는 다음과 같이 정의한다. 
+해당 객체에서만 사용하는 열거형일 경우 해당 객체의 class 내의 private 한정자로 선언한다. 
+해당 객체 외에서 사용하게 되는 경우 'Declare.h'등의 파일을 생성하여 한 곳에 선언하여 보관한다. 
+// bad
+enum Device
+{
+    MOUSE,
+    KEYBOARD,
+    CONTROLLER
+}
+
+// good
+enum class Device : unsigned char
+{
+    MOUSE,
+    KEYBOARD,
+    CONTROLLER
+}
+
+// good
+enum InitializeFlag : unsigned char
+{
+    FLAG1 = 1 << 0,
+    FLAG2 = 1 << 1,
+    FLAG3 = 1 << 2
+}
+
+// better
+namespace InitializeFlag
+{
+    static constexpr unsigned char FLAG1 = 1 << 0;
+    static constexpr unsigned char FLAG2 = 2 << 0;
+    static constexpr unsigned char FLAG3 = 3 << 0;
+}
+초기화
+멤버 변수 초기화는 Member Initialize List를 사용하여 초기화 한다. 
+생성자에서 초기화를 하면 상황에 따라 다른 값을 사용하여 초기화를 할 수 있다. 
+상속 받은 클래스는 부모의 클래스의 멤버 변수를 초기화 할 수 있다. 
+생성자는 다른 생성자를 호출하여 초기화를 간략화 할 수 있다. 
+초기화 구문이 다른 곳에 혼재되어 있으면 초기화 되어 있는지에 대한 여부를 판단하기 힘들어진다. 
+기타 변수 초기화는 Uniform Initialize를 사용하여 초기화 한다. 
+class MyClass
+{
+public:
+    MyClass() : _memberVariant{0}
+    {
+    }
+
+    MyClass(int parameter) : _memberVariant{parameter}
+    {
+    }
+private:
+    int _memberVariant;
+}
+비교
+RValue와 LValue를 비교 하는 경우 RValue를 비교 연산자 좌측에 작성하여 코드 안정성을 향상시킨다. 
+비교할 것 이 많은 경우 비교 비용이 적은 것을 먼저 비교한다. 
+true / false와 비교 하는 경우 생략 또는 부정(!)을 하지 않는다. 
+// good
+if (nullptr == pointer)
+{
+    ...
+}
+
+// bad
+if (condition)
+{
+    ...
+}
+
+// good
+if (condition == true)
+{
+    ...
+}
+
+// bad
+if (IsCondition1() == true, condition2 == false)
+{
+    ...
+}
+
+// good
+if (condition2 == false, IsCondition1() == true)
+{
+    ...
+}
+매직 넘버
+매직 넘버(값의 출처를 알 수 없는 Literal)는 사용하지 않는다. 
+다만 반드시 사용해야만 하는 경우 주석을 통해 출처 또는 이유를 남긴다. 
+// bad
+int remain = parameter % 2;
+
+// good
+constexpr int EVEN_CHECKER = 2;
+int remain = parameter & 2;
+
+// better
+bool IsEven(int value) 
+{
+    return (value % 2) == 0;
+}
+bool isEven = IsEven(parameter);
+
+// good
+short initializeFlag = 3; // MSDN(https://msdn.microsoft.com/...)
+디버깅 친화
+연속된 멤버 액세스 연산자를 사용하는 경우 분리하여 지역 변수에 저장한다. 
+// bad
+int data = System->GetModule()->GetDatabase()->GetData();
+
+// good
+Module* module = System->GetModule();
+Database* database = module->GetDatabase();
+int data = database->GetData();
+접근 한정자
+class의 멤버 변수는 private으로 선언해야 합니다. 
+멤버 변수의 값 변경 또는 값 접근은 Getter & Setter를 사용합니다. 
+// bad
+class MyClass
+{
+public:
+    int MyMember;
+}
+
+// good
+class MyClass
+{
+public:
+    int GetMyMember() const
+    {
+        return _myMember;
+    }
+
+    void SetMyMember(int myMember)
+    {
+        _myMember = myMember;
+    }
+private:
+    int _myMember;
+}
+namesapce 규칙
+모든 프로젝트는 자신만의 고유한 namespace를 가져야 한다. 
+// bad
+class MyClass
+{
+}
+
+// good
+namespace MyProject
+{
+    class MyClass
+    {
+    }
+}
+프로젝트
+Folder 방식
+
+붉은색 원으로 표시되어 있는 아이콘을 누르면 Folder 방식을 사용할 수 있습니다. 
+Visual Studio에서 제공하는 Filter 방식은 사용하지 않고 Folder 방식을 사용합니다. 
+Folder 방식은 다음과 같은 장점이 있습니다. 
+실제 폴더 구조와 동일하여 관리가 용이함 
+GIT, SVN 등 소스 관리 시스템과 호환성이 좋음 
+Toggle table of contents Pages 54 
+ 
+Loading Home 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Editor] 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Editor] DockLayout 구조체 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Editor] EditorGui 클래스 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Editor] EditorMenu 클래스 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Editor] EditorTool 클래스 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Editor] Hierarchy 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Editor] IEditorObject 인터페이스 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Editor] Scene View 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Editor] Tutorial 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [EditorGui] CallOrder 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [EditorGui] Label 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [EditorGui] OnEndGui 메서드 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [EditorGui] OnStartGui 메서드 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [EditorGui] OnTickGui 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [EditorGui] Visible 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [EditorMenu] Path 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [EditorTool] DockLayout 관련 메서드 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [EditorTool] Lock 관련 메서드 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [EditorTool] OnFocus 메서드 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [EditorTool] OnFrame 메서드 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [EditorTool] OnPopup 메서드 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [EditorTool] OnPostFrame 메서드 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [EditorTool] OnPreFrame 메서드 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [EditorTool] WindowFlag 관련 메서드 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Engine] Application 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Engine] Component 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Engine] ComponentFactory 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Engine] EngineCores 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Engine] FactoryRegister 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Engine] FiniteStateMachine 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Engine] Game Engine Flow Chart 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Engine] GameObject 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Engine] GameObjectFactory 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Engine] InputReceiver 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Engine] Property 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Engine] ReflectHelper 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Engine] SceneManager 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Engine] TimeSystem 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Engine] Transform 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [IEditorObject] OnInspectorEnter 메서드 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [IEditorObject] OnInspectorExit 메서드 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [IEditorObject] OnInspectorStay 메서드 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Rule] Clang‐Format Conventions 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Rule] Clang‐Tidy Conventions 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Rule] Conventions 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Rule] CPP Coding Conventions 
+소개 
+목표 
+가독성의 증대 
+수정의 용이 
+예측 가능한 API 
+원활한 디버깅 
+추가 요청 
+요약 
+명명 규칙 
+클래스 
+클래스 
+구조체 
+구조체 
+인터페이스 
+함수 객체 
+변수 
+지역 변수 
+매개 변수 
+비공개 멤버 변수 
+공개 멤버 변수 
+전역 변수 
+컴파일 타임 상수 
+매크로 상수 
+열거형 
+지정 범위 열거형 
+열거형 
+열거 상수 
+네임스페이스 
+함수 
+전역 함수 
+멤버 함수 
+인터페이스 함수 
+매크로 
+타입 
+재정의 
+템플릿 
+템플릿 매개 변수 
+코드 스타일 
+간격 
+코드 시작 
+줄 바꿈 
+코드 블록 괄호 
+한 줄 if문 
+길어진 if 조건 
+길어진 매개 변수 
+작성 요령 
+Getter & Setter & Factory 
+Boolean 
+매크로 
+타입 재정의 
+포인터의 구분 
+enum 
+초기화 
+비교 
+매직 넘버 
+디버깅 친화 
+접근 한정자 
+namesapce 규칙 
+프로젝트 
+Folder 방식 
+Loading [Rule] Home 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Rule] Process 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Support] draw.io 깃허브 연동하기 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Version Controls] GIT 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Version Controls] Home 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Version Controls] SVN 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Loading [Version Controls] Versioning 
+Uh oh! 
+There was an error while loading. Please reload this page.
+Show 39 more pages… 
+API Document
+Engine
+Diagram 
+Game Engine Flow Chart 
+Engine Core 
+Application 
+TimeSystem 
+ComponentFactory 
+GameObjectFactory 
+FactoryRegister 
+SceneManager 
+EngineCores 
+Class Core 
+Property 
+ReflectHelper 
+Game Core 
+GameObject 
+Component 
+Transform 
+InputReceiver 
+FiniteStateMachine 
+Graphics
+Editor
+Tutorial
+EditorTool 
+EditorTool 클래스 
+EditorMenu 
+EditorMenu 클래스 
+Scene View
+Hierarchy
+Rule
+Process
+Conventions
+C++ 
+Clang-Format 
+Clang-Tidy 
+Version Controls
+GIT
+SVN
+Versioning
+Clone this wiki locally
+ 
+Footer© 2025 GitHub, Inc. 
+Footer navigationTerms 
+Privacy 
+Security 
+Status 
+Community 
+Docs 
+Contact 
+Manage cookies 
+Do not share my personal information 
+ You can’t perform that action at this time.  

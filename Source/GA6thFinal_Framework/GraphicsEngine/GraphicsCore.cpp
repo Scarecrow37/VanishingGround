@@ -194,19 +194,27 @@ void GraphicsCore::LoadTextureResource(std::wstring_view filePath, ParticleEmitt
 {
     if (ParticleType::SPRITE == component->_particleType)
     {
-        static_cast<SpriteModule*>(component->_particleRenderModule)
-            ->SetAlbedoTexture(_resourceManager->LoadResource<Texture>(filePath.data()));
+        if (auto renderModule = component->_particleRenderModule->AsSprite())
+        {
+            renderModule->SetAlbedoTexture(_resourceManager->LoadResource<Texture>(filePath.data()));
+        }
     }
     if (ParticleType::RIBBON == component->_particleType)
     {
-        static_cast<RibbonModule*>(component->_particleRenderModule)
-            ->SetAlbedoTexture(_resourceManager->LoadResource<Texture>(filePath.data()));
+        if (auto renderModule = component->_particleRenderModule->AsRibbon())
+        {
+            renderModule->SetAlbedoTexture(_resourceManager->LoadResource<Texture>(filePath.data()));
+        }
     }
 }
 void GraphicsCore::LoadModelResource(const std::wstring_view filePath, ParticleEmitter* component) const
 {
-    static_cast<MeshSurfaceLocator*>(component->_emitLocator)->SetModelPath(filePath.data());
-    static_cast<MeshSurfaceLocator*>(component->_emitLocator)->LoadVerticesFromModel(_resourceManager->LoadResource<Model>(filePath.data()));
+    if (auto meshSurfaceLocator = component->_emitLocator->AsMeshSurfaceLocator())
+    {
+        meshSurfaceLocator->SetModelPath(filePath.data());
+        meshSurfaceLocator->LoadVerticesFromModel(
+            _resourceManager->LoadResource<Model>(filePath.data()));
+    }
 }
 
 void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT height, const FeatureLevel feature, bool isEditorMode)

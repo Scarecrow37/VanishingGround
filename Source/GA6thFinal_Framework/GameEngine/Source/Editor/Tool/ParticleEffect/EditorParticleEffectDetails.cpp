@@ -54,11 +54,6 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
          ShowEmitterDetails();
      if (nullptr == _curEmitter && nullptr != _curEffect)
          ShowEffectDetails();
-
-
-
-
-
  }
 
  void EditorParticleEffectDetails::OnFrameClipped()
@@ -132,12 +127,11 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
      {
          if (ParticleType::SPRITE == _curEmitter->_particleType)
          {
-
+             auto spriteModule = _curEmitter->_particleRenderModule->AsSprite();
              ImGui::Text("Sprite Texture");
              ImGui::SameLine();
-             D3D12_GPU_DESCRIPTOR_HANDLE gpuhandle =
-                 static_cast<SpriteModule*>(_curEmitter->_particleRenderModule)->GetAlbedoTexture()->GetGPUHandle();
-             bool isTextureLoadButtonPressed = ImGui::ImageButton((ImTextureID)gpuhandle.ptr, {100, 100});
+             D3D12_GPU_DESCRIPTOR_HANDLE gpuhandle = spriteModule->GetAlbedoTexture()->GetGPUHandle();
+             bool isTextureLoadButtonPressed       = ImGui::ImageButton((ImTextureID)gpuhandle.ptr, {100, 100});
 
              if (true == isTextureLoadButtonPressed)
              {
@@ -146,21 +140,18 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
                  std::vector<File::Path> out;
                  if (File::ShowOpenFileDialog(owner, title, L"", {{L"이미지 파일\0", L"*.jpg*\0"}}, false, out))
                  {
-                     static_cast<SpriteModule*>(_curEmitter->_particleRenderModule)
-                         ->ChangeAlbedoTexture(out.front().wstring());
+                     spriteModule->ChangeAlbedoTexture(out.front().wstring());
                      isSomethingChanged = true;
                  }
              }
          }
          if (ParticleType::RIBBON == _curEmitter->_particleType)
          {
-
              ImGui::Text("Ribbon Texture");
              ImGui::SameLine();
-             // ImGui::Button("Sprite Texture Image", {180,50});
-             D3D12_GPU_DESCRIPTOR_HANDLE gpuhandle =
-                 static_cast<RibbonModule*>(_curEmitter->_particleRenderModule)->GetAlbedoTexture()->GetGPUHandle();
-             bool isTextureLoadButtonPressed = ImGui::ImageButton((ImTextureID)gpuhandle.ptr, {100, 100});
+             auto ribbonModule = _curEmitter->_particleRenderModule->AsRibbon();
+             D3D12_GPU_DESCRIPTOR_HANDLE gpuhandle    = ribbonModule->GetAlbedoTexture()->GetGPUHandle();
+             bool isTextureLoadButtonPressed          = ImGui::ImageButton((ImTextureID)gpuhandle.ptr, {100, 100});
 
              if (true == isTextureLoadButtonPressed)
              {
@@ -169,15 +160,13 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
                  std::vector<File::Path> out;
                  if (File::ShowOpenFileDialog(owner, title, L"", {{L"이미지 파일\0", L"*.jpg*\0"}}, false, out))
                  {
-                     static_cast<RibbonModule*>(_curEmitter->_particleRenderModule)
-                         ->ChangeAlbedoTexture(out.front().wstring());
+                     ribbonModule->ChangeAlbedoTexture(out.front().wstring());
                      isSomethingChanged = true;
                  }
              }
-             RibbonModule* ribbonmodule   = static_cast<RibbonModule*>(_curEmitter->_particleRenderModule);
              {
-                 float startnormal[3] = {ribbonmodule->GetStartNormal().x, ribbonmodule->GetStartNormal().y,
-                                         ribbonmodule->GetStartNormal().z};
+                 float startnormal[3] = {ribbonModule->GetStartNormal().x, ribbonModule->GetStartNormal().y,
+                                         ribbonModule->GetStartNormal().z};
                  ImGui::Text("ribbon start facing normal");
                  bool result = ImGui::SliderFloat3("##ribbon start facing normal", startnormal, -1, 1);
                  if (false == isSomethingChanged)
@@ -186,12 +175,12 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
                  Vector3 temp = {startnormal[0], startnormal[1], startnormal[2]};
                  temp.Normalize();
 
-                 ribbonmodule->SetStartNormal({temp.x,temp.y, temp.z, 0});
+                 ribbonModule->SetStartNormal({temp.x,temp.y, temp.z, 0});
              }
 
              {
-                 float endnormal[3] = {ribbonmodule->GetEndNormal().x, ribbonmodule->GetEndNormal().y,
-                                         ribbonmodule->GetEndNormal().z};
+                 float endnormal[3] = {ribbonModule->GetEndNormal().x, ribbonModule->GetEndNormal().y,
+                                         ribbonModule->GetEndNormal().z};
                  ImGui::Text("ribbon end facing normal");
                  bool result = ImGui::SliderFloat3("##ribbon end facing normal", endnormal, -1, 1);
                  if (false == isSomethingChanged)
@@ -199,14 +188,12 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
                          isSomethingChanged = result;
                  Vector3 temp = {endnormal[0], endnormal[1], endnormal[2]};
                  temp.Normalize();
-
-                 ribbonmodule->SetEndNormal({temp.x, temp.y, temp.z, 0});
-
+                 ribbonModule->SetEndNormal({temp.x, temp.y, temp.z, 0});
              }
 
              {
-                 float ribbonvector[3] = {ribbonmodule->GetRibbonVector().x, ribbonmodule->GetRibbonVector().y,
-                                          ribbonmodule->GetRibbonVector().z};
+                 float ribbonvector[3] = {ribbonModule->GetRibbonVector().x, ribbonModule->GetRibbonVector().y,
+                                          ribbonModule->GetRibbonVector().z};
                  ImGui::Text("ribbon vector");
                  bool result = ImGui::SliderFloat3("##ribbon vector", ribbonvector, -1, 1);
                  if (false == isSomethingChanged)
@@ -214,14 +201,8 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
                          isSomethingChanged = result;
                  Vector3 temp = {ribbonvector[0], ribbonvector[1], ribbonvector[2]};
                  temp.Normalize();
-
-                 ribbonmodule->SetRibbonVector({temp.x, temp.y, temp.z, 0});
+                 ribbonModule->SetRibbonVector({temp.x, temp.y, temp.z, 0});
              }
-
-
-
-
-
          }
      }
 
@@ -332,10 +313,6 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
          if (false == isSomethingChanged)
              if (true == result)
                  isSomethingChanged = result;
-         _curEmitter->InitializeLight("ParticleEditor");
-
-         _curEmitter->SetUseLight(uselight);
-         _curEmitter->SetLightFlag(uselight);
          if (true == uselight)
          {
              // emitter position
