@@ -132,11 +132,7 @@ void SDFTextRenderer::Update(ID3D12GraphicsCommandList* commandList)
 
         float cursorX = 0;
         float cursorY = 0;
-
-        _charCount = 0;
-
-        // Left, Top, Right, Bottom
-        float calculatedBounds[4] = { FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX };
+        _charCount    = 0;
 
         for (wchar_t wc : _text)
         {
@@ -219,6 +215,12 @@ void SDFTextRenderer::Render(ID3D12GraphicsCommandList* commandList)
 
 void SDFTextRenderer::MeasureString()
 {
+    if (!_font || _text.empty())
+    {
+        _size = Vector2::Zero;
+        return;
+    }
+
     const auto& metricsInfo         = _font->GetMetricsInfo();
     float       calculatedBounds[4] = {FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX};
     float       cursorX             = 0;
@@ -227,7 +229,7 @@ void SDFTextRenderer::MeasureString()
 
     for (wchar_t wc : _text)
     {
-        if (_charCount >= MAX_CHARS)
+        if (charCount >= MAX_CHARS)
             break;
 
         if (wc == L'\n')
