@@ -1,0 +1,34 @@
+﻿#pragma once
+#include "ItemDropSystem/Interface/IDropItem.h"
+
+class ImageElement;
+class ArtifactButtonNavi : public UISFXNavigationComponent
+{
+    USING_PROPERTY(ArtifactButtonNavi)
+public:
+    ArtifactButtonNavi();
+    ~ArtifactButtonNavi() override;
+
+    /// <summary>
+    /// 버튼이 눌릴때 동작할 아이템을 설정합니다.
+    /// </summary>
+    /// <param name="item :">아이템 정보</param>
+    void SettingItem(const DropItemInfo& item);
+
+public:
+    REFLECT_PROPERTY();
+
+protected:
+    void Awake() override;
+    void FocusIn(FocusCallType type) override;
+    void Submit() override;
+    void FocusOut(FocusCallType type) override;
+
+protected:
+    REFLECT_FIELDS_BEGIN(UISFXNavigationComponent)
+    REFLECT_FIELDS_END(ArtifactButtonNavi)
+
+private:
+    DropItemInfo _itemInfo;
+    std::weak_ptr<ImageElement> _focusImage;
+};
