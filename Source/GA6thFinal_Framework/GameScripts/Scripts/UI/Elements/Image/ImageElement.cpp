@@ -201,7 +201,10 @@ void ImageElement::RequestResource()
         UmSceneManager.ResourceManager.RequestTextureResource(this, _guidRef, [this, requestedGuid]() {
             LoadTexture(requestedGuid);
             UpdateWorldMatrix();
-            _spriteOriginSize = _renderer->GetSize();
+            if (_renderer)
+            {
+                _spriteOriginSize = _renderer->GetSize();
+            }
 
             const SIZE size = Size;
             UpdateRendererSize(size);
