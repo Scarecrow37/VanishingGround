@@ -299,15 +299,6 @@ void ItemDropSystem::PlayItemDropUISequence()
         StageClearCount = StageClearCount + 1;
     }
 
-    if (auto restartButton = GameObject::FindWithTag("Restart Button").lock())
-    {
-        UINavigationComponent* nav = restartButton->GetComponentDynamic<UINavigationComponent>();
-        if (nullptr != nav)
-        {
-            nav->Focus();
-        }
-    }
-
     if (auto turnQueue = GameObject::FindWithTag("Turn Queue Panel").lock())
     {
         turnQueue->ActiveSelf = false;
@@ -326,6 +317,11 @@ void ItemDropSystem::PlayItemDropUISequence()
     if (auto weaponPanel = GameObject::FindWithTag("Weapon Panel").lock())
     {
         weaponPanel->ActiveSelf = false;
+    }
+
+    if (ArtifactUIManager* manager = SingletonComponent<ArtifactUIManager>::GetInstance())
+    {
+        manager->FocusNavi(0);
     }
 }
 

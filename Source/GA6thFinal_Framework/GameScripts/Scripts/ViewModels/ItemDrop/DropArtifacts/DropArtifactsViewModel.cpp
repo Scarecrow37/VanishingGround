@@ -35,16 +35,10 @@ std::vector<DropArtifactsUIData> DropArtifactsViewModel::ConvertData(const std::
     ItemDropUIRootManager*           uiRootManager = SingletonComponent<ItemDropUIRootManager>::GetInstance();
     if (uiRootManager)
     {
-        File::Path framePath = (std::string)uiRootManager->ArtifactsUIFrameAsset;
-        if (framePath.IsNull())
-        {
-            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"UI Root Manager에 Artifacts UI FrameAsset을 설정해주세요.");
-        }
         for (auto& item : value)
         {
             DropArtifactsUIData data
             {
-                .Frame    = framePath.ToGuid(),
                 .Artifact = UmFileSystem.GetGuidFromAssetID(DropItemInfo::GetArtifactIconID(item)),
                 .Category = UmFileSystem.GetGuidFromAssetID(DropItemInfo::GetArtifactCategoryAssetID(item.Category)),
             };

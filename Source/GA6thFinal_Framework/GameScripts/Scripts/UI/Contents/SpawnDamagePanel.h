@@ -12,7 +12,7 @@ public:
 public:
     REFLECT_PROPERTY(RadiusRatio, LifeTime, FilePath, Color, FontScale)
 
-    GETTER_ONLY(std::string, FilePath) { return _guidRef.ToPath().string(); }
+    GETTER_ONLY(std::string, FilePath) { return _Guid.ToPath().string(); }
     PROPERTY(FilePath)
 
     GETTER(DirectX::SimpleMath::Color, Color) { return DirectX::SimpleMath::Color(&ReflectFields->Color[0]); }
@@ -68,6 +68,6 @@ protected:
     REFLECT_FIELDS_END(SpawnDamagePanel)
 
 private:
-    File::GuidRef _guidRef;
+    File::Guid _Guid;
     std::vector<DamageElement*> _damageElements;
 };

@@ -162,7 +162,7 @@ namespace Timeline
             if (context && context->ID == id)
             {
                 delete context;
-                it = _contextQueue.erase(it);
+                _contextQueue.erase(it);
                 _contextTable.erase(id);
                 return true;
             }

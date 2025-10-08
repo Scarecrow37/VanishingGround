@@ -16,9 +16,9 @@ StaticMeshRenderer::StaticMeshRenderer()
                 const auto extension = path.extension();
                 if (extension == L".fbx" || extension == L".UmModel")
                 {
-                    _guidRef = data->GetGuid();
-                    ReflectFields->Basefields.get().Guid = _guidRef.string();
-                    UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef, [this]() { LoadModel(); });
+                    _Guid = data->GetGuid();
+                    ReflectFields->Basefields.get().Guid = _Guid.string();
+                    UmSceneManager.ResourceManager.RequestModelResource(this, _Guid, [this]() { LoadModel(); });
                 }
             }
             ImGui::EndDragDropTarget();
@@ -50,14 +50,14 @@ void StaticMeshRenderer::Reset()
 {
     MakeMeshRenderer(MeshType::STATIC_MESH, transform->Position, transform->Scale, transform->Rotation, transform->GetWorldMatrix(), transform->HasChangedRef());
 
-    if (false == _guidRef.IsNull())
+    if (false == _Guid.IsNull())
     {
-        UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef, [this]() { LoadModel(); });
+        UmSceneManager.ResourceManager.RequestModelResource(this, _Guid, [this]() { LoadModel(); });
     }
 }
 
 void StaticMeshRenderer::DeserializedReflectEvent() 
 {
     File::Guid guid = ReflectFields->Basefields.get().Guid;
-    _guidRef = guid;
+    _Guid = guid;
 }
