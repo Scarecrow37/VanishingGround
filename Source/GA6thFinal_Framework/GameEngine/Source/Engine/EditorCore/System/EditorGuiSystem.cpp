@@ -7,11 +7,12 @@ EditorGuiSystem::EditorGuiSystem()
 
 EditorGuiSystem::~EditorGuiSystem() 
 {
-    for (auto gui : _dockWindowList)
+    for (auto& gui : _dockWindowList)
     {
         if (gui)
         {
             delete gui;
+            gui = nullptr;
         }
     }
     _dockWindowList.clear();
