@@ -259,7 +259,6 @@ void TurnMode::AddRoundOnceActions()
     {
         AddTurnAction(action);
     }
-    RoundOnceTrueCondition::RoundOnceAction::_roundOnceActions.clear();
 }
 
 int TurnMode::GetRealRoundSpeed(const std::pair<int, TurnActor*>& turnActor)

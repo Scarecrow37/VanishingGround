@@ -20,6 +20,14 @@ int APIENTRY wWinMain(
 
 GameApplication::GameApplication()
 {
+    //현재 실행 경로를 exe 경로로 고정 (WinDbg용)
+    /*
+    wchar_t path[MAX_PATH];
+    GetModuleFileNameW(nullptr, path, MAX_PATH); // 현재 실행 중인 EXE 경로
+    std::filesystem::path exePath(path);
+    std::filesystem::current_path(exePath.parent_path()); // cwd를 EXE 폴더로 변경
+    */
+
     //클라이언트 기본 초기화 함수.
     SetStyleToWindowed();
     _clientSize = { 1920, 1080 };
