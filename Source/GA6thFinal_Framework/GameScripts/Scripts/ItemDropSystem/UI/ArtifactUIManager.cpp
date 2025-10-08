@@ -251,7 +251,7 @@ void ArtifactUIManager::ImageUISetup(const std::vector<DropArtifactsUIData>& dro
     {
         // Frame UI 업데이트
         std::string   frameAsstePath = rootManager->ArtifactsUIFrameAsset;
-        File::GuidRef guid           = UmFileSystem.GetGuidFromPath(frameAsstePath);
+        File::Guid guid           = UmFileSystem.GetGuidFromPath(frameAsstePath);
         if (false == guid.IsNull())
         {
             for (auto& imageElement : _frameImageElements)

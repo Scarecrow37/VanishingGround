@@ -27,7 +27,7 @@ void EditorParticleEffectViewer::OnStartGui()
     camera->SetupPerspective(45.f, (float)size.cx / (float)size.cy, 0.1f, 1000.f);
 
     auto&             system    = Global::editorModule->GetDockWindowSystem();
-    EditorDockWindow* modelDock = system.GetDockWindow("EffectDock");
+    EditorDockWindow* modelDock = system.GetDockWindow("Effect##dock");
 }
 
 void EditorParticleEffectViewer::OnEndGui()

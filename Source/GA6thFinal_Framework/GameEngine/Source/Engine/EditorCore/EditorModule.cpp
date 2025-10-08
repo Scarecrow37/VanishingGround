@@ -106,7 +106,11 @@ void EditorModule::Update()
 
     if (false == _eventQueue.empty())
     {
-        _eventQueue.front()();
+        auto func = _eventQueue.front();
+        if (func)
+        {
+            func();
+        }
         _eventQueue.pop();
     }
     if (true == _isFirstTick)
@@ -157,7 +161,7 @@ bool EditorModule::IsFocusAreaEmpty() const
 bool EditorModule::IsFocusedArea(const char* id) const
 {
     ImGuiID imguiId = ImHashStr(id);
-    if (_focusAreaList.find(imguiId) != _focusAreaList.end())
+    if (_focusAreaList.contains(imguiId))
     {
         return true;
     }
@@ -167,7 +171,7 @@ bool EditorModule::IsFocusedArea(const char* id) const
 void EditorModule::SetFocusArea(const char* id)
 {
     ImGuiID imguiId = ImHashStr(id);
-    if (_focusAreaList.find(imguiId) == _focusAreaList.end())
+    if (!_focusAreaList.contains(imguiId))
     {
         _focusAreaList.insert(imguiId);
     }
@@ -176,11 +180,7 @@ void EditorModule::SetFocusArea(const char* id)
 void EditorModule::UnsetFocusArea(const char* id)
 {
     ImGuiID imguiId = ImHashStr(id);
-    auto    itr     = _focusAreaList.find(imguiId);
-    if (itr != _focusAreaList.end())
-    {
-        _focusAreaList.erase(itr);
-    }
+    _focusAreaList.erase(imguiId);
 }
 
 void EditorModule::SetGuiThemeStyle()

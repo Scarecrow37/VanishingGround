@@ -14,8 +14,8 @@ TextElement::TextElement()
                 const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
                 if (const auto extension = data->GetPath().extension(); extension == L".png")
                 {
-                    _guidRef            = data->GetGuid();
-                    ReflectFields->Guid = _guidRef.string();
+                    _Guid            = data->GetGuid();
+                    ReflectFields->Guid = _Guid.string();
                     RequestResource();
                 }
             }
@@ -30,10 +30,10 @@ TextElement::~TextElement()
         _renderer->Release();
 }
 
-void TextElement::SetFont(const File::GuidRef& guidRef)
+void TextElement::SetFont(const File::Guid& Guid)
 {
-    _guidRef = guidRef;
-    ReflectFields->Guid = _guidRef.string();
+    _Guid = Guid;
+    ReflectFields->Guid = _Guid.string();
     RequestResource();
 }
 
@@ -67,7 +67,7 @@ void TextElement::DeserializedReflectEvent()
     const File::Guid guid = ReflectFields->Guid;
     if (const auto path = guid.ToPath(); !path.IsNull())
     {
-        _guidRef = path.ToGuid();
+        _Guid = path.ToGuid();
     }
 }
 
@@ -207,9 +207,9 @@ void TextElement::UpdateContentSize()
 
 void TextElement::RequestResource()
 {
-    if (false == _guidRef.IsNull())
+    if (false == _Guid.IsNull())
     {
-        UmSceneManager.ResourceManager.RequestSDFFontResource(this, _guidRef, [this]() {
+        UmSceneManager.ResourceManager.RequestSDFFontResource(this, _Guid, [this]() {
             LoadFont();
             UpdateProperties();
         });

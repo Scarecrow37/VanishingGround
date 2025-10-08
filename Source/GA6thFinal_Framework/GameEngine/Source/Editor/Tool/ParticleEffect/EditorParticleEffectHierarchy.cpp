@@ -23,7 +23,7 @@
 void EditorParticleEffectHierarchy::OnStartGui()
  {
      auto&             system     = Global::editorModule->GetDockWindowSystem();
-     EditorDockWindow* effectdock  = system.GetDockWindow("EffectDock");
+     EditorDockWindow* effectdock  = system.GetDockWindow("Effect##dock");;
      if (effectdock)
      {
          _editorParticleEffectDetails = effectdock->GetGui<EditorParticleEffectDetails>();

@@ -251,7 +251,7 @@ private:
     /// EventTrack
     ///////////////////////////////////////////////////////////////////////
 
-    File::GuidRef       _guidRef;
+    File::Guid       _Guid;
     File::Path          _filePath;
     AnimationEventTrack _eventTrack;
     std::function<bool(const Timeline::EventContext*)> _preEventCallback;  // Event Callback Function

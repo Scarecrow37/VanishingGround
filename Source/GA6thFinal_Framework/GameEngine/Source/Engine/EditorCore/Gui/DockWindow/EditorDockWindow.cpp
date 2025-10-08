@@ -11,17 +11,20 @@ EditorDockWindow::EditorDockWindow()
 
 EditorDockWindow::~EditorDockWindow() 
 {
-    for (auto& editor : _editorGuiList)
+    for (auto gui : _editorGuiList)
     {
-        if (nullptr != editor)
+        if (gui)
         {
-            delete editor;
-            editor = nullptr;
+            delete gui;
         }
     }
     _editorGuiList.clear();
     _editorGuiClassTable.clear();
     _editorToolTable.clear();
+    _editorMenuTable.clear();
+    _dockWindowTable.clear();
+    _dockSplitLayoutID.clear();
+    _dockSplitIDTable.clear();
 }
 
 void EditorDockWindow::OnTickGui() 
@@ -74,12 +77,9 @@ void EditorDockWindow::OnPostFrameBegin()
     // [Gui] Begin - End
     for (auto& editor : _editorGuiList)
     {
-        if (nullptr != editor)
+        if (editor && editor->IsVisible())
         {
-            if (true == editor->IsVisible())
-            {
-                editor->OnDrawGui();
-            }
+            editor->OnDrawGui();
         }
     }
 

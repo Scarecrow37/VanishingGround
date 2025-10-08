@@ -1205,7 +1205,7 @@ void ESceneManager::ObjectsDestroy()
     {
         if (false == _destroyObjectTemp.empty())
         {
-            static EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("SceneDock");
+            static EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("Scene##dock");
             static EditorHierarchyTool* editorHierarchy = sceneDock->GetGui<EditorHierarchyTool>();
             if (editorHierarchy)
             {
@@ -1243,7 +1243,7 @@ void ESceneManager::ObjectsAddRuntime()
 
         if constexpr (IS_EDITOR)
         {
-            static EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("SceneDock");
+            static EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("Scene##dock");
             static EditorHierarchyTool* editorHierarchy = sceneDock->GetGui<EditorHierarchyTool>();
             if (editorHierarchy)
             {
