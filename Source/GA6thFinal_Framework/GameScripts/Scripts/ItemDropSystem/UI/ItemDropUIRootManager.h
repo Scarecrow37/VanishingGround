@@ -3,6 +3,7 @@
 #include "ItemDropSystem/Interface/IDropItem.h"
 #include "Utility/SingletonHelper.h"
 
+class ArtifactUIManager;
 class ItemDropUIRootManager : public Component
 {
     USING_PROPERTY(ItemDropUIRootManager)
@@ -12,28 +13,31 @@ public:
     ~ItemDropUIRootManager() override;
 
 public:
+    GETTER_ONLY(ArtifactUIManager*, ArtifactUI) 
+    { 
+        ArtifactUIManager* artifactUI = nullptr;
+        if (auto uiManager = _artifactUIManager.lock())
+        {
+            artifactUI = uiManager.get();
+        }
+        return artifactUI;
+    }
+    /// <summary>
+    /// 보상 UI의 Artifact 부분을 관리하는 컴포넌트입니다.
+    /// type : ArtifactUIManager*
+    /// </summary>
+    PROPERTY(ArtifactUI)
+
+public:
     REFLECT_PROPERTY(
     )
 
-    GETTER_ONLY(std::string, ArtifactsUIFrameAsset)
-    {
-        File::Guid  guid = ReflectFields->ArtifactsUIFrameAssetGuid;
-        std::string path = guid.ToPath().string();
-        return path;
-    }
-    //type : std::string
-    //유물 드랍 프레임 UI 에셋 경로입니다.
-    PROPERTY(ArtifactsUIFrameAsset)
-
 protected:
     REFLECT_FIELDS_BEGIN(Component)
-    std::string ArtifactsUIFrameAssetGuid;
     REFLECT_FIELDS_END(ItemDropUIRootManager)
 
     void DeserializedReflectEvent() override;
     void ImGuiDrawPropertysEvent() override;
-
-    void ImGuiDrawArtifactUIAssetSetting();
 
     void Reset() override;
     void Awake() override;
@@ -41,4 +45,5 @@ protected:
 
 private:
     SingletonComponent<ItemDropUIRootManager> _singletonComponent{this};
+    std::weak_ptr<ArtifactUIManager>          _artifactUIManager;
 };

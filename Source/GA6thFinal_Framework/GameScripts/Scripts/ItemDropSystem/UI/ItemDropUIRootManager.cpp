@@ -24,32 +24,21 @@ void ItemDropUIRootManager::DeserializedReflectEvent()
 
 void ItemDropUIRootManager::ImGuiDrawPropertysEvent()
 {
-    ImGuiDrawArtifactUIAssetSetting();    
-}
-
-void ItemDropUIRootManager::ImGuiDrawArtifactUIAssetSetting() 
-{
-    if (ImGui::TreeNode("Artifact UI Setting"))
+    auto CheckWeakPtrText = [](const auto& weakPtr) 
     {
-        static std::string artifactsUIFrameAssetGuidBuff;
-        artifactsUIFrameAssetGuidBuff = ArtifactsUIFrameAsset;
-        artifactsUIFrameAssetGuidBuff = std::filesystem::path(artifactsUIFrameAssetGuidBuff).filename().string();
-        ImGui::InputText("Artifacts UI Frame Asset", &artifactsUIFrameAssetGuidBuff, ImGuiInputTextFlags_ReadOnly);
-        if (ImGui::BeginDragDropTarget())
+        if (auto ptr = weakPtr.lock())
         {
-            if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
-            {
-                DragDropAsset::Data* data      = static_cast<DragDropAsset::Data*>(payLoad->Data);
-                File::Path           path      = data->GetPath();
-                const auto           extension = path.extension();
-                if (extension == L".png" || extension == L".dds")
-                {
-                    ReflectFields->ArtifactsUIFrameAssetGuid = data->GetGuid().string();
-                }
-            }
-            ImGui::EndDragDropTarget();
+            ImGui::Text("ArtifactUIManager valid");
         }
-        ImGuiHelper::HoveredToolTip(u8"유물 드랍 프레임 UI 에셋 경로입니다.");
+        else
+        {
+            ImGui::Text("ArtifactUIManager nullptr");
+        }
+    };
+
+    if (ImGui::TreeNode("Debug"))
+    {
+        CheckWeakPtrText(_artifactUIManager); 
 
         ImGui::TreePop();
     }
@@ -78,6 +67,14 @@ void ItemDropUIRootManager::Start()
     if (_singletonComponent.IsSingleTon())
     {
         gameObject->ActiveSelf = false;
+        if (auto artifactUI = GameObject::FindWithTag(ArtifactUIManager::TAG).lock())
+        {
+            if (ArtifactUIManager* component = artifactUI->GetComponent<ArtifactUIManager>())
+            {
+                auto weakComponent = component->GetWeakPtr();
+                _artifactUIManager = std::static_pointer_cast<ArtifactUIManager>(weakComponent.lock());
+            }
+        }
     }
 }
 
