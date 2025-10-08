@@ -2,6 +2,11 @@
 #include <Utility/SingletonHelper.h>
 
 #include <CombatUIManager/CharacterHUD/CharactorHUDGroup.h>
+#include <CombatUIManager/TurnQueue/TurnQueueGroup.h>
+#include <CombatUIManager/Consumable/ConsumableGroup.h>
+#include <CombatUIManager/Revelations/RevelationsGroup.h>
+#include <CombatUIManager/Weaapon/WeaponGroup.h>
+#include <CombatUIManager/Accessories/AccessoriesGroup.h>
 
 class OverlayPanel;
 class ImageElement;
@@ -40,7 +45,12 @@ protected:
 private:
     SingletonComponent<CombatUIManager> _singletonComponent{this};
 
-    CharacterHUDGroup _charactorHUDGroup;
+    CombatUI::CharacterHUDGroup _charactorHUDGroup;
+    CombatUI::TurnQueueGroup    _turnQueueGroup;
+    CombatUI::ConsumableGroup   _consumableGroup;
+    CombatUI::RevelationsGroup  _revelationsGroup;
+    CombatUI::WeaponGroup       _weaponGroup;
+    CombatUI::AccessoriesGroup  _accessoriesGroup;
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)

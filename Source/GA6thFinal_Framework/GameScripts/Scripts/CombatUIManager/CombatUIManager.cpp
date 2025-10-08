@@ -16,7 +16,12 @@ void CombatUIManager::Refresh()
 
 void CombatUIManager::SetActiveUI(bool active) 
 {
-    // TODO: 전투 UI 활성화/비활성화 구현
+    _charactorHUDGroup.ActiveUI(active);
+    _turnQueueGroup.ActiveUI(active);
+    _consumableGroup.ActiveUI(active);
+    _revelationsGroup.ActiveUI(active);
+    _weaponGroup.ActiveUI(active);
+    _accessoriesGroup.ActiveUI(active);
 }
 
 void CombatUIManager::Reset()
