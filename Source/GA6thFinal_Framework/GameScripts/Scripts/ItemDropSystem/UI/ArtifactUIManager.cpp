@@ -249,17 +249,6 @@ void ArtifactUIManager::ImageUISetup(const std::vector<DropArtifactsUIData>& dro
 {
     if (ItemDropUIRootManager* rootManager = SingletonComponent<ItemDropUIRootManager>::GetInstance())
     {
-        // Frame UI 업데이트
-        std::string   frameAsstePath = rootManager->ArtifactsUIFrameAsset;
-        File::GuidRef guid           = UmFileSystem.GetGuidFromPath(frameAsstePath);
-        if (false == guid.IsNull())
-        {
-            for (auto& imageElement : _frameImageElements)
-            {
-                imageElement->SetImage(guid);
-            }
-        }
-
         // Artifact UI 업데이트
         for (size_t i = 0; i < dropItemsInfo.size(); i++)
         {
