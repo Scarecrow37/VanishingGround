@@ -107,6 +107,24 @@ void PreferencesManager::Update()
         }
         _isOpenAbandonDirty = false;
     }
+
+    Debugger()([this]{
+        // 아래는 디버그용 코드입니다.
+        ImGuiHelper::AlignedText("Preferences", ImGuiHelper::LEFT, 0.8f);
+        if (ImGui::Button("Close"))
+        {
+            OffPreferencesWindow();
+        }
+        if (ImGui::TreeNodeEx("Properties##details"))
+        {
+            if (ImGui::Button("Abandon"))
+            {
+                CloseAbandonButtons();
+                GoToMainMenu();
+            }
+            ImGui::TreePop();
+        }
+    });
 }
 
 void PreferencesManager::LateUpdate()

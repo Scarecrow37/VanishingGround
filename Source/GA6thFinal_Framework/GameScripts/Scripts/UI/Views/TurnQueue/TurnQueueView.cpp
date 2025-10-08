@@ -13,7 +13,7 @@ TurnQueueView::TurnQueueView()
 
 TurnQueueView::~TurnQueueView()
 {
-    UmWatcher.Blind<TurnQueueViewModel>("Turn Queue", _watchHandle);
+    
 }
 
 void TurnQueueView::ImGuiDrawPropertysEvent() 
@@ -107,6 +107,11 @@ void TurnQueueView::Start()
     });
 
     DisableButtonIcons();
+}
+
+void TurnQueueView::OnDestroy() 
+{
+    UmWatcher.Blind<TurnQueueViewModel>("Turn Queue", _watchHandle);
 }
 
 enum class FindResult

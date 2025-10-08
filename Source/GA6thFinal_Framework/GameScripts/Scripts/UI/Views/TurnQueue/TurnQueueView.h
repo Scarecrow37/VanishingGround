@@ -15,6 +15,7 @@ protected:
     void ImGuiDrawPropertysEvent() override;
     void Awake() override;
     void Start() override;
+    void OnDestroy() override;
 
 private:
     ImageElement* FindImageElementWithTag(const std::string& tag) const;
