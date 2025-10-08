@@ -72,7 +72,7 @@ void GameApplication::BuildRootDock()
 {
     auto& dockSystem = _editorModule->GetDockWindowSystem();
 
-    _rootDock = dockSystem.RegisterDockWindow("RootDock");
+    _rootDock = dockSystem.CreateDockWindow("Root##dock");
 
     ImGuiWindowClass imguiwindowClass;
     imguiwindowClass.ClassId                = ImHashStr("RootDockID"); // 윈도우 ID값 (그냥 대충 ImHashStr을 사용하여 생성)
@@ -109,7 +109,7 @@ void GameApplication::BuildSceneDock()
 {
     auto& dockSystem = _editorModule->GetDockWindowSystem();
 
-    _sceneDock = dockSystem.RegisterDockWindow("SceneDock", _rootDock);
+    _sceneDock = dockSystem.CreateDockWindow("Scene##dock", "Root##dock");
     
     ImGuiWindowClass imguiwindowClass;
     imguiwindowClass.ClassId                = ImHashStr("SceneDockID");
@@ -153,7 +153,7 @@ void GameApplication::BuildModelDock()
 {
     auto& dockSystem = _editorModule->GetDockWindowSystem();
 
-    _modelDock       = dockSystem.RegisterDockWindow("ModelDock", _rootDock);
+    _modelDock = dockSystem.CreateDockWindow("Model##dock", "Root##dock");
 
     ImGuiWindowClass imguiwindowClass;
     imguiwindowClass.ClassId               = ImHashStr("ModelDockID");
@@ -184,10 +184,9 @@ void GameApplication::BuildModelDock()
 
 void GameApplication::BuildEffectDock() 
 {
-
     auto& dockSystem = _editorModule->GetDockWindowSystem();
 
-    _effectDock = dockSystem.RegisterDockWindow("EffectDock", _rootDock);
+    _effectDock = dockSystem.CreateDockWindow("Effect##dock", "Root##dock");
 
     ImGuiWindowClass imguiwindowClass;
     imguiwindowClass.ClassId               = ImHashStr("EffectDockID");

@@ -30,6 +30,6 @@ private:
 private:
     EditorPopupBox* _currentPopupBox = nullptr; // 현재 팝업박스
 
-    std::unordered_map<std::string, EditorPopupBox*> _popupBoxTable;
-    std::deque<EditorPopupBox*>                      _popupBoxQueue;
+    std::deque<EditorPopupBox> _popupBoxQueue;  // 원본 큐
+    std::unordered_map<std::string, EditorPopupBox*> _popupBoxTable; // 원본 큐를 참조하는 테이블
 };

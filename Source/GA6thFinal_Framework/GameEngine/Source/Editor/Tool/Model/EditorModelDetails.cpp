@@ -127,7 +127,7 @@ void EditorModelDetails::OnStartGui()
     UpdateModelTransform();
 
     auto& system = Global::editorModule->GetDockWindowSystem();
-    auto* modelDock = system.GetDockWindow("ModelDock");
+    auto* modelDock = system.GetDockWindow("Model##dock");
     _modelTool      = modelDock->GetGui<EditorModelTool>();
 
     UmFileSystem.RegisterFileEventSubscriber(this, {".fbx", ".UmModel"});
@@ -141,7 +141,7 @@ void EditorModelDetails::OnPostFrameBegin() {}
 
 void EditorModelDetails::OnFrameRender()
 {
-    ImGui::BeginHorizontal("model");
+    ImGui::BeginHorizontal("Model##dock");
     if (ImGui::Button("Import", ImVec2(100, 50)))
     {
         ImportModelWithDialog();

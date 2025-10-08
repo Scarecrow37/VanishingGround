@@ -65,7 +65,7 @@ void AnimationComponent::SerializedReflectEvent()
     ReflectFields->MainAnimationFlags = _mainAnimationData._flag;
     ReflectFields->MainAnimationSpeed = _mainAnimationData._speed;
 
-    ReflectFields->AnimEventTrackGuid = _guidRef.string();
+    ReflectFields->AnimEventTrackGuid = _Guid.string();
 }
 
 void AnimationComponent::DeserializedReflectEvent()
@@ -859,9 +859,9 @@ void AnimationComponent::SetAnimationEventTrackFromPath(const File::Path& path)
 
 void AnimationComponent::SetAnimationEventTrackFromGuid(const File::Guid& guid) 
 {
-    _guidRef  = guid;
+    _Guid  = guid;
     _filePath = guid;
-    ReflectFields->AnimEventTrackGuid = _guidRef.string();
+    ReflectFields->AnimEventTrackGuid = _Guid.string();
     if (_eventTrack.LoadFile(_filePath))
     {
         const auto& table = _eventTrack.GetEventTrackTable();
