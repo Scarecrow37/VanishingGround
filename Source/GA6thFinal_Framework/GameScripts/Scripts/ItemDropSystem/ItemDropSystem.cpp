@@ -267,7 +267,7 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
         case ArtifactDropType::ERASE_REVELATION:
             artifact.ID       = DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::ERASE_REVELATION);
             artifact.Category = ArtifactDropType::ERASE_REVELATION;
-            artifact.Name     = (const char*)u8"계시 지우기 (테스트)";
+            artifact.Name     = (const char*)u8"계시 지우기";
             break;
         default:
             break;
@@ -293,6 +293,13 @@ void ItemDropSystem::SetStageClearCount(int count)
 
 void ItemDropSystem::PlayItemDropUISequence() 
 {
+#ifdef _UMEDITOR
+    if (false == UmCore->IsPlay())
+    {
+        return;
+    }
+#endif 
+
     if (ItemDropUIRootManager* itemDropUIRootManager = SingletonComponent<ItemDropUIRootManager>::GetInstance())
     {
         itemDropUIRootManager->gameObject->ActiveSelf = true;
@@ -321,12 +328,35 @@ void ItemDropSystem::PlayItemDropUISequence()
 
     if (ArtifactUIManager* manager = SingletonComponent<ArtifactUIManager>::GetInstance())
     {
+        //보상 설정이 안되어있으면 자동으로 뽑는다.
+        if (_dropItemsModel.empty())
+        {
+            std::array<DropItemInfo, ARTIFACT_DROP_COUNT> artifacts = RollArtifacts();
+            SetDropItem(artifacts);
+        }
+            
+        //버튼 기능 설정
+        const auto& dropItemInfos = _dropItemsModel;
+        size_t i = 0;
+        for (const auto& itemInfo : dropItemInfos)
+        {
+            manager->SetNaviDropItemInfo(itemInfo, i);
+            ++i;
+        }
+
+        //포커스 되야할 버튼
         manager->FocusNavi(0);
     }
 }
 
 void ItemDropSystem::ImGuiDrawPropertysEvent() 
 {
+    if (ImGui::Button("Play Item Drop UI Sequence"))
+    {
+        PlayItemDropUISequence();
+    }
+    ImGuiHelper::HoveredToolTip((const char*)u8"플레이 모드에서만 동작합니다.");
+
     if (ImGui::TreeNode("Artifacts"))
     {
         ImGuiDrawTestRollArtifacts();   
@@ -347,6 +377,7 @@ void ItemDropSystem::ImGuiDrawTestRollArtifacts()
         if (ImGui::Button("Roll Artifacts"))
         {
             std::array<DropItemInfo, ARTIFACT_DROP_COUNT> artifacts = RollArtifacts();
+            SetDropItem(artifacts);
             if (ArtifactUIManager* uiManager = SingletonComponent<ArtifactUIManager>::GetInstance())
             {
                 uiManager->UpdateImageElements(std::vector<DropItemInfo>(artifacts.begin(), artifacts.end()));
