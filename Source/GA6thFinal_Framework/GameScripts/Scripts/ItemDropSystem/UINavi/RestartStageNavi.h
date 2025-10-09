@@ -31,7 +31,6 @@ public:
 protected:
     void Awake() override;
     void Start() override;
-    void OnEnable() override;
 
 protected:
     REFLECT_FIELDS_BEGIN(UISFXNavigationComponent)
