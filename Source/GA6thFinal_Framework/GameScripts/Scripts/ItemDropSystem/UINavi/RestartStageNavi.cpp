@@ -137,10 +137,3 @@ void RestartStageNavi::Start()
     Base::Start();
     CheckImageElementWithLog(_imageElement);
 }
-
-void RestartStageNavi::OnEnable()
-{
-    UINavigationComponent::OnEnable();
-
-    Focus();
-}
