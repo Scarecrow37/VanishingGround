@@ -55,12 +55,6 @@ void ArtifactUIManager::Start()
         {
             system->NotifyUIModel();
         }
-
-        //Focus Image는 다 비활성화.
-        for (auto& focusImage : _focusImageElements)
-        {
-            focusImage->Enable = false;
-        }
     }
 }
 
@@ -258,6 +252,15 @@ bool ArtifactUIManager::FocusNavi(size_t index)
         }
     }
     return false;
+}
+
+void ArtifactUIManager::SetNaviDropItemInfo(const DropItemInfo& info, size_t index) 
+{
+    if (index < _focusNaviElements.size())
+    {
+        ArtifactButtonNavi* navi = _focusNaviElements[index];
+        navi->SettingItem(info);
+    }
 }
 
 void ArtifactUIManager::UpdateImageElements(const std::vector<DropItemInfo>& dropItemsInfo) 
