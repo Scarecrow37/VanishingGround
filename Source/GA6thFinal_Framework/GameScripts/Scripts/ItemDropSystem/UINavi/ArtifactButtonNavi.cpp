@@ -2,6 +2,8 @@
 #include "ArtifactButtonNavi.h"
 #include "UI/Elements/Image/ImageElement.h"
 #include "ItemDropSystem/UI/ArtifactUIManager.h"
+#include "ItemDropSystem/UI/ItemInfoUIManager.h"
+#include "ItemDropSystem/UI/ItemDropUIRootManager.h"
 
 UMREAL_COMPONENT(ArtifactButtonNavi)
 
@@ -28,6 +30,7 @@ void ArtifactButtonNavi::Awake()
         if (component)
         {
             _focusImage = std::static_pointer_cast<ImageElement>(component);
+            component->Enable = false; //focus는 전부 꺼둬야함
         }
     }
 }
@@ -38,6 +41,15 @@ void ArtifactButtonNavi::FocusIn(FocusCallType type)
     if (auto focus = _focusImage.lock())
     {
         focus->Enable = true;
+
+        //UI 설정
+        if (ItemDropUIRootManager* rootManager = SingletonComponent<ItemDropUIRootManager>::GetInstance())
+        {
+            if (ItemInfoUIManager* infoManager = rootManager->ItemInfoUI)
+            {
+                infoManager->SetItemInfoUI(_itemInfo);
+            }
+        }
     }
 }
 
