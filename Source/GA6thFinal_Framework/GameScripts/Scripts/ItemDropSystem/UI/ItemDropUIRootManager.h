@@ -4,6 +4,7 @@
 #include "Utility/SingletonHelper.h"
 
 class ArtifactUIManager;
+class ItemInfoUIManager;
 class ItemDropUIRootManager : public Component
 {
     USING_PROPERTY(ItemDropUIRootManager)
@@ -22,11 +23,22 @@ public:
         }
         return artifactUI;
     }
-    /// <summary>
-    /// 보상 UI의 Artifact 부분을 관리하는 컴포넌트입니다.
-    /// type : ArtifactUIManager*
-    /// </summary>
+    // 보상 UI의 Artifact 부분을 관리하는 컴포넌트입니다.
+    // type : ArtifactUIManager*
     PROPERTY(ArtifactUI)
+
+    GETTER_ONLY(ItemInfoUIManager*, ItemInfoUI) 
+    { 
+        ItemInfoUIManager* infoUI = nullptr;
+        if (auto uiManager = _itemInfoUIManager.lock())
+        {
+            infoUI = uiManager.get();
+        }
+        return infoUI;
+    }
+    // 보상 UI의 포커스된 아이템 정보를 표시하는 UI를 관리하는 컴포넌트입니다.
+    // type : ItemInfoUIManager*
+    PROPERTY(ItemInfoUI)
 
 public:
     REFLECT_PROPERTY(
@@ -46,4 +58,6 @@ protected:
 private:
     SingletonComponent<ItemDropUIRootManager> _singletonComponent{this};
     std::weak_ptr<ArtifactUIManager>          _artifactUIManager;
+    std::weak_ptr<ItemInfoUIManager>          _itemInfoUIManager;
+
 };

@@ -4,6 +4,7 @@
 #include "ItemDropSystem/ItemDropSystem.h"
 #include "RevelationSystem/RevelationSystem.h"
 #include "ExcelDataSystem/ExcelDataSystem.h"
+#include "ItemDropSystem/UI/ItemInfoUIManager.h"
 
 UMREAL_COMPONENT(ItemDropUIRootManager)
 
@@ -39,7 +40,7 @@ void ItemDropUIRootManager::ImGuiDrawPropertysEvent()
     if (ImGui::TreeNode("Debug"))
     {
         CheckWeakPtrText(_artifactUIManager); 
-
+        CheckWeakPtrText(_itemInfoUIManager);
         ImGui::TreePop();
     }
 }
@@ -73,6 +74,14 @@ void ItemDropUIRootManager::Start()
             {
                 auto weakComponent = component->GetWeakPtr();
                 _artifactUIManager = std::static_pointer_cast<ArtifactUIManager>(weakComponent.lock());
+            }
+        }
+        if (auto itemInfoUI = GameObject::FindWithTag(ItemInfoUIManager::TAG).lock())
+        {
+            if (ItemInfoUIManager* component = itemInfoUI->GetComponent<ItemInfoUIManager>())
+            {
+                auto weakComponent = component->GetWeakPtr();
+                _itemInfoUIManager = std::static_pointer_cast<ItemInfoUIManager>(weakComponent.lock());
             }
         }
     }
