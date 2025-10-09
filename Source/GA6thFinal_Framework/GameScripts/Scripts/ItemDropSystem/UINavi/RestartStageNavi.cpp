@@ -129,6 +129,7 @@ void RestartStageNavi::Awake()
 {
     Base::Awake();
     _imageElement = GetComponent<ImageElement>();
+    gameObject->AddTag(TAG);
 }
 
 void RestartStageNavi::Start()

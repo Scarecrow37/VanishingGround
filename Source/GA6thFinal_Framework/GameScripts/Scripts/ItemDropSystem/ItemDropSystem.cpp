@@ -304,6 +304,28 @@ void ItemDropSystem::PlayItemDropUISequence()
     {
         itemDropUIRootManager->gameObject->ActiveSelf = true;
         StageClearCount = StageClearCount + 1;
+
+        if (ArtifactUIManager* manager = SingletonComponent<ArtifactUIManager>::GetInstance())
+        {
+            // 보상 설정이 안되어있으면 자동으로 뽑는다.
+            if (_dropItemsModel.empty())
+            {
+                std::array<DropItemInfo, ARTIFACT_DROP_COUNT> artifacts = RollArtifacts();
+                SetDropItem(artifacts);
+            }
+
+            // 버튼 기능 설정
+            const auto& dropItemInfos = _dropItemsModel;
+            size_t      i             = 0;
+            for (const auto& itemInfo : dropItemInfos)
+            {
+                manager->SetNaviDropItemInfo(itemInfo, i);
+                ++i;
+            }
+
+            // 포커스 되야할 버튼
+            itemDropUIRootManager->AutoFocus();
+        }
     }
 
     if (auto turnQueue = GameObject::FindWithTag("Turn Queue Panel").lock())
@@ -324,28 +346,6 @@ void ItemDropSystem::PlayItemDropUISequence()
     if (auto weaponPanel = GameObject::FindWithTag("Weapon Panel").lock())
     {
         weaponPanel->ActiveSelf = false;
-    }
-
-    if (ArtifactUIManager* manager = SingletonComponent<ArtifactUIManager>::GetInstance())
-    {
-        //보상 설정이 안되어있으면 자동으로 뽑는다.
-        if (_dropItemsModel.empty())
-        {
-            std::array<DropItemInfo, ARTIFACT_DROP_COUNT> artifacts = RollArtifacts();
-            SetDropItem(artifacts);
-        }
-            
-        //버튼 기능 설정
-        const auto& dropItemInfos = _dropItemsModel;
-        size_t i = 0;
-        for (const auto& itemInfo : dropItemInfos)
-        {
-            manager->SetNaviDropItemInfo(itemInfo, i);
-            ++i;
-        }
-
-        //포커스 되야할 버튼
-        manager->FocusNavi(0);
     }
 }
 

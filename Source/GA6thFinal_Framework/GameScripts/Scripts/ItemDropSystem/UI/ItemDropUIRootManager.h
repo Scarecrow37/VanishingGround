@@ -40,6 +40,11 @@ public:
     // type : ItemInfoUIManager*
     PROPERTY(ItemInfoUI)
 
+    /// <summary>
+    /// 포커스 가능한 Navi로 포커스 설정을 해줍니다.
+    /// </summary>
+    void AutoFocus() const;
+
 public:
     REFLECT_PROPERTY(
     )

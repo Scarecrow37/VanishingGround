@@ -5,6 +5,7 @@
 #include "RevelationSystem/RevelationSystem.h"
 #include "ExcelDataSystem/ExcelDataSystem.h"
 #include "ItemDropSystem/UI/ItemInfoUIManager.h"
+#include "ItemDropSystem/UINavi/RestartStageNavi.h"
 
 UMREAL_COMPONENT(ItemDropUIRootManager)
 
@@ -16,6 +17,30 @@ ItemDropUIRootManager::ItemDropUIRootManager()
 ItemDropUIRootManager::~ItemDropUIRootManager()
 {
   
+}
+
+void ItemDropUIRootManager::AutoFocus() const 
+{
+    if (ArtifactUIManager* artifactUI = ArtifactUI)
+    {
+        //포커스 가능한 UI로 설정
+        for (size_t i = 0; i < ARTIFACT_DROP_COUNT; ++i)
+        {
+            if (artifactUI->FocusNavi(i))
+            {
+                return;
+            }
+        }
+    }
+
+    //없으면 RestartButton으로 포커스 설정
+    if (auto restartButton = GameObject::FindWithTag(RestartStageNavi::TAG).lock())
+    {
+        if (auto navi = restartButton->GetComponent<RestartStageNavi>())
+        {
+            navi->Focus();
+        }
+    }
 }
 
 void ItemDropUIRootManager::DeserializedReflectEvent()

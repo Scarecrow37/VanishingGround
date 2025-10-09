@@ -7,7 +7,6 @@
 #include "ViewModels/ItemDrop/DropArtifacts/DropArtifactsViewModel.h"
 #include "ItemDropSystem/UINavi/ArtifactButtonNavi.h"
 
-
 UMREAL_COMPONENT(ArtifactUIManager)
 
 ArtifactUIManager::ArtifactUIManager()
@@ -127,6 +126,7 @@ void ArtifactUIManager::FindImageElements()
     _iconElements.clear();
     _categoryImageElements.clear();
     _focusImageElements.clear();
+    _focusNaviElements.clear();
     Transform::ForeachDFS(transform, [this](Transform* curr) 
     {
         GameObject& gameObject = curr->gameObject;
@@ -237,6 +237,18 @@ void ArtifactUIManager::ImageUIUnlock()
                 element->Enable = false;
             }       
         }
+        for (int i = 0; i < _focusNaviElements.size(); ++i)
+        {
+            ArtifactButtonNavi* navi = _focusNaviElements[i];
+            if (endIndex < i)
+            {
+                navi->Enable = false;
+            }
+            else
+            {
+                navi->Enable = true;
+            }       
+        }
     }
 }
 
@@ -244,11 +256,14 @@ bool ArtifactUIManager::FocusNavi(size_t index)
 {
     if (index < _focusNaviElements.size())
     {
-        ArtifactButtonNavi* navi = _focusNaviElements[index];
-        if (navi->Enable)
+        if (ItemDropSystem* system = SingletonComponent<ItemDropSystem>::GetInstance())
         {
-            navi->Focus();
-            return true;
+            ArtifactButtonNavi* navi = _focusNaviElements[index];
+            if (navi->Enable)
+            {
+                navi->Focus();
+                return true;
+            }
         }
     }
     return false;

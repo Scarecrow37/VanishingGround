@@ -37,18 +37,25 @@ void ArtifactButtonNavi::Awake()
 
 void ArtifactButtonNavi::FocusIn(FocusCallType type)
 {
-    Base::FocusIn(type);
-    if (auto focus = _focusImage.lock())
+    if (true == EnableInHierarchy)
     {
-        focus->Enable = true;
-
-        //UI 설정
-        if (ItemDropUIRootManager* rootManager = SingletonComponent<ItemDropUIRootManager>::GetInstance())
+        Base::FocusIn(type);
+        if (auto focus = _focusImage.lock())
         {
-            if (ItemInfoUIManager* infoManager = rootManager->ItemInfoUI)
+            focus->Enable = true;
+
+            // UI 설정
+            if (ItemInfoUIManager* infoManager = SingletonComponent<ItemInfoUIManager>::GetInstance())
             {
                 infoManager->SetItemInfoUI(_itemInfo);
             }
+        }
+    }
+    else
+    {
+        if (ItemDropUIRootManager* rootManager = SingletonComponent<ItemDropUIRootManager>::GetInstance())
+        {
+            rootManager->AutoFocus();
         }
     }
 }
@@ -58,16 +65,10 @@ void ArtifactButtonNavi::Submit()
     Base::Submit();
     if (Enable)
     {
-        if (ArtifactUIManager* manager = SingletonComponent<ArtifactUIManager>::GetInstance())
+        if (ItemDropUIRootManager* manager = SingletonComponent<ItemDropUIRootManager>::GetInstance())
         {
             Enable = false;
-            for (size_t i = 0; i < ARTIFACT_DROP_COUNT; i++)
-            {
-                if (manager->FocusNavi(i))
-                {
-                    break;
-                }
-            }
+            manager->AutoFocus();
         }
     }
 }
