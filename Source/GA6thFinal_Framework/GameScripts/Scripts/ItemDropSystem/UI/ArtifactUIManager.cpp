@@ -159,6 +159,7 @@ void ArtifactUIManager::FindImageElements()
             }
             if (ArtifactButtonNavi* navi = gameObject.GetComponent<ArtifactButtonNavi>())
             {
+                navi->_buttonIndex = _focusNaviElements.size();
                 _focusNaviElements.push_back(navi);
             }
         }
@@ -267,6 +268,22 @@ bool ArtifactUIManager::FocusNavi(size_t index)
         }
     }
     return false;
+}
+
+void ArtifactUIManager::DisableFocusNavi(size_t index) 
+{
+    if (index < _focusNaviElements.size())
+    {
+        ArtifactButtonNavi* navi = _focusNaviElements[index];
+        navi->Enable             = false;
+        if (ArtifactButtonNavi::GetLastFocusIndex() == index)
+        {
+            if (ItemDropUIRootManager* manager = SingletonComponent<ItemDropUIRootManager>::GetInstance())
+            {
+                manager->AutoFocus(false);
+            }
+        }
+    }
 }
 
 void ArtifactUIManager::SetNaviDropItemInfo(const DropItemInfo& info, size_t index) 
