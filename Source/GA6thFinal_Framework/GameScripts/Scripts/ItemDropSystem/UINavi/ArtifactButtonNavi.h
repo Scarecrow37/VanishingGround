@@ -4,8 +4,12 @@
 class ImageElement;
 class ArtifactButtonNavi : public UISFXNavigationComponent
 {
+    friend class ArtifactUIManager;
     USING_PROPERTY(ArtifactButtonNavi)
+    inline static size_t LastFocusIndex = 0;
 public:
+    inline static size_t GetLastFocusIndex() { return LastFocusIndex; }
+
     ArtifactButtonNavi();
     ~ArtifactButtonNavi() override;
 
@@ -31,4 +35,5 @@ protected:
 private:
     DropItemInfo _itemInfo;
     std::weak_ptr<ImageElement> _focusImage;
+    size_t                      _buttonIndex = std::numeric_limits<size_t>::max();
 };

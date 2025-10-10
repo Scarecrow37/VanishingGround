@@ -12,6 +12,7 @@ ArtifactButtonNavi::ArtifactButtonNavi()
     _itemInfo.Category = ArtifactDropType::ERASE_REVELATION;
     _itemInfo.ID       = 0;
     _itemInfo.Name     = (const char*)u8"계시 지우기";
+    _buttonIndex       = -1;
 }
 ArtifactButtonNavi::~ArtifactButtonNavi() = default;
 
@@ -36,14 +37,15 @@ void ArtifactButtonNavi::Awake()
 }
 
 void ArtifactButtonNavi::FocusIn(FocusCallType type)
-{
+{ 
+    LastFocusIndex = _buttonIndex; // 마지막 포커스된 버튼 인덱스
     if (true == EnableInHierarchy)
     {
         Base::FocusIn(type);
         if (auto focus = _focusImage.lock())
         {
             focus->Enable = true;
-
+    
             // UI 설정
             if (ItemInfoUIManager* infoManager = SingletonComponent<ItemInfoUIManager>::GetInstance())
             {
@@ -57,7 +59,7 @@ void ArtifactButtonNavi::FocusIn(FocusCallType type)
         {
             rootManager->AutoFocus();
         }
-    }
+    }  
 }
 
 void ArtifactButtonNavi::Submit()
@@ -65,10 +67,9 @@ void ArtifactButtonNavi::Submit()
     Base::Submit();
     if (Enable)
     {
-        if (ItemDropUIRootManager* manager = SingletonComponent<ItemDropUIRootManager>::GetInstance())
-        {
-            Enable = false;
-            manager->AutoFocus();
+        if (ArtifactUIManager* manager = SingletonComponent<ArtifactUIManager>::GetInstance())
+        {         
+            manager->DisableFocusNavi(_buttonIndex);
         }
     }
 }
