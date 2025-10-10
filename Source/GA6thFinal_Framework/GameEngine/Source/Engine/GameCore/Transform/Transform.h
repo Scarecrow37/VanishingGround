@@ -317,6 +317,13 @@ public:
     Transform* Find(std::string_view name) const;
 
     /// <summary>
+    /// 해당 태그를 가지고있는 자식을 찾아서 반환합니다. 여러개가 존재할 경우 가장 앞쪽에 있는 자식을 반환합니다.
+    /// </summary>
+    /// <param name="tag :">찾을 태그</param>
+    /// <returns>없으면 nullptr</returns>
+    Transform* FindWithTag(const std::string& tag) const;
+
+    /// <summary>
     /// <para>
     /// https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform.Rotate.html
     /// </para> <para> Transform을 특정 축으로 회전시킵니다. </para>
