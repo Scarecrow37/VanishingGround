@@ -5,7 +5,7 @@
 
 class ArtifactUIManager;
 class ItemInfoUIManager;
-class ItemDropUIRootManager : public Component
+class ItemDropUIRootManager : public Component, public InputReceiver
 {
     USING_PROPERTY(ItemDropUIRootManager)
 public:
@@ -43,7 +43,7 @@ public:
     /// <summary>
     /// 포커스 가능한 Navi로 포커스 설정을 해줍니다.
     /// </summary>
-    void AutoFocus() const;
+    void AutoFocus(bool checkInputDir = true);
 
 public:
     REFLECT_PROPERTY(
@@ -59,10 +59,26 @@ protected:
     void Reset() override;
     void Awake() override;
     void Start() override;
+    void LateUpdate() override;
+
+    void OnDpadLeft(const Input::Controller&);
+    void OnDpadRight(const Input::Controller&);
+    void OnDpadUp(const Input::Controller&);
+    void OnDpadDown(const Input::Controller&);
 
 private:
     SingletonComponent<ItemDropUIRootManager> _singletonComponent{this};
     std::weak_ptr<ArtifactUIManager>          _artifactUIManager;
     std::weak_ptr<ItemInfoUIManager>          _itemInfoUIManager;
 
+
+    enum class InputDir
+    {
+        IDLE,
+        LEFT,
+        RIGHT,
+        UP,
+        DOWN
+    }
+    _lastInputDir; //마지막 입력 추적용
 };
