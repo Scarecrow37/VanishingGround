@@ -58,7 +58,7 @@ void WeaponElement::DeepCopyAction(const TurnAction& rhs)
     }
 }
 
-DropItemInfo WeaponElement::GetItemInfo()
+DropItemInfo WeaponElement::GetItemInfo() const
 {
     DropItemInfo info
     {

@@ -59,6 +59,6 @@ public:
     virtual ~IDropItem() = default;
 
     //아이템의 정보들을 반환합니다.
-    virtual DropItemInfo GetItemInfo() = 0;
+    virtual DropItemInfo GetItemInfo() const = 0;
 };
 
