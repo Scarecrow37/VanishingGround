@@ -40,7 +40,6 @@ void ArtifactButtonNavi::Awake()
 
 void ArtifactButtonNavi::FocusIn(FocusCallType type)
 { 
-    LastFocusIndex = _buttonIndex; // 마지막 포커스된 버튼 인덱스
     if (true == EnableInHierarchy)
     {
         Base::FocusIn(type);
@@ -54,6 +53,7 @@ void ArtifactButtonNavi::FocusIn(FocusCallType type)
                 infoManager->SetItemInfoUI(_itemInfo);
             }
         }
+        LastFocusIndex = _buttonIndex; // 마지막 포커스된 버튼 인덱스
     }
     else
     {
@@ -82,7 +82,7 @@ void ArtifactButtonNavi::Submit()
                 }
                 break;
             default:
-                manager->DisableFocusNavi(_buttonIndex);
+                manager->ObtainFocusNavi(_buttonIndex);
                 break;
             }
         }
