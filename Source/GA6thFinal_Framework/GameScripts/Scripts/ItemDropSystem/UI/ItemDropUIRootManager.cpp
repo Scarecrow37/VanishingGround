@@ -86,6 +86,7 @@ void ItemDropUIRootManager::AutoFocus(bool checkInputDir)
         if (auto navi = restartButton->GetComponent<RestartStageNavi>())
         {
             navi->Focus();
+            ArtifactButtonNavi::LastFocusIndex = ARTIFACT_DROP_COUNT + 1;
         }
     }
 }
