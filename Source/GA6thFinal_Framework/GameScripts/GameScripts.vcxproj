@@ -220,7 +220,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalOptions>/bigobj /Zm600 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -241,7 +241,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalOptions>/bigobj /Zm600 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -264,7 +264,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalOptions>/bigobj /Zm600 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -289,7 +289,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalOptions>/bigobj /Zm600 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -348,6 +348,7 @@
     <ClInclude Include="Scripts\ItemDropSystem\Interface\IDropItem.h" />
     <ClInclude Include="Scripts\ItemDropSystem\ItemDropSystem.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UINavi\ArtifactButtonNavi.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UINavi\PlayerWeaponChangeNavi.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UINavi\RestartStageNavi.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UINavi\ReturnToMapNavi.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UI\ArtifactUIManager.h" />
@@ -522,6 +523,7 @@
     <ClInclude Include="UmScriptsExport.h" />
     <ClInclude Include="Scripts\Map\MapManagerTracker.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UI\ItemInfoUIManager.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UI\WeaponChangeUIManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scripts\Debugger\Debugger.cpp" />
@@ -574,6 +576,7 @@
     <ClCompile Include="Scripts\ItemDropSystem\Interface\IDropItem.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\ItemDropSystem.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UINavi\ArtifactButtonNavi.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UINavi\PlayerWeaponChangeNavi.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UINavi\RestartStageNavi.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UINavi\ReturnToMapNavi.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UI\ArtifactUIManager.cpp" />
@@ -735,6 +738,7 @@
     <ClCompile Include="UmScriptsExport.cpp" />
     <ClCompile Include="Scripts\Map\MapManagerTracker.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UI\ItemInfoUIManager.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UI\WeaponChangeUIManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
