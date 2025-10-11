@@ -20,6 +20,8 @@ public:
     /// <param name="item :">아이템 정보</param>
     void SettingItem(const DropItemInfo& item);
 
+    void FindFocusImage();
+
 public:
     REFLECT_PROPERTY();
 

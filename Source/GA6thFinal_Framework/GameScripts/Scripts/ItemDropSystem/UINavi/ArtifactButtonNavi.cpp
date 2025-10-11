@@ -23,9 +23,8 @@ void ArtifactButtonNavi::SettingItem(const DropItemInfo& item)
     _itemInfo = item;
 }
 
-void ArtifactButtonNavi::Awake() 
+void ArtifactButtonNavi::FindFocusImage() 
 {
-    Base::Awake();
     ImageElement* focusImage = GetComponent<ImageElement>();
     if (focusImage)
     {
@@ -33,9 +32,13 @@ void ArtifactButtonNavi::Awake()
         if (component)
         {
             _focusImage = std::static_pointer_cast<ImageElement>(component);
-            component->Enable = false; //focus는 전부 꺼둬야함
         }
     }
+}
+
+void ArtifactButtonNavi::Awake() 
+{
+    Base::Awake();
 }
 
 void ArtifactButtonNavi::FocusIn(FocusCallType type)
