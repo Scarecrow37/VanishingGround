@@ -30,6 +30,23 @@ public:
         DescriptionPanel* Description = nullptr;
     };
 
+    struct ChangeWeaponStats
+    {
+        struct StatsUIDatas
+        {
+            TextElement*  Text      = nullptr;
+            ImageElement* UpArrow   = nullptr;
+            ImageElement* DownArrow = nullptr;
+        };
+        TextElement*      Name = nullptr;
+        ImageElement*     Icon = nullptr;
+        StatsUIDatas      Damage;
+        StatsUIDatas      Critical;
+        StatsUIDatas      AttackCount;
+        StatsUIDatas      Speed;
+        DescriptionPanel* Description = nullptr;
+    };
+
 public:
     inline static constexpr const char* TAG = "Weapon Change UI Manager";
 
@@ -52,13 +69,25 @@ protected:
     void Reset() override;
     void Awake() override;
     void Start() override;
+    void Update() override;
   
 private:
+    void HideUI();
+
     void FindUIElements();
+    void OnPressedActionB(const Input::Controller&);
 
 private:
     std::vector<PlayerWeaponInfo> _playerWeapons;
     PlayerWeaponStats             _playerWeaponStats;
+    ChangeWeaponStats             _changeWeaponStats;
+    WeaponElement                 _changeWeaponElement;
 
+    enum class UIState
+    {
+        IDLE,
+        HIDE,
+    }
+    _state;
 };
 

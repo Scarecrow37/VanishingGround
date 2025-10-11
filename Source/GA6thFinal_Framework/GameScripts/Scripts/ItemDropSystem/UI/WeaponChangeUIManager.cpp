@@ -6,6 +6,7 @@
 #include "ItemDropSystem/UINavi/PlayerWeaponChangeNavi.h"
 #include "WeaponSystem/WeaponTable/WeaponTableComponent.h"
 #include "WeaponSystem/WeaponSystem.h"
+#include "ItemDropSystem/UI/ItemDropUIRootManager.h"
 
 UMREAL_COMPONENT(WeaponChangeUIManager)
 
@@ -32,14 +33,40 @@ void WeaponChangeUIManager::ShowWeaponChangeUI(const std::string& changeWeaponNa
 void WeaponChangeUIManager::ShowWeaponChangeUI(const WeaponElement& changeWeapon)
 {
     gameObject->SetActive(true);
-    if (0 < _playerWeapons.size())
+    _changeWeaponElement     = changeWeapon;
+    WeaponStats&       stats = _changeWeaponElement.Stats;
+    const std::string& name  = stats.WeaponName;
+    DropItemInfo       info  = _changeWeaponElement.GetItemInfo();
+    if (_changeWeaponStats.Name)
     {
-        if (_playerWeapons[0].WeaponNavi)
-        {
-            _playerWeapons[0].WeaponNavi->Focus();
-        }
+        _changeWeaponStats.Name->Text = name;
     }
-   
+    if (_changeWeaponStats.Icon)
+    {
+        File::Guid guid = UmFileSystem.GetGuidFromAssetID(DropItemInfo::GetArtifactIconID(info));
+        _playerWeaponStats.Icon->SetImage(guid);
+    }
+    if (_changeWeaponStats.Damage.Text)
+    {
+        _changeWeaponStats.Damage.Text->Text = std::to_string(stats.HitDamage);
+    }
+    if (_changeWeaponStats.Critical.Text)
+    {
+        _changeWeaponStats.Critical.Text->Text = std::to_string(stats.CriticalDamage);
+    }
+    if (_changeWeaponStats.AttackCount.Text)
+    {
+        _changeWeaponStats.AttackCount.Text->Text = std::to_string(stats.AttackCount);
+    }
+    if (_changeWeaponStats.Speed.Text)
+    {
+        _changeWeaponStats.Speed.Text->Text = std::to_string(stats.Speed);
+    }
+    if (_changeWeaponStats.Description)
+    {
+        _changeWeaponStats.Description->Description = DropItemInfo::GetArtifactDescription(info);
+    }
+
     if (WeaponSystem* weaponSystem = SingletonComponent<WeaponSystem>::GetInstance())
     {
         const auto& playerWeapons = weaponSystem->GetEquipWeapons();
@@ -54,42 +81,83 @@ void WeaponChangeUIManager::ShowWeaponChangeUI(const WeaponElement& changeWeapon
             }
         }
     }
+
+    if (0 < _playerWeapons.size())
+    {
+        if (_playerWeapons[0].WeaponNavi)
+        {
+            _playerWeapons[0].WeaponNavi->Focus();
+        }
+    } 
 }
 
 void WeaponChangeUIManager::SetPlayerWeaponStatsUI(const WeaponElement& focusWeapon) 
 {
-    const WeaponStats& stats = focusWeapon.Stats;
-    const std::string& name  = stats.WeaponName;
-    DropItemInfo       info  = focusWeapon.GetItemInfo();
+    const WeaponStats& playerStats = focusWeapon.Stats;
+    const std::string& playerName  = playerStats.WeaponName;
+    DropItemInfo       playerInfo  = focusWeapon.GetItemInfo();
+    WeaponStats&       changeStats = _changeWeaponElement.Stats;
     if (_playerWeaponStats.Name)
     {
-        _playerWeaponStats.Name->Text = name;
+        _playerWeaponStats.Name->Text = playerName;
     }
     if (_playerWeaponStats.Icon)
     {
-        File::Guid guid = UmFileSystem.GetGuidFromAssetID(DropItemInfo::GetArtifactIconID(info));
+        File::Guid guid = UmFileSystem.GetGuidFromAssetID(DropItemInfo::GetArtifactIconID(playerInfo));
         _playerWeaponStats.Icon->SetImage(guid);
     }
     if (_playerWeaponStats.Damage)
     {
-        _playerWeaponStats.Damage->Text = std::to_string(stats.HitDamage);
+        _playerWeaponStats.Damage->Text = std::to_string(playerStats.HitDamage);
     }
     if (_playerWeaponStats.Critical)
     {
-        _playerWeaponStats.Critical->Text = std::to_string(stats.CriticalDamage);
+        _playerWeaponStats.Critical->Text = std::to_string(playerStats.CriticalDamage);
     }
     if (_playerWeaponStats.AttackCount)
     {
-        _playerWeaponStats.AttackCount->Text = std::to_string(stats.AttackCount);
+        _playerWeaponStats.AttackCount->Text = std::to_string(playerStats.AttackCount);
     }
     if (_playerWeaponStats.Speed)
     {
-        _playerWeaponStats.Speed->Text = std::to_string(stats.Speed);
+        _playerWeaponStats.Speed->Text = std::to_string(playerStats.Speed);
     }
     if (_playerWeaponStats.Description)
     {
-        _playerWeaponStats.Description->Description = DropItemInfo::GetArtifactDescription(info);
+        _playerWeaponStats.Description->Description = DropItemInfo::GetArtifactDescription(playerInfo);
     }
+
+    auto UpdateArrowUI = [](int player, int change, auto& upArrow, auto& downArrow) 
+    { 
+        bool upActive   = false;
+        bool downActive = false;
+        if (player < change)
+        {
+            upActive = true;
+        }
+        else if (player > change)
+        {
+            downActive = true;
+        }
+
+        if (upArrow)
+        {
+            upArrow->Enable = upActive;
+        }
+        if (downArrow)
+        {
+            downArrow->Enable = downActive; 
+        }
+    };
+
+    UpdateArrowUI(playerStats.HitDamage, changeStats.HitDamage, 
+        _changeWeaponStats.Damage.UpArrow, _changeWeaponStats.Damage.DownArrow);
+    UpdateArrowUI(playerStats.CriticalDamage, changeStats.CriticalDamage, 
+        _changeWeaponStats.Critical.UpArrow, _changeWeaponStats.Critical.DownArrow);
+    UpdateArrowUI(playerStats.AttackCount, changeStats.AttackCount, 
+        _changeWeaponStats.AttackCount.UpArrow, _changeWeaponStats.AttackCount.DownArrow);
+    UpdateArrowUI(playerStats.Speed, changeStats.Speed, 
+        _changeWeaponStats.Speed.UpArrow, _changeWeaponStats.Speed.DownArrow);
 }
 
 void WeaponChangeUIManager::ImGuiDrawPropertysEvent() 
@@ -126,6 +194,7 @@ void WeaponChangeUIManager::Awake()
     Base::Awake();
     if (_singletonComponent.TrySingleTon())
     {
+        BindInputAction(ControllerButton::B, Action::PRESSED, this, &WeaponChangeUIManager::OnPressedActionB);
         gameObject->AddTag(TAG);
         FindUIElements();
     }
@@ -134,6 +203,30 @@ void WeaponChangeUIManager::Awake()
 void WeaponChangeUIManager::Start() 
 {
     Base::Start();
+    HideUI();
+}
+
+void WeaponChangeUIManager::Update() 
+{
+    if (_state != UIState::IDLE)
+    {
+        switch (_state)
+        {
+        case WeaponChangeUIManager::UIState::HIDE:
+            if (ItemDropUIRootManager* rootManager = SingletonComponent<ItemDropUIRootManager>::GetInstance())
+            {
+                rootManager->AutoFocus(false);
+            }
+            HideUI();
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+void WeaponChangeUIManager::HideUI() 
+{
     gameObject->SetActive(false);
     for (auto& info : _playerWeapons)
     {
@@ -142,9 +235,10 @@ void WeaponChangeUIManager::Start()
             info.FocusImage->Enable = false;
         }
     }
+    _state = UIState::IDLE;
 }
 
-void WeaponChangeUIManager::FindUIElements() 
+void WeaponChangeUIManager::FindUIElements()
 {
     _playerWeapons.clear();
     if (Transform* playerWeanpons = transform->FindWithTag("Player Weapons"))
@@ -180,6 +274,7 @@ void WeaponChangeUIManager::FindUIElements()
             }
         });
     }
+
     if (Transform* playerWeaponStats = transform->FindWithTag("Player Weapon Stats"))
     {
         Transform::ForeachDFS(*playerWeaponStats, [this](Transform* curr) 
@@ -216,4 +311,91 @@ void WeaponChangeUIManager::FindUIElements()
         });
     }
 
+    if (Transform* changeWeaponStats = transform->FindWithTag("Change Weapon Stats"))
+    {
+        Transform::ForeachDFS(*changeWeaponStats, [this](Transform* curr) 
+        {
+            GameObject& object = curr->gameObject;
+            if (object.CompareTag("Name"))
+            {
+                _changeWeaponStats.Name = object.GetComponent<TextElement>();
+            }
+            else if (object.CompareTag("Icon"))
+            {
+                _changeWeaponStats.Icon = object.GetComponent<ImageElement>();
+            }
+            else if (object.CompareTag("Damage"))
+            {            
+                if (object.CompareTag("Up Arrow"))
+                {
+                    _changeWeaponStats.Damage.UpArrow = object.GetComponent<ImageElement>();
+                }
+                else if (object.CompareTag("Down Arrow"))
+                {
+                    _changeWeaponStats.Damage.DownArrow = object.GetComponent<ImageElement>();
+                }
+                else
+                {
+                    _changeWeaponStats.Damage.Text = object.GetComponent<TextElement>();
+                }
+            }
+            else if (object.CompareTag("Critical"))
+            {
+                if (object.CompareTag("Up Arrow"))
+                {
+                    _changeWeaponStats.Critical.UpArrow = object.GetComponent<ImageElement>();
+                }
+                else if (object.CompareTag("Down Arrow"))
+                {
+                    _changeWeaponStats.Critical.DownArrow = object.GetComponent<ImageElement>();
+                }
+                else
+                {
+                    _changeWeaponStats.Critical.Text = object.GetComponent<TextElement>();
+                }
+            }
+            else if (object.CompareTag("Count"))
+            {
+                if (object.CompareTag("Up Arrow"))
+                {
+                    _changeWeaponStats.AttackCount.UpArrow = object.GetComponent<ImageElement>();
+                }
+                else if (object.CompareTag("Down Arrow"))
+                {
+                    _changeWeaponStats.AttackCount.DownArrow = object.GetComponent<ImageElement>();
+                }
+                else
+                {
+                    _changeWeaponStats.AttackCount.Text = object.GetComponent<TextElement>();
+                }
+            }
+            else if (object.CompareTag("Speed"))
+            {
+                if (object.CompareTag("Up Arrow"))
+                {
+                    _changeWeaponStats.Speed.UpArrow = object.GetComponent<ImageElement>();
+                }
+                else if (object.CompareTag("Down Arrow"))
+                {
+                    _changeWeaponStats.Speed.DownArrow = object.GetComponent<ImageElement>();
+                }
+                else
+                {
+                    _changeWeaponStats.Speed.Text = object.GetComponent<TextElement>();
+                }
+            }
+            else if (object.CompareTag("Description"))
+            {
+                _changeWeaponStats.Description = object.GetComponent<DescriptionPanel>();
+            }
+        });
+    }
+}
+
+void WeaponChangeUIManager::OnPressedActionB(const Input::Controller&) 
+{
+    if (EnableInHierarchy)
+    {
+        _state = UIState::HIDE;
+    }
 }
