@@ -85,6 +85,10 @@ void RestartStageNavi::Submit()
                     transitionComponent->SceneTransitionFade("in", "out", [path]() { UmSceneManager.LoadScene(path); });
                 }
             }
+            else
+            {
+                UmSceneManager.LoadScene(path);
+            }
         }
     }
 }
