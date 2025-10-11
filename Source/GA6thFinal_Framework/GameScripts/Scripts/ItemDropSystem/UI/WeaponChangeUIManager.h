@@ -1,9 +1,9 @@
 ﻿#pragma once
 #include "Utility/SingletonHelper.h"
+#include "WeaponSystem/WeaponElement/WeaponElement.h"
 
 class TextElement;
 class DescriptionPanel;
-class WeaponElement;
 class ImageElement;
 class PlayerWeaponChangeNavi;
 class WeaponChangeUIManager : public Component, public InputReceiver
@@ -47,6 +47,13 @@ public:
         DescriptionPanel* Description = nullptr;
     };
 
+    struct WarningUI
+    {
+        GameObject*   WarningUIObject = nullptr;
+        ImageElement* Before          = nullptr;
+        ImageElement* After           = nullptr;
+    };
+
 public:
     inline static constexpr const char* TAG = "Weapon Change UI Manager";
 
@@ -57,7 +64,11 @@ public:
     void ShowWeaponChangeUI(const std::string& changeWeaponName);
     void ShowWeaponChangeUI(const WeaponElement& changeWeapon);
 
+    void ShowChangeWarningUI(int slot); 
+    bool HasWarningUI() const;
+
     void SetPlayerWeaponStatsUI(const WeaponElement& focusWeapon);
+
 
     REFLECT_PROPERTY()
 
@@ -76,17 +87,21 @@ private:
 
     void FindUIElements();
     void OnPressedActionB(const Input::Controller&);
+    void OnPressedActionA(const Input::Controller&);
 
 private:
     std::vector<PlayerWeaponInfo> _playerWeapons;
     PlayerWeaponStats             _playerWeaponStats;
     ChangeWeaponStats             _changeWeaponStats;
     WeaponElement                 _changeWeaponElement;
+    int                           _changeWeaponSlot;
+    WarningUI                     _warningUI;
 
     enum class UIState
     {
         IDLE,
-        HIDE,
+        CANCEL,
+        APPROVE
     }
     _state;
 };

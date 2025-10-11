@@ -35,7 +35,13 @@ void PlayerWeaponChangeNavi::FocusIn(FocusCallType type)
 void PlayerWeaponChangeNavi::Submit() 
 {
     Base::Submit();
-
+    if (WeaponChangeUIManager* manager = SingletonComponent<WeaponChangeUIManager>::GetInstance())
+    {
+        if (false == manager->HasWarningUI())
+        {
+            manager->ShowChangeWarningUI((int)_weaponIndex);
+        }
+    }
 }
 
 void PlayerWeaponChangeNavi::FocusOut(FocusCallType type) 

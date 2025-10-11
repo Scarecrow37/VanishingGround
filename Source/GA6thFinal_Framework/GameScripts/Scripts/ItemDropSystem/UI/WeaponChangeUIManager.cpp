@@ -7,10 +7,16 @@
 #include "WeaponSystem/WeaponTable/WeaponTableComponent.h"
 #include "WeaponSystem/WeaponSystem.h"
 #include "ItemDropSystem/UI/ItemDropUIRootManager.h"
+#include "ItemDropSystem/UI/ArtifactUIManager.h"
+#include "ItemDropSystem/UINavi/ArtifactButtonNavi.h"
 
 UMREAL_COMPONENT(WeaponChangeUIManager)
 
-WeaponChangeUIManager::WeaponChangeUIManager() = default;
+WeaponChangeUIManager::WeaponChangeUIManager()
+{
+    _state            = UIState::IDLE;
+    _changeWeaponSlot = -1;
+}
 WeaponChangeUIManager::~WeaponChangeUIManager() = default;
 
 void WeaponChangeUIManager::ShowWeaponChangeUI(const std::string& changeWeaponName) 
@@ -44,7 +50,7 @@ void WeaponChangeUIManager::ShowWeaponChangeUI(const WeaponElement& changeWeapon
     if (_changeWeaponStats.Icon)
     {
         File::Guid guid = UmFileSystem.GetGuidFromAssetID(DropItemInfo::GetArtifactIconID(info));
-        _playerWeaponStats.Icon->SetImage(guid);
+        _changeWeaponStats.Icon->SetImage(guid);
     }
     if (_changeWeaponStats.Damage.Text)
     {
@@ -89,6 +95,47 @@ void WeaponChangeUIManager::ShowWeaponChangeUI(const WeaponElement& changeWeapon
             _playerWeapons[0].WeaponNavi->Focus();
         }
     } 
+}
+
+void WeaponChangeUIManager::ShowChangeWarningUI(int slot) 
+{
+    if (WeaponSystem* weaponSystem = SingletonComponent<WeaponSystem>::GetInstance())
+    {
+        const auto& weapons = weaponSystem->GetEquipWeapons();
+        if (slot < weapons.size())
+        {
+            const WeaponElement& weapon = weapons[slot];
+            if (nullptr != _warningUI.WarningUIObject)
+            {
+                _warningUI.WarningUIObject->SetActive(true);
+                _changeWeaponSlot = slot;
+
+                if (_warningUI.Before)
+                {
+                    DropItemInfo info = weapon.GetItemInfo();
+                    File::Guid   icon = UmFileSystem.GetGuidFromAssetID(DropItemInfo::GetArtifactIconID(info));
+                    _warningUI.Before->SetImage(icon);
+                }
+
+                if (_warningUI.After)
+                {
+                    DropItemInfo info = _changeWeaponElement.GetItemInfo();
+                    File::Guid   icon = UmFileSystem.GetGuidFromAssetID(DropItemInfo::GetArtifactIconID(info));
+                    _warningUI.After->SetImage(icon);
+                }
+            }
+        }
+        _state = UIState::IDLE;
+    }
+}
+
+bool WeaponChangeUIManager::HasWarningUI() const
+{
+    if (_warningUI.WarningUIObject)
+    {
+        return _warningUI.WarningUIObject->ActiveSelf;
+    }
+    return false;
 }
 
 void WeaponChangeUIManager::SetPlayerWeaponStatsUI(const WeaponElement& focusWeapon) 
@@ -195,6 +242,9 @@ void WeaponChangeUIManager::Awake()
     if (_singletonComponent.TrySingleTon())
     {
         BindInputAction(ControllerButton::B, Action::PRESSED, this, &WeaponChangeUIManager::OnPressedActionB);
+        BindInputAction(ControllerButton::A, Action::PRESSED, this, &WeaponChangeUIManager::OnPressedActionA);
+
+
         gameObject->AddTag(TAG);
         FindUIElements();
     }
@@ -212,16 +262,41 @@ void WeaponChangeUIManager::Update()
     {
         switch (_state)
         {
-        case WeaponChangeUIManager::UIState::HIDE:
-            if (ItemDropUIRootManager* rootManager = SingletonComponent<ItemDropUIRootManager>::GetInstance())
+        case UIState::CANCEL:
+            if (_warningUI.WarningUIObject && _warningUI.WarningUIObject->ActiveInHierarchy)
             {
-                rootManager->AutoFocus(false);
+                _warningUI.WarningUIObject->SetActive(false);
+                _changeWeaponSlot = -1;
             }
-            HideUI();
+            else
+            {
+                if (ItemDropUIRootManager* rootManager = SingletonComponent<ItemDropUIRootManager>::GetInstance())
+                {
+                    rootManager->AutoFocus(false);
+                    HideUI();
+                }
+            }
+            break;
+        case UIState::APPROVE:
+            if (_warningUI.WarningUIObject && _warningUI.WarningUIObject->ActiveInHierarchy)
+            {
+                if (WeaponSystem* system = SingletonComponent<WeaponSystem>::GetInstance())
+                {
+                    system->EquipWeapon(_changeWeaponSlot, _changeWeaponElement);
+                    _warningUI.WarningUIObject->SetActive(false);
+                    _changeWeaponSlot = -1;
+                    if (ArtifactUIManager* artifactManager = SingletonComponent<ArtifactUIManager>::GetInstance())
+                    {                     
+                        artifactManager->ObtainFocusNavi(ArtifactButtonNavi::GetLastFocusIndex());               
+                        HideUI();
+                    }
+                }
+            }
             break;
         default:
             break;
         }
+        _state = UIState::IDLE;
     }
 }
 
@@ -235,7 +310,11 @@ void WeaponChangeUIManager::HideUI()
             info.FocusImage->Enable = false;
         }
     }
-    _state = UIState::IDLE;
+    
+    if (_warningUI.WarningUIObject && true == _warningUI.WarningUIObject->ActiveSelf)
+    {
+        _warningUI.WarningUIObject->SetActive(false);
+    }
 }
 
 void WeaponChangeUIManager::FindUIElements()
@@ -390,12 +469,37 @@ void WeaponChangeUIManager::FindUIElements()
             }
         });
     }
+
+    if (Transform* warningUI = transform->FindWithTag("Warning Panel"))
+    {
+        _warningUI.WarningUIObject = &warningUI->gameObject;
+        Transform::ForeachDFS(*warningUI, [this](Transform* curr)        
+        { 
+            GameObject& object = curr->gameObject;
+            if (object.CompareTag("Before"))
+            {
+                _warningUI.Before = object.GetComponent<ImageElement>();
+            }
+            else if (object.CompareTag("After"))
+            {
+                _warningUI.After = object.GetComponent<ImageElement>();
+            }
+        });
+    }
 }
 
 void WeaponChangeUIManager::OnPressedActionB(const Input::Controller&) 
 {
     if (EnableInHierarchy)
+    {      
+        _state = UIState::CANCEL;
+    }
+}
+
+void WeaponChangeUIManager::OnPressedActionA(const Input::Controller&) 
+{
+    if (EnableInHierarchy)
     {
-        _state = UIState::HIDE;
+        _state = UIState::APPROVE;
     }
 }

@@ -5,6 +5,7 @@ class ImageElement;
 class ArtifactButtonNavi : public UISFXNavigationComponent
 {
     friend class ArtifactUIManager;
+    friend class ItemDropUIRootManager;
     USING_PROPERTY(ArtifactButtonNavi)
     inline static size_t LastFocusIndex = 0;
 public:
