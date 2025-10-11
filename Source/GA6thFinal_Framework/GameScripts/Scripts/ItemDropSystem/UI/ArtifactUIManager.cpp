@@ -276,6 +276,14 @@ void ArtifactUIManager::DisableFocusNavi(size_t index)
     {
         ArtifactButtonNavi* navi = _focusNaviElements[index];
         navi->Enable             = false;
+        
+        if (index < _frameImageElements.size())
+        {
+            // 일단 하드코딩....
+            ImageElement* frameImage = _frameImageElements[index];
+            frameImage->SetImage(UmFileSystem.GetGuidFromAssetID(460009));
+        }
+
         if (ArtifactButtonNavi::GetLastFocusIndex() == index)
         {
             if (ItemDropUIRootManager* manager = SingletonComponent<ItemDropUIRootManager>::GetInstance())
