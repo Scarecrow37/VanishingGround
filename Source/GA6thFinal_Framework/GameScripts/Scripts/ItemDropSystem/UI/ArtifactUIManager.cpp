@@ -164,8 +164,7 @@ void ArtifactUIManager::FindImageElements()
             }
             if (ArtifactButtonNavi* navi = gameObject.GetComponent<ArtifactButtonNavi>())
             {
-                navi->_buttonIndex = _focusNaviElements.size();
-                navi->FindFocusImage();
+                navi->_buttonIndex = _focusNaviElements.size();              
                 _focusNaviElements.push_back(navi);
             }
         }

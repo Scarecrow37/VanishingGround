@@ -20,8 +20,6 @@ public:
     /// <param name="item :">아이템 정보</param>
     void SettingItem(const DropItemInfo& item);
 
-    void FindFocusImage();
-
 public:
     REFLECT_PROPERTY();
 
@@ -30,6 +28,7 @@ protected:
     void FocusIn(FocusCallType type) override;
     void Submit() override;
     void FocusOut(FocusCallType type) override;
+    std::shared_ptr<ImageElement> FindFocusImage();
 
 protected:
     REFLECT_FIELDS_BEGIN(UISFXNavigationComponent)

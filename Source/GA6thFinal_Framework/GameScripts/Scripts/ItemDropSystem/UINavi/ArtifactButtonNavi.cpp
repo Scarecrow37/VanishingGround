@@ -23,7 +23,7 @@ void ArtifactButtonNavi::SettingItem(const DropItemInfo& item)
     _itemInfo = item;
 }
 
-void ArtifactButtonNavi::FindFocusImage() 
+std::shared_ptr<ImageElement> ArtifactButtonNavi::FindFocusImage()
 {
     ImageElement* focusImage = GetComponent<ImageElement>();
     if (focusImage)
@@ -31,9 +31,12 @@ void ArtifactButtonNavi::FindFocusImage()
         auto component = focusImage->GetWeakPtr().lock();
         if (component)
         {
-            _focusImage = std::static_pointer_cast<ImageElement>(component);
+            std::shared_ptr<ImageElement> focusImage = std::static_pointer_cast<ImageElement>(component);
+            _focusImage = focusImage;
+            return focusImage;
         }
     }
+    return nullptr;
 }
 
 void ArtifactButtonNavi::Awake() 
@@ -46,8 +49,14 @@ void ArtifactButtonNavi::FocusIn(FocusCallType type)
     if (true == EnableInHierarchy)
     {
         Base::FocusIn(type);
-        if (auto focus = _focusImage.lock())
+        auto focus = _focusImage.lock();
+        if (nullptr == focus)
         {
+            focus = FindFocusImage();
+        }
+        if (focus)
+        {
+            
             focus->Enable = true;
     
             // UI 설정
@@ -95,7 +104,12 @@ void ArtifactButtonNavi::Submit()
 void ArtifactButtonNavi::FocusOut(FocusCallType type) 
 {
     Base::FocusOut(type);
-    if (auto focus = _focusImage.lock())
+    auto focus = _focusImage.lock();
+    if (nullptr == focus)
+    {
+        focus = FindFocusImage();
+    }
+    if (focus)
     {
         focus->Enable = false;
     }
