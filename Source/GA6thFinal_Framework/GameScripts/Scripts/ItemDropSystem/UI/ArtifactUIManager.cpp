@@ -252,7 +252,13 @@ void ArtifactUIManager::ImageUIUnlock()
             }
             else
             {
-                navi->Enable = true;
+                if (ItemDropSystem* dropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
+                {
+                    if (false == dropSystem->IsObtainArtifact(i))
+                    {
+                        navi->Enable = true;
+                    }
+                }
             }       
         }
         for (size_t i = 0; i < _frameImageElements.size(); ++i)
