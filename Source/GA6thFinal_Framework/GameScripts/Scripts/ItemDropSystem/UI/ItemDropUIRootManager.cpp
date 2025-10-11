@@ -25,30 +25,29 @@ void ItemDropUIRootManager::AutoFocus(bool checkInputDir)
 {
     if (ArtifactUIManager* artifactUI = ArtifactUI)
     {
-        size_t startIndex = 0;
+        size_t startIndex = ArtifactButtonNavi::GetLastFocusIndex();
         bool   revers     = false;
         //입력 체크에 따른 보정
         if (checkInputDir)
         {
             constexpr size_t horizontalDamp = 2;
             constexpr size_t verticalDamp   = 1;
-            size_t           lastFocusIndex = ArtifactButtonNavi::GetLastFocusIndex();
 
             switch (_lastInputDir)
             {
             case ItemDropUIRootManager::InputDir::LEFT:
-                startIndex = horizontalDamp <= lastFocusIndex ? lastFocusIndex - horizontalDamp : 0;
+                startIndex = horizontalDamp <= startIndex ? startIndex - horizontalDamp : 0;
                 revers     = true;
                 break;
             case ItemDropUIRootManager::InputDir::RIGHT:
-                startIndex = lastFocusIndex + horizontalDamp;
+                startIndex = startIndex + horizontalDamp;
                 break;
             case ItemDropUIRootManager::InputDir::UP:
-                startIndex = verticalDamp <= lastFocusIndex ? lastFocusIndex - verticalDamp : 0;
+                startIndex = verticalDamp <= startIndex ? startIndex - verticalDamp : 0;
                 revers     = true;
                 break;
             case ItemDropUIRootManager::InputDir::DOWN:
-                startIndex = lastFocusIndex + verticalDamp;
+                startIndex = startIndex + verticalDamp;
                 break;
             case ItemDropUIRootManager::InputDir::IDLE:
             default:
@@ -56,7 +55,8 @@ void ItemDropUIRootManager::AutoFocus(bool checkInputDir)
             }
             _lastInputDir = ItemDropUIRootManager::InputDir::IDLE;
         }
-
+        startIndex = std::min(startIndex, ARTIFACT_DROP_COUNT - 1);
+     
         //포커스 가능한 UI로 설정
         if (false == revers)
         {
