@@ -56,6 +56,8 @@ const size_t ItemDropSystem::ARTIFACT_TYPE_COUNT = ArtifactDropTypeArraySize; //
 
 ItemDropSystem::ItemDropSystem()
 {
+    _obtainArtifactFlag.fill(0);
+
     ReflectFields->MaxDropCount = {2, 2, 2, 6, 7, 2};
 
     for (auto& weights : ReflectFields->WeaponGradeWeight)
@@ -280,6 +282,7 @@ void ItemDropSystem::SetDropItem(const std::array<DropItemInfo, ARTIFACT_DROP_CO
 {
     std::vector<DropItemInfo> dropItems(itemInfos.begin(), itemInfos.end());
     _dropItemsModel = dropItems;
+    _obtainArtifactFlag.fill(0);
 }
 
 void ItemDropSystem::SetStageClearCount(int count) 

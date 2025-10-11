@@ -9,6 +9,11 @@
 
 UMREAL_COMPONENT(ArtifactUIManager)
 
+File::Guid ArtifactUIManager::GetObtainFrameGuid()
+{
+    return UmFileSystem.GetGuidFromAssetID(460009); //일단 하드코딩...
+} 
+
 ArtifactUIManager::ArtifactUIManager()
 {
     _gridPanel = nullptr;
@@ -250,6 +255,17 @@ void ArtifactUIManager::ImageUIUnlock()
                 navi->Enable = true;
             }       
         }
+        for (size_t i = 0; i < _frameImageElements.size(); ++i)
+        {
+            ImageElement* frameImage = _frameImageElements[i];
+            if (ItemDropSystem* dropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
+            {
+                if (dropSystem->IsObtainArtifact(i))
+                {
+                    frameImage->SetImage(GetObtainFrameGuid());
+                }
+            }
+        }
     }
 }
 
@@ -270,7 +286,7 @@ bool ArtifactUIManager::FocusNavi(size_t index)
     return false;
 }
 
-void ArtifactUIManager::DisableFocusNavi(size_t index) 
+void ArtifactUIManager::ObtainFocusNavi(size_t index) 
 {
     if (index < _focusNaviElements.size())
     {
@@ -279,9 +295,8 @@ void ArtifactUIManager::DisableFocusNavi(size_t index)
         
         if (index < _frameImageElements.size())
         {
-            // 일단 하드코딩....
             ImageElement* frameImage = _frameImageElements[index];
-            frameImage->SetImage(UmFileSystem.GetGuidFromAssetID(460009));
+            frameImage->SetImage(GetObtainFrameGuid());
         }
 
         if (ArtifactButtonNavi::GetLastFocusIndex() == index)
@@ -290,6 +305,11 @@ void ArtifactUIManager::DisableFocusNavi(size_t index)
             {
                 manager->AutoFocus(false);
             }
+        }
+
+        if (ItemDropSystem* dropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
+        {
+            dropSystem->SetObtainArtifact(index);
         }
     }
 }

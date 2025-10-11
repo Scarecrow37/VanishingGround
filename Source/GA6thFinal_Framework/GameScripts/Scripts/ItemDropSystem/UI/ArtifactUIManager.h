@@ -11,6 +11,7 @@ class ArtifactButtonNavi;
 class ArtifactUIManager : public Component
 {
     USING_PROPERTY(ArtifactUIManager)
+    static File::Guid GetObtainFrameGuid();
 
 public:
     inline static constexpr const char* TAG = "Artifact UI Manager";
@@ -44,7 +45,7 @@ public:
     /// 전달받은 인덱스의 보상 버튼을 사용 완료된 버튼으로 설정합니다.
     /// </summary>
     /// <param name="index"></param>
-    void DisableFocusNavi(size_t index);
+    void ObtainFocusNavi(size_t index);
 
     /// <summary>
     /// Navi의 아이템 정보를 설정합니다. 해당 정보를 기준으로 버튼에 동작이 달라집니다.
