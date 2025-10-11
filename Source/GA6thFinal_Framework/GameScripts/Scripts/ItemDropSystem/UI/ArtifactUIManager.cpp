@@ -243,14 +243,6 @@ void ArtifactUIManager::ImageUIUnlock()
                 element->Enable = false;
             }       
         }
-        for (int i = 0; i < _focusImageElements.size(); ++i)
-        {
-            ImageElement* focusImage = _focusImageElements[i];
-            if (focusImage)
-            {
-                focusImage->Enable = false;
-            }
-        }
         for (int i = 0; i < _focusNaviElements.size(); ++i)
         {
             ArtifactButtonNavi* navi = _focusNaviElements[i];

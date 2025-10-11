@@ -55,8 +55,7 @@ void ArtifactButtonNavi::FocusIn(FocusCallType type)
             focus = FindFocusImage();
         }
         if (focus)
-        {
-            
+        {        
             focus->Enable = true;
     
             // UI 설정

@@ -6,8 +6,8 @@
 #include "AccessorySystem/AccessorySystem.h"
 #include "ItemDropSystem/UI/ItemDropUIRootManager.h"
 #include "ItemDropSystem/UI/ArtifactUIManager.h"
+#include "ItemDropSystem/UINavi/ArtifactButtonNavi.h"
 #include "ViewModels/ItemDrop/DropArtifacts/DropArtifactsViewModel.h"
-
 
 UMREAL_COMPONENT(ItemDropSystem)
 
@@ -327,6 +327,7 @@ void ItemDropSystem::PlayItemDropUISequence()
             }
 
             // 포커스 되야할 버튼
+            ArtifactButtonNavi::LastFocusIndex = 0;
             itemDropUIRootManager->AutoFocus();
         }
     }
