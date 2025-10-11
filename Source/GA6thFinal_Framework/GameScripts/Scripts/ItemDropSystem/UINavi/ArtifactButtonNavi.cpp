@@ -4,6 +4,8 @@
 #include "ItemDropSystem/UI/ArtifactUIManager.h"
 #include "ItemDropSystem/UI/ItemInfoUIManager.h"
 #include "ItemDropSystem/UI/ItemDropUIRootManager.h"
+#include "ItemDropSystem/UI/WeaponChangeUIManager.h"
+#include "WeaponSystem/WeaponTable/WeaponTableComponent.h"
 
 UMREAL_COMPONENT(ArtifactButtonNavi)
 
@@ -69,7 +71,20 @@ void ArtifactButtonNavi::Submit()
     {
         if (ArtifactUIManager* manager = SingletonComponent<ArtifactUIManager>::GetInstance())
         {         
-            manager->DisableFocusNavi(_buttonIndex);
+            switch (_itemInfo.Category)
+            {
+            case ArtifactDropType::SWORD:
+            case ArtifactDropType::DAGGER:
+            case ArtifactDropType::WARHAMMER:
+                if (WeaponChangeUIManager* changeManager = SingletonComponent<WeaponChangeUIManager>::GetInstance())
+                {
+                    changeManager->ShowWeaponChangeUI(_itemInfo.Name);
+                }
+                break;
+            default:
+                manager->DisableFocusNavi(_buttonIndex);
+                break;
+            }
         }
     }
 }

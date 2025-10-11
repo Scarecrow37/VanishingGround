@@ -7,6 +7,7 @@
 #include "ItemDropSystem/UI/ItemInfoUIManager.h"
 #include "ItemDropSystem/UINavi/RestartStageNavi.h"
 #include "ItemDropSystem/UINavi/ArtifactButtonNavi.h"
+#include "ItemDropSystem/UI/WeaponChangeUIManager.h"
 
 UMREAL_COMPONENT(ItemDropUIRootManager)
 
@@ -142,7 +143,6 @@ void ItemDropUIRootManager::Start()
 {
     if (_singletonComponent.IsSingleTon())
     {
-        gameObject->ActiveSelf = false;
         if (auto artifactUI = GameObject::FindWithTag(ArtifactUIManager::TAG).lock())
         {
             if (ArtifactUIManager* component = artifactUI->GetComponent<ArtifactUIManager>())
@@ -159,6 +159,15 @@ void ItemDropUIRootManager::Start()
                 _itemInfoUIManager = std::static_pointer_cast<ItemInfoUIManager>(weakComponent.lock());
             }
         }
+        if (auto weaponChangeUI = GameObject::FindWithTag(WeaponChangeUIManager::TAG).lock())
+        {
+            if (WeaponChangeUIManager* component = weaponChangeUI->GetComponent<WeaponChangeUIManager>())
+            {
+                auto weakComponent = component->GetWeakPtr();
+                _weaponChangeUIManager = std::static_pointer_cast<WeaponChangeUIManager>(weakComponent.lock());
+            }
+        }
+        gameObject->ActiveSelf = false;
     }
 }
 
