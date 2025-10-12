@@ -37,6 +37,18 @@
     <Filter Include="Handle\GroupHandle">
       <UniqueIdentifier>{a114e4bd-a211-492c-bf07-f08ff217f821}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Handle\Effecthandle">
+      <UniqueIdentifier>{f371b569-29fb-4069-afb6-ca324ad334df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Handle\Effecthandle\ReverbHandle">
+      <UniqueIdentifier>{e30bdb07-e898-4c8e-b524-c14c9496b772}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Effects">
+      <UniqueIdentifier>{43601a99-3f60-4bf7-bb31-7f34011e4f66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Effects\Fade">
+      <UniqueIdentifier>{b865363c-327a-4d77-bdc8-b379f4033b81}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -72,6 +84,15 @@
     <ClInclude Include="GroupHandle.h">
       <Filter>Handle\GroupHandle</Filter>
     </ClInclude>
+    <ClInclude Include="EffectHandle.h">
+      <Filter>Handle\Effecthandle</Filter>
+    </ClInclude>
+    <ClInclude Include="ReverbHandle.h">
+      <Filter>Handle\Effecthandle\ReverbHandle</Filter>
+    </ClInclude>
+    <ClInclude Include="FXFade.h">
+      <Filter>Effects\Fade</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -100,6 +121,15 @@
     </ClCompile>
     <ClCompile Include="GroupHandle.cpp">
       <Filter>Handle\GroupHandle</Filter>
+    </ClCompile>
+    <ClCompile Include="EffectHandle.cpp">
+      <Filter>Handle\Effecthandle</Filter>
+    </ClCompile>
+    <ClCompile Include="ReverbHandle.cpp">
+      <Filter>Handle\Effecthandle\ReverbHandle</Filter>
+    </ClCompile>
+    <ClCompile Include="FXFade.cpp">
+      <Filter>Effects\Fade</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

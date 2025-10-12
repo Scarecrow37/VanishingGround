@@ -3,10 +3,12 @@
 
 namespace Audio
 {
+    enum class EffectType;
     class Source;
     class SoundPlayer;
     class AudioHandle;
     class GroupHandle;
+    class EffectHandle;
 
     /// <summary>
     /// 오디오 소스를 관리하고 재생, 정지, 생성 등의 기능을 제공하는 클래스입니다.
@@ -24,16 +26,27 @@ namespace Audio
 
         using VoicePool = std::vector<SourceVoice>;
 
-        struct SubmixVoice
+        struct GroupVoice
         {
-            Generation           Generation;
-            UINT32               Channels;
-            UINT32               SampleRate;
-            IXAudio2SubmixVoice* Voice;
+            Generation             Generation;
+            UINT32                 Channels;
+            UINT32                 SampleRate;
+            IXAudio2SubmixVoice*   Voice;
             std::list<AudioHandle> AttachedVoices;
         };
 
-        using GroupPool = std::vector<SubmixVoice>;
+        struct EffectVoice
+        {
+            EffectType             Type;
+            Generation             Generation;
+            UINT32                 Channels;
+            UINT32                 SampleRate;
+            IXAudio2SubmixVoice*   Voice;
+            std::list<GroupHandle> AttachedVoices;
+        };
+
+        using GroupPool = std::vector<GroupVoice>;
+        using EffectPool = std::vector<EffectVoice>;
 
     public:
         System();
@@ -63,6 +76,11 @@ namespace Audio
         /// 그룹 풀을 초기화합니다.
         /// </summary>
         void ClearGroupPool();
+
+        /// <summary>
+        /// 이펙트 풀을 초기화합니다.
+        /// </summary>
+        void ClearEffectPool();
 
         /// <summary>
         /// 디버그 모드를 활성화합니다.
@@ -111,19 +129,34 @@ namespace Audio
         /// <returns>핸들이 유효하면 true, 그렇지 않으면 false를 반환합니다.</returns>
         [[nodiscard]] bool IsValidHandle(const GroupHandle& handle) const noexcept;
 
+        /// <summary>
+        /// EffectHandle이 유효한 핸들인지 확인합니다.
+        /// </summary>
+        /// <param name="handle">검사할 EffectHandle 객체입니다.</param>
+        /// <returns>핸들이 유효하면 true, 그렇지 않으면 false를 반환합니다.</returns>
+        [[nodiscard]] bool IsValidHandle(const EffectHandle& handle) const noexcept;
+
         GroupHandle CreateGroup(UINT32 channels = 2, UINT32 sampleRate = 44100);
 
         void ReleaseGroup(const GroupHandle& handle);
 
+        ReverbHandle CreateEffect(ReverbParameter parameter, UINT32 channels = 2, UINT32 sampleRate = 44100);
+
+        void SetEffectParameter(const ReverbHandle& handle, ReverbParameter parameter);
+
+        void ReleaseEffect(const EffectHandle& handle);
+
     private:
         void ReleaseVoice(const AudioHandle& handle);
         void DetachOutput(const AudioHandle& handle) const;
+        void DetachOutput(const GroupHandle& handle) const;
 
         IXAudio2*               _xAudio2;
         IXAudio2MasteringVoice* _masteringVoice = nullptr;
 
         std::unordered_map<WaveFormatHash, VoicePool> _voicePools;
         GroupPool                                     _groupPool;
+        EffectPool                                    _effectPool;
 
         struct OnBufferEnd
         {
