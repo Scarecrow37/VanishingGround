@@ -17,7 +17,7 @@ public:
 public:
     REFLECT_PROPERTY(FilePath, Text, Color, FontScale)
 
-    GETTER_ONLY(std::string, FilePath) { return _guidRef.ToPath().string(); }
+    GETTER_ONLY(std::string, FilePath) { return _Guid.ToPath().string(); }
     PROPERTY(FilePath)
 
     GETTER(std::string, Text) { return ReflectFields->Text; }
@@ -63,7 +63,7 @@ public:
     PROPERTY(ContentSize)
 
 public:
-    void SetFont(const File::GuidRef& guidRef);
+    void SetFont(const File::Guid& Guid);
 
 protected:
     void  Reset() override;
@@ -99,5 +99,5 @@ protected:
 
 private:
     ISDFTextRenderer* _renderer;
-    File::GuidRef     _guidRef;
+    File::Guid     _Guid;
 };

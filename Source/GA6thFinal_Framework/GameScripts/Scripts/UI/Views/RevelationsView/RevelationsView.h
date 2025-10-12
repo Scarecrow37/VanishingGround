@@ -24,6 +24,7 @@ public:
 protected:
     void Awake() override;
     void Start() override;
+    void OnDestroy() override;
 
 private:
     void FindRevelationUIs();

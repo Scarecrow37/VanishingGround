@@ -31,7 +31,7 @@ public:
 public:
     REFLECT_PROPERTY(MapScene)
 
-    GETTER_ONLY(std::string, MapScene) { return _guidRef.ToPath().string(); }
+    GETTER_ONLY(std::string, MapScene) { return _Guid.ToPath().string(); }
     PROPERTY(MapScene)
 
 protected:
@@ -45,6 +45,6 @@ protected:
     REFLECT_FIELDS_END(ReturnToMapNavi)
 
 private:
-    File::GuidRef _guidRef;
+    File::Guid _Guid;
     class ImageElement* _imageElement;
 };

@@ -19,7 +19,7 @@ WeaponView::WeaponView()
 
 WeaponView::~WeaponView()
 {
-    UmWatcher.Blind<WeaponViewModel>("Weapon", _watchHandle);
+    
 }
 
 void WeaponView::Focus(bool value) 
@@ -91,6 +91,11 @@ void WeaponView::Start()
         }
     });
     gameObject->ActiveSelf = false;
+}
+
+void WeaponView::OnDestroy() 
+{
+    UmWatcher.Blind<WeaponViewModel>("Weapon", _watchHandle);
 }
 
 void WeaponView::FindElements()

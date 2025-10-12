@@ -117,7 +117,7 @@ public:
     ParticleComponent();
     virtual ~ParticleComponent();
 
-    File::GuidRef _guidRef;
+    File::Guid _Guid;
     File::Path    _filepath;
 
 protected:

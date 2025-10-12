@@ -103,7 +103,7 @@ private:
     ImageElement*   _qteBackgroundUI    = nullptr;
     ImageElement*   _qteNoteLineUI      = nullptr;
     ImageElement*   _qteJudgeNoteUI     = nullptr;
-    File::GuidRef   _notePrefabGuid     = File::NULL_GUID;
+    File::Guid   _notePrefabGuid     = File::NULL_GUID;
     std::unordered_map<int, ImageElement*> _noteSpawnTable = {};
 
     Vector2 _qtePanelPos  = Vector2::Zero;

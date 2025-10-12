@@ -64,7 +64,7 @@ void Stage::UpdateData(const std::string& key, const File::Guid& enableImage, co
 
 void Stage::FocusIn(FocusCallType callType)
 {
-    UINavigationComponent::FocusIn(callType);
+    Base::FocusIn(callType);
     if (MapManager* manager = SingletonComponent<MapManager>::GetInstance())
     {
         manager->SetFocusStage(this);

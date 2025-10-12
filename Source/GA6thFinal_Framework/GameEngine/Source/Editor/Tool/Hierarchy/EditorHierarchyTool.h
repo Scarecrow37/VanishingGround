@@ -17,7 +17,7 @@ public:
     {
         if constexpr (IS_EDITOR)
         {
-            EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("SceneDock");
+            EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("Scene##dock");
             if (sceneDock)
             {
                 EditorHierarchyTool* editorHierarchy = sceneDock->GetGui<EditorHierarchyTool>();
@@ -37,7 +37,7 @@ public:
     {
         if constexpr (IS_EDITOR)
         {
-            EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("SceneDock");
+            EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("Scene##dock");
             if (sceneDock)
             {
                 EditorHierarchyTool* editorHierarchy = sceneDock->GetGui<EditorHierarchyTool>();

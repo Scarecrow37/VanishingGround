@@ -1205,7 +1205,7 @@ void ESceneManager::ObjectsDestroy()
     {
         if (false == _destroyObjectTemp.empty())
         {
-            static EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("SceneDock");
+            static EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("Scene##dock");
             static EditorHierarchyTool* editorHierarchy = sceneDock->GetGui<EditorHierarchyTool>();
             if (editorHierarchy)
             {
@@ -1221,6 +1221,7 @@ void ESceneManager::ObjectsDestroy()
 
 void ESceneManager::ObjectsAddRuntime()
 {
+    //오브젝트 추가
     for (auto& gameObject : _addGameObjectsQueue)
     {
         int id = gameObject->_instanceID;
@@ -1242,7 +1243,7 @@ void ESceneManager::ObjectsAddRuntime()
 
         if constexpr (IS_EDITOR)
         {
-            static EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("SceneDock");
+            static EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("Scene##dock");
             static EditorHierarchyTool* editorHierarchy = sceneDock->GetGui<EditorHierarchyTool>();
             if (editorHierarchy)
             {
@@ -1250,10 +1251,11 @@ void ESceneManager::ObjectsAddRuntime()
             }
         }
     }
+    _addGameObjectsQueue.clear();
 
     //임시 큐
     static thread_local std::vector<Component*> addQueue;
-    addQueue.clear();
+    addQueue.reserve(_addComponentsQueue.size());
     for (auto& [owner, component] : _addComponentsQueue)
     {   
         if (owner.expired() == false)
@@ -1270,6 +1272,7 @@ void ESceneManager::ObjectsAddRuntime()
             addQueue.push_back(component.get());
         }
     }
+    _addComponentsQueue.clear();
 
     //안전하게 원본 배열에서 복사 후 이벤트 호출
     for (auto& component : addQueue)
@@ -1277,10 +1280,7 @@ void ESceneManager::ObjectsAddRuntime()
         component->UpdateEnableInHierarchy();
         component->Reset();
     }
-
-    //정리
-    _addGameObjectsQueue.clear();
-    _addComponentsQueue.clear();
+    addQueue.clear();
 }
 
 bool ESceneManager::IsRuntimeActive(std::shared_ptr<GameObject>& obj)
