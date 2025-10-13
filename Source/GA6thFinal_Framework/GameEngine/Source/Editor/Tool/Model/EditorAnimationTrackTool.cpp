@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "EditorAnimationTrackTool.h"
+#include "GraphicsEngine/Interface/IAnimator.h"
 
 EditorAnimationTrackTool::EditorAnimationTrackTool()
 {

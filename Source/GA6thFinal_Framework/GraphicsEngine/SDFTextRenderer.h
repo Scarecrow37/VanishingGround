@@ -1,11 +1,10 @@
 ﻿#pragma once
+#include "GraphicsBase.h"
 #include "Interface/ISDFTextRenderer.h"
 
 class SDFFont;
-class SDFTextRenderer : public ISDFTextRenderer
-{
-    friend class RenderScene;
-
+class SDFTextRenderer : public GraphicsBase, public ISDFTextRenderer
+{    
 public:
     SDFTextRenderer();
     ~SDFTextRenderer();
@@ -34,6 +33,7 @@ public:
     void SetFontWeight(const float fontWeight) override;
 
 public:
+    void AddReference() override;
     void Release() override;
 
 public:
@@ -45,10 +45,6 @@ public:
 
 private:
     void MeasureString();
-
-private:
-    std::vector<bool*> _isDestroyeds;
-    const bool*        _isActive{nullptr};
 
 private:
     std::vector<Vertex>      _vertices;

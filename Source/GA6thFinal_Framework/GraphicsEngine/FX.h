@@ -74,7 +74,7 @@ private:
     inline static ShaderBuilder _shader;
 };
 
-template <GE::CS cs>
+template <GE::CS ccs>
 class ComputeFX
 {
 public:
@@ -93,10 +93,10 @@ public:
             _shader.BeginBuild();
 
         #ifdef _DEBUG
-            const auto& csFileName = GE::enumToCSFileNameMap.at(cs);
+            const auto& csFileName = GE::enumToCSFileNameMap.at(ccs);
             _shader.SetShader(Global::shaderPathMappings[csFileName], ShaderBuilder::Type::CS);
         #else
-            const auto& csFileName = GE::enumToCSGlobalNameMap.at(cs);
+            const auto& csFileName = GE::enumToCSGlobalNameMap.at(ccs);
             _shader.SetShader(csFileName, ShaderBuilder::Type::CS);
         #endif
 

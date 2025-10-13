@@ -1,4 +1,5 @@
 ﻿#pragma once
+
 class GraphicsController
 {
 public:
@@ -12,4 +13,3 @@ public:
     void SetBloom(std::string_view sceneName, bool eanble);
     void SetTextureQuality(std::string_view sceneName, float quality);
 };
-

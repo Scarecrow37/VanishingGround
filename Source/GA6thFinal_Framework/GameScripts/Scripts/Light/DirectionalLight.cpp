@@ -1,5 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "DirectionalLight.h"
+#include "GraphicsEngine/Interface/ILight.h"
 
 UMREAL_COMPONENT(DirectionalLight)
 
@@ -31,7 +32,7 @@ void DirectionalLight::Reset()
     const Vector3& color     = GetColor();
     const Vector3& ambient   = _ambientVector3;
     const Vector3& direction = transform->Forward;
-    Lighting.SetDirectionalLight(color, ambient, direction, ReflectFields->Basefields.get().Intensity);
+    Lighting->SetDirectionalLight(color, ambient, direction, ReflectFields->Basefields.get().Intensity);
 }
 
 void DirectionalLight::OnDrawDebug() 
@@ -60,8 +61,8 @@ void DirectionalLight::OnDrawDebugSelected()
     {
         rayPositions[i] = position + DirectionRays8[i] * DEBUG_LINE_RADIUS;
     }
-    for (int i = 0; i < 8; ++i)
+    for (auto& rayPosition : rayPositions)
     {
-        UmGraphics.DebugDraw3D("Editor", rayPositions[i], dir * DEBUG_LINE_LENGTH, false, LightComponent::DEBUG_COLOR);
+        UmGraphics.DebugDraw3D("Editor", rayPosition, dir * DEBUG_LINE_LENGTH, false, LightComponent::DEBUG_COLOR);
     }
 }

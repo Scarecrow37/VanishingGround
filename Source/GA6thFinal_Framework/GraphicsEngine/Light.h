@@ -1,10 +1,9 @@
 ﻿#pragma once
 #include "GraphicsBase.h"
+#include "Interface/ILight.h"
 
-class Light : public GraphicsBase
+class Light : public GraphicsBase, public ILight
 {
-    friend class RenderScene;
-
 public:
     enum class Type
     {
@@ -19,9 +18,19 @@ public:
     virtual ~Light();
 
 public:
-    void SetDirectionalLight(const Vector3& color, const Vector3& ambient, const Vector3& direction, const float& intensity);
-    void SetPointLight(const Vector3& color, const Vector3& position, const Vector3& attenuation, const float& range, const float& intensity);
-    void SetSpotLight(const Vector3& color, const Vector3& position, const Vector3& direction, const Vector3& attenuation, const float& range, const float& inner, const float& outer, const float& intensity);
+    bool             IsActive() const override;
+    Type             GetType() const { return _type; }
+    const LightData& GetLightData() const { return _data; }
+
+public:
+    void SetActive(const bool* isActive) override;
+    void SetDirectionalLight(const Vector3& color, const Vector3& ambient, const Vector3& direction, const float& intensity) override;
+    void SetPointLight(const Vector3& color, const Vector3& position, const Vector3& attenuation, const float& range, const float& intensity) override;
+    void SetSpotLight(const Vector3& color, const Vector3& position, const Vector3& direction, const Vector3& attenuation, const float& range, const float& inner, const float& outer, const float& intensity) override;
+
+public:
+    void AddReference() override;
+    void Release() override;
 
 public:
     void Update(const float deltaTime);

@@ -82,15 +82,6 @@ struct UIMaterialData
     float Fill;
 };
 
-struct GraphicsTransform
-{
-    const Vector3&    Position;
-    const Vector3&    Scale;
-    const Quaternion& Rotation;
-    const Matrix&     World;
-    const bool&       IsDirtyFlag;
-};
-
 struct ShadowPassProperty
 {
     float NearPlane;
