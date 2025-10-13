@@ -1,8 +1,9 @@
 ﻿#pragma once
 #include <CombatUIManager/UIGroup.h>
 
-class OverlayPanel;
+class DescriptionPanel;
 class ImageElement;
+class TextElement;
 class RevelationsView;
 
 namespace CombatUI
@@ -11,10 +12,16 @@ namespace CombatUI
     {
         struct Slot
         {
-
+            ImageElement*              IconElement          = nullptr;
+            std::vector<ImageElement*> GradeElements;
+            TextElement*               NameElement          = nullptr;
+            DescriptionPanel*          DescriptionElement   = nullptr;
+            inline bool IsValid() const { return IconElement && NameElement && DescriptionElement && false == GradeElements.empty(); }
         };
-        OverlayPanel* GroupPanel = nullptr;
-        RevelationsView* RevelationsUI = nullptr;
+        GameObject*         Root = nullptr;
+        RevelationsView*    View = nullptr;
+
+        std::array<Slot, 3> SlotList;
 
         // UIGroup을(를) 통해 상속됨
         bool FindUI() override;

@@ -1,7 +1,9 @@
 ﻿#pragma once
 #include <CombatUIManager/UIGroup.h>
+
 class OverlayPanel;
 class ImageElement;
+class TurnQueueView;
 
 namespace CombatUI
 {
@@ -9,11 +11,15 @@ namespace CombatUI
     {
         struct Slot
         {
-
+            ImageElement* Frame         = nullptr;
+            ImageElement* Portraits     = nullptr;
+            ImageElement* ButtonXIcon   = nullptr;
+            ImageElement* ButtonYIcon   = nullptr;
+            ImageElement* ButtonBIcon   = nullptr;
         };
-        OverlayPanel* GroupPanel = nullptr;
+        GameObject*       Root = nullptr;
+        TurnQueueView*    View = nullptr;
         std::vector<Slot> SlotList;
-        size_t            ValidSlotCount = 0;
 
         // UIGroup을(를) 통해 상속됨
         bool FindUI() override;

@@ -1,5 +1,5 @@
 ﻿#include "pchScripts.h"
-#include "CharactorHUDGroup.h"
+#include "CharacterHUDGroup.h"
 
 #include <UI/Panels/Overlay/OverlayPanel.h>
 #include <Camera/CameraComponent.h>
@@ -13,13 +13,11 @@ namespace CombatUI
 {
     bool CharacterHUDGroup::FindUI()
     {
-        auto hudGroup = GameObject::FindWithTag("Character HUD Group").lock();
-        if (hudGroup)
+        Root = GameObject::FindWithTag("Character HUD Group").lock().get();
+        if (Root)
         {
-            GroupPanel = hudGroup->GetComponent<OverlayPanel>();
-
             // 그룹 패널 내부를 탐색
-            Transform& transform = hudGroup->transform;
+            Transform& transform = Root->transform;
             Transform::ForeachBFS(transform, [this](Transform* curr) {
                 if (curr)
                 {
@@ -48,19 +46,24 @@ namespace CombatUI
 
     bool CharacterHUDGroup::IsValid() const 
     {
-        return GroupPanel && PlayerHUDPanel && EnemyHUDPanel[0] && EnemyHUDPanel[1] && EnemyHUDPanel[2];
+        return Root && PlayerHUDPanel && EnemyHUDPanel[0] && EnemyHUDPanel[1] && EnemyHUDPanel[2];
     }
 
     void CharacterHUDGroup::ActiveUI(bool active)
     {
-        if (IsValid())
+        if (Root)
         {
-            GroupPanel->gameObject->ActiveSelf = active;
+            Root->ActiveSelf = active;
         }
     }
 
     void CharacterHUDGroup::RefreshUIPosition()
     {
+        if (false == IsValid())
+        {
+            return;
+        }
+
         POINT       point;
         const SIZE& resolution = UmGraphics.GetResolution();
 

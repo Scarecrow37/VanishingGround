@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <Utility/SingletonHelper.h>
 
-#include <CombatUIManager/CharacterHUD/CharactorHUDGroup.h>
+#include <CombatUIManager/CharacterHUD/CharacterHUDGroup.h>
 #include <CombatUIManager/TurnQueue/TurnQueueGroup.h>
 #include <CombatUIManager/Consumable/ConsumableGroup.h>
 #include <CombatUIManager/Revelations/RevelationsGroup.h>
@@ -20,6 +20,11 @@ public:
     ~CombatUIManager() override;
 
 public:
+    /// <summary>
+    /// CombatUI의 그룹이 모두 유효한지 여부를 반환합니다.
+    /// </summary>
+    bool IsValid() const { return _validGroupCount == _uiGroups.size(); }
+
     /// <summary>
     /// UI데이터를 갱신합니다.
     /// </summary>
@@ -41,32 +46,34 @@ protected:
     void DeserializedReflectEvent() override;
 
 private:
+    void PreferencesKeyDown(const Input::Controller&);
+
+public:
+    CombatUI::CharacterHUDGroup CharacterHUDGroup;
+    CombatUI::TurnQueueGroup    TurnQueueGroup;
+    CombatUI::ConsumableGroup   ConsumableGroup;
+    CombatUI::RevelationsGroup  RevelationsGroup;
+    CombatUI::WeaponGroup       WeaponGroup;
+    CombatUI::AccessoriesGroup  AccessoriesGroup;
+
+    size_t _validGroupCount = 0;
+
+private:
     SingletonComponent<CombatUIManager> _singletonComponent{this};
 
-    CombatUI::CharacterHUDGroup _charactorHUDGroup;
-    CombatUI::TurnQueueGroup    _turnQueueGroup;
-    CombatUI::ConsumableGroup   _consumableGroup;
-    CombatUI::RevelationsGroup  _revelationsGroup;
-    CombatUI::WeaponGroup       _weaponGroup;
-    CombatUI::AccessoriesGroup  _accessoriesGroup;
-
     // Group 추가 시 여기에도 추가 필요함
-    const std::vector<UIGroup*> _uiGroups = 
-    {
-        &_charactorHUDGroup,
-        &_turnQueueGroup,
-        &_consumableGroup,
-        &_revelationsGroup,
-        &_weaponGroup,
-        &_accessoriesGroup
+    const std::vector<UIGroup*> _uiGroups = {
+        &CharacterHUDGroup,
+        &TurnQueueGroup,
+        &ConsumableGroup,
+        &RevelationsGroup,
+        &WeaponGroup,
+        &AccessoriesGroup
     };
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
     REFLECT_FIELDS_END(CombatUIManager)
-
-private:
-    void PreferencesKeyDown(const Input::Controller&);
 
 };
 

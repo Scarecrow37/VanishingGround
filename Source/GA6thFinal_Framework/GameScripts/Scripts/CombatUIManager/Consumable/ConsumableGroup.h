@@ -9,17 +9,9 @@ namespace CombatUI
 {
     struct ConsumableGroup : public UIGroup
     {
-        struct Slot
-        {
-            ImageElement* FocusImage    = nullptr;
-            ImageElement* IconImage     = nullptr;
-            inline bool   IsValid() const { return FocusImage && IconImage; }
-        };
-        OverlayPanel* GroupPanel = nullptr;
-        GridPanel*    FocusPanel = nullptr;
-        GridPanel*    IconPanel  = nullptr;
-        std::vector<Slot> SlotList;
-        size_t            ValidSlotCount = 0;
+        GameObject*     Root        = nullptr;
+        GridPanel*      FocusPanel  = nullptr;
+        GridPanel*      IconPanel   = nullptr;
         
         // UIGroup을(를) 통해 상속됨
         bool FindUI() override;

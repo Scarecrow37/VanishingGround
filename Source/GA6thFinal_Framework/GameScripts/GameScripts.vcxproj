@@ -303,6 +303,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\CombatUIManager\Accessories\AccessoriesGroup.h" />
+    <ClInclude Include="Scripts\CombatUIManager\CharacterHUD\CharacterHUDGroup.h" />
     <ClInclude Include="Scripts\CombatUIManager\Consumable\ConsumableGroup.h" />
     <ClInclude Include="Scripts\CombatUIManager\Revelations\RevelationsGroup.h" />
     <ClInclude Include="Scripts\CombatUIManager\TurnQueue\TurnQueueGroup.h" />
@@ -323,7 +324,6 @@
     <ClInclude Include="Scripts\Camera\CameraManager.h" />
     <ClInclude Include="Scripts\Camera\UmCineMotion.h" />
     <ClInclude Include="Scripts\ColorUtils\ColorUtils.h" />
-    <ClInclude Include="Scripts\CombatUIManager\CharacterHUD\CharactorHUDGroup.h" />
     <ClInclude Include="Scripts\CombatUIManager\CombatUIManager.h" />
     <ClInclude Include="Scripts\ConsumableSystem\ConsumableSystem.h" />
     <ClInclude Include="Scripts\DamageSystem\DamageSystem.h" />
@@ -530,6 +530,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scripts\CombatUIManager\Accessories\AccessoriesGroup.cpp" />
+    <ClCompile Include="Scripts\CombatUIManager\CharacterHUD\CharacterHUDGroup.cpp" />
     <ClCompile Include="Scripts\CombatUIManager\Consumable\ConsumableGroup.cpp" />
     <ClCompile Include="Scripts\CombatUIManager\Revelations\RevelationsGroup.cpp" />
     <ClCompile Include="Scripts\CombatUIManager\TurnQueue\TurnQueueGroup.cpp" />
@@ -560,7 +561,6 @@
     <ClCompile Include="Scripts\Camera\CameraManager.cpp" />
     <ClCompile Include="Scripts\Camera\UmCineMotion.cpp" />
     <ClCompile Include="Scripts\ColorUtils\ColorUtils.cpp" />
-    <ClCompile Include="Scripts\CombatUIManager\CharacterHUD\CharactorHUDGroup.cpp" />
     <ClCompile Include="Scripts\CombatUIManager\CombatUIManager.cpp" />
     <ClCompile Include="Scripts\ConsumableSystem\ConsumableSystem.cpp" />
     <ClCompile Include="Scripts\DamageSystem\DamageSystem.cpp" />

@@ -9,16 +9,13 @@ namespace CombatUI
 {
     bool ConsumableGroup::FindUI()
     {
-        SlotList.clear();
-        GroupPanel = nullptr;
-        auto group = GameObject::FindWithTag("Consumable Panel").lock();
-        if (group)
+        Root = nullptr;
+        
+        if (Root = GameObject::FindWithTag("Consumable Panel").lock().get())
         {
-            GroupPanel = group->GetComponent<OverlayPanel>();
             // 그룹 패널 내부를 탐색
-            Transform& transform  = GroupPanel->transform;
+            Transform& transform  = Root->transform;
             size_t     childCount = static_cast<size_t>(transform.GetChildCount());
-            SlotList.reserve(childCount);
             for (size_t i = 0; i < childCount; ++i)
             {
                 if (Transform* child = transform.GetChild((int)i))
@@ -33,60 +30,20 @@ namespace CombatUI
                     }
                 }
             }
-
-            if (FocusPanel && IconPanel)
-            {
-                Transform& focusTransform = FocusPanel->transform;
-                Transform& iconTransform  = IconPanel->transform;
-
-                for (int i = 0; i < focusTransform.GetChildCount(); ++i)
-                {
-                    if (Transform* child = focusTransform.GetChild(i))
-                    {
-                        if (child->gameObject->CompareTag("Focus"))
-                        {
-                            Slot slot;
-                            slot.FocusImage = child->gameObject->GetComponent<ImageElement>();
-                            SlotList.push_back(slot);
-                        }
-                    }
-                }
-                for (int i = 0; i < iconTransform.GetChildCount(); ++i)
-                {
-                    if (Transform* child = iconTransform.GetChild(i))
-                    {
-                        if (child->gameObject->CompareTag("Icon"))
-                        {
-                            if (i < SlotList.size())
-                            {
-                                SlotList[i].IconImage = child->gameObject->GetComponent<ImageElement>();
-                            }
-                        }
-                    }
-                }
-
-                for (const auto& slot : SlotList)
-                {
-                    if (slot.IsValid())
-                    {
-                        ++ValidSlotCount;
-                    }
-                }
-            }
         }
         return IsValid();
     }
 
     bool ConsumableGroup::IsValid() const
     {
-        return GroupPanel && FocusPanel && IconPanel && SlotList.size() == ValidSlotCount;
+        return Root && FocusPanel && IconPanel;
     }
 
     void ConsumableGroup::ActiveUI(bool active) 
     {
-        if (GroupPanel)
+        if (Root)
         {
-            GroupPanel->gameObject->ActiveSelf = active;
+            Root->ActiveSelf = active;
         }
     }
 } // namespace CombatUI

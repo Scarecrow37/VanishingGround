@@ -5,6 +5,7 @@
 class GridPanel;
 class OverlayPanel;
 class ImageElement;
+class AccessoriesView;
 
 namespace CombatUI
 {
@@ -12,13 +13,13 @@ namespace CombatUI
     {
         struct Slot
         {
-            OverlayPanel*   MainPanel   = nullptr;
             ImageElement*   FrameImage  = nullptr;
             ImageElement*   IconImage   = nullptr;
-            inline bool     IsValid() const { return MainPanel && FrameImage && IconImage; }
+            inline bool     IsValid() const { return FrameImage && IconImage; }
         };
 
-        OverlayPanel*       GroupPanel = nullptr;
+        GameObject*         Root = nullptr;
+        AccessoriesView*    View        = nullptr;
         std::vector<Slot>   SlotList;
         size_t              ValidSlotCount = 0;
 
