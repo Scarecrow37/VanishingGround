@@ -82,6 +82,6 @@ private:
 
     Stage* _lastFocusStage = nullptr;
     void PreferencesKeyDown(const Input::Controller&);
-
+    void OpenPreferencesWindow();
 
 };

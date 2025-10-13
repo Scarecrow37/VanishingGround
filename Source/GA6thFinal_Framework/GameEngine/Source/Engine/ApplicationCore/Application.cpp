@@ -160,20 +160,23 @@ void Application::Run()
             // Scene Logic Update
             ESceneManager::Engine::SceneUpdate();
 
+            // User Interface Update
+            // TODO: Erase Magic Number Resolution
+            Global::engineCore->UserInterface.Update({1920, 1080});
+
             // CameraUpdate, RenderQueueUpdate, Render
             Global::engineCore->Graphics.Update(deltaTime);
             Global::engineCore->Graphics.Render();
-            _imguiDX12Module->ImguiEnd();
-
-            Global::engineCore->Graphics.Flip();
 
             // Scene Final Update
             ESceneManager::Engine::SceneFinalUpdate();
 
-            // User Interface Update
-            // TODO: Erase Magic Number Resolution
-            // comment : 아니 이거 오브젝트 파괴 이후에 해야하는데 이러면 1프레임 늦게 갱신되는데요..??????????????????????????
-            Global::engineCore->UserInterface.Update({1920, 1080});
+
+            _imguiDX12Module->ImguiEnd();
+
+            Global::engineCore->Graphics.Flip();
+
+
         }
     }
 }

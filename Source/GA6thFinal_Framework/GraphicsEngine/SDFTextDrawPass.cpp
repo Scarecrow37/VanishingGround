@@ -40,7 +40,7 @@ void SDFTextDrawPass::Initialize(RenderScene* ownerScene, RenderTechnique* owner
 
 void SDFTextDrawPass::Update(ID3D12GraphicsCommandList* commandList, const float deltaTime)
 {
-    for (auto& [isDestroy, component] : _ownerScene->_sdfTextRenderQueue)
+    for (auto& component : _ownerScene->_sdfTextRenderQueue)
     {
         if (!component || !component->IsActive())
             continue;       
@@ -72,7 +72,7 @@ void SDFTextDrawPass::Draw(ID3D12GraphicsCommandList* commandList)
     frameResource->SetFrameResource(FrameResourceType::TEXT_MATRICES, _fx.GetRootParameterIndex("text_matrices"), commandList);
 
     SDFParams sdfParams = {};
-    for (auto& [isDestroy, component] : _ownerScene->_sdfTextRenderQueue)
+    for (auto& component : _ownerScene->_sdfTextRenderQueue)
     {
         if (!component || !component->IsActive())
             continue;

@@ -82,15 +82,6 @@ struct UIMaterialData
     float Fill;
 };
 
-struct GraphicsTransform
-{
-    const Vector3&    Position;
-    const Vector3&    Scale;
-    const Quaternion& Rotation;
-    const Matrix&     World;
-    const bool&       IsDirtyFlag;
-};
-
 struct ShadowPassProperty
 {
     float NearPlane;
@@ -160,4 +151,11 @@ struct SSGIProperty
     float TemporalWeight;//이전프레임 가중치 //0.7~0.95
     float DepthSigma;//0.5~5.0
     float NormalSigma;//16~256
+};
+
+struct FXAAProperty
+{
+    float   QualitySubpixel;
+    float   QualityEdgeDetectionThreshold;
+    float   QualityMinimumEdgeThreshold;
 };

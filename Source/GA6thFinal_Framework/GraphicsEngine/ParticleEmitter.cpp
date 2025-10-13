@@ -114,9 +114,12 @@ void ParticleEmitter::Update(float deltaTime)
     _finalPos          = _worldMatrix.Translation();
 
     float denom = _emissionRate * _particleLifetime;
-    if (_useLight && denom > 0.0f)
+    if (_useLight)
     {
-        _lightCurrentIntensity = (float)std::lerp(0.0f, _lightIntensity, _activeParticleCount / denom);
+        if (denom > 0.0f)
+        {
+			_lightCurrentIntensity = (float)std::lerp(0.0f, _lightIntensity, _activeParticleCount / denom);
+        }
         _lightCurrentRange     = _lightRange;
     }
 }
@@ -240,6 +243,7 @@ void ParticleEmitter::InitializeLocator(LocationShape locatorShape, Vector3 fact
         _emitLocator = std::make_unique<MeshSurfaceLocator>();
         break;
     }
+
     _emitLocator->SetFactor(factor);
     _emitLocator->RandomInitialize();
 }

@@ -36,13 +36,14 @@ RoundOnceTrueCondition::RoundOnceAction::RoundOnceAction()
 {
     if (UmCore->IsPlay())
     {
-        _roundOnceActions.push_back(this);
+        _roundOnceActions.insert(this);
     }
 }
 
 RoundOnceTrueCondition::RoundOnceAction::~RoundOnceAction()
 {
     SetDestroy();
+    _roundOnceActions.erase(this);
 }
 
 const std::string& RoundOnceTrueCondition::RoundOnceAction::GetActionName()

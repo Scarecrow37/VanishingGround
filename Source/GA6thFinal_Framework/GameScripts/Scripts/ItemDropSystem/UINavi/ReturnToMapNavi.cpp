@@ -75,8 +75,8 @@ ReturnToMapNavi::ReturnToMapNavi()
                 const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
                 if (const auto extension = data->GetPath().extension(); extension == L".UmScene")
                 {
-                    _guidRef                = data->GetGuid();
-                    ReflectFields->MapScene = _guidRef.string();
+                    _Guid                = data->GetGuid();
+                    ReflectFields->MapScene = _Guid.string();
                 }
             }
             ImGui::EndDragDropTarget();
@@ -88,7 +88,7 @@ ReturnToMapNavi::ReturnToMapNavi()
 
 void ReturnToMapNavi::Submit()
 {
-    const File::Path& path = _guidRef.ToPath();
+    const File::Path& path = _Guid.ToPath();
 
     GameObject* transitionManager = SingletonObject<SceneTransitionComponent>::GetInstance();
     if (transitionManager)
@@ -144,7 +144,7 @@ void ReturnToMapNavi::DeserializedReflectEvent()
     const File::Guid guid = ReflectFields->MapScene;
     if (const auto path = guid.ToPath(); !path.IsNull())
     {
-        _guidRef = path.ToGuid();
+        _Guid = path.ToGuid();
     }
 }
 

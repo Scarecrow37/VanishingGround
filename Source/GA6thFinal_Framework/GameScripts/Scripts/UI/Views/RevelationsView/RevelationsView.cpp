@@ -10,7 +10,7 @@ UMREAL_COMPONENT(RevelationsView)
 
 RevelationsView::~RevelationsView()
 {
-    UmWatcher.Blind<RevelationsViewModel>("Revelations", _watchHandle);
+    
 }
 
 void RevelationsView::Awake()
@@ -57,6 +57,11 @@ void RevelationsView::Start()
         });
 
     gameObject->ActiveSelf = false;
+}
+
+void RevelationsView::OnDestroy() 
+{
+    UmWatcher.Blind<RevelationsViewModel>("Revelations", _watchHandle);
 }
 
 void RevelationsView::FindRevelationUIs()

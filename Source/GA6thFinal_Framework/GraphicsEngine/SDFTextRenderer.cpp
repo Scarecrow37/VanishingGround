@@ -14,8 +14,7 @@ SDFTextRenderer::~SDFTextRenderer() = default;
 
 bool SDFTextRenderer::IsActive() const
 {
-    bool isActive = _isActive ? *_isActive : false;
-    return isActive && !_text.empty() && _font && _font->IsValid();
+    return GraphicsBase::IsActive() && !_text.empty() && _font && _font->IsValid();
 }
 
 Vector2 SDFTextRenderer::GetStringSize() const
@@ -30,7 +29,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE SDFTextRenderer::GetFontTextureHandle() const
 
 void SDFTextRenderer::SetActive(const bool* isActive)
 {
-    _isActive = isActive;
+    GraphicsBase::SetActive(isActive);
 }
 
 void SDFTextRenderer::SetFont(std::shared_ptr<SDFFont> font)
@@ -75,15 +74,14 @@ void SDFTextRenderer::SetFontWeight(const float fontWeight)
     _fontWeight = convert - 0.5f;
 }
 
+void SDFTextRenderer::AddReference()
+{
+    GraphicsBase::AddReference();
+}
+
 void SDFTextRenderer::Release()
 {
-    for (auto& isDestroy : _isDestroyeds)
-    {
-        *isDestroy = true;
-    }
-    _isDestroyeds.clear();
-
-    delete this;
+    GraphicsBase::Release();
 }
 
 void SDFTextRenderer::Initialize()
@@ -132,11 +130,7 @@ void SDFTextRenderer::Update(ID3D12GraphicsCommandList* commandList)
 
         float cursorX = 0;
         float cursorY = 0;
-
-        _charCount = 0;
-
-        // Left, Top, Right, Bottom
-        float calculatedBounds[4] = { FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX };
+        _charCount    = 0;
 
         for (wchar_t wc : _text)
         {
@@ -219,6 +213,12 @@ void SDFTextRenderer::Render(ID3D12GraphicsCommandList* commandList)
 
 void SDFTextRenderer::MeasureString()
 {
+    if (!_font || _text.empty())
+    {
+        _size = Vector2::Zero;
+        return;
+    }
+
     const auto& metricsInfo         = _font->GetMetricsInfo();
     float       calculatedBounds[4] = {FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX};
     float       cursorX             = 0;
@@ -227,7 +227,7 @@ void SDFTextRenderer::MeasureString()
 
     for (wchar_t wc : _text)
     {
-        if (_charCount >= MAX_CHARS)
+        if (charCount >= MAX_CHARS)
             break;
 
         if (wc == L'\n')

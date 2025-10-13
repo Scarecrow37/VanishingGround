@@ -33,6 +33,6 @@ protected:
     std::string OffGuid;
     REFLECT_FIELDS_END(PreferencesButton)
 private:
-    File::GuidRef _onImage;
-    File::GuidRef _offImage;
+    File::Guid _onImage;
+    File::Guid _offImage;
 };

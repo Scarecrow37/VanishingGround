@@ -78,12 +78,12 @@ public:
     std::string _meshRenderTargetName;
     std::string _finalTargetName;
 
-    std::vector<std::unique_ptr<RenderTechnique>>                   _techniques;
-    std::vector<std::pair<std::unique_ptr<bool>, MeshRenderer*>>    _meshRenderQueue;
-    std::vector<std::pair<std::unique_ptr<bool>, SpriteRenderer*>>  _uiRenderQueue;
-    std::vector<std::pair<std::unique_ptr<bool>, TextRenderer*>>    _textRenderQueue;
-    std::vector<std::pair<std::unique_ptr<bool>, SDFTextRenderer*>> _sdfTextRenderQueue;
-    std::vector<MeshInfo>                                           _activeMeshes[MESH_TYPE_END];
+    std::vector<std::unique_ptr<RenderTechnique>> _techniques;
+    std::vector<MeshRenderer*>                    _meshRenderQueue;
+    std::vector<SpriteRenderer*>                  _uiRenderQueue;
+    std::vector<TextRenderer*>                    _textRenderQueue;
+    std::vector<SDFTextRenderer*>                 _sdfTextRenderQueue;
+    std::vector<MeshInfo>                         _activeMeshes[MESH_TYPE_END];
 
     CommandSet _commandSet;
 

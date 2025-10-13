@@ -1,7 +1,7 @@
 ﻿#pragma once
-
 #include "UI/Base/DrawUIComponent/DrawUIComponent.h"
 
+class ISpriteRenderer;
 class ImageElement : public DrawUIComponent
 {
     USING_PROPERTY(ImageElement)
@@ -17,7 +17,7 @@ public:
 public:
     REFLECT_PROPERTY(FilePath, Alpha, Column, Row, ColumnIndex, RowIndex)
 
-    GETTER_ONLY(std::string, FilePath) { return _guidRef.ToPath().string(); }
+    GETTER_ONLY(std::string, FilePath) { return _Guid.ToPath().string(); }
     PROPERTY(FilePath)
 
     GETTER(float, Alpha) { return ReflectFields->Alpha; }
@@ -69,8 +69,8 @@ public:
     /// <summary>
     /// 이미지 파일을 지정된 GUID 참조로 설정합니다.
     /// </summary>
-    /// <param name="guidRef">이미지 파일을 식별하는 File::GuidRef 참조입니다.</param>
-    void SetImage(const File::Guid& guidRef);
+    /// <param name="Guid">이미지 파일을 식별하는 File::Guid 참조입니다.</param>
+    void SetImage(const File::Guid& Guid);
 
     /// <summary>
     /// 선형 채우기 값을 설정합니다. 현재 좌우 채우기 모드에서만 적용됩니다.
@@ -98,7 +98,7 @@ protected:
 
 
 private:
-    void LoadTexture(const File::GuidRef& guid) const;
+    void LoadTexture(const File::Guid& guid) const;
     void UpdateWorldMatrix();
     void UpdateRendererSize(SIZE size) const;
     void UpdateRendererAlpha(float alpha) const;
@@ -115,9 +115,9 @@ protected:
     REFLECT_FIELDS_END(ImageElement)
 
 private:
-    std::unique_ptr<SpriteRenderer> _renderer;
-    File::GuidRef                   _guidRef;
-    Matrix                          _worldMatrix;
-    SIZE                            _spriteOriginSize;
+    GraphicsPointer<ISpriteRenderer> _renderer;
+    Matrix                           _worldMatrix;
+    SIZE                             _spriteOriginSize;
+    File::Guid                       _Guid;
 
 };

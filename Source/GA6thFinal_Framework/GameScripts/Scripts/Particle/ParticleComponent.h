@@ -117,7 +117,7 @@ public:
     ParticleComponent();
     virtual ~ParticleComponent();
 
-    File::GuidRef _guidRef;
+    File::Guid _Guid;
     File::Path    _filepath;
 
 protected:
@@ -139,17 +139,9 @@ protected:
 
     REFLECT_FIELDS_END(ParticleComponent)
 
-
-    void            Update() override;
-    void            Start() override;
-    void            Reset() override;
-    void            OnDestroy() override;
-
-    void            SerializedReflectEvent() override;
-    void            DeserializedReflectEvent() override;
-    void            ImGuiDrawPropertysEvent() override;
-    void            Awake() override;
-    void            OnEnable() override;
+    void SerializedReflectEvent() override;
+    void DeserializedReflectEvent() override;
+    void ImGuiDrawPropertysEvent() override;
 
  private:
     void LoadParticle(const std::string& keyString);

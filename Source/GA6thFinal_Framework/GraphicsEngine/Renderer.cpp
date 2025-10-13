@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "Renderer.h"
+#include "GraphicsBase.h"
 
 // Shader
 #include "VertexShader.h"
@@ -30,6 +31,7 @@
 #include "UITechnique_OIT.h"
 #include "SceneTransitionTechnique.h"
 #include "SSGITechnique.h"
+#include "FXAATechnique.h"
 
 namespace Global
 {
@@ -197,6 +199,11 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
         scene->AddRenderTechnique(std::make_unique<BloomTechnique>());
     }
     
+    if (RenderTechniqueFlag::FXAA_TECH & flag)
+    {
+        scene->AddRenderTechnique(std::make_unique<FXAATechnique>());
+    }
+
     // Blend Pass
     scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
 
@@ -336,6 +343,13 @@ void Renderer::Flip()
     Global::device->Flip();
     Global::device->ResetCommands();
     Global::device->ResetComputeCommands();
+
+    for (auto& component : _toBeReleasedComponents)
+    {
+        component->Delete();
+    }
+
+    _toBeReleasedComponents.clear();
 }
 
 void Renderer::RenderToBackBuffer()
@@ -568,6 +582,7 @@ void Renderer::CreateDefaultRenderTarget()
 
 void Renderer::CreateDefaultShader()
 {
+#ifdef _DEBUG
     // L"../Shaders 폴더를 탐색 후 모든 쉐이더 파일을 미리 컴파일
     std::filesystem::path shaderDir = L"../Shaders";
 
@@ -597,4 +612,22 @@ void Renderer::CreateDefaultShader()
             Global::shaderPathMappings[entry.path().filename()] = shaderPath;
         }
     }
+#else
+    for (auto& [key, value] : GE::globalNameToVSEnumMap)
+    {
+        _defaultResource.push_back(Global::resourceManager->LoadResource<VertexShader>(key));
+    }
+    for (auto& [key, value] : GE::globalNameToPSEnumMap)
+    {
+        _defaultResource.push_back(Global::resourceManager->LoadResource<PixelShader>(key));
+    }
+    for (auto& [key, value] : GE::globalNameToCSEnumMap)
+    {
+        _defaultResource.push_back(Global::resourceManager->LoadResource<ComputeShader>(key));
+    }
+    for (auto& [key, value] : GE::globalNameToGSEnumMap)
+    {
+        _defaultResource.push_back(Global::resourceManager->LoadResource<GeometryShader>(key));
+    }
+#endif
 }

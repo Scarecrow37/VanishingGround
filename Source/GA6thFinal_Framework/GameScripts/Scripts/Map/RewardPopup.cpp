@@ -6,10 +6,7 @@
 UMREAL_COMPONENT(RewardPopup)
 
 RewardPopup::RewardPopup() = default;
-RewardPopup::~RewardPopup()
-{
-    UmWatcher.Blind<StageFocusViewModel>("StageFocus", _handle);
-}
+RewardPopup::~RewardPopup() = default;
 
 void RewardPopup::Awake()
 {    
@@ -31,6 +28,11 @@ void RewardPopup::Awake()
         UmLogger.Log(LogLevel::LEVEL_ERROR, "Watch Failed.");
         UmLogger.Log(LogLevel::LEVEL_ERROR, e.what());
     }
+}
+
+void RewardPopup::OnDestroy() 
+{
+    UmWatcher.Blind<StageFocusViewModel>("StageFocus", _handle);
 }
 
 void RewardPopup::SetupRewardIamge(std::string_view name, int id1, int id2)
