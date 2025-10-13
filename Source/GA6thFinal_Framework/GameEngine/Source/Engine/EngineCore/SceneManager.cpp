@@ -206,6 +206,7 @@ void ESceneManager::Engine::AddComponentToLifeCycle(std::shared_ptr<Component> c
 {
     Global::engineCore->SceneManager._addComponentsQueue.emplace_back(component->_gameObject->GetWeakPtr(), component);
     EComponentFactory::Engine::PushBackComponentToObject(component);
+    component->Reset();
 }
 
 void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
@@ -1278,7 +1279,7 @@ void ESceneManager::ObjectsAddRuntime()
     for (auto& component : addQueue)
     {
         component->UpdateEnableInHierarchy();
-        component->Reset();
+        component->Added();
     }
     addQueue.clear();
 }
