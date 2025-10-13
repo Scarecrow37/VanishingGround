@@ -34,6 +34,7 @@ namespace GE
         DXRGBUFFER,
         FADE,
         FORWARD_PBR_LIGHTING,
+        FXAA,
         GAUSSIANBLUR_X,
         GAUSSIANBLUR_Y,
         GBUFFER,

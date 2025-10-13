@@ -38,6 +38,7 @@ enum RenderTechniqueFlag : unsigned long long
     VOLUMETRIC_FOG_TECH   = 1 << 10,
     SCENE_TRANSITION_TECH = 1 << 11,
     SSGI_TECH             = 1 << 12,
+    FXAA_TECH             = 1 << 13,
 };
 
 inline RenderTechniqueFlag operator|(RenderTechniqueFlag lhs, RenderTechniqueFlag rhs)
