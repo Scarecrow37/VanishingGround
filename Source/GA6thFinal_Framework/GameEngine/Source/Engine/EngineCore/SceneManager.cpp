@@ -1642,7 +1642,10 @@ bool ESceneManager::WriteUmSceneFile(Scene& scene, std::string_view sceneName, s
     fsPath writePath = UmFileSystem.GetAssetPath();
     writePath /= outPath;
     writePath /= sceneName;
-    writePath.replace_extension(SCENE_EXTENSION);
+    if (writePath.extension() != SCENE_EXTENSION)
+    {
+        writePath += SCENE_EXTENSION;
+    }
    
     bool isExists = fs::exists(writePath);
     if (true == isExists && false == isOverride)
