@@ -8,7 +8,6 @@
 ShaderBuilder::ShaderBuilder()
     : _currentState(State::NONE)
 {	
-	
 }
 
 UINT ShaderBuilder::GetRootParameterIndex(std::string_view tag) const
