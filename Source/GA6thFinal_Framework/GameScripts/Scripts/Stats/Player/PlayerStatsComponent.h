@@ -16,7 +16,7 @@ public:
     PlayerStats& GetStats() { return *_stats; }
 
 public:
-    void RegisterHP() const;
+    void RegisterHUD() const;
 
 protected:
     REFLECT_FIELDS_BEGIN(TurnActorStatsComponent)
