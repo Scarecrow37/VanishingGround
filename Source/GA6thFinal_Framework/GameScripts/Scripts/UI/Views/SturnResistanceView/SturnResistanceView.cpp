@@ -27,8 +27,5 @@ void PlayerSturnResistanceView::Start()
 void PlayerSturnResistanceView::OnDestroy() 
 {
     Base::OnDestroy();
-    if (SingletonComponent<PlayerSystem>::GetInstance())
-    {
-        UmWatcher.Blind<SturnResistanceViewModel>(PlayerStats::MODEL_STURN_KEY, _viewModelHandle);
-    }
+    UmWatcher.Blind<SturnResistanceViewModel>(PlayerStats::MODEL_STURN_KEY, _viewModelHandle);
 }
