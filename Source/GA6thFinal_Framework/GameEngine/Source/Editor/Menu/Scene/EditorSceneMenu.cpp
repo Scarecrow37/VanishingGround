@@ -7,7 +7,7 @@ using namespace u8_literals;
 
 void EditorSceneMenu::OnStartGui() 
 {
-    if (auto dock = editorModule->GetDockWindowSystem().GetDockWindow("Scene"))
+    if (auto dock = editorModule->GetDockWindowSystem().GetDockWindow("Scene##dock"))
     {
         _sceneTool = dock->GetGui<EditorSceneTool>();
     }
