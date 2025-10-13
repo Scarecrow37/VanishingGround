@@ -40,10 +40,7 @@ namespace Global
 
 Renderer::Renderer() = default;
 
-Renderer::~Renderer()
-{
-    int a = 0;
-}
+Renderer::~Renderer() = default;
 
 D3D12_GPU_DESCRIPTOR_HANDLE Renderer::GetRenderSceneImage(std::string_view renderSceneName)
 {
