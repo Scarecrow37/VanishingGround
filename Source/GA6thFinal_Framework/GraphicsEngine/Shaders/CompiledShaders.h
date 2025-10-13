@@ -25,6 +25,7 @@
 #include "ps_dxrgbuffer.h"
 #include "ps_fade.h"
 #include "ps_forward_pbr_lighting.h"
+#include "ps_fxaa.h"
 #include "ps_gaussianblur_x.h"
 #include "ps_gaussianblur_y.h"
 #include "ps_gbuffer.h"

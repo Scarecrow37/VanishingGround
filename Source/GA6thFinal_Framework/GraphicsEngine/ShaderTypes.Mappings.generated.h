@@ -179,7 +179,8 @@ namespace GE
         {L"g_ps_burn_dissolve", PS::BURN_DISSOLVE},
         {L"g_ps_pbr_lighting", PS::PBR_LIGHTING},
         {L"g_ps_skybox", PS::SKYBOX},
-        {L"g_ps_blend", PS::BLEND}
+        {L"g_ps_blend", PS::BLEND},
+        {L"g_ps_fxaa", PS::FXAA}
     };
 
     inline const std::unordered_map<PS, std::wstring> enumToPSGlobalNameMap = {
@@ -212,7 +213,8 @@ namespace GE
         {PS::BURN_DISSOLVE, L"g_ps_burn_dissolve"},
         {PS::PBR_LIGHTING, L"g_ps_pbr_lighting"},
         {PS::SKYBOX, L"g_ps_skybox"},
-        {PS::BLEND, L"g_ps_blend"}
+        {PS::BLEND, L"g_ps_blend"},
+        {PS::FXAA, L"g_ps_fxaa"}
     };
 
     inline const std::unordered_map<HS, std::wstring> enumToHSFileNameMap = {
