@@ -45,8 +45,11 @@ private:
     std::unique_ptr<UnorderedAccessView> _prefilteredMap;
     std::unique_ptr<UnorderedAccessView> _brdfLUT;
 
-    std::unique_ptr<ShaderBuilder>      _shader[END];
-    ComPtr<ID3D12PipelineState>         _pipelineState[END];
+    ComputeFX<GE::CS::CUBE_TEXTURE_CONVERTOR> _fxCubeMap;
+    ComputeFX<GE::CS::IRRADIANCE_MAP>         _fxIrradianceMap;
+    ComputeFX<GE::CS::PREFILTERED_MAP>        _fxPrefilteredMap;
+    ComputeFX<GE::CS::BRDF_LUT>               _fxBrdfLUT;
+    ComPtr<ID3D12PipelineState>               _pipelineState[END];
 
     bool _hasEnvTexture;
     bool _hasIBLTexture;
