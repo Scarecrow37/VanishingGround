@@ -26,7 +26,7 @@ class AnimationComponent : public Component
     using EventQueue = std::vector<std::function<void()>>;
 
 public:
-    void Reset() override;
+    void Added() override;
     void Start() override;
     void Update() override;
     void OnDestroy() override;
