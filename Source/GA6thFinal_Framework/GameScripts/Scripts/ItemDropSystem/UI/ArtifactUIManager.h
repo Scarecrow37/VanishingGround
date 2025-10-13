@@ -6,6 +6,7 @@
 
 class ImageElement;
 class GridPanel;
+class ArtifactButtonNavi;
 
 class ArtifactUIManager : public Component
 {
@@ -31,6 +32,13 @@ public:
     /// 보상 해금 정보 UI를 갱신합니다.
     /// </summary>
     void UpdateUnlock();
+
+    /// <summary>
+    /// 포커싱할 버튼을 인덱스를 통해 설정합니다. 활성화된 버튼만 포커스 할 수 있습니다.
+    /// </summary>
+    /// <param name="index :">포커스할 버튼의 Index</param>
+    /// <returns>성공시 true</returns>
+    bool FocusNavi(size_t index);
 
 public:
     REFLECT_PROPERTY()
@@ -64,14 +72,12 @@ protected:
 private:
     SingletonComponent<ArtifactUIManager> _singletonComponent{this};
 
-    GridPanel*                 _frameGridPanel;
-    std::vector<ImageElement*> _frameImageElements;
-
-    GridPanel*                 _gridPanel;
-    std::vector<ImageElement*> _imageElements;
-
-    GridPanel*                 _categoryGridPanel;
-    std::vector<ImageElement*> _categoryImageElements;
+    GridPanel*                       _gridPanel;
+    std::vector<ImageElement*>       _iconElements;
+    std::vector<ImageElement*>       _frameImageElements;
+    std::vector<ImageElement*>       _categoryImageElements;
+    std::vector<ImageElement*>       _focusImageElements;
+    std::vector<ArtifactButtonNavi*> _focusNaviElements;
 
     DropArtifactsViewModel::Handle _viewModelHandle;
 };

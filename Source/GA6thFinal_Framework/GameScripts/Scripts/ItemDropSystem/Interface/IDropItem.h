@@ -12,13 +12,13 @@ enum class ArtifactDropType
     ACCESSORY,        // 장신구
     REVELATION,       // 계시
     ERASE_REVELATION, // 계시 지우기
-    Consumable,       //소모품
+    Consumable,       // 소모품
 };
 
 /*아이템 정보 구조체*/
 struct DropItemInfo
 {
-    ArtifactDropType Category; // 분류 타입
+    ArtifactDropType Category;     // 분류 타입
     int              ID;           // 아이템 아이디
     std::string      Name;         // 아이템 이름
 

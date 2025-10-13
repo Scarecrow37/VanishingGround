@@ -5,15 +5,14 @@
 #include "ItemDropSystem/UI/ItemDropUIRootManager.h"
 #include "ItemDropSystem/ItemDropSystem.h"
 #include "ViewModels/ItemDrop/DropArtifacts/DropArtifactsViewModel.h"
+#include "ItemDropSystem/UINavi/ArtifactButtonNavi.h"
 
 
 UMREAL_COMPONENT(ArtifactUIManager)
 
 ArtifactUIManager::ArtifactUIManager()
 {
-    _frameGridPanel    = nullptr;
-    _gridPanel         = nullptr;
-    _categoryGridPanel = nullptr;
+    _gridPanel = nullptr;
 }
 
 ArtifactUIManager::~ArtifactUIManager()
@@ -38,19 +37,30 @@ void ArtifactUIManager::Awake()
 
 void ArtifactUIManager::Start() 
 {
-    _viewModelHandle = UmWatcher.Watch<DropArtifactsViewModel, std::vector<DropArtifactsUIData>>
-    (ItemDropSystem::WATCHER_KEY, [weakPtr = GetWeakPtr()](const std::vector<DropArtifactsUIData>& datas)
-    {   
-        if (auto thisPtr = weakPtr.lock())
-        {
-            ArtifactUIManager* thisManager = static_cast<ArtifactUIManager*>(thisPtr.get());
-            thisManager->UpdateImageElements(datas);
-        }
-    });
-
-    if (ItemDropSystem* system = SingletonComponent<ItemDropSystem>::GetInstance())
+    if (_singletonComponent.IsSingleTon())
     {
-        system->NotifyUIModel();
+        //Watch
+        _viewModelHandle = UmWatcher.Watch<DropArtifactsViewModel, std::vector<DropArtifactsUIData>>
+        (ItemDropSystem::WATCHER_KEY, [weakPtr = GetWeakPtr()](const std::vector<DropArtifactsUIData>& datas)
+        {   
+            if (auto thisPtr = weakPtr.lock())
+            {
+                ArtifactUIManager* thisManager = static_cast<ArtifactUIManager*>(thisPtr.get());
+                thisManager->UpdateImageElements(datas);
+            }
+        });
+
+        //UI 갱신
+        if (ItemDropSystem* system = SingletonComponent<ItemDropSystem>::GetInstance())
+        {
+            system->NotifyUIModel();
+        }
+
+        //Focus Image는 다 비활성화.
+        for (auto& focusImage : _focusImageElements)
+        {
+            focusImage->Enable = false;
+        }
     }
 }
 
@@ -66,200 +76,105 @@ void ArtifactUIManager::ImGuiDrawPropertysEvent()
         UpdateImageElements();
     }
 
-    if (_frameImageElements.empty())
+    auto CheckContainer = [](auto& container, const char* lable, const char* helpMessage) 
     {
-        ImGui::Text((const char*)u8"Frame Grid Panel에 \"Frame Grid Panel\" Tag를 추가해주세요");
-    }
-    else
-    {
-        if (ImGui::TreeNodeEx("Frame Grid Panel"))
+        if (container.empty())
         {
-            for (auto& imageElement : _frameImageElements)
-            {
-                ImGui::PushID(&imageElement);
-                ImGui::Selectable(imageElement->gameObject->ToString().data()); 
-                ImGui::PopID();
-            }
-            ImGui::TreePop();
+            ImGui::Text(helpMessage);
         }
-    }
+        else
+        {
+            if (ImGui::TreeNodeEx(lable))
+            {
+                for (auto& imageElement : container)
+                {
+                    ImGui::PushID(&imageElement);
+                    ImGui::Selectable(imageElement->gameObject->ToString().data());
+                    ImGui::PopID();
+                }
+                ImGui::TreePop();
+            }
+        }
+    };
 
-    if (_imageElements.empty())
-    {
-        ImGui::Text((const char*)u8"Grid Panel에 \"Grid Panel\" Tag를 추가해주세요");
-    }
-    else
-    {
-        if (ImGui::TreeNodeEx("Grid Panel"))
-        {
-            for (auto& imageElement : _imageElements)
-            {
-                ImGui::PushID(&imageElement);
-                ImGui::Selectable(imageElement->gameObject->ToString().data());
-                ImGui::PopID();
-            }
-            ImGui::TreePop();
-        }
-    }
-
-    if (_categoryImageElements.empty())
-    {
-        ImGui::Text((const char*)u8"Category용 Grid Panel에 \"Category Grid Panel\" Tag를 추가해주세요");
-    }
-    else
-    {
-        if (ImGui::TreeNodeEx("Category Grid Panel"))
-        {
-            for (auto& imageElement : _categoryImageElements)
-            {
-                ImGui::PushID(&imageElement);
-                ImGui::Selectable(imageElement->gameObject->ToString().data());
-                ImGui::PopID();
-            }
-            ImGui::TreePop();
-        }
-    }
+    CheckContainer(_frameImageElements, "Frame Image Elements", (const char*)u8"Frame Image들을 찾을 수 없습니다.");
+    CheckContainer(_iconElements, "Icon Elements", (const char*)u8"Icon Image들을 찾을 수 없습니다.");
+    CheckContainer(_categoryImageElements, "Category Elements", (const char*)u8"Category Image들을 찾을 수 없습니다.");
+    CheckContainer(_focusImageElements, "Focus Elements", (const char*)u8"Focus Image들을 찾을 수 없습니다.");
+    CheckContainer(_focusNaviElements, "Focus Navi Elements", (const char*)u8"ArtifactNavi들을 찾을 수 없습니다.");
 }
 
 void ArtifactUIManager::FindImageElements() 
 {
-    //frame 탐색
-    _frameImageElements.clear();
-    _frameGridPanel = nullptr;
-    Transform::ForeachBFS(transform, 
-    [this](Transform* curr) 
+    //Grid 탐색
+    for (int i = 0; i < transform->ChildCount; i++)
     {
-        if (_frameGridPanel == nullptr)
-        {
-            if (curr->gameObject->CompareTag("Frame Grid Panel"))
-            {
-                _frameGridPanel = curr->gameObject->GetComponent<GridPanel>();
-            }
-        }
-    });
-
-    if (_frameGridPanel)
-    {
-        Transform& tr = _frameGridPanel->transform;
-        for (int i = 0; i < tr.ChildCount; i++)
-        {
-            Transform* child = tr.GetChild(i);
-            if (child)
-            {
-                ImageElement* frameImage = child->gameObject->GetComponent<ImageElement>();
-                if (nullptr == frameImage)
-                {
-                    child = child->GetChild(0);
-                    if (child)
-                    {
-                        frameImage = child->gameObject->GetComponent<ImageElement>();
-                    }
-                }
-
-                if (nullptr != frameImage)
-                {
-                    _frameImageElements.push_back(frameImage);
-                }
-            }
-        }
-    }
-
-    //image 탐색
-    _imageElements.clear();
-    _gridPanel = nullptr;
-    Transform::ForeachBFS(transform, [this](Transform* curr) 
-    {
-        if (nullptr == _gridPanel)
+        Transform* curr = transform->GetChild(i);
+        if (_gridPanel == nullptr)
         {
             if (curr->gameObject->CompareTag("Grid Panel"))
             {
                 _gridPanel = curr->gameObject->GetComponent<GridPanel>();
             }
         }
-    });
-
-    if (_gridPanel)
-    {
-        Transform& tr = _gridPanel->transform;
-        for (int i = 0; i < tr.ChildCount; i++)
+        else
         {
-            Transform* child = tr.GetChild(i);
-            if (child)
-            {
-                ImageElement* image = child->gameObject->GetComponent<ImageElement>();
-                if (nullptr == image)
-                {
-                    child = child->GetChild(0);
-                    if (child)
-                    {
-                        image = child->gameObject->GetComponent<ImageElement>();
-                    }
-                }
-
-                if (nullptr != image)
-                {
-                    _imageElements.push_back(image);
-                }
-            }
+            break;
         }
     }
-    
-    //category 탐색
+
+    if (nullptr == _gridPanel)
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"보상 UI의 Grid Panel을 찾을 수 없습니다.");
+    }
+
+    //탐색
+    _frameImageElements.clear();
+    _iconElements.clear();
     _categoryImageElements.clear();
-    _categoryGridPanel = nullptr;
-    Transform::ForeachBFS(transform, [this](Transform* curr)
+    _focusImageElements.clear();
+    Transform::ForeachDFS(transform, [this](Transform* curr) 
     {
-        if (nullptr == _categoryGridPanel)
+        GameObject& gameObject = curr->gameObject;
+        if (gameObject.CompareTag("Frame"))
         {
-            if (curr->gameObject->CompareTag("Category Grid Panel"))
+            if (ImageElement* element = gameObject.GetComponent<ImageElement>())
             {
-                _categoryGridPanel = curr->gameObject->GetComponent<GridPanel>();
+                _frameImageElements.push_back(element);
+            }
+        }
+        else if (gameObject.CompareTag("Icon"))
+        {
+            if (ImageElement* element = gameObject.GetComponent<ImageElement>())
+            {
+                _iconElements.push_back(element);
+            }
+        }
+        else if (gameObject.CompareTag("Category"))
+        {
+            if (ImageElement* element = gameObject.GetComponent<ImageElement>())
+            {
+                _categoryImageElements.push_back(element);
+            }
+        }
+        else if (gameObject.CompareTag("Focus"))
+        {
+            if (ImageElement* element = gameObject.GetComponent<ImageElement>())
+            {
+                _focusImageElements.push_back(element);
+            }
+            if (ArtifactButtonNavi* navi = gameObject.GetComponent<ArtifactButtonNavi>())
+            {
+                _focusNaviElements.push_back(navi);
             }
         }
     });
-
-    if (_categoryGridPanel)
-    {
-        Transform& tr = _categoryGridPanel->transform;
-        for (int i = 0; i < tr.ChildCount; i++)
-        {
-            Transform* child = tr.GetChild(i);
-            if (child)
-            {
-                ImageElement* categoryImage = child->gameObject->GetComponent<ImageElement>();
-                if (nullptr == categoryImage)
-                {
-                    child = child->GetChild(0);
-                    if (child)
-                    {
-                        categoryImage = child->gameObject->GetComponent<ImageElement>();
-                    }
-                }
-
-                if (nullptr != categoryImage)
-                {
-                    _categoryImageElements.push_back(categoryImage);
-                }
-            }
-        }
-    }
 }
 
 void ArtifactUIManager::ImageUISetup(const std::vector<DropArtifactsUIData>& dropItemsInfo) 
 {
     if (ItemDropUIRootManager* rootManager = SingletonComponent<ItemDropUIRootManager>::GetInstance())
     {
-        // Frame UI 업데이트
-        std::string   frameAsstePath = rootManager->ArtifactsUIFrameAsset;
-        File::Guid guid           = UmFileSystem.GetGuidFromPath(frameAsstePath);
-        if (false == guid.IsNull())
-        {
-            for (auto& imageElement : _frameImageElements)
-            {
-                imageElement->SetImage(guid);
-            }
-        }
-
         // Artifact UI 업데이트
         for (size_t i = 0; i < dropItemsInfo.size(); i++)
         {
@@ -269,9 +184,9 @@ void ArtifactUIManager::ImageUISetup(const std::vector<DropArtifactsUIData>& dro
 
             if (false == itemGuid.IsNull())
             {
-                if (i < _imageElements.size())
+                if (i < _iconElements.size())
                 {
-                    auto& imageElement = _imageElements[i];
+                    auto& imageElement = _iconElements[i];
                     imageElement->SetImage(itemGuid);
                 }
             }
@@ -304,9 +219,9 @@ void ArtifactUIManager::ImageUIUnlock()
     {
         int clearCount = system->StageClearCount;
         int endIndex = GetIndices(clearCount);
-        for (int i = 0; i < _imageElements.size(); ++i)
+        for (int i = 0; i < _iconElements.size(); ++i)
         {
-            ImageElement* element = _imageElements[i];
+            ImageElement* element = _iconElements[i];
             if (endIndex < i)
             {
                 element->Enable = false;
@@ -329,6 +244,20 @@ void ArtifactUIManager::ImageUIUnlock()
             }       
         }
     }
+}
+
+bool ArtifactUIManager::FocusNavi(size_t index)
+{
+    if (index < _focusNaviElements.size())
+    {
+        ArtifactButtonNavi* navi = _focusNaviElements[index];
+        if (navi->Enable)
+        {
+            navi->Focus();
+            return true;
+        }
+    }
+    return false;
 }
 
 void ArtifactUIManager::UpdateImageElements(const std::vector<DropItemInfo>& dropItemsInfo) 

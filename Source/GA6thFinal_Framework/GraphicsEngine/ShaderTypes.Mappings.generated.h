@@ -73,7 +73,8 @@ namespace GE
         {PS::BURN_DISSOLVE, L"ps_burn_dissolve.hlsl"},
         {PS::PBR_LIGHTING, L"ps_pbr_lighting.hlsl"},
         {PS::SKYBOX, L"ps_skybox.hlsl"},
-        {PS::BLEND, L"ps_blend.hlsl"}
+        {PS::BLEND, L"ps_blend.hlsl"},
+        {PS::FXAA, L"ps_fxaa.hlsl"}
     };
 
     inline const std::unordered_map<HS, std::wstring> enumToHSFileNameMap = {
