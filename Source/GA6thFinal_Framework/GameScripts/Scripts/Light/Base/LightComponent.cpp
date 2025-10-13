@@ -6,21 +6,10 @@ LightComponent::LightComponent()
     : Component(Component::TYPE::LIGHT)
     , _light(nullptr)
     , Lighting(_light)
-{
-    UmGraphics.CreateLight(&_light);
-    Lighting->SetActive(&EnableInHierarchy);
-
-    UmGraphics.RegisterComponent("Game", _light.Get());
-    if constexpr (IS_EDITOR)
-    {
-        UmGraphics.RegisterComponent("Editor", _light.Get());
-    }
+{    
 }
 
-LightComponent::~LightComponent() 
-{
-    // _light.Reset();
-}
+LightComponent::~LightComponent() = default;
 
 void LightComponent::DeserializedReflectEvent() 
 {
@@ -33,15 +22,18 @@ void LightComponent::DeserializedReflectEvent()
 void LightComponent::Reset() 
 {
     Base::Reset();
+    UmGraphics.CreateLight(&_light);
+    Lighting->SetActive(&EnableInHierarchy);
+
+    UmGraphics.RegisterComponent("Game", _light.Get());
+    if constexpr (IS_EDITOR)
+    {
+        UmGraphics.RegisterComponent("Editor", _light.Get());
+    }
+
 #ifdef _UMEDITOR
     _gizmo.SetIconTexture(SceneGizmo::DefaultIcon::LIGHT);
 #endif
-    Lighting.SetActive(&EnableInHierarchy);
-    UmGraphics.RegisterComponent("Game", _light.get());
-    if constexpr (IS_EDITOR)
-    {
-        UmGraphics.RegisterComponent("Editor", _light.get());
-    }
 }
 
 void LightComponent::OnDrawDebug() 

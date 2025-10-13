@@ -15,7 +15,7 @@ ImageElement::ImageElement()
                 const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
                 if (const auto extension = data->GetPath().extension(); extension == L".png" || extension == L".jpeg")
                 {
-                    _Guid            = data->GetGuid();
+                    _Guid               = data->GetGuid();
                     ReflectFields->Guid = _Guid.string();
                     RequestResource();
                 }

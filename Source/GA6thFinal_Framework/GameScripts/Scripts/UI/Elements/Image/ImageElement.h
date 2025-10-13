@@ -118,6 +118,6 @@ private:
     GraphicsPointer<ISpriteRenderer> _renderer;
     Matrix                           _worldMatrix;
     SIZE                             _spriteOriginSize;
-    File::Guid                   _Guid;
+    File::Guid                       _Guid;
 
 };

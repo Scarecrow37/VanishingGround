@@ -29,7 +29,9 @@ std::filesystem::path ESceneManager::GetSettingFilePath()
 }
 
 ESceneManager::ESceneManager() 
-    : _mainCamera(nullptr) 
+    : 
+    _mainCamera(nullptr), 
+    _nextSceneSkybox(nullptr)
 {
    
 }
@@ -764,7 +766,7 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
             }
         }
         _setting.MainScene = scene->Path;
-        SetRendererSkyBox(scene);              
+        _nextSceneSkybox   = scene;         
         _addComponentsQueue.clear();
         _addGameObjectsQueue.clear();
         _waitAwakeVec.clear();
@@ -1045,6 +1047,12 @@ void ESceneManager::ObjectsAddLoadScene()
             }
         }
         _nextSceneGuid.clear();
+    }
+
+    if (nullptr != _nextSceneSkybox)
+    {
+        SetRendererSkyBox(_nextSceneSkybox);     
+        _nextSceneSkybox = nullptr;
     }
 }
 

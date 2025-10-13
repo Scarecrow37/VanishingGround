@@ -31,25 +31,24 @@ void SkyBox::SetEnvironmentTexture(std::wstring_view path)
 
     const Image* img = image.GetImage(0, 0, 0);
 
-    size_t                     imageSize    = img->slicePitch;
-    ID3D12Device*              pDevice      = Global::device->GetDevice();
-    ID3D12GraphicsCommandList* commandList  = Global::device->GetCommandList();
+    size_t                     imageSize   = img->slicePitch;
+    ID3D12Device*              device      = Global::device->GetDevice();
+    ID3D12GraphicsCommandList* commandList = Global::device->GetCommandList();
 
     // DirectXTex에서 가져온 포맷 사용 (보통 R32G32B32A32_FLOAT)
-    _skyboxhdrTexture[ENV] = CreateTexture2D(pDevice, static_cast<int>(metadata.width), static_cast<int>(metadata.height), metadata.format);
+    _skyboxhdrTexture[ENV] = CreateTexture2D(device, static_cast<int>(metadata.width), static_cast<int>(metadata.height), metadata.format);
 
-    UploadToTexture2D(pDevice, commandList, _skyboxhdrTexture[ENV].Get(), img->pixels, imageSize);
+    UploadToTexture2D(device, commandList, _skyboxhdrTexture[ENV].Get(), img->pixels, imageSize);
 
     CreateHDRSRV(_skyboxhdrTexture[ENV].Get(), _hdrSRVHandles[ENV]);
 
     // CubeMap 생성
-    commandList->SetPipelineState(_pipelineState[CUBE_MAP].Get());
-    commandList->SetComputeRootSignature(_fxCubeMap.GetRootSignature());
-
     auto descriptorHeap = Global::viewManager->GetShaderResourceHeap();
     commandList->SetDescriptorHeaps(1, &descriptorHeap);
 
+    commandList->SetPipelineState(_pipelineState[CUBE_MAP].Get());
     commandList->SetComputeRootSignature(_fxCubeMap.GetRootSignature());
+
     commandList->SetComputeRootDescriptorTable(_fxCubeMap.GetRootParameterIndex("equirectangularMap"), _hdrSRVHandles[ENV].GPU);
     commandList->SetComputeRootDescriptorTable(_fxCubeMap.GetRootParameterIndex("cubeMap"), _cubeMap[ENV]->GetUAVHandle());
     commandList->SetComputeRoot32BitConstants(_fxCubeMap.GetRootParameterIndex("bit32_1_cubeMapInfo"), 1, &CUBE_MAP_SIZE, 0);
@@ -89,12 +88,10 @@ void SkyBox::SetIBLTexture(std::wstring_view path)
     CreateHDRSRV(_skyboxhdrTexture[IBL].Get(), _hdrSRVHandles[IBL]);
 
     // CubeMap 생성
-    commandList->SetPipelineState(_pipelineState[CUBE_MAP].Get());
-    commandList->SetComputeRootSignature(_fxCubeMap.GetRootSignature());
-
     auto descriptorHeap = Global::viewManager->GetShaderResourceHeap();
     commandList->SetDescriptorHeaps(1, &descriptorHeap);
 
+    commandList->SetPipelineState(_pipelineState[CUBE_MAP].Get());
     commandList->SetComputeRootSignature(_fxCubeMap.GetRootSignature());
     commandList->SetComputeRootDescriptorTable(_fxCubeMap.GetRootParameterIndex("equirectangularMap"), _hdrSRVHandles[IBL].GPU);
     commandList->SetComputeRootDescriptorTable(_fxCubeMap.GetRootParameterIndex("cubeMap"), _cubeMap[IBL]->GetUAVHandle());

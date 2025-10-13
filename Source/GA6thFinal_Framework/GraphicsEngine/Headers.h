@@ -26,12 +26,12 @@
 
 #include "DXResourceManager.h"
 #include "MultiRenderTargetManager.h"
-#include "ParticleManager.h"
 #include "ResourceManager.h"
 #include "ViewManager.h"
 #include "AccelerationStructureManager.h"
 #include "Module/ModuleManager.h"
 #include "PipelineStateManager.h"
+#include "ParticleManager.h"
 
 #include "SceneTransitionCore.h"
 #include "DebugDrawCore.h"
