@@ -553,7 +553,7 @@ namespace Audio
         IUnknown* effect = nullptr;
         throwIfFailed(CreateFX(__uuidof(FXReverb), &effect), "Failed to create effect.");
 
-        XAUDIO2_EFFECT_DESCRIPTOR effectDescriptor{.pEffect = effect, .InitialState = TRUE, .OutputChannels = channels};
+        XAUDIO2_EFFECT_DESCRIPTOR effectDescriptor{.pEffect = effect, .InitialState = FALSE, .OutputChannels = channels};
 
         XAUDIO2_EFFECT_CHAIN effectChain{.EffectCount = 1, .pEffectDescriptors = &effectDescriptor};
 
@@ -595,7 +595,7 @@ namespace Audio
                       "Failed to set reverb parameters.");
     }
 
-    FadeHandle System::CreateEffect(FadeParameter parameter, UINT32 channels, UINT32 sampleRate)
+    FadeHandle System::CreateEffect(const FadeParameter parameter, UINT32 channels, UINT32 sampleRate)
     {
         constexpr ThrowIfFailed      throwIfFailed;
         constexpr IncreaseGeneration increaseGeneration;
@@ -626,7 +626,7 @@ namespace Audio
 
         IXAPO* effect = new FXFade();
 
-        XAUDIO2_EFFECT_DESCRIPTOR effectDescriptor{.pEffect = effect, .InitialState = TRUE, .OutputChannels = channels};
+        XAUDIO2_EFFECT_DESCRIPTOR effectDescriptor{.pEffect = effect, .InitialState = FALSE, .OutputChannels = channels};
 
         XAUDIO2_EFFECT_CHAIN effectChain{.EffectCount = 1, .pEffectDescriptors = &effectDescriptor};
 
@@ -672,6 +672,53 @@ namespace Audio
                 DetachOutput(attachedVoice);
         });
         attachedVoices.clear();
+    }
+
+    void System::EnableEffect(const EffectHandle& effectHandle, const GroupHandle& groupHandle)
+    {
+        if (!IsValidHandle(effectHandle))
+            throw InvalidHandleException("Invalid effect effectHandle provided to EnableEffect.");
+
+        if (!IsValidHandle(groupHandle))
+            throw InvalidHandleException("Invalid group handle provided to EnableEffect.");
+
+        EffectVoice&      effectVoice = _effectPool.at(effectHandle._index);
+        const GroupVoice& groupVoice  = _groupPool.at(groupHandle._index);
+
+        if (const auto findIter = std::ranges::find(effectVoice.AttachedVoices, groupHandle);
+            findIter != effectVoice.AttachedVoices.end())
+            return;
+
+        constexpr ThrowIfFailed throwIfFailed;
+
+        XAUDIO2_SEND_DESCRIPTOR   sendDescriptor{NULL, effectVoice.Voice};
+        const XAUDIO2_VOICE_SENDS voiceSends{.SendCount = 1, .pSends = &sendDescriptor};
+
+        throwIfFailed(groupVoice.Voice->SetOutputVoices(&voiceSends), "Failed to set output voices.");
+
+        effectVoice.AttachedVoices.push_back(groupHandle);
+
+        throwIfFailed(effectVoice.Voice->EnableEffect(0), "Failed to enable effect.");
+    }
+
+    void System::DisableEffect(const EffectHandle& handle)
+    {
+        if (!IsValidHandle(handle))
+            throw InvalidHandleException("Invalid effect handle provided to DisableEffect.");
+
+        constexpr ThrowIfFailed throwIfFailed;
+
+        EffectVoice& effectVoice = _effectPool.at(handle._index);
+
+        for (auto& groupHandle : effectVoice.AttachedVoices)
+        {
+            if (IsValidHandle(groupHandle))
+                DetachOutput(groupHandle);
+        }
+
+        effectVoice.AttachedVoices.clear();
+
+        throwIfFailed(effectVoice.Voice->DisableEffect(0), "Failed to disable effect.");
     }
 
     void System::ReleaseVoice(const AudioHandle& handle)

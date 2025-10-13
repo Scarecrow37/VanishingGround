@@ -189,6 +189,10 @@ namespace Audio
         /// <param name="handle">해제할 이펙트를 나타내는 EffectHandle 객체의 상수 참조입니다.</param>
         void ReleaseEffect(const EffectHandle& handle);
 
+        void EnableEffect(const EffectHandle& effectHandle, const GroupHandle& groupHandle);
+
+        void DisableEffect(const EffectHandle& handle);
+
     private:
         void ReleaseVoice(const AudioHandle& handle);
         void DetachOutput(const AudioHandle& handle) const;
