@@ -22,6 +22,7 @@ namespace CombatUI
                     slot.ButtonXIcon = buttonIcons[i].X;
                     slot.ButtonYIcon = buttonIcons[i].Y;
                     slot.ButtonBIcon = buttonIcons[i].B;
+                    SlotList.push_back(slot);
                 }
             }
         }

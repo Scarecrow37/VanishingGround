@@ -308,7 +308,7 @@
     <ClInclude Include="Scripts\CombatUIManager\Revelations\RevelationsGroup.h" />
     <ClInclude Include="Scripts\CombatUIManager\TurnQueue\TurnQueueGroup.h" />
     <ClInclude Include="Scripts\CombatUIManager\UIGroup.h" />
-    <ClInclude Include="Scripts\CombatUIManager\Weaapon\WeaponGroup.h" />
+    <ClInclude Include="Scripts\CombatUIManager\Weapon\WeaponGroup.h" />
     <ClInclude Include="Scripts\Debugger\Debugger.h" />
     <ClInclude Include="DLLExportDefine.h" />
     <ClInclude Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.h" />
@@ -535,7 +535,7 @@
     <ClCompile Include="Scripts\CombatUIManager\Revelations\RevelationsGroup.cpp" />
     <ClCompile Include="Scripts\CombatUIManager\TurnQueue\TurnQueueGroup.cpp" />
     <ClCompile Include="Scripts\CombatUIManager\UIGroup.cpp" />
-    <ClCompile Include="Scripts\CombatUIManager\Weaapon\WeaponGroup.cpp" />
+    <ClCompile Include="Scripts\CombatUIManager\Weapon\WeaponGroup.cpp" />
     <ClCompile Include="Scripts\Debugger\Debugger.cpp" />
     <ClCompile Include="dllmain.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>

@@ -5,7 +5,7 @@
 #include <CombatUIManager/TurnQueue/TurnQueueGroup.h>
 #include <CombatUIManager/Consumable/ConsumableGroup.h>
 #include <CombatUIManager/Revelations/RevelationsGroup.h>
-#include <CombatUIManager/Weaapon/WeaponGroup.h>
+#include <CombatUIManager/Weapon/WeaponGroup.h>
 #include <CombatUIManager/Accessories/AccessoriesGroup.h>
 
 class OverlayPanel;
