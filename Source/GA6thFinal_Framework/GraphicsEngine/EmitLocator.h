@@ -8,7 +8,7 @@ public:
     virtual Vector3        EmitLocate() = 0;
     Vector3                GetFactor() const { return _factor; }
     void                   SetFactor(const Vector3 factor) { _factor = factor; }
-    std::function<float()> _randomVal;
+    std::function<float()> RandomVal;
 
     virtual class MeshSurfaceLocator*       AsMeshSurfaceLocator() { return nullptr; }
     virtual const class MeshSurfaceLocator* AsMeshSurfaceLocator() const { return nullptr; }

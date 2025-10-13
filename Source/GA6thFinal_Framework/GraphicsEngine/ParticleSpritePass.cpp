@@ -26,7 +26,7 @@ void ParticleSpritePass::Begin(ID3D12GraphicsCommandList* commandList)
 
    // _ownerScene->_depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_DEPTH_READ);
 
-    _accumlateBuffer->ClearUnorderedAccessView(commandList, Vector4(0.f, 0.f, 0.f, 0.f));
+    _accumulateBuffer->ClearUnorderedAccessView(commandList, Vector4(0.f, 0.f, 0.f, 0.f));
     _revealageBuffer->ClearUnorderedAccessView(commandList, Vector4(0.f, 0.f, 0.f, 0.f));
 
     commandList->OMSetRenderTargets(1, &customDepthTarget->GetRTVHandle(), FALSE, nullptr);
@@ -72,7 +72,7 @@ void ParticleSpritePass::Draw(ID3D12GraphicsCommandList* commandList)
                                                    _textureIDBuffer->GetGPUVirtualAddress());
 
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("gAccumTex"),
-                                                _accumlateBuffer->GetUAVHandle());
+                                                _accumulateBuffer->GetUAVHandle());
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("gRevealTex"),
                                                 _revealageBuffer->GetUAVHandle());
 
@@ -103,7 +103,7 @@ void ParticleSpritePass::End(ID3D12GraphicsCommandList* commandList)
     commandList->ResourceBarrier(1, &computeOutputBarrior);
 
     _ownerScene->_depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_PRESENT);
-    _accumlateBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    _accumulateBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     _revealageBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
@@ -123,6 +123,6 @@ void ParticleSpritePass::InitializeShaderAndPSO()
 
 void ParticleSpritePass::SetAccumulationBuffers(SharedResource<UnorderedAccessView> color, SharedResource<UnorderedAccessView> alpha)
 {
-    _accumlateBuffer = color;
+    _accumulateBuffer = color;
     _revealageBuffer = alpha;
 }

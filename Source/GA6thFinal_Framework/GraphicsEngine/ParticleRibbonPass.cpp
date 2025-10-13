@@ -8,7 +8,7 @@ ParticleRibbonPass::~ParticleRibbonPass() = default;
 void ParticleRibbonPass::SetAccumulationBuffers(SharedResource<UnorderedAccessView> color,
                                                 SharedResource<UnorderedAccessView> alpha)
 {
-    _accumlateBuffer = color;
+    _accumulateBuffer = color;
     _revealageBuffer = alpha;
 }
 
@@ -55,15 +55,12 @@ void ParticleRibbonPass::Begin(ID3D12GraphicsCommandList* commandList)
         _ribbonIndices.resize(totalribbonemitterindices.size());
         for (int i = 0; i < totalribbonemitterindices.size(); i++)
         {
-            std::sort(totalribbonemitterindices[i].begin(), totalribbonemitterindices[i].end(),
-                      [](const RibbonIndex& a, const RibbonIndex& b) -> bool { return a.ratio < b.ratio; });
-
             auto size = totalribbonemitterindices[i].size();
             _ribbonIndices[i].resize(size);
             std::fill(_ribbonIndices[i].begin(), _ribbonIndices[i].end(), -1);
             for (int j = 0; j < size; j++)
             {
-                _ribbonIndices[i][j] = totalribbonemitterindices[i][j].index;
+                _ribbonIndices[i][j] = totalribbonemitterindices[i][j].Index;
             }
             _ribbonIndexBuffer[i]->CopyStructuredBuffer(commandList, _ribbonIndices[i].data(),
                                                         static_cast<UINT>(totalribbonemitterindices[i].size()));
@@ -92,7 +89,7 @@ void ParticleRibbonPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("depthbuffer"), depthStencilBuffer->GetSRVHandle());
     commandList->SetGraphicsRootConstantBufferView(_fx.GetRootParameterIndex("cameraData"), _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
     commandList->SetGraphicsRootShaderResourceView(_fx.GetRootParameterIndex("texID"), _textureIDBuffer->GetGPUVirtualAddress());
-    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("gAccumTex"), _accumlateBuffer->GetUAVHandle());
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("gAccumTex"), _accumulateBuffer->GetUAVHandle());
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("gRevealTex"), _revealageBuffer->GetUAVHandle());
     auto outputResource = Global::particleManager->GetRibbonOutputResource(_ownerScene->_name);
     commandList->SetGraphicsRootShaderResourceView(_fx.GetRootParameterIndex("particleInfo"), outputResource->GetGPUVirtualAddress());
@@ -122,7 +119,7 @@ void ParticleRibbonPass::End(ID3D12GraphicsCommandList* commandList)
     commandList->ResourceBarrier(1, &computeOutputBarrior);
 
     _ownerScene->_depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_PRESENT);
-    _accumlateBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    _accumulateBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     _revealageBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 void ParticleRibbonPass::InitializeShaderAndPSO()

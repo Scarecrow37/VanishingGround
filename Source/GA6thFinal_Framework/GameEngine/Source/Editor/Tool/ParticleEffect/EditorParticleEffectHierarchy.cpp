@@ -13,7 +13,7 @@
      SetDockLayout(ImGuiDir_Left);
  }
 
- EditorParticleEffectHierarchy::~EditorParticleEffectHierarchy() {}
+ EditorParticleEffectHierarchy::~EditorParticleEffectHierarchy() = default;
 
  void EditorParticleEffectHierarchy::OnTickGui()
 {
@@ -30,7 +30,7 @@ void EditorParticleEffectHierarchy::OnStartGui()
      }
      //light settting
      {
-         _directionalLight = new Light();
+         _directionalLight = std::make_unique<Light>();
          _color            = Vector3(1.f);
          _ambient          = Vector3(1.f);
          _direction        = Vector3(0.f, -1.f, 0.f);
@@ -38,12 +38,8 @@ void EditorParticleEffectHierarchy::OnStartGui()
          _lightActivity    = true;
          _directionalLight->SetDirectionalLight(_color, _ambient, _direction, _intensity);
          _directionalLight->SetActive(&_lightActivity);
-         UmGraphics.RegisterComponent("ParticleEditor", _directionalLight);
+         UmGraphics.RegisterComponent("ParticleEditor", _directionalLight.get());
      }
-
-
-
-
 }
 
 void EditorParticleEffectHierarchy::OnEndGui()
@@ -63,9 +59,13 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
         auto newEffect = UmParticleManager->RegisterEffectOnEditor();
         newEffect->SetLifetime(10.f);
         newEffect->SetEffectName("newEffect");
-        UmParticleManager->SetCurrentEditorEffect(newEffect);
         _editorParticleEffectDetails->SetCurrentEffect(newEffect);
         _curEffect = newEffect;
+        _curEffect->SetPosition(&_effectPosition);
+        _curEffect->SetRotation(&_effectRotation);
+        _curEffect->SetScale(&_effectRotation);
+        _curEffect->SetParentMatrix(&_effectWorldMatrix);
+        _curEffect->SetBoneFollowFlag(&_boneFlag);
     }
 
     ImGui::SameLine();
@@ -85,9 +85,13 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
             {
                 emitter->_particleRenderModule->Initialize();
             }
-            UmParticleManager->SetCurrentEditorEffect(effect);
             _editorParticleEffectDetails->SetCurrentEffect(effect);
             _curEffect = effect;
+            _curEffect->SetPosition(&_effectPosition);
+            _curEffect->SetRotation(&_effectRotation);
+            _curEffect->SetScale(&_effectScale);
+            _curEffect->SetParentMatrix(&_effectWorldMatrix);
+            _curEffect->SetBoneFollowFlag(&_boneFlag);
         }
     }
     ParticleEffect* effect = UmParticleManager->GetCurrentEditorEffect();
@@ -108,7 +112,6 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
             }
         }
     }
-
 
     // refresh button
     {
@@ -132,6 +135,24 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
         UmParticleManager->SetDeltaScale(deltaScale);
     }
 
+    // directional light setting
+    {
+        ImGui::Checkbox("Directional Light", &_lightActivity);
+        if (_lightActivity)
+        {
+            ImGui::Text("Light Direction: ");
+            ImGui::DragFloat3("##Light Direction", &_direction.x, 0.05f);
+
+            ImGui::Text("Light Color: ");
+            ImGui::ColorEdit3("##Light Color", &_color.x);
+
+            ImGui::Text("Light Ambient: ");
+            ImGui::DragFloat3("##Light Ambient", &_ambient.x, 0.05f);
+
+            ImGui::Text("Light Intensity: ");
+            ImGui::DragFloat("##Light Intensity", &_intensity, 0.05f);
+        }
+    }
 
     //env model load
     {
@@ -155,52 +176,54 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
         }
         if (_envmodelpath != File::NULL_PATH)
         {
+            ImGui::Checkbox("Environment Transform", &_hideModelTransform);
+            if (_hideModelTransform)
+            {
+                bool isDirty = false;
+                {
+                    ImGui::Text("Position: ");
+                    ImGui::DragFloat3("##env position", &_position.x, 0.05f) ? isDirty = true : isDirty;
+                    ImGui::SameLine();
+                    if (ImGui::Button("Reset##env position"))
+                    {
+                        _position = Vector3::Zero;
+                        isDirty   = true;
+                    }
+                }
+                {
+                    ImGui::Text("Rotation: ");
+                    ImGui::DragFloat3("##env rotation", &_rotation.x, 0.05f) ? isDirty = true : isDirty;
+                    ImGui::SameLine();
+                    if (ImGui::Button("Reset##env rotation"))
+                    {
+                        _rotation = Vector3::Zero;
+                        isDirty   = true;
+                    }
+                }
+                {
+                    ImGui::Text("Scale: ");
+                    ImGui::DragFloat3("##env scale", &_scale.x, 0.05f) ? isDirty = true : isDirty;
+                    ImGui::SameLine();
+                    if (ImGui::Button("Reset##env scale"))
+                    {
+                        _scale  = Vector3::One;
+                        isDirty = true;
+                    }
+                }
+                if (isDirty)
+                {
+                    Matrix matScale     = Matrix::CreateScale(_scale);
+                    Matrix matRotation  = Matrix::CreateFromYawPitchRoll(_rotation.y, _rotation.x, _rotation.z);
+                    Matrix matTranslate = Matrix::CreateTranslation(_position);
+                    _quaternion         = Quaternion::CreateFromYawPitchRoll(_rotation.y, _rotation.x, _rotation.z);
 
-            bool isDirty = false;
-            {
-                ImGui::Text("Position: ");
-                ImGui::DragFloat3("##env position", &_position.x, 0.05f) ? isDirty = true : isDirty;
-                ImGui::SameLine();
-                if (ImGui::Button("Reset##env position"))
-                {
-                    _position = Vector3::Zero;
-                    isDirty   = true;
+                    // 변환 순서: S  R  T
+                    _worldMatrix = matScale * matRotation * matTranslate;
                 }
-            }
-            {
-                ImGui::Text("Rotation: ");
-                ImGui::DragFloat3("##env rotation", &_rotation.x, 0.05f) ? isDirty = true : isDirty;
-                ImGui::SameLine();
-                if (ImGui::Button("Reset##env rotation"))
-                {
-                    _rotation = Vector3::Zero;
-                    isDirty   = true;
-                }
-            }
-            {
-                ImGui::Text("Scale: ");
-                ImGui::DragFloat3("##env scale", &_scale.x, 0.05f) ? isDirty = true : isDirty;
-                ImGui::SameLine();
-                if (ImGui::Button("Reset##env scale"))
-                {
-                    _scale  = Vector3::One;
-                    isDirty = true;
-                }
-            }
-            if (isDirty)
-            {
-                Matrix matScale     = Matrix::CreateScale(_scale);
-                Matrix matRotation  = Matrix::CreateFromYawPitchRoll(_rotation.y, _rotation.x, _rotation.z);
-                Matrix matTranslate = Matrix::CreateTranslation(_position);
-                _quaternion         = Quaternion::CreateFromYawPitchRoll(_rotation.y, _rotation.x, _rotation.z);
-
-                // 변환 순서: S  R  T
-                _worldMatrix = matScale * matRotation * matTranslate;
             }
         }
     }
 
-    if (nullptr == UmParticleManager->GetCurrentEditorEffect())
     if (nullptr == effect)
     {
         _curEffect = nullptr;
@@ -211,104 +234,139 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
                                                    UmParticleManager->GetRibbonCount("ParticleEditor"));
     ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.f);
 
-    LocationShape   locationType;
+
+    ImGui::Checkbox("Transform", &_effectTransformHide);
+    if (_effectTransformHide)
+    {
+        {
+            ImGui::Text("Position: ");
+            ImGui::DragFloat3("##effect position", &_effectPosition.x, 0.05f);
+
+            ImGui::Text("Rotation: ");
+            ImGui::DragFloat3("##effect rotation", &_effectRotation.x, 0.05f);
+    
+            ImGui::Text("Scale: ");
+            ImGui::DragFloat3("##effect scale", &_effectScale.x, 0.05f);
+        }
+    }
+    ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.f);
+
+    ImGui::Checkbox("Move Ribbon", &_effectRotateFlag);
+    if (_effectRotateFlag)
+    {
+        {
+            ImGui::Text("Vector: ");
+            ImGui::DragFloat3("##rotate vector", &_rotationVelocity.x, 0.05f);
+ 
+            ImGui::Text("Speed: ");
+            ImGui::DragFloat("##rotate speed", &_rotationSpeed);
+        }
+        float delta = UmTime.DeltaTime();
+        _elapsedTimer += delta;
+        Vector3 _finalRotation = _elapsedTimer * _rotationSpeed * _rotationVelocity;
+        _effectWorldMatrix = Matrix::CreateFromYawPitchRoll(_finalRotation);
+    }
+    ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.f);
+
+    LocationShape locationType;
     ParticleType  particleType;
-
-    ImGui::BeginGroup();
-    //particleType combobox
     {
-
-        static int  renderrow      = -1;
-        const char* renderitems[3] = {"Sprite", "Mesh  ", "Ribbon"};
-        static int  renderIdx      = 0;
-        ImGui::Text("Render Type    ");
-        ImGui::SetNextItemWidth(130);
-        ImGui::SameLine();
-        if (ImGui::BeginCombo("##Render Type", renderitems[renderIdx]))
+        ImGui::BeginGroup();
+        // particleType combobox
         {
-            for (int n = 0; n < 3; n++)
+
+            static int  renderrow      = -1;
+            const char* renderitems[3] = {"Sprite", "Mesh  ", "Ribbon"};
+            static int  renderIdx      = 0;
+            ImGui::Text("Render Type    ");
+            ImGui::SetNextItemWidth(130);
+            ImGui::SameLine();
+            if (ImGui::BeginCombo("##Render Type", renderitems[renderIdx]))
             {
-                bool is_selected = (renderIdx == n);
-                if (ImGui::Selectable(renderitems[n], is_selected))
+                for (int n = 0; n < 3; n++)
                 {
-                    renderIdx = n;
+                    bool is_selected = (renderIdx == n);
+                    if (ImGui::Selectable(renderitems[n], is_selected))
+                    {
+                        renderIdx = n;
+                    }
+                    if (is_selected)
+                        ImGui::SetItemDefaultFocus();
                 }
-                if (is_selected)
-                    ImGui::SetItemDefaultFocus();
+                ImGui::EndCombo();
             }
-            ImGui::EndCombo();
+            particleType = (ParticleType)renderIdx;
         }
-        particleType = (ParticleType)renderIdx;
-    }
-    //location combobox
-    {
-        static int  shapeRow      = -1;
-        const char* shapeitems[6] = {"Sphere      ", "Cube        ", "Cylinder    ",
-                                     "Cone        ", "Torus       ", "Mesh Surface"};
-        static int  shapeIdx      = 0;
-        ImGui::Text("Emission Shape");
-        ImGui::SetNextItemWidth(130);
-        ImGui::SameLine();
-        if (ImGui::BeginCombo("##Emission Shape", shapeitems[shapeIdx]))
+        // location combobox
         {
-            for (int n = 0; n < 6; n++)
+            static int  shapeRow      = -1;
+            const char* shapeitems[6] = {"Sphere      ", "Cube        ", "Cylinder    ",
+                                         "Cone        ", "Torus       ", "Mesh Surface"};
+            static int  shapeIdx      = 0;
+            ImGui::Text("Emission Shape");
+            ImGui::SetNextItemWidth(130);
+            ImGui::SameLine();
+            if (ImGui::BeginCombo("##Emission Shape", shapeitems[shapeIdx]))
             {
-                bool is_selected = (shapeIdx == n);
-                if (ImGui::Selectable(shapeitems[n], is_selected))
+                for (int n = 0; n < 6; n++)
                 {
-                    shapeIdx = n;
+                    bool is_selected = (shapeIdx == n);
+                    if (ImGui::Selectable(shapeitems[n], is_selected))
+                    {
+                        shapeIdx = n;
+                    }
+                    if (is_selected)
+                        ImGui::SetItemDefaultFocus();
                 }
-                if (is_selected)
-                    ImGui::SetItemDefaultFocus();
+                ImGui::EndCombo();
             }
-            ImGui::EndCombo();
+            locationType = (LocationShape)shapeIdx;
         }
-        locationType = (LocationShape)shapeIdx;
-    }
-    ImGui::EndGroup();
-    if (LocationShape::MESH_SURFACE == locationType)
-    {
-        currentmeshsurfacepath = std::filesystem::absolute(currentmeshsurfacepath);
-        ImGui::Text(currentmeshsurfacepath.string().c_str());
-        bool isLoadModelButtonPressed = ImGui::Button("load target model", {250, 30});
-        if (true == isLoadModelButtonPressed)
-        {
-
-            HWND                    owner = UmApplication.GetHwnd();
-            LPCWSTR                 title = L"Load fbx file";
-            std::vector<File::Path> out;
-            if (File::ShowOpenFileDialog(UmApplication.GetHwnd(),title, L"",
-                                         {{L"Model Files (*.fbx;*.UmModel)", L"*.fbx; *.UmModel\0\0"}}, false, out))
-            {
-                currentmeshsurfacepath = out.front();
-            }
-        }
-        currentmeshsurfacepath = std::filesystem::absolute(currentmeshsurfacepath);
-    }
-
-
-
-    bool isAddButtonPressed = ImGui::Button("Add new Emitter", {250, 30});
-    if (true == isAddButtonPressed)
-    {
-        auto emitter =
-            UmParticleManager->RegisterEmitter(_curEffect, 100000, 1000, 20, locationType, {0, 0, 0}, particleType);
-        UmGraphics.LoadTextureResource(emitter->_particleRenderModule->GetModelAndTexturePath(), emitter);
+        ImGui::EndGroup();
         if (LocationShape::MESH_SURFACE == locationType)
         {
-            UmGraphics.LoadModelResource(std::wstring_view(currentmeshsurfacepath.wstring()), emitter);
-        }
-        emitter->InitializeEditorLight();
+            currentmeshsurfacepath = std::filesystem::absolute(currentmeshsurfacepath);
+            ImGui::Text(currentmeshsurfacepath.string().c_str());
+            bool isLoadModelButtonPressed = ImGui::Button("load target model", {250, 30});
+            if (true == isLoadModelButtonPressed)
+            {
 
+                HWND                    owner = UmApplication.GetHwnd();
+                LPCWSTR                 title = L"Load fbx file";
+                std::vector<File::Path> out;
+                if (File::ShowOpenFileDialog(UmApplication.GetHwnd(), title, L"",
+                                             {{L"Model Files (*.fbx;*.UmModel)", L"*.fbx; *.UmModel\0\0"}}, false, out))
+                {
+                    currentmeshsurfacepath = out.front();
+                }
+            }
+            currentmeshsurfacepath = std::filesystem::absolute(currentmeshsurfacepath);
+        }
     }
-    bool isSomeoneChanged   = false;
+    ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.f);
+
+    {
+        bool isAddButtonPressed = ImGui::Button("Add new Emitter", {250, 30});
+        if (true == isAddButtonPressed)
+        {
+            auto emitter =
+                UmParticleManager->RegisterEmitter(_curEffect, 100000, 1000, 20, locationType, {0, 0, 0}, particleType);
+            UmGraphics.LoadTextureResource(emitter->_particleRenderModule->GetModelAndTexturePath(), emitter);
+            if (LocationShape::MESH_SURFACE == locationType)
+            {
+                UmGraphics.LoadModelResource(std::wstring_view(currentmeshsurfacepath.wstring()), emitter);
+            }
+            emitter->InitializeEditorLight();
+        }
+        bool isSomeoneChanged = false;
+    }
     ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal,2.f);
+
     {
         // 부모 노드: 기본 플래그 사용
         ImGuiTreeNodeFlags parent_flags = ImGuiTreeNodeFlags_OpenOnArrow;
         bool               parent_open  = ImGui::TreeNodeEx(_curEffect->GetEffectName().c_str(), parent_flags);
 
-        _curEffect->SetPosition(&_defaultpos);
         bool isHovered      = ImGui::IsItemHovered();
         bool isMouseClicked = ImGui::IsMouseClicked(0);
         if (true == isHovered && true == isMouseClicked)

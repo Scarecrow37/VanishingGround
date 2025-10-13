@@ -250,7 +250,7 @@ void ParticleEmitter::AwakeParticle(UINT index)
     if (!_emitLocator)
         return;
 
-    Vector3 offset   = {_emitLocator->_randomVal(), _emitLocator->_randomVal(), _emitLocator->_randomVal()};
+    Vector3 offset   = {_emitLocator->RandomVal(), _emitLocator->RandomVal(), _emitLocator->RandomVal()};
     Vector4 location = {1, 1, 1, 1};
     Vector3 tempPos  = _emitLocator->EmitLocate();
 

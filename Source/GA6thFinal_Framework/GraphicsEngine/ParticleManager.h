@@ -29,7 +29,7 @@ private:
     // -------------------------------------
     UINT _maxParticles;
     UINT _maxEmitters = 100;
-    int  nameingIndex = 0;
+    int  _namingIndex = 0;
     UMPARTICLE_PROPERTY(float, _deltaScale, DeltaScale, 1.f);
 
     // -------------------------------------
@@ -50,7 +50,6 @@ public:
     // [ 2. Scene Management ]
     // =================================================================================================================
     void AddSceneResource(std::string_view sceneName);
-    void AddSceneResource(std::string_view sceneName, std::string_view sharedFrom);
 
     // =================================================================================================================
     // [ 3. Effect Lifecycle Management ]

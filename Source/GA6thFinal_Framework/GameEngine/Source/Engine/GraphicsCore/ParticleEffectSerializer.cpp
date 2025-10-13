@@ -2636,7 +2636,6 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_4(EffectID id, const std
         is.read(reinterpret_cast<char*>(&locationType), sizeof(locationType));
         if (LocationShape::MESH_SURFACE == locationType)
         {
-
             SIZE_T nameLen = 0;
             is.read(reinterpret_cast<char*>(&nameLen), sizeof(nameLen));
             modelpath = std::string(nameLen, '\0');

@@ -34,10 +34,39 @@ void ParticleManager::AddSceneResource(std::string_view sceneName)
     }
 
     std::wstring wSceneName(sceneName.begin(), sceneName.end());
-
     ParticleSceneResource newSceneResource;
     newSceneResource._name = sName;
 
+    // Special case for "Editor" scene to share "Game" scene's update resource
+    if (sName == "Editor" && _sceneResources.count("Game"))
+    {
+        UINT particleOutputSize = _maxParticles * sizeof(ParticleOutput);
+        UINT mvpConstantSize    = sizeof(MVPConstants);
+
+        // Share the update resource from the "Game" scene
+        newSceneResource._updateResource = _sceneResources.at("Game")._updateResource;
+
+        // Create a new unique render resource for the "Editor"
+        newSceneResource._renderResource = std::make_unique<ParticleRenderResource>();
+        newSceneResource._renderResource->_name = sName;
+
+        {
+            CreateUAVBuffer(newSceneResource._renderResource->_simulationOutput, particleOutputSize, sizeof(ParticleOutput));
+            newSceneResource._renderResource->_simulationOutput->SetName((wSceneName + L" output").c_str());
+
+            CreateUAVBuffer(newSceneResource._renderResource->_ribbonSimulationOutput, particleOutputSize, sizeof(ParticleOutput));
+            newSceneResource._renderResource->_ribbonSimulationOutput->SetName((wSceneName + L" ribbon output").c_str());
+
+            CreateConstantBuffer(newSceneResource._renderResource->_mvpConstant, mvpConstantSize);
+            newSceneResource._renderResource->_mvpConstant->SetName((wSceneName + L" mvp constants").c_str());
+        }
+
+        InitializeComputeCommandObject(newSceneResource);
+        _sceneResources.emplace(sName, std::move(newSceneResource));
+        return;
+    }
+
+    // Default behavior for all other scenes (or "Editor" if "Game" doesn't exist yet)
     UINT particleInputSize  = _maxParticles * sizeof(Particle);
     UINT emitterInfoSize    = _maxEmitters * sizeof(EmitterInfo);
     UINT particleOutputSize = _maxParticles * sizeof(ParticleOutput);
@@ -93,47 +122,6 @@ void ParticleManager::AddSceneResource(std::string_view sceneName)
     _sceneResources.emplace(sName, std::move(newSceneResource));
 }
 
-void ParticleManager::AddSceneResource(std::string_view sceneName, std::string_view sharedFrom)
-{
-    auto sName = std::string(sceneName);
-    auto sSharedFrom = std::string(sharedFrom);
-
-    if (_sceneResources.count(sName) || !_sceneResources.count(sSharedFrom))
-    {
-        return; // Scene already exists or source scene doesn't exist
-    }
-
-    std::wstring wSceneName(sceneName.begin(), sceneName.end());
-
-    ParticleSceneResource newSceneResource;
-    newSceneResource._name = sName;
-
-    UINT particleOutputSize = _maxParticles * sizeof(ParticleOutput);
-    UINT mvpConstantSize    = sizeof(MVPConstants);
-
-    // Share the update resource from the source scene
-    newSceneResource._updateResource = _sceneResources.at(sSharedFrom)._updateResource;
-
-    // Create a new unique render resource
-    newSceneResource._renderResource = std::make_unique<ParticleRenderResource>();
-    newSceneResource._renderResource->_name = sName;
-
-    {
-        CreateUAVBuffer(newSceneResource._renderResource->_simulationOutput, particleOutputSize, sizeof(ParticleOutput));
-        newSceneResource._renderResource->_simulationOutput->SetName((wSceneName + L" output").c_str());
-
-        CreateUAVBuffer(newSceneResource._renderResource->_ribbonSimulationOutput, particleOutputSize, sizeof(ParticleOutput));
-        newSceneResource._renderResource->_ribbonSimulationOutput->SetName((wSceneName + L" ribbon output").c_str());
-
-        CreateConstantBuffer(newSceneResource._renderResource->_mvpConstant, mvpConstantSize);
-        newSceneResource._renderResource->_mvpConstant->SetName((wSceneName + L" mvp constants").c_str());
-    }
-
-    InitializeComputeCommandObject(newSceneResource);
-
-    _sceneResources.emplace(sName, std::move(newSceneResource));
-}
-
 // =================================================================================================================
 // [ 3. Effect Lifecycle Management ]
 // =================================================================================================================
@@ -144,7 +132,7 @@ ParticleEffect* ParticleManager::RegisterEffect(EffectID id, const std::string& 
     if (!_sceneResources.count(sName)) return nullptr;
 
     auto newEffect = std::make_unique<ParticleEffect>();
-    std::string name = "Effect" + std::to_string(nameingIndex++);
+    std::string name = "Effect" + std::to_string(_namingIndex++);
     newEffect->SetEffectName(name);
 
     ParticleEffect* rawPtr = newEffect.get();
@@ -419,7 +407,7 @@ ParticleEffect* ParticleManager::RegisterEffectOnEditor()
     editorEffects.clear();
 
     auto newEffect = std::make_unique<ParticleEffect>();
-    std::string name = "Effect" + std::to_string(nameingIndex++);
+    std::string name = "Effect" + std::to_string(_namingIndex++);
     newEffect->SetEffectName(name);
 
     _editorCurrentEffect = newEffect.get();
@@ -805,6 +793,9 @@ void ParticleManager::AwakeParticles(float deltaTime, const std::shared_ptr<Part
                                 emitterIndices.push_back({ribbonparticleIndex++, particle.GetAge() / lifetime});
                                 emitterIndices.push_back({ribbonparticleIndex++, particle.GetAge() / lifetime});
                             }
+                            std::sort(
+                                emitterIndices.begin(), emitterIndices.end(),
+                                [](const RibbonIndex& a, const RibbonIndex& b) -> bool { return a.Ratio < b.Ratio; });
 
                             if (!emitterIndices.empty())
                             {
@@ -812,6 +803,7 @@ void ParticleManager::AwakeParticles(float deltaTime, const std::shared_ptr<Part
                             }
                         }
                         ribbonEmitterIndex++;
+
                     }
                 }
             }

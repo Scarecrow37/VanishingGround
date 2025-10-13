@@ -58,7 +58,7 @@ VSOutput vs_main(uint vertexID : SV_VertexID)
     o.position = mul(viewPos, cameraData.Projection);
 
     // UV 및 나머지 데이터
-    float u = (float)current_idx / (float)(totalcount - 1);
+    float u = p.FrameInfo.z;
     float v = (float)(vertexID % 2);
     o.uv = float2(u, v);
 

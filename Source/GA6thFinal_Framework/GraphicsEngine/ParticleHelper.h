@@ -1,7 +1,7 @@
 ﻿#pragma once
 #define MAX_PARTICLE 1000000
 #define PROP_DECL_INIT(type, varName, initValue)                                                                       \
-protected:                                                                                                             \
+private:                                                                                                             \
     type varName = initValue;
 
 #define PROP_GET(type, varName, FuncName)                                                                              \
@@ -122,8 +122,8 @@ enum class VelocityScaleType
 
 struct RibbonIndex
 {
-    UINT  index = -1;
-    float ratio = 0;
+    UINT  Index = -1;
+    float Ratio = 0;
 };
 
 struct ParticleUpdateResource

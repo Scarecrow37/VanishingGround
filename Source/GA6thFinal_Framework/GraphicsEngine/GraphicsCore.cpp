@@ -211,9 +211,10 @@ void GraphicsCore::LoadModelResource(const std::wstring_view filePath, ParticleE
 {
     if (auto meshSurfaceLocator = component->_emitLocator->AsMeshSurfaceLocator())
     {
-        meshSurfaceLocator->SetModelPath(filePath.data());
-        meshSurfaceLocator->LoadVerticesFromModel(
-            _resourceManager->LoadResource<Model>(filePath.data()));
+        _resourceManager->LoadResource<Model>(filePath.data(), [this, meshSurfaceLocator, filePath]() {
+            meshSurfaceLocator->SetModelPath(filePath.data());
+            meshSurfaceLocator->LoadVerticesFromModel(_resourceManager->LoadResource<Model>(filePath.data()));
+        });
     }
 }
 
