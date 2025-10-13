@@ -25,7 +25,7 @@ namespace CombatUI
                 }
             }
         }
-        return false;
+        return IsValid();
     }
 
     bool RevelationsGroup::IsValid() const
