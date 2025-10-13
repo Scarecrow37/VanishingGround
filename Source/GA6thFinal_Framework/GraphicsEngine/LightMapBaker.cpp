@@ -7,7 +7,7 @@ LightMapBaker::~LightMapBaker() {}
 
 void LightMapBaker::Initialize(RenderScene* ownerScene)
 {
-    _ownerScene = ownerScene;
+    /*_ownerScene = ownerScene;
 
     _shader = std::make_unique<ShaderBuilder>();
     _shader->BeginBuild();
@@ -23,7 +23,7 @@ void LightMapBaker::Initialize(RenderScene* ownerScene)
     FAILED_CHECK_MESSAGE(hr, L"LightMapBaker::Initialize device->CreateComputePipelineState Failed");
 
     _bakeThread = std::thread(&LightMapBaker::BakeLightMap, this);
-    _bakeThread.detach();
+    _bakeThread.detach();*/
 }
 
 void LightMapBaker::StartBaking()
