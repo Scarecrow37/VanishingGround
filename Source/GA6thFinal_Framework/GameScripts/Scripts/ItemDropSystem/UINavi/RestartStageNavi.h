@@ -5,6 +5,8 @@ class RestartStageNavi : public UISFXNavigationComponent
     USING_PROPERTY(RestartStageNavi)
 
 public:
+    inline static constexpr const char* TAG = "Item Drop UI Restart Button";
+
     enum class SelectBoxType
     {
         DEFAULT,
@@ -31,7 +33,6 @@ public:
 protected:
     void Awake() override;
     void Start() override;
-    void OnEnable() override;
 
 protected:
     REFLECT_FIELDS_BEGIN(UISFXNavigationComponent)

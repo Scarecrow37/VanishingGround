@@ -201,8 +201,7 @@
     <ClCompile Include="Scripts\Preferences\ImportGraphicsSetting.cpp" />
     <ClCompile Include="Scripts\Map\MapManagerTracker.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UINavi\ArtifactButtonNavi.cpp" />
-    <ClCompile Include="Scripts\ViewModels\SturnResistance\SturnResistanceViewModel.cpp" />
-    <ClCompile Include="Scripts\Stats\CharacterStats.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UI\ItemInfoUIManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
@@ -424,7 +423,6 @@
     <ClInclude Include="Scripts\Preferences\ImportGraphicsSetting.h" />
     <ClInclude Include="Scripts\Map\MapManagerTracker.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UINavi\ArtifactButtonNavi.h" />
-    <ClInclude Include="Scripts\ViewModels\SturnResistance\SturnResistanceViewModel.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
