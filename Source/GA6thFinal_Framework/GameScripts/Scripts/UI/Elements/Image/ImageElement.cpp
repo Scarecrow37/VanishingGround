@@ -1,5 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "ImageElement.h"
+#include "GraphicsEngine/Interface/ISpriteRenderer.h"
 
 UMREAL_COMPONENT(ImageElement)
 
@@ -24,14 +25,7 @@ ImageElement::ImageElement()
     });
 }
 
-ImageElement::~ImageElement()
-{
-    if (_renderer)
-    {
-        _renderer->SetDestroy();
-        _renderer = nullptr;
-    }
-}
+ImageElement::~ImageElement() = default;
 
 void ImageElement::SetImage(const File::Guid& Guid)
 {
@@ -51,12 +45,15 @@ void ImageElement::Reset()
 
     try
     {
-        _renderer = std::make_unique<SpriteRenderer>(_worldMatrix, SpriteType::MODE_2D);
-        UmGraphics.RegisterComponent("Game", _renderer.get());
+        UmGraphics.CreateSpriteRenderer(&_renderer, &_worldMatrix);
+        UmGraphics.RegisterComponent("Game", _renderer.Get());
+
         if (IS_EDITOR)
         {
-            UmGraphics.RegisterComponent("Editor", _renderer.get());
+            UmGraphics.RegisterComponent("Editor", _renderer.Get());
         }
+
+        _renderer->SetType(SpriteType::MODE_2D);
         _renderer->SetActive(&EnableInHierarchy);
 
         RequestResource();
@@ -161,7 +158,7 @@ void ImageElement::LoadTexture(const File::Guid& guid) const
         if (path != File::NULL_PATH)
         {
             const std::wstring filePath = U8ToWString(path);
-            UmGraphics.LoadResource(filePath, _renderer.get());
+            UmGraphics.LoadResource(filePath, _renderer.Get());
         }
     }
 }

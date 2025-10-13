@@ -1,7 +1,7 @@
 ﻿#pragma once
-
 #include "UI/Base/DrawUIComponent/DrawUIComponent.h"
 
+class ISpriteRenderer;
 class ImageElement : public DrawUIComponent
 {
     USING_PROPERTY(ImageElement)
@@ -115,9 +115,9 @@ protected:
     REFLECT_FIELDS_END(ImageElement)
 
 private:
-    std::unique_ptr<SpriteRenderer> _renderer;
+    GraphicsPointer<ISpriteRenderer> _renderer;
+    Matrix                           _worldMatrix;
+    SIZE                             _spriteOriginSize;
     File::Guid                   _Guid;
-    Matrix                          _worldMatrix;
-    SIZE                            _spriteOriginSize;
 
 };

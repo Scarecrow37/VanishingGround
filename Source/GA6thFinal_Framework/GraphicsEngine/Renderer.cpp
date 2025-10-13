@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "Renderer.h"
+#include "GraphicsBase.h"
 
 // Shader
 #include "VertexShader.h"
@@ -39,7 +40,10 @@ namespace Global
 
 Renderer::Renderer() = default;
 
-Renderer::~Renderer() = default;
+Renderer::~Renderer()
+{
+    int a = 0;
+}
 
 D3D12_GPU_DESCRIPTOR_HANDLE Renderer::GetRenderSceneImage(std::string_view renderSceneName)
 {
@@ -342,6 +346,13 @@ void Renderer::Flip()
     Global::device->Flip();
     Global::device->ResetCommands();
     Global::device->ResetComputeCommands();
+
+    for (auto& component : _toBeReleasedComponents)
+    {
+        component->Delete();
+    }
+
+    _toBeReleasedComponents.clear();
 }
 
 void Renderer::RenderToBackBuffer()

@@ -10,6 +10,7 @@
 #include "DepthStencilView.h"
 #include "StructuredBuffer.h"
 #include "UnorderedAccessView.h"
+#include "GraphicsPointer.h"
 
 #include "Texture.h"
 #include "Camera.h"

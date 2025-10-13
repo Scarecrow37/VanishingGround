@@ -5,6 +5,7 @@
 #include "Editor/DynamicCamera/EditorDynamicCamera.h"
 #include "EditorSceneTool.h"
 #include "Mesh/MeshComponent.h"
+#include "GraphicsEngine/Interface/IMeshRenderer.h"
 
 using namespace u8_literals;
 
@@ -707,7 +708,7 @@ void EditorSceneTool::RayPicker()
                     {
                         if (meshComponent->Renderer)
                         {
-                            auto& model = meshComponent->Renderer->GetModel(); 
+                            const auto& model = meshComponent->Renderer->GetModel();
                             if (model)
                             {
                                 auto& meshes = model->GetMeshes();

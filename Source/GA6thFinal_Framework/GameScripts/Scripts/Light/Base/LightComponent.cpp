@@ -1,19 +1,25 @@
 ﻿#include "pchScripts.h"
 #include "LightComponent.h"
+#include "GraphicsEngine/Interface/ILight.h"
 
 LightComponent::LightComponent() 
-    :
-    Component(Component::TYPE::LIGHT),
-    _light(std::make_unique<Light>()),
-    Lighting(*_light)
+    : Component(Component::TYPE::LIGHT)
+    , _light(nullptr)
+    , Lighting(_light)
 {
+    UmGraphics.CreateLight(&_light);
+    Lighting->SetActive(&EnableInHierarchy);
 
+    UmGraphics.RegisterComponent("Game", _light.Get());
+    if constexpr (IS_EDITOR)
+    {
+        UmGraphics.RegisterComponent("Editor", _light.Get());
+    }
 }
 
 LightComponent::~LightComponent() 
 {
-    _light->SetDestroy();
-    _light.reset();
+    // _light.Reset();
 }
 
 void LightComponent::DeserializedReflectEvent() 

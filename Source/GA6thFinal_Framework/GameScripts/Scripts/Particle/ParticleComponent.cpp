@@ -1,6 +1,8 @@
 ﻿#include "pchScripts.h"
-#include <Mesh/SkeletalMeshRenderer.h>
+#include "Mesh/SkeletalMeshRenderer.h"
 #include "ParticleComponent.h"
+#include "GraphicsEngine/Interface/IMeshRenderer.h"
+#include "GraphicsEngine/Interface/IAnimator.h"
 
 UMREAL_COMPONENT(ParticleComponent)
 
@@ -29,21 +31,15 @@ ParticleComponent::ParticleComponent()
         }
     });
 }
+
 ParticleComponent::~ParticleComponent()
-{
-    
+{    
     for (auto& key : ReflectFields->EffectNameTable)
     {
         UmParticleManager->SetActiveFlag(this, key, false);
         UmParticleManager->DeleteEffect(this, key, "Game");
     }
 }
-
-void ParticleComponent::Update() {}
-
-void ParticleComponent::Start() {}
-
-void ParticleComponent::Reset() {}
 
 void ParticleComponent::SerializedReflectEvent()
 {
@@ -110,7 +106,7 @@ void ParticleComponent::ImGuiDrawPropertysEvent()
         auto& renderer = skelMesh->Renderer;
         if (nullptr != renderer)
         {
-            auto& model = renderer->GetModel();
+            const auto& model = renderer->GetModel();
             if (nullptr != model)
             {
                 const auto& _boneNames = model->GetBoneNameList();
@@ -183,12 +179,6 @@ void ParticleComponent::ImGuiDrawPropertysEvent()
     }
 
 }
-
-void ParticleComponent::Awake() {}
-
-void ParticleComponent::OnEnable() {}
-
-void ParticleComponent::OnDestroy() {}
 
 void ParticleComponent::LoadParticle(const std::string& keyString)
 {

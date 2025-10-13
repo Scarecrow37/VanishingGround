@@ -148,14 +148,14 @@ void ESceneManager::SceneUpdate()
     ObjectsAwake();
     ObjectsStart();
     ObjectsApplicationQuit();
+    ObjectsDestroy();
+    ObjectsAddLoadScene();
     ObjectsMatrixUpdate();
 }
 
 void ESceneManager::SceneFinalUpdate() 
 {
     //그래픽스 Flip 이후 실행해야할 로직들
-    ObjectsDestroy();
-    ObjectsAddLoadScene();
     ObjectsTransformFlagReset();
     ObjectsPrevFrameEnableUpdate();
 #ifdef _UMEDITOR
