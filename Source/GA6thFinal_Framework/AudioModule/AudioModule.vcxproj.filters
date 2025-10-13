@@ -49,6 +49,9 @@
     <Filter Include="Effects\Fade">
       <UniqueIdentifier>{b865363c-327a-4d77-bdc8-b379f4033b81}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Handle\Effecthandle\FadeHandle">
+      <UniqueIdentifier>{05d49051-3b2a-4e7d-9677-c3bc2642b331}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -93,6 +96,9 @@
     <ClInclude Include="FXFade.h">
       <Filter>Effects\Fade</Filter>
     </ClInclude>
+    <ClInclude Include="FadeHandle.h">
+      <Filter>Handle\Effecthandle\FadeHandle</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -130,6 +136,9 @@
     </ClCompile>
     <ClCompile Include="FXFade.cpp">
       <Filter>Effects\Fade</Filter>
+    </ClCompile>
+    <ClCompile Include="FadeHandle.cpp">
+      <Filter>Handle\Effecthandle\FadeHandle</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

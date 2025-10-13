@@ -52,7 +52,7 @@ namespace Audio
         assert(param->BeginVolume >= FX_FADE_MIN_VOLUME && param->BeginVolume <= FX_FADE_MAX_VOLUME);
         assert(param->EndVolume >= FX_FADE_MIN_VOLUME && param->EndVolume <= FX_FADE_MAX_VOLUME);
         assert(param->Duration >= FX_FADE_MIN_DURATION);
-        assert(param->Direction == FadeDirection::Forward || param->Direction == FadeDirection::Backward);
+        assert(param->Direction == FadeDirection::FORWARD || param->Direction == FadeDirection::BACKWARD);
         assert(_sampleRate > 0);
 
         if (_isParameterChanged)
@@ -97,7 +97,7 @@ namespace Audio
                     std::memcpy(pvDst + offsetByte, &workStation, _bytePerSample);
                 }
 
-                _currentGain += param->Direction == FadeDirection::Forward ? _stepOfGain : -_stepOfGain;
+                _currentGain += param->Direction == FadeDirection::FORWARD ? _stepOfGain : -_stepOfGain;
                 _currentGain = std::clamp(_currentGain, _minGain, _maxGain);
             }
             break;

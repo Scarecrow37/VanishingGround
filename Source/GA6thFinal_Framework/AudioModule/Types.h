@@ -21,17 +21,18 @@ namespace Audio
         bool operator()(const Generation& generation) const;
     };
 
-    enum class EffectType
+    enum class EffectType : unsigned char
     {
-        Reverb,
+        REVERB,
+        FADE,
     };
 
-    constexpr float FX_REVERB_MIN_DIFFUSION = FXREVERB_MIN_DIFFUSION;
-    constexpr float FX_REVERB_MAX_DIFFUSION = FXREVERB_MAX_DIFFUSION;
-    constexpr float FX_REVERB_MIN_ROOM_SIZE  = FXREVERB_MIN_ROOMSIZE;
-    constexpr float FX_REVERB_MAX_ROOM_SIZE  = FXREVERB_MAX_ROOMSIZE;
+    constexpr float FX_REVERB_MIN_DIFFUSION     = FXREVERB_MIN_DIFFUSION;
+    constexpr float FX_REVERB_MAX_DIFFUSION     = FXREVERB_MAX_DIFFUSION;
+    constexpr float FX_REVERB_MIN_ROOM_SIZE     = FXREVERB_MIN_ROOMSIZE;
+    constexpr float FX_REVERB_MAX_ROOM_SIZE     = FXREVERB_MAX_ROOMSIZE;
     constexpr float FX_REVERB_DEFAULT_DIFFUSION = FXREVERB_DEFAULT_DIFFUSION;
-    constexpr float FX_REVERB_DEFAULT_ROOM_SIZE  = FXREVERB_DEFAULT_ROOMSIZE;
+    constexpr float FX_REVERB_DEFAULT_ROOM_SIZE = FXREVERB_DEFAULT_ROOMSIZE;
 
     struct ReverbParameter
     {
@@ -54,17 +55,17 @@ namespace Audio
 
     enum class FadeDirection : unsigned char
     {
-        Forward,
-        Backward
+        FORWARD,
+        BACKWARD
     };
 
-    constexpr float FX_FADE_MIN_VOLUME = 0.0f;
-    constexpr float FX_FADE_MAX_VOLUME = 1.0f;
-    constexpr float FX_FADE_DEFAULT_BEGIN_VOLUME = 0.0f;
-    constexpr float FX_FADE_DEFAULT_END_VOLUME   = 1.0f;
-    constexpr float FX_FADE_MIN_DURATION         = 0.0001f;
-    constexpr float FX_FADE_DEFAULT_DURATION     = 1.0f;
-    constexpr FadeDirection FX_FADE_DEFAULT_DIRECTION    = FadeDirection::Forward;
+    constexpr float         FX_FADE_MIN_VOLUME           = 0.0f;
+    constexpr float         FX_FADE_MAX_VOLUME           = 1.0f;
+    constexpr float         FX_FADE_DEFAULT_BEGIN_VOLUME = 0.0f;
+    constexpr float         FX_FADE_DEFAULT_END_VOLUME   = 1.0f;
+    constexpr float         FX_FADE_MIN_DURATION         = 0.0001f;
+    constexpr float         FX_FADE_DEFAULT_DURATION     = 1.0f;
+    constexpr FadeDirection FX_FADE_DEFAULT_DIRECTION    = FadeDirection::FORWARD;
 
     struct FadeParameter
     {

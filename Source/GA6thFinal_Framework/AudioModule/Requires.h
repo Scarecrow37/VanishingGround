@@ -20,4 +20,5 @@
 #include "GroupHandle.h"
 #include "EffectHandle.h"
 #include "ReverbHandle.h"
+#include "FadeHandle.h"
 #include "Source.h"

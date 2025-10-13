@@ -3,12 +3,13 @@
 
 namespace Audio
 {
-    enum class EffectType;
+    enum class EffectType : unsigned char;
     class Source;
     class SoundPlayer;
     class AudioHandle;
     class GroupHandle;
     class EffectHandle;
+    class FadeHandle;
 
     /// <summary>
     /// 오디오 소스를 관리하고 재생, 정지, 생성 등의 기능을 제공하는 클래스입니다.
@@ -136,14 +137,56 @@ namespace Audio
         /// <returns>핸들이 유효하면 true, 그렇지 않으면 false를 반환합니다.</returns>
         [[nodiscard]] bool IsValidHandle(const EffectHandle& handle) const noexcept;
 
+        /// <summary>
+        /// 새 오디오 그룹을 생성합니다.
+        /// </summary>
+        /// <param name="channels">생성할 그룹의 채널 수입니다. 기본값은 2입니다.</param>
+        /// <param name="sampleRate">그룹의 샘플레이트(Hz)입니다. 기본값은 44100입니다.</param>
+        /// <returns>생성된 오디오 그룹을 식별하는 GroupHandle을 반환합니다.</returns>
         GroupHandle CreateGroup(UINT32 channels = 2, UINT32 sampleRate = 44100);
 
+        /// <summary>
+        /// 지정된 그룹 핸들을 해제합니다.
+        /// </summary>
+        /// <param name="handle">해제할 그룹을 나타내는 GroupHandle 객체의 상수 참조입니다.</param>
         void ReleaseGroup(const GroupHandle& handle);
 
+        /// <summary>
+        /// 리버브 효과를 생성합니다.
+        /// </summary>
+        /// <param name="parameter">리버브 효과에 사용할 파라미터입니다.</param>
+        /// <param name="channels">오디오 채널 수입니다. 기본값은 2입니다.</param>
+        /// <param name="sampleRate">오디오 샘플레이트(Hz)입니다. 기본값은 44100입니다.</param>
+        /// <returns>생성된 리버브 효과를 나타내는 ReverbHandle 객체를 반환합니다.</returns>
         ReverbHandle CreateEffect(ReverbParameter parameter, UINT32 channels = 2, UINT32 sampleRate = 44100);
 
+        /// <summary>
+        /// 리버브 효과의 파라미터 값을 설정합니다.
+        /// </summary>
+        /// <param name="handle">파라미터를 설정할 리버브 효과의 핸들입니다.</param>
+        /// <param name="parameter">설정할 리버브 파라미터 값입니다.</param>
         void SetEffectParameter(const ReverbHandle& handle, ReverbParameter parameter);
 
+        /// <summary>
+        /// 페이드 효과를 생성합니다.
+        /// </summary>
+        /// <param name="parameter">페이드 효과에 사용할 파라미터입니다.</param>
+        /// <param name="channels">오디오 채널 수입니다. 기본값은 2입니다.</param>
+        /// <param name="sampleRate">오디오 샘플레이트(Hz)입니다. 기본값은 44100입니다.</param>
+        /// <returns>생성된 페이드 효과를 나타내는 FadeHandle입니다.</returns>
+        FadeHandle CreateEffect(FadeParameter parameter, UINT32 channels = 2, UINT32 sampleRate = 44100);
+
+        /// <summary>
+        /// 효과 파라미터를 설정합니다.
+        /// </summary>
+        /// <param name="handle">파라미터를 설정할 페이드 효과 핸들입니다.</param>
+        /// <param name="parameter">설정할 페이드 파라미터 값입니다.</param>
+        void SetEffectParameter(const FadeHandle& handle, FadeParameter parameter);
+
+        /// <summary>
+        /// EffectHandle 객체에 해당하는 이펙트를 해제합니다.
+        /// </summary>
+        /// <param name="handle">해제할 이펙트를 나타내는 EffectHandle 객체의 상수 참조입니다.</param>
         void ReleaseEffect(const EffectHandle& handle);
 
     private:

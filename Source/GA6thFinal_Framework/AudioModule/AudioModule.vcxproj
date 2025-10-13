@@ -274,6 +274,7 @@
     <ClInclude Include="Exceptions.h" />
     <ClInclude Include="AudioHandle.h" />
     <ClInclude Include="Callback.h" />
+    <ClInclude Include="FadeHandle.h" />
     <ClInclude Include="FXFade.h" />
     <ClInclude Include="GroupHandle.h" />
     <ClInclude Include="Handle.h" />
@@ -289,6 +290,7 @@
     <ClCompile Include="Exceptions.cpp" />
     <ClCompile Include="AudioHandle.cpp" />
     <ClCompile Include="Callback.cpp" />
+    <ClCompile Include="FadeHandle.cpp" />
     <ClCompile Include="FXFade.cpp" />
     <ClCompile Include="GroupHandle.cpp" />
     <ClCompile Include="Handle.cpp" />
