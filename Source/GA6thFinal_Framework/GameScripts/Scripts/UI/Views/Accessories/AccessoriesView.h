@@ -26,7 +26,7 @@ protected:
     void OnDestroy() override;
 
 private:
-    void FindChildEnements();
+    void FindChildElements();
     void Watch();
     void Blind();
 

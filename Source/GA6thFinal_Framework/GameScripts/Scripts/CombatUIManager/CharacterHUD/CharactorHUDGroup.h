@@ -16,7 +16,7 @@ namespace CombatUI
         Vector3       EnemyPosition[3] = {Vector3::Zero, Vector3::Zero, Vector3::Zero};
 
         bool FindUI() override;
-        bool IsValid() override;
+        bool IsValid() const override;
         void ActiveUI(bool active) override;
 
         void RefreshUIPosition();

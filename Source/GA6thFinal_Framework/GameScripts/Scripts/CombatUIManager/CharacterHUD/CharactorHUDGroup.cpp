@@ -21,21 +21,24 @@ namespace CombatUI
             // 그룹 패널 내부를 탐색
             Transform& transform = hudGroup->transform;
             Transform::ForeachBFS(transform, [this](Transform* curr) {
-                if (curr->gameObject->CompareTag("Left Monster HUD"))
+                if (curr)
                 {
-                    EnemyHUDPanel[0] = curr->gameObject->GetComponent<OverlayPanel>();
-                }
-                else if (curr->gameObject->CompareTag("Middle Monster HUD"))
-                {
-                    EnemyHUDPanel[1] = curr->gameObject->GetComponent<OverlayPanel>();
-                }
-                else if (curr->gameObject->CompareTag("Right Monster HUD"))
-                {
-                    EnemyHUDPanel[2] = curr->gameObject->GetComponent<OverlayPanel>();
-                }
-                else if (curr->gameObject->CompareTag("Player HUD"))
-                {
-                    PlayerHUDPanel = curr->gameObject->GetComponent<OverlayPanel>();
+                    if (curr->gameObject->CompareTag("Left Monster HUD"))
+                    {
+                        EnemyHUDPanel[0] = curr->gameObject->GetComponent<OverlayPanel>();
+                    }
+                    else if (curr->gameObject->CompareTag("Middle Monster HUD"))
+                    {
+                        EnemyHUDPanel[1] = curr->gameObject->GetComponent<OverlayPanel>();
+                    }
+                    else if (curr->gameObject->CompareTag("Right Monster HUD"))
+                    {
+                        EnemyHUDPanel[2] = curr->gameObject->GetComponent<OverlayPanel>();
+                    }
+                    else if (curr->gameObject->CompareTag("Player HUD"))
+                    {
+                        PlayerHUDPanel = curr->gameObject->GetComponent<OverlayPanel>();
+                    }
                 }
             });
         }
@@ -43,7 +46,7 @@ namespace CombatUI
         return IsValid();
     }
 
-    bool CharacterHUDGroup::IsValid()
+    bool CharacterHUDGroup::IsValid() const 
     {
         return GroupPanel && PlayerHUDPanel && EnemyHUDPanel[0] && EnemyHUDPanel[1] && EnemyHUDPanel[2];
     }
@@ -52,7 +55,7 @@ namespace CombatUI
     {
         if (IsValid())
         {
-            // TODO: 그룹 패널 활성화/비활성화
+            GroupPanel->gameObject->ActiveSelf = active;
         }
     }
 

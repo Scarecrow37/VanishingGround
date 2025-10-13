@@ -25,8 +25,6 @@ public:
     /// </summary>
     void Refresh();
 
-    void RefreshPosition();
-
     /// <summary>
     /// UI의 활성화 상태를 설정합니다.
     /// </summary>
@@ -51,6 +49,17 @@ private:
     CombatUI::RevelationsGroup  _revelationsGroup;
     CombatUI::WeaponGroup       _weaponGroup;
     CombatUI::AccessoriesGroup  _accessoriesGroup;
+
+    // Group 추가 시 여기에도 추가 필요함
+    const std::vector<UIGroup*> _uiGroups = 
+    {
+        &_charactorHUDGroup,
+        &_turnQueueGroup,
+        &_consumableGroup,
+        &_revelationsGroup,
+        &_weaponGroup,
+        &_accessoriesGroup
+    };
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)

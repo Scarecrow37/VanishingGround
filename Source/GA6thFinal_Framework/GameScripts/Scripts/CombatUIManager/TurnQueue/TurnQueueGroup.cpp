@@ -1,13 +1,17 @@
-﻿#include "TurnQueueGroup.h"
+﻿#include "pchScripts.h"
+#include "TurnQueueGroup.h"
 
-bool CombatUI::TurnQueueGroup::FindUI()
+namespace CombatUI
 {
-    return false;
-}
+    bool TurnQueueGroup::FindUI()
+    {
+        return false;
+    }
 
-bool CombatUI::TurnQueueGroup::IsValid()
-{
-    return false;
-}
+    bool TurnQueueGroup::IsValid() const
+    {
+        return false;
+    }
 
-void CombatUI::TurnQueueGroup::ActiveUI(bool active) {}
+    void TurnQueueGroup::ActiveUI(bool active) {}
+} // namespace CombatUI

@@ -2,7 +2,8 @@
 
 class UIGroup
 {
+public:
     virtual bool FindUI() = 0;
-    virtual bool IsValid() = 0;
+    virtual bool IsValid() const = 0;
     virtual void ActiveUI(bool active) = 0;
 };

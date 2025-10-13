@@ -1,13 +1,19 @@
-﻿#include "WeaponGroup.h"
+﻿#include "pchScripts.h"
+#include "WeaponGroup.h"
 
-bool CombatUI::WeaponGroup::FindUI()
+namespace CombatUI
 {
-    return false;
-}
+    bool WeaponGroup::FindUI()
+    {
+        return false;
+    }
 
-bool CombatUI::WeaponGroup::IsValid()
-{
-    return false;
-}
+    bool WeaponGroup::IsValid() const
+    {
+        return false;
+    }
 
-void CombatUI::WeaponGroup::ActiveUI(bool active) {}
+    void WeaponGroup::ActiveUI(bool active) 
+    {
+    }
+} // namespace CombatUI

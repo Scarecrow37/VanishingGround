@@ -8,23 +8,31 @@ CombatUIManager::CombatUIManager() = default;
 
 CombatUIManager::~CombatUIManager() = default;
 
-void CombatUIManager::Refresh()
+void CombatUIManager::Refresh() 
 {
-    _charactorHUDGroup.FindUI();
+    for (UIGroup* group : _uiGroups)
+    {
+        if (group && group->IsValid())
+        {
+            group->FindUI();
+        }
+    }
+
     _charactorHUDGroup.RefreshEnemiesPosition();
 }
 
 void CombatUIManager::SetActiveUI(bool active) 
 {
-    _charactorHUDGroup.ActiveUI(active);
-    _turnQueueGroup.ActiveUI(active);
-    _consumableGroup.ActiveUI(active);
-    _revelationsGroup.ActiveUI(active);
-    _weaponGroup.ActiveUI(active);
-    _accessoriesGroup.ActiveUI(active);
+    for (UIGroup* group : _uiGroups)
+    {
+        if (group && group->IsValid())
+        {
+            group->ActiveUI(active);
+        }
+    }
 }
 
-void CombatUIManager::Reset()
+void CombatUIManager::Reset() 
 {
     _singletonComponent.SetSingleTon();
 }

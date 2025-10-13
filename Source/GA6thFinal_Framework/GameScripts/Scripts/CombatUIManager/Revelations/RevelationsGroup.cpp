@@ -1,13 +1,17 @@
-﻿#include "RevelationsGroup.h"
+﻿#include "pchScripts.h"
+#include "RevelationsGroup.h"
 
-bool CombatUI::RevelationsGroup::FindUI()
+namespace CombatUI
 {
-    return false;
-}
+    bool RevelationsGroup::FindUI()
+    {
+        return false;
+    }
 
-bool CombatUI::RevelationsGroup::IsValid()
-{
-    return false;
-}
+    bool RevelationsGroup::IsValid() const
+    {
+        return false;
+    }
 
-void CombatUI::RevelationsGroup::ActiveUI(bool active) {}
+    void RevelationsGroup::ActiveUI(bool active) {}
+} // namespace CombatUI

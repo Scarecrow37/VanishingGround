@@ -155,7 +155,7 @@ ImageElement* TurnQueueView::FindImageElementWithTag(const std::string& tag) con
 
 void TurnQueueView::InitializeFramesAndPortraits()
 {
-    if (_turnQueueHorizontalPanenl = GameObject::FindWithTag("Turn Queue Horizontal Panenl").lock().get())
+    if (_turnQueueHorizontalPanenl = GameObject::FindWithTag("Turn Queue Horizontal Panel").lock().get())
     {
         FindFramesWithTag("Frame Element");
         FindPortraitsWithTag("Turn Element");
@@ -164,7 +164,7 @@ void TurnQueueView::InitializeFramesAndPortraits()
     }
     else
     {
-        std::u8string message = u8"Turn Queue Horizontal Panenl이 존재하지 않습니다.";
+        std::u8string message = u8"Turn Queue Horizontal Panel이 존재하지 않습니다.";
         UmLogger.Log(LogLevel::LEVEL_WARNING, message);
     }
 }
