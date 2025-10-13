@@ -83,37 +83,37 @@
       <Filter>Shaders\ps</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\vs_grid.hlsl">
-      <Filter>소스 파일\vs</Filter>
+      <Filter>Shaders\vs</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\vs_particle_fullscreen.hlsl">
-      <Filter>소스 파일\vs</Filter>
+      <Filter>Shaders\vs</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\vs_particle_quad.hlsl">
-      <Filter>소스 파일\vs</Filter>
+      <Filter>Shaders\vs</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\vs_particle_ribbon.hlsl">
-      <Filter>소스 파일\vs</Filter>
+      <Filter>Shaders\vs</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\vs_quad.hlsl">
-      <Filter>소스 파일\vs</Filter>
+      <Filter>Shaders\vs</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\vs_skeletal_fr.hlsl">
-      <Filter>소스 파일\vs</Filter>
+      <Filter>Shaders\vs</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\vs_skeletal_shadow_fr.hlsl">
-      <Filter>소스 파일\vs</Filter>
+      <Filter>Shaders\vs</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\vs_skybox.hlsl">
-      <Filter>소스 파일\vs</Filter>
+      <Filter>Shaders\vs</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\vs_static_fr.hlsl">
-      <Filter>소스 파일\vs</Filter>
+      <Filter>Shaders\vs</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\vs_static_shadow_fr.hlsl">
-      <Filter>소스 파일\vs</Filter>
+      <Filter>Shaders\vs</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\vs_ui_fr.hlsl">
-      <Filter>소스 파일\vs</Filter>
+      <Filter>Shaders\vs</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\cs_light_injection.hlsl">
       <Filter>Shaders\cs</Filter>
@@ -140,10 +140,10 @@
       <Filter>Shaders\ps</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\vs_skeletal_forward_fr.hlsl">
-      <Filter>소스 파일\vs</Filter>
+      <Filter>Shaders\vs</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\vs_static_forward_fr.hlsl">
-      <Filter>소스 파일\vs</Filter>
+      <Filter>Shaders\vs</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\ps_burn_dissolve.hlsl">
       <Filter>Shaders\ps</Filter>
@@ -173,7 +173,10 @@
       <Filter>Shaders\ps</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\vs_sdf_font_fr.hlsl">
-      <Filter>소스 파일\vs</Filter>
+      <Filter>Shaders\vs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_fxaa.hlsl">
+      <Filter>Shaders\ps</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
@@ -592,6 +595,12 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="SDFTextRenderer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="FXAATechnique.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="AntiAliasingPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1046,6 +1055,12 @@
     <ClInclude Include="SDFTextRenderer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="FXAATechnique.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="AntiAliasingPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Shaders\CommonData.hlsli">
@@ -1083,7 +1098,7 @@
     <Filter Include="소스 파일">
       <UniqueIdentifier>{8d62b6a3-05bc-45fa-87e2-99d846c74e63}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\vs">
+    <Filter Include="Shaders\vs">
       <UniqueIdentifier>{b4a51824-f35d-4745-9293-a681bd669d14}</UniqueIdentifier>
     </Filter>
   </ItemGroup>

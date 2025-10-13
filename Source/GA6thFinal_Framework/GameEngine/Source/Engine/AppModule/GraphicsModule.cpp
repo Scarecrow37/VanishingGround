@@ -28,7 +28,9 @@ void GraphicsModule::PreInitialize()
                                RenderTechniqueFlag::SSGI_TECH |
                                RenderTechniqueFlag::VOLUMETRIC_FOG_TECH |
                                RenderTechniqueFlag::PARTICLE_TECH |
-                               RenderTechniqueFlag::BLOOM_TECH | RenderTechniqueFlag::UI_TECH |
+                               RenderTechniqueFlag::BLOOM_TECH |
+                               RenderTechniqueFlag::FXAA_TECH |
+                               RenderTechniqueFlag::UI_TECH |
                                RenderTechniqueFlag::FONT_TECH;
 
     RenderTechniqueFlag gameSceneFlag = defaultFlag | RenderTechniqueFlag::SCENE_TRANSITION_TECH;

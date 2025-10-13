@@ -4,7 +4,7 @@
 class VertexShader : public Shader
 {
 public:
-    VertexShader() = default;
+    VertexShader();
     virtual ~VertexShader() = default;
 
 public:
