@@ -30,6 +30,7 @@
 #include "UITechnique_OIT.h"
 #include "SceneTransitionTechnique.h"
 #include "SSGITechnique.h"
+#include "FXAATechnique.h"
 
 namespace Global
 {
@@ -197,6 +198,11 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
         scene->AddRenderTechnique(std::make_unique<BloomTechnique>());
     }
     
+    if (RenderTechniqueFlag::FXAA_TECH & flag)
+    {
+        scene->AddRenderTechnique(std::make_unique<FXAATechnique>());
+    }
+
     // Blend Pass
     scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
 

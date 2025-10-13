@@ -104,6 +104,14 @@ struct VolumetricFogCompositeData
     float    BlendWithScene;
 };
 
+struct FXAAData
+{
+    Vector2 InverseResolution;
+    float  QualitySubpixel;
+    float  QualityEdgeDetectionThreshold;
+    float  QualityMinimumEdgeThreshold;
+};
+
 struct GBufferData
 {
     float HeightScale;

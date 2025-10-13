@@ -161,3 +161,10 @@ struct SSGIProperty
     float DepthSigma;//0.5~5.0
     float NormalSigma;//16~256
 };
+
+struct FXAAProperty
+{
+    float   QualitySubpixel;
+    float   QualityEdgeDetectionThreshold;
+    float   QualityMinimumEdgeThreshold;
+};
