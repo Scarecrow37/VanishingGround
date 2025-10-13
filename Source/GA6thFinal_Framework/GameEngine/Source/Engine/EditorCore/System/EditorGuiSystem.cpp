@@ -7,16 +7,7 @@ EditorGuiSystem::EditorGuiSystem()
 
 EditorGuiSystem::~EditorGuiSystem() 
 {
-    for (auto& gui : _dockWindowList)
-    {
-        if (gui)
-        {
-            delete gui;
-            gui = nullptr;
-        }
-    }
-    _dockWindowList.clear();
-    _dockWindowTable.clear();
+    Clear();
 }
 
 void EditorGuiSystem::OnTickGui() 
@@ -108,6 +99,20 @@ EditorDockWindow* EditorGuiSystem::GetDockWindow(const char* label) const
 EditorDockWindow* EditorGuiSystem::operator[](const char* label) const
 {
     return GetDockWindow(label);
+}
+
+void EditorGuiSystem::Clear()
+{
+    for (auto& gui : _dockWindowList)
+    {
+        if (gui)
+        {
+            delete gui;
+            gui = nullptr;
+        }
+    }
+    _dockWindowList.clear();
+    _dockWindowTable.clear();
 }
 
 void EditorGuiSystem::ResetLayout()

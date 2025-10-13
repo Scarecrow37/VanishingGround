@@ -5,8 +5,7 @@ EditorPopupBoxSystem::EditorPopupBoxSystem() {}
 
 EditorPopupBoxSystem::~EditorPopupBoxSystem() 
 {
-    _popupBoxQueue.clear();
-    _popupBoxTable.clear();
+    Clear();
 }
 
 void EditorPopupBoxSystem::OnTickGui() {}
@@ -60,6 +59,13 @@ void EditorPopupBoxSystem::OnDrawGui()
 
 void EditorPopupBoxSystem::OnEndGui() 
 {
+}
+
+void EditorPopupBoxSystem::Clear()
+{
+    _popupBoxQueue.clear();
+    _popupBoxTable.clear();
+    _currentPopupBox = nullptr;
 }
 
 EditorPopupBox* EditorPopupBoxSystem::OpenPopupBox(const std::string& name, std::function<void()> content)

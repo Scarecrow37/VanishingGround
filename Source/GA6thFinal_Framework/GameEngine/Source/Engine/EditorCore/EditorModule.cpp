@@ -37,6 +37,9 @@ void EditorModule::ModuleUnInitialize()
     // 파괴 직전 함수 필요하면 추가
     _popupBoxSystem.OnEndGui();
     _guiSystem.OnEndGui();
+
+    _popupBoxSystem.Clear();
+    _guiSystem.Clear();
 }
 
 bool EditorModule::SaveSetting(const File::Path& path)
