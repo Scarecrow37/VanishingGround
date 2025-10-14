@@ -412,7 +412,7 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
         {
             UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
                 GameObjectKey, GameObject::Helper::GenerateUniqueName("Shadow Point Light"), &light);
-            UmComponentFactory.AddComponentToObject(light, "class ShadowPointLight")
+            UmComponentFactory.AddComponentToObject(light, "class ShadowPointLight");
         }
         ImGui::EndMenu();
 
