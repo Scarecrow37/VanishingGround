@@ -585,9 +585,6 @@
     <ClCompile Include="SSGICompositePass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="ShadowPointLight.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="SDFFont.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -603,6 +600,7 @@
     <ClCompile Include="AntiAliasingPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="GraphicsPointer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AccelerationStructureManager.h">
@@ -1037,9 +1035,6 @@
     <ClInclude Include="BilateralUpsamplePass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="ShadowPointLight.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Interface\IGraphicsBase.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -1061,6 +1056,11 @@
     <ClInclude Include="AntiAliasingPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="GraphicsPointer.h" />
+    <ClInclude Include="Interface\IAnimator.h" />
+    <ClInclude Include="Interface\ILight.h" />
+    <ClInclude Include="Interface\IMeshRenderer.h" />
+    <ClInclude Include="Interface\ISpriteRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Shaders\CommonData.hlsli">
