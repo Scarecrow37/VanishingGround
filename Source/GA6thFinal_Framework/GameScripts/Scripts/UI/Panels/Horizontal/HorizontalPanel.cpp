@@ -168,7 +168,9 @@ SIZE HorizontalPanel::ArrangeOverride(const SIZE finalSize)
     std::vector<LONG> childrenDesiredWidthPerLine;
     childrenDesiredWidthPerLine.resize(childrenDesiredSizes.size(), 0);
 
-    std::ranges::for_each(children, [this, &childrenDesiredWidthPerLine, &alignPositionPerLine, space](UIComponent* child) {
+    LONG lineSpace = LineSpace;
+
+    std::ranges::for_each(children, [this, &childrenDesiredWidthPerLine, &alignPositionPerLine, space, lineSpace](UIComponent* child) {
         if (const HorizontalPanelSlot* slot = child->GetComponent<HorizontalPanelSlot>(); nullptr != slot)
         {
             const SIZE childAvailableSize = child->DesiredSize;
@@ -176,6 +178,7 @@ SIZE HorizontalPanel::ArrangeOverride(const SIZE finalSize)
             const POINT absolutePosition = AbsoluteChildPosition;
             POINT       alignPosition    = alignPositionPerLine[slot->Line];
             alignPosition.x += childrenDesiredWidthPerLine[slot->Line];
+            alignPosition.y += lineSpace * slot->Line;
             const POINT childPosition = absolutePosition + alignPosition;
 
             child->Arrange(childPosition, childAvailableSize);
