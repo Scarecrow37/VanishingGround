@@ -534,7 +534,6 @@
     <ClCompile Include="Scripts\CombatUIManager\Consumable\ConsumableGroup.cpp" />
     <ClCompile Include="Scripts\CombatUIManager\Revelations\RevelationsGroup.cpp" />
     <ClCompile Include="Scripts\CombatUIManager\TurnQueue\TurnQueueGroup.cpp" />
-    <ClCompile Include="Scripts\CombatUIManager\UIGroup.cpp" />
     <ClCompile Include="Scripts\CombatUIManager\Weapon\WeaponGroup.cpp" />
     <ClCompile Include="Scripts\Debugger\Debugger.cpp" />
     <ClCompile Include="dllmain.cpp">
