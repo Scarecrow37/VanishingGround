@@ -8,6 +8,7 @@
 #include <TurnSystem/TurnActor/Character/CharacterBase.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include "Camera/UmCineMotion.h"
+#include "CombatUIManager/CombatUIManager.h"
 
 UMREAL_COMPONENT(QTESystem)
 
@@ -509,7 +510,10 @@ void QTESystem::ProcessQTEEnterEvent()
         }
     }
 
-    CombatUIActive(false);
+    if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        combatUIManager->SetActiveUI(false);
+    }
 }
 
 void QTESystem::ProcessQTENotePressedEvent(QTE::ResultType result)
@@ -560,7 +564,10 @@ void QTESystem::ProcessQTEExitEvent()
         }
     }
 
-    CombatUIActive(true);
+    if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        combatUIManager->SetActiveUI(true);
+    }
 }
 
 void QTESystem::ProcessQTEFadeInEndEvent() 
@@ -580,38 +587,5 @@ void QTESystem::ProcessQTEFadeOutEndEvent()
     if (camera)
     {
         camera->StartRail(false);
-    }
-}
-
-void QTESystem::CombatUIActive(bool active) 
-{
-    if (auto consumablePanel = GameObject::FindWithTag("Consumable Panel").lock())
-    {
-        consumablePanel->ActiveSelf = active;
-    }
-
-    if (auto turnQueue = GameObject::FindWithTag("Turn Queue Panel").lock())
-    {
-        turnQueue->ActiveSelf = active;
-    }
-
-    if (auto HUD = GameObject::FindWithTag("Character HUD Group").lock())
-    {
-        HUD->ActiveSelf = active;
-    }
-
-    if (auto revelationPanel = GameObject::FindWithTag("Revelations Panel").lock())
-    {
-        revelationPanel->ActiveSelf = active;
-    }
-
-    if (auto weaponPanel = GameObject::FindWithTag("Weapon Panel").lock())
-    {
-        weaponPanel->ActiveSelf = active;
-    }
-
-    if (auto accessoriesPanel = GameObject::FindWithTag("Accessories Panel").lock())
-    {
-        accessoriesPanel->ActiveSelf = active;
     }
 }
