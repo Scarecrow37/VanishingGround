@@ -335,6 +335,11 @@ void GraphicsCore::Finalize() const
     delete _sceneTransitionCore;
 }
 
+void GraphicsCore::ClearGraphicsResource() const
+{
+    _renderer->ClearComponents();
+}
+
 void GraphicsCore::Flip() const
 {
     _renderer->Flip();
