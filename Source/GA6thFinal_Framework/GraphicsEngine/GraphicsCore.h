@@ -63,6 +63,7 @@ public:
     void Update(const float deltaTime);
     void Render() const;
     void Flip() const;
+    void PreFinalize() const;
     void Finalize() const;
 
 public:

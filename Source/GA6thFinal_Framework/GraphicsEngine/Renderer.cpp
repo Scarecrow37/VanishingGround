@@ -40,7 +40,16 @@ namespace Global
 
 Renderer::Renderer() = default;
 
-Renderer::~Renderer() = default;
+Renderer::~Renderer()
+{
+    for (auto& component : _toBeReleasedComponents)
+    {
+        component->Delete();
+        component = nullptr;
+    }
+
+    _toBeReleasedComponents.clear();
+}
 
 D3D12_GPU_DESCRIPTOR_HANDLE Renderer::GetRenderSceneImage(std::string_view renderSceneName)
 {
@@ -347,6 +356,7 @@ void Renderer::Flip()
     for (auto& component : _toBeReleasedComponents)
     {
         component->Delete();
+        component = nullptr;
     }
 
     _toBeReleasedComponents.clear();
