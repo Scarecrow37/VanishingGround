@@ -12,7 +12,7 @@ public:
     HorizontalPanel();
 
 public:
-    REFLECT_PROPERTY()
+    REFLECT_PROPERTY(Space)
 
     GETTER_ONLY(std::vector<HorizontalPanelSlot*>, Slots)
     {
@@ -29,6 +29,15 @@ public:
     }
     PROPERTY(Slots)
 
+    GETTER(int, Space) { return ReflectFields->Space; }
+    SETTER(int, Space)
+    {
+        ReflectFields->Space = static_cast<LONG>(value);
+        InvalidateMeasure();
+        InvalidateArrange();
+    }
+    PROPERTY(Space)
+
 protected:
     void OnAttachChild(GameObject* childGameObject) override;
 
@@ -40,6 +49,7 @@ private:
 
 protected:
     REFLECT_FIELDS_BEGIN(UIComponent)
+    LONG Space     = 0;
     REFLECT_FIELDS_END(HorizontalPanel)
 
 };
