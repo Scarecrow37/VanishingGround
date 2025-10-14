@@ -621,8 +621,8 @@ inline void Transform::ForeachExDFS(Transform& root, bool checkValid, const std:
     {
         Transform* currTr = trStack.back();
         trStack.pop_back();
-        bool vaild = checkValid ? CheckValidTransform(currTr) : true;
-        if (vaild)
+        bool valid = checkValid ? CheckValidTransform(currTr) : true;
+        if (valid)
         {
             func(currTr);
             for (auto iter = currTr->_childsList.rbegin(); iter != currTr->_childsList.rend(); ++iter)
@@ -642,8 +642,8 @@ inline void Transform::ForeachExPostOrder(Transform& root, bool checkValid, cons
     {
         auto [currTr, currentDepth] = trStack.back();
         trStack.pop_back();
-        bool vaild = checkValid ? CheckValidTransform(currTr) : true;
-        if (vaild)
+        bool valid = checkValid ? CheckValidTransform(currTr) : true;
+        if (valid)
         {
             func(currTr, currentDepth);
             for (auto iter = currTr->_childsList.begin(); iter != currTr->_childsList.end(); ++iter)
@@ -663,8 +663,8 @@ inline void Transform::ForeachExDFS(Transform& root, bool checkValid, const std:
     {
         auto [currTr, currentDepth] = trStack.back();
         trStack.pop_back();
-        bool vaild = checkValid ? CheckValidTransform(currTr) : true;
-        if (vaild)
+        bool valid = checkValid ? CheckValidTransform(currTr) : true;
+        if (valid)
         {
             func(currTr, currentDepth);
             for (auto iter = currTr->_childsList.rbegin(); iter != currTr->_childsList.rend(); ++iter)
@@ -684,8 +684,8 @@ inline void Transform::ForeachExBFS(Transform& root, bool checkValid, const std:
     {
         Transform* currTr = trQueue.front();
         trQueue.pop();
-        bool vaild = checkValid ? CheckValidTransform(currTr) : true;
-        if (vaild)
+        bool valid = checkValid ? CheckValidTransform(currTr) : true;
+        if (valid)
         {
             func(currTr);
             for (auto& _transform : currTr->_childsList)
@@ -704,8 +704,8 @@ inline void Transform::ForeachExBFS(Transform& root, bool checkValid, const std:
     {
         auto [currTr, currentDepth] = trQueue.front();
         trQueue.pop();
-        bool vaild = checkValid ? CheckValidTransform(currTr) : true;
-        if (vaild)
+        bool valid = checkValid ? CheckValidTransform(currTr) : true;
+        if (valid)
         {
             func(currTr, currentDepth);
             for (auto& _transform : currTr->_childsList)

@@ -254,7 +254,7 @@ void WeaponTableComponent::ImGuiDrawPropertysEvent()
                         u8"Speed",  
                         u8"giveChain"
                     };
-                    std::unordered_set<std::string> vaildTargets;
+                    std::unordered_set<std::string> validTargets;
                     size_t rowCount = dataBase.RowCount();
                     for (size_t row = 0; row < rowCount; ++row)
                     {
@@ -305,7 +305,7 @@ void WeaponTableComponent::ImGuiDrawPropertysEvent()
                                 WeaponElement& element = _weaponTable[name];
                                 _imguiEvent.DirtyWeaponElementQueue.push(&element);
                             }                       
-                            if (auto [iter, insertResult] = vaildTargets.insert(name); false == insertResult)
+                            if (auto [iter, insertResult] = validTargets.insert(name); false == insertResult)
                             {
                                 std::string message = "\"";
                                 message += name;
@@ -319,7 +319,7 @@ void WeaponTableComponent::ImGuiDrawPropertysEvent()
                     for (auto& weapon : _weaponTableIdOrder)
                     {
                         const std::string& name = weapon->Stats.WeaponName;
-                        if (vaildTargets.find(name) == vaildTargets.end())
+                        if (validTargets.find(name) == validTargets.end())
                         {
                             earseTargets.emplace_back(*weapon);
                         }
