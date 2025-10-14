@@ -190,17 +190,29 @@ namespace Audio
         void ReleaseEffect(const EffectHandle& handle);
 
         /// <summary>
-        /// 지정된 그룹에서 효과를 활성화합니다.
+        /// 효과를 그룹에 연결합니다.
         /// </summary>
-        /// <param name="effectHandle">활성화할 효과를 식별하는 핸들입니다.</param>
-        /// <param name="groupHandle">효과를 활성화할 그룹을 식별하는 핸들입니다.</param>
-        void EnableEffect(const EffectHandle& effectHandle, const GroupHandle& groupHandle);
+        /// <param name="effectHandle">연결할 효과를 나타내는 EffectHandle 참조입니다.</param>
+        /// <param name="groupHandle">효과를 연결할 그룹을 나타내는 GroupHandle 참조입니다.</param>
+        void AttachEffect(const EffectHandle& effectHandle, const GroupHandle& groupHandle);
+
+        /// <summary>
+        /// 지정된 이펙트 핸들을 분리합니다.
+        /// </summary>
+        /// <param name="handle">분리할 이펙트의 핸들입니다.</param>
+        void DetachEffect(const EffectHandle& handle);
+
+        /// <summary>
+        /// 지정된 이펙트를 활성화합니다.
+        /// </summary>
+        /// <param name="handle">활성화할 이펙트의 핸들입니다.</param>
+        void EnableEffect(const EffectHandle& handle) const;
 
         /// <summary>
         /// 지정된 이펙트를 비활성화합니다.
         /// </summary>
-        /// <param name="handle">비활성화할 이펙트를 식별하는 EffectHandle 객체입니다.</param>
-        void DisableEffect(const EffectHandle& handle);
+        /// <param name="handle">비활성화할 이펙트의 핸들입니다.</param>
+        void DisableEffect(const EffectHandle& handle) const;
 
     private:
         void ReleaseVoice(const AudioHandle& handle);

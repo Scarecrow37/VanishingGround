@@ -15,12 +15,12 @@ void Audio::Manager::Initialize()
     }
 
     _reverbHandle = _system.CreateReverbEffect(2, 44100);
-    _fadeHandle   = _system.CreateFadeEffect(FadeInitParameter{0.2f, 1.0f,  3.0f}, 2, 44100);
+    _system.SetEffectParameter(_reverbHandle, ReverbParameter{});
+    _system.AttachEffect(_reverbHandle, _groups.at(GROUP_EFFECT));
 
-    for (auto& groupHandle : _groups | std::views::values)
-    {
-        _system.EnableEffect(_fadeHandle, groupHandle);
-    }
+    _fadeHandle   = _system.CreateFadeEffect(FadeInitParameter{0.2f, 1.0f,  3.0f}, 2, 44100);
+    _system.AttachEffect(_fadeHandle, _groups.at(GROUP_BGM));
+    _system.EnableEffect(_fadeHandle);
 }
 
 void Audio::Manager::Finalize()
@@ -39,8 +39,7 @@ void Audio::Manager::ClearVoicePool()
 
 void Audio::Manager::LoadSound(const std::string& key, const File::GuidRef& guid)
 {
-    const File::Path& path = guid.ToPath();
-    if (false == path.IsNull())
+    if (const File::Path& path = guid.ToPath(); false == path.IsNull())
     {
         Source source = _system.CreateSoundFromWave(path);
         if (const auto [iterator, isSucceed] = _sources.try_emplace(key, std::move(source)); false == isSucceed)
@@ -123,4 +122,14 @@ void Audio::Manager::FadeIn() const
 void Audio::Manager::FadeOut() const
 {
     _system.SetEffectParameter(_fadeHandle, FadeParameter{FadeDirection::BACKWARD});
+}
+
+void Audio::Manager::ReverbOn() const
+{
+    _system.EnableEffect(_reverbHandle);
+}
+
+void Audio::Manager::ReverbOff() const
+{
+    _system.DisableEffect(_reverbHandle);
 }

@@ -652,7 +652,7 @@ namespace Audio
         attachedVoices.clear();
     }
 
-    void System::EnableEffect(const EffectHandle& effectHandle, const GroupHandle& groupHandle)
+    void System::AttachEffect(const EffectHandle& effectHandle, const GroupHandle& groupHandle)
     {
         if (!IsValidHandle(effectHandle))
             throw InvalidHandleException("Invalid effect effectHandle provided to EnableEffect.");
@@ -674,12 +674,10 @@ namespace Audio
 
         throwIfFailed(groupVoice.Voice->SetOutputVoices(&voiceSends), "Failed to set output voices.");
 
-        throwIfFailed(effectVoice.Voice->EnableEffect(0), "Failed to enable effect.");
-
         effectVoice.AttachedVoices.push_back(groupHandle);
     }
 
-    void System::DisableEffect(const EffectHandle& handle)
+    void System::DetachEffect(const EffectHandle& handle)
     {
         if (!IsValidHandle(handle))
             throw InvalidHandleException("Invalid effect handle provided to DisableEffect.");
@@ -695,7 +693,27 @@ namespace Audio
         }
 
         effectVoice.AttachedVoices.clear();
+    }
 
+    void System::EnableEffect(const EffectHandle& handle) const
+    {
+        if (!IsValidHandle(handle))
+            throw InvalidHandleException("Invalid effect handle provided to EnableEffect.");
+
+        constexpr ThrowIfFailed throwIfFailed;
+
+        const EffectVoice& effectVoice = _effectPool.at(handle._index);
+        throwIfFailed(effectVoice.Voice->EnableEffect(0), "Failed to enable effect.");
+    }
+
+    void System::DisableEffect(const EffectHandle& handle) const
+    {
+        if (!IsValidHandle(handle))
+            throw InvalidHandleException("Invalid effect handle provided to DisableEffect.");
+
+        constexpr ThrowIfFailed throwIfFailed;
+
+        const EffectVoice& effectVoice = _effectPool.at(handle._index);
         throwIfFailed(effectVoice.Voice->DisableEffect(0), "Failed to disable effect.");
     }
 

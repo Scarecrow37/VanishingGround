@@ -24,6 +24,9 @@ namespace Audio
         void FadeIn() const;
         void FadeOut() const;
 
+        void ReverbOn() const;
+        void ReverbOff() const;
+
     private:
         System _system;
 

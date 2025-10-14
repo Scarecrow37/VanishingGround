@@ -40,6 +40,7 @@ namespace Audio
     struct ReverbParameter
     {
         ReverbParameter() : Diffusion(FX_REVERB_DEFAULT_DIFFUSION), RoomSize(FX_REVERB_DEFAULT_ROOM_SIZE) {}
+        ReverbParameter(const float diffusion, const float roomSize) : Diffusion(diffusion), RoomSize(roomSize) {}
 
         /// <summary>
         /// 확산 정도입니다.
