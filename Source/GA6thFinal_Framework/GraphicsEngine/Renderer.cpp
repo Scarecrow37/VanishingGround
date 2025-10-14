@@ -42,13 +42,7 @@ Renderer::Renderer() = default;
 
 Renderer::~Renderer()
 {
-    for (auto& component : _toBeReleasedComponents)
-    {
-        component->Delete();
-        component = nullptr;
-    }
-
-    _toBeReleasedComponents.clear();
+    ClearComponents();
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE Renderer::GetRenderSceneImage(std::string_view renderSceneName)
@@ -309,6 +303,17 @@ void Renderer::ResetIBLSkyBox(std::string_view sceneName)
     scene->ResetIBLSkyBox();
 }
 
+void Renderer::ClearComponents()
+{
+    for (auto& component : _toBeReleasedComponents)
+    {
+        component->Delete();
+        component = nullptr;
+    }
+
+    _toBeReleasedComponents.clear();
+}
+
 void Renderer::Initialize()
 {
     CreateDefaultResource();
@@ -353,13 +358,7 @@ void Renderer::Flip()
     Global::device->ResetCommands();
     Global::device->ResetComputeCommands();
 
-    for (auto& component : _toBeReleasedComponents)
-    {
-        component->Delete();
-        component = nullptr;
-    }
-
-    _toBeReleasedComponents.clear();
+    ClearComponents();
 }
 
 void Renderer::RenderToBackBuffer()

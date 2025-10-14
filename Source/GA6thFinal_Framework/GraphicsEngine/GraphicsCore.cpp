@@ -330,19 +330,19 @@ void GraphicsCore::Finalize() const
     delete _viewManager;
     delete _lightCore;
     delete _animationCore;
-    //delete _renderer;
+    delete _renderer;
     delete _device;
     delete _sceneTransitionCore;
+}
+
+void GraphicsCore::ClearGraphicsResource() const
+{
+    _renderer->ClearComponents();
 }
 
 void GraphicsCore::Flip() const
 {
     _renderer->Flip();
-}
-
-void GraphicsCore::PreFinalize() const
-{
-    delete _renderer;
 }
 
 void GraphicsCore::ResetEnvironmentSkyBox(const std::string_view sceneName) const
