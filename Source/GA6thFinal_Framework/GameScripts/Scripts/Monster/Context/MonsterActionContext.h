@@ -12,5 +12,4 @@ namespace Monster
         size_t      AttackCount = 0;    // 공격 횟수
         std::string Parameter   = "";   // 액션 파라미터
     };
-    const static ActionContext EMPTY_ACTION_CONTEXT;
 } // namespace Monster

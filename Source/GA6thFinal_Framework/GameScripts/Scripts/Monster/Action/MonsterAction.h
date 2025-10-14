@@ -18,8 +18,6 @@ namespace Monster
 
     private:
         int            _id;
-        std::string    _name;
-        std::string    _type;
         CharacterBase* _target;
     };
 }

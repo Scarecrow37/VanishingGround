@@ -7,6 +7,19 @@
 
 UMREAL_COMPONENT(MonsterSystem)
 
+void MonsterSystem::Awake() 
+{
+    if (_singletonComponent.TrySingleTon())
+    {
+        LoadFromExcelData();
+    }
+}
+
+void MonsterSystem::OnDestroy() 
+{
+    Clear();
+}
+
 const Monster::DataContext* MonsterSystem::GetDataContextFromID(Monster::DataID id)
 {
     if (_dataContextTable.contains(id))
@@ -36,23 +49,14 @@ bool MonsterSystem::SpawnMonsterFromStageID(int stageID)
         for (size_t i = 0; i < Monster::MAX_ENEMY_COUNT; ++i)
         {
             // [assert] 해당 인덱스의 적 스폰 포인트가 존재하지 않습니다.
-            assert(_enemySpawnPoint[i] != nullptr);
+            assert(_enemySpawnPoints[i] != nullptr);
 
             if (stageEnemiesData.size() > i)
             {
                 const Monster::StageContext& enemyData = stageEnemiesData[i];
                 if (const Monster::DataContext* dataContext = GetDataContextFromID(enemyData.MonsterID))
                 {
-                    Vector3 position = Vector3::Zero;
-                    Vector3 eulerAngles = Vector3::Zero;
-                    if (_enemySpawnPoint[i])
-                    {
-                        Transform& transform = _enemySpawnPoint[i]->transform;
-
-                        position    = transform.WorldPosition;
-                        eulerAngles = transform.EulerAngle;
-                    }
-                    SpawnMonsterFromDataContext(dataContext, position, eulerAngles);
+                    SpawnMonsterFromDataContext(dataContext, i);
                 }
             }
         }
@@ -60,21 +64,54 @@ bool MonsterSystem::SpawnMonsterFromStageID(int stageID)
     return false;
 }
 
-bool MonsterSystem::SpawnMonsterFromDataContext(const Monster::DataContext* context, Vector3 position, Vector3 eulerAngles)
+bool MonsterSystem::SpawnMonsterFromDataContext(const Monster::DataContext* context, size_t index)
 {
+    if (context)
+    {
+        if (index < Monster::MAX_ENEMY_COUNT)
+        {
+            if (_enemySpawnPoints[index])
+            {
+                const Transform&  transform     = _enemySpawnPoints[index]->transform;
+                const Vector3     worldPosition = transform.WorldPosition;
+                const Vector3     eulerAngles   = transform.EulerAngle;
+                const File::Guid& prefabGuid    = UmFileSystem.GetGuidFromAssetID(context->PrefabID);
+                assert(prefabGuid != File::NULL_GUID); // [assert] 콘텍스트가 가진 프리팹 ID가 유효한 Guid를 반환해야합니다.
+
+                auto sharedPtrObject = UmGameObjectFactory.DeserializeToGuid(prefabGuid);
+                assert(sharedPtrObject); // [assert] 프리팹 Guid를 통해 프리팹을 만들지 못했습니다.
+
+                GameObject* clone = sharedPtrObject.get();
+                if (clone)
+                {
+                    if (Enemy* enemy = clone->GetComponent<Enemy>())
+                    {
+                        clone->transform->WorldPosition = worldPosition;
+                        clone->transform->EulerAngle    = eulerAngles;
+                        _spawnedEnemies[index]          = enemy;
+                        return true;
+                    }
+                }
+            }
+        }
+    }
     return false;
 }
 
 void MonsterSystem::Clear()
 {
+    for (size_t i = 0; i < Monster::MAX_ENEMY_COUNT; ++i)
+    {
+        _enemySpawnPoints[i] = nullptr;
+        _spawnedEnemies[i]   = nullptr;
+    }
     _dataContextTable.clear();
     _actionContextTable.clear();
     _stageContextTable.clear();
 }
 
-void MonsterSystem::Load() 
+void MonsterSystem::LoadFromExcelData()
 {
-    Clear();
     if (ExcelDataSystem* dataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
     {
         LoadDataContextFromExcelData(dataSystem);
@@ -224,14 +261,18 @@ void MonsterSystem::LoadStageContextFromExcelData(ExcelDataSystem* dataSystem)
                     {
                         context.StunResist = std::stoi(data.data());
                     }
+
+                    // 벡터 초기화
+                    if (false == _stageContextTable.contains(context.StageID))
+                    {
+                        _stageContextTable[context.StageID].reserve(Monster::MAX_ENEMY_COUNT);
+                    }
                     _stageContextTable[context.StageID].push_back(std::move(context));
                 }
             }
         }
     }
 }
-
-
 
 const std::vector<Monster::StageContext>* MonsterSystem::GetStageContextFromStageID(int stageID)
 {
@@ -241,4 +282,3 @@ const std::vector<Monster::StageContext>* MonsterSystem::GetStageContextFromStag
     }
     return nullptr;
 }
-

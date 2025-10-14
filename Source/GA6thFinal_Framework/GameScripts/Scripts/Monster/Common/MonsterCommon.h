@@ -47,11 +47,11 @@ namespace Monster
         }
     }
 
-    using FSMID    = int; // 몬스터 FSM ID
-    using DataID   = int; // 몬스터 ID
-    using ActionID = int; // 몬스터 액션 ID
+    using FSMID         = int; // 몬스터 FSM ID
+    using DataID        = int; // 몬스터 ID
+    using ActionID      = int; // 몬스터 액션 ID
 
-    using FSMArray   = std::array<FSMID, MAX_FSM_COUNT>; // 몬스터 FSM 리스트
-    using SkillArray = std::array<ActionID, MAX_SKILL_COUNT>; // 몬스터 스킬 리스트
+    using FSMArray      = std::array<FSMID, MAX_FSM_COUNT>;         // 몬스터 FSM 리스트
+    using SkillArray    = std::array<ActionID, MAX_SKILL_COUNT>;    // 몬스터 스킬 리스트
 
 } // namespace Monster
