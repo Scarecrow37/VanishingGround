@@ -8,8 +8,29 @@ class TurnQueueView : public Component
     USING_PROPERTY(TurnQueueView)
 
 public:
+    struct ButtonIconImage
+    {
+        ImageElement* X = nullptr;
+        ImageElement* Y = nullptr;
+        ImageElement* B = nullptr;
+    };
+    using ImageElementList = std::array<ImageElement*, 6>;
+    using ButtonImageList  = std::array<ButtonIconImage, 6>;
+
     TurnQueueView();
     ~TurnQueueView() override;
+
+public:
+    REFLECT_PROPERTY()
+
+    GETTER_ONLY(GameObject*, TurnQueueHorizontalPanel) { return _turnQueueHorizontalPanel; }
+    PROPERTY(TurnQueueHorizontalPanel)
+    GETTER_ONLY(const ImageElementList&, TurnQueueFrames) { return _turnQueueFrames; }
+    PROPERTY(TurnQueueFrames)
+    GETTER_ONLY(const ImageElementList&, TurnQueuePortraits) { return _turnQueuePortraits; }
+    PROPERTY(TurnQueuePortraits)
+    GETTER_ONLY(const ButtonImageList&, TurnQueueButtonIcons) { return _turnQueueButtonIcons; }
+    PROPERTY(TurnQueueButtonIcons)
 
 protected:
     void ImGuiDrawPropertysEvent() override;
@@ -19,7 +40,7 @@ protected:
 
 private:
     ImageElement* FindImageElementWithTag(const std::string& tag) const;
-    void InitializeFramesAndPortraits();
+    void          InitializeFramesAndPortraits();
     void          FindFramesWithTag(const std::string& tag);
     void          FindPortraitsWithTag(const std::string& tag);
     void          FindButtonIconsWithTag(const std::string& tag);
@@ -31,15 +52,10 @@ protected:
     REFLECT_FIELDS_END(TurnQueueView)
 
 private:
-    GameObject*                  _turnQueueHorizontalPanenl = nullptr;
-    std::array<ImageElement*, 6> _turnQueueFrames{};
-    std::array<ImageElement*, 6> _turnQueuePortraits{};
-    struct ButtonIconImage
-    {
-        ImageElement* X = nullptr;
-        ImageElement* Y = nullptr;
-        ImageElement* B = nullptr;
-    };
+    GameObject*         _turnQueueHorizontalPanel = nullptr;
+    ImageElementList    _turnQueueFrames{};
+    ImageElementList    _turnQueuePortraits{};
+    
     std::array<ButtonIconImage, 6> _turnQueueButtonIcons{};
     TurnQueueViewModel::Handle _watchHandle;
 

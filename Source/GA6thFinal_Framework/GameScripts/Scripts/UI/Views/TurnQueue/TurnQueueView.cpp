@@ -125,7 +125,7 @@ ImageElement* TurnQueueView::FindImageElementWithTag(const std::string& tag) con
 {
     FindResult    result   = FindResult::NOT_EXIST_GAME_OBJECT;
     ImageElement* element  = nullptr;
-    std::vector<GameObject*> findResult = _turnQueueHorizontalPanenl->transform->FindBFSwithTag(tag);
+    std::vector<GameObject*> findResult = _turnQueueHorizontalPanel->transform->FindBFSwithTag(tag);
     if (false == findResult.empty())
     {
         GameObject* object = findResult.front();
@@ -155,7 +155,7 @@ ImageElement* TurnQueueView::FindImageElementWithTag(const std::string& tag) con
 
 void TurnQueueView::InitializeFramesAndPortraits()
 {
-    if (_turnQueueHorizontalPanenl = GameObject::FindWithTag("Turn Queue Horizontal Panenl").lock().get())
+    if (_turnQueueHorizontalPanel = GameObject::FindWithTag("Turn Queue Horizontal Panel").lock().get())
     {
         FindFramesWithTag("Frame Element");
         FindPortraitsWithTag("Turn Element");
@@ -164,14 +164,14 @@ void TurnQueueView::InitializeFramesAndPortraits()
     }
     else
     {
-        std::u8string message = u8"Turn Queue Horizontal Panenl이 존재하지 않습니다.";
+        std::u8string message = u8"Turn Queue Horizontal Panel이 존재하지 않습니다.";
         UmLogger.Log(LogLevel::LEVEL_WARNING, message);
     }
 }
 
 void TurnQueueView::FindFramesWithTag(const std::string& tag) 
 {
-    std::vector<GameObject*> findResult = _turnQueueHorizontalPanenl->transform->FindBFSwithTag(tag);
+    std::vector<GameObject*> findResult = _turnQueueHorizontalPanel->transform->FindBFSwithTag(tag);
     for (size_t i = 0; i < findResult.size(); ++i)
     {
         if (i < _turnQueueFrames.size())
@@ -187,7 +187,7 @@ void TurnQueueView::FindFramesWithTag(const std::string& tag)
 
 void TurnQueueView::FindPortraitsWithTag(const std::string& tag) 
 {
-    std::vector<GameObject*> findResult = _turnQueueHorizontalPanenl->transform->FindBFSwithTag(tag);
+    std::vector<GameObject*> findResult = _turnQueueHorizontalPanel->transform->FindBFSwithTag(tag);
     for (size_t i = 0; i < findResult.size(); ++i)
     {
         if (i < _turnQueuePortraits.size())
@@ -203,7 +203,7 @@ void TurnQueueView::FindPortraitsWithTag(const std::string& tag)
 
 void TurnQueueView::FindButtonIconsWithTag(const std::string& tag) 
 {
-    std::vector<GameObject*> findResult = _turnQueueHorizontalPanenl->transform->FindBFSwithTag(tag);
+    std::vector<GameObject*> findResult = _turnQueueHorizontalPanel->transform->FindBFSwithTag(tag);
     if (false == findResult.empty())
     {
         for (size_t i = 0; i < findResult.size(); i++)
