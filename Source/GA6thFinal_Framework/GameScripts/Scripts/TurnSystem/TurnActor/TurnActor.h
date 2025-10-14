@@ -93,6 +93,8 @@ public:
     virtual int GetSpeed() = 0;
     virtual int GetRandomSpeed() { return _randomSpeed; }
 
+    bool IsDead() const { return _currState == STATE::Dead; }
+
 public:
     GETTER_ONLY(int, RandomSpeed) { return _randomSpeed; }
     //TurnActor에서 OnRoundStart 진입시 자동으로 랜덤한 값이 부여됩니다.

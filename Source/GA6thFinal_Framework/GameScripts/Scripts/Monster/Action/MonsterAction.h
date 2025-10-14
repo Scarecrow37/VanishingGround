@@ -1,4 +1,7 @@
 ﻿#pragma once
+#include "Monster/Context/MonsterDataContext.h"
+#include "Monster/Context/MonsterActionContext.h"
+#include "Monster/Context/MonsterStageContext.h"
 
 class CharacterBase;
 class Enemy;
@@ -8,16 +11,36 @@ namespace Monster
     class Action
     {
     public:
-        Action() = default;
+        Action(std::weak_ptr<Enemy> owner,
+               const DataContext* pDataContext, 
+               const ActionContext* pActionContext, 
+               const StageContext* pStageContext);
         virtual ~Action() = default;
 
     public:
-        virtual void OnActionEnter(Enemy* caller)   = 0;
-        virtual void OnActionUpdate(Enemy* caller)  = 0;
-        virtual void OnActionExit(Enemy* caller)    = 0;
+        inline int                          GetActionID()   const { return _actionID; }
+        inline std::weak_ptr<Enemy>         GetOwner()      const { return _weakOwner; }
+        inline std::weak_ptr<CharacterBase> GetTarget()     const { return _target; }
+
+        void ProcessActionEnter();
+        void ProcessActionUpdate();
+        void ProcessActionExit();
 
     private:
-        int            _id;
-        CharacterBase* _target;
+        virtual void OnActionEnter()    = 0;
+        virtual void OnActionUpdate()   = 0;
+        virtual void OnActionExit()     = 0;
+
+        void Refresh();
+        void RefreshTarget();
+
+    private:
+        const DataContext&   _dataContext;
+        const ActionContext& _actionContext;
+        const StageContext&  _stageContext;
+
+        int                             _actionID = 0;
+        std::weak_ptr<CharacterBase>    _target;
+        std::weak_ptr<Enemy>            _weakOwner;
     };
 }

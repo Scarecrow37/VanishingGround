@@ -302,6 +302,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\Monster\AI\MonsterAIBuilder.h" />
+    <ClInclude Include="Scripts\Monster\AI\MonsterAIFactory.h" />
+    <ClInclude Include="Scripts\Monster\AI\MonsterAI.h" />
     <ClInclude Include="Scripts\CombatUIManager\Accessories\AccessoriesGroup.h" />
     <ClInclude Include="Scripts\CombatUIManager\CharacterHUD\CharacterHUDGroup.h" />
     <ClInclude Include="Scripts\CombatUIManager\Consumable\ConsumableGroup.h" />
@@ -538,6 +541,9 @@
     <ClInclude Include="Scripts\ItemDropSystem\UI\WeaponChangeUIManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\Monster\AI\MonsterAIBuilder.cpp" />
+    <ClCompile Include="Scripts\Monster\AI\MonsterAIFactory.cpp" />
+    <ClCompile Include="Scripts\Monster\AI\MonsterAI.cpp" />
     <ClCompile Include="Scripts\CombatUIManager\Accessories\AccessoriesGroup.cpp" />
     <ClCompile Include="Scripts\CombatUIManager\CharacterHUD\CharacterHUDGroup.cpp" />
     <ClCompile Include="Scripts\CombatUIManager\Consumable\ConsumableGroup.cpp" />

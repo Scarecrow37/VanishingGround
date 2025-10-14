@@ -92,7 +92,10 @@ bool MonsterSystem::SpawnMonsterFromDataContext(const Monster::DataContext* cont
                     {
                         clone->transform->WorldPosition = worldPosition;
                         clone->transform->EulerAngle    = eulerAngles;
-                        _spawnedEnemies[index]          = std::static_pointer_cast<Enemy>(enemy->GetWeakPtr().lock());
+
+                        auto sharedEnemy       = std::static_pointer_cast<Enemy>(enemy->GetWeakPtr().lock());
+                        _spawnedEnemies[index] = sharedEnemy;
+                        _spawnedEnemiesIDTable[context->ID].push_back(sharedEnemy);
                         return true;
                     }
                 }
@@ -120,20 +123,30 @@ void MonsterSystem::ClearSpawnedEnemies()
     {
         if (auto enemy = _spawnedEnemies[i].lock())
         {
+            _spawnedEnemies[i].reset();
             GameObject& object = enemy->gameObject;
             GameObject::Destroy(object);
-            _spawnedEnemies[i].reset();
         }
     }
+    _spawnedEnemiesIDTable.clear();
 }
 
-std::weak_ptr<Enemy> MonsterSystem::GetSpawnedEnemy(size_t index)
+std::weak_ptr<Enemy> MonsterSystem::GetSpawnedEnemyByIndex(size_t index)
 {
     if (index < Monster::MAX_ENEMY_COUNT)
     {
         return _spawnedEnemies[index];
     }
     return std::weak_ptr<Enemy>();
+}
+
+std::vector<std::weak_ptr<Enemy>> MonsterSystem::GetSpawnedEnemyByID(Monster::DataID id)
+{
+    if (_spawnedEnemiesIDTable.contains(id))
+    {
+        return _spawnedEnemiesIDTable[id];
+    }
+    return std::vector<std::weak_ptr<Enemy>>();
 }
 
 void MonsterSystem::FindSpawnPoints() 

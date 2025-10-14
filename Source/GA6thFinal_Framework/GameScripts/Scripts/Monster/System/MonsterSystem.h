@@ -2,6 +2,7 @@
 #include <Utility/SingletonHelper.h>
 
 #include "Monster/Common/MonsterCommon.h"
+#include "Monster/AI/MonsterAIFactory.h"
 
 #include "Monster/Context/MonsterDataContext.h"
 #include "Monster/Context/MonsterActionContext.h"
@@ -59,12 +60,8 @@ public:
     /// </summary>
     void ClearSpawnedEnemies();
 
-    /// <summary>
-    /// 지정된 인덱스에 해당하는 생성된 Enemy 객체의 weak_ptr을 반환합니다.
-    /// </summary>
-    /// <param name="index">조회할 Enemy 객체의 인덱스입니다.</param>
-    /// <returns>Enemy 객체를 가리키는 std::weak_ptr입니다. 해당 인덱스에 Enemy가 없으면 비어 있을 수 있습니다.</returns>
-    std::weak_ptr<Enemy> GetSpawnedEnemy(size_t index);
+    std::weak_ptr<Enemy> GetSpawnedEnemyByIndex(size_t index);
+    std::vector<std::weak_ptr<Enemy>> GetSpawnedEnemyByID(Monster::DataID id);
 
 private:
     void Clear();
@@ -81,12 +78,15 @@ private:
 private:
     SingletonComponent<MonsterSystem> _singletonComponent = {this};
 
-    std::array<std::weak_ptr<GameObject>, Monster::MAX_ENEMY_COUNT> _enemySpawnPoints;
-    std::array<std::weak_ptr<Enemy>, Monster::MAX_ENEMY_COUNT>      _spawnedEnemies;
+    std::array<std::weak_ptr<GameObject>, Monster::MAX_ENEMY_COUNT>         _enemySpawnPoints;
+    std::array<std::weak_ptr<Enemy>, Monster::MAX_ENEMY_COUNT>              _spawnedEnemies;
+    std::unordered_map<Monster::DataID, std::vector<std::weak_ptr<Enemy>>>  _spawnedEnemiesIDTable;
 
     std::unordered_map<Monster::DataID, Monster::DataContext>       _dataContextTable;
     std::unordered_map<Monster::ActionID, Monster::ActionContext>   _actionContextTable;
     std::unordered_map<int, std::vector<Monster::StageContext>>     _stageContextTable;
+
+    Monster::AIFactory _aiFactory;
 
     REFLECT_FIELDS_BEGIN(Component)
     REFLECT_FIELDS_END(MonsterSystem)
