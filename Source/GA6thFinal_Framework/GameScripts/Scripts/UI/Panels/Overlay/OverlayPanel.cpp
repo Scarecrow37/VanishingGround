@@ -6,7 +6,7 @@ UMREAL_COMPONENT(OverlayPanel)
 
 OverlayPanel::OverlayPanel() = default;
 
-SIZE OverlayPanel::MeasureOverride(SIZE availableSize)
+SIZE OverlayPanel::MeasureOverride(const SIZE availableSize)
 {
     const FillMode horizontalFillMode = HorizontalFillMode;
     const FillMode verticalFillMode   = VerticalFillMode;
@@ -31,7 +31,7 @@ SIZE OverlayPanel::MeasureOverride(SIZE availableSize)
     return desiredSize;
 }
 
-SIZE OverlayPanel::ArrangeOverride(SIZE finalSize)
+SIZE OverlayPanel::ArrangeOverride(const SIZE finalSize)
 {
     const SIZE    desiredSize        = DesiredSize;
     const SIZE    actualSize         = MinSize()(finalSize, desiredSize);
@@ -39,7 +39,7 @@ SIZE OverlayPanel::ArrangeOverride(SIZE finalSize)
     const SIZE    childAvailableSize = actualSize - padding.Size();
     const HorizontalAlignment       horizontalAlign    = HorizontalAlign;
     const VerticalAlignment         verticalAlign      = VerticalAlign;
-    const POINT                     absoluteChildPosition = AbsolutePosition;
+    const POINT                     absoluteChildPosition = AbsoluteChildPosition;
 
     const std::vector<UIComponent*> children = Children;
     std::ranges::for_each(children, [childAvailableSize, horizontalAlign, verticalAlign,
