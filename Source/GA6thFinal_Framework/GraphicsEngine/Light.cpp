@@ -9,8 +9,17 @@ Light::Light()
 
 Light::~Light() = default;
 
-void Light::SetDirectionalLight(const Vector3& color, const Vector3& ambient, const Vector3& direction,
-                                const float& intensity)
+bool Light::IsActive() const
+{
+    return GraphicsBase::IsActive();
+}
+
+void Light::SetActive(const bool* isActive)
+{
+    GraphicsBase::SetActive(isActive);
+}
+
+void Light::SetDirectionalLight(const Vector3& color, const Vector3& ambient, const Vector3& direction, const float& intensity)
 {
     _type      = Type::DIRECTIONAL;
     _color     = &color;
@@ -19,8 +28,7 @@ void Light::SetDirectionalLight(const Vector3& color, const Vector3& ambient, co
     _float3_2  = &ambient;
 }
 
-void Light::SetPointLight(const Vector3& color, const Vector3& position, const Vector3& attenuation, const float& range,
-                          const float& intensity)
+void Light::SetPointLight(const Vector3& color, const Vector3& position, const Vector3& attenuation, const float& range, const float& intensity)
 {
     _type      = Type::POINT;
     _color     = &color;
@@ -43,6 +51,16 @@ void Light::SetSpotLight(const Vector3& color, const Vector3& position, const Ve
     _float_1   = &range;
     _float_2   = &inner;
     _float_3   = &outer;
+}
+
+void Light::AddReference()
+{
+    GraphicsBase::AddReference();
+}
+
+void Light::Release()
+{
+    GraphicsBase::Release();
 }
 
 void Light::Update(const float deltaTime)

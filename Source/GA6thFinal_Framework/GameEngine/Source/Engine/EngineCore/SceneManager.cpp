@@ -29,7 +29,9 @@ std::filesystem::path ESceneManager::GetSettingFilePath()
 }
 
 ESceneManager::ESceneManager() 
-    : _mainCamera(nullptr) 
+    : 
+    _mainCamera(nullptr), 
+    _nextSceneSkybox(nullptr)
 {
    
 }
@@ -148,14 +150,14 @@ void ESceneManager::SceneUpdate()
     ObjectsAwake();
     ObjectsStart();
     ObjectsApplicationQuit();
+    ObjectsDestroy();
+    ObjectsAddLoadScene();
     ObjectsMatrixUpdate();
 }
 
 void ESceneManager::SceneFinalUpdate() 
 {
     //그래픽스 Flip 이후 실행해야할 로직들
-    ObjectsDestroy();
-    ObjectsAddLoadScene();
     ObjectsTransformFlagReset();
     ObjectsPrevFrameEnableUpdate();
 #ifdef _UMEDITOR
@@ -764,7 +766,7 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
             }
         }
         _setting.MainScene = scene->Path;
-        SetRendererSkyBox(scene);              
+        _nextSceneSkybox   = scene;         
         _addComponentsQueue.clear();
         _addGameObjectsQueue.clear();
         _waitAwakeVec.clear();
@@ -1045,6 +1047,12 @@ void ESceneManager::ObjectsAddLoadScene()
             }
         }
         _nextSceneGuid.clear();
+    }
+
+    if (nullptr != _nextSceneSkybox)
+    {
+        SetRendererSkyBox(_nextSceneSkybox);     
+        _nextSceneSkybox = nullptr;
     }
 }
 

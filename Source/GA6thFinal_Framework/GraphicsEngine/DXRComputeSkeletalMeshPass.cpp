@@ -19,8 +19,8 @@ void DXRComputeSkeletalMeshPass::Initialize(RenderScene* ownerScene, RenderTechn
 
 void DXRComputeSkeletalMeshPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
-    commandList->SetPipelineState(_pso.Get());
-    commandList->SetComputeRootSignature(_shader->GetRootSignature());
+    commandList->SetPipelineState(_pipelineState.Get());
+    commandList->SetComputeRootSignature(_fx.GetRootSignature());
 }
 
 void DXRComputeSkeletalMeshPass::Draw(ID3D12GraphicsCommandList* commandList)
@@ -63,16 +63,7 @@ void DXRComputeSkeletalMeshPass::Dispatch(ID3D12GraphicsCommandList* commandList
 
 void DXRComputeSkeletalMeshPass::InitShaderAndPSO()
 {
-    _shader = std::make_unique<ShaderBuilder>();
-    _shader->BeginBuild();
-    _shader->SetShader(L"../Shaders/cs_skeletal_skinning.hlsl", ShaderBuilder::Type::CS);
-    _shader->EndBuild();
-
-    D3D12_COMPUTE_PIPELINE_STATE_DESC psoDesc = {};
-    psoDesc.pRootSignature                    = _shader->GetRootSignature();
-    psoDesc.CS                                = _shader->GetShaderByteCode(ShaderBuilder::Type::CS);
-    psoDesc.Flags                             = D3D12_PIPELINE_STATE_FLAG_NONE;
-
-    HRESULT hr = Global::device->GetDevice()->CreateComputePipelineState(&psoDesc, IID_PPV_ARGS(_pso.GetAddressOf()));
-    FAILED_CHECK_MESSAGE(hr, L"DXRComputeSkeletalMeshPass::InitShaderAndPSO CreateComputePipelineState failed");
+    ComputePipelineStateStream pss;
+    _fx.SetPipelineStateStream(pss);
+    _pipelineState = Global::pipelineStateManager->GetPipelineState(pss);    
 }

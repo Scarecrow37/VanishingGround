@@ -196,7 +196,7 @@
     <ClCompile Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.cpp" />
     <ClCompile Include="Scripts\WeaponSystem\WeaponSystem.cpp" />
     <ClCompile Include="Scripts\Debugger\Debugger.cpp" />
-    <ClCompile Include="Scripts\CombatUIManager\CharacterHUD\CharactorHUDGroup.cpp" />
+    <ClCompile Include="Scripts\CombatUIManager\CharacterHUD\CharacterHUDGroup.cpp" />
     <ClCompile Include="Scripts\CombatUIManager\CombatUIManager.cpp" />
     <ClCompile Include="Scripts\Preferences\ImportGraphicsSetting.cpp" />
     <ClCompile Include="Scripts\Map\MapManagerTracker.cpp" />
@@ -418,7 +418,7 @@
     <ClInclude Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.h" />
     <ClInclude Include="Scripts\WeaponSystem\WeaponSystem.h" />
     <ClInclude Include="Scripts\Debugger\Debugger.h" />
-    <ClInclude Include="Scripts\CombatUIManager\CharacterHUD\CharactorHUDGroup.h" />
+    <ClInclude Include="Scripts\CombatUIManager\CharacterHUD\CharacterHUDGroup.h" />
     <ClInclude Include="Scripts\CombatUIManager\CombatUIManager.h" />
     <ClInclude Include="Scripts\Preferences\ImportGraphicsSetting.h" />
     <ClInclude Include="Scripts\Map\MapManagerTracker.h" />

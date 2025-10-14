@@ -1,9 +1,12 @@
 ﻿#include "pch.h"
+#include "ParticleManager.h"
 #include "ParticleEmitter.h"
 #include "ParticleEffect.h"
-#include "ParticleManager.h"
 
-ParticleManager::ParticleManager() {}
+ComputeFX<GE::CS::COMPUTE_SPRITE> computeSpriteFX;
+ComputeFX<GE::CS::COMPUTE_RIBBON> computeRibbonFX;
+
+ParticleManager::ParticleManager() = default;
 
 ParticleManager::~ParticleManager()
 {
@@ -55,10 +58,9 @@ void ParticleManager::Initialize(UINT maxParticles)
     _totalParticles.resize(_maxParticles);
 
     InitializeComputeCommandObject();
-    InitializeParticleComputeShader();
-    InitializeParticleComputeRootSignature();
+    // InitializeParticleComputeShader();
+    // InitializeParticleComputeRootSignature();
     InitializeParticleComputePSO();
-
 }
 
 ParticleEffect* ParticleManager::RegisterEffect(EffectID id, const std::string& keyString, std::string_view sceneName)
@@ -158,10 +160,11 @@ void ParticleManager::Update(const float deltaTime)
                 UpdateMvpConstant(deltaTime, scene.second._renderResource);
 
                 scene.second._commandList->SetPipelineState(_computeSpritePSO.Get());
-                scene.second._commandList->SetComputeRootSignature(_computeSpriteRootSignature.Get());
+                scene.second._commandList->SetComputeRootSignature(computeSpriteFX.GetRootSignature());
                 DispatchSprite(deltaTime, scene.second._name);
+
                 scene.second._commandList->SetPipelineState(_computeRibbonPSO.Get());
-                scene.second._commandList->SetComputeRootSignature(_computeRibbonRootSignature.Get());
+                scene.second._commandList->SetComputeRootSignature(computeRibbonFX.GetRootSignature());
                 DispatchRibbon(deltaTime, scene.second._name);
 
                 scene.second._commandList->Close();
@@ -494,191 +497,201 @@ void ParticleManager::InitializeComputeCommandObject()
     }
 }
 
-void ParticleManager::InitializeParticleComputeShader()
-{
+//void ParticleManager::InitializeParticleComputeShader()
+//{
+//
+//    HRESULT          hr = S_OK;
+//    ComPtr<ID3DBlob> error;
+//    // non-axial billboard sprite particle compute shader
+//    {
+//
+//        UINT flags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_ENABLE_UNBOUNDED_DESCRIPTOR_TABLES |
+//                     D3DCOMPILE_PACK_MATRIX_COLUMN_MAJOR;
+//
+//#ifdef _DEBUG
+//        flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+//#endif
+//
+//        hr = D3DCompileFromFile(L"../Shaders/cs_compute_sprite.hlsl", // HLSL 파일 경로
+//                                nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
+//                                "cs_main", // 셰이더 진입점
+//                                "cs_5_1",  // 셰이더 모델
+//                                D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 0,
+//                                _computeSpriteShaderBlob.GetAddressOf(), error.GetAddressOf());
+//
+//        if (nullptr != error)
+//        {
+//
+//            std::filesystem::path errorMessage = static_cast<const char*>(error->GetBufferPointer());
+//            GRAPHICS_ASSERT(SUCCEEDED(hr), errorMessage.c_str());
+//        }
+//
+//        FAILED_CHECK_MESSAGE(hr, L"D3DCompileFromFile Failed");
+//    }
+//    // ribbon sprite particle compute shader
+//    {
+//
+//        UINT flags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_ENABLE_UNBOUNDED_DESCRIPTOR_TABLES |
+//                     D3DCOMPILE_PACK_MATRIX_COLUMN_MAJOR;
+//
+//#ifdef _DEBUG
+//        flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+//#endif
+//
+//        hr = D3DCompileFromFile(L"../Shaders/cs_compute_ribbon.hlsl", // HLSL 파일 경로
+//                                nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
+//                                "cs_main", // 셰이더 진입점
+//                                "cs_5_1",  // 셰이더 모델
+//                                D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 0,
+//                                _computeRibbonShaderBlob.GetAddressOf(), error.GetAddressOf());
+//
+//        if (nullptr != error)
+//        {
+//            std::filesystem::path errorMessage = static_cast<const char*>(error->GetBufferPointer());
+//            GRAPHICS_ASSERT(SUCCEEDED(hr), errorMessage.c_str());
+//        }
+//
+//        FAILED_CHECK_MESSAGE(hr, L"D3DCompileFromFile Failed");
+//    }
+//}
+//
+//void ParticleManager::InitializeParticleComputeRootSignature()
+//{
+//    // initialize sprite root signature;
+//    {
+//
+//        std::vector<D3D12_ROOT_PARAMETER> rootParameters;
+//        rootParameters.resize(4);
+//
+//        rootParameters[0].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
+//        rootParameters[0].Descriptor.ShaderRegister = 0; // b0
+//        rootParameters[0].Descriptor.RegisterSpace  = 0;
+//        rootParameters[0].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
+//
+//        // SRV (t0)
+//        rootParameters[1].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_SRV;
+//        rootParameters[1].Descriptor.ShaderRegister = 0; // t0
+//        rootParameters[1].Descriptor.RegisterSpace  = 0;
+//        rootParameters[1].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
+//
+//        // SRV (t1)
+//        rootParameters[2].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_SRV;
+//        rootParameters[2].Descriptor.ShaderRegister = 1; // t1
+//        rootParameters[2].Descriptor.RegisterSpace  = 0;
+//        rootParameters[2].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
+//
+//        // UAV (u0)
+//        rootParameters[3].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_UAV;
+//        rootParameters[3].Descriptor.ShaderRegister = 0; // u0
+//        rootParameters[3].Descriptor.RegisterSpace  = 0;
+//        rootParameters[3].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
+//
+//        D3D12_ROOT_SIGNATURE_DESC rootSignDesc;
+//        rootSignDesc.NumParameters     = (UINT)rootParameters.size();
+//        rootSignDesc.pParameters       = rootParameters.data();
+//        rootSignDesc.Flags             = D3D12_ROOT_SIGNATURE_FLAG_NONE;
+//        rootSignDesc.NumStaticSamplers = 0;
+//        rootSignDesc.pStaticSamplers   = nullptr;
+//
+//        ComPtr<ID3DBlob> serializedRootSig;
+//        ComPtr<ID3DBlob> error;
+//        HRESULT          hr = D3D12SerializeRootSignature(&rootSignDesc, D3D_ROOT_SIGNATURE_VERSION_1,
+//                                                          serializedRootSig.GetAddressOf(), error.GetAddressOf());
+//        if (nullptr != error)
+//        {
+//            std::filesystem::path errorMessage = static_cast<const char*>(error->GetBufferPointer());
+//            GRAPHICS_ASSERT(SUCCEEDED(hr), errorMessage.c_str());
+//        }
+//
+//        FAILED_CHECK_MESSAGE(
+//            hr, L"ParticleManager::InitializeParticleComputeRootSignature D3D12SerializeRootSignature Failed");
+//
+//        ComPtr<ID3D12RootSignature> rootSignature;
+//        hr = Global::device->GetDevice()->CreateRootSignature(0, serializedRootSig->GetBufferPointer(),
+//                                                              serializedRootSig->GetBufferSize(),
+//                                                              IID_PPV_ARGS(_computeSpriteRootSignature.GetAddressOf()));
+//        FAILED_CHECK_MESSAGE(hr, L"ParticleManager::InitializeParticleComputeRootSignature CreateRootSignature Failed");
+//    }
+//    // initialize ribbon root signature;
+//    {
+//
+//        std::vector<D3D12_ROOT_PARAMETER> rootParameters;
+//        rootParameters.resize(4);
+//
+//        rootParameters[0].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
+//        rootParameters[0].Descriptor.ShaderRegister = 0; // b0
+//        rootParameters[0].Descriptor.RegisterSpace  = 0;
+//        rootParameters[0].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
+//
+//        // SRV (t0)
+//        rootParameters[1].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_SRV;
+//        rootParameters[1].Descriptor.ShaderRegister = 0; // t0
+//        rootParameters[1].Descriptor.RegisterSpace  = 0;
+//        rootParameters[1].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
+//
+//        // SRV (t1)
+//        rootParameters[2].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_SRV;
+//        rootParameters[2].Descriptor.ShaderRegister = 1; // t1
+//        rootParameters[2].Descriptor.RegisterSpace  = 0;
+//        rootParameters[2].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
+//
+//        // UAV (u0)
+//        rootParameters[3].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_UAV;
+//        rootParameters[3].Descriptor.ShaderRegister = 0; // u0
+//        rootParameters[3].Descriptor.RegisterSpace  = 0;
+//        rootParameters[3].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
+//
+//        D3D12_ROOT_SIGNATURE_DESC rootSignDesc;
+//        rootSignDesc.NumParameters     = (UINT)rootParameters.size();
+//        rootSignDesc.pParameters       = rootParameters.data();
+//        rootSignDesc.Flags             = D3D12_ROOT_SIGNATURE_FLAG_NONE;
+//        rootSignDesc.NumStaticSamplers = 0;
+//        rootSignDesc.pStaticSamplers   = nullptr;
+//
+//        ComPtr<ID3DBlob> serializedRootSig;
+//        ComPtr<ID3DBlob> error;
+//        HRESULT          hr = D3D12SerializeRootSignature(&rootSignDesc, D3D_ROOT_SIGNATURE_VERSION_1,
+//                                                          serializedRootSig.GetAddressOf(), error.GetAddressOf());
+//        if (nullptr != error)
+//        {
+//            std::filesystem::path errorMessage = static_cast<const char*>(error->GetBufferPointer());
+//            GRAPHICS_ASSERT(SUCCEEDED(hr), errorMessage.c_str());
+//        }
+//
+//        FAILED_CHECK_MESSAGE(hr, L"");
+//
+//        ComPtr<ID3D12RootSignature> rootSignature;
+//        hr = Global::device->GetDevice()->CreateRootSignature(0, serializedRootSig->GetBufferPointer(),
+//                                                              serializedRootSig->GetBufferSize(),
+//                                                              IID_PPV_ARGS(_computeRibbonRootSignature.GetAddressOf()));
+//        FAILED_CHECK_MESSAGE(hr, L"");
+//    }
+//}
 
-    HRESULT          hr = S_OK;
-    ComPtr<ID3DBlob> error;
-    // non-axial billboard sprite particle compute shader
-    {
-
-        UINT flags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_ENABLE_UNBOUNDED_DESCRIPTOR_TABLES |
-                     D3DCOMPILE_PACK_MATRIX_COLUMN_MAJOR;
-
-#ifdef _DEBUG
-        flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
-#endif
-
-        hr = D3DCompileFromFile(L"../Shaders/cs_compute_sprite.hlsl", // HLSL 파일 경로
-                                nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
-                                "cs_main", // 셰이더 진입점
-                                "cs_5_1",  // 셰이더 모델
-                                D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 0,
-                                _computeSpriteShaderBlob.GetAddressOf(), error.GetAddressOf());
-
-        if (nullptr != error)
-        {
-
-            std::filesystem::path errorMessage = static_cast<const char*>(error->GetBufferPointer());
-            GRAPHICS_ASSERT(SUCCEEDED(hr), errorMessage.c_str());
-        }
-
-        FAILED_CHECK_MESSAGE(hr, L"D3DCompileFromFile Failed");
-    }
-    // ribbon sprite particle compute shader
-    {
-
-        UINT flags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_ENABLE_UNBOUNDED_DESCRIPTOR_TABLES |
-                     D3DCOMPILE_PACK_MATRIX_COLUMN_MAJOR;
-
-#ifdef _DEBUG
-        flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
-#endif
-
-        hr = D3DCompileFromFile(L"../Shaders/cs_compute_ribbon.hlsl", // HLSL 파일 경로
-                                nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE,
-                                "cs_main", // 셰이더 진입점
-                                "cs_5_1",  // 셰이더 모델
-                                D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 0,
-                                _computeRibbonShaderBlob.GetAddressOf(), error.GetAddressOf());
-
-        if (nullptr != error)
-        {
-            std::filesystem::path errorMessage = static_cast<const char*>(error->GetBufferPointer());
-            GRAPHICS_ASSERT(SUCCEEDED(hr), errorMessage.c_str());
-        }
-
-        FAILED_CHECK_MESSAGE(hr, L"D3DCompileFromFile Failed");
-    }
-}
-void ParticleManager::InitializeParticleComputeRootSignature()
-{
-    // initialize sprite root signature;
-    {
-
-        std::vector<D3D12_ROOT_PARAMETER> rootParameters;
-        rootParameters.resize(4);
-
-        rootParameters[0].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
-        rootParameters[0].Descriptor.ShaderRegister = 0; // b0
-        rootParameters[0].Descriptor.RegisterSpace  = 0;
-        rootParameters[0].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
-
-        // SRV (t0)
-        rootParameters[1].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_SRV;
-        rootParameters[1].Descriptor.ShaderRegister = 0; // t0
-        rootParameters[1].Descriptor.RegisterSpace  = 0;
-        rootParameters[1].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
-
-        // SRV (t1)
-        rootParameters[2].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_SRV;
-        rootParameters[2].Descriptor.ShaderRegister = 1; // t1
-        rootParameters[2].Descriptor.RegisterSpace  = 0;
-        rootParameters[2].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
-
-        // UAV (u0)
-        rootParameters[3].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_UAV;
-        rootParameters[3].Descriptor.ShaderRegister = 0; // u0
-        rootParameters[3].Descriptor.RegisterSpace  = 0;
-        rootParameters[3].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
-
-        D3D12_ROOT_SIGNATURE_DESC rootSignDesc;
-        rootSignDesc.NumParameters     = (UINT)rootParameters.size();
-        rootSignDesc.pParameters       = rootParameters.data();
-        rootSignDesc.Flags             = D3D12_ROOT_SIGNATURE_FLAG_NONE;
-        rootSignDesc.NumStaticSamplers = 0;
-        rootSignDesc.pStaticSamplers   = nullptr;
-
-        ComPtr<ID3DBlob> serializedRootSig;
-        ComPtr<ID3DBlob> error;
-        HRESULT          hr = D3D12SerializeRootSignature(&rootSignDesc, D3D_ROOT_SIGNATURE_VERSION_1,
-                                                          serializedRootSig.GetAddressOf(), error.GetAddressOf());
-        if (nullptr != error)
-        {
-            std::filesystem::path errorMessage = static_cast<const char*>(error->GetBufferPointer());
-            GRAPHICS_ASSERT(SUCCEEDED(hr), errorMessage.c_str());
-        }
-
-        FAILED_CHECK_MESSAGE(
-            hr, L"ParticleManager::InitializeParticleComputeRootSignature D3D12SerializeRootSignature Failed");
-
-        ComPtr<ID3D12RootSignature> rootSignature;
-        hr = Global::device->GetDevice()->CreateRootSignature(0, serializedRootSig->GetBufferPointer(),
-                                                              serializedRootSig->GetBufferSize(),
-                                                              IID_PPV_ARGS(_computeSpriteRootSignature.GetAddressOf()));
-        FAILED_CHECK_MESSAGE(hr, L"ParticleManager::InitializeParticleComputeRootSignature CreateRootSignature Failed");
-    }
-    // initialize ribbon root signature;
-    {
-
-        std::vector<D3D12_ROOT_PARAMETER> rootParameters;
-        rootParameters.resize(4);
-
-        rootParameters[0].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
-        rootParameters[0].Descriptor.ShaderRegister = 0; // b0
-        rootParameters[0].Descriptor.RegisterSpace  = 0;
-        rootParameters[0].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
-
-        // SRV (t0)
-        rootParameters[1].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_SRV;
-        rootParameters[1].Descriptor.ShaderRegister = 0; // t0
-        rootParameters[1].Descriptor.RegisterSpace  = 0;
-        rootParameters[1].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
-
-        // SRV (t1)
-        rootParameters[2].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_SRV;
-        rootParameters[2].Descriptor.ShaderRegister = 1; // t1
-        rootParameters[2].Descriptor.RegisterSpace  = 0;
-        rootParameters[2].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
-
-        // UAV (u0)
-        rootParameters[3].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_UAV;
-        rootParameters[3].Descriptor.ShaderRegister = 0; // u0
-        rootParameters[3].Descriptor.RegisterSpace  = 0;
-        rootParameters[3].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
-
-        D3D12_ROOT_SIGNATURE_DESC rootSignDesc;
-        rootSignDesc.NumParameters     = (UINT)rootParameters.size();
-        rootSignDesc.pParameters       = rootParameters.data();
-        rootSignDesc.Flags             = D3D12_ROOT_SIGNATURE_FLAG_NONE;
-        rootSignDesc.NumStaticSamplers = 0;
-        rootSignDesc.pStaticSamplers   = nullptr;
-
-        ComPtr<ID3DBlob> serializedRootSig;
-        ComPtr<ID3DBlob> error;
-        HRESULT          hr = D3D12SerializeRootSignature(&rootSignDesc, D3D_ROOT_SIGNATURE_VERSION_1,
-                                                          serializedRootSig.GetAddressOf(), error.GetAddressOf());
-        if (nullptr != error)
-        {
-            std::filesystem::path errorMessage = static_cast<const char*>(error->GetBufferPointer());
-            GRAPHICS_ASSERT(SUCCEEDED(hr), errorMessage.c_str());
-        }
-
-        FAILED_CHECK_MESSAGE(hr, L"");
-
-        ComPtr<ID3D12RootSignature> rootSignature;
-        hr = Global::device->GetDevice()->CreateRootSignature(0, serializedRootSig->GetBufferPointer(),
-                                                              serializedRootSig->GetBufferSize(),
-                                                              IID_PPV_ARGS(_computeRibbonRootSignature.GetAddressOf()));
-        FAILED_CHECK_MESSAGE(hr, L"");
-    }
-}
 void ParticleManager::InitializeParticleComputePSO()
 {
     // initialize sprite pipeline state object
     {
-        D3D12_COMPUTE_PIPELINE_STATE_DESC computePSODesc = {};
+        ComputePipelineStateStream pss;
+        computeSpriteFX.SetPipelineStateStream(pss);
+        _computeSpritePSO = Global::pipelineStateManager->GetPipelineState(pss);
+
+        /*D3D12_COMPUTE_PIPELINE_STATE_DESC computePSODesc = {};
         ZeroMemory(&computePSODesc, sizeof(D3D12_COMPUTE_PIPELINE_STATE_DESC));
         computePSODesc.CS = {_computeSpriteShaderBlob->GetBufferPointer(), _computeSpriteShaderBlob->GetBufferSize()};
         computePSODesc.pRootSignature = _computeSpriteRootSignature.Get();
         HRESULT hr;
         hr = Global::device->GetDevice()->CreateComputePipelineState(&computePSODesc,
                                                                      IID_PPV_ARGS(_computeSpritePSO.GetAddressOf()));
-        FAILED_CHECK_MESSAGE(hr, L"");
+        FAILED_CHECK_MESSAGE(hr, L"");*/
     }
     // initialize ribbon pipeline state object
     {
-        D3D12_COMPUTE_PIPELINE_STATE_DESC computePSODesc = {};
+        ComputePipelineStateStream pss;
+        computeRibbonFX.SetPipelineStateStream(pss);
+        _computeRibbonPSO = Global::pipelineStateManager->GetPipelineState(pss);
+
+        /*D3D12_COMPUTE_PIPELINE_STATE_DESC computePSODesc = {};
         ZeroMemory(&computePSODesc, sizeof(D3D12_COMPUTE_PIPELINE_STATE_DESC));
         computePSODesc.CS = {_computeRibbonShaderBlob->GetBufferPointer(), _computeRibbonShaderBlob->GetBufferSize()};
         computePSODesc.pRootSignature = _computeRibbonRootSignature.Get();
@@ -686,7 +699,7 @@ void ParticleManager::InitializeParticleComputePSO()
         HRESULT hr;
         hr = Global::device->GetDevice()->CreateComputePipelineState(&computePSODesc,
                                                                      IID_PPV_ARGS(_computeRibbonPSO.GetAddressOf()));
-        FAILED_CHECK_MESSAGE(hr, L"");
+        FAILED_CHECK_MESSAGE(hr, L"");*/
     }
 }
 void ParticleManager::InitializeDescriptorHeap()
@@ -921,16 +934,11 @@ void ParticleManager::DispatchSprite(float deltaTime, std::string sceneName)
                                                  D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
         scene._commandList->ResourceBarrier(1, &computeOutputBarrior);
 
-        scene._commandList->SetComputeRootSignature(_computeSpriteRootSignature.Get());
 
-        scene._commandList->SetComputeRootConstantBufferView(
-            0, scene._renderResource->_mvpConstant->GetGPUVirtualAddress());
-        scene._commandList->SetComputeRootShaderResourceView(
-            1, scene._updateResource->_particleInput->GetGPUVirtualAddress());
-        scene._commandList->SetComputeRootShaderResourceView(
-            2, scene._updateResource->_emitterInfo->GetGPUVirtualAddress());
-        scene._commandList->SetComputeRootUnorderedAccessView(
-            3, scene._renderResource->_simulationOutput->GetGPUVirtualAddress());
+        scene._commandList->SetComputeRootConstantBufferView(computeSpriteFX.GetRootParameterIndex("mvp"), scene._renderResource->_mvpConstant->GetGPUVirtualAddress());
+        scene._commandList->SetComputeRootShaderResourceView(computeSpriteFX.GetRootParameterIndex("ParticleInputBuffer"), scene._updateResource->_particleInput->GetGPUVirtualAddress());
+        scene._commandList->SetComputeRootShaderResourceView(computeSpriteFX.GetRootParameterIndex("EmitterInfoBuffer"), scene._updateResource->_emitterInfo->GetGPUVirtualAddress());
+        scene._commandList->SetComputeRootUnorderedAccessView(computeSpriteFX.GetRootParameterIndex("ParticleOutputBuffer"), scene._renderResource->_simulationOutput->GetGPUVirtualAddress());
 
         // 6. 디스패치
         UINT numThreadGroups =
@@ -952,20 +960,14 @@ void ParticleManager::DispatchRibbon(float deltaTime, std::string sceneName)
         if (0 >= scene._updateResource->_ribbonTotalCount)
             return;
         CD3DX12_RESOURCE_BARRIER computeOutputBarrior =
-            CD3DX12_RESOURCE_BARRIER::Transition(scene._renderResource->_ribbonSimulationOutput.Get(),
-                                                 D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+            CD3DX12_RESOURCE_BARRIER::Transition(scene._renderResource->_ribbonSimulationOutput.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+        
         scene._commandList->ResourceBarrier(1, &computeOutputBarrior);
 
-        scene._commandList->SetComputeRootSignature(_computeSpriteRootSignature.Get());
-
-        scene._commandList->SetComputeRootConstantBufferView(
-            0, scene._renderResource->_mvpConstant->GetGPUVirtualAddress());
-        scene._commandList->SetComputeRootShaderResourceView(
-            1, scene._updateResource->_ribbonParticleInput->GetGPUVirtualAddress());
-        scene._commandList->SetComputeRootShaderResourceView(
-            2, scene._updateResource->_ribbonEmitterInfo->GetGPUVirtualAddress());
-        scene._commandList->SetComputeRootUnorderedAccessView(
-            3, scene._renderResource->_ribbonSimulationOutput->GetGPUVirtualAddress());
+        scene._commandList->SetComputeRootConstantBufferView(computeRibbonFX.GetRootParameterIndex("mvp"), scene._renderResource->_mvpConstant->GetGPUVirtualAddress());
+        scene._commandList->SetComputeRootShaderResourceView(computeRibbonFX.GetRootParameterIndex("ParticleInputBuffer"), scene._updateResource->_ribbonParticleInput->GetGPUVirtualAddress());
+        scene._commandList->SetComputeRootShaderResourceView(computeRibbonFX.GetRootParameterIndex("EmitterInfoBuffer"), scene._updateResource->_ribbonEmitterInfo->GetGPUVirtualAddress());
+        scene._commandList->SetComputeRootUnorderedAccessView(computeRibbonFX.GetRootParameterIndex("ParticleOutputBuffer"), scene._renderResource->_ribbonSimulationOutput->GetGPUVirtualAddress());
 
         // 6. 디스패치
         UINT numThreadGroups = static_cast<UINT>((scene._updateResource->_ribbonTotalParticles.size() + 31) /

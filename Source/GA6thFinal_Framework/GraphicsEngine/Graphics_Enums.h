@@ -14,7 +14,7 @@ enum MeshType { STATIC_MESH, SKELETAL_MESH, MESH_TYPE_END };
 
 enum SpriteType { MODE_3D, MODE_25D, MODE_2D, SPRITE_TYPE_END };
 
-enum UIMaterialType { LINEAR_FILL = 1 };
+enum UIMaterialType { DEFAULT, LINEAR_FILL };
 
 enum PostProcess
 {
@@ -38,6 +38,7 @@ enum RenderTechniqueFlag : unsigned long long
     VOLUMETRIC_FOG_TECH   = 1 << 10,
     SCENE_TRANSITION_TECH = 1 << 11,
     SSGI_TECH             = 1 << 12,
+    FXAA_TECH             = 1 << 13,
 };
 
 inline RenderTechniqueFlag operator|(RenderTechniqueFlag lhs, RenderTechniqueFlag rhs)

@@ -268,8 +268,7 @@ Texture* RibbonModule::GetAlbedoTexture() const
      
      if (nullptr != _light)
      {
-         _light->SetDestroy();
-         delete _light;
+         _light->Release();
          _light = nullptr;
      }
 
@@ -550,9 +549,9 @@ void ParticleEmitter::InitializeLocator(LocationShape locatorShape , Vector3 fac
         break;
 
     }
+
     _emitLocator->SetFactor(factor);
     _emitLocator->RandomInitialize();
-
 }
 
 void ParticleEmitter::AwakeParticle(UINT index) 
@@ -639,9 +638,6 @@ void ParticleEmitter::ScaleVelFromPoint(Vector3 pos)
 
 void ParticleEmitter::ScaleVelInCone(Vector3 pos) 
 {
-
-
-
 }
 
 void ParticleEmitter::InitializeLight(std::string_view scenenName) 
@@ -664,8 +660,5 @@ void ParticleEmitter::SetLightFlag(bool value)
         _light->SetActive(&_activeFlag);
     else if (_light)
         _light->SetActive(&_useLight);
-
-
-
 }
 
