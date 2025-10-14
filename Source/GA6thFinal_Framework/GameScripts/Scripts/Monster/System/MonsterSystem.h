@@ -30,14 +30,14 @@ public:
     /// </summary>
     /// <param name="id">검색할 몬스터 데이터의 ID입니다.</param>
     /// <returns>ID에 해당하는 Monster::DataContext 객체에 대한 포인터를 반환합니다. 해당 ID가 없으면 nullptr을 반환할 수 있습니다.</returns>
-    const Monster::DataContext*     GetDataContextFromID(Monster::DataID id);
+    const Monster::DataContext* GetDataContextFromID(Monster::DataID id);
 
     /// <summary>
     /// 주어진 액션 ID에 해당하는 Monster::ActionContext 포인터를 반환합니다.
     /// </summary>
     /// <param name="id">검색할 Monster::ActionID 값입니다.</param>
     /// <returns>해당 ID에 연결된 Monster::ActionContext 객체의 포인터를 반환합니다. 해당 ID가 없으면 nullptr을 반환할 수 있습니다.</returns>
-    const Monster::ActionContext*   GetActionContextFromID(Monster::ActionID id);
+    const Monster::ActionContext* GetActionContextFromID(Monster::ActionID id);
 
     /// <summary>
     /// 주어진 스테이지 ID를 통해 해당 스테이지 정보에 맞는 몬스터를 소환합니다.
@@ -54,8 +54,14 @@ public:
     /// <returns>몬스터 스폰이 성공하면 true, 실패하면 false를 반환합니다.</returns>
     bool SpawnMonsterFromDataContext(const Monster::DataContext* context, size_t index);
 
+    /// <summary>
+    /// 생성된 적을 모두 제거합니다.
+    /// </summary>
+    void ClearSpawnedEnemies();
 private:
     void Clear();
+
+    void FindSpawnPoints();
     void LoadFromExcelData();
 
     const std::vector<Monster::StageContext>* GetStageContextFromStageID(int stageID);
@@ -67,8 +73,8 @@ private:
 private:
     SingletonComponent<MonsterSystem> _singletonComponent = {this};
 
-    std::array<const GameObject*, Monster::MAX_ENEMY_COUNT>         _enemySpawnPoints = { nullptr, nullptr, nullptr };
-    std::array<Enemy*, Monster::MAX_ENEMY_COUNT>                    _spawnedEnemies   = { nullptr, nullptr, nullptr };
+    std::array<std::weak_ptr<GameObject>, Monster::MAX_ENEMY_COUNT> _enemySpawnPoints;
+    std::array<std::weak_ptr<Enemy>, Monster::MAX_ENEMY_COUNT>      _spawnedEnemies;
 
     std::unordered_map<Monster::DataID, Monster::DataContext>       _dataContextTable;
     std::unordered_map<Monster::ActionID, Monster::ActionContext>   _actionContextTable;

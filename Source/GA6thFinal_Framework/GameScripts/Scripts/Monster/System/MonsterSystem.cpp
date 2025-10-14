@@ -11,6 +11,7 @@ void MonsterSystem::Awake()
 {
     if (_singletonComponent.TrySingleTon())
     {
+        FindSpawnPoints();
         LoadFromExcelData();
     }
 }
@@ -48,9 +49,6 @@ bool MonsterSystem::SpawnMonsterFromStageID(int stageID)
 
         for (size_t i = 0; i < Monster::MAX_ENEMY_COUNT; ++i)
         {
-            // [assert] 해당 인덱스의 적 스폰 포인트가 존재하지 않습니다.
-            assert(_enemySpawnPoints[i] != nullptr);
-
             if (stageEnemiesData.size() > i)
             {
                 const Monster::StageContext& enemyData = stageEnemiesData[i];
@@ -70,9 +68,13 @@ bool MonsterSystem::SpawnMonsterFromDataContext(const Monster::DataContext* cont
     {
         if (index < Monster::MAX_ENEMY_COUNT)
         {
-            if (_enemySpawnPoints[index])
+            // [assert] 해당 인덱스의 적 스폰 포인트가 존재하지 않습니다.
+            assert(_enemySpawnPoints[index].expired() == false);
+            GameObject* spawnPoint = _enemySpawnPoints[index].lock().get();
+            assert(spawnPoint);
+            if (spawnPoint)
             {
-                const Transform&  transform     = _enemySpawnPoints[index]->transform;
+                const Transform&  transform     = spawnPoint->transform;
                 const Vector3     worldPosition = transform.WorldPosition;
                 const Vector3     eulerAngles   = transform.EulerAngle;
                 const File::Guid& prefabGuid    = UmFileSystem.GetGuidFromAssetID(context->PrefabID);
@@ -84,11 +86,13 @@ bool MonsterSystem::SpawnMonsterFromDataContext(const Monster::DataContext* cont
                 GameObject* clone = sharedPtrObject.get();
                 if (clone)
                 {
-                    if (Enemy* enemy = clone->GetComponent<Enemy>())
+                    Enemy* enemy = clone->GetComponent<Enemy>();
+                    assert(enemy); // [assert] 프리팹에 Enemy 컴포넌트가 존재해야합니다.
+                    if (enemy)
                     {
                         clone->transform->WorldPosition = worldPosition;
                         clone->transform->EulerAngle    = eulerAngles;
-                        _spawnedEnemies[index]          = enemy;
+                        _spawnedEnemies[index]          = std::static_pointer_cast<Enemy>(enemy->GetWeakPtr().lock());
                         return true;
                     }
                 }
@@ -100,14 +104,37 @@ bool MonsterSystem::SpawnMonsterFromDataContext(const Monster::DataContext* cont
 
 void MonsterSystem::Clear()
 {
+    ClearSpawnedEnemies();
     for (size_t i = 0; i < Monster::MAX_ENEMY_COUNT; ++i)
     {
-        _enemySpawnPoints[i] = nullptr;
-        _spawnedEnemies[i]   = nullptr;
+        _spawnedEnemies[i].reset();
     }
     _dataContextTable.clear();
     _actionContextTable.clear();
     _stageContextTable.clear();
+}
+
+void MonsterSystem::ClearSpawnedEnemies()
+{
+    for (size_t i = 0; i < Monster::MAX_ENEMY_COUNT; ++i)
+    {
+        if (auto enemy = _spawnedEnemies[i].lock())
+        {
+            GameObject& object = enemy->gameObject;
+            GameObject::Destroy(object);
+            _spawnedEnemies[i].reset();
+        }
+    }
+}
+
+void MonsterSystem::FindSpawnPoints() 
+{
+    for (size_t i = 0; i < Monster::MAX_ENEMY_COUNT; ++i)
+    {
+        const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(Monster::SPAWN_POINT_TAGS[i]);
+        assert(weakGameObject.expired() == false); // [assert] 해당 태그의 스폰 포인트가 유효해야합니다.
+        _enemySpawnPoints[i] = weakGameObject;
+    }
 }
 
 void MonsterSystem::LoadFromExcelData()
@@ -128,7 +155,9 @@ void MonsterSystem::LoadDataContextFromExcelData(ExcelDataSystem* dataSystem)
 {
     if (dataSystem)
     {
-        if (std::unique_ptr<ExcelDataBase> dataBase = dataSystem->FindExcelDataBase(ExcelDataKey::SHEET_NAME))
+        std::unique_ptr<ExcelDataBase> dataBase = dataSystem->FindExcelDataBase(ExcelDataKey::SHEET_NAME);
+        assert(dataBase); // [assert] 엑셀 데이터 시스템에 해당 시트가 존재해야합니다.
+        if (dataBase)
         {
             const size_t rowCount = dataBase->RowCount();
             for (size_t rowIndex = 0; rowIndex < rowCount; ++rowIndex)
@@ -182,7 +211,9 @@ void MonsterSystem::LoadActionContextFromExcelData(ExcelDataSystem* dataSystem)
 {
     if (dataSystem)
     {
-        if (std::unique_ptr<ExcelDataBase> dataBase = dataSystem->FindExcelDataBase(ExcelActionKey::SHEET_NAME))
+        std::unique_ptr<ExcelDataBase> dataBase = dataSystem->FindExcelDataBase(ExcelActionKey::SHEET_NAME);
+        assert(dataBase); // [assert] 엑셀 데이터 시스템에 해당 시트가 존재해야합니다.
+        if (dataBase)
         {
             const size_t rowCount = dataBase->RowCount();
             for (size_t rowIndex = 0; rowIndex < rowCount; ++rowIndex)
@@ -232,7 +263,9 @@ void MonsterSystem::LoadStageContextFromExcelData(ExcelDataSystem* dataSystem)
 {
     if (dataSystem)
     {
-        if (std::unique_ptr<ExcelDataBase> dataBase = dataSystem->FindExcelDataBase(ExcelStageKey::SHEET_NAME))
+        std::unique_ptr<ExcelDataBase> dataBase = dataSystem->FindExcelDataBase(ExcelStageKey::SHEET_NAME);
+        assert(dataBase); // [assert] 엑셀 데이터 시스템에 해당 시트가 존재해야합니다.
+        if (dataBase)
         {
             const size_t rowCount = dataBase->RowCount();
             for (size_t rowIndex = 0; rowIndex < rowCount; ++rowIndex)

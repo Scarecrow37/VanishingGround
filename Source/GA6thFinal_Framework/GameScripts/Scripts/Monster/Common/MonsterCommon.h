@@ -6,6 +6,11 @@ namespace Monster
     constexpr size_t MAX_FSM_COUNT   = 3;
     constexpr size_t MAX_SKILL_COUNT = 5;
     
+    constexpr const std::array<const char*, MAX_ENEMY_COUNT> SPAWN_POINT_TAGS = {
+        "Enemy Spawn Point Left",
+        "Enemy Spawn Point Middle",
+        "Enemy Spawn Point Right"};
+
     namespace ExcelData
     {
         namespace Key
