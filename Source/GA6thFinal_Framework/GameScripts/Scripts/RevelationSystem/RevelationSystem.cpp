@@ -670,8 +670,14 @@ void RevelationSystem::ImGuiDrawPropertysEvent()
                                     // 잘못된 데이터는 알림 팝업
                                     RevelationElement& element = _elementsTable[name];
                                     _imguiEvent.DirtyRevelationElementQueue.push(&element);
+                                }                               
+                                if (auto [iter, insertResult] = validTargets.insert(name); false == insertResult)
+                                {           
+                                    std::string message = "\"";
+                                    message += name;
+                                    message += (const char*)u8"\" 는 중복된 계시 이름입니다.";
+                                    UmLogger.Log(LogLevel::LEVEL_WARNING, message);
                                 }
-                                validTargets.insert(name);
                             }
                         }     
                         

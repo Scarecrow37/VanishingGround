@@ -282,25 +282,36 @@ void WeaponTableComponent::ImGuiDrawPropertysEvent()
                                 // 없으면 새로 생성
                                 InsertWeapon(temp);
                             }
-                            else if (findID)
-                            {
-                                //아이디 같으면 이름 및 스텟 복사
-                                WeaponElement* weapon = *findIDIter;
-                                weapon->Stats = temp.Stats;
-                                RenameWeapon(*weapon, temp.Stats.WeaponName);
-                            }
                             else if (findName)
                             {
                                 // 이미 있으면 스텟만 복사
                                 findWeaponIter->second.Stats = temp.Stats;
+                            }
+                            else if (findID)
+                            {
+                                //아이디 같으면 이름 및 스텟 복사
+                                WeaponElement* weapon     = *findIDIter;
+                                std::string    originName = weapon->Stats.WeaponName;
+                                std::string    tempName   = temp.Stats.WeaponName;
+                                weapon->Stats             = temp.Stats;
+                                if (originName != tempName)
+                                {
+                                    RenameWeapon(*weapon, tempName);
+                                }                              
                             }
                             if (false == result)
                             {
                                 // 잘못된 데이터는 알림 팝업
                                 WeaponElement& element = _weaponTable[name];
                                 _imguiEvent.DirtyWeaponElementQueue.push(&element);
+                            }                       
+                            if (auto [iter, insertResult] = vaildTargets.insert(name); false == insertResult)
+                            {
+                                std::string message = "\"";
+                                message += name;
+                                message += (const char*)u8"\" 는 중복된 무기 이름입니다.";
+                                UmLogger.Log(LogLevel::LEVEL_WARNING, message);
                             }
-                            vaildTargets.insert(name);
                         }
                     }               
                     
