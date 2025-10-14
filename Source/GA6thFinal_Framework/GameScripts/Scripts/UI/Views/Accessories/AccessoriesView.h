@@ -9,12 +9,23 @@ class AccessoriesView : public Component
 
 public:
     inline static constexpr const char* VIEW_KEY = "Accessories View";
+    struct UI
+    {
+        ImageElement* Icon  = nullptr;
+        ImageElement* Frame = nullptr;
+    };
 
     AccessoriesView();
     ~AccessoriesView() override;
 
 public:
     REFLECT_PROPERTY()
+
+    GETTER_ONLY(GridPanel*, AccessoriesGridPanel) { return _accessoriesGridPanel; }
+    PROPERTY(AccessoriesGridPanel)
+
+    GETTER_ONLY(const std::vector<AccessoriesView::UI>&, UIElements) { return _uiElements; }
+    PROPERTY(UIElements)
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
@@ -26,16 +37,11 @@ protected:
     void OnDestroy() override;
 
 private:
-    void FindChildEnements();
+    void FindChildElements();
     void Watch();
     void Blind();
 
     GridPanel* _accessoriesGridPanel;
-    struct UI
-    {
-        ImageElement* Icon = nullptr;
-        ImageElement* Frame = nullptr;
-    };
     std::vector<UI> _uiElements;
 
     AccessoriesViewModel::Handle _handle;

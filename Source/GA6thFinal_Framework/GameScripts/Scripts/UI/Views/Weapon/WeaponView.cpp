@@ -12,9 +12,9 @@ WeaponView::WeaponView()
     : 
     _singletonComponent(this)
 {
-    _descriptionUI = nullptr;
-    _iconUI = nullptr;
-    _nameUI        = nullptr;
+    _descriptionUI  = nullptr;
+    _iconUI         = nullptr;
+    _nameUI         = nullptr;
 }
 
 WeaponView::~WeaponView()

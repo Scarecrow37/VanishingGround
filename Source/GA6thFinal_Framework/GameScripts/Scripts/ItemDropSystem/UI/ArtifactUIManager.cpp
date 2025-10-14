@@ -7,8 +7,12 @@
 #include "ViewModels/ItemDrop/DropArtifacts/DropArtifactsViewModel.h"
 #include "ItemDropSystem/UINavi/ArtifactButtonNavi.h"
 
-
 UMREAL_COMPONENT(ArtifactUIManager)
+
+File::Guid ArtifactUIManager::GetObtainFrameGuid()
+{
+    return UmFileSystem.GetGuidFromAssetID(460009); //일단 하드코딩...
+} 
 
 ArtifactUIManager::ArtifactUIManager()
 {
@@ -54,12 +58,6 @@ void ArtifactUIManager::Start()
         if (ItemDropSystem* system = SingletonComponent<ItemDropSystem>::GetInstance())
         {
             system->NotifyUIModel();
-        }
-
-        //Focus Image는 다 비활성화.
-        for (auto& focusImage : _focusImageElements)
-        {
-            focusImage->Enable = false;
         }
     }
 }
@@ -133,6 +131,7 @@ void ArtifactUIManager::FindImageElements()
     _iconElements.clear();
     _categoryImageElements.clear();
     _focusImageElements.clear();
+    _focusNaviElements.clear();
     Transform::ForeachDFS(transform, [this](Transform* curr) 
     {
         GameObject& gameObject = curr->gameObject;
@@ -165,6 +164,7 @@ void ArtifactUIManager::FindImageElements()
             }
             if (ArtifactButtonNavi* navi = gameObject.GetComponent<ArtifactButtonNavi>())
             {
+                navi->_buttonIndex = _focusNaviElements.size();              
                 _focusNaviElements.push_back(navi);
             }
         }
@@ -243,6 +243,39 @@ void ArtifactUIManager::ImageUIUnlock()
                 element->Enable = false;
             }       
         }
+        for (int i = 0; i < _focusNaviElements.size(); ++i)
+        {
+            ArtifactButtonNavi* navi = _focusNaviElements[i];
+            if (endIndex < i)
+            {
+                navi->Enable = false;
+            }
+            else
+            {
+                if (ItemDropSystem* dropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
+                {
+                    if (false == dropSystem->IsObtainArtifact(i))
+                    {
+                        navi->Enable = true;
+                    }
+                    else
+                    {
+                        navi->Enable = false;
+                    }
+                }
+            }       
+        }
+        for (size_t i = 0; i < _frameImageElements.size(); ++i)
+        {
+            ImageElement* frameImage = _frameImageElements[i];
+            if (ItemDropSystem* dropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
+            {
+                if (dropSystem->IsObtainArtifact(i))
+                {
+                    frameImage->SetImage(GetObtainFrameGuid());
+                }
+            }
+        }
     }
 }
 
@@ -250,14 +283,54 @@ bool ArtifactUIManager::FocusNavi(size_t index)
 {
     if (index < _focusNaviElements.size())
     {
-        ArtifactButtonNavi* navi = _focusNaviElements[index];
-        if (navi->Enable)
+        if (ItemDropSystem* system = SingletonComponent<ItemDropSystem>::GetInstance())
         {
-            navi->Focus();
-            return true;
+            ArtifactButtonNavi* navi = _focusNaviElements[index];
+            if (navi->Enable)
+            {
+                navi->Focus();
+                return true;
+            }
         }
     }
     return false;
+}
+
+void ArtifactUIManager::ObtainFocusNavi(size_t index) 
+{
+    if (index < _focusNaviElements.size())
+    {
+        ArtifactButtonNavi* navi = _focusNaviElements[index];
+        navi->Enable             = false;
+        
+        if (index < _frameImageElements.size())
+        {
+            ImageElement* frameImage = _frameImageElements[index];
+            frameImage->SetImage(GetObtainFrameGuid());
+        }
+
+        if (ArtifactButtonNavi::GetLastFocusIndex() == index)
+        {
+            if (ItemDropUIRootManager* manager = SingletonComponent<ItemDropUIRootManager>::GetInstance())
+            {
+                manager->AutoFocus(false);
+            }
+        }
+
+        if (ItemDropSystem* dropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
+        {
+            dropSystem->SetObtainArtifact(index);
+        }
+    }
+}
+
+void ArtifactUIManager::SetNaviDropItemInfo(const DropItemInfo& info, size_t index) 
+{
+    if (index < _focusNaviElements.size())
+    {
+        ArtifactButtonNavi* navi = _focusNaviElements[index];
+        navi->SettingItem(info);
+    }
 }
 
 void ArtifactUIManager::UpdateImageElements(const std::vector<DropItemInfo>& dropItemsInfo) 
