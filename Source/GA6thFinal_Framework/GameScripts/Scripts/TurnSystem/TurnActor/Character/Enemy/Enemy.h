@@ -3,6 +3,11 @@
 #include "Enum/EnemyEnum.h"
 #include "AI/EnemyAI.h"
 
+#include "Monster/AI/MonsterAI.h"
+#include "Monster/Context/MonsterDataContext.h"
+#include "Monster/Context/MonsterActionContext.h"
+#include "Monster/Context/MonsterStageContext.h"
+
 class ParticleComponent;
 class EnemyStatsComponent;
 class FSMState;
@@ -38,8 +43,14 @@ public:
     virtual int GetSpeed() override;
     virtual void Revive() override;
 
+    void RefreshStateFromContext(const Monster::DataContext* pDataContext, const Monster::StageContext* pStageContext);
+
 private:
     EnemyAI _aiModel;
+    Monster::AIController _aiController;
+    const Monster::DataContext*   _dataContext   = nullptr;
+    const Monster::StageContext*  _stageContext  = nullptr;
+
     EnemyStatsComponent* _enemyStats = nullptr;
     ParticleComponent*   _hitParticle = nullptr; // 피격 이펙트 파티클
 
@@ -64,12 +75,14 @@ public:
     virtual void TakeDamage(int damage, bool playAnim = true) override;
     virtual void TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim = true) override;
 
-    inline EnemyAI&            GetAIModel() { return _aiModel; }
-    inline FiniteStateMachine& GetFSM() { return *_finiteStateMachine; }
-    inline const EnemyStates&  GetFSMStates() { return _fsmStates; }
+    inline EnemyAI&                 GetAIModel() { return _aiModel; }
+    inline Monster::AIController&   GetAIController() { return _aiController; }
+    inline FiniteStateMachine&      GetFSM() { return *_finiteStateMachine; }
+    inline const EnemyStates&       GetFSMStates() { return _fsmStates; }
 
     /*Enemy의 Stats을 반환합니다.*/
     EnemyStatsComponent* GetEnemyStats();
+    CharacterStats* GetCharacterStats() override;
 
 public:
     GameObject* GetMonsterHUD() const { return _monsterHUD; }
@@ -81,9 +94,7 @@ private:
 protected:
     virtual void Awake();
     virtual void Update();
-
     virtual void PlayTurn() override;
-    CharacterStats* GetCharacterStats() override;
 
     void InitParticle();
 

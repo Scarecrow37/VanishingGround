@@ -11,17 +11,7 @@
 
 namespace Monster
 {
-    void AIBuilder::Build() 
-    {
-        AIFactory::RegisterAIBuilder(23000, &BuildAIController23000);
-        AIFactory::RegisterAIBuilder(23001, &BuildAIController23001);
-        AIFactory::RegisterAIBuilder(23010, &BuildAIController23010);
-        AIFactory::RegisterAIBuilder(23011, &BuildAIController23011);
-        AIFactory::RegisterAIBuilder(23020, &BuildAIController23020);
-        AIFactory::RegisterAIBuilder(23021, &BuildAIController23021);
-        AIFactory::RegisterAIBuilder(23022, &BuildAIController23022);
-    }
-    void AIBuilder::BuildAIController23000(std::weak_ptr<Enemy> owner, AIController& controller) 
+    void BuildAIController23000(std::weak_ptr<Enemy> owner, AIController& controller) 
     {
         controller.Clear();
         controller.PushActionNode("#1", "#2", 210200);  // Action 210200
@@ -44,7 +34,7 @@ namespace Monster
         // Entry 노드 설정
         controller.SetCurrentNode("#1");
     }
-    void AIBuilder::BuildAIController23001(std::weak_ptr<Enemy> owner, AIController& controller) 
+    void BuildAIController23001(std::weak_ptr<Enemy> owner, AIController& controller) 
     {
         controller.Clear();
         controller.PushActionNode("#1", "#2", 210204);                              // Action 210204
@@ -54,7 +44,7 @@ namespace Monster
         // Entry 노드 설정
         controller.SetCurrentNode("#1");
     }
-    void AIBuilder::BuildAIController23010(std::weak_ptr<Enemy> owner, AIController& controller) 
+    void BuildAIController23010(std::weak_ptr<Enemy> owner, AIController& controller) 
     {
         controller.Clear();
         controller.PushActionNode("#1", "#2", {{50.0f, 210210}, {50.0f, 210211}});                  // Action 210210, 210211
@@ -65,7 +55,7 @@ namespace Monster
         // Entry 노드 설정
         controller.SetCurrentNode("#1");
     }
-    void AIBuilder::BuildAIController23011(std::weak_ptr<Enemy> owner, AIController& controller) 
+    void BuildAIController23011(std::weak_ptr<Enemy> owner, AIController& controller) 
     {
         controller.Clear();
         controller.PushActionNode("#1", "#2", 210214);                                              // Action 210214
@@ -75,11 +65,11 @@ namespace Monster
         // Entry 노드 설정
         controller.SetCurrentNode("#1");
     }
-    void AIBuilder::BuildAIController23020(std::weak_ptr<Enemy> owner, AIController& controller) 
+    void BuildAIController23020(std::weak_ptr<Enemy> owner, AIController& controller) 
     {
         controller.Clear();
     }
-    void AIBuilder::BuildAIController23021(std::weak_ptr<Enemy> owner, AIController& controller)
+    void BuildAIController23021(std::weak_ptr<Enemy> owner, AIController& controller)
     {
         controller.Clear();
         controller.PushActionNode("#1", "#2", 210220);
@@ -99,11 +89,25 @@ namespace Monster
         // Entry 노드 설정
         controller.SetCurrentNode("#1");
     }
-    void AIBuilder::BuildAIController23022(std::weak_ptr<Enemy> owner, AIController& controller)
+    void BuildAIController23022(std::weak_ptr<Enemy> owner, AIController& controller)
     {
         controller.Clear();
         controller.PushActionNode("#1", "#2", 210220);
         controller.PushActionNode("#2", "#3", 210221);
         controller.PushActionNode("#3", "#2", 210220);
     }
+
+    #define REGISTER_AI_BUILDER(ID)                                                         \
+    namespace AIBuilder##ID                                                                 \
+    {                                                                                       \
+        static bool registered = AIFactory::RegisterAIBuilder(ID, &BuildAIController##ID);  \
+    }
+
+    REGISTER_AI_BUILDER(23000)
+    REGISTER_AI_BUILDER(23001)
+    REGISTER_AI_BUILDER(23010)
+    REGISTER_AI_BUILDER(23011)
+    REGISTER_AI_BUILDER(23020)
+    REGISTER_AI_BUILDER(23021)
+    REGISTER_AI_BUILDER(23022)
 }

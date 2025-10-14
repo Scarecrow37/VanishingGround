@@ -16,10 +16,10 @@ namespace Monster
         }
     }
 
-    std::vector<DamageParam> ParseDamageParam(const std::string& paramString)
+    std::vector<ActionParam> ParseActionParam(const std::string& paramStr)
     {
-        std::vector<DamageParam> result;
-        std::stringstream        ss(paramString);
+        std::vector<ActionParam> result;
+        std::stringstream        ss(paramStr);
         std::string              token;
 
         while (std::getline(ss, token, ',')) // ','로 구분
@@ -36,12 +36,12 @@ namespace Monster
             }
             catch (const std::invalid_argument&)
             {
-                assert(false && "스킬 데미지 파라미터는 숫자여야합니다.");
+                assert(false && "액션 파라미터는 숫자여야합니다.");
                 continue;
             }
             catch (const std::out_of_range&)
             {
-                assert(false && "스킬 데미지 파라미터 값이 너무 큽니다.");
+                assert(false && "액션 파라미터 값이 너무 큽니다.");
                 continue;
             }
         }
@@ -49,10 +49,10 @@ namespace Monster
         return result;
     }
 
-    std::vector<TokenParam> ParseTokenParam(const std::string& paramString)
+    std::vector<TokenParam> ParseTokenParam(const std::string& paramStr)
     {
         std::vector<TokenParam> result;
-        std::stringstream       ss(paramString);
+        std::stringstream       ss(paramStr);
         std::string             pair;
 
         while (std::getline(ss, pair, ',')) // ','로 구분
@@ -66,7 +66,7 @@ namespace Monster
             size_t colonPos = pair.find(':');
             if (colonPos == std::string::npos)
             {
-                assert(false && "스킬 토큰 파라미터의 올바른 형식이 아닙니다.");
+                assert(false && "토큰 파라미터의 올바른 형식이 아닙니다.");
                 continue; // ':' 없는 경우 무시
             }
 
@@ -81,11 +81,11 @@ namespace Monster
             }
             catch (const std::invalid_argument&)
             {
-                assert(false && "스킬 토큰 파라미터는 숫자여야합니다.");
+                assert(false && "토큰 파라미터는 숫자여야합니다.");
             }
             catch (const std::out_of_range&)
             {
-                assert(false && "스킬 토큰 파라미터 값이 너무 큽니다.");
+                assert(false && "토큰 파라미터 값이 너무 큽니다.");
             }
         }
 

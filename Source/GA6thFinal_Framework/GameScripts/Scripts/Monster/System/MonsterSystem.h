@@ -22,6 +22,7 @@ public:
     ~MonsterSystem() = default;
 
 private:
+    void Reset() override;
     void Awake() override;
     void OnDestroy() override;
 
@@ -53,7 +54,8 @@ public:
     /// <param name="context">몬스터 데이터가 포함된 DataContext 객체에 대한 포인터입니다.</param>
     /// <param name="index">스폰할 몬스터의 스폰 포인트 인덱스입니다.</param>
     /// <returns>몬스터 스폰이 성공하면 true, 실패하면 false를 반환합니다.</returns>
-    bool SpawnMonsterFromDataContext(const Monster::DataContext* context, size_t index);
+    std::weak_ptr<Enemy> SpawnMonsterFromDataContext(const Monster::StageContext* pStageContext, size_t index);
+    std::weak_ptr<Enemy> SpawnMonsterFromDataContext(const Monster::DataContext* pDataContext, size_t index);
 
     /// <summary>
     /// 생성된 적을 모두 제거합니다.

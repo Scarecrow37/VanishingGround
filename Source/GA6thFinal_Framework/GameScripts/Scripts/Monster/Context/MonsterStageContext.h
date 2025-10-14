@@ -13,9 +13,9 @@ namespace Monster
 
     // 다음과 같은 형식으로 구성됨
     // ex) 1, 5, 2 (데미지1, 데미지2, 데미지3)
-    struct DamageParam
+    struct ActionParam
     {
-        int Damage  = 0;    // 스킬 데미지
+        int Param  = 0;    // 스킬 데미지
     };
     
     struct StageContext
@@ -25,10 +25,10 @@ namespace Monster
         int     Health      = 0;  // 몬스터 체력
         int     StunResist  = 0;  // 몬스터 기절 저항
 
-        std::array<std::vector<DamageParam>, MAX_SKILL_COUNT>   DamageParams;   // 스킬 데미지 파라미터
+        std::array<std::vector<ActionParam>, MAX_SKILL_COUNT> DamageParams; // 스킬 데미지 파라미터
         std::array<std::vector<TokenParam>,  MAX_SKILL_COUNT>   TokenParams;    // 스킬 토큰 파라미터
     };
 
-    std::vector<DamageParam> ParseDamageParam(const std::string& paramString);
+    std::vector<ActionParam> ParseActionParam(const std::string& paramString);
     std::vector<TokenParam>  ParseTokenParam(const std::string& paramString);
 };

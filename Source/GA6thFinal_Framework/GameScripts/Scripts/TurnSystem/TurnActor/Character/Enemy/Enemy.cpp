@@ -15,6 +15,9 @@
 #include "State/EnemyPlayTurnState.h"
 #include "State/EnemyDeadState.h"
 
+// Stats
+#include <Stats/CharacterStats.h>
+
 #include <Particle/ParticleComponent.h>
 
 UMREAL_COMPONENT(Enemy)
@@ -40,6 +43,22 @@ void Enemy::EndTurn()
 void Enemy::Revive() 
 {
     Base::Revive();
+}
+
+void Enemy::RefreshStateFromContext(const Monster::DataContext*  pDataContext, const Monster::StageContext* pStageContext)
+{
+    if (pDataContext && pStageContext)
+    {
+        _dataContext  = pDataContext;
+        _stageContext = pStageContext;
+        // 체력 초기화
+        if (auto statsComponent = GetCharacterStats())
+        {
+            statsComponent->MaxHP           = pStageContext->Health;
+            statsComponent->CurrentHP       = pStageContext->Health;
+            statsComponent->StunResistance  = pStageContext->StunResist;
+        }
+    }
 }
 
 void Enemy::Dead()

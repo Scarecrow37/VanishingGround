@@ -14,7 +14,7 @@ namespace Monster
         ~AIFactory() = default;
 
     public:
-        static bool GetAIModel(FSMID id, std::weak_ptr<Enemy> owner, AIController& controller);
+        static bool GetAIModel(FSMID id, std::weak_ptr<Enemy> weakOwner);
         static bool RegisterAIBuilder(FSMID id, AIBuildFunc builderFunc);
 
     private:

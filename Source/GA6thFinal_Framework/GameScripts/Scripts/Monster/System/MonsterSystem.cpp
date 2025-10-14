@@ -2,12 +2,17 @@
 #include "MonsterSystem.h"
 
 #include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
+#include "Stats/CharacterStats.h"
 
 #include "ExcelDataSystem/ExcelDataSystem.h"
 
 UMREAL_COMPONENT(MonsterSystem)
 
-void MonsterSystem::Awake() 
+void MonsterSystem::Reset()
+{
+}
+
+void MonsterSystem::Awake()
 {
     if (_singletonComponent.TrySingleTon())
     {
@@ -51,18 +56,37 @@ bool MonsterSystem::SpawnMonsterFromStageID(int stageID)
         {
             if (stageEnemiesData.size() > i)
             {
-                const Monster::StageContext& enemyData = stageEnemiesData[i];
-                if (const Monster::DataContext* dataContext = GetDataContextFromID(enemyData.MonsterID))
-                {
-                    SpawnMonsterFromDataContext(dataContext, i);
-                }
+                const Monster::StageContext& enemyStageData = stageEnemiesData[i];
+                SpawnMonsterFromDataContext(&enemyStageData, i);
             }
         }
     }
     return false;
 }
 
-bool MonsterSystem::SpawnMonsterFromDataContext(const Monster::DataContext* context, size_t index)
+std::weak_ptr<Enemy> MonsterSystem::SpawnMonsterFromDataContext(const Monster::StageContext* pStageContext, size_t index)
+{
+    if (pStageContext)
+    {
+        if (const Monster::DataContext* dataContext = GetDataContextFromID(pStageContext->MonsterID))
+        {
+            std::weak_ptr<Enemy> weakClone = SpawnMonsterFromDataContext(dataContext, index);
+            if (auto clone = weakClone.lock())
+            {
+                if (auto stats = clone->GetCharacterStats())
+                {
+                    stats->MaxHP          = pStageContext->Health;
+                    stats->CurrentHP      = pStageContext->Health;
+                    stats->StunResistance = pStageContext->StunResist;
+                }
+            }
+            return weakClone;
+        }
+    }
+    return std::weak_ptr<Enemy>();
+}
+
+std::weak_ptr<Enemy> MonsterSystem::SpawnMonsterFromDataContext(const Monster::DataContext* context, size_t index)
 {
     if (context)
     {
@@ -96,13 +120,17 @@ bool MonsterSystem::SpawnMonsterFromDataContext(const Monster::DataContext* cont
                         auto sharedEnemy       = std::static_pointer_cast<Enemy>(enemy->GetWeakPtr().lock());
                         _spawnedEnemies[index] = sharedEnemy;
                         _spawnedEnemiesIDTable[context->ID].push_back(sharedEnemy);
-                        return true;
+
+                        int randomIndex = Random::Range(0, (int)context->FsmIDs.size());
+                        _aiFactory.GetAIModel(context->FsmIDs[randomIndex], sharedEnemy);
+
+                        return sharedEnemy;
                     }
                 }
             }
         }
     }
-    return false;
+    return std::weak_ptr<Enemy>();
 }
 
 void MonsterSystem::Clear()
@@ -209,7 +237,7 @@ void MonsterSystem::LoadDataContextFromExcelData(ExcelDataSystem* dataSystem)
                         data = dataBase->FindData(rowIndex, ExcelDataKey::FSM[i]);
                         if (data != ExcelDataBase::FIND_STR_FAIL)
                         {
-                            context.FsmIDs[i] = std::stoi(data.data());
+                            context.FsmIDs.push_back(std::stoi(data.data()));
                         }
                     }
 
@@ -218,7 +246,7 @@ void MonsterSystem::LoadDataContextFromExcelData(ExcelDataSystem* dataSystem)
                         data = dataBase->FindData(rowIndex, ExcelDataKey::SKILL[i]);
                         if (data != ExcelDataBase::FIND_STR_FAIL)
                         {
-                            context.ActionIDs[i] = std::stoi(data.data());
+                            context.ActionIDs.push_back(std::stoi(data.data()));
                         }
                     }
 
