@@ -127,6 +127,15 @@ void MonsterSystem::ClearSpawnedEnemies()
     }
 }
 
+std::weak_ptr<Enemy> MonsterSystem::GetSpawnedEnemy(size_t index)
+{
+    if (index < Monster::MAX_ENEMY_COUNT)
+    {
+        return _spawnedEnemies[index];
+    }
+    return std::weak_ptr<Enemy>();
+}
+
 void MonsterSystem::FindSpawnPoints() 
 {
     for (size_t i = 0; i < Monster::MAX_ENEMY_COUNT; ++i)
