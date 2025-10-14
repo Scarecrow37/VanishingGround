@@ -205,11 +205,14 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
     if (qteSystem && qteUIManager)
     {
         bool input = _isDownAKey || _isDownAButton;
-        qteSystem->CombatUIActive(!input);
         qteUIManager->SetBackgroundUIAlpha(t);
         qteUIManager->SetGuideNoteUIAlpha(1.0f - t);
         qteUIManager->SetUIAlpha(0.0f);
         qteUIManager->SetActive(true);
+        if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
+        {
+            combatUIManager->SetActiveUI(!input);
+        }
     }
 }
 

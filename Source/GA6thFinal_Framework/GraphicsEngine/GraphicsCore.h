@@ -68,6 +68,7 @@ public:
     void Finalize() const;
 
 public:
+    void             ClearGraphicsResource() const;
     void             ResetEnvironmentSkyBox(std::string_view sceneName) const;
     void             ResetIBLSkyBox(std::string_view sceneName) const;
     void             OnResize(UINT width, UINT height) const;

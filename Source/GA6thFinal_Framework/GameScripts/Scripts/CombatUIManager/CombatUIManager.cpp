@@ -8,18 +8,36 @@ CombatUIManager::CombatUIManager() = default;
 
 CombatUIManager::~CombatUIManager() = default;
 
-void CombatUIManager::Refresh()
+void CombatUIManager::Refresh() 
 {
-    _charactorHUDGroup.FindUI();
-    _charactorHUDGroup.RefreshEnemiesPosition();
+    _validGroupCount = 0;
+
+    for (UIGroup* group : _uiGroups)
+    {
+        if (group)
+        {
+            if (group->FindUI())
+            {
+                ++_validGroupCount;
+            }
+        }
+    }
+
+    CharacterHUDGroup.RefreshEnemiesPosition();
 }
 
 void CombatUIManager::SetActiveUI(bool active) 
 {
-    // TODO: 전투 UI 활성화/비활성화 구현
+    for (UIGroup* group : _uiGroups)
+    {
+        if (group && group->IsValid())
+        {
+            group->ActiveUI(active);
+        }
+    }
 }
 
-void CombatUIManager::Reset()
+void CombatUIManager::Reset() 
 {
     _singletonComponent.SetSingleTon();
 }
@@ -32,14 +50,15 @@ void CombatUIManager::Awake()
     if (_singletonComponent.TrySingleTon())
     {
         Refresh();
+        SetActiveUI(false);
     }
 }
 
 void CombatUIManager::Update() 
 {
-    if (_charactorHUDGroup.IsValid())
+    if (CharacterHUDGroup.IsValid())
     {
-        _charactorHUDGroup.RefreshUIPosition();
+        CharacterHUDGroup.RefreshUIPosition();
     }
 }
 
@@ -49,6 +68,29 @@ void CombatUIManager::FixedUpdate()
 
 void CombatUIManager::ImGuiDrawPropertysEvent() 
 {
+    if (false == IsValid())
+    {
+        ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), (const char*)u8"모든 전투 UI가 유효하지 않습니다.");
+        ImGui::Indent();
+        for (const auto& ui : _uiGroups)
+        {
+            if (false == ui->IsValid())
+            {
+                const char* name = typeid(*ui).name(); // 클래스 이름 가져오기
+                ImGui::TextColored(ImVec4(1.0f, 0.5f, 0.0f, 1.0f), (const char*)u8"%s UI가 유효하지 않습니다.", name + 6);
+            }
+        }
+        ImGui::Unindent();
+    }
+    else
+    {
+        ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), (const char*)u8"모든 전투 UI가 유효합니다.");
+    }
+
+    if (ImGui::Button("Find All UI"))
+    {
+        Refresh();
+    }
 }
 
 void CombatUIManager::SerializedReflectEvent() 

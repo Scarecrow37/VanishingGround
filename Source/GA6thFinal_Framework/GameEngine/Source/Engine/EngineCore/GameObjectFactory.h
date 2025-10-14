@@ -78,9 +78,9 @@ public:
     /// 게임 오브젝트를 Yaml 형식으로 직렬화합니다.
     /// </summary>
     /// <param name="gameObject :">직렬화할 오브젝트</param>
-    /// <param name="onlyVaildObject :">Vaild Object만 직렬화에 포함</param>
+    /// <param name="onlyValidObject :">Vaild Object만 직렬화에 포함</param>
     /// <returns></returns>
-    YAML::Node SerializeToYaml(GameObject* gameObject, bool onlyVaildObject = false);
+    YAML::Node SerializeToYaml(GameObject* gameObject, bool onlyValidObject = false);
 
     /// <summary>
     /// Yaml 형식으로 직렬화된 오브젝트를 씬에 추가합니다.

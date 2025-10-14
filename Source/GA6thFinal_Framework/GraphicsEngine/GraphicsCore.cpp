@@ -299,6 +299,7 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     _device->Initialize();
     _device->ResetCommands();
     _renderer->Initialize();
+    _particleManager->Initialize(MAX_PARTICLE);
     _moduleManager->Initialize();
     _threadPool->Initialize(5);
     _particleManager->Initialize(MAX_PARTICLE);
@@ -355,6 +356,11 @@ void GraphicsCore::Finalize() const
     delete _renderer;
     delete _device;
     delete _sceneTransitionCore;
+}
+
+void GraphicsCore::ClearGraphicsResource() const
+{
+    _renderer->ClearComponents();
 }
 
 void GraphicsCore::Flip() const
