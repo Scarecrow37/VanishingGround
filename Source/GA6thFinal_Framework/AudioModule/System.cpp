@@ -614,7 +614,7 @@ namespace Audio
             constexpr IsUnusedGeneration isUnusedGeneration;
 
             if (auto& effectVoice = _effectPool[i]; isUnusedGeneration(effectVoice.Generation) &&
-                                                    effectVoice.Type == EffectType::FADE&&
+                                                    effectVoice.Type == EffectType::FADE &&
                                                     effectVoice.Voice != nullptr && effectVoice.Channels == channels &&
                                                     effectVoice.SampleRate == sampleRate)
             {
@@ -660,7 +660,7 @@ namespace Audio
             throw InvalidCallException("Effect handle is not of type Fade.");
 
         throwIfFailed(effectVoice.Voice->SetEffectParameters(0, &parameter, sizeof(FadeParameter)),
-                      "Failed to set reverb parameters.");
+                      "Failed to set fade parameters.");
     }
 
     void System::ReleaseEffect(const EffectHandle& handle)

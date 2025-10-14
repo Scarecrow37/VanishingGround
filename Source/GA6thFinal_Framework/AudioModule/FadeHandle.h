@@ -3,7 +3,7 @@
 namespace Audio
 {
     /// <summary>
-    /// 현재 사용중인 Effect 제어에 사용하는 ReverbHandle 객체입니다.
+    /// 현재 사용중인 Effect 제어에 사용하는 FadeHandle 객체입니다.
     /// </summary>
     class FadeHandle : public EffectHandle
     {
