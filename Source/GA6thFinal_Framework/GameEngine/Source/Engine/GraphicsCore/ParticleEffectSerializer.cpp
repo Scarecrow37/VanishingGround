@@ -2693,14 +2693,15 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_4(EffectID id, const std
             auto emitter = UmParticleManager->RegisterEmitter(newEffect, static_cast<SIZE_T>(maxParticles),
                                                               emissionRate, emitterLifetime, locationType,
                                                               locatorFactor, particleType, modelTexturePath.wstring());
-            
-            if (true == uselight)
             {
                 emitter->SetUseLight(uselight);
-                emitter->SetLightIntensity(lightintensity);
-                emitter->SetLightRange(lightrange);
-                emitter->SetLightColor(lightcolor);
-                emitter->InitializeLight(sceneName);
+                if (uselight)
+                {
+                    emitter->SetLightIntensity(lightintensity);
+                    emitter->SetLightRange(lightrange);
+                    emitter->SetLightColor(lightcolor);
+                    emitter->InitializeLight(sceneName);
+                }
             }
             {
                 File::Path absolutePath = emitter->_particleRenderModule->GetModelAndTexturePath();

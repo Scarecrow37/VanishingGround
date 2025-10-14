@@ -75,9 +75,9 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     float4x4 scaleMat = CreateScaleMatrix(scalefactor);
     
     float4 worldPos = mul(float4(input.position.xyz, 1.0), emitter.WorldMatrix);
-    //float4 finalvelocity = mul(float4(totalvel, 0), emitter.OrientedWorldMatrix);
+    float4 finalvelocity = mul(float4(totalvel, 0), emitter.OrientedWorldMatrix);
     
-    worldPos.xyz += totalvel + gravityOffset * input.age ;
+    worldPos.xyz += finalvelocity + gravityOffset * input.age;
     
     float4 viewPos = mul(worldPos, mvp.ViewMatrix);
     output.position = viewPos;

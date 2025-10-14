@@ -64,7 +64,7 @@ public:
 
     std::unique_ptr<ParticleRenderModule> _particleRenderModule;
     std::unique_ptr<EmitLocator>          _emitLocator;
-    std::unique_ptr<Light>                _particlePointLight;
+    GraphicsPointer<class ILight>                _particlePointLight;
 
     void SetLocatorFactor(const Vector3& factor);
     void SetVelocityType(VelocityScaleType velType);

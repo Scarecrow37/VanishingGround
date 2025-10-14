@@ -65,4 +65,5 @@ private:
     std::shared_ptr<class Model> _targetModel;
     std::vector<UINT>            _vertexCountPerMesh;
     UINT                         _totalVertexCount = 0;
+    bool                         _modelValidFlag = false;
 };

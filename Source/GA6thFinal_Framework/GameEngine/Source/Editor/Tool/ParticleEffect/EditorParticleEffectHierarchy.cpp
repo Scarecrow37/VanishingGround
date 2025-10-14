@@ -46,7 +46,7 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
         _curEffect = newEffect;
         _curEffect->SetPosition(&_effectPosition);
         _curEffect->SetRotation(&_effectRotation);
-        _curEffect->SetScale(&_effectRotation);
+        _curEffect->SetScale(&_effectScale);
         _curEffect->SetParentMatrix(&_effectWorldMatrix);
         _curEffect->SetBoneFollowFlag(&_boneFlag);
     }
@@ -57,25 +57,7 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
     bool isControlOPressed   = ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_O,false);
     if (true == isloadbuttonpressed || true == isControlOPressed)
     {
-        HWND                    owner = UmApplication.GetHwnd();
-        LPCWSTR                 title = L"Load vfx file";
-        std::vector<File::Path> out;
-        if (File::ShowOpenFileDialog(owner, title, L"", {{L"\0", L"*.vfx*\0"}}, false, out))
-        {
-            // TODO:: 모듈에 있는 시리얼라이저 가져와야 함
-            auto effect = UmParticleSerializer.Deserialize(0, "", out.front(), true, "ParticleEditor");
-            for (auto emitter : effect->GetEmitterList())
-            {
-                emitter->_particleRenderModule->Initialize();
-            }
-            _editorParticleEffectDetails->SetCurrentEffect(effect);
-            _curEffect = effect;
-            _curEffect->SetPosition(&_effectPosition);
-            _curEffect->SetRotation(&_effectRotation);
-            _curEffect->SetScale(&_effectScale);
-            _curEffect->SetParentMatrix(&_effectWorldMatrix);
-            _curEffect->SetBoneFollowFlag(&_boneFlag);
-        }
+        LoadEffect();
     }
     ParticleEffect* effect = UmParticleManager->GetCurrentEditorEffect();
     if (nullptr != effect)
@@ -249,6 +231,10 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
         Vector3 _finalRotation = _elapsedTimer * _rotationSpeed * _rotationVelocity;
         _effectWorldMatrix = Matrix::CreateFromYawPitchRoll(_finalRotation);
     }
+    else
+    {
+        _effectWorldMatrix = Matrix::Identity;
+    }
     ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.f);
 
     LocationShape locationType;
@@ -313,7 +299,6 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
             bool isLoadModelButtonPressed = ImGui::Button("load target model", {250, 30});
             if (true == isLoadModelButtonPressed)
             {
-
                 HWND                    owner = UmApplication.GetHwnd();
                 LPCWSTR                 title = L"Load fbx file";
                 std::vector<File::Path> out;
@@ -335,10 +320,20 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
             auto emitter =
                 UmParticleManager->RegisterEmitter(_curEffect, 100000, 1000, 20, locationType, {0, 0, 0}, particleType);
             UmGraphics.LoadTextureResource(emitter->_particleRenderModule->GetModelAndTexturePath(), emitter);
-            if (LocationShape::MESH_SURFACE == locationType)
+            
+
+            // File::Path absolutePath = emitter->_particleRenderModule->GetModelAndTexturePath();
+            // absolutePath            = std::filesystem::absolute(absolutePath).generic_string();
+            // UmGraphics.LoadTextureResource(std::wstring_view(absolutePath.wstring()), emitter);
+
+            if (auto locator = emitter->_emitLocator->AsMeshSurfaceLocator())
             {
                 UmGraphics.LoadModelResource(std::wstring_view(currentmeshsurfacepath.wstring()), emitter);
             }
+
+
+
+
             emitter->InitializeEditorLight();
         }
         bool isSomeoneChanged = false;
@@ -406,4 +401,41 @@ void EditorParticleEffectHierarchy::LoadEnvironmentModel(const File::Path& path)
     UmGraphics.LoadResource(path.wstring(), _meshRenderer.Get());
     _meshRenderer->SetActive(&_isModelActive);
     UmGraphics.RegisterComponent("ParticleEditor", _meshRenderer.Get());
+}
+
+void EditorParticleEffectHierarchy::LoadEffect() 
+{
+    HWND                    owner = UmApplication.GetHwnd();
+    LPCWSTR                 title = L"Load vfx file";
+    std::vector<File::Path> out;
+    if (File::ShowOpenFileDialog(owner, title, L"", {{L"\0", L"*.vfx*\0"}}, false, out))
+    {
+        auto effect = UmParticleSerializer.Deserialize(this, "", out.front(), true, "ParticleEditor");
+        if (effect)
+        {
+            for (auto& emitter : effect->GetEmitterList())
+            {
+                File::Path absolutePath = emitter->_particleRenderModule->GetModelAndTexturePath();
+                absolutePath            = std::filesystem::absolute(absolutePath).generic_string();
+                UmGraphics.LoadTextureResource(std::wstring_view(absolutePath.wstring()), emitter);
+
+                if (LocationShape::MESH_SURFACE == emitter->_locationType)
+                {
+                    if (auto locator = emitter->_emitLocator->AsMeshSurfaceLocator())
+                    {
+                        File::Path absolutePath = locator->GetModelPath();
+                        absolutePath            = std::filesystem::absolute(absolutePath).generic_string();
+                        UmGraphics.LoadModelResource(std::wstring_view(absolutePath.wstring()), emitter);
+                    }
+                }
+            }
+        }
+        _editorParticleEffectDetails->SetCurrentEffect(effect);
+        _curEffect = effect;
+        _curEffect->SetPosition(&_effectPosition);
+        _curEffect->SetRotation(&_effectRotation);
+        _curEffect->SetScale(&_effectScale);
+        _curEffect->SetParentMatrix(&_effectWorldMatrix);
+        _curEffect->SetBoneFollowFlag(&_boneFlag);
+    }
 }

@@ -329,14 +329,14 @@ void ParticleEmitter::InitializeLight(std::string_view scenenName)
 {
     if (true == _useLight)
     {
-        _particlePointLight = std::make_unique<Light>();
+        _particlePointLight = new Light();
         _particlePointLight->SetActive(&_activeFlag);
         _particlePointLight->SetPointLight(_lightColor, _finalPos, _lightAttenuation, _lightCurrentRange,
                                            _lightCurrentIntensity);
-        Global::lightCore->RegisterLight(scenenName, _particlePointLight.get());
+        Global::lightCore->RegisterLight(scenenName, static_cast<Light*>(_particlePointLight.Get()));
         if ("Game" == scenenName)
         {
-            Global::lightCore->RegisterLight("Editor", _particlePointLight.get());
+            Global::lightCore->RegisterLight("Editor", static_cast<Light*>(_particlePointLight.Get()));
         }
     }
 
@@ -344,9 +344,9 @@ void ParticleEmitter::InitializeLight(std::string_view scenenName)
 
 void ParticleEmitter::InitializeEditorLight()
 {
-    _particlePointLight = std::make_unique<Light>();
+    _particlePointLight = new Light();
     _particlePointLight->SetActive(&_activeFlag);
     _particlePointLight->SetPointLight(_lightColor, _finalPos, _lightAttenuation, _lightCurrentRange,
                                        _lightCurrentIntensity);
-    Global::lightCore->RegisterLight("ParticleEditor", _particlePointLight.get());
+    Global::lightCore->RegisterLight("ParticleEditor", static_cast<Light*>(_particlePointLight.Get()));
 }

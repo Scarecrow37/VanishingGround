@@ -37,7 +37,7 @@ private:
     bool                           _isDirtyFlag = false;
 
     void LoadEnvironmentModel(const File::Path& path);
-
+    void          LoadEffect();
     FBXConverter& GetFBXConverter();
 
     // Light Property
@@ -60,4 +60,8 @@ private:
     Vector3 _rotationVelocity = Vector3::Zero;
     
     bool _boneFlag = false;
+
+    std::vector<std::shared_ptr<class Model>> _models;
+    std::vector<std::shared_ptr<class Texture>> _textures;
+
 };

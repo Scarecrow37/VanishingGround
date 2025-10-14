@@ -88,6 +88,10 @@ DirectX::SimpleMath::Vector3 SphereLocator::EmitLocate()
 
 DirectX::SimpleMath::Vector3 MeshSurfaceLocator::EmitLocate()
 {
+    if (_totalVertexCount == 0)
+    {
+        LoadVerticesFromModel(Global::resourceManager->LoadResource<Model>(_targetModelPath));
+    }
     if (_targetModel && _targetModel->IsValid())
     {
         float temp         = ((RandomVal() + 1) * 0.5f);
@@ -126,6 +130,7 @@ void MeshSurfaceLocator::SetModelPath(std::wstring_view filepath)
 {
     _targetModelPath = filepath;
 }
+
 
 void MeshSurfaceLocator::LoadVerticesFromModel(std::shared_ptr<class Model> model)
 {
