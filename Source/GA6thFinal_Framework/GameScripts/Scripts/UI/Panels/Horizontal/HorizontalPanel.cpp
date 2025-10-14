@@ -26,6 +26,9 @@ SIZE HorizontalPanel::MeasureOverride(const SIZE availableSize)
     const PADDING padding               = Padding;
     const SIZE    childrenAvailableSize = desiredSize - padding.Size();
 
+    const std::vector<HorizontalPanelSlot*> slots = Slots;
+    std::ranges::for_each(slots, [](HorizontalPanelSlot* slot) { slot->SetLine(0); });
+
     const std::vector<UIComponent*> children = Children;
 
     LONG              currentLine = 0;
