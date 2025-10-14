@@ -308,7 +308,6 @@ void Renderer::ClearComponents()
     for (auto& component : _toBeReleasedComponents)
     {
         component->Delete();
-        component = nullptr;
     }
 
     _toBeReleasedComponents.clear();
