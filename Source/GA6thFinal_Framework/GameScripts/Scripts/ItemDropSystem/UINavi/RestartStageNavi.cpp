@@ -85,6 +85,10 @@ void RestartStageNavi::Submit()
                     transitionComponent->SceneTransitionFade("in", "out", [path]() { UmSceneManager.LoadScene(path); });
                 }
             }
+            else
+            {
+                UmSceneManager.LoadScene(path);
+            }
         }
     }
 }
@@ -129,6 +133,7 @@ void RestartStageNavi::Awake()
 {
     Base::Awake();
     _imageElement = GetComponent<ImageElement>();
+    gameObject->AddTag(TAG);
 }
 
 void RestartStageNavi::Start()
@@ -136,11 +141,4 @@ void RestartStageNavi::Start()
     using namespace RestartUtility;
     Base::Start();
     CheckImageElementWithLog(_imageElement);
-}
-
-void RestartStageNavi::OnEnable()
-{
-    UINavigationComponent::OnEnable();
-
-    Focus();
 }

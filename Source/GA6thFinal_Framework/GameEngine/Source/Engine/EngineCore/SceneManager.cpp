@@ -2244,7 +2244,6 @@ void ESceneManager::InputSystem::UpdateInput()
             {
                 for (const auto& flag : queue)
                 {
-                    // TODO: 시우야 확인해줘
                     UpdateTracker(flag.Button);
                 }
             } 

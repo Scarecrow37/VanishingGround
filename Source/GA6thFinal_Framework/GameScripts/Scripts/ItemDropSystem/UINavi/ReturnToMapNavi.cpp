@@ -98,6 +98,10 @@ void ReturnToMapNavi::Submit()
         {
             transitionComponent->SceneTransitionFade("in", "out", [path]() { UmSceneManager.LoadScene(path.string()); });
         }
+        else
+        {
+            UmSceneManager.LoadScene(path.string());
+        }
     }
 }
 
