@@ -302,6 +302,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\Monster\Common\MonsterCommon.h" />
+    <ClInclude Include="Scripts\Monster\Context\MonsterStageContext.h" />
+    <ClInclude Include="Scripts\Monster\Context\MonsterActionContext.h" />
+    <ClInclude Include="Scripts\Monster\Context\MonsterDataContext.h" />
+    <ClInclude Include="Scripts\Monster\System\MonsterSystem.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterAction.h" />
     <ClInclude Include="Scripts\Debugger\Debugger.h" />
     <ClInclude Include="DLLExportDefine.h" />
     <ClInclude Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.h" />
@@ -523,6 +529,11 @@
     <ClInclude Include="Scripts\Map\MapManagerTracker.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\Monster\Context\MonsterStageContext.cpp" />
+    <ClCompile Include="Scripts\Monster\Context\MonsterActionContext.cpp" />
+    <ClCompile Include="Scripts\Monster\Context\MonsterDataContext.cpp" />
+    <ClCompile Include="Scripts\Monster\System\MonsterSystem.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterAction.cpp" />
     <ClCompile Include="Scripts\Debugger\Debugger.cpp" />
     <ClCompile Include="dllmain.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
