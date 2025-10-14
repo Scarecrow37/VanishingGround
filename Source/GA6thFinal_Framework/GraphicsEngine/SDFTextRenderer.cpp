@@ -44,8 +44,8 @@ void SDFTextRenderer::SetText(const wchar_t* text)
 {
     _text = text;
 
-    std::string::size_type pos = 0;
-    while ((pos = _text.find(L"\\n", pos)) != std::string::npos)
+    std::wstring::size_type pos = 0;
+    while ((pos = _text.find(L"\\n", pos)) != std::wstring::npos)
     {
         _text.replace(pos, lstrlen(L"\\n"), L"\n");
         pos += lstrlen(L"\n");
