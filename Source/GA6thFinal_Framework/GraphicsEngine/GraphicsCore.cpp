@@ -276,8 +276,8 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     _viewManager->Initialize();
     _device->Initialize();
     _device->ResetCommands();
-    _particleManager->Initialize(MAX_PARTICLE);
     _renderer->Initialize();
+    _particleManager->Initialize(MAX_PARTICLE);
     _moduleManager->Initialize();
     _threadPool->Initialize(5);
 
