@@ -633,18 +633,36 @@ void RevelationSystem::ImGuiDrawPropertysEvent()
                             const std::string& name = temp.ElementName;
                             if (STR_NULL != name)
                             {
-                                auto findIter = _elementsTable.find(name);
-                                if (findIter == _elementsTable.end())
+                                auto nameFindIter = _elementsTable.find(name);
+                                bool nameFind     = nameFindIter != _elementsTable.end();
+                                auto idFindIter   = std::ranges::find_if(_elementTableOrderID, [&temp](RevelationElement* revelation) 
+                                {
+                                    int tempID = temp.RevelationID;
+                                    int currID = revelation->RevelationID;
+                                    return tempID == currID;
+                                });
+                                bool idFind = idFindIter != _elementTableOrderID.end();
+                                if (false == nameFind && false == idFind)
                                 {
                                     // 없으면 새로 생성
                                     InsertElement(temp);
                                 }
-                                else
+                                else if (nameFind)
                                 {
                                     // 이미 있으면 데이터만 복사(액션은 유지)
-                                    std::string originActionName    = findIter->second.ReflectFields->ActionName;
-                                    *findIter->second.ReflectFields = *temp.ReflectFields;
-                                    findIter->second.ReflectFields->ActionName = std::move(originActionName);
+                                    std::string originActionName = nameFindIter->second.ReflectFields->ActionName;
+                                    *nameFindIter->second.ReflectFields = *temp.ReflectFields;
+                                    nameFindIter->second.ReflectFields->ActionName = std::move(originActionName);
+                                }
+                                else if (idFind)
+                                {
+                                    // 이미 있으면 데이터 및 이름 복사(액션은 유지)
+                                    RevelationElement* revelation        = *idFindIter;
+                                    std::string        originElementName = revelation->ElementName;
+                                    std::string        originActionName  = revelation->ReflectFields->ActionName;
+                                    temp.ReflectFields->ActionName       = std::move(originActionName);
+                                    EraseElement(originElementName);
+                                    InsertElement(temp);                                  
                                 }
                                 if (false == result)
                                 {

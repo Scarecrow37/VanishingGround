@@ -268,12 +268,27 @@ void WeaponTableComponent::ImGuiDrawPropertysEvent()
                         if (name != WeaponStats::DEFAULT_NAME)
                         {
                             auto findWeaponIter = _weaponTable.find(name);
-                            if (findWeaponIter == _weaponTable.end())
+                            bool findName   = findWeaponIter != _weaponTable.end();
+                            auto findIDIter = std::ranges::find_if(_weaponTableIdOrder, [&temp](WeaponElement* weapon)
+                            { 
+                                int tableID = weapon->Stats.WeaponID;
+                                int tempID  = temp.Stats.WeaponID;
+                                return tableID == tempID;
+                            }); 
+                            bool findID = findIDIter != _weaponTableIdOrder.end();
+                            if (false == findName && false == findID)
                             {
                                 // 없으면 새로 생성
                                 InsertWeapon(temp);
                             }
-                            else
+                            else if (findID)
+                            {
+                                //아이디 같으면 이름 및 스텟 복사
+                                WeaponElement* weapon = *findIDIter;
+                                weapon->Stats = temp.Stats;
+                                RenameWeapon(*weapon, temp.Stats.WeaponName);
+                            }
+                            else if (findName)
                             {
                                 // 이미 있으면 스텟만 복사
                                 findWeaponIter->second.Stats = temp.Stats;
