@@ -315,16 +315,16 @@ void WeaponTableComponent::ImGuiDrawPropertysEvent()
                         }
                     }               
                     
-                    std::vector<WeaponElement> earseTargets;
+                    std::vector<WeaponElement> eraseTargets;
                     for (auto& weapon : _weaponTableIdOrder)
                     {
                         const std::string& name = weapon->Stats.WeaponName;
                         if (validTargets.find(name) == validTargets.end())
                         {
-                            earseTargets.emplace_back(*weapon);
+                            eraseTargets.emplace_back(*weapon);
                         }
                     }
-                    for (auto& target : earseTargets)
+                    for (auto& target : eraseTargets)
                     {
                         EraseWeapon(target);
                     }
