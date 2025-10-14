@@ -4,7 +4,9 @@
 #include "Utility/SingletonHelper.h"
 
 class ArtifactUIManager;
-class ItemDropUIRootManager : public Component
+class ItemInfoUIManager;
+class WeaponChangeUIManager;
+class ItemDropUIRootManager : public Component, public InputReceiver
 {
     USING_PROPERTY(ItemDropUIRootManager)
 public:
@@ -22,11 +24,40 @@ public:
         }
         return artifactUI;
     }
-    /// <summary>
-    /// 보상 UI의 Artifact 부분을 관리하는 컴포넌트입니다.
-    /// type : ArtifactUIManager*
-    /// </summary>
+    // 보상 UI의 Artifact 부분을 관리하는 컴포넌트입니다.
+    // type : ArtifactUIManager*
     PROPERTY(ArtifactUI)
+
+    GETTER_ONLY(ItemInfoUIManager*, ItemInfoUI) 
+    { 
+        ItemInfoUIManager* infoUI = nullptr;
+        if (auto uiManager = _itemInfoUIManager.lock())
+        {
+            infoUI = uiManager.get();
+        }
+        return infoUI;
+    }
+    // 보상 UI의 포커스된 아이템 정보를 표시하는 UI를 관리하는 컴포넌트입니다.
+    // type : ItemInfoUIManager*
+    PROPERTY(ItemInfoUI)
+
+    GETTER_ONLY(WeaponChangeUIManager*, WeaponChangeUI)
+    { 
+        WeaponChangeUIManager* weaponChangeUI = nullptr;
+        if (auto weaponChangeManager = _weaponChangeUIManager.lock())
+        {
+            weaponChangeUI = weaponChangeManager.get();
+        }
+        return weaponChangeUI;
+    }
+    // 무기 교체 UI 관리 컴포넌트입니다.
+    // type : WeaponChangeUIManager*
+    PROPERTY(WeaponChangeUI)
+
+    /// <summary>
+    /// 포커스 가능한 Navi로 포커스 설정을 해줍니다.
+    /// </summary>
+    void AutoFocus(bool checkInputDir = true);
 
 public:
     REFLECT_PROPERTY(
@@ -42,8 +73,27 @@ protected:
     void Reset() override;
     void Awake() override;
     void Start() override;
+    void LateUpdate() override;
+
+    void OnDpadLeft(const Input::Controller&);
+    void OnDpadRight(const Input::Controller&);
+    void OnDpadUp(const Input::Controller&);
+    void OnDpadDown(const Input::Controller&);
 
 private:
     SingletonComponent<ItemDropUIRootManager> _singletonComponent{this};
     std::weak_ptr<ArtifactUIManager>          _artifactUIManager;
+    std::weak_ptr<ItemInfoUIManager>          _itemInfoUIManager;
+    std::weak_ptr<WeaponChangeUIManager>      _weaponChangeUIManager;
+
+
+    enum class InputDir
+    {
+        IDLE,
+        LEFT,
+        RIGHT,
+        UP,
+        DOWN
+    }
+    _lastInputDir; //마지막 입력 추적용
 };
