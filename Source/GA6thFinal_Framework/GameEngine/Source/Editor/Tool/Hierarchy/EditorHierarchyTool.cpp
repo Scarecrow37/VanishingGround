@@ -408,6 +408,12 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
                 GameObjectKey, GameObject::Helper::GenerateUniqueName("Spot light"), &light);
             UmComponentFactory.AddComponentToObject(light, "class SpotLight");
         }
+        if (ImGui::MenuItem("Shadow Point Light"))
+        {
+            UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                GameObjectKey, GameObject::Helper::GenerateUniqueName("Shadow Point Light"), &light);
+            UmComponentFactory.AddComponentToObject(light, "class ShadowPointLight")
+        }
         ImGui::EndMenu();
 
         if (nullptr != light)
