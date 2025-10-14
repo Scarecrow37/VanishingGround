@@ -14,8 +14,13 @@ void Audio::Manager::Initialize()
         _groups.emplace(static_cast<Group>(group), _system.CreateGroup());
     }
 
-    _effects.emplace(EFFECT_REVERB, _system.CreateEffect(ReverbParameter{}, 2, 44100));
-    _effects.emplace(EFFECT_FADE, _system.CreateEffect(FadeParameter{}, 2, 44100));
+    _reverbHandle = _system.CreateReverbEffect(2, 44100);
+    _fadeHandle   = _system.CreateFadeEffect(FadeInitParameter{0.2f, 1.0f,  3.0f}, 2, 44100);
+
+    for (auto& groupHandle : _groups | std::views::values)
+    {
+        _system.EnableEffect(_fadeHandle, groupHandle);
+    }
 }
 
 void Audio::Manager::Finalize()
@@ -110,57 +115,12 @@ void Audio::Manager::Stop(const AudioHandle& handle)
     }
 }
 
-void Audio::Manager::EnableEffect(const Effect effect, const Group group)
+void Audio::Manager::FadeIn() const
 {
-    try
-    {
-        const EffectHandle& effectHandle = _effects.at(effect);
-        const GroupHandle&  groupHandle  = _groups.at(group);
-        _system.EnableEffect(effectHandle, groupHandle);
-    }
-    catch (const std::out_of_range& exception)
-    {
-        const std::string errorMessage = std::format("Effect or Group does not exist.");
-        UmLogger.Log(LogLevel::LEVEL_ERROR, errorMessage);
-        UmLogger.Log(LogLevel::LEVEL_ERROR, exception.what());
-    }
-    catch (const AudioException& exception)
-    {
-        const std::string errorMessage = std::format("Audio Error when enable effect.");
-        UmLogger.Log(LogLevel::LEVEL_ERROR, errorMessage);
-        UmLogger.Log(LogLevel::LEVEL_ERROR, exception.what());
-    }
-    catch (const std::exception& exception)
-    {
-        const std::string errorMessage = std::format("Unknown Error when enable effect.");
-        UmLogger.Log(LogLevel::LEVEL_ERROR, errorMessage);
-        UmLogger.Log(LogLevel::LEVEL_ERROR, exception.what());
-    }
+    _system.SetEffectParameter(_fadeHandle, FadeParameter{FadeDirection::FORWARD});
 }
 
-void Audio::Manager::DisableEffect(const Effect effect)
+void Audio::Manager::FadeOut() const
 {
-    try
-    {
-        const EffectHandle& effectHandle = _effects.at(effect);
-        _system.DisableEffect(effectHandle);
-    }
-    catch (const std::out_of_range& exception)
-    {
-        const std::string errorMessage = std::format("Effect does not exist.");
-        UmLogger.Log(LogLevel::LEVEL_ERROR, errorMessage);
-        UmLogger.Log(LogLevel::LEVEL_ERROR, exception.what());
-    }
-    catch (const AudioException& exception)
-    {
-        const std::string errorMessage = std::format("Audio Error when disable effect.");
-        UmLogger.Log(LogLevel::LEVEL_ERROR, errorMessage);
-        UmLogger.Log(LogLevel::LEVEL_ERROR, exception.what());
-    }
-    catch (const std::exception& exception)
-    {
-        const std::string errorMessage = std::format("Unknown Error when disable effect.");
-        UmLogger.Log(LogLevel::LEVEL_ERROR, errorMessage);
-        UmLogger.Log(LogLevel::LEVEL_ERROR, exception.what());
-    }
+    _system.SetEffectParameter(_fadeHandle, FadeParameter{FadeDirection::BACKWARD});
 }

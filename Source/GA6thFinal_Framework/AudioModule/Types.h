@@ -21,6 +21,9 @@ namespace Audio
         bool operator()(const Generation& generation) const;
     };
 
+    constexpr UINT32 PROCESSING_STAGE_GROUP = 0;
+    constexpr UINT32 PROCESSING_STAGE_EFFECT = 1;
+
     enum class EffectType : unsigned char
     {
         REVERB,
@@ -67,11 +70,16 @@ namespace Audio
     constexpr float         FX_FADE_DEFAULT_DURATION     = 1.0f;
     constexpr FadeDirection FX_FADE_DEFAULT_DIRECTION    = FadeDirection::FORWARD;
 
-    struct FadeParameter
+    struct FadeInitParameter
     {
-        FadeParameter()
+        FadeInitParameter()
             : BeginVolume(FX_FADE_DEFAULT_BEGIN_VOLUME), EndVolume(FX_FADE_DEFAULT_END_VOLUME),
-              Duration(FX_FADE_DEFAULT_DURATION), Direction(FX_FADE_DEFAULT_DIRECTION)
+              Duration(FX_FADE_DEFAULT_DURATION)
+        {
+        }
+
+        FadeInitParameter(const float beginVolume, const float endVolume, const float duration)
+            : BeginVolume(beginVolume), EndVolume(endVolume), Duration(duration)
         {
         }
 
@@ -95,6 +103,16 @@ namespace Audio
         /// 기본 값은 1.0f 입니다.
         /// </summary>
         float Duration;
+    };
+
+    struct FadeParameter
+    {
+        FadeParameter()
+            : Direction(FX_FADE_DEFAULT_DIRECTION)
+        {
+        }
+
+        explicit FadeParameter(const FadeDirection direction) : Direction(direction) {}
 
         /// <summary>
         /// 효과를 적용할 방향입니다.

@@ -20,21 +20,22 @@ namespace Audio
     class FXFade : public CXAPOParametersBase
     {
     public:
-        FXFade();
+        explicit FXFade(FadeInitParameter initParameter);
 
-        HRESULT LockForProcess(UINT32 InputLockedParameterCount, const XAPO_LOCKFORPROCESS_BUFFER_PARAMETERS* pInputLockedParameters, UINT32 OutputLockedParameterCount, const XAPO_LOCKFORPROCESS_BUFFER_PARAMETERS* pOutputLockedParameters) override;
+        HRESULT LockForProcess(UINT32 InputLockedParameterCount, const XAPO_LOCKFORPROCESS_BUFFER_PARAMETERS* pInputLockedParameters, UINT32 OutputLockedParameterCount, const XAPO_LOCKFORPROCESS_BUFFER_PARAMETERS* pOutputLockedParameters) noexcept override;
 
-        void Process(UINT32 InputProcessParameterCount, const XAPO_PROCESS_BUFFER_PARAMETERS* pInputProcessParameters, UINT32 OutputProcessParameterCount, XAPO_PROCESS_BUFFER_PARAMETERS* pOutputProcessParameters, BOOL IsEnabled) override;
-        void SetParameters(const void* pParameters, UINT32 ParameterByteSize) override;
+        void Process(UINT32 InputProcessParameterCount, const XAPO_PROCESS_BUFFER_PARAMETERS* pInputProcessParameters, UINT32 OutputProcessParameterCount, XAPO_PROCESS_BUFFER_PARAMETERS* pOutputProcessParameters, BOOL IsEnabled) noexcept override;
 
     private:
         FadeParameter _parameterBlocks[3];
 
-        BOOL _isParameterChanged;
-
         UINT32 _channels;
         UINT32 _bytePerSample;
         DWORD  _sampleRate;
+
+        float _beginGain;
+        float _endGain;
+        float _duration;
 
         float _minGain;
         float _maxGain;

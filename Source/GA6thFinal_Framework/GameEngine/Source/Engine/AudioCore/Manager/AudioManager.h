@@ -9,13 +9,6 @@ namespace Audio
         GROUP_MAX
     };
 
-    enum Effect : unsigned char
-    {
-        EFFECT_REVERB,
-        EFFECT_FADE,
-        EFFECT_MAX
-    };
-
     class Manager
     {
     public:
@@ -28,14 +21,15 @@ namespace Audio
         AudioHandle Play(const std::string& key, Group group = GROUP_EFFECT, bool isLoop = false);
         void        Stop(const AudioHandle& handle);
 
-        void EnableEffect(Effect effect, Group group);
-        void DisableEffect(Effect effect);
+        void FadeIn() const;
+        void FadeOut() const;
 
     private:
         System _system;
 
         std::unordered_map<std::string, Source> _sources;
         std::unordered_map<Group, GroupHandle>  _groups;
-        std::unordered_map<Effect, EffectHandle> _effects;
+        ReverbHandle                             _reverbHandle;
+        FadeHandle                               _fadeHandle;
     };
 } // namespace Audio

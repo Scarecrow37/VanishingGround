@@ -5,17 +5,23 @@
 
 namespace Audio
 {
-    FXFade::FXFade()
+    FXFade::FXFade(const FadeInitParameter initParameter)
         : CXAPOParametersBase(&FX_FADE_REGISTRATION_PROPERTIES, reinterpret_cast<BYTE*>(_parameterBlocks),
                               sizeof(FadeParameter), FALSE),
-          _isParameterChanged(0), _channels(0), _bytePerSample(0), _sampleRate(0), _minGain(0), _maxGain(0),
-          _currentGain(0), _stepOfGain(0)
+          _channels(0), _bytePerSample(0), _sampleRate(0), _beginGain(initParameter.BeginVolume),
+          _endGain(initParameter.EndVolume), _duration(initParameter.Duration),
+          _minGain((std::min)(initParameter.BeginVolume, initParameter.EndVolume)),
+          _maxGain((std::max)(initParameter.BeginVolume, initParameter.EndVolume)),
+          _currentGain(initParameter.BeginVolume), _stepOfGain(0)
     {
+        assert(_minGain >= FX_FADE_MIN_VOLUME);
+        assert(_maxGain <= FX_FADE_MAX_VOLUME);
+        assert(_duration >= FX_FADE_MIN_DURATION);
     }
 
     HRESULT FXFade::LockForProcess(UINT32 InputLockedParameterCount,
                                    const XAPO_LOCKFORPROCESS_BUFFER_PARAMETERS* pInputLockedParameters, UINT32 OutputLockedParameterCount,
-                                   const XAPO_LOCKFORPROCESS_BUFFER_PARAMETERS* pOutputLockedParameters)
+                                   const XAPO_LOCKFORPROCESS_BUFFER_PARAMETERS* pOutputLockedParameters) noexcept
     {
         assert(!IsLocked());
         assert(InputLockedParameterCount == 1);
@@ -28,6 +34,8 @@ namespace Audio
         _channels   = pInputLockedParameters[0].pFormat->nChannels;
         _bytePerSample = pInputLockedParameters[0].pFormat->wBitsPerSample >> 3;
         _sampleRate    = pInputLockedParameters[0].pFormat->nSamplesPerSec;
+        const float fadeFrame = _duration * static_cast<float>(_sampleRate);
+        _stepOfGain           = (_endGain - _beginGain) / fadeFrame;
 
         return CXAPOBase::LockForProcess(InputLockedParameterCount, pInputLockedParameters, OutputLockedParameterCount,
                                          pOutputLockedParameters);
@@ -35,10 +43,8 @@ namespace Audio
 
     void FXFade::Process(UINT32 InputProcessParameterCount,
         const XAPO_PROCESS_BUFFER_PARAMETERS* pInputProcessParameters, UINT32 OutputProcessParameterCount,
-        XAPO_PROCESS_BUFFER_PARAMETERS* pOutputProcessParameters, BOOL IsEnabled)
+        XAPO_PROCESS_BUFFER_PARAMETERS* pOutputProcessParameters, BOOL IsEnabled) noexcept
     {
-        _isParameterChanged = ParametersChanged();
-
         BYTE* parameters = BeginProcess();
 
         assert(IsLocked());
@@ -49,21 +55,8 @@ namespace Audio
 
         const FadeParameter* param = reinterpret_cast<FadeParameter*>(parameters);
 
-        assert(param->BeginVolume >= FX_FADE_MIN_VOLUME && param->BeginVolume <= FX_FADE_MAX_VOLUME);
-        assert(param->EndVolume >= FX_FADE_MIN_VOLUME && param->EndVolume <= FX_FADE_MAX_VOLUME);
-        assert(param->Duration >= FX_FADE_MIN_DURATION);
         assert(param->Direction == FadeDirection::FORWARD || param->Direction == FadeDirection::BACKWARD);
         assert(_sampleRate > 0);
-
-        if (_isParameterChanged)
-        {
-            _currentGain = param->BeginVolume;
-
-            const float fadeFrame = param->Duration * static_cast<float>(_sampleRate);
-            _stepOfGain           = (param->EndVolume - param->BeginVolume) / fadeFrame;
-            _minGain              = (std::min)(param->BeginVolume, param->EndVolume);
-            _maxGain              = (std::max)(param->BeginVolume, param->EndVolume);
-        }
 
         XAPO_BUFFER_FLAGS inFlags  = pInputProcessParameters[0].BufferFlags;
         XAPO_BUFFER_FLAGS outFlags = pOutputProcessParameters[0].BufferFlags;
@@ -84,16 +77,15 @@ namespace Audio
 
             UINT32 validFrameCount = pInputProcessParameters[0].ValidFrameCount;
 
-            double workStation = 0.0;
+            float workStation = 0.0;
 
             for (UINT32 frame = 0; frame < validFrameCount; ++frame)
             {
                 for (UINT32 channel = 0; channel < _channels; ++channel)
                 {
-                    UINT32 offsetByte = (_bytePerSample * frame * _channels) + (_bytePerSample * _channels);
-                    // TODO: 검증 필요
+                    UINT32 offsetByte = _bytePerSample * (frame * _channels + channel);
                     std::memcpy(&workStation, pvSrc + offsetByte, _bytePerSample);
-                    workStation *= _currentGain;
+                    workStation = workStation * _currentGain;
                     std::memcpy(pvDst + offsetByte, &workStation, _bytePerSample);
                 }
 

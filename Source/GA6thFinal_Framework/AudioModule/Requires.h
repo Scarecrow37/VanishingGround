@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+
 #include <exception>
 #include <string>
 #include <filesystem>
@@ -9,6 +10,8 @@
 #include <functional>
 #include <span>
 
+#pragma comment(lib, "xaudio2.lib")
+#pragma comment(lib, "xapobase.lib")
 #include <xaudio2.h>
 #include <xaudio2fx.h>
 #include <xapobase.h>

@@ -171,6 +171,22 @@ void AudioTableComponent::ImGuiDrawPropertysEvent()
                 if (ImGui::IsItemHovered())
                     ImGui::SetTooltip("Stop");
             }
+            ImGui::SameLine();
+            // Reverb
+            {
+                if (ImGui::Button(EditorIcon::ICON_BELL_ON))
+                    UmAudio.FadeIn();
+                if (ImGui::IsItemHovered())
+                    ImGui::SetTooltip("Enable Reverb Effect");
+            }
+            ImGui::SameLine();
+            // Clear Reverb Effect
+            {
+                if (ImGui::Button(EditorIcon::ICON_BELL_OFF))
+                    UmAudio.FadeOut();
+                if (ImGui::IsItemHovered())
+                    ImGui::SetTooltip("Clear Reverb Effects");
+            }
         }
         ImGui::TreePop();
     }
