@@ -6,6 +6,7 @@
 #include "Editor/Tool/Scene/Command/EditorSceneCommands.h"
 #include "Mesh/MeshComponent.h"
 #include "Camera/CameraComponent.h"
+#include "GraphicsEngine/Interface/IMeshRenderer.h"
 
 using namespace u8_literals;
 using namespace Global;

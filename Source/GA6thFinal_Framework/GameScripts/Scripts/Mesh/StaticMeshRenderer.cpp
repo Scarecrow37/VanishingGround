@@ -1,5 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "StaticMeshRenderer.h"
+#include "GraphicsEngine/Interface/IMeshRenderer.h"
 
 UMREAL_COMPONENT(StaticMeshRenderer)
 
@@ -36,8 +37,7 @@ void StaticMeshRenderer::LoadModel()
         if (path != File::NULL_PATH)
         {
             std::wstring modelPath = U8ToWString(path);
-            UmGraphics.LoadResource(modelPath, Renderer.get());
-            Renderer->Initialize();
+            UmGraphics.LoadResource(modelPath, Renderer.Get());
 
             Renderer->OnCustomDepth(PostProcess::BLOOM);
             transform->SetChangeFlag();
@@ -48,7 +48,7 @@ void StaticMeshRenderer::LoadModel()
 
 void StaticMeshRenderer::Reset()
 {
-    MakeMeshRenderer(MeshType::STATIC_MESH, transform->Position, transform->Scale, transform->Rotation, transform->GetWorldMatrix(), transform->HasChangedRef());
+    MakeMeshRenderer(transform->GetWorldMatrix());
 
     if (false == _Guid.IsNull())
     {

@@ -86,8 +86,6 @@ protected:
     */
     virtual void DeserializedReflectEvent() override;
 
-    virtual void ImGuiDrawPropertysEvent() override;
-
     virtual void Reset() override;
 
 public:

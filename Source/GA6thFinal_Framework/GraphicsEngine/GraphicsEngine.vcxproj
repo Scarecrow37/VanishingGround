@@ -334,8 +334,13 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClInclude Include="GenerateSSGIPass.h" />
     <ClInclude Include="GraphicsController.h" />
     <ClInclude Include="FadePass.h" />
+    <ClInclude Include="GraphicsPointer.h" />
+    <ClInclude Include="Interface\IAnimator.h" />
     <ClInclude Include="Interface\IGraphicsBase.h" />
+    <ClInclude Include="Interface\ILight.h" />
+    <ClInclude Include="Interface\IMeshRenderer.h" />
     <ClInclude Include="Interface\ISDFTextRenderer.h" />
+    <ClInclude Include="Interface\ISpriteRenderer.h" />
     <ClInclude Include="Module\AccumulationModule.h" />
     <ClInclude Include="Animation.h" />
     <ClInclude Include="AnimationCore.h" />
@@ -488,6 +493,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClCompile Include="GenerateSSGIPass.cpp" />
     <ClCompile Include="GraphicsController.cpp" />
     <ClCompile Include="FadePass.cpp" />
+    <ClCompile Include="GraphicsPointer.cpp" />
     <ClCompile Include="Module\AccumulationModule.cpp" />
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="AnimationCore.cpp" />

@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "Renderer.h"
+#include "GraphicsBase.h"
 
 // Shader
 #include "VertexShader.h"
@@ -342,6 +343,13 @@ void Renderer::Flip()
     Global::device->Flip();
     Global::device->ResetCommands();
     Global::device->ResetComputeCommands();
+
+    for (auto& component : _toBeReleasedComponents)
+    {
+        component->Delete();
+    }
+
+    _toBeReleasedComponents.clear();
 }
 
 void Renderer::RenderToBackBuffer()

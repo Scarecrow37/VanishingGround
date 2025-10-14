@@ -70,8 +70,8 @@ private:
 
     void InitializeComputeCommandObject();
     void InitializeComputeCommandObject(std::string_view sceneName);
-    void InitializeParticleComputeShader();
-    void InitializeParticleComputeRootSignature();
+    // void InitializeParticleComputeShader();
+    // void InitializeParticleComputeRootSignature();
     void InitializeParticleComputePSO();
 
     void InitializeDescriptorHeap();
@@ -103,13 +103,14 @@ private:
     ComPtr<ID3D12CommandAllocator>    _computeAllocator;
     ComPtr<ID3D12GraphicsCommandList> _computeCommandList;
 
-    ComPtr<ID3D12RootSignature> _computeSpriteRootSignature;
-    ComPtr<ID3D12PipelineState> _computeSpritePSO;
-    ComPtr<ID3DBlob>            _computeSpriteShaderBlob;
+    
+    ComPtr<ID3D12PipelineState>       _computeSpritePSO;    
+    /*ComPtr<ID3D12RootSignature> _computeSpriteRootSignature;
+    ComPtr<ID3DBlob>            _computeSpriteShaderBlob;*/
 
-    ComPtr<ID3D12RootSignature> _computeRibbonRootSignature;
-    ComPtr<ID3D12PipelineState> _computeRibbonPSO;
-    ComPtr<ID3DBlob>            _computeRibbonShaderBlob;
+    ComPtr<ID3D12PipelineState>       _computeRibbonPSO;
+    /*ComPtr<ID3D12RootSignature> _computeRibbonRootSignature;
+    ComPtr<ID3DBlob>            _computeRibbonShaderBlob;*/
 
 
     ComPtr<ID3D12DescriptorHeap> _cbvSrvUavHeap;

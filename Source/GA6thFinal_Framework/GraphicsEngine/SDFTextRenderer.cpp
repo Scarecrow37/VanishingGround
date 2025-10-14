@@ -14,8 +14,7 @@ SDFTextRenderer::~SDFTextRenderer() = default;
 
 bool SDFTextRenderer::IsActive() const
 {
-    bool isActive = _isActive ? *_isActive : false;
-    return isActive && !_text.empty() && _font && _font->IsValid();
+    return GraphicsBase::IsActive() && !_text.empty() && _font && _font->IsValid();
 }
 
 Vector2 SDFTextRenderer::GetStringSize() const
@@ -30,7 +29,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE SDFTextRenderer::GetFontTextureHandle() const
 
 void SDFTextRenderer::SetActive(const bool* isActive)
 {
-    _isActive = isActive;
+    GraphicsBase::SetActive(isActive);
 }
 
 void SDFTextRenderer::SetFont(std::shared_ptr<SDFFont> font)
@@ -75,15 +74,14 @@ void SDFTextRenderer::SetFontWeight(const float fontWeight)
     _fontWeight = convert - 0.5f;
 }
 
+void SDFTextRenderer::AddReference()
+{
+    GraphicsBase::AddReference();
+}
+
 void SDFTextRenderer::Release()
 {
-    for (auto& isDestroy : _isDestroyeds)
-    {
-        *isDestroy = true;
-    }
-    _isDestroyeds.clear();
-
-    delete this;
+    GraphicsBase::Release();
 }
 
 void SDFTextRenderer::Initialize()
