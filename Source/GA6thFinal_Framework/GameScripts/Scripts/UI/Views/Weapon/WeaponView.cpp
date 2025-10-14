@@ -12,14 +12,14 @@ WeaponView::WeaponView()
     : 
     _singletonComponent(this)
 {
-    _descriptionUI = nullptr;
-    _iconUI = nullptr;
-    _nameUI        = nullptr;
+    _descriptionUI  = nullptr;
+    _iconUI         = nullptr;
+    _nameUI         = nullptr;
 }
 
 WeaponView::~WeaponView()
 {
-    UmWatcher.Blind<WeaponViewModel>("Weapon", _watchHandle);
+    
 }
 
 void WeaponView::Focus(bool value) 
@@ -62,8 +62,11 @@ void WeaponView::Start()
             }
 
             if (_nameUI)
+            {
                 _nameUI->Text = value.WeaponName;
-
+                _nameUI->Color = value.GradeColor;
+            }
+                
             if (_iconUI)
                 _iconUI->SetImage(value.WeaponIcon);
 
@@ -88,6 +91,11 @@ void WeaponView::Start()
         }
     });
     gameObject->ActiveSelf = false;
+}
+
+void WeaponView::OnDestroy() 
+{
+    UmWatcher.Blind<WeaponViewModel>("Weapon", _watchHandle);
 }
 
 void WeaponView::FindElements()

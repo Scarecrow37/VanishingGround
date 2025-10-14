@@ -24,20 +24,16 @@ using namespace DirectX::SimpleMath;
 
 #include "Graphics_Enums.h"
 #include "Graphics_Structs.h"
+#include "GraphicsPointer.h"
 #include "SharedResource.h"
 
 #include "Texture.h"
-#include "Light.h"
-#include "Animator.h"
 #include "Model.h"
 #include "Camera.h"
 #include "Animation.h"
 #include "Font.h"
 #include "BaseMesh.h"
 
-#include "MeshRenderer.h"
-#include "FontRenderer.h"
-#include "SpriteRenderer.h"
 #include "CommandSet.h"
 
 #include "ParticleEmitter.h"

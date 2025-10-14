@@ -17,7 +17,7 @@ public:
     {
         if constexpr (IS_EDITOR)
         {
-            EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("SceneDock");
+            EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("Scene##dock");
             if (sceneDock)
             {
                 EditorHierarchyTool* editorHierarchy = sceneDock->GetGui<EditorHierarchyTool>();
@@ -37,7 +37,7 @@ public:
     {
         if constexpr (IS_EDITOR)
         {
-            EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("SceneDock");
+            EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("Scene##dock");
             if (sceneDock)
             {
                 EditorHierarchyTool* editorHierarchy = sceneDock->GetGui<EditorHierarchyTool>();
@@ -130,11 +130,11 @@ private:
     HierarchyFindTool* _editorFindTool = nullptr;
 
     //오브젝트 항목
-    std::unordered_map<std::string, size_t>                       _hierarchySceneIndex;
-    std::vector<std::pair<std::string, std::vector<GameObject*>>> _hierarchyRootObjects;
-    std::vector<GameObject*>                                      _hierarchyDontDestroyOnLoadObjects;
-    std::vector<std::shared_ptr<GameObject>>                      _hierarchyObjects;
-    bool                                                          _hierarchyObjectCleanup = false;
+    std::unordered_map<std::string, size_t>                                       _hierarchySceneIndex;
+    std::vector<std::pair<std::string, std::vector<std::shared_ptr<GameObject>>>> _hierarchyRootObjects;
+    std::vector<std::shared_ptr<GameObject>>                                      _hierarchyDontDestroyOnLoadObjects;
+    std::vector<std::weak_ptr<GameObject>>                                        _hierarchyObjects;
+    bool                                                                          _hierarchyObjectCleanup = false;
 
 protected: 
     REFLECT_FIELDS_BEGIN(EditorTool)

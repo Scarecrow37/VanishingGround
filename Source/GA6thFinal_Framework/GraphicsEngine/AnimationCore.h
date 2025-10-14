@@ -32,7 +32,7 @@ private:
 private:
     std::condition_variable                                  _cvDone;
     std::mutex                                               _mutexDone;
-    std::vector<std::pair<std::unique_ptr<bool>, Animator*>> _components;
+    std::vector<Animator*>                                   _components;
     std::vector<std::unique_ptr<std::condition_variable>>    _cvs;
     std::vector<std::unique_ptr<std::mutex>>                 _mutexes;
     std::vector<std::thread>                                 _threads;

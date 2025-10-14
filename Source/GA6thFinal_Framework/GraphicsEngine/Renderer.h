@@ -6,7 +6,8 @@ class MeshRenderer;
 class RendererFileEvent;
 class Resource;
 class SpriteRenderer;
-class FontRenderer;
+class TextRenderer;
+class GraphicsBase;
 class Renderer
 {
 public:
@@ -25,10 +26,12 @@ public:
     void SetIBLSkyBox(std::string_view renderSceneName, std::wstring_view filePath) const;
 
 public:
+    void AddToBeReleasedComponent(GraphicsBase* component) { _toBeReleasedComponents.push_back(component); }
     void AddRenderScene(std::string_view sceneName, RenderTechniqueFlag flag);
     void RegisterRenderQueue(std::string_view sceneName, MeshRenderer* component);
     void RegisterRenderQueue(std::string_view sceneName, SpriteRenderer* component);
-    void RegisterRenderQueue(std::string_view sceneName, FontRenderer* component);
+    void RegisterRenderQueue(std::string_view sceneName, TextRenderer* component);
+    void RegisterRenderQueue(std::string_view sceneName, SDFTextRenderer* component);
 
 public:
     void ResetEnvironmentSkyBox(std::string_view sceneName);
@@ -54,6 +57,7 @@ private:
     std::unordered_map<std::string, std::unique_ptr<RenderScene>> _renderScenes;
     std::list<std::shared_ptr<Resource>>                          _defaultResource;
     std::string_view                                              _currentSceneName;
+    std::vector<GraphicsBase*>                                    _toBeReleasedComponents;
 
     // Scene To BackBuffer
     FX<GE::VS::QUAD, GE::PS::TO_BACKBUFFER> _fx;

@@ -81,6 +81,20 @@ struct VolumetricFogData
     float    LightShaftIntensity;
 };
 
+struct SSGIData
+{
+    XMMATRIX PreViewProj;
+    XMMATRIX InverseViewProjection;
+    Vector2  ScreenSize;
+    float    Radius;
+    float    Thickness;
+    int      NumSample;
+    float    Intensity;
+    float    TemporalWeight;
+    float    DepthSigma;
+    float    NormalSigma;
+};
+
 struct VolumetricFogCompositeData
 {
     XMMATRIX ViewProj;
@@ -88,6 +102,14 @@ struct VolumetricFogCompositeData
     Vector4  CameraNearFar;
     Vector4  VoxelSize;
     float    BlendWithScene;
+};
+
+struct FXAAData
+{
+    Vector2 InverseResolution;
+    float  QualitySubpixel;
+    float  QualityEdgeDetectionThreshold;
+    float  QualityMinimumEdgeThreshold;
 };
 
 struct GBufferData
@@ -124,4 +146,10 @@ struct PipelineStateStream
     CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL_FORMAT  DSVFormat;
     CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL         DepthStencilState;
     CD3DX12_PIPELINE_STATE_STREAM_BLEND_DESC            BlendState;
+};
+
+struct ComputePipelineStateStream
+{
+    CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE        RootSignature;
+    CD3DX12_PIPELINE_STATE_STREAM_CS                    CS;
 };

@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "Camera/CameraComponent.h"
 #include "Mesh/MeshComponent.h"
+#include "GraphicsEngine/SDFFont.h"
 
 using namespace Global;
 using namespace u8_literals;
@@ -28,13 +29,15 @@ std::filesystem::path ESceneManager::GetSettingFilePath()
 }
 
 ESceneManager::ESceneManager() 
-    : _mainCamera(nullptr) 
+    : 
+    _mainCamera(nullptr), 
+    _nextSceneSkybox(nullptr)
 {
    
 }
 ESceneManager::~ESceneManager()
 {
-    
+
 }
 
 void ESceneManager::LoadSettingFile() 
@@ -148,18 +151,18 @@ void ESceneManager::SceneUpdate()
     ObjectsStart();
     ObjectsApplicationQuit();
     ObjectsDestroy();
-    ObjectsMatrixUpdate();
     ObjectsAddLoadScene();
-
-#ifdef _UMEDITOR
-    _isPlay = editorModule->PlayMode.IsPlay(); //플레이 갱신은 마지막에 해야함. 
-#endif
+    ObjectsMatrixUpdate();
 }
 
 void ESceneManager::SceneFinalUpdate() 
 {
+    //그래픽스 Flip 이후 실행해야할 로직들
     ObjectsTransformFlagReset();
     ObjectsPrevFrameEnableUpdate();
+#ifdef _UMEDITOR
+    _isPlay = editorModule->PlayMode.IsPlay(); // 플레이 갱신은 마지막에 해야함.
+#endif
 }
 
 void ESceneManager::ObjectsTransformFlagReset() 
@@ -763,7 +766,7 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
             }
         }
         _setting.MainScene = scene->Path;
-        SetRendererSkyBox(scene);              
+        _nextSceneSkybox   = scene;         
         _addComponentsQueue.clear();
         _addGameObjectsQueue.clear();
         _waitAwakeVec.clear();
@@ -881,7 +884,10 @@ Scene* ESceneManager::GetSceneByName(std::string_view name)
 
 void ESceneManager::ObjectsAwake()
 {
-    for (auto& component : _waitAwakeVec)
+    static thread_local std::vector<Component*> awakeVector;
+    awakeVector.clear();
+    std::ranges::transform(_waitAwakeVec, std::back_inserter(awakeVector), [](const std::shared_ptr<Component>& ptr) { return ptr.get(); });
+    for (auto& component : awakeVector)
     {
         if (component->_enableInHierarchy)
         {
@@ -898,7 +904,10 @@ void ESceneManager::ObjectsAwake()
 
 void ESceneManager::ObjectsStart()
 {
-    for (auto& component : _waitStartVec)
+    static thread_local std::vector<Component*> startVector;
+    startVector.clear();
+    std::ranges::transform(_waitStartVec, std::back_inserter(startVector), [](const std::shared_ptr<Component>& ptr) { return ptr.get(); });
+    for (auto& component : startVector)
     {
         if (component->_enableInHierarchy)
         {
@@ -907,7 +916,7 @@ void ESceneManager::ObjectsStart()
         }
     }
     std::erase_if(_waitStartVec, [](auto& component)
-    {
+    { 
         return component->_initFlags.IsStart();
     });
 }
@@ -1039,6 +1048,12 @@ void ESceneManager::ObjectsAddLoadScene()
         }
         _nextSceneGuid.clear();
     }
+
+    if (nullptr != _nextSceneSkybox)
+    {
+        SetRendererSkyBox(_nextSceneSkybox);     
+        _nextSceneSkybox = nullptr;
+    }
 }
 
 void ESceneManager::ObjectsApplicationQuit()
@@ -1141,8 +1156,6 @@ void ESceneManager::ObjectsDestroy()
         {
             return destroyComponent == component.get();
         });
-
-        NotInitDestroyComponentEraseToWaitVec(destroyComponent);
     }
 
     //오브젝트 삭제
@@ -1158,7 +1171,6 @@ void ESceneManager::ObjectsDestroy()
             for (auto& component : destroyObject->_components)
             {
                 component->OnDestroy();
-                NotInitDestroyComponentEraseToWaitVec(component.get());
             }
         }
 
@@ -1175,8 +1187,7 @@ void ESceneManager::ObjectsDestroy()
             }
             else
             {
-                std::erase_if(_addGameObjectsQueue, 
-                [destroyObject, this](std::shared_ptr<GameObject>& object) 
+                std::erase_if(_addGameObjectsQueue, [destroyObject, this](std::shared_ptr<GameObject>& object) 
                 {
                     bool erase = object.get() == destroyObject;
                     if (erase)
@@ -1202,9 +1213,12 @@ void ESceneManager::ObjectsDestroy()
     {
         if (false == _destroyObjectTemp.empty())
         {
-            static EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("SceneDock");
+            static EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("Scene##dock");
             static EditorHierarchyTool* editorHierarchy = sceneDock->GetGui<EditorHierarchyTool>();
-            editorHierarchy->ActiveHierarchyCleanup();
+            if (editorHierarchy)
+            {
+                 editorHierarchy->ActiveHierarchyCleanup();
+            }
         }
     }
 
@@ -1215,6 +1229,7 @@ void ESceneManager::ObjectsDestroy()
 
 void ESceneManager::ObjectsAddRuntime()
 {
+    //오브젝트 추가
     for (auto& gameObject : _addGameObjectsQueue)
     {
         int id = gameObject->_instanceID;
@@ -1236,14 +1251,21 @@ void ESceneManager::ObjectsAddRuntime()
 
         if constexpr (IS_EDITOR)
         {
-            static EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("SceneDock");
+            static EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("Scene##dock");
             static EditorHierarchyTool* editorHierarchy = sceneDock->GetGui<EditorHierarchyTool>();
-            editorHierarchy->PushHierarchyObject(gameObject);
+            if (editorHierarchy)
+            {
+                editorHierarchy->PushHierarchyObject(gameObject);
+            }
         }
     }
+    _addGameObjectsQueue.clear();
 
+    //임시 큐
+    static thread_local std::vector<Component*> addQueue;
+    addQueue.reserve(_addComponentsQueue.size());
     for (auto& [owner, component] : _addComponentsQueue)
-    {
+    {   
         if (owner.expired() == false)
         {
             if (_isPlay)
@@ -1255,13 +1277,18 @@ void ESceneManager::ObjectsAddRuntime()
             {
                 component->gameObject->_transform._hasChanged = true;
             }
-            component->UpdateEnableInHierarchy();
-            component->Reset();
+            addQueue.push_back(component.get());
         }
     }
-
-    _addGameObjectsQueue.clear();
     _addComponentsQueue.clear();
+
+    //안전하게 원본 배열에서 복사 후 이벤트 호출
+    for (auto& component : addQueue)
+    {
+        component->UpdateEnableInHierarchy();
+        component->Reset();
+    }
+    addQueue.clear();
 }
 
 bool ESceneManager::IsRuntimeActive(std::shared_ptr<GameObject>& obj)
@@ -1324,6 +1351,7 @@ void ESceneManager::AddDestroyComponentQueue(Component* component)
         if (result)
         {
             vec.push_back(component);
+            NotInitDestroyComponentEraseToWaitVec(component);
         }
     }
 }
@@ -1437,11 +1465,15 @@ void ESceneManager::AddDestroyObjectQueue(GameObject* gameObject)
     if (gameObject->IsValid())
     {
         auto& [set, vec] = engineCore->SceneManager._destroyObjectsQueue;
-        Transform::ForeachDFS(gameObject->_transform, [&set, &vec](Transform* pTransform) {
+        Transform::ForeachDFS(gameObject->_transform, [this, &set, &vec](Transform* pTransform) {
             auto [iter, result] = set.insert(&pTransform->gameObject);
             if (result)
             {
                 vec.push_back(&pTransform->gameObject);
+                for (auto& component : pTransform->_gameObject._components)
+                {
+                    NotInitDestroyComponentEraseToWaitVec(component.get());
+                }
             }
         });
     }
@@ -1990,6 +2022,7 @@ void ESceneManager::SceneResourceManager::Engine::Update(SceneResourceManager& m
         manager.UpdateRenderResource(manager._models);
         manager.UpdateRenderResource(manager._textures);
         manager.UpdateRenderResource(manager._fonts);
+        manager.UpdateRenderResource(manager._sdfFonts);
     }
 }
 
@@ -2130,6 +2163,46 @@ void ESceneManager::SceneResourceManager::RequestFontResource(const Component* c
     }
 }
 
+void ESceneManager::SceneResourceManager::RequestSDFFontResource(const Component* component, const File::Guid& guid,
+                                                                 const std::function<void()>& func)
+{
+    if (component->gameObject->IsValid())
+    {
+        File::Path path = UmFileSystem.GetPathFromGuid(guid);
+        if (false == path.IsNull())
+        {
+            RequestSDFFontResource(component, path, func);
+        }
+        else
+        {
+            std::string_view   componentName = component->ClassName();
+            const std::string& objectName    = component->gameObject->Name;
+            std::string msg = std::format("{}{}{} {}", guid.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ", objectName, componentName);
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+        }
+    }
+}
+
+void ESceneManager::SceneResourceManager::RequestSDFFontResource(const Component* component, const File::Path& path,
+                                                                 const std::function<void()>& func)
+{
+    if (component->gameObject->IsValid())
+    {
+        if (true == std::filesystem::exists(path))
+        {
+            auto tuple = std::make_tuple(component->GetWeakPtr(), path, func);
+            _sdfFonts.ResourceLoadQueue.push(tuple);
+        }
+        else
+        {
+            std::string_view   componentName = component->ClassName();
+            const std::string& objectName    = component->gameObject->Name;
+            std::string msg = std::format("{}{}{} {}", path.string(), (const char*)u8"는 존재하지 않는 리소스입니다. ", objectName, componentName);
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+        }
+    }
+}
+
 ESceneManager::SceneResourceManager::SceneResourceManager() 
 {
 
@@ -2221,6 +2294,16 @@ void ESceneManager::InputSystem::CleanupInputReceivers()
             inputReceivers.clear();
         }
     }
+}
+
+void ESceneManager::InputSystem::Vibrate(const Input::ControllerTypes::Vibration vibration)
+{
+    _inputController.Vibrate(vibration);
+}
+
+void ESceneManager::InputSystem::StopVibration() 
+{
+    _inputController.Vibrate(0, 0);
 }
 
 void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)

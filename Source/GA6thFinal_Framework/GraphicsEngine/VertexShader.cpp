@@ -1,12 +1,18 @@
 ﻿#include "pch.h"
 #include "VertexShader.h"
 
+VertexShader::VertexShader()
+{
+    _type = ShaderType::VERTEX;
+}
+
 void VertexShader::LoadResource(const std::filesystem::path& filePath, const std::function<void()>& callback)
 {
     CompileShader(filePath.c_str(), "vs_main", "vs_5_1");
 }
 
-void VertexShader::CreateInputLayout(ComPtr<ID3D12ShaderReflection> shaderReflection, const D3D12_SHADER_DESC&       shaderDesc)
+void VertexShader::CreateInputLayout(ComPtr<ID3D12ShaderReflection> shaderReflection,
+                                     const D3D12_SHADER_DESC&       shaderDesc)
 {
     if (_isInputLayoutCreated)
     {

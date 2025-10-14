@@ -270,7 +270,7 @@ void AudioTableComponent::LoadAudio()
     }
 }
 
-void AudioTableComponent::LoadAudio(const std::string& key, const File::GuidRef& guid)
+void AudioTableComponent::LoadAudio(const std::string& key, const File::Guid& guid)
 {
     UmAudio.LoadSound(key, guid);
 }

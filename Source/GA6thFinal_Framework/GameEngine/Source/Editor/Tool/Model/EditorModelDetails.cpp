@@ -3,13 +3,15 @@
 #include "EditorModelTool.h"
 #include "Editor/DynamicCamera/EditorDynamicCamera.h"
 #include "GraphicsEngine/FBXConverter.h"
+#include "GraphicsEngine/Interface/ILight.h"
+#include "GraphicsEngine/Interface/IMeshRenderer.h"
+#include "GraphicsEngine/Interface/IAnimator.h"
 
 EditorModelDetails::EditorModelDetails()
-    : _animator()
-    , _mainLight(std::make_unique<Light>())
+    : _mainLight(nullptr)
     , _selectedMeshIndex(0)
-{
-    _meshRenderer = std::make_unique<MeshRenderer>(STATIC_MESH, _position, _scale, _quaternion, _worldMatrix, _isDirtyFlag);
+{    
+    //_meshRenderer = std::make_unique<MeshRenderer>(STATIC_MESH, _position, _scale, _quaternion, _worldMatrix, _isDirtyFlag);
     SetLabel("Details##model");
     SetDockLayout(ImGuiDir_Right);
 }
@@ -19,7 +21,7 @@ std::shared_ptr<Model> EditorModelDetails::GetModel() const
     return _meshRenderer ? _meshRenderer->GetModel() : std::shared_ptr<Model>();
 }
 
-std::shared_ptr<Animator> EditorModelDetails::GetAnimator() const
+GraphicsPointer<IAnimator> EditorModelDetails::GetAnimator() const
 {
     return _animator;
 }
@@ -27,11 +29,13 @@ std::shared_ptr<Animator> EditorModelDetails::GetAnimator() const
 std::shared_ptr<Animation> EditorModelDetails::GetAnimation() const
 {
     const auto& model = GetModel();
+
     if (nullptr != model)
     {
         return model->GetAnimation();
     }
-    return std::shared_ptr<Animation>();
+
+    return nullptr;
 }
 
 const std::string& EditorModelDetails::GetCurrentAnimationName() const
@@ -113,8 +117,11 @@ void EditorModelDetails::OnTickGui()
 
 void EditorModelDetails::OnStartGui()
 {
-    UmGraphics.RegisterComponent("ModelViewer", _meshRenderer.get());
-    UmGraphics.RegisterComponent("ModelViewer", _mainLight.get());
+    UmGraphics.CreateMeshRenderer(&_meshRenderer, &_worldMatrix);
+    UmGraphics.CreateLight(&_mainLight);
+
+    UmGraphics.RegisterComponent("ModelViewer", _meshRenderer.Get());
+    UmGraphics.RegisterComponent("ModelViewer", _mainLight.Get());
 
     _color = Vector3(1.f);
     _ambient = Vector3(1.f);
@@ -127,21 +134,15 @@ void EditorModelDetails::OnStartGui()
     UpdateModelTransform();
 
     auto& system = Global::editorModule->GetDockWindowSystem();
-    auto* modelDock = system.GetDockWindow("ModelDock");
+    auto* modelDock = system.GetDockWindow("Model##dock");
     _modelTool      = modelDock->GetGui<EditorModelTool>();
 
     UmFileSystem.RegisterFileEventSubscriber(this, {".fbx", ".UmModel"});
 }
 
-void EditorModelDetails::OnEndGui() {}
-
-void EditorModelDetails::OnPreFrameBegin() {}
-
-void EditorModelDetails::OnPostFrameBegin() {}
-
 void EditorModelDetails::OnFrameRender()
 {
-    ImGui::BeginHorizontal("model");
+    ImGui::BeginHorizontal("Model##dock");
     if (ImGui::Button("Import", ImVec2(100, 50)))
     {
         ImportModelWithDialog();
@@ -370,18 +371,6 @@ void EditorModelDetails::OnFrameRender()
     }
 }
 
-void EditorModelDetails::OnFrameClipped() {}
-
-void EditorModelDetails::OnFrameEnd() {}
-
-void EditorModelDetails::OnFrameFocusEnter() {}
-
-void EditorModelDetails::OnFrameFocusStay() {}
-
-void EditorModelDetails::OnFrameFocusExit() {}
-
-void EditorModelDetails::OnFramePopupOpened() {}
-
 void EditorModelDetails::OnRequestedDragDrop(const File::Path& path) 
 {
     auto dock = GetOwnerDockWindow();
@@ -415,36 +404,32 @@ void EditorModelDetails::ImportModel(const File::Path& path)
 
     FBXConverter& fbxConverter = GetFBXConverter();
     fbxConverter.ImportModel(path, model);
-    _meshRenderer->SetModel(model);
+
+    UmGraphics.LoadResource(path.wstring(), _meshRenderer.Get());
+
     _meshRenderer->SetActive(&_isModelActive);
-    _meshRenderer->Initialize();
     _filePath = path;
     _filePath.replace_extension("UmModel");
 
     _currentAnimationIndex = -1;
     _currentAnimationName  = "";
     _animationIndexMap.clear();
-    auto animation = model->GetAnimation();
-    auto skeleton  = model->GetSkeleton();
-    if (animation && skeleton)
+    
+    if (_animator = _meshRenderer->GetAnimator())
     {
-        _animator.reset();
-        _animator = std::make_shared<Animator>();
-        _animator->Initialize(animation, skeleton);
-        _meshRenderer->SetAnimator(_animator);
+        auto        animation  = model->GetAnimation();
         const auto& animations = animation->GetAnimations();
+
         for (int i = 0; i < animations.size(); ++i)
         {
             _animationIndexMap[animations[i]] = i;
         }
+
         StopCurrentAnimation();
     }
     else
     {
-        if (_animator)
-        {
-            _animator.reset();
-        }
+        _animator = nullptr;
     }
 }
 

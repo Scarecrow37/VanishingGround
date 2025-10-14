@@ -84,7 +84,7 @@ void UnorderedAccessView::CreateResource()
             break;
     }
 
-    _currentState = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+    _currentState = _uavType == UAVType::TEXTURE ? D3D12_RESOURCE_STATE_UNORDERED_ACCESS : D3D12_RESOURCE_STATE_COMMON;
 
     HRESULT hr = device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &_desc, _currentState, nullptr, IID_PPV_ARGS(&_resource));
     FAILED_CHECK_MESSAGE(hr, L"UnorderedAccessView CreateCommittedResource Failed");
@@ -106,7 +106,8 @@ void UnorderedAccessView::CreateViews(bool createSRV)
         heapDesc.Type                       = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
         heapDesc.NumDescriptors             = handleCount;
         heapDesc.Flags                      = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-        FAILED_CHECK_MESSAGE(device->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&_clearCPUHeap)), L"UAV Clear Heap Create Failed");
+        FAILED_CHECK_MESSAGE(device->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&_clearCPUHeap)),
+                             L"UAV Clear Heap Create Failed");
 
         for (UINT i = 0; i < handleCount; ++i)
         {
@@ -154,30 +155,30 @@ void UnorderedAccessView::CreateViews(bool createSRV)
         break;
     }
     case UAVType::STRUCTURED_BUFFER:
-    case UAVType::BYTE_ADDRESS_BUFFER:
-    {
+    case UAVType::BYTE_ADDRESS_BUFFER: {
         D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
-        heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-        heapDesc.NumDescriptors = 1;
-        heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-        FAILED_CHECK_MESSAGE(device->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&_clearCPUHeap)), L"UAV Clear Heap Create Failed");
+        heapDesc.Type                       = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+        heapDesc.NumDescriptors             = 1;
+        heapDesc.Flags                      = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+        FAILED_CHECK_MESSAGE(device->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&_clearCPUHeap)),
+                             L"UAV Clear Heap Create Failed");
         _clearCPUHandles[0] = _clearCPUHeap->GetCPUDescriptorHandleForHeapStart();
 
         Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _uavHandles[0]);
 
         if (_uavType == UAVType::STRUCTURED_BUFFER)
         {
-            uavDesc.Format = DXGI_FORMAT_UNKNOWN;
-            uavDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
-            uavDesc.Buffer.NumElements = _elementCount;
+            uavDesc.Format                     = DXGI_FORMAT_UNKNOWN;
+            uavDesc.ViewDimension              = D3D12_UAV_DIMENSION_BUFFER;
+            uavDesc.Buffer.NumElements         = _elementCount;
             uavDesc.Buffer.StructureByteStride = _stride;
         }
         else // BYTE_ADDRESS_BUFFER
         {
-            uavDesc.Format = DXGI_FORMAT_R32_TYPELESS;
-            uavDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
+            uavDesc.Format             = DXGI_FORMAT_R32_TYPELESS;
+            uavDesc.ViewDimension      = D3D12_UAV_DIMENSION_BUFFER;
             uavDesc.Buffer.NumElements = _bufferSize / 4;
-            uavDesc.Buffer.Flags = D3D12_BUFFER_UAV_FLAG_RAW;
+            uavDesc.Buffer.Flags       = D3D12_BUFFER_UAV_FLAG_RAW;
         }
 
         device->CreateUnorderedAccessView(_resource.Get(), nullptr, &uavDesc, _uavHandles[0].CPU);
@@ -191,7 +192,7 @@ void UnorderedAccessView::CreateViews(bool createSRV)
         Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _srvHandle);
 
         D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-        srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+        srvDesc.Shader4ComponentMapping         = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
         switch (_uavType)
         {

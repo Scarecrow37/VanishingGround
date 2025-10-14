@@ -26,6 +26,9 @@ void RoundStartPhase::OnStart()
 
 void RoundStartPhase::OnEnter() 
 {
+    /// 사운드
+    UmAudio.Play("-20100");
+
     _isPhaseEnd = false;
 
     if (_weaponSystem)

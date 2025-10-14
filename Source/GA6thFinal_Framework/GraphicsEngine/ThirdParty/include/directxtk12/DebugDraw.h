@@ -50,3 +50,6 @@ void XM_CALLCONV DrawSpotLight(DirectX::PrimitiveBatch<DirectX::VertexPositionCo
 void XM_CALLCONV DrawDebugGrid(DirectX::PrimitiveBatch<DirectX::VertexPositionColor>* batch,
                                DirectX::FXMVECTOR cameraPosition, float farZ, size_t linesPerSide = 40,
                                DirectX::GXMVECTOR color = DirectX::Colors::White);
+
+void XM_CALLCONV DrawCircle(DirectX::PrimitiveBatch<DirectX::VertexPositionColor>* batch, DirectX::FXMVECTOR origin,
+                            float radius, DirectX::FXMVECTOR color = DirectX::Colors::White);

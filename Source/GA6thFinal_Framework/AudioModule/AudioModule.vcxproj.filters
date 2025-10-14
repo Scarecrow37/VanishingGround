@@ -31,26 +31,11 @@
     <Filter Include="Callback">
       <UniqueIdentifier>{40658823-65b1-4088-9110-95e0fafe74cb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Handle\AudioHadle">
-      <UniqueIdentifier>{88eebea4-703a-475d-82b7-b38878b3a62b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Handle\GroupHandle">
       <UniqueIdentifier>{a114e4bd-a211-492c-bf07-f08ff217f821}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Handle\Effecthandle">
-      <UniqueIdentifier>{f371b569-29fb-4069-afb6-ca324ad334df}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Handle\Effecthandle\ReverbHandle">
-      <UniqueIdentifier>{e30bdb07-e898-4c8e-b524-c14c9496b772}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Effects">
-      <UniqueIdentifier>{43601a99-3f60-4bf7-bb31-7f34011e4f66}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Effects\Fade">
-      <UniqueIdentifier>{b865363c-327a-4d77-bdc8-b379f4033b81}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Handle\Effecthandle\FadeHandle">
-      <UniqueIdentifier>{05d49051-3b2a-4e7d-9677-c3bc2642b331}</UniqueIdentifier>
+    <Filter Include="Handle\AudioHandle">
+      <UniqueIdentifier>{88eebea4-703a-475d-82b7-b38878b3a62b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -79,7 +64,7 @@
       <Filter>Callback</Filter>
     </ClInclude>
     <ClInclude Include="AudioHandle.h">
-      <Filter>Handle\AudioHadle</Filter>
+      <Filter>Handle\AudioHandle</Filter>
     </ClInclude>
     <ClInclude Include="Handle.h">
       <Filter>Handle</Filter>
@@ -120,7 +105,7 @@
       <Filter>Callback</Filter>
     </ClCompile>
     <ClCompile Include="AudioHandle.cpp">
-      <Filter>Handle\AudioHadle</Filter>
+      <Filter>Handle\AudioHandle</Filter>
     </ClCompile>
     <ClCompile Include="Handle.cpp">
       <Filter>Handle</Filter>

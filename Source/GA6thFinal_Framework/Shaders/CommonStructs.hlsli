@@ -114,6 +114,28 @@ struct VolumetricFogData
     float LightShaftIntensity;
 };
 
+struct SSGIData
+{
+    float4x4 PreViewProj;
+    float4x4 InverseViewProjection;
+    float2 ScreenSize;
+    float Radius;
+    float Thickness;
+    int NumSample;
+    float Intensity;
+    float TemporalWeight;
+    float DepthSigma;
+    float NormalSigma;
+};
+
+struct FXAAData
+{
+    float2 InverseResolution;
+    float QualitySubpixel;
+    float QualityEdgeDetectionThreshold;
+    float QualityMinimumEdgeThreshold;
+};
+
 struct OITNode
 {
     float4 Color;

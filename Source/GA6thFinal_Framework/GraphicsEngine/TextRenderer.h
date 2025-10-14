@@ -2,13 +2,13 @@
 #include "GraphicsBase.h"
 
 class Font;
-class FontRenderer : public GraphicsBase
+class TextRenderer : public GraphicsBase
 {
     friend class TextDrawPass;
 
 public:
-    FontRenderer();
-    virtual ~FontRenderer();
+    TextRenderer();
+    virtual ~TextRenderer();
 
 public:
     const Vector3& GetPosition() const { return _position; }
