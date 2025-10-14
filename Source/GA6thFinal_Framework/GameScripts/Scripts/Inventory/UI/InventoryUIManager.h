@@ -23,6 +23,7 @@ protected:
     REFLECT_FIELDS_BEGIN(Component)
     REFLECT_FIELDS_END(InventoryUIManager)
 
+    void ImGuiDrawPropertysEvent() override;
     void Awake() override;
     void Start() override;
 

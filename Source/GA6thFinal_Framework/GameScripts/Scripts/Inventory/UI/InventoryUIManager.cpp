@@ -16,7 +16,21 @@ InventoryUIManager::InventoryUIManager()
 
 InventoryUIManager::~InventoryUIManager() = default;
 
-void InventoryUIManager::Awake() 
+void InventoryUIManager::ImGuiDrawPropertysEvent() 
+{
+    if (UmCore->IsPlay())
+    {
+        if (ImGui::Button("Update UI"))
+        {
+            FindUIElements();
+            UpdateWeaponUI();
+            UpdateRevelationUI();
+            UpdateAccessoryUI();
+        }    
+    }
+}
+
+void InventoryUIManager::Awake()
 {
     Base::Awake();
     FindUIElements();
@@ -134,24 +148,42 @@ void InventoryUIManager::UpdateRevelationUI()
         if (_revelationUI.Manager)
         {
             size_t iconsCount      = _revelationUI.Icons.size();
-            size_t horizontalCount = std::max((size_t)1, revelationCount / iconsCount);
+            size_t horizontalCount = revelationCount / iconsCount + 1;
             _revelationUI.Manager->UpdateHorizontalUI(horizontalCount);
-            for (size_t i = 0; i < iconsCount; i++)
+            if (0 < iconsCount)
             {
-                ImageElement* image = _revelationUI.Icons[i];
-                if (image)
+                for (size_t i = 0; i < iconsCount; i++)
                 {
-                    if (i < elements.size())
+                    ImageElement* image = _revelationUI.Icons[i];
+                    if (image)
                     {
-                        const auto& revelation = elements[i];
-                        if (revelation)
+                        if (i < elements.size())
                         {
-                            DropItemInfo info = revelation->GetItemInfo();
-                            int          id   = DropItemInfo::GetArtifactIconID(info);
-                            File::Guid   guid = UmFileSystem.GetGuidFromAssetID(id);
-                            image->SetImage(guid);
+                            const auto& revelation = elements[i];
+                            if (revelation)
+                            {
+                                DropItemInfo info = revelation->GetItemInfo();
+                                int          id   = DropItemInfo::GetArtifactIconID(info);
+                                File::Guid   guid = UmFileSystem.GetGuidFromAssetID(id);
+                                image->Enable     = true;
+                                image->SetImage(guid);
+                            }
                         }
-                    }           
+                        else
+                        {
+                            image->Enable = false;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                for (auto& icon : _revelationUI.Icons)
+                {
+                    if (icon)
+                    {
+                        icon->Enable = false;
+                    }
                 }
             }
         }
@@ -168,20 +200,38 @@ void InventoryUIManager::UpdateAccessoryUI()
         if (_accessoryUI.Manager)
         {
             size_t iconsCount      = _accessoryUI.Icons.size();
-            size_t horizontalCount = std::max((size_t)1, accessoryCount / iconsCount);
+            size_t horizontalCount = accessoryCount / iconsCount + 1;
             _accessoryUI.Manager->UpdateHorizontalUI(horizontalCount);
-            for (size_t i = 0; i < iconsCount; i++)
+            if (0 < iconsCount)
             {
-                ImageElement* image = _accessoryUI.Icons[i];
-                if (image)
+                for (size_t i = 0; i < iconsCount; i++)
                 {
-                    if (i < items.size())
+                    ImageElement* image = _accessoryUI.Icons[i];
+                    if (image)
                     {
-                        const auto& accessory = items[i];
-                        DropItemInfo info = accessory.GetItemInfo();
-                        int          id   = DropItemInfo::GetArtifactIconID(info);
-                        File::Guid   guid = UmFileSystem.GetGuidFromAssetID(id);
-                        image->SetImage(guid);
+                        if (i < items.size())
+                        {
+                            const auto&  accessory = items[i];
+                            DropItemInfo info      = accessory.GetItemInfo();
+                            int          id        = DropItemInfo::GetArtifactIconID(info);
+                            File::Guid   guid      = UmFileSystem.GetGuidFromAssetID(id);
+                            image->Enable          = true;
+                            image->SetImage(guid);
+                        }
+                        else
+                        {
+                            image->Enable = false;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                for (auto& image : _accessoryUI.Icons)
+                {
+                    if (image)
+                    {
+                        image->Enable = false;
                     }
                 }
             }
