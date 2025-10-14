@@ -126,6 +126,7 @@ void AccessorySystem::ImGuiDrawPropertysEvent()
                 {
                     constexpr std::array<std::u8string_view, 3> keyInfos{u8"ID", u8"Name", u8"Rarity"};
 
+                    std::unordered_set<std::string> validTargets;
                     size_t rowCount = dataBase.RowCount();
                     for (size_t row = 0; row < rowCount; row++)
                     {
@@ -184,8 +185,24 @@ void AccessorySystem::ImGuiDrawPropertysEvent()
                                 AccessoryElement& element = _elementTable[name];
                                 _editorOnly.DirtyAccessoryQueue.push(&element);
                             }
+
+                            validTargets.insert(name);
+                        }                      
+                    }      
+                   
+                    std::vector<AccessoryElement> eraseTargets;
+                    for (auto& accessory : _elementTableOrderID)
+                    {
+                        const std::string& name = accessory->AccessoryName;
+                        if (validTargets.find(name) == validTargets.end())
+                        {
+                            eraseTargets.emplace_back(*accessory);
                         }
-                    }                
+                    }
+                    for (auto& target : eraseTargets)
+                    {
+                        EraseAccessory(target);
+                    }
                 };
 
                 if (ExcelDataSystem* dataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())

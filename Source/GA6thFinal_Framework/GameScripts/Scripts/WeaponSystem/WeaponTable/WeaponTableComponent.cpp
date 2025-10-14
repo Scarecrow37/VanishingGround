@@ -254,6 +254,7 @@ void WeaponTableComponent::ImGuiDrawPropertysEvent()
                         u8"Speed",  
                         u8"giveChain"
                     };
+                    std::unordered_set<std::string> vaildTargets;
                     size_t rowCount = dataBase.RowCount();
                     for (size_t row = 0; row < rowCount; ++row)
                     {
@@ -299,8 +300,23 @@ void WeaponTableComponent::ImGuiDrawPropertysEvent()
                                 WeaponElement& element = _weaponTable[name];
                                 _imguiEvent.DirtyWeaponElementQueue.push(&element);
                             }
+                            vaildTargets.insert(name);
                         }
                     }               
+                    
+                    std::vector<WeaponElement> earseTargets;
+                    for (auto& weapon : _weaponTableIdOrder)
+                    {
+                        const std::string& name = weapon->Stats.WeaponName;
+                        if (vaildTargets.find(name) == vaildTargets.end())
+                        {
+                            earseTargets.emplace_back(*weapon);
+                        }
+                    }
+                    for (auto& target : earseTargets)
+                    {
+                        EraseWeapon(target);
+                    }
                 };
 
                 if (ExcelDataSystem* dataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())

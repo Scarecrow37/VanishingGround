@@ -617,6 +617,7 @@ void RevelationSystem::ImGuiDrawPropertysEvent()
                 {
                     auto ParserFunc = [&](ExcelDataBase& dataBase) 
                     {
+                        std::unordered_set<std::string> validTargets;
                         size_t rowCount = dataBase.RowCount();
                         for (size_t row = 0; row < rowCount; ++row)
                         {
@@ -670,8 +671,23 @@ void RevelationSystem::ImGuiDrawPropertysEvent()
                                     RevelationElement& element = _elementsTable[name];
                                     _imguiEvent.DirtyRevelationElementQueue.push(&element);
                                 }
+                                validTargets.insert(name);
                             }
-                        }                     
+                        }     
+                        
+                        std::vector<std::string> eraseTargets;
+                        for (auto& revelation : _elementTableOrderID)
+                        {
+                            const std::string& name = revelation->ElementName;
+                            if (validTargets.find(name) == validTargets.end())
+                            {
+                                eraseTargets.emplace_back(name);
+                            }
+                        }
+                        for (auto& target : eraseTargets)
+                        {
+                            EraseElement(target);
+                        }
                     };
 
                     if (ExcelDataSystem* excelSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
