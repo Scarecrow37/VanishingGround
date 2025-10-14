@@ -6,10 +6,13 @@
 #include "WeaponSystem/WeaponSystem.h"
 #include "RevelationSystem/RevelationSystem.h"
 #include "AccessorySystem/AccessorySystem.h"
+#include "Inventory/UINavi/InventoryItemFocusNavi.h"
 
 UMREAL_COMPONENT(InventoryUIManager)
 
-InventoryUIManager::InventoryUIManager()
+InventoryUIManager::InventoryUIManager() 
+    :
+    _singletonComponent(this)
 {
     _itemInfoUIManager = nullptr;
 }
@@ -20,12 +23,13 @@ void InventoryUIManager::ImGuiDrawPropertysEvent()
 {
     if (UmCore->IsPlay())
     {
-        if (ImGui::Button("Update UI"))
+        if (ImGui::Button("Open Inventory"))
         {
-            FindUIElements();
-            UpdateWeaponUI();
-            UpdateRevelationUI();
-            UpdateAccessoryUI();
+            OpenInventory();
+        }    
+        if (ImGui::Button("Close Inventory"))
+        {
+            CloseInventory();
         }    
     }
 }
@@ -33,14 +37,20 @@ void InventoryUIManager::ImGuiDrawPropertysEvent()
 void InventoryUIManager::Awake()
 {
     Base::Awake();
-    FindUIElements();
+    if (_singletonComponent.TrySingleTon())
+    {
+        BindInputAction(ControllerButton::B, Action::PRESSED, this, &InventoryUIManager::OnButtonB);
+    }
+    _closeFlag = true;
 }
 
-void InventoryUIManager::Start() 
+void InventoryUIManager::Update() 
 {
-    UpdateWeaponUI();
-    UpdateRevelationUI();
-    UpdateAccessoryUI();
+    if (_closeFlag)
+    {
+        CloseInventory();
+        _closeFlag = false;
+    }
 }
 
 void InventoryUIManager::FindUIElements()
@@ -67,35 +77,29 @@ void InventoryUIManager::FindUIElements()
                 GameObject& object = curr->gameObject;
                 if (object.CompareTag("Weapon"))
                 {
-                    _weaponsUI = FindIcons(curr);
+                    _weaponsUI   = FindIcons(curr);
+                    _weaponsNavi = FindFocus(curr);
                 }
                 else if (object.CompareTag("Revelation"))
                 {
                     _revelationUI.Manager = object.GetComponent<HorizontalPageUIManager>();
                     _revelationUI.Icons   = FindIcons(curr);
+                    _revelationUI.Navis   = FindFocus(curr);
                 }
                 else if (object.CompareTag("Accessory"))
                 {
                     _accessoryUI.Manager = object.GetComponent<HorizontalPageUIManager>();
                     _accessoryUI.Icons   = FindIcons(curr);
+                    _accessoryUI.Navis   = FindFocus(curr);
                 }
                 else if (object.CompareTag("Consumable"))
                 {
-                    _consumableUI = FindIcons(curr);
+                    _consumableUI   = FindIcons(curr);
+                    _consumableNavi = FindFocus(curr);
                 }
             }
         }
     }
-}
-
-Transform* InventoryUIManager::GetParentParent(Transform& tr)
-{
-    Transform* parent1 = tr.Parent;
-    if (parent1)
-    {
-        return parent1->Parent;
-    }
-    return nullptr;
 }
 
 std::vector<ImageElement*> InventoryUIManager::FindIcons(Transform* tr)
@@ -116,7 +120,61 @@ std::vector<ImageElement*> InventoryUIManager::FindIcons(Transform* tr)
     return ui;
 }
 
-void InventoryUIManager::UpdateWeaponUI() 
+std::vector<InventoryItemFocusNavi*> InventoryUIManager::FindFocus(Transform* tr)
+{
+    std::vector<InventoryItemFocusNavi*> navis;
+    Transform::ForeachBFS(*tr, [&navis](Transform* curr) 
+    {
+        GameObject& obj = curr->gameObject;
+        if (obj.CompareTag("Focus"))
+        {
+            InventoryItemFocusNavi* navi = obj.GetComponent<InventoryItemFocusNavi>();
+            if (navi)
+            {
+                navis.push_back(navi);
+            }
+        }
+    });
+    return navis;
+}
+
+void InventoryUIManager::OnButtonB(const Input::Controller&) 
+{
+    if (true == gameObject->ActiveSelf)
+    {
+        CloseInventory();
+        _closeFlag = true;
+    }
+}
+
+void InventoryUIManager::OpenInventory(UINavigationComponent* lastFocus) 
+{
+    gameObject->ActiveSelf = true;
+    if (lastFocus)
+    {
+        _lastFocus = lastFocus->GetWeakPtr();
+    }
+    FindUIElements();
+    UpdateWeaponUI();
+    UpdateRevelationUI();
+    UpdateAccessoryUI();
+    if (0 < _weaponsNavi.size())
+    {
+        _weaponsNavi[0]->Focus();
+    }
+}
+
+void InventoryUIManager::CloseInventory() 
+{
+    gameObject->ActiveSelf = false;
+    if (auto lastFocus = _lastFocus.lock())
+    {
+        UINavigationComponent* navi = static_cast<UINavigationComponent*>(lastFocus.get());
+        navi->Focus();
+    }
+}
+
+void InventoryUIManager::UpdateWeaponUI()
 {
     //무기 갱신
     if (WeaponSystem* weaponSystem = SingletonComponent<WeaponSystem>::GetInstance())
@@ -237,6 +295,5 @@ void InventoryUIManager::UpdateAccessoryUI()
             }
         }
     }
-
 }
 

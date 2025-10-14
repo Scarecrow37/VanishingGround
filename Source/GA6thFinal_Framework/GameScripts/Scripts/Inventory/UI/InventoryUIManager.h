@@ -1,9 +1,11 @@
 ﻿#pragma once
+#include "Utility/SingletonHelper.h"
 
 class ItemInfoUIManager;
 class HorizontalPageUIManager;
 class ImageElement;
-class InventoryUIManager : public Component
+class InventoryItemFocusNavi;
+class InventoryUIManager : public Component, public InputReceiver
 {
     USING_PROPERTY(InventoryUIManager)
 
@@ -12,6 +14,9 @@ public:
     ~InventoryUIManager() override;
 
 public:
+    void OpenInventory(UINavigationComponent* lastFocus = nullptr);
+    void CloseInventory();
+
     void UpdateWeaponUI();
     void UpdateRevelationUI();
     void UpdateAccessoryUI();
@@ -25,24 +30,38 @@ protected:
 
     void ImGuiDrawPropertysEvent() override;
     void Awake() override;
-    void Start() override;
+    void Update() override;
 
 private:
+    SingletonComponent<InventoryUIManager> _singletonComponent;
+
     void FindUIElements();
-    Transform* GetParentParent(Transform& tr);
     ItemInfoUIManager* _itemInfoUIManager;
 
     struct HorizontalPageUI
     {      
         HorizontalPageUIManager* Manager = nullptr;
         std::vector<ImageElement*> Icons;
+        std::vector<InventoryItemFocusNavi*> Navis;
     };
 
     std::vector<ImageElement*> FindIcons(Transform* tr);
+    std::vector<InventoryItemFocusNavi*> FindFocus(Transform* tr);
 
     std::vector<ImageElement*> _weaponsUI;
+    std::vector<InventoryItemFocusNavi*> _weaponsNavi;
+
     HorizontalPageUI           _revelationUI;
     HorizontalPageUI           _accessoryUI;
-    std::vector<ImageElement*> _consumableUI;
+
+    std::vector<ImageElement*>           _consumableUI;
+    std::vector<InventoryItemFocusNavi*> _consumableNavi;
+
+    std::weak_ptr<Component>   _lastFocus; //마지막으로 포커싱된 UI
+
+private:
+    void OnButtonB(const Input::Controller&);
+    bool _closeFlag = false;
+
 };
 
