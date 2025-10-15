@@ -114,7 +114,7 @@ void PointLightShadowAtlas::CreateAtlasResource()
     CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_DEFAULT);
 
     HRESULT hr = Global::device->GetDevice()->CreateCommittedResource(&heapProps, D3D12_HEAP_FLAG_NONE, &texDesc,
-                                                                      D3D12_RESOURCE_STATE_DEPTH_WRITE, &clearValue,
+                                                                      D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, &clearValue,
                                                                       IID_PPV_ARGS(&_resource));
     GRAPHICS_ASSERT(SUCCEEDED(hr),
                     L"PointLightShadowAtlas::CreateAtlasResource : Failed to create shadow atlas resource.");

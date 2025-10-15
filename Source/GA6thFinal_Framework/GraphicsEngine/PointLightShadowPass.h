@@ -17,7 +17,7 @@ public:
     virtual ~PointLightShadowPass();
 
 public:
-    D3D12_GPU_DESCRIPTOR_HANDLE GetShadowCubeMapSRV() const { return _shadowCubeMapSRV.GPU; }
+    D3D12_GPU_DESCRIPTOR_HANDLE GetShadowAtlasSRV() const { return _shadowAtlasSRV.GPU; }
 
 public:
     void Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique,
@@ -48,7 +48,7 @@ private:
     PointLightShadowAtlas _atlas;
     std::vector<UINT>     _activeLightIndices;
 
-    DescriptorHandles _shadowCubeMapSRV;
+    DescriptorHandles _shadowAtlasSRV;
 
     struct PointLightShadowData
     {

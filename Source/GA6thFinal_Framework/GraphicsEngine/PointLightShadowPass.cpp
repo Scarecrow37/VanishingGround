@@ -27,7 +27,7 @@ void PointLightShadowPass::Initialize(RenderScene* ownerScene, RenderTechnique* 
 void PointLightShadowPass::AddRenderPassDatas(std::string_view sceneName)
 {
     Global::renderPassDatas->AddRenderPassImage(sceneName, "PointLightShadowPass", "ShadowAtlas",
-                                                _shadowCubeMapSRV.GPU);
+                                                _shadowAtlasSRV.GPU);
 }
 
 void PointLightShadowPass::Update(ID3D12GraphicsCommandList* commandList, const float deltaTime)
@@ -148,17 +148,17 @@ void PointLightShadowPass::End(ID3D12GraphicsCommandList* commandList)
 void PointLightShadowPass::CreateShadowCubeMapResource()
 {
     // SRV 생성
-    Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _shadowCubeMapSRV);
+    Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _shadowAtlasSRV);
 
-    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc   = {};
-    srvDesc.Format                            = DXGI_FORMAT_R32_FLOAT;
-    srvDesc.ViewDimension                     = D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
-    srvDesc.Shader4ComponentMapping           = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-    srvDesc.TextureCubeArray.MipLevels        = 1;
-    srvDesc.TextureCubeArray.NumCubes         = MAX_SHADOW_POINT_LIGHT;
-    srvDesc.TextureCubeArray.First2DArrayFace = 0;
+    Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _shadowAtlasSRV);
 
-    Global::device->GetDevice()->CreateShaderResourceView(_atlas.GetResource(), &srvDesc, _shadowCubeMapSRV.CPU);
+    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+    srvDesc.Format                          = DXGI_FORMAT_R32_FLOAT;
+    srvDesc.ViewDimension                   = D3D12_SRV_DIMENSION_TEXTURE2D;
+    srvDesc.Shader4ComponentMapping         = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    srvDesc.Texture2D.MipLevels             = 1;
+
+    Global::device->GetDevice()->CreateShaderResourceView(_atlas.GetResource(), &srvDesc, _shadowAtlasSRV.CPU);
 }
 
 void PointLightShadowPass::CreateShaderAndPSO()
