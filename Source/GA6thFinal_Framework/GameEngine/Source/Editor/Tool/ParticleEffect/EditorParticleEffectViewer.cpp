@@ -11,10 +11,7 @@
 
  }
 
- EditorParticleEffectViewer::~EditorParticleEffectViewer() {}
-
- void EditorParticleEffectViewer::OnTickGui()
-{}
+ EditorParticleEffectViewer::~EditorParticleEffectViewer() = default;
 
 void EditorParticleEffectViewer::OnStartGui()
 {
@@ -29,17 +26,6 @@ void EditorParticleEffectViewer::OnStartGui()
     auto&             system    = Global::editorModule->GetDockWindowSystem();
     EditorDockWindow* modelDock = system.GetDockWindow("Effect##dock");
 }
-
-void EditorParticleEffectViewer::OnEndGui()
-{
-
-}
-
-void EditorParticleEffectViewer::OnPreFrameBegin()
-{
-
-}
-
 void EditorParticleEffectViewer::OnPostFrameBegin()
 {
 
@@ -58,26 +44,6 @@ void EditorParticleEffectViewer::OnPostFrameBegin()
 
     auto& camera = _camera->GetCamera();
     camera->SetupPerspective(45.f, aspect, 0.1f, 1000.f);
-}
-
-void EditorParticleEffectViewer::OnFrameClipped() {}
-
-void EditorParticleEffectViewer::OnFrameEnd()
-{
-
-}
-
-void EditorParticleEffectViewer::OnFrameFocusEnter()
-{
-}
-
-void EditorParticleEffectViewer::OnFrameFocusStay()
-{
-}
-
-void EditorParticleEffectViewer::OnFrameFocusExit()
-{
-
 }
 
 void EditorParticleEffectViewer::OnFrameRender()
@@ -106,19 +72,4 @@ void EditorParticleEffectViewer::OnFrameRender()
         camSpeed -= 0.1f;
     _camera->SetMoveSpeed(camSpeed);
     _camera->Update();
-}
-
-void EditorParticleEffectViewer::OnFramePopupOpened()
-{
-
-}
-
-void EditorParticleEffectViewer::SerializedReflectEvent()
-{
-
-}
-
-void EditorParticleEffectViewer::DeserializedReflectEvent()
-{
-
 }
