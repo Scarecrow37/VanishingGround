@@ -290,9 +290,10 @@ UINT ParticleManager::GetMaxCount()
 UINT ParticleManager::GetTotalCount(std::string_view sceneName)
 {
     auto sName = std::string(sceneName);
-    if (_sceneResources.count(sName))
+    auto it = _sceneResources.find(sName);
+    if (it != _sceneResources.end())
     {
-        return _sceneResources.at(sName)._updateResource->_totalCount;
+        return it->second._updateResource->_totalCount;
     }
     return 0;
 }
@@ -300,9 +301,10 @@ UINT ParticleManager::GetTotalCount(std::string_view sceneName)
 std::vector<Texture*> ParticleManager::GetActiveAlbedos(std::string_view sceneName)
 {
     auto sName = std::string(sceneName);
-    if (_sceneResources.count(sName))
+    auto it = _sceneResources.find(sName);
+    if (it != _sceneResources.end())
     {
-        return _sceneResources.at(sName)._updateResource->_activeEmitterAlbedos;
+        return it->second._updateResource->_activeEmitterAlbedos;
     }
     return {};
 }
@@ -310,9 +312,10 @@ std::vector<Texture*> ParticleManager::GetActiveAlbedos(std::string_view sceneNa
 ID3D12Resource* ParticleManager::GetComputeOutputResource(std::string_view sceneName)
 {
     auto sName = std::string(sceneName);
-    if (_sceneResources.count(sName))
+    auto it = _sceneResources.find(sName);
+    if (it != _sceneResources.end())
     {
-        return _sceneResources.at(sName)._renderResource->_simulationOutput.Get();
+        return it->second._renderResource->_simulationOutput.Get();
     }
     return nullptr;
 }
@@ -320,9 +323,10 @@ ID3D12Resource* ParticleManager::GetComputeOutputResource(std::string_view scene
 UINT ParticleManager::GetRibbonCount(std::string_view sceneName)
 {
     auto sName = std::string(sceneName);
-    if (_sceneResources.count(sName))
+    auto it = _sceneResources.find(sName);
+    if (it != _sceneResources.end())
     {
-        return _sceneResources.at(sName)._updateResource->_ribbonTotalCount;
+        return it->second._updateResource->_ribbonTotalCount;
     }
     return 0;
 }
@@ -330,9 +334,10 @@ UINT ParticleManager::GetRibbonCount(std::string_view sceneName)
 std::vector<std::vector<RibbonIndex>> ParticleManager::GetRibbonEmitterIndices(std::string_view sceneName)
 {
     auto sName = std::string(sceneName);
-    if (_sceneResources.count(sName))
+    auto it = _sceneResources.find(sName);
+    if (it != _sceneResources.end())
     {
-        return _sceneResources.at(sName)._updateResource->_ribbonIndices;
+        return it->second._updateResource->_ribbonIndices;
     }
     return {};
 }
@@ -340,9 +345,10 @@ std::vector<std::vector<RibbonIndex>> ParticleManager::GetRibbonEmitterIndices(s
 std::vector<Texture*> ParticleManager::GetActiveRibbonAlbedos(std::string_view sceneName)
 {
     auto sName = std::string(sceneName);
-    if (_sceneResources.count(sName))
+    auto it = _sceneResources.find(sName);
+    if (it != _sceneResources.end())
     {
-        return _sceneResources.at(sName)._updateResource->_ribbonActiveEmitterAlbedos;
+        return it->second._updateResource->_ribbonActiveEmitterAlbedos;
     }
     return {};
 }
@@ -350,9 +356,10 @@ std::vector<Texture*> ParticleManager::GetActiveRibbonAlbedos(std::string_view s
 ID3D12Resource* ParticleManager::GetRibbonOutputResource(std::string_view sceneName)
 {
     auto sName = std::string(sceneName);
-    if (_sceneResources.count(sName))
+    auto it = _sceneResources.find(sName);
+    if (it != _sceneResources.end())
     {
-        return _sceneResources.at(sName)._renderResource->_ribbonSimulationOutput.Get();
+        return it->second._renderResource->_ribbonSimulationOutput.Get();
     }
     return nullptr;
 }
@@ -360,9 +367,10 @@ ID3D12Resource* ParticleManager::GetRibbonOutputResource(std::string_view sceneN
 UINT64 ParticleManager::GetComputeFenceValue(std::string_view sceneName)
 {
     auto sName = std::string(sceneName);
-    if (_computeFences.count(sName))
+    auto it = _computeFences.find(sName);
+    if (it != _computeFences.end())
     {
-        return _computeFences.at(sName);
+        return it->second;
     }
     return 0;
 }
