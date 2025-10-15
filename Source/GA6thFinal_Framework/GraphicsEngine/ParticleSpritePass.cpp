@@ -8,15 +8,9 @@ ParticleSpritePass::~ParticleSpritePass() = default;
 void ParticleSpritePass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
     RenderPass::Initialize(ownerScene, ownerTechnique, commandList);
-    
     InitializeShaderAndPSO();
-
-    //refactoring needed
-    _albedoTextureIDs = std::vector<int>(100,-1);
-
     _textureIDBuffer = std::make_unique<StructuredBuffer>();
     _textureIDBuffer->Initialize(sizeof(int), 100);
-
 }
 
 void ParticleSpritePass::Begin(ID3D12GraphicsCommandList* commandList)
@@ -39,21 +33,15 @@ void ParticleSpritePass::Begin(ID3D12GraphicsCommandList* commandList)
 
     commandList->ResourceBarrier(1, &computeOutputBarrior);
 
-    auto albedoTextures = Global::particleManager->GetActiveAlbedos(_ownerScene->_name);
-    std::fill(_albedoTextureIDs.begin(), _albedoTextureIDs.end(), -1);
-    for (int i = 0; i < albedoTextures.size(); ++i)
-    {
-        _albedoTextureIDs[i] = albedoTextures[i]->GetID();
-    }
-
-    _textureIDBuffer->CopyStructuredBuffer(commandList, _albedoTextureIDs.data(), static_cast<UINT>(albedoTextures.size()));
+    _albedoTextureIDs = Global::particleManager->GetActiveAlbedos(_ownerScene->_name);
+    _textureIDBuffer->CopyStructuredBuffer(commandList, _albedoTextureIDs.data(),
+                                           static_cast<UINT>(_albedoTextureIDs.size()));
 }
 
 void ParticleSpritePass::Draw(ID3D12GraphicsCommandList* commandList)
 {        
     if (0 >= Global::particleManager->GetTotalCount(_ownerScene->_name))
         return;
-
 
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootSignature(_fx.GetRootSignature());

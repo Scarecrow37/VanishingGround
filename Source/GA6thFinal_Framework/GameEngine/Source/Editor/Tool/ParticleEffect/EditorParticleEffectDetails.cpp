@@ -42,13 +42,6 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
 
     bool isSomethingChanged = false;
 
-
-    //ImGui::SameLine();
-    //ImGui::Text("Emit Type : ");
-    //ImGui::SameLine();
-    //ImGui::Text(renderItems[(UINT)_curEmitter->_particleType]);
-
-
     if (ImGui::BeginTable("##material", 2, ImGuiTableFlags_Borders))
     {
         ImGui::TableNextRow();
@@ -57,7 +50,7 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
         ImGui::Text("Render Type");
 
         ImGui::TableNextColumn();
-        ImGui::Text(renderItems[(UINT)_curEmitter->_particleType]);
+        ImGui::Text(renderItems[static_cast<UINT>(_curEmitter->_particleType)]);
 
         ImGui::TableNextRow();
         ImGui::TableNextColumn();
@@ -66,14 +59,11 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
         ImGui::Text("Emission Shape Type");
 
         ImGui::TableNextColumn();
-        ImGui::Text(shapeItems[(UINT)_curEmitter->_locationType]);
+        ImGui::Text(shapeItems[static_cast<UINT>(_curEmitter->_locationType)]);
 
         ImGui::EndTable();
     }
     ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.0f);
-
-
-
 
     // emitter Name
     {
@@ -89,21 +79,22 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
     {
         if (ParticleType::SPRITE == _curEmitter->_particleType)
         {
-            auto spriteModule = _curEmitter->_particleRenderModule->AsSprite();
-            ImGui::Text("Sprite Texture");
-            ImGui::SameLine();
-            D3D12_GPU_DESCRIPTOR_HANDLE gpuhandle = spriteModule->GetAlbedoTexture()->GetGPUHandle();
-            bool isTextureLoadButtonPressed       = ImGui::ImageButton((ImTextureID)gpuhandle.ptr, {100, 100});
-
-            if (true == isTextureLoadButtonPressed)
+            if (auto spriteModule = _curEmitter->_particleRenderModule->AsSprite())
             {
-                HWND                    owner = UmApplication.GetHwnd();
-                LPCWSTR                 title = L"Open sprite texture";
-                std::vector<File::Path> out;
-                if (File::ShowOpenFileDialog(owner, title, L"", {{L"이미지 파일\0", L"*.jpg*\0"}}, false, out))
+                ImGui::Text("Sprite Texture");
+                ImGui::SameLine();
+                D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = spriteModule->GetGPUHandle();
+                bool isTextureLoadButtonPressed       = ImGui::ImageButton((ImTextureID)gpuHandle.ptr, {100, 100});
+                if (true == isTextureLoadButtonPressed)
                 {
-                    spriteModule->ChangeAlbedoTexture(out.front().wstring());
-                    isSomethingChanged = true;
+                    HWND                    owner = UmApplication.GetHwnd();
+                    constexpr LPCWSTR       title = L"Open sprite texture";
+                    std::vector<File::Path> out;
+                    if (File::ShowOpenFileDialog(owner, title, L"", {{L"이미지 파일\0", L"*.jpg*\0"}}, false, out))
+                    {
+                        spriteModule->ChangeAlbedoTexture(out.front().wstring());
+                        isSomethingChanged = true;
+                    }
                 }
             }
         }
@@ -112,13 +103,13 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
             ImGui::Text("Ribbon Texture");
             ImGui::SameLine();
             auto                        ribbonModule = _curEmitter->_particleRenderModule->AsRibbon();
-            D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle    = ribbonModule->GetAlbedoTexture()->GetGPUHandle();
+            D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle    = ribbonModule->GetGPUHandle();
             bool isTextureLoadButtonPressed          = ImGui::ImageButton((ImTextureID)gpuHandle.ptr, {100, 100});
 
             if (true == isTextureLoadButtonPressed)
             {
                 HWND                    owner = UmApplication.GetHwnd();
-                LPCWSTR                 title = L"Open Ribbon texture";
+                constexpr LPCWSTR       title = L"Open Ribbon texture";
                 std::vector<File::Path> out;
                 if (File::ShowOpenFileDialog(owner, title, L"", {{L"이미지 파일\0", L"*.jpg*\0"}}, false, out))
                 {
@@ -166,7 +157,7 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
         }
     }
     ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.0f);
-    
+
     // shape location
     {
         float locationFactor[3] = {_curEmitter->_emitLocator->GetFactor().x, _curEmitter->_emitLocator->GetFactor().y,
@@ -427,10 +418,9 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
     ImGui::Text("");
     // velocity
     {
-        int         selected_row   = -1;
         const char* items[4]       = {"Linear    ", "From Point", "In Cone   ", "Custom    "};
         UINT        curIdx         = (UINT)_curEmitter->_velocityType;
-        std::string selected_value = items[curIdx];
+        std::string selectedValue = items[curIdx];
 
         // 콤보 박스: 평소엔 선택값만, 클릭하면 확장
 
@@ -440,15 +430,15 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
         {
             for (int n = 0; n < 4; n++)
             {
-                bool is_selected = (curIdx == n);
+                bool isSelected = (curIdx == n);
 
-                if (ImGui::Selectable(items[n], is_selected))
+                if (ImGui::Selectable(items[n], isSelected))
                 {
                     curIdx             = n;
-                    selected_value     = items[n]; // 선택된 값 저장
+                    selectedValue      = items[n]; // 선택된 값 저장
                     isSomethingChanged = true;
                 }
-                if (is_selected)
+                if (isSelected)
                     ImGui::SetItemDefaultFocus();
             }
             ImGui::EndCombo();

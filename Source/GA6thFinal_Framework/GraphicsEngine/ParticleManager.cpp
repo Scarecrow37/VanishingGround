@@ -298,15 +298,16 @@ UINT ParticleManager::GetTotalCount(std::string_view sceneName)
     return 0;
 }
 
-std::vector<Texture*> ParticleManager::GetActiveAlbedos(std::string_view sceneName)
+const std::vector<UINT>& ParticleManager::GetActiveAlbedos(std::string_view sceneName)
 {
+    static const std::vector<UINT> empty;
     auto sName = std::string(sceneName);
     auto it = _sceneResources.find(sName);
     if (it != _sceneResources.end())
     {
         return it->second._updateResource->_activeEmitterAlbedos;
     }
-    return {};
+    return empty;
 }
 
 ID3D12Resource* ParticleManager::GetComputeOutputResource(std::string_view sceneName)
@@ -331,26 +332,28 @@ UINT ParticleManager::GetRibbonCount(std::string_view sceneName)
     return 0;
 }
 
-std::vector<std::vector<RibbonIndex>> ParticleManager::GetRibbonEmitterIndices(std::string_view sceneName)
+const std::vector<std::vector<RibbonIndex>>& ParticleManager::GetRibbonEmitterIndices(std::string_view sceneName)
 {
+    static const std::vector<std::vector<RibbonIndex>> empty;
     auto sName = std::string(sceneName);
     auto it = _sceneResources.find(sName);
     if (it != _sceneResources.end())
     {
         return it->second._updateResource->_ribbonIndices;
     }
-    return {};
+    return empty;
 }
 
-std::vector<Texture*> ParticleManager::GetActiveRibbonAlbedos(std::string_view sceneName)
+const std::vector<UINT>& ParticleManager::GetActiveRibbonAlbedos(std::string_view sceneName)
 {
+    static const std::vector<UINT> empty;
     auto sName = std::string(sceneName);
     auto it = _sceneResources.find(sName);
     if (it != _sceneResources.end())
     {
         return it->second._updateResource->_ribbonActiveEmitterAlbedos;
     }
-    return {};
+    return empty;
 }
 
 ID3D12Resource* ParticleManager::GetRibbonOutputResource(std::string_view sceneName)
@@ -637,7 +640,7 @@ void ParticleManager::AwakeParticles(float deltaTime, const std::shared_ptr<Part
                     if (ParticleType::SPRITE == emitter->_particleType)
                     {
                         auto spriteModule = emitter->_particleRenderModule->AsSprite();
-                        scene->_activeEmitterAlbedos.push_back(spriteModule->GetAlbedoTexture());
+                        scene->_activeEmitterAlbedos.push_back(spriteModule->GetAlbedoTextureID());
                         Matrix worldMatrix = emitter->GetUseWorldSpace() ? Matrix::Identity : emitter->GetWorldMatrix().Transpose();
                         Matrix orientMatrix = emitter->GetWorldMatrix().Transpose();
                         scene->_emitterMatrix.push_back(
@@ -666,7 +669,7 @@ void ParticleManager::AwakeParticles(float deltaTime, const std::shared_ptr<Part
                     else if (ParticleType::RIBBON == emitter->_particleType)
                     {
                         auto ribbonModule = emitter->_particleRenderModule->AsRibbon();
-                        scene->_ribbonActiveEmitterAlbedos.push_back(ribbonModule->GetAlbedoTexture());
+                        scene->_ribbonActiveEmitterAlbedos.push_back(ribbonModule->GetAlbedoTextureID());
                         Matrix worldMatrix =
                             emitter->GetUseWorldSpace() ? Matrix::Identity : emitter->GetWorldMatrix().Transpose();
                         
@@ -700,7 +703,7 @@ void ParticleManager::AwakeParticles(float deltaTime, const std::shared_ptr<Part
                             }
                             std::sort(
                                 emitterIndices.begin(), emitterIndices.end(),
-                                [](const RibbonIndex& a, const RibbonIndex& b) -> bool { return a.Ratio < b.Ratio; });
+                                [](const RibbonIndex& a, const RibbonIndex& b) -> bool { return a._ratio < b._ratio; });
 
                             if (!emitterIndices.empty())
                             {
@@ -708,7 +711,6 @@ void ParticleManager::AwakeParticles(float deltaTime, const std::shared_ptr<Part
                             }
                         }
                         ribbonEmitterIndex++;
-
                     }
                 }
             }

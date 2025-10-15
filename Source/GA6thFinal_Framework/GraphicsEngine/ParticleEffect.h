@@ -11,12 +11,16 @@ public:
     class ParticleEmitter* AddEmitter(SIZE_T maxParticles = 100000, float emissionRate = 500.f, float emitterLifetime = 5.f,
                                 LocationShape locatorShape   = LocationShape::SPHERE,
                                 Vector3       locationFactor = Vector3(1, 1, 1),
-                                ParticleType particleType = ParticleType::SPRITE, std::wstring meshspritePath = L"");
+                                      ParticleType        particleType   = ParticleType::SPRITE,
+                                      const std::wstring& meshspritePath = L"");
 
     void                   Update(float deltaTime);
     class ParticleEmitter* GetEmitter(size_t emitterIndex);
-    // 외부에는 비소유 포인터 리스트를 제공
-    std::vector<class ParticleEmitter*> GetEmitterList() const;
+    auto                                GetEmitterList() const
+    {
+        return _particleEmitters | std::views::transform([](auto const& up) { return up.get(); });
+    }
+
     void                                RemoveEmitter(ParticleEmitter* target);
     void                                UpdateParticleLifeCycle(float deltaTime);
     void                                Play();

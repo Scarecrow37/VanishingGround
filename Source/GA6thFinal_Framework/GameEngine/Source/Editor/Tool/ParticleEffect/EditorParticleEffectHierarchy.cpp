@@ -126,7 +126,7 @@ void EditorParticleEffectHierarchy::OnFrameRender()
         {
 
             HWND                    owner = UmApplication.GetHwnd();
-            LPCWSTR                 title = L"Load fbx file";
+            constexpr LPCWSTR                 title = L"Load fbx file";
             std::vector<File::Path> out;
             if (File::ShowOpenFileDialog(UmApplication.GetHwnd(), title, L"",
                                          {{L"Model Files (*.fbx;*.UmModel)", L"*.fbx; *.UmModel\0\0"}}, false, out))
@@ -256,7 +256,7 @@ void EditorParticleEffectHierarchy::OnFrameRender()
                 }
                 ImGui::EndCombo();
             }
-            particleType = (ParticleType)renderIdx;
+            particleType = static_cast<ParticleType>(renderIdx);
         }
         // location combobox
         {
@@ -281,7 +281,7 @@ void EditorParticleEffectHierarchy::OnFrameRender()
                 }
                 ImGui::EndCombo();
             }
-            locationType = (LocationShape)shapeIdx;
+            locationType = static_cast<LocationShape>(shapeIdx);
         }
         ImGui::EndGroup();
         if (LocationShape::MESH_SURFACE == locationType)
@@ -292,7 +292,7 @@ void EditorParticleEffectHierarchy::OnFrameRender()
             if (true == isLoadModelButtonPressed)
             {
                 HWND                    owner = UmApplication.GetHwnd();
-                LPCWSTR                 title = L"Load fbx file";
+                constexpr LPCWSTR       title = L"Load fbx file";
                 std::vector<File::Path> out;
                 if (File::ShowOpenFileDialog(UmApplication.GetHwnd(), title, L"",
                                              {{L"Model Files (*.fbx;*.UmModel)", L"*.fbx; *.UmModel\0\0"}}, false, out))
@@ -381,7 +381,7 @@ void EditorParticleEffectHierarchy::LoadEnvironmentModel(const File::Path& path)
 void EditorParticleEffectHierarchy::LoadEffect()
 {
     HWND                    owner = UmApplication.GetHwnd();
-    LPCWSTR                 title = L"Load vfx file";
+    constexpr LPCWSTR                 title = L"Load vfx file";
     std::vector<File::Path> out;
     if (File::ShowOpenFileDialog(owner, title, L"", {{L"\0", L"*.vfx*\0"}}, false, out))
     {

@@ -244,7 +244,6 @@ void GraphicsCore::LoadModelResource(const std::wstring_view filePath, ParticleE
 {
     if (auto meshSurfaceLocator = component->_emitLocator->AsMeshSurfaceLocator())
     {
-        std::wstring path(filePath);
         _resourceManager->LoadResource<Model>(filePath);
     }
 }

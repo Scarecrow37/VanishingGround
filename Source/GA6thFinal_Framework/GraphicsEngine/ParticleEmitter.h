@@ -64,7 +64,7 @@ public:
 
     std::unique_ptr<ParticleRenderModule> _particleRenderModule;
     std::unique_ptr<EmitLocator>          _emitLocator;
-    GraphicsPointer<class ILight>                _particlePointLight;
+    GraphicsPointer<class ILight>         _particlePointLight;
 
     void SetLocatorFactor(const Vector3& factor);
     void SetVelocityType(VelocityScaleType velType);
@@ -72,7 +72,7 @@ public:
 public:
     void Initialize(SIZE_T maxParticles = 100000, float emissionRate = 500.f, float emitterLifetime = 5.f,
                     LocationShape locatorShape = LocationShape::SPHERE, Vector3 locationFactor = Vector3(1, 1, 1),
-                    ParticleType particleType = ParticleType::SPRITE, std::wstring meshspritePath = L"");
+                    ParticleType particleType = ParticleType::SPRITE, const std::wstring& meshspritePath = L"");
     void Update(float deltaTime);
     void UpdateParticleLifeCycle(float deltaTime);
     void FlushTextureResource();

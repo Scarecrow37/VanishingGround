@@ -19,7 +19,7 @@ void ParticleEmitter::SetVelocityType(VelocityScaleType velType)
 
 void ParticleEmitter::Initialize(SIZE_T maxParticles, float emissionRate, float emitterLifetime,
                                  LocationShape locatorShape, Vector3 locationFactor, ParticleType particleType,
-                                 std::wstring meshspritePath) // view -> wstring (값 복사로 수명 보장)
+                                 const std::wstring& meshspritePath) // view -> wstring (값 복사로 수명 보장)
 {
     _emitterLifetime = emitterLifetime;
     _particleType    = particleType;
@@ -127,7 +127,7 @@ void ParticleEmitter::Update(float deltaTime)
 void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime)
 {
     // 수명 만료 파티클 제거 (풀 앞쪽 구간만 활성)
-    for (int i = 0; i < (int)_activeParticleCount; ++i)
+    for (UINT i = 0; i < _activeParticleCount; ++i)
     {
         _particlePool[i].SetAge(_particlePool[i].GetAge() + deltaTime);
         if (_particlePool[i].GetAge() >= _particleLifetime)

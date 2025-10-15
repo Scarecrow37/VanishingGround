@@ -208,8 +208,8 @@ void ParticleEffectSerializer::Serialize_1_0(std::ofstream& os, ParticleEffect* 
             os.write(reinterpret_cast<const char*>(&temp), sizeof(temp));
             if (LocationShape::MESH_SURFACE == emitter->_locationType)
             {
-                auto       meshlocator = emitter->_emitLocator->AsMeshSurfaceLocator();
-                File::Path modelPath   = meshlocator->GetModelPath();
+                auto       meshLocator = emitter->_emitLocator->AsMeshSurfaceLocator();
+                File::Path modelPath   = meshLocator->GetModelPath();
                 SIZE_T     nameLen     = modelPath.string().size();
                 os.write(reinterpret_cast<const char*>(&nameLen), sizeof(nameLen));
                 os.write(modelPath.string().c_str(), nameLen);
@@ -441,8 +441,8 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_0(EffectID id, const std
         Vector4           vortexForce;
         ParticleType      particleType;
         std::string       modelpath;
-        Vector4           startnormal;
-        Vector4           endnormal;
+        Vector4           startNormal;
+        Vector4           endNormal;
         bool              useWorldSpace;
         is.read(reinterpret_cast<char*>(&useWorldSpace), sizeof(useWorldSpace));
         is.read(reinterpret_cast<char*>(&emitterPosition), sizeof(emitterPosition));
@@ -498,8 +498,8 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_0(EffectID id, const std
         }
         if (particleType == ParticleType::RIBBON)
         {
-            is.read(reinterpret_cast<char*>(&startnormal), sizeof(startnormal));
-            is.read(reinterpret_cast<char*>(&endnormal), sizeof(endnormal));
+            is.read(reinterpret_cast<char*>(&startNormal), sizeof(startNormal));
+            is.read(reinterpret_cast<char*>(&endNormal), sizeof(endNormal));
         }
 
         {
@@ -549,8 +549,8 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_0(EffectID id, const std
             {
                 if (auto ribbonModule = emitter->_particleRenderModule->AsRibbon())
                 {
-                    ribbonModule->SetStartNormal(startnormal);
-                    ribbonModule->SetEndNormal(endnormal);
+                    ribbonModule->SetStartNormal(startNormal);
+                    ribbonModule->SetEndNormal(endNormal);
                 }
             }
         }
@@ -611,8 +611,8 @@ void ParticleEffectSerializer::PreDeserialize_1_0(std::ifstream& is)
         Vector4           vortexForce;
         ParticleType      particleType;
         std::string       modelpath;
-        Vector4           startnormal;
-        Vector4           endnormal;
+        Vector4           startNormal;
+        Vector4           endNormal;
         bool              useWorldSpace;
 
         is.read(reinterpret_cast<char*>(&useWorldSpace), sizeof(useWorldSpace));
@@ -670,8 +670,8 @@ void ParticleEffectSerializer::PreDeserialize_1_0(std::ifstream& is)
         }
         if (particleType == ParticleType::RIBBON)
         {
-            is.read(reinterpret_cast<char*>(&startnormal), sizeof(startnormal));
-            is.read(reinterpret_cast<char*>(&endnormal), sizeof(endnormal));
+            is.read(reinterpret_cast<char*>(&startNormal), sizeof(startNormal));
+            is.read(reinterpret_cast<char*>(&endNormal), sizeof(endNormal));
         }
 
         UsedTexturePaths.insert(utf8Path);
@@ -695,7 +695,7 @@ void ParticleEffectSerializer::Serialize_1_1(std::ofstream& os, ParticleEffect* 
     uint32_t count = static_cast<uint32_t>(effect->GetEmitterList().size());
     os.write(reinterpret_cast<const char*>(&count), sizeof(count));
 
-    for (const auto* emitter : effect->GetEmitterList())
+    for (const auto emitter : effect->GetEmitterList())
     {
         // name length, name
         const std::string emittername = emitter->GetEmitterName();
@@ -733,8 +733,8 @@ void ParticleEffectSerializer::Serialize_1_1(std::ofstream& os, ParticleEffect* 
             os.write(reinterpret_cast<const char*>(&temp), sizeof(temp));
             if (LocationShape::MESH_SURFACE == emitter->_locationType)
             {
-                auto       meshlocator = emitter->_emitLocator->AsMeshSurfaceLocator();
-                File::Path modelPath   = meshlocator->GetModelPath();
+                auto       meshLocator = emitter->_emitLocator->AsMeshSurfaceLocator();
+                File::Path modelPath   = meshLocator->GetModelPath();
                 SIZE_T     nameLen     = modelPath.string().size();
                 os.write(reinterpret_cast<const char*>(&nameLen), sizeof(nameLen));
                 os.write(modelPath.string().c_str(), nameLen);
@@ -970,8 +970,8 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_1(EffectID id, const std
         Vector4           vortexForce;
         ParticleType      particleType;
         std::string       modelpath;
-        Vector4           startnormal;
-        Vector4           endnormal;
+        Vector4           startNormal;
+        Vector4           endNormal;
         Vector4           ribbonvector;
         bool              useWorldSpace;
         is.read(reinterpret_cast<char*>(&useWorldSpace), sizeof(useWorldSpace));
@@ -1028,8 +1028,8 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_1(EffectID id, const std
         }
         if (particleType == ParticleType::RIBBON)
         {
-            is.read(reinterpret_cast<char*>(&startnormal), sizeof(startnormal));
-            is.read(reinterpret_cast<char*>(&endnormal), sizeof(endnormal));
+            is.read(reinterpret_cast<char*>(&startNormal), sizeof(startNormal));
+            is.read(reinterpret_cast<char*>(&endNormal), sizeof(endNormal));
             is.read(reinterpret_cast<char*>(&ribbonvector), sizeof(ribbonvector));
         }
 
@@ -1078,8 +1078,8 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_1(EffectID id, const std
             {
                 if (auto ribbonModule = emitter->_particleRenderModule->AsRibbon())
                 {
-                    ribbonModule->SetStartNormal(startnormal);
-                    ribbonModule->SetEndNormal(endnormal);
+                    ribbonModule->SetStartNormal(startNormal);
+                    ribbonModule->SetEndNormal(endNormal);
                     ribbonModule->SetRibbonVector(ribbonvector);
                 }
             }
@@ -1141,8 +1141,8 @@ void ParticleEffectSerializer::PreDeserialize_1_1(std::ifstream& is)
         Vector4           vortexForce;
         ParticleType      particleType;
         std::string       modelpath;
-        Vector4           startnormal;
-        Vector4           endnormal;
+        Vector4           startNormal;
+        Vector4           endNormal;
         Vector4           ribbonvector;
         bool              useWorldSpace;
 
@@ -1201,8 +1201,8 @@ void ParticleEffectSerializer::PreDeserialize_1_1(std::ifstream& is)
         }
         if (particleType == ParticleType::RIBBON)
         {
-            is.read(reinterpret_cast<char*>(&startnormal), sizeof(startnormal));
-            is.read(reinterpret_cast<char*>(&endnormal), sizeof(endnormal));
+            is.read(reinterpret_cast<char*>(&startNormal), sizeof(startNormal));
+            is.read(reinterpret_cast<char*>(&endNormal), sizeof(endNormal));
             is.read(reinterpret_cast<char*>(&ribbonvector), sizeof(ribbonvector));
         }
 
@@ -1265,8 +1265,8 @@ void ParticleEffectSerializer::Serialize_1_2(std::ofstream& os, ParticleEffect* 
             os.write(reinterpret_cast<const char*>(&temp), sizeof(temp));
             if (LocationShape::MESH_SURFACE == emitter->_locationType)
             {
-                auto       meshlocator = emitter->_emitLocator->AsMeshSurfaceLocator();
-                File::Path path        = meshlocator->GetModelPath();
+                auto       meshLocator = emitter->_emitLocator->AsMeshSurfaceLocator();
+                File::Path path        = meshLocator->GetModelPath();
                 path                   = std::filesystem::absolute(path).generic_string();
                 File::Guid  guid       = path.ToGuid();
                 std::string guidstring = guid.string();
@@ -1502,8 +1502,8 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_2(EffectID id, const std
         Vector4           vortexForce;
         ParticleType      particleType;
         std::string       modelpath;
-        Vector4           startnormal;
-        Vector4           endnormal;
+        Vector4           startNormal;
+        Vector4           endNormal;
         Vector4           ribbonvector;
         bool              useWorldSpace;
         is.read(reinterpret_cast<char*>(&useWorldSpace), sizeof(useWorldSpace));
@@ -1558,8 +1558,8 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_2(EffectID id, const std
         }
         if (particleType == ParticleType::RIBBON)
         {
-            is.read(reinterpret_cast<char*>(&startnormal), sizeof(startnormal));
-            is.read(reinterpret_cast<char*>(&endnormal), sizeof(endnormal));
+            is.read(reinterpret_cast<char*>(&startNormal), sizeof(startNormal));
+            is.read(reinterpret_cast<char*>(&endNormal), sizeof(endNormal));
             is.read(reinterpret_cast<char*>(&ribbonvector), sizeof(ribbonvector));
         }
 
@@ -1609,8 +1609,8 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_2(EffectID id, const std
             {
                 if (auto ribbonModule = emitter->_particleRenderModule->AsRibbon())
                 {
-                    ribbonModule->SetStartNormal(startnormal);
-                    ribbonModule->SetEndNormal(endnormal);
+                    ribbonModule->SetStartNormal(startNormal);
+                    ribbonModule->SetEndNormal(endNormal);
                     ribbonModule->SetRibbonVector(ribbonvector);
                 }
             }
@@ -1672,8 +1672,8 @@ void ParticleEffectSerializer::PreDeserialize_1_2(std::ifstream& is)
         Vector4           vortexForce;
         ParticleType      particleType;
         std::string       modelpath;
-        Vector4           startnormal;
-        Vector4           endnormal;
+        Vector4           startNormal;
+        Vector4           endNormal;
         Vector4           ribbonvector;
         bool              useWorldSpace;
 
@@ -1731,8 +1731,8 @@ void ParticleEffectSerializer::PreDeserialize_1_2(std::ifstream& is)
         }
         if (particleType == ParticleType::RIBBON)
         {
-            is.read(reinterpret_cast<char*>(&startnormal), sizeof(startnormal));
-            is.read(reinterpret_cast<char*>(&endnormal), sizeof(endnormal));
+            is.read(reinterpret_cast<char*>(&startNormal), sizeof(startNormal));
+            is.read(reinterpret_cast<char*>(&endNormal), sizeof(endNormal));
             is.read(reinterpret_cast<char*>(&ribbonvector), sizeof(ribbonvector));
         }
 
@@ -1795,8 +1795,8 @@ void ParticleEffectSerializer::Serialize_1_3(std::ofstream& os, ParticleEffect* 
             os.write(reinterpret_cast<const char*>(&temp), sizeof(temp));
             if (LocationShape::MESH_SURFACE == emitter->_locationType)
             {
-                auto       meshlocator = emitter->_emitLocator->AsMeshSurfaceLocator();
-                File::Path path        = meshlocator->GetModelPath();
+                auto       meshLocator = emitter->_emitLocator->AsMeshSurfaceLocator();
+                File::Path path        = meshLocator->GetModelPath();
                 path                   = std::filesystem::absolute(path).generic_string();
                 File::Guid  guid       = path.ToGuid();
                 std::string guidstring = guid.string();
@@ -2044,8 +2044,8 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_3(EffectID id, const std
         Vector4           vortexForce;
         ParticleType      particleType;
         std::string       modelpath;
-        Vector4           startnormal;
-        Vector4           endnormal;
+        Vector4           startNormal;
+        Vector4           endNormal;
         Vector4           ribbonvector;
         bool              useWorldSpace;
 
@@ -2107,8 +2107,8 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_3(EffectID id, const std
         }
         if (particleType == ParticleType::RIBBON)
         {
-            is.read(reinterpret_cast<char*>(&startnormal), sizeof(startnormal));
-            is.read(reinterpret_cast<char*>(&endnormal), sizeof(endnormal));
+            is.read(reinterpret_cast<char*>(&startNormal), sizeof(startNormal));
+            is.read(reinterpret_cast<char*>(&endNormal), sizeof(endNormal));
             is.read(reinterpret_cast<char*>(&ribbonvector), sizeof(ribbonvector));
         }
 
@@ -2160,8 +2160,8 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_3(EffectID id, const std
             {
                 if (auto ribbonModule = emitter->_particleRenderModule->AsRibbon())
                 {
-                    ribbonModule->SetStartNormal(startnormal);
-                    ribbonModule->SetEndNormal(endnormal);
+                    ribbonModule->SetStartNormal(startNormal);
+                    ribbonModule->SetEndNormal(endNormal);
                     ribbonModule->SetRibbonVector(ribbonvector);
                 }
             }
@@ -2223,8 +2223,8 @@ void ParticleEffectSerializer::PreDeserialize_1_3(std::ifstream& is)
         Vector4           vortexForce;
         ParticleType      particleType;
         std::string       modelpath;
-        Vector4           startnormal;
-        Vector4           endnormal;
+        Vector4           startNormal;
+        Vector4           endNormal;
         Vector4           ribbonvector;
         bool              useWorldSpace;
         Vector3           axis;
@@ -2286,8 +2286,8 @@ void ParticleEffectSerializer::PreDeserialize_1_3(std::ifstream& is)
         }
         if (particleType == ParticleType::RIBBON)
         {
-            is.read(reinterpret_cast<char*>(&startnormal), sizeof(startnormal));
-            is.read(reinterpret_cast<char*>(&endnormal), sizeof(endnormal));
+            is.read(reinterpret_cast<char*>(&startNormal), sizeof(startNormal));
+            is.read(reinterpret_cast<char*>(&endNormal), sizeof(endNormal));
             is.read(reinterpret_cast<char*>(&ribbonvector), sizeof(ribbonvector));
         }
 
@@ -2312,7 +2312,7 @@ void ParticleEffectSerializer::Serialize_1_4(std::ofstream& os, ParticleEffect* 
     uint32_t count = static_cast<uint32_t>(effect->GetEmitterList().size());
     os.write(reinterpret_cast<const char*>(&count), sizeof(count));
 
-    for (const auto* emitter : effect->GetEmitterList())
+    for (auto const emitter : effect->GetEmitterList())
     {
         // name length, name
         const std::string emittername = emitter->GetEmitterName();
@@ -2342,7 +2342,7 @@ void ParticleEffectSerializer::Serialize_1_4(std::ofstream& os, ParticleEffect* 
                 os.write(reinterpret_cast<const char*>(&temp), sizeof(temp));
             }
         }
-        // worldspaceflag
+        // world space flag
         {
             auto temp = emitter->GetUseWorldSpace();
             os.write(reinterpret_cast<const char*>(&temp), sizeof(temp));
@@ -2372,8 +2372,8 @@ void ParticleEffectSerializer::Serialize_1_4(std::ofstream& os, ParticleEffect* 
             os.write(reinterpret_cast<const char*>(&temp), sizeof(temp));
             if (LocationShape::MESH_SURFACE == emitter->_locationType)
             {
-                auto       meshlocator = emitter->_emitLocator->AsMeshSurfaceLocator();
-                File::Path path        = meshlocator->GetModelPath();
+                auto       meshLocator = emitter->_emitLocator->AsMeshSurfaceLocator();
+                File::Path path        = meshLocator->GetModelPath();
                 path                   = std::filesystem::absolute(path).generic_string();
                 File::Guid  guid       = path.ToGuid();
                 std::string guidstring = guid.string();
@@ -2625,8 +2625,8 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_4(EffectID id, const std
         Vector4           vortexForce;
         ParticleType      particleType;
         std::string       modelpath;
-        Vector4           startnormal;
-        Vector4           endnormal;
+        Vector4           startNormal;
+        Vector4           endNormal;
         Vector4           ribbonvector;
         bool              useWorldSpace;
         Vector3           axis;
@@ -2700,8 +2700,8 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_4(EffectID id, const std
         }
         if (particleType == ParticleType::RIBBON)
         {
-            is.read(reinterpret_cast<char*>(&startnormal), sizeof(startnormal));
-            is.read(reinterpret_cast<char*>(&endnormal), sizeof(endnormal));
+            is.read(reinterpret_cast<char*>(&startNormal), sizeof(startNormal));
+            is.read(reinterpret_cast<char*>(&endNormal), sizeof(endNormal));
             is.read(reinterpret_cast<char*>(&ribbonvector), sizeof(ribbonvector));
         }
 
@@ -2764,8 +2764,8 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_4(EffectID id, const std
             {
                 if (auto ribbonModule = emitter->_particleRenderModule->AsRibbon())
                 {
-                    ribbonModule->SetStartNormal(startnormal);
-                    ribbonModule->SetEndNormal(endnormal);
+                    ribbonModule->SetStartNormal(startNormal);
+                    ribbonModule->SetEndNormal(endNormal);
                     ribbonModule->SetRibbonVector(ribbonvector);
                 }
             }
@@ -2828,8 +2828,8 @@ void ParticleEffectSerializer::PreDeserialize_1_4(std::ifstream& is)
         Vector4           vortexForce;
         ParticleType      particleType;
         std::string       modelpath;
-        Vector4           startnormal;
-        Vector4           endnormal;
+        Vector4           startNormal;
+        Vector4           endNormal;
         Vector4           ribbonvector;
         bool              useWorldSpace;
         Vector3           axis;
@@ -2902,8 +2902,8 @@ void ParticleEffectSerializer::PreDeserialize_1_4(std::ifstream& is)
         }
         if (particleType == ParticleType::RIBBON)
         {
-            is.read(reinterpret_cast<char*>(&startnormal), sizeof(startnormal));
-            is.read(reinterpret_cast<char*>(&endnormal), sizeof(endnormal));
+            is.read(reinterpret_cast<char*>(&startNormal), sizeof(startNormal));
+            is.read(reinterpret_cast<char*>(&endNormal), sizeof(endNormal));
             is.read(reinterpret_cast<char*>(&ribbonvector), sizeof(ribbonvector));
         }
 

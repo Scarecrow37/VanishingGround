@@ -26,6 +26,7 @@
 #include <format>
 #include <concurrent_queue.h>
 #include <functional>
+#include <ranges>
 
 #include "directx/d3dcommon.h"
 #include "directx/d3dx12.h"

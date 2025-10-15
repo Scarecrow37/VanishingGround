@@ -8,13 +8,12 @@ ParticleEffect::~ParticleEffect() = default; // unique_ptr가 정리함
 
 ParticleEmitter* ParticleEffect::AddEmitter(SIZE_T maxParticles, float emissionRate, float emitterLifetime,
                                             LocationShape locatorShape, Vector3 locationFactor,
-                                            ParticleType particleType, std::wstring meshspritePath) // view -> wstring
+                                            ParticleType        particleType,
+                                            const std::wstring& meshspritePath) // view -> wstring
 {
-    // 힙 객체를 소유하도록 unique_ptr로 생성
     auto&            uptr    = _particleEmitters.emplace_back(std::make_unique<ParticleEmitter>());
     ParticleEmitter* emitter = uptr.get(); // 외부에는 비소유 포인터 전달
 
-    // 주의: Initialize 내부에서 meshspritePath를 view로만 보관하면 안 됨(반드시 복사 저장)
     emitter->Initialize(maxParticles, emissionRate, emitterLifetime, locatorShape, locationFactor, particleType,
                         meshspritePath);
 
@@ -66,9 +65,8 @@ void ParticleEffect::Update(float deltaTime)
 
     for (auto& uptr : _particleEmitters)
     {
-        auto* emitter = uptr.get();
-        emitter->SetEffectWorldMatrix(_worldMatrix);
-        emitter->Update(deltaTime);
+        uptr->SetEffectWorldMatrix(_worldMatrix);
+        uptr->Update(deltaTime);
     }
 
     // 모든 emitter가 비활성화되면 종료 상태로 전환
@@ -94,16 +92,7 @@ class ParticleEmitter* ParticleEffect::GetEmitter(size_t emitterIndex)
     // 범위 체크(안전)
     if (emitterIndex >= _particleEmitters.size())
         return nullptr;
-    return _particleEmitters[emitterIndex].get();
-}
-
-std::vector<class ParticleEmitter*> ParticleEffect::GetEmitterList() const
-{
-    std::vector<ParticleEmitter*> list;
-    list.reserve(_particleEmitters.size());
-    for (auto const& uptr : _particleEmitters)
-        list.push_back(uptr.get());
-    return list; // 비소유 포인터 목록 반환
+    return _particleEmitters[emitterIndex] .get();
 }
 
 void ParticleEffect::RemoveEmitter(ParticleEmitter* target)

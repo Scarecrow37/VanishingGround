@@ -5,13 +5,11 @@ void EmitLocator::RandomInitialize()
 {
     _randomGenerator = std::mt19937(_randomizer());
     _randomRange     = std::uniform_real_distribution<float>(-1.f, 1.f);
-    RandomVal       = std::bind(_randomRange, _randomGenerator);
+    RandomVal        = std::bind(_randomRange, _randomGenerator);
+    RandomVal01      = [&]() { return (RandomVal() + 1.0f) * 0.5f; };
 }
 
-MeshSurfaceLocator::~MeshSurfaceLocator()
-{
-    _targetModel = nullptr;
-}
+MeshSurfaceLocator::~MeshSurfaceLocator() = default;
 
 DirectX::SimpleMath::Vector3 CubeLocator::EmitLocate()
 {
@@ -49,10 +47,9 @@ DirectX::SimpleMath::Vector3 TorusLocator::EmitLocate()
         _factor.z = _factor.x - 0.1f;
     }
     // 랜덤 값을 [0,1] 범위로 매핑
-    auto mapTo01 = [&]() { return (RandomVal() + 1.0f) * 0.5f; };
 
     // 각도는 균등 분포 [0, 2π]
-    float angle = 2.0f * XM_PI * mapTo01();
+    float angle = 2.0f * XM_PI * RandomVal01();
 
     float radius = RandomVal();
     radius *= (_factor.x - _factor.z) / 2;
@@ -78,11 +75,9 @@ DirectX::SimpleMath::Vector3 SphereLocator::EmitLocate()
 
     // 방향 벡터 생성 (단위 구면에서 균등 분포)
     Vector3 direction;
-    do
-    {
-        direction = {RandomVal(), RandomVal(), RandomVal()};
-    } while (direction.LengthSquared() > 1.0f);
-
+    direction = {RandomVal(), RandomVal(), RandomVal()};
+    direction.Normalize();
+    direction *= (RandomVal() + 1.0f) / 2.0f;
     return {direction.x * _factor.x, direction.y * _factor.y, direction.z * _factor.z};
 }
 

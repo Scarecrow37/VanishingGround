@@ -95,7 +95,7 @@ void ParticleComponent::ImGuiDrawPropertysEvent()
         {
             const File::Guid&  fileGuid   = (*it).second;
             const File::Path&  filePath   = fileGuid.ToPath();
-            const std::string& fileString = filePath.string();
+            std::string fileString = filePath.string();
             ImGui::Text(fileString.c_str());
         }
     }
@@ -205,7 +205,7 @@ void ParticleComponent::LoadParticle(const std::string& keyString)
                         ReflectFields->GuidMap[keyString] = assetGuid.string();
                         auto effect =
                             UmParticleSerializer.Deserialize(this, keyString, assetGuid.ToPath(), false, "Game");
-                        for (auto& emitter : effect->GetEmitterList())
+                        for (auto emitter : effect->GetEmitterList())
                         {
                             File::Path absolutePath = emitter->_particleRenderModule->GetModelAndTexturePath();
                             absolutePath            = std::filesystem::absolute(absolutePath).generic_string();
@@ -256,7 +256,7 @@ void ParticleComponent::LoadParticle(const std::string& keyString)
                                                 this, keyString, assetGuid.ToPath(), false, "Game");
                                             if (effect)
                                             {
-                                                for (auto& emitter : effect->GetEmitterList())
+                                                for (auto emitter : effect->GetEmitterList())
                                                 {
                                                     File::Path absolutePath =
                                                         emitter->_particleRenderModule->GetModelAndTexturePath();

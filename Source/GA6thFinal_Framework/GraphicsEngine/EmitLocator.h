@@ -9,6 +9,9 @@ public:
     Vector3                GetFactor() const { return _factor; }
     void                   SetFactor(const Vector3 factor) { _factor = factor; }
     std::function<float()> RandomVal;
+    std::function<float()> RandomVal01; 
+
+
 
     virtual class MeshSurfaceLocator*       AsMeshSurfaceLocator() { return nullptr; }
     virtual const class MeshSurfaceLocator* AsMeshSurfaceLocator() const { return nullptr; }
@@ -51,7 +54,7 @@ public:
 class MeshSurfaceLocator : public EmitLocator
 {
 public:
-    ~MeshSurfaceLocator();
+    virtual ~MeshSurfaceLocator();
     Vector3               EmitLocate();
     void                  SetModelPath(std::wstring_view filepath);
     void                  LoadVerticesFromModel(std::shared_ptr<class Model> model);

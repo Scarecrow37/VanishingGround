@@ -122,8 +122,8 @@ enum class VelocityScaleType
 
 struct RibbonIndex
 {
-    UINT  Index = -1;
-    float Ratio = 0;
+    UINT  _index = -1;
+    float _ratio = 0;
 };
 
 struct ParticleUpdateResource
@@ -134,12 +134,11 @@ struct ParticleUpdateResource
 
     std::vector<class Particle>           _totalParticles;
     std::vector<EmitterInfo>              _emitterMatrix;
-    std::vector<Texture*>                 _activeEmitterAlbedos;
+    std::vector<UINT>                     _activeEmitterAlbedos;
     UINT                                  _totalCount = 0;
-
     std::vector<class Particle>           _ribbonTotalParticles;
     std::vector<EmitterInfo>              _ribbonEmitterMatrix;
-    std::vector<Texture*>                 _ribbonActiveEmitterAlbedos;
+    std::vector<UINT>                     _ribbonActiveEmitterAlbedos;
     std::vector<std::vector<RibbonIndex>> _ribbonIndices;
     UINT                                  _ribbonTotalCount = 0;
 

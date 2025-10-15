@@ -25,7 +25,7 @@ private:
     SharedResource<UnorderedAccessView> _accumulateBuffer;
     SharedResource<UnorderedAccessView> _revealageBuffer;
 
-    std::vector<int>                  _albedoTextureIDs;
+    std::vector<UINT>                  _albedoTextureIDs;
     std::unique_ptr<StructuredBuffer> _textureIDBuffer;
 
     std::vector<std::vector<UINT>>                 _ribbonIndices;

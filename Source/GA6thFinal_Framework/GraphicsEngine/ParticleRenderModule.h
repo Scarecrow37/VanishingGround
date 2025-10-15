@@ -7,13 +7,10 @@ class Texture;
 class ParticleRenderModule
 {
 public:
-    virtual ~ParticleRenderModule() {}
-
-    // 필요 시 오버라이드
-    virtual void Initialize() {}
+    virtual ~ParticleRenderModule();
 
     // 경로 수명 보존을 위해 값 복사로 보관
-    void                SetModelAndTexturePath(std::wstring value) { _modelAndTexturePath = std::move(value); }
+    void                SetModelAndTexturePath(const std::wstring& value) { _modelAndTexturePath = value; }
     const std::wstring& GetModelAndTexturePath() const { return _modelAndTexturePath; }
 
     virtual class SpriteModule*       AsSprite() { return nullptr; }
@@ -28,9 +25,8 @@ protected:
 class SpriteModule : public ParticleRenderModule
 {
 public:
-    ~SpriteModule() override;
+    virtual ~SpriteModule() override;
 
-    void Initialize() override;
     void SetFrameInfo(Vector4 frameInfo);
     void SetFrameInfo(int widthCount, int heightCount, int startIndex, int totalCount);
 
@@ -39,19 +35,18 @@ public:
     void ChangeAlbedoTexture(std::wstring_view filePath);
     void SetAlbedoTexture(std::shared_ptr<Texture> texture);
 
-    Vector4  GetInitialFrameInfo() const;
-    Texture* GetAlbedoTexture() const;
-    Texture* GetNormalTexture() const;
+    Vector4                            GetInitialFrameInfo() const;
+    UINT                               GetAlbedoTextureID() const noexcept;
+    const D3D12_GPU_DESCRIPTOR_HANDLE& GetGPUHandle() const { return _albedoTexture->GetGPUHandle(); }
+    void                               CalculateFrameInfos();
 
     SpriteModule*       AsSprite() override { return this; }
     const SpriteModule* AsSprite() const override { return this; }
 
 protected:
-    void CalculateFrameInfos();
 
-    Vector4                  _initialFrameInfo;
     std::shared_ptr<Texture> _albedoTexture;
-    std::shared_ptr<Texture> _normalTexture;
+    Vector4                  _initialFrameInfo;
     std::vector<Vector4>     _preCalculatedFrameInfos;
     UMPARTICLE_PROPERTY(std::wstring, _newAlbedoTexturePath, NewAlbedoTexturePath, L"");
     UMPARTICLE_PROPERTY(bool, _isAlbedoTextureChanged, TextureChangeFlag, false);
@@ -60,28 +55,25 @@ protected:
 
 class MeshModule : public ParticleRenderModule
 {
-public:
-    void Initialize() override {}
 };
 
 class RibbonModule : public ParticleRenderModule
 {
 public:
-    ~RibbonModule() override;
+    virtual ~RibbonModule() override;
 
-    void Initialize() override;
     void LoadAlbedoTexture(std::wstring_view filePath);
     void SetAlbedoTexture(std::shared_ptr<Texture> texture);
     void ChangeAlbedoTexture(std::wstring_view filePath);
 
-    Texture* GetAlbedoTexture() const;
+    UINT GetAlbedoTextureID() const;
+    const D3D12_GPU_DESCRIPTOR_HANDLE& GetGPUHandle() const { return _albedoTexture->GetGPUHandle(); }
 
     RibbonModule*       AsRibbon() override { return this; }
     const RibbonModule* AsRibbon() const override { return this; }
 
 protected:
     std::shared_ptr<Texture> _albedoTexture;
-    std::shared_ptr<Texture> _normalTexture;
     UMPARTICLE_PROPERTY_REF(std::wstring, _newAlbedoTexturePath, NewAlbedoTexturePath, L"");
     UMPARTICLE_PROPERTY(bool, _isAlbedoTextureChanged, TextureChangeFlag, false);
     UMPARTICLE_PROPERTY_REF(Vector4, _startNormal, StartNormal, Vector4(0, 0, -1, 0));

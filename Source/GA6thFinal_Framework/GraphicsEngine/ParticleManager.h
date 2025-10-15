@@ -29,7 +29,7 @@ private:
     // -------------------------------------
     // [ Configuration & State ]
     // -------------------------------------
-    UINT _maxParticles;
+    UINT _maxParticles = MAX_PARTICLE;
     UINT _maxEmitters = 100;
     int  _namingIndex = 0;
     UMPARTICLE_PROPERTY(float, _deltaScale, DeltaScale, 1.f);
@@ -80,15 +80,15 @@ public:
     // =================================================================================================================
     // [ 6. Getters ]
     // =================================================================================================================
-    UINT                                  GetMaxCount();
-    UINT                                  GetTotalCount(std::string_view sceneName);
-    std::vector<Texture*>                 GetActiveAlbedos(std::string_view sceneName);
-    ID3D12Resource*                       GetComputeOutputResource(std::string_view sceneName);
-    UINT                                  GetRibbonCount(std::string_view sceneName);
-    std::vector<std::vector<RibbonIndex>> GetRibbonEmitterIndices(std::string_view sceneName);
-    std::vector<Texture*>                 GetActiveRibbonAlbedos(std::string_view sceneName);
-    ID3D12Resource*                       GetRibbonOutputResource(std::string_view sceneName);
-    UINT64                                GetComputeFenceValue(std::string_view sceneName);
+    UINT                                         GetMaxCount();
+    UINT                                         GetTotalCount(std::string_view sceneName);
+    const std::vector<UINT>&                     GetActiveAlbedos(std::string_view sceneName);
+    ID3D12Resource*                              GetComputeOutputResource(std::string_view sceneName);
+    UINT                                         GetRibbonCount(std::string_view sceneName);
+    const std::vector<std::vector<RibbonIndex>>& GetRibbonEmitterIndices(std::string_view sceneName);
+    const std::vector<UINT>&                     GetActiveRibbonAlbedos(std::string_view sceneName);
+    ID3D12Resource*                              GetRibbonOutputResource(std::string_view sceneName);
+    UINT64                                       GetComputeFenceValue(std::string_view sceneName);
 
     // =================================================================================================================
     // [ 7. Setters ]
@@ -134,6 +134,4 @@ private:
     void UpdateMvpConstant(float deltaTime, ParticleRenderResource* scene);
     void UpdateLifeCycle(float deltaTime);
     void RefreshCurrentEditorEffect();
-
-
 };
