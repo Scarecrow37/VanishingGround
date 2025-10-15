@@ -59,7 +59,7 @@ bool PointLightShadowAtlas::IsAllocated(UINT lightIndex) const
     return _allocated[lightIndex];
 }
 
-DescriptorHandles PointLightShadowAtlas::GetDSVHandles(UINT lightIndex, UINT faceIndex) const
+DescriptorHandles PointLightShadowAtlas::GetDSVHandle(UINT lightIndex, UINT faceIndex) const
 {
     UINT index = lightIndex * FacePerLight + faceIndex;
     GRAPHICS_ASSERT(index < FacePerLight * MAX_SHADOW_POINT_LIGHT,

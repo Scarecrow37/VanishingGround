@@ -9,8 +9,7 @@ struct ShadowFaceRegion
     UINT Height;
 };
 
-// PointLightShadowAtlas.h (중략)
-class PointLightShadowAtlas
+class PointLightShadowAtlas : public ResourceBase
 {
 public:
     static constexpr UINT FacePerLight           = 6;
@@ -23,7 +22,7 @@ public:
     void ReleaseLight(UINT lightIndex);
     bool IsAllocated(UINT lightIndex) const;
 
-    DescriptorHandles GetDSVHandles(UINT lightIndex, UINT faceIndex) const;
+    DescriptorHandles GetDSVHandle(UINT lightIndex, UINT faceIndex) const;
     D3D12_VIEWPORT    GetViewport(UINT lightIndex, UINT faceIndex) const;
     D3D12_RECT        GetScissorRect(UINT lightIndex, UINT faceIndex) const;
 
@@ -35,7 +34,6 @@ private:
 private:
     UINT                   _atlasSize = 8192;
     UINT                   _faceSize  = 1024;
-    ComPtr<ID3D12Resource> _resource;
 
     std::array<ShadowFaceRegion, FacePerLight * MAX_SHADOW_POINT_LIGHT>  _regions;
     std::array<DescriptorHandles, FacePerLight * MAX_SHADOW_POINT_LIGHT> _dsvHandles;

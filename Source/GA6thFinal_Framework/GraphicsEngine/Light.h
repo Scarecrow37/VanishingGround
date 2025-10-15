@@ -28,7 +28,8 @@ public:
     void SetDirectionalLight(const Vector3& color, const Vector3& ambient, const Vector3& direction, const float& intensity) override;
     void SetPointLight(const Vector3& color, const Vector3& position, const Vector3& attenuation, const float& range, const float& intensity) override;
     void SetSpotLight(const Vector3& color, const Vector3& position, const Vector3& direction, const Vector3& attenuation, const float& range, const float& inner, const float& outer, const float& intensity) override;
-    void SetShadowPointLight(const Vector3& color, const Vector3& position, const Vector3& attenuation, const float& range, const float& intensity) override;
+    void SetShadowPointLight(const Vector3& color, const Vector3& position, const Vector3& attenuation,
+                             const float& range, const float& intensity) override {};
 
 public:
     void AddReference() override;
@@ -37,7 +38,7 @@ public:
 public:
     void Update(const float deltaTime);
 
-private:
+protected:
     LightData _data{};
     Type      _type{};
 
