@@ -4,9 +4,9 @@
 namespace Audio
 {
     /// <summary>
-    /// 현재 사용중인 Group 제어에 사용하는 GroupHandle 객체입니다.
+    /// 현재 사용중인 Effect 제어에 사용하는 EffectHandle 객체입니다.
     /// </summary>
-    class GroupHandle : public Handle
+    class EffectHandle : public Handle
     {
         friend class System;
 
@@ -14,13 +14,9 @@ namespace Audio
         /// <summary>
         /// 기본 생성자로 생성된 핸들은 유효하지 않습니다.
         /// </summary>
-        GroupHandle();
+        EffectHandle();
 
     protected:
-        GroupHandle(Index index, Generation generation);
-
-    public:
-        bool operator==(const GroupHandle& other) const noexcept;
-
+        EffectHandle(Index index, Generation generation);
     };
 } // namespace Audio

@@ -13,6 +13,14 @@ void Audio::Manager::Initialize()
     {
         _groups.emplace(static_cast<Group>(group), _system.CreateGroup());
     }
+
+    _reverbHandle = _system.CreateReverbEffect(2, 44100);
+    _system.SetEffectParameter(_reverbHandle, ReverbParameter{});
+    _system.AttachEffect(_reverbHandle, _groups.at(GROUP_EFFECT));
+
+    _fadeHandle   = _system.CreateFadeEffect(FadeInitParameter{0.2f, 1.0f,  3.0f}, 2, 44100);
+    _system.AttachEffect(_fadeHandle, _groups.at(GROUP_BGM));
+    _system.EnableEffect(_fadeHandle);
 }
 
 void Audio::Manager::Finalize()
@@ -170,4 +178,24 @@ void Audio::Manager::SetVolume(const float volume) const
         UmLogger.Log(LogLevel::LEVEL_ERROR, errorMessage);
         UmLogger.Log(LogLevel::LEVEL_ERROR, exception.what());
     }
+}
+
+void Audio::Manager::FadeIn() const
+{
+    _system.SetEffectParameter(_fadeHandle, FadeParameter{FadeDirection::FORWARD});
+}
+
+void Audio::Manager::FadeOut() const
+{
+    _system.SetEffectParameter(_fadeHandle, FadeParameter{FadeDirection::BACKWARD});
+}
+
+void Audio::Manager::ReverbOn() const
+{
+    _system.EnableEffect(_reverbHandle);
+}
+
+void Audio::Manager::ReverbOff() const
+{
+    _system.DisableEffect(_reverbHandle);
 }

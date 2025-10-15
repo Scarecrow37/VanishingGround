@@ -456,14 +456,12 @@ void RenderScene::UpdateUI()
         if (!component->IsActive())
             continue;
 
-        const Vector2 textSize = component->GetStringSize();
-        const float   fontSize = component->GetFontSize();
+        const float fontSize = component->GetFontSize();
 
         XMMATRIX scale       = XMMatrixScaling(fontSize, fontSize, 1.f);
         XMMATRIX rotation    = XMMatrixRotationQuaternion(Quaternion::CreateFromYawPitchRoll(component->GetRotation()));
         XMMATRIX translation = XMMatrixTranslationFromVector(component->GetPosition());
-        XMMATRIX offset      = XMMatrixTranslation(0.f, textSize.y, 0.f);
-        _textMatrices.emplace_back(XMMatrixTranspose(scale * rotation * translation * offset));
+        _textMatrices.emplace_back(XMMatrixTranspose(scale * rotation * translation));
     }
 }
 

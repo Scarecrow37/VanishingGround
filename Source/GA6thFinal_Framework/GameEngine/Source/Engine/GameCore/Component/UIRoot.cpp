@@ -312,14 +312,17 @@ void UIRoot::ChangeFocusComponent(UINavigationComponent* nextFocusComponent, Foc
 {
     if (nullptr != nextFocusComponent)
     {
-        if (nullptr != _currentFocusNavigation)
+        if (const bool isEnable = nextFocusComponent->EnableInHierarchy; true == isEnable)
         {
-            _currentFocusNavigation->FocusOut(callType);
-        }
-        _currentFocusNavigation = nextFocusComponent;
-        if (nullptr != _currentFocusNavigation)
-        {
-            _currentFocusNavigation->FocusIn(callType);
+            if (nullptr != _currentFocusNavigation)
+            {
+                _currentFocusNavigation->FocusOut(callType);
+            }
+            _currentFocusNavigation = nextFocusComponent;
+            if (nullptr != _currentFocusNavigation)
+            {
+                _currentFocusNavigation->FocusIn(callType);
+            }
         }
     }
 }
