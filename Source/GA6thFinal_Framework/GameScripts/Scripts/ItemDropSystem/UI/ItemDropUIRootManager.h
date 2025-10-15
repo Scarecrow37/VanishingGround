@@ -6,6 +6,7 @@
 class ArtifactUIManager;
 class ItemInfoUIManager;
 class WeaponChangeUIManager;
+class RestartStageNavi;
 class ItemDropUIRootManager : public Component, public InputReceiver
 {
     USING_PROPERTY(ItemDropUIRootManager)
@@ -73,19 +74,21 @@ protected:
     void Reset() override;
     void Awake() override;
     void Start() override;
+    void Update() override;
     void LateUpdate() override;
 
     void OnDpadLeft(const Input::Controller&);
     void OnDpadRight(const Input::Controller&);
     void OnDpadUp(const Input::Controller&);
     void OnDpadDown(const Input::Controller&);
+    void OnLeftTumbStickDown(const Input::Controller& controller);
 
 private:
     SingletonComponent<ItemDropUIRootManager> _singletonComponent{this};
     std::weak_ptr<ArtifactUIManager>          _artifactUIManager;
     std::weak_ptr<ItemInfoUIManager>          _itemInfoUIManager;
     std::weak_ptr<WeaponChangeUIManager>      _weaponChangeUIManager;
-
+    std::weak_ptr<RestartStageNavi>           _restartNavi;
 
     enum class InputDir
     {
@@ -96,4 +99,7 @@ private:
         DOWN
     }
     _lastInputDir; //마지막 입력 추적용
+
+    bool _isFocusInput        = false;
+    bool _isFocusArtifactNavi = false;
 };
