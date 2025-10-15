@@ -53,6 +53,17 @@ void Light::SetSpotLight(const Vector3& color, const Vector3& position, const Ve
     _float_3   = &outer;
 }
 
+void Light::SetShadowPointLight(const Vector3& color, const Vector3& position, const Vector3& attenuation,
+                                const float& range, const float& intensity)
+{
+    _type      = Type::SHADOWPOINT;
+    _color     = &color;
+    _intensity = &intensity;
+    _float3_1  = &position;
+    _float3_2  = &attenuation;
+    _float_1   = &range;
+}
+
 void Light::AddReference()
 {
     GraphicsBase::AddReference();
@@ -91,6 +102,11 @@ void Light::Update(const float deltaTime)
         //_data.float_3  = *_float_3;
         _data.float_2  = cosf(XMConvertToRadians(*_float_2));
         _data.float_3  = cosf(XMConvertToRadians(*_float_3));
+        break;
+    case Light::Type::SHADOWPOINT:
+        _data.float3_1 = *_float3_1;
+        _data.float3_2 = *_float3_2;
+        _data.float_1  = *_float_1;
         break;
     }       
 }

@@ -266,6 +266,11 @@ void RenderScene::UpdateGlobal()
                 continue;
             _lightDatas[MAX_DIRECTIONAL_LIGHT + MAX_POINT_LIGHT + _numLight.Spot++] = light->GetLightData();
             break;
+        case Light::Type::SHADOWPOINT:
+            if (_numLight.ShadowPoint >= MAX_SHADOW_POINT_LIGHT)
+                continue;
+            _lightDatas[MAX_DIRECTIONAL_LIGHT + MAX_POINT_LIGHT + MAX_SPOT_LIGHT + _numLight.ShadowPoint++] = light->GetLightData();
+            break;
         }
     }
 
