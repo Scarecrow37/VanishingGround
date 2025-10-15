@@ -21,6 +21,7 @@ public:
 
 public:
     void RegisterAnimator(Animator* animator);
+    void ClearAnimationQueue();
 
 public:
     void Initialize(const unsigned int maxThread);
