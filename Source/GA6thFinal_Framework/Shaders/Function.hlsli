@@ -320,4 +320,55 @@ float4 Premultiply(float4 color)
     return color;
 }
 
+float CalculatePointLightShadow(float3 fragPos,float3 lightPos, uint lightIndex,TextureCubeArray pointLightShadowMaps,float farPlane)
+{
+    float3 fragToLight = fragPos - lightPos;
+    float currentDepth = length(fragToLight);
+    if (currentDepth >= farPlane)
+        return 1.0f;
+    fragToLight = normalize(fragToLight);
+    
+    float closestDepth = pointLightShadowMaps.Sample(samLinear_clamp, float4(fragToLight, lightIndex)).r;
+    closestDepth *= farPlane;
+    
+    float bias = 0.05 * (1.f + currentDepth * 0.1f);
+    float shadow = currentDepth - bias > closestDepth;
+
+    return shadow;
+}
+
+float CalculatePointLightShadowPCF(float3 fragPos, float3 lightPos, uint lightIndex,TextureCubeArray pointLightShadowMaps,float farPlane)
+{
+    float3 fragToLight = fragPos - lightPos;
+    float currentDepth = length(fragToLight);
+    if (currentDepth > farPlane)
+        return 1.0;
+    
+    float3 fragToLightDir = normalize(fragToLight);
+    
+    static const float3 sampleOffsets[20] =
+    {
+        float3(1, 1, 1), float3(1, -1, 1), float3(-1, -1, 1), float3(-1, 1, 1),
+             float3(1, 1, -1), float3(1, -1, -1), float3(-1, -1, -1),float3(-1, 1, -1),
+             float3(1, 1, 0), float3(1, -1, 0), float3(-1, -1, 0), float3(-1, 1, 0),
+             float3(1, 0, 1), float3(-1, 0, 1), float3(1, 0, -1), float3(-1, 0, -1),
+             float3(0, 1, 1), float3(0, -1, 1), float3(0, -1, -1), float3(0, 1, -1)
+    };
+
+    float shadow = 0.0;
+    float bias = 0.05 * (1.0 + currentDepth * 0.1);
+    float diskRadius = 0.05; 
+
+    for (int i = 0; i < 20; ++i)
+    {
+        float3 sampleDir = fragToLightDir + sampleOffsets[i] * diskRadius;
+        float closestDepth = pointLightShadowMaps.Sample(samLinear_clamp,float4(sampleDir, lightIndex)).r;
+
+        closestDepth *= farPlane;
+        shadow += currentDepth - bias > closestDepth ? 0.0 : 1.0;
+    }
+
+    return shadow / 20.0;
+}
+
 #endif
