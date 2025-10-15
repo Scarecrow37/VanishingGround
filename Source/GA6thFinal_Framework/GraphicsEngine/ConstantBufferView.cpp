@@ -48,3 +48,15 @@ void ConstantBufferView::UpdateBuffer(void* data)
 {
     memcpy(_data, data, _size);
 }
+
+void ConstantBufferView::UpdateBufferWithOffset(void* data, size_t offset, size_t dataSize)
+{
+    if (!data || !_data)
+        return;
+    if (offset + dataSize > _size)
+    {
+        return;
+    }
+
+    std::memcpy(static_cast<std::uint8_t*>(_data) + offset, data, dataSize);
+}
