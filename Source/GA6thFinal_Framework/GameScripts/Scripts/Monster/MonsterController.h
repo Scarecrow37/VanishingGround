@@ -1,6 +1,7 @@
 ﻿#pragma once
+#include "Monster/Context/MonsterDataContext.h"
+#include "Monster/Context/MonsterStageContext.h"
 #include "Monster/AI/MonsterAIModel.h"
-
 class Enemy;
 
 namespace Monster
@@ -12,8 +13,8 @@ namespace Monster
         using ActionTable = std::unordered_map<ActionID, std::unique_ptr<Action>>;
 
     public:
-        Controller() = default;
-        ~Controller() = default;
+        Controller();
+        ~Controller();
 
     public:
         inline bool Invalid() { return _weakOwner.expired(); }

@@ -13,6 +13,9 @@ namespace Monster
         : _weakOwner(owner), _dataContext(*pDataContext), _actionContext(*pActionContext), _stageContext(*pStageContext)
     {
     }
+
+    Action::~Action() = default;
+
     void Action::ProcessActionEnter() 
     {
         _isActionEnd = false;

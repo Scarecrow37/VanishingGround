@@ -3,6 +3,9 @@
 
 namespace Monster
 {
+    AIFactory::AIFactory() = default;
+    AIFactory::~AIFactory() = default;
+
     std::function<void(std::weak_ptr<Enemy>, AIModel&)> AIFactory::GetAIBuildFunc(FSMID id)
     {
         if (_aiBuilderTable.contains(id))

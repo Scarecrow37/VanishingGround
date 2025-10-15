@@ -6,6 +6,20 @@
 class CharacterBase;
 class Enemy;
 
+// @brief 몬스터 액션의 기본 멤버입니다. 이걸 추가하지 않으면 Factory에 추가가 불가능합니다
+#define MONSTER_ACTION_DATA(id, key)                                                                                            \
+public:                                                                                                                 \
+    static constexpr int            ID   = id;                                                                          \
+    static constexpr const char8_t* NAME = u8##key;                                                                     \
+    inline static int               GetTokenID() const override                                                         \
+    {                                                                                                                   \
+        return ID;                                                                                                      \
+    }                                                                                                                   \
+    inline static const char*       GetActionName() const override                                                      \
+    {                                                                                                                   \
+        return (const char*)NAME;                                                                                       \
+    }                                                                                                                   \
+    
 namespace Monster
 {
     class Action
@@ -15,7 +29,7 @@ namespace Monster
                const DataContext* pDataContext, 
                const ActionContext* pActionContext, 
                const StageContext* pStageContext);
-        virtual ~Action() = default;
+        virtual ~Action();
 
     public:
         inline int                          GetActionID()   const { return _actionID; }

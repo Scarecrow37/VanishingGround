@@ -8,7 +8,11 @@
 
 namespace Monster
 {
-    void Controller::Build(std::weak_ptr<Enemy> weakOwner, const Monster::DataContext* pDataContext, const StageContext* pStageContext)
+    Controller::Controller() = default;
+    Controller::~Controller() = default;
+
+    void Controller::Build(std::weak_ptr<Enemy> weakOwner, const Monster::DataContext* pDataContext,
+                           const StageContext* pStageContext)
     {
         _weakOwner = weakOwner;
         if (pDataContext)
@@ -81,11 +85,10 @@ namespace Monster
 
         for (ActionID id : _dataContext.ActionIDs)
         {
-            auto func = ActionFactory::GetActionBuildFunc(id);
-            auto owner = _weakOwner.lock();
-            if (func && owner)
+            Action* action = nullptr;
+            if (ActionFactory::NewActionFromID(id, &action))
             {
-                _actionTable[id] = std::unique_ptr<Action>(func());
+                _actionTable[id] = std::unique_ptr<Action>(action);
             }
         }
     }

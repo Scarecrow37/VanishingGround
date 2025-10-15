@@ -3,21 +3,18 @@
 
 namespace Monster
 {
-    std::function<Action*()> ActionFactory::GetActionBuildFunc(ActionID id)
+    ActionFactory::ActionFactory() = default;
+    ActionFactory::~ActionFactory() = default;
+
+    bool ActionFactory::NewActionFromID(ActionID id, Action** outAction)
     {
         if (_actionBuilderTable.contains(id))
         {
-            return _actionBuilderTable[id];
-        }
-        return nullptr;
-    }
-    
-    bool ActionFactory::RegisterActionBuilder(ActionID id, ActionBuildFunc builderFunc)
-    {
-        if (builderFunc)
-        {
-            _actionBuilderTable[id] = builderFunc;
-            return true;
+            if (_actionBuilderTable[id])
+            {
+                *outAction = _actionBuilderTable[id]();
+                return true;
+            }
         }
         return false;
     }

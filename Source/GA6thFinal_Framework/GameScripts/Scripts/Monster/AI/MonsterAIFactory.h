@@ -9,16 +9,17 @@ namespace Monster
     class AIFactory final
     {
         using AIBuildFunc = std::function<void(std::weak_ptr<Enemy>, AIModel&)>;
+
     public:
-        AIFactory()  = default;
-        ~AIFactory() = default;
+        AIFactory();
+        ~AIFactory();
 
     public:
         static AIBuildFunc GetAIBuildFunc(FSMID id);
         static bool RegisterAIBuilder(FSMID id, AIBuildFunc builderFunc);
 
     private:
-        static std::unordered_map<FSMID, AIBuildFunc> _aiBuilderTable;
+        inline static std::unordered_map<FSMID, AIBuildFunc> _aiBuilderTable;
     
     };
 };
