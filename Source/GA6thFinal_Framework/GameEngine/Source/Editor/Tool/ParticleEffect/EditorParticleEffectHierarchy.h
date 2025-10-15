@@ -13,7 +13,7 @@ public:
     void OnStartGui() override;
 
 private:
-    void OnPostFrameBegin() override;
+    void OnFrameRender() override;
 
 private:
     EditorParticleEffectDetails* _editorParticleEffectDetails;

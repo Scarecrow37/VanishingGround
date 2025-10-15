@@ -34,7 +34,7 @@ void EditorParticleEffectHierarchy::OnStartGui()
     }
 }
 
-void EditorParticleEffectHierarchy::OnPostFrameBegin()
+void EditorParticleEffectHierarchy::OnFrameRender()
 {
     bool isNewButtonPressed = ImGui::Button("New", {180, 50});
     if (true == isNewButtonPressed)

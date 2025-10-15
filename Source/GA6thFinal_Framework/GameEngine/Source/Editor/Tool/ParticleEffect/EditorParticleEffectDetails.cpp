@@ -21,7 +21,7 @@ void EditorParticleEffectDetails::SetCurrentEmitter(class ParticleEmitter* curEm
     _curEffect  = nullptr;
 }
 
-void EditorParticleEffectDetails::OnPostFrameBegin()
+void EditorParticleEffectDetails::OnFrameRender() 
 {
     if (nullptr == UmParticleManager->GetCurrentEditorEffect())
     {

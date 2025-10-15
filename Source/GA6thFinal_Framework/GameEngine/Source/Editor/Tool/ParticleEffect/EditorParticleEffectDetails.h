@@ -9,7 +9,7 @@ public:
     void SetCurrentEmitter(class ParticleEmitter* curEmitter);
 
 private:
-    void OnPostFrameBegin() override;
+    void OnFrameRender() override;
     void ShowEmitterDetails();
     void ShowEffectDetails();
 
