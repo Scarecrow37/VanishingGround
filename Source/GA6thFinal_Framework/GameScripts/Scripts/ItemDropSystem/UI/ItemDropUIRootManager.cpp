@@ -70,12 +70,18 @@ void ItemDropUIRootManager::AutoFocus(bool checkInputDir)
         }
         else
         {
-            for (size_t i = startIndex; i < ARTIFACT_DROP_COUNT; --i)
+            size_t i = startIndex;
+            while (i < ARTIFACT_DROP_COUNT)
             {
                 if (artifactUI->FocusNavi(i))
                 {
                     return;
                 }
+                if (i == 0)
+                {
+                    break;
+                }
+                --i;
             }
         }
     }
