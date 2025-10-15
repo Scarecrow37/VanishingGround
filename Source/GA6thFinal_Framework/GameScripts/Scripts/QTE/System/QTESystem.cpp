@@ -306,7 +306,7 @@ void QTESystem::StartQTE(const WeaponStats* weapon, Callback callback)
 
         Input::Controller::Button buttonArr[] = {Input::Controller::Button::X, Input::Controller::Button::Y,
                                                  Input::Controller::Button::B};
-        std::vector<int> availableMonsters;
+        std::vector<size_t> availableMonsters;
         if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance(); turnMode)
         {
             auto& enemies = turnMode->GetEnemies();
