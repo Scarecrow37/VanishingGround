@@ -51,6 +51,7 @@ bool EComponentFactory::InitalizeComponentFactory()
         //Input Receiver Clear
         ESceneManager::Engine::GetInputSystem().CleanupInputReceivers();
 
+
         //모든 컴포넌트 자원 회수
         for (auto& [key, wptr] : _componentInstanceVec)
         {
@@ -63,6 +64,8 @@ bool EComponentFactory::InitalizeComponentFactory()
         }
         _componentInstanceVec.clear();
 
+        // Script Dll에서 생성된 Graphics 자원 회수
+        UmGraphics.ClearGraphicsResource();
         FreeLibrary(_scriptsDll);
         _scriptsDll = NULL;
     }
@@ -236,6 +239,8 @@ void EComponentFactory::UninitalizeComponentFactory()
         // 오디오 Clear
         UmAudio.ClearVoicePool();
 
+        // Script Dll에서 생성된 Graphics 자원 회수
+        UmGraphics.ClearGraphicsResource();
         FreeLibrary(_scriptsDll);
         _scriptsDll = NULL;
     }

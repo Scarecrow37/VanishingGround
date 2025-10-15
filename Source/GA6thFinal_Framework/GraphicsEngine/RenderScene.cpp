@@ -266,6 +266,11 @@ void RenderScene::UpdateGlobal()
                 continue;
             _lightDatas[MAX_DIRECTIONAL_LIGHT + MAX_POINT_LIGHT + _numLight.Spot++] = light->GetLightData();
             break;
+        case Light::Type::SHADOWPOINT:
+            if (_numLight.ShadowPoint >= MAX_SHADOW_POINT_LIGHT)
+                continue;
+            _lightDatas[MAX_DIRECTIONAL_LIGHT + MAX_POINT_LIGHT + MAX_SPOT_LIGHT + _numLight.ShadowPoint++] = light->GetLightData();
+            break;
         }
     }
 
@@ -451,14 +456,12 @@ void RenderScene::UpdateUI()
         if (!component->IsActive())
             continue;
 
-        const Vector2 textSize = component->GetStringSize();
-        const float   fontSize = component->GetFontSize();
+        const float fontSize = component->GetFontSize();
 
         XMMATRIX scale       = XMMatrixScaling(fontSize, fontSize, 1.f);
         XMMATRIX rotation    = XMMatrixRotationQuaternion(Quaternion::CreateFromYawPitchRoll(component->GetRotation()));
         XMMATRIX translation = XMMatrixTranslationFromVector(component->GetPosition());
-        XMMATRIX offset      = XMMatrixTranslation(0.f, textSize.y, 0.f);
-        _textMatrices.emplace_back(XMMatrixTranspose(scale * rotation * translation * offset));
+        _textMatrices.emplace_back(XMMatrixTranspose(scale * rotation * translation));
     }
 }
 

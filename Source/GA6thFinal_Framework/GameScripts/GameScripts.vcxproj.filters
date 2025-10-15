@@ -219,6 +219,7 @@
     <ClCompile Include="Scripts\Monster\Action\MonsterAction.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UINavi\PlayerWeaponChangeNavi.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UI\WeaponChangeUIManager.cpp" />
+    <ClCompile Include="Scripts\Light\ShadowPointLight.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
