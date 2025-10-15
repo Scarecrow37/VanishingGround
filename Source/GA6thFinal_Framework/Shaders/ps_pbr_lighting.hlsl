@@ -84,7 +84,7 @@ float4 ps_main(PSInput input) : SV_Target
     }
     
     //Shadow Point Lights
-    for (uint  l= 0; l < numLights.ShadowPoint; l++)
+    for (uint l = 0; l < numLights.ShadowPoint; l++)
     {
         PointLight light = lightData.ShadowPoint[l];
         directLighting += CalculatePoint(light, normal, V, albedo, metallic, roughness, worldPosition);

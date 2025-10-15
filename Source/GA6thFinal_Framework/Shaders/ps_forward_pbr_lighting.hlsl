@@ -99,7 +99,7 @@ PSOutput ps_main(PSInput input)
         directLighting += CalculateSpot(light, normal, V, albedo.rgb, metallic, roughness, worldPosition);
     }
     
-    //Shaodw Point Lights
+    //Shadow Point Lights
     for (uint l = 0; l < numLights.ShadowPoint; l++)
     {
         PointLight light = lightData.ShadowPoint[l];
