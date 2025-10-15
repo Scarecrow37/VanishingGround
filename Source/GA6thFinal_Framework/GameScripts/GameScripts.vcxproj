@@ -362,6 +362,7 @@
     <ClInclude Include="Scripts\Light\Base\LightComponent.h" />
     <ClInclude Include="Scripts\Light\DirectionalLight.h" />
     <ClInclude Include="Scripts\Light\PointLight.h" />
+    <ClInclude Include="Scripts\Light\ShadowPointLight.h" />
     <ClInclude Include="Scripts\Light\SpotLight.h" />
     <ClInclude Include="Scripts\MainMenu\Credits.h" />
     <ClInclude Include="Scripts\MainMenu\MainMenuNavigationBase.h" />
@@ -595,6 +596,7 @@
     <ClCompile Include="Scripts\Light\Base\LightComponent.cpp" />
     <ClCompile Include="Scripts\Light\DirectionalLight.cpp" />
     <ClCompile Include="Scripts\Light\PointLight.cpp" />
+    <ClCompile Include="Scripts\Light\ShadowPointLight.cpp" />
     <ClCompile Include="Scripts\Light\SpotLight.cpp" />
     <ClCompile Include="Scripts\MainMenu\Credits.cpp" />
     <ClCompile Include="Scripts\MainMenu\MainMenuNavigationBase.cpp" />

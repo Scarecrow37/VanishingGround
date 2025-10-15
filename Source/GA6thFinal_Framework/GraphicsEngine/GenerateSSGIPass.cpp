@@ -30,6 +30,7 @@ void GenerateSSGIPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetComputeRootDescriptorTable(_fx.GetRootParameterIndex("screenDepth"), gbuffers[GBuffer::DEPTH]->GetSRVHandle());
     commandList->SetComputeRootDescriptorTable(_fx.GetRootParameterIndex("screenNormal"), gbuffers[GBuffer::NORMAL]->GetSRVHandle());
     commandList->SetComputeRootDescriptorTable(_fx.GetRootParameterIndex("screenAlbedo"), gbuffers[GBuffer::BASECOLOR]->GetSRVHandle());
+    commandList->SetComputeRootDescriptorTable(_fx.GetRootParameterIndex("screenORM"), gbuffers[GBuffer::ORM]->GetSRVHandle());
     commandList->SetComputeRootDescriptorTable(_fx.GetRootParameterIndex("screenColor"), _meshRenderTarget->GetSRVHandle());
     commandList->SetComputeRootDescriptorTable(_fx.GetRootParameterIndex("SSGI_Result"), currGITex->GetUAVHandle());
     commandList->Dispatch((halfRes.cx + 15) / 16, (halfRes.cy + 15) / 16, 1);

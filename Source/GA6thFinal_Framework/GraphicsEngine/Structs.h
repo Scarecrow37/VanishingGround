@@ -123,6 +123,7 @@ struct NumLight
     unsigned int Directional;
     unsigned int Point;
     unsigned int Spot;
+    unsigned int ShadowPoint;
 };
 
 struct PostProcessData
