@@ -307,15 +307,13 @@ void QTESystem::StartQTE(const WeaponStats* weapon, Callback callback)
         Input::Controller::Button buttonArr[] = {Input::Controller::Button::X, Input::Controller::Button::Y,
                                                  Input::Controller::Button::B};
         std::vector<size_t> availableMonsters;
-        if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance(); turnMode)
+        
+        auto enemies = Battle::GetTargetsFromFlags(Battle::ENEMY_TARGET_FLAG_ALL);
+        for (size_t i = 0; i < enemies.size(); ++i)
         {
-            auto& enemies = turnMode->GetEnemies();
-            for (size_t i = 0; i < enemies.size(); ++i)
+            if (enemies[i] && enemies[i]->State != TurnActor::STATE::Dead)
             {
-                if (enemies[i] && enemies[i]->State != TurnActor::STATE::Dead)
-                {
-                    availableMonsters.push_back(i);
-                }
+                availableMonsters.push_back(i);
             }
         }
         for (size_t i = 0; i < count; ++i)
@@ -323,8 +321,9 @@ void QTESystem::StartQTE(const WeaponStats* weapon, Callback callback)
             _overallResult.NoteResults[i].Result    = QTE::QTE_RESULT_PERFECT;
             _overallResult.NoteResults[i].TimeDelta = 0.0f;
 
-            int randomIndex = Random::Range(0, (int)availableMonsters.size());
-            _overallResult.NoteResults[i].PressedButton = buttonArr[randomIndex % 3];
+            int randomIndex  = Random::Range(0, (int)availableMonsters.size() - 1);
+            size_t destIndex = availableMonsters[randomIndex % 3];
+            _overallResult.NoteResults[i].PressedButton = buttonArr[destIndex];
         }
 
     }
