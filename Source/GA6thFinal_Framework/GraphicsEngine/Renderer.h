@@ -37,6 +37,7 @@ public:
     void ResetEnvironmentSkyBox(std::string_view sceneName);
     void ResetIBLSkyBox(std::string_view sceneName);
     void ClearComponents();
+    void ClearRenderQueue();
 
 public:
     void Initialize();
