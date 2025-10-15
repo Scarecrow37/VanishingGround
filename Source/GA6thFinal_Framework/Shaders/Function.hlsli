@@ -186,8 +186,7 @@ inline float CalculateShadow(float3 worldPosition, float3 normal, float3 lightDi
     float eyeZ = mul(float4(worldPosition, 1), cameraData.View).z;
     
     uint cid = (eyeZ < cascadeData.CascadeSplits[0]) ? 0 :
-               (eyeZ < cascadeData.CascadeSplits[1]) ? 1 :
-               (eyeZ < cascadeData.CascadeSplits[2]) ? 2 : 3;
+               (eyeZ < cascadeData.CascadeSplits[1]) ? 1 : 2;
 
     float4 shadowPos = mul(float4(worldPosition, 1), cascadeData.ShadowVP[cid]);
     shadowPos.xyz /= shadowPos.w;

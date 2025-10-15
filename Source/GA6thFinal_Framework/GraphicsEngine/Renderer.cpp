@@ -313,6 +313,14 @@ void Renderer::ClearComponents()
     _toBeReleasedComponents.clear();
 }
 
+void Renderer::ClearRenderQueue()
+{
+    for (auto& renderScene : _renderScenes)
+    {
+        renderScene.second->ClearRenderQueue();
+    }
+}
+
 void Renderer::Initialize()
 {
     CreateDefaultResource();

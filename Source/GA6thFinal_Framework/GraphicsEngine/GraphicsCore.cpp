@@ -338,6 +338,9 @@ void GraphicsCore::Finalize() const
 void GraphicsCore::ClearGraphicsResource() const
 {
     _renderer->ClearComponents();
+    _renderer->ClearRenderQueue();
+    _animationCore->ClearAnimationQueue();
+    _lightCore->ClearLightQueue();
 }
 
 void GraphicsCore::Flip() const

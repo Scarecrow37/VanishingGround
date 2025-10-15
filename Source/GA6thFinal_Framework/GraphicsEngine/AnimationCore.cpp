@@ -31,6 +31,11 @@ void AnimationCore::RegisterAnimator(Animator* animator)
     _components.push_back(animator);
 }
 
+void AnimationCore::ClearAnimationQueue()
+{
+    _components.clear();
+}
+
 void AnimationCore::Initialize(const unsigned int maxThread)
 {
     _maxThread = maxThread;
