@@ -15,9 +15,9 @@ struct PSInput
 {
     float4 position : SV_POSITION;
     float2 uv : TEXCOORD;
-    float3 worldPosition : TEXCOORD;
-    float3 lightPosition : TEXCOORD1;
-    float farPlane : TEXCOORD2;
+    float3 worldPosition : TEXCOORD1;
+    float3 lightPosition : TEXCOORD2;
+    float farPlane : TEXCOORD3;
     
     nointerpolation uint4 materialID : TEXCOORD4;
 };
