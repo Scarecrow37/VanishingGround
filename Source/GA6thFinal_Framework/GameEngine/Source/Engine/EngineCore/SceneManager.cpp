@@ -1300,31 +1300,40 @@ void ESceneManager::NotInitDestroyComponentEraseToWaitVec(Component* destroyComp
 {
     if (destroyComponent->_initFlags.IsAwake() == false)
     {
-        std::erase_if(
-            _waitAwakeVec,
-            [destroyComponent](std::shared_ptr<Component>& component)
+        if (false == _waitAwakeVec.empty())
+        {
+            size_t result = std::erase_if(_waitAwakeVec, [destroyComponent](std::shared_ptr<Component>& component) 
             {
                 return component.get() == destroyComponent;
-            }
-        );
-    }
+            });
 
-    if (destroyComponent->_initFlags.IsStart() == false)
-    {
-        std::erase_if(
-            _waitStartVec,
-            [destroyComponent](std::shared_ptr<Component>& component)
+            if (0 == result)
             {
-                return component.get() == destroyComponent;
+                if (false == _addComponentsQueue.empty())
+                {
+                    // 추가 대기중인 컴포넌트라면 같이 삭제
+                    std::erase_if(_addComponentsQueue,
+                    [destroyComponent](const std::pair<std::weak_ptr<GameObject>, std::shared_ptr<Component>>& pair) 
+                    {
+                        auto& [obj, component] = pair;
+                        return component.get() == destroyComponent;
+                    });
+                }
             }
-        );
+            else if (destroyComponent->_initFlags.IsStart() == false)
+            {
+                std::erase_if(_waitStartVec, [destroyComponent](std::shared_ptr<Component>& component) 
+                {
+                    return component.get() == destroyComponent;
+                });
+            }
+        }   
     }
-
 }
 
-bool ESceneManager::InsertGameObjectMap(std::shared_ptr<GameObject>& pInsertObject) 
+bool ESceneManager::InsertGameObjectMap(std::shared_ptr<GameObject>& insertObject) 
 {
-    auto [iter, result] = _runtimeObjectsUnorderedMap[pInsertObject->ReflectFields->_name].insert(pInsertObject);
+    auto [iter, result] = _runtimeObjectsUnorderedMap[insertObject->ReflectFields->_name].insert(insertObject);
     if (result == false)
     {
         assert(!"이미 추가한 게임 오브젝트 입니다.");
@@ -1332,14 +1341,14 @@ bool ESceneManager::InsertGameObjectMap(std::shared_ptr<GameObject>& pInsertObje
     return result;
 }
 
-void ESceneManager::EraseGameObjectMap(std::shared_ptr<GameObject>& pEraseObject)
+void ESceneManager::EraseGameObjectMap(std::shared_ptr<GameObject>& eraseObject)
 {
-    auto findIter = _runtimeObjectsUnorderedMap.find(pEraseObject->ReflectFields->_name);
+    auto findIter = _runtimeObjectsUnorderedMap.find(eraseObject->ReflectFields->_name);
     if (findIter == _runtimeObjectsUnorderedMap.end())
     {
         assert(!"유효하지 않는 오브젝트 이름입니다.");
     }
-    findIter->second.erase(pEraseObject);
+    findIter->second.erase(eraseObject);
 }
 
 void ESceneManager::AddDestroyComponentQueue(Component* component) 
