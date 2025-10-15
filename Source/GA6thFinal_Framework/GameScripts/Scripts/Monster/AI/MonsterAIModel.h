@@ -2,11 +2,11 @@
 
 namespace Monster
 {
-    class AIController final
+    class AIModel final
     {
     public:
-        AIController()  = default;
-        ~AIController() = default;
+        AIModel()  = default;
+        ~AIModel() = default;
 
     public:
         struct ActionData
@@ -124,6 +124,8 @@ namespace Monster
         /// </summary>
         /// <returns> 현재 액션의 ID 값입니다. 액션 ID가 존재하지 않는 경우는 -1을 반환합니다.</returns>
         int GetCurrentActionID() const;
+
+        size_t GetNodeCount() const;
 
     private:
         Node* GetNode(std::string_view label) const;

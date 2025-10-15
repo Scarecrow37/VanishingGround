@@ -25,10 +25,10 @@ namespace Monster
         int     Health      = 0;  // 몬스터 체력
         int     StunResist  = 0;  // 몬스터 기절 저항
 
-        std::array<std::vector<ActionParam>, MAX_SKILL_COUNT> DamageParams; // 스킬 데미지 파라미터
-        std::array<std::vector<TokenParam>,  MAX_SKILL_COUNT>   TokenParams;    // 스킬 토큰 파라미터
+        std::array<std::vector<ActionParam>, MAX_SKILL_COUNT>   ActionParams;   // 액션 파라미터
+        std::array<std::vector<TokenParam>,  MAX_SKILL_COUNT>   TokenParams;    // 토큰 파라미터
     };
 
-    std::vector<ActionParam> ParseActionParam(const std::string& paramString);
-    std::vector<TokenParam>  ParseTokenParam(const std::string& paramString);
+    std::vector<ActionParam> ParseActionParam(const std::string& paramStr);
+    std::vector<TokenParam>  ParseTokenParam(const std::string& paramStr);
 };

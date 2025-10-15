@@ -34,10 +34,10 @@ namespace EnemyAction
         void ProcessBattle(int damage, float damageScale = 1.0f);
 
     protected:
-        Enemy*              _owner = nullptr;
-        AnimationComponent* _animator = nullptr;
-        AudioTableComponent* _audioTable  = nullptr;
-        bool                _isActionEnd = false;
+        Enemy*                  _owner = nullptr;
+        AnimationComponent*     _animator = nullptr;
+        AudioTableComponent*   _audioTable  = nullptr;
+        bool                   _isActionEnd = false;
 
         EnemyAction::ActionData _actionData;
     };

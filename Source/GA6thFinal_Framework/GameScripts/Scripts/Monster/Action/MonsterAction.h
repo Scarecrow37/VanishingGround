@@ -26,6 +26,9 @@ namespace Monster
         void ProcessActionUpdate();
         void ProcessActionExit();
 
+        inline void SetActionEnd() { _isActionEnd = true; }
+        inline bool IsActionEnd() const { return _isActionEnd; }
+
     private:
         virtual void OnActionEnter()    = 0;
         virtual void OnActionUpdate()   = 0;
@@ -42,5 +45,7 @@ namespace Monster
         int                             _actionID = 0;
         std::weak_ptr<CharacterBase>    _target;
         std::weak_ptr<Enemy>            _weakOwner;
+
+        bool _isActionEnd = false;
     };
 }

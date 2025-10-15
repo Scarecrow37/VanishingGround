@@ -68,9 +68,9 @@ std::weak_ptr<Enemy> MonsterSystem::SpawnMonsterFromDataContext(const Monster::S
 {
     if (pStageContext)
     {
-        if (const Monster::DataContext* dataContext = GetDataContextFromID(pStageContext->MonsterID))
+        if (const Monster::DataContext* pDataContext = GetDataContextFromID(pStageContext->MonsterID))
         {
-            std::weak_ptr<Enemy> weakClone = SpawnMonsterFromDataContext(dataContext, index);
+            std::weak_ptr<Enemy> weakClone = SpawnMonsterFromDataContext(pDataContext, index);
             if (auto clone = weakClone.lock())
             {
                 if (auto stats = clone->GetCharacterStats())
@@ -79,6 +79,8 @@ std::weak_ptr<Enemy> MonsterSystem::SpawnMonsterFromDataContext(const Monster::S
                     stats->CurrentHP      = pStageContext->Health;
                     stats->StunResistance = pStageContext->StunResist;
                 }
+                Monster::Controller& controller = clone->GetController();
+                controller.Build(weakClone, pDataContext, pStageContext);
             }
             return weakClone;
         }
@@ -120,9 +122,6 @@ std::weak_ptr<Enemy> MonsterSystem::SpawnMonsterFromDataContext(const Monster::D
                         auto sharedEnemy       = std::static_pointer_cast<Enemy>(enemy->GetWeakPtr().lock());
                         _spawnedEnemies[index] = sharedEnemy;
                         _spawnedEnemiesIDTable[context->ID].push_back(sharedEnemy);
-
-                        int randomIndex = Random::Range(0, (int)context->FsmIDs.size());
-                        _aiFactory.GetAIModel(context->FsmIDs[randomIndex], sharedEnemy);
 
                         return sharedEnemy;
                     }
@@ -343,6 +342,20 @@ void MonsterSystem::LoadStageContextFromExcelData(ExcelDataSystem* dataSystem)
                     if (data != ExcelDataBase::FIND_STR_FAIL)
                     {
                         context.StunResist = std::stoi(data.data());
+                    }
+
+                    for (size_t i = 0; i < Monster::MAX_SKILL_COUNT; ++i)
+                    {
+                        data = dataBase->FindData(rowIndex, ExcelStageKey::ACTION_PARAM[i]);
+                        if (data != ExcelDataBase::FIND_STR_FAIL)
+                        {
+                            context.ActionParams[i] = Monster::ParseActionParam(std::string(data));
+                        }
+                        data = dataBase->FindData(rowIndex, ExcelStageKey::TOKEN_PARAM[i]);
+                        if (data != ExcelDataBase::FIND_STR_FAIL)
+                        {
+                            context.TokenParams[i] = Monster::ParseTokenParam(std::string(data));
+                        }
                     }
 
                     // 벡터 초기화

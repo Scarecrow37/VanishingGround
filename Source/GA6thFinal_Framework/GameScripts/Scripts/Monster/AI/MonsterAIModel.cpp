@@ -1,9 +1,9 @@
 ﻿#include "pchScripts.h"
-#include "MonsterAI.h"
+#include "MonsterAIModel.h"
 
 namespace Monster
 {
-    AIController::ActionNode::ActionNode(std::string_view label, std::string_view nextNode,
+    AIModel::ActionNode::ActionNode(std::string_view label, std::string_view nextNode,
                                     const std::initializer_list<ActionData>& actions)
         : Node(label), _nextNode(nextNode)
     {
@@ -16,7 +16,7 @@ namespace Monster
         }
     }
 
-    const std::string& AIController::ActionNode::NextNode() const
+    const std::string& AIModel::ActionNode::NextNode() const
     {
         if (false == _nextNode.empty())
         {
@@ -25,7 +25,7 @@ namespace Monster
         return _label;
     }
 
-    void AIController::ActionNode::Refresh()
+    void AIModel::ActionNode::Refresh()
     {
         // 가중치에 따라 액션을 선택
         float randValue = Random::Range(0.0f, _totalWeight);
@@ -40,12 +40,12 @@ namespace Monster
         }
     }
 
-    bool AIController::ActionNode::IsActionNode() const
+    bool AIModel::ActionNode::IsActionNode() const
     {
         return true;
     }
 
-    int AIController::ActionNode::GetActionID() const
+    int AIModel::ActionNode::GetActionID() const
     {
         if (_selectedIndex < _actionList.size())
         {
@@ -54,13 +54,13 @@ namespace Monster
         return -1;
     }
 
-    AIController::ConditionNode::ConditionNode(std::string_view label, std::string_view trueNode, std::string_view falseNode,
+    AIModel::ConditionNode::ConditionNode(std::string_view label, std::string_view trueNode, std::string_view falseNode,
                                           std::function<bool()> condition)
         : Node(label), _trueNode(trueNode), _falseNode(falseNode), _condition(condition)
     {
     }
 
-    const std::string& AIController::ConditionNode::NextNode() const
+    const std::string& AIModel::ConditionNode::NextNode() const
     {
         if (true == _selectedBool)
         {
@@ -79,17 +79,17 @@ namespace Monster
         return _label;
     }
 
-    void AIController::ConditionNode::Refresh()
+    void AIModel::ConditionNode::Refresh()
     {
         _selectedBool = _condition ? _condition() : false;
     }
 
-    bool AIController::ConditionNode::IsActionNode() const
+    bool AIModel::ConditionNode::IsActionNode() const
     {
         return false;
     }
 
-    void AIController::Clear()
+    void AIModel::Clear()
     {
         for (auto& [id, node] : _nodeTable)
         {
@@ -101,26 +101,26 @@ namespace Monster
         _transitionCount = 0;
     }
 
-    void AIController::PushActionNode(std::string_view label, std::string_view nextNode, int actionID)
+    void AIModel::PushActionNode(std::string_view label, std::string_view nextNode, int actionID)
     {
         PushActionNode(label, nextNode, {ActionData(1.0f, actionID)}); // 가중치 1.0f로 단일 액션 추가
     }
 
-    void AIController::PushActionNode(std::string_view label, std::string_view nextNode,
+    void AIModel::PushActionNode(std::string_view label, std::string_view nextNode,
                                  std::initializer_list<ActionData> actions)
     {
         ActionNode* node         = new ActionNode(label, nextNode, actions);
         _nodeTable[label.data()] = node;
     }
 
-    void AIController::PushConditionNode(std::string_view label, std::string_view trueNode, std::string_view falseNode,
+    void AIModel::PushConditionNode(std::string_view label, std::string_view trueNode, std::string_view falseNode,
                                          std::function<bool()> condition)
     {
         ConditionNode* node      = new ConditionNode(label, trueNode, falseNode, condition);
         _nodeTable[label.data()] = node;
     }
 
-    void AIController::SetCurrentNode(std::string_view label)
+    void AIModel::SetCurrentNode(std::string_view label)
     {
         const auto node = GetNode(label);
         if (nullptr != node)
@@ -129,7 +129,7 @@ namespace Monster
         }
     }
 
-    void AIController::Refresh()
+    void AIModel::Refresh()
     {
         if (nullptr != _currNode)
         {
@@ -142,7 +142,7 @@ namespace Monster
         }
     }
 
-    void AIController::Transition()
+    void AIModel::Transition()
     {
         if (nullptr != _currNode)
         {
@@ -157,7 +157,7 @@ namespace Monster
         }
     }
 
-    int AIController::GetCurrentActionID() const
+    int AIModel::GetCurrentActionID() const
     {
         if (nullptr != _currNode)
         {
@@ -166,7 +166,12 @@ namespace Monster
         return -1;
     }
 
-    AIController::Node* AIController::GetNode(std::string_view label) const
+    size_t AIModel::GetNodeCount() const
+    {
+        return _nodeTable.size();
+    }
+
+    AIModel::Node* AIModel::GetNode(std::string_view label) const
     {
         auto it = _nodeTable.find(label.data());
         if (it != _nodeTable.end())

@@ -3,7 +3,7 @@
 #include "Enum/EnemyEnum.h"
 #include "AI/EnemyAI.h"
 
-#include "Monster/AI/MonsterAI.h"
+#include "Monster/MonsterController.h"
 #include "Monster/Context/MonsterDataContext.h"
 #include "Monster/Context/MonsterActionContext.h"
 #include "Monster/Context/MonsterStageContext.h"
@@ -43,13 +43,8 @@ public:
     virtual int GetSpeed() override;
     virtual void Revive() override;
 
-    void RefreshStateFromContext(const Monster::DataContext* pDataContext, const Monster::StageContext* pStageContext);
-
 private:
-    EnemyAI _aiModel;
-    Monster::AIController _aiController;
-    const Monster::DataContext*   _dataContext   = nullptr;
-    const Monster::StageContext*  _stageContext  = nullptr;
+    Monster::Controller _controller;
 
     EnemyStatsComponent* _enemyStats = nullptr;
     ParticleComponent*   _hitParticle = nullptr; // 피격 이펙트 파티클
@@ -75,8 +70,7 @@ public:
     virtual void TakeDamage(int damage, bool playAnim = true) override;
     virtual void TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim = true) override;
 
-    inline EnemyAI&                 GetAIModel() { return _aiModel; }
-    inline Monster::AIController&   GetAIController() { return _aiController; }
+    inline Monster::Controller&     GetController() { return _controller; }
     inline FiniteStateMachine&      GetFSM() { return *_finiteStateMachine; }
     inline const EnemyStates&       GetFSMStates() { return _fsmStates; }
 

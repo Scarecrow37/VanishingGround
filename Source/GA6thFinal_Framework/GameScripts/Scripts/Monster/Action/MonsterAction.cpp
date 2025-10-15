@@ -15,6 +15,7 @@ namespace Monster
     }
     void Action::ProcessActionEnter() 
     {
+        _isActionEnd = false;
         Refresh();
         OnActionEnter();
     }

@@ -45,22 +45,6 @@ void Enemy::Revive()
     Base::Revive();
 }
 
-void Enemy::RefreshStateFromContext(const Monster::DataContext*  pDataContext, const Monster::StageContext* pStageContext)
-{
-    if (pDataContext && pStageContext)
-    {
-        _dataContext  = pDataContext;
-        _stageContext = pStageContext;
-        // 체력 초기화
-        if (auto statsComponent = GetCharacterStats())
-        {
-            statsComponent->MaxHP           = pStageContext->Health;
-            statsComponent->CurrentHP       = pStageContext->Health;
-            statsComponent->StunResistance  = pStageContext->StunResist;
-        }
-    }
-}
-
 void Enemy::Dead()
 {
     Base::Dead();
@@ -84,7 +68,6 @@ void Enemy::TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim)
     Base::TakeDamage(takeDamage, result, playAnim);
     if (_hitParticle && result.IsHit())
     {
-        // TODO: 이거 왜 Play 이후에 스탑하는게 더 자연스럽게 나옴? 질문 필요
         _hitParticle->PlayEffect("normalhit");
     }
 }
@@ -216,8 +199,7 @@ void Enemy::OnTurnEnd()
 {
     Base::OnTurnEnd();
     // Enemy의 턴이 종료시 액션을 선언.
-    _aiModel.Transition();
-    _aiModel.Refresh();
+    _controller.Transition();
 }
 
 void Enemy::OnHit()

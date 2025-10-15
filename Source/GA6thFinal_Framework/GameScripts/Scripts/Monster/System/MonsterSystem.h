@@ -2,7 +2,7 @@
 #include <Utility/SingletonHelper.h>
 
 #include "Monster/Common/MonsterCommon.h"
-#include "Monster/AI/MonsterAIFactory.h"
+#include "Monster/MonsterController.h"
 
 #include "Monster/Context/MonsterDataContext.h"
 #include "Monster/Context/MonsterActionContext.h"
@@ -87,8 +87,6 @@ private:
     std::unordered_map<Monster::DataID, Monster::DataContext>       _dataContextTable;
     std::unordered_map<Monster::ActionID, Monster::ActionContext>   _actionContextTable;
     std::unordered_map<int, std::vector<Monster::StageContext>>     _stageContextTable;
-
-    Monster::AIFactory _aiFactory;
 
     REFLECT_FIELDS_BEGIN(Component)
     REFLECT_FIELDS_END(MonsterSystem)
