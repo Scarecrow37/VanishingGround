@@ -105,7 +105,6 @@ void ParticleRibbonPass::Draw(ID3D12GraphicsCommandList* commandList)
             continue;
         }
         const UINT vertexCount = (segmentCount - 1) * 2;
-        commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_1_ribbonVertexCount"), 1, &vertexCount, 0);
         commandList->SetGraphicsRootShaderResourceView(_fx.GetRootParameterIndex("ribbonIndices"), _ribbonIndexBuffer[i]->GetGPUVirtualAddress());
         commandList->DrawInstanced(vertexCount, 1, 0, 0);
     }

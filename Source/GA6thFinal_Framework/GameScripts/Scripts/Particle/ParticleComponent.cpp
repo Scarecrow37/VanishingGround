@@ -75,7 +75,6 @@ void ParticleComponent::DeserializedReflectEvent()
 
 void ParticleComponent::ImGuiDrawPropertysEvent()
 {
-
     if (false == ReflectFields->EffectNameTable.empty())
     {
         const char* comboLabel = _currentEffectKey.c_str();

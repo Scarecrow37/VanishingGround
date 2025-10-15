@@ -1,5 +1,5 @@
-﻿#include "EditorParticleEffectDetails.h"
-#include "pch.h"
+﻿#include "pch.h"
+#include "EditorParticleEffectDetails.h"
 
 EditorParticleEffectDetails::EditorParticleEffectDetails()
 {
@@ -7,13 +7,7 @@ EditorParticleEffectDetails::EditorParticleEffectDetails()
     SetDockLayout(ImGuiDir_Right);
 }
 
-EditorParticleEffectDetails::~EditorParticleEffectDetails() {}
-
-void EditorParticleEffectDetails::OnTickGui() {}
-
-void EditorParticleEffectDetails::OnStartGui() {}
-
-void EditorParticleEffectDetails::OnEndGui() {}
+EditorParticleEffectDetails::~EditorParticleEffectDetails() = default;
 
 void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffect)
 {
@@ -27,11 +21,8 @@ void EditorParticleEffectDetails::SetCurrentEmitter(class ParticleEmitter* curEm
     _curEffect  = nullptr;
 }
 
-void EditorParticleEffectDetails::OnPreFrameBegin() {}
-
 void EditorParticleEffectDetails::OnPostFrameBegin()
 {
-
     if (nullptr == UmParticleManager->GetCurrentEditorEffect())
     {
         _curEffect = nullptr;
@@ -44,26 +35,6 @@ void EditorParticleEffectDetails::OnPostFrameBegin()
         ShowEffectDetails();
 }
 
-void EditorParticleEffectDetails::OnFrameClipped() {}
-
-void EditorParticleEffectDetails::OnFrameEnd() {}
-
-void EditorParticleEffectDetails::OnFrameFocusEnter() {}
-
-void EditorParticleEffectDetails::OnFrameFocusStay() {}
-
-void EditorParticleEffectDetails::OnFrameFocusExit() {}
-
-void EditorParticleEffectDetails::OnFrameRender() {}
-
-void EditorParticleEffectDetails::OnFramePopupOpened() {}
-
-void EditorParticleEffectDetails::ProcessPopupFrame() {}
-
-void EditorParticleEffectDetails::ProcessFocusFrame() {}
-
-void EditorParticleEffectDetails::ProcessRenderFrame() {}
-
 void EditorParticleEffectDetails::ShowEmitterDetails()
 {
     if (nullptr == _curEmitter)
@@ -71,7 +42,39 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
 
     bool isSomethingChanged = false;
 
-    ImGui::Text("");
+
+    //ImGui::SameLine();
+    //ImGui::Text("Emit Type : ");
+    //ImGui::SameLine();
+    //ImGui::Text(renderItems[(UINT)_curEmitter->_particleType]);
+
+
+    if (ImGui::BeginTable("##material", 2, ImGuiTableFlags_Borders))
+    {
+        ImGui::TableNextRow();
+        ImGui::TableNextColumn();
+        const char* renderItems[3]   = {"Sprite", "Mesh  ", "Ribbon"};
+        ImGui::Text("Render Type");
+
+        ImGui::TableNextColumn();
+        ImGui::Text(renderItems[(UINT)_curEmitter->_particleType]);
+
+        ImGui::TableNextRow();
+        ImGui::TableNextColumn();
+        const char* shapeItems[6] = {"Sphere      ", "Cube        ", "Cylinder    ",
+                                     "Cone        ", "Torus       ", "Mesh Surface"};
+        ImGui::Text("Emission Shape Type");
+
+        ImGui::TableNextColumn();
+        ImGui::Text(shapeItems[(UINT)_curEmitter->_locationType]);
+
+        ImGui::EndTable();
+    }
+    ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.0f);
+
+
+
+
     // emitter Name
     {
         std::string name = _curEmitter->GetEmitterName();
@@ -81,6 +84,7 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
         _curEmitter->SetEmitterName(name);
     }
     ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.0f);
+
     // Texture
     {
         if (ParticleType::SPRITE == _curEmitter->_particleType)
@@ -108,8 +112,8 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
             ImGui::Text("Ribbon Texture");
             ImGui::SameLine();
             auto                        ribbonModule = _curEmitter->_particleRenderModule->AsRibbon();
-            D3D12_GPU_DESCRIPTOR_HANDLE gpuhandle    = ribbonModule->GetAlbedoTexture()->GetGPUHandle();
-            bool isTextureLoadButtonPressed          = ImGui::ImageButton((ImTextureID)gpuhandle.ptr, {100, 100});
+            D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle    = ribbonModule->GetAlbedoTexture()->GetGPUHandle();
+            bool isTextureLoadButtonPressed          = ImGui::ImageButton((ImTextureID)gpuHandle.ptr, {100, 100});
 
             if (true == isTextureLoadButtonPressed)
             {
@@ -123,48 +127,46 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
                 }
             }
             {
-                float startnormal[3] = {ribbonModule->GetStartNormal().x, ribbonModule->GetStartNormal().y,
+                float startNormal[3] = {ribbonModule->GetStartNormal().x, ribbonModule->GetStartNormal().y,
                                         ribbonModule->GetStartNormal().z};
                 ImGui::Text("ribbon start facing normal");
-                bool result = ImGui::SliderFloat3("##ribbon start facing normal", startnormal, -1, 1);
+                bool result = ImGui::SliderFloat3("##ribbon start facing normal", startNormal, -1, 1);
                 if (false == isSomethingChanged)
                     if (true == result)
                         isSomethingChanged = result;
-                Vector3 temp = {startnormal[0], startnormal[1], startnormal[2]};
+                Vector3 temp = {startNormal[0], startNormal[1], startNormal[2]};
                 temp.Normalize();
 
                 ribbonModule->SetStartNormal({temp.x, temp.y, temp.z, 0});
             }
-
             {
-                float endnormal[3] = {ribbonModule->GetEndNormal().x, ribbonModule->GetEndNormal().y,
+                float endNormal[3] = {ribbonModule->GetEndNormal().x, ribbonModule->GetEndNormal().y,
                                       ribbonModule->GetEndNormal().z};
                 ImGui::Text("ribbon end facing normal");
-                bool result = ImGui::SliderFloat3("##ribbon end facing normal", endnormal, -1, 1);
+                bool result = ImGui::SliderFloat3("##ribbon end facing normal", endNormal, -1, 1);
                 if (false == isSomethingChanged)
                     if (true == result)
                         isSomethingChanged = result;
-                Vector3 temp = {endnormal[0], endnormal[1], endnormal[2]};
+                Vector3 temp = {endNormal[0], endNormal[1], endNormal[2]};
                 temp.Normalize();
                 ribbonModule->SetEndNormal({temp.x, temp.y, temp.z, 0});
             }
-
             {
-                float ribbonvector[3] = {ribbonModule->GetRibbonVector().x, ribbonModule->GetRibbonVector().y,
+                float ribbonVector[3] = {ribbonModule->GetRibbonVector().x, ribbonModule->GetRibbonVector().y,
                                          ribbonModule->GetRibbonVector().z};
                 ImGui::Text("ribbon vector");
-                bool result = ImGui::SliderFloat3("##ribbon vector", ribbonvector, -1, 1);
+                bool result = ImGui::SliderFloat3("##ribbon vector", ribbonVector, -1, 1);
                 if (false == isSomethingChanged)
                     if (true == result)
                         isSomethingChanged = result;
-                Vector3 temp = {ribbonvector[0], ribbonvector[1], ribbonvector[2]};
+                Vector3 temp = {ribbonVector[0], ribbonVector[1], ribbonVector[2]};
                 temp.Normalize();
                 ribbonModule->SetRibbonVector({temp.x, temp.y, temp.z, 0});
             }
         }
     }
-
     ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.0f);
+    
     // shape location
     {
         float locationFactor[3] = {_curEmitter->_emitLocator->GetFactor().x, _curEmitter->_emitLocator->GetFactor().y,
@@ -256,10 +258,10 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
         Vector3 temp = _curEmitter->_emitLocator->GetFactor();
         if (locationFactor[0] != temp.x || locationFactor[1] != temp.y || locationFactor[2] != temp.z)
             isSomethingChanged = true;
-
         _curEmitter->_emitLocator->SetFactor({locationFactor[0], locationFactor[1], locationFactor[2]});
     }
     ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.0f);
+
     // use light
     {
         bool uselight = _curEmitter->GetUseLight();
@@ -708,6 +710,7 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
         UmParticleManager->RefreshEditor();
     }
 }
+
 void EditorParticleEffectDetails::ShowEffectDetails()
 {
     {

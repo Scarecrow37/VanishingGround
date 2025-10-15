@@ -3,7 +3,7 @@ struct RibbonVertexCount
 {
     uint count;
 };
-ConstantBuffer<RibbonVertexCount> bit32_1_ribbonVertexCount;
+//ConstantBuffer<RibbonVertexCount> bit32_1_ribbonVertexCount;
 
 StructuredBuffer<uint> ribbonIndices;
 
@@ -36,7 +36,7 @@ struct VSOutput
 VSOutput vs_main(uint vertexID : SV_VertexID)
 {
     VSOutput o = (VSOutput) 0;
-    int totalcount = bit32_1_ribbonVertexCount.count / 2;
+    //int totalcount = bit32_1_ribbonVertexCount.count / 2;
 
     uint current_idx = vertexID / 2;
     uint particleIndex = ribbonIndices[current_idx];

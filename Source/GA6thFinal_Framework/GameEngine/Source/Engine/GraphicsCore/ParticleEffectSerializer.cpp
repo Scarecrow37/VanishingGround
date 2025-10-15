@@ -517,6 +517,10 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_0(EffectID id, const std
                     File::Path absolutePath = meshLocator->GetModelPath();
                     absolutePath            = std::filesystem::absolute(absolutePath).generic_string();
                     UmGraphics.LoadModelResource(std::wstring_view(absolutePath.wstring()), emitter);
+                    if (auto meshSurfaceLocator = emitter->_emitLocator->AsMeshSurfaceLocator())
+                    {
+                        meshSurfaceLocator->SetModelPath(absolutePath.wstring());
+                    }
                 }
             }
             emitter->SetEmitterName(emitterName);
@@ -1042,6 +1046,10 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_1(EffectID id, const std
                     File::Path absolutePath = modelpath;
                     absolutePath            = std::filesystem::absolute(absolutePath).generic_string();
                     UmGraphics.LoadModelResource(std::wstring_view(absolutePath.wstring()), emitter);
+                    if (auto meshSurfaceLocator = emitter->_emitLocator->AsMeshSurfaceLocator())
+                    {
+                        meshSurfaceLocator->SetModelPath(absolutePath.wstring());
+                    }
                 }
             }
             emitter->SetEmitterName(emitterName);
@@ -1569,6 +1577,10 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_2(EffectID id, const std
                     File::Path          absolutePath = guid.ToPath();
                     absolutePath                     = std::filesystem::absolute(absolutePath).generic_string();
                     UmGraphics.LoadModelResource(std::wstring_view(absolutePath.wstring()), emitter);
+                    if (auto meshSurfaceLocator = emitter->_emitLocator->AsMeshSurfaceLocator())
+                    {
+                        meshSurfaceLocator->SetModelPath(absolutePath.wstring());
+                    }
                 }
             }
             emitter->SetEmitterName(emitterName);
@@ -2114,6 +2126,10 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_3(EffectID id, const std
                     File::Path   absolutePath = guid.ToPath();
                     absolutePath              = std::filesystem::absolute(absolutePath).generic_string();
                     UmGraphics.LoadModelResource(std::wstring_view(absolutePath.wstring()), emitter);
+                    if (auto meshSurfaceLocator = emitter->_emitLocator->AsMeshSurfaceLocator())
+                    {
+                        meshSurfaceLocator->SetModelPath(absolutePath.wstring());
+                    }
                 }
             }
             emitter->SetEmitterName(emitterName);
@@ -2713,6 +2729,10 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_4(EffectID id, const std
                     File::Path          absolutePath = guid.ToPath();
                     absolutePath                     = std::filesystem::absolute(absolutePath).generic_string();
                     UmGraphics.LoadModelResource(std::wstring_view(absolutePath.wstring()), emitter);
+                    if (auto meshSurfaceLocator = emitter->_emitLocator->AsMeshSurfaceLocator())
+                    {
+                        meshSurfaceLocator->SetModelPath(absolutePath.wstring());
+                    }
                 }
             }
             emitter->SetEmitterName(emitterName);

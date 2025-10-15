@@ -21,14 +21,14 @@ private:
     class ParticleEffect*        _curEffect  = nullptr;
     class ParticleEmitter*       _curEmitter = nullptr;    
 
-    File::Path currentmeshsurfacepath = File::NULL_PATH;
-    bool       ctrlOflag              = true;
-    bool       ctrlSflag              = true;
+    File::Path _currentMeshSurfaceModelPath = File::NULL_PATH;
+    bool       _ctrlOflag              = true;
+    bool       _ctrlSflag              = true;
 
     GraphicsPointer<IMeshRenderer> _meshRenderer;
 	bool                           _hideModelTransform = false;
     bool                           _isModelActive = true;
-    File::Path                     _envmodelpath  = File::NULL_PATH;
+    File::Path                     _envModelPath  = File::NULL_PATH;
     Matrix                         _worldMatrix;
     Vector3                        _position    = Vector3(0, -20, 0);
     Vector3                        _rotation    = Vector3::Zero;
@@ -41,18 +41,18 @@ private:
     FBXConverter& GetFBXConverter();
 
     // Light Property
-    Vector3                _direction;
-    Vector3                _color;
-    Vector3                _ambient;
-    float                  _intensity;
-    bool                   _lightActivity;
+    Vector3                 _direction;
+    Vector3                 _color;
+    Vector3                 _ambient;
+    float                   _intensity;
+    bool                    _lightActivity;
     GraphicsPointer<ILight> _directionalLight;
 
     Matrix  _effectWorldMatrix = Matrix::Identity;
-    Vector3 _effectPosition = Vector3::Zero;
-    Vector3 _effectRotation = Vector3::Zero;
-    Vector3 _effectScale    = {1, 1, 1};
-    bool  _effectTransformHide = false;
+    Vector3 _effectPosition      = Vector3::Zero;
+    Vector3 _effectRotation      = Vector3::Zero;
+    Vector3 _effectScale         = {1, 1, 1};
+    bool    _effectTransformHide = false;
 
     bool    _effectRotateFlag = false;
     float   _elapsedTimer     = 0.f;
@@ -60,8 +60,4 @@ private:
     Vector3 _rotationVelocity = Vector3::Zero;
     
     bool _boneFlag = false;
-
-    std::vector<std::shared_ptr<class Model>> _models;
-    std::vector<std::shared_ptr<class Texture>> _textures;
-
 };
