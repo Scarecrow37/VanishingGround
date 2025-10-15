@@ -245,12 +245,7 @@ void GraphicsCore::LoadModelResource(const std::wstring_view filePath, ParticleE
     if (auto meshSurfaceLocator = component->_emitLocator->AsMeshSurfaceLocator())
     {
         std::wstring path(filePath);
-        _resourceManager->LoadResource<Model>(filePath);/*
-        _resourceManager->LoadResource<Model>(path, [this, meshSurfaceLocator, path]() {
-            meshSurfaceLocator->SetModelPath(path);
-            std::shared_ptr<Model> modelPtr = _resourceManager->LoadResource<Model>(path);
-            meshSurfaceLocator->LoadVerticesFromModel(modelPtr);
-        });*/
+        _resourceManager->LoadResource<Model>(filePath);
     }
 }
 
@@ -300,7 +295,6 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     _device->Initialize();
     _device->ResetCommands();
     _renderer->Initialize();
-    _particleManager->Initialize(MAX_PARTICLE);
     _moduleManager->Initialize();
     _threadPool->Initialize(5);
     _particleManager->Initialize(MAX_PARTICLE);
