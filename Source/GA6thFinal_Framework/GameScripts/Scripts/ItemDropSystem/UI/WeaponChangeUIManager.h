@@ -28,6 +28,7 @@ public:
         TextElement*      AttackCount = nullptr;
         TextElement*      Speed       = nullptr;
         DescriptionPanel* Description = nullptr;
+        DescriptionPanel* Keyword     = nullptr;
     };
 
     struct ChangeWeaponStats
@@ -45,6 +46,7 @@ public:
         StatsUIDatas      AttackCount;
         StatsUIDatas      Speed;
         DescriptionPanel* Description = nullptr;
+        DescriptionPanel* Keyword     = nullptr;
     };
 
     struct WarningUI
@@ -90,6 +92,7 @@ private:
     void OnPressedActionA(const Input::Controller&);
 
 private:
+    ImageElement*                 _changeWeaponIcon;
     std::vector<PlayerWeaponInfo> _playerWeapons;
     PlayerWeaponStats             _playerWeaponStats;
     ChangeWeaponStats             _changeWeaponStats;
