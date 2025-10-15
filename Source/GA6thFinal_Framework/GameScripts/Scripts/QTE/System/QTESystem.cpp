@@ -220,7 +220,7 @@ void QTESystem::StartQTE(Callback callback)
     if (weaponSystem)
     {
         auto& weapon = weaponSystem->GetCurrentWeaponStats();
-        auto  itr    = _weaponIDToTrackTable.find(weapon.WeaponID);
+        auto  itr = _weaponIDToTrackTable.find(weapon.WeaponID);
         if (itr != _weaponIDToTrackTable.end() && false == itr->second.empty())
         {
             auto& trackVector = itr->second;
@@ -230,6 +230,11 @@ void QTESystem::StartQTE(Callback callback)
                 _currentQTETrack = trackVector[index];
                 StartQTE(_currentQTETrack, callback);
             }
+        }
+        else
+        {
+            // 현재 무기에 매핑된 QTE 트랙이 없는 경우
+            StartQTE(&weapon, callback);
         }
     }
 }
@@ -243,20 +248,16 @@ void QTESystem::StartQTE(QTE::Track* qteTrack, Callback callback)
             (const char*)u8"QTE가 진행 중인 상태에서 QTE 시작 요청을 한번 더 했습니다. 다시 한번 확인해주세요.");
         return;
     }
+    ResetQTEState();
     _onQTEFinishCallback = callback;
-    _currQTEPlaying = true;
-    _qteFadeInEnd   = false;
-    _qteFadeOutEnd  = false;
-    PauseQTE(false);
-    ClearQueue();
 
+    bool result = false;
     if (qteTrack)
     {
         auto track = qteTrack->GetEventTrack().lock();
         if (track)
         {
             _qteTimer = track->GetMinFrame() - GetDelayFromQTEStart();
-
             // 유효한 노트 큐 생성
             auto& noteQueue = track->GetEventContextQueue();
             _noteAvailQueue.reserve(noteQueue.size());
@@ -270,10 +271,68 @@ void QTESystem::StartQTE(QTE::Track* qteTrack, Callback callback)
                     _overallResult.NoteResults.emplace_back(qteNote);
                 }
             }
+            result = true;
         }
     }
+    if (result)
+    {
+        ProcessQTEEnterEvent();
+    }
+    else
+    {
+        StopQTE();
+    }
+}
 
-    ProcessQTEEnterEvent();
+#include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
+void QTESystem::StartQTE(const WeaponStats* weapon, Callback callback) 
+{
+    if (_currQTEPlaying)
+    {
+        UmLogger.Log(
+            LogLevel::LEVEL_WARNING,
+            (const char*)u8"QTE가 진행 중인 상태에서 QTE 시작 요청을 한번 더 했습니다. 다시 한번 확인해주세요.");
+        return;
+    }
+    ResetQTEState();
+    _onQTEFinishCallback = callback;
+
+    bool result = false;
+    if (weapon)
+    {
+        int count = weapon->AttackCount;
+        _overallResult.NoteResults.resize(count);
+        _overallResult.PerfectCount = count;
+
+        Input::Controller::Button buttonArr[] = {Input::Controller::Button::X, Input::Controller::Button::Y,
+                                                 Input::Controller::Button::B};
+        std::vector<int> availableMonsters;
+        if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance(); turnMode)
+        {
+            auto& enemies = turnMode->GetEnemies();
+            for (size_t i = 0; i < enemies.size(); ++i)
+            {
+                if (enemies[i] && enemies[i]->State != TurnActor::STATE::Dead)
+                {
+                    availableMonsters.push_back(i);
+                }
+            }
+        }
+        for (size_t i = 0; i < count; ++i)
+        {
+            _overallResult.NoteResults[i].Result    = QTE::QTE_RESULT_PERFECT;
+            _overallResult.NoteResults[i].TimeDelta = 0.0f;
+
+            int randomIndex = Random::Range(0, (int)availableMonsters.size());
+            _overallResult.NoteResults[i].PressedButton = buttonArr[randomIndex % 3];
+        }
+
+    }
+}
+
+void QTESystem::StopQTE() 
+{
+    _currQTEPlaying = false;
 }
 
 void QTESystem::PauseQTE(bool pause) 
@@ -310,6 +369,16 @@ QTE::ResultType QTESystem::GetQTEResult(QTE::Note* note)
     return QTE::QTE_RESULT_NONE;
 }
 
+void QTESystem::ResetQTEState() 
+{
+    _onQTEFinishCallback = nullptr;
+    _currQTEPlaying      = true;
+    _qteFadeInEnd        = false;
+    _qteFadeOutEnd       = false;
+    PauseQTE(false);
+    ClearQueue();
+}
+
 void QTESystem::ClearTrack()
 {
     for (auto& [weaponID, trackList] : _weaponIDToTrackTable)
@@ -338,6 +407,7 @@ void QTESystem::UpdateQTETrack()
     {
         return;
     }
+    bool valid = false;
     if (_currentQTETrack)
     {
         auto track = _currentQTETrack->GetEventTrack().lock();
@@ -365,9 +435,16 @@ void QTESystem::UpdateQTETrack()
             }
             else
             {
-                _currQTEPlaying = false;
+                // 시간이 모두 경과했거나, 모든 노트를 처리한 경우 QTE 종료
+                StopQTE();
             }
+            valid = true;
         }
+    }
+
+    if (false == valid)
+    {
+        StopQTE();
     }
 }
 
