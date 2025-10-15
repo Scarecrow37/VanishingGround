@@ -16,6 +16,7 @@
 #include "UI/Views/MonsterChain/MonsterChainView.h"
 
 #include "CombatUIManager/CombatUIManager.h"
+#include "QTE/UI/QTEUIManager.h"
 
 REGISTER_CLASS(FSMStateFactory, CombatStartPhase)
 
@@ -87,6 +88,7 @@ void CombatStartPhase::OnAwake()
     RegisterEnemiesChain();
     ReviveEnemies();
     ResetPlayer();
+    RefreshUI();
 }
 
 void CombatStartPhase::OnStart() 
@@ -368,5 +370,19 @@ void CombatStartPhase::ResetPlayer()
     if (_player)
     {
         _player->TurnActor::Revive();
+    }
+}
+
+void CombatStartPhase::RefreshUI() 
+{
+    if (CombatUIManager* manager = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        manager->Refresh();
+    }
+    if (QTEUIManager* uiManager = QTEUIManager::GetInstance())
+    {
+        uiManager->Refresh();
+        uiManager->SetUIAlpha(0.0f);
+        uiManager->SetBackgroundUIAlpha(0.0f);
     }
 }
