@@ -21,7 +21,7 @@ RenderScene::RenderScene(std::string_view name)
     _lightDatas.resize(MAX_LIGHT);
 }
 
-RenderScene::~RenderScene() {}
+RenderScene::~RenderScene() = default;
 
 D3D12_GPU_DESCRIPTOR_HANDLE RenderScene::GetFinalImage()
 {
@@ -222,6 +222,14 @@ void RenderScene::ResetEnvironmentSkyBox()
 void RenderScene::ResetIBLSkyBox()
 {
     _skyBox->ResetIBLResource();
+}
+
+void RenderScene::ClearRenderQueue()
+{
+    _meshRenderQueue.clear();
+    _uiRenderQueue.clear();
+    _textRenderQueue.clear();
+    _sdfTextRenderQueue.clear();
 }
 
 void RenderScene::UpdateGlobal()
