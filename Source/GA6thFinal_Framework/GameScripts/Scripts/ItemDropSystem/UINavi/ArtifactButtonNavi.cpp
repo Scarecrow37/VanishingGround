@@ -6,6 +6,8 @@
 #include "ItemDropSystem/UI/ItemDropUIRootManager.h"
 #include "ItemDropSystem/UI/WeaponChangeUIManager.h"
 #include "WeaponSystem/WeaponTable/WeaponTableComponent.h"
+#include "RevelationSystem/RevelationSystem.h"
+#include "AccessorySystem/AccessorySystem.h"
 
 UMREAL_COMPONENT(ArtifactButtonNavi)
 
@@ -82,6 +84,7 @@ void ArtifactButtonNavi::Submit()
     {
         if (ArtifactUIManager* manager = SingletonComponent<ArtifactUIManager>::GetInstance())
         {         
+            const std::string& itemName = _itemInfo.Name;
             switch (_itemInfo.Category)
             {
             case ArtifactDropType::SWORD:
@@ -90,6 +93,28 @@ void ArtifactButtonNavi::Submit()
                 if (WeaponChangeUIManager* changeManager = SingletonComponent<WeaponChangeUIManager>::GetInstance())
                 {
                     changeManager->ShowWeaponChangeUI(_itemInfo.Name);
+                }
+                break;
+            case ArtifactDropType::ACCESSORY:
+                if (AccessorySystem* accessoryManager = SingletonComponent<AccessorySystem>::GetInstance())
+                {
+                    std::unique_ptr<AccessoryElement> element = accessoryManager->TryMakeAccessoryToName(itemName);
+                    if (element)
+                    {
+                        accessoryManager->EquipAccessory(*element);
+                    }
+                    manager->ObtainFocusNavi(_buttonIndex);
+                }
+                break;
+            case ArtifactDropType::REVELATION:
+                if (RevelationSystem* revelationManager = SingletonComponent<RevelationSystem>::GetInstance())
+                {
+                    RevelationElement* element = revelationManager->FindElement(itemName);
+                    if (element)
+                    {
+                        revelationManager->PushBackRevelation(*element);
+                    }
+                    manager->ObtainFocusNavi(_buttonIndex);
                 }
                 break;
             default:

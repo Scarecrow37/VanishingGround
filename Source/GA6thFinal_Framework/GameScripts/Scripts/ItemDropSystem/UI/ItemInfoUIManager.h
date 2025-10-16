@@ -13,9 +13,10 @@ class ItemInfoUIManager : public Component
 protected:
     struct Components
     {
-        TextElement* ItemName = nullptr;
-        ImageElement* ItemIcon = nullptr;
-        DescriptionPanel* ItemDescription = nullptr;
+        TextElement*      ItemName           = nullptr;
+        ImageElement*     ItemIcon           = nullptr;
+        DescriptionPanel* ItemDescription    = nullptr;
+        DescriptionPanel* KeywordDescription = nullptr;
 
         TextElement* Damage      = nullptr;
         TextElement* Critical    = nullptr;
@@ -43,6 +44,8 @@ public:
 
     void SetItemDescription(const DropItemInfo& info);
     void SetItemDescription(const std::string& description);
+
+    void SetKeywordDescription(const std::string& description);
 
     void SetWeaponStats(const DropItemInfo& info);
     void SetWeaponStats(const WeaponStats& stats);

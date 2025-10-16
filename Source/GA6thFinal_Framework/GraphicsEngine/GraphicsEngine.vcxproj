@@ -325,6 +325,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClInclude Include="BilateralUpsamplePass.h" />
     <ClInclude Include="CalculateMotionVectorPass.h" />
     <ClInclude Include="EngineShadowPointLight.h" />
+    <ClInclude Include="EmitLocator.h" />
     <ClInclude Include="FogCompositePass.h" />
     <ClInclude Include="FogLightAccmulatePass.h" />
     <ClInclude Include="FogLightInjectionPass.h" />
@@ -362,6 +363,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClInclude Include="d3dUtil.h" />
     <ClInclude Include="Module\ModuleManager.h" />
     <ClInclude Include="Module\RenderModule.h" />
+    <ClInclude Include="ParticleRenderModule.h" />
     <ClInclude Include="PipelineStateManager.h" />
     <ClInclude Include="PointLightShadowAtlas.h" />
     <ClInclude Include="PointLightShadowPass.h" />
@@ -486,6 +488,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClCompile Include="BilateralUpsamplePass.cpp" />
     <ClCompile Include="CalculateMotionVectorPass.cpp" />
     <ClCompile Include="EngineShadowPointLight.cpp" />
+    <ClCompile Include="EmitLocator.cpp" />
     <ClCompile Include="FogCompositePass.cpp" />
     <ClCompile Include="FogLightAccmulatePass.cpp" />
     <ClCompile Include="FogLightInjectionPass.cpp" />
@@ -516,6 +519,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClCompile Include="Cylinder.cpp" />
     <ClCompile Include="d3dUtil.cpp" />
     <ClCompile Include="Module\ModuleManager.cpp" />
+    <ClCompile Include="ParticleRenderModule.cpp" />
     <ClCompile Include="PipelineStateManager.cpp" />
     <ClCompile Include="PointLightShadowAtlas.cpp" />
     <ClCompile Include="PointLightShadowPass.cpp" />

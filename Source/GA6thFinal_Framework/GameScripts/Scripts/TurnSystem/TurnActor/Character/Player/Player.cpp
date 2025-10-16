@@ -40,11 +40,6 @@ void Player::Awake()
         Base::Awake();
         gameObject->AddTag(TAG);
         BuildPlayerFSM();
-
-        if (nullptr == GetPlayerStats())
-        {
-            UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Player Stats를 추가해주세요");
-        }
     }
 }
 

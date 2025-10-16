@@ -189,18 +189,24 @@ void UIRoot::UpdateNavigation()
         {
             const NavigationKey navigationKey = ButtonStateToNavigationKey()(buttonState);
 
-            if (const NavigationID navigationID = _currentFocusNavigation->GetNavigatedId(navigationKey);
-                navigationID != INVALID_NAVIGATION_ID)
+            UINavigationComponent* currentCheckUINavigationComponent = _currentFocusNavigation;
+            for (unsigned int tryCount = 0; tryCount < MAX_NAVIGATION_LOOP_COUNT; ++tryCount)
             {
-                if (UINavigationComponent* nextFocus = FindNavigationComponent(navigationID);
-                    _currentFocusNavigation == nextFocus)
+                const NavigationID navigationID = currentCheckUINavigationComponent->GetNavigatedId(navigationKey);
+                if (navigationID == INVALID_NAVIGATION_ID)
+                    break;
+
+                UINavigationComponent* nextFocus = FindNavigationComponent(navigationID);
+                if (currentCheckUINavigationComponent == nextFocus)
                 {
-                    _currentFocusNavigation->Submit();
+                    currentCheckUINavigationComponent->Submit();
+                    break;
                 }
-                else
-                {
-                    ChangeFocusComponent(nextFocus, FocusCallType::INPUT);
-                }
+
+                if (ChangeFocusComponent(nextFocus, FocusCallType::INPUT))
+                    break;
+
+                currentCheckUINavigationComponent = nextFocus;
             }
         }
     });
@@ -308,7 +314,7 @@ UINavigationComponent* UIRoot::FindNavigationComponentInTransform(NavigationID i
     return component;
 }
 
-void UIRoot::ChangeFocusComponent(UINavigationComponent* nextFocusComponent, FocusCallType callType)
+bool UIRoot::ChangeFocusComponent(UINavigationComponent* nextFocusComponent, FocusCallType callType)
 {
     if (nullptr != nextFocusComponent)
     {
@@ -323,8 +329,10 @@ void UIRoot::ChangeFocusComponent(UINavigationComponent* nextFocusComponent, Foc
             {
                 _currentFocusNavigation->FocusIn(callType);
             }
+            return true;
         }
     }
+    return false;
 }
 
 void UIRoot::RequestChangeFocusComponent(UINavigationComponent* nextFocusComponent)

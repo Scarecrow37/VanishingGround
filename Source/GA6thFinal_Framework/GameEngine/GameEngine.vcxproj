@@ -315,6 +315,7 @@
     <ClInclude Include="Source\Editor\Menu\Game\EditorGameMenu.h" />
     <ClInclude Include="Source\Editor\SceneGizmo\SceneGizmo.h" />
     <ClInclude Include="Source\Editor\Tool\RenderPassData\EditorRenderPassData.h" />
+    <ClInclude Include="Source\Engine\EngineCore\ImGuiDebuggerWindow.h" />
     <ClInclude Include="Source\Engine\AudioCore\Manager\AudioManager.h" />
     <ClInclude Include="Source\Engine\EditorCore\Gui\Sequencer\EditorTimelineTrackSequencer.h" />
     <ClInclude Include="Source\Editor\Tool\Model\EditorModelInspector.h" />
@@ -473,6 +474,7 @@
     <ClCompile Include="Source\Editor\Menu\Game\EditorGameMenu.cpp" />
     <ClCompile Include="Source\Editor\SceneGizmo\SceneGizmo.cpp" />
     <ClCompile Include="Source\Editor\Tool\RenderPassData\EditorRenderPassData.cpp" />
+    <ClCompile Include="Source\Engine\EngineCore\ImGuiDebuggerWindow.cpp" />
     <ClCompile Include="Source\Engine\AudioCore\Manager\AudioManager.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Gui\Sequencer\EditorTimelineTrackSequencer.cpp" />
     <ClCompile Include="Source\Editor\Tool\Model\EditorModelInspector.cpp" />

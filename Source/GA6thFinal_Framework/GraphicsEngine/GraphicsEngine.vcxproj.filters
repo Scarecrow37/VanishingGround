@@ -608,6 +608,8 @@
     </ClCompile>
     <ClCompile Include="AntiAliasingPass.cpp">
       <Filter>소스 파일</Filter>
+    <ClCompile Include="EmitLocator.cpp" />
+    <ClCompile Include="ParticleRenderModule.cpp" />
     </ClCompile>
     <ClCompile Include="GraphicsPointer.cpp" />
     <ClCompile Include="PointLightShadowAtlas.cpp">
@@ -1068,6 +1070,8 @@
     <ClInclude Include="SDFTextRenderer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="EmitLocator.h" />
+    <ClInclude Include="ParticleRenderModule.h" />
     <ClInclude Include="FXAATechnique.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>

@@ -150,6 +150,7 @@ void QTEUIManager::Reset()
 
 void QTEUIManager::Awake() 
 {
+    
 }
 
 void QTEUIManager::Start()
@@ -187,7 +188,7 @@ void QTEUIManager::Start()
     //_xybPointFader.SetOnFadeInEndCallback([this]() { _xybPointFader.SetFadeMode(Fader::FADE_NONE); });
     //_xybPointFader.SetOnFadeOutEndCallback([this]() { _xybPointFader.SetFadeMode(Fader::FADE_NONE); });
 
-    Refresh();
+    FindUIComponents();
     SetBackgroundUIAlpha(0.0f);
     SetGuideNoteActive(false);
 }

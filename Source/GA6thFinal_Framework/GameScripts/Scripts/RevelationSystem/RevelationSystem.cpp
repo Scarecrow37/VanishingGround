@@ -47,7 +47,7 @@ std::shared_ptr<RevelationElement> RevelationSystem::RemovePlayerElement(int slo
     return prevElement;
 }
 
-const std::shared_ptr<RevelationElement>& RevelationSystem::PushBackPlayerElement(const RevelationElement& element)
+const std::shared_ptr<RevelationElement>& RevelationSystem::PushBackRevelation(const RevelationElement& element)
 {
     return _playerElementList.emplace_back(new RevelationElement(element));
 }
@@ -792,7 +792,7 @@ void RevelationSystem::ImGuiDrawPlayerElementEditor()
             auto begin = _elementsTable.begin();
             if (begin != _elementsTable.end())
             {
-                PushBackPlayerElement(begin->second);
+                PushBackRevelation(begin->second);
             }
         }
         ImGui::TreePop();

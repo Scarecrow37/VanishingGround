@@ -55,7 +55,7 @@ void ItemDropUIRootManager::AutoFocus(bool checkInputDir)
             }
             _lastInputDir = ItemDropUIRootManager::InputDir::IDLE;
         }
-        startIndex = std::min(startIndex, ARTIFACT_DROP_COUNT - 1);
+        startIndex = std::min(startIndex, ARTIFACT_DROP_COUNT);
      
         //포커스 가능한 UI로 설정
         if (false == revers)
@@ -64,30 +64,36 @@ void ItemDropUIRootManager::AutoFocus(bool checkInputDir)
             {
                 if (artifactUI->FocusNavi(i))
                 {
+                    _isFocusArtifactNavi = true;
                     return;
                 }
             }
         }
         else
         {
-            for (size_t i = startIndex; i < ARTIFACT_DROP_COUNT; --i)
+            size_t i = startIndex;
+            while (i < ARTIFACT_DROP_COUNT)
             {
                 if (artifactUI->FocusNavi(i))
                 {
+                    _isFocusArtifactNavi = true;
                     return;
                 }
+                if (i == 0)
+                {
+                    break;
+                }
+                --i;
             }
         }
     }
 
     //없으면 RestartButton으로 포커스 설정
-    if (auto restartButton = GameObject::FindWithTag(RestartStageNavi::TAG).lock())
+    if (auto restartNavi = _restartNavi.lock())
     {
-        if (auto navi = restartButton->GetComponent<RestartStageNavi>())
-        {
-            navi->Focus();
-            ArtifactButtonNavi::LastFocusIndex = ARTIFACT_DROP_COUNT + 1;
-        }
+        restartNavi->Focus();
+        ArtifactButtonNavi::LastFocusIndex = ARTIFACT_DROP_COUNT + 1;
+        _isFocusArtifactNavi               = false;
     }
 }
 
@@ -137,6 +143,7 @@ void ItemDropUIRootManager::Awake()
         BindInputAction(ControllerButton::DPAD_RIGHT, Action::PRESSED, this, &ItemDropUIRootManager::OnDpadRight);
         BindInputAction(ControllerButton::DPAD_UP, Action::PRESSED, this, &ItemDropUIRootManager::OnDpadUp);
         BindInputAction(ControllerButton::DPAD_DOWN, Action::PRESSED, this, &ItemDropUIRootManager::OnDpadDown);
+        BindInputAction(ControllerButton::LEFT_THUMB_STICK, Action::PRESSED, this, &ItemDropUIRootManager::OnLeftTumbStickDown);
     }
 }
 
@@ -168,7 +175,33 @@ void ItemDropUIRootManager::Start()
                 _weaponChangeUIManager = std::static_pointer_cast<WeaponChangeUIManager>(weakComponent.lock());
             }
         }
+        if (auto restartButtonObject = GameObject::FindWithTag(RestartStageNavi::TAG).lock())
+        {
+            if (auto navi = restartButtonObject->GetComponent<RestartStageNavi>())
+            {
+                auto component = navi->GetWeakPtr().lock();
+                _restartNavi   = std::static_pointer_cast<RestartStageNavi>(component);
+            }
+        }
         gameObject->ActiveSelf = false;
+    }
+}
+
+void ItemDropUIRootManager::Update() 
+{
+    if (_isFocusInput)
+    {
+        WeaponChangeUIManager* manager = WeaponChangeUI;
+        bool isFocus = true;
+        if (manager)
+        {
+            isFocus &= manager->gameObject->ActiveSelf == false; //무기 변경 UI 활성화일때는 오토 포커스 금지 
+        }
+        if (isFocus)
+        {
+            AutoFocus(true);
+        }    
+        _isFocusInput = false;
     }
 }
 
@@ -183,6 +216,7 @@ void ItemDropUIRootManager::OnDpadLeft(const Input::Controller&)
     if (EnableInHierarchy)
     {
         _lastInputDir = InputDir::LEFT;
+        _isFocusInput = true;
     }
 }
 
@@ -191,6 +225,10 @@ void ItemDropUIRootManager::OnDpadRight(const Input::Controller&)
     if (EnableInHierarchy)
     {
         _lastInputDir = InputDir::RIGHT;
+        if (_isFocusArtifactNavi)
+        {
+            _isFocusInput = true;
+        }   
     }
 }
 
@@ -199,6 +237,10 @@ void ItemDropUIRootManager::OnDpadUp(const Input::Controller&)
     if (EnableInHierarchy)
     {
         _lastInputDir = InputDir::UP;
+        if (_isFocusArtifactNavi)
+        {
+            _isFocusInput = true;
+        } 
     }
 }
 
@@ -207,6 +249,32 @@ void ItemDropUIRootManager::OnDpadDown(const Input::Controller&)
     if (EnableInHierarchy)
     {
         _lastInputDir = InputDir::DOWN;
+        if (_isFocusArtifactNavi)
+        {
+            _isFocusInput = true;
+        } 
+    }
+}
+
+void ItemDropUIRootManager::OnLeftTumbStickDown(const Input::Controller& controller) 
+{
+    Input::Controller::StickBias bias = controller.GetLeftStickBias();
+    switch (bias)
+    {
+    case Input::Controller::StickBias::BIAS_UP:
+        OnDpadUp(controller);
+        break;
+    case Input::Controller::StickBias::BIAS_DOWN:
+        OnDpadDown(controller);
+        break;
+    case Input::Controller::StickBias::BIAS_LEFT:
+        OnDpadLeft(controller);
+        break;
+    case Input::Controller::StickBias::BIAS_RIGHT:
+        OnDpadRight(controller);
+        break;
+    default:
+        break;
     }
 }
 

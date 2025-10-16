@@ -9,7 +9,9 @@ namespace QTE
 {
     class Track;
     class Note;
-} 
+}
+
+struct WeaponStats;
 
 class QTESystem : public Component, public InputReceiver
 {
@@ -65,6 +67,8 @@ public:
     /// <param name="callback">QTE가 종료되었을 때 호출되는 선택적 콜백 함수입니다. 기본값은 nullptr입니다.</param>
     void StartQTE(Callback callback = nullptr);
     void StartQTE(QTE::Track* qteTrack, Callback callback = nullptr);
+    void StartQTE(const WeaponStats* weapon, Callback callback = nullptr);
+    void StopQTE();
 
     /// <summary>
     /// QTE를 일시정지하거나 재개합니다. QTE플레이 중이 아니라면 무시됩니다.
@@ -73,6 +77,7 @@ public:
     void PauseQTE(bool pause);
 
 private:
+    void ResetQTEState();
     void ClearTrack();
     void ClearQueue();
     void UpdateQTETrack();

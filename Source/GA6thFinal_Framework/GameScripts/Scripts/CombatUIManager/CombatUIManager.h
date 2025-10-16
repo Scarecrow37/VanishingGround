@@ -39,6 +39,7 @@ public:
 protected:
     void Reset() override;
     void Awake() override;
+    void Start() override;
     void Update() override;
     void FixedUpdate() override;
     void ImGuiDrawPropertysEvent() override;

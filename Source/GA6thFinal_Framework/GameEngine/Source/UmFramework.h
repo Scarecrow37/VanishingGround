@@ -165,6 +165,7 @@ using namespace Microsoft::WRL;
 #include "Engine/EngineCore/FactoryRegister.h"
 #include "Engine/EngineCore/GizmoManager.h"
 #include "Engine/EngineCore/PreferencesSystem.h"
+#include "Engine/EngineCore/ImGuiDebuggerWindow.h"
 #include "Engine/EngineCore/EngineCores.h" 
 
 //Editor Core
