@@ -17,6 +17,7 @@ File::Guid ArtifactUIManager::GetObtainFrameGuid()
 ArtifactUIManager::ArtifactUIManager()
 {
     _gridPanel = nullptr;
+    _obtainFlag = false;
 }
 
 ArtifactUIManager::~ArtifactUIManager()
