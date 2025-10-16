@@ -1,6 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "SkeletalMeshRenderer.h"
-#include <Animation/AnimationComponent.h>
+#include "Animation/AnimationComponent.h"
+#include "GraphicsEngine/Interface/IMeshRenderer.h"
+#include "GraphicsEngine/Interface/IAnimator.h"
 
 UMREAL_COMPONENT(SkeletalMeshRenderer)
 
@@ -17,9 +19,9 @@ SkeletalMeshRenderer::SkeletalMeshRenderer()
                 const auto extension = path.extension();
                 if (extension == L".fbx" || extension == L".UmModel")
                 {
-                    _guidRef = data->GetGuid();
-                    ReflectFields->Basefields.get().Guid = _guidRef.string();
-                    UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef, [this]() { LoadModel(); });
+                    _Guid = data->GetGuid();
+                    ReflectFields->Basefields.get().Guid = _Guid.string();
+                    UmSceneManager.ResourceManager.RequestModelResource(this, _Guid, [this]() { LoadModel(); });
                 }
             }
             ImGui::EndDragDropTarget();
@@ -31,18 +33,18 @@ SkeletalMeshRenderer::~SkeletalMeshRenderer() = default;
 
 void SkeletalMeshRenderer::Reset()
 {
-    MakeMeshRenderer(MeshType::SKELETAL_MESH, transform->Position, transform->Scale, transform->Rotation, transform->GetWorldMatrix(), _isDirtyFlag);
+    MakeMeshRenderer(transform->GetWorldMatrix());
     
-    if (false == _guidRef.IsNull())
+    if (false == _Guid.IsNull())
     {
-        UmSceneManager.ResourceManager.RequestModelResource(this, _guidRef, [this]() { LoadModel(); });
+        UmSceneManager.ResourceManager.RequestModelResource(this, _Guid, [this]() { LoadModel(); });
     } 
 }
 
 void SkeletalMeshRenderer::DeserializedReflectEvent() 
 {
     File::Guid guid = ReflectFields->Basefields.get().Guid;
-    _guidRef        = guid;
+    _Guid        = guid;
 }
 
 void SkeletalMeshRenderer::ImGuiDrawPropertysEvent() 
@@ -63,28 +65,18 @@ void SkeletalMeshRenderer::LoadModel()
 {
     if (Renderer)
     {
-        const auto& animator = Renderer->GetAnimator();
-        if (animator)
-        {
-            animator->SetDestroy();
-        }
-
         std::string path = FilePath;
         if (path != File::NULL_PATH)
         {
             std::wstring modelPath = U8ToWString(path);
-            UmGraphics.LoadResource(modelPath, Renderer.get());            
-            Renderer->Initialize();
+            UmGraphics.LoadResource(modelPath, Renderer.Get());
 
             auto& animation = Renderer->GetModel()->GetAnimation();
             auto& skeleton  = Renderer->GetModel()->GetSkeleton();
-            if (animation != nullptr && skeleton != nullptr)
-            {
-                std::shared_ptr<Animator> animator(new Animator);
-                animator->Initialize(animation, skeleton);
+            if (IAnimator* animator = Renderer->GetAnimator())
+            {                                
                 animator->SetActive(&EnableInHierarchy);
-                UmGraphics.RegisterComponent(animator.get());
-                Renderer->SetAnimator(animator);
+                UmGraphics.RegisterComponent(animator);
                 Renderer->OnCustomDepth(PostProcess::BLOOM);
                 this->InitMaterial();
             }
@@ -99,7 +91,12 @@ void SkeletalMeshRenderer::OnChangedModel()
     AnimationComponent* animationComponent = GetComponent<AnimationComponent>();
     if (Renderer && animationComponent)
     {
-        const auto& animator = Renderer->GetAnimator();
-        animationComponent->SetAnimator(animator);
+        animationComponent->SetAnimator(Renderer->GetAnimator());
     }
+    /*ParticleComponent* particleComponent = GetComponent<ParticleComponent>();
+    if (Renderer && particleComponent)
+    {
+        const auto& animator = Renderer->GetAnimator();
+        particleComponent->SetAnimator(animator.get());
+    }*/
 }

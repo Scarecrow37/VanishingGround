@@ -72,18 +72,20 @@ namespace Timeline
         {
             ImGui::Text("Mouse Position: (%.2f, %.2f)", _mousePos.x, _mousePos.y);
             ImGui::Text("Canvas Mouse Position: (%.2f, %.2f)", _canvasMousePos.x, _canvasMousePos.y);
-            ImGui::TreePop();
-        }
-        if (ImGui::TreeNodeEx("Snap", ImGuiTreeNodeFlags_DefaultOpen))
-        {
-            ImGui::Text("Snap Position: (%.2f, %.2f)", _snapPos.x, _snapPos.y);
-            ImGui::Text("Canvas Snap Position: (%.2f, %.2f)", _canvasSnapPos.x, _canvasSnapPos.y);
+            ImGui::Text("Mouse Frame: %.2f", _mouseFrame);
             ImGui::TreePop();
         }
         if (ImGui::TreeNodeEx("Indicate", ImGuiTreeNodeFlags_DefaultOpen))
         {
             ImGui::Text("Indicate Position: (%.2f, %.2f)", _indicatePos.x, _indicatePos.y);
             ImGui::Text("Canvas Indicate Position: (%.2f, %.2f)", _canvasIndicatePos.x, _canvasIndicatePos.y);
+            ImGui::Text("Indicate Frame: %.2f", _indicateFrame);
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNodeEx("Snap", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::Text("Snap Position: (%.2f, %.2f)", _snapPos.x, _snapPos.y);
+            ImGui::Text("Canvas Snap Position: (%.2f, %.2f)", _canvasSnapPos.x, _canvasSnapPos.y);
             ImGui::TreePop();
         }
 
@@ -349,7 +351,7 @@ namespace Timeline
             if (track && _callback.LowerFramePopup)
             {
                 ImGui::Separator();
-                _callback.LowerFramePopup(track.get());
+                _callback.LowerFramePopup(*track.get());
             }
             ImGui::EndPopup();
         }
@@ -362,7 +364,7 @@ namespace Timeline
             if (track && _callback.UpperFramePopup)
             {
                 ImGui::Separator();
-                _callback.UpperFramePopup(track.get());
+                _callback.UpperFramePopup(*track.get());
             }
             ImGui::EndPopup();
         }
@@ -758,6 +760,13 @@ namespace Timeline
             bool isHovered = rect.Contains(mousePos);
             if (true == isHovered)
             {
+                if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+                {
+                    if (editor->_callback.ContextDoubleClick)
+                    {
+                        editor->_callback.ContextDoubleClick(*track.get(), *context);
+                    }
+                }
                 bool rUp = ImGui::IsMouseReleased(ImGuiMouseButton_Right);
                 bool lUp = ImGui::IsMouseReleased(ImGuiMouseButton_Left);
                 if (true == rUp)
@@ -793,7 +802,7 @@ namespace Timeline
                 if (track && editor->_callback.ContextPopup)
                 {
                     ImGui::Separator();
-                    editor->_callback.ContextPopup(track.get(), *context);
+                    editor->_callback.ContextPopup(*track.get(), *context);
                 }
                 ImGui::EndPopup();
             }

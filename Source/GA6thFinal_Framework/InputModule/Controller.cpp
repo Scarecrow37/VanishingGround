@@ -8,9 +8,7 @@ namespace Input
 {
     Controller::Controller(const Adapter* adapter)
         : _adapter(adapter), _id(ControllerTypes::INVALID_ID), _state{}, _leftStickBias(StickBias::UNBIASED),
-          _rightStickBias(StickBias::UNBIASED)
-    {
-    }
+          _rightStickBias(StickBias::UNBIASED), _nextVibration(ControllerTypes::VIBRATION_EMPTY) {}
 
     void Controller::Connect()
     {
@@ -35,6 +33,7 @@ namespace Input
             _state = _adapter->ReceiveState(_id);
             _queue = _adapter->ReceiveQueue(_id);
             UpdateStickBias();
+            UpdateVibration();
         }
         catch (const DeviceNotConnectedException&)
         {
@@ -93,6 +92,32 @@ namespace Input
         return _queue;
     }
 
+    void Controller::Vibrate(const ControllerTypes::MotorSpeed leftMotorSpeed,
+        const ControllerTypes::MotorSpeed rightMotorSpeed) const
+    {
+        _adapter->SetVibration(_id, leftMotorSpeed, rightMotorSpeed);
+    }
+
+    void Controller::Vibrate(const ControllerTypes::MotorSpeed leftMotorSpeed, const ControllerTypes::MotorSpeed rightMotorSpeed,
+        std::chrono::milliseconds duration)
+    {
+        _adapter->SetVibration(_id, leftMotorSpeed, rightMotorSpeed);
+        _vibrationConditionVariable.notify_all();
+        if (_vibrationFuture.valid()) _vibrationFuture.wait();
+        _vibrationFuture = std::async(std::launch::async,  [this, duration]() {
+            std::unique_lock lock(_vibrationMutex);
+            if (_vibrationConditionVariable.wait_for(lock, duration) == std::cv_status::timeout)
+            {
+                _adapter->SetVibration(_id, 0, 0);
+            }
+        });
+    }
+
+    void Controller::Vibrate(const ControllerTypes::Vibration& vibration)
+    {
+        _nextVibration = vibration;
+    }
+
     void Controller::UpdateStickBias()
     {
         _leftStickBias  = StickBias::UNBIASED;
@@ -107,6 +132,13 @@ namespace Input
                 _rightStickBias = buttonState.Bias;
             }
         });
+    }
+
+    void Controller::UpdateVibration()
+    {
+        if (_nextVibration.Duration.count() <= 0) return;
+        Vibrate(_nextVibration.LeftMotorSpeed, _nextVibration.RightMotorSpeed, _nextVibration.Duration);
+        _nextVibration = ControllerTypes::VIBRATION_EMPTY;
     }
 
 } // namespace Input

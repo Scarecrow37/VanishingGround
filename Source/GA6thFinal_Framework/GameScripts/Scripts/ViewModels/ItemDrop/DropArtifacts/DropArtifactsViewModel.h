@@ -3,7 +3,6 @@
 
 struct DropArtifactsUIData
 {
-    File::Guid Frame;
     File::Guid Artifact;
     File::Guid Category;
 };

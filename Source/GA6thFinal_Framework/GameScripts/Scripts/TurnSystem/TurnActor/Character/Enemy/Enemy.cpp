@@ -58,7 +58,7 @@ void Enemy::TakeDamage(int damage, bool playAnim)
     Base::TakeDamage(takeDamage, playAnim);
 }
 
-void Enemy::TakeDamage(int damage, const QTE::Result& result, bool playAnim)
+void Enemy::TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim)
 {
     // 혹시나 그럴 일 없겠지만 중간에 계산할 연산이 또 있다면 재연산
     int takeDamage = damage;
@@ -66,8 +66,7 @@ void Enemy::TakeDamage(int damage, const QTE::Result& result, bool playAnim)
     if (_hitParticle && result.IsHit())
     {
         // TODO: 이거 왜 Play 이후에 스탑하는게 더 자연스럽게 나옴? 질문 필요
-        _hitParticle->PlayEffect();
-        _hitParticle->StopEffect();
+        _hitParticle->PlayEffect("normalhit");
     }
 }
 

@@ -452,7 +452,7 @@ namespace
     }
 } // namespace
 
-std::optional<std::pair<POINT, POINT>> DrawDebug::operator()(POINT pointA, POINT pointB, RECT rectA, RECT rectB) const
+std::optional<std::pair<POINT, POINT>> DrawDebug::operator()(const POINT pointA, const POINT pointB, const RECT rectA, const RECT rectB) const
 {
     std::optional<std::pair<POINT, POINT>> result = std::nullopt;
 
@@ -513,4 +513,10 @@ std::optional<std::pair<POINT, POINT>> DrawDebug::operator()(POINT pointA, POINT
 
 
     return result;
+}
+
+void DrawDebug::operator()(const POINT origin, const float radius, FXMVECTOR color) const
+{
+    const XMVECTOR originVector = XMVectorSet(static_cast<float>(origin.x), static_cast<float>(origin.y), 0.0f, 0.0f);
+    UmGraphics.DebugDraw2D("Editor", originVector, radius, color);
 }

@@ -4,15 +4,21 @@
 
 class ParticleManager
 {
-
+    using EffectID = void*;
 public:
     ParticleManager();
     virtual ~ParticleManager();
 
-
     void                   Initialize(UINT maxParticles);
-    class ParticleEffect* RegisterEffect(std::string_view sceneName);
+    class ParticleEffect*  RegisterEffect(EffectID id, const std::string& keyString, std::string_view sceneName);
     class ParticleEffect*  RegisterEffectOnEditor();
+    void                   DeleteEffect(EffectID id, const std::string& keyString, const std::string& sceneName);
+    void                   PlayEffect(EffectID id, const std::string& keyString);
+    void                   StopEffect(EffectID id, const std::string& keyString);
+    void                   SetActiveFlag(EffectID id, const std::string& keyString, bool flag);
+    void                   SetRemoveFlag(EffectID id, const std::string& keyString, bool flag);
+    void                   SetFollowBoneFlag(EffectID id, const std::string& keyString, bool* flag);
+    void                   SetBoneMatrix(EffectID id, const std::string& keyString, const Matrix* boneMatrix);
     void                   ChangeTexture();
 
     /// <summary>
@@ -26,18 +32,16 @@ public:
     /// <param name="locationFactor"></param>
     /// <param name="particleType"></param>
     /// <returns></returns>
-    class ParticleEmitter* RegisterEmitter(
-        class ParticleEffect* effect, SIZE_T maxParticles = 10000, float emissionRate = 1000.f,
-        float emitterLifetime = 150.f, LocationShape locatorShape = LocationShape::SPHERE,
+    class ParticleEmitter* RegisterEmitter(class ParticleEffect* effect, SIZE_T maxParticles = 10000, float emissionRate = 1000.f,
+                                           float             emitterLifetime = 150.f,
+                                           LocationShape     locatorShape    = LocationShape::SPHERE,
         Vector3 locationFactor = Vector3(1, 1, 1), ParticleType particleType = ParticleType::SPRITE,
         std::wstring_view meshspritePath = L"");
-    void                   DeleteEffect(class ParticleEffect* effect, const std::string& sceneName);
     void                   Update(const float deltaTime);
     void                   UpdateEditorLifeCycle();
     void                   RefreshEditor();
     class ParticleEffect*  GetCurrentEditorEffect() { return _editorCurrentEffect; }
     void                   TurnOffEditorMode();
-
 
     UMPARTICLE_PROPERTY(bool, _isAutoRefresh, AutoRefresh, false);
 
@@ -66,8 +70,8 @@ private:
 
     void InitializeComputeCommandObject();
     void InitializeComputeCommandObject(std::string_view sceneName);
-    void InitializeParticleComputeShader();
-    void InitializeParticleComputeRootSignature();
+    // void InitializeParticleComputeShader();
+    // void InitializeParticleComputeRootSignature();
     void InitializeParticleComputePSO();
 
     void InitializeDescriptorHeap();
@@ -99,13 +103,14 @@ private:
     ComPtr<ID3D12CommandAllocator>    _computeAllocator;
     ComPtr<ID3D12GraphicsCommandList> _computeCommandList;
 
-    ComPtr<ID3D12RootSignature> _computeSpriteRootSignature;
-    ComPtr<ID3D12PipelineState> _computeSpritePSO;
-    ComPtr<ID3DBlob>            _computeSpriteShaderBlob;
+    
+    ComPtr<ID3D12PipelineState>       _computeSpritePSO;    
+    /*ComPtr<ID3D12RootSignature> _computeSpriteRootSignature;
+    ComPtr<ID3DBlob>            _computeSpriteShaderBlob;*/
 
-    ComPtr<ID3D12RootSignature> _computeRibbonRootSignature;
-    ComPtr<ID3D12PipelineState> _computeRibbonPSO;
-    ComPtr<ID3DBlob>            _computeRibbonShaderBlob;
+    ComPtr<ID3D12PipelineState>       _computeRibbonPSO;
+    /*ComPtr<ID3D12RootSignature> _computeRibbonRootSignature;
+    ComPtr<ID3DBlob>            _computeRibbonShaderBlob;*/
 
 
     ComPtr<ID3D12DescriptorHeap> _cbvSrvUavHeap;
@@ -152,15 +157,14 @@ private:
     UINT _totalCount = 0;
     UINT _editorCount = 0;
 
-    UINT _ribbonTotalCount = 0;
+    UINT _ribbonTotalCount  = 0;
     UINT _ribbonEditorCount = 0;
-
 
     float _elapsedTimer = 0.f;
     int   nameingIndex  = 0;
 
+    std::unordered_map<EffectID, std::unordered_map<std::string, ParticleEffect*>> _effectIDTable;
 
-   UMPARTICLE_PROPERTY(float, _deltaScale, DeltaScale, 1.f);
-
+    UMPARTICLE_PROPERTY(float, _deltaScale, DeltaScale, 1.f);
 
 };

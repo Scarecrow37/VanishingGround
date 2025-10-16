@@ -332,7 +332,7 @@
     <ClInclude Include="Source\Engine\GameCore\Component\UIRoot.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.h" />
     <ClInclude Include="Source\Engine\GraphicsCore\RenderPassDataHelper.h" />
-    <ClInclude Include="Source\Engine\TimelineCore\AnimationEventTrack.h" />
+    <ClInclude Include="Source\Engine\TimelineCore\Animation\AnimationEventTrack.h" />
     <ClInclude Include="Source\Engine\EditorCore\Utillity\EditorDragState.h" />
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.h" />
     <ClInclude Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.h" />
@@ -371,6 +371,7 @@
     <ClInclude Include="Source\Engine\EditorCore\Gui\PopupBox\EditorPopupBox.h" />
     <ClInclude Include="Source\Engine\EditorCore\System\EditorPopupBoxSystem.h" />
     <ClInclude Include="Source\Editor\DragDropTypes\DragDropAsset.h" />
+    <ClInclude Include="Source\Engine\TimelineCore\Context\Input\TimelineInputEventContext.h" />
     <ClInclude Include="Source\Engine\Utility\BoxSpacing.h" />
     <ClInclude Include="Source\Engine\Utility\EditorHelper.h" />
     <ClInclude Include="Source\Editor\DragDropTypes\DragDropTransform.h" />
@@ -465,6 +466,8 @@
     <ClInclude Include="Source\Engine\TimelineCore\Context\TimelineEventContext.h" />
     <ClInclude Include="Source\Engine\TimelineCore\Track\TimelineEventTrack.h" />
     <ClInclude Include="Source\Engine\TimelineCore\Context\Audio\TimelineAudioEventContext.h" />
+    <ClInclude Include="Source\Engine\TimelineCore\Context\Particle\TimelineParticleEventContext.h" />
+    <ClInclude Include="Source\Engine\GameCore\Component\UISFXNavigationComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Editor\Menu\Game\EditorGameMenu.cpp" />
@@ -485,7 +488,7 @@
     <ClCompile Include="Source\Engine\GameCore\Component\UINavigationComponent.cpp" />
     <ClCompile Include="Source\Engine\GameCore\Component\UIRoot.cpp" />
     <ClCompile Include="Source\Engine\GraphicsCore\ParticleEffectSerializer.cpp" />
-    <ClCompile Include="Source\Engine\TimelineCore\AnimationEventTrack.cpp" />
+    <ClCompile Include="Source\Engine\TimelineCore\Animation\AnimationEventTrack.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\Utillity\EditorDragState.cpp" />
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectDetails.cpp" />
     <ClCompile Include="Source\Editor\Tool\ParticleEffect\EditorParticleEffectHierarchy.cpp" />
@@ -542,6 +545,7 @@
     <ClCompile Include="Source\Engine\EditorCore\Gui\PopupBox\EditorPopupBox.cpp" />
     <ClCompile Include="Source\Engine\EditorCore\System\EditorPopupBoxSystem.cpp" />
     <ClCompile Include="Source\Editor\DragDropTypes\DragDropAsset.cpp" />
+    <ClCompile Include="Source\Engine\TimelineCore\Context\Input\TimelineInputEventContext.cpp" />
     <ClCompile Include="Source\Engine\Utility\BoxSpacing.cpp" />
     <ClCompile Include="Source\Engine\Utility\EditorHelper.cpp" />
     <ClCompile Include="Source\Editor\Menu\Project\EditorProjectMenu.cpp" />
@@ -628,6 +632,8 @@
     <ClCompile Include="Source\Engine\TimelineCore\Context\TimelineEventContext.cpp" />
     <ClCompile Include="Source\Engine\TimelineCore\Track\TimelineEventTrack.cpp" />
     <ClCompile Include="Source\Engine\TimelineCore\Context\Audio\TimelineAudioEventContext.cpp" />
+    <ClCompile Include="Source\Engine\TimelineCore\Context\Particle\TimelineParticleEventContext.cpp" />
+    <ClCompile Include="Source\Engine\GameCore\Component\UISFXNavigationComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

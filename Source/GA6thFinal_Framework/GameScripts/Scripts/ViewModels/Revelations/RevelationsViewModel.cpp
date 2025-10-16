@@ -76,16 +76,33 @@ std::vector<RevelationUIData> RevelationsViewModel::Convert(
     const std::vector<std::shared_ptr<RevelationElement>>& value)
 {
     _uiData.clear();
-
     for (const auto& revelationElement : value)
     {
-        const int revelationID = revelationElement->RevelationID;
-
+        const int        revelationID = revelationElement->RevelationID;
+        RevelationGrade  grade        = revelationElement->Grade;
         RevelationUIData uiData;
 
-        uiData.Name        = revelationElement->ElementName;
+        uiData.Name = revelationElement->ElementName;
+        switch (grade)
+        {
+        case RevelationGrade::COMMON:
+            uiData.NameColor = Color(1.0f, 1.0f, 1.0f, 1.0f);
+            break;
+        case RevelationGrade::RARE:
+            uiData.NameColor = Color(0.7059f, 0.8471f, 0.8824f, 1.0f);
+            break;
+        case RevelationGrade::LEGENDARY:
+            uiData.NameColor = Color(0.9882f, 0.8902f, 0.7647f, 1.0f);
+            break;
+        case RevelationGrade::EXTINCTION:
+            uiData.NameColor = Color(0.8353f, 0.6549f, 0.9647f, 1.0f);
+            break;
+        default:
+            uiData.NameColor = Color(1.0f, 1.0f, 1.0f, 1.0f);
+            break;
+        }
         uiData.Icon        = GetRevelationIcon()(revelationID);
-        uiData.Grade       = revelationElement->Grade;
+        uiData.Grade       = grade;
         uiData.Description = GetRevelationDescription()(revelationID);
 
         _uiData.push_back(uiData);

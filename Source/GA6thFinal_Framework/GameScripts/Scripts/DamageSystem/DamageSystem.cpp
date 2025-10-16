@@ -5,11 +5,11 @@
 #include <Stats/Weapon/WeaponStats.h>
 #include <EnemyAction/System/EnemyActionSystem.h>
 
-int DamageSystem::CalculateDamage(const PlayerInfo& attacker, const EnemyInfo& target, const QTE::Result& result)
+int DamageSystem::CalculateDamage(const PlayerInfo& attacker, const EnemyInfo& target, const QTE::NoteResult& result)
 {
     int   hitDamage = 0;
     float criticalDamageMultiplier = 1.0f;
-    switch (result.ResultType)
+    switch (result.Result)
     {
         case QTE::ResultType::QTE_RESULT_PERFECT: {
             hitDamage                = attacker._weaponStats.CriticalDamage;

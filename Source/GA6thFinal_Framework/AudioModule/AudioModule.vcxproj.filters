@@ -31,6 +31,12 @@
     <Filter Include="Callback">
       <UniqueIdentifier>{40658823-65b1-4088-9110-95e0fafe74cb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Handle\GroupHandle">
+      <UniqueIdentifier>{a114e4bd-a211-492c-bf07-f08ff217f821}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Handle\AudioHandle">
+      <UniqueIdentifier>{88eebea4-703a-475d-82b7-b38878b3a62b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -48,9 +54,6 @@
     <ClInclude Include="Types.h">
       <Filter>Types</Filter>
     </ClInclude>
-    <ClInclude Include="Handle.h">
-      <Filter>Handle</Filter>
-    </ClInclude>
     <ClInclude Include="System.h">
       <Filter>System</Filter>
     </ClInclude>
@@ -59,6 +62,27 @@
     </ClInclude>
     <ClInclude Include="Callback.h">
       <Filter>Callback</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioHandle.h">
+      <Filter>Handle\AudioHandle</Filter>
+    </ClInclude>
+    <ClInclude Include="Handle.h">
+      <Filter>Handle</Filter>
+    </ClInclude>
+    <ClInclude Include="GroupHandle.h">
+      <Filter>Handle\GroupHandle</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectHandle.h">
+      <Filter>Handle\Effecthandle</Filter>
+    </ClInclude>
+    <ClInclude Include="ReverbHandle.h">
+      <Filter>Handle\Effecthandle\ReverbHandle</Filter>
+    </ClInclude>
+    <ClInclude Include="FXFade.h">
+      <Filter>Effects\Fade</Filter>
+    </ClInclude>
+    <ClInclude Include="FadeHandle.h">
+      <Filter>Handle\Effecthandle\FadeHandle</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -74,14 +98,32 @@
     <ClCompile Include="Types.cpp">
       <Filter>Types</Filter>
     </ClCompile>
-    <ClCompile Include="Handle.cpp">
-      <Filter>Handle</Filter>
-    </ClCompile>
     <ClCompile Include="Source.cpp">
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Callback.cpp">
       <Filter>Callback</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioHandle.cpp">
+      <Filter>Handle\AudioHandle</Filter>
+    </ClCompile>
+    <ClCompile Include="Handle.cpp">
+      <Filter>Handle</Filter>
+    </ClCompile>
+    <ClCompile Include="GroupHandle.cpp">
+      <Filter>Handle\GroupHandle</Filter>
+    </ClCompile>
+    <ClCompile Include="EffectHandle.cpp">
+      <Filter>Handle\Effecthandle</Filter>
+    </ClCompile>
+    <ClCompile Include="ReverbHandle.cpp">
+      <Filter>Handle\Effecthandle\ReverbHandle</Filter>
+    </ClCompile>
+    <ClCompile Include="FXFade.cpp">
+      <Filter>Effects\Fade</Filter>
+    </ClCompile>
+    <ClCompile Include="FadeHandle.cpp">
+      <Filter>Handle\Effecthandle\FadeHandle</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -57,7 +57,7 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
     bool useSSAO    = ssaoPass->IsEnable(); 
     int useSSAOInt = useSSAO ? 1 : 0;
     commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_1_isssao"), 1, &useSSAOInt, 0); 
-    commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_3_numLight"), 3, &_ownerScene->_numLight, 0);
+    commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_4_numLight"), 4, &_ownerScene->_numLight, 0);
     commandList->SetGraphicsRootConstantBufferView(_fx.GetRootParameterIndex("cameraData"), _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
     commandList->SetGraphicsRootConstantBufferView(_fx.GetRootParameterIndex("lightData"), _ownerScene->_lightBuffer->GetGPUVirtualAddress());
     commandList->SetGraphicsRootConstantBufferView(_fx.GetRootParameterIndex("cascadeData"), shadowMapPass->GetCascadeDataCBV());

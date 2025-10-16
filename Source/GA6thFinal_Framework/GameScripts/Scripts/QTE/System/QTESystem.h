@@ -9,10 +9,14 @@ namespace QTE
 {
     class Track;
     class Note;
-} 
+}
+
+struct WeaponStats;
 
 class QTESystem : public Component, public InputReceiver
 {
+    using Callback = std::function<void(const QTE::OverallResult&)>;
+    using ControllerState = std::pair<const Input::Controller*, Input::ControllerTypes::Button>;
 
     friend class QTEUIManager;
     USING_PROPERTY(QTESystem)
@@ -61,8 +65,10 @@ public:
     /// QTE(퀵 타임 이벤트)를 시작하며, 선택적으로 QTE종료 시 콜백 함수를 실행합니다.
     /// </summary>
     /// <param name="callback">QTE가 종료되었을 때 호출되는 선택적 콜백 함수입니다. 기본값은 nullptr입니다.</param>
-    void StartQTE(QTE::Result::Callback callback = nullptr);
-    void StartQTE(QTE::Track* qteTrack, QTE::Result::Callback callback = nullptr);
+    void StartQTE(Callback callback = nullptr);
+    void StartQTE(QTE::Track* qteTrack, Callback callback = nullptr);
+    void StartQTE(const WeaponStats* weapon, Callback callback = nullptr);
+    void StopQTE();
 
     /// <summary>
     /// QTE를 일시정지하거나 재개합니다. QTE플레이 중이 아니라면 무시됩니다.
@@ -70,13 +76,8 @@ public:
     /// <param name="pause"></param>
     void PauseQTE(bool pause);
 
-    /// <summary>
-    /// 전투 UI의 활성화 상태를 설정합니다.
-    /// </summary>
-    /// <param name="active">전투 UI를 활성화할지 여부를 지정하는 불리언 값입니다.</param>
-    void CombatUIActive(bool active);
-
 private:
+    void ResetQTEState();
     void ClearTrack();
     void ClearQueue();
     void UpdateQTETrack();
@@ -119,8 +120,8 @@ public:
     inline std::pair<float, float> GetFadeOutPosFactor() const { return ReflectFields->FadeOutPosFactor; }
 
     inline QTE::Track* GetCurrentQTETrack() const { return _currentQTETrack; }
-    inline const std::vector<QTE::Result>& GetCurrentQTEResultQueue() const { return _noteResultQueue; }
     inline const std::vector<QTE::Note*>&  GetCurrentQTEAvailQueue() const { return _noteAvailQueue; }
+    inline const QTE::OverallResult& GetQTEOverallResult() const { return _overallResult; }
     inline const std::unordered_map<int, std::vector<QTE::Track*>>& GetWeaponIDToTrackTable() const { return _weaponIDToTrackTable; }
 
     inline size_t GetCurrentNoteIndex() const { return _currentNoteIndex; }
@@ -133,7 +134,7 @@ private:
     QTE::Track*                 _currentQTETrack    = nullptr;                  // QTE 트랙
     size_t                      _currentNoteIndex   = 0;                        // 현재 가리키는 노트 인덱스
     std::vector<QTE::Note*>     _noteAvailQueue;                                // 유효한 노트 큐
-    std::vector<QTE::Result>    _noteResultQueue;                               // 노트 결과 큐
+    QTE::OverallResult          _overallResult;                                 // QTE 결과
 
     float                       _qteTimer           = 0.0f;                     // QTE 타이머
     bool                        _qteFadeInEnd       = false;                    // QTE 페이드 인 종료 여부
@@ -142,7 +143,9 @@ private:
     bool                        _currQTEPlaying     = false;                    // 현재 QTE가 실행 중인지 여부
     bool                        _prevQTEPlaying     = false;                    // 이전 프레임에서 QTE가 실행 중이었는지 여부
 
-    QTE::Result::Callback _onQTEFinishCallback = nullptr;                       // QTE 페이드 인 종료 콜백
+    Callback                    _onQTEFinishCallback = nullptr;                 // QTE 페이드 인 종료 콜백
+
+    ControllerState             _nextControllerEvent = {nullptr, Input::ControllerTypes::UNDEFINED};
 
     REFLECT_FIELDS_BEGIN(Component)
     float                   QTESpeedScale       = 1.0f;                         // QTE 속도 배율
@@ -158,4 +161,19 @@ private:
 
     // QTE 편집기
     QTEEditor&  GetEditor();
+
+    inline static constexpr Input::ControllerTypes::Vibration PERFECT_VIBRATION{
+        .LeftMotorSpeed  = (unsigned short)(0.8f * 65535.0f),
+        .RightMotorSpeed = (unsigned short)(1.0f * 65535.0f), 
+        .Duration = std::chrono::milliseconds(220)};
+
+    inline static constexpr Input::ControllerTypes::Vibration NORMAL_VIBRATION{
+        .LeftMotorSpeed  = (unsigned short)(0.3f * 65535.0f),
+        .RightMotorSpeed = (unsigned short)(0.5f * 65535.0f),
+        .Duration        = std::chrono::milliseconds(150)};
+
+    inline static constexpr Input::ControllerTypes::Vibration MISS_VIBRATION{
+        .LeftMotorSpeed  = (unsigned short)(0.2f * 65535.0f),
+        .RightMotorSpeed = (unsigned short)(0.7f * 65535.0f),
+        .Duration        = std::chrono::milliseconds(150)};
 };

@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-
+class ILight;
 class LightComponent : public Component
 {
     USING_PROPERTY(LightComponent)
@@ -45,12 +45,12 @@ public:
     }
 
 private:
-    std::unique_ptr<Light> _light;
+    GraphicsPointer<ILight> _light;
 
 public:
     LightComponent();
     virtual ~LightComponent() override;
-    Light& Lighting;
+    const GraphicsPointer<ILight>& Lighting;
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)

@@ -1,0 +1,31 @@
+﻿#pragma once
+#include <CombatUIManager/UIGroup.h>
+#include <vector>
+
+class GridPanel;
+class OverlayPanel;
+class ImageElement;
+class AccessoriesView;
+
+namespace CombatUI
+{
+    struct AccessoriesGroup : public UIGroup
+    {
+        struct Slot
+        {
+            ImageElement*   FrameImage  = nullptr;
+            ImageElement*   IconImage   = nullptr;
+            inline bool     IsValid() const { return FrameImage && IconImage; }
+        };
+
+        GameObject*         Root = nullptr;
+        AccessoriesView*    View        = nullptr;
+        std::vector<Slot>   SlotList;
+        size_t              ValidSlotCount = 0;
+
+        // UIGroup을(를) 통해 상속됨
+        bool FindUI() override;
+        bool IsValid() const override;
+        void ActiveUI(bool active) override;
+    };
+} // namespace CombatUI

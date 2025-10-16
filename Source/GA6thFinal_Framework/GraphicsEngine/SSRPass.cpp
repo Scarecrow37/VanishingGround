@@ -8,10 +8,7 @@ SSRPass::~SSRPass() = default;
 void SSRPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
     RenderPass::Initialize(ownerScene, ownerTechnique, commandList);
-    auto resolution = Global::device->GetResolution();
-    auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32G32B32A32_FLOAT, resolution.cx, resolution.cy, 1, 1, 1, 0,
-                                             D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
-
+  
     PipelineStateStream pss;
     pss.BlendState                        = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
     pss.RasterizerState                   = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
@@ -32,8 +29,6 @@ void SSRPass::AddRenderPassDatas(std::string_view sceneName)
 void SSRPass::Draw(ID3D12GraphicsCommandList* commandList) 
 {
     auto renderTarget = Global::multiRenderTargetManager->GetAvailableRenderTarget();
-    renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    renderTarget->ClearRenderTarget(commandList, 0);
     renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
     renderTarget->ClearRenderTarget(commandList, 0);
 

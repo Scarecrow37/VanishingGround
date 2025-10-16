@@ -49,7 +49,7 @@ void RevelationElement::DeepCopyAction(const TurnAction& action)
     }  
 }
 
-DropItemInfo RevelationElement::GetItemInfo()
+DropItemInfo RevelationElement::GetItemInfo() const
 {
     DropItemInfo info
     {

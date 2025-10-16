@@ -1,22 +1,16 @@
 ﻿#include "pchScripts.h"
 #include "PointLight.h"
+#include "GraphicsEngine/Interface/ILight.h"
 
 UMREAL_COMPONENT(PointLight)
 
-PointLight::PointLight()
-{
-   
-}
+PointLight::PointLight()  = default;
+
 PointLight::~PointLight() = default;
 
 void PointLight::DeserializedReflectEvent()
 {
     _attenuation = Vector3(ReflectFields->Attenuation.data());
-}
-
-void PointLight::ImGuiDrawPropertysEvent() 
-{
-   
 }
 
 void PointLight::Reset() 
@@ -28,7 +22,7 @@ void PointLight::Reset()
     float&         range       = ReflectFields->Range;
     float&         intensity   = ReflectFields->Basefields.get().Intensity;
 
-    Lighting.SetPointLight(color, transform->WorldPosition, attenuation, range, intensity);
+    Lighting->SetPointLight(color, transform->WorldPosition, attenuation, range, intensity);
 }
 
 void PointLight::OnDrawDebug() 
