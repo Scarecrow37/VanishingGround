@@ -15,6 +15,9 @@
 #include "UI/Views/MonsterHp/MonsterHpView.h"
 #include "UI/Views/MonsterChain/MonsterChainView.h"
 
+#include "CombatUIManager/CombatUIManager.h"
+#include "QTE/UI/QTEUIManager.h"
+
 REGISTER_CLASS(FSMStateFactory, CombatStartPhase)
 
 static constexpr int EXPECTED_ENEMY_COUNT = 3;
@@ -85,13 +88,13 @@ void CombatStartPhase::OnAwake()
     RegisterEnemiesChain();
     ReviveEnemies();
     ResetPlayer();
+    RefreshUI();
 }
 
 void CombatStartPhase::OnStart() 
 {
     TurnModeStateBase::OnStart();
 }
-
 void CombatStartPhase::OnEnter() 
 {
     /// 사운드
@@ -107,34 +110,9 @@ void CombatStartPhase::OnEnter()
     { 
         this->_phaseEnd = true; 
         
-        if (auto consumablePanel = GameObject::FindWithTag("Consumable Panel").lock())
+        if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
         {
-            consumablePanel->ActiveSelf = true;
-        }
-
-        if (auto turnQueue = GameObject::FindWithTag("Turn Queue Panel").lock())
-        {
-            turnQueue->ActiveSelf = true;
-        }
-
-        if (auto HUD = GameObject::FindWithTag("Character HUD Group").lock())
-        {
-            HUD->ActiveSelf = true;
-        }
-
-        if (auto revelationPanel = GameObject::FindWithTag("Revelations Panel").lock())
-        {
-            revelationPanel->ActiveSelf = true;
-        }
-
-        if (auto weaponPanel = GameObject::FindWithTag("Weapon Panel").lock())
-        {
-            weaponPanel->ActiveSelf = true;
-        }       
-         
-        if (auto accessoriesPanel = GameObject::FindWithTag("Accessories Panel").lock())
-        {
-            accessoriesPanel->ActiveSelf = true;
+            combatUIManager->SetActiveUI(true);
         }
     });
 
@@ -392,5 +370,19 @@ void CombatStartPhase::ResetPlayer()
     if (_player)
     {
         _player->TurnActor::Revive();
+    }
+}
+
+void CombatStartPhase::RefreshUI() 
+{
+    if (CombatUIManager* manager = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        manager->Refresh();
+    }
+    if (QTEUIManager* uiManager = QTEUIManager::GetInstance())
+    {
+        uiManager->Refresh();
+        uiManager->SetUIAlpha(0.0f);
+        uiManager->SetBackgroundUIAlpha(0.0f);
     }
 }

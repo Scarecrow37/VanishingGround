@@ -59,6 +59,13 @@ void PlayerPlayTurnState::OnEnter()
         qteUIManager->Refresh();
         qteUIManager->SetGuideNoteActive(true);
     }
+
+    Player& player  = GetPlayer();
+    auto* animator  = player.GetAnimationComponent();
+    if (animator)
+    {
+        animator->ClearOverrideAnimations();
+    }
 }
 
 void PlayerPlayTurnState::OnExit() 
@@ -205,11 +212,14 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
     if (qteSystem && qteUIManager)
     {
         bool input = _isDownAKey || _isDownAButton;
-        qteSystem->CombatUIActive(!input);
         qteUIManager->SetBackgroundUIAlpha(t);
         qteUIManager->SetGuideNoteUIAlpha(1.0f - t);
         qteUIManager->SetUIAlpha(0.0f);
         qteUIManager->SetActive(true);
+        if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
+        {
+            combatUIManager->SetActiveUI(!input);
+        }
     }
 }
 
@@ -297,16 +307,18 @@ void PlayerPlayTurnState::SetAttackEnd()
         }
         animator->EndBuildOverrideAnimation();
     }
-    if (false == succeed)
-    {
-        player.EndTurn();
-    }
+    //if (false == succeed)
+    //{
+    //    player.EndTurn();
+    //}
 
     auto camera = dynamic_cast<UmCineMotion*>(CameraComponent::MainCamera());
     if (camera)
     {
         camera->StartRail(true);
     }
+
+    player.EndTurn();
 }
 
 void PlayerPlayTurnState::BattleOnHitEvent(const QTE::NoteResult& result) 
@@ -478,6 +490,11 @@ void PlayerPlayTurnState::OnQTEFinish()
                 {   // 애니메이션이 없을 경우 바로 공격 처리
                     BattleOnHitEvent(result);
                 }
+            }
+            else
+            {
+                // 노트가 없거나 판정이 유효하지 않을 경우 바로 공격 처리
+                BattleOnHitEvent(result);
             }
         }
     }

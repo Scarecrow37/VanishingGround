@@ -20,7 +20,7 @@ AnimationCore::~AnimationCore()
 
 void AnimationCore::RegisterAnimator(Animator* animator)
 {
-    auto iter = std::find_if(_components.begin(), _components.end(), [](const auto& pair) { return !pair.first.get(); });
+    auto iter = std::find_if(_components.begin(), _components.end(), [animator](const auto& component) { return component->GetID() == animator->GetID(); });
 
     if (iter != _components.end())
     {
@@ -28,8 +28,12 @@ void AnimationCore::RegisterAnimator(Animator* animator)
         return;
     }
 
-    _components.emplace_back(std::make_unique<bool>(false), animator);
-    animator->_isDestroyeds.push_back(_components.back().first.get());
+    _components.push_back(animator);
+}
+
+void AnimationCore::ClearAnimationQueue()
+{
+    _components.clear();
 }
 
 void AnimationCore::Initialize(const unsigned int maxThread)
@@ -52,10 +56,10 @@ void AnimationCore::Update(const float deltaTime)
 {
     unsigned int size = (unsigned int)_components.size();
 
-    auto first = std::remove_if(_components.begin(), _components.end(), [](const auto& pair) { return *pair.first; });
+    auto first = std::remove_if(_components.begin(), _components.end(), [](const auto& component) { return !component->IsAlive(); });
     _components.erase(first, _components.end());
 
-    for (auto& [isDestroy, component] : _components)
+    for (auto& component : _components)
         component->Update(deltaTime);
 
     // Animator가 64개 미만이면 스레드를 사용하지 않음
@@ -100,7 +104,7 @@ void AnimationCore::WorkerThread(unsigned int index)
             }
 
             for (unsigned int i = start; i < end; i++)
-                _components[i].second->Update(_deltaTime);
+                _components[i]->Update(_deltaTime);
 
             {
                 std::scoped_lock nestLock(_mutexDone);

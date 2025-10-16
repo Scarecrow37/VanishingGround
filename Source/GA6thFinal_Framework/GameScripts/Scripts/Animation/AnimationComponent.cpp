@@ -1,6 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "AnimationComponent.h"
-#include <Mesh/SkeletalMeshRenderer.h>
+#include "Mesh/SkeletalMeshRenderer.h"
+#include "GraphicsEngine/Interface/IAnimator.h"
+#include "GraphicsEngine/Interface/IMeshRenderer.h"
 
 
 UMREAL_COMPONENT(AnimationComponent)
@@ -19,8 +21,9 @@ void AnimationComponent::Start()
 
 void AnimationComponent::Update() 
 {
-    // 애니메이터가 해당 객체만 사용 중이라면 reset합니다.
-    UpdateNullAnimator();
+    //// 애니메이터가 해당 객체만 사용 중이라면 reset합니다.
+    //UpdateNullAnimator();
+
     if (_animator)
     {
         for (auto& animData : _overrideAnimationStack)
@@ -39,7 +42,7 @@ void AnimationComponent::Update()
 
 void AnimationComponent::OnDestroy()
 {
-    UpdateNullAnimator();
+    // UpdateNullAnimator();
 }
 
 void AnimationComponent::OnEnable() 
@@ -92,13 +95,13 @@ void AnimationComponent::ImGuiDrawPropertysEvent()
             const char* comboLabel = curAnimData._animationName.empty() ? "-" : curAnimData._animationName.c_str();
             if (ImGui::BeginCombo("##Animation", comboLabel))
             {
-                for (int i = 0; i < animationNames.size(); ++i)
+                for (const auto& animationName : animationNames)
                 {
-                    bool isSelected = (curAnimData._animationName == animationNames[i]);
-                    if (ImGui::Selectable(animationNames[i], isSelected))
+                    bool isSelected = (curAnimData._animationName == animationName);
+                    if (ImGui::Selectable(animationName, isSelected))
                     {
-                        curAnimData._animationName = animationNames[i];
-                        ChangeCurrentAnimation(animationNames[i]);
+                        curAnimData._animationName = animationName;
+                        ChangeCurrentAnimation(animationName);
                     }
                 }
                 ImGui::EndCombo();
@@ -195,12 +198,12 @@ void AnimationComponent::ImGuiDrawPropertysEvent()
                 ImGuiHelper::TextWithVerticalSeparator("Event Track List");
                 if (ImGui::BeginCombo("##Animation", _selectedEventTrack.c_str()))
                 {
-                    for (int i = 0; i < animationNames.size(); ++i)
+                    for (const auto& animationName : animationNames)
                     {
-                        bool isSelected = (curAnimData._animationName == animationNames[i]);
-                        if (ImGui::Selectable(animationNames[i], isSelected))
+                        bool isSelected = (curAnimData._animationName == animationName);
+                        if (ImGui::Selectable(animationName, isSelected))
                         {
-                            _selectedEventTrack = animationNames[i];
+                            _selectedEventTrack = animationName;
                         }
                     }
                     ImGui::EndCombo();
@@ -378,11 +381,11 @@ AnimationData& AnimationComponent::GetTopAnimationDataEx()
 
 void AnimationComponent::UpdateNullAnimator()
 {
-    if (1 >= _animator.use_count())
+    /*if (1 >= _animator.use_count())
     {
         _animator.reset();
         ClearOverrideAnimations();
-    }
+    }*/
 }
 
 void AnimationComponent::UpdateAnimation(AnimationData& animData)
@@ -560,6 +563,7 @@ void AnimationComponent::ClearOverrideAnimations()
     if (false == _overrideAnimationStack.empty())
     {
         _overrideAnimationStack.clear();
+        _currentAnimationData = &GetTopAnimationDataEx();
         if (false == _isBuildingOverrideAnimation)
         {
             SetAnimationEx(_mainAnimationData);
@@ -843,7 +847,7 @@ void AnimationComponent::SetAnimator(SkeletalMeshRenderer* renderer)
     }
 }
 
-void AnimationComponent::SetAnimator(std::shared_ptr<Animator> animator)
+void AnimationComponent::SetAnimator(GraphicsPointer<IAnimator> animator)
 {
     if (_animator != animator)
     {

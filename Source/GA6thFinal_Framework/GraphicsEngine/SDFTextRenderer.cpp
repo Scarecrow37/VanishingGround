@@ -14,8 +14,7 @@ SDFTextRenderer::~SDFTextRenderer() = default;
 
 bool SDFTextRenderer::IsActive() const
 {
-    bool isActive = _isActive ? *_isActive : false;
-    return isActive && !_text.empty() && _font && _font->IsValid();
+    return GraphicsBase::IsActive() && !_text.empty() && _font && _font->IsValid();
 }
 
 Vector2 SDFTextRenderer::GetStringSize() const
@@ -30,7 +29,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE SDFTextRenderer::GetFontTextureHandle() const
 
 void SDFTextRenderer::SetActive(const bool* isActive)
 {
-    _isActive = isActive;
+    GraphicsBase::SetActive(isActive);
 }
 
 void SDFTextRenderer::SetFont(std::shared_ptr<SDFFont> font)
@@ -44,6 +43,14 @@ void SDFTextRenderer::SetFont(std::shared_ptr<SDFFont> font)
 void SDFTextRenderer::SetText(const wchar_t* text)
 {
     _text = text;
+
+    std::wstring::size_type pos = 0;
+    while ((pos = _text.find(L"\\n", pos)) != std::wstring::npos)
+    {
+        _text.replace(pos, lstrlen(L"\\n"), L"\n");
+        pos += lstrlen(L"\n");
+    }
+
     _dirty = true;
 
     MeasureString();
@@ -75,15 +82,14 @@ void SDFTextRenderer::SetFontWeight(const float fontWeight)
     _fontWeight = convert - 0.5f;
 }
 
+void SDFTextRenderer::AddReference()
+{
+    GraphicsBase::AddReference();
+}
+
 void SDFTextRenderer::Release()
 {
-    for (auto& isDestroy : _isDestroyeds)
-    {
-        *isDestroy = true;
-    }
-    _isDestroyeds.clear();
-
-    delete this;
+    GraphicsBase::Release();
 }
 
 void SDFTextRenderer::Initialize()
@@ -131,7 +137,7 @@ void SDFTextRenderer::Update(ID3D12GraphicsCommandList* commandList)
         const auto& metricsInfo = _font->GetMetricsInfo();
 
         float cursorX = 0;
-        float cursorY = 0;
+        float cursorY = metricsInfo.Ascender;
         _charCount    = 0;
 
         for (wchar_t wc : _text)
@@ -224,7 +230,7 @@ void SDFTextRenderer::MeasureString()
     const auto& metricsInfo         = _font->GetMetricsInfo();
     float       calculatedBounds[4] = {FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX};
     float       cursorX             = 0;
-    float       cursorY             = 0;
+    float       cursorY             = metricsInfo.Ascender;
     int         charCount           = 0;
 
     for (wchar_t wc : _text)
@@ -235,7 +241,7 @@ void SDFTextRenderer::MeasureString()
         if (wc == L'\n')
         {
             cursorX = 0;
-            cursorY += (int)metricsInfo.LineHeight;
+            cursorY += metricsInfo.LineHeight;
             continue;
         }
 

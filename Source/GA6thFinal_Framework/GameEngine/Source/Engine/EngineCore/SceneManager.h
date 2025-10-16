@@ -774,6 +774,9 @@ private:
     //다음에 로드할 씬
     File::Guid _nextSceneGuid;
 
+    //다음에 로드할 스카이박스
+    Scene* _nextSceneSkybox;
+
 protected:
     /// <summary>
     /// 씬을 Yaml 형식으로 직렬화합니다.

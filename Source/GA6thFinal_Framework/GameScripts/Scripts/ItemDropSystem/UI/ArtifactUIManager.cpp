@@ -246,6 +246,7 @@ void ArtifactUIManager::ImageUIUnlock()
         for (int i = 0; i < _focusNaviElements.size(); ++i)
         {
             ArtifactButtonNavi* navi = _focusNaviElements[i];
+            ImageElement*  iconImage = _iconElements[i];
             if (endIndex < i)
             {
                 navi->Enable = false;
@@ -257,10 +258,12 @@ void ArtifactUIManager::ImageUIUnlock()
                     if (false == dropSystem->IsObtainArtifact(i))
                     {
                         navi->Enable = true;
+                        iconImage->Alpha = 1.0f;
                     }
                     else
                     {
                         navi->Enable = false;
+                        iconImage->Alpha = 0.5f;
                     }
                 }
             }       
@@ -268,11 +271,13 @@ void ArtifactUIManager::ImageUIUnlock()
         for (size_t i = 0; i < _frameImageElements.size(); ++i)
         {
             ImageElement* frameImage = _frameImageElements[i];
+            ImageElement* iconImage  = _iconElements[i];
             if (ItemDropSystem* dropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
             {
                 if (dropSystem->IsObtainArtifact(i))
                 {
                     frameImage->SetImage(GetObtainFrameGuid());
+                    iconImage->Alpha = 0.5f;
                 }
             }
         }
@@ -306,7 +311,9 @@ void ArtifactUIManager::ObtainFocusNavi(size_t index)
         if (index < _frameImageElements.size())
         {
             ImageElement* frameImage = _frameImageElements[index];
+            ImageElement* iconImage  = _iconElements[index];
             frameImage->SetImage(GetObtainFrameGuid());
+            iconImage->Alpha = 0.5f;
         }
 
         if (ArtifactButtonNavi::GetLastFocusIndex() == index)

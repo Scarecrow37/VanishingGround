@@ -196,12 +196,13 @@
     <ClCompile Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.cpp" />
     <ClCompile Include="Scripts\WeaponSystem\WeaponSystem.cpp" />
     <ClCompile Include="Scripts\Debugger\Debugger.cpp" />
-    <ClCompile Include="Scripts\CombatUIManager\CharacterHUD\CharactorHUDGroup.cpp" />
+    <ClCompile Include="Scripts\CombatUIManager\CharacterHUD\CharacterHUDGroup.cpp" />
     <ClCompile Include="Scripts\CombatUIManager\CombatUIManager.cpp" />
     <ClCompile Include="Scripts\Preferences\ImportGraphicsSetting.cpp" />
     <ClCompile Include="Scripts\Map\MapManagerTracker.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UINavi\ArtifactButtonNavi.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UI\ItemInfoUIManager.cpp" />
+    <ClCompile Include="Scripts\Light\ShadowPointLight.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
@@ -418,11 +419,13 @@
     <ClInclude Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.h" />
     <ClInclude Include="Scripts\WeaponSystem\WeaponSystem.h" />
     <ClInclude Include="Scripts\Debugger\Debugger.h" />
-    <ClInclude Include="Scripts\CombatUIManager\CharacterHUD\CharactorHUDGroup.h" />
+    <ClInclude Include="Scripts\CombatUIManager\CharacterHUD\CharacterHUDGroup.h" />
     <ClInclude Include="Scripts\CombatUIManager\CombatUIManager.h" />
     <ClInclude Include="Scripts\Preferences\ImportGraphicsSetting.h" />
     <ClInclude Include="Scripts\Map\MapManagerTracker.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UINavi\ArtifactButtonNavi.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UI\ItemInfoUIManager.h" />
+    <ClInclude Include="Scripts\Light\ShadowPointLight.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "Renderer.h"
+#include "GraphicsBase.h"
 
 // Shader
 #include "VertexShader.h"
@@ -39,7 +40,10 @@ namespace Global
 
 Renderer::Renderer() = default;
 
-Renderer::~Renderer() = default;
+Renderer::~Renderer()
+{
+    ClearComponents();
+}
 
 D3D12_GPU_DESCRIPTOR_HANDLE Renderer::GetRenderSceneImage(std::string_view renderSceneName)
 {
@@ -299,6 +303,24 @@ void Renderer::ResetIBLSkyBox(std::string_view sceneName)
     scene->ResetIBLSkyBox();
 }
 
+void Renderer::ClearComponents()
+{
+    for (auto& component : _toBeReleasedComponents)
+    {
+        component->Delete();
+    }
+
+    _toBeReleasedComponents.clear();
+}
+
+void Renderer::ClearRenderQueue()
+{
+    for (auto& renderScene : _renderScenes)
+    {
+        renderScene.second->ClearRenderQueue();
+    }
+}
+
 void Renderer::Initialize()
 {
     CreateDefaultResource();
@@ -342,6 +364,8 @@ void Renderer::Flip()
     Global::device->Flip();
     Global::device->ResetCommands();
     Global::device->ResetComputeCommands();
+
+    ClearComponents();
 }
 
 void Renderer::RenderToBackBuffer()

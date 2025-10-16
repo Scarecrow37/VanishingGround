@@ -29,7 +29,9 @@ std::filesystem::path ESceneManager::GetSettingFilePath()
 }
 
 ESceneManager::ESceneManager() 
-    : _mainCamera(nullptr) 
+    : 
+    _mainCamera(nullptr), 
+    _nextSceneSkybox(nullptr)
 {
    
 }
@@ -148,14 +150,14 @@ void ESceneManager::SceneUpdate()
     ObjectsAwake();
     ObjectsStart();
     ObjectsApplicationQuit();
+    ObjectsDestroy();
+    ObjectsAddLoadScene();
     ObjectsMatrixUpdate();
 }
 
 void ESceneManager::SceneFinalUpdate() 
 {
     //그래픽스 Flip 이후 실행해야할 로직들
-    ObjectsDestroy();
-    ObjectsAddLoadScene();
     ObjectsTransformFlagReset();
     ObjectsPrevFrameEnableUpdate();
 #ifdef _UMEDITOR
@@ -765,7 +767,7 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
             }
         }
         _setting.MainScene = scene->Path;
-        SetRendererSkyBox(scene);              
+        _nextSceneSkybox   = scene;         
         _addComponentsQueue.clear();
         _addGameObjectsQueue.clear();
         _waitAwakeVec.clear();
@@ -1047,6 +1049,12 @@ void ESceneManager::ObjectsAddLoadScene()
         }
         _nextSceneGuid.clear();
     }
+
+    if (nullptr != _nextSceneSkybox)
+    {
+        SetRendererSkyBox(_nextSceneSkybox);     
+        _nextSceneSkybox = nullptr;
+    }
 }
 
 void ESceneManager::ObjectsApplicationQuit()
@@ -1293,31 +1301,41 @@ void ESceneManager::NotInitDestroyComponentEraseToWaitVec(Component* destroyComp
 {
     if (destroyComponent->_initFlags.IsAwake() == false)
     {
-        std::erase_if(
-            _waitAwakeVec,
-            [destroyComponent](std::shared_ptr<Component>& component)
+        size_t result = std::erase_if(_waitAwakeVec, [destroyComponent](std::shared_ptr<Component>& component) 
+        {
+            return component.get() == destroyComponent;
+        });
+
+        if (0 == result)
+        {
+            if (false == _addComponentsQueue.empty())
             {
-                return component.get() == destroyComponent;
+                // 추가 대기중인 컴포넌트라면 같이 삭제
+                std::erase_if(_addComponentsQueue,
+                [destroyComponent](const std::pair<std::weak_ptr<GameObject>, std::shared_ptr<Component>>& pair) 
+                {
+                    auto& [obj, component] = pair;
+                    return component.get() == destroyComponent;
+                });
             }
-        );
+        }         
     }
 
     if (destroyComponent->_initFlags.IsStart() == false)
     {
-        std::erase_if(
-            _waitStartVec,
-            [destroyComponent](std::shared_ptr<Component>& component)
+        if (false == _waitStartVec.empty())
+        {
+            std::erase_if(_waitStartVec, [destroyComponent](std::shared_ptr<Component>& component) 
             {
                 return component.get() == destroyComponent;
-            }
-        );
+            });
+        }
     }
-
 }
 
-bool ESceneManager::InsertGameObjectMap(std::shared_ptr<GameObject>& pInsertObject) 
+bool ESceneManager::InsertGameObjectMap(std::shared_ptr<GameObject>& insertObject) 
 {
-    auto [iter, result] = _runtimeObjectsUnorderedMap[pInsertObject->ReflectFields->_name].insert(pInsertObject);
+    auto [iter, result] = _runtimeObjectsUnorderedMap[insertObject->ReflectFields->_name].insert(insertObject);
     if (result == false)
     {
         assert(!"이미 추가한 게임 오브젝트 입니다.");
@@ -1325,14 +1343,14 @@ bool ESceneManager::InsertGameObjectMap(std::shared_ptr<GameObject>& pInsertObje
     return result;
 }
 
-void ESceneManager::EraseGameObjectMap(std::shared_ptr<GameObject>& pEraseObject)
+void ESceneManager::EraseGameObjectMap(std::shared_ptr<GameObject>& eraseObject)
 {
-    auto findIter = _runtimeObjectsUnorderedMap.find(pEraseObject->ReflectFields->_name);
+    auto findIter = _runtimeObjectsUnorderedMap.find(eraseObject->ReflectFields->_name);
     if (findIter == _runtimeObjectsUnorderedMap.end())
     {
         assert(!"유효하지 않는 오브젝트 이름입니다.");
     }
-    findIter->second.erase(pEraseObject);
+    findIter->second.erase(eraseObject);
 }
 
 void ESceneManager::AddDestroyComponentQueue(Component* component) 

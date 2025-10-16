@@ -2,11 +2,11 @@
 #include "LightCore.h"
 #include "Light.h"
 
-LightCore::LightCore() {}
+LightCore::LightCore() = default;
 
-LightCore::~LightCore() {}
+LightCore::~LightCore() = default;
 
-const std::vector<LightCore::LightComponent>& LightCore::GetLights(std::string_view sceneName)
+const std::vector<Light*>& LightCore::GetLights(std::string_view sceneName)
 {
     return _lights[sceneName.data()];
 }
@@ -15,26 +15,30 @@ void LightCore::RegisterLight(std::string_view sceneName, Light* light)
 {
     auto& lights = _lights[sceneName.data()];
 
-    auto iter = std::find_if(lights.begin(), lights.end(), [](const auto& pair) { return !pair.first.get(); });
+    auto iter = std::find_if(lights.begin(), lights.end(), [light](const auto& component) { return component->GetID() == light->GetID(); });
 
     if (iter != lights.end())
     {
-        GRAPHICS_ASSERT(false, L"LightCore::RegisterLight : Already registered light.");
+        //GRAPHICS_ASSERT(false, L"LightCore::RegisterLight : Already registered light.");
         return;
     }
 
-    lights.emplace_back(std::make_unique<bool>(false), light);
-    light->_isDestroyeds.push_back(lights.back().first.get());
+    lights.push_back(light);
+}
+
+void LightCore::ClearLightQueue()
+{
+    _lights.clear();
 }
 
 void LightCore::Update(const float deltaTime)
 {
     for (auto& [sceneName, lights] : _lights)
     {
-        auto first = std::remove_if(lights.begin(), lights.end(), [](const auto& pair) { return *pair.first; });
+        auto first = std::remove_if(lights.begin(), lights.end(), [](const auto& light) { return !light->IsAlive(); });
         lights.erase(first, lights.end());
 
-        for (auto& [isDestroy, light] : lights)
+        for (auto& light : lights)
         {           
             light->Update(deltaTime);
         }

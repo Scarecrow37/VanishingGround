@@ -20,6 +20,7 @@ public:
     EditorDockWindow*   GetDockWindow(const char* label) const;
     EditorDockWindow*   operator[](const char* label) const;
 
+    void                Clear();
     void                ResetLayout();
     YAML::Node          SaveGuiSettingToMemory();
     void                LoadGuiSettingFromMemory(YAML::Node node);

@@ -6,6 +6,7 @@
 #include "Editor/Tool/Scene/Command/EditorSceneCommands.h"
 #include "Mesh/MeshComponent.h"
 #include "Camera/CameraComponent.h"
+#include "GraphicsEngine/Interface/IMeshRenderer.h"
 
 using namespace u8_literals;
 using namespace Global;
@@ -407,6 +408,12 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
                 GameObjectKey, GameObject::Helper::GenerateUniqueName("Spot light"), &light);
             UmComponentFactory.AddComponentToObject(light, "class SpotLight");
         }
+        if (ImGui::MenuItem("Shadow Point Light"))
+        {
+            UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                GameObjectKey, GameObject::Helper::GenerateUniqueName("Shadow Point Light"), &light);
+            UmComponentFactory.AddComponentToObject(light, "class ShadowPointLight");
+        }
         ImGui::EndMenu();
 
         if (nullptr != light)
@@ -527,6 +534,15 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
     }
 }
 
+void EditorHierarchyTool::PushHierarchyObject(const std::shared_ptr<GameObject>& object)
+{
+    int instanceID = object->GetInstanceID();
+    if (auto [iter, result] = _instanceIDSet.insert(instanceID); true == result)
+    {
+        _hierarchyObjects.emplace_back(object, instanceID);
+    } 
+}
+
 void EditorHierarchyTool::OnStartGui()
 {
     _dockWindow          = GetOwnerDockWindow();
@@ -611,9 +627,15 @@ void EditorHierarchyTool::HierarchyDrawTreeNode()
         //유효한 오브젝트만 남긴다.
         if (_hierarchyObjectCleanup)
         {
-            std::erase_if(_hierarchyObjects, [](const std::weak_ptr<GameObject>& object) 
+            std::erase_if(_hierarchyObjects, [this](const std::pair< std::weak_ptr<GameObject>,int>& pair) 
             {
-                return object.expired();
+                auto& [object, id] = pair;
+                bool erase = object.expired();
+                if (erase)
+                {
+                    _instanceIDSet.erase(id);
+                }
+                return erase;
             });
             _hierarchyObjectCleanup = false;
         }
@@ -631,8 +653,9 @@ void EditorHierarchyTool::HierarchyDrawTreeNode()
             }
 
             //분류 작업
-            for (auto& weakObject : _hierarchyObjects)
+            for (auto& pair : _hierarchyObjects)
             {
+                auto& [weakObject, id] = pair;
                 std::shared_ptr<GameObject> object = weakObject.lock();
                 if (object)
                 {
