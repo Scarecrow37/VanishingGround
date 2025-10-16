@@ -20,7 +20,7 @@ private:
     void InitializeShaderAndPSO();
 
 private:    
-    SharedResource<UnorderedAccessView> _accumlateBuffer;
+    SharedResource<UnorderedAccessView> _accumulateBuffer;
     SharedResource<UnorderedAccessView> _revealageBuffer;
     FX<GE::VS::QUAD, GE::PS::PARTICLE_RESOLVE> _fx;
 };

@@ -220,20 +220,27 @@ void GraphicsCore::LoadTextureResource(std::wstring_view filePath, ParticleEmitt
 {
     if (ParticleType::SPRITE == component->_particleType)
     {
-        static_cast<SpriteModule*>(component->_particleRenderModule)
-            ->SetAlbedoTexture(_resourceManager->LoadResource<Texture>(filePath.data()));
+        if (auto renderModule = component->_particleRenderModule->AsSprite())
+        {
+            renderModule->SetAlbedoTexture(_resourceManager->LoadResource<Texture>(filePath.data()));
+        }
     }
 
     if (ParticleType::RIBBON == component->_particleType)
     {
-        static_cast<RibbonModule*>(component->_particleRenderModule)
-            ->SetAlbedoTexture(_resourceManager->LoadResource<Texture>(filePath.data()));
+        if (auto renderModule = component->_particleRenderModule->AsRibbon())
+        {
+            renderModule->SetAlbedoTexture(_resourceManager->LoadResource<Texture>(filePath.data()));
+        }
     }
 }
+
 void GraphicsCore::LoadModelResource(const std::wstring_view filePath, ParticleEmitter* component) const
 {
-    static_cast<MeshSurfaceLocator*>(component->_emitLocator)->SetModelPath(filePath.data());
-    static_cast<MeshSurfaceLocator*>(component->_emitLocator)->LoadVerticesFromModel(_resourceManager->LoadResource<Model>(filePath.data()));
+    if (component->_emitLocator->AsMeshSurfaceLocator())
+    {
+        _resourceManager->LoadResource<Model>(filePath);
+    }
 }
 
 void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT height, const FeatureLevel feature, bool isEditorMode)
@@ -277,9 +284,9 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     _device->Initialize();
     _device->ResetCommands();
     _renderer->Initialize();
-    _particleManager->Initialize(MAX_PARTICLE);
     _moduleManager->Initialize();
     _threadPool->Initialize(5);
+    _particleManager->Initialize(MAX_PARTICLE);
 
     auto commandList = _device->GetCommandList();
     commandList->Close();
