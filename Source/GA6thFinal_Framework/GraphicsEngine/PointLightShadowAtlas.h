@@ -18,7 +18,7 @@ public:
     void InitializeAtlas(UINT atlasSize, UINT faceSize);
     void ResizeFace(UINT newFaceSize);
 
-    UINT AllocateLight();
+    void AllocateLight(UINT lightIndex);
     void ReleaseLight(UINT lightIndex);
     bool IsAllocated(UINT lightIndex) const;
 

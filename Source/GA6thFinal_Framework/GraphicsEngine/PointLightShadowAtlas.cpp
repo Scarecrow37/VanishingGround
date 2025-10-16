@@ -5,6 +5,13 @@ void PointLightShadowAtlas::InitializeAtlas(UINT atlasSize, UINT faceSize)
 {
     _atlasSize = atlasSize;
     _faceSize  = faceSize;
+
+    _freeList.clear();
+    for (UINT i = 0; i < MAX_SHADOW_POINT_LIGHT; ++i)
+    {
+        _freeList.push_back(i);
+        _allocated[i] = false;
+    }
     CreateAtlasResource();
     BuildRegions();
     CreateDSVHandles();
@@ -13,29 +20,26 @@ void PointLightShadowAtlas::InitializeAtlas(UINT atlasSize, UINT faceSize)
 void PointLightShadowAtlas::ResizeFace(UINT newFaceSize) 
 {
     if (_faceSize == newFaceSize)
-        return; // 변경 없음
+        return;
 
     _faceSize = newFaceSize;
 
-    // 기존 DSV 해제 후 재생성
     _dsvHandles.fill({});
     BuildRegions();
     CreateDSVHandles();
 }
 
-UINT PointLightShadowAtlas::AllocateLight()
+void PointLightShadowAtlas::AllocateLight(UINT lightIndex)
 {
-    if (_freeList.empty())
+    GRAPHICS_ASSERT(lightIndex < MAX_SHADOW_POINT_LIGHT,
+                    L"PointLightShadowAtlas::AllocateLightDirect : Light Index Out of Range");
+
+    if (_allocated[lightIndex])
     {
-        return UINT_MAX;
+        return;
     }
-    UINT index = _freeList.back();
-    _freeList.pop_back();
 
-    GRAPHICS_ASSERT(index < MAX_SHADOW_POINT_LIGHT, L"PointLightShadowAtlas::AllocateLight : Light Index Out of Range");
-    _allocated[index] = true;
-
-    return index;
+    _allocated[lightIndex] = true;
 }
 
 void PointLightShadowAtlas::ReleaseLight(UINT lightIndex) 

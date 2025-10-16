@@ -52,7 +52,7 @@ VSOutput vs_main(VSInput input)
     VSOutput output = (VSOutput) 0;
     
     float4 worldPos = mul(input.position, worldTransform);
-    output.position = worldPos;
+    output.worldPosition = worldPos.xyz;
     
     output.position = mul(worldPos, pointLightShadowData.ViewProjection[faceIndex]);
     output.lightPosition = pointLightShadowData.LightPosition;
