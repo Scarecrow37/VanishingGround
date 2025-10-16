@@ -219,6 +219,7 @@ void DescriptionPanel::MakeChild()
             element.HorizontalFillMode = FillMode::WRAP;
             element.VerticalFillMode   = FillMode::WRAP;
             element.Text               = content;
+            color.w                    = ReflectFields->Alpha;
             element.Color              = color;
             element.FontScale          = ReflectFields->FontScale;
         }
@@ -234,10 +235,29 @@ void DescriptionPanel::MakeChild()
             element.SetImage(guid);
             element.HorizontalFillMode = FillMode::FILL;
             element.VerticalFillMode   = FillMode::FILL;
+            element.Alpha              = ReflectFields->Alpha;
             imageChild->transform->SetParent(child->transform, true);
         }
         break;
         }
         child->transform->SetParent(transform, true);
     }
+}
+
+void DescriptionPanel::UpdateAlpha()
+{
+    const float                     alpha    = ReflectFields->Alpha;
+    const std::vector<UIComponent*> children = Children;
+    std::ranges::for_each(children, [alpha](const UIComponent* child) {
+        if (TextElement* textElement = child->GetComponent<TextElement>(); nullptr != textElement)
+        {
+            Color color        = textElement->Color;
+            color.w            = alpha;
+            textElement->Color = color;
+        }
+        else if (ImageElement* imageElement = child->GetComponent<ImageElement>(); nullptr != imageElement)
+        {
+            imageElement->Alpha = alpha;
+        }
+    });
 }

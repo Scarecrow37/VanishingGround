@@ -61,8 +61,8 @@ SIZE GridPanel::MeasureOverride(const SIZE availableSize)
     if (verticalFillMode == FillMode::WRAP)
         VerticalFillMode = FillMode::NONE;
 
-    const SIZE desiredSize = MinSize()(availableSize, _requestedSize, verticalFillMode == FillMode::FILL,
-                                       horizontalFillMode == FillMode::FILL);
+    const SIZE desiredSize = MinSize()(availableSize, _requestedSize, horizontalFillMode == FillMode::FILL,
+                                       verticalFillMode == FillMode::FILL);
 
     const unsigned int columns     = Columns;
     const unsigned int rows        = Rows;
@@ -91,15 +91,15 @@ SIZE GridPanel::MeasureOverride(const SIZE availableSize)
 
 SIZE GridPanel::ArrangeOverride(const SIZE finalSize)
 {
-    const SIZE         desiredSize = DesiredSize;
-    const SIZE actualSize = MinSize()(finalSize, desiredSize);
+    const SIZE desiredSize = DesiredSize;
+    const SIZE actualSize  = MinSize()(finalSize, desiredSize);
 
     const unsigned int columns    = Columns;
     const unsigned int rows       = Rows;
     const LONG         cellWidth  = actualSize.cx / static_cast<LONG>(columns);
     const LONG         cellHeight = actualSize.cy / static_cast<LONG>(rows);
 
-    const PADDING padding = Padding;
+    const PADDING             padding         = Padding;
     const HorizontalAlignment horizontalAlign = HorizontalAlign;
     const VerticalAlignment   verticalAlign   = VerticalAlign;
 

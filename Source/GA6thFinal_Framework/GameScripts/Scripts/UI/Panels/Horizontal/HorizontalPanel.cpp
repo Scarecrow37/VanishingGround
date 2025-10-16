@@ -20,8 +20,8 @@ SIZE HorizontalPanel::MeasureOverride(const SIZE availableSize)
     const FillMode horizontalFillMode = HorizontalFillMode;
     const FillMode verticalFillMode   = VerticalFillMode;
 
-    SIZE desiredSize = MinSize()(availableSize, _requestedSize, verticalFillMode == FillMode::FILL,
-                                 horizontalFillMode == FillMode::FILL);
+    SIZE desiredSize = MinSize()(availableSize, _requestedSize, horizontalFillMode == FillMode::FILL,
+                                 verticalFillMode == FillMode::FILL);
 
     const PADDING padding               = Padding;
     const SIZE    childrenAvailableSize = desiredSize - padding.Size();
@@ -103,6 +103,7 @@ SIZE HorizontalPanel::MeasureOverride(const SIZE availableSize)
         contentSize.cx = std::max(contentSize.cx, lineWidth);
         contentSize.cy += lineHeight;
     }
+    contentSize.cy += LineSpace * (static_cast<LONG>(childrenDesiredSizePerLine.size()) - 1);
 
     if (horizontalFillMode == FillMode::WRAP)
         desiredSize.cx = contentSize.cx + padding.Horizontal();

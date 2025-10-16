@@ -32,7 +32,7 @@ public:
     DescriptionPanel();
 
 public:
-    REFLECT_PROPERTY(FontPath, Description, FontScale)
+    REFLECT_PROPERTY(FontPath, Description, FontScale, Alpha)
 
     GETTER_ONLY(std::string, FontPath) { return _Guid.ToPath().string(); }
     PROPERTY(FontPath)
@@ -59,6 +59,14 @@ public:
     }
     PROPERTY(FontScale)
 
+    GETTER(float, Alpha) { return ReflectFields->Alpha; }
+    SETTER(float, Alpha)
+    {
+        ReflectFields->Alpha = std::clamp(value, 0.0f, 1.0f);
+        UpdateAlpha();
+    }
+    PROPERTY(Alpha)
+
 protected:
     void DeserializedReflectEvent() override;
     void ImGuiDrawPropertysEvent() override;
@@ -69,12 +77,14 @@ private:
     void UpdateContent();
     void EraseChild() const;
     void MakeChild();
+    void UpdateAlpha();
 
 protected:
     REFLECT_FIELDS_BEGIN(HorizontalPanel)
     std::string Guid;
     std::string Description;
-    float       FontScale;
+    float       FontScale = 16.0f;
+    float       Alpha     = 1.0f;
     REFLECT_FIELDS_END(DescriptionPanel)
 
 private:
