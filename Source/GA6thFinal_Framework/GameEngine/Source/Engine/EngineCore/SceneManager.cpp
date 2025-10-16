@@ -208,6 +208,7 @@ void ESceneManager::Engine::AddComponentToLifeCycle(std::shared_ptr<Component> c
 {
     Global::engineCore->SceneManager._addComponentsQueue.emplace_back(component->_gameObject->GetWeakPtr(), component);
     EComponentFactory::Engine::PushBackComponentToObject(component);
+    component->Reset();
 }
 
 void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
@@ -1286,7 +1287,7 @@ void ESceneManager::ObjectsAddRuntime()
     for (auto& component : addQueue)
     {
         component->UpdateEnableInHierarchy();
-        component->Reset();
+        component->Added();
     }
     addQueue.clear();
 }
@@ -1660,7 +1661,10 @@ bool ESceneManager::WriteUmSceneFile(Scene& scene, std::string_view sceneName, s
     fsPath writePath = UmFileSystem.GetAssetPath();
     writePath /= outPath;
     writePath /= sceneName;
-    writePath.replace_extension(SCENE_EXTENSION);
+    if (writePath.extension() != SCENE_EXTENSION)
+    {
+        writePath += SCENE_EXTENSION;
+    }
    
     bool isExists = fs::exists(writePath);
     if (true == isExists && false == isOverride)

@@ -134,14 +134,17 @@ void HierarchyFindTool::DrawFindList()
             if (object && object->IsValid())
             {
                 std::string_view name = object->ToString();
-                if (_nameFilter.PassFilter(name.data()))
+                if (false == name.empty())
                 {
-                    if (ImGui::Selectable(name.data()))
+                    if (_nameFilter.PassFilter(name.data()))
                     {
-                        EditorHierarchyTool::SetFocusObject(object);
-                        EditorInspectorTool::SetFocusObject(object);
-                        _editorHierarchyTool->SetFocusFrame();
-                        _editorHierarchyTool->OpenFocusObjectTree();
+                        if (ImGui::Selectable(name.data()))
+                        {
+                            EditorHierarchyTool::SetFocusObject(object);
+                            EditorInspectorTool::SetFocusObject(object);
+                            _editorHierarchyTool->SetFocusFrame();
+                            _editorHierarchyTool->OpenFocusObjectTree();
+                        }
                     }
                 }
             }
