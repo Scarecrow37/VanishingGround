@@ -110,7 +110,7 @@ public:
     bool IsSingleTon() { return _owner == SingletonComponentStatic; }
       
     /// <summary>
-    /// owner의 컴포넌트를 싱글톤으로 설정합니다. (Reset에서 호출해야합니다.)
+    /// owner의 컴포넌트를 싱글톤으로 설정합니다. (에디터에서만 동작합니다.)
     /// </summary>
     void SetSingleTon()
     {
@@ -121,7 +121,7 @@ public:
     }
 
     /// <summary>
-    /// owner의 컴포넌트 싱글톤으로 만듭니다. 싱글톤 객체로 등록되면 true를 반환합니다. (Awake에서 호출해야합니다.)
+    /// owner의 컴포넌트 싱글톤으로 만듭니다. 싱글톤 객체로 등록되면 true를 반환합니다. (Play에서만 동작합니다.)
     /// </summary>
     /// <returns>성공 여부</returns>
     bool TrySingleTon()
