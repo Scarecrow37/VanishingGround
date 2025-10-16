@@ -12,6 +12,7 @@ void FadeDescriptionPanel::Start()
 {
     DescriptionPanel::Start();
 
+    Alpha = 0.0f;
     UIAnimation::Reset(ReflectFields->FadeDuration, false);
 }
 
