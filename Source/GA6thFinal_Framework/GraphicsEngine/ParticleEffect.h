@@ -14,25 +14,24 @@ public:
                                       ParticleType        particleType   = ParticleType::SPRITE,
                                       const std::wstring& meshspritePath = L"");
 
-    void                   Update(float deltaTime);
-    class ParticleEmitter* GetEmitter(size_t emitterIndex);
+    void                                                 Update(float deltaTime);
+    class ParticleEmitter*                               GetEmitter(size_t emitterIndex);
     std::vector<std::unique_ptr<class ParticleEmitter>>& GetEmitterList();
-    void                                RemoveEmitter(ParticleEmitter* target);
-    void                                UpdateParticleLifeCycle(float deltaTime);
-    void                                Play();
-    void                                Stop();
-    void                                Reset();
-    void                                FlushEmitters();
-    void                                SetRemoveFlag(bool flag);
-    bool                                GetRemoveFlag() const;
-    void                                SetPosition(Vector3* position);
-    void                                SetRotation(Vector3* rotation);
-    void                                SetScale(Vector3* scale);
-    void                                SetBoneFollowFlag(bool* flag);
-    void                                SetBoneMatrix(const Matrix* matrix);
-    void                                SetParentMatrix(const Matrix* matrix);
+    void                                                 RemoveEmitter(ParticleEmitter* target);
+    void                                                 UpdateParticleLifeCycle(float deltaTime);
+    void                                                 Play();
+    void                                                 Stop();
+    void                                                 Reset();
+    void                                                 FlushEmitters();
+    void                                                 SetRemoveFlag(bool flag);
+    bool                                                 GetRemoveFlag() const;
+    void                                                 SetPosition(Vector3* position);
+    void                                                 SetRotation(Vector3* rotation);
+    void                                                 SetScale(Vector3* scale);
+    void                                                 SetBoneFollowFlag(bool* flag);
+    void                                                 SetBoneMatrix(const Matrix* matrix);
+    void                                                 SetParentMatrix(const Matrix* matrix);
 
-    // 복사 금지 / 이동 허용
     ParticleEffect(const ParticleEffect&)                = delete;
     ParticleEffect& operator=(const ParticleEffect&)     = delete;
     ParticleEffect(ParticleEffect&&) noexcept            = default;

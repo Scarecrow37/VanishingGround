@@ -205,11 +205,11 @@ void ParticleComponent::LoadParticle(const std::string& keyString)
                         ReflectFields->GuidMap[keyString] = assetGuid.string();
                         auto effect =
                             UmParticleSerializer.Deserialize(this, keyString, assetGuid.ToPath(), false, "Game");
-                        for (auto* emitter : effect->GetEmitterList())
+                        for (auto& emitter : effect->GetEmitterList())
                         {
                             File::Path absolutePath = emitter->_particleRenderModule->GetModelAndTexturePath();
                             absolutePath            = std::filesystem::absolute(absolutePath).generic_string();
-                            UmGraphics.LoadTextureResource(std::wstring_view(absolutePath.wstring()), emitter);
+                            UmGraphics.LoadTextureResource(std::wstring_view(absolutePath.wstring()), emitter.get());
                         }
                         effect->SetPlayFlag(false);
                         effect->SetActiveFlag(false);
@@ -256,14 +256,14 @@ void ParticleComponent::LoadParticle(const std::string& keyString)
                                                 this, keyString, assetGuid.ToPath(), false, "Game");
                                             if (effect)
                                             {
-                                                for (auto emitter : effect->GetEmitterList())
+                                                for (auto& emitter : effect->GetEmitterList())
                                                 {
                                                     File::Path absolutePath =
                                                         emitter->_particleRenderModule->GetModelAndTexturePath();
                                                     absolutePath =
                                                         std::filesystem::absolute(absolutePath).generic_string();
                                                     UmGraphics.LoadTextureResource(
-                                                        std::wstring_view(absolutePath.wstring()), emitter);
+                                                        std::wstring_view(absolutePath.wstring()), emitter.get());
 
                                                     if (LocationShape::MESH_SURFACE == emitter->_locationType)
                                                     {
@@ -274,7 +274,7 @@ void ParticleComponent::LoadParticle(const std::string& keyString)
                                                             absolutePath = std::filesystem::absolute(absolutePath)
                                                                                .generic_string();
                                                             UmGraphics.LoadModelResource(
-                                                                std::wstring_view(absolutePath.wstring()), emitter);
+                                                                std::wstring_view(absolutePath.wstring()), emitter.get());
                                                         }
                                                     }
                                                 }
