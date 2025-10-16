@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "Editor/DynamicCamera/EditorDynamicCamera.h"
+#include "ImguiHelper.h"
 
 std::array<float, 4> ImGuiHelper::ImVec4ToArray(const ImVec4& vec4)
 {
@@ -142,6 +143,16 @@ namespace ImGuiHelper
         ImGui::SameLine(startX);
         ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
         ImGui::SameLine();
+    }
+    void CenterText(const char* text)
+    {
+        if (text == nullptr)
+            return;
+
+        float columnWidth = ImGui::GetColumnWidth();
+        float textWidth   = ImGui::CalcTextSize(text).x;
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - textWidth) * 0.5f);
+        ImGui::TextUnformatted(text);
     }
 } // namespace ImGuiHelper
 

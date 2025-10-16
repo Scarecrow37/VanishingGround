@@ -488,4 +488,9 @@ namespace ImGuiHelper
             ImGui::EndCombo();
         }
     }
-} 
+}
+
+namespace ImGuiHelper
+{
+    void CenterText(const char* text);
+}

@@ -600,11 +600,13 @@
     <ClCompile Include="AntiAliasingPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="GraphicsPointer.cpp" />
     <ClCompile Include="PointLightShadowAtlas.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="EngineShadowPointLight.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsPointer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1062,15 +1064,25 @@
     <ClInclude Include="AntiAliasingPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="GraphicsPointer.h" />
-    <ClInclude Include="Interface\IAnimator.h" />
-    <ClInclude Include="Interface\ILight.h" />
-    <ClInclude Include="Interface\IMeshRenderer.h" />
-    <ClInclude Include="Interface\ISpriteRenderer.h" />
     <ClInclude Include="PointLightShadowAtlas.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="EngineShadowPointLight.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsPointer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Interface\IAnimator.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Interface\ILight.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Interface\IMeshRenderer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Interface\ISpriteRenderer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
