@@ -55,6 +55,9 @@ bool ImGuiColumnSheetParser::Draw(const std::function<void(const ColumnDatas&)>&
                     ImGui::EndCombo();
                 }
 
+                ImGui::InputText("Key value", &_keyValue);
+                ImGuiHelper::HoveredToolTip(u8"키로 사용되는 값을 하나만 입력하세요.");
+
                 if (ImGui::Button("Ok") && false == _selectSheetName.empty())
                 {
                     auto& doc       = *_excelDoc;
