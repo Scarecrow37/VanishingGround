@@ -1320,14 +1320,18 @@ void ESceneManager::NotInitDestroyComponentEraseToWaitVec(Component* destroyComp
                     });
                 }
             }
-            else if (destroyComponent->_initFlags.IsStart() == false)
-            {
-                std::erase_if(_waitStartVec, [destroyComponent](std::shared_ptr<Component>& component) 
-                {
-                    return component.get() == destroyComponent;
-                });
-            }
         }   
+    }
+
+    if (destroyComponent->_initFlags.IsStart() == false)
+    {
+        if (false == _waitStartVec.empty())
+        {
+            std::erase_if(_waitStartVec, [destroyComponent](std::shared_ptr<Component>& component) 
+            {
+                return component.get() == destroyComponent;
+            });
+        }
     }
 }
 
