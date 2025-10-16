@@ -357,6 +357,7 @@
     <ClInclude Include="Scripts\ItemDropSystem\Interface\IDropItem.h" />
     <ClInclude Include="Scripts\ItemDropSystem\ItemDropSystem.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UINavi\ArtifactButtonNavi.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UINavi\EraseRevelationNavi.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UINavi\PlayerWeaponChangeNavi.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UINavi\RestartStageNavi.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UINavi\ReturnToMapNavi.h" />
@@ -597,6 +598,7 @@
     <ClCompile Include="Scripts\ItemDropSystem\Interface\IDropItem.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\ItemDropSystem.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UINavi\ArtifactButtonNavi.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UINavi\EraseRevelationNavi.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UINavi\PlayerWeaponChangeNavi.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UINavi\RestartStageNavi.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UINavi\ReturnToMapNavi.cpp" />
