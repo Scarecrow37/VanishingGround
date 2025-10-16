@@ -24,7 +24,7 @@ void UITechnique_OIT::Initialize(ID3D12GraphicsCommandList* commandList)
     _depthStencilView->Initialize(_ownerScene->_depthStencilView->GetDesc());
 
     const auto&    resolution   = Global::device->GetResolution();
-    constexpr UINT DEPTH        = 4;
+    constexpr UINT DEPTH        = 6;
     const UINT     MAX_UI_NODES = resolution.cx * resolution.cy * DEPTH;
 
     _headBuffer = MakeSharedResource<UnorderedAccessView>();
