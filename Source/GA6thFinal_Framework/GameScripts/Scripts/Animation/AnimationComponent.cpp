@@ -458,12 +458,24 @@ bool AnimationComponent::SetAnimationEx(AnimationData& animData)
             {
                 if (_currentAnimationData && _currentAnimationData->_onExitCallback)
                 {
-                    _currentAnimationData->_onExitCallback();
+                    auto exitCallback = _currentAnimationData->_onExitCallback;
+                    _eventQueue.push_back([exitCallback]() {
+                        if (exitCallback)
+                        {
+                            exitCallback();
+                        }
+                    });
                 }
                 _currentAnimationData = &animData;
                 if (_currentAnimationData && _currentAnimationData->_onEnterCallback)
                 {
-                    _currentAnimationData->_onEnterCallback();
+                    auto enterCallback = _currentAnimationData->_onEnterCallback;
+                    _eventQueue.push_back([enterCallback]() {
+                        if (enterCallback)
+                        {
+                            enterCallback();
+                        }
+                    });
                 }
                 if (animData.HasFlag(ANIMATION_FLAG_RESET_FRAME))
                 {
@@ -698,7 +710,13 @@ void AnimationComponent::PopOverrideAnimation()
 
     if (_currentAnimationData && _currentAnimationData->_onExitCallback)
     {
-        _currentAnimationData->_onExitCallback();
+        auto exitCallback = _currentAnimationData->_onExitCallback;
+        _eventQueue.push_back([exitCallback]() {
+            if (exitCallback)
+            {
+                exitCallback();
+            }
+        });
     }
     _currentAnimationData = nullptr;
 
