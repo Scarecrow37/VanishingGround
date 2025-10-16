@@ -17,7 +17,7 @@ void UIResolvePass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTe
     }
 
     ComputePipelineStateStream pss;
-    _fx.SetPipelineStateStream(pss);
+    _fxResolve.SetPipelineStateStream(pss);
     _pipelineState = Global::pipelineStateManager->GetPipelineState(pss);
 }
 
@@ -32,12 +32,12 @@ void UIResolvePass::Begin(ID3D12GraphicsCommandList* commandList)
 void UIResolvePass::Draw(ID3D12GraphicsCommandList* commandList)
 {
     commandList->SetPipelineState(_pipelineState.Get());
-    commandList->SetComputeRootSignature(_fx.GetRootSignature());
+    commandList->SetComputeRootSignature(_fxResolve.GetRootSignature());
 
-    commandList->SetComputeRootDescriptorTable(_fx.GetRootParameterIndex("screenTexture"), _finalRenderTarget->GetSRVHandle());
-    commandList->SetComputeRootDescriptorTable(_fx.GetRootParameterIndex("OITHead"), _headBuffer->GetUAVHandle());
-    commandList->SetComputeRootUnorderedAccessView(_fx.GetRootParameterIndex("OITNodes"), _nodesBuffer->GetGPUVirtualAddress());
-    commandList->SetComputeRootDescriptorTable(_fx.GetRootParameterIndex("Output"), _outputBuffer->GetUAVHandle());    
+    commandList->SetComputeRootDescriptorTable(_fxResolve.GetRootParameterIndex("screenTexture"), _finalRenderTarget->GetSRVHandle());
+    commandList->SetComputeRootDescriptorTable(_fxResolve.GetRootParameterIndex("OITHead"), _headBuffer->GetUAVHandle());
+    commandList->SetComputeRootUnorderedAccessView(_fxResolve.GetRootParameterIndex("OITNodes"), _nodesBuffer->GetGPUVirtualAddress());
+    commandList->SetComputeRootDescriptorTable(_fxResolve.GetRootParameterIndex("Output"), _outputBuffer->GetUAVHandle());    
 
     const auto& resolution = Global::device->GetResolution();
     UINT        dispatchX  = (resolution.cx + 15) / 16;

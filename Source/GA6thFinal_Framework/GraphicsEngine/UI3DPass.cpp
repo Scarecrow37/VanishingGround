@@ -1,8 +1,8 @@
 ﻿#include "pch.h"
 #include "UI3DPass.h"
-#include "FrameResource.h"
+#include "UITechnique.h"
 
-UI3DPass::UI3DPass(const std::vector<UINT>& instanceIDs)
+UI3DPass::UI3DPass(const std::vector<UINT>* instanceIDs)
     : UIPassBase(instanceIDs)
 {
 }
@@ -13,47 +13,5 @@ void UI3DPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechniq
 {
     UIPassBase::Initialize(ownerScene, ownerTechnique, commandList);
 
-    D3D12_RENDER_TARGET_BLEND_DESC rtDesc{};
-    rtDesc.BlendEnable           = TRUE;
-    rtDesc.SrcBlend              = D3D12_BLEND_SRC_ALPHA;
-    rtDesc.DestBlend             = D3D12_BLEND_INV_SRC_ALPHA;
-    rtDesc.BlendOp               = D3D12_BLEND_OP_ADD;
-    rtDesc.SrcBlendAlpha         = D3D12_BLEND_ONE;
-    rtDesc.DestBlendAlpha        = D3D12_BLEND_INV_SRC_ALPHA;
-    rtDesc.BlendOpAlpha          = D3D12_BLEND_OP_ADD;
-    rtDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-
-    PipelineStateStream pss;
-    pss.BlendState                            = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    (&pss.BlendState)->AlphaToCoverageEnable  = FALSE;
-    (&pss.BlendState)->IndependentBlendEnable = FALSE;
-    (&pss.BlendState)->RenderTarget[0]        = rtDesc;
-    pss.RasterizerState                       = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    (&pss.RasterizerState)->CullMode          = D3D12_CULL_MODE_NONE;
-    pss.DepthStencilState                     = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-    pss.PrimitiveTopology                     = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    pss.RTVFormats                            = {{DXGI_FORMAT_R32G32B32A32_FLOAT}, 1};
-    pss.DSVFormat                             = _ownerScene->_depthStencilView->GetFormat();
-
-    _fx.SetPipelineStateStream(pss);
-    _pipelineState = Global::pipelineStateManager->GetPipelineState(pss);
-}
-
-void UI3DPass::Draw(ID3D12GraphicsCommandList* commandList)
-{
-    commandList->SetPipelineState(_pipelineState.Get());
-    commandList->SetGraphicsRootSignature(_fx.GetRootSignature());
-
-    UINT  currentBackBufferIndex = Global::device->GetCurrentBackBufferIndex();
-    auto  resource               = Global::viewManager->GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
-    auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
-
-    frameResource->SetFrameResource(FrameResourceType::UI_TRANSFORM, _fx.GetRootParameterIndex("ui_matrices"), commandList);
-    frameResource->SetFrameResource(FrameResourceType::UI_MATERIAL, _fx.GetRootParameterIndex("material"), commandList);
-
-    commandList->SetGraphicsRootShaderResourceView(_fx.GetRootParameterIndex("IDs"), _instanceIDBuffer->GetGPUVirtualAddress());
-    commandList->SetGraphicsRootConstantBufferView(_fx.GetRootParameterIndex("cameraData"), _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
-    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("textures"), resource);
-
-    _halfQuad->Render(commandList, (UINT)_instanceIDs.size());
+    _cameraBuffer = static_cast<UITechnique*>(_ownerTechnique)->GetCameraBuffer(MODE_3D);
 }

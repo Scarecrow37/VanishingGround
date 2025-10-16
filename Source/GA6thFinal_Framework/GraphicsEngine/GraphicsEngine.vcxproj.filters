@@ -178,6 +178,9 @@
     <FxCompile Include="..\Shaders\ps_fxaa.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\ps_sdf_font_oit.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AccelerationStructureManager.cpp">
@@ -501,9 +504,6 @@
     <ClCompile Include="UIPassBase.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="UITechnique.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="UnorderedAccessView.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -561,7 +561,7 @@
     <ClCompile Include="UIPassBase_OIT.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="UITechnique_OIT.cpp">
+    <ClCompile Include="UITechnique.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="UIResolvePass.cpp">
@@ -600,11 +600,16 @@
     <ClCompile Include="AntiAliasingPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="GraphicsPointer.cpp" />
     <ClCompile Include="PointLightShadowAtlas.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="EngineShadowPointLight.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsPointer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="SDFTextDrawPass_OIT.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -957,9 +962,6 @@
     <ClInclude Include="UIPassBase.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="UITechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="UnorderedAccessView.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -1017,7 +1019,7 @@
     <ClInclude Include="UIPassBase_OIT.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="UITechnique_OIT.h">
+    <ClInclude Include="UITechnique.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="UIResolvePass.h">
@@ -1062,15 +1064,28 @@
     <ClInclude Include="AntiAliasingPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="GraphicsPointer.h" />
-    <ClInclude Include="Interface\IAnimator.h" />
-    <ClInclude Include="Interface\ILight.h" />
-    <ClInclude Include="Interface\IMeshRenderer.h" />
-    <ClInclude Include="Interface\ISpriteRenderer.h" />
     <ClInclude Include="PointLightShadowAtlas.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="EngineShadowPointLight.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsPointer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Interface\IAnimator.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Interface\ILight.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Interface\IMeshRenderer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Interface\ISpriteRenderer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SDFTextDrawPass_OIT.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

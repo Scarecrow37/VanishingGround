@@ -36,6 +36,7 @@
 #include "ps_particle_resolve.h"
 #include "ps_pbr_lighting.h"
 #include "ps_sdf_font.h"
+#include "ps_sdf_font_oit.h"
 #include "ps_shadow.h"
 #include "ps_skybox.h"
 #include "ps_ssgi_composite.h"

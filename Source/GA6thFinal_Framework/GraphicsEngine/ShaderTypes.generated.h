@@ -45,6 +45,7 @@ namespace GE
         PARTICLE_RESOLVE,
         PBR_LIGHTING,
         SDF_FONT,
+        SDF_FONT_OIT,
         SHADOW,
         SKYBOX,
         SSGI_COMPOSITE,

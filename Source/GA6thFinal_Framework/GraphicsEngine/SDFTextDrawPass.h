@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "UIPassBase_OIT.h"
+#include "UIPassBase.h"
 
-class SDFTextDrawPass : public UIPassBase_OIT
+class SDFTextDrawPass : public UIPassBase
 {
 public:
     SDFTextDrawPass(const std::vector<UINT>* instanceIDs);
@@ -14,7 +14,5 @@ public:
     void Draw(ID3D12GraphicsCommandList* commandList) override;
 
 private:
-    FX<GE::VS::SDF_FONT_FR, GE::PS::SDF_FONT> _fx;
-    DepthStencilView*                         _depthStencilView{nullptr};
-    ConstantBufferView*                       _cameraBuffer{nullptr};
+    FX<GE::VS::SDF_FONT_FR, GE::PS::SDF_FONT> _fxSDF;
 };
