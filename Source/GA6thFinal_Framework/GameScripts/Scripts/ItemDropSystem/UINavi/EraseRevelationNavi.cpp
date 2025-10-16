@@ -1,6 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "EraseRevelationNavi.h"
-#include "RevelationSystem/RevelationSystem.h"
+#include "ItemDropSystem/UI/EraseRevelationUIManager.h"
 #include "UI/Elements/Image/ImageElement.h"
 
 UMREAL_COMPONENT(EraseRevelationNavi)
@@ -15,7 +15,8 @@ void EraseRevelationNavi::Awake()
 {
     if (ImageElement* focusImage = GetComponent<ImageElement>())
     {
-        _focusImage = focusImage->GetWeakPtr();
+        focusImage->Enable = false;
+        _focusImage        = focusImage->GetWeakPtr();
     }
 }
 
@@ -28,9 +29,10 @@ void EraseRevelationNavi::FocusIn(FocusCallType type)
 void EraseRevelationNavi::Submit() 
 {
     Base::Submit();
-    if (RevelationSystem* system = SingletonComponent<RevelationSystem>::GetInstance())
+    if (EraseRevelationUIManager* system = SingletonComponent<EraseRevelationUIManager>::GetInstance())
     {
-        system->RemovePlayerElement(_mySlot);
+        system->EraseRevelation(_mySlot);
+        UmLogger.Message(LogLevel::LEVEL_TRACE, u8"계시 지우기 버튼 눌림!");
     }
 }
 

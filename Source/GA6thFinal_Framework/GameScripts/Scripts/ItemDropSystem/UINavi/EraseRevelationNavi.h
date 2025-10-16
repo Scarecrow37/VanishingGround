@@ -3,7 +3,8 @@
 class EraseRevelationNavi : public UISFXNavigationComponent
 {
     USING_PROPERTY(EraseRevelationNavi)
-    
+    friend class EraseRevelationUIManager;
+
 public:
     EraseRevelationNavi();
     ~EraseRevelationNavi() override;
