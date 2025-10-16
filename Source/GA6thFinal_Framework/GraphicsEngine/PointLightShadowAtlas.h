@@ -22,7 +22,7 @@ public:
     void ReleaseLight(UINT lightIndex);
     bool IsAllocated(UINT lightIndex) const;
 
-    DescriptorHandles GetDSVHandle(UINT lightIndex, UINT faceIndex) const;
+    DescriptorHandles GetDSVHandle() const;
     D3D12_VIEWPORT    GetViewport(UINT lightIndex, UINT faceIndex) const;
     D3D12_RECT        GetScissorRect(UINT lightIndex, UINT faceIndex) const;
 
@@ -36,7 +36,7 @@ private:
     UINT                   _faceSize  = 1024;
 
     std::array<ShadowFaceRegion, FacePerLight * MAX_SHADOW_POINT_LIGHT>  _regions;
-    std::array<DescriptorHandles, FacePerLight * MAX_SHADOW_POINT_LIGHT> _dsvHandles;
+    DescriptorHandles _dsvHandle;
 
     std::array<bool, MAX_SHADOW_POINT_LIGHT> _allocated = {};
     std::vector<UINT>                        _freeList;

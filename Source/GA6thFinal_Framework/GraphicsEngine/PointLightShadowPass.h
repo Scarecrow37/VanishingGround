@@ -60,4 +60,5 @@ private:
     std::array<Matrix, 6>               _cubeFaceViewProjections[MAX_SHADOW_POINT_LIGHT];
 
     UINT _shadowFaceSize = 1024;
+    UINT _alignedSize    = 0;
 };

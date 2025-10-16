@@ -12,6 +12,7 @@ cbuffer bit32_1_isssao
 };
 
 Texture2DArray shadowMap;
+Texture2D pointLightShadowMap;
 TextureCube irradianceMap;
 TextureCube prefilteredMap;
 Texture2D brdfLUT;
@@ -87,7 +88,16 @@ float4 ps_main(PSInput input) : SV_Target
     for (uint l = 0; l < numLights.ShadowPoint; l++)
     {
         PointLight light = lightData.ShadowPoint[l];
-        directLighting += CalculatePoint(light, normal, V, albedo, metallic, roughness, worldPosition);
+        float shadow = CalculatePointLightShadowPCF(
+                 worldPosition,
+                 light.Position,
+                 l,
+                 pointLightShadowMap,
+                 light.Range,
+                 8192.0,
+                 1024.0
+             );
+        directLighting += CalculatePoint(light, normal, V, albedo, metallic, roughness, worldPosition) * shadow;
     }
     
 

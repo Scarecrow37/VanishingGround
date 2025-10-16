@@ -20,8 +20,9 @@ void PointLightShadowPass::Initialize(RenderScene* ownerScene, RenderTechnique* 
     _instanceDatasBuffer = std::make_unique<StructuredBuffer>();
     _instanceDatasBuffer->Initialize(sizeof(InstanceData), MAX_OBJECTS);
 
+     _alignedSize   = (sizeof(PointLightShadowData) + 255) & ~255;
     _pointLightShadowDataCBV = std::make_unique<ConstantBufferView>();
-    _pointLightShadowDataCBV->Initialize(sizeof(PointLightShadowData) * MAX_SHADOW_POINT_LIGHT);
+    _pointLightShadowDataCBV->Initialize(_alignedSize * MAX_SHADOW_POINT_LIGHT);
 }
 
 void PointLightShadowPass::AddRenderPassDatas(std::string_view sceneName)
@@ -71,6 +72,26 @@ void PointLightShadowPass::Update(ID3D12GraphicsCommandList* commandList, const 
     }
 
     _instanceDatasBuffer->CopyStructuredBuffer(commandList, _instanceDatas.data(), (UINT)_instanceDatas.size());
+
+    for (UINT i = 0; i < _activeLightIndices.size(); ++i)
+    {
+        UINT sceneLightIndex = _activeLightIndices[i];
+        UINT atlasIndex      = sceneLightIndex;
+
+        UINT        lightDataIndex = MAX_DIRECTIONAL_LIGHT + MAX_POINT_LIGHT + MAX_SPOT_LIGHT + sceneLightIndex;
+        const auto& lightData      = _ownerScene->_lightDatas[lightDataIndex];
+
+        PointLightShadowData shadowData;
+        for (int j = 0; j < 6; ++j)
+        {
+            shadowData.ViewProjection[j] = _cubeFaceViewProjections[atlasIndex][j];
+        }
+        shadowData.LightPosition = lightData.float3_1;
+        shadowData.FarPlane      = lightData.float_1;
+
+        size_t offset = _alignedSize * sceneLightIndex;
+        _pointLightShadowDataCBV->UpdateBufferWithOffset(&shadowData, offset, sizeof(PointLightShadowData));
+    }
 }
 
 void PointLightShadowPass::Begin(ID3D12GraphicsCommandList* commandList)
@@ -90,32 +111,24 @@ void PointLightShadowPass::Draw(ID3D12GraphicsCommandList* commandList)
     auto  instanceData           = _instanceDatasBuffer->GetGPUVirtualAddress();
     auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
 
-    UINT indicesLength = (UINT)_activeLightIndices.size();
+    UINT indicesLength = (UINT)_activeLightIndices.size(); 
+
+    D3D12_GPU_VIRTUAL_ADDRESS baseCBVAddress = _pointLightShadowDataCBV->GetGPUVirtualAddress();
     for (UINT i = 0; i < indicesLength; ++i)
     {
-        UINT        lightIndex     = _activeLightIndices[i];
-        UINT        lightDataIndex = MAX_DIRECTIONAL_LIGHT + MAX_POINT_LIGHT + MAX_SPOT_LIGHT + lightIndex;
-        const auto& lightData      = _ownerScene->_lightDatas[lightDataIndex];
+        UINT sceneLightIndex = _activeLightIndices[i];
+        UINT atlasIndex      = sceneLightIndex;
 
-        PointLightShadowData shadowData = {};
-        for (int j = 0; j < 6; ++j)
-        {
-            shadowData.ViewProjection[j] = _cubeFaceViewProjections[lightIndex][j];
-        }
-
-        shadowData.LightPosition = lightData.float3_1;
-        shadowData.FarPlane      = lightData.float_1;
-        _pointLightShadowDataCBV->UpdateBuffer(&shadowData);
-        auto shadowDatrCBV = _pointLightShadowDataCBV->GetGPUVirtualAddress();
+        D3D12_GPU_VIRTUAL_ADDRESS shadowDataCBV = baseCBVAddress + (_alignedSize * sceneLightIndex);
 
         // 6면 캡쳐
         for (UINT faceIndex = 0; faceIndex < 6; ++faceIndex)
         {
-            DescriptorHandles dsvHandle = _atlas.GetDSVHandle(lightIndex, faceIndex);
-            commandList->ClearDepthStencilView(dsvHandle.CPU, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+            DescriptorHandles dsvHandle = _atlas.GetDSVHandle();
+            D3D12_RECT        scissorRect = _atlas.GetScissorRect(atlasIndex, faceIndex);
+            D3D12_VIEWPORT    viewport    = _atlas.GetViewport(atlasIndex, faceIndex);
+            commandList->ClearDepthStencilView(dsvHandle.CPU, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 1, &scissorRect);
             commandList->OMSetRenderTargets(0, nullptr, FALSE, &dsvHandle.CPU);
-            D3D12_VIEWPORT viewport    = _atlas.GetViewport(lightIndex, faceIndex);
-            D3D12_RECT     scissorRect = _atlas.GetScissorRect(lightIndex, faceIndex);
             commandList->RSSetViewports(1, &viewport);
             commandList->RSSetScissorRects(1, &scissorRect);
 
@@ -125,42 +138,43 @@ void PointLightShadowPass::Draw(ID3D12GraphicsCommandList* commandList)
             commandList->SetGraphicsRootSignature(_fxStaticMesh.GetRootSignature());
             commandList->SetGraphicsRootDescriptorTable(_fxStaticMesh.GetRootParameterIndex("textures"), resource);
             commandList->SetGraphicsRootConstantBufferView(_fxStaticMesh.GetRootParameterIndex("pointLightShadowData"),
-                                                           shadowDatrCBV);
+                                                           shadowDataCBV);
             commandList->SetGraphicsRootShaderResourceView(_fxStaticMesh.GetRootParameterIndex("instanceData"),
                                                            instanceData);
             frameResource->SetFrameResource(FrameResourceType::TRANSFORM,
                                             _fxStaticMesh.GetRootParameterIndex("matrices"), commandList);
 
             commandList->SetPipelineState(_psos[STATIC_MESH][CULL_BACK].Get());
-            DrawMeshes(commandList, STATIC_MESH, CULL_BACK, lightIndex, faceIndex, offset);
+            DrawMeshes(commandList, STATIC_MESH, CULL_BACK, atlasIndex, faceIndex, offset);
 
             offset += (UINT)_meshInfos[STATIC_MESH][CULL_BACK].size();
             commandList->SetPipelineState(_psos[STATIC_MESH][CULL_FRONT].Get());
-            DrawMeshes(commandList, STATIC_MESH, CULL_FRONT, lightIndex, faceIndex, offset);
+            DrawMeshes(commandList, STATIC_MESH, CULL_FRONT, atlasIndex, faceIndex, offset);
 
             offset += (UINT)_meshInfos[STATIC_MESH][CULL_FRONT].size();
             commandList->SetPipelineState(_psos[STATIC_MESH][TWO_SIDED].Get());
-            DrawMeshes(commandList, STATIC_MESH, TWO_SIDED, lightIndex, faceIndex, offset);
+            DrawMeshes(commandList, STATIC_MESH, TWO_SIDED, atlasIndex, faceIndex, offset);
 
             // Skeletal Mesh
             commandList->SetGraphicsRootSignature(_fxSkeletalMesh.GetRootSignature());
             commandList->SetGraphicsRootDescriptorTable(_fxSkeletalMesh.GetRootParameterIndex("textures"), resource);
-            commandList->SetGraphicsRootConstantBufferView(_fxSkeletalMesh.GetRootParameterIndex("pointLightShadowData"), shadowDatrCBV);
+            commandList->SetGraphicsRootConstantBufferView(
+                _fxSkeletalMesh.GetRootParameterIndex("pointLightShadowData"), shadowDataCBV);
             commandList->SetGraphicsRootShaderResourceView(_fxSkeletalMesh.GetRootParameterIndex("instanceData"), instanceData);
             frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxSkeletalMesh.GetRootParameterIndex("matrices"), commandList);
             frameResource->SetFrameResource(FrameResourceType::BONE_MATRICES, _fxSkeletalMesh.GetRootParameterIndex("boneMatrices"), commandList);
             
             offset += (UINT)_meshInfos[STATIC_MESH][TWO_SIDED].size();
             commandList->SetPipelineState(_psos[SKELETAL_MESH][CULL_BACK].Get());
-            DrawMeshes(commandList, SKELETAL_MESH, CULL_BACK, lightIndex, faceIndex, offset);
+            DrawMeshes(commandList, SKELETAL_MESH, CULL_BACK, atlasIndex, faceIndex, offset);
 
             offset += (UINT)_meshInfos[SKELETAL_MESH][CULL_BACK].size();
             commandList->SetPipelineState(_psos[SKELETAL_MESH][CULL_FRONT].Get());
-            DrawMeshes(commandList, SKELETAL_MESH, CULL_FRONT, lightIndex, faceIndex, offset);
+            DrawMeshes(commandList, SKELETAL_MESH, CULL_FRONT, atlasIndex, faceIndex, offset);
 
             offset += (UINT)_meshInfos[SKELETAL_MESH][CULL_FRONT].size();
             commandList->SetPipelineState(_psos[SKELETAL_MESH][TWO_SIDED].Get());
-            DrawMeshes(commandList, SKELETAL_MESH, TWO_SIDED, lightIndex, faceIndex, offset);
+            DrawMeshes(commandList, SKELETAL_MESH, TWO_SIDED, atlasIndex, faceIndex, offset);
         }
     }
 }
@@ -273,7 +287,7 @@ void PointLightShadowPass::UpdateCubeFaceMatrices(UINT lightIndex, const Vector3
 
     float fov    = XM_PIDIV2;
     float aspect = 1.0f;
-    float nearZ  = 0.1f;
+    float nearZ  = 0.01f;
     float farZ   = lightRange;
 
     XMMATRIX projection = XMMatrixPerspectiveFovLH(fov, aspect, nearZ, farZ);

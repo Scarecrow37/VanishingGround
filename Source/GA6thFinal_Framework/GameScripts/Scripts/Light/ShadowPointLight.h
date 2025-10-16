@@ -16,7 +16,7 @@ public:
 
 
     GETTER(float, Range) { return ReflectFields->Range; }
-    SETTER(float, Range) { ReflectFields->Range = std::max(value, 0.f); }
+    SETTER(float, Range) { ReflectFields->Range = std::max(value, 0.1f); }
     PROPERTY(Range)
 
     inline const Vector3& GetAttenuation() { return _attenuation; }

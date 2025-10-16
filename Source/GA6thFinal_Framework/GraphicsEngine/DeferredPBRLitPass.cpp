@@ -2,6 +2,7 @@
 #include "DeferredPBRLitPass.h"
 #include "SkyBox.h"
 #include "ShadowMapPass.h"
+#include "PointLightShadowPass.h"
 #include "SSAOWritePass.h"
 
 void DeferredPBRLitPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
@@ -32,6 +33,7 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
     const auto& renderTargetGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("G-Buffer");
 
     auto shadowMapPass = _ownerTechnique->GetRenderPass<ShadowMapPass>();
+    auto pointLightShadowPass = _ownerTechnique->GetRenderPass<PointLightShadowPass>();
     auto ssaoPass      = _ownerTechnique->GetRenderPass<SSAOWritePass>();
 
     if (nullptr == shadowMapPass || nullptr == ssaoPass)
@@ -72,7 +74,11 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("depthMap"), renderTargetGroup[GBuffer::DEPTH]->GetSRVHandle());
     if (useSSAO)
         commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("SSAOMap"), ssaoPass->GetAOTexture());
-
+    if (pointLightShadowPass)
+    {
+        commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("pointLightShadowMap"),
+                                                    pointLightShadowPass->GetShadowAtlasSRV());
+    }
     _ownerScene->_frameQuad->Render(commandList);
 }
 

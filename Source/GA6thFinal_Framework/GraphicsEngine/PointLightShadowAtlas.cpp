@@ -17,14 +17,13 @@ void PointLightShadowAtlas::InitializeAtlas(UINT atlasSize, UINT faceSize)
     CreateDSVHandles();
 }
 
-void PointLightShadowAtlas::ResizeFace(UINT newFaceSize) 
+void PointLightShadowAtlas::ResizeFace(UINT newFaceSize)
 {
     if (_faceSize == newFaceSize)
         return;
 
     _faceSize = newFaceSize;
 
-    _dsvHandles.fill({});
     BuildRegions();
     CreateDSVHandles();
 }
@@ -42,7 +41,7 @@ void PointLightShadowAtlas::AllocateLight(UINT lightIndex)
     _allocated[lightIndex] = true;
 }
 
-void PointLightShadowAtlas::ReleaseLight(UINT lightIndex) 
+void PointLightShadowAtlas::ReleaseLight(UINT lightIndex)
 {
     GRAPHICS_ASSERT(lightIndex < MAX_SHADOW_POINT_LIGHT, L"ReleaseLight : Light Index Out of Range");
 
@@ -63,12 +62,13 @@ bool PointLightShadowAtlas::IsAllocated(UINT lightIndex) const
     return _allocated[lightIndex];
 }
 
-DescriptorHandles PointLightShadowAtlas::GetDSVHandle(UINT lightIndex, UINT faceIndex) const
+DescriptorHandles PointLightShadowAtlas::GetDSVHandle() const
 {
-    UINT index = lightIndex * FacePerLight + faceIndex;
+    return _dsvHandle;
+    /*UINT index = lightIndex * FacePerLight + faceIndex;
     GRAPHICS_ASSERT(index < FacePerLight * MAX_SHADOW_POINT_LIGHT,
                     L"PointLightShadowAtlas::GetDSVHandles : Index out of range.");
-    return _dsvHandles[index];
+    return _dsvHandles[index];*/
 }
 
 D3D12_VIEWPORT PointLightShadowAtlas::GetViewport(UINT lightIndex, UINT faceIndex) const
@@ -118,13 +118,13 @@ void PointLightShadowAtlas::CreateAtlasResource()
     CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_DEFAULT);
 
     HRESULT hr = Global::device->GetDevice()->CreateCommittedResource(&heapProps, D3D12_HEAP_FLAG_NONE, &texDesc,
-                                                                      D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, &clearValue,
-                                                                      IID_PPV_ARGS(&_resource));
+                                                                      D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+                                                                      &clearValue, IID_PPV_ARGS(&_resource));
     GRAPHICS_ASSERT(SUCCEEDED(hr),
                     L"PointLightShadowAtlas::CreateAtlasResource : Failed to create shadow atlas resource.");
 }
 
-void PointLightShadowAtlas::BuildRegions() 
+void PointLightShadowAtlas::BuildRegions()
 {
     const UINT tilesPerRow = _atlasSize / _faceSize;
     const UINT totalFaces  = FacePerLight * MAX_SHADOW_POINT_LIGHT;
@@ -141,23 +141,16 @@ void PointLightShadowAtlas::BuildRegions()
     }
 }
 
-void PointLightShadowAtlas::CreateDSVHandles() 
+void PointLightShadowAtlas::CreateDSVHandles()
 {
     const UINT totalFaces = FacePerLight * MAX_SHADOW_POINT_LIGHT;
 
-    for (UINT i = 0; i < totalFaces; ++i)
-    {
-        DescriptorHandles dsvHandle;
-        Global::viewManager->AddDescriptorHeap(ViewManager::Type::DEPTH_STENCIL, dsvHandle);
+    Global::viewManager->AddDescriptorHeap(ViewManager::Type::DEPTH_STENCIL, _dsvHandle);
 
-        D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
-        dsvDesc.Format                        = DXGI_FORMAT_D32_FLOAT;
-        dsvDesc.ViewDimension                 = D3D12_DSV_DIMENSION_TEXTURE2D;
-        dsvDesc.Flags                         = D3D12_DSV_FLAG_NONE;
+    D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
+    dsvDesc.Format                        = DXGI_FORMAT_D32_FLOAT;
+    dsvDesc.ViewDimension                 = D3D12_DSV_DIMENSION_TEXTURE2D;
+    dsvDesc.Flags                         = D3D12_DSV_FLAG_NONE;
 
-        Global::device->GetDevice()->CreateDepthStencilView(_resource.Get(), &dsvDesc, dsvHandle.CPU);
-
-        _dsvHandles[i] = dsvHandle;
-    }
+    Global::device->GetDevice()->CreateDepthStencilView(_resource.Get(), &dsvDesc, _dsvHandle.CPU);
 }
-
