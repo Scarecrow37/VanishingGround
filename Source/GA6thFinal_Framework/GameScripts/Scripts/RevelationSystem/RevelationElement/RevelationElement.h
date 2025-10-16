@@ -137,5 +137,5 @@ public:
 
 public:
     // IDropItem을(를) 통해 상속됨
-    DropItemInfo GetItemInfo() override;
+    DropItemInfo GetItemInfo() const override;
  };

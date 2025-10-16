@@ -5,6 +5,7 @@ struct WeaponUIData
 {
     bool         Enable;
     std::string  WeaponName;
+    Color        GradeColor;
     File::Guid   WeaponIcon;
     std::string  HitDamage;
     std::string  CriticalDamage;

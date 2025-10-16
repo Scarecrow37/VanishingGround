@@ -18,7 +18,7 @@ void FogLightInjectionPass::Initialize(RenderScene* ownerScene, RenderTechnique*
 void FogLightInjectionPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
     commandList->SetPipelineState(_pipelineState.Get());
-    commandList->SetComputeRootSignature(_shader->GetRootSignature());
+    commandList->SetComputeRootSignature(_fx.GetRootSignature());
 }
 
 void FogLightInjectionPass::Draw(ID3D12GraphicsCommandList* commandList)
@@ -35,13 +35,13 @@ void FogLightInjectionPass::Draw(ID3D12GraphicsCommandList* commandList)
     auto                        preVoxelTex  = _volumTech->_tempVoxelInjectionTexture3D[readIndex];
     auto                        currVoxelTex = _volumTech->_tempVoxelInjectionTexture3D[writeIndex];
 
-    commandList->SetComputeRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"), cameraData);
-    commandList->SetComputeRootConstantBufferView(_shader->GetRootParameterIndex("lightData"), lightData);
-    commandList->SetComputeRootConstantBufferView(_shader->GetRootParameterIndex("cascadeData"), cascadeData);
-    commandList->SetComputeRootConstantBufferView(_shader->GetRootParameterIndex("fogdata"), fogData);
-    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("VoxelReadTexture"), preVoxelTex->GetSRVHandle());
-    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("VoxelWriteTexture"), currVoxelTex->GetUAVHandle());
-    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("ShadowMap"), shadowpass->GetShadowMapSRV());
+    commandList->SetComputeRootConstantBufferView(_fx.GetRootParameterIndex("cameraData"), cameraData);
+    commandList->SetComputeRootConstantBufferView(_fx.GetRootParameterIndex("lightData"), lightData);
+    commandList->SetComputeRootConstantBufferView(_fx.GetRootParameterIndex("cascadeData"), cascadeData);
+    commandList->SetComputeRootConstantBufferView(_fx.GetRootParameterIndex("fogdata"), fogData);
+    commandList->SetComputeRootDescriptorTable(_fx.GetRootParameterIndex("VoxelReadTexture"), preVoxelTex->GetSRVHandle());
+    commandList->SetComputeRootDescriptorTable(_fx.GetRootParameterIndex("VoxelWriteTexture"), currVoxelTex->GetUAVHandle());
+    commandList->SetComputeRootDescriptorTable(_fx.GetRootParameterIndex("ShadowMap"), shadowpass->GetShadowMapSRV());
     commandList->Dispatch(d3dUtil::Ceil(VOXEL_VOLUME_SIZEX , 8), d3dUtil::Ceil(VOXEL_VOLUME_SIZEY , 8),VOXEL_VOLUME_SIZEZ);
 }
 
@@ -67,17 +67,7 @@ void FogLightInjectionPass::AddRenderPassDatas(std::string_view sceneName)
 
 void FogLightInjectionPass::InitShaderAndPSO()
 {
-    _shader = std::make_unique<ShaderBuilder>();
-    _shader->BeginBuild();
-    _shader->SetShader(L"../Shaders/cs_light_injection.hlsl", ShaderBuilder::Type::CS);
-    _shader->EndBuild();
-
-    D3D12_COMPUTE_PIPELINE_STATE_DESC psoDesc{};
-    psoDesc.pRootSignature = _shader->GetRootSignature();
-    psoDesc.CS             = _shader->GetShaderByteCode(ShaderBuilder::Type::CS);
-    psoDesc.Flags          = D3D12_PIPELINE_STATE_FLAG_NONE;
-
-    HRESULT hr =
-        Global::device->GetDevice()->CreateComputePipelineState(&psoDesc, IID_PPV_ARGS(_pipelineState.GetAddressOf()));
-    FAILED_CHECK_MESSAGE(hr, L"DXRComputeSkeletalMeshPass::InitShaderAndPSO CreateComputePipelineState failed");
+    ComputePipelineStateStream pss;
+    _fx.SetPipelineStateStream(pss);
+    _pipelineState = Global::pipelineStateManager->GetPipelineState(pss);
 }

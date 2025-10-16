@@ -4,21 +4,19 @@ class Light;
 class LightCore
 {
 public:
-    using LightComponent = std::pair<std::unique_ptr<bool>, Light*>;
-
-public:
     LightCore();
     ~LightCore();
 
 public:
-    const std::vector<LightComponent>& GetLights(std::string_view sceneName);
+    const std::vector<Light*>& GetLights(std::string_view sceneName);
 
 public:
     void RegisterLight(std::string_view sceneName, Light* light);
+    void ClearLightQueue();
 
 public:
     void Update(const float deltaTime);
 
 private:    
-    std::unordered_map<std::string, std::vector<LightComponent>> _lights;
+    std::unordered_map<std::string, std::vector<Light*>> _lights;
 };

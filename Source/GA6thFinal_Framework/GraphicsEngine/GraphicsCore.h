@@ -1,5 +1,10 @@
 ﻿#pragma once
 
+class IMeshRenderer;
+class ISpriteRenderer;
+class ISDFTextRenderer;
+class IAnimator;
+class ILight;
 class GraphicsCore
 {
 public:
@@ -29,16 +34,26 @@ public:
 
 public:
     void AddRenderScene(std::string_view sceneName, RenderTechniqueFlag flag) const;
-    void RegisterComponent(Animator* component) const;
-    void RegisterComponent(std::string_view renderSceneName, MeshRenderer* component) const;
-    void RegisterComponent(std::string_view renderSceneName, SpriteRenderer* component) const;
-    void RegisterComponent(std::string_view renderSceneName, FontRenderer* component) const;
-    void RegisterComponent(std::string_view renderSceneName, Light* component) const;
+    void RegisterComponent(IAnimator* component) const;
+    void RegisterComponent(std::string_view renderSceneName, IMeshRenderer* component) const;
+    void RegisterComponent(std::string_view renderSceneName, ISpriteRenderer* component) const;
+    //void RegisterComponent(std::string_view renderSceneName, ITextRenderer* component) const;
+    void RegisterComponent(std::string_view renderSceneName, ILight* component) const;
+    void RegisterComponent(std::string_view renderSceneName, ISDFTextRenderer* component) const;
 
 public:
-    void LoadResource(std::wstring_view filePath, MeshRenderer* component) const;
-    void LoadResource(std::wstring_view filePath, SpriteRenderer* component) const;
-    void LoadResource(std::wstring_view filePath, FontRenderer* component) const;
+    void CreateSDFTextRenderer(ISDFTextRenderer** component) const;
+    void CreateMeshRenderer(IMeshRenderer** component, const Matrix* worldMatrix) const;
+    void CreateSpriteRenderer(ISpriteRenderer** component, const Matrix* worldMatrix) const;
+    void CreateLight(ILight** component) const;
+    // void CreateTextRenderer(ITextRenderer** component) const;
+
+
+public:
+    void LoadResource(std::wstring_view filePath, IMeshRenderer* component) const;
+    void LoadResource(std::wstring_view filePath, ISpriteRenderer* component) const;
+    //void LoadResource(std::wstring_view filePath, ITextRenderer* component) const;
+    void LoadResource(std::wstring_view filePath, ISDFTextRenderer* component) const;
     void LoadTextureResource(std::wstring_view filePath, class ParticleEmitter* component) const;
     void LoadModelResource(std::wstring_view filePath, class ParticleEmitter* component) const;
 
@@ -51,6 +66,7 @@ public:
     void Finalize() const;
 
 public:
+    void             ClearGraphicsResource() const;
     void             ResetEnvironmentSkyBox(std::string_view sceneName) const;
     void             ResetIBLSkyBox(std::string_view sceneName) const;
     void             OnResize(UINT width, UINT height) const;
@@ -63,6 +79,7 @@ public:
     void XM_CALLCONV DebugDraw3D(std::string_view sceneName, FXMVECTOR position, FXMVECTOR direction, float range, float innerCone, float outerCone, FXMVECTOR color = DirectX::Colors::White) const;
     void XM_CALLCONV DebugDraw2D(std::string_view sceneName, FXMVECTOR pointA, FXMVECTOR pointB, FXMVECTOR pointC, GXMVECTOR pointD, HXMVECTOR color = DirectX::Colors::White) const;
     void XM_CALLCONV DebugDraw2D(std::string_view sceneName, FXMVECTOR pointA, FXMVECTOR pointB, FXMVECTOR color = DirectX::Colors::White) const;
+    void XM_CALLCONV DebugDraw2D(std::string_view sceneName, FXMVECTOR origin, float radius, FXMVECTOR color = DirectX::Colors::White) const;
 
 private:
     class Device*                     _device;

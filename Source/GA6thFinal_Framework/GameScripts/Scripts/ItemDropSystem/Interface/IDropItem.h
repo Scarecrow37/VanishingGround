@@ -12,15 +12,22 @@ enum class ArtifactDropType
     ACCESSORY,        // 장신구
     REVELATION,       // 계시
     ERASE_REVELATION, // 계시 지우기
-    Consumable,       //소모품
+    Consumable,       // 소모품
 };
 
 /*아이템 정보 구조체*/
 struct DropItemInfo
 {
-    ArtifactDropType Category; // 분류 타입
+    ArtifactDropType Category;     // 분류 타입
     int              ID;           // 아이템 아이디
     std::string      Name;         // 아이템 이름
+
+    /// <summary>
+    /// 엑셀 데이터 베이스의 이름을 반환합니다.
+    /// </summary>
+    /// <param name="type :">아이템 타입</param>
+    /// <returns>없으면 빈 문자열을 반환합니다.</returns>
+    static std::u8string_view GetDataBaseName(ArtifactDropType type);
 
     /// <summary>
     /// ArtifactDropType으로 에셋 아이디를 반환합니다.
@@ -28,6 +35,20 @@ struct DropItemInfo
     /// <param name="type :">변환할 타입</param>
     /// <returns>실패시 0</returns>
     static int GetArtifactCategoryAssetID(ArtifactDropType type);
+
+    /// <summary>
+    /// 해당 유물의 에셋 ID를 반환합니다.
+    /// </summary>
+    /// <param name="itemInfo :">아이템 정보</param>
+    /// <returns></returns>
+    static int GetArtifactIconID(DropItemInfo itemInfo);
+
+    /// <summary>
+    /// 해당 유물의 Description을 엑셀 DB에서 반환합니다.
+    /// </summary>
+    /// <param name="itemInfo :">아이템 정보</param>
+    /// <returns></returns>
+    static std::string GetArtifactDescription(DropItemInfo itemInfo);
 };
 
 /*보상 시스템에 등장 가능한 유물들은 다음 인터페이스를 상속받아야 합니다.*/
@@ -38,6 +59,6 @@ public:
     virtual ~IDropItem() = default;
 
     //아이템의 정보들을 반환합니다.
-    virtual DropItemInfo GetItemInfo() = 0;
+    virtual DropItemInfo GetItemInfo() const = 0;
 };
 

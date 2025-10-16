@@ -26,16 +26,19 @@ void ImGuiDX12Module::PreInitialize()
     fontConfig.OversampleV = 3;
     fontConfig.PixelSnapH  = true;
 
-    // 유니코드 범위 설정 (한글 + 로마 숫자 포함)
-    static const ImWchar customRanges[] = {
-        0x0020, 0x00FF, // 기본 라틴
-        0x1100, 0x11FF, // 한글 자모
-        0x3130, 0x318F, // 한글 자모 (호환)
-        0xAC00, 0xD7AF, // 한글 완성형
-        0x2160, 0x2188, // 로마 숫자!!!
-        0,              // 종료
+    ImVector<ImWchar> ranges;
+    ImFontGlyphRangesBuilder builder;
+    builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
+    builder.AddRanges(io.Fonts->GetGlyphRangesKorean());
+    constexpr ImWchar romanRanges[] = {
+        0x2160,
+        0x218F, 
+        0,
     };
-    ImFont* mainFont = io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\malgun.ttf", 20.0f, &fontConfig, customRanges);
+    builder.AddRanges(romanRanges);
+    builder.BuildRanges(&ranges);
+    
+    ImFont* mainFont = io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\malgun.ttf", 20.0f, &fontConfig, ranges.Data);
 
     std::string fontFileName = "Font Awesome 6 Free-Regular-400.ttf";
     auto        fontPath     = UmFileSystem.GetRootPath();

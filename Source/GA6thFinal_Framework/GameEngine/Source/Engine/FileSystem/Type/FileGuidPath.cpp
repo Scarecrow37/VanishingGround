@@ -37,43 +37,5 @@ namespace File
     {
         return NULL_PATH == native();
     }
-
-    GuidRef::GuidRef() : Guid() 
-    { 
-    }
-    GuidRef::GuidRef(const Guid& guid) : Guid(guid)
-    {
-        AddRef();
-    }
-    GuidRef::~GuidRef()
-    {
-        Release();
-    }
-    void GuidRef::AddRef() 
-    {
-        UmFileSystem.AddGuidRefCount(*this);
-    }
-    void GuidRef::Release() 
-    {
-        UmFileSystem.SubGuidRefCount(*this);
-    }
-    std::size_t GuidRef::GetRefCount() const
-    {
-        return UmFileSystem.GetGuidRefCount(*this);
-    }
-    GuidRef& GuidRef::operator=(const File::Guid& other)
-    {
-        Release();
-        FString::operator=(other);
-        AddRef();
-        return *this;
-    }
-    GuidRef& GuidRef::operator=(File::Guid&& other) noexcept
-    {
-        Release();
-        FString::operator=(std::move(other));
-        AddRef();
-        return *this;
-    }
 }
 

@@ -10,7 +10,7 @@ UMREAL_COMPONENT(RevelationsView)
 
 RevelationsView::~RevelationsView()
 {
-    UmWatcher.Blind<RevelationsViewModel>("Revelations", _watchHandle);
+    
 }
 
 void RevelationsView::Awake()
@@ -34,7 +34,10 @@ void RevelationsView::Start()
                     if (nullptr != _revelationUis[i].IconElement)
                         _revelationUis[i].IconElement->SetImage(revelations[i].Icon);
                     if (nullptr != _revelationUis[i].NameElement)
+                    {
                         _revelationUis[i].NameElement->Text = revelations[i].Name;
+                        _revelationUis[i].NameElement->Color = revelations[i].NameColor;
+                    }                       
                     if (nullptr != _revelationUis[i].DescriptionElement)
                         _revelationUis[i].DescriptionElement->Description = revelations[i].Description;
                     if (false != _revelationUis[i].GradeElements.size())
@@ -54,6 +57,11 @@ void RevelationsView::Start()
         });
 
     gameObject->ActiveSelf = false;
+}
+
+void RevelationsView::OnDestroy() 
+{
+    UmWatcher.Blind<RevelationsViewModel>("Revelations", _watchHandle);
 }
 
 void RevelationsView::FindRevelationUIs()

@@ -447,3 +447,35 @@ void XM_CALLCONV DrawDebugGrid(DirectX::PrimitiveBatch<DirectX::VertexPositionCo
     batch->Draw(D3D_PRIMITIVE_TOPOLOGY_LINELIST, xAxis, 2);
     batch->Draw(D3D_PRIMITIVE_TOPOLOGY_LINELIST, zAxis, 2);
 }
+
+void XM_CALLCONV DrawCircle(DirectX::PrimitiveBatch<DirectX::VertexPositionColor>* batch, DirectX::FXMVECTOR origin, float radius, DirectX::FXMVECTOR color)
+{
+    static const size_t c_circleSegments = 32;
+    VertexPositionColor verts[c_circleSegments + 1];
+    FLOAT fAngleDelta = XM_2PI / float(c_circleSegments);
+    // Instead of calling cos/sin for each segment we calculate
+    // the sign of the angle delta and then incrementally calculate sin
+    // and cosine from then on.
+    XMVECTOR cosDelta = XMVectorReplicate(cosf(fAngleDelta));
+    XMVECTOR sinDelta = XMVectorReplicate(sinf(fAngleDelta));
+    XMVECTOR incrementalSin = XMVectorZero();
+    static const XMVECTORF32 s_initialCos =
+    {
+        1.f, 1.f, 1.f, 1.f
+    };
+    XMVECTOR incrementalCos = s_initialCos.v;
+    for (size_t i = 0; i < c_circleSegments; i++)
+    {
+        XMVECTOR pos = XMVectorMultiplyAdd(g_XMIdentityR0, XMVectorScale(incrementalCos, radius), origin);
+        pos = XMVectorMultiplyAdd(g_XMIdentityR1, XMVectorScale(incrementalSin, radius), pos);
+        XMStoreFloat3(&verts[i].position, pos);
+        XMStoreFloat4(&verts[i].color, color);
+        // Standard formula to rotate a vector.
+        XMVECTOR newCos = incrementalCos * cosDelta - incrementalSin * sinDelta;
+        XMVECTOR newSin = incrementalCos * sinDelta + incrementalSin * cosDelta;
+        incrementalCos = newCos;
+        incrementalSin = newSin;
+    }
+    verts[c_circleSegments] = verts[0];
+    batch->Draw(D3D_PRIMITIVE_TOPOLOGY_LINESTRIP, verts, c_circleSegments + 1);
+}

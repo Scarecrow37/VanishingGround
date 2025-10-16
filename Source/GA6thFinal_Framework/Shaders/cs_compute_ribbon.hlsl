@@ -104,5 +104,6 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     
     
     
-    ParticleOutputBuffer[idx] = output;
+    ParticleOutputBuffer[idx*2] = output;
+    ParticleOutputBuffer[idx*2+1] = output;
 }

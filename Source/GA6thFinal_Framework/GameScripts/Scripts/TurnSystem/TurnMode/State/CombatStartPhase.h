@@ -57,4 +57,6 @@ private:
     void RegisterEnemiesChain();
     void RegisterEnemyChain(int index, const std::string& key, const std::string& tag);
     void ReviveEnemies();
+    void ResetPlayer();
+    void RefreshUI();
 };

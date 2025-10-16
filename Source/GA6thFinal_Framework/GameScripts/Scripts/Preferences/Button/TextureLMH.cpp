@@ -14,17 +14,26 @@ void TextureLMH::Awake()
     GetChildObject();
 
     // 양옆 화살표 숨기기
-    _leftArrow->SetActive(false);
-    _rightArrow->SetActive(false);
+    if (_leftArrow)
+        _leftArrow->SetActive(false);
 
+    if (_rightArrow)
+        _rightArrow->SetActive(false);
+
+    // 포커스 / 논포커스 아이콘 비활성화
     for (size_t i = 0; i < TextureQuality::TEXTURE_QUALITY_END; ++i)
     {
-        _focus[i]->SetActive(false);
-        _nonFocus[i]->SetActive(false);
+        if (_focus[i])
+            _focus[i]->SetActive(false);
+
+        if (_nonFocus[i])
+            _nonFocus[i]->SetActive(false);
     }
+
     _quality = UmPreferences.GetTextureQuality();
     SetQuality(_quality);
 }
+
 
 void TextureLMH::Start()
 {
@@ -58,58 +67,67 @@ void TextureLMH::Update()
         if (_isFocus)
         {
             FocusPref(true);
-            _leftArrow->SetActive(true);
-            _rightArrow->SetActive(true);
-            _nonFocus[_quality]->SetActive(false);
+
+            if (_leftArrow)
+                _leftArrow->SetActive(true);
+
+            if (_rightArrow)
+                _rightArrow->SetActive(true);
+
+            if ( _nonFocus[_quality])
+                _nonFocus[_quality]->SetActive(false);
+
             if (_isOptionUp)
             {
-                _focus[_quality]->SetActive(false);
+                if (& _focus[_quality])
+                    _focus[_quality]->SetActive(false);
+
                 _quality    = (_quality + 1) % TextureQuality::TEXTURE_QUALITY_END;
                 _isOptionUp = false;
             }
             else if (_isOptionDown)
             {
-                _focus[_quality]->SetActive(false);
+                if (_focus[_quality])
+                    _focus[_quality]->SetActive(false);
+
                 _quality      = (_quality + 2) % TextureQuality::TEXTURE_QUALITY_END;
                 _isOptionDown = false;
             }
-            SetQuality(_quality);
+
+            if (_quality < TextureQuality::TEXTURE_QUALITY_END)
+                SetQuality(_quality);
         }
         else
         {
             FocusPref(false);
-            _leftArrow->SetActive(false);
-            _rightArrow->SetActive(false);
-            // 포커스 나갈때 한번 설정
-            SetQuality(_quality);
+
+            if (_leftArrow)
+                _leftArrow->SetActive(false);
+
+            if (_rightArrow)
+                _rightArrow->SetActive(false);
+
+            // 포커스 나갈 때 한번 설정
+            if (_quality < TextureQuality::TEXTURE_QUALITY_END)
+                SetQuality(_quality);
         }
     }
 }
 
-void TextureLMH::FocusIn()
+void TextureLMH::FocusIn(const FocusCallType callType)
 {
-    UINavigationComponent::FocusIn();
+    Base::FocusIn(callType);
 
     _isFocus       = true;
     _isOptionDirty = true;
-    // FocusPref(true);
-    //_leftArrow->SetActive(true);
-    //_rightArrow->SetActive(true);
-    //_nonFocus[_quality]->SetActive(false);
-    // SetQuality(_quality);
 }
 
-void TextureLMH::FocusOut()
+void TextureLMH::FocusOut(const FocusCallType callType)
 {
-    UINavigationComponent::FocusOut();
+    Base::FocusOut(callType);
 
     _isFocus       = false;
     _isOptionDirty = true;
-    // FocusPref(false);
-    //_leftArrow->SetActive(false);
-    //_rightArrow->SetActive(false);
-
-    // SetQuality(_quality);
 }
 
 void TextureLMH::Submit() {}
@@ -121,14 +139,15 @@ void TextureLMH::DeserializedReflectEvent()
     UINavigationComponent::DeserializedReflectEvent();
 }
 
-void TextureLMH::FocusPref(bool isfocus)
+void TextureLMH::FocusPref(const bool isfocus)
 {
     if (nullptr == _pref)
     {
         GetChildObject();
     }
     auto prefButton = _pref->GetComponent<PreferencesButton>();
-    prefButton->OnFocus(isfocus);
+    if (prefButton)
+        prefButton->OnFocus(isfocus);
 }
 
 void TextureLMH::GetChildObject()
@@ -187,46 +206,69 @@ void TextureLMH::GetChildObject()
     }
 }
 
-void TextureLMH::SetQuality(int quality)
+void TextureLMH::SetQuality(const int quality)
 {
+    // quality 범위 체크
+    if (quality < 0 || quality >= TextureQuality::TEXTURE_QUALITY_END)
+        return;
+
     if (_isFocus)
     {
         switch (quality)
         {
         case TEXTURE_QUALITY_LOW:
-            _focus[TEXTURE_QUALITY_LOW]->SetActive(true);
-            _preferencesManager->SetGraphicsQuality(PreferencesSystem::TextureQuality::LOW);
+            if (_focus[TEXTURE_QUALITY_LOW])
+                _focus[TEXTURE_QUALITY_LOW]->SetActive(true);
+
+            if (_preferencesManager)
+                _preferencesManager->SetGraphicsQuality(PreferencesSystem::TextureQuality::LOW);
             break;
+
         case TEXTURE_QUALITY_MEDIUM:
-            _focus[TEXTURE_QUALITY_MEDIUM]->SetActive(true);
-            _preferencesManager->SetGraphicsQuality(PreferencesSystem::TextureQuality::MEDIUM);
+            if (_focus[TEXTURE_QUALITY_MEDIUM])
+                _focus[TEXTURE_QUALITY_MEDIUM]->SetActive(true);
+
+            if (_preferencesManager)
+                _preferencesManager->SetGraphicsQuality(PreferencesSystem::TextureQuality::MEDIUM);
             break;
+
         case TEXTURE_QUALITY_HIGH:
-            _focus[TEXTURE_QUALITY_HIGH]->SetActive(true);
-            _preferencesManager->SetGraphicsQuality(PreferencesSystem::TextureQuality::HIGH);
+            if (_focus[TEXTURE_QUALITY_HIGH])
+                _focus[TEXTURE_QUALITY_HIGH]->SetActive(true);
+
+            if (_preferencesManager)
+                _preferencesManager->SetGraphicsQuality(PreferencesSystem::TextureQuality::HIGH);
             break;
+
         default:
             break;
         }
     }
-    else if (!_isFocus)
+    else // !_isFocus
     {
         switch (quality)
         {
         case TEXTURE_QUALITY_LOW:
-            _nonFocus[TEXTURE_QUALITY_LOW]->SetActive(true);
+            if (_nonFocus[TEXTURE_QUALITY_LOW])
+                _nonFocus[TEXTURE_QUALITY_LOW]->SetActive(true);
             break;
+
         case TEXTURE_QUALITY_MEDIUM:
-            _nonFocus[TEXTURE_QUALITY_MEDIUM]->SetActive(true);
+            if (_nonFocus[TEXTURE_QUALITY_MEDIUM])
+                _nonFocus[TEXTURE_QUALITY_MEDIUM]->SetActive(true);
             break;
+
         case TEXTURE_QUALITY_HIGH:
-            _nonFocus[TEXTURE_QUALITY_HIGH]->SetActive(true);
+            if (_nonFocus[TEXTURE_QUALITY_HIGH])
+                _nonFocus[TEXTURE_QUALITY_HIGH]->SetActive(true);
             break;
+
         default:
             break;
         }
     }
 }
+
 
 void TextureLMH::UpQuality(const Input::Controller& controller)
 {
@@ -234,9 +276,7 @@ void TextureLMH::UpQuality(const Input::Controller& controller)
     {
         _isOptionDirty = true;
         _isOptionUp    = true;
-        //_focus[_quality]->SetActive(false);
-        //_quality = (_quality + 1) % TextureQuality::TEXTURE_QUALITY_END;
-        // SetQuality(_quality);
+        UmAudio.Play("-40000");
     }
 }
 
@@ -246,9 +286,7 @@ void TextureLMH::DownQuality(const Input::Controller& controller)
     {
         _isOptionDirty = true;
         _isOptionDown  = true;
-        //_focus[_quality]->SetActive(false);
-        //_quality = (_quality + 2) % TextureQuality::TEXTURE_QUALITY_END;
-        // SetQuality(_quality);
+        UmAudio.Play("-40000");
     }
 }
 

@@ -1,8 +1,9 @@
 ﻿#pragma once
+#include "Utility/SingletonHelper.h"
 
 class Stage;
 class ScrollingWrapper;
-class MapManager : public Component
+class MapManager : public Component, public InputReceiver
 {
     enum AssetIDs { BACKGROUND, STAGE_ENABLE, STAGE_DISABLE, STAGE_FOCUS, REWARD_POPUP, MAX };
     USING_PROPERTY(MapManager)
@@ -18,6 +19,8 @@ public:
     void Awake() override;
     void Update() override;
     void OnLoadScene(Scene& loadScene, LoadSceneMode mode) override;
+
+    void UINotify() const { _focusStage.Notify(); }
 
 public:
     REFLECT_PROPERTY(MapScenePath, BackgroundImage, StageEnableImage, StageDisableImage, StageFocusImage, RewardPopupImage)
@@ -72,4 +75,13 @@ private:
     int                 _childCount   = 0;
     float               _scrollSpeed  = 100.0f;
     int                 _clearedStage = 0;
+
+private:
+    SingletonObject<MapManager>    _singletonObject{this};
+    SingletonComponent<MapManager> _singletonComponent{this};
+
+    Stage* _lastFocusStage = nullptr;
+    void PreferencesKeyDown(const Input::Controller&);
+    void OpenPreferencesWindow();
+
 };

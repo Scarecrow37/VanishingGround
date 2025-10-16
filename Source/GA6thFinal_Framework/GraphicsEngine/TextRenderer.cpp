@@ -1,22 +1,22 @@
 ﻿#include "pch.h"
-#include "FontRenderer.h"
+#include "TextRenderer.h"
 #include "Font.h"
 
-FontRenderer::FontRenderer()
+TextRenderer::TextRenderer()
 	: _color(1.0f, 1.0f, 1.0f, 1.0f)
     , _scale(1.f, 1.f)
 {
 }
 
-FontRenderer::~FontRenderer()
+TextRenderer::~TextRenderer()
 {}
 
-void FontRenderer::SetText(std::wstring_view text)
+void TextRenderer::SetText(std::wstring_view text)
 {
     _text = text;
 }
 
-XMVECTOR FontRenderer::GetStringSize() const
+XMVECTOR TextRenderer::GetStringSize() const
 {
     if (_font)
     {
@@ -28,12 +28,12 @@ XMVECTOR FontRenderer::GetStringSize() const
 
     return XMVectorZero();
 }
-void FontRenderer::SetFont(std::shared_ptr<Font> font)
+void TextRenderer::SetFont(std::shared_ptr<Font> font)
 {
     _font = std::move(font);
 }
 
-void FontRenderer::Draw(SpriteBatch* spriteBatch)
+void TextRenderer::Draw(SpriteBatch* spriteBatch)
 {
     if (_font)
     {

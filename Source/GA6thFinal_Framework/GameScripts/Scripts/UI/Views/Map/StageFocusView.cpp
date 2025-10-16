@@ -9,10 +9,7 @@ UMREAL_COMPONENT(StageFocusView)
 
 StageFocusView::StageFocusView() = default;
 
-StageFocusView::~StageFocusView()
-{
-    UmWatcher.Blind<StageFocusViewModel>("StageFocus", _handle);
-}
+StageFocusView::~StageFocusView() = default;
 
 void StageFocusView::Awake()
 {
@@ -66,4 +63,9 @@ void StageFocusView::Awake()
         UmLogger.Log(LogLevel::LEVEL_ERROR, "Watch Failed.");
         UmLogger.Log(LogLevel::LEVEL_ERROR, e.what());
     }
+}
+
+void StageFocusView::OnDestroy() 
+{
+    UmWatcher.Blind<StageFocusViewModel>("StageFocus", _handle);
 }

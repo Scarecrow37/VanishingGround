@@ -27,11 +27,12 @@ private:
 
     void ShowTrackFromWeapon(const QTE::Track* qteTrack, const std::string& weaponName, int weaponID, int index);
 
+    void ProcessInputEvent();
+
     void DrawPreview(QTE::Track* qteTrack);
 
     void DrawJudgeRange(QTE::Track* qteTrack, std::pair<float, float> range, ImU32 judgeCol, ImU32 bgCol = UINT_MAX - 1);
-    void DrawNote(QTE::Track* qteTrack, Timeline::EventContext* context, float circleRadius, ImColor noteCol,
-                  ImColor bgCol);
+    void DrawNote(QTE::Track* qteTrack, Timeline::EventContext* context, float circleRadius, ImColor noteCol, ImColor bgCol);
 
 private:
     float CalcNoteAlphaFromPositionX(float posX);
@@ -43,6 +44,8 @@ private:
     bool                      _editorOpened = false;    // 에디터 열림 여부
     EditorDragState           _dragHandler;             // 드래그 핸들러
     Timeline::SequencerEditor _sequencerEditor;         // 시퀀서 에디터
+
+    std::string _copyBuffer; // 노트 복사 버퍼
 
     float _perfectTimer     = 0.0f;  // 퍼펙트 시 나오는 이펙트 타이머
     float _previewTimer     = 0.0f;  // 미리보기 타이머

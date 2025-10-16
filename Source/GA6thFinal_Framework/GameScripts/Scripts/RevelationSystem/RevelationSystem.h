@@ -34,7 +34,7 @@ public:
     /// </summary>
     /// <param name="element"></param>
     /// <returns></returns>
-    const std::shared_ptr<RevelationElement>& PushBackPlayerElement(const RevelationElement& element);
+    const std::shared_ptr<RevelationElement>& PushBackRevelation(const RevelationElement& element);
    
     /// <summary>
     /// 이번 라운드 활성화 계시를 랜덤으로 뽑습니다.

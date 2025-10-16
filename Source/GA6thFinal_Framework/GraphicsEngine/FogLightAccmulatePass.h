@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "RenderPass.h"
-class VolumetricFogTechnique;
 
+class VolumetricFogTechnique;
 class FogLightAccmulatePass : public RenderPass
 {
 public:
@@ -17,6 +17,6 @@ private:
     void InitShaderAndPSO();
 
 private:
-    VolumetricFogTechnique* _volumTech;
-    std::unique_ptr<class ShaderBuilder> _shader;
+    ComputeFX<GE::CS::LIGHT_ACCUMULATION> _fx;
+    VolumetricFogTechnique*               _volumTech;
 };

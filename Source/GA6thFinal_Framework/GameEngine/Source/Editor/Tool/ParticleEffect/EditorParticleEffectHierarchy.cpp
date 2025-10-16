@@ -1,36 +1,28 @@
 ﻿#include "pch.h"
 #include "EditorParticleEffectHierarchy.h"
 #include "GraphicsEngine/FBXConverter.h"
-#include "GraphicsEngine/Light.h"
-
+#include "GraphicsEngine/Interface/ILight.h"
+#include "GraphicsEngine/Interface/IMeshRenderer.h"
 
  EditorParticleEffectHierarchy::EditorParticleEffectHierarchy() 
- {
-     _meshRenderer =
-         std::make_unique<MeshRenderer>(STATIC_MESH, _position, _scale, _quaternion, _worldMatrix, _isDirtyFlag);
-
+ {     
      SetLabel("Hierarchy##particleeffect");
      SetDockLayout(ImGuiDir_Left);
  }
 
- EditorParticleEffectHierarchy::~EditorParticleEffectHierarchy() {}
+ EditorParticleEffectHierarchy::~EditorParticleEffectHierarchy() = default;
 
- void EditorParticleEffectHierarchy::OnTickGui()
-{
-
- }
-
-void EditorParticleEffectHierarchy::OnStartGui()
+ void EditorParticleEffectHierarchy::OnStartGui()
  {
      auto&             system     = Global::editorModule->GetDockWindowSystem();
-     EditorDockWindow* effectdock  = system.GetDockWindow("EffectDock");
+     EditorDockWindow* effectdock  = system.GetDockWindow("Effect##dock");;
      if (effectdock)
      {
          _editorParticleEffectDetails = effectdock->GetGui<EditorParticleEffectDetails>();
      }
      //light settting
      {
-         _directionalLight = new Light();
+         UmGraphics.CreateLight(&_directionalLight);
          _color            = Vector3(1.f);
          _ambient          = Vector3(1.f);
          _direction        = Vector3(0.f, -1.f, 0.f);
@@ -38,28 +30,12 @@ void EditorParticleEffectHierarchy::OnStartGui()
          _lightActivity    = true;
          _directionalLight->SetDirectionalLight(_color, _ambient, _direction, _intensity);
          _directionalLight->SetActive(&_lightActivity);
-         UmGraphics.RegisterComponent("ParticleEditor", _directionalLight);
+         UmGraphics.RegisterComponent("ParticleEditor", _directionalLight.Get());
      }
-
-
-
-
-}
-
-void EditorParticleEffectHierarchy::OnEndGui()
-{
-
-}
-
-void EditorParticleEffectHierarchy::OnPreFrameBegin()
-{
 }
 
 void EditorParticleEffectHierarchy::OnPostFrameBegin()
 {
-
-
-
     bool isnewbuttonpressed = ImGui::Button("New", {180, 50});
     if (true == isnewbuttonpressed)
     {
@@ -83,7 +59,7 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
         if (File::ShowOpenFileDialog(owner, title, L"", {{L"\0", L"*.vfx*\0"}}, false, out))
         {
             // TODO:: 모듈에 있는 시리얼라이저 가져와야 함
-            auto effect = UmParticleSerializer.Deserialize(out.front(), true, "ParticleEditor");
+            auto effect = UmParticleSerializer.Deserialize(0, "", out.front(), true, "ParticleEditor");
             for (auto emitter : effect->GetEmitterList())
             {
                 emitter->_particleRenderModule->Initialize();
@@ -200,11 +176,8 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
                 // 변환 순서: S  R  T
                 _worldMatrix = matScale * matRotation * matTranslate;
             }
-
         }
-
     }
-
 
     if (nullptr == UmParticleManager->GetCurrentEditorEffect())
     if (nullptr == effect)
@@ -366,46 +339,10 @@ void EditorParticleEffectHierarchy::OnPostFrameBegin()
     }
 }
 
-void EditorParticleEffectHierarchy::OnFrameClipped() {
-
-}
-
-void EditorParticleEffectHierarchy::OnFrameEnd()
-{
-
-}
-
-void EditorParticleEffectHierarchy::OnFrameFocusEnter()
-{
-}
-
-void EditorParticleEffectHierarchy::OnFrameFocusStay()
-{
-
-}
-
-void EditorParticleEffectHierarchy::OnFrameFocusExit()
-{
-
-}
-
-void EditorParticleEffectHierarchy::OnFramePopupOpened()
-{
-
-}
-
 void EditorParticleEffectHierarchy::LoadEnvironmentModel(const File::Path& path) 
 {
-    std::shared_ptr<Model> model = std::make_shared<Model>();
-    FBXConverter& fbxConverter = GetFBXConverter();
-    fbxConverter.ImportModel(path, model);
-    _meshRenderer->SetModel(model);
+    UmGraphics.CreateMeshRenderer(&_meshRenderer, &_worldMatrix);
+    UmGraphics.LoadResource(path.wstring(), _meshRenderer.Get());
     _meshRenderer->SetActive(&_isModelActive);
-    UmGraphics.RegisterComponent("ParticleEditor", _meshRenderer.get());
-}
-
-FBXConverter& EditorParticleEffectHierarchy::GetFBXConverter()
-{
-    static FBXConverter fbxConverter;
-    return fbxConverter;
+    UmGraphics.RegisterComponent("ParticleEditor", _meshRenderer.Get());
 }

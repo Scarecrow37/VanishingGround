@@ -17,7 +17,7 @@ public:
     {
         if constexpr (IS_EDITOR)
         {
-            EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("SceneDock");
+            EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("Scene##dock");
             if (sceneDock)
             {
                 EditorHierarchyTool* editorHierarchy = sceneDock->GetGui<EditorHierarchyTool>();
@@ -37,7 +37,7 @@ public:
     {
         if constexpr (IS_EDITOR)
         {
-            EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("SceneDock");
+            EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("Scene##dock");
             if (sceneDock)
             {
                 EditorHierarchyTool* editorHierarchy = sceneDock->GetGui<EditorHierarchyTool>();
@@ -73,7 +73,7 @@ public:
     /// 에디터에 표시할 오브젝트를 push_back 합니다.
     /// </summary>
     /// <param name="object"></param>
-    void PushHierarchyObject(const std::shared_ptr<GameObject>& object) { _hierarchyObjects.push_back(object); }
+    void PushHierarchyObject(const std::shared_ptr<GameObject>& object);
 
     /// <summary>
     /// 하이러키 오브젝트중 유효하지 않는 오브젝트를 정리합니다.
@@ -89,6 +89,7 @@ public:
         _hierarchyRootObjects.clear();
         _hierarchyDontDestroyOnLoadObjects.clear();
         _hierarchyObjects.clear();
+        _instanceIDSet.clear();
     }
 
 private:
@@ -130,11 +131,12 @@ private:
     HierarchyFindTool* _editorFindTool = nullptr;
 
     //오브젝트 항목
-    std::unordered_map<std::string, size_t>                       _hierarchySceneIndex;
-    std::vector<std::pair<std::string, std::vector<GameObject*>>> _hierarchyRootObjects;
-    std::vector<GameObject*>                                      _hierarchyDontDestroyOnLoadObjects;
-    std::vector<std::shared_ptr<GameObject>>                      _hierarchyObjects;
-    bool                                                          _hierarchyObjectCleanup = false;
+    std::unordered_map<std::string, size_t>                                       _hierarchySceneIndex;
+    std::unordered_set<int>                                                       _instanceIDSet;
+    std::vector<std::pair<std::string, std::vector<std::shared_ptr<GameObject>>>> _hierarchyRootObjects;
+    std::vector<std::shared_ptr<GameObject>>                                      _hierarchyDontDestroyOnLoadObjects;
+    std::vector<std::pair<std::weak_ptr<GameObject>, int>>                        _hierarchyObjects;
+    bool                                                                          _hierarchyObjectCleanup = false;
 
 protected: 
     REFLECT_FIELDS_BEGIN(EditorTool)

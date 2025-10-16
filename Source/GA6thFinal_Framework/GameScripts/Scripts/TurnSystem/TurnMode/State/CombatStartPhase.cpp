@@ -9,10 +9,14 @@
 #include "RevelationSystem/RevelationSystem.h"
 #include "WeaponSystem/WeaponSystem.h"
 #include "AccessorySystem/AccessorySystem.h"
+#include "PlayerSystem/PlayerSystem.h"
 
 #include "Scripts/Stats/Enemy/EnemyStatsComponent.h"
 #include "UI/Views/MonsterHp/MonsterHpView.h"
 #include "UI/Views/MonsterChain/MonsterChainView.h"
+
+#include "CombatUIManager/CombatUIManager.h"
+#include "QTE/UI/QTEUIManager.h"
 
 REGISTER_CLASS(FSMStateFactory, CombatStartPhase)
 
@@ -83,18 +87,19 @@ void CombatStartPhase::OnAwake()
     RegisterEnemiesHP();
     RegisterEnemiesChain();
     ReviveEnemies();
-
-    //임시 코드 (게임 시작시 실행되어야함)
-    _player->Revive();
+    ResetPlayer();
+    RefreshUI();
 }
 
 void CombatStartPhase::OnStart() 
 {
     TurnModeStateBase::OnStart();
 }
-
 void CombatStartPhase::OnEnter() 
 {
+    /// 사운드
+    UmAudio.Play("-20000");
+
     _turnMode->ResetRoundCount();
     AddValidActions();
 
@@ -105,29 +110,9 @@ void CombatStartPhase::OnEnter()
     { 
         this->_phaseEnd = true; 
         
-        if (auto turnQueue = GameObject::FindWithTag("Turn Queue Panel").lock())
+        if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
         {
-            turnQueue->ActiveSelf = true;
-        }
-
-        if (auto HUD = GameObject::FindWithTag("Character HUD Group").lock())
-        {
-            HUD->ActiveSelf = true;
-        }
-
-        if (auto revelationPanel = GameObject::FindWithTag("Revelations Panel").lock())
-        {
-            revelationPanel->ActiveSelf = true;
-        }
-
-        if (auto weaponPanel = GameObject::FindWithTag("Weapon Panel").lock())
-        {
-            weaponPanel->ActiveSelf = true;
-        }       
-         
-        if (auto accessoriesPanel = GameObject::FindWithTag("Accessories Panel").lock())
-        {
-            accessoriesPanel->ActiveSelf = true;
+            combatUIManager->SetActiveUI(true);
         }
     });
 
@@ -370,5 +355,34 @@ void CombatStartPhase::ReviveEnemies()
     for (auto& enemy : _enemies)
     {
         enemy->CharacterBase::Revive();
+    }
+}
+
+void CombatStartPhase::ResetPlayer() 
+{
+    PlayerSystem* playerSystem = SingletonComponent<PlayerSystem>::GetInstance();
+    if (playerSystem)
+    {
+        playerSystem->SetStatsCombatStart();
+    }
+
+    //플레이어는 체력 회복하면 안됨.
+    if (_player)
+    {
+        _player->TurnActor::Revive();
+    }
+}
+
+void CombatStartPhase::RefreshUI() 
+{
+    if (CombatUIManager* manager = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        manager->Refresh();
+    }
+    if (QTEUIManager* uiManager = QTEUIManager::GetInstance())
+    {
+        uiManager->Refresh();
+        uiManager->SetUIAlpha(0.0f);
+        uiManager->SetBackgroundUIAlpha(0.0f);
     }
 }

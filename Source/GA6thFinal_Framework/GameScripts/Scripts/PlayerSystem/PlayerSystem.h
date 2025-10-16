@@ -10,22 +10,44 @@ class PlayerSystem : public Component
 public:
     PlayerSystem();
     ~PlayerSystem() override;
+    
+    /// <summary>
+    /// 플레이어의 스테이터를 새 게임 상태로 만듭니다.
+    /// </summary>
+    void SetStatsGameStart();
+
+    /// <summary>
+    /// 플레이어의 스테이터를 전투 시작 상태로 만듭니다.
+    /// </summary>
+    void SetStatsCombatStart();
+
+    /// <summary>
+    /// 플레이어 체력 UI 갱신합니다.
+    /// </summary>
+    void NotifyPlayerHP();
 
 public:
-    REFLECT_PROPERTY()
+    REFLECT_PROPERTY
+    (
+        ReflectFields->RevivePlayer
+    )
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
+    bool RevivePlayer = false;
     REFLECT_FIELDS_END(PlayerSystem)
 
     void Reset() override;
     void Awake() override;
+    void Start() override;
     void OnDestroy() override;
 
     void ImGuiDrawPropertysEvent() override;
 
 private:
     SingletonObject<PlayerSystem> _singletonObject{this};
+    SingletonComponent<PlayerSystem> _singletonComponent{this};
+
     class WeaponSystem*           _weaponSystem         = nullptr;
     class WeaponTableComponent*   _weaponTableComponent = nullptr;
     class RevelationSystem*       _revelationSystem     = nullptr;
