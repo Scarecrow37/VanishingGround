@@ -95,7 +95,7 @@ class ParticleEmitter* ParticleEffect::GetEmitter(size_t emitterIndex)
     return _particleEmitters[emitterIndex] .get();
 }
 
-std::vector<std::unique_ptr<class ParticleEmitter>>& ParticleEffect::GetEmitterList()
+const std::vector<std::unique_ptr<ParticleEmitter>>& ParticleEffect::GetEmitterList() const
 {
     return _particleEmitters;
 }

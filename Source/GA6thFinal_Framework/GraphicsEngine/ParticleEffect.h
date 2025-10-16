@@ -16,7 +16,7 @@ public:
 
     void                                                 Update(float deltaTime);
     class ParticleEmitter*                               GetEmitter(size_t emitterIndex);
-    std::vector<std::unique_ptr<class ParticleEmitter>>& GetEmitterList();
+    const std::vector<std::unique_ptr<ParticleEmitter>>& GetEmitterList() const;
     void                                                 RemoveEmitter(ParticleEmitter* target);
     void                                                 UpdateParticleLifeCycle(float deltaTime);
     void                                                 Play();
