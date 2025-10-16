@@ -170,7 +170,7 @@ void ParticleEffectSerializer::Serialize_1_0(std::ofstream& os, ParticleEffect* 
     uint32_t count = static_cast<uint32_t>(effect->GetEmitterList().size());
     os.write(reinterpret_cast<const char*>(&count), sizeof(count));
 
-    for (const auto* emitter : effect->GetEmitterList())
+    for (auto& emitter : effect->GetEmitterList())
     {
         // name length, name
         const std::string emittername = emitter->GetEmitterName();
@@ -451,13 +451,11 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_0(EffectID id, const std
         is.read(reinterpret_cast<char*>(&locationType), sizeof(locationType));
         if (LocationShape::MESH_SURFACE == locationType)
         {
-
             SIZE_T nameLen = 0;
             is.read(reinterpret_cast<char*>(&nameLen), sizeof(nameLen));
             modelpath = std::string(nameLen, '\0');
             is.read(&modelpath[0], nameLen);
         }
-
         is.read(reinterpret_cast<char*>(&locatorFactor), sizeof(locatorFactor));
         is.read(reinterpret_cast<char*>(&velocityType), sizeof(velocityType));
         is.read(reinterpret_cast<char*>(&velocityFactor), sizeof(velocityFactor));
@@ -695,7 +693,7 @@ void ParticleEffectSerializer::Serialize_1_1(std::ofstream& os, ParticleEffect* 
     uint32_t count = static_cast<uint32_t>(effect->GetEmitterList().size());
     os.write(reinterpret_cast<const char*>(&count), sizeof(count));
 
-    for (const auto emitter : effect->GetEmitterList())
+    for (auto& emitter : effect->GetEmitterList())
     {
         // name length, name
         const std::string emittername = emitter->GetEmitterName();
@@ -1227,7 +1225,7 @@ void ParticleEffectSerializer::Serialize_1_2(std::ofstream& os, ParticleEffect* 
     uint32_t count = static_cast<uint32_t>(effect->GetEmitterList().size());
     os.write(reinterpret_cast<const char*>(&count), sizeof(count));
 
-    for (const auto* emitter : effect->GetEmitterList())
+    for (auto& emitter : effect->GetEmitterList())
     {
         // name length, name
         const std::string emittername = emitter->GetEmitterName();
@@ -1757,7 +1755,7 @@ void ParticleEffectSerializer::Serialize_1_3(std::ofstream& os, ParticleEffect* 
     uint32_t count = static_cast<uint32_t>(effect->GetEmitterList().size());
     os.write(reinterpret_cast<const char*>(&count), sizeof(count));
 
-    for (const auto* emitter : effect->GetEmitterList())
+    for (auto& emitter : effect->GetEmitterList())
     {
         // name length, name
         const std::string emittername = emitter->GetEmitterName();
@@ -2312,7 +2310,7 @@ void ParticleEffectSerializer::Serialize_1_4(std::ofstream& os, ParticleEffect* 
     uint32_t count = static_cast<uint32_t>(effect->GetEmitterList().size());
     os.write(reinterpret_cast<const char*>(&count), sizeof(count));
 
-    for (auto const emitter : effect->GetEmitterList())
+    for (auto& emitter : effect->GetEmitterList())
     {
         // name length, name
         const std::string emittername = emitter->GetEmitterName();

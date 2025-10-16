@@ -205,7 +205,7 @@ void ParticleComponent::LoadParticle(const std::string& keyString)
                         ReflectFields->GuidMap[keyString] = assetGuid.string();
                         auto effect =
                             UmParticleSerializer.Deserialize(this, keyString, assetGuid.ToPath(), false, "Game");
-                        for (auto emitter : effect->GetEmitterList())
+                        for (auto* emitter : effect->GetEmitterList())
                         {
                             File::Path absolutePath = emitter->_particleRenderModule->GetModelAndTexturePath();
                             absolutePath            = std::filesystem::absolute(absolutePath).generic_string();

@@ -95,6 +95,11 @@ class ParticleEmitter* ParticleEffect::GetEmitter(size_t emitterIndex)
     return _particleEmitters[emitterIndex] .get();
 }
 
+std::vector<std::unique_ptr<class ParticleEmitter>>& ParticleEffect::GetEmitterList()
+{
+    return _particleEmitters;
+}
+
 void ParticleEffect::RemoveEmitter(ParticleEmitter* target)
 {
     if (!target)

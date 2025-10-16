@@ -36,7 +36,7 @@ void ParticleManager::AddSceneResource(std::string_view sceneName)
 
     std::wstring wSceneName(sceneName.begin(), sceneName.end());
     ParticleSceneResource newSceneResource;
-    newSceneResource._name = sName;
+    newSceneResource.Name = sName;
 
     // Special case for "Editor" scene to share "Game" scene's update resource
     if (sName == "Editor" && _sceneResources.count("Game"))
@@ -45,21 +45,22 @@ void ParticleManager::AddSceneResource(std::string_view sceneName)
         UINT mvpConstantSize    = sizeof(MVPConstants);
 
         // Share the update resource from the "Game" scene
-        newSceneResource._updateResource = _sceneResources.at("Game")._updateResource;
+        newSceneResource.UpdateParticleResource = _sceneResources.at("Game").UpdateParticleResource;
 
         // Create a new unique render resource for the "Editor"
-        newSceneResource._renderResource = std::make_unique<ParticleRenderResource>();
-        newSceneResource._renderResource->_name = sName;
+        newSceneResource.RenderParticleResource = std::make_unique<ParticleRenderResource>();
+        newSceneResource.RenderParticleResource->Name = sName;
 
         {
-            CreateUAVBuffer(newSceneResource._renderResource->_simulationOutput, particleOutputSize, sizeof(ParticleOutput));
-            newSceneResource._renderResource->_simulationOutput->SetName((wSceneName + L" output").c_str());
+            CreateUAVBuffer(newSceneResource.RenderParticleResource->SimulationOutput, particleOutputSize, sizeof(ParticleOutput));
+            newSceneResource.RenderParticleResource->SimulationOutput->SetName((wSceneName + L" output").c_str());
 
-            CreateUAVBuffer(newSceneResource._renderResource->_ribbonSimulationOutput, particleOutputSize, sizeof(ParticleOutput));
-            newSceneResource._renderResource->_ribbonSimulationOutput->SetName((wSceneName + L" ribbon output").c_str());
+            CreateUAVBuffer(newSceneResource.RenderParticleResource->RibbonSimulationOutput, particleOutputSize,
+                            sizeof(ParticleOutput));
+            newSceneResource.RenderParticleResource->RibbonSimulationOutput->SetName((wSceneName + L" ribbon output").c_str());
 
-            CreateConstantBuffer(newSceneResource._renderResource->_mvpConstant, mvpConstantSize);
-            newSceneResource._renderResource->_mvpConstant->SetName((wSceneName + L" mvp constants").c_str());
+            CreateConstantBuffer(newSceneResource.RenderParticleResource->MvpConstant, mvpConstantSize);
+            newSceneResource.RenderParticleResource->MvpConstant->SetName((wSceneName + L" mvp constants").c_str());
         }
 
         InitializeComputeCommandObject(newSceneResource);
@@ -73,52 +74,52 @@ void ParticleManager::AddSceneResource(std::string_view sceneName)
     UINT particleOutputSize = _maxParticles * sizeof(ParticleOutput);
     UINT mvpConstantSize    = sizeof(MVPConstants);
 
-    newSceneResource._updateResource = std::make_shared<ParticleUpdateResource>();
-    newSceneResource._updateResource->_name = sName;
+    newSceneResource.UpdateParticleResource = std::make_shared<ParticleUpdateResource>();
+    newSceneResource.UpdateParticleResource->Name = sName;
 
-    newSceneResource._renderResource = std::make_unique<ParticleRenderResource>();
-    newSceneResource._renderResource->_name = sName;
+    newSceneResource.RenderParticleResource = std::make_unique<ParticleRenderResource>();
+    newSceneResource.RenderParticleResource->Name = sName;
 
     // Create GPU resources
     {
         // Input buffers (for UpdateResource)
         {
-            CreateStructuredBuffer(newSceneResource._updateResource->_particleInput, newSceneResource._updateResource->_particleInputUpload, particleInputSize, sizeof(Particle));
-            newSceneResource._updateResource->_particleInput->SetName((wSceneName + L" particle input").c_str());
-            newSceneResource._updateResource->_particleInputUpload->SetName((wSceneName + L" particle input upload").c_str());
+            CreateStructuredBuffer(newSceneResource.UpdateParticleResource->ParticleInput, newSceneResource.UpdateParticleResource->ParticleInputUpload, particleInputSize, sizeof(Particle));
+            newSceneResource.UpdateParticleResource->ParticleInput->SetName((wSceneName + L" particle input").c_str());
+            newSceneResource.UpdateParticleResource->ParticleInputUpload->SetName((wSceneName + L" particle input upload").c_str());
 
-            CreateStructuredBuffer(newSceneResource._updateResource->_ribbonParticleInput, newSceneResource._updateResource->_ribbonParticleInputUpload, particleInputSize, sizeof(Particle));
-            newSceneResource._updateResource->_ribbonParticleInput->SetName((wSceneName + L" ribbon particle input").c_str());
-            newSceneResource._updateResource->_ribbonParticleInputUpload->SetName((wSceneName + L" ribbon particle input upload").c_str());
+            CreateStructuredBuffer(newSceneResource.UpdateParticleResource->RibbonParticleInput, newSceneResource.UpdateParticleResource->RibbonParticleInputUpload, particleInputSize, sizeof(Particle));
+            newSceneResource.UpdateParticleResource->RibbonParticleInput->SetName((wSceneName + L" ribbon particle input").c_str());
+            newSceneResource.UpdateParticleResource->RibbonParticleInputUpload->SetName((wSceneName + L" ribbon particle input upload").c_str());
         }
         // Emitter info buffers (for UpdateResource)
         {
-            CreateStructuredBuffer(newSceneResource._updateResource->_emitterInfo, newSceneResource._updateResource->_emitterInfoUpload, emitterInfoSize, sizeof(EmitterInfo));
-            newSceneResource._updateResource->_emitterInfo->SetName((wSceneName + L" emitter info").c_str());
-            newSceneResource._updateResource->_emitterInfoUpload->SetName((wSceneName + L" emitter info upload").c_str());
+            CreateStructuredBuffer(newSceneResource.UpdateParticleResource->EmitterInfo, newSceneResource.UpdateParticleResource->EmitterInfoUpload, emitterInfoSize, sizeof(EmitterInfo));
+            newSceneResource.UpdateParticleResource->EmitterInfo->SetName((wSceneName + L" emitter info").c_str());
+            newSceneResource.UpdateParticleResource->EmitterInfoUpload->SetName((wSceneName + L" emitter info upload").c_str());
 
-            CreateStructuredBuffer(newSceneResource._updateResource->_ribbonEmitterInfo, newSceneResource._updateResource->_ribbonEmitterInfoUpload, emitterInfoSize, sizeof(EmitterInfo));
-            newSceneResource._updateResource->_ribbonEmitterInfo->SetName((wSceneName + L" ribbon emitter info").c_str());
-            newSceneResource._updateResource->_ribbonEmitterInfoUpload->SetName((wSceneName + L" ribbon emitter info upload").c_str());
+            CreateStructuredBuffer(newSceneResource.UpdateParticleResource->RibbonEmitterInfo, newSceneResource.UpdateParticleResource->RibbonEmitterInfoUpload, emitterInfoSize, sizeof(EmitterInfo));
+            newSceneResource.UpdateParticleResource->RibbonEmitterInfo->SetName((wSceneName + L" ribbon emitter info").c_str());
+            newSceneResource.UpdateParticleResource->RibbonEmitterInfoUpload->SetName((wSceneName + L" ribbon emitter info upload").c_str());
         }
         // Output buffers (for RenderResource)
         {
-            CreateUAVBuffer(newSceneResource._renderResource->_simulationOutput, particleOutputSize, sizeof(ParticleOutput));
-            newSceneResource._renderResource->_simulationOutput->SetName((wSceneName + L" output").c_str());
+            CreateUAVBuffer(newSceneResource.RenderParticleResource->SimulationOutput, particleOutputSize, sizeof(ParticleOutput));
+            newSceneResource.RenderParticleResource->SimulationOutput->SetName((wSceneName + L" output").c_str());
 
-            CreateUAVBuffer(newSceneResource._renderResource->_ribbonSimulationOutput, particleOutputSize, sizeof(ParticleOutput));
-            newSceneResource._renderResource->_ribbonSimulationOutput->SetName((wSceneName + L" ribbon output").c_str());
+            CreateUAVBuffer(newSceneResource.RenderParticleResource->RibbonSimulationOutput, particleOutputSize, sizeof(ParticleOutput));
+            newSceneResource.RenderParticleResource->RibbonSimulationOutput->SetName((wSceneName + L" ribbon output").c_str());
         }
         // MVP constant buffer (for RenderResource)
         {
-            CreateConstantBuffer(newSceneResource._renderResource->_mvpConstant, mvpConstantSize);
-            newSceneResource._renderResource->_mvpConstant->SetName((wSceneName + L" mvp constants").c_str());
+            CreateConstantBuffer(newSceneResource.RenderParticleResource->MvpConstant, mvpConstantSize);
+            newSceneResource.RenderParticleResource->MvpConstant->SetName((wSceneName + L" mvp constants").c_str());
         }
     }
 
     InitializeComputeCommandObject(newSceneResource);
-    newSceneResource._updateResource->_totalParticles.resize(_maxParticles);
-    newSceneResource._updateResource->_ribbonTotalParticles.resize(_maxParticles);
+    newSceneResource.UpdateParticleResource->TotalParticles.resize(_maxParticles);
+    newSceneResource.UpdateParticleResource->RibbonTotalParticles.resize(_maxParticles);
 
     _sceneResources.emplace(sName, std::move(newSceneResource));
 }
@@ -137,7 +138,7 @@ ParticleEffect* ParticleManager::RegisterEffect(EffectID id, const std::string& 
     newEffect->SetEffectName(name);
 
     ParticleEffect* rawPtr = newEffect.get();
-    _sceneResources.at(sName)._updateResource->_sceneEffects.push_back(std::move(newEffect));
+    _sceneResources.at(sName).UpdateParticleResource->SceneEffects.push_back(std::move(newEffect));
 
     _effectIDTable[id][keyString] = rawPtr;
     return rawPtr;
@@ -212,7 +213,7 @@ void ParticleManager::Update(const float deltaTime)
     std::set<std::shared_ptr<ParticleUpdateResource>> uniqueUpdateResources;
     for (const auto& pair : _sceneResources)
     {
-        if(pair.second._updateResource) uniqueUpdateResources.insert(pair.second._updateResource);
+        if(pair.second.UpdateParticleResource) uniqueUpdateResources.insert(pair.second.UpdateParticleResource);
     }
 
     // 2. Update effects, awake particles, and copy to GPU
@@ -220,7 +221,7 @@ void ParticleManager::Update(const float deltaTime)
     _computeCommandList->Reset(_computeAllocator.Get(), nullptr);
     for (const auto& updateResource : uniqueUpdateResources)
     {
-        for (const auto& effect : updateResource->_sceneEffects)
+        for (const auto& effect : updateResource->SceneEffects)
         {
             if (effect->GetActiveFlag())
             {
@@ -237,25 +238,25 @@ void ParticleManager::Update(const float deltaTime)
     for (auto& pair : _sceneResources)
     {
         ParticleSceneResource& scene = pair.second;
-        if (scene._updateResource && !scene._updateResource->_sceneEffects.empty())
+        if (scene.UpdateParticleResource && !scene.UpdateParticleResource->SceneEffects.empty())
         {
-            scene._commandAllocator->Reset();
-            scene._commandList->Reset(scene._commandAllocator.Get(), nullptr);
+            scene.CommandAllocator->Reset();
+            scene.CommandList->Reset(scene.CommandAllocator.Get(), nullptr);
 
-            UpdateMvpConstant(deltaTime, scene._renderResource.get());
+            UpdateMvpConstant(deltaTime, scene.RenderParticleResource.get());
 
-            scene._commandList->SetPipelineState(_computeSpritePSO.Get());
-            scene._commandList->SetComputeRootSignature(computeSpriteFX.GetRootSignature());
-            DispatchSprite(deltaTime, scene._name);
+            scene.CommandList->SetPipelineState(_computeSpritePSO.Get());
+            scene.CommandList->SetComputeRootSignature(computeSpriteFX.GetRootSignature());
+            DispatchSprite(deltaTime, scene.Name);
 
-            scene._commandList->SetPipelineState(_computeRibbonPSO.Get());
-            scene._commandList->SetComputeRootSignature(computeRibbonFX.GetRootSignature());
-            DispatchRibbon(deltaTime, scene._name);
+            scene.CommandList->SetPipelineState(_computeRibbonPSO.Get());
+            scene.CommandList->SetComputeRootSignature(computeRibbonFX.GetRootSignature());
+            DispatchRibbon(deltaTime, scene.Name);
 
-            scene._commandList->Close();
-            Global::commandController->ExecuteCommand(COMPUTE_QUEUE, scene._commandList.Get());
+            scene.CommandList->Close();
+            Global::commandController->ExecuteCommand(COMPUTE_QUEUE, scene.CommandList.Get());
 
-            _computeFences[scene._name] = Global::commandController->SignalCommandQueue(COMPUTE_QUEUE);
+            _computeFences[scene.Name] = Global::commandController->SignalCommandQueue(COMPUTE_QUEUE);
         }
     }
 
@@ -293,7 +294,7 @@ UINT ParticleManager::GetTotalCount(std::string_view sceneName)
     auto it = _sceneResources.find(sName);
     if (it != _sceneResources.end())
     {
-        return it->second._updateResource->_totalCount;
+        return it->second.UpdateParticleResource->TotalCount;
     }
     return 0;
 }
@@ -305,7 +306,7 @@ const std::vector<UINT>& ParticleManager::GetActiveAlbedos(std::string_view scen
     auto it = _sceneResources.find(sName);
     if (it != _sceneResources.end())
     {
-        return it->second._updateResource->_activeEmitterAlbedos;
+        return it->second.UpdateParticleResource->ActiveEmitterAlbedos;
     }
     return empty;
 }
@@ -316,7 +317,7 @@ ID3D12Resource* ParticleManager::GetComputeOutputResource(std::string_view scene
     auto it = _sceneResources.find(sName);
     if (it != _sceneResources.end())
     {
-        return it->second._renderResource->_simulationOutput.Get();
+        return it->second.RenderParticleResource->SimulationOutput.Get();
     }
     return nullptr;
 }
@@ -327,7 +328,7 @@ UINT ParticleManager::GetRibbonCount(std::string_view sceneName)
     auto it = _sceneResources.find(sName);
     if (it != _sceneResources.end())
     {
-        return it->second._updateResource->_ribbonTotalCount;
+        return it->second.UpdateParticleResource->RibbonTotalCount;
     }
     return 0;
 }
@@ -339,7 +340,7 @@ const std::vector<std::vector<RibbonIndex>>& ParticleManager::GetRibbonEmitterIn
     auto it = _sceneResources.find(sName);
     if (it != _sceneResources.end())
     {
-        return it->second._updateResource->_ribbonIndices;
+        return it->second.UpdateParticleResource->RibbonIndices;
     }
     return empty;
 }
@@ -351,7 +352,7 @@ const std::vector<UINT>& ParticleManager::GetActiveRibbonAlbedos(std::string_vie
     auto it = _sceneResources.find(sName);
     if (it != _sceneResources.end())
     {
-        return it->second._updateResource->_ribbonActiveEmitterAlbedos;
+        return it->second.UpdateParticleResource->RibbonActiveEmitterAlbedos;
     }
     return empty;
 }
@@ -362,7 +363,7 @@ ID3D12Resource* ParticleManager::GetRibbonOutputResource(std::string_view sceneN
     auto it = _sceneResources.find(sName);
     if (it != _sceneResources.end())
     {
-        return it->second._renderResource->_ribbonSimulationOutput.Get();
+        return it->second.RenderParticleResource->RibbonSimulationOutput.Get();
     }
     return nullptr;
 }
@@ -413,7 +414,7 @@ ParticleEffect* ParticleManager::RegisterEffectOnEditor()
         return nullptr;
     }
 
-    auto& editorEffects = _sceneResources.at("ParticleEditor")._updateResource->_sceneEffects;
+    auto& editorEffects = _sceneResources.at("ParticleEditor").UpdateParticleResource->SceneEffects;
 
     // Clear any existing effects. unique_ptr will handle deletion.
     editorEffects.clear();
@@ -459,12 +460,12 @@ void ParticleManager::ChangeTexture()
     std::set<std::shared_ptr<ParticleUpdateResource>> uniqueUpdateResources;
     for (const auto& pair : _sceneResources)
     {
-        if(pair.second._updateResource) uniqueUpdateResources.insert(pair.second._updateResource);
+        if(pair.second.UpdateParticleResource) uniqueUpdateResources.insert(pair.second.UpdateParticleResource);
     }
 
     for (const auto& updateResource : uniqueUpdateResources)
     {
-        for (const auto& effect : updateResource->_sceneEffects)
+        for (const auto& effect : updateResource->SceneEffects)
         {
             if (effect->GetActiveFlag())
             {
@@ -496,13 +497,13 @@ void ParticleManager::InitializeComputeCommandObject(ParticleSceneResource& scen
     };
 
     HRESULT hr = S_OK;
-    hr = Global::device->GetDevice()->CreateCommandAllocator(desc.Type, IID_PPV_ARGS(&scene._commandAllocator));
+    hr = Global::device->GetDevice()->CreateCommandAllocator(desc.Type, IID_PPV_ARGS(&scene.CommandAllocator));
     FAILED_CHECK_MESSAGE(hr, L"ParticleManager::InitializeComputeCommandObject CreateCommandAllocator Failed");
 
-    hr = Global::device->GetDevice()->CreateCommandList(desc.NodeMask, desc.Type, scene._commandAllocator.Get(),
-                                                       nullptr, IID_PPV_ARGS(scene._commandList.GetAddressOf()));
+    hr = Global::device->GetDevice()->CreateCommandList(desc.NodeMask, desc.Type, scene.CommandAllocator.Get(),
+                                                       nullptr, IID_PPV_ARGS(scene.CommandList.GetAddressOf()));
     FAILED_CHECK_MESSAGE(hr, L"ParticleManager::InitializeComputeCommandObject CreateCommandList Failed");
-    scene._commandList->Close();
+    scene.CommandList->Close();
 }
 
 void ParticleManager::InitializeComputeCommandObject()
@@ -591,15 +592,15 @@ void ParticleManager::CreateConstantBuffer(ComPtr<ID3D12Resource>& resource, UIN
 
 void ParticleManager::AwakeParticles(float deltaTime, const std::shared_ptr<ParticleUpdateResource>& scene)
 {
-    scene->_emitterMatrix.clear();
-    scene->_activeEmitterAlbedos.clear();
-    scene->_ribbonEmitterMatrix.clear();
-    scene->_ribbonActiveEmitterAlbedos.clear();
-    scene->_ribbonIndices.clear();
+    scene->EmitterMatrix.clear();
+    scene->ActiveEmitterAlbedos.clear();
+    scene->RibbonEmitterMatrix.clear();
+    scene->RibbonActiveEmitterAlbedos.clear();
+    scene->RibbonIndices.clear();
 
     UINT totalSpriteParticles = 0;
     UINT totalRibbonParticles = 0;
-    for (const auto& effect : scene->_sceneEffects)
+    for (const auto& effect : scene->SceneEffects)
     {
         if (effect->GetActiveFlag())
         {
@@ -620,16 +621,16 @@ void ParticleManager::AwakeParticles(float deltaTime, const std::shared_ptr<Part
         }
     }
 
-    scene->_totalParticles.reserve(totalSpriteParticles);
-    scene->_totalParticles.clear();
-    scene->_ribbonTotalParticles.reserve(totalRibbonParticles);
-    scene->_ribbonTotalParticles.clear();
+    scene->TotalParticles.reserve(totalSpriteParticles);
+    scene->TotalParticles.clear();
+    scene->RibbonTotalParticles.reserve(totalRibbonParticles);
+    scene->RibbonTotalParticles.clear();
 
     UINT emitterIndex = 0;
     UINT ribbonEmitterIndex = 0;
     UINT ribbonparticleIndex = 0;
 
-    for (const auto& effect : scene->_sceneEffects)
+    for (const auto& effect : scene->SceneEffects)
     {
         if (effect->GetActiveFlag())
         {
@@ -640,10 +641,10 @@ void ParticleManager::AwakeParticles(float deltaTime, const std::shared_ptr<Part
                     if (ParticleType::SPRITE == emitter->_particleType)
                     {
                         auto spriteModule = emitter->_particleRenderModule->AsSprite();
-                        scene->_activeEmitterAlbedos.push_back(spriteModule->GetAlbedoTextureID());
+                        scene->ActiveEmitterAlbedos.push_back(spriteModule->GetAlbedoTextureID());
                         Matrix worldMatrix = emitter->GetUseWorldSpace() ? Matrix::Identity : emitter->GetWorldMatrix().Transpose();
                         Matrix orientMatrix = emitter->GetWorldMatrix().Transpose();
-                        scene->_emitterMatrix.push_back(
+                        scene->EmitterMatrix.push_back(
                             {worldMatrix, orientMatrix, emitter->GetDragPoint(), emitter->GetDragForce(), emitter->GetVortexForce(),
                              emitter->GetStartScale(), emitter->GetEndScale(),
                              Vector4(emitter->GetStartColor().x, emitter->GetStartColor().y, emitter->GetStartColor().z, emitter->GetStartOpacity()),
@@ -657,11 +658,11 @@ void ParticleManager::AwakeParticles(float deltaTime, const std::shared_ptr<Part
 
                         if (activeCount > 0)
                         {
-                            size_t insert_position = scene->_totalParticles.size();
-                            scene->_totalParticles.insert(scene->_totalParticles.end(), particlePool.begin(), particlePool.begin() + activeCount);
+                            size_t insert_position = scene->TotalParticles.size();
+                            scene->TotalParticles.insert(scene->TotalParticles.end(), particlePool.begin(), particlePool.begin() + activeCount);
                             for (size_t i = 0; i < activeCount; ++i)
                             {
-                                scene->_totalParticles[insert_position + i].SetEmitterIndex(emitterIndex);
+                                scene->TotalParticles[insert_position + i].SetEmitterIndex(emitterIndex);
                             }
                         }
                         emitterIndex++;
@@ -669,12 +670,12 @@ void ParticleManager::AwakeParticles(float deltaTime, const std::shared_ptr<Part
                     else if (ParticleType::RIBBON == emitter->_particleType)
                     {
                         auto ribbonModule = emitter->_particleRenderModule->AsRibbon();
-                        scene->_ribbonActiveEmitterAlbedos.push_back(ribbonModule->GetAlbedoTextureID());
+                        scene->RibbonActiveEmitterAlbedos.push_back(ribbonModule->GetAlbedoTextureID());
                         Matrix worldMatrix =
                             emitter->GetUseWorldSpace() ? Matrix::Identity : emitter->GetWorldMatrix().Transpose();
                         
                         Matrix orientMatrix = emitter->GetWorldMatrix().Transpose();
-                        scene->_ribbonEmitterMatrix.push_back(
+                        scene->RibbonEmitterMatrix.push_back(
                             {worldMatrix, orientMatrix, emitter->GetDragPoint(), emitter->GetDragForce(),
                              emitter->GetVortexForce(), emitter->GetStartScale(), emitter->GetEndScale(),
                              Vector4(emitter->GetStartColor().x, emitter->GetStartColor().y, emitter->GetStartColor().z,
@@ -697,7 +698,7 @@ void ParticleManager::AwakeParticles(float deltaTime, const std::shared_ptr<Part
                             {
                                 Particle particle = particlePool[i];
                                 particle.SetEmitterIndex(ribbonEmitterIndex);
-                                scene->_ribbonTotalParticles.push_back(particle);
+                                scene->RibbonTotalParticles.push_back(particle);
                                 emitterIndices.push_back({ribbonparticleIndex++, particle.GetAge() / lifetime});
                                 emitterIndices.push_back({ribbonparticleIndex++, particle.GetAge() / lifetime});
                             }
@@ -707,7 +708,7 @@ void ParticleManager::AwakeParticles(float deltaTime, const std::shared_ptr<Part
 
                             if (!emitterIndices.empty())
                             {
-                                scene->_ribbonIndices.push_back(std::move(emitterIndices));
+                                scene->RibbonIndices.push_back(std::move(emitterIndices));
                             }
                         }
                         ribbonEmitterIndex++;
@@ -716,8 +717,8 @@ void ParticleManager::AwakeParticles(float deltaTime, const std::shared_ptr<Part
             }
         }
     }
-    scene->_totalCount = (UINT)scene->_totalParticles.size();
-    scene->_ribbonTotalCount = (UINT)(scene->_ribbonTotalParticles.size() * 2);
+    scene->TotalCount = (UINT)scene->TotalParticles.size();
+    scene->RibbonTotalCount = (UINT)(scene->RibbonTotalParticles.size() * 2);
 }
 
 void ParticleManager::UpdateAndCopyParticleResource(float deltaTime, const std::shared_ptr<ParticleUpdateResource>& scene)
@@ -725,61 +726,61 @@ void ParticleManager::UpdateAndCopyParticleResource(float deltaTime, const std::
     // memcpy to upload heap
     {
         void* mappedData = nullptr;
-        if (scene->_totalCount > 0)
+        if (scene->TotalCount > 0)
         {
-            scene->_particleInputUpload->Map(0, nullptr, &mappedData);
-            memcpy(mappedData, scene->_totalParticles.data(), scene->_totalCount * sizeof(Particle));
-            scene->_particleInputUpload->Unmap(0, nullptr);
+            scene->ParticleInputUpload->Map(0, nullptr, &mappedData);
+            memcpy(mappedData, scene->TotalParticles.data(), scene->TotalCount * sizeof(Particle));
+            scene->ParticleInputUpload->Unmap(0, nullptr);
 
-            scene->_emitterInfoUpload->Map(0, nullptr, &mappedData);
-            memcpy(mappedData, scene->_emitterMatrix.data(), scene->_emitterMatrix.size() * sizeof(EmitterInfo));
-            scene->_emitterInfoUpload->Unmap(0, nullptr);
+            scene->EmitterInfoUpload->Map(0, nullptr, &mappedData);
+            memcpy(mappedData, scene->EmitterMatrix.data(), scene->EmitterMatrix.size() * sizeof(EmitterInfo));
+            scene->EmitterInfoUpload->Unmap(0, nullptr);
         }
-        if (scene->_ribbonTotalCount > 0)
+        if (scene->RibbonTotalCount > 0)
         {
-            scene->_ribbonParticleInputUpload->Map(0, nullptr, &mappedData);
-            memcpy(mappedData, scene->_ribbonTotalParticles.data(), scene->_ribbonTotalParticles.size() * sizeof(Particle));
-            scene->_ribbonParticleInputUpload->Unmap(0, nullptr);
+            scene->RibbonParticleInputUpload->Map(0, nullptr, &mappedData);
+            memcpy(mappedData, scene->RibbonTotalParticles.data(), scene->RibbonTotalParticles.size() * sizeof(Particle));
+            scene->RibbonParticleInputUpload->Unmap(0, nullptr);
 
-            scene->_ribbonEmitterInfoUpload->Map(0, nullptr, &mappedData);
-            memcpy(mappedData, scene->_ribbonEmitterMatrix.data(), scene->_ribbonEmitterMatrix.size() * sizeof(EmitterInfo));
-            scene->_ribbonEmitterInfoUpload->Unmap(0, nullptr);
+            scene->RibbonEmitterInfoUpload->Map(0, nullptr, &mappedData);
+            memcpy(mappedData, scene->RibbonEmitterMatrix.data(), scene->RibbonEmitterMatrix.size() * sizeof(EmitterInfo));
+            scene->RibbonEmitterInfoUpload->Unmap(0, nullptr);
         }
     }
 
     // copy data from upload to default heap
     {
         CD3DX12_RESOURCE_BARRIER preCopyBarriers[] = {
-            CD3DX12_RESOURCE_BARRIER::Transition(scene->_particleInput.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST),
-            CD3DX12_RESOURCE_BARRIER::Transition(scene->_emitterInfo.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST),
-            CD3DX12_RESOURCE_BARRIER::Transition(scene->_ribbonParticleInput.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST),
-            CD3DX12_RESOURCE_BARRIER::Transition(scene->_ribbonEmitterInfo.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST)
+            CD3DX12_RESOURCE_BARRIER::Transition(scene->ParticleInput.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST),
+            CD3DX12_RESOURCE_BARRIER::Transition(scene->EmitterInfo.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST),
+            CD3DX12_RESOURCE_BARRIER::Transition(scene->RibbonParticleInput.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST),
+            CD3DX12_RESOURCE_BARRIER::Transition(scene->RibbonEmitterInfo.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST)
         };
         _computeCommandList->ResourceBarrier(_countof(preCopyBarriers), preCopyBarriers);
 
-        if (scene->_totalCount > 0)
+        if (scene->TotalCount > 0)
         {
-            UINT64 particleDataSize = scene->_totalParticles.size() * sizeof(Particle);
-            _computeCommandList->CopyBufferRegion(scene->_particleInput.Get(), 0, scene->_particleInputUpload.Get(), 0, particleDataSize);
+            UINT64 particleDataSize = scene->TotalParticles.size() * sizeof(Particle);
+            _computeCommandList->CopyBufferRegion(scene->ParticleInput.Get(), 0, scene->ParticleInputUpload.Get(), 0, particleDataSize);
 
-            UINT64 emitterDataSize = scene->_emitterMatrix.size() * sizeof(EmitterInfo);
-            _computeCommandList->CopyBufferRegion(scene->_emitterInfo.Get(), 0, scene->_emitterInfoUpload.Get(), 0, emitterDataSize);
+            UINT64 emitterDataSize = scene->EmitterMatrix.size() * sizeof(EmitterInfo);
+            _computeCommandList->CopyBufferRegion(scene->EmitterInfo.Get(), 0, scene->EmitterInfoUpload.Get(), 0, emitterDataSize);
         }
 
-        if (scene->_ribbonTotalCount > 0)
+        if (scene->RibbonTotalCount > 0)
         {
-            UINT64 particleDataSize = scene->_ribbonTotalParticles.size() * sizeof(Particle);
-            _computeCommandList->CopyBufferRegion(scene->_ribbonParticleInput.Get(), 0, scene->_ribbonParticleInputUpload.Get(), 0, particleDataSize);
+            UINT64 particleDataSize = scene->RibbonTotalParticles.size() * sizeof(Particle);
+            _computeCommandList->CopyBufferRegion(scene->RibbonParticleInput.Get(), 0, scene->RibbonParticleInputUpload.Get(), 0, particleDataSize);
 
-            UINT64 emitterDataSize = scene->_ribbonEmitterMatrix.size() * sizeof(EmitterInfo);
-            _computeCommandList->CopyBufferRegion(scene->_ribbonEmitterInfo.Get(), 0, scene->_ribbonEmitterInfoUpload.Get(), 0, emitterDataSize);
+            UINT64 emitterDataSize = scene->RibbonEmitterMatrix.size() * sizeof(EmitterInfo);
+            _computeCommandList->CopyBufferRegion(scene->RibbonEmitterInfo.Get(), 0, scene->RibbonEmitterInfoUpload.Get(), 0, emitterDataSize);
         }
 
         CD3DX12_RESOURCE_BARRIER postCopyBarriers[] = {
-            CD3DX12_RESOURCE_BARRIER::Transition(scene->_particleInput.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE),
-            CD3DX12_RESOURCE_BARRIER::Transition(scene->_emitterInfo.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE),
-            CD3DX12_RESOURCE_BARRIER::Transition(scene->_ribbonParticleInput.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE),
-            CD3DX12_RESOURCE_BARRIER::Transition(scene->_ribbonEmitterInfo.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)
+            CD3DX12_RESOURCE_BARRIER::Transition(scene->ParticleInput.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE),
+            CD3DX12_RESOURCE_BARRIER::Transition(scene->EmitterInfo.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE),
+            CD3DX12_RESOURCE_BARRIER::Transition(scene->RibbonParticleInput.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE),
+            CD3DX12_RESOURCE_BARRIER::Transition(scene->RibbonEmitterInfo.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)
         };
         _computeCommandList->ResourceBarrier(_countof(postCopyBarriers), postCopyBarriers);
     }
@@ -788,50 +789,50 @@ void ParticleManager::UpdateAndCopyParticleResource(float deltaTime, const std::
 void ParticleManager::DispatchSprite(float deltaTime, std::string sceneName)
 {
     ParticleSceneResource& scene = _sceneResources.at(sceneName);
-    if (scene._updateResource->_totalCount == 0) return;
+    if (scene.UpdateParticleResource->TotalCount == 0) return;
 
-    CD3DX12_RESOURCE_BARRIER computeOutputBarrier = CD3DX12_RESOURCE_BARRIER::Transition(scene._renderResource->_simulationOutput.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-    scene._commandList->ResourceBarrier(1, &computeOutputBarrier);
+    CD3DX12_RESOURCE_BARRIER computeOutputBarrier = CD3DX12_RESOURCE_BARRIER::Transition(scene.RenderParticleResource->SimulationOutput.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+    scene.CommandList->ResourceBarrier(1, &computeOutputBarrier);
 
-        scene._commandList->SetComputeRootConstantBufferView(computeSpriteFX.GetRootParameterIndex("mvp"), scene._renderResource->_mvpConstant->GetGPUVirtualAddress());
-        scene._commandList->SetComputeRootShaderResourceView(computeSpriteFX.GetRootParameterIndex("ParticleInputBuffer"), scene._updateResource->_particleInput->GetGPUVirtualAddress());
-        scene._commandList->SetComputeRootShaderResourceView(computeSpriteFX.GetRootParameterIndex("EmitterInfoBuffer"), scene._updateResource->_emitterInfo->GetGPUVirtualAddress());
-        scene._commandList->SetComputeRootUnorderedAccessView(computeSpriteFX.GetRootParameterIndex("ParticleOutputBuffer"), scene._renderResource->_simulationOutput->GetGPUVirtualAddress());
+        scene.CommandList->SetComputeRootConstantBufferView(computeSpriteFX.GetRootParameterIndex("mvp"), scene.RenderParticleResource->MvpConstant->GetGPUVirtualAddress());
+        scene.CommandList->SetComputeRootShaderResourceView(computeSpriteFX.GetRootParameterIndex("ParticleInputBuffer"), scene.UpdateParticleResource->ParticleInput->GetGPUVirtualAddress());
+        scene.CommandList->SetComputeRootShaderResourceView(computeSpriteFX.GetRootParameterIndex("EmitterInfoBuffer"), scene.UpdateParticleResource->EmitterInfo->GetGPUVirtualAddress());
+        scene.CommandList->SetComputeRootUnorderedAccessView(computeSpriteFX.GetRootParameterIndex("ParticleOutputBuffer"), scene.RenderParticleResource->SimulationOutput->GetGPUVirtualAddress());
 
 
-    UINT numThreadGroups = (scene._updateResource->_totalCount + 31) / 32;
-    scene._commandList->Dispatch(numThreadGroups, 1, 1);
+    UINT numThreadGroups = (scene.UpdateParticleResource->TotalCount + 31) / 32;
+    scene.CommandList->Dispatch(numThreadGroups, 1, 1);
 
-    computeOutputBarrier = CD3DX12_RESOURCE_BARRIER::Transition(scene._renderResource->_simulationOutput.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON);
-    scene._commandList->ResourceBarrier(1, &computeOutputBarrier);
+    computeOutputBarrier = CD3DX12_RESOURCE_BARRIER::Transition(scene.RenderParticleResource->SimulationOutput.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON);
+    scene.CommandList->ResourceBarrier(1, &computeOutputBarrier);
 }
 
 void ParticleManager::DispatchRibbon(float deltaTime, std::string sceneName)
 {
     ParticleSceneResource& scene = _sceneResources.at(sceneName);
-    if (scene._updateResource->_ribbonTotalCount == 0) return;
+    if (scene.UpdateParticleResource->RibbonTotalCount == 0) return;
 
-    CD3DX12_RESOURCE_BARRIER computeOutputBarrier = CD3DX12_RESOURCE_BARRIER::Transition(scene._renderResource->_ribbonSimulationOutput.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-    scene._commandList->ResourceBarrier(1, &computeOutputBarrier);
+    CD3DX12_RESOURCE_BARRIER computeOutputBarrier = CD3DX12_RESOURCE_BARRIER::Transition(scene.RenderParticleResource->RibbonSimulationOutput.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+    scene.CommandList->ResourceBarrier(1, &computeOutputBarrier);
 
-        scene._commandList->SetComputeRootConstantBufferView(computeRibbonFX.GetRootParameterIndex("mvp"), scene._renderResource->_mvpConstant->GetGPUVirtualAddress());
-        scene._commandList->SetComputeRootShaderResourceView(computeRibbonFX.GetRootParameterIndex("ParticleInputBuffer"), scene._updateResource->_ribbonParticleInput->GetGPUVirtualAddress());
-        scene._commandList->SetComputeRootShaderResourceView(computeRibbonFX.GetRootParameterIndex("EmitterInfoBuffer"), scene._updateResource->_ribbonEmitterInfo->GetGPUVirtualAddress());
-        scene._commandList->SetComputeRootUnorderedAccessView(computeRibbonFX.GetRootParameterIndex("ParticleOutputBuffer"), scene._renderResource->_ribbonSimulationOutput->GetGPUVirtualAddress());
+        scene.CommandList->SetComputeRootConstantBufferView(computeRibbonFX.GetRootParameterIndex("mvp"), scene.RenderParticleResource->MvpConstant->GetGPUVirtualAddress());
+        scene.CommandList->SetComputeRootShaderResourceView(computeRibbonFX.GetRootParameterIndex("ParticleInputBuffer"), scene.UpdateParticleResource->RibbonParticleInput->GetGPUVirtualAddress());
+        scene.CommandList->SetComputeRootShaderResourceView(computeRibbonFX.GetRootParameterIndex("EmitterInfoBuffer"), scene.UpdateParticleResource->RibbonEmitterInfo->GetGPUVirtualAddress());
+        scene.CommandList->SetComputeRootUnorderedAccessView(computeRibbonFX.GetRootParameterIndex("ParticleOutputBuffer"), scene.RenderParticleResource->RibbonSimulationOutput->GetGPUVirtualAddress());
 
 
-    UINT numThreadGroups = (UINT)(scene._updateResource->_ribbonTotalParticles.size() + 31) / 32;
-    scene._commandList->Dispatch(numThreadGroups, 1, 1);
+    UINT numThreadGroups = (UINT)(scene.UpdateParticleResource->RibbonTotalParticles.size() + 31) / 32;
+    scene.CommandList->Dispatch(numThreadGroups, 1, 1);
 
-    computeOutputBarrier = CD3DX12_RESOURCE_BARRIER::Transition(scene._renderResource->_ribbonSimulationOutput.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON);
-    scene._commandList->ResourceBarrier(1, &computeOutputBarrier);
+    computeOutputBarrier = CD3DX12_RESOURCE_BARRIER::Transition(scene.RenderParticleResource->RibbonSimulationOutput.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON);
+    scene.CommandList->ResourceBarrier(1, &computeOutputBarrier);
 }
 
 void ParticleManager::UpdateMvpConstant(float deltaTime, ParticleRenderResource* sceneRenderResource)
 {
     if (nullptr == sceneRenderResource)
         return;
-    auto sceneCamera = Global::renderer->GetCamera(sceneRenderResource->_name);
+    auto sceneCamera = Global::renderer->GetCamera(sceneRenderResource->Name);
     if (nullptr == sceneCamera)
         return;
 
@@ -850,12 +851,12 @@ void ParticleManager::UpdateMvpConstant(float deltaTime, ParticleRenderResource*
     mvpConstants.ProjMatrix       = sceneCamera->GetProjectionMatrix().Transpose();
     mvpConstants.CameraPos        = Vector4(sceneCamera->GetWorldMatrix()._41, sceneCamera->GetWorldMatrix()._42,
                                             sceneCamera->GetWorldMatrix()._43, 1);
-    mvpConstants.deltaTime = deltaTime;
+    mvpConstants.DeltaTime = deltaTime;
 
     void* mappedData = nullptr;
-    FAILED_CHECK_MESSAGE(sceneRenderResource->_mvpConstant->Map(0, nullptr, &mappedData), L"MVP Constant Buffer Map Failed");
+    FAILED_CHECK_MESSAGE(sceneRenderResource->MvpConstant->Map(0, nullptr, &mappedData), L"MVP Constant Buffer Map Failed");
     memcpy(mappedData, &mvpConstants, sizeof(MVPConstants));
-    sceneRenderResource->_mvpConstant->Unmap(0, nullptr);
+    sceneRenderResource->MvpConstant->Unmap(0, nullptr);
 }
 
 void ParticleManager::UpdateLifeCycle(float deltaTime)
@@ -863,15 +864,15 @@ void ParticleManager::UpdateLifeCycle(float deltaTime)
     std::set<std::shared_ptr<ParticleUpdateResource>> uniqueUpdateResources;
     for (const auto& pair : _sceneResources)
     {
-        if (pair.second._updateResource) uniqueUpdateResources.insert(pair.second._updateResource);
+        if (pair.second.UpdateParticleResource) uniqueUpdateResources.insert(pair.second.UpdateParticleResource);
     }
 
     for (const auto& updateResource : uniqueUpdateResources)
     {
-        if (updateResource->_name == "ParticleEditor") continue;
+        if (updateResource->Name == "ParticleEditor") continue;
 
         // Particle lifecycle
-        for (const auto& effect : updateResource->_sceneEffects)
+        for (const auto& effect : updateResource->SceneEffects)
         {
             if (effect->GetActiveFlag())
             {
@@ -880,7 +881,7 @@ void ParticleManager::UpdateLifeCycle(float deltaTime)
         }
 
         // Effect lifecycle (removal)
-        auto& effects = updateResource->_sceneEffects;
+        auto& effects = updateResource->SceneEffects;
         std::erase_if(effects, [](const auto& effect) {
             return effect->GetRemoveFlag();
         });

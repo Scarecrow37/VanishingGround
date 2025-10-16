@@ -16,11 +16,7 @@ public:
 
     void                   Update(float deltaTime);
     class ParticleEmitter* GetEmitter(size_t emitterIndex);
-    auto                                GetEmitterList() const
-    {
-        return _particleEmitters | std::views::transform([](auto const& up) { return up.get(); });
-    }
-
+    std::vector<std::unique_ptr<class ParticleEmitter>>& GetEmitterList();
     void                                RemoveEmitter(ParticleEmitter* target);
     void                                UpdateParticleLifeCycle(float deltaTime);
     void                                Play();

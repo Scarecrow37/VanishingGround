@@ -338,7 +338,7 @@ void EditorParticleEffectHierarchy::OnFrameRender()
         {
             ImGui::GetStyle().ItemSpacing.y = 3.f; // 모든 위젯 사이의 기본 세로 간격을 10으로
             ImGuiTreeNodeFlags leafFlags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-            for (const auto& emitter : _curEffect->GetEmitterList())
+            for (auto& emitter : _curEffect->GetEmitterList())
             {
                 if (ImGui::TreeNodeEx(emitter->GetEmitterName().c_str(), leafFlags))
                 {
@@ -346,10 +346,10 @@ void EditorParticleEffectHierarchy::OnFrameRender()
                     bool isMouseClicked = ImGui::IsMouseClicked(0);
                     if (true == isHovered && true == isMouseClicked)
                     {
-                        _editorParticleEffectDetails->SetCurrentEmitter(emitter);
-                        _curEmitter = emitter;
+                        _editorParticleEffectDetails->SetCurrentEmitter(emitter.get());
+                        _curEmitter = emitter.get();
                     }
-                    if (emitter == _curEmitter)
+                    if (emitter.get() == _curEmitter)
                     {
                         ImGui::SameLine();
                         ImVec2 buttonSize(120.0f, 25.0f);               
@@ -358,7 +358,7 @@ void EditorParticleEffectHierarchy::OnFrameRender()
                         bool isRemoveButtonPressed = ImGui::Button("Remove Emitter", buttonSize);
                         if (true == isRemoveButtonPressed)
                         {
-                            effect->RemoveEmitter(emitter);
+                            effect->RemoveEmitter(emitter.get());
                             _editorParticleEffectDetails->SetCurrentEmitter(nullptr);
                             UmParticleManager->RefreshEditor();
                         }

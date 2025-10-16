@@ -48,29 +48,29 @@ public:                                                                         
 
 struct ParticleOutput
 {
-    Vector4 position; // ribbon -> normal
+    Vector4 Position; // ribbon -> normal
     Matrix  FinalMatrix;
     Vector4 Color;
     Vector4 FrameInfo;
     int     EmitterIndex;
-    Vector3   paddings;
+    Vector3 Paddings;
 };
 
 struct EmitterInfo
 {
     Matrix  WorldMatrix;
     Matrix  OrientedWorldMatrix;
-    Vector4 dragPoint;
-    Vector4 dragForce;
-    Vector4 vortexForce;
-    Vector4 startScale;
-    Vector4 endScale;
-    Vector4 startColor;
-    Vector4 endColor;
-    Vector4 lifetime; // x: particle lifetime, y: useWorldSpace (1.0f for true, 0.0f for false)
-    Vector4 startNormal;
-    Vector4 endNormal;
-    Vector4 ribbonVector;
+    Vector4 DragPoint;
+    Vector4 DragForce;
+    Vector4 VortexForce;
+    Vector4 StartScale;
+    Vector4 EndScale;
+    Vector4 StartColor;
+    Vector4 EndColor;
+    Vector4 Lifetime; // x: particle lifetime, y: useWorldSpace (1.0f for true, 0.0f for false)
+    Vector4 StartNormal;
+    Vector4 EndNormal;
+    Vector4 RibbonVector;
 };
 
 struct __declspec(align(16)) MVPConstants
@@ -79,7 +79,7 @@ struct __declspec(align(16)) MVPConstants
     Matrix  ViewRotInvMatrix;
     Matrix  ProjMatrix;
     Vector4 CameraPos;
-    float   deltaTime; // 4바이트
+    float   DeltaTime; // 4바이트
 
     // 패딩을 float 배열로 대체 (44바이트)
     float pad1[4]; // 16바이트 (deltaTime 이후 12바이트 남은 공간 채움)
@@ -128,44 +128,44 @@ struct RibbonIndex
 
 struct ParticleUpdateResource
 {
-    std::string _name;
+    std::string Name;
 
-    std::vector<std::unique_ptr<class ParticleEffect>> _sceneEffects;
+    std::vector<std::unique_ptr<class ParticleEffect>> SceneEffects;
 
-    std::vector<class Particle>           _totalParticles;
-    std::vector<EmitterInfo>              _emitterMatrix;
-    std::vector<UINT>                     _activeEmitterAlbedos;
-    UINT                                  _totalCount = 0;
-    std::vector<class Particle>           _ribbonTotalParticles;
-    std::vector<EmitterInfo>              _ribbonEmitterMatrix;
-    std::vector<UINT>                     _ribbonActiveEmitterAlbedos;
-    std::vector<std::vector<RibbonIndex>> _ribbonIndices;
-    UINT                                  _ribbonTotalCount = 0;
+    std::vector<class Particle>           TotalParticles;
+    std::vector<EmitterInfo>              EmitterMatrix;
+    std::vector<UINT>                     ActiveEmitterAlbedos;
+    UINT                                  TotalCount = 0;
+    std::vector<class Particle>           RibbonTotalParticles;
+    std::vector<EmitterInfo>              RibbonEmitterMatrix;
+    std::vector<UINT>                     RibbonActiveEmitterAlbedos;
+    std::vector<std::vector<RibbonIndex>> RibbonIndices;
+    UINT                                  RibbonTotalCount = 0;
 
-    ComPtr<ID3D12Resource> _particleInput;
-    ComPtr<ID3D12Resource> _emitterInfo;
-    ComPtr<ID3D12Resource> _particleInputUpload;
-    ComPtr<ID3D12Resource> _emitterInfoUpload;
-    ComPtr<ID3D12Resource> _ribbonParticleInput;
-    ComPtr<ID3D12Resource> _ribbonEmitterInfo;
-    ComPtr<ID3D12Resource> _ribbonParticleInputUpload;
-    ComPtr<ID3D12Resource> _ribbonEmitterInfoUpload;
+    ComPtr<ID3D12Resource> ParticleInput;
+    ComPtr<ID3D12Resource> EmitterInfo;
+    ComPtr<ID3D12Resource> ParticleInputUpload;
+    ComPtr<ID3D12Resource> EmitterInfoUpload;
+    ComPtr<ID3D12Resource> RibbonParticleInput;
+    ComPtr<ID3D12Resource> RibbonEmitterInfo;
+    ComPtr<ID3D12Resource> RibbonParticleInputUpload;
+    ComPtr<ID3D12Resource> RibbonEmitterInfoUpload;
 
 };
 
 struct ParticleRenderResource
 {
-    std::string            _name;
-    ComPtr<ID3D12Resource> _simulationOutput;
-    ComPtr<ID3D12Resource> _ribbonSimulationOutput;
-    ComPtr<ID3D12Resource> _mvpConstant;
+    std::string            Name;
+    ComPtr<ID3D12Resource> SimulationOutput;
+    ComPtr<ID3D12Resource> RibbonSimulationOutput;
+    ComPtr<ID3D12Resource> MvpConstant;
 };
 
 struct ParticleSceneResource
 {
-    std::string                             _name;
-    ComPtr<ID3D12GraphicsCommandList>       _commandList;
-    ComPtr<ID3D12CommandAllocator>          _commandAllocator;
-    std::shared_ptr<ParticleUpdateResource> _updateResource;
-    std::unique_ptr<ParticleRenderResource> _renderResource;
+    std::string                             Name;
+    ComPtr<ID3D12GraphicsCommandList>       CommandList;
+    ComPtr<ID3D12CommandAllocator>          CommandAllocator;
+    std::shared_ptr<ParticleUpdateResource> UpdateParticleResource;
+    std::unique_ptr<ParticleRenderResource> RenderParticleResource;
 };

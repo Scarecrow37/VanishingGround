@@ -13,11 +13,9 @@ private:
 
     ComPtr<ID3D12RootSignature>       _computeSpriteRootSignature;
     ComPtr<ID3D12PipelineState>       _computeSpritePSO;
-    ComPtr<ID3DBlob>                  _computeSpriteShaderBlob;
 
     ComPtr<ID3D12RootSignature>       _computeRibbonRootSignature;
     ComPtr<ID3D12PipelineState>       _computeRibbonPSO;
-    ComPtr<ID3DBlob>                  _computeRibbonShaderBlob;
 
     // -------------------------------------
     // [ Scene & Resource Management ]

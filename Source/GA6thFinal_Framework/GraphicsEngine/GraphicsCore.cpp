@@ -235,22 +235,12 @@ void GraphicsCore::LoadTextureResource(std::wstring_view filePath, ParticleEmitt
     }
 }
 
-void GraphicsCore::LoadTextureResource(std::wstring_view filePath) const 
-{
-    _resourceManager->LoadResource<Texture>(filePath.data());
-}
-
 void GraphicsCore::LoadModelResource(const std::wstring_view filePath, ParticleEmitter* component) const
 {
     if (auto meshSurfaceLocator = component->_emitLocator->AsMeshSurfaceLocator())
     {
         _resourceManager->LoadResource<Model>(filePath);
     }
-}
-
-void GraphicsCore::LoadModelResource(std::wstring_view filePath) const 
-{
-    _resourceManager->LoadResource<Model>(filePath.data());
 }
 
 void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT height, const FeatureLevel feature, bool isEditorMode)
