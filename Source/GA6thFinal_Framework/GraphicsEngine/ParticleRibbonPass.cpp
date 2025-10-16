@@ -54,7 +54,7 @@ void ParticleRibbonPass::Begin(ID3D12GraphicsCommandList* commandList)
             std::fill(_ribbonIndices[i].begin(), _ribbonIndices[i].end(), -1);
             for (int j = 0; j < size; j++)
             {
-                _ribbonIndices[i][j] = totalRibbonEmitterIndices[i][j]._index;
+                _ribbonIndices[i][j] = totalRibbonEmitterIndices[i][j].Index;
             }
             _ribbonIndexBuffer[i]->CopyStructuredBuffer(commandList, _ribbonIndices[i].data(),
                                                         static_cast<UINT>(totalRibbonEmitterIndices[i].size()));

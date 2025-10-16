@@ -213,7 +213,10 @@ void ParticleManager::Update(const float deltaTime)
     std::set<std::shared_ptr<ParticleUpdateResource>> uniqueUpdateResources;
     for (const auto& pair : _sceneResources)
     {
-        if(pair.second.UpdateParticleResource) uniqueUpdateResources.insert(pair.second.UpdateParticleResource);
+        if (pair.second.UpdateParticleResource)
+        {
+            uniqueUpdateResources.insert(pair.second.UpdateParticleResource);
+        }
     }
 
     // 2. Update effects, awake particles, and copy to GPU
@@ -460,7 +463,10 @@ void ParticleManager::ChangeTexture()
     std::set<std::shared_ptr<ParticleUpdateResource>> uniqueUpdateResources;
     for (const auto& pair : _sceneResources)
     {
-        if(pair.second.UpdateParticleResource) uniqueUpdateResources.insert(pair.second.UpdateParticleResource);
+        if (pair.second.UpdateParticleResource)
+        {
+            uniqueUpdateResources.insert(pair.second.UpdateParticleResource);
+        }
     }
 
     for (const auto& updateResource : uniqueUpdateResources)
@@ -704,7 +710,7 @@ void ParticleManager::AwakeParticles(float deltaTime, const std::shared_ptr<Part
                             }
                             std::sort(
                                 emitterIndices.begin(), emitterIndices.end(),
-                                [](const RibbonIndex& a, const RibbonIndex& b) -> bool { return a._ratio < b._ratio; });
+                                [](const RibbonIndex& a, const RibbonIndex& b) -> bool { return a.Ratio < b.Ratio; });
 
                             if (!emitterIndices.empty())
                             {

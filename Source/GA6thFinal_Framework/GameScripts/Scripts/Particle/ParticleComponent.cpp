@@ -14,8 +14,8 @@ ParticleComponent::ParticleComponent()
             if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
             {
                 DragDropAsset::Data* data      = static_cast<DragDropAsset::Data*>(payLoad->Data);
-                File::Path           path      = data->GetPath();
-                File::Guid           guid      = data->GetGuid();
+                const File::Path&    path      = data->GetPath();
+                const File::Guid&    guid      = data->GetGuid();
                 const auto           extension = path.extension();
                 if (extension == L".vfx" && _newEffectKey != "")
                 {

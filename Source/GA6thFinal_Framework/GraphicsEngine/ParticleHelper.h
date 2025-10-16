@@ -122,8 +122,8 @@ enum class VelocityScaleType
 
 struct RibbonIndex
 {
-    UINT  _index = -1;
-    float _ratio = 0;
+    UINT  Index = -1;
+    float Ratio = 0;
 };
 
 struct ParticleUpdateResource

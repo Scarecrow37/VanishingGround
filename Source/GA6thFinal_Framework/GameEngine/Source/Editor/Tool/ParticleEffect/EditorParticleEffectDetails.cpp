@@ -255,38 +255,38 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
 
     // use light
     {
-        bool uselight = _curEmitter->GetUseLight();
+        bool useLight = _curEmitter->GetUseLight();
         ImGui::Text("Use light");
         ImGui::SameLine();
-        bool result = ImGui::Checkbox("##Use light", &uselight);
+        bool result = ImGui::Checkbox("##Use light", &useLight);
         if (false == isSomethingChanged)
             if (true == result)
                 isSomethingChanged = result;
-        if (true == uselight)
+        if (true == useLight)
         {
             // emitter position
             {
-                float lightcolor[3] = {_curEmitter->GetLightColor().x, _curEmitter->GetLightColor().y,
+                float lightColor[3] = {_curEmitter->GetLightColor().x, _curEmitter->GetLightColor().y,
                                        _curEmitter->GetLightColor().z};
 
                 ImGui::Text("Emitter Light Color");
                 ImGui::SameLine();
-                bool result = ImGui::ColorEdit3("##Emitter Light Color", lightcolor);
+                bool result = ImGui::ColorEdit3("##Emitter Light Color", lightColor);
                 if (false == isSomethingChanged)
                     if (true == result)
                         isSomethingChanged = result;
-                _curEmitter->SetLightColor({lightcolor[0], lightcolor[1], lightcolor[2]});
+                _curEmitter->SetLightColor({lightColor[0], lightColor[1], lightColor[2]});
             }
             // emitter light intensity
             {
-                float lightintensity = _curEmitter->GetLightIntensity();
+                float lightIntensity = _curEmitter->GetLightIntensity();
                 ImGui::Text("Emitter Light Intensity");
                 ImGui::SameLine();
-                bool result = ImGui::SliderFloat("##Emitter Light Intensity", &lightintensity, 0, 10);
+                bool result = ImGui::SliderFloat("##Emitter Light Intensity", &lightIntensity, 0, 10);
                 if (false == isSomethingChanged)
                     if (true == result)
                         isSomethingChanged = result;
-                _curEmitter->SetLightIntensity(lightintensity);
+                _curEmitter->SetLightIntensity(lightIntensity);
             }
             // emitter light range
             {

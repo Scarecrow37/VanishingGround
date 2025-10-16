@@ -237,7 +237,7 @@ void GraphicsCore::LoadTextureResource(std::wstring_view filePath, ParticleEmitt
 
 void GraphicsCore::LoadModelResource(const std::wstring_view filePath, ParticleEmitter* component) const
 {
-    if (auto meshSurfaceLocator = component->_emitLocator->AsMeshSurfaceLocator())
+    if (component->_emitLocator->AsMeshSurfaceLocator())
     {
         _resourceManager->LoadResource<Model>(filePath);
     }

@@ -385,13 +385,15 @@ void EditorParticleEffectHierarchy::LoadEffect()
     std::vector<File::Path> out;
     if (File::ShowOpenFileDialog(owner, title, L"", {{L"\0", L"*.vfx*\0"}}, false, out))
     {
-        auto effect = UmParticleSerializer.Deserialize(this, "", out.front(), true, "ParticleEditor");
-        _editorParticleEffectDetails->SetCurrentEffect(effect);
-        _curEffect = effect;
-        _curEffect->SetPosition(&_effectPosition);
-        _curEffect->SetRotation(&_effectRotation);
-        _curEffect->SetScale(&_effectScale);
-        _curEffect->SetParentMatrix(&_effectWorldMatrix);
-        _curEffect->SetBoneFollowFlag(&_boneFlag);
+        if (auto effect = UmParticleSerializer.Deserialize(this, "", out.front(), true, "ParticleEditor"))
+        {
+            _editorParticleEffectDetails->SetCurrentEffect(effect);
+            _curEffect = effect;
+            _curEffect->SetPosition(&_effectPosition);
+            _curEffect->SetRotation(&_effectRotation);
+            _curEffect->SetScale(&_effectScale);
+            _curEffect->SetParentMatrix(&_effectWorldMatrix);
+            _curEffect->SetBoneFollowFlag(&_boneFlag);
+        }
     }
 }
