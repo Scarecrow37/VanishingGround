@@ -1300,27 +1300,24 @@ void ESceneManager::NotInitDestroyComponentEraseToWaitVec(Component* destroyComp
 {
     if (destroyComponent->_initFlags.IsAwake() == false)
     {
-        if (false == _waitAwakeVec.empty())
+        size_t result = std::erase_if(_waitAwakeVec, [destroyComponent](std::shared_ptr<Component>& component) 
         {
-            size_t result = std::erase_if(_waitAwakeVec, [destroyComponent](std::shared_ptr<Component>& component) 
-            {
-                return component.get() == destroyComponent;
-            });
+            return component.get() == destroyComponent;
+        });
 
-            if (0 == result)
+        if (0 == result)
+        {
+            if (false == _addComponentsQueue.empty())
             {
-                if (false == _addComponentsQueue.empty())
+                // 추가 대기중인 컴포넌트라면 같이 삭제
+                std::erase_if(_addComponentsQueue,
+                [destroyComponent](const std::pair<std::weak_ptr<GameObject>, std::shared_ptr<Component>>& pair) 
                 {
-                    // 추가 대기중인 컴포넌트라면 같이 삭제
-                    std::erase_if(_addComponentsQueue,
-                    [destroyComponent](const std::pair<std::weak_ptr<GameObject>, std::shared_ptr<Component>>& pair) 
-                    {
-                        auto& [obj, component] = pair;
-                        return component.get() == destroyComponent;
-                    });
-                }
+                    auto& [obj, component] = pair;
+                    return component.get() == destroyComponent;
+                });
             }
-        }   
+        }         
     }
 
     if (destroyComponent->_initFlags.IsStart() == false)

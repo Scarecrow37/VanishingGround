@@ -15,7 +15,6 @@ public:
 #else
     inline static constexpr bool IsPlay() { return true; }
 #endif
-
     ETimeSystem              Time;
     ESceneManager            SceneManager;
     EGameObjectFactory       GameObjectFactory;
@@ -30,9 +29,9 @@ public:
     Watcher::System          Watcher;
     ParticleEffectSerializer ParticleSerializer;
     EGizmoManager            GizmoManager;
-    UI::Manager               UserInterface;
-    PreferencesSystem         PreferencesSystem;
-
+    UI::Manager              UserInterface;
+    PreferencesSystem        PreferencesSystem;
+    ImGuiDebuggerWindow      DebuggerWindow;
     ReflectHelper::ImGuiDraw::InputAutoSetting ImGuiDrawPropertysSetting;
 private:
     LogLocation::EngineLocationInfo _locationInfo;
