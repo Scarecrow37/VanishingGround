@@ -16,6 +16,7 @@ WeaponChangeUIManager::WeaponChangeUIManager()
 {
     _state            = UIState::IDLE;
     _changeWeaponSlot = -1;
+    _changeWeaponIcon = nullptr;
 }
 WeaponChangeUIManager::~WeaponChangeUIManager() = default;
 
@@ -43,13 +44,17 @@ void WeaponChangeUIManager::ShowWeaponChangeUI(const WeaponElement& changeWeapon
     WeaponStats&       stats = _changeWeaponElement.Stats;
     const std::string& name  = stats.WeaponName;
     DropItemInfo       info  = _changeWeaponElement.GetItemInfo();
+    const File::Guid&  guid  = UmFileSystem.GetGuidFromAssetID(DropItemInfo::GetArtifactIconID(info));
+    if (_changeWeaponIcon)
+    {
+        _changeWeaponIcon->SetImage(guid);
+    }
     if (_changeWeaponStats.Name)
     {
         _changeWeaponStats.Name->Text = name;
     }
     if (_changeWeaponStats.Icon)
     {
-        File::Guid guid = UmFileSystem.GetGuidFromAssetID(DropItemInfo::GetArtifactIconID(info));
         _changeWeaponStats.Icon->SetImage(guid);
     }
     if (_changeWeaponStats.Damage.Text)
@@ -71,6 +76,11 @@ void WeaponChangeUIManager::ShowWeaponChangeUI(const WeaponElement& changeWeapon
     if (_changeWeaponStats.Description)
     {
         _changeWeaponStats.Description->Description = DropItemInfo::GetArtifactDescription(info);
+    }
+    if (_changeWeaponStats.Keyword)
+    {
+        //TODO 키워드 설명 파싱 필요
+        _changeWeaponStats.Keyword->Description = "";
     }
 
     if (WeaponSystem* weaponSystem = SingletonComponent<WeaponSystem>::GetInstance())
@@ -172,6 +182,11 @@ void WeaponChangeUIManager::SetPlayerWeaponStatsUI(const WeaponElement& focusWea
     if (_playerWeaponStats.Description)
     {
         _playerWeaponStats.Description->Description = DropItemInfo::GetArtifactDescription(playerInfo);
+    }
+    if (_playerWeaponStats.Keyword)
+    {
+        //TODO: 키워드 파싱 필요
+        _playerWeaponStats.Keyword->Description = "";
     }
 
     auto UpdateArrowUI = [](int player, int change, auto& upArrow, auto& downArrow) 
@@ -351,6 +366,10 @@ void WeaponChangeUIManager::FindUIElements()
                 info.IconImage         = object.GetComponent<ImageElement>();
                 ++iconIndex;
             }
+            if (object.CompareTag("Change Weapon Icon"))
+            {
+                _changeWeaponIcon = object.GetComponent<ImageElement>();
+            }
         });
     }
 
@@ -386,6 +405,10 @@ void WeaponChangeUIManager::FindUIElements()
             else if (object.CompareTag("Description"))
             {
                 _playerWeaponStats.Description = object.GetComponent<DescriptionPanel>();
+            }
+            else if (object.CompareTag("Keyword Description"))
+            {
+                _playerWeaponStats.Keyword = object.GetComponent<DescriptionPanel>();
             }
         });
     }
@@ -466,6 +489,10 @@ void WeaponChangeUIManager::FindUIElements()
             else if (object.CompareTag("Description"))
             {
                 _changeWeaponStats.Description = object.GetComponent<DescriptionPanel>();
+            }
+            else if (object.CompareTag("Keyword Description"))
+            {
+                _changeWeaponStats.Keyword = object.GetComponent<DescriptionPanel>();
             }
         });
     }

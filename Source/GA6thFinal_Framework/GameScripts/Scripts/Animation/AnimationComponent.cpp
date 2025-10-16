@@ -580,6 +580,7 @@ void AnimationComponent::ClearOverrideAnimations()
     if (false == _overrideAnimationStack.empty())
     {
         _overrideAnimationStack.clear();
+        _currentAnimationData = &GetTopAnimationDataEx();
         if (false == _isBuildingOverrideAnimation)
         {
             SetAnimationEx(_mainAnimationData);

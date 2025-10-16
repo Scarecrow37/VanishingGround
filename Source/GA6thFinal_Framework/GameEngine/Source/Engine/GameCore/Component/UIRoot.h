@@ -10,6 +10,8 @@ enum class FocusCallType : unsigned char
     FORCED
 };
 
+constexpr unsigned int MAX_NAVIGATION_LOOP_COUNT = 100;
+
 class UIRoot : public UIBaseComponent
 {
     USING_PROPERTY(UIRoot)
@@ -42,7 +44,7 @@ protected:
     void Start() override;
 
 private:
-    void ChangeFocusComponent(UINavigationComponent* nextFocusComponent, FocusCallType callType);
+    bool ChangeFocusComponent(UINavigationComponent* nextFocusComponent, FocusCallType callType);
     void UpdateNavigation();
     void UpdateNavigationMap();
     void UpdateNavigationMap(Transform& exceptTransform);

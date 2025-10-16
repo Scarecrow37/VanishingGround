@@ -63,6 +63,9 @@ void ItemInfoUIManager::SetItemDescription(const DropItemInfo& info)
 {
     std::string description = DropItemInfo::GetArtifactDescription(info);
     SetItemDescription(description);
+
+    //TODO: 무기 키워드에 대한 설명 표시해야함.
+    SetKeywordDescription("");
 }
 
 void ItemInfoUIManager::SetItemDescription(const std::string& description) 
@@ -70,6 +73,14 @@ void ItemInfoUIManager::SetItemDescription(const std::string& description)
     if (_uiComponents.ItemDescription)
     {
         _uiComponents.ItemDescription->Description = description;
+    }
+}
+
+void ItemInfoUIManager::SetKeywordDescription(const std::string& description) 
+{
+    if (_uiComponents.KeywordDescription)
+    {
+        _uiComponents.KeywordDescription->Description = description;
     }
 }
 
@@ -175,6 +186,13 @@ void ItemInfoUIManager::FindComponents()
             if (object.CompareTag("Description"))
             {
                 _uiComponents.ItemDescription = object.GetComponent<DescriptionPanel>();
+            }
+        }
+        else if (nullptr == _uiComponents.KeywordDescription)
+        {
+            if (object.CompareTag("Keyword Description"))
+            {
+                _uiComponents.KeywordDescription = object.GetComponent<DescriptionPanel>();
             }
         }
         else if (nullptr == _uiComponents.Damage)

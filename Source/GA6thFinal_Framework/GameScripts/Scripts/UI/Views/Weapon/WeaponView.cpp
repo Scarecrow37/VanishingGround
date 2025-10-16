@@ -156,59 +156,43 @@ void WeaponView::FindTextInfoUI()
     if (_textInfoUI.TextInfoPanel)
     {
         Transform::ForeachDFS(_textInfoUI.TextInfoPanel->transform, [&](Transform* curr) 
-        {
-            if (nullptr == _textInfoUI.Damage)
+        {           
+            if (curr->gameObject->CompareTag("Text Damage"))
             {
-                if (curr->gameObject->CompareTag("Text Damage"))
+                _textInfoUI.Damage = curr->gameObject->GetComponent<TextElement>();
+                if (nullptr == _textInfoUI.Damage)
                 {
-                    _textInfoUI.Damage = curr->gameObject->GetComponent<TextElement>();
+                    std::u8string message = u8"Text Damage에 Text Element이 존재하지 않습니다.";
+                    UmLogger.Log(LogLevel::LEVEL_WARNING, message);
                 }
             }
-            else
+            else if (curr->gameObject->CompareTag("Text Critical"))
             {
-                std::u8string message = u8"Text Damage에 Text Element이 존재하지 않습니다.";
-                UmLogger.Log(LogLevel::LEVEL_WARNING, message);
-            }
-
-            if (nullptr == _textInfoUI.Critical)
-            {
-                if (curr->gameObject->CompareTag("Text Critical"))
+                _textInfoUI.Critical = curr->gameObject->GetComponent<TextElement>();
+                if (nullptr == _textInfoUI.Critical)
                 {
-                    _textInfoUI.Critical = curr->gameObject->GetComponent<TextElement>();
+                    std::u8string message = u8"Text Critical에 Text Element이 존재하지 않습니다.";
+                    UmLogger.Log(LogLevel::LEVEL_WARNING, message);
                 }
             }
-            else
+            else if (curr->gameObject->CompareTag("Text Attack Count"))
             {
-                std::u8string message = u8"Text Critical에 Text Element이 존재하지 않습니다.";
-                UmLogger.Log(LogLevel::LEVEL_WARNING, message);
-            }
-
-            if (nullptr == _textInfoUI.AttackCount)
-            {
-                if (curr->gameObject->CompareTag("Text Attack Count"))
+                _textInfoUI.AttackCount = curr->gameObject->GetComponent<TextElement>();
+                if (nullptr == _textInfoUI.AttackCount)
                 {
-                    _textInfoUI.AttackCount = curr->gameObject->GetComponent<TextElement>();
+                    std::u8string message = u8"Text Attack Count에 Text Element이 존재하지 않습니다.";
+                    UmLogger.Log(LogLevel::LEVEL_WARNING, message);
                 }
             }
-            else
+            else if (curr->gameObject->CompareTag("Text Speed"))
             {
-                std::u8string message = u8"Text Attack Count에 Text Element이 존재하지 않습니다.";
-                UmLogger.Log(LogLevel::LEVEL_WARNING, message);
-            }
-
-            if (nullptr == _textInfoUI.Speed)
-            {
-                if (curr->gameObject->CompareTag("Text Speed"))
+                _textInfoUI.Speed = curr->gameObject->GetComponent<TextElement>();
+                if (nullptr == _textInfoUI.Speed)
                 {
-                    _textInfoUI.Speed = curr->gameObject->GetComponent<TextElement>();
+                    std::u8string message = u8"Text Speed에 Text Element이 존재하지 않습니다.";
+                    UmLogger.Log(LogLevel::LEVEL_WARNING, message);
                 }
             }
-            else
-            {
-                std::u8string message = u8"Text Speed에 Text Element이 존재하지 않습니다.";
-                UmLogger.Log(LogLevel::LEVEL_WARNING, message);
-            }
-
         });
     }
     else
