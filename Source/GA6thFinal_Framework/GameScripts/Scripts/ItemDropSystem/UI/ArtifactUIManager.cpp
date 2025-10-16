@@ -308,7 +308,8 @@ void ArtifactUIManager::ObtainFocusNavi(size_t index)
     {
         ArtifactButtonNavi* navi = _focusNaviElements[index];
         navi->Enable             = false;
-        
+        _obtainFlag              = true;
+
         if (index < _frameImageElements.size())
         {
             ImageElement* frameImage = _frameImageElements[index];
