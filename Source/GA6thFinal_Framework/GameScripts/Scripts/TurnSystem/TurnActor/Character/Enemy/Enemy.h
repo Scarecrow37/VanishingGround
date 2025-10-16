@@ -6,7 +6,7 @@
 #include "Monster/MonsterController.h"
 #include "Monster/Context/MonsterDataContext.h"
 #include "Monster/Context/MonsterActionContext.h"
-#include "Monster/Context/MonsterStageContext.h"
+#include "Monster/Context/MonsterStatContext.h"
 
 class ParticleComponent;
 class EnemyStatsComponent;

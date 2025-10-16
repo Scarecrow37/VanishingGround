@@ -9,8 +9,8 @@
 namespace Monster
 {
     Action::Action(std::weak_ptr<Enemy> owner, const DataContext* pDataContext, const ActionContext* pActionContext,
-                   const StageContext* pStageContext)
-        : _weakOwner(owner), _dataContext(*pDataContext), _actionContext(*pActionContext), _stageContext(*pStageContext)
+                   const StatContext* pStatContext)
+        : _weakOwner(owner), _dataContext(*pDataContext), _actionContext(*pActionContext), _statContext(*pStatContext)
     {
     }
 

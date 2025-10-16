@@ -5,6 +5,8 @@ namespace Monster
     using FSMID         = int; // 몬스터 FSM ID
     using DataID        = int; // 몬스터 ID
     using ActionID      = int; // 몬스터 액션 ID
+    using LevelID       = int; // 스테이지 레벨 ID
+    using SpawnID       = int; // 몬스터 스폰 ID
 
     constexpr size_t MAX_ENEMY_COUNT = 3;
     constexpr size_t MAX_FSM_COUNT   = 3;
@@ -14,6 +16,21 @@ namespace Monster
         "Enemy Spawn Point Left",
         "Enemy Spawn Point Middle",
         "Enemy Spawn Point Right"};
+
+    struct TokenParam
+    {
+        int TokenID = 0; // 토큰 ID
+        int Count   = 0; // 토큰 개수
+    };
+    struct ActionParam
+    {
+        int Param = 0; // 스킬 데미지
+    };
+    struct SpawnParam
+    {
+        DataID MonsterID = 0; // 몬스터 ID
+        std::vector<TokenParam> InitalTokens;  // 초기 토큰
+    };
 
     namespace ExcelData
     {
@@ -48,7 +65,7 @@ namespace Monster
             {
                 constexpr const char8_t* SHEET_NAME     = u8"스테이지 별 적 조정";
 
-                constexpr const char8_t* STAGE_ID       = u8"Stage ID";
+                constexpr const char8_t* LEVEL_ID       = u8"Level ID";
                 constexpr const char8_t* MONSTER_ID     = u8"Enemy ID";
                 constexpr const char8_t* HEALTH         = u8"Health";
                 constexpr const char8_t* STUN_RESIST    = u8"Stun Res";
@@ -62,4 +79,7 @@ namespace Monster
             }
         }
     }
+
+    std::vector<ActionParam> ParseActionParam(const std::string& paramStr); // ex) 1, 5, 2 (데미지1, 데미지2, 데미지3)
+    std::vector<TokenParam>  ParseTokenParam(const std::string& paramStr); // ex) 205003:2, 205004:1 (토큰ID:개수)
 } // namespace Monster

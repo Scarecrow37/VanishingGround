@@ -6,7 +6,7 @@
 
 #include "Monster/Context/MonsterDataContext.h"
 #include "Monster/Context/MonsterActionContext.h"
-#include "Monster/Context/MonsterStageContext.h"
+#include "Monster/Context/MonsterStatContext.h"
 
 class ExcelDataSystem;
 class ExcelDataBase;
@@ -54,7 +54,7 @@ public:
     /// <param name="context">몬스터 데이터가 포함된 DataContext 객체에 대한 포인터입니다.</param>
     /// <param name="index">스폰할 몬스터의 스폰 포인트 인덱스입니다.</param>
     /// <returns>몬스터 스폰이 성공하면 true, 실패하면 false를 반환합니다.</returns>
-    std::weak_ptr<Enemy> SpawnMonsterFromDataContext(const Monster::StageContext* pStageContext, size_t index);
+    std::weak_ptr<Enemy> SpawnMonsterFromDataContext(const Monster::StatContext* pStatContext, size_t index);
     std::weak_ptr<Enemy> SpawnMonsterFromDataContext(const Monster::DataContext* pDataContext, size_t index);
 
     /// <summary>
@@ -71,11 +71,11 @@ private:
     void FindSpawnPoints();
     void LoadFromExcelData();
 
-    const std::vector<Monster::StageContext>* GetStageContextFromStageID(int stageID);
+    const std::vector<Monster::StatContext>* GetStatContextFromStageID(int stageID);
 
     void LoadDataContextFromExcelData(ExcelDataSystem* dataSystem);
     void LoadActionContextFromExcelData(ExcelDataSystem* dataSystem);
-    void LoadStageContextFromExcelData(ExcelDataSystem* dataSystem);
+    void LoadStatContextFromExcelData(ExcelDataSystem* dataSystem);
 
 private:
     SingletonComponent<MonsterSystem> _singletonComponent = {this};
@@ -84,10 +84,10 @@ private:
     std::array<std::weak_ptr<Enemy>, Monster::MAX_ENEMY_COUNT>              _spawnedEnemies;
     std::unordered_map<Monster::DataID, std::vector<std::weak_ptr<Enemy>>>  _spawnedEnemiesIDTable;
 
-    std::unordered_map<Monster::DataID, Monster::DataContext>       _dataContextTable;
-    std::unordered_map<Monster::ActionID, Monster::ActionContext>   _actionContextTable;
-    std::unordered_map<int, std::vector<Monster::StageContext>>     _stageContextTable;
-
+    std::unordered_map<Monster::DataID, Monster::DataContext>               _dataContextTable;
+    std::unordered_map<Monster::ActionID, Monster::ActionContext>           _actionContextTable;
+    std::unordered_map<Monster::LevelID, std::vector<Monster::StatContext>> _statContextTable;
+    
     REFLECT_FIELDS_BEGIN(Component)
     REFLECT_FIELDS_END(MonsterSystem)
 };

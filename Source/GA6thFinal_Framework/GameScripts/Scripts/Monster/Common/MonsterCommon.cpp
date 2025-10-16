@@ -1,11 +1,13 @@
 ﻿#include "pchScripts.h"
-#include "MonsterStageContext.h"
+#include "MonsterCommon.h"
+
+#include "Monster/Context/MonsterStatContext.h"
 
 namespace Monster
 {
+    // 문자열 좌우 공백 제거 함수
     namespace
     {
-        // 문자열 좌우 공백 제거 함수
         inline std::string Trim(const std::string& s)
         {
             size_t start = s.find_first_not_of(" \t\n\r");
@@ -91,5 +93,4 @@ namespace Monster
 
         return result;
     }
-
 } // namespace Monster

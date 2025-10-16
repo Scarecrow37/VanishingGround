@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "Monster/Context/MonsterDataContext.h"
-#include "Monster/Context/MonsterStageContext.h"
+#include "Monster/Context/MonsterStatContext.h"
 #include "Monster/AI/MonsterAIModel.h"
 class Enemy;
 
@@ -20,7 +20,7 @@ namespace Monster
         inline bool Invalid() { return _weakOwner.expired(); }
         inline Enemy* GetOwner() { return _weakOwner.lock().get(); }
 
-        void Build(std::weak_ptr<Enemy> weakOwner, const Monster::DataContext* pDataContext, const StageContext* pStageContext);
+        void Build(std::weak_ptr<Enemy> weakOwner, const Monster::DataContext* pDataContext, const StatContext* pStatContext);
 
         void Clear();
 
@@ -39,7 +39,7 @@ namespace Monster
     private:
         std::weak_ptr<Enemy>  _weakOwner;
         Monster::DataContext  _dataContext;
-        Monster::StageContext _stageContext;
+        Monster::StatContext  _statContext;
 
         AIModel     _aiModel;
         Action*     _currAction = nullptr;

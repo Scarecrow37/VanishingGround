@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Monster/Context/MonsterDataContext.h"
 #include "Monster/Context/MonsterActionContext.h"
-#include "Monster/Context/MonsterStageContext.h"
+#include "Monster/Context/MonsterStatContext.h"
 
 class CharacterBase;
 class Enemy;
@@ -28,7 +28,7 @@ namespace Monster
         Action(std::weak_ptr<Enemy> owner,
                const DataContext* pDataContext, 
                const ActionContext* pActionContext, 
-               const StageContext* pStageContext);
+               const StatContext* pStatContext);
         virtual ~Action();
 
     public:
@@ -54,7 +54,7 @@ namespace Monster
     private:
         const DataContext&   _dataContext;
         const ActionContext& _actionContext;
-        const StageContext&  _stageContext;
+        const StatContext&   _statContext;
 
         int                             _actionID = 0;
         std::weak_ptr<CharacterBase>    _target;

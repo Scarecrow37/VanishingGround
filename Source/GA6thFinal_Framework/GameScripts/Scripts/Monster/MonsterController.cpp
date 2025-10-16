@@ -12,16 +12,16 @@ namespace Monster
     Controller::~Controller() = default;
 
     void Controller::Build(std::weak_ptr<Enemy> weakOwner, const Monster::DataContext* pDataContext,
-                           const StageContext* pStageContext)
+                           const StatContext* pStatContext)
     {
         _weakOwner = weakOwner;
         if (pDataContext)
         {
             _dataContext  = *pDataContext;
         }
-        if (pStageContext)
+        if (pStatContext)
         {
-            _stageContext = *pStageContext;
+            _statContext = *pStatContext;
         }
 
         BuildAIModel();

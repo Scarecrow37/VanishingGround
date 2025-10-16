@@ -46,7 +46,7 @@ const Monster::ActionContext* MonsterSystem::GetActionContextFromID(Monster::Act
 
 bool MonsterSystem::SpawnMonsterFromStageID(int stageID)
 {
-    if (auto pStageEnemiesData = GetStageContextFromStageID(stageID))
+    if (auto pStageEnemiesData = GetStatContextFromStageID(stageID))
     {
         const auto& stageEnemiesData = *pStageEnemiesData;
         // [assert] 스테이지 몬스터 데이터의 크기는 최대 적 수와 같아야합니다.
@@ -56,7 +56,7 @@ bool MonsterSystem::SpawnMonsterFromStageID(int stageID)
         {
             if (stageEnemiesData.size() > i)
             {
-                const Monster::StageContext& enemyStageData = stageEnemiesData[i];
+                const Monster::StatContext& enemyStageData = stageEnemiesData[i];
                 SpawnMonsterFromDataContext(&enemyStageData, i);
             }
         }
@@ -64,23 +64,23 @@ bool MonsterSystem::SpawnMonsterFromStageID(int stageID)
     return false;
 }
 
-std::weak_ptr<Enemy> MonsterSystem::SpawnMonsterFromDataContext(const Monster::StageContext* pStageContext, size_t index)
+std::weak_ptr<Enemy> MonsterSystem::SpawnMonsterFromDataContext(const Monster::StatContext* pStatContext, size_t index)
 {
-    if (pStageContext)
+    if (pStatContext)
     {
-        if (const Monster::DataContext* pDataContext = GetDataContextFromID(pStageContext->MonsterID))
+        if (const Monster::DataContext* pDataContext = GetDataContextFromID(pStatContext->MonsterID))
         {
             std::weak_ptr<Enemy> weakClone = SpawnMonsterFromDataContext(pDataContext, index);
             if (auto clone = weakClone.lock())
             {
                 if (auto stats = clone->GetCharacterStats())
                 {
-                    stats->MaxHP          = pStageContext->Health;
-                    stats->CurrentHP      = pStageContext->Health;
-                    stats->StunResistance = pStageContext->StunResist;
+                    stats->MaxHP          = pStatContext->Health;
+                    stats->CurrentHP      = pStatContext->Health;
+                    stats->StunResistance = pStatContext->StunResist;
                 }
                 Monster::Controller& controller = clone->GetController();
-                controller.Build(weakClone, pDataContext, pStageContext);
+                controller.Build(weakClone, pDataContext, pStatContext);
             }
             return weakClone;
         }
@@ -141,7 +141,7 @@ void MonsterSystem::Clear()
     }
     _dataContextTable.clear();
     _actionContextTable.clear();
-    _stageContextTable.clear();
+    _StatContextTable.clear();
 }
 
 void MonsterSystem::ClearSpawnedEnemies()
@@ -192,7 +192,7 @@ void MonsterSystem::LoadFromExcelData()
     {
         LoadDataContextFromExcelData(dataSystem);
         LoadActionContextFromExcelData(dataSystem);
-        LoadStageContextFromExcelData(dataSystem);
+        LoadStatContextFromExcelData(dataSystem);
     }
 }
 
@@ -308,11 +308,15 @@ void MonsterSystem::LoadActionContextFromExcelData(ExcelDataSystem* dataSystem)
     }
 }
 
-void MonsterSystem::LoadStageContextFromExcelData(ExcelDataSystem* dataSystem)
+void MonsterSystem::LoadStatContextFromExcelData(ExcelDataSystem* dataSystem)
 {
     if (dataSystem)
     {
-        std::unique_ptr<ExcelDataBase> dataBase = dataSystem->FindExcelDataBase(ExcelStageKey::SHEET_NAME);
+        bool isNormalDiff = true ; // TODO: 나중에 난이도에 따라 다른 시트를 불러오도록 변경
+        std::u8string sheetName = isNormalDiff? u8"(일반)" : u8"(어려움)"; 
+        sheetName += ExcelStageKey::SHEET_NAME;
+        
+        std::unique_ptr<ExcelDataBase> dataBase = dataSystem->FindExcelDataBase(sheetName.c_str());
         assert(dataBase); // [assert] 엑셀 데이터 시스템에 해당 시트가 존재해야합니다.
         if (dataBase)
         {
@@ -321,12 +325,12 @@ void MonsterSystem::LoadStageContextFromExcelData(ExcelDataSystem* dataSystem)
             {
                 if (rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
                 {
-                    Monster::StageContext context;
+                    Monster::StatContext context;
                     std::string_view      data;
-                    data = dataBase->FindData(rowIndex, ExcelStageKey::STAGE_ID);
+                    data = dataBase->FindData(rowIndex, ExcelStageKey::LEVEL_ID);
                     if (data != ExcelDataBase::FIND_STR_FAIL)
                     {
-                        context.StageID = std::stoi(data.data());
+                        context.LevelID = std::stoi(data.data());
                     }
                     data = dataBase->FindData(rowIndex, ExcelStageKey::MONSTER_ID);
                     if (data != ExcelDataBase::FIND_STR_FAIL)
@@ -359,22 +363,22 @@ void MonsterSystem::LoadStageContextFromExcelData(ExcelDataSystem* dataSystem)
                     }
 
                     // 벡터 초기화
-                    if (false == _stageContextTable.contains(context.StageID))
+                    if (false == _StatContextTable.contains(context.LevelID))
                     {
-                        _stageContextTable[context.StageID].reserve(Monster::MAX_ENEMY_COUNT);
+                        _StatContextTable[context.LevelID].reserve(Monster::MAX_ENEMY_COUNT);
                     }
-                    _stageContextTable[context.StageID].push_back(std::move(context));
+                    _StatContextTable[context.LevelID].push_back(std::move(context));
                 }
             }
         }
     }
 }
 
-const std::vector<Monster::StageContext>* MonsterSystem::GetStageContextFromStageID(int stageID)
+const std::vector<Monster::StatContext>* MonsterSystem::GetStatContextFromStageID(int stageID)
 {
-    if (_stageContextTable.contains(stageID))
+    if (_StatContextTable.contains(stageID))
     {
-        return &_stageContextTable[stageID];
+        return &_StatContextTable[stageID];
     }
     return nullptr;
 }
