@@ -3,7 +3,7 @@ struct RibbonVertexCount
 {
     uint count;
 };
-ConstantBuffer<RibbonVertexCount> bit32_1_ribbonVertexCount;
+//ConstantBuffer<RibbonVertexCount> bit32_1_ribbonVertexCount;
 
 StructuredBuffer<uint> ribbonIndices;
 
@@ -33,33 +33,26 @@ struct VSOutput
 
 };
 
-VSOutput vs_main(uint vertexID : SV_VertexID)
+VSOutput vs_main(uint vertexId : SV_VertexID)
 {
     VSOutput o = (VSOutput) 0;
-    int totalcount = bit32_1_ribbonVertexCount.count / 2;
 
-    uint current_idx = vertexID / 2;
-    uint particleIndex = ribbonIndices[current_idx];
+    uint currentIdx = vertexId / 2;
+    uint particleIndex = ribbonIndices[currentIdx];
     ParticleOutput p = particleInfo[particleIndex];
-    float3 pos_curr = p.position.xyz;
-
-
-    float3 offsetvector = normalize(p.paddings);
-    
-
-    int isTop = (vertexID % 2 == 0) ? 1 : -1;
+    float3 posCurr = p.position.xyz;
+    float3 offsetVector = normalize(p.paddings);
+    int isTop = (vertexId % 2 == 0) ? 1 : -1;
     float ribbonHalfWidth = p.FrameInfo.x * 0.5f;
 
-    // --- 가장 기본적인 월드 위치 계산 ---
-    float3 final_world_pos = pos_curr + (offsetvector * ribbonHalfWidth * isTop);
+    float3 finalWorldPos = posCurr + (offsetVector * ribbonHalfWidth * isTop);
 
-    // --- 표준 파이프라인으로 변환 ---
-    float4 viewPos = mul(float4(final_world_pos, 1.0f), cameraData.View);
+    float4 viewPos = mul(float4(finalWorldPos, 1.0f), cameraData.View);
     o.position = mul(viewPos, cameraData.Projection);
 
     // UV 및 나머지 데이터
-    float u = (float)current_idx / (float)(totalcount - 1);
-    float v = (float)(vertexID % 2);
+    float u = p.FrameInfo.z;
+    float v = (float) (vertexId % 2);
     o.uv = float2(u, v);
 
     o.color = p.Color;

@@ -117,17 +117,9 @@ public:
     ParticleComponent();
     virtual ~ParticleComponent();
 
-    File::Guid _Guid;
     File::Path    _filepath;
-
 protected:
     REFLECT_FIELDS_BEGIN(Component)
-    //std::string          Guid;
-    //std::array<float, 3> PositionArray;
-    //std::array<float, 3> RotationArray;
-    //std::array<float, 3> ScaleArray;
-    //bool                 AttachToBoneMatrix;
-    //std::string          BoneNameToAttach;
 
     std::unordered_map<std::string,std::array<float, 3>> ScaleMap;
     std::unordered_map<std::string,std::array<float, 3>> RotationMap;

@@ -22,10 +22,10 @@ private:
     static constexpr int MAX_SEGMENTS = 100;
     static constexpr int MAX_RIBBON_INDEX = 100000;
 
-    SharedResource<UnorderedAccessView> _accumlateBuffer;
+    SharedResource<UnorderedAccessView> _accumulateBuffer;
     SharedResource<UnorderedAccessView> _revealageBuffer;
 
-    std::vector<int>                  _albedoTextureIDs;
+    std::vector<UINT>                  _albedoTextureIDs;
     std::unique_ptr<StructuredBuffer> _textureIDBuffer;
 
     std::vector<std::vector<UINT>>                 _ribbonIndices;

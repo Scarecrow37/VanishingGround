@@ -26,10 +26,10 @@ void ParticleResolvePass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootSignature(_fx.GetRootSignature());
 
 
-    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("gAccumTex"), _accumlateBuffer->GetSRVHandle());
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("gAccumTex"), _accumulateBuffer->GetSRVHandle());
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("gRevealTex"), _revealageBuffer->GetSRVHandle());
 
-    _accumlateBuffer->ResourceBarrier(commandList);
+    _accumulateBuffer->ResourceBarrier(commandList);
     _revealageBuffer->ResourceBarrier(commandList);
 
     _ownerScene->_frameQuad->Render(commandList);
@@ -37,14 +37,14 @@ void ParticleResolvePass::Draw(ID3D12GraphicsCommandList* commandList)
 
 void ParticleResolvePass::End(ID3D12GraphicsCommandList* commandList)
 {
-    _accumlateBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+    _accumulateBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
     _revealageBuffer->TransitionResource(commandList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
     _meshRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
 void ParticleResolvePass::SetAccumulationBuffers(SharedResource<UnorderedAccessView> color, SharedResource<UnorderedAccessView> alpha)
 {
-    _accumlateBuffer = color;
+    _accumulateBuffer = color;
     _revealageBuffer = alpha;
 }
 
