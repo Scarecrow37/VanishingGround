@@ -26,6 +26,11 @@ void LightCore::RegisterLight(std::string_view sceneName, Light* light)
     lights.push_back(light);
 }
 
+void LightCore::ClearLightQueue()
+{
+    _lights.clear();
+}
+
 void LightCore::Update(const float deltaTime)
 {
     for (auto& [sceneName, lights] : _lights)

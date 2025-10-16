@@ -46,10 +46,13 @@ void CombatUIManager::Awake()
 {
     BindInputAction(ControllerButton::BACK, Action::PRESSED, this,
                     &CombatUIManager::PreferencesKeyDown);  // 옵션 창 키 바인딩
+    _singletonComponent.TrySingleTon();  
+}
 
-    if (_singletonComponent.TrySingleTon())
+void CombatUIManager::Start() 
+{
+    if (_singletonComponent.IsSingleTon())
     {
-        Refresh();
         SetActiveUI(false);
     }
 }
