@@ -307,18 +307,16 @@ void PlayerPlayTurnState::SetAttackEnd()
         }
         animator->EndBuildOverrideAnimation();
     }
-    //if (false == succeed)
-    //{
-    //    player.EndTurn();
-    //}
+    if (false == succeed)
+    {
+        player.EndTurn();
+    }
 
     auto camera = dynamic_cast<UmCineMotion*>(CameraComponent::MainCamera());
     if (camera)
     {
         camera->StartRail(true);
     }
-
-    player.EndTurn();
 }
 
 void PlayerPlayTurnState::BattleOnHitEvent(const QTE::NoteResult& result) 

@@ -251,8 +251,8 @@ private:
     /// EventTrack
     ///////////////////////////////////////////////////////////////////////
 
-    File::Guid       _Guid;
-    File::Path          _filePath;
+    File::Guid          _trackGuid;
+    File::Path          _trackPath;
     AnimationEventTrack _eventTrack;
     std::function<bool(const Timeline::EventContext*)> _preEventCallback;  // Event Callback Function
     std::function<void(const Timeline::EventContext*)> _postEventCallback; // Event Callback Function
