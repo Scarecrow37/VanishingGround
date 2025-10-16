@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "ItemDropSystem/Interface/IDropItem.h"
 
 class EraseRevelationNavi : public UISFXNavigationComponent
 {
@@ -10,6 +11,8 @@ public:
     ~EraseRevelationNavi() override;
 
 public:
+    void SetItemInfo(const DropItemInfo& info) { _itemInfo = info; }
+
     REFLECT_PROPERTY()
 
 protected:
@@ -27,6 +30,6 @@ private:
 private:
     int _mySlot;
     std::weak_ptr<Component> _focusImage;
-
+    DropItemInfo             _itemInfo;
 };
 

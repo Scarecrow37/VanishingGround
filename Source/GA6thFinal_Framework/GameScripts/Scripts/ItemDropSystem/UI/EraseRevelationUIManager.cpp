@@ -42,11 +42,13 @@ void EraseRevelationUIManager::OpenUI(const size_t artifactObtainIndex)
                     int               iconID = DropItemInfo::GetArtifactIconID(info);
                     const File::Guid& guid   = UmFileSystem.GetGuidFromAssetID(iconID);
                     iconImage->SetImage(guid);
-                }
-                iconImage->Enable = true;
-                if (navi)
-                {
-                    navi->Enable = true;
+                    iconImage->Enable = true;
+
+                    if (navi)
+                    {
+                        navi->Enable = true;
+                        navi->SetItemInfo(info);
+                    }
                 }
             }
             else

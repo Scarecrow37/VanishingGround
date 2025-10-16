@@ -7,7 +7,10 @@ UMREAL_COMPONENT(EraseRevelationNavi)
 
 EraseRevelationNavi::EraseRevelationNavi()
 {
-    _mySlot = -1;
+    _mySlot            = -1;
+    _itemInfo.Category = ArtifactDropType::ACCESSORY;
+    _itemInfo.ID       = -1;
+    _itemInfo.Name     = STR_NULL;
 }
 EraseRevelationNavi::~EraseRevelationNavi() = default;
 
@@ -24,6 +27,10 @@ void EraseRevelationNavi::FocusIn(FocusCallType type)
 {
     Base::FocusIn(type);
     SetEnableFocusImage(true);
+    if (EraseRevelationUIManager* system = SingletonComponent<EraseRevelationUIManager>::GetInstance())
+    {
+        system->SetRevelationInfoUI(_itemInfo);
+    }
 }
 
 void EraseRevelationNavi::Submit() 
@@ -32,7 +39,6 @@ void EraseRevelationNavi::Submit()
     if (EraseRevelationUIManager* system = SingletonComponent<EraseRevelationUIManager>::GetInstance())
     {
         system->EraseRevelation(_mySlot);
-        UmLogger.Message(LogLevel::LEVEL_TRACE, u8"계시 지우기 버튼 눌림!");
     }
 }
 
