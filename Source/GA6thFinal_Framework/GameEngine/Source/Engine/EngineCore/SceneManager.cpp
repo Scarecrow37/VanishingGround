@@ -561,6 +561,7 @@ std::shared_ptr<GameObject> ESceneManager::Engine::SwapPrefabInstance(GameObject
                 //오브젝트 정보 복사
                 std::swap(sOrigin->_instanceID, sRemake->_instanceID);
                 std::swap(sOrigin->_ownerScene, sRemake->_ownerScene);
+                sRemake->_creationFrame = sOrigin->_creationFrame;
                 std::string objectData = sOrigin->SerializedReflectFields();
                 sRemake->DeserializedReflectFields(objectData);
 
