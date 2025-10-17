@@ -48,7 +48,6 @@ void InventoryUIManager::Update()
     if (_closeFlag)
     {
         CloseInventory();
-        _closeFlag = false;
     }
 }
 
@@ -141,7 +140,6 @@ void InventoryUIManager::OnButtonB(const Input::Controller&)
 {
     if (true == gameObject->ActiveSelf)
     {
-        CloseInventory();
         _closeFlag = true;
     }
 }
@@ -159,20 +157,23 @@ size_t InventoryUIManager::GetHorizontalPageCount(size_t artifactCount)
 
 void InventoryUIManager::OpenInventory(UINavigationComponent* lastFocus) 
 {
-    gameObject->ActiveSelf = true;
-    if (lastFocus)
+    if (false == EnableInHierarchy)
     {
-        _lastFocus = lastFocus->GetWeakPtr();
-    }
-    FindUIElements();
-    UpdateWeaponUI();
-    UpdateRevelationUI();
-    UpdateAccessoryUI();
-    UpdateConsumble();
-    if (0 < _weaponsNavi.size())
-    {
-        _weaponsNavi[0]->Focus();
-    }
+        gameObject->ActiveSelf = true;
+        if (lastFocus)
+        {
+            _lastFocus = lastFocus->GetWeakPtr();
+        }
+        FindUIElements();
+        UpdateWeaponUI();
+        UpdateRevelationUI();
+        UpdateAccessoryUI();
+        UpdateConsumble();
+        if (0 < _weaponsNavi.size())
+        {
+            _weaponsNavi[0]->Focus();
+        }
+    }  
 }
 
 void InventoryUIManager::CloseInventory() 
@@ -183,6 +184,7 @@ void InventoryUIManager::CloseInventory()
         UINavigationComponent* navi = static_cast<UINavigationComponent*>(lastFocus.get());
         navi->Focus();
     }
+    _closeFlag = false;
 }
 
 void InventoryUIManager::UpdateWeaponUI()
@@ -335,15 +337,6 @@ void InventoryUIManager::UpdateConsumble()
         {
             icon->Enable = false;
         }
-    }
-
-    for (size_t i = 0; i < _consumableNavi.size(); i++)
-    {
-        InventoryItemFocusNavi* navi = _consumableNavi[i];
-        if (navi)
-        {
-            navi->Enable = false;
-        }      
     }
 }
 

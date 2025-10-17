@@ -22,9 +22,9 @@ void OpenInventoryComponent::Update()
 {
     if (_openFlag)
     {
-        UINavigationComponent* focusNavi = nullptr;
         if (InventoryUIManager* manager = SingletonComponent<InventoryUIManager>::GetInstance())
         {
+            UINavigationComponent* focusNavi = nullptr;
             if (auto uiRootObject =  GameObject::Find("UI Root").lock())
             {
                 if (UIRoot* root = uiRootObject->GetComponent<UIRoot>())

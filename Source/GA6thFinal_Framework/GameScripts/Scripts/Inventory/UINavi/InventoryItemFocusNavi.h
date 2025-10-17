@@ -23,7 +23,6 @@ protected:
 
     void FocusIn(FocusCallType callType) override;
     void FocusOut(FocusCallType callType) override;
-
     void Awake() override;
 
     ImageElement* _focusImage;
