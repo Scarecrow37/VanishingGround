@@ -55,6 +55,7 @@ void ConstantBufferView::UpdateBufferWithOffset(void* data, size_t offset, size_
         return;
     if (offset + dataSize > _size)
     {
+        GRAPHICS_ASSERT(false, L"ConstantBufferView::UpdateBufferWithOffset : Out of bounds access.");
         return;
     }
 

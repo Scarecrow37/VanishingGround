@@ -420,21 +420,3 @@ void PointLightShadowPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, Me
         currentMesh->Render(commandList, instanceCount * 6);
     }
 }
-
-bool PointLightShadowPass::IsInLightRange(const BoundingOrientedBox& meshBoundingBox, const Matrix& worldMatrix,
-                                          const Vector3& lightPosition, float lightRange) const
-{
-    BoundingOrientedBox worldOBB;
-    meshBoundingBox.Transform(worldOBB, worldMatrix);
-
-    BoundingSphere lightSphere;
-    lightSphere.Center = lightPosition;
-    lightSphere.Radius = lightRange;
-
-    if (worldOBB.Intersects(lightSphere))
-    {
-        return true;
-    }
-
-    return false;
-}

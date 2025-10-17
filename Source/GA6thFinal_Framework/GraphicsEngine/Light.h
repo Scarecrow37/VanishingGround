@@ -37,7 +37,7 @@ public:
 public:
     void Update(const float deltaTime);
 
-protected:
+private:
     LightData _data{};
     Type      _type{};
 

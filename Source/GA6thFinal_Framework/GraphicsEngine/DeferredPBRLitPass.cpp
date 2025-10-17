@@ -36,7 +36,7 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
     auto pointLightShadowPass = _ownerTechnique->GetRenderPass<PointLightShadowPass>();
     auto ssaoPass      = _ownerTechnique->GetRenderPass<SSAOWritePass>();
 
-    if (nullptr == shadowMapPass || nullptr == ssaoPass)
+    if (nullptr == shadowMapPass || nullptr == ssaoPass || nullptr == pointLightShadowPass)
         return;
 
     D3D12_GPU_DESCRIPTOR_HANDLE brdf;
