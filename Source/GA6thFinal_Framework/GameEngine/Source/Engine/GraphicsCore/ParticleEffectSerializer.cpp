@@ -365,7 +365,7 @@ void ParticleEffectSerializer::Serialize_1_0(std::ofstream& os, ParticleEffect* 
         {
             if (auto spriteModule = emitter->_particleRenderModule->AsSprite())
             {
-                Vector4 frameinfo = spriteModule->GetInitialFrameInfo();
+                Vector4 frameinfo = spriteModule->GetFrameInfo();
                 os.write(reinterpret_cast<const char*>(&frameinfo), sizeof(frameinfo));
             }
         }
@@ -888,7 +888,7 @@ void ParticleEffectSerializer::Serialize_1_1(std::ofstream& os, ParticleEffect* 
         {
             if (auto spriteModule = emitter->_particleRenderModule->AsSprite())
             {
-                Vector4 frameinfo = spriteModule->GetInitialFrameInfo();
+                Vector4 frameinfo = spriteModule->GetFrameInfo();
                 os.write(reinterpret_cast<const char*>(&frameinfo), sizeof(frameinfo));
             }
         }
@@ -1420,7 +1420,7 @@ void ParticleEffectSerializer::Serialize_1_2(std::ofstream& os, ParticleEffect* 
         {
             if (auto spriteModule = emitter->_particleRenderModule->AsSprite())
             {
-                Vector4 frameinfo = spriteModule->GetInitialFrameInfo();
+                Vector4 frameinfo = spriteModule->GetFrameInfo();
                 os.write(reinterpret_cast<const char*>(&frameinfo), sizeof(frameinfo));
             }
         }
@@ -1962,7 +1962,7 @@ void ParticleEffectSerializer::Serialize_1_3(std::ofstream& os, ParticleEffect* 
         {
             if (auto spriteModule = emitter->_particleRenderModule->AsSprite())
             {
-                Vector4 frameinfo = spriteModule->GetInitialFrameInfo();
+                Vector4 frameinfo = spriteModule->GetFrameInfo();
                 os.write(reinterpret_cast<const char*>(&frameinfo), sizeof(frameinfo));
             }
         }
@@ -2542,7 +2542,7 @@ void ParticleEffectSerializer::Serialize_1_4(std::ofstream& os, ParticleEffect* 
         {
             if (auto spriteModule = emitter->_particleRenderModule->AsSprite())
             {
-                Vector4 frameinfo = spriteModule->GetInitialFrameInfo();
+                Vector4 frameinfo = spriteModule->GetFrameInfo();
                 os.write(reinterpret_cast<const char*>(&frameinfo), sizeof(frameinfo));
             }
         }

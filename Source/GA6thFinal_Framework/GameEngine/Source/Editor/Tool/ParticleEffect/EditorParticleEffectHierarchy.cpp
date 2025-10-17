@@ -372,10 +372,13 @@ void EditorParticleEffectHierarchy::OnFrameRender()
 
 void EditorParticleEffectHierarchy::LoadEnvironmentModel(const File::Path& path)
 {
-    UmGraphics.CreateMeshRenderer(&_meshRenderer, &_worldMatrix);
+    if (!_meshRenderer)
+    {
+        UmGraphics.CreateMeshRenderer(&_meshRenderer, &_worldMatrix);
+        UmGraphics.RegisterComponent("ParticleEditor", _meshRenderer.Get());
+    }
     UmGraphics.LoadResource(path.wstring(), _meshRenderer.Get());
     _meshRenderer->SetActive(&_isModelActive);
-    UmGraphics.RegisterComponent("ParticleEditor", _meshRenderer.Get());
 }
 
 void EditorParticleEffectHierarchy::LoadEffect()

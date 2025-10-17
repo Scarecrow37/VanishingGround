@@ -136,6 +136,31 @@ void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime)
             std::swap(_particlePool[i], _particlePool[_activeParticleCount]);
             --i;
         }
+        else
+        {
+            if (auto spriteModule = _particleRenderModule->AsSprite())
+            {
+                if (spriteModule->GetFrameInfo().z > 0)
+                {
+                    const Vector4& atlasInfo   = spriteModule->GetFrameInfo();
+                    float          particleAge = _particlePool[i].GetAge();
+                    UINT           frameIndex  = static_cast<UINT>(particleAge / atlasInfo.w);
+                    if (_dragForce.x > 0)
+                    {
+                        frameIndex = frameIndex % static_cast<UINT>(atlasInfo.z);
+                    }
+                    else if (frameIndex >= atlasInfo.z)
+                    {
+                        frameIndex = static_cast<UINT>(atlasInfo.z - 1);
+                    }
+                    _particlePool[i].SetFrameinfo(spriteModule->GetCurrentFrameInfo(frameIndex));
+                }
+                else
+                {
+                    _particlePool[i].SetFrameinfo({-1, 0, 0, 0});
+                }
+            }
+        }
     }
 
     if (_endFlag)
@@ -284,9 +309,28 @@ void ParticleEmitter::AwakeParticle(UINT index)
 
     if (_particleType == ParticleType::SPRITE)
     {
-        auto*   spritemodule = static_cast<SpriteModule*>(_particleRenderModule.get());
-        Vector4 frameInfo    = {spritemodule->GetFrameDuration(), 0, 0, 0};
-        _particlePool[index].SetFrameinfo(frameInfo);
+        if (auto spriteModule = _particleRenderModule->AsSprite())
+        {
+            if (spriteModule->GetFrameInfo().z > 0)
+            {
+                const Vector4& atlasInfo   = spriteModule->GetFrameInfo();
+                float          particleAge = _particlePool[index].GetAge();
+                UINT           frameIndex  = static_cast<UINT>(particleAge / atlasInfo.w);
+                if (_dragForce.x > 0)
+                {
+                    frameIndex = frameIndex % static_cast<UINT>(atlasInfo.z);
+                }
+                else if (frameIndex >= atlasInfo.z)
+                {
+                    frameIndex = static_cast<UINT>(atlasInfo.z - 1);
+                }
+                _particlePool[index].SetFrameinfo(spriteModule->GetCurrentFrameInfo(frameIndex));
+            }
+            else
+            {
+                _particlePool[index].SetFrameinfo({-1, 0, 0, 0});
+            }
+        }
     }
     _particlePool[index].SetInitialMatrix(_worldMatrix.Transpose());
 }

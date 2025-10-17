@@ -96,7 +96,40 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
                         isSomethingChanged = true;
                     }
                 }
+             //   bool animFlag = ImGui::Checkbox("Sprite Animation", &_spriteAnimFlag);
+                //if (animFlag)
+                {
+                    float frameInfo[4] = {spriteModule->GetFrameInfo().x, spriteModule->GetFrameInfo().y,
+                                          spriteModule->GetFrameInfo().z, spriteModule->GetFrameInfo().w};
+
+                    bool result = ImGui::SliderFloat("u Count", &frameInfo[0], 0, 10);
+                    if (false == isSomethingChanged)
+                        if (true == result)
+                            isSomethingChanged = result;
+
+                    result = ImGui::SliderFloat("v Count", &frameInfo[1], 0, 10);
+                    if (false == isSomethingChanged)
+                        if (true == result)
+                            isSomethingChanged = result;
+        /*            result = ImGui::SliderFloat("total   ", &frameInfo[2], 0, 10);
+                                if (false == isSomethingChanged)
+                                    if (true == result)
+                                        isSomethingChanged = result;*/
+                    
+                    result = ImGui::SliderFloat("frame duration", &frameInfo[3], 0, 1);
+                    if (false == isSomethingChanged)
+                        if (true == result)
+                            isSomethingChanged = result;
+                    if (isSomethingChanged)
+                    {
+                        frameInfo[2] = frameInfo[0] * frameInfo[1];
+                        spriteModule->SetFrameInfo({frameInfo[0], frameInfo[1], frameInfo[2], frameInfo[3]});
+                        spriteModule->CalculateFrameInfos();
+                    }
+                }
+
             }
+
         }
         if (ParticleType::RIBBON == _curEmitter->_particleType)
         {
