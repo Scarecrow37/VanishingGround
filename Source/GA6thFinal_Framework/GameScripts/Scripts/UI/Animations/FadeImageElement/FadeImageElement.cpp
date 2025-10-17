@@ -1,39 +1,41 @@
 ﻿#include "pchScripts.h"
-#include "FadeDescriptionPanel.h"
+#include "FadeImageElement.h"
 
-UMREAL_COMPONENT(FadeDescriptionPanel)
+#include "UI/Animations/FadeTextElement/FadeTextElement.h"
 
-FadeDescriptionPanel::FadeDescriptionPanel()
-    : UIAnimation([this](const float alpha) { UpdateAlpha(alpha); }), _fadeDirection(FadeDirection::NONE)
+UMREAL_COMPONENT(FadeImageElement)
+
+FadeImageElement::FadeImageElement() : UIAnimation([this](const float alpha) { UpdateAlpha(alpha); }), _fadeDirection(FadeDirection::NONE)
 {
 }
 
-void FadeDescriptionPanel::FadeIn()
+void FadeImageElement::FadeIn()
 {
     _fadeDirection = FadeDirection::FORWARD;
 }
 
-void FadeDescriptionPanel::FadeOut()
+void FadeImageElement::FadeOut()
 {
     _fadeDirection = FadeDirection::BACKWARD;
 }
 
-void FadeDescriptionPanel::Stop()
+void FadeImageElement::Stop()
 {
     _fadeDirection = FadeDirection::NONE;
 }
 
-void FadeDescriptionPanel::Start()
+void FadeImageElement::Start()
 {
-    DescriptionPanel::Start();
+    ImageElement::Start();
 
     Alpha = BeginAlpha;
+
     UIAnimation::Reset(ReflectFields->FadeDuration, false);
 }
 
-void FadeDescriptionPanel::Update()
+void FadeImageElement::Update()
 {
-    DescriptionPanel::Update();
+    ImageElement::Update();
 
     switch (_fadeDirection)
     {
@@ -48,14 +50,14 @@ void FadeDescriptionPanel::Update()
     }
 }
 
-void FadeDescriptionPanel::Reset()
+void FadeImageElement::Reset()
 {
-    DescriptionPanel::Reset();
+    ImageElement::Reset();
 
     _fadeDirection = FadeDirection::NONE;
 }
 
-void FadeDescriptionPanel::UpdateAlpha(const float alpha)
+void FadeImageElement::UpdateAlpha(const float alpha)
 {
     Alpha = std::lerp(BeginAlpha, EndAlpha, alpha);
 }

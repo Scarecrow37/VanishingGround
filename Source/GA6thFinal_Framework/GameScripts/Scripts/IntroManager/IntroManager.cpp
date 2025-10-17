@@ -41,7 +41,7 @@ void IntroManager::Update()
         {
             if (nullptr != _introDescription)
             {
-                _introDescription->StartFade();
+                _introDescription->FadeIn();
             }
             _step = FADE_IN_INTRO_DESCRIPTION;
         }
@@ -57,11 +57,11 @@ void IntroManager::Update()
         {
             if (nullptr != _normalLevelText)
             {
-                _normalLevelText->StartFade();
+                _normalLevelText->FadeIn();
             }
             if (nullptr != _hardLevelText)
             {
-                _hardLevelText->StartFade();
+                _hardLevelText->FadeIn();
             }
             _step = FADE_IN_LEVEL_SELECTION;
         }
@@ -77,7 +77,7 @@ void IntroManager::Update()
         {
             if (nullptr != _promptText)
             {
-                _promptText->StartFade();
+                _promptText->FadeIn();
             }
             _step = FADE_IN_PROMPT;
         }

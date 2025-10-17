@@ -3,11 +3,21 @@
 
 UMREAL_COMPONENT(FadeTextElement)
 
-FadeTextElement::FadeTextElement() : UIAnimation([this](const float alpha) { UpdateAlpha(alpha); }), _isFading(false) {}
+FadeTextElement::FadeTextElement() : UIAnimation([this](const float alpha) { UpdateAlpha(alpha); }), _fadeDirection(FadeDirection::NONE) {}
 
-void FadeTextElement::StartFade()
+void FadeTextElement::FadeIn()
 {
-    _isFading = true;
+    _fadeDirection = FadeDirection::FORWARD;
+}
+
+void FadeTextElement::FadeOut()
+{
+    _fadeDirection = FadeDirection::BACKWARD;
+}
+
+void FadeTextElement::Stop()
+{
+    _fadeDirection = FadeDirection::NONE;
 }
 
 void FadeTextElement::Start()
@@ -15,7 +25,7 @@ void FadeTextElement::Start()
     TextElement::Start();
 
     SimpleMath::Color color = Color;
-    color.w                          = 0.0f;
+    color.w                          = BeginAlpha;
     Color                            = color;
 
     UIAnimation::Reset(ReflectFields->FadeDuration, false);
@@ -25,20 +35,29 @@ void FadeTextElement::Update()
 {
     TextElement::Update();
 
-    if (_isFading)
+    switch (_fadeDirection)
+    {
+    case FadeDirection::NONE:
+        break;
+    case FadeDirection::FORWARD:
         UIAnimation::Update(UmTime.DeltaTime());
+        break;
+    case FadeDirection::BACKWARD:
+        UIAnimation::Update(-UmTime.DeltaTime());
+        break;
+    }
 }
 
 void FadeTextElement::Reset()
 {
     TextElement::Reset();
 
-    _isFading = false;
+    _fadeDirection = FadeDirection::NONE;
 }
 
 void FadeTextElement::UpdateAlpha(const float alpha)
 {
     DirectX::SimpleMath::Color color = Color;
-    color.w                          = alpha;
+    color.w                          = std::lerp(BeginAlpha, EndAlpha, alpha);
     Color                            = color;
 }

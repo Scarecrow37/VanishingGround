@@ -1,10 +1,10 @@
 ﻿#pragma once
-#include "UI/Elements/Text/TextElement.h"
 #include "UI/Animations/UIAnimation.h"
+#include "UI/Elements/Image/ImageElement.h"
 
-class FadeTextElement : public TextElement, public UIAnimation
+class FadeImageElement : public ImageElement, public UIAnimation
 {
-    USING_PROPERTY(FadeTextElement)
+    USING_PROPERTY(FadeImageElement)
 
     enum class FadeDirection : unsigned char
     {
@@ -14,7 +14,7 @@ class FadeTextElement : public TextElement, public UIAnimation
     };
 
 public:
-    FadeTextElement();
+    FadeImageElement();
 
 public:
     REFLECT_PROPERTY(FadeDuration, BeginAlpha, EndAlpha)
@@ -24,7 +24,7 @@ public:
     PROPERTY(FadeDuration)
 
     GETTER(float, BeginAlpha) { return ReflectFields->BeginAlpha; }
-    SETTER(float, BeginAlpha) { ReflectFields->BeginAlpha = std::clamp(value, 0.0f, 1.0f); }
+    SETTER(float, BeginAlpha) { ReflectFields->BeginAlpha = std::clamp(value, 0.0f, 0.1f); }
     PROPERTY(BeginAlpha)
 
     GETTER(float, EndAlpha) { return ReflectFields->EndAlpha; }
@@ -38,20 +38,18 @@ public:
 
 protected:
     void Start() override;
-
     void Update() override;
-
     void Reset() override;
 
 private:
     void UpdateAlpha(float alpha);
 
 protected:
-    REFLECT_FIELDS_BEGIN(TextElement)
+    REFLECT_FIELDS_BEGIN(ImageElement)
     float FadeDuration = 1.0f;
     float BeginAlpha   = 0.0f;
     float EndAlpha     = 1.0f;
-    REFLECT_FIELDS_END(FadeTextElement)
+    REFLECT_FIELDS_END(FadeImageElement)
 
 private:
     FadeDirection _fadeDirection;
