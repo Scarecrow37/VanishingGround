@@ -87,7 +87,6 @@ void EGameObjectFactory::ApplyPrefabInstanceChanges(const File::Guid& guid, YAML
                         {
                             if (i < prefabObjects.size())
                             {
-                                editorHierarchyTool->PushHierarchyObject(prefabObjects[i]);
                                 swapObjects.emplace_back(&curr->gameObject, prefabObjects[i].get());
                             }
                             else
