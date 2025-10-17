@@ -7,7 +7,7 @@
 
 UMREAL_COMPONENT(AnimationComponent)
 
-void AnimationComponent::Reset() 
+void AnimationComponent::Added() 
 {
     SetAnimator(GetComponent<SkeletalMeshRenderer>());
 }
