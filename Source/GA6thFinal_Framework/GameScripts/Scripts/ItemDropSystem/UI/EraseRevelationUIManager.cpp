@@ -20,51 +20,63 @@ EraseRevelationUIManager::~EraseRevelationUIManager() = default;
 
 void EraseRevelationUIManager::OpenUI(const size_t artifactObtainIndex)
 {
-    gameObject->SetActive(true);
     if (RevelationSystem* system = SingletonComponent<RevelationSystem>::GetInstance())
     {
         auto& revelations = system->GetPlayerElementList();
-        for (size_t i = 0; i < _revelationImages.size(); ++i)
+        if (3 < revelations.size())
         {
-            EraseRevelationNavi* navi = nullptr;
-            if (i < _focusNaviElements.size())
-            {
-                navi = _focusNaviElements[i];
-            }
-            ImageElement* iconImage = _revelationImages[i];
-            if (i < revelations.size())
-            {
-                auto& revelation = revelations[i];
-                if (revelation)
-                {
-                    // 이미지 설정
-                    DropItemInfo      info   = revelation->GetItemInfo();
-                    int               iconID = DropItemInfo::GetArtifactIconID(info);
-                    const File::Guid& guid   = UmFileSystem.GetGuidFromAssetID(iconID);
-                    iconImage->SetImage(guid);
-                    iconImage->Enable = true;
+            // UI 활성화
+            gameObject->SetActive(true);
 
+            // UI 갱신
+            for (size_t i = 0; i < _revelationImages.size(); ++i)
+            {
+                EraseRevelationNavi* navi = nullptr;
+                if (i < _focusNaviElements.size())
+                {
+                    navi = _focusNaviElements[i];
+                }
+                ImageElement* iconImage = _revelationImages[i];
+                if (i < revelations.size())
+                {
+                    auto& revelation = revelations[i];
+                    if (revelation)
+                    {
+                        // 이미지 설정
+                        DropItemInfo      info   = revelation->GetItemInfo();
+                        int               iconID = DropItemInfo::GetArtifactIconID(info);
+                        const File::Guid& guid   = UmFileSystem.GetGuidFromAssetID(iconID);
+                        iconImage->SetImage(guid);
+                        iconImage->Enable = true;
+
+                        if (navi)
+                        {
+                            navi->Enable = true;
+                            navi->SetItemInfo(info);
+                        }
+                    }
+                }
+                else
+                {
+                    iconImage->Enable = false;
                     if (navi)
                     {
-                        navi->Enable = true;
-                        navi->SetItemInfo(info);
+                        navi->Enable = false;
                     }
                 }
             }
-            else
+
+            // UI 포커스
+            if (0 < _focusNaviElements.size())
             {
-                iconImage->Enable = false;
-                if (navi)
-                {
-                    navi->Enable = false;
-                }
+                _focusNaviElements[0]->Focus();
+                _artifactObtainIndex = artifactObtainIndex;
             }
         }
-    }
-    if (0 < _focusNaviElements.size())
-    {
-        _focusNaviElements[0]->Focus();
-        _artifactObtainIndex = artifactObtainIndex;
+        else
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"계시 지우기는 계시가 4개 이상일때만 가능합니다.");
+        }       
     }
 }
 
