@@ -487,7 +487,7 @@ void Transform::SetParentEx(Transform* p, bool worldPositionStays, bool callEven
         {
             GameObject::DontDestroyOnLoad(gameObject);
         }
-        else if (p->gameObject->GetOwnerSceneName() == gameObject->GetOwnerSceneName())
+        else if (p->gameObject->GetOwnerSceneName() != gameObject->GetOwnerSceneName())
         {
             return;
         }
