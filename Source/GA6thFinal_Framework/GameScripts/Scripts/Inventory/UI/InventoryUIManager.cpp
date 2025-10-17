@@ -220,10 +220,10 @@ void InventoryUIManager::UpdateRevelationUI()
                             const auto& revelation = elements[i];
                             if (revelation)
                             {
-                                DropItemInfo info = revelation->GetItemInfo();
-                                int          id   = DropItemInfo::GetArtifactIconID(info);
-                                File::Guid   guid = UmFileSystem.GetGuidFromAssetID(id);
-                                image->Enable     = true;
+                                DropItemInfo      info = revelation->GetItemInfo();
+                                int               id   = DropItemInfo::GetArtifactIconID(info);
+                                const File::Guid& guid = UmFileSystem.GetGuidFromAssetID(id);
+                                image->Enable          = true;
                                 image->SetImage(guid);
                             }
                         }
