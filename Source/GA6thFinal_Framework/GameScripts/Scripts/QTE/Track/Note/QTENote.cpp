@@ -5,5 +5,4 @@ REGISTER_CLASS(Timeline::EventTrack, QTE::Note)
 
 namespace QTE
 {
-
-}
+} // namespace QTE

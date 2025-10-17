@@ -2,6 +2,7 @@
 #include "DLLExportDefine.h"
 #include <QTE/Result/QTEResult.h>
 #include "Utility/SingletonHelper.h"
+#include "QTE/Track/Note/QTENoteData.h"
 
 class QTEUIManager;
 class QTEEditor;
@@ -81,11 +82,11 @@ private:
     void ClearTrack();
     void ClearQueue();
     void UpdateQTETrack();
-    QTE::ResultType GetQTEResult(QTE::Note* note);
+    QTE::ResultType GetQTEResult(float noteTime);
 
 private:
     bool CanPressQTEButton();
-    bool CanPressQTEButton(QTE::Note* note);
+    bool CanPressQTEButton(float noteTime);
     void PressedQTEButton(Input::Controller::Button buttonType = Input::Controller::Button::UNDEFINED);
     void PressedButtonX(const Input::Controller& controller);
     void PressedButtonY(const Input::Controller& controller);
@@ -120,7 +121,7 @@ public:
     inline std::pair<float, float> GetFadeOutPosFactor() const { return ReflectFields->FadeOutPosFactor; }
 
     inline QTE::Track* GetCurrentQTETrack() const { return _currentQTETrack; }
-    inline const std::vector<QTE::Note*>&  GetCurrentQTEAvailQueue() const { return _noteAvailQueue; }
+    inline const std::vector<QTE::NoteData>& GetCurrentQTEAvailQueue() const { return _noteAvailQueue; }
     inline const QTE::OverallResult& GetQTEOverallResult() const { return _overallResult; }
     inline const std::unordered_map<int, std::vector<QTE::Track*>>& GetWeaponIDToTrackTable() const { return _weaponIDToTrackTable; }
 
@@ -133,10 +134,11 @@ private:
 
     QTE::Track*                 _currentQTETrack    = nullptr;                  // QTE 트랙
     size_t                      _currentNoteIndex   = 0;                        // 현재 가리키는 노트 인덱스
-    std::vector<QTE::Note*>     _noteAvailQueue;                                // 유효한 노트 큐
+    std::vector<QTE::NoteData>  _noteAvailQueue;                                // 유효한 노트 큐
     QTE::OverallResult          _overallResult;                                 // QTE 결과
 
     float                       _qteTimer           = 0.0f;                     // QTE 타이머
+    float                       _qteMaxTime         = 0.0f;                     // QTE 최대 시간
     bool                        _qteFadeInEnd       = false;                    // QTE 페이드 인 종료 여부
     bool                        _qteFadeOutEnd      = false;                    // QTE 페이드 아웃 종료 여부
     bool                        _qtePaused          = false;                    // QTE 일시정지 여부
