@@ -53,7 +53,7 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     float3 r = input.position.xyz - emitterCenter;
     float3 vortexAxis = emitter.vortexForce.xyz;
     float3 localAxisDir = normalize(vortexAxis);
-    float3 worldAxisDir = mul(localAxisDir, (float3x3)emitter.OrientedWorldMatrix);
+    float3 worldAxisDir = mul(localAxisDir, (float3x3) emitter.OrientedWorldMatrix);
     float3 axisDir = lerp(localAxisDir, worldAxisDir, useWorldSpace);
     float vortexAttenuation = emitter.vortexForce.w;
     float vortexStrength = length(vortexAxis);
@@ -63,21 +63,21 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     
     float3 dragPos = (input.velocity / max(dragCoefficient, 0.01f)) * (1 - decay);
     
-    float3 totalvel = dragPos + vortexDisplacement;
+    float3 totalVel = dragPos + vortexDisplacement;
 
 
     float3 outputColor = lerp(emitter.startColor.rgb, emitter.endColor.rgb, ratio);
     float outputOpacity = lerp(emitter.startColor.a, emitter.endColor.a, ratio);
     output.Color = float4(outputColor, outputOpacity);
    
-    float axisfactor = lerp(1, length(totalvel), step(0.001f, length(input.axis)));
+    float axisfactor = lerp(1, length(totalVel), step(0.001f, length(input.axis)));
     float4 scalefactor = lerp(emitter.startScale, emitter.endScale, ratio) * axisfactor;
     float4x4 scaleMat = CreateScaleMatrix(scalefactor);
     
     float4 worldPos = mul(float4(input.position.xyz, 1.0), emitter.WorldMatrix);
-    //float4 finalvelocity = mul(float4(totalvel, 0), emitter.OrientedWorldMatrix);
+    float4 finalVelocity = mul(float4(totalVel, 0), emitter.OrientedWorldMatrix);
     
-    worldPos.xyz += totalvel + gravityOffset * input.age ;
+    worldPos.xyz += finalVelocity + gravityOffset * input.age;
     
     float4 viewPos = mul(worldPos, mvp.ViewMatrix);
     output.position = viewPos;

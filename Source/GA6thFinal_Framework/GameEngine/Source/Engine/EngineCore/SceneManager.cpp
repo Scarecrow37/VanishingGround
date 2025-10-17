@@ -208,6 +208,7 @@ void ESceneManager::Engine::AddComponentToLifeCycle(std::shared_ptr<Component> c
 {
     Global::engineCore->SceneManager._addComponentsQueue.emplace_back(component->_gameObject->GetWeakPtr(), component);
     EComponentFactory::Engine::PushBackComponentToObject(component);
+    component->Reset();
 }
 
 void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
@@ -560,6 +561,7 @@ std::shared_ptr<GameObject> ESceneManager::Engine::SwapPrefabInstance(GameObject
                 //오브젝트 정보 복사
                 std::swap(sOrigin->_instanceID, sRemake->_instanceID);
                 std::swap(sOrigin->_ownerScene, sRemake->_ownerScene);
+                sRemake->_creationFrame = sOrigin->_creationFrame;
                 std::string objectData = sOrigin->SerializedReflectFields();
                 sRemake->DeserializedReflectFields(objectData);
 
@@ -1208,20 +1210,6 @@ void ESceneManager::ObjectsDestroy()
         _runtimeObjects.pop_back();
     }
 
-    //하이러키 에디터에 삭제 플래그 활성화
-    if constexpr (IS_EDITOR)
-    {
-        if (false == _destroyObjectTemp.empty())
-        {
-            static EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("Scene##dock");
-            static EditorHierarchyTool* editorHierarchy = sceneDock->GetGui<EditorHierarchyTool>();
-            if (editorHierarchy)
-            {
-                 editorHierarchy->ActiveHierarchyCleanup();
-            }
-        }
-    }
-
     //큐 초기화
     _destroyComponentsTemp.clear();
     _destroyObjectTemp.clear();
@@ -1248,16 +1236,6 @@ void ESceneManager::ObjectsAddRuntime()
         }
         _runtimeObjects[id] = gameObject;
         GameObject::Engine::UpdateActiveInHierarchy(gameObject.get());     
-
-        if constexpr (IS_EDITOR)
-        {
-            static EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("Scene##dock");
-            static EditorHierarchyTool* editorHierarchy = sceneDock->GetGui<EditorHierarchyTool>();
-            if (editorHierarchy)
-            {
-                editorHierarchy->PushHierarchyObject(gameObject);
-            }
-        }
     }
     _addGameObjectsQueue.clear();
 
@@ -1286,7 +1264,7 @@ void ESceneManager::ObjectsAddRuntime()
     for (auto& component : addQueue)
     {
         component->UpdateEnableInHierarchy();
-        component->Reset();
+        component->Added();
     }
     addQueue.clear();
 }
@@ -1300,27 +1278,24 @@ void ESceneManager::NotInitDestroyComponentEraseToWaitVec(Component* destroyComp
 {
     if (destroyComponent->_initFlags.IsAwake() == false)
     {
-        if (false == _waitAwakeVec.empty())
+        size_t result = std::erase_if(_waitAwakeVec, [destroyComponent](std::shared_ptr<Component>& component) 
         {
-            size_t result = std::erase_if(_waitAwakeVec, [destroyComponent](std::shared_ptr<Component>& component) 
-            {
-                return component.get() == destroyComponent;
-            });
+            return component.get() == destroyComponent;
+        });
 
-            if (0 == result)
+        if (0 == result)
+        {
+            if (false == _addComponentsQueue.empty())
             {
-                if (false == _addComponentsQueue.empty())
+                // 추가 대기중인 컴포넌트라면 같이 삭제
+                std::erase_if(_addComponentsQueue,
+                [destroyComponent](const std::pair<std::weak_ptr<GameObject>, std::shared_ptr<Component>>& pair) 
                 {
-                    // 추가 대기중인 컴포넌트라면 같이 삭제
-                    std::erase_if(_addComponentsQueue,
-                    [destroyComponent](const std::pair<std::weak_ptr<GameObject>, std::shared_ptr<Component>>& pair) 
-                    {
-                        auto& [obj, component] = pair;
-                        return component.get() == destroyComponent;
-                    });
-                }
+                    auto& [obj, component] = pair;
+                    return component.get() == destroyComponent;
+                });
             }
-        }   
+        }         
     }
 
     if (destroyComponent->_initFlags.IsStart() == false)
@@ -1663,7 +1638,10 @@ bool ESceneManager::WriteUmSceneFile(Scene& scene, std::string_view sceneName, s
     fsPath writePath = UmFileSystem.GetAssetPath();
     writePath /= outPath;
     writePath /= sceneName;
-    writePath.replace_extension(SCENE_EXTENSION);
+    if (writePath.extension() != SCENE_EXTENSION)
+    {
+        writePath += SCENE_EXTENSION;
+    }
    
     bool isExists = fs::exists(writePath);
     if (true == isExists && false == isOverride)

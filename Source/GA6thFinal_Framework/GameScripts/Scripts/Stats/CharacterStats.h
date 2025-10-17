@@ -55,7 +55,11 @@ struct CharacterStats : public TurnActorStats
     // int 연격 수가 유지되는 라운드 수. 기본값 : 1
     PROPERTY(MaxChainRoundCount)
 
-    SETTER(int, StunResistance) { ReflectFields->StunResistance = std::max(value, 0); }
+    SETTER(int, StunResistance) 
+    { 
+        ReflectFields->StunResistance = std::max(value, 0); 
+        _sturnResistanceModel = ReflectFields->StunResistance;
+    }
     GETTER(int, StunResistance) { return ReflectFields->StunResistance; }
     // 기본 기절 저항 수치.
     PROPERTY(StunResistance)
@@ -78,5 +82,8 @@ protected:
     int _currentHP = 100;
     MVVM::Model<int> _currentChainCount = 0;
     int _currentChainRoundCount = 0;
+    MVVM::Model<int> _sturnResistanceModel;
+
+    void DeserializedReflectEvent() override;
 };
 
