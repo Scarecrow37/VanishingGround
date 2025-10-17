@@ -113,6 +113,103 @@ void PointLightShadowPass::Begin(ID3D12GraphicsCommandList* commandList)
     commandList->ResourceBarrier(1, &barrier);
 }
 
+//void PointLightShadowPass::Draw(ID3D12GraphicsCommandList* commandList)
+//{
+//    if (_activeLightIndices.empty())
+//        return;
+//
+//    UINT  currentBackBufferIndex = Global::device->GetCurrentBackBufferIndex();
+//    auto  resource               = Global::viewManager->GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
+//    auto  instanceData           = _instanceDatasBuffer->GetGPUVirtualAddress();
+//    auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
+//
+//    UINT indicesLength = (UINT)_activeLightIndices.size();
+//
+//    D3D12_GPU_VIRTUAL_ADDRESS baseCBVAddress = _pointLightShadowDataCBV->GetGPUVirtualAddress();
+//
+//    // 각 라이트의 인스턴스 시작 오프셋 계산
+//    UINT globalInstanceOffset = 0;
+//
+//    for (UINT i = 0; i < indicesLength; ++i)
+//    {
+//        UINT sceneLightIndex = _activeLightIndices[i];
+//        UINT atlasIndex      = sceneLightIndex;
+//
+//        D3D12_GPU_VIRTUAL_ADDRESS shadowDataCBV = baseCBVAddress + (_alignedSize * sceneLightIndex);
+//
+//        // 이 라이트의 인스턴스 시작 오프셋
+//        UINT lightInstanceOffset = globalInstanceOffset;
+//
+//        // 6면 캡쳐
+//        for (UINT faceIndex = 0; faceIndex < 6; ++faceIndex)
+//        {
+//            DescriptorHandles dsvHandle   = _atlas.GetDSVHandle();
+//            D3D12_RECT        scissorRect = _atlas.GetScissorRect(atlasIndex, faceIndex);
+//            D3D12_VIEWPORT    viewport    = _atlas.GetViewport(atlasIndex, faceIndex);
+//            commandList->ClearDepthStencilView(dsvHandle.CPU, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 1, &scissorRect);
+//            commandList->OMSetRenderTargets(0, nullptr, FALSE, &dsvHandle.CPU);
+//            commandList->RSSetViewports(1, &viewport);
+//            commandList->RSSetScissorRects(1, &scissorRect);
+//
+//            UINT offset = lightInstanceOffset;
+//
+//            // Static Mesh
+//            commandList->SetGraphicsRootSignature(_fxStaticMesh.GetRootSignature());
+//            commandList->SetGraphicsRootDescriptorTable(_fxStaticMesh.GetRootParameterIndex("textures"), resource);
+//            commandList->SetGraphicsRootConstantBufferView(_fxStaticMesh.GetRootParameterIndex("pointLightShadowData"),
+//                                                           shadowDataCBV);
+//            commandList->SetGraphicsRootShaderResourceView(_fxStaticMesh.GetRootParameterIndex("instanceData"),
+//                                                           instanceData);
+//            frameResource->SetFrameResource(FrameResourceType::TRANSFORM,
+//                                            _fxStaticMesh.GetRootParameterIndex("matrices"), commandList);
+//
+//            commandList->SetPipelineState(_psos[STATIC_MESH][CULL_BACK].Get());
+//            DrawMeshes(commandList, STATIC_MESH, CULL_BACK, sceneLightIndex, faceIndex, offset);
+//
+//            offset += (UINT)_perLightMeshInfos[sceneLightIndex][STATIC_MESH][CULL_BACK].size();
+//            commandList->SetPipelineState(_psos[STATIC_MESH][CULL_FRONT].Get());
+//            DrawMeshes(commandList, STATIC_MESH, CULL_FRONT, sceneLightIndex, faceIndex, offset);
+//
+//            offset += (UINT)_perLightMeshInfos[sceneLightIndex][STATIC_MESH][CULL_FRONT].size();
+//            commandList->SetPipelineState(_psos[STATIC_MESH][TWO_SIDED].Get());
+//            DrawMeshes(commandList, STATIC_MESH, TWO_SIDED, sceneLightIndex, faceIndex, offset);
+//
+//            // Skeletal Mesh
+//            commandList->SetGraphicsRootSignature(_fxSkeletalMesh.GetRootSignature());
+//            commandList->SetGraphicsRootDescriptorTable(_fxSkeletalMesh.GetRootParameterIndex("textures"), resource);
+//            commandList->SetGraphicsRootConstantBufferView(
+//                _fxSkeletalMesh.GetRootParameterIndex("pointLightShadowData"), shadowDataCBV);
+//            commandList->SetGraphicsRootShaderResourceView(_fxSkeletalMesh.GetRootParameterIndex("instanceData"),
+//                                                           instanceData);
+//            frameResource->SetFrameResource(FrameResourceType::TRANSFORM,
+//                                            _fxSkeletalMesh.GetRootParameterIndex("matrices"), commandList);
+//            frameResource->SetFrameResource(FrameResourceType::BONE_MATRICES,
+//                                            _fxSkeletalMesh.GetRootParameterIndex("boneMatrices"), commandList);
+//
+//            offset += (UINT)_perLightMeshInfos[sceneLightIndex][STATIC_MESH][TWO_SIDED].size();
+//            commandList->SetPipelineState(_psos[SKELETAL_MESH][CULL_BACK].Get());
+//            DrawMeshes(commandList, SKELETAL_MESH, CULL_BACK, sceneLightIndex, faceIndex, offset);
+//
+//            offset += (UINT)_perLightMeshInfos[sceneLightIndex][SKELETAL_MESH][CULL_BACK].size();
+//            commandList->SetPipelineState(_psos[SKELETAL_MESH][CULL_FRONT].Get());
+//            DrawMeshes(commandList, SKELETAL_MESH, CULL_FRONT, sceneLightIndex, faceIndex, offset);
+//
+//            offset += (UINT)_perLightMeshInfos[sceneLightIndex][SKELETAL_MESH][CULL_FRONT].size();
+//            commandList->SetPipelineState(_psos[SKELETAL_MESH][TWO_SIDED].Get());
+//            DrawMeshes(commandList, SKELETAL_MESH, TWO_SIDED, sceneLightIndex, faceIndex, offset);
+//        }
+//
+//        // 다음 라이트의 인스턴스 오프셋 계산
+//        for (int meshType = 0; meshType < MESH_TYPE_END; ++meshType)
+//        {
+//            for (int cullMode = 0; cullMode < CullMode::END; ++cullMode)
+//            {
+//                globalInstanceOffset += (UINT)_perLightMeshInfos[sceneLightIndex][meshType][cullMode].size();
+//            }
+//        }
+//    }
+//}
+
 void PointLightShadowPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
     if (_activeLightIndices.empty())
@@ -127,7 +224,6 @@ void PointLightShadowPass::Draw(ID3D12GraphicsCommandList* commandList)
 
     D3D12_GPU_VIRTUAL_ADDRESS baseCBVAddress = _pointLightShadowDataCBV->GetGPUVirtualAddress();
 
-    // 각 라이트의 인스턴스 시작 오프셋 계산
     UINT globalInstanceOffset = 0;
 
     for (UINT i = 0; i < indicesLength; ++i)
@@ -137,67 +233,73 @@ void PointLightShadowPass::Draw(ID3D12GraphicsCommandList* commandList)
 
         D3D12_GPU_VIRTUAL_ADDRESS shadowDataCBV = baseCBVAddress + (_alignedSize * sceneLightIndex);
 
-        // 이 라이트의 인스턴스 시작 오프셋
-        UINT lightInstanceOffset = globalInstanceOffset;
+        D3D12_VIEWPORT viewports[6];
+        D3D12_RECT     scissorRects[6];
 
-        // 6면 캡쳐
-        for (UINT faceIndex = 0; faceIndex < 6; ++faceIndex)
+        for (UINT face = 0; face < 6; ++face)
         {
-            DescriptorHandles dsvHandle   = _atlas.GetDSVHandle();
-            D3D12_RECT        scissorRect = _atlas.GetScissorRect(atlasIndex, faceIndex);
-            D3D12_VIEWPORT    viewport    = _atlas.GetViewport(atlasIndex, faceIndex);
-            commandList->ClearDepthStencilView(dsvHandle.CPU, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 1, &scissorRect);
-            commandList->OMSetRenderTargets(0, nullptr, FALSE, &dsvHandle.CPU);
-            commandList->RSSetViewports(1, &viewport);
-            commandList->RSSetScissorRects(1, &scissorRect);
-
-            UINT offset = lightInstanceOffset;
-
-            // Static Mesh
-            commandList->SetGraphicsRootSignature(_fxStaticMesh.GetRootSignature());
-            commandList->SetGraphicsRootDescriptorTable(_fxStaticMesh.GetRootParameterIndex("textures"), resource);
-            commandList->SetGraphicsRootConstantBufferView(_fxStaticMesh.GetRootParameterIndex("pointLightShadowData"),
-                                                           shadowDataCBV);
-            commandList->SetGraphicsRootShaderResourceView(_fxStaticMesh.GetRootParameterIndex("instanceData"),
-                                                           instanceData);
-            frameResource->SetFrameResource(FrameResourceType::TRANSFORM,
-                                            _fxStaticMesh.GetRootParameterIndex("matrices"), commandList);
-
-            commandList->SetPipelineState(_psos[STATIC_MESH][CULL_BACK].Get());
-            DrawMeshes(commandList, STATIC_MESH, CULL_BACK, sceneLightIndex, faceIndex, offset);
-
-            offset += (UINT)_perLightMeshInfos[sceneLightIndex][STATIC_MESH][CULL_BACK].size();
-            commandList->SetPipelineState(_psos[STATIC_MESH][CULL_FRONT].Get());
-            DrawMeshes(commandList, STATIC_MESH, CULL_FRONT, sceneLightIndex, faceIndex, offset);
-
-            offset += (UINT)_perLightMeshInfos[sceneLightIndex][STATIC_MESH][CULL_FRONT].size();
-            commandList->SetPipelineState(_psos[STATIC_MESH][TWO_SIDED].Get());
-            DrawMeshes(commandList, STATIC_MESH, TWO_SIDED, sceneLightIndex, faceIndex, offset);
-
-            // Skeletal Mesh
-            commandList->SetGraphicsRootSignature(_fxSkeletalMesh.GetRootSignature());
-            commandList->SetGraphicsRootDescriptorTable(_fxSkeletalMesh.GetRootParameterIndex("textures"), resource);
-            commandList->SetGraphicsRootConstantBufferView(
-                _fxSkeletalMesh.GetRootParameterIndex("pointLightShadowData"), shadowDataCBV);
-            commandList->SetGraphicsRootShaderResourceView(_fxSkeletalMesh.GetRootParameterIndex("instanceData"),
-                                                           instanceData);
-            frameResource->SetFrameResource(FrameResourceType::TRANSFORM,
-                                            _fxSkeletalMesh.GetRootParameterIndex("matrices"), commandList);
-            frameResource->SetFrameResource(FrameResourceType::BONE_MATRICES,
-                                            _fxSkeletalMesh.GetRootParameterIndex("boneMatrices"), commandList);
-
-            offset += (UINT)_perLightMeshInfos[sceneLightIndex][STATIC_MESH][TWO_SIDED].size();
-            commandList->SetPipelineState(_psos[SKELETAL_MESH][CULL_BACK].Get());
-            DrawMeshes(commandList, SKELETAL_MESH, CULL_BACK, sceneLightIndex, faceIndex, offset);
-
-            offset += (UINT)_perLightMeshInfos[sceneLightIndex][SKELETAL_MESH][CULL_BACK].size();
-            commandList->SetPipelineState(_psos[SKELETAL_MESH][CULL_FRONT].Get());
-            DrawMeshes(commandList, SKELETAL_MESH, CULL_FRONT, sceneLightIndex, faceIndex, offset);
-
-            offset += (UINT)_perLightMeshInfos[sceneLightIndex][SKELETAL_MESH][CULL_FRONT].size();
-            commandList->SetPipelineState(_psos[SKELETAL_MESH][TWO_SIDED].Get());
-            DrawMeshes(commandList, SKELETAL_MESH, TWO_SIDED, sceneLightIndex, faceIndex, offset);
+            viewports[face]    = _atlas.GetViewport(atlasIndex, face);
+            scissorRects[face] = _atlas.GetScissorRect(atlasIndex, face);
         }
+
+        commandList->RSSetViewports(6, viewports);
+        commandList->RSSetScissorRects(6, scissorRects);
+
+        DescriptorHandles dsvHandle = _atlas.GetDSVHandle();
+        commandList->OMSetRenderTargets(0, nullptr, FALSE, &dsvHandle.CPU);
+
+        for (UINT face = 0; face < 6; ++face)
+        {
+            commandList->ClearDepthStencilView(dsvHandle.CPU, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 1, &scissorRects[face]);
+        }
+
+        UINT offset = globalInstanceOffset;
+
+        // Static Mesh
+        commandList->SetGraphicsRootSignature(_fxStaticMesh.GetRootSignature());
+        commandList->SetGraphicsRootDescriptorTable(_fxStaticMesh.GetRootParameterIndex("textures"), resource);
+        commandList->SetGraphicsRootConstantBufferView(_fxStaticMesh.GetRootParameterIndex("pointLightShadowData"),
+                                                       shadowDataCBV);
+        commandList->SetGraphicsRootShaderResourceView(_fxStaticMesh.GetRootParameterIndex("instanceData"),
+                                                       instanceData);
+        frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxStaticMesh.GetRootParameterIndex("matrices"),
+                                        commandList);
+
+        commandList->SetPipelineState(_psos[STATIC_MESH][CULL_BACK].Get());
+        DrawMeshes(commandList, STATIC_MESH, CULL_BACK, sceneLightIndex, offset);
+
+        offset += (UINT)_perLightMeshInfos[sceneLightIndex][STATIC_MESH][CULL_BACK].size();
+        commandList->SetPipelineState(_psos[STATIC_MESH][CULL_FRONT].Get());
+        DrawMeshes(commandList, STATIC_MESH, CULL_FRONT, sceneLightIndex, offset);
+
+        offset += (UINT)_perLightMeshInfos[sceneLightIndex][STATIC_MESH][CULL_FRONT].size();
+        commandList->SetPipelineState(_psos[STATIC_MESH][TWO_SIDED].Get());
+        DrawMeshes(commandList, STATIC_MESH, TWO_SIDED, sceneLightIndex, offset);
+
+        // Skeletal Mesh
+        commandList->SetGraphicsRootSignature(_fxSkeletalMesh.GetRootSignature());
+        commandList->SetGraphicsRootDescriptorTable(_fxSkeletalMesh.GetRootParameterIndex("textures"), resource);
+        commandList->SetGraphicsRootConstantBufferView(_fxSkeletalMesh.GetRootParameterIndex("pointLightShadowData"),
+                                                       shadowDataCBV);
+        commandList->SetGraphicsRootShaderResourceView(_fxSkeletalMesh.GetRootParameterIndex("instanceData"),
+                                                       instanceData);
+        frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxSkeletalMesh.GetRootParameterIndex("matrices"),
+                                        commandList);
+        frameResource->SetFrameResource(FrameResourceType::BONE_MATRICES,
+                                        _fxSkeletalMesh.GetRootParameterIndex("boneMatrices"), commandList);
+
+        offset += (UINT)_perLightMeshInfos[sceneLightIndex][STATIC_MESH][TWO_SIDED].size();
+        commandList->SetPipelineState(_psos[SKELETAL_MESH][CULL_BACK].Get());
+        DrawMeshes(commandList, SKELETAL_MESH, CULL_BACK, sceneLightIndex, offset);
+
+        offset += (UINT)_perLightMeshInfos[sceneLightIndex][SKELETAL_MESH][CULL_BACK].size();
+        commandList->SetPipelineState(_psos[SKELETAL_MESH][CULL_FRONT].Get());
+        DrawMeshes(commandList, SKELETAL_MESH, CULL_FRONT, sceneLightIndex, offset);
+
+        offset += (UINT)_perLightMeshInfos[sceneLightIndex][SKELETAL_MESH][CULL_FRONT].size();
+        commandList->SetPipelineState(_psos[SKELETAL_MESH][TWO_SIDED].Get());
+        DrawMeshes(commandList, SKELETAL_MESH, TWO_SIDED, sceneLightIndex, offset);
+        
 
         // 다음 라이트의 인스턴스 오프셋 계산
         for (int meshType = 0; meshType < MESH_TYPE_END; ++meshType)
@@ -209,6 +311,7 @@ void PointLightShadowPass::Draw(ID3D12GraphicsCommandList* commandList)
         }
     }
 }
+
 void PointLightShadowPass::End(ID3D12GraphicsCommandList* commandList)
 {
     auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(_atlas.GetResource(), D3D12_RESOURCE_STATE_DEPTH_WRITE,
@@ -239,6 +342,7 @@ void PointLightShadowPass::CreateShaderAndPSO()
     (&pss.RasterizerState)->SlopeScaledDepthBias = 1.5f;
     pss.PrimitiveTopology                        = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
     pss.DSVFormat                                = DXGI_FORMAT_D32_FLOAT;
+    
 
     auto CreatePipelineStateStream = [this, &pss](int meshType) {
         (&pss.RasterizerState)->CullMode = D3D12_CULL_MODE_BACK;
@@ -334,9 +438,8 @@ void PointLightShadowPass::UpdateCubeFaceMatrices(UINT lightIndex, const Vector3
 }
 
 void PointLightShadowPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType meshType, CullMode cullMode,
-                                      UINT lightIndex, UINT faceIndex, UINT instanceOffset)
+                                      UINT lightIndex, UINT instanceOffset)
 {
-    UINT      parameter[2]  = {faceIndex, instanceOffset};
     UINT      instanceCount = 0;
     BaseMesh* previousMesh  = nullptr;
     BaseMesh* currentMesh   = nullptr;
@@ -354,6 +457,7 @@ void PointLightShadowPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, Me
 
         if (meshInfo->Mesh != previousMesh)
         {
+            UINT parameter[2] = {instanceOffset, instanceCount};
             switch (meshType)
             {
             case STATIC_MESH:
@@ -366,9 +470,8 @@ void PointLightShadowPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, Me
                 break;
             }
 
-            previousMesh->Render(commandList, instanceCount);
+            previousMesh->Render(commandList, instanceCount * 6);
             previousMesh = meshInfo->Mesh;
-            parameter[1] += instanceCount;
             instanceCount = 1;
         }
         else
@@ -381,6 +484,7 @@ void PointLightShadowPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, Me
 
     if (nullptr != currentMesh)
     {
+        UINT parameter[2] = {instanceOffset, instanceCount};
         switch (meshType)
         {
         case STATIC_MESH:
@@ -393,9 +497,73 @@ void PointLightShadowPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, Me
             break;
         }
 
-        currentMesh->Render(commandList, instanceCount);
+        currentMesh->Render(commandList, instanceCount * 6);
     }
 }
+
+//void PointLightShadowPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType meshType, CullMode cullMode,
+//                                      UINT lightIndex, UINT faceIndex, UINT instanceOffset)
+//{
+//    UINT      parameter[2]  = {faceIndex, instanceOffset};
+//    UINT      instanceCount = 0;
+//    BaseMesh* previousMesh  = nullptr;
+//    BaseMesh* currentMesh   = nullptr;
+//
+//    // lightIndex에 해당하는 메시만 렌더링
+//    for (auto& meshInfo : _perLightMeshInfos[lightIndex][meshType][cullMode])
+//    {
+//        if (nullptr == previousMesh)
+//        {
+//            currentMesh   = meshInfo->Mesh;
+//            previousMesh  = meshInfo->Mesh;
+//            instanceCount = 1;
+//            continue;
+//        }
+//
+//        if (meshInfo->Mesh != previousMesh)
+//        {
+//            switch (meshType)
+//            {
+//            case STATIC_MESH:
+//                commandList->SetGraphicsRoot32BitConstants(
+//                    _fxStaticMesh.GetRootParameterIndex("bit32_2_shadowMeshData"), 2, &parameter, 0);
+//                break;
+//            case SKELETAL_MESH:
+//                commandList->SetGraphicsRoot32BitConstants(
+//                    _fxSkeletalMesh.GetRootParameterIndex("bit32_2_shadowMeshData"), 2, &parameter, 0);
+//                break;
+//            }
+//
+//            previousMesh->Render(commandList, instanceCount);
+//            previousMesh = meshInfo->Mesh;
+//            parameter[1] += instanceCount;
+//            instanceCount = 1;
+//        }
+//        else
+//        {
+//            instanceCount++;
+//        }
+//
+//        currentMesh = meshInfo->Mesh;
+//    }
+//
+//    if (nullptr != currentMesh)
+//    {
+//        switch (meshType)
+//        {
+//        case STATIC_MESH:
+//            commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_2_shadowMeshData"), 2,
+//                                                       &parameter, 0);
+//            break;
+//        case SKELETAL_MESH:
+//            commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_2_shadowMeshData"),
+//                                                       2, &parameter, 0);
+//            break;
+//        }
+//
+//        currentMesh->Render(commandList, instanceCount);
+//    }
+//}
 
 bool PointLightShadowPass::IsInLightRange(const BoundingOrientedBox& meshBoundingBox, const Matrix& worldMatrix,
                                           const Vector3& lightPosition, float lightRange) const

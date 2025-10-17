@@ -23,12 +23,13 @@ struct VSOutput
     float farPlane : TEXCOORD3;
     
     nointerpolation uint4 materialID : TEXCOORD4;
+    uint viewport : SV_ViewportArrayIndex;
 };
 
 struct ShadowMeshData
 {
-    uint FaceIndex;
     uint Offset;
+    uint InstanceCount;
 };
 
 ConstantBuffer<ShadowMeshData> bit32_2_shadowMeshData;
@@ -39,8 +40,10 @@ StructuredBuffer<matrix> boneMatrices;
 VSOutput vs_main(VSInput input)
 {
     uint offset = bit32_2_shadowMeshData.Offset;
-    uint faceIndex = bit32_2_shadowMeshData.FaceIndex;
-    InstanceData data = instanceData[input.instanceID + offset];
+    uint instanceCount = bit32_2_shadowMeshData.InstanceCount;
+    uint meshInstanceID = input.instanceID % instanceCount;
+    uint faceIndex = input.instanceID / instanceCount;
+    InstanceData data = instanceData[meshInstanceID + offset];
     
     matrix boneTransform = mul(input.blendWeights.x, boneMatrices[data.MatrixID * MAX_BONE_MATRIX + input.blendIndices.x]);
     boneTransform += mul(input.blendWeights.y, boneMatrices[data.MatrixID * MAX_BONE_MATRIX + input.blendIndices.y]);
@@ -60,5 +63,7 @@ VSOutput vs_main(VSInput input)
     
     output.uv = input.uv;
     output.materialID = data.MaterialID;
+    
+    output.viewport = faceIndex;
     return output;
 }

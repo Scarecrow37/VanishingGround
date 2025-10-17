@@ -21,12 +21,13 @@ struct VSOutput
     float farPlane : TEXCOORD3;
     
     nointerpolation uint4 materialID : TEXCOORD4;
+    uint viewport : SV_ViewportArrayIndex;
 };
 
 struct ShadowMeshData
 {
-    uint FaceIndex;
     uint Offset;
+    uint InstanceCount;
 };
 
 ConstantBuffer<ShadowMeshData> bit32_2_shadowMeshData;
@@ -35,8 +36,11 @@ ConstantBuffer<PointLightShadowData> pointLightShadowData;
 VSOutput vs_main(VSInput input)
 {
     uint offset = bit32_2_shadowMeshData.Offset;
-    uint faceIndex = bit32_2_shadowMeshData.FaceIndex;
-    InstanceData data = instanceData[input.instanceID + offset];
+    uint instanceCount = bit32_2_shadowMeshData.InstanceCount;
+    uint meshInstanceID = input.instanceID % instanceCount;
+    uint faceIndex = input.instanceID / instanceCount;
+   
+    InstanceData data = instanceData[meshInstanceID + offset];
     
     VSOutput output = (VSOutput) 0;
     
@@ -49,5 +53,6 @@ VSOutput vs_main(VSInput input)
     
     output.uv = input.uv;
     output.materialID = data.MaterialID;
+    output.viewport = faceIndex;
     return output;
 }
