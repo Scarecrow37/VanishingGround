@@ -11,16 +11,30 @@ FadeDescriptionPanel::FadeDescriptionPanel()
 void FadeDescriptionPanel::FadeIn()
 {
     _fadeDirection = FadeDirection::FORWARD;
+    UIAnimation::Reset(ReflectFields->FadeDuration, false);
 }
 
 void FadeDescriptionPanel::FadeOut()
 {
     _fadeDirection = FadeDirection::BACKWARD;
+    UIAnimation::Reset(ReflectFields->FadeDuration, false);
 }
 
 void FadeDescriptionPanel::Stop()
 {
     _fadeDirection = FadeDirection::NONE;
+}
+
+void FadeDescriptionPanel::Begin()
+{
+    Alpha = BeginAlpha;
+    UIAnimation::Reset(ReflectFields->FadeDuration, false);
+}
+
+void FadeDescriptionPanel::End()
+{
+    Alpha = EndAlpha;
+    UIAnimation::Reset(0.0f, false);
 }
 
 void FadeDescriptionPanel::Start()

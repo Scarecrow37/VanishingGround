@@ -35,6 +35,8 @@ public:
     void FadeIn();
     void FadeOut();
     void Stop();
+    void Begin();
+    void End();
 
 protected:
     void Start() override;

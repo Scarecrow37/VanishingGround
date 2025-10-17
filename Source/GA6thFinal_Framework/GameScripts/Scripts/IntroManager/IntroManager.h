@@ -1,9 +1,10 @@
 ﻿#pragma once
 
+class FadeImageElement;
 class FadeTextElement;
 class FadeDescriptionPanel;
 
-class IntroManager : public Component
+class IntroManager : public Component, public InputReceiver
 {
     USING_PROPERTY(IntroManager)
 
@@ -41,13 +42,13 @@ public:
     PROPERTY(PromptDelay)
 
 protected:
+    void Awake() override;
+
     void Start() override;
 
     void Update() override;
 
     void Reset() override;
-
-    void ImGuiDrawPropertysEvent() override;
 
 private:
     float            GetWaitDescriptionTime() const;
@@ -56,7 +57,14 @@ private:
     float            GetFadeLevelSelectionTime() const;
     float            GetWaitPromptTime() const;
     float            GetFadePromptTime() const;
-    FadeTextElement* GetFadeTextElement(const std::string& tag) const;
+
+    void SkipStep(const Input::Controller& controller);
+    void SelectNormal(const Input::Controller& controller);
+    void SelectNormal();
+    void SelectHard(const Input::Controller& controller);
+
+    template <typename T>
+    static T* GetElement(const std::string& tag);
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
@@ -70,9 +78,26 @@ private:
     Step  _step;
     float _elapsedTime = 0.0f;
     bool  _isLevelSelected;
+    bool  _isSelectHard;
 
     FadeDescriptionPanel* _introDescription;
     FadeTextElement*      _normalLevelText;
     FadeTextElement*      _hardLevelText;
     FadeTextElement*      _promptText;
+    FadeImageElement*     _normalSelection;
+    FadeImageElement*     _hardSelection;
 };
+
+template <typename T>
+T* IntroManager::GetElement(const std::string& tag)
+{
+    const std::weak_ptr<GameObject> introDescriptionObjectWeak = GameObject::FindWithTag(tag);
+
+    if (const std::shared_ptr introDescriptionObject = introDescriptionObjectWeak.lock();
+        nullptr != introDescriptionObject)
+    {
+        T* component = introDescriptionObject->GetComponent<T>();
+        return component;
+    }
+    return nullptr;
+}

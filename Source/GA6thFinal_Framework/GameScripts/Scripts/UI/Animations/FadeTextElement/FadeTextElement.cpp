@@ -8,16 +8,34 @@ FadeTextElement::FadeTextElement() : UIAnimation([this](const float alpha) { Upd
 void FadeTextElement::FadeIn()
 {
     _fadeDirection = FadeDirection::FORWARD;
+    UIAnimation::Reset(ReflectFields->FadeDuration, false);
 }
 
 void FadeTextElement::FadeOut()
 {
     _fadeDirection = FadeDirection::BACKWARD;
+    UIAnimation::Reset(ReflectFields->FadeDuration, false);
 }
 
 void FadeTextElement::Stop()
 {
     _fadeDirection = FadeDirection::NONE;
+}
+
+void FadeTextElement::Begin()
+{
+    SimpleMath::Color color = Color;
+    color.w                 = BeginAlpha;
+    Color                   = color;
+    UIAnimation::Reset(ReflectFields->FadeDuration, false);
+}
+
+void FadeTextElement::End()
+{
+    SimpleMath::Color color = Color;
+    color.w                 = EndAlpha;
+    Color                   = color;
+    UIAnimation::Reset(0.0f, false);
 }
 
 void FadeTextElement::Start()

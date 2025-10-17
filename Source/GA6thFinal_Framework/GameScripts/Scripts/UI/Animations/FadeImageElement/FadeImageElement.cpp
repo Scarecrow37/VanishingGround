@@ -12,16 +12,30 @@ FadeImageElement::FadeImageElement() : UIAnimation([this](const float alpha) { U
 void FadeImageElement::FadeIn()
 {
     _fadeDirection = FadeDirection::FORWARD;
+    UIAnimation::Reset(ReflectFields->FadeDuration, false);
 }
 
 void FadeImageElement::FadeOut()
 {
     _fadeDirection = FadeDirection::BACKWARD;
+    UIAnimation::Reset(ReflectFields->FadeDuration, false);
 }
 
 void FadeImageElement::Stop()
 {
     _fadeDirection = FadeDirection::NONE;
+}
+
+void FadeImageElement::Begin()
+{
+    Alpha = BeginAlpha;
+    UIAnimation::Reset(ReflectFields->FadeDuration, false);
+}
+
+void FadeImageElement::End()
+{
+    Alpha = EndAlpha;
+    UIAnimation::Reset(0.0f, false);
 }
 
 void FadeImageElement::Start()
