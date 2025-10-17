@@ -48,6 +48,7 @@ protected:
 
 private:
     void PreferencesKeyDown(const Input::Controller&);
+    void InventoryKeyDown(const Input::Controller&);
 
 public:
     CombatUI::CharacterHUDGroup CharacterHUDGroup;
