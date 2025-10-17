@@ -33,13 +33,13 @@ private:
     void CreateShaderAndPSO();
     void UpdateShadowLights();
     void UpdateCubeFaceMatrices(UINT lightIndex, const Vector3& lightPosition, float lightRange);
-    //void DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType meshType, CullMode cullMode, UINT lightIndex,
-    //                UINT faceIndex, UINT instanceOffset);
+
     void DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType meshType, CullMode cullMode, UINT lightIndex,
                      UINT instanceOffset);
+
     bool IsInLightRange(const BoundingOrientedBox& meshBoundingBox, const Matrix& worldMatrix,
                         const Vector3& lightPosition, float lightRange) const;
-
+    
 private:
     ComPtr<ID3D12PipelineState> _psos[MeshType::MESH_TYPE_END][CullMode::END];
     std::vector<MeshInfo*>      _meshInfos[MeshType::MESH_TYPE_END][CullMode::END];
