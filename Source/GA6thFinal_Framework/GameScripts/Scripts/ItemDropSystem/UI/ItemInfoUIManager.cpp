@@ -206,6 +206,13 @@ void ItemInfoUIManager::FindComponents()
                 _uiComponents.ItemKeyword = object.GetComponent<DescriptionPanel>();
             }
         }
+        else if (nullptr == _uiComponents.ItemFlavor)
+        {
+            if (object.CompareTag("Flavor Description"))
+            {
+                _uiComponents.ItemFlavor = object.GetComponent<DescriptionPanel>();
+            }
+        }
         else if (nullptr == _uiComponents.Damage)
         {
             if (object.CompareTag("Damage"))
