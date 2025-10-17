@@ -80,13 +80,27 @@ void InventoryUIManager::FindUIElements()
                 }
                 else if (object.CompareTag("Revelation"))
                 {
-                    _revelationUI.Manager = object.GetComponent<HorizontalPageUIManager>();
+                    if (_revelationUI.Manager = object.GetComponent<HorizontalPageUIManager>())
+                    {
+                        if (RevelationSystem* system = SingletonComponent<RevelationSystem>::GetInstance())
+                        {
+                            size_t horizontalCount = GetHorizontalPageCount(system->GetPlayerElementList().size());
+                            _revelationUI.Manager->UpdateHorizontalUI(horizontalCount);
+                        }  
+                    }
                     _revelationUI.Icons   = FindIcons(curr);
-                    _revelationUI.Navis   = FindFocus(curr);
+                    _revelationUI.Navis   = FindFocus(curr);                          
                 }
                 else if (object.CompareTag("Accessory"))
                 {
-                    _accessoryUI.Manager = object.GetComponent<HorizontalPageUIManager>();
+                    if (_accessoryUI.Manager = object.GetComponent<HorizontalPageUIManager>())
+                    {
+                        if (AccessorySystem* system = SingletonComponent<AccessorySystem>::GetInstance())
+                        {
+                            size_t horizontalCount = GetHorizontalPageCount(system->GetPlayerAccessoryItems().size());
+                            _accessoryUI.Manager->UpdateHorizontalUI(horizontalCount);
+                        }
+                    }
                     _accessoryUI.Icons   = FindIcons(curr);
                     _accessoryUI.Navis   = FindFocus(curr);
                 }
@@ -125,11 +139,14 @@ std::vector<InventoryItemFocusNavi*> InventoryUIManager::FindFocus(Transform* tr
     {
         GameObject& obj = curr->gameObject;
         if (obj.CompareTag("Focus"))
-        {
-            InventoryItemFocusNavi* navi = obj.GetComponent<InventoryItemFocusNavi>();
-            if (navi)
+        {         
+            if (InventoryItemFocusNavi* navi = obj.GetComponent<InventoryItemFocusNavi>())
             {
                 navis.push_back(navi);
+            }
+            if (ImageElement* image = obj.GetComponent<ImageElement>())
+            {
+                image->Enable = false;
             }
         }
     });
@@ -209,12 +226,13 @@ void InventoryUIManager::UpdateWeaponUI()
             if (i < _weaponsNavi.size())
             {
                 _weaponsNavi[i]->SetItemInfo(info);
+                _weaponsNavi[i]->Enable = true;
             }
         }
     }
 }
 
-void InventoryUIManager::UpdateRevelationUI() 
+void InventoryUIManager::UpdateRevelationUI(size_t startIndex)
 {
     //계시 갱신
     if (RevelationSystem* system = SingletonComponent<RevelationSystem>::GetInstance())
@@ -223,9 +241,7 @@ void InventoryUIManager::UpdateRevelationUI()
         size_t revelationCount = elements.size();
         if (_revelationUI.Manager)
         {
-            size_t iconsCount      = _revelationUI.Icons.size();
-            size_t horizontalCount = GetHorizontalPageCount(revelationCount);
-            _revelationUI.Manager->UpdateHorizontalUI(horizontalCount);
+            size_t iconsCount = _revelationUI.Icons.size();
             if (0 < iconsCount)
             {
                 for (size_t i = 0; i < iconsCount; i++)
@@ -233,9 +249,10 @@ void InventoryUIManager::UpdateRevelationUI()
                     ImageElement* image = _revelationUI.Icons[i];
                     if (image)
                     {
-                        if (i < elements.size())
+                        const size_t elementIndex = i + startIndex;
+                        if (elementIndex < elements.size())
                         {
-                            const auto& revelation = elements[i];
+                            const auto& revelation = elements[elementIndex];
                             if (revelation)
                             {
                                 DropItemInfo      info = revelation->GetItemInfo();
@@ -243,28 +260,37 @@ void InventoryUIManager::UpdateRevelationUI()
                                 const File::Guid& guid = UmFileSystem.GetGuidFromAssetID(id);
                                 image->Enable          = true;
                                 image->SetImage(guid);
-
-                                
+                             
                                 if (i < _revelationUI.Navis.size())
                                 {
                                     _revelationUI.Navis[i]->SetItemInfo(info);
+                                    _revelationUI.Navis[i]->Enable = true;
                                 }
                             }
                         }
                         else
                         {
                             image->Enable = false;
+                            if (i < _revelationUI.Navis.size())
+                            {
+                                _revelationUI.Navis[i]->Enable = false;
+                            }
                         }
                     }
                 }
             }
             else
             {
-                for (auto& icon : _revelationUI.Icons)
+                for (size_t i = 0; i < _revelationUI.Icons.size(); i++)
                 {
+                    ImageElement* icon = _revelationUI.Icons[i];
                     if (icon)
                     {
                         icon->Enable = false;
+                        if (i < _revelationUI.Navis.size())
+                        {
+                            _revelationUI.Navis[i]->Enable = false;
+                        }
                     }
                 }
             }
@@ -272,7 +298,7 @@ void InventoryUIManager::UpdateRevelationUI()
     }
 }
 
-void InventoryUIManager::UpdateAccessoryUI() 
+void InventoryUIManager::UpdateAccessoryUI(size_t startIndex)
 {
     //장신구 갱신
     if (AccessorySystem* system = SingletonComponent<AccessorySystem>::GetInstance())
@@ -281,9 +307,7 @@ void InventoryUIManager::UpdateAccessoryUI()
         size_t      accessoryCount = items.size();
         if (_accessoryUI.Manager)
         {
-            size_t iconsCount      = _accessoryUI.Icons.size();
-            size_t horizontalCount = GetHorizontalPageCount(accessoryCount);
-            _accessoryUI.Manager->UpdateHorizontalUI(horizontalCount);
+            size_t iconsCount = _accessoryUI.Icons.size();
             if (0 < iconsCount)
             {
                 for (size_t i = 0; i < iconsCount; i++)
@@ -291,9 +315,10 @@ void InventoryUIManager::UpdateAccessoryUI()
                     ImageElement* image = _accessoryUI.Icons[i];
                     if (image)
                     {
-                        if (i < items.size())
+                        const size_t itemIndex = i + startIndex;
+                        if (itemIndex < items.size())
                         {
-                            const auto&  accessory = items[i];
+                            const auto&  accessory = items[itemIndex];
                             DropItemInfo info      = accessory.GetItemInfo();
                             int          id        = DropItemInfo::GetArtifactIconID(info);
                             File::Guid   guid      = UmFileSystem.GetGuidFromAssetID(id);
@@ -303,22 +328,32 @@ void InventoryUIManager::UpdateAccessoryUI()
                             if (i < _accessoryUI.Navis.size())
                             {
                                 _accessoryUI.Navis[i]->SetItemInfo(info);
+                                _accessoryUI.Navis[i]->Enable = true;
                             }
                         }
                         else
                         {
                             image->Enable = false;
+                            if (i < _accessoryUI.Navis.size())
+                            {
+                                _accessoryUI.Navis[i]->Enable = false;
+                            }
                         }
                     }
                 }
             }
             else
             {
-                for (auto& image : _accessoryUI.Icons)
+                for (size_t i = 0; i < _accessoryUI.Icons.size(); ++i)
                 {
+                    ImageElement* image = _accessoryUI.Icons[i];
                     if (image)
                     {
                         image->Enable = false;
+                    }
+                    if (i < _accessoryUI.Navis.size())
+                    {
+                        _accessoryUI.Navis[i]->Enable = false;
                     }
                 }
             }
@@ -332,11 +367,60 @@ void InventoryUIManager::UpdateConsumble()
 
     for (size_t i = 0; i < _consumableUI.size(); i++)
     {
-        ImageElement* icon = _consumableUI[i];
-        if (icon)
+        if (ImageElement* icon = _consumableUI[i])
         {
             icon->Enable = false;
         }
+    }
+
+    for (size_t i = 0; i < _consumableNavi.size(); i++)
+    {
+        if (InventoryItemFocusNavi* navi = _consumableNavi[i])
+        {
+            navi->Enable = false;
+        }
+    }
+}
+
+void InventoryUIManager::UpdateScroll(HorizontalPageUIManager* manager)
+{
+    auto ScrollCheck = [this](HorizontalPageUI& page) 
+    {
+        if (nullptr != page.Manager && false == page.Navis.empty())
+        {
+            HorizontalPageUIManager::DIR dir = page.Manager->GetLastDIR();
+            switch (dir)
+            {
+            case HorizontalPageUIManager::DIR::LEFT:
+                if (InventoryItemFocusNavi* navi = page.Navis.back())
+                {
+                    navi->Focus();
+                }
+                break;
+            case HorizontalPageUIManager::DIR::RIGHT:
+                if (InventoryItemFocusNavi* navi = page.Navis.front())
+                {
+                    navi->Focus();
+                } 
+                break;
+            case HorizontalPageUIManager::DIR::UNKOWN:
+            default:
+                break;
+            }             
+        }
+    };
+
+    if (manager && manager == _revelationUI.Manager)
+    {
+        size_t focus = manager->CurrentFocus;
+        UpdateRevelationUI(focus * _revelationUI.Icons.size());
+        ScrollCheck(_revelationUI);
+    }
+    else if (manager && manager == _accessoryUI.Manager)
+    {
+        size_t focus = manager->CurrentFocus;
+        UpdateAccessoryUI(focus * _accessoryUI.Icons.size());
+        ScrollCheck(_accessoryUI);   
     }
 }
 

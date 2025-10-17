@@ -18,9 +18,11 @@ public:
     void CloseInventory();
 
     void UpdateWeaponUI();
-    void UpdateRevelationUI();
-    void UpdateAccessoryUI();
+    void UpdateRevelationUI(size_t startIndex = 0);
+    void UpdateAccessoryUI(size_t startIndex = 0);
     void UpdateConsumble();
+
+    void UpdateScroll(HorizontalPageUIManager* manager);
 
     ItemInfoUIManager* GetItemInfoManager() const { return _itemInfoUIManager; }
 

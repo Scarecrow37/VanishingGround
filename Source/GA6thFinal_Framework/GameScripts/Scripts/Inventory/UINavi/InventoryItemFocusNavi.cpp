@@ -44,10 +44,6 @@ void InventoryItemFocusNavi::Awake()
 {
     Base::Awake();
     _focusImage = GetComponent<ImageElement>();
-    if (_focusImage)
-    {
-        _focusImage->Enable = false;
-    }
     gameObject->AddTag(TAG);
 }
 
