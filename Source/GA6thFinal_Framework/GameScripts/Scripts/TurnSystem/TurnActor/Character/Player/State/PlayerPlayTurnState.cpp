@@ -59,13 +59,6 @@ void PlayerPlayTurnState::OnEnter()
         qteUIManager->Refresh();
         qteUIManager->SetGuideNoteActive(true);
     }
-
-    //Player& player  = GetPlayer();
-    //auto* animator  = player.GetAnimationComponent();
-    //if (animator)
-    //{
-    //    animator->ClearOverrideAnimations();
-    //}
 }
 
 void PlayerPlayTurnState::OnExit() 
