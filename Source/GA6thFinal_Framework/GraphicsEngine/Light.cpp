@@ -64,6 +64,7 @@ void Light::SetShadowPointLight(const Vector3& color, const Vector3& position, c
     _float_1   = &range;
 }
 
+
 void Light::AddReference()
 {
     GraphicsBase::AddReference();

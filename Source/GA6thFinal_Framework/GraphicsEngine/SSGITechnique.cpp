@@ -47,7 +47,7 @@ void SSGITechnique::Initialize(ID3D12GraphicsCommandList* commandList)
     property.Radius         = 0.01f;
     property.Thickness      = 0.05f;
     property.NumSample      = 16;
-    property.Intensity      = 100.f;
+    property.Intensity      = 10.f;
     property.TemporalWeight = 0.85f;
     property.DepthSigma     = 2.f;
     property.NormalSigma    = 128.f;
