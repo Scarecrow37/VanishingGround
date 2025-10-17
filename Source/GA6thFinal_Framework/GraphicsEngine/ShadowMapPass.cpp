@@ -101,7 +101,10 @@ void ShadowMapPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
     auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(_shadowMap.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_DEPTH_WRITE);
     commandList->ResourceBarrier(1, &barrier);
+    
+    commandList->ClearDepthStencilView(_shadowMapDSV, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
+    commandList->OMSetRenderTargets(0, nullptr, FALSE, &_shadowMapDSV);
     commandList->RSSetViewports(1, &_viewport);
     commandList->RSSetScissorRects(1, &_scissorRect);
 }
@@ -113,12 +116,9 @@ void ShadowMapPass::Draw(ID3D12GraphicsCommandList* commandList)
     auto  cascadeData            = _cascadeDataCBV->GetGPUVirtualAddress();
     auto  instanceData           = _instanceDatasBuffer->GetGPUVirtualAddress();
     auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
-
     
     UINT offset = 0;
-    commandList->OMSetRenderTargets(0, nullptr, FALSE, &_shadowMapDSV);
-    commandList->ClearDepthStencilView(_shadowMapDSV, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
-
+    
     // Static
     commandList->SetGraphicsRootSignature(_fxStaticMesh.GetRootSignature());
     commandList->SetGraphicsRootDescriptorTable(_fxStaticMesh.GetRootParameterIndex("textures"), resource);
