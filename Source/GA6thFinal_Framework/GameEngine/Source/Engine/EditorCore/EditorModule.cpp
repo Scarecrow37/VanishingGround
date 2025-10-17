@@ -419,6 +419,10 @@ bool EditorModule::EditorBuildSystem::BuildProject(std::string_view outPath)
             for (auto& extention : extentions)
             {
                 isCopy |= extention == entry.path().extension();
+                if (isCopy)
+                {
+                    break;
+                }
             }
             if (true == isCopy)
             {
