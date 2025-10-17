@@ -65,10 +65,6 @@ bool PointLightShadowAtlas::IsAllocated(UINT lightIndex) const
 DescriptorHandles PointLightShadowAtlas::GetDSVHandle() const
 {
     return _dsvHandle;
-    /*UINT index = lightIndex * FacePerLight + faceIndex;
-    GRAPHICS_ASSERT(index < FacePerLight * MAX_SHADOW_POINT_LIGHT,
-                    L"PointLightShadowAtlas::GetDSVHandles : Index out of range.");
-    return _dsvHandles[index];*/
 }
 
 D3D12_VIEWPORT PointLightShadowAtlas::GetViewport(UINT lightIndex, UINT faceIndex) const

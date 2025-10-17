@@ -323,7 +323,7 @@ float4 Premultiply(float4 color)
 
 float CalculatePointLightShadowPCF(float3 fragPos, float3 lightPos, uint lightIndex,
                                    Texture2D pointLightShadowMaps,
-                                   float farPlane,float atlasSize,float faceSize)
+                                   float farPlane, float atlasSize, float faceSize)
 {
     float3 fragToLight = fragPos - lightPos;
     float currentDistance = length(fragToLight);
@@ -385,7 +385,6 @@ float CalculatePointLightShadowPCF(float3 fragPos, float3 lightPos, uint lightIn
     uint atlasX = atlasIndexInGrid % tilesPerRow;
     uint atlasY = atlasIndexInGrid / tilesPerRow;
     float shadow = 0.0;
-    //float bias = 0.05;
     float bias = 0.01 + (currentDistance / farPlane) * 0.02;
     float texelSize = 1.0 / faceSize;
     
