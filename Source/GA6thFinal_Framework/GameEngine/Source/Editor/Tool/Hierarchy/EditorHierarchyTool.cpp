@@ -534,15 +534,6 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
     }
 }
 
-void EditorHierarchyTool::PushHierarchyObject(const std::shared_ptr<GameObject>& object)
-{
-    int instanceID = object->GetInstanceID();
-    if (auto [iter, result] = _instanceIDSet.insert(instanceID); true == result)
-    {
-        _hierarchyObjects.emplace_back(object, instanceID);
-    } 
-}
-
 void EditorHierarchyTool::OnStartGui()
 {
     _dockWindow          = GetOwnerDockWindow();
@@ -624,22 +615,8 @@ void EditorHierarchyTool::HierarchyDrawTreeNode()
     {
         HierarchyRightClickEvent();
 
-        //유효한 오브젝트만 남긴다.
-        if (_hierarchyObjectCleanup)
-        {
-            std::erase_if(_hierarchyObjects, [this](const std::pair< std::weak_ptr<GameObject>,int>& pair) 
-            {
-                auto& [object, id] = pair;
-                bool erase = object.expired();
-                if (erase)
-                {
-                    _instanceIDSet.erase(id);
-                }
-                return erase;
-            });
-            _hierarchyObjectCleanup = false;
-        }
-
+        const auto& hierarchyObjects = ESceneManager::Engine::GetRuntimeObjects();
+           
         //실제로 그릴 오브젝트 씬 별로 분류
         const auto& scenes = engineCore->SceneManager.GetLoadedScenes();
         if (false == scenes.empty())
@@ -653,11 +630,9 @@ void EditorHierarchyTool::HierarchyDrawTreeNode()
             }
 
             //분류 작업
-            for (auto& pair : _hierarchyObjects)
-            {
-                auto& [weakObject, id] = pair;
-                std::shared_ptr<GameObject> object = weakObject.lock();
-                if (object)
+            for (auto& object : hierarchyObjects)
+            {   
+                if (object && object->IsValid())
                 {
                     if (nullptr == object->transform->Parent)
                     {
@@ -677,12 +652,8 @@ void EditorHierarchyTool::HierarchyDrawTreeNode()
                         }
                     }
                 }           
-                else
-                {
-                    _hierarchyObjectCleanup = true;
-                }
             }
-
+             
             //에디터 출력
             for (auto& [scenePath, objects] : _hierarchyRootObjects)
             {
