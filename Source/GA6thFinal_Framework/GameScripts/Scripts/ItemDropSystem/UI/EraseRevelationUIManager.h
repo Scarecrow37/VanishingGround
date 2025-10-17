@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "Utility/SingletonHelper.h"
+#include "ItemDropSystem/Interface/IDropItem.h"
 
+class DescriptionPanel;
 class TextElement;
 class ImageElement;
 class EraseRevelationNavi;
