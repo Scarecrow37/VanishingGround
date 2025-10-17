@@ -604,11 +604,11 @@ void AnimationComponent::BeginBuildOverrideAnimation()
         // 비어있으면 널
         if (_overrideAnimationStack.empty())
         {
-            _prevBeginBuildAnimatonID = UINT_MAX;
+            _prevBeginBuildAnimationID = UINT_MAX;
         }
         else
         {
-            _prevBeginBuildAnimatonID = GetTopAnimationData()._id;
+            _prevBeginBuildAnimationID = GetTopAnimationData()._id;
         }
     }
     else
@@ -624,12 +624,12 @@ void AnimationComponent::EndBuildOverrideAnimation()
     {
         _isBuildingOverrideAnimation = false;
         // 마지막 애니메이션 데이터가 달라졌을때만
-        if (_prevBeginBuildAnimatonID != GetTopAnimationData()._id)
+        if (_prevBeginBuildAnimationID != GetTopAnimationData()._id)
         {
             AnimationData& animData = GetTopAnimationDataEx();
             SetAnimationEx(animData);
         }
-        _prevBeginBuildAnimatonID = UINT_MAX;
+        _prevBeginBuildAnimationID = UINT_MAX;
     }
     else
     {
