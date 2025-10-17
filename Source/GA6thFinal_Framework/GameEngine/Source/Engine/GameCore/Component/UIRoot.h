@@ -38,6 +38,10 @@ public:
     NavigationID           ReleaseNavigationID(NavigationID id);
     UINavigationComponent* FindNavigationComponent(NavigationID id);
 
+    NavigationID GetFocusedNavigationID() const;
+
+    UINavigationComponent* GetFocusedNavigationComponent() const;
+
 protected:
     void ImGuiDrawPropertysEvent() override;
     void Reset() override;
