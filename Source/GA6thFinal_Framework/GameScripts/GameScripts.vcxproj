@@ -302,6 +302,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\QTE\Track\Note\QTENoteData.h" />
     <ClInclude Include="Scripts\CombatUIManager\Accessories\AccessoriesGroup.h" />
     <ClInclude Include="Scripts\CombatUIManager\CharacterHUD\CharacterHUDGroup.h" />
     <ClInclude Include="Scripts\CombatUIManager\Consumable\ConsumableGroup.h" />
@@ -533,6 +534,7 @@
     <ClInclude Include="Scripts\ItemDropSystem\UI\WeaponChangeUIManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\QTE\Track\Note\QTENoteData.cpp" />
     <ClCompile Include="Scripts\CombatUIManager\Accessories\AccessoriesGroup.cpp" />
     <ClCompile Include="Scripts\CombatUIManager\CharacterHUD\CharacterHUDGroup.cpp" />
     <ClCompile Include="Scripts\CombatUIManager\Consumable\ConsumableGroup.cpp" />

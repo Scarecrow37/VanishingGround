@@ -32,6 +32,9 @@ void AnimationComponent::Update()
         }
         UpdateAnimation(_mainAnimationData);
 
+        // 유효성 검사
+        UpdateValidation();
+
         for (auto& event : _eventQueue)
         {
             if (event)
@@ -347,8 +350,6 @@ void AnimationComponent::ImGuiDrawPropertysEvent()
 
         if (false == UmCore->IsPlay())
         {
-            // 애니메이터가 해당 객체만 사용 중이라면 reset합니다.
-            UpdateNullAnimator();
             // 메인 애니메이션만
             UpdateAnimation(_mainAnimationData);
         }
@@ -382,13 +383,18 @@ AnimationData& AnimationComponent::GetTopAnimationDataEx()
     return _mainAnimationData;
 }
 
-void AnimationComponent::UpdateNullAnimator()
+void AnimationComponent::UpdateValidation()
 {
-    /*if (1 >= _animator.use_count())
+    if (_animator)
     {
-        _animator.reset();
-        ClearOverrideAnimations();
-    }*/
+        // 그래픽스 Animator와 현재 애니메이션 컴포넌트의 동기화가 맞지 않는 경우 처리
+        std::string_view currAnim = _animator->GetCurrentAnimationName();
+        AnimationData&   animData = GetTopAnimationDataEx();
+        if (false == animData.IsSameAnimation(currAnim))
+        {
+            SetAnimationEx(animData);
+        }
+    }
 }
 
 void AnimationComponent::UpdateAnimation(AnimationData& animData)
@@ -598,11 +604,11 @@ void AnimationComponent::BeginBuildOverrideAnimation()
         // 비어있으면 널
         if (_overrideAnimationStack.empty())
         {
-            _prevBeginBuildAnimatonData = nullptr;
+            _prevBeginBuildAnimatonID = UINT_MAX;
         }
         else
         {
-            _prevBeginBuildAnimatonData = &GetTopAnimationData();
+            _prevBeginBuildAnimatonID = GetTopAnimationData()._id;
         }
     }
     else
@@ -618,12 +624,12 @@ void AnimationComponent::EndBuildOverrideAnimation()
     {
         _isBuildingOverrideAnimation = false;
         // 마지막 애니메이션 데이터가 달라졌을때만
-        if (_prevBeginBuildAnimatonData != &GetTopAnimationData())
+        if (_prevBeginBuildAnimatonID != GetTopAnimationData()._id)
         {
             AnimationData& animData = GetTopAnimationDataEx();
             SetAnimationEx(animData);
         }
-        _prevBeginBuildAnimatonData = nullptr;
+        _prevBeginBuildAnimatonID = UINT_MAX;
     }
     else
     {
@@ -729,13 +735,21 @@ void AnimationComponent::PopOverrideAnimation()
     _lastAnimationData = &nextData;
 }
 
-bool AnimationComponent::ChangeCurrentAnimation(std::string_view animKey) 
+bool AnimationComponent::ChangeCurrentAnimation(std::string_view animKey, bool resetFrame)
 {
+    if (resetFrame)
+    {
+        ChangeCurrentAnimationFrame(0.0f);
+    }
     return ChangeAnimationEx(GetLastAnimationDataEx(), animKey);
 }
 
-bool AnimationComponent::ChangeMainAnimation(std::string_view animKey) 
+bool AnimationComponent::ChangeMainAnimation(std::string_view animKey, bool resetFrame)
 {
+    if (resetFrame)
+    {
+        ChangeMainAnimationFrame(0.0f);
+    }
     return ChangeAnimationEx(_mainAnimationData, animKey);
 }
 

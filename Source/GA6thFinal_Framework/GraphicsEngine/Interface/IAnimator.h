@@ -16,6 +16,7 @@ public:
     virtual bool                            HasAnimation(const char* animation) const              = 0;
     virtual const std::vector<const char*>& GetAnimationNames() const                              = 0;
     virtual float                           GetAnimationLastTime(const char* animation) const      = 0;
+    virtual std::string_view                GetCurrentAnimationName(unsigned int ID = 0) const     = 0;
     virtual float                           GetCurrentAnimationLastTime(unsigned int ID = 0) const = 0;
     virtual float                           GetCurrentAnimationPlayTime(unsigned int ID = 0) const = 0;
     virtual float                           GetCurrentAnimationSpeed(unsigned int ID = 0) const    = 0;
