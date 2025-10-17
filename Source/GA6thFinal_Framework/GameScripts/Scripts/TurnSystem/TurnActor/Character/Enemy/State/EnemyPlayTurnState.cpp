@@ -48,7 +48,6 @@ void EnemyPlayTurnState::OnEnter()
         _currentAction->RequestActionEnter();
     }
     LogCurrentAction();
-
 }
 
 void EnemyPlayTurnState::OnExit() 
