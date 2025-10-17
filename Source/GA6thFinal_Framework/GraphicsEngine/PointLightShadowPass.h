@@ -35,11 +35,14 @@ private:
     void UpdateCubeFaceMatrices(UINT lightIndex, const Vector3& lightPosition, float lightRange);
     void DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType meshType, CullMode cullMode, UINT lightIndex,
                     UINT faceIndex, UINT instanceOffset);
+    bool IsInLightRange(const BoundingOrientedBox& meshBoundingBox, const Matrix& worldMatrix,
+                        const Vector3& lightPosition, float lightRange) const;
 
 private:
-    ComPtr<ID3D12PipelineState>       _psos[MeshType::MESH_TYPE_END][CullMode::END];
-    std::vector<MeshInfo*>            _meshInfos[MeshType::MESH_TYPE_END][CullMode::END];
-    std::vector<InstanceData>         _instanceDatas;
+    ComPtr<ID3D12PipelineState> _psos[MeshType::MESH_TYPE_END][CullMode::END];
+    std::vector<MeshInfo*>      _meshInfos[MeshType::MESH_TYPE_END][CullMode::END];
+    std::vector<MeshInfo*>      _perLightMeshInfos[MAX_SHADOW_POINT_LIGHT][MeshType::MESH_TYPE_END][CullMode::END];
+    std::vector<InstanceData>   _instanceDatas;
     std::unique_ptr<StructuredBuffer> _instanceDatasBuffer;
 
     FX<GE::VS::STATIC_POINT_LIGHT_SHADOW_FR, GE::PS::POINT_LIGHT_SHADOW>   _fxStaticMesh;
