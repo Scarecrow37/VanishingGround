@@ -197,8 +197,10 @@ inline float CalculateShadow(float3 worldPosition, float3 normal, float3 lightDi
     float bias = max(0.005f * (1.0f - dot(normal, lightDirection)), 0.0005f);
     float shadow = 0.0f;
     
+    [unroll]
     for (int x = -1; x <= 1; ++x)
     {
+        [unroll]
         for (int y = -1; y <= 1; ++y)
         {
             shadow += shadowMap.SampleCmpLevelZero(samComparisonLinear_border, float3(shadowPos.xy + float2(x, y) * texelSize, cid), shadowPos.z - bias);
