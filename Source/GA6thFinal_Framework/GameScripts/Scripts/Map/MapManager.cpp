@@ -15,6 +15,7 @@
 #include "Utility/SingletonHelper.h"
 #include "ItemDropSystem/ItemDropSystem.h"
 #include "Preferences/PreferencesManager.h"
+#include "Inventory/UI/InventoryUIManager.h"
 
 UMREAL_COMPONENT(MapManager)
 
@@ -128,13 +129,24 @@ void MapManager::Update()
         }
     }
 
-    if (_lastFocusStage != nullptr)
+    if (_openPreferences)
     {
         if (PreferencesManager* manager = SingletonComponent<PreferencesManager>::GetInstance())
         {
             manager->OnPreferencesWindow(_lastFocusStage);
         }  
         _lastFocusStage = nullptr;
+        _openPreferences = false;
+    }
+
+    if (_openInventory)
+    {
+        if (InventoryUIManager* manager = SingletonComponent<InventoryUIManager>::GetInstance())
+        {
+            manager->OpenInventory(_lastFocusStage);
+        }
+        _lastFocusStage = nullptr;
+        _openInventory  = false;
     }
 
     Debugger()([this]{
@@ -183,6 +195,10 @@ void MapManager::OnLoadScene(Scene& loadScene, LoadSceneMode mode)
         if (Transform* preferences = transform->Find("PreferencesPannel"))
         {
             GameObject::Destroy(preferences->gameObject);
+        }
+        if (Transform* inventory = transform->Find("Inventory Panel"))
+        {
+            GameObject::Destroy(inventory->gameObject);
         }
     }
     gameObject->SetActive(isActive);
@@ -320,15 +336,53 @@ void MapManager::PreferencesKeyDown(const Input::Controller&)
     OpenPreferencesWindow();
 }
 
+void MapManager::InventoryKeyDown(const Input::Controller&) 
+{
+    OpenInventoryWindow();
+}
+
 void MapManager::OpenPreferencesWindow()
 {
     if (EnableInHierarchy)
     {
-        _focusStage.Apply([this](Stage* stage) {
-            if (true == stage->EnableInHierarchy)
+        bool isOpen = true;
+        if (InventoryUIManager* inventory = SingletonComponent<InventoryUIManager>::GetInstance())
+        {
+            isOpen = inventory->gameObject->ActiveInHierarchy == false;
+        }
+        if (isOpen)
+        {
+            _focusStage.Apply([this](Stage* stage) 
             {
-                _lastFocusStage = stage;
-            }
-        });
+                if (true == stage->EnableInHierarchy)
+                {
+                    _lastFocusStage = stage;
+                    _openPreferences = true;
+                }
+            });
+        }
+    }
+}
+
+void MapManager::OpenInventoryWindow() 
+{
+    if (EnableInHierarchy)
+    {
+        bool isOpen = true;
+        if (PreferencesManager* preferences = SingletonComponent<PreferencesManager>::GetInstance())
+        {
+            isOpen = preferences->gameObject->ActiveInHierarchy == false;
+        }
+        if (isOpen)
+        {
+            _focusStage.Apply([this](Stage* stage) 
+            {
+                if (true == stage->EnableInHierarchy)
+                {
+                    _lastFocusStage = stage;
+                    _openInventory = true;
+                }
+            });
+        }
     }
 }
