@@ -751,9 +751,7 @@ void EditorHierarchyTool::HierarchyDrawTreeNode()
         }
         ImGui::EndChild();
     }
-    _hierarchySceneIndex.clear();
-    _hierarchyRootObjects.clear();
-    _hierarchyDontDestroyOnLoadObjects.clear();
+    CleanupHierarchyObjects();
 }
 
 void EditorHierarchyTool::KeyboardEvent()
