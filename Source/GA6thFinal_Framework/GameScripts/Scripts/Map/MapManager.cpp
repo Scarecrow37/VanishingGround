@@ -108,6 +108,7 @@ void MapManager::Awake()
         SetupStage();
 
         BindInputAction(ControllerButton::BACK, Action::PRESSED, this, &MapManager::PreferencesKeyDown);
+        BindInputAction(ControllerButton::START, Action::PRESSED, this, &MapManager::InventoryKeyDown);
     }
 }
 
@@ -371,7 +372,7 @@ void MapManager::OpenInventoryWindow()
         bool isOpen = true;
         if (PreferencesManager* preferences = SingletonComponent<PreferencesManager>::GetInstance())
         {
-            isOpen = preferences->gameObject->ActiveInHierarchy == false;
+            isOpen = preferences->IsOpen() == false;
         }
         if (isOpen)
         {
