@@ -351,6 +351,8 @@
     <ClInclude Include="Scripts\GameCore\FSM\FSMState.h" />
     <ClInclude Include="Scripts\GameCore\FSM\IFSMEntity.h" />
     <ClInclude Include="Scripts\Interface\ITriggerType.h" />
+    <ClInclude Include="Scripts\Inventory\OpenInventoryComponent.h" />
+    <ClInclude Include="Scripts\Inventory\UINavi\InventoryArrowNavi.h" />
     <ClInclude Include="Scripts\Inventory\UINavi\InventoryItemFocusNavi.h" />
     <ClInclude Include="Scripts\Inventory\UI\HorizontalPageUIManager.h" />
     <ClInclude Include="Scripts\Inventory\UI\InventoryUIManager.h" />
@@ -594,6 +596,8 @@
     <ClCompile Include="Scripts\ExcelParser\ImGuiColumnSheetParser.cpp" />
     <ClCompile Include="Scripts\GameCore\FSM\AlwaysTransitionCondition.cpp" />
     <ClCompile Include="Scripts\GameCore\FSM\FiniteStateMachine.cpp" />
+    <ClCompile Include="Scripts\Inventory\OpenInventoryComponent.cpp" />
+    <ClCompile Include="Scripts\Inventory\UINavi\InventoryArrowNavi.cpp" />
     <ClCompile Include="Scripts\Inventory\UINavi\InventoryItemFocusNavi.cpp" />
     <ClCompile Include="Scripts\Inventory\UI\HorizontalPageUIManager.cpp" />
     <ClCompile Include="Scripts\Inventory\UI\InventoryUIManager.cpp" />

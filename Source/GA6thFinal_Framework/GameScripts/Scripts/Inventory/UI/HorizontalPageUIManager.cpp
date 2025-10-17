@@ -4,6 +4,7 @@
 #include "UI/Panels/Horizontal/HorizontalPanel.h"
 #include "UI/Panels/Overlay/OverlayPanel.h"
 #include "PlayerSystem/PlayerSystem.h"
+#include "Inventory/UINavi/InventoryArrowNavi.h"
 
 UMREAL_COMPONENT(HorizontalPageUIManager)
 
@@ -51,10 +52,18 @@ void HorizontalPageUIManager::FindUIElements()
             if (object.CompareTag("Left Arrow"))
             {
                 _arrow.Left = object.GetComponent<ImageElement>();
+                if (_arrow.LeftNavi = object.GetComponent<InventoryArrowNavi>())
+                {
+                    _arrow.LeftNavi->SetScrollManager(this);
+                }
             }
             if (object.CompareTag("Right Arrow"))
             {
                 _arrow.Right = object.GetComponent<ImageElement>();
+                if (_arrow.RightNavi = object.GetComponent<InventoryArrowNavi>())
+                {
+                    _arrow.RightNavi->SetScrollManager(this);
+                }
             }
         });
     }
@@ -111,48 +120,24 @@ void HorizontalPageUIManager::UpdateArrow(size_t index)
         size_t lastIndex = horizontalSize - 1;
         if (index == 0)
         {
-            if (_arrow.Left)
-            {
-                _arrow.Left->Enable = false;
-            }
-            if (_arrow.Right)
-            {
-                _arrow.Right->Enable = true;
-            }
+            _arrow.SetEnableLeft(false);
+            _arrow.SetEnableRight(true);
         }
         else if (index == lastIndex)
         {
-            if (_arrow.Left)
-            {
-                _arrow.Left->Enable = true;
-            }
-            if (_arrow.Right)
-            {
-                _arrow.Right->Enable = false;
-            }
+            _arrow.SetEnableLeft(true);
+            _arrow.SetEnableRight(false);
         }
         else
         {
-            if (_arrow.Left)
-            {
-                _arrow.Left->Enable = true;
-            }
-            if (_arrow.Right)
-            {
-                _arrow.Right->Enable = true;
-            }
+            _arrow.SetEnableLeft(true);
+            _arrow.SetEnableRight(true);
         }
     }
     else
     {
-        if (_arrow.Left)
-        {
-            _arrow.Left->Enable = false;
-        }
-        if (_arrow.Right)
-        {
-            _arrow.Right->Enable = false;
-        }
+        _arrow.SetEnableLeft(false);
+        _arrow.SetEnableRight(false);
     }
 }
 
@@ -193,30 +178,86 @@ void HorizontalPageUIManager::UpdateHorizontalUI(size_t count)
 
 void HorizontalPageUIManager::SetHorizontalFocus(size_t index) 
 {
-    if (_currentFocus != index)
+    if (index < _horizontalBar.size())
     {
-        if (index < _horizontalBar.size())
+        for (size_t i = 0; i < _horizontalBar.size(); i++)
         {
-            for (size_t i = 0; i < _horizontalBar.size(); i++)
+            auto& bar = _horizontalBar[i];
+            if (i == index)
             {
-                auto& bar = _horizontalBar[i];
-                if (i == index)
+                if (bar.Focus)
                 {
-                    if (bar.Focus)
-                    {
-                        bar.Focus->Enable = true;
-                    }
-                }
-                else
-                {
-                    if (bar.Focus)
-                    {
-                        bar.Focus->Enable = false;
-                    }
+                    bar.Focus->Enable = true;
                 }
             }
-            _currentFocus = index;
+            else
+            {
+                if (bar.Focus)
+                {
+                    bar.Focus->Enable = false;
+                }
+            }
         }
-        UpdateArrow(index);
-    }  
+        if (_currentFocus == index)
+        {
+            _lastDIR = DIR::UNKNOWN;
+        }
+        else
+        {
+            if (_currentFocus < index)
+            {
+                _lastDIR = DIR::RIGHT;
+            }
+            else
+            {
+                _lastDIR = DIR::LEFT;
+            }
+        }
+        _currentFocus = index;
+    }
+    UpdateArrow(index);
+}
+
+void HorizontalPageUIManager::HorizontalScrollLeft() 
+{
+    if (0 < _currentFocus)
+    {
+        SetHorizontalFocus(_currentFocus - 1);
+    }
+}
+
+void HorizontalPageUIManager::HorizontalScrollRight() 
+{
+    if (false == _horizontalBar.empty())
+    {
+        const size_t maxIndex = _horizontalBar.size() - 1;
+        if (_currentFocus < maxIndex)
+        {
+            SetHorizontalFocus(_currentFocus + 1);
+        }
+    }
+}
+
+void HorizontalPageUIManager::ArrowElement::SetEnableLeft(bool enable) 
+{
+    if (Left)
+    {
+        Left->Enable = enable;
+    }
+    if (LeftNavi)
+    {
+        LeftNavi->Enable = enable;
+    }
+}
+
+void HorizontalPageUIManager::ArrowElement::SetEnableRight(bool enable) 
+{
+    if (Right)
+    {
+        Right->Enable = enable;
+    }
+    if (RightNavi)
+    {
+        RightNavi->Enable = enable;
+    }
 }
