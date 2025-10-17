@@ -188,7 +188,10 @@ void InventoryUIManager::OpenInventory(UINavigationComponent* lastFocus)
         UpdateConsumable();
         if (0 < _weaponsNavi.size())
         {
-            _weaponsNavi[0]->Focus();
+            UmTime.Invoke(this, 0.f, [this]() 
+            {
+                _weaponsNavi[0]->Focus();
+            });         
         }
     }  
 }
