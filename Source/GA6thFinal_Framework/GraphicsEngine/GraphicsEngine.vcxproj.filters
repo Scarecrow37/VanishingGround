@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <FxCompile Include="..\Shaders\RTShaders.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="..\Shaders\cs_brdf_lut.hlsl">
+      <Filter>Shaders\cs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\cs_calculate_motion_vector.hlsl">
       <Filter>Shaders\cs</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\cs_compute_ribbon.hlsl">
@@ -16,16 +16,34 @@
     <FxCompile Include="..\Shaders\cs_cube_texture_convertor.hlsl">
       <Filter>Shaders\cs</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\cs_generate_ssgi.hlsl">
+      <Filter>Shaders\cs</Filter>
+    </FxCompile>
     <FxCompile Include="..\Shaders\cs_irradiance_map.hlsl">
+      <Filter>Shaders\cs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\cs_light_accumulation.hlsl">
+      <Filter>Shaders\cs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\cs_light_injection.hlsl">
       <Filter>Shaders\cs</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\cs_prefiltered_map.hlsl">
       <Filter>Shaders\cs</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\cs_resolve_ui.hlsl">
+      <Filter>Shaders\cs</Filter>
+    </FxCompile>
     <FxCompile Include="..\Shaders\cs_skeletal_skinning.hlsl">
       <Filter>Shaders\cs</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\cs_ssgi_temporal.hlsl">
+      <Filter>Shaders\cs</Filter>
+    </FxCompile>
     <FxCompile Include="..\Shaders\ps_accumulation.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_bilateral_up_sample.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\ps_blend.hlsl">
@@ -34,10 +52,25 @@
     <FxCompile Include="..\Shaders\ps_bright_extract.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\ps_burn_dissolve.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_distortion_resolve.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
     <FxCompile Include="..\Shaders\ps_down_sample.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\ps_dxrgbuffer.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_fade.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_forward_pbr_lighting.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_fxaa.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\ps_gaussianblur_x.hlsl">
@@ -47,6 +80,9 @@
       <Filter>Shaders\ps</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\ps_gbuffer.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_gbuffer_masked.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\ps_grid.hlsl">
@@ -64,7 +100,19 @@
     <FxCompile Include="..\Shaders\ps_pbr_lighting.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\ps_point_light_shadow.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_sdf_font.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_shadow.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
     <FxCompile Include="..\Shaders\ps_skybox.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_ssgi_composite.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\ps_ssr.hlsl">
@@ -76,7 +124,13 @@
     <FxCompile Include="..\Shaders\ps_ui.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\ps_ui_oit.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
     <FxCompile Include="..\Shaders\ps_up_sample.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_volumetric_fog.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\ps_write_ao.hlsl">
@@ -97,7 +151,16 @@
     <FxCompile Include="..\Shaders\vs_quad.hlsl">
       <Filter>Shaders\vs</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\vs_sdf_font_fr.hlsl">
+      <Filter>Shaders\vs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\vs_skeletal_forward_fr.hlsl">
+      <Filter>Shaders\vs</Filter>
+    </FxCompile>
     <FxCompile Include="..\Shaders\vs_skeletal_fr.hlsl">
+      <Filter>Shaders\vs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\vs_skeletal_point_light_shadow_fr.hlsl">
       <Filter>Shaders\vs</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\vs_skeletal_shadow_fr.hlsl">
@@ -106,7 +169,13 @@
     <FxCompile Include="..\Shaders\vs_skybox.hlsl">
       <Filter>Shaders\vs</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\vs_static_forward_fr.hlsl">
+      <Filter>Shaders\vs</Filter>
+    </FxCompile>
     <FxCompile Include="..\Shaders\vs_static_fr.hlsl">
+      <Filter>Shaders\vs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\vs_static_point_light_shadow_fr.hlsl">
       <Filter>Shaders\vs</Filter>
     </FxCompile>
     <FxCompile Include="..\Shaders\vs_static_shadow_fr.hlsl">
@@ -115,77 +184,8 @@
     <FxCompile Include="..\Shaders\vs_ui_fr.hlsl">
       <Filter>Shaders\vs</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\cs_light_injection.hlsl">
-      <Filter>Shaders\cs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\cs_light_accumulation.hlsl">
-      <Filter>Shaders\cs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_volumetric_fog.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_distortion_resolve.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_fade.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_shadow.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_gbuffer_masked.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_forward_pbr_lighting.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\vs_skeletal_forward_fr.hlsl">
-      <Filter>Shaders\vs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\vs_static_forward_fr.hlsl">
-      <Filter>Shaders\vs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_burn_dissolve.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_ui_oit.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\cs_resolve_ui.hlsl">
-      <Filter>Shaders\cs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\cs_calculate_motion_vector.hlsl">
-      <Filter>Shaders\cs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\cs_generate_ssgi.hlsl">
-      <Filter>Shaders\cs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\cs_ssgi_temporal.hlsl">
-      <Filter>Shaders\cs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_bilateral_up_sample.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_ssgi_composite.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_sdf_font.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\vs_sdf_font_fr.hlsl">
-      <Filter>Shaders\vs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_fxaa.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\ps_point_light_shadow.hlsl">
-      <Filter>Shaders\ps</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\vs_static_point_light_shadow_fr.hlsl">
-      <Filter>Shaders\vs</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Shaders\vs_skeletal_point_light_shadow_fr.hlsl">
-      <Filter>Shaders\vs</Filter>
+    <FxCompile Include="..\Shaders\RTShaders.hlsl">
+      <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
@@ -204,7 +204,13 @@
     <ClCompile Include="Animator.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="AntiAliasingPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
     <ClCompile Include="BaseMesh.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="BilateralUpsamplePass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="BlendPass.cpp">
@@ -220,6 +226,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="BrightExtractPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CalculateMotionVectorPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
@@ -258,6 +267,12 @@
     <ClCompile Include="Device.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="DistortionResolvePass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="DistortionTechnique.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
     <ClCompile Include="DownAndUpSamplingPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -285,19 +300,37 @@
     <ClCompile Include="EditorDrawTechnique.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="EmitLocator.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
     <ClCompile Include="EndlessGridPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="EngineShadowPointLight.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="ExportAssociation.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="FadePass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
     <ClCompile Include="FBXConverter.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="FogCompositePass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="FogLightAccmulatePass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="FogLightInjectionPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Font.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="TextRenderer.cpp">
+    <ClCompile Include="ForwardPBRLitPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="FrameResource.cpp">
@@ -306,10 +339,16 @@
     <ClCompile Include="FX.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="FXAATechnique.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
     <ClCompile Include="Module\GaussianBlurModule.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="GBufferPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="GenerateSSGIPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="GeometryGenerator.cpp">
@@ -321,16 +360,25 @@
     <ClCompile Include="GeoSphere.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="GITemporalPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
     <ClCompile Include="GlobalRootSignature.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="GraphicsBase.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="GraphicsController.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
     <ClCompile Include="GraphicsCore.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="GraphicsEngine.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsPointer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Grid.cpp">
@@ -381,6 +429,9 @@
     <ClCompile Include="ParticleManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="ParticleRenderModule.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
     <ClCompile Include="ParticleRenderTechnique.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -406,6 +457,12 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="PixelShader.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="PointLightShadowAtlas.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="PointLightShadowPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Quad.cpp">
@@ -444,6 +501,21 @@
     <ClCompile Include="RTPipelineBuilder.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="SceneTransitionCore.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneTransitionTechnique.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="SDFFont.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="SDFTextDrawPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="SDFTextRenderer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
     <ClCompile Include="Shader.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -480,6 +552,12 @@
     <ClCompile Include="SSAOWritePass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="SSGICompositePass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="SSGITechnique.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
     <ClCompile Include="SSRPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -492,6 +570,9 @@
     <ClCompile Include="TextDrawPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="TextRenderer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
     <ClCompile Include="Texture.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -501,16 +582,34 @@
     <ClCompile Include="UI2DPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="UI2DPass_OIT.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
     <ClCompile Include="UI3DPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="UI3DPass_OIT.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="UI25DPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="UI25DPass_OIT.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
     <ClCompile Include="UIPassBase.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="UIPassBase_OIT.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="UIResolvePass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
     <ClCompile Include="UITechnique.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="UITechnique_OIT.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="UnorderedAccessView.cpp">
@@ -526,99 +625,6 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="VolumetricFogTechnique.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="FogLightInjectionPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="FogLightAccmulatePass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="FogCompositePass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="GraphicsController.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="DistortionResolvePass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="DistortionTechnique.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="FadePass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ForwardPBRLitPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneTransitionCore.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneTransitionTechnique.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="UI2DPass_OIT.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="UI3DPass_OIT.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="UI25DPass_OIT.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="UIPassBase_OIT.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="UITechnique_OIT.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="UIResolvePass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="SSGITechnique.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="CalculateMotionVectorPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="GenerateSSGIPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="GITemporalPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="BilateralUpsamplePass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="SSGICompositePass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="SDFFont.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="SDFTextDrawPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="SDFTextRenderer.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="FXAATechnique.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="AntiAliasingPass.cpp">
-      <Filter>소스 파일</Filter>
-    <ClCompile Include="EmitLocator.cpp" />
-    <ClCompile Include="ParticleRenderModule.cpp" />
-    </ClCompile>
-    <ClCompile Include="GraphicsPointer.cpp" />
-    <ClCompile Include="PointLightShadowAtlas.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="EngineShadowPointLight.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="PointLightShadowPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -638,7 +644,13 @@
     <ClInclude Include="Animator.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="AntiAliasingPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="BaseMesh.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="BilateralUpsamplePass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="BlendPass.h">
@@ -654,6 +666,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="BrightExtractPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CalculateMotionVectorPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
@@ -692,6 +707,12 @@
     <ClInclude Include="Device.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="DistortionResolvePass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="DistortionTechnique.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="DownAndUpSamplingPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -719,7 +740,13 @@
     <ClInclude Include="EditorDrawTechnique.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="EmitLocator.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="EndlessGridPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineShadowPointLight.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Enums.h">
@@ -731,13 +758,25 @@
     <ClInclude Include="Externs.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="FadePass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="FBXConverter.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="FogCompositePass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="FogLightAccmulatePass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="FogLightInjectionPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Font.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="TextRenderer.h">
+    <ClInclude Include="ForwardPBRLitPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="FrameResource.h">
@@ -746,10 +785,16 @@
     <ClInclude Include="FX.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="FXAATechnique.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="Module\GaussianBlurModule.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="GBufferPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GenerateSSGIPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="GeometryGenerator.h">
@@ -759,6 +804,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="GeoSphere.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GITemporalPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="GlobalRootSignature.h">
@@ -776,7 +824,13 @@
     <ClInclude Include="GraphicsBase.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="GraphicsController.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="GraphicsCore.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsPointer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Grid.h">
@@ -786,6 +840,24 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="HItProgram.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Interface\IAnimator.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Interface\IGraphicsBase.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Interface\ILight.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Interface\IMeshRenderer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Interface\ISDFTextRenderer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Interface\ISpriteRenderer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Light.h">
@@ -833,6 +905,9 @@
     <ClInclude Include="ParticleManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="ParticleRenderModule.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="ParticleRenderTechnique.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -858,6 +933,12 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="PixelShader.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="PointLightShadowAtlas.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="PointLightShadowPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Quad.h">
@@ -902,6 +983,21 @@
     <ClInclude Include="RTPipelineBuilder.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="SceneTransitionCore.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneTransitionTechnique.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SDFFont.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SDFTextDrawPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SDFTextRenderer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="Shader.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -938,6 +1034,12 @@
     <ClInclude Include="SSAOWritePass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="SSGICompositePass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SSGITechnique.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="SSRPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -953,6 +1055,9 @@
     <ClInclude Include="TextDrawPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="TextRenderer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="Texture.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -962,16 +1067,34 @@
     <ClInclude Include="UI2DPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="UI2DPass_OIT.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="UI3DPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="UI3DPass_OIT.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="UI25DPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="UI25DPass_OIT.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="UIPassBase.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="UIPassBase_OIT.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="UIResolvePass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="UITechnique.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="UITechnique_OIT.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="UnorderedAccessView.h">
@@ -987,109 +1110,6 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="VolumetricFogTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="FogLightInjectionPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="FogLightAccmulatePass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="FogCompositePass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphicsController.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="DistortionResolvePass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="DistortionTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="FadePass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ForwardPBRLitPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneTransitionCore.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneTransitionTechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="UI2DPass_OIT.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="UI3DPass_OIT.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="UI25DPass_OIT.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="UIPassBase_OIT.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="UITechnique_OIT.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="UIResolvePass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SSGITechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="CalculateMotionVectorPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="GenerateSSGIPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="GITemporalPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SSGICompositePass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="BilateralUpsamplePass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Interface\IGraphicsBase.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Interface\ISDFTextRenderer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SDFFont.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SDFTextDrawPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SDFTextRenderer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="EmitLocator.h" />
-    <ClInclude Include="ParticleRenderModule.h" />
-    <ClInclude Include="FXAATechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="AntiAliasingPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphicsPointer.h" />
-    <ClInclude Include="Interface\IAnimator.h" />
-    <ClInclude Include="Interface\ILight.h" />
-    <ClInclude Include="Interface\IMeshRenderer.h" />
-    <ClInclude Include="Interface\ISpriteRenderer.h" />
-    <ClInclude Include="PointLightShadowAtlas.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="EngineShadowPointLight.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="PointLightShadowPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1114,23 +1134,23 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="헤더 파일">
-      <UniqueIdentifier>{9ff02c61-5019-42f8-8c4c-21cda5736eb5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Shaders">
-      <UniqueIdentifier>{b8fc5015-a0d0-46aa-8c10-19375179346b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shaders\ps">
-      <UniqueIdentifier>{400fef67-2719-4973-a6ab-b20d6d351c39}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shaders\cs">
-      <UniqueIdentifier>{7e1f4752-b3fe-4e23-ba06-1c42aabeca56}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일">
-      <UniqueIdentifier>{8d62b6a3-05bc-45fa-87e2-99d846c74e63}</UniqueIdentifier>
+      <UniqueIdentifier>{d435e59f-8232-4438-aae8-520a2b4c504d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Shaders\vs">
-      <UniqueIdentifier>{b4a51824-f35d-4745-9293-a681bd669d14}</UniqueIdentifier>
+      <UniqueIdentifier>{e39a1dd5-3b64-4884-b527-1fd8b0262916}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\ps">
+      <UniqueIdentifier>{02cff0a6-5a11-478c-998f-ef33ba6fb775}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\cs">
+      <UniqueIdentifier>{d52a85a3-420e-4d1e-8d4c-0e40af7a3068}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{daeb064b-441f-47ea-aaa2-8d97a5d26a01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{8bb46fea-0376-4dcd-9442-fe01ff47164c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
