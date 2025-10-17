@@ -215,6 +215,7 @@
     <ClCompile Include="Scripts\IntroManager\IntroManager.cpp" />
     <ClCompile Include="Scripts\UI\Animations\FadeTextElement\FadeTextElement.cpp" />
     <ClCompile Include="Scripts\UI\Animations\FadeImageElement\FadeImageElement.cpp" />
+    <ClCompile Include="Scripts\DifficultyManager\DifficultyManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
@@ -451,6 +452,7 @@
     <ClInclude Include="Scripts\IntroManager\IntroManager.h" />
     <ClInclude Include="Scripts\UI\Animations\FadeTextElement\FadeTextElement.h" />
     <ClInclude Include="Scripts\UI\Animations\FadeImageElement\FadeImageElement.h" />
+    <ClInclude Include="Scripts\DifficultyManager\DifficultyManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

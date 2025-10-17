@@ -8,7 +8,7 @@ class IntroManager : public Component, public InputReceiver
 {
     USING_PROPERTY(IntroManager)
 
-    enum Step
+    enum class Step : unsigned char
     {
         WAIT_INTRO_DESCRIPTION,
         FADE_IN_INTRO_DESCRIPTION,
@@ -23,7 +23,7 @@ public:
     IntroManager();
 
 public:
-    REFLECT_PROPERTY(FadeDuration, DescriptionDelay, LevelSelectDelay, PromptDelay)
+    REFLECT_PROPERTY(FadeDuration, DescriptionDelay, LevelSelectDelay, PromptDelay, NextScene)
 
     GETTER(float, FadeDuration) { return ReflectFields->FadeDuration; }
     SETTER(float, FadeDuration) { ReflectFields->FadeDuration = std::max(0.1f, value); }
@@ -41,22 +41,24 @@ public:
     SETTER(float, PromptDelay) { ReflectFields->PromptDelay = std::max(0.0f, value); }
     PROPERTY(PromptDelay)
 
+    GETTER_ONLY(std::string, NextScene) { return _guid.ToPath().string(); }
+    PROPERTY(NextScene)
+
 protected:
     void Awake() override;
-
     void Start() override;
-
     void Update() override;
-
     void Reset() override;
 
 private:
-    float            GetWaitDescriptionTime() const;
-    float            GetFadeDescriptionTime() const;
-    float            GetWaitLevelSelectionTime() const;
-    float            GetFadeLevelSelectionTime() const;
-    float            GetWaitPromptTime() const;
-    float            GetFadePromptTime() const;
+    float GetWaitDescriptionTime() const;
+    float GetFadeDescriptionTime() const;
+    float GetWaitLevelSelectionTime() const;
+    float GetFadeLevelSelectionTime() const;
+    float GetWaitPromptTime() const;
+    float GetFadePromptTime() const;
+
+    void LoadNextScene() const;
 
     void SkipStep(const Input::Controller& controller);
     void SelectNormal(const Input::Controller& controller);
@@ -68,10 +70,11 @@ private:
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
-    float FadeDuration = 1.0f;
-    float DescriptionDelay = 2.0f;
-    float LevelSelectDelay = 2.0f;
-    float PromptDelay      = 1.0f;
+    float       FadeDuration     = 1.0f;
+    float       DescriptionDelay = 2.0f;
+    float       LevelSelectDelay = 2.0f;
+    float       PromptDelay      = 1.0f;
+    std::string NextScene;
     REFLECT_FIELDS_END(IntroManager)
 
 private:
@@ -86,6 +89,8 @@ private:
     FadeTextElement*      _promptText;
     FadeImageElement*     _normalSelection;
     FadeImageElement*     _hardSelection;
+
+    File::Guid _guid;
 };
 
 template <typename T>

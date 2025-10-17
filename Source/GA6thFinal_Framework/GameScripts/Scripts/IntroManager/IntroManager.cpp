@@ -1,12 +1,36 @@
 ﻿#include "pchScripts.h"
 #include "IntroManager.h"
+
+#include "DifficultyManager/DifficultyManager.h"
+#include "SceneTransition/SceneTransitionComponent.h"
 #include "UI/Animations/FadeDescriptionPanel/FadeDescriptionPanel.h"
 #include "UI/Animations/FadeImageElement/FadeImageElement.h"
 #include "UI/Animations/FadeTextElement/FadeTextElement.h"
+#include "Utility/SingletonHelper.h"
 
 UMREAL_COMPONENT(IntroManager)
 
-IntroManager::IntroManager() = default;
+IntroManager::IntroManager()
+    : _step(Step::WAIT_INTRO_DESCRIPTION), _isLevelSelected(false), _isSelectHard(false), _introDescription(nullptr),
+      _normalLevelText(nullptr),
+      _hardLevelText(nullptr), _promptText(nullptr), _normalSelection(nullptr), _hardSelection(nullptr)
+{
+    NextScene.SetInputAutoEvent([this]() {
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
+            {
+                const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
+                if (const auto extension = data->GetPath().extension(); extension == L".UmScene")
+                {
+                    _guid                    = data->GetGuid();
+                    ReflectFields->NextScene = _guid.string();
+                }
+            }
+            ImGui::EndDragDropTarget();
+        }
+    });
+}
 
 void IntroManager::Awake()
 {
@@ -39,31 +63,28 @@ void IntroManager::Update()
 {
     Component::Update();
 
-    if (_step == END)
-        return;
-
-    if (_step != WAIT_PROMPT || true == _isLevelSelected)
+    if (_step != Step::WAIT_PROMPT || true == _isLevelSelected)
         _elapsedTime += UmTime.DeltaTime();
 
     switch (_step)
     {
-    case WAIT_INTRO_DESCRIPTION:
+    case Step::WAIT_INTRO_DESCRIPTION:
         if (_elapsedTime >= GetWaitDescriptionTime())
         {
             if (nullptr != _introDescription)
             {
                 _introDescription->FadeIn();
             }
-            _step = FADE_IN_INTRO_DESCRIPTION;
+            _step = Step::FADE_IN_INTRO_DESCRIPTION;
         }
         break;
-    case FADE_IN_INTRO_DESCRIPTION:
+    case Step::FADE_IN_INTRO_DESCRIPTION:
         if (_elapsedTime >= GetFadeDescriptionTime())
         {
-            _step = WAIT_LEVEL_SELECTION;
+            _step = Step::WAIT_LEVEL_SELECTION;
         }
         break;
-    case WAIT_LEVEL_SELECTION:
+    case Step::WAIT_LEVEL_SELECTION:
         if (_elapsedTime >= GetWaitLevelSelectionTime())
         {
             if (nullptr != _normalLevelText)
@@ -74,33 +95,40 @@ void IntroManager::Update()
             {
                 _hardLevelText->FadeIn();
             }
-            _step = FADE_IN_LEVEL_SELECTION;
+            _step = Step::FADE_IN_LEVEL_SELECTION;
         }
         break;
-    case FADE_IN_LEVEL_SELECTION:
+    case Step::FADE_IN_LEVEL_SELECTION:
         if (_elapsedTime >= GetFadeLevelSelectionTime())
         {
-            _step = WAIT_PROMPT;
+            _step = Step::WAIT_PROMPT;
             SelectNormal();
         }
         break;
-    case WAIT_PROMPT:
+    case Step::WAIT_PROMPT:
         if (_elapsedTime >= GetWaitPromptTime())
         {
             if (nullptr != _promptText)
             {
                 _promptText->FadeIn();
             }
-            _step = FADE_IN_PROMPT;
+            _step = Step::FADE_IN_PROMPT;
         }
         break;
-    case FADE_IN_PROMPT:
+    case Step::FADE_IN_PROMPT:
         if (_elapsedTime >= GetFadePromptTime())
         {
-            _step = END;
+            _step = Step::END;
         }
         break;
-    case END:
+    case Step::END:
+        DifficultyManager* difficultyManager = SingletonComponent<DifficultyManager>::GetInstance();
+        if (difficultyManager)
+        {
+            difficultyManager->SetDifficulty(_isSelectHard ? DifficultyManager::Difficulty::HARD
+                                                           : DifficultyManager::Difficulty::NORMAL);
+        }
+        LoadNextScene();
         break;
     }
 }
@@ -109,7 +137,7 @@ void IntroManager::Reset()
 {
     Component::Reset();
 
-    _step             = WAIT_INTRO_DESCRIPTION;
+    _step             = Step::WAIT_INTRO_DESCRIPTION;
     _introDescription = nullptr;
     _normalLevelText  = nullptr;
     _hardLevelText    = nullptr;
@@ -149,27 +177,45 @@ float IntroManager::GetFadePromptTime() const
     return GetWaitPromptTime() + ReflectFields->FadeDuration;
 }
 
+void IntroManager::LoadNextScene() const
+{
+    const File::Path& path = _guid.ToPath();
+
+    if (const GameObject* transitionManager = SingletonObject<SceneTransitionComponent>::GetInstance())
+    {
+        if (const auto transitionComponent = transitionManager->GetComponent<SceneTransitionComponent>())
+        {
+            transitionComponent->SceneTransitionFade("in", "out",
+                                                     [path]() { UmSceneManager.LoadScene(path.string()); });
+        }
+        else
+        {
+            UmSceneManager.LoadScene(path.string());
+        }
+    }
+}
+
 void IntroManager::SkipStep(const Input::Controller& controller)
 {
     switch (_step)
     {
-    case WAIT_INTRO_DESCRIPTION:
+    case Step::WAIT_INTRO_DESCRIPTION:
         _elapsedTime = GetWaitDescriptionTime();
         if (nullptr != _introDescription)
         {
             _introDescription->FadeIn();
         }
-        _step = FADE_IN_INTRO_DESCRIPTION;
+        _step = Step::FADE_IN_INTRO_DESCRIPTION;
         break;
-    case FADE_IN_INTRO_DESCRIPTION:
+    case Step::FADE_IN_INTRO_DESCRIPTION:
         _elapsedTime = GetFadeDescriptionTime();
         if (nullptr != _introDescription)
         {
             _introDescription->End();
         }
-        _step = WAIT_LEVEL_SELECTION;
+        _step = Step::WAIT_LEVEL_SELECTION;
         break;
-    case WAIT_LEVEL_SELECTION:
+    case Step::WAIT_LEVEL_SELECTION:
         _elapsedTime = GetWaitLevelSelectionTime();
         if (nullptr != _normalLevelText)
         {
@@ -179,9 +225,9 @@ void IntroManager::SkipStep(const Input::Controller& controller)
         {
             _hardLevelText->FadeIn();
         }
-        _step = FADE_IN_LEVEL_SELECTION;
+        _step = Step::FADE_IN_LEVEL_SELECTION;
         break;
-    case FADE_IN_LEVEL_SELECTION:
+    case Step::FADE_IN_LEVEL_SELECTION:
         _elapsedTime = GetFadeLevelSelectionTime();
         if (nullptr != _normalLevelText)
         {
@@ -191,13 +237,13 @@ void IntroManager::SkipStep(const Input::Controller& controller)
         {
             _hardLevelText->End();
         }
-        _step = WAIT_PROMPT;
+        _step = Step::WAIT_PROMPT;
         break;
-    case WAIT_PROMPT:
+    case Step::WAIT_PROMPT:
         _isLevelSelected = true;
         break;
-    case FADE_IN_PROMPT:
-        _step = END;
+    case Step::FADE_IN_PROMPT:
+        _step = Step::END;
         break;
     default:
         break;
@@ -211,7 +257,7 @@ void IntroManager::SelectNormal(const Input::Controller& controller)
 
 void IntroManager::SelectNormal()
 {
-    if (_step == WAIT_PROMPT)
+    if (_step == Step::WAIT_PROMPT)
     {
         if (_hardSelection)
             _hardSelection->FadeOut();
@@ -223,7 +269,7 @@ void IntroManager::SelectNormal()
 
 void IntroManager::SelectHard(const Input::Controller& controller)
 {
-    if (_step == WAIT_PROMPT)
+    if (_step == Step::WAIT_PROMPT)
     {
         if (_normalSelection)
             _normalSelection->FadeOut();

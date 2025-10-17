@@ -221,7 +221,9 @@
       <AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
-      <MaxFilesInUnityFile>3</MaxFilesInUnityFile>
+      <IncludeInUnityFile>true</IncludeInUnityFile>
+      <MinFilesInUnityFile>1</MinFilesInUnityFile>
+      <MaxFilesInUnityFile>2</MaxFilesInUnityFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -243,7 +245,9 @@
       <AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
-      <MaxFilesInUnityFile>3</MaxFilesInUnityFile>
+      <IncludeInUnityFile>true</IncludeInUnityFile>
+      <MinFilesInUnityFile>1</MinFilesInUnityFile>
+      <MaxFilesInUnityFile>2</MaxFilesInUnityFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -267,7 +271,9 @@
       <AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
-      <MaxFilesInUnityFile>3</MaxFilesInUnityFile>
+      <IncludeInUnityFile>true</IncludeInUnityFile>
+      <MinFilesInUnityFile>1</MinFilesInUnityFile>
+      <MaxFilesInUnityFile>2</MaxFilesInUnityFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -293,7 +299,9 @@
       <AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
-      <MaxFilesInUnityFile>3</MaxFilesInUnityFile>
+      <IncludeInUnityFile>true</IncludeInUnityFile>
+      <MinFilesInUnityFile>1</MinFilesInUnityFile>
+      <MaxFilesInUnityFile>2</MaxFilesInUnityFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -364,6 +372,7 @@
     <ClInclude Include="Scripts\ItemDropSystem\UINavi\ReturnToMapNavi.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UI\ArtifactUIManager.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UI\ItemDropUIRootManager.h" />
+    <ClInclude Include="Scripts\DifficultyManager\DifficultyManager.h" />
     <ClInclude Include="Scripts\Light\Base\LightComponent.h" />
     <ClInclude Include="Scripts\Light\DirectionalLight.h" />
     <ClInclude Include="Scripts\Light\PointLight.h" />
@@ -603,6 +612,7 @@
     <ClCompile Include="Scripts\ItemDropSystem\UINavi\ReturnToMapNavi.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UI\ArtifactUIManager.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UI\ItemDropUIRootManager.cpp" />
+    <ClCompile Include="Scripts\DifficultyManager\DifficultyManager.cpp" />
     <ClCompile Include="Scripts\Light\Base\LightComponent.cpp" />
     <ClCompile Include="Scripts\Light\DirectionalLight.cpp" />
     <ClCompile Include="Scripts\Light\PointLight.cpp" />
