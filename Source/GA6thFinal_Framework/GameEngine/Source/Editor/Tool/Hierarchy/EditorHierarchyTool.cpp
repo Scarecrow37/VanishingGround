@@ -654,6 +654,30 @@ void EditorHierarchyTool::HierarchyDrawTreeNode()
                 }           
             }
              
+            const auto SortLamda = [](std::vector<std::shared_ptr<GameObject>>& vector) 
+            {
+                if (true == vector.empty())
+                {
+                    return;
+                }
+
+                std::ranges::sort(vector, [](const std::shared_ptr<GameObject>& a, const std::shared_ptr<GameObject>& b) 
+                {
+                    unsigned long long creationFrameA = a->CreationFrame();
+                    unsigned long long creationFrameB = b->CreationFrame();
+                    if (creationFrameA != creationFrameB)
+                    {
+                        return creationFrameA < creationFrameB;
+                    }
+                    else
+                    {
+                        int instanceIDA = a->GetInstanceID();
+                        int instanceIDB = b->GetInstanceID();
+                        return instanceIDA < instanceIDB;
+                    }
+                });
+            };
+
             //에디터 출력
             for (auto& [scenePath, objects] : _hierarchyRootObjects)
             {
@@ -697,6 +721,7 @@ void EditorHierarchyTool::HierarchyDrawTreeNode()
                         }
                         if (isCollapsingOpen)
                         {
+                            SortLamda(objects);
                             for (auto& obj : objects)
                             {
                                 GameObject* clickNode = nullptr;
@@ -726,6 +751,7 @@ void EditorHierarchyTool::HierarchyDrawTreeNode()
                     bool isCollapsingOpen = ImGui::CollapsingHeader("DontDestroyOnLoad", ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen);
                     if (isCollapsingOpen)
                     {
+                        SortLamda(_hierarchyDontDestroyOnLoadObjects);
                         for (auto& obj : _hierarchyDontDestroyOnLoadObjects)
                         {
                             ImGui::PushID(obj.get());
