@@ -206,7 +206,7 @@ void EraseRevelationUIManager::FindElements()
                     {
                         _revationInfo.Flavor = object.GetComponent<DescriptionPanel>();
                     }
-                    else if (object.CompareTag("Keyworld"))
+                    else if (object.CompareTag("Keyword"))
                     {
                         _revationInfo.Keyword = object.GetComponent<DescriptionPanel>();
                     }
