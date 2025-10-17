@@ -306,9 +306,6 @@
     <ClCompile Include="EndlessGridPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="EngineShadowPointLight.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="ExportAssociation.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -744,9 +741,6 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="EndlessGridPass.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="EngineShadowPointLight.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Enums.h">

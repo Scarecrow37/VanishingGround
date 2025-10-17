@@ -324,7 +324,6 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClInclude Include="AntiAliasingPass.h" />
     <ClInclude Include="BilateralUpsamplePass.h" />
     <ClInclude Include="CalculateMotionVectorPass.h" />
-    <ClInclude Include="EngineShadowPointLight.h" />
     <ClInclude Include="EmitLocator.h" />
     <ClInclude Include="FogCompositePass.h" />
     <ClInclude Include="FogLightAccmulatePass.h" />
@@ -487,7 +486,6 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClCompile Include="AntiAliasingPass.cpp" />
     <ClCompile Include="BilateralUpsamplePass.cpp" />
     <ClCompile Include="CalculateMotionVectorPass.cpp" />
-    <ClCompile Include="EngineShadowPointLight.cpp" />
     <ClCompile Include="EmitLocator.cpp" />
     <ClCompile Include="FogCompositePass.cpp" />
     <ClCompile Include="FogLightAccmulatePass.cpp" />
