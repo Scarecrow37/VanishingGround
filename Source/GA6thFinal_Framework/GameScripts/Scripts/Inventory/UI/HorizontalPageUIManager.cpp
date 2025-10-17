@@ -200,7 +200,7 @@ void HorizontalPageUIManager::SetHorizontalFocus(size_t index)
         }
         if (_currentFocus == index)
         {
-            _lastDIR = DIR::UNKOWN;
+            _lastDIR = DIR::UNKNOWN;
         }
         else
         {

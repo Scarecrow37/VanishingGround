@@ -20,7 +20,7 @@ public:
     void UpdateWeaponUI();
     void UpdateRevelationUI(size_t startIndex = 0);
     void UpdateAccessoryUI(size_t startIndex = 0);
-    void UpdateConsumble();
+    void UpdateConsumable();
 
     void UpdateScroll(HorizontalPageUIManager* manager);
 

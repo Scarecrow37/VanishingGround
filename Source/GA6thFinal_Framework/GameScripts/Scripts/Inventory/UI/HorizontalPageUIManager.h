@@ -24,7 +24,7 @@ public:
 
     enum class DIR
     {
-        UNKOWN,
+        UNKNOWN,
         LEFT,
         RIGHT
     };
@@ -76,6 +76,6 @@ private:
     void                 UpdateArrow(size_t index);
 
     size_t _currentFocus = std::numeric_limits<size_t>::max();
-    DIR    _lastDIR      = DIR::UNKOWN;
+    DIR    _lastDIR      = DIR::UNKNOWN;
 };
 

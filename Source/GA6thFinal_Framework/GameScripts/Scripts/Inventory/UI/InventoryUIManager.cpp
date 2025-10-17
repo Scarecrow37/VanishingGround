@@ -185,7 +185,7 @@ void InventoryUIManager::OpenInventory(UINavigationComponent* lastFocus)
         UpdateWeaponUI();
         UpdateRevelationUI();
         UpdateAccessoryUI();
-        UpdateConsumble();
+        UpdateConsumable();
         if (0 < _weaponsNavi.size())
         {
             _weaponsNavi[0]->Focus();
@@ -361,7 +361,7 @@ void InventoryUIManager::UpdateAccessoryUI(size_t startIndex)
     }
 }
 
-void InventoryUIManager::UpdateConsumble() 
+void InventoryUIManager::UpdateConsumable() 
 {
     //TODO: 소모품 시스템 추가 이후 갱신 일단 비활성화
 
@@ -403,7 +403,7 @@ void InventoryUIManager::UpdateScroll(HorizontalPageUIManager* manager)
                     navi->Focus();
                 } 
                 break;
-            case HorizontalPageUIManager::DIR::UNKOWN:
+            case HorizontalPageUIManager::DIR::UNKNOWN:
             default:
                 break;
             }             
