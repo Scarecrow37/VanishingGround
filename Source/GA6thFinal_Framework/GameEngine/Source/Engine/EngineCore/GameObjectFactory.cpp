@@ -87,7 +87,6 @@ void EGameObjectFactory::ApplyPrefabInstanceChanges(const File::Guid& guid, YAML
                         {
                             if (i < prefabObjects.size())
                             {
-                                editorHierarchyTool->PushHierarchyObject(prefabObjects[i]);
                                 swapObjects.emplace_back(&curr->gameObject, prefabObjects[i].get());
                             }
                             else
@@ -926,6 +925,7 @@ void EGameObjectFactory::ResetGameObject(
         // 인스턴스 아이디 부여
         int instanceID           = InstanceID.CreateInstanceID();
         ownerObject->_instanceID = instanceID;
+        ownerObject->_creationFrame = UmTime.FrameCount();
     }
     else
     {

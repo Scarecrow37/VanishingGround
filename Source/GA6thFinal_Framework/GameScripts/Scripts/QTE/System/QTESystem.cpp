@@ -32,7 +32,6 @@ void QTESystem::Awake()
         BindInputAction(ControllerButton::X, Action::PRESSED, this, this, &QTESystem::PressedButtonX);
         BindInputAction(ControllerButton::Y, Action::PRESSED, this, this, &QTESystem::PressedButtonY);
         BindInputAction(ControllerButton::B, Action::PRESSED, this, this, &QTESystem::PressedButtonB);
-
     }
     else
     {
@@ -258,6 +257,7 @@ void QTESystem::StartQTE(QTE::Track* qteTrack, Callback callback)
         if (track)
         {
             _qteTimer = track->GetMinFrame() - GetDelayFromQTEStart();
+            _qteMaxTime = track->GetMaxFrame();
             // 유효한 노트 큐 생성
             auto& noteQueue = track->GetEventContextQueue();
             _noteAvailQueue.reserve(noteQueue.size());
@@ -267,8 +267,8 @@ void QTESystem::StartQTE(QTE::Track* qteTrack, Callback callback)
                 QTE::Note* qteNote = dynamic_cast<QTE::Note*>(note);
                 if (qteNote)
                 {
-                    _noteAvailQueue.push_back(qteNote);
-                    _overallResult.NoteResults.emplace_back(qteNote);
+                    QTE::NoteData& noteData = _noteAvailQueue.emplace_back(qteNote->ToNoteData());
+                    _overallResult.NoteResults.emplace_back(&noteData);
                 }
             }
             result = true;
@@ -301,31 +301,34 @@ void QTESystem::StartQTE(const WeaponStats* weapon, Callback callback)
     if (weapon)
     {
         int count = weapon->AttackCount;
+        _noteAvailQueue.resize(count);
         _overallResult.NoteResults.resize(count);
-        _overallResult.PerfectCount = count;
-
-        Input::Controller::Button buttonArr[] = {Input::Controller::Button::X, Input::Controller::Button::Y,
-                                                 Input::Controller::Button::B};
-        std::vector<size_t> availableMonsters;
-        
-        auto enemies = Battle::GetTargetsFromFlags(Battle::ENEMY_TARGET_FLAG_ALL);
-        for (size_t i = 0; i < enemies.size(); ++i)
+        float totalTime = 0.0f;
+        for (int i = 0; i < count; ++i)
         {
-            if (enemies[i] && enemies[i]->State != TurnActor::STATE::Dead)
-            {
-                availableMonsters.push_back(i);
-            }
-        }
-        for (size_t i = 0; i < count; ++i)
-        {
-            _overallResult.NoteResults[i].Result    = QTE::QTE_RESULT_PERFECT;
-            _overallResult.NoteResults[i].TimeDelta = 0.0f;
+            float time = Random::Range(0.2f, 0.6f);
+            totalTime += time;
 
-            int randomIndex  = Random::Range(0, (int)availableMonsters.size() - 1);
-            size_t destIndex = availableMonsters[randomIndex % 3];
-            _overallResult.NoteResults[i].PressedButton = buttonArr[destIndex];
-        }
+            _noteAvailQueue[i].ID                   = i + 1;
+            _noteAvailQueue[i].Time                 = totalTime;
+            _noteAvailQueue[i].WeaponAnimationKey   = "WeaponAttack_01";
+            _noteAvailQueue[i].WeaponAnimationDelay = 0.0f;
 
+            _overallResult.NoteResults[i] = &_noteAvailQueue[i];
+        }
+        _qteTimer   = -GetDelayFromQTEStart();
+        _qteMaxTime = totalTime + 1.0f;
+
+        result = true;
+    }
+
+    if (result)
+    {
+        ProcessQTEEnterEvent();
+    }
+    else
+    {
+        StopQTE();
     }
 }
 
@@ -342,34 +345,32 @@ void QTESystem::PauseQTE(bool pause)
     }
 }
 
-QTE::ResultType QTESystem::GetQTEResult(QTE::Note* note)
+QTE::ResultType QTESystem::GetQTEResult(float noteTime)
 {
-    if (note)
+    auto& [perfectMin, perfectMax] = ReflectFields->PerfectJudgeRange;
+    auto& [normalMin, normalMax]   = ReflectFields->NormalJudgeRange;
+    float noteDelta                = _qteTimer - noteTime;
+    if (noteDelta >= perfectMin && noteDelta <= perfectMax)
     {
-        auto& [perfectMin, perfectMax]  = ReflectFields->PerfectJudgeRange;
-        auto& [normalMin, normalMax]    = ReflectFields->NormalJudgeRange;
-        float noteDelta                 = _qteTimer - note->Time;
-        if (noteDelta >= perfectMin && noteDelta <= perfectMax)
-        {
-            UmLogger.Log(LogLevel::LEVEL_DEBUG, (const char*)u8"퍼펙트!!");
-            return QTE::QTE_RESULT_PERFECT;
-        }
-        else if (noteDelta >= normalMin && noteDelta <= normalMax)
-        {
-            UmLogger.Log(LogLevel::LEVEL_DEBUG, (const char*)u8"일격!!");
-            return QTE::QTE_RESULT_NORMAL;
-        }
-        else
-        {
-            UmLogger.Log(LogLevel::LEVEL_DEBUG, (const char*)u8"미스!!");
-            return QTE::QTE_RESULT_MISS;
-        }
+        UmLogger.Log(LogLevel::LEVEL_DEBUG, (const char*)u8"퍼펙트!!");
+        return QTE::QTE_RESULT_PERFECT;
     }
-    return QTE::QTE_RESULT_NONE;
+    else if (noteDelta >= normalMin && noteDelta <= normalMax)
+    {
+        UmLogger.Log(LogLevel::LEVEL_DEBUG, (const char*)u8"일격!!");
+        return QTE::QTE_RESULT_NORMAL;
+    }
+    else
+    {
+        UmLogger.Log(LogLevel::LEVEL_DEBUG, (const char*)u8"미스!!");
+        return QTE::QTE_RESULT_MISS;
+    }
 }
 
 void QTESystem::ResetQTEState() 
 {
+    _qteTimer            = 0.0f;
+    _qteMaxTime          = 0.0f;
     _onQTEFinishCallback = nullptr;
     _currQTEPlaying      = true;
     _qteFadeInEnd        = false;
@@ -406,43 +407,22 @@ void QTESystem::UpdateQTETrack()
     {
         return;
     }
-    bool valid = false;
-    if (_currentQTETrack)
+    if (false == _qtePaused)
     {
-        auto track = _currentQTETrack->GetEventTrack().lock();
-        if (track)
+        _qteTimer += UmTime.DeltaTime();
+    }
+    if (_qteTimer < _qteMaxTime && _currentNoteIndex < _noteAvailQueue.size())
+    {
+        const QTE::NoteData& curNote = _noteAvailQueue[_currentNoteIndex];
+        auto& [validMin, validMax]   = ReflectFields->ValidJudgeRange;
+        if (_qteTimer > curNote.Time + validMax)
         {
-            if (false == _qtePaused)
-            {
-                _qteTimer += UmTime.DeltaTime();
-            }
-            float minFrame = track->GetMinFrame();
-            float maxFrame = track->GetMaxFrame();
-
-            if (_qteTimer < maxFrame && _currentNoteIndex < _noteAvailQueue.size())
-            {
-                QTE::Note* curNote = _noteAvailQueue[_currentNoteIndex];
-                if (curNote)
-                {
-                    float noteTime             = curNote->Time;
-                    auto& [validMin, validMax] = ReflectFields->ValidJudgeRange;
-                    if (_qteTimer > noteTime + validMax)
-                    {
-                        PressedQTEButton(); // 최대 일격 판정 시간이 지나갔는데 버튼을 누르지 않은 경우, MISS 처리
-                    }
-                }
-            }
-            else
-            {
-                // 시간이 모두 경과했거나, 모든 노트를 처리한 경우 QTE 종료
-                StopQTE();
-            }
-            valid = true;
+            PressedQTEButton(); // 최대 일격 판정 시간이 지나갔는데 버튼을 누르지 않은 경우, MISS 처리
         }
     }
-
-    if (false == valid)
+    else
     {
+        // 시간이 모두 경과했거나, 모든 노트를 처리한 경우 QTE 종료
         StopQTE();
     }
 }
@@ -457,22 +437,19 @@ bool QTESystem::CanPressQTEButton()
 {
     if (_currQTEPlaying && _currentNoteIndex < _noteAvailQueue.size())
     {
-        QTE::Note* curNote = _noteAvailQueue[_currentNoteIndex];
-        return CanPressQTEButton(curNote);
+        const QTE::NoteData& curNote = _noteAvailQueue[_currentNoteIndex];
+        return CanPressQTEButton(curNote.Time);
     }
     return false;
 }
 
-bool QTESystem::CanPressQTEButton(QTE::Note* note)
+bool QTESystem::CanPressQTEButton(float noteTime)
 {
-    if (note)
+    auto& [min, max] = ReflectFields->ValidJudgeRange;
+    float noteDelta  = _qteTimer - noteTime;
+    if (noteDelta >= min && noteDelta <= max)
     {
-        auto& [min, max] = ReflectFields->ValidJudgeRange;
-        float noteDelta  = _qteTimer - note->Time;
-        if (noteDelta >= min && noteDelta <= max)
-        {
-            return true;
-        }
+        return true;
     }
     return false;
 }
@@ -486,13 +463,13 @@ void QTESystem::PressedQTEButton(Input::Controller::Button buttonType)
             return;
         }
 
-        QTE::Note*       curNote = _noteAvailQueue[_currentNoteIndex];
-        QTE::NoteResult& result  = _overallResult.NoteResults[_currentNoteIndex];
+        const QTE::NoteData& curNote = _noteAvailQueue[_currentNoteIndex];
+        QTE::NoteResult& result = _overallResult.NoteResults[_currentNoteIndex];
         ++_currentNoteIndex;
 
-        result.Note          = curNote;
-        result.Result        = GetQTEResult(curNote);
-        result.TimeDelta     = curNote ? _qteTimer - curNote->Time : 0.0f;
+        result.NoteData      = &curNote;
+        result.Result        = GetQTEResult(curNote.Time);
+        result.TimeDelta     = _qteTimer - curNote.Time;
         result.PressedButton = buttonType;
 
         auto& inputSystem = ESceneManager::Engine::GetInputSystem();

@@ -177,6 +177,15 @@ public:
     }
 
     /// <summary>
+    /// 이 오브젝트가 생성된 프레임 타이밍을 반환합니다.
+    /// </summary>
+    /// <returns></returns>
+    unsigned long long CreationFrame() const
+    {
+        return _creationFrame;
+    }
+
+    /// <summary>
     /// <para>이 GameObject의 InstanceID를 반환합니다.                                 </para>
     /// <para>참고 : InstanceID는 매 런타임마다 달라집니다. 즉 UUID로 사용할 수 없습니다. </para>
     /// </summary>
@@ -403,6 +412,7 @@ protected:
     virtual void DeserializedReflectEvent();
 
 private:
+    unsigned long long                       _creationFrame;
     std::weak_ptr<GameObject>                _weakPtr;
     std::string                              _ownerScene;
     File::Guid                               _prefabGuid;
