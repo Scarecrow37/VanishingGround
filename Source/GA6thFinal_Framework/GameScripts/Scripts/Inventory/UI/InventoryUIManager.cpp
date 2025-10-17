@@ -184,10 +184,10 @@ void InventoryUIManager::UpdateWeaponUI()
         {
             const WeaponElement& weapon = equipWeapons[i];
 
-            DropItemInfo  info  = weapon.GetItemInfo();
-            int           id    = DropItemInfo::GetArtifactIconID(info);
-            File::Guid    guid  = UmFileSystem.GetGuidFromAssetID(id);
-            ImageElement* image = _weaponsUI[i];
+            DropItemInfo      info  = weapon.GetItemInfo();
+            int               id    = DropItemInfo::GetArtifactIconID(info);
+            const File::Guid& guid  = UmFileSystem.GetGuidFromAssetID(id);
+            ImageElement*     image = _weaponsUI[i];
             if (image)
             {
                 image->SetImage(guid);
