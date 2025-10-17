@@ -489,6 +489,7 @@
     <ClInclude Include="Scripts\TurnSystem\TurnSystemHelper.h" />
     <ClInclude Include="Scripts\UINavigation\TempNavigationComponent.h" />
     <ClInclude Include="Scripts\UI\Animations\FadeDescriptionPanel\FadeDescriptionPanel.h" />
+    <ClInclude Include="Scripts\UI\Animations\FadeTextElement\FadeTextElement.h" />
     <ClInclude Include="Scripts\UI\Animations\UIAnimation.h" />
     <ClInclude Include="Scripts\UI\Base\DrawUIComponent\DrawUIComponent.h" />
     <ClInclude Include="Scripts\UI\Base\SlotComponent\SlotComponent.h" />
@@ -712,6 +713,7 @@
     <ClCompile Include="Scripts\TurnSystem\TurnSystemHelper.cpp" />
     <ClCompile Include="Scripts\UINavigation\TempNavigationComponent.cpp" />
     <ClCompile Include="Scripts\UI\Animations\FadeDescriptionPanel\FadeDescriptionPanel.cpp" />
+    <ClCompile Include="Scripts\UI\Animations\FadeTextElement\FadeTextElement.cpp" />
     <ClCompile Include="Scripts\UI\Animations\UIAnimation.cpp" />
     <ClCompile Include="Scripts\UI\Base\DrawUIComponent\DrawUIComponent.cpp" />
     <ClCompile Include="Scripts\UI\Base\SlotComponent\SlotComponent.cpp" />

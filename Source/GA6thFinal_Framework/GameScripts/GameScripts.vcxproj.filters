@@ -213,6 +213,7 @@
     <ClCompile Include="Scripts\UI\Animations\UIAnimation.cpp" />
     <ClCompile Include="Scripts\UI\Animations\FadeDescriptionPanel\FadeDescriptionPanel.cpp" />
     <ClCompile Include="Scripts\IntroManager\IntroManager.cpp" />
+    <ClCompile Include="Scripts\UI\Animations\FadeTextElement\FadeTextElement.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
@@ -447,6 +448,7 @@
     <ClInclude Include="Scripts\UI\Animations\UIAnimation.h" />
     <ClInclude Include="Scripts\UI\Animations\FadeDescriptionPanel\FadeDescriptionPanel.h" />
     <ClInclude Include="Scripts\IntroManager\IntroManager.h" />
+    <ClInclude Include="Scripts\UI\Animations\FadeTextElement\FadeTextElement.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

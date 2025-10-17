@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+class FadeTextElement;
 class FadeDescriptionPanel;
 
 class IntroManager : public Component
@@ -46,11 +47,16 @@ protected:
 
     void Reset() override;
 
+    void ImGuiDrawPropertysEvent() override;
+
 private:
-    float GetWaitDescriptionTime() const;
-    float GetFadeDescriptionTime() const;
-    float GetWaitLevelSelectionTime() const;
-    float GetFadeLevelSelectionTime() const;
+    float            GetWaitDescriptionTime() const;
+    float            GetFadeDescriptionTime() const;
+    float            GetWaitLevelSelectionTime() const;
+    float            GetFadeLevelSelectionTime() const;
+    float            GetWaitPromptTime() const;
+    float            GetFadePromptTime() const;
+    FadeTextElement* GetFadeTextElement(const std::string& tag) const;
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
@@ -63,6 +69,10 @@ protected:
 private:
     Step  _step;
     float _elapsedTime = 0.0f;
+    bool  _isLevelSelected;
 
     FadeDescriptionPanel* _introDescription;
+    FadeTextElement*      _normalLevelText;
+    FadeTextElement*      _hardLevelText;
+    FadeTextElement*      _promptText;
 };
