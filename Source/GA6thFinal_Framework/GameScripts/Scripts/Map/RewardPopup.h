@@ -12,6 +12,7 @@ public:
 
 public:
     void Awake() override;
+    void OnDestroy() override;
 
 public:
     REFLECT_PROPERTY()

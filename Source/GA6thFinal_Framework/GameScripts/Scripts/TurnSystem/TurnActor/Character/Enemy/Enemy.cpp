@@ -66,8 +66,7 @@ void Enemy::TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim)
     if (_hitParticle && result.IsHit())
     {
         // TODO: 이거 왜 Play 이후에 스탑하는게 더 자연스럽게 나옴? 질문 필요
-        _hitParticle->PlayEffect();
-        _hitParticle->StopEffect();
+        _hitParticle->PlayEffect("normalhit");
     }
 }
 

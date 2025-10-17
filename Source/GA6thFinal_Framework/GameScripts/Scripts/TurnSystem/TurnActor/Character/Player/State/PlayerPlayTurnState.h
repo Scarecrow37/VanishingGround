@@ -33,7 +33,7 @@ protected:
     void OnExit() override;
     void OnUpdate() override;
 
-    void OnQTEFinish(const QTE::OverallResult& results);
+    void OnQTEFinish();
 
     void PressedButtonA(const Input::Controller& controller);
     void ReleasedButtonA(const Input::Controller& controller);
@@ -54,12 +54,14 @@ private:
     Battle::EnemyTargetFlag_ GetAttackTargetFromButton(unsigned int button) const;
 
 private:
-    bool       _setImguiPosCenter;
     InputState _inputState;
-    bool       _isDownAButton;
-    bool       _isDownAKey;
+    int        _attackRemaining;        // 공격 남은 횟수
+    bool       _isDownAButton;          // QTE 시작 버튼 (패드)
+    bool       _isDownAKey;             // QTE 시작 버튼 (키보드)
     float      _attackButtonHeldTime;
     float      _attackButtonHeldWaitTime;
-    int        _attackRemaining; // 공격 남은 횟수
+
+    //== Debug == //
+    bool       _showDebugUI = false;
     
 };

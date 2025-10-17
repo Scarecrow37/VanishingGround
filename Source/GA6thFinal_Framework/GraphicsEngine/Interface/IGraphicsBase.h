@@ -9,5 +9,6 @@ public:
     virtual void SetActive(const bool* isActive) = 0;
 
 public:
+    virtual void AddReference() = 0;
     virtual void Release() = 0;
 };

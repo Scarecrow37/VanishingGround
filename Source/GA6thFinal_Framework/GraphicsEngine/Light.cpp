@@ -9,8 +9,17 @@ Light::Light()
 
 Light::~Light() = default;
 
-void Light::SetDirectionalLight(const Vector3& color, const Vector3& ambient, const Vector3& direction,
-                                const float& intensity)
+bool Light::IsActive() const
+{
+    return GraphicsBase::IsActive();
+}
+
+void Light::SetActive(const bool* isActive)
+{
+    GraphicsBase::SetActive(isActive);
+}
+
+void Light::SetDirectionalLight(const Vector3& color, const Vector3& ambient, const Vector3& direction, const float& intensity)
 {
     _type      = Type::DIRECTIONAL;
     _color     = &color;
@@ -19,8 +28,7 @@ void Light::SetDirectionalLight(const Vector3& color, const Vector3& ambient, co
     _float3_2  = &ambient;
 }
 
-void Light::SetPointLight(const Vector3& color, const Vector3& position, const Vector3& attenuation, const float& range,
-                          const float& intensity)
+void Light::SetPointLight(const Vector3& color, const Vector3& position, const Vector3& attenuation, const float& range, const float& intensity)
 {
     _type      = Type::POINT;
     _color     = &color;
@@ -43,6 +51,27 @@ void Light::SetSpotLight(const Vector3& color, const Vector3& position, const Ve
     _float_1   = &range;
     _float_2   = &inner;
     _float_3   = &outer;
+}
+
+void Light::SetShadowPointLight(const Vector3& color, const Vector3& position, const Vector3& attenuation,
+                                const float& range, const float& intensity)
+{
+    _type      = Type::SHADOWPOINT;
+    _color     = &color;
+    _intensity = &intensity;
+    _float3_1  = &position;
+    _float3_2  = &attenuation;
+    _float_1   = &range;
+}
+
+void Light::AddReference()
+{
+    GraphicsBase::AddReference();
+}
+
+void Light::Release()
+{
+    GraphicsBase::Release();
 }
 
 void Light::Update(const float deltaTime)
@@ -73,6 +102,11 @@ void Light::Update(const float deltaTime)
         //_data.float_3  = *_float_3;
         _data.float_2  = cosf(XMConvertToRadians(*_float_2));
         _data.float_3  = cosf(XMConvertToRadians(*_float_3));
+        break;
+    case Light::Type::SHADOWPOINT:
+        _data.float3_1 = *_float3_1;
+        _data.float3_2 = *_float3_2;
+        _data.float_1  = *_float_1;
         break;
     }       
 }

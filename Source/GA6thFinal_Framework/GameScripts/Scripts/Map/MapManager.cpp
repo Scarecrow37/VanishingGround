@@ -14,8 +14,7 @@
 #include "ViewModels/Hp/CharacterHPViewModel.h"
 #include "Utility/SingletonHelper.h"
 #include "ItemDropSystem/ItemDropSystem.h"
-
-static GameObject* thisPointer = nullptr;
+#include "Preferences/PreferencesManager.h"
 
 UMREAL_COMPONENT(MapManager)
 
@@ -84,9 +83,8 @@ MapManager::MapManager()
 
 MapManager::~MapManager()
 {
-    if (&gameObject == thisPointer)
+    if (_singletonObject.IsSingleTon())
     {
-        thisPointer = nullptr;
         UmWatcher.Unregister<StageFocusViewModel>("StageFocus");
     }
 }
@@ -101,19 +99,15 @@ void MapManager::SetFocusStage(Stage* stage)
 
 void MapManager::Awake()
 {    
-    if (nullptr == thisPointer)
+    if (_singletonObject.TrySingleTon(true))
     {        
-        GameObject::DontDestroyOnLoad(gameObject);
-        thisPointer = &gameObject;
+        _singletonComponent.TrySingleTon();
 
         UmWatcher.Register<StageFocusViewModel>("StageFocus", _focusStage);
         SetupStage();
-    }
-    else
-    {        
-        GameObject::Destroy(gameObject);
-    }
 
+        BindInputAction(ControllerButton::BACK, Action::PRESSED, this, &MapManager::PreferencesKeyDown);
+    }
 }
 
 void MapManager::Update()
@@ -133,6 +127,45 @@ void MapManager::Update()
             UmSceneManager.LoadScene(UmFileSystem.GetPathFromGuid(ReflectFields->MapScenePath).string());
         }
     }
+
+    if (_lastFocusStage != nullptr)
+    {
+        if (PreferencesManager* manager = SingletonComponent<PreferencesManager>::GetInstance())
+        {
+            manager->OnPreferencesWindow(_lastFocusStage);
+        }  
+        _lastFocusStage = nullptr;
+    }
+
+    Debugger()([this]{
+        // 아래는 디버그용 코드입니다.
+        ImGuiHelper::AlignedText("Map Select", ImGuiHelper::LEFT, 0.8f);
+        char curHeader = '0';
+        for (const auto& stage : _stages)
+        {
+            if (stage)
+            {
+                const std::string& stageName = stage->gameObject->Name;
+                if (stageName.length() > 6) {
+                    char thisHeader = stageName.at(6);
+                    if (curHeader == thisHeader)
+                    {
+                        ImGui::SameLine();
+                    }
+                    curHeader = thisHeader;
+                }
+                if (ImGui::Button(stageName.c_str()))
+                {
+                    stage->Submit();
+                }
+            }
+        }
+        ImGui::Separator();
+        if (ImGui::Button("Preferences"))
+        {
+            OpenPreferencesWindow();
+        }
+    });
 }
 
 void MapManager::OnLoadScene(Scene& loadScene, LoadSceneMode mode)
@@ -147,16 +180,12 @@ void MapManager::OnLoadScene(Scene& loadScene, LoadSceneMode mode)
     else
     {
         isActive = false;
-    }
-
-    for (int i = 0; i < transform->ChildCount; i++)
-    {
-        auto child = transform->GetChild(i);
-        if (child)
+        if (Transform* preferences = transform->Find("PreferencesPannel"))
         {
-            child->gameObject->ActiveSelf = isActive;
+            GameObject::Destroy(preferences->gameObject);
         }
     }
+    gameObject->SetActive(isActive);
 }
 
 void MapManager::ImGuiDrawPropertysEvent()
@@ -265,6 +294,7 @@ void MapManager::SetupStage()
                 auto        stage = child->gameObject->GetComponent<Stage>();
                 if (stage)
                 {
+                    _stages.push_back(stage);
                     stage->UpdateData(key, 
                                       UmFileSystem.GetGuidFromAssetID(ReflectFields->AssetIDs[STAGE_ENABLE]),
                                       UmFileSystem.GetGuidFromAssetID(ReflectFields->AssetIDs[STAGE_DISABLE]));
@@ -283,4 +313,22 @@ void MapManager::SetupStage()
     {
         _scroll = scroll->GetComponent<ScrollingWrapper>();
     }    
+}
+
+void MapManager::PreferencesKeyDown(const Input::Controller&) 
+{
+    OpenPreferencesWindow();
+}
+
+void MapManager::OpenPreferencesWindow()
+{
+    if (EnableInHierarchy)
+    {
+        _focusStage.Apply([this](Stage* stage) {
+            if (true == stage->EnableInHierarchy)
+            {
+                _lastFocusStage = stage;
+            }
+        });
+    }
 }

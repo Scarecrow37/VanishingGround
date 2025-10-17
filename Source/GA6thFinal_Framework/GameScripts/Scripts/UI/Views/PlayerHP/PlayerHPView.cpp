@@ -3,6 +3,7 @@
 #include "UI/Elements/Image/ImageElement.h"
 #include "UI/Elements/Text/TextElement.h"
 #include "Stats/Player/PlayerStats.h"
+#include "PlayerSystem/PlayerSystem.h"
 
 UMREAL_COMPONENT(PlayerHPTextView)
 UMREAL_COMPONENT(PlayerHPImageView)
@@ -31,6 +32,10 @@ void PlayerHPTextView::Start()
     {
         UmLogger.Log(LogLevel::LEVEL_ERROR, "Watch Failed.");
         UmLogger.Log(LogLevel::LEVEL_ERROR, e.what());
+    }
+    if (PlayerSystem* system = SingletonComponent<PlayerSystem>::GetInstance())
+    {
+        system->NotifyPlayerHP();
     }
 }
 
@@ -62,6 +67,10 @@ void PlayerHPImageView::Start()
                 _hpGage->SetLinearFill(value.CurrentHP / (float)value.MaxHP);
             }
         });
+        if (PlayerSystem* system = SingletonComponent<PlayerSystem>::GetInstance())
+        {
+            system->NotifyPlayerHP();
+        }
     }
     catch (const std::exception& e)
     {

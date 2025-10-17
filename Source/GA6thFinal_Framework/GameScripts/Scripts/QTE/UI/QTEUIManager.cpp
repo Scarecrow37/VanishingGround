@@ -16,12 +16,13 @@ QTEUIManager::~QTEUIManager() = default;
 
 void QTEUIManager::OnQTEEnter() 
 {
+    SetGuideNoteActive(false);
+
     if (false == CheckUIValid())
     {
         FindUIComponents();
     }
     // 오브젝트 활성화 QTE UI 페이드 인 시작
-    gameObject->ActiveSelf = true;
     _mainFader.SetFadeMode(Fader::FADE_IN);
     
     // QTE UI 위치 및 크기 데이터 저장
@@ -115,11 +116,15 @@ void QTEUIManager::Refresh()
 {
     FindUIComponents();
     RefreshQTEUITransformData();
+    RefreshGuideNoteUITransformData();
+    UpdateGuideNoteUI();
 }
 
 void QTEUIManager::Reset() 
 {
     _staticInstance = this;
+
+    gameObject->ActiveSelf = true;
 
     FilePath.SetInputAutoEvent([this]() {
         if (ImGui::BeginDragDropTarget())
@@ -145,7 +150,7 @@ void QTEUIManager::Reset()
 
 void QTEUIManager::Awake() 
 {
-    FindUIComponents();
+    
 }
 
 void QTEUIManager::Start()
@@ -161,7 +166,11 @@ void QTEUIManager::Start()
         }
     });
     _mainFader.SetOnFadeOutEndCallback([this]() {
-        gameObject->ActiveSelf = false;
+        SetUIAlpha(0.0f);
+        SetBackgroundUIAlpha(0.0f);
+        SetGuideNoteUIAlpha(1.0f);
+        SetGuideNoteActive(true);
+
         if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
         {
             system->ProcessQTEFadeOutEndEvent();
@@ -169,15 +178,19 @@ void QTEUIManager::Start()
         }
     });
 
-    _xybAlphaFader.SetFadeInType(Mathf::EASE_IN, Mathf::SINE);
-    _xybAlphaFader.SetFadeOutType(Mathf::EASE_OUT, Mathf::SINE);
-    _xybAlphaFader.SetOnFadeInEndCallback([this]() { _xybAlphaFader.SetFadeMode(Fader::FADE_NONE); });
-    _xybAlphaFader.SetOnFadeOutEndCallback([this]() { _xybAlphaFader.SetFadeMode(Fader::FADE_NONE); });
+    //_xybAlphaFader.SetFadeInType(Mathf::EASE_IN, Mathf::SINE);
+    //_xybAlphaFader.SetFadeOutType(Mathf::EASE_OUT, Mathf::SINE);
+    //_xybAlphaFader.SetOnFadeInEndCallback([this]() { _xybAlphaFader.SetFadeMode(Fader::FADE_NONE); });
+    //_xybAlphaFader.SetOnFadeOutEndCallback([this]() { _xybAlphaFader.SetFadeMode(Fader::FADE_NONE); });
+    //
+    //_xybPointFader.SetFadeInType(Mathf::EASE_OUT, Mathf::SINE);
+    //_xybPointFader.SetFadeOutType(Mathf::EASE_OUT, Mathf::SINE);
+    //_xybPointFader.SetOnFadeInEndCallback([this]() { _xybPointFader.SetFadeMode(Fader::FADE_NONE); });
+    //_xybPointFader.SetOnFadeOutEndCallback([this]() { _xybPointFader.SetFadeMode(Fader::FADE_NONE); });
 
-    _xybPointFader.SetFadeInType(Mathf::EASE_OUT, Mathf::SINE);
-    _xybPointFader.SetFadeOutType(Mathf::EASE_OUT, Mathf::SINE);
-    _xybPointFader.SetOnFadeInEndCallback([this]() { _xybPointFader.SetFadeMode(Fader::FADE_NONE); });
-    _xybPointFader.SetOnFadeOutEndCallback([this]() { _xybPointFader.SetFadeMode(Fader::FADE_NONE); });
+    FindUIComponents();
+    SetBackgroundUIAlpha(0.0f);
+    SetGuideNoteActive(false);
 }
 
 void QTEUIManager::Update() 
@@ -262,7 +275,7 @@ void QTEUIManager::SetBackgroundUIAlpha(float factor)
     }
 }
 
-void QTEUIManager::SetGuideNoteAlpha(float factor) 
+void QTEUIManager::SetGuideNoteUIAlpha(float factor) 
 {
     factor = std::clamp(factor, 0.0f, 1.0f);
     if (_qteGuideNoteX)
@@ -276,6 +289,22 @@ void QTEUIManager::SetGuideNoteAlpha(float factor)
     if (_qteGuideNoteB)
     {
         _qteGuideNoteB->Alpha = factor;
+    }
+}
+
+void QTEUIManager::SetGuideNoteActive(bool active) 
+{
+    if (_qteGuideNoteX)
+    {
+        _qteGuideNoteX->gameObject->ActiveSelf = active;
+    }
+    if (_qteGuideNoteY)
+    {
+        _qteGuideNoteY->gameObject->ActiveSelf = active;
+    }
+    if (_qteGuideNoteB)
+    {
+        _qteGuideNoteB->gameObject->ActiveSelf = active;
     }
 }
 
@@ -326,13 +355,13 @@ void QTEUIManager::UpdateQTEUI()
     auto  mode   = _mainFader.GetFadeMode();
     switch (mode)
     {
-    case QTEUIManager::Fader::FADE_NONE:
+    case Fader::FADE_NONE:
         break;
-    case QTEUIManager::Fader::FADE_IN: {
+    case Fader::FADE_IN: {
         SetUIAlpha(factor);
         break;
     }
-    case QTEUIManager::Fader::FADE_OUT: {
+    case Fader::FADE_OUT: {
         SetUIAlpha(factor);
         SetBackgroundUIAlpha(factor);
         break;
@@ -350,42 +379,45 @@ void QTEUIManager::UpdateGuideNoteUI()
     POINT point;
     const SIZE& resolution  = UmGraphics.GetResolution();
     const float minY        = static_cast<float>(resolution.cy) * 0.5f;
-    const float alphaFactor = _xybAlphaFader.GetFadeFactor();
-    const float pointFactor = _xybPointFader.GetFadeFactor();
+    const float alphaFactor = 1.0f;
+    const float pointFactor = 0.0f;
     
+    float offsetY = 50.0f;
+
     if (_qteGuideNoteX)
     {
         SIZE size             = _qteGuideNoteX->Size;
         point.x               = (LONG)_enemyXPos.x - size.cx / 2;
-        point.y               = (LONG)std::lerp(minY, 0, pointFactor) - size.cy / 2;
+        point.y               = (LONG)(size.cy * 2.0f);
         _qteGuideNoteX->Point = point;
-        _qteGuideNoteX->Alpha = alphaFactor;
+        //_qteGuideNoteX->Alpha = alphaFactor;
     }
     if (_qteGuideNoteY)
     {
         SIZE size             = _qteGuideNoteY->Size;
         point.x               = (LONG)_enemyYPos.x - size.cx / 2;
-        point.y               = (LONG)std::lerp(minY, 0, pointFactor) - size.cy / 2;
+        point.y               = (LONG)(size.cy * 2.0f);
         _qteGuideNoteY->Point = point;
-        _qteGuideNoteY->Alpha = alphaFactor;
+        //_qteGuideNoteY->Alpha = alphaFactor;
     }
     if (_qteGuideNoteB)
     {
         SIZE size             = _qteGuideNoteB->Size;
         point.x               = (LONG)_enemyBPos.x - size.cx / 2;
-        point.y               = (LONG)std::lerp(minY, 0, pointFactor) - size.cy / 2;
+        point.y               = (LONG)(size.cy * 2.0f);
+        //point.y               = (LONG)std::lerp(minY, 0, pointFactor) - size.cy / 2;
         _qteGuideNoteB->Point = point;
-        _qteGuideNoteB->Alpha = alphaFactor;
+        //_qteGuideNoteB->Alpha = alphaFactor;
     }
 
-    if (_xybPointFader.IsFadeInEnd())
-    {
-        _xybOutTimer += UmTime.DeltaTime();
-        if (_xybOutTimer >= ReflectFields->GuideNoteDuration)
-        {
-            StartHideQTEGuideNote();
-        }
-    }
+    //if (_xybPointFader.IsFadeInEnd())
+    //{
+    //    _xybOutTimer += UmTime.DeltaTime();
+    //    if (_xybOutTimer >= ReflectFields->GuideNoteDuration)
+    //    {
+    //        StartHideQTEGuideNote();
+    //    }
+    //}
 }
 
 void QTEUIManager::RefreshQTEUITransformData()
@@ -486,6 +518,14 @@ void QTEUIManager::FindUIComponents()
     if (nullptr == _qteOverlayPanel)
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"QTE UI Panel을 찾지 못했습니다.");
+    }
+    if (nullptr == _qteBackgroundUI)
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"QTE Background UI을 찾지 못했습니다.");
+    }
+    else
+    {
+        _qteBackgroundUI->gameObject->ActiveSelf = true;
     }
     if (nullptr == _qteNoteLineUI)
     {
@@ -621,115 +661,4 @@ ImageElement* QTEUIManager::FindNoteUIFromNoteID(int noteID) const
         return itr->second;
     }
     return nullptr;
-}
-
-void QTEUIManager::Fader::SetFadeMode(Mode mode) 
-{
-    _fadeMode = mode;
-}
-
-void QTEUIManager::Fader::SetDuration(float duration)
-{
-    _duration = std::max(duration, 0.0f);
-}
-
-void QTEUIManager::Fader::SetTimer(float timer) 
-{
-    _timer = std::clamp(timer, 0.0f, _duration);
-}
-
-void QTEUIManager::Fader::SetFadeInType(Mathf::EaseType type, Mathf::EaseFuncType func) 
-{
-    _fadeInEaseType = type;
-    _fadeInFuncType = func;
-}
-
-void QTEUIManager::Fader::SetFadeOutType(Mathf::EaseType type, Mathf::EaseFuncType func) 
-{
-    _fadeOutEaseType = type;
-    _fadeOutFuncType = func;
-}
-
-void QTEUIManager::Fader::SetOnFadeInEndCallback(const std::function<void()>& callback)
-{
-    _onFadeInEndCallback = callback;
-}
-
-void QTEUIManager::Fader::SetOnFadeOutEndCallback(const std::function<void()>& callback) 
-{
-    _onFadeOutEndCallback = callback;
-}
-
-float QTEUIManager::Fader::Fade()
-{
-    switch (_fadeMode)
-    {
-    case QTEUIManager::Fader::FADE_NONE:
-        break;
-    case QTEUIManager::Fader::FADE_IN:
-    {
-        if (IsFadeInEnd())
-        {
-            return 1.0f;
-        }
-        else
-        {
-            FadeIn();
-            break;
-        }
-    }
-    case QTEUIManager::Fader::FADE_OUT:
-    {
-        if (IsFadeOutEnd())
-        {
-            return 0.0f;
-        }
-        else
-        {
-            FadeOut();
-            break;
-        }
-    }
-    default:
-        break;
-    }
-    return _fadeFactor;
-}
-
-float QTEUIManager::Fader::FadeIn()
-{
-    _timer += UmTime.DeltaTime();
-    _timer = std::min(_timer, _duration);
-
-    float factor = std::min(_timer / _duration, 1.0f);
-    _fadeFactor  = Mathf::Ease(_fadeInEaseType, _fadeInFuncType, 0.5f, factor);
-    if (IsFadeInEnd() && _onFadeInEndCallback)
-    {
-        _onFadeInEndCallback();
-    }
-    return _fadeFactor;
-}
-
-float QTEUIManager::Fader::FadeOut()
-{
-    _timer -= UmTime.DeltaTime();
-    _timer = std::max(_timer, 0.0f);
-
-    float factor = std::max(_timer / _duration, 0.0f);
-    _fadeFactor  = Mathf::Ease(_fadeOutEaseType, _fadeOutFuncType, 0.5f, factor);
-    if (IsFadeOutEnd() && _onFadeOutEndCallback)
-    {
-        _onFadeOutEndCallback();
-    }
-    return _fadeFactor;
-}
-
-bool QTEUIManager::Fader::IsFadeInEnd() const
-{
-    return 0.9999f <= _fadeFactor;
-}
-
-bool QTEUIManager::Fader::IsFadeOutEnd() const
-{
-    return 0.0001f >= _fadeFactor;
 }

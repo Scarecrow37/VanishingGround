@@ -1,23 +1,19 @@
 ﻿#pragma once
-#include "Structs.h" // PipelineStateStream이 정의된 헤더
-#include <functional> // std::hash
-#include <string.h>   // strcmp, memcmp
+#include "Structs.h"
+#include <functional>
+#include <string.h>
 
-// --- 해시 조합 헬퍼 --- 
-// 여러 해시 값을 하나의 값으로 조합합니다.
 template <class T>
 inline void hash_combine(size_t& seed, const T& v) {
     seed ^= std::hash<T>()(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 }
 
-// --- operator== (멤버별 비교 최종판) ---
-inline bool operator==(const PipelineStateStream& lhs, const PipelineStateStream& rhs) {
-    // 1. 단순 타입 멤버 비교
+inline bool operator==(const PipelineStateStream& lhs, const PipelineStateStream& rhs)
+{
     if (static_cast<ID3D12RootSignature*>(lhs.RootSignature) != static_cast<ID3D12RootSignature*>(rhs.RootSignature)) return false;
     if (static_cast<D3D12_PRIMITIVE_TOPOLOGY_TYPE>(lhs.PrimitiveTopology) != static_cast<D3D12_PRIMITIVE_TOPOLOGY_TYPE>(rhs.PrimitiveTopology)) return false;
     if (static_cast<DXGI_FORMAT>(lhs.DSVFormat) != static_cast<DXGI_FORMAT>(rhs.DSVFormat)) return false;
 
-    // 2. 셰이더 바이트코드 내용 비교
     D3D12_SHADER_BYTECODE lhs_vs = lhs.VS, rhs_vs = rhs.VS;
     if (lhs_vs.BytecodeLength != rhs_vs.BytecodeLength || (lhs_vs.BytecodeLength > 0 && memcmp(lhs_vs.pShaderBytecode, rhs_vs.pShaderBytecode, lhs_vs.BytecodeLength) != 0)) return false;
 
@@ -27,7 +23,6 @@ inline bool operator==(const PipelineStateStream& lhs, const PipelineStateStream
     D3D12_SHADER_BYTECODE lhs_gs = lhs.GS, rhs_gs = rhs.GS;
     if (lhs_gs.BytecodeLength != rhs_gs.BytecodeLength || (lhs_gs.BytecodeLength > 0 && memcmp(lhs_gs.pShaderBytecode, rhs_gs.pShaderBytecode, lhs_gs.BytecodeLength) != 0)) return false;
 
-    // 3. 구조체 멤버들을 하나씩 직접 비교
     D3D12_BLEND_DESC lb = lhs.BlendState, rb = rhs.BlendState;   
     if (std::memcmp(&lb, &rb, sizeof(D3D12_BLEND_DESC)) != 0) return false;
 
@@ -43,6 +38,14 @@ inline bool operator==(const PipelineStateStream& lhs, const PipelineStateStream
     D3D12_RT_FORMAT_ARRAY lrv = lhs.RTVFormats, rrv = rhs.RTVFormats;
     if (std::memcmp(&lrv, &rrv, sizeof(D3D12_RT_FORMAT_ARRAY)) != 0) return false;
 
+    return true;
+}
+
+inline bool operator==(const ComputePipelineStateStream& lhs, const ComputePipelineStateStream& rhs)
+{
+    if (static_cast<ID3D12RootSignature*>(lhs.RootSignature) != static_cast<ID3D12RootSignature*>(rhs.RootSignature)) return false;
+    D3D12_SHADER_BYTECODE lhs_cs = lhs.CS, rhs_cs = rhs.CS;
+    if (lhs_cs.BytecodeLength != rhs_cs.BytecodeLength || (lhs_cs.BytecodeLength > 0 && memcmp(lhs_cs.pShaderBytecode, rhs_cs.pShaderBytecode, lhs_cs.BytecodeLength) != 0)) return false;
     return true;
 }
 
@@ -106,6 +109,19 @@ namespace std
             hash_combine(seed, rtv.NumRenderTargets);
             for(UINT i=0; i<rtv.NumRenderTargets; ++i) hash_combine(seed, rtv.RTFormats[i]);
 
+            return seed;
+        }
+    };
+
+    template <>
+    struct hash<ComputePipelineStateStream>
+    {
+        size_t operator()(const ComputePipelineStateStream& s) const 
+        {
+            size_t seed = 0;
+            hash_combine(seed, static_cast<ID3D12RootSignature*>(s.RootSignature));
+            D3D12_SHADER_BYTECODE cs = s.CS;
+            if (cs.pShaderBytecode) hash_combine(seed, cs.pShaderBytecode);
             return seed;
         }
     };

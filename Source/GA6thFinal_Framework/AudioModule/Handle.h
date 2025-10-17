@@ -18,6 +18,9 @@ namespace Audio
     protected:
         Handle(Index index, Generation generation);
 
+    public:
+        bool operator==(const Handle& other) const noexcept;
+
     private:
         Index      _index;
         Generation _generation;

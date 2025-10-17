@@ -87,7 +87,18 @@ namespace Input::ControllerTypes
         MotorSpeed LeftMotorSpeed;
         MotorSpeed RightMotorSpeed;
         std::chrono::milliseconds Duration;
+
+        static Vibration GetFromNormalizeData(float leftMotorSpeed, float rightMotorSpeed, int duration)
+        {
+            Vibration vibration;
+            vibration.LeftMotorSpeed  = (MotorSpeed)(std::clamp(leftMotorSpeed, 0.0f, 1.0f) * 65535.0f);
+            vibration.RightMotorSpeed = (MotorSpeed)(std::clamp(rightMotorSpeed, 0.0f, 1.0f) * 65535.0f);
+            vibration.Duration        = std::chrono::milliseconds(duration);
+            return vibration;
+        }
     };
+
+    
 
     static constexpr Vibration VIBRATION_EMPTY{
         .LeftMotorSpeed = 0, .RightMotorSpeed = 0, .Duration = std::chrono::milliseconds(0)};

@@ -11,20 +11,29 @@ MainMenuNavigationBase::~MainMenuNavigationBase() = default;
 void MainMenuNavigationBase::Awake()
 {
     _textElement = GetComponent<TextElement>();
-}
-
-void MainMenuNavigationBase::FocusIn()
-{
     if (_textElement)
     {
-        _textElement->Color = DirectX::SimpleMath::Color(0.0f, 1.0f, 1.0f, 1.0f);
+        _color = _textElement->Color;
     }
 }
 
-void MainMenuNavigationBase::FocusOut()
+void MainMenuNavigationBase::FocusIn(const FocusCallType callType)
+{
+    Base::FocusIn(callType);
+    if (_textElement)
+    {
+        Color color         = _color;
+        color.w             = 1.f;
+        _textElement->Color = color;
+        _textElement->FontWeight = 1.0f;
+    }
+}
+
+void MainMenuNavigationBase::FocusOut(FocusCallType callType)
 {
     if (_textElement)
     {
-        _textElement->Color = DirectX::SimpleMath::Color(1.0f, 1.0f, 1.0f, 1.0f);
+        _textElement->Color = _color;
+        _textElement->FontWeight = 0.5f;
     }
 }

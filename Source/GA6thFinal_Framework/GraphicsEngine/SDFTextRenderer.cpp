@@ -7,19 +7,19 @@ SDFTextRenderer::SDFTextRenderer()
 {
     _size        = Vector2::Zero;
     _fontSize    = 16.f;
+    _fontWeight  = 0.f;
 }
 
 SDFTextRenderer::~SDFTextRenderer() = default;
 
 bool SDFTextRenderer::IsActive() const
 {
-    bool isActive = _isActive ? *_isActive : false;
-    return isActive && !_text.empty() && _font && _font->IsValid();
+    return GraphicsBase::IsActive() && !_text.empty() && _font && _font->IsValid();
 }
 
 Vector2 SDFTextRenderer::GetStringSize() const
-{
-    return _size;
+{    
+    return _size * _fontSize;
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE SDFTextRenderer::GetFontTextureHandle() const
@@ -29,24 +29,36 @@ D3D12_GPU_DESCRIPTOR_HANDLE SDFTextRenderer::GetFontTextureHandle() const
 
 void SDFTextRenderer::SetActive(const bool* isActive)
 {
-    _isActive = isActive;
+    GraphicsBase::SetActive(isActive);
 }
 
 void SDFTextRenderer::SetFont(std::shared_ptr<SDFFont> font)
 {
     _font = font;
+    _dirty = true;
+
+    MeasureString();
 }
 
 void SDFTextRenderer::SetText(const wchar_t* text)
 {
     _text = text;
+
+    std::wstring::size_type pos = 0;
+    while ((pos = _text.find(L"\\n", pos)) != std::wstring::npos)
+    {
+        _text.replace(pos, lstrlen(L"\\n"), L"\n");
+        pos += lstrlen(L"\n");
+    }
+
     _dirty = true;
+
+    MeasureString();
 }
 
 void SDFTextRenderer::SetFontSize(const float fontSize)
 {
     _fontSize = fontSize;
-    _dirty = true;
 }
 
 void SDFTextRenderer::SetRotation(const Vector3& rotation)
@@ -57,7 +69,6 @@ void SDFTextRenderer::SetRotation(const Vector3& rotation)
 void SDFTextRenderer::SetPosition(const Vector3& position)
 {
     _position = position;
-    _dirty    = true;
 }
 
 void SDFTextRenderer::SetColor(const Vector4& color)
@@ -65,15 +76,20 @@ void SDFTextRenderer::SetColor(const Vector4& color)
     _color = color;
 }
 
+void SDFTextRenderer::SetFontWeight(const float fontWeight)
+{
+    float convert = std::clamp(fontWeight, 0.f, 1.f);
+    _fontWeight = convert - 0.5f;
+}
+
+void SDFTextRenderer::AddReference()
+{
+    GraphicsBase::AddReference();
+}
+
 void SDFTextRenderer::Release()
 {
-    for (auto& isDestroy : _isDestroyeds)
-    {
-        *isDestroy = true;
-    }
-    _isDestroyeds.clear();
-
-    delete this;
+    GraphicsBase::Release();
 }
 
 void SDFTextRenderer::Initialize()
@@ -120,13 +136,9 @@ void SDFTextRenderer::Update(ID3D12GraphicsCommandList* commandList)
         const auto& atlasInfo   = _font->GetAtlasInfo();
         const auto& metricsInfo = _font->GetMetricsInfo();
 
-        float cursorX = _position.x;
-        float cursorY = _position.y;
-
-        _charCount = 0;
-
-        // Left, Top, Right, Bottom
-        float calculatedBounds[4] = { FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX };
+        float cursorX = 0;
+        float cursorY = metricsInfo.Ascender;
+        _charCount    = 0;
 
         for (wchar_t wc : _text)
         {
@@ -135,8 +147,8 @@ void SDFTextRenderer::Update(ID3D12GraphicsCommandList* commandList)
 
             if (wc == L'\n')
             {
-                cursorX = _position.x;
-                cursorY += metricsInfo.LineHeight * _fontSize;
+                cursorX = 0;
+                cursorY += metricsInfo.LineHeight;
                 continue;
             }
 
@@ -153,46 +165,23 @@ void SDFTextRenderer::Update(ID3D12GraphicsCommandList* commandList)
             float v0 = 1.0f - glyph->AtlasBounds.Top / atlasInfo.Height;
             float v1 = 1.0f - glyph->AtlasBounds.Bottom / atlasInfo.Height;
 
-            float planeLeft   = glyph->PlaneBounds.Left * _fontSize;
-            float planeBottom = glyph->PlaneBounds.Bottom * _fontSize;
-            float planeRight  = glyph->PlaneBounds.Right * _fontSize;
-            float planeTop    = glyph->PlaneBounds.Top * _fontSize;
-            
+            float planeLeft   = glyph->PlaneBounds.Left;
+            float planeBottom = glyph->PlaneBounds.Bottom;
+            float planeRight  = glyph->PlaneBounds.Right;
+            float planeTop    = glyph->PlaneBounds.Top;
+
             float quadLeft   = cursorX + planeLeft;
             float quadBottom = cursorY - planeBottom;
             float quadRight  = cursorX + planeRight;
             float quadTop    = cursorY - planeTop;
 
-            calculatedBounds[0] = std::min(calculatedBounds[0], quadLeft);
-            calculatedBounds[1] = std::min(calculatedBounds[1], quadTop);
-            calculatedBounds[2] = std::max(calculatedBounds[2], quadRight);
-            calculatedBounds[3] = std::max(calculatedBounds[3], quadBottom); 
+            _vertices[_charCount * 4 + 0] = Vertex{{quadLeft, quadTop, 0.f, 1.f}, {u0, v0}};
+            _vertices[_charCount * 4 + 1] = Vertex{{quadRight, quadTop, 0.f, 1.f}, {u1, v0}};
+            _vertices[_charCount * 4 + 2] = Vertex{{quadRight, quadBottom, 0.f, 1.f}, {u1, v1}};
+            _vertices[_charCount * 4 + 3] = Vertex{{quadLeft, quadBottom, 0.f, 1.f}, {u0, v1}};
 
-            _vertices[_charCount * 4 + 0] = Vertex{{quadLeft, quadTop, _position.z, 1.f}, {u0, v0}};
-            _vertices[_charCount * 4 + 1] = Vertex{{quadRight, quadTop, _position.z, 1.f}, {u1, v0}};
-            _vertices[_charCount * 4 + 2] = Vertex{{quadRight, quadBottom, _position.z, 1.f}, {u1, v1}};
-            _vertices[_charCount * 4 + 3] = Vertex{{quadLeft, quadBottom, _position.z, 1.f}, {u0, v1}};
-
-            cursorX += glyph->Advance * _fontSize;
+            cursorX += glyph->Advance;
             _charCount++;
-        }
-
-        if (_charCount > 0)
-        {
-            _size = Vector2(calculatedBounds[2] - calculatedBounds[0], calculatedBounds[3] - calculatedBounds[1]);
-
-            const float offsetX = calculatedBounds[0] - _position.x;
-            const float offsetY = calculatedBounds[1] - _position.y;
-
-            for (size_t i = 0; i < _charCount * 4; ++i)
-            {
-                _vertices[i].Position.x -= offsetX;
-                _vertices[i].Position.y -= offsetY;
-            }
-        }
-        else
-        {
-            _size = Vector2::Zero;
         }
 
         if (0 == _charCount)
@@ -228,4 +217,67 @@ void SDFTextRenderer::Render(ID3D12GraphicsCommandList* commandList)
     commandList->IASetVertexBuffers(0, 1, &_vertexBufferView);
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     commandList->DrawIndexedInstanced(static_cast<UINT>(_charCount) * 6, 1, 0, 0, 0);
+}
+
+void SDFTextRenderer::MeasureString()
+{
+    if (!_font || _text.empty())
+    {
+        _size = Vector2::Zero;
+        return;
+    }
+
+    const auto& metricsInfo         = _font->GetMetricsInfo();
+    float       calculatedBounds[4] = {FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX};
+    float       cursorX             = 0;
+    float       cursorY             = metricsInfo.Ascender;
+    int         charCount           = 0;
+
+    for (wchar_t wc : _text)
+    {
+        if (charCount >= MAX_CHARS)
+            break;
+
+        if (wc == L'\n')
+        {
+            cursorX = 0;
+            cursorY += metricsInfo.LineHeight;
+            continue;
+        }
+
+        const SDF::Glyph* glyph = _font->GetGlyph(wc);
+        if (!glyph)
+        {
+            glyph = _font->GetGlyph(L'□'); // Use a default character
+            if (!glyph)
+                continue;
+        }
+
+        float planeLeft   = glyph->PlaneBounds.Left;
+        float planeBottom = glyph->PlaneBounds.Bottom;
+        float planeRight  = glyph->PlaneBounds.Right;
+        float planeTop    = glyph->PlaneBounds.Top;
+
+        float quadLeft   = cursorX + planeLeft;
+        float quadBottom = cursorY - planeBottom;
+        float quadRight  = cursorX + planeRight;
+        float quadTop    = cursorY - planeTop;
+
+        calculatedBounds[0] = std::min(calculatedBounds[0], quadLeft);
+        calculatedBounds[1] = std::min(calculatedBounds[1], quadTop);
+        calculatedBounds[2] = std::max(calculatedBounds[2], quadRight);
+        calculatedBounds[3] = std::max(calculatedBounds[3], quadBottom);
+
+        cursorX += glyph->Advance;
+        charCount++;
+    }
+
+    if (charCount > 0)
+    {
+        _size = Vector2(calculatedBounds[2] - calculatedBounds[0], calculatedBounds[3] - calculatedBounds[1]);
+    }
+    else
+    {
+        _size = Vector2::Zero;
+    }
 }

@@ -86,6 +86,9 @@ WeaponUIData WeaponViewModel::Convert(TurnActor* const& value)
         data.Speed                      = std::to_string(state.Speed);
         data.AttackCount                = std::to_string(state.AttackCount);
         data.Description                = GetWeaponDescription()(weaponId);
+
+        ImVec4 imColor  = state.GetGradeToColor(state.Grade);
+        data.GradeColor = Color(imColor.x, imColor.y, imColor.z, imColor.w);
     }
     else
     {

@@ -16,8 +16,16 @@ struct FontColor
     float4 Color;
 };
 
+struct SDFParams
+{
+    uint InstanceID;
+    float PxRange;
+    float FontWeight;
+};
+
 Texture2D sdfTexture;
 ConstantBuffer<FontColor> bit32_4_fontColor;
+ConstantBuffer<SDFParams> bit32_3_sdfParams;
 
 RWTexture2D<uint> OITHead;
 RWStructuredBuffer<OITNode> OITNodes;
@@ -25,14 +33,18 @@ RWByteAddressBuffer OITCounter;
 
 void ps_main(PSInput input)
 {
-    float3 sample = sdfTexture.Sample(samLinear_clamp, input.uv).rgb;
-    float sigDist = Median(sample.r, sample.g, sample.b);
-    float screenPxDistance = sigDist - 0.5;
-    float opacity = clamp(screenPxDistance / fwidth(screenPxDistance) + 0.5, 0.0, 1.0);
+    float3 sampled = sdfTexture.Sample(samLinear_clamp, input.uv).rgb;
+    float sd = Median(sampled.r, sampled.g, sampled.b);    
+    float sigDist = (sd - 0.5) * bit32_3_sdfParams.PxRange;
+    float screenPixelRange = fwidth(sigDist);
+    float effectiveDist = sigDist + bit32_3_sdfParams.FontWeight;
+    float opacity = smoothstep(-screenPixelRange, screenPixelRange, effectiveDist);
    
-    clip(opacity - 0.1);
-
-    float4 color = Premultiply(bit32_4_fontColor.Color);
+    float4 color = bit32_4_fontColor.Color;
+    color.a *= opacity;
+    clip(color.a - Epsilon);
+    
+    color = Premultiply(color);
     
     uint nodeIndex = OITAllocNode(OITCounter);
     if (nodeIndex >= FRAME_NODE_CAPACITY)

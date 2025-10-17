@@ -10,6 +10,11 @@ void WeaponElement::SerializedReflectEvent()
         ReflectFields->ActionName = _action->ActionName;
         ReflectFields->ActionDatas = _action->SerializedReflectFields();
     }
+    else
+    {
+        ReflectFields->ActionName  = STR_NULL;
+        ReflectFields->ActionDatas = STR_NULL;
+    }
 }
 
 void WeaponElement::DeserializedReflectEvent() 
@@ -53,7 +58,7 @@ void WeaponElement::DeepCopyAction(const TurnAction& rhs)
     }
 }
 
-DropItemInfo WeaponElement::GetItemInfo()
+DropItemInfo WeaponElement::GetItemInfo() const
 {
     DropItemInfo info
     {

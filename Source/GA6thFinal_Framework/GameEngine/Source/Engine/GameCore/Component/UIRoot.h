@@ -3,6 +3,15 @@
 
 class UINavigationComponent;
 
+enum class FocusCallType : unsigned char
+{
+    INITIAL,
+    INPUT,
+    FORCED
+};
+
+constexpr unsigned int MAX_NAVIGATION_LOOP_COUNT = 100;
+
 class UIRoot : public UIBaseComponent
 {
     USING_PROPERTY(UIRoot)
@@ -22,7 +31,7 @@ public:
 
     void SortViewOrder() const;
     void SetInitialFocus(const UINavigationComponent* uiComponent);
-    void ChangeFocusComponent(UINavigationComponent* nextFocusComponent);
+    void RequestChangeFocusComponent(UINavigationComponent* nextFocusComponent);
     void CheckNavigationIdFlawless(const UIBaseComponent* newComponent);
 
     NavigationID           AcquireNavigationID(NavigationID tempID);
@@ -35,6 +44,7 @@ protected:
     void Start() override;
 
 private:
+    bool ChangeFocusComponent(UINavigationComponent* nextFocusComponent, FocusCallType callType);
     void UpdateNavigation();
     void UpdateNavigationMap();
     void UpdateNavigationMap(Transform& exceptTransform);

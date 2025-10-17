@@ -1,48 +1,53 @@
 ﻿#pragma once
 #include "GraphicsBase.h"
+#include "Interface/IMeshRenderer.h"
 
 class Model;
 class Animator;
 class DXRSkeletalMesh;
-
-class MeshRenderer : public GraphicsBase
+class MeshRenderer : public GraphicsBase, public IMeshRenderer
 {
 public:
-    MeshRenderer(MeshType type, const Vector3& position, const Vector3& scale, const Quaternion& rotation, const Matrix& world, const bool& dirtyFlag);
+    MeshRenderer();
     virtual ~MeshRenderer();
 
 public:
-    const std::shared_ptr<Model>& GetModel() const { return _model; }
-    const Matrix&                 GetWorldMatrix() const { return _transform.World; }
-    const GraphicsTransform&      GetTransform() const { return _transform; }
-    const MeshType                GetType() const { return _type; }
-    const UINT                    GetCustomDepth(UINT meshID) const { return _customDepths[meshID]; }
-    const std::vector<UINT>&      GetCustomDepths();
-    std::shared_ptr<Animator>     GetAnimator() const;
-    const bool                    IsDirtyFlag() const { return (_transform.IsDirtyFlag); }
+    bool                     IsActive() const override { return GraphicsBase::IsActive(); }
+    const UINT               GetCustomDepth(UINT meshID) const override { return _customDepths[meshID]; }
+    const std::vector<UINT>& GetCustomDepths() override;
+    IAnimator*               GetAnimator() const override;
+    std::shared_ptr<Model>   GetModel() const override { return _model; }
+    const MeshType           GetType() const override { return _type; }
+
+    const Matrix&                                       GetWorldMatrix() const { return *_world; }
     const std::vector<std::shared_ptr<DXRSkeletalMesh>> GetDXRSkeletalMeshes() const { return _dxrSkeletalMeshes; }
 
 public:
+    void SetActive(const bool* isActive) override;
+    void SetMaterial(const UINT meshIndex, const Material& material) override;
+    void SetMasterMaterial(const UINT meshIndex, const Material& material) override;   
+
     void SetModel(std::shared_ptr<Model> model);
-    void SetAnimator(std::shared_ptr<Animator> animator);
-    void SetMaterial(const UINT meshIndex, const Material& material);
-    void SetMasterMaterial(const UINT meshIndex, const Material& material);
 
 public:
-    void OnCustomDepth(UINT customDepth);
-    void OnCustomDepth(UINT customDepth, UINT meshID);
-    void OffCustomDepth(UINT customDepth);
-    void OffCustomDepth(UINT customDepth, UINT meshID);
+    void AddReference() override;
+    void Release() override;
 
 public:
-    void Initialize();
+    void OnCustomDepth(UINT customDepth) override;
+    void OnCustomDepth(UINT customDepth, UINT meshID) override;
+    void OffCustomDepth(UINT customDepth) override;
+    void OffCustomDepth(UINT customDepth, UINT meshID) override;
+
+public:
+    void Initialize(const Matrix* world);
 
 private:
     std::vector<Material>                         _materials;
     std::vector<UINT>                             _customDepths;
     std::vector<std::shared_ptr<DXRSkeletalMesh>> _dxrSkeletalMeshes;
     std::shared_ptr<Model>                        _model;
-    std::shared_ptr<Animator>                     _animator;
-    GraphicsTransform                             _transform;
+    GraphicsPointer<Animator>                     _animator;
+    const Matrix*                                 _world;
     MeshType                                      _type;
 };

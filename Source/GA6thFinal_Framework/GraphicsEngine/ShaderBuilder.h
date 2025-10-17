@@ -33,7 +33,6 @@ private:
 private:
     void CreateRootSignatureTable();
     void CreateRootSignatureDirect();
-    D3D12_STATIC_SAMPLER_DESC FindStaticSampler(std::string_view tag);
 
 private:
     std::unordered_map<std::string, UINT> _rootParameterIndex;

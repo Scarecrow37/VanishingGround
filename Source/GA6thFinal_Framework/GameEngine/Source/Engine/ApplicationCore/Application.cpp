@@ -146,6 +146,9 @@ void Application::Run()
             // Imgui begin
             _imguiDX12Module->ImguiBegin();
 
+            // Debugger Window
+            Global::engineCore->DebuggerWindow.Update();
+
             // Editor Update
             if constexpr (true == Application::IsEditor())
             {
@@ -167,12 +170,16 @@ void Application::Run()
             // CameraUpdate, RenderQueueUpdate, Render
             Global::engineCore->Graphics.Update(deltaTime);
             Global::engineCore->Graphics.Render();
-            _imguiDX12Module->ImguiEnd();
 
             // Scene Final Update
             ESceneManager::Engine::SceneFinalUpdate();
 
+
+            _imguiDX12Module->ImguiEnd();
+
             Global::engineCore->Graphics.Flip();
+
+
         }
     }
 }

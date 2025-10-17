@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+enum class FocusCallType : unsigned char;
+
 struct NavigationInfo
 {
     unsigned int  Button;
@@ -61,12 +63,12 @@ public:
     /// <summary>
     /// 포커스가 들어올 때 호출되는 함수입니다.
     /// </summary>
-    virtual void FocusIn();
+    virtual void FocusIn(FocusCallType callType);
 
     /// <summary>
     /// 포커스가 해당 객체에서 벗어날 때 호출되는 함수입니다.
     /// </summary>
-    virtual void FocusOut();
+    virtual void FocusOut(FocusCallType callType);
 
     /// <summary>
     /// Navigation Route로 자신을 설정하고, 해당 Route를 실행하게 되면 호출되는 함수입니다.

@@ -169,6 +169,15 @@
     <FxCompile Include="..\Shaders\ps_ssgi_composite.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\ps_sdf_font.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\vs_sdf_font_fr.hlsl">
+      <Filter>Shaders\vs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_fxaa.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AccelerationStructureManager.cpp">
@@ -574,6 +583,30 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="SSGICompositePass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="SDFFont.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="SDFTextDrawPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="SDFTextRenderer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="FXAATechnique.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="AntiAliasingPass.cpp">
+      <Filter>소스 파일</Filter>
+    <ClCompile Include="EmitLocator.cpp" />
+    <ClCompile Include="ParticleRenderModule.cpp" />
+    </ClCompile>
+    <ClCompile Include="GraphicsPointer.cpp" />
+    <ClCompile Include="PointLightShadowAtlas.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="EngineShadowPointLight.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1010,6 +1043,40 @@
     <ClInclude Include="BilateralUpsamplePass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Interface\IGraphicsBase.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Interface\ISDFTextRenderer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SDFFont.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SDFTextDrawPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SDFTextRenderer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="EmitLocator.h" />
+    <ClInclude Include="ParticleRenderModule.h" />
+    <ClInclude Include="FXAATechnique.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="AntiAliasingPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsPointer.h" />
+    <ClInclude Include="Interface\IAnimator.h" />
+    <ClInclude Include="Interface\ILight.h" />
+    <ClInclude Include="Interface\IMeshRenderer.h" />
+    <ClInclude Include="Interface\ISpriteRenderer.h" />
+    <ClInclude Include="PointLightShadowAtlas.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineShadowPointLight.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Shaders\CommonData.hlsli">
@@ -1032,23 +1099,23 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="소스 파일">
-      <UniqueIdentifier>{8d62b6a3-05bc-45fa-87e2-99d846c74e63}</UniqueIdentifier>
-    </Filter>
     <Filter Include="헤더 파일">
       <UniqueIdentifier>{9ff02c61-5019-42f8-8c4c-21cda5736eb5}</UniqueIdentifier>
     </Filter>
     <Filter Include="Shaders">
       <UniqueIdentifier>{b8fc5015-a0d0-46aa-8c10-19375179346b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Shaders\vs">
-      <UniqueIdentifier>{b4a51824-f35d-4745-9293-a681bd669d14}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Shaders\ps">
       <UniqueIdentifier>{400fef67-2719-4973-a6ab-b20d6d351c39}</UniqueIdentifier>
     </Filter>
     <Filter Include="Shaders\cs">
       <UniqueIdentifier>{7e1f4752-b3fe-4e23-ba06-1c42aabeca56}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{8d62b6a3-05bc-45fa-87e2-99d846c74e63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\vs">
+      <UniqueIdentifier>{b4a51824-f35d-4745-9293-a681bd669d14}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -406,6 +406,22 @@ Transform* Transform::Find(std::string_view name) const
     return nullptr;
 }
 
+Transform* Transform::FindWithTag(const std::string& tag) const
+{
+    for (int i = 0; i < ChildCount; i++)
+    {
+        if (Transform* child = GetChild(i))
+        {
+            GameObject& obj = child->gameObject;
+            if (obj.CompareTag(tag))
+            {
+                return child;
+            }
+        }
+    }
+    return nullptr;
+}
+
 void Transform::UpdateMatrix()
 {
     Transform* root = _root ? _root : this;

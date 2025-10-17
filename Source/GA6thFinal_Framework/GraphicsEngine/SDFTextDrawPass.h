@@ -4,7 +4,7 @@
 class SDFTextDrawPass : public UIPassBase_OIT
 {
 public:
-    SDFTextDrawPass();
+    SDFTextDrawPass(const std::vector<UINT>* instanceIDs);
     virtual ~SDFTextDrawPass();
 
 public:

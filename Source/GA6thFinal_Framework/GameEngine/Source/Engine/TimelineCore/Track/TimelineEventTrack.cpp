@@ -158,9 +158,10 @@ namespace Timeline
     {
         for (auto it = _contextQueue.begin(); it != _contextQueue.end(); ++it)
         {
-            if ((*it)->ID == id)
+            auto* context = *it;
+            if (context && context->ID == id)
             {
-                delete (*it);
+                delete context;
                 _contextQueue.erase(it);
                 _contextTable.erase(id);
                 return true;
@@ -312,6 +313,16 @@ namespace Timeline
         if (true == pass || false == IsActive())
         {
             _prevFrame = _currFrame;
+        }
+    }
+    void EventTrack::SetOwnerGameObject(std::weak_ptr<GameObject> weakObj) 
+    {
+        for (auto& context : _contextQueue)
+        {
+            if (context)
+            {
+                context->SetGameObject(weakObj);
+            }
         }
     }
     void EventTrack::RequestNotify(float startTime, float endTime)

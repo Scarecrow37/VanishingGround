@@ -9,11 +9,14 @@ namespace QTE
 {
     class Track;
     class Note;
-} 
+}
+
+struct WeaponStats;
 
 class QTESystem : public Component, public InputReceiver
 {
     using Callback = std::function<void(const QTE::OverallResult&)>;
+    using ControllerState = std::pair<const Input::Controller*, Input::ControllerTypes::Button>;
 
     friend class QTEUIManager;
     USING_PROPERTY(QTESystem)
@@ -64,6 +67,8 @@ public:
     /// <param name="callback">QTE가 종료되었을 때 호출되는 선택적 콜백 함수입니다. 기본값은 nullptr입니다.</param>
     void StartQTE(Callback callback = nullptr);
     void StartQTE(QTE::Track* qteTrack, Callback callback = nullptr);
+    void StartQTE(const WeaponStats* weapon, Callback callback = nullptr);
+    void StopQTE();
 
     /// <summary>
     /// QTE를 일시정지하거나 재개합니다. QTE플레이 중이 아니라면 무시됩니다.
@@ -71,13 +76,8 @@ public:
     /// <param name="pause"></param>
     void PauseQTE(bool pause);
 
-    /// <summary>
-    /// 전투 UI의 활성화 상태를 설정합니다.
-    /// </summary>
-    /// <param name="active">전투 UI를 활성화할지 여부를 지정하는 불리언 값입니다.</param>
-    void CombatUIActive(bool active);
-
 private:
+    void ResetQTEState();
     void ClearTrack();
     void ClearQueue();
     void UpdateQTETrack();
@@ -145,6 +145,8 @@ private:
 
     Callback                    _onQTEFinishCallback = nullptr;                 // QTE 페이드 인 종료 콜백
 
+    ControllerState             _nextControllerEvent = {nullptr, Input::ControllerTypes::UNDEFINED};
+
     REFLECT_FIELDS_BEGIN(Component)
     float                   QTESpeedScale       = 1.0f;                         // QTE 속도 배율
     float                   DelayFromQTEStart   = 0.0f;                         // QTE 시작 대기 시간
@@ -159,4 +161,19 @@ private:
 
     // QTE 편집기
     QTEEditor&  GetEditor();
+
+    inline static constexpr Input::ControllerTypes::Vibration PERFECT_VIBRATION{
+        .LeftMotorSpeed  = (unsigned short)(0.8f * 65535.0f),
+        .RightMotorSpeed = (unsigned short)(1.0f * 65535.0f), 
+        .Duration = std::chrono::milliseconds(220)};
+
+    inline static constexpr Input::ControllerTypes::Vibration NORMAL_VIBRATION{
+        .LeftMotorSpeed  = (unsigned short)(0.3f * 65535.0f),
+        .RightMotorSpeed = (unsigned short)(0.5f * 65535.0f),
+        .Duration        = std::chrono::milliseconds(150)};
+
+    inline static constexpr Input::ControllerTypes::Vibration MISS_VIBRATION{
+        .LeftMotorSpeed  = (unsigned short)(0.2f * 65535.0f),
+        .RightMotorSpeed = (unsigned short)(0.7f * 65535.0f),
+        .Duration        = std::chrono::milliseconds(150)};
 };

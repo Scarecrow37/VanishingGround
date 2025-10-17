@@ -21,9 +21,14 @@ public:
     RevelationsView() = default;
     virtual ~RevelationsView();
 
+public:
+    const std::array<RevelationUI, 3>& GetRevelationUIs() const { return _revelationUis; }
+    const std::array<GameObject*, 3>& GetRevelationObjects() const { return _revelationObjects; }
+
 protected:
     void Awake() override;
     void Start() override;
+    void OnDestroy() override;
 
 private:
     void FindRevelationUIs();

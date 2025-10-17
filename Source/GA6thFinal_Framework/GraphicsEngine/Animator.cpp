@@ -88,6 +88,11 @@ bool Animator::HasAnimation(const char* animation) const
     return false;
 }
 
+void Animator::SetActive(const bool* isActive)
+{
+    GraphicsBase::SetActive(isActive);
+}
+
 bool Animator::IsPaused() const
 {
     return _isPause;
@@ -169,6 +174,16 @@ void Animator::SetLoop(bool isLoop)
 void Animator::SetAnimationEndCallback(std::function<void()> callback) 
 {
     _onAnimationEndCallback = callback;
+}
+
+void Animator::AddReference()
+{
+    GraphicsBase::AddReference();
+}
+
+void Animator::Release()
+{
+    GraphicsBase::Release();
 }
 
 const std::vector<const char*>& Animator::GetAnimationNames() const
@@ -295,9 +310,15 @@ void Animator::Update(const float deltaTime)
 	}
 }
 
+bool Animator::IsActive() const
+{
+    return GraphicsBase::IsActive();
+}
+
 bool Animator::ChangeAnimation(const char* animation, bool blending)
 {
     int count = 0;
+
     for (unsigned int i = 0; i < _maxSplit; i++)
     {
         if (ChangeAnimation(animation, i, blending))
@@ -305,6 +326,7 @@ bool Animator::ChangeAnimation(const char* animation, bool blending)
             ++count;
         }
     }
+
     return count > 0;
 }
 

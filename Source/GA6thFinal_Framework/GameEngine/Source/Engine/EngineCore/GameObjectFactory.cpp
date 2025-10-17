@@ -87,7 +87,6 @@ void EGameObjectFactory::ApplyPrefabInstanceChanges(const File::Guid& guid, YAML
                         {
                             if (i < prefabObjects.size())
                             {
-                                editorHierarchyTool->PushHierarchyObject(prefabObjects[i]);
                                 swapObjects.emplace_back(&curr->gameObject, prefabObjects[i].get());
                             }
                             else
@@ -279,7 +278,7 @@ std::shared_ptr<GameObject> EGameObjectFactory::NewGameObject(std::string_view t
     return sptr_object;
 }
 
-YAML::Node EGameObjectFactory::SerializeToYaml(GameObject* gameObject, bool onlyVaildObject)
+YAML::Node EGameObjectFactory::SerializeToYaml(GameObject* gameObject, bool onlyValidObject)
 {
     if (UmComponentFactory.HasScript() == false)
     {
@@ -298,7 +297,7 @@ YAML::Node EGameObjectFactory::SerializeToYaml(GameObject* gameObject, bool only
     bool isPrefabInstance = gameObject->IsPrefabInstance();
     Transform::ForeachExBFS(
     gameObject->_transform, 
-    onlyVaildObject,
+    onlyValidObject,
     [&](Transform* curr) 
     {
         // 오브젝트 직렬화
@@ -926,6 +925,7 @@ void EGameObjectFactory::ResetGameObject(
         // 인스턴스 아이디 부여
         int instanceID           = InstanceID.CreateInstanceID();
         ownerObject->_instanceID = instanceID;
+        ownerObject->_creationFrame = UmTime.FrameCount();
     }
     else
     {

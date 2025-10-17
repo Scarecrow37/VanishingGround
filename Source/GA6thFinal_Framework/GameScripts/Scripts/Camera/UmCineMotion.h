@@ -32,6 +32,8 @@ public:
     UmCineMotion();
     ~UmCineMotion() override;
 
+    void Start() override;
+
 protected:
     REFLECT_FIELDS_BEGIN(CameraComponent)
     float              RailSpeed  = 1.f;

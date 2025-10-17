@@ -36,6 +36,37 @@ public:
     /// </summary>
     void PlayItemDropUISequence();
 
+    /// <summary>
+    /// UI 모델을 Notify 합니다.
+    /// </summary>
+    void NotifyUIModel() { _dropItemsModel.Notify(); }
+
+    /// <summary>
+    /// 해당 인덱스의 유물이 획득한 보상인지 확인합니다. SetDropItem이 호출될때마다 초기화됩니다.
+    /// </summary>
+    /// <param name="index :">해당 아티팩트 인덱스</param>
+    /// <returns>잘못된 인덱스를 넣어도 true를 반환합니다.</returns>
+    bool IsObtainArtifact(size_t index) const 
+    {
+        if (index < _obtainArtifactFlag.size())
+        {
+            return _obtainArtifactFlag[index];
+        }
+        return true;
+    }
+
+    /// <summary>
+    /// 전달한 인덱스의 유물 획득 플래그를 활성화합니다. SetDropItem이 호출될때마다 초기화됩니다.
+    /// </summary>
+    /// <param name="index :">해당 아티팩트 인덱스</param>
+    void SetObtainArtifact(size_t index)
+    {
+        if (index < _obtainArtifactFlag.size())
+        {
+            _obtainArtifactFlag[index] = true;
+        }
+    }
+
 public:
     REFLECT_PROPERTY(
         StageClearCount,
@@ -92,4 +123,5 @@ private:
     MVVM::Model<std::vector<DropItemInfo>> _dropItemsModel;
     int _stageClearCount = 0;
     int _itemDropRateBonus = 0;
+    std::array<bool, ARTIFACT_DROP_COUNT>  _obtainArtifactFlag{}; // 이번 보상 획득 여부 플래그
 };

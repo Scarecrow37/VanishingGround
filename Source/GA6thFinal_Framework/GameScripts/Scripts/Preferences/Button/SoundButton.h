@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-class SoundButton : public UINavigationComponent, public InputReceiver
+class SoundButton : public UISFXNavigationComponent, public InputReceiver
 {
     USING_PROPERTY(SoundButton)
 
@@ -21,8 +21,8 @@ public:
     PROPERTY(CurrentOption)
 
 protected:
-    void FocusIn() override;
-    void FocusOut() override;
+    void FocusIn(FocusCallType callType) override;
+    void FocusOut(FocusCallType callType) override;
 
     void SerializedReflectEvent() override;
     void DeserializedReflectEvent() override;
@@ -36,7 +36,7 @@ private:
     void UpdateUIForFocus();
 
 protected:
-    REFLECT_FIELDS_BEGIN(UINavigationComponent)
+    REFLECT_FIELDS_BEGIN(UISFXNavigationComponent)
     std::string CurrentOptionStr;
     REFLECT_FIELDS_END(SoundButton)
 private:
@@ -51,7 +51,7 @@ private:
     std::vector<GameObject*>  _volumeNumNonFocus;
     class PreferencesManager* _preferencesManager;
 
-    int         _currentVolume = MaxVolume;
+    int         _currentVolume = 10;
     bool        _isFocus       = false;
     bool        _isVolumeUp    = false;
     bool        _isVolumeDown  = false;

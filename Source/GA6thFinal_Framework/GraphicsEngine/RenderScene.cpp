@@ -21,7 +21,7 @@ RenderScene::RenderScene(std::string_view name)
     _lightDatas.resize(MAX_LIGHT);
 }
 
-RenderScene::~RenderScene() {}
+RenderScene::~RenderScene() = default;
 
 D3D12_GPU_DESCRIPTOR_HANDLE RenderScene::GetFinalImage()
 {
@@ -82,7 +82,7 @@ void RenderScene::RegisterOnRenderQueue(MeshRenderer* component)
     if (nullptr == component)
         return;
 
-    auto iter = std::find_if(_meshRenderQueue.begin(), _meshRenderQueue.end(), [](const auto& pair) { return !pair.first.get(); });
+    auto iter = std::find_if(_meshRenderQueue.begin(), _meshRenderQueue.end(), [component](const auto& renderer) { return component->GetID() == renderer->GetID(); });
 
     if (iter != _meshRenderQueue.end())
     {
@@ -90,8 +90,7 @@ void RenderScene::RegisterOnRenderQueue(MeshRenderer* component)
         return;
     }
 
-    _meshRenderQueue.emplace_back(std::make_unique<bool>(false), component);
-    component->_isDestroyeds.push_back(_meshRenderQueue.back().first.get());
+    _meshRenderQueue.emplace_back(component);
 }
 
 void RenderScene::RegisterOnRenderQueue(SpriteRenderer* component)
@@ -99,7 +98,7 @@ void RenderScene::RegisterOnRenderQueue(SpriteRenderer* component)
     if (nullptr == component)
         return;
 
-    auto iter = std::find_if(_uiRenderQueue.begin(), _uiRenderQueue.end(), [](const auto& pair) { return !pair.first.get(); });
+    auto iter = std::find_if(_uiRenderQueue.begin(), _uiRenderQueue.end(), [component](const auto& renderer) { return component->GetID() == renderer->GetID(); });
 
     if (iter != _uiRenderQueue.end())
     {
@@ -107,8 +106,7 @@ void RenderScene::RegisterOnRenderQueue(SpriteRenderer* component)
         return;
     }
 
-    _uiRenderQueue.emplace_back(std::make_unique<bool>(false), component);
-    component->_isDestroyeds.push_back(_uiRenderQueue.back().first.get());
+    _uiRenderQueue.emplace_back(component);
 }
 
 void RenderScene::RegisterOnRenderQueue(TextRenderer* component)
@@ -116,7 +114,7 @@ void RenderScene::RegisterOnRenderQueue(TextRenderer* component)
     if (nullptr == component)
         return;
 
-    auto iter = std::find_if(_textRenderQueue.begin(), _textRenderQueue.end(), [](const auto& pair) { return !pair.first.get(); });
+    auto iter = std::find_if(_textRenderQueue.begin(), _textRenderQueue.end(), [component](const auto& renderer) { return component->GetID() == renderer->GetID(); });
 
     if (iter != _textRenderQueue.end())
     {
@@ -124,8 +122,7 @@ void RenderScene::RegisterOnRenderQueue(TextRenderer* component)
         return;
     }
 
-    _textRenderQueue.emplace_back(std::make_unique<bool>(false), component);
-    component->_isDestroyeds.push_back(_textRenderQueue.back().first.get());
+    _textRenderQueue.emplace_back(component);
 }
 
 void RenderScene::RegisterOnRenderQueue(SDFTextRenderer* component)
@@ -133,7 +130,7 @@ void RenderScene::RegisterOnRenderQueue(SDFTextRenderer* component)
     if (nullptr == component)
         return;
 
-    auto iter = std::find_if(_sdfTextRenderQueue.begin(), _sdfTextRenderQueue.end(), [](const auto& pair) { return !pair.first.get(); });
+    auto iter = std::find_if(_sdfTextRenderQueue.begin(), _sdfTextRenderQueue.end(), [component](const auto& renderer) { return component->GetID() == renderer->GetID(); });
 
     if (iter != _sdfTextRenderQueue.end())
     {
@@ -141,8 +138,7 @@ void RenderScene::RegisterOnRenderQueue(SDFTextRenderer* component)
         return;
     }
 
-    _sdfTextRenderQueue.emplace_back(std::make_unique<bool>(false), component);
-    component->_isDestroyeds.push_back(_sdfTextRenderQueue.back().first.get());
+    _sdfTextRenderQueue.emplace_back(component);
 }
 
 void RenderScene::AddRenderTechnique(std::unique_ptr<RenderTechnique> technique)
@@ -175,6 +171,7 @@ void RenderScene::UpdateRenderScene(const float deltaTime)
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::BONE_MATRICES, _boneMatrices.data(), (UINT)_boneMatrices.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::UI_TRANSFORM, _uiMatrices.data(), (UINT)_uiMatrices.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::UI_MATERIAL, _uiMaterials.data(), (UINT)_uiMaterials.size());
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::TEXT_MATRICES, _textMatrices.data(), (UINT)_textMatrices.size());
     
     for (auto& technique : _techniques)
     {
@@ -227,6 +224,14 @@ void RenderScene::ResetIBLSkyBox()
     _skyBox->ResetIBLResource();
 }
 
+void RenderScene::ClearRenderQueue()
+{
+    _meshRenderQueue.clear();
+    _uiRenderQueue.clear();
+    _textRenderQueue.clear();
+    _sdfTextRenderQueue.clear();
+}
+
 void RenderScene::UpdateGlobal()
 {
     _currentFrameIndex = Global::device->GetCurrentBackBufferIndex();
@@ -247,27 +252,32 @@ void RenderScene::UpdateGlobal()
     auto& lights = Global::lightCore->GetLights(_name.c_str());
 
     _numLight = {};
-    for (auto& [isDestroy, light] : lights)
+    for (auto& light : lights)
     {
-        if (nullptr == light->_isActive || !light->IsActive())
+        if (!light->IsActive())
             continue;
 
-        switch (light->_type)
+        switch (light->GetType())
         {
         case Light::Type::DIRECTIONAL:
             if (_numLight.Directional >= MAX_DIRECTIONAL_LIGHT)
                 continue;
-            _lightDatas[_numLight.Directional++] = light->_data;
+            _lightDatas[_numLight.Directional++] = light->GetLightData();
             break;
         case Light::Type::POINT:
             if (_numLight.Point >= MAX_POINT_LIGHT)
                 continue;
-            _lightDatas[MAX_DIRECTIONAL_LIGHT + _numLight.Point++] = light->_data;
+            _lightDatas[MAX_DIRECTIONAL_LIGHT + _numLight.Point++] = light->GetLightData();
             break;
         case Light::Type::SPOT:
             if (_numLight.Spot >= MAX_SPOT_LIGHT)
                 continue;
-            _lightDatas[MAX_DIRECTIONAL_LIGHT + MAX_POINT_LIGHT + _numLight.Spot++] = light->_data;
+            _lightDatas[MAX_DIRECTIONAL_LIGHT + MAX_POINT_LIGHT + _numLight.Spot++] = light->GetLightData();
+            break;
+        case Light::Type::SHADOWPOINT:
+            if (_numLight.ShadowPoint >= MAX_SHADOW_POINT_LIGHT)
+                continue;
+            _lightDatas[MAX_DIRECTIONAL_LIGHT + MAX_POINT_LIGHT + MAX_SPOT_LIGHT + _numLight.ShadowPoint++] = light->GetLightData();
             break;
         }
     }
@@ -279,7 +289,7 @@ void RenderScene::UpdateGlobal()
 
 void RenderScene::UpdateObject()
 {
-    auto first = std::remove_if(_meshRenderQueue.begin(), _meshRenderQueue.end(), [](const auto& pair) { return *pair.first; });
+    auto first = std::remove_if(_meshRenderQueue.begin(), _meshRenderQueue.end(), [](const auto& renderer) { return !renderer->IsAlive(); });
     _meshRenderQueue.erase(first, _meshRenderQueue.end());
     
     int   mainLight    = 0;
@@ -305,7 +315,7 @@ void RenderScene::UpdateObject()
     _skeletalMeshInstanceIDs.clear();
 
     UINT index = 0;
-    for (auto& [isDestroy, component] : _meshRenderQueue)
+    for (auto& component : _meshRenderQueue)
     {
         if (!component->IsActive())
         {
@@ -332,7 +342,7 @@ void RenderScene::UpdateObject()
 
         if (SKELETAL_MESH == type)
         {
-            auto animator = component->GetAnimator();
+            Animator* animator = static_cast<Animator*>(component->GetAnimator());
             if (animator) memcpy(&boneMatrices, animator->GetAnimationTransform(), sizeof(BoneMatrices));
         }
 
@@ -391,12 +401,12 @@ void RenderScene::UpdateObject()
 
 void RenderScene::UpdateUI()
 {    
-    auto iter_ui = std::remove_if(_uiRenderQueue.begin(), _uiRenderQueue.end(), [](const auto& pair) { return *pair.first; });
+    auto iter_ui = std::remove_if(_uiRenderQueue.begin(), _uiRenderQueue.end(), [](const auto& renderer) { return !renderer->IsAlive(); });
     _uiRenderQueue.erase(iter_ui, _uiRenderQueue.end());
 
     _uiMatrices.clear();
     _uiMaterials.clear();
-    for (auto& [isDestroy, component] : _uiRenderQueue)
+    for (auto& component : _uiRenderQueue)
     {
         if (!component->IsActive())
             continue;
@@ -445,8 +455,22 @@ void RenderScene::UpdateUI()
     }
 
     // Text
-    auto iter_text = std::remove_if(_sdfTextRenderQueue.begin(), _sdfTextRenderQueue.end(), [](const auto& pair) { return *pair.first; });
+    auto iter_text = std::remove_if(_sdfTextRenderQueue.begin(), _sdfTextRenderQueue.end(), [](const auto& renderer) { return !renderer->IsAlive(); });
     _sdfTextRenderQueue.erase(iter_text, _sdfTextRenderQueue.end());
+
+    _textMatrices.clear();
+    for (auto& component : _sdfTextRenderQueue)
+    {
+        if (!component->IsActive())
+            continue;
+
+        const float fontSize = component->GetFontSize();
+
+        XMMATRIX scale       = XMMatrixScaling(fontSize, fontSize, 1.f);
+        XMMATRIX rotation    = XMMatrixRotationQuaternion(Quaternion::CreateFromYawPitchRoll(component->GetRotation()));
+        XMMATRIX translation = XMMatrixTranslationFromVector(component->GetPosition());
+        _textMatrices.emplace_back(XMMatrixTranspose(scale * rotation * translation));
+    }
 }
 
 void RenderScene::CreateRenderTarget()
@@ -509,6 +533,9 @@ void RenderScene::CreateFrameResource()
 
         // UI Material
         _frameResources[i]->AddFrameResource(sizeof(UIMaterial), MAX_OBJECTS);
+
+        // Text Transform
+        _frameResources[i]->AddFrameResource(sizeof(Matrix), MAX_OBJECTS);
 
         // Vertex Buffer ID
         _frameResources[i]->AddFrameResource(sizeof(VertexBufferID), MAX_OBJECTS);

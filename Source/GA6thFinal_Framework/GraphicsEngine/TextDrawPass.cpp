@@ -75,7 +75,7 @@ void TextDrawPass::Begin(ID3D12GraphicsCommandList* commandList)
 
 void TextDrawPass::Draw(ID3D12GraphicsCommandList* commandList)
 {    
-    for (auto& [isDestroy, component] : _ownerScene->_textRenderQueue)
+    for (auto& component : _ownerScene->_textRenderQueue)
     {
         if (!component->IsActive())
             continue;

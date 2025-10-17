@@ -25,6 +25,10 @@ SIZE HorizontalPanel::MeasureOverride(const SIZE availableSize)
 
     const PADDING padding               = Padding;
     const SIZE    childrenAvailableSize = desiredSize - padding.Size();
+    const LONG    space                 = Space;
+
+    const std::vector<HorizontalPanelSlot*> slots = Slots;
+    std::ranges::for_each(slots, [](HorizontalPanelSlot* slot) { slot->SetLine(0); });
 
     const std::vector<UIComponent*> children = Children;
 
@@ -32,7 +36,7 @@ SIZE HorizontalPanel::MeasureOverride(const SIZE availableSize)
     std::vector<std::pair<SIZE, LONG>> childrenDesiredSizePerLine;
     childrenDesiredSizePerLine.push_back(std::make_pair(SIZE{}, 0));
 
-    std::ranges::for_each(children, [childrenAvailableSize, &childrenDesiredSizePerLine,
+    std::ranges::for_each(children, [childrenAvailableSize, &childrenDesiredSizePerLine, space,
                                      &currentLine](UIComponent* child) {
         if (HorizontalPanelSlot* slot = child->GetComponent<HorizontalPanelSlot>(); nullptr != slot)
         {
@@ -41,10 +45,14 @@ SIZE HorizontalPanel::MeasureOverride(const SIZE availableSize)
                 const SIZE childAvailableSize{.cx = childrenAvailableSize.cx, .cy = childrenAvailableSize.cy};
                 child->Measure(childAvailableSize);
                 const SIZE childDesiredSize = child->DesiredSize;
-                if (childrenDesiredSizePerLine[currentLine].first.cx + childDesiredSize.cx > childAvailableSize.cx)
+                if (childrenDesiredSizePerLine[currentLine].first.cx + childDesiredSize.cx + space > childAvailableSize.cx)
                 {
                     ++currentLine;
                     childrenDesiredSizePerLine.push_back(std::make_pair(SIZE{}, 0));
+                }
+                else
+                {
+                    childrenDesiredSizePerLine[currentLine].first.cx += space;
                 }
                 childrenDesiredSizePerLine[currentLine].first.cx += childDesiredSize.cx;
                 childrenDesiredSizePerLine[currentLine].first.cy =
@@ -112,16 +120,21 @@ SIZE HorizontalPanel::ArrangeOverride(const SIZE finalSize)
     const SIZE    childrenAvailableSize = actualSize - padding.Size();
 
     std::vector<UIComponent*> children = Children;
+    LONG                      space    = Space;
 
     std::vector<SIZE> childrenDesiredSizes;
 
-    std::ranges::for_each(children, [&childrenDesiredSizes](const UIComponent* child) {
+    std::ranges::for_each(children, [&childrenDesiredSizes, space](const UIComponent* child) {
         if (const HorizontalPanelSlot* slot = child->GetComponent<HorizontalPanelSlot>(); nullptr != slot)
         {
             const LONG line = slot->Line;
             if (childrenDesiredSizes.size() < static_cast<size_t>(line + 1L))
             {
                 childrenDesiredSizes.resize(line + 1L, SIZE{});
+            }
+            else
+            {
+                childrenDesiredSizes[line].cx += space;
             }
             const SIZE childDesiredSize = child->DesiredSize;
             childrenDesiredSizes[line].cx += childDesiredSize.cx;
@@ -155,7 +168,9 @@ SIZE HorizontalPanel::ArrangeOverride(const SIZE finalSize)
     std::vector<LONG> childrenDesiredWidthPerLine;
     childrenDesiredWidthPerLine.resize(childrenDesiredSizes.size(), 0);
 
-    std::ranges::for_each(children, [this, &childrenDesiredWidthPerLine, &alignPositionPerLine](UIComponent* child) {
+    LONG lineSpace = LineSpace;
+
+    std::ranges::for_each(children, [this, &childrenDesiredWidthPerLine, &alignPositionPerLine, space, lineSpace](UIComponent* child) {
         if (const HorizontalPanelSlot* slot = child->GetComponent<HorizontalPanelSlot>(); nullptr != slot)
         {
             const SIZE childAvailableSize = child->DesiredSize;
@@ -163,11 +178,12 @@ SIZE HorizontalPanel::ArrangeOverride(const SIZE finalSize)
             const POINT absolutePosition = AbsoluteChildPosition;
             POINT       alignPosition    = alignPositionPerLine[slot->Line];
             alignPosition.x += childrenDesiredWidthPerLine[slot->Line];
+            alignPosition.y += lineSpace * slot->Line;
             const POINT childPosition = absolutePosition + alignPosition;
 
             child->Arrange(childPosition, childAvailableSize);
 
-            childrenDesiredWidthPerLine[slot->Line] += childAvailableSize.cx;
+            childrenDesiredWidthPerLine[slot->Line] += childAvailableSize.cx + space;
         }
     });
 

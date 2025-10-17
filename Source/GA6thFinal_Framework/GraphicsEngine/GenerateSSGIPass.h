@@ -1,14 +1,15 @@
 ﻿#pragma once
 #include "RenderPass.h"
+
+class SSGITechnique;
 class GenerateSSGIPass : public RenderPass
 {
 public:
     GenerateSSGIPass() = default;
-    virtual ~GenerateSSGIPass();
+    virtual ~GenerateSSGIPass() = default;
 
 public:
-    void Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique,
-                    ID3D12GraphicsCommandList* commandList) override;
+    void Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList) override;
     void Begin(ID3D12GraphicsCommandList* commandList) override;
     void Draw(ID3D12GraphicsCommandList* commandList) override;
 
@@ -16,6 +17,6 @@ private:
     void InitShaderAnsPSO();
 
 private:
-    std::unique_ptr<class ShaderBuilder> _shader;
-    class SSGITechnique*                 _ssgiTech;
+    ComputeFX<GE::CS::GENERATE_SSGI> _fx;
+    SSGITechnique*                   _ssgiTech;
 };

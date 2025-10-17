@@ -474,6 +474,18 @@
     <ClInclude Include="Source\Engine\TimelineCore\Context\Audio\TimelineAudioEventContext.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Engine\TimelineCore\Context\Particle\TimelineParticleEventContext.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\TimelineCore\Context\Input\TimelineInputEventContext.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\GameCore\Component\UISFXNavigationComponent.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Engine\EngineCore\ImGuiDebuggerWindow.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\pch.cpp">
@@ -816,6 +828,18 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Source\Engine\TimelineCore\Context\Audio\TimelineAudioEventContext.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\GameCore\Component\UISFXNavigationComponent.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\TimelineCore\Context\Particle\TimelineParticleEventContext.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\TimelineCore\Context\Input\TimelineInputEventContext.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Engine\EngineCore\ImGuiDebuggerWindow.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

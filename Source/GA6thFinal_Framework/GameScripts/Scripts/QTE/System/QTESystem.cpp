@@ -8,6 +8,7 @@
 #include <TurnSystem/TurnActor/Character/CharacterBase.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include "Camera/UmCineMotion.h"
+#include "CombatUIManager/CombatUIManager.h"
 
 UMREAL_COMPONENT(QTESystem)
 
@@ -37,14 +38,6 @@ void QTESystem::Awake()
     {
         UmLogger.Log(LogLevel::LEVEL_ERROR, (const char*)u8"씬에 QTESystem이 2개 이상 존재하는지 확인해주세요.");
     }
-
-    if (QTEUIManager* uiManager = QTEUIManager::GetInstance(); uiManager)
-    {
-        uiManager->Refresh();
-        uiManager->SetUIAlpha(0.0f);
-        uiManager->SetBackgroundUIAlpha(0.0f);
-    }
-
 }
 
 void QTESystem::Start() 
@@ -54,24 +47,30 @@ void QTESystem::Start()
 
 void QTESystem::Update()
 {
-#ifdef _UMEDITOR
     if (IsQTEPlaying())
     {
-        if (ImGui::IsKeyPressed(ImGuiKey_X, false))
+#ifdef _UMEDITOR
+        if (ImGui::IsKeyPressed(ImGuiKey_LeftArrow, false))
         {
             PressedQTEButton(Input::ControllerTypes::Button::X);
         }
-        if (ImGui::IsKeyPressed(ImGuiKey_Y, false))
+        if (ImGui::IsKeyPressed(ImGuiKey_UpArrow, false))
         {
             PressedQTEButton(Input::ControllerTypes::Button::Y);
         }
-        if (ImGui::IsKeyPressed(ImGuiKey_B, false))
+        if (ImGui::IsKeyPressed(ImGuiKey_RightArrow, false))
         {
             PressedQTEButton(Input::ControllerTypes::Button::B);
         }
-    }
 #endif // _UMEDITOR
 
+        auto& [controller, button] = _nextControllerEvent;
+        if (controller)
+        {
+            PressedQTEButton(button);
+            controller = nullptr;
+        }
+    }
     if (true == _currQTEPlaying && false == _prevQTEPlaying)
     {
         ProcessQTEEnterEvent();
@@ -221,7 +220,7 @@ void QTESystem::StartQTE(Callback callback)
     if (weaponSystem)
     {
         auto& weapon = weaponSystem->GetCurrentWeaponStats();
-        auto  itr    = _weaponIDToTrackTable.find(weapon.WeaponID);
+        auto  itr = _weaponIDToTrackTable.find(weapon.WeaponID);
         if (itr != _weaponIDToTrackTable.end() && false == itr->second.empty())
         {
             auto& trackVector = itr->second;
@@ -231,6 +230,11 @@ void QTESystem::StartQTE(Callback callback)
                 _currentQTETrack = trackVector[index];
                 StartQTE(_currentQTETrack, callback);
             }
+        }
+        else
+        {
+            // 현재 무기에 매핑된 QTE 트랙이 없는 경우
+            StartQTE(&weapon, callback);
         }
     }
 }
@@ -244,20 +248,16 @@ void QTESystem::StartQTE(QTE::Track* qteTrack, Callback callback)
             (const char*)u8"QTE가 진행 중인 상태에서 QTE 시작 요청을 한번 더 했습니다. 다시 한번 확인해주세요.");
         return;
     }
+    ResetQTEState();
     _onQTEFinishCallback = callback;
-    _currQTEPlaying = true;
-    _qteFadeInEnd   = false;
-    _qteFadeOutEnd  = false;
-    PauseQTE(false);
-    ClearQueue();
 
+    bool result = false;
     if (qteTrack)
     {
         auto track = qteTrack->GetEventTrack().lock();
         if (track)
         {
             _qteTimer = track->GetMinFrame() - GetDelayFromQTEStart();
-
             // 유효한 노트 큐 생성
             auto& noteQueue = track->GetEventContextQueue();
             _noteAvailQueue.reserve(noteQueue.size());
@@ -271,10 +271,67 @@ void QTESystem::StartQTE(QTE::Track* qteTrack, Callback callback)
                     _overallResult.NoteResults.emplace_back(qteNote);
                 }
             }
+            result = true;
         }
     }
+    if (result)
+    {
+        ProcessQTEEnterEvent();
+    }
+    else
+    {
+        StopQTE();
+    }
+}
 
-    ProcessQTEEnterEvent();
+#include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
+void QTESystem::StartQTE(const WeaponStats* weapon, Callback callback) 
+{
+    if (_currQTEPlaying)
+    {
+        UmLogger.Log(
+            LogLevel::LEVEL_WARNING,
+            (const char*)u8"QTE가 진행 중인 상태에서 QTE 시작 요청을 한번 더 했습니다. 다시 한번 확인해주세요.");
+        return;
+    }
+    ResetQTEState();
+    _onQTEFinishCallback = callback;
+
+    bool result = false;
+    if (weapon)
+    {
+        int count = weapon->AttackCount;
+        _overallResult.NoteResults.resize(count);
+        _overallResult.PerfectCount = count;
+
+        Input::Controller::Button buttonArr[] = {Input::Controller::Button::X, Input::Controller::Button::Y,
+                                                 Input::Controller::Button::B};
+        std::vector<size_t> availableMonsters;
+        
+        auto enemies = Battle::GetTargetsFromFlags(Battle::ENEMY_TARGET_FLAG_ALL);
+        for (size_t i = 0; i < enemies.size(); ++i)
+        {
+            if (enemies[i] && enemies[i]->State != TurnActor::STATE::Dead)
+            {
+                availableMonsters.push_back(i);
+            }
+        }
+        for (size_t i = 0; i < count; ++i)
+        {
+            _overallResult.NoteResults[i].Result    = QTE::QTE_RESULT_PERFECT;
+            _overallResult.NoteResults[i].TimeDelta = 0.0f;
+
+            int randomIndex  = Random::Range(0, (int)availableMonsters.size() - 1);
+            size_t destIndex = availableMonsters[randomIndex % 3];
+            _overallResult.NoteResults[i].PressedButton = buttonArr[destIndex];
+        }
+
+    }
+}
+
+void QTESystem::StopQTE() 
+{
+    _currQTEPlaying = false;
 }
 
 void QTESystem::PauseQTE(bool pause) 
@@ -311,6 +368,16 @@ QTE::ResultType QTESystem::GetQTEResult(QTE::Note* note)
     return QTE::QTE_RESULT_NONE;
 }
 
+void QTESystem::ResetQTEState() 
+{
+    _onQTEFinishCallback = nullptr;
+    _currQTEPlaying      = true;
+    _qteFadeInEnd        = false;
+    _qteFadeOutEnd       = false;
+    PauseQTE(false);
+    ClearQueue();
+}
+
 void QTESystem::ClearTrack()
 {
     for (auto& [weaponID, trackList] : _weaponIDToTrackTable)
@@ -339,6 +406,7 @@ void QTESystem::UpdateQTETrack()
     {
         return;
     }
+    bool valid = false;
     if (_currentQTETrack)
     {
         auto track = _currentQTETrack->GetEventTrack().lock();
@@ -366,9 +434,16 @@ void QTESystem::UpdateQTETrack()
             }
             else
             {
-                _currQTEPlaying = false;
+                // 시간이 모두 경과했거나, 모든 노트를 처리한 경우 QTE 종료
+                StopQTE();
             }
+            valid = true;
         }
+    }
+
+    if (false == valid)
+    {
+        StopQTE();
     }
 }
 
@@ -406,6 +481,11 @@ void QTESystem::PressedQTEButton(Input::Controller::Button buttonType)
 {
     if (_currQTEPlaying)
     {
+        if (_currentNoteIndex >= _noteAvailQueue.size())
+        {
+            return;
+        }
+
         QTE::Note*       curNote = _noteAvailQueue[_currentNoteIndex];
         QTE::NoteResult& result  = _overallResult.NoteResults[_currentNoteIndex];
         ++_currentNoteIndex;
@@ -415,17 +495,30 @@ void QTESystem::PressedQTEButton(Input::Controller::Button buttonType)
         result.TimeDelta     = curNote ? _qteTimer - curNote->Time : 0.0f;
         result.PressedButton = buttonType;
 
+        auto& inputSystem = ESceneManager::Engine::GetInputSystem();
         switch (result.Result)
         {
             case QTE::QTE_RESULT_PERFECT:
+            {
                 ++_overallResult.PerfectCount;
+                UmAudio.Play("-21000");
+                inputSystem.Vibrate(PERFECT_VIBRATION);
                 break;
+            }
             case QTE::QTE_RESULT_NORMAL:
+            {
                 ++_overallResult.NormalCount;
+                UmAudio.Play("-21010");
+                inputSystem.Vibrate(NORMAL_VIBRATION);
                 break;
+            }
             case QTE::QTE_RESULT_MISS:
+            {
                 ++_overallResult.MissCount;
+                //UmAudio.Play("-21020");
+                inputSystem.Vibrate(MISS_VIBRATION);
                 break;
+            }
             default:
                 break;
         }
@@ -439,7 +532,7 @@ void QTESystem::PressedButtonX(const Input::Controller& controller)
     // Handle button X pressed
     if (CanPressQTEButton())
     {
-        PressedQTEButton(Input::ControllerTypes::Button::X);
+        _nextControllerEvent = {&controller, Input::ControllerTypes::Button::X};
     }
 }
 
@@ -448,7 +541,7 @@ void QTESystem::PressedButtonY(const Input::Controller& controller)
     // Handle button Y pressed
     if (CanPressQTEButton())
     {
-        PressedQTEButton(Input::ControllerTypes::Button::Y);
+        _nextControllerEvent = {&controller, Input::ControllerTypes::Button::Y};
     }
 }
 
@@ -457,7 +550,7 @@ void QTESystem::PressedButtonB(const Input::Controller& controller)
     // Handle button B pressed
     if (CanPressQTEButton())
     {
-        PressedQTEButton(Input::ControllerTypes::Button::B);
+        _nextControllerEvent = {&controller, Input::ControllerTypes::Button::B};
     }
 }
 
@@ -485,7 +578,10 @@ void QTESystem::ProcessQTEEnterEvent()
         }
     }
 
-    CombatUIActive(false);
+    if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        combatUIManager->SetActiveUI(false);
+    }
 }
 
 void QTESystem::ProcessQTENotePressedEvent(QTE::ResultType result)
@@ -530,12 +626,16 @@ void QTESystem::ProcessQTEExitEvent()
         Player* player = turnMode->GetPlayer();
         if (player)
         {
-            turnMode->ApplyActions(
-                [player, this](TurnAction& turnAction) { turnAction.OnPlayerQTEResult(*player, _overallResult); });
+            turnMode->ApplyActions([player, this](TurnAction& turnAction) {
+                turnAction.OnPlayerQTEResult(*player, _overallResult); 
+                });
         }
     }
 
-    CombatUIActive(true);
+    if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        combatUIManager->SetActiveUI(true);
+    }
 }
 
 void QTESystem::ProcessQTEFadeInEndEvent() 
@@ -555,33 +655,5 @@ void QTESystem::ProcessQTEFadeOutEndEvent()
     if (camera)
     {
         camera->StartRail(false);
-    }
-}
-
-void QTESystem::CombatUIActive(bool active) 
-{
-    if (auto turnQueue = GameObject::FindWithTag("Turn Queue Panel").lock())
-    {
-        turnQueue->ActiveSelf = active;
-    }
-
-    if (auto HUD = GameObject::FindWithTag("Character HUD Group").lock())
-    {
-        HUD->ActiveSelf = active;
-    }
-
-    if (auto revelationPanel = GameObject::FindWithTag("Revelations Panel").lock())
-    {
-        revelationPanel->ActiveSelf = active;
-    }
-
-    if (auto weaponPanel = GameObject::FindWithTag("Weapon Panel").lock())
-    {
-        weaponPanel->ActiveSelf = active;
-    }
-
-    if (auto accessoriesPanel = GameObject::FindWithTag("Accessories Panel").lock())
-    {
-        accessoriesPanel->ActiveSelf = active;
     }
 }

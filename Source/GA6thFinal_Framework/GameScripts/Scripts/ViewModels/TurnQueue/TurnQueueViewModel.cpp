@@ -16,46 +16,42 @@ struct GetPortraitGuid
         File::Guid portraitGuid;
         if (ExcelDataSystem* dataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
         {
-            if (std::unique_ptr<ExcelDataBase> dataBase = dataSystem->FindExcelDataBase(u8"에셋 테이블"))
+            if (std::unique_ptr<ExcelDataBase> dataBase = dataSystem->FindExcelDataBase(u8"전투"))
             {
+                constexpr std::u8string_view findIndexColumnKey = u8"Description";
+                constexpr std::u8string_view findDataColumnKey  = u8"ID";
                 int assetID = 0;
+                size_t rowIndex = ExcelDataBase::FIND_INDEX_FAIL;
                 switch (enemyType)
                 {
                     case EnemyType::MONSTER_A: 
                     {
-                        size_t rowIndex = dataBase->FindRowIndex(u8"몬스터A_턴", u8"Note");
-                        if (rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
-                        {
-                            std::string_view data = dataBase->FindData(rowIndex, u8"ID");
-                            assetID               = std::stoi(data.data());
-                        }
+                        rowIndex = dataBase->FindRowIndex(u8"몬스터A_턴", findIndexColumnKey);
                         break;
                     }
                     case EnemyType::MONSTER_B: 
                     {
-                        size_t rowIndex = dataBase->FindRowIndex(u8"몬스터B_턴", u8"Note");
-                        if (rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
-                        {
-                            std::string_view data = dataBase->FindData(rowIndex, u8"ID");
-                            assetID               = std::stoi(data.data());
-                        }
+                        rowIndex = dataBase->FindRowIndex(u8"몬스터B_턴", findIndexColumnKey);
                         break;
                     }
                     case EnemyType::MONSTER_C: 
                     {
-                        size_t rowIndex = dataBase->FindRowIndex(u8"몬스터C_턴", u8"Note");
-                        if (rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
-                        {
-                            std::string_view data = dataBase->FindData(rowIndex, u8"ID");
-                            assetID               = std::stoi(data.data());
-                        }
+                        rowIndex = dataBase->FindRowIndex(u8"몬스터C_턴", findIndexColumnKey);
                         break;
                     }            
                 }
-                portraitGuid = UmFileSystem.GetGuidFromAssetID(assetID);
+
+                if (rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
+                {
+                    std::string_view data = dataBase->FindData(rowIndex, findDataColumnKey);
+                    if (data != ExcelDataBase::FIND_STR_FAIL)
+                    {
+                        assetID = std::stoi(data.data());
+                        portraitGuid = UmFileSystem.GetGuidFromAssetID(assetID);
+                    }
+                }
             }
         }
-
         return portraitGuid;
     }
 
@@ -94,6 +90,7 @@ std::vector<TurnUIData> TurnQueueViewModel::Convert(const std::deque<std::pair<i
 {
     _turnQueueData.clear();
 
+    std::vector<Enemy*> enemys = Battle::GetTargetsFromFlags(Battle::ENEMY_TARGET_FLAG_ALL);
     bool isFocus = true;
     for (const auto & slotAndActor : value)
     {
@@ -105,7 +102,7 @@ std::vector<TurnUIData> TurnQueueViewModel::Convert(const std::deque<std::pair<i
             int           weaponId     = stats.WeaponID;
             File::Guid    frameGuid    = isFocus ? UmFileSystem.GetGuidFromAssetID(110054) : UmFileSystem.GetGuidFromAssetID(110052);
             File::Guid portraitGuid    = GetPortraitGuid()(weaponId);
-            TurnUIData    data{.ActorPortrait = portraitGuid, .Frame = frameGuid};
+            TurnUIData    data{.ActorPortrait = portraitGuid, .Frame = frameGuid, .Type = TurnUIData::ActorType::PLAYER };
             _turnQueueData.push_back(data);
         }
         else
@@ -113,11 +110,35 @@ std::vector<TurnUIData> TurnQueueViewModel::Convert(const std::deque<std::pair<i
             TurnActor* actor = slotAndActor.second;
             if (const Enemy*     enemy = dynamic_cast<Enemy*>(actor); nullptr != enemy)
             {
-
                 const EnemyType enemyType = enemy->Type;
                 const File::Guid portraitGuid = GetPortraitGuid()(enemyType);
                 const File::Guid frameGuid    = isFocus ? UmFileSystem.GetGuidFromAssetID(110055) : UmFileSystem.GetGuidFromAssetID(110053);
-                TurnUIData    data{.ActorPortrait = portraitGuid, .Frame = frameGuid};
+                TurnUIData data;
+                data.ActorPortrait = portraitGuid;
+                data.Frame         = frameGuid;
+                data.Type          = TurnUIData::ActorType::PLAYER;
+                for (size_t i = 0; i < enemys.size(); ++i)
+                {
+                    if (enemys[i] == enemy)
+                    {
+                        switch (i)
+                        {
+                        case 0:
+                            data.Type = TurnUIData::ActorType::ENEMY_LEFT;
+                            break;
+                        case 1:
+                            data.Type = TurnUIData::ActorType::ENEMY_MIDDLE;
+                            break;
+                        case 2:
+                            data.Type = TurnUIData::ActorType::ENEMY_RIGHT;
+                            break;
+                        default:
+                            data.Type = TurnUIData::ActorType::PLAYER;
+                            break;
+                        }
+                        break;
+                    }
+                }                   
                 _turnQueueData.push_back(data);
             }
             else

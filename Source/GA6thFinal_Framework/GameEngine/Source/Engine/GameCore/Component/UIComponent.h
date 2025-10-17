@@ -222,6 +222,15 @@ public:
     }
     PROPERTY(AbsoluteCenterPoint)
 
+    GETTER_ONLY(POINT, CenterPoint)
+    {
+        const SIZE  size  = Size;
+        return POINT{
+        .x = size.cx / 2,
+        .y = size.cy / 2};
+    }
+    PROPERTY(CenterPoint)
+
     GETTER_ONLY(RECT, AbsoluteRect)
     {
         const POINT absolutePosition = AbsolutePosition;
@@ -367,6 +376,14 @@ struct DrawDebug
     /// <param name="rectB">두 번째 POINT와 관련된 RECT입니다.</param>
     /// <returns>처리 결과로 반환되는 두 개의 POINT를 담은 std::pair입니다.</returns>
     std::optional<std::pair<POINT, POINT>> operator()(POINT pointA, POINT pointB, RECT rectA, RECT rectB) const;
+
+    /// <summary>
+    /// 원점과 반지름, 색상을 사용하여 원 그리기를 수행하는 함수 호출 연산자입니다.
+    /// </summary>
+    /// <param name="origin">기준이 되는 POINT 구조체입니다.</param>
+    /// <param name="radius">원의 반지름을 나타내는 실수 값입니다.</param>
+    /// <param name="color">색상을 나타내는 FXMVECTOR 타입의 벡터입니다.</param>
+    void operator()(POINT origin, float radius, FXMVECTOR color) const;
 };
 
 // TODO 지울지 고민

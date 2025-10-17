@@ -6,6 +6,15 @@ struct TurnUIData
 {
     File::Guid ActorPortrait;
     File::Guid Frame;
+
+    enum class ActorType
+    {
+        PLAYER,
+        ENEMY_LEFT,
+        ENEMY_RIGHT,
+        ENEMY_MIDDLE
+    };
+    ActorType Type;
 };
 
 class TurnQueueViewModel final : public MVVM::ViewModel<std::deque<std::pair<int, TurnActor*>>, std::vector<TurnUIData>>

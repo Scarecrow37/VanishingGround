@@ -13,6 +13,7 @@ class DebugDrawCore
         SPOT_LIGHT,
         QUAD,
         LINE,
+        CIRCLE,
     };
 
     struct DebugRing
@@ -82,8 +83,18 @@ class DebugDrawCore
         }
     };
 
+    struct DebugCircle
+    {
+        XMFLOAT3 Origin;
+        float    Radius;
+        DebugCircle(FXMVECTOR origin, const float radius) : Radius(radius)
+        {
+            XMStoreFloat3(&Origin, origin);
+        }
+    };
+
     using DrawShape = std::variant<BoundingSphere, BoundingBox, BoundingOrientedBox, BoundingFrustum, DebugRing,
-                                   DebugRay, DebugSpotLight, DebugQuad, DebugLine>;
+                                   DebugRay, DebugSpotLight, DebugQuad, DebugLine, DebugCircle>;
     struct DrawData
     {
         ShapeType Type;
@@ -116,6 +127,8 @@ public:
     void XM_CALLCONV DrawQuad(std::string_view sceneName, FXMVECTOR pointA, FXMVECTOR pointB, FXMVECTOR pointC,
                               GXMVECTOR pointD, HXMVECTOR color = DirectX::Colors::White);
     void XM_CALLCONV DrawLine(std::string_view sceneName, FXMVECTOR pointA, FXMVECTOR pointB, FXMVECTOR color = DirectX::Colors::White);
+    void XM_CALLCONV DrawCircle(std::string_view sceneName, FXMVECTOR origin, float radius,
+                                FXMVECTOR color = DirectX::Colors::White);
 
 public:
     void Initialize();

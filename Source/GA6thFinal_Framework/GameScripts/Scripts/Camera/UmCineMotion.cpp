@@ -5,6 +5,12 @@ UMREAL_COMPONENT(UmCineMotion)
 UmCineMotion::UmCineMotion()  = default;
 UmCineMotion::~UmCineMotion() = default;
 
+void UmCineMotion::Start() 
+{
+    transform->Position = _posTethers[0];
+    transform->Rotation = _rotTethers[0];
+}
+
 void UmCineMotion::OnDrawDebug()
 {
     CameraComponent::OnDrawDebug();

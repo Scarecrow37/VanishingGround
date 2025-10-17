@@ -3,7 +3,7 @@
 #include "UI2DPass_OIT.h"
 #include "UI25DPass_OIT.h"
 #include "UI3DPass_OIT.h"
-//#include "TextDrawPass.h"
+#include "TextDrawPass.h"
 #include "SDFTextDrawPass.h"
 #include "SpriteRenderer.h"
 #include "SDFTextRenderer.h"
@@ -24,7 +24,7 @@ void UITechnique_OIT::Initialize(ID3D12GraphicsCommandList* commandList)
     _depthStencilView->Initialize(_ownerScene->_depthStencilView->GetDesc());
 
     const auto&    resolution   = Global::device->GetResolution();
-    constexpr UINT DEPTH        = 4;
+    constexpr UINT DEPTH        = 6;
     const UINT     MAX_UI_NODES = resolution.cx * resolution.cy * DEPTH;
 
     _headBuffer = MakeSharedResource<UnorderedAccessView>();
@@ -57,7 +57,7 @@ void UITechnique_OIT::Initialize(ID3D12GraphicsCommandList* commandList)
     pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));*/
 
-    pass = std::make_unique<SDFTextDrawPass>();
+    pass = std::make_unique<SDFTextDrawPass>(&_instanceIDs[MODE_TEXT]);
     pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));
 
@@ -65,9 +65,9 @@ void UITechnique_OIT::Initialize(ID3D12GraphicsCommandList* commandList)
     pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));
 
-    /*pass = std::make_unique<TextDrawPass>();
+    pass = std::make_unique<TextDrawPass>();
     pass->Initialize(_ownerScene, this, commandList);
-    AddRenderPass(std::move(pass));*/
+    AddRenderPass(std::move(pass));
 }
 
 void UITechnique_OIT::Execute(ID3D12GraphicsCommandList* commandList)
@@ -77,7 +77,7 @@ void UITechnique_OIT::Execute(ID3D12GraphicsCommandList* commandList)
         data.clear();
 
     UINT index = 0;
-    for (auto& [isDestroy, component] : _ownerScene->_uiRenderQueue)
+    for (auto& component : _ownerScene->_uiRenderQueue)
     {
         if (!component->IsActive())
             continue;

@@ -1,23 +1,18 @@
 ﻿#include "pch.h"
 #include "GenerateSSGIPass.h"
-#include "ShaderBuilder.h"
 #include "SSGITechnique.h"
 
-GenerateSSGIPass::~GenerateSSGIPass() {}
-
-void GenerateSSGIPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique,
-                                  ID3D12GraphicsCommandList* commandList)
+void GenerateSSGIPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
     RenderPass::Initialize(ownerScene, ownerTechnique, commandList);
     InitShaderAnsPSO();
     _ssgiTech = dynamic_cast<SSGITechnique*>(ownerTechnique);
 }
 
-
 void GenerateSSGIPass::Begin(ID3D12GraphicsCommandList* commandList) 
 {
     commandList->SetPipelineState(_pipelineState.Get());
-    commandList->SetComputeRootSignature(_shader->GetRootSignature());
+    commandList->SetComputeRootSignature(_fx.GetRootSignature());
 }
 
 void GenerateSSGIPass::Draw(ID3D12GraphicsCommandList* commandList)
@@ -29,34 +24,21 @@ void GenerateSSGIPass::Draw(ID3D12GraphicsCommandList* commandList)
     const auto&               gbuffers     = Global::multiRenderTargetManager->GetRenderTargetGroup("G-Buffer");
     SIZE                      res          = Global::device->GetResolution();
     SIZE                      halfRes      = SIZE((int)(res.cx / 2.f), (int)(res.cy / 2.f));
-    commandList->SetComputeRootConstantBufferView(_shader->GetRootParameterIndex("ssgiData"), giData);
-    commandList->SetComputeRootConstantBufferView(_shader->GetRootParameterIndex("cameraData"), cameraData);
-    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("screenDepth"),
-                                               gbuffers[GBuffer::DEPTH]->GetSRVHandle());
-    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("screenNormal"),
-                                               gbuffers[GBuffer::NORMAL]->GetSRVHandle());
-    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("screenAlbedo"),
-                                               gbuffers[GBuffer::BASECOLOR]->GetSRVHandle());
-    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("screenColor"),
-                                               _meshRenderTarget->GetSRVHandle());
-    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("SSGI_Result"),
-                                               currGITex->GetUAVHandle());
+
+    commandList->SetComputeRootConstantBufferView(_fx.GetRootParameterIndex("ssgiData"), giData);
+    commandList->SetComputeRootConstantBufferView(_fx.GetRootParameterIndex("cameraData"), cameraData);
+    commandList->SetComputeRootDescriptorTable(_fx.GetRootParameterIndex("screenDepth"), gbuffers[GBuffer::DEPTH]->GetSRVHandle());
+    commandList->SetComputeRootDescriptorTable(_fx.GetRootParameterIndex("screenNormal"), gbuffers[GBuffer::NORMAL]->GetSRVHandle());
+    commandList->SetComputeRootDescriptorTable(_fx.GetRootParameterIndex("screenAlbedo"), gbuffers[GBuffer::BASECOLOR]->GetSRVHandle());
+    commandList->SetComputeRootDescriptorTable(_fx.GetRootParameterIndex("screenORM"), gbuffers[GBuffer::ORM]->GetSRVHandle());
+    commandList->SetComputeRootDescriptorTable(_fx.GetRootParameterIndex("screenColor"), _meshRenderTarget->GetSRVHandle());
+    commandList->SetComputeRootDescriptorTable(_fx.GetRootParameterIndex("SSGI_Result"), currGITex->GetUAVHandle());
     commandList->Dispatch((halfRes.cx + 15) / 16, (halfRes.cy + 15) / 16, 1);
 }
 
 void GenerateSSGIPass::InitShaderAnsPSO() 
 {
-    _shader = std::make_unique<ShaderBuilder>();
-    _shader->BeginBuild();
-    _shader->SetShader(L"../Shaders/cs_generate_ssgi.hlsl", ShaderBuilder::Type::CS);
-    _shader->EndBuild();
-    
-    D3D12_COMPUTE_PIPELINE_STATE_DESC psoDesc{};
-    psoDesc.pRootSignature = _shader->GetRootSignature();
-    psoDesc.CS             = _shader->GetShaderByteCode(ShaderBuilder::Type::CS);
-    psoDesc.Flags          = D3D12_PIPELINE_STATE_FLAG_NONE;
-
-    HRESULT hr =
-        Global::device->GetDevice()->CreateComputePipelineState(&psoDesc, IID_PPV_ARGS(_pipelineState.GetAddressOf()));
-    FAILED_CHECK_MESSAGE(hr, L"GenerateSSGIPass::InitShaderAndPSO Failed");
+    ComputePipelineStateStream pss;
+    _fx.SetPipelineStateStream(pss);
+    _pipelineState = Global::pipelineStateManager->GetPipelineState(pss);
 }

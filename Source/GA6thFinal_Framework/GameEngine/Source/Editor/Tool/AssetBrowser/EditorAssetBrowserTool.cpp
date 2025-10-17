@@ -2009,14 +2009,6 @@ void EditorAssetBrowserTool::InspectorDrawer::OnInspectorStay()
                 else
                     ImGui::Text("%.0f %s", size, units[unitIndex]);
             }
-
-            if (context)
-            {
-                File::MetaData& meta = context->GetMeta();
-                ImGuiHelper::TextWithVerticalSeparator("File Reference Count", offsetX);
-                size_t refCount = UmFileSystem.GetGuidRefCount(meta.GetGuid());
-                ImGui::Text("%lld", refCount);
-            }
         }
     }
     ImGui::Separator();

@@ -44,6 +44,7 @@ public:
 public:
     void ResetEnvironmentSkyBox();
     void ResetIBLSkyBox();
+    void ClearRenderQueue();
 
 public:
     template <typename T>
@@ -78,12 +79,12 @@ public:
     std::string _meshRenderTargetName;
     std::string _finalTargetName;
 
-    std::vector<std::unique_ptr<RenderTechnique>>                   _techniques;
-    std::vector<std::pair<std::unique_ptr<bool>, MeshRenderer*>>    _meshRenderQueue;
-    std::vector<std::pair<std::unique_ptr<bool>, SpriteRenderer*>>  _uiRenderQueue;
-    std::vector<std::pair<std::unique_ptr<bool>, TextRenderer*>>    _textRenderQueue;
-    std::vector<std::pair<std::unique_ptr<bool>, SDFTextRenderer*>> _sdfTextRenderQueue;
-    std::vector<MeshInfo>                                           _activeMeshes[MESH_TYPE_END];
+    std::vector<std::unique_ptr<RenderTechnique>> _techniques;
+    std::vector<MeshRenderer*>                    _meshRenderQueue;
+    std::vector<SpriteRenderer*>                  _uiRenderQueue;
+    std::vector<TextRenderer*>                    _textRenderQueue;
+    std::vector<SDFTextRenderer*>                 _sdfTextRenderQueue;
+    std::vector<MeshInfo>                         _activeMeshes[MESH_TYPE_END];
 
     CommandSet _commandSet;
 
@@ -94,6 +95,7 @@ public:
     std::vector<BoneMatrices>                   _boneMatrices;
     std::vector<Matrix>                         _uiMatrices;
     std::vector<UIMaterial>                     _uiMaterials;
+    std::vector<Matrix>                         _textMatrices;
     std::vector<MeshInstanceID>                 _staticMeshInstanceIDs;
     std::vector<MeshInstanceID>                 _skeletalMeshInstanceIDs;
     std::shared_ptr<Camera>                     _camera;

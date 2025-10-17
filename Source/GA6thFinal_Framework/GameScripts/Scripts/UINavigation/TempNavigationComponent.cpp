@@ -5,16 +5,16 @@
 
 TempNavigationComponent::TempNavigationComponent() = default;
 
-void TempNavigationComponent::FocusIn() 
+void TempNavigationComponent::FocusIn(const FocusCallType callType) 
 {
-    UINavigationComponent::FocusIn();
+    Base::FocusIn(callType);
 
     UmLogger.Log(LogLevel::LEVEL_INFO, "Focus In");
 }
 
-void TempNavigationComponent::FocusOut()
+void TempNavigationComponent::FocusOut(const FocusCallType callType)
 {
-    UINavigationComponent::FocusOut();
+    UINavigationComponent::FocusOut(callType);
 
     UmLogger.Log(LogLevel::LEVEL_INFO, "Focus Out");
 }

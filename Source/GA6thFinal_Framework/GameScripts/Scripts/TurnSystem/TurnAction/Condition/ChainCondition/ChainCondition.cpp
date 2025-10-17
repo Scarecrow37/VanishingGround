@@ -43,7 +43,8 @@ bool ChainCondition::Evaluate()
 
     for (const auto& target : targetList)
     {
-        if (false == CheckOperation(target->ChainCount))
+        int targetChainCount = target->ChainCount;
+        if (false == CheckOperation(targetChainCount))
         {
             return false;
         }

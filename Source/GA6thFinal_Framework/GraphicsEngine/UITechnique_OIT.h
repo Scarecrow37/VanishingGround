@@ -8,6 +8,7 @@ class UITechnique_OIT : public RenderTechnique
         MODE_3D,
         MODE_25D,
         MODE_2D,
+        MODE_TEXT,
         TYPE_END
     };
     struct OITNode

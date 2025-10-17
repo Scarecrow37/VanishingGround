@@ -4,12 +4,17 @@
 #include "ItemDropSystem/ItemDropSystem.h"
 #include "RevelationSystem/RevelationSystem.h"
 #include "ExcelDataSystem/ExcelDataSystem.h"
+#include "ItemDropSystem/UI/ItemInfoUIManager.h"
+#include "ItemDropSystem/UINavi/RestartStageNavi.h"
+#include "ItemDropSystem/UINavi/ArtifactButtonNavi.h"
+#include "ItemDropSystem/UI/WeaponChangeUIManager.h"
+#include "ItemDropSystem/UI/EraseRevelationUIManager.h"
 
 UMREAL_COMPONENT(ItemDropUIRootManager)
 
 ItemDropUIRootManager::ItemDropUIRootManager()
 {
-    
+    _lastInputDir = InputDir::IDLE;
 }
 
 ItemDropUIRootManager::~ItemDropUIRootManager()
@@ -17,176 +22,108 @@ ItemDropUIRootManager::~ItemDropUIRootManager()
   
 }
 
-int ItemDropUIRootManager::GetArtifactCategoryAssetID(ArtifactDropType artifactDropType)
+void ItemDropUIRootManager::AutoFocus(bool checkInputDir)
 {
-    int id = 0;
-    size_t categoryIndex = static_cast<size_t>(artifactDropType);
-    if (categoryIndex < ReflectFields->ArtifactsCategoryAssetID.size())
+    if (ArtifactUIManager* artifactUI = ArtifactUI)
     {
-        id = ReflectFields->ArtifactsCategoryAssetID[categoryIndex];
-    }
-    return id;
-}
-
-int ItemDropUIRootManager::GetArtifactIconID(DropItemInfo itemInfo)
-{
-    if (ExcelDataSystem* excelDataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
-    {
-        std::unique_ptr<ExcelDataBase> dataBase;
-        switch (itemInfo.Category)
+        if (false == artifactUI->IsObtainActive())
         {
-        case ArtifactDropType::SWORD:
-        case ArtifactDropType::DAGGER:
-        case ArtifactDropType::WARHAMMER:
-            dataBase = excelDataSystem->FindExcelDataBase(u8"무기");
-            break;
-        case ArtifactDropType::ACCESSORY:
-            dataBase = excelDataSystem->FindExcelDataBase(u8"장신구");
-            break;
-        case ArtifactDropType::REVELATION:
-            dataBase = excelDataSystem->FindExcelDataBase(u8"계시");
-            break;
-        case ArtifactDropType::ERASE_REVELATION:
-            break;
-        case ArtifactDropType::Consumable:
-            dataBase = excelDataSystem->FindExcelDataBase(u8"소모품");
-            break;
-        default:
-            return 0;
-        }
-
-        if (dataBase)
-        {
-            const std::string& name = itemInfo.Name;
-            std::u8string_view u8Name = (const char8_t*)name.data();
-            size_t rowIndex = dataBase->FindRowIndex(u8Name, u8"Name");
-            if (rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
+            size_t startIndex = ArtifactButtonNavi::GetLastFocusIndex();
+            bool   revers     = false;
+            // 입력 체크에 따른 보정
+            if (checkInputDir)
             {
-                std::string_view id = dataBase->FindData(rowIndex, u8"Big Icon ID");
-                if (id != ExcelDataBase::FIND_STR_FAIL)
-                {
-                    return std::stoi(id.data());
-                }
-            }
-        }
-    }
+                constexpr size_t horizontalDamp = 2;
+                constexpr size_t verticalDamp   = 1;
 
-    auto GetRevelationDefaultIcon = [](const DropItemInfo& info) -> int 
-    {
-        if (RevelationSystem* system = SingletonComponent<RevelationSystem>::GetInstance())
-        {
-            RevelationElement* element = system->FindElement(info.Name);
-            if (element)
-            {
-                RevelationGrade grade = element->Grade;
-                switch (grade)
+                switch (_lastInputDir)
                 {
-                case RevelationGrade::COMMON:
-                    return -202000;
-                case RevelationGrade::RARE:
-                    return -202001;
-                case RevelationGrade::LEGENDARY:
-                    return -202002;
-                case RevelationGrade::EXTINCTION:
-                    return 0;
+                case ItemDropUIRootManager::InputDir::LEFT:
+                    startIndex = horizontalDamp <= startIndex ? startIndex - horizontalDamp : 0;
+                    revers     = true;
+                    break;
+                case ItemDropUIRootManager::InputDir::RIGHT:
+                    startIndex = startIndex + horizontalDamp;
+                    break;
+                case ItemDropUIRootManager::InputDir::UP:
+                    startIndex = verticalDamp <= startIndex ? startIndex - verticalDamp : 0;
+                    revers     = true;
+                    break;
+                case ItemDropUIRootManager::InputDir::DOWN:
+                    startIndex = startIndex + verticalDamp;
+                    break;
+                case ItemDropUIRootManager::InputDir::IDLE:
                 default:
                     break;
                 }
+                _lastInputDir = ItemDropUIRootManager::InputDir::IDLE;
+            }
+            startIndex = std::min(startIndex, ARTIFACT_DROP_COUNT);
+
+            // 포커스 가능한 UI로 설정
+            if (false == revers)
+            {
+                for (size_t i = startIndex; i < ARTIFACT_DROP_COUNT; ++i)
+                {
+                    if (artifactUI->FocusNavi(i))
+                    {
+                        _isFocusArtifactNavi = true;
+                        return;
+                    }
+                }
+            }
+            else
+            {
+                size_t i = startIndex;
+                while (i < ARTIFACT_DROP_COUNT)
+                {
+                    if (artifactUI->FocusNavi(i))
+                    {
+                        _isFocusArtifactNavi = true;
+                        return;
+                    }
+                    if (i == 0)
+                    {
+                        break;
+                    }
+                    --i;
+                }
             }
         }
-        return 0;
-    };
+    }
 
-    switch (itemInfo.Category)
+    //없으면 RestartButton으로 포커스 설정
+    if (auto restartNavi = _restartNavi.lock())
     {
-    case ArtifactDropType::DAGGER:
-        return -201000;
-    case ArtifactDropType::WARHAMMER:
-        return -201001;
-    case ArtifactDropType::SWORD:
-        return -201002;
-    case ArtifactDropType::ACCESSORY:
-        return DropItemInfo::GetArtifactCategoryAssetID(itemInfo.Category);
-    case ArtifactDropType::REVELATION:
-        return GetRevelationDefaultIcon(itemInfo);
-    case ArtifactDropType::ERASE_REVELATION:
-        return DropItemInfo::GetArtifactCategoryAssetID(itemInfo.Category);
-    default:
-        return 0;
+        restartNavi->Focus();
+        ArtifactButtonNavi::LastFocusIndex = ARTIFACT_DROP_COUNT + 1;
+        _isFocusArtifactNavi               = false;
     }
 }
 
 void ItemDropUIRootManager::DeserializedReflectEvent()
 {
-    ReflectFields->ArtifactsCategoryAssetID.resize(rfl::get_enumerator_array<ArtifactDropType>().size());
+    
 }
 
 void ItemDropUIRootManager::ImGuiDrawPropertysEvent()
 {
-    ImGuiDrawArtifactUIAssetSetting();    
-}
-
-void ItemDropUIRootManager::ImGuiDrawArtifactUIAssetSetting() 
-{
-    if (ImGui::TreeNode("Artifact UI Setting"))
+    auto CheckWeakPtrText = [](const auto& weakPtr) 
     {
-        static std::string artifactsUIFrameAssetGuidBuff;
-        artifactsUIFrameAssetGuidBuff = ArtifactsUIFrameAsset;
-        artifactsUIFrameAssetGuidBuff = std::filesystem::path(artifactsUIFrameAssetGuidBuff).filename().string();
-        ImGui::InputText("Artifacts UI Frame Asset", &artifactsUIFrameAssetGuidBuff, ImGuiInputTextFlags_ReadOnly);
-        if (ImGui::BeginDragDropTarget())
+        if (auto ptr = weakPtr.lock())
         {
-            if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
-            {
-                DragDropAsset::Data* data      = static_cast<DragDropAsset::Data*>(payLoad->Data);
-                File::Path           path      = data->GetPath();
-                const auto           extension = path.extension();
-                if (extension == L".png" || extension == L".dds")
-                {
-                    ReflectFields->ArtifactsUIFrameAssetGuid = data->GetGuid().string();
-                }
-            }
-            ImGui::EndDragDropTarget();
+            ImGui::Text("ArtifactUIManager valid");
         }
-        ImGuiHelper::HoveredToolTip(u8"유물 드랍 프레임 UI 에셋 경로입니다.");
+        else
+        {
+            ImGui::Text("ArtifactUIManager nullptr");
+        }
+    };
 
-        if (ImGui::TreeNodeEx("Artifact Category Asset Setting", ImGuiTreeNodeFlags_DefaultOpen))   
-        {
-            ImGuiHelper::HoveredToolTip(u8"유물 카테고리 UI 에셋 ID 입니다.");
-            int i = 0;
-            for (auto& id : ReflectFields->ArtifactsCategoryAssetID)
-            {
-                constexpr auto     category  = rfl::get_enumerator_array<ArtifactDropType>();
-                static std::string inputBuff = STR_NULL;
-                inputBuff = UmFileSystem.GetPathFromAssetID(id).string();
-                if (inputBuff.empty())
-                {
-                    inputBuff = STR_NULL;
-                }              
-                auto& [str, value] = category[i];
-                ImGui::DragInt(str.data(), &id);
-                if (ImGui::BeginDragDropTarget())
-                {
-                    if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
-                    {
-                        DragDropAsset::Data* data      = static_cast<DragDropAsset::Data*>(payLoad->Data);
-                        File::Path           path      = data->GetPath();
-                        const auto           extension = path.extension();
-                        if (extension == L".png" || extension == L".dds")
-                        {
-                            if (int assetID = UmFileSystem.GetAssetIDFromPath(path); 0 != assetID)
-                            {
-                                id = assetID;
-                            }
-                        }
-                    }
-                    ImGui::EndDragDropTarget();
-                }
-                ImGuiHelper::HoveredToolTip(inputBuff);
-                ++i;
-            }
-            ImGui::TreePop();
-        }
+    if (ImGui::TreeNode("Debug"))
+    {
+        CheckWeakPtrText(_artifactUIManager); 
+        CheckWeakPtrText(_itemInfoUIManager);
         ImGui::TreePop();
     }
 }
@@ -202,10 +139,15 @@ void ItemDropUIRootManager::Reset()
 
 void ItemDropUIRootManager::Awake()
 {
+    Base::Awake();
     if (_singletonComponent.TrySingleTon())
     {
         gameObject->AddTag(ItemDropUIRootManager::TAG);
-        Base::Awake();
+        BindInputAction(ControllerButton::DPAD_LEFT, Action::PRESSED, this, &ItemDropUIRootManager::OnDpadLeft);
+        BindInputAction(ControllerButton::DPAD_RIGHT, Action::PRESSED, this, &ItemDropUIRootManager::OnDpadRight);
+        BindInputAction(ControllerButton::DPAD_UP, Action::PRESSED, this, &ItemDropUIRootManager::OnDpadUp);
+        BindInputAction(ControllerButton::DPAD_DOWN, Action::PRESSED, this, &ItemDropUIRootManager::OnDpadDown);
+        BindInputAction(ControllerButton::LEFT_THUMB_STICK, Action::PRESSED, this, &ItemDropUIRootManager::OnLeftTumbStickDown);
     }
 }
 
@@ -213,7 +155,148 @@ void ItemDropUIRootManager::Start()
 {
     if (_singletonComponent.IsSingleTon())
     {
+        if (auto artifactUI = GameObject::FindWithTag(ArtifactUIManager::TAG).lock())
+        {
+            if (ArtifactUIManager* component = artifactUI->GetComponent<ArtifactUIManager>())
+            {
+                auto weakComponent = component->GetWeakPtr();
+                _artifactUIManager = std::static_pointer_cast<ArtifactUIManager>(weakComponent.lock());
+            }
+        }
+        if (auto itemInfoUI = GameObject::FindWithTag(ItemInfoUIManager::TAG).lock())
+        {
+            if (ItemInfoUIManager* component = itemInfoUI->GetComponent<ItemInfoUIManager>())
+            {
+                auto weakComponent = component->GetWeakPtr();
+                _itemInfoUIManager = std::static_pointer_cast<ItemInfoUIManager>(weakComponent.lock());
+            }
+        }
+        if (auto weaponChangeUI = GameObject::FindWithTag(WeaponChangeUIManager::TAG).lock())
+        {
+            if (WeaponChangeUIManager* component = weaponChangeUI->GetComponent<WeaponChangeUIManager>())
+            {
+                auto weakComponent = component->GetWeakPtr();
+                _weaponChangeUIManager = std::static_pointer_cast<WeaponChangeUIManager>(weakComponent.lock());
+            }
+        }
+        if (auto eraseRevelationObject = GameObject::FindWithTag(EraseRevelationUIManager::TAG).lock())
+        {
+            if (EraseRevelationUIManager* component = eraseRevelationObject->GetComponent<EraseRevelationUIManager>())
+            {
+                auto weakComponent = component->GetWeakPtr();
+                _eraseRevelationUIManager = std::static_pointer_cast<EraseRevelationUIManager>(weakComponent.lock());
+            }
+        }
+        if (auto restartButtonObject = GameObject::FindWithTag(RestartStageNavi::TAG).lock())
+        {
+            if (auto navi = restartButtonObject->GetComponent<RestartStageNavi>())
+            {
+                auto component = navi->GetWeakPtr().lock();
+                _restartNavi   = std::static_pointer_cast<RestartStageNavi>(component);
+            }
+        }
         gameObject->ActiveSelf = false;
+    }
+}
+
+void ItemDropUIRootManager::Update() 
+{
+    UpdateAutoFocus();
+}
+
+void ItemDropUIRootManager::LateUpdate() 
+{
+    Base::LateUpdate();
+    _lastInputDir = InputDir::IDLE;
+}
+
+void ItemDropUIRootManager::UpdateAutoFocus() 
+{
+    if (_isFocusInput)
+    {
+        WeaponChangeUIManager*    weaponChaingUI    = WeaponChangeUI;
+        EraseRevelationUIManager* eraseRevelationUI = EraseRevelationUI;
+        bool                      isFocus           = true;
+        if (weaponChaingUI)
+        {
+            isFocus &= weaponChaingUI->gameObject->ActiveInHierarchy == false;
+        }
+        if (eraseRevelationUI)
+        {
+            isFocus &= eraseRevelationUI->gameObject->ActiveInHierarchy == false;
+        }
+        if (isFocus)
+        {
+            AutoFocus(true);
+        }
+        _isFocusInput = false;
+    }
+}
+
+void ItemDropUIRootManager::OnDpadLeft(const Input::Controller&) 
+{
+    if (EnableInHierarchy)
+    {
+        _lastInputDir = InputDir::LEFT;
+        _isFocusInput = true;
+    }
+}
+
+void ItemDropUIRootManager::OnDpadRight(const Input::Controller&) 
+{
+    if (EnableInHierarchy)
+    {
+        _lastInputDir = InputDir::RIGHT;
+        if (_isFocusArtifactNavi)
+        {
+            _isFocusInput = true;
+        }   
+    }
+}
+
+void ItemDropUIRootManager::OnDpadUp(const Input::Controller&) 
+{
+    if (EnableInHierarchy)
+    {
+        _lastInputDir = InputDir::UP;
+        if (_isFocusArtifactNavi)
+        {
+            _isFocusInput = true;
+        } 
+    }
+}
+
+void ItemDropUIRootManager::OnDpadDown(const Input::Controller&) 
+{
+    if (EnableInHierarchy)
+    {
+        _lastInputDir = InputDir::DOWN;
+        if (_isFocusArtifactNavi)
+        {
+            _isFocusInput = true;
+        } 
+    }
+}
+
+void ItemDropUIRootManager::OnLeftTumbStickDown(const Input::Controller& controller) 
+{
+    Input::Controller::StickBias bias = controller.GetLeftStickBias();
+    switch (bias)
+    {
+    case Input::Controller::StickBias::BIAS_UP:
+        OnDpadUp(controller);
+        break;
+    case Input::Controller::StickBias::BIAS_DOWN:
+        OnDpadDown(controller);
+        break;
+    case Input::Controller::StickBias::BIAS_LEFT:
+        OnDpadLeft(controller);
+        break;
+    case Input::Controller::StickBias::BIAS_RIGHT:
+        OnDpadRight(controller);
+        break;
+    default:
+        break;
     }
 }
 

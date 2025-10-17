@@ -19,6 +19,16 @@ const File::Guid& WeaponModelManager::GetWeaponPrefabGuid(WeaponType type) const
     return File::NULL_GUID;
 }
 
+Vector3 WeaponModelManager::GetWeaponOffset(WeaponType type) const
+{
+    auto iter = _availableWeaponOffsetsTable.find(type);
+    if (iter != _availableWeaponOffsetsTable.end())
+    {
+        return iter->second;
+    }
+    return Vector3::Zero;
+}
+
 WeaponModelData WeaponModelManager::RequestAvailableWeapon(WeaponType type)
 {
     auto& animationPool    = _weaponAnimationTable[type];
@@ -115,16 +125,20 @@ void WeaponModelManager::DeserializedReflectEvent()
 {
     for (auto& [typeStr, guid] : ReflectFields->WeaponPrefabGuidTable)
     {
-        auto type                            = rfl::string_to_enum<WeaponType>(typeStr);
-        _weaponPrefabGuidTable[type.value()] = File::Guid(guid);
+        auto type = rfl::string_to_enum<WeaponType>(typeStr);
+        if (type)
+        {
+            _weaponPrefabGuidTable[type.value()] = File::Guid(guid);
+        }
     }
+    UpdateOffsetPosition();
 }
 
 void WeaponModelManager::ImGuiDrawPropertysEvent()
 {
     constexpr auto   WeaponTypeArray     = rfl::get_enumerator_array<WeaponType>();
     constexpr size_t WeaponTypeArraySize = WeaponTypeArray.size();
-    if (ImGui::TreeNodeEx("Weapon Prefab GUID", ImGuiTreeNodeFlags_DefaultOpen))
+    if (ImGui::TreeNodeEx("Weapon Prefab##weapon_manager", ImGuiTreeNodeFlags_DefaultOpen))
     {
         for (auto& [name, type] : WeaponTypeArray)
         {
@@ -133,7 +147,9 @@ void WeaponModelManager::ImGuiDrawPropertysEvent()
             std::string& guidStr = ReflectFields->WeaponPrefabGuidTable[name.data()];
             File::Guid&  guid    = _weaponPrefabGuidTable[type];
             std::string  pathStr = guid.ToPath().string();
-            ImGuiHelper::TextWithVerticalSeparator(name.data(), 150.0f);
+
+            ImGuiHelper::AlignedText(name.data(), ImGuiHelper::LEFT);
+            ImGuiHelper::TextWithVerticalSeparator("Prefab", 150.0f);
             ImGui::SameLine();
             ImGui::InputText("##weapon_guid", &pathStr, ImGuiInputTextFlags_ReadOnly);
             ImGuiHelper::HoveredToolTip(pathStr.c_str());
@@ -146,7 +162,6 @@ void WeaponModelManager::ImGuiDrawPropertysEvent()
                     const File::Path&    extension = path.extension();
                     if (extension == L".UmPrefab")
                     {
-
                         guidStr = data->GetGuid().string();
                         guid    = data->GetGuid();
                     }
@@ -157,6 +172,12 @@ void WeaponModelManager::ImGuiDrawPropertysEvent()
                     }
                 }
                 ImGui::EndDragDropTarget();
+            }
+
+            ImGuiHelper::TextWithVerticalSeparator("Offset", 150.0f);
+            if (ImGui::DragFloat3("##offset", ReflectFields->WeaponPrefabOffsetTable[name.data()].data(), 1.0f))
+            {
+                UpdateOffsetPosition();
             }
 
             ImGui::PopID();
@@ -176,5 +197,20 @@ void WeaponModelManager::ImGuiDrawPropertysEvent()
             ImGui::PopID();
         }
         ImGui::TreePop();
+    }
+}
+
+void WeaponModelManager::UpdateOffsetPosition()
+{
+    _availableWeaponOffsetsTable.clear();
+    for (auto& [typeStr, offsetArray] : ReflectFields->WeaponPrefabOffsetTable)
+    {
+        auto type = rfl::string_to_enum<WeaponType>(typeStr);
+        if (type)
+        {
+            Vector3 offset;
+            offset = Vector3(offsetArray[0], offsetArray[1], offsetArray[2]);
+            _availableWeaponOffsetsTable[type.value()] = offset;
+        }
     }
 }

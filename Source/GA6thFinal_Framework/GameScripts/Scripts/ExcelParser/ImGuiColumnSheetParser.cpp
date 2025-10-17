@@ -69,7 +69,7 @@ bool ImGuiColumnSheetParser::Draw(const std::function<void(const ColumnDatas&)>&
                     if (keyRow != OpenXLSXHelper::FAIL_ROW)
                     {
                         // 파싱
-                        _sheetDatas = OpenXLSXHelper::ParseSheetWithColumnKeys(workSheet, keyRow);
+                        _sheetDatas = OpenXLSXHelper::ParseSheetWithColumnKeys(workSheet, keyRow, ParserThreshold);
                         if (callBackFunc)
                         {
                             Apply(callBackFunc);
@@ -77,6 +77,8 @@ bool ImGuiColumnSheetParser::Draw(const std::function<void(const ColumnDatas&)>&
                         result = true;
                     }
                 }
+                ImGui::SameLine();
+                ImGui::DragInt("Pareser Threshold", reinterpret_cast<int*>(&ParserThreshold), 1.0f, 1, 10);
             }
             ImGui::PopID();
         }

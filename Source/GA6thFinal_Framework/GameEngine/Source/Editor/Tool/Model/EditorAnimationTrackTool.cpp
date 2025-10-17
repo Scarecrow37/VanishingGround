@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "EditorAnimationTrackTool.h"
+#include "GraphicsEngine/Interface/IAnimator.h"
 
 EditorAnimationTrackTool::EditorAnimationTrackTool()
 {
@@ -37,7 +38,9 @@ void EditorAnimationTrackTool::OnStartGui()
     _modelDetails    = dock->GetGui<EditorModelDetails>();
     _sequencer = new Timeline::SequencerEditor();
     _sequencer->AddFlags(Timeline::SequencerEditor::FLAGS_ALLOW_ALL_INPUT);
-    _sequencer->GetCallback().LowerFramePopup = [this](Timeline::EventTrack& track) { LowerFramePopup(track); };
+    _sequencer->GetCallback().LowerFramePopup = [this](Timeline::EventTrack& track) {
+        LowerFramePopup(track); 
+    };
     _sequencer->GetCallback().ContextPopup    = [this](Timeline::EventTrack& track, Timeline::EventContext& context) {
         ContextPopup(track, context);
     };
@@ -664,20 +667,27 @@ void EditorAnimationTrackTool::LowerFramePopup(Timeline::EventTrack& track)
         track.PasteContext(_copyBuffer, time);
     }
     ImGui::Separator();
-    if (ImGui::MenuItem("+ Add Empty Event"))
+    if (_sequencer)
     {
-        if (_sequencer)
+        if (ImGui::MenuItem("+ Add Empty Event"))
         {
             float currentFrame = _sequencer->GetFrameFromIndicate();
             track.AddEvent<Timeline::EventContext>("New Event", currentFrame);
         }
-    }
-    if (ImGui::MenuItem("+ Add Audio Event"))
-    {
-        if (_sequencer)
+        if (ImGui::MenuItem("+ Add Audio Event"))
         {
             float currentFrame = _sequencer->GetFrameFromIndicate();
             track.AddEvent<Timeline::AudioEventContext>("New Audio Event", currentFrame);
+        }
+        if (ImGui::MenuItem("+ Add Particle Event"))
+        {
+            float currentFrame = _sequencer->GetFrameFromIndicate();
+            track.AddEvent<Timeline::ParticleEventContext>("New Particle Event", currentFrame);
+        }
+        if (ImGui::MenuItem("+ Add Input Event"))
+        {
+            float currentFrame = _sequencer->GetFrameFromIndicate();
+            track.AddEvent<Timeline::InputEventContext>("New Input Event", currentFrame);
         }
     }
 }

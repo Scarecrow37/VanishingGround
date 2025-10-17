@@ -49,7 +49,7 @@ void UITechnique::Execute(ID3D12GraphicsCommandList* commandList)
         data.clear();
 
     UINT index = 0;
-    for (auto& [isDestroy, component] : _ownerScene->_uiRenderQueue)
+    for (auto& component : _ownerScene->_uiRenderQueue)
     {
         if (!component->IsActive())
             continue;

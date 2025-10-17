@@ -69,10 +69,18 @@ namespace Audio
         /// <param name="volume">설정할 볼륨 값입니다.</param>
         void SetVolume(float volume) const;
 
+        void FadeIn() const;
+        void FadeOut() const;
+
+        void ReverbOn() const;
+        void ReverbOff() const;
+
     private:
         System _system;
 
         std::unordered_map<std::string, Source> _sources;
         std::unordered_map<Group, GroupHandle>  _groups;
+        ReverbHandle                             _reverbHandle;
+        FadeHandle                               _fadeHandle;
     };
 } // namespace Audio

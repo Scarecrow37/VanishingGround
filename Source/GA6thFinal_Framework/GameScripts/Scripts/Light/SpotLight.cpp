@@ -1,15 +1,12 @@
 ﻿#include "pchScripts.h"
 #include "SpotLight.h"
+#include "GraphicsEngine/Interface/ILight.h"
 
 UMREAL_COMPONENT(SpotLight)
 
 SpotLight::SpotLight() = default;
+
 SpotLight::~SpotLight() = default;
-
-void SpotLight::DeserializedReflectEvent() 
-{
-
-}
 
 void SpotLight::Reset() 
 {
@@ -23,7 +20,7 @@ void SpotLight::Reset()
     const float&   intensity   = GetIntensity();
     const float&   inner       = ReflectFields->Inner;
     const float&   outer      = ReflectFields->Outer;
-    Lighting.SetSpotLight(color, position, direction, attenuation, range, inner, outer, intensity);
+    Lighting->SetSpotLight(color, position, direction, attenuation, range, inner, outer, intensity);
 }
 
 void SpotLight::OnDrawDebug() 

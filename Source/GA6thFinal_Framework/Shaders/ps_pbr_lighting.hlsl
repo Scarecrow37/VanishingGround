@@ -57,7 +57,7 @@ float4 ps_main(PSInput input) : SV_Target
     float3 ambientLighting = 0;
     float3 ambient = CalculateIBL(normal, V, irradianceMap, prefilteredMap, brdfLUT, albedo, roughness, metallic);
     
-    NumLight numLights = bit32_3_numLight;
+    NumLight numLights = bit32_4_numLight;
     
     //Directional Lights
     for (uint i = 0; i < numLights.Directional; i++)
@@ -82,6 +82,14 @@ float4 ps_main(PSInput input) : SV_Target
         SpotLight light = lightData.Spot[k];
         directLighting += CalculateSpot(light, normal, V, albedo, metallic, roughness, worldPosition);
     }
+    
+    //Shadow Point Lights
+    for (uint l = 0; l < numLights.ShadowPoint; l++)
+    {
+        PointLight light = lightData.ShadowPoint[l];
+        directLighting += CalculatePoint(light, normal, V, albedo, metallic, roughness, worldPosition);
+    }
+    
 
     float3 color = directLighting + (ambientLighting * ssao) + emissive;
     return float4(color, 1.0);

@@ -30,9 +30,12 @@ void ImGuiDX12Module::PreInitialize()
     ImFontGlyphRangesBuilder builder;
     builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
     builder.AddRanges(io.Fonts->GetGlyphRangesKorean());
-    builder.AddChar((ImWchar)0x2163); // Ⅳ
-    builder.AddChar((ImWchar)0x2167); // Ⅷ
-    builder.AddChar((ImWchar)0x2169); // Ⅹ
+    constexpr ImWchar romanRanges[] = {
+        0x2160,
+        0x218F, 
+        0,
+    };
+    builder.AddRanges(romanRanges);
     builder.BuildRanges(&ranges);
     
     ImFont* mainFont = io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\malgun.ttf", 20.0f, &fontConfig, ranges.Data);

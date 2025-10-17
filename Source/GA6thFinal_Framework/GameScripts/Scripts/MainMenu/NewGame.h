@@ -11,6 +11,10 @@ public:
 
 public:
     void Submit() override;
+    void Update() override;
+
+private:
+    void TransitionToNextScene();
 
 public:
     REFLECT_PROPERTY(NextScene)

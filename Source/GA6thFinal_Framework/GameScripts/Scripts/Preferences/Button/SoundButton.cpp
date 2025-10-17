@@ -23,24 +23,34 @@ void SoundButton::Awake()
     size_t cnt = _volumeBarsFocus.size();
     for (size_t i = 0; i < cnt; ++i)
     {
-        _volumeBarsFocus[i]->SetActive(false);
-        _volumeBarsNonFocus[i]->SetActive(false);
+        if (_volumeBarsFocus[i])
+            _volumeBarsFocus[i]->SetActive(false);
+        if (_volumeBarsNonFocus[i])
+            _volumeBarsNonFocus[i]->SetActive(false);
     }
     cnt = _volumeNumFocus.size();
     for (size_t i = 0; i < cnt; ++i)
     {
-        _volumeNumFocus[i]->SetActive(false);
-        _volumeNumNonFocus[i]->SetActive(false);
+        if (_volumeNumFocus[i])
+            _volumeNumFocus[i]->SetActive(false);
+        if (_volumeNumNonFocus[i])
+            _volumeNumNonFocus[i]->SetActive(false);
     }
     // 양옆 화살표 숨기기
-    _leftArrow->SetActive(false);
-    _rightArrow->SetActive(false);
-    _title[1]->SetActive(false);
-    _title[0]->SetActive(true);
-    _volumeNumNonFocus[_currentVolume]->SetActive(true);
+    if (_leftArrow)
+        _leftArrow->SetActive(false);
+    if (_rightArrow)
+        _rightArrow->SetActive(false);
+    if (_title[1])
+        _title[1]->SetActive(false);
+    if (_title[0])
+        _title[0]->SetActive(true);
+    if (_volumeNumNonFocus[_currentVolume])
+        _volumeNumNonFocus[_currentVolume]->SetActive(true);
     if (_currentVolume > 0)
     {
-        _volumeBarsNonFocus[_currentVolume - 1]->SetActive(true);
+        if (_volumeBarsNonFocus[_currentVolume - 1])
+            _volumeBarsNonFocus[_currentVolume - 1]->SetActive(true);
     }
     _currentVolume = MaxVolume;
     if ("MasterVolume" == _currentOption)
@@ -49,8 +59,8 @@ void SoundButton::Awake()
         _currentVolume = static_cast<int>(UmPreferences.GetBGMVolume() * MaxVolume);       
     else if ("SFXVolume" == _currentOption)
         _currentVolume = static_cast<int>(UmPreferences.GetSFXVolume() * MaxVolume);
-    _isOptionDirty = true;
-
+    //_isOptionDirty = true;
+    ChangeVolume(0);
 }
 
 void SoundButton::Start()
@@ -62,12 +72,16 @@ void SoundButton::Start()
         _preferencesManager = manager->GetComponent<PreferencesManager>();
         if (nullptr == _preferencesManager)
             UmLogger.Log(LogLevel::LEVEL_WARNING, "Preferences manager not registered!");
+        else
+        {
+            _preferencesManager->AddPreferencesButton(this);
+        }
     }
     else
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, "Preferences manager not registered!");
     }
-    _preferencesManager->AddPreferencesButton(this);
+    
 }
 
 void SoundButton::Reset()
@@ -80,32 +94,36 @@ void SoundButton::Reset()
 void SoundButton::Update()
 {
     if (!_isOptionDirty)
-        return;
-
-    if (_isVolumeUp)
     {
-        ChangeVolume(+1);
-        _isVolumeUp = false;
-    }
-    else if (_isVolumeDown)
-    {
-        ChangeVolume(-1);
-        _isVolumeDown = false;
+        if (_isVolumeUp)
+        {
+            ChangeVolume(+1);
+            _isVolumeUp = false;
+        }
+        else if (_isVolumeDown)
+        {
+            ChangeVolume(-1);
+            _isVolumeDown = false;
+        }
     }
 
     UpdateUIForFocus();
     _isOptionDirty = false;
 }
 
-void SoundButton::ChangeVolume(int delta)
+void SoundButton::ChangeVolume(const int delta)
 {
     // 현재 볼륨 끄기
-    _volumeNumFocus[_currentVolume]->SetActive(false);
-    _volumeNumNonFocus[_currentVolume]->SetActive(false);
+    if (_volumeNumFocus[_currentVolume])
+        _volumeNumFocus[_currentVolume]->SetActive(false);
+    if (_volumeNumNonFocus[_currentVolume])
+        _volumeNumNonFocus[_currentVolume]->SetActive(false);
     if (_currentVolume > 0)
     {
-        _volumeBarsFocus[_currentVolume - 1]->SetActive(false);
-        _volumeBarsNonFocus[_currentVolume - 1]->SetActive(false);
+        if (_volumeBarsFocus[_currentVolume - 1])
+            _volumeBarsFocus[_currentVolume - 1]->SetActive(false);
+        if (_volumeBarsNonFocus[_currentVolume - 1])
+            _volumeBarsNonFocus[_currentVolume - 1]->SetActive(false);
     }
 
     // 볼륨 값 갱신
@@ -114,49 +132,62 @@ void SoundButton::ChangeVolume(int delta)
     // 새로운 볼륨 켜기 (포커스 여부에 따라 분리)
     if (_isFocus)
     {
-        _volumeNumFocus[_currentVolume]->SetActive(true);
+        if (_volumeNumFocus[_currentVolume])
+            _volumeNumFocus[_currentVolume]->SetActive(true);
         if (_currentVolume > 0)
-            _volumeBarsFocus[_currentVolume - 1]->SetActive(true);
+        {
+            if (_volumeBarsFocus[_currentVolume - 1])
+                _volumeBarsFocus[_currentVolume - 1]->SetActive(true);
+        }
+        if (_preferencesManager)
         _preferencesManager->SetVolume(_currentOption,_currentVolume);
     }
 }
 
 void SoundButton::UpdateUIForFocus()
 {
-    // 화살표
-    _leftArrow->SetActive(_isFocus);
-    _rightArrow->SetActive(_isFocus);
+    if (_leftArrow)
+        _leftArrow->SetActive(_isFocus);
 
-    // 타이틀
-    _title[true]->SetActive(_isFocus);
-    _title[false]->SetActive(!_isFocus);
+    if (_rightArrow)
+        _rightArrow->SetActive(_isFocus);
 
-    // 볼륨 숫자
+    if (_title[true])
+        _title[true]->SetActive(_isFocus);
+
+    if (_title[false])
+        _title[false]->SetActive(!_isFocus);
+
     for (size_t i = 0; i < _volumeNumFocus.size(); ++i)
     {
-        _volumeNumFocus[i]->SetActive(_isFocus && i == _currentVolume);
-        _volumeNumNonFocus[i]->SetActive(!_isFocus && i == _currentVolume);
+        if (_volumeNumFocus[i])
+            _volumeNumFocus[i]->SetActive(_isFocus && i == _currentVolume);
+
+        if (i < _volumeNumNonFocus.size() && _volumeNumNonFocus[i])
+            _volumeNumNonFocus[i]->SetActive(!_isFocus && i == _currentVolume);
     }
 
-    // 볼륨 바
     for (size_t i = 0; i < _volumeBarsFocus.size(); ++i)
     {
-        _volumeBarsFocus[i]->SetActive(_isFocus && i < _currentVolume);
-        _volumeBarsNonFocus[i]->SetActive(!_isFocus && i < _currentVolume);
+        if (_volumeBarsFocus[i])
+            _volumeBarsFocus[i]->SetActive(_isFocus && i < _currentVolume);
+
+        if (i < _volumeBarsNonFocus.size() && _volumeBarsNonFocus[i])
+            _volumeBarsNonFocus[i]->SetActive(!_isFocus && i < _currentVolume);
     }
 }
 
-void SoundButton::FocusIn()
+void SoundButton::FocusIn(const FocusCallType callType)
 {
-    UINavigationComponent::FocusIn();
+    Base::FocusIn(callType);
 
     _isFocus       = true;
     _isOptionDirty = true;
 }
 
-void SoundButton::FocusOut()
+void SoundButton::FocusOut(const FocusCallType callType)
 {
-    UINavigationComponent::FocusOut();
+    UINavigationComponent::FocusOut(callType);
 
     _isFocus       = false;
     _isOptionDirty = true;
@@ -179,6 +210,7 @@ void SoundButton::ControlVolumeUp(const Input::Controller& controller)
         return;
     _isOptionDirty = true;
     _isVolumeUp    = true;
+    UmAudio.Play("-40000");
 }
 
 void SoundButton::ControlVolumeDown(const Input::Controller& controller)
@@ -187,6 +219,7 @@ void SoundButton::ControlVolumeDown(const Input::Controller& controller)
         return;
     _isOptionDirty = true;
     _isVolumeDown  = true;
+    UmAudio.Play("-40000");
 }
 
 void SoundButton::ControlVolumeStick(const Input::Controller& controller)

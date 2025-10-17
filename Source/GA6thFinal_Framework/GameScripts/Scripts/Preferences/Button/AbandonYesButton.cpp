@@ -13,7 +13,8 @@ void AbandonYesButton::Awake()
     if (preferencesManager)
     {
         PreferencesManager* manager = preferencesManager->GetComponent<PreferencesManager>();
-        manager->AddAbandonButton(this);
+        if (manager)
+            manager->AddAbandonButton(this);
     }
 }
 
@@ -26,8 +27,11 @@ void AbandonYesButton::Update()
         {
             PreferencesManager* manager = preferencesManager->GetComponent<PreferencesManager>();
             _dirtyFlag = false;
-            manager->CloseAbandonButtons();
-            manager->GoToMainMenu();
+            if (manager)
+            {
+                manager->CloseAbandonButtons();
+                manager->GoToMainMenu();
+            }
         }
         else
         {
@@ -44,4 +48,5 @@ void AbandonYesButton::Reset()
 void AbandonYesButton::DirtyOffFlag(const Input::Controller&)
 {
     _dirtyFlag = true;
+    UmAudio.Play("-40020");
 }

@@ -12,7 +12,7 @@ public:
     void Execute(ID3D12GraphicsCommandList* commandList, D3D12_GPU_DESCRIPTOR_HANDLE input, UnorderedAccessView* output);
 
 private:
-    std::unique_ptr<ShaderBuilder> _shader;
-    ComPtr<ID3D12PipelineState>    _pipelineState;
-    BaseMesh*                      _quadMesh{nullptr};
+    FX<GE::VS::QUAD, GE::PS::ACCUMULATION> _fx;
+    ComPtr<ID3D12PipelineState>            _pipelineState;
+    BaseMesh*                              _quadMesh{nullptr};
 };

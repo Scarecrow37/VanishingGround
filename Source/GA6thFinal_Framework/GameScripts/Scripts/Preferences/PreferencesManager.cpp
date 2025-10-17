@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "PreferencesManager.h"
 #include "PrefrencesWindow.h"
+#include "Map/MapManager.h"
 
 UMREAL_COMPONENT(PreferencesManager)
 
@@ -27,13 +28,13 @@ PreferencesManager::~PreferencesManager() = default;
 
 void PreferencesManager::Reset()
 {
-    std::string currSceneName = UmSceneManager.GetMainScene()->Name;
-    if ("MainMenu" != currSceneName)
-        BindInputAction(ControllerButton::BACK, Action::PRESSED, this, &PreferencesManager::OnPreferencesWindow);
+   
 }
 
 void PreferencesManager::Awake()
 {
+    _singletonComponent.TrySingleTon();
+
     _preferencesPannel = GameObject::Find("PreferencesPannel").lock().get();
     if (nullptr == _preferencesPannel)
         UmLogger.Log(LogLevel::LEVEL_ERROR, "환경설정 패널이 없습니다!");
@@ -106,6 +107,24 @@ void PreferencesManager::Update()
         }
         _isOpenAbandonDirty = false;
     }
+
+    Debugger()([this]{
+        // 아래는 디버그용 코드입니다.
+        ImGuiHelper::AlignedText("Preferences", ImGuiHelper::LEFT, 0.8f);
+        if (ImGui::Button("Close"))
+        {
+            OffPreferencesWindow();
+        }
+        if (ImGui::TreeNodeEx("Properties##details"))
+        {
+            if (ImGui::Button("Abandon"))
+            {
+                CloseAbandonButtons();
+                GoToMainMenu();
+            }
+            ImGui::TreePop();
+        }
+    });
 }
 
 void PreferencesManager::LateUpdate()

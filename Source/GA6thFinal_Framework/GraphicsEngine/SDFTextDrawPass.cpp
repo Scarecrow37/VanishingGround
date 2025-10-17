@@ -2,8 +2,20 @@
 #include "SDFTextDrawPass.h"
 #include "UITechnique_OIT.h"
 #include "SDFTextRenderer.h"
+#include "SDFFont.h"
+#include "FrameResource.h"
 
-SDFTextDrawPass::SDFTextDrawPass() = default;
+struct SDFParams
+{
+    unsigned int InstanceID;
+    float        DistanceRange;
+    float        FontWeight;
+};
+
+SDFTextDrawPass::SDFTextDrawPass(const std::vector<UINT>* instanceIDs)
+    : UIPassBase_OIT(instanceIDs)
+{
+}
 
 SDFTextDrawPass::~SDFTextDrawPass() = default;
 
@@ -28,7 +40,7 @@ void SDFTextDrawPass::Initialize(RenderScene* ownerScene, RenderTechnique* owner
 
 void SDFTextDrawPass::Update(ID3D12GraphicsCommandList* commandList, const float deltaTime)
 {
-    for (auto& [isDestroy, component] : _ownerScene->_sdfTextRenderQueue)
+    for (auto& component : _ownerScene->_sdfTextRenderQueue)
     {
         if (!component || !component->IsActive())
             continue;       
@@ -57,16 +69,25 @@ void SDFTextDrawPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootUnorderedAccessView(_fx.GetRootParameterIndex("OITNodes"), _nodesBuffer->GetGPUVirtualAddress());  
     commandList->SetGraphicsRootUnorderedAccessView(_fx.GetRootParameterIndex("OITCounter"), _atomicCounterBuffer->GetGPUVirtualAddress());
     commandList->SetGraphicsRootConstantBufferView(_fx.GetRootParameterIndex("cameraData"), _cameraBuffer->GetGPUVirtualAddress());
+    frameResource->SetFrameResource(FrameResourceType::TEXT_MATRICES, _fx.GetRootParameterIndex("text_matrices"), commandList);
 
-    UINT index = 0;
-    for (auto& [isDestroy, component] : _ownerScene->_sdfTextRenderQueue)
+    SDFParams sdfParams = {};
+    for (auto& component : _ownerScene->_sdfTextRenderQueue)
     {
         if (!component || !component->IsActive())
             continue;
         
+        const SDFFont* font       = component->GetFont();
+        const auto&    atlasInfo  = font->GetAtlasInfo();
+        sdfParams.DistanceRange   = atlasInfo.DistanceRange;
+        sdfParams.FontWeight      = component->GetFontWeight();
+
         commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_4_fontColor"), 4, &component->GetColor(), 0);
+        commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_3_sdfParams"), 3, &sdfParams, 0);
         commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("sdfTexture"), component->GetFontTextureHandle());
 
         component->Render(commandList);
+
+        sdfParams.InstanceID++;
     }
 }

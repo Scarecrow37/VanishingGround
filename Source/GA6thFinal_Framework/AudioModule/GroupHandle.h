@@ -19,5 +19,8 @@ namespace Audio
     protected:
         GroupHandle(Index index, Generation generation);
 
+    public:
+        bool operator==(const GroupHandle& other) const noexcept;
+
     };
 } // namespace Audio

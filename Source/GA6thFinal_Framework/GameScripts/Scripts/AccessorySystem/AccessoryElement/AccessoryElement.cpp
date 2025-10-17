@@ -55,7 +55,7 @@ void AccessoryElement::DeepCopyAction(const TurnAction& action)
     }
 }
 
-DropItemInfo AccessoryElement::GetItemInfo()
+DropItemInfo AccessoryElement::GetItemInfo() const
 {
     DropItemInfo info;
     info.Category = ArtifactDropType::ACCESSORY;

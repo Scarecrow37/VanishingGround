@@ -9,7 +9,7 @@ void UINavigationComponent::Focus()
 {
     if (UIRoot* root = Root; nullptr != root)
     {
-        root->ChangeFocusComponent(this);
+        root->RequestChangeFocusComponent(this);
     }
     else
     {
@@ -17,7 +17,7 @@ void UINavigationComponent::Focus()
     }
 }
 
-void UINavigationComponent::FocusIn()
+void UINavigationComponent::FocusIn(FocusCallType callType)
 {
     if (UIComponent* siblingUI = SiblingUI; nullptr != siblingUI)
     {
@@ -29,7 +29,7 @@ void UINavigationComponent::FocusIn()
     }
 }
 
-void UINavigationComponent::FocusOut()
+void UINavigationComponent::FocusOut(FocusCallType callType)
 {
     if (UIComponent* siblingUI = SiblingUI; nullptr != siblingUI)
     {
@@ -453,19 +453,16 @@ void UINavigationComponent::RemoveNavigationRoute(const NavigationKey& key)
 
 NavigationID UINavigationComponent::GetNavigatedId(const NavigationKey& key)
 {
-    if (const bool isEnable = EnableInHierarchy; true == isEnable)
-    {
-        NavigationRoutes& navigationInfos = ReflectFields->NavigationRoutes;
-        auto              result          = navigationInfos | std::views::filter([&key](const auto& info) {
-                          const auto& [button, bias, name, toID] = info;
-                          return button == key.ButtonType && bias == key.Bias;
-                      }) |
-                      std::views::take(1) | std::views::elements<3>;
+    NavigationRoutes& navigationInfos = ReflectFields->NavigationRoutes;
+    auto              result          = navigationInfos | std::views::filter([&key](const auto& info) {
+                        const auto& [button, bias, name, toID] = info;
+                        return button == key.ButtonType && bias == key.Bias;
+                    }) |
+                    std::views::take(1) | std::views::elements<3>;
 
-        if (false == result.empty())
-        {
-            return *result.begin();
-        }
+    if (false == result.empty())
+    {
+        return *result.begin();
     }
 
     return INVALID_NAVIGATION_ID;

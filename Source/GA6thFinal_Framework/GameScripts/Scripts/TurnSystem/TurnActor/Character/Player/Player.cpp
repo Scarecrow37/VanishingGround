@@ -14,11 +14,13 @@
 #include "Condition/PlayerStartCondition.h"
 #include "Condition/PlayerExitCondition.h"
 #include "Condition/PlayerDeadCondition.h"
+#include "Condition/PlayerWinCondition.h"   
 
 //State
 #include "State/PlayerWaitTurnState.h"
 #include "State/PlayerPlayTurnState.h"
 #include "State/PlayerDeadState.h"
+#include "State/PlayerWinState.h"
 
 UMREAL_COMPONENT(Player)
 
@@ -38,11 +40,6 @@ void Player::Awake()
         Base::Awake();
         gameObject->AddTag(TAG);
         BuildPlayerFSM();
-
-        if (nullptr == GetPlayerStats())
-        {
-            UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Player Stats를 추가해주세요");
-        }
     }
 }
 
@@ -129,8 +126,11 @@ void Player::TakeDamage(int damage, bool playAnim)
 
 void Player::TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim)
 {  
-    // TODO: 피격 애니메이션 재생
-    // 예외 사항 - 피격 애니메이션 재생 종료 후 원래 애니메이션으로 돌아가야함.
+    if (result.IsHit())
+    {
+        auto& inputSystem = ESceneManager::Engine::GetInputSystem();
+        inputSystem.Vibrate(Input::ControllerTypes::VIBRATION_TAKE_DAMAGE);
+    }
 
     // 혹시나 그럴 일 없겠지만 중간에 계산할 연산이 또 있다면 재연산
     int takeDamage = damage;
@@ -194,11 +194,13 @@ void Player::BuildPlayerFSM()
         _finiteStateMachine->AddCondition<PlayerStartCondition>();
         _finiteStateMachine->AddCondition<PlayerExitCondition>();
         _finiteStateMachine->AddCondition<PlayerDeadCondition>();
+        _finiteStateMachine->AddCondition<PlayerWinCondition>();
 
         //States
         _fsmStates.PlayerWaitTurnState = _finiteStateMachine->AddState<PlayerWaitTurnState>();
         _fsmStates.PlayerPlayTurnState = _finiteStateMachine->AddState<PlayerPlayTurnState>();
         _fsmStates.PlayerDeadState     = _finiteStateMachine->AddState<PlayerDeadState>();
+        _fsmStates.PlayerWinState      = _finiteStateMachine->AddState<PlayerWinState>();
 
         //Transition
         _finiteStateMachine->AddTransition<PlayerWaitTurnState, PlayerStartCondition, PlayerPlayTurnState>();
@@ -206,6 +208,8 @@ void Player::BuildPlayerFSM()
 
         _finiteStateMachine->AddTransition<PlayerDeadCondition, PlayerDeadState>();
         _finiteStateMachine->AddTransition<PlayerDeadState, PlayerExitCondition, PlayerWaitTurnState>();
+
+        _finiteStateMachine->AddTransition<PlayerWinCondition, PlayerWinState>();
 
         //Entry
         _finiteStateMachine->SetEntryState<PlayerWaitTurnState>();
@@ -282,10 +286,10 @@ void Player::OnNotifiedAnimationEvent(const Timeline::EventContext* context)
         return;
     if ("castingStart" == context->GetLabel())
     {
-        particlecomponent->PlayEffect();
+        particlecomponent->PlayEffect("handglow");
     }
     if ("attackEnd" == context->GetLabel())
     {
-        particlecomponent->StopEffect();
+        particlecomponent->StopEffect("handglow");
     }
 }

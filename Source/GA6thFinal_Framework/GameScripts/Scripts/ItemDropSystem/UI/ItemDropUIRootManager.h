@@ -3,7 +3,12 @@
 #include "ItemDropSystem/Interface/IDropItem.h"
 #include "Utility/SingletonHelper.h"
 
-class ItemDropUIRootManager : public Component
+class ArtifactUIManager;
+class ItemInfoUIManager;
+class WeaponChangeUIManager;
+class RestartStageNavi;
+class EraseRevelationUIManager;
+class ItemDropUIRootManager : public Component, public InputReceiver
 {
     USING_PROPERTY(ItemDropUIRootManager)
 public:
@@ -12,48 +17,106 @@ public:
     ~ItemDropUIRootManager() override;
 
 public:
+    GETTER_ONLY(ArtifactUIManager*, ArtifactUI) 
+    { 
+        ArtifactUIManager* artifactUI = nullptr;
+        if (auto uiManager = _artifactUIManager.lock())
+        {
+            artifactUI = uiManager.get();
+        }
+        return artifactUI;
+    }
+    // 보상 UI의 Artifact 부분을 관리하는 컴포넌트입니다.
+    // type : ArtifactUIManager*
+    PROPERTY(ArtifactUI)
+
+    GETTER_ONLY(ItemInfoUIManager*, ItemInfoUI) 
+    { 
+        ItemInfoUIManager* infoUI = nullptr;
+        if (auto uiManager = _itemInfoUIManager.lock())
+        {
+            infoUI = uiManager.get();
+        }
+        return infoUI;
+    }
+    // 보상 UI의 포커스된 아이템 정보를 표시하는 UI를 관리하는 컴포넌트입니다.
+    // type : ItemInfoUIManager*
+    PROPERTY(ItemInfoUI)
+
+    GETTER_ONLY(WeaponChangeUIManager*, WeaponChangeUI)
+    { 
+        WeaponChangeUIManager* weaponChangeUI = nullptr;
+        if (auto weaponChangeManager = _weaponChangeUIManager.lock())
+        {
+            weaponChangeUI = weaponChangeManager.get();
+        }
+        return weaponChangeUI;
+    }
+    // 무기 교체 UI 관리 컴포넌트입니다.
+    // type : WeaponChangeUIManager*
+    PROPERTY(WeaponChangeUI)
+
+    GETTER_ONLY(EraseRevelationUIManager*, EraseRevelationUI)
+    { 
+        EraseRevelationUIManager* eraseRevelationUI = nullptr;
+        if (auto eraseRevelationUIManager = _eraseRevelationUIManager.lock())
+        {
+            eraseRevelationUI = eraseRevelationUIManager.get();
+        }
+        return eraseRevelationUI;
+    }
+    // 무기 교체 UI 관리 컴포넌트입니다.
+    // type : WeaponChangeUIManager*
+    PROPERTY(EraseRevelationUI)
+
+    /// <summary>
+    /// 포커스 가능한 Navi로 포커스 설정을 해줍니다.
+    /// </summary>
+    void AutoFocus(bool checkInputDir = true);
+
+public:
     REFLECT_PROPERTY(
     )
 
-    GETTER_ONLY(std::string, ArtifactsUIFrameAsset)
-    {
-        File::Guid  guid = ReflectFields->ArtifactsUIFrameAssetGuid;
-        std::string path = guid.ToPath().string();
-        return path;
-    }
-    //type : std::string
-    //유물 드랍 프레임 UI 에셋 경로입니다.
-    PROPERTY(ArtifactsUIFrameAsset)
-
-    /// <summary>
-    /// 유물 드랍 타입에 따른 에셋 아이디를 반환합니다.
-    /// </summary>
-    /// <param name="artifactDropType :">가져올 아이디</param>
-    /// <returns>실패시 0</returns>
-    int GetArtifactCategoryAssetID(ArtifactDropType artifactDropType);
-
-    /// <summary>
-    /// 아이템 ID를 통해 아이콘 ID를 반환합니다.
-    /// </summary>
-    /// <param name="info :">아이템 정보</param>
-    /// <returns>아이콘 ID</returns>
-    int GetArtifactIconID(DropItemInfo info);
-
 protected:
     REFLECT_FIELDS_BEGIN(Component)
-    std::string ArtifactsUIFrameAssetGuid;
-    std::vector<int> ArtifactsCategoryAssetID;
     REFLECT_FIELDS_END(ItemDropUIRootManager)
 
     void DeserializedReflectEvent() override;
     void ImGuiDrawPropertysEvent() override;
 
-    void ImGuiDrawArtifactUIAssetSetting();
-
     void Reset() override;
     void Awake() override;
     void Start() override;
+    void Update() override;
+    void LateUpdate() override;
+
+    void UpdateAutoFocus();
+
+    void OnDpadLeft(const Input::Controller&);
+    void OnDpadRight(const Input::Controller&);
+    void OnDpadUp(const Input::Controller&);
+    void OnDpadDown(const Input::Controller&);
+    void OnLeftTumbStickDown(const Input::Controller& controller);
 
 private:
     SingletonComponent<ItemDropUIRootManager> _singletonComponent{this};
+    std::weak_ptr<ArtifactUIManager>          _artifactUIManager;
+    std::weak_ptr<ItemInfoUIManager>          _itemInfoUIManager;
+    std::weak_ptr<WeaponChangeUIManager>      _weaponChangeUIManager;
+    std::weak_ptr<EraseRevelationUIManager>   _eraseRevelationUIManager;
+    std::weak_ptr<RestartStageNavi>           _restartNavi;
+
+    enum class InputDir
+    {
+        IDLE,
+        LEFT,
+        RIGHT,
+        UP,
+        DOWN
+    }
+    _lastInputDir; //마지막 입력 추적용
+
+    bool _isFocusInput        = false;
+    bool _isFocusArtifactNavi = false;
 };

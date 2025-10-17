@@ -23,7 +23,11 @@ bool Command::EditorScene::DestroyGameObjectCommand::Execute()
     rootObject->GetScene().IsDirty = true;
 
     int instanceID         = rootObject->GetInstanceID();
-    rootObject->ActiveSelf = false;
+    if (false == UmCore->IsPlay())
+    {
+        rootObject->ActiveSelf = false;
+    }
+
     UmSceneManager.AddDestroyObjectQueue(rootObject.get());
 
     if (EditorHierarchyTool::GetFocusObject().lock() == rootObject)

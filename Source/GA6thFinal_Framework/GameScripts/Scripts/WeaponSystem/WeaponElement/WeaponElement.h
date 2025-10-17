@@ -44,6 +44,10 @@ public:
         {
             DeepCopyAction(*rhs._action);
         }
+        else
+        {
+            _action.reset();
+        }
         return *this;     
     }
     WeaponElement(const WeaponElement& rhs) { CopyElement(rhs); }
@@ -55,6 +59,6 @@ private:
 
 public:
     // IDropItem을(를) 통해 상속됨
-    DropItemInfo GetItemInfo() override;
+    DropItemInfo GetItemInfo() const override;
     ArtifactDropType GetCategoryType() const;
 };
