@@ -539,6 +539,7 @@
 		<ClInclude Include="Scripts\ItemDropSystem\UI\ItemInfoUIManager.h" />
 		<ClInclude Include="Scripts\ItemDropSystem\UI\WeaponChangeUIManager.h" />
 		<ClInclude Include="Scripts\ItemDropSystem\UI\EraseRevelationUIManager.h" />
+		<ClInclude Include="Scripts\Inventory\OpenInventoryComponent.h" />
 	</ItemGroup>
 	<ItemGroup>
 		<ClCompile Include="Scripts\CombatUIManager\Accessories\AccessoriesGroup.cpp" />
@@ -769,6 +770,7 @@
 		<ClCompile Include="Scripts\ItemDropSystem\UI\ItemInfoUIManager.cpp" />
 		<ClCompile Include="Scripts\ItemDropSystem\UI\WeaponChangeUIManager.cpp" />
 		<ClCompile Include="Scripts\ItemDropSystem\UI\EraseRevelationUIManager.cpp" />
+		<ClCompile Include="Scripts\Inventory\OpenInventoryComponent.cpp" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="cpp.hint" />

@@ -34,14 +34,13 @@ void InventoryUIManager::ImGuiDrawPropertysEvent()
     }
 }
 
-void InventoryUIManager::Awake()
+void InventoryUIManager::Added() 
 {
-    Base::Awake();
+    Base::Added();
     if (_singletonComponent.TrySingleTon())
     {
         BindInputAction(ControllerButton::B, Action::PRESSED, this, &InventoryUIManager::OnButtonB);
     }
-    _closeFlag = true;
 }
 
 void InventoryUIManager::Update() 
@@ -147,6 +146,17 @@ void InventoryUIManager::OnButtonB(const Input::Controller&)
     }
 }
 
+size_t InventoryUIManager::GetHorizontalPageCount(size_t artifactCount)
+{
+    size_t pageCount = 1;
+    if (artifactCount == 0)
+    {
+        return 1;
+    }
+    pageCount = (artifactCount - 1) / 5 + 1;
+    return pageCount;
+}
+
 void InventoryUIManager::OpenInventory(UINavigationComponent* lastFocus) 
 {
     gameObject->ActiveSelf = true;
@@ -158,6 +168,7 @@ void InventoryUIManager::OpenInventory(UINavigationComponent* lastFocus)
     UpdateWeaponUI();
     UpdateRevelationUI();
     UpdateAccessoryUI();
+    UpdateConsumble();
     if (0 < _weaponsNavi.size())
     {
         _weaponsNavi[0]->Focus();
@@ -192,6 +203,11 @@ void InventoryUIManager::UpdateWeaponUI()
             {
                 image->SetImage(guid);
             }         
+
+            if (i < _weaponsNavi.size())
+            {
+                _weaponsNavi[i]->SetItemInfo(info);
+            }
         }
     }
 }
@@ -206,7 +222,7 @@ void InventoryUIManager::UpdateRevelationUI()
         if (_revelationUI.Manager)
         {
             size_t iconsCount      = _revelationUI.Icons.size();
-            size_t horizontalCount = revelationCount / iconsCount + 1;
+            size_t horizontalCount = GetHorizontalPageCount(revelationCount);
             _revelationUI.Manager->UpdateHorizontalUI(horizontalCount);
             if (0 < iconsCount)
             {
@@ -225,6 +241,12 @@ void InventoryUIManager::UpdateRevelationUI()
                                 const File::Guid& guid = UmFileSystem.GetGuidFromAssetID(id);
                                 image->Enable          = true;
                                 image->SetImage(guid);
+
+                                
+                                if (i < _revelationUI.Navis.size())
+                                {
+                                    _revelationUI.Navis[i]->SetItemInfo(info);
+                                }
                             }
                         }
                         else
@@ -258,7 +280,7 @@ void InventoryUIManager::UpdateAccessoryUI()
         if (_accessoryUI.Manager)
         {
             size_t iconsCount      = _accessoryUI.Icons.size();
-            size_t horizontalCount = accessoryCount / iconsCount + 1;
+            size_t horizontalCount = GetHorizontalPageCount(accessoryCount);
             _accessoryUI.Manager->UpdateHorizontalUI(horizontalCount);
             if (0 < iconsCount)
             {
@@ -275,6 +297,11 @@ void InventoryUIManager::UpdateAccessoryUI()
                             File::Guid   guid      = UmFileSystem.GetGuidFromAssetID(id);
                             image->Enable          = true;
                             image->SetImage(guid);
+
+                            if (i < _accessoryUI.Navis.size())
+                            {
+                                _accessoryUI.Navis[i]->SetItemInfo(info);
+                            }
                         }
                         else
                         {
@@ -294,6 +321,29 @@ void InventoryUIManager::UpdateAccessoryUI()
                 }
             }
         }
+    }
+}
+
+void InventoryUIManager::UpdateConsumble() 
+{
+    //TODO: 소모품 시스템 추가 이후 갱신 일단 비활성화
+
+    for (size_t i = 0; i < _consumableUI.size(); i++)
+    {
+        ImageElement* icon = _consumableUI[i];
+        if (icon)
+        {
+            icon->Enable = false;
+        }
+    }
+
+    for (size_t i = 0; i < _consumableNavi.size(); i++)
+    {
+        InventoryItemFocusNavi* navi = _consumableNavi[i];
+        if (navi)
+        {
+            navi->Enable = false;
+        }      
     }
 }
 

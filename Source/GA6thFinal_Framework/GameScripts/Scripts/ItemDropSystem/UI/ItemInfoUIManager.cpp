@@ -178,68 +178,41 @@ void ItemInfoUIManager::FindComponents()
     Transform::ForeachBFS(transform, [this](Transform* curr) 
     { 
         GameObject& object = curr->gameObject;
-        if (nullptr == _uiComponents.ItemName)
+        if (nullptr == _uiComponents.ItemName && object.CompareTag("Name"))
         {
-            if (object.CompareTag("Name"))
-            {
-                _uiComponents.ItemName = object.GetComponent<TextElement>();
-            }
+            _uiComponents.ItemName = object.GetComponent<TextElement>();
         }
-        else if (nullptr == _uiComponents.ItemIcon)
+        else if (nullptr == _uiComponents.ItemIcon && object.CompareTag("Icon"))
         {
-            if (object.CompareTag("Icon"))
-            {
-                _uiComponents.ItemIcon = object.GetComponent<ImageElement>();
-            }
+            _uiComponents.ItemIcon = object.GetComponent<ImageElement>();
         }
-        else if (nullptr == _uiComponents.ItemDescription)
+        else if (nullptr == _uiComponents.ItemDescription && object.CompareTag("Description"))
         {
-            if (object.CompareTag("Description"))
-            {
-                _uiComponents.ItemDescription = object.GetComponent<DescriptionPanel>();
-            }
+            _uiComponents.ItemDescription = object.GetComponent<DescriptionPanel>();
         }
-        else if (nullptr == _uiComponents.ItemKeyword)
+        else if (nullptr == _uiComponents.ItemKeyword && object.CompareTag("Keyword Description"))
         {
-            if (object.CompareTag("Keyword Description"))
-            {
-                _uiComponents.ItemKeyword = object.GetComponent<DescriptionPanel>();
-            }
+            _uiComponents.ItemKeyword = object.GetComponent<DescriptionPanel>();
         }
-        else if (nullptr == _uiComponents.ItemFlavor)
+        else if (nullptr == _uiComponents.ItemFlavor && object.CompareTag("Flavor Description"))
         {
-            if (object.CompareTag("Flavor Description"))
-            {
-                _uiComponents.ItemFlavor = object.GetComponent<DescriptionPanel>();
-            }
+            _uiComponents.ItemFlavor = object.GetComponent<DescriptionPanel>();
         }
-        else if (nullptr == _uiComponents.Damage)
+        else if (nullptr == _uiComponents.Damage && object.CompareTag("Damage"))
         {
-            if (object.CompareTag("Damage"))
-            {
-                _uiComponents.Damage = object.GetComponent<TextElement>();
-            }
+            _uiComponents.Damage = object.GetComponent<TextElement>();
         }
-        else if (nullptr == _uiComponents.Critical)
+        else if (nullptr == _uiComponents.Critical && object.CompareTag("Critical"))
         {
-            if (object.CompareTag("Critical"))
-            {
-                _uiComponents.Critical = object.GetComponent<TextElement>();
-            }
+            _uiComponents.Critical = object.GetComponent<TextElement>();
         }
-        else if (nullptr == _uiComponents.AttackCount)
+        else if (nullptr == _uiComponents.AttackCount && object.CompareTag("Count"))
         {
-            if (object.CompareTag("Count"))
-            {
-                _uiComponents.AttackCount = object.GetComponent<TextElement>();
-            }
+            _uiComponents.AttackCount = object.GetComponent<TextElement>();
         }
-        else if (nullptr == _uiComponents.Speed)
+        else if (nullptr == _uiComponents.Speed && object.CompareTag("Speed"))
         {
-            if (object.CompareTag("Speed"))
-            {
-                _uiComponents.Speed = object.GetComponent<TextElement>();
-            }
+            _uiComponents.Speed = object.GetComponent<TextElement>();
         }
     });
 }

@@ -20,6 +20,9 @@ public:
     void UpdateWeaponUI();
     void UpdateRevelationUI();
     void UpdateAccessoryUI();
+    void UpdateConsumble();
+
+    ItemInfoUIManager* GetItemInfoManager() const { return _itemInfoUIManager; }
 
 public:
     REFLECT_PROPERTY()
@@ -29,7 +32,7 @@ protected:
     REFLECT_FIELDS_END(InventoryUIManager)
 
     void ImGuiDrawPropertysEvent() override;
-    void Awake() override;
+    void Added() override;
     void Update() override;
 
 private:
@@ -62,6 +65,9 @@ private:
 private:
     void OnButtonB(const Input::Controller&);
     bool _closeFlag = false;
+
+private:
+    size_t GetHorizontalPageCount(size_t artifactCount);
 
 };
 
