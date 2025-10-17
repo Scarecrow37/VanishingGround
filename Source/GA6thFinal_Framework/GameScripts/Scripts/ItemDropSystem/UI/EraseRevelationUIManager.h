@@ -47,7 +47,7 @@ private:
         DescriptionPanel* Flavor      = nullptr;
         DescriptionPanel* Keyword     = nullptr;
     };
-    RevelationInfoUI _revationInfo;
+    RevelationInfoUI _revelation;
 
 private:
     void FindElements();

@@ -104,29 +104,29 @@ void EraseRevelationUIManager::EraseRevelation(int slot)
 
 void EraseRevelationUIManager::SetRevelationInfoUI(const DropItemInfo& info) 
 {
-    if (_revationInfo.Name)
+    if (_revelation.Name)
     {
-        _revationInfo.Name->Text = info.Name;
+        _revelation.Name->Text = info.Name;
     }
-    if (_revationInfo.Icon)
+    if (_revelation.Icon)
     {
         int iconID = DropItemInfo::GetArtifactIconID(info);
         const File::Guid& guid = UmFileSystem.GetGuidFromAssetID(iconID);
-        _revationInfo.Icon->SetImage(guid);
+        _revelation.Icon->SetImage(guid);
     }
-    if (_revationInfo.Description)
+    if (_revelation.Description)
     {
-        _revationInfo.Description->Description = DropItemInfo::GetArtifactDescription(info);
+        _revelation.Description->Description = DropItemInfo::GetArtifactDescription(info);
     }
-    if (_revationInfo.Flavor)
+    if (_revelation.Flavor)
     {
         //TODO: 플레이버 텍스트 추가 필요
-        _revationInfo.Flavor->Description = "";
+        _revelation.Flavor->Description = "";
     }
-    if (_revationInfo.Keyword)
+    if (_revelation.Keyword)
     {
         //키워드 텍스트 추가 필요
-        _revationInfo.Keyword->Description = "";
+        _revelation.Keyword->Description = "";
     }
 }
 
@@ -204,23 +204,23 @@ void EraseRevelationUIManager::FindElements()
                     GameObject& object = curr->gameObject;
                     if (object.CompareTag("Name"))
                     {
-                        _revationInfo.Name = object.GetComponent<TextElement>();
+                        _revelation.Name = object.GetComponent<TextElement>();
                     }
                     else if(object.CompareTag("Icon"))
                     {
-                        _revationInfo.Icon = object.GetComponent<ImageElement>();
+                        _revelation.Icon = object.GetComponent<ImageElement>();
                     }
                     else if (object.CompareTag("Description"))
                     {
-                        _revationInfo.Description = object.GetComponent<DescriptionPanel>();
+                        _revelation.Description = object.GetComponent<DescriptionPanel>();
                     }
                     else if (object.CompareTag("Flavor"))
                     {
-                        _revationInfo.Flavor = object.GetComponent<DescriptionPanel>();
+                        _revelation.Flavor = object.GetComponent<DescriptionPanel>();
                     }
                     else if (object.CompareTag("Keyword"))
                     {
-                        _revationInfo.Keyword = object.GetComponent<DescriptionPanel>();
+                        _revelation.Keyword = object.GetComponent<DescriptionPanel>();
                     }
                 });
             }
