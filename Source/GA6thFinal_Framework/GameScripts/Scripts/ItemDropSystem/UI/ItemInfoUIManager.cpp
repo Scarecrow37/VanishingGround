@@ -157,20 +157,10 @@ void ItemInfoUIManager::ClearWeaponStats()
 
 void ItemInfoUIManager::Awake() 
 {
-    if (_singletonComponent.TrySingleTon())
-    {
-        Base::Awake();
-        gameObject->AddTag(TAG);
-        FindComponents();
-    }
-}
-
-void ItemInfoUIManager::Start() 
-{
-    if (_singletonComponent.IsSingleTon())
-    {
-        Base::Start();
-    }
+    Base::Awake();
+    gameObject->AddTag(TAG);
+    FindComponents();
+    
 }
 
 void ItemInfoUIManager::FindComponents() 

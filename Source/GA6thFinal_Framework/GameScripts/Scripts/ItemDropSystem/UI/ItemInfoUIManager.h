@@ -63,12 +63,10 @@ protected:
 
 protected:
     void Awake() override;
-    void Start() override;
 
     void FindComponents();
 
 private:
-    SingletonComponent<ItemInfoUIManager> _singletonComponent{this};
-    Components                            _uiComponents;
+    Components _uiComponents;
 };
 
