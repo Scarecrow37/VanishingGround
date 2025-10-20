@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="DebugEditor|Win32">
@@ -221,6 +221,9 @@
       <AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
+      <IncludeInUnityFile>true</IncludeInUnityFile>
+      <MinFilesInUnityFile>1</MinFilesInUnityFile>
+      <MaxFilesInUnityFile>3</MaxFilesInUnityFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -242,6 +245,9 @@
       <AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
+      <IncludeInUnityFile>true</IncludeInUnityFile>
+      <MinFilesInUnityFile>1</MinFilesInUnityFile>
+      <MaxFilesInUnityFile>3</MaxFilesInUnityFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -265,6 +271,9 @@
       <AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
+      <IncludeInUnityFile>true</IncludeInUnityFile>
+      <MinFilesInUnityFile>1</MinFilesInUnityFile>
+      <MaxFilesInUnityFile>3</MaxFilesInUnityFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -290,6 +299,9 @@
       <AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
+      <IncludeInUnityFile>true</IncludeInUnityFile>
+      <MinFilesInUnityFile>1</MinFilesInUnityFile>
+      <MaxFilesInUnityFile>3</MaxFilesInUnityFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -351,6 +363,7 @@
     <ClInclude Include="Scripts\GameCore\FSM\FSMState.h" />
     <ClInclude Include="Scripts\GameCore\FSM\IFSMEntity.h" />
     <ClInclude Include="Scripts\Interface\ITriggerType.h" />
+    <ClInclude Include="Scripts\IntroManager\IntroManager.h" />
     <ClInclude Include="Scripts\Inventory\OpenInventoryComponent.h" />
     <ClInclude Include="Scripts\Inventory\UINavi\InventoryArrowNavi.h" />
     <ClInclude Include="Scripts\Inventory\UINavi\InventoryItemFocusNavi.h" />
@@ -365,6 +378,7 @@
     <ClInclude Include="Scripts\ItemDropSystem\UINavi\ReturnToMapNavi.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UI\ArtifactUIManager.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UI\ItemDropUIRootManager.h" />
+    <ClInclude Include="Scripts\DifficultyManager\DifficultyManager.h" />
     <ClInclude Include="Scripts\Light\Base\LightComponent.h" />
     <ClInclude Include="Scripts\Light\DirectionalLight.h" />
     <ClInclude Include="Scripts\Light\PointLight.h" />
@@ -496,6 +510,10 @@
     <ClInclude Include="Scripts\TurnSystem\TurnMode\TurnMode.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnSystemHelper.h" />
     <ClInclude Include="Scripts\UINavigation\TempNavigationComponent.h" />
+    <ClInclude Include="Scripts\UI\Animations\FadeDescriptionPanel\FadeDescriptionPanel.h" />
+    <ClInclude Include="Scripts\UI\Animations\FadeImageElement\FadeImageElement.h" />
+    <ClInclude Include="Scripts\UI\Animations\FadeTextElement\FadeTextElement.h" />
+    <ClInclude Include="Scripts\UI\Animations\UIAnimation.h" />
     <ClInclude Include="Scripts\UI\Base\DrawUIComponent\DrawUIComponent.h" />
     <ClInclude Include="Scripts\UI\Base\SlotComponent\SlotComponent.h" />
     <ClInclude Include="Scripts\UI\Contents\DamageElement.h" />
@@ -598,6 +616,12 @@
     <ClCompile Include="Scripts\ExcelParser\ImGuiColumnSheetParser.cpp" />
     <ClCompile Include="Scripts\GameCore\FSM\AlwaysTransitionCondition.cpp" />
     <ClCompile Include="Scripts\GameCore\FSM\FiniteStateMachine.cpp" />
+    <ClCompile Include="Scripts\IntroManager\IntroManager.cpp">
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</IncludeInUnityFile>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">false</IncludeInUnityFile>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</IncludeInUnityFile>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">false</IncludeInUnityFile>
+    </ClCompile>
     <ClCompile Include="Scripts\Inventory\OpenInventoryComponent.cpp" />
     <ClCompile Include="Scripts\Inventory\UINavi\InventoryArrowNavi.cpp" />
     <ClCompile Include="Scripts\Inventory\UINavi\InventoryItemFocusNavi.cpp" />
@@ -612,6 +636,7 @@
     <ClCompile Include="Scripts\ItemDropSystem\UINavi\ReturnToMapNavi.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UI\ArtifactUIManager.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UI\ItemDropUIRootManager.cpp" />
+    <ClCompile Include="Scripts\DifficultyManager\DifficultyManager.cpp" />
     <ClCompile Include="Scripts\Light\Base\LightComponent.cpp" />
     <ClCompile Include="Scripts\Light\DirectionalLight.cpp" />
     <ClCompile Include="Scripts\Light\PointLight.cpp" />
@@ -730,6 +755,10 @@
     <ClCompile Include="Scripts\TurnSystem\TurnMode\TurnMode.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnSystemHelper.cpp" />
     <ClCompile Include="Scripts\UINavigation\TempNavigationComponent.cpp" />
+    <ClCompile Include="Scripts\UI\Animations\FadeDescriptionPanel\FadeDescriptionPanel.cpp" />
+    <ClCompile Include="Scripts\UI\Animations\FadeImageElement\FadeImageElement.cpp" />
+    <ClCompile Include="Scripts\UI\Animations\FadeTextElement\FadeTextElement.cpp" />
+    <ClCompile Include="Scripts\UI\Animations\UIAnimation.cpp" />
     <ClCompile Include="Scripts\UI\Base\DrawUIComponent\DrawUIComponent.cpp" />
     <ClCompile Include="Scripts\UI\Base\SlotComponent\SlotComponent.cpp" />
     <ClCompile Include="Scripts\UI\Base\UINavigationComponent\UINavigationComponent.cpp" />
