@@ -304,15 +304,15 @@ void RevelationSystem::ImGuiDrawElementTableEditor()
         {
             if (_imguiEvent.DeleteTableBuffer != TABLE_CLEAR_KEY)
             {
-                _imguiEvent.DeleteTableBuffer = STR_NULL;
                 EraseElement(_imguiEvent.DeleteTableBuffer);
                 ImGui::CloseCurrentPopup();
+                _imguiEvent.DeleteTableBuffer = STR_NULL;
             }
             else
             {
-                _imguiEvent.DeleteTableBuffer = STR_NULL;
                 ClearTable();
                 ImGui::CloseCurrentPopup();
+                _imguiEvent.DeleteTableBuffer = STR_NULL;
             }        
         }
         ImGui::SameLine();
