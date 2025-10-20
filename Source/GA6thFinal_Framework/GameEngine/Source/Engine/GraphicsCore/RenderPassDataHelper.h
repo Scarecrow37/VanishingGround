@@ -91,7 +91,7 @@ inline void SerializeSSGIProperty(std::ostream& os, const SSGIProperty& prop)
 inline void SerializeFXAAProperty(std::ostream& os, const FXAAProperty& prop)
 {
     os << "    Type = FXAAProperty\n";
-    os << "    QualitySubpixel  = " << prop.QualitySubpixel << "\n";
+    os << "    QualitySubpixel = " << prop.QualitySubpixel << "\n";
     os << "    QualityEdgeDetectionThreshold = " << prop.QualityEdgeDetectionThreshold << "\n";
     os << "    QualityMinimumEdgeThreshold = " << prop.QualityMinimumEdgeThreshold << "\n";
 }
