@@ -278,6 +278,14 @@ void TokenInventory::AddTokenStackFromID(int tokenID, int count /* = 1 */)
             }
         }
     }
+
+    if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
+    {
+        turnMode->ApplyActions([&](TurnAction& action) 
+        { 
+            action.OnTokenAddedEnd(_owner, tokenID, count); 
+        });
+    }
 }
 
 void TokenInventory::SetTokenStackFromID(int tokenID, int count)
