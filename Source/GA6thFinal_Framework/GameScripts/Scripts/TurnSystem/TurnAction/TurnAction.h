@@ -11,6 +11,7 @@ struct PlayerStats;
 class Enemy;
 struct EnemyStats;
 struct WeaponStats;
+class TokenInventory;
 
 //턴 라이프 사이클 사용을 위한 Base 클래스입니다.
 class TurnAction abstract : public ReflectSerializer, public FactoryConstructor<TurnActionCondition>
@@ -208,6 +209,14 @@ public:
                                      Enemy& target, EnemyStats& targetStats, const QTE::NoteResult& result)
     {
     }
+
+    /// <summary>
+    /// 토큰을 부여하기 직전에 호출합니다.
+    /// </summary>
+    /// <param name="target :">부여 대상</param>
+    /// <param name="tokenID :">부여하는 토큰 아이디</param>
+    /// <param name="tokenCount :">부여하는 갯수</param>
+    virtual void OnTokenAddedStart(CharacterBase& target, int& tokenID, int& tokenCount) {};
 
 public:
     REFLECT_PROPERTY(ActionName, ActionInfo, LogicOperator)

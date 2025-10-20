@@ -184,7 +184,6 @@ const std::string& TurnAction::GetConditionsInfo() const
     return info;
 }
 
-
 void TurnAction::SerializedReflectEvent()
 {
     ConditionsToReflectDatas();
