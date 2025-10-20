@@ -24,7 +24,7 @@ public:
     PROPERTY(FadeDuration)
 
     GETTER(float, BeginAlpha) { return ReflectFields->BeginAlpha; }
-    SETTER(float, BeginAlpha) { ReflectFields->BeginAlpha = std::clamp(value, 0.0f, 0.1f); }
+    SETTER(float, BeginAlpha) { ReflectFields->BeginAlpha = std::clamp(value, 0.0f, 1.0f); }
     PROPERTY(BeginAlpha)
 
     GETTER(float, EndAlpha) { return ReflectFields->EndAlpha; }

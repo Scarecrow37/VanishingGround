@@ -1,8 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "FadeImageElement.h"
 
-#include "UI/Animations/FadeTextElement/FadeTextElement.h"
-
 UMREAL_COMPONENT(FadeImageElement)
 
 FadeImageElement::FadeImageElement() : UIAnimation([this](const float alpha) { UpdateAlpha(alpha); }), _fadeDirection(FadeDirection::NONE)
