@@ -206,8 +206,8 @@ void IntroManager::Update()
         DifficultyManager* difficultyManager = SingletonComponent<DifficultyManager>::GetInstance();
         if (difficultyManager)
         {
-            difficultyManager->SetDifficulty(_isSelectHard ? DifficultyManager::Difficulty::HARD
-                                                           : DifficultyManager::Difficulty::NORMAL);
+            difficultyManager->SetDifficulty(_isSelectHard ? Difficulty::HARD
+                                                           : Difficulty::NORMAL);
         }
         LoadNextScene();
         break;

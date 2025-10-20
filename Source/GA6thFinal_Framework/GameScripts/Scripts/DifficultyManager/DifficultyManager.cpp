@@ -10,7 +10,7 @@ void DifficultyManager::SetDifficulty(const Difficulty difficulty)
     _defaultDifficulty = difficulty;
 }
 
-DifficultyManager::Difficulty DifficultyManager::GetDifficulty() const
+Difficulty DifficultyManager::GetDifficulty() const
 {
     return _defaultDifficulty;
 }
