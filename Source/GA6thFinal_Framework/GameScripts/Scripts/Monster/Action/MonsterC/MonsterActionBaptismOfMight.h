@@ -27,7 +27,3 @@ namespace Monster
         };
     } // namespace Action
 } // namespace Monster
-
-class MonsterActionBaptismOfMight
-{
-};
