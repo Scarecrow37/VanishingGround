@@ -36,7 +36,8 @@ bool LastQTEResultCondition::Evaluate()
 
 void LastQTEResultCondition::DrawImguiEditor() 
 {
-    const std::array<std::string_view, 4> tooltips = {
+    static const std::array<std::string_view, 4> tooltips = 
+    {
         (const char*)u8"치명적", 
         (const char*)u8"무결점",
         (const char*)u8"치명적 실패",
