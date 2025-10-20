@@ -2,6 +2,7 @@
 #include "IntroManager.h"
 
 #include "DifficultyManager/DifficultyManager.h"
+#include "ExcelDataSystem/ExcelDataSystem.h"
 #include "SceneTransition/SceneTransitionComponent.h"
 #include "UI/Animations/FadeDescriptionPanel/FadeDescriptionPanel.h"
 #include "UI/Animations/FadeImageElement/FadeImageElement.h"
@@ -23,8 +24,7 @@ IntroManager::IntroManager()
                 const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
                 if (const auto extension = data->GetPath().extension(); extension == L".UmScene")
                 {
-                    _guid                    = data->GetGuid();
-                    ReflectFields->NextScene = _guid.string();
+                    ReflectFields->NextScene = data->GetGuid().string();
                 }
             }
             ImGui::EndDragDropTarget();
@@ -45,15 +45,96 @@ void IntroManager::Start()
 {
     Component::Start();
 
+    std::unique_ptr<ExcelDataBase> data = nullptr;
+
+    if (const GameObject* excelDataSystem = SingletonObject<ExcelDataSystem>::GetInstance())
+    {
+        if (ExcelDataSystem* excelDataSystemComponent = excelDataSystem->GetComponent<ExcelDataSystem>())
+        {
+            const std::u8string sheetName(u8"텍스트");
+            if (std::unique_ptr<ExcelDataBase> dataBase = excelDataSystemComponent->FindExcelDataBase(sheetName); nullptr != dataBase)
+            {
+                data = std::move(dataBase);
+            }
+        }
+        else
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING, "Load Text Fail.");
+        }
+    }
+
+
     _introDescription = GetElement<FadeDescriptionPanel>("Intro Description");
-    _introDescription->FadeDuration = ReflectFields->FadeDuration;
+    if (nullptr != _introDescription)
+    {
+        _introDescription->FadeDuration = ReflectFields->FadeDuration;
+        if (data)
+        {
+            if (const size_t rowIndex = data->FindRowIndex(BOOK_SELECT_INTRO_DESC_ID, COLUMN_KEY_ID);
+                rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
+            {
+                const std::string_view description = data->FindData(rowIndex, COLUMN_KEY_CONTENT);
+                if (description != ExcelDataBase::FIND_STR_FAIL)
+                {
+                    _introDescription->Description = description.data();
+                }
+            }
+        }
+    }
 
     _normalLevelText = GetElement<FadeTextElement>("Normal Level Text");
-    _normalLevelText->FadeDuration = ReflectFields->FadeDuration;
+    if (nullptr != _normalLevelText)
+    {
+        _normalLevelText->FadeDuration = ReflectFields->FadeDuration;
+        if (data)
+        {
+            if (const size_t rowIndex = data->FindRowIndex(BOOK_SELECT_INTRO_NORMAL_ID, COLUMN_KEY_ID);
+                rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
+            {
+                const std::string_view normalText = data->FindData(rowIndex, COLUMN_KEY_CONTENT);
+                if (normalText != ExcelDataBase::FIND_STR_FAIL)
+                {
+                    _normalLevelText->Text = normalText.data();
+                }
+            }
+        }
+    }
+
     _hardLevelText   = GetElement<FadeTextElement>("Hard Level Text");
-    _hardLevelText->FadeDuration   = ReflectFields->FadeDuration;
+    if (nullptr != _hardLevelText)
+    {
+        _hardLevelText->FadeDuration = ReflectFields->FadeDuration;
+        if (data)
+        {
+            if (const size_t rowIndex = data->FindRowIndex(BOOK_SELECT_INTRO_HARD_ID, COLUMN_KEY_ID);
+                rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
+            {
+                const std::string_view hardText = data->FindData(rowIndex, COLUMN_KEY_CONTENT);
+                if (hardText != ExcelDataBase::FIND_STR_FAIL)
+                {
+                    _hardLevelText->Text = hardText.data();
+                }
+            }
+        }
+    }
+
     _promptText      = GetElement<FadeTextElement>("Intro Prompt");
-    _promptText->FadeDuration      = ReflectFields->FadeDuration;
+    if (nullptr != _promptText)
+    {
+        _promptText->FadeDuration = ReflectFields->FadeDuration;
+        if (data)
+        {
+            if (const size_t rowIndex = data->FindRowIndex(BOOK_SELECT_INTRO_BOOK_NAME_PROMPT_ID, COLUMN_KEY_ID);
+                rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
+            {
+                const std::string_view promptText = data->FindData(rowIndex, COLUMN_KEY_CONTENT);
+                if (promptText != ExcelDataBase::FIND_STR_FAIL)
+                {
+                    _promptText->Text = promptText.data();
+                }
+            }
+        }
+    }
 
     _normalSelection = GetElement<FadeImageElement>("Normal Level Selection");
     _hardSelection   = GetElement<FadeImageElement>("Hard Level Selection");
@@ -179,7 +260,7 @@ float IntroManager::GetFadePromptTime() const
 
 void IntroManager::LoadNextScene() const
 {
-    const File::Path& path = _guid.ToPath();
+    File::Path path = File::Guid(ReflectFields->NextScene).ToPath();
 
     if (const GameObject* transitionManager = SingletonObject<SceneTransitionComponent>::GetInstance())
     {

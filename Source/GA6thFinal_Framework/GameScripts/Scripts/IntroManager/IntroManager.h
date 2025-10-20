@@ -3,6 +3,7 @@
 class FadeImageElement;
 class FadeTextElement;
 class FadeDescriptionPanel;
+class ExcelDataBase;
 
 class IntroManager : public Component, public InputReceiver
 {
@@ -18,6 +19,13 @@ class IntroManager : public Component, public InputReceiver
         FADE_IN_PROMPT,
         END
     };
+
+    static constexpr std::u8string_view COLUMN_KEY_ID                         = u8"ID";
+    static constexpr std::u8string_view COLUMN_KEY_CONTENT                    = u8"Content";
+    static constexpr std::u8string_view BOOK_SELECT_INTRO_DESC_ID             = u8"803000";
+    static constexpr std::u8string_view BOOK_SELECT_INTRO_NORMAL_ID           = u8"803001";
+    static constexpr std::u8string_view BOOK_SELECT_INTRO_HARD_ID             = u8"803002";
+    static constexpr std::u8string_view BOOK_SELECT_INTRO_BOOK_NAME_PROMPT_ID = u8"803003";
 
 public:
     IntroManager();
@@ -41,7 +49,7 @@ public:
     SETTER(float, PromptDelay) { ReflectFields->PromptDelay = std::max(0.0f, value); }
     PROPERTY(PromptDelay)
 
-    GETTER_ONLY(std::string, NextScene) { return _guid.ToPath().string(); }
+    GETTER_ONLY(std::string, NextScene) { return File::Guid(ReflectFields->NextScene).ToPath().string(); }
     PROPERTY(NextScene)
 
 protected:
@@ -89,8 +97,6 @@ private:
     FadeTextElement*      _promptText;
     FadeImageElement*     _normalSelection;
     FadeImageElement*     _hardSelection;
-
-    File::Guid _guid;
 };
 
 template <typename T>

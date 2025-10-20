@@ -223,7 +223,7 @@
       <AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
       <IncludeInUnityFile>true</IncludeInUnityFile>
       <MinFilesInUnityFile>1</MinFilesInUnityFile>
-      <MaxFilesInUnityFile>2</MaxFilesInUnityFile>
+      <MaxFilesInUnityFile>3</MaxFilesInUnityFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -247,7 +247,7 @@
       <AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
       <IncludeInUnityFile>true</IncludeInUnityFile>
       <MinFilesInUnityFile>1</MinFilesInUnityFile>
-      <MaxFilesInUnityFile>2</MaxFilesInUnityFile>
+      <MaxFilesInUnityFile>3</MaxFilesInUnityFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -273,7 +273,7 @@
       <AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
       <IncludeInUnityFile>true</IncludeInUnityFile>
       <MinFilesInUnityFile>1</MinFilesInUnityFile>
-      <MaxFilesInUnityFile>2</MaxFilesInUnityFile>
+      <MaxFilesInUnityFile>3</MaxFilesInUnityFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -301,7 +301,7 @@
       <AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
       <IncludeInUnityFile>true</IncludeInUnityFile>
       <MinFilesInUnityFile>1</MinFilesInUnityFile>
-      <MaxFilesInUnityFile>2</MaxFilesInUnityFile>
+      <MaxFilesInUnityFile>3</MaxFilesInUnityFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -603,7 +603,12 @@
     <ClCompile Include="Scripts\ExcelParser\ImGuiColumnSheetParser.cpp" />
     <ClCompile Include="Scripts\GameCore\FSM\AlwaysTransitionCondition.cpp" />
     <ClCompile Include="Scripts\GameCore\FSM\FiniteStateMachine.cpp" />
-    <ClCompile Include="Scripts\IntroManager\IntroManager.cpp" />
+    <ClCompile Include="Scripts\IntroManager\IntroManager.cpp">
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</IncludeInUnityFile>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">false</IncludeInUnityFile>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</IncludeInUnityFile>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">false</IncludeInUnityFile>
+    </ClCompile>
     <ClCompile Include="Scripts\ItemDropSystem\Interface\IDropItem.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\ItemDropSystem.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UINavi\ArtifactButtonNavi.cpp" />
