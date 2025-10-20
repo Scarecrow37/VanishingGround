@@ -46,7 +46,10 @@ void TokenApplyAction::ImGuiDrawActionEditor()
         ImGui::EndCombo();
     }
     ReflectHelper::ImGuiDraw::Private::InputAuto(TokenCount, UmCore->ImGuiDrawPropertysSetting);
-    TurnSystemHelper::DrawTargetComboboxWithToolTip(ReflectFields->TokenTarget, true);
+    if (TurnSystemHelper::DrawTargetComboboxWithToolTip(ReflectFields->TokenTarget, true))
+    {
+        UpdateActionInfo();
+    }
     ImGui::Separator();
     ImGui::Text("Conditions");
     ImguiDrawConditionEditor();
