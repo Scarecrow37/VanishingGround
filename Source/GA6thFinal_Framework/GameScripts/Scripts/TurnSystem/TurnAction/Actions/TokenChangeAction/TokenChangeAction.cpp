@@ -68,7 +68,8 @@ void TokenChangeAction::OnTokenAddedEnd(CharacterBase& target, int tokenID, int 
 {
     using namespace u8_literals;
     size_t conditionCount = ConditionCount;
-    if (0 < conditionCount && EvaluateConditions())
+    if (0 < conditionCount && 
+        EvaluateConditions())
     {
         std::string msg = TokenSystem::GetTokenNameFromID(tokenID);
         msg += u8" 토큰을 "_c_str;
