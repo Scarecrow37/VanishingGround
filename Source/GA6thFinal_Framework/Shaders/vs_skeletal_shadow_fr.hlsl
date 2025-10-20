@@ -20,11 +20,12 @@ struct VSOutput
     float2 uv            : TEXCOORD;
     
     nointerpolation uint4 materialID : TEXCOORD1;
+    uint arrayIndex : SV_RenderTargetArrayIndex;
 };
 
 struct ShadowMeshData
 {
-    uint CascadeIndex;
+    uint InstanceCount;
     uint Offset;
 };
 
@@ -35,8 +36,9 @@ StructuredBuffer<matrix> boneMatrices;
 VSOutput vs_main(VSInput input)
 {
     uint offset = bit32_2_shadowMeshData.Offset;
-    uint cascadeIndex = bit32_2_shadowMeshData.CascadeIndex;
-    InstanceData data = instanceData[input.instanceID + offset];
+    uint instanceCount = bit32_2_shadowMeshData.InstanceCount;
+    uint cascadeIndex = input.instanceID / instanceCount;
+    InstanceData data = instanceData[input.instanceID % instanceCount + offset];
 
     matrix boneTransform = mul(input.blendWeights.x, boneMatrices[data.MatrixID * MAX_BONE_MATRIX + input.blendIndices.x]);
     boneTransform       += mul(input.blendWeights.y, boneMatrices[data.MatrixID * MAX_BONE_MATRIX + input.blendIndices.y]);
@@ -52,6 +54,7 @@ VSOutput vs_main(VSInput input)
 
     output.uv = input.uv;
     output.materialID = data.MaterialID;
-
+    output.arrayIndex = cascadeIndex;
+    
     return output;
 }

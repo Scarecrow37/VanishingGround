@@ -8,10 +8,10 @@ UMREAL_COMPONENT(PlayerStatsComponent)
 PlayerStatsComponent::PlayerStatsComponent() = default;
 PlayerStatsComponent::~PlayerStatsComponent() = default;
 
-void PlayerStatsComponent::RegisterHP() const
+void PlayerStatsComponent::RegisterHUD() const
 {
     if (nullptr != _stats)
-        _stats->RegisterHP();
+        _stats->RegisterHUD();
 }
 
 TurnActorStats* PlayerStatsComponent::NewTurnActorStats()

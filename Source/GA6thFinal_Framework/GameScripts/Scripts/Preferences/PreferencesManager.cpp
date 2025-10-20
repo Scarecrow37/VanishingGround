@@ -28,7 +28,7 @@ PreferencesManager::~PreferencesManager() = default;
 
 void PreferencesManager::Reset()
 {
-    std::string currSceneName = UmSceneManager.GetMainScene()->Name;
+   
 }
 
 void PreferencesManager::Awake()

@@ -310,6 +310,9 @@ void ItemDropSystem::PlayItemDropUISequence()
 
         if (ArtifactUIManager* manager = SingletonComponent<ArtifactUIManager>::GetInstance())
         {
+            // 플래그 초기화
+            manager->ResetObtainFlag();
+
             // 보상 설정이 안되어있으면 자동으로 뽑는다.
             if (_dropItemsModel.empty())
             {
