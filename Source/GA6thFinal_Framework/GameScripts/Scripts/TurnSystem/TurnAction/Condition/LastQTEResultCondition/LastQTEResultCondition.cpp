@@ -57,6 +57,11 @@ const std::string& LastQTEResultCondition::GetConditionInfo() const
     return conditionInfo;
 }
 
+void LastQTEResultCondition::DeserializedReflectEvent() 
+{
+    UpdateConditionInfo();
+}
+
 void LastQTEResultCondition::UpdateConditionInfo()
 {
     using namespace u8_literals;

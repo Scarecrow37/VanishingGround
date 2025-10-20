@@ -30,6 +30,8 @@ protected:
     void               DrawImguiEditor() override;
     const std::string& GetConditionInfo() const override;
 
+    void DeserializedReflectEvent() override;
+
 private:
     void        UpdateConditionInfo();
     std::string conditionInfo;
