@@ -14,6 +14,11 @@ namespace Monster
     Controller::Controller() = default;
     Controller::~Controller() = default;
 
+    Action::Base* Controller::GetCurrentAction() const
+    {
+        return _currAction;
+    }
+
     bool Controller::Build(std::weak_ptr<Enemy> weakOwner, const Monster::DataContext* pDataContext,
                            const StatContext* pStatContext)
     {
@@ -47,7 +52,6 @@ namespace Monster
                 actionPtr->Reset();
             }
         }
-        _actionIndexTable.clear();
     }
     void Controller::Clear()
     {
@@ -57,7 +61,6 @@ namespace Monster
         }
         _aiModel.Clear();
         _actionIDTable.clear();
-        _actionIndexTable.clear();
         _weakOwner.reset();
         _currAction = nullptr;
         _prevAction = nullptr;
@@ -106,7 +109,8 @@ namespace Monster
 
         int  range       = (int)_dataContext.FsmIDs.size() - 1;
         int  randomIndex = Random::Range(0, range);
-        auto func        = AIFactory::GetAIBuildFunc(_dataContext.FsmIDs[randomIndex]);
+        _fsmID           = _dataContext.FsmIDs[randomIndex];
+        auto func        = AIFactory::GetAIBuildFunc(_fsmID);
         auto owner       = _weakOwner.lock();
         if (func && owner)
         {
@@ -116,7 +120,6 @@ namespace Monster
     void Controller::BuildAction() 
     {
         _actionIDTable.clear();
-        _actionIndexTable.clear();
         for (size_t i = 0; i < _dataContext.ActionIDs.size(); ++i)
         {
             ActionID id = _dataContext.ActionIDs[i];

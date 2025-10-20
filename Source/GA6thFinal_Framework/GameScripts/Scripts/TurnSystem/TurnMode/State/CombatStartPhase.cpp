@@ -125,7 +125,7 @@ void CombatStartPhase::OnAwake()
         }
 
         // TODO: 나중에 전투에 맞는 스폰 ID로 변경
-        Monster::SpawnID spawnID = 211111;
+        Monster::SpawnID spawnID = 211321;
         system->SpawnMonsterFromSpawnID(spawnID, difficulty);
     }
     ResetCharacterStats();

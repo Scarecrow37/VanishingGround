@@ -20,6 +20,7 @@
 #include "Stats/CharacterStats.h"
 
 #include "Monster/System/MonsterSystem.h"
+#include "Monster/Action/MonsterActionBase.h"
 
 UMREAL_COMPONENT(Enemy)
 
@@ -30,6 +31,34 @@ Enemy::~Enemy() = default;
 void Enemy::PlayTurn() 
 {
     Base::PlayTurn();
+}
+
+void Enemy::ImGuiDrawPropertysEvent() 
+{
+    ImGui::Separator();
+    Monster::Controller& controller = GetController();
+
+    const Monster::AIModel& aiModel = controller.GetAIModel();
+    ImGui::BulletText("Current FSM:");
+    ImGui::Text("       ID: %d", controller.GetFSMID());
+    ImGui::Text("       Current Node: %s", aiModel.GetCurrentNodeLabel());
+
+    if (auto* currAction = controller.GetCurrentAction())
+    {
+        ImGui::BulletText("Current Action:");
+        ImGui::Text("       ID: %d", currAction->GetActionID());
+        ImGui::Text("       Name: %s", currAction->GetActionContext().Name.c_str());
+        ImGui::Text("       Type: %s", currAction->GetActionContext().Type.c_str());
+        ImGui::Text("       Target: %s", currAction->GetActionContext().Target.c_str());
+        ImGui::Text("       Attack Count: %d", currAction->GetActionContext().AttackCount);
+        ImGui::Text("       Parameter: %s", currAction->GetActionContext().Parameter.c_str());
+    }
+    else
+    {
+        ImGuiHelper::StyleBuilder styleBuilder;
+        styleBuilder.PushStyleColor(ImGuiCol_Text, IM_COL32(255, 100, 100, 255));
+        ImGui::TextUnformatted("Null Current Action");
+    }
 }
 
 void Enemy::EndTurn() 

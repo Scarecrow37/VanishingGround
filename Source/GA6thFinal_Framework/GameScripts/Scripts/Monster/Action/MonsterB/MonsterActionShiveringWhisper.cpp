@@ -9,7 +9,7 @@ namespace Monster
 {
     namespace Action
     {
-        ShiveringWhisper::ShiveringWhisper() : Base("Attack0") {}
+        ShiveringWhisper::ShiveringWhisper() : Base("Attack1") {}
         ShiveringWhisper::~ShiveringWhisper() = default;
         void ShiveringWhisper::OnActionEnter() {}
         void ShiveringWhisper::OnActionUpdate() {}

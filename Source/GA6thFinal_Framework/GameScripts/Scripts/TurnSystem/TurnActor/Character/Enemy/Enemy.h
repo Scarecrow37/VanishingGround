@@ -89,6 +89,8 @@ protected:
     void Awake() override;
     void Update() override;
     void PlayTurn() override;
+    void ImGuiDrawPropertysEvent() override;
+
 
 private:
     void OnCombatStart() override;

@@ -48,6 +48,8 @@ namespace Monster
             inline bool                         IsActionEnd() const { return _isActionEnd; }
             inline void                         SetActionEnd() { _isActionEnd = true; }
 
+            inline const ActionContext&         GetActionContext() const { return _actionContext; }
+
         protected: 
             // WeakPtr을 RowPtr로 변환하는 편의성 함수
             inline CharacterBase*      GetTarget() { return _weakTarget.lock().get(); }

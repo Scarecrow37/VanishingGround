@@ -28,9 +28,12 @@ namespace Monster
         {
             _isActionEnd = false;
             Refresh();
-            if (false == ProcessAnimation(_animationKey))
+            if (false == _animationKey.empty())
             {
-                SetActionEnd();
+                if (false == ProcessAnimation(_animationKey))
+                {
+                    SetActionEnd();
+                }
             }
             OnActionEnter();
         }

@@ -6,7 +6,7 @@ namespace Monster
 {
     namespace Action
     {
-        Despair::Despair() : Base("Attack0") {}
+        Despair::Despair() : Base("Attack1") {}
         Despair::~Despair() = default;
         void Despair::OnActionEnter() {}
         void Despair::OnActionUpdate() {}

@@ -185,6 +185,15 @@ namespace Monster
         return -1;
     }
 
+    const char* AIModel::GetCurrentNodeLabel() const
+    {
+        if (_currNode)
+        {
+            return _currNode->GetLabel().c_str();
+        }
+        return nullptr;
+    }
+
     size_t AIModel::GetNodeCount() const
     {
         return _nodeTable.size();

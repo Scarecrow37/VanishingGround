@@ -2,15 +2,43 @@
 #include "MonsterActionHymnOfAnnihilation.h"
 #include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
 #include "TurnSystem/TurnActor/Character/Enemy/State/EnemyDeadState.h"
+#include "Animation/AnimationComponent.h"
 
 REGISTER_MONSTER_ACTION(Monster::Action::HymnOfAnnihilation)
 namespace Monster
 {
     namespace Action
     {
-        HymnOfAnnihilation::HymnOfAnnihilation() : Base("Attack1") {}
+        HymnOfAnnihilation::HymnOfAnnihilation()  = default; // 죽는 애니메이션에서 멈춰야하므로 직접 애니메이션 수행
         HymnOfAnnihilation::~HymnOfAnnihilation() = default;
-        void HymnOfAnnihilation::OnActionEnter() {}
+        void HymnOfAnnihilation::OnActionEnter() 
+        {
+            bool result = false;
+            if (AnimationComponent* animator = GetAnimationComponent())
+            {
+                if (animator->HasAnimationMappingKey("Attack2"))
+                {
+                    animator->BeginBuildOverrideAnimation();
+                    {
+                        animator->ClearOverrideAnimations();
+                        animator->SetNextAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE | ANIMATION_FLAG_USE_BLEND);
+                        result = animator->PushBackOverrideAnimation("Attack2");
+                        if (result)
+                        {
+                            auto weakOwner = GetWeakOwner();
+                            animator->SetCurrentAnimationEndCallback([weakOwner, this]() {
+                                if (auto owner = weakOwner.lock())
+                                {
+                                    this->SetActionEnd();
+                                    owner->gameObject->SetActive(false);
+                                }
+                            });
+                        }
+                    }
+                    animator->EndBuildOverrideAnimation();
+                }
+            }
+        }
         void HymnOfAnnihilation::OnActionUpdate() {}
         void HymnOfAnnihilation::OnActionExit() {}
         void HymnOfAnnihilation::OnActionReset() {}

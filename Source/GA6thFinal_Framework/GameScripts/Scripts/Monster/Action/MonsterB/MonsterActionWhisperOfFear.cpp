@@ -10,7 +10,7 @@ namespace Monster
 {
     namespace Action
     {
-        WhisperOfFear::WhisperOfFear() : Base("Attack0") {}
+        WhisperOfFear::WhisperOfFear() : Base("Attack1") {}
         WhisperOfFear::~WhisperOfFear() = default;
         void WhisperOfFear::OnActionEnter() {}
         void WhisperOfFear::OnActionUpdate() {}

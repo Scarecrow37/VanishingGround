@@ -19,8 +19,12 @@ namespace Monster
         ~Controller();
 
     public:
-        inline bool Invalid() { return _weakOwner.expired(); }
-        inline Enemy* GetOwner() { return _weakOwner.lock().get(); }
+        inline const AIModel&   GetAIModel() const { return _aiModel; }
+        inline bool             Invalid() const { return _weakOwner.expired(); }
+        inline Enemy*           GetOwner() const { return _weakOwner.lock().get(); }
+        inline FSMID            GetFSMID() const { return _fsmID; }
+        Action::Base*           GetCurrentAction() const;
+
 
         bool Build(std::weak_ptr<Enemy> weakOwner, const Monster::DataContext* pDataContext, const StatContext* pStatContext);
 
@@ -35,6 +39,7 @@ namespace Monster
         /// <summary>AI FSM의 상태를 전이합니다.</summary>
         void Transition();
 
+
     private:
         void BuildAIModel();
         void BuildAction();
@@ -46,11 +51,12 @@ namespace Monster
         Monster::DataContext  _dataContext;
         Monster::StatContext  _statContext;
 
+        FSMID           _fsmID = 0;
         AIModel         _aiModel;
+
         Action::Base*   _currAction = nullptr;
         Action::Base*   _prevAction = nullptr;
         std::unordered_map<ActionID, std::unique_ptr<Action::Base>> _actionIDTable;
-        std::unordered_map<size_t, Action::Base> _actionIndexTable;
 
     };
 }

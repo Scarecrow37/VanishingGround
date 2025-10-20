@@ -136,6 +136,12 @@ namespace Monster
         /// <returns> 현재 액션의 ID 값입니다. 액션 ID가 존재하지 않는 경우는 -1을 반환합니다.</returns>
         int GetCurrentActionID() const;
 
+        /// <summary>
+        /// 현재 노드의 레이블을 반환합니다.
+        /// </summary>
+        /// <returns>현재 노드의 레이블값입니다. 현재 노드가 널인 경우 nullptr을 반환합니다.</returns>
+        const char* GetCurrentNodeLabel() const;
+
         size_t GetNodeCount() const;
 
     private:

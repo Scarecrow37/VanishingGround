@@ -7,7 +7,7 @@ namespace Monster
 {
     namespace Action
     {
-        Cower::Cower() : Base("Attack0") {}
+        Cower::Cower() : Base("Attack1") {}
         Cower::~Cower() =default;
         void Cower::OnActionEnter() {}
         void Cower::OnActionUpdate() {}

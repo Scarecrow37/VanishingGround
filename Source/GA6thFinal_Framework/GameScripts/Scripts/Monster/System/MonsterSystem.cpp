@@ -334,7 +334,11 @@ void MonsterSystem::LoadDataContextFromExcelData(ExcelDataSystem* dataSystem)
                     data = dataBase->FindData(rowIndex, ExcelDataKey::FSM[i]);
                     if (data != ExcelDataBase::FIND_STR_FAIL)
                     {
-                        context.FsmIDs[i] = StringToInt(data);
+                        int fsmID = StringToInt(data);
+                        if (0 != fsmID)
+                        {
+                            context.FsmIDs[i] = fsmID;
+                        }
                     }
                 }
 
@@ -343,7 +347,11 @@ void MonsterSystem::LoadDataContextFromExcelData(ExcelDataSystem* dataSystem)
                     data = dataBase->FindData(rowIndex, ExcelDataKey::SKILL[i]);
                     if (data != ExcelDataBase::FIND_STR_FAIL)
                     {
-                        context.ActionIDs[i] = StringToInt(data);
+                        int skillID = StringToInt(data);
+                        if (0 != skillID)
+                        {
+                            context.ActionIDs[i] = skillID;
+                        }
                     }
                 }
 
