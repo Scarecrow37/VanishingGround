@@ -148,6 +148,12 @@ bool RevelationSystem::EraseElement(std::string_view elementName)
     return result;
 }
 
+void RevelationSystem::ClearTable() 
+{
+    _elementsTable.clear();
+    _elementTableOrderID.clear();
+}
+
 RevelationElement* RevelationSystem::FindElement(const std::string& elementName)
 {
     auto find = _elementsTable.find(elementName);
@@ -168,6 +174,8 @@ static ReflectHelper::ImGuiDraw::InputAutoSetting InitSetting()
 void RevelationSystem::ImGuiDrawElementTableEditor() 
 {
 #ifdef _UMEDITOR
+    constexpr const char* TABLE_CLEAR_KEY = (const char*)"clear table";
+
     if (ImGui::BeginTable("Revelation Stats", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
     {                      
         static ReflectHelper::ImGuiDraw::InputAutoSetting tableSetting = InitSetting();
@@ -191,6 +199,11 @@ void RevelationSystem::ImGuiDrawElementTableEditor()
                     if (ImGui::MenuItem("Delete"))
                     {
                         _imguiEvent.DeleteTableBuffer = key;
+                        _imguiEvent.OpenDeletePopup   = true;
+                    }
+                    if (ImGui::MenuItem("Clear Table"))
+                    {
+                        _imguiEvent.DeleteTableBuffer = TABLE_CLEAR_KEY;
                         _imguiEvent.OpenDeletePopup   = true;
                     }
                     ImGui::EndPopup();
@@ -289,9 +302,18 @@ void RevelationSystem::ImGuiDrawElementTableEditor()
         ImGui::Separator();
         if (ImGui::Button("OK", ImVec2(120, 0)))
         {
-            EraseElement(_imguiEvent.DeleteTableBuffer);
-            _imguiEvent.DeleteTableBuffer = STR_NULL;
-            ImGui::CloseCurrentPopup();
+            if (_imguiEvent.DeleteTableBuffer != TABLE_CLEAR_KEY)
+            {
+                _imguiEvent.DeleteTableBuffer = STR_NULL;
+                EraseElement(_imguiEvent.DeleteTableBuffer);
+                ImGui::CloseCurrentPopup();
+            }
+            else
+            {
+                _imguiEvent.DeleteTableBuffer = STR_NULL;
+                ClearTable();
+                ImGui::CloseCurrentPopup();
+            }        
         }
         ImGui::SameLine();
         if (ImGui::Button("Cancel", ImVec2(120, 0)) || ImGui::IsKeyReleased(ImGuiKey_Escape))
