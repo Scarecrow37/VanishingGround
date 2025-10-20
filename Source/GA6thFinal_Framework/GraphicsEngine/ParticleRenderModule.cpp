@@ -36,18 +36,21 @@ UINT SpriteModule::GetAlbedoTextureID() const noexcept
 void SpriteModule::CalculateFrameInfos() 
 {
     _preCalculatedFrameInfos.clear();
-    _frameDuration = _frameInfo.w / _frameInfo.z;
-    float uOffset = 1 / _frameInfo.x;
-    float vOffset = 1 / _frameInfo.y;
-    UINT  uCount  = static_cast<UINT>(_frameInfo.x);
-    for (int i = 0; i < _frameInfo.z; i++)
+    if (_frameInfo.z > 0)
     {
-        Vector4 uvMinMax = Vector4::Zero;
-        uvMinMax.x       = (i % uCount) * uOffset;     // u min
-        uvMinMax.y       = (i % uCount + 1) * uOffset; // u max
-        uvMinMax.z       = (i / uCount) * vOffset;     // v min
-        uvMinMax.w       = (i / uCount + 1) * vOffset; // v max
-        _preCalculatedFrameInfos.push_back(uvMinMax);
+        _frameDuration = _frameInfo.w / _frameInfo.z;
+        float uOffset  = 1 / _frameInfo.x;
+        float vOffset  = 1 / _frameInfo.y;
+        UINT  uCount   = static_cast<UINT>(_frameInfo.x);
+        for (int i = 0; i < _frameInfo.z; i++)
+        {
+            Vector4 uvMinMax = Vector4::Zero;
+            uvMinMax.x       = (i % uCount) * uOffset;     // u min
+            uvMinMax.y       = (i % uCount + 1) * uOffset; // u max
+            uvMinMax.z       = (i / uCount) * vOffset;     // v min
+            uvMinMax.w       = (i / uCount + 1) * vOffset; // v max
+            _preCalculatedFrameInfos.push_back(uvMinMax);
+        }
     }
 }
 

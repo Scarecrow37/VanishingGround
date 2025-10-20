@@ -61,7 +61,7 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
     if (nullptr == _curEmitter)
         return;
 
-    bool isSomethingChanged = false;
+    bool isDirty = false;
 
     if (ImGui::BeginTable("##material", 2, ImGuiTableFlags_Borders))
     {
@@ -114,30 +114,39 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
                     if (File::ShowOpenFileDialog(owner, title, L"", {{L"이미지 파일\0", L"*.jpg*\0"}}, false, out))
                     {
                         spriteModule->ChangeAlbedoTexture(out.front().wstring());
-                        isSomethingChanged = true;
+                        isDirty = true;
                     }
                 }
-             //   bool animFlag = ImGui::Checkbox("Sprite Animation", &_spriteAnimFlag);
-                //if (animFlag)
+                bool animFlag = _spriteAnimFlag;
+                ImGui::Text("Sprite Animation");
+                ImGui::SameLine();
+                bool result = ImGui::Checkbox("##Sprite Animation", &animFlag);
+                if (false == isDirty)
+                    if (true == result)
+                        isDirty = result;
+                if (isDirty)
+                    _spriteAnimFlag = animFlag;
+
+                if (_spriteAnimFlag)
                 {
                     float frameInfo[4] = {spriteModule->GetFrameInfo().x, spriteModule->GetFrameInfo().y,
                                           spriteModule->GetFrameInfo().z, spriteModule->GetFrameInfo().w};
 
                     bool result = ImGui::SliderFloat("u Count", &frameInfo[0], 0, 10);
-                    if (false == isSomethingChanged)
+                    if (false == isDirty)
                         if (true == result)
-                            isSomethingChanged = result;
+                            isDirty = result;
 
                     result = ImGui::SliderFloat("v Count", &frameInfo[1], 0, 10);
-                    if (false == isSomethingChanged)
+                    if (false == isDirty)
                         if (true == result)
-                            isSomethingChanged = result;
+                            isDirty = result;
                     
                     result = ImGui::SliderFloat("Duration", &frameInfo[3], 0, 1);
-                    if (false == isSomethingChanged)
+                    if (false == isDirty)
                         if (true == result)
-                            isSomethingChanged = result;
-                    if (isSomethingChanged)
+                            isDirty = result;
+                    if (isDirty)
                     {
                         frameInfo[2] = frameInfo[0] * frameInfo[1];
                         spriteModule->SetFrameInfo({frameInfo[0], frameInfo[1], frameInfo[2], frameInfo[3]});
@@ -164,7 +173,7 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
                 if (File::ShowOpenFileDialog(owner, title, L"", {{L"이미지 파일\0", L"*.jpg*\0"}}, false, out))
                 {
                     ribbonModule->ChangeAlbedoTexture(out.front().wstring());
-                    isSomethingChanged = true;
+                    isDirty = true;
                 }
             }
             {
@@ -172,9 +181,9 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
                                         ribbonModule->GetStartNormal().z};
                 ImGui::Text("ribbon start facing normal");
                 bool result = ImGui::SliderFloat3("##ribbon start facing normal", startNormal, -1, 1);
-                if (false == isSomethingChanged)
+                if (false == isDirty)
                     if (true == result)
-                        isSomethingChanged = result;
+                        isDirty = result;
                 Vector3 temp = {startNormal[0], startNormal[1], startNormal[2]};
                 temp.Normalize();
 
@@ -185,9 +194,9 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
                                       ribbonModule->GetEndNormal().z};
                 ImGui::Text("ribbon end facing normal");
                 bool result = ImGui::SliderFloat3("##ribbon end facing normal", endNormal, -1, 1);
-                if (false == isSomethingChanged)
+                if (false == isDirty)
                     if (true == result)
-                        isSomethingChanged = result;
+                        isDirty = result;
                 Vector3 temp = {endNormal[0], endNormal[1], endNormal[2]};
                 temp.Normalize();
                 ribbonModule->SetEndNormal({temp.x, temp.y, temp.z, 0});
@@ -197,9 +206,9 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
                                          ribbonModule->GetRibbonVector().z};
                 ImGui::Text("ribbon vector");
                 bool result = ImGui::SliderFloat3("##ribbon vector", ribbonVector, -1, 1);
-                if (false == isSomethingChanged)
+                if (false == isDirty)
                     if (true == result)
-                        isSomethingChanged = result;
+                        isDirty = result;
                 Vector3 temp = {ribbonVector[0], ribbonVector[1], ribbonVector[2]};
                 temp.Normalize();
                 ribbonModule->SetRibbonVector({temp.x, temp.y, temp.z, 0});
@@ -298,7 +307,7 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
         }
         Vector3 temp = _curEmitter->_emitLocator->GetFactor();
         if (locationFactor[0] != temp.x || locationFactor[1] != temp.y || locationFactor[2] != temp.z)
-            isSomethingChanged = true;
+            isDirty = true;
         _curEmitter->_emitLocator->SetFactor({locationFactor[0], locationFactor[1], locationFactor[2]});
     }
     ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.0f);
@@ -309,9 +318,11 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
         ImGui::Text("Use light");
         ImGui::SameLine();
         bool result = ImGui::Checkbox("##Use light", &useLight);
-        if (false == isSomethingChanged)
+        if (false == isDirty)
             if (true == result)
-                isSomethingChanged = result;
+                isDirty = result;
+        if (isDirty)
+            _curEmitter->SetUseLight(useLight);
         if (true == useLight)
         {
             // emitter position
@@ -322,9 +333,9 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
                 ImGui::Text("Emitter Light Color");
                 ImGui::SameLine();
                 bool result = ImGui::ColorEdit3("##Emitter Light Color", lightColor);
-                if (false == isSomethingChanged)
+                if (false == isDirty)
                     if (true == result)
-                        isSomethingChanged = result;
+                        isDirty = result;
                 _curEmitter->SetLightColor({lightColor[0], lightColor[1], lightColor[2]});
             }
             // emitter light intensity
@@ -333,9 +344,9 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
                 ImGui::Text("Emitter Light Intensity");
                 ImGui::SameLine();
                 bool result = ImGui::SliderFloat("##Emitter Light Intensity", &lightIntensity, 0, 10);
-                if (false == isSomethingChanged)
+                if (false == isDirty)
                     if (true == result)
-                        isSomethingChanged = result;
+                        isDirty = result;
                 _curEmitter->SetLightIntensity(lightIntensity);
             }
             // emitter light range
@@ -344,9 +355,9 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
                 ImGui::Text("Emitter Light Range");
                 ImGui::SameLine();
                 bool result = ImGui::SliderFloat("##Emitter Light Range", &range, 0, 100);
-                if (false == isSomethingChanged)
+                if (false == isDirty)
                     if (true == result)
-                        isSomethingChanged = result;
+                        isDirty = result;
                 _curEmitter->SetLightRange(range);
             }
         }
@@ -360,9 +371,9 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
         ImGui::Text("Emitter Local Position");
         ImGui::SameLine();
         bool result = ImGui::SliderFloat3("##Emitter Local Position", emitterPos, -10, 10);
-        if (false == isSomethingChanged)
+        if (false == isDirty)
             if (true == result)
-                isSomethingChanged = result;
+                isDirty = result;
         _curEmitter->SetEmitterPosition({emitterPos[0], emitterPos[1], emitterPos[2]});
     }
     // use world space
@@ -371,9 +382,9 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
         ImGui::Text("Use World Space");
         ImGui::SameLine();
         bool result = ImGui::Checkbox("##Use World Space", &useWorldSpace);
-        if (false == isSomethingChanged)
+        if (false == isDirty)
             if (true == result)
-                isSomethingChanged = result;
+                isDirty = result;
         _curEmitter->SetUseWorldSpace(useWorldSpace);
     }
     // emitter rotation
@@ -384,9 +395,9 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
         ImGui::Text("Emitter Local Rotation");
         ImGui::SameLine();
         bool result = ImGui::SliderFloat3("##Emitter Local Rotation", emitterRotation, -180, 180);
-        if (false == isSomethingChanged)
+        if (false == isDirty)
             if (true == result)
-                isSomethingChanged = result;
+                isDirty = result;
         _curEmitter->SetEmitterRotationE({emitterRotation[0] / 180.f * XM_PI, emitterRotation[1] / 180.f * XM_PI,
                                           emitterRotation[2] / 180.f * XM_PI});
     }
@@ -397,9 +408,9 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
         ImGui::Text("Emitter Lifetime");
         ImGui::SameLine();
         bool result = ImGui::InputFloat("##Emitter Lifetime", &lifetime);
-        if (false == isSomethingChanged)
+        if (false == isDirty)
             if (true == result)
-                isSomethingChanged = result;
+                isDirty = result;
         _curEmitter->SetEmitterLifetime(lifetime);
     }
     // particle lifetime
@@ -409,9 +420,9 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
         ImGui::Text("Particle Lifetime");
         ImGui::SameLine();
         bool result = ImGui::InputFloat("##Particle Lifetime", &particleLifetime);
-        if (false == isSomethingChanged)
+        if (false == isDirty)
             if (true == result)
-                isSomethingChanged = result;
+                isDirty = result;
         if (particleLifetime >= lifetime)
         {
             particleLifetime = lifetime;
@@ -425,9 +436,9 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
         ImGui::Text("Emission Rate");
         ImGui::SameLine();
         bool result = ImGui::InputFloat("##Emission Rate", &rate);
-        if (false == isSomethingChanged)
+        if (false == isDirty)
             if (true == result)
-                isSomethingChanged = result;
+                isDirty = result;
         _curEmitter->SetEmissionRate(rate);
     }
     // spawn burst flag & count
@@ -436,9 +447,9 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
         ImGui::Text("Spawn Burst");
         ImGui::SameLine();
         bool result = ImGui::Checkbox("##Spawn Burst", &spawnburstFlag);
-        if (false == isSomethingChanged)
+        if (false == isDirty)
             if (true == result)
-                isSomethingChanged = result;
+                isDirty = result;
         _curEmitter->SetSpawnBurstFlag(spawnburstFlag);
         if (true == spawnburstFlag)
         {
@@ -446,9 +457,9 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
             ImGui::Text("Spawn Burst Count");
             ImGui::SameLine();
             bool result = ImGui::InputFloat("##Spawn Burst Count", &spawnburstCount);
-            if (false == isSomethingChanged)
+            if (false == isDirty)
                 if (true == result)
-                    isSomethingChanged = result;
+                    isDirty = result;
             _curEmitter->SetSpawnBurstCount(spawnburstCount);
         }
     }
@@ -458,9 +469,9 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
         ImGui::Text("Emission Delay");
         ImGui::SameLine();
         bool result = ImGui::InputFloat("##Emission Delay", &delay);
-        if (false == isSomethingChanged)
+        if (false == isDirty)
             if (true == result)
-                isSomethingChanged = result;
+                isDirty = result;
         _curEmitter->SetStartDelay(delay);
     }
     ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.0f);
@@ -486,7 +497,7 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
                 {
                     curIdx             = n;
                     selectedValue      = items[n]; // 선택된 값 저장
-                    isSomethingChanged = true;
+                    isDirty = true;
                 }
                 if (isSelected)
                     ImGui::SetItemDefaultFocus();
@@ -501,9 +512,9 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
             ImGui::Text("Velocity Scale");
             ImGui::SameLine();
             bool result = ImGui::SliderFloat3("##Velocity Scale", (float*)&vel, -1000, 1000);
-            if (false == isSomethingChanged)
+            if (false == isDirty)
                 if (true == result)
-                    isSomethingChanged = result;
+                    isDirty = result;
             _curEmitter->SetVelocityFactor(vel);
         }
         if (VelocityScaleType::POINT == veltype)
@@ -513,9 +524,9 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
             ImGui::Text("Velocity Scale");
             ImGui::SameLine();
             bool result = ImGui::SliderFloat("##Velocity Scale", (float*)&temp, -1000, 1000);
-            if (false == isSomethingChanged)
+            if (false == isDirty)
                 if (true == result)
-                    isSomethingChanged = result;
+                    isDirty = result;
             vel.x = temp;
             _curEmitter->SetVelocityFactor(vel);
         }
@@ -525,9 +536,9 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
             ImGui::Text("Velocity Scale");
             ImGui::SameLine();
             bool result = ImGui::SliderFloat3("##Velocity Scale", (float*)&vel, -1000, 1000);
-            if (false == isSomethingChanged)
+            if (false == isDirty)
                 if (true == result)
-                    isSomethingChanged = result;
+                    isDirty = result;
             _curEmitter->SetVelocityFactor(vel);
         }
     }
@@ -539,36 +550,36 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
         ImGui::Text("Start Color");
         ImGui::SameLine();
         bool result = ImGui::ColorEdit3("##Start Color", (float*)&startcolor);
-        if (false == isSomethingChanged)
+        if (false == isDirty)
             if (true == result)
-                isSomethingChanged = result;
+                isDirty = result;
         _curEmitter->SetStartColor(startcolor);
 
         Vector3 endcolor = _curEmitter->GetEndColor();
         ImGui::Text("End Color");
         ImGui::SameLine();
         result = ImGui::ColorEdit3("##End Color", (float*)&endcolor);
-        if (false == isSomethingChanged)
+        if (false == isDirty)
             if (true == result)
-                isSomethingChanged = result;
+                isDirty = result;
         _curEmitter->SetEndColor(endcolor);
 
         float StartAlpha = _curEmitter->GetStartOpacity();
         ImGui::Text("Start Alpha");
         ImGui::SameLine();
         result = ImGui::SliderFloat("##Start Alpha", &StartAlpha, 0, 1);
-        if (false == isSomethingChanged)
+        if (false == isDirty)
             if (true == result)
-                isSomethingChanged = result;
+                isDirty = result;
         _curEmitter->SetStartOpacity(StartAlpha);
 
         float EndAlpha = _curEmitter->GetEndOpacity();
         ImGui::Text("End Alpha");
         ImGui::SameLine();
         result = ImGui::SliderFloat("##End Alpha", &EndAlpha, 0, 1);
-        if (false == isSomethingChanged)
+        if (false == isDirty)
             if (true == result)
-                isSomethingChanged = result;
+                isDirty = result;
         _curEmitter->SetEndOpacity(EndAlpha);
     }
     ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.0f);
@@ -584,9 +595,9 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
                 ImGui::Text("Scale by Velocity");
                 ImGui::SameLine();
                 bool result = ImGui::Checkbox("##Scale by Velocity", &scaleVelFlag);
-                if (false == isSomethingChanged)
+                if (false == isDirty)
                     if (true == result)
-                        isSomethingChanged = result;
+                        isDirty = result;
                 _curEmitter->SetScaleByVelocityFlag(scaleVelFlag);
 
                 if (false == scaleVelFlag)
@@ -597,9 +608,9 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
                     ImGui::Text("Particle Axis");
                     ImGui::SameLine();
                     bool result = ImGui::SliderFloat3("##Particle Axis", axis, -1, 1);
-                    if (false == isSomethingChanged)
+                    if (false == isDirty)
                         if (true == result)
-                            isSomethingChanged = result;
+                            isDirty = result;
                     _curEmitter->SetParticleAxis({axis[0], axis[1], axis[2]});
                 }
             }
@@ -609,9 +620,9 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
             ImGui::Text("Start Scale");
             ImGui::SameLine();
             bool result = ImGui::InputFloat2("##Start Scale", (float*)&startScale);
-            if (false == isSomethingChanged)
+            if (false == isDirty)
                 if (true == result)
-                    isSomethingChanged = result;
+                    isDirty = result;
             startscale.x = startScale[0];
             startscale.y = startScale[1];
             _curEmitter->SetStartScale(startscale);
@@ -621,9 +632,9 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
             ImGui::Text("End Scale");
             ImGui::SameLine();
             result = ImGui::InputFloat2("##End Scale", (float*)&endScale);
-            if (false == isSomethingChanged)
+            if (false == isDirty)
                 if (true == result)
-                    isSomethingChanged = result;
+                    isDirty = result;
             endscale.x = endScale[0];
             endscale.y = endScale[1];
             _curEmitter->SetEndScale(endscale);
@@ -636,9 +647,9 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
             ImGui::Text("Start Scale");
             ImGui::SameLine();
             bool result = ImGui::InputFloat3("##Start Scale", (float*)&startScale);
-            if (false == isSomethingChanged)
+            if (false == isDirty)
                 if (true == result)
-                    isSomethingChanged = result;
+                    isDirty = result;
             startscale.x = startScale[0];
             startscale.y = startScale[1];
             startscale.z = startScale[2];
@@ -649,9 +660,9 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
             ImGui::Text("End Scale");
             ImGui::SameLine();
             result = ImGui::InputFloat3("##End Scale", (float*)&endScale);
-            if (false == isSomethingChanged)
+            if (false == isDirty)
                 if (true == result)
-                    isSomethingChanged = result;
+                    isDirty = result;
             endscale.x = endScale[0];
             endscale.y = endScale[1];
             endscale.z = endScale[2];
@@ -665,9 +676,9 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
             ImGui::Text("Start Scale");
             ImGui::SameLine();
             bool result = ImGui::InputFloat2("##Start Scale", (float*)&startScale);
-            if (false == isSomethingChanged)
+            if (false == isDirty)
                 if (true == result)
-                    isSomethingChanged = result;
+                    isDirty = result;
             startscale.x = startScale[0];
             startscale.y = startScale[1];
             _curEmitter->SetStartScale(startscale);
@@ -677,9 +688,9 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
             ImGui::Text("End Scale");
             ImGui::SameLine();
             result = ImGui::InputFloat2("##End Scale", (float*)&endScale);
-            if (false == isSomethingChanged)
+            if (false == isDirty)
                 if (true == result)
-                    isSomethingChanged = result;
+                    isDirty = result;
             endscale.x = endScale[0];
             endscale.y = endScale[1];
             _curEmitter->SetEndScale(endscale);
@@ -693,9 +704,9 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
         ImGui::Text("Particle Mass");
         ImGui::SameLine();
         bool result = ImGui::InputFloat("##Particle Mass", &mass);
-        if (false == isSomethingChanged)
+        if (false == isDirty)
             if (true == result)
-                isSomethingChanged = result;
+                isDirty = result;
         _curEmitter->SetParticleMass(mass);
     }
     {
@@ -704,9 +715,9 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
         ImGui::Text("Start Distribution Offset");
         ImGui::SameLine();
         bool result = ImGui::InputFloat3("##Start Distribution Offset", (float*)&offset);
-        if (false == isSomethingChanged)
+        if (false == isDirty)
             if (true == result)
-                isSomethingChanged = result;
+                isDirty = result;
         _curEmitter->SetParticleStartDistributionOffset(offset);
     }
     {
@@ -714,9 +725,9 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
         ImGui::Text("End Distribution Offset");
         ImGui::SameLine();
         bool result = ImGui::InputFloat3("##End Distribution Offset", (float*)&offset);
-        if (false == isSomethingChanged)
+        if (false == isDirty)
             if (true == result)
-                isSomethingChanged = result;
+                isDirty = result;
         _curEmitter->SetParticleEndDistributionOffset(offset);
     }
     // drag
@@ -725,9 +736,9 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
         ImGui::Text("Drag Force");
         ImGui::SameLine();
         bool result = ImGui::SliderFloat4("##Drag Force", (float*)&force, -1000, 1000);
-        if (false == isSomethingChanged)
+        if (false == isDirty)
             if (true == result)
-                isSomethingChanged = result;
+                isDirty = result;
         _curEmitter->SetDragForce(force);
     }
 
@@ -737,15 +748,15 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
         ImGui::Text("Vortex Force");
         ImGui::SameLine();
         bool result = ImGui::SliderFloat4("##Vortex Force", (float*)&force, -1000, 1000);
-        if (false == isSomethingChanged)
+        if (false == isDirty)
             if (true == result)
-                isSomethingChanged = result;
+                isDirty = result;
         if (force.Length() <= 0)
             force = {0.001f, 0.001f, 0.001f};
         _curEmitter->SetVortexForce(force);
     }
 
-    if (true == isSomethingChanged)
+    if (true == isDirty)
     {
         UmParticleManager->RefreshEditor();
     }
