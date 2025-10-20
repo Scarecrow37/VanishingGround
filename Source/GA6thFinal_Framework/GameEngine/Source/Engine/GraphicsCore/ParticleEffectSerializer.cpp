@@ -1081,6 +1081,14 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_1(EffectID id, const std
                     ribbonModule->SetRibbonVector(ribbonvector);
                 }
             }
+            else
+            {
+                if (auto spriteModule = emitter->_particleRenderModule->AsSprite())
+                {
+                    spriteModule->SetFrameInfo(frameInfo);
+                    spriteModule->CalculateFrameInfos();
+                }
+            }
         }
     }
 
@@ -1571,9 +1579,9 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_2(EffectID id, const std
                 UmGraphics.LoadTextureResource(std::wstring_view(absolutePath.wstring()), emitter);
                 if (LocationShape::MESH_SURFACE == emitter->_locationType)
                 {
-                    File::Guid          guid         = modelPath;
-                    File::Path          absolutePath = guid.ToPath();
-                    absolutePath                     = std::filesystem::absolute(absolutePath).generic_string();
+                    File::Guid guid         = modelPath;
+                    File::Path absolutePath = guid.ToPath();
+                    absolutePath            = std::filesystem::absolute(absolutePath).generic_string();
                     UmGraphics.LoadModelResource(std::wstring_view(absolutePath.wstring()), emitter);
                     if (auto meshSurfaceLocator = emitter->_emitLocator->AsMeshSurfaceLocator())
                     {
@@ -1610,6 +1618,14 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_2(EffectID id, const std
                     ribbonModule->SetStartNormal(startNormal);
                     ribbonModule->SetEndNormal(endNormal);
                     ribbonModule->SetRibbonVector(ribbonvector);
+                }
+            }
+            else
+            {
+                if (auto spriteModule = emitter->_particleRenderModule->AsSprite())
+                {
+                    spriteModule->SetFrameInfo(frameInfo);
+                    spriteModule->CalculateFrameInfos();
                 }
             }
         }
@@ -2120,9 +2136,9 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_3(EffectID id, const std
                 UmGraphics.LoadTextureResource(std::wstring_view(absolutePath.wstring()), emitter);
                 if (LocationShape::MESH_SURFACE == emitter->_locationType)
                 {
-                    File::Guid guid           = modelPath;
-                    File::Path   absolutePath = guid.ToPath();
-                    absolutePath              = std::filesystem::absolute(absolutePath).generic_string();
+                    File::Guid guid         = modelPath;
+                    File::Path absolutePath = guid.ToPath();
+                    absolutePath            = std::filesystem::absolute(absolutePath).generic_string();
                     UmGraphics.LoadModelResource(std::wstring_view(absolutePath.wstring()), emitter);
                     if (auto meshSurfaceLocator = emitter->_emitLocator->AsMeshSurfaceLocator())
                     {
@@ -2161,6 +2177,14 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_3(EffectID id, const std
                     ribbonModule->SetStartNormal(startNormal);
                     ribbonModule->SetEndNormal(endNormal);
                     ribbonModule->SetRibbonVector(ribbonvector);
+                }
+            }
+            else
+            {
+                if (auto spriteModule = emitter->_particleRenderModule->AsSprite())
+                {
+                    spriteModule->SetFrameInfo(frameInfo);
+                    spriteModule->CalculateFrameInfos();
                 }
             }
         }
@@ -2630,10 +2654,10 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_4(EffectID id, const std
         Vector3           axis;
         bool              scalevelFlag;
 
-        bool              uselight;
-        float             lightintensity;
-        float             lightrange;
-        Vector3           lightcolor;
+        bool    uselight;
+        float   lightintensity;
+        float   lightrange;
+        Vector3 lightcolor;
 
         is.read(reinterpret_cast<char*>(&uselight), sizeof(uselight));
         if (uselight)
@@ -2723,9 +2747,9 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_4(EffectID id, const std
                 UmGraphics.LoadTextureResource(std::wstring_view(absolutePath.wstring()), emitter);
                 if (LocationShape::MESH_SURFACE == emitter->_locationType)
                 {
-                    File::Guid          guid         = modelPath;
-                    File::Path          absolutePath = guid.ToPath();
-                    absolutePath                     = std::filesystem::absolute(absolutePath).generic_string();
+                    File::Guid guid         = modelPath;
+                    File::Path absolutePath = guid.ToPath();
+                    absolutePath            = std::filesystem::absolute(absolutePath).generic_string();
                     UmGraphics.LoadModelResource(std::wstring_view(absolutePath.wstring()), emitter);
                     if (auto meshSurfaceLocator = emitter->_emitLocator->AsMeshSurfaceLocator())
                     {
@@ -2765,6 +2789,14 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_4(EffectID id, const std
                     ribbonModule->SetStartNormal(startNormal);
                     ribbonModule->SetEndNormal(endNormal);
                     ribbonModule->SetRibbonVector(ribbonvector);
+                }
+            }
+            else
+            {
+                if (auto spriteModule = emitter->_particleRenderModule->AsSprite())
+                {
+                    spriteModule->SetFrameInfo(frameInfo);
+                    spriteModule->CalculateFrameInfos();
                 }
             }
         }
