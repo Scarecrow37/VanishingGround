@@ -46,17 +46,33 @@ const ActionContext* MonsterSystem::GetActionContextFromID(ActionID id)
     return nullptr;
 }
 
-bool MonsterSystem::SpawnMonsterFromSpawnID(SpawnID spawnID, bool isHardDifficulty)
+bool MonsterSystem::SpawnMonsterFromSpawnID(SpawnID spawnID, Difficulty difficulty)
 {
-    bool result = false;
-    result = SpawnMonsterFromSpawnID(spawnID, SpawnPoint::Left, isHardDifficulty);
-    result |= SpawnMonsterFromSpawnID(spawnID, SpawnPoint::Middle, isHardDifficulty);
-    result |= SpawnMonsterFromSpawnID(spawnID, SpawnPoint::Right, isHardDifficulty);
-    return result;
+    bool contains = _spawnDataTable.contains(spawnID);
+    assert(contains); // [assert] 해당 스폰 ID가 스폰 데이터 테이블에 존재해야합니다.
+    if (contains)
+    {
+        size_t      succeed   = 0;
+        const auto& spawnData = _spawnDataTable[spawnID];
+        for (size_t i = 0; i < spawnData.SpawnParams.size(); ++i)
+        {
+            const auto& spawnParam = spawnData.SpawnParams[i];
+            bool isValid = _monsterDataTable.contains(spawnParam.MonsterID);
+            if (isValid)
+            {
+                SpawnPoint spawnPointType = static_cast<SpawnPoint>(i);
+                if (SpawnMonsterFromSpawnID(spawnID, spawnPointType, difficulty))
+                {
+                    ++succeed;
+                }
+            }
+        }
+        return succeed == spawnData.SpawnParams.size();
+    }
+    return false;
 }
 
-bool MonsterSystem::SpawnMonsterFromSpawnID(SpawnID spawnID, SpawnPoint spawnPointType,
-                                            bool isHardDifficulty)
+bool MonsterSystem::SpawnMonsterFromSpawnID(SpawnID spawnID, SpawnPoint spawnPointType, Difficulty difficulty)
 {
     assert(spawnPointType != SpawnPoint::Invalid); // [assert] 스폰 포인트 타입이 Invalid가 아니어야합니다.
     if (spawnPointType == SpawnPoint::Invalid)
@@ -66,9 +82,9 @@ bool MonsterSystem::SpawnMonsterFromSpawnID(SpawnID spawnID, SpawnPoint spawnPoi
 
     if (_spawnDataTable.contains(spawnID))
     {
-        const auto& spawnData   = _spawnDataTable[spawnID];
-        size_t      diffIndex  = isHardDifficulty ? 1 : 0;
-        size_t      spawnIndex  = static_cast<size_t>(spawnPointType);
+        const auto& spawnData  = _spawnDataTable[spawnID];
+        size_t      diffIndex  = static_cast<size_t>(difficulty);
+        size_t      spawnIndex = static_cast<size_t>(spawnPointType);
 
         // [assert] 난이도 인덱스가 최대 난이도 수를 넘지 않아야합니다.
         assert(diffIndex < MAX_DIFF_COUNT);

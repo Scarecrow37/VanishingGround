@@ -9,6 +9,8 @@
 #include "Monster/Context/MonsterStatContext.h"
 #include "Monster/Context/MonsterSpawnContext.h"
 
+#include "DifficultyManager/DifficultyEnum.h"
+
 class ExcelDataSystem;
 class ExcelDataBase;
 class Enemy;
@@ -47,8 +49,8 @@ public:
     /// <returns>해당 ID에 연결된 Monster::ActionContext 객체의 포인터를 반환합니다. 해당 ID가 없으면 nullptr을 반환할 수 있습니다.</returns>
     const Monster::ActionContext* GetActionContextFromID(Monster::ActionID id);
 
-    bool SpawnMonsterFromSpawnID(Monster::SpawnID spawnID, bool isHardDifficulty = false);
-    bool SpawnMonsterFromSpawnID(Monster::SpawnID spawnID, Monster::SpawnPoint spawnPoint, bool isHardDifficulty = false);
+    bool SpawnMonsterFromSpawnID(Monster::SpawnID spawnID, Difficulty difficulty = Difficulty::NORMAL);
+    bool SpawnMonsterFromSpawnID(Monster::SpawnID spawnID, Monster::SpawnPoint spawnPoint, Difficulty difficulty = Difficulty::NORMAL);
 
     const std::vector<std::weak_ptr<Enemy>>* GetSpawnedEnemiesFromID(Monster::DataID dataID) const;
     std::weak_ptr<Enemy>                     GetSpawnedEnemyFromSpawnPoint(Monster::SpawnPoint spawnPoint) const;

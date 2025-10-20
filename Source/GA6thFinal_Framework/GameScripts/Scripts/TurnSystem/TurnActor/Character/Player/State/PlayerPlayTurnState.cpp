@@ -145,34 +145,33 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
      Debugger()([this] {
         // 아래는 디버그용 코드입니다.
         ImGuiHelper::AlignedText("Combat", ImGuiHelper::LEFT, 0.8f);
-        auto enemies = Battle::GetTargetsFromFlags(Battle::ENEMY_TARGET_FLAG_ALL);
-        if (ImGui::Button((const char*)u8"[적] 전멸"))
+        if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
         {
-            for (auto& enemy : enemies)
+            auto& enemies = turnMode->GetEnemies();
+
+            if (ImGui::Button((const char*)u8"적 전멸"))
             {
-                if (enemy)
-                    enemy->Dead();
+                for (auto& enemy : enemies)
+                {
+                    if (enemy)
+                        enemy->Dead();
+                }
+            }
+            for (size_t i = 0; i < enemies.size(); ++i)
+            {
+                ImGui::SameLine();
+                const char* spawnPointStr = Monster::SpawnPointToString(enemies[i]->SpawnPoint);
+                std::string buttonLabel   = std::format("{}{}", spawnPointStr, (const char*)u8" 적 자살");
+                if (ImGui::Button(buttonLabel.c_str()))
+                {
+                    if (enemies[i])
+                    {
+                        enemies[i]->Dead();
+                    }
+                }
+                ImGui::SameLine();
             }
         }
-        if (ImGui::Button((const char*)u8"[적 LEFT] 자살"))
-        {
-            if (enemies.size() >= 1 && enemies[0])
-                enemies[0]->Dead();
-        }
-        ImGui::SameLine();
-        if (ImGui::Button((const char*)u8"[적 MIDDLE] 자살"))
-        {
-            if (enemies.size() >= 2 && enemies[1])
-                enemies[1]->Dead();
-        }
-        ImGui::SameLine();
-        if (ImGui::Button((const char*)u8"[적 RIGHT] 자살"))
-        {
-            if (enemies.size() >= 3 && enemies[2])
-                enemies[2]->Dead();
-        }
-        ImGui::SameLine();
-
         ImGui::Separator();
         Player& player = GetPlayer();
         if (ImGui::Button((const char*)u8"[플레이어] 자해"))

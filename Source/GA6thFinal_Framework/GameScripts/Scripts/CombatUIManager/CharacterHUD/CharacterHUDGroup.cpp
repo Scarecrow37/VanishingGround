@@ -4,7 +4,6 @@
 #include <UI/Panels/Overlay/OverlayPanel.h>
 #include <Camera/CameraComponent.h>
 
-#include <BattleSystem/Battle.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
@@ -91,33 +90,38 @@ namespace CombatUI
 
     bool CharacterHUDGroup::RefreshEnemiesPosition()
     {
-        CameraComponent* camera = CameraComponent::MainCamera();
-        if (camera)
+        if (CameraComponent* camera = CameraComponent::MainCamera())
         {
-            auto enemies = Battle::GetTargetsFromFlags(Battle::ENEMY_TARGET_FLAG_ALL);
-
-            for (size_t i = 0; i < enemies.size(); ++i)
+            if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
             {
-                bool valid = enemies[i] && EnemyHUDPanel[i];
+                auto enemies = turnMode->GetEnemies();
+
+                for (size_t i = 0; i < enemies.size(); ++i)
+                {
+                    if (enemies[i])
+                    {
+                        Monster::SpawnPoint spawnPoint = enemies[i]->SpawnPoint;
+                        int                 index      = static_cast<int>(spawnPoint);
+                        if (EnemyHUDPanel[index])
+                        {
+                            EnemyPosition[i] = camera->WorldToViewport(enemies[i]->transform->GetWorldPosition());
+                        }
+
+                    }
+                }
+
+                bool valid = PlayerHUDPanel;
                 if (valid)
                 {
-                    EnemyPosition[i] = camera->WorldToViewport(enemies[i]->transform->GetWorldPosition());
-                }
-            }
 
-            bool valid = PlayerHUDPanel;
-            if (valid)
-            {
-                if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
-                {
                     if (Player* player = turnMode->GetPlayer())
                     {
                         const auto& playerWorld = player->transform->GetWorldPosition();
                         PlayerPosition          = camera->WorldToViewport(playerWorld);
                     }
                 }
+                return true;
             }
-            return true;
         }
         return false;
     }

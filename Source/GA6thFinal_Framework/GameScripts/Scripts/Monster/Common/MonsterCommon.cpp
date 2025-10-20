@@ -19,6 +19,22 @@ namespace Monster
         }
     }
 
+    const char* SpawnPointToString(SpawnPoint point)
+    {
+        switch (point)
+        {
+        case SpawnPoint::Left:
+            return "Left";
+        case SpawnPoint::Middle:
+            return "Middle";
+        case SpawnPoint::Right:
+            return "Right";
+        default:
+            break;
+        }
+        return nullptr;
+    }
+
     int StringToInt(std::string_view str)
     {
         try

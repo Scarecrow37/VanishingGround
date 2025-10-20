@@ -97,8 +97,9 @@ namespace Monster
                 
             }
         }
-    }
+    } // namespace ExcelData
 
+    const char*              SpawnPointToString(SpawnPoint point);
     int                      StringToInt(std::string_view str);
     bool                     StringToInt(std::string_view str, int& outValue);
     std::vector<ActionParam> ParseActionParam(std::string_view paramStr); // ex) 1, 5, 2 (데미지1, 데미지2, 데미지3)
