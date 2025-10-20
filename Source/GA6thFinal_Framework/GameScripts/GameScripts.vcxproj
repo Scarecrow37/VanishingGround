@@ -351,9 +351,15 @@
     <ClInclude Include="Scripts\GameCore\FSM\FSMState.h" />
     <ClInclude Include="Scripts\GameCore\FSM\IFSMEntity.h" />
     <ClInclude Include="Scripts\Interface\ITriggerType.h" />
+    <ClInclude Include="Scripts\Inventory\OpenInventoryComponent.h" />
+    <ClInclude Include="Scripts\Inventory\UINavi\InventoryArrowNavi.h" />
+    <ClInclude Include="Scripts\Inventory\UINavi\InventoryItemFocusNavi.h" />
+    <ClInclude Include="Scripts\Inventory\UI\HorizontalPageUIManager.h" />
+    <ClInclude Include="Scripts\Inventory\UI\InventoryUIManager.h" />
     <ClInclude Include="Scripts\ItemDropSystem\Interface\IDropItem.h" />
     <ClInclude Include="Scripts\ItemDropSystem\ItemDropSystem.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UINavi\ArtifactButtonNavi.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UINavi\EraseRevelationNavi.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UINavi\PlayerWeaponChangeNavi.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UINavi\RestartStageNavi.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UINavi\ReturnToMapNavi.h" />
@@ -393,6 +399,7 @@
     <ClInclude Include="Scripts\QTE\Result\QTEResult.h" />
     <ClInclude Include="Scripts\QTE\System\QTESystem.h" />
     <ClInclude Include="Scripts\QTE\Track\Note\QTENote.h" />
+    <ClInclude Include="Scripts\QTE\Track\Note\QTENoteData.h" />
     <ClInclude Include="Scripts\QTE\Track\QTETrack.h" />
     <ClInclude Include="Scripts\QTE\UI\QTEUIManager.h" />
     <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Base\RevelationActionBase.h" />
@@ -506,6 +513,7 @@
     <ClInclude Include="Scripts\UI\Views\MonsterHp\MonsterHpView.h" />
     <ClInclude Include="Scripts\UI\Views\PlayerHP\PlayerHPView.h" />
     <ClInclude Include="Scripts\UI\Views\RevelationsView\RevelationsView.h" />
+    <ClInclude Include="Scripts\UI\Views\SturnResistanceView\SturnResistanceView.h" />
     <ClInclude Include="Scripts\UI\Views\TurnQueue\TurnQueueView.h" />
     <ClInclude Include="Scripts\UI\Views\Weapon\WeaponView.h" />
     <ClInclude Include="Scripts\UI\Wrappers\Dummy\DummyWrapper.h" />
@@ -513,6 +521,7 @@
     <ClInclude Include="Scripts\UI\Wrappers\Scrolling\ScrollingWrapper.h" />
     <ClInclude Include="Scripts\Utility\FadeHelper.h" />
     <ClInclude Include="Scripts\Utility\SingletonHelper.h" />
+    <ClInclude Include="Scripts\Utility\UINaviKeyBindHelper.h" />
     <ClInclude Include="Scripts\ViewModels\Accessories\AccessoriesViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Chain\ChainCountViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Hp\CharacterHPViewModel.h" />
@@ -520,6 +529,7 @@
     <ClInclude Include="Scripts\ViewModels\Map\StageFocusViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Map\StageViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Revelations\RevelationsViewModel.h" />
+    <ClInclude Include="Scripts\ViewModels\SturnResistance\SturnResistanceViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\TurnQueue\TurnQueueViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Weapon\WeaponViewModel.h" />
     <ClInclude Include="Scripts\WeaponModelManager\WeaponModelManager.h" />
@@ -531,6 +541,7 @@
     <ClInclude Include="Scripts\Map\MapManagerTracker.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UI\ItemInfoUIManager.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UI\WeaponChangeUIManager.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UI\EraseRevelationUIManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scripts\CombatUIManager\Accessories\AccessoriesGroup.cpp" />
@@ -585,9 +596,15 @@
     <ClCompile Include="Scripts\ExcelParser\ImGuiColumnSheetParser.cpp" />
     <ClCompile Include="Scripts\GameCore\FSM\AlwaysTransitionCondition.cpp" />
     <ClCompile Include="Scripts\GameCore\FSM\FiniteStateMachine.cpp" />
+    <ClCompile Include="Scripts\Inventory\OpenInventoryComponent.cpp" />
+    <ClCompile Include="Scripts\Inventory\UINavi\InventoryArrowNavi.cpp" />
+    <ClCompile Include="Scripts\Inventory\UINavi\InventoryItemFocusNavi.cpp" />
+    <ClCompile Include="Scripts\Inventory\UI\HorizontalPageUIManager.cpp" />
+    <ClCompile Include="Scripts\Inventory\UI\InventoryUIManager.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\Interface\IDropItem.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\ItemDropSystem.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UINavi\ArtifactButtonNavi.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UINavi\EraseRevelationNavi.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UINavi\PlayerWeaponChangeNavi.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UINavi\RestartStageNavi.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UINavi\ReturnToMapNavi.cpp" />
@@ -626,12 +643,14 @@
     <ClCompile Include="Scripts\QTE\Editor\QTEEditor.cpp" />
     <ClCompile Include="Scripts\QTE\System\QTESystem.cpp" />
     <ClCompile Include="Scripts\QTE\Track\Note\QTENote.cpp" />
+    <ClCompile Include="Scripts\QTE\Track\Note\QTENoteData.cpp" />
     <ClCompile Include="Scripts\QTE\Track\QTETrack.cpp" />
     <ClCompile Include="Scripts\QTE\UI\QTEUIManager.cpp" />
     <ClCompile Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.cpp" />
     <ClCompile Include="Scripts\RevelationSystem\RevelationSystem.cpp" />
     <ClCompile Include="Scripts\SceneTransition\SceneTransitionComponent.cpp" />
     <ClCompile Include="Scripts\SceneTransition\TransitionManager.cpp" />
+    <ClCompile Include="Scripts\Stats\CharacterStats.cpp" />
     <ClCompile Include="Scripts\Stats\Enemy\EnemyStatsComponent.cpp" />
     <ClCompile Include="Scripts\Stats\Player\PlayerStatsComponent.cpp" />
     <ClCompile Include="Scripts\Stats\TurnActorStatsComponent.cpp" />
@@ -728,12 +747,14 @@
     <ClCompile Include="Scripts\UI\Views\MonsterHp\MonsterHpView.cpp" />
     <ClCompile Include="Scripts\UI\Views\PlayerHP\PlayerHPView.cpp" />
     <ClCompile Include="Scripts\UI\Views\RevelationsView\RevelationsView.cpp" />
+    <ClCompile Include="Scripts\UI\Views\SturnResistanceView\SturnResistanceView.cpp" />
     <ClCompile Include="Scripts\UI\Views\TurnQueue\TurnQueueView.cpp" />
     <ClCompile Include="Scripts\UI\Views\Weapon\WeaponView.cpp" />
     <ClCompile Include="Scripts\UI\Wrappers\Dummy\DummyWrapper.cpp" />
     <ClCompile Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.cpp" />
     <ClCompile Include="Scripts\UI\Wrappers\Scrolling\ScrollingWrapper.cpp" />
     <ClCompile Include="Scripts\Utility\FadeHelper.cpp" />
+    <ClCompile Include="Scripts\Utility\UINaviKeyBindHelper.cpp" />
     <ClCompile Include="Scripts\ViewModels\Accessories\AccessoriesViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Chain\ChainCountViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Hp\CharacterHPViewModel.cpp" />
@@ -741,6 +762,7 @@
     <ClCompile Include="Scripts\ViewModels\Map\StageFocusViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Map\StageViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Revelations\RevelationsViewModel.cpp" />
+    <ClCompile Include="Scripts\ViewModels\SturnResistance\SturnResistanceViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\TurnQueue\TurnQueueViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Weapon\WeaponViewModel.cpp" />
     <ClCompile Include="Scripts\WeaponModelManager\WeaponModelManager.cpp" />
@@ -752,6 +774,7 @@
     <ClCompile Include="Scripts\Map\MapManagerTracker.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UI\ItemInfoUIManager.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UI\WeaponChangeUIManager.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UI\EraseRevelationUIManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

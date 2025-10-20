@@ -35,7 +35,7 @@ void ViewManager::Initialize()
     hr = device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_renderTargetHeap));
     FAILED_CHECK_MESSAGE(hr, L"ViewManager::Initialize Failed");
 
-    desc.NumDescriptors = 100;
+    desc.NumDescriptors = 300;
     desc.Type           = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
     desc.Flags          = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 

@@ -30,7 +30,7 @@ public:
     inline bool  HasFlag(AnimationFlags flag) const { return _flag & flag; }
 
     inline bool  IsEnd() const { return _elapsedFrame >= _maxFrame; }
-    inline bool  IsSameAnimation(const char* animName) const { return _animationName == animName; }
+    inline bool  IsSameAnimation(std::string_view animName) const { return _animationName == animName; }
     inline bool  IsSameData(const AnimationData& animData) const { return _id == animData._id; }
     inline bool  IsSameID(UINT id) const { return _id == id; }
 

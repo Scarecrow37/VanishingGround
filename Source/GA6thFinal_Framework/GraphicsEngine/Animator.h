@@ -41,6 +41,7 @@ public:
     const std::vector<const char*>& GetAnimationNames() const override;
     const Matrix*                   GetAnimationTransform() const { return _animationTransforms.data(); }
     float                           GetAnimationLastTime(const char* animation) const override;
+    std::string_view                GetCurrentAnimationName(unsigned int ID = 0) const override;
     float                           GetCurrentAnimationLastTime(unsigned int ID = 0) const override;
     float                           GetCurrentAnimationPlayTime(unsigned int ID = 0) const override;
     float                           GetCurrentAnimationSpeed(unsigned int ID = 0) const override;

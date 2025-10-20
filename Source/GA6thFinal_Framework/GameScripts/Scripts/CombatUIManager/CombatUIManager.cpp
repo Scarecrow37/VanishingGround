@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "CombatUIManager.h"
 #include "Preferences/PreferencesManager.h"
+#include "Inventory/UI/InventoryUIManager.h"
 
 UMREAL_COMPONENT(CombatUIManager)
 
@@ -44,8 +45,8 @@ void CombatUIManager::Reset()
 
 void CombatUIManager::Awake() 
 {
-    BindInputAction(ControllerButton::BACK, Action::PRESSED, this,
-                    &CombatUIManager::PreferencesKeyDown);  // 옵션 창 키 바인딩
+    BindInputAction(ControllerButton::BACK,  Action::PRESSED, this, &CombatUIManager::PreferencesKeyDown);  // 옵션 창 키 바인딩
+    BindInputAction(ControllerButton::START, Action::PRESSED, this, &CombatUIManager::InventoryKeyDown);    // 인벤 창 키 바인딩
     _singletonComponent.TrySingleTon();  
 }
 
@@ -106,9 +107,36 @@ void CombatUIManager::DeserializedReflectEvent()
 
 void CombatUIManager::PreferencesKeyDown(const Input::Controller&) 
 {
-    //TODO: 마지막 포커스된 UI를 전달해야함
+    bool isOpen = true;
+    if (InventoryUIManager* manager = SingletonComponent<InventoryUIManager>::GetInstance())
+    {
+        isOpen = manager->gameObject->ActiveInHierarchy == false;
+    }
+
+    if (isOpen)
+    {
+        //TODO: 마지막 포커스된 UI를 전달해야함
+        if (PreferencesManager* manager = SingletonComponent<PreferencesManager>::GetInstance())
+        {
+            manager->OnPreferencesWindow(nullptr);
+        }
+    }
+}
+
+void CombatUIManager::InventoryKeyDown(const Input::Controller&)
+{
+    bool isOpen = true;
     if (PreferencesManager* manager = SingletonComponent<PreferencesManager>::GetInstance())
     {
-        manager->OnPreferencesWindow(nullptr);
+        isOpen = manager->IsOpen() == false;
+    }
+
+     if (isOpen)
+    {
+        // TODO: 마지막 포커스된 UI를 전달해야함
+        if (InventoryUIManager* manager = SingletonComponent<InventoryUIManager>::GetInstance())
+        {
+            manager->OpenInventory(nullptr);
+        }
     }
 }
