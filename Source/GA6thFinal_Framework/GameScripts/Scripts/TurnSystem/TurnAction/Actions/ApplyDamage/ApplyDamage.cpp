@@ -26,6 +26,8 @@ const std::string& ApplyDamage::GetActionInfo()
 void ApplyDamage::ImGuiDrawActionEditor() 
 {
     using namespace u8_literals;
+    ImGuiDrawPropertys();
+
     static ReflectHelper::ImGuiDraw::InputAutoSetting setting = [] 
     {
         ReflectHelper::ImGuiDraw::InputAutoSetting setting;

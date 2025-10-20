@@ -24,6 +24,8 @@ const std::string& TokenApplyAction::GetActionInfo()
 
 void TokenApplyAction::ImGuiDrawActionEditor() 
 {
+    ImGuiDrawPropertys();
+
     ImGui::Text("Action");
     std::string_view prevValue = TokenSystem::GetTokenNameFromID(ReflectFields->TokenID);
     if (prevValue.empty())

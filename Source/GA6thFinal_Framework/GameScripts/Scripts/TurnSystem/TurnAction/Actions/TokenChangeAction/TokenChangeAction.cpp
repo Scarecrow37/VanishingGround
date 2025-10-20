@@ -28,6 +28,7 @@ const std::string& TokenChangeAction::GetActionInfo()
 void TokenChangeAction::ImGuiDrawActionEditor() 
 {
     using namespace u8_literals;
+    ImGuiDrawPropertys();
 
     if (TurnSystemHelper::DrawTargetComboboxWithToolTip(ReflectFields->Target, true))
     {

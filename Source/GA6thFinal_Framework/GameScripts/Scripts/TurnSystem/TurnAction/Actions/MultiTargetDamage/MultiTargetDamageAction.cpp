@@ -21,6 +21,7 @@ const std::string& MultiTargetDamageAction::GetActionInfo()
 
 void MultiTargetDamageAction::ImGuiDrawActionEditor() 
 {
+    ImGuiDrawPropertys();
     ImguiDrawConditionEditor();
 }
 
