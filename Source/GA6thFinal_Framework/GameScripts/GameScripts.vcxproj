@@ -363,6 +363,7 @@
     <ClInclude Include="Scripts\GameCore\FSM\FSMState.h" />
     <ClInclude Include="Scripts\GameCore\FSM\IFSMEntity.h" />
     <ClInclude Include="Scripts\Interface\ITriggerType.h" />
+    <ClInclude Include="Scripts\IntroManager\IntroManager.h" />
     <ClInclude Include="Scripts\Inventory\UINavi\InventoryItemFocusNavi.h" />
     <ClInclude Include="Scripts\Inventory\UI\HorizontalPageUIManager.h" />
     <ClInclude Include="Scripts\Inventory\UI\InventoryUIManager.h" />
@@ -611,6 +612,12 @@
     <ClCompile Include="Scripts\ExcelParser\ImGuiColumnSheetParser.cpp" />
     <ClCompile Include="Scripts\GameCore\FSM\AlwaysTransitionCondition.cpp" />
     <ClCompile Include="Scripts\GameCore\FSM\FiniteStateMachine.cpp" />
+    <ClCompile Include="Scripts\IntroManager\IntroManager.cpp">
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</IncludeInUnityFile>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">false</IncludeInUnityFile>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</IncludeInUnityFile>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">false</IncludeInUnityFile>
+    </ClCompile>
     <ClCompile Include="Scripts\Inventory\UINavi\InventoryItemFocusNavi.cpp" />
     <ClCompile Include="Scripts\Inventory\UI\HorizontalPageUIManager.cpp" />
     <ClCompile Include="Scripts\Inventory\UI\InventoryUIManager.cpp" />
