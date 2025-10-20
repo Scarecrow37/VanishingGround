@@ -64,7 +64,10 @@ void ItemInfoUIManager::SetItemDescription(const DropItemInfo& info)
     std::string description = DropItemInfo::GetArtifactDescription(info);
     SetItemDescription(description);
 
-    //TODO: 무기 키워드에 대한 설명 표시해야함.
+    //TODO: Flavor 텍스트에 대한 표시 해야함.
+    SetFlavorDescription("");
+    
+    //TODO: 키워드에 대한 설명 표시해야함.
     SetKeywordDescription("");
 }
 
@@ -78,9 +81,17 @@ void ItemInfoUIManager::SetItemDescription(const std::string& description)
 
 void ItemInfoUIManager::SetKeywordDescription(const std::string& description) 
 {
-    if (_uiComponents.KeywordDescription)
+    if (_uiComponents.ItemKeyword)
     {
-        _uiComponents.KeywordDescription->Description = description;
+        _uiComponents.ItemKeyword->Description = description;
+    }
+}
+
+void ItemInfoUIManager::SetFlavorDescription(const std::string& description) 
+{
+    if (_uiComponents.ItemFlavor)
+    {
+        _uiComponents.ItemFlavor->Description = description;
     }
 }
 
@@ -146,20 +157,10 @@ void ItemInfoUIManager::ClearWeaponStats()
 
 void ItemInfoUIManager::Awake() 
 {
-    if (_singletonComponent.TrySingleTon())
-    {
-        Base::Awake();
-        gameObject->AddTag(TAG);
-        FindComponents();
-    }
-}
-
-void ItemInfoUIManager::Start() 
-{
-    if (_singletonComponent.IsSingleTon())
-    {
-        Base::Start();
-    }
+    Base::Awake();
+    gameObject->AddTag(TAG);
+    FindComponents();
+    
 }
 
 void ItemInfoUIManager::FindComponents() 
@@ -167,61 +168,41 @@ void ItemInfoUIManager::FindComponents()
     Transform::ForeachBFS(transform, [this](Transform* curr) 
     { 
         GameObject& object = curr->gameObject;
-        if (nullptr == _uiComponents.ItemName)
+        if (nullptr == _uiComponents.ItemName && object.CompareTag("Name"))
         {
-            if (object.CompareTag("Name"))
-            {
-                _uiComponents.ItemName = object.GetComponent<TextElement>();
-            }
+            _uiComponents.ItemName = object.GetComponent<TextElement>();
         }
-        else if (nullptr == _uiComponents.ItemIcon)
+        else if (nullptr == _uiComponents.ItemIcon && object.CompareTag("Icon"))
         {
-            if (object.CompareTag("Icon"))
-            {
-                _uiComponents.ItemIcon = object.GetComponent<ImageElement>();
-            }
+            _uiComponents.ItemIcon = object.GetComponent<ImageElement>();
         }
-        else if (nullptr == _uiComponents.ItemDescription)
+        else if (nullptr == _uiComponents.ItemDescription && object.CompareTag("Description"))
         {
-            if (object.CompareTag("Description"))
-            {
-                _uiComponents.ItemDescription = object.GetComponent<DescriptionPanel>();
-            }
+            _uiComponents.ItemDescription = object.GetComponent<DescriptionPanel>();
         }
-        else if (nullptr == _uiComponents.KeywordDescription)
+        else if (nullptr == _uiComponents.ItemKeyword && object.CompareTag("Keyword Description"))
         {
-            if (object.CompareTag("Keyword Description"))
-            {
-                _uiComponents.KeywordDescription = object.GetComponent<DescriptionPanel>();
-            }
+            _uiComponents.ItemKeyword = object.GetComponent<DescriptionPanel>();
         }
-        else if (nullptr == _uiComponents.Damage)
+        else if (nullptr == _uiComponents.ItemFlavor && object.CompareTag("Flavor Description"))
         {
-            if (object.CompareTag("Damage"))
-            {
-                _uiComponents.Damage = object.GetComponent<TextElement>();
-            }
+            _uiComponents.ItemFlavor = object.GetComponent<DescriptionPanel>();
         }
-        else if (nullptr == _uiComponents.Critical)
+        else if (nullptr == _uiComponents.Damage && object.CompareTag("Damage"))
         {
-            if (object.CompareTag("Critical"))
-            {
-                _uiComponents.Critical = object.GetComponent<TextElement>();
-            }
+            _uiComponents.Damage = object.GetComponent<TextElement>();
         }
-        else if (nullptr == _uiComponents.AttackCount)
+        else if (nullptr == _uiComponents.Critical && object.CompareTag("Critical"))
         {
-            if (object.CompareTag("Count"))
-            {
-                _uiComponents.AttackCount = object.GetComponent<TextElement>();
-            }
+            _uiComponents.Critical = object.GetComponent<TextElement>();
         }
-        else if (nullptr == _uiComponents.Speed)
+        else if (nullptr == _uiComponents.AttackCount && object.CompareTag("Count"))
         {
-            if (object.CompareTag("Speed"))
-            {
-                _uiComponents.Speed = object.GetComponent<TextElement>();
-            }
+            _uiComponents.AttackCount = object.GetComponent<TextElement>();
+        }
+        else if (nullptr == _uiComponents.Speed && object.CompareTag("Speed"))
+        {
+            _uiComponents.Speed = object.GetComponent<TextElement>();
         }
     });
 }

@@ -208,14 +208,20 @@
     <ClCompile Include="Scripts\CombatUIManager\Revelations\RevelationsGroup.cpp" />
     <ClCompile Include="Scripts\CombatUIManager\TurnQueue\TurnQueueGroup.cpp" />
     <ClCompile Include="Scripts\CombatUIManager\Weapon\WeaponGroup.cpp" />
+    <ClCompile Include="Scripts\Inventory\UINavi\InventoryItemFocusNavi.cpp" />
+    <ClCompile Include="Scripts\Inventory\UI\HorizontalPageUIManager.cpp" />
+    <ClCompile Include="Scripts\Inventory\UI\InventoryUIManager.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UINavi\EraseRevelationNavi.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UINavi\PlayerWeaponChangeNavi.cpp" />
+    <ClCompile Include="Scripts\Stats\CharacterStats.cpp" />
+    <ClCompile Include="Scripts\UI\Views\SturnResistanceView\SturnResistanceView.cpp" />
+    <ClCompile Include="Scripts\Utility\UINaviKeyBindHelper.cpp" />
+    <ClCompile Include="Scripts\ViewModels\SturnResistance\SturnResistanceViewModel.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UI\WeaponChangeUIManager.cpp" />
-    <ClCompile Include="Scripts\UI\Animations\UIAnimation.cpp" />
-    <ClCompile Include="Scripts\UI\Animations\FadeDescriptionPanel\FadeDescriptionPanel.cpp" />
-    <ClCompile Include="Scripts\IntroManager\IntroManager.cpp" />
-    <ClCompile Include="Scripts\UI\Animations\FadeTextElement\FadeTextElement.cpp" />
-    <ClCompile Include="Scripts\UI\Animations\FadeImageElement\FadeImageElement.cpp" />
-    <ClCompile Include="Scripts\DifficultyManager\DifficultyManager.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UI\EraseRevelationUIManager.cpp" />
+    <ClCompile Include="Scripts\Inventory\UINavi\InventoryArrowNavi.cpp" />
+    <ClCompile Include="Scripts\Inventory\OpenInventoryComponent.cpp" />
+    <ClCompile Include="Scripts\QTE\Track\Note\QTENoteData.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
@@ -445,14 +451,19 @@
     <ClInclude Include="Scripts\CombatUIManager\TurnQueue\TurnQueueGroup.h" />
     <ClInclude Include="Scripts\CombatUIManager\UIGroup.h" />
     <ClInclude Include="Scripts\CombatUIManager\Weapon\WeaponGroup.h" />
+    <ClInclude Include="Scripts\Inventory\UINavi\InventoryItemFocusNavi.h" />
+    <ClInclude Include="Scripts\Inventory\UI\HorizontalPageUIManager.h" />
+    <ClInclude Include="Scripts\Inventory\UI\InventoryUIManager.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UINavi\EraseRevelationNavi.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UINavi\PlayerWeaponChangeNavi.h" />
+    <ClInclude Include="Scripts\UI\Views\SturnResistanceView\SturnResistanceView.h" />
+    <ClInclude Include="Scripts\Utility\UINaviKeyBindHelper.h" />
+    <ClInclude Include="Scripts\ViewModels\SturnResistance\SturnResistanceViewModel.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UI\WeaponChangeUIManager.h" />
-    <ClInclude Include="Scripts\UI\Animations\UIAnimation.h" />
-    <ClInclude Include="Scripts\UI\Animations\FadeDescriptionPanel\FadeDescriptionPanel.h" />
-    <ClInclude Include="Scripts\IntroManager\IntroManager.h" />
-    <ClInclude Include="Scripts\UI\Animations\FadeTextElement\FadeTextElement.h" />
-    <ClInclude Include="Scripts\UI\Animations\FadeImageElement\FadeImageElement.h" />
-    <ClInclude Include="Scripts\DifficultyManager\DifficultyManager.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UI\EraseRevelationUIManager.h" />
+    <ClInclude Include="Scripts\Inventory\UINavi\InventoryArrowNavi.h" />
+    <ClInclude Include="Scripts\Inventory\OpenInventoryComponent.h" />
+    <ClInclude Include="Scripts\QTE\Track\Note\QTENoteData.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

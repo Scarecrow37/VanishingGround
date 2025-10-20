@@ -296,6 +296,16 @@ UINavigationComponent* UIRoot::FindNavigationComponent(NavigationID id)
     return component;
 }
 
+NavigationID UIRoot::GetFocusedNavigationID() const
+{
+    return _currentFocusNavigation != nullptr ? _currentFocusNavigation->ID : INVALID_NAVIGATION_ID;
+}
+
+UINavigationComponent* UIRoot::GetFocusedNavigationComponent() const
+{
+    return _currentFocusNavigation;
+}
+
 UINavigationComponent* UIRoot::FindNavigationComponentInTransform(NavigationID id) const
 {
     UINavigationComponent* component     = nullptr;
