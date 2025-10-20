@@ -16,4 +16,6 @@ private:
 private:
     class ParticleEffect*  _curEffect  = nullptr;
     class ParticleEmitter* _curEmitter = nullptr;
+
+    bool _spriteAnimFlag = false;
 };

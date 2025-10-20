@@ -26,7 +26,6 @@ VSOutput vs_main(VSInput input)
     VSOutput output = (VSOutput) 0;
     ParticleOutput instanceInfo = particleInfo[input.InstanceID];
     
-    
     float4 pos = float4(input.position.xyz, 1.f);
     
     output.position = mul(pos, instanceInfo.FinalMatrix);
@@ -36,7 +35,16 @@ VSOutput vs_main(VSInput input)
     output.emitterIndex = instanceInfo.EmitterIndex;
     
 
-    output.uv = input.uv;
+    if(instanceInfo.FrameInfo.x < 0)
+    {
+        output.uv = input.uv;
+    }
+    else
+    {
+        output.uv = float2(
+        lerp(instanceInfo.FrameInfo.x, instanceInfo.FrameInfo.y, input.uv.x),
+        lerp(instanceInfo.FrameInfo.z, instanceInfo.FrameInfo.w, input.uv.y));
+    }
     output.depth = output.position.z / output.position.w;
     return output;
 }
