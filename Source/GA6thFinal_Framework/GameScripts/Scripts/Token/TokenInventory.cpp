@@ -1,14 +1,11 @@
 ﻿#include "pchScripts.h"
 #include "TokenInventory.h"
-#include <TurnSystem/TurnActor/Character/CharacterBase.h>
+#include "TurnSystem/TurnActor/Character/CharacterBase.h"
+#include "TurnSystem/TurnMode/TurnMode.h"
 
 TokenInventory::TokenInventory(CharacterBase* owner) 
-    : _tokenTable(), _owner(owner)
+    : _tokenTable(), _owner(*owner)
 {
-    if (nullptr == _owner)
-    {
-        assert(false && "TokenInventory requires a valid CharacterBase owner.");
-    }
     // 토큰 테이블 초기화
     InitTokenInstance();
 }
@@ -17,7 +14,6 @@ TokenInventory::~TokenInventory()
 {
     _tokenTable.clear();
     _vaildTokenVector.clear();
-    _owner = nullptr; // 소유자 초기화
 }
 
 void TokenInventory::Clear()
@@ -39,7 +35,7 @@ void TokenInventory::NotifyCombatStart()
             int count = GetTokenStackFromID(token->GetTokenID());
             if (0 < count)
             {
-                token->OnCombatStart(_owner);
+                token->OnCombatStart(&_owner);
             }
         }
     }
@@ -56,7 +52,7 @@ void TokenInventory::NotifyRoundStart()
             int count = GetTokenStackFromID(token->GetTokenID());
             if (0 < count)
             {
-                token->OnRoundStart(_owner);
+                token->OnRoundStart(&_owner);
             }
         }
     }
@@ -73,7 +69,7 @@ void TokenInventory::NotifyRoundEnd()
             int count = GetTokenStackFromID(token->GetTokenID());
             if (0 < count)
             {
-                token->OnRoundEnd(_owner);
+                token->OnRoundEnd(&_owner);
             }
         }
     }
@@ -90,7 +86,7 @@ void TokenInventory::NotifyEachTurnStart(CharacterBase* destination)
             int count = GetTokenStackFromID(token->GetTokenID());
             if (0 < count)
             {
-                token->OnEachTurnStart(_owner, destination);
+                token->OnEachTurnStart(&_owner, destination);
             }
         }
     }
@@ -107,7 +103,7 @@ void TokenInventory::NotifyTurnStart()
             int count = GetTokenStackFromID(token->GetTokenID());
             if (0 < count)
             {
-                token->OnTurnStart(_owner);
+                token->OnTurnStart(&_owner);
             }
         }
     }
@@ -124,7 +120,7 @@ void TokenInventory::NotifyTurnEnd()
             int count = GetTokenStackFromID(token->GetTokenID());
             if (0 < count)
             {
-                token->OnTurnEnd(_owner);
+                token->OnTurnEnd(&_owner);
             }
         }
     }
@@ -141,7 +137,7 @@ void TokenInventory::NotifyHit()
             int count = GetTokenStackFromID(token->GetTokenID());
             if (0 < count)
             {
-                token->OnHit(_owner);
+                token->OnHit(&_owner);
             }
         }
     }
@@ -158,7 +154,7 @@ void TokenInventory::NotifyDead()
             int count = GetTokenStackFromID(token->GetTokenID());
             if (0 < count)
             {
-                token->OnDead(_owner);
+                token->OnDead(&_owner);
             }
         }
     }
@@ -175,7 +171,7 @@ void TokenInventory::NotifyKill(CharacterBase* destination)
             int count = GetTokenStackFromID(token->GetTokenID());
             if (0 < count)
             {
-                token->OnKill(_owner, destination);
+                token->OnKill(&_owner, destination);
             }
         }
     }
@@ -192,7 +188,7 @@ void TokenInventory::NotifyTokenAdded(int tokenID)
             int count = GetTokenStackFromID(token->GetTokenID());
             if (0 < count)
             {
-                token->OnTokenAdded(_owner, tokenID);
+                token->OnTokenAdded(&_owner, tokenID);
             }
         }
     }
@@ -209,7 +205,7 @@ void TokenInventory::NotifyTokenRemoved(int tokenID)
             int count = GetTokenStackFromID(token->GetTokenID());
             if (0 < count)
             {
-                token->OnTokenRemoved(_owner, tokenID);
+                token->OnTokenRemoved(&_owner, tokenID);
             }
         }
     }
@@ -226,7 +222,7 @@ void TokenInventory::NotifyQTEStart()
             int count = GetTokenStackFromID(token->GetTokenID());
             if (0 < count)
             {
-                token->OnQTEStart(_owner);
+                token->OnQTEStart(&_owner);
             }
         }
     }
@@ -243,7 +239,7 @@ void TokenInventory::NotifyQTEEnd()
             int count = GetTokenStackFromID(token->GetTokenID());
             if (0 < count)
             {
-                token->OnQTEEnd(_owner);
+                token->OnQTEEnd(&_owner);
             }
         }
     }
@@ -251,25 +247,34 @@ void TokenInventory::NotifyQTEEnd()
 
 void TokenInventory::AddTokenStackFromID(int tokenID, int count /* = 1 */)
 {
+    if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
+    {
+        turnMode->ApplyActions([&](TurnAction& action) 
+        { 
+            action.OnTokenAddedStart(_owner, tokenID, count);
+        });
+    }
+
     if (0 == count)
     {   // 추가할 스택이 0이면 아무것도 하지 않습니다. (이벤트를 호출하지 않기 위해 필요)
         return;
     }
+
     auto it = _tokenTable.find(tokenID);
     if (it != _tokenTable.end())
     {
         int maxStackCount = UINT_MAX;
         IToken* token = TokenSystem::GetTokenFromID(tokenID);
-        if (token && token->CanAdd(_owner))
+        if (token && token->CanAdd(&_owner))
         {
             maxStackCount   = token->GetMaxStackCount();
             int& stackCount = it->second;
             stackCount += count;
             stackCount = std::min(maxStackCount, stackCount);
             UpdateToken(tokenID);
-            if (_owner)
+            if (&_owner)
             {
-                _owner->OnTokenAdded(tokenID);
+                _owner.OnTokenAdded(tokenID);
             }
         }
     }
@@ -304,15 +309,15 @@ void TokenInventory::RemoveTokenStackFromID(int tokenID, int count /* = 1 */)
     if (it != _tokenTable.end())
     {
         IToken* token = TokenSystem::GetTokenFromID(tokenID);
-        if (token && token->CanRemove(_owner))
+        if (token && token->CanRemove(&_owner))
         {
             int& stackCount = it->second;
             stackCount -= count;
             stackCount = std::max(0, stackCount);
             UpdateToken(tokenID);
-            if (_owner)
+            if (&_owner)
             {
-                _owner->OnTokenRemoved(tokenID);
+                _owner.OnTokenRemoved(tokenID);
             }
         }
     }
