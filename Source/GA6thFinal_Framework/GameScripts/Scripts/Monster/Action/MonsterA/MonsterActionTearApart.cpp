@@ -10,9 +10,27 @@ namespace Monster
 {
     namespace Action
     {
-        void TearApart::OnActionEnter() {}
+        void TearApart::OnActionEnter()
+        {
+            if (ProcessAnimation("Attack1"))
+            {
+                SetActionEnd();
+            }
+        }
         void TearApart::OnActionUpdate() {}
         void TearApart::OnActionExit() {}
         void TearApart::OnActionReset() {}
+        void TearApart::OnNotifiedAnimationEvent(const Timeline::EventContext* context)
+        {
+            const std::string& label = context->GetLabel();
+            if ("Attack" == label)
+            {
+                Attack();
+            }
+        }
+        void TearApart::Attack()
+        {
+
+        }
     } // namespace Action
 } // namespace Monster

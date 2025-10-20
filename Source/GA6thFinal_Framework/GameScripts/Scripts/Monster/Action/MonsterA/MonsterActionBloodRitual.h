@@ -1,16 +1,17 @@
 ﻿#pragma once
+
 #include "Monster/Action/MonsterActionBase.h"
 
 namespace Monster
 {
-    /// <summary>
-    /// 찢어 발기기
-    /// </summary>
     namespace Action
     {
-        class TearApart : public Base
+        /// <summary>
+        /// 피의 의식
+        /// </summary>
+        class BloodRitual : public Base
         {
-            MONSTER_ACTION_DATA(210200)
+            MONSTER_ACTION_DATA(210204)
         public:
             using Base::Base;
 
@@ -19,10 +20,6 @@ namespace Monster
             void OnActionUpdate() override;
             void OnActionExit() override;
             void OnActionReset() override;
-            void OnNotifiedAnimationEvent(const Timeline::EventContext* context) override;
-
-        private:
-            void Attack();
         };
-    }
+    } // namespace Action
 } // namespace Monster

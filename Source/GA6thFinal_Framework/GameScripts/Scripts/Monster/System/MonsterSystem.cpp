@@ -55,11 +55,11 @@ bool MonsterSystem::SpawnMonsterFromSpawnID(SpawnID spawnID, bool isHardDifficul
     return result;
 }
 
-bool MonsterSystem::SpawnMonsterFromSpawnID(Monster::SpawnID spawnID, Monster::SpawnPoint spawnPointType,
+bool MonsterSystem::SpawnMonsterFromSpawnID(SpawnID spawnID, SpawnPoint spawnPointType,
                                             bool isHardDifficulty)
 {
-    assert(spawnPointType != Monster::SpawnPoint::Invalid); // [assert] 스폰 포인트 타입이 Invalid가 아니어야합니다.
-    if (spawnPointType == Monster::SpawnPoint::Invalid)
+    assert(spawnPointType != SpawnPoint::Invalid); // [assert] 스폰 포인트 타입이 Invalid가 아니어야합니다.
+    if (spawnPointType == SpawnPoint::Invalid)
     {
         return false;
     }
@@ -73,7 +73,7 @@ bool MonsterSystem::SpawnMonsterFromSpawnID(Monster::SpawnID spawnID, Monster::S
         // [assert] 난이도 인덱스가 최대 난이도 수를 넘지 않아야합니다.
         assert(diffIndex < MAX_DIFF_COUNT);
 
-        GameObject* spawnPoint = _spawPointTable[spawnPointType].lock().get();
+        GameObject* spawnPoint = _spawnPointTable[spawnPointType].lock().get();
         assert(spawnPoint); // [assert] 해당 인덱스의 적 스폰 포인트가 존재하지 않습니다.
         if (spawnPoint)
         {
@@ -165,21 +165,22 @@ std::weak_ptr<Enemy> MonsterSystem::SpawnMonster(DataID dataID)
     return std::weak_ptr<Enemy>();
 }
 
-void MonsterSystem::SetMonsterTransformToSpawnPoint(Enemy* dest, Monster::SpawnPoint spawnPointType)
+void MonsterSystem::SetMonsterTransformToSpawnPoint(Enemy* dest, SpawnPoint spawnPointType)
 {
     if (dest)
     {
-        assert(spawnPointType != Monster::SpawnPoint::Invalid); // [assert] 스폰 포인트 타입이 Invalid가 아니어야합니다.
-        if (spawnPointType != Monster::SpawnPoint::Invalid)
+        assert(spawnPointType != SpawnPoint::Invalid); // [assert] 스폰 포인트 타입이 Invalid가 아니어야합니다.
+        if (spawnPointType != SpawnPoint::Invalid)
         {
-            bool contains = _spawPointTable.contains(spawnPointType);
+            bool contains = _spawnPointTable.contains(spawnPointType);
             assert(contains); // [assert] 해당 스폰 포인트 타입이 스폰 포인트 테이블에 존재해야합니다.
 
-            if (auto spawnPoint = _spawPointTable[spawnPointType].lock())
+            if (auto spawnPoint = _spawnPointTable[spawnPointType].lock())
             {
-                dest->transform->WorldPosition = spawnPoint->transform->WorldPosition;
-                dest->transform->EulerAngle    = spawnPoint->transform->EulerAngle;
+                // 위치 및 회전 설정
+                dest->SetPositionFromSpawnPoint(spawnPointType);
 
+                // 부모 설정
                 if (GameObject* spawnGroup = _spawnGroup.lock().get())
                 {
                     dest->transform->SetParent(spawnGroup->transform, false);
@@ -190,7 +191,7 @@ void MonsterSystem::SetMonsterTransformToSpawnPoint(Enemy* dest, Monster::SpawnP
     }
 }
 
-void MonsterSystem::SetMonsterStateFromStatContext(Enemy* dest, const Monster::StatContext* pStatContext)
+void MonsterSystem::SetMonsterStateFromStatContext(Enemy* dest, const StatContext* pStatContext)
 {
     if (dest)
     {
@@ -213,22 +214,39 @@ void MonsterSystem::Clear()
     _spawnDataTable.clear();
 }
 
-const std::vector<std::weak_ptr<Enemy>>* MonsterSystem::GetSpawnedEnemiesFromID(Monster::DataID dataID)
+const std::vector<std::weak_ptr<Enemy>>* MonsterSystem::GetSpawnedEnemiesFromID(DataID dataID) const
 {
-    if (_spawnedEnemiesIDTable.contains(dataID))
+    auto it = _spawnedEnemiesIDTable.find(dataID);
+    if (it != _spawnedEnemiesIDTable.end())
     {
-        return &_spawnedEnemiesIDTable[dataID];
+        return &it->second;
     }
     return nullptr;
 }
 
-std::weak_ptr<Enemy> MonsterSystem::GetSpawnedEnemyFromSpawnPoint(Monster::SpawnPoint spawnPointType)
+std::weak_ptr<Enemy> MonsterSystem::GetSpawnedEnemyFromSpawnPoint(SpawnPoint spawnPointType) const
 {
-    if (_spawnedEnemyTable.contains(spawnPointType))
+    auto it = _spawnedEnemyTable.find(spawnPointType);
+    if (it != _spawnedEnemyTable.end())
     {
-        return _spawnedEnemyTable[spawnPointType];
+        return it->second;
     }
     return std::weak_ptr<Enemy>();
+}
+
+std::weak_ptr<GameObject> MonsterSystem::GetSpawnPointObject(SpawnPoint spawnPointType) const
+{
+    auto it = _spawnPointTable.find(spawnPointType);
+    if (it != _spawnPointTable.end())
+    {
+        return it->second;
+    }
+    return std::weak_ptr<GameObject>();
+}
+
+std::unordered_map<SpawnPoint, std::weak_ptr<Enemy>> MonsterSystem::GetSpawnedEnemiesTable() const
+{
+    return _spawnedEnemyTable;
 }
 
 void MonsterSystem::FindSpawnPoints() 
@@ -240,7 +258,7 @@ void MonsterSystem::FindSpawnPoints()
     {
         const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(SPAWN_POINT_TAGS[i]);
         assert(weakGameObject.expired() == false); // [assert] 해당 태그의 스폰 포인트가 유효해야합니다.
-        _spawPointTable[static_cast<Monster::SpawnPoint>(i)] = weakGameObject;
+        _spawnPointTable[static_cast<SpawnPoint>(i)] = weakGameObject;
     }
 }
 

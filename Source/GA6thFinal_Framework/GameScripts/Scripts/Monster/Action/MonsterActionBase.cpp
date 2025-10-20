@@ -171,8 +171,14 @@ namespace Monster
             {
                 AnimationComponent* animationComp = sharedOwner->GetAnimationComponent();
                 ParticleComponent*  particleComp  = sharedOwner->GetParticleComponent();
-                _weakAnimation = static_pointer_cast<AnimationComponent>(animationComp->GetWeakPtr().lock());
-                _weakParticle  = static_pointer_cast<ParticleComponent>(particleComp->GetWeakPtr().lock());
+                if (animationComp)
+                {
+                    _weakAnimation = static_pointer_cast<AnimationComponent>(animationComp->GetWeakPtr().lock());
+                }
+                if (particleComp)
+                {
+                    _weakParticle  = static_pointer_cast<ParticleComponent>(particleComp->GetWeakPtr().lock());
+                }
                 for (size_t i = 0; i < _tokenParams.size(); ++i)
                 {
                     _tokenActions.emplace_back(std::make_unique<TokenApplyAction>());

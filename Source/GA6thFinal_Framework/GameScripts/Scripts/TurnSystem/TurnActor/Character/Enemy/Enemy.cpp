@@ -2,8 +2,9 @@
 #include "Enemy.h"
 #include "Stats/Enemy/EnemyStats.h"
 #include "Stats/Enemy/EnemyStatsComponent.h"
-#include <GameCore/FSM/FiniteStateMachine.h>
-#include <TurnSystem/TurnMode/TurnMode.h>
+#include "GameCore/FSM/FiniteStateMachine.h"
+#include "TurnSystem/TurnMode/TurnMode.h"
+#include "Particle/ParticleComponent.h"
 
 //Condition
 #include "Condition/EnemyStartCondition.h"
@@ -16,9 +17,9 @@
 #include "State/EnemyDeadState.h"
 
 // Stats
-#include <Stats/CharacterStats.h>
+#include "Stats/CharacterStats.h"
 
-#include <Particle/ParticleComponent.h>
+#include "Monster/System/MonsterSystem.h"
 
 UMREAL_COMPONENT(Enemy)
 
@@ -73,8 +74,8 @@ void Enemy::Awake()
 {
     Base::Awake();
     gameObject->AddTag(TAG);
-    BuildEnemyFSM();
 
+    BuildEnemyFSM();
     if (nullptr == GetEnemyStats())
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Enemy Stats를 추가해주세요");
@@ -105,6 +106,22 @@ int Enemy::GetSpeed()
         speed = stats->GetStats().Speed;
     }
     return speed;
+}
+
+void Enemy::SetPositionFromSpawnPoint(Monster::SpawnPoint spawnPointType) 
+{
+    if (MonsterSystem* system = SingletonComponent<MonsterSystem>::GetInstance())
+    {
+        auto weakSpawnPoint = system->GetSpawnPointObject(spawnPointType);
+        if (auto spawnPoint = weakSpawnPoint.lock())
+        {
+            Vector3 spawnLocal    = spawnPoint->transform->Position;
+            Vector3 spawnEuler    = spawnPoint->transform->EulerAngle;
+            transform->Position   = spawnLocal;
+            transform->EulerAngle = spawnEuler;
+            _spawnPoint           = spawnPointType;
+        }
+    }
 }
 
 EnemyStatsComponent* Enemy::GetEnemyStats()

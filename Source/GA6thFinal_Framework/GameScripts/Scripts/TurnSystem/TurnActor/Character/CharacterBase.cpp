@@ -80,10 +80,13 @@ CharacterBase::CharacterBase() :
 
 CharacterBase::~CharacterBase() = default;
 
-void CharacterBase::Awake() 
+void CharacterBase::Awake()
 {
     Base::Awake();
     gameObject->AddTag(TAG);
+    _skeletalMeshRenderer = nullptr;
+    _animationComponent   = nullptr;
+    _particleComponent    = nullptr;
     FindComponent();
     InitAnimationCallback();
 }

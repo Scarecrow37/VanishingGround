@@ -21,9 +21,9 @@ namespace Monster
     enum class SpawnPoint
     {
         Invalid = -1,
-        Left,
-        Middle,
-        Right,
+        Left    = 0,
+        Middle  = 1,
+        Right   = 2,
     };
 
     struct TokenParam

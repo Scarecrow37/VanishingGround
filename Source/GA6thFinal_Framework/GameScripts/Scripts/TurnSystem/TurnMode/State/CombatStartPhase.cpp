@@ -1,7 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "CombatStartPhase.h"
 
-#include "TurnSystem/TurnActor/Character/CharacterBase.h"
 #include "TurnSystem/TurnMode/TurnMode.h"
 #include "TurnSystem/TurnActor/Character/Player/Player.h"
 #include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
@@ -17,6 +16,8 @@
 
 #include "CombatUIManager/CombatUIManager.h"
 #include "QTE/UI/QTEUIManager.h"
+
+#include "Monster/System/MonsterSystem.h"
 
 REGISTER_CLASS(FSMStateFactory, CombatStartPhase)
 
@@ -63,13 +64,33 @@ void CombatStartPhase::ResetCharacterStats()
                 {
                     _player = static_cast<Player*>(character);
                 }
-                else if (typeid(Enemy) == type)
-                {
-                    _enemies.push_back(static_cast<Enemy*>(character));
-                }
             }
         }
     }
+
+    if (MonsterSystem* monsterSystem = SingletonComponent<MonsterSystem>::GetInstance())
+    {
+        const auto& spawnedEnemiesTable = monsterSystem->GetSpawnedEnemiesTable();
+        for (const auto& [spawnPoint, weakEnemy] : spawnedEnemiesTable)
+        {
+            if (Monster::SpawnPoint::Invalid == spawnPoint)
+            {
+                continue;
+            }
+            if (auto enemy = weakEnemy.lock())
+            {
+                _characters.push_back(enemy.get());
+                _enemies.push_back(enemy.get());
+            }
+        }
+        // 스폰 포인트 오름차순으로 정렬
+        std::sort(_enemies.begin(), _enemies.end(), [](const Enemy* a, const Enemy* b) {
+            Monster::SpawnPoint aSpawnPoint = a->SpawnPoint;
+            Monster::SpawnPoint bSpawnPoint = b->SpawnPoint;
+            return static_cast<int>(aSpawnPoint) < static_cast<int>(bSpawnPoint);
+        });
+    }
+
     for (auto& character : _characters)
     {
         if (character)
@@ -78,7 +99,6 @@ void CombatStartPhase::ResetCharacterStats()
         }
     }
 }
-#include "Monster/System/MonsterSystem.h"
 
 void CombatStartPhase::OnAwake() 
 {

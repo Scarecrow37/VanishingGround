@@ -38,10 +38,6 @@ protected:
     EnemyType Type = EnemyType::MONSTER_A;
     REFLECT_FIELDS_END(Enemy)
 
-public:
-    virtual int GetSpeed() override;
-    virtual void Revive() override;
-
 private:
     Monster::SpawnPoint  _spawnPoint = Monster::SpawnPoint::Invalid;
     Monster::Controller  _controller;
@@ -61,12 +57,14 @@ protected:
 
 public:
     /*Enemy의 턴을 종료합니다.*/
-    virtual void EndTurn() override;
+    void EndTurn() override;
     /*Enemy를 Dead 상태로 만듭니다.*/
-    virtual void Dead() override;
+    void Dead() override;
+    /**/
+    void Revive() override;
     /*Enemy에게 피격을 가합니다.*/
-    virtual void TakeDamage(int damage, bool playAnim = true) override;
-    virtual void TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim = true) override;
+    void TakeDamage(int damage, bool playAnim = true) override;
+    void TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim = true) override;
 
     inline Monster::Controller&     GetController() { return _controller; }
     inline FiniteStateMachine&      GetFSM() { return *_finiteStateMachine; }
@@ -76,6 +74,10 @@ public:
     EnemyStatsComponent* GetEnemyStats();
     CharacterStats* GetCharacterStats() override;
 
+    int GetSpeed() override;
+
+    void SetPositionFromSpawnPoint(Monster::SpawnPoint spawnPoint);
+
 public:
     GameObject* GetMonsterHUD() const { return _monsterHUD; }
     void SetMonsterHUD(GameObject* HUD);
@@ -84,9 +86,9 @@ private:
     GameObject* _monsterHUD = nullptr;
 
 protected:
-    virtual void Awake();
-    virtual void Update();
-    virtual void PlayTurn() override;
+    void Awake() override;
+    void Update() override;
+    void PlayTurn() override;
 
 private:
     void OnCombatStart() override;

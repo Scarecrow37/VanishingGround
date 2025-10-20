@@ -11,7 +11,6 @@
 
 class ExcelDataSystem;
 class ExcelDataBase;
-class CharacterBase;
 class Enemy;
 
 class MonsterSystem : public Component
@@ -23,8 +22,6 @@ class MonsterSystem : public Component
     using SpawnDataTable = std::unordered_map<Monster::SpawnID, Monster::SpawnContext>;
     using ActionDataTable = std::unordered_map<Monster::ActionID, Monster::ActionContext>;
     using MonsterDataTable = std::unordered_map<Monster::DataID, Monster::DataContext>;
-    using MonsterSpawnedTable = std::unordered_map<Monster::SpawnPoint, std::weak_ptr<Enemy>>;
-    using MonsterSpawnedIDTable = std::unordered_map<Monster::DataID, std::vector<std::weak_ptr<Enemy>>>;
 
 public:
     MonsterSystem() = default;
@@ -53,10 +50,10 @@ public:
     bool SpawnMonsterFromSpawnID(Monster::SpawnID spawnID, bool isHardDifficulty = false);
     bool SpawnMonsterFromSpawnID(Monster::SpawnID spawnID, Monster::SpawnPoint spawnPoint, bool isHardDifficulty = false);
 
-    const std::vector<std::weak_ptr<Enemy>>* GetSpawnedEnemiesFromID(Monster::DataID dataID);
-    std::weak_ptr<Enemy> GetSpawnedEnemyFromSpawnPoint(Monster::SpawnPoint spawnPoint);
-
-
+    const std::vector<std::weak_ptr<Enemy>>* GetSpawnedEnemiesFromID(Monster::DataID dataID) const;
+    std::weak_ptr<Enemy>                     GetSpawnedEnemyFromSpawnPoint(Monster::SpawnPoint spawnPoint) const;
+    std::weak_ptr<GameObject>                GetSpawnPointObject(Monster::SpawnPoint spawnPointType) const;
+    std::unordered_map<Monster::SpawnPoint, std::weak_ptr<Enemy>> GetSpawnedEnemiesTable() const;
 
 private:
     void                 Clear();
@@ -76,10 +73,9 @@ private:
     SingletonComponent<MonsterSystem> _singletonComponent = {this};
 
     std::weak_ptr<GameObject> _spawnGroup;
-    std::unordered_map<Monster::SpawnPoint, std::weak_ptr<GameObject>> _spawPointTable;
-
-    MonsterSpawnedTable   _spawnedEnemyTable;
-    MonsterSpawnedIDTable _spawnedEnemiesIDTable;
+    std::unordered_map<Monster::SpawnPoint, std::weak_ptr<GameObject>>      _spawnPointTable;
+    std::unordered_map<Monster::SpawnPoint, std::weak_ptr<Enemy>>           _spawnedEnemyTable;
+    std::unordered_map<Monster::DataID, std::vector<std::weak_ptr<Enemy>>>  _spawnedEnemiesIDTable;
 
     MonsterDataTable    _monsterDataTable;
     ActionDataTable     _actionDataTable;
