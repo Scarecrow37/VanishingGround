@@ -20,13 +20,18 @@ namespace Monster
 {
     namespace Action
     {
-        Base::Base() = default;
+        Base::Base(std::string_view animationKey) : _animationKey(animationKey) {}
+        Base::Base()  = default;
         Base::~Base() = default;
 
         void Base::ProcessActionEnter()
         {
             _isActionEnd = false;
             Refresh();
+            if (false == ProcessAnimation(_animationKey))
+            {
+                SetActionEnd();
+            }
             OnActionEnter();
         }
         void Base::ProcessActionUpdate()
@@ -124,13 +129,13 @@ namespace Monster
             bool result = false;
             if (AnimationComponent* animator = GetAnimationComponent())
             {
-                if (animator->HasAnimationMappingKey("Attack0"))
+                if (animator->HasAnimationMappingKey(animKey))
                 {
                     animator->BeginBuildOverrideAnimation();
                     {
                         animator->ClearOverrideAnimations();
                         animator->SetNextAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE | ANIMATION_FLAG_USE_BLEND);
-                        result = animator->PushBackOverrideAnimation("Attack0");
+                        result = animator->PushBackOverrideAnimation(animKey);
                         if (result)
                         {
                             animator->SetCurrentAnimationPopCondition(

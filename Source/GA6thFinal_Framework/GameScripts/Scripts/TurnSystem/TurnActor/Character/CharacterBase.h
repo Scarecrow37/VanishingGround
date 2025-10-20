@@ -81,6 +81,8 @@ public:
     // 파티클 컴포넌트를 반환합니다.
     ParticleComponent* GetParticleComponent() const { return _particleComponent; }
 
+    bool FindComponent();
+
 protected:
     REFLECT_FIELDS_BEGIN(TurnActor)
     REFLECT_FIELDS_END(CharacterBase)
@@ -94,7 +96,6 @@ private:
 protected:
     virtual void Awake() override;
 
-    void FindComponent();
     void InitAnimationCallback();
 
 public:

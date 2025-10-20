@@ -11,7 +11,8 @@
 
 namespace Monster
 {
-    void BuildAIModel23000(std::weak_ptr<Enemy> owner, AIModel& controller) 
+    // Monster A
+    void BuildAIModel210300(std::weak_ptr<Enemy> owner, AIModel& controller) 
     {
         controller.Clear();
         controller.PushActionNode("#1", "#2", 210200);  // Action 210200
@@ -34,7 +35,7 @@ namespace Monster
         // Entry 노드 설정
         controller.SetCurrentNode("#1");
     }
-    void BuildAIModel23001(std::weak_ptr<Enemy> owner, AIModel& controller) 
+    void BuildAIModel210301(std::weak_ptr<Enemy> owner, AIModel& controller) 
     {
         controller.Clear();
         controller.PushActionNode("#1", "#2", 210204);                              // Action 210204
@@ -44,7 +45,18 @@ namespace Monster
         // Entry 노드 설정
         controller.SetCurrentNode("#1");
     }
-    void BuildAIModel23010(std::weak_ptr<Enemy> owner, AIModel& controller) 
+    void BuildAIModel210302(std::weak_ptr<Enemy> owner, AIModel& controller)
+    {
+        controller.Clear();
+        controller.PushActionNode("#1", "#2", 210204);                             // Action 210204
+        controller.PushActionNode("#2", "#3", 210202);                             // Action 210203, 210200
+        controller.PushActionNode("#3", "#1", 210203);                             // Action 210203, 210200
+        // Entry 노드 설정
+        controller.SetCurrentNode("#1");
+    }
+
+    // Monster B
+    void BuildAIModel210310(std::weak_ptr<Enemy> owner, AIModel& controller) 
     {
         controller.Clear();
         controller.PushActionNode("#1", "#2", {{50.0f, 210210}, {50.0f, 210211}});                  // Action 210210, 210211
@@ -55,7 +67,7 @@ namespace Monster
         // Entry 노드 설정
         controller.SetCurrentNode("#1");
     }
-    void BuildAIModel23011(std::weak_ptr<Enemy> owner, AIModel& controller) 
+    void BuildAIModel210311(std::weak_ptr<Enemy> owner, AIModel& controller) 
     {
         controller.Clear();
         controller.PushActionNode("#1", "#2", 210214);                                              // Action 210214
@@ -65,11 +77,23 @@ namespace Monster
         // Entry 노드 설정
         controller.SetCurrentNode("#1");
     }
-    void BuildAIModel23020(std::weak_ptr<Enemy> owner, AIModel& controller) 
+    void BuildAIModel210312(std::weak_ptr<Enemy> owner, AIModel& controller)
+    {
+        controller.Clear();
+        controller.PushActionNode("#1", "#2", 210214); // Action 210214
+        controller.PushActionNode("#2", "#3", {{25.0f, 210210}, {25.0f, 210211}, {50.0f, 210214}}); // Action 210210, 210211
+        controller.PushActionNode("#3", "#4", 210214);                                  // Action 22013
+        controller.PushActionNode("#4", "#1", 210213);                                  // Action 22013
+        // Entry 노드 설정
+        controller.SetCurrentNode("#1");
+    }
+
+    // Monster C
+    void BuildAIModel210320(std::weak_ptr<Enemy> owner, AIModel& controller) 
     {
         controller.Clear();
     }
-    void BuildAIModel23021(std::weak_ptr<Enemy> owner, AIModel& controller)
+    void BuildAIModel210321(std::weak_ptr<Enemy> owner, AIModel& controller)
     {
         controller.Clear();
         controller.PushActionNode("#1", "#2", 210220);
@@ -89,7 +113,7 @@ namespace Monster
         // Entry 노드 설정
         controller.SetCurrentNode("#1");
     }
-    void BuildAIModel23022(std::weak_ptr<Enemy> owner, AIModel& controller)
+    void BuildAIModel210322(std::weak_ptr<Enemy> owner, AIModel& controller)
     {
         controller.Clear();
         controller.PushActionNode("#1", "#2", 210220);
@@ -103,11 +127,15 @@ namespace Monster
         bool registered = AIFactory::RegisterAIBuilder(ID, &BuildAIModel##ID);  \
     }
 
-    REGISTER_AI(23000)
-    REGISTER_AI(23001)
-    REGISTER_AI(23010)
-    REGISTER_AI(23011)
-    REGISTER_AI(23020)
-    REGISTER_AI(23021)
-    REGISTER_AI(23022)
+    REGISTER_AI(210300)
+    REGISTER_AI(210301)
+    REGISTER_AI(210302)
+
+    REGISTER_AI(210310)
+    REGISTER_AI(210311)
+    REGISTER_AI(210312)
+
+    REGISTER_AI(210320)
+    REGISTER_AI(210321)
+    REGISTER_AI(210322)
 }

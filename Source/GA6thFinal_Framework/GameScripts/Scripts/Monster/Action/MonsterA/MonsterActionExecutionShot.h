@@ -1,5 +1,4 @@
 ﻿#pragma once
-
 #include "Monster/Action/MonsterActionBase.h"
 
 namespace Monster
@@ -7,14 +6,14 @@ namespace Monster
     namespace Action
     {
         /// <summary>
-        /// 피의 의식
+        /// 확인 사살
         /// </summary>
-        class BloodRitual : public Base
+        class ExecutionShot : public Base
         {
-            MONSTER_ACTION_DATA(210204)
+            MONSTER_ACTION_DATA(210202)
         public:
-            BloodRitual();
-            ~BloodRitual() override;
+            ExecutionShot();
+            ~ExecutionShot() override;
 
         private:
             void OnActionEnter() override;
@@ -24,7 +23,7 @@ namespace Monster
             void OnNotifiedAnimationEvent(const Timeline::EventContext* context) override;
 
         private:
-            void Behavior();
+            void Attack();
         };
     } // namespace Action
 } // namespace Monster

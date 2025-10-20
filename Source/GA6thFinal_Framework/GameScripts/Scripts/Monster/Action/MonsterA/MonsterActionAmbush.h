@@ -12,13 +12,18 @@ namespace Monster
         {
             MONSTER_ACTION_DATA(210201)
         public:
-            using Base::Base;
+            Ambush();
+            ~Ambush() override;
 
         private:
             void OnActionEnter() override;
             void OnActionUpdate() override;
             void OnActionExit() override;
             void OnActionReset() override;
+            void OnNotifiedAnimationEvent(const Timeline::EventContext* context) override;
+
+        private:
+            void Attack();
         };
     } // namespace Action
 } // namespace Monster

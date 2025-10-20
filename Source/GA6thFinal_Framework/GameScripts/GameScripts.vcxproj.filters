@@ -19,20 +19,6 @@
     <ClCompile Include="Scripts\ColorUtils\ColorUtils.cpp" />
     <ClCompile Include="Scripts\ConsumableSystem\ConsumableSystem.cpp" />
     <ClCompile Include="Scripts\DamageSystem\DamageSystem.cpp" />
-    <ClCompile Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22000.cpp" />
-    <ClCompile Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22001.cpp" />
-    <ClCompile Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22002.cpp" />
-    <ClCompile Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22003.cpp" />
-    <ClCompile Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22004.cpp" />
-    <ClCompile Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22010.cpp" />
-    <ClCompile Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22011.cpp" />
-    <ClCompile Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22012.cpp" />
-    <ClCompile Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22013.cpp" />
-    <ClCompile Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22014.cpp" />
-    <ClCompile Include="Scripts\EnemyAction\ActionData\EnemyActionData.cpp" />
-    <ClCompile Include="Scripts\EnemyAction\Factory\EnemyActionFactory.cpp" />
-    <ClCompile Include="Scripts\EnemyAction\System\EnemyActionSystem.cpp" />
-    <ClCompile Include="Scripts\EnemyAction\EnemyActionBase.cpp" />
     <ClCompile Include="Scripts\ExcelDataSystem\ExcelDataSystem.cpp" />
     <ClCompile Include="Scripts\ExcelParser\ImGuiColumnSheetParser.cpp" />
     <ClCompile Include="Scripts\GameCore\FSM\AlwaysTransitionCondition.cpp" />
@@ -236,6 +222,19 @@
     <ClCompile Include="Scripts\Inventory\UINavi\InventoryArrowNavi.cpp" />
     <ClCompile Include="Scripts\Inventory\OpenInventoryComponent.cpp" />
     <ClCompile Include="Scripts\QTE\Track\Note\QTENoteData.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterActionBase.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterA\MonsterActionTearApart.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterB\MonsterActionCower.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterB\MonsterActionDespair.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterB\MonsterActionHymnOfAnnihilation.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterB\MonsterActionShiveringWhisper.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterB\MonsterActionWhisperOfFear.cpp" />
+    <ClCompile Include="Scripts\Monster\Common\MonsterCommon.cpp" />
+    <ClCompile Include="Scripts\Monster\Context\MonsterSpawnContext.cpp" />
+    <ClCompile Include="Scripts\Monster\Context\MonsterStatContext.cpp" />
+    <ClCompile Include="Scripts\Monster\Controller\MonsterController.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterA\MonsterActionAmbush.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterA\MonsterActionBloodRitual.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
@@ -260,20 +259,6 @@
     <ClInclude Include="Scripts\ColorUtils\ColorUtils.h" />
     <ClInclude Include="Scripts\ConsumableSystem\ConsumableSystem.h" />
     <ClInclude Include="Scripts\DamageSystem\DamageSystem.h" />
-    <ClInclude Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22000.h" />
-    <ClInclude Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22001.h" />
-    <ClInclude Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22002.h" />
-    <ClInclude Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22003.h" />
-    <ClInclude Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22004.h" />
-    <ClInclude Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22010.h" />
-    <ClInclude Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22011.h" />
-    <ClInclude Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22012.h" />
-    <ClInclude Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22013.h" />
-    <ClInclude Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22014.h" />
-    <ClInclude Include="Scripts\EnemyAction\ActionData\EnemyActionData.h" />
-    <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h" />
-    <ClInclude Include="Scripts\EnemyAction\System\EnemyActionSystem.h" />
-    <ClInclude Include="Scripts\EnemyAction\EnemyActionBase.h" />
     <ClInclude Include="Scripts\ExcelDataSystem\ExcelDataSystem.h" />
     <ClInclude Include="Scripts\ExcelParser\ImGuiColumnSheetParser.h" />
     <ClInclude Include="Scripts\GameCore\FSM\Factory\FSMConditionFactory.h" />
@@ -499,6 +484,17 @@
     <ClInclude Include="Scripts\Inventory\UINavi\InventoryArrowNavi.h" />
     <ClInclude Include="Scripts\Inventory\OpenInventoryComponent.h" />
     <ClInclude Include="Scripts\QTE\Track\Note\QTENoteData.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterActionBase.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterA\MonsterActionTearApart.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterB\MonsterActionCower.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterB\MonsterActionDespair.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterB\MonsterActionHymnOfAnnihilation.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterB\MonsterActionShiveringWhisper.h" />
+    <ClInclude Include="Scripts\Monster\Context\MonsterSpawnContext.h" />
+    <ClInclude Include="Scripts\Monster\Context\MonsterStatContext.h" />
+    <ClInclude Include="Scripts\Monster\Controller\MonsterController.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterA\MonsterActionAmbush.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterA\MonsterActionBloodRitual.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

@@ -89,28 +89,35 @@ bool MonsterSystem::SpawnMonsterFromSpawnID(SpawnID spawnID, SpawnPoint spawnPoi
                 const StatContext& statData    = _statDataTable[levelID][monsterID];
                 const DataContext& dataContext = _monsterDataTable[monsterID];
 
-                // 위치 및 회전 설정
-                SetMonsterTransformToSpawnPoint(clone, spawnPointType);
+                // 컴포넌트 유효성 검사
+                bool validClone = clone->FindComponent();
+                assert(validClone); // [assert] 스폰된 몬스터에 필요한 컴포넌트가 존재하지 않습니다.
 
-                // 스탯 설정
-                SetMonsterStateFromStatContext(clone, &statData);
-
-                // 컨트롤러 빌드
-                Controller& controller = clone->GetController();
-                controller.Build(weakClone, &dataContext, &statData);
-
-                // 초기 토큰 설정
-                auto& tokenInventory = clone->GetTokenInventory();
-                for (const auto& tokenParam : spawnParam.InitialTokens)
+                if (validClone)
                 {
-                    tokenInventory.AddTokenStackFromID(tokenParam.TokenID, tokenParam.Count);
+                    // 위치 및 회전 설정
+                    SetMonsterTransformToSpawnPoint(clone, spawnPointType);
+
+                    // 스탯 설정
+                    SetMonsterStateFromStatContext(clone, &statData);
+
+                    // 컨트롤러 빌드
+                    Controller& controller = clone->GetController();
+                    controller.Build(weakClone, &dataContext, &statData);
+
+                    // 초기 토큰 설정
+                    auto& tokenInventory = clone->GetTokenInventory();
+                    for (const auto& tokenParam : spawnParam.InitialTokens)
+                    {
+                        tokenInventory.AddTokenStackFromID(tokenParam.TokenID, tokenParam.Count);
+                    }
+
+                    // 테이블 등록
+                    _spawnedEnemyTable[spawnPointType] = weakClone;
+                    _spawnedEnemiesIDTable[monsterID].push_back(weakClone);
+
+                    return true;
                 }
-
-                // 테이블 등록
-                _spawnedEnemyTable[spawnPointType] = weakClone;
-                _spawnedEnemiesIDTable[monsterID].push_back(weakClone);
-
-                return true;
             }
         }
     }
@@ -125,7 +132,6 @@ std::weak_ptr<Enemy> MonsterSystem::SpawnMonster(LevelID levelID, DataID monster
     {
         auto& statDataTable = _statDataTable[levelID];
         bool  statContains  = statDataTable.contains(monsterID);
-        assert(statContains); // [assert] 해당 레벨에 몬스터 스탯 데이터가 존재해야합니다.
         if (statContains)
         {
             const StatContext&   statData  = statDataTable[monsterID];

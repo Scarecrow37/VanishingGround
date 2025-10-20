@@ -7,14 +7,14 @@ namespace Monster
     namespace Action
     {
         /// <summary>
-        /// 피의 의식
+        /// 연기 베기
         /// </summary>
-        class BloodRitual : public Base
+        class SmokeSlash : public Base
         {
-            MONSTER_ACTION_DATA(210204)
+            MONSTER_ACTION_DATA(210203)
         public:
-            BloodRitual();
-            ~BloodRitual() override;
+            SmokeSlash();
+            ~SmokeSlash() override;
 
         private:
             void OnActionEnter() override;
@@ -24,7 +24,7 @@ namespace Monster
             void OnNotifiedAnimationEvent(const Timeline::EventContext* context) override;
 
         private:
-            void Behavior();
+            void Attack();
         };
     } // namespace Action
 } // namespace Monster

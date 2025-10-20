@@ -32,6 +32,9 @@ namespace Monster
         BuildAIModel();
         BuildAction();
 
+        int actionID = _aiModel.GetCurrentActionID();
+        SetCurrentAction(actionID);
+
         return true;
     }
     void Controller::Reset()
@@ -76,8 +79,9 @@ namespace Monster
                 _currAction->ProcessActionExit();
                 return true;
             }
+            return false;
         }
-        return false;
+        return true;
     }
     void Controller::ProcessAnimationEvent(const Timeline::EventContext* context)
     {
@@ -100,9 +104,10 @@ namespace Monster
     {
         _aiModel.Clear();
 
-        int randomIndex = Random::Range(0, (int)_dataContext.FsmIDs.size());
-        auto func       = AIFactory::GetAIBuildFunc(randomIndex);
-        auto owner      = _weakOwner.lock();
+        int  range       = (int)_dataContext.FsmIDs.size() - 1;
+        int  randomIndex = Random::Range(0, range);
+        auto func        = AIFactory::GetAIBuildFunc(_dataContext.FsmIDs[randomIndex]);
+        auto owner       = _weakOwner.lock();
         if (func && owner)
         {
             func(owner, _aiModel);

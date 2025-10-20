@@ -28,6 +28,7 @@ namespace Monster
         class Base
         {
         public:
+            Base(std::string_view animationKey);
             Base();
             virtual ~Base();
 
@@ -95,6 +96,8 @@ namespace Monster
             std::weak_ptr<ParticleComponent>    _weakParticle;
 
             std::vector<std::unique_ptr<TokenApplyAction>> _tokenActions;
+
+            std::string _animationKey;
 
             bool _isActionEnd = false;
         };

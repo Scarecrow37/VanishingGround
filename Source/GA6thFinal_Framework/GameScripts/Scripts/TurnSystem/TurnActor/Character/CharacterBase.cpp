@@ -91,8 +91,9 @@ void CharacterBase::Awake()
     InitAnimationCallback();
 }
 
-void CharacterBase::FindComponent() 
+bool CharacterBase::FindComponent()
 {
+    bool valid = false;
     auto* childTransform = transform->Find(MODEL_NAME);
     if (childTransform)
     {
@@ -118,8 +119,10 @@ void CharacterBase::FindComponent()
             std::string msg = std::format("{}{}", model.ToString(), (const char*)u8"의 컴포넌트에 ParticleComponent가 없습니다.");
             UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
         }
+
+        valid = _skeletalMeshRenderer && _animationComponent && _particleComponent;
     }
-    
+    return valid;
 }
 
 void CharacterBase::InitAnimationCallback() 

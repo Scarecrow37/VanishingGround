@@ -8,11 +8,12 @@ namespace Monster
     /// </summary>
     namespace Action
     {
-        class TearApart : public Base
+        class RendApart : public Base
         {
             MONSTER_ACTION_DATA(210200)
         public:
-            using Base::Base;
+            RendApart();
+            ~RendApart() override;
 
         private:
             void OnActionEnter() override;
