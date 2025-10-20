@@ -37,12 +37,15 @@ namespace
             {
                 if (filter.PassFilter(key.data()))
                 {
-                    bool isSelect = key == actionName;
-                    if (ImGui::Selectable(key.data(), isSelect))
+                    if (false == key.empty())
                     {
-                        if (false == isSelect)
+                        bool isSelect = key == actionName;
+                        if (ImGui::Selectable(key.data(), isSelect))
                         {
-                            action.reset(func());
+                            if (false == isSelect)
+                            {
+                                action.reset(func());
+                            }
                         }
                     }
                 }
