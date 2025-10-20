@@ -54,7 +54,7 @@ void TokenApplyAction::ImGuiDrawActionEditor()
 
 const std::string& TokenApplyAction::GetActionName()
 {
-    static const std::string name = (const char*)u8"플레이어 공격시 대상에게 토큰 부여";
+    static const std::string name = (const char*)u8"공격시 대상에게 토큰 부여";
     return name;
 }
 
@@ -89,5 +89,6 @@ void TokenApplyAction::UpdateActionInfo()
     {
         tokenName = STR_NULL;
     }
-    _actionInfo = std::format("{}{}{}{}{}{}", rfl::enum_to_string(ReflectFields->TokenTarget), (const char*)u8"에게 ", tokenName, (const char*)u8"토큰 ", ReflectFields->TokenCount, (const char*)u8"개 부여");
+    _actionInfo = (const char*)u8"공격시 ";
+    _actionInfo += std::format("{}{}{}{}{}{}", rfl::enum_to_string(ReflectFields->TokenTarget), (const char*)u8"에게 ", tokenName, (const char*)u8"토큰 ", ReflectFields->TokenCount, (const char*)u8"개 부여");
 }
