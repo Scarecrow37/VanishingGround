@@ -55,4 +55,4 @@ public:
 private:
     void UpdateActionInfo();
     std::string _actionInfo;
-};ㄴ
+};
