@@ -2,6 +2,7 @@
 #include "TokenApplyAction.h"
 #include <RevelationSystem/RevelationSystem.h>
 #include <TurnSystem/TurnAction/TurnActionFactory.h>
+#include <TurnSystem/TurnSystemHelper.h>
 #include <Token/TokenSystem.h>
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
@@ -45,6 +46,7 @@ void TokenApplyAction::ImGuiDrawActionEditor()
         ImGui::EndCombo();
     }
     ReflectHelper::ImGuiDraw::Private::InputAuto(TokenCount, UmCore->ImGuiDrawPropertysSetting);
+    TurnSystemHelper::DrawTargetComboboxWithToolTip(ReflectFields->TokenTarget, true);
     ImGui::Separator();
     ImGui::Text("Conditions");
     ImguiDrawConditionEditor();
@@ -52,7 +54,7 @@ void TokenApplyAction::ImGuiDrawActionEditor()
 
 const std::string& TokenApplyAction::GetActionName()
 {
-    static const std::string name = (const char*)u8"공격시 대상에게 토큰 부여";
+    static const std::string name = (const char*)u8"플레이어 공격시 대상에게 토큰 부여";
     return name;
 }
 
@@ -61,31 +63,22 @@ void TokenApplyAction::DeserializedReflectEvent()
     UpdateActionInfo();
 }
 
-void TokenApplyAction::OnPlayerBattleCalculateDamageModifier(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
-                                           Enemy& target, EnemyStats& targetStats)
+void TokenApplyAction::OnPlayerBattleCalculateDamageModifier(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats, Enemy& target, EnemyStats& targetStats)
 {
     if (EvaluateConditions())
     {
-        target.GetTokenInventory().AddTokenStackFromID(TokenID, ReflectFields->TokenCount);
-        std::string msg(target.gameObject->ToString());
-        msg += (const char*)u8"에게 ";
-        msg += std::format("{}{}{}{}", TokenSystem::GetTokenNameFromID(ReflectFields->TokenID), (const char*)u8"토큰 ",
-                           ReflectFields->TokenCount, (const char*)u8"개 부여");
-        UmLogger.Message(LogLevel::LEVEL_TRACE, msg);
-    }
-}
-
-void TokenApplyAction::OnEnemyBattleCalculateDamageModifier(Enemy& attacker, EnemyStats& attackerStats, Player& target,
-                                          PlayerStats& targetStats)
-{
-    if (EvaluateConditions())
-    {
-        target.GetTokenInventory().AddTokenStackFromID(TokenID, ReflectFields->TokenCount);       
-        std::string msg(target.gameObject->ToString());
-        msg += (const char*)u8"에게 ";
-        msg += std::format("{}{}{}{}", TokenSystem::GetTokenNameFromID(ReflectFields->TokenID),
-                                           (const char*)u8"토큰 ", ReflectFields->TokenCount, (const char*)u8"개 부여");
-        UmLogger.Message(LogLevel::LEVEL_TRACE, msg);
+        std::vector<CharacterBase*> targets =TurnSystemHelper::GetTargetCharacters(ReflectFields->TokenTarget);
+        if (false == targets.empty())
+        {
+            for (auto& applyTarget : targets)
+            {
+                applyTarget->GetTokenInventory().AddTokenStackFromID(TokenID, ReflectFields->TokenCount);
+                std::string msg(applyTarget->gameObject->ToString());
+                msg += (const char*)u8"에게 ";
+                msg += std::format("{}{}{}{}", TokenSystem::GetTokenNameFromID(ReflectFields->TokenID),  (const char*)u8"토큰 ", ReflectFields->TokenCount, (const char*)u8"개 부여");
+                UmLogger.Message(LogLevel::LEVEL_TRACE, msg);
+            }
+        } 
     }
 }
 
@@ -96,5 +89,5 @@ void TokenApplyAction::UpdateActionInfo()
     {
         tokenName = STR_NULL;
     }
-    _actionInfo = std::format("{}{}{}{}", tokenName, (const char*)u8"토큰 ", ReflectFields->TokenCount, (const char*)u8"개 부여");
+    _actionInfo = std::format("{}{}{}{}{}{}", rfl::enum_to_string(ReflectFields->TokenTarget), (const char*)u8"에게 ", tokenName, (const char*)u8"토큰 ", ReflectFields->TokenCount, (const char*)u8"개 부여");
 }

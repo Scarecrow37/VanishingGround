@@ -16,6 +16,7 @@ public:
     }
     GETTER(int, TokenID) { return ReflectFields->TokenID; }
     // 부여할 토큰 ID
+    // type : int
     PROPERTY(TokenID)
 
     SETTER(int, TokenCount)
@@ -25,12 +26,20 @@ public:
     }
     GETTER(int, TokenCount) { return ReflectFields->TokenCount; }
     // 부여할 토큰 개수
+    // type : int
     PROPERTY(TokenCount)
+
+    SETTER(TurnTarget, Target) { ReflectFields->TokenTarget = value; }
+    GETTER(TurnTarget, Target) { return ReflectFields->TokenTarget; }
+    // 토큰을 부여할 대상을 설정합니다.
+    // type : TurnTarget
+    PROPERTY(Target)
 
 protected:
     REFLECT_FIELDS_BEGIN(TurnAction)
-    int TokenID    = 16000;
-    int TokenCount = 1;
+    int        TokenID     = 16000;
+    int        TokenCount  = 1;
+    TurnTarget TokenTarget = TurnTarget::ENEMY;
     REFLECT_FIELDS_END(TokenApplyAction)
 
 public:
@@ -43,10 +52,7 @@ public:
     void OnPlayerBattleCalculateDamageModifier(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats, Enemy& target,
                              EnemyStats& targetStats) override;
 
-    void OnEnemyBattleCalculateDamageModifier(Enemy& attacker, EnemyStats& attackerStats, Player& target,
-                            PlayerStats& targetStats) override;
-
 private:
     void UpdateActionInfo();
     std::string _actionInfo;
-};
+};ㄴ
