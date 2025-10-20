@@ -126,14 +126,17 @@ void SpawnDamagePanel::EraseChild() const
 
 DamageElement* SpawnDamagePanel::MakeDamage() const
 {
-    const std::shared_ptr<GameObject> child = NewGameObject(GameObject::Helper::GenerateUniqueName("Damage Element"));
-    DamageElement&                    damageElement = child->AddComponent<DamageElement>();
-    auto [point, angle]                             = GetRandomSpawnPointAndAngle();
-    damageElement.Point                             = point;
-    damageElement.Size                              = {50, 20};
-    const LONG distance                             = static_cast<LONG>((1 - RadiusRatio) * Radius);
-    std::array<std::string, 1> revelations  = {"하늘베기"};
-    damageElement.Setup(distance, angle, LifeTime, point, _Guid, FontScale, Color, "100", revelations);
+    const std::shared_ptr<GameObject> child          = NewGameObject(GameObject::Helper::GenerateUniqueName("Damage Element"));
+    DamageElement&                    damageElement  = child->AddComponent<DamageElement>();
+    auto                              [point, angle] = GetRandomSpawnPointAndAngle();
+    damageElement.Point                              = point;
+    const SIZE size                                  = Size;
+    damageElement.Size                               = size;
+    damageElement.HorizontalFillMode                 = FillMode::WRAP;
+    damageElement.VerticalFillMode                   = FillMode::WRAP;
+    const LONG                 distance              = static_cast<LONG>((1 - RadiusRatio) * Radius);
+    std::array<std::string, 1> revelations           = {"Slay The Sky"};
+    damageElement.Setup(distance, angle, LifeTime, point, _Guid, BeginScale, EndScale, Color, "100", revelations);
     child->transform->SetParent(transform, true);
     return &damageElement;
 }
