@@ -136,7 +136,7 @@ DamageElement* SpawnDamagePanel::MakeDamage() const
     damageElement.VerticalFillMode                   = FillMode::WRAP;
     const LONG                 distance              = static_cast<LONG>((1 - RadiusRatio) * Radius);
     std::array<std::string, 1> revelations           = {"Slay The Sky"};
-    damageElement.Setup(distance, angle, LifeTime, point, _Guid, BeginScale, EndScale, Color, "100", revelations);
+    damageElement.Setup(distance, angle, LifeTime, point, _Guid, BeginScale, EndScale, BeginColor, EndColor, "100", revelations);
     child->transform->SetParent(transform, true);
     return &damageElement;
 }

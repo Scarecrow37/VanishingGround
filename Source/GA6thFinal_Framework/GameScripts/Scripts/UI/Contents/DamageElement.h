@@ -12,8 +12,9 @@ class DamageElement : public UIComponent
 public:
     DamageElement();
 
-    void Setup(LONG distance, float angle, float duration, POINT origin, const File::Guid& fontGuid, float beginFontSize, float endFontSize, Color fontColor, const
-               std::string& damage, std::span<std::string> revelations);
+    void Setup(LONG distance, float angle, float duration, POINT origin, const File::Guid& fontGuid,
+               float beginFontSize, float endFontSize, Color beginColor, Color endColor, const std::string& damage,
+               std::span<std::string> revelations);
 
 protected:
     SIZE MeasureOverride(SIZE availableSize) override;
@@ -25,10 +26,10 @@ protected:
 private:
     float GetT() const;
     void  UpdatePoint(float t);
-    void  UpdateFontSize(float t) const;
+    void  UpdateFont(float t) const;
 
     void SetupPoints();
-    void SetupChildren(const File::Guid& fontGuid, Color fontColor, const std::string& damage, std::span<std::string>
+    void SetupChildren(const File::Guid& fontGuid, const std::string& damage, std::span<std::string>
                        revelations);
     std::weak_ptr<TextElement> CreateTextElement(const File::Guid& fontGuid, const std::string& content, float fontSize, Color fontColor) const;
 
@@ -45,6 +46,8 @@ protected:
     float                _endFontSize;
     float                _beginRevelationFontSize;
     float                _endRevelationFontSize;
+    Color                _beginColor;
+    Color                _endColor;
     std::vector<float>   _steps;
     std::vector<Vector3> _points;
 

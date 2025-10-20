@@ -10,17 +10,24 @@ public:
     SpawnDamagePanel();
 
 public:
-    REFLECT_PROPERTY(RadiusRatio, LifeTime, FilePath, Color, BeginScale, EndScale)
+    REFLECT_PROPERTY(RadiusRatio, LifeTime, FilePath, BeginColor, EndColor, BeginScale, EndScale)
 
     GETTER_ONLY(std::string, FilePath) { return _Guid.ToPath().string(); }
     PROPERTY(FilePath)
 
-    GETTER(DirectX::SimpleMath::Color, Color) { return DirectX::SimpleMath::Color(&ReflectFields->Color[0]); }
-    SETTER(DirectX::SimpleMath::Color, Color)
+    GETTER(DirectX::SimpleMath::Color, BeginColor) { return DirectX::SimpleMath::Color(&ReflectFields->BeginColor[0]); }
+    SETTER(DirectX::SimpleMath::Color, BeginColor)
     {
-        std::memcpy(&ReflectFields->Color[0], &value.x, sizeof(ReflectFields->Color));
+        std::memcpy(&ReflectFields->BeginColor[0], &value.x, sizeof(ReflectFields->BeginColor));
     }
-    PROPERTY(Color)
+    PROPERTY(BeginColor)
+
+    GETTER(DirectX::SimpleMath::Color, EndColor) { return DirectX::SimpleMath::Color(&ReflectFields->EndColor[0]); }
+    SETTER(DirectX::SimpleMath::Color, EndColor)
+    {
+        std::memcpy(&ReflectFields->EndColor[0], &value.x, sizeof(ReflectFields->EndColor));
+    }
+    PROPERTY(EndColor)
 
     GETTER(float, BeginScale) { return ReflectFields->BeginScale; }
     SETTER(float, BeginScale) { ReflectFields->BeginScale = std::max(1.0f, value); }
@@ -67,7 +74,8 @@ protected:
     float                Radius   = 1.0f;
     float                LifeTime = 1.0f;
     std::string          Guid;
-    std::array<float, 4> Color      = {-.0f, 0.0f, 0.0f, 1.0f};
+    std::array<float, 4> BeginColor = {0.0f, 0.0f, 0.0f, 0.5f};
+    std::array<float, 4> EndColor   = {0.0f, 0.0f, 0.0f, 1.0f};
     float                BeginScale = 64.0f;
     float                EndScale   = 48.0f;
     REFLECT_FIELDS_END(SpawnDamagePanel)
