@@ -7,7 +7,8 @@ class DamageElement : public UIComponent
     USING_PROPERTY(DamageElement)
 
     static constexpr LONG GAP = 8L;
-    static constexpr float REVELATION_FONT_SIZE_RATIO = 3.0f;
+    static constexpr float REVELATION_FONT_SIZE_RATIO_SMALL = 2.0f;
+    static constexpr float REVELATION_FONT_SIZE_RATIO_LARGE = 3.0f;
 
 public:
     DamageElement();
@@ -46,6 +47,7 @@ protected:
     float                _endFontSize;
     float                _beginRevelationFontSize;
     float                _endRevelationFontSize;
+    LONG                 _sizeRatio;
     Color                _beginColor;
     Color                _endColor;
     std::vector<float>   _steps;

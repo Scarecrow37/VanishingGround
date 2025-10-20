@@ -135,7 +135,20 @@ DamageElement* SpawnDamagePanel::MakeDamage() const
     damageElement.HorizontalFillMode                 = FillMode::WRAP;
     damageElement.VerticalFillMode                   = FillMode::WRAP;
     const LONG                 distance              = static_cast<LONG>((1 - RadiusRatio) * Radius);
-    std::array<std::string, 1> revelations           = {"Slay The Sky"};
+    const int random = Random::Range(0, 3);
+    std::vector<std::string>   revelations;
+    if (random > 0)
+    {
+        revelations.push_back("What!");
+    }
+    if (random > 1)
+    {
+        revelations.push_back("What the!");
+    }
+    if (random > 2)
+    {
+        revelations.push_back("What the Fuck!");
+    }
     damageElement.Setup(distance, angle, LifeTime, point, _Guid, BeginScale, EndScale, BeginColor, EndColor, "100", revelations);
     child->transform->SetParent(transform, true);
     return &damageElement;

@@ -24,10 +24,20 @@ void DamageElement::Setup(const LONG distance, const float angle, const float du
     _duration = duration;
     _elapsedTime = 0.0f;
     _origin      = origin;
-    _beginFontSize = beginFontSize;
-    _endFontSize   = endFontSize;
-    _beginRevelationFontSize = beginFontSize / REVELATION_FONT_SIZE_RATIO;
-    _endRevelationFontSize   = endFontSize / REVELATION_FONT_SIZE_RATIO;
+    if (revelations.size() > 1)
+    {
+        _beginFontSize = beginFontSize * REVELATION_FONT_SIZE_RATIO_LARGE;
+        _endFontSize   = endFontSize * REVELATION_FONT_SIZE_RATIO_LARGE;
+        _sizeRatio     = 3L;
+    }
+    else
+    {
+        _beginFontSize = beginFontSize * REVELATION_FONT_SIZE_RATIO_SMALL;
+        _endFontSize   = endFontSize * REVELATION_FONT_SIZE_RATIO_SMALL;
+        _sizeRatio     = 2L;
+    }
+    _beginRevelationFontSize = beginFontSize;
+    _endRevelationFontSize   = endFontSize;
     _beginColor              = beginColor;
     _endColor                = endColor;
     SetupPoints();
@@ -70,7 +80,7 @@ SIZE DamageElement::ArrangeOverride(const SIZE finalSize)
     const SIZE desiredSize = DesiredSize;
     const SIZE actualSize  = MinSize()(finalSize, desiredSize);
 
-    const LONG revelationYStep = actualSize.cy / 3L;
+    const LONG revelationYStep = actualSize.cy / _sizeRatio;
 
     const POINT revelationPoint = AbsoluteChildPosition;
 
@@ -80,11 +90,24 @@ SIZE DamageElement::ArrangeOverride(const SIZE finalSize)
     {
         if (const auto revelationTextElement = _revelationTextElements[i].lock(); nullptr != revelationTextElement)
         {
-            const POINT currentRevelationPoint = {revelationPoint.x,
-                                                  revelationPoint.y + (2L - static_cast<LONG>(i)) * revelationYStep};
-            revelationTextElement->Arrange(currentRevelationPoint, actualSize);
-            const SIZE revelationSize = revelationTextElement->ActualSize;
-            xOffset                   = std::max(xOffset, revelationSize.cx);
+            SIZE revelationDesiredSize = revelationTextElement->DesiredSize;
+            xOffset                    = std::max(xOffset, revelationDesiredSize.cx);
+        }
+    }
+
+
+    for (size_t i = 0; i < _revelationTextElements.size(); ++i)
+    {
+        if (const auto revelationTextElement = _revelationTextElements[i].lock(); nullptr != revelationTextElement)
+        {
+            SIZE        revelationDesiredSize  = revelationTextElement->DesiredSize;
+            const POINT alignPosition = AlignPoint()(
+                HorizontalAlignment::RIGHT, VerticalAlignment::TOP,
+                             SIZE{.cx = xOffset, .cy = 0} - SIZE{.cx = revelationDesiredSize.cx, .cy = 0});
+            const POINT currentRevelationPoint = {
+                revelationPoint.x, revelationPoint.y + ((_sizeRatio - 1) - static_cast<LONG>(i)) * revelationYStep};
+            const POINT childPoint = currentRevelationPoint + alignPosition;
+            revelationTextElement->Arrange(childPoint, actualSize);
         }
     }
 
