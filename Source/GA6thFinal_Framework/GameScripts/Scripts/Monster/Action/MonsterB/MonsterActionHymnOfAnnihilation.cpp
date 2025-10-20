@@ -8,13 +8,9 @@ namespace Monster
 {
     namespace Action
     {
-        void HymnOfAnnihilation::OnActionEnter()
-        {
-            if (ProcessAnimation("Attack1"))
-            {
-                SetActionEnd();
-            }
-        }
+        HymnOfAnnihilation::HymnOfAnnihilation() : Base("Attack1") {}
+        HymnOfAnnihilation::~HymnOfAnnihilation() = default;
+        void HymnOfAnnihilation::OnActionEnter() {}
         void HymnOfAnnihilation::OnActionUpdate() {}
         void HymnOfAnnihilation::OnActionExit() {}
         void HymnOfAnnihilation::OnActionReset() {}

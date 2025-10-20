@@ -12,7 +12,8 @@ namespace Monster
         {
             MONSTER_ACTION_DATA(210213)
         public:
-            using Base::Base;
+            HymnOfAnnihilation();
+            ~HymnOfAnnihilation() override;
 
         private:
             void OnActionEnter() override;

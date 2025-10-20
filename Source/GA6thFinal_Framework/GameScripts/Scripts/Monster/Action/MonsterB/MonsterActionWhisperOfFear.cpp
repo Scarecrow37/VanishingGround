@@ -10,23 +10,9 @@ namespace Monster
 {
     namespace Action
     {
-        void WhisperOfFear::OnActionEnter() 
-        {
-            if (ProcessAnimation("Attack0"))
-            {
-                SetActionEnd();
-            }
-            if (TokenApplyAction* token = GetTokenAction(1))
-            {
-                // TODO: 토큰 대상 처리
-                // 대상: Player
-            }
-            if (TokenApplyAction* token = GetTokenAction(2))
-            {
-                // TODO: 토큰 대상 처리
-                // 대상: Self
-            }
-        }
+        WhisperOfFear::WhisperOfFear() : Base("Attack0") {}
+        WhisperOfFear::~WhisperOfFear() = default;
+        void WhisperOfFear::OnActionEnter() {}
         void WhisperOfFear::OnActionUpdate() {}
         void WhisperOfFear::OnActionExit() {}
         void WhisperOfFear::OnActionReset() {}
@@ -38,14 +24,28 @@ namespace Monster
                 Attack();
             }
         }
+
+        /*
+        플레이어에게 S_Param(1)의 데미지로 피해를 준다.
+        공격 시 플레이어에게 T_Param(1)을 부여한다.
+        자신에게 T_Param(2)를 부여한다.
+        */
         void WhisperOfFear::Attack() 
         {
-            ActionParam damage = GetActionParam(1);
-            if (BeginTokenActions())
+            if (auto player = GetTargetFromString("Player").lock())
             {
-                ProcessBattle(damage.Param);
-                EndTokenActions();
+                TokenParam      tokenParam     = GetTokenParam(1);
+                TokenInventory& tokenInventory = player->GetTokenInventory();
+                tokenInventory.AddTokenStackFromID(tokenParam.TokenID, tokenParam.Count);
             }
+            if (auto* owner = GetOwnerEnemy())
+            {
+                TokenParam      tokenParam     = GetTokenParam(2);
+                TokenInventory& tokenInventory = owner->GetTokenInventory();
+                tokenInventory.AddTokenStackFromID(tokenParam.TokenID, tokenParam.Count);
+            }
+            ActionParam damage = GetActionParam(1);
+            ProcessBattle(damage.Param);
         }
     } // namespace Action
 } // namespace Monster

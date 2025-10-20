@@ -302,6 +302,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\Monster\Action\MonsterC\MonsterActionBaptismOfMight.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterC\MonsterActionRebinding.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterC\MonsterActionSkullBreaker.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterC\MonsterActionSmashStrike.h" />
+    <ClInclude Include="Scripts\DifficultyManager\DifficultyEnum.h" />
+    <ClInclude Include="Scripts\DifficultyManager\DifficultyManager.h" />
     <ClInclude Include="Scripts\Monster\Action\MonsterA\MonsterActionExecutionShot.h" />
     <ClInclude Include="Scripts\Monster\Action\MonsterA\MonsterActionSmokeSlash.h" />
     <ClInclude Include="Scripts\Monster\Action\MonsterA\MonsterActionAmbush.h" />
@@ -552,6 +558,11 @@
     <ClInclude Include="Scripts\ItemDropSystem\UI\EraseRevelationUIManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\Monster\Action\MonsterC\MonsterActionBaptismOfMight.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterC\MonsterActionRebinding.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterC\MonsterActionSkullBreaker.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterC\MonsterActionSmashStrike.cpp" />
+    <ClCompile Include="Scripts\DifficultyManager\DifficultyManager.cpp" />
     <ClCompile Include="Scripts\Monster\Action\MonsterA\MonsterActionExecutionShot.cpp" />
     <ClCompile Include="Scripts\Monster\Action\MonsterA\MonsterActionSmokeSlash.cpp" />
     <ClCompile Include="Scripts\Monster\Action\MonsterA\MonsterActionAmbush.cpp" />

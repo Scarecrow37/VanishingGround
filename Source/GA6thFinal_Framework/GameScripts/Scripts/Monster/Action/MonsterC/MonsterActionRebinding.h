@@ -4,16 +4,16 @@
 namespace Monster
 {
     /// <summary>
-    /// 떨리는 중얼거림
+    /// 재결속
     /// </summary>
     namespace Action
     {
-        class ShiveringWhisper : public Base
+        class Rebinding : public Base
         {
-            MONSTER_ACTION_DATA(210211)
+            MONSTER_ACTION_DATA(210223)
         public:
-            ShiveringWhisper();
-            ~ShiveringWhisper() override;
+            Rebinding();
+            ~Rebinding() override;
 
         private:
             void OnActionEnter() override;
@@ -23,7 +23,7 @@ namespace Monster
             void OnNotifiedAnimationEvent(const Timeline::EventContext* context) override;
 
         private:
-            void Attack();
+            void Behavior();
         };
     } // namespace Action
 } // namespace Monster

@@ -4,16 +4,16 @@
 namespace Monster
 {
     /// <summary>
-    /// 떨리는 중얼거림
+    /// 힘의 세례
     /// </summary>
     namespace Action
     {
-        class ShiveringWhisper : public Base
+        class BaptismOfMight : public Base
         {
-            MONSTER_ACTION_DATA(210211)
+            MONSTER_ACTION_DATA(210222)
         public:
-            ShiveringWhisper();
-            ~ShiveringWhisper() override;
+            BaptismOfMight();
+            ~BaptismOfMight() override;
 
         private:
             void OnActionEnter() override;
@@ -23,7 +23,11 @@ namespace Monster
             void OnNotifiedAnimationEvent(const Timeline::EventContext* context) override;
 
         private:
-            void Attack();
+            void Behavior();
         };
     } // namespace Action
 } // namespace Monster
+
+class MonsterActionBaptismOfMight
+{
+};

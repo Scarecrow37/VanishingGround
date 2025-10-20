@@ -12,7 +12,8 @@ namespace Monster
         {
             MONSTER_ACTION_DATA(210214)
         public:
-            using Base::Base;
+            Cower();
+            ~Cower() override;
 
         private:
             void OnActionEnter() override;

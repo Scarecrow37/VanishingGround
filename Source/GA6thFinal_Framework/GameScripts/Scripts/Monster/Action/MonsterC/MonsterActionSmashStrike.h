@@ -4,16 +4,16 @@
 namespace Monster
 {
     /// <summary>
-    /// 떨리는 중얼거림
+    /// 후려치기
     /// </summary>
     namespace Action
     {
-        class ShiveringWhisper : public Base
+        class SmashStrike : public Base
         {
-            MONSTER_ACTION_DATA(210211)
+            MONSTER_ACTION_DATA(210220)
         public:
-            ShiveringWhisper();
-            ~ShiveringWhisper() override;
+            SmashStrike();
+            ~SmashStrike() override;
 
         private:
             void OnActionEnter() override;

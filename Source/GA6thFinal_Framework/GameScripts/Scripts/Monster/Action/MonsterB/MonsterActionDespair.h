@@ -12,7 +12,8 @@ namespace Monster
         {
             MONSTER_ACTION_DATA(210212)
         public:
-            using Base::Base;
+            Despair();
+            ~Despair() override;
 
         private:
             void OnActionEnter() override;

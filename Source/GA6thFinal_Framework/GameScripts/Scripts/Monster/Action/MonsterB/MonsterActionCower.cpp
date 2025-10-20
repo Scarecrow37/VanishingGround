@@ -7,13 +7,9 @@ namespace Monster
 {
     namespace Action
     {
-        void Cower::OnActionEnter() 
-        {
-            if (ProcessAnimation("Attack0"))
-            {
-                SetActionEnd();
-            }
-        }
+        Cower::Cower() : Base("Attack0") {}
+        Cower::~Cower() =default;
+        void Cower::OnActionEnter() {}
         void Cower::OnActionUpdate() {}
         void Cower::OnActionExit() {}
         void Cower::OnActionReset() {}

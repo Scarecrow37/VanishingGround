@@ -12,7 +12,8 @@ namespace Monster
         {
             MONSTER_ACTION_DATA(210210)
         public:
-            using Base::Base;
+            WhisperOfFear();
+            ~WhisperOfFear() override;
 
         private:
             void OnActionEnter() override;
