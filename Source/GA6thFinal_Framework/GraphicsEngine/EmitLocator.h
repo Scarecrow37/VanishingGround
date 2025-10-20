@@ -58,7 +58,7 @@ public:
     Vector3               EmitLocate();
     void                  SetModelPath(std::wstring_view filepath);
     void                  LoadVerticesFromModel(std::shared_ptr<class Model> model);
-    std::filesystem::path GetModelPath() const { return _targetModelPath; }
+    const std::filesystem::path& GetModelPath() const { return _targetModelPath; }
 
     MeshSurfaceLocator*       AsMeshSurfaceLocator() override { return this; }
     const MeshSurfaceLocator* AsMeshSurfaceLocator() const override { return this; }
