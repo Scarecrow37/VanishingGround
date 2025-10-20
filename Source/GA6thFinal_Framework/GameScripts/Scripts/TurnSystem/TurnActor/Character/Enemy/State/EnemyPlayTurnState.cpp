@@ -49,8 +49,7 @@ void EnemyPlayTurnState::OnUpdate()
 
 void EnemyPlayTurnState::OnNotifiedAnimationEvent(const Timeline::EventContext* context) 
 {
-    //if (_currentAction)
-    //{
-    //    _currentAction->OnAnimationEvent(context);
-    //}
+    Enemy& enemy = GetEnemy();
+    Monster::Controller& controller = enemy.GetController();
+    controller.ProcessAnimationEvent(context);
 }

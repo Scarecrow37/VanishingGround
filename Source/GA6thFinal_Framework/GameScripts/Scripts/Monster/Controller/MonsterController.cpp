@@ -79,6 +79,14 @@ namespace Monster
         }
         return false;
     }
+    void Controller::ProcessAnimationEvent(const Timeline::EventContext* context)
+    {
+        if (_currAction)
+        {
+            _currAction->ProcessAnimationEvent(context);
+        }
+    }
+
     void Controller::Transition()
     {
         _aiModel.Transition();

@@ -30,6 +30,7 @@ namespace Monster
 
         /// <summary></summary>
         bool ProcessAction();
+        void ProcessAnimationEvent(const Timeline::EventContext* context);
 
         /// <summary>AI FSM의 상태를 전이합니다.</summary>
         void Transition();
