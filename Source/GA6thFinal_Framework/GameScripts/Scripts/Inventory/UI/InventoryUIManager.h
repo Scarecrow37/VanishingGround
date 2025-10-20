@@ -18,8 +18,13 @@ public:
     void CloseInventory();
 
     void UpdateWeaponUI();
-    void UpdateRevelationUI();
-    void UpdateAccessoryUI();
+    void UpdateRevelationUI(size_t startIndex = 0);
+    void UpdateAccessoryUI(size_t startIndex = 0);
+    void UpdateConsumable();
+
+    void UpdateScroll(HorizontalPageUIManager* manager);
+
+    ItemInfoUIManager* GetItemInfoManager() const { return _itemInfoUIManager; }
 
 public:
     REFLECT_PROPERTY()
@@ -29,7 +34,7 @@ protected:
     REFLECT_FIELDS_END(InventoryUIManager)
 
     void ImGuiDrawPropertysEvent() override;
-    void Awake() override;
+    void Added() override;
     void Update() override;
 
 private:
@@ -62,6 +67,9 @@ private:
 private:
     void OnButtonB(const Input::Controller&);
     bool _closeFlag = false;
+
+private:
+    size_t GetHorizontalPageCount(size_t artifactCount);
 
 };
 

@@ -32,9 +32,15 @@ void AnimationComponent::Update()
         }
         UpdateAnimation(_mainAnimationData);
 
+        // 유효성 검사
+        UpdateValidation();
+
         for (auto& event : _eventQueue)
         {
-            event();
+            if (event)
+            {
+                event();
+            }
         }
         _eventQueue.clear();
     }
@@ -68,7 +74,7 @@ void AnimationComponent::SerializedReflectEvent()
     ReflectFields->MainAnimationFlags = _mainAnimationData._flag;
     ReflectFields->MainAnimationSpeed = _mainAnimationData._speed;
 
-    ReflectFields->AnimEventTrackGuid = _Guid.string();
+    ReflectFields->AnimEventTrackGuid = _trackGuid.string();
 }
 
 void AnimationComponent::DeserializedReflectEvent()
@@ -186,7 +192,7 @@ void AnimationComponent::ImGuiDrawPropertysEvent()
         {
             ImGui::Checkbox("Disable Animation Notify", &ReflectFields->DisableAnimationNotify);
             ImGui::BeginDisabled();
-            std::string path = _filePath.string();
+            std::string path = _trackPath.string();
             ImGuiHelper::TextWithVerticalSeparator("Event Track Asset");
             ImGui::InputText("##path", &path, ImGuiInputTextFlags_ReadOnly);
             ImGui::EndDisabled();
@@ -361,8 +367,6 @@ void AnimationComponent::ImGuiDrawPropertysEvent()
 
         if (false == UmCore->IsPlay())
         {
-            // 애니메이터가 해당 객체만 사용 중이라면 reset합니다.
-            UpdateNullAnimator();
             // 메인 애니메이션만
             UpdateAnimation(_mainAnimationData);
         }
@@ -396,13 +400,18 @@ AnimationData& AnimationComponent::GetTopAnimationDataEx()
     return _mainAnimationData;
 }
 
-void AnimationComponent::UpdateNullAnimator()
+void AnimationComponent::UpdateValidation()
 {
-    /*if (1 >= _animator.use_count())
+    if (_animator)
     {
-        _animator.reset();
-        ClearOverrideAnimations();
-    }*/
+        // 그래픽스 Animator와 현재 애니메이션 컴포넌트의 동기화가 맞지 않는 경우 처리
+        std::string_view currAnim = _animator->GetCurrentAnimationName();
+        AnimationData&   animData = GetTopAnimationDataEx();
+        if (false == animData.IsSameAnimation(currAnim))
+        {
+            SetAnimationEx(animData);
+        }
+    }
 }
 
 void AnimationComponent::UpdateAnimation(AnimationData& animData)
@@ -445,10 +454,13 @@ void AnimationComponent::UpdateAnimation(AnimationData& animData)
             }
             if (animData._popCondition && animData._popCondition(animData))
             {
-                if (animData._onPopCallback)
-                {
-                    animData._onPopCallback();
-                }
+                auto popCallback = animData._onPopCallback;
+                _eventQueue.push_back([popCallback]() {
+                    if (popCallback)
+                    {
+                        popCallback();
+                    }
+                    });
                 PopOverrideAnimation();
             }
         }
@@ -469,12 +481,24 @@ bool AnimationComponent::SetAnimationEx(AnimationData& animData)
             {
                 if (_currentAnimationData && _currentAnimationData->_onExitCallback)
                 {
-                    _currentAnimationData->_onExitCallback();
+                    auto exitCallback = _currentAnimationData->_onExitCallback;
+                    _eventQueue.push_back([exitCallback]() {
+                        if (exitCallback)
+                        {
+                            exitCallback();
+                        }
+                    });
                 }
                 _currentAnimationData = &animData;
                 if (_currentAnimationData && _currentAnimationData->_onEnterCallback)
                 {
-                    _currentAnimationData->_onEnterCallback();
+                    auto enterCallback = _currentAnimationData->_onEnterCallback;
+                    _eventQueue.push_back([enterCallback]() {
+                        if (enterCallback)
+                        {
+                            enterCallback();
+                        }
+                    });
                 }
                 if (animData.HasFlag(ANIMATION_FLAG_RESET_FRAME))
                 {
@@ -597,11 +621,11 @@ void AnimationComponent::BeginBuildOverrideAnimation()
         // 비어있으면 널
         if (_overrideAnimationStack.empty())
         {
-            _prevBeginBuildAnimatonData = nullptr;
+            _prevBeginBuildAnimationID = UINT_MAX;
         }
         else
         {
-            _prevBeginBuildAnimatonData = &GetTopAnimationData();
+            _prevBeginBuildAnimationID = GetTopAnimationData()._id;
         }
     }
     else
@@ -617,12 +641,12 @@ void AnimationComponent::EndBuildOverrideAnimation()
     {
         _isBuildingOverrideAnimation = false;
         // 마지막 애니메이션 데이터가 달라졌을때만
-        if (_prevBeginBuildAnimatonData != &GetTopAnimationData())
+        if (_prevBeginBuildAnimationID != GetTopAnimationData()._id)
         {
             AnimationData& animData = GetTopAnimationDataEx();
             SetAnimationEx(animData);
         }
-        _prevBeginBuildAnimatonData = nullptr;
+        _prevBeginBuildAnimationID = UINT_MAX;
     }
     else
     {
@@ -709,7 +733,13 @@ void AnimationComponent::PopOverrideAnimation()
 
     if (_currentAnimationData && _currentAnimationData->_onExitCallback)
     {
-        _currentAnimationData->_onExitCallback();
+        auto exitCallback = _currentAnimationData->_onExitCallback;
+        _eventQueue.push_back([exitCallback]() {
+            if (exitCallback)
+            {
+                exitCallback();
+            }
+        });
     }
     _currentAnimationData = nullptr;
 
@@ -722,13 +752,21 @@ void AnimationComponent::PopOverrideAnimation()
     _lastAnimationData = &nextData;
 }
 
-bool AnimationComponent::ChangeCurrentAnimation(std::string_view animKey) 
+bool AnimationComponent::ChangeCurrentAnimation(std::string_view animKey, bool resetFrame)
 {
+    if (resetFrame)
+    {
+        ChangeCurrentAnimationFrame(0.0f);
+    }
     return ChangeAnimationEx(GetLastAnimationDataEx(), animKey);
 }
 
-bool AnimationComponent::ChangeMainAnimation(std::string_view animKey) 
+bool AnimationComponent::ChangeMainAnimation(std::string_view animKey, bool resetFrame)
 {
+    if (resetFrame)
+    {
+        ChangeMainAnimationFrame(0.0f);
+    }
     return ChangeAnimationEx(_mainAnimationData, animKey);
 }
 
@@ -880,10 +918,10 @@ void AnimationComponent::SetAnimationEventTrackFromPath(const File::Path& path)
 
 void AnimationComponent::SetAnimationEventTrackFromGuid(const File::Guid& guid) 
 {
-    _Guid  = guid;
-    _filePath = guid;
-    ReflectFields->AnimEventTrackGuid = _Guid.string();
-    if (_eventTrack.LoadFile(_filePath))
+    _trackGuid = guid;
+    _trackPath = guid;
+    ReflectFields->AnimEventTrackGuid = _trackGuid.string();
+    if (_eventTrack.LoadFile(_trackPath))
     {
         const auto& table = _eventTrack.GetEventTrackTable();
         for (const auto& [_, track] : table)

@@ -179,17 +179,27 @@ void CharacterBase::TakeDamage(int damage, bool playAnim)
                                         (const char*)u8"의 피해를 입었습니다.");
         UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
     }
-    if (playAnim && _animationComponent)
+    if (State != STATE::Dead)
     {
-        _animationComponent->BeginBuildOverrideAnimation();
-        _animationComponent->SetNextAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
-        bool pushResult = _animationComponent->PushBackOverrideAnimation("Hit");
-        if (pushResult)
+        if (playAnim && _animationComponent)
         {
-            _animationComponent->SetCurrentAnimationPopCondition(
-                [](const AnimationData& data) { return data.IsEnd(); }); // 애니메이션이 끝날 경우 Pop
+            _animationComponent->BeginBuildOverrideAnimation();
+            _animationComponent->SetNextAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
+            // HitAnimation이 이미 있다면 Pop
+            const auto& animData = _animationComponent->GetTopAnimationData();
+            const char* currentAnimName = animData.GetAnimationName().c_str();
+            if (currentAnimName == _animationComponent->GetAnimationNameFromKey("Hit"))
+            {
+                _animationComponent->PopOverrideAnimation();
+            }
+            bool pushResult = _animationComponent->PushBackOverrideAnimation("Hit");
+            if (pushResult)
+            {
+                _animationComponent->SetCurrentAnimationPopCondition(
+                    [](const AnimationData& data) { return data.IsEnd(); }); // 애니메이션이 끝날 경우 Pop
+            }
+            _animationComponent->EndBuildOverrideAnimation();
         }
-        _animationComponent->EndBuildOverrideAnimation();
     }
 }
 

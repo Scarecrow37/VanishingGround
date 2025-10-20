@@ -146,4 +146,11 @@ struct OITNode
     uint Next;
 };
 
+struct PointLightShadowData
+{
+    float4x4 ViewProjection[6];
+    float3 LightPosition;
+    float FarPlane;
+};
+
 #endif

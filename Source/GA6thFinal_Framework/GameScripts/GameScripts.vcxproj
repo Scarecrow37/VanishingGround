@@ -302,11 +302,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Scripts\Monster\Action\MonsterB\MonsterActionCower.h" />
-    <ClInclude Include="Scripts\Monster\Action\MonsterB\MonsterActionDespair.h" />
-    <ClInclude Include="Scripts\Monster\Action\MonsterB\MonsterActionHymnOfAnnihilation.h" />
-    <ClInclude Include="Scripts\Monster\Action\MonsterB\MonsterActionShiveringWhisper.h" />
-    <ClInclude Include="Scripts\Monster\Action\MonsterB\MonsterActionWhisperOfFear.h" />
     <ClInclude Include="Scripts\CombatUIManager\Accessories\AccessoriesGroup.h" />
     <ClInclude Include="Scripts\CombatUIManager\CharacterHUD\CharacterHUDGroup.h" />
     <ClInclude Include="Scripts\CombatUIManager\Consumable\ConsumableGroup.h" />
@@ -356,6 +351,8 @@
     <ClInclude Include="Scripts\GameCore\FSM\FSMState.h" />
     <ClInclude Include="Scripts\GameCore\FSM\IFSMEntity.h" />
     <ClInclude Include="Scripts\Interface\ITriggerType.h" />
+    <ClInclude Include="Scripts\Inventory\OpenInventoryComponent.h" />
+    <ClInclude Include="Scripts\Inventory\UINavi\InventoryArrowNavi.h" />
     <ClInclude Include="Scripts\Inventory\UINavi\InventoryItemFocusNavi.h" />
     <ClInclude Include="Scripts\Inventory\UI\HorizontalPageUIManager.h" />
     <ClInclude Include="Scripts\Inventory\UI\InventoryUIManager.h" />
@@ -385,19 +382,6 @@
     <ClInclude Include="Scripts\Mesh\MeshComponent.h" />
     <ClInclude Include="Scripts\Mesh\SkeletalMeshRenderer.h" />
     <ClInclude Include="Scripts\Mesh\StaticMeshRenderer.h" />
-    <ClInclude Include="Scripts\Monster\Action\MonsterA\MonsterActionTearApart.h" />
-    <ClInclude Include="Scripts\Monster\Action\MonsterActionBase.h" />
-    <ClInclude Include="Scripts\Monster\Action\MonsterActionFactory.h" />
-    <ClInclude Include="Scripts\Monster\AI\MonsterAIBuilder.h" />
-    <ClInclude Include="Scripts\Monster\AI\MonsterAIFactory.h" />
-    <ClInclude Include="Scripts\Monster\AI\MonsterAIModel.h" />
-    <ClInclude Include="Scripts\Monster\Common\MonsterCommon.h" />
-    <ClInclude Include="Scripts\Monster\Context\MonsterActionContext.h" />
-    <ClInclude Include="Scripts\Monster\Context\MonsterDataContext.h" />
-    <ClInclude Include="Scripts\Monster\Context\MonsterSpawnContext.h" />
-    <ClInclude Include="Scripts\Monster\Context\MonsterStatContext.h" />
-    <ClInclude Include="Scripts\Monster\Controller\MonsterController.h" />
-    <ClInclude Include="Scripts\Monster\System\MonsterSystem.h" />
     <ClInclude Include="Scripts\Particle\ParticleComponent.h" />
     <ClInclude Include="Scripts\PlayerSystem\PlayerSystem.h" />
     <ClInclude Include="Scripts\Preferences\Button\AbandonButton.h" />
@@ -415,6 +399,7 @@
     <ClInclude Include="Scripts\QTE\Result\QTEResult.h" />
     <ClInclude Include="Scripts\QTE\System\QTESystem.h" />
     <ClInclude Include="Scripts\QTE\Track\Note\QTENote.h" />
+    <ClInclude Include="Scripts\QTE\Track\Note\QTENoteData.h" />
     <ClInclude Include="Scripts\QTE\Track\QTETrack.h" />
     <ClInclude Include="Scripts\QTE\UI\QTEUIManager.h" />
     <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Base\RevelationActionBase.h" />
@@ -559,11 +544,6 @@
     <ClInclude Include="Scripts\ItemDropSystem\UI\EraseRevelationUIManager.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Scripts\Monster\Action\MonsterB\MonsterActionCower.cpp" />
-    <ClCompile Include="Scripts\Monster\Action\MonsterB\MonsterActionDespair.cpp" />
-    <ClCompile Include="Scripts\Monster\Action\MonsterB\MonsterActionHymnOfAnnihilation.cpp" />
-    <ClCompile Include="Scripts\Monster\Action\MonsterB\MonsterActionShiveringWhisper.cpp" />
-    <ClCompile Include="Scripts\Monster\Action\MonsterB\MonsterActionWhisperOfFear.cpp" />
     <ClCompile Include="Scripts\CombatUIManager\Accessories\AccessoriesGroup.cpp" />
     <ClCompile Include="Scripts\CombatUIManager\CharacterHUD\CharacterHUDGroup.cpp" />
     <ClCompile Include="Scripts\CombatUIManager\Consumable\ConsumableGroup.cpp" />
@@ -616,6 +596,8 @@
     <ClCompile Include="Scripts\ExcelParser\ImGuiColumnSheetParser.cpp" />
     <ClCompile Include="Scripts\GameCore\FSM\AlwaysTransitionCondition.cpp" />
     <ClCompile Include="Scripts\GameCore\FSM\FiniteStateMachine.cpp" />
+    <ClCompile Include="Scripts\Inventory\OpenInventoryComponent.cpp" />
+    <ClCompile Include="Scripts\Inventory\UINavi\InventoryArrowNavi.cpp" />
     <ClCompile Include="Scripts\Inventory\UINavi\InventoryItemFocusNavi.cpp" />
     <ClCompile Include="Scripts\Inventory\UI\HorizontalPageUIManager.cpp" />
     <ClCompile Include="Scripts\Inventory\UI\InventoryUIManager.cpp" />
@@ -645,19 +627,6 @@
     <ClCompile Include="Scripts\Mesh\MeshComponent.cpp" />
     <ClCompile Include="Scripts\Mesh\SkeletalMeshRenderer.cpp" />
     <ClCompile Include="Scripts\Mesh\StaticMeshRenderer.cpp" />
-    <ClCompile Include="Scripts\Monster\Action\MonsterA\MonsterActionTearApart.cpp" />
-    <ClCompile Include="Scripts\Monster\Action\MonsterActionBase.cpp" />
-    <ClCompile Include="Scripts\Monster\Action\MonsterActionFactory.cpp" />
-    <ClCompile Include="Scripts\Monster\AI\MonsterAIBuilder.cpp" />
-    <ClCompile Include="Scripts\Monster\AI\MonsterAIFactory.cpp" />
-    <ClCompile Include="Scripts\Monster\AI\MonsterAIModel.cpp" />
-    <ClCompile Include="Scripts\Monster\Common\MonsterCommon.cpp" />
-    <ClCompile Include="Scripts\Monster\Context\MonsterActionContext.cpp" />
-    <ClCompile Include="Scripts\Monster\Context\MonsterDataContext.cpp" />
-    <ClCompile Include="Scripts\Monster\Context\MonsterSpawnContext.cpp" />
-    <ClCompile Include="Scripts\Monster\Context\MonsterStatContext.cpp" />
-    <ClCompile Include="Scripts\Monster\Controller\MonsterController.cpp" />
-    <ClCompile Include="Scripts\Monster\System\MonsterSystem.cpp" />
     <ClCompile Include="Scripts\Particle\ParticleComponent.cpp" />
     <ClCompile Include="Scripts\PlayerSystem\PlayerSystem.cpp" />
     <ClCompile Include="Scripts\Preferences\Button\AbandonButton.cpp" />
@@ -674,6 +643,7 @@
     <ClCompile Include="Scripts\QTE\Editor\QTEEditor.cpp" />
     <ClCompile Include="Scripts\QTE\System\QTESystem.cpp" />
     <ClCompile Include="Scripts\QTE\Track\Note\QTENote.cpp" />
+    <ClCompile Include="Scripts\QTE\Track\Note\QTENoteData.cpp" />
     <ClCompile Include="Scripts\QTE\Track\QTETrack.cpp" />
     <ClCompile Include="Scripts\QTE\UI\QTEUIManager.cpp" />
     <ClCompile Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.cpp" />

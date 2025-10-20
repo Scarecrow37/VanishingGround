@@ -482,48 +482,54 @@ void Transform::SetParentEx(Transform* p, bool worldPositionStays, bool callEven
         EraseParent(callEvent);
     }
     else // 부모 관계 변경
-    {
-        if (p->gameObject->GetOwnerSceneName() == gameObject->GetOwnerSceneName())
+    {      
+        if (p->gameObject->GetOwnerSceneName() == UmSceneManager.DONT_DESTROY_ON_LOAD_SCENE_NAME)
         {
-            // 부모 관계가 가능한지 검증
-            if (p != this->_parent)
-            {
-                if (p == this || p->IsDescendantOf(this))
-                {
-                    return;
-                }
-
-                #ifdef _UMEDITOR
-                if (true == p->IsPrefabDescendantOf(this))
-                {
-                    UmLogger.Log(LogLevel::LEVEL_WARNING, u8"자신의 프리팹을 자식으로 넣을 수 없습니다.");
-                    return;
-                }
-                #endif 
-            }
-
-            Transform* prevParent = this->_parent;
-            ComputeLocalTransform();
-            // 부모 적용
-            EraseParent(false);
-            {
-                _parent = p;
-
-                if (p->_root)
-                    _root = p->_root;
-                else
-                    _root = _parent;
-
-                p->_childsList.push_back(this);
-                SetChildsRootParent(_root);
-            }
-
-            if (callEvent)
-            {
-                CallUIDetachParent(this, prevParent);
-                CallUIAttachChild(p, this);
-            }
+            GameObject::DontDestroyOnLoad(gameObject);
         }
+        else if (p->gameObject->GetOwnerSceneName() != gameObject->GetOwnerSceneName())
+        {
+            return;
+        }
+
+        // 부모 관계가 가능한지 검증
+        if (p != this->_parent)
+        {
+            if (p == this || p->IsDescendantOf(this))
+            {
+                return;
+            }
+
+            #ifdef _UMEDITOR
+            if (true == p->IsPrefabDescendantOf(this))
+            {
+                UmLogger.Log(LogLevel::LEVEL_WARNING, u8"자신의 프리팹을 자식으로 넣을 수 없습니다.");
+                return;
+            }
+            #endif 
+        }
+
+        Transform* prevParent = this->_parent;
+        ComputeLocalTransform();
+        // 부모 적용
+        EraseParent(false);
+        {
+            _parent = p;
+
+            if (p->_root)
+                _root = p->_root;
+            else
+                _root = _parent;
+
+            p->_childsList.push_back(this);
+            SetChildsRootParent(_root);
+        }
+
+        if (callEvent)
+        {
+            CallUIDetachParent(this, prevParent);
+            CallUIAttachChild(p, this);
+        }       
     }
     _hasChanged = true;
     UpdateMatrix();
