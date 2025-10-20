@@ -265,7 +265,6 @@ void PlayerPlayTurnState::SetAttack()
     // 애니메이션 처리
     Player& player   = GetPlayer();
     auto*   animator = player.GetAnimationComponent();
-    auto*   audioTable = player.GetAudioTableComponent();
     if (animator)
     {
         animator->BeginBuildOverrideAnimation();

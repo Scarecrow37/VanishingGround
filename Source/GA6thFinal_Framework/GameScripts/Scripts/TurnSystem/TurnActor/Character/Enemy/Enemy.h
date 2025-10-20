@@ -3,10 +3,8 @@
 #include "Enum/EnemyEnum.h"
 #include "AI/EnemyAI.h"
 
-#include "Monster/MonsterController.h"
-#include "Monster/Context/MonsterDataContext.h"
-#include "Monster/Context/MonsterActionContext.h"
-#include "Monster/Context/MonsterStatContext.h"
+#include "Monster/Common/MonsterCommon.h"
+#include "Monster/Controller/MonsterController.h"
 
 class ParticleComponent;
 class EnemyStatsComponent;
@@ -19,9 +17,7 @@ public:
     inline static constexpr const char* TAG = "Enemy";
 
 public:
-    REFLECT_PROPERTY(
-        Speed, Type
-        )
+    REFLECT_PROPERTY(Speed, Type, SpawnPoint)
 
     GETTER_ONLY(int, Speed) { return GetSpeed(); }
     PROPERTY(Speed)
@@ -29,6 +25,9 @@ public:
     SETTER(EnemyType, Type) { ReflectFields->Type = value; }
     GETTER(EnemyType, Type) { return ReflectFields->Type; }
     PROPERTY(Type)
+
+    GETTER_ONLY(Monster::SpawnPoint, SpawnPoint) { return _spawnPoint; }
+    PROPERTY(SpawnPoint)
 
 public:
     Enemy();
@@ -44,10 +43,9 @@ public:
     virtual void Revive() override;
 
 private:
-    Monster::Controller _controller;
-
+    Monster::SpawnPoint  _spawnPoint = Monster::SpawnPoint::Invalid;
+    Monster::Controller  _controller;
     EnemyStatsComponent* _enemyStats = nullptr;
-    ParticleComponent*   _hitParticle = nullptr; // 피격 이펙트 파티클
 
 protected:
     class FiniteStateMachine* _finiteStateMachine = nullptr;
@@ -56,7 +54,7 @@ protected:
     struct EnemyStates
     {
         class EnemyWaitTurnState* WaitTurn = nullptr;   // 턴 종료 상태
-        class EnemyPlayTurnState* PlayTurn = nullptr; // 턴 시작 상태
+        class EnemyPlayTurnState* PlayTurn = nullptr;   // 턴 시작 상태
         class EnemyDeadState*     Dead     = nullptr;   // 사망 상태
     } 
     _fsmStates;
@@ -89,8 +87,6 @@ protected:
     virtual void Awake();
     virtual void Update();
     virtual void PlayTurn() override;
-
-    void InitParticle();
 
 private:
     void OnCombatStart() override;

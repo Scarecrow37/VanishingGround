@@ -78,9 +78,16 @@ void CombatStartPhase::ResetCharacterStats()
         }
     }
 }
+#include "Monster/System/MonsterSystem.h"
 
 void CombatStartPhase::OnAwake() 
 {
+    if (MonsterSystem* system = SingletonComponent<MonsterSystem>::GetInstance())
+    {
+        // TODO: 나중에 전투에 맞는 스폰 ID로 변경
+        Monster::SpawnID spawnID = 211111;
+        system->SpawnMonsterFromSpawnID(spawnID);
+    }
     ResetCharacterStats();
     SortEnemies();
     RegisterEnemiesHUD();
@@ -251,10 +258,13 @@ void CombatStartPhase::RegisterEnemiesHUD()
 {
     auto SetHUDObject = [&](size_t index, const std::string& tag) 
     {
-        const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(tag);
-        if (auto object = weakGameObject.lock())
+        if (index < _enemies.size())
         {
-            _enemies[index]->SetMonsterHUD(object.get());
+            const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(tag);
+            if (auto object = weakGameObject.lock())
+            {
+                _enemies[index]->SetMonsterHUD(object.get());
+            }
         }
     };
 
@@ -280,38 +290,42 @@ void CombatStartPhase::RegisterEnemiesHP() const
 
 void CombatStartPhase::RegisterEnemyHP(const int index, const std::string& key, const std::string& tag) const
 {
-    if (const EnemyStatsComponent* leftEnemyStatsComponent = _enemies[index]->GetComponent<EnemyStatsComponent>();
-        nullptr != leftEnemyStatsComponent)
+    if (index < _enemies.size())
     {
-        const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(tag);
-        if (const auto sharedGameObject = weakGameObject.lock())
+        if (const EnemyStatsComponent* leftEnemyStatsComponent = _enemies[index]->GetComponent<EnemyStatsComponent>();
+            nullptr != leftEnemyStatsComponent)
         {
-            if (MonsterHpTextView* monsterHpView = sharedGameObject->GetComponent<MonsterHpTextView>())
+            const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(tag);
+            if (const auto sharedGameObject = weakGameObject.lock())
             {
-                monsterHpView->Watch(key);         
-            }
-            else
-            {
-                UmLogger.Log(LogLevel::LEVEL_ERROR, "MonsterHpTextView with tag '" + tag + "' not found.");
-            }
+                if (MonsterHpTextView* monsterHpView = sharedGameObject->GetComponent<MonsterHpTextView>())
+                {
+                    monsterHpView->Watch(key);
+                }
+                else
+                {
+                    UmLogger.Log(LogLevel::LEVEL_ERROR, "MonsterHpTextView with tag '" + tag + "' not found.");
+                }
 
-            if (MonsterHpImageView* monsterHpView = sharedGameObject->GetComponent<MonsterHpImageView>())
-            {
-                monsterHpView->Watch(key);
-            }             
+                if (MonsterHpImageView* monsterHpView = sharedGameObject->GetComponent<MonsterHpImageView>())
+                {
+                    monsterHpView->Watch(key);
+                }
+                else
+                {
+                    UmLogger.Log(LogLevel::LEVEL_ERROR, "MonsterHpImageView with tag '" + tag + "' not found.");
+                }
+            }
             else
             {
-                UmLogger.Log(LogLevel::LEVEL_ERROR, "MonsterHpImageView with tag '" + tag + "' not found.");
+                UmLogger.Log(LogLevel::LEVEL_ERROR, "GameObject with tag '" + tag + "' not found.");
             }
         }
         else
         {
-            UmLogger.Log(LogLevel::LEVEL_ERROR, "GameObject with tag '" + tag + "' not found.");
+            UmLogger.Log(LogLevel::LEVEL_ERROR,
+                         "EnemyStatsComponent not found for enemy at index " + std::to_string(index));
         }
-    }
-    else
-    {
-        UmLogger.Log(LogLevel::LEVEL_ERROR, "EnemyStatsComponent not found for enemy at index " + std::to_string(index));
     }
 }
 
@@ -324,29 +338,33 @@ void CombatStartPhase::RegisterEnemiesChain()
 
 void CombatStartPhase::RegisterEnemyChain(int index, const std::string& key, const std::string& tag) 
 {
-    if (const EnemyStatsComponent* leftEnemyStatsComponent = _enemies[index]->GetComponent<EnemyStatsComponent>();
-        nullptr != leftEnemyStatsComponent)
+    if (index < _enemies.size())
     {
-        const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(tag);
-        if (const auto sharedGameObject = weakGameObject.lock())
+        if (const EnemyStatsComponent* leftEnemyStatsComponent = _enemies[index]->GetComponent<EnemyStatsComponent>();
+            nullptr != leftEnemyStatsComponent)
         {
-            if (MonsterChainTextView* monsterChainView = sharedGameObject->GetComponent<MonsterChainTextView>())
+            const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(tag);
+            if (const auto sharedGameObject = weakGameObject.lock())
             {
-                monsterChainView->Watch(key);
+                if (MonsterChainTextView* monsterChainView = sharedGameObject->GetComponent<MonsterChainTextView>())
+                {
+                    monsterChainView->Watch(key);
+                }
+                else
+                {
+                    UmLogger.Log(LogLevel::LEVEL_ERROR, "MonsterChainTextView with tag '" + tag + "' not found.");
+                }
             }
             else
             {
-                UmLogger.Log(LogLevel::LEVEL_ERROR, "MonsterChainTextView with tag '" + tag + "' not found.");
+                UmLogger.Log(LogLevel::LEVEL_ERROR, "GameObject with tag '" + tag + "' not found.");
             }
         }
         else
         {
-            UmLogger.Log(LogLevel::LEVEL_ERROR, "GameObject with tag '" + tag + "' not found.");
+            UmLogger.Log(LogLevel::LEVEL_ERROR,
+                         "EnemyStatsComponent not found for enemy at index " + std::to_string(index));
         }
-    }
-    else
-    {
-        UmLogger.Log(LogLevel::LEVEL_ERROR, "EnemyStatsComponent not found for enemy at index " + std::to_string(index));
     }
 }
 

@@ -2,16 +2,18 @@
 #include "Monster/Context/MonsterDataContext.h"
 #include "Monster/Context/MonsterStatContext.h"
 #include "Monster/AI/MonsterAIModel.h"
+
 class Enemy;
 
 namespace Monster
 {
-    class Action;
+    namespace Action
+    {
+        class Base;
+    }
 
     class Controller final
     {
-        using ActionTable = std::unordered_map<ActionID, std::unique_ptr<Action>>;
-
     public:
         Controller();
         ~Controller();
@@ -20,7 +22,9 @@ namespace Monster
         inline bool Invalid() { return _weakOwner.expired(); }
         inline Enemy* GetOwner() { return _weakOwner.lock().get(); }
 
-        void Build(std::weak_ptr<Enemy> weakOwner, const Monster::DataContext* pDataContext, const StatContext* pStatContext);
+        bool Build(std::weak_ptr<Enemy> weakOwner, const Monster::DataContext* pDataContext, const StatContext* pStatContext);
+
+        void Reset();
 
         void Clear();
 
@@ -41,10 +45,11 @@ namespace Monster
         Monster::DataContext  _dataContext;
         Monster::StatContext  _statContext;
 
-        AIModel     _aiModel;
-        Action*     _currAction = nullptr;
-        Action*     _prevAction = nullptr;
-        ActionTable _actionTable;
+        AIModel         _aiModel;
+        Action::Base*   _currAction = nullptr;
+        Action::Base*   _prevAction = nullptr;
+        std::unordered_map<ActionID, std::unique_ptr<Action::Base>> _actionIDTable;
+        std::unordered_map<size_t, Action::Base> _actionIndexTable;
 
     };
 }

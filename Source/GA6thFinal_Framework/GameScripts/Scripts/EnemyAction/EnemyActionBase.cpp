@@ -15,7 +15,6 @@ namespace EnemyAction
         if (_owner)
         {
             _animator = _owner->GetAnimationComponent();
-            _audioTable = _owner->GetAudioTableComponent();
         }
     }
 

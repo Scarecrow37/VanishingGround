@@ -8,20 +8,49 @@ namespace Monster
     // 문자열 좌우 공백 제거 함수
     namespace
     {
-        inline std::string Trim(const std::string& s)
+        inline std::string Trim(std::string_view str)
         {
-            size_t start = s.find_first_not_of(" \t\n\r");
-            size_t end   = s.find_last_not_of(" \t\n\r");
+            size_t start = str.find_first_not_of(" \t\n\r");
+            size_t end   = str.find_last_not_of(" \t\n\r");
             if (start == std::string::npos)
                 return "";
-            return s.substr(start, end - start + 1);
+            std::string result(str);
+            return result.substr(start, end - start + 1);
         }
     }
 
-    std::vector<ActionParam> ParseActionParam(const std::string& paramStr)
+    int StringToInt(std::string_view str)
+    {
+        try
+        {
+            return std::stoi(Trim(str));
+        }
+        catch (...)
+        {
+            assert(false && "문자열을 정수로 변환하는데 실패했습니다.");
+            return 0;
+        }
+        return 0;
+    }
+
+    bool StringToInt(std::string_view str, int& outValue) 
+    {
+        try
+        {
+            outValue = std::stoi(Trim(str));
+            return true;
+        }
+        catch (...)
+        {
+            assert(false && "문자열을 정수로 변환하는데 실패했습니다.");
+            return false;
+        }
+    }
+
+    std::vector<ActionParam> ParseActionParam(std::string_view paramStr)
     {
         std::vector<ActionParam> result;
-        std::stringstream        ss(paramStr);
+        std::stringstream        ss(paramStr.data());
         std::string              token;
 
         while (std::getline(ss, token, ',')) // ','로 구분
@@ -51,10 +80,10 @@ namespace Monster
         return result;
     }
 
-    std::vector<TokenParam> ParseTokenParam(const std::string& paramStr)
+    std::vector<TokenParam> ParseTokenParam(std::string_view paramStr)
     {
         std::vector<TokenParam> result;
-        std::stringstream       ss(paramStr);
+        std::stringstream       ss(paramStr.data());
         std::string             pair;
 
         while (std::getline(ss, pair, ',')) // ','로 구분
@@ -92,5 +121,13 @@ namespace Monster
         }
 
         return result;
+    }
+    SpawnID GetSpawnID(size_t mainLevelIndex, size_t subLevelIndex, size_t battleCount)
+    {
+        std::string spawnIDStr = std::string(SPAWN_ID_HEADER);
+        spawnIDStr += std::to_string(mainLevelIndex);
+        spawnIDStr += std::to_string(subLevelIndex);
+        spawnIDStr += std::to_string(battleCount);
+        return StringToInt(spawnIDStr);
     }
 } // namespace Monster

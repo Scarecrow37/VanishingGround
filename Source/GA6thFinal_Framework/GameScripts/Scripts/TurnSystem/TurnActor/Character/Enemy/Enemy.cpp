@@ -22,17 +22,13 @@
 
 UMREAL_COMPONENT(Enemy)
 
-Enemy::Enemy()
-{
-
-}
+Enemy::Enemy() = default;
 
 Enemy::~Enemy() = default;
 
 void Enemy::PlayTurn() 
 {
     Base::PlayTurn();
-
 }
 
 void Enemy::EndTurn() 
@@ -66,9 +62,10 @@ void Enemy::TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim)
     // 혹시나 그럴 일 없겠지만 중간에 계산할 연산이 또 있다면 재연산
     int takeDamage = damage;
     Base::TakeDamage(takeDamage, result, playAnim);
-    if (_hitParticle && result.IsHit())
+    ParticleComponent* particle = GetParticleComponent();
+    if (particle && result.IsHit())
     {
-        _hitParticle->PlayEffect("normalhit");
+        particle->PlayEffect("normalhit");
     }
 }
 
@@ -82,7 +79,6 @@ void Enemy::Awake()
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Enemy Stats를 추가해주세요");
     }
-    InitParticle();
 }
 
 void Enemy::Update() 
@@ -98,20 +94,6 @@ CharacterStats* Enemy::GetCharacterStats()
         stats = &statsComponent->GetStats();
     }
     return stats;
-}
-
-void Enemy::InitParticle() 
-{
-    auto* modelTransform = transform->Find(MODEL_NAME);
-    if (modelTransform)
-    {
-        _hitParticle = modelTransform->gameObject->GetComponent<ParticleComponent>();
-        if (nullptr == _hitParticle)
-        {
-            std::string message = std::format("{} {}", modelTransform->gameObject->ToString(), (const char*)u8"피격 파티클이 존재하지 않습니다.");
-            UmLogger.Log(LogLevel::LEVEL_WARNING, message);
-        }
-    }
 }
 
 int Enemy::GetSpeed()

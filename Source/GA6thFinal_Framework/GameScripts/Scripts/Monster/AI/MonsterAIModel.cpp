@@ -123,15 +123,25 @@ namespace Monster
     void AIModel::SetCurrentNode(std::string_view label)
     {
         const auto node = GetNode(label);
-        if (nullptr != node)
+        if (node)
         {
             _currNode = node;
         }
     }
 
+    void AIModel::SetEntryNode(std::string_view label) 
+    {
+        const auto node = GetNode(label);
+        if (node)
+        {
+            _entryNode = node;
+            _currNode  = node;
+        }
+    }
+
     void AIModel::Refresh()
     {
-        if (nullptr != _currNode)
+        if (_currNode)
         {
             _currNode->Refresh();
             bool isActionNode = _currNode->IsActionNode();
@@ -142,9 +152,18 @@ namespace Monster
         }
     }
 
+    void AIModel::Reset()
+    {
+        if (_entryNode)
+        {
+            _currNode = _entryNode;
+            _transitionCount = 0;
+        }
+    }
+
     void AIModel::Transition()
     {
-        if (nullptr != _currNode)
+        if (_currNode)
         {
             const auto& nextStr = _currNode->NextNode();
             const auto  nextptr = GetNode(nextStr);
@@ -159,7 +178,7 @@ namespace Monster
 
     int AIModel::GetCurrentActionID() const
     {
-        if (nullptr != _currNode)
+        if (_currNode)
         {
             return _currNode->GetActionID();
         }

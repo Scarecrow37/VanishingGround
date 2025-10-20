@@ -73,6 +73,11 @@ namespace Monster
         void Clear();
 
         /// <summary>
+        /// 노드를 초기 상태로 재설정합니다.
+        /// </summary>
+        void Reset();
+
+        /// <summary>
         /// 액션 노드를 추가합니다.
         /// </summary>
         /// <param name="label">노드를 식별할 label입니다.</param>
@@ -105,6 +110,12 @@ namespace Monster
         /// </summary>
         /// <param name="label">설정할 노드 label입니다.</param>
         void SetCurrentNode(std::string_view label);
+
+        /// <summary>
+        /// 지정된 레이블로 엔트리 노드를 설정합니다.
+        /// </summary>
+        /// <param name="label">설정할 노드의 레이블.</param>
+        void SetEntryNode(std::string_view label);
 
         /// <summary>
         /// 노드를 갱신합니다. 이는 행동을 결정하거나, 조건을 평가하는 등의 작업을 수행합니다.

@@ -2,11 +2,12 @@
 #include <Utility/SingletonHelper.h>
 
 #include "Monster/Common/MonsterCommon.h"
-#include "Monster/MonsterController.h"
+#include "Monster/Controller/MonsterController.h"
 
 #include "Monster/Context/MonsterDataContext.h"
 #include "Monster/Context/MonsterActionContext.h"
 #include "Monster/Context/MonsterStatContext.h"
+#include "Monster/Context/MonsterSpawnContext.h"
 
 class ExcelDataSystem;
 class ExcelDataBase;
@@ -16,6 +17,14 @@ class Enemy;
 class MonsterSystem : public Component
 {
     USING_PROPERTY(MonsterSystem)
+
+    using SpawnedEnemyTable = std::array<std::weak_ptr<Enemy>, Monster::MAX_ENEMY_COUNT>;
+    using StatDataTable = std::unordered_map<Monster::LevelID, std::unordered_map<Monster::DataID, Monster::StatContext>>;
+    using SpawnDataTable = std::unordered_map<Monster::SpawnID, Monster::SpawnContext>;
+    using ActionDataTable = std::unordered_map<Monster::ActionID, Monster::ActionContext>;
+    using MonsterDataTable = std::unordered_map<Monster::DataID, Monster::DataContext>;
+    using MonsterSpawnedTable = std::unordered_map<Monster::SpawnPoint, std::weak_ptr<Enemy>>;
+    using MonsterSpawnedIDTable = std::unordered_map<Monster::DataID, std::vector<std::weak_ptr<Enemy>>>;
 
 public:
     MonsterSystem() = default;
@@ -41,53 +50,42 @@ public:
     /// <returns>해당 ID에 연결된 Monster::ActionContext 객체의 포인터를 반환합니다. 해당 ID가 없으면 nullptr을 반환할 수 있습니다.</returns>
     const Monster::ActionContext* GetActionContextFromID(Monster::ActionID id);
 
-    /// <summary>
-    /// 주어진 스테이지 ID를 통해 해당 스테이지 정보에 맞는 몬스터를 소환합니다.
-    /// </summary>
-    /// <param name="stageID">몬스터를 소환할 정보가 담겨있는 스테이지의 ID입니다.</param>
-    /// <returns>몬스터 소환이 성공하면 true, 실패하면 false를 반환합니다.</returns>
-    bool SpawnMonsterFromStageID(int stageID);
+    bool SpawnMonsterFromSpawnID(Monster::SpawnID spawnID, bool isHardDifficulty = false);
+    bool SpawnMonsterFromSpawnID(Monster::SpawnID spawnID, Monster::SpawnPoint spawnPoint, bool isHardDifficulty = false);
 
-    /// <summary>
-    /// 주어진 데이터 컨텍스트를 기반으로 한 몬스터를 스폰 포인트 인덱스에 소환합니다.
-    /// </summary>
-    /// <param name="context">몬스터 데이터가 포함된 DataContext 객체에 대한 포인터입니다.</param>
-    /// <param name="index">스폰할 몬스터의 스폰 포인트 인덱스입니다.</param>
-    /// <returns>몬스터 스폰이 성공하면 true, 실패하면 false를 반환합니다.</returns>
-    std::weak_ptr<Enemy> SpawnMonsterFromDataContext(const Monster::StatContext* pStatContext, size_t index);
-    std::weak_ptr<Enemy> SpawnMonsterFromDataContext(const Monster::DataContext* pDataContext, size_t index);
+    const std::vector<std::weak_ptr<Enemy>>* GetSpawnedEnemiesFromID(Monster::DataID dataID);
+    std::weak_ptr<Enemy> GetSpawnedEnemyFromSpawnPoint(Monster::SpawnPoint spawnPoint);
 
-    /// <summary>
-    /// 생성된 적을 모두 제거합니다.
-    /// </summary>
-    void ClearSpawnedEnemies();
 
-    std::weak_ptr<Enemy> GetSpawnedEnemyByIndex(size_t index);
-    std::vector<std::weak_ptr<Enemy>> GetSpawnedEnemyByID(Monster::DataID id);
 
 private:
-    void Clear();
+    void                 Clear();
+    void                 FindSpawnPoints();
+    void                 LoadFromExcelData();
+    std::weak_ptr<Enemy> SpawnMonster(Monster::LevelID levelID, Monster::DataID monsterID);
+    std::weak_ptr<Enemy> SpawnMonster(Monster::DataID dataID);
+    void                 SetMonsterTransformToSpawnPoint(Enemy* dest, Monster::SpawnPoint spawnPoint);
+    void                 SetMonsterStateFromStatContext(Enemy* dest, const Monster::StatContext* pStatContext);
 
-    void FindSpawnPoints();
-    void LoadFromExcelData();
-
-    const std::vector<Monster::StatContext>* GetStatContextFromStageID(int stageID);
-
-    void LoadDataContextFromExcelData(ExcelDataSystem* dataSystem);
-    void LoadActionContextFromExcelData(ExcelDataSystem* dataSystem);
-    void LoadStatContextFromExcelData(ExcelDataSystem* dataSystem);
+    void                 LoadDataContextFromExcelData(ExcelDataSystem* dataSystem);
+    void                 LoadActionContextFromExcelData(ExcelDataSystem* dataSystem);
+    void                 LoadStatContextFromExcelData(ExcelDataSystem* dataSystem);
+    void                 LoadSpawnContextFromExcelData(ExcelDataSystem* dataSystem);
 
 private:
     SingletonComponent<MonsterSystem> _singletonComponent = {this};
 
-    std::array<std::weak_ptr<GameObject>, Monster::MAX_ENEMY_COUNT>         _enemySpawnPoints;
-    std::array<std::weak_ptr<Enemy>, Monster::MAX_ENEMY_COUNT>              _spawnedEnemies;
-    std::unordered_map<Monster::DataID, std::vector<std::weak_ptr<Enemy>>>  _spawnedEnemiesIDTable;
+    std::weak_ptr<GameObject> _spawnGroup;
+    std::unordered_map<Monster::SpawnPoint, std::weak_ptr<GameObject>> _spawPointTable;
 
-    std::unordered_map<Monster::DataID, Monster::DataContext>               _dataContextTable;
-    std::unordered_map<Monster::ActionID, Monster::ActionContext>           _actionContextTable;
-    std::unordered_map<Monster::LevelID, std::vector<Monster::StatContext>> _statContextTable;
-    
+    MonsterSpawnedTable   _spawnedEnemyTable;
+    MonsterSpawnedIDTable _spawnedEnemiesIDTable;
+
+    MonsterDataTable    _monsterDataTable;
+    ActionDataTable     _actionDataTable;
+    StatDataTable       _statDataTable;
+    SpawnDataTable      _spawnDataTable;
+
     REFLECT_FIELDS_BEGIN(Component)
     REFLECT_FIELDS_END(MonsterSystem)
 };

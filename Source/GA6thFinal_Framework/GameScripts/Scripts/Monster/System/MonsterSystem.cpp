@@ -8,6 +8,8 @@
 
 UMREAL_COMPONENT(MonsterSystem)
 
+using namespace Monster;
+
 void MonsterSystem::Reset()
 {
 }
@@ -26,163 +28,219 @@ void MonsterSystem::OnDestroy()
     Clear();
 }
 
-const Monster::DataContext* MonsterSystem::GetDataContextFromID(Monster::DataID id)
+const DataContext* MonsterSystem::GetDataContextFromID(DataID id)
 {
-    if (_dataContextTable.contains(id))
+    if (_monsterDataTable.contains(id))
     {
-        return &_dataContextTable[id];
+        return &_monsterDataTable[id];
     }
     return nullptr;
 }
 
-const Monster::ActionContext* MonsterSystem::GetActionContextFromID(Monster::ActionID id)
+const ActionContext* MonsterSystem::GetActionContextFromID(ActionID id)
 {
-    if (_actionContextTable.contains(id))
+    if (_actionDataTable.contains(id))
     {
-        return &_actionContextTable[id];
+        return &_actionDataTable[id];
     }
     return nullptr;
 }
 
-bool MonsterSystem::SpawnMonsterFromStageID(int stageID)
+bool MonsterSystem::SpawnMonsterFromSpawnID(SpawnID spawnID, bool isHardDifficulty)
 {
-    if (auto pStageEnemiesData = GetStatContextFromStageID(stageID))
-    {
-        const auto& stageEnemiesData = *pStageEnemiesData;
-        // [assert] 스테이지 몬스터 데이터의 크기는 최대 적 수와 같아야합니다.
-        assert(stageEnemiesData.size() == Monster::MAX_ENEMY_COUNT);
+    bool result = false;
+    result = SpawnMonsterFromSpawnID(spawnID, SpawnPoint::Left, isHardDifficulty);
+    result |= SpawnMonsterFromSpawnID(spawnID, SpawnPoint::Middle, isHardDifficulty);
+    result |= SpawnMonsterFromSpawnID(spawnID, SpawnPoint::Right, isHardDifficulty);
+    return result;
+}
 
-        for (size_t i = 0; i < Monster::MAX_ENEMY_COUNT; ++i)
+bool MonsterSystem::SpawnMonsterFromSpawnID(Monster::SpawnID spawnID, Monster::SpawnPoint spawnPointType,
+                                            bool isHardDifficulty)
+{
+    assert(spawnPointType != Monster::SpawnPoint::Invalid); // [assert] 스폰 포인트 타입이 Invalid가 아니어야합니다.
+    if (spawnPointType == Monster::SpawnPoint::Invalid)
+    {
+        return false;
+    }
+
+    if (_spawnDataTable.contains(spawnID))
+    {
+        const auto& spawnData   = _spawnDataTable[spawnID];
+        size_t      diffIndex  = isHardDifficulty ? 1 : 0;
+        size_t      spawnIndex  = static_cast<size_t>(spawnPointType);
+
+        // [assert] 난이도 인덱스가 최대 난이도 수를 넘지 않아야합니다.
+        assert(diffIndex < MAX_DIFF_COUNT);
+
+        GameObject* spawnPoint = _spawPointTable[spawnPointType].lock().get();
+        assert(spawnPoint); // [assert] 해당 인덱스의 적 스폰 포인트가 존재하지 않습니다.
+        if (spawnPoint)
         {
-            if (stageEnemiesData.size() > i)
+            const SpawnParam& spawnParam = spawnData.SpawnParams[spawnIndex];
+            LevelID           levelID    = spawnData.LevelID[diffIndex];
+            DataID            monsterID  = spawnParam.MonsterID;
+
+            std::weak_ptr<Enemy> weakClone = SpawnMonster(levelID, monsterID);
+            // 스폰에 성공했을 시 
+            if (Enemy* clone = weakClone.lock().get())
             {
-                const Monster::StatContext& enemyStageData = stageEnemiesData[i];
-                SpawnMonsterFromDataContext(&enemyStageData, i);
+                // 해당 함수를 성공했다는 것은 데이터 테이블에 해당 데이터가 존재한다는 뜻이므로 예외 생략
+                const StatContext& statData    = _statDataTable[levelID][monsterID];
+                const DataContext& dataContext = _monsterDataTable[monsterID];
+
+                // 위치 및 회전 설정
+                SetMonsterTransformToSpawnPoint(clone, spawnPointType);
+
+                // 스탯 설정
+                SetMonsterStateFromStatContext(clone, &statData);
+
+                // 컨트롤러 빌드
+                Controller& controller = clone->GetController();
+                controller.Build(weakClone, &dataContext, &statData);
+
+                // 초기 토큰 설정
+                auto& tokenInventory = clone->GetTokenInventory();
+                for (const auto& tokenParam : spawnParam.InitialTokens)
+                {
+                    tokenInventory.AddTokenStackFromID(tokenParam.TokenID, tokenParam.Count);
+                }
+
+                // 테이블 등록
+                _spawnedEnemyTable[spawnPointType] = weakClone;
+                _spawnedEnemiesIDTable[monsterID].push_back(weakClone);
+
+                return true;
             }
         }
     }
     return false;
 }
 
-std::weak_ptr<Enemy> MonsterSystem::SpawnMonsterFromDataContext(const Monster::StatContext* pStatContext, size_t index)
+std::weak_ptr<Enemy> MonsterSystem::SpawnMonster(LevelID levelID, DataID monsterID)
 {
-    if (pStatContext)
+    bool statTableContains = _statDataTable.contains(levelID);
+    assert(statTableContains); // [assert] 해당 레벨에 몬스터 스탯 데이터 테이블이 존재해야합니다.
+    if (statTableContains)
     {
-        if (const Monster::DataContext* pDataContext = GetDataContextFromID(pStatContext->MonsterID))
+        auto& statDataTable = _statDataTable[levelID];
+        bool  statContains  = statDataTable.contains(monsterID);
+        assert(statContains); // [assert] 해당 레벨에 몬스터 스탯 데이터가 존재해야합니다.
+        if (statContains)
         {
-            std::weak_ptr<Enemy> weakClone = SpawnMonsterFromDataContext(pDataContext, index);
-            if (auto clone = weakClone.lock())
+            const StatContext&   statData  = statDataTable[monsterID];
+            std::weak_ptr<Enemy> weakClone = SpawnMonster(monsterID);
+            if (auto clone = weakClone.lock().get())
             {
-                if (auto stats = clone->GetCharacterStats())
-                {
-                    stats->MaxHP          = pStatContext->Health;
-                    stats->CurrentHP      = pStatContext->Health;
-                    stats->StunResistance = pStatContext->StunResist;
-                }
-                Monster::Controller& controller = clone->GetController();
-                controller.Build(weakClone, pDataContext, pStatContext);
+                
+                return weakClone;
             }
-            return weakClone;
         }
     }
     return std::weak_ptr<Enemy>();
 }
 
-std::weak_ptr<Enemy> MonsterSystem::SpawnMonsterFromDataContext(const Monster::DataContext* context, size_t index)
+std::weak_ptr<Enemy> MonsterSystem::SpawnMonster(DataID dataID)
 {
-    if (context)
+    bool dataContains = _monsterDataTable.contains(dataID);
+    assert(dataContains); // [assert] 해당 몬스터 데이터가 존재해야합니다.
+    if (dataContains)
     {
-        if (index < Monster::MAX_ENEMY_COUNT)
+        const DataContext& dataContext = _monsterDataTable[dataID];
+        const File::Guid&  prefabGuid  = UmFileSystem.GetGuidFromAssetID(dataContext.PrefabID);
+        assert(prefabGuid != File::NULL_GUID); // [assert] 콘텍스트가 가진 프리팹 ID가 유효한 Guid를 반환해야합니다.
+
+        auto sharedPtrObject = UmGameObjectFactory.DeserializeToGuid(prefabGuid);
+        assert(sharedPtrObject); // [assert] 프리팹 Guid를 통해 프리팹을 만들지 못했습니다.
+
+        GameObject* clone = sharedPtrObject.get();
+        if (clone)
         {
-            // [assert] 해당 인덱스의 적 스폰 포인트가 존재하지 않습니다.
-            assert(_enemySpawnPoints[index].expired() == false);
-            GameObject* spawnPoint = _enemySpawnPoints[index].lock().get();
-            assert(spawnPoint);
-            if (spawnPoint)
-            {
-                const Transform&  transform     = spawnPoint->transform;
-                const Vector3     worldPosition = transform.WorldPosition;
-                const Vector3     eulerAngles   = transform.EulerAngle;
-                const File::Guid& prefabGuid    = UmFileSystem.GetGuidFromAssetID(context->PrefabID);
-                assert(prefabGuid != File::NULL_GUID); // [assert] 콘텍스트가 가진 프리팹 ID가 유효한 Guid를 반환해야합니다.
-
-                auto sharedPtrObject = UmGameObjectFactory.DeserializeToGuid(prefabGuid);
-                assert(sharedPtrObject); // [assert] 프리팹 Guid를 통해 프리팹을 만들지 못했습니다.
-
-                GameObject* clone = sharedPtrObject.get();
-                if (clone)
-                {
-                    Enemy* enemy = clone->GetComponent<Enemy>();
-                    assert(enemy); // [assert] 프리팹에 Enemy 컴포넌트가 존재해야합니다.
-                    if (enemy)
-                    {
-                        clone->transform->WorldPosition = worldPosition;
-                        clone->transform->EulerAngle    = eulerAngles;
-
-                        auto sharedEnemy       = std::static_pointer_cast<Enemy>(enemy->GetWeakPtr().lock());
-                        _spawnedEnemies[index] = sharedEnemy;
-                        _spawnedEnemiesIDTable[context->ID].push_back(sharedEnemy);
-
-                        return sharedEnemy;
-                    }
-                }
-            }
+            Enemy* enemy = clone->GetComponent<Enemy>();
+            auto   sharedEnemy = std::static_pointer_cast<Enemy>(enemy->GetWeakPtr().lock());
+            assert(sharedEnemy); // [assert] 프리팹에 Enemy 컴포넌트가 존재해야합니다.
+            return sharedEnemy;
         }
     }
     return std::weak_ptr<Enemy>();
+}
+
+void MonsterSystem::SetMonsterTransformToSpawnPoint(Enemy* dest, Monster::SpawnPoint spawnPointType)
+{
+    if (dest)
+    {
+        assert(spawnPointType != Monster::SpawnPoint::Invalid); // [assert] 스폰 포인트 타입이 Invalid가 아니어야합니다.
+        if (spawnPointType != Monster::SpawnPoint::Invalid)
+        {
+            bool contains = _spawPointTable.contains(spawnPointType);
+            assert(contains); // [assert] 해당 스폰 포인트 타입이 스폰 포인트 테이블에 존재해야합니다.
+
+            if (auto spawnPoint = _spawPointTable[spawnPointType].lock())
+            {
+                dest->transform->WorldPosition = spawnPoint->transform->WorldPosition;
+                dest->transform->EulerAngle    = spawnPoint->transform->EulerAngle;
+
+                if (GameObject* spawnGroup = _spawnGroup.lock().get())
+                {
+                    dest->transform->SetParent(spawnGroup->transform, false);
+                }
+            }
+        }
+       
+    }
+}
+
+void MonsterSystem::SetMonsterStateFromStatContext(Enemy* dest, const Monster::StatContext* pStatContext)
+{
+    if (dest)
+    {
+        if (auto stats = dest->GetCharacterStats())
+        {
+            stats->MaxHP          = pStatContext->Health;
+            stats->CurrentHP      = pStatContext->Health;
+            stats->StunResistance = pStatContext->StunResist;
+        }
+    }
 }
 
 void MonsterSystem::Clear()
 {
-    ClearSpawnedEnemies();
-    for (size_t i = 0; i < Monster::MAX_ENEMY_COUNT; ++i)
-    {
-        _spawnedEnemies[i].reset();
-    }
-    _dataContextTable.clear();
-    _actionContextTable.clear();
-    _StatContextTable.clear();
-}
-
-void MonsterSystem::ClearSpawnedEnemies()
-{
-    for (size_t i = 0; i < Monster::MAX_ENEMY_COUNT; ++i)
-    {
-        if (auto enemy = _spawnedEnemies[i].lock())
-        {
-            _spawnedEnemies[i].reset();
-            GameObject& object = enemy->gameObject;
-            GameObject::Destroy(object);
-        }
-    }
+    _spawnedEnemyTable.clear();
     _spawnedEnemiesIDTable.clear();
+    _monsterDataTable.clear();
+    _actionDataTable.clear();
+    _statDataTable.clear();
+    _spawnDataTable.clear();
 }
 
-std::weak_ptr<Enemy> MonsterSystem::GetSpawnedEnemyByIndex(size_t index)
+const std::vector<std::weak_ptr<Enemy>>* MonsterSystem::GetSpawnedEnemiesFromID(Monster::DataID dataID)
 {
-    if (index < Monster::MAX_ENEMY_COUNT)
+    if (_spawnedEnemiesIDTable.contains(dataID))
     {
-        return _spawnedEnemies[index];
+        return &_spawnedEnemiesIDTable[dataID];
+    }
+    return nullptr;
+}
+
+std::weak_ptr<Enemy> MonsterSystem::GetSpawnedEnemyFromSpawnPoint(Monster::SpawnPoint spawnPointType)
+{
+    if (_spawnedEnemyTable.contains(spawnPointType))
+    {
+        return _spawnedEnemyTable[spawnPointType];
     }
     return std::weak_ptr<Enemy>();
 }
 
-std::vector<std::weak_ptr<Enemy>> MonsterSystem::GetSpawnedEnemyByID(Monster::DataID id)
-{
-    if (_spawnedEnemiesIDTable.contains(id))
-    {
-        return _spawnedEnemiesIDTable[id];
-    }
-    return std::vector<std::weak_ptr<Enemy>>();
-}
-
 void MonsterSystem::FindSpawnPoints() 
 {
-    for (size_t i = 0; i < Monster::MAX_ENEMY_COUNT; ++i)
+    _spawnGroup = GameObject::Find("TurnActors Group");
+    assert(_spawnGroup.expired() == false); // [assert] 턴 액터 그룹이 유효해야합니다.
+
+    for (size_t i = 0; i < MAX_ENEMY_COUNT; ++i)
     {
-        const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(Monster::SPAWN_POINT_TAGS[i]);
+        const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(SPAWN_POINT_TAGS[i]);
         assert(weakGameObject.expired() == false); // [assert] 해당 태그의 스폰 포인트가 유효해야합니다.
-        _enemySpawnPoints[i] = weakGameObject;
+        _spawPointTable[static_cast<Monster::SpawnPoint>(i)] = weakGameObject;
     }
 }
 
@@ -193,12 +251,14 @@ void MonsterSystem::LoadFromExcelData()
         LoadDataContextFromExcelData(dataSystem);
         LoadActionContextFromExcelData(dataSystem);
         LoadStatContextFromExcelData(dataSystem);
+        LoadSpawnContextFromExcelData(dataSystem);
     }
 }
 
-namespace ExcelDataKey   = Monster::ExcelData::Key::Data;
-namespace ExcelActionKey = Monster::ExcelData::Key::Action;
-namespace ExcelStageKey  = Monster::ExcelData::Key::Stage;
+namespace ExcelDataKey   = ExcelData::Key::Data;
+namespace ExcelActionKey = ExcelData::Key::Action;
+namespace ExcelStatKey   = ExcelData::Key::Stat;
+namespace ExcelSpawnKey  = ExcelData::Key::Spawn;
 
 void MonsterSystem::LoadDataContextFromExcelData(ExcelDataSystem* dataSystem)
 {
@@ -211,46 +271,43 @@ void MonsterSystem::LoadDataContextFromExcelData(ExcelDataSystem* dataSystem)
             const size_t rowCount = dataBase->RowCount();
             for (size_t rowIndex = 0; rowIndex < rowCount; ++rowIndex)
             {
-                if (rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
+                DataContext      context;
+                std::string_view data;
+                data = dataBase->FindData(rowIndex, ExcelDataKey::ID);
+                if (data != ExcelDataBase::FIND_STR_FAIL)
                 {
-                    Monster::DataContext context;
-                    std::string_view     data;
-                    data = dataBase->FindData(rowIndex, ExcelDataKey::ID);
-                    if (data != ExcelDataBase::FIND_STR_FAIL)
-                    {
-                        context.ID = std::stoi(data.data());
-                    }
-                    data = dataBase->FindData(rowIndex, ExcelDataKey::NAME);
-                    if (data != ExcelDataBase::FIND_STR_FAIL)
-                    {
-                        context.Name = std::string(data);
-                    }
-                    data = dataBase->FindData(rowIndex, ExcelDataKey::MODEL_ID);
-                    if (data != ExcelDataBase::FIND_STR_FAIL)
-                    {
-                        context.PrefabID = std::stoi(data.data());
-                    }
-
-                    for (size_t i = 0; i < Monster::MAX_FSM_COUNT; ++i)
-                    {
-                        data = dataBase->FindData(rowIndex, ExcelDataKey::FSM[i]);
-                        if (data != ExcelDataBase::FIND_STR_FAIL)
-                        {
-                            context.FsmIDs.push_back(std::stoi(data.data()));
-                        }
-                    }
-
-                    for (size_t i = 0; i < Monster::MAX_SKILL_COUNT; ++i)
-                    {
-                        data = dataBase->FindData(rowIndex, ExcelDataKey::SKILL[i]);
-                        if (data != ExcelDataBase::FIND_STR_FAIL)
-                        {
-                            context.ActionIDs.push_back(std::stoi(data.data()));
-                        }
-                    }
-
-                    _dataContextTable[context.ID] = std::move(context);
+                    context.ID = StringToInt(data);
                 }
+                data = dataBase->FindData(rowIndex, ExcelDataKey::NAME);
+                if (data != ExcelDataBase::FIND_STR_FAIL)
+                {
+                    context.Name = std::string(data);
+                }
+                data = dataBase->FindData(rowIndex, ExcelDataKey::MODEL_ID);
+                if (data != ExcelDataBase::FIND_STR_FAIL)
+                {
+                    context.PrefabID = StringToInt(data);
+                }
+
+                for (size_t i = 0; i < MAX_FSM_COUNT; ++i)
+                {
+                    data = dataBase->FindData(rowIndex, ExcelDataKey::FSM[i]);
+                    if (data != ExcelDataBase::FIND_STR_FAIL)
+                    {
+                        context.FsmIDs[i] = StringToInt(data);
+                    }
+                }
+
+                for (size_t i = 0; i < MAX_SKILL_COUNT; ++i)
+                {
+                    data = dataBase->FindData(rowIndex, ExcelDataKey::SKILL[i]);
+                    if (data != ExcelDataBase::FIND_STR_FAIL)
+                    {
+                        context.ActionIDs[i] = StringToInt(data);
+                    }
+                }
+
+                _monsterDataTable[context.ID] = std::move(context);
             }
         }
     }
@@ -267,42 +324,39 @@ void MonsterSystem::LoadActionContextFromExcelData(ExcelDataSystem* dataSystem)
             const size_t rowCount = dataBase->RowCount();
             for (size_t rowIndex = 0; rowIndex < rowCount; ++rowIndex)
             {
-                if (rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
+                ActionContext    context;
+                std::string_view data;
+                data = dataBase->FindData(rowIndex, ExcelActionKey::ID);
+                if (data != ExcelDataBase::FIND_STR_FAIL)
                 {
-                    Monster::ActionContext context;
-                    std::string_view       data;
-                    data = dataBase->FindData(rowIndex, ExcelActionKey::ID);
-                    if (data != ExcelDataBase::FIND_STR_FAIL)
-                    {
-                        context.ID = std::stoi(data.data());
-                    }
-                    data = dataBase->FindData(rowIndex, ExcelActionKey::NAME);
-                    if (data != ExcelDataBase::FIND_STR_FAIL)
-                    {
-                        context.Name = std::string(data);
-                    }
-                    data = dataBase->FindData(rowIndex, ExcelActionKey::TYPE);
-                    if (data != ExcelDataBase::FIND_STR_FAIL)
-                    {
-                        context.Type = std::string(data);
-                    }
-                    data = dataBase->FindData(rowIndex, ExcelActionKey::TARGET);
-                    if (data != ExcelDataBase::FIND_STR_FAIL)
-                    {
-                        context.Target = std::string(data);
-                    }
-                    data = dataBase->FindData(rowIndex, ExcelActionKey::ATTACK_COUNT);
-                    if (data != ExcelDataBase::FIND_STR_FAIL)
-                    {
-                        context.AttackCount = std::stoi(data.data());
-                    }
-                    data = dataBase->FindData(rowIndex, ExcelActionKey::PARAMETER);
-                    if (data != ExcelDataBase::FIND_STR_FAIL)
-                    {
-                        context.Parameter = std::string(data);
-                    }
-                    _actionContextTable[context.ID] = std::move(context);
+                    context.ID = StringToInt(data);
                 }
+                data = dataBase->FindData(rowIndex, ExcelActionKey::NAME);
+                if (data != ExcelDataBase::FIND_STR_FAIL)
+                {
+                    context.Name = std::string(data);
+                }
+                data = dataBase->FindData(rowIndex, ExcelActionKey::TYPE);
+                if (data != ExcelDataBase::FIND_STR_FAIL)
+                {
+                    context.Type = std::string(data);
+                }
+                data = dataBase->FindData(rowIndex, ExcelActionKey::TARGET);
+                if (data != ExcelDataBase::FIND_STR_FAIL)
+                {
+                    context.Target = std::string(data);
+                }
+                data = dataBase->FindData(rowIndex, ExcelActionKey::ATTACK_COUNT);
+                if (data != ExcelDataBase::FIND_STR_FAIL)
+                {
+                    context.AttackCount = StringToInt(data);
+                }
+                data = dataBase->FindData(rowIndex, ExcelActionKey::PARAMETER);
+                if (data != ExcelDataBase::FIND_STR_FAIL)
+                {
+                    context.Parameter = std::string(data);
+                }
+                _actionDataTable[context.ID] = std::move(context);
             }
         }
     }
@@ -314,7 +368,7 @@ void MonsterSystem::LoadStatContextFromExcelData(ExcelDataSystem* dataSystem)
     {
         bool isNormalDiff = true ; // TODO: 나중에 난이도에 따라 다른 시트를 불러오도록 변경
         std::u8string sheetName = isNormalDiff? u8"(일반)" : u8"(어려움)"; 
-        sheetName += ExcelStageKey::SHEET_NAME;
+        sheetName += ExcelStatKey::SHEET_NAME;
         
         std::unique_ptr<ExcelDataBase> dataBase = dataSystem->FindExcelDataBase(sheetName.c_str());
         assert(dataBase); // [assert] 엑셀 데이터 시스템에 해당 시트가 존재해야합니다.
@@ -325,60 +379,96 @@ void MonsterSystem::LoadStatContextFromExcelData(ExcelDataSystem* dataSystem)
             {
                 if (rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
                 {
-                    Monster::StatContext context;
+                    StatContext context;
                     std::string_view      data;
-                    data = dataBase->FindData(rowIndex, ExcelStageKey::LEVEL_ID);
+                    data = dataBase->FindData(rowIndex, ExcelStatKey::LEVEL_ID);
                     if (data != ExcelDataBase::FIND_STR_FAIL)
                     {
-                        context.LevelID = std::stoi(data.data());
+                        context.LevelID = StringToInt(data);
                     }
-                    data = dataBase->FindData(rowIndex, ExcelStageKey::MONSTER_ID);
+                    data = dataBase->FindData(rowIndex, ExcelStatKey::MONSTER_ID);
                     if (data != ExcelDataBase::FIND_STR_FAIL)
                     {
-                        context.MonsterID = std::stoi(data.data());
+                        context.MonsterID = StringToInt(data);
                     }
-                    data = dataBase->FindData(rowIndex, ExcelStageKey::HEALTH);
+                    data = dataBase->FindData(rowIndex, ExcelStatKey::HEALTH);
                     if (data != ExcelDataBase::FIND_STR_FAIL)
                     {
-                        context.Health = std::stoi(data.data());
+                        context.Health = StringToInt(data);
                     }
-                    data = dataBase->FindData(rowIndex, ExcelStageKey::STUN_RESIST);
+                    data = dataBase->FindData(rowIndex, ExcelStatKey::STUN_RESIST);
                     if (data != ExcelDataBase::FIND_STR_FAIL)
                     {
-                        context.StunResist = std::stoi(data.data());
+                        context.StunResist = StringToInt(data);
                     }
 
-                    for (size_t i = 0; i < Monster::MAX_SKILL_COUNT; ++i)
+                    for (size_t i = 0; i < MAX_SKILL_COUNT; ++i)
                     {
-                        data = dataBase->FindData(rowIndex, ExcelStageKey::ACTION_PARAM[i]);
+                        data = dataBase->FindData(rowIndex, ExcelStatKey::ACTION_PARAM[i]);
                         if (data != ExcelDataBase::FIND_STR_FAIL)
                         {
-                            context.ActionParams[i] = Monster::ParseActionParam(std::string(data));
+                            context.ActionParams[i] = ParseActionParam(std::string(data));
                         }
-                        data = dataBase->FindData(rowIndex, ExcelStageKey::TOKEN_PARAM[i]);
+                        data = dataBase->FindData(rowIndex, ExcelStatKey::TOKEN_PARAM[i]);
                         if (data != ExcelDataBase::FIND_STR_FAIL)
                         {
-                            context.TokenParams[i] = Monster::ParseTokenParam(std::string(data));
+                            context.TokenParams[i] = ParseTokenParam(std::string(data));
                         }
                     }
-
-                    // 벡터 초기화
-                    if (false == _StatContextTable.contains(context.LevelID))
-                    {
-                        _StatContextTable[context.LevelID].reserve(Monster::MAX_ENEMY_COUNT);
-                    }
-                    _StatContextTable[context.LevelID].push_back(std::move(context));
+                    _statDataTable[context.LevelID][context.MonsterID] = std::move(context);
                 }
             }
         }
     }
 }
 
-const std::vector<Monster::StatContext>* MonsterSystem::GetStatContextFromStageID(int stageID)
+void MonsterSystem::LoadSpawnContextFromExcelData(ExcelDataSystem* dataSystem)
 {
-    if (_StatContextTable.contains(stageID))
+    if (dataSystem)
     {
-        return &_StatContextTable[stageID];
+        std::unique_ptr<ExcelDataBase> dataBase = dataSystem->FindExcelDataBase(ExcelSpawnKey::SHEET_NAME);
+        assert(dataBase); // [assert] 엑셀 데이터 시스템에 해당 시트가 존재해야합니다.
+        if (dataBase)
+        {
+            const size_t rowCount = dataBase->RowCount();
+            for (size_t rowIndex = 0; rowIndex < rowCount; ++rowIndex)
+            {
+                SpawnContext context;
+                std::string_view data;
+                data = dataBase->FindData(rowIndex, ExcelSpawnKey::ID);
+                if (data != ExcelDataBase::FIND_STR_FAIL)
+                {
+                    context.SpawnID = StringToInt(data);
+                }
+                for (size_t i = 0; i < MAX_DIFF_COUNT; ++i)
+                {
+                    data = dataBase->FindData(rowIndex, ExcelSpawnKey::LEVEL_ID[i]);
+                    if (data != ExcelDataBase::FIND_STR_FAIL)
+                    {
+                        context.LevelID[i] = StringToInt(data);
+                    }
+                }
+                for (size_t i = 0; i < MAX_ENEMY_COUNT; ++i)
+                {
+                    SpawnParam& spawnParam = context.SpawnParams[i];
+                    data = dataBase->FindData(rowIndex, ExcelSpawnKey::TILE[i]);
+                    if (data != ExcelDataBase::FIND_STR_FAIL && false == data.empty())
+                    {
+                        spawnParam.MonsterID = StringToInt(data);
+                    }
+                    data = dataBase->FindData(rowIndex, ExcelSpawnKey::BUFF[i]);
+                    if (data != ExcelDataBase::FIND_STR_FAIL && false == data.empty())
+                    {
+                        std::vector<TokenParam> params = ParseTokenParam(std::string(data));
+                        for (auto& param : params)
+                        {
+                            spawnParam.InitialTokens.push_back(param);
+                        }
+                    }
+                }
+
+                _spawnDataTable[context.SpawnID] = std::move(context);
+            }
+        }
     }
-    return nullptr;
 }
