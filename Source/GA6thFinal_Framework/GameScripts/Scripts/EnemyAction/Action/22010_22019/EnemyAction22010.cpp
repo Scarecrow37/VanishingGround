@@ -3,7 +3,7 @@
 #include <Animation/AnimationComponent.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
-#include <TurnSystem/TurnAction/Token/TokenApplyAction.h>
+#include <TurnSystem/TurnAction/Actions/Token/TokenApplyAction.h>
 #include <Token/Object/Bleed/BleedToken.h>
 namespace EnemyAction
 {
