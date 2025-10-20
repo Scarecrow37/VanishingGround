@@ -33,7 +33,6 @@ public:
     void SetAlbedoTexture(std::shared_ptr<Texture> texture);
     void CalculateFrameInfos();
 
-
     const Vector4&                     GetCurrentFrameInfo(UINT index);
     UINT                               GetAlbedoTextureID() const noexcept;
     const D3D12_GPU_DESCRIPTOR_HANDLE& GetGPUHandle() const { return _albedoTexture->GetGPUHandle(); }
@@ -41,17 +40,13 @@ public:
     SpriteModule*       AsSprite() override { return this; }
     const SpriteModule* AsSprite() const override { return this; }
 
-
 protected:
-    
     std::shared_ptr<Texture> _albedoTexture;
     std::vector<Vector4>     _preCalculatedFrameInfos;
-
     UMPARTICLE_PROPERTY_REF(Vector4, _frameInfo, FrameInfo, Vector4::Zero ); // x: 가로 프레임 개수 / y: 세로 프레임 개수 / z : 전체 프레임 개수 / w : 프레임 지속시간
     UMPARTICLE_PROPERTY(std::wstring, _newAlbedoTexturePath, NewAlbedoTexturePath, L"");
     UMPARTICLE_PROPERTY(bool, _isAlbedoTextureChanged, TextureChangeFlag, false);
-    UMPARTICLE_PROPERTY(bool, _isAnimated, AnimationFlag, false);
-    UMPARTICLE_PROPERTY(bool, _isLoop, LoopFlag, false);
+    UMPARTICLE_PROPERTY(float, _frameDuration, FrameDuration, 0.0167f);
 
 };
 

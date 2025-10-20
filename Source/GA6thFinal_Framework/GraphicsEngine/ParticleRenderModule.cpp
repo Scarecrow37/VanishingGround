@@ -36,6 +36,7 @@ UINT SpriteModule::GetAlbedoTextureID() const noexcept
 void SpriteModule::CalculateFrameInfos() 
 {
     _preCalculatedFrameInfos.clear();
+    _frameDuration = _frameInfo.w / _frameInfo.z;
     float uOffset = 1 / _frameInfo.x;
     float vOffset = 1 / _frameInfo.y;
     UINT  uCount  = static_cast<UINT>(_frameInfo.x);

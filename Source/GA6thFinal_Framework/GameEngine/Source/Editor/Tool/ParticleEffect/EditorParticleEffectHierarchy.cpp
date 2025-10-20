@@ -36,19 +36,25 @@ void EditorParticleEffectHierarchy::OnStartGui()
 
 void EditorParticleEffectHierarchy::OnFrameRender()
 {
+    ParticleEffect* effect = UmParticleManager->GetCurrentEditorEffect();
+
     bool isNewButtonPressed = ImGui::Button("New", {180, 50});
     if (true == isNewButtonPressed)
     {
         auto newEffect = UmParticleManager->RegisterEffectOnEditor();
-        newEffect->SetLifetime(10.f);
-        newEffect->SetEffectName("newEffect");
         _editorParticleEffectDetails->SetCurrentEffect(newEffect);
-        _curEffect = newEffect;
-        _curEffect->SetPosition(&_effectPosition);
-        _curEffect->SetRotation(&_effectRotation);
-        _curEffect->SetScale(&_effectScale);
-        _curEffect->SetParentMatrix(&_effectWorldMatrix);
-        _curEffect->SetBoneFollowFlag(&_boneFlag);
+        effect = newEffect; // Update local variable for this frame
+
+        if (effect)
+        {
+            effect->SetLifetime(10.f);
+            effect->SetEffectName("newEffect");
+            effect->SetPosition(&_effectPosition);
+            effect->SetRotation(&_effectRotation);
+            effect->SetScale(&_effectScale);
+            effect->SetParentMatrix(&_effectWorldMatrix);
+            effect->SetBoneFollowFlag(&_boneFlag);
+        }
     }
     ImGui::SameLine();
 
@@ -58,9 +64,10 @@ void EditorParticleEffectHierarchy::OnFrameRender()
     if (true == isLoadButtonPressed || true == isControlOPressed)
     {
         LoadEffect();
+        // After loading, the manager has the new effect. Get it again.
+        effect = UmParticleManager->GetCurrentEditorEffect();
     }
 
-    ParticleEffect* effect = UmParticleManager->GetCurrentEditorEffect();
     if (nullptr != effect)
     {
         bool isSaveButtonPressed = ImGui::Button("Save", {180, 50});
@@ -72,7 +79,7 @@ void EditorParticleEffectHierarchy::OnFrameRender()
             std::wstring filename;
             if (File::ShowSaveFileDialog(UmApplication.GetHwnd(), L"Save as vfx file", L"", L"Effect.vfx", {}, path))
             {
-                UmParticleSerializer.Serialize(_curEffect, path);
+                UmParticleSerializer.Serialize(effect, path);
             }
         }
     }
@@ -80,7 +87,7 @@ void EditorParticleEffectHierarchy::OnFrameRender()
     // refresh button
     {
         bool isRefressButtonPressed = ImGui::Button("refresh", {100, 30});
-        if (true == isRefressButtonPressed && nullptr != _curEffect)
+        if (true == isRefressButtonPressed && nullptr != effect)
         {
             UmParticleManager->RefreshEditor();
         }
@@ -189,7 +196,6 @@ void EditorParticleEffectHierarchy::OnFrameRender()
 
     if (nullptr == effect)
     {
-        _curEffect = nullptr;
         return;
     }
 
@@ -310,7 +316,7 @@ void EditorParticleEffectHierarchy::OnFrameRender()
         if (true == isAddButtonPressed)
         {
             auto emitter =
-                UmParticleManager->RegisterEmitter(_curEffect, 100000, 1000, 20, locationType, {0, 0, 0}, particleType);
+                UmParticleManager->RegisterEmitter(effect, 100000, 1000, 20, locationType, {0, 0, 0}, particleType);
             UmGraphics.LoadTextureResource(emitter->_particleRenderModule->GetModelAndTexturePath(), emitter);
             if (auto locator = emitter->_emitLocator->AsMeshSurfaceLocator())
             {
@@ -326,19 +332,19 @@ void EditorParticleEffectHierarchy::OnFrameRender()
     {
         // 부모 노드: 기본 플래그 사용
         ImGuiTreeNodeFlags parentFlags = ImGuiTreeNodeFlags_OpenOnArrow;
-        bool               isParentOpen = ImGui::TreeNodeEx(_curEffect->GetEffectName().c_str(), parentFlags);
+        bool               isParentOpen = ImGui::TreeNodeEx(effect->GetEffectName().c_str(), parentFlags);
 
         bool isHovered      = ImGui::IsItemHovered();
         bool isMouseClicked = ImGui::IsMouseClicked(0);
         if (true == isHovered && true == isMouseClicked)
         {
-            _editorParticleEffectDetails->SetCurrentEffect(_curEffect);
+            _editorParticleEffectDetails->SetCurrentEffect(effect);
         }
         if (isParentOpen)
         {
             ImGui::GetStyle().ItemSpacing.y = 3.f; // 모든 위젯 사이의 기본 세로 간격을 10으로
             ImGuiTreeNodeFlags leafFlags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-            for (auto& emitter : _curEffect->GetEmitterList())
+            for (auto& emitter : effect->GetEmitterList())
             {
                 if (ImGui::TreeNodeEx(emitter->GetEmitterName().c_str(), leafFlags))
                 {
@@ -388,15 +394,19 @@ void EditorParticleEffectHierarchy::LoadEffect()
     std::vector<File::Path> out;
     if (File::ShowOpenFileDialog(owner, title, L"", {{L"\0", L"*.vfx*\0"}}, false, out))
     {
-        if (auto effect = UmParticleSerializer.Deserialize(this, "", out.front(), true, "ParticleEditor"))
+        // The Deserialize function registers the effect with the manager.
+        // We no longer need to manage the _curEffect pointer here.
+        if (auto loadedEffect = UmParticleSerializer.Deserialize(this, "", out.front(), true, "ParticleEditor"))
         {
-            _editorParticleEffectDetails->SetCurrentEffect(effect);
-            _curEffect = effect;
-            _curEffect->SetPosition(&_effectPosition);
-            _curEffect->SetRotation(&_effectRotation);
-            _curEffect->SetScale(&_effectScale);
-            _curEffect->SetParentMatrix(&_effectWorldMatrix);
-            _curEffect->SetBoneFollowFlag(&_boneFlag);
+            _editorParticleEffectDetails->SetCurrentEffect(loadedEffect);
+            if(loadedEffect)
+            {
+                loadedEffect->SetPosition(&_effectPosition);
+                loadedEffect->SetRotation(&_effectRotation);
+                loadedEffect->SetScale(&_effectScale);
+                loadedEffect->SetParentMatrix(&_effectWorldMatrix);
+                loadedEffect->SetBoneFollowFlag(&_boneFlag);
+            }
         }
     }
 }

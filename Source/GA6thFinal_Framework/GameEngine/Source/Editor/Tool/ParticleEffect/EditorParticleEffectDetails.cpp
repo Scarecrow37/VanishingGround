@@ -23,12 +23,33 @@ void EditorParticleEffectDetails::SetCurrentEmitter(class ParticleEmitter* curEm
 
 void EditorParticleEffectDetails::OnFrameRender() 
 {
-    if (nullptr == UmParticleManager->GetCurrentEditorEffect())
+    ParticleEffect* managersEffect = UmParticleManager->GetCurrentEditorEffect();
+
+    if (managersEffect == nullptr)
     {
+        // The manager has no effect, so we must have no effect.
         _curEffect = nullptr;
+        _curEmitter = nullptr; // Also clear emitter for safety
         return;
     }
 
+    // If we have a _curEffect, but it's NOT the same as the manager's effect,
+    // it means our pointer is stale (dangling). We must not use it.
+    if (_curEffect != nullptr && _curEffect != managersEffect)
+    {
+        _curEffect = nullptr;
+    }
+
+    // If an emitter is selected, _curEffect is supposed to be null.
+    // If no emitter is selected, and our _curEffect is now null (either from startup or because it was stale),
+    // we should fall back to showing the manager's current effect.
+    if (_curEmitter == nullptr && _curEffect == nullptr)
+    {
+        _curEffect = managersEffect;
+    }
+
+
+    // Now, the original logic can run, but with a safer _curEffect pointer.
     if (nullptr != _curEmitter && nullptr == _curEffect)
         ShowEmitterDetails();
     if (nullptr == _curEmitter && nullptr != _curEffect)
@@ -111,12 +132,8 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
                     if (false == isSomethingChanged)
                         if (true == result)
                             isSomethingChanged = result;
-        /*            result = ImGui::SliderFloat("total   ", &frameInfo[2], 0, 10);
-                                if (false == isSomethingChanged)
-                                    if (true == result)
-                                        isSomethingChanged = result;*/
                     
-                    result = ImGui::SliderFloat("frame duration", &frameInfo[3], 0, 1);
+                    result = ImGui::SliderFloat("Duration", &frameInfo[3], 0, 1);
                     if (false == isSomethingChanged)
                         if (true == result)
                             isSomethingChanged = result;

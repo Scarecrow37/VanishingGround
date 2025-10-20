@@ -142,9 +142,10 @@ void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime)
             {
                 if (spriteModule->GetFrameInfo().z > 0)
                 {
-                    const Vector4& atlasInfo   = spriteModule->GetFrameInfo();
-                    float          particleAge = _particlePool[i].GetAge();
-                    UINT           frameIndex  = static_cast<UINT>(particleAge / atlasInfo.w);
+                    const Vector4& atlasInfo     = spriteModule->GetFrameInfo();
+                    float          particleAge   = _particlePool[i].GetAge();
+                    float          frameDuration = spriteModule->GetFrameDuration();
+                    UINT           frameIndex    = static_cast<UINT>(particleAge / frameDuration);
                     if (_dragForce.x > 0)
                     {
                         frameIndex = frameIndex % static_cast<UINT>(atlasInfo.z);
@@ -315,7 +316,8 @@ void ParticleEmitter::AwakeParticle(UINT index)
             {
                 const Vector4& atlasInfo   = spriteModule->GetFrameInfo();
                 float          particleAge = _particlePool[index].GetAge();
-                UINT           frameIndex  = static_cast<UINT>(particleAge / atlasInfo.w);
+                float          frameDuration = spriteModule->GetFrameDuration();
+                UINT           frameIndex  = static_cast<UINT>(particleAge /frameDuration);
                 if (_dragForce.x > 0)
                 {
                     frameIndex = frameIndex % static_cast<UINT>(atlasInfo.z);
