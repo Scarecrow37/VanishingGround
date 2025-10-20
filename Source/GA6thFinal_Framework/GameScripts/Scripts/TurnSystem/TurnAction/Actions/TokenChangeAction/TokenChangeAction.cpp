@@ -2,6 +2,8 @@
 #include "TokenChangeAction.h"
 #include "TurnSystem/TurnSystemHelper.h"
 #include "Token/TokenSystem.h"
+#include "TurnSystem/TurnActor/Character/CharacterBase.h"
+#include "Token/TokenInventory.h"
 
 REGISTER_TURN_ACTION(TokenChangeAction)
 
@@ -61,10 +63,11 @@ void TokenChangeAction::DeserializedReflectEvent()
     UpdateActionInfo();
 }
 
-void TokenChangeAction::OnTokenAddedStart(CharacterBase& target, int& tokenID, int& tokenCount) 
+void TokenChangeAction::OnTokenAddedEnd(CharacterBase& target, int tokenID, int tokenCount) 
 {
-     using namespace u8_literals;
-    if (EvaluateConditions())
+    using namespace u8_literals;
+    size_t conditionCount = ConditionCount;
+    if (0 < conditionCount && EvaluateConditions())
     {
         std::string msg = TokenSystem::GetTokenNameFromID(tokenID);
         msg += u8" 토큰을 "_c_str;
@@ -72,7 +75,11 @@ void TokenChangeAction::OnTokenAddedStart(CharacterBase& target, int& tokenID, i
         msg += u8" 토큰으로 변경 "_c_str;
         UmLogger.Log(LogLevel::LEVEL_TRACE, msg);
 
+        TokenInventory& inventory = target.GetTokenInventory();
+        inventory.RemoveTokenStackFromID(tokenID, tokenCount);
+
         tokenID = ReflectFields->TokenID;
+        inventory.AddTokenStackFromID(tokenID, tokenCount);
     }
 }
 

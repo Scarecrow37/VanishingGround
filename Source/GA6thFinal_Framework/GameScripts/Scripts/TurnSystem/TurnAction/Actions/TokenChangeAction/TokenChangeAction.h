@@ -20,7 +20,7 @@ protected:
     void               ImGuiDrawActionEditor() override;
     void               DeserializedReflectEvent() override;
 
-    void OnTokenAddedStart(CharacterBase& target, int& tokenID, int& tokenCount) override;
+    void OnTokenAddedEnd(CharacterBase& target, int tokenID, int tokenCount) override;
 
 private:
     std::string _actionInfo;
