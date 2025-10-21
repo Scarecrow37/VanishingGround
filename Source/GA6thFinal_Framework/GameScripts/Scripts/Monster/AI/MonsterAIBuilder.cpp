@@ -9,6 +9,8 @@
 #include "Token/TokenInventory.h"
 #include "Token/Object/Bleed/BleedToken.h"
 
+#include "Monster/Action/MonsterActionBase.h"
+
 namespace Monster
 {
     // Monster A
@@ -127,6 +129,59 @@ namespace Monster
         controller.PushActionNode("#3", "#2", 210220);
     }
 
+    // Boss
+    void BuildAIModel210360(std::weak_ptr<Enemy> owner, AIModel& controller)
+    {
+        controller.Clear();
+        controller.PushActionNode("#1", "#2", 210261);
+        controller.PushActionNode("#2", "#1", {{50.0f, 210260}, {50.0f, 210261}});
+
+        // Entry 노드 설정
+        controller.SetCurrentNode("#1");
+    }
+
+    void BuildAIModel210370(std::weak_ptr<Enemy> owner, AIModel& controller)
+    {
+        controller.Clear();
+
+        controller.PushActionNode("#1", "#2", 210270);
+        controller.PushActionNode("#2", "#2", {{70.0f, 210270}, {30.0f, 210271}});
+    }
+
+    void BuildAIModel210380(std::weak_ptr<Enemy> owner, AIModel& controller)
+    {
+        controller.Clear();
+
+        controller.PushActionNode("#1", "#2", 210280);
+        controller.PushConditionNode("#2", "#3", "#4", [owner]() -> bool { 
+            // [출혈] [중독] [기절] 중 한 개 이상 보유 시
+            if (auto enemy = owner.lock())
+            {
+                TokenInventory&      tokenInventory = enemy->GetTokenInventory();
+                Monster::Controller& controller     = enemy->GetController();
+
+                if (Action::Base* currentAction = controller.GetCurrentAction())
+                {
+                    auto& tokenParams = currentAction->GetAllTokenParams();
+                    for (const auto& tokenParam : tokenParams)
+                    {
+                        if (tokenInventory.HasTokenFromID(tokenParam.TokenID))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        });
+        controller.PushActionNode("#3", "#2", 210280);
+        controller.PushActionNode("#4", "#2", 210281);
+
+        // Entry 노드 설정
+        controller.SetCurrentNode("#1");
+    }
+
+
     #define REGISTER_AI(ID)                                                     \
     namespace AIBuilder##ID                                                     \
     {                                                                           \
@@ -144,4 +199,8 @@ namespace Monster
     REGISTER_AI(210320)
     REGISTER_AI(210321)
     REGISTER_AI(210322)
+
+    REGISTER_AI(210360)
+    REGISTER_AI(210370)
+    REGISTER_AI(210380)
 }

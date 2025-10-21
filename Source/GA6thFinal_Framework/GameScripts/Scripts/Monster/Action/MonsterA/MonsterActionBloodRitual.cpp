@@ -21,7 +21,7 @@ namespace Monster
         void BloodRitual::OnNotifiedAnimationEvent(const Timeline::EventContext* context) 
         {
             const std::string& label = context->GetLabel();
-            if ("Attack" == label)
+            if ("Behavior" == label)
             {
                 Behavior();
             }

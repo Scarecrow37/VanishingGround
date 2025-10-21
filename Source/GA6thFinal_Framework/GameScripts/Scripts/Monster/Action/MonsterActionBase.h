@@ -47,8 +47,22 @@ namespace Monster
             inline std::weak_ptr<CharacterBase> GetWeakTarget() const { return _weakTarget; }
             inline bool                         IsActionEnd() const { return _isActionEnd; }
             inline void                         SetActionEnd() { _isActionEnd = true; }
-
             inline const ActionContext&         GetActionContext() const { return _actionContext; }
+            inline size_t                       GetActionParamCount() const { return _actionParams.size(); }
+            inline size_t                       GetTokenParamCount() const { return _tokenParams.size(); }
+
+            // 토큰 부여 액션을 얻어옵니다. 인덱스는 0부터가 아닌 1부터 시작합니다.
+            TokenApplyAction* GetTokenAction(size_t index) const;
+
+            // 액션 파라미터를 얻어옵니다. 인덱스는 0부터가 아닌 1부터 시작합니다.
+            ActionParam GetActionParam(size_t index) const;
+            // 모든 액션 파라미터를 얻어옵니다.
+            const std::vector<ActionParam>& GetAllActionParams() const;
+
+            // 토큰 파라미터를 얻어옵니다. 인덱스는 0부터가 아닌 1부터 시작합니다.
+            TokenParam GetTokenParam(size_t index) const;
+            // 모든 토큰 파라미터를 얻어옵니다.
+            const std::vector<TokenParam>& GetAllTokenParams() const;
 
         protected: 
             // WeakPtr을 RowPtr로 변환하는 편의성 함수
@@ -57,15 +71,6 @@ namespace Monster
             inline AnimationComponent* GetAnimationComponent() { return _weakAnimation.lock().get(); }
             inline ParticleComponent*  GetParticleComponent() { return _weakParticle.lock().get(); }
 
-            // 토큰 파라미터를 얻어옵니다. 인덱스는 0부터가 아닌 1부터 시작합니다.
-            TokenApplyAction* GetTokenAction(size_t index);
-
-            // 액션 파라미터를 얻어옵니다. 인덱스는 0부터가 아닌 1부터 시작합니다.
-            ActionParam       GetActionParam(size_t index);
-
-            // 토큰 파라미터를 얻어옵니다. 인덱스는 0부터가 아닌 1부터 시작합니다.
-            TokenParam        GetTokenParam(size_t index);
-
             bool BeginTokenActions();
             bool EndTokenActions();
 
@@ -73,9 +78,9 @@ namespace Monster
             void ProcessBattle(int damage, float damageScale = 1.0f);
             bool ProcessAnimation(std::string_view animKey);
 
-            std::weak_ptr<CharacterBase> GetTargetFromActionContext(const ActionContext& actionContext);
-            std::weak_ptr<CharacterBase> GetTargetFromString(std::string_view targetStr);
-            std::weak_ptr<CharacterBase> GetTargetFromID(DataID targetID);
+            std::weak_ptr<CharacterBase> GetTargetFromActionContext(const ActionContext& actionContext) const;
+            std::weak_ptr<CharacterBase> GetTargetFromString(std::string_view targetStr) const;
+            std::weak_ptr<CharacterBase> GetTargetFromID(DataID targetID) const;
 
         private:
             virtual void OnActionEnter()    {};

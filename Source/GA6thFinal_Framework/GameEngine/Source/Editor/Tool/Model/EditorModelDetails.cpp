@@ -190,7 +190,7 @@ void EditorModelDetails::OnFrameRender()
     ImGui::Separator();
 
     const auto& model = _meshRenderer->GetModel();
-    if (model)
+    if (model && model->IsValid())
     {
         const auto type = _meshRenderer->GetType();
         if (ImGui::TreeNodeEx("Model##details", ImGuiTreeNodeFlags_DefaultOpen))

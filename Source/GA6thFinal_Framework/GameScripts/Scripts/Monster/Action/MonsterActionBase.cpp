@@ -49,7 +49,7 @@ namespace Monster
         {
             OnNotifiedAnimationEvent(context);
         }
-        TokenApplyAction* Base::GetTokenAction(size_t index)
+        TokenApplyAction* Base::GetTokenAction(size_t index) const
         {
             assert(index >= 1); // [assert] 토큰 액션 인덱스는 1부터 시작합니다. (엑셀 데이터에서 1부터 시작하기 때문)
             size_t subOne = index - 1;
@@ -59,7 +59,7 @@ namespace Monster
             }
             return nullptr;
         }
-        ActionParam Base::GetActionParam(size_t index)
+        ActionParam Base::GetActionParam(size_t index) const
         {
             assert(index >= 1); // [assert] 액션 파라미터 인덱스는 1부터 시작합니다. (엑셀 데이터에서 1부터 시작하기 때문)
             size_t subOne = index - 1;
@@ -69,7 +69,11 @@ namespace Monster
             }
             return ActionParam();
         }
-        TokenParam Base::GetTokenParam(size_t index)
+        const std::vector<ActionParam>& Base::GetAllActionParams() const
+        {
+            return _actionParams;
+        }
+        TokenParam Base::GetTokenParam(size_t index) const
         {
             assert(index >=  1); // [assert] 토큰 파라미터 인덱스는 1부터 시작합니다. (엑셀 데이터에서 1부터 시작하기 때문)
             size_t subOne = index - 1;
@@ -78,6 +82,10 @@ namespace Monster
                 return _tokenParams[subOne];
             }
             return TokenParam();
+        }
+        const std::vector<TokenParam>& Base::GetAllTokenParams() const
+        {
+            return _tokenParams;
         }
         bool Base::BeginTokenActions() 
         {
@@ -211,12 +219,12 @@ namespace Monster
         {
             _weakTarget = GetTargetFromActionContext(_actionContext);
         }
-        std::weak_ptr<CharacterBase> Base::GetTargetFromActionContext(const ActionContext& actionContext)
+        std::weak_ptr<CharacterBase> Base::GetTargetFromActionContext(const ActionContext& actionContext) const
         {
             const std::string& targetStr = actionContext.Target;
             return GetTargetFromString(targetStr);
         }
-        std::weak_ptr<CharacterBase> Base::GetTargetFromString(std::string_view targetStr)
+        std::weak_ptr<CharacterBase> Base::GetTargetFromString(std::string_view targetStr) const
         {
             std::weak_ptr<CharacterBase> weakTarget;
             if (targetStr == "Self")
@@ -246,7 +254,7 @@ namespace Monster
             }
             return weakTarget;
         }
-        std::weak_ptr<CharacterBase> Base::GetTargetFromID(DataID targetID)
+        std::weak_ptr<CharacterBase> Base::GetTargetFromID(DataID targetID) const
         {
             std::weak_ptr<CharacterBase> weakTarget;
             if (MonsterSystem* system = SingletonComponent<MonsterSystem>::GetInstance())
