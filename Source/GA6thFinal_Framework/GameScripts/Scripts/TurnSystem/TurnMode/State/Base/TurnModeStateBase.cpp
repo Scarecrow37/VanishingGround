@@ -4,6 +4,8 @@
 #include "WeaponSystem/WeaponSystem.h"
 #include "RevelationSystem/RevelationSystem.h"   
 #include "AccessorySystem/AccessorySystem.h"
+#include "TurnSystem/TurnMode/State/CombatStartPhase.h"
+#include "TurnSystem/TurnActor/Character/CharacterBase.h"
 
 TurnModeStateBase::TurnModeStateBase() {}
 
@@ -30,5 +32,25 @@ void TurnModeStateBase::OnStart()
     if (_accessorySystem == nullptr)
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Player System에 Accessory System이 존재하지 않습니다.");
+    }
+}
+
+void TurnModeStateBase::UpdateCharacterDead(const std::function<void(CharacterBase&)>& deadCallback)
+{
+    CombatStartPhase* combatStartPhase = _turnMode->States->CombatStartPhase;
+    if (combatStartPhase)
+    {
+        for (auto& character : combatStartPhase->GetCharacters())
+        {
+            int hp = character->HP;
+            if (hp <= 0)
+            {
+                character->Dead();
+                if (deadCallback)
+                {
+                    deadCallback(*character);
+                }             
+            }
+        }
     }
 }

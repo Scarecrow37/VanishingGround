@@ -3,6 +3,9 @@
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include <TurnSystem/TurnMode/State/CombatStartPhase.h>
 #include <TurnSystem/TurnActor/Character/CharacterBase.h>
+#include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
+#include "TurnSystem/TurnActor/Character/Player/Player.h"
+#include "WeaponSystem/WeaponSystem.h"
 
 REGISTER_CLASS(FSMStateFactory, TurnListEmptyState)
 
@@ -20,21 +23,33 @@ void TurnListEmptyState::OnStart()
 
 void TurnListEmptyState::OnEnter() 
 {
-    _turnMode->FinishCurrentTurn();
-
-    CombatStartPhase* combatStartPhase = _turnMode->States->CombatStartPhase;
-    if (combatStartPhase)
+    auto& currentTurn = _turnMode->GetCurrTurnActor();
+    const TurnActor* turnActor = currentTurn.Get();
+    if (turnActor && typeid(Player) == typeid(*turnActor))
     {
-        for (auto& character : combatStartPhase->GetCharacters())
-        {
-            int hp = character->HP;
-            if (hp <= 0)
+        // 플레이어면 무기로 적 처치 호출
+        UpdateCharacterDead([this](CharacterBase& deadCharacter) 
+        { 
+            if (typeid(Enemy) == typeid(deadCharacter))
             {
-                character->Dead();
+                if (WeaponSystem* weaponSystem = SingletonComponent<WeaponSystem>::GetInstance())
+                {
+                    Enemy& enemy = static_cast<Enemy&>(deadCharacter);
+                    _turnMode->ApplyActions([&enemy, weaponSystem](TurnAction& action) 
+                    {
+                        WeaponElement& element = weaponSystem->GetCurrentWeaponElement();
+                        action.OnEnemyDeadByWeapon(enemy, element);
+                    });
+                }
             }
-        }
+        });
+    }
+    else
+    {
+        UpdateCharacterDead();
     }
 
+    _turnMode->FinishCurrentTurn();
     UmLogger.Message(LogLevel::LEVEL_DEBUG, (const char*)u8"턴 리스트를 확인합니다.");
 }
 
