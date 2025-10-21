@@ -3,6 +3,7 @@
 #include "Stats/Weapon/WeaponStats.h"
 #include "Utility/SingletonHelper.h"
 
+class PlayerStatsComponent;
 class FiniteStateMachine;
 class Player : public CharacterBase
 {

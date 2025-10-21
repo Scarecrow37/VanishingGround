@@ -2,6 +2,8 @@
 #include "AccessoryElement.h"
 #include "TurnSystem/TurnAction/TurnActionFactory.h"
 
+REFLECT_FUNCTION(AccessoryElement)
+
 AccessoryElement::AccessoryElement() 
 {
 

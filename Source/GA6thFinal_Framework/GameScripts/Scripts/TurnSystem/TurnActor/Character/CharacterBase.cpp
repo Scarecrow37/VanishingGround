@@ -9,6 +9,7 @@
 #include <Animation/AnimationComponent.h>
 #include <Particle/ParticleComponent.h>
 
+REFLECT_FUNCTION(CharacterBase)
 
 int CharacterBase::GetHP()
 {

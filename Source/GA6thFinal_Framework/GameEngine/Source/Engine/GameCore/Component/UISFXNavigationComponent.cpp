@@ -1,6 +1,8 @@
 ﻿#include "pch.h"
 #include "UISFXNavigationComponent.h"
 
+REFLECT_FUNCTION(UISFXNavigationComponent)
+
 UISFXNavigationComponent::UISFXNavigationComponent()
 {
     _focusInAudioID = DEFAULT_FOCUS_IN_SOUND_ID;

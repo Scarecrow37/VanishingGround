@@ -312,6 +312,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\DLLExportDefine.h" />
     <ClInclude Include="Source\Editor\Menu\Game\EditorGameMenu.h" />
     <ClInclude Include="Source\Editor\SceneGizmo\SceneGizmo.h" />
     <ClInclude Include="Source\Editor\Tool\RenderPassData\EditorRenderPassData.h" />
