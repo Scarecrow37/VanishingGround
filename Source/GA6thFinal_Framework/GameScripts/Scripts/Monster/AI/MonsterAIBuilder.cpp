@@ -6,7 +6,6 @@
 #include "TurnSystem/TurnActor/Character/Player/Player.h"
 #include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
 
-#include "Token/TokenInventory.h"
 #include "Token/Object/Bleed/BleedToken.h"
 
 #include "Monster/Action/MonsterActionBase.h"

@@ -302,6 +302,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\Monster\Action\Boss\MonsterActionCollapsingPillar.h" />
+    <ClInclude Include="Scripts\Monster\Action\Boss\MonsterActionRecordObliteration.h" />
+    <ClInclude Include="Scripts\Monster\Action\BossServant\2st\MonsterActionEnjoymentOfLoyalty.h" />
+    <ClInclude Include="Scripts\Monster\Action\BossServant\2st\MonsterActionImpute.h" />
+    <ClInclude Include="Scripts\Monster\Action\BossServant\1st\MonsterActionBlackSacrament.h" />
+    <ClInclude Include="Scripts\Monster\Action\BossServant\1st\MonsterActionCourtesyOfTheKing.h" />
     <ClInclude Include="Scripts\Monster\Action\MonsterC\MonsterActionBaptismOfMight.h" />
     <ClInclude Include="Scripts\Monster\Action\MonsterC\MonsterActionRebinding.h" />
     <ClInclude Include="Scripts\Monster\Action\MonsterC\MonsterActionSkullBreaker.h" />
@@ -558,6 +564,12 @@
     <ClInclude Include="Scripts\ItemDropSystem\UI\EraseRevelationUIManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\Monster\Action\Boss\MonsterActionCollapsingPillar.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\Boss\MonsterActionRecordObliteration.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\BossServant\2st\MonsterActionEnjoymentOfLoyalty.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\BossServant\2st\MonsterActionImpute.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\BossServant\1st\MonsterActionBlackSacrament.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\BossServant\1st\MonsterActionCourtesyOfTheKing.cpp" />
     <ClCompile Include="Scripts\Monster\Action\MonsterC\MonsterActionBaptismOfMight.cpp" />
     <ClCompile Include="Scripts\Monster\Action\MonsterC\MonsterActionRebinding.cpp" />
     <ClCompile Include="Scripts\Monster\Action\MonsterC\MonsterActionSkullBreaker.cpp" />

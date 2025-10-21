@@ -25,16 +25,20 @@ namespace Monster
         Middle  = 1,
         Right   = 2,
     };
-
+    struct StatParam
+    {
+        int Param = 0;
+    };
+    struct ActionParam
+    {
+        int Param = 0;
+    };
     struct TokenParam
     {
         int TokenID = 0; // 토큰 ID
         int Count   = 0; // 토큰 개수
     };
-    struct ActionParam
-    {
-        int Param = 0; // 스킬 데미지
-    };
+    
     struct SpawnParam
     {
         DataID MonsterID = 0; // 몬스터 ID
@@ -78,6 +82,7 @@ namespace Monster
                 constexpr const char8_t* MONSTER_ID     = u8"Enemy ID";
                 constexpr const char8_t* HEALTH         = u8"Health";
                 constexpr const char8_t* STUN_RESIST    = u8"Stun Res";
+                constexpr const char8_t* PARAM          = u8"Param";
 
                 constexpr const std::array<const char8_t*, MAX_SKILL_COUNT> ACTION_PARAM = {
                     u8"S001_Param", u8"S002_Param", u8"S003_Param", u8"S004_Param", u8"S005_Param"
@@ -102,7 +107,7 @@ namespace Monster
     const char*              SpawnPointToString(SpawnPoint point);
     int                      StringToInt(std::string_view str);
     bool                     StringToInt(std::string_view str, int& outValue);
-    std::vector<ActionParam> ParseActionParam(std::string_view paramStr); // ex) 1, 5, 2 (데미지1, 데미지2, 데미지3)
+    std::vector<int>         ParseParam(std::string_view paramStr); // ex) 1, 5, 2 (데미지1, 데미지2, 데미지3)
     std::vector<TokenParam>  ParseTokenParam(std::string_view paramStr);  // ex) 205003:2, 205004:1 (토큰ID:개수)
 
     /// <summary>

@@ -27,7 +27,7 @@ namespace Monster
         */
         void SkullBreaker::Attack() 
         {
-            if (auto* target = GetTarget())
+            if (CharacterBase* target = GetTarget())
             {
                 TokenParam      tokenParam     = GetTokenParam(1);
                 TokenInventory& tokenInventory = target->GetTokenInventory();

@@ -32,7 +32,7 @@ namespace Monster
         */
         void BloodRitual::Behavior() 
         {
-            if(auto* target = GetTarget())
+            if (CharacterBase* target = GetTarget())
             {
                 TokenParam      tokenParam     = GetTokenParam(1);
                 TokenInventory& tokenInventory = target->GetTokenInventory();

@@ -466,13 +466,25 @@ void MonsterSystem::LoadStatContextFromExcelData(ExcelDataSystem* dataSystem)
                     {
                         context.StunResist = StringToInt(data);
                     }
-
+                    data = dataBase->FindData(rowIndex, ExcelStatKey::PARAM);
+                    if (data != ExcelDataBase::FIND_STR_FAIL)
+                    {
+                        const auto params = ParseParam(std::string(data));
+                        for (const auto& param : params)
+                        {
+                            context.StatParams.push_back({param});
+                        }
+                    }
                     for (size_t i = 0; i < MAX_SKILL_COUNT; ++i)
                     {
                         data = dataBase->FindData(rowIndex, ExcelStatKey::ACTION_PARAM[i]);
                         if (data != ExcelDataBase::FIND_STR_FAIL)
                         {
-                            context.ActionParams[i] = ParseActionParam(std::string(data));
+                            const auto params = ParseParam(std::string(data));
+                            for (const auto& param : params)
+                            {
+                                context.ActionParams[i].push_back({param});
+                            }
                         }
                         data = dataBase->FindData(rowIndex, ExcelStatKey::TOKEN_PARAM[i]);
                         if (data != ExcelDataBase::FIND_STR_FAIL)

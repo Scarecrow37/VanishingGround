@@ -2,7 +2,6 @@
 #include "MonsterActionShiveringWhisper.h"
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
-#include <TurnSystem/TurnActor/Character/Player/Player.h>
 
 REGISTER_MONSTER_ACTION(Monster::Action::ShiveringWhisper)
 namespace Monster
@@ -37,7 +36,7 @@ namespace Monster
                 TokenInventory& tokenInventory = player->GetTokenInventory();
                 tokenInventory.AddTokenStackFromID(tokenParam.TokenID, tokenParam.Count);
             }
-            if (auto* owner = GetOwnerEnemy())
+            if (Enemy* owner = GetOwnerEnemy())
             {
                 TokenParam      tokenParam     = GetTokenParam(2);
                 TokenInventory& tokenInventory = owner->GetTokenInventory();

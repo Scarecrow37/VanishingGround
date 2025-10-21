@@ -6,7 +6,6 @@
 
 #include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
 
-#include "Utility/SingletonHelper.h"
 #include "Monster/System/MonsterSystem.h"
 
 namespace Monster

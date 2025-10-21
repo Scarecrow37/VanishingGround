@@ -63,9 +63,9 @@ namespace Monster
         }
     }
 
-    std::vector<ActionParam> ParseActionParam(std::string_view paramStr)
+    std::vector<int> ParseParam(std::string_view paramStr)
     {
-        std::vector<ActionParam> result;
+        std::vector<int>         result;
         std::stringstream        ss(paramStr.data());
         std::string              token;
 
@@ -79,7 +79,7 @@ namespace Monster
             try
             {
                 int value = std::stoi(token);
-                result.push_back({value});
+                result.push_back(value);
             }
             catch (const std::invalid_argument&)
             {
