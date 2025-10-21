@@ -7,6 +7,8 @@
 
 REGISTER_TURN_ACTION(TokenChangeAction)
 
+REFLECT_FUNCTION(TokenChangeAction)
+
 TokenChangeAction::TokenChangeAction() 
 {
     UpdateActionInfo();

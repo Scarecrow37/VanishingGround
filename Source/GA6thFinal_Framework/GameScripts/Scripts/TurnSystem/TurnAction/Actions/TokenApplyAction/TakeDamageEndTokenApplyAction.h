@@ -5,7 +5,7 @@ class TakeDamageEndTokenApplyAction : public TokenApplyAction
 {
     USING_PROPERTY(TakeDamageEndTokenApplyAction)
 public:
-    TakeDamageEndTokenApplyAction() = default;
+    TakeDamageEndTokenApplyAction();
     ~TakeDamageEndTokenApplyAction() override = default;
 
 public:

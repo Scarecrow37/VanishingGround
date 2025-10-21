@@ -6,7 +6,7 @@ class AttackTokenApplyAction : public TokenApplyAction
 {
     USING_PROPERTY(AttackTokenApplyAction)
 public:
-    AttackTokenApplyAction() = default;
+    AttackTokenApplyAction();
     ~AttackTokenApplyAction() override = default;
 
 public:

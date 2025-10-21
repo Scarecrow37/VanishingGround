@@ -5,7 +5,7 @@ class TokenApplyAction : public TurnAction
 {
     USING_PROPERTY(TokenApplyAction)
 public:
-    TokenApplyAction();
+    TokenApplyAction() = default;
     ~TokenApplyAction() override = default;
     REFLECT_PROPERTY()
 

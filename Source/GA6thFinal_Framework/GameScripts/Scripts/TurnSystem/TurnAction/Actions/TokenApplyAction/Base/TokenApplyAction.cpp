@@ -5,11 +5,6 @@
 
 REFLECT_FUNCTION(TokenApplyAction)
 
-TokenApplyAction::TokenApplyAction() 
-{
-    UpdateActionInfo();
-}
-
 void TokenApplyAction::ImGuiDrawPropertysEvent()
 {
     ImGui::Text("Action");

@@ -8,6 +8,11 @@
 
 REGISTER_TURN_ACTION(TakeDamageEndTokenApplyAction)
 
+TakeDamageEndTokenApplyAction::TakeDamageEndTokenApplyAction() 
+{
+    UpdateActionInfo();
+}
+
 const std::string& TakeDamageEndTokenApplyAction::GetActionInfo()
 {
     return _actionInfo;

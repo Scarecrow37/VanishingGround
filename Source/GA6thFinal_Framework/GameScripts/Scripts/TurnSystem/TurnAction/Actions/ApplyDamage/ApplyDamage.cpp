@@ -6,6 +6,8 @@
 
 REGISTER_TURN_ACTION(ApplyDamage)
 
+REFLECT_FUNCTION(ApplyDamage)
+
 ApplyDamage::ApplyDamage() 
 {
     UpdateInfoText();
