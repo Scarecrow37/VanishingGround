@@ -272,10 +272,7 @@ void TokenInventory::AddTokenStackFromID(int tokenID, int count /* = 1 */)
             stackCount += count;
             stackCount = std::min(maxStackCount, stackCount);
             UpdateToken(tokenID);
-            if (&_owner)
-            {
-                _owner.OnTokenAdded(tokenID);
-            }
+            _owner.OnTokenAdded(tokenID);
         }
     }
 
@@ -323,10 +320,7 @@ void TokenInventory::RemoveTokenStackFromID(int tokenID, int count /* = 1 */)
             stackCount -= count;
             stackCount = std::max(0, stackCount);
             UpdateToken(tokenID);
-            if (&_owner)
-            {
-                _owner.OnTokenRemoved(tokenID);
-            }
+            _owner.OnTokenRemoved(tokenID);
         }
     }
 }
