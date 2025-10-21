@@ -1,5 +1,7 @@
 ﻿#include "pch.h"
 
+REFLECT_FUNCTION(Component)
+
 Component::Component(TYPE type)
     : 
     _className(), 

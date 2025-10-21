@@ -112,6 +112,23 @@ void AnimationComponent::ImGuiDrawPropertysEvent()
                 }
                 ImGui::EndCombo();
             }
+
+            std::function<void(const char*)> showText = [this](const char* text)
+            {
+                ImGuiHelper::StyleBuilder style;
+                if (GetTopAnimationData().IsSameAnimation(text))
+                {
+                    style.PushStyleColor(ImGuiCol_Text, ImVec4(0.2f, 0.8f, 0.2f, 1.0f));
+                }
+                ImGui::BulletText(text);
+            };
+
+            for (auto rit = _overrideAnimationStack.rbegin(); rit != _overrideAnimationStack.rend(); ++rit)
+            {
+                showText(rit->_animationName.c_str());
+            }
+            showText(_mainAnimationData._animationName.c_str());
+
             if (true == curAnimData._animationName.empty())
             {
                 ImGui::BeginDisabled();

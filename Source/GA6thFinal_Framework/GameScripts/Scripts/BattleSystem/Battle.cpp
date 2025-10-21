@@ -11,6 +11,7 @@
 #include <Stats/Player/PlayerStatsComponent.h>
 #include <Stats/Enemy/EnemyStats.h>
 #include <Stats/Enemy/EnemyStatsComponent.h>
+#include <Monster/Common/MonsterCommon.h>
 
 void Battle::operator()(Player& attacker, EnemyTargetFlag targetFlag, const QTE::NoteResult& result)
 {
@@ -67,18 +68,23 @@ std::vector<Enemy*> Battle::GetTargetsFromFlags(EnemyTargetFlag targetFlag)
                 {
                     if (bitset.test(i))
                     {
-                        try
+                        Enemy* enemy = combatStartPhase->GetEnemyFromSpawnPoint(static_cast<Monster::SpawnPoint>(i));
+                        if (enemy)
                         {
-                            Enemy* enemy = enemys.at(i);
-                            if (enemy)
-                            {
-                                selectedTargets.push_back(enemy);
-                            }
+                            selectedTargets.push_back(enemy);
                         }
-                        catch (const std::exception&)
-                        {
-                            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"유효하지 않은 enemies 범위입니다.");
-                        }
+                        //try
+                        //{
+                        //    Enemy* enemy = enemys.at(i);
+                        //    if (enemy)
+                        //    {
+                        //        selectedTargets.push_back(enemy);
+                        //    }
+                        //}
+                        //catch (const std::exception&)
+                        //{
+                        //    UmLogger.Log(LogLevel::LEVEL_WARNING, u8"유효하지 않은 enemies 범위입니다.");
+                        //}
                     }
                 }
             }

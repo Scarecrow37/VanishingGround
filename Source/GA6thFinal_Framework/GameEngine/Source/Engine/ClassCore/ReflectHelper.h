@@ -164,18 +164,8 @@ protected:
     reflection_safe_ptr ReflectFields{this};                                                                    \
                                                                                                                 \
 public:                                                                                                         \
-    virtual std::string SerializedReflectFields()                                                               \
-    {                                                                                                           \
-        serialized_reflect_event_recursive();                                                                   \
-        return ReflectHelper::json::SerializedObjet(*ReflectFields);                                            \
-    }                                                                                                           \
-    virtual bool DeserializedReflectFields(std::string_view data)                                               \
-    {                                                                                                           \
-        bool result =                                                                                           \
-            ReflectHelper::json::DeserializedObjet(*ReflectFields, data);                                       \
-        deserialized_reflect_event_recursive();                                                                 \
-        return result;                                                                                          \
-    }                                                                                                           \
+    virtual std::string SerializedReflectFields();                                                              \
+    virtual bool DeserializedReflectFields(std::string_view data);                                              \
                                                                                                                 \
 protected:                                                                                                      \
     virtual void make_reflect_fields(void*& fields, unsigned long long& size)                                   \
@@ -207,14 +197,7 @@ protected:                                                                      
             CLASS##::DeserializedReflectEvent();                                                                \
         }                                                                                                       \
     }                                                                                                           \
-    virtual void applyReflectFields(const std::function<void(std::string_view, void*)>& func)                   \
-    {                                                                                                           \
-        const auto view = rfl::to_view(*ReflectFields.Get());                                                   \
-        view.apply([&](auto& rflField)                                                                          \
-        {                                                                                                       \
-            func(rflField.name(), rflField.value());                                                            \
-        });                                                                                                     \
-    }                                                                                                           \
+    virtual void applyReflectFields(const std::function<void(std::string_view, void*)>& func);
                        
 // 에디터 편집을 허용할 프로퍼티들을 등록합니다. Get, Set 함수가 모두 존재하는
 // 프로퍼티만 편집 가능합니다.

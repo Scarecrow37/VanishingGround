@@ -1,6 +1,8 @@
 ﻿#include "pch.h"
 #include "UINavigationComponent.h"
 
+REFLECT_FUNCTION(UINavigationComponent)
+
 NavigationID UINavigationComponent::_toID = INVALID_NAVIGATION_ID;
 
 UINavigationComponent::UINavigationComponent() = default;

@@ -89,6 +89,15 @@ const std::vector<CharacterBase*>& TurnMode::GetCharacters()
     return emptyCharacters;
 }
 
+Enemy* TurnMode::GetEnemyFromSpawnPoint(Monster::SpawnPoint spawnPoint)
+{
+    if (_systemStates.CombatStartPhase)
+    {
+        return _systemStates.CombatStartPhase->GetEnemyFromSpawnPoint(spawnPoint);
+    }
+    return nullptr;
+}
+
 void TurnMode::MakeTurnList() 
 {
     std::deque<std::pair<int, TurnActor*>> turnList;

@@ -1,6 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "Token.h"
 
+REFLECT_FUNCTION(Token)
+
 Token::Token() = default;
 
 Token::~Token() = default;
