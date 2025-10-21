@@ -226,6 +226,34 @@ public:
     /// <param name="tokenCount :">부여한 갯수</param>
     virtual void OnTokenAddedEnd(CharacterBase& target, int tokenID, int tokenCount) {};
 
+    /// <summary>
+    /// 플레이어에 TakeDamage가 들어가기 직전에 호출됩니다.
+    /// </summary>
+    /// <param name="player :">대상</param>
+    /// <param name="damage :">들어갈 데미지</param>
+    virtual void OnPlayerTakeDamageStart(Player& target, int& damage) {}
+
+    /// <summary>
+    /// 플레이어에 TakeDamage가 들어간 후 호출됩니다.
+    /// </summary>
+    /// <param name="target :">>대상</param>
+    /// <param name="damage :">들어간 데미지</param>
+    virtual void OnPlayerTakeDamageEnd(Player& target, int damage) {}
+    
+    /// <summary>
+    /// Enemy에 TakeDamage가 들어가기 직전에 호출됩니다.
+    /// </summary>
+    /// <param name="target :">대상</param>
+    /// <param name="damage :">들어갈 데미지</param>
+    virtual void OnEnemyTakeDamageStart(Enemy& target, int& damage) {}
+
+    /// <summary>
+    /// Enemy에 TakeDamage가 들어가기 직전에 호출됩니다.
+    /// </summary>
+    /// <param name="target :">대상</param>
+    /// <param name="damage :">들어갈 데미지</param>
+    virtual void OnEnemyTakeDamageEnd(Enemy& target, int damage) {}
+
 public:
     REFLECT_PROPERTY(ActionName, ActionInfo, LogicOperator)
 
