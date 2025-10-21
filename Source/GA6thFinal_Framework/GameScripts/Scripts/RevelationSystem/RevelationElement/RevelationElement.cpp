@@ -10,6 +10,8 @@
 
 using namespace u8_literals;
 
+REFLECT_FUNCTION(RevelationElement)
+
 void RevelationElement::ImGuiDrawPropertysEvent()
 {
     

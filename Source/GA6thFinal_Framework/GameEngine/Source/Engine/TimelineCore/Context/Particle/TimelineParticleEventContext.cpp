@@ -6,6 +6,8 @@ REGISTER_CLASS(Timeline::EventTrack, Timeline::ParticleEventContext)
 
 namespace Timeline
 {
+    REFLECT_FUNCTION(ParticleEventContext)
+
     ParticleEventContext::ParticleEventContext() = default;
 
     ParticleEventContext::~ParticleEventContext() = default;

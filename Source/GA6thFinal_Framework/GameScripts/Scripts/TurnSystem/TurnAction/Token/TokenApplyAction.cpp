@@ -11,6 +11,8 @@
 
 REGISTER_TURN_ACTION(TokenApplyAction)
 
+REFLECT_FUNCTION(TokenApplyAction)
+
 TokenApplyAction::TokenApplyAction() 
 {
     UpdateActionInfo();

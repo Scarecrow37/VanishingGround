@@ -6,6 +6,8 @@
 
 using namespace u8_literals;
 
+REFLECT_FUNCTION(WeaponDamageAction)
+
 REGISTER_TURN_ACTION(WeaponDamageAction)
 
 WeaponDamageAction::WeaponDamageAction() 

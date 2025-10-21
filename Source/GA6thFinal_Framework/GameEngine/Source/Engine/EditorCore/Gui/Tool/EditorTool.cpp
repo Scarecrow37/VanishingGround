@@ -1,6 +1,8 @@
 ﻿#include "pch.h"
 #include "EditorTool.h"
 
+REFLECT_FUNCTION(EditorTool)
+
 EditorTool::EditorTool()
 {
     EditorDockWindow* pDockWindow = dynamic_cast<EditorDockWindow*>(this);

@@ -8,6 +8,8 @@
 
 REGISTER_TURN_ACTION(RecoveryAction)
 
+REFLECT_FUNCTION(RecoveryAction)
+
 using namespace u8_literals;
 
 RecoveryAction::RecoveryAction() 

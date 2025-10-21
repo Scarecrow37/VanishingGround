@@ -1,6 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "DrawUIComponent.h"
 
+REFLECT_FUNCTION(DrawUIComponent)
+
 DrawUIComponent::DrawUIComponent() = default;
 
 void DrawUIComponent::SetViewOrder(const int viewOrder)

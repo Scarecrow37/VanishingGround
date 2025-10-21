@@ -11,6 +11,8 @@
 
 REGISTER_TURN_ACTION(AdditionalDamageAction)
 
+REFLECT_FUNCTION(AdditionalDamageAction)
+
 AdditionalDamageAction::AdditionalDamageAction() 
 {
     UpdateActionInfo();

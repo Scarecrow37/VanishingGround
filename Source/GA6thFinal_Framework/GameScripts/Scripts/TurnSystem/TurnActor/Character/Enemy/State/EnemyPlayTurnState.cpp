@@ -17,6 +17,8 @@
 
 REGISTER_CLASS(FSMStateFactory, EnemyPlayTurnState)
 
+REFLECT_FUNCTION(EnemyPlayTurnState)
+
 // switch문 안에 있어야함
 // AI 모델 ID값에 해당하는 AI 모델을 셋업
 #define BUILD_AI(index)             \
