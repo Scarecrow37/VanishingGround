@@ -126,6 +126,9 @@ namespace Monster
         controller.PushActionNode("#1", "#2", 210220);
         controller.PushActionNode("#2", "#3", 210221);
         controller.PushActionNode("#3", "#2", 210220);
+
+        // 엔트리 노드 설정
+        controller.SetCurrentNode("#1");
     }
 
     // Boss
@@ -145,6 +148,9 @@ namespace Monster
 
         controller.PushActionNode("#1", "#2", 210270);
         controller.PushActionNode("#2", "#2", {{70.0f, 210270}, {30.0f, 210271}});
+
+        // Entry 노드 설정
+        controller.SetCurrentNode("#1");
     }
 
     void BuildAIModel210380(std::weak_ptr<Enemy> owner, AIModel& controller)

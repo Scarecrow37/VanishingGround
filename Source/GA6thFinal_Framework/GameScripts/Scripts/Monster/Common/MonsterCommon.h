@@ -76,6 +76,8 @@ namespace Monster
             }
             namespace Stat
             {
+                constexpr const std::array<const char8_t*, 2> DIFFICULTY_LIST = {u8"(일반)", u8"(어려움)"};
+
                 constexpr const char8_t* SHEET_NAME     = u8"스테이지 별 적 조정";
 
                 constexpr const char8_t* LEVEL_ID       = u8"Level ID";
