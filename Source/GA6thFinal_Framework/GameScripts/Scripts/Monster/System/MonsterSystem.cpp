@@ -16,9 +16,9 @@ void MonsterSystem::Reset()
 
 void MonsterSystem::Awake()
 {
-    if (_singletonComponent.TrySingleTon())
+    if (_singletonComponent.TrySingleTon() &&
+        _singletonObject.TrySingleTon(true))
     {
-        FindSpawnPoints();
         LoadFromExcelData();
     }
 }
@@ -48,10 +48,13 @@ const ActionContext* MonsterSystem::GetActionContextFromID(ActionID id)
 
 bool MonsterSystem::SpawnMonsterFromSpawnID(SpawnID spawnID, Difficulty difficulty)
 {
+    ClearSpawnedEnemies();
     bool contains = _spawnDataTable.contains(spawnID);
     assert(contains); // [assert] 해당 스폰 ID가 스폰 데이터 테이블에 존재해야합니다.
     if (contains)
     {
+        FindSpawnPoints();
+
         size_t      succeed   = 0;
         const auto& spawnData = _spawnDataTable[spawnID];
         for (size_t i = 0; i < spawnData.SpawnParams.size(); ++i)
@@ -138,6 +141,12 @@ bool MonsterSystem::SpawnMonsterFromSpawnID(SpawnID spawnID, SpawnPoint spawnPoi
         }
     }
     return false;
+}
+
+void MonsterSystem::ClearSpawnedEnemies() 
+{
+    _spawnedEnemyTable.clear();
+    _spawnedEnemiesIDTable.clear();
 }
 
 std::weak_ptr<Enemy> MonsterSystem::SpawnMonster(LevelID levelID, DataID monsterID)
@@ -228,8 +237,12 @@ void MonsterSystem::SetMonsterStateFromStatContext(Enemy* dest, const StatContex
 
 void MonsterSystem::Clear()
 {
-    _spawnedEnemyTable.clear();
-    _spawnedEnemiesIDTable.clear();
+    ClearSpawnedEnemies();
+    ClearDataTables();
+}
+
+void MonsterSystem::ClearDataTables()
+{
     _monsterDataTable.clear();
     _actionDataTable.clear();
     _statDataTable.clear();
@@ -278,9 +291,13 @@ void MonsterSystem::FindSpawnPoints()
 
     for (size_t i = 0; i < MAX_ENEMY_COUNT; ++i)
     {
-        const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(SPAWN_POINT_TAGS[i]);
-        assert(weakGameObject.expired() == false); // [assert] 해당 태그의 스폰 포인트가 유효해야합니다.
-        _spawnPointTable[static_cast<SpawnPoint>(i)] = weakGameObject;
+        SpawnPoint index = static_cast<SpawnPoint>(i);
+        if (_spawnPointTable[index].expired())
+        {
+            const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(SPAWN_POINT_TAGS[i]);
+            assert(weakGameObject.expired() == false); // [assert] 해당 태그의 스폰 포인트가 유효해야합니다.
+            _spawnPointTable[index] = weakGameObject;
+        }
     }
 }
 

@@ -51,6 +51,7 @@ public:
 
     bool SpawnMonsterFromSpawnID(Monster::SpawnID spawnID, Difficulty difficulty = Difficulty::NORMAL);
     bool SpawnMonsterFromSpawnID(Monster::SpawnID spawnID, Monster::SpawnPoint spawnPoint, Difficulty difficulty = Difficulty::NORMAL);
+    void ClearSpawnedEnemies();
 
     const std::vector<std::weak_ptr<Enemy>>* GetSpawnedEnemiesFromID(Monster::DataID dataID) const;
     std::weak_ptr<Enemy>                     GetSpawnedEnemyFromSpawnPoint(Monster::SpawnPoint spawnPoint) const;
@@ -59,6 +60,7 @@ public:
 
 private:
     void                 Clear();
+    void                 ClearDataTables();
     void                 FindSpawnPoints();
     void                 LoadFromExcelData();
     std::weak_ptr<Enemy> SpawnMonster(Monster::LevelID levelID, Monster::DataID monsterID);
@@ -72,6 +74,7 @@ private:
     void                 LoadSpawnContextFromExcelData(ExcelDataSystem* dataSystem);
 
 private:
+    SingletonObject<MonsterSystem>    _singletonObject    = {this};
     SingletonComponent<MonsterSystem> _singletonComponent = {this};
 
     std::weak_ptr<GameObject> _spawnGroup;
