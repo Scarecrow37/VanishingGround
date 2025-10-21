@@ -78,6 +78,21 @@ void ApplyDamage::OnPlayerQTEResult(Player& player, const QTE::OverallResult& re
     }
 }
 
+void ApplyDamage::OnEnemyDeadByWeapon(Enemy& enemy, WeaponElement& weapon)
+{
+    if (TriggerType::WEAPON_KILL_ENEMY == ReflectFields->Trigger)
+    {
+        if (EvaluateConditions())
+        {
+            std::vector<CharacterBase*> targets = TurnSystemHelper::GetTargetCharacters(ReflectFields->Target);
+            for (auto& target : targets)
+            {
+                target->TakeDamage(ReflectFields->Damage);
+            }
+        }
+    }
+}
+
 void ApplyDamage::DeserializedReflectEvent() 
 {
     UpdateInfoText();

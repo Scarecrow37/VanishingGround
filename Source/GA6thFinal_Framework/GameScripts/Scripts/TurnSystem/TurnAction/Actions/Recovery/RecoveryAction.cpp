@@ -37,9 +37,9 @@ void RecoveryAction::ImGuiDrawActionEditor()
     ImguiDrawConditionEditor();
 }
 
-void RecoveryAction::OnEnemyDead(Enemy& enemy)
+void RecoveryAction::OnEnemyDeadByWeapon(Enemy& enemy, WeaponElement& weapon)
 {
-    if (ReflectFields->Trigger == TriggerType::KILL_ENEMY)
+    if (ReflectFields->Trigger == TriggerType::WEAPON_KILL_ENEMY)
     {
         if (EvaluateConditions())
         {
@@ -130,8 +130,8 @@ void RecoveryAction::UpdateActionInfo()
     std::string_view triggerName = STR_NULL;
     switch (trigger)
     {
-    case RecoveryAction::TriggerType::KILL_ENEMY:
-        triggerName = (const char*)u8"적 처치시 ";
+    case RecoveryAction::TriggerType::WEAPON_KILL_ENEMY:
+        triggerName = (const char*)u8"무기 공격으로 적 처치시 ";
         break;
     default:
         break;
