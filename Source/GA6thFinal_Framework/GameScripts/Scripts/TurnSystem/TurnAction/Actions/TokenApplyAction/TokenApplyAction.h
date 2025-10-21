@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <TurnSystem/TurnAction/TurnActionFactory.h>
 
+//공격시 토큰 부여
 class TokenApplyAction : public TurnAction
 {
     USING_PROPERTY(TokenApplyAction)
