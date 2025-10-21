@@ -52,7 +52,7 @@ void WeaponDamageAction::OnPlayerQTEResult(Player& player, const QTE::OverallRes
         WeaponSystem* weaponSystem = SingletonComponent<WeaponSystem>::GetInstance();
         if (weaponSystem)
         {
-           WeaponStats& stats = weaponSystem->GetCurrentWeaponStats();
+           WeaponStats& stats = weaponSystem->GetCurrentWeaponElement().Stats;
 
            stats.HitDamage += ReflectFields->Damage;
            stats.HitDamageMultiplier *= ReflectFields->DamageMultiplier;

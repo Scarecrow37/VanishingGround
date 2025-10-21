@@ -375,7 +375,7 @@ void PlayerPlayTurnState::OnQTEFinish()
 
                 if (weaponModelManager && weaponSystem)
                 {
-                    const WeaponStats& weaponStats = weaponSystem->GetCurrentWeaponStats();
+                    const WeaponStats& weaponStats = weaponSystem->GetCurrentWeaponElement().Stats;
                     WeaponType         weaponType  = weaponStats.Type;
 
                     auto modelData = weaponModelManager->RequestAvailableWeapon(weaponType);
