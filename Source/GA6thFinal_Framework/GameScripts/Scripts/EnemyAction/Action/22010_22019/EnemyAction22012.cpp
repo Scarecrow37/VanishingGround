@@ -3,12 +3,12 @@
 #include <Animation/AnimationComponent.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
-#include <TurnSystem/TurnAction/Token/TokenApplyAction.h>
+#include <TurnSystem/TurnAction/Actions/TokenApplyAction/AttackTokenApplyAction.h>
 #include <Token/Object/Stun/StunToken.h>
 namespace EnemyAction
 {
     Action22012::Action22012(Enemy* owner) 
-        : ActionBase(owner), _tokenAction(std::make_unique<TokenApplyAction>())
+        : ActionBase(owner), _tokenAction(std::make_unique<AttackTokenApplyAction>())
     {
         _tokenAction->TokenID    = TokenObject::Stun::ID;
         _tokenAction->TokenCount = 1;
