@@ -236,7 +236,7 @@ public:
     /// <summary>
     /// 플레이어에 TakeDamage가 들어간 후 호출됩니다.
     /// </summary>
-    /// <param name="target :">>대상</param>
+    /// <param name="target :">대상</param>
     /// <param name="damage :">들어간 데미지</param>
     virtual void OnPlayerTakeDamageEnd(Player& target, int damage) {}
     
