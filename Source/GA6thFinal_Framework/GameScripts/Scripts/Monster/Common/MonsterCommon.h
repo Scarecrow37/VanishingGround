@@ -57,7 +57,7 @@ namespace Monster
                 constexpr const char8_t* NAME           = u8"Name";
                 constexpr const char8_t* MODEL_ID       = u8"Model ID";
                 constexpr const std::array<const char8_t*, MAX_FSM_COUNT> FSM = {
-                    u8"AI FSM1", u8"AI FSM 2", u8"AI FSM 3"
+                    u8"AI FSM 1", u8"AI FSM 2", u8"AI FSM 3"
                 };
                 constexpr const std::array<const char8_t*, MAX_SKILL_COUNT> SKILL = {
                     u8"S001", u8"S002", u8"S003", u8"S004", u8"S005"
