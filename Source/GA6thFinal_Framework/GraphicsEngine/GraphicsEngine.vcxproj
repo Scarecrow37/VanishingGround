@@ -654,6 +654,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <None Include="..\Shaders\CommonStructs.hlsli" />
     <None Include="..\Shaders\Compute.hlsli" />
     <None Include="..\Shaders\Function.hlsli" />
+    <None Include="..\Shaders\SDFDatas.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Shaders\cs_brdf_lut.hlsl">
