@@ -5,6 +5,8 @@
 
 namespace Timeline
 {
+    REFLECT_FUNCTION(SequencerEditor)
+
     SequencerEditor::SequencerEditor()
         : _track(), _flags(0), _isSnapped(false), _mouseFrame(0.0f), _indicateFrame(0.0f), _canvasUpperHeight(10.0f),
           _viewPos(ImVec2(0, 0)), _viewPosPrev(_viewPos), _targetViewPos(ImVec2(0, 0)), _viewToScaledPos(ImVec2(0, 0)),

@@ -8,6 +8,9 @@
 #include <TurnSystem/TurnSystemHelper.h>
 
 REGISTER_TURN_ACTION_CONDITION(TokenCondition)
+
+REFLECT_FUNCTION(TokenCondition)
+
 using namespace u8_literals;
 
 TokenCondition::TokenCondition() 

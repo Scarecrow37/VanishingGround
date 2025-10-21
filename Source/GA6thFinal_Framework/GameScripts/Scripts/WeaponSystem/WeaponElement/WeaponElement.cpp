@@ -2,6 +2,8 @@
 #include "WeaponElement.h"
 #include <TurnSystem/TurnAction/TurnActionFactory.h>
 
+REFLECT_FUNCTION(WeaponElement)
+
 void WeaponElement::SerializedReflectEvent() 
 {
     ReflectFields->WeaponStatsData = Stats.SerializedReflectFields();

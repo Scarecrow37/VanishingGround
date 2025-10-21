@@ -3,6 +3,8 @@
 #include <RevelationSystem/RevelationSystem.h>
 #include <TurnSystem/TurnAction/TurnActionFactory.h>
 
+REFLECT_FUNCTION(TurnAction)
+
 using namespace u8_literals;
 
 namespace

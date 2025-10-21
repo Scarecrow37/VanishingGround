@@ -97,15 +97,15 @@
     <ClCompile Include="Scripts\Token\Token.cpp" />
     <ClCompile Include="Scripts\Token\TokenInventory.cpp" />
     <ClCompile Include="Scripts\Token\TokenSystem.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\AdditionalDamage\AdditionalDamageAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\AdditionalDamage\AdditionalDamageAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\ChainCondition\ChainCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\LastQTEResultCondition\LastQTEResultCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\RoundOnceCondition\RoundOnceCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\TokenCondition\TokenCondition.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\MultiTargetDamage\MultiTargetDamageAction.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\Recovery\RecoveryAction.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TokenApplyAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Recovery\RecoveryAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Token\TokenApplyAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\WeaponStas\WeaponDamageAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\TurnAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\AI\EnemyAI.cpp" />
@@ -163,7 +163,6 @@
     <ClCompile Include="Scripts\UI\Elements\Dummy\DummyElement.cpp" />
     <ClCompile Include="Scripts\UI\Elements\Image\ImageElement.cpp" />
     <ClCompile Include="Scripts\UI\Elements\SpriteAnimation\SpriteAnimationElement.cpp" />
-    <ClCompile Include="Scripts\UI\Elements\Text\TextElement.cpp" />
     <ClCompile Include="Scripts\UI\Panels\Description\DescriptionPanel.cpp" />
     <ClCompile Include="Scripts\UI\Panels\Grid\GridPanel.cpp" />
     <ClCompile Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.cpp" />
@@ -222,8 +221,19 @@
     <ClCompile Include="Scripts\Inventory\UINavi\InventoryArrowNavi.cpp" />
     <ClCompile Include="Scripts\Inventory\OpenInventoryComponent.cpp" />
     <ClCompile Include="Scripts\QTE\Track\Note\QTENoteData.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\ApplyDamage\ApplyDamage.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenChangeAction\TokenChangeAction.cpp" />
+    <ClCompile Include="Scripts\IntroManager\IntroManager.cpp" />
+    <ClCompile Include="Scripts\DifficultyManager\DifficultyManager.cpp" />
+    <ClCompile Include="Scripts\UI\Animations\FadeDescriptionPanel\FadeDescriptionPanel.cpp" />
+    <ClCompile Include="Scripts\UI\Animations\FadeImageElement\FadeImageElement.cpp" />
+    <ClCompile Include="Scripts\UI\Animations\FadeTextElement\FadeTextElement.cpp" />
+    <ClCompile Include="Scripts\UI\Animations\UIAnimation.cpp" />
+    <ClCompile Include="Scripts\GameCore\FSM\FSMState.cpp" />
+    <ClCompile Include="Scripts\GameCore\FSM\FSMCondition.cpp" />
+    <ClCompile Include="Scripts\Stats\Enemy\EnemyStats.cpp" />
+    <ClCompile Include="Scripts\Stats\Player\PlayerStats.cpp" />
+    <ClCompile Include="Scripts\Stats\TurnActorStats.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\TurnActionCondition.cpp" />
+    <ClCompile Include="Scripts\UI\Elements\Text\TextElement.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
@@ -233,7 +243,6 @@
     <ClInclude Include="pchScripts.h" />
     <ClInclude Include="UmScriptCore.h" />
     <ClInclude Include="UmScriptsExport.h" />
-    <ClInclude Include="DLLExportDefine.h" />
     <ClInclude Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.h" />
     <ClInclude Include="Scripts\AccessorySystem\AccessorySystem.h" />
     <ClInclude Include="Scripts\Animation\Structs\AnimationData.h" />
@@ -338,16 +347,16 @@
     <ClInclude Include="Scripts\Token\Token.h" />
     <ClInclude Include="Scripts\Token\TokenInventory.h" />
     <ClInclude Include="Scripts\Token\TokenSystem.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\AdditionalDamage\AdditionalDamageAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\AdditionalDamage\AdditionalDamageAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\ChainCondition\ChainCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\LastQTEResultCondition\LastQTEResultCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\RoundOnceCondition\RoundOnceCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\TokenCondition\TokenCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\TurnActionCondition.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\MultiTargetDamage\MultiTargetDamageAction.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\Recovery\RecoveryAction.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TokenApplyAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Recovery\RecoveryAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Token\TokenApplyAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\WeaponStas\WeaponDamageAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionEnums.h" />
@@ -466,8 +475,12 @@
     <ClInclude Include="Scripts\Inventory\UINavi\InventoryArrowNavi.h" />
     <ClInclude Include="Scripts\Inventory\OpenInventoryComponent.h" />
     <ClInclude Include="Scripts\QTE\Track\Note\QTENoteData.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\ApplyDamage\ApplyDamage.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenChangeAction\TokenChangeAction.h" />
+    <ClInclude Include="Scripts\IntroManager\IntroManager.h" />
+    <ClInclude Include="Scripts\DifficultyManager\DifficultyManager.h" />
+    <ClInclude Include="Scripts\UI\Animations\FadeDescriptionPanel\FadeDescriptionPanel.h" />
+    <ClInclude Include="Scripts\UI\Animations\FadeImageElement\FadeImageElement.h" />
+    <ClInclude Include="Scripts\UI\Animations\FadeTextElement\FadeTextElement.h" />
+    <ClInclude Include="Scripts\UI\Animations\UIAnimation.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

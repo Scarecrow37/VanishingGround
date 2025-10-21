@@ -3,6 +3,8 @@
 
 namespace Timeline
 {
+    REFLECT_FUNCTION(EventContext)
+
     void EventContext::SetGameObject(std::weak_ptr<GameObject> weakObj) 
     {
         _gameObject = weakObj;

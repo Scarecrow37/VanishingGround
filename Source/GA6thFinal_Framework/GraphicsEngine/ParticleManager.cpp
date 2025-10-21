@@ -664,11 +664,11 @@ void ParticleManager::AwakeParticles(float deltaTime, const std::shared_ptr<Part
 
                         if (activeCount > 0)
                         {
-                            size_t insert_position = scene->TotalParticles.size();
+                            size_t insertPosition = scene->TotalParticles.size();
                             scene->TotalParticles.insert(scene->TotalParticles.end(), particlePool.begin(), particlePool.begin() + activeCount);
                             for (size_t i = 0; i < activeCount; ++i)
                             {
-                                scene->TotalParticles[insert_position + i].SetEmitterIndex(emitterIndex);
+                                scene->TotalParticles[insertPosition + i].SetEmitterIndex(emitterIndex);
                             }
                         }
                         emitterIndex++;

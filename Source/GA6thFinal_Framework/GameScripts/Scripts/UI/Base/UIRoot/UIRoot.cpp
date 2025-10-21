@@ -1,3 +1,3 @@
 ﻿#include "pchScripts.h"
 
-UMREAL_COMPONENT(UIRoot)
+UMREAL_COMPONENT_EXPORT(UIRoot)

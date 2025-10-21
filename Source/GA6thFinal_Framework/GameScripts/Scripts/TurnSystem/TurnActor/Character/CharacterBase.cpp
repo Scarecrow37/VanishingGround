@@ -8,6 +8,7 @@
 #include <Mesh/SkeletalMeshRenderer.h>
 #include <Animation/AnimationComponent.h>
 
+REFLECT_FUNCTION(CharacterBase)
 
 int CharacterBase::GetHP()
 {

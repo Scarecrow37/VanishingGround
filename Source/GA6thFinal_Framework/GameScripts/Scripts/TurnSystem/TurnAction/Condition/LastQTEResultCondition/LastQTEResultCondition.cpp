@@ -4,6 +4,8 @@
 
 REGISTER_TURN_ACTION_CONDITION(LastQTEResultCondition)
 
+REFLECT_FUNCTION(LastQTEResultCondition)
+
 LastQTEResultCondition::LastQTEResultCondition()
 {
     UpdateConditionInfo();

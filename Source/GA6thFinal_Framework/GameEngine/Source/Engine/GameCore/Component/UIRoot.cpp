@@ -1,7 +1,8 @@
 ﻿#include "pch.h"
 #include "UIRoot.h"
-
 #include "UI/Base/DrawUIComponent/DrawUIComponent.h"
+
+REFLECT_FUNCTION(UIRoot)
 
 Input::Controller* UIRoot::_controller = nullptr;
 

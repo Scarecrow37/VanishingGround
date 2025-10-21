@@ -1,6 +1,8 @@
 ﻿#include "pch.h"
 #include "EditorLogsTool.h"
 
+REFLECT_FUNCTION(EditorLogsTool)
+
 using namespace u8_literals;
 using namespace Global;
 
