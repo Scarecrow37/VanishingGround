@@ -3,6 +3,8 @@
 #include "Token/TokenSystem.h"
 #include "TurnSystem/TurnSystemHelper.h"
 
+REFLECT_FUNCTION(TokenApplyAction)
+
 TokenApplyAction::TokenApplyAction() 
 {
     UpdateActionInfo();

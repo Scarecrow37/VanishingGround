@@ -306,14 +306,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Scripts\CombatUIManager\Accessories\AccessoriesGroup.h" />
-    <ClInclude Include="Scripts\CombatUIManager\CharacterHUD\CharacterHUDGroup.h" />
-    <ClInclude Include="Scripts\CombatUIManager\Consumable\ConsumableGroup.h" />
-    <ClInclude Include="Scripts\CombatUIManager\Revelations\RevelationsGroup.h" />
-    <ClInclude Include="Scripts\CombatUIManager\TurnQueue\TurnQueueGroup.h" />
-    <ClInclude Include="Scripts\CombatUIManager\UIGroup.h" />
-    <ClInclude Include="Scripts\CombatUIManager\Weapon\WeaponGroup.h" />
-    <ClInclude Include="Scripts\Debugger\Debugger.h" />
     <ClInclude Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.h" />
     <ClInclude Include="Scripts\AccessorySystem\AccessorySystem.h" />
     <ClInclude Include="Scripts\Animation\AnimationComponent.h" />
@@ -327,9 +319,18 @@
     <ClInclude Include="Scripts\Camera\CameraManager.h" />
     <ClInclude Include="Scripts\Camera\UmCineMotion.h" />
     <ClInclude Include="Scripts\ColorUtils\ColorUtils.h" />
+    <ClInclude Include="Scripts\CombatUIManager\Accessories\AccessoriesGroup.h" />
+    <ClInclude Include="Scripts\CombatUIManager\CharacterHUD\CharacterHUDGroup.h" />
     <ClInclude Include="Scripts\CombatUIManager\CombatUIManager.h" />
+    <ClInclude Include="Scripts\CombatUIManager\Consumable\ConsumableGroup.h" />
+    <ClInclude Include="Scripts\CombatUIManager\Revelations\RevelationsGroup.h" />
+    <ClInclude Include="Scripts\CombatUIManager\TurnQueue\TurnQueueGroup.h" />
+    <ClInclude Include="Scripts\CombatUIManager\UIGroup.h" />
+    <ClInclude Include="Scripts\CombatUIManager\Weapon\WeaponGroup.h" />
     <ClInclude Include="Scripts\ConsumableSystem\ConsumableSystem.h" />
     <ClInclude Include="Scripts\DamageSystem\DamageSystem.h" />
+    <ClInclude Include="Scripts\Debugger\Debugger.h" />
+    <ClInclude Include="Scripts\DifficultyManager\DifficultyManager.h" />
     <ClInclude Include="Scripts\EnemyAction\ActionData\EnemyActionData.h" />
     <ClInclude Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22000.h" />
     <ClInclude Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22001.h" />
@@ -368,8 +369,10 @@
     <ClInclude Include="Scripts\ItemDropSystem\UINavi\RestartStageNavi.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UINavi\ReturnToMapNavi.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UI\ArtifactUIManager.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UI\EraseRevelationUIManager.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UI\ItemDropUIRootManager.h" />
-    <ClInclude Include="Scripts\DifficultyManager\DifficultyManager.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UI\ItemInfoUIManager.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UI\WeaponChangeUIManager.h" />
     <ClInclude Include="Scripts\Light\Base\LightComponent.h" />
     <ClInclude Include="Scripts\Light\DirectionalLight.h" />
     <ClInclude Include="Scripts\Light\PointLight.h" />
@@ -381,6 +384,7 @@
     <ClInclude Include="Scripts\MainMenu\Option.h" />
     <ClInclude Include="Scripts\MainMenu\Quit.h" />
     <ClInclude Include="Scripts\Map\MapManager.h" />
+    <ClInclude Include="Scripts\Map\MapManagerTracker.h" />
     <ClInclude Include="Scripts\Map\RewardPopup.h" />
     <ClInclude Include="Scripts\Map\SmoothScroll.h" />
     <ClInclude Include="Scripts\Map\Stage.h" />
@@ -437,16 +441,20 @@
     <ClInclude Include="Scripts\Token\Token.h" />
     <ClInclude Include="Scripts\Token\TokenInventory.h" />
     <ClInclude Include="Scripts\Token\TokenSystem.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\AdditionalDamage\AdditionalDamageAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\AdditionalDamage\AdditionalDamageAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\ApplyDamage\ApplyDamage.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\MultiTargetDamage\MultiTargetDamageAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\Recovery\RecoveryAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\AttackTokenApplyAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\Base\TokenApplyAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TakeDamageEndTokenApplyAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenChangeAction\TokenChangeAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\ChainCondition\ChainCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\LastQTEResultCondition\LastQTEResultCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\RoundOnceCondition\RoundOnceCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\TokenCondition\TokenCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\TurnActionCondition.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\Recovery\RecoveryAction.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\Token\TokenApplyAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionEnums.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionFactory.h" />
@@ -547,19 +555,8 @@
     <ClInclude Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.h" />
     <ClInclude Include="UmScriptCore.h" />
     <ClInclude Include="UmScriptsExport.h" />
-    <ClInclude Include="Scripts\Map\MapManagerTracker.h" />
-    <ClInclude Include="Scripts\ItemDropSystem\UI\ItemInfoUIManager.h" />
-    <ClInclude Include="Scripts\ItemDropSystem\UI\WeaponChangeUIManager.h" />
-    <ClInclude Include="Scripts\ItemDropSystem\UI\EraseRevelationUIManager.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Scripts\CombatUIManager\Accessories\AccessoriesGroup.cpp" />
-    <ClCompile Include="Scripts\CombatUIManager\CharacterHUD\CharacterHUDGroup.cpp" />
-    <ClCompile Include="Scripts\CombatUIManager\Consumable\ConsumableGroup.cpp" />
-    <ClCompile Include="Scripts\CombatUIManager\Revelations\RevelationsGroup.cpp" />
-    <ClCompile Include="Scripts\CombatUIManager\TurnQueue\TurnQueueGroup.cpp" />
-    <ClCompile Include="Scripts\CombatUIManager\Weapon\WeaponGroup.cpp" />
-    <ClCompile Include="Scripts\Debugger\Debugger.cpp" />
     <ClCompile Include="dllmain.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">Use</PrecompiledHeader>
@@ -584,9 +581,17 @@
     <ClCompile Include="Scripts\Camera\CameraManager.cpp" />
     <ClCompile Include="Scripts\Camera\UmCineMotion.cpp" />
     <ClCompile Include="Scripts\ColorUtils\ColorUtils.cpp" />
+    <ClCompile Include="Scripts\CombatUIManager\Accessories\AccessoriesGroup.cpp" />
+    <ClCompile Include="Scripts\CombatUIManager\CharacterHUD\CharacterHUDGroup.cpp" />
     <ClCompile Include="Scripts\CombatUIManager\CombatUIManager.cpp" />
+    <ClCompile Include="Scripts\CombatUIManager\Consumable\ConsumableGroup.cpp" />
+    <ClCompile Include="Scripts\CombatUIManager\Revelations\RevelationsGroup.cpp" />
+    <ClCompile Include="Scripts\CombatUIManager\TurnQueue\TurnQueueGroup.cpp" />
+    <ClCompile Include="Scripts\CombatUIManager\Weapon\WeaponGroup.cpp" />
     <ClCompile Include="Scripts\ConsumableSystem\ConsumableSystem.cpp" />
     <ClCompile Include="Scripts\DamageSystem\DamageSystem.cpp" />
+    <ClCompile Include="Scripts\Debugger\Debugger.cpp" />
+    <ClCompile Include="Scripts\DifficultyManager\DifficultyManager.cpp" />
     <ClCompile Include="Scripts\EnemyAction\ActionData\EnemyActionData.cpp" />
     <ClCompile Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22000.cpp" />
     <ClCompile Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22001.cpp" />
@@ -607,12 +612,7 @@
     <ClCompile Include="Scripts\GameCore\FSM\FiniteStateMachine.cpp" />
     <ClCompile Include="Scripts\GameCore\FSM\FSMCondition.cpp" />
     <ClCompile Include="Scripts\GameCore\FSM\FSMState.cpp" />
-    <ClCompile Include="Scripts\IntroManager\IntroManager.cpp">
-      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</IncludeInUnityFile>
-      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">true</IncludeInUnityFile>
-      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</IncludeInUnityFile>
-      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">true</IncludeInUnityFile>
-    </ClCompile>
+    <ClCompile Include="Scripts\IntroManager\IntroManager.cpp" />
     <ClCompile Include="Scripts\Inventory\OpenInventoryComponent.cpp" />
     <ClCompile Include="Scripts\Inventory\UINavi\InventoryArrowNavi.cpp" />
     <ClCompile Include="Scripts\Inventory\UINavi\InventoryItemFocusNavi.cpp" />
@@ -626,8 +626,10 @@
     <ClCompile Include="Scripts\ItemDropSystem\UINavi\RestartStageNavi.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UINavi\ReturnToMapNavi.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UI\ArtifactUIManager.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UI\EraseRevelationUIManager.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UI\ItemDropUIRootManager.cpp" />
-    <ClCompile Include="Scripts\DifficultyManager\DifficultyManager.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UI\ItemInfoUIManager.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UI\WeaponChangeUIManager.cpp" />
     <ClCompile Include="Scripts\Light\Base\LightComponent.cpp" />
     <ClCompile Include="Scripts\Light\DirectionalLight.cpp" />
     <ClCompile Include="Scripts\Light\PointLight.cpp" />
@@ -639,6 +641,7 @@
     <ClCompile Include="Scripts\MainMenu\Option.cpp" />
     <ClCompile Include="Scripts\MainMenu\Quit.cpp" />
     <ClCompile Include="Scripts\Map\MapManager.cpp" />
+    <ClCompile Include="Scripts\Map\MapManagerTracker.cpp" />
     <ClCompile Include="Scripts\Map\RewardPopup.cpp" />
     <ClCompile Include="Scripts\Map\SmoothScroll.cpp" />
     <ClCompile Include="Scripts\Map\Stage.cpp" />
@@ -689,7 +692,14 @@
     <ClCompile Include="Scripts\Token\Token.cpp" />
     <ClCompile Include="Scripts\Token\TokenInventory.cpp" />
     <ClCompile Include="Scripts\Token\TokenSystem.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\AdditionalDamage\AdditionalDamageAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\AdditionalDamage\AdditionalDamageAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\ApplyDamage\ApplyDamage.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\MultiTargetDamage\MultiTargetDamageAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\Recovery\RecoveryAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\AttackTokenApplyAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\Base\TokenApplyAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TakeDamageEndTokenApplyAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenChangeAction\TokenChangeAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\ChainCondition\ChainCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\LastQTEResultCondition\LastQTEResultCondition.cpp" />
@@ -797,10 +807,6 @@
     <ClCompile Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.cpp" />
     <ClCompile Include="UmScriptCore.cpp" />
     <ClCompile Include="UmScriptsExport.cpp" />
-    <ClCompile Include="Scripts\Map\MapManagerTracker.cpp" />
-    <ClCompile Include="Scripts\ItemDropSystem\UI\ItemInfoUIManager.cpp" />
-    <ClCompile Include="Scripts\ItemDropSystem\UI\WeaponChangeUIManager.cpp" />
-    <ClCompile Include="Scripts\ItemDropSystem\UI\EraseRevelationUIManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
