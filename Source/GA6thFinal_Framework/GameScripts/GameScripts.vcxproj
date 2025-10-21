@@ -222,8 +222,6 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
       <IncludeInUnityFile>true</IncludeInUnityFile>
-      <MinFilesInUnityFile>1</MinFilesInUnityFile>
-      <MaxFilesInUnityFile>3</MaxFilesInUnityFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -246,8 +244,6 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
       <IncludeInUnityFile>true</IncludeInUnityFile>
-      <MinFilesInUnityFile>1</MinFilesInUnityFile>
-      <MaxFilesInUnityFile>3</MaxFilesInUnityFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -272,8 +268,6 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
       <IncludeInUnityFile>true</IncludeInUnityFile>
-      <MinFilesInUnityFile>1</MinFilesInUnityFile>
-      <MaxFilesInUnityFile>3</MaxFilesInUnityFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -300,8 +294,6 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
       <IncludeInUnityFile>true</IncludeInUnityFile>
-      <MinFilesInUnityFile>1</MinFilesInUnityFile>
-      <MaxFilesInUnityFile>3</MaxFilesInUnityFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -323,7 +315,6 @@
     <ClInclude Include="Scripts\CombatUIManager\UIGroup.h" />
     <ClInclude Include="Scripts\CombatUIManager\Weapon\WeaponGroup.h" />
     <ClInclude Include="Scripts\Debugger\Debugger.h" />
-    <ClInclude Include="DLLExportDefine.h" />
     <ClInclude Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.h" />
     <ClInclude Include="Scripts\AccessorySystem\AccessorySystem.h" />
     <ClInclude Include="Scripts\Animation\AnimationComponent.h" />
@@ -615,11 +606,13 @@
     <ClCompile Include="Scripts\ExcelParser\ImGuiColumnSheetParser.cpp" />
     <ClCompile Include="Scripts\GameCore\FSM\AlwaysTransitionCondition.cpp" />
     <ClCompile Include="Scripts\GameCore\FSM\FiniteStateMachine.cpp" />
+    <ClCompile Include="Scripts\GameCore\FSM\FSMCondition.cpp" />
+    <ClCompile Include="Scripts\GameCore\FSM\FSMState.cpp" />
     <ClCompile Include="Scripts\IntroManager\IntroManager.cpp">
-      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</IncludeInUnityFile>
-      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">false</IncludeInUnityFile>
-      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</IncludeInUnityFile>
-      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">false</IncludeInUnityFile>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</IncludeInUnityFile>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">true</IncludeInUnityFile>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</IncludeInUnityFile>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">true</IncludeInUnityFile>
     </ClCompile>
     <ClCompile Include="Scripts\Inventory\OpenInventoryComponent.cpp" />
     <ClCompile Include="Scripts\Inventory\UINavi\InventoryArrowNavi.cpp" />
@@ -678,8 +671,11 @@
     <ClCompile Include="Scripts\SceneTransition\SceneTransitionComponent.cpp" />
     <ClCompile Include="Scripts\SceneTransition\TransitionManager.cpp" />
     <ClCompile Include="Scripts\Stats\CharacterStats.cpp" />
+    <ClCompile Include="Scripts\Stats\Enemy\EnemyStats.cpp" />
     <ClCompile Include="Scripts\Stats\Enemy\EnemyStatsComponent.cpp" />
+    <ClCompile Include="Scripts\Stats\Player\PlayerStats.cpp" />
     <ClCompile Include="Scripts\Stats\Player\PlayerStatsComponent.cpp" />
+    <ClCompile Include="Scripts\Stats\TurnActorStats.cpp" />
     <ClCompile Include="Scripts\Stats\TurnActorStatsComponent.cpp" />
     <ClCompile Include="Scripts\Stats\Weapon\WeaponStats.cpp" />
     <ClCompile Include="Scripts\Test\Audio\TestAudioComponent.cpp" />
@@ -701,6 +697,7 @@
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\LastQTEResultCondition\LastQTEResultCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\RoundOnceCondition\RoundOnceCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\TokenCondition\TokenCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\TurnActionCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Recovery\RecoveryAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Token\TokenApplyAction.cpp" />

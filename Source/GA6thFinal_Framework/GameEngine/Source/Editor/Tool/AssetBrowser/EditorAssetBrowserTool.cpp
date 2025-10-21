@@ -1,5 +1,7 @@
 ﻿#include "pch.h"
 
+REFLECT_FUNCTION(EditorAssetBrowserTool)
+
 namespace fs = std::filesystem;
 using namespace u8_literals;
 
