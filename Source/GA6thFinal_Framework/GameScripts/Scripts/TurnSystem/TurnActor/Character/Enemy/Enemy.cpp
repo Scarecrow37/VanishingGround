@@ -58,8 +58,7 @@ void Enemy::TakeDamage(int damage, bool playAnim)
     {
         turnMode->ApplyActions([&](TurnAction& action) { action.OnEnemyTakeDamageStart(*this, damage); });
     }
-    int takeDamage = damage;
-    Base::TakeDamage(takeDamage, playAnim);
+    Base::TakeDamage(damage, playAnim);
     if (turnMode)
     {
         turnMode->ApplyActions([&](TurnAction& action) { action.OnEnemyTakeDamageEnd(*this, damage); });
