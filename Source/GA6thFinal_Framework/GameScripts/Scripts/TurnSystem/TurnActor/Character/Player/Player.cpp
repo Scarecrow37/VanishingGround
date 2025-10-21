@@ -120,8 +120,17 @@ void Player::Dead()
 
 void Player::TakeDamage(int damage, bool playAnim) 
 {
+    TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
+    if (turnMode)
+    {
+        turnMode->ApplyActions([&](TurnAction& action) { action.OnPlayerTakeDamageStart(*this, damage); });
+    }
     int takeDamage = damage;
     Base::TakeDamage(takeDamage, playAnim);
+    if (turnMode)
+    {
+        turnMode->ApplyActions([&](TurnAction& action) { action.OnPlayerTakeDamageEnd(*this, damage); });
+    }
 }
 
 void Player::TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim)

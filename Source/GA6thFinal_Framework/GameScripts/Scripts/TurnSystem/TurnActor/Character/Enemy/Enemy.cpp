@@ -53,9 +53,17 @@ void Enemy::Dead()
 
 void Enemy::TakeDamage(int damage, bool playAnim) 
 {
-    // 혹시나 그럴 일 없겠지만 중간에 계산할 연산이 또 있다면 재연산
+    TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
+    if (turnMode)
+    {
+        turnMode->ApplyActions([&](TurnAction& action) { action.OnEnemyTakeDamageStart(*this, damage); });
+    }
     int takeDamage = damage;
     Base::TakeDamage(takeDamage, playAnim);
+    if (turnMode)
+    {
+        turnMode->ApplyActions([&](TurnAction& action) { action.OnEnemyTakeDamageEnd(*this, damage); });
+    }
 }
 
 void Enemy::TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim)
