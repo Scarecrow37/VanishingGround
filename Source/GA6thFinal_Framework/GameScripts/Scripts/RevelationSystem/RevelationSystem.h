@@ -76,6 +76,8 @@ public:
     /// <returns></returns>
     bool EraseElement(std::string_view elementName);
 
+    void ClearTable();
+
     /// <summary>
     /// Element를 테이블에서 찾아서 존재하면 반환합니다.
     /// </summary>
