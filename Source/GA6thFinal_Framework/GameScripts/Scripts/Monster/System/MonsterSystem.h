@@ -33,6 +33,7 @@ private:
     void Reset() override;
     void Awake() override;
     void OnDestroy() override;
+    void ImGuiDrawPropertysEvent() override;
 
 public:
     /// <summary>

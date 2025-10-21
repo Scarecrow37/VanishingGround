@@ -28,6 +28,32 @@ void MonsterSystem::OnDestroy()
     Clear();
 }
 
+void MonsterSystem::ImGuiDrawPropertysEvent() 
+{
+    if (ImGui::TreeNodeEx("Spawned Enemies", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        for (const auto& [spawnPoint, weakEnemy] : _spawnedEnemyTable)
+        {
+            const char* spawnPointName = SpawnPointToString(spawnPoint);
+            ImGui::Text("Spawn Point %s - ", spawnPointName);
+            ImGui::SameLine();
+            if (Enemy* enemy = weakEnemy.lock().get())
+            {
+                Controller& controller  = enemy->GetController();
+                const DataContext& data = controller.GetDataContext();
+                ImGui::Text("%d : %s", data.ID, data.Name.c_str());
+            }
+            else
+            {
+                ImGuiHelper::StyleBuilder styleBuilder;
+                styleBuilder.PushStyleColor(ImGuiCol_Text, IM_COL32(255, 100, 100, 255));
+                ImGui::Text("Expired");
+            }
+        }
+        ImGui::TreePop();
+    }
+}
+
 const DataContext* MonsterSystem::GetDataContextFromID(DataID id)
 {
     if (_monsterDataTable.contains(id))

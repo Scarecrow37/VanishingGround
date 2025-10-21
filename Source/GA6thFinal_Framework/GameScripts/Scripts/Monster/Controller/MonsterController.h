@@ -19,6 +19,7 @@ namespace Monster
         ~Controller();
 
     public:
+        inline const Monster::DataContext& GetDataContext() const { return _dataContext; }
         inline const AIModel&   GetAIModel() const { return _aiModel; }
         inline bool             Invalid() const { return _weakOwner.expired(); }
         inline Enemy*           GetOwner() const { return _weakOwner.lock().get(); }
