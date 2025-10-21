@@ -5,7 +5,7 @@ namespace TokenObject
 {
     class Bleed : public Token
     {
-        TOKEN_DATA(16000, "출혈")
+        TOKEN_DATA(205000, "출혈")
         TOKEN_CONSTRUCTOR(Bleed, 50, 3, TokenTag::BLEED)
         REFLECT_PROPERTY(
             ReflectFields->TickDamage,

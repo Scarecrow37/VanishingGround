@@ -5,4 +5,6 @@ enum class TokenTag
     BLEED,
     POISON,
     STUN,
+    ARMOR,
+    REGEN,
 };
