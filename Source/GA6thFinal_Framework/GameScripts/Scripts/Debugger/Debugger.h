@@ -9,14 +9,17 @@ public:
     void operator()(std::function<void()> func)
     {
         // 나중에 #ifdef _UMEDITOR 걸어도 됨
-        if (UmCore->DebuggerWindow.DebugMode)
+        if (UmCore->IsPlay())
         {
-            ImGui::Begin(GUI_LABEL, nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-            if (func)
+            if (UmCore->DebuggerWindow.DebugMode)
             {
-                func();
+                ImGui::Begin(GUI_LABEL, nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+                if (func)
+                {
+                    func();
+                }
+                ImGui::End();
             }
-            ImGui::End();
         }
     }
 

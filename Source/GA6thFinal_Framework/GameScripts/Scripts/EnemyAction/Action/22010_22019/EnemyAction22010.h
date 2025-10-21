@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <EnemyAction/EnemyActionBase.h>
 
-class TokenApplyAction;
+class AttackTokenApplyAction;
 
 namespace EnemyAction
 {
@@ -22,6 +22,6 @@ namespace EnemyAction
 
     private:
         // 출혈 부여용 액션
-        std::unique_ptr<TokenApplyAction> _tokenAction;
+        std::unique_ptr<AttackTokenApplyAction> _tokenAction;
     };
 } // namespace EnemyAction
