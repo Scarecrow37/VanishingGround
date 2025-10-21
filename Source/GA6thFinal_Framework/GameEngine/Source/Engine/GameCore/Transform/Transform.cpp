@@ -1,5 +1,7 @@
 ﻿#include "pch.h"
 
+REFLECT_FUNCTION(Transform)
+
 Transform::Transform(GameObject& owner)
     :
     _gameObject(owner),

@@ -22,6 +22,7 @@ public:
 
     REFLECT_FIELDS_BEGIN(IFSMEntity)
     REFLECT_FIELDS_END(FSMState)
+
 };
 
 template <typename T>
