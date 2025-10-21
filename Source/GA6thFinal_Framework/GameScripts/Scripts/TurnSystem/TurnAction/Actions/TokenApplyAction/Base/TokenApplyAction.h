@@ -48,5 +48,5 @@ protected:
 
     void ImGuiDrawPropertysEvent() override;
     void DeserializedReflectEvent() override;
-    virtual void UpdateActionInfo() = 0;
+    virtual void UpdateActionInfo() {};
 };
