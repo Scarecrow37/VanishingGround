@@ -314,6 +314,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\QTE\KeyBinder\QTEKeyBinder.h" />
     <ClInclude Include="Scripts\CombatUIManager\Accessories\AccessoriesGroup.h" />
     <ClInclude Include="Scripts\CombatUIManager\CharacterHUD\CharacterHUDGroup.h" />
     <ClInclude Include="Scripts\CombatUIManager\Consumable\ConsumableGroup.h" />
@@ -666,6 +667,7 @@
     <ClCompile Include="Scripts\Preferences\PreferencesManager.cpp" />
     <ClCompile Include="Scripts\Preferences\PrefrencesWindow.cpp" />
     <ClCompile Include="Scripts\QTE\Editor\QTEEditor.cpp" />
+    <ClCompile Include="Scripts\QTE\KeyBinder\QTEKeyBinder.cpp" />
     <ClCompile Include="Scripts\QTE\System\QTESystem.cpp" />
     <ClCompile Include="Scripts\QTE\Track\Note\QTENote.cpp" />
     <ClCompile Include="Scripts\QTE\Track\Note\QTENoteData.cpp" />

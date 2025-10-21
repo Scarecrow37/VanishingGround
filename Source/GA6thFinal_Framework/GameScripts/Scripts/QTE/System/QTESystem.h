@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "DLLExportDefine.h"
-#include <QTE/Result/QTEResult.h>
+#include "QTE/Result/QTEResult.h"
+#include "QTE/KeyBinder/QTEKeyBinder.h"
 #include "Utility/SingletonHelper.h"
 #include "QTE/Track/Note/QTENoteData.h"
 
@@ -63,19 +64,26 @@ public:
     QTE::Track* GetMappingTrackToWeaponID(int weaponID, int index = 0);
 
     /// <summary>
-    /// QTE(퀵 타임 이벤트)를 시작하며, 선택적으로 QTE종료 시 콜백 함수를 실행합니다.
+    /// QTE를 시작합니다. 선택적으로 QTE종료 시 콜백 함수를 실행합니다.
     /// </summary>
     /// <param name="callback">QTE가 종료되었을 때 호출되는 선택적 콜백 함수입니다. 기본값은 nullptr입니다.</param>
     void StartQTE(Callback callback = nullptr);
     void StartQTE(QTE::Track* qteTrack, Callback callback = nullptr);
     void StartQTE(const WeaponStats* weapon, Callback callback = nullptr);
+    
+    /// <summary>
+    /// QTE를 중지합니다.
+    /// </summary>
     void StopQTE();
 
     /// <summary>
     /// QTE를 일시정지하거나 재개합니다. QTE플레이 중이 아니라면 무시됩니다.
     /// </summary>
-    /// <param name="pause"></param>
     void PauseQTE(bool pause);
+
+    void ClearKeyBindState();
+    void PushKeyBindState(const QTE::KeyBindState& bindState);
+    void PopKeyBindState();
 
 private:
     void ResetQTEState();
@@ -131,6 +139,8 @@ private:
     SingletonComponent<QTESystem> _singletonComponent{this};
 
     std::unordered_map<int, std::vector<QTE::Track*>> _weaponIDToTrackTable;    // 무기 ID QTE 매핑 테이블
+
+    QTE::KeyBinder              _keyBinder;
 
     QTE::Track*                 _currentQTETrack    = nullptr;                  // QTE 트랙
     size_t                      _currentNoteIndex   = 0;                        // 현재 가리키는 노트 인덱스
