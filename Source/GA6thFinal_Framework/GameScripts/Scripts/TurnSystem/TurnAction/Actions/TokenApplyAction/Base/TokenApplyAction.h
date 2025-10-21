@@ -1,7 +1,6 @@
 ﻿#pragma once
-#include <TurnSystem/TurnAction/TurnActionFactory.h>
+#include "TurnSystem/TurnAction/TurnAction.h"
 
-//공격시 토큰 부여
 class TokenApplyAction : public TurnAction
 {
     USING_PROPERTY(TokenApplyAction)
@@ -10,9 +9,9 @@ public:
     ~TokenApplyAction() override = default;
     REFLECT_PROPERTY()
 
-    SETTER(int, TokenID) 
-    { 
-        ReflectFields->TokenID = std::max(value, 0); 
+    SETTER(int, TokenID)
+    {
+        ReflectFields->TokenID = std::max(value, 0);
         UpdateActionInfo();
     }
     GETTER(int, TokenID) { return ReflectFields->TokenID; }
@@ -21,8 +20,8 @@ public:
     PROPERTY(TokenID)
 
     SETTER(int, TokenCount)
-    { 
-        ReflectFields->TokenCount = std::max(value, 1); 
+    {
+        ReflectFields->TokenCount = std::max(value, 1);
         UpdateActionInfo();
     }
     GETTER(int, TokenCount) { return ReflectFields->TokenCount; }
@@ -43,17 +42,6 @@ protected:
     TurnTarget TokenTarget = TurnTarget::ENEMY;
     REFLECT_FIELDS_END(TokenApplyAction)
 
-public:
-    const std::string& GetActionInfo() override;
-    void               ImGuiDrawActionEditor() override;
-    const std::string& GetActionName() override;
-
-    void DeserializedReflectEvent() override;
-
-    void OnPlayerBattleCalculateDamageModifier(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats, Enemy& target,
-                             EnemyStats& targetStats) override;
-
-private:
-    void UpdateActionInfo();
-    std::string _actionInfo;
+    void ImGuiDrawPropertysEvent() override;
+    virtual void UpdateActionInfo() = 0;
 };
