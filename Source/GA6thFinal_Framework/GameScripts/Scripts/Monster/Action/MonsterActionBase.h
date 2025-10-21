@@ -10,8 +10,6 @@ class Enemy;
 class AnimationComponent;
 class ParticleComponent;
 
-class TokenApplyAction;
-
 // @brief 몬스터 액션의 기본 멤버입니다. 이걸 추가하지 않으면 Factory에 추가가 불가능합니다
 #define MONSTER_ACTION_DATA(id)             \
 public:                                     \
@@ -50,9 +48,6 @@ namespace Monster
             inline const ActionContext&         GetActionContext() const { return _actionContext; }
             inline size_t                       GetActionParamCount() const { return _actionParams.size(); }
             inline size_t                       GetTokenParamCount() const { return _tokenParams.size(); }
-
-            // 토큰 부여 액션을 얻어옵니다. 인덱스는 0부터가 아닌 1부터 시작합니다.
-            TokenApplyAction* GetTokenAction(size_t index) const;
 
             // 액션 파라미터를 얻어옵니다. 인덱스는 0부터가 아닌 1부터 시작합니다.
             ActionParam GetActionParam(size_t index) const;
@@ -101,8 +96,6 @@ namespace Monster
             std::weak_ptr<Enemy>                _weakOwner;
             std::weak_ptr<AnimationComponent>   _weakAnimation;
             std::weak_ptr<ParticleComponent>    _weakParticle;
-
-            std::vector<std::unique_ptr<TokenApplyAction>> _tokenActions;
 
             std::string _animationKey;
 

@@ -9,7 +9,6 @@
 #include "TurnSystem/TurnMode/TurnMode.h"
 #include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
 #include "TurnSystem/TurnActor/Character/Player/Player.h"
-#include "TurnSystem/TurnAction/Token/TokenApplyAction.h"
 
 #include "BattleSystem/Battle.h"
 #include "Stats/Enemy/EnemyStatsComponent.h"
@@ -49,16 +48,6 @@ namespace Monster
         {
             OnNotifiedAnimationEvent(context);
         }
-        TokenApplyAction* Base::GetTokenAction(size_t index) const
-        {
-            assert(index >= 1); // [assert] 토큰 액션 인덱스는 1부터 시작합니다. (엑셀 데이터에서 1부터 시작하기 때문)
-            size_t subOne = index - 1;
-            if (subOne < _tokenActions.size())
-            {
-                return _tokenActions[subOne].get();
-            }
-            return nullptr;
-        }
         ActionParam Base::GetActionParam(size_t index) const
         {
             assert(index >= 1); // [assert] 액션 파라미터 인덱스는 1부터 시작합니다. (엑셀 데이터에서 1부터 시작하기 때문)
@@ -86,32 +75,6 @@ namespace Monster
         const std::vector<TokenParam>& Base::GetAllTokenParams() const
         {
             return _tokenParams;
-        }
-        bool Base::BeginTokenActions() 
-        {
-            // 토큰 액션 적용
-            if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
-            {
-                for (auto& tokenAction : _tokenActions)
-                {
-                    turnMode->AddTurnAction(tokenAction.get());
-                }
-                return true;
-            }
-            return false;
-        }
-        bool Base::EndTokenActions() 
-        {
-            // 토큰 액션 적용
-            if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
-            {
-                for (auto& tokenAction : _tokenActions)
-                {
-                    tokenAction->SetDestroy();
-                }
-                return true;
-            }
-            return false;
         }
         void Base::ProcessBattle(int damage, float damageScale) 
         {
@@ -194,13 +157,6 @@ namespace Monster
                 if (particleComp)
                 {
                     _weakParticle  = static_pointer_cast<ParticleComponent>(particleComp->GetWeakPtr().lock());
-                }
-                for (size_t i = 0; i < _tokenParams.size(); ++i)
-                {
-                    _tokenActions.emplace_back(std::make_unique<TokenApplyAction>());
-                    TokenApplyAction* tokenAction = _tokenActions.back().get();
-                    tokenAction->TokenID          = _tokenParams[i].TokenID;
-                    tokenAction->TokenCount       = _tokenParams[i].Count;
                 }
                 return true;
             }
