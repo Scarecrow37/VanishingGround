@@ -32,9 +32,14 @@ void QTEUIManager::OnQTEEnter()
     SpawnQTENotesFromCurrentTrack();
 }
 
+void QTEUIManager::OnQTEButtonPressed() 
+{
+    // TODO : QTE Button Pressed Animation
+}
+
 void QTEUIManager::OnQTENotePressed(QTE::ResultType result)
 {
-    // TODO : QTE Effect
+    // TODO : QTE Effect Animation
 }
 
 void QTEUIManager::OnQTEStay() 

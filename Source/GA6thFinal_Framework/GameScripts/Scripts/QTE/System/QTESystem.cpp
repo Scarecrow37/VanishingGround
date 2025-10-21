@@ -51,15 +51,27 @@ void QTESystem::Update()
 #ifdef _UMEDITOR
         if (ImGui::IsKeyPressed(ImGuiKey_LeftArrow, false))
         {
-            PressedQTEButton(Input::ControllerTypes::Button::X);
+            ProcessQTEButtonPressedEvent();
+            if (CanPressQTEButton())
+            {
+                PressedQTEButton(Input::ControllerTypes::Button::X);
+            }
         }
-        if (ImGui::IsKeyPressed(ImGuiKey_UpArrow, false))
+        else if (ImGui::IsKeyPressed(ImGuiKey_UpArrow, false))
         {
-            PressedQTEButton(Input::ControllerTypes::Button::Y);
+            ProcessQTEButtonPressedEvent();
+            if (CanPressQTEButton())
+            {
+                PressedQTEButton(Input::ControllerTypes::Button::Y);
+            }
         }
-        if (ImGui::IsKeyPressed(ImGuiKey_RightArrow, false))
+        else if (ImGui::IsKeyPressed(ImGuiKey_RightArrow, false))
         {
-            PressedQTEButton(Input::ControllerTypes::Button::B);
+            ProcessQTEButtonPressedEvent();
+            if (CanPressQTEButton())
+            {
+                PressedQTEButton(Input::ControllerTypes::Button::B);
+            }
         }
 #endif // _UMEDITOR
 
@@ -506,6 +518,7 @@ void QTESystem::PressedQTEButton(Input::Controller::Button buttonType)
 
 void QTESystem::PressedButtonX(const Input::Controller& controller)
 {
+    ProcessQTEButtonPressedEvent();
     // Handle button X pressed
     if (CanPressQTEButton())
     {
@@ -515,6 +528,7 @@ void QTESystem::PressedButtonX(const Input::Controller& controller)
 
 void QTESystem::PressedButtonY(const Input::Controller& controller)
 {
+    ProcessQTEButtonPressedEvent();
     // Handle button Y pressed
     if (CanPressQTEButton())
     {
@@ -524,6 +538,7 @@ void QTESystem::PressedButtonY(const Input::Controller& controller)
 
 void QTESystem::PressedButtonB(const Input::Controller& controller)
 {
+    ProcessQTEButtonPressedEvent();
     // Handle button B pressed
     if (CanPressQTEButton())
     {
@@ -558,6 +573,15 @@ void QTESystem::ProcessQTEEnterEvent()
     if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
     {
         combatUIManager->SetActiveUI(false);
+    }
+}
+
+void QTESystem::ProcessQTEButtonPressedEvent() 
+{
+    QTEUIManager* uiManager = QTEUIManager::GetInstance();
+    if (uiManager)
+    {
+        uiManager->OnQTEButtonPressed();
     }
 }
 
