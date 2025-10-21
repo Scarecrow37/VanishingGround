@@ -27,7 +27,6 @@ void TokenApplyAction::ImGuiDrawPropertysEvent()
             if (ImGui::Selectable(name, selectable))
             {
                 TokenID = id;
-                UpdateActionInfo();
             }
         }
         ImGui::EndCombo();
@@ -40,4 +39,9 @@ void TokenApplyAction::ImGuiDrawPropertysEvent()
     ImGui::Separator();
     ImGui::Text("Conditions");
     ImguiDrawConditionEditor();
+}
+
+void TokenApplyAction::DeserializedReflectEvent() 
+{
+    UpdateActionInfo();
 }

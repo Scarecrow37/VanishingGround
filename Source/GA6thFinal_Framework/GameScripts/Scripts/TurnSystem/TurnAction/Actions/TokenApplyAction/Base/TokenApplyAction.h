@@ -29,7 +29,11 @@ public:
     // type : int
     PROPERTY(TokenCount)
 
-    SETTER(TurnTarget, Target) { ReflectFields->TokenTarget = value; }
+    SETTER(TurnTarget, Target) 
+    { 
+        ReflectFields->TokenTarget = value; 
+        UpdateActionInfo();
+    }
     GETTER(TurnTarget, Target) { return ReflectFields->TokenTarget; }
     // 토큰을 부여할 대상을 설정합니다.
     // type : TurnTarget
@@ -43,5 +47,6 @@ protected:
     REFLECT_FIELDS_END(TokenApplyAction)
 
     void ImGuiDrawPropertysEvent() override;
+    void DeserializedReflectEvent() override;
     virtual void UpdateActionInfo() = 0;
 };
