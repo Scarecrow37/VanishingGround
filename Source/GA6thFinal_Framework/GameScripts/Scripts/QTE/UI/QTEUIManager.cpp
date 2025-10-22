@@ -5,9 +5,9 @@
 #include <UI/Panels/Overlay/OverlayPanel.h>
 #include <UI/Elements/Image/ImageElement.h>
 #include <Camera/CameraComponent.h>
-
-#include <BattleSystem/Battle.h>
+#include <TurnSystem/TurnMode/TurnMode.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
+#include <Monster/Common/MonsterCommon.h>
 
 UMREAL_COMPONENT(QTEUIManager)
 
@@ -440,23 +440,19 @@ bool QTEUIManager::RefreshGuideNoteUITransformData()
     CameraComponent* camera = CameraComponent::MainCamera();
     if (camera)
     {
-        auto enemies = Battle::GetTargetsFromFlags(Battle::ENEMY_TARGET_FLAG_ALL);
-        if (3 <= enemies.size())
+        if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
         {
-            bool  validX = enemies[0] && _qteGuideNoteY;
-            bool  validY = enemies[1] && _qteGuideNoteX;
-            bool  validB = enemies[2] && _qteGuideNoteB;
-            if (validX)
+            if (Enemy* left = turnMode->GetEnemyFromSpawnPoint(Monster::SpawnPoint::Left))
             {
-                _enemyXPos = camera->WorldToViewport(enemies[0]->transform->GetWorldPosition());
+                _enemyXPos = camera->WorldToViewport(left->transform->GetWorldPosition());
             }
-            if (validY)
+            if (Enemy* middle = turnMode->GetEnemyFromSpawnPoint(Monster::SpawnPoint::Middle))
             {
-                _enemyYPos = camera->WorldToViewport(enemies[1]->transform->GetWorldPosition());
+                _enemyYPos = camera->WorldToViewport(middle->transform->GetWorldPosition());
             }
-            if (validB)
+            if (Enemy* right = turnMode->GetEnemyFromSpawnPoint(Monster::SpawnPoint::Right))
             {
-                _enemyBPos = camera->WorldToViewport(enemies[2]->transform->GetWorldPosition());
+                _enemyBPos = camera->WorldToViewport(right->transform->GetWorldPosition());
             }
             return true;
         }
