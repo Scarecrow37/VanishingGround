@@ -9,12 +9,30 @@ namespace TokenObject
     REGISTER_TOKEN(Bleed)
     REGISTER_TOKEN(BleedGrant)
 
+    bool Bleed::CanAdd(CharacterBase* owner) const
+    {
+        if (owner && false == owner->IsDead())
+        {
+            auto& tokenInventory = owner->GetTokenInventory();
+            if (tokenInventory.HasTokenFromID(BleedResistance::ID))
+            {
+                tokenInventory.RemoveTokenStackFromID(BleedResistance::ID);
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     void Bleed::OnRoundStart(CharacterBase* owner)
     {
         if (owner)
         {
             auto& tokenInventory = owner->GetTokenInventory();
-            if (owner->State != TurnActor::STATE::Dead)
+            if (false == owner->IsDead())
             {
                 int stackCount = tokenInventory.GetTokenStackFromID(ID);
                 int param  = GetTokenParam(0);

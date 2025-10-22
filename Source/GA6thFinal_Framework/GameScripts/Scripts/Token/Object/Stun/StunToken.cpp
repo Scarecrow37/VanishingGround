@@ -11,14 +11,13 @@ namespace TokenObject
 
     bool Stun::CanAdd(CharacterBase* owner) const 
     {
-        if (owner && owner->State != TurnActor::STATE::Dead)
+        if (owner && false == owner->IsDead())
         {
             auto& tokenInventory = owner->GetTokenInventory();
-            bool  hasStunResistance = tokenInventory.HasTokenFromID(TokenObject::StunResistance::ID);
-            if (hasStunResistance)
+            if (tokenInventory.HasTokenFromID(StunResistance::ID))
             {
                 // 기절 저항을 1 깎는다.
-                tokenInventory.RemoveTokenStackFromID(TokenObject::StunResistance::ID);
+                tokenInventory.RemoveTokenStackFromID(StunResistance::ID);
                 // 기절 저항이 있다면 기절 토큰을 추가하지 않는다.
                 return false;
             }

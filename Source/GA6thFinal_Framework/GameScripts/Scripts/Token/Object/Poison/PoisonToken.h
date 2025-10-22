@@ -8,6 +8,7 @@ namespace TokenObject
     {
         TOKEN_DATA(205001)
     private:
+        bool CanAdd(CharacterBase* owner) const override;
         void OnRoundStart(CharacterBase* owner) override;
     };
 
@@ -19,5 +20,11 @@ namespace TokenObject
         void OnTurnEnd(CharacterBase* owner) override;
         void OnTakeDamage(CharacterBase* source, CharacterBase* dest, int& damage,
                           QTE::NoteResult* noteResult) override;
+    };
+
+    // 중독 저항 토큰
+    class PoisonResistance : public Token
+    {
+        TOKEN_DATA(205028)
     };
 } // namespace TokenObject

@@ -7,12 +7,30 @@ namespace TokenObject
     REGISTER_TOKEN(Poison)
     REGISTER_TOKEN(PoisonGrant)
 
+    bool Poison::CanAdd(CharacterBase* owner) const
+    {
+        if (owner && false == owner->IsDead())
+        {
+            auto& tokenInventory = owner->GetTokenInventory();
+            if (tokenInventory.HasTokenFromID(PoisonResistance::ID))
+            {
+                tokenInventory.RemoveTokenStackFromID(PoisonResistance::ID);
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     void Poison::OnRoundStart(CharacterBase* owner) 
     {
         if (owner)
         {
             auto& tokenInventory = owner->GetTokenInventory();
-            if (owner->State != TurnActor::STATE::Dead)
+            if (false == owner->IsDead())
             {
                 int stackCount = tokenInventory.GetTokenStackFromID(ID);
                 int param  = GetTokenParam(0);
