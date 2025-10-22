@@ -13,7 +13,10 @@ MeshComponent::MeshComponent()
 MeshComponent::~MeshComponent()
 {
     IMeshRenderer*& renderer = GetLastSelectMeshRenderer();
-    renderer                 = nullptr;
+    if (renderer == Renderer.Get())
+    {
+        renderer = nullptr;
+    }
 }
 
 bool MeshComponent::HasModel() const

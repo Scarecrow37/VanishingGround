@@ -53,7 +53,7 @@ namespace GE
         SSGI_COMPOSITE,
         SSR,
         TO_BACKBUFFER,
-        TRANSPARENT_LIM_RIGHT,
+        TRANSPARENT_LIM_LIGHT,
         UI,
         UI_OIT,
         UP_SAMPLE,

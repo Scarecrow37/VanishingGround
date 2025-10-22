@@ -1,4 +1,4 @@
-const BYTE g_ps_transparent_lim_right[] =
+const BYTE g_ps_transparent_lim_light[] =
 {
      68,  88,  66,  67,  62, 226, 
     185,  41,  35, 179, 200,  65, 

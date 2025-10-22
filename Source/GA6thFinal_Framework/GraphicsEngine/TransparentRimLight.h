@@ -15,7 +15,7 @@ public:
     void SetMaterial(ID3D12GraphicsCommandList* commandList, MeshRenderer* renderer) override;
 
 private:
-    ComPtr<ID3D12PipelineState>                            _pipelineState[2];
-    FX<GE::VS::STATIC_FORWARD_FR, GE::PS::TRANSPARENT_LIM_RIGHT>   _fxStatic;
-    FX<GE::VS::SKELETAL_FORWARD_FR, GE::PS::TRANSPARENT_LIM_RIGHT> _fxSkeletal;
+    ComPtr<ID3D12PipelineState>                                    _pipelineState[2];
+    FX<GE::VS::STATIC_FORWARD_FR, GE::PS::TRANSPARENT_LIM_LIGHT>   _fxStatic;
+    FX<GE::VS::SKELETAL_FORWARD_FR, GE::PS::TRANSPARENT_LIM_LIGHT> _fxSkeletal;
 };
