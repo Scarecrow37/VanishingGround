@@ -200,7 +200,9 @@ protected:                                                                      
     virtual void applyReflectFields(const std::function<void(std::string_view, void*)>& func);                  \
                                                                                                                 \
 private:                                                                                                        \
-    void imgui_draw_reflect_fields_input_auto(std::unordered_set<void*>& reflectionFieldsSet, const ReflectHelper::ImGuiDraw::InputAutoSetting& setting);              
+    void imgui_draw_reflect_fields_input_auto(std::unordered_set<void*>& reflectionFieldsSet, const ReflectHelper::ImGuiDraw::InputAutoSetting& setting);   \
+                                                                                                                                                            \
+protected:
     
 
                        
