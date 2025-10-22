@@ -335,7 +335,7 @@ void EditorModelDetails::OnFrameRender()
 
             if (ImGui::TreeNodeEx("Material##details", ImGuiTreeNodeFlags_DefaultOpen))
             {
-                if (ImGui::BeginTable("##material", 2, ImGuiTableFlags_Borders))
+                /*if (ImGui::BeginTable("##material", 2, ImGuiTableFlags_Borders))
                 {
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
@@ -343,7 +343,8 @@ void EditorModelDetails::OnFrameRender()
                     ImGui::Text("Blend Mode");
 
                     ImGui::TableNextColumn();
-                    ImGui::Combo("##blendMode", (int*)&material.BlendMode, blendModeNames, (int)Material::BlendModeType::BMT_END);
+                    ImGui::Combo("##blendMode", (int*)&material.BlendMode, blendModeNames,
+                (int)Material::BlendModeType::BMT_END);
 
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
@@ -351,7 +352,8 @@ void EditorModelDetails::OnFrameRender()
                     ImGui::Text("Shading Model");
 
                     ImGui::TableNextColumn();
-                    ImGui::Combo("##shadingModel", (int*)&material.ShadingModel, shadingModelNames, (int)Material::ShadingModelType::SMT_END);
+                    ImGui::Combo("##shadingModel", (int*)&material.ShadingModel, shadingModelNames,
+                (int)Material::ShadingModelType::SMT_END);
 
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
@@ -362,7 +364,7 @@ void EditorModelDetails::OnFrameRender()
 
                     ImGui::EndTable();
                 }
-                ImGui::TreePop();
+                ImGui::TreePop();*/
             }
             ImGui::Separator();
 

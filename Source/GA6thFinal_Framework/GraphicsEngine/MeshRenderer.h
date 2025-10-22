@@ -5,6 +5,7 @@
 class Model;
 class Animator;
 class DXRSkeletalMesh;
+class CustomMaterial;
 class MeshRenderer : public GraphicsBase, public IMeshRenderer
 {
 public:
@@ -18,14 +19,18 @@ public:
     IAnimator*               GetAnimator() const override;
     std::shared_ptr<Model>   GetModel() const override { return _model; }
     const MeshType           GetType() const override { return _type; }
+    const CustomLightType    GetCustomLightType() const override { return _customLightType; }
+    std::vector<Material>&   GetMaterials() override { return _materials; }    
 
     const Matrix&                                       GetWorldMatrix() const { return *_world; }
     const std::vector<std::shared_ptr<DXRSkeletalMesh>> GetDXRSkeletalMeshes() const { return _dxrSkeletalMeshes; }
+    const std::any&                                     GetCustomMaterialData() const { return _customMaterialData; }
 
 public:
     void SetActive(const bool* isActive) override;
     void SetMaterial(const UINT meshIndex, const Material& material) override;
-    void SetMasterMaterial(const UINT meshIndex, const Material& material) override;   
+    void SetMasterMaterial(const UINT meshIndex, const Material& material) override;
+    void SetCustomMaterial(CustomLightType type, const std::any& customMaterial) override;
 
     void SetModel(std::shared_ptr<Model> model);
 
@@ -48,6 +53,8 @@ private:
     std::vector<std::shared_ptr<DXRSkeletalMesh>> _dxrSkeletalMeshes;
     std::shared_ptr<Model>                        _model;
     GraphicsPointer<Animator>                     _animator;
-    const Matrix*                                 _world;
-    MeshType                                      _type;
+    const Matrix*                                 _world{nullptr};
+    MeshType                                      _type{MeshType::MESH_TYPE_END};
+    std::any                                      _customMaterialData;
+    CustomLightType                               _customLightType{CustomLightType::NONE};
 };

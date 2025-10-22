@@ -1,11 +1,11 @@
 ﻿#pragma once
 #include "RenderTechnique.h"
 
-class PBRLitTechnique : public RenderTechnique
+class LightingTechnique : public RenderTechnique
 {
 public:
-    PBRLitTechnique();
-    virtual ~PBRLitTechnique();
+    LightingTechnique();
+    virtual ~LightingTechnique();
 
 public:
     void Initialize(ID3D12GraphicsCommandList* commandList) override;
