@@ -42,9 +42,10 @@ void ApplyDamage::ImGuiDrawActionEditor()
         UpdateInfoText();
     }
 
-    constexpr std::array<std::u8string_view, 1> TRIGGER_TOOLTIP = 
+    constexpr std::array<std::u8string_view, 2> TRIGGER_TOOLTIP = 
     { 
-        GetTriggerToolTip(TriggerType::QTE_END)
+        GetTriggerToolTip(TriggerType::QTE_END),
+        GetTriggerToolTip(TriggerType::WEAPON_KILL_ENEMY)
     };
     ImGuiHelper::EnumCombo<TriggerType>(u8"트리거"_c_str, ReflectFields->Trigger, [this](std::pair<std::string_view, TriggerType> pair)
     { 
@@ -66,6 +67,21 @@ void ApplyDamage::ImGuiDrawActionEditor()
 void ApplyDamage::OnPlayerQTEResult(Player& player, const QTE::OverallResult& result) 
 {
     if (TriggerType::QTE_END == ReflectFields->Trigger)
+    {
+        if (EvaluateConditions())
+        {
+            std::vector<CharacterBase*> targets = TurnSystemHelper::GetTargetCharacters(ReflectFields->Target);
+            for (auto& target : targets)
+            {
+                target->TakeDamage(ReflectFields->Damage);
+            }
+        }
+    }
+}
+
+void ApplyDamage::OnEnemyDeadByWeapon(Enemy& enemy, WeaponElement& weapon)
+{
+    if (TriggerType::WEAPON_KILL_ENEMY == ReflectFields->Trigger)
     {
         if (EvaluateConditions())
         {

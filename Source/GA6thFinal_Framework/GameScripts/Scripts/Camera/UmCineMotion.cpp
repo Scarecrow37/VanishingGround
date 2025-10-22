@@ -30,8 +30,8 @@ void UmCineMotion::OnDrawDebugSelected()
     DrawRail();
 
 #ifdef _UMEDITOR
-    UpdateTetherFromGizmo();
-    DrawGizmoIcon();
+    UpdateTetherFromGuizmo();
+    DrawGuizmoIcon();
     DrawGuizmo();
 #endif
 
@@ -464,7 +464,7 @@ void UmCineMotion::DeserializedReflectEvent()
                                ReflectFields->RotationZTethers[i], ReflectFields->RotationWTethers[i]});
         Matrix world = Matrix::CreateFromQuaternion(_rotTethers[i]) * Matrix::CreateTranslation(_posTethers[i]);
 #ifdef _UMEDITOR
-        PushGizmo(world);
+        PushGuizmo(world);
 #endif
     }
 }

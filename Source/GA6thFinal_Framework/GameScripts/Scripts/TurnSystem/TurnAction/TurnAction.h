@@ -10,6 +10,7 @@ class Player;
 struct PlayerStats;
 class Enemy;
 struct EnemyStats;
+class WeaponElement;
 struct WeaponStats;
 class TokenInventory;
 
@@ -134,6 +135,13 @@ public:
     /// </summary>
     /// <param name="enemy"></param>
     virtual void OnEnemyDead(Enemy& enemy) {}
+
+    /// <summary>
+    /// 플레이어가 무기 공격을 통해 적을 죽이면 호출합니다.
+    /// </summary>
+    /// <param name="enemy"></param>
+    /// <param name="weapon"></param>
+    virtual void OnEnemyDeadByWeapon(Enemy& enemy, WeaponElement& weapon) {}
 
     /// <summary>
     /// QTE가 시작할 때 호출됩니다. 

@@ -86,7 +86,7 @@ void Battle::ChainStart(Player& attacker, Enemy& target, const QTE::NoteResult& 
             if (turnMode && weaponSystem && playerStatsComponent && enemyStatsComponent)
             {
                 PlayerStats playerStats(playerStatsComponent->GetStats());
-                WeaponStats weaponStats(weaponSystem->GetCurrentWeaponStats());
+                WeaponStats weaponStats(weaponSystem->GetCurrentWeaponElement().Stats);
                 EnemyStats  enemyStats(enemyStatsComponent->GetStats());
 
                 PlayerInfo playerInfo(attacker, weaponStats, playerStats);
@@ -117,7 +117,7 @@ void Battle::BattleStart(Player& attacker, Enemy& target, const QTE::NoteResult&
         lastTargetEnemy = std::static_pointer_cast<Enemy>(target.GetWeakPtr().lock());
 
         PlayerStats playerStats(playerStatsComponent->GetStats());
-        WeaponStats weaponStats(weaponSystem->GetCurrentWeaponStats());
+        WeaponStats weaponStats(weaponSystem->GetCurrentWeaponElement().Stats);
         EnemyStats  enemyStats(enemyStatsComponent->GetStats());
 
         PlayerInfo playerInfo(attacker, weaponStats, playerStats);
@@ -156,7 +156,7 @@ void Battle::ChainStart(Enemy& attacker, Player& target)
         EnemyStats  enemyStats(enemyStatsComponent->GetStats());
         PlayerStats playerStats(playerStatsComponent->GetStats());
         EnemyInfo   enemyInfo(attacker, enemyStats);
-        PlayerInfo  playerInfo(target, weaponSystem->GetCurrentWeaponStats(), playerStats);
+        PlayerInfo  playerInfo(target, weaponSystem->GetCurrentWeaponElement().Stats, playerStats);
 
         int chainDamage = DamageSystem::CalculateChainDamage(enemyInfo, playerInfo);
         turnMode->ApplyActions([&](TurnAction& action) {
@@ -181,7 +181,7 @@ void Battle::BattleStart(Enemy& attacker, Player& target)
         EnemyStats  enemyStats(enemyStatsComponent->GetStats());
         PlayerStats playerStats(playerStatsComponent->GetStats());
         EnemyInfo  enemyInfo(attacker, enemyStats);
-        PlayerInfo playerInfo(target, weaponSystem->GetCurrentWeaponStats(), playerStats);
+        PlayerInfo playerInfo(target, weaponSystem->GetCurrentWeaponElement().Stats, playerStats);
 
         turnMode->ApplyActions(
             [&](TurnAction& action) { action.OnEnemyBattleCalculateDamageModifier(attacker, enemyStats, target, playerStats); });

@@ -35,7 +35,7 @@ CombatStartPhase::CombatStartPhase()
 
 CombatStartPhase::~CombatStartPhase() 
 {
-
+   
 }
 
 void CombatStartPhase::ResetCharacterStats()
