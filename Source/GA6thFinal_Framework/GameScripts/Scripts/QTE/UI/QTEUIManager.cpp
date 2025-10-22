@@ -36,7 +36,7 @@ void QTEUIManager::OnQTEEnter()
     SpawnQTENotesFromCurrentTrack();
 }
 
-void QTEUIManager::OnQTEButtonPressed() 
+void QTEUIManager::OnQTEButtonPressed() const
 {
     // TODO : QTE Button Pressed Animation  
     if (_qteJudgeNoteUI)
@@ -46,9 +46,26 @@ void QTEUIManager::OnQTEButtonPressed()
     }
 }
 
-void QTEUIManager::OnQTENotePressed(QTE::ResultType result)
+void QTEUIManager::OnQTENotePressed(const UINT noteID, const QTE::ResultType result)
 {
-    // TODO : QTE Effect Animation
+    if (const auto& noteUI = FindNoteUIFromNoteID(static_cast<int>(noteID)); noteUI.Overlay != nullptr)
+    {
+        const POINT notePosition = noteUI.Overlay->CenterPoint;
+        switch (result)
+        {
+        case QTE::QTE_RESULT_PERFECT:
+            SpawnJudgmentEffect(_qteOriginalJudgmentPerfectEffect, notePosition);
+            break;
+        case QTE::QTE_RESULT_NORMAL:
+            SpawnJudgmentEffect(_qteOriginalJudgmentGoodEffect, notePosition);
+            break;
+        case QTE::QTE_RESULT_MISS:
+            SpawnJudgmentEffect(_qteOriginalJudgmentMissEffect, notePosition);
+            break;
+        default:
+            break;
+        }
+    }
 }
 
 void QTEUIManager::OnQTEStay() 
@@ -75,17 +92,17 @@ void QTEUIManager::OnQTEStay()
                 const int   id   = result.NoteData->ID;
                 const float time = result.NoteData->Time;
 
-                ImageElement* noteUI = FindNoteUIFromNoteID(id);
-                if (noteUI)
+                const auto& noteUI = FindNoteUIFromNoteID(id);
+                if (noteUI.Overlay)
                 {
-                    GameObject& object = noteUI->gameObject;
+                    GameObject& object = noteUI.Overlay->gameObject;
                     if (result.IsValidResult() && result.IsPressedButton())
                     { // 이미 누른 판정이 난 노트는 비활성화
                         object.ActiveSelf = false;
                         continue;
                     }
-                    SIZE  noteSize = noteUI->Size;
-                    POINT oldPoint = noteUI->Point;
+                    SIZE  noteSize = noteUI.Overlay->Size;
+                    POINT oldPoint = noteUI.Overlay->Point;
 
                     float notePosXFactor = CalculateNotePosXFactor(time, qteTime);
                     float perfectPos     = _qteJudgePos.x + (_qteJudgeSize.x * 0.5f) - _qtePanelPos.x;
@@ -98,8 +115,12 @@ void QTEUIManager::OnQTEStay()
                     if (alpha > 0.0f)
                     {
                         float notePosAbsX = notePosX - ((float)noteSize.cx * 0.5f) + _qtePanelPos.x; // 절대 좌표로 변환
-                        noteUI->Point     = POINT{(LONG)notePosAbsX, oldPoint.y};
-                        noteUI->Alpha     = alpha;
+                        noteUI.Overlay->Point = POINT{(LONG)notePosAbsX, oldPoint.y};
+                        if (const bool isPlaying = noteUI.Begin->IsPlaying; !isPlaying)
+                        {
+                            noteUI.Begin->Setup();
+                            noteUI.Begin->StartAnimation();
+                        }
                         object.ActiveSelf = true;
                     }
                     else
@@ -119,6 +140,7 @@ void QTEUIManager::OnQTEExit()
     
     // QTE 종료 시 노트 오브젝트 정리
     ClearAllQTENotes();
+    ClearAllEffects();
 }
 
 void QTEUIManager::Refresh() 
@@ -339,6 +361,10 @@ void QTEUIManager::SetQTEBarUIAlpha(float factor)
     {
         _qteJudgeNoteUI->Alpha = factor;
     }
+    if (_qteFlow)
+    {
+        _qteFlow->Alpha = factor;
+    }
 }
 
 void QTEUIManager::SetQTEAnimBarUIAlpha(float factor)
@@ -510,14 +536,18 @@ bool QTEUIManager::CheckUIValid()
 
 void QTEUIManager::FindUIComponents()
 {
-    _qteOverlayPanel     = nullptr;
-    _qteBackgroundUI     = nullptr;
-    _qteNoteLineUI       = nullptr;
-    _qteJudgeNoteUI      = nullptr;
-    _qteGuideNoteX       = nullptr;
-    _qteGuideNoteY       = nullptr;
-    _qteGuideNoteB       = nullptr;
-    _qteStartAnimationUI = nullptr;
+    _qteOverlayPanel                  = nullptr;
+    _qteBackgroundUI                  = nullptr;
+    _qteNoteLineUI                    = nullptr;
+    _qteJudgeNoteUI                   = nullptr;
+    _qteGuideNoteX                    = nullptr;
+    _qteGuideNoteY                    = nullptr;
+    _qteGuideNoteB                    = nullptr;
+    _qteStartAnimationUI              = nullptr;
+    _qteOriginalJudgmentPerfectEffect = nullptr;
+    _qteOriginalJudgmentGoodEffect    = nullptr;
+    _qteOriginalJudgmentMissEffect    = nullptr;
+    _qteFlow                          = nullptr;
 
     Transform::ForeachBFS(transform, [this](Transform* curr) {
         if (!_qteOverlayPanel && curr->gameObject->CompareTag("QTE Panel"))
@@ -551,6 +581,22 @@ void QTEUIManager::FindUIComponents()
         else if (!_qteStartAnimationUI && curr->gameObject->CompareTag("QTE Start Animation"))
         {
             _qteStartAnimationUI = curr->gameObject->GetComponent<SpriteAnimationElement>();
+        }
+        else if (!_qteOriginalJudgmentPerfectEffect && curr->gameObject->CompareTag("Judgment Perfect Effect"))
+        {
+            _qteOriginalJudgmentPerfectEffect = curr->gameObject->GetComponent<SpriteAnimationElement>();
+        }
+        else if (!_qteOriginalJudgmentGoodEffect && curr->gameObject->CompareTag("Judgment Good Effect"))
+        {
+            _qteOriginalJudgmentGoodEffect = curr->gameObject->GetComponent<SpriteAnimationElement>();
+        }
+        else if (!_qteOriginalJudgmentMissEffect && curr->gameObject->CompareTag("Judgment Miss Effect"))
+        {
+            _qteOriginalJudgmentMissEffect = curr->gameObject->GetComponent<SpriteAnimationElement>();
+        }
+        else if (!_qteFlow && curr->gameObject->CompareTag("QTE Flow"))
+        {
+            _qteFlow = curr->gameObject->GetComponent<SpriteAnimationElement>();
         }
     });
 
@@ -590,6 +636,22 @@ void QTEUIManager::FindUIComponents()
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"QTE Start Animation UI를 찾지 못했습니다.");
     }
+    if (nullptr == _qteOriginalJudgmentPerfectEffect)
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Judgment Perfect Effect UI를 찾지 못했습니다.");
+    }
+    if (nullptr == _qteOriginalJudgmentGoodEffect)
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Judgment Good Effect UI를 찾지 못했습니다.");
+    }
+    if (nullptr == _qteOriginalJudgmentMissEffect)
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Judgment Miss Effect UI를 찾지 못했습니다.");
+    }
+    if (nullptr == _qteFlow)
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"QTE Flow UI를 찾지 못했습니다.");
+    }
 }
 
 void QTEUIManager::SpawnQTENotesFromCurrentTrack()
@@ -607,12 +669,42 @@ void QTEUIManager::SpawnQTENotesFromCurrentTrack()
                 if (clone)
                 {
                     clone->SetActive(false);
-                    ImageElement* imageElement = clone->GetComponent<ImageElement>();
-                    if (imageElement)
+                    QTENoteUI noteUI{};
+                    noteUI.Overlay = clone->GetComponent<OverlayPanel>();
+                    if (noteUI.Overlay)
                     {
-                        imageElement->transform->SetParent(transform, false);
-                        imageElement->Point      = POINT(-LONG_MAX, 0); // 화면 밖으로 이동
-                        _noteSpawnTable[note.ID] = imageElement;
+                        noteUI.Overlay->transform->SetParent(transform, false);
+                        noteUI.Overlay->Point = POINT(-LONG_MAX, 0); // 화면 밖으로 이동
+                    }
+
+                    for (int i = 0; i < clone->transform->GetChildCount(); ++i)
+                    {
+                        if (Transform* childTransform = clone->transform->GetChild(i))
+                        {
+                            GameObject& childObject = childTransform->gameObject;
+                            if (SpriteAnimationElement* anim = childObject.GetComponent<SpriteAnimationElement>())
+                            {
+                                if (childObject.CompareTag("QTE Note Begin"))
+                                {
+                                    noteUI.Begin = anim;
+                                }
+                                else if (childObject.CompareTag("QTE Note End"))
+                                {
+                                    noteUI.End = anim;
+                                }
+                            }
+                        }
+                    }
+
+                    if (noteUI.Overlay && noteUI.Begin && noteUI.End)
+                    {
+                        _noteSpawnTable[note.ID] = noteUI;
+                    }
+                    else
+                    {
+                        UmLogger.Log(
+                            LogLevel::LEVEL_WARNING,
+                            (const char*)u8"QTE 노트 프리팹에 필요한 컴포넌트가 없습니다. 노트 프리팹을 확인해주세요.");
                     }
                 }
             }
@@ -622,15 +714,75 @@ void QTEUIManager::SpawnQTENotesFromCurrentTrack()
 
 void QTEUIManager::ClearAllQTENotes() 
 {
-    for (auto& [id, clone] : _noteSpawnTable)
+    for (auto& [Overlay, Begin, End] : _noteSpawnTable | std::views::values)
     {
-        if (clone)
+        if (Overlay)
         {
-            GameObject::Destroy(clone->gameObject);
-            clone = nullptr;
+            GameObject::Destroy(Overlay->gameObject);
+            Overlay = nullptr;
+            Begin   = nullptr;
+            End     = nullptr;
         }
     }
     _noteSpawnTable.clear();
+}
+
+void QTEUIManager::ClearAllEffects()
+{
+    for (auto& effectObject : _activeJudgmentEffects)
+    {
+        if (effectObject)
+        {
+            GameObject::Destroy(effectObject->gameObject);
+            effectObject = nullptr;
+        }
+    }
+    _activeJudgmentEffects.clear();
+}
+
+void QTEUIManager::SpawnJudgmentEffect(const SpriteAnimationElement* originalEffectUI, const POINT position)
+{
+    if (nullptr == originalEffectUI)
+        return;
+
+    const std::shared_ptr<GameObject>& effectObject = NewGameObject(GameObject::Helper::GenerateUniqueName("Effect"));
+
+    Transform& transform = this->transform;
+    effectObject->transform->SetParent(transform, this);
+
+    SpriteAnimationElement& effectUI = effectObject->AddComponent<SpriteAnimationElement>();
+
+    const std::string path = originalEffectUI->FilePath;
+    const File::Path  effectPath(path);
+    effectUI.SetImage(effectPath.ToGuid());
+
+    const int colum = originalEffectUI->Column;
+    effectUI.Column = colum;
+
+    const int row = originalEffectUI->Row;
+    effectUI.Row  = row;
+
+    const int emptyFrameCount = originalEffectUI->EmptyFrameCount;
+    effectUI.EmptyFrameCount  = emptyFrameCount;
+
+    const bool loop = originalEffectUI->Loop;
+    effectUI.Loop   = loop;
+
+    const float duration = originalEffectUI->Duration;
+    effectUI.Duration    = duration;
+
+    const SIZE size = originalEffectUI->Size;
+    effectUI.Size   = size;
+
+    const LONG half = size.cx / 2;
+
+    const POINT spawnPosition = POINT{position.x - half, 0};
+    effectUI.Point      = spawnPosition;
+
+    effectUI.Setup();
+    effectUI.StartAnimation();
+
+    _activeJudgmentEffects.push_back(&effectUI);
 }
 
 float QTEUIManager::CalculateNotePosXFactor(float noteTime, float totalTime)
@@ -695,12 +847,12 @@ float QTEUIManager::CalculateNoteAlpha(float posFactor)
     return alpha;
 }
 
-ImageElement* QTEUIManager::FindNoteUIFromNoteID(int noteID) const
+QTEUIManager::QTENoteUI QTEUIManager::FindNoteUIFromNoteID(const int noteID) const
 {
     auto itr = _noteSpawnTable.find(noteID);
     if (itr != _noteSpawnTable.end())
     {
         return itr->second;
     }
-    return nullptr;
+    return QTENoteUI{};
 }

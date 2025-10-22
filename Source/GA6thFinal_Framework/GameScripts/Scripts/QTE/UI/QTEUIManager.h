@@ -20,6 +20,13 @@ class QTEUIManager : public Component
     friend class QTESystem;
     USING_PROPERTY(QTEUIManager)
 
+    struct QTENoteUI
+    {
+        OverlayPanel* Overlay;
+        SpriteAnimationElement* Begin;
+        SpriteAnimationElement* End;
+    };
+
 public:
     QTEUIManager();
     ~QTEUIManager() override;
@@ -33,8 +40,8 @@ public:
 
 private:
     void OnQTEEnter();
-    void OnQTEButtonPressed();
-    void OnQTENotePressed(QTE::ResultType result);
+    void OnQTEButtonPressed() const;
+    void OnQTENotePressed(UINT noteID, QTE::ResultType result);
     void OnQTEStay();
     void OnQTEExit();
 
@@ -95,23 +102,29 @@ private:
     void FindUIComponents();
     void SpawnQTENotesFromCurrentTrack();
     void ClearAllQTENotes();
+    void ClearAllEffects();
+    void SpawnJudgmentEffect(const SpriteAnimationElement* originalEffectUI, POINT position);
 
     float CalculateNotePosXFactor(float noteTime, float totalTime);
     float CalculateNotePosX(float noteTime, float totalTime);
     float CalculateNotePosX(float posFactor);
     float CalculateNoteAlpha(float posFactor);
 
-    ImageElement* FindNoteUIFromNoteID(int noteID) const;
+    QTENoteUI FindNoteUIFromNoteID(int noteID) const;
 
 private:
-
-    OverlayPanel*                          _qteOverlayPanel     = nullptr;
-    ImageElement*                          _qteBackgroundUI     = nullptr;
-    ImageElement*                          _qteNoteLineUI       = nullptr;
-    SpriteAnimationElement*                _qteJudgeNoteUI      = nullptr;
-    SpriteAnimationElement*                _qteStartAnimationUI = nullptr;
+    OverlayPanel*                          _qteOverlayPanel                  = nullptr;
+    ImageElement*                          _qteBackgroundUI                  = nullptr;
+    ImageElement*                          _qteNoteLineUI                    = nullptr;
+    SpriteAnimationElement*                _qteJudgeNoteUI                   = nullptr;
+    SpriteAnimationElement*                _qteStartAnimationUI              = nullptr;
+    SpriteAnimationElement*                _qteOriginalJudgmentPerfectEffect = nullptr;
+    SpriteAnimationElement*                _qteOriginalJudgmentGoodEffect    = nullptr;
+    SpriteAnimationElement*                _qteOriginalJudgmentMissEffect    = nullptr;
+    SpriteAnimationElement*                _qteFlow                          = nullptr;
     File::Guid   _notePrefabGuid     = File::NULL_GUID;
-    std::unordered_map<int, ImageElement*> _noteSpawnTable = {};
+    std::unordered_map<int, QTENoteUI>    _noteSpawnTable                   = {};
+    std::vector<SpriteAnimationElement*>   _activeJudgmentEffects            = {};
 
     Vector2 _qtePanelPos  = Vector2::Zero;
     Vector2 _qtePanelSize = Vector2::Zero;

@@ -24,6 +24,7 @@ void SpriteAnimationElement::Setup()
     const int frameCount = FrameCount;
     _durationPerFrame = ReflectFields->Duration / static_cast<float>(frameCount);
     _currentFrame        = 0;
+    _isPlaying           = ReflectFields->StartAnimationOnPlay | _isPlaying;
 }
 
 void SpriteAnimationElement::ResetUV()
@@ -46,6 +47,8 @@ void SpriteAnimationElement::UpdateFrame()
         {
             _elapsedTime = totalDuration;
             _isPlaying   = false;
+            if (_willSuicide)
+                GameObject::Destroy(this->gameObject);
             return;
         }
     }

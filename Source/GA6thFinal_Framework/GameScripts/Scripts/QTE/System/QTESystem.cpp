@@ -166,7 +166,7 @@ void QTESystem::ImGuiDrawPropertysEvent()
     }
 }
 
-QTE::Track* QTESystem::AddMappingTrackToWeaponID(int weaponID, const File::Path& path)
+QTE::Track* QTESystem::AddMappingTrackToWeaponID(const int weaponID, const File::Path& path)
 {
     QTE::Track* track = new QTE::Track;
     auto&       trackVector = _weaponIDToTrackTable[weaponID];
@@ -181,7 +181,7 @@ QTE::Track* QTESystem::AddMappingTrackToWeaponID(int weaponID, const File::Path&
     return track;
 }
 
-bool QTESystem::RemoveMappingTrackToWeaponID(int weaponID, int index)
+bool QTESystem::RemoveMappingTrackToWeaponID(const int weaponID, int index)
 {
     auto itr = _weaponIDToTrackTable.find(weaponID);
     if (itr != _weaponIDToTrackTable.end())
@@ -210,7 +210,7 @@ bool QTESystem::RemoveMappingTrackToWeaponID(int weaponID, int index)
     return false;
 }
 
-QTE::Track* QTESystem::GetMappingTrackToWeaponID(int weaponID, int index)
+QTE::Track* QTESystem::GetMappingTrackToWeaponID(const int weaponID, const int index)
 {
     auto itr = _weaponIDToTrackTable.find(weaponID);
     if (itr != _weaponIDToTrackTable.end())
@@ -349,7 +349,7 @@ void QTESystem::StopQTE()
     _currQTEPlaying = false;
 }
 
-void QTESystem::PauseQTE(bool pause) 
+void QTESystem::PauseQTE(const bool pause) 
 {
     if (IsQTEPlaying())
     {
@@ -357,7 +357,7 @@ void QTESystem::PauseQTE(bool pause)
     }
 }
 
-QTE::ResultType QTESystem::GetQTEResult(float noteTime)
+QTE::ResultType QTESystem::GetQTEResult(const float noteTime)
 {
     auto& [perfectMin, perfectMax] = ReflectFields->PerfectJudgeRange;
     auto& [normalMin, normalMax]   = ReflectFields->NormalJudgeRange;
@@ -455,7 +455,7 @@ bool QTESystem::CanPressQTEButton()
     return false;
 }
 
-bool QTESystem::CanPressQTEButton(float noteTime)
+bool QTESystem::CanPressQTEButton(const float noteTime)
 {
     auto& [min, max] = ReflectFields->ValidJudgeRange;
     float noteDelta  = _qteTimer - noteTime;
@@ -466,7 +466,7 @@ bool QTESystem::CanPressQTEButton(float noteTime)
     return false;
 }
 
-void QTESystem::PressedQTEButton(Input::Controller::Button buttonType)
+void QTESystem::PressedQTEButton(const Input::Controller::Button buttonType)
 {
     if (_currQTEPlaying)
     {
@@ -512,7 +512,7 @@ void QTESystem::PressedQTEButton(Input::Controller::Button buttonType)
                 break;
         }
 
-        ProcessQTENotePressedEvent(result.Result);
+        ProcessQTENotePressedEvent(result.NoteData->ID, result.Result);
     }
 }
 
@@ -585,12 +585,11 @@ void QTESystem::ProcessQTEButtonPressedEvent()
     }
 }
 
-void QTESystem::ProcessQTENotePressedEvent(QTE::ResultType result)
+void QTESystem::ProcessQTENotePressedEvent(const UINT noteID, const QTE::ResultType result)
 {
-    QTEUIManager* uiManager = QTEUIManager::GetInstance();
-    if (uiManager)
+    if (QTEUIManager* uiManager = QTEUIManager::GetInstance())
     {
-        uiManager->OnQTENotePressed(result);
+        uiManager->OnQTENotePressed(noteID, result);
     }
 }
 

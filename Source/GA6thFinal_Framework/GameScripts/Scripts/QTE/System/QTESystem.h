@@ -94,7 +94,7 @@ private:
 
     void ProcessQTEEnterEvent();
     void ProcessQTEButtonPressedEvent();
-    void ProcessQTENotePressedEvent(QTE::ResultType result);
+    void ProcessQTENotePressedEvent(UINT noteID, QTE::ResultType result);
     void ProcessQTEStayEvent();
     void ProcessQTEExitEvent();
     void ProcessQTEFadeInEndEvent();
