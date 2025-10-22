@@ -11,26 +11,27 @@ namespace TokenObject
 
     namespace
     {
-        void Heal(CharacterBase* dest, float healFactor)
+        void Heal(CharacterBase* dest, int healFactor)
         {
             if (CharacterStats* stats = dest->GetCharacterStats())
             {
                 int   maxHP      = dest->MaxHP;
-                float healAmount = static_cast<float>(maxHP) * healFactor;
+                float factor     = static_cast<float>(healFactor) / 100.0f;
+                float healAmount = static_cast<float>(maxHP) * factor;
                 stats->CurrentHP += static_cast<int>(healAmount);
             }
         }
     }
     void Regen3::OnTurnStart(CharacterBase* owner) 
     {
-        Heal(owner, ReflectFields->HealFactor);
+        Heal(owner, GetTokenParam(0));
     }
     void Regen1::OnTurnStart(CharacterBase* owner) 
     {
-        Heal(owner, ReflectFields->HealFactor);
+        Heal(owner, GetTokenParam(0));
     }
     void Regen2::OnTurnStart(CharacterBase* owner) 
     {
-        Heal(owner, ReflectFields->HealFactor);
+        Heal(owner, GetTokenParam(0));
     }
 } // namespace TokenObject

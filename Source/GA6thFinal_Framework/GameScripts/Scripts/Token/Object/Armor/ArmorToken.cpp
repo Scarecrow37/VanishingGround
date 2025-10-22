@@ -7,14 +7,22 @@
 namespace TokenObject
 {
     REGISTER_TOKEN(Armor1)
-    REFLECT_FUNCTION(Armor1)
     REGISTER_TOKEN(Armor2)
-    REFLECT_FUNCTION(Armor2)
     REGISTER_TOKEN(Armor3)
-    REFLECT_FUNCTION(Armor3)
+
+    namespace
+    {
+        float CalculateDamageReductionFactor(int param)
+        {
+            return static_cast<float>(param) / 100.0f;
+        }
+    }
+
     void Armor1::OnTakeDamage(CharacterBase* source, int& damage)
     {
-        float newDamage = static_cast<float>(damage) * (1.0f - ReflectFields->DamageReductionFactor);
+        int     param       = GetTokenParam(0);
+        float   factor      = static_cast<float>(param) / 100.0f;
+        float   newDamage   = static_cast<float>(damage) * (1.0f - factor);
         damage = static_cast<int>(std::ceilf(newDamage));
         if (source)
         {
@@ -24,8 +32,10 @@ namespace TokenObject
     }
     void Armor2::OnTakeDamage(CharacterBase* source, int& damage) 
     {
-        float newDamage = static_cast<float>(damage) * (1.0f - ReflectFields->DamageReductionFactor);
-        damage = static_cast<int>(std::ceilf(newDamage));
+        int   param     = GetTokenParam(0);
+        float factor    = static_cast<float>(param) / 100.0f;
+        float newDamage = static_cast<float>(damage) * (1.0f - factor);
+        damage          = static_cast<int>(std::ceilf(newDamage));
         if (source)
         {
             TokenInventory& tokenInventory = source->GetTokenInventory();
@@ -34,8 +44,10 @@ namespace TokenObject
     }
     void Armor3::OnTakeDamage(CharacterBase* source, int& damage) 
     {
-        float newDamage = static_cast<float>(damage) * (1.0f - ReflectFields->DamageReductionFactor);
-        damage = static_cast<int>(std::ceilf(newDamage));
+        int   param     = GetTokenParam(0);
+        float factor    = static_cast<float>(param) / 100.0f;
+        float newDamage = static_cast<float>(damage) * (1.0f - factor);
+        damage          = static_cast<int>(std::ceilf(newDamage));
         if (source)
         {
             TokenInventory& tokenInventory = source->GetTokenInventory();

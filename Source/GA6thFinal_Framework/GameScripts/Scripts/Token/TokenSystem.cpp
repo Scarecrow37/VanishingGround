@@ -5,15 +5,9 @@
 
 UMREAL_COMPONENT(TokenSystem)
 
-TokenSystem::TokenSystem() 
-{
-    
-}
+TokenSystem::TokenSystem() = default;
 
-TokenSystem::~TokenSystem()
-{
-
-}
+TokenSystem::~TokenSystem() = default;
 
 void TokenSystem::Reset()
 {
@@ -26,8 +20,10 @@ void TokenSystem::Reset()
 void TokenSystem::Awake() 
 {
     Base::Awake();
-    if (_singletonComponent.TrySingleTon())
+    if (_singletonComponent.TrySingleTon() &&
+        _singletonObject.TrySingleTon(true))
     {
+        // 엑셀 데이터를 로드
         if (ExcelDataSystem* dataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
         {
             LoadTokenDataFromExcelData(dataSystem);
@@ -37,69 +33,11 @@ void TokenSystem::Awake()
 
 void TokenSystem::OnDestroy() 
 {
-    for (auto& token : _tokenInstances)
-    {
-        if (token)
-        {
-            UnregisterTokenInstanceToTable(token); // 토큰 인스턴스를 테이블에서 제거
-            delete token; // 토큰 인스턴스 삭제
-        }
-    }
-    _tokenInstances.clear();
-    _tokenIDTable.clear();
-    _tokenNameTable.clear();
-    _tokenTagTable.clear();
-}
-
-void TokenSystem::OnDrawDebug()
-{
-    if (true == _isOpenEditor)
-    {
-        ImGui::PushID("TokenSystem");
-        ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver);
-        ImGui::Begin("TokenDataTable", &_isOpenEditor, ImGuiWindowFlags_MenuBar);
-        {
-            ImGuiDrawDataTable();
-            ImGuiDrawMenuBar();
-        }
-        ImGui::End();
-        ImGui::PopID();
-    }
-}
-
-void TokenSystem::SerializedReflectEvent() 
-{
-    // 토큰 인스턴스의 데이터를 직렬화합니다.
-    ReflectFields->TokenSerializeData.clear();
-    for (const auto& [id, token] : _tokenIDTable)
-    {
-        if (token)
-        {
-            ReflectFields->TokenSerializeData[id] = token->SerializedReflectFields();
-        }
-    }
-}
-
-void TokenSystem::DeserializedReflectEvent() 
-{
-    // 토큰 인스턴스의 데이터를 역직렬화합니다.
-    for (const auto& [id, data] : ReflectFields->TokenSerializeData)
-    {
-        Token* token = GetTokenFromIDEx(id);
-        if (token)
-        {
-            token->DeserializedReflectFields(data);
-        }
-    }
-    SortByOrder();
+    Clear();
 }
 
 void TokenSystem::ImGuiDrawPropertysEvent() 
 {
-    if (ImGui::Button("Open Editor##TokenSystem"))
-    {
-        _isOpenEditor = !_isOpenEditor;
-    }
 }
 
 void TokenSystem::RegisterAllTokenInstance()
@@ -109,9 +47,8 @@ void TokenSystem::RegisterAllTokenInstance()
         auto it = _tokenIDTable.find(id);
         if (it == _tokenIDTable.end())
         {
-            Token* newToken = constructor();
-            _tokenInstances.push_back(newToken);
-            RegisterTokenInstanceToTable(newToken);
+            Token* instance = constructor();
+            RegisterTokenInstanceToTable(instance);
         }
     }
 }
@@ -120,13 +57,15 @@ void TokenSystem::RegisterTokenInstanceToTable(Token* token)
 {
     if (token)
     {
-        int         id   = token->GetTokenID();
-        TokenTag    tag  = token->GetTokenTag();
-        const auto& name = token->GetTokenName();
-        _tokenTagTable[tag].push_back(token);
-        _tokenIDTable[id]     = token;
-        _tokenNameTable[name] = token;
-        token->SetDirtyOrderCallback([](int id) { SortByOrder(); });
+        const int          id   = token->GetTokenID();
+        const std::string& name = token->GetTokenName();
+        const std::string& tag  = token->GetTokenTag();
+
+        _tokenIDTable[id]       = token;
+        _tokenNameTable[name]   = token;
+        _tokenTagTable[tag].insert(token);
+
+        _tokenInstances.push_back(std::unique_ptr<Token>(token));
     }
 }
 
@@ -134,22 +73,23 @@ void TokenSystem::UnregisterTokenInstanceToTable(Token* token)
 {
     if (token)
     {
-        int         id   = token->GetTokenID();
-        TokenTag    tag  = token->GetTokenTag();
-        const auto& name = token->GetTokenName();
+        const int           id   = token->GetTokenID();
+        const std::string&  name = token->GetTokenName();
+        const std::string&  tag  = token->GetTokenTag();
 
         _tokenIDTable.erase(id);
         _tokenNameTable.erase(name);
-        auto itr = _tokenTagTable.find(tag);
-        if (itr != _tokenTagTable.end())
+        if (_tokenTagTable.contains(tag))
         {
-            auto& tagTokens = itr->second;
-            tagTokens.erase(std::remove(tagTokens.begin(), tagTokens.end(), token), tagTokens.end());
-            if (tagTokens.empty())
+            _tokenTagTable[tag].erase(token);
+            if (_tokenTagTable[tag].empty())
             {
-                _tokenTagTable.erase(itr); // 태그가 비어있으면 제거
+                _tokenTagTable.erase(tag); // 태그가 비어있으면 제거
             }
         }
+        std::erase_if(_tokenInstances, [id](const std::unique_ptr<Token>& ptr) {
+            return ptr && ptr->GetTokenID() == id; 
+            });
     }
 }
 
@@ -200,66 +140,12 @@ void TokenSystem::LoadTokenDataFromExcelData(ExcelDataSystem* dataSystem)
     }
 }
 
-void TokenSystem::ImGuiDrawDataTable()
+void TokenSystem::Clear()
 {
-    ImVec2 availableSize = ImGui::GetContentRegionAvail();
-    ImVec2 left          = ImVec2(130.0f, availableSize.y);
-    ImVec2 right         = ImVec2(availableSize.x - left.x, availableSize.y);
-
-    // Left Window
-    ImGui::BeginChild("Left", left, ImGuiChildFlags_Border);
-    if (ImGui::CollapsingHeader("Token List##token", ImGuiTreeNodeFlags_DefaultOpen))
-    {
-        for (const auto& token : _tokenInstances)
-        {
-            if (token)
-            {
-                bool isSelected = (_selectedToken == token);
-                if (ImGui::Selectable(token->GetTokenName(), isSelected))
-                {
-                    _selectedToken = token; // 선택된 토큰을 저장
-                }
-            }
-        }
-    }
-    ImGui::EndChild();
-
-    ImGui::SameLine();
-
-    // Right Window
-    ImGui::BeginChild("Right", right, ImGuiChildFlags_Border);
-    if (_selectedToken)
-    {
-        if (ImGui::CollapsingHeader("Edit Properties##token", ImGuiTreeNodeFlags_DefaultOpen))
-        {
-            _selectedToken->ImGuiDrawPropertys();
-        }
-        ImGui::Separator();
-        if (ImGui::CollapsingHeader("Show Property Member##token"))
-        {
-            _selectedToken->ShowReflectFieldView();
-        }
-    }
-    ImGui::EndChild();
-}
-
-void TokenSystem::ImGuiDrawMenuBar() 
-{
-    if (ImGui::BeginMenuBar())
-    {
-        if (ImGui::BeginMenu("File"))
-        {
-            if (ImGui::MenuItem("Open Editor##TokenSystem"))
-            {
-            }
-            ImGui::Separator();
-            if (ImGui::MenuItem("Reset Token System"))
-            {
-            }
-            ImGui::EndMenu();
-        }
-        ImGui::EndMenuBar();
-    }
+    _tokenInstances.clear();
+    _tokenIDTable.clear();
+    _tokenNameTable.clear();
+    _tokenTagTable.clear();
 }
 
 bool TokenSystem::CreateTokenInstanceFromID(int tokenID, Token** ppToken)
@@ -273,74 +159,47 @@ bool TokenSystem::CreateTokenInstanceFromID(int tokenID, Token** ppToken)
     return false;
 }
 
-bool TokenSystem::CreateTokenInstanceFromName(std::string_view tokenName, Token** ppToken)
+IToken* TokenSystem::GetTokenFromID(TokenID tokenID)
 {
-    auto it = _tokenNameFactoryTable.find(tokenName.data());
-    if (it != _tokenNameFactoryTable.end())
+    if (_tokenIDTable.contains(tokenID))
     {
-        (*ppToken) = it->second();
-        return true;
-    }
-    return false;
-}
-
-int TokenSystem::GetTokenIDFromName(std::string_view tokenName)
-{
-    auto it = _tokenNameToIDTable.find(tokenName.data());
-    if (it != _tokenNameToIDTable.end())
-    {
-        return it->second;
-    }
-    return -1;
-}
-
-IToken* TokenSystem::GetTokenFromID(int tokenID)
-{
-    return GetTokenFromIDEx(tokenID);
-}
-
-IToken* TokenSystem::GetTokenFromName(std::string_view name)
-{
-    return GetTokenFromNameEx(name);
-}
-
-Token* TokenSystem::GetTokenFromIDEx(int tokenID)
-{
-    auto it = _tokenIDTable.find(tokenID);
-    if (it != _tokenIDTable.end())
-    {
-        return it->second;
+        return _tokenIDTable[tokenID];
     }
     return nullptr;
 }
 
-Token* TokenSystem::GetTokenFromNameEx(std::string_view name)
+const std::string& TokenSystem::GetTokenNameFromID(int tokenID)
 {
-    auto it = _tokenNameTable.find(name.data());
-    if (it != _tokenNameTable.end())
+    if (_tokenIDTable.contains(tokenID))
     {
-        return it->second;
+        return _tokenIDTable[tokenID]->GetTokenName();
+    }
+}
+
+const TokenData* TokenSystem::GetTokenDataFromID(TokenID tokenID)
+{
+    if (_tokenDataTable.contains(tokenID))
+    {
+        return &_tokenDataTable[tokenID];
+    }
+    return nullptr;
+}
+
+const std::set<Token*>* TokenSystem::GetTokenInstancesFromTag(const std::string& tag)
+{
+    if (_tokenTagTable.contains(tag))
+    {
+        return &_tokenTagTable[tag];
     }
     return nullptr;
 }
 
 void TokenSystem::SortByOrder()
 {   // 토큰을 Order에 따라 오름차순 정렬합니다.
-    std::sort(_tokenInstances.begin(), _tokenInstances.end(),
-              [](IToken* a, IToken* b) { 
+    std::sort(_tokenInstances.begin(), _tokenInstances.end(), 
+        [](std::unique_ptr<Token> a, std::unique_ptr<Token> b) { 
             int aOrder = a->GetTokenOrder();
             int bOrder = b->GetTokenOrder();
             return aOrder < bOrder;
         });
-}
-
-const std::string& TokenSystem::GetTokenNameFromID(int tokenID)
-{
-    auto it = _tokenIDToNameTable.find(tokenID);
-    if (it != _tokenIDToNameTable.end())
-    {
-        return it->second;
-    }
-    static const std::string emptyString;
-    return emptyString; // 토큰이 존재하지 않으면 빈 문자열 반환
 }

@@ -1,21 +1,11 @@
 ﻿#pragma once
 using TokenID = int;
 
-enum class TokenTag
-{
-    NONE,
-    BLEED,
-    POISON,
-    STUN,
-    ARMOR,
-    REGEN,
-    HASTE,
-};
-
 struct TokenData
 {
     int                 ID;
     std::string         Name;
+    std::string         Tag;
     int                 Order;
     int                 MaxStack;
     std::vector<int>    Params;

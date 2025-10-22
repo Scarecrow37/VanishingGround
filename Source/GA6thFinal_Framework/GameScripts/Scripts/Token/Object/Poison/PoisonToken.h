@@ -5,15 +5,8 @@ namespace TokenObject
 {
     class Poison : public Token
     {
-        TOKEN_DATA(205001, "중독")
-        TOKEN_CONSTRUCTOR(Poison, 50, 3, TokenTag::POISON)
-        REFLECT_PROPERTY()
+        TOKEN_DATA(205001)
     private:
         void OnRoundStart(CharacterBase* owner) override;
-
-    private:
-        REFLECT_FIELDS_BEGIN(Token)
-        int TickDamage = 10;
-        REFLECT_FIELDS_END(Poison)
     };
 } // namespace TokenObject

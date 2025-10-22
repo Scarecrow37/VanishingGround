@@ -5,7 +5,6 @@
 namespace TokenObject
 {
     REGISTER_TOKEN(Poison)
-    REFLECT_FUNCTION(Poison)
 
     void Poison::OnRoundStart(CharacterBase* owner) 
     {
@@ -16,7 +15,8 @@ namespace TokenObject
             {
                 int stackCount = tokenInventory.GetTokenStackFromID(ID);
                 UmLogger.Log(LogLevel::LEVEL_DEBUG, TokenLog(*owner));
-                int damage = ReflectFields->TickDamage * stackCount;
+                int param  = GetTokenParam(0);
+                int damage = param * stackCount;
                 owner->TakeDamage(damage);
             }
             tokenInventory.RemoveTokenStackFromID(ID);

@@ -8,7 +8,6 @@ namespace TokenObject
 {
     REGISTER_TOKEN(Stun)
     REGISTER_TOKEN(StunResistance)
-    REFLECT_FUNCTION(Stun)
 
     bool Stun::CanAdd(CharacterBase* owner) const 
     {
@@ -44,7 +43,7 @@ namespace TokenObject
             if (stats)
             {
                 // 스턴 저항 수치 갱신은 올림 계산
-                float stunResistance  = std::ceilf((float)stats->StunResistance * stats->StunResistanceMultiplier);
+                const float stunResistance = std::ceilf((float)stats->StunResistance * stats->StunResistanceMultiplier);
                 stats->StunResistance = static_cast<int>(stunResistance);
                 tokenInventory.AddTokenStackFromID(TokenObject::StunResistance::ID, stats->StunResistance);
             }

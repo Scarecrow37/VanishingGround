@@ -18,8 +18,8 @@ namespace QTE
 class IToken
 {
 public:
-    IToken() = default;
-    virtual ~IToken() = default;
+    IToken();
+    ~IToken() override;
 
 private: // ITriggerType을(를) 통해 상속됨.
     /// <summary>전투가 시작될 때 호출됩니다.</summary>
@@ -94,12 +94,12 @@ private: // ITriggerType을(를) 통해 상속됨.
     virtual void OnRollRandomSpeed(CharacterBase* source, int& speed) = 0;
 
 public:
-    virtual bool        CanAdd(CharacterBase* owner) const      = 0;
-    virtual bool        CanRemove(CharacterBase* owner) const   = 0;
+    virtual bool                CanAdd(CharacterBase* owner) const      = 0;
+    virtual bool                CanRemove(CharacterBase* owner) const   = 0;
 
-    virtual int         GetTokenOrder() const                   = 0;
-    virtual int         GetTokenID() const                      = 0;
-    virtual const char* GetTokenName() const                    = 0;
-    virtual int         GetMaxStackCount() const                = 0;
-    virtual TokenTag    GetTokenTag() const                     = 0;
+    virtual int                 GetTokenOrder() const                   = 0;
+    virtual int                 GetTokenID() const                      = 0;
+    virtual int                 GetMaxStackCount() const                = 0;
+    virtual const std::string&  GetTokenName() const                    = 0;
+    virtual const std::string&  GetTokenTag() const                     = 0;
 };

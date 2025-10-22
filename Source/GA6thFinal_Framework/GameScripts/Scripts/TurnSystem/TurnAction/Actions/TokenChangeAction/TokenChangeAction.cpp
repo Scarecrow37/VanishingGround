@@ -36,28 +36,31 @@ void TokenChangeAction::ImGuiDrawActionEditor()
     {
         UpdateActionInfo();
     }
-
-    std::string_view prevName = TokenSystem::GetTokenNameFromID(ReflectFields->TokenID);
-    if (ImGui::BeginCombo(u8"변경할 토큰"_c_str, prevName.data()))
+    if (TokenSystem* tokenSystem = SingletonComponent<TokenSystem>::GetInstance())
     {
-        for (auto& token : TokenSystem::GetTokenInstances())
+        std::string_view prevName = tokenSystem->GetTokenNameFromID(ReflectFields->TokenID);
+        if (ImGui::BeginCombo(u8"변경할 토큰"_c_str, prevName.data()))
         {
-            if (token)
+            for (auto& token : tokenSystem->GetTokenInstances())
             {
-                int id = token->GetTokenID();
-                const std::string& name = token->GetTokenName();
-                if (false == name.empty())
+                if (token)
                 {
-                    if (ImGui::Selectable(name.data(), name == prevName))
+                    int                id   = token->GetTokenID();
+                    const std::string& name = token->GetTokenName();
+                    if (false == name.empty())
                     {
-                        ReflectFields->TokenID = id;
-                        UpdateActionInfo();
+                        if (ImGui::Selectable(name.data(), name == prevName))
+                        {
+                            ReflectFields->TokenID = id;
+                            UpdateActionInfo();
+                        }
                     }
                 }
             }
+            ImGui::EndCombo();
         }
-        ImGui::EndCombo();
     }
+    
     ImguiDrawConditionEditor();
 }
 
@@ -70,19 +73,22 @@ void TokenChangeAction::OnTokenAddedEnd(CharacterBase& target, int tokenID, int 
 {
     using namespace u8_literals;
     size_t conditionCount = ConditionCount;
-    if (0 < conditionCount && EvaluateConditions())
+    if (TokenSystem* tokenSystem = SingletonComponent<TokenSystem>::GetInstance())
     {
-        std::string msg = TokenSystem::GetTokenNameFromID(tokenID);
-        msg += u8" 토큰을 "_c_str;
-        msg += TokenSystem::GetTokenNameFromID(ReflectFields->TokenID);
-        msg += u8" 토큰으로 변경 "_c_str;
-        UmLogger.Log(LogLevel::LEVEL_TRACE, msg);
+        if (0 < conditionCount && EvaluateConditions())
+        {
+            std::string msg = tokenSystem->GetTokenNameFromID(tokenID);
+            msg += u8" 토큰을 "_c_str;
+            msg += tokenSystem->GetTokenNameFromID(ReflectFields->TokenID);
+            msg += u8" 토큰으로 변경 "_c_str;
+            UmLogger.Log(LogLevel::LEVEL_TRACE, msg);
 
-        TokenInventory& inventory = target.GetTokenInventory();
-        inventory.RemoveTokenStackFromID(tokenID, tokenCount);
+            TokenInventory& inventory = target.GetTokenInventory();
+            inventory.RemoveTokenStackFromID(tokenID, tokenCount);
 
-        tokenID = ReflectFields->TokenID;
-        inventory.AddTokenStackFromID(tokenID, tokenCount);
+            tokenID = ReflectFields->TokenID;
+            inventory.AddTokenStackFromID(tokenID, tokenCount);
+        }
     }
 }
 
@@ -90,9 +96,12 @@ void TokenChangeAction::UpdateActionInfo()
 {
      using namespace u8_literals;
     _actionInfo.clear();
-    std::u8string_view targetToolTip = TurnSystemHelper::GetTurnTargetToolTip(ReflectFields->Target);
-    _actionInfo = (const char*)targetToolTip.data();
-    _actionInfo += u8"의 부여되는 토큰을 "_c_str;
-    _actionInfo += TokenSystem::GetTokenNameFromID(ReflectFields->TokenID);
-    _actionInfo += u8" 토큰으로 변경합니다."_c_str;
+     if (TokenSystem* tokenSystem = SingletonComponent<TokenSystem>::GetInstance())
+     {
+         std::u8string_view targetToolTip = TurnSystemHelper::GetTurnTargetToolTip(ReflectFields->Target);
+         _actionInfo                      = (const char*)targetToolTip.data();
+         _actionInfo += u8"의 부여되는 토큰을 "_c_str;
+         _actionInfo += tokenSystem->GetTokenNameFromID(ReflectFields->TokenID);
+         _actionInfo += u8" 토큰으로 변경합니다."_c_str;
+     }
 }

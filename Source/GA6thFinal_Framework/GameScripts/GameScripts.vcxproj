@@ -306,6 +306,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\DifficultyManager\DifficultyEnum.h" />
     <ClInclude Include="Scripts\Token\Object\Haste\HasteToken.h" />
     <ClInclude Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.h" />
     <ClInclude Include="Scripts\AccessorySystem\AccessorySystem.h" />

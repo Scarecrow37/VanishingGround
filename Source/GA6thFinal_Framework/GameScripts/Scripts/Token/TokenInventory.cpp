@@ -2,6 +2,48 @@
 #include "TokenInventory.h"
 #include "TurnSystem/TurnActor/Character/CharacterBase.h"
 #include "TurnSystem/TurnMode/TurnMode.h"
+#include "Token/TokenSystem.h"
+
+namespace
+{
+    TokenSystem* GetTokenSystem()
+    {
+        return SingletonComponent<TokenSystem>::GetInstance();
+    }
+    IToken* GetTokenFromID(int tokenID)
+    {
+        if (TokenSystem* tokenSystem = GetTokenSystem())
+        {
+            return tokenSystem->GetTokenFromID(tokenID);
+        }
+        return nullptr;
+    }
+    void NotifyTokenEvent(std::function<void(Token&)> func)
+    {
+        if (TokenSystem* tokenSystem = GetTokenSystem())
+        {
+            const auto& instances = tokenSystem->GetTokenInstances();
+            for (auto& token : instances)
+            {
+                if (token && func)
+                {
+                    func(*token);
+                }
+            }
+        }
+    }
+    const char* GetTokenNameFromID(int tokenID)
+    {
+        if (TokenSystem* tokenSystem = GetTokenSystem())
+        {
+            if (const TokenData* tokenData = tokenSystem->GetTokenDataFromID(tokenID))
+            {
+                return tokenData->Name.c_str();
+            }
+        }
+        return "";
+    }
+}
 
 TokenInventory::TokenInventory(CharacterBase* owner) 
     : _tokenTable(), _owner(*owner)
@@ -26,356 +68,240 @@ void TokenInventory::Clear()
 
 void TokenInventory::NotifyCombatStart()
 {
-    const auto& instances = TokenSystem::GetTokenInstances();
-    for (auto& instance : instances)
+    NotifyTokenEvent([this](Token& token)
     {
-        Token* token = instance;
-        if (token)
+        bool valid = HasTokenFromID(token.GetTokenID());
+        if (valid)
         {
-            int count = GetTokenStackFromID(token->GetTokenID());
-            if (0 < count)
-            {
-                token->OnCombatStart(&_owner);
-            }
+            token.OnCombatStart(&_owner);
         }
-    }
+    });
 }
 
 void TokenInventory::NotifyRoundStart()
 {
-    const auto& instances = TokenSystem::GetTokenInstances();
-    for (auto& instance : instances)
+    NotifyTokenEvent([this](Token& token)
     {
-        Token* token = instance;
-        if (token)
+        bool valid = HasTokenFromID(token.GetTokenID());
+        if (valid)
         {
-            int count = GetTokenStackFromID(token->GetTokenID());
-            if (0 < count)
-            {
-                token->OnRoundStart(&_owner);
-            }
+            token.OnRoundStart(&_owner);
         }
-    }
+    });
 }
 
 void TokenInventory::NotifyRoundEnd()
 {
-    const auto& instances = TokenSystem::GetTokenInstances();
-    for (auto& instance : instances)
-    {
-        Token* token = instance;
-        if (token)
+    NotifyTokenEvent([this](Token& token) {
+        bool valid = HasTokenFromID(token.GetTokenID());
+        if (valid)
         {
-            int count = GetTokenStackFromID(token->GetTokenID());
-            if (0 < count)
-            {
-                token->OnRoundEnd(&_owner);
-            }
+            token.OnRoundEnd(&_owner);
         }
-    }
+    });
 }
 
 void TokenInventory::NotifyEachTurnStart(CharacterBase* destination) 
 {
-    const auto& instances = TokenSystem::GetTokenInstances();
-    for (auto& instance : instances)
-    {
-        Token* token = instance;
-        if (token)
+    NotifyTokenEvent([this, destination](Token& token) {
+        bool valid = HasTokenFromID(token.GetTokenID());
+        if (valid)
         {
-            int count = GetTokenStackFromID(token->GetTokenID());
-            if (0 < count)
-            {
-                token->OnEachTurnStart(&_owner, destination);
-            }
+            token.OnEachTurnStart(&_owner, destination);
         }
-    }
+    });
 }
 
 void TokenInventory::NotifyTurnStart()
 {
-    const auto& instances = TokenSystem::GetTokenInstances();
-    for (auto& instance : instances)
-    {
-        Token* token = instance;
-        if (token)
+    NotifyTokenEvent([this](Token& token) {
+        bool valid = HasTokenFromID(token.GetTokenID());
+        if (valid)
         {
-            int count = GetTokenStackFromID(token->GetTokenID());
-            if (0 < count)
-            {
-                token->OnTurnStart(&_owner);
-            }
+            token.OnTurnStart(&_owner);
         }
-    }
+    });
 }
 
 void TokenInventory::NotifyTurnEnd()
 {
-    const auto& instances = TokenSystem::GetTokenInstances();
-    for (auto& instance : instances)
-    {
-        Token* token = instance;
-        if (token)
+    NotifyTokenEvent([this](Token& token) {
+        bool valid = HasTokenFromID(token.GetTokenID());
+        if (valid)
         {
-            int count = GetTokenStackFromID(token->GetTokenID());
-            if (0 < count)
-            {
-                token->OnTurnEnd(&_owner);
-            }
+            token.OnTurnEnd(&_owner);
         }
-    }
+    });
 }
 
 void TokenInventory::NotifyHit()
 {
-    const auto& instances = TokenSystem::GetTokenInstances();
-    for (auto& instance : instances)
-    {
-        Token* token = instance;
-        if (token)
+    NotifyTokenEvent([this](Token& token) {
+        bool valid = HasTokenFromID(token.GetTokenID());
+        if (valid)
         {
-            int count = GetTokenStackFromID(token->GetTokenID());
-            if (0 < count)
-            {
-                token->OnHit(&_owner);
-            }
+            token.OnHit(&_owner);
         }
-    }
+    });
 }
 
 void TokenInventory::NotifyDead()
 {
-    const auto& instances = TokenSystem::GetTokenInstances();
-    for (auto& instance : instances)
-    {
-        Token* token = instance;
-        if (token)
+    NotifyTokenEvent([this](Token& token) {
+        bool valid = HasTokenFromID(token.GetTokenID());
+        if (valid)
         {
-            int count = GetTokenStackFromID(token->GetTokenID());
-            if (0 < count)
-            {
-                token->OnDead(&_owner);
-            }
+            token.OnDead(&_owner);
         }
-    }
+    });
 }
 
 void TokenInventory::NotifyKill(CharacterBase* destination)
 {
-    const auto& instances = TokenSystem::GetTokenInstances();
-    for (auto& instance : instances)
-    {
-        Token* token = instance;
-        if (token)
+    NotifyTokenEvent([this, destination](Token& token) {
+        bool valid = HasTokenFromID(token.GetTokenID());
+        if (valid)
         {
-            int count = GetTokenStackFromID(token->GetTokenID());
-            if (0 < count)
-            {
-                token->OnKill(&_owner, destination);
-            }
+            token.OnKill(&_owner, destination);
         }
-    }
+    });
 }
 
 void TokenInventory::NotifyTokenAdded(int tokenID)
 {
-    const auto& instances = TokenSystem::GetTokenInstances();
-    for (auto& instance : instances)
-    {
-        Token* token = instance;
-        if (token)
+    NotifyTokenEvent([this, tokenID](Token& token) {
+        bool valid = HasTokenFromID(token.GetTokenID());
+        if (valid)
         {
-            int count = GetTokenStackFromID(token->GetTokenID());
-            if (0 < count)
-            {
-                token->OnTokenAdded(&_owner, tokenID);
-            }
+            token.OnTokenAdded(&_owner, tokenID);
         }
-    }
+    });
 }
 
 void TokenInventory::NotifyTokenRemoved(int tokenID)
 {
-    const auto& instances = TokenSystem::GetTokenInstances();
-    for (auto& instance : instances)
-    {
-        Token* token = instance;
-        if (token)
+    NotifyTokenEvent([this, tokenID](Token& token) {
+        bool valid = HasTokenFromID(token.GetTokenID());
+        if (valid)
         {
-            int count = GetTokenStackFromID(token->GetTokenID());
-            if (0 < count)
-            {
-                token->OnTokenRemoved(&_owner, tokenID);
-            }
+            token.OnTokenRemoved(&_owner, tokenID);
         }
-    }
+    });
 }
 
 void TokenInventory::NotifyQTEStart()
 {
-    const auto& instances = TokenSystem::GetTokenInstances();
-    for (auto& instance : instances)
-    {
-        Token* token = instance;
-        if (token)
+    NotifyTokenEvent([this](Token& token) {
+        bool valid = HasTokenFromID(token.GetTokenID());
+        if (valid)
         {
-            int count = GetTokenStackFromID(token->GetTokenID());
-            if (0 < count)
-            {
-                token->OnQTEStart(&_owner);
-            }
+            token.OnQTEStart(&_owner);
         }
-    }
+    });
 }
 
 void TokenInventory::NotifyQTEEnd()
 {
-    const auto& instances = TokenSystem::GetTokenInstances();
-    for (auto& instance : instances)
-    {
-        Token* token = instance;
-        if (token)
+    NotifyTokenEvent([this](Token& token) {
+        bool valid = HasTokenFromID(token.GetTokenID());
+        if (valid)
         {
-            int count = GetTokenStackFromID(token->GetTokenID());
-            if (0 < count)
-            {
-                token->OnQTEEnd(&_owner);
-            }
+            token.OnQTEEnd(&_owner);
         }
-    }
+    });
 }
 
 void TokenInventory::NotifyPreBattleCalculateChain(Player& source, PlayerStats& sourceStats, WeaponStats& weaponStats,
                                                    Enemy& dest, EnemyStats& destStats)
 {
-    const auto& instances = TokenSystem::GetTokenInstances();
-    for (auto& token : instances)
-    {
-        if (token)
+    NotifyTokenEvent([&](Token& token) {
+        bool valid = HasTokenFromID(token.GetTokenID());
+        if (valid)
         {
-            int count = GetTokenStackFromID(token->GetTokenID());
-            if (0 < count)
-            {
-                token->OnPreBattleCalculateChain(source, sourceStats, weaponStats, dest, destStats);
-            }
+            token.OnPreBattleCalculateChain(source, sourceStats, weaponStats, dest, destStats);
         }
-    }
+    });
 }
 
 void TokenInventory::NotifyPreBattleCalculateChain(Enemy& source, EnemyStats& sourceStats, Player& dest,
                                                    PlayerStats& destStats)
 {
-    const auto& instances = TokenSystem::GetTokenInstances();
-    for (auto& token : instances)
-    {
-        if (token)
+    NotifyTokenEvent([&](Token& token) {
+        bool valid = HasTokenFromID(token.GetTokenID());
+        if (valid)
         {
-            int count = GetTokenStackFromID(token->GetTokenID());
-            if (0 < count)
-            {
-                token->OnPreBattleCalculateChain(source, sourceStats, dest, destStats);
-            }
+            token.OnPreBattleCalculateChain(source, sourceStats, dest, destStats);
         }
-    }
+    });
 }
 
 void TokenInventory::NotifyPreAttackBattleCalculateDamage(Player& source, PlayerStats& sourceStats,
                                                           WeaponStats& weaponStats, Enemy& dest, EnemyStats& destStats)
 {
-    const auto& instances = TokenSystem::GetTokenInstances();
-    for (auto& token : instances)
-    {
-        if (token)
+    NotifyTokenEvent([&](Token& token) {
+        bool valid = HasTokenFromID(token.GetTokenID());
+        if (valid)
         {
-            int count = GetTokenStackFromID(token->GetTokenID());
-            if (0 < count)
-            {
-                token->OnPreAttackBattleCalculateDamage(source, sourceStats, weaponStats, dest, destStats);
-            }
+            token.OnPreAttackBattleCalculateDamage(source, sourceStats, weaponStats, dest, destStats);
         }
-    }
+    });
 }
 
 void TokenInventory::NotifyPreAttackBattleCalculateDamage(Enemy& source, EnemyStats& sourceStats, Player& dest,
                                                           PlayerStats& destStats)
 {
-    const auto& instances = TokenSystem::GetTokenInstances();
-    for (auto& token : instances)
-    {
-        if (token)
+    NotifyTokenEvent([&](Token& token) {
+        bool valid = HasTokenFromID(token.GetTokenID());
+        if (valid)
         {
-            int count = GetTokenStackFromID(token->GetTokenID());
-            if (0 < count)
-            {
-                token->OnPreAttackBattleCalculateDamage(source, sourceStats, dest, destStats);
-            }
+            token.OnPreAttackBattleCalculateDamage(source, sourceStats, dest, destStats);
         }
-    }
+    });
 }
 
 void TokenInventory::NotifyPreHitBattleCalculateDamage(Player& source, PlayerStats& sourceStats, Enemy& dest, EnemyStats& destStats)
 {
-    const auto& instances = TokenSystem::GetTokenInstances();
-    for (auto& token : instances)
-    {
-        if (token)
+    NotifyTokenEvent([&](Token& token) {
+        bool valid = HasTokenFromID(token.GetTokenID());
+        if (valid)
         {
-            int count = GetTokenStackFromID(token->GetTokenID());
-            if (0 < count)
-            {
-                token->OnPreHitBattleCalculateDamage(source, sourceStats, dest, destStats);
-            }
+            token.OnPreHitBattleCalculateDamage(source, sourceStats, dest, destStats);
         }
-    }
+    });
 }
 
 void TokenInventory::NotifyPreHitBattleCalculateDamage(Enemy& source, EnemyStats& sourceStats, Player& dest,
                                                        PlayerStats& destStats)
 {
-    const auto& instances = TokenSystem::GetTokenInstances();
-    for (auto& token : instances)
-    {
-        if (token)
+    NotifyTokenEvent([&](Token& token) {
+        bool valid = HasTokenFromID(token.GetTokenID());
+        if (valid)
         {
-            int count = GetTokenStackFromID(token->GetTokenID());
-            if (0 < count)
-            {
-                token->OnPreHitBattleCalculateDamage(source, sourceStats, dest, destStats);
-            }
+            token.OnPreHitBattleCalculateDamage(source, sourceStats, dest, destStats);
         }
-    }
+    });
 }
 
 void TokenInventory::NotifyTakeDamage(int& damage) 
 {
-    const auto& instances = TokenSystem::GetTokenInstances();
-    for (auto& token : instances)
-    {
-        if (token)
+    NotifyTokenEvent([this, &damage](Token& token) {
+        bool valid = HasTokenFromID(token.GetTokenID());
+        if (valid)
         {
-            int count = GetTokenStackFromID(token->GetTokenID());
-            if (0 < count)
-            {
-                token->OnTakeDamage(&_owner, damage);
-            }
+            token.OnTakeDamage(&_owner, damage);
         }
-    }
+    });
 }
 
 void TokenInventory::NotifyRollRandomSpeed(int& randomSpeed) 
 {
-    const auto& instances = TokenSystem::GetTokenInstances();
-    for (auto& token : instances)
-    {
-        if (token)
+    NotifyTokenEvent([this, &randomSpeed](Token& token) {
+        bool valid = HasTokenFromID(token.GetTokenID());
+        if (valid)
         {
-            int count = GetTokenStackFromID(token->GetTokenID());
-            if (0 < count)
-            {
-                token->OnRollRandomSpeed(&_owner, randomSpeed);
-            }
+            token.OnRollRandomSpeed(&_owner, randomSpeed);
         }
-    }
+    });
 }
 
 void TokenInventory::AddTokenStackFromID(int tokenID, int count /* = 1 */)
@@ -397,7 +323,7 @@ void TokenInventory::AddTokenStackFromID(int tokenID, int count /* = 1 */)
     if (it != _tokenTable.end())
     {
         int maxStackCount = UINT_MAX;
-        IToken* token = TokenSystem::GetTokenFromID(tokenID);
+        IToken* token = GetTokenFromID(tokenID);
         if (token && token->CanAdd(&_owner))
         {
             maxStackCount   = token->GetMaxStackCount();
@@ -446,7 +372,7 @@ void TokenInventory::RemoveTokenStackFromID(int tokenID, int count /* = 1 */)
     auto it = _tokenTable.find(tokenID);
     if (it != _tokenTable.end())
     {
-        IToken* token = TokenSystem::GetTokenFromID(tokenID);
+        IToken* token = GetTokenFromID(tokenID);
         if (token && token->CanRemove(&_owner))
         {
             int& stackCount = it->second;
@@ -483,17 +409,16 @@ bool TokenInventory::HasTokenFromID(int tokenID) const
     return false;
 }
 
-bool TokenInventory::HasTokenFromTag(TokenTag tag) const
+bool TokenInventory::HasTokenFromTag(const std::string& tag) const
 {
-    const auto& tagTokens = TokenSystem::GetTokenInstancesFromTag(tag);
-    for (const auto& token : tagTokens)
+    if (TokenSystem* tokenSystem = GetTokenSystem())
     {
-        if (token)
+        if (auto* set = tokenSystem->GetTokenInstancesFromTag(tag))
         {
-            int count = GetTokenStackFromID(token->GetTokenID());
-            if (0 < count)
+            for (auto& token : *set)
             {
-                return true; // 해당 태그에 유효한 토큰이 존재합니다.
+                bool valid = HasTokenFromID(token->GetTokenID());
+                return valid;
             }
         }
     }
@@ -510,20 +435,6 @@ int TokenInventory::GetTokenStackFromID(int tokenID) const
     return 0;
 }
 
-int TokenInventory::GetTokenStackFromTag(TokenTag tokenTag) const
-{
-    int         total     = 0;
-    const auto& tagTokens = TokenSystem::GetTokenInstancesFromTag(tokenTag);
-    for (const auto& token : tagTokens)
-    {
-        if (token)
-        {
-            total += GetTokenStackFromID(token->GetTokenID());
-        }
-    }
-    return total;
-}
-
 size_t TokenInventory::GetValidTokenCount() const
 {
     return _vaildTokenVector.size();
@@ -536,78 +447,82 @@ bool TokenInventory::IsEmpty() const
 
 void TokenInventory::DrawImGuiDebugData() 
 {
-    // ValidTokenStack
-    ImGui::BeginChild("ValidTokenStack", ImVec2(0, 0), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY);
-    const auto& instances = TokenSystem::GetTokenInstances();
-    for (size_t i = 0; i < _vaildTokenVector.size(); ++i)
+    if (TokenSystem* tokenSystem = GetTokenSystem())
     {
-        TokenID tokenID = _vaildTokenVector[i];
-        const auto& tokenName = TokenSystem::GetTokenNameFromID(tokenID);
-        int tokenCount = GetTokenStackFromID(tokenID);
-        std::string tokenInfo = std::format("{} ({})", tokenName, tokenCount);
-        if (ImGui::Selectable(tokenInfo.c_str(), false))
-        {
-            // 선택된 토큰에 대한 추가 작업이 필요하면 여기에 작성
-        }
-        if (i < _vaildTokenVector.size() - 1)
-        {
-            ImGui::Separator();
-        }
-    }
-    ImGui::EndChild();
-    
-    if (ImGui::TreeNodeEx("Token Debug##token inventory"))
-    {
-        if (ImGui::TreeNodeEx("Token Instances##token inventory"))
-        {
-            ImGui::Text("Token Count: %zu", _vaildTokenVector.size());
-            ImGui::Text("Total Tokens: %zu", instances.size());
-            ImGui::BeginChild("TokenList", ImVec2(0, 200), true);
-            for (const auto& token : instances)
-            {
-                if (token)
-                {
-                    if (ImGui::Selectable(token->GetTokenName(), false))
-                    {
-                    }
-                }
-            }
-            ImGui::EndChild();
-            ImGui::TreePop();
-        }
+        const auto& instances = tokenSystem->GetTokenInstances();
 
-        static int id = 0;
-        const std::string& tokenName = SingletonComponent<TokenSystem>::GetInstance()->GetTokenNameFromID(id);
-        if (ImGui::TreeNodeEx("Add or Remove Token##token inventory"))
+        ImGui::BeginChild("ValidTokenStack", ImVec2(0, 0), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY);
+        for (size_t i = 0; i < _vaildTokenVector.size(); ++i)
         {
-            if (ImGui::BeginCombo("##Add or Remove TokenStack", tokenName.c_str()))
+            TokenID     tokenID     = _vaildTokenVector[i];
+            const auto& tokenName   = GetTokenNameFromID(tokenID);
+            int         tokenCount  = GetTokenStackFromID(tokenID);
+            std::string tokenInfo   = std::format("{} ({})", tokenName, tokenCount);
+            if (ImGui::Selectable(tokenInfo.c_str(), false))
             {
-                const auto& instances = TokenSystem::GetTokenInstances();
+                // 선택된 토큰에 대한 추가 작업이 필요하면 여기에 작성
+            }
+            if (i < _vaildTokenVector.size() - 1)
+            {
+                ImGui::Separator();
+            }
+        }
+        ImGui::EndChild();
+
+        if (ImGui::TreeNodeEx("Token Debug##token inventory"))
+        {
+            if (ImGui::TreeNodeEx("Token Instances##token inventory"))
+            {
+                ImGui::Text("Token Count: %zu", _vaildTokenVector.size());
+                ImGui::Text("Total Tokens: %zu", instances.size());
+                ImGui::BeginChild("TokenList", ImVec2(0, 200), true);
                 for (const auto& token : instances)
                 {
                     if (token)
                     {
-                        if (ImGui::Selectable(token->GetTokenName(), false))
+                        const std::string& name = token->GetTokenName();
+                        if (ImGui::Selectable(name.c_str(), false))
                         {
-                            id = token->GetTokenID();
                         }
                     }
                 }
-                ImGui::EndCombo();
+                ImGui::EndChild();
+                ImGui::TreePop();
             }
-            if (ImGui::Button("Add"))
+
+            static int  id        = 0;
+            const char* tokenName = GetTokenNameFromID(id);
+            if (ImGui::TreeNodeEx("Add or Remove Token##token inventory"))
             {
-                AddTokenStackFromID(id, 1); // 스택을 1개 추가합니다.
+                if (ImGui::BeginCombo("##Add or Remove TokenStack", tokenName))
+                {
+                    for (const auto& token : instances)
+                    {
+                        if (token)
+                        {
+                            const std::string& name = token->GetTokenName();
+                            if (ImGui::Selectable(name.c_str(), false))
+                            {
+                                id = token->GetTokenID();
+                            }
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
+                if (ImGui::Button("Add"))
+                {
+                    AddTokenStackFromID(id, 1); // 스택을 1개 추가합니다.
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Remove"))
+                {
+                    RemoveTokenStackFromID(id, 1); // 스택을 1개 제거합니다.
+                }
+                ImGui::TreePop();
             }
-            ImGui::SameLine();
-            if (ImGui::Button("Remove"))
-            {
-                RemoveTokenStackFromID(id, 1); // 스택을 1개 제거합니다.
-            }
+
             ImGui::TreePop();
         }
-
-        ImGui::TreePop();
     }
 }
 
@@ -615,12 +530,15 @@ void TokenInventory::InitTokenInstance()
 {
     // 테이블에 존재하는 토큰을 모두 초기화합니다.
     _tokenTable.clear();
-    auto& tokenVector = TokenSystem::GetTokenInstances();
-    for (const auto& token : tokenVector)
+    if (TokenSystem* tokenSystem = GetTokenSystem())
     {
-        if (token)
+        const auto& instances = tokenSystem->GetTokenInstances();
+        for (const auto& token : instances)
         {
-            _tokenTable[token->GetTokenID()] = 0;
+            if (token)
+            {
+                _tokenTable[token->GetTokenID()] = 0;
+            }
         }
     }
 }
