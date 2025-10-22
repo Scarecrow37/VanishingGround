@@ -23,6 +23,7 @@
 #include "ps_distortion_resolve.h"
 #include "ps_down_sample.h"
 #include "ps_dxrgbuffer.h"
+#include "ps_dxrgbuffer_masked.h"
 #include "ps_fade.h"
 #include "ps_forward_pbr_lighting.h"
 #include "ps_fxaa.h"

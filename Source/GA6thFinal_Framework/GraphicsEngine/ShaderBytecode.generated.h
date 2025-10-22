@@ -19,6 +19,7 @@ namespace GE
             case PS::DISTORTION_RESOLVE: return { g_ps_distortion_resolve, sizeof(g_ps_distortion_resolve) };
             case PS::DOWN_SAMPLE: return { g_ps_down_sample, sizeof(g_ps_down_sample) };
             case PS::DXRGBUFFER: return { g_ps_dxrgbuffer, sizeof(g_ps_dxrgbuffer) };
+            case PS::DXRGBUFFER_MASKED: return { g_ps_dxrgbuffer_masked, sizeof(g_ps_dxrgbuffer_masked) };
             case PS::FADE: return { g_ps_fade, sizeof(g_ps_fade) };
             case PS::FORWARD_PBR_LIGHTING: return { g_ps_forward_pbr_lighting, sizeof(g_ps_forward_pbr_lighting) };
             case PS::FXAA: return { g_ps_fxaa, sizeof(g_ps_fxaa) };
