@@ -106,7 +106,6 @@ namespace Monster
         }
     } // namespace ExcelData
 
-    const char*              SpawnPointToString(SpawnPoint point);
     int                      StringToInt(std::string_view str);
     bool                     StringToInt(std::string_view str, int& outValue);
     std::vector<int>         ParseParam(std::string_view paramStr); // ex) 1, 5, 2 (데미지1, 데미지2, 데미지3)
@@ -120,4 +119,20 @@ namespace Monster
     /// <param name="battleCount">전투 횟수 카운트입니다.</param>
     constexpr const char*   SPAWN_ID_HEADER = "211";
     SpawnID                 GetSpawnID(size_t mainLevelIndex, size_t subLevelIndex, size_t battleCount);
+
+    constexpr const char*   SpawnPointToString(SpawnPoint point)
+    {
+        switch (point)
+        {
+        case SpawnPoint::Left:
+            return "Left";
+        case SpawnPoint::Middle:
+            return "Middle";
+        case SpawnPoint::Right:
+            return "Right";
+        default:
+            break;
+        }
+        return "";
+    }
 } // namespace Monster

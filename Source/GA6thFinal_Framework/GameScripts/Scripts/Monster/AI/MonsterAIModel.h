@@ -150,8 +150,8 @@ namespace Monster
     private:
         Node*                                   _currNode  = nullptr;
         Node*                                   _entryNode = nullptr;
-        std::unordered_map<std::string, Node*>  _nodeTable;
         size_t                                  _transitionCount = 0; // 전이 횟수
+        std::unordered_map<std::string, std::unique_ptr<Node>> _nodeTable;
     };
 }
 

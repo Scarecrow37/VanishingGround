@@ -12,6 +12,7 @@
 #include <Stats/Enemy/EnemyStats.h>
 #include <Stats/Enemy/EnemyStatsComponent.h>
 #include <Monster/Common/MonsterCommon.h>
+#include <Monster/System/MonsterSystem.h>
 
 void Battle::operator()(Player& attacker, EnemyTargetFlag targetFlag, const QTE::NoteResult& result)
 {
@@ -53,39 +54,17 @@ void Battle::operator()(Enemy& attacker, Player& target)
 std::vector<Enemy*> Battle::GetTargetsFromFlags(EnemyTargetFlag targetFlag)
 {
     std::vector<Enemy*> selectedTargets;
-    TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
-    if (turnMode)
+    if (MonsterSystem* monsterSystem = SingletonComponent<MonsterSystem>::GetInstance())
     {
-        CombatStartPhase* combatStartPhase = turnMode->States->CombatStartPhase;
-        if (combatStartPhase)
+        EnemyTargetBitset bitset(targetFlag);
+        for (size_t i = 0; i < bitset.size(); i++)
         {
-            bool isValidFlag = (targetFlag & ~ENEMY_TARGET_FLAG_ALL) == 0;
-            if (isValidFlag)
+            if (bitset.test(i))
             {
-                auto& enemys = combatStartPhase->GetEnemies();
-                EnemyTargetBitset bitset(targetFlag);
-                for (size_t i = 0; i < bitset.size(); i++)
+                auto weakEnemy = monsterSystem->GetSpawnedEnemyFromSpawnPoint(static_cast<Monster::SpawnPoint>(i));
+                if (Enemy* enemy = weakEnemy.lock().get())
                 {
-                    if (bitset.test(i))
-                    {
-                        Enemy* enemy = combatStartPhase->GetEnemyFromSpawnPoint(static_cast<Monster::SpawnPoint>(i));
-                        if (enemy)
-                        {
-                            selectedTargets.push_back(enemy);
-                        }
-                        //try
-                        //{
-                        //    Enemy* enemy = enemys.at(i);
-                        //    if (enemy)
-                        //    {
-                        //        selectedTargets.push_back(enemy);
-                        //    }
-                        //}
-                        //catch (const std::exception&)
-                        //{
-                        //    UmLogger.Log(LogLevel::LEVEL_WARNING, u8"유효하지 않은 enemies 범위입니다.");
-                        //}
-                    }
+                    selectedTargets.push_back(enemy);
                 }
             }
         }

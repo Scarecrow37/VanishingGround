@@ -228,9 +228,8 @@ namespace Monster
                 {
                     for (const auto& weakEnemy : *weakEnemies)
                     {
-                        if (false == weakEnemy.expired())
+                        if (auto sharedEnemy = weakEnemy.lock())
                         {
-                            auto sharedEnemy = weakEnemy.lock();
                             if (false == sharedEnemy->IsDead())
                             {
                                 weakTarget = std::static_pointer_cast<CharacterBase>(sharedEnemy);
