@@ -572,6 +572,9 @@
     <ClInclude Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.h" />
     <ClInclude Include="Scripts\WeaponSystem\WeaponSystem.h" />
     <ClInclude Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.h" />
+    <ClInclude Include="Scripts\Token\Object\Slow\SlowToken.h" />
+    <ClInclude Include="Scripts\Token\Common\TokenCommon.h" />
+    <ClInclude Include="Scripts\Utility\StringHelper.h" />
     <ClInclude Include="UmScriptCore.h" />
     <ClInclude Include="UmScriptsExport.h" />
   </ItemGroup>
@@ -842,6 +845,9 @@
     <ClCompile Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.cpp" />
     <ClCompile Include="Scripts\WeaponSystem\WeaponSystem.cpp" />
     <ClCompile Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Slow\SlowToken.cpp" />
+    <ClCompile Include="Scripts\Token\Common\TokenCommon.cpp" />
+    <ClCompile Include="Scripts\Utility\StringHelper.cpp" />
     <ClCompile Include="UmScriptCore.cpp" />
     <ClCompile Include="UmScriptsExport.cpp" />
   </ItemGroup>
