@@ -1,13 +1,14 @@
 ﻿#pragma once
+
 #include <Token/Token.h>
 
 namespace TokenObject
 {
-    // 분노 토큰
-    class Rage : public Token
+    // 약화 토큰
+    class Weakness : public Token
     {
+    private:
         void OnTurnEnd(CharacterBase* owner) override;
-
         void OnPreAttackBattleCalculateDamage(Player& attacker, PlayerStats& attackerStats,
                                               WeaponStats& weaponStats, QTE::NoteResult& noteResult, Enemy& target,
                                               EnemyStats& targetStats) override;
@@ -15,12 +16,16 @@ namespace TokenObject
                                               PlayerStats& targetStats) override;
     };
 
-    class Rage1 : public Rage
+    class Weakness1 : public Weakness
     {
-        TOKEN_DATA(205021)
+        TOKEN_DATA(205024)
     };
-    class Rage2 : public Rage
+    class Weakness2 : public Weakness
     {
-        TOKEN_DATA(205022)
+        TOKEN_DATA(205025)
     };
-} // namespace TokenObject
+    class Weakness3 : public Weakness
+    {
+        TOKEN_DATA(205026)
+    };
+}

@@ -307,6 +307,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\Token\Object\DeathSentence\DeathSentence.h" />
+    <ClInclude Include="Scripts\Token\Object\Rage\RageToken.h" />
+    <ClInclude Include="Scripts\Token\Object\Focus\FocusToken.h" />
     <ClInclude Include="Scripts\Token\Object\Obsession\ObsessionToken.h" />
     <ClInclude Include="Scripts\DifficultyManager\DifficultyEnum.h" />
     <ClInclude Include="Scripts\Token\Object\Haste\HasteToken.h" />
@@ -580,14 +583,18 @@
     <ClInclude Include="Scripts\Utility\StringHelper.h" />
     <ClInclude Include="UmScriptCore.h" />
     <ClInclude Include="UmScriptsExport.h" />
+    <ClInclude Include="Scripts\Token\Object\Weakness\WeaknessToken.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\Token\Object\DeathSentence\DeathSentence.cpp" />
     <ClCompile Include="dllmain.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">Use</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Scripts\Token\Object\Rage\RageToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Focus\FocusToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\Obsession\ObsessionToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\Haste\HasteToken.cpp" />
     <ClCompile Include="pchScripts.cpp">
@@ -854,6 +861,7 @@
     <ClCompile Include="Scripts\Utility\StringHelper.cpp" />
     <ClCompile Include="UmScriptCore.cpp" />
     <ClCompile Include="UmScriptsExport.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Weakness\WeaknessToken.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
