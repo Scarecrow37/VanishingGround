@@ -4,6 +4,11 @@
 
 class TextElement : public DrawUIComponent
 {
+    enum FontFlags : uint32_t
+    {
+        FONT_FLAG_NONE    = 0,
+        FONT_FLAG_OUTLINE = 1 << 0,
+    };
     USING_PROPERTY(TextElement)
 
 public:
@@ -15,7 +20,7 @@ public:
     ~TextElement() override;
 
 public:
-    REFLECT_PROPERTY(FilePath, Text, Color, FontScale)
+    REFLECT_PROPERTY(FilePath, Text, Color, FontScale, OutlineColor, OutlineWidth, IsOutlineEnabled)
 
     GETTER_ONLY(std::string, FilePath) { return _Guid.ToPath().string(); }
     PROPERTY(FilePath)
@@ -58,9 +63,41 @@ public:
     }
     PROPERTY(FontWeight)
 
-
     GETTER_ONLY(SIZE, ContentSize) { return ReflectFields->ContentSize; }
     PROPERTY(ContentSize)
+
+    GETTER(Vector3, OutlineColor) { return Vector3(ReflectFields->FontOutline[0]); }
+    SETTER(Vector3, OutlineColor)
+    {
+        ReflectFields->FontOutline[0] = value.x;
+        ReflectFields->FontOutline[1] = value.y;
+        ReflectFields->FontOutline[2] = value.z;
+        TestUpdateOutline();
+    }
+    PROPERTY(OutlineColor)
+
+    GETTER(float, OutlineWidth) { return ReflectFields->FontOutline[3]; }
+    SETTER(float, OutlineWidth)
+    {
+        ReflectFields->FontOutline[3] = std::max(0.0f, value);
+        TestUpdateOutline();
+    }
+    PROPERTY(OutlineWidth)
+
+    GETTER(bool, IsOutlineEnabled) { return (ReflectFields->FontFlags & FONT_FLAG_OUTLINE) != 0; }
+    SETTER(bool, IsOutlineEnabled)
+    {
+        if (value)
+        {
+            ReflectFields->FontFlags |= FONT_FLAG_OUTLINE;
+        }
+        else
+        {
+            ReflectFields->FontFlags &= ~FONT_FLAG_OUTLINE;
+        }
+        TestUpdateOutline();
+    }
+    PROPERTY(IsOutlineEnabled)
 
 public:
     void SetFont(const File::Guid& Guid);
@@ -87,6 +124,8 @@ private:
     void UpdateWeight() const;
     void UpdateContentSize();
 
+    void TestUpdateOutline();
+
 protected:
     REFLECT_FIELDS_BEGIN(DrawUIComponent)
     std::string          Guid;
@@ -95,6 +134,8 @@ protected:
     float                FontScale    = 32.0f;
     SIZE                 ContentSize  = SIZE{};
     float                FontWeight   = 0.5f;
+    std::array<float, 4> FontOutline  = {0.0f, 0.0f, 0.0f, 1.0f};
+    UINT                 FontFlags    = FONT_FLAG_NONE;
     REFLECT_FIELDS_END(TextElement)
 
 private:
