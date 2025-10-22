@@ -479,7 +479,10 @@ namespace ImGuiHelper
                     if (toolTips)
                     {
                         auto& toolTipArray = *toolTips;
-                        ImGuiHelper::HoveredToolTip((const char*)toolTipArray[i].data());
+                        if (i < toolTipArray.size())
+                        {
+                            ImGuiHelper::HoveredToolTip((const char*)toolTipArray[i].data());
+                        }                        
                     }
                 }
                 ImGui::PopID();

@@ -10,7 +10,7 @@ public:
 
     enum class TriggerType
     {
-        KILL_ENEMY,
+        WEAPON_KILL_ENEMY,
     };
 
     // 대상
@@ -51,7 +51,7 @@ public:
 
 protected:
     REFLECT_FIELDS_BEGIN(TurnAction)
-    TriggerType Trigger = TriggerType::KILL_ENEMY;
+    TriggerType Trigger = TriggerType::WEAPON_KILL_ENEMY;
     ActionTarget Target = ActionTarget::SELF;
     int RecoveryHP = 0;
     REFLECT_FIELDS_END(RecoveryAction)
@@ -60,8 +60,9 @@ private:
     const std::string& GetActionName() override;
     const std::string& GetActionInfo() override;
     void               ImGuiDrawActionEditor() override;
-    void               OnEnemyDead(Enemy& enemy) override;
     void               DeserializedReflectEvent() override;
     void               UpdateActionInfo();
+
+    void               OnEnemyDeadByWeapon(Enemy& enemy, WeaponElement& weapon) override;
     std::string        _actionInfo;
 };
