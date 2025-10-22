@@ -185,6 +185,8 @@ void CharacterBase::TakeDamage(int damage, bool playAnim)
         std::string msg   = std::format("{}{} {}{}", owner.ToString(), (const char*)u8"이(가)", damage,
                                         (const char*)u8"의 피해를 입었습니다.");
         UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
+
+        OnHit();
     }
     if (State != STATE::Dead)
     {

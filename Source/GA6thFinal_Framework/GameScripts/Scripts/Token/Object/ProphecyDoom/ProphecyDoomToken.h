@@ -9,5 +9,6 @@ namespace TokenObject
         TOKEN_DATA(205044)
     private:
         void OnTurnEnd(CharacterBase* owner) override;
+
     };
 } // namespace TokenObject
