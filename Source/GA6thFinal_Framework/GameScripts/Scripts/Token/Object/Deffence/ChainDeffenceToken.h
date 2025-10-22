@@ -1,5 +1,4 @@
 ﻿#pragma once
-
 #include <Token/Token.h>
 
 namespace TokenObject

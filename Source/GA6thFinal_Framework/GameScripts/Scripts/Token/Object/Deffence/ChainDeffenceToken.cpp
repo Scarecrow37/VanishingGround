@@ -1,7 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "ChainDeffenceToken.h"
-#include "TurnSystem/TurnActor/Character/Player/Player.h"
-#include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
+#include "TurnSystem/TurnActor/Character/CharacterBase.h"
 #include "Stats/Enemy/EnemyStats.h"
 #include "Stats/Player/PlayerStats.h"
 #include "Stats/Weapon/WeaponStats.h"
@@ -9,7 +8,6 @@
 
 namespace TokenObject
 {
-    REGISTER_TOKEN(ChainDeffence1)
     REGISTER_TOKEN(ChainDeffence2)
     REGISTER_TOKEN(ChainDeffence3)
     REGISTER_TOKEN(ChainDeffence4)
@@ -20,7 +18,7 @@ namespace TokenObject
 
     void ChainDeffence::OnRoundStart(CharacterBase* owner)
     {
-        if (owner)
+        if (owner && false == owner->IsDead())
         {
             const int tokenID = GetTokenID();
             auto& tokenInventory = owner->GetTokenInventory();
@@ -39,7 +37,7 @@ namespace TokenObject
             const int param = GetTokenParam(0);
             const float factor = static_cast<float>(param) / 100.0f;
 
-            // TODO: 이거 100%방어가 아예 무시인건지, 아니면 합연산을 통해 무조건 100% 방어가 되는건지 확인 필요
+            // TODO: 이거 100%방어가 아예 무시인건지, 아니면 합연산을 통해 무조건 100% 방어가 안될 수도 있는건지 확인 필요
             weaponStats.HitDamageMultiplier -= factor;
         }
     }
