@@ -8,6 +8,7 @@
 
 #include <BattleSystem/Battle.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
+#include "UI/Elements/SpriteAnimation/SpriteAnimationElement.h"
 
 UMREAL_COMPONENT(QTEUIManager)
 
@@ -22,6 +23,9 @@ void QTEUIManager::OnQTEEnter()
     {
         FindUIComponents();
     }
+
+    StartBeginQTEAnimation();
+
     // 오브젝트 활성화 QTE UI 페이드 인 시작
     _mainFader.SetFadeMode(Fader::FADE_IN);
     
@@ -35,6 +39,11 @@ void QTEUIManager::OnQTEEnter()
 void QTEUIManager::OnQTENotePressed(QTE::ResultType result)
 {
     // TODO : QTE Effect
+    if (_qteJudgeNoteUI)
+    {
+        _qteJudgeNoteUI->Setup();
+        _qteJudgeNoteUI->StartAnimation();
+    }
 }
 
 void QTEUIManager::OnQTEStay() 
@@ -161,7 +170,8 @@ void QTEUIManager::Start()
         }
     });
     _mainFader.SetOnFadeOutEndCallback([this]() {
-        SetUIAlpha(0.0f);
+        SetQTEBarUIAlpha(0.0f);
+        SetQTEAnimBarUIAlpha(0.0f);
         SetBackgroundUIAlpha(0.0f);
         SetGuideNoteUIAlpha(1.0f);
         SetGuideNoteActive(true);
@@ -255,6 +265,15 @@ void QTEUIManager::ImGuiDrawPropertysEvent()
     }
 }
 
+void QTEUIManager::StartBeginQTEAnimation() const
+{
+    if (_qteStartAnimationUI)
+    {
+        _qteStartAnimationUI->Setup();
+        _qteStartAnimationUI->StartAnimation();
+    }
+}
+
 void QTEUIManager::SetNotePrefabGuid(const File::Guid& guid) 
 {
     _notePrefabGuid               = guid;
@@ -303,9 +322,10 @@ void QTEUIManager::SetGuideNoteActive(bool active)
     }
 }
 
-void QTEUIManager::SetUIAlpha(float factor)
+void QTEUIManager::SetQTEBarUIAlpha(float factor)
 {
     factor = std::clamp(factor, 0.0f, 1.0f);
+
     if (_qteNoteLineUI)
     {
         _qteNoteLineUI->Alpha = factor;
@@ -313,6 +333,16 @@ void QTEUIManager::SetUIAlpha(float factor)
     if (_qteJudgeNoteUI)
     {
         _qteJudgeNoteUI->Alpha = factor;
+    }
+}
+
+void QTEUIManager::SetQTEAnimBarUIAlpha(float factor)
+{
+    factor = std::clamp(factor, 0.0f, 1.0f);
+
+    if (_qteStartAnimationUI)
+    {
+        _qteStartAnimationUI->Alpha = factor;
     }
 }
 
@@ -351,13 +381,17 @@ void QTEUIManager::UpdateQTEUI()
     switch (mode)
     {
     case Fader::FADE_NONE:
+        SetQTEBarUIAlpha(factor);
+        SetQTEAnimBarUIAlpha(0.0f);
         break;
     case Fader::FADE_IN: {
-        SetUIAlpha(factor);
+        SetQTEBarUIAlpha(0.0f);
+        SetQTEAnimBarUIAlpha(factor);
         break;
     }
     case Fader::FADE_OUT: {
-        SetUIAlpha(factor);
+        SetQTEBarUIAlpha(factor);
+        SetQTEAnimBarUIAlpha(0.0f);
         SetBackgroundUIAlpha(factor);
         break;
     }
@@ -466,18 +500,19 @@ bool QTEUIManager::RefreshGuideNoteUITransformData()
 
 bool QTEUIManager::CheckUIValid()
 {
-    return _qteOverlayPanel && _qteBackgroundUI && _qteNoteLineUI && _qteJudgeNoteUI;
+    return _qteOverlayPanel && _qteBackgroundUI && _qteNoteLineUI && _qteJudgeNoteUI && _qteStartAnimationUI;
 }
 
 void QTEUIManager::FindUIComponents()
 {
-    _qteOverlayPanel    = nullptr;
-    _qteBackgroundUI    = nullptr;
-    _qteNoteLineUI      = nullptr;
-    _qteJudgeNoteUI     = nullptr;
-    _qteGuideNoteX      = nullptr;
-    _qteGuideNoteY      = nullptr;
-    _qteGuideNoteB      = nullptr;
+    _qteOverlayPanel     = nullptr;
+    _qteBackgroundUI     = nullptr;
+    _qteNoteLineUI       = nullptr;
+    _qteJudgeNoteUI      = nullptr;
+    _qteGuideNoteX       = nullptr;
+    _qteGuideNoteY       = nullptr;
+    _qteGuideNoteB       = nullptr;
+    _qteStartAnimationUI = nullptr;
 
     Transform::ForeachBFS(transform, [this](Transform* curr) {
         if (!_qteOverlayPanel && curr->gameObject->CompareTag("QTE Panel"))
@@ -494,7 +529,7 @@ void QTEUIManager::FindUIComponents()
         }
         else if (!_qteJudgeNoteUI && curr->gameObject->CompareTag("QTE Judge Note"))
         {
-            _qteJudgeNoteUI = curr->gameObject->GetComponent<ImageElement>();
+            _qteJudgeNoteUI = curr->gameObject->GetComponent<SpriteAnimationElement>();
         }
         else if (!_qteGuideNoteX && curr->gameObject->CompareTag("Guide Note X"))
         {
@@ -507,6 +542,10 @@ void QTEUIManager::FindUIComponents()
         else if (!_qteGuideNoteB && curr->gameObject->CompareTag("Guide Note B"))
         {
             _qteGuideNoteB = curr->gameObject->GetComponent<ImageElement>();
+        }
+        else if (!_qteStartAnimationUI && curr->gameObject->CompareTag("QTE Start Animation"))
+        {
+            _qteStartAnimationUI = curr->gameObject->GetComponent<SpriteAnimationElement>();
         }
     });
 
@@ -541,6 +580,10 @@ void QTEUIManager::FindUIComponents()
     if (nullptr == _qteGuideNoteB)
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Guide Note B를 찾지 못했습니다.");
+    }
+    if (nullptr == _qteStartAnimationUI)
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"QTE Start Animation UI를 찾지 못했습니다.");
     }
 }
 

@@ -382,7 +382,7 @@ void CombatStartPhase::RefreshUI()
     if (QTEUIManager* uiManager = QTEUIManager::GetInstance())
     {
         uiManager->Refresh();
-        uiManager->SetUIAlpha(0.0f);
+        uiManager->SetQTEBarUIAlpha(0.0f);
         uiManager->SetBackgroundUIAlpha(0.0f);
     }
 }

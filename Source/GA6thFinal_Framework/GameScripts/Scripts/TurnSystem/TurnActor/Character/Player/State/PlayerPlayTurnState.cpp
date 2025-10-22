@@ -199,7 +199,7 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
         bool input  = _isDownAKey || _isDownAButton;
         qteUIManager->SetBackgroundUIAlpha(t);
         qteUIManager->SetGuideNoteUIAlpha(1.0f - t);
-        qteUIManager->SetUIAlpha(0.0f);
+        qteUIManager->SetQTEBarUIAlpha(0.0f);
         qteUIManager->SetActive(true);
         if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
         {

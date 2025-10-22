@@ -24,7 +24,6 @@ void SpriteAnimationElement::Setup()
     const int frameCount = FrameCount;
     _durationPerFrame = ReflectFields->Duration / static_cast<float>(frameCount);
     _currentFrame        = 0;
-    _isPlaying           = true;
 }
 
 void SpriteAnimationElement::ResetUV()
@@ -57,4 +56,14 @@ void SpriteAnimationElement::UpdateFrame()
     ReflectFields->Basefields.get().ColumnIndex = _currentFrame % ReflectFields->Basefields.get().Column;
 
     UpdateAtlasIndex();
+}
+
+void SpriteAnimationElement::StartAnimation()
+{
+    _isPlaying = true;
+}
+
+void SpriteAnimationElement::StopAnimation()
+{
+    _isPlaying = false;
 }

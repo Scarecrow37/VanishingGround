@@ -33,11 +33,18 @@ public:
     GETTER_ONLY(int, FrameCount) { return GridCount - EmptyFrameCount; }
     PROPERTY(FrameCount)
 
+    GETTER_ONLY(bool, IsPlaying) { return _isPlaying; }
+    PROPERTY(IsPlaying)
+
+public:
+    void Setup();
+    void StartAnimation();
+    void StopAnimation();
+
 protected:
     void Start() override;
     void Update() override;
 
-    void Setup();
     void ResetUV();
 
     void UpdateFrame();
