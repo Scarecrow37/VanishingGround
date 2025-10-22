@@ -48,8 +48,7 @@ namespace
 TokenInventory::TokenInventory(CharacterBase* owner) 
     : _tokenTable(), _owner(*owner)
 {
-    // 토큰 테이블 초기화
-    InitTokenInstance();
+    Initialize();
 }
 
 TokenInventory::~TokenInventory() 
@@ -58,12 +57,30 @@ TokenInventory::~TokenInventory()
     _vaildTokenVector.clear();
 }
 
+void TokenInventory::Initialize()
+{
+    _vaildTokenVector.clear();
+    _tokenTable.clear();
+    if (TokenSystem* tokenSystem = GetTokenSystem())
+    {
+        const auto& instances = tokenSystem->GetTokenInstances();
+        for (const auto& token : instances)
+        {
+            if (token)
+            {
+                _tokenTable[token->GetTokenID()] = 0;
+            }
+        }
+    }
+}
+
 void TokenInventory::Clear()
 {
     for (auto& [id, token] : _tokenTable)
     {
         RemoveTokenFromID(id);
     }
+    _vaildTokenVector.clear();
 }
 
 void TokenInventory::NotifyCombatStart()
@@ -323,10 +340,10 @@ void TokenInventory::AddTokenStackFromID(int tokenID, int count /* = 1 */)
     auto it = _tokenTable.find(tokenID);
     if (it != _tokenTable.end())
     {
-        int  maxStackCount = UINT_MAX;
-        int& curStackCount = it->second;
         if (IToken* token = GetTokenFromID(tokenID))
         {
+            int  maxStackCount = token->GetMaxStackCount();
+            int& curStackCount = it->second;
             if (curStackCount >= maxStackCount)
             {   // 이미 최대 스택에 도달했으면 추가하지 않습니다.(이벤트를 호출하지 않기 위해 필요)
                 return; 
@@ -383,9 +400,9 @@ void TokenInventory::RemoveTokenStackFromID(int tokenID, int count /* = 1 */)
     auto it = _tokenTable.find(tokenID);
     if (it != _tokenTable.end())
     {
-        int& curStackCount = it->second;
         if (IToken* token = GetTokenFromID(tokenID))
         {
+            int& curStackCount = it->second;
             if (curStackCount <= 0)
             { // 이미 최대 스택에 도달했으면 추가하지 않습니다.(이벤트를 호출하지 않기 위해 필요)
                 return;
@@ -412,14 +429,12 @@ void TokenInventory::RemoveTokenStackFromID(int tokenID, int count /* = 1 */)
 
 void TokenInventory::RemoveTokenFromID(int tokenID)
 {
-    auto iter =_tokenTable.find(tokenID);
-    if (iter != _tokenTable.end())
+    if (_tokenTable.contains(tokenID))
     {
-        int* count = &iter->second;
-        if (0 < *count)
+        int& count = _tokenTable[tokenID];
+        if (0 < count)
         {
-            *count = 0; // 스택 카운트를 0으로 설정하여 토큰을 제거합니다.
-            UpdateToken(tokenID);
+            RemoveTokenStackFromID(tokenID, count);
         }
     }
 }
@@ -597,23 +612,6 @@ void TokenInventory::DrawImGuiDebugData()
             }
 
             ImGui::TreePop();
-        }
-    }
-}
-
-void TokenInventory::InitTokenInstance()
-{
-    // 테이블에 존재하는 토큰을 모두 초기화합니다.
-    _tokenTable.clear();
-    if (TokenSystem* tokenSystem = GetTokenSystem())
-    {
-        const auto& instances = tokenSystem->GetTokenInstances();
-        for (const auto& token : instances)
-        {
-            if (token)
-            {
-                _tokenTable[token->GetTokenID()] = 0;
-            }
         }
     }
 }

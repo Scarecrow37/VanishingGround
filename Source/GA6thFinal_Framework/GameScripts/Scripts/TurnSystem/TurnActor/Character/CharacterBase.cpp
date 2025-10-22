@@ -1,13 +1,14 @@
 ﻿#include "pchScripts.h"
 #include "CharacterBase.h"
 
-#include "Audio/AudioTableComponent.h"
 #include "Stats/CharacterStats.h"
 #include "TurnSystem/TurnMode/TurnMode.h"
 
 #include <Mesh/SkeletalMeshRenderer.h>
 #include <Animation/AnimationComponent.h>
 #include <Particle/ParticleComponent.h>
+
+#include "Token/Object/Stun/StunToken.h"
 
 REFLECT_FUNCTION(CharacterBase)
 
@@ -88,6 +89,7 @@ void CharacterBase::Awake()
     _skeletalMeshRenderer = nullptr;
     _animationComponent   = nullptr;
     _particleComponent    = nullptr;
+
     FindComponent();
     InitAnimationCallback();
 }
@@ -142,7 +144,7 @@ void CharacterBase::ClearState()
     CharacterStats* stats = GetCharacterStats();
     if (stats)
     {
-        _tokenInventory.AddTokenStackFromID(16008, stats->StunResistance);    
+        _tokenInventory.AddTokenStackFromID(TokenObject::StunResistance::ID, stats->StunResistance);    
     }
     if (_animationComponent)
     {

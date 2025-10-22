@@ -22,9 +22,9 @@ void TokenSystem::Reset()
             _tokenDataTable.clear();
             LoadTokenDataFromExcelData(dataSystem);
         }
+        RegisterAllTokenInstance();
+        SortByOrder();
     }
-    RegisterAllTokenInstance();
-    SortByOrder();
 }
 
 void TokenSystem::Awake() 
@@ -39,6 +39,8 @@ void TokenSystem::Awake()
             _tokenDataTable.clear();
             LoadTokenDataFromExcelData(dataSystem);
         }
+        RegisterAllTokenInstance();
+        SortByOrder();
     }
 }
 

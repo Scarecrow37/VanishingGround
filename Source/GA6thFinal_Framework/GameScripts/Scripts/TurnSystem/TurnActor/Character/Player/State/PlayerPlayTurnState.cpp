@@ -18,6 +18,7 @@
 
 #include <CombatUIManager/CombatUIManager.h>
 
+#include <Stats/CharacterStats.h>
 
 using namespace u8_literals;
 
@@ -174,6 +175,14 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
         }
         ImGui::Separator();
         Player& player = GetPlayer();
+        if (ImGui::Button((const char*)u8"[플레이어] 회복"))
+        {
+            if (CharacterStats* stats = player.GetCharacterStats())
+            {
+                stats->CurrentHP += 10;
+                stats->CurrentHP = std::clamp((int)stats->CurrentHP, 0, (int)stats->MaxHP);
+            }
+        }
         if (ImGui::Button((const char*)u8"[플레이어] 자해"))
         {
             player.TakeDamage(10);

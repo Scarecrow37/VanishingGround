@@ -32,7 +32,7 @@ namespace TokenObject
 
     void Stun::OnTurnStart(CharacterBase* owner)
     {
-        if (owner && owner->State != TurnActor::STATE::Dead)
+        if (owner && false == owner->IsDead())
         {
             // 기절 상태인 경우, 턴을 넘김
             auto& tokenInventory = owner->GetTokenInventory();

@@ -36,6 +36,7 @@ void Enemy::PlayTurn()
 void Enemy::ImGuiDrawPropertysEvent()
 {
     Base::ImGuiDrawPropertysEvent();
+    ImGui::Separator();
    
     if (ImGui::TreeNodeEx("Monster Controller##enemy component", ImGuiTreeNodeFlags_DefaultOpen))
     {

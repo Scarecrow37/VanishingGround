@@ -15,6 +15,8 @@ public:
     ~TokenInventory();
 
 public:
+    void Initialize();
+
     /// <summary>
     /// 테이블의 토큰을 모두 제거합니다.
     /// </summary>
@@ -181,11 +183,6 @@ public:
     void DrawImGuiDebugData();
 
 private:
-    /// <summary>
-    /// 토큰 테이블에 모든 인스턴스를 초기화합니다.
-    /// </summary>
-    void InitTokenInstance();
-
     /// <summary>
     /// 해당 토큰에 대한 업데이트를 수행합니다.
     /// </summary>
