@@ -106,17 +106,17 @@ struct WeaponStats : public TurnActorStats
     //int 일반 데미지
     PROPERTY(HitDamage)
 
-    SETTER(float, HitDamageMultiplier) { ReflectFields->HitDamageMultiplier = std::max(value, 0.f); }
+    SETTER(float, HitDamageMultiplier) { ReflectFields->HitDamageMultiplier = value; }
     GETTER(float, HitDamageMultiplier) { return ReflectFields->HitDamageMultiplier; }
     //float 일반 데미지 배율
     PROPERTY(HitDamageMultiplier)
 
-    SETTER(int, CriticalDamage) { ReflectFields->CriticalDamage = std::max(value, 1); }
+    SETTER(int, CriticalDamage) { ReflectFields->CriticalDamage = value; }
     GETTER(int, CriticalDamage) { return ReflectFields->CriticalDamage; }
     //int 크리티컬 데미지
     PROPERTY(CriticalDamage)
 
-    SETTER(float, CriticalDamageMultiplier) { ReflectFields->CriticalDamageMultiplier = std::max(value, 0.f); }
+    SETTER(float, CriticalDamageMultiplier) { ReflectFields->CriticalDamageMultiplier = value; }
     GETTER(float, CriticalDamageMultiplier) { return ReflectFields->CriticalDamageMultiplier; }
     //float 크리티컬 데미지 배율
     PROPERTY(CriticalDamageMultiplier)
@@ -136,7 +136,7 @@ struct WeaponStats : public TurnActorStats
     //int 공격 당 연격 부여량
     PROPERTY(AttackPerChain)
 
-    SETTER(float, AttackPerChainMultiplier) { ReflectFields->AttackPerChainMultiplier = std::max(value, 0.f); }
+    SETTER(float, AttackPerChainMultiplier) { ReflectFields->AttackPerChainMultiplier = value; }
     GETTER(float, AttackPerChainMultiplier) { return ReflectFields->AttackPerChainMultiplier; }
     //float 공격 당 연격 부여량 배율
     PROPERTY(AttackPerChainMultiplier)

@@ -26,7 +26,9 @@ int DamageSystem::CalculateDamage(const PlayerInfo& attacker, const EnemyInfo& t
     default:
         break;
     }
-    hitDamage = static_cast<int>(std::round(hitDamage * criticalDamageMultiplier));
+    hitDamage                   = std::max(hitDamage, 1);
+    criticalDamageMultiplier    = std::max(criticalDamageMultiplier, 0.0f);
+    hitDamage                   = static_cast<int>(std::round(hitDamage * criticalDamageMultiplier));
     return hitDamage;
 }
 
@@ -34,7 +36,9 @@ int DamageSystem::CalculateChainDamage(const PlayerInfo& attacker, const EnemyIn
 {
     int   chainDamage           = attacker._weaponStats.AttackPerChain;
     float chainDamageMultiplier = attacker._weaponStats.AttackPerChainMultiplier;
-    chainDamage               = static_cast<int>(std::round(chainDamage * chainDamageMultiplier));
+    chainDamage                 = std::max(chainDamage, 1);
+    chainDamageMultiplier       = std::max(chainDamageMultiplier, 0.0f);
+    chainDamage = static_cast<int>(std::round(chainDamage * chainDamageMultiplier));
     return chainDamage;
 }
 
@@ -42,6 +46,8 @@ int DamageSystem::CalculateDamage(const EnemyInfo& attacker, const PlayerInfo& t
 {
     int   hitDamage                = attacker._enemyStats.Damage;
     float criticalDamageMultiplier = attacker._enemyStats.DamageMultiplier;
+    hitDamage                      = std::max(hitDamage, 1);
+    criticalDamageMultiplier       = std::max(criticalDamageMultiplier, 0.0f);
     hitDamage                      = static_cast<int>(std::round(hitDamage * criticalDamageMultiplier));
     return hitDamage;
 }

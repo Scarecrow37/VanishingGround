@@ -307,6 +307,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\Token\Object\ChainDeffence\ChainDeffenceToken.h" />
     <ClInclude Include="Scripts\Token\Object\DeathSentence\DeathSentence.h" />
     <ClInclude Include="Scripts\Token\Object\Rage\RageToken.h" />
     <ClInclude Include="Scripts\Token\Object\Focus\FocusToken.h" />
@@ -586,6 +587,7 @@
     <ClInclude Include="Scripts\Token\Object\Weakness\WeaknessToken.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\Token\Object\ChainDeffence\ChainDeffenceToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\DeathSentence\DeathSentence.cpp" />
     <ClCompile Include="dllmain.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
