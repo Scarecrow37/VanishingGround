@@ -212,46 +212,6 @@ void CharacterBase::TakeDamage(int damage, bool playAnim)
     }
 }
 
-void CharacterBase::TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim)
-{
-    if (TurnActor::STATE::Dead == GetActorState())
-    {
-        GameObject& owner = gameObject;
-        std::string msg = std::format("{}{}", owner.ToString(), (const char*)u8" 대한 공격 빗나감.");
-        UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
-        return;
-    }
-    if (QTE::QTE_RESULT_MISS == result.Result)
-    {
-        GameObject& owner = gameObject;
-        std::string msg   = std::format("{}{}", owner.ToString(), (const char*)u8" 대한 공격 빗나감.");
-        UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
-        return;
-    }
-
-    switch (result.Result)
-    {
-        case QTE::QTE_RESULT_PERFECT:
-        {
-            GameObject& owner = gameObject;
-            std::string msg   = std::format("{}{}", owner.ToString(), (const char*)u8" 대한 공격 치명타!!");
-            UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
-            break;
-        }
-        case QTE::QTE_RESULT_NORMAL:
-        {
-            GameObject& owner = gameObject;
-            std::string msg   = std::format("{}{}", owner.ToString(), (const char*)u8" 대한 공격 일격!!");
-            UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
-            break;
-        }
-        default:
-            break;
-    }
-       
-    TakeDamage(damage, playAnim);
-}
-
 void CharacterBase::TakeChain(int chainDamage) 
 {
     if (TurnActor::STATE::Dead == GetActorState())

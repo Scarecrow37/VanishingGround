@@ -148,20 +148,31 @@ public:
     /// <summary>
     /// 토큰 ID로 해당 토큰의 스택 카운트를 반환합니다.
     /// </summary>
-    /// <param name="tokenID"></param>
-    /// <returns></returns>
     int GetTokenStackFromID(int tokenID) const;
+
+    /// <summary>
+    /// 지정된 태그에 대응하는 모든 토큰의 스택을 합한 카운트를 반환합니다.
+    /// </summary>
+    int GetTokenStackFromTag(const std::string& tag) const;
 
     /// <summary>
     /// 유효한 토큰의 개수를 반환합니다.
     /// </summary>
-    /// <returns>유효한 토큰의 개수</returns>
-    size_t GetValidTokenCount() const;
+    int GetValidTokenCount() const;
 
     /// <summary>
-    /// 유효한 토큰이 있는지 확인합니다.
+    /// 해당 태크에 해당하는 유효한 토큰의 개수를 반환합니다.
     /// </summary>
-    /// <returns>유효한 토큰이 하나라도 있으면 true, 없으면 false</returns>
+    int GetValidTokenCount(const std::string& tag) const;
+
+    /// <summary>
+    /// 유효한 토큰 종류의 개수를 반환합니다.
+    /// </summary>
+    int GetValidTokenCountByTag() const;
+
+    /// <summary>
+    /// 유효한 토큰이 하나라도 있는지 확인합니다.
+    /// </summary>
     bool IsEmpty() const;
 
     /// <summary>

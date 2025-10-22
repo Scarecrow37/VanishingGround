@@ -103,14 +103,33 @@ void Enemy::TakeDamage(int damage, bool playAnim)
 
 void Enemy::TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim)
 {
-    // 혹시나 그럴 일 없겠지만 중간에 계산할 연산이 또 있다면 재연산
-    int takeDamage = damage;
-    Base::TakeDamage(takeDamage, result, playAnim);
+    GameObject& owner = gameObject;
     ParticleComponent* particle = GetParticleComponent();
-    if (particle && result.IsHit())
+    if (true == IsDead() || false == result.IsHit())
     {
-        particle->PlayEffect("normalhit");
+        std::string msg   = std::format("{}{}", owner.ToString(), (const char*)u8" 대한 공격 빗나감.");
+        UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
+        return;
     }
+    switch (result.Result)
+    {
+    case QTE::QTE_RESULT_PERFECT: {
+       
+        std::string msg = std::format("{}{}", owner.ToString(), (const char*)u8" 대한 공격 치명타!!");
+        UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
+        particle->PlayEffect("normalhit"); // TODO: 치명타 이펙트 적용 필요. 일단 기본 이펙트로 적용 (진우형)
+        break;
+    }
+    case QTE::QTE_RESULT_NORMAL: {
+        std::string msg = std::format("{}{}", owner.ToString(), (const char*)u8" 대한 공격 일격!!");
+        UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
+        particle->PlayEffect("normalhit");
+        break;
+    }
+    default:
+        break;
+    }
+    TakeDamage(damage, playAnim);
 }
 
 void Enemy::Awake()

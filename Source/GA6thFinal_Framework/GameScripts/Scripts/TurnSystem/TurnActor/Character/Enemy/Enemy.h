@@ -70,7 +70,7 @@ public:
     void Revive() override;
     /*Enemy에게 피격을 가합니다.*/
     void TakeDamage(int damage, bool playAnim = true) override;
-    void TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim = true) override;
+    void TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim = true);
 
     inline Monster::Controller&     GetController() { return _controller; }
     inline FiniteStateMachine&      GetFSM() { return *_finiteStateMachine; }

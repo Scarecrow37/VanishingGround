@@ -421,11 +421,11 @@ bool TokenInventory::HasTokenFromTag(const std::string& tag) const
 {
     if (TokenSystem* tokenSystem = GetTokenSystem())
     {
-        if (auto* set = tokenSystem->GetTokenInstancesFromTag(tag))
+        if (auto* set = tokenSystem->GetTokenIDSetFromTag(tag))
         {
-            for (auto& token : *set)
+            for (auto& id : *set)
             {
-                bool valid = HasTokenFromID(token->GetTokenID());
+                bool valid = HasTokenFromID(id);
                 return valid;
             }
         }
@@ -443,9 +443,58 @@ int TokenInventory::GetTokenStackFromID(int tokenID) const
     return 0;
 }
 
-size_t TokenInventory::GetValidTokenCount() const
+int TokenInventory::GetTokenStackFromTag(const std::string& tag) const
 {
-    return _vaildTokenVector.size();
+    int count = 0;
+    if (TokenSystem* tokenSystem = GetTokenSystem())
+    {
+        if (auto* set = tokenSystem->GetTokenIDSetFromTag(tag))
+        {
+            for (auto& id : *set)
+            {
+                count += GetTokenStackFromID(id);
+            }
+        }
+    }
+    return count;
+}
+
+int TokenInventory::GetValidTokenCount() const
+{
+    return static_cast<int>(_vaildTokenVector.size());
+}
+
+int TokenInventory::GetValidTokenCount(const std::string& tag) const
+{
+    int count = 0;
+    if (TokenSystem* tokenSystem = GetTokenSystem())
+    {
+        if (auto* set = tokenSystem->GetTokenIDSetFromTag(tag))
+        {
+            for (auto& id : *set)
+            {
+                count += HasTokenFromID(id) ? 1 : 0;
+            }
+        }
+    }
+    return count;
+}
+
+int TokenInventory::GetValidTokenCountByTag() const
+{
+    int count = 0;
+    if (TokenSystem* tokenSystem = GetTokenSystem())
+    {
+        const auto& tagTable = tokenSystem->GetTokenTagTable();
+        for (const auto& [tag, idSet] : tagTable)
+        {
+            if (HasTokenFromTag(tag))
+            {
+                ++count;
+            }
+        }
+    }
+    return count;
 }
 
 bool TokenInventory::IsEmpty() const

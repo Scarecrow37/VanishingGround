@@ -98,8 +98,7 @@ void TokenSystem::RegisterTokenInstanceToTable(Token* token)
         const std::string& tag  = token->GetTokenTag();
 
         _tokenIDTable[id]       = token;
-        _tokenNameTable[name]   = token;
-        _tokenTagTable[tag].insert(token);
+        _tokenTagTable[tag].insert(id);
 
         _tokenInstances.push_back(std::unique_ptr<Token>(token));
     }
@@ -114,10 +113,9 @@ void TokenSystem::UnregisterTokenInstanceToTable(Token* token)
         const std::string&  tag  = token->GetTokenTag();
 
         _tokenIDTable.erase(id);
-        _tokenNameTable.erase(name);
         if (_tokenTagTable.contains(tag))
         {
-            _tokenTagTable[tag].erase(token);
+            _tokenTagTable[tag].erase(id);
             if (_tokenTagTable[tag].empty())
             {
                 _tokenTagTable.erase(tag); // 태그가 비어있으면 제거
@@ -186,7 +184,6 @@ void TokenSystem::Clear()
 {
     _tokenInstances.clear();
     _tokenIDTable.clear();
-    _tokenNameTable.clear();
     _tokenTagTable.clear();
 }
 
@@ -210,7 +207,7 @@ IToken* TokenSystem::GetTokenFromID(TokenID tokenID)
     return nullptr;
 }
 
-const std::string& TokenSystem::GetTokenNameFromID(int tokenID)
+const std::string& TokenSystem::GetTokenNameFromID(TokenID tokenID)
 {
     if (_tokenIDTable.contains(tokenID))
     {
@@ -229,7 +226,7 @@ const TokenData* TokenSystem::GetTokenDataFromID(TokenID tokenID)
     return nullptr;
 }
 
-const std::set<Token*>* TokenSystem::GetTokenInstancesFromTag(const std::string& tag)
+const std::set<TokenID>* TokenSystem::GetTokenIDSetFromTag(const std::string& tag)
 {
     if (_tokenTagTable.contains(tag))
     {

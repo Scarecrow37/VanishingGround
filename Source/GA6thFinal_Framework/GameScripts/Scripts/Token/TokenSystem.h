@@ -41,18 +41,14 @@ private:
     void ImGuiDrawPropertysEvent() override;
 
 public:
-    /// <summary> TokenID를 통해 IToken을 가져옵니다. </summary>
     IToken* GetTokenFromID(TokenID tokenID);
-
     const std::string& GetTokenNameFromID(TokenID tokenID);
-
-    /// <summary> TokenID를 통해 토큰 데이터를 가져옵니다. </summary>
     const TokenData* GetTokenDataFromID(TokenID tokenID);
-
-    const std::set<Token*>* GetTokenInstancesFromTag(const std::string& tag);
+    const std::set<TokenID>* GetTokenIDSetFromTag(const std::string& tag);
 
     /// <summary> 정렬되어있는 토큰 리스트입니다. </summary>
     inline const std::vector<std::unique_ptr<Token>>&  GetTokenInstances() { return _tokenInstances; }
+    inline const std::unordered_map<std::string, std::set<TokenID>>& GetTokenTagTable() { return _tokenTagTable; }
 
 private:
     void Clear();
@@ -68,9 +64,8 @@ private:
 
     std::unordered_map<TokenID, TokenData>                  _tokenDataTable; // 토큰 데이터 테이블
     std::vector<std::unique_ptr<Token>>                     _tokenInstances; // 토큰 인스턴스 리스트
-    std::unordered_map<TokenID,     Token*>                 _tokenIDTable;
-    std::unordered_map<std::string, Token*>                 _tokenNameTable;
-    std::unordered_map<std::string, std::set<Token*>>       _tokenTagTable;
+    std::unordered_map<TokenID, Token*>                     _tokenIDTable;
+    std::unordered_map<std::string, std::set<TokenID>>      _tokenTagTable;
 
     REFLECT_FIELDS_BEGIN(Component)
     REFLECT_FIELDS_END(TokenSystem)
