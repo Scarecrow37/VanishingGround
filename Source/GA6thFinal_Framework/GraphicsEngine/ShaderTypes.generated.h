@@ -34,6 +34,7 @@ namespace GE
         DISTORTION_RESOLVE,
         DOWN_SAMPLE,
         DXRGBUFFER,
+        DXRGBUFFER_MASKED,
         FADE,
         FORWARD_PBR_LIGHTING,
         FXAA,
