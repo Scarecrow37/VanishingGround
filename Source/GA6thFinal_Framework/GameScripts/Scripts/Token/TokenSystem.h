@@ -62,10 +62,10 @@ private:
     SingletonObject<TokenSystem>    _singletonObject{this};
     SingletonComponent<TokenSystem> _singletonComponent{this};
 
-    std::unordered_map<TokenID, TokenData>                  _tokenDataTable; // 토큰 데이터 테이블
+    std::map<TokenID, TokenData>                            _tokenDataTable; // 토큰 데이터 테이블
     std::vector<std::unique_ptr<Token>>                     _tokenInstances; // 토큰 인스턴스 리스트
-    std::unordered_map<TokenID, Token*>                     _tokenIDTable;
-    std::unordered_map<std::string, std::set<TokenID>>      _tokenTagTable;
+    std::map<TokenID, Token*>                               _tokenIDTable;   // 토큰 ID별로 토큰 인스턴스 매핑 테이블
+    std::unordered_map<std::string, std::set<TokenID>>      _tokenTagTable;  // 토큰 태그별로 토큰 ID 매핑 테이블
 
     REFLECT_FIELDS_BEGIN(Component)
     REFLECT_FIELDS_END(TokenSystem)
@@ -82,9 +82,6 @@ public:
     /// <returns>등록 성공 여부입니다.</returns>
     template <typename T>  requires std::is_base_of_v<Token, T>
     static bool RegisterTokenFactory();
-
-    /// <summary>토큰 ID를 통해 토큰 인스턴스를 생성합니다.</summary>
-    static bool CreateTokenInstanceFromID(int tokenID, Token** ppToken);
 
 private:
     inline static std::unordered_map<TokenID, std::function<Token*()>> _tokenIDFactoryTable;   // 토큰 ID별로 토큰 생성 팩토리 함수

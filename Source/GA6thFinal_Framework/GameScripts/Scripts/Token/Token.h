@@ -6,12 +6,13 @@
 #define TOKEN_DATA(id)                                              \
 public:                                                             \
 static constexpr int ID = id;                                       \
-inline int GetTokenID() const  override { return ID; }                  
+inline int GetTokenID() const  override { return ID; }              
 
 class Token : public IToken
 {
     USING_PROPERTY(Token)
-  
+    friend class TokenSystem;
+
 public:
     Token();
     ~Token() override;
@@ -70,7 +71,7 @@ protected:
     std::string TokenLog(CharacterBase& dest);
 
 protected:
-    TokenData   _tokenData;
+    TokenData _tokenData;
 
     std::function<void(int)> _dirtyOrderCallback = nullptr; // 우선순위가 변경되었을 때 호출되는 콜백 함수
 };

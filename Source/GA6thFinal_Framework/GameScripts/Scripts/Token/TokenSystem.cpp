@@ -53,18 +53,19 @@ void TokenSystem::ImGuiDrawPropertysEvent()
     {
         ImGui::Text("Total Token Instances: %zu", _tokenInstances.size());
         ImGui::Separator();
-        for (const auto& token : _tokenInstances)
+        for (const auto& [id, token] : _tokenIDTable)
         {
             if (token)
             {
                 const std::string& name = token->GetTokenName();
-                ImGui::Selectable(name.c_str());
+                const std::string label = std::format("{} : {}", id, name);
+                ImGui::Selectable(label.c_str());
                 if (ImGui::IsItemHovered())
                 {
                     if (ImGui::BeginTooltip())
                     {
                         const std::string& tag = token->GetTokenTag();
-                        ImGui::Text("ID: %d", token->GetTokenID());
+                        ImGui::Text("ID: %d", id);
                         ImGui::Text("Tag: %s", tag.c_str());
                         ImGui::Text("Max Stack: %d", token->GetMaxStackCount());
                         ImGui::EndTooltip();
@@ -80,10 +81,10 @@ void TokenSystem::RegisterAllTokenInstance()
 {
     for (const auto& [id, constructor] : _tokenIDFactoryTable)
     {
-        auto it = _tokenIDTable.find(id);
-        if (it == _tokenIDTable.end())
+        if (_tokenDataTable.contains(id))
         {
             Token* instance = constructor();
+            instance->_tokenData = _tokenDataTable[id];
             RegisterTokenInstanceToTable(instance);
         }
     }
@@ -185,17 +186,6 @@ void TokenSystem::Clear()
     _tokenInstances.clear();
     _tokenIDTable.clear();
     _tokenTagTable.clear();
-}
-
-bool TokenSystem::CreateTokenInstanceFromID(int tokenID, Token** ppToken)
-{
-    auto it = _tokenIDFactoryTable.find(tokenID);
-    if (it != _tokenIDFactoryTable.end())
-    {
-        (*ppToken) = it->second();
-        return true;
-    }
-    return false;
 }
 
 IToken* TokenSystem::GetTokenFromID(TokenID tokenID)

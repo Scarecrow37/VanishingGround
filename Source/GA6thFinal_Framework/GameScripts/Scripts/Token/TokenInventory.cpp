@@ -337,6 +337,15 @@ void TokenInventory::AddTokenStackFromID(int tokenID, int count /* = 1 */)
                 curStackCount = std::min(maxStackCount, curStackCount);
                 UpdateToken(tokenID);
                 _owner.OnTokenAdded(tokenID);
+                std::string msg = std::format("{}{}{}{}{}{}", 
+                    _owner.gameObject->ToString(),
+                    (const char*)u8" 이(가) ",
+                    token->GetTokenName(),
+                    (const char*)u8" 토큰을 ",
+                    count,
+                    (const char*)u8"개 부여했습니다."
+                );
+                UmLogger.Log(LogLevel::LEVEL_DEBUG, msg);
             }
         }
     }
@@ -387,6 +396,15 @@ void TokenInventory::RemoveTokenStackFromID(int tokenID, int count /* = 1 */)
                 curStackCount = std::max(0, curStackCount);
                 UpdateToken(tokenID);
                 _owner.OnTokenRemoved(tokenID);
+                std::string msg = std::format("{}{}{}{}{}{}", 
+                    _owner.gameObject->ToString(),
+                    (const char*)u8" 이(가) ",
+                    token->GetTokenName(),
+                    (const char*)u8" 토큰을 ",
+                    count,
+                    (const char*)u8"개 제거했습니다."
+                );
+                UmLogger.Log(LogLevel::LEVEL_DEBUG, msg);
             }
         }
     }
