@@ -165,9 +165,9 @@ void ItemDropUIRootManager::Start()
                 _artifactUIManager = std::static_pointer_cast<ArtifactUIManager>(weakComponent.lock());
             }
         }
-        if (auto itemInfoUI = GameObject::FindWithTag(ItemInfoUIManager::TAG).lock())
+        if (auto itemInfoUI = transform->FindWithTag(ItemInfoUIManager::TAG))
         {
-            if (ItemInfoUIManager* component = itemInfoUI->GetComponent<ItemInfoUIManager>())
+            if (ItemInfoUIManager* component = itemInfoUI->gameObject->GetComponent<ItemInfoUIManager>())
             {
                 auto weakComponent = component->GetWeakPtr();
                 _itemInfoUIManager = std::static_pointer_cast<ItemInfoUIManager>(weakComponent.lock());
