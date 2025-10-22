@@ -9,6 +9,8 @@
 #include "ItemDropSystem/UINavi/ArtifactButtonNavi.h"
 #include "ItemDropSystem/UI/WeaponChangeUIManager.h"
 #include "ItemDropSystem/UI/EraseRevelationUIManager.h"
+#include "Preferences/PreferencesManager.h"
+#include "Inventory/UI/InventoryUIManager.h"
 
 UMREAL_COMPONENT(ItemDropUIRootManager)
 
@@ -214,21 +216,42 @@ void ItemDropUIRootManager::UpdateAutoFocus()
 {
     if (_isFocusInput)
     {
-        WeaponChangeUIManager*    weaponChaingUI    = WeaponChangeUI;
-        EraseRevelationUIManager* eraseRevelationUI = EraseRevelationUI;
-        bool                      isFocus           = true;
+        WeaponChangeUIManager*    weaponChaingUI     = WeaponChangeUI;
+        EraseRevelationUIManager* eraseRevelationUI  = EraseRevelationUI;
+        InventoryUIManager*       inventoryUI        = SingletonComponent<InventoryUIManager>::GetInstance();
+        PreferencesManager*       preferencesManager = SingletonComponent<PreferencesManager>::GetInstance();
+
         if (weaponChaingUI)
         {
-            isFocus &= weaponChaingUI->gameObject->ActiveInHierarchy == false;
+            if (weaponChaingUI->gameObject->ActiveInHierarchy)
+            {
+                goto label_end;
+            }
         }
         if (eraseRevelationUI)
         {
-            isFocus &= eraseRevelationUI->gameObject->ActiveInHierarchy == false;
+            if (eraseRevelationUI->gameObject->ActiveInHierarchy)
+            {
+                goto label_end;
+            }
         }
-        if (isFocus)
+        if (inventoryUI)
         {
-            AutoFocus(true);
+            if (inventoryUI->gameObject->ActiveInHierarchy)
+            {
+                goto label_end;
+            }
         }
+        if (preferencesManager)
+        {
+            if (preferencesManager->IsOpen())
+            {
+                goto label_end;
+            }
+        }
+
+        AutoFocus(true);
+label_end:
         _isFocusInput = false;
     }
 }
