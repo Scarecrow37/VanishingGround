@@ -13,6 +13,16 @@ void TokenSystem::Reset()
 {
     Base::Reset();
     _singletonComponent.SetSingleTon();
+
+    if (false == UmCore->IsPlay())
+    {
+        // 엑셀 데이터를 로드
+        if (ExcelDataSystem* dataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
+        {
+            _tokenDataTable.clear();
+            LoadTokenDataFromExcelData(dataSystem);
+        }
+    }
     RegisterAllTokenInstance();
     SortByOrder();
 }
@@ -26,6 +36,7 @@ void TokenSystem::Awake()
         // 엑셀 데이터를 로드
         if (ExcelDataSystem* dataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
         {
+            _tokenDataTable.clear();
             LoadTokenDataFromExcelData(dataSystem);
         }
     }
@@ -38,6 +49,31 @@ void TokenSystem::OnDestroy()
 
 void TokenSystem::ImGuiDrawPropertysEvent() 
 {
+    if (ImGui::TreeNodeEx("Token Instances##Token System"))
+    {
+        ImGui::Text("Total Token Instances: %zu", _tokenInstances.size());
+        ImGui::Separator();
+        for (const auto& token : _tokenInstances)
+        {
+            if (token)
+            {
+                const std::string& name = token->GetTokenName();
+                ImGui::Selectable(name.c_str());
+                if (ImGui::IsItemHovered())
+                {
+                    if (ImGui::BeginTooltip())
+                    {
+                        const std::string& tag = token->GetTokenTag();
+                        ImGui::Text("ID: %d", token->GetTokenID());
+                        ImGui::Text("Tag: %s", tag.c_str());
+                        ImGui::Text("Max Stack: %d", token->GetMaxStackCount());
+                        ImGui::EndTooltip();
+                    }
+                }
+            }
+        }
+        ImGui::TreePop();
+    }
 }
 
 void TokenSystem::RegisterAllTokenInstance()
@@ -116,6 +152,11 @@ void TokenSystem::LoadTokenDataFromExcelData(ExcelDataSystem* dataSystem)
                 {
                     tokenData.Name = excelData;
                 }
+                excelData = dataBase->FindData(rowIndex, TokenExcelData::Key::TAG);
+                if (excelData != ExcelDataBase::FIND_STR_FAIL)
+                {
+                    tokenData.Tag = excelData;
+                }
                 excelData = dataBase->FindData(rowIndex, TokenExcelData::Key::ORDER);
                 if (excelData != ExcelDataBase::FIND_STR_FAIL)
                 {
@@ -135,6 +176,7 @@ void TokenSystem::LoadTokenDataFromExcelData(ExcelDataSystem* dataSystem)
                         tokenData.Params.push_back(param);
                     }
                 }
+                _tokenDataTable[tokenData.ID] = tokenData;
             }
         }
     }

@@ -101,7 +101,7 @@ inline bool TokenSystem::RegisterTokenFactory()
 {
     if (_tokenIDFactoryTable.contains(T::ID))
     {
-        assert(false); // [assert] 동일한 토큰 ID가 이미 등록되어 있습니다.
+        assert(false && "동일한 토큰 ID가 이미 등록되어 있습니다.");
         return false;
     }
     std::function<Token*()> factoryFunc = []() { return new T(); };

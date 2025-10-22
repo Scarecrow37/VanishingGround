@@ -373,6 +373,13 @@ void CharacterBase::OnNotifiedAnimationEvent(const Timeline::EventContext* conte
 
 void CharacterBase::ImGuiDrawPropertysEvent() 
 {
+    Base::ImGuiDrawPropertysEvent();
     ImGui::Separator();
-    _tokenInventory.DrawImGuiDebugData();
+    if (ImGui::TreeNodeEx("Token##enemy component", ImGuiTreeNodeFlags_DefaultOpen))
+    {
+        ImGui::PushID(&_tokenInventory);
+        _tokenInventory.DrawImGuiDebugData();
+        ImGui::PopID();
+        ImGui::TreePop();
+    }
 }
