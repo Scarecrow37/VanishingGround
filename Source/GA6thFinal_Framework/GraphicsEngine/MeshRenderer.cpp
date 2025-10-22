@@ -36,6 +36,7 @@ void MeshRenderer::SetModel(std::shared_ptr<Model> model)
     _model = model;
 
     _customDepths.resize(_model->GetMeshCount(), PostProcess::BLOOM);
+    _materials.resize(_model->GetMeshCount());
 
     const auto& animation = _model->GetAnimation();
 
@@ -70,6 +71,12 @@ void MeshRenderer::SetMaterial(const UINT meshIndex, const Material& material)
 void MeshRenderer::SetMasterMaterial(const UINT meshIndex, const Material& material)
 {    
     _model->SetMaterial(meshIndex, material);
+}
+
+void MeshRenderer::SetCustomMaterial(CustomLightType type, const std::any& customMaterial)
+{
+    _customLightType    = type;
+    _customMaterialData = customMaterial;
 }
 
 void MeshRenderer::AddReference()

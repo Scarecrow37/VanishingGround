@@ -22,11 +22,13 @@ struct InstanceData
 
 class DXRSkeletalMesh;
 class BaseMesh;
+class MeshRenderer;
 struct MeshInfo
 {
     InstanceData     InstanceData;
     Material         Material;
     BaseMesh*        Mesh;
+    MeshRenderer*    Renderer;
     DXRSkeletalMesh* SkinnedInstance;
     Matrix*          TransposeWorldMatrix;
     float            DepthKey;
