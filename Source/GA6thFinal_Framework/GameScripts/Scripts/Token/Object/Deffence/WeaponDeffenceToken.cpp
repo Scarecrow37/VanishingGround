@@ -1,8 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "WeaponDeffenceToken.h"
 #include "TurnSystem/TurnActor/Character/CharacterBase.h"
-#include "Stats/Enemy/EnemyStats.h"
-#include "Stats/Player/PlayerStats.h"
 #include "Token/TokenInventory.h"
 
 namespace TokenObject

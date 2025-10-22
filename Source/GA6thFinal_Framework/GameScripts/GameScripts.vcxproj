@@ -588,6 +588,7 @@
     <ClInclude Include="UmScriptsExport.h" />
     <ClInclude Include="Scripts\Token\Object\Weakness\WeaknessToken.h" />
     <ClInclude Include="Scripts\Token\Object\Deffence\WeaponDeffenceToken.h" />
+    <ClInclude Include="Scripts\Token\Object\Vanish\VanishToken.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scripts\Token\Object\ProphecyDoom\ProphecyDoomToken.cpp" />
@@ -870,6 +871,7 @@
     <ClCompile Include="UmScriptsExport.cpp" />
     <ClCompile Include="Scripts\Token\Object\Weakness\WeaknessToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\Deffence\WeaponDeffenceToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Vanish\VanishToken.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
