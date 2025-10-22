@@ -64,9 +64,9 @@ public:
     inline const std::string&   GetTokenTag()       const override { return _tokenData.Tag; }
     inline int                  GetTokenOrder()     const override { return _tokenData.Order; }
     inline int                  GetMaxStackCount()  const override { return _tokenData.MaxStack; }
+    int                         GetTokenParam(size_t index) const override;
 
 protected:
-    int         GetTokenParam(size_t index) const;
     std::string TokenLog(CharacterBase& dest);
 
 protected:

@@ -307,7 +307,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Scripts\Token\Object\ChainDeffence\ChainDeffenceToken.h" />
+    <ClInclude Include="Scripts\Token\Object\ProphecyDoom\ProphecyDoomToken.h" />
+    <ClInclude Include="Scripts\Token\Object\Blind\BlindToken.h" />
+    <ClInclude Include="Scripts\Token\Object\Deffence\ChainDeffenceToken.h" />
     <ClInclude Include="Scripts\Token\Object\DeathSentence\DeathSentence.h" />
     <ClInclude Include="Scripts\Token\Object\Rage\RageToken.h" />
     <ClInclude Include="Scripts\Token\Object\Focus\FocusToken.h" />
@@ -585,9 +587,12 @@
     <ClInclude Include="UmScriptCore.h" />
     <ClInclude Include="UmScriptsExport.h" />
     <ClInclude Include="Scripts\Token\Object\Weakness\WeaknessToken.h" />
+    <ClInclude Include="Scripts\Token\Object\Deffence\WeaponDeffenceToken.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Scripts\Token\Object\ChainDeffence\ChainDeffenceToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\ProphecyDoom\ProphecyDoomToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Blind\BlindToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Deffence\ChainDeffenceToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\DeathSentence\DeathSentence.cpp" />
     <ClCompile Include="dllmain.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
@@ -864,6 +869,7 @@
     <ClCompile Include="UmScriptCore.cpp" />
     <ClCompile Include="UmScriptsExport.cpp" />
     <ClCompile Include="Scripts\Token\Object\Weakness\WeaknessToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Deffence\WeaponDeffenceToken.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

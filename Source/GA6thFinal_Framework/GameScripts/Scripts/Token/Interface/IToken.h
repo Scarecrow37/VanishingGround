@@ -103,4 +103,5 @@ public:
     virtual int                 GetMaxStackCount() const                = 0;
     virtual const std::string&  GetTokenName() const                    = 0;
     virtual const std::string&  GetTokenTag() const                     = 0;
+    virtual int                 GetTokenParam(size_t index) const       = 0;
 };
