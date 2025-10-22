@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "../TurnAction/TurnAction.h"
 #include "Utility/SingletonHelper.h"
+#include "Monster/Common/MonsterCommon.h"
 
 class FiniteStateMachine;
 class TurnActor;
@@ -22,6 +23,7 @@ public:
     Player*                             GetPlayer();
     const std::vector<Enemy*>&          GetEnemies();
     const std::vector<CharacterBase*>&  GetCharacters();
+    Enemy*                              GetEnemyFromSpawnPoint(Monster::SpawnPoint spawnPoint);
 
     /// <summary>
     /// 라운드 카운트를 0으로 초기화합니다.

@@ -2,7 +2,7 @@
 #include "MainMenuNavigationBase.h"
 #include "UI/Elements/Text/TextElement.h"
 
-UMREAL_COMPONENT(MainMenuNavigationBase)
+REFLECT_FUNCTION(MainMenuNavigationBase)
 
 MainMenuNavigationBase::MainMenuNavigationBase() = default;
 

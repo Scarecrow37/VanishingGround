@@ -1,26 +1,26 @@
 struct ParticleInput
 {
-    float4 position;
-    float4 frameinfo; // duration, elapsedTime, currentIndex, isLoop
-    float3 axis;
-    float age;
-    float3 velocity;
-    float mass;
-    int emitterIndex;
-    float3 paddings;
-    float4x4 initialMatrix;
+    float4   Position;
+    float4   Frameinfo; // 
+    float3   Axis;
+    float    Age;
+    float3   Velocity;
+    float    Mass;
+    int      EmitterIndex;
+    float3   Paddings;
+    float4x4 InitialMatrix;
 };
 
 
 
 struct ParticleOutput
 {
-    float4 position; //ribbon -> normal
+    float4 Position; //ribbon -> normal
     float4x4 FinalMatrix;
     float4 Color;
     float4 FrameInfo; // ribbon-> x = ribbon width
     int EmitterIndex;
-    float3 paddings;
+    float3 Paddings;
     
 };
 
@@ -30,17 +30,17 @@ struct EmitterInfo
 {
     float4x4 WorldMatrix;
     float4x4 OrientedWorldMatrix;
-    float4 dragPoint;
-    float4 dragforce;
-    float4 vortexForce;
-    float4 startScale;
-    float4 endScale;
-    float4 startColor;
-    float4 endColor;
-    float4 particlelifetime;
-    float4 startNormal;
-    float4 endNormal;
-    float4 ribbonVector;
+    float4   DragPoint;
+    float4   DragForce;
+    float4   VortexForce;
+    float4   StartScale;
+    float4   EndScale;
+    float4   StartColor;
+    float4   EndColor;
+    float4   Particlelifetime;
+    float4   StartNormal;
+    float4   EndNormal;
+    float4   RibbonVector;
 };
 
 
@@ -50,10 +50,10 @@ struct MVP
     float4x4 ViewRotInvMatrix;
     float4x4 ProjMatrix;
     float4 CameraPos;
-    float deltaTime;
-    float4 pad1;
-    float4 pad2;
-    float3 pad3;
+    float DeltaTime;
+    float4 Pad1;
+    float4 Pad2;
+    float3 Pad3;
 };
 
 
@@ -85,23 +85,6 @@ float4x4 CalculateBillboardMatrix(
     return viewInvMatrix;
 }
 
-// 애니메이션 업데이트 함수
-float4 UpdateAnimation(float4 frameInfo, float deltaTime)
-{
-    float duration = frameInfo.x;
-    frameInfo.y += deltaTime;
-    uint currentFrame = frameInfo.z;
-
-    if (frameInfo.y >= duration)
-    {
-
-        currentFrame = min(currentFrame + 1, (uint) frameInfo.w - 1);
-        frameInfo.y -= duration;
-       
-    }
-
-    return float4(duration, frameInfo.y, currentFrame, frameInfo.w);
-}
 float4x4 CreateScaleMatrix(float4 scale)
 {
     return float4x4(

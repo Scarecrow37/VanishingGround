@@ -2,6 +2,8 @@
 #include "MeshComponent.h"
 #include "GraphicsEngine/Interface/IMeshRenderer.h"
 
+REFLECT_FUNCTION(MeshComponent)
+
 MeshComponent::MeshComponent() 
     : Component(Component::TYPE::MESH)
     , Renderer(_pMeshRenderer)

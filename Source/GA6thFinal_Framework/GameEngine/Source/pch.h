@@ -8,5 +8,6 @@
 #define PCH_H
 
 #include "UmFramework.h"
+#include "DLLExportDefine.h"
 
 #endif //PCH_H

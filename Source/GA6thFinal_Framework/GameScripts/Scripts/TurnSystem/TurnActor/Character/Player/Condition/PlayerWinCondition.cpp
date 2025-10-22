@@ -22,6 +22,7 @@ bool PlayerWinCondition::Evaluate()
     if (turnMode)
     {
         auto& enemies = turnMode->GetEnemies();
+        bool  allDead = true;
         for (auto& enemy : enemies)
         {
             EnemyStatsComponent* statsComponent = enemy->GetEnemyStats();
@@ -33,8 +34,9 @@ bool PlayerWinCondition::Evaluate()
                     return false;
                 }
             }
+            allDead = allDead && enemy->GetActorState() == TurnActor::STATE::Dead;
         }
-        return true;
+        return allDead;
     }
     return false;
 }

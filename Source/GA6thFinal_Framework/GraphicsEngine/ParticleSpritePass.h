@@ -20,10 +20,10 @@ private:
     void InitializeShaderAndPSO();
 
 private:    
-    SharedResource<UnorderedAccessView> _accumlateBuffer;
+    SharedResource<UnorderedAccessView> _accumulateBuffer;
     SharedResource<UnorderedAccessView> _revealageBuffer;
 
-    std::vector<int>                  _albedoTextureIDs;
+    std::vector<UINT>                  _albedoTextureIDs;
     std::unique_ptr<StructuredBuffer> _textureIDBuffer;
 
     FX<GE::VS::PARTICLE_QUAD, GE::PS::PARTICLE_QUAD> _fx;

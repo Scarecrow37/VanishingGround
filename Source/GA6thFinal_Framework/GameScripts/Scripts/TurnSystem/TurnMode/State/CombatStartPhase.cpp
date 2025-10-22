@@ -1,7 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "CombatStartPhase.h"
 
-#include "TurnSystem/TurnActor/Character/CharacterBase.h"
 #include "TurnSystem/TurnMode/TurnMode.h"
 #include "TurnSystem/TurnActor/Character/Player/Player.h"
 #include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
@@ -18,6 +17,10 @@
 #include "CombatUIManager/CombatUIManager.h"
 #include "QTE/UI/QTEUIManager.h"
 
+#include "Monster/System/MonsterSystem.h"
+
+#include "DifficultyManager/DifficultyManager.h"
+
 REGISTER_CLASS(FSMStateFactory, CombatStartPhase)
 
 static constexpr int EXPECTED_ENEMY_COUNT = 3;
@@ -32,7 +35,7 @@ CombatStartPhase::CombatStartPhase()
 
 CombatStartPhase::~CombatStartPhase() 
 {
-
+   
 }
 
 void CombatStartPhase::ResetCharacterStats()
@@ -40,6 +43,7 @@ void CombatStartPhase::ResetCharacterStats()
     _player = nullptr;
     _enemies.clear();
     _characters.clear();
+    _spawnPointEnemyTable.clear();
     // 씬에 존재하는 모든 캐릭터 추가
     for (auto& weak : GameObject::FindGameObjectsWithTag(CharacterBase::TAG))
     {
@@ -63,13 +67,34 @@ void CombatStartPhase::ResetCharacterStats()
                 {
                     _player = static_cast<Player*>(character);
                 }
-                else if (typeid(Enemy) == type)
-                {
-                    _enemies.push_back(static_cast<Enemy*>(character));
-                }
             }
         }
     }
+
+    if (MonsterSystem* monsterSystem = SingletonComponent<MonsterSystem>::GetInstance())
+    {
+        const auto& spawnedEnemiesTable = monsterSystem->GetSpawnedEnemiesTable();
+        for (const auto& [spawnPoint, weakEnemy] : spawnedEnemiesTable)
+        {
+            if (Monster::SpawnPoint::Invalid == spawnPoint)
+            {
+                continue;
+            }
+            if (auto enemy = weakEnemy.lock())
+            {
+                _characters.push_back(enemy.get());
+                _enemies.push_back(enemy.get());
+                _spawnPointEnemyTable[spawnPoint] = enemy.get();
+            }
+        }
+        // 스폰 포인트 오름차순으로 정렬
+        std::sort(_enemies.begin(), _enemies.end(), [](const Enemy* a, const Enemy* b) {
+            Monster::SpawnPoint aSpawnPoint = a->SpawnPoint;
+            Monster::SpawnPoint bSpawnPoint = b->SpawnPoint;
+            return static_cast<int>(aSpawnPoint) < static_cast<int>(bSpawnPoint);
+        });
+    }
+
     for (auto& character : _characters)
     {
         if (character)
@@ -79,10 +104,31 @@ void CombatStartPhase::ResetCharacterStats()
     }
 }
 
+Enemy* CombatStartPhase::GetEnemyFromSpawnPoint(Monster::SpawnPoint spawnPoint) const
+{
+    auto iter = _spawnPointEnemyTable.find(spawnPoint);
+    if (iter != _spawnPointEnemyTable.end())
+    {
+        return iter->second;
+    }
+    return nullptr;
+}
+
 void CombatStartPhase::OnAwake() 
 {
+    if (MonsterSystem* system = SingletonComponent<MonsterSystem>::GetInstance())
+    {
+        Difficulty difficulty = Difficulty::NORMAL;
+        if (DifficultyManager* difficultyManager = SingletonComponent<DifficultyManager>::GetInstance())
+        {
+            difficulty = difficultyManager->GetDifficulty();
+        }
+
+        // TODO: 나중에 전투에 맞는 스폰 ID로 변경
+        Monster::SpawnID spawnID = 211321;
+        system->SpawnMonsterFromSpawnID(spawnID, difficulty);
+    }
     ResetCharacterStats();
-    SortEnemies();
     RegisterEnemiesHUD();
     RegisterEnemiesHP();
     RegisterEnemiesChain();
@@ -163,80 +209,6 @@ void CombatStartPhase::AddValidActions()
     }
 }
 
-void CombatStartPhase::SortEnemies() 
-{
-    if (_enemies.size() != EXPECTED_ENEMY_COUNT)
-    {
-        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"적이 3명이 아닙니다.");
-        return;
-    }
-
-    // 무게 중심 계산하기
-    Vector3 centroid;
-    for (auto& enemy : _enemies)
-    {
-        centroid += enemy->transform->Position;
-    }
-    centroid /= (float)_enemies.size();
-
-    //플레이어 -> 무게중심 방향 백터
-    Vector3 referDir = centroid - _player->transform->Position;
-    referDir.Normalize();
-
-    // 가장 작은 각도를 이루는 적 찾기 (가운데 적 찾기)
-    Enemy* centerEnemy = nullptr;
-    float  maxDot      = -2.f;
-    for (auto& enemy : _enemies)
-    {
-        // 플레이어 -> 적 방향 백터
-        Vector3 toEnemyDir = enemy->transform->Position - _player->transform->Position;
-        toEnemyDir.Normalize();
-
-        // 두 방향 백터 내적해서 시야각 계산
-        float dot = referDir.Dot(toEnemyDir);
-        if (dot > maxDot)
-        {
-            maxDot = dot;
-            centerEnemy = enemy;
-        }        
-    }
-
-    if (centerEnemy)
-    {
-        // 가운데 적 기준 왼쪽, 오른쪽 찾기
-        std::vector<Enemy*> otherEnemies;
-        otherEnemies.reserve(2);
-        for (auto& enemy : _enemies)
-        {
-            if (centerEnemy != enemy)
-            {
-                otherEnemies.push_back(enemy);
-            }
-        }
-
-        Enemy*  leftEnemy      = nullptr;
-        Enemy*  rightEnemy     = nullptr;
-        Vector3 playerToCenter = centerEnemy->transform->Position - _player->transform->Position;
-        Vector3 playerToOther  = otherEnemies[0]->transform->Position - _player->transform->Position;
-
-        // 외적 수행 판별
-        float crossY = playerToCenter.Cross(playerToOther).y;
-        if (crossY < 0)
-        {
-            leftEnemy  = otherEnemies[0];
-            rightEnemy = otherEnemies[1];
-        }
-        else
-        {
-            leftEnemy  = otherEnemies[1];
-            rightEnemy = otherEnemies[0];
-        }
-        _enemies[0] = leftEnemy;
-        _enemies[1] = centerEnemy;
-        _enemies[2] = rightEnemy;
-    }
-}
-
 namespace
 {
     constexpr std::array<std::string_view, 3> HUD_KEY_ARRAY
@@ -251,10 +223,13 @@ void CombatStartPhase::RegisterEnemiesHUD()
 {
     auto SetHUDObject = [&](size_t index, const std::string& tag) 
     {
-        const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(tag);
-        if (auto object = weakGameObject.lock())
+        if (index < _enemies.size())
         {
-            _enemies[index]->SetMonsterHUD(object.get());
+            const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(tag);
+            if (auto object = weakGameObject.lock())
+            {
+                _enemies[index]->SetMonsterHUD(object.get());
+            }
         }
     };
 
@@ -280,38 +255,42 @@ void CombatStartPhase::RegisterEnemiesHP() const
 
 void CombatStartPhase::RegisterEnemyHP(const int index, const std::string& key, const std::string& tag) const
 {
-    if (const EnemyStatsComponent* leftEnemyStatsComponent = _enemies[index]->GetComponent<EnemyStatsComponent>();
-        nullptr != leftEnemyStatsComponent)
+    if (index < _enemies.size())
     {
-        const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(tag);
-        if (const auto sharedGameObject = weakGameObject.lock())
+        if (const EnemyStatsComponent* leftEnemyStatsComponent = _enemies[index]->GetComponent<EnemyStatsComponent>();
+            nullptr != leftEnemyStatsComponent)
         {
-            if (MonsterHpTextView* monsterHpView = sharedGameObject->GetComponent<MonsterHpTextView>())
+            const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(tag);
+            if (const auto sharedGameObject = weakGameObject.lock())
             {
-                monsterHpView->Watch(key);         
-            }
-            else
-            {
-                UmLogger.Log(LogLevel::LEVEL_ERROR, "MonsterHpTextView with tag '" + tag + "' not found.");
-            }
+                if (MonsterHpTextView* monsterHpView = sharedGameObject->GetComponent<MonsterHpTextView>())
+                {
+                    monsterHpView->Watch(key);
+                }
+                else
+                {
+                    UmLogger.Log(LogLevel::LEVEL_ERROR, "MonsterHpTextView with tag '" + tag + "' not found.");
+                }
 
-            if (MonsterHpImageView* monsterHpView = sharedGameObject->GetComponent<MonsterHpImageView>())
-            {
-                monsterHpView->Watch(key);
-            }             
+                if (MonsterHpImageView* monsterHpView = sharedGameObject->GetComponent<MonsterHpImageView>())
+                {
+                    monsterHpView->Watch(key);
+                }
+                else
+                {
+                    UmLogger.Log(LogLevel::LEVEL_ERROR, "MonsterHpImageView with tag '" + tag + "' not found.");
+                }
+            }
             else
             {
-                UmLogger.Log(LogLevel::LEVEL_ERROR, "MonsterHpImageView with tag '" + tag + "' not found.");
+                UmLogger.Log(LogLevel::LEVEL_ERROR, "GameObject with tag '" + tag + "' not found.");
             }
         }
         else
         {
-            UmLogger.Log(LogLevel::LEVEL_ERROR, "GameObject with tag '" + tag + "' not found.");
+            UmLogger.Log(LogLevel::LEVEL_ERROR,
+                         "EnemyStatsComponent not found for enemy at index " + std::to_string(index));
         }
-    }
-    else
-    {
-        UmLogger.Log(LogLevel::LEVEL_ERROR, "EnemyStatsComponent not found for enemy at index " + std::to_string(index));
     }
 }
 
@@ -324,29 +303,33 @@ void CombatStartPhase::RegisterEnemiesChain()
 
 void CombatStartPhase::RegisterEnemyChain(int index, const std::string& key, const std::string& tag) 
 {
-    if (const EnemyStatsComponent* leftEnemyStatsComponent = _enemies[index]->GetComponent<EnemyStatsComponent>();
-        nullptr != leftEnemyStatsComponent)
+    if (index < _enemies.size())
     {
-        const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(tag);
-        if (const auto sharedGameObject = weakGameObject.lock())
+        if (const EnemyStatsComponent* leftEnemyStatsComponent = _enemies[index]->GetComponent<EnemyStatsComponent>();
+            nullptr != leftEnemyStatsComponent)
         {
-            if (MonsterChainTextView* monsterChainView = sharedGameObject->GetComponent<MonsterChainTextView>())
+            const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(tag);
+            if (const auto sharedGameObject = weakGameObject.lock())
             {
-                monsterChainView->Watch(key);
+                if (MonsterChainTextView* monsterChainView = sharedGameObject->GetComponent<MonsterChainTextView>())
+                {
+                    monsterChainView->Watch(key);
+                }
+                else
+                {
+                    UmLogger.Log(LogLevel::LEVEL_ERROR, "MonsterChainTextView with tag '" + tag + "' not found.");
+                }
             }
             else
             {
-                UmLogger.Log(LogLevel::LEVEL_ERROR, "MonsterChainTextView with tag '" + tag + "' not found.");
+                UmLogger.Log(LogLevel::LEVEL_ERROR, "GameObject with tag '" + tag + "' not found.");
             }
         }
         else
         {
-            UmLogger.Log(LogLevel::LEVEL_ERROR, "GameObject with tag '" + tag + "' not found.");
+            UmLogger.Log(LogLevel::LEVEL_ERROR,
+                         "EnemyStatsComponent not found for enemy at index " + std::to_string(index));
         }
-    }
-    else
-    {
-        UmLogger.Log(LogLevel::LEVEL_ERROR, "EnemyStatsComponent not found for enemy at index " + std::to_string(index));
     }
 }
 
