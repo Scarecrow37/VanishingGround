@@ -8,7 +8,7 @@ namespace TokenObject
 {
     REGISTER_TOKEN(BlackArmor)
 
-    void BlackArmorToken::OnHit(CharacterBase* owner)
+    void BlackArmor::OnHit(CharacterBase* owner)
     {
         if (owner)
         {

@@ -323,16 +323,21 @@ void TokenInventory::AddTokenStackFromID(int tokenID, int count /* = 1 */)
     auto it = _tokenTable.find(tokenID);
     if (it != _tokenTable.end())
     {
-        int maxStackCount = UINT_MAX;
-        IToken* token = GetTokenFromID(tokenID);
-        if (token && token->CanAdd(&_owner))
+        int  maxStackCount = UINT_MAX;
+        int& curStackCount = it->second;
+        if (IToken* token = GetTokenFromID(tokenID))
         {
-            maxStackCount   = token->GetMaxStackCount();
-            int& stackCount = it->second;
-            stackCount += count;
-            stackCount = std::min(maxStackCount, stackCount);
-            UpdateToken(tokenID);
-            _owner.OnTokenAdded(tokenID);
+            if (curStackCount >= maxStackCount)
+            {   // 이미 최대 스택에 도달했으면 추가하지 않습니다.(이벤트를 호출하지 않기 위해 필요)
+                return; 
+            }
+            if (token->CanAdd(&_owner))
+            {
+                curStackCount += count;
+                curStackCount = std::min(maxStackCount, curStackCount);
+                UpdateToken(tokenID);
+                _owner.OnTokenAdded(tokenID);
+            }
         }
     }
 
@@ -348,10 +353,6 @@ void TokenInventory::AddTokenStackFromID(int tokenID, int count /* = 1 */)
 void TokenInventory::SetTokenStackFromID(int tokenID, int count)
 {
     int curCount = GetTokenStackFromID(tokenID);
-    if (curCount == count)
-    { // 현재 스택과 설정하려는 스택이 같으면 아무것도 하지 않습니다. (이벤트를 호출하지 않기 위해 필요)
-        return;
-    }
     int delta = count - curCount;
     // 음수면 스택을 줄이는 것, 양수면 스택을 늘리는 것
     if (delta < 0)
@@ -373,14 +374,20 @@ void TokenInventory::RemoveTokenStackFromID(int tokenID, int count /* = 1 */)
     auto it = _tokenTable.find(tokenID);
     if (it != _tokenTable.end())
     {
-        IToken* token = GetTokenFromID(tokenID);
-        if (token && token->CanRemove(&_owner))
+        int& curStackCount = it->second;
+        if (IToken* token = GetTokenFromID(tokenID))
         {
-            int& stackCount = it->second;
-            stackCount -= count;
-            stackCount = std::max(0, stackCount);
-            UpdateToken(tokenID);
-            _owner.OnTokenRemoved(tokenID);
+            if (curStackCount <= 0)
+            { // 이미 최대 스택에 도달했으면 추가하지 않습니다.(이벤트를 호출하지 않기 위해 필요)
+                return;
+            }
+            if (token->CanRemove(&_owner))
+            {
+                curStackCount -= count;
+                curStackCount = std::max(0, curStackCount);
+                UpdateToken(tokenID);
+                _owner.OnTokenRemoved(tokenID);
+            }
         }
     }
 }

@@ -4,9 +4,10 @@
 namespace TokenObject
 {
     // 검은 갑옷 토큰
-    class BlackArmorToken : public Token
+    class BlackArmor : public Token
     {
-        private:
+        TOKEN_DATA(205046)
+    private:
         void OnHit(CharacterBase* owner) override;
     };
 }
