@@ -4,6 +4,7 @@
 #include "UI25DPass.h"
 #include "UI3DPass.h"
 #include "TextDrawPass.h"
+#include "SDFTextDrawPass.h"
 #include "SpriteRenderer.h"
 
 UITechnique::UITechnique() = default;
@@ -31,11 +32,15 @@ void UITechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 
     pass = std::make_unique<UI3DPass>(_renderDatas[MODE_3D]);
     pass->Initialize(_ownerScene, this, commandList);
-    AddRenderPass(std::move(pass));
+    AddRenderPass(std::move(pass));    
 
-    pass = std::make_unique<TextDrawPass>();
+    //pass = std::make_unique<TextDrawPass>();
+    //pass->Initialize(_ownerScene, this, commandList);
+    //AddRenderPass(std::move(pass));
+
+    /*pass = std::make_unique<SDFTextDrawPass>();
     pass->Initialize(_ownerScene, this, commandList);
-    AddRenderPass(std::move(pass));
+    AddRenderPass(std::move(pass));*/
 }
 
 void UITechnique::Execute(ID3D12GraphicsCommandList* commandList)
@@ -44,7 +49,7 @@ void UITechnique::Execute(ID3D12GraphicsCommandList* commandList)
         data.clear();
 
     UINT index = 0;
-    for (auto& [isDestroy, component] : _ownerScene->_uiRenderQueue)
+    for (auto& component : _ownerScene->_uiRenderQueue)
     {
         if (!component->IsActive())
             continue;

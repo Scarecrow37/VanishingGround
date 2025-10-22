@@ -8,6 +8,10 @@ struct PSInput
     float3 biTangent : BINORMAL;
     float2 uv : TEXCOORD;
     float4 worldPosition : TEXCOORD1;
+    
+    nointerpolation uint4 materialID : TEXCOORD2;
+    nointerpolation uint customDepth : TEXCOORD3;
+    nointerpolation float alpha : TEXCOORD4;
 };
 
 struct PSOutput
@@ -23,31 +27,25 @@ struct PSOutput
 #define ORM       2
 #define EMISSIVE  3
 
-struct Material
-{
-    uint ID[4];
-};
-
-StructuredBuffer<Material> material;
 ConstantBuffer<GbufferData> bit32_2_gbufferData;
 Texture2DArray shadowMap;
+Texture2D pointLightShadowMap;
+
 TextureCube irradianceMap;
 TextureCube prefilteredMap;
 Texture2D brdfLUT;
 Texture2D textures[];
 
 PSOutput ps_main(PSInput input)
-{    
-    ObjectData data = bit32_4_objectData;
-    
-    uint diffuseID = material[data.ID].ID[DIFFUSE];
-    uint normalID = material[data.ID].ID[NORMAL];
-    uint ORMID = material[data.ID].ID[ORM];
-    uint emissiveID = material[data.ID].ID[EMISSIVE];
+{        
+    uint diffuseID = input.materialID[DIFFUSE];
+    uint normalID = input.materialID[NORMAL];
+    uint ORMID = input.materialID[ORM];
+    uint emissiveID = input.materialID[EMISSIVE];
     
     float mimBias = bit32_2_gbufferData.MipBias;
-    float alpha = data.Alpha;
-        
+    float alpha = input.alpha;
+
     float3 T = input.tangent;
     float3 B = input.biTangent;
     float3 N = input.normal;
@@ -78,7 +76,7 @@ PSOutput ps_main(PSInput input)
     float3 ambientLighting = 0;
     float3 ambient = CalculateIBL(normal, V, irradianceMap, prefilteredMap, brdfLUT, albedo.rgb, roughness, metallic);
     
-    NumLight numLights = bit32_3_numLight;
+    NumLight numLights = bit32_4_numLight;
     //Directional Lights
     for (uint i = 0; i < numLights.Directional; i++)
     {
@@ -102,14 +100,30 @@ PSOutput ps_main(PSInput input)
         SpotLight light = lightData.Spot[k];
         directLighting += CalculateSpot(light, normal, V, albedo.rgb, metallic, roughness, worldPosition);
     }
-
+    
+    //Shadow Point Lights
+    for (uint l = 0; l < numLights.ShadowPoint; l++)
+    {
+        PointLight light = lightData.ShadowPoint[l];
+        
+        float shadow = CalculatePointLightShadowPCF(
+                 worldPosition,
+                 light.Position,
+                 l,
+                 pointLightShadowMap,
+                 light.Range,
+                 8192.0,
+                 1024.0
+             );
+        directLighting += CalculatePoint(light, normal, V, albedo.rgb, metallic, roughness, worldPosition) * shadow;
+    }
     float3 color = directLighting + (ambientLighting * ao) + emissive;
     
     PSOutput output = (PSOutput) 0;
     output.color = float4(color, albedo.a * alpha);
     output.normal = float4(normal, 1);
     output.depth = input.position.z;
-    output.customDepth = data.CustomDepth;
-    
+    output.customDepth = input.customDepth;
+
     return output;
 }

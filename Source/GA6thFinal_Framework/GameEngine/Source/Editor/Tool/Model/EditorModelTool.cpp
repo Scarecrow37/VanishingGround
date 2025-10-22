@@ -23,7 +23,7 @@ void EditorModelTool::OnStartGui()
     camera->SetupPerspective(45.f, (float)size.cx / (float)size.cy, 0.1f, 1000.f);
 
     auto&             system    = Global::editorModule->GetDockWindowSystem();
-    EditorDockWindow* modelDock = system.GetDockWindow("ModelDock");
+    EditorDockWindow* modelDock = system.GetDockWindow("Model##dock");
     _editorModelDetails         = modelDock->GetGui<EditorModelDetails>();
 }
 

@@ -11,6 +11,7 @@ struct VSInput
     float2 lightUV       : TEXCOORD1;
     uint4  blendIndices  : BLENDINDICES;
     float4 blendWeights  : BLENDWEIGHT;
+    uint instanceID : SV_InstanceID;
 };
 
 struct VSOutput
@@ -21,26 +22,36 @@ struct VSOutput
     float3 biTangent     : BINORMAL;
     float2 uv            : TEXCOORD;
     float4 worldPosition : TEXCOORD1;
+    
+    nointerpolation uint4 materialID : TEXCOORD2;
+    nointerpolation uint  customDepth : TEXCOORD3;
+    nointerpolation float alpha : TEXCOORD4;
 };
 
-StructuredBuffer<MatrixData> matrices;
+struct Offset
+{
+    uint Offset;
+};
+
+ConstantBuffer<Offset> bit32_1_offset;
 StructuredBuffer<matrix> boneMatrices;
 
 VSOutput vs_main(VSInput input)
 {
-    ObjectData data = bit32_4_objectData;
+    uint offset = bit32_1_offset.Offset;
+    InstanceData data = instanceData[input.instanceID + offset];
+
+    matrix boneTransform  = mul(input.blendWeights.x, boneMatrices[data.MatrixID * MAX_BONE_MATRIX + input.blendIndices.x]);
+           boneTransform += mul(input.blendWeights.y, boneMatrices[data.MatrixID * MAX_BONE_MATRIX + input.blendIndices.y]);
+           boneTransform += mul(input.blendWeights.z, boneMatrices[data.MatrixID * MAX_BONE_MATRIX + input.blendIndices.z]);
+           boneTransform += mul(input.blendWeights.w, boneMatrices[data.MatrixID * MAX_BONE_MATRIX + input.blendIndices.w]);
     
-    matrix boneTransform = mul(input.blendWeights.x, boneMatrices[data.ID * data.Offset + input.blendIndices.x]);
-    boneTransform += mul(input.blendWeights.y, boneMatrices[data.ID * data.Offset + input.blendIndices.y]);
-    boneTransform += mul(input.blendWeights.z, boneMatrices[data.ID * data.Offset + input.blendIndices.z]);
-    boneTransform += mul(input.blendWeights.w, boneMatrices[data.ID * data.Offset + input.blendIndices.w]);
-    
-    matrix worldTransform = mul(boneTransform, matrices[data.ID].World);
-    matrix inverseTranspose = mul(boneTransform, matrices[data.ID].InverseTranspose);
+    matrix worldTransform = mul(boneTransform, matrices[data.MatrixID].World);
+    matrix inverseTranspose = mul(boneTransform, matrices[data.MatrixID].InverseTranspose);
     
     VSOutput output = (VSOutput) 0;
     
-    output.position = mul(input.position, worldTransform);   
+    output.position = mul(input.position, worldTransform);
     output.position = mul(output.position, cameraData.View);
     output.position = mul(output.position, cameraData.Projection);
 
@@ -49,6 +60,9 @@ VSOutput vs_main(VSInput input)
     output.biTangent = normalize(mul(input.biTangent, (float3x3) inverseTranspose));
     
     output.uv = input.uv;
-
+    output.materialID = data.MaterialID;
+    output.customDepth = data.CustomDepth;
+    output.alpha = data.Alpha;
+    
     return output;
 }

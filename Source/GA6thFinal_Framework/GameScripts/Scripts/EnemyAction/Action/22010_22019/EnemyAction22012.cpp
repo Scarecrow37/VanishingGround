@@ -3,12 +3,12 @@
 #include <Animation/AnimationComponent.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
-#include <TurnSystem/TurnAction/Token/TokenApplyAction.h>
+#include <TurnSystem/TurnAction/Actions/TokenApplyAction/AttackTokenApplyAction.h>
 #include <Token/Object/Stun/StunToken.h>
 namespace EnemyAction
 {
     Action22012::Action22012(Enemy* owner) 
-        : ActionBase(owner), _tokenAction(std::make_unique<TokenApplyAction>())
+        : ActionBase(owner), _tokenAction(std::make_unique<AttackTokenApplyAction>())
     {
         _tokenAction->TokenID    = TokenObject::Stun::ID;
         _tokenAction->TokenCount = 1;
@@ -18,26 +18,26 @@ namespace EnemyAction
     }
     void Action22012::OnActionEnter() 
     {
+        bool result = false;
         if (_animator)
         {
-            _animator->BeginBuildOverrideAnimation();
+            if (_animator->HasAnimationMappingKey("Attack0"))
             {
+                _animator->BeginBuildOverrideAnimation();
+
                 _animator->ClearOverrideAnimations();
                 _animator->SetNextAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE | ANIMATION_FLAG_USE_BLEND);
-                bool result = _animator->PushBackOverrideAnimation("Attack0");
+                result = _animator->PushBackOverrideAnimation("Attack0");
                 if (result)
                 {
                     _animator->SetCurrentAnimationPopCondition([](const AnimationData& data) { return data.IsEnd(); }); // 애니메이션이 끝날 경우 Pop
                     _animator->SetCurrentAnimationPopCallback([this]() { SetActionEnd(); });
                 }
-                else
-                {
-                    SetActionEnd();
-                }
+
+                _animator->EndBuildOverrideAnimation();
             }
-            _animator->EndBuildOverrideAnimation();
         }
-        else
+        if (false == result)
         {
             SetActionEnd();
         }

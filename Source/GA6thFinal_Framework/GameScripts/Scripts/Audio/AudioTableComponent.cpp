@@ -171,6 +171,38 @@ void AudioTableComponent::ImGuiDrawPropertysEvent()
                 if (ImGui::IsItemHovered())
                     ImGui::SetTooltip("Stop");
             }
+            ImGui::SameLine();
+            // FadeIn
+            {
+                if (ImGui::Button(EditorIcon::ICON_BELL_ON))
+                    UmAudio.ReverbOn();
+                if (ImGui::IsItemHovered())
+                    ImGui::SetTooltip("Enable Reverb Effect");
+            }
+            ImGui::SameLine();
+            // FadeOut
+            {
+                if (ImGui::Button(EditorIcon::ICON_BELL_OFF))
+                    UmAudio.ReverbOff();
+                if (ImGui::IsItemHovered())
+                    ImGui::SetTooltip("Clear Reverb Effects");
+            }
+            ImGui::SameLine();
+            // FadeIn
+            {
+                if (ImGui::Button(EditorIcon::ICON_CIRCLE_ARROW_RIGHT))
+                    UmAudio.FadeIn();
+                if (ImGui::IsItemHovered())
+                    ImGui::SetTooltip("Fade In");
+            }
+            ImGui::SameLine();
+            // FadeOut
+            {
+                if (ImGui::Button(EditorIcon::ICON_CIRCLE_ARROW_LEFT))
+                    UmAudio.FadeOut();
+                if (ImGui::IsItemHovered())
+                    ImGui::SetTooltip("Fade Out");
+            }
         }
         ImGui::TreePop();
     }
@@ -238,16 +270,16 @@ void AudioTableComponent::LoadAudio()
     }
 }
 
-void AudioTableComponent::LoadAudio(const std::string& key, const File::GuidRef& guid)
+void AudioTableComponent::LoadAudio(const std::string& key, const File::Guid& guid)
 {
     UmAudio.LoadSound(key, guid);
 }
 
 void AudioTableComponent::PlaySelectedAudio()
 {
-    auto [iter, succeed] = _audioHandles.try_emplace(_selectedAudioKey, std::vector<Audio::Handle>());
-    std::vector<Audio::Handle>& handles = iter->second;
-    const Audio::Handle handle = UmAudio.Play(_selectedAudioKey);
+    auto [iter, succeed] = _audioHandles.try_emplace(_selectedAudioKey, std::vector<Audio::AudioHandle>());
+    std::vector<Audio::AudioHandle>& handles = iter->second;
+    const Audio::AudioHandle handle = UmAudio.Play(_selectedAudioKey);
     handles.push_back(handle);
 }
 
@@ -255,8 +287,8 @@ void AudioTableComponent::StopSelectedAudio()
 {
     try
     {
-        std::vector<Audio::Handle>& handles = _audioHandles.at(_selectedAudioKey);
-        std::ranges::for_each(handles, [](const Audio::Handle& handle) {
+        std::vector<Audio::AudioHandle>& handles = _audioHandles.at(_selectedAudioKey);
+        std::ranges::for_each(handles, [](const Audio::AudioHandle& handle) {
             UmAudio.Stop(handle); });
         handles.clear();
     }

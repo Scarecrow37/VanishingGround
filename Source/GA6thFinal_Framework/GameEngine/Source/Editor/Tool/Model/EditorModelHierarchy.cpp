@@ -15,7 +15,7 @@ void EditorModelHierarchy::OnTickGui() {}
 void EditorModelHierarchy::OnStartGui()
 {
     auto&             system    = Global::editorModule->GetDockWindowSystem();
-    EditorDockWindow* modelDock = system.GetDockWindow("ModelDock");
+    EditorDockWindow* modelDock = system.GetDockWindow("Model##dock");
     _editorModelDetails         = modelDock->GetGui<EditorModelDetails>();
 }
 

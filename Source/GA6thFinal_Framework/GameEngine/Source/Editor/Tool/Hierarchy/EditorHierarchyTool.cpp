@@ -6,6 +6,9 @@
 #include "Editor/Tool/Scene/Command/EditorSceneCommands.h"
 #include "Mesh/MeshComponent.h"
 #include "Camera/CameraComponent.h"
+#include "GraphicsEngine/Interface/IMeshRenderer.h"
+
+REFLECT_FUNCTION(EditorHierarchyTool)
 
 using namespace u8_literals;
 using namespace Global;
@@ -407,6 +410,12 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
                 GameObjectKey, GameObject::Helper::GenerateUniqueName("Spot light"), &light);
             UmComponentFactory.AddComponentToObject(light, "class SpotLight");
         }
+        if (ImGui::MenuItem("Shadow Point Light"))
+        {
+            UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                GameObjectKey, GameObject::Helper::GenerateUniqueName("Shadow Point Light"), &light);
+            UmComponentFactory.AddComponentToObject(light, "class ShadowPointLight");
+        }
         ImGui::EndMenu();
 
         if (nullptr != light)
@@ -513,6 +522,12 @@ void EditorHierarchyTool::ImGuiNewGameObjectMenuItems()
                     GameObjectKey, GameObject::Helper::GenerateUniqueName("Text Element"), &ui);
                 UmComponentFactory.AddComponentToObject(ui, "class TextElement");
             }
+            if (ImGui::MenuItem("Sprite Animation Element"))
+            {
+                 UmCommandManager.Do<Command::EditorScene::NewGameObjectCommand>(
+                    GameObjectKey, GameObject::Helper::GenerateUniqueName("Sprite Animation Element"), &ui);
+                UmComponentFactory.AddComponentToObject(ui, "class SpriteAnimationElement");
+            }
             ImGui::EndMenu();
         }
         ImGui::EndMenu();
@@ -602,20 +617,9 @@ void EditorHierarchyTool::HierarchyDrawTreeNode()
     {
         HierarchyRightClickEvent();
 
-        //유효한 오브젝트만 남긴다.
-        if (_hierarchyObjectCleanup)
-        {
-            std::erase_if(_hierarchyObjects, [](const std::shared_ptr<GameObject>& object) 
-            {
-                return false == object->IsValid();
-            });
-            _hierarchyObjectCleanup = false;
-        }
-
+        const auto& hierarchyObjects = ESceneManager::Engine::GetRuntimeObjects();
+           
         //실제로 그릴 오브젝트 씬 별로 분류
-        _hierarchySceneIndex.clear();
-        _hierarchyRootObjects.clear();
-        _hierarchyDontDestroyOnLoadObjects.clear();
         const auto& scenes = engineCore->SceneManager.GetLoadedScenes();
         if (false == scenes.empty())
         {
@@ -624,30 +628,57 @@ void EditorHierarchyTool::HierarchyDrawTreeNode()
             {
                 const std::string& name = scene->Path;
                 _hierarchySceneIndex[name] = _hierarchyRootObjects.size();
-                _hierarchyRootObjects.emplace_back(name, std::vector<GameObject*>());
+                _hierarchyRootObjects.emplace_back(name, std::vector<std::shared_ptr<GameObject>>());
             }
 
             //분류 작업
-            for (auto& object : _hierarchyObjects)
-            {
-                if (nullptr == object->transform->Parent)
+            for (auto& object : hierarchyObjects)
+            {   
+                if (object && object->IsValid())
                 {
-                    const std::string& ownerSceneName = object->GetOwnerSceneName();
-                    auto sceneIndexIter = _hierarchySceneIndex.find(ownerSceneName);
-                    if (sceneIndexIter != _hierarchySceneIndex.end())
+                    if (nullptr == object->transform->Parent)
                     {
-                        size_t sceneIndex = sceneIndexIter->second;
-                        _hierarchyRootObjects[sceneIndex].second.push_back(object.get());
+                        const std::string& ownerSceneName = object->GetOwnerSceneName();
+                        auto               sceneIndexIter = _hierarchySceneIndex.find(ownerSceneName);
+                        if (sceneIndexIter != _hierarchySceneIndex.end())
+                        {
+                            size_t sceneIndex = sceneIndexIter->second;
+                            _hierarchyRootObjects[sceneIndex].second.push_back(object);
+                        }
+                        else
+                        {
+                            if (ownerSceneName == ESceneManager::DONT_DESTROY_ON_LOAD_SCENE_NAME)
+                            {
+                                _hierarchyDontDestroyOnLoadObjects.push_back(std::move(object));
+                            }
+                        }
+                    }
+                }           
+            }
+             
+            const auto SortLamda = [](std::vector<std::shared_ptr<GameObject>>& vector) 
+            {
+                if (true == vector.empty())
+                {
+                    return;
+                }
+
+                std::ranges::sort(vector, [](const std::shared_ptr<GameObject>& a, const std::shared_ptr<GameObject>& b) 
+                {
+                    unsigned long long creationFrameA = a->CreationFrame();
+                    unsigned long long creationFrameB = b->CreationFrame();
+                    if (creationFrameA != creationFrameB)
+                    {
+                        return creationFrameA < creationFrameB;
                     }
                     else
                     {
-                        if (ownerSceneName == ESceneManager::DONT_DESTROY_ON_LOAD_SCENE_NAME)
-                        {
-                            _hierarchyDontDestroyOnLoadObjects.push_back(object.get());
-                        }
+                        int instanceIDA = a->GetInstanceID();
+                        int instanceIDB = b->GetInstanceID();
+                        return instanceIDA < instanceIDB;
                     }
-                }
-            }
+                });
+            };
 
             //에디터 출력
             for (auto& [scenePath, objects] : _hierarchyRootObjects)
@@ -692,6 +723,7 @@ void EditorHierarchyTool::HierarchyDrawTreeNode()
                         }
                         if (isCollapsingOpen)
                         {
+                            SortLamda(objects);
                             for (auto& obj : objects)
                             {
                                 GameObject* clickNode = nullptr;
@@ -721,9 +753,10 @@ void EditorHierarchyTool::HierarchyDrawTreeNode()
                     bool isCollapsingOpen = ImGui::CollapsingHeader("DontDestroyOnLoad", ImGuiTreeNodeFlags_::ImGuiTreeNodeFlags_DefaultOpen);
                     if (isCollapsingOpen)
                     {
+                        SortLamda(_hierarchyDontDestroyOnLoadObjects);
                         for (auto& obj : _hierarchyDontDestroyOnLoadObjects)
                         {
-                            ImGui::PushID(obj);
+                            ImGui::PushID(obj.get());
                             {
                                 GameObject* clickNode = nullptr;
                                 TransformTreeNode(obj->transform, focusObject, clickNode, static_isOpenFocusObj);
@@ -746,6 +779,7 @@ void EditorHierarchyTool::HierarchyDrawTreeNode()
         }
         ImGui::EndChild();
     }
+    CleanupHierarchyObjects();
 }
 
 void EditorHierarchyTool::KeyboardEvent()

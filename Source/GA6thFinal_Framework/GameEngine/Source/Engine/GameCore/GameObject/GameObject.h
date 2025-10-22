@@ -44,7 +44,7 @@ public:
     /// </summary>
     /// <param name="name :">검색할 오브젝트의 이름</param>
     /// <returns>찾은 오브젝트를 weak_ptr에 담아준다.</returns>
-    static std::weak_ptr<GameObject> Find(std::string_view name) 
+    static std::weak_ptr<GameObject> Find(const std::string& name) 
     {  
         return ESceneManager::Engine::FindGameObjectWithName(name);
     }
@@ -55,7 +55,7 @@ public:
     /// </summary>
     /// <param name="name :">검색할 오브젝트의 이름</param>
     /// <returns>찾은 오브젝트를 weak_ptr에 담아준다.</returns>
-    static std::vector<std::weak_ptr<GameObject>> FindGameObjects(std::string_view name)
+    static std::vector<std::weak_ptr<GameObject>> FindGameObjects(const std::string& name)
     {
         return ESceneManager::Engine::FindGameObjectsWithName(name);
     }
@@ -66,7 +66,7 @@ public:
     /// </summary>
     /// <param name="tag :">검색할 태그</param>
     /// <returns>찾은 오브젝트들을 담은 weak_ptr배열</returns>
-    static std::vector<std::weak_ptr<GameObject>> FindGameObjectsWithTag(std::string_view tag);
+    static std::vector<std::weak_ptr<GameObject>> FindGameObjectsWithTag(const std::string& tag);
 
     /// <summary>                                                                           </para>
     /// <para> 매개변수와 같은 태그가 설정된 GameObject를 찾아 반환합니다.                             </para>
@@ -74,7 +74,7 @@ public:
     /// </summary>
     /// <param name="tag :">검색할 태그</param>
     /// <returns>찾은 오브젝트를 weak_ptr에 담아준다.</returns>
-    static std::weak_ptr<GameObject> FindWithTag(std::string_view tag);
+    static std::weak_ptr<GameObject> FindWithTag(const std::string& tag);
 
     /// <summary>
     /// <para>전달받은 오브젝트 or 컴포넌트를 파괴합니다. </para>
@@ -174,6 +174,15 @@ public:
     bool IsValid() const
     {
         return STR_NULL != _ownerScene && 0 <= _instanceID;
+    }
+
+    /// <summary>
+    /// 이 오브젝트가 생성된 프레임 타이밍을 반환합니다.
+    /// </summary>
+    /// <returns></returns>
+    unsigned long long CreationFrame() const
+    {
+        return _creationFrame;
     }
 
     /// <summary>
@@ -403,6 +412,7 @@ protected:
     virtual void DeserializedReflectEvent();
 
 private:
+    unsigned long long                       _creationFrame;
     std::weak_ptr<GameObject>                _weakPtr;
     std::string                              _ownerScene;
     File::Guid                               _prefabGuid;

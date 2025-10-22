@@ -32,7 +32,7 @@ bool EComponentFactory::InitalizeComponentFactory()
     }
     else
     {
-        if (m_scriptsDll != NULL)
+        if (_scriptsDll != NULL)
             return false;
     }
 
@@ -41,13 +41,16 @@ bool EComponentFactory::InitalizeComponentFactory()
     addList.clear();
 
     SetForegroundWindow(UmApplication.GetHwnd());
-    if (m_scriptsDll != NULL)
+    if (_scriptsDll != NULL)
     {
         //커맨드 Clear
         UmCommandManager.Clear();
+        //오디오 Clear
+        UmAudio.ClearVoicePool();
 
         //Input Receiver Clear
         ESceneManager::Engine::GetInputSystem().CleanupInputReceivers();
+
 
         //모든 컴포넌트 자원 회수
         for (auto& [key, wptr] : _componentInstanceVec)
@@ -61,8 +64,10 @@ bool EComponentFactory::InitalizeComponentFactory()
         }
         _componentInstanceVec.clear();
 
-        FreeLibrary(m_scriptsDll);
-        m_scriptsDll = NULL;
+        // Script Dll에서 생성된 Graphics 자원 회수
+        UmGraphics.ClearGraphicsResource();
+        FreeLibrary(_scriptsDll);
+        _scriptsDll = NULL;
     }
 
     //인스턴스 아이디에 따른 정렬
@@ -86,14 +91,14 @@ bool EComponentFactory::InitalizeComponentFactory()
     }
 
     _newScriptsFunctionMap.clear();
-    m_NewScriptsKeyVec.clear();
+    _newScriptsKeyVec.clear();
 
     if constexpr (true == Application::IsEditor())
     {
         SetDllDirectory(EComponentFactory::Engine::SCRIPTS_DLL_PATH);
     }
-    m_scriptsDll = LoadLibraryW(L"GameScripts.dll");
-    if (m_scriptsDll == NULL)
+    _scriptsDll = LoadLibraryW(L"GameScripts.dll");
+    if (_scriptsDll == NULL)
     {
         //DLL Load Fail
         __debugbreak();
@@ -101,12 +106,12 @@ bool EComponentFactory::InitalizeComponentFactory()
     }
 
     //스크립트 파일 생성 함수 등록
-    std::vector<std::string> funcList = dllUtility::GetDLLFuntionNameList(m_scriptsDll);
-    MakeScriptFunc = (MakeUmScriptsFile)GetProcAddress(m_scriptsDll, funcList[0].c_str());
+    std::vector<std::string> funcList = dllUtility::GetDLLFuntionNameList(_scriptsDll);
+    MakeScriptFunc = (MakeUmScriptsFile)GetProcAddress(_scriptsDll, funcList[0].c_str());
     if (funcList[0] != "CreateUmrealcSriptFile")
     {
-        FreeLibrary(m_scriptsDll);
-        m_scriptsDll = NULL;
+        FreeLibrary(_scriptsDll);
+        _scriptsDll = NULL;
         __debugbreak(); //초기화 함수 에러.
         return false;
     }
@@ -114,12 +119,12 @@ bool EComponentFactory::InitalizeComponentFactory()
     //스크립트 초기화 함수 등록
     if (funcList[1] != "InitalizeUmrealScript")
     {
-        FreeLibrary(m_scriptsDll);
-        m_scriptsDll = NULL;
+        FreeLibrary(_scriptsDll);
+        _scriptsDll = NULL;
         __debugbreak(); //초기화 함수 에러.
         return false;
     }
-    auto InitDLLCores = (InitScripts)GetProcAddress(m_scriptsDll, funcList[1].c_str());
+    auto InitDLLCores = (InitScripts)GetProcAddress(_scriptsDll, funcList[1].c_str());
     std::shared_ptr<EngineCores> cores = engineCore;
     InitDLLCores(
         cores,
@@ -132,15 +137,15 @@ bool EComponentFactory::InitalizeComponentFactory()
         std::string& funcName = funcList[i];
         if (funcName.find("New") != std::string::npos)
         {
-            auto NewComponentFunc = (NewScripts)GetProcAddress(m_scriptsDll, funcName.c_str());
+            auto NewComponentFunc = (NewScripts)GetProcAddress(_scriptsDll, funcName.c_str());
             Component* component = NewComponentFunc();
             const char* key = typeid(*component).name();
             _newScriptsFunctionMap[key] = NewComponentFunc;
-            m_NewScriptsKeyVec.emplace_back(key);
+            _newScriptsKeyVec.emplace_back(key);
             delete component;
         }
     }
-    std::sort(m_NewScriptsKeyVec.begin(), m_NewScriptsKeyVec.end());
+    std::sort(_newScriptsKeyVec.begin(), _newScriptsKeyVec.end());
 
     //파괴된 컴포넌트 재생성 및 복구
     MissingComponent missingTemp;
@@ -215,7 +220,7 @@ bool EComponentFactory::InitalizeComponentFactory()
 
 void EComponentFactory::UninitalizeComponentFactory()
 {
-    if (m_scriptsDll != NULL)
+    if (_scriptsDll != NULL)
     {
         //모든 컴포넌트 자원 회수
         for (auto& [key, wptr] : _componentInstanceVec)
@@ -230,8 +235,14 @@ void EComponentFactory::UninitalizeComponentFactory()
             }
         }
         _componentInstanceVec.clear();
-        FreeLibrary(m_scriptsDll);
-        m_scriptsDll = NULL;
+
+        // 오디오 Clear
+        UmAudio.ClearVoicePool();
+
+        // Script Dll에서 생성된 Graphics 자원 회수
+        UmGraphics.ClearGraphicsResource();
+        FreeLibrary(_scriptsDll);
+        _scriptsDll = NULL;
     }
 }
 
@@ -249,7 +260,7 @@ Component* EComponentFactory::AddComponentToObject(GameObject* ownerObject, std:
 
 void EComponentFactory::MakeScriptFile(const char* fileName) const
 {
-    if (m_scriptsDll != NULL)
+    if (_scriptsDll != NULL)
     {
         MakeScriptFunc(fileName);
     }
@@ -407,7 +418,7 @@ Component* EComponentFactory::AddComponentToYamlNow(GameObject* ownerObject, YAM
     std::shared_ptr<Component> component;
     if (component = MakeComponentToYaml(ownerObject, componentNode))
     {
-        PushBackComponentToObject(component, false);   
+        PushBackComponentToObject(component);   
     }
     else
     {
@@ -418,18 +429,14 @@ Component* EComponentFactory::AddComponentToYamlNow(GameObject* ownerObject, YAM
 
 void EComponentFactory::Engine::PushBackComponentToObject(std::shared_ptr<Component>& component) 
 {
-    UmComponentFactory.PushBackComponentToObject(component, true);
+    UmComponentFactory.PushBackComponentToObject(component);
 }
 
-void EComponentFactory::PushBackComponentToObject(std::shared_ptr<Component>& component, bool onReset)
+void EComponentFactory::PushBackComponentToObject(std::shared_ptr<Component>& component)
 {
     if (component->_gameObject)
     {
         component->_gameObject->_components.emplace_back(component);
-        if (onReset)
-        {
-            component->Reset();
-        }
     }
     else
     {
@@ -528,7 +535,7 @@ void EComponentFactory::AddEngineComponentsToScripts()
     for (auto& [key, func] : _engineComponets)
     {
         _newScriptsFunctionMap[key] = func;
-        m_NewScriptsKeyVec.emplace_back(key);
+        _newScriptsKeyVec.emplace_back(key);
     }
 }
 

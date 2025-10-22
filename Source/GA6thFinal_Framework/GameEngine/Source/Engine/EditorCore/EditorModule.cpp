@@ -37,6 +37,9 @@ void EditorModule::ModuleUnInitialize()
     // 파괴 직전 함수 필요하면 추가
     _popupBoxSystem.OnEndGui();
     _guiSystem.OnEndGui();
+
+    _popupBoxSystem.Clear();
+    _guiSystem.Clear();
 }
 
 bool EditorModule::SaveSetting(const File::Path& path)
@@ -106,7 +109,11 @@ void EditorModule::Update()
 
     if (false == _eventQueue.empty())
     {
-        _eventQueue.front()();
+        auto func = _eventQueue.front();
+        if (func)
+        {
+            func();
+        }
         _eventQueue.pop();
     }
     if (true == _isFirstTick)
@@ -157,7 +164,7 @@ bool EditorModule::IsFocusAreaEmpty() const
 bool EditorModule::IsFocusedArea(const char* id) const
 {
     ImGuiID imguiId = ImHashStr(id);
-    if (_focusAreaList.find(imguiId) != _focusAreaList.end())
+    if (_focusAreaList.contains(imguiId))
     {
         return true;
     }
@@ -167,7 +174,7 @@ bool EditorModule::IsFocusedArea(const char* id) const
 void EditorModule::SetFocusArea(const char* id)
 {
     ImGuiID imguiId = ImHashStr(id);
-    if (_focusAreaList.find(imguiId) == _focusAreaList.end())
+    if (!_focusAreaList.contains(imguiId))
     {
         _focusAreaList.insert(imguiId);
     }
@@ -176,11 +183,7 @@ void EditorModule::SetFocusArea(const char* id)
 void EditorModule::UnsetFocusArea(const char* id)
 {
     ImGuiID imguiId = ImHashStr(id);
-    auto    itr     = _focusAreaList.find(imguiId);
-    if (itr != _focusAreaList.end())
-    {
-        _focusAreaList.erase(itr);
-    }
+    _focusAreaList.erase(imguiId);
 }
 
 void EditorModule::SetGuiThemeStyle()
@@ -408,7 +411,20 @@ bool EditorModule::EditorBuildSystem::BuildProject(std::string_view outPath)
     {
         if (fs::is_regular_file(entry.path()))
         {
-            if (L".dll" == entry.path().extension())
+            constexpr const wchar_t* extentions[] = {
+                L".dll", 
+                L".pdb"
+            };
+            bool isCopy = false;
+            for (auto& extention : extentions)
+            {
+                isCopy |= extention == entry.path().extension();
+                if (isCopy)
+                {
+                    break;
+                }
+            }
+            if (true == isCopy)
             {
                 fs::path copyPath = destPath / "bin" / entry.path().filename();
                 fs::create_directories(copyPath.parent_path());

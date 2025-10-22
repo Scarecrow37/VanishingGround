@@ -31,16 +31,19 @@ void MonsterHpTextView::Watch(const std::string& key)
                     _hpTextElement->Text = hp;
                 }
             });
+            _key = key;
         }
         catch (const std::exception& e)
         {
             UmLogger.Log(LogLevel::LEVEL_ERROR, "Watch Failed.");
             UmLogger.Log(LogLevel::LEVEL_ERROR, e.what());
+            _key.clear();
         }
     }
     else
     {
         UmLogger.Log(LogLevel::LEVEL_ERROR, "MonsterHpTextView: WatchKey is empty.");
+        _key.clear();
     }
 }
 
@@ -55,6 +58,14 @@ void MonsterHpTextView::Awake()
     Component::Awake();
     FindTextElement();
     Disable();
+}
+
+void MonsterHpTextView::OnDestroy() 
+{
+    if (false == _key.empty())
+    {
+        UmWatcher.Blind<CharacterHPViewModel>(_key, _watchHandle);
+    }
 }
 
 void MonsterHpTextView::FindTextElement()
@@ -83,6 +94,14 @@ MonsterHpImageView::MonsterHpImageView()
     _hpImageElement = nullptr;
 }
 
+void MonsterHpImageView::OnDestroy() 
+{
+    if (false == _key.empty())
+    {
+        UmWatcher.Blind<CharacterHPViewModel>(_key, _watchHandle);
+    }
+}
+
 void MonsterHpImageView::Awake() 
 {
     Component::Awake();
@@ -106,16 +125,19 @@ void MonsterHpImageView::Watch(const std::string& key)
                     _hpImageElement->SetLinearFill((float)value.CurrentHP / (float)value.MaxHP);
                 }
             });
+            _key = key;
         }
         catch (const std::exception& e)
         {
             UmLogger.Log(LogLevel::LEVEL_ERROR, "Watch Failed.");
             UmLogger.Log(LogLevel::LEVEL_ERROR, e.what());
+            _key.clear();
         }
     }
     else
     {
         UmLogger.Log(LogLevel::LEVEL_ERROR, "MonsterHpTextView: WatchKey is empty.");
+        _key.clear();
     }
 }
 

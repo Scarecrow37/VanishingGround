@@ -3,6 +3,8 @@
 #include "ViewModels/Map/StageViewModel.h"
 #include "MapManager.h"
 #include "ItemDropSystem/ItemDropSystem.h"
+#include "SceneTransition/SceneTransitionComponent.h"
+#include "Engine/GraphicsCore/RenderPassDataHelper.h"
 
 UMREAL_COMPONENT(Stage)
 
@@ -20,6 +22,22 @@ Stage::Stage()
                 if (extension == L".UmScene")
                 {
                     ReflectFields->StagePath = UmFileSystem.GetGuidFromPath(path).string();
+                }
+            }
+            ImGui::EndDragDropTarget();
+        }
+    });
+
+    LightingPath.SetInputAutoEvent([this]() {
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
+            {
+                const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
+                File::Path                 path = data->GetPath();
+                if (const auto extension = path.extension(); extension == L".inl")
+                {
+                    ReflectFields->LightingPath = data->GetGuid().string();
                 }
             }
             ImGui::EndDragDropTarget();
@@ -44,13 +62,12 @@ void Stage::UpdateData(const std::string& key, const File::Guid& enableImage, co
     _key = key;
 }
 
-void Stage::FocusIn()
+void Stage::FocusIn(FocusCallType callType)
 {
-    UINavigationComponent::FocusIn();
-
-    if (auto manager = GameObject::Find("MapManager").lock(); manager)
+    Base::FocusIn(callType);
+    if (MapManager* manager = SingletonComponent<MapManager>::GetInstance())
     {
-        manager->GetComponent<MapManager>()->SetFocusStage(this);
+        manager->SetFocusStage(this);
     }
 }
 
@@ -67,7 +84,30 @@ void Stage::Submit()
         return;
     }
 
-    UmSceneManager.LoadScene(stagePath);
+    GameObject* transitionManager = SingletonObject<SceneTransitionComponent>::GetInstance();
+    if (transitionManager)
+    {
+        auto transitionComponent = transitionManager->GetComponent<SceneTransitionComponent>();
+        if (transitionComponent)
+        {
+            std::array<DropItemInfo, ARTIFACT_DROP_COUNT>& droptable = _dropItemInfos;
+            std::string                                    lightingPath = ReflectFields->LightingPath;
+            transitionComponent->SceneTransitionFade("in", "out", [stagePath, droptable, lightingPath]() 
+            { 
+                UmSceneManager.LoadScene(stagePath); 
+                if (auto instance = SingletonComponent<ItemDropSystem>::GetInstance(); instance)
+                {
+                    instance->StageClearCount = 0;
+                    instance->SetDropItem(droptable);
+
+                    if (!lightingPath.empty())
+                    {
+                        LoadRenderPassData(UmFileSystem.GetPathFromGuid(lightingPath).string());
+                    }
+                }
+            });
+        }
+    }
     _stageEnable = false;
 }
 
@@ -80,6 +120,11 @@ void Stage::Start()
         for (int i = 0; i < ARTIFACT_DROP_COUNT; i++)
         {
             _dropItemAssetIDs[i] = DropItemInfo::GetArtifactCategoryAssetID(_dropItemInfos[i].Category);
+        }
+
+        if (MapManager* mapManager = SingletonComponent<MapManager>::GetInstance())
+        {
+            mapManager->UINotify();
         }
     }
 }

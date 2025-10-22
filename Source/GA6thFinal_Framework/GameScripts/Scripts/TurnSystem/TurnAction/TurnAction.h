@@ -11,6 +11,7 @@ struct PlayerStats;
 class Enemy;
 struct EnemyStats;
 struct WeaponStats;
+class TokenInventory;
 
 //턴 라이프 사이클 사용을 위한 Base 클래스입니다.
 class TurnAction abstract : public ReflectSerializer, public FactoryConstructor<TurnActionCondition>
@@ -135,17 +136,22 @@ public:
     virtual void OnEnemyDead(Enemy& enemy) {}
 
     /// <summary>
+    /// QTE가 시작할 때 호출됩니다. 
+    /// </summary>
+    /// <param name="player"></param>
+    virtual void OnPlayerQTEStart(Player& player) {}
+
+    /// <summary>
     /// 플레이어 QTE 판정 종료후 호출됩니다.
     /// </summary>
     /// <param name="player"></param>
-    virtual void OnPlayerQTEResult(Player& player) {}
+    virtual void OnPlayerQTEResult(Player& player, const QTE::OverallResult& result) {}
 
     /// <summary>
     /// 플레이어가 공격할 적을 선택한 뒤 호출됩니다.
     /// </summary>
     /// <param name="targetFlag"></param>
     virtual void OnPlayerBattleTargetSelected(Battle::EnemyTargetFlag& targetFlag) {}
-
 
     /// <summary>
     /// 플레이어의 연격 데미지 계산 전에 호출됩니다.
@@ -155,7 +161,7 @@ public:
     /// <param name="weaponStats"></param>
     /// <param name="target"></param>
     /// <param name="targetStats"></param>
-    virtual void OnPlayerBattleCaculateChainModifier(Player& attacker, PlayerStats& attackerStats,
+    virtual void OnPlayerBattleCalculateChainModifier(Player& attacker, PlayerStats& attackerStats,
                                                      WeaponStats& weaponStats, Enemy& target, EnemyStats& targetStats)
     {
     }
@@ -198,19 +204,79 @@ public:
     {
     }
 
+    /// <summary>Player가 공격할 때 MISS등 관계 여부 상관 없이 데미지 계산 전에 호출됩니다.</summary>
+    virtual void OnPlayerBattlePreCalculate(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
+                                     Enemy& target, EnemyStats& targetStats, const QTE::NoteResult& result)
+    {
+    }
+
+    /// <summary>
+    /// 토큰을 부여하기 직전에 호출합니다.
+    /// </summary>
+    /// <param name="target :">부여 대상</param>
+    /// <param name="tokenID :">부여하는 토큰 아이디</param>
+    /// <param name="tokenCount :">부여하는 갯수</param>
+    virtual void OnTokenAddedStart(CharacterBase& target, int& tokenID, int& tokenCount) {};
+
+    /// <summary>
+    /// 토큰을 부여한뒤 호출합니다.
+    /// </summary>
+    /// <param name="target :">부여 대상</param>
+    /// <param name="tokenID :">부여한 토큰 아이디</param>
+    /// <param name="tokenCount :">부여한 갯수</param>
+    virtual void OnTokenAddedEnd(CharacterBase& target, int tokenID, int tokenCount) {};
+
+    /// <summary>
+    /// 플레이어에 TakeDamage가 들어가기 직전에 호출됩니다.
+    /// </summary>
+    /// <param name="player :">대상</param>
+    /// <param name="damage :">들어갈 데미지</param>
+    virtual void OnPlayerTakeDamageStart(Player& target, int& damage) {}
+
+    /// <summary>
+    /// 플레이어에 TakeDamage가 들어간 후 호출됩니다.
+    /// </summary>
+    /// <param name="target :">대상</param>
+    /// <param name="damage :">들어간 데미지</param>
+    virtual void OnPlayerTakeDamageEnd(Player& target, int damage) {}
+    
+    /// <summary>
+    /// Enemy에 TakeDamage가 들어가기 직전에 호출됩니다.
+    /// </summary>
+    /// <param name="target :">대상</param>
+    /// <param name="damage :">들어갈 데미지</param>
+    virtual void OnEnemyTakeDamageStart(Enemy& target, int& damage) {}
+
+    /// <summary>
+    /// Enemy에 TakeDamage가 들어가기 직전에 호출됩니다.
+    /// </summary>
+    /// <param name="target :">대상</param>
+    /// <param name="damage :">들어갈 데미지</param>
+    virtual void OnEnemyTakeDamageEnd(Enemy& target, int damage) {}
+
 public:
     REFLECT_PROPERTY(ActionName, ActionInfo, LogicOperator)
 
     GETTER_ONLY(const std::string&, ActionName) { return GetActionName(); }
     // 계시 이름
+    // type : const std::string&
     PROPERTY(ActionName)
 
     GETTER_ONLY(const std::string&, ActionInfo) { return GetActionInfo(); }
+    // 액션 정보
+    // type : const std::string&
     PROPERTY(ActionInfo)
 
     GETTER(ConditionOperator, LogicOperator) { return ReflectFields->LogicOperator; }
     SETTER(ConditionOperator, LogicOperator) { ReflectFields->LogicOperator = value; }
+    // 연산자
+    // type : ConditionOperator
     PROPERTY(LogicOperator)
+
+    GETTER_ONLY(size_t, ConditionCount) { return _conditions.size(); }
+    // 현재 이 액션의 조건 객체의 개수
+    // type : size_t
+    PROPERTY(ConditionCount)
 
 protected:
     /// <summary>
@@ -218,7 +284,7 @@ protected:
     /// </summary>
     using ConditionDataType = std::pair<std::string, std::string>;
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
-    std::vector<ConditionDataType> _conditionDatas;
+    std::vector<ConditionDataType> ConditionDatas;
     ConditionOperator LogicOperator = ConditionOperator::AND;
     REFLECT_FIELDS_END(TurnAction)
 

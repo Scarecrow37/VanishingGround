@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "Stats/CharacterStats.h"
 #include "ViewModels/Hp/CharacterHPViewModel.h"
+#include "ViewModels/Chain/ChainCountViewModel.h"
 
 struct EnemyStats : public CharacterStats
 {
@@ -47,16 +48,19 @@ public:
     EnemyStats& operator=(const EnemyStats& rhs) { return CopyStats(rhs); }
 
 public:
-    void RegisterHP(const std::string& key)
+    void RegisterHUD(const std::string& key)
     {
         if (false == key.empty())
         {
             UmWatcher.Unregister<CharacterHPViewModel>(key);
             UmWatcher.Register<CharacterHPViewModel>(key, _hpModel);
+
+            UmWatcher.Unregister<ChainCountViewModel>(key);
+            UmWatcher.Register<ChainCountViewModel>(key, _currentChainCount);
         }
         else
         {
-            UmLogger.Log(LogLevel::LEVEL_ERROR, "RegisterHP key is empty.");
+            UmLogger.Log(LogLevel::LEVEL_ERROR, "RegisterHUD key is empty.");
         }
     }
 };

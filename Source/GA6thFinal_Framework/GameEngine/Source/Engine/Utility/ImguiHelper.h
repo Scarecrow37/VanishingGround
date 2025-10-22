@@ -57,24 +57,28 @@ namespace ImGuiHelper
             float windowWidth = ImGui::GetWindowSize().x;
             float textWidth = ImGui::CalcTextSize(text).x;
             float weight = 0.0f;
+            float offset = 0.0f;
 
             switch (dir)
             {
             case ImGuiHelper::LEFT:
                 weight = 0.0f;
+                offset = ImGui::GetStyle().FramePadding.x;
                 break;
             case ImGuiHelper::RIGHT:
                 weight = 1.0f;
+                offset = -ImGui::GetStyle().FramePadding.x;
                 break;
             case ImGuiHelper::CENTER:
                 weight = 0.5f;
+                offset = 0.0f;
                 break;
             default:
                 break;
             }
 
             // 정렬에 맞게 X 위치를 조정
-            ImGui::SetCursorPosX((windowWidth - textWidth) * weight);
+            ImGui::SetCursorPosX((windowWidth - textWidth) * weight + offset);
             ImGui::Text("%s", text);
 
             ImGui::SetWindowFontScale(old);
@@ -220,9 +224,9 @@ namespace ImGuiHelper
 
     public:
         template <typename T>
-        void PushStyleVar(int idx, const T& color)
+        void PushStyleVar(int idx, const T& val)
         {
-            ImGui::PushStyleVar(idx, color);
+            ImGui::PushStyleVar(idx, val);
             ++_pushStyleVarCount;
         }
         template <typename T>
@@ -450,5 +454,71 @@ namespace ImGuiHelper
         drawList->AddText(textPos, ImGui::GetColorU32(ImGuiCol_Text), label);
 
         return clicked;
+    }
+
+    template <typename Enum, size_t Count = rfl::get_enumerator_array<Enum>().size()>
+    void EnumCombo(const char* label, Enum prev, const std::function<void(const std::pair<std::string_view, Enum>)>& callback, const std::array<std::u8string_view, Count>* toolTips = nullptr)
+    {
+        constexpr auto enumerator = rfl::get_enumerator_array<Enum>();
+        if (ImGui::BeginCombo(label, rfl::enum_to_string(prev).c_str()))
+        {
+            int i = 0;
+            for (auto& pair : enumerator)
+            {
+                auto& [key, value] = pair;
+                ImGui::PushID(i);
+                {
+                    if (ImGui::Selectable(key.data(), value == prev))
+                    {
+                        if (callback)
+                        {
+                            callback(pair);
+                        }
+                    }
+
+                    if (toolTips)
+                    {
+                        auto& toolTipArray = *toolTips;
+                        ImGuiHelper::HoveredToolTip((const char*)toolTipArray[i].data());
+                    }
+                }
+                ImGui::PopID();
+                ++i;
+            }
+            ImGui::EndCombo();
+        }
+    }
+
+    template <typename Enum, size_t Count = rfl::get_enumerator_array<Enum>().size()>
+    void EnumCombo(const char* label, Enum prev, const std::function<void(const std::pair<std::string_view, Enum>)>& callback, const std::array<std::string_view, Count>* toolTips = nullptr)
+    {
+        constexpr auto enumerator = rfl::get_enumerator_array<Enum>();
+        if (ImGui::BeginCombo(label, rfl::enum_to_string(prev).c_str()))
+        {
+            int i = 0;
+            for (auto& pair : enumerator)
+            {
+                auto& [key, value] = pair;
+                ImGui::PushID(i);
+                {
+                    if (ImGui::Selectable(key.data(), value == prev))
+                    {
+                        if (callback)
+                        {
+                            callback(pair);
+                        }
+                    }
+
+                    if (toolTips)
+                    {
+                        auto& toolTipArray = *toolTips;
+                        ImGuiHelper::HoveredToolTip(toolTipArray[i].data());
+                    }
+                }
+                ImGui::PopID();
+                ++i;
+            }
+            ImGui::EndCombo();
+        }
     }
 } 

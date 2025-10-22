@@ -100,23 +100,23 @@ using namespace Microsoft::WRL;
 // Graphics
 #include "../GraphicsEngine/Graphics.h"
 
+//Class Core
+#include "Engine/ClassCore/Delegate.hpp"
+#include "Engine/ClassCore/TProperty.hpp"
+#include "Engine/ClassCore/ReflectHelper.h"
+
 //Utility
 #include "Engine/Utility/Random.h"
 #include "Engine/Utility/LogLevel.h"
 #include "Engine/Utility/utfHelper.h"
 #include "Engine/Utility/DumpUtility.h"
 #include "Engine/Utility/dllUtility.h"
-#include "Engine/Utility/ImGuiHelper.h"
 #include "Engine/Utility/stlHelper.h"
 #include "Engine/Utility/EditorHelper.h"
 #include "Engine/Utility/Mathf.h"
 #include "Engine/Utility/OpenXLSXHelper.h"
 #include "Engine/Utility/BoxSpacing.h"
-
-//Class Core
-#include "Engine/ClassCore/Delegate.hpp"
-#include "Engine/ClassCore/TProperty.hpp"
-#include "Engine/ClassCore/ReflectHelper.h"
+#include "Engine/Utility/ImGuiHelper.h"
 
 //Input Module
 #include "../InputModule/InputModule.h"
@@ -165,6 +165,7 @@ using namespace Microsoft::WRL;
 #include "Engine/EngineCore/FactoryRegister.h"
 #include "Engine/EngineCore/GizmoManager.h"
 #include "Engine/EngineCore/PreferencesSystem.h"
+#include "Engine/EngineCore/ImGuiDebuggerWindow.h"
 #include "Engine/EngineCore/EngineCores.h" 
 
 //Editor Core
@@ -193,6 +194,7 @@ using namespace Microsoft::WRL;
 #include "Engine/GameCore/Component/UIComponent.h"
 #include "Engine/GameCore/Component/UIRoot.h"
 #include "Engine/GameCore/Component/UINavigationComponent.h"
+#include "Engine/GameCore/Component/UISFXNavigationComponent.h"
 #include "Engine/GameCore/InputReciver/InputReceiver.h"
 
 //Application Module
@@ -208,8 +210,10 @@ using namespace Microsoft::WRL;
 //Timeline System
 #include "Engine/TimelineCore/Context/TimelineEventContext.h"
 #include "Engine/TimelineCore/Context/Audio/TimelineAudioEventContext.h"
+#include "Engine/TimelineCore/Context/Particle/TimelineParticleEventContext.h"
+#include "Engine/TimelineCore/Context/Input/TimelineInputEventContext.h"
 #include "Engine/TimelineCore/Track/TimelineEventTrack.h"
-#include "Engine/TimelineCore/AnimationEventTrack.h"
+#include "Engine/TimelineCore/Animation/AnimationEventTrack.h"
 
 //컴포넌트는 접근 안하는 헤더들
 #ifndef _SCRIPTS_PROJECT

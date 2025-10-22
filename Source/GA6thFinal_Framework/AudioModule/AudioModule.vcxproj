@@ -270,19 +270,30 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AudioModule.h" />
+    <ClInclude Include="EffectHandle.h" />
     <ClInclude Include="Exceptions.h" />
-    <ClInclude Include="Handle.h" />
+    <ClInclude Include="AudioHandle.h" />
     <ClInclude Include="Callback.h" />
+    <ClInclude Include="FadeHandle.h" />
+    <ClInclude Include="FXFade.h" />
+    <ClInclude Include="GroupHandle.h" />
+    <ClInclude Include="Handle.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Requires.h" />
+    <ClInclude Include="ReverbHandle.h" />
     <ClInclude Include="Source.h" />
     <ClInclude Include="System.h" />
     <ClInclude Include="Types.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="EffectHandle.cpp" />
     <ClCompile Include="Exceptions.cpp" />
-    <ClCompile Include="Handle.cpp" />
+    <ClCompile Include="AudioHandle.cpp" />
     <ClCompile Include="Callback.cpp" />
+    <ClCompile Include="FadeHandle.cpp" />
+    <ClCompile Include="FXFade.cpp" />
+    <ClCompile Include="GroupHandle.cpp" />
+    <ClCompile Include="Handle.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">Create</PrecompiledHeader>
@@ -293,6 +304,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="ReverbHandle.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="System.cpp" />
     <ClCompile Include="Types.cpp" />

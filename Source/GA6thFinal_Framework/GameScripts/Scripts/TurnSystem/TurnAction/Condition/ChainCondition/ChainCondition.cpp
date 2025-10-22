@@ -9,6 +9,9 @@
 #include <TurnSystem/TurnSystemHelper.h>
 
 REGISTER_TURN_ACTION_CONDITION(ChainCondition)
+
+REFLECT_FUNCTION(ChainCondition)
+
 using namespace u8_literals;
 
 ChainCondition::ChainCondition() 
@@ -43,7 +46,8 @@ bool ChainCondition::Evaluate()
 
     for (const auto& target : targetList)
     {
-        if (false == CheckOperation(target->ChainCount))
+        int targetChainCount = target->ChainCount;
+        if (false == CheckOperation(targetChainCount))
         {
             return false;
         }

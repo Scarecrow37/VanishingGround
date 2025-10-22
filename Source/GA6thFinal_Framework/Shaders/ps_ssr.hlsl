@@ -20,14 +20,7 @@ Texture2D screenNormal;
 Texture2D screenDepth;
 Texture2D screenORM;
 ConstantBuffer<SSRProperty> bit32_4_ssrProperty;
-float3 ReconstructWorldPosFromDepth(float2 uv, float depth, float4x4 invProj, float4x4 invView)
-{
-    float ndcX = uv.x * 2 - 1;
-    float ndcY = 1 - uv.y * 2; // Remember to flip y!!!
-    float4 viewPos = mul(float4(ndcX, ndcY, depth, 1.0f), invProj);
-    viewPos = viewPos / viewPos.w;
-    return mul(viewPos, invView).xyz;
-}
+
 float noise(float2 seed)
 {
     return frac(sin(dot(seed.xy, float2(12.9898, 78.233))) * 43758.5453);
@@ -85,20 +78,5 @@ float4 ps_main(PSInput input) : SV_Target
     }
     
     return float4(finalColor, 1.0f);
-    //float3 finalColor = baseColor;
-    
-    //if (foundHit)
-    //{
-    //    float3 reflectionColor = screenColor.SampleLevel(samLinear_clamp, hitUV, 0).rgb;
-    //    float reflectionStrength = saturate(1.0f - roughness); // roughness=0 → full reflection, roughness=1 → no reflection
-    //    float2 distToCenter = abs(hitUV - 0.5) * 2.f;
-    //    float fade = pow(saturate(1.f - distToCenter.x), property.screenFade * 0.5f) * pow(saturate(1.f - distToCenter.y * 0.5f), property.screenFade);
-
-    //    float3 reflection = reflectionColor * reflectionStrength * fade;
-    //    float3 diffuse = baseColor * (1 - metallic);
-    //    finalColor = diffuse + reflection;
-    //}
-    
-    //return float4(finalColor, 1.0f);
 
 }

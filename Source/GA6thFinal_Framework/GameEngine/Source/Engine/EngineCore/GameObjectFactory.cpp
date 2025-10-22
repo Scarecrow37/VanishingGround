@@ -1,4 +1,5 @@
 ﻿#include "pch.h"
+
 using namespace Global;
 using namespace u8_literals;
 
@@ -86,7 +87,6 @@ void EGameObjectFactory::ApplyPrefabInstanceChanges(const File::Guid& guid, YAML
                         {
                             if (i < prefabObjects.size())
                             {
-                                editorHierarchyTool->PushHierarchyObject(prefabObjects[i]);
                                 swapObjects.emplace_back(&curr->gameObject, prefabObjects[i].get());
                             }
                             else
@@ -108,7 +108,15 @@ void EGameObjectFactory::ApplyPrefabInstanceChanges(const File::Guid& guid, YAML
                                 {
                                     if (&frontOrigin->_transform == frontParent->_childsList[childIndex])
                                     {
-                                        frontPrefab->transform->SetParentToIndexEx(frontParent, childIndex, false, false);
+                                        Transform* prefabTransform = &frontPrefab->transform;
+                                        frontParent->_childsList[childIndex] = prefabTransform;
+                                        prefabTransform->_parent             = frontParent;
+                                        prefabTransform->_root               = frontParent->_root;
+                                        if (nullptr == prefabTransform->_root)
+                                        {
+                                            prefabTransform->_root = prefabTransform->_parent;
+                                        }
+                                        frontOrigin->_transform.EraseParent(false);
                                         break;
                                     }
                                 }
@@ -270,7 +278,7 @@ std::shared_ptr<GameObject> EGameObjectFactory::NewGameObject(std::string_view t
     return sptr_object;
 }
 
-YAML::Node EGameObjectFactory::SerializeToYaml(GameObject* gameObject, bool onlyVaildObject)
+YAML::Node EGameObjectFactory::SerializeToYaml(GameObject* gameObject, bool onlyValidObject)
 {
     if (UmComponentFactory.HasScript() == false)
     {
@@ -289,7 +297,7 @@ YAML::Node EGameObjectFactory::SerializeToYaml(GameObject* gameObject, bool only
     bool isPrefabInstance = gameObject->IsPrefabInstance();
     Transform::ForeachExBFS(
     gameObject->_transform, 
-    onlyVaildObject,
+    onlyValidObject,
     [&](Transform* curr) 
     {
         // 오브젝트 직렬화
@@ -528,7 +536,7 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
                         component = currObject->GetComponentAtIndex<Component>(componentIndex);
                     }
 
-                    if (pSceneObjectNode)
+                    if (component && pSceneObjectNode)
                     {
                         const YAML::Node& currSceneNodes = *sceneNodes;
                         if (sceneComponentNodeIter != currSceneNodes["Components"].end())
@@ -766,6 +774,29 @@ void EGameObjectFactory::WriteGameObjectFile(Transform* transform, std::string_v
 
 bool EGameObjectFactory::PackPrefab(GameObject* targetObject, const File::Guid& guid)
 {
+    // UI 내비게이션은 프리팹 금지
+    bool isNavi = false;
+    Transform::ForeachBFS(targetObject->_transform, [&isNavi](Transform* curr) 
+    {
+        GameObject& currObject = curr->_gameObject;
+        for (auto& component : currObject._components)
+        {
+            if (Component::TYPE::UI == component->GetType())
+            {
+                if (UINavigationComponent* navi = dynamic_cast<UINavigationComponent*>(component.get()))
+                {
+                    isNavi = true;
+                }
+            }
+        }
+    });
+
+    if (isNavi)
+    {
+        UnpackPrefab(targetObject);
+        return false;
+    }
+
     if (targetObject->IsPrefabInstance() == false)
     {
         if (_prefabObjectMap.find(guid) != _prefabObjectMap.end())
@@ -894,6 +925,7 @@ void EGameObjectFactory::ResetGameObject(
         // 인스턴스 아이디 부여
         int instanceID           = InstanceID.CreateInstanceID();
         ownerObject->_instanceID = instanceID;
+        ownerObject->_creationFrame = UmTime.FrameCount();
     }
     else
     {

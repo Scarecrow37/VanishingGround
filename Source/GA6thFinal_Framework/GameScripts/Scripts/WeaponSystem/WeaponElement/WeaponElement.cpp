@@ -2,6 +2,8 @@
 #include "WeaponElement.h"
 #include <TurnSystem/TurnAction/TurnActionFactory.h>
 
+REFLECT_FUNCTION(WeaponElement)
+
 void WeaponElement::SerializedReflectEvent() 
 {
     ReflectFields->WeaponStatsData = Stats.SerializedReflectFields();
@@ -9,6 +11,11 @@ void WeaponElement::SerializedReflectEvent()
     {
         ReflectFields->ActionName = _action->ActionName;
         ReflectFields->ActionDatas = _action->SerializedReflectFields();
+    }
+    else
+    {
+        ReflectFields->ActionName  = STR_NULL;
+        ReflectFields->ActionDatas = STR_NULL;
     }
 }
 
@@ -53,7 +60,7 @@ void WeaponElement::DeepCopyAction(const TurnAction& rhs)
     }
 }
 
-DropItemInfo WeaponElement::GetItemInfo()
+DropItemInfo WeaponElement::GetItemInfo() const
 {
     DropItemInfo info
     {

@@ -2,6 +2,8 @@
 #include "AccessoryElement.h"
 #include "TurnSystem/TurnAction/TurnActionFactory.h"
 
+REFLECT_FUNCTION(AccessoryElement)
+
 AccessoryElement::AccessoryElement() 
 {
 
@@ -55,7 +57,7 @@ void AccessoryElement::DeepCopyAction(const TurnAction& action)
     }
 }
 
-DropItemInfo AccessoryElement::GetItemInfo()
+DropItemInfo AccessoryElement::GetItemInfo() const
 {
     DropItemInfo info;
     info.Category = ArtifactDropType::ACCESSORY;

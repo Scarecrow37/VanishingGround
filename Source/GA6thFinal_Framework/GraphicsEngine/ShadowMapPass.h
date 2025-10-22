@@ -3,21 +3,12 @@
 
 class ShadowMapPass : public RenderPass
 {
-    enum MeshType
+    enum CullMode
     {
-        STATIC_CULL_BACK,
-        STATIC_CULL_FRONT,
-        STATIC_TWO_SIDED,
-        SKELETAL_CULL_BACK,
-        SKELETAL_CULL_FRONT,
-        SKELETAL_TWO_SIDED,
+        CULL_BACK,
+        CULL_FRONT,
+        TWO_SIDED,
         END
-    };
-    struct RenderData
-    {
-        BaseMesh* mesh;
-        UINT      instanceID;
-        UINT      customDepth;
     };
 
 public:
@@ -43,19 +34,22 @@ private:
 
     // 매 프레임 실행되는 핵심 로직
     void UpdateCascades(const Vector3& lightDirection);
-    void DrawMeshes(ID3D12GraphicsCommandList* commandList, int shaderType, MeshType meshType, int cascadedIndex);
+    void DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType meshType, CullMode cullMode, UINT offset);
 
 private:
-    FX<GE::VS::STATIC_SHADOW_FR, GE::PS::SHADOW>   _fxStaticShadow;
-    FX<GE::VS::SKELETAL_SHADOW_FR, GE::PS::SHADOW> _fxSkeletalShadow;
+    ComPtr<ID3D12PipelineState>                    _psos[MeshType::MESH_TYPE_END][CullMode::END];
+    std::vector<MeshInfo*>                         _meshInfos[MeshType::MESH_TYPE_END][CullMode::END];
+    std::vector<InstanceData>                      _instanceDatas;
+    std::unique_ptr<StructuredBuffer>              _instanceDatasBuffer;
+
+    FX<GE::VS::STATIC_SHADOW_FR, GE::PS::SHADOW>   _fxStaticMesh;
+    FX<GE::VS::SKELETAL_SHADOW_FR, GE::PS::SHADOW> _fxSkeletalMesh;
 
     // 그림자 맵 리소스
     ComPtr<ID3D12Resource>                   _shadowMap;
-    D3D12_CPU_DESCRIPTOR_HANDLE              _shadowMapDSVs[MAX_CASCADES];
+    D3D12_CPU_DESCRIPTOR_HANDLE              _shadowMapDSV;
     DescriptorHandles                        _shadowMapSRV;
     std::unique_ptr<ConstantBufferView>      _cascadeDataCBV;
-    std::vector<ComPtr<ID3D12PipelineState>> _psos;
-    std::vector<RenderData>                  _renderDatas[MeshType::END];
 
     // 캐스케이드 관련 데이터
     CascadeData    _cascadeData;

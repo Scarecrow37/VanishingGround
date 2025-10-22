@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+class IMeshRenderer;
 class MeshComponent abstract : public Component
 {
     USING_PROPERTY(MeshComponent)
@@ -7,7 +8,7 @@ public:
     REFLECT_PROPERTY()
 
 private:
-    std::unique_ptr<MeshRenderer> _pMeshRenderer;
+    GraphicsPointer<IMeshRenderer> _pMeshRenderer;
 
 public:
     MeshComponent();
@@ -30,10 +31,10 @@ public:
     /// </summary>
     /// <param name="renderType"></param>
     /// <param name="world"></param>
-    void MakeMeshRenderer(MeshType renderType, const Vector3& position, const Vector3& scale, const Quaternion& rotation, const Matrix& world, const bool& isDirtyFlag);
+    void MakeMeshRenderer(const Matrix& world);
 
     //meshRenderer 입니다. MakeMeshRenderer를 호출해야만 생성됩니다.
-    const std::unique_ptr<MeshRenderer>& Renderer;
+    const GraphicsPointer<IMeshRenderer>& Renderer;
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)

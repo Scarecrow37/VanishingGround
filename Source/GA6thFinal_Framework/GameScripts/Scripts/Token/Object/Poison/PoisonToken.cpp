@@ -9,6 +9,10 @@ namespace TokenObject
     REGISTER_TOKEN(Poison2)
     REGISTER_TOKEN(Poison3)
 
+    REFLECT_FUNCTION(Poison1)
+    REFLECT_FUNCTION(Poison2)
+    REFLECT_FUNCTION(Poison3)
+
     void Poison1::OnEachTurnStart(CharacterBase* owner, CharacterBase* destiantion)
     {
         auto& tokenInventory = owner->GetTokenInventory();

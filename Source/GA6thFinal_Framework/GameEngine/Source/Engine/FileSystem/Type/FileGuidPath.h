@@ -2,7 +2,7 @@
 
 namespace File
 {
-    namespace fs    = std::filesystem;
+    namespace fs = std::filesystem;
 
     class Path;
     class Guid;
@@ -46,24 +46,6 @@ namespace File
 
     inline static const File::Guid NULL_GUID = L"";
     inline static const File::Path NULL_PATH = L"";
-
-    class GuidRef : public Guid
-    {
-    public:
-        GuidRef();
-        GuidRef(const Guid& guid);
-        ~GuidRef();
-
-    public:
-        void AddRef();
-        void Release();
-        std::size_t GetRefCount() const;
-
-    public:
-        GuidRef& operator=(const File::Guid& other);
-        GuidRef& operator=(File::Guid&& other) noexcept;
-    };
- 
 } // namespace File
 
 namespace std

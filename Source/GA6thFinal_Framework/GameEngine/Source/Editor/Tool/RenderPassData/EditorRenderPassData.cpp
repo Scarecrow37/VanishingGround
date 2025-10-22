@@ -336,6 +336,107 @@ void EditVolumetricFogProperty(std::any& property)
     }
 }
 
+void EditSSGIProperty(std::any& property)
+{
+    auto& giProperty = std::any_cast<SSGIProperty&>(property);
+
+    if (ImGui::BeginTable("SSGI Properties", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+    {
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Radius");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##Radius", &giProperty.Radius, 0.01f, 0.1f, 4.f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Thickness");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##Thickness", &giProperty.Thickness, 0.001f, 0.01f, 150.f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("NumSample");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragInt("##NumSample", &giProperty.NumSample, 1, 1, 16);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("Intensity");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##Intensity", &giProperty.Intensity, 0.1f, 0.0f, 500.f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("TemporalWeight");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##TemporalWeight", &giProperty.TemporalWeight, 0.01f, 0.7f, 0.95f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("DepthSigma");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##DepthSigma", &giProperty.DepthSigma, 0.01f, 0.5f, 5.f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("NormalSigma");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##NormalSigma", &giProperty.NormalSigma, 1.f, 16.f, 256.f);
+        ImGui::PopItemWidth();
+
+        ImGui::EndTable();
+    }
+}
+
+void EditFXAAProperty(std::any& property)
+{
+    auto& fxaaProps = std::any_cast<FXAAProperty&>(property);
+
+    if (ImGui::BeginTable("Tone Mapping Properties", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+    {
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("QualitySubpixel");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##QualitySubpixel", &fxaaProps.QualitySubpixel, 0.001f, 0.f, 1.f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("QualityEdgeDetectionThreshold");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##QualityEdgeDetectionThreshold", &fxaaProps.QualityEdgeDetectionThreshold, 0.001f, 0.0f, 1.0f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("QualityMinimumEdgeThreshold");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##QualityMinimumEdgeThreshold", &fxaaProps.QualityMinimumEdgeThreshold, 0.001f, 0.0f, 1.0f);
+        ImGui::PopItemWidth();
+
+        ImGui::EndTable();
+    }
+}
+
+
 void EditorRenderPassData::OnFrameRender()
 {
     if (ImGui::TreeNodeEx("Properties"))
@@ -372,6 +473,14 @@ void EditorRenderPassData::OnFrameRender()
                 else if (property.type() == typeid(VolumetricFogProperty))
                 {
                     EditVolumetricFogProperty(property);
+                }
+                else if (property.type() == typeid(SSGIProperty))
+                {
+                    EditSSGIProperty(property);
+                }
+                else if (property.type() == typeid(FXAAProperty))
+                {
+                    EditFXAAProperty(property);
                 }
                 ImGui::TreePop();
             }

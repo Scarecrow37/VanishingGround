@@ -222,6 +222,13 @@ namespace MVVM
             ModelBase<container_type>::Notify();
         }
 
+        template <typename Modifier>
+        void for_each(Modifier modifier)
+        {
+            std::ranges::for_each(ModelBase<container_type>::_value, modifier);
+            ModelBase<container_type>::Notify();
+        }
+
         const_iterator begin() const noexcept { return ModelBase<container_type>::_value.begin(); }
         const_iterator cbegin() const noexcept { return ModelBase<container_type>::_value.cbegin(); }
         const_iterator end() const noexcept { return ModelBase<container_type>::_value.end(); }

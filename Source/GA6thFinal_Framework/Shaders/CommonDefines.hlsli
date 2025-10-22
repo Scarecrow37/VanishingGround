@@ -6,5 +6,8 @@
 #define Fdielectric  0.04
 #define KERNEL_SIZE 15
 #define CUTOFF 0.3333333
+#define OIT_NULL 0xFFFFFFFF
+#define OIT_MAX_LOCAL 32
+#define FRAME_NODE_CAPACITY 12441600
 
 #endif

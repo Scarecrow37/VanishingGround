@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "TextureLMH.h"
 #include "PreferencesButton.h"
+#include "Scripts/Preferences/PreferencesManager.h"
 
 UMREAL_COMPONENT(TextureLMH)
 
@@ -11,56 +12,122 @@ void TextureLMH::Awake()
 {
     // 자주사용할 게임오브젝트 포인터
     GetChildObject();
-    
-    // 양옆 화살표 숨기기
-    _leftArrow->SetActive(false);
-    _rightArrow->SetActive(false);
-    
 
+    // 양옆 화살표 숨기기
+    if (_leftArrow)
+        _leftArrow->SetActive(false);
+
+    if (_rightArrow)
+        _rightArrow->SetActive(false);
+
+    // 포커스 / 논포커스 아이콘 비활성화
     for (size_t i = 0; i < TextureQuality::TEXTURE_QUALITY_END; ++i)
     {
-        _focus[i]->SetActive(false);
-        _nonFocus[i]->SetActive(false);
+        if (_focus[i])
+            _focus[i]->SetActive(false);
+
+        if (_nonFocus[i])
+            _nonFocus[i]->SetActive(false);
     }
-    // 기본값 상.
+
+    _quality = UmPreferences.GetTextureQuality();
     SetQuality(_quality);
 }
 
-void TextureLMH::Start() {}
+
+void TextureLMH::Start()
+{
+    // 관리 매니저 객체
+    GameObject* manager = GameObject::Find("PreferencesManager").lock().get();
+    if (manager)
+    {
+        _preferencesManager = manager->GetComponent<PreferencesManager>();
+        if (nullptr == _preferencesManager)
+            UmLogger.Log(LogLevel::LEVEL_WARNING, "Preferences manager not registered!");
+    }
+    else
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, "Preferences manager not registered!");
+    }
+}
 
 void TextureLMH::Reset()
 {
     UINavigationComponent::Reset();
-    
+
     BindInputAction(ControllerButton::DPAD_RIGHT, Action::PRESSED, this, &TextureLMH::UpQuality);
     BindInputAction(ControllerButton::DPAD_LEFT, Action::PRESSED, this, &TextureLMH::DownQuality);
     BindInputAction(ControllerButton::LEFT_THUMB_STICK, Action::PRESSED, this, &TextureLMH::UpDownStickQuality);
 }
 
-void TextureLMH::Update() {}
-
-void TextureLMH::FocusIn()
+void TextureLMH::Update()
 {
-    UINavigationComponent::FocusIn();
+    if (_isOptionDirty)
+    {
+        if (_isFocus)
+        {
+            FocusPref(true);
 
-    _isFocus = true;
-    FocusPref(true);
-    _leftArrow->SetActive(true);
-    _rightArrow->SetActive(true);
-    _nonFocus[_quality]->SetActive(false);
-    SetQuality(_quality);
+            if (_leftArrow)
+                _leftArrow->SetActive(true);
+
+            if (_rightArrow)
+                _rightArrow->SetActive(true);
+
+            if ( _nonFocus[_quality])
+                _nonFocus[_quality]->SetActive(false);
+
+            if (_isOptionUp)
+            {
+                if (& _focus[_quality])
+                    _focus[_quality]->SetActive(false);
+
+                _quality    = (_quality + 1) % TextureQuality::TEXTURE_QUALITY_END;
+                _isOptionUp = false;
+            }
+            else if (_isOptionDown)
+            {
+                if (_focus[_quality])
+                    _focus[_quality]->SetActive(false);
+
+                _quality      = (_quality + 2) % TextureQuality::TEXTURE_QUALITY_END;
+                _isOptionDown = false;
+            }
+
+            if (_quality < TextureQuality::TEXTURE_QUALITY_END)
+                SetQuality(_quality);
+        }
+        else
+        {
+            FocusPref(false);
+
+            if (_leftArrow)
+                _leftArrow->SetActive(false);
+
+            if (_rightArrow)
+                _rightArrow->SetActive(false);
+
+            // 포커스 나갈 때 한번 설정
+            if (_quality < TextureQuality::TEXTURE_QUALITY_END)
+                SetQuality(_quality);
+        }
+    }
 }
 
-void TextureLMH::FocusOut()
+void TextureLMH::FocusIn(const FocusCallType callType)
 {
-    UINavigationComponent::FocusOut();
+    Base::FocusIn(callType);
 
-    _isFocus = false;
-    FocusPref(false);
-    _leftArrow->SetActive(false);
-    _rightArrow->SetActive(false);
+    _isFocus       = true;
+    _isOptionDirty = true;
+}
 
-    SetQuality(_quality);
+void TextureLMH::FocusOut(const FocusCallType callType)
+{
+    Base::FocusOut(callType);
+
+    _isFocus       = false;
+    _isOptionDirty = true;
 }
 
 void TextureLMH::Submit() {}
@@ -72,14 +139,15 @@ void TextureLMH::DeserializedReflectEvent()
     UINavigationComponent::DeserializedReflectEvent();
 }
 
-void TextureLMH::FocusPref(bool isfocus)
+void TextureLMH::FocusPref(const bool isfocus)
 {
     if (nullptr == _pref)
     {
         GetChildObject();
     }
     auto prefButton = _pref->GetComponent<PreferencesButton>();
-    prefButton->OnFocus(isfocus);
+    if (prefButton)
+        prefButton->OnFocus(isfocus);
 }
 
 void TextureLMH::GetChildObject()
@@ -104,7 +172,7 @@ void TextureLMH::GetChildObject()
             _pref = &(child->gameObject);
         }
     }
-    
+
     childCnt = transform->GetChildCount();
     for (int i = 0; i < childCnt; ++i)
     {
@@ -138,51 +206,77 @@ void TextureLMH::GetChildObject()
     }
 }
 
-void TextureLMH::SetQuality(int quality) 
+void TextureLMH::SetQuality(const int quality)
 {
+    // quality 범위 체크
+    if (quality < 0 || quality >= TextureQuality::TEXTURE_QUALITY_END)
+        return;
+
     if (_isFocus)
     {
         switch (quality)
         {
         case TEXTURE_QUALITY_LOW:
-            _focus[TEXTURE_QUALITY_LOW]->SetActive(true);
+            if (_focus[TEXTURE_QUALITY_LOW])
+                _focus[TEXTURE_QUALITY_LOW]->SetActive(true);
+
+            if (_preferencesManager)
+                _preferencesManager->SetGraphicsQuality(PreferencesSystem::TextureQuality::LOW);
             break;
+
         case TEXTURE_QUALITY_MEDIUM:
-            _focus[TEXTURE_QUALITY_MEDIUM]->SetActive(true);
+            if (_focus[TEXTURE_QUALITY_MEDIUM])
+                _focus[TEXTURE_QUALITY_MEDIUM]->SetActive(true);
+
+            if (_preferencesManager)
+                _preferencesManager->SetGraphicsQuality(PreferencesSystem::TextureQuality::MEDIUM);
             break;
+
         case TEXTURE_QUALITY_HIGH:
-            _focus[TEXTURE_QUALITY_HIGH]->SetActive(true);
+            if (_focus[TEXTURE_QUALITY_HIGH])
+                _focus[TEXTURE_QUALITY_HIGH]->SetActive(true);
+
+            if (_preferencesManager)
+                _preferencesManager->SetGraphicsQuality(PreferencesSystem::TextureQuality::HIGH);
             break;
+
         default:
             break;
         }
     }
-    else if (!_isFocus)
+    else // !_isFocus
     {
         switch (quality)
         {
         case TEXTURE_QUALITY_LOW:
-            _nonFocus[TEXTURE_QUALITY_LOW]->SetActive(true);
+            if (_nonFocus[TEXTURE_QUALITY_LOW])
+                _nonFocus[TEXTURE_QUALITY_LOW]->SetActive(true);
             break;
+
         case TEXTURE_QUALITY_MEDIUM:
-            _nonFocus[TEXTURE_QUALITY_MEDIUM]->SetActive(true);
+            if (_nonFocus[TEXTURE_QUALITY_MEDIUM])
+                _nonFocus[TEXTURE_QUALITY_MEDIUM]->SetActive(true);
             break;
+
         case TEXTURE_QUALITY_HIGH:
-            _nonFocus[TEXTURE_QUALITY_HIGH]->SetActive(true);
+            if (_nonFocus[TEXTURE_QUALITY_HIGH])
+                _nonFocus[TEXTURE_QUALITY_HIGH]->SetActive(true);
             break;
+
         default:
             break;
         }
     }
 }
 
-void TextureLMH::UpQuality(const Input::Controller& controller) 
+
+void TextureLMH::UpQuality(const Input::Controller& controller)
 {
     if (_isFocus)
     {
-        _focus[_quality]->SetActive(false);
-        _quality = (_quality + 1) % TextureQuality::TEXTURE_QUALITY_END;
-        SetQuality(_quality);
+        _isOptionDirty = true;
+        _isOptionUp    = true;
+        UmAudio.Play("-40000");
     }
 }
 
@@ -190,9 +284,9 @@ void TextureLMH::DownQuality(const Input::Controller& controller)
 {
     if (_isFocus)
     {
-        _focus[_quality]->SetActive(false);
-        _quality = (_quality + 2) % TextureQuality::TEXTURE_QUALITY_END;
-        SetQuality(_quality);
+        _isOptionDirty = true;
+        _isOptionDown  = true;
+        UmAudio.Play("-40000");
     }
 }
 

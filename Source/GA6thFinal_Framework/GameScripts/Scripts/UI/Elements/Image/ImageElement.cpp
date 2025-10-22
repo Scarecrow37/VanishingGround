@@ -1,5 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "ImageElement.h"
+#include "GraphicsEngine/Interface/ISpriteRenderer.h"
 
 UMREAL_COMPONENT(ImageElement)
 
@@ -14,8 +15,8 @@ ImageElement::ImageElement()
                 const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
                 if (const auto extension = data->GetPath().extension(); extension == L".png" || extension == L".jpeg")
                 {
-                    _guidRef            = data->GetGuid();
-                    ReflectFields->Guid = _guidRef.string();
+                    _Guid               = data->GetGuid();
+                    ReflectFields->Guid = _Guid.string();
                     RequestResource();
                 }
             }
@@ -24,16 +25,12 @@ ImageElement::ImageElement()
     });
 }
 
-ImageElement::~ImageElement()
-{
-    if (_renderer)
-        _renderer->SetDestroy();
-}
+ImageElement::~ImageElement() = default;
 
-void ImageElement::SetImage(const File::GuidRef& guidRef)
+void ImageElement::SetImage(const File::Guid& Guid)
 {
-    _guidRef = guidRef;
-    ReflectFields->Guid = _guidRef.string();
+    _Guid = Guid;
+    ReflectFields->Guid = _Guid.string();
     RequestResource();
 }
 
@@ -48,12 +45,15 @@ void ImageElement::Reset()
 
     try
     {
-        _renderer = std::make_unique<SpriteRenderer>(_worldMatrix, SpriteType::MODE_2D);
-        UmGraphics.RegisterComponent("Game", _renderer.get());
+        UmGraphics.CreateSpriteRenderer(&_renderer, &_worldMatrix);
+        UmGraphics.RegisterComponent("Game", _renderer.Get());
+
         if (IS_EDITOR)
         {
-            UmGraphics.RegisterComponent("Editor", _renderer.get());
+            UmGraphics.RegisterComponent("Editor", _renderer.Get());
         }
+
+        _renderer->SetType(SpriteType::MODE_2D);
         _renderer->SetActive(&EnableInHierarchy);
 
         RequestResource();
@@ -72,7 +72,7 @@ void ImageElement::DeserializedReflectEvent()
     const File::Guid guid = ReflectFields->Guid;
     if (const auto path = guid.ToPath(); !path.IsNull())
     {
-        _guidRef = path.ToGuid();
+        _Guid = path.ToGuid();
     }
 }
 
@@ -126,13 +126,31 @@ SIZE ImageElement::ArrangeOverride(const SIZE finalSize)
     return actualSize;
 }
 
+void ImageElement::UpdateAtlas()
+{
+    if (_renderer)
+    {
+        _renderer->SetAtlas(ReflectFields->Column, ReflectFields->Row);
+    }
+}
+
+void ImageElement::UpdateAtlasIndex()
+{
+    if (_renderer)
+    {
+        _renderer->SetAtlasIndex(ReflectFields->ColumnIndex, ReflectFields->RowIndex);
+    }
+}
+
 void ImageElement::ResetToSpriteSize()
 {
-    _requestedSize = _spriteOriginSize;
+    const int column = ReflectFields->Column;
+    const int row    = ReflectFields->Row;
+    _requestedSize = SIZE{_spriteOriginSize.cx / column, _spriteOriginSize.cy / row};
     InvalidateMeasure();
 }
 
-void ImageElement::LoadTexture(const File::GuidRef& guid) const
+void ImageElement::LoadTexture(const File::Guid& guid) const
 {
     if (nullptr != _renderer)
     {
@@ -140,7 +158,7 @@ void ImageElement::LoadTexture(const File::GuidRef& guid) const
         if (path != File::NULL_PATH)
         {
             const std::wstring filePath = U8ToWString(path);
-            UmGraphics.LoadResource(filePath, _renderer.get());
+            UmGraphics.LoadResource(filePath, _renderer.Get());
         }
     }
 }
@@ -174,19 +192,25 @@ void ImageElement::UpdateRendererAlpha(const float alpha) const
 
 void ImageElement::RequestResource() 
 {
-    if (false == _guidRef.IsNull())
+    if (false == _Guid.IsNull())
     {
-        File::GuidRef requestedGuid = _guidRef;
-        UmSceneManager.ResourceManager.RequestTextureResource(this, _guidRef, [this, requestedGuid]() {
+        File::Guid requestedGuid = _Guid;
+        UmSceneManager.ResourceManager.RequestTextureResource(this, _Guid, [this, requestedGuid]() {
             LoadTexture(requestedGuid);
             UpdateWorldMatrix();
-            _spriteOriginSize = _renderer->GetSize();
+            if (_renderer)
+            {
+                _spriteOriginSize = _renderer->GetSize();
+            }
 
             const SIZE size = Size;
             UpdateRendererSize(size);
 
             const float alpha = Alpha;
             UpdateRendererAlpha(alpha);
+
+            UpdateAtlas();
+            UpdateAtlasIndex();
 
             //ResetToSpriteSize();
         });

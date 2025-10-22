@@ -153,6 +153,22 @@ void SceneTransitionComponent::CalculateFade()
     }
     UmTransition->Fade("Game", Color::Lerp(StartColor, EndColor, step), true);
 }
+
+//void SceneTransitionComponent::Reset()
+//{
+//    throw std::logic_error("The method or operation is not implemented.");
+//}
+
+void SceneTransitionComponent::Awake()
+{
+    _singletonObject.TrySingleTon(true);
+}
+
+//void SceneTransitionComponent::OnDestroy()
+//{
+//    throw std::logic_error("The method or operation is not implemented.");
+//}
+
 void SceneTransitionComponent::Fade(float duration, const Vector4& start, const Vector4& end,
                                     std::function<void()> callback)
 {
@@ -168,6 +184,14 @@ void SceneTransitionComponent::Fade(float duration, const Vector4& start, const 
         ReflectFields->EaseType     = Mathf::EaseType::EASE_IN;
         ReflectFields->EaseFuncType = Mathf::EaseFuncType::LINEAR;
         _fadeCallBackFunction       = callback;
+        if (_startColor.w < _endColor.w)
+        {
+            _transitionLock = true;
+        }
+        else
+        {
+            _transitionLock = false;
+        }
     }
 }
 
@@ -186,6 +210,14 @@ void SceneTransitionComponent::Fade(Mathf::EaseType easetype, Mathf::EaseFuncTyp
         ReflectFields->EaseType     = easetype;
         ReflectFields->EaseFuncType = easefunctype;
         _fadeCallBackFunction       = callback;
+        if (_startColor.w < _endColor.w)
+        {
+            _transitionLock = true;
+        }
+        else
+        {
+            _transitionLock = false;
+        }
     }
 }
 
@@ -213,6 +245,14 @@ void SceneTransitionComponent::Fade(std::string_view presetName, std::function<v
         ReflectFields->EaseFuncType  = easefunctype;
         ReflectFields->EaseThreshold = threshold;
         _fadeCallBackFunction        = callback;
+        if (_startColor.w < _endColor.w)
+        {
+            _transitionLock = true;
+        }
+        else
+        {
+            _transitionLock = false;
+        }
     }
 }
 
@@ -241,4 +281,26 @@ void SceneTransitionComponent::AddFadePreset()
     auto [it, inserted] = ReflectFields->FadePresets.try_emplace(name, std::move(preset));
     if (!inserted)
         it->second = std::move(preset);
+}
+
+bool SceneTransitionComponent::IsTransitioning()
+{
+    return _fadeFlag;
+}
+
+void SceneTransitionComponent::SceneTransitionFade(std::string_view inPreset, std::string_view outPreset,
+                                                   std::function<void(void)> callback)
+{
+    if (false == _transitionLock)
+    {
+        Fade(inPreset, [callback, outPreset, this]() {
+            if (nullptr != callback)
+            {
+                callback();
+            }
+            Fade(outPreset, [this]() { });
+        });
+    }
+
+
 }

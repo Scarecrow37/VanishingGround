@@ -4,10 +4,11 @@ namespace Timeline
 {
     class EventTrack;
     class EventContext;
+
     class SequencerEditor : public ReflectSerializer
     {
     public:
-        enum Flags
+        enum Flags : UINT
         {
             FLAGS_NONE                          = 0,
 
@@ -17,7 +18,7 @@ namespace Timeline
             FLAGS_ALLOW_DRAG_MIN_MAX_LINE       = 1 << 10, // Min/Max 프레임 라인 조정을 잠그는 기능
             FLAGS_ALLOW_DRAG_CURSOR_LINE        = 1 << 11, // 현재 커서 라인 조정을 잠그는 기능
             FLAGS_ALLOW_DRAG_CURRENT_LINE       = 1 << 12, // 현재 프레임 라인 조정을 잠그는 기능
-            FLAGS_ALLOW_DRAG_CONTEXT            = 1 << 13, // 현재 프레임 라인 조정을 잠그는 기능
+            FLAGS_ALLOW_DRAG_CONTEXT            = 1 << 13, // 이벤트 콘텍스트 조정을 잠그는 기능
 
             FLAGS_ALLOW_POPUP_CONTEXT_MENU      = 1 << 14, // Context 메뉴 허용 여부
             FLAGS_ALLOW_POPUP_LOWER_CANVAS_MENU = 1 << 15, // Context 메뉴 허용 여부
@@ -28,7 +29,9 @@ namespace Timeline
             FLAGS_HIDE_CURRENT_LINE             = 1 << 22, // 현재 프레임 라인 숨김 여부
             FLAGS_HIDE_CONTEXT                  = 1 << 23, // 컨텍스트 숨김 여부
             FLAGS_HIDE_CONTEXT_LINE             = 1 << 24, // 컨텍스트 라인 숨김 여부
-            FLAGS_HIDE_CONTEXT_LEBEL            = 1 << 25, // 컨텍스트 라인 숨김 여부
+            FLAGS_HIDE_CONTEXT_LABEL            = 1 << 25, // 컨텍스트 레이블 숨김 여부
+
+            FLAGS_DRAW_CONTEXT_LINE_VERTICAL    = 1 << 30, // 컨텍스트 라인 수직 그리기 여부(이 플래그가 없으면 수평으로 그려짐)
 
             // 모든 입력 허용
             FLAGS_ALLOW_ALL_INPUT = FLAGS_ALLOW_POPUP_CONTEXT_MENU | 
@@ -54,12 +57,13 @@ namespace Timeline
             ImVec2 End;
         };
 
-        // 팝업 콜백 함수 (로우 포인터를 인자로 넘겨도 safe함)
+        // 콜백 함수 (로우 포인터를 인자로 넘겨도 safe함)
         struct Callback
         {
-            std::function<void(Timeline::EventTrack*)> LowerFramePopup;
-            std::function<void(Timeline::EventTrack*)> UpperFramePopup;
-            std::function<void(Timeline::EventTrack*, const EventContext&)> ContextPopup;
+            std::function<void(Timeline::EventTrack&)> LowerFramePopup;
+            std::function<void(Timeline::EventTrack&)> UpperFramePopup;
+            std::function<void(Timeline::EventTrack&, EventContext&)> ContextPopup;
+            std::function<void(Timeline::EventTrack&, EventContext&)> ContextDoubleClick;
         };
 
     public:
@@ -75,39 +79,34 @@ namespace Timeline
 
         void ShowDebugData();
 
-        /// <summary>
-        /// Sequencer에서 사용할 TimelineSystem을 설정합니다.
-        /// </summary>
-        /// <param name="system">해당 System에 대한 shared_ptr입니다.</param>
+        /// <summary>Sequencer에서 사용할 TimelineSystem을 설정합니다.</summary>
+        /// <param name="system">해당 System에 대한 weak_ptr입니다.</param>
         void SetEventTrack(std::weak_ptr<EventTrack> system);
 
         inline Callback& GetCallback() { return _callback; }
 
-        /// <summary>
-        /// 시퀀서 에디터가 차지할 크기를 설정합니다. 각 원소가 0일 시 자동으로 크기를 조정합니다.
-        /// </summary>
+        /// <summary>시퀀서 에디터가 차지할 크기를 설정합니다. 각 원소가 0일 시 자동으로 크기를 조정합니다.</summary>
         /// <param name="size">설정할 시퀀서의 크기.</param>
         inline void SetSequencerSize(const ImVec2& size) { _sequencerSize = size; }
 
-        /// <summary>
-        /// Sequencer의 Gui영역을 반환합니다.
-        /// </summary>
-        /// <returns>Gui영역의 ImRect</returns>
+        /// <summary>마우스 위치의 프레임을 반환합니다.</returns>
+        inline float GetFrameFromMousePos() { return _mouseFrame; }
+
+        /// <summary>Sequencer가 가리키는 실제 프레임을 반환합니다.</summary>
+        inline float GetFrameFromIndicate() { return _indicateFrame; }
+
+        /// <summary>Sequencer의 Gui영역을 반환합니다.</summary>
         inline ImRect GetFrameRect() const { return _frameRect; }
 
-        /// <summary>
-        /// Sequencer의 Gui영역 크기를 반환합니다.
-        /// </summary>
-        /// <returns>Gui영역의 크기 ImVec2</returns>
+        /// <summary>Sequencer의 Gui영역 크기를 반환합니다.</summary>
         inline ImVec2 GetRectSize() const { return _frameRect.GetSize(); }
 
-        /// <summary>
-        /// Sequencer의 Gui영역 위치를 반환합니다.
-        /// </summary>
-        /// <returns>Gui영역의 위치 ImVec2</returns>
+        /// <summary>Sequencer의 Gui영역 위치를 반환합니다.</summary>
         inline ImVec2 GetRectPosition() const { return _frameRect.Min; }
 
+        /// <summary>Sequencer의 뷰 포지션을 반환합니다.</summary>
         inline ImVec2 GetViewPosition() const { return _viewPos; }
+
         inline void   AddViewPositionDelay(const ImVec2& pos) { _targetViewPos += pos; }
         inline void   AddViewPosition(const ImVec2& pos) { _viewPos += pos; _targetViewPos += pos; }
         inline void   SetViewPositionDelay(const ImVec2& pos) { _targetViewPos = pos; }
@@ -122,11 +121,8 @@ namespace Timeline
 
         inline void   SetSelectedContextID(UINT id = 0) { _seletedContextID = id; }
         inline UINT   GetSelectedContextID() const { return _seletedContextID; }
-
-        inline float  GetMouseCursorFrame() const { return _mouseFrame; }
-        inline float  GetSnapCursorFrame() const { return _indicateFrame; }
-        inline float  GetIndicateCursorFrame() const { return _indicateFrame; }
                       
+        inline void   SetFlags(UINT flags) { _flags = flags; }
         inline void   AddFlags(UINT flags) { _flags |= flags; }
         inline void   RemoveFlags(UINT flags) { _flags &= ~flags; }
         inline void   ToggleFlags(UINT flags) { _flags ^= flags; }
@@ -209,7 +205,7 @@ namespace Timeline
 
         ImVec2 _indicatePos;            // 현재 상호작용 등에 사용하는 커서 위치 (스냅, 클램핑 등의 영향을 받아 마우스 커서 위치와 다를 수 있음)
         ImVec2 _canvasIndicatePos;      // 캔버스 내에서의 _indicatePos
-        float  _indicateFrame;          // 현재 표시되는 프레임 (클리핑 등으로 인해 마우스 커서가 위치한 프레임과 다를 수 있음)
+        float  _indicateFrame;          // 현재 표시되는 프레임 (클램핑 등으로 인해 마우스 커서가 위치한 프레임과 다를 수 있음)
 
         float _unitToScaledSize;        // 단위 크기를 스케일링한 값 (줌 적용된 단위 크기)
 

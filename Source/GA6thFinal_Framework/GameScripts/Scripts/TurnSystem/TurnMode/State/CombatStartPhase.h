@@ -51,7 +51,12 @@ private:
 private:
     /*적 배열을 Left, Middle, Right 순으로 정렬합니다.*/
     void SortEnemies();
+    void RegisterEnemiesHUD();
     void RegisterEnemiesHP() const;
     void RegisterEnemyHP(int index, const std::string& key, const std::string& tag) const;
+    void RegisterEnemiesChain();
+    void RegisterEnemyChain(int index, const std::string& key, const std::string& tag);
     void ReviveEnemies();
+    void ResetPlayer();
+    void RefreshUI();
 };

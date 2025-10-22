@@ -5,6 +5,8 @@
 
 namespace Timeline
 {
+    REFLECT_FUNCTION(SequencerEditor)
+
     SequencerEditor::SequencerEditor()
         : _track(), _flags(0), _isSnapped(false), _mouseFrame(0.0f), _indicateFrame(0.0f), _canvasUpperHeight(10.0f),
           _viewPos(ImVec2(0, 0)), _viewPosPrev(_viewPos), _targetViewPos(ImVec2(0, 0)), _viewToScaledPos(ImVec2(0, 0)),
@@ -72,18 +74,20 @@ namespace Timeline
         {
             ImGui::Text("Mouse Position: (%.2f, %.2f)", _mousePos.x, _mousePos.y);
             ImGui::Text("Canvas Mouse Position: (%.2f, %.2f)", _canvasMousePos.x, _canvasMousePos.y);
-            ImGui::TreePop();
-        }
-        if (ImGui::TreeNodeEx("Snap", ImGuiTreeNodeFlags_DefaultOpen))
-        {
-            ImGui::Text("Snap Position: (%.2f, %.2f)", _snapPos.x, _snapPos.y);
-            ImGui::Text("Canvas Snap Position: (%.2f, %.2f)", _canvasSnapPos.x, _canvasSnapPos.y);
+            ImGui::Text("Mouse Frame: %.2f", _mouseFrame);
             ImGui::TreePop();
         }
         if (ImGui::TreeNodeEx("Indicate", ImGuiTreeNodeFlags_DefaultOpen))
         {
             ImGui::Text("Indicate Position: (%.2f, %.2f)", _indicatePos.x, _indicatePos.y);
             ImGui::Text("Canvas Indicate Position: (%.2f, %.2f)", _canvasIndicatePos.x, _canvasIndicatePos.y);
+            ImGui::Text("Indicate Frame: %.2f", _indicateFrame);
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNodeEx("Snap", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::Text("Snap Position: (%.2f, %.2f)", _snapPos.x, _snapPos.y);
+            ImGui::Text("Canvas Snap Position: (%.2f, %.2f)", _canvasSnapPos.x, _canvasSnapPos.y);
             ImGui::TreePop();
         }
 
@@ -349,7 +353,7 @@ namespace Timeline
             if (track && _callback.LowerFramePopup)
             {
                 ImGui::Separator();
-                _callback.LowerFramePopup(track.get());
+                _callback.LowerFramePopup(*track.get());
             }
             ImGui::EndPopup();
         }
@@ -362,7 +366,7 @@ namespace Timeline
             if (track && _callback.UpperFramePopup)
             {
                 ImGui::Separator();
-                _callback.UpperFramePopup(track.get());
+                _callback.UpperFramePopup(*track.get());
             }
             ImGui::EndPopup();
         }
@@ -758,6 +762,13 @@ namespace Timeline
             bool isHovered = rect.Contains(mousePos);
             if (true == isHovered)
             {
+                if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+                {
+                    if (editor->_callback.ContextDoubleClick)
+                    {
+                        editor->_callback.ContextDoubleClick(*track.get(), *context);
+                    }
+                }
                 bool rUp = ImGui::IsMouseReleased(ImGuiMouseButton_Right);
                 bool lUp = ImGui::IsMouseReleased(ImGuiMouseButton_Left);
                 if (true == rUp)
@@ -793,7 +804,7 @@ namespace Timeline
                 if (track && editor->_callback.ContextPopup)
                 {
                     ImGui::Separator();
-                    editor->_callback.ContextPopup(track.get(), *context);
+                    editor->_callback.ContextPopup(*track.get(), *context);
                 }
                 ImGui::EndPopup();
             }
@@ -926,25 +937,39 @@ namespace Timeline
     void SequencerEditor::Helper::DrawContext(SequencerEditor* editor, ImDrawList* drawList, EventContext* context,
                                               int groupIndex, const ImRect& rect, const ImVec2& offset)
     {
-        UINT             id    = context->ID;
-        float            time  = context->Time;
-        std::string_view label = context->Label;
+        if (nullptr == editor || nullptr == drawList || nullptr == context)
+        {
+            return;
+        }
 
-        float  unitSize     = editor->_unitToScaledSize;
-        float  linePerFrame = (float)editor->GetLineUnit();
-        bool   isSelected   = (id == editor->_seletedContextID);
-        ImU32  color        = isSelected ? editor->ReflectFields->ContextColor[3] :editor->ReflectFields->ContextColor[0];
+        UINT             id     = context->ID;
+        float            time   = context->Time;
+        std::string_view label  = context->Label;
+
+        float  unitSize         = editor->_unitToScaledSize;
+        float  linePerFrame     = (float)editor->GetLineUnit();
+        bool   isSelected       = (id == editor->_seletedContextID);
+        ImU32  color            = isSelected ? editor->ReflectFields->ContextColor[3] :editor->ReflectFields->ContextColor[0];
+        ImVec2 center           = rect.GetCenter();
         
         if (false == editor->HasFlags(FLAGS_HIDE_CONTEXT_LINE))
         {
-            ImVec2 start = offset + ImVec2((float)groupIndex * unitSize, 0.0f);
-            ImVec2 end   = offset + ImVec2(((float)groupIndex + linePerFrame) * unitSize, 0.0f);
-            drawList->AddLine(start, end, color, 1.0f);
+            if (editor->HasFlags(FLAGS_DRAW_CONTEXT_LINE_VERTICAL))
+            {
+                ImVec2 start = ImVec2(center.x, editor->_canvasRectLower.Min.y);
+                ImVec2 end   = ImVec2(center.x, editor->_canvasRectLower.Max.y);
+                drawList->AddLine(start, end, color, 1.0f);
+            }
+            else
+            {
+                ImVec2 start = offset + ImVec2((float)groupIndex * unitSize, 0.0f);
+                ImVec2 end   = offset + ImVec2(((float)groupIndex + linePerFrame) * unitSize, 0.0f);
+                drawList->AddLine(start, end, color, 1.0f);
+            }
         }
 
         // mainRect
         float  halfWidth = rect.GetWidth() * 0.5f;
-        ImVec2 center    = rect.GetCenter();
         ImVec2 points[4] = {center + ImVec2(0.0f, halfWidth),
                             center + ImVec2(-halfWidth, 0.0f),
                             center + ImVec2(0.0f, -halfWidth),
@@ -952,7 +977,7 @@ namespace Timeline
 
         PathLines(drawList, points, 4);
         drawList->PathFillConvex(color);
-        if (false == editor->HasFlags(FLAGS_HIDE_CONTEXT_LEBEL))
+        if (false == editor->HasFlags(FLAGS_HIDE_CONTEXT_LABEL))
         {
             // labelRect
             ImVec2 textSize   = ImGui::CalcTextSize(label.data());

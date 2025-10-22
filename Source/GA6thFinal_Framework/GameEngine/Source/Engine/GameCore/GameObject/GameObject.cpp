@@ -2,6 +2,8 @@
 #include "Editor/Tool/Scene/Command/EditorSceneCommands.h"
 using namespace Global;
 
+REFLECT_FUNCTION(GameObject)
+
 #define SAFE_FREE(ptr) if(ptr != nullptr) free(ptr)
 
 void GameObject::DontDestroyOnLoad(GameObject& gameObject)
@@ -16,12 +18,12 @@ GameObject* GameObject::Instantiate(GameObject& gameObject)
     return pObject.get();
 }
 
-std::vector<std::weak_ptr<GameObject>> GameObject::FindGameObjectsWithTag(std::string_view tag)
+std::vector<std::weak_ptr<GameObject>> GameObject::FindGameObjectsWithTag(const std::string& tag)
 {
     return ESceneManager::Engine::FindGameObjectsWithTag(tag);
 }
 
-std::weak_ptr<GameObject> GameObject::FindWithTag(std::string_view tag)
+std::weak_ptr<GameObject> GameObject::FindWithTag(const std::string& tag)
 {
     return ESceneManager::Engine::FindGameObjectWithTag(tag);
 }

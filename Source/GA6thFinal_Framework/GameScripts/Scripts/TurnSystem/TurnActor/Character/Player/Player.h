@@ -3,6 +3,7 @@
 #include "Stats/Weapon/WeaponStats.h"
 #include "Utility/SingletonHelper.h"
 
+class PlayerStatsComponent;
 class FiniteStateMachine;
 class Player : public CharacterBase
 {
@@ -41,6 +42,7 @@ private:
         class PlayerWaitTurnState* PlayerWaitTurnState = nullptr;
         class PlayerPlayTurnState* PlayerPlayTurnState = nullptr;
         class PlayerDeadState*     PlayerDeadState     = nullptr;
+        class PlayerWinState*      PlayerWinState      = nullptr;
     } 
     _fsmStates;
 public:
@@ -52,6 +54,7 @@ public:
     virtual void Dead() override;
     /*플레이어에게 피격을 가합니다.*/
     virtual void TakeDamage(int damage, bool playAnim = true) override;
+    virtual void TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim = true) override;
 
     FiniteStateMachine& GetFSM() { return *_finiteStateMachine; }
     const PlayerStates& GetFSMStates() { return _fsmStates; }
@@ -68,44 +71,38 @@ public:
     PlayerStatsComponent* GetPlayerStats();
 
 protected:
-    /// <summary>
-    /// <para> 이 함수는 항상 Start 함수 전에 호출되며 프리팹이 인스턴스화 된 직후에 호출됩니다.                </para>
-    /// <para> 게임 오브젝트의 Active가 false 상태인 경우 Awake 함수는 true가 될때까지 호출되지 않습니다.      </para>
-    /// </summary>
-    virtual void Awake();
-    
-    /// <summary>
-    /// Update 는 프레임당 한 번 호출됩니다.
-    /// </summary>
-    virtual void Update();
+    void Awake();
+    void Update();
 
     /// <summary>
     /// <para> 직렬화 직전 자동으로 호출되는 이벤트 함수입니다. </para>
     /// <para> 직접 override 해서 사용합니다.                 </para>
     /// </summary>
-    virtual void SerializedReflectEvent() override;
+    void SerializedReflectEvent() override;
 
     /// <summary>
     /// <para> 역직렬화 이후 자동으로 호출되는 이벤트 함수 입니다.  </para>
     /// <para> 직접 override 해서 사용합니다.                     </para>
     /// </summary>
-    virtual void DeserializedReflectEvent() override;
+    void DeserializedReflectEvent() override;
 
     /// <summary>
     /// <para>  ImGuiDrawPropertys() 호출 이후 콜되는 이벤트 함수입니다. </para>
     /// </summary>
-    virtual void ImGuiDrawPropertysEvent() override;
+    void ImGuiDrawPropertysEvent() override;
 
 public:
-    virtual void OnCombatStart() override;
-    virtual void OnRoundStart() override;
-    virtual void OnRoundEnd() override;
-    virtual void OnEachTurnStart(CharacterBase* destination) override;
-    virtual void OnTurnStart() override;
-    virtual void OnTurnEnd() override;
-    virtual void OnHit() override;
-    virtual void OnKill(CharacterBase* destination) override;
-    virtual void OnTokenAdded(int tokenID) override;
-    virtual void OnTokenRemoved(int tokenID) override;
+    void OnCombatStart() override;
+    void OnRoundStart() override;
+    void OnRoundEnd() override;
+    void OnEachTurnStart(CharacterBase* destination) override;
+    void OnTurnStart() override;
+    void OnTurnEnd() override;
+    void OnHit() override;
+    void OnKill(CharacterBase* destination) override;
+    void OnTokenAdded(int tokenID) override;
+    void OnTokenRemoved(int tokenID) override;
+    void OnQTEStart() override;
+    void OnQTEEnd() override;
     void OnNotifiedAnimationEvent(const Timeline::EventContext* context) override;
 };

@@ -8,9 +8,9 @@ class DescriptionPanel;
 struct RevelationUI
 {
     ImageElement* IconElement;
+    std::vector<ImageElement*> GradeElements;
     TextElement*  NameElement;
-    DescriptionPanel* Description1Element;
-    DescriptionPanel* Description2Element;
+    DescriptionPanel* DescriptionElement;
 };
 
 class RevelationsView : public Component
@@ -21,9 +21,14 @@ public:
     RevelationsView() = default;
     virtual ~RevelationsView();
 
+public:
+    const std::array<RevelationUI, 3>& GetRevelationUIs() const { return _revelationUis; }
+    const std::array<GameObject*, 3>& GetRevelationObjects() const { return _revelationObjects; }
+
 protected:
     void Awake() override;
     void Start() override;
+    void OnDestroy() override;
 
 private:
     void FindRevelationUIs();
@@ -34,8 +39,8 @@ protected:
     REFLECT_FIELDS_END(RevelationsView)
 
 private:
-    std::array<RevelationUI, 3> _revelationUis;
-    std::array<GameObject*, 3>  _revelationObjects;
+    std::array<RevelationUI, 3> _revelationUis{};
+    std::array<GameObject*, 3>  _revelationObjects{};
 
     RevelationsViewModel::Handle _watchHandle;
 };

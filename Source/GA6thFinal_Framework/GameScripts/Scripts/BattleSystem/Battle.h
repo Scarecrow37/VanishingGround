@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <QTE/Result/QTEResult.h>
 
 class CharacterBase;
 class Player;
@@ -39,12 +40,14 @@ public:
         return ENEMY_TARGET_FLAGS[buttonIndex].first;
     }
 
+    static std::vector<Enemy*> GetTargetsFromFlags(EnemyTargetFlag targetFlag);
+    
     /// <summary>
     /// 플레이어로 공격을 수행합니다.
     /// </summary>
     /// <param name="attacker :">공격자</param>
     /// <param name="target :">대상</param>
-    void operator()(Player& attacker, EnemyTargetFlag targetFlag);
+    void operator()(Player& attacker, EnemyTargetFlag targetFlag, const QTE::NoteResult& result);
 
     /// <summary>
     /// 적으로 공격을 수행합니다.
@@ -80,17 +83,21 @@ public:
         lastTarget      = std::weak_ptr<CharacterBase>();
         lastTargetEnemy = std::weak_ptr<Enemy>();
     }
-
+   
 private:
     inline static std::weak_ptr<CharacterBase> lastAttacker;
     inline static std::weak_ptr<CharacterBase> lastTarget;
     inline static std::weak_ptr<Enemy>         lastTargetEnemy;
 
+    // 이번 턴 연격 계산 여부 (중복 계산 방지)
+    inline static std::unordered_set<Enemy*> currentChainDamageSet; 
+
 private:
-    static std::vector<Enemy*> GetTargetsFromFlags(EnemyTargetFlag targetFlag);
-    static void BattleStart(Player& attacker, Enemy& target);
+    static void BattleStart(Player& attacker, Enemy& target, const QTE::NoteResult& result);
     static void BattleStart(Enemy& attacker, Player& target);
 
+    static void ChainStart(Player& attacker, Enemy& target, const QTE::NoteResult& result);
+    static void ChainStart(Enemy& attacker, Player& target);
 };
 
 inline Battle::EnemyTargetFlag_ operator|(Battle::EnemyTargetFlag_ lhs, Battle::EnemyTargetFlag_ rhs)

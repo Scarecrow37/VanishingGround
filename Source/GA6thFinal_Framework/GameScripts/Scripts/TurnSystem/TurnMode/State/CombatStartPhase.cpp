@@ -9,9 +9,14 @@
 #include "RevelationSystem/RevelationSystem.h"
 #include "WeaponSystem/WeaponSystem.h"
 #include "AccessorySystem/AccessorySystem.h"
+#include "PlayerSystem/PlayerSystem.h"
 
 #include "Scripts/Stats/Enemy/EnemyStatsComponent.h"
 #include "UI/Views/MonsterHp/MonsterHpView.h"
+#include "UI/Views/MonsterChain/MonsterChainView.h"
+
+#include "CombatUIManager/CombatUIManager.h"
+#include "QTE/UI/QTEUIManager.h"
 
 REGISTER_CLASS(FSMStateFactory, CombatStartPhase)
 
@@ -78,27 +83,38 @@ void CombatStartPhase::OnAwake()
 {
     ResetCharacterStats();
     SortEnemies();
+    RegisterEnemiesHUD();
     RegisterEnemiesHP();
+    RegisterEnemiesChain();
     ReviveEnemies();
-
-    //임시 코드 (게임 시작시 실행되어야함)
-    _player->Revive();
+    ResetPlayer();
+    RefreshUI();
 }
 
 void CombatStartPhase::OnStart() 
 {
     TurnModeStateBase::OnStart();
 }
-
 void CombatStartPhase::OnEnter() 
 {
+    /// 사운드
+    UmAudio.Play("-20000");
+
     _turnMode->ResetRoundCount();
     AddValidActions();
 
     UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"배틀 시작...3");
     UmTime.Invoke(&GetFSM(), 1.f, [this]() { UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"배틀 시작...2"); });
     UmTime.Invoke(&GetFSM(), 2.f, [this]() { UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"배틀 시작...1"); });
-    UmTime.Invoke(&GetFSM(), 3.f, [this]() { this->_phaseEnd = true; });
+    UmTime.Invoke(&GetFSM(), 3.f, [this]() 
+    { 
+        this->_phaseEnd = true; 
+        
+        if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
+        {
+            combatUIManager->SetActiveUI(true);
+        }
+    });
 
     NotifyCombatStart();
     Battle::ResetLastCharacter();
@@ -221,11 +237,45 @@ void CombatStartPhase::SortEnemies()
     }
 }
 
+namespace
+{
+    constexpr std::array<std::string_view, 3> HUD_KEY_ARRAY
+    {
+        "Left Monster HUD", 
+        "Middle Monster HUD",
+        "Right Monster HUD"
+    };
+}
+
+void CombatStartPhase::RegisterEnemiesHUD() 
+{
+    auto SetHUDObject = [&](size_t index, const std::string& tag) 
+    {
+        const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(tag);
+        if (auto object = weakGameObject.lock())
+        {
+            _enemies[index]->SetMonsterHUD(object.get());
+        }
+    };
+
+    for (size_t i = 0; i < _enemies.size(); ++i)
+    {
+        if (EnemyStatsComponent* statsComponent = _enemies[i]->GetComponent<EnemyStatsComponent>())
+        {
+            statsComponent->RegisterHUD(HUD_KEY_ARRAY[i].data());
+        }
+    }
+
+    SetHUDObject(0, "Left Monster HUD");
+    SetHUDObject(1, "Middle Monster HUD");
+    SetHUDObject(2, "Right Monster HUD");
+}
+
 void CombatStartPhase::RegisterEnemiesHP() const
 {
-    RegisterEnemyHP(0, "Left Monster HP", "Left Monster HP UI");
-    RegisterEnemyHP(1, "Middle Monster HP", "Middle Monster HP UI");
-    RegisterEnemyHP(2, "Right Monster HP", "Right Monster HP UI");
+    RegisterEnemyHP(0, HUD_KEY_ARRAY[0].data(), "Left Monster HP UI");
+    RegisterEnemyHP(1, HUD_KEY_ARRAY[1].data(), "Middle Monster HP UI");
+    RegisterEnemyHP(2, HUD_KEY_ARRAY[2].data(), "Right Monster HP UI");
 }
 
 void CombatStartPhase::RegisterEnemyHP(const int index, const std::string& key, const std::string& tag) const
@@ -233,14 +283,12 @@ void CombatStartPhase::RegisterEnemyHP(const int index, const std::string& key, 
     if (const EnemyStatsComponent* leftEnemyStatsComponent = _enemies[index]->GetComponent<EnemyStatsComponent>();
         nullptr != leftEnemyStatsComponent)
     {
-        leftEnemyStatsComponent->RegisterHP(key);
         const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(tag);
         if (const auto sharedGameObject = weakGameObject.lock())
         {
             if (MonsterHpTextView* monsterHpView = sharedGameObject->GetComponent<MonsterHpTextView>())
             {
-                monsterHpView->Watch(key);
-                _enemies[index]->SetMonsterHpTextView(monsterHpView);             
+                monsterHpView->Watch(key);         
             }
             else
             {
@@ -250,7 +298,6 @@ void CombatStartPhase::RegisterEnemyHP(const int index, const std::string& key, 
             if (MonsterHpImageView* monsterHpView = sharedGameObject->GetComponent<MonsterHpImageView>())
             {
                 monsterHpView->Watch(key);
-                _enemies[index]->SetMonsterHpImageView(monsterHpView);
             }             
             else
             {
@@ -268,10 +315,74 @@ void CombatStartPhase::RegisterEnemyHP(const int index, const std::string& key, 
     }
 }
 
-void CombatStartPhase::ReviveEnemies() 
+void CombatStartPhase::RegisterEnemiesChain() 
+{
+    RegisterEnemyChain(0, HUD_KEY_ARRAY[0].data(), "Left Monster Chain UI");
+    RegisterEnemyChain(1, HUD_KEY_ARRAY[1].data(), "Middle Monster Chain UI");
+    RegisterEnemyChain(2, HUD_KEY_ARRAY[2].data(), "Right Monster Chain UI");
+}
+
+void CombatStartPhase::RegisterEnemyChain(int index, const std::string& key, const std::string& tag) 
+{
+    if (const EnemyStatsComponent* leftEnemyStatsComponent = _enemies[index]->GetComponent<EnemyStatsComponent>();
+        nullptr != leftEnemyStatsComponent)
+    {
+        const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(tag);
+        if (const auto sharedGameObject = weakGameObject.lock())
+        {
+            if (MonsterChainTextView* monsterChainView = sharedGameObject->GetComponent<MonsterChainTextView>())
+            {
+                monsterChainView->Watch(key);
+            }
+            else
+            {
+                UmLogger.Log(LogLevel::LEVEL_ERROR, "MonsterChainTextView with tag '" + tag + "' not found.");
+            }
+        }
+        else
+        {
+            UmLogger.Log(LogLevel::LEVEL_ERROR, "GameObject with tag '" + tag + "' not found.");
+        }
+    }
+    else
+    {
+        UmLogger.Log(LogLevel::LEVEL_ERROR, "EnemyStatsComponent not found for enemy at index " + std::to_string(index));
+    }
+}
+
+void CombatStartPhase::ReviveEnemies()
 {
     for (auto& enemy : _enemies)
     {
         enemy->CharacterBase::Revive();
+    }
+}
+
+void CombatStartPhase::ResetPlayer() 
+{
+    PlayerSystem* playerSystem = SingletonComponent<PlayerSystem>::GetInstance();
+    if (playerSystem)
+    {
+        playerSystem->SetStatsCombatStart();
+    }
+
+    //플레이어는 체력 회복하면 안됨.
+    if (_player)
+    {
+        _player->TurnActor::Revive();
+    }
+}
+
+void CombatStartPhase::RefreshUI() 
+{
+    if (CombatUIManager* manager = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        manager->Refresh();
+    }
+    if (QTEUIManager* uiManager = QTEUIManager::GetInstance())
+    {
+        uiManager->Refresh();
+        uiManager->SetUIAlpha(0.0f);
+        uiManager->SetBackgroundUIAlpha(0.0f);
     }
 }

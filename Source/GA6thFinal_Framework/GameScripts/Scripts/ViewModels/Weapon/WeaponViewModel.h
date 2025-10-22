@@ -3,16 +3,15 @@
 
 struct WeaponUIData
 {
-    bool          Enable;
-    std::string   WeaponName;
-    File::GuidRef WeaponIcon;
-    int           HitDamage;
-    int           CriticalDamage;
-    int           Speed;
-    int           AttackCount;
-    std::wstring   Description1;
-    std::wstring   Description2;
-    File::GuidRef Background;
+    bool         Enable;
+    std::string  WeaponName;
+    Color        GradeColor;
+    File::Guid   WeaponIcon;
+    std::string  HitDamage;
+    std::string  CriticalDamage;
+    std::string  Speed;
+    std::string  AttackCount;
+    std::string  Description;
 };
 
 class WeaponViewModel final : public MVVM::ViewModel<TurnActor*, WeaponUIData>

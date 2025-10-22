@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-class PreferencesSystem
+class PreferencesSystem : public File::FileEventSubscriber
 {
 public:
     PreferencesSystem();
@@ -41,7 +41,34 @@ public:
     void SetShadowQuality(std::string_view sceneName, int quality);
 
     // Audio Setting
+    void SetMasterVolume(float value, float maxVolume);
+    void SetBGMVolume(float value, float maxVolume);
+    void SetSFXVolume(float value, float maxVolume);
+
+public:
+    bool  IsSSR() { return _onSSR; }
+    bool  IsSSAO() { return _onSSAO; }
+    bool  IsBloom() { return _onBloom; }
+    bool  IsVolumFog() { return _onVolumFog; }
+    int   GetTextureQuality() { return _textureQuality; }
+    float GetMasterVolume() { return _masterVolume; }
+    float GetBGMVolume() { return _BGMVolume; }
+    float GetSFXVolume() { return _SFXVolume; }
+
+public:
+    void OnPostRequestedSave() override;
+    void OnPostRequestedLoad() override;
 
 private:
     std::unique_ptr<class GraphicsController> _graphicsController;
+
+private:
+    bool  _onSSR          = true;
+    bool  _onSSAO         = true;
+    bool  _onBloom        = true;
+    bool  _onVolumFog     = true;
+    int   _textureQuality = 2;
+    float _masterVolume   = 1.f;
+    float _BGMVolume      = 1.f;
+    float _SFXVolume      = 1.f;
 };

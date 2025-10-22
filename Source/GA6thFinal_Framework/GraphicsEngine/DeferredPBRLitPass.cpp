@@ -2,6 +2,7 @@
 #include "DeferredPBRLitPass.h"
 #include "SkyBox.h"
 #include "ShadowMapPass.h"
+#include "PointLightShadowPass.h"
 #include "SSAOWritePass.h"
 
 void DeferredPBRLitPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
@@ -18,6 +19,9 @@ void DeferredPBRLitPass::Begin(ID3D12GraphicsCommandList* commandList)
     commandList->OMSetRenderTargets(1, &_meshRenderTarget->GetRTVHandle(), FALSE, nullptr);
     commandList->RSSetViewports(1, &_meshRenderTarget->GetViewport());
     commandList->RSSetScissorRects(1, &_meshRenderTarget->GetScissorRect());
+
+    // ssao 비활성화시 이전 프레임에 사용되던걸 clear 해야함. ssaomap을 아예 set하지 않는게 가장 좋지만 지금 구조상
+    // set에서 제외시키는 방법은 
 }
 
 void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
@@ -29,9 +33,10 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
     const auto& renderTargetGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("G-Buffer");
 
     auto shadowMapPass = _ownerTechnique->GetRenderPass<ShadowMapPass>();
+    auto pointLightShadowPass = _ownerTechnique->GetRenderPass<PointLightShadowPass>();
     auto ssaoPass      = _ownerTechnique->GetRenderPass<SSAOWritePass>();
 
-    if (nullptr == shadowMapPass || nullptr == ssaoPass)
+    if (nullptr == shadowMapPass || nullptr == ssaoPass || nullptr == pointLightShadowPass)
         return;
 
     D3D12_GPU_DESCRIPTOR_HANDLE brdf;
@@ -51,12 +56,15 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
         irradiance          = defaultTexture;
         prefiltered         = defaultTexture;
     }
-
-    commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_3_numLight"), 3, &_ownerScene->_numLight, 0);
+    bool useSSAO    = ssaoPass->IsEnable(); 
+    int useSSAOInt = useSSAO ? 1 : 0;
+    commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_1_isssao"), 1, &useSSAOInt, 0); 
+    commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_4_numLight"), 4, &_ownerScene->_numLight, 0);
     commandList->SetGraphicsRootConstantBufferView(_fx.GetRootParameterIndex("cameraData"), _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
     commandList->SetGraphicsRootConstantBufferView(_fx.GetRootParameterIndex("lightData"), _ownerScene->_lightBuffer->GetGPUVirtualAddress());
     commandList->SetGraphicsRootConstantBufferView(_fx.GetRootParameterIndex("cascadeData"), shadowMapPass->GetCascadeDataCBV());
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("shadowMap"), shadowMapPass->GetShadowMapSRV());
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("pointLightShadowMap"), pointLightShadowPass->GetShadowAtlasSRV());
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("irradianceMap"), _ownerScene->_skyBox->GetIrradianceMapSRV());
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("prefilteredMap"), _ownerScene->_skyBox->GetPrefilteredMapSRV());
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("brdfLUT"), _ownerScene->_skyBox->GetBrdfLUTSRV());
@@ -65,8 +73,10 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("ormMap"), renderTargetGroup[GBuffer::ORM]->GetSRVHandle());
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("emissiveMap"), renderTargetGroup[GBuffer::EMISSIVE]->GetSRVHandle());
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("depthMap"), renderTargetGroup[GBuffer::DEPTH]->GetSRVHandle());
-    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("SSAOMap"), ssaoPass->GetAOTexture());
-
+    if (useSSAO)
+        commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("SSAOMap"), ssaoPass->GetAOTexture());
+  
+    
     _ownerScene->_frameQuad->Render(commandList);
 }
 

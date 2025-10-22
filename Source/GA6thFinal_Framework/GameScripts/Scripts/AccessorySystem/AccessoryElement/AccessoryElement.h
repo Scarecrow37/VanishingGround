@@ -42,7 +42,7 @@ public:
         }
     }
 
-    ImU32 GetGradeColor()
+    ImU32 GetGradeColor() const
     {
         AccessoryGrade grade = ReflectFields->Grade;
         return GetGradeImGuiColor(grade);
@@ -119,5 +119,5 @@ public:
     bool operator==(const AccessoryElement& rhs) const { return this->AccessoryID == rhs.AccessoryID; }
 
 public:
-    DropItemInfo GetItemInfo() override;
+    DropItemInfo GetItemInfo() const override;
 };

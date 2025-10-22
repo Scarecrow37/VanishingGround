@@ -79,4 +79,43 @@ namespace Input::ControllerTypes
     };
 
     using ButtonQueue = std::vector<ButtonState>;
+
+    using MotorSpeed = unsigned short;
+
+    struct Vibration
+    {
+        MotorSpeed LeftMotorSpeed;
+        MotorSpeed RightMotorSpeed;
+        std::chrono::milliseconds Duration;
+
+        static Vibration GetFromNormalizeData(float leftMotorSpeed, float rightMotorSpeed, int duration)
+        {
+            Vibration vibration;
+            vibration.LeftMotorSpeed  = (MotorSpeed)(std::clamp(leftMotorSpeed, 0.0f, 1.0f) * 65535.0f);
+            vibration.RightMotorSpeed = (MotorSpeed)(std::clamp(rightMotorSpeed, 0.0f, 1.0f) * 65535.0f);
+            vibration.Duration        = std::chrono::milliseconds(duration);
+            return vibration;
+        }
+    };
+
+    
+
+    static constexpr Vibration VIBRATION_EMPTY{
+        .LeftMotorSpeed = 0, .RightMotorSpeed = 0, .Duration = std::chrono::milliseconds(0)};
+    static constexpr Vibration VIBRATION_VEHICLE_REVVING{
+        .LeftMotorSpeed = 22000, .RightMotorSpeed = 7000, .Duration = std::chrono::milliseconds(300)};
+    static constexpr Vibration VIBRATION_EXPLOSION{
+        .LeftMotorSpeed = 60000, .RightMotorSpeed = 32000, .Duration = std::chrono::milliseconds(600)};
+    static constexpr Vibration VIBRATION_GUN_SHOT{
+        .LeftMotorSpeed = 15000, .RightMotorSpeed = 45000, .Duration = std::chrono::milliseconds(110)};
+    static constexpr Vibration VIBRATION_BUTTON_CLICK{
+        .LeftMotorSpeed = 1500, .RightMotorSpeed = 4000, .Duration = std::chrono::milliseconds(70)};
+    static constexpr Vibration VIBRATION_SWORD_BASH{
+        .LeftMotorSpeed = 35000, .RightMotorSpeed = 23000, .Duration = std::chrono::milliseconds(200)};
+    static constexpr Vibration VIBRATION_DAGGER_STAB{
+        .LeftMotorSpeed = 18000, .RightMotorSpeed = 17000, .Duration = std::chrono::milliseconds(120)};
+    static constexpr Vibration VIBRATION_HAMMER_SMASH{
+        .LeftMotorSpeed = 55000, .RightMotorSpeed = 29000, .Duration = std::chrono::milliseconds(350)};
+    static constexpr Vibration VIBRATION_TAKE_DAMAGE{
+        .LeftMotorSpeed = 30000, .RightMotorSpeed = 17000, .Duration = std::chrono::milliseconds(150)};
 } // namespace Input::ControllerTypes

@@ -9,6 +9,7 @@ class LightComponent;
 class CameraComponent;
 class Model;
 class Font;
+class SDFFont;
 namespace Command::EditorScene
 {
     class NewGameObjectCommand;
@@ -197,28 +198,28 @@ public:
         /// </summary>
         /// <param name="name :">찾을 오브젝트의 이름</param>
         /// <returns>성공시 weak_ptr에 담아줍니다.</returns>
-        static std::weak_ptr<GameObject> FindGameObjectWithName(std::string_view name);
+        static std::weak_ptr<GameObject> FindGameObjectWithName(const std::string& name);
 
         /// <summary>
         /// 게임 오브젝트의 이름으로 오브젝트를 탐색해 전부 반환합니다.
         /// </summary>
         /// <param name="name :">찾을 오브젝트의 이름</param>
         /// <returns>성공시 weak_ptr에 담아줍니다.</returns>
-        static std::vector<std::weak_ptr<GameObject>> FindGameObjectsWithName(std::string_view name);
+        static std::vector<std::weak_ptr<GameObject>> FindGameObjectsWithName(const std::string& name);
 
         /// <summary>
         /// 게임 오브젝트의 태그로 오브젝트를 탐색합니다.
         /// </summary>
         /// <param name="tag :">찾을 오브젝트의 태그</param>
         /// <returns>성공시 weak_ptr에 담아줍니다.</returns>
-        static std::weak_ptr<GameObject> FindGameObjectWithTag(std::string_view tag);
+        static std::weak_ptr<GameObject> FindGameObjectWithTag(const std::string& tag);
 
         /// <summary>
         /// 게임 오브젝트의 태그로 오브젝트를 탐색해 전부 반환합니다.
         /// </summary>
         /// <param name="tag :">찾을 오브젝트의 태그</param>
         /// <returns>성공시 weak_ptr에 담아줍니다.</returns>
-        static std::vector<std::weak_ptr<GameObject>> FindGameObjectsWithTag(std::string_view tag);
+        static std::vector<std::weak_ptr<GameObject>> FindGameObjectsWithTag(const std::string& tag);
 
         /// <summary>
         /// 게임 오브젝트의 이름을 변경합니다.
@@ -508,6 +509,15 @@ public:
         void RequestFontResource(const Component* component, const File::Guid& guid, const std::function<void()>& func);
         void RequestFontResource(const Component* component, const File::Path& path, const std::function<void()>& func);
 
+        /// <summary>
+        /// SDFFont 리소스 로드를 요청합니다.
+        /// </summary>
+        /// <param name="component :">대상 컴포넌트</param>
+        /// <param name="guid :">로드할 리소스의 guid</param>
+        /// <param name="func :">리소스 로드후 호출되는 콜백 함수</param>
+        void RequestSDFFontResource(const Component* component, const File::Guid& guid, const std::function<void()>& func);
+        void RequestSDFFontResource(const Component* component, const File::Path& path, const std::function<void()>& func);
+
     private:
         template <typename T>
         struct RenderResource
@@ -520,6 +530,7 @@ public:
         RenderResource<Model>   _models;
         RenderResource<Texture> _textures;
         RenderResource<Font>    _fonts;
+        RenderResource<SDFFont> _sdfFonts;
 
         template <typename T>
         void UpdateRenderResource(RenderResource<T>& resource);
@@ -589,6 +600,17 @@ public:
         /// </summary>
         /// <returns></returns>
         Input::Controller& GetController() { return _inputController; }
+
+        /// <summary>
+        /// 컨트롤러의 진동을 설정합니다.
+        /// </summary>
+        /// <param name="vibration">적용할 진동 설정을 나타내는 Vibration 구조체입니다.</param>
+        void Vibrate(Input::ControllerTypes::Vibration vibration);
+
+        /// <summary>
+        /// 컨트롤러의 진동을 중지합니다.
+        /// </summary>
+        void StopVibration();
 
     private:
         static constexpr size_t ACTION_COUNT = (size_t)Action::UNKNOWN;
@@ -751,6 +773,9 @@ private:
 
     //다음에 로드할 씬
     File::Guid _nextSceneGuid;
+
+    //다음에 로드할 스카이박스
+    Scene* _nextSceneSkybox;
 
 protected:
     /// <summary>

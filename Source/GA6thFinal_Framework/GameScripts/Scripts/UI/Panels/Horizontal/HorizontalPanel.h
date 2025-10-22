@@ -12,7 +12,7 @@ public:
     HorizontalPanel();
 
 public:
-    REFLECT_PROPERTY()
+    REFLECT_PROPERTY(Space, LineSpace)
 
     GETTER_ONLY(std::vector<HorizontalPanelSlot*>, Slots)
     {
@@ -29,6 +29,24 @@ public:
     }
     PROPERTY(Slots)
 
+    GETTER(int, Space) { return ReflectFields->Space; }
+    SETTER(int, Space)
+    {
+        ReflectFields->Space = static_cast<LONG>(value);
+        InvalidateMeasure();
+        InvalidateArrange();
+    }
+    PROPERTY(Space)
+
+    GETTER(int, LineSpace) { return ReflectFields->LineSpace; }
+    SETTER(int, LineSpace)
+    {
+        ReflectFields->LineSpace = static_cast<LONG>(value);
+        InvalidateMeasure();
+        InvalidateArrange();
+    }
+    PROPERTY(LineSpace)
+
 protected:
     void OnAttachChild(GameObject* childGameObject) override;
 
@@ -40,6 +58,8 @@ private:
 
 protected:
     REFLECT_FIELDS_BEGIN(UIComponent)
+    LONG Space     = 0;
+    LONG LineSpace = 0;
     REFLECT_FIELDS_END(HorizontalPanel)
 
 };
@@ -75,11 +95,21 @@ public:
     }
     PROPERTY(Horizontal)
 
+    GETTER_ONLY(LONG, Line) { return ReflectFields->Line; }
+    PROPERTY(Line)
+
 public:
     HorizontalPanelSlot();
 
 protected:
+    void ImGuiDrawPropertysEvent() override;
+
+private:
+    void SetLine(LONG line);
+
+protected:
     REFLECT_FIELDS_BEGIN(SlotComponent)
-    bool         IsStretch = false;
+    bool IsStretch = false;
+    LONG Line      = 0;
     REFLECT_FIELDS_END(HorizontalPanelSlot)
 };

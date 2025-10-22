@@ -70,6 +70,16 @@ public:
     /// </summary>
     void NotifyTokenRemoved(int tokenID);
 
+    /// <summary>
+    /// QTE가 시작될 때 호출됩니다.
+    /// </summary>
+    void NotifyQTEStart();
+
+    /// <summary>
+    /// QTE가 끝날 때 호출됩니다.
+    /// </summary>
+    void NotifyQTEEnd();
+
 public:
     /// <summary>
     /// 토큰 스택을 카운트만큼 추가합니다. 
@@ -162,7 +172,7 @@ private:
     bool CheckValidTokenFromID(TokenID tokenID);
 
 private:
-    CharacterBase*                      _owner;              // 해당 매니저를 소유한 CharacterBase 인스턴스
+    CharacterBase&                      _owner;              // 해당 매니저를 소유한 CharacterBase 인스턴스
     std::vector<TokenID>                _vaildTokenVector;   // 유효한 토큰 ID 리스트(쌓인 순서)
     std::unordered_map<TokenID, int>    _tokenTable;         // 모든 토큰 테이블 (스택 카운트가 0인 토큰도 포함)
 };

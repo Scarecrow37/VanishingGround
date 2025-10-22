@@ -6,6 +6,8 @@
 
 using namespace u8_literals;
 
+REFLECT_FUNCTION(WeaponDamageAction)
+
 REGISTER_TURN_ACTION(WeaponDamageAction)
 
 WeaponDamageAction::WeaponDamageAction() 
@@ -43,7 +45,7 @@ void WeaponDamageAction::DeserializedReflectEvent()
     UpdateActionInfo();
 }
 
-void WeaponDamageAction::OnPlayerQTEResult(Player& player) 
+void WeaponDamageAction::OnPlayerQTEResult(Player& player, const QTE::OverallResult& result) 
 { 
     if (TriggerType::QTE_END == ReflectFields->Trigger && EvaluateConditions())
     {

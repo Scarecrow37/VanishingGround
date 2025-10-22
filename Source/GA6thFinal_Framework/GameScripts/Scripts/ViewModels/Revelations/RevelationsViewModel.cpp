@@ -3,197 +3,64 @@
 
 #include "RevelationSystem/RevelationElement/RevelationElement.h"
 
+#include "Utility/SingletonHelper.h"
+#include "ExcelDataSystem/ExcelDataSystem.h"
+
 struct GetRevelationIcon
 {
-    File::GuidRef operator()(const int revelationID) const
+    File::Guid operator()(const int revelationID) const
     {
-        File::GuidRef iconGuid;
-        switch (revelationID)
+        File::Guid iconGuid;
+        if (ExcelDataSystem* system = SingletonComponent<ExcelDataSystem>::GetInstance())
         {
-        case 13010: // 곡예
-        {
-            const File::Path& path = UmFileSystem.GetPathFromAssetID(111304);
-            iconGuid               = path.ToGuid();
-        }
-        break;
-        case 13011: // 부서진 갑주
-        {
-            const File::Path& path = UmFileSystem.GetPathFromAssetID(111301);
-            iconGuid               = path.ToGuid();
-        }
-        break;
-        case 13004: // 붉은 목요일
-        {
-            const File::Path& path = UmFileSystem.GetPathFromAssetID(111300);
-            iconGuid               = path.ToGuid();
-        }
-        break;
-        case 13008: // 산 제물
-        {
-            const File::Path& path = UmFileSystem.GetPathFromAssetID(111303);
-            iconGuid               = path.ToGuid();
-        }
-        break;
-        case 13001: // 취약
-        {
-            const File::Path& path = UmFileSystem.GetPathFromAssetID(111302);
-            iconGuid               = path.ToGuid();
-        }
-        break;
-        default:
-            UmLogger.Log(LogLevel::LEVEL_WARNING, "Unknown revelation ID: " + std::to_string(revelationID));
-            iconGuid = File::NULL_GUID; // Default to SWORD
-            break;
+            if (std::unique_ptr<ExcelDataBase> db = system->FindExcelDataBase(u8"계시"))
+            {
+                std::string idStr = std::to_string(revelationID);
+                size_t index = db->FindRowIndex((const char8_t*)idStr.c_str(), u8"ID");
+                if (index != ExcelDataBase::FIND_INDEX_FAIL)
+                {
+                    std::string_view iconID = db->FindData(index, u8"Big Icon ID");
+                    if (iconID != ExcelDataBase::FIND_STR_FAIL)
+                    {
+                        iconGuid = UmFileSystem.GetGuidFromAssetID(std::stoi(iconID.data()));
+                        if (iconGuid.IsNull())
+                        {
+                            std::string message = "Revelation asset ID ";
+                            message += iconID;
+                            message += " is not import";
+                            UmLogger.Log(LogLevel::LEVEL_WARNING, message);
+                        }
+                    }
+                }
+            }
         }
         return iconGuid;
     }
 };
 
-struct GetIconGuid
-{
-    enum class IconType : char
-    {
-        HIT,
-        CRITICAL,
-        SPEED,
-        ATTACK_COUNT,
-        BLEEDING,
-        STUN,
-        COMBO
-    };
-    std::wstring operator()(const IconType type) const
-    {
-        std::wstring guid;
-        switch (type)
-        {
-        case IconType::HIT: {
-            const File::Path& path = UmFileSystem.GetPathFromAssetID(110010);
-            guid                   = path.ToGuid();
-        }
-        break;
-        case IconType::CRITICAL: {
-            const File::Path& path = UmFileSystem.GetPathFromAssetID(110011);
-            guid                   = path.ToGuid();
-        }
-        break;
-        case IconType::SPEED: {
-            const File::Path& path = UmFileSystem.GetPathFromAssetID(110013);
-            guid                   = path.ToGuid();
-        }
-        break;
-        case IconType::ATTACK_COUNT: {
-            const File::Path& path = UmFileSystem.GetPathFromAssetID(110012);
-            guid                   = path.ToGuid();
-        }
-        break;
-        case IconType::BLEEDING: {
-            const File::Path& path = UmFileSystem.GetPathFromAssetID(111700);
-            guid                   = path.ToGuid();
-        }
-        break;
-        case IconType::STUN: {
-            const File::Path& path = UmFileSystem.GetPathFromAssetID(111703);
-            guid                   = path.ToGuid();
-        }
-        break;
-        case IconType::COMBO: {
-            const File::Path& path = UmFileSystem.GetPathFromAssetID(110023);
-            guid                   = path.ToGuid();
-        }
-        break;
-        }
-        return guid;
-    }
-};
-
 struct GetRevelationDescription
 {
-    std::pair<std::wstring, std::wstring> operator()(const int weaponId) const
+    std::string operator()(const int revelationID) const
     {
-        constexpr GetIconGuid                 getIconGuid;
-        std::pair<std::wstring, std::wstring> description{};
-        switch (weaponId)
+        std::string description = WStringToU8(L"<Description>"
+                                              L"<Text color=\"#ffffff\">Unkown Description</Text>"
+                                              L"</Description>");
+
+        if (ExcelDataSystem* system = SingletonComponent<ExcelDataSystem>::GetInstance())
         {
-        case 13010: // 곡예
-            description.first += L"<Description>"
-                                 L"<Image guid=\"" +
-                                 getIconGuid(GetIconGuid::IconType::COMBO) +
-                                 L"\"/>"
-                                 L"<Text color=\"#ffca00\">x8 달성</Text>"
-                                 L"</Description>";
-            description.second += L"<Description>"
-                                  L"<Text color=\"#9bb9f0\">모든 적</Text>"
-                                  L"<Text color=\"#ffffff\"> 공격</Text>"
-                                  L"</Description>";
-            break;
-        case 13011: // 부서진 갑주
-            description.first += L"<Description>"
-                                 L"<Image guid=\"" +
-                                 getIconGuid(GetIconGuid::IconType::COMBO) +
-                                 L"\"/>"
-                                 L"<Text color=\"#ffca00\">~2 달성</Text>"
-                                 L"</Description>";
-            description.second += L"<Description>"
-                                  L"<Text color=\"#9bb9f0\">자신</Text>"
-                                  L"<Text color=\"#a2c989\"> 15 회복</Text>"
-                                  L"</Description>";
-            break;
-        case 13004: // 붉은 목요일
-            description.first += L"<Description>"
-                                 L"<Image guid=\"" +
-                                 getIconGuid(GetIconGuid::IconType::COMBO) +
-                                 L"\"/>"
-                                 L"<Text color=\"#ffca00\">x4 달성</Text>"
-                                 L"</Description>";
-            description.second += L"<Description>"
-                                  L"<Text color=\"#9bb9f0\">적</Text>"
-                                  L"<Image guid=\"" +
-                                  getIconGuid(GetIconGuid::IconType::BLEEDING) +
-                                  L"\"/>"
-                                  L"<Text color=\"#ffffff\"> 3 부여</Text>"
-                                  L"</Description>";
-            break;
-        case 13008: // 산 제물
-            description.first += L"<Description>"
-                                 L"<Text color=\"#ffca00\">일회성</Text>"
-                                 L"</Description>";
-            description.second += L"<Description>"
-                                  L"<Image guid=\"" +
-                                  getIconGuid(GetIconGuid::IconType::BLEEDING) +
-                                  L"\"/>"
-                                  L"<Text color=\"#9bb9f0\"> 적</Text>"
-                                  L"<Text color=\"#ffffff\"> 대상</Text>"
-                                  L"<Image guid=\"" +
-                                  getIconGuid(GetIconGuid::IconType::CRITICAL) +
-                                  L"\"/>"
-                                  L"<Text color=\"#ffffff\"> x3</Text>"
-                                  L"</Description>";
-            break;
-        case 13001: // 취약
-            description.first += L"<Description>"
-                                 L"<Image guid=\"" +
-                                 getIconGuid(GetIconGuid::IconType::COMBO) +
-                                 L"\"/>"
-                                 L"<Text color=\"#ffca00\">4~6 달성</Text>"
-                                 L"</Description>";
-            description.second += L"<Description>"
-                                  L"<Text color=\"#9bb9f0\"> 적</Text>"
-                                  L"<Text color=\"#ffffff\"> 대상</Text>"
-                                  L"<Image guid=\"" +
-                                  getIconGuid(GetIconGuid::IconType::HIT) +
-                                  L"\"/>"
-                                  L"<Text color=\"#ffffff\"> +4</Text>"
-                                  L"<Image guid=\"" +
-                                  getIconGuid(GetIconGuid::IconType::CRITICAL) +
-                                  L"\"/>"
-                                  L"<Text color=\"#ffffff\"> +4</Text>"
-                                  L"</Description>";
-            break;
-        default:
-            description.first += L"<Description>"
-                                 L"<Text color=\"#ffffff\">알 수 없는 무기</Text>"
-                                 L"</Description>";
-            break;
+            if (std::unique_ptr<ExcelDataBase> db = system->FindExcelDataBase(u8"계시"))
+            {
+                std::string idStr = std::to_string(revelationID);
+                size_t      index = db->FindRowIndex((const char8_t*)idStr.c_str(), u8"ID");
+                if (index != ExcelDataBase::FIND_INDEX_FAIL)
+                {
+                    std::string_view data = db->FindData(index, u8"Description");
+                    if (ExcelDataBase::FIND_STR_FAIL != data)
+                    {
+                        description = data;
+                    }
+                }
+            }
         }
         return description;
     }
@@ -202,24 +69,41 @@ struct GetRevelationDescription
 RevelationsViewModel::RevelationsViewModel(MVVM::Model<std::vector<std::shared_ptr<RevelationElement>>>& model)
     : ViewModel(model)
 {
+
 }
 
 std::vector<RevelationUIData> RevelationsViewModel::Convert(
     const std::vector<std::shared_ptr<RevelationElement>>& value)
 {
     _uiData.clear();
-
     for (const auto& revelationElement : value)
     {
-        const int revelationID = revelationElement->RevelationID;
-
+        const int        revelationID = revelationElement->RevelationID;
+        RevelationGrade  grade        = revelationElement->Grade;
         RevelationUIData uiData;
 
         uiData.Name = revelationElement->ElementName;
-        uiData.Icon = GetRevelationIcon()(revelationID);
-        auto [description1, description2] = GetRevelationDescription()(revelationID);
-        uiData.Description1               = description1;
-        uiData.Description2               = description2;
+        switch (grade)
+        {
+        case RevelationGrade::COMMON:
+            uiData.NameColor = Color(1.0f, 1.0f, 1.0f, 1.0f);
+            break;
+        case RevelationGrade::RARE:
+            uiData.NameColor = Color(0.7059f, 0.8471f, 0.8824f, 1.0f);
+            break;
+        case RevelationGrade::LEGENDARY:
+            uiData.NameColor = Color(0.9882f, 0.8902f, 0.7647f, 1.0f);
+            break;
+        case RevelationGrade::EXTINCTION:
+            uiData.NameColor = Color(0.8353f, 0.6549f, 0.9647f, 1.0f);
+            break;
+        default:
+            uiData.NameColor = Color(1.0f, 1.0f, 1.0f, 1.0f);
+            break;
+        }
+        uiData.Icon        = GetRevelationIcon()(revelationID);
+        uiData.Grade       = grade;
+        uiData.Description = GetRevelationDescription()(revelationID);
 
         _uiData.push_back(uiData);
     }

@@ -18,6 +18,6 @@ private:
     void InitShaderAndPSO();
 
 private:
-    VolumetricFogTechnique*              _volumTech;
-    std::unique_ptr<class ShaderBuilder> _shader;
+    VolumetricFogTechnique*            _volumTech;
+    ComputeFX<GE::CS::LIGHT_INJECTION> _fx;
 };

@@ -71,7 +71,7 @@ public:
     /// 플레이어가 착용중인 아이템을 반환합니다.
     /// </summary>
     /// <returns></returns>
-    const std::vector<AccessoryElement>& GetPlayerAccessoryItems() { return _playerAccessoryItems; }
+    const MVVM::Model<std::vector<AccessoryElement>>& GetPlayerAccessoryItems() const { return _playerAccessoryItems; }
 
     /// <summary>
     /// 플레이어에게 장신구를 장착합니다 (중복된 장신구는 장착 불가능합니다.)
@@ -101,6 +101,8 @@ public:
     /// <returns>존재 여부</returns>
     bool HasPlayerAccessory(const AccessoryElement& element) { return HasPlayerAccessory(element.AccessoryID); }
 
+    void NotifyUIModel() { _playerAccessoryItems.Notify(); }
+    
 public:
     REFLECT_PROPERTY()
 
@@ -129,6 +131,7 @@ protected:
 
     void Reset() override;
     void Awake() override;
+    void OnDestroy() override;
 
 private:
     void ElementTableSerialized();
@@ -143,8 +146,8 @@ private:
     std::vector<AccessoryElement*>          _elementTableOrderID; // 아이디 순 정렬된 테이블
 
 private:
-    std::vector<AccessoryElement> _playerAccessoryItems;   // 플레이어가 장착중인 장신구
-    std::unordered_set<int>       _playerAccessoryItemSet; // 플레이어가 장착중인 장신구 ID 기록용 set (중복 방지)
+    MVVM::Model<std::vector<AccessoryElement>> _playerAccessoryItems; // 플레이어가 장착중인 장신구
+    std::unordered_set<int> _playerAccessoryItemSet; // 플레이어가 장착중인 장신구 ID 기록용 set (중복 방지)
 
 private:
     bool RenameAccessory(AccessoryElement& accessory, const std::string& newName);

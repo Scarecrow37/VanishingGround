@@ -17,6 +17,7 @@ public:
 
 protected:
     void Awake() override;
+    void OnDestroy() override;
 
 private:
     void FindTextElement();
@@ -28,6 +29,7 @@ protected:
 private:
     TextElement* _hpTextElement;
     CharacterHPViewModel::Handle _watchHandle;
+    std::string                  _key;
 };
 
 class MonsterHpImageView : public Component
@@ -36,6 +38,7 @@ class MonsterHpImageView : public Component
 
 public:
     MonsterHpImageView();
+    void OnDestroy() override;
 
 public:
     void Watch(const std::string& key);
@@ -54,4 +57,5 @@ protected:
 private:
     ImageElement*                _hpImageElement;
     CharacterHPViewModel::Handle _watchHandle;
+    std::string                  _key;
 };

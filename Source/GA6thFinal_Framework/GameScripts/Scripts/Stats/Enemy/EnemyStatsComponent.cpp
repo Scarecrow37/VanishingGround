@@ -8,10 +8,10 @@ UMREAL_COMPONENT(EnemyStatsComponent)
 EnemyStatsComponent::EnemyStatsComponent() = default;
 EnemyStatsComponent::~EnemyStatsComponent() = default;
 
-void EnemyStatsComponent::RegisterHP(const std::string& key) const
+void EnemyStatsComponent::RegisterHUD(const std::string& key) const
 {
     if (nullptr != _stats)
-        _stats->RegisterHP(key);
+        _stats->RegisterHUD(key);
 }
 
 TurnActorStats* EnemyStatsComponent::NewTurnActorStats()

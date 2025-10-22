@@ -1,6 +1,8 @@
 ﻿#include "pch.h"
 #include "UINavigationComponent.h"
 
+REFLECT_FUNCTION(UINavigationComponent)
+
 NavigationID UINavigationComponent::_toID = INVALID_NAVIGATION_ID;
 
 UINavigationComponent::UINavigationComponent() = default;
@@ -9,7 +11,7 @@ void UINavigationComponent::Focus()
 {
     if (UIRoot* root = Root; nullptr != root)
     {
-        root->ChangeFocusComponent(this);
+        root->RequestChangeFocusComponent(this);
     }
     else
     {
@@ -17,7 +19,7 @@ void UINavigationComponent::Focus()
     }
 }
 
-void UINavigationComponent::FocusIn()
+void UINavigationComponent::FocusIn(FocusCallType callType)
 {
     if (UIComponent* siblingUI = SiblingUI; nullptr != siblingUI)
     {
@@ -29,7 +31,7 @@ void UINavigationComponent::FocusIn()
     }
 }
 
-void UINavigationComponent::FocusOut()
+void UINavigationComponent::FocusOut(FocusCallType callType)
 {
     if (UIComponent* siblingUI = SiblingUI; nullptr != siblingUI)
     {
@@ -322,6 +324,7 @@ void UINavigationComponent::OnAttachParent(GameObject* parentGameObject)
     {
         if (UIRoot* uiRoot = GetRoot(*parentGameObject); nullptr != uiRoot)
         {
+            uiRoot->CheckNavigationIdFlawless(this);
             AcquireNavigationID(uiRoot);
         }
     }
@@ -413,6 +416,11 @@ void UINavigationComponent::ReleaseNavigationID(UIRoot* root)
     }
 }
 
+void UINavigationComponent::SetID(const NavigationID id)
+{
+    ReflectFields->NavigationID = id;
+}
+
 void UINavigationComponent::ClearNavigationRoute()
 {
     NavigationRoutes& navigationRoutes = ReflectFields->NavigationRoutes;
@@ -448,11 +456,11 @@ void UINavigationComponent::RemoveNavigationRoute(const NavigationKey& key)
 NavigationID UINavigationComponent::GetNavigatedId(const NavigationKey& key)
 {
     NavigationRoutes& navigationInfos = ReflectFields->NavigationRoutes;
-    auto  result          = navigationInfos | std::views::filter([&key](const auto& info) {
-                      const auto& [button, bias, name, toID] = info;
-                      return button == key.ButtonType && bias == key.Bias;
-                  }) |
-                  std::views::take(1) | std::views::elements<3>;
+    auto              result          = navigationInfos | std::views::filter([&key](const auto& info) {
+                        const auto& [button, bias, name, toID] = info;
+                        return button == key.ButtonType && bias == key.Bias;
+                    }) |
+                    std::views::take(1) | std::views::elements<3>;
 
     if (false == result.empty())
     {

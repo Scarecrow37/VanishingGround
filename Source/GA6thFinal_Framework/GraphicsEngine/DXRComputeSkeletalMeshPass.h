@@ -19,7 +19,6 @@ private:
     void InitShaderAndPSO();
 
 private:
-    std::unique_ptr<class ShaderBuilder> _shader;
-    ComPtr<ID3D12PipelineState>          _pso;
+    ComputeFX<GE::CS::SKELETAL_SKINNING> _fx;
     std::vector<VertexBufferID>          _vertexBufferIDs;
 };

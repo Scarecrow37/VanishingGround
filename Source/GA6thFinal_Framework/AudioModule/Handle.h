@@ -3,7 +3,7 @@
 namespace Audio
 {
     /// <summary>
-    /// 현재 사용중인 Audio 제어에 사용하는 Handle 객체입니다.
+    /// Audio System에서 사용되는 Handle 객체입니다.
     /// </summary>
     class Handle
     {
@@ -16,11 +16,13 @@ namespace Audio
         Handle();
 
     protected:
-        Handle(WaveFormatHash hash, Index index, Generation generation);
+        Handle(Index index, Generation generation);
+
+    public:
+        bool operator==(const Handle& other) const noexcept;
 
     private:
-        WaveFormatHash _hash;
-        Index          _index;
-        Generation     _generation;
+        Index      _index;
+        Generation _generation;
     };
 } // namespace Audio

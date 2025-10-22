@@ -18,10 +18,7 @@ public:
 	void Initialize(const VIBuffer::Descriptor& descriptor);
     void Initialize(ID3D12GraphicsCommandList* commandList, const VIBuffer::Descriptor& descriptor);
 	void DrawIndexedInstanced(ID3D12GraphicsCommandList* commandList, UINT instanceCount = 1);
-    void MakeAccelerationBuffer(
-    ID3D12Device5* device,
-    ID3D12GraphicsCommandList4* cmdList,
-    AccelerationStructureBuffers* outBuffer);
+    void MakeAccelerationBuffer(ID3D12Device5* device, ID3D12GraphicsCommandList4* cmdList, AccelerationStructureBuffers* outBuffer);
 
 public:
 	D3D12_VERTEX_BUFFER_VIEW _vertexBufferView;

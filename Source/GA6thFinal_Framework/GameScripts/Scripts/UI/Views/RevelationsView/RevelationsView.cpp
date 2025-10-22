@@ -10,7 +10,7 @@ UMREAL_COMPONENT(RevelationsView)
 
 RevelationsView::~RevelationsView()
 {
-    UmWatcher.Blind<RevelationsViewModel>("Revelations", _watchHandle);
+    
 }
 
 void RevelationsView::Awake()
@@ -25,7 +25,8 @@ void RevelationsView::Start()
     Component::Start();
 
     _watchHandle = UmWatcher.Watch<RevelationsViewModel, std::vector<RevelationUIData>>(
-        "Revelations", [this](const std::vector<RevelationUIData>& revelations) {
+        "Revelations", [this](const std::vector<RevelationUIData>& revelations) 
+        {
             for (size_t i = 0; i < _revelationUis.size(); ++i)
             {
                 if (i < revelations.size())
@@ -33,14 +34,34 @@ void RevelationsView::Start()
                     if (nullptr != _revelationUis[i].IconElement)
                         _revelationUis[i].IconElement->SetImage(revelations[i].Icon);
                     if (nullptr != _revelationUis[i].NameElement)
+                    {
                         _revelationUis[i].NameElement->Text = revelations[i].Name;
-                    if (nullptr != _revelationUis[i].Description1Element)
-                        _revelationUis[i].Description1Element->Description = WStringToU8(revelations[i].Description1);
-                    if (nullptr != _revelationUis[i].Description2Element)
-                        _revelationUis[i].Description2Element->Description = WStringToU8(revelations[i].Description2);
+                        _revelationUis[i].NameElement->Color = revelations[i].NameColor;
+                    }                       
+                    if (nullptr != _revelationUis[i].DescriptionElement)
+                        _revelationUis[i].DescriptionElement->Description = revelations[i].Description;
+                    if (false != _revelationUis[i].GradeElements.size())
+                    {
+                        size_t index = static_cast<size_t>(revelations[i].Grade);
+                        for (auto& ui : _revelationUis[i].GradeElements)
+                        {
+                            ui->Enable = false;
+                        }
+                        if (index < _revelationUis[i].GradeElements.size())
+                        {
+                            _revelationUis[i].GradeElements[index]->Enable = true;
+                        }
+                    }
                 }
             }
         });
+
+    gameObject->ActiveSelf = false;
+}
+
+void RevelationsView::OnDestroy() 
+{
+    UmWatcher.Blind<RevelationsViewModel>("Revelations", _watchHandle);
 }
 
 void RevelationsView::FindRevelationUIs()
@@ -60,25 +81,24 @@ std::pair<GameObject*, RevelationUI> RevelationsView::FindRevelationUI(const std
 {
     GameObject*  revelationObject = nullptr;
     RevelationUI revelationUI     = {
-            .IconElement = nullptr, .NameElement = nullptr, .Description1Element = nullptr, .Description2Element = nullptr};
+        .IconElement = nullptr, 
+        .NameElement = nullptr, 
+        .DescriptionElement = nullptr,
+    };
 
     Transform& ownerTransform = transform;
-
     Transform* revelationTransform = nullptr;
-    Transform::ForeachBFS(ownerTransform, [&tag, &revelationObject, &revelationTransform](Transform* transform) {
-        if (revelationTransform)
-            return;
-        GameObject& object = transform->gameObject;
-        if (object.CompareTag(tag))
-        {
-            revelationObject    = &object;
-            revelationTransform = transform;
-        }
-    });
+
+    if (auto findObject = GameObject::FindWithTag(tag).lock())
+    {
+        revelationObject = findObject.get();
+        revelationTransform = &revelationObject->transform;
+    }
 
     if (nullptr != revelationTransform)
     {
-        Transform::ForeachBFS(*revelationTransform, [&revelationUI](const Transform* transform) {
+        Transform::ForeachBFS(*revelationTransform, [&revelationUI](const Transform* transform) 
+        {
             GameObject& object = transform->gameObject;
             if (nullptr == revelationUI.IconElement && object.CompareTag("Icon"))
             {
@@ -88,13 +108,13 @@ std::pair<GameObject*, RevelationUI> RevelationsView::FindRevelationUI(const std
             {
                 revelationUI.NameElement = object.GetComponent<TextElement>();
             }
-            if (nullptr == revelationUI.Description1Element && object.CompareTag("Description1"))
+            if (object.CompareTag("Grade"))
             {
-                revelationUI.Description1Element = object.GetComponent<DescriptionPanel>();
+                revelationUI.GradeElements.push_back(object.GetComponent<ImageElement>());
             }
-            if (nullptr == revelationUI.Description2Element && object.CompareTag("Description2"))
+            if (nullptr == revelationUI.DescriptionElement && object.CompareTag("Description"))
             {
-                revelationUI.Description2Element = object.GetComponent<DescriptionPanel>();
+                revelationUI.DescriptionElement = object.GetComponent<DescriptionPanel>();
             }
         });
 
@@ -106,13 +126,13 @@ std::pair<GameObject*, RevelationUI> RevelationsView::FindRevelationUI(const std
         {
             UmLogger.Log(LogLevel::LEVEL_WARNING, "Name Element with tag '" + tag + "' not found.");
         }
-        if (nullptr == revelationUI.Description1Element)
+        if (true == revelationUI.GradeElements.empty())
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING, "Grade Element with tag '" + tag + "' not found.");
+        }
+        if (nullptr == revelationUI.DescriptionElement)
         {
             UmLogger.Log(LogLevel::LEVEL_WARNING, "Description1 Element with tag '" + tag + "' not found.");
-        }
-        if (nullptr == revelationUI.Description2Element)
-        {
-            UmLogger.Log(LogLevel::LEVEL_WARNING, "Description2 Element with tag '" + tag + "' not found.");
         }
     }
     else

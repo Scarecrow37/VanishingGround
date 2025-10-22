@@ -13,7 +13,7 @@ protected:
 
 private:
     void LoadAudio();
-    void LoadAudio(const std::string& key, const File::GuidRef& guid);
+    void LoadAudio(const std::string& key, const File::Guid& guid);
 
     void PlaySelectedAudio();
     void StopSelectedAudio();
@@ -30,5 +30,5 @@ private:
 
     std::string   _selectedAudioKey;
 
-    std::unordered_map<std::string, std::vector<Audio::Handle>> _audioHandles;
+    std::unordered_map<std::string, std::vector<Audio::AudioHandle>> _audioHandles;
 };

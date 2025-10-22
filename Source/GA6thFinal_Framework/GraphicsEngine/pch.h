@@ -26,6 +26,7 @@
 #include <format>
 #include <concurrent_queue.h>
 #include <functional>
+#include <ranges>
 
 #include "directx/d3dcommon.h"
 #include "directx/d3dx12.h"
@@ -35,6 +36,7 @@
 #include "directxtk12/SpriteBatch.h"
 #include "directxtk12/SpriteFont.h"
 #include "DirectXTex.h"
+#include "yyjson/yyjson.h"
 
 #include <d3dcompiler.h>
 #include <dbghelp.h>

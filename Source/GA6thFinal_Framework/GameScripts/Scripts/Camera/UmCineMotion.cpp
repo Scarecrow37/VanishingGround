@@ -5,6 +5,12 @@ UMREAL_COMPONENT(UmCineMotion)
 UmCineMotion::UmCineMotion()  = default;
 UmCineMotion::~UmCineMotion() = default;
 
+void UmCineMotion::Start() 
+{
+    transform->Position = _posTethers[0];
+    transform->Rotation = _rotTethers[0];
+}
+
 void UmCineMotion::OnDrawDebug()
 {
     CameraComponent::OnDrawDebug();
@@ -105,9 +111,17 @@ void UmCineMotion::ImGuiDrawPropertysEvent()
         bool isPlayPressed = ImGui::Button("Start Rail", {150, 50});
         if (true == isPlayPressed)
         {
-            StartRail();
+            StartRail(false);
         }
         ImGui::SameLine();
+
+        bool isReversePressed = ImGui::Button("reverse Rail", {150, 50});
+        if (true == isReversePressed)
+        {
+            StartRail(true);
+        }
+        ImGui::SameLine();
+
 
         bool isPausePressed = ImGui::Button("Pause Rail", {150, 50});
         if (true == isPausePressed)
@@ -192,15 +206,16 @@ void UmCineMotion::ClearTethers()
 #endif
 }
 
-void UmCineMotion::StartRail()
+void UmCineMotion::StartRail(bool isReverse)
 {
     _railFlag  = true;
     _pauseFlag = false;
-    if (false == _posTethers.empty())
-    {
-        transform->Position = _posTethers[0];
-        transform->Rotation = _rotTethers[0];
-    }
+    _reverseFlag = isReverse;
+    //if (false == _posTethers.empty())
+    //{
+    //    transform->Position = _posTethers[0];
+    //    transform->Rotation = _rotTethers[0];
+    //}
 }
 
 void UmCineMotion::PauseRail()
@@ -300,7 +315,7 @@ void UmCineMotion::RunRail()
     {
         if (false == _pauseFlag)
         {
-            _moveTimer += UmTime.DeltaTime() * ReflectFields->RailSpeed;
+            _moveTimer += UmTime.DeltaTime() * ReflectFields->RailSpeed * (_reverseFlag ? -1 : 1);
             _moveTimer   = std::clamp(_moveTimer, 0.f, ReflectFields->RailLength);
             if (ReflectFields->RailLength > 0.f)
             {

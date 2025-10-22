@@ -34,7 +34,7 @@ public:
     /// </summary>
     /// <param name="element"></param>
     /// <returns></returns>
-    const std::shared_ptr<RevelationElement>& PushBackPlayerElement(const RevelationElement& element);
+    const std::shared_ptr<RevelationElement>& PushBackRevelation(const RevelationElement& element);
    
     /// <summary>
     /// 이번 라운드 활성화 계시를 랜덤으로 뽑습니다.
@@ -75,6 +75,8 @@ public:
     /// <param name="elementName"></param>
     /// <returns></returns>
     bool EraseElement(std::string_view elementName);
+
+    void ClearTable();
 
     /// <summary>
     /// Element를 테이블에서 찾아서 존재하면 반환합니다.

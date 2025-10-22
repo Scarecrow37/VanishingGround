@@ -3,6 +3,8 @@
 
 namespace Timeline
 {
+    REFLECT_FUNCTION(EventTrack)
+
     EventTrack::EventTrack()
     {
         _currFrame = 0.0f;
@@ -117,6 +119,12 @@ namespace Timeline
         {
             context = new EventContext();
         }
+
+        if (FLT_MIN == time)
+        {
+            time = GetCurrentFrame();
+        }
+
         context->SetEvent(typenameID);
         context->SetTime(time);
         context->ReflectFields->Label = label;
@@ -124,28 +132,38 @@ namespace Timeline
         _contextQueue.push_back(context);
         _contextTable[uniqueID] = context;
         Sort();
+
         return context;
     }
-    bool EventTrack::RemoveContext(EventContext** context)
+    EventContext* EventTrack::AddEventExFromCopyBuffer(std::string_view serialData, std::string_view typenameID, float time, UINT id)
     {
-        for (auto it = _contextQueue.begin(); it != _contextQueue.end(); ++it)
+        UINT uniqueID = (id == UINT_MAX) ? GetUniqueID() : id;
+        auto it       = _contextTable.find(uniqueID);
+        if (it != _contextTable.end())
         {
-            if ((*it) == (*context))
-            {
-                delete (*context);
-                _contextQueue.erase(it);
-                return true;
-            }
+            return it->second;
         }
-        return false;
+        EventContext* context = NewInstanceWithKey(typenameID);
+        if (nullptr == context)
+        {
+            context = new EventContext();
+        }
+        context->DeserializedReflectFields(serialData);
+        context->ReflectFields->ContextID = uniqueID;
+        context->ReflectFields->Time      = time;
+        _contextQueue.push_back(context);
+        _contextTable[uniqueID] = context;
+        Sort();
+        return context;
     }
     bool EventTrack::RemoveContextFromID(UINT id)
     {
         for (auto it = _contextQueue.begin(); it != _contextQueue.end(); ++it)
         {
-            if ((*it)->ID == id)
+            auto* context = *it;
+            if (context && context->ID == id)
             {
-                delete (*it);
+                delete context;
                 _contextQueue.erase(it);
                 _contextTable.erase(id);
                 return true;
@@ -183,6 +201,96 @@ namespace Timeline
         }
         return nullptr;
     }
+    EventContext* EventTrack::GetContextFromLabel(std::string_view label) const
+    {
+        for (const auto& context : _contextQueue)
+        {
+            if (context && context->GetLabel() == label)
+            {
+                return context;
+            }
+        }
+        return nullptr;
+    }
+    EventContext* EventTrack::GetNextContextFromID(UINT id) const
+    {
+        for (size_t i = 0; i < _contextQueue.size(); ++i)
+        {
+            if (_contextQueue[i] && _contextQueue[i]->ID == id)
+            {
+                if (i + 1 < _contextQueue.size())
+                {
+                    return _contextQueue[i + 1];
+                }
+            }
+        }
+        return nullptr;
+    }
+    EventContext* EventTrack::GetPrevContextFromID(UINT id) const
+    {
+        for (size_t i = 0; i < _contextQueue.size(); ++i)
+        {
+            if (_contextQueue[i] && _contextQueue[i]->ID == id)
+            {
+                if (i > 0)
+                {
+                    return _contextQueue[i - 1];
+                }
+            }
+        }
+        return nullptr;
+    }
+    EventContext* EventTrack::GetBeginContext() const
+    {
+        if (false == _contextQueue.empty())
+        {
+            return _contextQueue.front();
+        }
+        return nullptr;
+    }
+    EventContext* EventTrack::GetEndContext() const
+    {
+        if (false == _contextQueue.empty())
+        {
+            return _contextQueue.back();
+        }
+        return nullptr;
+    }
+    std::string EventTrack::CopyContext(EventContext* context)
+    {
+        if (nullptr != context)
+        {
+            std::string copyBuffer = context->GetEventType();
+            copyBuffer += "\n";
+            copyBuffer += context->SerializedReflectFields();
+            return copyBuffer;
+        }
+        return "";
+    }
+    std::string EventTrack::CopyContextFromID(UINT id)
+    {
+        EventContext* context = GetContextFromID(id);
+        return CopyContext(context);
+    }
+    bool EventTrack::PasteContext(std::string_view data, float time)
+    {
+        if (data.empty())
+        {
+            return false;
+        }
+        size_t pos = data.find('\n');
+        if (pos != std::string::npos)
+        {
+            std::string   typeName    = std::string(data.substr(0, pos));
+            std::string   serialData  = std::string(data.substr(pos + 1));
+            EventContext* context     = AddEventExFromCopyBuffer(serialData, typeName, time);
+            if (context)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
     void EventTrack::Sort()
     {
         std::sort(_contextQueue.begin(), _contextQueue.end(), 
@@ -207,6 +315,16 @@ namespace Timeline
         if (true == pass || false == IsActive())
         {
             _prevFrame = _currFrame;
+        }
+    }
+    void EventTrack::SetOwnerGameObject(std::weak_ptr<GameObject> weakObj) 
+    {
+        for (auto& context : _contextQueue)
+        {
+            if (context)
+            {
+                context->SetGameObject(weakObj);
+            }
         }
     }
     void EventTrack::RequestNotify(float startTime, float endTime)

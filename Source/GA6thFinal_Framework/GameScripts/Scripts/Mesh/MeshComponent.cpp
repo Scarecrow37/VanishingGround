@@ -1,25 +1,16 @@
 ﻿#include "pchScripts.h"
 #include "MeshComponent.h"
+#include "GraphicsEngine/Interface/IMeshRenderer.h"
+
+REFLECT_FUNCTION(MeshComponent)
 
 MeshComponent::MeshComponent() 
-    : 
-    Component(Component::TYPE::MESH),
-    Renderer(_pMeshRenderer)
+    : Component(Component::TYPE::MESH)
+    , Renderer(_pMeshRenderer)
 {
 }
 
-MeshComponent::~MeshComponent()
-{
-    if (Renderer)
-    {
-        Renderer->SetDestroy();
-        const std::shared_ptr<Animator>& animator = Renderer->GetAnimator();
-        if (animator)
-        {
-            animator->SetDestroy();
-        }     
-    }
-}
+MeshComponent::~MeshComponent() = default;
 
 bool MeshComponent::HasModel() const
 {
@@ -31,18 +22,18 @@ bool MeshComponent::HasAnimator() const
     return nullptr != Renderer->GetAnimator();
 }
 
-void MeshComponent::MakeMeshRenderer(MeshType renderType, const Vector3& position, const Vector3& scale, const Quaternion& rotation, const Matrix& world, const bool& isDirtyFlag)
+void MeshComponent::MakeMeshRenderer(const Matrix& world)
 {
     if (nullptr == _pMeshRenderer)
     {
-        _pMeshRenderer.reset(new MeshRenderer(renderType, position, scale, rotation, world, isDirtyFlag));
+        UmGraphics.CreateMeshRenderer(&_pMeshRenderer, &world);
         _pMeshRenderer->SetActive(&EnableInHierarchy);
         _pMeshRenderer->OnCustomDepth(PostProcess::BLOOM);
-        UmGraphics.RegisterComponent("Game", _pMeshRenderer.get());
+        UmGraphics.RegisterComponent("Game", _pMeshRenderer.Get());
 
         if constexpr (IS_EDITOR)
         {
-            UmGraphics.RegisterComponent("Editor", _pMeshRenderer.get());
+            UmGraphics.RegisterComponent("Editor", _pMeshRenderer.Get());
         }
     } 
     else
@@ -77,9 +68,9 @@ void MeshComponent::ImGuiDrawPropertysEvent()
 
     if (ImGui::TreeNodeEx("Materials##MeshComponent"))
     {
-        static UINT*         lastCustomDepth = 0;
-        static MeshRenderer* lastRenderer = nullptr;
-        static UINT          lastSelected = 0;
+        static UINT*          lastCustomDepth = 0;
+        static IMeshRenderer* lastRenderer    = nullptr;
+        static UINT           lastSelected    = 0;
 
         const auto& model        = Renderer->GetModel();
         const auto& customDepths = Renderer->GetCustomDepths();
@@ -103,8 +94,8 @@ void MeshComponent::ImGuiDrawPropertysEvent()
                 Renderer->OnCustomDepth(PostProcess::OUTLINE, i);
                 
                 // 마지막 선택한 값 기억
-                lastSelected = i;
-                lastRenderer = Renderer.get();
+                lastSelected    = i;
+                lastRenderer    = Renderer.Get();
                 lastCustomDepth = &ReflectFields->CustomDepth[i];
             }
             if (isOpened)

@@ -21,9 +21,9 @@ void VolumetricFogTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
     _tempVoxelInjectionTexture3D[0] = std::make_shared<UnorderedAccessView>();
     _tempVoxelInjectionTexture3D[1] = std::make_shared<UnorderedAccessView>();
     _finalVoxelAccumulationTexture3D = std::make_shared<UnorderedAccessView>();
-    _tempVoxelInjectionTexture3D[0]->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE3D, D3D12_SRV_DIMENSION_TEXTURE3D);
-    _tempVoxelInjectionTexture3D[1]->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE3D, D3D12_SRV_DIMENSION_TEXTURE3D);
-    _finalVoxelAccumulationTexture3D->Initialize(desc, D3D12_UAV_DIMENSION_TEXTURE3D, D3D12_SRV_DIMENSION_TEXTURE3D);
+    _tempVoxelInjectionTexture3D[0]->InitializeAsTexture(desc, UnorderedAccessView::UAVSliceType::PER_MIP, true, D3D12_SRV_DIMENSION_TEXTURE3D);
+    _tempVoxelInjectionTexture3D[1]->InitializeAsTexture(desc, UnorderedAccessView::UAVSliceType::PER_MIP, true, D3D12_SRV_DIMENSION_TEXTURE3D);
+    _finalVoxelAccumulationTexture3D->InitializeAsTexture(desc, UnorderedAccessView::UAVSliceType::PER_MIP, true, D3D12_SRV_DIMENSION_TEXTURE3D);
     // 상수 버퍼 init
     _constantBuffer = std::make_shared<ConstantBufferView>();
     UINT size       = (sizeof(VolumetricFogData) + 255) & ~255;
@@ -72,7 +72,7 @@ void VolumetricFogTechnique::UpdateConstantBuffer()
     fogData.CameraNearFar_PreviousFrameBlend = Vector4(
         volumetricFogProperty.CustomNear, volumetricFogProperty.CustomFar, volumetricFogProperty.BlendWithPrevFrame, 1);
     fogData.Density               = volumetricFogProperty.Density;
-    fogData.PreViewProjection     = _prevViewProjection;
+    fogData.PreViewProjection     = XMMatrixTranspose(_prevViewProjection);
     fogData.InverseViewProjection = XMMatrixTranspose(invViewProj);
     fogData.Strength              = volumetricFogProperty.Strength;
     fogData.ThicknessFactor       = 0.01f;

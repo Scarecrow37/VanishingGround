@@ -6,8 +6,9 @@
 #include "AccessorySystem/AccessorySystem.h"
 #include "ItemDropSystem/UI/ItemDropUIRootManager.h"
 #include "ItemDropSystem/UI/ArtifactUIManager.h"
+#include "ItemDropSystem/UINavi/ArtifactButtonNavi.h"
 #include "ViewModels/ItemDrop/DropArtifacts/DropArtifactsViewModel.h"
-
+#include "Debugger/Debugger.h"
 
 UMREAL_COMPONENT(ItemDropSystem)
 
@@ -56,6 +57,8 @@ const size_t ItemDropSystem::ARTIFACT_TYPE_COUNT = ArtifactDropTypeArraySize; //
 
 ItemDropSystem::ItemDropSystem()
 {
+    _obtainArtifactFlag.fill(0);
+
     ReflectFields->MaxDropCount = {2, 2, 2, 6, 7, 2};
 
     for (auto& weights : ReflectFields->WeaponGradeWeight)
@@ -267,7 +270,7 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
         case ArtifactDropType::ERASE_REVELATION:
             artifact.ID       = DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::ERASE_REVELATION);
             artifact.Category = ArtifactDropType::ERASE_REVELATION;
-            artifact.Name     = (const char*)u8"계시 지우기 (테스트)";
+            artifact.Name     = (const char*)u8"계시 지우기";
             break;
         default:
             break;
@@ -280,6 +283,7 @@ void ItemDropSystem::SetDropItem(const std::array<DropItemInfo, ARTIFACT_DROP_CO
 {
     std::vector<DropItemInfo> dropItems(itemInfos.begin(), itemInfos.end());
     _dropItemsModel = dropItems;
+    _obtainArtifactFlag.fill(0);
 }
 
 void ItemDropSystem::SetStageClearCount(int count) 
@@ -293,15 +297,74 @@ void ItemDropSystem::SetStageClearCount(int count)
 
 void ItemDropSystem::PlayItemDropUISequence() 
 {
+#ifdef _UMEDITOR
+    if (false == UmCore->IsPlay())
+    {
+        return;
+    }
+#endif 
+
     if (ItemDropUIRootManager* itemDropUIRootManager = SingletonComponent<ItemDropUIRootManager>::GetInstance())
     {
         itemDropUIRootManager->gameObject->ActiveSelf = true;
         StageClearCount = StageClearCount + 1;
+
+        if (ArtifactUIManager* manager = SingletonComponent<ArtifactUIManager>::GetInstance())
+        {
+            // 플래그 초기화
+            manager->ResetObtainFlag();
+
+            // 보상 설정이 안되어있으면 자동으로 뽑는다.
+            if (_dropItemsModel.empty())
+            {
+                std::array<DropItemInfo, ARTIFACT_DROP_COUNT> artifacts = RollArtifacts();
+                SetDropItem(artifacts);
+            }
+
+            // 버튼 기능 설정
+            const auto& dropItemInfos = _dropItemsModel;
+            size_t      i             = 0;
+            for (const auto& itemInfo : dropItemInfos)
+            {
+                manager->SetNaviDropItemInfo(itemInfo, i);
+                ++i;
+            }
+
+            // 포커스 되야할 버튼
+            ArtifactButtonNavi::LastFocusIndex = 0;
+            itemDropUIRootManager->AutoFocus();
+        }
+    }
+
+    if (auto turnQueue = GameObject::FindWithTag("Turn Queue Panel").lock())
+    {
+        turnQueue->ActiveSelf = false;
+    }
+
+    if (auto HUD = GameObject::FindWithTag("Character HUD Group").lock())
+    {
+        HUD->ActiveSelf = false;
+    }
+
+    if (auto revelationPanel = GameObject::FindWithTag("Revelations Panel").lock())
+    {
+        revelationPanel->ActiveSelf = false;
+    }
+
+    if (auto weaponPanel = GameObject::FindWithTag("Weapon Panel").lock())
+    {
+        weaponPanel->ActiveSelf = false;
     }
 }
 
 void ItemDropSystem::ImGuiDrawPropertysEvent() 
 {
+    if (ImGui::Button("Play Item Drop UI Sequence"))
+    {
+        PlayItemDropUISequence();
+    }
+    ImGuiHelper::HoveredToolTip((const char*)u8"플레이 모드에서만 동작합니다.");
+
     if (ImGui::TreeNode("Artifacts"))
     {
         ImGuiDrawTestRollArtifacts();   
@@ -322,6 +385,7 @@ void ItemDropSystem::ImGuiDrawTestRollArtifacts()
         if (ImGui::Button("Roll Artifacts"))
         {
             std::array<DropItemInfo, ARTIFACT_DROP_COUNT> artifacts = RollArtifacts();
+            SetDropItem(artifacts);
             if (ArtifactUIManager* uiManager = SingletonComponent<ArtifactUIManager>::GetInstance())
             {
                 uiManager->UpdateImageElements(std::vector<DropItemInfo>(artifacts.begin(), artifacts.end()));
@@ -584,11 +648,28 @@ void ItemDropSystem::Awake()
     }   
 }
 
+void ItemDropSystem::Update() 
+{
+    Debugger debuger;  
+    debuger([this]() { DebugUpdate(); });
+}
+
 void ItemDropSystem::OnDestroy() 
 {
     if (_singletonComponent.IsSingleTon())
     {
         UmWatcher.Unregister<DropArtifactsViewModel>(ItemDropSystem::WATCHER_KEY);
+    }
+}
+
+void ItemDropSystem::DebugUpdate() 
+{
+    using namespace u8_literals;
+    ImGui::Separator();
+    if (ImGui::TreeNode(u8"Item Drop System"_c_str))
+    {
+        ImGuiDrawPropertys();
+        ImGui::TreePop();
     }
 }
 

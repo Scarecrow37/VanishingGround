@@ -33,7 +33,6 @@ namespace Input
 
     ControllerTypes::State Adapter::ReceiveState(const ControllerTypes::ID id) const
     {
-
         XINPUT_STATE           xState{};
         ControllerTypes::State state{};
 
@@ -257,6 +256,20 @@ namespace Input
         }
 
         return queue;
+    }
+
+    void Adapter::SetVibration(const ControllerTypes::ID id, const ControllerTypes::MotorSpeed leftMotorSpeed,
+        const ControllerTypes::MotorSpeed rightMotorSpeed) const
+    {
+        XINPUT_VIBRATION vibration{.wLeftMotorSpeed = leftMotorSpeed, .wRightMotorSpeed = rightMotorSpeed};
+        const DWORD      result = XInputSetState(id, &vibration);
+        if (result == ERROR_DEVICE_NOT_CONNECTED)
+        {
+            ConnectedControllers.erase(id);
+            throw DeviceNotConnectedException("Controller with ID " + std::to_string(id) + " lost connection.");
+        }
+        if (result != ERROR_SUCCESS)
+            throw InputException("Failed to set XInput vibration for controller ID: " + std::to_string(id));
     }
 
     ControllerTypes::TriggerValue Adapter::NormalizeTrigger(const unsigned char triggerValue, const unsigned char thresholdValue)

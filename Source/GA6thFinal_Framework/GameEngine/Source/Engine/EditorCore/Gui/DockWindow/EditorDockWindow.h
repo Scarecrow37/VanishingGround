@@ -1,12 +1,13 @@
 ﻿#pragma once
 
 using EditorDockWindowFlags = int; // EditorDockWindow::Flags
+using DockID = ImGuiID;
 
 class EditorDockWindow : public EditorTool
 {
     using Super             = EditorTool;
-    using GuiTable          = std::unordered_map<std::string, EditorGui*>;
     using GuiList           = std::vector<EditorGui*>;
+    using GuiTable          = std::unordered_map<std::string, EditorGui*>;
     using ToolTable         = std::unordered_map<std::string, EditorTool*>;
     using MenuTable         = std::unordered_map<std::string, EditorMenu*>;
     using DockWindowTable   = std::unordered_map<std::string, EditorDockWindow*>;
@@ -48,11 +49,11 @@ private:
 
 public:
     /* 툴을 등록합니다. */
-    template <typename T, typename... Args > 
-    T* RegisterGui(Args... args);
+    template <typename T, typename... Args> requires std::is_base_of_v<EditorGui, T>
+    bool RegisterGui(Args... args);
 
     /* 툴을 가져옵니다. */
-    template <typename T> 
+    template <typename T> requires std::is_base_of_v<EditorGui, T>
     T* GetGui() const;
 
     bool RegisterChildDockWindow(EditorDockWindow* childDockWindow);
@@ -78,8 +79,8 @@ private:
     void PopDockStyle();
 
 private:
+    GuiList                             _editorGuiList;             /* 등록된 원본 툴 리스트 */
     GuiTable                            _editorGuiClassTable;       /* 등록된 툴 테이블 (클래스 이름) */
-    GuiList                             _editorGuiList;             /* 등록된 툴 리스트 */
     ToolTable                           _editorToolTable;           /* 등록된 툴 리스트 */
     MenuTable                           _editorMenuTable;           /* 등록된 메뉴 리스트 */
     DockWindowTable                     _dockWindowTable;           /* 등록된 도킹 윈도우 리스트 */
@@ -96,7 +97,7 @@ private:
     std::unordered_map<int, ImGuiID>    _dockSplitIDTable;          /* 도킹 영역에 대한 ID값 */
 
 private:
-    int _pushedStyleCount = 0; // [internal] PushStyleVar 호출 횟수
+    int _pushedStyleCount = 0;                                      // [internal] PushStyleVar 호출 횟수
 
 public:
     /* 옵션 플래그에 대한 설정 */
@@ -129,20 +130,18 @@ concept IsEditorMenu = IsEditorGui<T> && std::is_base_of_v<EditorMenu, T>;
 template <typename T>
 concept IsEditorDockWindow = IsEditorGui<T> && std::is_base_of_v<EditorDockWindow, T>;
 
-template <typename T, typename... Args>
-inline T* EditorDockWindow::RegisterGui(Args... args)
+template <typename T, typename... Args> requires std::is_base_of_v<EditorGui, T>
+inline bool EditorDockWindow::RegisterGui(Args... args)
 {
-    static_assert(std::is_base_of_v<EditorGui, T>, "T is not a EditorGui.");
-
-    T*          instance  = new T(args...);
-    const char* typeName  = typeid(T).name();
-    auto        itr       = _editorGuiClassTable.find(typeName);
-    if (itr == _editorGuiClassTable.end())
+    const char* typeName = typeid(T).name();
+    if (false == _editorGuiClassTable.contains(typeName))
     {
-        _editorGuiClassTable[typeName]  = instance;
+        T* instance = new T(args...);
+        _editorGuiClassTable[typeName] = instance;
         _editorGuiList.push_back(instance);
         if constexpr (IsEditorTool<T>)
         {
+            // 에디터 툴인경우 자신을 부모로 등록
             _editorToolTable[typeName] = instance;
             instance->SetOwnerDockWindow(this);
         }
@@ -150,20 +149,19 @@ inline T* EditorDockWindow::RegisterGui(Args... args)
         {
             _editorMenuTable[typeName] = instance;
         }
+        return true;
     }
     else
     {
-        delete instance;
-        instance = dynamic_cast<T*>(itr->second);
+        return false;
     }
-    return instance;
 }
 
-template <typename T>
+template <typename T> requires std::is_base_of_v<EditorGui, T>
 inline T* EditorDockWindow::GetGui() const
 {
-    static_assert(std::is_base_of_v<EditorGui, T>, "T is not a EditorGui.");
-    auto itr = _editorGuiClassTable.find(typeid(T).name());
+    const char* typeName = typeid(T).name();
+    auto itr = _editorGuiClassTable.find(typeName);
     if (itr == _editorGuiClassTable.end())
         return nullptr;
     return dynamic_cast<T*>(itr->second);

@@ -13,10 +13,8 @@ class ForwardPBRLitPass : public RenderPass
 
     struct RenderData
     {
-        BaseMesh* Mesh;
-        FLOAT     Alpha;
-        UINT      InstanceID;
-        UINT      CustomDepth;
+        BaseMesh*     Mesh;
+        InstanceData* InstanceData;
     };
     
 public:

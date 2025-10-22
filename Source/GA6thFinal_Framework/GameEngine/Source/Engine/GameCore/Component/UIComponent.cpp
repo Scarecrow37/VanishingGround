@@ -1,6 +1,8 @@
 ﻿#include "pch.h"
 #include "UIComponent.h"
 
+REFLECT_FUNCTION(UIComponent)
+
 bool operator==(const POINT& lhs, const POINT& rhs)
 {
     return lhs.x == rhs.x && lhs.y == rhs.y;
@@ -169,6 +171,18 @@ void UIComponent::RequestViewOrder() const
     }
 }
 
+void UIComponent::RequestCheckNavigationIdFlawless() const
+{
+    if (UIRoot* uiRoot = this->Root; nullptr != uiRoot)
+    {
+        uiRoot->CheckNavigationIdFlawless(this);
+    }
+    else if (false == UmCore->IsPlay())
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8"UI Component는 UIRoot의 하위에 있어야 합니다.");
+    }
+}
+
 void UIComponent::ImGuiDrawPropertysEvent()
 {
     UIBaseComponent::ImGuiDrawPropertysEvent();
@@ -201,10 +215,16 @@ void UIComponent::ImGuiDrawPropertysEvent()
 
 void UIComponent::DeserializedReflectEvent()
 {
-    Component::DeserializedReflectEvent();
-
     _requestedPoint = ActualPosition;
     _requestedSize  = ActualSize;
+}
+
+void UIComponent::Reset()
+{
+    UIBaseComponent::Reset();
+
+    InvalidateMeasure();
+    InvalidateArrange();
 }
 
 void UIComponent::Start()
@@ -251,6 +271,7 @@ void UIComponent::OnAttachParent(GameObject* parentGameObject)
     UIBaseComponent::OnAttachParent(parentGameObject);
 
     RequestViewOrder();
+    RequestCheckNavigationIdFlawless();
     InvalidateMeasure();
     InvalidateArrange();
 }
@@ -431,7 +452,7 @@ namespace
     }
 } // namespace
 
-std::optional<std::pair<POINT, POINT>> DrawDebug::operator()(POINT pointA, POINT pointB, RECT rectA, RECT rectB) const
+std::optional<std::pair<POINT, POINT>> DrawDebug::operator()(const POINT pointA, const POINT pointB, const RECT rectA, const RECT rectB) const
 {
     std::optional<std::pair<POINT, POINT>> result = std::nullopt;
 
@@ -492,4 +513,10 @@ std::optional<std::pair<POINT, POINT>> DrawDebug::operator()(POINT pointA, POINT
 
 
     return result;
+}
+
+void DrawDebug::operator()(const POINT origin, const float radius, FXMVECTOR color) const
+{
+    const XMVECTOR originVector = XMVectorSet(static_cast<float>(origin.x), static_cast<float>(origin.y), 0.0f, 0.0f);
+    UmGraphics.DebugDraw2D("Editor", originVector, radius, color);
 }

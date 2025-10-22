@@ -8,8 +8,8 @@ class DrawUIComponent : public UIComponent
 
 protected:
     static constexpr float VIEW_ORDER_IMAGE_RATIO = 0.1f;
-    static constexpr float VIEW_ORDER_TEXT_RATIO  = 0.0001f;
-    static constexpr float VIEW_ORDER_TEXT_OFFSET = VIEW_ORDER_TEXT_RATIO / VIEW_ORDER_IMAGE_RATIO;
+    static constexpr float VIEW_ORDER_TEXT_RATIO  = 0.1f; //<- SDF //0.0001f;
+    static constexpr float VIEW_ORDER_TEXT_OFFSET = 0.0f; //<- SDf //VIEW_ORDER_TEXT_RATIO / VIEW_ORDER_IMAGE_RATIO;
 
 public:
     DrawUIComponent();

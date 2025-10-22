@@ -6,17 +6,10 @@ class Particle
 public:
     Particle() = default;
     Particle(const Particle& other)
-        : _position(other._position),
-          _frameinfo(other._frameinfo),
-          _axis(other._axis),
-          _age(other._age),
-          _velocity(other._velocity),
-          _mass(other._mass),
-          _emitterIndex(other._emitterIndex),
-          padding(other.padding),
+        : _position(other._position), _frameinfo(other._frameinfo), _axis(other._axis), _age(other._age),
+          _velocity(other._velocity), _mass(other._mass), _emitterIndex(other._emitterIndex), padding(other.padding),
           _initialMatrix(other._initialMatrix)
-    {
-    }
+    {}
 
     UMPARTICLE_PROPERTY_REF(Vector4, _position, Position, Vector4(0, 0, 0, 0));
     UMPARTICLE_PROPERTY_REF(Vector4, _frameinfo, Frameinfo, Vector4(0, 0, 0, 0));

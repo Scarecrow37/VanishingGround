@@ -1,13 +1,13 @@
 ﻿#pragma once
-
-class RevelationElement;
+#include "RevelationSystem/RevelationElement/RevelationElement.h"
 
 struct RevelationUIData
 {
-    std::string   Name;
-    File::GuidRef Icon;
-    std::wstring  Description1;
-    std::wstring  Description2;
+    std::string     Name;
+    Color           NameColor;
+    File::Guid      Icon;
+    RevelationGrade Grade;
+    std::string     Description;
 };
 
 class RevelationsViewModel final

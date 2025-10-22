@@ -1,10 +1,11 @@
 ﻿#pragma once
 #include "GraphicsBase.h"
+#include "Interface/IAnimator.h"
 
 struct Bone;
 class Skeleton;
 class Animation;
-class Animator : public GraphicsBase
+class Animator : public GraphicsBase, public IAnimator
 {
 	enum TYPE { UPPER, LOWER, END };
     struct Controller
@@ -28,39 +29,45 @@ public:
 public:
     void Initialize(std::wstring_view filePath, std::shared_ptr<Skeleton> skeleton);
     void Initialize(std::shared_ptr<Animation> animation, std::shared_ptr<Skeleton> skeleton);
-    void Update(const float deltaTime);
+    void Update(const float deltaTime) override;
 
 public:
-	const Matrix* GetAnimationTransform() const { return _animationTransforms.data(); }
-    const Matrix* FindBoneMatrix(const char* boneName) const;
-    float         GetAnimationLastTime(const char* animation) const;
-    float         GetCurrentAnimationLastTime(unsigned int ID = 0) const;
-    float         GetCurrentAnimationPlayTime(unsigned int ID = 0) const;
-    float         GetCurrentAnimationSpeed(unsigned int ID = 0) const;
-    bool          HasAnimation(const char* animation) const;
-    bool          IsPaused() const;
-    bool          IsLoop() const;
-    bool          IsEnd() const;
-
-    void          SetAnimationTime(float time);
-    void          SetAnimationTime(float time, unsigned int ID);
-    void          SetAnimationSpeed(float speed);
-    void          SetAnimationSpeed(float speed, unsigned int ID);
-    void          SetPause(bool isPause);
-    void          SetLoop(bool isLoop);
-    void          SetAnimationEndCallback(std::function<void()> callback);
-
-    const std::vector<const char*>& GetAnimationNames() const;
+    bool                            IsActive() const override;
+    const Matrix*                   FindBoneMatrix(const char* boneName) const override;
+    bool                            IsPaused() const override;
+    bool                            IsLoop() const override;
+    bool                            IsEnd() const override;
+    bool                            IsLastFrame(float interval, unsigned int ID) const override;
+    const std::vector<const char*>& GetAnimationNames() const override;
+    const Matrix*                   GetAnimationTransform() const { return _animationTransforms.data(); }
+    float                           GetAnimationLastTime(const char* animation) const override;
+    std::string_view                GetCurrentAnimationName(unsigned int ID = 0) const override;
+    float                           GetCurrentAnimationLastTime(unsigned int ID = 0) const override;
+    float                           GetCurrentAnimationPlayTime(unsigned int ID = 0) const override;
+    float                           GetCurrentAnimationSpeed(unsigned int ID = 0) const override;
+    bool                            HasAnimation(const char* animation) const override;
 
 public:
-	bool ChangeAnimation(const char* animation, bool blending = true);
-    bool ChangeAnimation(const char* animation, unsigned int ID, bool blending = true);
-	void SyncPartialAnimation(unsigned int parentID, unsigned int childID);
-	bool IsLastFrame(float interval, unsigned int ID) const;
-	void SetUpSplitBone(unsigned int maxSplit);
-	void SplitBone(unsigned int ID, const char* boneName);
-	
-	void MakeParent(const char* parent, const char* child);
+    void SetActive(const bool* isActive) override;
+    void SetAnimationTime(float time) override;
+    void SetAnimationTime(float time, unsigned int ID) override;
+    void SetAnimationSpeed(float speed) override;
+    void SetAnimationSpeed(float speed, unsigned int ID) override;
+    void SetPause(bool isPause) override;
+    void SetLoop(bool isLoop) override;
+    void SetAnimationEndCallback(std::function<void()> callback) override;
+
+public:
+    void AddReference() override;
+    void Release() override;
+
+public:
+	bool ChangeAnimation(const char* animation, bool blending = true) override;
+    bool ChangeAnimation(const char* animation, unsigned int ID, bool blending = true) override;
+	void SyncPartialAnimation(unsigned int parentID, unsigned int childID) override;
+	void SetUpSplitBone(unsigned int maxSplit) override;
+	void SplitBone(unsigned int ID, const char* boneName) override;
+	void MakeParent(const char* parent, const char* child) override;
 
 private:
 	void UpdateAnimationTransform(Bone& skeletion, const XMMATRIX& parentTransform, std::vector<Controller>& controllers, std::vector<Matrix>& transforms);
@@ -89,13 +96,14 @@ private:
 	std::vector<Matrix>						_prevTransforms;
 	std::vector<int>						_blendMatrixMask;
 
-	std::unordered_map<std::string, int>	_boneMask;
-	Matrix									_root;
-	std::vector<Controller>					_controllers;
-	std::vector<Controller>					_prevControllers;
-	std::shared_ptr<Animation>				_animation;
-	std::vector<Blend>						_blends;
-	std::shared_ptr<Skeleton>				_skeleton;
+    std::unordered_map<std::string, Matrix> _finalBoneMap;
+    std::unordered_map<std::string, int>    _boneMask;
+    Matrix                                  _root;
+    std::vector<Controller>                 _controllers;
+    std::vector<Controller>                 _prevControllers;
+    std::shared_ptr<Animation>              _animation;
+    std::vector<Blend>                      _blends;
+    std::shared_ptr<Skeleton>               _skeleton;
 
 	unsigned int							_maxSplit{ 0 };	
 	bool                                    _isBlending{false};

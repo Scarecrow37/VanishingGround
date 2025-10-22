@@ -113,7 +113,7 @@ public:
         :
         _propertyOwner(_this),
         type_id(typeid(field_type))
-    {
+    { 
         
     }
 

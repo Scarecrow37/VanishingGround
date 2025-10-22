@@ -76,22 +76,27 @@ struct ParseData
             }
             else if (std::strcmp(node.name(), "Image") == 0)
             {
-                File::GuidRef guidRef;
+                File::Guid guid;
                 if (auto guidAttribute = node.attribute("guid"); !guidAttribute.empty())
                 {
-                    guidRef = File::GuidRef(node.attribute("guid").as_string());
+                    guid = File::Guid(node.attribute("guid").as_string());
                 }
                 else if (auto pathAttribute = node.attribute("path"); !pathAttribute.empty())
                 {
                     File::Path path = File::Path(pathAttribute.as_string());
-                    guidRef         = path.ToGuid();
+                    guid = path.ToGuid();
+                }
+                else if (auto assetAttribute = node.attribute("asset"); !assetAttribute.empty())
+                {
+                    int id = std::stoi(assetAttribute.as_string());
+                    guid   = UmFileSystem.GetGuidFromAssetID(id);
                 }
                 else
                 {
                     UmLogger.Log(LogLevel::LEVEL_WARNING, "Image element missing 'guid' or 'path' attribute.");
                     continue; // Skip this element if no valid guid or path is provided
                 }
-                ImageAttributes attributes{.Guid = guidRef};
+                ImageAttributes attributes{.Guid = guid};
                 ElementData     elementData{.Type = ElementType::IMAGE, .Data = attributes};
                 elements.push_back(elementData);
             }
@@ -109,10 +114,11 @@ DescriptionPanel::DescriptionPanel()
             if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
             {
                 const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
-                if (const auto extension = data->GetPath().extension(); extension == L".UmFont")
+                if (const auto extension = data->GetPath().extension(); extension == L".png")
                 {
-                    _guidRef            = data->GetGuid();
-                    ReflectFields->Guid = _guidRef.string();
+                    _Guid            = data->GetGuid();
+                    ReflectFields->Guid = _Guid.string();
+                    UpdateContent();
                 }
             }
             ImGui::EndDragDropTarget();
@@ -144,7 +150,7 @@ void DescriptionPanel::DeserializedReflectEvent()
     const File::Guid guid = ReflectFields->Guid;
     if (const auto path = guid.ToPath(); !path.IsNull())
     {
-        _guidRef = path.ToGuid();
+        _Guid = path.ToGuid();
     }
 }
 
@@ -163,17 +169,16 @@ void DescriptionPanel::Awake()
 {
     HorizontalPanel::Awake();
 
-    if (_requiresUpdate) UpdateContent();
+    UpdateContent();
 }
 
 void DescriptionPanel::UpdateContent()
 {
-    if (const bool enableInHierarchy = EnableInHierarchy; enableInHierarchy && _requiresUpdate)
+    if (const bool enableInHierarchy = EnableInHierarchy; enableInHierarchy)
     {
         EraseChild();
         MakeChild();
         InvalidateMeasure();
-        _requiresUpdate = false;
     }
 }
 
@@ -210,11 +215,13 @@ void DescriptionPanel::MakeChild()
         case ElementType::TEXT: {
             TextElement& element  = child->AddComponent<TextElement>();
             auto [content, color] = std::get<TextAttributes>(Data);
-            element.SetFont(_guidRef);
+            element.SetFont(_Guid);
             element.HorizontalFillMode = FillMode::WRAP;
             element.VerticalFillMode   = FillMode::WRAP;
             element.Text               = content;
+            color.w                    = ReflectFields->Alpha;
             element.Color              = color;
+            element.FontScale          = ReflectFields->FontScale;
         }
         break;
         case ElementType::IMAGE: {
@@ -228,10 +235,29 @@ void DescriptionPanel::MakeChild()
             element.SetImage(guid);
             element.HorizontalFillMode = FillMode::FILL;
             element.VerticalFillMode   = FillMode::FILL;
+            element.Alpha              = ReflectFields->Alpha;
             imageChild->transform->SetParent(child->transform, true);
         }
         break;
         }
         child->transform->SetParent(transform, true);
     }
+}
+
+void DescriptionPanel::UpdateAlpha()
+{
+    const float                     alpha    = ReflectFields->Alpha;
+    const std::vector<UIComponent*> children = Children;
+    std::ranges::for_each(children, [alpha](const UIComponent* child) {
+        if (TextElement* textElement = child->GetComponent<TextElement>(); nullptr != textElement)
+        {
+            Color color        = textElement->Color;
+            color.w            = alpha;
+            textElement->Color = color;
+        }
+        else if (ImageElement* imageElement = child->GetComponent<ImageElement>(); nullptr != imageElement)
+        {
+            imageElement->Alpha = alpha;
+        }
+    });
 }

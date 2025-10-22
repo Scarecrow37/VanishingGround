@@ -8,44 +8,82 @@
 
 UMREAL_COMPONENT(WeaponView)
 
-WeaponView::WeaponView() = default;
+WeaponView::WeaponView() 
+    : 
+    _singletonComponent(this)
+{
+    _descriptionUI  = nullptr;
+    _iconUI         = nullptr;
+    _nameUI         = nullptr;
+}
 
 WeaponView::~WeaponView()
 {
-    UmWatcher.Blind<WeaponViewModel>("Weapon", _watchHandle);
+    
+}
+
+void WeaponView::Focus(bool value) 
+{
+    if (value)
+    {
+        if (_backgroundUI.ImageOn)
+            _backgroundUI.ImageOn->Enable = true;
+
+        if (_backgroundUI.ImageOff)
+            _backgroundUI.ImageOff->Enable = false;
+    }
+    else
+    {
+        if (_backgroundUI.ImageOn)
+            _backgroundUI.ImageOn->Enable = false;
+
+        if (_backgroundUI.ImageOff)
+            _backgroundUI.ImageOff->Enable = true;
+    }
 }
 
 void WeaponView::Awake()
 {
     Component::Awake();
+    _singletonComponent.TrySingleTon();
     FindElements();
 }
 
 void WeaponView::Start()
 {
     Component::Start();
-    _watchHandle = UmWatcher.Watch<WeaponViewModel, WeaponUIData>("Weapon", [this](const WeaponUIData& value) {
+    _watchHandle = UmWatcher.Watch<WeaponViewModel, WeaponUIData>("Weapon", [this](const WeaponUIData& value) 
+    {
         if (value.Enable)
         {
-            gameObject->ActiveSelf = true;
-            if (nullptr != _background)
-                _background->SetImage(value.Background);
-            if (nullptr != _weaponName)
-                _weaponName->Text = value.WeaponName;
-            if (nullptr != _weaponImage)
-                _weaponImage->SetImage(value.WeaponIcon);
-            if (nullptr != _hitDamage)
-                _hitDamage->Text = std::to_string(value.HitDamage);
-            if (nullptr != _criticalDamage)
-                _criticalDamage->Text = std::to_string(value.CriticalDamage);
-            if (nullptr != _speed)
-                _speed->Text = std::to_string(value.Speed);
-            if (nullptr != _attackCount)
-                _attackCount->Text = "x" + std::to_string(value.AttackCount);
-            if (nullptr != _description1)
-                _description1->Description = WStringToU8(value.Description1);
-            if (nullptr != _description2)
-                _description2->Description = WStringToU8(value.Description2);
+            if (false == gameObject->ActiveSelf)
+            {
+                gameObject->ActiveSelf = true;
+            }
+
+            if (_nameUI)
+            {
+                _nameUI->Text = value.WeaponName;
+                _nameUI->Color = value.GradeColor;
+            }
+                
+            if (_iconUI)
+                _iconUI->SetImage(value.WeaponIcon);
+
+            if (_textInfoUI.Damage)
+                _textInfoUI.Damage->Text = value.HitDamage;
+
+            if (_textInfoUI.Critical)
+                _textInfoUI.Critical->Text = value.CriticalDamage;
+
+            if (_textInfoUI.AttackCount)
+                _textInfoUI.AttackCount->Text = value.AttackCount;
+
+            if (_textInfoUI.Speed)
+                _textInfoUI.Speed->Text = value.Speed;
+            
+            if (_descriptionUI)
+                _descriptionUI->Description = value.Description;
         }
         else
         {
@@ -55,78 +93,151 @@ void WeaponView::Start()
     gameObject->ActiveSelf = false;
 }
 
+void WeaponView::OnDestroy() 
+{
+    UmWatcher.Blind<WeaponViewModel>("Weapon", _watchHandle);
+}
+
 void WeaponView::FindElements()
 {
-    const GameObject& owner          = gameObject;
-    Transform&        ownerTransform = owner.transform;
-    Transform::ForeachBFS(ownerTransform, [this](const Transform* transform) {
-        GameObject& object = transform->gameObject;
-        if (nullptr == _background)
-            _background = FindImageElement("Weapon Background", object);
-        if (nullptr == _weaponName)
-            _weaponName = FindTextElement("Weapon Name", object);
-        if (nullptr == _weaponImage)
-            _weaponImage = FindImageElement("Weapon Image", object);
-        if (nullptr == _hitDamage)
-            _hitDamage = FindTextElement("Hit Damage", object);
-        if (nullptr == _criticalDamage)
-            _criticalDamage = FindTextElement("Critical Damage", object);
-        if (nullptr == _speed)
-            _speed = FindTextElement("Speed", object);
-        if (nullptr == _attackCount)
-            _attackCount = FindTextElement("Attack Count", object);
-        if (nullptr == _description1)
-            _description1 = FindDescriptionPanel("Description1", object);
-        if (nullptr == _description2)
-            _description2 = FindDescriptionPanel("Description2", object);
-    });
-
-    if (nullptr == _background)
-        UmLogger.Log(LogLevel::LEVEL_WARNING, "Background Tag의 Image Element를 찾을 수 없습니다.");
-    if (nullptr == _weaponName)
-        UmLogger.Log(LogLevel::LEVEL_WARNING, "Weapon Name Tag의 Text Element를 찾을 수 없습니다.");
-    if (nullptr == _weaponImage)
-        UmLogger.Log(LogLevel::LEVEL_WARNING, "Weapon Image Tag의 Image Element를 찾을 수 없습니다.");
-    if (nullptr == _hitDamage)
-        UmLogger.Log(LogLevel::LEVEL_WARNING, "Hit Damage Tag의 Text Element를 찾을 수 없습니다.");
-    if (nullptr == _criticalDamage)
-        UmLogger.Log(LogLevel::LEVEL_WARNING, "Critical Damage Tag의 Text Element를 찾을 수 없습니다.");
-    if (nullptr == _speed)
-        UmLogger.Log(LogLevel::LEVEL_WARNING, "Speed Tag의 Text Element를 찾을 수 없습니다.");
-    if (nullptr == _attackCount)
-        UmLogger.Log(LogLevel::LEVEL_WARNING, "Attack Count Tag의 Text Element를 찾을 수 없습니다.");
-    if (nullptr == _description1)
-        UmLogger.Log(LogLevel::LEVEL_WARNING, "Description 1 Tag의 Description Panel을 찾을 수 없습니다.");
-    if (nullptr == _description2)
-        UmLogger.Log(LogLevel::LEVEL_WARNING, "Description 2 Tag의 Description Panel을 찾을 수 없습니다.");
+    FindBackgroundUI();
+    FindTextInfoUI();
+    FindDiscriptionUI();
+    FindIconUI();
+    FindNameUI();
 }
 
-ImageElement* WeaponView::FindImageElement(const std::string& tag, GameObject& object)
+void WeaponView::FindBackgroundUI() 
 {
-    ImageElement* element = nullptr;
-    if (object.CompareTag(tag))
+    _backgroundUI.BackGroundPanel = GameObject::FindWithTag("Background Panel").lock().get();
+    if (_backgroundUI.BackGroundPanel)
     {
-        element = object.GetComponent<ImageElement>();
+        Transform::ForeachDFS(_backgroundUI.BackGroundPanel->transform, [&](Transform* curr) 
+        {   
+            if (nullptr == _backgroundUI.ImageOff)
+            {
+                if (curr->gameObject->CompareTag("Weapon Focus off"))
+                {
+                    if (_backgroundUI.ImageOff = curr->gameObject->GetComponent<ImageElement>(); nullptr == _backgroundUI.ImageOff)
+                    {
+                        std::u8string message = u8"Weapon Focus off에 Image Panel이 존재하지 않습니다.";
+                        UmLogger.Log(LogLevel::LEVEL_WARNING, message);
+                    }
+                }
+            }
+            if (nullptr == _backgroundUI.ImageOn)
+            {
+                if (curr->gameObject->CompareTag("Weapon Focus on"))
+                {
+                    _backgroundUI.ImageOn = curr->gameObject->GetComponent<ImageElement>();
+                    if (_backgroundUI.ImageOn)
+                    {
+                        _backgroundUI.ImageOn->Enable = false;
+                    }
+                    else
+                    {
+                        std::u8string message = u8"Weapon Focus on에 Image Panel이 존재하지 않습니다.";
+                        UmLogger.Log(LogLevel::LEVEL_WARNING, message);
+                    }
+                }
+            }
+        });
     }
-    return element;
+    else
+    {
+        std::u8string message = u8"WeaponView 자식에 Background Panel이 존재하지 않습니다.";
+        UmLogger.Log(LogLevel::LEVEL_WARNING, message);
+    }
 }
 
-TextElement* WeaponView::FindTextElement(const std::string& tag, GameObject& object)
+void WeaponView::FindTextInfoUI() 
 {
-    TextElement* element = nullptr;
-    if (object.CompareTag(tag))
+    _textInfoUI.TextInfoPanel = GameObject::FindWithTag("Text Info Panel").lock().get();
+    if (_textInfoUI.TextInfoPanel)
     {
-        element = object.GetComponent<TextElement>();
+        Transform::ForeachDFS(_textInfoUI.TextInfoPanel->transform, [&](Transform* curr) 
+        {           
+            if (curr->gameObject->CompareTag("Text Damage"))
+            {
+                _textInfoUI.Damage = curr->gameObject->GetComponent<TextElement>();
+                if (nullptr == _textInfoUI.Damage)
+                {
+                    std::u8string message = u8"Text Damage에 Text Element이 존재하지 않습니다.";
+                    UmLogger.Log(LogLevel::LEVEL_WARNING, message);
+                }
+            }
+            else if (curr->gameObject->CompareTag("Text Critical"))
+            {
+                _textInfoUI.Critical = curr->gameObject->GetComponent<TextElement>();
+                if (nullptr == _textInfoUI.Critical)
+                {
+                    std::u8string message = u8"Text Critical에 Text Element이 존재하지 않습니다.";
+                    UmLogger.Log(LogLevel::LEVEL_WARNING, message);
+                }
+            }
+            else if (curr->gameObject->CompareTag("Text Attack Count"))
+            {
+                _textInfoUI.AttackCount = curr->gameObject->GetComponent<TextElement>();
+                if (nullptr == _textInfoUI.AttackCount)
+                {
+                    std::u8string message = u8"Text Attack Count에 Text Element이 존재하지 않습니다.";
+                    UmLogger.Log(LogLevel::LEVEL_WARNING, message);
+                }
+            }
+            else if (curr->gameObject->CompareTag("Text Speed"))
+            {
+                _textInfoUI.Speed = curr->gameObject->GetComponent<TextElement>();
+                if (nullptr == _textInfoUI.Speed)
+                {
+                    std::u8string message = u8"Text Speed에 Text Element이 존재하지 않습니다.";
+                    UmLogger.Log(LogLevel::LEVEL_WARNING, message);
+                }
+            }
+        });
     }
-    return element;
+    else
+    {
+        std::u8string message = u8"WeaponView 자식에 Text Info Panel이 존재하지 않습니다.";
+        UmLogger.Log(LogLevel::LEVEL_WARNING, message);
+    }
+
 }
 
-DescriptionPanel* WeaponView::FindDescriptionPanel(const std::string& tag, GameObject& object)
+void WeaponView::FindDiscriptionUI() 
 {
-    DescriptionPanel* element = nullptr;
-    if (object.CompareTag(tag))
+    if (std::vector<GameObject*> objects = transform->FindBFSwithTag("Weapon Description"); false == objects.empty())
     {
-        element = object.GetComponent<DescriptionPanel>();
+        _descriptionUI = objects.front()->GetComponent<DescriptionPanel>();
     }
-    return element;
+    else
+    {
+        std::u8string message = u8"WeaponView 자식에 Weapon Description이 존재하지 않습니다.";
+        UmLogger.Log(LogLevel::LEVEL_WARNING, message);
+    }  
+}
+
+void WeaponView::FindIconUI() 
+{
+    if (std::vector<GameObject*> objects = transform->FindBFSwithTag("Weapon Icon"); false == objects.empty())
+    {
+        _iconUI = objects.front()->GetComponent<ImageElement>();
+    }
+    else
+    {
+        std::u8string message = u8"WeaponView 자식에 Weapon Icon이 존재하지 않습니다.";
+        UmLogger.Log(LogLevel::LEVEL_WARNING, message);
+    }
+}
+
+void WeaponView::FindNameUI() 
+{
+    if (std::vector<GameObject*> objects = transform->FindBFSwithTag("Weapon Name Text"); false == objects.empty())
+    {
+        _nameUI = objects.front()->GetComponent<TextElement>();
+    }
+    else
+    {
+        std::u8string message = u8"WeaponView 자식에 Weapon Name Text가 존재하지 않습니다.";
+        UmLogger.Log(LogLevel::LEVEL_WARNING, message);
+    }
 }

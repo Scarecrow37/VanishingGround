@@ -3,14 +3,23 @@
 
 namespace Timeline
 {
+    REFLECT_FUNCTION(EventContext)
+
+    void EventContext::SetGameObject(std::weak_ptr<GameObject> weakObj) 
+    {
+        _gameObject = weakObj;
+    }
     void EventContext::SetEvent(std::string_view typeNameID) 
     {
         ReflectFields->EventType = typeNameID;
-        RequireEvent(typeNameID);
     }
     void EventContext::SetTime(float time) 
     {
         ReflectFields->Time = time;
+    }
+    void EventContext::SetLabel(std::string_view label) 
+    {
+        ReflectFields->Label = label;
     }
     bool EventContext::IsValidID() const
     {

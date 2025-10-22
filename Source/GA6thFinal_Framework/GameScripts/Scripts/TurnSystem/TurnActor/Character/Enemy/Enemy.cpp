@@ -51,11 +51,30 @@ void Enemy::Dead()
     }
 }
 
-void Enemy::TakeDamage(int damage, bool playAnim)
+void Enemy::TakeDamage(int damage, bool playAnim) 
+{
+    TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
+    if (turnMode)
+    {
+        turnMode->ApplyActions([&](TurnAction& action) { action.OnEnemyTakeDamageStart(*this, damage); });
+    }
+    Base::TakeDamage(damage, playAnim);
+    if (turnMode)
+    {
+        turnMode->ApplyActions([&](TurnAction& action) { action.OnEnemyTakeDamageEnd(*this, damage); });
+    }
+}
+
+void Enemy::TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim)
 {
     // 혹시나 그럴 일 없겠지만 중간에 계산할 연산이 또 있다면 재연산
     int takeDamage = damage;
-    Base::TakeDamage(takeDamage, playAnim);
+    Base::TakeDamage(takeDamage, result, playAnim);
+    if (_hitParticle && result.IsHit())
+    {
+        // TODO: 이거 왜 Play 이후에 스탑하는게 더 자연스럽게 나옴? 질문 필요
+        _hitParticle->PlayEffect("normalhit");
+    }
 }
 
 void Enemy::Awake()
@@ -124,14 +143,9 @@ EnemyStatsComponent* Enemy::GetEnemyStats()
     return _enemyStats;
 }
 
-void Enemy::SetMonsterHpImageView(MonsterHpImageView* view) 
+void Enemy::SetMonsterHUD(GameObject* HUD) 
 {
-    _monsterHpImageView = view;
-}
-
-void Enemy::SetMonsterHpTextView(MonsterHpTextView* view)
-{
-    _monsterHpTextView = view;
+    _monsterHUD = HUD;
 }
 
 void Enemy::BuildEnemyFSM()
@@ -227,13 +241,5 @@ void Enemy::OnNotifiedAnimationEvent(const Timeline::EventContext* context)
     if (_fsmStates.Dead && STATE::Dead == State)
     {
         _fsmStates.Dead->OnNotifiedAnimationEvent(context);
-    }
-    if (_hitParticle)
-    {
-        if ("Hit" == context->GetLabel())
-        {
-            _hitParticle->StopEffect();
-            _hitParticle->PlayEffect();
-        }
     }
 }

@@ -56,6 +56,11 @@ void DebugDrawCore::DrawLine(std::string_view sceneName, FXMVECTOR pointA, FXMVE
     _drawDatas[sceneName].first.emplace_back(ShapeType::LINE, color, DebugLine{pointA, pointB});
 }
 
+void DebugDrawCore::DrawCircle(std::string_view sceneName, FXMVECTOR origin, float radius, FXMVECTOR color)
+{
+    _drawDatas[sceneName].first.emplace_back(ShapeType::CIRCLE, color, DebugCircle{origin, radius});
+}
+
 void DebugDrawCore::Initialize()
 {
     RenderTargetState              rtState(DXGI_FORMAT_R32G32B32A32_FLOAT, DXGI_FORMAT_D32_FLOAT);
@@ -152,6 +157,12 @@ void DebugDrawCore::Draw2D(const std::vector<DrawData>& drawData) const
             const XMVECTOR pointA = XMLoadFloat3(&line.PointA);
             const XMVECTOR pointB = XMLoadFloat3(&line.PointB);
             ::DrawLine(_primitiveBatch.get(), pointA, pointB, color);
+            break;
+        }
+        case ShapeType::CIRCLE: {
+            const auto&    circle = std::get<DebugCircle>(data.Shape);
+            const XMVECTOR origin = XMLoadFloat3(&circle.Origin);
+            ::DrawCircle(_primitiveBatch.get(), origin, circle.Radius, color);
             break;
         }
         default:

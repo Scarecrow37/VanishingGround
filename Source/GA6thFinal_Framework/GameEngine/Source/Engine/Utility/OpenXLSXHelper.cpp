@@ -131,6 +131,10 @@ Row OpenXLSXHelper::GetValidRowCount(const OpenXLSX::XLWorksheet& workSheet, uns
                 return row;
             }
         }
+        else
+        {
+            emptyRowCount = 0;
+        }
     }
     return rowCount;
 }

@@ -5,11 +5,29 @@
 #include <Stats/Weapon/WeaponStats.h>
 #include <EnemyAction/System/EnemyActionSystem.h>
 
-int DamageSystem::CalculateDamage(const PlayerInfo& attacker, const EnemyInfo& target)
+int DamageSystem::CalculateDamage(const PlayerInfo& attacker, const EnemyInfo& target, const QTE::NoteResult& result)
 {
-    int   hitDamage                = attacker._weaponStats.CriticalDamage;
-    float criticalDamageMultiplier = attacker._weaponStats.CriticalDamageMultiplier;
-    hitDamage                      = static_cast<int>(std::round(hitDamage * criticalDamageMultiplier));
+    int   hitDamage = 0;
+    float criticalDamageMultiplier = 1.0f;
+    switch (result.Result)
+    {
+        case QTE::ResultType::QTE_RESULT_PERFECT: {
+            hitDamage                = attacker._weaponStats.CriticalDamage;
+            criticalDamageMultiplier = attacker._weaponStats.CriticalDamageMultiplier;
+            break;
+        }
+        case QTE::ResultType::QTE_RESULT_NORMAL: {
+            hitDamage                = attacker._weaponStats.HitDamage;
+            criticalDamageMultiplier = attacker._weaponStats.HitDamageMultiplier;
+            break;
+        }
+        case QTE::ResultType::QTE_RESULT_MISS: {
+            break;
+        }
+    default:
+        break;
+    }
+    hitDamage = static_cast<int>(std::round(hitDamage * criticalDamageMultiplier));
     return hitDamage;
 }
 

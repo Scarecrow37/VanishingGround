@@ -10,8 +10,15 @@ namespace GE
 {    inline const std::unordered_map<DS, std::wstring> enumToDSFileNameMap = {
     };
 
+    inline const std::unordered_map<std::wstring, DS> globalNameToDSEnumMap = {
+    };
+
+    inline const std::unordered_map<DS, std::wstring> enumToDSGlobalNameMap = {
+    };
+
     inline const std::unordered_map<VS, std::wstring> enumToVSFileNameMap = {
         {VS::SKELETAL_FR, L"vs_skeletal_fr.hlsl"},
+        {VS::STATIC_POINT_LIGHT_SHADOW_FR, L"vs_static_point_light_shadow_fr.hlsl"},
         {VS::STATIC_FORWARD_FR, L"vs_static_forward_fr.hlsl"},
         {VS::PARTICLE_QUAD, L"vs_particle_quad.hlsl"},
         {VS::UI_FR, L"vs_ui_fr.hlsl"},
@@ -21,56 +28,220 @@ namespace GE
         {VS::STATIC_SHADOW_FR, L"vs_static_shadow_fr.hlsl"},
         {VS::PARTICLE_FULLSCREEN, L"vs_particle_fullscreen.hlsl"},
         {VS::SKELETAL_SHADOW_FR, L"vs_skeletal_shadow_fr.hlsl"},
+        {VS::SKELETAL_POINT_LIGHT_SHADOW_FR, L"vs_skeletal_point_light_shadow_fr.hlsl"},
         {VS::GRID, L"vs_grid.hlsl"},
+        {VS::SDF_FONT_FR, L"vs_sdf_font_fr.hlsl"},
         {VS::SKELETAL_FORWARD_FR, L"vs_skeletal_forward_fr.hlsl"},
         {VS::STATIC_FR, L"vs_static_fr.hlsl"}
     };
 
+    inline const std::unordered_map<std::wstring, VS> globalNameToVSEnumMap = {
+        {L"g_vs_skeletal_fr", VS::SKELETAL_FR},
+        {L"g_vs_static_point_light_shadow_fr", VS::STATIC_POINT_LIGHT_SHADOW_FR},
+        {L"g_vs_static_forward_fr", VS::STATIC_FORWARD_FR},
+        {L"g_vs_particle_quad", VS::PARTICLE_QUAD},
+        {L"g_vs_ui_fr", VS::UI_FR},
+        {L"g_vs_particle_ribbon", VS::PARTICLE_RIBBON},
+        {L"g_vs_quad", VS::QUAD},
+        {L"g_vs_skybox", VS::SKYBOX},
+        {L"g_vs_static_shadow_fr", VS::STATIC_SHADOW_FR},
+        {L"g_vs_particle_fullscreen", VS::PARTICLE_FULLSCREEN},
+        {L"g_vs_skeletal_shadow_fr", VS::SKELETAL_SHADOW_FR},
+        {L"g_vs_skeletal_point_light_shadow_fr", VS::SKELETAL_POINT_LIGHT_SHADOW_FR},
+        {L"g_vs_grid", VS::GRID},
+        {L"g_vs_sdf_font_fr", VS::SDF_FONT_FR},
+        {L"g_vs_skeletal_forward_fr", VS::SKELETAL_FORWARD_FR},
+        {L"g_vs_static_fr", VS::STATIC_FR}
+    };
+
+    inline const std::unordered_map<VS, std::wstring> enumToVSGlobalNameMap = {
+        {VS::SKELETAL_FR, L"g_vs_skeletal_fr"},
+        {VS::STATIC_POINT_LIGHT_SHADOW_FR, L"g_vs_static_point_light_shadow_fr"},
+        {VS::STATIC_FORWARD_FR, L"g_vs_static_forward_fr"},
+        {VS::PARTICLE_QUAD, L"g_vs_particle_quad"},
+        {VS::UI_FR, L"g_vs_ui_fr"},
+        {VS::PARTICLE_RIBBON, L"g_vs_particle_ribbon"},
+        {VS::QUAD, L"g_vs_quad"},
+        {VS::SKYBOX, L"g_vs_skybox"},
+        {VS::STATIC_SHADOW_FR, L"g_vs_static_shadow_fr"},
+        {VS::PARTICLE_FULLSCREEN, L"g_vs_particle_fullscreen"},
+        {VS::SKELETAL_SHADOW_FR, L"g_vs_skeletal_shadow_fr"},
+        {VS::SKELETAL_POINT_LIGHT_SHADOW_FR, L"g_vs_skeletal_point_light_shadow_fr"},
+        {VS::GRID, L"g_vs_grid"},
+        {VS::SDF_FONT_FR, L"g_vs_sdf_font_fr"},
+        {VS::SKELETAL_FORWARD_FR, L"g_vs_skeletal_forward_fr"},
+        {VS::STATIC_FR, L"g_vs_static_fr"}
+    };
+
     inline const std::unordered_map<CS, std::wstring> enumToCSFileNameMap = {
-        {CS::COMPUTE_RIBBON, L"cs_compute_ribbon.hlsl"},
+        {CS::COMPUTE_SPRITE, L"cs_compute_sprite.hlsl"},
+        {CS::PREFILTERED_MAP, L"cs_prefiltered_map.hlsl"},
         {CS::CUBE_TEXTURE_CONVERTOR, L"cs_cube_texture_convertor.hlsl"},
-        {CS::LIGHT_INJECTION, L"cs_light_injection.hlsl"},
+        {CS::BRDF_LUT, L"cs_brdf_lut.hlsl"},
+        {CS::GENERATE_SSGI, L"cs_generate_ssgi.hlsl"},
         {CS::LIGHT_ACCUMULATION, L"cs_light_accumulation.hlsl"},
         {CS::IRRADIANCE_MAP, L"cs_irradiance_map.hlsl"},
-        {CS::BRDF_LUT, L"cs_brdf_lut.hlsl"},
         {CS::SKELETAL_SKINNING, L"cs_skeletal_skinning.hlsl"},
-        {CS::PREFILTERED_MAP, L"cs_prefiltered_map.hlsl"},
-        {CS::COMPUTE_SPRITE, L"cs_compute_sprite.hlsl"}
+        {CS::CALCULATE_MOTION_VECTOR, L"cs_calculate_motion_vector.hlsl"},
+        {CS::COMPUTE_RIBBON, L"cs_compute_ribbon.hlsl"},
+        {CS::SSGI_TEMPORAL, L"cs_ssgi_temporal.hlsl"},
+        {CS::LIGHT_INJECTION, L"cs_light_injection.hlsl"},
+        {CS::RESOLVE_UI, L"cs_resolve_ui.hlsl"}
+    };
+
+    inline const std::unordered_map<std::wstring, CS> globalNameToCSEnumMap = {
+        {L"g_cs_compute_sprite", CS::COMPUTE_SPRITE},
+        {L"g_cs_prefiltered_map", CS::PREFILTERED_MAP},
+        {L"g_cs_cube_texture_convertor", CS::CUBE_TEXTURE_CONVERTOR},
+        {L"g_cs_brdf_lut", CS::BRDF_LUT},
+        {L"g_cs_generate_ssgi", CS::GENERATE_SSGI},
+        {L"g_cs_light_accumulation", CS::LIGHT_ACCUMULATION},
+        {L"g_cs_irradiance_map", CS::IRRADIANCE_MAP},
+        {L"g_cs_skeletal_skinning", CS::SKELETAL_SKINNING},
+        {L"g_cs_calculate_motion_vector", CS::CALCULATE_MOTION_VECTOR},
+        {L"g_cs_compute_ribbon", CS::COMPUTE_RIBBON},
+        {L"g_cs_ssgi_temporal", CS::SSGI_TEMPORAL},
+        {L"g_cs_light_injection", CS::LIGHT_INJECTION},
+        {L"g_cs_resolve_ui", CS::RESOLVE_UI}
+    };
+
+    inline const std::unordered_map<CS, std::wstring> enumToCSGlobalNameMap = {
+        {CS::COMPUTE_SPRITE, L"g_cs_compute_sprite"},
+        {CS::PREFILTERED_MAP, L"g_cs_prefiltered_map"},
+        {CS::CUBE_TEXTURE_CONVERTOR, L"g_cs_cube_texture_convertor"},
+        {CS::BRDF_LUT, L"g_cs_brdf_lut"},
+        {CS::GENERATE_SSGI, L"g_cs_generate_ssgi"},
+        {CS::LIGHT_ACCUMULATION, L"g_cs_light_accumulation"},
+        {CS::IRRADIANCE_MAP, L"g_cs_irradiance_map"},
+        {CS::SKELETAL_SKINNING, L"g_cs_skeletal_skinning"},
+        {CS::CALCULATE_MOTION_VECTOR, L"g_cs_calculate_motion_vector"},
+        {CS::COMPUTE_RIBBON, L"g_cs_compute_ribbon"},
+        {CS::SSGI_TEMPORAL, L"g_cs_ssgi_temporal"},
+        {CS::LIGHT_INJECTION, L"g_cs_light_injection"},
+        {CS::RESOLVE_UI, L"g_cs_resolve_ui"}
     };
 
     inline const std::unordered_map<PS, std::wstring> enumToPSFileNameMap = {
-        {PS::BLEND, L"ps_blend.hlsl"},
-        {PS::UI, L"ps_ui.hlsl"},
-        {PS::GBUFFER, L"ps_gbuffer.hlsl"},
-        {PS::PARTICLE_RESOLVE, L"ps_particle_resolve.hlsl"},
-        {PS::PARTICLE_QUAD, L"ps_particle_quad.hlsl"},
-        {PS::UP_SAMPLE, L"ps_up_sample.hlsl"},
-        {PS::PBR_LIGHTING, L"ps_pbr_lighting.hlsl"},
-        {PS::SSR, L"ps_ssr.hlsl"},
-        {PS::SKYBOX, L"ps_skybox.hlsl"},
-        {PS::SHADOW, L"ps_shadow.hlsl"},
-        {PS::BURN_DISSOLVE, L"ps_burn_dissolve.hlsl"},
-        {PS::TO_BACKBUFFER, L"ps_to_backbuffer.hlsl"},
-        {PS::VOLUMETRIC_FOG, L"ps_volumetric_fog.hlsl"},
-        {PS::ACCUMULATION, L"ps_accumulation.hlsl"},
-        {PS::DOWN_SAMPLE, L"ps_down_sample.hlsl"},
-        {PS::DISTORTION_RESOLVE, L"ps_distortion_resolve.hlsl"},
-        {PS::GAUSSIANBLUR_Y, L"ps_gaussianblur_y.hlsl"},
         {PS::GBUFFER_MASKED, L"ps_gbuffer_masked.hlsl"},
-        {PS::OUTLINE, L"ps_outline.hlsl"},
-        {PS::GRID, L"ps_grid.hlsl"},
-        {PS::GAUSSIANBLUR_X, L"ps_gaussianblur_x.hlsl"},
-        {PS::FORWARD_PBR_LIGHTING, L"ps_forward_pbr_lighting.hlsl"},
-        {PS::BRIGHT_EXTRACT, L"ps_bright_extract.hlsl"},
+        {PS::SHADOW, L"ps_shadow.hlsl"},
         {PS::WRITE_AO, L"ps_write_ao.hlsl"},
+        {PS::PARTICLE_RESOLVE, L"ps_particle_resolve.hlsl"},
+        {PS::SSGI_COMPOSITE, L"ps_ssgi_composite.hlsl"},
         {PS::FADE, L"ps_fade.hlsl"},
-        {PS::DXRGBUFFER, L"ps_dxrgbuffer.hlsl"}
+        {PS::OUTLINE, L"ps_outline.hlsl"},
+        {PS::UP_SAMPLE, L"ps_up_sample.hlsl"},
+        {PS::SSR, L"ps_ssr.hlsl"},
+        {PS::BILATERAL_UP_SAMPLE, L"ps_bilateral_up_sample.hlsl"},
+        {PS::GRID, L"ps_grid.hlsl"},
+        {PS::VOLUMETRIC_FOG, L"ps_volumetric_fog.hlsl"},
+        {PS::POINT_LIGHT_SHADOW, L"ps_point_light_shadow.hlsl"},
+        {PS::SDF_FONT, L"ps_sdf_font.hlsl"},
+        {PS::GBUFFER, L"ps_gbuffer.hlsl"},
+        {PS::UI, L"ps_ui.hlsl"},
+        {PS::DISTORTION_RESOLVE, L"ps_distortion_resolve.hlsl"},
+        {PS::PARTICLE_QUAD, L"ps_particle_quad.hlsl"},
+        {PS::GAUSSIANBLUR_X, L"ps_gaussianblur_x.hlsl"},
+        {PS::TO_BACKBUFFER, L"ps_to_backbuffer.hlsl"},
+        {PS::BRIGHT_EXTRACT, L"ps_bright_extract.hlsl"},
+        {PS::ACCUMULATION, L"ps_accumulation.hlsl"},
+        {PS::FORWARD_PBR_LIGHTING, L"ps_forward_pbr_lighting.hlsl"},
+        {PS::DXRGBUFFER, L"ps_dxrgbuffer.hlsl"},
+        {PS::GAUSSIANBLUR_Y, L"ps_gaussianblur_y.hlsl"},
+        {PS::UI_OIT, L"ps_ui_oit.hlsl"},
+        {PS::DOWN_SAMPLE, L"ps_down_sample.hlsl"},
+        {PS::BURN_DISSOLVE, L"ps_burn_dissolve.hlsl"},
+        {PS::PBR_LIGHTING, L"ps_pbr_lighting.hlsl"},
+        {PS::SKYBOX, L"ps_skybox.hlsl"},
+        {PS::BLEND, L"ps_blend.hlsl"},
+        {PS::FXAA, L"ps_fxaa.hlsl"}
+    };
+
+    inline const std::unordered_map<std::wstring, PS> globalNameToPSEnumMap = {
+        {L"g_ps_gbuffer_masked", PS::GBUFFER_MASKED},
+        {L"g_ps_shadow", PS::SHADOW},
+        {L"g_ps_write_ao", PS::WRITE_AO},
+        {L"g_ps_particle_resolve", PS::PARTICLE_RESOLVE},
+        {L"g_ps_ssgi_composite", PS::SSGI_COMPOSITE},
+        {L"g_ps_fade", PS::FADE},
+        {L"g_ps_outline", PS::OUTLINE},
+        {L"g_ps_up_sample", PS::UP_SAMPLE},
+        {L"g_ps_ssr", PS::SSR},
+        {L"g_ps_bilateral_up_sample", PS::BILATERAL_UP_SAMPLE},
+        {L"g_ps_grid", PS::GRID},
+        {L"g_ps_volumetric_fog", PS::VOLUMETRIC_FOG},
+        {L"g_ps_point_light_shadow", PS::POINT_LIGHT_SHADOW},
+        {L"g_ps_sdf_font", PS::SDF_FONT},
+        {L"g_ps_gbuffer", PS::GBUFFER},
+        {L"g_ps_ui", PS::UI},
+        {L"g_ps_distortion_resolve", PS::DISTORTION_RESOLVE},
+        {L"g_ps_particle_quad", PS::PARTICLE_QUAD},
+        {L"g_ps_gaussianblur_x", PS::GAUSSIANBLUR_X},
+        {L"g_ps_to_backbuffer", PS::TO_BACKBUFFER},
+        {L"g_ps_bright_extract", PS::BRIGHT_EXTRACT},
+        {L"g_ps_accumulation", PS::ACCUMULATION},
+        {L"g_ps_forward_pbr_lighting", PS::FORWARD_PBR_LIGHTING},
+        {L"g_ps_dxrgbuffer", PS::DXRGBUFFER},
+        {L"g_ps_gaussianblur_y", PS::GAUSSIANBLUR_Y},
+        {L"g_ps_ui_oit", PS::UI_OIT},
+        {L"g_ps_down_sample", PS::DOWN_SAMPLE},
+        {L"g_ps_burn_dissolve", PS::BURN_DISSOLVE},
+        {L"g_ps_pbr_lighting", PS::PBR_LIGHTING},
+        {L"g_ps_skybox", PS::SKYBOX},
+        {L"g_ps_blend", PS::BLEND},
+        {L"g_ps_fxaa", PS::FXAA}
+    };
+
+    inline const std::unordered_map<PS, std::wstring> enumToPSGlobalNameMap = {
+        {PS::GBUFFER_MASKED, L"g_ps_gbuffer_masked"},
+        {PS::SHADOW, L"g_ps_shadow"},
+        {PS::WRITE_AO, L"g_ps_write_ao"},
+        {PS::PARTICLE_RESOLVE, L"g_ps_particle_resolve"},
+        {PS::SSGI_COMPOSITE, L"g_ps_ssgi_composite"},
+        {PS::FADE, L"g_ps_fade"},
+        {PS::OUTLINE, L"g_ps_outline"},
+        {PS::UP_SAMPLE, L"g_ps_up_sample"},
+        {PS::SSR, L"g_ps_ssr"},
+        {PS::BILATERAL_UP_SAMPLE, L"g_ps_bilateral_up_sample"},
+        {PS::GRID, L"g_ps_grid"},
+        {PS::VOLUMETRIC_FOG, L"g_ps_volumetric_fog"},
+        {PS::POINT_LIGHT_SHADOW, L"g_ps_point_light_shadow"},
+        {PS::SDF_FONT, L"g_ps_sdf_font"},
+        {PS::GBUFFER, L"g_ps_gbuffer"},
+        {PS::UI, L"g_ps_ui"},
+        {PS::DISTORTION_RESOLVE, L"g_ps_distortion_resolve"},
+        {PS::PARTICLE_QUAD, L"g_ps_particle_quad"},
+        {PS::GAUSSIANBLUR_X, L"g_ps_gaussianblur_x"},
+        {PS::TO_BACKBUFFER, L"g_ps_to_backbuffer"},
+        {PS::BRIGHT_EXTRACT, L"g_ps_bright_extract"},
+        {PS::ACCUMULATION, L"g_ps_accumulation"},
+        {PS::FORWARD_PBR_LIGHTING, L"g_ps_forward_pbr_lighting"},
+        {PS::DXRGBUFFER, L"g_ps_dxrgbuffer"},
+        {PS::GAUSSIANBLUR_Y, L"g_ps_gaussianblur_y"},
+        {PS::UI_OIT, L"g_ps_ui_oit"},
+        {PS::DOWN_SAMPLE, L"g_ps_down_sample"},
+        {PS::BURN_DISSOLVE, L"g_ps_burn_dissolve"},
+        {PS::PBR_LIGHTING, L"g_ps_pbr_lighting"},
+        {PS::SKYBOX, L"g_ps_skybox"},
+        {PS::BLEND, L"g_ps_blend"},
+        {PS::FXAA, L"g_ps_fxaa"}
     };
 
     inline const std::unordered_map<HS, std::wstring> enumToHSFileNameMap = {
     };
 
+    inline const std::unordered_map<std::wstring, HS> globalNameToHSEnumMap = {
+    };
+
+    inline const std::unordered_map<HS, std::wstring> enumToHSGlobalNameMap = {
+    };
+
     inline const std::unordered_map<GS, std::wstring> enumToGSFileNameMap = {
+    };
+
+    inline const std::unordered_map<std::wstring, GS> globalNameToGSEnumMap = {
+    };
+
+    inline const std::unordered_map<GS, std::wstring> enumToGSGlobalNameMap = {
     };
 
 }

@@ -9,7 +9,8 @@
 #include "RenderTechnique.h"
 #include "SkyBox.h"
 #include "SpriteRenderer.h"
-#include "FontRenderer.h"
+#include "TextRenderer.h"
+#include "SDFTextRenderer.h"
 #include "AccelerationStructureManager.h"
 
 RenderScene::RenderScene(std::string_view name)
@@ -20,7 +21,7 @@ RenderScene::RenderScene(std::string_view name)
     _lightDatas.resize(MAX_LIGHT);
 }
 
-RenderScene::~RenderScene() {}
+RenderScene::~RenderScene() = default;
 
 D3D12_GPU_DESCRIPTOR_HANDLE RenderScene::GetFinalImage()
 {
@@ -64,7 +65,7 @@ void RenderScene::InitializeRenderScene()
     _accumulationBuffer = MakeSharedResource<UnorderedAccessView>();
 
     auto desc = CD3DX12_RESOURCE_DESC::Tex2D(mode.Format, mode.Width, mode.Height, 1, 1, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-    _accumulationBuffer->Initialize(desc);
+    _accumulationBuffer->InitializeAsTexture(desc, UnorderedAccessView::UAVSliceType::PER_MIP, true);
     _accumulationBuffer->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
     Global::dxResourceManager->AddResource(_accumulationBuffer);
@@ -81,7 +82,7 @@ void RenderScene::RegisterOnRenderQueue(MeshRenderer* component)
     if (nullptr == component)
         return;
 
-    auto iter = std::find_if(_meshRenderQueue.begin(), _meshRenderQueue.end(), [](const auto& pair) { return !pair.first.get(); });
+    auto iter = std::find_if(_meshRenderQueue.begin(), _meshRenderQueue.end(), [component](const auto& renderer) { return component->GetID() == renderer->GetID(); });
 
     if (iter != _meshRenderQueue.end())
     {
@@ -89,8 +90,7 @@ void RenderScene::RegisterOnRenderQueue(MeshRenderer* component)
         return;
     }
 
-    _meshRenderQueue.emplace_back(std::make_unique<bool>(false), component);
-    component->_isDestroyeds.push_back(_meshRenderQueue.back().first.get());
+    _meshRenderQueue.emplace_back(component);
 }
 
 void RenderScene::RegisterOnRenderQueue(SpriteRenderer* component)
@@ -98,7 +98,7 @@ void RenderScene::RegisterOnRenderQueue(SpriteRenderer* component)
     if (nullptr == component)
         return;
 
-    auto iter = std::find_if(_uiRenderQueue.begin(), _uiRenderQueue.end(), [](const auto& pair) { return !pair.first.get(); });
+    auto iter = std::find_if(_uiRenderQueue.begin(), _uiRenderQueue.end(), [component](const auto& renderer) { return component->GetID() == renderer->GetID(); });
 
     if (iter != _uiRenderQueue.end())
     {
@@ -106,25 +106,39 @@ void RenderScene::RegisterOnRenderQueue(SpriteRenderer* component)
         return;
     }
 
-    _uiRenderQueue.emplace_back(std::make_unique<bool>(false), component);
-    component->_isDestroyeds.push_back(_uiRenderQueue.back().first.get());
+    _uiRenderQueue.emplace_back(component);
 }
 
-void RenderScene::RegisterOnRenderQueue(FontRenderer* component)
+void RenderScene::RegisterOnRenderQueue(TextRenderer* component)
 {
     if (nullptr == component)
         return;
 
-    auto iter = std::find_if(_fontRenderQueue.begin(), _fontRenderQueue.end(), [](const auto& pair) { return !pair.first.get(); });
+    auto iter = std::find_if(_textRenderQueue.begin(), _textRenderQueue.end(), [component](const auto& renderer) { return component->GetID() == renderer->GetID(); });
 
-    if (iter != _fontRenderQueue.end())
+    if (iter != _textRenderQueue.end())
     {
         GRAPHICS_ASSERT(false, L"RenderScene::RegisterRenderQueue : Already registered component.");
         return;
     }
 
-    _fontRenderQueue.emplace_back(std::make_unique<bool>(false), component);
-    component->_isDestroyeds.push_back(_fontRenderQueue.back().first.get());
+    _textRenderQueue.emplace_back(component);
+}
+
+void RenderScene::RegisterOnRenderQueue(SDFTextRenderer* component)
+{
+    if (nullptr == component)
+        return;
+
+    auto iter = std::find_if(_sdfTextRenderQueue.begin(), _sdfTextRenderQueue.end(), [component](const auto& renderer) { return component->GetID() == renderer->GetID(); });
+
+    if (iter != _sdfTextRenderQueue.end())
+    {
+        GRAPHICS_ASSERT(false, L"RenderScene::RegisterRenderQueue : Already registered component.");
+        return;
+    }
+
+    _sdfTextRenderQueue.emplace_back(component);
 }
 
 void RenderScene::AddRenderTechnique(std::unique_ptr<RenderTechnique> technique)
@@ -147,17 +161,17 @@ void RenderScene::UpdateRenderScene(const float deltaTime)
     UpdateGlobal();
     UpdateObject();
     UpdateUI();
-    UpdateFont();
 
     if (Global::isRayTracing)
     {
         _accelerationStructureManager->RemoveUnUsedStaticMeshes(_activeMeshes[STATIC_MESH], _activeMeshes[SKELETAL_MESH]);
     }
+
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::TRANSFORM, _matrices.data(), (UINT)_matrices.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::BONE_MATRICES, _boneMatrices.data(), (UINT)_boneMatrices.size());
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::MATERIAL, _materialIDs.data(), (UINT)_materialIDs.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::UI_TRANSFORM, _uiMatrices.data(), (UINT)_uiMatrices.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::UI_MATERIAL, _uiMaterials.data(), (UINT)_uiMaterials.size());
+    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::TEXT_MATRICES, _textMatrices.data(), (UINT)_textMatrices.size());
     
     for (auto& technique : _techniques)
     {
@@ -171,7 +185,7 @@ void RenderScene::Execute()
     _commandSet->SetDescriptorHeaps(1, &descriptorHeap);
 
     _accumulationBuffer->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-    _accumulationBuffer->ClearUnorderedAccessView(_commandSet);
+    _accumulationBuffer->ClearUnorderedAccessView(_commandSet, Vector4(0.f, 0.f, 0.f, 1.f));
 
     auto meshRenderTarget = Global::multiRenderTargetManager->GetRenderTarget(_meshRenderTargetName);
     meshRenderTarget->TransitionResource(_commandSet, D3D12_RESOURCE_STATE_RENDER_TARGET);
@@ -210,6 +224,14 @@ void RenderScene::ResetIBLSkyBox()
     _skyBox->ResetIBLResource();
 }
 
+void RenderScene::ClearRenderQueue()
+{
+    _meshRenderQueue.clear();
+    _uiRenderQueue.clear();
+    _textRenderQueue.clear();
+    _sdfTextRenderQueue.clear();
+}
+
 void RenderScene::UpdateGlobal()
 {
     _currentFrameIndex = Global::device->GetCurrentBackBufferIndex();
@@ -230,27 +252,32 @@ void RenderScene::UpdateGlobal()
     auto& lights = Global::lightCore->GetLights(_name.c_str());
 
     _numLight = {};
-    for (auto& [isDestroy, light] : lights)
+    for (auto& light : lights)
     {
-        if (nullptr == light->_isActive || !light->IsActive())
+        if (!light->IsActive())
             continue;
 
-        switch (light->_type)
+        switch (light->GetType())
         {
         case Light::Type::DIRECTIONAL:
             if (_numLight.Directional >= MAX_DIRECTIONAL_LIGHT)
                 continue;
-            _lightDatas[_numLight.Directional++] = light->_data;
+            _lightDatas[_numLight.Directional++] = light->GetLightData();
             break;
         case Light::Type::POINT:
             if (_numLight.Point >= MAX_POINT_LIGHT)
                 continue;
-            _lightDatas[MAX_DIRECTIONAL_LIGHT + _numLight.Point++] = light->_data;
+            _lightDatas[MAX_DIRECTIONAL_LIGHT + _numLight.Point++] = light->GetLightData();
             break;
         case Light::Type::SPOT:
             if (_numLight.Spot >= MAX_SPOT_LIGHT)
                 continue;
-            _lightDatas[MAX_DIRECTIONAL_LIGHT + MAX_POINT_LIGHT + _numLight.Spot++] = light->_data;
+            _lightDatas[MAX_DIRECTIONAL_LIGHT + MAX_POINT_LIGHT + _numLight.Spot++] = light->GetLightData();
+            break;
+        case Light::Type::SHADOWPOINT:
+            if (_numLight.ShadowPoint >= MAX_SHADOW_POINT_LIGHT)
+                continue;
+            _lightDatas[MAX_DIRECTIONAL_LIGHT + MAX_POINT_LIGHT + MAX_SPOT_LIGHT + _numLight.ShadowPoint++] = light->GetLightData();
             break;
         }
     }
@@ -262,23 +289,9 @@ void RenderScene::UpdateGlobal()
 
 void RenderScene::UpdateObject()
 {
-    auto first = std::remove_if(_meshRenderQueue.begin(), _meshRenderQueue.end(), [](const auto& pair) { return *pair.first; });
+    auto first = std::remove_if(_meshRenderQueue.begin(), _meshRenderQueue.end(), [](const auto& renderer) { return !renderer->IsAlive(); });
     _meshRenderQueue.erase(first, _meshRenderQueue.end());
-
-    size_t currentSize = _meshRenderQueue.size();
-    if (_prevSize != currentSize)
-        _isDirtyFlag = true;
-
-    _prevSize = currentSize;
-
-    _activeMeshes[STATIC_MESH].clear();
-    _activeMeshes[SKELETAL_MESH].clear();
-    _matrices.clear();
-    _boneMatrices.clear();
-    _materialIDs.clear();
-    _staticMeshInstanceIDs.clear();
-    _skeletalMeshInstanceIDs.clear();
-
+    
     int   mainLight    = 0;
     float maxIntensity = 0.0f;
 
@@ -292,10 +305,17 @@ void RenderScene::UpdateObject()
     }
 
     Vector3 lightDirection = (_lightDatas[mainLight].float3_1);
-    lightDirection.Normalize();
-    
-    UINT instanceID = 0;
-    for (auto& [isDestroy, component] : _meshRenderQueue)
+    lightDirection.Normalize();   
+
+    _activeMeshes[STATIC_MESH].clear();
+    _activeMeshes[SKELETAL_MESH].clear();
+    _matrices.clear();
+    _boneMatrices.clear();
+    _staticMeshInstanceIDs.clear();
+    _skeletalMeshInstanceIDs.clear();
+
+    UINT index = 0;
+    for (auto& component : _meshRenderQueue)
     {
         if (!component->IsActive())
         {
@@ -308,16 +328,6 @@ void RenderScene::UpdateObject()
         {
             continue;
         }
-
-        /*if (!_isDirtyFlag)
-        {
-            _isDirtyFlag = model->IsDirtyFlag() || component->IsDirtyFlag();
-
-            if (_isDirtyFlag)
-            {
-                model->SetDirtyFlag(false);
-            }
-        }*/
 
         const auto  type         = component->GetType();
         const auto& customDepths = component->GetCustomDepths();
@@ -332,16 +342,19 @@ void RenderScene::UpdateObject()
 
         if (SKELETAL_MESH == type)
         {
-            auto animator = component->GetAnimator();
+            Animator* animator = static_cast<Animator*>(component->GetAnimator());
             if (animator) memcpy(&boneMatrices, animator->GetAnimationTransform(), sizeof(BoneMatrices));
         }
 
+        _matrices.push_back(matrixData);
+        _boneMatrices.push_back(boneMatrices);
+
         auto& skinnedBuffers = component->GetDXRSkeletalMeshes();
         UINT size = (UINT)meshes.size();
+                
         for (UINT i = 0; i < size; i++)
         {
-            _matrices.push_back(matrixData);
-            _boneMatrices.push_back(boneMatrices);
+            InstanceData instanceData{};
 
             if (materials[i].IsTwoSided)
             {
@@ -352,51 +365,48 @@ void RenderScene::UpdateObject()
                 materials[i].CullMode = determinant < 0.f ? Material::CullModeType::CULL_FRONT : Material::CullModeType::CULL_BACK;
             }
 
-            MaterialID materialID{};
             for (UINT j = 0; j < 4; j++)
             {
-                materialID.ID[j] = textures[i][j]->GetID();
+                instanceData.MaterialID[j] = textures[i][j]->GetID();
             }
 
-            _materialIDs.push_back(materialID);
+            instanceData.CustomDepth = customDepths[i];
+            instanceData.MatrixID    = index;
+            instanceData.Alpha       = materials[i].Alpha;
 
-            MeshInfo meshInfo{.Material             = materials[i],
-                              .Mesh                 = meshes[i].get(),
-                              .SkinnedInstance      = Global::isRayTracing ? skinnedBuffers[i].get() : nullptr,
-                              .TransposeWorldMatrix = &_matrices[instanceID].World,
-                              .CustomDepth          = customDepths[i],
-                              .InstanceID           = instanceID,
-                              .DepthKey             = 0.f};            
-
-            _activeMeshes[type].emplace_back(meshInfo);
-
-            if (STATIC_MESH == type)
-            {
-                _staticMeshInstanceIDs.push_back(instanceID);
-            }
-            else if (SKELETAL_MESH == type)
-            {
-                _skeletalMeshInstanceIDs.push_back(instanceID);
-            }
-
-            instanceID++;
+            _activeMeshes[type].emplace_back(instanceData, 
+                                             materials[i], 
+                                             meshes[i].get(),
+                                             Global::isRayTracing ? skinnedBuffers[i].get() : nullptr,
+                                             &_matrices[index].World, 0.f);
         }
+
+        if (SKELETAL_MESH == type)
+        {
+            _skeletalMeshInstanceIDs.push_back(index);
+        }
+        else if (STATIC_MESH == type)
+        {
+            _staticMeshInstanceIDs.push_back(index);
+        }
+        index++;
+    }
+
+    for (auto& activeMesh : _activeMeshes)
+    {
+        std::stable_sort(activeMesh.begin(), activeMesh.end(),
+                         [](const auto& a, const auto& b) { return a.Mesh > b.Mesh; });
     }
 }
 
 void RenderScene::UpdateUI()
 {    
-    auto first = std::remove_if(_uiRenderQueue.begin(), _uiRenderQueue.end(), [](const auto& pair) { return *pair.first; });
-    _uiRenderQueue.erase(first, _uiRenderQueue.end());
+    auto iter_ui = std::remove_if(_uiRenderQueue.begin(), _uiRenderQueue.end(), [](const auto& renderer) { return !renderer->IsAlive(); });
+    _uiRenderQueue.erase(iter_ui, _uiRenderQueue.end());
 
     _uiMatrices.clear();
     _uiMaterials.clear();
-
-    std::sort(_uiRenderQueue.begin(), _uiRenderQueue.end(), [](const auto& a, const auto& b) {
-        return a.second->GetWorldMatrix()._43 > b.second->GetWorldMatrix()._43;
-    });
-
-    for (auto& [isDestroy, component] : _uiRenderQueue)
+    for (auto& component : _uiRenderQueue)
     {
         if (!component->IsActive())
             continue;
@@ -433,8 +443,7 @@ void RenderScene::UpdateUI()
             }
         }
         
-        world = XMMatrixTranspose(scale * world * translation);
-        _uiMatrices.push_back(world);
+        _uiMatrices.emplace_back(XMMatrixTranspose(scale * world * translation));
 
         UIMaterial uiMaterial{.ID          = texture->GetID(),
                               .Alpha       = component->GetAlpha(),
@@ -444,16 +453,24 @@ void RenderScene::UpdateUI()
                               .RowIndex    = component->GetRowIndex()};
         _uiMaterials.push_back(uiMaterial);
     }
-}
 
-void RenderScene::UpdateFont()
-{
-    auto first = std::remove_if(_fontRenderQueue.begin(), _fontRenderQueue.end(), [](const auto& pair) { return *pair.first; });
-    _fontRenderQueue.erase(first, _fontRenderQueue.end());
+    // Text
+    auto iter_text = std::remove_if(_sdfTextRenderQueue.begin(), _sdfTextRenderQueue.end(), [](const auto& renderer) { return !renderer->IsAlive(); });
+    _sdfTextRenderQueue.erase(iter_text, _sdfTextRenderQueue.end());
 
-    std::sort(_fontRenderQueue.begin(), _fontRenderQueue.end(), [](const auto& a, const auto& b) {
-        return a.second->GetPosition().z > b.second->GetPosition().z;
-    });
+    _textMatrices.clear();
+    for (auto& component : _sdfTextRenderQueue)
+    {
+        if (!component->IsActive())
+            continue;
+
+        const float fontSize = component->GetFontSize();
+
+        XMMATRIX scale       = XMMatrixScaling(fontSize, fontSize, 1.f);
+        XMMATRIX rotation    = XMMatrixRotationQuaternion(Quaternion::CreateFromYawPitchRoll(component->GetRotation()));
+        XMMATRIX translation = XMMatrixTranslationFromVector(component->GetPosition());
+        _textMatrices.emplace_back(XMMatrixTranspose(scale * rotation * translation));
+    }
 }
 
 void RenderScene::CreateRenderTarget()
@@ -500,8 +517,7 @@ void RenderScene::CreateDepthStencil()
 void RenderScene::CreateFrameResource()
 {
     _frameResources.resize(SWAPCHAIN_BUFFER_COUNT);
-
-    constexpr UINT MAX_OBJECTS = 1000;
+    
     for (UINT i = 0; i < SWAPCHAIN_BUFFER_COUNT; ++i)
     {
         _frameResources[i] = std::make_unique<FrameResource>();
@@ -510,16 +526,16 @@ void RenderScene::CreateFrameResource()
         _frameResources[i]->AddFrameResource(sizeof(MatrixData), MAX_OBJECTS);
 
         // Object BoneTransform
-        _frameResources[i]->AddFrameResource(sizeof(XMMATRIX) * MAX_BONE_MATRIX, MAX_OBJECTS);
-
-        // Material
-        _frameResources[i]->AddFrameResource(sizeof(MaterialID), MAX_OBJECTS);
+        _frameResources[i]->AddFrameResource(sizeof(BoneMatrices), MAX_OBJECTS);
 
         // UI Transform
-        _frameResources[i]->AddFrameResource(sizeof(XMMATRIX), MAX_OBJECTS);
+        _frameResources[i]->AddFrameResource(sizeof(Matrix), MAX_OBJECTS);
 
         // UI Material
-        _frameResources[i]->AddFrameResource(sizeof(XMMATRIX), MAX_OBJECTS);
+        _frameResources[i]->AddFrameResource(sizeof(UIMaterial), MAX_OBJECTS);
+
+        // Text Transform
+        _frameResources[i]->AddFrameResource(sizeof(Matrix), MAX_OBJECTS);
 
         // Vertex Buffer ID
         _frameResources[i]->AddFrameResource(sizeof(VertexBufferID), MAX_OBJECTS);
@@ -528,7 +544,7 @@ void RenderScene::CreateFrameResource()
         _frameResources[i]->AddFrameResource(sizeof(IndexBufferID), MAX_OBJECTS);
 
         //  Mesh Instance ID
-        _frameResources[i]->AddFrameResource(sizeof(MeshInstanceID), MAX_OBJECTS);
+        _frameResources[i]->AddFrameResource(sizeof(MeshInstanceID), MAX_OBJECTS);        
     }
 
     _cameraBuffer = std::make_unique<ConstantBufferView>();

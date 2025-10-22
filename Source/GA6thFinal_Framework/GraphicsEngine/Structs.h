@@ -12,32 +12,34 @@ struct BoneMatrices
     Matrix matrix[MAX_BONE_MATRIX];
 };
 
-struct MaterialID
+struct InstanceData
 {
-    UINT ID[4];
-};
-
-struct ObjectData
-{
-    UINT  InstanceID;
-    UINT  MaxBoneMatrix;
+    UINT  MaterialID[4];
+    UINT  MatrixID;
     UINT  CustomDepth;
     FLOAT Alpha;
+};
+
+class DXRSkeletalMesh;
+class BaseMesh;
+struct MeshInfo
+{
+    InstanceData     InstanceData;
+    Material         Material;
+    BaseMesh*        Mesh;
+    DXRSkeletalMesh* SkinnedInstance;
+    Matrix*          TransposeWorldMatrix;
+    float            DepthKey;
 };
 
 struct UIMaterial
 {
     UINT  ID;
-    float Alpha;
+    FLOAT Alpha;
     UINT  NumColmn;
     UINT  NumRow;
     UINT  ColumnIndex;
     UINT  RowIndex;
-};
-
-struct ShadowObjectData : public ObjectData
-{
-    UINT CascadedIndex;
 };
 
 struct CameraData
@@ -79,6 +81,20 @@ struct VolumetricFogData
     float    LightShaftIntensity;
 };
 
+struct SSGIData
+{
+    XMMATRIX PreViewProj;
+    XMMATRIX InverseViewProjection;
+    Vector2  ScreenSize;
+    float    Radius;
+    float    Thickness;
+    int      NumSample;
+    float    Intensity;
+    float    TemporalWeight;
+    float    DepthSigma;
+    float    NormalSigma;
+};
+
 struct VolumetricFogCompositeData
 {
     XMMATRIX ViewProj;
@@ -86,6 +102,14 @@ struct VolumetricFogCompositeData
     Vector4  CameraNearFar;
     Vector4  VoxelSize;
     float    BlendWithScene;
+};
+
+struct FXAAData
+{
+    Vector2 InverseResolution;
+    float  QualitySubpixel;
+    float  QualityEdgeDetectionThreshold;
+    float  QualityMinimumEdgeThreshold;
 };
 
 struct GBufferData
@@ -99,6 +123,7 @@ struct NumLight
     unsigned int Directional;
     unsigned int Point;
     unsigned int Spot;
+    unsigned int ShadowPoint;
 };
 
 struct PostProcessData
@@ -122,4 +147,10 @@ struct PipelineStateStream
     CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL_FORMAT  DSVFormat;
     CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL         DepthStencilState;
     CD3DX12_PIPELINE_STATE_STREAM_BLEND_DESC            BlendState;
+};
+
+struct ComputePipelineStateStream
+{
+    CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE        RootSignature;
+    CD3DX12_PIPELINE_STATE_STREAM_CS                    CS;
 };

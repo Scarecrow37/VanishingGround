@@ -13,6 +13,7 @@ namespace Input
         [[nodiscard]] ControllerTypes::ID          Connect() const noexcept;
         [[nodiscard]] ControllerTypes::State       ReceiveState(ControllerTypes::ID id) const;
         [[nodiscard]] ControllerTypes::ButtonQueue ReceiveQueue(ControllerTypes::ID id) const;
+        void                                       SetVibration(ControllerTypes::ID id, ControllerTypes::MotorSpeed leftMotorSpeed, ControllerTypes::MotorSpeed rightMotorSpeed) const;
 
     private:
         static ControllerTypes::TriggerValue NormalizeTrigger(unsigned char triggerValue, unsigned char thresholdValue);

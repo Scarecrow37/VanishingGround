@@ -99,6 +99,7 @@ void InputTestComponent::OnButton(const Input::Controller& controller)
             UmLogger.Log(LogLevel::LEVEL_INFO, message);
         }
     }
+    Vibrate(ControllerTypes::VIBRATION_HAMMER_SMASH);
 }
 
 void InputTestComponent::OnTrigger(const Input::Controller& controller) 

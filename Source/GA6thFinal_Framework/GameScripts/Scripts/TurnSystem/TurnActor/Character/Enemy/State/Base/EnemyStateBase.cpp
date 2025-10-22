@@ -2,6 +2,8 @@
 #include "EnemyStateBase.h"
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 
+REFLECT_FUNCTION(EnemyStateBase)
+
 EnemyStateBase::EnemyStateBase() {}
 EnemyStateBase::~EnemyStateBase() {}
 

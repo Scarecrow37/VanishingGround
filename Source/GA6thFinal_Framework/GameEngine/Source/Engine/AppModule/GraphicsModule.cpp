@@ -17,17 +17,20 @@ void GraphicsModule::PreInitialize()
 {
     _rendererFileEvent = std::make_unique<RendererFileEvent>();
     UmFileSystem.RegisterFileEventSubscriber(_rendererFileEvent.get(),
-                                             {".png", ".dds", ".fbx", ".hdr", ".UmModel", ".sfont", ".jpg"});
+                                             {".png", ".dds", ".fbx", ".hdr", ".UmModel", ".sfont", ".jpg", ".inl"});
 
     UmFileSystem.RegisterFileEventSubscriber(&UmParticleSerializer, {".vfx"});
 
     RenderTechniqueFlag lightingFlag = RenderTechniqueFlag::NONE;
     lightingFlag = _israytracing ? RenderTechniqueFlag::RAY_TRACING_TECH : RenderTechniqueFlag::PBR_TECH | RenderTechniqueFlag::SSR_TECH;
 
-    RenderTechniqueFlag defaultFlag = RenderTechniqueFlag::SKY_BOX_TECH | lightingFlag |
+    RenderTechniqueFlag defaultFlag = RenderTechniqueFlag::SKY_BOX_TECH | lightingFlag | 
+                               RenderTechniqueFlag::SSGI_TECH |
                                RenderTechniqueFlag::VOLUMETRIC_FOG_TECH |
                                RenderTechniqueFlag::PARTICLE_TECH |
-                               RenderTechniqueFlag::BLOOM_TECH | RenderTechniqueFlag::UI_TECH |
+                               RenderTechniqueFlag::BLOOM_TECH |
+                               RenderTechniqueFlag::FXAA_TECH |
+                               RenderTechniqueFlag::UI_TECH |
                                RenderTechniqueFlag::FONT_TECH;
 
     RenderTechniqueFlag gameSceneFlag = defaultFlag | RenderTechniqueFlag::SCENE_TRANSITION_TECH;

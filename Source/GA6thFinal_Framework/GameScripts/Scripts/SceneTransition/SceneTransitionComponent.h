@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include "Utility/SingletonHelper.h"
+
 class SceneTransitionComponent : public Component
 {
     // easetype, easefunctype, threshold
@@ -11,8 +13,9 @@ public:
     virtual ~SceneTransitionComponent();
 
     USING_PROPERTY(SceneTransitionComponent);
+
 public:
-    REFLECT_PROPERTY(Duration, StartColor, EndColor, Easing , PresetName)
+    REFLECT_PROPERTY(Duration, StartColor, EndColor, Easing, PresetName)
 
     GETTER(float, Duration) { return ReflectFields->Duration; }
     SETTER(float, Duration) { ReflectFields->Duration = value; }
@@ -36,13 +39,13 @@ public:
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
-    std::array<float, 4> StartColorArray;
-    std::array<float, 4> EndColorArray;
-    float                Duration;
-    bool                 Ease;
-    UINT                 EaseType = 0;
-    UINT                 EaseFuncType   = 0;
-    float                EaseThreshold = 0.5f;
+    std::array<float, 4>                        StartColorArray;
+    std::array<float, 4>                        EndColorArray;
+    float                                       Duration;
+    bool                                        Ease;
+    UINT                                        EaseType      = 0;
+    UINT                                        EaseFuncType  = 0;
+    float                                       EaseThreshold = 0.5f;
     std::unordered_map<std::string, FadePreset> FadePresets;
     REFLECT_FIELDS_END(SceneTransitionComponent)
 
@@ -60,8 +63,16 @@ protected:
     void OnDrawDebug() override;
     void OnDrawDebugSelected() override;
     void Update() override;
-
     void CalculateFade();
+
+    // void Reset() override;
+
+     void Awake() override;
+
+    // void OnDestroy() override;
+
+    // private:
+    // SingletonComponent<SceneTransitionComponent> _singletonComponent{this};
 
 
 public:
@@ -71,9 +82,15 @@ public:
     void Fade(std::string_view presetName, std::function<void(void)> callback);
     void SetFadeCallback(std::function<void(void)> callback);
     void AddFadePreset();
+    bool IsTransitioning();
+    void SceneTransitionFade(std::string_view inPreset, std::string_view outPreset, std::function<void(void)> callback);
+
+
 
 private:
+    SingletonObject<SceneTransitionComponent> _singletonObject{this};
+
     bool                      _callbackFlag = true;
     std::function<void(void)> _fadeCallBackFunction;
-
+    bool                      _transitionLock = false;
 };

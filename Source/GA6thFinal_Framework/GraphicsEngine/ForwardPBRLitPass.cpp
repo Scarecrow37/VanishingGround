@@ -92,17 +92,17 @@ void ForwardPBRLitPass::Update(ID3D12GraphicsCommandList* commandList, const flo
     {
         const auto& cameraFrustum = _ownerScene->_camera->GetWorldFrustum();
 
-        BoundingOrientedBox boundingOrientedBox;
+        /*BoundingOrientedBox boundingOrientedBox;
         const auto&         meshBoundingBox = meshInfo->Mesh->GetBoundingBox();
-        meshBoundingBox.Transform(boundingOrientedBox, XMMatrixTranspose(_ownerScene->_matrices[meshInfo->InstanceID].World));
+        meshBoundingBox.Transform(boundingOrientedBox, XMMatrixTranspose(_ownerScene->_matrices[meshInfo->InstanceData.MatrixID].World));
 
         if (!cameraFrustum.Intersects(boundingOrientedBox))
         {
             continue;
-        }
+        }*/
 
         int cullMode = (int)meshInfo->Material.CullMode;
-        _renderDatas[meshType][cullMode].emplace_back(meshInfo->Mesh, meshInfo->Material.Alpha, meshInfo->InstanceID, meshInfo->CustomDepth);
+        _renderDatas[meshType][cullMode].emplace_back(meshInfo->Mesh, &meshInfo->InstanceData);
     }
 }
 
@@ -160,7 +160,7 @@ void ForwardPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
 
     // Static
     commandList->SetGraphicsRootSignature(_fxStaticMesh.GetRootSignature());
-    commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_3_numLight"), 3, &_ownerScene->_numLight, 0);    
+    commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_4_numLight"), 4, &_ownerScene->_numLight, 0);    
     commandList->SetGraphicsRootConstantBufferView(_fxStaticMesh.GetRootParameterIndex("cameraData"), cameraData);
     commandList->SetGraphicsRootConstantBufferView(_fxStaticMesh.GetRootParameterIndex("lightData"), lightData);
     commandList->SetGraphicsRootConstantBufferView(_fxStaticMesh.GetRootParameterIndex("cascadeData"), shadowMapPass->GetCascadeDataCBV());
@@ -171,7 +171,6 @@ void ForwardPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootDescriptorTable(_fxStaticMesh.GetRootParameterIndex("textures"), resource);
 
     frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxStaticMesh.GetRootParameterIndex("matrices"), commandList);
-    frameResource->SetFrameResource(FrameResourceType::MATERIAL, _fxStaticMesh.GetRootParameterIndex("material"), commandList);
 
     commandList->SetPipelineState(_psos[STATIC_MESH][CULL_BACK].Get());
     DrawMeshes(commandList, STATIC_MESH, CULL_BACK);
@@ -184,7 +183,7 @@ void ForwardPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
 
     // Skeletal
     commandList->SetGraphicsRootSignature(_fxSkeletalMesh.GetRootSignature());
-    commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_3_numLight"), 3, &_ownerScene->_numLight, 0);
+    commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_4_numLight"), 4, &_ownerScene->_numLight, 0);
     commandList->SetGraphicsRootConstantBufferView(_fxSkeletalMesh.GetRootParameterIndex("cameraData"), cameraData);
     commandList->SetGraphicsRootConstantBufferView(_fxSkeletalMesh.GetRootParameterIndex("lightData"), lightData);
     commandList->SetGraphicsRootConstantBufferView(_fxSkeletalMesh.GetRootParameterIndex("cascadeData"), shadowMapPass->GetCascadeDataCBV());
@@ -196,7 +195,6 @@ void ForwardPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
 
     frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxSkeletalMesh.GetRootParameterIndex("matrices"), commandList);
     frameResource->SetFrameResource(FrameResourceType::BONE_MATRICES, _fxSkeletalMesh.GetRootParameterIndex("boneMatrices"), commandList);
-    frameResource->SetFrameResource(FrameResourceType::MATERIAL, _fxSkeletalMesh.GetRootParameterIndex("material"), commandList);
 
     commandList->SetPipelineState(_psos[SKELETAL_MESH][CULL_BACK].Get());
     DrawMeshes(commandList, SKELETAL_MESH, CULL_BACK);
@@ -233,20 +231,15 @@ void ForwardPBRLitPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshT
         break;
     }
 
-    ObjectData parameter = {.MaxBoneMatrix = MAX_BONE_MATRIX};
-    for (auto& [mesh, alpha, instanceID, customDepth] : _renderDatas[meshType][cullMode])
+    for (auto& [mesh, instanceData] : _renderDatas[meshType][cullMode])
     {
-        parameter.InstanceID  = instanceID;
-        parameter.CustomDepth = customDepth;
-        parameter.Alpha       = alpha;
-
         switch (meshType)
         {
         case STATIC_MESH:
-            commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_4_translucentObjectData"), 4, &parameter, 0);
+            commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_7_instanceData"), 7, instanceData, 0);
             break;
         case SKELETAL_MESH:
-            commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_4_translucentObjectData"), 4, &parameter, 0);
+            commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_7_instanceData"), 7, instanceData, 0);
             break;
         }
 

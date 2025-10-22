@@ -4,7 +4,7 @@
 class ComputeShader : public Shader
 {
 public:
-    ComputeShader()         = default;
+    ComputeShader();
     virtual ~ComputeShader() = default;
 
 public:

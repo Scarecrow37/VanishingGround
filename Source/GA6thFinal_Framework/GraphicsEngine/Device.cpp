@@ -51,6 +51,22 @@ void Device::SetUpDevice(HWND hwnd, UINT width, UINT height, FeatureLevel featur
     }
 
     CreateDeviceAndSwapChain(hwnd, d3dFeature);
+#ifdef _DEBUG
+    ComPtr<ID3D12InfoQueue> infoQueue;
+    if (SUCCEEDED(_device.As(&infoQueue)))
+    {
+        D3D12_MESSAGE_ID hideIDs[] = {D3D12_MESSAGE_ID_COMMAND_LIST_DRAW_VERTEX_BUFFER_TOO_SMALL,
+                                      D3D12_MESSAGE_ID_CREATERESOURCE_STATE_IGNORED};
+
+        D3D12_INFO_QUEUE_FILTER filter = {};
+        filter.DenyList.NumIDs         = _countof(hideIDs);
+        filter.DenyList.pIDList        = hideIDs;
+
+        infoQueue->AddStorageFilterEntries(&filter);
+        // 에러시 debug break
+        //infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, TRUE);
+    }
+#endif
     if (Global::isRayTracing)
     {
         CheckDXRSupport();

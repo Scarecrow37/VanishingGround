@@ -28,7 +28,7 @@ public:
 
     enum TurnActorFlags
     {
-        NONE = 0,
+        FLAGS_NONE       = 0,
         FLAGS_TURN_SKIP = 1 << 1,   // 턴 스킵 여부
     };
 
@@ -130,7 +130,7 @@ protected:
 private:
     int     _randomSpeed = 0;
     STATE   _currState;
-    int     _flags = TurnActorFlags::NONE; // TurnActor의 플래그
+    int     _flags = FLAGS_NONE; // TurnActor의 플래그
 
 protected:
     /// <summary>

@@ -21,6 +21,9 @@ public:
     bool BindInputAction(ControllerButton button, Action action, Component* owner, T* instance, void (T::*func)(const Input::Controller&),
                     std::source_location = std::source_location::current());
 
+
+    static void Vibrate(Input::ControllerTypes::Vibration vibration);
+
 private:
     struct ControllerSetKey
     {

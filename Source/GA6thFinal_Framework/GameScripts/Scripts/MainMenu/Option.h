@@ -10,6 +10,10 @@ public:
     ~Option() override;
 
 public:
+    void Awake() override;
+    void Update() override;
+
+public:
     void Submit() override;
 
 public:
@@ -18,5 +22,9 @@ public:
 protected:
     REFLECT_FIELDS_BEGIN(MainMenuNavigationBase)
     REFLECT_FIELDS_END(Option)
-};
 
+private:
+    bool _onDirtyFlag = false;
+    class PreferencesManager* _preferencesManager;
+        
+};

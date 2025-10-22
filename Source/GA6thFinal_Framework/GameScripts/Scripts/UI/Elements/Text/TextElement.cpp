@@ -1,5 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "TextElement.h"
+#include "GraphicsEngine/Interface/ISDFTextRenderer.h"
 
 UMREAL_COMPONENT(TextElement)
 
@@ -11,10 +12,10 @@ TextElement::TextElement()
             if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
             {
                 const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
-                if (const auto extension = data->GetPath().extension(); extension == L".UmFont")
+                if (const auto extension = data->GetPath().extension(); extension == L".png")
                 {
-                    _guidRef            = data->GetGuid();
-                    ReflectFields->Guid = _guidRef.string();
+                    _Guid            = data->GetGuid();
+                    ReflectFields->Guid = _Guid.string();
                     RequestResource();
                 }
             }
@@ -26,13 +27,13 @@ TextElement::TextElement()
 TextElement::~TextElement()
 {
     if (_renderer)
-        _renderer->SetDestroy();
+        _renderer->Release();
 }
 
-void TextElement::SetFont(const File::GuidRef& guidRef)
+void TextElement::SetFont(const File::Guid& Guid)
 {
-    _guidRef = guidRef;
-    ReflectFields->Guid = _guidRef.string();
+    _Guid = Guid;
+    ReflectFields->Guid = _Guid.string();
     RequestResource();
 }
 
@@ -42,11 +43,11 @@ void TextElement::Reset()
 
     try
     {
-        _renderer = std::make_unique<FontRenderer>();
-        UmGraphics.RegisterComponent("Game", _renderer.get());
+        UmGraphics.CreateSDFTextRenderer(&_renderer);
+        UmGraphics.RegisterComponent("Game", _renderer);
         if (IS_EDITOR)
         {
-            UmGraphics.RegisterComponent("Editor", _renderer.get());
+            UmGraphics.RegisterComponent("Editor", _renderer);
         }
         _renderer->SetActive(&EnableInHierarchy);
 
@@ -61,12 +62,10 @@ void TextElement::Reset()
 
 void TextElement::DeserializedReflectEvent()
 {
-    DrawUIComponent::DeserializedReflectEvent();
-
     const File::Guid guid = ReflectFields->Guid;
     if (const auto path = guid.ToPath(); !path.IsNull())
     {
-        _guidRef = path.ToGuid();
+        _Guid = path.ToGuid();
     }
 }
 
@@ -98,13 +97,11 @@ SIZE TextElement::MeasureOverride(const SIZE availableSize)
                                  verticalFillMode == FillMode::FILL);
 
     const auto [contentWidth, contentHeight] = ReflectFields->ContentSize;
-    const LONG scaledContentWidth  = static_cast<LONG>(static_cast<float>(contentWidth) * ReflectFields->FontScale);
-    const LONG scaledContentHeight = static_cast<LONG>(static_cast<float>(contentHeight) * ReflectFields->FontScale);
 
     if (horizontalFillMode == FillMode::WRAP)
-        desiredSize.cx = scaledContentWidth;
+        desiredSize.cx = contentWidth;
     if (verticalFillMode == FillMode::WRAP)
-        desiredSize.cy = scaledContentHeight;
+        desiredSize.cy = contentHeight;
 
     return desiredSize;
 }
@@ -127,7 +124,7 @@ void TextElement::LoadFont() const
         if (path != File::NULL_PATH)
         {
             const std::wstring filePath = U8ToWString(path);
-            UmGraphics.LoadResource(filePath, _renderer.get());
+            UmGraphics.LoadResource(filePath, _renderer);
         }
     }
 }
@@ -141,11 +138,6 @@ void TextElement::SetViewOrder(const int viewOrder)
 
 void TextElement::UpdateProperties()
 {
-    if (nullptr != _renderer)
-    {
-        _renderer->SetOrigin(Vector2::Zero);
-        _renderer->SetRotation(0.0f);
-    }
     UpdateText();
     UpdateColor();
     UpdatePosition();
@@ -157,7 +149,7 @@ void TextElement::UpdateText() const
 {
     if (nullptr != _renderer)
     {
-        _renderer->SetText(U8ToWString(ReflectFields->Text));
+        _renderer->SetText(U8ToWString(ReflectFields->Text).c_str());
     }
 }
 
@@ -185,8 +177,15 @@ void TextElement::UpdateScale() const
 {
     if (nullptr != _renderer)
     {
-        const Vector2 scale{ReflectFields->FontScale, ReflectFields->FontScale};
-        _renderer->SetScale(scale);
+        _renderer->SetFontSize(ReflectFields->FontScale);
+    }
+}
+
+void TextElement::UpdateWeight() const
+{
+    if (nullptr != _renderer)
+    {
+        _renderer->SetFontWeight(ReflectFields->FontWeight);
     }
 }
 
@@ -204,11 +203,26 @@ void TextElement::UpdateContentSize()
     }
 }
 
+void TextElement::TestUpdateOutline()
+{
+    if (nullptr != _renderer)
+    {
+        bool enabled = ReflectFields->FontFlags & FONT_FLAG_OUTLINE;
+
+        GE::FontOutline outline{.Color   = Vector3(ReflectFields->FontOutline[0], ReflectFields->FontOutline[1],
+                                                   ReflectFields->FontOutline[2]),
+                                .Width   = ReflectFields->FontOutline[3],
+                                .Enabled = enabled};
+
+        _renderer->SetFontOutline(outline);
+    }
+}
+
 void TextElement::RequestResource()
 {
-    if (false == _guidRef.IsNull())
+    if (false == _Guid.IsNull())
     {
-        UmSceneManager.ResourceManager.RequestFontResource(this, _guidRef, [this]() {
+        UmSceneManager.ResourceManager.RequestSDFFontResource(this, _Guid, [this]() {
             LoadFont();
             UpdateProperties();
         });
