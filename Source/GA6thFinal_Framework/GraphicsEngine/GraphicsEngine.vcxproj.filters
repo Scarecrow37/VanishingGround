@@ -1126,6 +1126,9 @@
     <None Include="..\Shaders\Function.hlsli">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="..\Shaders\SDFDatas.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">

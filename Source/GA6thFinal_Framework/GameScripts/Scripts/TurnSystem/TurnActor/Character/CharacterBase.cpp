@@ -7,6 +7,7 @@
 
 #include <Mesh/SkeletalMeshRenderer.h>
 #include <Animation/AnimationComponent.h>
+#include <Particle/ParticleComponent.h>
 
 REFLECT_FUNCTION(CharacterBase)
 
@@ -80,56 +81,49 @@ CharacterBase::CharacterBase() :
 
 CharacterBase::~CharacterBase() = default;
 
-void CharacterBase::Awake() 
+void CharacterBase::Awake()
 {
     Base::Awake();
     gameObject->AddTag(TAG);
-    InitMeshModel();
+    _skeletalMeshRenderer = nullptr;
+    _animationComponent   = nullptr;
+    _particleComponent    = nullptr;
+    FindComponent();
     InitAnimationCallback();
-    InitAudio();
 }
 
-void CharacterBase::InitMeshModel()
+bool CharacterBase::FindComponent()
 {
-    auto* modelTransform = transform->Find(MODEL_NAME);
-    if (modelTransform)
+    bool valid = false;
+    auto* childTransform = transform->Find(MODEL_NAME);
+    if (childTransform)
     {
-        GameObject& modelObject = modelTransform->gameObject;
-        _skeletalMeshRenderer   = modelObject.GetComponent<SkeletalMeshRenderer>();
-        _animationComponent     = modelObject.GetComponent<AnimationComponent>();
+        GameObject& model     = childTransform->gameObject;
+        _skeletalMeshRenderer = model.GetComponent<SkeletalMeshRenderer>();
+        _animationComponent   = model.GetComponent<AnimationComponent>();
+        _particleComponent    = model.GetComponent<ParticleComponent>();
+
         if (nullptr == _skeletalMeshRenderer)
         {
-            std::string msg = std::format("{}{}",
-                modelObject.ToString(),
-                (const char*)u8"의 컴포넌트에 SkeletalMeshRenderer가 없습니다."
-            );
+            std::string msg = std::format("{}{}", model.ToString(), (const char*)u8"의 컴포넌트에 SkeletalMeshRenderer가 없습니다.");
             UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
         }
+        
         if (nullptr == _animationComponent)
         {
-            std::string msg = std::format("{}{}",
-                modelObject.ToString(),
-                (const char*)u8"의 컴포넌트에 AnimationComponent가 없습니다."
-            );
+            std::string msg = std::format("{}{}", model.ToString(), (const char*)u8"의 컴포넌트에 AnimationComponent가 없습니다.");
             UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
         }
-    }
-    else
-    {
-        std::string msg = std::format("{}{} {}{}",
-            gameObject->ToString(), 
-            (const char*)u8"의 자식 오브젝트에",
-            MODEL_NAME, 
-            (const char*)u8"이(가) 없습니다."
-        );
-        UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
-    }
-}
 
-void CharacterBase::InitAudio()
-{
-    const GameObject& object = gameObject;
-    _audioTableComponent     = object.GetComponent<AudioTableComponent>();
+        if (nullptr == _particleComponent)
+        {
+            std::string msg = std::format("{}{}", model.ToString(), (const char*)u8"의 컴포넌트에 ParticleComponent가 없습니다.");
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+        }
+
+        valid = _skeletalMeshRenderer && _animationComponent && _particleComponent;
+    }
+    return valid;
 }
 
 void CharacterBase::InitAnimationCallback() 

@@ -1,11 +1,7 @@
 ﻿#pragma once
 #include "Utility/SingletonHelper.h"
+#include "DifficultyEnum.h" 
 
-enum class Difficulty : unsigned char
-{
-    NORMAL,
-    HARD
-};
 
 class DifficultyManager : public Component
 {
@@ -13,8 +9,6 @@ class DifficultyManager : public Component
 
 public:
     DifficultyManager();
-
-public:
     REFLECT_PROPERTY()
 
 public:

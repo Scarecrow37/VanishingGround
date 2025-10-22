@@ -433,6 +433,19 @@ namespace ReflectHelper
                                         free(data);
                                     }
                                 }
+                                else if constexpr (std::is_same_v<FieldTpye, std::array<float, 4>>)
+                                {
+                                    char* data = yyjsonValToCStr(jsonVal);
+                                    if (nullptr != data)
+                                    {
+                                        auto result = rfl::json::read<std::array<float, 4>>(data);
+                                        if (result)
+                                        {
+                                            value = result.value();
+                                        }
+                                        free(data);
+                                    }
+                                }
                             }
                         });
                     }
