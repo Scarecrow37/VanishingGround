@@ -329,11 +329,12 @@ void RenderScene::UpdateObject()
             continue;
         }
 
-        const auto  type         = component->GetType();
-        const auto& customDepths = component->GetCustomDepths();
-        const auto& meshes       = model->GetMeshes();
-        auto&       materials    = model->GetMaterials();
-        const auto& textures     = model->GetTextures();
+        const auto  type           = component->GetType();
+        const auto& customDepths   = component->GetCustomDepths();
+        auto&       materials      = component->GetMaterials();
+        auto&       modelMaterials = model->GetMaterials();
+        const auto& meshes         = model->GetMeshes();
+        const auto& textures       = model->GetTextures();
 
         BoneMatrices boneMatrices;
         MatrixData   matrixData          = {.World = XMMatrixTranspose(component->GetWorldMatrix())};
@@ -356,7 +357,7 @@ void RenderScene::UpdateObject()
         {
             InstanceData instanceData{};
 
-            if (materials[i].IsTwoSided)
+            if (modelMaterials[i].IsTwoSided)
             {
                 materials[i].CullMode = Material::CullModeType::CULL_NONE;
             }
@@ -377,8 +378,10 @@ void RenderScene::UpdateObject()
             _activeMeshes[type].emplace_back(instanceData, 
                                              materials[i], 
                                              meshes[i].get(),
+                                             component,
                                              Global::isRayTracing ? skinnedBuffers[i].get() : nullptr,
-                                             &_matrices[index].World, 0.f);
+                                             &_matrices[index].World, 
+                                             0.f);
         }
 
         if (SKELETAL_MESH == type)

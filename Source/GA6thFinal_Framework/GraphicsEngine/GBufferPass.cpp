@@ -43,7 +43,7 @@ void GBufferPass::AddRenderPassDatas(std::string_view sceneName)
 
 void GBufferPass::Update(ID3D12GraphicsCommandList* commandList, const float deltaTime)
 {
-    for (auto& mesh : _mesheInfos)
+    for (auto& mesh : _meshInfos)
     {
         for (auto& j : mesh)
         {
@@ -58,6 +58,9 @@ void GBufferPass::Update(ID3D12GraphicsCommandList* commandList, const float del
     {
         for (auto& meshInfo : _ownerScene->_activeMeshes[i])
         {
+            if (meshInfo.Material.ShadingModel == Material::ShadingModelType::CUSTOMLIT)
+                continue;
+
             int blendMode = (int)meshInfo.Material.BlendMode;
             if (blendMode == Material::BlendModeType::TRANSLUCENT)
                 continue;
@@ -74,7 +77,7 @@ void GBufferPass::Update(ID3D12GraphicsCommandList* commandList, const float del
             }
 
             int cullMode = (int)meshInfo.Material.CullMode;
-            _mesheInfos[i][blendMode][cullMode].push_back(&meshInfo);
+            _meshInfos[i][blendMode][cullMode].push_back(&meshInfo);
         }
     }
    
@@ -83,7 +86,7 @@ void GBufferPass::Update(ID3D12GraphicsCommandList* commandList, const float del
     {
         for (int j = 0; j < CullMode::END; j++)
         {
-            for (auto& meshInfo : _mesheInfos[STATIC_MESH][i][j])
+            for (auto& meshInfo : _meshInfos[STATIC_MESH][i][j])
             {
                 _instanceDatas.emplace_back(meshInfo->InstanceData);
             }
@@ -94,7 +97,7 @@ void GBufferPass::Update(ID3D12GraphicsCommandList* commandList, const float del
     {
         for (int j = 0; j < CullMode::END; j++)
         {
-            for (auto& meshInfo : _mesheInfos[SKELETAL_MESH][i][j])
+            for (auto& meshInfo : _meshInfos[SKELETAL_MESH][i][j])
             {
                 _instanceDatas.emplace_back(meshInfo->InstanceData);
             }
@@ -134,15 +137,15 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
     {
         commandList->SetPipelineState(_psos[STATIC_MESH][i][CULL_BACK].Get());
         DrawMeshes(commandList, STATIC_MESH, (Material::BlendModeType)i, CULL_BACK, offset);
-        offset += (UINT)_mesheInfos[STATIC_MESH][i][CULL_BACK].size();
+        offset += (UINT)_meshInfos[STATIC_MESH][i][CULL_BACK].size();
 
         commandList->SetPipelineState(_psos[STATIC_MESH][i][CULL_FRONT].Get());
         DrawMeshes(commandList, STATIC_MESH, (Material::BlendModeType)i, CULL_FRONT, offset);
-        offset += (UINT)_mesheInfos[STATIC_MESH][i][CULL_FRONT].size();
+        offset += (UINT)_meshInfos[STATIC_MESH][i][CULL_FRONT].size();
 
         commandList->SetPipelineState(_psos[STATIC_MESH][i][TWO_SIDED].Get());
         DrawMeshes(commandList, STATIC_MESH, (Material::BlendModeType)i, TWO_SIDED, offset);
-        offset += (UINT)_mesheInfos[STATIC_MESH][i][TWO_SIDED].size();
+        offset += (UINT)_meshInfos[STATIC_MESH][i][TWO_SIDED].size();
     }
 
     // --- Skeletal Meshes ---
@@ -157,15 +160,15 @@ void GBufferPass::Draw(ID3D12GraphicsCommandList* commandList)
     {
         commandList->SetPipelineState(_psos[SKELETAL_MESH][i][CULL_BACK].Get());
         DrawMeshes(commandList, SKELETAL_MESH, (Material::BlendModeType)i, CULL_BACK, offset);
-        offset += (UINT)_mesheInfos[SKELETAL_MESH][i][CULL_BACK].size();
+        offset += (UINT)_meshInfos[SKELETAL_MESH][i][CULL_BACK].size();
 
         commandList->SetPipelineState(_psos[SKELETAL_MESH][i][CULL_FRONT].Get());
         DrawMeshes(commandList, SKELETAL_MESH, (Material::BlendModeType)i, CULL_FRONT, offset);
-        offset += (UINT)_mesheInfos[SKELETAL_MESH][i][CULL_FRONT].size();
+        offset += (UINT)_meshInfos[SKELETAL_MESH][i][CULL_FRONT].size();
 
         commandList->SetPipelineState(_psos[SKELETAL_MESH][i][TWO_SIDED].Get());
         DrawMeshes(commandList, SKELETAL_MESH, (Material::BlendModeType)i, TWO_SIDED, offset);
-        offset += (UINT)_mesheInfos[SKELETAL_MESH][i][TWO_SIDED].size();
+        offset += (UINT)_meshInfos[SKELETAL_MESH][i][TWO_SIDED].size();
     }
 }
 void GBufferPass::End(ID3D12GraphicsCommandList* commandList)
@@ -248,7 +251,7 @@ void GBufferPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType me
     UINT      instanceCount = 0;
     BaseMesh* previousMesh  = nullptr;
     BaseMesh* currentMesh   = nullptr;
-    for (auto& meshInfo : _mesheInfos[meshType][blendModeType][cullMode])
+    for (auto& meshInfo : _meshInfos[meshType][blendModeType][cullMode])
     {
         if (nullptr == previousMesh)
         {
