@@ -86,12 +86,12 @@ public:
     /// </summary>
     void NotifyQTEEnd();
 
-    void NotifyPreBattleCalculateChain(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats, Enemy& target,
-                                       EnemyStats& targetStats);
+    void NotifyPreBattleCalculateChain(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
+                                       QTE::NoteResult& noteResult, Enemy& target, EnemyStats& targetStats);
     void NotifyPreBattleCalculateChain(Enemy& attacker, EnemyStats& attackerStats, Player& target, PlayerStats& targetStats);
 
     void NotifyPreAttackBattleCalculateDamage(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
-                                              Enemy& target, EnemyStats& targetStats);
+                                              QTE::NoteResult& noteResult, Enemy& target, EnemyStats& targetStats);
     void NotifyPreAttackBattleCalculateDamage(Enemy& attacker, EnemyStats& attackerStats, Player& target,
                                               PlayerStats& targetStats);
     void NotifyPreHitBattleCalculateDamage(Player& attacker, PlayerStats& attackerStats, Enemy& target,
@@ -99,7 +99,7 @@ public:
     void NotifyPreHitBattleCalculateDamage(Enemy& attacker, EnemyStats& attackerStats, Player& target,
                                            PlayerStats& targetStats);
 
-    void NotifyTakeDamage(int& damage);
+    void NotifyTakeDamage(CharacterBase* dest, int& damage, QTE::NoteResult* qteResult);
 
     void NotifyRollRandomSpeed(int& randomSpeed);
 

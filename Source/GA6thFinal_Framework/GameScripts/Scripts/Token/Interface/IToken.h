@@ -19,7 +19,7 @@ class IToken
 {
 public:
     IToken();
-    ~IToken() override;
+    virtual ~IToken();
 
 private: // ITriggerType을(를) 통해 상속됨.
     /// <summary>전투가 시작될 때 호출됩니다.</summary>
@@ -77,10 +77,11 @@ private: // ITriggerType을(를) 통해 상속됨.
     virtual void OnQTEEnd(CharacterBase* source) = 0;
 
     virtual void OnPreBattleCalculateChain(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
-                                           Enemy& target, EnemyStats& targetStats)              = 0;
+                                           QTE::NoteResult& noteResult, Enemy& target, EnemyStats& targetStats) = 0;
     virtual void OnPreBattleCalculateChain(Enemy& attacker, EnemyStats& attackerStats, Player& target,
                                            PlayerStats& targetStats)                            = 0;
-    virtual void OnPreAttackBattleCalculateDamage(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
+    virtual void OnPreAttackBattleCalculateDamage(Player& attacker, PlayerStats& attackerStats,
+                                                  WeaponStats& weaponStats, QTE::NoteResult& noteResult,
                                                   Enemy& target, EnemyStats& targetStats)       = 0;
     virtual void OnPreAttackBattleCalculateDamage(Enemy& attacker, EnemyStats& attackerStats, Player& target,
                                                   PlayerStats& targetStats)                     = 0;
@@ -89,7 +90,7 @@ private: // ITriggerType을(를) 통해 상속됨.
     virtual void OnPreHitBattleCalculateDamage(Enemy& attacker, EnemyStats& attackerStats, Player& target,
                                                PlayerStats& targetStats)                        = 0;
 
-    virtual void OnTakeDamage(CharacterBase* source, int& damage) = 0;
+    virtual void OnTakeDamage(CharacterBase* source, CharacterBase* dest, int& damage, QTE::NoteResult* qteResult) = 0;
 
     virtual void OnRollRandomSpeed(CharacterBase* source, int& speed) = 0;
 

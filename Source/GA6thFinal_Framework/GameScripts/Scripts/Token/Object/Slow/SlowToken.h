@@ -4,22 +4,22 @@
 
 namespace TokenObject
 {
-    class Slow1 : public Token
+    class Slow : public Token
     {
-        TOKEN_DATA(205008)
     private:
+        void OnRoundStart(CharacterBase* owner) override;
         void OnRollRandomSpeed(CharacterBase* source, int& speed) override;
     };
-    class Slow2 : public Token
+    class Slow1 : public Slow
     {
         TOKEN_DATA(205008)
-    private:
-        void OnRollRandomSpeed(CharacterBase* source, int& speed) override;
     };
-    class Slow3 : public Token
+    class Slow2 : public Slow
     {
-        TOKEN_DATA(205008)
-    private:
-        void OnRollRandomSpeed(CharacterBase* source, int& speed) override;
+        TOKEN_DATA(205009)
+    };
+    class Slow3 : public Slow
+    {
+        TOKEN_DATA(205010)
     };
 } // namespace TokenObject

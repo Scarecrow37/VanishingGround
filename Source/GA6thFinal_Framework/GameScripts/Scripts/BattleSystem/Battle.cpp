@@ -98,7 +98,7 @@ void Battle::ChainStart(Player& attacker, Enemy& target, QTE::NoteResult& result
                     action.OnPlayerBattleCalculateChainModifier(attacker, playerStats, weaponStats, target, enemyStats);
                 });
                 TokenInventory& tokenInventory = attacker.GetTokenInventory();
-                tokenInventory.NotifyPreBattleCalculateChain(attacker, playerStats, weaponStats, target, enemyStats);
+                tokenInventory.NotifyPreBattleCalculateChain(attacker, playerStats, weaponStats, result, target, enemyStats);
                 chainDamage = DamageSystem::CalculateChainDamage(playerInfo, enemyInfo);
                 target.TakeChain(chainDamage);
             }
@@ -127,18 +127,19 @@ void Battle::BattleStart(Player& attacker, Enemy& target, QTE::NoteResult& resul
 
         int damage = 0;
 
-        turnMode->ApplyActions([&](TurnAction& action) {
-            action.OnPlayerBattlePreCalculate(attacker, playerStats, weaponStats, target, enemyStats, result);
-        });
-
         {
             TokenInventory& tokenInventory = attacker.GetTokenInventory();
-            tokenInventory.NotifyPreAttackBattleCalculateDamage(attacker, playerStats, weaponStats, target, enemyStats);
+            tokenInventory.NotifyPreAttackBattleCalculateDamage(attacker, playerStats, weaponStats, result, target,
+                                                                enemyStats);
         }
         {
             TokenInventory& tokenInventory = target.GetTokenInventory();
             tokenInventory.NotifyPreHitBattleCalculateDamage(target, enemyStats, attacker, playerStats);
         }
+
+        turnMode->ApplyActions([&](TurnAction& action) {
+            action.OnPlayerBattlePreCalculate(attacker, playerStats, weaponStats, target, enemyStats, result);
+        });
 
         if (result.IsHit())
         {
@@ -149,7 +150,7 @@ void Battle::BattleStart(Player& attacker, Enemy& target, QTE::NoteResult& resul
         }
 
         TokenInventory& tokenInventory = target.GetTokenInventory();
-        tokenInventory.NotifyTakeDamage(damage);
+        tokenInventory.NotifyTakeDamage(&target, damage, &result);
         // 미스여도 TakeDamage를 호출. 어차피 내부에서 미스처리를 하기 때문 (판정에 따른 이펙트 출력때문에... 나중에 PlayEffect를 따로 만들까? 싶음)
         target.TakeDamage(damage, result);
     }
@@ -198,9 +199,7 @@ void Battle::BattleStart(Enemy& attacker, Player& target)
         EnemyInfo  enemyInfo(attacker, enemyStats);
         PlayerInfo playerInfo(target, weaponSystem->GetCurrentWeaponElement().Stats, playerStats);
 
-        turnMode->ApplyActions(
-            [&](TurnAction& action) { action.OnEnemyBattleCalculateDamageModifier(attacker, enemyStats, target, playerStats); });
-        {
+         {
             TokenInventory& tokenInventory = attacker.GetTokenInventory();
             tokenInventory.NotifyPreAttackBattleCalculateDamage(attacker, enemyStats, target, playerStats);
         }
@@ -208,10 +207,13 @@ void Battle::BattleStart(Enemy& attacker, Player& target)
             TokenInventory& tokenInventory = target.GetTokenInventory();
             tokenInventory.NotifyPreHitBattleCalculateDamage(target, playerStats, attacker, enemyStats);
         }
+
+        turnMode->ApplyActions(
+            [&](TurnAction& action) { action.OnEnemyBattleCalculateDamageModifier(attacker, enemyStats, target, playerStats); });
         int damage = DamageSystem::CalculateDamage(enemyInfo, playerInfo);
         
         TokenInventory& tokenInventory = target.GetTokenInventory();
-        tokenInventory.NotifyTakeDamage(damage);
+        tokenInventory.NotifyTakeDamage(&target, damage, nullptr);
 
         target.TakeDamage(damage);
     }

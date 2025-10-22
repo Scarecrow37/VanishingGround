@@ -1,14 +1,13 @@
 ﻿#include "pchScripts.h"
 #include "RegenToken.h"
-#include "TurnSystem/TurnActor/Character/CharacterBase.h"
 #include "Stats/CharacterStats.h"
+#include "TurnSystem/TurnActor/Character/CharacterBase.h"
 
 namespace TokenObject
 {
     REGISTER_TOKEN(Regen1)
     REGISTER_TOKEN(Regen2)
     REGISTER_TOKEN(Regen3)
-
     namespace
     {
         void Heal(CharacterBase* dest, int healFactor)
@@ -21,17 +20,16 @@ namespace TokenObject
                 stats->CurrentHP += static_cast<int>(healAmount);
             }
         }
-    }
-    void Regen3::OnTurnStart(CharacterBase* owner) 
+    } // namespace
+    void Regen::OnTurnStart(CharacterBase* owner) 
     {
-        Heal(owner, GetTokenParam(0));
-    }
-    void Regen1::OnTurnStart(CharacterBase* owner) 
-    {
-        Heal(owner, GetTokenParam(0));
-    }
-    void Regen2::OnTurnStart(CharacterBase* owner) 
-    {
-        Heal(owner, GetTokenParam(0));
+        int param = GetTokenParam(0);
+        Heal(owner, param);
+        if (owner)
+        {
+            auto& tokenInventory = owner->GetTokenInventory();
+            int   tokenID        = GetTokenID();
+            tokenInventory.RemoveTokenStackFromID(tokenID);
+        }
     }
 } // namespace TokenObject

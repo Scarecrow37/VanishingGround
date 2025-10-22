@@ -3,25 +3,22 @@
 
 namespace TokenObject
 {
+    // 갑옷 토큰
+    class Armor : public Token
+    {
+        void OnTakeDamage(CharacterBase* source, CharacterBase* dest, int& damage,
+                          QTE::NoteResult* noteResult) override;
+    };
     class Armor1 : public Token
     {
         TOKEN_DATA(205005)
-
-    private:
-        void OnTakeDamage(CharacterBase* source, int& damage) override;
     };
     class Armor2 : public Token
     {
         TOKEN_DATA(205006)
-
-    private:
-        void OnTakeDamage(CharacterBase* source, int& damage) override;
     };
     class Armor3 : public Token
     {
         TOKEN_DATA(205007)
-
-    private:
-        void OnTakeDamage(CharacterBase* source, int& damage) override;
     };
 } // namespace TokenObject

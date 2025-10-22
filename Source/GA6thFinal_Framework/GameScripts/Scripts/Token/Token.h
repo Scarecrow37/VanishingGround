@@ -33,11 +33,13 @@ public:
     virtual void OnQTEEnd(CharacterBase* owner) override                                        {}
 
     virtual void OnPreBattleCalculateChain(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
+                                           QTE::NoteResult& noteResult,
                                            Enemy& target, EnemyStats& targetStats) override     {}
     virtual void OnPreBattleCalculateChain(Enemy& attacker, EnemyStats& attackerStats, Player& target,
                                            PlayerStats& targetStats) override                   {}
 
-    virtual void OnPreAttackBattleCalculateDamage(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
+    virtual void OnPreAttackBattleCalculateDamage(Player& attacker, PlayerStats& attackerStats,
+                                                  WeaponStats& weaponStats, QTE::NoteResult& noteResult,
                                                   Enemy& target, EnemyStats& targetStats) override {}
     virtual void OnPreAttackBattleCalculateDamage(Enemy& attacker, EnemyStats& attackerStats, Player& target,
                                                   PlayerStats& targetStats) override            {}
@@ -47,7 +49,10 @@ public:
     virtual void OnPreHitBattleCalculateDamage(Enemy& attacker, EnemyStats& attackerStats, Player& target,
                                                PlayerStats& targetStats) override               {}
 
-    virtual void OnTakeDamage(CharacterBase* source, int& damage) override {}
+    virtual void OnTakeDamage(CharacterBase* source, CharacterBase* dest, int& damage,
+                              QTE::NoteResult* qteResult) override
+    {
+    }
 
     virtual void OnRollRandomSpeed(CharacterBase* source, int& speed) override {}
 
@@ -55,8 +60,8 @@ public:
     virtual bool CanAdd(CharacterBase* owner) const override;
     virtual bool CanRemove(CharacterBase* owner) const override;
 
-    inline const std::string&   GetTokenName()      const override { return _tokenData.Name.c_str(); }
-    inline const std::string&   GetTokenTag()       const override { return _tokenData.Tag.c_str(); }
+    inline const std::string&   GetTokenName()      const override { return _tokenData.Name; }
+    inline const std::string&   GetTokenTag()       const override { return _tokenData.Tag; }
     inline int                  GetTokenOrder()     const override { return _tokenData.Order; }
     inline int                  GetMaxStackCount()  const override { return _tokenData.MaxStack; }
 

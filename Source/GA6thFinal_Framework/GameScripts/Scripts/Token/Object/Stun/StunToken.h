@@ -23,6 +23,5 @@ namespace TokenObject
     class StunResistance : public Token
     {
         TOKEN_DATA(205029)
-    private:     
     };
 } // namespace TokenObject

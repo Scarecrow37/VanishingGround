@@ -2,24 +2,22 @@
 #include <Token/Token.h>
 namespace TokenObject
 {
+    // 신속 토큰
+    class Haste : public Token
+    {
+        void OnRoundStart(CharacterBase* owner) override;
+        void OnRollRandomSpeed(CharacterBase* source, int& speed) override;
+    };
     class Haste1 : public Token
     {
         TOKEN_DATA(205011)
-    private:
-        void OnRollRandomSpeed(CharacterBase* source, int& speed) override;
     };
-
     class Haste2 : public Token
     {
         TOKEN_DATA(205012)
-    private:
-        void OnRollRandomSpeed(CharacterBase* source, int& speed) override;
     };
-
     class Haste3 : public Token
     {
         TOKEN_DATA(205013)
-    private:
-        void OnRollRandomSpeed(CharacterBase* source, int& speed) override;
     };
 } // namespace TokenObject

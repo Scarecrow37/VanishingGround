@@ -3,24 +3,20 @@
 
 namespace TokenObject
 {
-    class Regen1 : public Token
+    class Regen : public Token
+    {
+        void OnTurnStart(CharacterBase* owner) override;
+    };
+    class Regen1 : public Regen
     {
         TOKEN_DATA(205018)
-    private:
-        void OnTurnStart(CharacterBase* owner) override;
     };
-    class Regen2 : public Token
+    class Regen2 : public Regen
     {
         TOKEN_DATA(205019)
-
-    private:
-        void OnTurnStart(CharacterBase* owner) override;
     };
-    class Regen3 : public Token
+    class Regen3 : public Regen
     {
         TOKEN_DATA(205020)
-
-    private:
-        void OnTurnStart(CharacterBase* owner) override;
     };
 } // namespace TokenObject

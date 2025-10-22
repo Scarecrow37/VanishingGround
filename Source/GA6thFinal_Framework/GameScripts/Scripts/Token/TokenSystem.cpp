@@ -174,6 +174,8 @@ const std::string& TokenSystem::GetTokenNameFromID(int tokenID)
     {
         return _tokenIDTable[tokenID]->GetTokenName();
     }
+    static const std::string emptyString = "";
+    return emptyString;
 }
 
 const TokenData* TokenSystem::GetTokenDataFromID(TokenID tokenID)
@@ -196,8 +198,8 @@ const std::set<Token*>* TokenSystem::GetTokenInstancesFromTag(const std::string&
 
 void TokenSystem::SortByOrder()
 {   // 토큰을 Order에 따라 오름차순 정렬합니다.
-    std::sort(_tokenInstances.begin(), _tokenInstances.end(), 
-        [](std::unique_ptr<Token> a, std::unique_ptr<Token> b) { 
+    std::sort(_tokenInstances.begin(), _tokenInstances.end(),
+        [](std::unique_ptr<Token>& a, std::unique_ptr<Token>& b) {
             int aOrder = a->GetTokenOrder();
             int bOrder = b->GetTokenOrder();
             return aOrder < bOrder;

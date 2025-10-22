@@ -212,13 +212,13 @@ void TokenInventory::NotifyQTEEnd()
 }
 
 void TokenInventory::NotifyPreBattleCalculateChain(Player& source, PlayerStats& sourceStats, WeaponStats& weaponStats,
-                                                   Enemy& dest, EnemyStats& destStats)
+                                                   QTE::NoteResult& noteResult, Enemy& dest, EnemyStats& destStats)
 {
     NotifyTokenEvent([&](Token& token) {
         bool valid = HasTokenFromID(token.GetTokenID());
         if (valid)
         {
-            token.OnPreBattleCalculateChain(source, sourceStats, weaponStats, dest, destStats);
+            token.OnPreBattleCalculateChain(source, sourceStats, weaponStats, noteResult, dest, destStats);
         }
     });
 }
@@ -236,13 +236,14 @@ void TokenInventory::NotifyPreBattleCalculateChain(Enemy& source, EnemyStats& so
 }
 
 void TokenInventory::NotifyPreAttackBattleCalculateDamage(Player& source, PlayerStats& sourceStats,
-                                                          WeaponStats& weaponStats, Enemy& dest, EnemyStats& destStats)
+                                                          WeaponStats& weaponStats, QTE::NoteResult& noteResult,
+                                                          Enemy& dest, EnemyStats& destStats)
 {
     NotifyTokenEvent([&](Token& token) {
         bool valid = HasTokenFromID(token.GetTokenID());
         if (valid)
         {
-            token.OnPreAttackBattleCalculateDamage(source, sourceStats, weaponStats, dest, destStats);
+            token.OnPreAttackBattleCalculateDamage(source, sourceStats, weaponStats, noteResult, dest, destStats);
         }
     });
 }
@@ -282,13 +283,13 @@ void TokenInventory::NotifyPreHitBattleCalculateDamage(Enemy& source, EnemyStats
     });
 }
 
-void TokenInventory::NotifyTakeDamage(int& damage) 
+void TokenInventory::NotifyTakeDamage(CharacterBase* dest, int& damage, QTE::NoteResult* qteResult)
 {
-    NotifyTokenEvent([this, &damage](Token& token) {
+    NotifyTokenEvent([this, dest, &damage, &qteResult](Token& token) {
         bool valid = HasTokenFromID(token.GetTokenID());
         if (valid)
         {
-            token.OnTakeDamage(&_owner, damage);
+            token.OnTakeDamage(&_owner, dest, damage, qteResult);
         }
     });
 }
