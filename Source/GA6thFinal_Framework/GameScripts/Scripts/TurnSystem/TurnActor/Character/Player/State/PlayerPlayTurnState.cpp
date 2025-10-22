@@ -302,7 +302,7 @@ void PlayerPlayTurnState::SetAttackEnd()
     }
 }
 
-void PlayerPlayTurnState::BattleOnHitEvent(const QTE::NoteResult& result) 
+void PlayerPlayTurnState::BattleOnHitEvent(QTE::NoteResult& result) 
 {
     Battle::EnemyTargetFlag_ target = GetAttackTargetFromButton(result.PressedButton);
     Player& player = GetPlayer();
@@ -355,9 +355,9 @@ void PlayerPlayTurnState::OnQTEFinish()
     QTESystem* qteSystem = SingletonComponent<QTESystem>::GetInstance();
     if (qteSystem)
     {
-        const QTE::OverallResult& results = qteSystem->GetQTEOverallResult();
-        const auto& noteResults = results.NoteResults;
-        for (const auto& result : noteResults)
+        QTE::OverallResult& results = qteSystem->GetQTEOverallResult();
+        auto& noteResults = results.NoteResults;
+        for (auto& result : noteResults)
         {
             float qteDelay  = qteSystem->GetDelayFromQTEStart();
             const QTE::NoteData* note = result.NoteData;

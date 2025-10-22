@@ -356,7 +356,7 @@ void TokenInventory::NotifyTakeDamage(int& damage)
             int count = GetTokenStackFromID(token->GetTokenID());
             if (0 < count)
             {
-                token->OnTakeDamage(damage);
+                token->OnTakeDamage(&_owner, damage);
             }
         }
     }
@@ -372,7 +372,7 @@ void TokenInventory::NotifyRollRandomSpeed(int& randomSpeed)
             int count = GetTokenStackFromID(token->GetTokenID());
             if (0 < count)
             {
-                token->OnRollRandomSpeed(randomSpeed);
+                token->OnRollRandomSpeed(&_owner, randomSpeed);
             }
         }
     }

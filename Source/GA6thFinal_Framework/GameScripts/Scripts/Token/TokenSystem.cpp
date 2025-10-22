@@ -1,5 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "TokenSystem.h"
+#include "ExcelDataSystem/ExcelDataSystem.h"
+#include "Utility/StringHelper.h"
 
 UMREAL_COMPONENT(TokenSystem)
 
@@ -24,7 +26,13 @@ void TokenSystem::Reset()
 void TokenSystem::Awake() 
 {
     Base::Awake();
-    _singletonComponent.TrySingleTon();
+    if (_singletonComponent.TrySingleTon())
+    {
+        if (ExcelDataSystem* dataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
+        {
+            LoadTokenDataFromExcelData(dataSystem);
+        }
+    }
 }
 
 void TokenSystem::OnDestroy() 
@@ -149,7 +157,46 @@ void TokenSystem::LoadTokenDataFromExcelData(ExcelDataSystem* dataSystem)
 {
     if (dataSystem)
     {
-
+        std::unique_ptr<ExcelDataBase> dataBase = dataSystem->FindExcelDataBase(u8"토큰");
+        assert(dataBase); // [assert] 엑셀 데이터 시스템에 해당 시트가 존재해야합니다.
+        if (dataBase)
+        {
+            const size_t rowCount = dataBase->RowCount();
+            for (size_t rowIndex = 0; rowIndex < rowCount; ++rowIndex)
+            {
+                TokenData        tokenData;
+                std::string_view excelData;
+                excelData = dataBase->FindData(rowIndex, TokenExcelData::Key::ID);
+                if (excelData != ExcelDataBase::FIND_STR_FAIL)
+                {
+                    tokenData.ID = StringHelper::StringToInt(excelData);
+                }
+                excelData = dataBase->FindData(rowIndex, TokenExcelData::Key::NAME);
+                if (excelData != ExcelDataBase::FIND_STR_FAIL)
+                {
+                    tokenData.Name = excelData;
+                }
+                excelData = dataBase->FindData(rowIndex, TokenExcelData::Key::ORDER);
+                if (excelData != ExcelDataBase::FIND_STR_FAIL)
+                {
+                    tokenData.Order = StringHelper::StringToInt(excelData);
+                }
+                excelData = dataBase->FindData(rowIndex, TokenExcelData::Key::MAX_STACK);
+                if (excelData != ExcelDataBase::FIND_STR_FAIL)
+                {
+                    tokenData.MaxStack = StringHelper::StringToInt(excelData);
+                }
+                excelData = dataBase->FindData(rowIndex, TokenExcelData::Key::PARAMETER);
+                if (excelData != ExcelDataBase::FIND_STR_FAIL)
+                {
+                    std::vector<int> params = StringHelper::ParseCSVToInt(excelData);
+                    for (const auto& param : params)
+                    {
+                        tokenData.Params.push_back(param);
+                    }
+                }
+            }
+        }
     }
 }
 

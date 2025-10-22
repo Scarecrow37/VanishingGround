@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <Token/Common/TokenCommon.h>
 #include <Token/Token.h>
 #include <Token/Object/Bleed/BleedToken.h>
 #include <Token/Object/Poison/PoisonToken.h>
@@ -136,6 +137,8 @@ private:
     inline static std::unordered_map<std::string, int>                      _tokenNameToIDTable;    // 토큰 이름과 ID를 매핑한 테이블
     inline static std::unordered_map<int, std::string>                      _tokenIDToNameTable;    // 토큰 ID와 이름을 매핑한 테이블
     
+
+    std::unordered_map<TokenID, TokenData> _tokenDataTable; // 토큰 데이터 테이블
     inline static std::unordered_map<int, std::function<Token*()>>          _tokenIDFactoryTable;   // 토큰 ID별로 토큰 생성 팩토리 함수
 };
 
