@@ -42,9 +42,10 @@ void ApplyDamage::ImGuiDrawActionEditor()
         UpdateInfoText();
     }
 
-    constexpr std::array<std::u8string_view, 1> TRIGGER_TOOLTIP = 
+    constexpr std::array<std::u8string_view, 2> TRIGGER_TOOLTIP = 
     { 
-        GetTriggerToolTip(TriggerType::QTE_END)
+        GetTriggerToolTip(TriggerType::QTE_END),
+        GetTriggerToolTip(TriggerType::WEAPON_KILL_ENEMY)
     };
     ImGuiHelper::EnumCombo<TriggerType>(u8"트리거"_c_str, ReflectFields->Trigger, [this](std::pair<std::string_view, TriggerType> pair)
     { 
