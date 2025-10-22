@@ -176,6 +176,12 @@ void CharacterBase::Dead()
 
 void CharacterBase::TakeDamage(int damage, bool playAnim) 
 {
+    // 데미지가 0 이하일 경우 무시
+    if (damage <= 0)
+    {
+        return;
+    }
+
     CharacterStats* stats = GetCharacterStats();
     if (stats)
     {
@@ -188,7 +194,7 @@ void CharacterBase::TakeDamage(int damage, bool playAnim)
 
         OnHit();
     }
-    if (State != STATE::Dead)
+    if (false == IsDead())
     {
         if (playAnim && _animationComponent)
         {

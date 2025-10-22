@@ -127,15 +127,9 @@ void Battle::BattleStart(Player& attacker, Enemy& target, QTE::NoteResult& resul
 
         int damage = 0;
 
-        {
-            TokenInventory& tokenInventory = attacker.GetTokenInventory();
-            tokenInventory.NotifyPreAttackBattleCalculateDamage(attacker, playerStats, weaponStats, result, target,
-                                                                enemyStats);
-        }
-        {
-            TokenInventory& tokenInventory = target.GetTokenInventory();
-            tokenInventory.NotifyPreHitBattleCalculateDamage(target, enemyStats, attacker, playerStats);
-        }
+
+        attacker.GetTokenInventory().NotifyPreAttackBattleCalculateDamage(attacker, playerStats, weaponStats, result, target, enemyStats);
+        target.GetTokenInventory().NotifyPreHitBattleCalculateDamage(target, enemyStats, attacker, playerStats);
 
         turnMode->ApplyActions([&](TurnAction& action) {
             action.OnPlayerBattlePreCalculate(attacker, playerStats, weaponStats, target, enemyStats, result);
@@ -199,14 +193,8 @@ void Battle::BattleStart(Enemy& attacker, Player& target)
         EnemyInfo  enemyInfo(attacker, enemyStats);
         PlayerInfo playerInfo(target, weaponSystem->GetCurrentWeaponElement().Stats, playerStats);
 
-         {
-            TokenInventory& tokenInventory = attacker.GetTokenInventory();
-            tokenInventory.NotifyPreAttackBattleCalculateDamage(attacker, enemyStats, target, playerStats);
-        }
-        {
-            TokenInventory& tokenInventory = target.GetTokenInventory();
-            tokenInventory.NotifyPreHitBattleCalculateDamage(target, playerStats, attacker, enemyStats);
-        }
+        attacker.GetTokenInventory().NotifyPreAttackBattleCalculateDamage(attacker, enemyStats, target, playerStats);
+        target.GetTokenInventory().NotifyPreHitBattleCalculateDamage(target, playerStats, attacker, enemyStats);
 
         turnMode->ApplyActions(
             [&](TurnAction& action) { action.OnEnemyBattleCalculateDamageModifier(attacker, enemyStats, target, playerStats); });
