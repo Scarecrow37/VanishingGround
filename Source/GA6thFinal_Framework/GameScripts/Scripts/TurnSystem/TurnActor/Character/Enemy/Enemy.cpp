@@ -217,10 +217,11 @@ void Enemy::OnCombatStart()
 
 void Enemy::OnRoundStart()
 {
-    Base::OnRoundStart();
+    // 라운드 Start 이전에 Random Speed를 뽑아둠.
     _randomSpeed = Random::Range(DEFINE::RANDOMSPEED_MIN, DEFINE::RANDOMSPEED_MAX);
     TokenInventory& tokenInventory = GetTokenInventory();
     tokenInventory.NotifyRollRandomSpeed(_randomSpeed);
+    Base::OnRoundStart();
 }
 
 void Enemy::OnRoundEnd()

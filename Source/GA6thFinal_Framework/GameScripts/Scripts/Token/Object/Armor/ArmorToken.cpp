@@ -8,12 +8,38 @@ namespace TokenObject
 {
     REGISTER_TOKEN(Armor1)
     REFLECT_FUNCTION(Armor1)
-    void Armor1::OnPreHitBattleCalculateDamage(Player& attacker, PlayerStats& attackerStats, Enemy& target,
-                                               EnemyStats& targetStats)
+    REGISTER_TOKEN(Armor2)
+    REFLECT_FUNCTION(Armor2)
+    REGISTER_TOKEN(Armor3)
+    REFLECT_FUNCTION(Armor3)
+    void Armor1::OnTakeDamage(CharacterBase* source, int& damage)
     {
+        float newDamage = static_cast<float>(damage) * (1.0f - ReflectFields->DamageReductionFactor);
+        damage = static_cast<int>(std::ceilf(newDamage));
+        if (source)
+        {
+            TokenInventory& tokenInventory = source->GetTokenInventory();
+            tokenInventory.RemoveTokenStackFromID(ID);
+        }
     }
-    void Armor1::OnPreHitBattleCalculateDamage(Enemy& attacker, EnemyStats& attackerStats, Player& target,
-                                               PlayerStats& targetStats)
+    void Armor2::OnTakeDamage(CharacterBase* source, int& damage) 
     {
+        float newDamage = static_cast<float>(damage) * (1.0f - ReflectFields->DamageReductionFactor);
+        damage = static_cast<int>(std::ceilf(newDamage));
+        if (source)
+        {
+            TokenInventory& tokenInventory = source->GetTokenInventory();
+            tokenInventory.RemoveTokenStackFromID(ID);
+        }
+    }
+    void Armor3::OnTakeDamage(CharacterBase* source, int& damage) 
+    {
+        float newDamage = static_cast<float>(damage) * (1.0f - ReflectFields->DamageReductionFactor);
+        damage = static_cast<int>(std::ceilf(newDamage));
+        if (source)
+        {
+            TokenInventory& tokenInventory = source->GetTokenInventory();
+            tokenInventory.RemoveTokenStackFromID(ID);
+        }
     }
 } // namespace TokenObject

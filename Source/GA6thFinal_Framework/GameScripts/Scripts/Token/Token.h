@@ -78,9 +78,9 @@ public: // 콜백에 대한 자세한 주석은 ITriggerType.h를 참고하세�
     virtual void OnPreHitBattleCalculateDamage(Enemy& attacker, EnemyStats& attackerStats, Player& target,
                                                PlayerStats& targetStats) override               {}
 
-    virtual void OnTakeDamage(int& damage) override                                             {}
+    virtual void OnTakeDamage(CharacterBase* source, int& damage) override {}
 
-    virtual void OnRollRandomSpeed(int& speed) override                                         {}
+    virtual void OnRollRandomSpeed(CharacterBase* source, int& speed) override {}
 
 public:
     virtual bool CanAdd(CharacterBase* owner) const override;

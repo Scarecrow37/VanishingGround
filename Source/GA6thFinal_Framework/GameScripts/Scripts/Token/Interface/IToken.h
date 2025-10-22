@@ -89,9 +89,9 @@ private: // ITriggerType을(를) 통해 상속됨.
     virtual void OnPreHitBattleCalculateDamage(Enemy& attacker, EnemyStats& attackerStats, Player& target,
                                                PlayerStats& targetStats)                        = 0;
 
-    virtual void OnTakeDamage(int& damage)                                                      = 0;
+    virtual void OnTakeDamage(CharacterBase* source, int& damage) = 0;
 
-    virtual void OnRollRandomSpeed(int& speed)                                                  = 0;
+    virtual void OnRollRandomSpeed(CharacterBase* source, int& speed) = 0;
 
 public:
     virtual bool        CanAdd(CharacterBase* owner) const      = 0;
