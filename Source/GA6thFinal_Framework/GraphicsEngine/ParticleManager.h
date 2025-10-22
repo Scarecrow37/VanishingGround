@@ -10,12 +10,10 @@ private:
     // -------------------------------------
     ComPtr<ID3D12CommandAllocator>    _computeAllocator;
     ComPtr<ID3D12GraphicsCommandList> _computeCommandList;
-
-    ComPtr<ID3D12RootSignature>       _computeSpriteRootSignature;
     ComPtr<ID3D12PipelineState>       _computeSpritePSO;
-
-    ComPtr<ID3D12RootSignature>       _computeRibbonRootSignature;
     ComPtr<ID3D12PipelineState>       _computeRibbonPSO;
+    ComPtr<ID3D12PipelineState>       _computeRibbonInterpolatePSO;
+
 
     // -------------------------------------
     // [ Scene & Resource Management ]
@@ -132,4 +130,14 @@ private:
     void UpdateMvpConstant(float deltaTime, ParticleRenderResource* scene);
     void UpdateLifeCycle(float deltaTime);
     void RefreshCurrentEditorEffect();
+
+    // =================================================================================================================
+    // [ 11. Ribbon Tessellation ]
+    // =================================================================================================================
+    void CreateRibbonTessResources(struct ParticleSceneResource& scene, UINT tessFactorFixed) noexcept;
+    void PrepareRibbonTessInputsCPU(struct ParticleSceneResource& scene, UINT tessFactorFixed, UINT& outTotalSegments);
+    void DispatchRibbonInterpolateCS(struct ParticleSceneResource& scene, UINT tessFactorFixed, UINT totalSegments);
+    void UploadStructuredBuffer(ID3D12GraphicsCommandList* cl, ComPtr<ID3D12Resource>& defaultRes,
+                                ComPtr<ID3D12Resource>& uploadRes, const void* src, UINT byteSize);
+
 };

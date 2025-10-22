@@ -19,14 +19,14 @@ $shaderModel = "5_1"
 $isDebugBuild = $false
 
 # 7. 컴파일 옵션 설정
-$baseCompileFlags = @("/Ges", "/enable_unbounded_descriptor_tables", "/Zpc")
-$debugCompileFlags = @("/Zi", "/Od")
-$releaseCompileFlags = @("/O3")
+$baseCompileFlags   = @("/Ges", "/enable_unbounded_descriptor_tables", "/Zpc")
+$debugCompileFlags  = @("/Zi", "/Od")
+$releaseCompileFlags= @("/O3")
 
 #endregion
 
 
-# --- 스크립트 본문 (여기부터는 수정할 필요 없음) ---
+# --- 스크립트 본문 ---
 
 # 빌드 구성에 따라 최종 컴파일 플래그 결정
 $finalCompileFlags = $baseCompileFlags
@@ -39,25 +39,23 @@ if ($isDebugBuild) {
 }
 Write-Host "Applied compile options: $($finalCompileFlags -join ' ')"
 
-
 # 출력 폴더가 없으면 생성
 if (-not (Test-Path $shaderOutputPath)) {
     Write-Host "Creating output directory: $shaderOutputPath"
-    New-Item -ItemType Directory -Force -Path $shaderOutputPath
+    New-Item -ItemType Directory -Force -Path $shaderOutputPath | Out-Null
 }
 
 # fxc.exe 파일이 존재하는지 확인
 if (-not (Test-Path $fxcPath)) {
     Write-Error "fxc.exe not found. Please check the path: '$fxcPath'"
-    exit
+    exit 1
 }
 
 # 소스 폴더에서 모든 .hlsl 파일을 재귀적으로 검색
 $shaderFiles = Get-ChildItem -Path $shaderSourcePath -Filter *.hlsl -Recurse
-
-if ($null -eq $shaderFiles) {
+if (-not $shaderFiles -or $shaderFiles.Count -eq 0) {
     Write-Warning ".hlsl files not found. Please check the path: '$shaderSourcePath'"
-    exit
+    exit 1
 }
 
 # 성공적으로 컴파일된 헤더 파일 목록을 저장할 리스트
@@ -67,15 +65,14 @@ Write-Host "Found $($shaderFiles.Count) shader file(s). Starting compilation..."
 Write-Host "================================================================"
 
 foreach ($shaderFile in $shaderFiles) {
-    $baseName = $shaderFile.BaseName
-    $fileName = $shaderFile.Name
+    $baseName     = $shaderFile.BaseName
+    $fileName     = $shaderFile.Name
     $fileFullName = $shaderFile.FullName
 
+    # 파일명 접두사로 셰이더 타입 추론
     $shaderTypePrefix = ($baseName -split '_')[0].ToLower()
 
     $shaderProfile = ""
-    $entryPoint = ""
-
     switch ($shaderTypePrefix) {
         "vs" { $shaderProfile = "vs_$shaderModel" }
         "ps" { $shaderProfile = "ps_$shaderModel" }
@@ -84,48 +81,52 @@ foreach ($shaderFile in $shaderFiles) {
         "hs" { $shaderProfile = "hs_$shaderModel" }
         "ds" { $shaderProfile = "ds_$shaderModel" }
         default {
-            Write-Warning "Warning: Could not determine shader type for '$fileName'. (Check for 'vs_', 'ps_' prefix). Skipping."
+            Write-Warning "Warning: Could not determine shader type for '$fileName'. (Expect 'vs_', 'ps_', 'cs_' etc.) Skipping."
             continue
         }
     }
-    
+
+    # 엔트리 포인트는 접두사 + _main 규칙
     $entryPoint = "${shaderTypePrefix}_main"
 
     $outputHeaderName = "$($baseName).h"
     $outputHeaderPath = Join-Path $shaderOutputPath $outputHeaderName
-    $variableName = "g_$($baseName)"
+    $variableName     = "g_$($baseName)"
 
     Write-Host "Compiling: $fileName"
     Write-Host "  - Profile: $shaderProfile, Entry Point: $entryPoint"
-    
+
+    # fxc 인자 구성
     $arguments = @()
     $arguments += "/T", $shaderProfile
     $arguments += "/E", $entryPoint
     $arguments += "/Fh", $outputHeaderPath
     $arguments += "/Vn", $variableName
+    # Include 경로 보강: 루트 + 각 파일의 폴더
+    $arguments += "/I", $shaderSourcePath
+    $arguments += "/I", $shaderFile.DirectoryName
+    # 나머지 플래그와 파일 경로
     $arguments += $finalCompileFlags
     $arguments += $fileFullName
 
+    # 실행 및 캡처
     $result = & $fxcPath $arguments 2>&1
 
     if ($LASTEXITCODE -ne 0) {
         Write-Error "Error: Failed to compile '$fileName'."
-        Write-Error $result
+        # 배열을 문자열로 합쳐 실제 컴파일 에러를 그대로 보여준다
+        Write-Error ($result -join "`n")
     } else {
-        # --- [핵심 수정] 파일 잠금 문제를 피하기 위해 짧은 지연 후 처리 ---
         try {
-            # 0.1초 대기하여 fxc.exe의 파일 핸들이 완전히 해제되도록 보장
+            # fxc의 파일 핸들 해제를 기다림(간헐적 파일 잠금 회피)
             Start-Sleep -Milliseconds 100
 
-            # fxc가 생성한 파일을 읽음
+            # fxc가 생성한 헤더에서 변수 선언 블록만 남기도록 정리
             $fileContent = Get-Content -Path $outputHeaderPath -Raw
-            
-            # 정규식을 사용해 'const BYTE ...' 변수 선언 라인 전체를 찾음
-            $pattern = "(?s)const\s+BYTE\s+$($variableName)\[\].*?};"
+            $pattern = "(?s)const\s+BYTE\s+$([regex]::Escape($variableName))\[\].*?};"
             $match = [regex]::Match($fileContent, $pattern)
 
             if ($match.Success) {
-                # 찾은 내용만으로 파일을 덮어씀
                 Set-Content -Path $outputHeaderPath -Value $match.Value -Encoding ASCII
                 Write-Host "  - Success (cleaned): $outputHeaderPath" -ForegroundColor Green
                 $compiledHeaders.Add($outputHeaderName)
@@ -133,16 +134,16 @@ foreach ($shaderFile in $shaderFiles) {
                 Write-Error "Error: Could not find variable declaration in '$outputHeaderPath'. The file might be corrupted."
             }
         } catch {
-            Write-Error "Error: Failed to process and clean '$outputHeaderPath'. Exception: $_"
+            Write-Error ("Error: Failed to process and clean '$outputHeaderPath'. Exception: " + $_)
         }
-        # --------------------------------------------------
     }
+
     Write-Host "----------------------------------------------------------------"
 }
 
-# --- (이후 코드는 동일) ---
 Write-Host "================================================================"
 
+# 마스터 헤더 생성
 if ($compiledHeaders.Count -gt 0) {
     $masterHeaderPath = Join-Path $shaderOutputPath $masterHeaderFileName
     Write-Host "Generating master header file: $masterHeaderPath"

@@ -7,6 +7,8 @@
 
 ComputeFX<GE::CS::COMPUTE_SPRITE> computeSpriteFX;
 ComputeFX<GE::CS::COMPUTE_RIBBON> computeRibbonFX;
+ComputeFX<GE::CS::RIBBON_INTERPOLATE> computeRibbonInterpolateFX; // NEW
+
 // =================================================================================================================
 // [ 1. Constructor / Destructor & Initialize ]
 // =================================================================================================================
@@ -61,6 +63,10 @@ void ParticleManager::AddSceneResource(std::string_view sceneName)
 
             CreateConstantBuffer(newSceneResource.RenderParticleResource->MvpConstant, mvpConstantSize);
             newSceneResource.RenderParticleResource->MvpConstant->SetName((wSceneName + L" mvp constants").c_str());
+
+            CreateRibbonTessResources(newSceneResource, 6);
+
+
         }
 
         InitializeComputeCommandObject(newSceneResource);
@@ -110,6 +116,12 @@ void ParticleManager::AddSceneResource(std::string_view sceneName)
             CreateUAVBuffer(newSceneResource.RenderParticleResource->RibbonSimulationOutput, particleOutputSize, sizeof(ParticleOutput));
             newSceneResource.RenderParticleResource->RibbonSimulationOutput->SetName((wSceneName + L" ribbon output").c_str());
         }
+
+        // tessell resource
+        {
+            CreateRibbonTessResources(newSceneResource, 6);
+        }
+
         // MVP constant buffer (for RenderResource)
         {
             CreateConstantBuffer(newSceneResource.RenderParticleResource->MvpConstant, mvpConstantSize);
@@ -248,13 +260,28 @@ void ParticleManager::Update(const float deltaTime)
 
             UpdateMvpConstant(deltaTime, scene.RenderParticleResource.get());
 
+            // --- Sprite ---
             scene.CommandList->SetPipelineState(_computeSpritePSO.Get());
             scene.CommandList->SetComputeRootSignature(computeSpriteFX.GetRootSignature());
             DispatchSprite(deltaTime, scene.Name);
 
+            // --- Ribbon (원본 시뮬) ---
             scene.CommandList->SetPipelineState(_computeRibbonPSO.Get());
             scene.CommandList->SetComputeRootSignature(computeRibbonFX.GetRootSignature());
             DispatchRibbon(deltaTime, scene.Name);
+
+            // --- NEW: CS 기반 리본 테셀 (고정 팩터 6) ---
+            {
+                constexpr UINT kTessFactorFixed = 12;
+
+                // CS → CS 순서 보장
+                auto uavBarrier = CD3DX12_RESOURCE_BARRIER::UAV(nullptr);
+                scene.CommandList->ResourceBarrier(1, &uavBarrier);
+
+                UINT totalSegments = 0;
+                PrepareRibbonTessInputsCPU(scene, kTessFactorFixed, totalSegments);
+                DispatchRibbonInterpolateCS(scene, kTessFactorFixed, totalSegments);
+            }
 
             scene.CommandList->Close();
             Global::commandController->ExecuteCommand(COMPUTE_QUEUE, scene.CommandList.Get());
@@ -363,10 +390,10 @@ const std::vector<UINT>& ParticleManager::GetActiveRibbonAlbedos(std::string_vie
 ID3D12Resource* ParticleManager::GetRibbonOutputResource(std::string_view sceneName)
 {
     auto sName = std::string(sceneName);
-    auto it = _sceneResources.find(sName);
+    auto it    = _sceneResources.find(sName);
     if (it != _sceneResources.end())
     {
-        return it->second.RenderParticleResource->RibbonSimulationOutput.Get();
+        return it->second.RenderParticleResource->RibbonInterpolatedOutput.Get();
     }
     return nullptr;
 }
@@ -544,6 +571,11 @@ void ParticleManager::InitializeParticleComputePSO()
         ComputePipelineStateStream pss;
         computeRibbonFX.SetPipelineStateStream(pss);
         _computeRibbonPSO = Global::pipelineStateManager->GetPipelineState(pss);
+    }
+    {
+        ComputePipelineStateStream pss;
+        computeRibbonInterpolateFX.SetPipelineStateStream(pss);
+        _computeRibbonInterpolatePSO = Global::pipelineStateManager->GetPipelineState(pss);
     }
 }
 
@@ -914,4 +946,178 @@ void ParticleManager::RefreshCurrentEditorEffect()
         _editorCurrentEffect->Play();
     }
     _editorRefreshFlag = false;
+}
+
+// =================================================================================================================
+// [ 11. Ribbon Tessellation ]
+// =================================================================================================================
+
+void ParticleManager::CreateRibbonTessResources(ParticleSceneResource& scene, UINT tessFactorFixed) noexcept
+{
+    auto&      rnd                 = *scene.RenderParticleResource;
+    const UINT cap                 = _maxParticles * tessFactorFixed;
+    rnd.RibbonInterpolatedCapacity = cap;
+
+    CreateUAVBuffer(rnd.RibbonInterpolatedOutput, cap * sizeof(ParticleOutput), sizeof(ParticleOutput));
+    CreateStructuredBuffer(rnd.RibbonConcatIndices, rnd.RibbonConcatIndicesUpload, _maxParticles * sizeof(UINT), sizeof(UINT));
+    CreateStructuredBuffer(rnd.RibbonEmitOffsets, rnd.RibbonEmitOffsetsUpload, (_maxEmitters + 1) * sizeof(UINT), sizeof(UINT));
+    CreateStructuredBuffer(rnd.RibbonEmitStarts, rnd.RibbonEmitStartsUpload, _maxEmitters * sizeof(UINT), sizeof(UINT));
+}
+
+void ParticleManager::PrepareRibbonTessInputsCPU(ParticleSceneResource& scene, UINT tessFactorFixed,
+                                                 UINT& outTotalSegments)
+{
+    auto& upd = *scene.UpdateParticleResource;
+    auto& rnd = *scene.RenderParticleResource;
+
+    // 0) 원본 인덱스 백업(드로우용으로 upd.RibbonIndices를 다시 쓸 것이므로)
+    scene.UpdateParticleResource->RibbonIndicesRawBackup = upd.RibbonIndices;
+    const auto& raw                                      = scene.UpdateParticleResource->RibbonIndicesRawBackup;
+
+    const size_t emitterCount = raw.size();
+
+    std::vector<UINT> concatIndices;
+    concatIndices.reserve(_maxParticles);
+    std::vector<UINT> emitOffsets(emitterCount + 1, 0); // +1: 가드 슬롯
+    std::vector<UINT> emitStarts(emitterCount, 0);
+
+    size_t concatCursor = 0;
+    outTotalSegments    = 0;
+
+    // 1) ConcatIdx/EmitOffsets 생성 + 세그먼트 수 합산(쌍 단위)
+    for (size_t e = 0; e < emitterCount; ++e)
+    {
+        emitOffsets[e] = static_cast<UINT>(concatCursor);
+
+        const auto& src = raw[e]; // (Top,Bottom,Top,Bottom,...)
+        for (const auto& it : src)
+            concatIndices.push_back(it.Index);
+
+        concatCursor += src.size();
+
+        const UINT N        = static_cast<UINT>(src.size());     // 원본 포인트 수
+        const UINT anchors  = (N >= 2) ? (N >> 1) : 0;           // 쌍 수
+        const UINT segCount = (anchors > 1) ? (anchors - 1) : 0; // 세그먼트 수
+
+        outTotalSegments += segCount;
+    }
+    emitOffsets[emitterCount] = static_cast<UINT>(concatIndices.size()); // 가드
+
+    // 2) 출력 시작(prefix): Σ_e (segCount_e * F * 2)  ← *2: (Top,Bottom)
+    UINT outPrefix = 0;
+    for (size_t e = 0; e < emitterCount; ++e)
+    {
+        const UINT N        = static_cast<UINT>(raw[e].size());
+        const UINT anchors  = (N >= 2) ? (N >> 1) : 0;
+        const UINT segCount = (anchors > 1) ? (anchors - 1) : 0;
+
+        emitStarts[e] = outPrefix;
+        outPrefix += segCount * tessFactorFixed * 2;
+    }
+
+    // 3) 드로우용 인덱스 재구성(연속 인덱스)
+    upd.RibbonIndices.resize(emitterCount);
+    for (size_t e = 0; e < emitterCount; ++e)
+    {
+        const UINT N        = static_cast<UINT>(raw[e].size());
+        const UINT anchors  = (N >= 2) ? (N >> 1) : 0;
+        const UINT segCount = (anchors > 1) ? (anchors - 1) : 0;
+
+        const UINT outCount = segCount * tessFactorFixed * 2; // *2: Top/Bottom
+        const UINT outStart = emitStarts[e];
+
+        auto& dst = upd.RibbonIndices[e];
+        dst.resize(outCount);
+        for (UINT i = 0; i < outCount; ++i)
+            dst[i].Index = outStart + i; // 0..outCount-1 + emitter 시작 오프셋
+    }
+
+    // 4) GPU 업로드
+    UploadStructuredBuffer(scene.CommandList.Get(), rnd.RibbonConcatIndices, rnd.RibbonConcatIndicesUpload,
+                           concatIndices.data(), static_cast<UINT>(concatIndices.size() * sizeof(UINT)));
+
+    UploadStructuredBuffer(scene.CommandList.Get(), rnd.RibbonEmitOffsets, rnd.RibbonEmitOffsetsUpload,
+                           emitOffsets.data(), static_cast<UINT>(emitOffsets.size() * sizeof(UINT)));
+
+    UploadStructuredBuffer(scene.CommandList.Get(), rnd.RibbonEmitStarts, rnd.RibbonEmitStartsUpload, emitStarts.data(),
+                           static_cast<UINT>(emitStarts.size() * sizeof(UINT)));
+}
+
+void ParticleManager::DispatchRibbonInterpolateCS(ParticleSceneResource& scene, UINT tessFactorFixed, UINT totalSegments)
+{
+    if (totalSegments == 0)
+        return;
+
+    auto* commandList  = scene.CommandList.Get();
+    auto& rnd = *scene.RenderParticleResource;
+
+    // PSO/RS 설정 (일원화: 여기에서 수행)
+    commandList -> SetPipelineState(_computeRibbonInterpolatePSO.Get());
+    commandList -> SetComputeRootSignature(computeRibbonInterpolateFX.GetRootSignature());
+
+    // 바인딩: t0 InPoints, t1 ConcatIdx, t2 EmitOffsets, t3 EmitStarts, u0 OutPoints
+    commandList -> SetComputeRootShaderResourceView(computeRibbonInterpolateFX.GetRootParameterIndex("InPoints"),
+                                         rnd.RibbonSimulationOutput->GetGPUVirtualAddress());
+
+    commandList -> SetComputeRootShaderResourceView(computeRibbonInterpolateFX.GetRootParameterIndex("ConcatIdx"),
+                                         rnd.RibbonConcatIndices->GetGPUVirtualAddress());
+
+    commandList -> SetComputeRootShaderResourceView(computeRibbonInterpolateFX.GetRootParameterIndex("EmitOffsets"),
+                                         rnd.RibbonEmitOffsets->GetGPUVirtualAddress());
+
+    commandList -> SetComputeRootShaderResourceView(computeRibbonInterpolateFX.GetRootParameterIndex("EmitStarts"),
+                                         rnd.RibbonEmitStarts->GetGPUVirtualAddress());
+
+    commandList -> SetComputeRootUnorderedAccessView(computeRibbonInterpolateFX.GetRootParameterIndex("OutPoints"),
+                                          rnd.RibbonInterpolatedOutput->GetGPUVirtualAddress());
+
+    // 32-bit 상수: TessFactor, TotalSegments
+    struct TessParams
+    {
+        UINT TessFactor;
+        UINT TotalSegments;
+        UINT _pad0;
+        UINT _pad1;
+    } tp;
+    tp.TessFactor    = tessFactorFixed;
+    tp.TotalSegments = totalSegments;
+    commandList -> SetComputeRoot32BitConstants(computeRibbonInterpolateFX.GetRootParameterIndex("bit32_4_tessellationParams"), 4, &tp, 0);
+
+    // 한 세그먼트당 1 스레드
+    const UINT kGroupSize = 128u;
+    const UINT gx         = (totalSegments + (kGroupSize - 1u)) / kGroupSize;
+    commandList -> Dispatch(gx, 1, 1);
+}
+void ParticleManager::UploadStructuredBuffer(ID3D12GraphicsCommandList* commandList, ComPtr<ID3D12Resource>& defaultRes, ComPtr<ID3D12Resource>& uploadRes, const void* src, UINT byteSize)
+{
+    // 목적지 용량 확인
+    const auto dstDesc = defaultRes->GetDesc();
+    if (byteSize > dstDesc.Width)
+    {
+        OutputDebugStringA(("UploadStructuredBuffer: byteSize overflow! requested=" + std::to_string(byteSize) +
+                            " > dstCapacity=" + std::to_string(static_cast<UINT>(dstDesc.Width)) + "\n")
+                               .c_str());
+
+        byteSize = static_cast<UINT>(dstDesc.Width);
+    }
+
+    // 1) UPLOAD에 memcpy
+    void* mapped = nullptr;
+    FAILED_CHECK_MESSAGE(uploadRes->Map(0, nullptr, &mapped), L"Upload buffer Map failed");
+    memcpy(mapped, src, byteSize);
+    uploadRes->Unmap(0, nullptr);
+
+    // 2) DEFAULT 전이: COMMON(or SRV) -> COPY_DEST
+    auto pre = CD3DX12_RESOURCE_BARRIER::Transition(defaultRes.Get(),
+                                                    D3D12_RESOURCE_STATE_COMMON, // 초기 상태가 다르면 여기 맞춰 수정
+                                                    D3D12_RESOURCE_STATE_COPY_DEST);
+    commandList->ResourceBarrier(1, &pre);
+
+    // 3) 복사
+    commandList->CopyBufferRegion(defaultRes.Get(), 0, uploadRes.Get(), 0, byteSize);
+
+    // 4) DEFAULT 전이: COPY_DEST -> NON_PIXEL_SHADER_RESOURCE
+    auto post = CD3DX12_RESOURCE_BARRIER::Transition(defaultRes.Get(), D3D12_RESOURCE_STATE_COPY_DEST,
+                                                     D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+    commandList->ResourceBarrier(1, &post);
 }

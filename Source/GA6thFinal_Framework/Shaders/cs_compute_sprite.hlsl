@@ -1,9 +1,9 @@
 #include "Compute.hlsli"
 
-StructuredBuffer<ParticleInput> ParticleInputBuffer : register(t0);
-StructuredBuffer<EmitterInfo> EmitterInfoBuffer : register(t1);
-RWStructuredBuffer<ParticleOutput> ParticleOutputBuffer : register(u0);
-ConstantBuffer<MVP> mvp : register(b0);
+StructuredBuffer<ParticleInput> ParticleInputBuffer;
+StructuredBuffer<EmitterInfo> EmitterInfoBuffer;
+RWStructuredBuffer<ParticleOutput> ParticleOutputBuffer;
+ConstantBuffer<MVP> mvp;
 
 float4x4 GetBillBoardRotationMatrix(float3 particleAxis, float3 particleWorldPos,float4x4 worldmatrix)
 {

@@ -4,10 +4,6 @@ StructuredBuffer<EmitterInfo> EmitterInfoBuffer : register(t1);
 RWStructuredBuffer<ParticleOutput> ParticleOutputBuffer : register(u0);
 ConstantBuffer<MVP> mvp : register(b0);
 
-
-
-
-
 [numthreads(64, 1, 1)]
 void cs_main(uint3 DTid : SV_DispatchThreadID)
 {

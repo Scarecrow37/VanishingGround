@@ -73,6 +73,7 @@ namespace GE
         LIGHT_INJECTION,
         PREFILTERED_MAP,
         RESOLVE_UI,
+        RIBBON_INTERPOLATE,
         SKELETAL_SKINNING,
         SSGI_TEMPORAL,
         END

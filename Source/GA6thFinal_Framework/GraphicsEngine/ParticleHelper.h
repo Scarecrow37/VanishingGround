@@ -141,6 +141,8 @@ struct ParticleUpdateResource
     std::vector<UINT>                     RibbonActiveEmitterAlbedos;
     std::vector<std::vector<RibbonIndex>> RibbonIndices;
     UINT                                  RibbonTotalCount = 0;
+    std::vector<std::vector<RibbonIndex>> RibbonIndicesRawBackup;
+
 
     ComPtr<ID3D12Resource> ParticleInput;
     ComPtr<ID3D12Resource> EmitterInfo;
@@ -155,10 +157,31 @@ struct ParticleUpdateResource
 
 struct ParticleRenderResource
 {
-    std::string            Name;
-    ComPtr<ID3D12Resource> SimulationOutput;
-    ComPtr<ID3D12Resource> RibbonSimulationOutput;
-    ComPtr<ID3D12Resource> MvpConstant;
+    std::string Name;
+
+    // 기존 출력(그대로 유지)
+    ComPtr<ID3D12Resource> SimulationOutput;       // ParticleOutput[]
+    ComPtr<ID3D12Resource> RibbonSimulationOutput; // ParticleOutput[]
+    ComPtr<ID3D12Resource> MvpConstant;            // MVPConstants
+
+    // 세분화(인터폴레이션) 결과: VS/PS가 읽을 최종 ParticleOutput[]
+    ComPtr<ID3D12Resource> RibbonInterpolatedOutput; // UAV/SRV
+
+    // CS 입력용 보조 테이블들 (SRV) + 업로드 버퍼
+    //  - 에미터별 "원본 리본 포인트 인덱스"를 이어붙인 배열
+    ComPtr<ID3D12Resource> RibbonConcatIndices;       // SRV: uint[]
+    ComPtr<ID3D12Resource> RibbonConcatIndicesUpload; // UPLOAD
+
+    //  - ConcatIdx 내에서 각 에미터의 시작 오프셋 (size = emitterCount + 1; 마지막은 가드)
+    ComPtr<ID3D12Resource> RibbonEmitOffsets;       // SRV: uint[]
+    ComPtr<ID3D12Resource> RibbonEmitOffsetsUpload; // UPLOAD
+
+    //  - 세분화 "출력" 버퍼에서 각 에미터의 시작 오프셋 (prefix 결과)
+    ComPtr<ID3D12Resource> RibbonEmitStarts;       // SRV: uint[]
+    ComPtr<ID3D12Resource> RibbonEmitStartsUpload; // UPLOAD
+
+    // 세분화 출력 최대 수용량
+    UINT RibbonInterpolatedCapacity = 0;
 };
 
 struct ParticleSceneResource

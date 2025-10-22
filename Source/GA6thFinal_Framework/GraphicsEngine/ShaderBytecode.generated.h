@@ -82,6 +82,7 @@ namespace GE
             case CS::LIGHT_INJECTION: return { g_cs_light_injection, sizeof(g_cs_light_injection) };
             case CS::PREFILTERED_MAP: return { g_cs_prefiltered_map, sizeof(g_cs_prefiltered_map) };
             case CS::RESOLVE_UI: return { g_cs_resolve_ui, sizeof(g_cs_resolve_ui) };
+            case CS::RIBBON_INTERPOLATE: return { g_cs_ribbon_interpolate, sizeof(g_cs_ribbon_interpolate) };
             case CS::SKELETAL_SKINNING: return { g_cs_skeletal_skinning, sizeof(g_cs_skeletal_skinning) };
             case CS::SSGI_TEMPORAL: return { g_cs_ssgi_temporal, sizeof(g_cs_ssgi_temporal) };
             default: return { nullptr, 0 };

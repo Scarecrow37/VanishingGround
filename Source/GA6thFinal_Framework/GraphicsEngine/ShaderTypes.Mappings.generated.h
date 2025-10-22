@@ -84,6 +84,7 @@ namespace GE
         {CS::SKELETAL_SKINNING, L"cs_skeletal_skinning.hlsl"},
         {CS::CALCULATE_MOTION_VECTOR, L"cs_calculate_motion_vector.hlsl"},
         {CS::COMPUTE_RIBBON, L"cs_compute_ribbon.hlsl"},
+        {CS::RIBBON_INTERPOLATE, L"cs_ribbon_interpolate.hlsl"},
         {CS::SSGI_TEMPORAL, L"cs_ssgi_temporal.hlsl"},
         {CS::LIGHT_INJECTION, L"cs_light_injection.hlsl"},
         {CS::RESOLVE_UI, L"cs_resolve_ui.hlsl"}
@@ -100,6 +101,7 @@ namespace GE
         {L"g_cs_skeletal_skinning", CS::SKELETAL_SKINNING},
         {L"g_cs_calculate_motion_vector", CS::CALCULATE_MOTION_VECTOR},
         {L"g_cs_compute_ribbon", CS::COMPUTE_RIBBON},
+        {L"g_cs_ribbon_interpolate", CS::RIBBON_INTERPOLATE},
         {L"g_cs_ssgi_temporal", CS::SSGI_TEMPORAL},
         {L"g_cs_light_injection", CS::LIGHT_INJECTION},
         {L"g_cs_resolve_ui", CS::RESOLVE_UI}
@@ -116,6 +118,7 @@ namespace GE
         {CS::SKELETAL_SKINNING, L"g_cs_skeletal_skinning"},
         {CS::CALCULATE_MOTION_VECTOR, L"g_cs_calculate_motion_vector"},
         {CS::COMPUTE_RIBBON, L"g_cs_compute_ribbon"},
+        {CS::RIBBON_INTERPOLATE, L"g_cs_ribbon_interpolate"},
         {CS::SSGI_TEMPORAL, L"g_cs_ssgi_temporal"},
         {CS::LIGHT_INJECTION, L"g_cs_light_injection"},
         {CS::RESOLVE_UI, L"g_cs_resolve_ui"}

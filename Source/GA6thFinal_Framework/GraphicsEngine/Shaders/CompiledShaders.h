@@ -13,6 +13,7 @@
 #include "cs_light_injection.h"
 #include "cs_prefiltered_map.h"
 #include "cs_resolve_ui.h"
+#include "cs_ribbon_interpolate.h"
 #include "cs_skeletal_skinning.h"
 #include "cs_ssgi_temporal.h"
 #include "ps_accumulation.h"
