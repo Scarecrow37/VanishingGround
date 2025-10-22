@@ -7,6 +7,8 @@ namespace TokenObject
 {
     REGISTER_TOKEN(Bleed)
 
+    REFLECT_FUNCTION(Bleed)
+
     void Bleed::OnRoundStart(CharacterBase* owner)
     {
         if (owner)

@@ -7,7 +7,7 @@
 struct CharacterStats;
 class SkeletalMeshRenderer;
 class AnimationComponent;
-class AudioTableComponent;
+class ParticleComponent;
 
 class CharacterBase abstract : public TurnActor
 {
@@ -78,8 +78,10 @@ public:
     SkeletalMeshRenderer* GetSkeletalMeshRenderer() const { return _skeletalMeshRenderer; }
     // 애니메이션 컴포넌트를 반환합니다.
     AnimationComponent*   GetAnimationComponent() const { return _animationComponent; }
-    // 오디오 테이블 컴포넌트를 반환합니다.
-    AudioTableComponent*  GetAudioTableComponent() const { return _audioTableComponent; }
+    // 파티클 컴포넌트를 반환합니다.
+    ParticleComponent* GetParticleComponent() const { return _particleComponent; }
+
+    bool FindComponent();
 
 protected:
     REFLECT_FIELDS_BEGIN(TurnActor)
@@ -89,13 +91,11 @@ private:
     TokenInventory          _tokenInventory;
     SkeletalMeshRenderer*   _skeletalMeshRenderer = nullptr;
     AnimationComponent*     _animationComponent   = nullptr;
-    AudioTableComponent*    _audioTableComponent  = nullptr;
+    ParticleComponent*      _particleComponent    = nullptr;
 
 protected:
     virtual void Awake() override;
 
-    void InitMeshModel();
-    void InitAudio();
     void InitAnimationCallback();
 
 public:

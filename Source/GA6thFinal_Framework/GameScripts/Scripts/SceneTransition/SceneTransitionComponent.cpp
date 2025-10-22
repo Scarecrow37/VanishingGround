@@ -162,6 +162,7 @@ void SceneTransitionComponent::CalculateFade()
 void SceneTransitionComponent::Awake()
 {
     _singletonObject.TrySingleTon(true);
+    _singletonComponent.TrySingleTon();
 }
 
 //void SceneTransitionComponent::OnDestroy()

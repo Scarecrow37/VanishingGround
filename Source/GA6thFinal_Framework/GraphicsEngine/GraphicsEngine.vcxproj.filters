@@ -187,7 +187,12 @@
     <FxCompile Include="..\Shaders\RTShaders.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\ps_transparent_lim_light.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
     <FxCompile Include="..\Shaders\cs_ribbon_interpolate.hlsl" />
+      <Filter>Shaders\cs</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AccelerationStructureManager.cpp">
@@ -442,7 +447,7 @@
     <ClCompile Include="ParticleSpritePass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="PBRLitTechnique.cpp">
+    <ClCompile Include="LightingTechnique.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
@@ -623,6 +628,15 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="VolumetricFogTechnique.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CustomMaterial.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CustomShaderPass.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="TransparentRimLight.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -915,7 +929,7 @@
     <ClInclude Include="ParticleSpritePass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="PBRLitTechnique.h">
+    <ClInclude Include="LightingTechnique.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="pch.h">
@@ -1107,6 +1121,15 @@
     <ClInclude Include="VolumetricFogTechnique.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="CustomMaterial.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CustomShaderPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="TransparentRimLight.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Shaders\CommonData.hlsli">
@@ -1125,6 +1148,9 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="..\Shaders\Function.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\Shaders\SDFDatas.hlsli">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

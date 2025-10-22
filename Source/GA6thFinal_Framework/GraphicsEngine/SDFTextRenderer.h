@@ -4,7 +4,12 @@
 
 class SDFFont;
 class SDFTextRenderer : public GraphicsBase, public ISDFTextRenderer
-{    
+{
+    enum FontFlags
+    {        
+        OUTLINE = 1 << 0,
+    };
+
 public:
     SDFTextRenderer();
     ~SDFTextRenderer();
@@ -21,6 +26,8 @@ public:
     const Vector3&              GetRotation() const { return _rotation; }
     const Vector3&              GetPosition() const { return _position; }
     const float                 GetFontSize() const { return _fontSize; }
+    const GE::FontOutline&      GetFontOutline() const { return _fontOutline; }
+    const UINT                  GetFontFlags() const { return _fontFlags; }
 
 public:
     void SetFont(std::shared_ptr<SDFFont> font);
@@ -31,6 +38,7 @@ public:
     void SetPosition(const Vector3& position) override;
     void SetColor(const Vector4& color) override;
     void SetFontWeight(const float fontWeight) override;
+    void SetFontOutline(const GE::FontOutline& outline) override;
 
 public:
     void AddReference() override;
@@ -65,4 +73,7 @@ private:
     ComPtr<ID3D12Resource>   _indexBuffer;
     D3D12_VERTEX_BUFFER_VIEW _vertexBufferView;
     D3D12_INDEX_BUFFER_VIEW  _indexBufferView;
+
+    FontFlags       _fontFlags;
+    GE::FontOutline _fontOutline;
 };

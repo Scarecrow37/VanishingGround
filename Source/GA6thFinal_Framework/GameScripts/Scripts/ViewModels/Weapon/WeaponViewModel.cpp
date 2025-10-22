@@ -76,7 +76,7 @@ WeaponUIData WeaponViewModel::Convert(TurnActor* const& value)
     {
         data.Enable                     = true;
         WeaponSystem*      weaponSystem = SingletonComponent<WeaponSystem>::GetInstance();
-        const WeaponStats& state        = weaponSystem->GetCurrentWeaponStats();
+        const WeaponStats& state        = weaponSystem->GetCurrentWeaponElement().Stats;
         const int          weaponId     = state.WeaponID;
         const WeaponType   type         = state.Type;
         data.WeaponIcon                 = GetWeaponIcon()(weaponId);

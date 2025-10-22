@@ -62,8 +62,9 @@ void ArtifactButtonNavi::FocusIn(FocusCallType type)
             focus->Enable = true;
     
             // UI 설정
-            if (ItemInfoUIManager* infoManager = SingletonComponent<ItemInfoUIManager>::GetInstance())
+            if (ItemDropUIRootManager* rootManager =  SingletonComponent<ItemDropUIRootManager>::GetInstance())
             {
+                ItemInfoUIManager* infoManager = rootManager->ItemInfoUI;
                 infoManager->SetItemInfoUI(_itemInfo);
             }
         }
