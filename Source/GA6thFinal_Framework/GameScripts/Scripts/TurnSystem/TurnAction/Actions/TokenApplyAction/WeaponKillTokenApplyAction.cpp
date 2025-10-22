@@ -3,6 +3,14 @@
 #include "TurnSystem/TurnSystemHelper.h"
 #include "TurnSystem/TurnActor/Character/CharacterBase.h"
 #include "Token/TokenSystem.h"
+#include "TurnSystem/TurnAction/TurnActionFactory.h"
+
+REGISTER_TURN_ACTION(WeaponKillTokenApplyAction)
+
+WeaponKillTokenApplyAction::WeaponKillTokenApplyAction() 
+{
+    UpdateActionInfo();
+}
 
 const std::string& WeaponKillTokenApplyAction::GetActionName()
 {

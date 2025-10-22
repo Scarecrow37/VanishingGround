@@ -5,7 +5,7 @@
 class WeaponKillTokenApplyAction : public TokenApplyAction
 {
 public:
-    WeaponKillTokenApplyAction() = default;
+    WeaponKillTokenApplyAction();
     ~WeaponKillTokenApplyAction() override = default;
 
 protected:
