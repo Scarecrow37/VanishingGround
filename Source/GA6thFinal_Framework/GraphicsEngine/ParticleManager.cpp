@@ -178,13 +178,16 @@ void ParticleManager::PlayEffect(EffectID id, const std::string& keyString)
     if (auto effect = FindEffect(id, keyString)) effect->Play();
 }
 
+void ParticleManager::PlayEffect(EffectID id, const std::string& keyString, EffectCallback callback) 
+{
+    if (auto effect = FindEffect(id, keyString)) effect->Play(callback);
+}
+
 void ParticleManager::StopEffect(EffectID id, const std::string& keyString)
 {
     if (auto effect = FindEffect(id, keyString)) effect->Stop();
 }
-
-
-
+ 
 // =================================================================================================================
 // [ 4. Emitter Management ]
 // =================================================================================================================
