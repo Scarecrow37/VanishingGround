@@ -145,6 +145,14 @@ void TokenSystem::UnregisterTokenInstanceToTable(Token* token)
     }
 }
 
+void TokenSystem::LoadTokenDataFromExcelData(ExcelDataSystem* dataSystem) 
+{
+    if (dataSystem)
+    {
+
+    }
+}
+
 void TokenSystem::ImGuiDrawDataTable()
 {
     ImVec2 availableSize = ImGui::GetContentRegionAvail();

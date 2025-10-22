@@ -18,6 +18,7 @@
 
 class IToken;
 class Token;
+class ExcelDataSystem;
 
 /// <summary>
 /// 토큰 시스템은 게임 내에서 사용되는 토큰인스턴스를 공유해주는 시스템입니다.
@@ -48,6 +49,8 @@ private:
     void RegisterTokenInstanceToTable(Token* token);
     // 테이블에서 제거
     void UnregisterTokenInstanceToTable(Token* token);
+
+    void LoadTokenDataFromExcelData(ExcelDataSystem* dataSystem);
 
     void ImGuiDrawDataTable();
     void ImGuiDrawMenuBar();
@@ -129,10 +132,11 @@ private:
     inline static std::unordered_map<int, Token*>                           _tokenIDTable;          // 토큰 ID별로 분류된 토큰 리스트
     inline static std::unordered_map<std::string, Token*>                   _tokenNameTable;        // 토큰 이름별로 분류된 토큰 리스트
     inline static std::unordered_map<TokenTag, std::vector<Token*>>         _tokenTagTable;         // 토큰 태그별로 분류된 토큰 리스트
-    inline static std::unordered_map<int, std::function<Token*()>>          _tokenIDFactoryTable;   // 토큰 ID별로 토큰 생성 팩토리 함수
     inline static std::unordered_map<std::string, std::function<Token*()>>  _tokenNameFactoryTable; // 토큰 이름별로 토큰 생성 팩토리 함수
     inline static std::unordered_map<std::string, int>                      _tokenNameToIDTable;    // 토큰 이름과 ID를 매핑한 테이블
     inline static std::unordered_map<int, std::string>                      _tokenIDToNameTable;    // 토큰 ID와 이름을 매핑한 테이블
+    
+    inline static std::unordered_map<int, std::function<Token*()>>          _tokenIDFactoryTable;   // 토큰 ID별로 토큰 생성 팩토리 함수
 };
 
 template <typename T>
