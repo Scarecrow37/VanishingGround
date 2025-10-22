@@ -42,6 +42,7 @@
 #include "ps_ssgi_composite.h"
 #include "ps_ssr.h"
 #include "ps_to_backbuffer.h"
+#include "ps_transparent_lim_light.h"
 #include "ps_ui.h"
 #include "ps_ui_oit.h"
 #include "ps_up_sample.h"

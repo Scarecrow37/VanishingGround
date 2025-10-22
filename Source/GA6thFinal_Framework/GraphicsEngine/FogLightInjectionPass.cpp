@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "FogLightInjectionPass.h"
 #include "ShaderBuilder.h"
-#include "PBRLitTechnique.h"
+#include "LightingTechnique.h"
 #include "VolumetricFogTechnique.h"
 #include "ShadowMapPass.h"
 #include "d3dUtil.h"
@@ -25,7 +25,7 @@ void FogLightInjectionPass::Draw(ID3D12GraphicsCommandList* commandList)
 {
     int                         readIndex    = _volumTech->_readIndex ? 1 : 0;
     int                         writeIndex   = _volumTech->_readIndex ? 0 : 1;
-    auto                        pbrlitTech   = _ownerScene->GetRenderTechnique<PBRLitTechnique>();
+    auto                        pbrlitTech    = _ownerScene->GetRenderTechnique<LightingTechnique>();
     auto                        shadowpass   = pbrlitTech->GetRenderPass<ShadowMapPass>();
     D3D12_GPU_VIRTUAL_ADDRESS   cameraData   = _ownerScene->_cameraBuffer->GetGPUVirtualAddress();
     D3D12_GPU_VIRTUAL_ADDRESS   lightData    = _ownerScene->_lightBuffer->GetGPUVirtualAddress();
