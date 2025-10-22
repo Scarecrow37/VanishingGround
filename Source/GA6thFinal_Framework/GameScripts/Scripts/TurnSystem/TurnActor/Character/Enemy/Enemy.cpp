@@ -144,6 +144,11 @@ int Enemy::GetSpeed()
     return speed;
 }
 
+int Enemy::GetRandomSpeed()
+{
+    return _randomSpeed;
+}
+
 void Enemy::SetPositionFromSpawnPoint(Monster::SpawnPoint spawnPointType) 
 {
     if (MonsterSystem* system = SingletonComponent<MonsterSystem>::GetInstance())
@@ -213,6 +218,9 @@ void Enemy::OnCombatStart()
 void Enemy::OnRoundStart()
 {
     Base::OnRoundStart();
+    _randomSpeed = Random::Range(DEFINE::RANDOMSPEED_MIN, DEFINE::RANDOMSPEED_MAX);
+    TokenInventory& tokenInventory = GetTokenInventory();
+    tokenInventory.NotifyRollRandomSpeed(_randomSpeed);
 }
 
 void Enemy::OnRoundEnd()

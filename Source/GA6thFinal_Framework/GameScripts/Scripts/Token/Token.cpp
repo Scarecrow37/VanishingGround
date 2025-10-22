@@ -1,5 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "Token.h"
+#include "TurnSystem/TurnActor/Character/CharacterBase.h"
 
 REFLECT_FUNCTION(Token)
 
@@ -52,4 +53,13 @@ void Token::SetTokenOrder(int order)
 void Token::SetDirtyOrderCallback(std::function<void(int)> callback) 
 {
     _dirtyOrderCallback = callback;
+}
+
+std::string Token::TokenLog(CharacterBase& dest)
+{
+    GameObject& gameObject = dest.gameObject;
+    TokenInventory& tokenInventory = dest.GetTokenInventory();
+    int stackCount = tokenInventory.GetTokenStackFromID(GetTokenID());
+    return std::format("{}{} {}{}{}{}", gameObject.ToString(), (const char*)u8"에게서", GetTokenName(),
+                       (const char*)u8"의 토큰이 발동했습니다. (", stackCount, (const char*)u8"스택)");
 }

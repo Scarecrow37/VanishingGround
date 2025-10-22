@@ -49,19 +49,38 @@ public:
     virtual void ShowReflectFieldView() = 0;
 
 public: // 콜백에 대한 자세한 주석은 ITriggerType.h를 참고하세요.
-    virtual void OnCombatStart(CharacterBase* source) override                                  {};
-    virtual void OnRoundStart(CharacterBase* owner) override                                    {};
-    virtual void OnRoundEnd(CharacterBase* owner) override                                      {};
-    virtual void OnEachTurnStart(CharacterBase* source, CharacterBase* destination) override    {};
-    virtual void OnTurnStart(CharacterBase* owner) override                                     {};
-    virtual void OnTurnEnd(CharacterBase* owner) override                                       {};
-    virtual void OnHit(CharacterBase* owner) override                                           {};
-    virtual void OnDead(CharacterBase* owner) override                                          {};
-    virtual void OnKill(CharacterBase* source, CharacterBase* destination) override             {};
-    virtual void OnTokenAdded(CharacterBase* owner, int tokenID) override                       {};
-    virtual void OnTokenRemoved(CharacterBase* owner, int tokenID) override                     {};
-    virtual void OnQTEStart(CharacterBase* owner) override                                      {};
-    virtual void OnQTEEnd(CharacterBase* owner) override                                        {};
+    virtual void OnCombatStart(CharacterBase* source) override                                  {}
+    virtual void OnRoundStart(CharacterBase* owner) override                                    {}
+    virtual void OnRoundEnd(CharacterBase* owner) override                                      {}
+    virtual void OnEachTurnStart(CharacterBase* source, CharacterBase* destination) override    {}
+    virtual void OnTurnStart(CharacterBase* owner) override                                     {}
+    virtual void OnTurnEnd(CharacterBase* owner) override                                       {}
+    virtual void OnHit(CharacterBase* owner) override                                           {}
+    virtual void OnDead(CharacterBase* owner) override                                          {}
+    virtual void OnKill(CharacterBase* source, CharacterBase* destination) override             {}
+    virtual void OnTokenAdded(CharacterBase* owner, int tokenID) override                       {}
+    virtual void OnTokenRemoved(CharacterBase* owner, int tokenID) override                     {}
+    virtual void OnQTEStart(CharacterBase* owner) override                                      {}
+    virtual void OnQTEEnd(CharacterBase* owner) override                                        {}
+
+    virtual void OnPreBattleCalculateChain(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
+                                           Enemy& target, EnemyStats& targetStats) override     {}
+    virtual void OnPreBattleCalculateChain(Enemy& attacker, EnemyStats& attackerStats, Player& target,
+                                           PlayerStats& targetStats) override                   {}
+
+    virtual void OnPreAttackBattleCalculateDamage(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
+                                                  Enemy& target, EnemyStats& targetStats) override {}
+    virtual void OnPreAttackBattleCalculateDamage(Enemy& attacker, EnemyStats& attackerStats, Player& target,
+                                                  PlayerStats& targetStats) override            {}
+
+    virtual void OnPreHitBattleCalculateDamage(Player& attacker, PlayerStats& attackerStats,
+                                               Enemy& target, EnemyStats& targetStats) override {}
+    virtual void OnPreHitBattleCalculateDamage(Enemy& attacker, EnemyStats& attackerStats, Player& target,
+                                               PlayerStats& targetStats) override               {}
+
+    virtual void OnTakeDamage(int& damage) override                                             {}
+
+    virtual void OnRollRandomSpeed(int& speed) override                                         {}
 
 public:
     virtual bool CanAdd(CharacterBase* owner) const override;
@@ -74,6 +93,9 @@ public:
     void SetMaxStackCount(UINT16 maxStack);
     void SetTag(TokenTag tag) { ReflectFields->Tag = tag; }
     void SetDirtyOrderCallback(std::function<void(int)> callback);
+
+protected:
+    std::string TokenLog(CharacterBase& dest);
 
 protected:
     REFLECT_FIELDS_BEGIN(ReflectSerializer)

@@ -8,7 +8,6 @@ namespace TokenObject
 {
     REGISTER_TOKEN(Stun)
     REGISTER_TOKEN(StunResistance)
-
     REFLECT_FUNCTION(Stun)
 
     bool Stun::CanAdd(CharacterBase* owner) const 

@@ -7,4 +7,5 @@ enum class TokenTag
     STUN,
     ARMOR,
     REGEN,
+    HASTE,
 };

@@ -1,6 +1,11 @@
 ﻿#pragma once
 #include <Token/TokenSystem.h>
 
+namespace QTE
+{
+    struct NoteResult;
+}
+
 class TokenInventory
 {
     using TokenID = int;
@@ -79,6 +84,23 @@ public:
     /// QTE가 끝날 때 호출됩니다.
     /// </summary>
     void NotifyQTEEnd();
+
+    void NotifyPreBattleCalculateChain(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats, Enemy& target,
+                                       EnemyStats& targetStats);
+    void NotifyPreBattleCalculateChain(Enemy& attacker, EnemyStats& attackerStats, Player& target, PlayerStats& targetStats);
+
+    void NotifyPreAttackBattleCalculateDamage(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
+                                              Enemy& target, EnemyStats& targetStats);
+    void NotifyPreAttackBattleCalculateDamage(Enemy& attacker, EnemyStats& attackerStats, Player& target,
+                                              PlayerStats& targetStats);
+    void NotifyPreHitBattleCalculateDamage(Player& attacker, PlayerStats& attackerStats, Enemy& target,
+                                           EnemyStats& targetStats);
+    void NotifyPreHitBattleCalculateDamage(Enemy& attacker, EnemyStats& attackerStats, Player& target,
+                                           PlayerStats& targetStats);
+
+    void NotifyTakeDamage(int& damage);
+
+    void NotifyRollRandomSpeed(int& randomSpeed);
 
 public:
     /// <summary>

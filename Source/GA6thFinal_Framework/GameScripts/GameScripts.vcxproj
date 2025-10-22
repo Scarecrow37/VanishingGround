@@ -306,6 +306,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\Token\Object\Haste\HasteToken.h" />
     <ClInclude Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.h" />
     <ClInclude Include="Scripts\AccessorySystem\AccessorySystem.h" />
     <ClInclude Include="Scripts\Animation\AnimationComponent.h" />
@@ -451,8 +452,10 @@
     <ClInclude Include="Scripts\Test\TurnAction\TestActionComponent.h" />
     <ClInclude Include="Scripts\Token\Enums\TokenEnums.h" />
     <ClInclude Include="Scripts\Token\Interface\IToken.h" />
+    <ClInclude Include="Scripts\Token\Object\Armor\ArmorToken.h" />
     <ClInclude Include="Scripts\Token\Object\Bleed\BleedToken.h" />
     <ClInclude Include="Scripts\Token\Object\Poison\PoisonToken.h" />
+    <ClInclude Include="Scripts\Token\Object\Regen\RegenToken.h" />
     <ClInclude Include="Scripts\Token\Object\Stun\StunToken.h" />
     <ClInclude Include="Scripts\Token\Token.h" />
     <ClInclude Include="Scripts\Token\TokenInventory.h" />
@@ -579,6 +582,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">Use</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Scripts\Token\Object\Haste\HasteToken.cpp" />
     <ClCompile Include="pchScripts.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">Create</PrecompiledHeader>
@@ -720,8 +724,10 @@
     <ClCompile Include="Scripts\Test\Input\InputTestComponent.cpp" />
     <ClCompile Include="Scripts\Test\TurnAction\TestActionComponent.cpp" />
     <ClCompile Include="Scripts\Token\Interface\IToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Armor\ArmorToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\Bleed\BleedToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\Poison\PoisonToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Regen\RegenToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\Stun\StunToken.cpp" />
     <ClCompile Include="Scripts\Token\Token.cpp" />
     <ClCompile Include="Scripts\Token\TokenInventory.cpp" />

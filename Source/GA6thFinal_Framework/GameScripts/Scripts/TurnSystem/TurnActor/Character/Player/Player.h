@@ -60,8 +60,8 @@ public:
     const PlayerStates& GetFSMStates() { return _fsmStates; }
 
 public:
-    virtual int GetSpeed() override;
-    virtual int GetRandomSpeed() override;
+    int GetSpeed() override;
+    int GetRandomSpeed() override;
     CharacterStats* GetCharacterStats() override;
 
     /// <summary>

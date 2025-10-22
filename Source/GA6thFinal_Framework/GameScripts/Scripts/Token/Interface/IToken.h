@@ -3,6 +3,17 @@
 #include <Interface/ITriggerType.h>
 
 class CharacterBase;
+class Player;
+class Enemy;
+struct CharacterStats;
+struct PlayerStats;
+struct EnemyStats;
+struct WeaponStats;
+
+namespace QTE
+{
+    struct NoteResult;
+}
 
 class IToken
 {
@@ -64,6 +75,23 @@ private: // ITriggerType을(를) 통해 상속됨.
     /// <summary>객체의 QTE가 끝날 때 호출됩니다.</summary>
     /// <param name="source">호출한 CharacterBase 객체입니다.</param>
     virtual void OnQTEEnd(CharacterBase* source) = 0;
+
+    virtual void OnPreBattleCalculateChain(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
+                                           Enemy& target, EnemyStats& targetStats)              = 0;
+    virtual void OnPreBattleCalculateChain(Enemy& attacker, EnemyStats& attackerStats, Player& target,
+                                           PlayerStats& targetStats)                            = 0;
+    virtual void OnPreAttackBattleCalculateDamage(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
+                                                  Enemy& target, EnemyStats& targetStats)       = 0;
+    virtual void OnPreAttackBattleCalculateDamage(Enemy& attacker, EnemyStats& attackerStats, Player& target,
+                                                  PlayerStats& targetStats)                     = 0;
+    virtual void OnPreHitBattleCalculateDamage(Player& attacker, PlayerStats& attackerStats, Enemy& target,
+                                               EnemyStats& targetStats)                         = 0;
+    virtual void OnPreHitBattleCalculateDamage(Enemy& attacker, EnemyStats& attackerStats, Player& target,
+                                               PlayerStats& targetStats)                        = 0;
+
+    virtual void OnTakeDamage(int& damage)                                                      = 0;
+
+    virtual void OnRollRandomSpeed(int& speed)                                                  = 0;
 
 public:
     virtual bool        CanAdd(CharacterBase* owner) const      = 0;

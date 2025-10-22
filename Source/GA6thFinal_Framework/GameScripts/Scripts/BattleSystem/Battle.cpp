@@ -13,7 +13,7 @@
 #include <Stats/Enemy/EnemyStatsComponent.h>
 #include <Monster/Common/MonsterCommon.h>
 
-void Battle::operator()(Player& attacker, EnemyTargetFlag targetFlag, const QTE::NoteResult& result)
+void Battle::operator()(Player& attacker, EnemyTargetFlag targetFlag, QTE::NoteResult& result)
 {
     TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
     if (turnMode)
@@ -93,7 +93,7 @@ std::vector<Enemy*> Battle::GetTargetsFromFlags(EnemyTargetFlag targetFlag)
     return selectedTargets;
 }
 
-void Battle::ChainStart(Player& attacker, Enemy& target, const QTE::NoteResult& result)
+void Battle::ChainStart(Player& attacker, Enemy& target, QTE::NoteResult& result)
 {
     auto [iter, insertResult] = currentChainDamageSet.insert(&target); // 이번턴 연격 계산된 적들 중복 체크
     if (insertResult)
@@ -118,6 +118,8 @@ void Battle::ChainStart(Player& attacker, Enemy& target, const QTE::NoteResult& 
                 turnMode->ApplyActions([&](TurnAction& action) {
                     action.OnPlayerBattleCalculateChainModifier(attacker, playerStats, weaponStats, target, enemyStats);
                 });
+                TokenInventory& tokenInventory = attacker.GetTokenInventory();
+                tokenInventory.NotifyPreBattleCalculateChain(attacker, playerStats, weaponStats, target, enemyStats);
                 chainDamage = DamageSystem::CalculateChainDamage(playerInfo, enemyInfo);
                 target.TakeChain(chainDamage);
             }
@@ -125,7 +127,7 @@ void Battle::ChainStart(Player& attacker, Enemy& target, const QTE::NoteResult& 
     }
 }
 
-void Battle::BattleStart(Player& attacker, Enemy& target, const QTE::NoteResult& result)
+void Battle::BattleStart(Player& attacker, Enemy& target, QTE::NoteResult& result)
 {
     TurnMode*             turnMode             = SingletonComponent<TurnMode>::GetInstance();
     WeaponSystem*         weaponSystem         = SingletonComponent<WeaponSystem>::GetInstance();
@@ -150,6 +152,15 @@ void Battle::BattleStart(Player& attacker, Enemy& target, const QTE::NoteResult&
             action.OnPlayerBattlePreCalculate(attacker, playerStats, weaponStats, target, enemyStats, result);
         });
 
+        {
+            TokenInventory& tokenInventory = attacker.GetTokenInventory();
+            tokenInventory.NotifyPreAttackBattleCalculateDamage(attacker, playerStats, weaponStats, target, enemyStats);
+        }
+        {
+            TokenInventory& tokenInventory = target.GetTokenInventory();
+            tokenInventory.NotifyPreHitBattleCalculateDamage(target, enemyStats, attacker, playerStats);
+        }
+
         if (result.IsHit())
         {
             turnMode->ApplyActions([&](TurnAction& action) {
@@ -158,6 +169,8 @@ void Battle::BattleStart(Player& attacker, Enemy& target, const QTE::NoteResult&
             damage = DamageSystem::CalculateDamage(playerInfo, enemyInfo, result);
         }
 
+        TokenInventory& tokenInventory = target.GetTokenInventory();
+        tokenInventory.NotifyTakeDamage(damage);
         // 미스여도 TakeDamage를 호출. 어차피 내부에서 미스처리를 하기 때문 (판정에 따른 이펙트 출력때문에... 나중에 PlayEffect를 따로 만들까? 싶음)
         target.TakeDamage(damage, result);
     }
@@ -183,6 +196,8 @@ void Battle::ChainStart(Enemy& attacker, Player& target)
         turnMode->ApplyActions([&](TurnAction& action) {
             action.OnEnemyBattleCalculateChainModifier(attacker, enemyStats, target, playerStats);
         });
+        TokenInventory& tokenInventory = attacker.GetTokenInventory();
+        tokenInventory.NotifyPreBattleCalculateChain(attacker, enemyStats, target, playerStats);
         target.TakeChain(chainDamage);
     }
 }
@@ -206,7 +221,19 @@ void Battle::BattleStart(Enemy& attacker, Player& target)
 
         turnMode->ApplyActions(
             [&](TurnAction& action) { action.OnEnemyBattleCalculateDamageModifier(attacker, enemyStats, target, playerStats); });
+        {
+            TokenInventory& tokenInventory = attacker.GetTokenInventory();
+            tokenInventory.NotifyPreAttackBattleCalculateDamage(attacker, enemyStats, target, playerStats);
+        }
+        {
+            TokenInventory& tokenInventory = target.GetTokenInventory();
+            tokenInventory.NotifyPreHitBattleCalculateDamage(target, playerStats, attacker, enemyStats);
+        }
         int damage = DamageSystem::CalculateDamage(enemyInfo, playerInfo);
+        
+        TokenInventory& tokenInventory = target.GetTokenInventory();
+        tokenInventory.NotifyTakeDamage(damage);
+
         target.TakeDamage(damage);
     }
 }

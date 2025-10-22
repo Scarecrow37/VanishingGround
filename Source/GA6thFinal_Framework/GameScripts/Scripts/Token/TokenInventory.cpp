@@ -245,6 +245,139 @@ void TokenInventory::NotifyQTEEnd()
     }
 }
 
+void TokenInventory::NotifyPreBattleCalculateChain(Player& source, PlayerStats& sourceStats, WeaponStats& weaponStats,
+                                                   Enemy& dest, EnemyStats& destStats)
+{
+    const auto& instances = TokenSystem::GetTokenInstances();
+    for (auto& token : instances)
+    {
+        if (token)
+        {
+            int count = GetTokenStackFromID(token->GetTokenID());
+            if (0 < count)
+            {
+                token->OnPreBattleCalculateChain(source, sourceStats, weaponStats, dest, destStats);
+            }
+        }
+    }
+}
+
+void TokenInventory::NotifyPreBattleCalculateChain(Enemy& source, EnemyStats& sourceStats, Player& dest,
+                                                   PlayerStats& destStats)
+{
+    const auto& instances = TokenSystem::GetTokenInstances();
+    for (auto& token : instances)
+    {
+        if (token)
+        {
+            int count = GetTokenStackFromID(token->GetTokenID());
+            if (0 < count)
+            {
+                token->OnPreBattleCalculateChain(source, sourceStats, dest, destStats);
+            }
+        }
+    }
+}
+
+void TokenInventory::NotifyPreAttackBattleCalculateDamage(Player& source, PlayerStats& sourceStats,
+                                                          WeaponStats& weaponStats, Enemy& dest, EnemyStats& destStats)
+{
+    const auto& instances = TokenSystem::GetTokenInstances();
+    for (auto& token : instances)
+    {
+        if (token)
+        {
+            int count = GetTokenStackFromID(token->GetTokenID());
+            if (0 < count)
+            {
+                token->OnPreAttackBattleCalculateDamage(source, sourceStats, weaponStats, dest, destStats);
+            }
+        }
+    }
+}
+
+void TokenInventory::NotifyPreAttackBattleCalculateDamage(Enemy& source, EnemyStats& sourceStats, Player& dest,
+                                                          PlayerStats& destStats)
+{
+    const auto& instances = TokenSystem::GetTokenInstances();
+    for (auto& token : instances)
+    {
+        if (token)
+        {
+            int count = GetTokenStackFromID(token->GetTokenID());
+            if (0 < count)
+            {
+                token->OnPreAttackBattleCalculateDamage(source, sourceStats, dest, destStats);
+            }
+        }
+    }
+}
+
+void TokenInventory::NotifyPreHitBattleCalculateDamage(Player& source, PlayerStats& sourceStats, Enemy& dest, EnemyStats& destStats)
+{
+    const auto& instances = TokenSystem::GetTokenInstances();
+    for (auto& token : instances)
+    {
+        if (token)
+        {
+            int count = GetTokenStackFromID(token->GetTokenID());
+            if (0 < count)
+            {
+                token->OnPreHitBattleCalculateDamage(source, sourceStats, dest, destStats);
+            }
+        }
+    }
+}
+
+void TokenInventory::NotifyPreHitBattleCalculateDamage(Enemy& source, EnemyStats& sourceStats, Player& dest,
+                                                       PlayerStats& destStats)
+{
+    const auto& instances = TokenSystem::GetTokenInstances();
+    for (auto& token : instances)
+    {
+        if (token)
+        {
+            int count = GetTokenStackFromID(token->GetTokenID());
+            if (0 < count)
+            {
+                token->OnPreHitBattleCalculateDamage(source, sourceStats, dest, destStats);
+            }
+        }
+    }
+}
+
+void TokenInventory::NotifyTakeDamage(int& damage) 
+{
+    const auto& instances = TokenSystem::GetTokenInstances();
+    for (auto& token : instances)
+    {
+        if (token)
+        {
+            int count = GetTokenStackFromID(token->GetTokenID());
+            if (0 < count)
+            {
+                token->OnTakeDamage(damage);
+            }
+        }
+    }
+}
+
+void TokenInventory::NotifyRollRandomSpeed(int& randomSpeed) 
+{
+    const auto& instances = TokenSystem::GetTokenInstances();
+    for (auto& token : instances)
+    {
+        if (token)
+        {
+            int count = GetTokenStackFromID(token->GetTokenID());
+            if (0 < count)
+            {
+                token->OnRollRandomSpeed(randomSpeed);
+            }
+        }
+    }
+}
+
 void TokenInventory::AddTokenStackFromID(int tokenID, int count /* = 1 */)
 {
     if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
