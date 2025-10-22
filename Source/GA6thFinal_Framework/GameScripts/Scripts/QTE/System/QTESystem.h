@@ -93,6 +93,7 @@ private:
     void PressedButtonB(const Input::Controller& controller);
 
     void ProcessQTEEnterEvent();
+    void ProcessQTEButtonPressedEvent();
     void ProcessQTENotePressedEvent(QTE::ResultType result);
     void ProcessQTEStayEvent();
     void ProcessQTEExitEvent();

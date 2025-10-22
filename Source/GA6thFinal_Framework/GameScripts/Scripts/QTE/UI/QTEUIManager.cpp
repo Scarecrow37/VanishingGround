@@ -36,14 +36,19 @@ void QTEUIManager::OnQTEEnter()
     SpawnQTENotesFromCurrentTrack();
 }
 
-void QTEUIManager::OnQTENotePressed(QTE::ResultType result)
+void QTEUIManager::OnQTEButtonPressed() 
 {
-    // TODO : QTE Effect
+    // TODO : QTE Button Pressed Animation  
     if (_qteJudgeNoteUI)
     {
         _qteJudgeNoteUI->Setup();
         _qteJudgeNoteUI->StartAnimation();
     }
+}
+
+void QTEUIManager::OnQTENotePressed(QTE::ResultType result)
+{
+    // TODO : QTE Effect Animation
 }
 
 void QTEUIManager::OnQTEStay() 

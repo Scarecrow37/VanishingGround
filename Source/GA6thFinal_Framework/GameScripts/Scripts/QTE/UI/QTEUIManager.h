@@ -33,6 +33,7 @@ public:
 
 private:
     void OnQTEEnter();
+    void OnQTEButtonPressed();
     void OnQTENotePressed(QTE::ResultType result);
     void OnQTEStay();
     void OnQTEExit();
