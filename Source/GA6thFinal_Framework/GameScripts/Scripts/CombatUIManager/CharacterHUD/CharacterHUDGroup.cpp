@@ -94,7 +94,7 @@ namespace CombatUI
         {
             if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
             {
-                auto enemies = turnMode->GetEnemies();
+                const auto& enemies = turnMode->GetEnemies();
 
                 for (size_t i = 0; i < enemies.size(); ++i)
                 {
@@ -104,7 +104,7 @@ namespace CombatUI
                         int                 index      = static_cast<int>(spawnPoint);
                         if (EnemyHUDPanel[index])
                         {
-                            EnemyPosition[i] = camera->WorldToViewport(enemies[i]->transform->GetWorldPosition());
+                            EnemyPosition[index] = camera->WorldToViewport(enemies[i]->transform->GetWorldPosition());
                         }
 
                     }

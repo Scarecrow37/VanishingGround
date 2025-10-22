@@ -91,13 +91,8 @@ namespace Monster
 
     void AIModel::Clear()
     {
-        for (auto& [id, node] : _nodeTable)
-        {
-            delete node;
-        }
         _nodeTable.clear();
         _currNode = nullptr;
-
         _transitionCount = 0;
     }
 
@@ -109,15 +104,13 @@ namespace Monster
     void AIModel::PushActionNode(std::string_view label, std::string_view nextNode,
                                  std::initializer_list<ActionData> actions)
     {
-        ActionNode* node         = new ActionNode(label, nextNode, actions);
-        _nodeTable[label.data()] = node;
+        _nodeTable[label.data()] = std::make_unique<ActionNode>(label, nextNode, actions);
     }
 
     void AIModel::PushConditionNode(std::string_view label, std::string_view trueNode, std::string_view falseNode,
                                          std::function<bool()> condition)
     {
-        ConditionNode* node      = new ConditionNode(label, trueNode, falseNode, condition);
-        _nodeTable[label.data()] = node;
+        _nodeTable[label.data()] = std::make_unique<ConditionNode>(label, trueNode, falseNode, condition);
     }
 
     void AIModel::SetCurrentNode(std::string_view label)
@@ -204,9 +197,8 @@ namespace Monster
         auto it = _nodeTable.find(label.data());
         if (it != _nodeTable.end())
         {
-            return it->second;
+            return it->second.get();
         }
         return nullptr;
     }
-
 }

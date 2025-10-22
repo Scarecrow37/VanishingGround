@@ -113,7 +113,7 @@ void AnimationComponent::ImGuiDrawPropertysEvent()
                 ImGui::EndCombo();
             }
 
-            std::function<void(const char*)> showText = [this](const char* text)
+            auto showText = [this](const char* text)
             {
                 ImGuiHelper::StyleBuilder style;
                 if (GetTopAnimationData().IsSameAnimation(text))
