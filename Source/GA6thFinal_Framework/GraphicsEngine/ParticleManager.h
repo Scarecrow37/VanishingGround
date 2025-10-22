@@ -4,6 +4,7 @@
 class ParticleManager
 {
     using EffectID = void*;
+    using EffectCallback = std::function<void(void)>;
 private:
     // -------------------------------------
     // [ Core DX12 Objects ]
@@ -55,6 +56,7 @@ public:
     class ParticleEffect* RegisterEffect(EffectID id, const std::string& keyString, std::string_view sceneName);
     void                  DeleteEffect(EffectID id, const std::string& keyString, const std::string& sceneName);
     void                  PlayEffect(EffectID id, const std::string& keyString);
+    void                  PlayEffect(EffectID id, const std::string& keyString, EffectCallback callback);
     void                  StopEffect(EffectID id, const std::string& keyString);
     class ParticleEffect* FindEffect(EffectID id, const std::string& keyString);
     // =================================================================================================================
