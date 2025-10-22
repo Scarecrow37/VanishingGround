@@ -180,7 +180,7 @@ std::vector<TurnUIData> TurnQueueViewModel::Convert(const std::deque<std::pair<i
         else
         {
             TurnActor* actor = slotAndActor.second;
-            if (const Enemy*     enemy = dynamic_cast<Enemy*>(actor); nullptr != enemy)
+            if (const Enemy* enemy = dynamic_cast<Enemy*>(actor); nullptr != enemy)
             {
                 const EnemyType enemyType     = enemy->Type;
                 const File::Guid portraitGuid = GetPortraitGuid()(enemyType);
@@ -188,29 +188,24 @@ std::vector<TurnUIData> TurnQueueViewModel::Convert(const std::deque<std::pair<i
                 TurnUIData data;
                 data.ActorPortrait = portraitGuid;
                 data.Frame         = frameGuid;
-                data.Type          = TurnUIData::ActorType::PLAYER;
-                for (size_t i = 0; i < enemys.size(); ++i)
+
+                Monster::SpawnPoint point = enemy->SpawnPoint;
+                switch (point)
                 {
-                    if (enemys[i] == enemy)
-                    {
-                        switch (i)
-                        {
-                        case 0:
-                            data.Type = TurnUIData::ActorType::ENEMY_LEFT;
-                            break;
-                        case 1:
-                            data.Type = TurnUIData::ActorType::ENEMY_MIDDLE;
-                            break;
-                        case 2:
-                            data.Type = TurnUIData::ActorType::ENEMY_RIGHT;
-                            break;
-                        default:
-                            data.Type = TurnUIData::ActorType::PLAYER;
-                            break;
-                        }
-                        break;
-                    }
-                }                   
+                case Monster::SpawnPoint::Left:
+                    data.Type = TurnUIData::ActorType::ENEMY_LEFT;
+                    break;          
+                case Monster::SpawnPoint::Middle:
+                    data.Type = TurnUIData::ActorType::ENEMY_MIDDLE;
+                    break;
+                case Monster::SpawnPoint::Right:
+                    data.Type = TurnUIData::ActorType::ENEMY_RIGHT;
+                    break;
+                case Monster::SpawnPoint::Invalid:
+                default:
+                    break;
+                }
+                     
                 _turnQueueData.push_back(data);
             }
             else

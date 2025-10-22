@@ -3,6 +3,9 @@
 #include "Enum/EnemyEnum.h"
 #include "AI/EnemyAI.h"
 
+#include "Monster/Common/MonsterCommon.h"
+#include "Monster/Controller/MonsterController.h"
+
 class ParticleComponent;
 class EnemyStatsComponent;
 class FSMState;
@@ -14,9 +17,7 @@ public:
     inline static constexpr const char* TAG = "Enemy";
 
 public:
-    REFLECT_PROPERTY(
-        Speed, Type
-        )
+    REFLECT_PROPERTY(Speed, Type, SpawnPoint)
 
     GETTER_ONLY(int, Speed) { return GetSpeed(); }
     PROPERTY(Speed)
@@ -24,6 +25,9 @@ public:
     SETTER(EnemyType, Type) { ReflectFields->Type = value; }
     GETTER(EnemyType, Type) { return ReflectFields->Type; }
     PROPERTY(Type)
+
+    GETTER_ONLY(Monster::SpawnPoint, SpawnPoint) { return _spawnPoint; }
+    PROPERTY(SpawnPoint)
 
 public:
     Enemy();
@@ -34,14 +38,10 @@ protected:
     EnemyType Type = EnemyType::MONSTER_A;
     REFLECT_FIELDS_END(Enemy)
 
-public:
-    virtual int GetSpeed() override;
-    virtual void Revive() override;
-
 private:
-    EnemyAI _aiModel;
+    Monster::SpawnPoint  _spawnPoint = Monster::SpawnPoint::Invalid;
+    Monster::Controller  _controller;
     EnemyStatsComponent* _enemyStats = nullptr;
-    ParticleComponent*   _hitParticle = nullptr; // 피격 이펙트 파티클
 
 protected:
     class FiniteStateMachine* _finiteStateMachine = nullptr;
@@ -50,26 +50,33 @@ protected:
     struct EnemyStates
     {
         class EnemyWaitTurnState* WaitTurn = nullptr;   // 턴 종료 상태
-        class EnemyPlayTurnState* PlayTurn = nullptr; // 턴 시작 상태
+        class EnemyPlayTurnState* PlayTurn = nullptr;   // 턴 시작 상태
         class EnemyDeadState*     Dead     = nullptr;   // 사망 상태
     } 
     _fsmStates;
 
 public:
     /*Enemy의 턴을 종료합니다.*/
-    virtual void EndTurn() override;
+    void EndTurn() override;
     /*Enemy를 Dead 상태로 만듭니다.*/
-    virtual void Dead() override;
+    void Dead() override;
+    /**/
+    void Revive() override;
     /*Enemy에게 피격을 가합니다.*/
-    virtual void TakeDamage(int damage, bool playAnim = true) override;
-    virtual void TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim = true) override;
+    void TakeDamage(int damage, bool playAnim = true) override;
+    void TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim = true) override;
 
-    inline EnemyAI&            GetAIModel() { return _aiModel; }
-    inline FiniteStateMachine& GetFSM() { return *_finiteStateMachine; }
-    inline const EnemyStates&  GetFSMStates() { return _fsmStates; }
+    inline Monster::Controller&     GetController() { return _controller; }
+    inline FiniteStateMachine&      GetFSM() { return *_finiteStateMachine; }
+    inline const EnemyStates&       GetFSMStates() { return _fsmStates; }
 
     /*Enemy의 Stats을 반환합니다.*/
     EnemyStatsComponent* GetEnemyStats();
+    CharacterStats* GetCharacterStats() override;
+
+    int GetSpeed() override;
+
+    void SetPositionFromSpawnPoint(Monster::SpawnPoint spawnPoint);
 
 public:
     GameObject* GetMonsterHUD() const { return _monsterHUD; }
@@ -79,13 +86,11 @@ private:
     GameObject* _monsterHUD = nullptr;
 
 protected:
-    virtual void Awake();
-    virtual void Update();
+    void Awake() override;
+    void Update() override;
+    void PlayTurn() override;
+    void ImGuiDrawPropertysEvent() override;
 
-    virtual void PlayTurn() override;
-    CharacterStats* GetCharacterStats() override;
-
-    void InitParticle();
 
 private:
     void OnCombatStart() override;
