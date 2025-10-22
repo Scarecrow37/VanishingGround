@@ -2,7 +2,7 @@
 
 namespace QTE
 {
-    class Note;
+    struct NoteData;
 
     enum ResultType
     {
@@ -23,10 +23,10 @@ namespace QTE
         using Button    = Input::Controller::Button;
 
         NoteResult() = default;
-        NoteResult(Note* note) : Note(note) {}
+        NoteResult(const NoteData* note) : NoteData(note) {}
 
         Button          PressedButton   = Button::UNDEFINED;    // 누른 버튼 (Input::Controller::Button)
-        Note*           Note            = nullptr;              // 결과에 해당하는 노트
+        const NoteData* NoteData        = nullptr;              // 결과에 해당하는 노트
         ResultType      Result          = QTE_RESULT_NONE;      // 결과 타입
         float           TimeDelta       = 0.0f;                 // 누른 시간과 퍼펙트 시간 차이 (초)
 

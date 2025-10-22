@@ -1,7 +1,8 @@
 ﻿#include "pch.h"
 #include "UIRoot.h"
-
 #include "UI/Base/DrawUIComponent/DrawUIComponent.h"
+
+REFLECT_FUNCTION(UIRoot)
 
 Input::Controller* UIRoot::_controller = nullptr;
 
@@ -294,6 +295,16 @@ UINavigationComponent* UIRoot::FindNavigationComponent(NavigationID id)
         }
     }
     return component;
+}
+
+NavigationID UIRoot::GetFocusedNavigationID() const
+{
+    return _currentFocusNavigation != nullptr ? _currentFocusNavigation->ID : INVALID_NAVIGATION_ID;
+}
+
+UINavigationComponent* UIRoot::GetFocusedNavigationComponent() const
+{
+    return _currentFocusNavigation;
 }
 
 UINavigationComponent* UIRoot::FindNavigationComponentInTransform(NavigationID id) const

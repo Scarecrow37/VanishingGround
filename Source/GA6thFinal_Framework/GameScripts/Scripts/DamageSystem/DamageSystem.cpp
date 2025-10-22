@@ -3,7 +3,6 @@
 #include <Stats/Player/PlayerStats.h>
 #include <Stats/Enemy/EnemyStats.h>
 #include <Stats/Weapon/WeaponStats.h>
-#include <EnemyAction/System/EnemyActionSystem.h>
 
 int DamageSystem::CalculateDamage(const PlayerInfo& attacker, const EnemyInfo& target, const QTE::NoteResult& result)
 {

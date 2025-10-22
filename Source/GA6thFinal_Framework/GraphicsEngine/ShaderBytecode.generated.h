@@ -31,6 +31,7 @@ namespace GE
             case PS::PARTICLE_QUAD: return { g_ps_particle_quad, sizeof(g_ps_particle_quad) };
             case PS::PARTICLE_RESOLVE: return { g_ps_particle_resolve, sizeof(g_ps_particle_resolve) };
             case PS::PBR_LIGHTING: return { g_ps_pbr_lighting, sizeof(g_ps_pbr_lighting) };
+            case PS::POINT_LIGHT_SHADOW: return { g_ps_point_light_shadow, sizeof(g_ps_point_light_shadow) };
             case PS::SDF_FONT: return { g_ps_sdf_font, sizeof(g_ps_sdf_font) };
             case PS::SHADOW: return { g_ps_shadow, sizeof(g_ps_shadow) };
             case PS::SKYBOX: return { g_ps_skybox, sizeof(g_ps_skybox) };
@@ -56,10 +57,12 @@ namespace GE
             case VS::SDF_FONT_FR: return { g_vs_sdf_font_fr, sizeof(g_vs_sdf_font_fr) };
             case VS::SKELETAL_FORWARD_FR: return { g_vs_skeletal_forward_fr, sizeof(g_vs_skeletal_forward_fr) };
             case VS::SKELETAL_FR: return { g_vs_skeletal_fr, sizeof(g_vs_skeletal_fr) };
+            case VS::SKELETAL_POINT_LIGHT_SHADOW_FR: return { g_vs_skeletal_point_light_shadow_fr, sizeof(g_vs_skeletal_point_light_shadow_fr) };
             case VS::SKELETAL_SHADOW_FR: return { g_vs_skeletal_shadow_fr, sizeof(g_vs_skeletal_shadow_fr) };
             case VS::SKYBOX: return { g_vs_skybox, sizeof(g_vs_skybox) };
             case VS::STATIC_FORWARD_FR: return { g_vs_static_forward_fr, sizeof(g_vs_static_forward_fr) };
             case VS::STATIC_FR: return { g_vs_static_fr, sizeof(g_vs_static_fr) };
+            case VS::STATIC_POINT_LIGHT_SHADOW_FR: return { g_vs_static_point_light_shadow_fr, sizeof(g_vs_static_point_light_shadow_fr) };
             case VS::STATIC_SHADOW_FR: return { g_vs_static_shadow_fr, sizeof(g_vs_static_shadow_fr) };
             case VS::UI_FR: return { g_vs_ui_fr, sizeof(g_vs_ui_fr) };
             default: return { nullptr, 0 };

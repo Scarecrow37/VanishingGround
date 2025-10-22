@@ -5,9 +5,9 @@
 #include <UI/Panels/Overlay/OverlayPanel.h>
 #include <UI/Elements/Image/ImageElement.h>
 #include <Camera/CameraComponent.h>
-
-#include <BattleSystem/Battle.h>
+#include <TurnSystem/TurnMode/TurnMode.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
+#include <Monster/Common/MonsterCommon.h>
 
 UMREAL_COMPONENT(QTEUIManager)
 
@@ -51,51 +51,46 @@ void QTEUIManager::OnQTEStay()
     auto* system = SingletonComponent<QTESystem>::GetInstance();
     if (system)
     {
-        auto* track = system->GetCurrentQTETrack();
-        if (track)
+        const float qteTime  = system->GetQTETime();
+        const POINT judgePos = _qteJudgeNoteUI->Point;
+        const auto& overall  = system->GetQTEOverallResult();
+        for (const auto& result : overall.NoteResults)
         {
-            const float qteTime  = system->GetQTETime();
-            const POINT judgePos = _qteJudgeNoteUI->Point;
-            const auto& overall  = system->GetQTEOverallResult();
-            for (const auto& result : overall.NoteResults)
+            if (result.NoteData)
             {
-                QTE::Note* note = result.Note;
-                if (note)
+                const int   id   = result.NoteData->ID;
+                const float time = result.NoteData->Time;
+
+                ImageElement* noteUI = FindNoteUIFromNoteID(id);
+                if (noteUI)
                 {
-                    const int     id     = note->ID;
-                    const float   time   = note->Time;
+                    GameObject& object = noteUI->gameObject;
+                    if (result.IsValidResult() && result.IsPressedButton())
+                    { // 이미 누른 판정이 난 노트는 비활성화
+                        object.ActiveSelf = false;
+                        continue;
+                    }
+                    SIZE  noteSize = noteUI->Size;
+                    POINT oldPoint = noteUI->Point;
 
-                    ImageElement* noteUI = FindNoteUIFromNoteID(id);
-                    if (noteUI)
+                    float notePosXFactor = CalculateNotePosXFactor(time, qteTime);
+                    float perfectPos     = _qteJudgePos.x + (_qteJudgeSize.x * 0.5f) - _qtePanelPos.x;
+                    float notePosX       = perfectPos * notePosXFactor; // 패널 기준에서의 노트 좌표
+
+                    // 포지션은 판정노트가 1.0 기준이지만 알파는 라인 끝을 기준으로 계산
+                    float alphaFactor = notePosX / _qtePanelSize.x;
+                    float alpha       = CalculateNoteAlpha(alphaFactor);
+
+                    if (alpha > 0.0f)
                     {
-                        GameObject& object      = noteUI->gameObject;
-                        if (result.IsValidResult() && result.IsPressedButton())
-                        {   // 이미 누른 판정이 난 노트는 비활성화
-                            object.ActiveSelf   = false;
-                            continue;
-                        }
-                        SIZE  noteSize = noteUI->Size;
-                        POINT oldPoint = noteUI->Point;
-
-                        float notePosXFactor    = CalculateNotePosXFactor(time, qteTime);
-                        float perfectPos        = _qteJudgePos.x + (_qteJudgeSize.x * 0.5f) - _qtePanelPos.x;
-                        float notePosX          = perfectPos * notePosXFactor; // 패널 기준에서의 노트 좌표
-                        
-                        // 포지션은 판정노트가 1.0 기준이지만 알파는 라인 끝을 기준으로 계산
-                        float alphaFactor       = notePosX / _qtePanelSize.x;
-                        float alpha             = CalculateNoteAlpha(alphaFactor);
-
-                        if (alpha > 0.0f)
-                        {
-                            float notePosAbsX   = notePosX - ((float)noteSize.cx * 0.5f) + _qtePanelPos.x; // 절대 좌표로 변환
-                            noteUI->Point       = POINT{(LONG)notePosAbsX, oldPoint.y};
-                            noteUI->Alpha       = alpha;
-                            object.ActiveSelf   = true;
-                        }
-                        else
-                        {
-                            object.ActiveSelf   = false;
-                        }
+                        float notePosAbsX = notePosX - ((float)noteSize.cx * 0.5f) + _qtePanelPos.x; // 절대 좌표로 변환
+                        noteUI->Point     = POINT{(LONG)notePosAbsX, oldPoint.y};
+                        noteUI->Alpha     = alpha;
+                        object.ActiveSelf = true;
+                    }
+                    else
+                    {
+                        object.ActiveSelf = false;
                     }
                 }
             }
@@ -445,23 +440,19 @@ bool QTEUIManager::RefreshGuideNoteUITransformData()
     CameraComponent* camera = CameraComponent::MainCamera();
     if (camera)
     {
-        auto enemies = Battle::GetTargetsFromFlags(Battle::ENEMY_TARGET_FLAG_ALL);
-        if (3 <= enemies.size())
+        if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
         {
-            bool  validX = enemies[0] && _qteGuideNoteY;
-            bool  validY = enemies[1] && _qteGuideNoteX;
-            bool  validB = enemies[2] && _qteGuideNoteB;
-            if (validX)
+            if (Enemy* left = turnMode->GetEnemyFromSpawnPoint(Monster::SpawnPoint::Left))
             {
-                _enemyXPos = camera->WorldToViewport(enemies[0]->transform->GetWorldPosition());
+                _enemyXPos = camera->WorldToViewport(left->transform->GetWorldPosition());
             }
-            if (validY)
+            if (Enemy* middle = turnMode->GetEnemyFromSpawnPoint(Monster::SpawnPoint::Middle))
             {
-                _enemyYPos = camera->WorldToViewport(enemies[1]->transform->GetWorldPosition());
+                _enemyYPos = camera->WorldToViewport(middle->transform->GetWorldPosition());
             }
-            if (validB)
+            if (Enemy* right = turnMode->GetEnemyFromSpawnPoint(Monster::SpawnPoint::Right))
             {
-                _enemyBPos = camera->WorldToViewport(enemies[2]->transform->GetWorldPosition());
+                _enemyBPos = camera->WorldToViewport(right->transform->GetWorldPosition());
             }
             return true;
         }
@@ -558,7 +549,7 @@ void QTEUIManager::SpawnQTENotesFromCurrentTrack()
         const auto* prefab = UmGameObjectFactory.GetOriginPrefab(_notePrefabGuid);
         for (auto& note : notes)
         {   // 노트 프리팹을 복제해서 비활성화 상태로 대기열에 추가
-            if (note && prefab && prefab->front())
+            if (prefab && prefab->front())
             {
                 GameObject* clone = GameObject::Instantiate(prefab->front().get());
                 if (clone)
@@ -568,8 +559,8 @@ void QTEUIManager::SpawnQTENotesFromCurrentTrack()
                     if (imageElement)
                     {
                         imageElement->transform->SetParent(transform, false);
-                        imageElement->Point       = POINT(-LONG_MAX, 0); // 화면 밖으로 이동
-                        _noteSpawnTable[note->ID] = imageElement;
+                        imageElement->Point      = POINT(-LONG_MAX, 0); // 화면 밖으로 이동
+                        _noteSpawnTable[note.ID] = imageElement;
                     }
                 }
             }
@@ -596,17 +587,16 @@ float QTEUIManager::CalculateNotePosXFactor(float noteTime, float totalTime)
     QTESystem* system = SingletonComponent<QTESystem>::GetInstance();
     if (system)
     {
-        auto* track = system->GetCurrentQTETrack();
-        if (track)
+        float systemSpeed = system->GetQTESpeedScale();
+        float trackSpeed  = 1.0f;
+        if (QTE::Track* track = system->GetCurrentQTETrack())
         {
-            const float systemSpeed = system->GetQTESpeedScale();
-            const float trackSpeed  = track->GetQTESpeedScale();
-
-            float scaledTotalTime = totalTime * systemSpeed * trackSpeed;
-            float scaledNoteTime  = noteTime * systemSpeed * trackSpeed;
-
-            factor = 1.0f + scaledTotalTime - scaledNoteTime;
+            trackSpeed  = track->GetQTESpeedScale();
         }
+        float scaledTotalTime = totalTime * systemSpeed * trackSpeed;
+        float scaledNoteTime  = noteTime * systemSpeed * trackSpeed;
+
+        factor = 1.0f + scaledTotalTime - scaledNoteTime;
     }
     return factor;
 }

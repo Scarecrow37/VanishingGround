@@ -18,6 +18,7 @@ namespace GE
 
     inline const std::unordered_map<VS, std::wstring> enumToVSFileNameMap = {
         {VS::SKELETAL_FR, L"vs_skeletal_fr.hlsl"},
+        {VS::STATIC_POINT_LIGHT_SHADOW_FR, L"vs_static_point_light_shadow_fr.hlsl"},
         {VS::STATIC_FORWARD_FR, L"vs_static_forward_fr.hlsl"},
         {VS::PARTICLE_QUAD, L"vs_particle_quad.hlsl"},
         {VS::UI_FR, L"vs_ui_fr.hlsl"},
@@ -27,6 +28,7 @@ namespace GE
         {VS::STATIC_SHADOW_FR, L"vs_static_shadow_fr.hlsl"},
         {VS::PARTICLE_FULLSCREEN, L"vs_particle_fullscreen.hlsl"},
         {VS::SKELETAL_SHADOW_FR, L"vs_skeletal_shadow_fr.hlsl"},
+        {VS::SKELETAL_POINT_LIGHT_SHADOW_FR, L"vs_skeletal_point_light_shadow_fr.hlsl"},
         {VS::GRID, L"vs_grid.hlsl"},
         {VS::SDF_FONT_FR, L"vs_sdf_font_fr.hlsl"},
         {VS::SKELETAL_FORWARD_FR, L"vs_skeletal_forward_fr.hlsl"},
@@ -35,6 +37,7 @@ namespace GE
 
     inline const std::unordered_map<std::wstring, VS> globalNameToVSEnumMap = {
         {L"g_vs_skeletal_fr", VS::SKELETAL_FR},
+        {L"g_vs_static_point_light_shadow_fr", VS::STATIC_POINT_LIGHT_SHADOW_FR},
         {L"g_vs_static_forward_fr", VS::STATIC_FORWARD_FR},
         {L"g_vs_particle_quad", VS::PARTICLE_QUAD},
         {L"g_vs_ui_fr", VS::UI_FR},
@@ -44,6 +47,7 @@ namespace GE
         {L"g_vs_static_shadow_fr", VS::STATIC_SHADOW_FR},
         {L"g_vs_particle_fullscreen", VS::PARTICLE_FULLSCREEN},
         {L"g_vs_skeletal_shadow_fr", VS::SKELETAL_SHADOW_FR},
+        {L"g_vs_skeletal_point_light_shadow_fr", VS::SKELETAL_POINT_LIGHT_SHADOW_FR},
         {L"g_vs_grid", VS::GRID},
         {L"g_vs_sdf_font_fr", VS::SDF_FONT_FR},
         {L"g_vs_skeletal_forward_fr", VS::SKELETAL_FORWARD_FR},
@@ -52,6 +56,7 @@ namespace GE
 
     inline const std::unordered_map<VS, std::wstring> enumToVSGlobalNameMap = {
         {VS::SKELETAL_FR, L"g_vs_skeletal_fr"},
+        {VS::STATIC_POINT_LIGHT_SHADOW_FR, L"g_vs_static_point_light_shadow_fr"},
         {VS::STATIC_FORWARD_FR, L"g_vs_static_forward_fr"},
         {VS::PARTICLE_QUAD, L"g_vs_particle_quad"},
         {VS::UI_FR, L"g_vs_ui_fr"},
@@ -61,6 +66,7 @@ namespace GE
         {VS::STATIC_SHADOW_FR, L"g_vs_static_shadow_fr"},
         {VS::PARTICLE_FULLSCREEN, L"g_vs_particle_fullscreen"},
         {VS::SKELETAL_SHADOW_FR, L"g_vs_skeletal_shadow_fr"},
+        {VS::SKELETAL_POINT_LIGHT_SHADOW_FR, L"g_vs_skeletal_point_light_shadow_fr"},
         {VS::GRID, L"g_vs_grid"},
         {VS::SDF_FONT_FR, L"g_vs_sdf_font_fr"},
         {VS::SKELETAL_FORWARD_FR, L"g_vs_skeletal_forward_fr"},
@@ -128,6 +134,7 @@ namespace GE
         {PS::BILATERAL_UP_SAMPLE, L"ps_bilateral_up_sample.hlsl"},
         {PS::GRID, L"ps_grid.hlsl"},
         {PS::VOLUMETRIC_FOG, L"ps_volumetric_fog.hlsl"},
+        {PS::POINT_LIGHT_SHADOW, L"ps_point_light_shadow.hlsl"},
         {PS::SDF_FONT, L"ps_sdf_font.hlsl"},
         {PS::GBUFFER, L"ps_gbuffer.hlsl"},
         {PS::UI, L"ps_ui.hlsl"},
@@ -162,6 +169,7 @@ namespace GE
         {L"g_ps_bilateral_up_sample", PS::BILATERAL_UP_SAMPLE},
         {L"g_ps_grid", PS::GRID},
         {L"g_ps_volumetric_fog", PS::VOLUMETRIC_FOG},
+        {L"g_ps_point_light_shadow", PS::POINT_LIGHT_SHADOW},
         {L"g_ps_sdf_font", PS::SDF_FONT},
         {L"g_ps_gbuffer", PS::GBUFFER},
         {L"g_ps_ui", PS::UI},
@@ -196,6 +204,7 @@ namespace GE
         {PS::BILATERAL_UP_SAMPLE, L"g_ps_bilateral_up_sample"},
         {PS::GRID, L"g_ps_grid"},
         {PS::VOLUMETRIC_FOG, L"g_ps_volumetric_fog"},
+        {PS::POINT_LIGHT_SHADOW, L"g_ps_point_light_shadow"},
         {PS::SDF_FONT, L"g_ps_sdf_font"},
         {PS::GBUFFER, L"g_ps_gbuffer"},
         {PS::UI, L"g_ps_ui"},

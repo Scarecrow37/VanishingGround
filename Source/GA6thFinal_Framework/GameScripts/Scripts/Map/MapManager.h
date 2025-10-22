@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "Utility/SingletonHelper.h"
 
+class OpenInventoryComponent;
 class Stage;
 class ScrollingWrapper;
 class MapManager : public Component, public InputReceiver
@@ -82,6 +83,10 @@ private:
 
     Stage* _lastFocusStage = nullptr;
     void PreferencesKeyDown(const Input::Controller&);
+    void InventoryKeyDown(const Input::Controller&);
     void OpenPreferencesWindow();
+    void OpenInventoryWindow();
 
+    bool _openPreferences = false;
+    bool _openInventory   = false;
 };

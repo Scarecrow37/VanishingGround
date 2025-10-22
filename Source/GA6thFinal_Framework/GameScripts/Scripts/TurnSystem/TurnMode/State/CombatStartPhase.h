@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Monster/Common/MonsterCommon.h"
 #include "Base/TurnModeStateBase.h"
 
 class Enemy;
@@ -28,6 +29,7 @@ public:
     void ResetCharacterStats();
     Player* GetPlayer() { return _player; }
     const std::vector<Enemy*>& GetEnemies() { return _enemies; }
+    Enemy* GetEnemyFromSpawnPoint(Monster::SpawnPoint spawnPoint) const;
     const std::vector<CharacterBase*>& GetCharacters() { return _characters; }
 
 protected:
@@ -48,9 +50,10 @@ private:
     std::vector<Enemy*>         _enemies;
     std::vector<CharacterBase*> _characters;
 
+    std::map<Monster::SpawnPoint, Enemy*> _spawnPointEnemyTable;
+
 private:
     /*적 배열을 Left, Middle, Right 순으로 정렬합니다.*/
-    void SortEnemies();
     void RegisterEnemiesHUD();
     void RegisterEnemiesHP() const;
     void RegisterEnemyHP(int index, const std::string& key, const std::string& tag) const;

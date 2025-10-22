@@ -2,6 +2,8 @@
 #include "LightComponent.h"
 #include "GraphicsEngine/Interface/ILight.h"
 
+REFLECT_FUNCTION(LightComponent)
+
 LightComponent::LightComponent() 
     : Component(Component::TYPE::LIGHT)
     , _light(nullptr)

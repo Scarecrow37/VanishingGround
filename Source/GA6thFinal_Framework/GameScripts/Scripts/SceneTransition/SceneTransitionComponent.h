@@ -71,10 +71,6 @@ protected:
 
     // void OnDestroy() override;
 
-    // private:
-    // SingletonComponent<SceneTransitionComponent> _singletonComponent{this};
-
-
 public:
     void Fade(float duration, const Vector4& start, const Vector4& end, std::function<void()> callback);
     void Fade(Mathf::EaseType easetype, Mathf::EaseFuncType easefunctype, float duration, const Vector4& start,
@@ -88,7 +84,8 @@ public:
 
 
 private:
-    SingletonObject<SceneTransitionComponent> _singletonObject{this};
+    SingletonComponent<SceneTransitionComponent> _singletonComponent{this};
+    SingletonObject<SceneTransitionComponent>    _singletonObject{this};
 
     bool                      _callbackFlag = true;
     std::function<void(void)> _fadeCallBackFunction;

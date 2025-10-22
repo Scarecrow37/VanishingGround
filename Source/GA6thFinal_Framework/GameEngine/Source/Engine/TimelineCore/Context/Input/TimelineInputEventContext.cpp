@@ -5,6 +5,8 @@ REGISTER_CLASS(Timeline::EventTrack, Timeline::InputEventContext)
 
 namespace Timeline
 {
+    REFLECT_FUNCTION(InputEventContext)
+
     InputEventContext::InputEventContext()  = default;
     InputEventContext::~InputEventContext() = default;
 
