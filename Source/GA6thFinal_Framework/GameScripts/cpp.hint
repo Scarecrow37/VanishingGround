@@ -90,7 +90,10 @@ protected:                                                                      
             CLASS##::DeserializedReflectEvent();                                                                \
         }                                                                                                       \
     }                                                                                                           \
-    virtual void applyReflectFields(const std::function<void(std::string_view, void*)>& func);
+    virtual void applyReflectFields(const std::function<void(std::string_view, void*)>& func);                  \
+                                                                                                                \
+private:                                                                                                        \
+    void imgui_draw_reflect_fields_input_auto(std::unordered_set<void*>& reflectionFieldsSet, const ReflectHelper::ImGuiDraw::InputAutoSetting& setting);               
 
 #define REFLECT_PROPERTY(...) 
 
@@ -168,10 +171,24 @@ namespace FACTORY##_##CLASS##_IsRegister                                        
         view.apply([&](auto& rflField) { func(rflField.name(), rflField.value()); });                                  \
     }
 
+#define IMGUI_DRAW_REFLECT_FIELDS(CLASS_NAME)                                                                                                                          \
+void CLASS_NAME::imgui_draw_reflect_fields_input_auto(std::unordered_set<void*>& reflectionFieldsSet,  const ReflectHelper::ImGuiDraw::InputAutoSetting& setting)      \
+{                                                                                                                                                                      \
+    const auto view = rfl::to_view(*ReflectFields.Get());                                                                                                              \
+    view.apply([&](auto& rflField)                                                                                                                                     \
+    {                                                                                                                                                                  \
+        if (reflectionFieldsSet.find(rflField.value()) != reflectionFieldsSet.end())                                                                                   \
+        {                                                                                                                                                              \
+            ReflectHelper::ImGuiDraw::Private::InputAuto(rflField, setting);                                                                                           \
+        }                                                                                                                                                              \
+    });                                                                                                                                                                \
+}
+
 #define REFLECT_FUNCTION(CLASS_NAME)                                                                                   \
     SERIALIZED_REFLECT_FUNC(CLASS_NAME)                                                                                \
     DESERIALIZED_REFLECT_FUNC(CLASS_NAME)                                                                              \
-    APPLY_REFLECT_FUNC(CLASS_NAME)                                                                                     
+    APPLY_REFLECT_FUNC(CLASS_NAME)                                                                                     \
+    IMGUI_DRAW_REFLECT_FIELDS(CLASS_NAME)
 
 // 컴포넌트 생성 함수 선언용 매크로
 #define UMREAL_COMPONENT(CLASS_NAME)                                                                                   \
