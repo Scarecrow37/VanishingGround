@@ -7,8 +7,10 @@ UmCineMotion::~UmCineMotion() = default;
 
 void UmCineMotion::Start() 
 {
-    transform->Position = _posTethers[0];
-    transform->Rotation = _rotTethers[0];
+    if (!_posTethers.empty())
+        transform->Position = _posTethers[0];
+    if (!_rotTethers.empty())
+        transform->Rotation = _rotTethers[0];
 }
 
 void UmCineMotion::OnDrawDebug()
@@ -28,8 +30,8 @@ void UmCineMotion::OnDrawDebugSelected()
     DrawRail();
 
 #ifdef _UMEDITOR
-    UpdateTetherFromGizmo();
-    DrawGizmoIcon();
+    UpdateTetherFromGuizmo();
+    DrawGuizmoIcon();
     DrawGuizmo();
 #endif
 
@@ -54,32 +56,36 @@ void UmCineMotion::ImGuiDrawPropertysEvent()
     {
         if (false == _posTethers.empty())
         {
-            Vector3 comboLabelPos = _posTethers[_selectedTether == -1 ? 0 : _selectedTether];
-            Vector3 comboLabelRot = _rotTethers[_selectedTether == -1 ? 0 : _selectedTether].ToEuler() * Mathf::Rad2Deg;
-            std::string comboLabel = std::to_string(comboLabelPos.x) + ", " + std::to_string(comboLabelPos.y) + ", " +
-                                     std::to_string(comboLabelPos.z) + " / " + std::to_string(comboLabelRot.x) + ", " +
-                                     std::to_string(comboLabelRot.y) + ", " + std::to_string(comboLabelRot.z);
-            if (ImGui::BeginCombo("##Tethers", comboLabel.c_str()))
+            const size_t idx = (_selectedTether == (UINT)-1 ? 0u : static_cast<size_t>(_selectedTether));
+            if (idx < _posTethers.size() && idx < _rotTethers.size())
             {
-                for (int i = 0; i < _posTethers.size(); ++i)
+                Vector3     comboLabelPos = _posTethers[idx];
+                Vector3     comboLabelRot = _rotTethers[idx].ToEuler() * Mathf::Rad2Deg;
+                std::string comboLabel    = std::to_string(comboLabelPos.x) + ", " + std::to_string(comboLabelPos.y) +
+                                         ", " + std::to_string(comboLabelPos.z) + " / " +
+                                         std::to_string(comboLabelRot.x) + ", " + std::to_string(comboLabelRot.y) +
+                                         ", " + std::to_string(comboLabelRot.z);
+                if (ImGui::BeginCombo("##Tethers", comboLabel.c_str()))
                 {
-                    bool    isSelected  = _selectedTether == i;
-                    Vector3 selectedRot = _rotTethers[i].ToEuler() * Mathf::Rad2Deg;
-
-                    std::string selected = std::to_string(_posTethers[i].x) + ", " + std::to_string(_posTethers[i].y) +
-                                           ", " + std::to_string(_posTethers[i].z) + " / " +
-                                           std::to_string(selectedRot.x) + ", " + std::to_string(selectedRot.y) + ", " +
-                                           std::to_string(selectedRot.z);
-                    if (ImGui::Selectable(selected.c_str(), isSelected))
+                    for (size_t i = 0; i < _posTethers.size(); ++i)
                     {
-                        _selectedTether = i;
+                        bool    isSelected  = _selectedTether == i; // [NOTE] implicit cast; see sentinel note above
+                        Vector3 selectedRot = _rotTethers[i].ToEuler() * Mathf::Rad2Deg;
+
+                        std::string selected =
+                            std::to_string(_posTethers[i].x) + ", " + std::to_string(_posTethers[i].y) + ", " +
+                            std::to_string(_posTethers[i].z) + " / " + std::to_string(selectedRot.x) + ", " +
+                            std::to_string(selectedRot.y) + ", " + std::to_string(selectedRot.z);
+                        if (ImGui::Selectable(selected.c_str(), isSelected))
+                        {
+                            _selectedTether = static_cast<UINT>(i);
+                        }
                     }
+                    ImGui::EndCombo();
                 }
-                ImGui::EndCombo();
             }
         }
-
-        bool isAddTetherButtonPressed = ImGui::Button("Add Tether Here", {150, 50});
+        bool isAddTetherButtonPressed = ImGui::Button("Add Tether", {150, 50});
         if (true == isAddTetherButtonPressed)
         {
             if (false == _railFlag)
@@ -115,7 +121,7 @@ void UmCineMotion::ImGuiDrawPropertysEvent()
         }
         ImGui::SameLine();
 
-        bool isReversePressed = ImGui::Button("reverse Rail", {150, 50});
+        bool isReversePressed = ImGui::Button("Reverse Rail", {150, 50});
         if (true == isReversePressed)
         {
             StartRail(true);
@@ -141,6 +147,41 @@ void UmCineMotion::ImGuiDrawPropertysEvent()
         if (true == isShakePressed)
         {
             BeginShake(_shakeDuration, _shakeIntensity, _shakeFrequency);
+        }
+    }
+    {
+        ImGui::Checkbox("Easing Panel", &_showEasingFlag);
+        if (_showEasingFlag)
+        {
+            const char* easetype = Mathf::EaseNameTable[ReflectFields->EaseType].c_str();
+            if (ImGui::BeginCombo("##ease type", easetype))
+            {
+                for (int i = 0; i < Mathf::EaseNameTable.size(); ++i)
+                {
+                    bool isSelected = ReflectFields->EaseType == i;
+                    if (ImGui::Selectable(Mathf::EaseNameTable[i].c_str(), isSelected))
+                    {
+                        ReflectFields->EaseType = i;
+                    }
+                }
+                ImGui::EndCombo();
+            }
+            const char* easefunc = Mathf::EaseFuncNameTable[ReflectFields->EaseFuncType].c_str();
+            if (ImGui::BeginCombo("##ease func type", easefunc))
+            {
+                for (int i = 0; i < Mathf::EaseFuncNameTable.size(); ++i)
+                {
+                    bool isSelected = ReflectFields->EaseFuncType == i;
+                    if (ImGui::Selectable(Mathf::EaseFuncNameTable[i].c_str(), isSelected))
+                    {
+                        ReflectFields->EaseFuncType = i;
+                    }
+                }
+                ImGui::EndCombo();
+            }
+            ImGui::SliderFloat("Shift Threshold", &ReflectFields->EaseThreshold, 0.f, 1.f);
+            ImGui::PlotLines("Ease Graph", _easeLog.data(), (int)_easeLog.size(), 0, NULL, -0.5f, 1.5f,
+                             ImVec2(400, 150));
         }
     }
 }
@@ -169,7 +210,7 @@ void UmCineMotion::AddTetherAuto()
     _rotTethers.push_back(transform->Rotation);
     _railFlag = false;
 #ifdef _UMEDITOR
-    PushGizmo(transform->GetWorldMatrix());
+    PushGuizmo(transform->GetWorldMatrix());
 #endif
 }
 
@@ -179,17 +220,29 @@ void UmCineMotion::UndoTether()
     {
         return;
     }
+    // [SAFETY] Guard pop_backs with size checks to keep arrays in sync
+    if (!_posTethers.empty())
+        _posTethers.pop_back();
+    if (!_rotTethers.empty())
+        _rotTethers.pop_back();
+
     ReflectFields->RailLength -= ReflectFields->TimestepTethers.back();
     ReflectFields->TimestepTethers.pop_back();
-    _posTethers.pop_back();
-    _rotTethers.pop_back();
     _railFlag = false;
-    if (_selectedTether >= ReflectFields->TimestepTethers.size())
+
+    if (!_posTethers.empty())
     {
-        _selectedTether = (UINT)(ReflectFields->TimestepTethers.size() - 1);
+        if (_selectedTether >= ReflectFields->TimestepTethers.size())
+        {
+            _selectedTether = (UINT)(ReflectFields->TimestepTethers.size() - 1);
+        }
+    }
+    else
+    {
+        _selectedTether = (UINT)-1; // [RISK] see type note
     }
 #ifdef _UMEDITOR
-    PopGizmo();
+    PopGuizmo();
 #endif
 }
 
@@ -202,7 +255,7 @@ void UmCineMotion::ClearTethers()
     _railFlag       = false;
     _selectedTether = -1;
 #ifdef _UMEDITOR
-    ClearGizmo();
+    ClearGuizmo();
 #endif
 }
 
@@ -211,11 +264,7 @@ void UmCineMotion::StartRail(bool isReverse)
     _railFlag  = true;
     _pauseFlag = false;
     _reverseFlag = isReverse;
-    //if (false == _posTethers.empty())
-    //{
-    //    transform->Position = _posTethers[0];
-    //    transform->Rotation = _rotTethers[0];
-    //}
+    _easeLog.clear();
 }
 
 void UmCineMotion::PauseRail()
@@ -268,41 +317,44 @@ void UmCineMotion::DrawRail()
                 shaft.Orientation = rotation * Quaternion::CreateFromAxisAngle(up, -45 * Mathf::Deg2Rad);
                 UmGraphics.DebugDraw3D("Editor", shaft, Colors::Cyan);
 
-
             }
         }
         // interpolated points
         {
             Vector3    posStep = {0, 0, 0};
             Quaternion rotStep = Quaternion::Identity;
-            if (_posTethers.size() >= 2)
+            if (_posTethers.size() >= 2 && !ReflectFields->TimestepTethers.empty())
             {
-                float max      = ReflectFields->TimestepTethers[_posTethers.size() - 1];
-                float timestep = max / 100;
-                for (float i = 0; i < max; i += timestep)
+                float max = ReflectFields->TimestepTethers[_posTethers.size() - 1];
+                // [GUARD] timestep must be > 0 to avoid infinite loop
+                float timestep = (max > 0.0f) ? (max / 100.0f) : 0.0f;
+                if (timestep > 0.0f)
                 {
-                    posStep = Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _posTethers, i);
-                    UmGraphics.DebugDraw3D("Editor", BoundingSphere(posStep, 0.05f), DEBUG_COLOR);
+                    for (float t = 0; t < max; t += timestep)
+                    {
+                        posStep = Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _posTethers, t);
+                        UmGraphics.DebugDraw3D("Editor", BoundingSphere(posStep, 0.05f), DEBUG_COLOR);
 
-                    rotStep = Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _rotTethers, i);
-                    Vector3             forward = Vector3::Transform(Vector3::Forward, rotStep);
-                    Vector3             up      = Vector3::Transform(Vector3::Up, rotStep);
-                    Vector3             right   = Vector3::Transform(Vector3::Right, rotStep);
-                    BoundingOrientedBox shaft;
-                    shaft.Center      = posStep - forward * 0.1f;
-                    shaft.Extents     = {0.01f, 0.01f, 0.1f};
-                    shaft.Orientation = rotStep;
-                    UmGraphics.DebugDraw3D("Editor", shaft, Colors::Coral);
+                        rotStep = Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _rotTethers, t);
+                        Vector3             forward = Vector3::Transform(Vector3::Forward, rotStep);
+                        Vector3             up      = Vector3::Transform(Vector3::Up, rotStep);
+                        Vector3             right   = Vector3::Transform(Vector3::Right, rotStep);
+                        BoundingOrientedBox shaft;
+                        shaft.Center      = posStep - forward * 0.1f;
+                        shaft.Extents     = {0.01f, 0.01f, 0.1f};
+                        shaft.Orientation = rotStep;
+                        UmGraphics.DebugDraw3D("Editor", shaft, Colors::Coral);
 
-                    shaft.Extents     = {0.005f, 0.005f, 0.03f};
-                    shaft.Center      = posStep - forward * 0.18f - right * 0.02f;
-                    shaft.Orientation = rotStep * Quaternion::CreateFromAxisAngle(up, 45 * Mathf::Deg2Rad);
-                    UmGraphics.DebugDraw3D("Editor", shaft, Colors::Coral);
+                        shaft.Extents     = {0.005f, 0.005f, 0.03f};
+                        shaft.Center      = posStep - forward * 0.18f - right * 0.02f;
+                        shaft.Orientation = rotStep * Quaternion::CreateFromAxisAngle(up, 45 * Mathf::Deg2Rad);
+                        UmGraphics.DebugDraw3D("Editor", shaft, Colors::Coral);
 
-                    shaft.Extents     = {0.005f, 0.005f, 0.03f};
-                    shaft.Center      = posStep - forward * 0.18f + right * 0.02f;
-                    shaft.Orientation = rotStep * Quaternion::CreateFromAxisAngle(up, -45 * Mathf::Deg2Rad);
-                    UmGraphics.DebugDraw3D("Editor", shaft, Colors::Coral);
+                        shaft.Extents     = {0.005f, 0.005f, 0.03f};
+                        shaft.Center      = posStep - forward * 0.18f + right * 0.02f;
+                        shaft.Orientation = rotStep * Quaternion::CreateFromAxisAngle(up, -45 * Mathf::Deg2Rad);
+                        UmGraphics.DebugDraw3D("Editor", shaft, Colors::Coral);
+                    }
                 }
             }
         }
@@ -315,11 +367,13 @@ void UmCineMotion::RunRail()
     {
         if (false == _pauseFlag)
         {
-            _moveTimer += UmTime.DeltaTime() * ReflectFields->RailSpeed * (_reverseFlag ? -1 : 1);
-            _moveTimer   = std::clamp(_moveTimer, 0.f, ReflectFields->RailLength);
-            if (ReflectFields->RailLength > 0.f)
+            if (ReflectFields->RailLength > 0.f && ReflectFields->RailSpeed > 0.f)
             {
-                _currentStep = _moveTimer / ReflectFields->RailLength * 100.f;
+                float duration = (ReflectFields->RailLength / ReflectFields->RailSpeed);
+                _moveTimer += (_reverseFlag ? -1 : 1) * UmTime.DeltaTime();
+                _moveTimer     = std::clamp(_moveTimer, 0.f, duration);
+                float xAxis = (duration > 0.f) ? (_moveTimer / duration) : 0.f;
+                _currentStep   = EaseTimeStep(xAxis);
             }
             else
             {
@@ -334,9 +388,9 @@ void UmCineMotion::RunRail()
     if (ReflectFields->TimestepTethers.size() > 1)
     {
         angle    = Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _rotTethers,
-                                           _currentStep * ReflectFields->RailLength * 0.01f);
+                                           _currentStep * ReflectFields->RailLength);
         position = Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _posTethers,
-                                           _currentStep * ReflectFields->RailLength * 0.01f);
+                                           _currentStep * ReflectFields->RailLength);
     }
     _targetPos   = position;
     _targetAngle = angle;
@@ -410,7 +464,7 @@ void UmCineMotion::DeserializedReflectEvent()
                                ReflectFields->RotationZTethers[i], ReflectFields->RotationWTethers[i]});
         Matrix world = Matrix::CreateFromQuaternion(_rotTethers[i]) * Matrix::CreateTranslation(_posTethers[i]);
 #ifdef _UMEDITOR
-        PushGizmo(world);
+        PushGuizmo(world);
 #endif
     }
 }
@@ -438,13 +492,27 @@ void UmCineMotion::SerializedReflectEvent()
         ReflectFields->RotationWTethers.push_back(rot.w);
     }
 }
+float UmCineMotion::EaseTimeStep(float step) 
+{
+    float curStep = Mathf::Ease((Mathf::EaseType)ReflectFields->EaseType,
+                                 (Mathf::EaseFuncType)ReflectFields->EaseFuncType,
+                ReflectFields->EaseThreshold, step);
+    if (curStep <= 1.f)
+        _easeLog.push_back(curStep);
+    return curStep;
+}
 
 #ifdef _UMEDITOR
-void UmCineMotion::UpdateTetherFromGizmo()
+
+
+void UmCineMotion::UpdateTetherFromGuizmo()
 {
-    for (int i = 0; i < _gizmoes.size(); i++)
+    if (_guizmoes.empty())
+        return;
+
+    for (int i = 0; i < _guizmoes.size(); i++)
     {
-        auto& [gizmo, mat, icon] = _gizmoes[i];
+        auto& [guizmo, mat, icon] = _guizmoes[i];
         Vector3    scale;
         Quaternion rot;
         mat.Decompose(scale, _rotTethers[i], _posTethers[i]);
@@ -461,43 +529,49 @@ void UmCineMotion::UpdateTetherFromGizmo()
     }
 }
 
-void UmCineMotion::PushGizmo(const Matrix& world)
+void UmCineMotion::PushGuizmo(const Matrix& world)
 {
-    int size                    = (int)_gizmoes.size();
-    auto& [gizmo, matrix, icon] = _gizmoes.emplace_back(this, world, SceneGizmo::DefaultIcon::TETHER);
-    gizmo.SetIconTexture(icon);
-    gizmo.EventListener.AddListener([this, index = size]() { _selectedTether = index; });
+    int size                    = (int)_guizmoes.size();
+    auto& [guizmo, matrix, icon] = _guizmoes.emplace_back(this, world, SceneGizmo::DefaultIcon::TETHER);
+    guizmo.SetIconTexture(icon);
+    guizmo.EventListener.AddListener([this, index = size]() { _selectedTether = index; });
 
-    for (auto& [gizmo, matrix, icon] : _gizmoes)
+    for (auto& [guizmo, matrix, icon] : _guizmoes)
     {
-        gizmo.SetOwnerMatrix(matrix);
+        guizmo.SetOwnerMatrix(matrix);
     }
 }
 
-void UmCineMotion::PopGizmo()
+void UmCineMotion::PopGuizmo()
 {
-    _gizmoes.pop_back();
+    if (_guizmoes.empty())
+        return;
+
+    _guizmoes.pop_back();
 }
 
-void UmCineMotion::ClearGizmo()
+void UmCineMotion::ClearGuizmo()
 {
-    _gizmoes.clear();
+    _guizmoes.clear();
 }
 
 void UmCineMotion::DrawGuizmo()
 {
-    if (0 <= _selectedTether && _selectedTether < _gizmoes.size())
+    if (_guizmoes.empty())
+        return;
+
+    if (0 <= _selectedTether && _selectedTether < _guizmoes.size())
     {
-        auto& [gizmo, matrix, icon] = _gizmoes[_selectedTether];
-        gizmo.DrawImGuizmo();
+        auto& [guizmo, matrix, icon] = _guizmoes[_selectedTether];
+        guizmo.DrawImGuizmo();
     }
 }
 
-void UmCineMotion::DrawGizmoIcon()
+void UmCineMotion::DrawGuizmoIcon()
 {
-    for (auto& [gizmo, matrix, icon] : _gizmoes)
+    for (auto& [guizmo, matrix, icon] : _guizmoes)
     {
-        gizmo.DrawIcon();
+        guizmo.DrawIcon();
     }
 }
 #endif

@@ -63,7 +63,7 @@ int Player::GetSpeed()
     WeaponSystem* system = SingletonComponent<WeaponSystem>::GetInstance();
     if (system)
     {
-        return system->GetCurrentWeaponStats().Speed;
+        return system->GetCurrentWeaponElement().Stats.Speed;
     }
     else
     {
@@ -78,7 +78,7 @@ int Player::GetRandomSpeed()
     WeaponSystem* system = SingletonComponent<WeaponSystem>::GetInstance();
     if (system)
     {
-        return system->GetCurrentWeaponStats().RandomSpeed;
+        return system->GetCurrentWeaponElement().Stats.RandomSpeed;
     }
     else
     {
@@ -93,7 +93,7 @@ void Player::PlayTurn()
     WeaponSystem* system = SingletonComponent<WeaponSystem>::GetInstance();
     if (system)
     {
-        const std::string& weaponName = system->GetCurrentWeaponStats().WeaponName;
+        const std::string& weaponName = system->GetCurrentWeaponElement().Stats.WeaponName;
         std::string      message    = std::format("{}{}{}", (const char*)u8"Player 턴 시작. ", "Weapon : ", weaponName);
         UmLogger.Message(LogLevel::LEVEL_TRACE, message);
     }

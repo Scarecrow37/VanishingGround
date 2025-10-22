@@ -20,10 +20,10 @@ namespace RestartUtility
                 switch (type)
                 {
                 case RestartStageNavi::SelectBoxType::DEFAULT:
-                    rowKey = u8"선택버튼_0";
+                    rowKey = u8"나가기/ 다음전투 선택버튼 포커스 안됨";
                     break;
                 case RestartStageNavi::SelectBoxType::FOCUS :
-                    rowKey = u8"선택버튼_1";
+                    rowKey = u8"나가기/ 다음전투 선택버튼 포커스 됨";
                     break;
                 default:
                     break;
@@ -141,4 +141,8 @@ void RestartStageNavi::Start()
     using namespace RestartUtility;
     Base::Start();
     CheckImageElementWithLog(_imageElement);
+    if (_imageElement)
+    {
+        _imageElement->SetImage(GetSelectBox(SelectBoxType::DEFAULT));
+    }
 }

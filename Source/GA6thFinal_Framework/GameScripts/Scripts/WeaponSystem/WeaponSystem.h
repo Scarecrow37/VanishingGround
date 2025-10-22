@@ -46,10 +46,10 @@ public:
     }
 
     /// <summary>
-    /// 현재 사용중인 무기의 Stats을 반환합니다.
+    /// 현재 사용중인 무기를 반환합니다.
     /// </summary>
     /// <returns></returns>
-    WeaponStats& GetCurrentWeaponStats() { return _equipWeapons[_currentWeaponSlot].Stats; }
+    WeaponElement& GetCurrentWeaponElement() { return _equipWeapons[_currentWeaponSlot]; }
 
     /// <summary>
     /// 무기를 slot에 장착합니다.

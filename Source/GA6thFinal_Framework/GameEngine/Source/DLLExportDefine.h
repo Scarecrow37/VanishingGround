@@ -37,10 +37,24 @@
         view.apply([&](auto& rflField) { func(rflField.name(), rflField.value()); });                                  \
     }
 
+#define IMGUI_DRAW_REFLECT_FIELDS(CLASS_NAME)                                                                                                                          \
+void CLASS_NAME::imgui_draw_reflect_fields_input_auto(std::unordered_set<void*>& reflectionFieldsSet,  const ReflectHelper::ImGuiDraw::InputAutoSetting& setting)      \
+{                                                                                                                                                                      \
+    const auto view = rfl::to_view(*ReflectFields.Get());                                                                                                              \
+    view.apply([&](auto& rflField)                                                                                                                                     \
+    {                                                                                                                                                                  \
+        if (reflectionFieldsSet.find(rflField.value()) != reflectionFieldsSet.end())                                                                                   \
+        {                                                                                                                                                              \
+            ReflectHelper::ImGuiDraw::Private::InputAuto(rflField, setting);                                                                                           \
+        }                                                                                                                                                              \
+    });                                                                                                                                                                \
+}
+      
 #define REFLECT_FUNCTION(CLASS_NAME)                                                                                   \
     SERIALIZED_REFLECT_FUNC(CLASS_NAME)                                                                                \
     DESERIALIZED_REFLECT_FUNC(CLASS_NAME)                                                                              \
-    APPLY_REFLECT_FUNC(CLASS_NAME)                                                                                     
+    APPLY_REFLECT_FUNC(CLASS_NAME)                                                                                     \
+    IMGUI_DRAW_REFLECT_FIELDS(CLASS_NAME)
 
 #define UMREAL_COMPONENT_EXPORT(CLASS_NAME)                                                                            \
     extern "C" UMREALSCRIPTS_DECLSPEC Component* NewTest##CLASS_NAME() UMREALSCRIPT_NEWCOMPONENT(CLASS_NAME)
@@ -51,6 +65,4 @@
     REFLECT_FUNCTION(CLASS_NAME)
 
                                                                                              
-
-                                                                                      
 
