@@ -43,6 +43,9 @@ void TurnListEmptyState::OnEnter()
                 }
             }
         });
+
+        //액션 후 다시 사망 계산
+        UpdateCharacterDead();
     }
     else
     {
