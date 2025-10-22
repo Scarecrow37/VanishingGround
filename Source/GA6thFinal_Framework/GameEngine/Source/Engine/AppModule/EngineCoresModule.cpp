@@ -24,6 +24,7 @@ void EngineCoresModule::ModuleUnInitialize()
     ESceneManager::Engine::CleanupSceneManager();
     ETimeSystem::Engine::CleanUpInvokeFuntions();
     engineCore->ComponentFactory.UninitalizeComponentFactory();
+    EGameObjectFactory::Engine::Finalize();
     UmGraphics.Finalize();
     SafeEngineCoresPtr::Engine::DestroyEngineCores();
 }

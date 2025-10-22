@@ -1,6 +1,8 @@
 ﻿#include "pch.h"
 #include "UIComponent.h"
 
+REFLECT_FUNCTION(UIComponent)
+
 bool operator==(const POINT& lhs, const POINT& rhs)
 {
     return lhs.x == rhs.x && lhs.y == rhs.y;
@@ -213,8 +215,6 @@ void UIComponent::ImGuiDrawPropertysEvent()
 
 void UIComponent::DeserializedReflectEvent()
 {
-    Component::DeserializedReflectEvent();
-
     _requestedPoint = ActualPosition;
     _requestedSize  = ActualSize;
 }

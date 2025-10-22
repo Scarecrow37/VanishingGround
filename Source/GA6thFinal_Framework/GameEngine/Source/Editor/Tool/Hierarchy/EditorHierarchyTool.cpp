@@ -8,6 +8,8 @@
 #include "Camera/CameraComponent.h"
 #include "GraphicsEngine/Interface/IMeshRenderer.h"
 
+REFLECT_FUNCTION(EditorHierarchyTool)
+
 using namespace u8_literals;
 using namespace Global;
 using namespace Command::Hierarchy;

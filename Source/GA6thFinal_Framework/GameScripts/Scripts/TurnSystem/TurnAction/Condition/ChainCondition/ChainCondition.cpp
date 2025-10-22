@@ -9,6 +9,9 @@
 #include <TurnSystem/TurnSystemHelper.h>
 
 REGISTER_TURN_ACTION_CONDITION(ChainCondition)
+
+REFLECT_FUNCTION(ChainCondition)
+
 using namespace u8_literals;
 
 ChainCondition::ChainCondition() 

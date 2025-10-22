@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "GameCore/FSM/FiniteStateMachine.h"
 
+class CharacterBase;
 /// <summary>
 /// TurnMode를 Start에서 가져와주는 베이스 클래스입니다.
 /// </summary>
@@ -12,6 +13,8 @@ public:
 
 protected:
     void OnStart() override;
+
+    void UpdateCharacterDead(const std::function<void(CharacterBase&)>& deadCallback = std::function<void(CharacterBase&)>());
 
 protected:
     class TurnMode* _turnMode = nullptr;

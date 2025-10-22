@@ -218,7 +218,7 @@ void QTESystem::StartQTE(Callback callback)
     WeaponSystem* weaponSystem = SingletonComponent<WeaponSystem>::GetInstance();
     if (weaponSystem)
     {
-        auto& weapon = weaponSystem->GetCurrentWeaponStats();
+        auto& weapon = weaponSystem->GetCurrentWeaponElement().Stats;
         auto  itr = _weaponIDToTrackTable.find(weapon.WeaponID);
         if (itr != _weaponIDToTrackTable.end() && false == itr->second.empty())
         {

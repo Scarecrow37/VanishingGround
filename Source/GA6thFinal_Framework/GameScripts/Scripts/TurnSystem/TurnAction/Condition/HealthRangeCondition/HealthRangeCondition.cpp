@@ -10,6 +10,8 @@
 
 REGISTER_TURN_ACTION_CONDITION(HealthRangeCondition)
 
+REFLECT_FUNCTION(HealthRangeCondition)
+
 HealthRangeCondition::HealthRangeCondition() 
 {
     UpdateConditionInfo();
