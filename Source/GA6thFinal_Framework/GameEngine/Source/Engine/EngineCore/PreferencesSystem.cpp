@@ -8,8 +8,13 @@ PreferencesSystem::~PreferencesSystem() {}
 
 void PreferencesSystem::Initialize()
 {
-    UmFileSystem.RegisterFileEventSubscriber(this, {".ini"});
     _graphicsController = std::make_unique<class GraphicsController>();
+    LoadData();
+}
+
+void PreferencesSystem::Uninitialize()
+{
+    SaveData();
 }
 
 void PreferencesSystem::SetSSR(bool enable) 
@@ -136,48 +141,58 @@ void PreferencesSystem::SetSFXVolume(float value, float maxVolume)
     UmAudio.SetVolume(Audio::GROUP_EFFECT, _SFXVolume);
 }
 
-void PreferencesSystem::OnPostRequestedSave()
+void PreferencesSystem::SaveData()
 {
-    auto filePath = UmFileSystem.GetBuildSettingPath();
-    filePath /= "Preferences.inl";
-    
-    std::ofstream outFile(filePath);
+    std::filesystem::path configPath = GetFilePath();
 
+    std::ofstream outFile(configPath);
     if (!outFile.is_open())
     {
         return;
     }
-    outFile << "\n";   
+    outFile << "# Graphics Settings\n";
     outFile << "SSR : " << _onSSR << "\n";
     outFile << "SSAO : " << _onSSAO << "\n";
     outFile << "Bloom : " << _onBloom << "\n";
     outFile << "VolumetricFog : " << _onVolumFog << "\n";
     outFile << "TextureQuality : " << _textureQuality << "\n";
+    outFile << "OnRayTracing : " << _onRayTracing << "\n\n";
+
+    outFile << "# Audio Settings (0.0 ~ 1.0)\n";
     outFile << "MasterVolume : " << _masterVolume << "\n";
     outFile << "SFXVolume : " << _SFXVolume << "\n";
-    outFile << "BGMVolume : " << _BGMVolume;
+    outFile << "BGMVolume : " << _BGMVolume << "\n";
+
     outFile.close();
 }
 
-void PreferencesSystem::OnPostRequestedLoad() 
+void PreferencesSystem::LoadData() 
 {
-    auto filePath = UmFileSystem.GetBuildSettingPath();
-    filePath /= "Preferences.inl";
+    std::filesystem::path configPath = GetFilePath();
 
-    std::ifstream infile(filePath);
+    if (!std::filesystem::exists(configPath))
+    {
+        SaveData();
+        return;
+    }
+
+    std::ifstream infile(configPath);
     if (!infile.is_open())
         return;
 
     std::string line;
     while (std::getline(infile, line))
     {
+        if (line.empty() || line[0] == '#' || line[0] == ';')
+            continue;
+
         std::stringstream ss(line);
         std::string       key, colon;
         std::string       value;
 
-        ss >> key;   
-        ss >> colon; 
-        ss >> value; 
+        ss >> key;
+        ss >> colon;
+        ss >> value;
 
         if (key == "SSR")
             _onSSR = (value == "1");
@@ -189,14 +204,88 @@ void PreferencesSystem::OnPostRequestedLoad()
             _onVolumFog = (value == "1");
         else if (key == "TextureQuality")
             _textureQuality = std::stoi(value);
+        else if (key == "OnRayTracing")
+            _onRayTracing = (value == "1");
         else if (key == "MasterVolume")
             _masterVolume = std::stof(value);
         else if (key == "SFXVolume")
             _SFXVolume = std::stof(value);
         else if (key == "BGMVolume")
             _BGMVolume = std::stof(value);
-                  
     }
     infile.close();
-
 }
+
+std::filesystem::path PreferencesSystem::GetFilePath()
+{
+    wchar_t exePath[MAX_PATH];
+    GetModuleFileNameW(NULL, exePath, MAX_PATH);
+    std::filesystem::path filePath = std::filesystem::path(exePath).parent_path();
+    
+    return filePath / L"Preferences.inl";
+}
+//
+//void PreferencesSystem::OnPostRequestedSave()
+//{
+//    auto filePath = UmFileSystem.GetBuildSettingPath();
+//    filePath /= "Preferences.inl";
+//    
+//    std::ofstream outFile(filePath);
+//
+//    if (!outFile.is_open())
+//    {
+//        return;
+//    }
+//    outFile << "\n";   
+//    outFile << "SSR : " << _onSSR << "\n";
+//    outFile << "SSAO : " << _onSSAO << "\n";
+//    outFile << "Bloom : " << _onBloom << "\n";
+//    outFile << "VolumetricFog : " << _onVolumFog << "\n";
+//    outFile << "TextureQuality : " << _textureQuality << "\n";
+//    outFile << "MasterVolume : " << _masterVolume << "\n";
+//    outFile << "SFXVolume : " << _SFXVolume << "\n";
+//    outFile << "BGMVolume : " << _BGMVolume;
+//    outFile.close();
+//}
+//
+//void PreferencesSystem::OnPostRequestedLoad() 
+//{
+//    auto filePath = UmFileSystem.GetBuildSettingPath();
+//    filePath /= "Preferences.inl";
+//
+//    std::ifstream infile(filePath);
+//    if (!infile.is_open())
+//        return;
+//
+//    std::string line;
+//    while (std::getline(infile, line))
+//    {
+//        std::stringstream ss(line);
+//        std::string       key, colon;
+//        std::string       value;
+//
+//        ss >> key;   
+//        ss >> colon; 
+//        ss >> value; 
+//
+//        if (key == "SSR")
+//            _onSSR = (value == "1");
+//        else if (key == "SSAO")
+//            _onSSAO = (value == "1");
+//        else if (key == "Bloom")
+//            _onBloom = (value == "1");
+//        else if (key == "VolumetricFog")
+//            _onVolumFog = (value == "1");
+//        else if (key == "TextureQuality")
+//            _textureQuality = std::stoi(value);
+//        else if (key == "MasterVolume")
+//            _masterVolume = std::stof(value);
+//        else if (key == "SFXVolume")
+//            _SFXVolume = std::stof(value);
+//        else if (key == "BGMVolume")
+//            _BGMVolume = std::stof(value);
+//                  
+//    }
+//    infile.close();
+//
+//}

@@ -9,8 +9,9 @@ void EngineCoresModule::PreInitialize()
     EGameObjectFactory::Engine::RegisterFileEvents();
     
     const SIZE& clientSize = UmApplication.GetClientSize();
-    UmGraphics.Initialize(engineCore->App.GetHwnd(), clientSize.cx, clientSize.cy, FeatureLevel::LEVEL_12_0, IS_EDITOR);
     UmPreferences.Initialize();
+    bool isRayTracing = UmPreferences.IsRayTracing();
+    UmGraphics.Initialize(engineCore->App.GetHwnd(), clientSize.cx, clientSize.cy, FeatureLevel::LEVEL_12_0, IS_EDITOR, isRayTracing);
 }
 
 void EngineCoresModule::ModuleUnInitialize()

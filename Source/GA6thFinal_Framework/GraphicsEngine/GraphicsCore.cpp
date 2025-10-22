@@ -243,7 +243,7 @@ void GraphicsCore::LoadModelResource(const std::wstring_view filePath, ParticleE
     }
 }
 
-void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT height, const FeatureLevel feature, bool isEditorMode)
+void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT height, const FeatureLevel feature, bool isEditorMode ,bool isRayTracing)
 {
     _device                   = new Device;
     _renderer                 = new Renderer;
@@ -278,7 +278,7 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     Global::pipelineStateManager     = _pipelineStateManager;
     Global::threadPool               = _threadPool;
     Global::sceneTransitionCore      = _sceneTransitionCore;
-
+    Global::isRayTracing             = isRayTracing;
     _device->SetUpDevice(hwnd, width, height, feature);
     _viewManager->Initialize();
     _device->Initialize();

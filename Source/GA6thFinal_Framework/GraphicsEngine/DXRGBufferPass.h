@@ -47,5 +47,5 @@ private:
     FX<GE::VS::SKELETAL_FR, GE::PS::DXRGBUFFER> _fxSkeletalMesh;
 
     // Debug
-    SharedResource<RenderTarget> _gBufferRenderTargets[3];
+    SharedResource<RenderTarget> _gBufferRenderTargets;
 };
