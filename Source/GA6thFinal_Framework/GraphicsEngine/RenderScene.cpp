@@ -339,8 +339,8 @@ void RenderScene::UpdateObject()
         BoneMatrices boneMatrices;
         MatrixData   matrixData          = {.World = component->GetWorldMatrix()};
         float        determinant         = XMMatrixDeterminant(matrixData.World).m128_f32[0];
+        matrixData.InverseTransposeWorld = XMMatrixInverse(nullptr, matrixData.World);
         matrixData.World                 = XMMatrixTranspose(matrixData.World);
-        matrixData.InverseTransposeWorld = XMMatrixTranspose(XMMatrixInverse(nullptr, matrixData.World));
 
         if (SKELETAL_MESH == type)
         {
