@@ -177,7 +177,7 @@ void TokenSystem::LoadTokenDataFromExcelData(ExcelDataSystem* dataSystem)
                 excelData = dataBase->FindData(rowIndex, TokenExcelData::Key::ID);
                 if (excelData != ExcelDataBase::FIND_STR_FAIL)
                 {
-                    tokenData.ID = StringHelper::StringToInt(excelData);
+                    StringHelper::StringToInt(excelData, tokenData.ID);
                 }
                 excelData = dataBase->FindData(rowIndex, TokenExcelData::Key::NAME);
                 if (excelData != ExcelDataBase::FIND_STR_FAIL)
@@ -192,12 +192,12 @@ void TokenSystem::LoadTokenDataFromExcelData(ExcelDataSystem* dataSystem)
                 excelData = dataBase->FindData(rowIndex, TokenExcelData::Key::ORDER);
                 if (excelData != ExcelDataBase::FIND_STR_FAIL)
                 {
-                    tokenData.Order = StringHelper::StringToInt(excelData);
+                    StringHelper::StringToInt(excelData, tokenData.Order);
                 }
                 excelData = dataBase->FindData(rowIndex, TokenExcelData::Key::MAX_STACK);
                 if (excelData != ExcelDataBase::FIND_STR_FAIL)
                 {
-                    tokenData.MaxStack = StringHelper::StringToInt(excelData);
+                    StringHelper::StringToInt(excelData, tokenData.MaxStack);
                 }
                 excelData = dataBase->FindData(rowIndex, TokenExcelData::Key::PARAMETER);
                 if (excelData != ExcelDataBase::FIND_STR_FAIL)
