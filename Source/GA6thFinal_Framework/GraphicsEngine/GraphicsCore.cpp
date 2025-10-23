@@ -248,7 +248,7 @@ void GraphicsCore::LoadModelResource(const std::wstring_view filePath, ParticleE
     }
 }
 
-void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT height, const FeatureLevel feature, bool isEditorMode ,bool isRayTracing)
+void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT height, const FeatureLevel feature, bool isEditorMode, bool isRayTracing)
 {
     _device                   = new Device;
     _renderer                 = new Renderer;
