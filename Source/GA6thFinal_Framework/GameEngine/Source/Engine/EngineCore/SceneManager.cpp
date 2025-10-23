@@ -1066,7 +1066,7 @@ void ESceneManager::ObjectsApplicationQuit()
         {
             for (auto& obj : _runtimeObjects)
             {
-                if (obj->IsValid())
+                if (IsRuntimeActive(obj))
                 {
                     for (auto& component : obj->_components)
                     {
@@ -1090,7 +1090,7 @@ void ESceneManager::ObjectsOnEnable()
     {
         if (const auto& component = weakComponent.lock())
         {
-            validComponents.push_back(std::move(component));
+            validComponents.push_back(component);
         }
     }
     onEnableSet.clear();
@@ -1119,7 +1119,7 @@ void ESceneManager::ObjectsOnDisable()
     {
         if (const auto& component = weakComponent.lock())
         {
-            validComponents.push_back(std::move(component));
+            validComponents.push_back(component);
         }
     }
     OnDisableSet.clear();
