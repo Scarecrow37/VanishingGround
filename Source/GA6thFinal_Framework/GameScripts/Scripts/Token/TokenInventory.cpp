@@ -503,7 +503,7 @@ void TokenInventory::RemoveTokenStackFromID(int tokenID, int count /* = 1 */)
         {
             int& curStackCount = it->second;
             if (curStackCount <= 0)
-            { // 이미 최대 스택에 도달했으면 추가하지 않습니다.(이벤트를 호출하지 않기 위해 필요)
+            { // 스택이 0 이하이면 제거하지 않습니다. (이벤트를 호출하지 않기 위해 필요)
                 return;
             }
             if (token->CanRemove(&_owner))
@@ -551,18 +551,21 @@ bool TokenInventory::HasTokenFromID(int tokenID) const
 
 bool TokenInventory::HasTokenFromTag(const std::string& tag) const
 {
+    size_t count = 0;
     if (TokenSystem* tokenSystem = GetTokenSystem())
     {
         if (auto* set = tokenSystem->GetTokenIDSetFromTag(tag))
         {
             for (auto& id : *set)
             {
-                bool valid = HasTokenFromID(id);
-                return valid;
+                if (HasTokenFromID(id))
+                {
+                    ++count;
+                }
             }
         }
     }
-    return false;
+    return count > 0;
 }
 
 int TokenInventory::GetTokenStackFromID(int tokenID) const

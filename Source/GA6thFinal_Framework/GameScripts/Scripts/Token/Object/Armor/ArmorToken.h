@@ -11,15 +11,15 @@ namespace TokenObject
         void OnPostEnemyHitCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData,
                                            int& damage) override;
     };  
-    class Armor1 : public Token
+    class Armor1 : public Armor
     {
         TOKEN_DATA(205005)
     };
-    class Armor2 : public Token
+    class Armor2 : public Armor
     {
         TOKEN_DATA(205006)
     };
-    class Armor3 : public Token
+    class Armor3 : public Armor
     {
         TOKEN_DATA(205007)
     };

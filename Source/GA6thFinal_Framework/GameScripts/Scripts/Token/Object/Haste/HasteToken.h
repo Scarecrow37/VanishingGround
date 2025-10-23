@@ -8,15 +8,15 @@ namespace TokenObject
         void OnRoundStart(CharacterBase* owner) override;
         void OnRollRandomSpeed(CharacterBase* source, int& speed) override;
     };
-    class Haste1 : public Token
+    class Haste1 : public Haste
     {
         TOKEN_DATA(205011)
     };
-    class Haste2 : public Token
+    class Haste2 : public Haste
     {
         TOKEN_DATA(205012)
     };
-    class Haste3 : public Token
+    class Haste3 : public Haste
     {
         TOKEN_DATA(205013)
     };

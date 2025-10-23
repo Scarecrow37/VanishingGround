@@ -12,15 +12,6 @@ namespace TokenObject
     REGISTER_TOKEN(Rage1)
     REGISTER_TOKEN(Rage2)
 
-    void Rage::OnTurnEnd(CharacterBase* owner)
-    {
-        if (owner)
-        {
-            auto& tokenInventory = owner->GetTokenInventory();
-            int   tokenID        = GetTokenID();
-            tokenInventory.RemoveTokenStackFromID(tokenID);
-        }
-    }
     void Rage::OnPostPlayerAttackCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData, int& damage)
     {
         const int   tokenID            = GetTokenID();
