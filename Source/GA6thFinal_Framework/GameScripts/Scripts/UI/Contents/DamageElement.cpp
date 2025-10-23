@@ -7,7 +7,7 @@ UMREAL_COMPONENT(DamageElement)
 
 DamageElement::DamageElement()
     : _origin(POINT{}), _distance(0), _angle(0), _duration(0), _elapsedTime(0), _beginFontSize(0), _endFontSize(0),
-      _beginRevelationFontSize(0), _endRevelationFontSize(0)
+      _beginRevelationFontSize(0), _endRevelationFontSize(0), _sizeRatio(0)
 {
     _steps.reserve(3);
     _steps.push_back(0.0f);
@@ -141,8 +141,10 @@ void DamageElement::Update()
 
 POINT DamageElement::GetPoint(const float t) const
 {
-    const Vector3 point  = Mathf::CatmullRomSpline(_steps, _points, t);
-    const POINT   result = {static_cast<LONG>(point.x), static_cast<LONG>(point.y)};
+    const Vector3 pointF  = Mathf::CatmullRomSpline(_steps, _points, t);
+    const POINT   point = {static_cast<LONG>(pointF.x), static_cast<LONG>(pointF.y)};
+    const SIZE    size   = Size;
+    const POINT   result  = {point.x - size.cx / 2, point.y - size.cy / 2};
 
     return result;
 }
