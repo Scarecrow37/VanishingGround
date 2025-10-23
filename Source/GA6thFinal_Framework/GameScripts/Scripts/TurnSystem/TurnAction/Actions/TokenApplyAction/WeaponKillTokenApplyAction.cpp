@@ -33,12 +33,12 @@ void WeaponKillTokenApplyAction::OnEnemyDeadByWeapon(Enemy& enemy, WeaponElement
 {
     if (EvaluateConditions())
     {
-        std::vector<CharacterBase*> targets = TurnSystemHelper::GetTargetCharacters(ReflectFields->TokenTarget);
+        std::vector<CharacterBase*> targets = TurnSystemHelper::GetTargetCharacters(Target);
         if (false == targets.empty())
         {
             for (auto& target : targets)
             {
-                target->GetTokenInventory().AddTokenStackFromID(ReflectFields->TokenID, ReflectFields->TokenCount);
+                target->GetTokenInventory().AddTokenStackFromID(TokenID, TokenCount);
             }
         }      
     }
