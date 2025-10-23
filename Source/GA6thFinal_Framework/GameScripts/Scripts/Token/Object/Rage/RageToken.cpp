@@ -28,6 +28,8 @@ namespace TokenObject
         const float factor             = 1.0f + (static_cast<float>(param) / 100.0f);
         const float damageFloat        = static_cast<float>(damage) * factor;
         damage                         = static_cast<int>(std::ceilf(damageFloat));
+        auto& tokenInventory           = attackerData.Source.GetTokenInventory();
+        tokenInventory.RemoveTokenStackFromID(tokenID);
     }
     void Rage::OnPostEnemyAttackCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData, int& damage)
     {
@@ -36,5 +38,7 @@ namespace TokenObject
         const float factor             = 1.0f + (static_cast<float>(param) / 100.0f);
         const float damageFloat        = static_cast<float>(damage) * factor;
         damage                         = static_cast<int>(std::ceilf(damageFloat));
+        auto& tokenInventory           = attackerData.Source.GetTokenInventory();
+        tokenInventory.RemoveTokenStackFromID(tokenID);
     }
 } // namespace TokenObject

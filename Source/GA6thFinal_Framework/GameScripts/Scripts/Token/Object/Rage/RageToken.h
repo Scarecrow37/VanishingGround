@@ -6,8 +6,6 @@ namespace TokenObject
     // 분노 토큰
     class Rage : public Token
     {
-        void OnTurnEnd(CharacterBase* owner) override;
-
         void OnPostPlayerAttackCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData,
                                                int& damage) override;
         void OnPostEnemyAttackCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData,
