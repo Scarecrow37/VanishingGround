@@ -22,7 +22,7 @@ void GraphicsModule::PreInitialize()
     RenderTechniqueFlag lightingFlag = RenderTechniqueFlag::NONE;
     bool                isRayTracing = UmPreferences.IsRayTracing();
     lightingFlag                     = isRayTracing ? RenderTechniqueFlag::RAY_TRACING_TECH
-                                                    : RenderTechniqueFlag::LIGHTING_TECH | RenderTechniqueFlag::SSR_TECH;
+                                                    : RenderTechniqueFlag::LIGHTING_TECH | RenderTechniqueFlag::SSR_TECH | RenderTechniqueFlag::SSGI_TECH;
 
     RenderTechniqueFlag defaultFlag = RenderTechniqueFlag::SKY_BOX_TECH | lightingFlag | 
                                RenderTechniqueFlag::VOLUMETRIC_FOG_TECH |
