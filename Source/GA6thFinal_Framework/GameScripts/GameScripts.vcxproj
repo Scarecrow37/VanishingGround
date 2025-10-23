@@ -477,7 +477,9 @@
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\AttackTokenApplyAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\Base\TokenApplyAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TakeDamageEndTokenApplyAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\WeaponKillTokenApplyAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenChangeAction\TokenChangeAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenTypeCountAttackDamageAdditional\TokenTypeCountAttackDamageAdditional.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\ChainCondition\ChainCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\LastQTEResultCondition\LastQTEResultCondition.h" />
@@ -763,7 +765,9 @@
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\AttackTokenApplyAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\Base\TokenApplyAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TakeDamageEndTokenApplyAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\WeaponKillTokenApplyAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenChangeAction\TokenChangeAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenTypeCountAttackDamageAdditional\TokenTypeCountAttackDamageAdditional.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\ChainCondition\ChainCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\LastQTEResultCondition\LastQTEResultCondition.cpp" />
