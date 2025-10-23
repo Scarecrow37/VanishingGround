@@ -118,7 +118,8 @@ void CombatUIManager::PreferencesKeyDown(const Input::Controller&)
         //TODO: 마지막 포커스된 UI를 전달해야함
         if (PreferencesManager* manager = SingletonComponent<PreferencesManager>::GetInstance())
         {
-            manager->OnPreferencesWindow(nullptr);
+            UINavigationComponent* lastFocus = GetLastFocusNaviFromObjectName("UI Root");
+            manager->OnPreferencesWindow(lastFocus);
         }
     }
 }
@@ -136,7 +137,21 @@ void CombatUIManager::InventoryKeyDown(const Input::Controller&)
         // TODO: 마지막 포커스된 UI를 전달해야함
         if (InventoryUIManager* manager = SingletonComponent<InventoryUIManager>::GetInstance())
         {
-            manager->OpenInventory(nullptr);
+            UINavigationComponent* lastFocus = GetLastFocusNaviFromObjectName("UI Root");
+            manager->OpenInventory(lastFocus);
         }
     }
+}
+
+UINavigationComponent* CombatUIManager::GetLastFocusNaviFromObjectName(const std::string& uiRootObjectName)
+{
+    UINavigationComponent* value = nullptr;
+    if (auto uiRootObject = GameObject::Find(uiRootObjectName).lock())
+    {
+        if (UIRoot* root = uiRootObject->GetComponent<UIRoot>())
+        {
+            value = root->GetFocusedNavigationComponent();
+        }
+    }
+    return value;
 }
