@@ -8,6 +8,7 @@ class ItemInfoUIManager;
 class WeaponChangeUIManager;
 class RestartStageNavi;
 class EraseRevelationUIManager;
+class ReturnToMapNavi;
 class ItemDropUIRootManager : public Component, public InputReceiver
 {
     USING_PROPERTY(ItemDropUIRootManager)
@@ -106,6 +107,7 @@ private:
     std::weak_ptr<WeaponChangeUIManager>      _weaponChangeUIManager;
     std::weak_ptr<EraseRevelationUIManager>   _eraseRevelationUIManager;
     std::weak_ptr<RestartStageNavi>           _restartNavi;
+    std::weak_ptr<ReturnToMapNavi>            _returnToMapNavi;
 
     enum class InputDir
     {
