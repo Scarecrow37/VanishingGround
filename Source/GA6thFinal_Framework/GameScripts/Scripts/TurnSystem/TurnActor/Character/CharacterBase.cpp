@@ -178,6 +178,14 @@ void CharacterBase::Heal(int amount)
     if (CharacterStats* stats = GetCharacterStats())
     {
         stats->CurrentHP += amount;
+
+        std::string msg = std::format("{}{}{}{}",
+            gameObject->ToString(),
+            (const char*)u8"체력이",
+            amount,
+            (const char*)u8"회복"
+        );
+        UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
     }
 }
 

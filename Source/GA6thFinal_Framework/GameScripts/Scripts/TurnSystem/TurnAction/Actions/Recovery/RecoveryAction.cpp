@@ -102,6 +102,7 @@ void RecoveryAction::OnEnemyDeadByWeapon(Enemy& enemy, WeaponElement& weapon)
                     {
                         for (auto& target : targetList)
                         {
+                            target->Heal(ReflectFields->RecoveryHP);
                             CharacterStats* stats = target->GetCharacterStats();
                             if (stats)                              
                             {
