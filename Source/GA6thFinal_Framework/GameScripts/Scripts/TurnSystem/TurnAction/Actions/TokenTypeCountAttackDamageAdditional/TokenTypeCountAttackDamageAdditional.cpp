@@ -4,6 +4,7 @@
 #include "TurnSystem/TurnSystemHelper.h"
 #include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
 #include "TurnSystem/TurnActor/Character/Player/Player.h"
+#include "Token/TokenSystem.h"
 
 REGISTER_TURN_ACTION(TokenTypeCountAttackDamageAdditional)
 
@@ -69,15 +70,8 @@ void TokenTypeCountAttackDamageAdditional::OnPlayerBattleCalculateDamageModifier
         std::vector<CharacterBase*> targets = TurnSystemHelper::GetTargetCharacters(ReflectFields->TokenCountTarget);
         for (auto& target : targets)
         {
-            auto& inventory =  target->GetTokenInventory();
-            constexpr auto tokenTypeArray = rfl::get_enumerator_array<TokenTag>();
-            for (auto& [name, value] : tokenTypeArray)
-            {
-                if (inventory.HasTokenFromTag(value))
-                {
-                    ++multiplier;
-                }
-            }       
+            auto& inventory = target->GetTokenInventory();
+            multiplier += inventory.GetValidTokenCountByTag();
         }
         weaponStats.CriticalDamageMultiplier += static_cast<float>(multiplier);
     }

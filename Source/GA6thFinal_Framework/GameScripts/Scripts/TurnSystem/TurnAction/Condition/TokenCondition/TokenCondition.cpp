@@ -139,15 +139,14 @@ void TokenCondition::UpdateConditionInfo()
         who = u8"모든 캐릭터의 "_c_str;
         break;
     }
-
-    const std::string& tokenName = TokenSystem::GetTokenNameFromID(ReflectFields->TokenType);
-    std::string_view   token     = STR_NULL;
+    std::string_view tokenName = TokenSystem::TokenIDToName(ReflectFields->TokenType);
+    std::string_view token     = STR_NULL;
     if (false == tokenName.empty())
     {
         token = tokenName;
     }
-    int value = ReflectFields->Value;
-    Operator oper = ReflectFields->Operator;
+    int              value = ReflectFields->Value;
+    Operator         oper  = ReflectFields->Operator;
     std::string_view operName;
     switch (oper)
     {
@@ -165,7 +164,8 @@ void TokenCondition::UpdateConditionInfo()
         break;
     }
 
-    _conditionInfo = std::format("{}{}{}{}{}{}", who, token, (const char*)u8"토큰이 ", value, (const char*)u8"개 ", operName);
+    _conditionInfo =
+        std::format("{}{}{}{}{}{}", who, token, (const char*)u8"토큰이 ", value, (const char*)u8"개 ", operName);
 }
 
 void TokenCondition::GetTargetList(std::vector<class CharacterBase*>& targetList)

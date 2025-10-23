@@ -244,6 +244,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
       <IncludeInUnityFile>true</IncludeInUnityFile>
+      <MaxFilesInUnityFile>3</MaxFilesInUnityFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -306,6 +307,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\Token\Object\BlackArmor\BlackArmorToken.h" />
+    <ClInclude Include="Scripts\Token\Object\ProphecyDoom\ProphecyDoomToken.h" />
+    <ClInclude Include="Scripts\Token\Object\Deffence\ChainDeffenceToken.h" />
+    <ClInclude Include="Scripts\Token\Object\DeathSentence\DeathSentence.h" />
+    <ClInclude Include="Scripts\Token\Object\Rage\RageToken.h" />
+    <ClInclude Include="Scripts\Token\Object\Focus\FocusToken.h" />
+    <ClInclude Include="Scripts\Token\Object\Obsession\ObsessionToken.h" />
+    <ClInclude Include="Scripts\DifficultyManager\DifficultyEnum.h" />
+    <ClInclude Include="Scripts\Token\Object\Haste\HasteToken.h" />
     <ClInclude Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.h" />
     <ClInclude Include="Scripts\AccessorySystem\AccessorySystem.h" />
     <ClInclude Include="Scripts\Animation\AnimationComponent.h" />
@@ -451,8 +461,10 @@
     <ClInclude Include="Scripts\Test\TurnAction\TestActionComponent.h" />
     <ClInclude Include="Scripts\Token\Enums\TokenEnums.h" />
     <ClInclude Include="Scripts\Token\Interface\IToken.h" />
+    <ClInclude Include="Scripts\Token\Object\Armor\ArmorToken.h" />
     <ClInclude Include="Scripts\Token\Object\Bleed\BleedToken.h" />
     <ClInclude Include="Scripts\Token\Object\Poison\PoisonToken.h" />
+    <ClInclude Include="Scripts\Token\Object\Regen\RegenToken.h" />
     <ClInclude Include="Scripts\Token\Object\Stun\StunToken.h" />
     <ClInclude Include="Scripts\Token\Token.h" />
     <ClInclude Include="Scripts\Token\TokenInventory.h" />
@@ -571,16 +583,30 @@
     <ClInclude Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.h" />
     <ClInclude Include="Scripts\WeaponSystem\WeaponSystem.h" />
     <ClInclude Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.h" />
+    <ClInclude Include="Scripts\Token\Object\Slow\SlowToken.h" />
+    <ClInclude Include="Scripts\Token\Common\TokenCommon.h" />
+    <ClInclude Include="Scripts\Utility\StringHelper.h" />
     <ClInclude Include="UmScriptCore.h" />
     <ClInclude Include="UmScriptsExport.h" />
+    <ClInclude Include="Scripts\Token\Object\Weakness\WeaknessToken.h" />
+    <ClInclude Include="Scripts\Token\Object\Deffence\WeaponDeffenceToken.h" />
+    <ClInclude Include="Scripts\Token\Object\Vanish\VanishToken.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\Token\Object\BlackArmor\BlackArmorToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\ProphecyDoom\ProphecyDoomToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Deffence\ChainDeffenceToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\DeathSentence\DeathSentence.cpp" />
     <ClCompile Include="dllmain.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">Use</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Scripts\Token\Object\Rage\RageToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Focus\FocusToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Obsession\ObsessionToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Haste\HasteToken.cpp" />
     <ClCompile Include="pchScripts.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">Create</PrecompiledHeader>
@@ -722,8 +748,10 @@
     <ClCompile Include="Scripts\Test\Input\InputTestComponent.cpp" />
     <ClCompile Include="Scripts\Test\TurnAction\TestActionComponent.cpp" />
     <ClCompile Include="Scripts\Token\Interface\IToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Armor\ArmorToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\Bleed\BleedToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\Poison\PoisonToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Regen\RegenToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\Stun\StunToken.cpp" />
     <ClCompile Include="Scripts\Token\Token.cpp" />
     <ClCompile Include="Scripts\Token\TokenInventory.cpp" />
@@ -840,8 +868,14 @@
     <ClCompile Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.cpp" />
     <ClCompile Include="Scripts\WeaponSystem\WeaponSystem.cpp" />
     <ClCompile Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Slow\SlowToken.cpp" />
+    <ClCompile Include="Scripts\Token\Common\TokenCommon.cpp" />
+    <ClCompile Include="Scripts\Utility\StringHelper.cpp" />
     <ClCompile Include="UmScriptCore.cpp" />
     <ClCompile Include="UmScriptsExport.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Weakness\WeaknessToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Deffence\WeaponDeffenceToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Vanish\VanishToken.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

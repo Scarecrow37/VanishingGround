@@ -102,14 +102,9 @@ void RecoveryAction::OnEnemyDeadByWeapon(Enemy& enemy, WeaponElement& weapon)
                     {
                         for (auto& target : targetList)
                         {
-                            CharacterStats* stats = target->GetCharacterStats();
-                            if (stats)                              
+                            if (target)
                             {
-                                int recoveryHP = ReflectFields->RecoveryHP;
-                                stats->CurrentHP += recoveryHP;
-                                std::string msg = std::format("{}{}{}{}", target->gameObject->ToString(),(const char*)u8"체력이", 
-                                    recoveryHP, (const char*)u8"회복");
-                                UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
+                                target->Heal(ReflectFields->RecoveryHP);
                             }
                         }
                     }
