@@ -135,7 +135,7 @@ void TokenSystem::LoadTokenDataFromExcelData(ExcelDataSystem* dataSystem)
     if (dataSystem)
     {
         std::unique_ptr<ExcelDataBase> dataBase = dataSystem->FindExcelDataBase(u8"토큰");
-        assert(dataBase); // [assert] 엑셀 데이터 시스템에 해당 시트가 존재해야합니다.
+        assert(dataBase && "엑셀 데이터 시스템에 해당 시트가 존재해야합니다.");
         if (dataBase)
         {
             const size_t rowCount = dataBase->RowCount();
@@ -171,16 +171,21 @@ void TokenSystem::LoadTokenDataFromExcelData(ExcelDataSystem* dataSystem)
                 excelData = dataBase->FindData(rowIndex, TokenExcelData::Key::PARAMETER);
                 if (excelData != ExcelDataBase::FIND_STR_FAIL)
                 {
-                    std::vector<int> params = StringHelper::ParseCSVToInt(excelData);
-                    for (const auto& param : params)
+                    if (false == excelData.empty())
                     {
-                        tokenData.Params.push_back(param);
+                        std::vector<int> params = StringHelper::ParseCSVToInt(excelData);
+                        for (const auto& param : params)
+                        {
+                            tokenData.Params.push_back(param);
+                        }
                     }
                 }
                 _tokenDataTable[tokenData.ID] = tokenData;
             }
         }
     }
+    bool isValid = _tokenDataTable.size() == _tokenIDFactoryTable.size();
+    assert(isValid && "토큰 엑셀 데이터 시트와 토큰 인스턴스 개수가 다릅니다.");
 }
 
 void TokenSystem::Clear()

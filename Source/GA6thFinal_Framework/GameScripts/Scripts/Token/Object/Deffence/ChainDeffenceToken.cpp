@@ -39,6 +39,7 @@ namespace TokenObject
 
             // TODO: 이거 100%방어가 아예 무시인건지, 아니면 합연산을 통해 무조건 100% 방어가 안될 수도 있는건지 확인 필요
             weaponStats.HitDamageMultiplier -= factor;
+            weaponStats.CriticalDamageMultiplier -= factor;
         }
     }
 

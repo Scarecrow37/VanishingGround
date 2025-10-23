@@ -131,7 +131,7 @@ struct WeaponStats : public TurnActorStats
     //int 연격 횟수
     PROPERTY(AttackCount)
 
-    SETTER(int, AttackPerChain) { ReflectFields->AttackPerChain = std::clamp(value, 0, 99); }
+    SETTER(int, AttackPerChain) { ReflectFields->AttackPerChain = std::clamp(value, -99, 99); }
     GETTER(int, AttackPerChain) { return ReflectFields->AttackPerChain; }
     //int 공격 당 연격 부여량
     PROPERTY(AttackPerChain)
