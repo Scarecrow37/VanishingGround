@@ -8,7 +8,7 @@ namespace TokenObject
     class WeaponDeffence : public Token
     {
     private:
-        void OnRoundStart(CharacterBase* owner) override;
+        void OnRoundEnd(CharacterBase* owner) override;
         void OnPostEnemyHitCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData,
                                            int& damage) override;
 

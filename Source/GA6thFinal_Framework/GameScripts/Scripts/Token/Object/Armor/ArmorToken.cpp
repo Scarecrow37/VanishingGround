@@ -18,6 +18,7 @@ namespace TokenObject
         const float factor             = 1.0f - (static_cast<float>(param) / 100.0f);
         const float newDamage          = static_cast<float>(damage) * factor;
         damage                         = static_cast<int>(std::ceilf(newDamage));
+        
         TokenInventory& tokenInventory = targetData.Source.GetTokenInventory();
         tokenInventory.RemoveTokenStackFromID(tokenID);
     }
@@ -28,6 +29,7 @@ namespace TokenObject
         const float factor             = 1.0f - (static_cast<float>(param) / 100.0f);
         const float newDamage          = static_cast<float>(damage) * factor;
         damage                         = static_cast<int>(std::ceilf(newDamage));
+
         TokenInventory& tokenInventory = targetData.Source.GetTokenInventory();
         tokenInventory.RemoveTokenStackFromID(tokenID);
     }

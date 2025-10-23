@@ -12,7 +12,7 @@ namespace TokenObject
     REGISTER_TOKEN(HammerDeffence1)
     REGISTER_TOKEN(HammerDeffence2)
 
-    void WeaponDeffence::OnRoundStart(CharacterBase* owner)
+    void WeaponDeffence::OnRoundEnd(CharacterBase* owner)
     {
         if (owner && false == owner->IsDead())
         {

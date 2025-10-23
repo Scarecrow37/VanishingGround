@@ -27,7 +27,7 @@ namespace TokenObject
         }
         return false;
     }
-    void Bleed::OnRoundStart(CharacterBase* owner)
+    void Bleed::OnTurnStart(CharacterBase* owner)
     {
         if (owner)
         {

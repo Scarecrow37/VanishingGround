@@ -16,7 +16,7 @@ namespace TokenObject
     REGISTER_TOKEN(ChainDeffence7)
     REGISTER_TOKEN(ChainDeffence8)
 
-    void ChainDeffence::OnRoundStart(CharacterBase* owner)
+    void ChainDeffence::OnRoundEnd(CharacterBase* owner)
     {
         if (owner && false == owner->IsDead())
         {

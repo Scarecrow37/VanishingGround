@@ -5,7 +5,7 @@ namespace TokenObject
 {
     class ChainDeffence : public Token
     {
-        void OnRoundStart(CharacterBase* owner) override;
+        void OnRoundEnd(CharacterBase* owner) override;
         void OnPostPlayerHitCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData,
                                             int& damage) override;
         void OnPostEnemyHitCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData,
