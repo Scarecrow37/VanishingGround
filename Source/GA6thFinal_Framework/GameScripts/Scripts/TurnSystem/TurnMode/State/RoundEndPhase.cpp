@@ -18,24 +18,19 @@ void RoundEndPhase::OnAwake() {}
 void RoundEndPhase::OnStart() 
 {
     TurnModeStateBase::OnStart();
+    _isPhaseEnd = false;
 }
 
 void RoundEndPhase::OnEnter()
 {
-    _isPhaseEnd = false;
-
-    // [Callback] OnRoundEnd
     NotifyRoundEnd();
-
-    UmLogger.Message(LogLevel::LEVEL_DEBUG, (const char*)u8"라운드를 종료합니다!!!!===========================================================");
-    UmTime.Invoke(&GetFSM(), 1.0f, [&]() { UmLogger.Message(LogLevel::LEVEL_DEBUG, (const char*)u8"다음 라운드까지 3."); });
-    UmTime.Invoke(&GetFSM(), 2.0f, [&]() { UmLogger.Message(LogLevel::LEVEL_DEBUG, (const char*)u8"다음 라운드까지 2."); });
-    UmTime.Invoke(&GetFSM(), 3.0f, [&]() { UmLogger.Message(LogLevel::LEVEL_DEBUG, (const char*)u8"다음 라운드까지 1."); });
-    UmTime.Invoke(&GetFSM(), 4.0f, [&]() { _isPhaseEnd = true; });
+    _isPhaseEnd = true;
 }        
 
-
-void RoundEndPhase::OnExit() {}
+void RoundEndPhase::OnExit() 
+{
+    _isPhaseEnd = false;
+}
 
 void RoundEndPhase::OnUpdate() {}
 

@@ -7,6 +7,7 @@ class ArtifactUIManager;
 class ItemInfoUIManager;
 class WeaponChangeUIManager;
 class RestartStageNavi;
+class EraseRevelationUIManager;
 class ItemDropUIRootManager : public Component, public InputReceiver
 {
     USING_PROPERTY(ItemDropUIRootManager)
@@ -55,6 +56,19 @@ public:
     // type : WeaponChangeUIManager*
     PROPERTY(WeaponChangeUI)
 
+    GETTER_ONLY(EraseRevelationUIManager*, EraseRevelationUI)
+    { 
+        EraseRevelationUIManager* eraseRevelationUI = nullptr;
+        if (auto eraseRevelationUIManager = _eraseRevelationUIManager.lock())
+        {
+            eraseRevelationUI = eraseRevelationUIManager.get();
+        }
+        return eraseRevelationUI;
+    }
+    // 무기 교체 UI 관리 컴포넌트입니다.
+    // type : WeaponChangeUIManager*
+    PROPERTY(EraseRevelationUI)
+
     /// <summary>
     /// 포커스 가능한 Navi로 포커스 설정을 해줍니다.
     /// </summary>
@@ -77,6 +91,8 @@ protected:
     void Update() override;
     void LateUpdate() override;
 
+    void UpdateAutoFocus();
+
     void OnDpadLeft(const Input::Controller&);
     void OnDpadRight(const Input::Controller&);
     void OnDpadUp(const Input::Controller&);
@@ -88,6 +104,7 @@ private:
     std::weak_ptr<ArtifactUIManager>          _artifactUIManager;
     std::weak_ptr<ItemInfoUIManager>          _itemInfoUIManager;
     std::weak_ptr<WeaponChangeUIManager>      _weaponChangeUIManager;
+    std::weak_ptr<EraseRevelationUIManager>   _eraseRevelationUIManager;
     std::weak_ptr<RestartStageNavi>           _restartNavi;
 
     enum class InputDir

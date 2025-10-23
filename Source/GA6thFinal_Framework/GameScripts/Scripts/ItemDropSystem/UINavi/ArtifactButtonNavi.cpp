@@ -8,6 +8,7 @@
 #include "WeaponSystem/WeaponTable/WeaponTableComponent.h"
 #include "RevelationSystem/RevelationSystem.h"
 #include "AccessorySystem/AccessorySystem.h"
+#include "ItemDropSystem/UI/EraseRevelationUIManager.h"
 
 UMREAL_COMPONENT(ArtifactButtonNavi)
 
@@ -61,8 +62,9 @@ void ArtifactButtonNavi::FocusIn(FocusCallType type)
             focus->Enable = true;
     
             // UI 설정
-            if (ItemInfoUIManager* infoManager = SingletonComponent<ItemInfoUIManager>::GetInstance())
+            if (ItemDropUIRootManager* rootManager =  SingletonComponent<ItemDropUIRootManager>::GetInstance())
             {
+                ItemInfoUIManager* infoManager = rootManager->ItemInfoUI;
                 infoManager->SetItemInfoUI(_itemInfo);
             }
         }
@@ -115,6 +117,12 @@ void ArtifactButtonNavi::Submit()
                         revelationManager->PushBackRevelation(*element);
                     }
                     manager->ObtainFocusNavi(_buttonIndex);
+                }
+                break;
+            case ArtifactDropType::ERASE_REVELATION:
+                if (EraseRevelationUIManager* eraseManager = SingletonComponent<EraseRevelationUIManager>::GetInstance())
+                {
+                    eraseManager->OpenUI(_buttonIndex);
                 }
                 break;
             default:

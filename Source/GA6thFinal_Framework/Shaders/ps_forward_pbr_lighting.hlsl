@@ -29,6 +29,8 @@ struct PSOutput
 
 ConstantBuffer<GbufferData> bit32_2_gbufferData;
 Texture2DArray shadowMap;
+Texture2D pointLightShadowMap;
+
 TextureCube irradianceMap;
 TextureCube prefilteredMap;
 Texture2D brdfLUT;
@@ -103,7 +105,17 @@ PSOutput ps_main(PSInput input)
     for (uint l = 0; l < numLights.ShadowPoint; l++)
     {
         PointLight light = lightData.ShadowPoint[l];
-        directLighting += CalculatePoint(light, normal, V, albedo.rgb, metallic, roughness, worldPosition);
+        
+        float shadow = CalculatePointLightShadowPCF(
+                 worldPosition,
+                 light.Position,
+                 l,
+                 pointLightShadowMap,
+                 light.Range,
+                 8192.0,
+                 1024.0
+             );
+        directLighting += CalculatePoint(light, normal, V, albedo.rgb, metallic, roughness, worldPosition) * shadow;
     }
     float3 color = directLighting + (ambientLighting * ao) + emissive;
     

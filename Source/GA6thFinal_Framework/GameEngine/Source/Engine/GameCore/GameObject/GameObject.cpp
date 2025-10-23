@@ -2,6 +2,8 @@
 #include "Editor/Tool/Scene/Command/EditorSceneCommands.h"
 using namespace Global;
 
+REFLECT_FUNCTION(GameObject)
+
 #define SAFE_FREE(ptr) if(ptr != nullptr) free(ptr)
 
 void GameObject::DontDestroyOnLoad(GameObject& gameObject)

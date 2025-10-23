@@ -21,7 +21,7 @@
 #include "BlendTechnique.h"
 #include "BloomTechnique.h"
 #include "EditorDrawTechnique.h"
-#include "PBRLitTechnique.h"
+#include "LightingTechnique.h"
 #include "SSRTechnique.h"
 #include "VolumetricFogTechnique.h"
 #include "ParticleRenderTechnique.h"
@@ -169,9 +169,9 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
     {
         scene->AddRenderTechnique(std::make_unique<RayTracingTechnique>());
     }
-    if (RenderTechniqueFlag::PBR_TECH & flag)
+    if (RenderTechniqueFlag::LIGHTING_TECH & flag)
     {
-        scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
+        scene->AddRenderTechnique(std::make_unique<LightingTechnique>());
     }
     if (RenderTechniqueFlag::SSR_TECH & flag)
     {

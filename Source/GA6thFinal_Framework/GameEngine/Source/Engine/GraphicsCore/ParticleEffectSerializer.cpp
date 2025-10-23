@@ -365,7 +365,7 @@ void ParticleEffectSerializer::Serialize_1_0(std::ofstream& os, ParticleEffect* 
         {
             if (auto spriteModule = emitter->_particleRenderModule->AsSprite())
             {
-                Vector4 frameinfo = spriteModule->GetInitialFrameInfo();
+                Vector4 frameinfo = spriteModule->GetFrameInfo();
                 os.write(reinterpret_cast<const char*>(&frameinfo), sizeof(frameinfo));
             }
         }
@@ -888,7 +888,7 @@ void ParticleEffectSerializer::Serialize_1_1(std::ofstream& os, ParticleEffect* 
         {
             if (auto spriteModule = emitter->_particleRenderModule->AsSprite())
             {
-                Vector4 frameinfo = spriteModule->GetInitialFrameInfo();
+                Vector4 frameinfo = spriteModule->GetFrameInfo();
                 os.write(reinterpret_cast<const char*>(&frameinfo), sizeof(frameinfo));
             }
         }
@@ -1081,6 +1081,14 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_1(EffectID id, const std
                     ribbonModule->SetRibbonVector(ribbonvector);
                 }
             }
+            else
+            {
+                if (auto spriteModule = emitter->_particleRenderModule->AsSprite())
+                {
+                    spriteModule->SetFrameInfo(frameInfo);
+                    spriteModule->CalculateFrameInfos();
+                }
+            }
         }
     }
 
@@ -1266,7 +1274,7 @@ void ParticleEffectSerializer::Serialize_1_2(std::ofstream& os, ParticleEffect* 
                 auto       meshLocator = emitter->_emitLocator->AsMeshSurfaceLocator();
                 File::Path path        = meshLocator->GetModelPath();
                 path                   = std::filesystem::absolute(path).generic_string();
-                File::Guid  guid       = path.ToGuid();
+                const File::Guid&  guid       = path.ToGuid();
                 std::string guidstring = guid.string();
 
                 SIZE_T nameLen = guidstring.length();
@@ -1409,7 +1417,7 @@ void ParticleEffectSerializer::Serialize_1_2(std::ofstream& os, ParticleEffect* 
         {
             File::Path modelTexturepath = emitter->_particleRenderModule->GetModelAndTexturePath();
             modelTexturepath            = std::filesystem::absolute(modelTexturepath).generic_string();
-            File::Guid  guid            = modelTexturepath.ToGuid();
+            const File::Guid&  guid            = modelTexturepath.ToGuid();
             std::string guidstring      = guid.string();
             SIZE_T      size            = guidstring.length();
             os.write(reinterpret_cast<const char*>(&size), sizeof(size));
@@ -1420,7 +1428,7 @@ void ParticleEffectSerializer::Serialize_1_2(std::ofstream& os, ParticleEffect* 
         {
             if (auto spriteModule = emitter->_particleRenderModule->AsSprite())
             {
-                Vector4 frameinfo = spriteModule->GetInitialFrameInfo();
+                Vector4 frameinfo = spriteModule->GetFrameInfo();
                 os.write(reinterpret_cast<const char*>(&frameinfo), sizeof(frameinfo));
             }
         }
@@ -1546,7 +1554,7 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_2(EffectID id, const std
         is.read(reinterpret_cast<char*>(&size), sizeof(size));
         std::string texturepath(size, '\0');
         is.read(&texturepath[0], size);
-        File::Guid guid             = texturepath;
+        const File::Guid& guid             = texturepath;
         File::Path modelTexturePath = guid.ToPath();
 
         Vector4 frameInfo{};
@@ -1571,9 +1579,9 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_2(EffectID id, const std
                 UmGraphics.LoadTextureResource(std::wstring_view(absolutePath.wstring()), emitter);
                 if (LocationShape::MESH_SURFACE == emitter->_locationType)
                 {
-                    File::Guid          guid         = modelPath;
-                    File::Path          absolutePath = guid.ToPath();
-                    absolutePath                     = std::filesystem::absolute(absolutePath).generic_string();
+                    const File::Guid& guid         = modelPath;
+                    File::Path absolutePath = guid.ToPath();
+                    absolutePath            = std::filesystem::absolute(absolutePath).generic_string();
                     UmGraphics.LoadModelResource(std::wstring_view(absolutePath.wstring()), emitter);
                     if (auto meshSurfaceLocator = emitter->_emitLocator->AsMeshSurfaceLocator())
                     {
@@ -1610,6 +1618,14 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_2(EffectID id, const std
                     ribbonModule->SetStartNormal(startNormal);
                     ribbonModule->SetEndNormal(endNormal);
                     ribbonModule->SetRibbonVector(ribbonvector);
+                }
+            }
+            else
+            {
+                if (auto spriteModule = emitter->_particleRenderModule->AsSprite())
+                {
+                    spriteModule->SetFrameInfo(frameInfo);
+                    spriteModule->CalculateFrameInfos();
                 }
             }
         }
@@ -1686,7 +1702,7 @@ void ParticleEffectSerializer::PreDeserialize_1_2(std::ifstream& is)
             is.read(reinterpret_cast<char*>(&nameLen), sizeof(nameLen));
             modelPath = std::string(nameLen, '\0');
             is.read(&modelPath[0], nameLen);
-            File::Guid guid = modelPath;
+            const File::Guid& guid = modelPath;
             File::Path path = guid.ToPath();
             UsedModelPaths.insert(path);
         }
@@ -1719,7 +1735,7 @@ void ParticleEffectSerializer::PreDeserialize_1_2(std::ifstream& is)
         is.read(reinterpret_cast<char*>(&size), sizeof(size));
         std::string texturepath = std::string(size, '\0');
         is.read(&texturepath[0], size);
-        File::Guid guid = texturepath;
+        const File::Guid& guid = texturepath;
         File::Path path = guid.ToPath();
 
         Vector4 frameInfo{};
@@ -1796,7 +1812,7 @@ void ParticleEffectSerializer::Serialize_1_3(std::ofstream& os, ParticleEffect* 
                 auto       meshLocator = emitter->_emitLocator->AsMeshSurfaceLocator();
                 File::Path path        = meshLocator->GetModelPath();
                 path                   = std::filesystem::absolute(path).generic_string();
-                File::Guid  guid       = path.ToGuid();
+                const File::Guid&  guid       = path.ToGuid();
                 std::string guidstring = guid.string();
 
                 SIZE_T nameLen = guidstring.length();
@@ -1951,7 +1967,7 @@ void ParticleEffectSerializer::Serialize_1_3(std::ofstream& os, ParticleEffect* 
         {
             File::Path modelTexturepath = emitter->_particleRenderModule->GetModelAndTexturePath();
             modelTexturepath            = std::filesystem::absolute(modelTexturepath).generic_string();
-            File::Guid  guid            = modelTexturepath.ToGuid();
+            const File::Guid&  guid            = modelTexturepath.ToGuid();
             std::string guidstring      = guid.string();
             SIZE_T      size            = guidstring.length();
             os.write(reinterpret_cast<const char*>(&size), sizeof(size));
@@ -1962,7 +1978,7 @@ void ParticleEffectSerializer::Serialize_1_3(std::ofstream& os, ParticleEffect* 
         {
             if (auto spriteModule = emitter->_particleRenderModule->AsSprite())
             {
-                Vector4 frameinfo = spriteModule->GetInitialFrameInfo();
+                Vector4 frameinfo = spriteModule->GetFrameInfo();
                 os.write(reinterpret_cast<const char*>(&frameinfo), sizeof(frameinfo));
             }
         }
@@ -2095,7 +2111,7 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_3(EffectID id, const std
         is.read(reinterpret_cast<char*>(&size), sizeof(size));
         std::string texturepath(size, '\0');
         is.read(&texturepath[0], size);
-        File::Guid guid             = texturepath;
+        const File::Guid& guid             = texturepath;
         File::Path modelTexturePath = guid.ToPath();
 
         Vector4 frameInfo{};
@@ -2120,9 +2136,9 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_3(EffectID id, const std
                 UmGraphics.LoadTextureResource(std::wstring_view(absolutePath.wstring()), emitter);
                 if (LocationShape::MESH_SURFACE == emitter->_locationType)
                 {
-                    File::Guid guid           = modelPath;
-                    File::Path   absolutePath = guid.ToPath();
-                    absolutePath              = std::filesystem::absolute(absolutePath).generic_string();
+                    const File::Guid& guid         = modelPath;
+                    File::Path absolutePath = guid.ToPath();
+                    absolutePath            = std::filesystem::absolute(absolutePath).generic_string();
                     UmGraphics.LoadModelResource(std::wstring_view(absolutePath.wstring()), emitter);
                     if (auto meshSurfaceLocator = emitter->_emitLocator->AsMeshSurfaceLocator())
                     {
@@ -2161,6 +2177,14 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_3(EffectID id, const std
                     ribbonModule->SetStartNormal(startNormal);
                     ribbonModule->SetEndNormal(endNormal);
                     ribbonModule->SetRibbonVector(ribbonvector);
+                }
+            }
+            else
+            {
+                if (auto spriteModule = emitter->_particleRenderModule->AsSprite())
+                {
+                    spriteModule->SetFrameInfo(frameInfo);
+                    spriteModule->CalculateFrameInfos();
                 }
             }
         }
@@ -2239,7 +2263,7 @@ void ParticleEffectSerializer::PreDeserialize_1_3(std::ifstream& is)
             is.read(reinterpret_cast<char*>(&nameLen), sizeof(nameLen));
             modelPath = std::string(nameLen, '\0');
             is.read(&modelPath[0], nameLen);
-            File::Guid guid = modelPath;
+            const File::Guid& guid = modelPath;
             File::Path path = guid.ToPath();
             UsedModelPaths.insert(path);
         }
@@ -2274,7 +2298,7 @@ void ParticleEffectSerializer::PreDeserialize_1_3(std::ifstream& is)
         is.read(reinterpret_cast<char*>(&size), sizeof(size));
         std::string texturepath = std::string(size, '\0');
         is.read(&texturepath[0], size);
-        File::Guid guid = texturepath;
+        const File::Guid& guid = texturepath;
         File::Path path = guid.ToPath();
 
         Vector4 frameInfo{};
@@ -2373,7 +2397,7 @@ void ParticleEffectSerializer::Serialize_1_4(std::ofstream& os, ParticleEffect* 
                 auto       meshLocator = emitter->_emitLocator->AsMeshSurfaceLocator();
                 File::Path path        = meshLocator->GetModelPath();
                 path                   = std::filesystem::absolute(path).generic_string();
-                File::Guid  guid       = path.ToGuid();
+                const File::Guid&  guid       = path.ToGuid();
                 std::string guidstring = guid.string();
 
                 SIZE_T nameLen = guidstring.length();
@@ -2531,7 +2555,7 @@ void ParticleEffectSerializer::Serialize_1_4(std::ofstream& os, ParticleEffect* 
         {
             File::Path modelTexturepath = emitter->_particleRenderModule->GetModelAndTexturePath();
             modelTexturepath            = std::filesystem::absolute(modelTexturepath).generic_string();
-            File::Guid  guid            = modelTexturepath.ToGuid();
+            const File::Guid&  guid            = modelTexturepath.ToGuid();
             std::string guidstring      = guid.string();
             SIZE_T      size            = guidstring.length();
             os.write(reinterpret_cast<const char*>(&size), sizeof(size));
@@ -2542,7 +2566,7 @@ void ParticleEffectSerializer::Serialize_1_4(std::ofstream& os, ParticleEffect* 
         {
             if (auto spriteModule = emitter->_particleRenderModule->AsSprite())
             {
-                Vector4 frameinfo = spriteModule->GetInitialFrameInfo();
+                Vector4 frameinfo = spriteModule->GetFrameInfo();
                 os.write(reinterpret_cast<const char*>(&frameinfo), sizeof(frameinfo));
             }
         }
@@ -2630,10 +2654,10 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_4(EffectID id, const std
         Vector3           axis;
         bool              scalevelFlag;
 
-        bool              uselight;
-        float             lightintensity;
-        float             lightrange;
-        Vector3           lightcolor;
+        bool    uselight;
+        float   lightintensity;
+        float   lightrange;
+        Vector3 lightcolor;
 
         is.read(reinterpret_cast<char*>(&uselight), sizeof(uselight));
         if (uselight)
@@ -2688,7 +2712,7 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_4(EffectID id, const std
         is.read(reinterpret_cast<char*>(&size), sizeof(size));
         std::string texturepath(size, '\0');
         is.read(&texturepath[0], size);
-        File::Guid guid             = texturepath;
+        const File::Guid& guid             = texturepath;
         File::Path modelTexturePath = guid.ToPath();
 
         Vector4 frameInfo{};
@@ -2723,9 +2747,9 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_4(EffectID id, const std
                 UmGraphics.LoadTextureResource(std::wstring_view(absolutePath.wstring()), emitter);
                 if (LocationShape::MESH_SURFACE == emitter->_locationType)
                 {
-                    File::Guid          guid         = modelPath;
-                    File::Path          absolutePath = guid.ToPath();
-                    absolutePath                     = std::filesystem::absolute(absolutePath).generic_string();
+                    const File::Guid& guid         = modelPath;
+                    File::Path absolutePath = guid.ToPath();
+                    absolutePath            = std::filesystem::absolute(absolutePath).generic_string();
                     UmGraphics.LoadModelResource(std::wstring_view(absolutePath.wstring()), emitter);
                     if (auto meshSurfaceLocator = emitter->_emitLocator->AsMeshSurfaceLocator())
                     {
@@ -2765,6 +2789,14 @@ ParticleEffect* ParticleEffectSerializer::Deserialize_1_4(EffectID id, const std
                     ribbonModule->SetStartNormal(startNormal);
                     ribbonModule->SetEndNormal(endNormal);
                     ribbonModule->SetRibbonVector(ribbonvector);
+                }
+            }
+            else
+            {
+                if (auto spriteModule = emitter->_particleRenderModule->AsSprite())
+                {
+                    spriteModule->SetFrameInfo(frameInfo);
+                    spriteModule->CalculateFrameInfos();
                 }
             }
         }
@@ -2854,7 +2886,7 @@ void ParticleEffectSerializer::PreDeserialize_1_4(std::ifstream& is)
             is.read(reinterpret_cast<char*>(&nameLen), sizeof(nameLen));
             modelPath = std::string(nameLen, '\0');
             is.read(&modelPath[0], nameLen);
-            File::Guid guid = modelPath;
+            const File::Guid& guid = modelPath;
             File::Path path = guid.ToPath();
             UsedModelPaths.insert(path);
         }
@@ -2890,7 +2922,7 @@ void ParticleEffectSerializer::PreDeserialize_1_4(std::ifstream& is)
         is.read(reinterpret_cast<char*>(&size), sizeof(size));
         std::string texturepath = std::string(size, '\0');
         is.read(&texturepath[0], size);
-        File::Guid guid = texturepath;
+        const File::Guid& guid = texturepath;
         File::Path path = guid.ToPath();
 
         Vector4 frameInfo{};

@@ -1,6 +1,6 @@
-﻿#include "GraphicsEngine/Interface/ILight.h"
+﻿#include "pchScripts.h"
+#include "GraphicsEngine/Interface/ILight.h"
 #include "ShadowPointLight.h"
-#include "pchScripts.h"
 
 UMREAL_COMPONENT(ShadowPointLight)
 

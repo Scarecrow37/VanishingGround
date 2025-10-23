@@ -3,6 +3,8 @@
 
 namespace Timeline
 {
+    REFLECT_FUNCTION(EventTrack)
+
     EventTrack::EventTrack()
     {
         _currFrame = 0.0f;

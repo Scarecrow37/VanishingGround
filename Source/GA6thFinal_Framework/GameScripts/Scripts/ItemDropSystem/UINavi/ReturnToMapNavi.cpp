@@ -19,10 +19,10 @@ namespace ReturnUtility
                 switch (type)
                 {
                 case ReturnToMapNavi::SelectBoxType::DEFAULT:
-                    rowKey = u8"선택버튼_0";
+                    rowKey = u8"나가기/ 다음전투 선택버튼 포커스 안됨";
                     break;
                 case ReturnToMapNavi::SelectBoxType::FOCUS:
-                    rowKey = u8"선택버튼_1";
+                    rowKey = u8"나가기/ 다음전투 선택버튼 포커스 됨";
                     break;
                 default:
                     break;
@@ -152,15 +152,20 @@ void ReturnToMapNavi::DeserializedReflectEvent()
     }
 }
 
-void ReturnToMapNavi::Start() 
-{
-    using namespace ReturnUtility;
-    Base::Start();
-    CheckImageElementWithLog(_imageElement);
-}
 
 void ReturnToMapNavi::Awake() 
 {
     Base::Awake();
     _imageElement = GetComponent<ImageElement>();
+}
+
+void ReturnToMapNavi::Start() 
+{
+    using namespace ReturnUtility;
+    Base::Start();
+    CheckImageElementWithLog(_imageElement);
+    if (_imageElement)
+    {
+        _imageElement->SetImage(GetSelectBox(SelectBoxType::DEFAULT));
+    }
 }

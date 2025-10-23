@@ -170,6 +170,7 @@ void GraphicsCore::CreateSDFTextRenderer(class ISDFTextRenderer** component) con
 {
     SDFTextRenderer* textRenderer = new SDFTextRenderer;
     textRenderer->Initialize();
+    textRenderer->AddReference();
 
     *component = textRenderer;
 }
@@ -178,6 +179,7 @@ void GraphicsCore::CreateMeshRenderer(IMeshRenderer** component, const Matrix* w
 {
     MeshRenderer* meshRenderer = new MeshRenderer;
     meshRenderer->Initialize(worldMatrix);
+    meshRenderer->AddReference();
 
     *component = meshRenderer;
 }
@@ -186,6 +188,7 @@ void GraphicsCore::CreateSpriteRenderer(ISpriteRenderer** component, const Matri
 {
     SpriteRenderer* spriteRenderer = new SpriteRenderer;
     spriteRenderer->Initialize(worldMatrix);
+    spriteRenderer->AddReference();
 
     *component = spriteRenderer;
 }
@@ -193,6 +196,8 @@ void GraphicsCore::CreateSpriteRenderer(ISpriteRenderer** component, const Matri
 void GraphicsCore::CreateLight(ILight** component) const
 {
     Light* light = new Light;
+    light->AddReference();
+
     *component = light;
 }
 

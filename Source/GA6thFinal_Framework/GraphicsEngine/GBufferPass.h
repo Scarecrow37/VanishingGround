@@ -29,7 +29,7 @@ private:
     void DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType meshType, Material::BlendModeType blendModeType, CullMode cullMode, UINT offset);
 
 private:
-    std::vector<MeshInfo*> _mesheInfos[MeshType::MESH_TYPE_END][Material::BlendModeType::BMT_END - 1][CullMode::END];
+    std::vector<MeshInfo*> _meshInfos[MeshType::MESH_TYPE_END][Material::BlendModeType::BMT_END - 1][CullMode::END];
     std::array<D3D12_CPU_DESCRIPTOR_HANDLE, GBuffer::GBUFFER_END> _gBufferHandles;
     ComPtr<ID3D12PipelineState> _psos[MeshType::MESH_TYPE_END][Material::BlendModeType::BMT_END - 1][CullMode::END];
     

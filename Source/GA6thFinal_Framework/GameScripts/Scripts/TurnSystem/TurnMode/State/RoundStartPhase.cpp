@@ -51,18 +51,8 @@ void RoundStartPhase::OnEnter()
     NotifyRoundStart();
 
     //캐릭터 사망 확인
-    CombatStartPhase* combatStartPhase = _turnMode->States->CombatStartPhase;
-    if (combatStartPhase)
-    {
-        for (auto& character : combatStartPhase->GetCharacters())
-        {
-            int hp = character->HP;
-            if (hp <= 0)
-            {
-                character->Dead();
-            }
-        }
-    }
+    UpdateCharacterDead();   
+
     _isPhaseEnd = true;
 }
 

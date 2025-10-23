@@ -1,4 +1,5 @@
 #include "Function.hlsli"
+#include "SDFDatas.hlsli"
 
 float Median(float r, float g, float b)
 {
@@ -11,33 +12,36 @@ struct PSInput
     float2 uv : TEXCOORD;
 };
 
-struct FontColor
-{
-    float4 Color;
-};
-
-struct SDFParams
-{
-    uint InstanceID;
-    float PxRange;
-    float FontWeight;
-};
-
 Texture2D sdfTexture;
-ConstantBuffer<FontColor> bit32_4_fontColor;
-ConstantBuffer<SDFParams> bit32_3_sdfParams;
 
 float4 ps_main(PSInput input) : SV_Target0
 {
     float3 sampled = sdfTexture.Sample(samLinear_clamp, input.uv).rgb;
     float sd = Median(sampled.r, sampled.g, sampled.b);    
-    float sigDist = (sd - 0.5) * bit32_3_sdfParams.PxRange;
+    float sigDist = (sd - 0.5) * sdfParams.PxRange;
     float screenPixelRange = fwidth(sigDist);
-    float effectiveDist = sigDist + bit32_3_sdfParams.FontWeight;
-    float opacity = smoothstep(-screenPixelRange, screenPixelRange, effectiveDist);
-   
+    
+    float effectiveDist = sigDist + sdfParams.FontWeight;
+    float fillOpacity = smoothstep(-screenPixelRange, screenPixelRange, effectiveDist);
+    
     float4 color = bit32_4_fontColor.Color;
-    color.a *= opacity;
+    
+    if (sdfParams.Flags & ENABLE_OUTLINE)
+    {
+        float maxOutlineWidth = sdfParams.PxRange * 0.8;
+        float clampedOutlineWidth = min(sdfParams.OutlineWidth, maxOutlineWidth);
+        float outlineEdge = sigDist + sdfParams.FontWeight + clampedOutlineWidth;
+        float outlineOpacity = smoothstep(-screenPixelRange, screenPixelRange, outlineEdge);
+        float3 outlineColor = sdfParams.OutlineColor;
+        color.rgb = lerp(outlineColor, color.rgb, fillOpacity / max(outlineOpacity, Epsilon));
+        
+        color.a *= outlineOpacity;
+    }
+    else
+    {
+        color.a *= fillOpacity;
+    }
+    
     clip(color.a - Epsilon);
     
     return color;

@@ -8,7 +8,7 @@
 
 // render technique
 #include "SSRTechnique.h"
-#include "PBRLitTechnique.h"
+#include "LightingTechnique.h"
 #include "VolumetricFogTechnique.h"
 #include "BloomTechnique.h"
 
@@ -29,7 +29,7 @@ void GraphicsController::SetSSR(std::string_view sceneName, bool enable)
 void GraphicsController::SetSSAO(std::string_view sceneName, bool enable)
 {
     RenderScene* renderScene = Global::renderer->GetRenderScene(sceneName);
-    auto         pbrTech     = renderScene->GetRenderTechnique<PBRLitTechnique>();
+    auto         pbrTech     = renderScene->GetRenderTechnique<LightingTechnique>();
     if (pbrTech)
     {
         auto ssaoPass = pbrTech->GetRenderPass<SSAOWritePass>();

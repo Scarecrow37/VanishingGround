@@ -7,7 +7,9 @@
 
 #include <Mesh/SkeletalMeshRenderer.h>
 #include <Animation/AnimationComponent.h>
+#include <Particle/ParticleComponent.h>
 
+REFLECT_FUNCTION(CharacterBase)
 
 int CharacterBase::GetHP()
 {
@@ -79,56 +81,49 @@ CharacterBase::CharacterBase() :
 
 CharacterBase::~CharacterBase() = default;
 
-void CharacterBase::Awake() 
+void CharacterBase::Awake()
 {
     Base::Awake();
     gameObject->AddTag(TAG);
-    InitMeshModel();
+    _skeletalMeshRenderer = nullptr;
+    _animationComponent   = nullptr;
+    _particleComponent    = nullptr;
+    FindComponent();
     InitAnimationCallback();
-    InitAudio();
 }
 
-void CharacterBase::InitMeshModel()
+bool CharacterBase::FindComponent()
 {
-    auto* modelTransform = transform->Find(MODEL_NAME);
-    if (modelTransform)
+    bool valid = false;
+    auto* childTransform = transform->Find(MODEL_NAME);
+    if (childTransform)
     {
-        GameObject& modelObject = modelTransform->gameObject;
-        _skeletalMeshRenderer   = modelObject.GetComponent<SkeletalMeshRenderer>();
-        _animationComponent     = modelObject.GetComponent<AnimationComponent>();
+        GameObject& model     = childTransform->gameObject;
+        _skeletalMeshRenderer = model.GetComponent<SkeletalMeshRenderer>();
+        _animationComponent   = model.GetComponent<AnimationComponent>();
+        _particleComponent    = model.GetComponent<ParticleComponent>();
+
         if (nullptr == _skeletalMeshRenderer)
         {
-            std::string msg = std::format("{}{}",
-                modelObject.ToString(),
-                (const char*)u8"의 컴포넌트에 SkeletalMeshRenderer가 없습니다."
-            );
+            std::string msg = std::format("{}{}", model.ToString(), (const char*)u8"의 컴포넌트에 SkeletalMeshRenderer가 없습니다.");
             UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
         }
+        
         if (nullptr == _animationComponent)
         {
-            std::string msg = std::format("{}{}",
-                modelObject.ToString(),
-                (const char*)u8"의 컴포넌트에 AnimationComponent가 없습니다."
-            );
+            std::string msg = std::format("{}{}", model.ToString(), (const char*)u8"의 컴포넌트에 AnimationComponent가 없습니다.");
             UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
         }
-    }
-    else
-    {
-        std::string msg = std::format("{}{} {}{}",
-            gameObject->ToString(), 
-            (const char*)u8"의 자식 오브젝트에",
-            MODEL_NAME, 
-            (const char*)u8"이(가) 없습니다."
-        );
-        UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
-    }
-}
 
-void CharacterBase::InitAudio()
-{
-    const GameObject& object = gameObject;
-    _audioTableComponent     = object.GetComponent<AudioTableComponent>();
+        if (nullptr == _particleComponent)
+        {
+            std::string msg = std::format("{}{}", model.ToString(), (const char*)u8"의 컴포넌트에 ParticleComponent가 없습니다.");
+            UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+        }
+
+        valid = _skeletalMeshRenderer && _animationComponent && _particleComponent;
+    }
+    return valid;
 }
 
 void CharacterBase::InitAnimationCallback() 
@@ -191,17 +186,27 @@ void CharacterBase::TakeDamage(int damage, bool playAnim)
                                         (const char*)u8"의 피해를 입었습니다.");
         UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
     }
-    if (playAnim && _animationComponent)
+    if (State != STATE::Dead)
     {
-        _animationComponent->BeginBuildOverrideAnimation();
-        _animationComponent->SetNextAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
-        bool pushResult = _animationComponent->PushBackOverrideAnimation("Hit");
-        if (pushResult)
+        if (playAnim && _animationComponent)
         {
-            _animationComponent->SetCurrentAnimationPopCondition(
-                [](const AnimationData& data) { return data.IsEnd(); }); // 애니메이션이 끝날 경우 Pop
+            _animationComponent->BeginBuildOverrideAnimation();
+            _animationComponent->SetNextAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE);
+            // HitAnimation이 이미 있다면 Pop
+            const auto& animData = _animationComponent->GetTopAnimationData();
+            const char* currentAnimName = animData.GetAnimationName().c_str();
+            if (currentAnimName == _animationComponent->GetAnimationNameFromKey("Hit"))
+            {
+                _animationComponent->PopOverrideAnimation();
+            }
+            bool pushResult = _animationComponent->PushBackOverrideAnimation("Hit");
+            if (pushResult)
+            {
+                _animationComponent->SetCurrentAnimationPopCondition(
+                    [](const AnimationData& data) { return data.IsEnd(); }); // 애니메이션이 끝날 경우 Pop
+            }
+            _animationComponent->EndBuildOverrideAnimation();
         }
-        _animationComponent->EndBuildOverrideAnimation();
     }
 }
 
