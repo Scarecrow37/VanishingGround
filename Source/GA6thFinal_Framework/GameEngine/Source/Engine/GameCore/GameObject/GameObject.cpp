@@ -23,15 +23,10 @@ std::vector<std::weak_ptr<GameObject>> GameObject::FindGameObjectsWithTag(const 
     return ESceneManager::Engine::FindGameObjectsWithTag(tag);
 }
 
-std::weak_ptr<GameObject> GameObject::FindWithTag(const std::string& tag)
-{
-    return ESceneManager::Engine::FindGameObjectWithTag(tag);
-}
-
 std::weak_ptr<GameObject> GameObject::FindWithTag(const std::string_view tag)
 {
     const std::string tagStr(tag);
-    return FindWithTag(tagStr);
+    return ESceneManager::Engine::FindGameObjectWithTag(tagStr);
 }
 
 void GameObject::Destroy(Component& component, float t)

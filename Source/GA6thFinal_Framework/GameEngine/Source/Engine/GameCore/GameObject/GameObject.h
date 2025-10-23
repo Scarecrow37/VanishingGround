@@ -74,14 +74,6 @@ public:
     /// </summary>
     /// <param name="tag">검색할 태그</param>
     /// <returns>찾은 오브젝트를 weak_ptr에 담아준다.</returns>
-    static std::weak_ptr<GameObject> FindWithTag(const std::string& tag);
-
-    /// <summary>                                                                           </para>
-    /// <para> 매개변수와 같은 태그가 설정된 GameObject를 찾아 반환합니다.                             </para>
-    /// <para> 참고 : 같은 태그가 설정된 오브젝트가 여러개 있으면 특정 오브젝트 반환을 보장하지 못합니다. </para>
-    /// </summary>
-    /// <param name="tag">검색할 태그</param>
-    /// <returns>찾은 오브젝트를 weak_ptr에 담아준다.</returns>
     static std::weak_ptr<GameObject> FindWithTag(std::string_view tag);
 
     /// <summary>                                                                           </para>
