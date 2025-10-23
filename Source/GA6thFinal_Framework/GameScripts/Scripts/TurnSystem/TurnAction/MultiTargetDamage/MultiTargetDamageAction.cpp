@@ -3,6 +3,8 @@
 
 REGISTER_TURN_ACTION(MultiTargetDamageAction)
 
+REFLECT_FUNCTION(MultiTargetDamageAction)
+
 MultiTargetDamageAction::MultiTargetDamageAction() 
 {
     UpdateActionInfo();

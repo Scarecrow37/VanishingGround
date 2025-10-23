@@ -3,6 +3,8 @@
 
 namespace EnemyAction
 {
+    REFLECT_FUNCTION(ActionData)
+
     void ActionData::SerializedReflectEvent()
     {
     }

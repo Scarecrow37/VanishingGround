@@ -7,6 +7,8 @@
 #include "Mesh/MeshComponent.h"
 #include "GraphicsEngine/Interface/IMeshRenderer.h"
 
+REFLECT_FUNCTION(EditorSceneTool)
+
 using namespace u8_literals;
 
 EditorSceneTool::EditorSceneTool() 

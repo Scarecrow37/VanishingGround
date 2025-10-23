@@ -1,7 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "TempNavigationComponent.h"
 
-//UMREAL_COMPONENT(UINavigationComponent);
+REFLECT_FUNCTION(TempNavigationComponent);
 
 TempNavigationComponent::TempNavigationComponent() = default;
 

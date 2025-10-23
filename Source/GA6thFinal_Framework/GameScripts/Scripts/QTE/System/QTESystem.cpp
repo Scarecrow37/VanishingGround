@@ -54,7 +54,7 @@ void QTESystem::Update()
             ProcessQTEButtonPressedEvent();
             if (CanPressQTEButton())
             {
-                PressedQTEButton(Input::ControllerTypes::Button::X);
+                PressedQTEButton(_keyBinder.GetKeyX());
             }
         }
         else if (ImGui::IsKeyPressed(ImGuiKey_UpArrow, false))
@@ -62,7 +62,7 @@ void QTESystem::Update()
             ProcessQTEButtonPressedEvent();
             if (CanPressQTEButton())
             {
-                PressedQTEButton(Input::ControllerTypes::Button::Y);
+                PressedQTEButton(_keyBinder.GetKeyY());
             }
         }
         else if (ImGui::IsKeyPressed(ImGuiKey_RightArrow, false))
@@ -70,7 +70,7 @@ void QTESystem::Update()
             ProcessQTEButtonPressedEvent();
             if (CanPressQTEButton())
             {
-                PressedQTEButton(Input::ControllerTypes::Button::B);
+                PressedQTEButton(_keyBinder.GetKeyB());
             }
         }
 #endif // _UMEDITOR
@@ -357,6 +357,21 @@ void QTESystem::PauseQTE(const bool pause)
     }
 }
 
+void QTESystem::ClearKeyBindState() 
+{
+    _keyBinder.ClearBindState();
+}
+
+void QTESystem::PushKeyBindState(const QTE::KeyBindState& bindState)
+{
+    _keyBinder.PushKeyBindState(bindState);
+}
+
+void QTESystem::PopKeyBindState()
+{
+    _keyBinder.PopKeyBindState();
+}
+
 QTE::ResultType QTESystem::GetQTEResult(const float noteTime)
 {
     auto& [perfectMin, perfectMax] = ReflectFields->PerfectJudgeRange;
@@ -522,7 +537,7 @@ void QTESystem::PressedButtonX(const Input::Controller& controller)
     // Handle button X pressed
     if (CanPressQTEButton())
     {
-        _nextControllerEvent = {&controller, Input::ControllerTypes::Button::X};
+        _nextControllerEvent = {&controller, _keyBinder.GetKeyX()};
     }
 }
 
@@ -532,7 +547,7 @@ void QTESystem::PressedButtonY(const Input::Controller& controller)
     // Handle button Y pressed
     if (CanPressQTEButton())
     {
-        _nextControllerEvent = {&controller, Input::ControllerTypes::Button::Y};
+        _nextControllerEvent = {&controller, _keyBinder.GetKeyY()};
     }
 }
 
@@ -542,7 +557,7 @@ void QTESystem::PressedButtonB(const Input::Controller& controller)
     // Handle button B pressed
     if (CanPressQTEButton())
     {
-        _nextControllerEvent = {&controller, Input::ControllerTypes::Button::B};
+        _nextControllerEvent = {&controller, _keyBinder.GetKeyB()};
     }
 }
 

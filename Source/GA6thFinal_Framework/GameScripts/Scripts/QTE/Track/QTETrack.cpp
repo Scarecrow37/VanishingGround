@@ -4,6 +4,8 @@
 
 namespace QTE
 {
+    REFLECT_FUNCTION(Track)
+
     Track::Track() 
         : _eventTrack(std::make_shared<Timeline::EventTrack>())
     {

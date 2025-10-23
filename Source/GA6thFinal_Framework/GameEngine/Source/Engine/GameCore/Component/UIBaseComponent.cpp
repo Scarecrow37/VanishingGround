@@ -1,6 +1,8 @@
 ﻿#include "pch.h"
 #include "UIBaseComponent.h"
 
+REFLECT_FUNCTION(UIBaseComponent)
+
 bool UIBaseComponent::_isDebug = false;
 
 UIBaseComponent::UIBaseComponent() : Component(TYPE::UI)
