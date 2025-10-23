@@ -1332,7 +1332,7 @@ void ESceneManager::EraseGameObjectMap(std::shared_ptr<GameObject>& eraseObject)
 
 void ESceneManager::AddDestroyComponentQueue(Component* component) 
 {
-    if (component->gameObject->IsValid())
+    if (component && component->gameObject->IsValid())
     {
         auto& [set, vec]    = engineCore->SceneManager._destroyComponentsQueue;
         auto [iter, result] = set.insert(component);
@@ -1450,7 +1450,7 @@ void ESceneManager::SetRendererSkyBox(Scene* scene)
 
 void ESceneManager::AddDestroyObjectQueue(GameObject* gameObject) 
 {
-    if (gameObject->IsValid())
+    if (gameObject && gameObject->IsValid())
     {
         auto& [set, vec] = engineCore->SceneManager._destroyObjectsQueue;
         Transform::ForeachDFS(gameObject->_transform, [this, &set, &vec](Transform* pTransform) {
