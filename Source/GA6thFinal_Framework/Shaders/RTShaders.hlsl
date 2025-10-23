@@ -242,7 +242,7 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
     float3 directLighting = 0;
     float3 ambientLighting = 0;
     // Directional
-    for (uint i = 0; i < numLight.Directional; ++i)
+    for (uint i = 0; i < bit32_4_numLight.Directional; ++i)
     {
         DirectionalLight Ld = lightData.Directional[i];
         float3 L = normalize(-Ld.Direction);
@@ -255,7 +255,7 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
     }
 
     // Point
-    for (uint j = 0; j < numLight.Point; ++j)
+    for (uint j = 0; j < bit32_4_numLight.Point; ++j)
     {
         PointLight Lp = lightData.Point[j];
         float3 toL = Lp.Position - hitPosition;
@@ -264,11 +264,22 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
         if (TraceShadow(hitPosition, L, dist - 0.01) == false)
             directLighting += CalculatePoint(Lp, normal, view, albedo, metal, rough, hitPosition);
     }
+    
+    // Shadow Point
+    for (uint k = 0; k < bit32_4_numLight.ShadowPoint; ++k)
+    {
+        PointLight Lp = lightData.Point[k];
+        float3 toL = Lp.Position - hitPosition;
+        float dist = length(toL);
+        float3 L = toL / dist;
+        if (TraceShadow(hitPosition, L, dist - 0.01) == false)
+            directLighting += CalculatePoint(Lp, normal, view, albedo, metal, rough, hitPosition);
+    }
 
     // Spot
-    for (uint k = 0; k < numLight.Spot; ++k)
+    for (uint l = 0; l < bit32_4_numLight.Spot; ++l)
     {
-        SpotLight Ls = lightData.Spot[k];
+        SpotLight Ls = lightData.Spot[l];
         float3 toL = Ls.Position - hitPosition;
         float dist = length(toL);
         float3 L = toL / dist;
