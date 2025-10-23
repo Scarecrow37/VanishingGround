@@ -330,6 +330,7 @@
     <ClInclude Include="Scripts\ConsumableSystem\ConsumableSystem.h" />
     <ClInclude Include="Scripts\DamageSystem\DamageSystem.h" />
     <ClInclude Include="Scripts\Debugger\Debugger.h" />
+    <ClInclude Include="Scripts\DifficultyManager\DifficultyEnum.h" />
     <ClInclude Include="Scripts\DifficultyManager\DifficultyManager.h" />
     <ClInclude Include="Scripts\ExcelDataSystem\ExcelDataSystem.h" />
     <ClInclude Include="Scripts\ExcelParser\ImGuiColumnSheetParser.h" />
@@ -341,6 +342,7 @@
     <ClInclude Include="Scripts\GameCore\FSM\FSMState.h" />
     <ClInclude Include="Scripts\GameCore\FSM\IFSMEntity.h" />
     <ClInclude Include="Scripts\Interface\ITriggerType.h" />
+    <ClInclude Include="Scripts\IntroManager\IntroManager.h" />
     <ClInclude Include="Scripts\Inventory\OpenInventoryComponent.h" />
     <ClInclude Include="Scripts\Inventory\UINavi\InventoryArrowNavi.h" />
     <ClInclude Include="Scripts\Inventory\UINavi\InventoryItemFocusNavi.h" />
@@ -524,6 +526,7 @@
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\TurnListEmptyState.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\TurnMode.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnSystemHelper.h" />
+    <ClInclude Include="Scripts\TutorialSystem\TutorialSystem.h" />
     <ClInclude Include="Scripts\UINavigation\TempNavigationComponent.h" />
     <ClInclude Include="Scripts\UI\Animations\FadeDescriptionPanel\FadeDescriptionPanel.h" />
     <ClInclude Include="Scripts\UI\Animations\FadeImageElement\FadeImageElement.h" />
@@ -792,6 +795,7 @@
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\TurnListEmptyState.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\TurnMode.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnSystemHelper.cpp" />
+    <ClCompile Include="Scripts\TutorialSystem\TutorialSystem.cpp" />
     <ClCompile Include="Scripts\UINavigation\TempNavigationComponent.cpp" />
     <ClCompile Include="Scripts\UI\Animations\FadeDescriptionPanel\FadeDescriptionPanel.cpp" />
     <ClCompile Include="Scripts\UI\Animations\FadeImageElement\FadeImageElement.cpp" />
