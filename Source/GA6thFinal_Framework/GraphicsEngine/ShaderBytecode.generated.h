@@ -20,6 +20,7 @@ namespace GE
             case PS::DISTORTION_RESOLVE: return { g_ps_distortion_resolve, sizeof(g_ps_distortion_resolve) };
             case PS::DOWN_SAMPLE: return { g_ps_down_sample, sizeof(g_ps_down_sample) };
             case PS::DXRGBUFFER: return { g_ps_dxrgbuffer, sizeof(g_ps_dxrgbuffer) };
+            case PS::DXRGBUFFER_MASKED: return { g_ps_dxrgbuffer_masked, sizeof(g_ps_dxrgbuffer_masked) };
             case PS::FADE: return { g_ps_fade, sizeof(g_ps_fade) };
             case PS::FORWARD_PBR_LIGHTING: return { g_ps_forward_pbr_lighting, sizeof(g_ps_forward_pbr_lighting) };
             case PS::FXAA: return { g_ps_fxaa, sizeof(g_ps_fxaa) };
@@ -67,6 +68,13 @@ namespace GE
             case VS::STATIC_POINT_LIGHT_SHADOW_FR: return { g_vs_static_point_light_shadow_fr, sizeof(g_vs_static_point_light_shadow_fr) };
             case VS::STATIC_SHADOW_FR: return { g_vs_static_shadow_fr, sizeof(g_vs_static_shadow_fr) };
             case VS::UI_FR: return { g_vs_ui_fr, sizeof(g_vs_ui_fr) };
+            default: return { nullptr, 0 };
+        }
+    }
+    inline D3D12_SHADER_BYTECODE GetShaderBytecode(GS shader)
+    {
+        switch (shader)
+        {            case GS::POINT_LIGHT_SHADOW_CUBE: return { g_gs_point_light_shadow_cube, sizeof(g_gs_point_light_shadow_cube) };
             default: return { nullptr, 0 };
         }
     }

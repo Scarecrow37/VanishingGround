@@ -1,4 +1,4 @@
-#include "Function.hlsli"
+#include "CommonData.hlsli"
 
 #define PARALLAX_HEIGHT_SCALE_DIVISOR 200
 
@@ -23,8 +23,6 @@ struct PSOutput
     uint customDepth : SV_Target2;
 };
 
-
-// todo 민재형 이거 맞아? 이렇게 하면되나 숫자 그대로 가져오나?
 #define DIFFUSE   0
 #define NORMAL    1
 #define ORM       2
@@ -36,6 +34,14 @@ ConstantBuffer<GbufferData> bit32_2_gbufferData;
 // ---------------------- 유틸 ----------------------
 
 static const float EPSILON_POM = 1e-5f;
+
+// TBN 직교정규화: tangent를 normal에 대해 그램-슈미트, bitangent는 cross로 재구축
+void OrthonormalizeTBN(inout float3 T, inout float3 B, inout float3 N)
+{
+    N = normalize(N);
+    T = normalize(T - N * dot(T, N));
+    B = normalize(cross(N, T));
+}
 
 // 원래 코드의 POM 누적 (SampleGrad 유지)
 float2 CalculatePOMUVOffset(float2 parallaxOffset, float2 uv, int numSteps, uint ORMID)
@@ -104,6 +110,10 @@ PSOutput WriteGuBuffer(PSInput input)
     float mipOffset = bit32_2_gbufferData.MipBias;
    
     uint diffuseID = input.materialID[DIFFUSE];
+    float alpha = textures[diffuseID].SampleBias(samLinear_wrap, input.uv, mipOffset).a;
+    alpha *= input.alpha;
+    clip(alpha - CUTOFF); // Masked Alpha Test
+    
     uint normalID = input.materialID[NORMAL];
     uint ORMID = input.materialID[ORM];
     uint emissiveID = input.materialID[EMISSIVE];
@@ -153,13 +163,13 @@ PSOutput WriteGuBuffer(PSInput input)
     {
         parallaxUV = frac(parallaxUV);
     }
-    
+
     // 0. normal (TS→WS)
     float3 normalTS = textures[normalID].SampleBias(samLinear_wrap, parallaxUV, mipOffset).xyz;
     normalTS = normalize(normalTS * 2.0f - 1.0f);
     float3 normalWS = normalize(mul(normalTS, TBN));
     output.normal = float4(normalWS, 1.0f);
-
+    
     // 1. depth (clip-space z 그대로 저장하던 기존 로직 유지)
     // 필요 시: LinearizeDepth(input.position.z, near, far)로 교체 가능
     output.depth = input.position.z;
