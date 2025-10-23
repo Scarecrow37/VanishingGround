@@ -51,10 +51,11 @@ void TokenSystem::OnDestroy()
 
 void TokenSystem::ImGuiDrawPropertysEvent() 
 {
-    if (ImGui::TreeNodeEx("Token Instances##Token System"))
+    if (ImGui::TreeNodeEx("Token Instances##token system"))
     {
         ImGui::Text("Total Token Instances: %zu", _tokenInstances.size());
         ImGui::Separator();
+        ImGui::BeginChild("##token instances list", ImVec2(0, 300), ImGuiChildFlags_Border);
         for (const auto& [id, token] : _tokenIDTable)
         {
             if (token)
@@ -75,6 +76,30 @@ void TokenSystem::ImGuiDrawPropertysEvent()
                 }
             }
         }
+        ImGui::EndChild();
+        ImGui::TreePop();
+    }
+    if (ImGui::TreeNodeEx("Token Factory##token system"))
+    {
+        ImGui::Text("Total Registered Token: %zu", _tokenIDFactoryTable.size());
+        ImGui::Separator();
+        ImGui::BeginChild("##token registered list", ImVec2(0, 300), ImGuiChildFlags_Border);
+        for (const auto& [id, _] : _tokenIDFactoryTable)
+        {
+            ImGuiHelper::StyleBuilder style;
+            if (_tokenIDTable.contains(id))
+            {
+                ImVec4 color = ImColor(100, 255, 100);
+                style.PushStyleColor(ImGuiCol_Text, color);
+            }
+            else
+            {
+                ImVec4 color = ImColor(255, 100, 100);
+                style.PushStyleColor(ImGuiCol_Text, color);
+            }
+            ImGui::Text("ID: %d", id);
+        }
+        ImGui::EndChild();
         ImGui::TreePop();
     }
 }
