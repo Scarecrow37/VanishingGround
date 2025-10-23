@@ -39,6 +39,8 @@ protected:
     void Awake() override;
     void Start() override;
 
+    void ImGuiDrawPropertysEvent() override;
+
 private:
     void FindComponents();
 
@@ -54,7 +56,7 @@ private:
     SingletonObject<TutorialSystem>    _singletonObject{this};
     SingletonComponent<TutorialSystem> _singletonComponent{this};
 
-    std::unordered_map<UINT, Tutorial> _tutorials;
+    std::unordered_map<int, Tutorial> _tutorials;
 
     std::weak_ptr<GameObject>       _panel;
     std::weak_ptr<TextElement>      _title;
