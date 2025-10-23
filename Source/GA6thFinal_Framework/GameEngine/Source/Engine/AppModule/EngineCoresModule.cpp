@@ -20,10 +20,10 @@ void EngineCoresModule::ModuleUnInitialize()
         UmCommandManager.Clear();
         EditorHierarchyTool::CleanupEditorObjects();
     }
-    ESceneManager::Engine::CleanupSceneManager();
     ETimeSystem::Engine::CleanUpInvokeFuntions();
-    engineCore->ComponentFactory.UninitalizeComponentFactory();
+    ESceneManager::Engine::CleanupSceneManager();
     EGameObjectFactory::Engine::Finalize();
+    engineCore->ComponentFactory.UninitalizeComponentFactory();
     UmGraphics.Finalize();
     SafeEngineCoresPtr::Engine::DestroyEngineCores();
 }
