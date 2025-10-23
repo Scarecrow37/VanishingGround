@@ -58,16 +58,17 @@ void AttackTokenApplyAction::OnPlayerBattleCalculateDamageModifier(Player& attac
 
 void AttackTokenApplyAction::UpdateActionInfo() 
 {
-    if (TokenSystem* tokenSystem = SingletonComponent<TokenSystem>::GetInstance())
+    std::string_view tokenName = TokenSystem::TokenIDToName(ReflectFields->TokenID);
+    if (true == tokenName.empty())
     {
-        std::string_view tokenName = tokenSystem->GetTokenNameFromID(ReflectFields->TokenID);
-        if (true == tokenName.empty())
-        {
-            tokenName = STR_NULL;
-        }
-        _actionInfo = (const char*)u8"공격시 ";
-        _actionInfo +=
-            std::format("{}{}{}{}{}{}", rfl::enum_to_string(ReflectFields->TokenTarget), (const char*)u8"에게 ",
-                        tokenName, (const char*)u8"토큰 ", ReflectFields->TokenCount, (const char*)u8"개 부여");
+        tokenName = STR_NULL;
     }
+    _actionInfo = (const char*)u8"공격시 ";
+    _actionInfo += std::format("{}{}{}{}{}{}", 
+        rfl::enum_to_string(ReflectFields->TokenTarget),
+        (const char*)u8"에게 ",
+        tokenName, 
+        (const char*)u8"토큰 ",
+        ReflectFields->TokenCount, 
+        (const char*)u8"개 부여");
 }

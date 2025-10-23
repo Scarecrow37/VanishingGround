@@ -52,7 +52,7 @@ void WeaponKillTokenApplyAction::UpdateActionInfo()
     _actionInfo = u8"적을 무기로 처치하면 "_c_str;
     _actionInfo += (const char*)TurnSystemHelper::GetTurnTargetToolTip(Target).data();
     _actionInfo += u8"에게 "_c_str;
-    _actionInfo += TokenSystem::GetTokenNameFromID(TokenID);
+    _actionInfo += TokenSystem::TokenIDToName(TokenID);
     _actionInfo += u8"토큰을 "_c_str;
     _actionInfo += std::to_string(TokenCount);
     _actionInfo += u8"개 부여"_c_str;

@@ -3,11 +3,11 @@ using TokenID = int;
 
 struct TokenData
 {
-    int                 ID;
+    int                 ID = 0;
     std::string         Name;
     std::string         Tag;
-    int                 Order;
-    int                 MaxStack;
+    int                 Order = 50;
+    int                 MaxStack = 999;
     std::vector<int>    Params;
 };
 

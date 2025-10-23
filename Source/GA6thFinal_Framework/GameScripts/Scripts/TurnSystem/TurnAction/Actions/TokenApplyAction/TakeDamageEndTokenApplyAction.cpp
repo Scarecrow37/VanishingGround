@@ -33,16 +33,12 @@ void TakeDamageEndTokenApplyAction::UpdateActionInfo()
 {
     using namespace u8_literals;
     _actionInfo.clear();
-    if (TokenSystem* tokenSystem = SingletonComponent<TokenSystem>::GetInstance())
-    {
-        _actionInfo = (const char*)TurnSystemHelper::GetTurnTargetToolTip(Target).data();
-        _actionInfo += u8" 데미지 입을때 "_c_str;
-
-        _actionInfo += tokenSystem->GetTokenNameFromID(TokenID);
-        _actionInfo += u8"토큰을 "_c_str;
-        _actionInfo += std::to_string(TokenCount);
-        _actionInfo += u8"개 부여"_c_str;
-    }
+    _actionInfo = (const char*)TurnSystemHelper::GetTurnTargetToolTip(Target).data();
+    _actionInfo += u8" 데미지 입을때 "_c_str;
+    _actionInfo += TokenSystem::TokenIDToName(TokenID);
+    _actionInfo += u8"토큰을 "_c_str;
+    _actionInfo += std::to_string(TokenCount);
+    _actionInfo += u8"개 부여"_c_str;
 }
 
 void TakeDamageEndTokenApplyAction::OnPlayerTakeDamageEnd(Player& target, int damage) 

@@ -8,6 +8,7 @@ namespace TokenObject
 {
     REGISTER_TOKEN(Bleed)
     REGISTER_TOKEN(BleedGrant)
+    REGISTER_TOKEN(BleedResistance)
 
     bool Bleed::CanAdd(CharacterBase* owner) const
     {

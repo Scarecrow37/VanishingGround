@@ -51,28 +51,34 @@ void TokenSystem::OnDestroy()
 
 void TokenSystem::ImGuiDrawPropertysEvent() 
 {
-    if (ImGui::TreeNodeEx("Token Instances##token system"))
+    if (ImGui::TreeNodeEx("Token Data##token system"))
     {
-        ImGui::Text("Total Token Instances: %zu", _tokenInstances.size());
+        ImGui::Text("Total Token Data Count: %zu", _tokenDataTable.size());
         ImGui::Separator();
         ImGui::BeginChild("##token instances list", ImVec2(0, 300), ImGuiChildFlags_Border);
-        for (const auto& [id, token] : _tokenIDTable)
+        for (const auto& [id, data] : _tokenDataTable)
         {
-            if (token)
+            ImGuiHelper::StyleBuilder style;
+            if (_tokenIDTable.contains(id))
             {
-                const std::string& name = token->GetTokenName();
-                const std::string label = std::format("{} : {}", id, name);
-                ImGui::Selectable(label.c_str());
-                if (ImGui::IsItemHovered())
+                ImVec4 color = ImColor(100, 255, 100);
+                style.PushStyleColor(ImGuiCol_Text, color);
+            }
+            else
+            {
+                ImVec4 color = ImColor(255, 100, 100);
+                style.PushStyleColor(ImGuiCol_Text, color);
+            }
+            const std::string label = std::format("{} : {}", data.ID, data.Name);
+            ImGui::Selectable(label.c_str());
+            if (ImGui::IsItemHovered())
+            {
+                if (ImGui::BeginTooltip())
                 {
-                    if (ImGui::BeginTooltip())
-                    {
-                        const std::string& tag = token->GetTokenTag();
-                        ImGui::Text("ID: %d", id);
-                        ImGui::Text("Tag: %s", tag.c_str());
-                        ImGui::Text("Max Stack: %d", token->GetMaxStackCount());
-                        ImGui::EndTooltip();
-                    }
+                    ImGui::Text("ID: %d", data.ID);
+                    ImGui::Text("Tag: %s", data.Tag.c_str());
+                    ImGui::Text("Max Stack: %d", data.MaxStack);
+                    ImGui::EndTooltip();
                 }
             }
         }
@@ -81,10 +87,10 @@ void TokenSystem::ImGuiDrawPropertysEvent()
     }
     if (ImGui::TreeNodeEx("Token Factory##token system"))
     {
-        ImGui::Text("Total Registered Token: %zu", _tokenIDFactoryTable.size());
+        ImGui::Text("Total Registered Token Count: %zu", _registeredFactoryTable.size());
         ImGui::Separator();
         ImGui::BeginChild("##token registered list", ImVec2(0, 300), ImGuiChildFlags_Border);
-        for (const auto& [id, _] : _tokenIDFactoryTable)
+        for (const auto& [id, _] : _registeredFactoryTable)
         {
             ImGuiHelper::StyleBuilder style;
             if (_tokenIDTable.contains(id))
@@ -106,7 +112,7 @@ void TokenSystem::ImGuiDrawPropertysEvent()
 
 void TokenSystem::RegisterAllTokenInstance()
 {
-    for (const auto& [id, constructor] : _tokenIDFactoryTable)
+    for (const auto& [id, constructor] : _registeredFactoryTable)
     {
         if (_tokenDataTable.contains(id))
         {
@@ -209,7 +215,7 @@ void TokenSystem::LoadTokenDataFromExcelData(ExcelDataSystem* dataSystem)
             }
         }
     }
-    bool isValid = _tokenDataTable.size() == _tokenIDFactoryTable.size();
+    bool isValid = _tokenDataTable.size() == _registeredFactoryTable.size();
     assert(isValid && "토큰 엑셀 데이터 시트와 토큰 인스턴스 개수가 다릅니다.");
 }
 
@@ -265,4 +271,49 @@ void TokenSystem::SortByOrder()
             int bOrder = b->GetTokenOrder();
             return aOrder < bOrder;
         });
+}
+
+const char* TokenSystem::TokenIDToName(TokenID tokenID)
+{
+    if (TokenSystem* system = SingletonComponent<TokenSystem>::GetInstance())
+    {
+        return system->GetTokenNameFromID(tokenID).c_str();
+    }
+    return STR_NULL;
+}
+
+const char* TokenSystem::TokenIDToTag(TokenID tokenID)
+{
+    if (TokenSystem* system = SingletonComponent<TokenSystem>::GetInstance())
+    {
+        if (const TokenData* data = system->GetTokenDataFromID(tokenID))
+        {
+            return data->Tag.c_str();
+        }
+    }
+    return STR_NULL;
+}
+
+int TokenSystem::TokenIDToOrder(TokenID tokenID)
+{
+    if (TokenSystem* system = SingletonComponent<TokenSystem>::GetInstance())
+    {
+        if (const TokenData* data = system->GetTokenDataFromID(tokenID))
+        {
+            return data->Order;
+        }
+    }
+    return 0;
+}
+
+int TokenSystem::TokenIDToMaxStack(TokenID tokenID)
+{
+    if (TokenSystem* system = SingletonComponent<TokenSystem>::GetInstance())
+    {
+        if (const TokenData* data = system->GetTokenDataFromID(tokenID))
+        {
+            return data->MaxStack;
+        }
+    }
+    return 0;
 }

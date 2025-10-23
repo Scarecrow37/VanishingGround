@@ -1,7 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "VanishToken.h"
 #include "Token/TokenInventory.h"
-#include "TurnSystem/TurnActor/Character/CharacterBase.h"
+#include "TurnSystem/TurnActor/Character/Player/Player.h"
+#include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
 #include "Stats/Enemy/EnemyStats.h"
 #include "Stats/Weapon/WeaponStats.h"
 
@@ -13,8 +14,11 @@ namespace TokenObject
                                                   WeaponStats& weaponStats, QTE::NoteResult& noteResult,
                                                   Enemy& target, EnemyStats& targetStats)
     {
+        TokenInventory& tokenInventory = attacker.GetTokenInventory();
+        int count = tokenInventory.GetTokenStackFromID(ID);
+
         int   param  = GetTokenParam(0);
-        float factor = static_cast<float>(param) / 100.0f;
+        float factor = (static_cast<float>(param) / 100.0f) * static_cast<float>(count);
         weaponStats.HitDamageMultiplier += factor;
         weaponStats.CriticalDamageMultiplier += factor;
     }
@@ -22,8 +26,11 @@ namespace TokenObject
     void Vanish::OnPreAttackBattleCalculateDamage(Enemy& attacker, EnemyStats& attackerStats, Player& target,
                                                   PlayerStats& targetStats)
     {
+        TokenInventory& tokenInventory = attacker.GetTokenInventory();
+        int count = tokenInventory.GetTokenStackFromID(ID);
+
         int   param  = GetTokenParam(0);
-        float factor = static_cast<float>(param) / 100.0f;
+        float factor = (static_cast<float>(param) / 100.0f) * static_cast<float>(count);
         attackerStats.DamageMultiplier += factor;
     }
 } // namespace TokenObject

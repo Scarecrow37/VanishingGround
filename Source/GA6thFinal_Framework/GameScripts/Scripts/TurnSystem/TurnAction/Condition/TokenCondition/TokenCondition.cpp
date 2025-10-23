@@ -139,36 +139,33 @@ void TokenCondition::UpdateConditionInfo()
         who = u8"모든 캐릭터의 "_c_str;
         break;
     }
-    if (TokenSystem* tokenSystem = SingletonComponent<TokenSystem>::GetInstance())
+    std::string_view tokenName = TokenSystem::TokenIDToName(ReflectFields->TokenType);
+    std::string_view token     = STR_NULL;
+    if (false == tokenName.empty())
     {
-        std::string_view tokenName = tokenSystem->GetTokenNameFromID(ReflectFields->TokenType);
-        std::string_view token     = STR_NULL;
-        if (false == tokenName.empty())
-        {
-            token = tokenName;
-        }
-        int              value = ReflectFields->Value;
-        Operator         oper  = ReflectFields->Operator;
-        std::string_view operName;
-        switch (oper)
-        {
-        case TokenCondition::Operator::GREATER_EQUAL:
-            operName = (const char*)u8"이상";
-            break;
-        case TokenCondition::Operator::LESS_EQUAL:
-            operName = (const char*)u8"이하";
-            break;
-        case TokenCondition::Operator::EQUAL:
-            operName = (const char*)u8"";
-            break;
-        default:
-            operName = STR_NULL;
-            break;
-        }
-
-        _conditionInfo =
-            std::format("{}{}{}{}{}{}", who, token, (const char*)u8"토큰이 ", value, (const char*)u8"개 ", operName);
+        token = tokenName;
     }
+    int              value = ReflectFields->Value;
+    Operator         oper  = ReflectFields->Operator;
+    std::string_view operName;
+    switch (oper)
+    {
+    case TokenCondition::Operator::GREATER_EQUAL:
+        operName = (const char*)u8"이상";
+        break;
+    case TokenCondition::Operator::LESS_EQUAL:
+        operName = (const char*)u8"이하";
+        break;
+    case TokenCondition::Operator::EQUAL:
+        operName = (const char*)u8"";
+        break;
+    default:
+        operName = STR_NULL;
+        break;
+    }
+
+    _conditionInfo =
+        std::format("{}{}{}{}{}{}", who, token, (const char*)u8"토큰이 ", value, (const char*)u8"개 ", operName);
 }
 
 void TokenCondition::GetTargetList(std::vector<class CharacterBase*>& targetList)

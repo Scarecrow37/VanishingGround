@@ -6,6 +6,7 @@ namespace TokenObject
 {
     REGISTER_TOKEN(Poison)
     REGISTER_TOKEN(PoisonGrant)
+    REGISTER_TOKEN(PoisonResistance)
 
     bool Poison::CanAdd(CharacterBase* owner) const
     {

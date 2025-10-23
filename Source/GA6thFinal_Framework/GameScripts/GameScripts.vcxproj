@@ -309,7 +309,6 @@
   <ItemGroup>
     <ClInclude Include="Scripts\Token\Object\BlackArmor\BlackArmorToken.h" />
     <ClInclude Include="Scripts\Token\Object\ProphecyDoom\ProphecyDoomToken.h" />
-    <ClInclude Include="Scripts\Token\Object\Blind\BlindToken.h" />
     <ClInclude Include="Scripts\Token\Object\Deffence\ChainDeffenceToken.h" />
     <ClInclude Include="Scripts\Token\Object\DeathSentence\DeathSentence.h" />
     <ClInclude Include="Scripts\Token\Object\Rage\RageToken.h" />
@@ -596,7 +595,6 @@
   <ItemGroup>
     <ClCompile Include="Scripts\Token\Object\BlackArmor\BlackArmorToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\ProphecyDoom\ProphecyDoomToken.cpp" />
-    <ClCompile Include="Scripts\Token\Object\Blind\BlindToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\Deffence\ChainDeffenceToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\DeathSentence\DeathSentence.cpp" />
     <ClCompile Include="dllmain.cpp">

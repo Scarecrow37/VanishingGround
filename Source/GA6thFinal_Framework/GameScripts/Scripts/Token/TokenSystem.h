@@ -22,9 +22,9 @@ class Token;
 class ExcelDataSystem;
 
 /// <summary>
-/// 토큰 시스템은 게임 내에서 사용되는 토큰인스턴스를 공유해주는 시스템입니다.
-/// 토큰의 ID와 이름을 통해 토큰 인스턴스 정보를 매핑합니다.
+/// 토큰 시스템은 엑셀을 통해 토큰 정보들을 매핑하고 인스턴스를 관리합니다.
 /// 싱글톤 패턴을 사용하여 전역에서 접근할 수 있습니다.
+/// DontDestroyOnLoad로 설정되어 있습니다.
 /// </summary>
 class TokenSystem : public Component
 {
@@ -42,8 +42,8 @@ private:
 
 public:
     IToken* GetTokenFromID(TokenID tokenID);
-    const std::string& GetTokenNameFromID(TokenID tokenID);
     const TokenData* GetTokenDataFromID(TokenID tokenID);
+    const std::string& GetTokenNameFromID(TokenID tokenID);
     const std::set<TokenID>* GetTokenIDSetFromTag(const std::string& tag);
 
     /// <summary> 정렬되어있는 토큰 리스트입니다. </summary>
@@ -83,20 +83,29 @@ public:
     template <typename T>  requires std::is_base_of_v<Token, T>
     static bool RegisterTokenFactory();
 
-private:
-    inline static std::unordered_map<TokenID, std::function<Token*()>> _tokenIDFactoryTable;   // 토큰 ID별로 토큰 생성 팩토리 함수
+    static const std::vector<TokenID>& GetRegisteredTokenList() { return _registeredFactoryList; }
 
+private:
+    inline static std::vector<TokenID> _registeredFactoryList;
+    inline static std::unordered_map<TokenID, std::function<Token*()>> _registeredFactoryTable;   // 토큰 ID별로 토큰 생성 팩토리 함수
+
+public:
+    static const char*  TokenIDToName(TokenID tokenID);
+    static const char*  TokenIDToTag(TokenID tokenID);
+    static int          TokenIDToOrder(TokenID tokenID);
+    static int          TokenIDToMaxStack(TokenID tokenID);
 };
 
 template <typename T> requires std::is_base_of_v<Token, T>
 inline bool TokenSystem::RegisterTokenFactory()
 {
-    if (_tokenIDFactoryTable.contains(T::ID))
+    if (_registeredFactoryTable.contains(T::ID))
     {
         assert(false && "동일한 토큰 ID가 이미 등록되어 있습니다.");
         return false;
     }
     std::function<Token*()> factoryFunc = []() { return new T(); };
-    _tokenIDFactoryTable[T::ID] = factoryFunc;
+    _registeredFactoryTable[T::ID] = factoryFunc;
+    _registeredFactoryList.push_back(T::ID);
     return true;
 }

@@ -73,22 +73,19 @@ void TokenChangeAction::OnTokenAddedEnd(CharacterBase& target, int tokenID, int 
 {
     using namespace u8_literals;
     size_t conditionCount = ConditionCount;
-    if (TokenSystem* tokenSystem = SingletonComponent<TokenSystem>::GetInstance())
+    if (0 < conditionCount && EvaluateConditions())
     {
-        if (0 < conditionCount && EvaluateConditions())
-        {
-            std::string msg = tokenSystem->GetTokenNameFromID(tokenID);
-            msg += u8" 토큰을 "_c_str;
-            msg += tokenSystem->GetTokenNameFromID(ReflectFields->TokenID);
-            msg += u8" 토큰으로 변경 "_c_str;
-            UmLogger.Log(LogLevel::LEVEL_TRACE, msg);
+        std::string msg = TokenSystem::TokenIDToName(tokenID);
+        msg += u8" 토큰을 "_c_str;
+        msg += TokenSystem::TokenIDToName(ReflectFields->TokenID);
+        msg += u8" 토큰으로 변경 "_c_str;
+        UmLogger.Log(LogLevel::LEVEL_TRACE, msg);
 
-            TokenInventory& inventory = target.GetTokenInventory();
-            inventory.RemoveTokenStackFromID(tokenID, tokenCount);
+        TokenInventory& inventory = target.GetTokenInventory();
+        inventory.RemoveTokenStackFromID(tokenID, tokenCount);
 
-            tokenID = ReflectFields->TokenID;
-            inventory.AddTokenStackFromID(tokenID, tokenCount);
-        }
+        tokenID = ReflectFields->TokenID;
+        inventory.AddTokenStackFromID(tokenID, tokenCount);
     }
 }
 
@@ -96,12 +93,9 @@ void TokenChangeAction::UpdateActionInfo()
 {
      using namespace u8_literals;
     _actionInfo.clear();
-     if (TokenSystem* tokenSystem = SingletonComponent<TokenSystem>::GetInstance())
-     {
-         std::u8string_view targetToolTip = TurnSystemHelper::GetTurnTargetToolTip(ReflectFields->Target);
-         _actionInfo                      = (const char*)targetToolTip.data();
-         _actionInfo += u8"의 부여되는 토큰을 "_c_str;
-         _actionInfo += tokenSystem->GetTokenNameFromID(ReflectFields->TokenID);
-         _actionInfo += u8" 토큰으로 변경합니다."_c_str;
-     }
+     std::u8string_view targetToolTip = TurnSystemHelper::GetTurnTargetToolTip(ReflectFields->Target);
+     _actionInfo                      = (const char*)targetToolTip.data();
+     _actionInfo += u8"의 부여되는 토큰을 "_c_str;
+     _actionInfo += TokenSystem::TokenIDToName(ReflectFields->TokenID);
+     _actionInfo += u8" 토큰으로 변경합니다."_c_str;
 }
