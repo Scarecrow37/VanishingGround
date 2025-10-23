@@ -32,7 +32,14 @@ void FogCompositePass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetPipelineState(_pipelineState.Get());
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("screenMap"), _meshRenderTarget->GetSRVHandle());
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("fogGridTexture"), _volumTech->_finalVoxelAccumulationTexture3D->GetSRVHandle());
-    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("depthMap"), renderTargetGroup[GBuffer::DEPTH]->GetSRVHandle());
+    if (Global::isRayTracing)
+    {
+        commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("depthMap"), renderTargetGroup[DXRGBuffer::DXRDEPTH]->GetSRVHandle());
+    }
+    else
+    {
+        commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("depthMap"), renderTargetGroup[GBuffer::DEPTH]->GetSRVHandle());
+    }
     commandList->SetGraphicsRootConstantBufferView(_fx.GetRootParameterIndex("VolumetricFogCompositeData"), compositeData);
 
     _ownerScene->_frameQuad->Render(commandList);

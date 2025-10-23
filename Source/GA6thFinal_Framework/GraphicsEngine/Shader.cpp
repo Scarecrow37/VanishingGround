@@ -37,9 +37,9 @@ void Shader::CompileShader(std::wstring_view filePath, std::string_view entry, s
     case Shader::ShaderType::COMPUTE:
         _byteCode = GE::GetShaderBytecode(GE::globalNameToCSEnumMap.at(filePath.data()));
         break;
-    /*case Shader::ShaderType::GEOMETRY:
+    case Shader::ShaderType::GEOMETRY:
         _byteCode = GE::GetShaderBytecode(GE::globalNameToGSEnumMap.at(filePath.data()));
-        break;*/
+        break;
     }
 #endif
 }

@@ -19,11 +19,8 @@ struct VSOutput
     float4 position : SV_POSITION;
     float2 uv : TEXCOORD;
     float3 worldPosition : TEXCOORD1;
-    float3 lightPosition : TEXCOORD2;
-    float farPlane : TEXCOORD3;
     
-    nointerpolation uint4 materialID : TEXCOORD4;
-    uint viewport : SV_ViewportArrayIndex;
+    nointerpolation uint4 materialID : TEXCOORD2;
 };
 
 struct ShadowMeshData
@@ -32,17 +29,15 @@ struct ShadowMeshData
     uint InstanceCount;
 };
 
-ConstantBuffer<ShadowMeshData> bit32_2_shadowMeshData;
 ConstantBuffer<PointLightShadowData> pointLightShadowData;
+ConstantBuffer<ShadowMeshData> bit32_2_shadowMeshData;
 StructuredBuffer<uint> meshData;
 StructuredBuffer<matrix> boneMatrices;
 
 VSOutput vs_main(VSInput input)
 {
     uint offset = bit32_2_shadowMeshData.Offset;
-    uint instanceCount = bit32_2_shadowMeshData.InstanceCount;
-    uint meshInstanceID = input.instanceID % instanceCount;
-    uint faceIndex = input.instanceID / instanceCount;
+    uint meshInstanceID = input.instanceID;
     InstanceData data = instanceData[meshInstanceID + offset];
     
     matrix boneTransform = mul(input.blendWeights.x, boneMatrices[data.MatrixID * MAX_BONE_MATRIX + input.blendIndices.x]);
@@ -57,13 +52,9 @@ VSOutput vs_main(VSInput input)
     float4 worldPos = mul(input.position, worldTransform);
     output.worldPosition = worldPos.xyz;
     
-    output.position = mul(worldPos, pointLightShadowData.ViewProjection[faceIndex]);
-    output.lightPosition = pointLightShadowData.LightPosition;
-    output.farPlane = pointLightShadowData.FarPlane;
-    
+    output.position = worldPos;
     output.uv = input.uv;
     output.materialID = data.MaterialID;
     
-    output.viewport = faceIndex;
     return output;
 }
