@@ -4,7 +4,7 @@
 class Player;
 struct PlayerStats;
 struct WeaponStats;
-class Enemey;
+class Enemy;
 struct EnemyStats;
 
 //공격시 토큰 갯수만큼 데미지 배율 증가
