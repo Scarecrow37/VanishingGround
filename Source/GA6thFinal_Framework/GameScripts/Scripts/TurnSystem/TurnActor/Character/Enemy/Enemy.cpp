@@ -2,8 +2,9 @@
 #include "Enemy.h"
 #include "Stats/Enemy/EnemyStats.h"
 #include "Stats/Enemy/EnemyStatsComponent.h"
-#include <GameCore/FSM/FiniteStateMachine.h>
-#include <TurnSystem/TurnMode/TurnMode.h>
+#include "GameCore/FSM/FiniteStateMachine.h"
+#include "TurnSystem/TurnMode/TurnMode.h"
+#include "Particle/ParticleComponent.h"
 
 //Condition
 #include "Condition/EnemyStartCondition.h"
@@ -15,21 +16,49 @@
 #include "State/EnemyPlayTurnState.h"
 #include "State/EnemyDeadState.h"
 
-#include <Particle/ParticleComponent.h>
+// Stats
+#include "Stats/CharacterStats.h"
+
+#include "Monster/System/MonsterSystem.h"
+#include "Monster/Action/MonsterActionBase.h"
 
 UMREAL_COMPONENT(Enemy)
 
-Enemy::Enemy()
-{
-
-}
+Enemy::Enemy() = default;
 
 Enemy::~Enemy() = default;
 
 void Enemy::PlayTurn() 
 {
     Base::PlayTurn();
+}
 
+void Enemy::ImGuiDrawPropertysEvent() 
+{
+    ImGui::Separator();
+    Monster::Controller& controller = GetController();
+
+    const Monster::AIModel& aiModel = controller.GetAIModel();
+    ImGui::BulletText("Current FSM:");
+    ImGui::Text("       ID: %d", controller.GetFSMID());
+    ImGui::Text("       Current Node: %s", aiModel.GetCurrentNodeLabel());
+
+    if (auto* currAction = controller.GetCurrentAction())
+    {
+        ImGui::BulletText("Current Action:");
+        ImGui::Text("       ID: %d", currAction->GetActionID());
+        ImGui::Text("       Name: %s", currAction->GetActionContext().Name.c_str());
+        ImGui::Text("       Type: %s", currAction->GetActionContext().Type.c_str());
+        ImGui::Text("       Target: %s", currAction->GetActionContext().Target.c_str());
+        ImGui::Text("       Attack Count: %d", currAction->GetActionContext().AttackCount);
+        ImGui::Text("       Parameter: %s", currAction->GetActionContext().Parameter.c_str());
+    }
+    else
+    {
+        ImGuiHelper::StyleBuilder styleBuilder;
+        styleBuilder.PushStyleColor(ImGuiCol_Text, IM_COL32(255, 100, 100, 255));
+        ImGui::TextUnformatted("Null Current Action");
+    }
 }
 
 void Enemy::EndTurn() 
@@ -53,9 +82,16 @@ void Enemy::Dead()
 
 void Enemy::TakeDamage(int damage, bool playAnim) 
 {
-    // 혹시나 그럴 일 없겠지만 중간에 계산할 연산이 또 있다면 재연산
-    int takeDamage = damage;
-    Base::TakeDamage(takeDamage, playAnim);
+    TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
+    if (turnMode)
+    {
+        turnMode->ApplyActions([&](TurnAction& action) { action.OnEnemyTakeDamageStart(*this, damage); });
+    }
+    Base::TakeDamage(damage, playAnim);
+    if (turnMode)
+    {
+        turnMode->ApplyActions([&](TurnAction& action) { action.OnEnemyTakeDamageEnd(*this, damage); });
+    }
 }
 
 void Enemy::TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim)
@@ -63,10 +99,10 @@ void Enemy::TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim)
     // 혹시나 그럴 일 없겠지만 중간에 계산할 연산이 또 있다면 재연산
     int takeDamage = damage;
     Base::TakeDamage(takeDamage, result, playAnim);
-    if (_hitParticle && result.IsHit())
+    ParticleComponent* particle = GetParticleComponent();
+    if (particle && result.IsHit())
     {
-        // TODO: 이거 왜 Play 이후에 스탑하는게 더 자연스럽게 나옴? 질문 필요
-        _hitParticle->PlayEffect("normalhit");
+        particle->PlayEffect("normalhit");
     }
 }
 
@@ -74,13 +110,12 @@ void Enemy::Awake()
 {
     Base::Awake();
     gameObject->AddTag(TAG);
-    BuildEnemyFSM();
 
+    BuildEnemyFSM();
     if (nullptr == GetEnemyStats())
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Enemy Stats를 추가해주세요");
     }
-    InitParticle();
 }
 
 void Enemy::Update() 
@@ -98,20 +133,6 @@ CharacterStats* Enemy::GetCharacterStats()
     return stats;
 }
 
-void Enemy::InitParticle() 
-{
-    auto* modelTransform = transform->Find(MODEL_NAME);
-    if (modelTransform)
-    {
-        _hitParticle = modelTransform->gameObject->GetComponent<ParticleComponent>();
-        if (nullptr == _hitParticle)
-        {
-            std::string message = std::format("{} {}", modelTransform->gameObject->ToString(), (const char*)u8"피격 파티클이 존재하지 않습니다.");
-            UmLogger.Log(LogLevel::LEVEL_WARNING, message);
-        }
-    }
-}
-
 int Enemy::GetSpeed()
 {
     int speed = 0;
@@ -121,6 +142,22 @@ int Enemy::GetSpeed()
         speed = stats->GetStats().Speed;
     }
     return speed;
+}
+
+void Enemy::SetPositionFromSpawnPoint(Monster::SpawnPoint spawnPointType) 
+{
+    if (MonsterSystem* system = SingletonComponent<MonsterSystem>::GetInstance())
+    {
+        auto weakSpawnPoint = system->GetSpawnPointObject(spawnPointType);
+        if (auto spawnPoint = weakSpawnPoint.lock())
+        {
+            Vector3 spawnLocal    = spawnPoint->transform->Position;
+            Vector3 spawnEuler    = spawnPoint->transform->EulerAngle;
+            transform->Position   = spawnLocal;
+            transform->EulerAngle = spawnEuler;
+            _spawnPoint           = spawnPointType;
+        }
+    }
 }
 
 EnemyStatsComponent* Enemy::GetEnemyStats()
@@ -197,8 +234,7 @@ void Enemy::OnTurnEnd()
 {
     Base::OnTurnEnd();
     // Enemy의 턴이 종료시 액션을 선언.
-    _aiModel.Transition();
-    _aiModel.Refresh();
+    _controller.Transition();
 }
 
 void Enemy::OnHit()

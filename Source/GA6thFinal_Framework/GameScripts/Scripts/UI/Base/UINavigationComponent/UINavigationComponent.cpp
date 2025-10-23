@@ -1,3 +1,3 @@
 ﻿#include "pchScripts.h"
 
-UMREAL_COMPONENT(UINavigationComponent)
+UMREAL_COMPONENT_EXPORT(UINavigationComponent)

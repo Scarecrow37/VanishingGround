@@ -84,6 +84,10 @@ void ParticleEffect::Update(float deltaTime)
             _isPlaying = false;
             _age       = 0;
         }
+        if (_endCallback)
+        {
+            _endCallback();
+        }
     }
 }
 
@@ -131,6 +135,25 @@ void ParticleEffect::Play()
             uptr->Reset();
             uptr->SetActiveFlag(true);
         }
+    }
+}
+
+void ParticleEffect::Play(EffectCallback callback) 
+{
+    if (!_isPlaying)
+    {
+        _playFlag   = true;
+        _isPlaying  = true;
+        _activeFlag = true;
+
+        _isEnding = false;
+        _age      = 0;
+        for (auto& uptr : _particleEmitters)
+        {
+            uptr->Reset();
+            uptr->SetActiveFlag(true);
+        }
+        _endCallback = callback;
     }
 }
 

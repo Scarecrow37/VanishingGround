@@ -1,6 +1,8 @@
 ﻿#include "pch.h"
 #include "AnimationEventTrack.h"
 
+REFLECT_FUNCTION(AnimationEventTrack)
+
 using namespace std::filesystem;
 
 void AnimationEventTrack::Clear()

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="DebugEditor|Win32">
@@ -222,8 +222,6 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
       <IncludeInUnityFile>true</IncludeInUnityFile>
-      <MinFilesInUnityFile>1</MinFilesInUnityFile>
-      <MaxFilesInUnityFile>3</MaxFilesInUnityFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -246,8 +244,6 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
       <IncludeInUnityFile>true</IncludeInUnityFile>
-      <MinFilesInUnityFile>1</MinFilesInUnityFile>
-      <MaxFilesInUnityFile>3</MaxFilesInUnityFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -272,8 +268,6 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
       <IncludeInUnityFile>true</IncludeInUnityFile>
-      <MinFilesInUnityFile>1</MinFilesInUnityFile>
-      <MaxFilesInUnityFile>3</MaxFilesInUnityFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -300,8 +294,6 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
       <IncludeInUnityFile>true</IncludeInUnityFile>
-      <MinFilesInUnityFile>1</MinFilesInUnityFile>
-      <MaxFilesInUnityFile>3</MaxFilesInUnityFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -314,15 +306,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Scripts\CombatUIManager\Accessories\AccessoriesGroup.h" />
-    <ClInclude Include="Scripts\CombatUIManager\CharacterHUD\CharacterHUDGroup.h" />
-    <ClInclude Include="Scripts\CombatUIManager\Consumable\ConsumableGroup.h" />
-    <ClInclude Include="Scripts\CombatUIManager\Revelations\RevelationsGroup.h" />
-    <ClInclude Include="Scripts\CombatUIManager\TurnQueue\TurnQueueGroup.h" />
-    <ClInclude Include="Scripts\CombatUIManager\UIGroup.h" />
-    <ClInclude Include="Scripts\CombatUIManager\Weapon\WeaponGroup.h" />
-    <ClInclude Include="Scripts\Debugger\Debugger.h" />
-    <ClInclude Include="DLLExportDefine.h" />
     <ClInclude Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.h" />
     <ClInclude Include="Scripts\AccessorySystem\AccessorySystem.h" />
     <ClInclude Include="Scripts\Animation\AnimationComponent.h" />
@@ -336,23 +319,18 @@
     <ClInclude Include="Scripts\Camera\CameraManager.h" />
     <ClInclude Include="Scripts\Camera\UmCineMotion.h" />
     <ClInclude Include="Scripts\ColorUtils\ColorUtils.h" />
+    <ClInclude Include="Scripts\CombatUIManager\Accessories\AccessoriesGroup.h" />
+    <ClInclude Include="Scripts\CombatUIManager\CharacterHUD\CharacterHUDGroup.h" />
     <ClInclude Include="Scripts\CombatUIManager\CombatUIManager.h" />
+    <ClInclude Include="Scripts\CombatUIManager\Consumable\ConsumableGroup.h" />
+    <ClInclude Include="Scripts\CombatUIManager\Revelations\RevelationsGroup.h" />
+    <ClInclude Include="Scripts\CombatUIManager\TurnQueue\TurnQueueGroup.h" />
+    <ClInclude Include="Scripts\CombatUIManager\UIGroup.h" />
+    <ClInclude Include="Scripts\CombatUIManager\Weapon\WeaponGroup.h" />
     <ClInclude Include="Scripts\ConsumableSystem\ConsumableSystem.h" />
     <ClInclude Include="Scripts\DamageSystem\DamageSystem.h" />
-    <ClInclude Include="Scripts\EnemyAction\ActionData\EnemyActionData.h" />
-    <ClInclude Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22000.h" />
-    <ClInclude Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22001.h" />
-    <ClInclude Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22002.h" />
-    <ClInclude Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22003.h" />
-    <ClInclude Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22004.h" />
-    <ClInclude Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22010.h" />
-    <ClInclude Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22011.h" />
-    <ClInclude Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22012.h" />
-    <ClInclude Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22013.h" />
-    <ClInclude Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22014.h" />
-    <ClInclude Include="Scripts\EnemyAction\EnemyActionBase.h" />
-    <ClInclude Include="Scripts\EnemyAction\Factory\EnemyActionFactory.h" />
-    <ClInclude Include="Scripts\EnemyAction\System\EnemyActionSystem.h" />
+    <ClInclude Include="Scripts\Debugger\Debugger.h" />
+    <ClInclude Include="Scripts\DifficultyManager\DifficultyManager.h" />
     <ClInclude Include="Scripts\ExcelDataSystem\ExcelDataSystem.h" />
     <ClInclude Include="Scripts\ExcelParser\ImGuiColumnSheetParser.h" />
     <ClInclude Include="Scripts\GameCore\FSM\AlwaysTransitionCondition.h" />
@@ -363,7 +341,6 @@
     <ClInclude Include="Scripts\GameCore\FSM\FSMState.h" />
     <ClInclude Include="Scripts\GameCore\FSM\IFSMEntity.h" />
     <ClInclude Include="Scripts\Interface\ITriggerType.h" />
-    <ClInclude Include="Scripts\IntroManager\IntroManager.h" />
     <ClInclude Include="Scripts\Inventory\OpenInventoryComponent.h" />
     <ClInclude Include="Scripts\Inventory\UINavi\InventoryArrowNavi.h" />
     <ClInclude Include="Scripts\Inventory\UINavi\InventoryItemFocusNavi.h" />
@@ -377,8 +354,10 @@
     <ClInclude Include="Scripts\ItemDropSystem\UINavi\RestartStageNavi.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UINavi\ReturnToMapNavi.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UI\ArtifactUIManager.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UI\EraseRevelationUIManager.h" />
     <ClInclude Include="Scripts\ItemDropSystem\UI\ItemDropUIRootManager.h" />
-    <ClInclude Include="Scripts\DifficultyManager\DifficultyManager.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UI\ItemInfoUIManager.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UI\WeaponChangeUIManager.h" />
     <ClInclude Include="Scripts\Light\Base\LightComponent.h" />
     <ClInclude Include="Scripts\Light\DirectionalLight.h" />
     <ClInclude Include="Scripts\Light\PointLight.h" />
@@ -390,12 +369,45 @@
     <ClInclude Include="Scripts\MainMenu\Option.h" />
     <ClInclude Include="Scripts\MainMenu\Quit.h" />
     <ClInclude Include="Scripts\Map\MapManager.h" />
+    <ClInclude Include="Scripts\Map\MapManagerTracker.h" />
     <ClInclude Include="Scripts\Map\RewardPopup.h" />
     <ClInclude Include="Scripts\Map\SmoothScroll.h" />
     <ClInclude Include="Scripts\Map\Stage.h" />
     <ClInclude Include="Scripts\Mesh\MeshComponent.h" />
     <ClInclude Include="Scripts\Mesh\SkeletalMeshRenderer.h" />
     <ClInclude Include="Scripts\Mesh\StaticMeshRenderer.h" />
+    <ClInclude Include="Scripts\Monster\Action\BossServant\1st\MonsterActionBlackSacrament.h" />
+    <ClInclude Include="Scripts\Monster\Action\BossServant\1st\MonsterActionCourtesyOfTheKing.h" />
+    <ClInclude Include="Scripts\Monster\Action\BossServant\2st\MonsterActionEnjoymentOfLoyalty.h" />
+    <ClInclude Include="Scripts\Monster\Action\BossServant\2st\MonsterActionImpute.h" />
+    <ClInclude Include="Scripts\Monster\Action\Boss\MonsterActionCollapsingPillar.h" />
+    <ClInclude Include="Scripts\Monster\Action\Boss\MonsterActionRecordObliteration.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterActionBase.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterActionFactory.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterA\MonsterActionAmbush.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterA\MonsterActionBloodRitual.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterA\MonsterActionExecutionShot.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterA\MonsterActionRendApart.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterA\MonsterActionSmokeSlash.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterB\MonsterActionCower.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterB\MonsterActionDespair.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterB\MonsterActionHymnOfAnnihilation.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterB\MonsterActionShiveringWhisper.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterB\MonsterActionWhisperOfFear.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterC\MonsterActionBaptismOfMight.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterC\MonsterActionRebinding.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterC\MonsterActionSkullBreaker.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterC\MonsterActionSmashStrike.h" />
+    <ClInclude Include="Scripts\Monster\AI\MonsterAIBuilder.h" />
+    <ClInclude Include="Scripts\Monster\AI\MonsterAIFactory.h" />
+    <ClInclude Include="Scripts\Monster\AI\MonsterAIModel.h" />
+    <ClInclude Include="Scripts\Monster\Common\MonsterCommon.h" />
+    <ClInclude Include="Scripts\Monster\Context\MonsterActionContext.h" />
+    <ClInclude Include="Scripts\Monster\Context\MonsterDataContext.h" />
+    <ClInclude Include="Scripts\Monster\Context\MonsterSpawnContext.h" />
+    <ClInclude Include="Scripts\Monster\Context\MonsterStatContext.h" />
+    <ClInclude Include="Scripts\Monster\Controller\MonsterController.h" />
+    <ClInclude Include="Scripts\Monster\System\MonsterSystem.h" />
     <ClInclude Include="Scripts\Particle\ParticleComponent.h" />
     <ClInclude Include="Scripts\PlayerSystem\PlayerSystem.h" />
     <ClInclude Include="Scripts\Preferences\Button\AbandonButton.h" />
@@ -418,7 +430,6 @@
     <ClInclude Include="Scripts\QTE\UI\QTEUIManager.h" />
     <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Base\RevelationActionBase.h" />
     <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Critical\CriticalDamageAction.h" />
-    <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Token\TokenApplyAction.h" />
     <ClInclude Include="pchScripts.h" />
     <ClInclude Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.h" />
     <ClInclude Include="Scripts\RevelationSystem\RevelationSystem.h" />
@@ -446,16 +457,22 @@
     <ClInclude Include="Scripts\Token\Token.h" />
     <ClInclude Include="Scripts\Token\TokenInventory.h" />
     <ClInclude Include="Scripts\Token\TokenSystem.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\AdditionalDamage\AdditionalDamageAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\AdditionalDamage\AdditionalDamageAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\ApplyDamage\ApplyDamage.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\MultiTargetDamage\MultiTargetDamageAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\Recovery\RecoveryAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\AttackTokenApplyAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\Base\TokenApplyAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TakeDamageEndTokenApplyAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\WeaponKillTokenApplyAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenChangeAction\TokenChangeAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenTypeCountAttackDamageAdditional\TokenTypeCountAttackDamageAdditional.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\ChainCondition\ChainCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\LastQTEResultCondition\LastQTEResultCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\RoundOnceCondition\RoundOnceCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\TokenCondition\TokenCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\TurnActionCondition.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\Recovery\RecoveryAction.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\Token\TokenApplyAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionEnums.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionFactory.h" />
@@ -556,19 +573,8 @@
     <ClInclude Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.h" />
     <ClInclude Include="UmScriptCore.h" />
     <ClInclude Include="UmScriptsExport.h" />
-    <ClInclude Include="Scripts\Map\MapManagerTracker.h" />
-    <ClInclude Include="Scripts\ItemDropSystem\UI\ItemInfoUIManager.h" />
-    <ClInclude Include="Scripts\ItemDropSystem\UI\WeaponChangeUIManager.h" />
-    <ClInclude Include="Scripts\ItemDropSystem\UI\EraseRevelationUIManager.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Scripts\CombatUIManager\Accessories\AccessoriesGroup.cpp" />
-    <ClCompile Include="Scripts\CombatUIManager\CharacterHUD\CharacterHUDGroup.cpp" />
-    <ClCompile Include="Scripts\CombatUIManager\Consumable\ConsumableGroup.cpp" />
-    <ClCompile Include="Scripts\CombatUIManager\Revelations\RevelationsGroup.cpp" />
-    <ClCompile Include="Scripts\CombatUIManager\TurnQueue\TurnQueueGroup.cpp" />
-    <ClCompile Include="Scripts\CombatUIManager\Weapon\WeaponGroup.cpp" />
-    <ClCompile Include="Scripts\Debugger\Debugger.cpp" />
     <ClCompile Include="dllmain.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">Use</PrecompiledHeader>
@@ -593,33 +599,24 @@
     <ClCompile Include="Scripts\Camera\CameraManager.cpp" />
     <ClCompile Include="Scripts\Camera\UmCineMotion.cpp" />
     <ClCompile Include="Scripts\ColorUtils\ColorUtils.cpp" />
+    <ClCompile Include="Scripts\CombatUIManager\Accessories\AccessoriesGroup.cpp" />
+    <ClCompile Include="Scripts\CombatUIManager\CharacterHUD\CharacterHUDGroup.cpp" />
     <ClCompile Include="Scripts\CombatUIManager\CombatUIManager.cpp" />
+    <ClCompile Include="Scripts\CombatUIManager\Consumable\ConsumableGroup.cpp" />
+    <ClCompile Include="Scripts\CombatUIManager\Revelations\RevelationsGroup.cpp" />
+    <ClCompile Include="Scripts\CombatUIManager\TurnQueue\TurnQueueGroup.cpp" />
+    <ClCompile Include="Scripts\CombatUIManager\Weapon\WeaponGroup.cpp" />
     <ClCompile Include="Scripts\ConsumableSystem\ConsumableSystem.cpp" />
     <ClCompile Include="Scripts\DamageSystem\DamageSystem.cpp" />
-    <ClCompile Include="Scripts\EnemyAction\ActionData\EnemyActionData.cpp" />
-    <ClCompile Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22000.cpp" />
-    <ClCompile Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22001.cpp" />
-    <ClCompile Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22002.cpp" />
-    <ClCompile Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22003.cpp" />
-    <ClCompile Include="Scripts\EnemyAction\Action\22000_22009\EnemyAction22004.cpp" />
-    <ClCompile Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22010.cpp" />
-    <ClCompile Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22011.cpp" />
-    <ClCompile Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22012.cpp" />
-    <ClCompile Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22013.cpp" />
-    <ClCompile Include="Scripts\EnemyAction\Action\22010_22019\EnemyAction22014.cpp" />
-    <ClCompile Include="Scripts\EnemyAction\EnemyActionBase.cpp" />
-    <ClCompile Include="Scripts\EnemyAction\Factory\EnemyActionFactory.cpp" />
-    <ClCompile Include="Scripts\EnemyAction\System\EnemyActionSystem.cpp" />
+    <ClCompile Include="Scripts\Debugger\Debugger.cpp" />
+    <ClCompile Include="Scripts\DifficultyManager\DifficultyManager.cpp" />
     <ClCompile Include="Scripts\ExcelDataSystem\ExcelDataSystem.cpp" />
     <ClCompile Include="Scripts\ExcelParser\ImGuiColumnSheetParser.cpp" />
     <ClCompile Include="Scripts\GameCore\FSM\AlwaysTransitionCondition.cpp" />
     <ClCompile Include="Scripts\GameCore\FSM\FiniteStateMachine.cpp" />
-    <ClCompile Include="Scripts\IntroManager\IntroManager.cpp">
-      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</IncludeInUnityFile>
-      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">false</IncludeInUnityFile>
-      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</IncludeInUnityFile>
-      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">false</IncludeInUnityFile>
-    </ClCompile>
+    <ClCompile Include="Scripts\GameCore\FSM\FSMCondition.cpp" />
+    <ClCompile Include="Scripts\GameCore\FSM\FSMState.cpp" />
+    <ClCompile Include="Scripts\IntroManager\IntroManager.cpp" />
     <ClCompile Include="Scripts\Inventory\OpenInventoryComponent.cpp" />
     <ClCompile Include="Scripts\Inventory\UINavi\InventoryArrowNavi.cpp" />
     <ClCompile Include="Scripts\Inventory\UINavi\InventoryItemFocusNavi.cpp" />
@@ -633,8 +630,10 @@
     <ClCompile Include="Scripts\ItemDropSystem\UINavi\RestartStageNavi.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UINavi\ReturnToMapNavi.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UI\ArtifactUIManager.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UI\EraseRevelationUIManager.cpp" />
     <ClCompile Include="Scripts\ItemDropSystem\UI\ItemDropUIRootManager.cpp" />
-    <ClCompile Include="Scripts\DifficultyManager\DifficultyManager.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UI\ItemInfoUIManager.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UI\WeaponChangeUIManager.cpp" />
     <ClCompile Include="Scripts\Light\Base\LightComponent.cpp" />
     <ClCompile Include="Scripts\Light\DirectionalLight.cpp" />
     <ClCompile Include="Scripts\Light\PointLight.cpp" />
@@ -646,12 +645,45 @@
     <ClCompile Include="Scripts\MainMenu\Option.cpp" />
     <ClCompile Include="Scripts\MainMenu\Quit.cpp" />
     <ClCompile Include="Scripts\Map\MapManager.cpp" />
+    <ClCompile Include="Scripts\Map\MapManagerTracker.cpp" />
     <ClCompile Include="Scripts\Map\RewardPopup.cpp" />
     <ClCompile Include="Scripts\Map\SmoothScroll.cpp" />
     <ClCompile Include="Scripts\Map\Stage.cpp" />
     <ClCompile Include="Scripts\Mesh\MeshComponent.cpp" />
     <ClCompile Include="Scripts\Mesh\SkeletalMeshRenderer.cpp" />
     <ClCompile Include="Scripts\Mesh\StaticMeshRenderer.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\BossServant\1st\MonsterActionBlackSacrament.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\BossServant\1st\MonsterActionCourtesyOfTheKing.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\BossServant\2st\MonsterActionEnjoymentOfLoyalty.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\BossServant\2st\MonsterActionImpute.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\Boss\MonsterActionCollapsingPillar.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\Boss\MonsterActionRecordObliteration.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterActionBase.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterActionFactory.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterA\MonsterActionAmbush.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterA\MonsterActionBloodRitual.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterA\MonsterActionExecutionShot.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterA\MonsterActionRendApart.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterA\MonsterActionSmokeSlash.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterB\MonsterActionCower.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterB\MonsterActionDespair.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterB\MonsterActionHymnOfAnnihilation.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterB\MonsterActionShiveringWhisper.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterB\MonsterActionWhisperOfFear.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterC\MonsterActionBaptismOfMight.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterC\MonsterActionRebinding.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterC\MonsterActionSkullBreaker.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterC\MonsterActionSmashStrike.cpp" />
+    <ClCompile Include="Scripts\Monster\AI\MonsterAIBuilder.cpp" />
+    <ClCompile Include="Scripts\Monster\AI\MonsterAIFactory.cpp" />
+    <ClCompile Include="Scripts\Monster\AI\MonsterAIModel.cpp" />
+    <ClCompile Include="Scripts\Monster\Common\MonsterCommon.cpp" />
+    <ClCompile Include="Scripts\Monster\Context\MonsterActionContext.cpp" />
+    <ClCompile Include="Scripts\Monster\Context\MonsterDataContext.cpp" />
+    <ClCompile Include="Scripts\Monster\Context\MonsterSpawnContext.cpp" />
+    <ClCompile Include="Scripts\Monster\Context\MonsterStatContext.cpp" />
+    <ClCompile Include="Scripts\Monster\Controller\MonsterController.cpp" />
+    <ClCompile Include="Scripts\Monster\System\MonsterSystem.cpp" />
     <ClCompile Include="Scripts\Particle\ParticleComponent.cpp" />
     <ClCompile Include="Scripts\PlayerSystem\PlayerSystem.cpp" />
     <ClCompile Include="Scripts\Preferences\Button\AbandonButton.cpp" />
@@ -676,8 +708,11 @@
     <ClCompile Include="Scripts\SceneTransition\SceneTransitionComponent.cpp" />
     <ClCompile Include="Scripts\SceneTransition\TransitionManager.cpp" />
     <ClCompile Include="Scripts\Stats\CharacterStats.cpp" />
+    <ClCompile Include="Scripts\Stats\Enemy\EnemyStats.cpp" />
     <ClCompile Include="Scripts\Stats\Enemy\EnemyStatsComponent.cpp" />
+    <ClCompile Include="Scripts\Stats\Player\PlayerStats.cpp" />
     <ClCompile Include="Scripts\Stats\Player\PlayerStatsComponent.cpp" />
+    <ClCompile Include="Scripts\Stats\TurnActorStats.cpp" />
     <ClCompile Include="Scripts\Stats\TurnActorStatsComponent.cpp" />
     <ClCompile Include="Scripts\Stats\Weapon\WeaponStats.cpp" />
     <ClCompile Include="Scripts\Test\Audio\TestAudioComponent.cpp" />
@@ -693,15 +728,22 @@
     <ClCompile Include="Scripts\Token\Token.cpp" />
     <ClCompile Include="Scripts\Token\TokenInventory.cpp" />
     <ClCompile Include="Scripts\Token\TokenSystem.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\AdditionalDamage\AdditionalDamageAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\AdditionalDamage\AdditionalDamageAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\ApplyDamage\ApplyDamage.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\MultiTargetDamage\MultiTargetDamageAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\Recovery\RecoveryAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\AttackTokenApplyAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\Base\TokenApplyAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TakeDamageEndTokenApplyAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\WeaponKillTokenApplyAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenChangeAction\TokenChangeAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenTypeCountAttackDamageAdditional\TokenTypeCountAttackDamageAdditional.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\ChainCondition\ChainCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\LastQTEResultCondition\LastQTEResultCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\RoundOnceCondition\RoundOnceCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\TokenCondition\TokenCondition.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\MultiTargetDamage\MultiTargetDamageAction.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\Recovery\RecoveryAction.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\Token\TokenApplyAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\TurnActionCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\TurnAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\WeaponStas\WeaponDamageAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\CharacterBase.cpp" />
@@ -800,10 +842,6 @@
     <ClCompile Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.cpp" />
     <ClCompile Include="UmScriptCore.cpp" />
     <ClCompile Include="UmScriptsExport.cpp" />
-    <ClCompile Include="Scripts\Map\MapManagerTracker.cpp" />
-    <ClCompile Include="Scripts\ItemDropSystem\UI\ItemInfoUIManager.cpp" />
-    <ClCompile Include="Scripts\ItemDropSystem\UI\WeaponChangeUIManager.cpp" />
-    <ClCompile Include="Scripts\ItemDropSystem\UI\EraseRevelationUIManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

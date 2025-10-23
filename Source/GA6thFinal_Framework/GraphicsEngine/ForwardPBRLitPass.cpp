@@ -2,7 +2,6 @@
 #include "ForwardPBRLitPass.h"
 #include "FrameResource.h"
 #include "ShadowMapPass.h"
-#include "SSAOWritePass.h"
 #include "SkyBox.h"
 
 ForwardPBRLitPass::~ForwardPBRLitPass() = default;
@@ -125,7 +124,6 @@ void ForwardPBRLitPass::Begin(ID3D12GraphicsCommandList* commandList)
     }
 
     commandList->OMSetRenderTargets(4, rtvHandles, FALSE, &_ownerScene->_depthStencilView->GetDSVHandle());
-    commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 void ForwardPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)

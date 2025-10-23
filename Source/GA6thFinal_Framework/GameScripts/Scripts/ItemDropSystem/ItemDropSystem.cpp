@@ -8,6 +8,7 @@
 #include "ItemDropSystem/UI/ArtifactUIManager.h"
 #include "ItemDropSystem/UINavi/ArtifactButtonNavi.h"
 #include "ViewModels/ItemDrop/DropArtifacts/DropArtifactsViewModel.h"
+#include "Debugger/Debugger.h"
 
 UMREAL_COMPONENT(ItemDropSystem)
 
@@ -647,11 +648,28 @@ void ItemDropSystem::Awake()
     }   
 }
 
+void ItemDropSystem::Update() 
+{
+    Debugger debuger;  
+    debuger([this]() { DebugUpdate(); });
+}
+
 void ItemDropSystem::OnDestroy() 
 {
     if (_singletonComponent.IsSingleTon())
     {
         UmWatcher.Unregister<DropArtifactsViewModel>(ItemDropSystem::WATCHER_KEY);
+    }
+}
+
+void ItemDropSystem::DebugUpdate() 
+{
+    using namespace u8_literals;
+    ImGui::Separator();
+    if (ImGui::TreeNode(u8"Item Drop System"_c_str))
+    {
+        ImGuiDrawPropertys();
+        ImGui::TreePop();
     }
 }
 

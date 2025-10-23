@@ -62,8 +62,6 @@ void TextElement::Reset()
 
 void TextElement::DeserializedReflectEvent()
 {
-    DrawUIComponent::DeserializedReflectEvent();
-
     const File::Guid guid = ReflectFields->Guid;
     if (const auto path = guid.ToPath(); !path.IsNull())
     {
@@ -202,6 +200,21 @@ void TextElement::UpdateContentSize()
     else
     {
         ReflectFields->ContentSize = SIZE{0, 0};
+    }
+}
+
+void TextElement::TestUpdateOutline()
+{
+    if (nullptr != _renderer)
+    {
+        bool enabled = ReflectFields->FontFlags & FONT_FLAG_OUTLINE;
+
+        GE::FontOutline outline{.Color   = Vector3(ReflectFields->FontOutline[0], ReflectFields->FontOutline[1],
+                                                   ReflectFields->FontOutline[2]),
+                                .Width   = ReflectFields->FontOutline[3],
+                                .Enabled = enabled};
+
+        _renderer->SetFontOutline(outline);
     }
 }
 

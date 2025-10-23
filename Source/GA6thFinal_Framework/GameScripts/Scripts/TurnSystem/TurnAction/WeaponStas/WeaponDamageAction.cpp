@@ -6,6 +6,8 @@
 
 using namespace u8_literals;
 
+REFLECT_FUNCTION(WeaponDamageAction)
+
 REGISTER_TURN_ACTION(WeaponDamageAction)
 
 WeaponDamageAction::WeaponDamageAction() 
@@ -50,7 +52,7 @@ void WeaponDamageAction::OnPlayerQTEResult(Player& player, const QTE::OverallRes
         WeaponSystem* weaponSystem = SingletonComponent<WeaponSystem>::GetInstance();
         if (weaponSystem)
         {
-           WeaponStats& stats = weaponSystem->GetCurrentWeaponStats();
+           WeaponStats& stats = weaponSystem->GetCurrentWeaponElement().Stats;
 
            stats.HitDamage += ReflectFields->Damage;
            stats.HitDamageMultiplier *= ReflectFields->DamageMultiplier;

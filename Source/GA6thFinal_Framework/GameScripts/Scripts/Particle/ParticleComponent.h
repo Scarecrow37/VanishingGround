@@ -3,7 +3,7 @@
 class ParticleComponent : public Component
 {
     using EffectID = int;
-
+    using EffectCallback = std::function<void(void)>;
     USING_PROPERTY(ParticleComponent)
 public:
 
@@ -104,6 +104,7 @@ public:
     PROPERTY(AttachToBoneMatrix)
 
     void PlayEffect(const std::string& key);
+    void PlayEffect(const std::string& key, EffectCallback callback);
     void StopEffect(const std::string& key);
     void StopAll();
     void ClearEffectList();
