@@ -14,6 +14,16 @@ File::Guid ArtifactUIManager::GetObtainFrameGuid()
     return UmFileSystem.GetGuidFromAssetID(460009); //일단 하드코딩...
 } 
 
+static File::Guid GetNormalFrameGuid()
+{
+    return UmFileSystem.GetGuidFromAssetID(460006); //일단 하드코딩...
+}
+
+static File::Guid GetFocusFrameGuid()
+{
+    return UmFileSystem.GetGuidFromAssetID(460010); // 일단 하드코딩...
+}
+
 ArtifactUIManager::ArtifactUIManager()
 {
     _gridPanel = nullptr;
@@ -141,6 +151,7 @@ void ArtifactUIManager::FindImageElements()
             if (ImageElement* element = gameObject.GetComponent<ImageElement>())
             {
                 _frameImageElements.push_back(element);
+                element->SetImage(GetNormalFrameGuid());
             }
         }
         else if (gameObject.CompareTag("Icon"))
@@ -162,6 +173,7 @@ void ArtifactUIManager::FindImageElements()
             if (ImageElement* element = gameObject.GetComponent<ImageElement>())
             {
                 _focusImageElements.push_back(element);
+                element->SetImage(GetFocusFrameGuid());
             }
             if (ArtifactButtonNavi* navi = gameObject.GetComponent<ArtifactButtonNavi>())
             {
