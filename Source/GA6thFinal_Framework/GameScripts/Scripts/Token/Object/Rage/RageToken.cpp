@@ -21,26 +21,24 @@ namespace TokenObject
             tokenInventory.RemoveTokenStackFromID(tokenID);
         }
     }
-    void Rage::OnPreAttackBattleCalculateDamage(Player& attacker, PlayerStats& attackerStats,
-                                                WeaponStats& weaponStats, QTE::NoteResult& noteResult,
-                                                Enemy& target, EnemyStats& targetStats)
+    void Rage::OnPostPlayerAttackCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData, int& damage)
     {
-        int   tokenID   = GetTokenID();
-        int   param     = GetTokenParam(0);
-        float factor    = static_cast<float>(param) / 100.0f;
-        weaponStats.HitDamageMultiplier += factor;
-        weaponStats.CriticalDamageMultiplier += factor;
-        TokenInventory& tokenInventory = attacker.GetTokenInventory();
+        const int   tokenID            = GetTokenID();
+        const int   param              = GetTokenParam(0);
+        const float factor             = 1.0f + (static_cast<float>(param) / 100.0f);
+        const float damageFloat        = static_cast<float>(damage) * factor;
+        damage                         = static_cast<int>(std::ceilf(damageFloat));
+        TokenInventory& tokenInventory = targetData.Source.GetTokenInventory();
         tokenInventory.RemoveTokenStackFromID(tokenID);
     }
-    void Rage::OnPreAttackBattleCalculateDamage(Enemy& attacker, EnemyStats& attackerStats,
-                                                Player& target, PlayerStats& targetStats)
+    void Rage::OnPostEnemyAttackCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData, int& damage)
     {
-        int   tokenID   = GetTokenID();
-        int   param     = GetTokenParam(0);
-        float factor    = static_cast<float>(param) / 100.0f;
-        attackerStats.DamageMultiplier += factor;
-        TokenInventory& tokenInventory = attacker.GetTokenInventory();
+        const int   tokenID            = GetTokenID();
+        const int   param              = GetTokenParam(0);
+        const float factor             = 1.0f + (static_cast<float>(param) / 100.0f);
+        const float damageFloat        = static_cast<float>(damage) * factor;
+        damage                         = static_cast<int>(std::ceilf(damageFloat));
+        TokenInventory& tokenInventory = targetData.Source.GetTokenInventory();
         tokenInventory.RemoveTokenStackFromID(tokenID);
     }
 } // namespace TokenObject

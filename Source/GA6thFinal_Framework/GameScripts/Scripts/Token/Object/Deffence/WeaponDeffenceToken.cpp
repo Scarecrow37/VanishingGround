@@ -21,20 +21,18 @@ namespace TokenObject
             tokenInventory.RemoveTokenStackFromID(tokenID);
         }
     }
-    void WeaponDeffence::OnPreAttackBattleCalculateDamage(Player& attacker, PlayerStats& attackerStats,
-                                                         WeaponStats& weaponStats, QTE::NoteResult& noteResult,
-                                                         Enemy& target, EnemyStats& targetStats)
+    void WeaponDeffence::OnPostEnemyHitCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData,
+                                                       int& damage)
     {
         // 공격 무기가 무기 방어 타입이랑 같을 때 데미지 감소
-        const WeaponType weaponType = weaponStats.Type;
+        const WeaponType weaponType   = attackerData.WeaponStats.Type;
         const WeaponType deffenceType = GetDeffenceWeaponType();
         if (weaponType == deffenceType)
         {
-            const int   param  = GetTokenParam(0);
-            const float factor = static_cast<float>(param) / 100.0f;
-
-            // TODO: 이거 100%방어가 아예 무시인건지, 아니면 합연산을 통해 무조건 100% 방어가 안될 수도 있는건지 확인 필요
-            weaponStats.HitDamageMultiplier -= factor;
+            const int   param     = GetTokenParam(0);
+            const float factor    = 1.0f - (static_cast<float>(param) / 100.0f);
+            const float newDamage = static_cast<float>(damage) * factor;
+            damage                = static_cast<int>(std::ceilf(newDamage));
         }
     }
 }

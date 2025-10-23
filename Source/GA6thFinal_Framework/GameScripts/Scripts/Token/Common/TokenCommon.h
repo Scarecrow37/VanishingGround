@@ -1,6 +1,42 @@
 ﻿#pragma once
 using TokenID = int;
 
+class Player;
+class Enemy;
+struct PlayerStats;
+struct EnemyStats;
+struct WeaponStats;
+namespace QTE
+{
+    struct NoteResult;
+}
+
+struct PlayerAttackData
+{
+    Player&             Source;
+    PlayerStats&        SourceStats;
+    WeaponStats&        WeaponStats;
+    QTE::NoteResult&    NoteResult;
+};
+
+struct EnemyAttackData
+{
+    Enemy&              Source;
+    EnemyStats&         SourceStats;
+};
+
+struct PlayerHitData
+{
+    Player&      Source;
+    PlayerStats& SourceStats;
+};
+
+struct EnemyHitData
+{
+    Enemy&      Source;
+    EnemyStats& SourceStats;
+};
+
 struct TokenData
 {
     int                 ID = 0;

@@ -6,11 +6,10 @@ namespace TokenObject
     class ChainDeffence : public Token
     {
         void OnRoundStart(CharacterBase* owner) override;
-        void OnPreAttackBattleCalculateDamage(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
-                                              QTE::NoteResult& noteResult, Enemy& target,
-                                              EnemyStats& targetStats) override;
-        void OnPreAttackBattleCalculateDamage(Enemy& attacker, EnemyStats& attackerStats, Player& target,
-                                              PlayerStats& targetStats) override;
+        void OnPostPlayerHitCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData,
+                                            int& damage) override;
+        void OnPostEnemyHitCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData,
+                                           int& damage) override;
 
     protected:
         virtual int GetDeffenceChainCount() const = 0;

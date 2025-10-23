@@ -1,7 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "BleedToken.h"
-
-#include <TurnSystem/TurnActor/Character/CharacterBase.h>
+#include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
+#include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <Token/TokenInventory.h>
 
 namespace TokenObject
@@ -27,7 +27,6 @@ namespace TokenObject
         }
         return false;
     }
-
     void Bleed::OnRoundStart(CharacterBase* owner)
     {
         if (owner)
@@ -52,12 +51,23 @@ namespace TokenObject
             tokenInventory.RemoveTokenStackFromID(ID);
         }
     }
-    void BleedGrant::OnTakeDamage(CharacterBase* source, CharacterBase* dest, int& damage, QTE::NoteResult* noteResult) 
+    void BleedGrant::OnPostPlayerAttackCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData,
+                                                       int& damage)
     {
-        if (damage > 0 && dest)
+        if (damage > 0)
         {
-            auto& tokenInventory = dest->GetTokenInventory();
-            const int param      = GetTokenParam(0);
+            auto&     tokenInventory = targetData.Source.GetTokenInventory();
+            const int param          = GetTokenParam(0);
+            tokenInventory.AddTokenStackFromID(Bleed::ID, param);
+        }
+    }
+    void BleedGrant::OnPostEnemyAttackCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData,
+                                                      int& damage)
+    {
+        if (damage > 0)
+        {
+            auto&     tokenInventory = targetData.Source.GetTokenInventory();
+            const int param          = GetTokenParam(0);
             tokenInventory.AddTokenStackFromID(Bleed::ID, param);
         }
     }

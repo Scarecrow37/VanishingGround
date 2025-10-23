@@ -228,85 +228,184 @@ void TokenInventory::NotifyQTEEnd()
     });
 }
 
-void TokenInventory::NotifyPreBattleCalculateChain(Player& source, PlayerStats& sourceStats, WeaponStats& weaponStats,
-                                                   QTE::NoteResult& noteResult, Enemy& dest, EnemyStats& destStats)
+void TokenInventory::NotifyPrePlayerAttackCalculateChain(PlayerAttackData& attackerData, EnemyHitData& targetData)
 {
     NotifyTokenEvent([&](Token& token) {
         bool valid = HasTokenFromID(token.GetTokenID());
         if (valid)
         {
-            token.OnPreBattleCalculateChain(source, sourceStats, weaponStats, noteResult, dest, destStats);
+            token.OnPrePlayerAttackCalculateChain(attackerData, targetData);
         }
     });
 }
 
-void TokenInventory::NotifyPreBattleCalculateChain(Enemy& source, EnemyStats& sourceStats, Player& dest,
-                                                   PlayerStats& destStats)
+void TokenInventory::NotifyPreEnemyAttackCalculateChain(EnemyAttackData& attackerData, PlayerHitData& targetData)
 {
     NotifyTokenEvent([&](Token& token) {
         bool valid = HasTokenFromID(token.GetTokenID());
         if (valid)
         {
-            token.OnPreBattleCalculateChain(source, sourceStats, dest, destStats);
+            token.OnPreEnemyAttackCalculateChain(attackerData, targetData);
         }
     });
 }
 
-void TokenInventory::NotifyPreAttackBattleCalculateDamage(Player& source, PlayerStats& sourceStats,
-                                                          WeaponStats& weaponStats, QTE::NoteResult& noteResult,
-                                                          Enemy& dest, EnemyStats& destStats)
+void TokenInventory::NotifyPrePlayerHitCalculateChain(EnemyAttackData& attackerData, PlayerHitData& targetData)
 {
     NotifyTokenEvent([&](Token& token) {
         bool valid = HasTokenFromID(token.GetTokenID());
         if (valid)
         {
-            token.OnPreAttackBattleCalculateDamage(source, sourceStats, weaponStats, noteResult, dest, destStats);
+            token.OnPrePlayerHitCalculateChain(attackerData, targetData);
         }
     });
 }
 
-void TokenInventory::NotifyPreAttackBattleCalculateDamage(Enemy& source, EnemyStats& sourceStats, Player& dest,
-                                                          PlayerStats& destStats)
+void TokenInventory::NotifyPreEnemyHitCalculateChain(PlayerAttackData& attackerData, EnemyHitData& targetData)
 {
     NotifyTokenEvent([&](Token& token) {
         bool valid = HasTokenFromID(token.GetTokenID());
         if (valid)
         {
-            token.OnPreAttackBattleCalculateDamage(source, sourceStats, dest, destStats);
+            token.OnPreEnemyHitCalculateChain(attackerData, targetData);
         }
     });
 }
 
-void TokenInventory::NotifyPreHitBattleCalculateDamage(Player& source, PlayerStats& sourceStats, Enemy& dest, EnemyStats& destStats)
+void TokenInventory::NotifyPostPlayerAttackCalculateChain(PlayerAttackData& attackerData, EnemyHitData& targetData,
+                                                      int& chain)
 {
     NotifyTokenEvent([&](Token& token) {
         bool valid = HasTokenFromID(token.GetTokenID());
         if (valid)
         {
-            token.OnPreHitBattleCalculateDamage(source, sourceStats, dest, destStats);
+            token.OnPostPlayerAttackCalculateChain(attackerData, targetData, chain);
         }
     });
 }
 
-void TokenInventory::NotifyPreHitBattleCalculateDamage(Enemy& source, EnemyStats& sourceStats, Player& dest,
-                                                       PlayerStats& destStats)
+void TokenInventory::NotifyPostEnemyAttackCalculateChain(EnemyAttackData& attackerData, PlayerHitData& targetData,
+                                                     int& chain)
 {
     NotifyTokenEvent([&](Token& token) {
         bool valid = HasTokenFromID(token.GetTokenID());
         if (valid)
         {
-            token.OnPreHitBattleCalculateDamage(source, sourceStats, dest, destStats);
+            token.OnPostEnemyAttackCalculateChain(attackerData, targetData, chain);
         }
     });
 }
 
-void TokenInventory::NotifyTakeDamage(CharacterBase* dest, int& damage, QTE::NoteResult* qteResult)
+void TokenInventory::NotifyPostPlayerHitCalculateChain(EnemyAttackData& attackerData, PlayerHitData& targetData, int& chain)
 {
-    NotifyTokenEvent([this, dest, &damage, &qteResult](Token& token) {
+    NotifyTokenEvent([&](Token& token) {
         bool valid = HasTokenFromID(token.GetTokenID());
         if (valid)
         {
-            token.OnTakeDamage(&_owner, dest, damage, qteResult);
+            token.OnPostPlayerHitCalculateChain(attackerData, targetData, chain);
+        }
+    });
+}
+
+void TokenInventory::NotifyPostEnemyHitCalculateChain(PlayerAttackData& attackerData, EnemyHitData& targetData, int& chain)
+{
+    NotifyTokenEvent([&](Token& token) {
+        bool valid = HasTokenFromID(token.GetTokenID());
+        if (valid)
+        {
+            token.OnPostEnemyHitCalculateChain(attackerData, targetData, chain);
+        }
+    });
+}
+
+void TokenInventory::NotifyPrePlayerAttackCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData)
+{
+    NotifyTokenEvent([&](Token& token) {
+        bool valid = HasTokenFromID(token.GetTokenID());
+        if (valid)
+        {
+            token.OnPrePlayerAttackCalculateDamage(attackerData, targetData);
+        }
+    });
+}
+
+void TokenInventory::NotifyPreEnemyAttackCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData)
+{
+    NotifyTokenEvent([&](Token& token) {
+        bool valid = HasTokenFromID(token.GetTokenID());
+        if (valid)
+        {
+            token.OnPreEnemyAttackCalculateDamage(attackerData, targetData);
+        }
+    });
+}
+
+void TokenInventory::NotifyPrePlayerHitCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData)
+{
+    NotifyTokenEvent([&](Token& token) {
+        bool valid = HasTokenFromID(token.GetTokenID());
+        if (valid)
+        {
+            token.OnPrePlayerHitCalculateDamage(attackerData, targetData);
+        }
+    });
+}
+
+void TokenInventory::NotifyPreEnemyHitCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData)
+{
+    NotifyTokenEvent([&](Token& token) {
+        bool valid = HasTokenFromID(token.GetTokenID());
+        if (valid)
+        {
+            token.OnPreEnemyHitCalculateDamage(attackerData, targetData);
+        }
+    });
+}
+
+void TokenInventory::NotifyPostPlayerAttackCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData,
+                                                       int& damage)
+{
+    NotifyTokenEvent([&](Token& token) {
+        bool valid = HasTokenFromID(token.GetTokenID());
+        if (valid)
+        {
+            token.OnPostPlayerAttackCalculateDamage(attackerData, targetData, damage);
+        }
+    });
+}
+
+void TokenInventory::NotifyPostEnemyAttackCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData,
+                                                      int& damage)
+{
+    NotifyTokenEvent([&](Token& token) {
+        bool valid = HasTokenFromID(token.GetTokenID());
+        if (valid)
+        {
+            token.OnPostEnemyAttackCalculateDamage(attackerData, targetData, damage);
+        }
+    });
+}
+
+void TokenInventory::NotifyPostPlayerHitCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData,
+                                                    int& damage)
+{
+    NotifyTokenEvent([&](Token& token) {
+        bool valid = HasTokenFromID(token.GetTokenID());
+        if (valid)
+        {
+            token.OnPostPlayerHitCalculateDamage(attackerData, targetData, damage);
+        }
+    });
+}
+
+void TokenInventory::NotifyPostEnemyHitCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData,
+                                                   int& damage)
+{
+    NotifyTokenEvent([&](Token& token) {
+        bool valid = HasTokenFromID(token.GetTokenID());
+        if (valid)
+        {
+            token.OnPostEnemyHitCalculateDamage(attackerData, targetData, damage);
         }
     });
 }

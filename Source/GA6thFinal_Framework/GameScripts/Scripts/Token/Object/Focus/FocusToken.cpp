@@ -7,14 +7,13 @@
 namespace TokenObject
 {
     REGISTER_TOKEN(Focus)
-    void Focus::OnPreAttackBattleCalculateDamage(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
-                                          QTE::NoteResult& noteResult, Enemy& target, EnemyStats& targetStats)
+    void Focus::OnPrePlayerAttackCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData)
     {
-        if (QTE::QTE_RESULT_NORMAL == noteResult.Result)
+        if (QTE::QTE_RESULT_NORMAL == attackerData.NoteResult.Result)
         {
-            noteResult.Result = QTE::QTE_RESULT_PERFECT;
+            attackerData.NoteResult.Result = QTE::QTE_RESULT_PERFECT;
         }
-        TokenInventory& tokenInventory = attacker.GetTokenInventory();
+        TokenInventory& tokenInventory = attackerData.Source.GetTokenInventory();
         tokenInventory.RemoveTokenStackFromID(ID);
     }
 }

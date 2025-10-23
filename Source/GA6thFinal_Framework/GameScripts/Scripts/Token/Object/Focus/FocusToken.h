@@ -8,8 +8,6 @@ namespace TokenObject
     {
         TOKEN_DATA(205017)
     private:
-        void OnPreAttackBattleCalculateDamage(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
-                                       QTE::NoteResult& noteResult, Enemy& target,
-                                           EnemyStats& targetStats) override;
+        void OnPrePlayerAttackCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData) override;
     };
 }

@@ -10,27 +10,26 @@ namespace TokenObject
 {
     REGISTER_TOKEN(Vanish)
 
-    void Vanish::OnPreAttackBattleCalculateDamage(Player& attacker, PlayerStats& attackerStats,
-                                                  WeaponStats& weaponStats, QTE::NoteResult& noteResult,
-                                                  Enemy& target, EnemyStats& targetStats)
+    void Vanish::OnPostPlayerAttackCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData,
+                                                   int& damage)
     {
-        TokenInventory& tokenInventory = attacker.GetTokenInventory();
-        int count = tokenInventory.GetTokenStackFromID(ID);
+        TokenInventory& tokenInventory  = attackerData.Source.GetTokenInventory();
+        const int   count               = tokenInventory.GetTokenStackFromID(ID);
+        const int   param               = GetTokenParam(0) * count;
+        const float factor              = 1.0f + (static_cast<float>(param) / 100.0f);
+        const float damageFloat         = std::ceilf(static_cast<float>(damage) * factor);
 
-        int   param  = GetTokenParam(0);
-        float factor = (static_cast<float>(param) / 100.0f) * static_cast<float>(count);
-        weaponStats.HitDamageMultiplier += factor;
-        weaponStats.CriticalDamageMultiplier += factor;
+        damage = static_cast<int>(damageFloat);
     }
 
-    void Vanish::OnPreAttackBattleCalculateDamage(Enemy& attacker, EnemyStats& attackerStats, Player& target,
-                                                  PlayerStats& targetStats)
+    void Vanish::OnPostEnemyAttackCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData, int& damage)
     {
-        TokenInventory& tokenInventory = attacker.GetTokenInventory();
-        int count = tokenInventory.GetTokenStackFromID(ID);
+        TokenInventory& tokenInventory = attackerData.Source.GetTokenInventory();
+        const int       count          = tokenInventory.GetTokenStackFromID(ID);
+        const int       param          = GetTokenParam(0) * count;
+        const float     factor         = 1.0f + (static_cast<float>(param) / 100.0f);
+        const float     damageFloat    = std::ceilf(static_cast<float>(damage) * factor);
 
-        int   param  = GetTokenParam(0);
-        float factor = (static_cast<float>(param) / 100.0f) * static_cast<float>(count);
-        attackerStats.DamageMultiplier += factor;
+        damage = static_cast<int>(damageFloat);
     }
 } // namespace TokenObject

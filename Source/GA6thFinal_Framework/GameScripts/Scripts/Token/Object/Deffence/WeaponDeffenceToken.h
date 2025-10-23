@@ -9,9 +9,8 @@ namespace TokenObject
     {
     private:
         void OnRoundStart(CharacterBase* owner) override;
-        void OnPreAttackBattleCalculateDamage(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
-                                              QTE::NoteResult& noteResult, Enemy& target,
-                                              EnemyStats& targetStats) override;
+        void OnPostEnemyHitCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData,
+                                           int& damage) override;
 
     protected:
         virtual WeaponType GetDeffenceWeaponType() const = 0;

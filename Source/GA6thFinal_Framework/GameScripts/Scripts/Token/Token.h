@@ -1,6 +1,5 @@
 ﻿#pragma once
 #include "Interface/IToken.h"
-#include "Token/Common/TokenCommon.h"
 
 // @brief 토큰의 기본 멤버입니다. 이걸 추가하지 않으면 System에 추가가 불가능합니다
 #define TOKEN_DATA(id)                                              \
@@ -33,27 +32,25 @@ public:
     virtual void OnQTEStart(CharacterBase* owner) override                                      {}
     virtual void OnQTEEnd(CharacterBase* owner) override                                        {}
 
-    virtual void OnPreBattleCalculateChain(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
-                                           QTE::NoteResult& noteResult,
-                                           Enemy& target, EnemyStats& targetStats) override     {}
-    virtual void OnPreBattleCalculateChain(Enemy& attacker, EnemyStats& attackerStats, Player& target,
-                                           PlayerStats& targetStats) override                   {}
+    virtual void OnPrePlayerAttackCalculateChain(PlayerAttackData& attackerData, EnemyHitData& targetData)                  override {}
+    virtual void OnPreEnemyAttackCalculateChain(EnemyAttackData& attackerData, PlayerHitData& targetData)                   override {}
+    virtual void OnPrePlayerHitCalculateChain(EnemyAttackData& attackerData, PlayerHitData& targetData)                     override {}
+    virtual void OnPreEnemyHitCalculateChain(PlayerAttackData& attackerData, EnemyHitData& targetData)                      override {}
 
-    virtual void OnPreAttackBattleCalculateDamage(Player& attacker, PlayerStats& attackerStats,
-                                                  WeaponStats& weaponStats, QTE::NoteResult& noteResult,
-                                                  Enemy& target, EnemyStats& targetStats) override {}
-    virtual void OnPreAttackBattleCalculateDamage(Enemy& attacker, EnemyStats& attackerStats, Player& target,
-                                                  PlayerStats& targetStats) override            {}
+    virtual void OnPostPlayerAttackCalculateChain(PlayerAttackData& attackerData, EnemyHitData& targetData, int& chain)     override {}
+    virtual void OnPostEnemyAttackCalculateChain(EnemyAttackData& attackerData, PlayerHitData& targetData, int& chain)      override {}
+    virtual void OnPostPlayerHitCalculateChain(EnemyAttackData& attackerData, PlayerHitData& targetData, int& chain)        override {}
+    virtual void OnPostEnemyHitCalculateChain(PlayerAttackData& attackerData, EnemyHitData& targetData, int& chain)         override {}
+    
+    virtual void OnPrePlayerAttackCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData)                 override {}                                                      
+    virtual void OnPreEnemyAttackCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData)                  override {}                                                      
+    virtual void OnPrePlayerHitCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData)                    override {}
+    virtual void OnPreEnemyHitCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData)                     override {}
 
-    virtual void OnPreHitBattleCalculateDamage(Player& attacker, PlayerStats& attackerStats,
-                                               Enemy& target, EnemyStats& targetStats) override {}
-    virtual void OnPreHitBattleCalculateDamage(Enemy& attacker, EnemyStats& attackerStats, Player& target,
-                                               PlayerStats& targetStats) override               {}
-
-    virtual void OnTakeDamage(CharacterBase* source, CharacterBase* dest, int& damage,
-                              QTE::NoteResult* qteResult) override
-    {
-    }
+    virtual void OnPostPlayerAttackCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData, int& damage)   override {}                                                      
+    virtual void OnPostEnemyAttackCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData, int& damage)    override {}                                                      
+    virtual void OnPostPlayerHitCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData, int& damage)      override {}
+    virtual void OnPostEnemyHitCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData, int& damage)       override {}
 
     virtual void OnRollRandomSpeed(CharacterBase* source, int& speed) override {}
 

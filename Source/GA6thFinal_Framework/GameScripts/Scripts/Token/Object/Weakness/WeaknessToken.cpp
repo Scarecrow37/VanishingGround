@@ -21,22 +21,24 @@ namespace TokenObject
             tokenInventory.RemoveTokenStackFromID(tokenID);
         }
     }
-    void Weakness::OnPreAttackBattleCalculateDamage(Player& attacker, PlayerStats& attackerStats,
-                                                    WeaponStats& weaponStats, QTE::NoteResult& noteResult,
-                                                    Enemy& target, EnemyStats& targetStats)
+    void Weakness::OnPostPlayerAttackCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData,
+                                                     int& damage)
     {
-        int   tokenID = GetTokenID();
-        int   param   = GetTokenParam(0);
-        float factor  = static_cast<float>(param) / 100.0f;
-        weaponStats.HitDamageMultiplier -= factor;
-        weaponStats.CriticalDamageMultiplier -= factor;
+        const int   tokenID     = GetTokenID();
+        const int   param       = GetTokenParam(0);
+        const float factor      = 1.0f -(static_cast<float>(param) / 100.0f);
+        const float damageFloat = std::ceilf(static_cast<float>(damage) * factor);
+
+        damage = static_cast<int>(damageFloat);
     }
-    void Weakness::OnPreAttackBattleCalculateDamage(Enemy& attacker, EnemyStats& attackerStats, Player& target,
-                                                    PlayerStats& targetStats)
+    void Weakness::OnPostEnemyAttackCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData,
+                                                    int& damage)
     {
-        int   tokenID = GetTokenID();
-        int   param   = GetTokenParam(0);
-        float factor  = static_cast<float>(param) / 100.0f;
-        attackerStats.DamageMultiplier -= factor;
+        const int   tokenID     = GetTokenID();
+        const int   param       = GetTokenParam(0);
+        const float factor      = 1.0f - (static_cast<float>(param) / 100.0f);
+        const float damageFloat = std::ceilf(static_cast<float>(damage) * factor);
+
+        damage = static_cast<int>(damageFloat);
     }
 }

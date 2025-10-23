@@ -141,8 +141,7 @@ void CharacterBase::ClearState()
 {
     Base::ClearState();
     _tokenInventory.Clear();
-    CharacterStats* stats = GetCharacterStats();
-    if (stats)
+    if (CharacterStats* stats = GetCharacterStats())
     {
         _tokenInventory.AddTokenStackFromID(TokenObject::StunResistance::ID, stats->StunResistance);    
     }
@@ -157,8 +156,7 @@ void CharacterBase::ClearState()
 void CharacterBase::Revive()
 {
     Base::Revive();
-    CharacterStats* stats = GetCharacterStats();
-    if (stats)
+    if (CharacterStats* stats = GetCharacterStats())
     {
         stats->CurrentHP = stats->MaxHP;
         stats->CurrentChainCount = stats->MaxChainRoundCount;
@@ -168,12 +166,29 @@ void CharacterBase::Revive()
 void CharacterBase::Dead()
 {
     Base::Dead();
-    CharacterStats* stats = GetCharacterStats();
-    if (stats)
+    if (CharacterStats* stats = GetCharacterStats())
     {
         stats->CurrentHP = 0;
     }
     _tokenInventory.NotifyDead();
+}
+
+void CharacterBase::Heal(int amount) 
+{
+    if (CharacterStats* stats = GetCharacterStats())
+    {
+        stats->CurrentHP += amount;
+    }
+}
+
+void CharacterBase::Heal(float factor) 
+{
+    if (CharacterStats* stats = GetCharacterStats())
+    {
+        const float maxHP      = static_cast<float>(stats->MaxHP);
+        const int   healAmount = static_cast<int>(maxHP * factor);
+        Heal(healAmount);
+    }
 }
 
 void CharacterBase::TakeDamage(int damage, bool playAnim) 

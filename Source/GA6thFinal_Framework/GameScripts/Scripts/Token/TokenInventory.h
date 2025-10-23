@@ -88,20 +88,26 @@ public:
     /// </summary>
     void NotifyQTEEnd();
 
-    void NotifyPreBattleCalculateChain(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
-                                       QTE::NoteResult& noteResult, Enemy& target, EnemyStats& targetStats);
-    void NotifyPreBattleCalculateChain(Enemy& attacker, EnemyStats& attackerStats, Player& target, PlayerStats& targetStats);
+    void NotifyPrePlayerAttackCalculateChain(PlayerAttackData& attackerData, EnemyHitData& targetData);
+    void NotifyPreEnemyAttackCalculateChain(EnemyAttackData& attackerData, PlayerHitData& targetData);
+    void NotifyPrePlayerHitCalculateChain(EnemyAttackData& attackerData, PlayerHitData& targetData);
+    void NotifyPreEnemyHitCalculateChain(PlayerAttackData& attackerData, EnemyHitData& targetData);
 
-    void NotifyPreAttackBattleCalculateDamage(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
-                                              QTE::NoteResult& noteResult, Enemy& target, EnemyStats& targetStats);
-    void NotifyPreAttackBattleCalculateDamage(Enemy& attacker, EnemyStats& attackerStats, Player& target,
-                                              PlayerStats& targetStats);
-    void NotifyPreHitBattleCalculateDamage(Player& attacker, PlayerStats& attackerStats, Enemy& target,
-                                           EnemyStats& targetStats);
-    void NotifyPreHitBattleCalculateDamage(Enemy& attacker, EnemyStats& attackerStats, Player& target,
-                                           PlayerStats& targetStats);
+    void NotifyPostPlayerAttackCalculateChain(PlayerAttackData& attackerData, EnemyHitData&  targetData, int& chain);
+    void NotifyPostEnemyAttackCalculateChain(EnemyAttackData& attackerData, PlayerHitData& targetData, int& chain);
+    void NotifyPostPlayerHitCalculateChain(EnemyAttackData& attackerData, PlayerHitData& targetData, int& chain);
+    void NotifyPostEnemyHitCalculateChain(PlayerAttackData& attackerData, EnemyHitData& targetData, int& chain);
 
-    void NotifyTakeDamage(CharacterBase* dest, int& damage, QTE::NoteResult* qteResult);
+    void NotifyPrePlayerAttackCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData);
+    void NotifyPreEnemyAttackCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData);
+    void NotifyPrePlayerHitCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData);
+    void NotifyPreEnemyHitCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData);
+
+    void NotifyPostPlayerAttackCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData, int& damage);
+    void NotifyPostEnemyAttackCalculateDamage(EnemyAttackData&  attackerData, PlayerHitData& targetData, int& damage);
+    void NotifyPostPlayerHitCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData, int& damage);
+    void NotifyPostEnemyHitCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData, int& damage);
+
 
     void NotifyRollRandomSpeed(int& randomSpeed);
 

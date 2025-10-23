@@ -9,9 +9,9 @@ namespace TokenObject
     private:
         void OnTurnEnd(CharacterBase* owner) override;
 
-        void OnPreAttackBattleCalculateDamage(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
-                                              QTE::NoteResult& noteResult, Enemy& target,
-                                              EnemyStats& targetStats) override;
+        void OnPostPlayerAttackCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData,
+                                               int& damage) override;
+
     };
 
     class Obsession1 : public Obsession

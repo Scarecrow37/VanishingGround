@@ -62,6 +62,9 @@ public:
     virtual void ClearState() override;
     virtual void Revive() override;
     virtual void Dead() override;
+
+    virtual void Heal(int amount);
+    virtual void Heal(float factor);
     virtual void TakeDamage(int damage, bool playAnim = true);
     virtual void TakeChain(int chainDamage);
 

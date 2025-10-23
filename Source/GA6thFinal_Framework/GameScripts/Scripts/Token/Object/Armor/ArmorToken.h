@@ -6,9 +6,11 @@ namespace TokenObject
     // 갑옷 토큰
     class Armor : public Token
     {
-        void OnTakeDamage(CharacterBase* source, CharacterBase* dest, int& damage,
-                          QTE::NoteResult* noteResult) override;
-    };
+        void OnPostPlayerHitCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData,
+                                            int& damage) override;
+        void OnPostEnemyHitCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData,
+                                           int& damage) override;
+    };  
     class Armor1 : public Token
     {
         TOKEN_DATA(205005)

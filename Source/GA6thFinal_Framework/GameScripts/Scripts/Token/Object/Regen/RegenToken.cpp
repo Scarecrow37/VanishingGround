@@ -23,12 +23,13 @@ namespace TokenObject
     } // namespace
     void Regen::OnTurnStart(CharacterBase* owner) 
     {
-        int param = GetTokenParam(0);
-        Heal(owner, param);
         if (owner)
         {
+            const int   tokenID = GetTokenID();
+            const int   param   = GetTokenParam(0);
+            const float factor  = static_cast<float>(param) / 100.0f;
+            owner->Heal(factor);
             auto& tokenInventory = owner->GetTokenInventory();
-            int   tokenID        = GetTokenID();
             tokenInventory.RemoveTokenStackFromID(tokenID);
         }
     }

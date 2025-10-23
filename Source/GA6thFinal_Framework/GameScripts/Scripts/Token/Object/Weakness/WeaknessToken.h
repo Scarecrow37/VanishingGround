@@ -8,11 +8,10 @@ namespace TokenObject
     {
     private:
         void OnTurnEnd(CharacterBase* owner) override;
-        void OnPreAttackBattleCalculateDamage(Player& attacker, PlayerStats& attackerStats,
-                                              WeaponStats& weaponStats, QTE::NoteResult& noteResult, Enemy& target,
-                                              EnemyStats& targetStats) override;
-        void OnPreAttackBattleCalculateDamage(Enemy& attacker, EnemyStats& attackerStats, Player& target,
-                                              PlayerStats& targetStats) override;
+        void OnPostPlayerAttackCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData,
+                                               int& damage) override;
+        void OnPostEnemyAttackCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData,
+                                              int& damage) override;
     };
 
     class Weakness1 : public Weakness

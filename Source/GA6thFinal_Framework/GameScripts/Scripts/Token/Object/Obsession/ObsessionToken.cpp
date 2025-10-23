@@ -19,17 +19,16 @@ namespace TokenObject
             tokenInventory.RemoveTokenStackFromID(tokenID);
         }
     }
-    void Obsession::OnPreAttackBattleCalculateDamage(Player& attacker, PlayerStats& attackerStats,
-                                                     WeaponStats& weaponStats, QTE::NoteResult& noteResult,
-                                                     Enemy& target, EnemyStats& targetStats)
+    void Obsession::OnPostPlayerAttackCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData,
+                                                      int& damage)
     {
         // 일격 데미지 감소
-        if (QTE::QTE_RESULT_NORMAL == noteResult.Result)
+        if (QTE::QTE_RESULT_NORMAL == attackerData.NoteResult.Result)
         {
-            int   param           = GetTokenParam(0);
-            float factor          = static_cast<float>(param) / 100.0f;
-            float damage          = static_cast<float>(weaponStats.HitDamage);
-            weaponStats.HitDamage = static_cast<int>(damage * (1.0f - factor));
+            const int   param     = GetTokenParam(0);
+            const float factor    = 1.0f - (static_cast<float>(param) / 100.0f);
+            const float newDamage = static_cast<float>(damage) * factor;
+            damage                = static_cast<int>(std::ceilf(newDamage));
         }
     }
 } // namespace TokenObject

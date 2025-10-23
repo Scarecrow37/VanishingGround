@@ -25,36 +25,35 @@ namespace TokenObject
             tokenInventory.RemoveTokenStackFromID(tokenID);
         }
     }
-    void ChainDeffence::OnPreAttackBattleCalculateDamage(Player& attacker, PlayerStats& attackerStats,
-                                                  WeaponStats& weaponStats, QTE::NoteResult& noteResult, Enemy& target,
-                                                  EnemyStats& targetStats)
+    void ChainDeffence::OnPostPlayerHitCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData,
+                                                       int& damage)
     {
         // 대상의 연격 수와 동일할 때 데미지 감소
-        const int targetChainCount = targetStats.CurrentChainCount;
+        const int targetChainCount   = targetData.SourceStats.CurrentChainCount;
         const int deffenceChainCount = GetDeffenceChainCount();
         if (targetChainCount == deffenceChainCount)
         {
-            const int param = GetTokenParam(0);
-            const float factor = static_cast<float>(param) / 100.0f;
+            const int   param     = GetTokenParam(0);
+            const float factor    = 1.0f - (static_cast<float>(param) / 100.0f);
+            const float newDamage = static_cast<float>(damage) * factor;
 
-            // TODO: 이거 100%방어가 아예 무시인건지, 아니면 합연산을 통해 무조건 100% 방어가 안될 수도 있는건지 확인 필요
-            weaponStats.HitDamageMultiplier -= factor;
-            weaponStats.CriticalDamageMultiplier -= factor;
+            damage = static_cast<int>(std::ceilf(newDamage));
         }
     }
 
-    void ChainDeffence::OnPreAttackBattleCalculateDamage(Enemy& attacker, EnemyStats& attackerStats, Player& target,
-                                                         PlayerStats& targetStats)
+    void ChainDeffence::OnPostEnemyHitCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData,
+                                                      int& damage)
     {
         // 대상의 연격 수와 동일할 때 데미지 감소
-        const int targetChainCount = targetStats.CurrentChainCount;
+        const int targetChainCount   = targetData.SourceStats.CurrentChainCount;
         const int deffenceChainCount = GetDeffenceChainCount();
         if (targetChainCount == deffenceChainCount)
         {
-            const int   param  = GetTokenParam(0);
-            const float factor = static_cast<float>(param) / 100.0f;
+            const int   param       = GetTokenParam(0);
+            const float factor      = 1.0f - (static_cast<float>(param) / 100.0f);
+            const float newDamage   = static_cast<float>(damage) * factor;
 
-            attackerStats.DamageMultiplier -= factor;
+            damage = static_cast<int>(std::ceilf(newDamage));
         }
     }
 

@@ -18,9 +18,12 @@ namespace TokenObject
         TOKEN_DATA(205003)
     private:
         void OnTurnEnd(CharacterBase* owner) override;
-        void OnTakeDamage(CharacterBase* source, CharacterBase* dest, int& damage,
-                          QTE::NoteResult* noteResult) override;
+        void OnPostPlayerAttackCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData,
+                                               int& damage) override;
+        void OnPostEnemyAttackCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData,
+                                              int& damage) override;
     };
+   
 
     // 출혈 저항 토큰
     class BleedResistance : public Token

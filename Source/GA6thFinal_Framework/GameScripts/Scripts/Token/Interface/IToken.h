@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include <Token/Enums/TokenEnums.h>
+#include <Token/Common/TokenCommon.h>
 #include <Interface/ITriggerType.h>
 
 class CharacterBase;
@@ -76,21 +76,34 @@ private: // ITriggerType을(를) 통해 상속됨.
     /// <param name="source">호출한 CharacterBase 객체입니다.</param>
     virtual void OnQTEEnd(CharacterBase* source) = 0;
 
-    virtual void OnPreBattleCalculateChain(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
-                                           QTE::NoteResult& noteResult, Enemy& target, EnemyStats& targetStats) = 0;
-    virtual void OnPreBattleCalculateChain(Enemy& attacker, EnemyStats& attackerStats, Player& target,
-                                           PlayerStats& targetStats)                            = 0;
-    virtual void OnPreAttackBattleCalculateDamage(Player& attacker, PlayerStats& attackerStats,
-                                                  WeaponStats& weaponStats, QTE::NoteResult& noteResult,
-                                                  Enemy& target, EnemyStats& targetStats)       = 0;
-    virtual void OnPreAttackBattleCalculateDamage(Enemy& attacker, EnemyStats& attackerStats, Player& target,
-                                                  PlayerStats& targetStats)                     = 0;
-    virtual void OnPreHitBattleCalculateDamage(Player& attacker, PlayerStats& attackerStats, Enemy& target,
-                                               EnemyStats& targetStats)                         = 0;
-    virtual void OnPreHitBattleCalculateDamage(Enemy& attacker, EnemyStats& attackerStats, Player& target,
-                                               PlayerStats& targetStats)                        = 0;
+    /*
+    Pre:    장비 데이터를 바꿀 수 있음.
+    */
 
-    virtual void OnTakeDamage(CharacterBase* source, CharacterBase* dest, int& damage, QTE::NoteResult* qteResult) = 0;
+    /*
+    Post:   장비 데이터 영향을 안받음(하지만 무기 정보 확인해야할 수도 있으니까 무기 정보는 넘겨줌.),
+            최종 파라미터 수정 가능
+    */
+
+    virtual void OnPrePlayerAttackCalculateChain(PlayerAttackData& attackerData, EnemyHitData& targetData)              = 0;
+    virtual void OnPreEnemyAttackCalculateChain(EnemyAttackData& attackerData, PlayerHitData& targetData)               = 0;
+    virtual void OnPrePlayerHitCalculateChain(EnemyAttackData& attackerData, PlayerHitData& targetData)                 = 0;
+    virtual void OnPreEnemyHitCalculateChain(PlayerAttackData& attackerData, EnemyHitData& targetData)                  = 0;
+
+    virtual void OnPostPlayerAttackCalculateChain(PlayerAttackData& attackerData, EnemyHitData& targetData, int& chain) = 0;
+    virtual void OnPostEnemyAttackCalculateChain(EnemyAttackData& attackerData, PlayerHitData& targetData, int& chain)  = 0;
+    virtual void OnPostPlayerHitCalculateChain(EnemyAttackData& attackerData, PlayerHitData& targetData, int& chain)    = 0;
+    virtual void OnPostEnemyHitCalculateChain(PlayerAttackData& attackerData, EnemyHitData& targetData, int& chain)     = 0;
+                 
+    virtual void OnPrePlayerAttackCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData)             = 0;
+    virtual void OnPreEnemyAttackCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData)              = 0;
+    virtual void OnPrePlayerHitCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData)                = 0;
+    virtual void OnPreEnemyHitCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData)                 = 0;
+
+    virtual void OnPostPlayerAttackCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData, int& damage) = 0;
+    virtual void OnPostEnemyAttackCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData, int& damage) = 0;
+    virtual void OnPostPlayerHitCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData, int& damage) = 0;
+    virtual void OnPostEnemyHitCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData, int& damage)  = 0;
 
     virtual void OnRollRandomSpeed(CharacterBase* source, int& speed) = 0;
 

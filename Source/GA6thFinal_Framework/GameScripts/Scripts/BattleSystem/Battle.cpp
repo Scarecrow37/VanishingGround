@@ -92,14 +92,22 @@ void Battle::ChainStart(Player& attacker, Enemy& target, QTE::NoteResult& result
                 PlayerInfo playerInfo(attacker, weaponStats, playerStats);
                 EnemyInfo  enemyInfo(target, enemyStats);
 
-                int chainDamage = 0;
+                // 토큰용 데이터
+                PlayerAttackData attackerData = {
+                    .Source = attacker, .SourceStats = playerStats, .WeaponStats = weaponStats, .NoteResult = result};
+                EnemyHitData targetData = {.Source = target, .SourceStats = enemyStats};
 
+                attacker.GetTokenInventory().NotifyPrePlayerAttackCalculateChain(attackerData, targetData);
+                target.GetTokenInventory().NotifyPreEnemyHitCalculateChain(attackerData, targetData);
+
+                int chainDamage = 0;
                 turnMode->ApplyActions([&](TurnAction& action) {
                     action.OnPlayerBattleCalculateChainModifier(attacker, playerStats, weaponStats, target, enemyStats);
                 });
-                TokenInventory& tokenInventory = attacker.GetTokenInventory();
-                tokenInventory.NotifyPreBattleCalculateChain(attacker, playerStats, weaponStats, result, target, enemyStats);
                 chainDamage = DamageSystem::CalculateChainDamage(playerInfo, enemyInfo);
+
+                attacker.GetTokenInventory().NotifyPostPlayerAttackCalculateChain(attackerData, targetData, chainDamage);
+                target.GetTokenInventory().NotifyPostEnemyHitCalculateChain(attackerData, targetData, chainDamage);
                 target.TakeChain(chainDamage);
             }
         }
@@ -127,9 +135,13 @@ void Battle::BattleStart(Player& attacker, Enemy& target, QTE::NoteResult& resul
 
         int damage = 0;
 
-
-        attacker.GetTokenInventory().NotifyPreAttackBattleCalculateDamage(attacker, playerStats, weaponStats, result, target, enemyStats);
-        target.GetTokenInventory().NotifyPreHitBattleCalculateDamage(target, enemyStats, attacker, playerStats);
+        // 토큰용 데이터
+        PlayerAttackData attackerData = {
+            .Source = attacker, .SourceStats = playerStats, .WeaponStats = weaponStats, .NoteResult = result};
+        EnemyHitData targetData = {.Source = target, .SourceStats = enemyStats};
+        
+        attacker.GetTokenInventory().NotifyPrePlayerAttackCalculateDamage(attackerData, targetData);
+        target.GetTokenInventory().NotifyPreEnemyHitCalculateDamage(attackerData, targetData);
 
         turnMode->ApplyActions([&](TurnAction& action) {
             action.OnPlayerBattlePreCalculate(attacker, playerStats, weaponStats, target, enemyStats, result);
@@ -143,8 +155,8 @@ void Battle::BattleStart(Player& attacker, Enemy& target, QTE::NoteResult& resul
             damage = DamageSystem::CalculateDamage(playerInfo, enemyInfo, result);
         }
 
-        TokenInventory& tokenInventory = target.GetTokenInventory();
-        tokenInventory.NotifyTakeDamage(&target, damage, &result);
+        attacker.GetTokenInventory().NotifyPostPlayerAttackCalculateDamage(attackerData, targetData, damage);
+        target.GetTokenInventory().NotifyPostEnemyHitCalculateDamage(attackerData, targetData, damage);
         // 미스여도 TakeDamage를 호출. 어차피 내부에서 미스처리를 하기 때문 (판정에 따른 이펙트 출력때문에... 나중에 PlayEffect를 따로 만들까? 싶음)
         target.TakeDamage(damage, result);
     }
@@ -166,18 +178,26 @@ void Battle::ChainStart(Enemy& attacker, Player& target)
         EnemyInfo   enemyInfo(attacker, enemyStats);
         PlayerInfo  playerInfo(target, weaponSystem->GetCurrentWeaponElement().Stats, playerStats);
 
+        // 토큰용 데이터
+        EnemyAttackData attackerData = {.Source = attacker, .SourceStats = enemyStats};
+        PlayerHitData   targetData   = {.Source = target, .SourceStats = playerStats};
+
+        attacker.GetTokenInventory().NotifyPreEnemyAttackCalculateChain(attackerData, targetData);
+        target.GetTokenInventory().NotifyPrePlayerHitCalculateChain(attackerData, targetData);
+
         int chainDamage = DamageSystem::CalculateChainDamage(enemyInfo, playerInfo);
         turnMode->ApplyActions([&](TurnAction& action) {
             action.OnEnemyBattleCalculateChainModifier(attacker, enemyStats, target, playerStats);
         });
-        TokenInventory& tokenInventory = attacker.GetTokenInventory();
-        tokenInventory.NotifyPreBattleCalculateChain(attacker, enemyStats, target, playerStats);
+
+        attacker.GetTokenInventory().NotifyPostEnemyAttackCalculateChain(attackerData, targetData, chainDamage);
+        target.GetTokenInventory().NotifyPostPlayerHitCalculateChain(attackerData, targetData, chainDamage);
         target.TakeChain(chainDamage);
     }
 }
 
 
-void Battle::BattleStart(Enemy& attacker, Player& target) 
+void Battle::BattleStart(Enemy& attacker, Player& target)
 {
     TurnMode*             turnMode             = SingletonComponent<TurnMode>::GetInstance();
     WeaponSystem*         weaponSystem         = SingletonComponent<WeaponSystem>::GetInstance();
@@ -193,15 +213,19 @@ void Battle::BattleStart(Enemy& attacker, Player& target)
         EnemyInfo  enemyInfo(attacker, enemyStats);
         PlayerInfo playerInfo(target, weaponSystem->GetCurrentWeaponElement().Stats, playerStats);
 
-        attacker.GetTokenInventory().NotifyPreAttackBattleCalculateDamage(attacker, enemyStats, target, playerStats);
-        target.GetTokenInventory().NotifyPreHitBattleCalculateDamage(target, playerStats, attacker, enemyStats);
+        // 토큰용 데이터
+        EnemyAttackData attackerData = {.Source = attacker, .SourceStats = enemyStats};
+        PlayerHitData   targetData   = {.Source = target, .SourceStats = playerStats};
+
+        attacker.GetTokenInventory().NotifyPreEnemyAttackCalculateDamage(attackerData, targetData);
+        target.GetTokenInventory().NotifyPrePlayerHitCalculateDamage(attackerData, targetData);
 
         turnMode->ApplyActions(
             [&](TurnAction& action) { action.OnEnemyBattleCalculateDamageModifier(attacker, enemyStats, target, playerStats); });
         int damage = DamageSystem::CalculateDamage(enemyInfo, playerInfo);
-        
-        TokenInventory& tokenInventory = target.GetTokenInventory();
-        tokenInventory.NotifyTakeDamage(&target, damage, nullptr);
+
+        attacker.GetTokenInventory().NotifyPostEnemyAttackCalculateDamage(attackerData, targetData, damage);
+        target.GetTokenInventory().NotifyPostPlayerHitCalculateDamage(attackerData, targetData, damage);
 
         target.TakeDamage(damage);
     }

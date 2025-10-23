@@ -18,8 +18,10 @@ namespace TokenObject
         TOKEN_DATA(205004)
     private:
         void OnTurnEnd(CharacterBase* owner) override;
-        void OnTakeDamage(CharacterBase* source, CharacterBase* dest, int& damage,
-                          QTE::NoteResult* noteResult) override;
+        void OnPostPlayerAttackCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData,
+                                               int& damage) override;
+        void OnPostEnemyAttackCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData,
+                                              int& damage) override;
     };
 
     // 중독 저항 토큰
