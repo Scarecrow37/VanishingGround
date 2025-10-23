@@ -3,6 +3,8 @@
 
 class ParticleEffect
 {
+    using EffectCallback = std::function<void(void)>;
+
 public:
     ParticleEffect();
     virtual ~ParticleEffect();
@@ -20,6 +22,7 @@ public:
     void                                                 RemoveEmitter(ParticleEmitter* target);
     void                                                 UpdateParticleLifeCycle(float deltaTime);
     void                                                 Play();
+    void                                                 Play(EffectCallback callback);
     void                                                 Stop();
     void                                                 Reset();
     void                                                 FlushEmitters();
@@ -64,6 +67,8 @@ protected:
 
     bool*         _followBoneFlag    = nullptr;
     bool          _removeFlag        = false;
-    const Matrix* _parentWorldMatrix = nullptr; // 안전 초기화
-    const Matrix* _boneWorldMatrix   = nullptr; // 안전 초기화
+    const Matrix* _parentWorldMatrix = nullptr;
+    const Matrix* _boneWorldMatrix   = nullptr;
+
+    EffectCallback _endCallback = nullptr;
 };

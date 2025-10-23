@@ -261,6 +261,10 @@ void UmCineMotion::ClearTethers()
 
 void UmCineMotion::StartRail(bool isReverse)
 {
+    if (ReflectFields->TimestepTethers.empty())
+    {
+        return;
+    }
     _railFlag  = true;
     _pauseFlag = false;
     _reverseFlag = isReverse;
@@ -269,12 +273,20 @@ void UmCineMotion::StartRail(bool isReverse)
 
 void UmCineMotion::PauseRail()
 {
+    if (ReflectFields->TimestepTethers.empty())
+    {
+        return;
+    }
     _railFlag  = true;
     _pauseFlag = true;
 }
 
 void UmCineMotion::StopRail()
 {
+    if (ReflectFields->TimestepTethers.empty())
+    {
+        return;
+    }
     _moveTimer = 0;
     _pauseFlag = true;
     _railFlag  = false;
@@ -363,6 +375,8 @@ void UmCineMotion::DrawRail()
 
 void UmCineMotion::RunRail()
 {
+    if (_posTethers.empty() || _rotTethers.empty())
+        return;
     if (true == _railFlag)
     {
         if (false == _pauseFlag)
