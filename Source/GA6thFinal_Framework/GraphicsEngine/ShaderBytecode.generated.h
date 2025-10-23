@@ -71,6 +71,13 @@ namespace GE
             default: return { nullptr, 0 };
         }
     }
+    inline D3D12_SHADER_BYTECODE GetShaderBytecode(GS shader)
+    {
+        switch (shader)
+        {            case GS::POINT_LIGHT_SHADOW_CUBE: return { g_gs_point_light_shadow_cube, sizeof(g_gs_point_light_shadow_cube) };
+            default: return { nullptr, 0 };
+        }
+    }
     inline D3D12_SHADER_BYTECODE GetShaderBytecode(CS shader)
     {
         switch (shader)

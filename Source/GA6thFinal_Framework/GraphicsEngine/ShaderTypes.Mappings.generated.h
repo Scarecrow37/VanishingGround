@@ -146,6 +146,7 @@ namespace GE
         {PS::BRIGHT_EXTRACT, L"ps_bright_extract.hlsl"},
         {PS::ACCUMULATION, L"ps_accumulation.hlsl"},
         {PS::TRANSPARENT_LIM_LIGHT, L"ps_transparent_lim_light.hlsl"},
+        {PS::DXRGBUFFER_MASKED, L"ps_dxrgbuffer_masked.hlsl"},
         {PS::FORWARD_PBR_LIGHTING, L"ps_forward_pbr_lighting.hlsl"},
         {PS::DXRGBUFFER, L"ps_dxrgbuffer.hlsl"},
         {PS::GAUSSIANBLUR_Y, L"ps_gaussianblur_y.hlsl"},
@@ -182,6 +183,7 @@ namespace GE
         {L"g_ps_bright_extract", PS::BRIGHT_EXTRACT},
         {L"g_ps_accumulation", PS::ACCUMULATION},
         {L"g_ps_transparent_lim_light", PS::TRANSPARENT_LIM_LIGHT},
+        {L"g_ps_dxrgbuffer_masked", PS::DXRGBUFFER_MASKED},
         {L"g_ps_forward_pbr_lighting", PS::FORWARD_PBR_LIGHTING},
         {L"g_ps_dxrgbuffer", PS::DXRGBUFFER},
         {L"g_ps_gaussianblur_y", PS::GAUSSIANBLUR_Y},
@@ -218,6 +220,7 @@ namespace GE
         {PS::BRIGHT_EXTRACT, L"g_ps_bright_extract"},
         {PS::ACCUMULATION, L"g_ps_accumulation"},
         {PS::TRANSPARENT_LIM_LIGHT, L"g_ps_transparent_lim_light"},
+        {PS::DXRGBUFFER_MASKED, L"g_ps_dxrgbuffer_masked"},
         {PS::FORWARD_PBR_LIGHTING, L"g_ps_forward_pbr_lighting"},
         {PS::DXRGBUFFER, L"g_ps_dxrgbuffer"},
         {PS::GAUSSIANBLUR_Y, L"g_ps_gaussianblur_y"},
@@ -239,12 +242,15 @@ namespace GE
     };
 
     inline const std::unordered_map<GS, std::wstring> enumToGSFileNameMap = {
+        {GS::POINT_LIGHT_SHADOW_CUBE, L"gs_point_light_shadow_cube.hlsl"}
     };
 
     inline const std::unordered_map<std::wstring, GS> globalNameToGSEnumMap = {
+        {L"g_gs_point_light_shadow_cube", GS::POINT_LIGHT_SHADOW_CUBE}
     };
 
     inline const std::unordered_map<GS, std::wstring> enumToGSGlobalNameMap = {
+        {GS::POINT_LIGHT_SHADOW_CUBE, L"g_gs_point_light_shadow_cube"}
     };
 
 }

@@ -15,6 +15,7 @@
 #include "cs_resolve_ui.h"
 #include "cs_skeletal_skinning.h"
 #include "cs_ssgi_temporal.h"
+#include "gs_point_light_shadow_cube.h"
 #include "ps_accumulation.h"
 #include "ps_bilateral_up_sample.h"
 #include "ps_blend.h"

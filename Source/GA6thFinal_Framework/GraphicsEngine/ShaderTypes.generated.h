@@ -79,7 +79,11 @@ namespace GE
         SSGI_TEMPORAL,
         END
      };
-    enum class GS { NONE, END };
+    enum class GS { 
+        NONE,
+        POINT_LIGHT_SHADOW_CUBE,
+        END
+     };
     enum class HS { NONE, END };
     enum class DS { NONE, END };
 }
