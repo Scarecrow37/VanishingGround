@@ -27,12 +27,11 @@
 #include "ParticleRenderTechnique.h"
 #include "RayTracingTechnique.h"
 #include "SSGITechnique.h"
-#include "SSRTechnique.h"
 #include "SceneTransitionTechnique.h"
 #include "SkyBoxRenderTechnique.h"
+#include "FXAATechnique.h"
 #include "UITechnique.h"
 #include "UITechnique_OIT.h"
-#include "VolumetricFogTechnique.h"
 
 namespace Global
 {

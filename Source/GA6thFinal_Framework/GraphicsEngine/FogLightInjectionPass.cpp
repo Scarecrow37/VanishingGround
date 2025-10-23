@@ -1,6 +1,6 @@
 ﻿#include "pch.h"
 #include "FogLightInjectionPass.h"
-#include "PBRLitTechnique.h"
+#include "LightingTechnique.h"
 #include "RayTracingTechnique.h"
 #include "ShaderBuilder.h"
 #include "ShadowMapPass.h"
@@ -35,7 +35,7 @@ void FogLightInjectionPass::Draw(ID3D12GraphicsCommandList* commandList)
     }
     else
     {
-        auto pbrlitTech = _ownerScene->GetRenderTechnique<PBRLitTechnique>();
+        auto pbrlitTech = _ownerScene->GetRenderTechnique<LightingTechnique>();
         shadowpass      = pbrlitTech->GetRenderPass<ShadowMapPass>();
     }
     D3D12_GPU_VIRTUAL_ADDRESS   cameraData   = _ownerScene->_cameraBuffer->GetGPUVirtualAddress();

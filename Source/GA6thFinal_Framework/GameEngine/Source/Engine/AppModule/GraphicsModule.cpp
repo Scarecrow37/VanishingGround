@@ -20,7 +20,9 @@ void GraphicsModule::PreInitialize()
     UmFileSystem.RegisterFileEventSubscriber(&UmParticleSerializer, {".vfx"});
 
     RenderTechniqueFlag lightingFlag = RenderTechniqueFlag::NONE;
-    lightingFlag = _israytracing ? RenderTechniqueFlag::RAY_TRACING_TECH : RenderTechniqueFlag::LIGHTING_TECH | RenderTechniqueFlag::SSR_TECH;
+    bool                isRayTracing = UmPreferences.IsRayTracing();
+    lightingFlag                     = isRayTracing ? RenderTechniqueFlag::RAY_TRACING_TECH
+                                                    : RenderTechniqueFlag::LIGHTING_TECH | RenderTechniqueFlag::SSR_TECH;
 
     RenderTechniqueFlag defaultFlag = RenderTechniqueFlag::SKY_BOX_TECH | lightingFlag | 
                                RenderTechniqueFlag::VOLUMETRIC_FOG_TECH |
@@ -41,7 +43,7 @@ void GraphicsModule::PreInitialize()
         RenderTechniqueFlag modelViewerSceneFlag = RenderTechniqueFlag::SKY_BOX_TECH | lightingFlag;
         UmGraphics.AddRenderScene("ModelViewer", modelViewerSceneFlag);
 
-        RenderTechniqueFlag particleEditorSceneFlag = RenderTechniqueFlag::PARTICLE_TECH | RenderTechniqueFlag::LIGHTING_TECH | RenderTechniqueFlag::BLOOM_TECH;
+        RenderTechniqueFlag particleEditorSceneFlag = RenderTechniqueFlag::PARTICLE_TECH | lightingFlag  | RenderTechniqueFlag::BLOOM_TECH;
         UmGraphics.AddRenderScene("ParticleEditor", particleEditorSceneFlag);
     }
     else
