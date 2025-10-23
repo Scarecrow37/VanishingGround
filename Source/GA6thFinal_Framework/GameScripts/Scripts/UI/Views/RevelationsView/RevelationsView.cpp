@@ -8,15 +8,11 @@
 
 UMREAL_COMPONENT(RevelationsView)
 
-RevelationsView::~RevelationsView()
-{
-    
-}
+RevelationsView::~RevelationsView() = default;
 
 void RevelationsView::Awake()
 {
     Component::Awake();
-
     FindRevelationUIs();
 }
 
@@ -65,10 +61,12 @@ void RevelationsView::Start()
 void RevelationsView::OnDestroy() 
 {
     UmWatcher.Blind<RevelationsViewModel>("Revelations", _watchHandle);
+    ClearRevelationUIs();
 }
 
 void RevelationsView::FindRevelationUIs()
 {
+    ClearRevelationUIs();
     auto [firstRevelationObject, firstRevelationUI]   = FindRevelationUI("1st Revelation");
     _revelationObjects[0]                             = firstRevelationObject;
     _revelationUis[0]                                 = firstRevelationUI;
@@ -144,4 +142,20 @@ std::pair<GameObject*, RevelationUI> RevelationsView::FindRevelationUI(const std
     }
 
     return {revelationObject, revelationUI};
+}
+
+void RevelationsView::ClearRevelationUIs() 
+{
+    for (auto& uis : _revelationUis)
+    {
+        uis.DescriptionElement = nullptr;
+        uis.IconElement        = nullptr;
+        uis.NameElement        = nullptr;
+        uis.GradeElements.clear();
+    }
+
+    for (auto& objs : _revelationObjects)
+    {
+        objs = nullptr;
+    }
 }
