@@ -337,8 +337,9 @@ void RenderScene::UpdateObject()
         const auto& textures       = model->GetTextures();
 
         BoneMatrices boneMatrices;
-        MatrixData   matrixData          = {.World = XMMatrixTranspose(component->GetWorldMatrix())};
+        MatrixData   matrixData          = {.World = component->GetWorldMatrix()};
         float        determinant         = XMMatrixDeterminant(matrixData.World).m128_f32[0];
+        matrixData.World                 = XMMatrixTranspose(matrixData.World);
         matrixData.InverseTransposeWorld = XMMatrixTranspose(XMMatrixInverse(nullptr, matrixData.World));
 
         if (SKELETAL_MESH == type)
