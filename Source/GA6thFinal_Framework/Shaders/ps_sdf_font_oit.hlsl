@@ -14,7 +14,11 @@ struct PSInput
 
 Texture2D sdfTexture;
 
-float4 ps_main(PSInput input) : SV_Target0
+RWTexture2D<uint> OITHead;
+RWStructuredBuffer<OITNode> OITNodes;
+RWByteAddressBuffer OITCounter;
+
+void ps_main(PSInput input)
 {
     float3 sampled = sdfTexture.Sample(samLinear_clamp, input.uv).rgb;
     float sd = Median(sampled.r, sampled.g, sampled.b);
@@ -42,5 +46,20 @@ float4 ps_main(PSInput input) : SV_Target0
     
     clip(color.a - Epsilon);
     
-    return color;
+    uint nodeIndex = OITAllocNode(OITCounter);
+    if (nodeIndex >= FRAME_NODE_CAPACITY)
+    {
+        return;
+    }
+        
+    uint2 pix = uint2(input.position.xy);
+    
+    uint oldHead;
+    InterlockedExchange(OITHead[pix], nodeIndex, oldHead);
+    
+    OITNode node;
+    node.Color = color;
+    node.Depth = input.position.z;
+    node.Next = (oldHead == 0xFFFFFFFF) ? OIT_NULL : oldHead;
+    OITNodes[nodeIndex] = node;
 }

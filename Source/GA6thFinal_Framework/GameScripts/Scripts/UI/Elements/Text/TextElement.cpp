@@ -209,9 +209,8 @@ void TextElement::TestUpdateOutline()
     {
         bool enabled = ReflectFields->FontFlags & FONT_FLAG_OUTLINE;
 
-        GE::FontOutline outline{.Color   = Vector3(ReflectFields->FontOutline[0], ReflectFields->FontOutline[1],
-                                                   ReflectFields->FontOutline[2]),
-                                .Width   = ReflectFields->FontOutline[3],
+        GE::FontOutline outline{.Color   = Vector4(&ReflectFields->FontOutlineColor[0]),
+                                .Width   = ReflectFields->FontOutlineWidth,
                                 .Enabled = enabled};
 
         _renderer->SetFontOutline(outline);

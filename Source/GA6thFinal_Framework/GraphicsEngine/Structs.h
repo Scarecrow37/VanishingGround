@@ -156,3 +156,13 @@ struct ComputePipelineStateStream
     CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE        RootSignature;
     CD3DX12_PIPELINE_STATE_STREAM_CS                    CS;
 };
+
+struct SDFParams
+{
+    unsigned int InstanceID;
+    unsigned int Flags;
+    float        DistanceRange;
+    float        FontWeight;
+    Vector4      OutlineColor;
+    float        OutlineWidth;
+};

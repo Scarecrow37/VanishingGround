@@ -66,20 +66,18 @@ public:
     GETTER_ONLY(SIZE, ContentSize) { return ReflectFields->ContentSize; }
     PROPERTY(ContentSize)
 
-    GETTER(Vector3, OutlineColor) { return Vector3(ReflectFields->FontOutline[0]); }
-    SETTER(Vector3, OutlineColor)
+    GETTER(DirectX::SimpleMath::Color, OutlineColor) { return DirectX::SimpleMath::Color(&ReflectFields->FontOutlineColor[0]); }
+    SETTER(DirectX::SimpleMath::Color, OutlineColor)
     {
-        ReflectFields->FontOutline[0] = value.x;
-        ReflectFields->FontOutline[1] = value.y;
-        ReflectFields->FontOutline[2] = value.z;
+        ReflectFields->FontOutlineColor = {value.x, value.y, value.z, value.w};
         TestUpdateOutline();
     }
     PROPERTY(OutlineColor)
 
-    GETTER(float, OutlineWidth) { return ReflectFields->FontOutline[3]; }
+    GETTER(float, OutlineWidth) { return ReflectFields->FontOutlineWidth; }
     SETTER(float, OutlineWidth)
     {
-        ReflectFields->FontOutline[3] = std::max(0.0f, value);
+        ReflectFields->FontOutlineWidth = std::max(0.0f, value);
         TestUpdateOutline();
     }
     PROPERTY(OutlineWidth)
@@ -129,13 +127,14 @@ private:
 protected:
     REFLECT_FIELDS_BEGIN(DrawUIComponent)
     std::string          Guid;
-    std::string          Text         = "Hello Um!";
-    std::array<float, 4> Color        = {0.0f, 0.0f, 0.0f, 1.0f};
-    float                FontScale    = 32.0f;
-    SIZE                 ContentSize  = SIZE{};
-    float                FontWeight   = 0.5f;
-    std::array<float, 4> FontOutline  = {0.0f, 0.0f, 0.0f, 1.0f};
-    UINT                 FontFlags    = FONT_FLAG_NONE;
+    std::string          Text             = "Hello Um!";
+    std::array<float, 4> Color            = {0.0f, 0.0f, 0.0f, 1.0f};
+    float                FontScale        = 32.0f;
+    SIZE                 ContentSize      = SIZE{};
+    float                FontWeight       = 0.5f;
+    std::array<float, 4> FontOutlineColor = {0.0f, 0.0f, 0.0f, 1.0f};
+    float                FontOutlineWidth = 0.0f;
+    UINT                 FontFlags        = FONT_FLAG_NONE;
     REFLECT_FIELDS_END(TextElement)
 
 private:
