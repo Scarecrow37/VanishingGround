@@ -48,13 +48,13 @@ void UITechnique::Initialize(ID3D12GraphicsCommandList* commandList)
     pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));
     
-    /*pass = std::make_unique<UI25DPass_OIT>(&_instanceIDs[MODE_25D]);
+    pass = std::make_unique<UI25DPass_OIT>(&_instanceIDs[MODE_25D]);
     pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));
 
     pass = std::make_unique<UI3DPass_OIT>(&_instanceIDs[MODE_3D]);
     pass->Initialize(_ownerScene, this, commandList);
-    AddRenderPass(std::move(pass));*/
+    AddRenderPass(std::move(pass));
 
     pass = std::make_unique<SDFTextDrawPass_OIT>(&_instanceIDs[MODE_TEXT]);
     pass->Initialize(_ownerScene, this, commandList);

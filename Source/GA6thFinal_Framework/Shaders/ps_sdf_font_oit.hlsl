@@ -1,4 +1,5 @@
 #include "Function.hlsli"
+#include "SDFDatas.hlsli"
 
 float Median(float r, float g, float b)
 {
@@ -11,21 +12,7 @@ struct PSInput
     float2 uv : TEXCOORD;
 };
 
-struct FontColor
-{
-    float4 Color;
-};
-
-struct SDFParams
-{
-    uint InstanceID;
-    float PxRange;
-    float FontWeight;
-};
-
 Texture2D sdfTexture;
-ConstantBuffer<FontColor> bit32_4_fontColor;
-ConstantBuffer<SDFParams> bit32_3_sdfParams;
 
 RWTexture2D<uint> OITHead;
 RWStructuredBuffer<OITNode> OITNodes;
@@ -34,17 +21,30 @@ RWByteAddressBuffer OITCounter;
 void ps_main(PSInput input)
 {
     float3 sampled = sdfTexture.Sample(samLinear_clamp, input.uv).rgb;
-    float sd = Median(sampled.r, sampled.g, sampled.b);    
-    float sigDist = (sd - 0.5) * bit32_3_sdfParams.PxRange;
+    float sd = Median(sampled.r, sampled.g, sampled.b);
+    float sigDist = (sd - 0.5) * sdfParams.PxRange;
     float screenPixelRange = fwidth(sigDist);
-    float effectiveDist = sigDist + bit32_3_sdfParams.FontWeight;
-    float opacity = smoothstep(-screenPixelRange, screenPixelRange, effectiveDist);
-   
-    float4 color = bit32_4_fontColor.Color;
-    color.a *= opacity;
-    clip(color.a - Epsilon);
     
+    float effectiveDist = sigDist + sdfParams.FontWeight;
+    float fillOpacity = smoothstep(-screenPixelRange, screenPixelRange, effectiveDist);
+    
+    float4 color = bit32_4_fontColor.Color;
+    color.a *= fillOpacity;
     color = Premultiply(color);
+    
+    if (sdfParams.Flags & ENABLE_OUTLINE)
+    {
+        float outlineEdge = sigDist + sdfParams.FontWeight + sdfParams.PxRange;
+        float outlineOpacity = smoothstep(-screenPixelRange, screenPixelRange, outlineEdge);
+                
+        float4 outlineColor = sdfParams.OutlineColor;
+        outlineColor.a *= outlineOpacity;
+        outlineColor.a = outlineColor.a * (1.0 - fillOpacity);
+
+        color += Premultiply(outlineColor);
+    }
+    
+    clip(color.a - Epsilon);
     
     uint nodeIndex = OITAllocNode(OITCounter);
     if (nodeIndex >= FRAME_NODE_CAPACITY)

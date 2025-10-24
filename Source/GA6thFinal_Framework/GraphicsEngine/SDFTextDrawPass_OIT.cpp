@@ -5,13 +5,6 @@
 #include "SDFFont.h"
 #include "FrameResource.h"
 
-struct SDFParams
-{
-    unsigned int InstanceID;
-    float        DistanceRange;
-    float        FontWeight;
-};
-
 SDFTextDrawPass_OIT::SDFTextDrawPass_OIT(const std::vector<UINT>* instanceIDs)
     : UIPassBase_OIT(instanceIDs)
 {
@@ -75,14 +68,19 @@ void SDFTextDrawPass_OIT::Draw(ID3D12GraphicsCommandList* commandList)
     {
         if (!component || !component->IsActive())
             continue;
-        
-        const SDFFont* font       = component->GetFont();
-        const auto&    atlasInfo  = font->GetAtlasInfo();
-        sdfParams.DistanceRange   = atlasInfo.DistanceRange;
-        sdfParams.FontWeight      = component->GetFontWeight();
+
+        const SDFFont* font      = component->GetFont();
+        const auto&    atlasInfo = font->GetAtlasInfo();
+        const auto&    outline   = component->GetFontOutline();
+
+        sdfParams.Flags         = component->GetFontFlags();
+        sdfParams.DistanceRange = atlasInfo.DistanceRange;
+        sdfParams.FontWeight    = component->GetFontWeight();
+        sdfParams.OutlineColor  = outline.Color;
+        sdfParams.OutlineWidth  = outline.Width;
 
         commandList->SetGraphicsRoot32BitConstants(_fxSDF.GetRootParameterIndex("bit32_4_fontColor"), 4, &component->GetColor(), 0);
-        commandList->SetGraphicsRoot32BitConstants(_fxSDF.GetRootParameterIndex("bit32_3_sdfParams"), 3, &sdfParams, 0);
+        commandList->SetGraphicsRoot32BitConstants(_fxSDF.GetRootParameterIndex("bit32_9_sdfParams"), 9, &sdfParams, 0);
         commandList->SetGraphicsRootDescriptorTable(_fxSDF.GetRootParameterIndex("sdfTexture"), component->GetFontTextureHandle());
 
         component->Render(commandList);

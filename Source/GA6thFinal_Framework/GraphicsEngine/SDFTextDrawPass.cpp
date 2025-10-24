@@ -5,16 +5,6 @@
 #include "SDFFont.h"
 #include "FrameResource.h"
 
-struct SDFParams
-{
-    unsigned int InstanceID;
-    unsigned int Flags;
-    float        DistanceRange;
-    float        FontWeight;
-    Vector3      OutlineColor;
-    float        OutlineWidth;
-};
-
 SDFTextDrawPass::SDFTextDrawPass(const std::vector<UINT>* instanceIDs)
     : UIPassBase(instanceIDs)
 {
@@ -88,7 +78,7 @@ void SDFTextDrawPass::Draw(ID3D12GraphicsCommandList* commandList)
         sdfParams.OutlineWidth  = outline.Width;
 
         commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_4_fontColor"), 4, &component->GetColor(), 0);
-        commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_8_sdfParams"), 8, &sdfParams, 0);
+        commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_9_sdfParams"), 9, &sdfParams, 0);
         commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("sdfTexture"), component->GetFontTextureHandle());
 
         component->Render(commandList);
