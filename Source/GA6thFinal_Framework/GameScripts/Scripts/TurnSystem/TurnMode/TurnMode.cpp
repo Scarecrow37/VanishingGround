@@ -294,7 +294,12 @@ int TurnMode::GetRealRoundSpeed(const std::pair<int, TurnActor*>& turnActor)
     return roundSpeed;
 }
 
-void TurnMode::Reset() 
+void TurnMode::CallAddedAction(TurnAction* action) 
+{
+    action->OnAddedAction();
+}
+
+void TurnMode::Reset()
 {
     _singletonComponent.SetSingleTon();
 }
