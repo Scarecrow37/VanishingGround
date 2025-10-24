@@ -190,7 +190,7 @@ void CharacterBase::Heal(int amount)
             gameObject->ToString(),
             (const char*)u8"체력이 ",
             amount,
-            (const char*)u8"회복"
+            (const char*)u8" 회복"
         );
         UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
     }
