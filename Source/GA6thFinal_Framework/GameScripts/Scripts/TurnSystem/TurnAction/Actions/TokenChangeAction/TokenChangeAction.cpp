@@ -102,6 +102,11 @@ void TokenChangeAction::TryTokenSystemInfo()
     {
         if (TokenSystem* system = SingletonComponent<TokenSystem>::GetInstance())
         {
+            const std::string& name = system->GetTokenNameFromID(ReflectFields->TokenID);
+            if (name.empty())
+            {
+                ReflectFields->TokenID = TokenObject::Bleed::ID;
+            }
             _validTokenSystem = true;
             UpdateActionInfo();
         }
