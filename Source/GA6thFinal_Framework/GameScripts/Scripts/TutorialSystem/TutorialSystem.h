@@ -35,7 +35,15 @@ public:
     TutorialSystem();
 
 public:
-    REFLECT_PROPERTY()
+    REFLECT_PROPERTY(IsShown)
+
+    GETTER_ONLY(bool, IsShown)
+    {
+        if (const auto panelComponent = _panel.lock())
+            return panelComponent->ActiveInHierarchy;
+        return false;
+    }
+    PROPERTY(IsShown)
 
 public:
     void Show(int id) const;
