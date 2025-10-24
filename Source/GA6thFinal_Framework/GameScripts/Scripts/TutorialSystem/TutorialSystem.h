@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "Utility/SingletonHelper.h"
 
+class HoldingProgressImageElement;
 class DescriptionPanel;
 class TextElement;
 class ImageElement;
@@ -13,7 +14,7 @@ struct Tutorial
     File::Guid  Image;
 };
 
-class TutorialSystem : public Component
+class TutorialSystem : public Component, public InputReceiver
 {
     USING_PROPERTY(TutorialSystem)
 
@@ -21,6 +22,7 @@ class TutorialSystem : public Component
     static constexpr std::string_view OBJECT_TAG_TITLE       = "Tutorial Title";
     static constexpr std::string_view OBJECT_TAG_DESCRIPTION = "Tutorial Description";
     static constexpr std::string_view OBJECT_TAG_IMAGE       = "Tutorial Image";
+    static constexpr std::string_view OBJECT_TAG_CONFIRM     = "Tutorial Confirm";
 
     static constexpr std::u8string_view SHEET_NAME             = u8"튜토리얼 텍스트";
     static constexpr std::u8string_view COLUMN_KEY_ID          = u8"ID";
@@ -35,18 +37,22 @@ public:
 public:
     REFLECT_PROPERTY()
 
+public:
+    void Show(int id) const;
+    void Show(std::span<int> ids);
+    void Hide() const;
+
 protected:
     void Awake() override;
     void Start() override;
-
     void ImGuiDrawPropertysEvent() override;
 
 private:
     void FindComponents();
-
-    void Hide() const;
-
     void SetupData();
+    void SetupCallback() const;
+    void HoldA(const Input::Controller& controller);
+    void ReleaseA(const Input::Controller& controller);
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
@@ -57,9 +63,11 @@ private:
     SingletonComponent<TutorialSystem> _singletonComponent{this};
 
     std::unordered_map<int, Tutorial> _tutorials;
+    std::deque<int>                    _pendingTutorials;
 
-    std::weak_ptr<GameObject>       _panel;
-    std::weak_ptr<TextElement>      _title;
-    std::weak_ptr<DescriptionPanel> _description;
-    std::weak_ptr<ImageElement>     _image;
+    std::weak_ptr<GameObject>                  _panel;
+    std::weak_ptr<TextElement>                 _title;
+    std::weak_ptr<DescriptionPanel>            _description;
+    std::weak_ptr<ImageElement>                _image;
+    std::weak_ptr<HoldingProgressImageElement> _confirm;
 };

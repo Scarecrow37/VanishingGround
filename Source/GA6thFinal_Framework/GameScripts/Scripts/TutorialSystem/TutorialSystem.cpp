@@ -5,6 +5,7 @@
 #include "UI/Elements/Text/TextElement.h"
 #include "UI/Panels/Description/DescriptionPanel.h"
 #include "UI/Elements/Image/ImageElement.h"
+#include "UI/Elements/HoldingProgressImage/HoldingProgressImageElement.h"
 
 UMREAL_COMPONENT(TutorialSystem)
 
@@ -18,6 +19,9 @@ void TutorialSystem::Awake()
     {
         _singletonComponent.TrySingleTon();
     }
+
+    BindInputAction(ControllerButton::A, Action::PRESSED, this, &TutorialSystem::HoldA);
+    BindInputAction(ControllerButton::A, Action::RELEASED, this, &TutorialSystem::ReleaseA);
 }
 
 void TutorialSystem::Start()
@@ -28,6 +32,7 @@ void TutorialSystem::Start()
     Hide();
 
     SetupData();
+    SetupCallback();
 }
 
 void TutorialSystem::ImGuiDrawPropertysEvent()
@@ -72,6 +77,53 @@ void TutorialSystem::FindComponents()
     _title       = GameObject::FindComponentWithTag<TextElement>(OBJECT_TAG_TITLE);
     _description = GameObject::FindComponentWithTag<DescriptionPanel>(OBJECT_TAG_DESCRIPTION);
     _image       = GameObject::FindComponentWithTag<ImageElement>(OBJECT_TAG_IMAGE);
+    _confirm     = GameObject::FindComponentWithTag<HoldingProgressImageElement>(OBJECT_TAG_CONFIRM);
+}
+
+void TutorialSystem::Show(const int id) const
+{
+    try
+    {
+        const auto [isCompleted, title, description, image] = _tutorials.at(id);
+
+        if (isCompleted) return;
+
+        if (const auto titleComponent = _title.lock())
+        {
+            titleComponent->Text = title;
+        }
+
+        if (const auto descriptionComponent = _description.lock())
+        {
+            descriptionComponent->Description = description;
+        }
+
+        if (const auto imageComponent = _image.lock())
+        {
+            imageComponent->SetImage(image);
+        }
+
+        if (const auto panelComponent = _panel.lock())
+        {
+            panelComponent->SetActive(true);
+        }
+    }
+    catch (std::out_of_range& exception)
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, "Tutorial ID not found.");
+    }
+}
+
+void TutorialSystem::Show(const std::span<int> ids)
+{
+    _pendingTutorials.clear();
+    _pendingTutorials = std::deque(ids.begin(), ids.end());
+    if (!_pendingTutorials.empty())
+    {
+        const int nextId = _pendingTutorials.front();
+        _pendingTutorials.pop_front();
+        Show(nextId);
+    }
 }
 
 void TutorialSystem::Hide() const
@@ -125,5 +177,40 @@ void TutorialSystem::SetupData()
     else
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, "Excel Data System is not existed.");
+    }
+}
+
+void TutorialSystem::SetupCallback() const
+{
+    if (const std::shared_ptr<HoldingProgressImageElement> confirm = _confirm.lock())
+    {
+        confirm->BindProgressComplete([this] {
+            if (_pendingTutorials.empty())
+            {
+                Hide();
+            }
+            else
+            {
+                const int nextId = _pendingTutorials.front();
+                _pendingTutorials.pop_front();
+                Show(nextId);
+            }
+        });
+    }
+}
+
+void TutorialSystem::HoldA(const Input::Controller& controller)
+{
+    if (const std::shared_ptr<HoldingProgressImageElement> confirm = _confirm.lock())
+    {
+        confirm->BeginHold();
+    }
+}
+
+void TutorialSystem::ReleaseA(const Input::Controller& controller)
+{
+    if (const std::shared_ptr<HoldingProgressImageElement> confirm = _confirm.lock())
+    {
+        confirm->EndHold();
     }
 }
