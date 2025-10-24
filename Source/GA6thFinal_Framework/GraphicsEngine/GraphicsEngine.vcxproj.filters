@@ -106,6 +106,9 @@
     <FxCompile Include="..\Shaders\ps_sdf_font.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\ps_sdf_font_oit.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
     <FxCompile Include="..\Shaders\ps_shadow.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
@@ -1094,22 +1097,16 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="UI3DPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="UI25DPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="UI25DPass_OIT.h">
-    <ClInclude Include="UnorderedAccessView.h">
-    <ClInclude Include="UnorderedAccessView.h">
-    <ClInclude Include="UnorderedAccessView.h">
-    <ClInclude Include="UnorderedAccessView.h">
-    <ClInclude Include="UnorderedAccessView.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="UIPassBase.h">
-    </ClInclude>
-    </ClInclude>
-    </ClInclude>
-    </ClInclude>
+      <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="UIResolvePass.h">
       <Filter>헤더 파일</Filter>
@@ -1139,10 +1136,7 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="CustomShaderPass.h">
-    </ClInclude>
-    </ClInclude>
-    </ClInclude>
-    </ClInclude>
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
