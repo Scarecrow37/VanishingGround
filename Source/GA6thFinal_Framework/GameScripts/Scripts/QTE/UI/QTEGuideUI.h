@@ -8,16 +8,13 @@ namespace QTE
 {
     struct GuideUI
     {
-        enum
-        {
-            X,
-            Y,
-            B,
-            BUTTON_COUNT,
-        };
+        enum { X, Y, B, BUTTON_COUNT, };
+
         OverlayPanel* Overlay;
         std::array<ImageElement*, BUTTON_COUNT> GuideButton;
         std::array<TextElement*,  BUTTON_COUNT> GuideText;
+
+        // TODO: 상단에 누른 버튼들 표시하는 UI 추가해야함.
 
         // 해당 오브젝트에 자신의 멤버가 있으면 매칭합니다.
         void MatchUIFromObject(GameObject& object);

@@ -38,10 +38,10 @@ public:
     }
     PROPERTY(ScaledSpeedFactor)
 
-    GETTER_ONLY(float, CurrentTrackTime) { return _qteTimer; }
+    GETTER_ONLY(float, CurrentTrackTime) { return _currTime; }
     PROPERTY(CurrentTrackTime)
 
-    GETTER_ONLY(float, MaxTracktime) { return _qteMaxTime; }
+    GETTER_ONLY(float, MaxTracktime) { return _totalTime; }
     PROPERTY(MaxTracktime)
 
     GETTER_ONLY(bool, IsPlaying) { return _currState != QTE::STATE_WAITING; }
@@ -69,6 +69,7 @@ public:
     /// <summary>QTE를 일시정지하거나 재개합니다. QTE플레이 중이 아니라면 무시됩니다.</summary>
     void PauseQTE(bool pause);
 
+public:
     /// <summary>QTE 키 바인드 상태를 초기화합니다.</summary>
     void ClearKeyBindState();
     /// <summary>QTE 키 바인드 상태를 Push합니다.</summary>
@@ -76,15 +77,17 @@ public:
     /// <summary>QTE 키 바인드 상태를 Pop합니다.</summary>
     void PopKeyBindState();
 
+public:
     /// <summary>QTE 콜백을 등록합니다.</summary>
     QTE::Callback::Handle RegisterCallback(const QTE::Callback& callback);
     /// <summary>QTE 콜백을 해제합니다.</summary>
     bool UnRegisterCallback(QTE::Callback::Handle handle);
 
+public:
     inline QTE::PlayState                    GetPlayState() const { return _currState; }
     inline const QTE::KeyBinder&             GetKeyBinder() const { return _keyBinder; }
     inline QTE::OverallResult&               GetQTEOverallResult() { return _overallResult; }
-    inline QTE::Track*                       GetCurrentQTETrack() { return _currentQTETrack; }
+    inline QTE::Track*                       GetCurrentQTETrack() const { return _currentQTETrack; }
     inline const std::vector<QTE::NoteData>& GetCurrentQTEAvailQueue() const { return _noteAvailQueue; }
     inline const TrackTable&                 GetWeaponIDToTrackTable() const { return _weaponIDToTrackTable; }
 
@@ -159,9 +162,9 @@ private:
     QTE::OverallResult              _overallResult;                     // QTE 최종 결과
     ControllerState                 _nextKeyEvent = {nullptr, Input::ControllerTypes::UNDEFINED};
 
-    float                           _qteTimer           = 0.0f;                     // QTE 타이머
-    float                           _qteMaxTime         = 0.0f;                     // QTE 최대 시간
-    bool                            _qtePaused          = false;                    // QTE 일시정지 여부
+    float                           _currTime           = 0.0f;                     // QTE 타이머
+    float                           _totalTime         = 0.0f;                     // QTE 최대 시간
+    bool                            _isPaused          = false;                    // QTE 일시정지 여부
 
     REFLECT_FIELDS_BEGIN(Component)
     float                   QTESpeedScale       = 1.0f;                         // QTE 속도 배율

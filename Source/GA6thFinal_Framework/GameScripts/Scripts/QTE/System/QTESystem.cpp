@@ -247,8 +247,8 @@ void QTESystem::StartQTE(QTE::Track* qteTrack)
             assert(track && "QTE를 진행하기 위한 트랙이 없습니다.");
             if (track)
             {
-                _qteTimer   = track->GetMinFrame() - GetDelayFromQTEStart();
-                _qteMaxTime = track->GetMaxFrame();
+                _currTime   = track->GetMinFrame() - GetDelayFromQTEStart();
+                _totalTime = track->GetMaxFrame();
                 // 유효한 노트 큐 생성
                 auto& noteQueue = track->GetEventContextQueue();
                 _noteAvailQueue.reserve(noteQueue.size());
@@ -293,8 +293,8 @@ void QTESystem::StartQTE(const WeaponStats* weapon)
 
                 _overallResult.NoteResults[i] = &_noteAvailQueue[i];
             }
-            _qteTimer   = -GetDelayFromQTEStart();
-            _qteMaxTime = totalTime + 1.0f;
+            _currTime  = -GetDelayFromQTEStart();
+            _totalTime = totalTime + 1.0f;
             ProcessQTEEnterEvent();
         }
     }
@@ -310,10 +310,7 @@ void QTESystem::StopQTE()
 
 void QTESystem::PauseQTE(const bool pause) 
 {
-    if (IsPlaying)
-    {
-        _qtePaused = pause;
-    }
+    _isPaused = pause;
 }
 
 void QTESystem::ClearKeyBindState() 
@@ -345,7 +342,7 @@ QTE::ResultType QTESystem::GetQTEResult(const float noteTime)
 {
     auto [perfectMin, perfectMax] = ReflectFields->PerfectJudgeRange;
     auto [normalMin, normalMax]   = ReflectFields->NormalJudgeRange;
-    float noteDelta               = _qteTimer - noteTime;
+    float noteDelta               = _currTime - noteTime;
 
     // 집중 토큰이 있다면 치명타 범위가 일격 범위랑 같아짐.
     if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
@@ -378,9 +375,10 @@ QTE::ResultType QTESystem::GetQTEResult(const float noteTime)
 
 void QTESystem::ResetQTEState() 
 {
-    _currState           = QTE::STATE_WAITING;
-    _qteTimer            = 0.0f;
-    _qteMaxTime          = 0.0f;
+    _currState  = QTE::STATE_WAITING;
+    _prevState  = QTE::STATE_WAITING;
+    _currTime   = 0.0f;
+    _totalTime  = 0.0f;
     PauseQTE(false);
     ClearQueue();
 }
@@ -409,24 +407,24 @@ void QTESystem::ClearQueue()
 
 void QTESystem::UpdateQTETrack()
 {
-    if (false == _qtePaused)
+    if (false == _isPaused)
     {
-        _qteTimer += UmTime.DeltaTime();
+        _currTime += UmTime.DeltaTime();
     }
-    if (_qteTimer < _qteMaxTime && _currentNoteIndex < _noteAvailQueue.size())
+    if (_currTime < _totalTime && _currentNoteIndex < _noteAvailQueue.size())
     {
         const QTE::NoteData& curNote = _noteAvailQueue[_currentNoteIndex];
         auto& [validMin, validMax]   = ReflectFields->ValidJudgeRange;
 
         // 디버깅 용도. (노트랑 완벽히 같은 시간으로 설정 후 클릭 이벤트 보내기.)
-        //if (curNote.Time < _qteTimer)
+        //if (curNote.Time < _currTime)
         //{
-        //    _qteTimer = curNote.Time;
+        //    _currTime = curNote.Time;
         //    PressedQTEButton(Input::Controller::Button::B);
         //    // 잘나오는데요??? 걍 렉때메 판정이 이상해보임.
         //}
 
-        if (_qteTimer > curNote.Time + validMax)
+        if (_currTime > curNote.Time + validMax)
         {
             PressedQTEButton(); // 최대 일격 판정 시간이 지나갔는데 버튼을 누르지 않은 경우, MISS 처리
         }
@@ -461,7 +459,7 @@ bool QTESystem::CanPressQTEButton()
 bool QTESystem::CanPressQTEButton(const float noteTime)
 {
     auto& [min, max] = ReflectFields->ValidJudgeRange;
-    float noteDelta  = _qteTimer - noteTime;
+    float noteDelta  = _currTime - noteTime;
     if (noteDelta >= min && noteDelta <= max)
     {
         return true;
@@ -484,7 +482,7 @@ void QTESystem::PressedQTEButton(const Input::Controller::Button buttonType)
 
         result.NoteData      = &curNote;
         result.Result        = GetQTEResult(curNote.Time);
-        result.TimeDelta     = _qteTimer - curNote.Time;
+        result.TimeDelta     = _currTime - curNote.Time;
         result.PressedButton = buttonType;
 
         auto& inputSystem = ESceneManager::Engine::GetInputSystem();

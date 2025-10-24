@@ -70,10 +70,10 @@ void QTEUIManager::OnQTEPlay()
             const POINT judgeCenter = _fieldUI.JudgeNote->AbsoluteCenterPoint;
             const SIZE  judgeSize   = _fieldUI.JudgeNote->Size;
 
-            const float startX   = static_cast<float>(overlayRect.left);
-            const float endX     = static_cast<float>(overlayRect.right);
-            const float perfectX = static_cast<float>(judgeCenter.x);
-            const float offsetX  = static_cast<float>(-panelSize.cx / 2); // Center 정렬이므로 화면의 절반을 오프셋으로 옮김
+            const float startX      = static_cast<float>(overlayRect.left);
+            const float endX        = static_cast<float>(overlayRect.right);
+            const float perfectX    = static_cast<float>(judgeCenter.x);
+            const float offsetX     = static_cast<float>(-panelSize.cx / 2); // Center 정렬이므로 화면의 절반을 오프셋으로 옮김
 
             for (auto& [id,_] : _activedNote)
             {
@@ -101,7 +101,7 @@ void QTEUIManager::Reset()
             {
                 DragDropAsset::Data* data      = static_cast<DragDropAsset::Data*>(payLoad->Data);
                 const File::Path&    path      = data->GetPath();
-                const File::Path&    extension = path.extension();
+                const File::Path     extension = path.extension();
                 if (extension == L".UmPrefab")
                 {
                     SetNotePrefabGuid(data->GetGuid());
