@@ -56,6 +56,13 @@ struct MVP
     float3 Pad3;
 };
 
+struct TessParams
+{
+    uint TessFactor;
+    uint TotalSegments;
+    uint EmitterCount;
+    uint _pad1;
+};
 
 
 // 빌보딩 행렬 계산 함수
@@ -93,3 +100,34 @@ float4x4 CreateScaleMatrix(float4 scale)
     0, 0, scale.z, 0,
     0, 0, 0, 1);
 }
+
+
+
+// ============================================================
+// Catmull–Rom (float 스칼라) 기본 폴리노미얼~이다
+// p0,p1,p2,p3는 연속 제어점, t ∈ [0,1]은 구간 [p1,p2]의 로컬 파라미터~이다
+// ============================================================
+inline float CatmullRom(float t, float p0, float p1, float p2, float p3)
+{
+    float t2 = t * t;
+    float t3 = t2 * t;
+    float a0 = -0.5f * p0 + 1.5f * p1 - 1.5f * p2 + 0.5f * p3;
+    float a1 = p0 - 2.5f * p1 + 2.0f * p2 - 0.5f * p3;
+    float a2 = -0.5f * p0 + 0.5f * p2;
+    float a3 = p1;
+    return a0 * t3 + a1 * t2 + a2 * t + a3;
+}
+
+// ============================================================
+// (float3) Catmull–Rom: Vector3 버전 (C++의 Vector3::CatmullRom 대응)~이다
+// ============================================================
+inline float3 CatmullRom(float u, float3 p0, float3 p1, float3 p2, float3 p3)
+{
+    return float3(
+        CatmullRom(u, p0.x, p1.x, p2.x, p3.x),
+        CatmullRom(u, p0.y, p1.y, p2.y, p3.y),
+        CatmullRom(u, p0.z, p1.z, p2.z, p3.z)
+    );
+}
+
+

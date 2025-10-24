@@ -141,7 +141,6 @@ struct ParticleUpdateResource
     std::vector<UINT>                     RibbonActiveEmitterAlbedos;
     std::vector<std::vector<RibbonIndex>> RibbonIndices;
     UINT                                  RibbonTotalCount = 0;
-    std::vector<std::vector<RibbonIndex>> RibbonIndicesRawBackup;
 
 
     ComPtr<ID3D12Resource> ParticleInput;
@@ -176,10 +175,6 @@ struct ParticleRenderResource
     ComPtr<ID3D12Resource> RibbonEmitOffsets;       // SRV: uint[]
     ComPtr<ID3D12Resource> RibbonEmitOffsetsUpload; // UPLOAD
 
-    //  - 세분화 "출력" 버퍼에서 각 에미터의 시작 오프셋 (prefix 결과)
-    ComPtr<ID3D12Resource> RibbonEmitStarts;       // SRV: uint[]
-    ComPtr<ID3D12Resource> RibbonEmitStartsUpload; // UPLOAD
-
     // 세분화 출력 최대 수용량
     UINT RibbonInterpolatedCapacity = 0;
 };
@@ -191,4 +186,11 @@ struct ParticleSceneResource
     ComPtr<ID3D12CommandAllocator>          CommandAllocator;
     std::shared_ptr<ParticleUpdateResource> UpdateParticleResource;
     std::unique_ptr<ParticleRenderResource> RenderParticleResource;
+};
+
+ struct PairIdx
+{
+    UINT  top;
+    UINT  bot;
+    float ratio;
 };

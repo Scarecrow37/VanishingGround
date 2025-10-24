@@ -273,18 +273,22 @@ void ParticleManager::Update(const float deltaTime)
             scene.CommandList->SetComputeRootSignature(computeRibbonFX.GetRootSignature());
             DispatchRibbon(deltaTime, scene.Name);
 
-            // --- NEW: CS 기반 리본 테셀 (고정 팩터 6) ---
-            {
-                constexpr UINT kTessFactorFixed = 12;
+            //// --- NEW: 리본 보간 CS (고정 팩터 예: 12) ---
+            //{
+            //    constexpr UINT tessFactorFixed = 12;
 
-                // CS → CS 순서 보장
-                auto uavBarrier = CD3DX12_RESOURCE_BARRIER::UAV(nullptr);
-                scene.CommandList->ResourceBarrier(1, &uavBarrier);
+            //    // 직전 Ribbon CS의 UAV 쓰기 → 읽기 순서 보장
+            //    auto uavBarrier = CD3DX12_RESOURCE_BARRIER::UAV(nullptr);
+            //    scene.CommandList->ResourceBarrier(1, &uavBarrier);
 
-                UINT totalSegments = 0;
-                PrepareRibbonTessInputsCPU(scene, kTessFactorFixed, totalSegments);
-                DispatchRibbonInterpolateCS(scene, kTessFactorFixed, totalSegments);
-            }
+            //    // CPU에서 보간용 입력(Concat/Offsets/Starts)과
+            //    // 드로우용 보간 인덱스를 재작성(업로드까지)
+            //    UINT totalSegments = 0;
+            //    PrepareRibbonTessInputsCPU(scene, tessFactorFixed, totalSegments);
+
+            //    // 보간 CS 디스패치 (내부에서 PSO/RS 셋업 및 상태 전이)
+            //    DispatchRibbonInterpolateCS(scene, tessFactorFixed, totalSegments);
+            //}
 
             scene.CommandList->Close();
             Global::commandController->ExecuteCommand(COMPUTE_QUEUE, scene.CommandList.Get());
@@ -396,7 +400,8 @@ ID3D12Resource* ParticleManager::GetRibbonOutputResource(std::string_view sceneN
     auto it    = _sceneResources.find(sName);
     if (it != _sceneResources.end())
     {
-        return it->second.RenderParticleResource->RibbonInterpolatedOutput.Get();
+        //return it->second.RenderParticleResource->RibbonInterpolatedOutput.Get();
+        return it->second.RenderParticleResource->RibbonSimulationOutput.Get();
     }
     return nullptr;
 }
@@ -727,30 +732,42 @@ void ParticleManager::AwakeParticles(float deltaTime, const std::shared_ptr<Part
                              ribbonModule->GetEndNormal(), ribbonModule->GetRibbonVector()});
 
                         const auto& particlePool = emitter->GetParticlePool();
-                        UINT activeCount = emitter->GetActiveParticleCount();
+                        UINT        activeCount  = emitter->GetActiveParticleCount();
 
                         if (activeCount > 0)
                         {
-                            std::vector<RibbonIndex> emitterIndices;
-                            emitterIndices.reserve(activeCount * 2);
-                            float lifetime = emitter->GetParticleLifetime();
+                            std::vector<PairIdx> pairs;
+                            pairs.reserve(activeCount);
+
+                            const float lifetime = emitter->GetParticleLifetime();
 
                             for (UINT i = 0; i < activeCount; ++i)
                             {
                                 Particle particle = particlePool[i];
                                 particle.SetEmitterIndex(ribbonEmitterIndex);
-                                scene->RibbonTotalParticles.push_back(particle);
-                                emitterIndices.push_back({ribbonparticleIndex++, particle.GetAge() / lifetime});
-                                emitterIndices.push_back({ribbonparticleIndex++, particle.GetAge() / lifetime});
-                            }
-                            std::sort(
-                                emitterIndices.begin(), emitterIndices.end(),
-                                [](const RibbonIndex& a, const RibbonIndex& b) -> bool { return a.Ratio < b.Ratio; });
 
-                            if (!emitterIndices.empty())
-                            {
-                                scene->RibbonIndices.push_back(std::move(emitterIndices));
+                                const UINT baseVertex = static_cast<UINT>(scene->RibbonTotalParticles.size()) * 2u;
+                                scene->RibbonTotalParticles.push_back(particle);
+
+                                const float ratio = particle.GetAge() / lifetime;
+                                pairs.push_back({baseVertex + 0, baseVertex + 1, ratio});
                             }
+
+                            // 쌍 단위 정렬: ratio 오름차순 (필요하면 2차키로 정적 순서 유지)
+                            std::sort(pairs.begin(), pairs.end(),
+                                      [](const PairIdx& a, const PairIdx& b) { return a.ratio < b.ratio; });
+
+                            // TriangleStrip 규칙으로 평탄화: [Top_i, Bottom_i, Top_{i+1}, Bottom_{i+1}, ...]
+                            std::vector<RibbonIndex> emitterIndices;
+                            emitterIndices.reserve(pairs.size() * 2);
+
+                            for (const auto& pr : pairs)
+                            {
+                                emitterIndices.push_back({pr.top, pr.ratio});
+                                emitterIndices.push_back({pr.bot, pr.ratio});
+                            }
+
+                            scene->RibbonIndices.push_back(std::move(emitterIndices));
                         }
                         ribbonEmitterIndex++;
                     }
@@ -759,7 +776,7 @@ void ParticleManager::AwakeParticles(float deltaTime, const std::shared_ptr<Part
         }
     }
     scene->TotalCount = (UINT)scene->TotalParticles.size();
-    scene->RibbonTotalCount = (UINT)(scene->RibbonTotalParticles.size() * 2);
+    scene->RibbonTotalCount = static_cast<UINT>(scene->RibbonTotalParticles.size() * 2u);
 }
 
 void ParticleManager::UpdateAndCopyParticleResource(float deltaTime, const std::shared_ptr<ParticleUpdateResource>& scene)
@@ -957,14 +974,18 @@ void ParticleManager::RefreshCurrentEditorEffect()
 
 void ParticleManager::CreateRibbonTessResources(ParticleSceneResource& scene, UINT tessFactorFixed) noexcept
 {
-    auto&      rnd                 = *scene.RenderParticleResource;
-    const UINT cap                 = _maxParticles * tessFactorFixed;
+    auto& rnd = *scene.RenderParticleResource;
+
+    const UINT cap                 = _maxParticles * tessFactorFixed * 2u;
     rnd.RibbonInterpolatedCapacity = cap;
 
+    // 세분화 결과 (UAV/SRV: ParticleOutput[])
     CreateUAVBuffer(rnd.RibbonInterpolatedOutput, cap * sizeof(ParticleOutput), sizeof(ParticleOutput));
-    CreateStructuredBuffer(rnd.RibbonConcatIndices, rnd.RibbonConcatIndicesUpload, _maxParticles * sizeof(UINT), sizeof(UINT));
-    CreateStructuredBuffer(rnd.RibbonEmitOffsets, rnd.RibbonEmitOffsetsUpload, (_maxEmitters + 1) * sizeof(UINT), sizeof(UINT));
-    CreateStructuredBuffer(rnd.RibbonEmitStarts, rnd.RibbonEmitStartsUpload, _maxEmitters * sizeof(UINT), sizeof(UINT));
+
+    CreateStructuredBuffer(rnd.RibbonConcatIndices, rnd.RibbonConcatIndicesUpload, _maxParticles * sizeof(UINT),
+                           sizeof(UINT));
+    CreateStructuredBuffer(rnd.RibbonEmitOffsets, rnd.RibbonEmitOffsetsUpload, (_maxEmitters + 1) * sizeof(UINT),
+                           sizeof(UINT));
 }
 
 void ParticleManager::PrepareRibbonTessInputsCPU(ParticleSceneResource& scene, UINT tessFactorFixed,
@@ -974,8 +995,7 @@ void ParticleManager::PrepareRibbonTessInputsCPU(ParticleSceneResource& scene, U
     auto& rnd = *scene.RenderParticleResource;
 
     // 0) 원본 인덱스 백업(드로우용으로 upd.RibbonIndices를 다시 쓸 것이므로)
-    scene.UpdateParticleResource->RibbonIndicesRawBackup = upd.RibbonIndices;
-    const auto& raw                                      = scene.UpdateParticleResource->RibbonIndicesRawBackup;
+    const auto& raw                                      = upd.RibbonIndices;
 
     const size_t emitterCount = raw.size();
 
@@ -999,41 +1019,9 @@ void ParticleManager::PrepareRibbonTessInputsCPU(ParticleSceneResource& scene, U
         concatCursor += src.size();
 
         const UINT N        = static_cast<UINT>(src.size());     // 원본 포인트 수
-        const UINT anchors  = (N >= 2) ? (N >> 1) : 0;           // 쌍 수
-        const UINT segCount = (anchors > 1) ? (anchors - 1) : 0; // 세그먼트 수
-
-        outTotalSegments += segCount;
+        outTotalSegments += N;
     }
     emitOffsets[emitterCount] = static_cast<UINT>(concatIndices.size()); // 가드
-
-    // 2) 출력 시작(prefix): Σ_e (segCount_e * F * 2)  ← *2: (Top,Bottom)
-    UINT outPrefix = 0;
-    for (size_t e = 0; e < emitterCount; ++e)
-    {
-        const UINT N        = static_cast<UINT>(raw[e].size());
-        const UINT anchors  = (N >= 2) ? (N >> 1) : 0;
-        const UINT segCount = (anchors > 1) ? (anchors - 1) : 0;
-
-        emitStarts[e] = outPrefix;
-        outPrefix += segCount * tessFactorFixed * 2;
-    }
-
-    // 3) 드로우용 인덱스 재구성(연속 인덱스)
-    upd.RibbonIndices.resize(emitterCount);
-    for (size_t e = 0; e < emitterCount; ++e)
-    {
-        const UINT N        = static_cast<UINT>(raw[e].size());
-        const UINT anchors  = (N >= 2) ? (N >> 1) : 0;
-        const UINT segCount = (anchors > 1) ? (anchors - 1) : 0;
-
-        const UINT outCount = segCount * tessFactorFixed * 2; // *2: Top/Bottom
-        const UINT outStart = emitStarts[e];
-
-        auto& dst = upd.RibbonIndices[e];
-        dst.resize(outCount);
-        for (UINT i = 0; i < outCount; ++i)
-            dst[i].Index = outStart + i; // 0..outCount-1 + emitter 시작 오프셋
-    }
 
     // 4) GPU 업로드
     UploadStructuredBuffer(scene.CommandList.Get(), rnd.RibbonConcatIndices, rnd.RibbonConcatIndicesUpload,
@@ -1042,54 +1030,59 @@ void ParticleManager::PrepareRibbonTessInputsCPU(ParticleSceneResource& scene, U
     UploadStructuredBuffer(scene.CommandList.Get(), rnd.RibbonEmitOffsets, rnd.RibbonEmitOffsetsUpload,
                            emitOffsets.data(), static_cast<UINT>(emitOffsets.size() * sizeof(UINT)));
 
-    UploadStructuredBuffer(scene.CommandList.Get(), rnd.RibbonEmitStarts, rnd.RibbonEmitStartsUpload, emitStarts.data(),
-                           static_cast<UINT>(emitStarts.size() * sizeof(UINT)));
 }
 
 void ParticleManager::DispatchRibbonInterpolateCS(ParticleSceneResource& scene, UINT tessFactorFixed, UINT totalSegments)
 {
-    if (totalSegments == 0)
+    if (totalSegments >= 6)
         return;
 
     auto* commandList  = scene.CommandList.Get();
     auto& rnd = *scene.RenderParticleResource;
 
-    // PSO/RS 설정 (일원화: 여기에서 수행)
-    commandList -> SetPipelineState(_computeRibbonInterpolatePSO.Get());
-    commandList -> SetComputeRootSignature(computeRibbonInterpolateFX.GetRootSignature());
+    // 보간 출력 버퍼: COMMON -> UAV
+    auto toUav = CD3DX12_RESOURCE_BARRIER::Transition(rnd.RibbonInterpolatedOutput.Get(), D3D12_RESOURCE_STATE_COMMON,
+                                                      D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+    commandList->ResourceBarrier(1, &toUav);
+
+    // PSO/RS
+    commandList->SetPipelineState(_computeRibbonInterpolatePSO.Get());
+    commandList->SetComputeRootSignature(computeRibbonInterpolateFX.GetRootSignature());
 
     // 바인딩: t0 InPoints, t1 ConcatIdx, t2 EmitOffsets, t3 EmitStarts, u0 OutPoints
-    commandList -> SetComputeRootShaderResourceView(computeRibbonInterpolateFX.GetRootParameterIndex("InPoints"),
-                                         rnd.RibbonSimulationOutput->GetGPUVirtualAddress());
-
-    commandList -> SetComputeRootShaderResourceView(computeRibbonInterpolateFX.GetRootParameterIndex("ConcatIdx"),
-                                         rnd.RibbonConcatIndices->GetGPUVirtualAddress());
-
-    commandList -> SetComputeRootShaderResourceView(computeRibbonInterpolateFX.GetRootParameterIndex("EmitOffsets"),
-                                         rnd.RibbonEmitOffsets->GetGPUVirtualAddress());
-
-    commandList -> SetComputeRootShaderResourceView(computeRibbonInterpolateFX.GetRootParameterIndex("EmitStarts"),
-                                         rnd.RibbonEmitStarts->GetGPUVirtualAddress());
-
-    commandList -> SetComputeRootUnorderedAccessView(computeRibbonInterpolateFX.GetRootParameterIndex("OutPoints"),
+    commandList->SetComputeRootShaderResourceView(computeRibbonInterpolateFX.GetRootParameterIndex("InPoints"),
+                                                  rnd.RibbonSimulationOutput->GetGPUVirtualAddress());
+    commandList->SetComputeRootShaderResourceView(computeRibbonInterpolateFX.GetRootParameterIndex("ConcatIdx"),
+                                                  rnd.RibbonConcatIndices->GetGPUVirtualAddress());
+    commandList->SetComputeRootShaderResourceView(computeRibbonInterpolateFX.GetRootParameterIndex("EmitOffsets"),
+                                                  rnd.RibbonEmitOffsets->GetGPUVirtualAddress());
+    commandList->SetComputeRootUnorderedAccessView(computeRibbonInterpolateFX.GetRootParameterIndex("OutPoints"),
                                           rnd.RibbonInterpolatedOutput->GetGPUVirtualAddress());
 
-    // 32-bit 상수: TessFactor, TotalSegments
+    // 32-bit 상수
     struct TessParams
     {
         UINT TessFactor;
         UINT TotalSegments;
-        UINT _pad0;
+        UINT EmitterCount;
         UINT _pad1;
     } tp;
     tp.TessFactor    = tessFactorFixed;
     tp.TotalSegments = totalSegments;
-    commandList -> SetComputeRoot32BitConstants(computeRibbonInterpolateFX.GetRootParameterIndex("bit32_4_tessellationParams"), 4, &tp, 0);
+    tp.EmitterCount  = scene.UpdateParticleResource->RibbonIndices.size();
+    commandList->SetComputeRoot32BitConstants(
+        computeRibbonInterpolateFX.GetRootParameterIndex("bit32_4_tessellationParams"), 4, &tp, 0);
 
-    // 한 세그먼트당 1 스레드
+    // 디스패치
     const UINT kGroupSize = 128u;
     const UINT gx         = (totalSegments + (kGroupSize - 1u)) / kGroupSize;
-    commandList -> Dispatch(gx, 1, 1);
+    commandList->Dispatch(gx, 1, 1);
+
+    // UAV → SRV(NON_PIXEL_SHADER_RESOURCE)로 전이 (리본패스에서 SRV로 읽음)
+    auto toSrv =
+        CD3DX12_RESOURCE_BARRIER::Transition(rnd.RibbonInterpolatedOutput.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+                                             D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+    commandList->ResourceBarrier(1, &toSrv);
 }
 void ParticleManager::UploadStructuredBuffer(ID3D12GraphicsCommandList* commandList, ComPtr<ID3D12Resource>& defaultRes, ComPtr<ID3D12Resource>& uploadRes, const void* src, UINT byteSize)
 {

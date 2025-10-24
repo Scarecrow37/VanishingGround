@@ -80,6 +80,12 @@ void ParticleRibbonPass::Draw(ID3D12GraphicsCommandList* commandList)
     // PostProcess 데이터
     PostProcessData postProcessData{.TexelSize = {1.f / resolution.cx, 1.f / resolution.cy}};
     commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_6_postProcessData"), 6, &postProcessData, 0);
+    struct DrawParams
+    {
+        UINT EmitStart;
+    };
+    DrawParams dp{ EmitStart[i]};
+    commandList->SetGraphicsRoot32BitConstants(_fx.GetRootParameterIndex("bit32_1_draw"), 1, &dp, 0);
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("depthbuffer"), depthStencilBuffer->GetSRVHandle());
     commandList->SetGraphicsRootConstantBufferView(_fx.GetRootParameterIndex("cameraData"), _ownerScene->_cameraBuffer->GetGPUVirtualAddress());
     commandList->SetGraphicsRootShaderResourceView(_fx.GetRootParameterIndex("texID"), _textureIDBuffer->GetGPUVirtualAddress());
@@ -94,11 +100,11 @@ void ParticleRibbonPass::Draw(ID3D12GraphicsCommandList* commandList)
     for (size_t i = 0; i < _ribbonIndices.size(); ++i)
     {
         const UINT segmentCount = static_cast<UINT>(_ribbonIndices[i].size());
-        if (segmentCount <= 2)
+        if (segmentCount < 4)
         {
             continue;
-        }
-        const UINT vertexCount = (segmentCount - 1) * 2;
+        } 
+        const UINT vertexCount = segmentCount;
         commandList->SetGraphicsRootShaderResourceView(_fx.GetRootParameterIndex("ribbonIndices"), _ribbonIndexBuffer[i]->GetGPUVirtualAddress());
         commandList->DrawInstanced(vertexCount, 1, 0, 0);
     }
