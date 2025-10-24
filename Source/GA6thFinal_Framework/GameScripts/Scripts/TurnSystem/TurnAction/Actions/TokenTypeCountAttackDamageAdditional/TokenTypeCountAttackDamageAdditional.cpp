@@ -73,6 +73,7 @@ void TokenTypeCountAttackDamageAdditional::OnPlayerBattleCalculateDamageModifier
             auto& inventory = target->GetTokenInventory();
             multiplier += inventory.GetValidTokenCountByTag();
         }
+        weaponStats.HitDamageMultiplier += static_cast<float>(multiplier);
         weaponStats.CriticalDamageMultiplier += static_cast<float>(multiplier);
     }
 }
