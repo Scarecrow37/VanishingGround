@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-class PreferencesSystem : public File::FileEventSubscriber
+class PreferencesSystem
 {
 public:
     PreferencesSystem();
@@ -16,6 +16,7 @@ public:
 
 public:
     void Initialize();
+    void Uninitialize();
 
 public:
     // Graphics Setting
@@ -50,14 +51,16 @@ public:
     bool  IsSSAO() { return _onSSAO; }
     bool  IsBloom() { return _onBloom; }
     bool  IsVolumFog() { return _onVolumFog; }
+    bool  IsRayTracing() { return _onRayTracing; }
     int   GetTextureQuality() { return _textureQuality; }
     float GetMasterVolume() { return _masterVolume; }
     float GetBGMVolume() { return _BGMVolume; }
     float GetSFXVolume() { return _SFXVolume; }
 
-public:
-    void OnPostRequestedSave() override;
-    void OnPostRequestedLoad() override;
+private:
+    void SaveData();
+    void LoadData();
+    std::filesystem::path GetFilePath();
 
 private:
     std::unique_ptr<class GraphicsController> _graphicsController;
@@ -68,6 +71,7 @@ private:
     bool  _onBloom        = true;
     bool  _onVolumFog     = true;
     int   _textureQuality = 2;
+    bool  _onRayTracing   = false;
     float _masterVolume   = 1.f;
     float _BGMVolume      = 1.f;
     float _SFXVolume      = 1.f;

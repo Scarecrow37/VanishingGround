@@ -1,14 +1,25 @@
 ﻿#pragma once
-#include <Token/Enums/TokenEnums.h>
+#include <Token/Common/TokenCommon.h>
 #include <Interface/ITriggerType.h>
 
 class CharacterBase;
+class Player;
+class Enemy;
+struct CharacterStats;
+struct PlayerStats;
+struct EnemyStats;
+struct WeaponStats;
+
+namespace QTE
+{
+    struct NoteResult;
+}
 
 class IToken
 {
 public:
-    IToken() = default;
-    virtual ~IToken() = default;
+    IToken();
+    virtual ~IToken();
 
 private: // ITriggerType을(를) 통해 상속됨.
     /// <summary>전투가 시작될 때 호출됩니다.</summary>
@@ -65,13 +76,45 @@ private: // ITriggerType을(를) 통해 상속됨.
     /// <param name="source">호출한 CharacterBase 객체입니다.</param>
     virtual void OnQTEEnd(CharacterBase* source) = 0;
 
-public:
-    virtual bool        CanAdd(CharacterBase* owner) const      = 0;
-    virtual bool        CanRemove(CharacterBase* owner) const   = 0;
+    /*
+    Pre:    장비 데이터를 바꿀 수 있음.
+    */
 
-    virtual int         GetTokenOrder() const                   = 0;
-    virtual int         GetTokenID() const                      = 0;
-    virtual const char* GetTokenName() const                    = 0;
-    virtual int         GetMaxStackCount() const                = 0;
-    virtual TokenTag    GetTokenTag() const                     = 0;
+    /*
+    Post:   장비 데이터 영향을 안받음(하지만 무기 정보 확인해야할 수도 있으니까 무기 정보는 넘겨줌.),
+            최종 파라미터 수정 가능
+    */
+
+    virtual void OnPrePlayerAttackCalculateChain(PlayerAttackData& attackerData, EnemyHitData& targetData)              = 0;
+    virtual void OnPreEnemyAttackCalculateChain(EnemyAttackData& attackerData, PlayerHitData& targetData)               = 0;
+    virtual void OnPrePlayerHitCalculateChain(EnemyAttackData& attackerData, PlayerHitData& targetData)                 = 0;
+    virtual void OnPreEnemyHitCalculateChain(PlayerAttackData& attackerData, EnemyHitData& targetData)                  = 0;
+
+    virtual void OnPostPlayerAttackCalculateChain(PlayerAttackData& attackerData, EnemyHitData& targetData, int& chain) = 0;
+    virtual void OnPostEnemyAttackCalculateChain(EnemyAttackData& attackerData, PlayerHitData& targetData, int& chain)  = 0;
+    virtual void OnPostPlayerHitCalculateChain(EnemyAttackData& attackerData, PlayerHitData& targetData, int& chain)    = 0;
+    virtual void OnPostEnemyHitCalculateChain(PlayerAttackData& attackerData, EnemyHitData& targetData, int& chain)     = 0;
+                 
+    virtual void OnPrePlayerAttackCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData)             = 0;
+    virtual void OnPreEnemyAttackCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData)              = 0;
+    virtual void OnPrePlayerHitCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData)                = 0;
+    virtual void OnPreEnemyHitCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData)                 = 0;
+
+    virtual void OnPostPlayerAttackCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData, int& damage) = 0;
+    virtual void OnPostEnemyAttackCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData, int& damage) = 0;
+    virtual void OnPostPlayerHitCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData, int& damage) = 0;
+    virtual void OnPostEnemyHitCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData, int& damage)  = 0;
+
+    virtual void OnRollRandomSpeed(CharacterBase* source, int& speed) = 0;
+
+public:
+    virtual bool                CanAdd(CharacterBase* owner) const      = 0;
+    virtual bool                CanRemove(CharacterBase* owner) const   = 0;
+
+    virtual int                 GetTokenOrder() const                   = 0;
+    virtual int                 GetTokenID() const                      = 0;
+    virtual int                 GetMaxStackCount() const                = 0;
+    virtual const std::string&  GetTokenName() const                    = 0;
+    virtual const std::string&  GetTokenTag() const                     = 0;
+    virtual int                 GetTokenParam(size_t index) const       = 0;
 };

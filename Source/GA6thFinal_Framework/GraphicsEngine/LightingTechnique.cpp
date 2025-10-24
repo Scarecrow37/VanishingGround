@@ -36,9 +36,9 @@ void LightingTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
     pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));
 
-    /*pass = std::make_unique<ForwardPBRLitPass>();
+    pass = std::make_unique<ForwardPBRLitPass>();
     pass->Initialize(_ownerScene, this, commandList);
-    AddRenderPass(std::move(pass));*/
+    AddRenderPass(std::move(pass));
 
     pass = std::make_unique<CustomShaderPass>();
     pass->Initialize(_ownerScene, this, commandList);

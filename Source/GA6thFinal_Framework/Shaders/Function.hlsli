@@ -385,7 +385,7 @@ float CalculatePointLightShadowPCF(float3 fragPos, float3 lightPos, uint lightIn
     uint atlasX = atlasIndexInGrid % tilesPerRow;
     uint atlasY = atlasIndexInGrid / tilesPerRow;
     float shadow = 0.0;
-    float bias = 0.01 + (currentDistance / farPlane) * 0.02;
+    float bias = 0.05 + (currentDistance / farPlane) * 0.02;
     float texelSize = 1.0 / faceSize;
     
     

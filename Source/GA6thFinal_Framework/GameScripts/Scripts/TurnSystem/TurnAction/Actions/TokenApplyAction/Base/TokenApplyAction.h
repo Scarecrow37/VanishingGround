@@ -5,7 +5,7 @@ class TokenApplyAction : public TurnAction
 {
     USING_PROPERTY(TokenApplyAction)
 public:
-    TokenApplyAction() = default;
+    TokenApplyAction();
     ~TokenApplyAction() override = default;
     REFLECT_PROPERTY()
 
@@ -41,7 +41,7 @@ public:
 
 protected:
     REFLECT_FIELDS_BEGIN(TurnAction)
-    int        TokenID     = 16000;
+    int        TokenID     = 0;
     int        TokenCount  = 1;
     TurnTarget TokenTarget = TurnTarget::ENEMY;
     REFLECT_FIELDS_END(TokenApplyAction)

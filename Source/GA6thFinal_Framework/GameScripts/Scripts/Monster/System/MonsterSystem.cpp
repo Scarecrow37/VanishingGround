@@ -469,58 +469,55 @@ void MonsterSystem::LoadStatContextFromExcelData(ExcelDataSystem* dataSystem)
                 const size_t rowCount = dataBase->RowCount();
                 for (size_t rowIndex = 0; rowIndex < rowCount; ++rowIndex)
                 {
-                    if (rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
+                    StatContext      context;
+                    std::string_view data;
+                    data = dataBase->FindData(rowIndex, ExcelStatKey::LEVEL_ID);
+                    if (data != ExcelDataBase::FIND_STR_FAIL)
                     {
-                        StatContext      context;
-                        std::string_view data;
-                        data = dataBase->FindData(rowIndex, ExcelStatKey::LEVEL_ID);
-                        if (data != ExcelDataBase::FIND_STR_FAIL)
+                        context.LevelID = StringToInt(data);
+                    }
+                    data = dataBase->FindData(rowIndex, ExcelStatKey::MONSTER_ID);
+                    if (data != ExcelDataBase::FIND_STR_FAIL)
+                    {
+                        context.MonsterID = StringToInt(data);
+                    }
+                    data = dataBase->FindData(rowIndex, ExcelStatKey::HEALTH);
+                    if (data != ExcelDataBase::FIND_STR_FAIL)
+                    {
+                        context.Health = StringToInt(data);
+                    }
+                    data = dataBase->FindData(rowIndex, ExcelStatKey::STUN_RESIST);
+                    if (data != ExcelDataBase::FIND_STR_FAIL)
+                    {
+                        context.StunResist = StringToInt(data);
+                    }
+                    data = dataBase->FindData(rowIndex, ExcelStatKey::PARAM);
+                    if (data != ExcelDataBase::FIND_STR_FAIL)
+                    {
+                        const auto params = ParseParam(std::string(data));
+                        for (const auto& param : params)
                         {
-                            context.LevelID = StringToInt(data);
+                            context.StatParams.push_back({param});
                         }
-                        data = dataBase->FindData(rowIndex, ExcelStatKey::MONSTER_ID);
-                        if (data != ExcelDataBase::FIND_STR_FAIL)
-                        {
-                            context.MonsterID = StringToInt(data);
-                        }
-                        data = dataBase->FindData(rowIndex, ExcelStatKey::HEALTH);
-                        if (data != ExcelDataBase::FIND_STR_FAIL)
-                        {
-                            context.Health = StringToInt(data);
-                        }
-                        data = dataBase->FindData(rowIndex, ExcelStatKey::STUN_RESIST);
-                        if (data != ExcelDataBase::FIND_STR_FAIL)
-                        {
-                            context.StunResist = StringToInt(data);
-                        }
-                        data = dataBase->FindData(rowIndex, ExcelStatKey::PARAM);
+                    }
+                    for (size_t i = 0; i < MAX_SKILL_COUNT; ++i)
+                    {
+                        data = dataBase->FindData(rowIndex, ExcelStatKey::ACTION_PARAM[i]);
                         if (data != ExcelDataBase::FIND_STR_FAIL)
                         {
                             const auto params = ParseParam(std::string(data));
                             for (const auto& param : params)
                             {
-                                context.StatParams.push_back({param});
+                                context.ActionParams[i].push_back({param});
                             }
                         }
-                        for (size_t i = 0; i < MAX_SKILL_COUNT; ++i)
+                        data = dataBase->FindData(rowIndex, ExcelStatKey::TOKEN_PARAM[i]);
+                        if (data != ExcelDataBase::FIND_STR_FAIL)
                         {
-                            data = dataBase->FindData(rowIndex, ExcelStatKey::ACTION_PARAM[i]);
-                            if (data != ExcelDataBase::FIND_STR_FAIL)
-                            {
-                                const auto params = ParseParam(std::string(data));
-                                for (const auto& param : params)
-                                {
-                                    context.ActionParams[i].push_back({param});
-                                }
-                            }
-                            data = dataBase->FindData(rowIndex, ExcelStatKey::TOKEN_PARAM[i]);
-                            if (data != ExcelDataBase::FIND_STR_FAIL)
-                            {
-                                context.TokenParams[i] = ParseTokenParam(std::string(data));
-                            }
+                            context.TokenParams[i] = ParseTokenParam(std::string(data));
                         }
-                        _statDataTable[context.LevelID][context.MonsterID] = std::move(context);
                     }
+                    _statDataTable[context.LevelID][context.MonsterID] = std::move(context);
                 }
             }
         }
