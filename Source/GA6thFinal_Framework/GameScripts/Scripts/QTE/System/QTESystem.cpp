@@ -14,13 +14,9 @@
 
 UMREAL_COMPONENT(QTESystem)
 
-QTESystem::QTESystem() 
-{
-}
+QTESystem::QTESystem() = default;
 
-QTESystem::~QTESystem() 
-{
-}
+QTESystem::~QTESystem() = default;
 
 void QTESystem::Reset()
 {
@@ -48,7 +44,7 @@ void QTESystem::Start()
 
 void QTESystem::Update()
 {
-    if (IsQTEPlaying())
+    if (IsPlaying)
     {
 #ifdef _UMEDITOR
         if (ImGui::IsKeyPressed(ImGuiKey_LeftArrow, false))
@@ -314,7 +310,7 @@ void QTESystem::StopQTE()
 
 void QTESystem::PauseQTE(const bool pause) 
 {
-    if (IsQTEPlaying())
+    if (IsPlaying)
     {
         _qtePaused = pause;
     }

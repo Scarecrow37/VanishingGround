@@ -20,6 +20,7 @@ struct WeaponStats;
 class QTESystem : public Component, public InputReceiver
 {
     using ControllerState = std::pair<const Input::Controller*, Input::ControllerTypes::Button>;
+    using TrackTable = std::unordered_map<int, std::vector<QTE::Track*>>;
 
     friend class QTEUIManager;
     USING_PROPERTY(QTESystem)
@@ -28,7 +29,7 @@ public:
     QTESystem();
     virtual ~QTESystem();
 
-    REFLECT_PROPERTY(ScaledSpeedFactor, CurrentTrackTime, MaxTracktime)
+    REFLECT_PROPERTY(ScaledSpeedFactor, CurrentTrackTime, MaxTracktime, IsPlaying)
 
     GETTER_ONLY(float, ScaledSpeedFactor) {
         const float systemSpeedScale = ReflectFields->QTESpeedScale;
@@ -42,6 +43,9 @@ public:
 
     GETTER_ONLY(float, MaxTracktime) { return _qteMaxTime; }
     PROPERTY(MaxTracktime)
+
+    GETTER_ONLY(bool, IsPlaying) { return _currState != QTE::STATE_WAITING; }
+    PROPERTY(IsPlaying)
 private:
     void Reset() override;
     void Awake() override;
@@ -77,8 +81,12 @@ public:
     /// <summary>QTE 콜백을 해제합니다.</summary>
     bool UnRegisterCallback(QTE::Callback::Handle handle);
 
-    inline QTE::PlayState GetPlayState() const { return _currState; }
-    inline const QTE::KeyBinder& GetKeyBinder() const { return _keyBinder; }
+    inline QTE::PlayState                    GetPlayState() const { return _currState; }
+    inline const QTE::KeyBinder&             GetKeyBinder() const { return _keyBinder; }
+    inline QTE::OverallResult&               GetQTEOverallResult() { return _overallResult; }
+    inline QTE::Track*                       GetCurrentQTETrack() { return _currentQTETrack; }
+    inline const std::vector<QTE::NoteData>& GetCurrentQTEAvailQueue() const { return _noteAvailQueue; }
+    inline const TrackTable&                 GetWeaponIDToTrackTable() const { return _weaponIDToTrackTable; }
 
 private:
     void ResetQTEState();
@@ -104,9 +112,6 @@ private:
     void ProcessQTENotePressedEvent(UINT noteID, QTE::ResultType result);
 
 public:
-    inline bool  IsQTEPlaying() const { return _currState != QTE::STATE_WAITING; }
-    inline float GetQTETime() const { return _qteTimer; }
-
     inline void  SetQTESpeedScale(float scale) { ReflectFields->QTESpeedScale = scale; }
     inline float GetQTESpeedScale() const { return ReflectFields->QTESpeedScale; }
     inline void  SetDelayFromQTEStart(float delay) { ReflectFields->DelayFromQTEStart = delay; }
@@ -124,13 +129,6 @@ public:
     inline void SetFadeOutPosFactor(float start, float end) { ReflectFields->FadeOutPosFactor = {start, end}; }
     inline std::pair<float, float> GetFadeOutPosFactor() const { return ReflectFields->FadeOutPosFactor; }
 
-    inline QTE::Track* GetCurrentQTETrack() { return _currentQTETrack; }
-    inline QTE::OverallResult& GetQTEOverallResult() { return _overallResult; }
-    inline const std::vector<QTE::NoteData>& GetCurrentQTEAvailQueue() const { return _noteAvailQueue; }
-    inline const std::unordered_map<int, std::vector<QTE::Track*>>& GetWeaponIDToTrackTable() const { return _weaponIDToTrackTable; }
-
-    inline size_t GetCurrentNoteIndex() const { return _currentNoteIndex; }
-
     /// <summary>무기 ID에 매핑 트랙을 추가합니다. path인자를 NULL_PATH로 지정하면 빈 트랙을 생성합니다.</summary>
     /// <param name="weaponID">매핑 트랙을 추가할 무기의 ID입니다.</param>
     /// <param name="path">추가할 트랙의 파일 경로입니다.</param>
@@ -147,23 +145,23 @@ public:
     QTE::Track* GetMappingTrackToWeaponID(int weaponID, int index = 0);
 
 private:
-    SingletonComponent<QTESystem> _singletonComponent{this};
-    std::unordered_map<int, std::vector<QTE::Track*>> _weaponIDToTrackTable; // 무기 ID QTE 매핑 테이블
+    SingletonComponent<QTESystem>   _singletonComponent{this};
 
-    QTE::Track*                 _currentQTETrack  = nullptr;
-    size_t                      _currentNoteIndex = 0;              // 현재 가리키는 노트 인덱스
-    std::vector<QTE::NoteData>  _noteAvailQueue;                    // 유효한 노트 큐
+    TrackTable                      _weaponIDToTrackTable;              // 무기 ID QTE 매핑 테이블
+    QTE::Track*                     _currentQTETrack  = nullptr;
+    size_t                          _currentNoteIndex = 0;              // 현재 가리키는 노트 인덱스
+    std::vector<QTE::NoteData>      _noteAvailQueue;                    // 유효한 노트 큐
 
-    QTE::PlayState              _currState = QTE::STATE_WAITING;    // QTE 현재 상태
-    QTE::PlayState              _prevState = QTE::STATE_WAITING;    // QTE 이전 상태
-    QTE::KeyBinder              _keyBinder;                         // QTE 키 바인딩 처리
-    QTE::CallbackHandler        _callbackHandler;                   // QTE 콜백 처리
-    QTE::OverallResult          _overallResult;                     // QTE 최종 결과
-    ControllerState             _nextKeyEvent = {nullptr, Input::ControllerTypes::UNDEFINED};
+    QTE::PlayState                  _currState = QTE::STATE_WAITING;    // QTE 현재 상태
+    QTE::PlayState                  _prevState = QTE::STATE_WAITING;    // QTE 이전 상태
+    QTE::KeyBinder                  _keyBinder;                         // QTE 키 바인딩 처리
+    QTE::CallbackHandler            _callbackHandler;                   // QTE 콜백 처리
+    QTE::OverallResult              _overallResult;                     // QTE 최종 결과
+    ControllerState                 _nextKeyEvent = {nullptr, Input::ControllerTypes::UNDEFINED};
 
-    float                       _qteTimer           = 0.0f;                     // QTE 타이머
-    float                       _qteMaxTime         = 0.0f;                     // QTE 최대 시간
-    bool                        _qtePaused          = false;                    // QTE 일시정지 여부
+    float                           _qteTimer           = 0.0f;                     // QTE 타이머
+    float                           _qteMaxTime         = 0.0f;                     // QTE 최대 시간
+    bool                            _qtePaused          = false;                    // QTE 일시정지 여부
 
     REFLECT_FIELDS_BEGIN(Component)
     float                   QTESpeedScale       = 1.0f;                         // QTE 속도 배율
