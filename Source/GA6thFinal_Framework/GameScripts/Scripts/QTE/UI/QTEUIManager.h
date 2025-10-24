@@ -47,12 +47,9 @@ private:
 
 public:
     /// <summary>노트 프리팹의 GUID를 설정합니다. 해당 프리팹을 통해 QTE 노트 UI가 생성됩니다.</summary>
-    /// <param name="guid">설정할 File::Guid 객체입니다.</param>
     void SetNotePrefabGuid(const File::Guid& guid);
 
-    // TODO: 나중에 블러로 변경 가능성 있음
-    /// <summary>QTE 백그라운드 UI의 알파 값을 설정합니다.</summary>
-    /// <param name="factor">설정할 UI의 알파 값입니다. 0.0f에서 1.0f 사이의 값을 가집니다.</param>
+    /// <summary>QTE UI의 알파 값을 설정합니다.</summary>
     void SetUIAlpha(float factor);
 
 private:

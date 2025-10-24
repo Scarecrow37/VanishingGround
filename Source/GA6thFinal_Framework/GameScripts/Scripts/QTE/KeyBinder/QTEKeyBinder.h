@@ -18,8 +18,6 @@ namespace QTE
         inline Button GetKeyX() const { return GetCurrentBindState().ButtonX; }
         inline Button GetKeyY() const { return GetCurrentBindState().ButtonY; }
         inline Button GetKeyB() const { return GetCurrentBindState().ButtonB; }
-
-    private:
         inline const KeyBindState& GetCurrentBindState() const
         {
             if (_bindStateStack.empty())

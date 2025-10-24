@@ -71,6 +71,8 @@ public:
     void PushKeyBindState(const QTE::KeyBindState& bindState);
     /// <summary>QTE 키 바인드 상태를 Pop합니다.</summary>
     void PopKeyBindState();
+    /// <summary>현재 QTE 키 바인드 상태를 반환합니다.</summary>
+    const QTE::KeyBindState& GetCurrentKeyBindState();
 
     /// <summary>QTE 콜백을 등록합니다.</summary>
     QTE::Callback::Handle RegisterCallback(const QTE::Callback& callback);

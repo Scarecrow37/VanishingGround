@@ -335,6 +335,11 @@ void QTESystem::PopKeyBindState()
     _keyBinder.PopKeyBindState();
 }
 
+const QTE::KeyBindState& QTESystem::GetCurrentKeyBindState()
+{
+    return _keyBinder.GetCurrentBindState();
+}
+
 QTE::Callback::Handle QTESystem::RegisterCallback(const QTE::Callback& callback)
 {
     return _callbackHandler.RegisterCallback(callback);

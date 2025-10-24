@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "ChangeQTEButton.h"
 #include "TurnSystem/TurnAction/TurnActionFactory.h"
+#include "QTE/System/QTESystem.h"
 
 REGISTER_TURN_ACTION(ChangeQTEButton)
 
@@ -30,12 +31,22 @@ void ChangeQTEButton::ImGuiDrawActionEditor()
 
 void ChangeQTEButton::OnAddedAction() 
 {
-    //TODO : QTE 키 변경하는 코드 추가
+    if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
+    {
+        const QTE::KeyBindState& currState = system->GetCurrentKeyBindState();
+        QTE::KeyBindState newState;
+        newState.ButtonX = currState.ButtonB;
+        newState.ButtonB = currState.ButtonX;
+        system->PushKeyBindState(newState);
+    }
 }
 
 void ChangeQTEButton::OnDestroy() 
 {
-    // TODO : QTE 키 변경 종료 코드 추가
+    if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
+    {
+        system->PopKeyBindState();
+    }
 }
 
 void ChangeQTEButton::UpdateActionInfo()
