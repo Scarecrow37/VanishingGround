@@ -163,9 +163,6 @@
     <FxCompile Include="..\Shaders\vs_skeletal_point_light_shadow_fr.hlsl">
       <Filter>Shaders\vs</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\vs_skeletal_shadow_fr.hlsl">
-      <Filter>Shaders\vs</Filter>
-    </FxCompile>
     <FxCompile Include="..\Shaders\vs_skybox.hlsl">
       <Filter>Shaders\vs</Filter>
     </FxCompile>
@@ -195,6 +192,9 @@
     </FxCompile>
     <FxCompile Include="..\Shaders\gs_point_light_shadow_cube.hlsl">
       <Filter>Shaders\gs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\vs_skeletal_shadow_fr.hlsl">
+      <Filter>Shaders\vs</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
