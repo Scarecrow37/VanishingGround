@@ -5,10 +5,12 @@
 #include <QTE/Track/QTETrack.h>
 
 #include <WeaponSystem/WeaponSystem.h>
-#include <TurnSystem/TurnActor/Character/CharacterBase.h>
+#include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include "Camera/UmCineMotion.h"
 #include "CombatUIManager/CombatUIManager.h"
+
+#include "Token/Object/Focus/FocusToken.h"
 
 UMREAL_COMPONENT(QTESystem)
 
@@ -345,9 +347,22 @@ bool QTESystem::UnRegisterCallback(QTE::Callback::Handle handle)
 
 QTE::ResultType QTESystem::GetQTEResult(const float noteTime)
 {
-    auto& [perfectMin, perfectMax] = ReflectFields->PerfectJudgeRange;
-    auto& [normalMin, normalMax]   = ReflectFields->NormalJudgeRange;
-    float noteDelta                = _qteTimer - noteTime;
+    auto [perfectMin, perfectMax] = ReflectFields->PerfectJudgeRange;
+    auto [normalMin, normalMax]   = ReflectFields->NormalJudgeRange;
+    float noteDelta               = _qteTimer - noteTime;
+
+    // 집중 토큰이 있다면 치명타 범위가 일격 범위랑 같아짐.
+    if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
+    {
+        Player*         player         = turnMode->GetPlayer();
+        TokenInventory& tokenInventory = player->GetTokenInventory();
+        if (tokenInventory.HasTokenFromID(TokenObject::Focus::ID))
+        {
+            perfectMin = normalMin;
+            perfectMax = normalMax;
+        }
+    }
+
     if (noteDelta >= perfectMin && noteDelta <= perfectMax)
     {
         UmLogger.Log(LogLevel::LEVEL_DEBUG, (const char*)u8"퍼펙트!!");
