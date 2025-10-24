@@ -10,7 +10,7 @@ namespace TokenObject
     REGISTER_TOKEN(Regen3)
     namespace
     {
-        void Heal(CharacterBase* dest, int healFactor)
+        void HealByPercentage(CharacterBase* dest, int healFactor)
         {
             if (CharacterStats* stats = dest->GetCharacterStats())
             {
@@ -28,7 +28,7 @@ namespace TokenObject
             const int   tokenID = GetTokenID();
             const int   param   = GetTokenParam(0);
             const float factor  = static_cast<float>(param) / 100.0f;
-            owner->Heal(factor);
+            owner->HealByPercentage(factor);
             auto& tokenInventory = owner->GetTokenInventory();
             tokenInventory.RemoveTokenStackFromID(tokenID);
         }

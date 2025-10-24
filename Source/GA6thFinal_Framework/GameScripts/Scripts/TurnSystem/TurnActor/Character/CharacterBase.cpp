@@ -10,6 +10,8 @@
 
 #include "Token/Object/Stun/StunToken.h"
 
+#include "ContentMath/ContentMath.h"
+
 REFLECT_FUNCTION(CharacterBase)
 
 int CharacterBase::GetHP()
@@ -186,7 +188,7 @@ void CharacterBase::Heal(int amount)
 
         std::string msg = std::format("{}{}{}{}",
             gameObject->ToString(),
-            (const char*)u8"체력이",
+            (const char*)u8"체력이 ",
             amount,
             (const char*)u8"회복"
         );
@@ -194,12 +196,12 @@ void CharacterBase::Heal(int amount)
     }
 }
 
-void CharacterBase::Heal(float factor) 
+void CharacterBase::HealByPercentage(int percentage) 
 {
     if (CharacterStats* stats = GetCharacterStats())
     {
-        const float maxHP      = static_cast<float>(stats->MaxHP);
-        const int   healAmount = static_cast<int>(maxHP * factor);
+        const int maxHP = stats->MaxHP;
+        const int healAmount = ContentMath::CeilPercentage(maxHP, percentage);
         Heal(healAmount);
     }
 }

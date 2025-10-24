@@ -55,34 +55,22 @@ void RecoveryAction::OnEnemyDeadByWeapon(Enemy& enemy, WeaponElement& weapon)
                     std::vector<CharacterBase*> targetList = TurnSystemHelper::GetTargetCharacters(Target);
                     if (false == targetList.empty())
                     {
-                        int recoveryHP = 0;
-                        switch (RecoveryUnit)
-                        {
-                        case Unit::FLAT:
-                            recoveryHP = ReflectFields->RecoveryHP;
-                            break;
-                        case Unit::PERCENT:
-                            if (PlayerSystem* system = SingletonComponent<PlayerSystem>::GetInstance())
-                            {
-                                if (PlayerStatsComponent* statsComponent = system->GetPlayerStats())
-                                {
-                                    PlayerStats& stats = statsComponent->GetStats();
-                                    float maxHP = static_cast<float>(stats.MaxHP);
-                                    float raito = static_cast<float>(ReflectFields->RecoveryHP) / 100.f;
-                                    float recoveryHPf = std::ceilf(maxHP * raito);
-                                    recoveryHP = static_cast<int>(recoveryHPf);
-                                }                                
-                            }         
-                            break;
-                        default:
-                            break;
-                        }
-
+                        int recoveryHP = ReflectFields->RecoveryHP;
                         for (auto& target : targetList)
                         {
                             if (target)
                             {
-                                target->Heal(recoveryHP);
+                                switch (ReflectFields->RecoveryUnit)
+                                {
+                                case Unit::FLAT:
+                                    target->Heal(recoveryHP);
+                                    break;
+                                case Unit::PERCENT:
+                                    target->HealByPercentage(recoveryHP);
+                                    break;
+                                default:
+                                    break;
+                                }                           
                             }
                         }
                     }
