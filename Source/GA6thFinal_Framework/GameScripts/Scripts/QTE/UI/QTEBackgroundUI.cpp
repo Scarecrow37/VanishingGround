@@ -11,4 +11,22 @@ namespace QTE
             ? object.GetComponent<ImageElement>() 
             : Background;
     }
+    void BackgroundUI::Active(bool active) 
+    {
+        if (Background)
+        {
+            Background->gameObject->ActiveSelf = active;
+        }
+    }
+    void BackgroundUI::Alpha(float alpha) 
+    {
+        if (Background)
+        {
+            Background->Alpha = alpha;
+        }
+    }
+    void BackgroundUI::Reset() 
+    {
+    }
+
 }

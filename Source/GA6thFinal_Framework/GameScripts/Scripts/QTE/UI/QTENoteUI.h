@@ -37,7 +37,7 @@ namespace QTE
         
         void Reset();
 
-        bool TrySetup();
+        bool TrySetup(const float noteTime = 0.0f);
 
         void Update(const float currTime, const float currSpeed, const float startX, const float endX, const float perfectX, const float offsetX = 0.0f);
 
@@ -69,11 +69,11 @@ namespace QTE
         SpriteAnimationElement* PerfectEffect   = nullptr;
 
     private:
-        static constexpr const char* ANIMATION_START_TAG        = "Animation Start";
-        static constexpr const char* ANIMATION_END_TAG          = "Animation End";
-        static constexpr const char* ANIMATION_MISS_TAG         = "Animation Miss";
-        static constexpr const char* ANIMATION_NORMAL_TAG       = "Animation Normal";
-        static constexpr const char* ANIMATION_PERFECT_TAG      = "Animation Perfect";
+        static constexpr const char* ANIMATION_START_TAG        = "QTE Note Start";
+        static constexpr const char* ANIMATION_END_TAG          = "QTE Note End";
+        static constexpr const char* ANIMATION_MISS_TAG         = "QTE Effect Miss";
+        static constexpr const char* ANIMATION_NORMAL_TAG       = "QTE Effect Normal";
+        static constexpr const char* ANIMATION_PERFECT_TAG      = "QTE Effect Perfect";
 
         static constexpr float       TRAVEL_PERFECT_TIME = 1.0f; // 시작 -> 퍼펙트 지점까지의 시간
     };

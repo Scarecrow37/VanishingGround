@@ -14,6 +14,12 @@ namespace QTE
         // 해당 오브젝트에 자신의 멤버가 있으면 매칭합니다.
         void MatchUIFromObject(GameObject& object);
 
+        void Active(bool active);
+
+        void Alpha(float alpha);
+
+        void Reset();
+
     private:
         static constexpr const char* BACKGROUND_TAG = "QTE Background";
     };

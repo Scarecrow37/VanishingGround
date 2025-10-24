@@ -27,4 +27,78 @@ namespace QTE
             ? object.GetComponent<SpriteAnimationElement>() 
             : StartAnimation;
     }
+    void FieldUI::Active(bool active)
+    {
+        if (Overlay)
+        {
+            Overlay->gameObject->ActiveSelf = active;
+        }
+    }
+    void FieldUI::Alpha(float alpha)
+    {
+        if (Line)
+        {
+            Line->Alpha = alpha;
+        }
+        if (Flow)
+        {
+            Flow->Alpha = alpha;
+        }
+        if (JudgeNote)
+        {
+            JudgeNote->Alpha = alpha;
+        }
+        if (StartAnimation)
+        {
+            StartAnimation->Alpha = alpha;
+        }
+    }
+    void FieldUI::Reset()
+    {
+        if (StartAnimation)
+        {
+            StartAnimation->Setup();
+            StartAnimation->gameObject->ActiveSelf = false;
+        }
+        if (JudgeNote)
+        {
+            JudgeNote->Setup();
+            JudgeNote->gameObject->ActiveSelf = false;
+        }
+        if (Flow)
+        {
+            Flow->Setup();
+            Flow->gameObject->ActiveSelf = false;
+        }
+        if (Line)
+        {
+            Line->gameObject->ActiveSelf = false;
+        }
+    }
+    void FieldUI::OnQTEEnter()
+    {
+        if (StartAnimation)
+        {
+            StartAnimation->gameObject->ActiveSelf = true;
+            StartAnimation->StartAnimation();
+        }
+    }
+    void FieldUI::Update()
+    {
+        if (false == StartAnimation->IsPlaying)
+        {
+            Line->gameObject->ActiveSelf = true;
+            JudgeNote->gameObject->ActiveSelf = true;
+            StartAnimation->gameObject->ActiveSelf = false;
+        }
+    }
+    void FieldUI::OnButtonPressed() 
+    {
+        if (JudgeNote)
+        {
+            JudgeNote->Setup();
+            JudgeNote->StartAnimation();
+        }
+    }
+
 } // namespace QTE

@@ -11,7 +11,6 @@ namespace QTE
     NoteUI::NoteUI(const File::Guid& prefab, Transform* parent)
     {
         SpawnObject(prefab, parent);
-        Reset();
     }
     NoteUI::~NoteUI() = default;
 
@@ -29,24 +28,27 @@ namespace QTE
             Transform::ForeachBFS(transform, [this](Transform* child) {
                 GameObject& childObject = child->gameObject;
 
-                StartAnimation  = childObject.CompareTag(ANIMATION_START_TAG)
-                                     ? childObject.GetComponent<SpriteAnimationElement>()
-                                     : nullptr;
-
-                EndAnimation    = childObject.CompareTag(ANIMATION_START_TAG)
-                                    ? childObject.GetComponent<SpriteAnimationElement>()
-                                    : nullptr;
-                MissEffect      = childObject.CompareTag(ANIMATION_MISS_TAG)
-                                    ? childObject.GetComponent<SpriteAnimationElement>()
-                                    : nullptr;
-                NormalEffect    = childObject.CompareTag(ANIMATION_NORMAL_TAG)
-                                    ? childObject.GetComponent<SpriteAnimationElement>()
-                                    : nullptr;
-                PerfectEffect   = childObject.CompareTag(ANIMATION_PERFECT_TAG)
-                                    ? childObject.GetComponent<SpriteAnimationElement>()
-                                    : nullptr;
+                if (childObject.CompareTag(ANIMATION_START_TAG))
+                {
+                    StartAnimation = childObject.GetComponent<SpriteAnimationElement>();
                 }
-            );
+                else if (childObject.CompareTag(ANIMATION_END_TAG))
+                {
+                    EndAnimation = childObject.GetComponent<SpriteAnimationElement>();
+                }
+                else if (childObject.CompareTag(ANIMATION_MISS_TAG))
+                {
+                    MissEffect = childObject.GetComponent<SpriteAnimationElement>();
+                }
+                else if (childObject.CompareTag(ANIMATION_NORMAL_TAG))
+                {
+                    NormalEffect = childObject.GetComponent<SpriteAnimationElement>();
+                }
+                else if (childObject.CompareTag(ANIMATION_PERFECT_TAG))
+                {
+                    PerfectEffect = childObject.GetComponent<SpriteAnimationElement>();
+                }
+            });
         }
     }
 
@@ -56,7 +58,7 @@ namespace QTE
         {
             const POINT oldPoint = Overlay->Point;
             const LONG  posXLong = static_cast<LONG>(posX);
-            Overlay->Point       = POINT{posXLong, oldPoint.y};
+            Overlay->Point = POINT{posXLong, oldPoint.y};
         }
     }
 
@@ -80,6 +82,7 @@ namespace QTE
         if (Overlay)
         {
             Overlay->Point = POINT(-LONG_MAX, 0); // 화면 밖으로 이동
+            Overlay->gameObject->ActiveSelf = false;
         }
         if (StartAnimation)
         {
@@ -113,11 +116,12 @@ namespace QTE
         return State == STATE_AVAILABLE;
     }
 
-    bool NoteUI::TrySetup()
+    bool NoteUI::TrySetup(const float noteTime)
     {
         if (STATE_AVAILABLE == State)
         {
-            State  = STATE_WAIT;
+            State = STATE_WAIT;
+            Time  = noteTime; 
             return true;
         }
         return false;
@@ -145,7 +149,7 @@ namespace QTE
             }
 
             // 노트가 언제 생성됐는지 대비 현재 QTE 시간의 상대적 위치 계산
-            const float delta       = (currTime - noteTime);
+            const float delta       = (noteTime - currTime);
             const float scaledDelta = delta * speedScale;
             const float factor      = 1.0f - (scaledDelta / timeToPerfect);
             return factor;
@@ -171,7 +175,7 @@ namespace QTE
         const float posXFactor = Math::CalculateNotePosXFactor(Time, currTime, currSpeed, TRAVEL_PERFECT_TIME);
 
         // 주의: end 지점을 PerfectX로 한다.
-        const float posXValue = Math::CalculateNotePosX(posXFactor, startX, perfectX) - (noteWidth * 0.5f);
+        const float posXValue = Math::CalculateNotePosX(posXFactor, startX, perfectX);
 
         switch (State)
         {
@@ -180,6 +184,7 @@ namespace QTE
             if (posXFactor >= 0.0f)
             {
                 State = STATE_VISIBLE;
+                Overlay->gameObject->ActiveSelf = true;
                 OnNoteEnter();
             }
             break;
@@ -187,7 +192,7 @@ namespace QTE
         case STATE_VISIBLE: {
             SetPositionX(posXValue + offsetX); // 위치 설정
             OnVisibleUpdate();
-            if (posXValue >= endX)
+            if (posXValue >= endX || Result != QTE::QTE_RESULT_NONE)
             {
                 State = STATE_DEAD;
                 OnNoteExit();
@@ -206,11 +211,6 @@ namespace QTE
     void NoteUI::OnNotePressed(QTE::ResultType resultType) 
     {
         Result = resultType;
-        State  = STATE_DEAD;
-        if (SpriteAnimationElement* effect = GetSpriteAnimation())
-        {
-            effect->StartAnimation();
-        }
     }
     
     void NoteUI::OnNoteEnter() 
@@ -232,6 +232,12 @@ namespace QTE
                 StartAnimation->gameObject->ActiveSelf = false;
             }
         }
+        // 어차피 결과가 없으면 effect는 nullptr이므로 재생되지 않음.
+        if (SpriteAnimationElement* effectAnimation = GetSpriteAnimation())
+        {
+            effectAnimation->gameObject->ActiveSelf = true;
+            effectAnimation->StartAnimation();
+        }
     }
     void NoteUI::OnWaitUpdate() 
     {
@@ -249,12 +255,12 @@ namespace QTE
                 EndAnimation->gameObject->ActiveSelf = false;
             }
         }
-        if (SpriteAnimationElement* effect = GetSpriteAnimation())
+        if (SpriteAnimationElement* effectAnimation = GetSpriteAnimation())
         {
             // 애니메이션 끝났는지 확인
-            if (false == effect->IsPlaying)
+            if (false == effectAnimation->IsPlaying)
             {
-                effect->gameObject->ActiveSelf = false;
+                effectAnimation->gameObject->ActiveSelf = false;
             }
         }
     }

@@ -10,34 +10,30 @@
 #include "UI/Elements/SpriteAnimation/SpriteAnimationElement.h"
 #include <Monster/Common/MonsterCommon.h>
 
+#include "ContentMath/ContentMath.h"
+
 UMREAL_COMPONENT(QTEUIManager)
 
 QTEUIManager::QTEUIManager() = default;
 QTEUIManager::~QTEUIManager() = default;
 
-namespace Math
-{
-}
-
 void QTEUIManager::OnQTEEnter() 
 {
-    StartBeginQTEAnimation();
+    ResetUI();
+    _fieldUI.Active(true);
+    _fieldUI.OnQTEEnter();
 
-    // 오브젝트 활성화 QTE UI 페이드 인 시작
-    _mainFader.SetFadeMode(Fader::FADE_IN);
-
-    ResetNotePool();
     if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
     {
-        const auto& noteQueue = system->GetCurrentQTEAvailQueue();
-        bool InvalidRange = noteQueue.size() > _notePool.size();
-        assert(InvalidRange && "노트 풀의 사이즈가 작습니다.");
-        if (false == InvalidRange)
+        const auto& noteQueue  = system->GetCurrentQTEAvailQueue();
+        bool        validRange = noteQueue.size() <= _notePool.size();
+        assert(validRange && "노트 풀의 사이즈가 작습니다.");
+        if (validRange)
         {
             for (size_t i = 0; i < noteQueue.size(); ++i)
             {
                 UINT id = noteQueue[i].ID;
-                if (_notePool[i].TrySetup())
+                if (_notePool[i].TrySetup(noteQueue[i].Time))
                 {
                     _activedNote[id] = i;
                 }
@@ -46,13 +42,9 @@ void QTEUIManager::OnQTEEnter()
     }
 }
 
-void QTEUIManager::OnQTEButtonPressed() const
+void QTEUIManager::OnQTEButtonPressed()
 {
-    if (_qteJudgeNoteUI)
-    {
-        _qteJudgeNoteUI->Setup();
-        _qteJudgeNoteUI->StartAnimation();
-    }
+    _fieldUI.OnButtonPressed();
 }
 
 void QTEUIManager::OnQTENotePressed(const UINT noteID, const QTE::ResultType result)
@@ -63,31 +55,41 @@ void QTEUIManager::OnQTENotePressed(const UINT noteID, const QTE::ResultType res
     }
 }
 
-void QTEUIManager::OnQTEStay() 
+void QTEUIManager::OnQTEPlay()
 {
-    auto* system = SingletonComponent<QTESystem>::GetInstance();
-    if (system)
+    if (_fieldUI.StartAnimation)
     {
-        float currTime  = system->GetQTETime();
-        float currSpeed = system->GetQTESpeedScale();
-        if (QTE::Track* track = system->GetCurrentQTETrack())
+        if (false == _fieldUI.StartAnimation->IsPlaying)
         {
-            currSpeed *= track->GetQTESpeedScale();
-        }
-
-        const RECT judgeRect   = _fieldUI.JudgeNote->AbsoluteRect;
-        const RECT overlayRect = _fieldUI.Overlay->AbsoluteRect;
-
-        const float startX   = static_cast<float>(((POINT)_fieldUI.Overlay->AbsoluteCenterPoint).x);
-        const float endX     = static_cast<float>(((POINT)_fieldUI.JudgeNote->AbsoluteCenterPoint).x);
-        const float perfectX = static_cast<float>();
-        const float offsetX  = 0.0f;
-
-        for (auto& noteUI : _notePool)
-        {
-            if (noteUI.IsAvailable())
+            if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
             {
-                noteUI.Update(currTime, currSpeed, startX, endX, perfectX, offsetX);
+                system->ProcessQTEFadeInEndEvent();
+            }
+        }
+    }
+    if (_overlayPanel && _fieldUI.Overlay && _fieldUI.JudgeNote)
+    {
+        _fieldUI.Update();
+        if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
+        {
+            const float currTime    = system->CurrentTrackTime;
+            const float currSpeed   = system->ScaledSpeedFactor;
+            const SIZE  panelSize   = _overlayPanel->Size;
+            const RECT  overlayRect = _fieldUI.Overlay->AbsoluteRect;
+            const POINT judgeCenter = _fieldUI.JudgeNote->AbsoluteCenterPoint;
+            const SIZE  judgeSize   = _fieldUI.JudgeNote->Size;
+
+            const float startX   = static_cast<float>(overlayRect.left);
+            const float endX     = static_cast<float>(overlayRect.right);
+            const float perfectX = static_cast<float>(judgeCenter.x + judgeSize.cx / 2);
+            const float offsetX  = static_cast<float>(-panelSize.cx / 2); // Center 정렬이므로 화면의 절반을 오프셋으로 옮김
+
+            for (auto& [id,_] : _activedNote)
+            {
+                if (QTE::NoteUI* noteUI = GetNoteUIFromID(id))
+                {
+                    noteUI->Update(currTime, currSpeed, startX, endX, perfectX, offsetX);
+                }
             }
         }
     }
@@ -97,16 +99,7 @@ void QTEUIManager::OnQTEExit()
 {
     // QTE UI 페이드 아웃 
     _mainFader.SetFadeMode(Fader::FADE_OUT);
-
-}
-
-void QTEUIManager::Refresh() 
-{
-    FindUIComponents();
-    for (auto& note : _notePool)
-    {
-        note.Reset();
-    }
+    ResetUI();
 }
 
 void QTEUIManager::Reset() 
@@ -136,7 +129,6 @@ void QTEUIManager::Reset()
 
 void QTEUIManager::Awake() 
 {
-    InitializeNotePool();
     _singletoneComponent.TrySingleTon();
 }
 
@@ -145,18 +137,7 @@ void QTEUIManager::Start()
     _mainFader.SetDuration(1.0f);
     _mainFader.SetFadeInType(Mathf::EASE_IN, Mathf::SINE);
     _mainFader.SetFadeOutType(Mathf::EASE_OUT, Mathf::SINE);
-    _mainFader.SetOnFadeInEndCallback([this]() {
-        if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
-        {
-            system->ProcessQTEFadeInEndEvent();
-            _mainFader.SetFadeMode(Fader::FADE_NONE);
-        }
-    });
     _mainFader.SetOnFadeOutEndCallback([this]() {
-        SetQTEBarUIAlpha(0.0f);
-        SetQTEAnimBarUIAlpha(0.0f);
-        SetBackgroundUIAlpha(0.0f);
-
         if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
         {
             system->ProcessQTEFadeOutEndEvent();
@@ -164,12 +145,30 @@ void QTEUIManager::Start()
         }
     });
     FindUIComponents();
-    SetBackgroundUIAlpha(0.0f);
+    InitializeNotePool();
+    ResetUI();
+    _backGroundUI.Alpha(0.0f);
+    _fieldUI.Active(false);
 }
 
 void QTEUIManager::Update() 
 {
-    UpdateQTEUI();
+    float factor = _mainFader.Fade();
+    auto  mode   = _mainFader.GetFadeMode();
+    switch (mode)
+    {
+    case Fader::FADE_NONE:
+        break;
+    case Fader::FADE_IN: {
+        break;
+    }
+    case Fader::FADE_OUT: {
+        SetUIAlpha(factor);
+        break;
+    }
+    default:
+        break;
+    }
 }
 
 void QTEUIManager::SerializedReflectEvent() 
@@ -182,58 +181,33 @@ void QTEUIManager::DeserializedReflectEvent()
 
 void QTEUIManager::ImGuiDrawPropertysEvent() 
 {
-    if (nullptr == _qteOverlayPanel)
-    {
-        ImGui::TextUnformatted((const char*)u8"QTE OverlayPanel UI가 없습니다.");
-    }
-    if (nullptr == _qteBackgroundUI)
-    {
-        ImGui::TextUnformatted((const char*)u8"QTE Background UI가 없습니다.");
-    }
-    if (nullptr == _qteNoteLineUI)
-    {
-        ImGui::TextUnformatted((const char*)u8"QTE Note Line UI가 없습니다.");
-    }
-    if (nullptr == _qteJudgeNoteUI)
-    {
-        ImGui::TextUnformatted((const char*)u8"QTE JudgeNote UI가 없습니다.");
-    }
     if (ImGui::Button((const char*)u8"새로고침"))
     {
         FindUIComponents();
     }
+}
 
-    if (ImGui::TreeNodeEx("Debug##qte_manager", ImGuiTreeNodeFlags_DefaultOpen))
+void QTEUIManager::ResetUI()
+{
+    _fieldUI.Reset();
+    _activedNote.clear();
+    for (auto& noteUI : _notePool)
     {
-        ImGui::Text((const char*)u8"QTE Panel Absolute Pos : (%.1f, %.1f)", _qtePanelPos.x, _qtePanelPos.y);
-        ImGui::Text((const char*)u8"QTE Judge Absolute Pos : (%.1f, %.1f)", _qteJudgePos.x, _qteJudgePos.y);
-        // Guide Note Pos
-        ImGui::Text((const char*)u8"Guide Note X Absolute Pos : (%.1f, %.1f)", _enemyXPos.x, _enemyXPos.y);
-        ImGui::Text((const char*)u8"Guide Note Y Absolute Pos : (%.1f, %.1f)", _enemyYPos.x, _enemyYPos.y);
-        ImGui::Text((const char*)u8"Guide Note B Absolute Pos : (%.1f, %.1f)", _enemyBPos.x, _enemyBPos.y);
-
-        ImGui::TreePop();
+        noteUI.Reset();
     }
 }
 
-void QTEUIManager::InitializeNotePool() 
+void QTEUIManager::InitializeNotePool()
 {
+    assert(_fieldUI.Overlay && "QTE Overlay가 없으면 노트 인스턴스를 생성하지 않습니다.");
+
     _notePool.clear();
 
     File::Guid prefabGuid = ReflectFields->NotePrefabGuid;
-    Transform& parent     = transform;
+    Transform& parent     = _fieldUI.Overlay->transform;
     for (int i = 0; i < ReflectFields->PoolSize; ++i)
     {
         _notePool.emplace_back(prefabGuid, &parent);
-    }
-}
-
-void QTEUIManager::ResetNotePool() 
-{
-    _activedNote.clear();
-    for (size_t i = 0; i < _notePool.size(); ++i)
-    {
-        _notePool[i].Reset();
     }
 }
 
@@ -242,7 +216,7 @@ QTE::NoteUI* QTEUIManager::GetNoteUIFromID(UINT id)
     if (_activedNote.contains(id))
     {
         size_t index = _activedNote[id];
-        if (index >= _notePool.size())
+        if (index < _notePool.size())
         {
             return &_notePool[index];
         }
@@ -250,90 +224,21 @@ QTE::NoteUI* QTEUIManager::GetNoteUIFromID(UINT id)
     return nullptr;
 }
 
-void QTEUIManager::StartBeginQTEAnimation() const
-{
-    if (_qteStartAnimationUI)
-    {
-        _qteStartAnimationUI->Setup();
-        _qteStartAnimationUI->StartAnimation();
-    }
-}
-
 void QTEUIManager::SetNotePrefabGuid(const File::Guid& guid) 
 {
     ReflectFields->NotePrefabGuid = guid.string();
 }
 
-void QTEUIManager::SetBackgroundUIAlpha(float factor) 
+void QTEUIManager::SetUIAlpha(float factor)
 {
     factor = std::clamp(factor, 0.0f, 1.0f);
-    if (_qteBackgroundUI)
-    {
-        _qteBackgroundUI->Alpha = factor;
-    }
-}
-
-void QTEUIManager::SetQTEBarUIAlpha(float factor)
-{
-    factor = std::clamp(factor, 0.0f, 1.0f);
-
-    if (_qteNoteLineUI)
-    {
-        _qteNoteLineUI->Alpha = factor;
-    }
-    if (_qteJudgeNoteUI)
-    {
-        _qteJudgeNoteUI->Alpha = factor;
-    }
-    if (_qteFlow)
-    {
-        _qteFlow->Alpha = factor;
-    }
-}
-
-void QTEUIManager::SetQTEAnimBarUIAlpha(float factor)
-{
-    factor = std::clamp(factor, 0.0f, 1.0f);
-
-    if (_qteStartAnimationUI)
-    {
-        _qteStartAnimationUI->Alpha = factor;
-    }
-}
-
-void QTEUIManager::SetActive(bool active) 
-{
-    gameObject->ActiveSelf = active;
-}
-
-void QTEUIManager::UpdateQTEUI() 
-{
-    float factor = _mainFader.Fade();
-    auto  mode   = _mainFader.GetFadeMode();
-    switch (mode)
-    {
-    case Fader::FADE_NONE:
-        SetQTEBarUIAlpha(factor);
-        SetQTEAnimBarUIAlpha(0.0f);
-        break;
-    case Fader::FADE_IN: {
-        SetQTEBarUIAlpha(0.0f);
-        SetQTEAnimBarUIAlpha(factor);
-        break;
-    }
-    case Fader::FADE_OUT: {
-        SetQTEBarUIAlpha(factor);
-        SetQTEAnimBarUIAlpha(0.0f);
-        SetBackgroundUIAlpha(factor);
-        break;
-    }
-    default:
-        break;
-    }
+    _backGroundUI.Alpha(factor);
+    _fieldUI.Alpha(factor);
 }
 
 void QTEUIManager::FindUIComponents()
 {
+    _overlayPanel = GetComponent<OverlayPanel>();
     Transform::ForeachBFS(transform, [this](Transform* curr) {
         if (curr)
         {
