@@ -22,12 +22,14 @@ void TokenApplyAction::ImGuiDrawPropertysEvent()
     {
         for (auto& id : TokenSystem::GetRegisteredTokenList())
         {
-            const char* name = TokenSystem::TokenIDToName(id);
-            name == "" ? STR_NULL : name;
-            bool selectable = ReflectFields->TokenID == id ? true : false;
-            if (ImGui::Selectable(name, selectable))
+            std::string_view name = TokenSystem::TokenIDToName(id);
+            if (false == name.empty())
             {
-                TokenID = id;
+                bool selectable = ReflectFields->TokenID == id;
+                if (ImGui::Selectable(name.data(), selectable))
+                {
+                    TokenID = id;
+                }
             }
         }
         ImGui::EndCombo();
@@ -42,7 +44,19 @@ void TokenApplyAction::ImGuiDrawPropertysEvent()
     ImguiDrawConditionEditor();
 }
 
-void TokenApplyAction::DeserializedReflectEvent() 
+void TokenApplyAction::TryTokenSystemInfoUpdate() 
 {
-    UpdateActionInfo();
+    if (false == validTokenSystem)
+    {
+        if (TokenSystem* system = SingletonComponent<TokenSystem>::GetInstance())
+        {
+            const std::string& name = system->GetTokenNameFromID(TokenID);
+            if (name.empty())
+            {
+                ReflectFields->TokenID = TokenObject::Bleed::ID; 
+            }
+            UpdateActionInfo();
+            validTokenSystem = true;
+        }     
+    }
 }

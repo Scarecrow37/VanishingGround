@@ -13,35 +13,27 @@ void TokenSystem::Reset()
 {
     Base::Reset();
     _singletonComponent.SetSingleTon();
+}
 
-    if (false == UmCore->IsPlay())
+void TokenSystem::Added() 
+{
+    Base::Added();
+
+    // 엑셀 데이터를 로드
+    if (ExcelDataSystem* dataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
     {
-        // 엑셀 데이터를 로드
-        if (ExcelDataSystem* dataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
-        {
-            _tokenDataTable.clear();
-            LoadTokenDataFromExcelData(dataSystem);
-        }
-        RegisterAllTokenInstance();
-        SortByOrder();
+        _tokenDataTable.clear();
+        LoadTokenDataFromExcelData(dataSystem);
     }
+    RegisterAllTokenInstance();
+    SortByOrder();
 }
 
 void TokenSystem::Awake() 
 {
     Base::Awake();
-    if (_singletonComponent.TrySingleTon() &&
-        _singletonObject.TrySingleTon(true))
-    {
-        // 엑셀 데이터를 로드
-        if (ExcelDataSystem* dataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
-        {
-            _tokenDataTable.clear();
-            LoadTokenDataFromExcelData(dataSystem);
-        }
-        RegisterAllTokenInstance();
-        SortByOrder();
-    }
+    _singletonComponent.TrySingleTon();
+    _singletonObject.TrySingleTon(true);
 }
 
 void TokenSystem::OnDestroy() 

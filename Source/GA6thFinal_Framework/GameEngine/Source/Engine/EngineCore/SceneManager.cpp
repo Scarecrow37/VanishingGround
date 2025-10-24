@@ -1066,7 +1066,7 @@ void ESceneManager::ObjectsApplicationQuit()
         {
             for (auto& obj : _runtimeObjects)
             {
-                if (obj->IsValid())
+                if (IsRuntimeActive(obj))
                 {
                     for (auto& component : obj->_components)
                     {
@@ -1090,7 +1090,7 @@ void ESceneManager::ObjectsOnEnable()
     {
         if (const auto& component = weakComponent.lock())
         {
-            validComponents.push_back(std::move(component));
+            validComponents.push_back(component);
         }
     }
     onEnableSet.clear();
@@ -1119,7 +1119,7 @@ void ESceneManager::ObjectsOnDisable()
     {
         if (const auto& component = weakComponent.lock())
         {
-            validComponents.push_back(std::move(component));
+            validComponents.push_back(component);
         }
     }
     OnDisableSet.clear();
@@ -1332,7 +1332,7 @@ void ESceneManager::EraseGameObjectMap(std::shared_ptr<GameObject>& eraseObject)
 
 void ESceneManager::AddDestroyComponentQueue(Component* component) 
 {
-    if (component->gameObject->IsValid())
+    if (component && component->gameObject->IsValid())
     {
         auto& [set, vec]    = engineCore->SceneManager._destroyComponentsQueue;
         auto [iter, result] = set.insert(component);
@@ -1450,7 +1450,7 @@ void ESceneManager::SetRendererSkyBox(Scene* scene)
 
 void ESceneManager::AddDestroyObjectQueue(GameObject* gameObject) 
 {
-    if (gameObject->IsValid())
+    if (gameObject && gameObject->IsValid())
     {
         auto& [set, vec] = engineCore->SceneManager._destroyObjectsQueue;
         Transform::ForeachDFS(gameObject->_transform, [this, &set, &vec](Transform* pTransform) {

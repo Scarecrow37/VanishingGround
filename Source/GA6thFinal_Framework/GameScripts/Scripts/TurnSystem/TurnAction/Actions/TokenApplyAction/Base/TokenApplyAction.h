@@ -47,6 +47,10 @@ protected:
     REFLECT_FIELDS_END(TokenApplyAction)
 
     void ImGuiDrawPropertysEvent() override;
-    void DeserializedReflectEvent() override;
     virtual void UpdateActionInfo() {};
+
+    void TryTokenSystemInfoUpdate();
+
+private:
+    bool validTokenSystem = false;
 };

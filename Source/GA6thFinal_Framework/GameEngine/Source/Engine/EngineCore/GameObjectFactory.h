@@ -198,7 +198,6 @@ private:
 
     // FileEventSubscriber을(를) 통해 상속됨
     void OnFileRegistered(const File::Path& path) override;
-    void OnFileUnregistered(const File::Path& path) override;
     void OnFileModified(const File::Path& path) override;
     void OnFileRemoved(const File::Path& path) override;
     void OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) override;

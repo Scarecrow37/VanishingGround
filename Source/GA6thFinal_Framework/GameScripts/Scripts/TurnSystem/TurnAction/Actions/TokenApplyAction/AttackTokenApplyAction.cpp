@@ -12,13 +12,9 @@
 
 REGISTER_TURN_ACTION(AttackTokenApplyAction)
 
-AttackTokenApplyAction::AttackTokenApplyAction() 
-{
-    UpdateActionInfo();
-}
-
 const std::string& AttackTokenApplyAction::GetActionInfo()
 {
+    TryTokenSystemInfoUpdate();
     return _actionInfo;
 }
 

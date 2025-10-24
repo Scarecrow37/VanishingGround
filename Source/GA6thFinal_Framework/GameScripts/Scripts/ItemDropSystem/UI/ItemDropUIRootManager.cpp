@@ -9,6 +9,7 @@
 #include "ItemDropSystem/UINavi/ArtifactButtonNavi.h"
 #include "ItemDropSystem/UI/WeaponChangeUIManager.h"
 #include "ItemDropSystem/UI/EraseRevelationUIManager.h"
+#include "ItemDropSystem/UINavi/ReturnToMapNavi.h"
 #include "Preferences/PreferencesManager.h"
 #include "Inventory/UI/InventoryUIManager.h"
 
@@ -197,6 +198,14 @@ void ItemDropUIRootManager::Start()
                 _restartNavi   = std::static_pointer_cast<RestartStageNavi>(component);
             }
         }
+        if (auto returnToMapNaviObject = GameObject::FindWithTag(ReturnToMapNavi::TAG).lock())
+        {
+            if (auto navi = returnToMapNaviObject->GetComponent<ReturnToMapNavi>())
+            {
+                auto component = navi->GetWeakPtr().lock();
+                _returnToMapNavi = std::static_pointer_cast<ReturnToMapNavi>(component);
+            }
+        }
         gameObject->ActiveSelf = false;
     }
 }
@@ -204,6 +213,32 @@ void ItemDropUIRootManager::Start()
 void ItemDropUIRootManager::Update() 
 {
     UpdateAutoFocus();
+    Debugger db;
+    db([this]() 
+    {
+        using namespace u8_literals;
+        if (gameObject->ActiveInHierarchy)
+        {
+            if (ImGui::TreeNode("Stage Clear UI Button"))
+            {
+                if (ImGui::Button(u8"다음 전투"_c_str))
+                {
+                    if (auto navi = _restartNavi.lock())
+                    {
+                        navi->Submit();
+                    }
+                }
+                if (ImGui::Button(u8"떠난다"_c_str))
+                {
+                    if (auto navi = _returnToMapNavi.lock())
+                    {
+                        navi->Submit();
+                    }
+                }
+                ImGui::TreePop();
+            }
+        }
+    });
 }
 
 void ItemDropUIRootManager::LateUpdate() 

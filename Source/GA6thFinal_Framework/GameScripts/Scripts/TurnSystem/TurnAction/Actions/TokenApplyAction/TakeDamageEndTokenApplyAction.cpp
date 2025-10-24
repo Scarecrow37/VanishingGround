@@ -8,13 +8,9 @@
 
 REGISTER_TURN_ACTION(TakeDamageEndTokenApplyAction)
 
-TakeDamageEndTokenApplyAction::TakeDamageEndTokenApplyAction() 
-{
-    UpdateActionInfo();
-}
-
 const std::string& TakeDamageEndTokenApplyAction::GetActionInfo()
 {
+    TryTokenSystemInfoUpdate();
     return _actionInfo;
 }
 
