@@ -82,6 +82,11 @@ CharacterBase::CharacterBase() :
 
 CharacterBase::~CharacterBase() = default;
 
+void CharacterBase::Added() 
+{
+    _tokenInventory.Initialize();
+}
+
 void CharacterBase::Awake()
 {
     Base::Awake();

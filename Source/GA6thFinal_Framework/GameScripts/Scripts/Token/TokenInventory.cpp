@@ -8,7 +8,8 @@ namespace
 {
     TokenSystem* GetTokenSystem()
     {
-        return SingletonComponent<TokenSystem>::GetInstance();
+        TokenSystem* system = SingletonComponent<TokenSystem>::GetInstance();
+        return system;
     }
     IToken* GetTokenFromID(int tokenID)
     {
@@ -48,7 +49,7 @@ namespace
 TokenInventory::TokenInventory(CharacterBase* owner) 
     : _tokenTable(), _owner(*owner)
 {
-    Initialize();
+   
 }
 
 TokenInventory::~TokenInventory() 
