@@ -170,6 +170,7 @@ void GraphicsCore::CreateSDFTextRenderer(class ISDFTextRenderer** component) con
 {
     SDFTextRenderer* textRenderer = new SDFTextRenderer;
     textRenderer->Initialize();
+    textRenderer->AddReference();
 
     *component = textRenderer;
 }
@@ -178,6 +179,7 @@ void GraphicsCore::CreateMeshRenderer(IMeshRenderer** component, const Matrix* w
 {
     MeshRenderer* meshRenderer = new MeshRenderer;
     meshRenderer->Initialize(worldMatrix);
+    meshRenderer->AddReference();
 
     *component = meshRenderer;
 }
@@ -186,6 +188,7 @@ void GraphicsCore::CreateSpriteRenderer(ISpriteRenderer** component, const Matri
 {
     SpriteRenderer* spriteRenderer = new SpriteRenderer;
     spriteRenderer->Initialize(worldMatrix);
+    spriteRenderer->AddReference();
 
     *component = spriteRenderer;
 }
@@ -193,6 +196,8 @@ void GraphicsCore::CreateSpriteRenderer(ISpriteRenderer** component, const Matri
 void GraphicsCore::CreateLight(ILight** component) const
 {
     Light* light = new Light;
+    light->AddReference();
+
     *component = light;
 }
 
@@ -243,7 +248,7 @@ void GraphicsCore::LoadModelResource(const std::wstring_view filePath, ParticleE
     }
 }
 
-void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT height, const FeatureLevel feature, bool isEditorMode)
+void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT height, const FeatureLevel feature, bool isEditorMode, bool isRayTracing)
 {
     _device                   = new Device;
     _renderer                 = new Renderer;
@@ -278,7 +283,7 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     Global::pipelineStateManager     = _pipelineStateManager;
     Global::threadPool               = _threadPool;
     Global::sceneTransitionCore      = _sceneTransitionCore;
-
+    Global::isRayTracing             = isRayTracing;
     _device->SetUpDevice(hwnd, width, height, feature);
     _viewManager->Initialize();
     _device->Initialize();

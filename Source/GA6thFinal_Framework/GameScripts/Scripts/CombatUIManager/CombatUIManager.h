@@ -49,6 +49,7 @@ protected:
 private:
     void PreferencesKeyDown(const Input::Controller&);
     void InventoryKeyDown(const Input::Controller&);
+    UINavigationComponent* GetLastFocusNaviFromObjectName(const std::string& uiRootObjectName);
 
 public:
     CombatUI::CharacterHUDGroup CharacterHUDGroup;

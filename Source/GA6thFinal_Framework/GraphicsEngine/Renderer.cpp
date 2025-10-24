@@ -21,14 +21,13 @@
 #include "BlendTechnique.h"
 #include "BloomTechnique.h"
 #include "EditorDrawTechnique.h"
-#include "PBRLitTechnique.h"
+#include "LightingTechnique.h"
 #include "SSRTechnique.h"
 #include "VolumetricFogTechnique.h"
 #include "ParticleRenderTechnique.h"
 #include "RayTracingTechnique.h"
 #include "SkyBoxRenderTechnique.h"
 #include "UITechnique.h"
-#include "UITechnique_OIT.h"
 #include "SceneTransitionTechnique.h"
 #include "SSGITechnique.h"
 #include "FXAATechnique.h"
@@ -170,9 +169,9 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
     {
         scene->AddRenderTechnique(std::make_unique<RayTracingTechnique>());
     }
-    if (RenderTechniqueFlag::PBR_TECH & flag)
+    if (RenderTechniqueFlag::LIGHTING_TECH & flag)
     {
-        scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
+        scene->AddRenderTechnique(std::make_unique<LightingTechnique>());
     }
     if (RenderTechniqueFlag::SSR_TECH & flag)
     {
@@ -213,8 +212,7 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
     // UI Pass
     if (RenderTechniqueFlag::UI_TECH & flag)
     {
-        //scene->AddRenderTechnique(std::make_unique<UITechnique>());
-        scene->AddRenderTechnique(std::make_unique<UITechnique_OIT>());
+        scene->AddRenderTechnique(std::make_unique<UITechnique>());
     }
     // Scene Transition Effect
     if (RenderTechniqueFlag::SCENE_TRANSITION_TECH & flag)

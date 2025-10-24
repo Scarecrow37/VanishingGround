@@ -47,7 +47,7 @@ public:
     /// </summary>
     /// <param name="attacker :">공격자</param>
     /// <param name="target :">대상</param>
-    void operator()(Player& attacker, EnemyTargetFlag targetFlag, const QTE::NoteResult& result);
+    void operator()(Player& attacker, EnemyTargetFlag targetFlag, QTE::NoteResult& result);
 
     /// <summary>
     /// 적으로 공격을 수행합니다.
@@ -93,10 +93,10 @@ private:
     inline static std::unordered_set<Enemy*> currentChainDamageSet; 
 
 private:
-    static void BattleStart(Player& attacker, Enemy& target, const QTE::NoteResult& result);
+    static void BattleStart(Player& attacker, Enemy& target, QTE::NoteResult& result);
     static void BattleStart(Enemy& attacker, Player& target);
 
-    static void ChainStart(Player& attacker, Enemy& target, const QTE::NoteResult& result);
+    static void ChainStart(Player& attacker, Enemy& target, QTE::NoteResult& result);
     static void ChainStart(Enemy& attacker, Player& target);
 };
 

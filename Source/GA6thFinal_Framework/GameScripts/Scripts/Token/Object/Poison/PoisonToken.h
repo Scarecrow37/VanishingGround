@@ -1,44 +1,32 @@
 ﻿#pragma once
 #include <Token/Token.h>
+
 namespace TokenObject
 {
-    class Poison1 : public Token
+    // 중독 토큰
+    class Poison : public Token
     {
-        TOKEN_DATA(16003, "중독Ⅰ")
-        TOKEN_CONSTRUCTOR(Poison1, 50, 3, TokenTag::POISON)
-        REFLECT_PROPERTY()
+        TOKEN_DATA(205001)
     private:
-        void OnEachTurnStart(CharacterBase* owner, CharacterBase * destination) override;
-
-    private:
-        REFLECT_FIELDS_BEGIN(Token)
-        int TickDamage = 15;
-        REFLECT_FIELDS_END(Poison1)
+        bool CanAdd(CharacterBase* owner) const override;
+        void OnTurnStart(CharacterBase* owner) override;
     };
 
-    class Poison2 : public Token
+    // 중독 부여 토큰
+    class PoisonGrant : public Token
     {
-        TOKEN_DATA(16004, "중독Ⅱ")
-        TOKEN_CONSTRUCTOR(Poison2, 50, 3, TokenTag::POISON)
+        TOKEN_DATA(205004)
     private:
-        void OnEachTurnStart(CharacterBase* owner, CharacterBase * destination) override;
-
-    private:
-        REFLECT_FIELDS_BEGIN(Token)
-        int TickDamage = 30;
-        REFLECT_FIELDS_END(Poison2)
+        void OnTurnEnd(CharacterBase* owner) override;
+        void OnPostPlayerAttackCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData,
+                                               int& damage) override;
+        void OnPostEnemyAttackCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData,
+                                              int& damage) override;
     };
 
-    class Poison3 : public Token
+    // 중독 저항 토큰
+    class PoisonResistance : public Token
     {
-        TOKEN_DATA(16005, "중독Ⅲ")
-        TOKEN_CONSTRUCTOR(Poison3, 50, 3, TokenTag::POISON)
-    private:
-        void OnEachTurnStart(CharacterBase* owner, CharacterBase * destination) override;
-
-    private:
-        REFLECT_FIELDS_BEGIN(Token)
-        int TickDamage = 60;
-        REFLECT_FIELDS_END(Poison3)
+        TOKEN_DATA(205028)
     };
 } // namespace TokenObject

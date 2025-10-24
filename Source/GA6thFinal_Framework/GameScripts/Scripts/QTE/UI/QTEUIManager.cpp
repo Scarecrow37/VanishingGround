@@ -5,10 +5,10 @@
 #include <UI/Panels/Overlay/OverlayPanel.h>
 #include <UI/Elements/Image/ImageElement.h>
 #include <Camera/CameraComponent.h>
-
-#include <BattleSystem/Battle.h>
+#include <TurnSystem/TurnMode/TurnMode.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 #include "UI/Elements/SpriteAnimation/SpriteAnimationElement.h"
+#include <Monster/Common/MonsterCommon.h>
 
 UMREAL_COMPONENT(QTEUIManager)
 

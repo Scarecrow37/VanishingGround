@@ -130,8 +130,8 @@ public:
     inline std::pair<float, float> GetFadeOutPosFactor() const { return ReflectFields->FadeOutPosFactor; }
 
     inline QTE::Track* GetCurrentQTETrack() const { return _currentQTETrack; }
+    inline QTE::OverallResult& GetQTEOverallResult() { return _overallResult; }
     inline const std::vector<QTE::NoteData>& GetCurrentQTEAvailQueue() const { return _noteAvailQueue; }
-    inline const QTE::OverallResult& GetQTEOverallResult() const { return _overallResult; }
     inline const std::unordered_map<int, std::vector<QTE::Track*>>& GetWeaponIDToTrackTable() const { return _weaponIDToTrackTable; }
 
     inline size_t GetCurrentNoteIndex() const { return _currentNoteIndex; }

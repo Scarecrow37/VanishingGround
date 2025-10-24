@@ -8,9 +8,10 @@ void EngineCoresModule::PreInitialize()
     ESceneManager::Engine::RegisterFileEvents();
     EGameObjectFactory::Engine::RegisterFileEvents();
     
-    const SIZE& clientSize = UmApplication.GetClientSize();
-    UmGraphics.Initialize(engineCore->App.GetHwnd(), clientSize.cx, clientSize.cy, FeatureLevel::LEVEL_12_0, IS_EDITOR);
     UmPreferences.Initialize();
+    bool isRayTracing = UmPreferences.IsRayTracing();
+    const SIZE& clientSize = UmApplication.GetClientSize();
+    UmGraphics.Initialize(engineCore->App.GetHwnd(), clientSize.cx, clientSize.cy, FeatureLevel::LEVEL_12_0, IS_EDITOR, isRayTracing);
 }
 
 void EngineCoresModule::ModuleUnInitialize()
@@ -20,9 +21,11 @@ void EngineCoresModule::ModuleUnInitialize()
         UmCommandManager.Clear();
         EditorHierarchyTool::CleanupEditorObjects();
     }
-    ESceneManager::Engine::CleanupSceneManager();
     ETimeSystem::Engine::CleanUpInvokeFuntions();
+    ESceneManager::Engine::CleanupSceneManager();
+    EGameObjectFactory::Engine::Finalize();
     engineCore->ComponentFactory.UninitalizeComponentFactory();
+    UmPreferences.Uninitialize();
     UmGraphics.Finalize();
     SafeEngineCoresPtr::Engine::DestroyEngineCores();
 }

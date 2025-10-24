@@ -6,7 +6,7 @@ unsigned long long GraphicsBase::_globalID = 0;
 GraphicsBase::GraphicsBase()
     : _ID(++_globalID)
     , _isActive(nullptr)
-    , _referenceCount(1)
+    , _referenceCount(0)
 {
 }
 

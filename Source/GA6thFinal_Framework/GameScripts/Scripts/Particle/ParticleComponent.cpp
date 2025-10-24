@@ -343,6 +343,12 @@ void ParticleComponent::PlayEffect(const std::string& key)
     UmParticleManager->PlayEffect(this, key);
 }
 
+void ParticleComponent::PlayEffect(const std::string& key, EffectCallback callback) 
+{
+    FollowBoneMatrix(key);
+    UmParticleManager->PlayEffect(this, key,callback);
+}
+
 void ParticleComponent::StopEffect(const std::string& key)
 {
     UmParticleManager->StopEffect(this, key);

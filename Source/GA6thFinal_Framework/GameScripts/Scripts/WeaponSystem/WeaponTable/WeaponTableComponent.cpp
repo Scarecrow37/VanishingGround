@@ -456,7 +456,7 @@ void WeaponTableComponent::ImGuiTableEditor()
                 ImGui::TableSetColumnIndex(8);
                 {
                     TurnAction::ImGuiDrawActionMaker(key, weapon._action, weapon._showActionEditor);
-                }              
+                }
             }
             ImGui::PopID();
         }

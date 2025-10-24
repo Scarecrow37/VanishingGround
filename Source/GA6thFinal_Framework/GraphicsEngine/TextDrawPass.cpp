@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "TextDrawPass.h"
 #include "TextRenderer.h"
-#include "UITechnique_OIT.h"
+#include "UITechnique.h"
 
 static std::unique_ptr<SpriteBatch> spriteBatch;
 
@@ -20,7 +20,7 @@ void TextDrawPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTec
         {
             auto& device = Global::device;
 
-            RenderTargetState rtState(DXGI_FORMAT_R32G32B32A32_FLOAT, static_cast<UITechnique_OIT*>(_ownerTechnique)->GetDepthStencilView()->GetFormat());
+            RenderTargetState rtState(DXGI_FORMAT_R32G32B32A32_FLOAT, static_cast<UITechnique*>(_ownerTechnique)->GetDepthStencilView()->GetFormat());
 
             D3D12_BLEND_DESC blendDesc       = {};
             blendDesc.AlphaToCoverageEnable  = FALSE;
@@ -63,7 +63,7 @@ void TextDrawPass::Begin(ID3D12GraphicsCommandList* commandList)
     spriteBatch->SetViewport(viewport);
     spriteBatch->Begin(commandList);
 
-    auto depthStencilView = static_cast<UITechnique_OIT*>(_ownerTechnique)->GetDepthStencilView();
+    auto depthStencilView = static_cast<UITechnique*>(_ownerTechnique)->GetDepthStencilView();
     depthStencilView->TransitionResource(commandList, D3D12_RESOURCE_STATE_DEPTH_READ);
 
     _finalRenderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);

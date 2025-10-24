@@ -39,12 +39,15 @@ namespace
             {
                 if (filter.PassFilter(key.data()))
                 {
-                    bool isSelect = key == actionName;
-                    if (ImGui::Selectable(key.data(), isSelect))
+                    if (false == key.empty())
                     {
-                        if (false == isSelect)
+                        bool isSelect = key == actionName;
+                        if (ImGui::Selectable(key.data(), isSelect))
                         {
-                            action.reset(func());
+                            if (false == isSelect)
+                            {
+                                action.reset(func());
+                            }
                         }
                     }
                 }
@@ -183,7 +186,6 @@ const std::string& TurnAction::GetConditionsInfo() const
     return info;
 }
 
-
 void TurnAction::SerializedReflectEvent()
 {
     ConditionsToReflectDatas();
@@ -263,12 +265,12 @@ void TurnAction::ImguiDrawConditionEditor()
 
 void TurnAction::ConditionsToReflectDatas() 
 {
-    ReflectFields->_conditionDatas.clear();
+    ReflectFields->ConditionDatas.clear();
     for (auto& condition : _conditions)
     {
         if (condition)
         {
-            ReflectFields->_conditionDatas.emplace_back(typeid(*condition).name(),
+            ReflectFields->ConditionDatas.emplace_back(typeid(*condition).name(),
                                                         condition->SerializedReflectFields());
         }     
     }
@@ -277,7 +279,7 @@ void TurnAction::ConditionsToReflectDatas()
 void TurnAction::ReflectDatasToConditions() 
 {
     _conditions.clear();
-    for (auto& [key, data] : ReflectFields->_conditionDatas)
+    for (auto& [key, data] : ReflectFields->ConditionDatas)
     {
         TurnActionCondition* condition = NewInstanceWithKey(key);
         if (condition)

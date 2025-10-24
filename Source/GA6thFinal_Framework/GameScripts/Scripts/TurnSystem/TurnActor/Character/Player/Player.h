@@ -54,14 +54,13 @@ public:
     virtual void Dead() override;
     /*플레이어에게 피격을 가합니다.*/
     virtual void TakeDamage(int damage, bool playAnim = true) override;
-    virtual void TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim = true) override;
 
     FiniteStateMachine& GetFSM() { return *_finiteStateMachine; }
     const PlayerStates& GetFSMStates() { return _fsmStates; }
 
 public:
-    virtual int GetSpeed() override;
-    virtual int GetRandomSpeed() override;
+    int GetSpeed() override;
+    int GetRandomSpeed() override;
     CharacterStats* GetCharacterStats() override;
 
     /// <summary>

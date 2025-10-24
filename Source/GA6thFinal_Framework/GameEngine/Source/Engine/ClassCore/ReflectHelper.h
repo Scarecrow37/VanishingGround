@@ -197,7 +197,14 @@ protected:                                                                      
             CLASS##::DeserializedReflectEvent();                                                                \
         }                                                                                                       \
     }                                                                                                           \
-    virtual void applyReflectFields(const std::function<void(std::string_view, void*)>& func);
+    virtual void applyReflectFields(const std::function<void(std::string_view, void*)>& func);                  \
+                                                                                                                \
+private:                                                                                                        \
+    void imgui_draw_reflect_fields_input_auto(std::unordered_set<void*>& reflectionFieldsSet, const ReflectHelper::ImGuiDraw::InputAutoSetting& setting);   \
+                                                                                                                                                            \
+protected:
+    
+
                        
 // 에디터 편집을 허용할 프로퍼티들을 등록합니다. Get, Set 함수가 모두 존재하는
 // 프로퍼티만 편집 가능합니다.
@@ -223,14 +230,7 @@ protected:                                                                      
                 reflectionFieldsSet.insert(&field);                                                         \
             }                                                                                               \
         });                                                                                                 \
-        const auto view = rfl::to_view(*ReflectFields.Get());                                               \
-        view.apply([&](auto& rflField) {                                                                    \
-            if (reflectionFieldsSet.find(rflField.value()) !=                                               \
-                reflectionFieldsSet.end())                                                                  \
-            {                                                                                               \
-                ReflectHelper::ImGuiDraw::Private::InputAuto(rflField, setting);                            \
-            }                                                                                               \
-        });                                                                                                 \
+        imgui_draw_reflect_fields_input_auto(reflectionFieldsSet, setting);                                 \
         if (true == isTail)                                                                                 \
         {                                                                                                   \
             setting.InputEndEvent = nullptr;                                                                \
@@ -426,6 +426,19 @@ namespace ReflectHelper
                                     if (nullptr != data)
                                     {
                                         auto result = rfl::json::read<RECT>(data);
+                                        if (result)
+                                        {
+                                            value = result.value();
+                                        }
+                                        free(data);
+                                    }
+                                }
+                                else if constexpr (std::is_same_v<FieldTpye, std::array<float, 4>>)
+                                {
+                                    char* data = yyjsonValToCStr(jsonVal);
+                                    if (nullptr != data)
+                                    {
+                                        auto result = rfl::json::read<std::array<float, 4>>(data);
                                         if (result)
                                         {
                                             value = result.value();

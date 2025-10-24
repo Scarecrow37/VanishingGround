@@ -116,7 +116,10 @@ protected:
 
     void Reset() override;
     void Awake() override;
+    void Update() override;
     void OnDestroy() override;
+
+    void DebugUpdate();
 
 private:
     SingletonComponent<ItemDropSystem>     _singletonComponent{this};

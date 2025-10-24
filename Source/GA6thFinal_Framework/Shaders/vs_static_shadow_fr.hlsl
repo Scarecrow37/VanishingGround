@@ -21,20 +21,18 @@ struct VSOutput
     uint arrayIndex : SV_RenderTargetArrayIndex;
 };
 
-struct ShadowMeshData
+struct InstanceOffset
 {
-    uint InstanceCount;
     uint Offset;
 };
 
-ConstantBuffer<ShadowMeshData> bit32_2_shadowMeshData;
+ConstantBuffer<InstanceOffset> bit32_1_instanceOffset;
 
 VSOutput vs_main(VSInput input)
 {
-    uint offset = bit32_2_shadowMeshData.Offset;
-    uint instanceCount = bit32_2_shadowMeshData.InstanceCount;
-    uint cascadeIndex = input.instanceID / instanceCount;
-    InstanceData data = instanceData[input.instanceID % instanceCount + offset];
+    uint offset = bit32_1_instanceOffset.Offset;
+    uint cascadeIndex = input.instanceID % MAX_CASCADES;
+    InstanceData data = instanceData[input.instanceID / MAX_CASCADES + offset];
     
     VSOutput output = (VSOutput) 0;
 
