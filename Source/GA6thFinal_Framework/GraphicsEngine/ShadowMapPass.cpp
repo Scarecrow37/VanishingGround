@@ -348,8 +348,7 @@ void ShadowMapPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType 
         commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_1_mipBias"), 1, &parallaxMappingProperty.MipBias, 0);
         break;
     }
-
-    UINT parameter[2]{0, offset};
+    
     UINT instanceCount = 0;
     BaseMesh* previousMesh  = nullptr;
     BaseMesh* currentMesh   = nullptr;
@@ -365,22 +364,20 @@ void ShadowMapPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType 
 
         if (meshInfo->Mesh != previousMesh)
         {
-            parameter[0] = instanceCount;
-
             switch (meshType)
             {
             case STATIC_MESH:
-                commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_2_shadowMeshData"), 2, &parameter, 0);
+                commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_1_instanceOffset"), 1, &offset, 0);
                 break;
 
             case SKELETAL_MESH:
-                commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_2_shadowMeshData"), 2, &parameter, 0);
+                commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_1_instanceOffset"), 1, &offset, 0);
                 break;
             }
 
             previousMesh->Render(commandList, instanceCount * MAX_CASCADES);
             previousMesh = meshInfo->Mesh;
-            parameter[1] += instanceCount;
+            offset += instanceCount;
             instanceCount = 1;
         }
         else
@@ -396,10 +393,10 @@ void ShadowMapPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType 
         switch (meshType)
         {
         case STATIC_MESH:
-            commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_2_shadowMeshData"), 2, &parameter, 0);
+            commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_1_instanceOffset"), 1, &offset, 0);
             break;
         case SKELETAL_MESH:
-            commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_2_shadowMeshData"), 2, &parameter, 0);
+            commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_1_instanceOffset"), 1, &offset, 0);
             break;
         }
 
