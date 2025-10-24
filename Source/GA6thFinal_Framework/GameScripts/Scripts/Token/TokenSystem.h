@@ -38,6 +38,7 @@ private:
     void Reset() override; 
     void Added() override;
     void Awake() override;
+    void Start() override;
     void OnDestroy() override;
     void ImGuiDrawPropertysEvent() override;
 
@@ -51,7 +52,9 @@ public:
     inline const std::vector<std::unique_ptr<Token>>&  GetTokenInstances() { return _tokenInstances; }
     inline const std::unordered_map<std::string, std::set<TokenID>>& GetTokenTagTable() { return _tokenTagTable; }
 
+
 private:
+    void InitData();
     void Clear();
     void SortByOrder();
     void RegisterAllTokenInstance();
