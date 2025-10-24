@@ -9,18 +9,15 @@ namespace TokenObject
     REGISTER_TOKEN(Stun)
     REGISTER_TOKEN(StunResistance)
 
-    REFLECT_FUNCTION(Stun)
-
     bool Stun::CanAdd(CharacterBase* owner) const 
     {
-        if (owner && owner->State != TurnActor::STATE::Dead)
+        if (owner && false == owner->IsDead())
         {
             auto& tokenInventory = owner->GetTokenInventory();
-            bool  hasStunResistance = tokenInventory.HasTokenFromID(TokenObject::StunResistance::ID);
-            if (hasStunResistance)
+            if (tokenInventory.HasTokenFromID(StunResistance::ID))
             {
                 // 기절 저항을 1 깎는다.
-                tokenInventory.RemoveTokenStackFromID(TokenObject::StunResistance::ID);
+                tokenInventory.RemoveTokenStackFromID(StunResistance::ID);
                 // 기절 저항이 있다면 기절 토큰을 추가하지 않는다.
                 return false;
             }
@@ -35,7 +32,7 @@ namespace TokenObject
 
     void Stun::OnTurnStart(CharacterBase* owner)
     {
-        if (owner && owner->State != TurnActor::STATE::Dead)
+        if (owner && false == owner->IsDead())
         {
             // 기절 상태인 경우, 턴을 넘김
             auto& tokenInventory = owner->GetTokenInventory();
@@ -45,7 +42,7 @@ namespace TokenObject
             if (stats)
             {
                 // 스턴 저항 수치 갱신은 올림 계산
-                float stunResistance  = std::ceilf((float)stats->StunResistance * stats->StunResistanceMultiplier);
+                const float stunResistance = std::ceilf((float)stats->StunResistance * stats->StunResistanceMultiplier);
                 stats->StunResistance = static_cast<int>(stunResistance);
                 tokenInventory.AddTokenStackFromID(TokenObject::StunResistance::ID, stats->StunResistance);
             }

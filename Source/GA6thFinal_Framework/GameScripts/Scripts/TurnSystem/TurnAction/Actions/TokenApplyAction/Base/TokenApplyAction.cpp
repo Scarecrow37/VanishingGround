@@ -3,27 +3,33 @@
 #include "Token/TokenSystem.h"
 #include "TurnSystem/TurnSystemHelper.h"
 
+TokenApplyAction::TokenApplyAction() 
+{
+    ReflectFields->TokenID = TokenObject::Bleed::ID;
+}
+
 REFLECT_FUNCTION(TokenApplyAction)
 
 void TokenApplyAction::ImGuiDrawPropertysEvent()
 {
     ImGui::Text("Action");
-    std::string_view prevValue = TokenSystem::GetTokenNameFromID(ReflectFields->TokenID);
+    std::string_view prevValue = TokenSystem::TokenIDToName(ReflectFields->TokenID);
     if (prevValue.empty())
     {
         prevValue = STR_NULL;
     }
     if (ImGui::BeginCombo("Token ID##A72AE710-2115-4E9C-BC03-9709C4100F04", prevValue.data()))
     {
-        bool selectable = false;
-        for (auto& token : TokenSystem::GetTokenInstances())
+        for (auto& id : TokenSystem::GetRegisteredTokenList())
         {
-            const char* name = token->GetTokenName();
-            int         id   = token->GetTokenID();
-            selectable       = ReflectFields->TokenID == id ? true : false;
-            if (ImGui::Selectable(name, selectable))
+            std::string_view name = TokenSystem::TokenIDToName(id);
+            if (false == name.empty())
             {
-                TokenID = id;
+                bool selectable = ReflectFields->TokenID == id;
+                if (ImGui::Selectable(name.data(), selectable))
+                {
+                    TokenID = id;
+                }
             }
         }
         ImGui::EndCombo();
@@ -38,7 +44,19 @@ void TokenApplyAction::ImGuiDrawPropertysEvent()
     ImguiDrawConditionEditor();
 }
 
-void TokenApplyAction::DeserializedReflectEvent() 
+void TokenApplyAction::TryTokenSystemInfoUpdate() 
 {
-    UpdateActionInfo();
+    if (false == validTokenSystem)
+    {
+        if (TokenSystem* system = SingletonComponent<TokenSystem>::GetInstance())
+        {
+            const std::string& name = system->GetTokenNameFromID(TokenID);
+            if (name.empty())
+            {
+                ReflectFields->TokenID = TokenObject::Bleed::ID; 
+            }
+            UpdateActionInfo();
+            validTokenSystem = true;
+        }     
+    }
 }

@@ -62,7 +62,6 @@ void MeshComponent::SerializedReflectEvent()
 
             for (size_t i = 0; i < meshCount; i++)
             {
-                ReflectFields->BlendMode[i]  = materials[i].BlendMode;
                 ReflectFields->IsTwoSided[i] = materials[i].IsTwoSided;
             }
         }

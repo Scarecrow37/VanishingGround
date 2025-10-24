@@ -18,6 +18,7 @@
 
 #include <CombatUIManager/CombatUIManager.h>
 
+#include <Stats/CharacterStats.h>
 
 using namespace u8_literals;
 
@@ -174,6 +175,14 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
         }
         ImGui::Separator();
         Player& player = GetPlayer();
+        if (ImGui::Button((const char*)u8"[플레이어] 회복"))
+        {
+            if (CharacterStats* stats = player.GetCharacterStats())
+            {
+                stats->CurrentHP += 10;
+                stats->CurrentHP = std::clamp((int)stats->CurrentHP, 0, (int)stats->MaxHP);
+            }
+        }
         if (ImGui::Button((const char*)u8"[플레이어] 자해"))
         {
             player.TakeDamage(10);
@@ -302,7 +311,7 @@ void PlayerPlayTurnState::SetAttackEnd()
     }
 }
 
-void PlayerPlayTurnState::BattleOnHitEvent(const QTE::NoteResult& result) 
+void PlayerPlayTurnState::BattleOnHitEvent(QTE::NoteResult& result) 
 {
     Battle::EnemyTargetFlag_ target = GetAttackTargetFromButton(result.PressedButton);
     Player& player = GetPlayer();
@@ -355,9 +364,9 @@ void PlayerPlayTurnState::OnQTEFinish()
     QTESystem* qteSystem = SingletonComponent<QTESystem>::GetInstance();
     if (qteSystem)
     {
-        const QTE::OverallResult& results = qteSystem->GetQTEOverallResult();
-        const auto& noteResults = results.NoteResults;
-        for (const auto& result : noteResults)
+        QTE::OverallResult& results = qteSystem->GetQTEOverallResult();
+        auto& noteResults = results.NoteResults;
+        for (auto& result : noteResults)
         {
             float qteDelay  = qteSystem->GetDelayFromQTEStart();
             const QTE::NoteData* note = result.NoteData;

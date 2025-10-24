@@ -75,13 +75,14 @@ void ImGuiDX12Module::ModuleInitialize()
 
 void ImGuiDX12Module::PreUnInitialize()
 {
-    ImGui_ImplDX12_Shutdown();
-    ImGui_ImplWin32_Shutdown();
-    ImGui::DestroyContext();
+
 }
 
 void ImGuiDX12Module::ModuleUnInitialize()
 {
+    ImGui_ImplDX12_Shutdown();
+    ImGui_ImplWin32_Shutdown();
+    ImGui::DestroyContext();
 }
 
 bool ImGuiDX12Module::ImGuiWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)

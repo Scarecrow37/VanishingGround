@@ -190,6 +190,12 @@
     <FxCompile Include="..\Shaders\ps_transparent_lim_light.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\ps_dxrgbuffer_masked.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\gs_point_light_shadow_cube.hlsl">
+      <Filter>Shaders\gs</Filter>
+    </FxCompile>
     <FxCompile Include="..\Shaders\cs_ribbon_interpolate.hlsl" />
       <Filter>Shaders\cs</Filter>
     </FxCompile>
@@ -1172,6 +1178,9 @@
     </Filter>
     <Filter Include="헤더 파일">
       <UniqueIdentifier>{8bb46fea-0376-4dcd-9442-fe01ff47164c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\gs">
+      <UniqueIdentifier>{970c557c-f27d-45e1-909d-93508640e818}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

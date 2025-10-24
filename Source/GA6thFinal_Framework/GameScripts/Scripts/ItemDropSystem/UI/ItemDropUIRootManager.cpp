@@ -9,6 +9,9 @@
 #include "ItemDropSystem/UINavi/ArtifactButtonNavi.h"
 #include "ItemDropSystem/UI/WeaponChangeUIManager.h"
 #include "ItemDropSystem/UI/EraseRevelationUIManager.h"
+#include "ItemDropSystem/UINavi/ReturnToMapNavi.h"
+#include "Preferences/PreferencesManager.h"
+#include "Inventory/UI/InventoryUIManager.h"
 
 UMREAL_COMPONENT(ItemDropUIRootManager)
 
@@ -163,9 +166,9 @@ void ItemDropUIRootManager::Start()
                 _artifactUIManager = std::static_pointer_cast<ArtifactUIManager>(weakComponent.lock());
             }
         }
-        if (auto itemInfoUI = GameObject::FindWithTag(ItemInfoUIManager::TAG).lock())
+        if (auto itemInfoUI = transform->FindWithTag(ItemInfoUIManager::TAG))
         {
-            if (ItemInfoUIManager* component = itemInfoUI->GetComponent<ItemInfoUIManager>())
+            if (ItemInfoUIManager* component = itemInfoUI->gameObject->GetComponent<ItemInfoUIManager>())
             {
                 auto weakComponent = component->GetWeakPtr();
                 _itemInfoUIManager = std::static_pointer_cast<ItemInfoUIManager>(weakComponent.lock());
@@ -195,6 +198,14 @@ void ItemDropUIRootManager::Start()
                 _restartNavi   = std::static_pointer_cast<RestartStageNavi>(component);
             }
         }
+        if (auto returnToMapNaviObject = GameObject::FindWithTag(ReturnToMapNavi::TAG).lock())
+        {
+            if (auto navi = returnToMapNaviObject->GetComponent<ReturnToMapNavi>())
+            {
+                auto component = navi->GetWeakPtr().lock();
+                _returnToMapNavi = std::static_pointer_cast<ReturnToMapNavi>(component);
+            }
+        }
         gameObject->ActiveSelf = false;
     }
 }
@@ -202,6 +213,32 @@ void ItemDropUIRootManager::Start()
 void ItemDropUIRootManager::Update() 
 {
     UpdateAutoFocus();
+    Debugger db;
+    db([this]() 
+    {
+        using namespace u8_literals;
+        if (gameObject->ActiveInHierarchy)
+        {
+            if (ImGui::TreeNode("Stage Clear UI Button"))
+            {
+                if (ImGui::Button(u8"다음 전투"_c_str))
+                {
+                    if (auto navi = _restartNavi.lock())
+                    {
+                        navi->Submit();
+                    }
+                }
+                if (ImGui::Button(u8"떠난다"_c_str))
+                {
+                    if (auto navi = _returnToMapNavi.lock())
+                    {
+                        navi->Submit();
+                    }
+                }
+                ImGui::TreePop();
+            }
+        }
+    });
 }
 
 void ItemDropUIRootManager::LateUpdate() 
@@ -214,21 +251,42 @@ void ItemDropUIRootManager::UpdateAutoFocus()
 {
     if (_isFocusInput)
     {
-        WeaponChangeUIManager*    weaponChaingUI    = WeaponChangeUI;
-        EraseRevelationUIManager* eraseRevelationUI = EraseRevelationUI;
-        bool                      isFocus           = true;
+        WeaponChangeUIManager*    weaponChaingUI     = WeaponChangeUI;
+        EraseRevelationUIManager* eraseRevelationUI  = EraseRevelationUI;
+        InventoryUIManager*       inventoryUI        = SingletonComponent<InventoryUIManager>::GetInstance();
+        PreferencesManager*       preferencesManager = SingletonComponent<PreferencesManager>::GetInstance();
+
         if (weaponChaingUI)
         {
-            isFocus &= weaponChaingUI->gameObject->ActiveInHierarchy == false;
+            if (weaponChaingUI->gameObject->ActiveInHierarchy)
+            {
+                goto label_end;
+            }
         }
         if (eraseRevelationUI)
         {
-            isFocus &= eraseRevelationUI->gameObject->ActiveInHierarchy == false;
+            if (eraseRevelationUI->gameObject->ActiveInHierarchy)
+            {
+                goto label_end;
+            }
         }
-        if (isFocus)
+        if (inventoryUI)
         {
-            AutoFocus(true);
+            if (inventoryUI->gameObject->ActiveInHierarchy)
+            {
+                goto label_end;
+            }
         }
+        if (preferencesManager)
+        {
+            if (preferencesManager->IsOpen())
+            {
+                goto label_end;
+            }
+        }
+
+        AutoFocus(true);
+label_end:
         _isFocusInput = false;
     }
 }

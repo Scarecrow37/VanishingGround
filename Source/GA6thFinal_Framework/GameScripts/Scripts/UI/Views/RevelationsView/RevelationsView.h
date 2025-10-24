@@ -33,6 +33,7 @@ protected:
 private:
     void FindRevelationUIs();
     std::pair<GameObject*, RevelationUI> FindRevelationUI(const std::string& tag) const;
+    void                                 ClearRevelationUIs();
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
