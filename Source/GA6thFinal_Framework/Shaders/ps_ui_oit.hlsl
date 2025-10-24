@@ -33,6 +33,7 @@ Texture2D textures[];
 // Material Types
 static const uint BASIC = 0;
 static const uint LINEAR_FILL = 1;
+static const uint RADIAL_FILL = 2;
 
 void ps_main(PSInput input)
 {
@@ -55,6 +56,14 @@ void ps_main(PSInput input)
     {
         case LINEAR_FILL:
             clip(uiMaterialData[index].fill - input.uv.x);
+            break;
+        case RADIAL_FILL:
+            float2 centered = input.uv - 0.5;
+            float angle = atan2(-centered.x, centered.y);
+            float normalizedAngle = (angle + PI) / (2.0 * PI);
+            clip(uiMaterialData[index].fill - normalizedAngle);
+            break;
+        default:
             break;
     }
 

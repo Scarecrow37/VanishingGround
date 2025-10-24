@@ -15,7 +15,7 @@ public:
     ~ImageElement() override;
 
 public:
-    REFLECT_PROPERTY(FilePath, Alpha, Column, Row, ColumnIndex, RowIndex)
+    REFLECT_PROPERTY(FilePath, Alpha, Column, Row, ColumnIndex, RowIndex, LinearFill, RadialFill)
 
     GETTER_ONLY(std::string, FilePath) { return _Guid.ToPath().string(); }
     PROPERTY(FilePath)
@@ -65,6 +65,24 @@ public:
     }
     PROPERTY(RowIndex)
 
+    GETTER(float, LinearFill) { return ReflectFields->LinearFill; }
+    SETTER(float, LinearFill)
+    {
+        const float clampedFill = std::clamp(value, 0.0f, 1.0f);
+        ReflectFields->LinearFill = clampedFill;
+        SetLinearFill(clampedFill);
+    }
+    PROPERTY(LinearFill)
+
+    GETTER(float, RadialFill) { return ReflectFields->RadialFill; }
+    SETTER(float, RadialFill)
+    {
+        const float clampedFill = std::clamp(value, 0.0f, 1.0f);
+        ReflectFields->RadialFill = clampedFill;
+        SetRadialFill(clampedFill);
+    }
+    PROPERTY(RadialFill)
+
 public:
     /// <summary>
     /// 이미지 파일을 지정된 GUID 참조로 설정합니다.
@@ -76,7 +94,13 @@ public:
     /// 선형 채우기 값을 설정합니다. 현재 좌우 채우기 모드에서만 적용됩니다.
     /// </summary>
     /// <param name="fill">설정할 선형 채우기 값입니다. 0.0f에서 1.0f 사이의 값을 가집니다.</param>
-    void SetLinearFill(float fill);
+    void SetLinearFill(float fill) const;
+
+    /// <summary>
+    /// 방사형 채움(라디얼 필) 값을 설정합니다.
+    /// </summary>
+    /// <param name="fill">채워질 비율을 나타내는 부동 소수점 값. 일반적으로 0.0(비어 있음)에서 1.0(완전 채움) 범위로 사용됩니다.</param>
+    void SetRadialFill(float fill) const;
 
     /// <summary>
     /// 스프라이트의 크기로 값을 초기화합니다.
@@ -112,6 +136,8 @@ protected:
     int         Row    = 1;
     int         ColumnIndex = 0;
     int         RowIndex    = 0;
+    float       LinearFill  = 1.0f;
+    float       RadialFill  = 1.0f;
     REFLECT_FIELDS_END(ImageElement)
 
 private:
