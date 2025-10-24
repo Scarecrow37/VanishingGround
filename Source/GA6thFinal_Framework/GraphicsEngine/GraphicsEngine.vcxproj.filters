@@ -591,9 +591,6 @@
     <ClCompile Include="UI3DPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="UI3DPass.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="UIPassBase.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
