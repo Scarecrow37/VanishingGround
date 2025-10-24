@@ -28,7 +28,7 @@ protected:
     bool Evaluate() override;
     void DrawImguiEditor() override;
     void DeserializedReflectEvent() override;
-    const std::string& GetConditionInfo() const override;
+    const std::string& GetConditionInfo() override;
 
     REFLECT_FIELDS_BEGIN(TurnActionCondition)
     TurnTarget Target   = TurnTarget::SELF;
