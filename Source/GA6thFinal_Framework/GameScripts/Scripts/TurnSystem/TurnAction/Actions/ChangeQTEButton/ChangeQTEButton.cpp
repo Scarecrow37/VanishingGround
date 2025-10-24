@@ -22,7 +22,7 @@ const std::string& ChangeQTEButton::GetActionInfo()
 
 void ChangeQTEButton::ImGuiDrawActionEditor() 
 {
-    ImguiDrawConditionEditor();
+    //ImguiDrawConditionEditor();
 }
 
 void ChangeQTEButton::OnAddedAction() 
