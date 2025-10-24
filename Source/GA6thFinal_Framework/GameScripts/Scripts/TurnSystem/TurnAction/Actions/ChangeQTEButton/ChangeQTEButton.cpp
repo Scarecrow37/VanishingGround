@@ -33,10 +33,11 @@ void ChangeQTEButton::OnAddedAction()
 {
     if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
     {
-        const QTE::KeyBindState& currState = system->GetCurrentKeyBindState();
+        // 키 바인딩 상태의 반대로 지정
+        const QTE::KeyBinder& keyBinder = system->GetKeyBinder();
         QTE::KeyBindState newState;
-        newState.ButtonX = currState.ButtonB;
-        newState.ButtonB = currState.ButtonX;
+        newState.ButtonX = keyBinder.GetKeyB();
+        newState.ButtonB = keyBinder.GetKeyX();
         system->PushKeyBindState(newState);
     }
 }
