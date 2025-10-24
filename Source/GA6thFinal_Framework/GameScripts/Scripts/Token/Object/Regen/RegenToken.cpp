@@ -8,27 +8,13 @@ namespace TokenObject
     REGISTER_TOKEN(Regen1)
     REGISTER_TOKEN(Regen2)
     REGISTER_TOKEN(Regen3)
-    namespace
-    {
-        void HealByPercentage(CharacterBase* dest, int healFactor)
-        {
-            if (CharacterStats* stats = dest->GetCharacterStats())
-            {
-                int   maxHP      = dest->MaxHP;
-                float factor     = static_cast<float>(healFactor) / 100.0f;
-                float healAmount = static_cast<float>(maxHP) * factor;
-                stats->CurrentHP += static_cast<int>(healAmount);
-            }
-        }
-    } // namespace
     void Regen::OnTurnStart(CharacterBase* owner) 
     {
         if (owner)
         {
             const int   tokenID = GetTokenID();
             const int   param   = GetTokenParam(0);
-            const float factor  = static_cast<float>(param) / 100.0f;
-            owner->HealByPercentage(factor);
+            owner->HealByPercentage(param);
             auto& tokenInventory = owner->GetTokenInventory();
             tokenInventory.RemoveTokenStackFromID(tokenID);
         }
