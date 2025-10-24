@@ -259,6 +259,7 @@
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\WeaponKillTokenApplyAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenTypeCountAttackDamageAdditional\TokenTypeCountAttackDamageAdditional.cpp" />
     <ClCompile Include="Scripts\TutorialSystem\TutorialSystem.cpp" />
+    <ClCompile Include="Scripts\UI\Elements\HoldingProgressImage\HoldingProgressImageElement.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
@@ -531,6 +532,7 @@
     <ClInclude Include="Scripts\TutorialSystem\TutorialSystem.h" />
     <ClInclude Include="Scripts\IntroManager\IntroManager.h" />
     <ClInclude Include="Scripts\DifficultyManager\DifficultyEnum.h" />
+    <ClInclude Include="Scripts\UI\Elements\HoldingProgressImage\HoldingProgressImageElement.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
