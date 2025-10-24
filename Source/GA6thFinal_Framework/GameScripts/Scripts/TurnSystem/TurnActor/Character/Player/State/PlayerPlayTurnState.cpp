@@ -68,6 +68,14 @@ void PlayerPlayTurnState::OnExit()
     _attackRemaining        = 0;
     _attackButtonHeldTime   = 0.0f;
     _isDownAButton          = false;
+
+    if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+    {
+        mode->ApplyActions([this](TurnAction& action) 
+        { 
+            action.OnTurnEnd(GetPlayer());
+        });
+    }
 }
 
 
