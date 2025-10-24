@@ -179,10 +179,13 @@ public:
                 baseAction->_isDestroy = isDestroy.get();
                 newAction              = baseAction;
                 result                 = true;
+                CallAddedAction(action);
             }
         }
         return result;
     }
+private:
+    void CallAddedAction(TurnAction* action);
 
 private:
     std::vector<std::pair<std::unique_ptr<bool>, TurnAction*>> _turnActions;

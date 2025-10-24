@@ -73,6 +73,14 @@ void TokenTypeCountAttackDamageAdditional::OnPlayerBattleCalculateDamageModifier
             auto& inventory = target->GetTokenInventory();
             multiplier += inventory.GetValidTokenCountByTag();
         }
+        weaponStats.HitDamageMultiplier += static_cast<float>(multiplier);
         weaponStats.CriticalDamageMultiplier += static_cast<float>(multiplier);
+
+        using namespace u8_literals;
+        std::string msg;
+        msg = u8"플레이어의 데미지 배율이 "_c_str;
+        msg += std::to_string(multiplier);
+        msg += u8"배 증가"_c_str;
+        UmLogger.Log(LogLevel::LEVEL_DEBUG, msg);
     }
 }

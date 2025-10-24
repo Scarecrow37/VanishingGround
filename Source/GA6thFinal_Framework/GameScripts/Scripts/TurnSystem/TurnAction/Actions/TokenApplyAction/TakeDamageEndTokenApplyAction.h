@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <TurnSystem/TurnAction/Actions/TokenApplyAction/Base/TokenApplyAction.h>
 
+//체력 잃을때 토큰 부여
 class TakeDamageEndTokenApplyAction : public TokenApplyAction
 {
     USING_PROPERTY(TakeDamageEndTokenApplyAction)

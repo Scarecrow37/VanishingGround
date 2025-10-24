@@ -308,6 +308,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\IntroManager\IntroManager.h" />
+    <ClInclude Include="Scripts\ContentMath\ContentMath.h" />
     <ClInclude Include="Scripts\StageVigneeteUI\StageVigneeteUIComponent.h" />
     <ClInclude Include="Scripts\Token\Object\BlackArmor\BlackArmorToken.h" />
     <ClInclude Include="Scripts\Token\Object\ProphecyDoom\ProphecyDoomToken.h" />
@@ -595,6 +596,7 @@
     <ClInclude Include="Scripts\Token\Object\Vanish\VanishToken.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\ContentMath\ContentMath.cpp" />
     <ClCompile Include="Scripts\StageVigneeteUI\StageVigneeteUIComponent.cpp" />
     <ClCompile Include="Scripts\Token\Object\BlackArmor\BlackArmorToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\ProphecyDoom\ProphecyDoomToken.cpp" />
