@@ -119,5 +119,9 @@ void RecoveryAction::UpdateActionInfo()
     _actionInfo += " ";
     std::string recoveryHP = std::to_string(ReflectFields->RecoveryHP);
     _actionInfo += recoveryHP;
+    if (ReflectFields->RecoveryUnit == Unit::PERCENT)
+    {
+        _actionInfo += (const char*)u8"퍼";
+    }
     _actionInfo += (const char*)u8" 회복";
 }
