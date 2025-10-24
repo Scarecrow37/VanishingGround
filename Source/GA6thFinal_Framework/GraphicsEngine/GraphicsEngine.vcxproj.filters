@@ -638,11 +638,6 @@
     </ClCompile>
     <ClCompile Include="TransparentRimLight.cpp">
       <Filter>소스 파일</Filter>
-      <Filter>소스 파일</Filter>
-      <Filter>소스 파일</Filter>
-      <Filter>소스 파일</Filter>
-      <Filter>소스 파일</Filter>
-      <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="GraphicsPointer.cpp">
       <Filter>소스 파일</Filter>
