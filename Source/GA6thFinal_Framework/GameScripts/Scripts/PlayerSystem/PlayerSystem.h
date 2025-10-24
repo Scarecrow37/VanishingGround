@@ -2,6 +2,8 @@
 #include "UmFramework.h"
 #include "Utility/SingletonHelper.h"
 
+class PlayerStatsComponent;
+
 //플레이어 시스템용 싱글톤 제어 컴포넌트
 class PlayerSystem : public Component
 {
