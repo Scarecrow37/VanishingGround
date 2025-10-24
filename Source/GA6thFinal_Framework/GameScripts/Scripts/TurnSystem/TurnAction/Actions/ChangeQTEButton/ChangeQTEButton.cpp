@@ -1,5 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "ChangeQTEButton.h"
+#include "TurnSystem/TurnAction/TurnActionFactory.h"
+
+REGISTER_TURN_ACTION(ChangeQTEButton)
 
 ChangeQTEButton::ChangeQTEButton()
 {
@@ -37,6 +40,7 @@ void ChangeQTEButton::OnDestroy()
 
 void ChangeQTEButton::UpdateActionInfo()
 {
+     using namespace u8_literals;  
     _actionInfo.clear();
-
+    _actionInfo = u8"QTE시 X와 B키를 변경"_c_str;
 }
