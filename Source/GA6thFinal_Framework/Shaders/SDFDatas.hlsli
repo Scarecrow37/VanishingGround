@@ -14,14 +14,14 @@ struct SDFParams
     float FontWeight;
     
     // Outline parameters
-    float3 OutlineColor;
+    float4 OutlineColor;
     float OutlineWidth;
 };
 
 ConstantBuffer<FontColor> bit32_4_fontColor;
-ConstantBuffer<SDFParams> bit32_8_sdfParams;
+ConstantBuffer<SDFParams> bit32_9_sdfParams;
 
-#define sdfParams bit32_8_sdfParams
+#define sdfParams bit32_9_sdfParams
 
 #define ENABLE_OUTLINE (1 << 0)
 

@@ -35,6 +35,7 @@ namespace GE
             case PS::PBR_LIGHTING: return { g_ps_pbr_lighting, sizeof(g_ps_pbr_lighting) };
             case PS::POINT_LIGHT_SHADOW: return { g_ps_point_light_shadow, sizeof(g_ps_point_light_shadow) };
             case PS::SDF_FONT: return { g_ps_sdf_font, sizeof(g_ps_sdf_font) };
+            case PS::SDF_FONT_OIT: return { g_ps_sdf_font_oit, sizeof(g_ps_sdf_font_oit) };
             case PS::SHADOW: return { g_ps_shadow, sizeof(g_ps_shadow) };
             case PS::SKYBOX: return { g_ps_skybox, sizeof(g_ps_skybox) };
             case PS::SSGI_COMPOSITE: return { g_ps_ssgi_composite, sizeof(g_ps_ssgi_composite) };
