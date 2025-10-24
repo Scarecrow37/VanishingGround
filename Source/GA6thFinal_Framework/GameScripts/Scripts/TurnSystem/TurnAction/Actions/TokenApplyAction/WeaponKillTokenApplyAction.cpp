@@ -7,11 +7,6 @@
 
 REGISTER_TURN_ACTION(WeaponKillTokenApplyAction)
 
-WeaponKillTokenApplyAction::WeaponKillTokenApplyAction() 
-{
-    UpdateActionInfo();
-}
-
 const std::string& WeaponKillTokenApplyAction::GetActionName()
 {
     using namespace u8_literals;
@@ -21,6 +16,7 @@ const std::string& WeaponKillTokenApplyAction::GetActionName()
 
 const std::string& WeaponKillTokenApplyAction::GetActionInfo()
 {
+    TryTokenSystemInfoUpdate();
     return _actionInfo;
 }
 

@@ -42,7 +42,14 @@ void TokenApplyAction::ImGuiDrawPropertysEvent()
     ImguiDrawConditionEditor();
 }
 
-void TokenApplyAction::DeserializedReflectEvent() 
+void TokenApplyAction::TryTokenSystemInfoUpdate() 
 {
-    UpdateActionInfo();
+    if (false == validTokenSystem)
+    {
+        if (TokenSystem* system = SingletonComponent<TokenSystem>::GetInstance())
+        {
+            UpdateActionInfo();
+            validTokenSystem = true;
+        }     
+    }
 }

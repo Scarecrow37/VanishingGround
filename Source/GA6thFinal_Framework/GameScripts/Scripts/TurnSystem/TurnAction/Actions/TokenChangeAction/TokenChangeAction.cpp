@@ -9,11 +9,6 @@ REGISTER_TURN_ACTION(TokenChangeAction)
 
 REFLECT_FUNCTION(TokenChangeAction)
 
-TokenChangeAction::TokenChangeAction() 
-{
-    UpdateActionInfo();
-}
-
 TokenChangeAction::~TokenChangeAction() = default;
 
 const std::string& TokenChangeAction::GetActionName()
@@ -24,6 +19,7 @@ const std::string& TokenChangeAction::GetActionName()
 
 const std::string& TokenChangeAction::GetActionInfo()
 {
+    TryTokenSystemInfo();
     return _actionInfo;
 }
 
@@ -98,4 +94,16 @@ void TokenChangeAction::UpdateActionInfo()
      _actionInfo += u8"의 부여되는 토큰을 "_c_str;
      _actionInfo += TokenSystem::TokenIDToName(ReflectFields->TokenID);
      _actionInfo += u8" 토큰으로 변경합니다."_c_str;
+}
+
+void TokenChangeAction::TryTokenSystemInfo() 
+{
+    if (false == _validTokenSystem)
+    {
+        if (TokenSystem* system = SingletonComponent<TokenSystem>::GetInstance())
+        {
+            _validTokenSystem = true;
+            UpdateActionInfo();
+        }
+    }
 }
