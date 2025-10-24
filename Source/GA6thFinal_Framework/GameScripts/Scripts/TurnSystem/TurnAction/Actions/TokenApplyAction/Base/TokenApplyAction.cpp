@@ -25,7 +25,7 @@ void TokenApplyAction::ImGuiDrawPropertysEvent()
             std::string_view name = TokenSystem::TokenIDToName(id);
             if (false == name.empty())
             {
-                bool selectable = ReflectFields->TokenID == id ? true : false;
+                bool selectable = ReflectFields->TokenID == id;
                 if (ImGui::Selectable(name.data(), selectable))
                 {
                     TokenID = id;
