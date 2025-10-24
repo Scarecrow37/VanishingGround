@@ -615,9 +615,6 @@
     <ClCompile Include="UITechnique.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="UITechnique_OIT.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="UnorderedAccessView.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -646,6 +643,12 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="SDFTextDrawPass_OIT.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="UI2DPass_OIT.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="UI3DPass_OIT.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1106,9 +1109,6 @@
     <ClInclude Include="UITechnique.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="UITechnique_OIT.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="UnorderedAccessView.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -1128,6 +1128,18 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="CustomShaderPass.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SDFTextDrawPass_OIT.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="TransparentRimLight.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="UI3DPass_OIT.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="UIPassBase_OIT.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
