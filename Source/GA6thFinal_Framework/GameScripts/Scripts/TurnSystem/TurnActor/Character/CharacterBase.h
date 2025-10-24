@@ -64,7 +64,7 @@ public:
     virtual void Dead() override;
 
     virtual void Heal(int amount);
-    virtual void Heal(float factor);
+    virtual void HealByPercentage(int percentage);
     virtual void TakeDamage(int damage, bool playAnim = true);
     virtual void TakeChain(int chainDamage);
 

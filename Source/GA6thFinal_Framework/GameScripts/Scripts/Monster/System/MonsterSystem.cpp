@@ -16,8 +16,13 @@ void MonsterSystem::Reset()
 
 void MonsterSystem::Awake()
 {
-    if (_singletonComponent.TrySingleTon() &&
-        _singletonObject.TrySingleTon(true))
+    _singletonComponent.TrySingleTon();
+    _singletonObject.TrySingleTon(true);
+}
+
+void MonsterSystem::Start() 
+{
+    if (_singletonComponent.IsSingleTon())
     {
         LoadFromExcelData();
     }

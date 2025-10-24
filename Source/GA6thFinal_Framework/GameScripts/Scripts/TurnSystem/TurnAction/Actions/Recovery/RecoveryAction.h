@@ -13,17 +13,13 @@ public:
         WEAPON_KILL_ENEMY,
     };
 
-    // 대상
-    enum class ActionTarget
+    enum class Unit
     {
-        SELF,
-        PLAYER,
-        ENEMY,
-        ALL_ENEMIES,
-        ALL
+        FLAT,
+        PERCENT,
     };
 
-    REFLECT_PROPERTY(Trigger, Target, RecoveryHP)
+    REFLECT_PROPERTY(Trigger, Target, RecoveryHP, RecoveryUnit)
 
     SETTER(TriggerType, Trigger)
     {
@@ -33,12 +29,12 @@ public:
     GETTER(TriggerType, Trigger) { return ReflectFields->Trigger; }
     PROPERTY(Trigger)
 
-    SETTER(ActionTarget, Target)
+    SETTER(TurnTarget, Target)
     {
         ReflectFields->Target = value;
         UpdateActionInfo();
     }
-    GETTER(ActionTarget, Target) { return ReflectFields->Target; }
+    GETTER(TurnTarget, Target) { return ReflectFields->Target; }
     PROPERTY(Target)
 
     SETTER(int, RecoveryHP)
@@ -49,11 +45,20 @@ public:
     GETTER(int, RecoveryHP) { return ReflectFields->RecoveryHP; }
     PROPERTY(RecoveryHP)
 
+    SETTER(Unit, RecoveryUnit)
+    {
+        ReflectFields->RecoveryUnit = value;
+        UpdateActionInfo();
+    }
+    GETTER(Unit, RecoveryUnit) { return ReflectFields->RecoveryUnit; }
+    PROPERTY(RecoveryUnit)
+
 protected:
     REFLECT_FIELDS_BEGIN(TurnAction)
-    TriggerType Trigger = TriggerType::WEAPON_KILL_ENEMY;
-    ActionTarget Target = ActionTarget::SELF;
-    int RecoveryHP = 0;
+    TriggerType Trigger      = TriggerType::WEAPON_KILL_ENEMY;
+    TurnTarget  Target       = TurnTarget::SELF;
+    int         RecoveryHP   = 0;
+    Unit        RecoveryUnit = Unit::FLAT;
     REFLECT_FIELDS_END(RecoveryAction)
 
 private:
