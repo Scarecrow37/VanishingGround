@@ -150,14 +150,14 @@ private:
     std::unordered_map<int, std::vector<QTE::Track*>> _weaponIDToTrackTable; // 무기 ID QTE 매핑 테이블
 
     QTE::Track*                 _currentQTETrack  = nullptr;
-    size_t                      _currentNoteIndex = 0;          // 현재 가리키는 노트 인덱스
-    std::vector<QTE::NoteData>  _noteAvailQueue;                // 유효한 노트 큐
+    size_t                      _currentNoteIndex = 0;              // 현재 가리키는 노트 인덱스
+    std::vector<QTE::NoteData>  _noteAvailQueue;                    // 유효한 노트 큐
 
-    QTE::PlayState              _currState;                     // QTE 현재 상태
-    QTE::PlayState              _prevState;                     // QTE 이전 상태
-    QTE::KeyBinder              _keyBinder;                     // QTE 키 바인딩 처리
-    QTE::CallbackHandler        _callbackHandler;               // QTE 콜백 처리
-    QTE::OverallResult          _overallResult;                 // QTE 최종 결과
+    QTE::PlayState              _currState = QTE::STATE_WAITING;    // QTE 현재 상태
+    QTE::PlayState              _prevState = QTE::STATE_WAITING;    // QTE 이전 상태
+    QTE::KeyBinder              _keyBinder;                         // QTE 키 바인딩 처리
+    QTE::CallbackHandler        _callbackHandler;                   // QTE 콜백 처리
+    QTE::OverallResult          _overallResult;                     // QTE 최종 결과
     ControllerState             _nextKeyEvent = {nullptr, Input::ControllerTypes::UNDEFINED};
 
     float                       _qteTimer           = 0.0f;                     // QTE 타이머

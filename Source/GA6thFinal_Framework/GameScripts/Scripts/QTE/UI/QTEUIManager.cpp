@@ -148,6 +148,7 @@ void QTEUIManager::Start()
     InitializeNotePool();
     ResetUI();
     _backGroundUI.Alpha(0.0f);
+    _backGroundUI.Active(true);
     _fieldUI.Active(false);
     _guideUI.Active(false);
 }

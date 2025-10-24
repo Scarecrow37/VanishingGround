@@ -539,6 +539,8 @@ void QTESystem::PressedButtonB(const Input::Controller& controller)
 
 void QTESystem::ProcessQTEEnterEvent() 
 {
+    UmAudio.FadeOut();
+
     _currState = QTE::STATE_FADE_IN;
     _callbackHandler.ProcessQTEFadeInStartEvent();
     QTEUIManager* uiManager = SingletonComponent<QTEUIManager>::GetInstance();
@@ -570,6 +572,8 @@ void QTESystem::ProcessQTEEnterEvent()
 
 void QTESystem::ProcessQTEExitEvent() 
 {
+    UmAudio.FadeIn();
+
     _overallResult.UpdateResult(); // 결과 갱신
     _currState = QTE::STATE_FADE_OUT;
     _callbackHandler.ProcessQTEFadeOutStartEvent(_overallResult);
