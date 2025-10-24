@@ -15,14 +15,13 @@ public:
 
 public:
     WeaponStats Stats;
-    bool        IsAction() const { return _action != nullptr; }
-    TurnAction& GetAction() { return *_action; }
+    const std::vector<std::unique_ptr<TurnAction>>& GetActions() { return _actions; }
 
 protected:
+    using ActionNameDataPair = std::pair<std::string, std::string>;
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
     std::string WeaponStatsData = STR_NULL;
-    std::string ActionDatas     = STR_NULL;
-    std::string ActionName      = STR_NULL;
+    std::vector<ActionNameDataPair> Actions;
     REFLECT_FIELDS_END(WeaponElement)
 
     void SerializedReflectEvent() override;
@@ -30,8 +29,8 @@ protected:
     void ImGuiDrawPropertysEvent() override;
 
 private:
-    std::unique_ptr<TurnAction> _action;
-    void DeepCopyAction(const TurnAction& rhs);
+    std::vector<std::unique_ptr<TurnAction>> _actions;
+    void DeepCopyAction(const std::vector<std::unique_ptr<TurnAction>>& rhs);
 public:
     WeaponElement& CopyElement(const WeaponElement& rhs) 
     {
@@ -40,22 +39,11 @@ public:
             return *this;
         }
         Stats = rhs.Stats;
-        if (rhs._action)
-        {
-            DeepCopyAction(*rhs._action);
-        }
-        else
-        {
-            _action.reset();
-        }
+        DeepCopyAction(rhs._actions);
         return *this;     
     }
     WeaponElement(const WeaponElement& rhs) { CopyElement(rhs); }
     WeaponElement& operator=(const WeaponElement& rhs) { return CopyElement(rhs); }
-
-private:
-    bool _showActionEditor = false;
-    bool _showTableActionEditor = false;
 
 public:
     // IDropItem을(를) 통해 상속됨
