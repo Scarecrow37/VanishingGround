@@ -2,7 +2,7 @@
 #include "ApplyDamage.h"
 #include "TurnSystem/TurnAction/TurnActionFactory.h"
 #include "TurnSystem/TurnSystemHelper.h"
-#include "TurnSystem/TurnActor/Character/CharacterBase.h"
+#include "TurnSystem/TurnActor/Character/Player/Player.h"
 
 REGISTER_TURN_ACTION(ApplyDamage)
 
@@ -82,6 +82,30 @@ void ApplyDamage::OnPlayerQTEResult(Player& player, const QTE::OverallResult& re
 void ApplyDamage::OnEnemyDeadByWeapon(Enemy& enemy, WeaponElement& weapon)
 {
     if (TriggerType::WEAPON_KILL_ENEMY == ReflectFields->Trigger)
+    {
+        if (EvaluateConditions())
+        {
+            std::vector<CharacterBase*> targets = TurnSystemHelper::GetTargetCharacters(ReflectFields->Target);
+            for (auto& target : targets)
+            {
+                target->TakeDamage(ReflectFields->Damage);
+            }
+        }
+    }
+}
+
+void ApplyDamage::OnTurnEnd(CharacterBase& destination) 
+{
+    bool onAction = false;
+    if (TriggerType::PLAYER_TURN_END == ReflectFields->Trigger)
+    {
+        if (typeid(destination) == typeid(Player))
+        {
+            onAction = true;
+        }      
+    }
+
+    if (onAction)
     {
         if (EvaluateConditions())
         {
