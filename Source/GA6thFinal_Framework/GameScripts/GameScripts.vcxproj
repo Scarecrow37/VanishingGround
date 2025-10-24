@@ -307,6 +307,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\QTE\UI\QTEGuideUI.h" />
     <ClInclude Include="Scripts\QTE\Callback\Callback.h" />
     <ClInclude Include="Scripts\QTE\Common\QTECommon.h" />
     <ClInclude Include="Scripts\QTE\UI\QTEBackgroundUI.h" />
@@ -602,6 +603,7 @@
     <ClInclude Include="Scripts\Token\Object\Vanish\VanishToken.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\QTE\UI\QTEGuideUI.cpp" />
     <ClCompile Include="Scripts\QTE\Callback\Callback.cpp" />
     <ClCompile Include="Scripts\QTE\Common\QTECommon.cpp" />
     <ClCompile Include="Scripts\QTE\UI\QTEBackgroundUI.cpp" />

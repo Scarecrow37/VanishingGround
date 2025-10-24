@@ -21,8 +21,9 @@ void QTEUIManager::OnQTEEnter()
 {
     ResetUI();
     _fieldUI.Active(true);
+    _guideUI.Active(true);
     _fieldUI.OnQTEEnter();
-
+    _mainFader.SetFadeMode(Fader::FADE_IN);
     if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
     {
         const auto& noteQueue  = system->GetCurrentQTEAvailQueue();
@@ -57,16 +58,6 @@ void QTEUIManager::OnQTENotePressed(const UINT noteID, const QTE::ResultType res
 
 void QTEUIManager::OnQTEPlay()
 {
-    if (_fieldUI.StartAnimation)
-    {
-        if (false == _fieldUI.StartAnimation->IsPlaying)
-        {
-            if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
-            {
-                system->ProcessQTEFadeInEndEvent();
-            }
-        }
-    }
     if (_overlayPanel && _fieldUI.Overlay && _fieldUI.JudgeNote)
     {
         _fieldUI.Update();
@@ -81,7 +72,7 @@ void QTEUIManager::OnQTEPlay()
 
             const float startX   = static_cast<float>(overlayRect.left);
             const float endX     = static_cast<float>(overlayRect.right);
-            const float perfectX = static_cast<float>(judgeCenter.x + judgeSize.cx / 2);
+            const float perfectX = static_cast<float>(judgeCenter.x);
             const float offsetX  = static_cast<float>(-panelSize.cx / 2); // Center 정렬이므로 화면의 절반을 오프셋으로 옮김
 
             for (auto& [id,_] : _activedNote)
@@ -97,9 +88,7 @@ void QTEUIManager::OnQTEPlay()
 
 void QTEUIManager::OnQTEExit() 
 {
-    // QTE UI 페이드 아웃 
     _mainFader.SetFadeMode(Fader::FADE_OUT);
-    ResetUI();
 }
 
 void QTEUIManager::Reset() 
@@ -137,11 +126,22 @@ void QTEUIManager::Start()
     _mainFader.SetDuration(1.0f);
     _mainFader.SetFadeInType(Mathf::EASE_IN, Mathf::SINE);
     _mainFader.SetFadeOutType(Mathf::EASE_OUT, Mathf::SINE);
+    _mainFader.SetOnFadeInEndCallback([this]() {
+        if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
+        {
+            system->ProcessQTEFadeInEndEvent();
+            _mainFader.SetFadeMode(Fader::FADE_NONE);
+        }
+    });
     _mainFader.SetOnFadeOutEndCallback([this]() {
         if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
         {
             system->ProcessQTEFadeOutEndEvent();
+            ResetUI();
             _mainFader.SetFadeMode(Fader::FADE_NONE);
+            _backGroundUI.Alpha(0.0f);
+            _fieldUI.Active(false);
+            _guideUI.Active(false);
         }
     });
     FindUIComponents();
@@ -149,6 +149,7 @@ void QTEUIManager::Start()
     ResetUI();
     _backGroundUI.Alpha(0.0f);
     _fieldUI.Active(false);
+    _guideUI.Active(false);
 }
 
 void QTEUIManager::Update() 
@@ -160,6 +161,7 @@ void QTEUIManager::Update()
     case Fader::FADE_NONE:
         break;
     case Fader::FADE_IN: {
+        _guideUI.Alpha(factor);
         break;
     }
     case Fader::FADE_OUT: {
@@ -234,6 +236,7 @@ void QTEUIManager::SetUIAlpha(float factor)
     factor = std::clamp(factor, 0.0f, 1.0f);
     _backGroundUI.Alpha(factor);
     _fieldUI.Alpha(factor);
+    _guideUI.Alpha(factor);
 }
 
 void QTEUIManager::FindUIComponents()
@@ -244,6 +247,7 @@ void QTEUIManager::FindUIComponents()
         {
             _backGroundUI.MatchUIFromObject(curr->gameObject);
             _fieldUI.MatchUIFromObject(curr->gameObject);
+            _guideUI.MatchUIFromObject(curr->gameObject);
         }
     });
 }

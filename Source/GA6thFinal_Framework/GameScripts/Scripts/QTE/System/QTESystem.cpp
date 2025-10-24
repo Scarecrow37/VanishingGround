@@ -239,34 +239,33 @@ void QTESystem::StartQTE()
 
 void QTESystem::StartQTE(QTE::Track* qteTrack)
 {
-    assert(_currState != QTE::STATE_WAITING && "QTE가 완료되기 전까진 Start를 호출하면 안됩니다.");
-    if (_currState != QTE::STATE_WAITING)
+    //assert(_currState == QTE::STATE_WAITING && "QTE가 완료되기 전까진 Start를 호출하면 안됩니다.");
+    if (_currState == QTE::STATE_WAITING)
     {
-        return;
-    }
-    ResetQTEState();
-    if (qteTrack)
-    {
-        Timeline::EventTrack* track = qteTrack->GetEventTrack().lock().get();
-        assert(track && "QTE를 진행하기 위한 트랙이 없습니다.");
-        if (track)
+        ResetQTEState();
+        if (qteTrack)
         {
-            _qteTimer = track->GetMinFrame() - GetDelayFromQTEStart();
-            _qteMaxTime = track->GetMaxFrame();
-            // 유효한 노트 큐 생성
-            auto& noteQueue = track->GetEventContextQueue();
-            _noteAvailQueue.reserve(noteQueue.size());
-            _overallResult.NoteResults.reserve(noteQueue.size());
-            for (auto& note : noteQueue)
+            Timeline::EventTrack* track = qteTrack->GetEventTrack().lock().get();
+            assert(track && "QTE를 진행하기 위한 트랙이 없습니다.");
+            if (track)
             {
-                QTE::Note* qteNote = dynamic_cast<QTE::Note*>(note);
-                if (qteNote)
+                _qteTimer   = track->GetMinFrame() - GetDelayFromQTEStart();
+                _qteMaxTime = track->GetMaxFrame();
+                // 유효한 노트 큐 생성
+                auto& noteQueue = track->GetEventContextQueue();
+                _noteAvailQueue.reserve(noteQueue.size());
+                _overallResult.NoteResults.reserve(noteQueue.size());
+                for (auto& note : noteQueue)
                 {
-                    QTE::NoteData& noteData = _noteAvailQueue.emplace_back(qteNote->ToNoteData());
-                    _overallResult.NoteResults.emplace_back(&noteData);
+                    QTE::Note* qteNote = dynamic_cast<QTE::Note*>(note);
+                    if (qteNote)
+                    {
+                        QTE::NoteData& noteData = _noteAvailQueue.emplace_back(qteNote->ToNoteData());
+                        _overallResult.NoteResults.emplace_back(&noteData);
+                    }
                 }
+                ProcessQTEEnterEvent();
             }
-            ProcessQTEEnterEvent();
         }
     }
 }
@@ -274,35 +273,32 @@ void QTESystem::StartQTE(QTE::Track* qteTrack)
 #include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
 void QTESystem::StartQTE(const WeaponStats* weapon) 
 {
-    assert(_currState != QTE::STATE_WAITING && "QTE가 완료되기 전까진 Start를 호출하면 안됩니다.");
-    if (_currState != QTE::STATE_WAITING)
+    //assert(_currState == QTE::STATE_WAITING && "QTE가 완료되기 전까진 Start를 호출하면 안됩니다.");
+    if (_currState == QTE::STATE_WAITING)
     {
-        return;
-    }
-    ResetQTEState();
-
-    if (weapon)
-    {
-        int count = weapon->AttackCount;
-        _noteAvailQueue.resize(count);
-        _overallResult.NoteResults.resize(count);
-        float totalTime = 0.0f;
-        for (int i = 0; i < count; ++i)
+        ResetQTEState();
+        if (weapon)
         {
-            float time = Random::Range(0.2f, 0.6f);
-            totalTime += time;
+            int count = weapon->AttackCount;
+            _noteAvailQueue.resize(count);
+            _overallResult.NoteResults.resize(count);
+            float totalTime = 0.0f;
+            for (int i = 0; i < count; ++i)
+            {
+                float time = Random::Range(0.2f, 0.6f);
+                totalTime += time;
 
-            _noteAvailQueue[i].ID                   = i + 1;
-            _noteAvailQueue[i].Time                 = totalTime;
-            _noteAvailQueue[i].WeaponAnimationKey   = "WeaponAttack_01";
-            _noteAvailQueue[i].WeaponAnimationDelay = 0.0f;
+                _noteAvailQueue[i].ID                   = i + 1;
+                _noteAvailQueue[i].Time                 = totalTime;
+                _noteAvailQueue[i].WeaponAnimationKey   = "WeaponAttack_01";
+                _noteAvailQueue[i].WeaponAnimationDelay = 0.0f;
 
-            _overallResult.NoteResults[i] = &_noteAvailQueue[i];
+                _overallResult.NoteResults[i] = &_noteAvailQueue[i];
+            }
+            _qteTimer   = -GetDelayFromQTEStart();
+            _qteMaxTime = totalTime + 1.0f;
+            ProcessQTEEnterEvent();
         }
-        _qteTimer   = -GetDelayFromQTEStart();
-        _qteMaxTime = totalTime + 1.0f;
-
-        ProcessQTEEnterEvent();
     }
 }
 
@@ -410,6 +406,15 @@ void QTESystem::UpdateQTETrack()
     {
         const QTE::NoteData& curNote = _noteAvailQueue[_currentNoteIndex];
         auto& [validMin, validMax]   = ReflectFields->ValidJudgeRange;
+
+        // 디버깅 용도. (노트랑 완벽히 같은 시간으로 설정 후 클릭 이벤트 보내기.)
+        //if (curNote.Time < _qteTimer)
+        //{
+        //    _qteTimer = curNote.Time;
+        //    PressedQTEButton(Input::Controller::Button::B);
+        //    // 잘나오는데요??? 걍 렉때메 판정이 이상해보임.
+        //}
+
         if (_qteTimer > curNote.Time + validMax)
         {
             PressedQTEButton(); // 최대 일격 판정 시간이 지나갔는데 버튼을 누르지 않은 경우, MISS 처리

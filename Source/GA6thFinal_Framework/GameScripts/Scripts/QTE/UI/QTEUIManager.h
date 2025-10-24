@@ -5,6 +5,7 @@
 
 #include "QTE/UI/QTEBackgroundUI.h"
 #include "QTE/UI/QTEFieldUI.h"
+#include "QTE/UI/QTEGuideUI.h"
 #include "QTE/UI/QTENoteUI.h"
 
 class SpriteAnimationElement;
@@ -78,6 +79,8 @@ private:
     OverlayPanel*                       _overlayPanel = nullptr;
     QTE::BackgroundUI                   _backGroundUI;
     QTE::FieldUI                        _fieldUI;
+    QTE::GuideUI                        _guideUI;
+
     std::vector<QTE::NoteUI>            _notePool;
     std::unordered_map<UINT, size_t>    _activedNote;
 

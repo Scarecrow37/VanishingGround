@@ -177,6 +177,9 @@ namespace QTE
         // 주의: end 지점을 PerfectX로 한다.
         const float posXValue = Math::CalculateNotePosX(posXFactor, startX, perfectX);
 
+        // 최종 값은 EndX값을 넘지 않는 X값에 오프셋을 더한 값.
+        const float finalXPos = std::min(posXValue, endX) + offsetX;
+
         switch (State)
         {
         case STATE_WAIT: {
@@ -190,9 +193,11 @@ namespace QTE
             break;
         }
         case STATE_VISIBLE: {
-            SetPositionX(posXValue + offsetX); // 위치 설정
+            SetPositionX(finalXPos); // 위치 설정
             OnVisibleUpdate();
-            if (posXValue >= endX || Result != QTE::QTE_RESULT_NONE)
+            // X값이 EndX값을 넘었거나, 결과가 생긴 노트는 Dead처리
+            if (posXValue >= endX ||
+                Result != QTE::QTE_RESULT_NONE)
             {
                 State = STATE_DEAD;
                 OnNoteExit();
