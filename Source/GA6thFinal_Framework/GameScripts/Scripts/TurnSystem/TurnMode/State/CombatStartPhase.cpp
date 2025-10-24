@@ -379,7 +379,7 @@ void CombatStartPhase::RefreshUI()
     {
         manager->Refresh();
     }
-    if (QTEUIManager* uiManager = QTEUIManager::GetInstance())
+    if (QTEUIManager* uiManager = SingletonComponent<QTEUIManager>::GetInstance())
     {
         uiManager->Refresh();
         uiManager->SetQTEBarUIAlpha(0.0f);

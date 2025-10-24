@@ -1,0 +1,81 @@
+﻿#pragma once
+#include "QTE/Result/QTEResult.h"
+
+class OverlayPanel;
+class ImageElement;
+class SpriteAnimationElement;
+
+namespace QTE 
+{
+    class NoteUI
+    {
+    public:
+        NoteUI(const File::Guid& prefab, Transform* parent = nullptr);
+        ~NoteUI();
+
+        enum UIState
+        {
+            STATE_AVAILABLE,
+
+            STATE_WAIT,
+            STATE_VISIBLE,
+            STATE_DEAD
+        };
+
+    private:
+        /// <summary>프리팹을 기반으로 노트 오브젝트를 스폰합니다.</summary>
+        /// <param name="_prefab">프리팹의 Guid</param>
+        /// <param name="parent">부모가 될 Transform</param>
+        void SpawnObject(const File::Guid& prefab, Transform* parent);
+
+        void SetPositionX(float posX);
+
+        float GetNoteWidth();
+
+    public:
+        bool IsAvailable();
+        
+        void Reset();
+
+        bool TrySetup();
+
+        void Update(const float currTime, const float currSpeed, const float startX, const float endX, const float perfectX, const float offsetX = 0.0f);
+
+        void OnNotePressed(QTE::ResultType resultType);
+
+    private:
+        // 노트가 트랙에 나타나기 시작해야할 때
+        void OnNoteEnter();
+        // 노트가 트랙에서 사라져야할 때
+        void OnNoteExit();
+
+        void OnWaitUpdate();
+        void OnVisibleUpdate();
+        void OnDeadUpdate();
+
+        SpriteAnimationElement* GetSpriteAnimation();
+
+    public:
+        float                   Time            = 0.0f;
+        UIState                 State           = STATE_AVAILABLE;
+        QTE::ResultType         Result          = QTE::QTE_RESULT_NONE;
+
+        OverlayPanel*           Overlay         = nullptr;
+        SpriteAnimationElement* StartAnimation  = nullptr;
+        SpriteAnimationElement* EndAnimation    = nullptr;
+
+        SpriteAnimationElement* MissEffect      = nullptr;
+        SpriteAnimationElement* NormalEffect    = nullptr;
+        SpriteAnimationElement* PerfectEffect   = nullptr;
+
+    private:
+        static constexpr const char* ANIMATION_START_TAG        = "Animation Start";
+        static constexpr const char* ANIMATION_END_TAG          = "Animation End";
+        static constexpr const char* ANIMATION_MISS_TAG         = "Animation Miss";
+        static constexpr const char* ANIMATION_NORMAL_TAG       = "Animation Normal";
+        static constexpr const char* ANIMATION_PERFECT_TAG      = "Animation Perfect";
+
+        static constexpr float       TRAVEL_PERFECT_TIME = 1.0f; // 시작 -> 퍼펙트 지점까지의 시간
+    };
+}
+

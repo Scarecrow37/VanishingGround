@@ -306,6 +306,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\QTE\UI\QTEBackgroundUI.h" />
+    <ClInclude Include="Scripts\QTE\UI\QTEFieldUI.h" />
+    <ClInclude Include="Scripts\QTE\UI\QTENoteUI.h" />
     <ClInclude Include="Scripts\QTE\KeyBinder\QTEKeyBinder.h" />
     <ClInclude Include="Scripts\CombatUIManager\Accessories\AccessoriesGroup.h" />
     <ClInclude Include="Scripts\CombatUIManager\CharacterHUD\CharacterHUDGroup.h" />
@@ -554,6 +557,9 @@
     <ClInclude Include="Scripts\ItemDropSystem\UI\EraseRevelationUIManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\QTE\UI\QTEBackgroundUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\QTEFieldUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\QTENoteUI.cpp" />
     <ClCompile Include="Scripts\CombatUIManager\Accessories\AccessoriesGroup.cpp" />
     <ClCompile Include="Scripts\CombatUIManager\CharacterHUD\CharacterHUDGroup.cpp" />
     <ClCompile Include="Scripts\CombatUIManager\Consumable\ConsumableGroup.cpp" />

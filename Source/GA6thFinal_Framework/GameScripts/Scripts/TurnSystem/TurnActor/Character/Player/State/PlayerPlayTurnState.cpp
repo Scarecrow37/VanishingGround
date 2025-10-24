@@ -53,12 +53,6 @@ void PlayerPlayTurnState::OnEnter()
     _inputState           = InputState::ACTION_SELECTION;
     _attackButtonHeldTime = 0;
     _attackRemaining      = 0;
-
-    if (QTEUIManager* qteUIManager = QTEUIManager::GetInstance())
-    {
-        qteUIManager->Refresh();
-        qteUIManager->SetGuideNoteActive(true);
-    }
 }
 
 void PlayerPlayTurnState::OnExit() 
@@ -100,19 +94,11 @@ void PlayerPlayTurnState::OnUpdate()
 void PlayerPlayTurnState::PressedButtonA(const Input::Controller& controller)
 {
     _isDownAButton = true;
-    if (QTEUIManager* qteUIManager = QTEUIManager::GetInstance())
-    {
-        qteUIManager->StartShowQTEGuideNote();
-    }
 }
 
 void PlayerPlayTurnState::ReleasedButtonA(const Input::Controller& controller)
 {
     _isDownAButton = false;
-    if (QTEUIManager* qteUIManager = QTEUIManager::GetInstance())
-    {
-        qteUIManager->StartHideQTEGuideNote();
-    }
 }
 
 void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
@@ -192,13 +178,12 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
     });
 
     QTESystem*    qteSystem    = SingletonComponent<QTESystem>::GetInstance();
-    QTEUIManager* qteUIManager = QTEUIManager::GetInstance();
+    QTEUIManager* qteUIManager = SingletonComponent<QTEUIManager>::GetInstance();
     if (qteSystem && qteUIManager)
     {
         float t     = _attackButtonHeldTime / _attackButtonHeldWaitTime;
         bool input  = _isDownAKey || _isDownAButton;
         qteUIManager->SetBackgroundUIAlpha(t);
-        qteUIManager->SetGuideNoteUIAlpha(1.0f - t);
         qteUIManager->SetQTEBarUIAlpha(0.0f);
         qteUIManager->SetActive(true);
         if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())

@@ -563,7 +563,7 @@ void QTESystem::PressedButtonB(const Input::Controller& controller)
 
 void QTESystem::ProcessQTEEnterEvent() 
 {
-    QTEUIManager* uiManager = QTEUIManager::GetInstance();
+    QTEUIManager* uiManager = SingletonComponent<QTEUIManager>::GetInstance();
     if (uiManager)
     {
         uiManager->OnQTEEnter();
@@ -593,7 +593,7 @@ void QTESystem::ProcessQTEEnterEvent()
 
 void QTESystem::ProcessQTEButtonPressedEvent() 
 {
-    QTEUIManager* uiManager = QTEUIManager::GetInstance();
+    QTEUIManager* uiManager = SingletonComponent<QTEUIManager>::GetInstance();
     if (uiManager)
     {
         uiManager->OnQTEButtonPressed();
@@ -602,7 +602,7 @@ void QTESystem::ProcessQTEButtonPressedEvent()
 
 void QTESystem::ProcessQTENotePressedEvent(const UINT noteID, const QTE::ResultType result)
 {
-    if (QTEUIManager* uiManager = QTEUIManager::GetInstance())
+    if (QTEUIManager* uiManager = SingletonComponent<QTEUIManager>::GetInstance())
     {
         uiManager->OnQTENotePressed(noteID, result);
     }
@@ -610,7 +610,7 @@ void QTESystem::ProcessQTENotePressedEvent(const UINT noteID, const QTE::ResultT
 
 void QTESystem::ProcessQTEStayEvent() 
 {
-    QTEUIManager* uiManager = QTEUIManager::GetInstance();
+    QTEUIManager* uiManager = SingletonComponent<QTEUIManager>::GetInstance();
     if (uiManager)
     {
         uiManager->OnQTEStay();
@@ -623,13 +623,11 @@ void QTESystem::ProcessQTEExitEvent()
     // 결과 갱신
     _overallResult.UpdateResult();
 
-    QTEUIManager* uiManager = QTEUIManager::GetInstance();
-    if (uiManager)
+    if (QTEUIManager* uiManager = SingletonComponent<QTEUIManager>::GetInstance())
     {
         uiManager->OnQTEExit();
     }
-    TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
-    if (turnMode)
+    if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
     {
         for (auto& character : turnMode->GetCharacters())
         {
@@ -638,8 +636,7 @@ void QTESystem::ProcessQTEExitEvent()
                 character->OnQTEEnd();
             }
         }
-        Player* player = turnMode->GetPlayer();
-        if (player)
+        if (Player* player = turnMode->GetPlayer())
         {
             turnMode->ApplyActions([player, this](TurnAction& turnAction) {
                 turnAction.OnPlayerQTEResult(*player, _overallResult); 
