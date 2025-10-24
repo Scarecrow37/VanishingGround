@@ -49,7 +49,7 @@ private:
     void SetAttack();
     void SetAttackEnd();
 
-    void BattleOnHitEvent(const QTE::NoteResult& result);
+    void BattleOnHitEvent(QTE::NoteResult& result);
 
     Battle::EnemyTargetFlag_ GetAttackTargetFromButton(unsigned int button) const;
 

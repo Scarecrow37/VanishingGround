@@ -9,15 +9,10 @@ namespace TokenObject
     /// </summary>
     class Stun : public Token
     {
-        TOKEN_DATA(16007, "기절")
-        TOKEN_CONSTRUCTOR(Stun, 55, 1, TokenTag::STUN)
+        TOKEN_DATA(205002)
     private:
         bool CanAdd(CharacterBase* owner) const override;
         void OnTurnStart(CharacterBase* owner) override;
-
-    private:
-        REFLECT_FIELDS_BEGIN(Token)
-        REFLECT_FIELDS_END(Stun)
     };
 
     /// <summary>
@@ -27,8 +22,6 @@ namespace TokenObject
     /// </summary>
     class StunResistance : public Token
     {
-        TOKEN_DATA(16008, "기절 저항")
-        TOKEN_CONSTRUCTOR(StunResistance, 40, 99, TokenTag::STUN)
-    private:     
+        TOKEN_DATA(205029)
     };
 } // namespace TokenObject

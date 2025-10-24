@@ -135,22 +135,23 @@ namespace GE
         {PS::GRID, L"ps_grid.hlsl"},
         {PS::VOLUMETRIC_FOG, L"ps_volumetric_fog.hlsl"},
         {PS::POINT_LIGHT_SHADOW, L"ps_point_light_shadow.hlsl"},
-        {PS::SDF_FONT, L"ps_sdf_font.hlsl"},
+        {PS::BURN_DISSOLVE, L"ps_burn_dissolve.hlsl"},
         {PS::GBUFFER, L"ps_gbuffer.hlsl"},
         {PS::UI, L"ps_ui.hlsl"},
         {PS::DISTORTION_RESOLVE, L"ps_distortion_resolve.hlsl"},
         {PS::PARTICLE_QUAD, L"ps_particle_quad.hlsl"},
         {PS::GAUSSIANBLUR_X, L"ps_gaussianblur_x.hlsl"},
+        {PS::SDF_FONT, L"ps_sdf_font.hlsl"},
         {PS::TO_BACKBUFFER, L"ps_to_backbuffer.hlsl"},
         {PS::BRIGHT_EXTRACT, L"ps_bright_extract.hlsl"},
         {PS::ACCUMULATION, L"ps_accumulation.hlsl"},
         {PS::TRANSPARENT_LIM_LIGHT, L"ps_transparent_lim_light.hlsl"},
+        {PS::DXRGBUFFER_MASKED, L"ps_dxrgbuffer_masked.hlsl"},
         {PS::FORWARD_PBR_LIGHTING, L"ps_forward_pbr_lighting.hlsl"},
         {PS::DXRGBUFFER, L"ps_dxrgbuffer.hlsl"},
         {PS::GAUSSIANBLUR_Y, L"ps_gaussianblur_y.hlsl"},
         {PS::UI_OIT, L"ps_ui_oit.hlsl"},
         {PS::DOWN_SAMPLE, L"ps_down_sample.hlsl"},
-        {PS::BURN_DISSOLVE, L"ps_burn_dissolve.hlsl"},
         {PS::PBR_LIGHTING, L"ps_pbr_lighting.hlsl"},
         {PS::SKYBOX, L"ps_skybox.hlsl"},
         {PS::BLEND, L"ps_blend.hlsl"},
@@ -171,22 +172,23 @@ namespace GE
         {L"g_ps_grid", PS::GRID},
         {L"g_ps_volumetric_fog", PS::VOLUMETRIC_FOG},
         {L"g_ps_point_light_shadow", PS::POINT_LIGHT_SHADOW},
-        {L"g_ps_sdf_font", PS::SDF_FONT},
+        {L"g_ps_burn_dissolve", PS::BURN_DISSOLVE},
         {L"g_ps_gbuffer", PS::GBUFFER},
         {L"g_ps_ui", PS::UI},
         {L"g_ps_distortion_resolve", PS::DISTORTION_RESOLVE},
         {L"g_ps_particle_quad", PS::PARTICLE_QUAD},
         {L"g_ps_gaussianblur_x", PS::GAUSSIANBLUR_X},
+        {L"g_ps_sdf_font", PS::SDF_FONT},
         {L"g_ps_to_backbuffer", PS::TO_BACKBUFFER},
         {L"g_ps_bright_extract", PS::BRIGHT_EXTRACT},
         {L"g_ps_accumulation", PS::ACCUMULATION},
         {L"g_ps_transparent_lim_light", PS::TRANSPARENT_LIM_LIGHT},
+        {L"g_ps_dxrgbuffer_masked", PS::DXRGBUFFER_MASKED},
         {L"g_ps_forward_pbr_lighting", PS::FORWARD_PBR_LIGHTING},
         {L"g_ps_dxrgbuffer", PS::DXRGBUFFER},
         {L"g_ps_gaussianblur_y", PS::GAUSSIANBLUR_Y},
         {L"g_ps_ui_oit", PS::UI_OIT},
         {L"g_ps_down_sample", PS::DOWN_SAMPLE},
-        {L"g_ps_burn_dissolve", PS::BURN_DISSOLVE},
         {L"g_ps_pbr_lighting", PS::PBR_LIGHTING},
         {L"g_ps_skybox", PS::SKYBOX},
         {L"g_ps_blend", PS::BLEND},
@@ -207,22 +209,23 @@ namespace GE
         {PS::GRID, L"g_ps_grid"},
         {PS::VOLUMETRIC_FOG, L"g_ps_volumetric_fog"},
         {PS::POINT_LIGHT_SHADOW, L"g_ps_point_light_shadow"},
-        {PS::SDF_FONT, L"g_ps_sdf_font"},
+        {PS::BURN_DISSOLVE, L"g_ps_burn_dissolve"},
         {PS::GBUFFER, L"g_ps_gbuffer"},
         {PS::UI, L"g_ps_ui"},
         {PS::DISTORTION_RESOLVE, L"g_ps_distortion_resolve"},
         {PS::PARTICLE_QUAD, L"g_ps_particle_quad"},
         {PS::GAUSSIANBLUR_X, L"g_ps_gaussianblur_x"},
+        {PS::SDF_FONT, L"g_ps_sdf_font"},
         {PS::TO_BACKBUFFER, L"g_ps_to_backbuffer"},
         {PS::BRIGHT_EXTRACT, L"g_ps_bright_extract"},
         {PS::ACCUMULATION, L"g_ps_accumulation"},
         {PS::TRANSPARENT_LIM_LIGHT, L"g_ps_transparent_lim_light"},
+        {PS::DXRGBUFFER_MASKED, L"g_ps_dxrgbuffer_masked"},
         {PS::FORWARD_PBR_LIGHTING, L"g_ps_forward_pbr_lighting"},
         {PS::DXRGBUFFER, L"g_ps_dxrgbuffer"},
         {PS::GAUSSIANBLUR_Y, L"g_ps_gaussianblur_y"},
         {PS::UI_OIT, L"g_ps_ui_oit"},
         {PS::DOWN_SAMPLE, L"g_ps_down_sample"},
-        {PS::BURN_DISSOLVE, L"g_ps_burn_dissolve"},
         {PS::PBR_LIGHTING, L"g_ps_pbr_lighting"},
         {PS::SKYBOX, L"g_ps_skybox"},
         {PS::BLEND, L"g_ps_blend"},
@@ -239,12 +242,15 @@ namespace GE
     };
 
     inline const std::unordered_map<GS, std::wstring> enumToGSFileNameMap = {
+        {GS::POINT_LIGHT_SHADOW_CUBE, L"gs_point_light_shadow_cube.hlsl"}
     };
 
     inline const std::unordered_map<std::wstring, GS> globalNameToGSEnumMap = {
+        {L"g_gs_point_light_shadow_cube", GS::POINT_LIGHT_SHADOW_CUBE}
     };
 
     inline const std::unordered_map<GS, std::wstring> enumToGSGlobalNameMap = {
+        {GS::POINT_LIGHT_SHADOW_CUBE, L"g_gs_point_light_shadow_cube"}
     };
 
 }

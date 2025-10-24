@@ -44,8 +44,9 @@ private:
     std::vector<InstanceData>   _instanceDatas;
     std::unique_ptr<StructuredBuffer> _instanceDatasBuffer;
 
-    FX<GE::VS::STATIC_POINT_LIGHT_SHADOW_FR, GE::PS::POINT_LIGHT_SHADOW>   _fxStaticMesh;
-    FX<GE::VS::SKELETAL_POINT_LIGHT_SHADOW_FR, GE::PS::POINT_LIGHT_SHADOW> _fxSkeletalMesh;
+    FX<GE::VS::STATIC_POINT_LIGHT_SHADOW_FR, GE::PS::POINT_LIGHT_SHADOW, GE::GS::POINT_LIGHT_SHADOW_CUBE> _fxStaticMesh;
+    FX<GE::VS::SKELETAL_POINT_LIGHT_SHADOW_FR, GE::PS::POINT_LIGHT_SHADOW, GE::GS::POINT_LIGHT_SHADOW_CUBE>
+        _fxSkeletalMesh;
 
     PointLightShadowAtlas _atlas;
     std::vector<UINT>     _activeLightIndices;
