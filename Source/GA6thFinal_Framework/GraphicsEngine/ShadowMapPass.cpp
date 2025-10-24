@@ -319,7 +319,7 @@ void ShadowMapPass::UpdateCascades(const Vector3& lightDirection)
 }
 
 void ShadowMapPass::UpdateSkeletalShadow(const Vector3& lightDirection)
-{
+{    
     if (XMVector3Equal(lightDirection, Vector3::Zero))
         return;
 
@@ -357,33 +357,31 @@ void ShadowMapPass::UpdateSkeletalShadow(const Vector3& lightDirection)
         return;
     }
 
-    // Light view matrix 계산
-    XMVECTOR L = XMVector3Normalize(lightDir);
+    XMVECTOR L   = XMVector3Normalize(lightDir);
     XMVECTOR upY = XMVectorSet(0, 1, 0, 0);
     XMVECTOR upZ = XMVectorSet(0, 0, 1, 0);
-    float d = fabsf(XMVectorGetX(XMVector3Dot(L, upY)));
+    float    d   = fabsf(XMVectorGetX(XMVector3Dot(L, upY)));
 
     XMVECTOR U = (d > 0.95f) ? upZ : upY;
     XMVECTOR R = XMVector3Normalize(XMVector3Cross(U, L));
-    U = XMVector3Cross(L, R);
+    U          = XMVector3Cross(L, R);
 
-    // Scene bounds의 중심
     XMVECTOR sceneCenter = XMLoadFloat3(&sceneBounds.Center);
+    float    maxExtent   = std::max(sceneBounds.Extents.x, std::max(sceneBounds.Extents.y, sceneBounds.Extents.z));
     
-    // 타이트한 bounding box 계산 (skeletal mesh들이 10m 이내에 있음)
-    float maxExtent = std::max(sceneBounds.Extents.x, std::max(sceneBounds.Extents.y, sceneBounds.Extents.z));
-    
-    // Light position (skeletal mesh들이 작고 가까우므로 더 가깝게)
-    XMVECTOR eyePosition = XMVectorSubtract(sceneCenter, XMVectorScale(L, maxExtent * 2.5f));
-    XMMATRIX lightView = XMMatrixLookAtLH(eyePosition, sceneCenter, U);
+    constexpr float SKELETAL_SHADOW_DISTANCE_MULTIPLIER = 2.5f;
 
-    // 매우 타이트한 orthographic projection (10m 범위 + 최소 여유분)
-    float orthoSize = std::max(12.0f, maxExtent * 2.1f); // 최소 12m, 또는 extent * 2.1
-    float nearPlane = 0.01f;                             // 매우 가까운 near plane (발밑 그림자용)
-    float farPlane = maxExtent * 5.0f;                   // 충분한 깊이
+    XMVECTOR eyePosition = XMVectorSubtract(sceneCenter, XMVectorScale(L, maxExtent * SKELETAL_SHADOW_DISTANCE_MULTIPLIER));
+    XMMATRIX lightView   = XMMatrixLookAtLH(eyePosition, sceneCenter, U);
+
+    constexpr float MIN_SKELETAL_SHADOW_SIZE          = 10.0f;
+    constexpr float SKELETAL_SHADOW_EXTENT_MULTIPLIER = 2.1f;
+
+    float    orthoSize = std::max(MIN_SKELETAL_SHADOW_SIZE, maxExtent * SKELETAL_SHADOW_EXTENT_MULTIPLIER);
+    float    nearPlane = 0.01f;
+    float    farPlane  = maxExtent * 5.0f;
     XMMATRIX lightProj = XMMatrixOrthographicLH(orthoSize, orthoSize, nearPlane, farPlane);
 
-    // 최종 행렬 저장
     _cascadeData.ShadowVP[MAX_CASCADES] = XMMatrixTranspose(lightView * lightProj);
 }
 
