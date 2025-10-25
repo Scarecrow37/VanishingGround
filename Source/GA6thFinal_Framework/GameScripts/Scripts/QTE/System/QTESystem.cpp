@@ -44,42 +44,6 @@ void QTESystem::Start()
 
 void QTESystem::Update()
 {
-    if (IsPlaying)
-    {
-#ifdef _UMEDITOR
-        if (ImGui::IsKeyPressed(ImGuiKey_LeftArrow, false))
-        {
-            ProcessQTEButtonPressedEvent();
-            if (CanPressQTEButton())
-            {
-                PressedQTEButton(_keyBinder.GetKeyX());
-            }
-        }
-        else if (ImGui::IsKeyPressed(ImGuiKey_UpArrow, false))
-        {
-            ProcessQTEButtonPressedEvent();
-            if (CanPressQTEButton())
-            {
-                PressedQTEButton(_keyBinder.GetKeyY());
-            }
-        }
-        else if (ImGui::IsKeyPressed(ImGuiKey_RightArrow, false))
-        {
-            ProcessQTEButtonPressedEvent();
-            if (CanPressQTEButton())
-            {
-                PressedQTEButton(_keyBinder.GetKeyB());
-            }
-        }
-#endif // _UMEDITOR
-
-        auto& [controller, button] = _nextKeyEvent;
-        if (controller)
-        {
-            PressedQTEButton(button);
-            controller = nullptr;
-        }
-    }
     if (QTE::STATE_PLAYING == _currState)
     {
         ProcessQTEPlayingEvent();
@@ -418,9 +382,10 @@ void QTESystem::UpdateQTETrack()
 
         // 디버깅 용도. (노트랑 완벽히 같은 시간으로 설정 후 클릭 이벤트 보내기.)
         // 혹시 모르니 주석 삭제는 안함.
-        //if (curNote.Time < _currTime)
+        //auto& [normalMin, normalMax]   = ReflectFields->NormalJudgeRange;
+        //if (curNote.Time < _currTime + normalMin)
         //{
-        //    _currTime = curNote.Time;
+        //    _currTime = curNote.Time - normalMin;
         //    PressedQTEButton(Input::Controller::Button::B);
         //    // 잘나오는데요??? 걍 렉때메 판정이 이상해보이는거 같기도...
         //}
@@ -429,6 +394,38 @@ void QTESystem::UpdateQTETrack()
         {
             PressedQTEButton(); // 최대 일격 판정 시간이 지나갔는데 버튼을 누르지 않은 경우, MISS 처리
         }
+        auto& [controller, button] = _nextKeyEvent;
+        if (controller)
+        {
+            PressedQTEButton(button);
+            controller = nullptr;
+        }
+        #ifdef _UMEDITOR
+        if (ImGui::IsKeyPressed(ImGuiKey_LeftArrow, false))
+        {
+            ProcessQTEButtonPressedEvent();
+            if (CanPressQTEButton())
+            {
+                PressedQTEButton(_keyBinder.GetKeyX());
+            }
+        }
+        else if (ImGui::IsKeyPressed(ImGuiKey_UpArrow, false))
+        {
+            ProcessQTEButtonPressedEvent();
+            if (CanPressQTEButton())
+            {
+                PressedQTEButton(_keyBinder.GetKeyY());
+            }
+        }
+        else if (ImGui::IsKeyPressed(ImGuiKey_RightArrow, false))
+        {
+            ProcessQTEButtonPressedEvent();
+            if (CanPressQTEButton())
+            {
+                PressedQTEButton(_keyBinder.GetKeyB());
+            }
+        }
+#endif // _UMEDITOR
     }
     else
     {
