@@ -235,10 +235,10 @@ void CombatStartPhase::AddExtinctionRevelation() const
         {
             //스테이지 클리어 횟수만큼 랜덤한 소멸 계시 추가
             int stageClearCount = itemDropSystem->StageClearCount;
-            for (int i = 0; i < stageClearCount; ++i)
+            if (0 < stageClearCount)
             {
-                revelationSystem->EquipRandomExtinctionElement();
-            }        
+                revelationSystem->EquipRandomExtinctionElement(static_cast<size_t>(stageClearCount));       
+            }           
         }
     }
 }

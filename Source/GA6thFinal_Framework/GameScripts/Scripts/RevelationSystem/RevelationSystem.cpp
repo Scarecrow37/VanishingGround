@@ -52,8 +52,11 @@ const std::shared_ptr<RevelationElement>& RevelationSystem::PushBackRevelation(c
     return _playerElementList.emplace_back(new RevelationElement(element));
 }
 
-void RevelationSystem::EquipRandomExtinctionElement() 
+void RevelationSystem::EquipRandomExtinctionElement(size_t count)
 {
+    if (count < 1)
+        return;
+
     // 소멸 계시만 필터
     auto& revelations = GetRevelationTableElements();
     std::vector<RevelationElement*> extinctions;
@@ -64,13 +67,21 @@ void RevelationSystem::EquipRandomExtinctionElement()
         return garde == RevelationGrade::EXTINCTION;
     });
 
-    //랜덤 인덱스 뽑아서 추가
-    size_t index = Random::Index(extinctions.size());
-    auto& randomRevelation = extinctions[index];
-    if (randomRevelation)
+    //랜덤 셔플 후 앞에 2개 추가
+    if (false == extinctions.empty())
     {
-        PushBackRevelation(*randomRevelation);
-    } 
+        auto& engine = Random::GetEngine();
+        std::ranges::shuffle(extinctions, engine);
+        extinctions.resize(count);
+
+        for (auto& extinction : extinctions)
+        {
+            if (extinction)
+            {
+                PushBackRevelation(*extinction);
+            }          
+        }
+    }  
 }
 
 void RevelationSystem::RemoveAllExtinctionElements() 
