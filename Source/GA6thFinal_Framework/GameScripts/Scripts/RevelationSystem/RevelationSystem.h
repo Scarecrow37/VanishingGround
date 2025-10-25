@@ -35,6 +35,16 @@ public:
     /// <param name="element"></param>
     /// <returns></returns>
     const std::shared_ptr<RevelationElement>& PushBackRevelation(const RevelationElement& element);
+
+    /// <summary>
+    /// 플레이어의 인벤토리에 랜덤한 소멸 계시 하나를 뒤쪽에 추가합니다.
+    /// </summary>
+    void EquipRandomExtinctionElement();
+
+    /// <summary>
+    /// 플레이어가 인벤토리 뒤쪽에 가지고 있는 모든 소멸 계시를 지웁니다.
+    /// </summary>
+    void RemoveAllExtinctionElements();
    
     /// <summary>
     /// 이번 라운드 활성화 계시를 랜덤으로 뽑습니다.
