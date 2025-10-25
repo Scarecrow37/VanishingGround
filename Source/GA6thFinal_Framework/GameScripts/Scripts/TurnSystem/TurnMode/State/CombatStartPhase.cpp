@@ -213,10 +213,13 @@ void CombatStartPhase::AddValidActions()
     {
         for (auto& accessory : _accessorySystem->GetPlayerAccessoryItems())
         {
-            TurnAction* action = accessory.GetAction();
-            if (action)
+            const auto& actions = accessory.GetActions();
+            for (auto& action : actions)
             {
-                _turnMode->AddTurnAction(action);
+                if (action)
+                {
+                    _turnMode->AddTurnAction(action.get());
+                }             
             }
         }     
     }
