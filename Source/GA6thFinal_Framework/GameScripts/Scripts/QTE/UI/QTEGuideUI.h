@@ -10,9 +10,9 @@ namespace QTE
     {
         enum { X, Y, B, BUTTON_COUNT, };
 
-        OverlayPanel* Overlay;
-        std::array<ImageElement*, BUTTON_COUNT> GuideButton;
-        std::array<TextElement*,  BUTTON_COUNT> GuideText;
+        OverlayPanel* Overlay = nullptr;
+        std::array<ImageElement*, BUTTON_COUNT> GuideButton = {nullptr, nullptr, nullptr};
+        std::array<TextElement*, BUTTON_COUNT>  GuideText   = {nullptr, nullptr, nullptr};
 
         // TODO: 상단에 누른 버튼들 표시하는 UI 추가해야함.
 

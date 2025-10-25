@@ -19,7 +19,10 @@ class OverlayPanel;
 class ImageElement;
 class CameraComponent;
 
-
+/// <summary>
+/// QTE UI Manager는 QTE System, CombatStartPhase와 PlayerPlayTurn에서만 사용합니다.
+/// 이 외에는 접근하지 마세요.
+/// </summary>
 class QTEUIManager : public Component
 {
     friend class QTESystem;

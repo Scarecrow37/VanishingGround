@@ -44,7 +44,9 @@ namespace QTE
             }
             if (GuideText[i])
             {
-                //GuideText[i].
+                Color old = GuideText[i]->Color;
+                old.w     = alpha;
+                GuideText[i]->Color = old;
             }
         }
     }

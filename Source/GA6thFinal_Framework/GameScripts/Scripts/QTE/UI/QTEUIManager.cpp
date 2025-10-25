@@ -66,20 +66,22 @@ void QTEUIManager::OnQTEPlay()
             const float currTime    = system->CurrentTrackTime;
             const float currSpeed   = system->ScaledSpeedFactor;
             const SIZE  panelSize   = _overlayPanel->Size;
-            const RECT  overlayRect = _fieldUI.Overlay->AbsoluteRect;
-            const POINT judgeCenter = _fieldUI.JudgeNote->AbsoluteCenterPoint;
+            const POINT overlayAbs  = _fieldUI.Overlay->AbsolutePosition;
+            const POINT overlayPoint= _fieldUI.Overlay->Point;
+            const SIZE  overlaySize = _fieldUI.Overlay->Size;
+            const POINT judgeCenter = _fieldUI.JudgeNote->CenterPoint;
             const SIZE  judgeSize   = _fieldUI.JudgeNote->Size;
 
-            const float startX      = static_cast<float>(overlayRect.left);
-            const float endX        = static_cast<float>(overlayRect.right);
             const float perfectX    = static_cast<float>(judgeCenter.x);
-            const float offsetX     = static_cast<float>(-panelSize.cx / 2); // Center 정렬이므로 화면의 절반을 오프셋으로 옮김
+            const float offsetX     = static_cast<float>(overlayAbs.x);
+            const float startX      = static_cast<float>(overlayPoint.x);
+            const float endX        = static_cast<float>(panelSize.cx);
 
             for (auto& [id,_] : _activedNote)
             {
                 if (QTE::NoteUI* noteUI = GetNoteUIFromID(id))
                 {
-                    noteUI->Update(currTime, currSpeed, startX, endX, perfectX, offsetX);
+                    noteUI->Update(currTime, currSpeed, startX, endX, perfectX, 0.0f);
                 }
             }
         }
@@ -182,11 +184,55 @@ void QTEUIManager::DeserializedReflectEvent()
 {
 }
 
+void DebugDrawValidLine(POINT panelPoint, SIZE panelSize, float pointX, FXMVECTOR color)
+{
+    {
+        const XMFLOAT2 start{/*static_cast<float>(panelPoint.x) + */pointX, static_cast<float>(panelPoint.y)};
+        const XMFLOAT2 end{/*static_cast<float>(panelPoint.x) + */pointX, static_cast<float>(panelPoint.y + panelSize.cy)};
+        UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&start), XMLoadFloat2(&end), color);
+    }
+}
+
 void QTEUIManager::ImGuiDrawPropertysEvent() 
 {
     if (ImGui::Button((const char*)u8"새로고침"))
     {
         FindUIComponents();
+    }
+
+    if (_fieldUI.Overlay && _fieldUI.JudgeNote)
+    {
+        if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
+        {
+            const auto [validMin, validMax]     = system->GetValidJudgeRange();
+            const auto [normalMin, normalMax]   = system->GetNormalJudgeRange();
+            const auto [perfectMin, perfectMax] = system->GetPerfectJudgeRange();
+            const float tavelTime   = QTE::NoteUI::TRAVEL_PERFECT_TIME;
+            const float speedScale  = system->GetQTESpeedScale();
+            const POINT panelPoint  = _fieldUI.Overlay->AbsolutePosition;
+            const SIZE  panelSize   = _fieldUI.Overlay->Size;
+            const POINT judgeCenter = _fieldUI.JudgeNote->CenterPoint;
+            const float perfectX    = static_cast<float>(judgeCenter.x);
+            const float offsetX     = static_cast<float>(panelPoint.x);
+            { // Valid
+                const float minFactor = QTE::Math::CalculateNotePosXFactor(-validMin, speedScale, tavelTime);
+                DebugDrawValidLine(panelPoint, panelSize, offsetX + perfectX * minFactor, Colors::White);
+                const float maxFactor = QTE::Math::CalculateNotePosXFactor(-validMax, speedScale, tavelTime);
+                DebugDrawValidLine(panelPoint, panelSize, offsetX + perfectX * maxFactor, Colors::White);
+            }
+            { // Normal
+                const float minFactor = QTE::Math::CalculateNotePosXFactor(-normalMin, speedScale, tavelTime);
+                DebugDrawValidLine(panelPoint, panelSize, offsetX + perfectX * minFactor, Colors::Blue);
+                const float maxFactor = QTE::Math::CalculateNotePosXFactor(-normalMax, speedScale, tavelTime);
+                DebugDrawValidLine(panelPoint, panelSize, offsetX + perfectX * maxFactor, Colors::Blue);
+            }
+            { // Perfect
+                const float minFactor = QTE::Math::CalculateNotePosXFactor(-perfectMin, speedScale, tavelTime);
+                DebugDrawValidLine(panelPoint, panelSize, offsetX + perfectX * minFactor, Colors::Yellow);
+                const float maxFactor = QTE::Math::CalculateNotePosXFactor(-perfectMax, speedScale, tavelTime);
+                DebugDrawValidLine(panelPoint, panelSize, offsetX + perfectX * maxFactor, Colors::Yellow);
+            }
+        }
     }
 }
 

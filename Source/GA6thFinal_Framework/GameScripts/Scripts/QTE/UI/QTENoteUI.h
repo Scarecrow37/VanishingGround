@@ -68,14 +68,14 @@ namespace QTE
         SpriteAnimationElement* NormalEffect    = nullptr;
         SpriteAnimationElement* PerfectEffect   = nullptr;
 
+        static constexpr float TRAVEL_PERFECT_TIME = 1.0f; // 시작 -> 퍼펙트 지점까지의 시간
+
     private:
         static constexpr const char* ANIMATION_START_TAG        = "QTE Note Start";
         static constexpr const char* ANIMATION_END_TAG          = "QTE Note End";
         static constexpr const char* ANIMATION_MISS_TAG         = "QTE Effect Miss";
         static constexpr const char* ANIMATION_NORMAL_TAG       = "QTE Effect Normal";
         static constexpr const char* ANIMATION_PERFECT_TAG      = "QTE Effect Perfect";
-
-        static constexpr float       TRAVEL_PERFECT_TIME = 1.0f; // 시작 -> 퍼펙트 지점까지의 시간
     };
 }
 

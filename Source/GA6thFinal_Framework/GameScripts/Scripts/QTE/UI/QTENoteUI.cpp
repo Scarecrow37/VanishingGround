@@ -127,41 +127,6 @@ namespace QTE
         return false;
     }
 
-    namespace Math
-    {
-        inline float Lerp(float a, float b, float t)
-        {
-            return a + (b - a) * t;
-        }
-
-        // QTE용 X가중치를 구합니다. 클램프는 하지 않습니다. 
-        // - noteTime: 노트에 연관된 시간(판정 시간)
-        // - currTime: 현재 트랙(또는 QTE)의 시간 (현재 시간)
-        // - speedScale: 속도 보정(트랙/게임 속도 배율)
-        // - timeToPerfect: startX -> perfectX 까지 실제로 걸려야 하는 기준 시간 (0 초과여야함)
-        float CalculateNotePosXFactor(const float noteTime, const float currTime, const float speedScale,
-                                      const float timeToPerfect)
-        {
-            // 0 or 음수 나누기에 대한 예외 처리
-            if (timeToPerfect <= 0.001f)
-            {
-                return 1.0f;
-            }
-
-            // 노트가 언제 생성됐는지 대비 현재 QTE 시간의 상대적 위치 계산
-            const float delta       = (noteTime - currTime);
-            const float scaledDelta = delta * speedScale;
-            const float factor      = 1.0f - (scaledDelta / timeToPerfect);
-            return factor;
-        }
-
-        // QTE X 위치를 구합니다.
-        float CalculateNotePosX(const float factorX, const float startX, const float endX)
-        {
-            return Lerp(startX, endX, factorX);
-        }
-    } // namespace Math
-
     void NoteUI::Update(const float currTime, const float currSpeed, const float startX, const float endX,
                         const float perfectX, const float offsetX)
     {
@@ -169,17 +134,12 @@ namespace QTE
         {
             return;
         }
+        const float deltaTime = Time - currTime;
         const float noteWidth = GetNoteWidth();
-
         // 노트 위치 가중치를 구한다. 0 이하면 나타나기 전, 1 이상이면 퍼펙트 지점을 넘었다는 것.
-        const float posXFactor = Math::CalculateNotePosXFactor(Time, currTime, currSpeed, TRAVEL_PERFECT_TIME);
-
+        const float posXFactor = Math::CalculateNotePosXFactor(deltaTime, currSpeed, TRAVEL_PERFECT_TIME);
         // 주의: end 지점을 PerfectX로 한다.
         const float posXValue = Math::CalculateNotePosX(posXFactor, startX, perfectX);
-
-        // 최종 값은 EndX값을 넘지 않는 X값에 오프셋을 더한 값.
-        const float finalXPos = std::min(posXValue, endX) + offsetX;
-
         switch (State)
         {
         case STATE_WAIT: {
@@ -193,7 +153,12 @@ namespace QTE
             break;
         }
         case STATE_VISIBLE: {
-            SetPositionX(finalXPos); // 위치 설정
+            if (Overlay)
+            {   // 최종 값은 EndX값을 넘지 않는 X값에 오프셋을 더한 값.
+                const SIZE  size      = Overlay->Size;
+                const float finalXPos = std::min(posXValue, endX) + offsetX - static_cast<float>(size.cx / 2);
+                SetPositionX(finalXPos); // 위치 설정
+            }
             OnVisibleUpdate();
             // X값이 EndX값을 넘었거나, 결과가 생긴 노트는 Dead처리
             if (posXValue >= endX ||

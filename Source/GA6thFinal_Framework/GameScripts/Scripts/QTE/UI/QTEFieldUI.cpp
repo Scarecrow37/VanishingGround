@@ -81,6 +81,8 @@ namespace QTE
         {
             StartAnimation->gameObject->ActiveSelf = true;
             StartAnimation->StartAnimation();
+            Flow->gameObject->ActiveSelf = true;
+            Flow->StartAnimation();
         }
     }
     void FieldUI::Update()

@@ -417,11 +417,12 @@ void QTESystem::UpdateQTETrack()
         auto& [validMin, validMax]   = ReflectFields->ValidJudgeRange;
 
         // 디버깅 용도. (노트랑 완벽히 같은 시간으로 설정 후 클릭 이벤트 보내기.)
+        // 혹시 모르니 주석 삭제는 안함.
         //if (curNote.Time < _currTime)
         //{
         //    _currTime = curNote.Time;
         //    PressedQTEButton(Input::Controller::Button::B);
-        //    // 잘나오는데요??? 걍 렉때메 판정이 이상해보임.
+        //    // 잘나오는데요??? 걍 렉때메 판정이 이상해보이는거 같기도...
         //}
 
         if (_currTime > curNote.Time + validMax)
