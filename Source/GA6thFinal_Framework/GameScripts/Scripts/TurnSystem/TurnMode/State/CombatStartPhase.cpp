@@ -21,6 +21,8 @@
 
 #include "DifficultyManager/DifficultyManager.h"
 
+#include "Map/MapManager.h"
+
 REGISTER_CLASS(FSMStateFactory, CombatStartPhase)
 
 static constexpr int EXPECTED_ENEMY_COUNT = 3;
@@ -118,14 +120,16 @@ void CombatStartPhase::OnAwake()
 {
     if (MonsterSystem* system = SingletonComponent<MonsterSystem>::GetInstance())
     {
-        Difficulty difficulty = Difficulty::NORMAL;
-        if (DifficultyManager* difficultyManager = SingletonComponent<DifficultyManager>::GetInstance())
+        Difficulty          difficulty  = Difficulty::NORMAL;
+        Monster::SpawnID    spawnID     = 0;
+        if (DifficultyManager* manager = SingletonComponent<DifficultyManager>::GetInstance())
         {
-            difficulty = difficultyManager->GetDifficulty();
+            difficulty = manager->GetDifficulty();
         }
-
-        // TODO: 나중에 전투에 맞는 스폰 ID로 변경
-        Monster::SpawnID spawnID = 211321;
+        if (MapManager* manager = SingletonComponent<MapManager>::GetInstance())
+        {
+            spawnID = manager->GetCurrentSpawnID();
+        }
         system->SpawnMonsterFromSpawnID(spawnID, difficulty);
     }
     ResetCharacterStats();

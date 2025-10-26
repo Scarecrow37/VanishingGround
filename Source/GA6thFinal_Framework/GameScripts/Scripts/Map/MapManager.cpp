@@ -17,6 +17,8 @@
 #include "Preferences/PreferencesManager.h"
 #include "Inventory/UI/InventoryUIManager.h"
 
+#include "DifficultyManager/DifficultyEnum.h"
+
 UMREAL_COMPONENT(MapManager)
 
 MapManager::MapManager()
@@ -212,21 +214,15 @@ void MapManager::ImGuiDrawPropertysEvent()
         DefaultSetting();        
 
         auto stages = GameObject::Find("Stages").lock();
-
         auto stage = NewGameObject("Stage");
-        stage->transform->SetParent(stages->transform);
-
-        auto& stageComponent = stage->AddComponent<Stage>();
-
-        std::string key = "Stage" + std::to_string(stages->transform->ChildCount);
-        stageComponent.RegisterStage(key, 
-                                     UmFileSystem.GetGuidFromAssetID(ReflectFields->AssetIDs[STAGE_ENABLE]),
-                                     UmFileSystem.GetGuidFromAssetID(ReflectFields->AssetIDs[STAGE_DISABLE]));
-
-        stage->AddComponent<ImageElement>();
-        stage->AddComponent<StageView>().Watch(key);
-
-        _childCount++;
+        if (stage)
+        {
+            stage->transform->SetParent(stages->transform);
+            stage->AddComponent<Stage>();
+            stage->AddComponent<ImageElement>();
+            stage->AddComponent<StageView>();
+            RegisterStage(*stage.get());
+        }
     }
 
     if (ImGui::Button("Update Data"))
@@ -300,28 +296,13 @@ void MapManager::SetupStage()
 
     if (stages)
     {
-        _childCount = stages->transform->GetChildCount();
-
-        for (int i = 0; i < _childCount; i++) 
+        const int childCount = stages->transform->GetChildCount();
+        for (int i = 0; i < childCount; i++) 
         {
             auto child = stages->transform->GetChild(i);
             if (child)
             {
-                std::string key   = "Stage" + std::to_string(i + 1);
-                auto        stage = child->gameObject->GetComponent<Stage>();
-                if (stage)
-                {
-                    _stages.push_back(stage);
-                    stage->UpdateData(key, 
-                                      UmFileSystem.GetGuidFromAssetID(ReflectFields->AssetIDs[STAGE_ENABLE]),
-                                      UmFileSystem.GetGuidFromAssetID(ReflectFields->AssetIDs[STAGE_DISABLE]));
-                }
-
-                auto stageView = child->gameObject->GetComponent<StageView>();
-                if (stageView)
-                {
-                    stageView->Watch(key);
-                }
+                RegisterStage(child->gameObject);
             }
         }
     }
@@ -332,7 +313,49 @@ void MapManager::SetupStage()
     }    
 }
 
-void MapManager::PreferencesKeyDown(const Input::Controller&) 
+void MapManager::RegisterStage(GameObject& object)
+{
+    if (Stage* stage = object.GetComponent<Stage>())
+    {
+        const int mainLevel = stage->MainLevel;
+        const int subLevel  = stage->SubLevel;
+        _stages.push_back(stage);
+        _stageDataTable[mainLevel][subLevel] = stage;
+
+        std::string key = "Stage" + std::to_string(mainLevel);
+        stage->UpdateData(key, UmFileSystem.GetGuidFromAssetID(ReflectFields->AssetIDs[STAGE_ENABLE]),
+                          UmFileSystem.GetGuidFromAssetID(ReflectFields->AssetIDs[STAGE_DISABLE]));
+
+        if (StageView* stageView = object.GetComponent<StageView>())
+        {
+            stageView->Watch(key);
+        }
+    }
+}
+
+void MapManager::SetCurrentSelectedStage(Stage* stage) 
+{
+    _selectedStage = stage;
+}
+
+Stage* MapManager::GetCurrentSelectedStage()
+{
+    return _selectedStage;
+}
+
+Monster::SpawnID MapManager::GetCurrentSpawnID()
+{
+    if (_selectedStage)
+    {
+        const int mainLevel   = _selectedStage->MainLevel;
+        const int subLevel    = _selectedStage->SubLevel;
+        const int battleCount = _selectedStage->BattleCount;
+        return Monster::GetSpawnID(mainLevel, subLevel, battleCount);
+    }
+    return 0;
+}
+
+void MapManager::PreferencesKeyDown(const Input::Controller&)
 {
     OpenPreferencesWindow();
 }

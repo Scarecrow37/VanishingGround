@@ -10,6 +10,10 @@
 #include "ViewModels/ItemDrop/DropArtifacts/DropArtifactsViewModel.h"
 #include "Debugger/Debugger.h"
 
+#include "Map/MapManager.h"
+#include "Map/Stage.h"
+#include "CombatUIManager/CombatUIManager.h"
+
 UMREAL_COMPONENT(ItemDropSystem)
 
 //내부 사용 구조체 및 enum
@@ -334,26 +338,23 @@ void ItemDropSystem::PlayItemDropUISequence()
             ArtifactButtonNavi::LastFocusIndex = 0;
             itemDropUIRootManager->AutoFocus();
         }
+
+        if (MapManager* manager = SingletonComponent<MapManager>::GetInstance())
+        {
+            if (Stage* stage = manager->GetCurrentSelectedStage())
+            {
+                // n번 째 전투 = 클리어 횟수의 +1
+                stage->BattleCount = StageClearCount + 1;
+            }
+        }
     }
 
-    if (auto turnQueue = GameObject::FindWithTag("Turn Queue Panel").lock())
+    if (CombatUIManager* uiManager = SingletonComponent<CombatUIManager>::GetInstance())
     {
-        turnQueue->ActiveSelf = false;
-    }
-
-    if (auto HUD = GameObject::FindWithTag("Character HUD Group").lock())
-    {
-        HUD->ActiveSelf = false;
-    }
-
-    if (auto revelationPanel = GameObject::FindWithTag("Revelations Panel").lock())
-    {
-        revelationPanel->ActiveSelf = false;
-    }
-
-    if (auto weaponPanel = GameObject::FindWithTag("Weapon Panel").lock())
-    {
-        weaponPanel->ActiveSelf = false;
+        uiManager->TurnQueueGroup.ActiveUI(false);
+        uiManager->CharacterHUDGroup.ActiveUI(false);
+        uiManager->RevelationsGroup.ActiveUI(false);
+        uiManager->WeaponGroup.ActiveUI(false);
     }
 }
 
