@@ -223,7 +223,7 @@ RTPipeline::RootSignatureDesc RTPipeline::CreateGlobalRootDesc()
     RootSignatureDesc r;
     // 상수버퍼는 global root signature로 사용하여 local root를 사용하지 않게금 함.
     // 굳이 local 로 분리할 필요가 없기 떄문.
-    r.rootParams.resize(7);
+    r.rootParams.resize(6);
     // b0 camera data
     r.rootParams[0].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
     r.rootParams[0].Descriptor.ShaderRegister = 0;
@@ -257,11 +257,11 @@ RTPipeline::RootSignatureDesc RTPipeline::CreateGlobalRootDesc()
     r.rootParams[5].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
     r.rootParams[5].Descriptor.ShaderRegister = 3;
     r.rootParams[5].Descriptor.RegisterSpace  = 0;
-    // mesh instance id
-    r.rootParams[6].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_SRV;
-    r.rootParams[6].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
-    r.rootParams[6].Descriptor.ShaderRegister = 4;
-    r.rootParams[6].Descriptor.RegisterSpace  = 0;
+    //// mesh instance id
+    //r.rootParams[6].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_SRV;
+    //r.rootParams[6].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
+    //r.rootParams[6].Descriptor.ShaderRegister = 4;
+    //r.rootParams[6].Descriptor.RegisterSpace  = 0;
 
     r.staticSampler.resize(7);
 
