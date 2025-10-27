@@ -201,7 +201,7 @@ void QTEUIManager::ImGuiDrawPropertysEvent()
         FindUIComponents();
     }
 
-    DrawDebugDebugDrawJudgeLine();
+    DrawDebugJudgeLine();
 }
 
 void QTEUIManager::ResetUI()
@@ -217,14 +217,16 @@ void QTEUIManager::ResetUI()
 void QTEUIManager::InitializeNotePool()
 {
     assert(_fieldUI.Overlay && "QTE Overlay가 없으면 노트 인스턴스를 생성하지 않습니다.");
-
-    _notePool.clear();
-
-    File::Guid prefabGuid = ReflectFields->NotePrefabGuid;
-    Transform& parent     = _fieldUI.Overlay->transform;
-    for (int i = 0; i < ReflectFields->PoolSize; ++i)
+    if (_fieldUI.Overlay)
     {
-        _notePool.emplace_back(prefabGuid, &parent);
+        _notePool.clear();
+
+        File::Guid prefabGuid = ReflectFields->NotePrefabGuid;
+        Transform& parent     = _fieldUI.Overlay->transform;
+        for (int i = 0; i < ReflectFields->PoolSize; ++i)
+        {
+            _notePool.emplace_back(prefabGuid, &parent);
+        }
     }
 }
 
