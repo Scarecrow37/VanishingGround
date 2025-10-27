@@ -122,7 +122,7 @@ namespace Monster
 
         return result;
     }
-    SpawnID GetSpawnID(size_t mainLevelIndex, size_t subLevelIndex, size_t battleCount)
+    SpawnID GetSpawnID(int mainLevelIndex, int subLevelIndex, int battleCount)
     {
         std::string spawnIDStr = std::string(SPAWN_ID_HEADER);
         spawnIDStr += std::to_string(mainLevelIndex);
