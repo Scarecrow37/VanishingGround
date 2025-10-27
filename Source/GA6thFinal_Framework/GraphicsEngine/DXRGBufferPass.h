@@ -30,6 +30,9 @@ public:
     void End(ID3D12GraphicsCommandList* commandList) override;
     void Update(ID3D12GraphicsCommandList* commandList, const float deltaTime) override;
 
+public:
+    StructuredBuffer* GetInstanceData();
+
 private:
     void InitShaderAndPSO();
     void DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType meshType, Material::BlendModeType blendModeType,

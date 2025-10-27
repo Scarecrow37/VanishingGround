@@ -34,4 +34,7 @@ private:
     std::vector<MeshInstanceID>       _meshInstanceIDs;
     ComPtr<ID3D12GraphicsCommandList> _commandList;
     ComPtr<ID3D12CommandAllocator>    _commandAllocator;
+
+    std::vector<InstanceData>         _instanceDatas;
+    std::unique_ptr<StructuredBuffer> _instanceDatasBuffer;
 };

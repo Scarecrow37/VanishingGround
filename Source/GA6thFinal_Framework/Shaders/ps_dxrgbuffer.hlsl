@@ -23,8 +23,6 @@ struct PSOutput
     uint customDepth : SV_Target2;
 };
 
-
-// todo 민재형 이거 맞아? 이렇게 하면되나 숫자 그대로 가져오나?
 #define DIFFUSE   0
 #define NORMAL    1
 #define ORM       2

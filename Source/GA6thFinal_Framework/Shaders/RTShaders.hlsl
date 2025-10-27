@@ -55,8 +55,9 @@ RWTexture2D<float4> Output : register(u0);
 
 StructuredBuffer<uint> vertex_buffer_id: register(t1); //chs
 StructuredBuffer<uint> index_buffer_id : register(t2); //chs
-StructuredBuffer<Material> material : register(t3); //chs//-> texture id.??=
-StructuredBuffer<uint> meshInstanceID : register(t4);
+StructuredBuffer<InstanceData> meshInstanceData : register(t3); //chs
+//StructuredBuffer<Material> material : register(t3); //chs//-> texture id.??=
+//StructuredBuffer<uint> meshInstanceID : register(t4);
 TextureCube evnTexture : register(t5); //chs
 TextureCube irradianceTexture : register(t6); //chs
 TextureCube prefilteredMap : register(t7); //chs
@@ -198,12 +199,12 @@ static const uint MAX_RECURSION_DEPTH = 1;
 void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttributes attribs)
 {
     uint instanceID = InstanceID();
-    
-    uint staticMeshInstanceID = meshInstanceID[instanceID];
-    uint diffuseID = material[staticMeshInstanceID].ID[DIFFUSE];
-    uint normalID = material[staticMeshInstanceID].ID[NORMAL];
-    uint ORMID = material[staticMeshInstanceID].ID[ORM];
-    uint emissiveID = material[staticMeshInstanceID].ID[EMISSIVE];
+    InstanceData instData = instanceData[instanceID];
+    //uint staticMeshInstanceID = meshInstanceID[instanceID];
+    uint diffuseID = instData.MaterialID[DIFFUSE];
+    uint normalID = instData.MaterialID[NORMAL];
+    uint ORMID = instData.MaterialID[ORM];
+    uint emissiveID = instData.MaterialID[EMISSIVE];
     
     uint vertexID = vertex_buffer_id[instanceID];
     uint indexID = index_buffer_id[instanceID];

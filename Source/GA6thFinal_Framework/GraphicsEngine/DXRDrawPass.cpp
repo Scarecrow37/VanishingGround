@@ -29,7 +29,6 @@ void DXRDrawPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTech
 
 void DXRDrawPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
-    UINT currentBackBufferIndex = _ownerScene->_currentFrameIndex;
     UpdateFrameResource(commandList);
 }
 
@@ -221,22 +220,38 @@ void DXRDrawPass::CreateShaderResource()
 
 void DXRDrawPass::UpdateFrameResource(ID3D12GraphicsCommandList* commandList)
 {
-    // Update Instance ID
-    _meshInstanceIDs.clear();
-    UINT staticMeshCount = static_cast<UINT>(_ownerScene->_staticMeshInstanceIDs.size());
-    for (UINT i = 0; i < staticMeshCount; ++i)
+    UINT currentBackbufferIndex = _ownerScene->_currentFrameIndex;
+
+    _instanceDatas.clear();
+    for (auto& meshInfo : _ownerScene->_activeMeshes[STATIC_MESH])
     {
-        _meshInstanceIDs.push_back(_ownerScene->_staticMeshInstanceIDs[i]);
+        _instanceDatas.emplace_back(meshInfo.InstanceData);
     }
-    UINT skeletalMeshCount = static_cast<UINT>(_ownerScene->_skeletalMeshInstanceIDs.size());
-    for (UINT i = 0; i < skeletalMeshCount; ++i)
+
+    for (auto& meshInfo : _ownerScene->_activeMeshes[SKELETAL_MESH])
     {
-        _meshInstanceIDs.push_back(_ownerScene->_skeletalMeshInstanceIDs[i]);
+        _instanceDatas.emplace_back(meshInfo.InstanceData);
     }
-    UINT currentFrameIndex = _ownerScene->_currentFrameIndex;
-    _ownerScene->_frameResources[currentFrameIndex]->CopyStructuredBuffer(
-        commandList, FrameResourceType::MESH_INSTANCE_ID, _meshInstanceIDs.data(),
-        static_cast<UINT>(_meshInstanceIDs.size()));
+
+    _instanceDatasBuffer->CopyStructuredBuffer(commandList, _instanceDatas.data(), (UINT)_instanceDatas.size());
+
+
+    //// Update Instance ID
+    //_meshInstanceIDs.clear();
+    //UINT staticMeshCount = static_cast<UINT>(_ownerScene->_staticMeshInstanceIDs.size());
+    //for (UINT i = 0; i < staticMeshCount; ++i)
+    //{
+    //    _meshInstanceIDs.push_back(_ownerScene->_staticMeshInstanceIDs[i]);
+    //}
+    //UINT skeletalMeshCount = static_cast<UINT>(_ownerScene->_skeletalMeshInstanceIDs.size());
+    //for (UINT i = 0; i < skeletalMeshCount; ++i)
+    //{
+    //    _meshInstanceIDs.push_back(_ownerScene->_skeletalMeshInstanceIDs[i]);
+    //}
+    //UINT currentFrameIndex = _ownerScene->_currentFrameIndex;
+    //_ownerScene->_frameResources[currentFrameIndex]->CopyStructuredBuffer(
+    //    commandList, FrameResourceType::MESH_INSTANCE_ID, _meshInstanceIDs.data(),
+    //    static_cast<UINT>(_meshInstanceIDs.size()));
 
     // Update VIBUffer ID
     _vertexBufferIDs.clear();
@@ -260,11 +275,11 @@ void DXRDrawPass::UpdateFrameResource(ID3D12GraphicsCommandList* commandList)
         _vertexBufferIDs.push_back(vertexBufferID);
         _indexBufferIDs.push_back(indexbufferID);
     }
-    _ownerScene->_frameResources[currentFrameIndex]->CopyStructuredBuffer(
+    _ownerScene->_frameResources[currentBackbufferIndex]->CopyStructuredBuffer(
         commandList, FrameResourceType::VERTEX_BUFFER_ID, _vertexBufferIDs.data(),
         static_cast<UINT>(_vertexBufferIDs.size()));
 
-    _ownerScene->_frameResources[currentFrameIndex]->CopyStructuredBuffer(
+    _ownerScene->_frameResources[currentBackbufferIndex]->CopyStructuredBuffer(
         commandList, FrameResourceType::INDEX_BUFFER_ID, _indexBufferIDs.data(),
         static_cast<UINT>(_indexBufferIDs.size()));
 }
@@ -280,7 +295,7 @@ void DXRDrawPass::WriteCommand(ID3D12GraphicsCommandList* cmdList)
     SIZE                     resolution = _outputResourceUAV->GetResolution();
     rayTraceDesc.Width                  = resolution.cx;
     rayTraceDesc.Height                 = resolution.cy;
-    rayTraceDesc.Depth                  = 1;
+    rayTraceDesc.Depth                  = 1; 
 
     // raygen 1개
     rayTraceDesc.RayGenerationShaderRecord.StartAddress =
@@ -301,6 +316,7 @@ void DXRDrawPass::WriteCommand(ID3D12GraphicsCommandList* cmdList)
 
     auto  cameraData    = _ownerScene->_RaycameraBuffer->GetGPUVirtualAddress();
     auto  lightData     = _ownerScene->_lightBuffer->GetGPUVirtualAddress();
+    auto  instanceData  = _instanceDatasBuffer->GetGPUVirtualAddress();
     auto& frameResource = _ownerScene->_frameResources[_ownerScene->_currentFrameIndex];
 
     // bind
@@ -311,7 +327,8 @@ void DXRDrawPass::WriteCommand(ID3D12GraphicsCommandList* cmdList)
     cmdList4->SetComputeRoot32BitConstants(2, 3, &_ownerScene->_numLight, 0);
     frameResource->SetComputeFrameResource(FrameResourceType::VERTEX_BUFFER_ID, 3, cmdList4.Get());
     frameResource->SetComputeFrameResource(FrameResourceType::INDEX_BUFFER_ID, 4, cmdList4.Get());
-    frameResource->SetComputeFrameResource(FrameResourceType::MESH_INSTANCE_ID, 6, cmdList4.Get());
+    cmdList4->SetComputeRootShaderResourceView(5, instanceData);
+    //frameResource->SetComputeFrameResource(FrameResourceType::MESH_INSTANCE_ID, 6, cmdList4.Get());
 
     cmdList4->SetPipelineState1(_pso.Get());
     cmdList4->DispatchRays(&rayTraceDesc);
