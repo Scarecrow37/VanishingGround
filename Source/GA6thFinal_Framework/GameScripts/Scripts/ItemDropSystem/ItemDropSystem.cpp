@@ -297,6 +297,14 @@ void ItemDropSystem::SetStageClearCount(int count)
     {
         uiManager->UpdateUnlock();
     }
+    if (MapManager* manager = SingletonComponent<MapManager>::GetInstance())
+    {
+        if (Stage* stage = manager->GetCurrentSelectedStage())
+        {
+            // n번 째 전투 = 클리어 횟수의 +1
+            stage->BattleCount = StageClearCount + 1;
+        }
+    }
 }
 
 void ItemDropSystem::PlayItemDropUISequence() 
@@ -337,15 +345,6 @@ void ItemDropSystem::PlayItemDropUISequence()
             // 포커스 되야할 버튼
             ArtifactButtonNavi::LastFocusIndex = 0;
             itemDropUIRootManager->AutoFocus();
-        }
-
-        if (MapManager* manager = SingletonComponent<MapManager>::GetInstance())
-        {
-            if (Stage* stage = manager->GetCurrentSelectedStage())
-            {
-                // n번 째 전투 = 클리어 횟수의 +1
-                stage->BattleCount = StageClearCount + 1;
-            }
         }
     }
 
