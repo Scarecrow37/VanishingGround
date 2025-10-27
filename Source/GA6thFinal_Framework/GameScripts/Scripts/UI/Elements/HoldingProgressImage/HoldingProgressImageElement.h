@@ -18,7 +18,7 @@ public:
     HoldingProgressImageElement();
 
 protected:
-    REFLECT_PROPERTY(Type, IsLeak, HoldDuration, IsHolding)
+    REFLECT_PROPERTY(Type, IsLeak, HoldDuration, IsHolding, UseMetaTime)
 
     GETTER(ProgressType, Type) { return ReflectFields->Type; }
     SETTER(ProgressType, Type)
@@ -44,6 +44,10 @@ protected:
     }
     PROPERTY(IsHolding)
 
+    GETTER(bool, UseMetaTime) { return ReflectFields->UseMetaTime; }
+    SETTER(bool, UseMetaTime) { ReflectFields->UseMetaTime = value; }
+    PROPERTY(UseMetaTime)
+
 public:
     void BindProgressComplete(const ProgressCompleteCallback& callback);
 
@@ -65,6 +69,7 @@ protected:
     REFLECT_FIELDS_BEGIN(ImageElement)
     ProgressType Type         = ProgressType::OPACITY;
     bool         IsLeak       = false;
+    bool         UseMetaTime  = false;
     float        HoldDuration = 2.0f;
     REFLECT_FIELDS_END(HoldingProgressImageElement)
 

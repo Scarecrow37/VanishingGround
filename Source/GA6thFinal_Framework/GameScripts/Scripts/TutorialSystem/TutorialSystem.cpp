@@ -80,13 +80,18 @@ void TutorialSystem::FindComponents()
     _confirm     = GameObject::FindComponentWithTag<HoldingProgressImageElement>(OBJECT_TAG_CONFIRM);
 }
 
-void TutorialSystem::Show(const int id) const
+void TutorialSystem::Show(const int id)
 {
     try
     {
         const auto [isCompleted, title, description, image] = _tutorials.at(id);
 
         if (isCompleted) return;
+
+        if (const auto panelComponent = _panel.lock())
+        {
+            panelComponent->SetActive(true);
+        }
 
         if (const auto titleComponent = _title.lock())
         {
@@ -103,15 +108,12 @@ void TutorialSystem::Show(const int id) const
             imageComponent->SetImage(image);
         }
 
-        if (const auto panelComponent = _panel.lock())
-        {
-            panelComponent->SetActive(true);
-        }
-
         if (const auto confirm = _confirm.lock())
         {
             confirm->ResetProgress();
         }
+
+        Lock();
     }
     catch (std::out_of_range& exception)
     {
@@ -127,12 +129,13 @@ void TutorialSystem::Show(const std::initializer_list<int> ids)
     ShowNextTutorialOrHide();
 }
 
-void TutorialSystem::Hide() const
+void TutorialSystem::Hide()
 {
     if (const auto panel = _panel.lock(); nullptr != panel)
     {
         panel->SetActive(false);
     }
+    Unlock();
 }
 
 void TutorialSystem::SetupData()
@@ -217,4 +220,20 @@ void TutorialSystem::ShowNextTutorialOrHide()
         _pendingTutorials.pop_front();
         Show(nextId);
     }
+}
+
+void TutorialSystem::Lock()
+{
+    UmTime.TimeScale = 0.0f;
+    PushInputLayer();
+}
+
+void TutorialSystem::Unlock()
+{
+    if (const std::shared_ptr<HoldingProgressImageElement> confirm = _confirm.lock())
+    {
+        confirm->EndHold();
+    }
+    UmTime.TimeScale = 1.0f;
+    PopInputLayer();
 }

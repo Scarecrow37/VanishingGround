@@ -14,7 +14,7 @@ void TutorialTestComponent::ImGuiDrawPropertysEvent()
 
     if (ImGui::Button("Show Tutorial"))
     {
-        const TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance();
+        TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance();
         system->Show(805900);
     }
 

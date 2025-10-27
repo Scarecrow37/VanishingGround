@@ -27,7 +27,7 @@ class TutorialSystem : public Component, public InputReceiver
     static constexpr std::u8string_view SHEET_NAME             = u8"튜토리얼 텍스트";
     static constexpr std::u8string_view COLUMN_KEY_ID          = u8"ID";
     static constexpr std::u8string_view COLUMN_KEY_TITLE       = u8"Title";
-    static constexpr std::u8string_view COLUMN_KEY_DESCRIPTION = u8"Description";
+    static constexpr std::u8string_view COLUMN_KEY_DESCRIPTION = u8"Text Description";
     static constexpr std::u8string_view COLUMN_KEY_IMAGE       = u8"Image";
 
 
@@ -46,9 +46,9 @@ public:
     PROPERTY(IsShown)
 
 public:
-    void Show(int id) const;
+    void Show(int id);
     void Show(std::initializer_list<int> ids);
-    void Hide() const;
+    void Hide();
 
 protected:
     void Awake() override;
@@ -62,6 +62,9 @@ private:
     void HoldA(const Input::Controller& controller);
     void ReleaseA(const Input::Controller& controller);
     void ShowNextTutorialOrHide();
+
+    void Lock();
+    void Unlock();
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)

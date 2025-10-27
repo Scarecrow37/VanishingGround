@@ -47,13 +47,17 @@ void HoldingProgressImageElement::Update()
 
     if (false == _isCompleted)
     {
+        const bool useMetaTime = ReflectFields->UseMetaTime;
+
+        const float deltaTime = useMetaTime ? UmTime.UnscaledDeltaTime() : UmTime.DeltaTime();
+
         if (_isHolding)
         {
-            _elapsedTime += UmTime.DeltaTime();
+            _elapsedTime += deltaTime;
         }
         else if (IsLeak)
         {
-            _elapsedTime -= UmTime.DeltaTime();
+            _elapsedTime -= deltaTime;
         }
 
         const float holdDuration = HoldDuration;
