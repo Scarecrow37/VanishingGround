@@ -107,6 +107,7 @@
     <ClCompile Include="Scripts\Test\DevTools\LogOutput.cpp" />
     <ClCompile Include="Scripts\Test\Input\InputTestComponent.cpp" />
     <ClCompile Include="Scripts\Test\TurnAction\TestActionComponent.cpp" />
+    <ClCompile Include="Scripts\Test\Tutorial\TutorialTestComponent.cpp" />
     <ClCompile Include="Scripts\Token\Interface\IToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\Bleed\BleedToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\Poison\PoisonToken.cpp" />
@@ -260,7 +261,6 @@
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenTypeCountAttackDamageAdditional\TokenTypeCountAttackDamageAdditional.cpp" />
     <ClCompile Include="Scripts\TutorialSystem\TutorialSystem.cpp" />
     <ClCompile Include="Scripts\UI\Elements\HoldingProgressImage\HoldingProgressImageElement.cpp" />
-    <ClCompile Include="Scripts\Test\Tutorial\TutorialTestComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
@@ -376,6 +376,7 @@
     <ClInclude Include="Scripts\Test\DevTools\LogOutput.h" />
     <ClInclude Include="Scripts\Test\Input\InputTestComponent.h" />
     <ClInclude Include="Scripts\Test\TurnAction\TestActionComponent.h" />
+    <ClInclude Include="Scripts\Test\Tutorial\TutorialTestComponent.h" />
     <ClInclude Include="Scripts\Token\Enums\TokenEnums.h" />
     <ClInclude Include="Scripts\Token\Interface\IToken.h" />
     <ClInclude Include="Scripts\Token\Object\Bleed\BleedToken.h" />
@@ -534,7 +535,6 @@
     <ClInclude Include="Scripts\IntroManager\IntroManager.h" />
     <ClInclude Include="Scripts\DifficultyManager\DifficultyEnum.h" />
     <ClInclude Include="Scripts\UI\Elements\HoldingProgressImage\HoldingProgressImageElement.h" />
-    <ClInclude Include="Scripts\Test\Tutorial\TutorialTestComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

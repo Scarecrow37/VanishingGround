@@ -313,7 +313,6 @@
     <ClInclude Include="Scripts\QTE\UI\QTEBackgroundUI.h" />
     <ClInclude Include="Scripts\QTE\UI\QTEFieldUI.h" />
     <ClInclude Include="Scripts\QTE\UI\QTENoteUI.h" />
-    <ClInclude Include="Scripts\IntroManager\IntroManager.h" />
     <ClInclude Include="Scripts\ContentMath\ContentMath.h" />
     <ClInclude Include="Scripts\StageVigneeteUI\StageVigneeteUIComponent.h" />
     <ClInclude Include="Scripts\Test\Input\InputStackTestComponent.h" />
@@ -324,7 +323,6 @@
     <ClInclude Include="Scripts\Token\Object\Rage\RageToken.h" />
     <ClInclude Include="Scripts\Token\Object\Focus\FocusToken.h" />
     <ClInclude Include="Scripts\Token\Object\Obsession\ObsessionToken.h" />
-    <ClInclude Include="Scripts\DifficultyManager\DifficultyEnum.h" />
     <ClInclude Include="Scripts\Token\Object\Haste\HasteToken.h" />
     <ClInclude Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.h" />
     <ClInclude Include="Scripts\AccessorySystem\AccessorySystem.h" />
