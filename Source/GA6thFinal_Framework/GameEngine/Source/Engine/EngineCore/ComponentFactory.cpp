@@ -240,6 +240,9 @@ void EComponentFactory::UninitalizeComponentFactory()
         }
         _componentInstanceVec.clear();
 
+        // Input Receiver Clear
+        ESceneManager::Engine::GetInputSystem().CleanupInputReceivers();
+
         // 오디오 Clear
         UmAudio.ClearVoicePool();
 

@@ -29,12 +29,7 @@ void TokenSystem::Awake()
 {
     Base::Awake();
     _singletonComponent.TrySingleTon();
-    _singletonObject.TrySingleTon(true);
-}
-
-void TokenSystem::Start() 
-{
-    if (_singletonComponent.IsSingleTon())
+    if(_singletonObject.TrySingleTon(true))
     {
         InitData();
     }

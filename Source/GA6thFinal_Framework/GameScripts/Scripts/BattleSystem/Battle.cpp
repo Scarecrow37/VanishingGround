@@ -85,6 +85,10 @@ void Battle::ChainStart(Player& attacker, Enemy& target, QTE::NoteResult& result
             EnemyStatsComponent*  enemyStatsComponent  = target.GetEnemyStats();
             if (turnMode && weaponSystem && playerStatsComponent && enemyStatsComponent)
             {
+                lastAttacker    = std::static_pointer_cast<CharacterBase>(attacker.GetWeakPtr().lock());
+                lastTarget      = std::static_pointer_cast<CharacterBase>(target.GetWeakPtr().lock());
+                lastTargetEnemy = std::static_pointer_cast<Enemy>(target.GetWeakPtr().lock());
+
                 PlayerStats playerStats(playerStatsComponent->GetStats());
                 WeaponStats weaponStats(weaponSystem->GetCurrentWeaponElement().Stats);
                 EnemyStats  enemyStats(enemyStatsComponent->GetStats());
