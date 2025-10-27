@@ -159,7 +159,7 @@ void RevelationSystem::RollRoundElement()
 
                     if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
                     {
-                        mode->
+                        mode->RevelationActiveFlag = true;
                     }
                 };
                 _turnMode->AddTurnAction(&action);
