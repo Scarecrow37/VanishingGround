@@ -94,8 +94,8 @@ void RevelationSystem::RemoveAllExtinctionElements()
         if (nullptr == element)
             break;
 
-        RevelationGrade garde = element->Grade;
-        if (garde != RevelationGrade::EXTINCTION)
+        RevelationGrade grade = element->Grade;
+        if (grade != RevelationGrade::EXTINCTION)
             break;
 
         RemovePlayerElement(static_cast<int>(lastIndex));
