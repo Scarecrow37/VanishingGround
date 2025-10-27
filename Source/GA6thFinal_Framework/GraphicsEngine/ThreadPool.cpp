@@ -141,16 +141,16 @@ void ThreadPool::ParallelWorkerThread(CommandSet& commandSet, const unsigned int
         case ThreadEvent::PROCESS:
         {
             std::function<void(ID3D12GraphicsCommandList*)> task;
+            commandSet->Reset(commandSet, nullptr);
             while (!_taskQueue[PARALLEL].empty())
             {
                 if (_taskQueue[PARALLEL].try_pop(task))
                 {
-                    commandSet->Reset(commandSet, nullptr);
                     task(commandSet);
-                    commandSet.ExecuteCommand();
                     _parallelRemainingTasks--;
                 }
             }
+            commandSet.ExecuteCommand();
 
             _threadEvents[PARALLEL][index] = ThreadEvent::NONE;
 

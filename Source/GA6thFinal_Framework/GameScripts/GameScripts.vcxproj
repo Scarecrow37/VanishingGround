@@ -483,6 +483,7 @@
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\AdditionalDamage\AdditionalDamageAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\ApplyDamage\ApplyDamage.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\ChangeQTEButton\ChangeQTEButton.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\LastWeaponDamageCopy\LastWeaponDamageCopy.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\MultiTargetDamage\MultiTargetDamageAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\Recovery\RecoveryAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\AttackTokenApplyAction.h" />
@@ -494,13 +495,14 @@
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\ChainCondition\ChainCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\LastQTEResultCondition\LastQTEResultCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\RevelationActiveCondition\RevelationActiveCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\RoundOnceCondition\RoundOnceCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\TokenCondition\TokenCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\TurnActionCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionEnums.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionFactory.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\WeaponStas\WeaponDamageAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\WeaponStas\WeaponDamageAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\CharacterBase.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\AI\EnemyAI.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\Base\EnemyConditionBase.h" />
@@ -785,6 +787,7 @@
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\AdditionalDamage\AdditionalDamageAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\ApplyDamage\ApplyDamage.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\ChangeQTEButton\ChangeQTEButton.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\LastWeaponDamageCopy\LastWeaponDamageCopy.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\MultiTargetDamage\MultiTargetDamageAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\Recovery\RecoveryAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\AttackTokenApplyAction.cpp" />
@@ -796,11 +799,12 @@
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\ChainCondition\ChainCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\LastQTEResultCondition\LastQTEResultCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\RevelationActiveCondition\RevelationActiveCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\RoundOnceCondition\RoundOnceCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\TokenCondition\TokenCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\TurnActionCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\TurnAction.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\WeaponStas\WeaponDamageAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\WeaponStas\WeaponDamageAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\CharacterBase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\AI\EnemyAI.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\Base\EnemyConditionBase.cpp" />

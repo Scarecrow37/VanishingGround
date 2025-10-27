@@ -17,7 +17,7 @@ WeaponDamageAction::WeaponDamageAction()
 
 const std::string& WeaponDamageAction::GetActionName()
 {
-    static std::string actionName = u8"무기 데미지 영구 증가"_c_str;
+    static std::string actionName = u8"QTE 종료시 무기 데미지 영구 증가"_c_str;
     return actionName;
 }
 

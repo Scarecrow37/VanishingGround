@@ -131,7 +131,11 @@ void CombatStartPhase::OnAwake()
         {
             spawnID = manager->GetCurrentSpawnID();
         }
-        system->SpawnMonsterFromSpawnID(spawnID, difficulty);
+
+        if (0 != spawnID)
+            system->SpawnMonsterFromSpawnID(spawnID, difficulty);
+        else
+            system->SpawnMonsterFromSpawnID(211112);
     }
     ResetCharacterStats();
     RegisterEnemiesHUD();
