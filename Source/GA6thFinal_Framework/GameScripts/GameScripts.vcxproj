@@ -492,6 +492,7 @@
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\ChainCondition\ChainCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\LastQTEResultCondition\LastQTEResultCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\RevelationActiveCondition\RevelationActiveCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\RoundOnceCondition\RoundOnceCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\TokenCondition\TokenCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\TurnActionCondition.h" />
@@ -790,6 +791,7 @@
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\ChainCondition\ChainCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\LastQTEResultCondition\LastQTEResultCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\RevelationActiveCondition\RevelationActiveCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\RoundOnceCondition\RoundOnceCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\TokenCondition\TokenCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\TurnActionCondition.cpp" />

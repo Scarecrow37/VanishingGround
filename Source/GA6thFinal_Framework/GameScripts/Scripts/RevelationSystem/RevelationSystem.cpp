@@ -139,21 +139,28 @@ void RevelationSystem::RollRoundElement()
         }
 
         // 뽑힌 횟수 계산 및 액션 활성화
-        for (auto& element : roundElementList)
+        _currentTurnRevelationActiveFlag.resize(roundElementList.size());
+        for (size_t i = 0; i < roundElementList.size(); ++i)
         {
+            auto& element = roundElementList[i];
             const std::string& name = element->ElementName;
             _elementTotalAppearances[name]++;
             if (element->IsAction())
             {
                 std::weak_ptr<RevelationElement> weakElement = element;
                 TurnAction& action = element->GetAction();
-                action.OnActionActive = [weakElement]() 
+                action.OnActionActive = [weakElement, weakSystem = GetWeakPtr(), i, this]() 
                 { 
                     if (auto element = weakElement.lock())
                     {
                         const std::string& name = element->ElementName;
                         std::string msg  = std::format("{}{}", name, (const char*)u8" 발동.");
                         UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
+                    }
+
+                    if (auto system = weakSystem.lock())
+                    {
+                        _currentTurnRevelationActiveFlag[i] = true;
                     }
                 };
                 _turnMode->AddTurnAction(&action);
