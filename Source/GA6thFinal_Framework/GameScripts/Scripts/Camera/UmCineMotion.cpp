@@ -1,5 +1,5 @@
-﻿#include "UmCineMotion.h"
-#include "pchScripts.h"
+﻿#include "pchScripts.h"
+#include "UmCineMotion.h"
 UMREAL_COMPONENT(UmCineMotion)
 
 UmCineMotion::UmCineMotion()  = default;
@@ -7,7 +7,7 @@ UmCineMotion::~UmCineMotion() = default;
 void UmCineMotion::Start()
 {
     transform->Position = Vector3::Zero;
-    transform->Rotation = Quaternion ::Identity;
+    transform->Rotation = Quaternion::Identity;
     _oldWorldMat        = transform->GetWorldMatrix();
 }
 
@@ -557,7 +557,6 @@ void UmCineMotion::UpdateTetherFromGuizmo()
             _posTethers[i] = p;
     }
 
-    // 3) 레일 길이 재계산 (ΔP 사이 거리)
     ReflectFields->RailLength = 0.0f;
     for (int i = 1; i < static_cast<int>(ReflectFields->TimestepTethers.size()); ++i)
     {

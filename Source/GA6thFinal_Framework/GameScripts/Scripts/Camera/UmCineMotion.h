@@ -113,7 +113,5 @@ protected:
     void                                                                 DrawGuizmoIcon();
     std::vector<std::tuple<SceneGizmo, Matrix, SceneGizmo::DefaultIcon>> _guizmoes;
 #endif
-    Quaternion _originLocalRot = Quaternion::Identity;
-    Vector3    _originLocalPos = Vector3::Zero;
 };
 
