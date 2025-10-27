@@ -83,16 +83,28 @@ void WeaponSystem::SetCurrentWeaponSlot(int slot)
     {
         WeaponElement& curr = _equipWeapons[_currentWeaponSlot];
         WeaponElement& next = _equipWeapons[slot];
-        if (curr._action)
+        if (false == curr._actions.empty())
         {
-            curr._action->SetDestroy();
+            for (auto& action : curr._actions)
+            {
+                if (action)
+                {
+                    action->SetDestroy();
+                }             
+            }      
         }
-        if (next._action)
+        if (false == next._actions.empty())
         {
-            turnMode->AddTurnAction(next._action.get());
-            std::string msg = next.Stats.WeaponName;
-            msg += (const char*)u8" 효과 발동";
-            next._action->OnActionActive = [msg]() { UmLogger.Message(LogLevel::LEVEL_DEBUG, msg); };
+            for (auto& action : next._actions)
+            {
+                if (action)
+                {
+                    turnMode->AddTurnAction(action.get());
+                    std::string msg = next.Stats.WeaponName;
+                    msg += (const char*)u8" 효과 발동";
+                    action->OnActionActive = [msg]() { UmLogger.Message(LogLevel::LEVEL_DEBUG, msg); };
+                }
+            }      
         }       
     }
     _currentWeaponSlot = slot;

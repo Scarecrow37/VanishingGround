@@ -19,14 +19,10 @@ void TokenSystem::Added()
 {
     Base::Added();
 
-    // 엑셀 데이터를 로드
-    if (ExcelDataSystem* dataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
+    if (false == UmCore->IsPlay())
     {
-        _tokenDataTable.clear();
-        LoadTokenDataFromExcelData(dataSystem);
+        InitData();
     }
-    RegisterAllTokenInstance();
-    SortByOrder();
 }
 
 void TokenSystem::Awake() 
@@ -34,6 +30,14 @@ void TokenSystem::Awake()
     Base::Awake();
     _singletonComponent.TrySingleTon();
     _singletonObject.TrySingleTon(true);
+}
+
+void TokenSystem::Start() 
+{
+    if (_singletonComponent.IsSingleTon())
+    {
+        InitData();
+    }
 }
 
 void TokenSystem::OnDestroy() 
@@ -209,6 +213,18 @@ void TokenSystem::LoadTokenDataFromExcelData(ExcelDataSystem* dataSystem)
     }
     bool isValid = _tokenDataTable.size() == _registeredFactoryTable.size();
     assert(isValid && "토큰 엑셀 데이터 시트와 토큰 인스턴스 개수가 다릅니다.");
+}
+
+void TokenSystem::InitData() 
+{
+    // 엑셀 데이터를 로드
+    if (ExcelDataSystem* dataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
+    {
+        _tokenDataTable.clear();
+        LoadTokenDataFromExcelData(dataSystem);
+    }
+    RegisterAllTokenInstance();
+    SortByOrder();
 }
 
 void TokenSystem::Clear()

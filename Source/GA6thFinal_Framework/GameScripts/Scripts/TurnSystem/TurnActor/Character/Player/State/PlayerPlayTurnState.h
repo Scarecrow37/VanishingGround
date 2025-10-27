@@ -1,7 +1,8 @@
 ﻿#pragma once
 #include "Base/PlayerStateBase.h"
-#include <BattleSystem/Battle.h>
-#include <QTE/Result/QTEResult.h>
+#include "BattleSystem/Battle.h"
+#include "QTE/Common/QTECommon.h"
+#include "QTE/Result/QTEResult.h"
 class Enemy;
 
 /*
@@ -60,6 +61,8 @@ private:
     bool       _isDownAKey;             // QTE 시작 버튼 (키보드)
     float      _attackButtonHeldTime;
     float      _attackButtonHeldWaitTime;
+
+    QTE::Callback::Handle _qteCallbackHandle;
 
     //== Debug == //
     bool       _showDebugUI = false;

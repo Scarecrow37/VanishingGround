@@ -1,8 +1,9 @@
 ﻿#include "pch.h"
 #include "UIPassBase_OIT.h"
+#include "FrameResource.h"
 #include "Model.h"
 #include "StructuredBuffer.h"
-#include "UITechnique_OIT.h"
+#include "UITechnique.h"
 
 UIPassBase_OIT::UIPassBase_OIT() = default;
 
@@ -23,9 +24,56 @@ void UIPassBase_OIT::Initialize(RenderScene* ownerScene, RenderTechnique* ownerT
     _quadModel = Global::resourceManager->LoadResource<Model>(L"HalfQuad");
     _halfQuad  = _quadModel->GetMeshes().front().get();
 
-    _headBuffer          = static_cast<UITechnique_OIT*>(_ownerTechnique)->GetHeadBuffer();
-    _nodesBuffer         = static_cast<UITechnique_OIT*>(_ownerTechnique)->GetNodesBuffer();
-    _atomicCounterBuffer = static_cast<UITechnique_OIT*>(_ownerTechnique)->GetAtomicCounterBuffer();
+    _headBuffer          = static_cast<UITechnique*>(_ownerTechnique)->GetHeadBuffer();
+    _nodesBuffer         = static_cast<UITechnique*>(_ownerTechnique)->GetNodesBuffer();
+    _atomicCounterBuffer = static_cast<UITechnique*>(_ownerTechnique)->GetAtomicCounterBuffer();
+
+    PipelineStateStream pss;
+    pss.BlendState                   = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    pss.RasterizerState              = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    (&pss.RasterizerState)->CullMode = D3D12_CULL_MODE_NONE;
+    pss.DepthStencilState            = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+    pss.PrimitiveTopology            = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    pss.DSVFormat                    = _ownerScene->_depthStencilView->GetFormat();
+
+    _fx.SetPipelineStateStream(pss);
+    _pipelineState = Global::pipelineStateManager->GetPipelineState(pss);
+
+    _depthStencilView = static_cast<UITechnique*>(_ownerTechnique)->GetDepthStencilView();
+}
+
+void UIPassBase_OIT::Begin(ID3D12GraphicsCommandList* commandList)
+{
+    UIPassBase_OIT::UpdateBuffer(commandList);
+
+    commandList->OMSetRenderTargets(0, nullptr, FALSE, &_depthStencilView->GetDSVHandle());
+    commandList->RSSetViewports(1, &_finalRenderTarget->GetViewport());
+    commandList->RSSetScissorRects(1, &_finalRenderTarget->GetScissorRect());
+}
+
+void UIPassBase_OIT::Draw(ID3D12GraphicsCommandList* commandList)
+{
+    commandList->SetPipelineState(_pipelineState.Get());
+    commandList->SetGraphicsRootSignature(_fx.GetRootSignature());
+
+    UINT  currentBackBufferIndex = Global::device->GetCurrentBackBufferIndex();
+    auto  resource               = Global::viewManager->GetShaderResourceHeap()->GetGPUDescriptorHandleForHeapStart();
+    auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
+
+    frameResource->SetFrameResource(FrameResourceType::UI_TRANSFORM, _fx.GetRootParameterIndex("ui_matrices"), commandList);
+    frameResource->SetFrameResource(FrameResourceType::UI_MATERIAL, _fx.GetRootParameterIndex("material"), commandList);
+
+    auto uiMaterialDataBuffer = static_cast<UITechnique*>(_ownerTechnique)->GetUIMaterialDataBuffer();
+    commandList->SetGraphicsRootShaderResourceView(_fx.GetRootParameterIndex("uiMaterialData"), uiMaterialDataBuffer->GetGPUVirtualAddress());
+
+    commandList->SetGraphicsRootShaderResourceView(_fx.GetRootParameterIndex("IDs"), _instanceIDBuffer->GetGPUVirtualAddress());
+    commandList->SetGraphicsRootConstantBufferView(_fx.GetRootParameterIndex("cameraData"), _cameraBuffer->GetGPUVirtualAddress());
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("textures"), resource);
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("OITHead"), _headBuffer->GetUAVHandle());
+    commandList->SetGraphicsRootUnorderedAccessView(_fx.GetRootParameterIndex("OITNodes"), _nodesBuffer->GetGPUVirtualAddress());
+    commandList->SetGraphicsRootUnorderedAccessView(_fx.GetRootParameterIndex("OITCounter"), _atomicCounterBuffer->GetGPUVirtualAddress());
+
+    _halfQuad->Render(commandList, (UINT)_instanceIDs->size());
 }
 
 void UIPassBase_OIT::UpdateBuffer(ID3D12GraphicsCommandList* commandList)

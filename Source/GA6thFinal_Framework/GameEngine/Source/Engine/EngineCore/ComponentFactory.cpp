@@ -205,16 +205,20 @@ bool EComponentFactory::InitalizeComponentFactory()
             newComponent->UpdateEnableInHierarchy();
         }     
     }
-
-    //존재 안하는거는 전부 제거
+   
+    //존재 안하는거는 전부 제거 및 Added 호출
     for (auto& [gameObject, key, index, reflectData] : addList)
     {
         std::erase_if(gameObject->_components, [](auto& sptr)
+        {
+            bool isErase = sptr == nullptr;
+            if (false == isErase)
             {
-                return sptr == nullptr;
-            });
+                sptr->Added();
+            }
+            return isErase;
+        });
     }
-
     return true;
 }
 

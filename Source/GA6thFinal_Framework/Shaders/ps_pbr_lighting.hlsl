@@ -21,7 +21,7 @@ Texture2D normalMap;
 Texture2D ormMap;
 Texture2D emissiveMap;
 Texture2D depthMap;
-Texture2D customDepthMap;
+Texture2D<uint> customDepthMap;
 Texture2D<float> SSAOMap;
 
 float4 ps_main(PSInput input) : SV_Target
@@ -43,8 +43,11 @@ float4 ps_main(PSInput input) : SV_Target
     float metallic = orm.b;
     
     float ssao = 1;
-    if (1==UseSSAO)
+    if (1 == UseSSAO)
+    {
         ssao = SSAOMap.SampleLevel(samLinear_wrap, input.uv, 0).r;
+    }
+    
     float3 viewPos = cameraData.Position.xyz;
     
     float4 NDC = float4(input.uv * 2.0 - 1, depth, 1.0);
