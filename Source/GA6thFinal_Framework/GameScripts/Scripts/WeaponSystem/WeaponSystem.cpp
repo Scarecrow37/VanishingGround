@@ -107,6 +107,11 @@ void WeaponSystem::SetCurrentWeaponSlot(int slot)
             }      
         }       
     }
+    if (-1 != _lastWeaponSlot)
+        _lastWeaponSlot = _currentWeaponSlot;
+    else
+        _lastWeaponSlot = slot; //처음에는 마지막 무기와 최초 무기가 같다.
+
     _currentWeaponSlot = slot;
 }
 
