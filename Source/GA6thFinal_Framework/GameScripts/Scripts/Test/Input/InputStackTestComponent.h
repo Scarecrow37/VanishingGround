@@ -6,14 +6,15 @@ class InputStackTestComponent : public Component, public InputReceiver
 public:
     REFLECT_PROPERTY(ImageGuid)
 
-    GETTER(const std::string&, ImageGuid) { return _image; }
-    SETTER(const std::string&, ImageGuid) { _image = value; }
+    GETTER(const std::string&, ImageGuid) { return ReflectFields->Image; }
+    SETTER(const std::string&, ImageGuid) { ReflectFields->Image = value; }
     PROPERTY(ImageGuid)
 public:
     InputStackTestComponent();
     ~InputStackTestComponent() override;
 protected:
     REFLECT_FIELDS_BEGIN(Component)
+    std::string Image;
     REFLECT_FIELDS_END(InputStackTestComponent)
 
     void Awake() override;
@@ -21,6 +22,4 @@ protected:
 
     void OnPush(const Input::Controller&);
     void OnPop(const Input::Controller&);
-
-    std::string _image;
 };

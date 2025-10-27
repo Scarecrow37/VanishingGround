@@ -2295,6 +2295,7 @@ bool ESceneManager::InputSystem::PopReceiverToInputStack(InputReceiver& receiver
     {
         if (true == receiver._isPushStack)
         {
+            bool result = false;
             while (false == _layerStack.empty())
             {
                 auto& [topReceiver, isDestroy] = _layerStack.back();
@@ -2302,7 +2303,7 @@ bool ESceneManager::InputSystem::PopReceiverToInputStack(InputReceiver& receiver
                 {
                     _layerStack.pop_back();
                     receiver._isPushStack = false;
-                    return true;
+                    result = true;
                 }
                 else if (isDestroy.expired())
                 {
@@ -2310,7 +2311,7 @@ bool ESceneManager::InputSystem::PopReceiverToInputStack(InputReceiver& receiver
                 }
                 else
                 {
-                    return false;
+                    return result;
                 }
             }
         }

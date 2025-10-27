@@ -17,7 +17,8 @@ void InputStackTestComponent::Start()
 {
     PushInputLayer();
     auto& image = AddComponent<ImageElement>();
-    image.SetImage(_image);
+    image.SetImage(ReflectFields->Image);
+    image.ResetToSpriteSize();
 }
 
 void InputStackTestComponent::OnPush(const Input::Controller&) 
