@@ -85,6 +85,13 @@ public:
     GETTER_ONLY(int, RoundCount) { return _roundCount; }
     PROPERTY(RoundCount)
 
+    GETTER(bool, RevelationActiveFlag) { return _revelationActiveFlag;  }
+    SETTER(bool, RevelationActiveFlag) { _revelationActiveFlag = value; }
+    /// <summary>
+    /// 계시 발동 조건 평가용 플래그 변수입니다. QTE 공격이 완전히 종료될때마다 false로 초기화됩니다.
+    /// </summary>
+    PROPERTY(RevelationActiveFlag)
+
 protected:
     REFLECT_FIELDS_BEGIN(Component)
     REFLECT_FIELDS_END(TurnMode)
@@ -105,6 +112,9 @@ private:
     /*플레이어의 무기 slot 번호를 함께 저장합니다. int 값이 -1이면 Enemy, 0 이상이면 Player 입니다.*/
     MVVM::Model<std::deque<std::pair<int, TurnActor*>>> _turnList;
     MVVM::Model<TurnActor*>                             _currTurnActor;
+
+    /*계시 발동 여부를 관리하는 플래그입니다.*/
+    bool _revelationActiveFlag = false;
 
 private:
     struct SystemStates
