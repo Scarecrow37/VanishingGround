@@ -316,6 +316,7 @@
     <ClInclude Include="Scripts\IntroManager\IntroManager.h" />
     <ClInclude Include="Scripts\ContentMath\ContentMath.h" />
     <ClInclude Include="Scripts\StageVigneeteUI\StageVigneeteUIComponent.h" />
+    <ClInclude Include="Scripts\Test\Input\InputStackTestComponent.h" />
     <ClInclude Include="Scripts\Token\Object\BlackArmor\BlackArmorToken.h" />
     <ClInclude Include="Scripts\Token\Object\ProphecyDoom\ProphecyDoomToken.h" />
     <ClInclude Include="Scripts\Token\Object\Deffence\ChainDeffenceToken.h" />
@@ -613,6 +614,7 @@
     <ClCompile Include="Scripts\QTE\UI\QTENoteUI.cpp" />
     <ClCompile Include="Scripts\ContentMath\ContentMath.cpp" />
     <ClCompile Include="Scripts\StageVigneeteUI\StageVigneeteUIComponent.cpp" />
+    <ClCompile Include="Scripts\Test\Input\InputStackTestComponent.cpp" />
     <ClCompile Include="Scripts\Token\Object\BlackArmor\BlackArmorToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\ProphecyDoom\ProphecyDoomToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\Deffence\ChainDeffenceToken.cpp" />

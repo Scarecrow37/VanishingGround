@@ -2275,6 +2275,54 @@ void ESceneManager::InputSystem::RegisterInputReceiver(InputReceiver& receiver, 
     }
 }
 
+bool ESceneManager::InputSystem::PushReceiverToInputStack(InputReceiver& receiver)
+{
+    if (receiver._isDestroy && false == *receiver._isDestroy)
+    {
+        if (false == receiver._isPushStack)
+        {
+            _layerStack.emplace_back(receiver._isDestroy.get(), receiver._isDestroy);
+            receiver._isPushStack = true;
+            return true;
+        }
+    }  
+    return false;
+}
+
+bool ESceneManager::InputSystem::PopReceiverToInputStack(InputReceiver& receiver)
+{
+    if (receiver._isDestroy && false == *receiver._isDestroy)
+    {
+        if (true == receiver._isPushStack)
+        {
+            bool result = false;
+            while (false == _layerStack.empty())
+            {
+                auto& [topReceiver, isDestroy] = _layerStack.back();
+                if (receiver._isDestroy.get() == topReceiver)
+                {
+                    _layerStack.pop_back();
+                    receiver._isPushStack = false;
+                    result = true;
+                }
+                else 
+                {               
+                    if (auto destroyFlag = isDestroy.lock())
+                    {
+                        if (*destroyFlag)
+                        {
+                            _layerStack.pop_back();
+                            continue;
+                        }
+                    }
+                    return result;          
+                }
+            }
+        }
+    }
+    return false;
+}
+
 void ESceneManager::InputSystem::CleanupInputReceivers() 
 {
     for (auto& actions : _receivers)
@@ -2284,6 +2332,7 @@ void ESceneManager::InputSystem::CleanupInputReceivers()
             inputReceivers.clear();
         }
     }
+    _layerStack.clear();
 }
 
 void ESceneManager::InputSystem::Vibrate(const Input::ControllerTypes::Vibration vibration)
@@ -2382,7 +2431,18 @@ void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
         }
         else
         {
-            event(_inputController);
+            if (_layerStack.empty())
+            {
+                event(_inputController);
+            }
+            else
+            {
+                auto& [destroyFlag, weak] = _layerStack.back();
+                if (destroyFlag == isDestroy.get())
+                {
+                    event(_inputController);
+                }
+            }       
             checker = true;
         }
     }
