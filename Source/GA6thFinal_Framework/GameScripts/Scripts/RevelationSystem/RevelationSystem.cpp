@@ -98,7 +98,7 @@ void RevelationSystem::RemoveAllExtinctionElements()
         if (garde != RevelationGrade::EXTINCTION)
             break;
 
-        RemovePlayerElement(lastIndex);
+        RemovePlayerElement(static_cast<int>(lastIndex));
         size = _playerElementList.size();
     }
 }
