@@ -113,15 +113,6 @@ void UmCineMotion::ImGuiDrawPropertysEvent()
         {
             ClearTethers();
         }
-        //        ImGui::SameLine();
-        //
-        //        bool isRefreshPressed = ImGui::Button("Refresh Tether ", {150, 50});
-        //        if (true == isRefreshPressed)
-        //        {
-        // #ifdef _UMEDITOR
-        //            RefreshGuizmo();
-        // #endif
-        //        }
 
         ImGui::EndDisabled();
     }
@@ -459,13 +450,13 @@ DirectX::SimpleMath::Vector3 UmCineMotion::GetShakeOffset(float intensity, float
 
     const float t = time * freq;
 
-    constexpr int   kOctaves    = 4;
-    constexpr float kLacunarity = 2.0f;
-    constexpr float kGain       = 0.5f;
+    constexpr int   OCTAVES    = 4;
+    constexpr float LACUNARITY = 2.0f;
+    constexpr float GAIN       = 0.5f;
 
-    const float nx = Mathf::FBM1D(t + 37.173f, kOctaves, kLacunarity, kGain);
-    const float ny = Mathf::FBM1D(t + 101.719f, kOctaves, kLacunarity, kGain);
-    const float nz = Mathf::FBM1D(t + 223.357f, kOctaves, kLacunarity, kGain);
+    const float nx = Mathf::FBM1D(t + 37.173f, OCTAVES, LACUNARITY, GAIN);
+    const float ny = Mathf::FBM1D(t + 101.719f, OCTAVES, LACUNARITY, GAIN);
+    const float nz = Mathf::FBM1D(t + 223.357f, OCTAVES, LACUNARITY, GAIN);
 
     const float amp = intensity;
 
@@ -545,23 +536,23 @@ void UmCineMotion::UpdateTetherFromGuizmo()
         auto& [gizmo, worldM, icon] = _guizmoes[i];
 
         Matrix     localM = worldM * parentInv;
-        Vector3    s;
-        Quaternion r;
-        Vector3    p;
-        localM.Decompose(s, r, p);
-        r.Normalize();
+        Vector3    guizmoScale;
+        Quaternion guizmoRotation;
+        Vector3    guizmoPosition;
+        localM.Decompose(guizmoScale, guizmoRotation, guizmoPosition);
+        guizmoRotation.Normalize();
 
         if (i < static_cast<int>(_rotTethers.size()))
-            _rotTethers[i] = r;
+            _rotTethers[i] = guizmoRotation;
         if (i < static_cast<int>(_posTethers.size()))
-            _posTethers[i] = p;
+            _posTethers[i] = guizmoPosition;
     }
 
     ReflectFields->RailLength = 0.0f;
     for (int i = 1; i < static_cast<int>(ReflectFields->TimestepTethers.size()); ++i)
     {
-        const Vector3 d   = _posTethers[i] - _posTethers[i - 1];
-        const float   len = std::max(d.Length(), 0.1f);
+        const Vector3 distance   = _posTethers[i] - _posTethers[i - 1];
+        const float   len      = std::max(distance.Length(), 0.1f);
         ReflectFields->RailLength += len;
         ReflectFields->TimestepTethers[i] = ReflectFields->RailLength;
     }
