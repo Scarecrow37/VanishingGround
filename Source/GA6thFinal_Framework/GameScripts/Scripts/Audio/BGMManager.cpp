@@ -3,21 +3,7 @@
 
 UMREAL_COMPONENT(BGMManager)
 
-BGMManager::BGMManager()
-{
-    _currBGMFader.SetFadeMode(Fader::FADE_IN);
-    _currBGMFader.SetDuration(FADE_DURATION);
-    _currBGMFader.SetFadeInType(Mathf::EaseType::EASE_IN, Mathf::EaseFuncType::SINE);
-    _currBGMFader.SetOnFadeInEndCallback([this]() {
-    });
-
-    _prevBGMFader.SetFadeMode(Fader::FADE_OUT);
-    _prevBGMFader.SetDuration(FADE_DURATION);
-    _prevBGMFader.SetFadeOutType(Mathf::EaseType::EASE_IN, Mathf::EaseFuncType::SINE);
-    _prevBGMFader.SetOnFadeOutEndCallback([this]() {
-        UmAudio.Stop(_prevBGMHandle);
-    });
-}
+BGMManager::BGMManager() = default;
 
 BGMManager::~BGMManager()
 {
@@ -74,5 +60,12 @@ void BGMManager::SerializedReflectEvent() {}
 
 void BGMManager::DeserializedReflectEvent() 
 {
+    _currBGMFader.SetFadeMode(Fader::FADE_IN);
+    _currBGMFader.SetDuration(FadeDuration);
+    _currBGMFader.SetFadeInType(Mathf::EaseType::EASE_IN, Mathf::EaseFuncType::SINE);
 
+    _prevBGMFader.SetFadeMode(Fader::FADE_OUT);
+    _prevBGMFader.SetDuration(FadeDuration);
+    _prevBGMFader.SetFadeOutType(Mathf::EaseType::EASE_IN, Mathf::EaseFuncType::SINE);
+    _prevBGMFader.SetOnFadeOutEndCallback([this]() { UmAudio.Stop(_prevBGMHandle); });
 }

@@ -11,11 +11,15 @@ public:
     ~BGMManager() override;
 
 public:
-    REFLECT_PROPERTY(Volume, CurrentFadeFactor, PreviousFadeFactor)
+    REFLECT_PROPERTY(Volume, FadeDuration, CurrentFadeFactor, PreviousFadeFactor)
 
     GETTER(float, Volume) { return ReflectFields->Volume; }
     SETTER(float, Volume) { ReflectFields->Volume = std::clamp(value, 0.0f, 1.0f); }
     PROPERTY(Volume)
+
+    GETTER(float, FadeDuration) { return ReflectFields->FadeDuration; }
+    SETTER(float, FadeDuration) { ReflectFields->FadeDuration = std::max(value, 0.0f); }
+    PROPERTY(FadeDuration)
 
     GETTER_ONLY(float, CurrentFadeFactor) { return _currBGMFader.GetFadeFactor(); }
     PROPERTY(CurrentFadeFactor)
@@ -49,5 +53,6 @@ private:
 protected:
     REFLECT_FIELDS_BEGIN(Component)
     float Volume = 1.0f;
+    float FadeDuration = 1.0f;
     REFLECT_FIELDS_END(BGMManager)
 };
