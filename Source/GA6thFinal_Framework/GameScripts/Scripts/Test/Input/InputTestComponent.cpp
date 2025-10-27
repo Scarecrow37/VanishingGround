@@ -5,8 +5,8 @@ UMREAL_COMPONENT(InputTestComponent)
 
 InputTestComponent::InputTestComponent()
 {
-    _leftTrriger = 0.f;
-    _rightTrriger = 0.f;
+    _leftTrigger = 0.f;
+    _rightTrigger = 0.f;
     _leftStickAxis = {0.f,};
     _rightStickAxis = {0.f,};
 }
@@ -47,17 +47,17 @@ void InputTestComponent::UpdateInput()
     const Vector3& right = transform->Right;
     const Vector3& forward = transform->Forward;
 
-    if (_leftTrriger > 0.f)
+    if (_leftTrigger > 0.f)
     {
-        transform->Position += Vector3::Down * _leftTrriger * MoveSpeed * dt;
-        std::string message = std::format("Left Trriger : {}", _leftTrriger);
+        transform->Position += Vector3::Down * _leftTrigger * MoveSpeed * dt;
+        std::string message = std::format("Left Trriger : {}", _leftTrigger);
         UmLogger.Log(LogLevel::LEVEL_INFO, message);
     }
 
-    if (_rightTrriger > 0.f)
+    if (_rightTrigger > 0.f)
     {
-        transform->Position += Vector3::Up * _rightTrriger * MoveSpeed * dt;
-        std::string message = std::format("Right Trriger : {}", _rightTrriger);
+        transform->Position += Vector3::Up * _rightTrigger * MoveSpeed * dt;
+        std::string message = std::format("Right Trriger : {}", _rightTrigger);
         UmLogger.Log(LogLevel::LEVEL_INFO, message);
     }
 
@@ -82,8 +82,8 @@ void InputTestComponent::UpdateInput()
         transform->Rotate(Vector3::Right, -angle);
     }
 
-    _leftTrriger = 0.f;
-    _rightTrriger = 0.f;
+    _leftTrigger = 0.f;
+    _rightTrigger = 0.f;
     std::memset(&_leftStickAxis, 0, sizeof(_leftStickAxis));
     std::memset(&_rightStickAxis, 0, sizeof(_rightStickAxis));
 }
@@ -104,8 +104,8 @@ void InputTestComponent::OnButton(const Input::Controller& controller)
 
 void InputTestComponent::OnTrigger(const Input::Controller& controller) 
 {
-    _leftTrriger  = controller.GetLeftTrigger();
-    _rightTrriger = controller.GetRightTrigger();
+    _leftTrigger  = controller.GetLeftTrigger();
+    _rightTrigger = controller.GetRightTrigger();
 }
 
 void InputTestComponent::OnThumbStick(const Input::Controller& controller) 
