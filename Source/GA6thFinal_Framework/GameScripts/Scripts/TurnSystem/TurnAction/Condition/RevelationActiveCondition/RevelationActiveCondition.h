@@ -15,9 +15,4 @@ protected:
     void DrawImguiEditor() override;
     const std::string& GetConditionInfo() override;
 
-private:
-    std::string _info;
-
-private:
-    void UpdateInfo();
 };

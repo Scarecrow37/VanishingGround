@@ -4,10 +4,7 @@
 
 REGISTER_TURN_ACTION_CONDITION(RevelationActiveCondition)
 
-RevelationActiveCondition::RevelationActiveCondition()
-{
-    UpdateInfo();
-}
+RevelationActiveCondition::RevelationActiveCondition()  = default;
 RevelationActiveCondition::~RevelationActiveCondition() = default;
 
 bool RevelationActiveCondition::Evaluate()
@@ -38,13 +35,8 @@ void RevelationActiveCondition::DrawImguiEditor()
 
 const std::string& RevelationActiveCondition::GetConditionInfo()
 {
-    return _info;
+    using namespace u8_literals;
+    return u8"계시 발동시"_c_str;
 }
 
-void RevelationActiveCondition::UpdateInfo() 
-{
-    using namespace u8_literals;
-    _info.clear();
-    _info = u8"계시 발동시"_c_str;
-}
 

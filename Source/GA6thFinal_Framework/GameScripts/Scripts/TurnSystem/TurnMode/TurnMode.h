@@ -67,7 +67,7 @@ public:
     /// <summary>
     /// 턴 대기중인 Actor의 개수를 반환합니다.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>int 갯수</returns>
     int GetPendingActorCount();
 
     /*slot 값을 통해 플레이어 엑터인지 확인합니다.*/
