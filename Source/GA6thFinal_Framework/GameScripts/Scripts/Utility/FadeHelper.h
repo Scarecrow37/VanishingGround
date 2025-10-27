@@ -37,11 +37,17 @@ public:
 
     /// <summary>지정된 지속 시간을 설정합니다.</summary>
     /// <param name="duration">설정할 지속 시간(초 단위)입니다.</param>
-    inline void SetDuration(float duration) { _duration = std::max(duration, 0.0f); }
+    inline void SetDuration(float duration) {
+        _duration = std::max(duration, 0.0f);
+        _fadeFactor = _timer / _duration;
+    }
 
     /// <summary>타이머 값을 설정합니다. 0부터 duration 사이의 값을 클램핑합니다.</summary>
     /// <param name="timer">설정할 타이머 값(초 단위)입니다.</param>
-    inline void SetTimer(float timer) { _timer = std::clamp(timer, 0.0f, _duration); }
+    inline void SetTimer(float timer) {
+        _timer = std::clamp(timer, 0.0f, _duration); 
+        _fadeFactor = _timer / _duration;
+    }
 
     /// <summary>타이머 값을 설정합니다. 0부터 1 사이의 값을 클램핑합니다.</summary>
     /// <param name="timer">설정할 타이머 값(초 단위)입니다.</param>
@@ -63,6 +69,20 @@ public:
     {
         _fadeOutEaseType = type;
         _fadeOutFuncType = func;
+    }
+
+    inline void Reset()
+    {
+        if (FADE_IN == _fadeMode)
+        {
+            _timer = 0.0f;
+            _fadeFactor = 0.0f;
+        }
+        else if (FADE_OUT == _fadeMode)
+        {
+            _timer      = _duration;
+            _fadeFactor = 1.0f;
+        }
     }
 
     inline Mode                GetFadeMode() const { return _fadeMode; }
