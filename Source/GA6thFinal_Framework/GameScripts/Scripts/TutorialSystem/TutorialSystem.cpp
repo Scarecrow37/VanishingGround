@@ -80,13 +80,16 @@ void TutorialSystem::FindComponents()
     _confirm     = GameObject::FindComponentWithTag<HoldingProgressImageElement>(OBJECT_TAG_CONFIRM);
 }
 
-void TutorialSystem::Show(const int id)
+bool TutorialSystem::Show(const int id)
 {
     try
     {
-        const auto [isCompleted, title, description, image] = _tutorials.at(id);
+        auto& [isCompleted, title, description, image] = _tutorials.at(id);
 
-        if (isCompleted) return;
+        if (isCompleted)
+            return false;
+
+        isCompleted = true;
 
         if (const auto panelComponent = _panel.lock())
         {
@@ -114,12 +117,16 @@ void TutorialSystem::Show(const int id)
         }
 
         Lock();
+
+        return true;
     }
     catch (std::out_of_range& exception)
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, "Tutorial ID not found.");
         UmLogger.Log(LogLevel::LEVEL_WARNING, exception.what());
     }
+
+    return false;
 }
 
 void TutorialSystem::Show(const std::initializer_list<int> ids)
@@ -216,9 +223,13 @@ void TutorialSystem::ShowNextTutorialOrHide()
     }
     else
     {
-        const int nextId = _pendingTutorials.front();
-        _pendingTutorials.pop_front();
-        Show(nextId);
+        bool succeed;
+        do
+        {
+            const int nextId = _pendingTutorials.front();
+            _pendingTutorials.pop_front();
+            succeed = Show(nextId);
+        } while (false == succeed);
     }
 }
 

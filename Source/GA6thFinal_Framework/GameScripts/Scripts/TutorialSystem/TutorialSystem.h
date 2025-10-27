@@ -46,7 +46,7 @@ public:
     PROPERTY(IsShown)
 
 public:
-    void Show(int id);
+    bool Show(int id);
     void Show(std::initializer_list<int> ids);
     void Hide();
 
