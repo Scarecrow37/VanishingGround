@@ -13,14 +13,42 @@ public:
     InputReceiver() = default;
     virtual ~InputReceiver();
 
+    /// <summary>
+    /// 인풋 콜백을 등록합니다.
+    /// </summary>
+    /// <param name="button :">버튼</param>
+    /// <param name="action :">액션</param>
+    /// <param name="instance :">this</param>
+    /// <param name="func :">callback</param>
+    /// <returns>성공 여부</returns>
     template <typename T>
     bool BindInputAction(ControllerButton button, Action action, T* instance, void (T::*func)(const Input::Controller&),
                     std::source_location = std::source_location::current());
 
+    /// <summary>
+    ///  인풋 콜백을 등록합니다. 컴포넌트가 아닌 클래스에 상속받을때 사용합니다.
+    /// </summary>
+    /// <param name="button :">버튼</param>
+    /// <param name="action :">액션</param>
+    /// <param name="owner :">InputReceiver의 Owner</param>
+    /// <param name="instance :">this</param>
+    /// <param name="func :">callback</param>
+    /// <returns>성공 여부</returns>
     template <typename T>
     bool BindInputAction(ControllerButton button, Action action, Component* owner, T* instance, void (T::*func)(const Input::Controller&),
                     std::source_location = std::source_location::current());
 
+    /// <summary>
+    /// Input Layer를 Push합니다. Push된 UI만 Input 함수를 Callback 합니다.
+    /// </summary>
+    /// <returns>성공 여부</returns>
+    bool PushInputLayer();
+
+    /// <summary>
+    /// Input Layer를 Pop합니다. 소멸자에서 자동으로 한번 호출합니다. 자신이 최상단 레이어가 아니면 실패합니다.
+    /// </summary>
+    /// <returns>성공 여부</returns>
+    bool PopInputLayer();
 
     static void Vibrate(Input::ControllerTypes::Vibration vibration);
 
@@ -39,6 +67,7 @@ private:
     };
     std::set<ControllerSetKey> _controllerSet;
     std::shared_ptr<bool>      _isDestroy;
+    bool                       _isPushStack;
 };
 
 /// <summary>
