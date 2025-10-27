@@ -9,6 +9,9 @@
 #include <TurnSystem/TurnSystemHelper.h>
 
 REGISTER_TURN_ACTION_CONDITION(ChainCondition)
+
+REFLECT_FUNCTION(ChainCondition)
+
 using namespace u8_literals;
 
 ChainCondition::ChainCondition() 
@@ -95,7 +98,7 @@ void ChainCondition::DrawImguiEditor()
     }
 }
 
-const std::string& ChainCondition::GetConditionInfo() const
+const std::string& ChainCondition::GetConditionInfo()
 {
     return _conditionInfo;
 }

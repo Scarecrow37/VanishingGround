@@ -18,6 +18,7 @@
 
 #include <CombatUIManager/CombatUIManager.h>
 
+#include <Stats/CharacterStats.h>
 
 using namespace u8_literals;
 
@@ -58,13 +59,6 @@ void PlayerPlayTurnState::OnEnter()
     {
         qteUIManager->Refresh();
         qteUIManager->SetGuideNoteActive(true);
-    }
-
-    Player& player  = GetPlayer();
-    auto* animator  = player.GetAnimationComponent();
-    if (animator)
-    {
-        animator->ClearOverrideAnimations();
     }
 }
 
@@ -149,15 +143,14 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
     _isDownAKey = ImGui::IsKeyDown(ImGuiKey_A); // 에디터에서는 키보드 인풋도 받음
 #endif                                          // ISEDITOR
 
-    _showDebugUI = ImGui::IsKeyPressed(ImGuiKey_F3, false) ? !_showDebugUI : _showDebugUI;
-    if (_showDebugUI)
-    {
-        ImGuiWindowFlags flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar;
-        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.1f, 0.1f, 0.1f, 0.5f));
-        ImGui::Begin("Player Turn##9A48EE30-CB5F-48AC-9740-DDF8118AAC49", nullptr, flags);
+     Debugger()([this] {
+        // 아래는 디버그용 코드입니다.
+        ImGuiHelper::AlignedText("Combat", ImGuiHelper::LEFT, 0.8f);
+        if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
         {
-            auto enemies = Battle::GetTargetsFromFlags(Battle::ENEMY_TARGET_FLAG_ALL);
-            if (ImGui::Button((const char*)u8"[적] 전멸"))
+            auto& enemies = turnMode->GetEnemies();
+
+            if (ImGui::Button((const char*)u8"적 전멸"))
             {
                 for (auto& enemy : enemies)
                 {
@@ -165,53 +158,53 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
                         enemy->Dead();
                 }
             }
-            if (ImGui::Button((const char*)u8"[적 LEFT] 자살"))
+            for (size_t i = 0; i < enemies.size(); ++i)
             {
-                if (enemies.size() >= 1 && enemies[0])
-                    enemies[0]->Dead();
+                ImGui::SameLine();
+                const char* spawnPointStr = Monster::SpawnPointToString(enemies[i]->SpawnPoint);
+                std::string buttonLabel   = std::format("{}{}", spawnPointStr, (const char*)u8" 적 자살");
+                if (ImGui::Button(buttonLabel.c_str()))
+                {
+                    if (enemies[i])
+                    {
+                        enemies[i]->Dead();
+                    }
+                }
+                ImGui::SameLine();
             }
-            ImGui::SameLine();
-            if (ImGui::Button((const char*)u8"[적 MIDDLE] 자살"))
-            {
-                if (enemies.size() >= 2 && enemies[1])
-                    enemies[1]->Dead();
-            }
-            ImGui::SameLine();
-            if (ImGui::Button((const char*)u8"[적 RIGHT] 자살"))
-            {
-                if (enemies.size() >= 3 && enemies[2])
-                    enemies[2]->Dead();
-            }
-            ImGui::SameLine();
-
-            ImGui::Separator();
-            Player& player = GetPlayer();
-            if (ImGui::Button((const char*)u8"[플레이어] 자해"))
-            {
-                player.TakeDamage(10);
-            }
-            ImGui::SameLine();
-            if (ImGui::Button((const char*)u8"[플레이어] 자살"))
-            {
-                player.Dead();
-            }
-            ImGui::SameLine();
-            if (ImGui::Button((const char*)u8"[플레이어] 턴 종료"))
-            {
-                player.EndTurn();
-            }
-
-            ImGui::End();
-            ImGui::PopStyleColor();
         }
-    }
-    float t = _attackButtonHeldTime / _attackButtonHeldWaitTime;
+        ImGui::Separator();
+        Player& player = GetPlayer();
+        if (ImGui::Button((const char*)u8"[플레이어] 회복"))
+        {
+            if (CharacterStats* stats = player.GetCharacterStats())
+            {
+                stats->CurrentHP += 10;
+                stats->CurrentHP = std::clamp((int)stats->CurrentHP, 0, (int)stats->MaxHP);
+            }
+        }
+        if (ImGui::Button((const char*)u8"[플레이어] 자해"))
+        {
+            player.TakeDamage(10);
+        }
+        ImGui::SameLine();
+        if (ImGui::Button((const char*)u8"[플레이어] 자살"))
+        {
+            player.Dead();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button((const char*)u8"[플레이어] 턴 종료"))
+        {
+            player.EndTurn();
+        }
+    });
 
     QTESystem*    qteSystem    = SingletonComponent<QTESystem>::GetInstance();
     QTEUIManager* qteUIManager = QTEUIManager::GetInstance();
     if (qteSystem && qteUIManager)
     {
-        bool input = _isDownAKey || _isDownAButton;
+        float t     = _attackButtonHeldTime / _attackButtonHeldWaitTime;
+        bool input  = _isDownAKey || _isDownAButton;
         qteUIManager->SetBackgroundUIAlpha(t);
         qteUIManager->SetGuideNoteUIAlpha(1.0f - t);
         qteUIManager->SetUIAlpha(0.0f);
@@ -265,7 +258,6 @@ void PlayerPlayTurnState::SetAttack()
     // 애니메이션 처리
     Player& player   = GetPlayer();
     auto*   animator = player.GetAnimationComponent();
-    auto*   audioTable = player.GetAudioTableComponent();
     if (animator)
     {
         animator->BeginBuildOverrideAnimation();
@@ -307,21 +299,19 @@ void PlayerPlayTurnState::SetAttackEnd()
         }
         animator->EndBuildOverrideAnimation();
     }
-    //if (false == succeed)
-    //{
-    //    player.EndTurn();
-    //}
+    if (false == succeed)
+    {
+        player.EndTurn();
+    }
 
     auto camera = dynamic_cast<UmCineMotion*>(CameraComponent::MainCamera());
     if (camera)
     {
         camera->StartRail(true);
     }
-
-    player.EndTurn();
 }
 
-void PlayerPlayTurnState::BattleOnHitEvent(const QTE::NoteResult& result) 
+void PlayerPlayTurnState::BattleOnHitEvent(QTE::NoteResult& result) 
 {
     Battle::EnemyTargetFlag_ target = GetAttackTargetFromButton(result.PressedButton);
     Player& player = GetPlayer();
@@ -374,12 +364,12 @@ void PlayerPlayTurnState::OnQTEFinish()
     QTESystem* qteSystem = SingletonComponent<QTESystem>::GetInstance();
     if (qteSystem)
     {
-        const QTE::OverallResult& results = qteSystem->GetQTEOverallResult();
-        const auto& noteResults = results.NoteResults;
-        for (const auto& result : noteResults)
+        QTE::OverallResult& results = qteSystem->GetQTEOverallResult();
+        auto& noteResults = results.NoteResults;
+        for (auto& result : noteResults)
         {
             float qteDelay  = qteSystem->GetDelayFromQTEStart();
-            QTE::Note* note = result.Note;
+            const QTE::NoteData* note = result.NoteData;
             if (note && result.IsValidResult())
             {
                 bool  validModel = false;
@@ -392,35 +382,42 @@ void PlayerPlayTurnState::OnQTEFinish()
 
                 if (weaponModelManager && weaponSystem)
                 {
-                    const WeaponStats& weaponStats = weaponSystem->GetCurrentWeaponStats();
+                    const WeaponStats& weaponStats = weaponSystem->GetCurrentWeaponElement().Stats;
                     WeaponType         weaponType  = weaponStats.Type;
 
                     auto modelData = weaponModelManager->RequestAvailableWeapon(weaponType);
                     if (validModel = modelData.IsValid())
                     {
+                        std::weak_ptr<GameObject> objectWeak = modelData.GameObject->GetWeakPtr();
+                        AnimationComponent*       animation  = modelData.Animation;
+                        ParticleComponent*        particle   = modelData.Particle;
+
                         modelData.GameObject->ActiveSelf = false;
 
                         // 노트에 맞는 애니메이션 설정 및 애니메이션 종료 콜백 등록
-                        if (validAnim = modelData.Animation->ChangeMainAnimation(note->WeaponAnimation))
+                        if (validAnim = modelData.Animation->ChangeMainAnimation(note->WeaponAnimationKey))
                         {
                             ++_attackRemaining;
-                            modelData.Animation->StopCurrentAnimation();
-                            modelData.Animation->SetMainAnimationEndCallback([this, weaponModelManager, modelData]() {
-                                if (modelData.IsValid())
+                            animation->StopCurrentAnimation();
+                            animation->SetMainAnimationEndCallback([this, objectWeak, weaponModelManager, modelData]() {
+                                if (false == objectWeak.expired())
                                 {
-                                    modelData.Animation->StopCurrentAnimation();
-                                    modelData.Particle->StopEffect("weapon");
-                                }
-                                weaponModelManager->ReturnWeaponModel(modelData);
-                                --_attackRemaining;
-                                if (0 >= _attackRemaining)
-                                {
-                                    SetAttackEnd();
+                                    if (modelData.IsValid())
+                                    {
+                                        modelData.Animation->StopCurrentAnimation();
+                                        modelData.Particle->StopEffect("weapon");
+                                    }
+                                    weaponModelManager->ReturnWeaponModel(modelData);
+                                    --_attackRemaining;
+                                    if (0 >= _attackRemaining)
+                                    {
+                                        SetAttackEnd();
+                                    }
                                 }
                             });
-                            modelData.Animation->SetAnimationPostEventCallback(
-                                [this, &result, modelData](const Timeline::EventContext* context) {
-                                    if (modelData.IsValid())
+                            animation->SetAnimationPostEventCallback(
+                                [this, objectWeak, &result, modelData](const Timeline::EventContext* context) {
+                                    if (false == objectWeak.expired() && modelData.IsValid())
                                     {
                                         if (context->GetLabel() == "Hit")
                                         {
@@ -430,7 +427,7 @@ void PlayerPlayTurnState::OnQTEFinish()
                                 });
 
                             // 애니메이션 Hit 이벤트 콜백 등록
-                            auto& animName  = modelData.Animation->GetAnimationNameFromKey(note->WeaponAnimation);
+                            auto& animName  = modelData.Animation->GetAnimationNameFromKey(note->WeaponAnimationKey);
                             auto& animTrack = modelData.Animation->GetAnimationEventTrack();
                             auto  track     = animTrack.GetEventTrack(animName);
                             if (track)
@@ -439,7 +436,7 @@ void PlayerPlayTurnState::OnQTEFinish()
                                 {
                                     validEvent      = true;
                                     float hitTime   = context->Time;
-                                    float noteDelay = note->GetWeaponAnimationDelay();
+                                    float noteDelay = note->WeaponAnimationDelay;
                                     float delta     = noteTime - hitTime + noteDelay + qteDelay - min;
                                     if (0.0f == min)
                                     {
@@ -447,12 +444,19 @@ void PlayerPlayTurnState::OnQTEFinish()
                                         delta  = 0.0f;
                                     }
                                     delta += offset;
-                                    UmTime.Invoke(delta, [this, modelData]() {
-                                        if (modelData.IsValid())
+                                    
+                                    UmTime.Invoke(delta, [objectWeak, animation, particle]() {
+                                        if (auto object = objectWeak.lock())
                                         {
-                                            modelData.GameObject->ActiveSelf = true;
-                                            modelData.Animation->PlayCurrentAnimation();
-                                            modelData.Particle->PlayEffect("weapon");
+                                            object->ActiveSelf = true;
+                                            if (animation)
+                                            {
+                                                animation->PlayCurrentAnimation();
+                                            }
+                                            if (particle)
+                                            {
+                                                particle->PlayEffect("weapon");
+                                            }
                                         }
                                     });
                                 }

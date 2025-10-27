@@ -35,7 +35,6 @@ public:
 public:
     REFLECT_PROPERTY(
         State,
-        RandomSpeed, 
         RoundSpeed,
         IsMyTurn
         )
@@ -91,18 +90,11 @@ public:
 
 public:
     virtual int GetSpeed() = 0;
-    virtual int GetRandomSpeed() { return _randomSpeed; }
+    virtual int GetRandomSpeed() = 0;
+
+    bool IsDead() const { return _currState == STATE::Dead; }
 
 public:
-    GETTER_ONLY(int, RandomSpeed) { return _randomSpeed; }
-    //TurnActor에서 OnRoundStart 진입시 자동으로 랜덤한 값이 부여됩니다.
-    PROPERTY(RandomSpeed)
-    //void SetRandomSpeed(int randomSpeed) 
-    //{ 
-    //    _randomSpeed = randomSpeed; 
-    //    _randomSpeed = std::clamp(_randomSpeed, DEFINE::RANDOMSPEED_MIN, DEFINE::RANDOMSPEED_MAX);
-    //}
-
     GETTER_ONLY(int, RoundSpeed) 
     { 
         int roundSpeed = GetSpeed() + GetRandomSpeed();
@@ -128,7 +120,6 @@ protected:
     REFLECT_FIELDS_END(TurnActor)
 
 private:
-    int     _randomSpeed = 0;
     STATE   _currState;
     int     _flags = FLAGS_NONE; // TurnActor의 플래그
 

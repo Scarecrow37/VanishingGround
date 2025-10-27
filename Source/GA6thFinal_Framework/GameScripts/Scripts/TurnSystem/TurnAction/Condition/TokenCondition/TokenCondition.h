@@ -21,7 +21,7 @@ public:
 
     bool Evaluate() override;
     void DrawImguiEditor() override;
-    const std::string& GetConditionInfo() const override;
+    const std::string& GetConditionInfo() override;
 
 protected:
     REFLECT_PROPERTY()
@@ -33,12 +33,13 @@ protected:
     int        Value     = 0;
     REFLECT_FIELDS_END(TokenCondition)
 
-    void SerializedReflectEvent() override;
-    void DeserializedReflectEvent() override;
-
 private:
     void UpdateConditionInfo();
     std::string _conditionInfo;
 
     void GetTargetList(std::vector<class CharacterBase*>& targetList);
+
+    void TryUpdateTokenSystemInfo();
+
+    bool _validTokenSystem = false;
 };

@@ -411,7 +411,20 @@ bool EditorModule::EditorBuildSystem::BuildProject(std::string_view outPath)
     {
         if (fs::is_regular_file(entry.path()))
         {
-            if (L".dll" == entry.path().extension())
+            constexpr const wchar_t* extentions[] = {
+                L".dll", 
+                L".pdb"
+            };
+            bool isCopy = false;
+            for (auto& extention : extentions)
+            {
+                isCopy |= extention == entry.path().extension();
+                if (isCopy)
+                {
+                    break;
+                }
+            }
+            if (true == isCopy)
             {
                 fs::path copyPath = destPath / "bin" / entry.path().filename();
                 fs::create_directories(copyPath.parent_path());

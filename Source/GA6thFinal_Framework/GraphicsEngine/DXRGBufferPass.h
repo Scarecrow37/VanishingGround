@@ -4,14 +4,11 @@
 class BaseMesh;
 class DXRGBufferPass : public RenderPass
 {
-    enum MeshType
+    enum CullMode
     {
-        STATIC_CULL_BACK,
-        STATIC_CULL_FRONT,
-        STATIC_TWO_SIDED,
-        SKELETAL_CULL_BACK,
-        SKELETAL_CULL_FRONT,
-        SKELETAL_TWO_SIDED,
+        CULL_BACK,
+        CULL_FRONT,
+        TWO_SIDED,
         END
     };
     struct RenderData
@@ -23,10 +20,11 @@ class DXRGBufferPass : public RenderPass
 
 public:
     DXRGBufferPass() = default;
-    virtual ~DXRGBufferPass();
+    virtual ~DXRGBufferPass() = default;
 
 public:
     void Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList) override;
+    void AddRenderPassDatas(std::string_view sceneName) override;
     void Begin(ID3D12GraphicsCommandList* commandList) override;
     void Draw(ID3D12GraphicsCommandList* commandList) override;
     void End(ID3D12GraphicsCommandList* commandList) override;
@@ -34,14 +32,20 @@ public:
 
 private:
     void InitShaderAndPSO();
-    void DrawMeshes(ID3D12GraphicsCommandList* commandList, int shaderType, MeshType meshType);
+    void DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType meshType, Material::BlendModeType blendModeType,
+                    CullMode cullMode, UINT offset);
 
 private:
-    std::vector<std::unique_ptr<ShaderBuilder>>                   _shaders;
-    std::vector<ComPtr<ID3D12PipelineState>>                      _psos;
-    std::array<D3D12_CPU_DESCRIPTOR_HANDLE, GBuffer::GBUFFER_END> _gBufferHandles;
-    std::vector<RenderData>                                       _renderDatas[MeshType::END];
+    std::vector<MeshInfo*> _mesheInfos[MeshType::MESH_TYPE_END][Material::BlendModeType::BMT_END - 1][CullMode::END];
+    std::array<D3D12_CPU_DESCRIPTOR_HANDLE, DXRGBuffer::DXRGBUFFER_END> _gBufferHandles;
+    ComPtr<ID3D12PipelineState> _psos[MeshType::MESH_TYPE_END][Material::BlendModeType::BMT_END - 1][CullMode::END];
 
-    FX<GE::VS::STATIC_FR, GE::PS::DXRGBUFFER> _fxStaticMesh;
+    std::vector<InstanceData>         _instanceDatas;
+    std::unique_ptr<StructuredBuffer> _instanceDatasBuffer;
+
+    FX<GE::VS::STATIC_FR, GE::PS::DXRGBUFFER>   _fxStaticMesh;
     FX<GE::VS::SKELETAL_FR, GE::PS::DXRGBUFFER> _fxSkeletalMesh;
+
+    // Debug
+    SharedResource<RenderTarget> _gBufferRenderTargets;
 };

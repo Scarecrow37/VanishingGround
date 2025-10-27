@@ -4,6 +4,11 @@
 
 class TextElement : public DrawUIComponent
 {
+    enum FontFlags : uint32_t
+    {
+        FONT_FLAG_NONE    = 0,
+        FONT_FLAG_OUTLINE = 1 << 0,
+    };
     USING_PROPERTY(TextElement)
 
 public:
@@ -15,7 +20,7 @@ public:
     ~TextElement() override;
 
 public:
-    REFLECT_PROPERTY(FilePath, Text, Color, FontScale)
+    REFLECT_PROPERTY(FilePath, Text, Color, FontScale, OutlineColor, OutlineWidth, IsOutlineEnabled)
 
     GETTER_ONLY(std::string, FilePath) { return _Guid.ToPath().string(); }
     PROPERTY(FilePath)
@@ -58,9 +63,39 @@ public:
     }
     PROPERTY(FontWeight)
 
-
     GETTER_ONLY(SIZE, ContentSize) { return ReflectFields->ContentSize; }
     PROPERTY(ContentSize)
+
+    GETTER(DirectX::SimpleMath::Color, OutlineColor) { return DirectX::SimpleMath::Color(&ReflectFields->FontOutlineColor[0]); }
+    SETTER(DirectX::SimpleMath::Color, OutlineColor)
+    {
+        ReflectFields->FontOutlineColor = {value.x, value.y, value.z, value.w};
+        TestUpdateOutline();
+    }
+    PROPERTY(OutlineColor)
+
+    GETTER(float, OutlineWidth) { return ReflectFields->FontOutlineWidth; }
+    SETTER(float, OutlineWidth)
+    {
+        ReflectFields->FontOutlineWidth = std::max(0.0f, value);
+        TestUpdateOutline();
+    }
+    PROPERTY(OutlineWidth)
+
+    GETTER(bool, IsOutlineEnabled) { return (ReflectFields->FontFlags & FONT_FLAG_OUTLINE) != 0; }
+    SETTER(bool, IsOutlineEnabled)
+    {
+        if (value)
+        {
+            ReflectFields->FontFlags |= FONT_FLAG_OUTLINE;
+        }
+        else
+        {
+            ReflectFields->FontFlags &= ~FONT_FLAG_OUTLINE;
+        }
+        TestUpdateOutline();
+    }
+    PROPERTY(IsOutlineEnabled)
 
 public:
     void SetFont(const File::Guid& Guid);
@@ -87,14 +122,19 @@ private:
     void UpdateWeight() const;
     void UpdateContentSize();
 
+    void TestUpdateOutline();
+
 protected:
     REFLECT_FIELDS_BEGIN(DrawUIComponent)
     std::string          Guid;
-    std::string          Text         = "Hello Um!";
-    std::array<float, 4> Color        = {0.0f, 0.0f, 0.0f, 1.0f};
-    float                FontScale    = 32.0f;
-    SIZE                 ContentSize  = SIZE{};
-    float                FontWeight   = 0.5f;
+    std::string          Text             = "Hello Um!";
+    std::array<float, 4> Color            = {0.0f, 0.0f, 0.0f, 1.0f};
+    float                FontScale        = 32.0f;
+    SIZE                 ContentSize      = SIZE{};
+    float                FontWeight       = 0.5f;
+    std::array<float, 4> FontOutlineColor = {0.0f, 0.0f, 0.0f, 1.0f};
+    float                FontOutlineWidth = 0.0f;
+    UINT                 FontFlags        = FONT_FLAG_NONE;
     REFLECT_FIELDS_END(TextElement)
 
 private:

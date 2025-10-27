@@ -18,7 +18,7 @@ void RoundOnceTrueCondition::DrawImguiEditor()
 
 }
 
-const std::string& RoundOnceTrueCondition::GetConditionInfo() const
+const std::string& RoundOnceTrueCondition::GetConditionInfo()
 {
     static const std::string info = (const char*)u8"라운드당 한번만 발동";
     return info;

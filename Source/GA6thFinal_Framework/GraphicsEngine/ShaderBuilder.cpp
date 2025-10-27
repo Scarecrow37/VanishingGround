@@ -147,6 +147,9 @@ void ShaderBuilder::CreateRootSignatureTable()
         case Type::PS:
             visibility = D3D12_SHADER_VISIBILITY_PIXEL;
             break;
+        case Type::GS:
+            visibility = D3D12_SHADER_VISIBILITY_GEOMETRY;
+            break;
         case Type::CS:
             visibility = D3D12_SHADER_VISIBILITY_ALL;
             break;
@@ -308,6 +311,9 @@ void ShaderBuilder::CreateRootSignatureDirect()
             break;
         case Type::PS:
             visibility = D3D12_SHADER_VISIBILITY_PIXEL;
+            break;
+        case Type::GS:
+            visibility = D3D12_SHADER_VISIBILITY_GEOMETRY;
             break;
         case Type::CS:
             visibility = D3D12_SHADER_VISIBILITY_ALL;

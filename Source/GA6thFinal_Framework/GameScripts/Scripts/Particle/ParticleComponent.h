@@ -3,7 +3,7 @@
 class ParticleComponent : public Component
 {
     using EffectID = int;
-
+    using EffectCallback = std::function<void(void)>;
     USING_PROPERTY(ParticleComponent)
 public:
 
@@ -104,6 +104,7 @@ public:
     PROPERTY(AttachToBoneMatrix)
 
     void PlayEffect(const std::string& key);
+    void PlayEffect(const std::string& key, EffectCallback callback);
     void StopEffect(const std::string& key);
     void StopAll();
     void ClearEffectList();
@@ -117,17 +118,9 @@ public:
     ParticleComponent();
     virtual ~ParticleComponent();
 
-    File::Guid _Guid;
     File::Path    _filepath;
-
 protected:
     REFLECT_FIELDS_BEGIN(Component)
-    //std::string          Guid;
-    //std::array<float, 3> PositionArray;
-    //std::array<float, 3> RotationArray;
-    //std::array<float, 3> ScaleArray;
-    //bool                 AttachToBoneMatrix;
-    //std::string          BoneNameToAttach;
 
     std::unordered_map<std::string,std::array<float, 3>> ScaleMap;
     std::unordered_map<std::string,std::array<float, 3>> RotationMap;

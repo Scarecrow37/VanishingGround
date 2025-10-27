@@ -46,6 +46,9 @@ protected:
     std::vector<float> RotationZTethers;
     std::vector<float> RotationWTethers;
     std::vector<float> TimestepTethers;
+    UINT               EaseType      = 0;
+    UINT               EaseFuncType  = 0;
+    float              EaseThreshold = 0.5f;
     REFLECT_FIELDS_END(UmCineMotion)
 
     void OnDrawDebug() override;
@@ -65,8 +68,6 @@ protected:
     Vector3 GetShakeOffset(float intensity, float frequency, float time);
 
     void ApplyTransform();
-
-
 
  public:
     void AddTether(float timestep);
@@ -92,15 +93,19 @@ protected:
     Quaternion              _targetAngle       = Quaternion::Identity;
     UINT                    _selectedTether    = -1;
     bool                    _reverseFlag       = false;
-    
+    bool                    _showEasingFlag    = false;
+    std::vector<float>      _easeLog;
+
+    float EaseTimeStep(float step);
+
 #ifdef _UMEDITOR
-    void                                                                 UpdateTetherFromGizmo();
-    void                                                                 PushGizmo(const Matrix& world);
-    void                                                                 PopGizmo();
-    void                                                                 ClearGizmo();
+    void                                                                 UpdateTetherFromGuizmo();
+    void                                                                 PushGuizmo(const Matrix& world);
+    void                                                                 PopGuizmo();
+    void                                                                 ClearGuizmo();
     void                                                                 DrawGuizmo();
-    void                                                                 DrawGizmoIcon();
-    std::vector<std::tuple<SceneGizmo, Matrix, SceneGizmo::DefaultIcon>> _gizmoes;
+    void                                                                 DrawGuizmoIcon();
+    std::vector<std::tuple<SceneGizmo, Matrix, SceneGizmo::DefaultIcon>> _guizmoes;
 #endif
 
 };

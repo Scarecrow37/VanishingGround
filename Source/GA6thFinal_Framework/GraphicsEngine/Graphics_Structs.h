@@ -27,11 +27,12 @@ struct SkeletalMeshVertex : public StaticMeshVertex
 
 struct Material
 {
-#undef OPAQUE
+#undef OPAQUE    
     enum ShadingModelType
     {
-        UNLIT,
+        // UNLIT,
         DEFAULTLIT,
+        CUSTOMLIT,
         SMT_END
     } ShadingModel{};
     enum BlendModeType
@@ -49,6 +50,13 @@ struct Material
     } CullMode{};
     float Alpha = 1.f;
     bool IsTwoSided = false;
+};
+
+struct TransparentRimLightMaterial
+{
+    std::array<float, 3> RimColor     = {1.f, 1.f, 1.f};
+    float                RimPower     = 1.f;
+    float                RimIntensity = 1.f;
 };
 
 struct DescriptorHandles

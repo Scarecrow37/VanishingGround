@@ -5,6 +5,8 @@ class ReturnToMapNavi : public UISFXNavigationComponent
     USING_PROPERTY(ReturnToMapNavi)
 
 public:
+    inline static constexpr const char* TAG = "Item Drop UI ReturnToMapNavi";
+
     enum class SelectBoxType
     {
         DEFAULT,
@@ -36,6 +38,7 @@ public:
 
 protected:
     void DeserializedReflectEvent() override;
+    void Added() override;
     void Start() override;
     void Awake() override;
 

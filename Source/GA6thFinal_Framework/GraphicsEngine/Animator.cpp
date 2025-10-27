@@ -49,6 +49,16 @@ float Animator::GetAnimationLastTime(const char* animation) const
     return 0.0f;
 }
 
+std::string_view Animator::GetCurrentAnimationName(unsigned int ID) const
+{
+    if (ID >= _controllers.size())
+    {
+        GRAPHICS_ASSERT(false, L"Greater than the number of controllers you set.");
+        return "";
+    }
+    return _controllers[ID].Animation;
+}
+
 float Animator::GetCurrentAnimationPlayTime(unsigned int ID) const
 {
     if (ID >= _controllers.size())
@@ -56,12 +66,7 @@ float Animator::GetCurrentAnimationPlayTime(unsigned int ID) const
         GRAPHICS_ASSERT(false, L"Greater than the number of controllers you set.");
         return 0.0f;
     }
-
-    if (false == _controllers.empty())
-    {
-        return _controllers[ID].PlayTime;
-    }
-    return 0.0f;
+    return _controllers[ID].PlayTime;
 }
 
 float Animator::GetCurrentAnimationSpeed(unsigned int ID) const
@@ -71,11 +76,7 @@ float Animator::GetCurrentAnimationSpeed(unsigned int ID) const
         GRAPHICS_ASSERT(false, L"Greater than the number of controllers you set.");
         return 0.0f;
     }
-    if (false == _controllers.empty())
-    {
-        return _controllers[ID].Speed;
-    }
-    return 0.0f;
+    return _controllers[ID].Speed;
 }
 
 bool Animator::HasAnimation(const char* animation) const

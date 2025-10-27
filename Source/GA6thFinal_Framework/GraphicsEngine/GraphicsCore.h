@@ -58,7 +58,7 @@ public:
     void LoadModelResource(std::wstring_view filePath, class ParticleEmitter* component) const;
 
 public:
-    void Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel feature, bool isEditorMode);
+    void Initialize(HWND hwnd, UINT width, UINT height, FeatureLevel feature, bool isEditorMode, bool isRayTracing);
     void UpdateAnimation(const float deltaTime) const;
     void Update(const float deltaTime);
     void Render() const;

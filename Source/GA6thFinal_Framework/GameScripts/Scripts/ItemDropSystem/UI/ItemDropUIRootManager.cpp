@@ -8,6 +8,10 @@
 #include "ItemDropSystem/UINavi/RestartStageNavi.h"
 #include "ItemDropSystem/UINavi/ArtifactButtonNavi.h"
 #include "ItemDropSystem/UI/WeaponChangeUIManager.h"
+#include "ItemDropSystem/UI/EraseRevelationUIManager.h"
+#include "ItemDropSystem/UINavi/ReturnToMapNavi.h"
+#include "Preferences/PreferencesManager.h"
+#include "Inventory/UI/InventoryUIManager.h"
 
 UMREAL_COMPONENT(ItemDropUIRootManager)
 
@@ -25,65 +29,68 @@ void ItemDropUIRootManager::AutoFocus(bool checkInputDir)
 {
     if (ArtifactUIManager* artifactUI = ArtifactUI)
     {
-        size_t startIndex = ArtifactButtonNavi::GetLastFocusIndex();
-        bool   revers     = false;
-        //입력 체크에 따른 보정
-        if (checkInputDir)
+        if (false == artifactUI->IsObtainActive())
         {
-            constexpr size_t horizontalDamp = 2;
-            constexpr size_t verticalDamp   = 1;
+            size_t startIndex = ArtifactButtonNavi::GetLastFocusIndex();
+            bool   revers     = false;
+            // 입력 체크에 따른 보정
+            if (checkInputDir)
+            {
+                constexpr size_t horizontalDamp = 2;
+                constexpr size_t verticalDamp   = 1;
 
-            switch (_lastInputDir)
-            {
-            case ItemDropUIRootManager::InputDir::LEFT:
-                startIndex = horizontalDamp <= startIndex ? startIndex - horizontalDamp : 0;
-                revers     = true;
-                break;
-            case ItemDropUIRootManager::InputDir::RIGHT:
-                startIndex = startIndex + horizontalDamp;
-                break;
-            case ItemDropUIRootManager::InputDir::UP:
-                startIndex = verticalDamp <= startIndex ? startIndex - verticalDamp : 0;
-                revers     = true;
-                break;
-            case ItemDropUIRootManager::InputDir::DOWN:
-                startIndex = startIndex + verticalDamp;
-                break;
-            case ItemDropUIRootManager::InputDir::IDLE:
-            default:
-                break;
-            }
-            _lastInputDir = ItemDropUIRootManager::InputDir::IDLE;
-        }
-        startIndex = std::min(startIndex, ARTIFACT_DROP_COUNT);
-     
-        //포커스 가능한 UI로 설정
-        if (false == revers)
-        {
-            for (size_t i = startIndex; i < ARTIFACT_DROP_COUNT; ++i)
-            {
-                if (artifactUI->FocusNavi(i))
+                switch (_lastInputDir)
                 {
-                    _isFocusArtifactNavi = true;
-                    return;
-                }
-            }
-        }
-        else
-        {
-            size_t i = startIndex;
-            while (i < ARTIFACT_DROP_COUNT)
-            {
-                if (artifactUI->FocusNavi(i))
-                {
-                    _isFocusArtifactNavi = true;
-                    return;
-                }
-                if (i == 0)
-                {
+                case ItemDropUIRootManager::InputDir::LEFT:
+                    startIndex = horizontalDamp <= startIndex ? startIndex - horizontalDamp : 0;
+                    revers     = true;
+                    break;
+                case ItemDropUIRootManager::InputDir::RIGHT:
+                    startIndex = startIndex + horizontalDamp;
+                    break;
+                case ItemDropUIRootManager::InputDir::UP:
+                    startIndex = verticalDamp <= startIndex ? startIndex - verticalDamp : 0;
+                    revers     = true;
+                    break;
+                case ItemDropUIRootManager::InputDir::DOWN:
+                    startIndex = startIndex + verticalDamp;
+                    break;
+                case ItemDropUIRootManager::InputDir::IDLE:
+                default:
                     break;
                 }
-                --i;
+                _lastInputDir = ItemDropUIRootManager::InputDir::IDLE;
+            }
+            startIndex = std::min(startIndex, ARTIFACT_DROP_COUNT);
+
+            // 포커스 가능한 UI로 설정
+            if (false == revers)
+            {
+                for (size_t i = startIndex; i < ARTIFACT_DROP_COUNT; ++i)
+                {
+                    if (artifactUI->FocusNavi(i))
+                    {
+                        _isFocusArtifactNavi = true;
+                        return;
+                    }
+                }
+            }
+            else
+            {
+                size_t i = startIndex;
+                while (i < ARTIFACT_DROP_COUNT)
+                {
+                    if (artifactUI->FocusNavi(i))
+                    {
+                        _isFocusArtifactNavi = true;
+                        return;
+                    }
+                    if (i == 0)
+                    {
+                        break;
+                    }
+                    --i;
+                }
             }
         }
     }
@@ -159,9 +166,9 @@ void ItemDropUIRootManager::Start()
                 _artifactUIManager = std::static_pointer_cast<ArtifactUIManager>(weakComponent.lock());
             }
         }
-        if (auto itemInfoUI = GameObject::FindWithTag(ItemInfoUIManager::TAG).lock())
+        if (auto itemInfoUI = transform->FindWithTag(ItemInfoUIManager::TAG))
         {
-            if (ItemInfoUIManager* component = itemInfoUI->GetComponent<ItemInfoUIManager>())
+            if (ItemInfoUIManager* component = itemInfoUI->gameObject->GetComponent<ItemInfoUIManager>())
             {
                 auto weakComponent = component->GetWeakPtr();
                 _itemInfoUIManager = std::static_pointer_cast<ItemInfoUIManager>(weakComponent.lock());
@@ -175,6 +182,14 @@ void ItemDropUIRootManager::Start()
                 _weaponChangeUIManager = std::static_pointer_cast<WeaponChangeUIManager>(weakComponent.lock());
             }
         }
+        if (auto eraseRevelationObject = GameObject::FindWithTag(EraseRevelationUIManager::TAG).lock())
+        {
+            if (EraseRevelationUIManager* component = eraseRevelationObject->GetComponent<EraseRevelationUIManager>())
+            {
+                auto weakComponent = component->GetWeakPtr();
+                _eraseRevelationUIManager = std::static_pointer_cast<EraseRevelationUIManager>(weakComponent.lock());
+            }
+        }
         if (auto restartButtonObject = GameObject::FindWithTag(RestartStageNavi::TAG).lock())
         {
             if (auto navi = restartButtonObject->GetComponent<RestartStageNavi>())
@@ -183,32 +198,97 @@ void ItemDropUIRootManager::Start()
                 _restartNavi   = std::static_pointer_cast<RestartStageNavi>(component);
             }
         }
+        if (auto returnToMapNaviObject = GameObject::FindWithTag(ReturnToMapNavi::TAG).lock())
+        {
+            if (auto navi = returnToMapNaviObject->GetComponent<ReturnToMapNavi>())
+            {
+                auto component = navi->GetWeakPtr().lock();
+                _returnToMapNavi = std::static_pointer_cast<ReturnToMapNavi>(component);
+            }
+        }
         gameObject->ActiveSelf = false;
     }
 }
 
 void ItemDropUIRootManager::Update() 
 {
-    if (_isFocusInput)
+    UpdateAutoFocus();
+    Debugger db;
+    db([this]() 
     {
-        WeaponChangeUIManager* manager = WeaponChangeUI;
-        bool isFocus = true;
-        if (manager)
+        using namespace u8_literals;
+        if (gameObject->ActiveInHierarchy)
         {
-            isFocus &= manager->gameObject->ActiveSelf == false; //무기 변경 UI 활성화일때는 오토 포커스 금지 
+            if (ImGui::TreeNode("Stage Clear UI Button"))
+            {
+                if (ImGui::Button(u8"다음 전투"_c_str))
+                {
+                    if (auto navi = _restartNavi.lock())
+                    {
+                        navi->Submit();
+                    }
+                }
+                if (ImGui::Button(u8"떠난다"_c_str))
+                {
+                    if (auto navi = _returnToMapNavi.lock())
+                    {
+                        navi->Submit();
+                    }
+                }
+                ImGui::TreePop();
+            }
         }
-        if (isFocus)
-        {
-            AutoFocus(true);
-        }    
-        _isFocusInput = false;
-    }
+    });
 }
 
 void ItemDropUIRootManager::LateUpdate() 
 {
     Base::LateUpdate();
     _lastInputDir = InputDir::IDLE;
+}
+
+void ItemDropUIRootManager::UpdateAutoFocus() 
+{
+    if (_isFocusInput)
+    {
+        WeaponChangeUIManager*    weaponChaingUI     = WeaponChangeUI;
+        EraseRevelationUIManager* eraseRevelationUI  = EraseRevelationUI;
+        InventoryUIManager*       inventoryUI        = SingletonComponent<InventoryUIManager>::GetInstance();
+        PreferencesManager*       preferencesManager = SingletonComponent<PreferencesManager>::GetInstance();
+
+        if (weaponChaingUI)
+        {
+            if (weaponChaingUI->gameObject->ActiveInHierarchy)
+            {
+                goto label_end;
+            }
+        }
+        if (eraseRevelationUI)
+        {
+            if (eraseRevelationUI->gameObject->ActiveInHierarchy)
+            {
+                goto label_end;
+            }
+        }
+        if (inventoryUI)
+        {
+            if (inventoryUI->gameObject->ActiveInHierarchy)
+            {
+                goto label_end;
+            }
+        }
+        if (preferencesManager)
+        {
+            if (preferencesManager->IsOpen())
+            {
+                goto label_end;
+            }
+        }
+
+        AutoFocus(true);
+label_end:
+        _isFocusInput = false;
+    }
 }
 
 void ItemDropUIRootManager::OnDpadLeft(const Input::Controller&) 

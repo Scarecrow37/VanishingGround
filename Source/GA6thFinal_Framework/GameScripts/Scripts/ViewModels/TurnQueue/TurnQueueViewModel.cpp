@@ -80,6 +80,78 @@ struct GetPortraitGuid
     }
 };
 
+struct GetWeaponFrameGuid
+{
+    File::Guid operator()(bool isFocus) const
+    {
+        File::Guid frameGuid;
+        if (ExcelDataSystem* dataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
+        {
+            if (std::unique_ptr<ExcelDataBase> dataBase = dataSystem->FindExcelDataBase(u8"전투"))
+            {
+                constexpr std::u8string_view findIndexColumnKey = u8"Description";
+                constexpr std::u8string_view findDataColumnKey  = u8"ID";
+                int                          assetID            = 0;
+                size_t                       rowIndex           = ExcelDataBase::FIND_INDEX_FAIL;
+                if (false == isFocus)
+                {
+                    rowIndex = dataBase->FindRowIndex(u8"턴 창_플레이어", findIndexColumnKey);
+                }
+                else
+                {
+                    rowIndex = dataBase->FindRowIndex(u8"턴 창_현재_플레이어", findIndexColumnKey);
+                }
+                if (rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
+                {
+                    std::string_view data = dataBase->FindData(rowIndex, findDataColumnKey);
+                    if (data != ExcelDataBase::FIND_STR_FAIL)
+                    {
+                        assetID = std::stoi(data.data());
+                        frameGuid = UmFileSystem.GetGuidFromAssetID(assetID);
+                    }
+                }
+            }
+        }
+        return frameGuid;
+    }
+};
+
+struct GetEnemyFrameGuid
+{
+    File::Guid operator()(bool isFocus) const 
+    {
+        File::Guid frameGuid;
+        if (ExcelDataSystem* dataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
+        {
+            if (std::unique_ptr<ExcelDataBase> dataBase = dataSystem->FindExcelDataBase(u8"전투"))
+            {
+                constexpr std::u8string_view findIndexColumnKey = u8"Description";
+                constexpr std::u8string_view findDataColumnKey  = u8"ID";
+                int                          assetID            = 0;
+                size_t                       rowIndex           = ExcelDataBase::FIND_INDEX_FAIL;
+                if (false == isFocus)
+                {
+                    rowIndex = dataBase->FindRowIndex(u8"턴 창_적", findIndexColumnKey);
+                }
+                else
+                {
+                    rowIndex = dataBase->FindRowIndex(u8"턴 창_현재 적", findIndexColumnKey);
+                }   
+                if (rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
+                {
+                    std::string_view data = dataBase->FindData(rowIndex, findDataColumnKey);
+                    if (data != ExcelDataBase::FIND_STR_FAIL)
+                    {
+                        assetID = std::stoi(data.data());
+                        frameGuid = UmFileSystem.GetGuidFromAssetID(assetID);
+                    }
+                }
+            }
+        }
+        return frameGuid;
+    }
+};
+
 TurnQueueViewModel::TurnQueueViewModel(MVVM::Model<std::deque<std::pair<int, TurnActor*>>>& model)
     : ViewModel(model)
 {
@@ -100,45 +172,40 @@ std::vector<TurnUIData> TurnQueueViewModel::Convert(const std::deque<std::pair<i
             const int     slotIndex    = slotAndActor.first;
             WeaponStats&  stats        = weaponSystem->GetWeaponStatsAtIndex(slotIndex);
             int           weaponId     = stats.WeaponID;
-            File::Guid    frameGuid    = isFocus ? UmFileSystem.GetGuidFromAssetID(110054) : UmFileSystem.GetGuidFromAssetID(110052);
-            File::Guid portraitGuid    = GetPortraitGuid()(weaponId);
+            File::Guid    portraitGuid = GetPortraitGuid()(weaponId);
+            File::Guid    frameGuid    = GetWeaponFrameGuid()(isFocus);
             TurnUIData    data{.ActorPortrait = portraitGuid, .Frame = frameGuid, .Type = TurnUIData::ActorType::PLAYER };
             _turnQueueData.push_back(data);
         }
         else
         {
             TurnActor* actor = slotAndActor.second;
-            if (const Enemy*     enemy = dynamic_cast<Enemy*>(actor); nullptr != enemy)
+            if (const Enemy* enemy = dynamic_cast<Enemy*>(actor); nullptr != enemy)
             {
-                const EnemyType enemyType = enemy->Type;
+                const EnemyType enemyType     = enemy->Type;
                 const File::Guid portraitGuid = GetPortraitGuid()(enemyType);
-                const File::Guid frameGuid    = isFocus ? UmFileSystem.GetGuidFromAssetID(110055) : UmFileSystem.GetGuidFromAssetID(110053);
+                const File::Guid frameGuid    = GetEnemyFrameGuid()(isFocus);
                 TurnUIData data;
                 data.ActorPortrait = portraitGuid;
                 data.Frame         = frameGuid;
-                data.Type          = TurnUIData::ActorType::PLAYER;
-                for (size_t i = 0; i < enemys.size(); ++i)
+
+                Monster::SpawnPoint point = enemy->SpawnPoint;
+                switch (point)
                 {
-                    if (enemys[i] == enemy)
-                    {
-                        switch (i)
-                        {
-                        case 0:
-                            data.Type = TurnUIData::ActorType::ENEMY_LEFT;
-                            break;
-                        case 1:
-                            data.Type = TurnUIData::ActorType::ENEMY_MIDDLE;
-                            break;
-                        case 2:
-                            data.Type = TurnUIData::ActorType::ENEMY_RIGHT;
-                            break;
-                        default:
-                            data.Type = TurnUIData::ActorType::PLAYER;
-                            break;
-                        }
-                        break;
-                    }
-                }                   
+                case Monster::SpawnPoint::Left:
+                    data.Type = TurnUIData::ActorType::ENEMY_LEFT;
+                    break;          
+                case Monster::SpawnPoint::Middle:
+                    data.Type = TurnUIData::ActorType::ENEMY_MIDDLE;
+                    break;
+                case Monster::SpawnPoint::Right:
+                    data.Type = TurnUIData::ActorType::ENEMY_RIGHT;
+                    break;
+                case Monster::SpawnPoint::Invalid:
+                default:
+                    break;
+                }
+                     
                 _turnQueueData.push_back(data);
             }
             else

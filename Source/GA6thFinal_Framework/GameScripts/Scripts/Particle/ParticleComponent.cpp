@@ -13,14 +13,14 @@ ParticleComponent::ParticleComponent()
         {
             if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
             {
-                DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
-                File::Path path = data->GetPath();
-                File::Guid guid = data->GetGuid();
+                DragDropAsset::Data* data      = static_cast<DragDropAsset::Data*>(payLoad->Data);
+                const File::Path&    path      = data->GetPath();
+                const File::Guid&    guid      = data->GetGuid();
                 const auto           extension = path.extension();
                 if (extension == L".vfx" && _newEffectKey != "")
                 {
                     ReflectFields->EffectNameTable.push_back(_newEffectKey);
-                    ReflectFields->GuidMap[_newEffectKey] = guid.string();
+                    ReflectFields->GuidMap[_newEffectKey]       = guid.string();
                     ReflectFields->AttachFlagMap[_newEffectKey] = false;
                     ReflectFields->BoneNameMap[_newEffectKey]   = "";
                     LoadParticle(_newEffectKey);
@@ -73,12 +73,11 @@ void ParticleComponent::DeserializedReflectEvent()
     }
 }
 
-void ParticleComponent::ImGuiDrawPropertysEvent() 
+void ParticleComponent::ImGuiDrawPropertysEvent()
 {
-
     if (false == ReflectFields->EffectNameTable.empty())
     {
-        const char* comboLabel = _currentEffectKey.c_str(); 
+        const char* comboLabel = _currentEffectKey.c_str();
         if (ImGui::BeginCombo("##current effect name", comboLabel))
         {
             for (int i = 0; i < ReflectFields->EffectNameTable.size(); ++i)
@@ -94,9 +93,9 @@ void ParticleComponent::ImGuiDrawPropertysEvent()
         auto it = ReflectFields->GuidMap.find(_currentEffectKey);
         if (it != ReflectFields->GuidMap.end())
         {
-            const File::Guid& fileGuid   = (*it).second;
-            const File::Path& filePath   = fileGuid.ToPath();
-            const std::string&       fileString = filePath.string();
+            const File::Guid&  fileGuid   = (*it).second;
+            const File::Path&  filePath   = fileGuid.ToPath();
+            std::string fileString = filePath.string();
             ImGui::Text(fileString.c_str());
         }
     }
@@ -177,7 +176,6 @@ void ParticleComponent::ImGuiDrawPropertysEvent()
             ClearEffectList();
         }
     }
-
 }
 
 void ParticleComponent::LoadParticle(const std::string& keyString)
@@ -203,24 +201,23 @@ void ParticleComponent::LoadParticle(const std::string& keyString)
                 count++;
 
                 if (count == paths.size())
-                    UmSceneManager.ResourceManager.RequestTextureResource(
-                        this, guid, [this, assetGuid, keyString]() {
-                            ReflectFields->GuidMap[keyString] = assetGuid.string();
-                        auto effect = UmParticleSerializer.Deserialize(this, keyString, assetGuid.ToPath(),
-                                                                           false, "Game");
+                    UmSceneManager.ResourceManager.RequestTextureResource(this, guid, [this, assetGuid, keyString]() {
+                        ReflectFields->GuidMap[keyString] = assetGuid.string();
+                        auto effect =
+                            UmParticleSerializer.Deserialize(this, keyString, assetGuid.ToPath(), false, "Game");
                         for (auto& emitter : effect->GetEmitterList())
                         {
                             File::Path absolutePath = emitter->_particleRenderModule->GetModelAndTexturePath();
                             absolutePath            = std::filesystem::absolute(absolutePath).generic_string();
-                            UmGraphics.LoadTextureResource(std::wstring_view(absolutePath.wstring()), emitter);
+                            UmGraphics.LoadTextureResource(std::wstring_view(absolutePath.wstring()), emitter.get());
                         }
                         effect->SetPlayFlag(false);
                         effect->SetActiveFlag(false);
-                        effect->_position          = &_positionVector[keyString];
-                        effect->_rotation          = &_rotationVector[keyString];
-                        effect->_scale             = &_scaleVector[keyString];
-                        effect->_parentWorldMatrix = &transform->GetWorldMatrix();
-                        effect->_followBoneFlag    = &(ReflectFields->AttachFlagMap[keyString]);
+                        effect->SetPosition(&_positionVector[keyString]);
+                        effect->SetRotation(&_rotationVector[keyString]);
+                        effect->SetScale(&_scaleVector[keyString]);
+                        effect->SetParentMatrix(&transform->GetWorldMatrix());
+                        effect->SetBoneFollowFlag(&(ReflectFields->AttachFlagMap[keyString]));
                     });
                 else
                     UmSceneManager.ResourceManager.RequestTextureResource(this, guid, []() {});
@@ -241,8 +238,7 @@ void ParticleComponent::LoadParticle(const std::string& keyString)
                 else
                 {
                     UmSceneManager.ResourceManager.RequestTextureResource(
-                        this, guid, [this, modelpaths, assetGuid, keyString]() 
-                        {
+                        this, guid, [this, modelpaths, assetGuid, keyString]() {
                             size_t count = 0;
                             for (const auto& path : modelpaths)
                             {
@@ -255,7 +251,6 @@ void ParticleComponent::LoadParticle(const std::string& keyString)
                                 else
                                     UmSceneManager.ResourceManager.RequestModelResource(
                                         this, guid, [this, assetGuid, keyString]() {
-
                                             ReflectFields->GuidMap[keyString] = assetGuid.string();
                                             auto effect                       = UmParticleSerializer.Deserialize(
                                                 this, keyString, assetGuid.ToPath(), false, "Game");
@@ -268,29 +263,28 @@ void ParticleComponent::LoadParticle(const std::string& keyString)
                                                     absolutePath =
                                                         std::filesystem::absolute(absolutePath).generic_string();
                                                     UmGraphics.LoadTextureResource(
-                                                        std::wstring_view(absolutePath.wstring()), emitter);
+                                                        std::wstring_view(absolutePath.wstring()), emitter.get());
 
                                                     if (LocationShape::MESH_SURFACE == emitter->_locationType)
                                                     {
-                                                        MeshSurfaceLocator* locator =
-                                                            static_cast<MeshSurfaceLocator*>(emitter->_emitLocator);
-                                                        if (locator)
+                                                        if (auto locator =
+                                                                emitter->_emitLocator->AsMeshSurfaceLocator())
                                                         {
                                                             File::Path absolutePath = locator->GetModelPath();
                                                             absolutePath = std::filesystem::absolute(absolutePath)
                                                                                .generic_string();
                                                             UmGraphics.LoadModelResource(
-                                                                std::wstring_view(absolutePath.wstring()), emitter);
+                                                                std::wstring_view(absolutePath.wstring()), emitter.get());
                                                         }
                                                     }
                                                 }
                                                 effect->SetPlayFlag(false);
                                                 effect->SetActiveFlag(false);
-                                                effect->_position          = &_positionVector[keyString];
-                                                effect->_rotation          = &_rotationVector[keyString];
-                                                effect->_scale             = &_scaleVector[keyString];
-                                                effect->_parentWorldMatrix = &transform->GetWorldMatrix();
-                                                effect->_followBoneFlag    = &(ReflectFields->AttachFlagMap[keyString]);
+                                                effect->SetPosition(&_positionVector[keyString]);
+                                                effect->SetRotation(&_rotationVector[keyString]);
+                                                effect->SetScale(&_scaleVector[keyString]);
+                                                effect->SetParentMatrix(&transform->GetWorldMatrix());
+                                                effect->SetBoneFollowFlag(&(ReflectFields->AttachFlagMap[keyString]));
                                             }
                                         });
                             }
@@ -326,7 +320,7 @@ void ParticleComponent::FollowBoneMatrix(const std::string& key)
     }
 }
 
-void ParticleComponent::FollowBoneMatrix() 
+void ParticleComponent::FollowBoneMatrix()
 {
     for (auto& keyString : ReflectFields->EffectNameTable)
     {
@@ -349,12 +343,18 @@ void ParticleComponent::PlayEffect(const std::string& key)
     UmParticleManager->PlayEffect(this, key);
 }
 
+void ParticleComponent::PlayEffect(const std::string& key, EffectCallback callback) 
+{
+    FollowBoneMatrix(key);
+    UmParticleManager->PlayEffect(this, key,callback);
+}
+
 void ParticleComponent::StopEffect(const std::string& key)
 {
     UmParticleManager->StopEffect(this, key);
 }
 
-void ParticleComponent::StopAll() 
+void ParticleComponent::StopAll()
 {
     for (auto& key : ReflectFields->EffectNameTable)
     {
@@ -362,7 +362,7 @@ void ParticleComponent::StopAll()
     }
 }
 
-void ParticleComponent::ClearEffectList() 
+void ParticleComponent::ClearEffectList()
 {
     for (auto& effectKey : ReflectFields->EffectNameTable)
     {
@@ -381,7 +381,7 @@ void ParticleComponent::ClearEffectList()
     _scaleVector.clear();
 }
 
-void ParticleComponent::RegisterEffectFromGuid(const File::Path& filepath, const std::string& key) 
+void ParticleComponent::RegisterEffectFromGuid(const File::Path& filepath, const std::string& key)
 {
     File::Guid guid = filepath.ToGuid();
     if (false == guid.IsNull())
@@ -392,7 +392,7 @@ void ParticleComponent::RegisterEffectFromGuid(const File::Path& filepath, const
     }
 }
 
-void ParticleComponent::RegisterEffectFromGuid(const File::Guid& fileguid, const std::string& key) 
+void ParticleComponent::RegisterEffectFromGuid(const File::Guid& fileguid, const std::string& key)
 {
     if (false == fileguid.IsNull())
     {

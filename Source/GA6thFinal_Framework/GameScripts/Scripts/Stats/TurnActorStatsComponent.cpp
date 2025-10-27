@@ -2,6 +2,8 @@
 #include "CharacterStats.h"
 #include "TurnActorStatsComponent.h"
 
+REFLECT_FUNCTION(TurnActorStatsComponent)
+
 TurnActorStatsComponent::TurnActorStatsComponent() = default;
 TurnActorStatsComponent::~TurnActorStatsComponent() = default;
 

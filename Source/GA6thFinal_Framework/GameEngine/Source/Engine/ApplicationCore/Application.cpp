@@ -146,6 +146,9 @@ void Application::Run()
             // Imgui begin
             _imguiDX12Module->ImguiBegin();
 
+            // Debugger Window
+            Global::engineCore->DebuggerWindow.Update();
+
             // Editor Update
             if constexpr (true == Application::IsEditor())
             {

@@ -14,10 +14,12 @@ namespace GE
         SDF_FONT_FR,
         SKELETAL_FORWARD_FR,
         SKELETAL_FR,
+        SKELETAL_POINT_LIGHT_SHADOW_FR,
         SKELETAL_SHADOW_FR,
         SKYBOX,
         STATIC_FORWARD_FR,
         STATIC_FR,
+        STATIC_POINT_LIGHT_SHADOW_FR,
         STATIC_SHADOW_FR,
         UI_FR,
         END
@@ -32,6 +34,7 @@ namespace GE
         DISTORTION_RESOLVE,
         DOWN_SAMPLE,
         DXRGBUFFER,
+        DXRGBUFFER_MASKED,
         FADE,
         FORWARD_PBR_LIGHTING,
         FXAA,
@@ -44,12 +47,15 @@ namespace GE
         PARTICLE_QUAD,
         PARTICLE_RESOLVE,
         PBR_LIGHTING,
+        POINT_LIGHT_SHADOW,
         SDF_FONT,
+        SDF_FONT_OIT,
         SHADOW,
         SKYBOX,
         SSGI_COMPOSITE,
         SSR,
         TO_BACKBUFFER,
+        TRANSPARENT_LIM_LIGHT,
         UI,
         UI_OIT,
         UP_SAMPLE,
@@ -74,7 +80,11 @@ namespace GE
         SSGI_TEMPORAL,
         END
      };
-    enum class GS { NONE, END };
+    enum class GS { 
+        NONE,
+        POINT_LIGHT_SHADOW_CUBE,
+        END
+     };
     enum class HS { NONE, END };
     enum class DS { NONE, END };
 }

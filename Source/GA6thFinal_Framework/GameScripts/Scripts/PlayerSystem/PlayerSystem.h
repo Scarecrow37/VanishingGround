@@ -2,6 +2,8 @@
 #include "UmFramework.h"
 #include "Utility/SingletonHelper.h"
 
+class PlayerStatsComponent;
+
 //플레이어 시스템용 싱글톤 제어 컴포넌트
 class PlayerSystem : public Component
 {
@@ -25,6 +27,12 @@ public:
     /// 플레이어 체력 UI 갱신합니다.
     /// </summary>
     void NotifyPlayerHP();
+
+    /// <summary>
+    /// 플레이어의 실제 Stats를 반환합니다. nullptr일 수 있습니다.
+    /// </summary>
+    /// <returns>PlayerStatsComponent*</returns>
+    PlayerStatsComponent* GetPlayerStats() { return _playerStatsComponent; }
 
 public:
     REFLECT_PROPERTY

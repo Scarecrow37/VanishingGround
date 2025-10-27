@@ -48,6 +48,13 @@ public:
     void ObtainFocusNavi(size_t index);
 
     /// <summary>
+    /// 보상 획득 여부 플래그 입니다. ResetObtainFlag로 초기화 할 수 있습니다.
+    /// </summary>
+    /// <returns></returns>
+    bool IsObtainActive() const { return _obtainFlag; }
+    void ResetObtainFlag() { _obtainFlag = false; }
+
+    /// <summary>
     /// Navi의 아이템 정보를 설정합니다. 해당 정보를 기준으로 버튼에 동작이 달라집니다.
     /// </summary>
     /// <param name="info :">사용할 아이템 정보</param>
@@ -95,4 +102,6 @@ private:
     std::vector<ArtifactButtonNavi*> _focusNaviElements;
 
     DropArtifactsViewModel::Handle _viewModelHandle;
+
+    bool _obtainFlag;
 };

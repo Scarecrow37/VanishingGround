@@ -101,7 +101,10 @@ void ShadowMapPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
     auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(_shadowMap.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_DEPTH_WRITE);
     commandList->ResourceBarrier(1, &barrier);
+    
+    commandList->ClearDepthStencilView(_shadowMapDSV, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
+    commandList->OMSetRenderTargets(0, nullptr, FALSE, &_shadowMapDSV);
     commandList->RSSetViewports(1, &_viewport);
     commandList->RSSetScissorRects(1, &_scissorRect);
 }
@@ -113,51 +116,46 @@ void ShadowMapPass::Draw(ID3D12GraphicsCommandList* commandList)
     auto  cascadeData            = _cascadeDataCBV->GetGPUVirtualAddress();
     auto  instanceData           = _instanceDatasBuffer->GetGPUVirtualAddress();
     auto& frameResource          = _ownerScene->_frameResources[currentBackBufferIndex];
+    
+    UINT offset = 0;
+    
+    // Static
+    commandList->SetGraphicsRootSignature(_fxStaticMesh.GetRootSignature());
+    commandList->SetGraphicsRootDescriptorTable(_fxStaticMesh.GetRootParameterIndex("textures"), resource);
+    commandList->SetGraphicsRootConstantBufferView(_fxStaticMesh.GetRootParameterIndex("cascadeData"), cascadeData);
+    commandList->SetGraphicsRootShaderResourceView(_fxStaticMesh.GetRootParameterIndex("instanceData"), instanceData);
+    frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxStaticMesh.GetRootParameterIndex("matrices"), commandList);
 
-    for (int i = 0; i < MAX_CASCADES; i++)
-    {
-        UINT offset = 0;
-        commandList->OMSetRenderTargets(0, nullptr, FALSE, &_shadowMapDSVs[i]);
-        commandList->ClearDepthStencilView(_shadowMapDSVs[i], D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+    commandList->SetPipelineState(_psos[STATIC_MESH][CULL_BACK].Get());
+    DrawMeshes(commandList, STATIC_MESH, CULL_BACK, offset);
 
-        // Static
-        commandList->SetGraphicsRootSignature(_fxStaticMesh.GetRootSignature());
-        commandList->SetGraphicsRootDescriptorTable(_fxStaticMesh.GetRootParameterIndex("textures"), resource);
-        commandList->SetGraphicsRootConstantBufferView(_fxStaticMesh.GetRootParameterIndex("cascadeData"), cascadeData);
-        commandList->SetGraphicsRootShaderResourceView(_fxStaticMesh.GetRootParameterIndex("instanceData"), instanceData);
-        frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxStaticMesh.GetRootParameterIndex("matrices"), commandList);
+    offset += (UINT)_meshInfos[STATIC_MESH][CULL_BACK].size();
+    commandList->SetPipelineState(_psos[STATIC_MESH][CULL_FRONT].Get());
+    DrawMeshes(commandList, STATIC_MESH, CULL_FRONT, offset);
 
-        commandList->SetPipelineState(_psos[STATIC_MESH][CULL_BACK].Get());
-        DrawMeshes(commandList, STATIC_MESH, CULL_BACK, offset, i);
+    offset += (UINT)_meshInfos[STATIC_MESH][CULL_FRONT].size();
+    commandList->SetPipelineState(_psos[STATIC_MESH][TWO_SIDED].Get());
+    DrawMeshes(commandList, STATIC_MESH, TWO_SIDED, offset);
 
-        offset += (UINT)_meshInfos[STATIC_MESH][CULL_BACK].size();
-        commandList->SetPipelineState(_psos[STATIC_MESH][CULL_FRONT].Get());
-        DrawMeshes(commandList, STATIC_MESH, CULL_FRONT, offset, i);
+    // Skeletal
+    commandList->SetGraphicsRootSignature(_fxSkeletalMesh.GetRootSignature());
+    commandList->SetGraphicsRootDescriptorTable(_fxSkeletalMesh.GetRootParameterIndex("textures"), resource);
+    commandList->SetGraphicsRootConstantBufferView(_fxSkeletalMesh.GetRootParameterIndex("cascadeData"), cascadeData);
+    commandList->SetGraphicsRootShaderResourceView(_fxSkeletalMesh.GetRootParameterIndex("instanceData"), instanceData);
+    frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxSkeletalMesh.GetRootParameterIndex("matrices"), commandList);
+    frameResource->SetFrameResource(FrameResourceType::BONE_MATRICES, _fxSkeletalMesh.GetRootParameterIndex("boneMatrices"), commandList);
 
-        offset += (UINT)_meshInfos[STATIC_MESH][CULL_FRONT].size();
-        commandList->SetPipelineState(_psos[STATIC_MESH][TWO_SIDED].Get());
-        DrawMeshes(commandList, STATIC_MESH, TWO_SIDED, offset, i);
+    offset += (UINT)_meshInfos[STATIC_MESH][TWO_SIDED].size();
+    commandList->SetPipelineState(_psos[SKELETAL_MESH][CULL_BACK].Get());
+    DrawMeshes(commandList, SKELETAL_MESH, CULL_BACK, offset);
 
-        // Skeletal
-        commandList->SetGraphicsRootSignature(_fxSkeletalMesh.GetRootSignature());
-        commandList->SetGraphicsRootDescriptorTable(_fxSkeletalMesh.GetRootParameterIndex("textures"), resource);
-        commandList->SetGraphicsRootConstantBufferView(_fxSkeletalMesh.GetRootParameterIndex("cascadeData"), cascadeData);
-        commandList->SetGraphicsRootShaderResourceView(_fxSkeletalMesh.GetRootParameterIndex("instanceData"), instanceData);
-        frameResource->SetFrameResource(FrameResourceType::TRANSFORM, _fxSkeletalMesh.GetRootParameterIndex("matrices"), commandList);
-        frameResource->SetFrameResource(FrameResourceType::BONE_MATRICES, _fxSkeletalMesh.GetRootParameterIndex("boneMatrices"), commandList);
+    offset += (UINT)_meshInfos[SKELETAL_MESH][CULL_BACK].size();
+    commandList->SetPipelineState(_psos[SKELETAL_MESH][CULL_FRONT].Get());
+    DrawMeshes(commandList, SKELETAL_MESH, CULL_FRONT, offset);
 
-        offset += (UINT)_meshInfos[STATIC_MESH][TWO_SIDED].size();
-        commandList->SetPipelineState(_psos[SKELETAL_MESH][CULL_BACK].Get());
-        DrawMeshes(commandList, SKELETAL_MESH, CULL_BACK, offset, i);
-
-        offset += (UINT)_meshInfos[SKELETAL_MESH][CULL_BACK].size();
-        commandList->SetPipelineState(_psos[SKELETAL_MESH][CULL_FRONT].Get());
-        DrawMeshes(commandList, SKELETAL_MESH, CULL_FRONT, offset, i);
-
-        offset += (UINT)_meshInfos[SKELETAL_MESH][CULL_FRONT].size();
-        commandList->SetPipelineState(_psos[SKELETAL_MESH][TWO_SIDED].Get());
-        DrawMeshes(commandList, SKELETAL_MESH, TWO_SIDED, offset, i);
-    }
+    offset += (UINT)_meshInfos[SKELETAL_MESH][CULL_FRONT].size();
+    commandList->SetPipelineState(_psos[SKELETAL_MESH][TWO_SIDED].Get());
+    DrawMeshes(commandList, SKELETAL_MESH, TWO_SIDED, offset);
 }
 
 void ShadowMapPass::End(ID3D12GraphicsCommandList* commandList)
@@ -170,12 +168,8 @@ void ShadowMapPass::CreateShadowMapResource()
 {
     _cascadeDataCBV = std::make_unique<ConstantBufferView>();
     _cascadeDataCBV->Initialize(sizeof(CascadeData));
-
-    for (auto & shadowMapDSV : _shadowMapDSVs)
-    {
-        Global::viewManager->AddDescriptorHeap(ViewManager::Type::DEPTH_STENCIL, shadowMapDSV);
-    }
-
+    
+    Global::viewManager->AddDescriptorHeap(ViewManager::Type::DEPTH_STENCIL, _shadowMapDSV);    
     Global::viewManager->AddDescriptorHeap(ViewManager::Type::SHADER_RESOURCE, _shadowMapSRV);
 
     auto device = Global::device->GetDevice();
@@ -192,15 +186,11 @@ void ShadowMapPass::CreateShadowMapResource()
 
     // Create DSV for Shadow Map
     D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
-    dsvDesc.Format        = DXGI_FORMAT_D32_FLOAT;
-    dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DARRAY;
-
-    for (int i = 0; i < MAX_CASCADES; i++)
-    {
-        dsvDesc.Texture2DArray.FirstArraySlice = i;
-        dsvDesc.Texture2DArray.ArraySize       = 1;
-        device->CreateDepthStencilView(_shadowMap.Get(), &dsvDesc, _shadowMapDSVs[i]);
-    }
+    dsvDesc.Format                         = DXGI_FORMAT_D32_FLOAT;
+    dsvDesc.ViewDimension                  = D3D12_DSV_DIMENSION_TEXTURE2DARRAY;
+    dsvDesc.Texture2DArray.FirstArraySlice = 0;
+    dsvDesc.Texture2DArray.ArraySize       = MAX_CASCADES;
+    device->CreateDepthStencilView(_shadowMap.Get(), &dsvDesc, _shadowMapDSV);
 
     // Create SRV for Shadow Map
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
@@ -344,7 +334,7 @@ void ShadowMapPass::UpdateCascades(const Vector3& lightDirection)
     _cascadeDataCBV->UpdateBuffer(&_cascadeData);
 }
 
-void ShadowMapPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType meshType, CullMode cullMode, UINT offset, UINT cascadedIndex)
+void ShadowMapPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType meshType, CullMode cullMode, UINT offset)
 {
     const auto& parallaxMappingProperty = std::any_cast<const ParallaxMappingProperty&>(Global::renderPassDatas->GetRenderPassProperty("G-BufferPass"));
 
@@ -358,8 +348,7 @@ void ShadowMapPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType 
         commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_1_mipBias"), 1, &parallaxMappingProperty.MipBias, 0);
         break;
     }
-
-    UINT parameter[2]{cascadedIndex, offset};
+    
     UINT instanceCount = 0;
     BaseMesh* previousMesh  = nullptr;
     BaseMesh* currentMesh   = nullptr;
@@ -378,17 +367,17 @@ void ShadowMapPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType 
             switch (meshType)
             {
             case STATIC_MESH:
-                commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_2_shadowMeshData"), 2, &parameter, 0);
+                commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_1_instanceOffset"), 1, &offset, 0);
                 break;
 
             case SKELETAL_MESH:
-                commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_2_shadowMeshData"), 2, &parameter, 0);
+                commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_1_instanceOffset"), 1, &offset, 0);
                 break;
             }
 
-            previousMesh->Render(commandList, instanceCount);
+            previousMesh->Render(commandList, instanceCount * MAX_CASCADES);
             previousMesh = meshInfo->Mesh;
-            parameter[1] += instanceCount;
+            offset += instanceCount;
             instanceCount = 1;
         }
         else
@@ -404,13 +393,13 @@ void ShadowMapPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType 
         switch (meshType)
         {
         case STATIC_MESH:
-            commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_2_shadowMeshData"), 2, &parameter, 0);
+            commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_1_instanceOffset"), 1, &offset, 0);
             break;
         case SKELETAL_MESH:
-            commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_2_shadowMeshData"), 2, &parameter, 0);
+            commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_1_instanceOffset"), 1, &offset, 0);
             break;
         }
 
-        currentMesh->Render(commandList, instanceCount);
+        currentMesh->Render(commandList, instanceCount * MAX_CASCADES);
     }
 }

@@ -2,6 +2,7 @@
 #include "DeferredPBRLitPass.h"
 #include "SkyBox.h"
 #include "ShadowMapPass.h"
+#include "PointLightShadowPass.h"
 #include "SSAOWritePass.h"
 
 void DeferredPBRLitPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
@@ -32,9 +33,10 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
     const auto& renderTargetGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("G-Buffer");
 
     auto shadowMapPass = _ownerTechnique->GetRenderPass<ShadowMapPass>();
+    auto pointLightShadowPass = _ownerTechnique->GetRenderPass<PointLightShadowPass>();
     auto ssaoPass      = _ownerTechnique->GetRenderPass<SSAOWritePass>();
 
-    if (nullptr == shadowMapPass || nullptr == ssaoPass)
+    if (nullptr == shadowMapPass || nullptr == ssaoPass || nullptr == pointLightShadowPass)
         return;
 
     D3D12_GPU_DESCRIPTOR_HANDLE brdf;
@@ -62,6 +64,7 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootConstantBufferView(_fx.GetRootParameterIndex("lightData"), _ownerScene->_lightBuffer->GetGPUVirtualAddress());
     commandList->SetGraphicsRootConstantBufferView(_fx.GetRootParameterIndex("cascadeData"), shadowMapPass->GetCascadeDataCBV());
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("shadowMap"), shadowMapPass->GetShadowMapSRV());
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("pointLightShadowMap"), pointLightShadowPass->GetShadowAtlasSRV());
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("irradianceMap"), _ownerScene->_skyBox->GetIrradianceMapSRV());
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("prefilteredMap"), _ownerScene->_skyBox->GetPrefilteredMapSRV());
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("brdfLUT"), _ownerScene->_skyBox->GetBrdfLUTSRV());
@@ -72,7 +75,8 @@ void DeferredPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
     commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("depthMap"), renderTargetGroup[GBuffer::DEPTH]->GetSRVHandle());
     if (useSSAO)
         commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("SSAOMap"), ssaoPass->GetAOTexture());
-
+  
+    
     _ownerScene->_frameQuad->Render(commandList);
 }
 

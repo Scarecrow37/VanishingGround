@@ -244,7 +244,6 @@ public:
     void RequestPasteFile(const File::Path& path);
     void RequestDragDropFile(const File::Path& path);
 
-
 public:
     /// <summary>
     /// 파일 이벤트 구독자를 등록합니다. 확장자를 지정하지 않으면 모든 파일에 대해 이벤트를 수신합니다.

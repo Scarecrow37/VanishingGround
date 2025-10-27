@@ -14,6 +14,19 @@ void EGameObjectFactory::Engine::RegisterFileEvents()
     UmFileSystem.RegisterFileEventSubscriber(&UmGameObjectFactory, {EGameObjectFactory::PREFAB_EXTENSION});
 }
 
+void EGameObjectFactory::Engine::Finalize()
+{
+    EGameObjectFactory& factory = UmGameObjectFactory;
+    factory._prefabObjectMap.clear();
+    factory._prefabInstanceList.clear();
+    factory._newGameObjectFuncMap.clear();
+    factory._newGameObjectKeyVec.clear();
+    factory._prefabObjectMap.clear();
+    factory._prefabGuidQueue.clear();
+    factory._prefabInstanceList.clear();
+    factory._prefabInstanceOverride.clear();
+}
+
 void EGameObjectFactory::WritePrefabGuid(const File::Path& path, YAML::Node& data) 
 {
     YAML::Node& prefabNode = data;
@@ -87,7 +100,6 @@ void EGameObjectFactory::ApplyPrefabInstanceChanges(const File::Guid& guid, YAML
                         {
                             if (i < prefabObjects.size())
                             {
-                                editorHierarchyTool->PushHierarchyObject(prefabObjects[i]);
                                 swapObjects.emplace_back(&curr->gameObject, prefabObjects[i].get());
                             }
                             else
@@ -201,12 +213,6 @@ void EGameObjectFactory::OnFileRegistered(const File::Path& path)
     }
 }
 
-void EGameObjectFactory::OnFileUnregistered(const File::Path& path) 
-{
-    File::Guid guid = path.ToGuid();
-    ErasePrefabItem(guid);
-}
-
 void EGameObjectFactory::OnFileModified(const File::Path& path)
 {
     File::Guid guid = path.ToGuid();
@@ -236,6 +242,12 @@ void EGameObjectFactory::OnFileModified(const File::Path& path)
 }
 
 void EGameObjectFactory::OnFileRemoved(const File::Path& path) 
+{
+    File::Guid guid = path.ToGuid();
+    ErasePrefabItem(guid);
+}
+
+void EGameObjectFactory::OnFileUnregistered(const File::Path& path) 
 {
     File::Guid guid = path.ToGuid();
     ErasePrefabItem(guid);
@@ -896,8 +908,8 @@ bool EGameObjectFactory::UnsetOverrideFlag(void* pField)
 std::shared_ptr<GameObject> EGameObjectFactory::MakeGameObject(std::string_view typeid_name)
 {
     std::shared_ptr<GameObject> newObject;
-    auto findIter = _NewGameObjectFuncMap.find(typeid_name.data());
-    if (findIter != _NewGameObjectFuncMap.end())
+    auto findIter = _newGameObjectFuncMap.find(typeid_name.data());
+    if (findIter != _newGameObjectFuncMap.end())
     {
         auto& [key, NewObjectFunc] = *findIter;
         newObject.reset(NewObjectFunc());
@@ -926,6 +938,7 @@ void EGameObjectFactory::ResetGameObject(
         // 인스턴스 아이디 부여
         int instanceID           = InstanceID.CreateInstanceID();
         ownerObject->_instanceID = instanceID;
+        ownerObject->_creationFrame = UmTime.FrameCount();
     }
     else
     {
@@ -1047,7 +1060,7 @@ void EGameObjectFactory::InstanceIDManager::ReturnInstanceID(int id)
 
 const std::vector<std::string>& EGameObjectFactory::Engine::GetGameObjectKeys()
 {
-    return engineCore->GameObjectFactory._NewGameObjectKeyVec;
+    return engineCore->GameObjectFactory._newGameObjectKeyVec;
 }
 
 

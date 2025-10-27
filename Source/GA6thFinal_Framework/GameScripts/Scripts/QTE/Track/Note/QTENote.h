@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "QTENoteData.h"
 
 namespace QTE
 {
@@ -21,9 +22,10 @@ namespace QTE
         SETTER(float, WeaponAnimationDelay) { ReflectFields->WeaponAnimationDelay = std::max(value, 0.0f); }
         PROPERTY(WeaponAnimationDelay)
 
-        inline NoteType           GetNoteType() const { return ReflectFields->NoteType; }
-        inline const std::string& GetWeaponAnimationName() const { return ReflectFields->WeaponAnimationKey; }
-        inline float              GetWeaponAnimationDelay() const { return ReflectFields->WeaponAnimationDelay; }
+        inline NoteType             GetNoteType() const { return ReflectFields->NoteType; }
+        inline const std::string&   GetWeaponAnimationName() const { return ReflectFields->WeaponAnimationKey; }
+        inline float                GetWeaponAnimationDelay() const { return ReflectFields->WeaponAnimationDelay; }
+        inline NoteData             ToNoteData() const { return NoteData(ID, Time, GetWeaponAnimationName(), GetWeaponAnimationDelay()); }
 
     private:
         REFLECT_FIELDS_BEGIN(Timeline::EventContext)
