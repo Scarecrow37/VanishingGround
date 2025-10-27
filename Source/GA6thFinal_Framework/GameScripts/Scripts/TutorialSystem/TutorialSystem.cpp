@@ -107,23 +107,24 @@ void TutorialSystem::Show(const int id) const
         {
             panelComponent->SetActive(true);
         }
+
+        if (const auto confirm = _confirm.lock())
+        {
+            confirm->ResetProgress();
+        }
     }
     catch (std::out_of_range& exception)
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, "Tutorial ID not found.");
+        UmLogger.Log(LogLevel::LEVEL_WARNING, exception.what());
     }
 }
 
-void TutorialSystem::Show(const std::span<int> ids)
+void TutorialSystem::Show(const std::initializer_list<int> ids)
 {
     _pendingTutorials.clear();
-    _pendingTutorials = std::deque(ids.begin(), ids.end());
-    if (!_pendingTutorials.empty())
-    {
-        const int nextId = _pendingTutorials.front();
-        _pendingTutorials.pop_front();
-        Show(nextId);
-    }
+    _pendingTutorials = std::deque(ids);
+    ShowNextTutorialOrHide();
 }
 
 void TutorialSystem::Hide() const
@@ -143,7 +144,7 @@ void TutorialSystem::SetupData()
             if (const std::unique_ptr<ExcelDataBase> dataBase = excelDataSystemComponent->FindExcelDataBase(SHEET_NAME); nullptr != dataBase)
             {
                 const size_t rowCount = dataBase->RowCount();
-                for (size_t row = 1; row < rowCount; ++row)
+                for (size_t row = 0; row < rowCount; ++row)
                 {
                     std::string_view idStringView = dataBase->FindData(row, COLUMN_KEY_ID);
                     std::string      idString     = std::string(idStringView);
@@ -180,22 +181,11 @@ void TutorialSystem::SetupData()
     }
 }
 
-void TutorialSystem::SetupCallback() const
+void TutorialSystem::SetupCallback()
 {
     if (const std::shared_ptr<HoldingProgressImageElement> confirm = _confirm.lock())
     {
-        confirm->BindProgressComplete([this] {
-            if (_pendingTutorials.empty())
-            {
-                Hide();
-            }
-            else
-            {
-                const int nextId = _pendingTutorials.front();
-                _pendingTutorials.pop_front();
-                Show(nextId);
-            }
-        });
+        confirm->BindProgressComplete([this] { ShowNextTutorialOrHide(); });
     }
 }
 
@@ -212,5 +202,19 @@ void TutorialSystem::ReleaseA(const Input::Controller& controller)
     if (const std::shared_ptr<HoldingProgressImageElement> confirm = _confirm.lock())
     {
         confirm->EndHold();
+    }
+}
+
+void TutorialSystem::ShowNextTutorialOrHide()
+{
+    if (_pendingTutorials.empty())
+    {
+        Hide();
+    }
+    else
+    {
+        const int nextId = _pendingTutorials.front();
+        _pendingTutorials.pop_front();
+        Show(nextId);
     }
 }

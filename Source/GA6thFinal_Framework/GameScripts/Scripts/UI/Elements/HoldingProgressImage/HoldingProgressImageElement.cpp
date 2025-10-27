@@ -81,12 +81,12 @@ void HoldingProgressImageElement::Update()
 
         if (_elapsedTime >= holdDuration)
         {
+            _isCompleted = true;
             _elapsedTime = holdDuration;
             if (_progressCompleteCallback)
             {
                 _progressCompleteCallback();
             }
-            _isCompleted = true;
         }
     }
 }

@@ -47,7 +47,7 @@ public:
 
 public:
     void Show(int id) const;
-    void Show(std::span<int> ids);
+    void Show(std::initializer_list<int> ids);
     void Hide() const;
 
 protected:
@@ -58,9 +58,10 @@ protected:
 private:
     void FindComponents();
     void SetupData();
-    void SetupCallback() const;
+    void SetupCallback();
     void HoldA(const Input::Controller& controller);
     void ReleaseA(const Input::Controller& controller);
+    void ShowNextTutorialOrHide();
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
@@ -71,7 +72,7 @@ private:
     SingletonComponent<TutorialSystem> _singletonComponent{this};
 
     std::unordered_map<int, Tutorial> _tutorials;
-    std::deque<int>                    _pendingTutorials;
+    std::deque<int>                   _pendingTutorials;
 
     std::weak_ptr<GameObject>                  _panel;
     std::weak_ptr<TextElement>                 _title;
