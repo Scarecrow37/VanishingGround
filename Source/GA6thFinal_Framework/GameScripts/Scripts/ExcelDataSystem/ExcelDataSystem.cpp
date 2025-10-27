@@ -53,7 +53,7 @@ void ExcelDataSystem::Reset()
     _singletonComponent.SetSingleTon();
 }
 
-void ExcelDataSystem::Awake() 
+void ExcelDataSystem::Added() 
 {
     _singletonObject.TrySingleTon(true);
     _singletonComponent.TrySingleTon();

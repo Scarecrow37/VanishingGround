@@ -210,11 +210,10 @@ private:
 
 private:
     SingletonComponent<RevelationSystem>            _singletonComponent{this};
-    std::vector<std::shared_ptr<RevelationElement>> _playerElementList;       // 플레이어가 사용중인 계시 (인벤토리)
+    std::vector<std::shared_ptr<RevelationElement>> _playerElementList;                    // 플레이어가 사용중인 계시 (인벤토리)
     MVVM::Model<std::vector<std::shared_ptr<RevelationElement>>> _roundElementList;        // 이번 라운드에 효과가 발동된 계시 (뽑힌 계시)
-    std::unordered_map<std::string, unsigned int>   _elementTotalAppearances; // 계시가 뽑힌 횟수
-    unsigned int                                    _totalRollCount = 0;      //계시를 굴린 횟수
-
+    std::unordered_map<std::string, unsigned int>   _elementTotalAppearances;              // 계시가 뽑힌 횟수
+    unsigned int                                    _totalRollCount = 0;                   //계시를 굴린 횟수
 
 private:
     void ImGuiDrawPlayerElementEditor();

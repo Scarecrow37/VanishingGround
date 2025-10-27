@@ -84,11 +84,6 @@ CharacterBase::CharacterBase() :
 
 CharacterBase::~CharacterBase() = default;
 
-void CharacterBase::Added() 
-{
-    _tokenInventory.Initialize();
-}
-
 void CharacterBase::Awake()
 {
     Base::Awake();
@@ -99,6 +94,12 @@ void CharacterBase::Awake()
 
     FindComponent();
     InitAnimationCallback();
+}
+
+void CharacterBase::Start() 
+{
+    Base::Start();
+    _tokenInventory.Initialize();
 }
 
 bool CharacterBase::FindComponent()
