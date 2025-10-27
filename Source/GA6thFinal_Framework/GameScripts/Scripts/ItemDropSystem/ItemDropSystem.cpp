@@ -302,7 +302,7 @@ void ItemDropSystem::SetStageClearCount(int count)
         if (Stage* stage = manager->GetCurrentSelectedStage())
         {
             // n번 째 전투 = 클리어 횟수의 +1
-            stage->BattleCount = StageClearCount + 1;
+            stage->BattleCount = count + 1;
         }
     }
 }
