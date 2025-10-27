@@ -9,6 +9,7 @@
 #include "WeaponSystem/WeaponSystem.h"
 #include "AccessorySystem/AccessorySystem.h"
 #include "PlayerSystem/PlayerSystem.h"
+#include "ItemDropSystem/ItemDropSystem.h"
 
 #include "Scripts/Stats/Enemy/EnemyStatsComponent.h"
 #include "UI/Views/MonsterHp/MonsterHpView.h"
@@ -20,6 +21,8 @@
 #include "Monster/System/MonsterSystem.h"
 
 #include "DifficultyManager/DifficultyManager.h"
+
+#include "Map/MapManager.h"
 
 REGISTER_CLASS(FSMStateFactory, CombatStartPhase)
 
@@ -118,14 +121,16 @@ void CombatStartPhase::OnAwake()
 {
     if (MonsterSystem* system = SingletonComponent<MonsterSystem>::GetInstance())
     {
-        Difficulty difficulty = Difficulty::NORMAL;
-        if (DifficultyManager* difficultyManager = SingletonComponent<DifficultyManager>::GetInstance())
+        Difficulty          difficulty  = Difficulty::NORMAL;
+        Monster::SpawnID    spawnID     = 0;
+        if (DifficultyManager* manager = SingletonComponent<DifficultyManager>::GetInstance())
         {
-            difficulty = difficultyManager->GetDifficulty();
+            difficulty = manager->GetDifficulty();
         }
-
-        // TODO: 나중에 전투에 맞는 스폰 ID로 변경
-        Monster::SpawnID spawnID = 211321;
+        if (MapManager* manager = SingletonComponent<MapManager>::GetInstance())
+        {
+            spawnID = manager->GetCurrentSpawnID();
+        }
         system->SpawnMonsterFromSpawnID(spawnID, difficulty);
     }
     ResetCharacterStats();
@@ -161,6 +166,7 @@ void CombatStartPhase::OnEnter()
 
     _turnMode->ResetRoundCount();
     AddValidActions();
+    AddExtinctionRevelation();
 
     UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"배틀 시작...3");
     UmTime.Invoke(&GetFSM(), 1.f, [this]() { UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"배틀 시작...2"); });
@@ -213,12 +219,31 @@ void CombatStartPhase::AddValidActions()
     {
         for (auto& accessory : _accessorySystem->GetPlayerAccessoryItems())
         {
-            TurnAction* action = accessory.GetAction();
-            if (action)
+            const auto& actions = accessory.GetActions();
+            for (auto& action : actions)
             {
-                _turnMode->AddTurnAction(action);
+                if (action)
+                {
+                    _turnMode->AddTurnAction(action.get());
+                }             
             }
         }     
+    }
+}
+
+void CombatStartPhase::AddExtinctionRevelation() const
+{
+    if (ItemDropSystem* itemDropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
+    {
+        if (RevelationSystem* revelationSystem = SingletonComponent<RevelationSystem>::GetInstance())
+        {
+            //스테이지 클리어 횟수만큼 랜덤한 소멸 계시 추가
+            int stageClearCount = itemDropSystem->StageClearCount;
+            if (0 < stageClearCount)
+            {
+                revelationSystem->EquipRandomExtinctionElement(static_cast<size_t>(stageClearCount));       
+            }           
+        }
     }
 }
 

@@ -50,6 +50,9 @@ void PlayerActionPhase::OnEnter()
     }
 }
 
-void PlayerActionPhase::OnExit() {}
+void PlayerActionPhase::OnExit()
+{
+
+}
 
 void PlayerActionPhase::OnUpdate() {}

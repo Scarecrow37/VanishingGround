@@ -44,6 +44,9 @@ protected:
     /*사용하는 모든 액션들 라이프 사이클에 등록*/
     void AddValidActions();
 
+    /*스테이지 반복 플레이 디버프 소멸계시 추가*/
+    void AddExtinctionRevelation() const;
+
 private:
     bool                        _phaseEnd;
     Player*                     _player;

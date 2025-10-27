@@ -2,6 +2,7 @@
 #include "EnemyPlayTurnState.h"
 
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
+#include "TurnSystem/TurnMode/TurnMode.h"
 
 REGISTER_CLASS(FSMStateFactory, EnemyPlayTurnState)
 
@@ -36,6 +37,11 @@ void EnemyPlayTurnState::OnExit()
 
     std::string message = std::format("{} {}", gameObject->ToString(), (const char*)u8"턴 종료.");
     UmLogger.Message(LogLevel::LEVEL_TRACE, message);
+
+    if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+    {
+        mode->ApplyActions([this](TurnAction& action) { action.OnTurnEnd(GetEnemy()); });
+    }
 }
     
 void EnemyPlayTurnState::OnUpdate()
