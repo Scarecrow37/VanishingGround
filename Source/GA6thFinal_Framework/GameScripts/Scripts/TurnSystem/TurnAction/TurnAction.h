@@ -44,6 +44,7 @@ public:
     {
         if (_isDestroy)
         {
+            OnDestroy();
             *_isDestroy = true;
             _isDestroy  = nullptr;
         }
@@ -107,6 +108,16 @@ public:
 
     /*편집을 위한 ImGui 함수를 구현해야합니다.*/
     virtual void ImGuiDrawActionEditor() = 0;
+
+    /// <summary>
+    /// 턴 모드에 이 액션이 추가될때 호출됩니다.
+    /// </summary>
+    virtual void OnAddedAction() {};
+
+    /// <summary>
+    /// SetDestory가 호출될때 호출됩니다.
+    /// </summary>
+    virtual void OnDestroy() {}
 
     /// <summary>전투가 시작될 때 호출됩니다.</summary>
     virtual void OnCombatStart() {}

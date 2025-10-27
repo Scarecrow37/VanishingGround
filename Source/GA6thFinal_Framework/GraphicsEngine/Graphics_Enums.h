@@ -18,8 +18,9 @@ enum UIMaterialType { DEFAULT, LINEAR_FILL, RADIAL_FILL };
 
 enum PostProcess
 {
-    BLOOM = 1 << 0,
-    OUTLINE = 1 << 1,
+    BLOOM            = 1 << 0,
+    OUTLINE          = 1 << 1,
+    IS_SKELETAL_MESH = 1 << 2,
 };
 
 enum class CustomLightType

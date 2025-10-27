@@ -147,6 +147,15 @@ namespace Mathf
     using EaseFunc      = float (*)(float);
     using EaseDerivFunc = float (*)(float);
 
+
+    inline float InLinear(float t)
+    {
+        return 0;
+    }
+    inline float OutLinear(float t) 
+    {
+        return 0;
+    }
     inline float InSine(float t)
     {
         return 1.0f - cosf(t * PI / 2.0f);
@@ -264,7 +273,7 @@ namespace Mathf
                                                                "Expo", "Circular", "Back", "Elastic", "Bounce"};
 
     inline const std::array<EaseFunc, EaseFuncType::COUNT * 2> EaseTable = {
-        InSine, OutSine, InCubic,    OutCubic,    InQuad, OutQuad, InQuart,   OutQuart,   InQuint,  OutQuint,
+        InLinear, OutLinear, InSine, OutSine, InCubic,    OutCubic,    InQuad, OutQuad, InQuart,   OutQuart,   InQuint,  OutQuint,
         InExpo, OutExpo, InCircular, OutCircular, InBack, OutBack, InElastic, OutElastic, InBounce, OutBounce};
 
     /// <summary>

@@ -74,7 +74,7 @@ PSOutput ps_main(PSInput input)
     
     float3 directLighting = float3(0, 0, 0);
     float3 ambientLighting = 0;
-    float3 ambient = CalculateIBL(normal, V, irradianceMap, prefilteredMap, brdfLUT, albedo.rgb, roughness, metallic);
+    float3 ambient = CalculateIBL(normal, V, irradianceMap, prefilteredMap, brdfLUT, albedo.rgb, roughness, metallic);   
     
     NumLight numLights = bit32_4_numLight;
     //Directional Lights

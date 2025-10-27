@@ -152,6 +152,13 @@ void ReturnToMapNavi::DeserializedReflectEvent()
     }
 }
 
+void ReturnToMapNavi::Added() 
+{
+    if (UmCore->IsPlay())
+    {
+        gameObject->AddTag(TAG);
+    }
+}
 
 void ReturnToMapNavi::Awake() 
 {

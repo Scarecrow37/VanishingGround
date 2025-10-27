@@ -10,7 +10,8 @@ public:
     virtual ~ParticleEffect();
 
     // 문자열 수명 보존을 위해 view 대신 값 복사 사용 권장
-    class ParticleEmitter* AddEmitter(SIZE_T maxParticles = 100000, float emissionRate = 500.f, float emitterLifetime = 5.f,
+    class ParticleEmitter* AddEmitter(SIZE_T maxParticles = 10000, float emissionRate = 500.f,
+                                      float emitterLifetime = 5.f,
                                 LocationShape locatorShape   = LocationShape::SPHERE,
                                 Vector3       locationFactor = Vector3(1, 1, 1),
                                       ParticleType        particleType   = ParticleType::SPRITE,

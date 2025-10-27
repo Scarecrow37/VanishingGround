@@ -32,8 +32,8 @@ protected:
 private:
     void  UpdateInput();
 
-    float _leftTrriger;
-    float _rightTrriger;
+    float _leftTrigger;
+    float _rightTrigger;
     Vector3 _velocity;
 
     Input::Controller::ThumbStickAxis _leftStickAxis;

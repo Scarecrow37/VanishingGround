@@ -49,6 +49,7 @@ namespace GE
         PBR_LIGHTING,
         POINT_LIGHT_SHADOW,
         SDF_FONT,
+        SDF_FONT_OIT,
         SHADOW,
         SKYBOX,
         SSGI_COMPOSITE,
