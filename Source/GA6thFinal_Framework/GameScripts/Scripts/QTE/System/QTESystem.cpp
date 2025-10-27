@@ -4,9 +4,10 @@
 #include <QTE/Editor/QTEEditor.h>
 #include <QTE/Track/QTETrack.h>
 
-#include <WeaponSystem/WeaponSystem.h>
-#include <TurnSystem/TurnActor/Character/Player/Player.h>
-#include <TurnSystem/TurnMode/TurnMode.h>
+#include "WeaponSystem/WeaponSystem.h"
+#include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
+#include "TurnSystem/TurnActor/Character/Player/Player.h"
+#include "TurnSystem/TurnMode/TurnMode.h"
 #include "Camera/UmCineMotion.h"
 #include "CombatUIManager/CombatUIManager.h"
 
@@ -16,7 +17,10 @@ UMREAL_COMPONENT(QTESystem)
 
 QTESystem::QTESystem() = default;
 
-QTESystem::~QTESystem() = default;
+QTESystem::~QTESystem()
+{
+    ClearTrack();
+}
 
 void QTESystem::Reset()
 {
@@ -232,7 +236,6 @@ void QTESystem::StartQTE(QTE::Track* qteTrack)
     }
 }
 
-#include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
 void QTESystem::StartQTE(const WeaponStats* weapon) 
 {
     //assert(_currState == QTE::STATE_WAITING && "QTE가 완료되기 전까진 Start를 호출하면 안됩니다.");
