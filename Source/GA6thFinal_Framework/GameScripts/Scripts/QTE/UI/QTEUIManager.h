@@ -55,6 +55,8 @@ public:
     /// <summary>QTE UI의 알파 값을 설정합니다.</summary>
     void SetUIAlpha(float factor);
 
+    void DrawDebugJudgeLine();
+
 private:
     void Reset() override;
     void Awake() override;

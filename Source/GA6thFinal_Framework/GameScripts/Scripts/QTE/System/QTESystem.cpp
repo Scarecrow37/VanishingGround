@@ -118,6 +118,10 @@ void QTESystem::ImGuiDrawPropertysEvent()
     {
         StartQTE();
     }
+    if (QTEUIManager* manager = SingletonComponent<QTEUIManager>::GetInstance())
+    {
+        manager->DrawDebugJudgeLine();
+    }
 }
 
 QTE::Track* QTESystem::AddMappingTrackToWeaponID(const int weaponID, const File::Path& path)
