@@ -3,6 +3,8 @@
 #include "WeaponSystem/WeaponSystem.h"
 #include "TurnSystem/TurnActor/Character/Player/Player.h"
 
+REGISTER_TURN_ACTION(LastWeaponDamageCopy)
+
 const std::string& LastWeaponDamageCopy::GetActionNameStr()
 {
     using namespace u8_literals;
