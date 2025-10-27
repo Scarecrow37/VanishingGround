@@ -199,7 +199,7 @@ static const uint MAX_RECURSION_DEPTH = 1;
 void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttributes attribs)
 {
     uint instanceID = InstanceID();
-    InstanceData instData = instanceData[instanceID];
+    InstanceData instData = meshInstanceData[instanceID];
     //uint staticMeshInstanceID = meshInstanceID[instanceID];
     uint diffuseID = instData.MaterialID[DIFFUSE];
     uint normalID = instData.MaterialID[NORMAL];

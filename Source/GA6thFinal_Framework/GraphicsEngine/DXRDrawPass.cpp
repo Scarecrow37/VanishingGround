@@ -25,6 +25,9 @@ void DXRDrawPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTech
     RenderPass::Initialize(ownerScene, ownerTechnique, commandList);
     CreateStateObject();
     CreateShaderResource();
+
+    _instanceDatasBuffer = std::make_unique<StructuredBuffer>();
+    _instanceDatasBuffer->Initialize(sizeof(InstanceData), MAX_OBJECTS);
 }
 
 void DXRDrawPass::Begin(ID3D12GraphicsCommandList* commandList)
