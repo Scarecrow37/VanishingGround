@@ -50,14 +50,14 @@ void InputTestComponent::UpdateInput()
     if (_leftTrigger > 0.f)
     {
         transform->Position += Vector3::Down * _leftTrigger * MoveSpeed * dt;
-        std::string message = std::format("Left Trriger : {}", _leftTrigger);
+        std::string message = std::format("Left Trigger : {}", _leftTrigger);
         UmLogger.Log(LogLevel::LEVEL_INFO, message);
     }
 
     if (_rightTrigger > 0.f)
     {
         transform->Position += Vector3::Up * _rightTrigger * MoveSpeed * dt;
-        std::string message = std::format("Right Trriger : {}", _rightTrigger);
+        std::string message = std::format("Right Trigger : {}", _rightTrigger);
         UmLogger.Log(LogLevel::LEVEL_INFO, message);
     }
 
