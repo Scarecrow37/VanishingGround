@@ -9,6 +9,7 @@
 #include "WeaponSystem/WeaponSystem.h"
 #include "AccessorySystem/AccessorySystem.h"
 #include "PlayerSystem/PlayerSystem.h"
+#include "ItemDropSystem/ItemDropSystem.h"
 
 #include "Scripts/Stats/Enemy/EnemyStatsComponent.h"
 #include "UI/Views/MonsterHp/MonsterHpView.h"
@@ -165,6 +166,7 @@ void CombatStartPhase::OnEnter()
 
     _turnMode->ResetRoundCount();
     AddValidActions();
+    AddExtinctionRevelation();
 
     UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"배틀 시작...3");
     UmTime.Invoke(&GetFSM(), 1.f, [this]() { UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"배틀 시작...2"); });
@@ -217,12 +219,31 @@ void CombatStartPhase::AddValidActions()
     {
         for (auto& accessory : _accessorySystem->GetPlayerAccessoryItems())
         {
-            TurnAction* action = accessory.GetAction();
-            if (action)
+            const auto& actions = accessory.GetActions();
+            for (auto& action : actions)
             {
-                _turnMode->AddTurnAction(action);
+                if (action)
+                {
+                    _turnMode->AddTurnAction(action.get());
+                }             
             }
         }     
+    }
+}
+
+void CombatStartPhase::AddExtinctionRevelation() const
+{
+    if (ItemDropSystem* itemDropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
+    {
+        if (RevelationSystem* revelationSystem = SingletonComponent<RevelationSystem>::GetInstance())
+        {
+            //스테이지 클리어 횟수만큼 랜덤한 소멸 계시 추가
+            int stageClearCount = itemDropSystem->StageClearCount;
+            if (0 < stageClearCount)
+            {
+                revelationSystem->EquipRandomExtinctionElement(static_cast<size_t>(stageClearCount));       
+            }           
+        }
     }
 }
 

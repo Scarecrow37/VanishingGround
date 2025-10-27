@@ -52,6 +52,57 @@ const std::shared_ptr<RevelationElement>& RevelationSystem::PushBackRevelation(c
     return _playerElementList.emplace_back(new RevelationElement(element));
 }
 
+void RevelationSystem::EquipRandomExtinctionElement(size_t count)
+{
+    if (count < 1)
+        return;
+
+    // 소멸 계시만 필터
+    auto& revelations = GetRevelationTableElements();
+    std::vector<RevelationElement*> extinctions;
+    extinctions.reserve(revelations.size());
+    std::ranges::copy_if(revelations, std::back_inserter(extinctions), [](RevelationElement* element)
+    { 
+        RevelationGrade garde = element->Grade;
+        return garde == RevelationGrade::EXTINCTION;
+    });
+
+    //랜덤 셔플 후 앞에 2개 추가
+    if (false == extinctions.empty())
+    {
+        auto& engine = Random::GetEngine();
+        std::ranges::shuffle(extinctions, engine);
+        extinctions.resize(count);
+
+        for (auto& extinction : extinctions)
+        {
+            if (extinction)
+            {
+                PushBackRevelation(*extinction);
+            }          
+        }
+    }  
+}
+
+void RevelationSystem::RemoveAllExtinctionElements() 
+{
+    size_t size = _playerElementList.size();
+    while (0 < size)
+    {
+        size_t lastIndex = size - 1;
+        auto&  element   = _playerElementList[lastIndex];
+        if (nullptr == element)
+            break;
+
+        RevelationGrade grade = element->Grade;
+        if (grade != RevelationGrade::EXTINCTION)
+            break;
+
+        RemovePlayerElement(static_cast<int>(lastIndex));
+        size = _playerElementList.size();
+    }
+}
+
 void RevelationSystem::RollRoundElement()
 {
     TurnMode* _turnMode = SingletonComponent<TurnMode>::GetInstance();
