@@ -63,7 +63,7 @@ struct RayCameraData
 
 struct CascadeData
 {
-    Matrix ShadowVP[MAX_CASCADES];
+    Matrix ShadowVP[MAX_CASCADES + 1];
     float  CascadeSplits[MAX_CASCADES];
 };
 

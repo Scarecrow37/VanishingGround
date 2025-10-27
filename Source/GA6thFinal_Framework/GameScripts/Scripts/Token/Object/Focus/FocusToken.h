@@ -9,6 +9,5 @@ namespace TokenObject
         TOKEN_DATA(205017)
     private:
         void OnTurnEnd(CharacterBase* owner) override;
-        void OnPrePlayerAttackCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData) override;
     };
 }

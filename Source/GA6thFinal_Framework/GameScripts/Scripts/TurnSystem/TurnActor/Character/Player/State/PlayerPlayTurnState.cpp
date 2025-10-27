@@ -36,7 +36,10 @@ PlayerPlayTurnState::PlayerPlayTurnState()
 
 PlayerPlayTurnState::~PlayerPlayTurnState() 
 {
-
+    if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
+    {
+        system->UnRegisterCallback(_qteCallbackHandle);
+    }
 }
 
 void PlayerPlayTurnState::OnAwake() 
@@ -47,6 +50,13 @@ void PlayerPlayTurnState::OnAwake()
 
 void PlayerPlayTurnState::OnStart() 
 {
+    if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
+    {
+        QTE::Callback callback(GetPlayer().GetWeakPtr());
+        // owner의 weak_ptr을 들고있으므로 람다 인자로 weak_ptr넣을 필요 X
+        callback.OnFadeOutFinish = [this](const QTE::OverallResult& results) { SetAttack(); };
+        _qteCallbackHandle = system->RegisterCallback(callback);
+    }
 }
 
 void PlayerPlayTurnState::OnEnter() 
@@ -54,12 +64,6 @@ void PlayerPlayTurnState::OnEnter()
     _inputState           = InputState::ACTION_SELECTION;
     _attackButtonHeldTime = 0;
     _attackRemaining      = 0;
-
-    if (QTEUIManager* qteUIManager = QTEUIManager::GetInstance())
-    {
-        qteUIManager->Refresh();
-        qteUIManager->SetGuideNoteActive(true);
-    }
 }
 
 void PlayerPlayTurnState::OnExit() 
@@ -109,19 +113,11 @@ void PlayerPlayTurnState::OnUpdate()
 void PlayerPlayTurnState::PressedButtonA(const Input::Controller& controller)
 {
     _isDownAButton = true;
-    if (QTEUIManager* qteUIManager = QTEUIManager::GetInstance())
-    {
-        qteUIManager->StartShowQTEGuideNote();
-    }
 }
 
 void PlayerPlayTurnState::ReleasedButtonA(const Input::Controller& controller)
 {
     _isDownAButton = false;
-    if (QTEUIManager* qteUIManager = QTEUIManager::GetInstance())
-    {
-        qteUIManager->StartHideQTEGuideNote();
-    }
 }
 
 void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
@@ -131,7 +127,7 @@ void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
         if (QTESystem* qteSystem = SingletonComponent<QTESystem>::GetInstance())
         {
             _inputState = InputState::QUICK_TIME_EVENT;
-            qteSystem->StartQTE([this](const QTE::OverallResult& results) { SetAttack(); });
+            qteSystem->StartQTE();
             SetAttackReady();
         }
         else
@@ -207,20 +203,15 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
         }
     });
 
-    QTESystem*    qteSystem    = SingletonComponent<QTESystem>::GetInstance();
-    QTEUIManager* qteUIManager = QTEUIManager::GetInstance();
-    if (qteSystem && qteUIManager)
+    const bool input = _isDownAKey || _isDownAButton;
+    const float t    = _attackButtonHeldTime / _attackButtonHeldWaitTime;
+    if (QTEUIManager* qteUIManager = SingletonComponent<QTEUIManager>::GetInstance())
     {
-        float t     = _attackButtonHeldTime / _attackButtonHeldWaitTime;
-        bool input  = _isDownAKey || _isDownAButton;
-        qteUIManager->SetBackgroundUIAlpha(t);
-        qteUIManager->SetGuideNoteUIAlpha(1.0f - t);
-        qteUIManager->SetUIAlpha(0.0f);
-        qteUIManager->SetActive(true);
-        if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
-        {
-            combatUIManager->SetActiveUI(!input);
-        }
+        qteUIManager->SetUIAlpha(t);
+    }
+    if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        combatUIManager->SetActiveUI(!input);
     }
 }
 

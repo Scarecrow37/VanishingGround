@@ -25,13 +25,10 @@ namespace QTE
 
         inline void  SetQTESpeedScale(float scale) { ReflectFields->QTESpeedScale = scale; }
         inline float GetQTESpeedScale() const { return ReflectFields->QTESpeedScale; }
-
-        inline const File::Path& GetFilePath() const { return _filePath; }
-        inline std::weak_ptr<Timeline::EventTrack> GetEventTrack() { return _eventTrack; }
-
         inline float GetMinFrame() const { return _eventTrack ? _eventTrack->GetMinFrame() : 0.0f; }
         inline float GetMaxFrame() const { return _eventTrack ? _eventTrack->GetMaxFrame() : 0.0f; }
-
+        inline const File::Path& GetFilePath() const { return _filePath; }
+        inline std::weak_ptr<Timeline::EventTrack> GetEventTrack() { return _eventTrack; }
     public:
         void SerializedReflectEvent() override;
         void DeserializedReflectEvent() override;
