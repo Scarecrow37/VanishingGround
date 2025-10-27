@@ -104,6 +104,14 @@ void UmCineMotion::ImGuiDrawPropertysEvent()
                 {
                     _manipulateFlag = true;
                     memcpy(&_posTethers[_selectedTether], selectedPos.data(), sizeof(float) * 3);
+                    ReflectFields->RailLength = 0.0f;
+                    for (int i = 1; i < static_cast<int>(ReflectFields->TimestepTethers.size()); ++i)
+                    {
+                        const Vector3 distance = _posTethers[i] - _posTethers[i - 1];
+                        const float   len      = std::max(distance.Length(), 0.1f);
+                        ReflectFields->RailLength += len;
+                        ReflectFields->TimestepTethers[i] = ReflectFields->RailLength;
+                    }
                     RefreshGuizmo();
                 }
                 if (isRotChanged)
