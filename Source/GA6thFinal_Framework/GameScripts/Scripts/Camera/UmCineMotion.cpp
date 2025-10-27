@@ -9,6 +9,7 @@ void UmCineMotion::Start()
     transform->Position = Vector3::Zero;
     transform->Rotation = Quaternion::Identity;
     _oldWorldMat        = transform->GetWorldMatrix();
+    _oldParent          = transform->Parent;
 }
 
 void UmCineMotion::OnDrawDebug()
@@ -585,9 +586,10 @@ void UmCineMotion::ClearGuizmo()
 
 void UmCineMotion::RefreshGuizmo()
 {
-    if (_oldWorldMat == transform->GetWorldMatrix())
+    if (_oldWorldMat == transform->GetWorldMatrix() && transform->Parent == _oldParent)
         return;
     _oldWorldMat = transform->GetWorldMatrix();
+    _oldParent   = transform->Parent;
 
     for (int i = 0; i < ReflectFields->TimestepTethers.size(); i++)
     {
