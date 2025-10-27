@@ -105,25 +105,26 @@ void Enemy::TakeDamage(int damage, bool playAnim)
 void Enemy::TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim)
 {
     GameObject& owner = gameObject;
+    std::string spawnPoint = Monster::SpawnPointToString(SpawnPoint);
     ParticleComponent* particle = GetParticleComponent();
     if (true == IsDead() || false == result.IsHit())
     {
-        std::string msg   = std::format("{}{}", owner.ToString(), (const char*)u8" 대한 공격 빗나감.");
-        UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
+        std::string msg = std::format("{} {}{}", spawnPoint, owner.ToString(), (const char*)u8" 대한 공격 빗나감.");
+        UmLogger.Message(LogLevel::LEVEL_TRACE, msg);
         return;
     }
     switch (result.Result)
     {
     case QTE::QTE_RESULT_PERFECT: {
        
-        std::string msg = std::format("{}{}", owner.ToString(), (const char*)u8" 대한 공격 치명타!!");
-        UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
+        std::string msg = std::format("{} {}{}", spawnPoint, owner.ToString(), (const char*)u8" 대한 공격 치명타!!");
+        UmLogger.Message(LogLevel::LEVEL_TRACE, msg);
         particle->PlayEffect("normalhit"); // TODO: 치명타 이펙트 적용 필요. 일단 기본 이펙트로 적용 (진우형)
         break;
     }
     case QTE::QTE_RESULT_NORMAL: {
-        std::string msg = std::format("{}{}", owner.ToString(), (const char*)u8" 대한 공격 일격!!");
-        UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
+        std::string msg = std::format("{} {}{}", spawnPoint, owner.ToString(), (const char*)u8" 대한 공격 일격!!");
+        UmLogger.Message(LogLevel::LEVEL_TRACE, msg);
         particle->PlayEffect("normalhit");
         break;
     }

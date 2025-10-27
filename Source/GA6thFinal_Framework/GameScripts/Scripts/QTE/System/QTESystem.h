@@ -71,6 +71,8 @@ public:
     void StopQTE();
     /// <summary>QTE를 일시정지하거나 재개합니다. QTE플레이 중이 아니라면 무시됩니다.</summary>
     void PauseQTE(bool pause);
+    /// <summary>QTE 트랙을 비웁니다.</summary>
+    void ClearTrack();
 
 public:
     /// <summary>QTE 키 바인드 상태를 초기화합니다.</summary>
@@ -96,7 +98,6 @@ public:
 
 private:
     void ResetQTEState();
-    void ClearTrack();
     void ClearQueue();
     void UpdateQTETrack();
     QTE::ResultType GetQTEResult(float noteTime);
