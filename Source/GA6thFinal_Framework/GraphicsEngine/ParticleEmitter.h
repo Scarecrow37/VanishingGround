@@ -10,7 +10,7 @@ class ParticleEmitter
     UMPARTICLE_PROPERTY(bool, _endFlag, EndFlag, false);
     UMPARTICLE_PROPERTY(bool, _removeFlag, RemoveFlag, false);
 
-    UMPARTICLE_PROPERTY(SIZE_T, _maxParticles, MaxParticles, 100000);
+    UMPARTICLE_PROPERTY(SIZE_T, _maxParticles, MaxParticles, 10000);
     UMPARTICLE_PROPERTY(float, _startDelay, StartDelay, 0.f);
     UMPARTICLE_PROPERTY(float, _emitterAge, EmitterAge, 0.f);
     UMPARTICLE_PROPERTY(float, _emitterLifetime, EmitterLifetime, 5.f);
@@ -70,7 +70,7 @@ public:
     void SetVelocityType(VelocityScaleType velType);
 
 public:
-    void Initialize(SIZE_T maxParticles = 100000, float emissionRate = 500.f, float emitterLifetime = 5.f,
+    void Initialize(SIZE_T maxParticles = 10000, float emissionRate = 500.f, float emitterLifetime = 5.f,
                     LocationShape locatorShape = LocationShape::SPHERE, Vector3 locationFactor = Vector3(1, 1, 1),
                     ParticleType particleType = ParticleType::SPRITE, const std::wstring& meshspritePath = L"");
     void Update(float deltaTime);
