@@ -41,6 +41,9 @@ public:
     GETTER_ONLY(float, CurrentTrackTime) { return _currTime; }
     PROPERTY(CurrentTrackTime)
 
+    GETTER_ONLY(float, NoteTravelTime) { return ReflectFields->NoteTravelTime; }
+    PROPERTY(NoteTravelTime)
+
     GETTER_ONLY(float, MaxTracktime) { return _totalTime; }
     PROPERTY(MaxTracktime)
 
@@ -115,6 +118,8 @@ private:
     void ProcessQTENotePressedEvent(UINT noteID, QTE::ResultType result);
 
 public:
+    inline void  SetNoteTravelTime(float time) { ReflectFields->NoteTravelTime = time; }
+    inline float GetNoteTravelTime() const { return ReflectFields->NoteTravelTime; }
     inline void  SetQTESpeedScale(float scale) { ReflectFields->QTESpeedScale = scale; }
     inline float GetQTESpeedScale() const { return ReflectFields->QTESpeedScale; }
     inline void  SetDelayFromQTEStart(float delay) { ReflectFields->DelayFromQTEStart = delay; }
@@ -162,13 +167,14 @@ private:
     QTE::OverallResult              _overallResult;                     // QTE 최종 결과
     ControllerState                 _nextKeyEvent = {nullptr, Input::ControllerTypes::UNDEFINED};
 
-    float                           _currTime           = 0.0f;                     // QTE 타이머
+    float                           _currTime          = 0.0f;                     // QTE 타이머
     float                           _totalTime         = 0.0f;                     // QTE 최대 시간
     bool                            _isPaused          = false;                    // QTE 일시정지 여부
 
     REFLECT_FIELDS_BEGIN(Component)
     float                   QTESpeedScale       = 1.0f;                         // QTE 속도 배율
     float                   DelayFromQTEStart   = 0.0f;                         // QTE 시작 대기 시간
+    float                   NoteTravelTime      = 1.5f;
     std::pair<float, float> PerfectJudgeRange   = {-0.05f, 0.05f};              // 퍼펙트 판정 범위 (min - max)
     std::pair<float, float> NormalJudgeRange    = {-0.1f, 0.1f};                // 노멀 판정 범위 (min - max)
     std::pair<float, float> ValidJudgeRange     = {-0.3f, 0.3f};                // 유효 판정 범위 (min - max)

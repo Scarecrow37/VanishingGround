@@ -63,6 +63,7 @@ void QTEUIManager::OnQTEPlay()
         _fieldUI.Update();
         if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
         {
+            const float travelTime  = system->NoteTravelTime;
             const float currTime    = system->CurrentTrackTime;
             const float currSpeed   = system->ScaledSpeedFactor;
             const SIZE  panelSize   = _overlayPanel->Size;
@@ -81,7 +82,7 @@ void QTEUIManager::OnQTEPlay()
             {
                 if (QTE::NoteUI* noteUI = GetNoteUIFromID(id))
                 {
-                    noteUI->Update(currTime, currSpeed, startX, endX, perfectX, 0.0f);
+                    noteUI->Update(currTime, travelTime, currSpeed, startX, endX, perfectX, 0.0f);
                 }
             }
         }
@@ -207,7 +208,7 @@ void QTEUIManager::ImGuiDrawPropertysEvent()
             const auto [validMin, validMax]     = system->GetValidJudgeRange();
             const auto [normalMin, normalMax]   = system->GetNormalJudgeRange();
             const auto [perfectMin, perfectMax] = system->GetPerfectJudgeRange();
-            const float tavelTime   = QTE::NoteUI::TRAVEL_PERFECT_TIME;
+            const float tavelTime   = system->GetNoteTravelTime();
             const float speedScale  = system->GetQTESpeedScale();
             const POINT panelPoint  = _fieldUI.Overlay->AbsolutePosition;
             const SIZE  panelSize   = _fieldUI.Overlay->Size;

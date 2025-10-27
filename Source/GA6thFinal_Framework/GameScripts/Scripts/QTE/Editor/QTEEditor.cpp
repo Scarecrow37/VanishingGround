@@ -180,6 +180,15 @@ void QTEEditor::ShowSystemDetail()
             }
             ImGuiHelper::HoveredToolTip((const char*)u8"QTE 글로벌 속도 배율입니다.");
 
+            // 스피드
+            float travel = system->GetNoteTravelTime();
+            ImGuiHelper::TextWithVerticalSeparator("QTE Note Travel Time", labelWidth);
+            if (ImGui::DragFloat("##qte_note_tavel", &travel, 0.01f, 0.1f, 10.0f))
+            {
+                system->SetNoteTravelTime(travel);
+            }
+            ImGuiHelper::HoveredToolTip((const char*)u8"QTE 노트가 퍼펙트까지 걸리는 시간입니다.");
+
             // 대기시간
             float delay = system->GetDelayFromQTEStart();
             ImGuiHelper::TextWithVerticalSeparator("QTE Delay Second", labelWidth);

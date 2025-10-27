@@ -127,8 +127,8 @@ namespace QTE
         return false;
     }
 
-    void NoteUI::Update(const float currTime, const float currSpeed, const float startX, const float endX,
-                        const float perfectX, const float offsetX)
+    void NoteUI::Update(const float currTime, const float travelTime, const float currSpeed, const float startX,
+                        const float endX, const float perfectX, const float offsetX)
     {
         if (State == STATE_AVAILABLE)
         {
@@ -137,7 +137,7 @@ namespace QTE
         const float deltaTime = Time - currTime;
         const float noteWidth = GetNoteWidth();
         // 노트 위치 가중치를 구한다. 0 이하면 나타나기 전, 1 이상이면 퍼펙트 지점을 넘었다는 것.
-        const float posXFactor = Math::CalculateNotePosXFactor(deltaTime, currSpeed, TRAVEL_PERFECT_TIME);
+        const float posXFactor = Math::CalculateNotePosXFactor(deltaTime, currSpeed, travelTime);
         // 주의: end 지점을 PerfectX로 한다.
         const float posXValue = Math::CalculateNotePosX(posXFactor, startX, perfectX);
         switch (State)

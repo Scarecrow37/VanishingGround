@@ -39,7 +39,7 @@ namespace QTE
 
         bool TrySetup(const float noteTime = 0.0f);
 
-        void Update(const float currTime, const float currSpeed, const float startX, const float endX, const float perfectX, const float offsetX = 0.0f);
+        void Update(const float currTime, const float travelTime, const float currSpeed, const float startX, const float endX, const float perfectX, const float offsetX = 0.0f);
 
         void OnNotePressed(QTE::ResultType resultType);
 
@@ -67,8 +67,6 @@ namespace QTE
         SpriteAnimationElement* MissEffect      = nullptr;
         SpriteAnimationElement* NormalEffect    = nullptr;
         SpriteAnimationElement* PerfectEffect   = nullptr;
-
-        static constexpr float TRAVEL_PERFECT_TIME = 1.0f; // 시작 -> 퍼펙트 지점까지의 시간
 
     private:
         static constexpr const char* ANIMATION_START_TAG        = "QTE Note Start";
