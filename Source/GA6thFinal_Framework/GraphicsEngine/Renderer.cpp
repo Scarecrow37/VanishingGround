@@ -41,7 +41,13 @@ Renderer::Renderer() = default;
 
 Renderer::~Renderer()
 {
-    ClearComponents();
+    for (auto& components : _toBeReleasedComponents)
+    {
+        for (auto& component : components)
+        {
+            component->Delete();
+        }
+    }
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE Renderer::GetRenderSceneImage(std::string_view renderSceneName)
@@ -303,12 +309,14 @@ void Renderer::ResetIBLSkyBox(std::string_view sceneName)
 
 void Renderer::ClearComponents()
 {
-    for (auto& component : _toBeReleasedComponents)
+    _toBeReleasedComponents[0].swap(_toBeReleasedComponents[1]);
+
+    for (auto& component : _toBeReleasedComponents[1])
     {
         component->Delete();
     }
 
-    _toBeReleasedComponents.clear();
+    _toBeReleasedComponents[1].clear();
 }
 
 void Renderer::ClearRenderQueue()

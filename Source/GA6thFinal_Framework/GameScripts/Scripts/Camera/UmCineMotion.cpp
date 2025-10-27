@@ -89,6 +89,32 @@ void UmCineMotion::ImGuiDrawPropertysEvent()
                 }
                 ImGui::EndCombo();
             }
+
+            if (_selectedTether != -1)
+            {
+                _manipulateFlag                    = false;
+                std::array<float, 3> selectedPos   = {_posTethers[_selectedTether].x, _posTethers[_selectedTether].y,
+                                                      _posTethers[_selectedTether].z};
+                Vector3              selectedEuler = _rotTethers[_selectedTether].ToEuler() * Mathf::Rad2Deg;
+                std::array<float, 3> selectedRot   = {selectedEuler.x, selectedEuler.y, selectedEuler.z};
+                bool isPosChanged = ImGui::DragFloat3("Position##selected pos", selectedPos.data(), 1.f, -100.f, 100.f);
+                bool isRotChanged = ImGui::DragFloat3("Rotation##selected rot", selectedRot.data(), 1.f, -360.f, 360.f);
+
+                if (isPosChanged)
+                {
+                    _manipulateFlag = true;
+                    memcpy(&_posTethers[_selectedTether], selectedPos.data(), sizeof(float) * 3);
+                    RefreshGuizmo();
+                }
+                if (isRotChanged)
+                {
+                    _manipulateFlag = true;
+                    memcpy(&selectedEuler, selectedRot.data(), sizeof(float) * 3);
+                    selectedEuler *= Mathf::Deg2Rad;
+                    _rotTethers[_selectedTether] = Quaternion::CreateFromYawPitchRoll(selectedEuler);
+                    RefreshGuizmo();
+                }
+            }
         }
     }
 
@@ -527,7 +553,7 @@ float UmCineMotion::EaseTimeStep(float step)
 #ifdef _UMEDITOR
 void UmCineMotion::UpdateTetherFromGuizmo()
 {
-    if (_guizmoes.empty())
+    if (_guizmoes.empty() || _manipulateFlag == true)
         return;
 
     const Matrix parentInv = (transform->Parent) ? transform->Parent->GetInversWorldMatrix() : Matrix::Identity;
@@ -587,7 +613,10 @@ void UmCineMotion::ClearGuizmo()
 void UmCineMotion::RefreshGuizmo()
 {
     if (_oldWorldMat == transform->GetWorldMatrix() && transform->Parent == _oldParent)
-        return;
+    {
+        if (_manipulateFlag == false)
+            return;
+    }
     _oldWorldMat = transform->GetWorldMatrix();
     _oldParent   = transform->Parent;
 

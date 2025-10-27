@@ -139,8 +139,9 @@ void RevelationSystem::RollRoundElement()
         }
 
         // 뽑힌 횟수 계산 및 액션 활성화
-        for (auto& element : roundElementList)
+        for (size_t i = 0; i < roundElementList.size(); ++i)
         {
+            auto& element = roundElementList[i];
             const std::string& name = element->ElementName;
             _elementTotalAppearances[name]++;
             if (element->IsAction())
@@ -154,6 +155,11 @@ void RevelationSystem::RollRoundElement()
                         const std::string& name = element->ElementName;
                         std::string msg  = std::format("{}{}", name, (const char*)u8" 발동.");
                         UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
+                    }
+
+                    if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+                    {
+                        mode->RevelationActiveFlag = true;
                     }
                 };
                 _turnMode->AddTurnAction(&action);
