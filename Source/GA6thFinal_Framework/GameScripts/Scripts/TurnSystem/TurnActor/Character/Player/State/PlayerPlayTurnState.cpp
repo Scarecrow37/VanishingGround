@@ -64,6 +64,18 @@ void PlayerPlayTurnState::OnEnter()
     _inputState           = InputState::ACTION_SELECTION;
     _attackButtonHeldTime = 0;
     _attackRemaining      = 0;
+
+    WeaponSystem* system = SingletonComponent<WeaponSystem>::GetInstance();
+    if (system)
+    {
+        const std::string& weaponName = system->GetCurrentWeaponElement().Stats.WeaponName;
+        std::string        message = std::format("{}{}{}", (const char*)u8"Player 턴 시작. ", "Weapon : ", weaponName);
+        UmLogger.Message(LogLevel::LEVEL_TRACE, message);
+    }
+    else
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8" WeaponSystem이 존재하지 않습니다.");
+    }
 }
 
 void PlayerPlayTurnState::OnExit() 
@@ -80,6 +92,8 @@ void PlayerPlayTurnState::OnExit()
             action.OnTurnEnd(GetPlayer());
         });
     }
+
+    UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"Player 턴 종료.");
 }
 
 

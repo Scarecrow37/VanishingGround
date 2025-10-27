@@ -226,6 +226,7 @@ void QTESystem::StartQTE(QTE::Track* qteTrack)
 
                 _currTime  = minFrame - travelTime - delayTime;
                 _totalTime = maxFrame;
+
                 // 유효한 노트 큐 생성
                 auto& noteQueue = track->GetEventContextQueue();
                 _noteAvailQueue.reserve(noteQueue.size());
