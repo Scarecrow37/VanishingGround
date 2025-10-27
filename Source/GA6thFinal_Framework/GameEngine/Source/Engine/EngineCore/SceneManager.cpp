@@ -2305,13 +2305,17 @@ bool ESceneManager::InputSystem::PopReceiverToInputStack(InputReceiver& receiver
                     receiver._isPushStack = false;
                     result = true;
                 }
-                else if (isDestroy.expired())
-                {
-                    _layerStack.pop_back();
-                }
-                else
-                {
-                    return result;
+                else 
+                {               
+                    if (auto destroyFlag = isDestroy.lock())
+                    {
+                        if (*destroyFlag)
+                        {
+                            _layerStack.pop_back();
+                            continue;
+                        }
+                    }
+                    return result;          
                 }
             }
         }
