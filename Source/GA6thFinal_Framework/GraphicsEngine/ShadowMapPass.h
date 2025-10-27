@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "RenderPass.h"
 
+constexpr UINT MAX_SHADOW_MAP = MAX_CASCADES + 1;
+
 class ShadowMapPass : public RenderPass
 {
     enum CullMode
@@ -28,13 +30,12 @@ public:
     void End(ID3D12GraphicsCommandList* commandList) override;
 
 private:
-    // 초기화 헬퍼 함수
     void CreateShadowMapResource();
     void CreateShaderAndPSO();
 
-    // 매 프레임 실행되는 핵심 로직
     void UpdateCascades(const Vector3& lightDirection);
-    void DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType meshType, CullMode cullMode, UINT offset);
+    void UpdateSkeletalShadow(const Vector3& lightDirection);
+    void DrawMeshes(ID3D12GraphicsCommandList* commandList, MeshType type, CullMode cullMode, UINT offset);
 
 private:
     ComPtr<ID3D12PipelineState>                    _psos[MeshType::MESH_TYPE_END][CullMode::END];
@@ -45,7 +46,7 @@ private:
     FX<GE::VS::STATIC_SHADOW_FR, GE::PS::SHADOW>   _fxStaticMesh;
     FX<GE::VS::SKELETAL_SHADOW_FR, GE::PS::SHADOW> _fxSkeletalMesh;
 
-    // 그림자 맵 리소스
+    // 캐스케이드 그림자 맵 리소스
     ComPtr<ID3D12Resource>                   _shadowMap;
     D3D12_CPU_DESCRIPTOR_HANDLE              _shadowMapDSV;
     DescriptorHandles                        _shadowMapSRV;
@@ -58,5 +59,5 @@ private:
     UINT           _shadowMapSize = 2048;
 
     // 디버그용
-    DescriptorHandles _debugHandles[MAX_CASCADES];
+    DescriptorHandles _debugHandles[MAX_SHADOW_MAP];
 };

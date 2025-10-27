@@ -247,6 +247,12 @@ void EGameObjectFactory::OnFileRemoved(const File::Path& path)
     ErasePrefabItem(guid);
 }
 
+void EGameObjectFactory::OnFileUnregistered(const File::Path& path) 
+{
+    File::Guid guid = path.ToGuid();
+    ErasePrefabItem(guid);
+}
+
 void EGameObjectFactory::OnFileRenamed(const File::Path& oldPath, const File::Path& newPath) 
 {
 

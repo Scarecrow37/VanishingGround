@@ -13,10 +13,7 @@ REFLECT_FUNCTION(TokenCondition)
 
 using namespace u8_literals;
 
-TokenCondition::TokenCondition() 
-{
-    UpdateConditionInfo();
-}
+TokenCondition::TokenCondition() = default;
 
 bool TokenCondition::Evaluate()
 {
@@ -99,19 +96,10 @@ void TokenCondition::DrawImguiEditor()
     }
 }
 
-const std::string& TokenCondition::GetConditionInfo() const
+const std::string& TokenCondition::GetConditionInfo()
 {
+    TryUpdateTokenSystemInfo();
     return _conditionInfo;
-}
-
-void TokenCondition::SerializedReflectEvent() 
-{
-   
-}
-
-void TokenCondition::DeserializedReflectEvent() 
-{
-    UpdateConditionInfo();
 }
 
 void TokenCondition::UpdateConditionInfo() 
@@ -171,4 +159,21 @@ void TokenCondition::UpdateConditionInfo()
 void TokenCondition::GetTargetList(std::vector<class CharacterBase*>& targetList)
 {
     targetList = TurnSystemHelper::GetTargetCharacters(ReflectFields->Target);
+}
+
+void TokenCondition::TryUpdateTokenSystemInfo() 
+{
+    if (false == _validTokenSystem)
+    {
+        if (TokenSystem* system = SingletonComponent<TokenSystem>::GetInstance())
+        {
+            const std::string& tokenName = system->GetTokenNameFromID(ReflectFields->TokenType);
+            if (tokenName.empty())
+            {
+                ReflectFields->TokenType = TokenObject::Bleed::ID;
+            }
+            UpdateConditionInfo();
+            _validTokenSystem = true;
+        }
+    }
 }

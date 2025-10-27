@@ -5,6 +5,7 @@
 #include "Stats/Player/PlayerStats.h"
 #include "Stats/Weapon/WeaponStats.h"
 #include "Token/TokenInventory.h"
+#include "ContentMath/ContentMath.h"
 
 namespace TokenObject
 {
@@ -33,11 +34,8 @@ namespace TokenObject
         const int deffenceChainCount = GetDeffenceChainCount();
         if (targetChainCount == deffenceChainCount)
         {
-            const int   param     = GetTokenParam(0);
-            const float factor    = 1.0f - (static_cast<float>(param) / 100.0f);
-            const float newDamage = static_cast<float>(damage) * factor;
-
-            damage = static_cast<int>(std::ceilf(newDamage));
+            const int param = GetTokenParam(0);
+            damage -= ContentMath::CeilPercentage(damage, param);
         }
     }
 
@@ -49,11 +47,8 @@ namespace TokenObject
         const int deffenceChainCount = GetDeffenceChainCount();
         if (targetChainCount == deffenceChainCount)
         {
-            const int   param       = GetTokenParam(0);
-            const float factor      = 1.0f - (static_cast<float>(param) / 100.0f);
-            const float newDamage   = static_cast<float>(damage) * factor;
-
-            damage = static_cast<int>(std::ceilf(newDamage));
+            const int param = GetTokenParam(0);
+            damage -= ContentMath::CeilPercentage(damage, param);
         }
     }
 
