@@ -21,6 +21,8 @@ namespace TokenObject
 
         auto& tokenInventory = attackerData.Source.GetTokenInventory();
         tokenInventory.RemoveTokenStackFromID(tokenID);
+
+        UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(attackerData.Source));
     }
     void Rage::OnPostEnemyAttackCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData, int& damage)
     {
@@ -30,5 +32,7 @@ namespace TokenObject
 
         auto& tokenInventory = attackerData.Source.GetTokenInventory();
         tokenInventory.RemoveTokenStackFromID(tokenID);
+
+        UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(attackerData.Source));
     }
 } // namespace TokenObject

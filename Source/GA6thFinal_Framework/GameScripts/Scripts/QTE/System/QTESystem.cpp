@@ -219,8 +219,13 @@ void QTESystem::StartQTE(QTE::Track* qteTrack)
             assert(track && "QTE를 진행하기 위한 트랙이 없습니다.");
             if (track)
             {
-                _currTime  = track->GetMinFrame() - GetDelayFromQTEStart() - GetNoteTravelTime();
-                _totalTime = track->GetMaxFrame();
+                const float minFrame = track->GetMinFrame();
+                const float maxFrame = track->GetMaxFrame();
+                const float travelTime = GetNoteTravelTime();
+                const float delayTime  = GetDelayFromQTEStart();
+
+                _currTime  = minFrame - travelTime - delayTime;
+                _totalTime = maxFrame;
                 // 유효한 노트 큐 생성
                 auto& noteQueue = track->GetEventContextQueue();
                 _noteAvailQueue.reserve(noteQueue.size());
@@ -264,7 +269,10 @@ void QTESystem::StartQTE(const WeaponStats* weapon)
 
                 _overallResult.NoteResults[i] = &_noteAvailQueue[i];
             }
-            _currTime  = -GetDelayFromQTEStart() - GetNoteTravelTime();
+            const float travelTime = GetNoteTravelTime();
+            const float delayTime  = GetDelayFromQTEStart();
+
+            _currTime  = -travelTime - delayTime;
             _totalTime = totalTime + 1.0f;
             ProcessQTEEnterEvent();
         }

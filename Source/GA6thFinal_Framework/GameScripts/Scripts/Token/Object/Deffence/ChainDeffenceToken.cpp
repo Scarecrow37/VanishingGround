@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "ChainDeffenceToken.h"
-#include "TurnSystem/TurnActor/Character/CharacterBase.h"
+#include "TurnSystem/TurnActor/Character/Player/Player.h"
+#include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
 #include "Stats/Enemy/EnemyStats.h"
 #include "Stats/Player/PlayerStats.h"
 #include "Stats/Weapon/WeaponStats.h"
@@ -37,6 +38,7 @@ namespace TokenObject
             const int param = GetTokenParam(0);
             damage -= ContentMath::CeilPercentage(damage, param);
         }
+        UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(targetData.Source));
     }
 
     void ChainDeffence::OnPostEnemyHitCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData,
@@ -50,6 +52,7 @@ namespace TokenObject
             const int param = GetTokenParam(0);
             damage -= ContentMath::CeilPercentage(damage, param);
         }
+        UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(targetData.Source));
     }
 
 } // namespace TokenObject
