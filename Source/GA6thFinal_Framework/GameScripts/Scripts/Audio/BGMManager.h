@@ -11,6 +11,19 @@ public:
     ~BGMManager() override;
 
 public:
+    REFLECT_PROPERTY(Volume, CurrentFadeFactor, PreviousFadeFactor)
+
+    GETTER(float, Volume) { return ReflectFields->Volume; }
+    SETTER(float, Volume) { ReflectFields->Volume = std::clamp(value, 0.0f, 1.0f); }
+    PROPERTY(Volume)
+
+    GETTER_ONLY(float, CurrentFadeFactor) { return _currBGMFader.GetFadeFactor(); }
+    PROPERTY(CurrentFadeFactor)
+
+    GETTER_ONLY(float, PreviousFadeFactor) { return _prevBGMFader.GetFadeFactor(); }
+    PROPERTY(PreviousFadeFactor)
+
+public:
     void PlayBGM(const std::string& bgmKey, bool useFade = true);
     void StopAllBGM();
 
@@ -28,8 +41,6 @@ private:
     std::string _prevBGMKey;
     Audio::AudioHandle _currBGMHandle;
     Audio::AudioHandle _prevBGMHandle;
-
-    float _volume = 1.0f;
     Fader _currBGMFader;
     Fader _prevBGMFader;
 
@@ -37,5 +48,6 @@ private:
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
+    float Volume = 1.0f;
     REFLECT_FIELDS_END(BGMManager)
 };

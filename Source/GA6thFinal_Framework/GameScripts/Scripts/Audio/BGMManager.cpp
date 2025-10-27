@@ -57,8 +57,8 @@ void BGMManager::Awake()
 
 void BGMManager::Update()
 {
-    float currFactor = _volume * _currBGMFader.Fade();
-    float prevFactor = _volume * _prevBGMFader.Fade();
+    float currFactor = Volume * _currBGMFader.Fade();
+    float prevFactor = Volume * _prevBGMFader.Fade();
     UmAudio.SetVolume(_currBGMHandle, currFactor);
     UmAudio.SetVolume(_prevBGMHandle, prevFactor);
 }
@@ -72,4 +72,7 @@ void BGMManager::ImGuiDrawPropertysEvent() {}
 
 void BGMManager::SerializedReflectEvent() {}
 
-void BGMManager::DeserializedReflectEvent() {}
+void BGMManager::DeserializedReflectEvent() 
+{
+
+}
