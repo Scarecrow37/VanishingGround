@@ -5,6 +5,7 @@
 #include <WeaponSystem/WeaponSystem.h>
 #include <DamageSystem/DamageSystem.h>
 #include "TurnSystem/TurnAction/Condition/RoundOnceCondition/RoundOnceCondition.h"
+#include "TurnSystem/TurnAction/TurnAction.h"
 
 //Condition
 #include "GameCore/FSM/AlwaysTransitionCondition.h"

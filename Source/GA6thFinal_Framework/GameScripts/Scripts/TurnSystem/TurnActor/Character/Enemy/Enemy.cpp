@@ -99,6 +99,9 @@ void Enemy::TakeDamage(int damage, bool playAnim)
     if (turnMode)
     {
         turnMode->ApplyActions([&](TurnAction& action) { action.OnEnemyTakeDamageEnd(*this, damage); });
+
+        //계시 발동 체크 플래그 초기화
+        turnMode->RevelationActiveFlag = false;
     }
 }
 
