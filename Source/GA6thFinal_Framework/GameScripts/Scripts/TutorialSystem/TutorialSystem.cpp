@@ -9,6 +9,29 @@
 
 UMREAL_COMPONENT(TutorialSystem)
 
+int TutorialSystem::GetTutorialID(std::u8string_view title)
+{
+    int id = 0;
+    if (ExcelDataSystem* excelDataSystemComponent = SingletonComponent<ExcelDataSystem>::GetInstance())
+    {
+        if (const std::unique_ptr<ExcelDataBase> dataBase = excelDataSystemComponent->FindExcelDataBase(SHEET_NAME);
+            nullptr != dataBase)
+        {
+            size_t index = dataBase->FindRowIndex(title, u8"Title");
+            if (index != dataBase->FIND_INDEX_FAIL)
+            {
+                std::string_view data = dataBase->FindData(index, u8"ID");
+                if (data != dataBase->FIND_STR_FAIL)
+                {
+                    if (false == data.empty())
+                        id = std::stoi(data.data());
+                }
+            }
+        }
+    }
+    return id;
+}
+
 TutorialSystem::TutorialSystem() = default;
 
 void TutorialSystem::Awake()
