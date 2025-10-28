@@ -143,6 +143,12 @@ DescriptionPanel::DescriptionPanel()
     });
 }
 
+void DescriptionPanel::SetOpacity(const float opacity)
+{
+    ReflectFields->Alpha = std::clamp(opacity, 0.0f, 1.0f);
+    UpdateAlpha();
+}
+
 void DescriptionPanel::DeserializedReflectEvent()
 {
     HorizontalPanel::DeserializedReflectEvent();
@@ -222,6 +228,7 @@ void DescriptionPanel::MakeChild()
             color.w                    = ReflectFields->Alpha;
             element.Color              = color;
             element.FontScale          = ReflectFields->FontScale;
+            element.MakeArtificial();
         }
         break;
         case ElementType::IMAGE: {
@@ -236,6 +243,7 @@ void DescriptionPanel::MakeChild()
             element.HorizontalFillMode = FillMode::FILL;
             element.VerticalFillMode   = FillMode::FILL;
             element.Alpha              = ReflectFields->Alpha;
+            element.MakeArtificial();
             imageChild->transform->SetParent(child->transform, true);
         }
         break;
@@ -251,13 +259,11 @@ void DescriptionPanel::UpdateAlpha()
     std::ranges::for_each(children, [alpha](const UIComponent* child) {
         if (TextElement* textElement = child->GetComponent<TextElement>(); nullptr != textElement)
         {
-            Color color        = textElement->Color;
-            color.w            = alpha;
-            textElement->Color = color;
+            textElement->SetOpacity(alpha);
         }
         else if (ImageElement* imageElement = child->GetComponent<ImageElement>(); nullptr != imageElement)
         {
-            imageElement->Alpha = alpha;
+            imageElement->SetOpacity(alpha);
         }
     });
 }

@@ -10,6 +10,16 @@ void DrawUIComponent::SetViewOrder(const int viewOrder)
     ReflectFields->ViewOrder = viewOrder;
 }
 
+void DrawUIComponent::MakeArtificial()
+{
+    _isArtificial = true;
+}
+
+bool DrawUIComponent::IsArtificial() const
+{
+    return _isArtificial;
+}
+
 void DrawUIComponent::ImGuiDrawPropertysEvent()
 {
     UIComponent::ImGuiDrawPropertysEvent();
