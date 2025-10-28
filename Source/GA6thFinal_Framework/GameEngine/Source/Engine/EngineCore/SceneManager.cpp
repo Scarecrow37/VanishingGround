@@ -2291,7 +2291,7 @@ bool ESceneManager::InputSystem::PushReceiverToInputStack(InputReceiver& receive
 
 bool ESceneManager::InputSystem::PopReceiverToInputStack(InputReceiver& receiver)
 {
-    if (receiver._isDestroy && false == *receiver._isDestroy)
+    if (receiver._isDestroy)
     {
         if (true == receiver._isPushStack)
         {
