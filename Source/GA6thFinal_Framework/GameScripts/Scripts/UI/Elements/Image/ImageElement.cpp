@@ -34,9 +34,14 @@ void ImageElement::SetImage(const File::Guid& Guid)
     RequestResource();
 }
 
-void ImageElement::SetLinearFill(float fill)
+void ImageElement::SetLinearFill(const float fill) const
 {
     _renderer->SetLinearFill(fill);
+}
+
+void ImageElement::SetRadialFill(const float fill) const
+{
+    _renderer->SetRadialFill(fill);
 }
 
 void ImageElement::Reset()
@@ -212,7 +217,13 @@ void ImageElement::RequestResource()
             UpdateAtlas();
             UpdateAtlasIndex();
 
-            //ResetToSpriteSize();
+            const float linearFill = LinearFill;
+            SetLinearFill(linearFill);
+
+            const float radialFill = RadialFill;
+            SetRadialFill(radialFill);
+
+            // ResetToSpriteSize();
         });
     }
 }
