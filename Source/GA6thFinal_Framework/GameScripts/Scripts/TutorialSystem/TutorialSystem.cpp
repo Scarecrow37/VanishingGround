@@ -147,47 +147,41 @@ void TutorialSystem::Hide()
 
 void TutorialSystem::SetupData()
 {
-    if (const GameObject* excelDataSystem = SingletonObject<ExcelDataSystem>::GetInstance())
+    if (ExcelDataSystem* excelDataSystemComponent = SingletonComponent<ExcelDataSystem>::GetInstance())
     {
-        if (ExcelDataSystem* excelDataSystemComponent = excelDataSystem->GetComponent<ExcelDataSystem>())
+        if (const std::unique_ptr<ExcelDataBase> dataBase = excelDataSystemComponent->FindExcelDataBase(SHEET_NAME);
+            nullptr != dataBase)
         {
-            if (const std::unique_ptr<ExcelDataBase> dataBase = excelDataSystemComponent->FindExcelDataBase(SHEET_NAME); nullptr != dataBase)
+            const size_t rowCount = dataBase->RowCount();
+            for (size_t row = 0; row < rowCount; ++row)
             {
-                const size_t rowCount = dataBase->RowCount();
-                for (size_t row = 0; row < rowCount; ++row)
-                {
-                    std::string_view idStringView = dataBase->FindData(row, COLUMN_KEY_ID);
-                    std::string      idString     = std::string(idStringView);
-                    int              id           = std::stoi(idString);
+                std::string_view idStringView = dataBase->FindData(row, COLUMN_KEY_ID);
+                std::string      idString     = std::string(idStringView);
+                int              id           = std::stoi(idString);
 
-                    std::string_view  titleStringView = dataBase->FindData(row, COLUMN_KEY_TITLE);
-                    const std::string titleString     = std::string(titleStringView);
+                std::string_view  titleStringView = dataBase->FindData(row, COLUMN_KEY_TITLE);
+                const std::string titleString     = std::string(titleStringView);
 
-                    std::string_view  descriptionStringView = dataBase->FindData(row, COLUMN_KEY_DESCRIPTION);
-                    const std::string descriptionString     = std::string(descriptionStringView);
+                std::string_view  descriptionStringView = dataBase->FindData(row, COLUMN_KEY_DESCRIPTION);
+                const std::string descriptionString     = std::string(descriptionStringView);
 
-                    std::string_view imageStringView = dataBase->FindData(row, COLUMN_KEY_IMAGE);
-                    std::string      imageString     = std::string(imageStringView);
-                    const int        image           = std::stoi(idString);
-                    File::Guid       imageGuid       = UmFileSystem.GetGuidFromAssetID(image);
+                std::string_view imageStringView = dataBase->FindData(row, COLUMN_KEY_IMAGE);
+                std::string      imageString     = std::string(imageStringView);
+                const int        image           = std::stoi(idString);
+                File::Guid       imageGuid       = UmFileSystem.GetGuidFromAssetID(image);
 
-                    auto [_, succeed] = _tutorials.try_emplace(id, false, titleString, descriptionString, imageGuid);
-                    assert(succeed);
-                }
-            }
-            else
-            {
-                UmLogger.Log(LogLevel::LEVEL_WARNING, "Can not find tutorial sheet.");
+                auto [_, succeed] = _tutorials.try_emplace(id, false, titleString, descriptionString, imageGuid);
+                assert(succeed);
             }
         }
         else
         {
-            UmLogger.Log(LogLevel::LEVEL_WARNING, "Load Tutorial Data Fail.");
+            UmLogger.Log(LogLevel::LEVEL_WARNING, "Can not find tutorial sheet.");
         }
     }
     else
     {
-        UmLogger.Log(LogLevel::LEVEL_WARNING, "Excel Data System is not existed.");
+        UmLogger.Log(LogLevel::LEVEL_WARNING, "Fail to get ExcelDataSystem instance.");
     }
 }
 
