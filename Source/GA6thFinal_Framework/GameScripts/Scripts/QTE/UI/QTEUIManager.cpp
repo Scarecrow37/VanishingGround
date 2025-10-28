@@ -56,28 +56,26 @@ void QTEUIManager::OnQTENotePressed(const UINT noteID, const QTE::NoteResult& re
         int index = GetIndexFromNoteID(noteID);
         if (index >= 0)
         {
-            _inputViewerUI.OnNotePressed(result);
             _notePool[index].OnNotePressed(result);
+            _inputViewerUI.OnNotePressed(result);
             if (_effectPool[index].Overlay)
             {
-                const SIZE  size   = _effectPool[index].Overlay->Size;
-                const float offset = static_cast<float>(-size.cx / 2);
-
+                const SIZE  size = _effectPool[index].Overlay->Size;
+                float       posX = static_cast<float>(-size.cx / 2);
                 if (result.Result == QTE::QTE_RESULT_MISS || result.Result == QTE::QTE_RESULT_NORMAL)
                 {
                     if (_notePool[index].Overlay)
                     {
                         const POINT point  = _notePool[index].Overlay->CenterPoint;
-                        const float posX   = static_cast<float>(point.x + offset);
-                        _effectPool[index].OnNotePressed(result, posX);
+                        posX += static_cast<float>(point.x);
                     }
                 }
                 else if (result.Result == QTE::QTE_RESULT_PERFECT)
                 {
                     const POINT point  = _fieldUI.JudgeNote->CenterPoint;
-                    const float posX   = static_cast<float>(point.x + offset);
-                    _effectPool[index].OnNotePressed(result, posX);
+                    posX += static_cast<float>(point.x);
                 }
+                _effectPool[index].OnNotePressed(result, posX);
             }
         }
     }
