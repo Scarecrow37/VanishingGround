@@ -68,17 +68,20 @@ namespace QTE
     }
     void JudgeEffectUI::OnNotePressed(const QTE::NoteResult& resultType, float posX)
     {
-        if (SpriteAnimationElement* effect = GetSpriteAnimation(resultType.Result))
+        if (resultType.IsPressedButton())
         {
-            effect->gameObject->ActiveSelf = true;
-            effect->StartAnimation();
-        }
-        if (Overlay)
-        {
-            const POINT oldPoint = Overlay->Point;
-            const LONG  posXLong = static_cast<LONG>(posX);
-            Overlay->Point       = POINT{posXLong, oldPoint.y};
-            Overlay->gameObject->ActiveSelf = true;
+            if (SpriteAnimationElement* effect = GetSpriteAnimation(resultType.Result))
+            {
+                effect->gameObject->ActiveSelf = true;
+                effect->StartAnimation();
+            }
+            if (Overlay)
+            {
+                const POINT oldPoint            = Overlay->Point;
+                const LONG  posXLong            = static_cast<LONG>(posX);
+                Overlay->Point                  = POINT{posXLong, oldPoint.y};
+                Overlay->gameObject->ActiveSelf = true;
+            }
         }
     }
     SpriteAnimationElement* JudgeEffectUI::GetSpriteAnimation(QTE::ResultType result)
