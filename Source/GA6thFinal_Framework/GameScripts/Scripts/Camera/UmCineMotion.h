@@ -101,6 +101,7 @@ protected:
     std::vector<float>      _easeLog;
     Matrix                  _oldWorldMat = Matrix::Identity;
     Transform*              _oldParent   = nullptr;
+    bool                    _manipulateFlag = false;
 
     float EaseTimeStep(float step);
 
