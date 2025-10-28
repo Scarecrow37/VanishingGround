@@ -21,6 +21,7 @@ public:
 
 public:
     void RegisterAnimator(Animator* animator);
+    void UnregisterAnimator(Animator* animator);
     void ClearAnimationQueue();
 
 public:
