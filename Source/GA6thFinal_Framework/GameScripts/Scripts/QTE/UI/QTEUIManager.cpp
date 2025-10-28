@@ -48,7 +48,7 @@ void QTEUIManager::OnQTEButtonPressed()
     _fieldUI.OnButtonPressed();
 }
 
-void QTEUIManager::OnQTENotePressed(const UINT noteID, const QTE::ResultType result)
+void QTEUIManager::OnQTENotePressed(const UINT noteID, const QTE::NoteResult& result)
 {
     if (QTE::NoteUI* noteUI = GetNoteUIFromID(noteID))
     {
@@ -230,6 +230,20 @@ void QTEUIManager::InitializeNotePool()
     }
 }
 
+void QTEUIManager::InitializeInputNodePool() 
+{
+    //assert(_inputViewerUI.NodePool && "NodePool이 없으면 인풋 노드 인스턴스를 생성하지 않습니다.");
+    //if (_inputViewerUI.Overlay)
+    //{
+    //    _inputNodePool.clear();
+    //    Transform& parent = _inputViewerUI.Overlay->transform;
+    //    for (int i = 0; i < ReflectFields->PoolSize; ++i)
+    //    {
+    //        _inputNodePool.emplace_back(&parent);
+    //    }
+    //}
+}
+
 QTE::NoteUI* QTEUIManager::GetNoteUIFromID(UINT id)
 {
     if (_activedNote.contains(id))
@@ -301,6 +315,7 @@ void QTEUIManager::FindUIComponents()
         if (curr)
         {
             _backGroundUI.MatchUIFromObject(curr->gameObject);
+            _inputViewerUI.MatchUIFromObject(curr->gameObject);
             _fieldUI.MatchUIFromObject(curr->gameObject);
             _guideUI.MatchUIFromObject(curr->gameObject);
         }

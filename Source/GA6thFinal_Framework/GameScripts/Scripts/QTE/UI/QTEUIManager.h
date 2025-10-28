@@ -3,10 +3,12 @@
 #include <Utility/SingletonHelper.h>
 #include <Utility/FadeHelper.h>
 
-#include "QTE/UI/QTEBackgroundUI.h"
-#include "QTE/UI/QTEFieldUI.h"
-#include "QTE/UI/QTEGuideUI.h"
-#include "QTE/UI/QTENoteUI.h"
+#include "QTE/UI/Background/QTEBackgroundUI.h"
+#include "QTE/UI/Input/QTEInputViewerUI.h"
+#include "QTE/UI/Input/QTEInputNodeUI.h"
+#include "QTE/UI/Field/QTEFieldUI.h"
+#include "QTE/UI/Guide/QTEGuideUI.h"
+#include "QTE/UI/Note/QTENoteUI.h"
 
 class SpriteAnimationElement;
 
@@ -44,7 +46,7 @@ public:
 private:
     void OnQTEEnter();
     void OnQTEButtonPressed();
-    void OnQTENotePressed(UINT noteID, QTE::ResultType result);
+    void OnQTENotePressed(UINT noteID, const QTE::NoteResult& result);
     void OnQTEPlay();
     void OnQTEExit();
 
@@ -70,6 +72,7 @@ private:
 private:
     void ResetUI();
     void InitializeNotePool();
+    void InitializeInputNodePool();
 
     QTE::NoteUI* GetNoteUIFromID(UINT id);
 
@@ -80,6 +83,7 @@ private:
 
     OverlayPanel*                       _overlayPanel = nullptr;
     QTE::BackgroundUI                   _backGroundUI;
+    QTE::InputViewerUI                  _inputViewerUI;
     QTE::FieldUI                        _fieldUI;
     QTE::GuideUI                        _guideUI;
 

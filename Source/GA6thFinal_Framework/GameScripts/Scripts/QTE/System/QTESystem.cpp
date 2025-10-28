@@ -526,7 +526,7 @@ void QTESystem::PressedQTEButton(const Input::Controller::Button buttonType)
             default:
                 break;
         }
-        ProcessQTENotePressedEvent(result.NoteData->ID, result.Result);
+        ProcessQTENotePressedEvent(result.NoteData->ID, result);
     }
 }
 
@@ -664,7 +664,7 @@ void QTESystem::ProcessQTEButtonPressedEvent()
     }
 }
 
-void QTESystem::ProcessQTENotePressedEvent(const UINT noteID, const QTE::ResultType result)
+void QTESystem::ProcessQTENotePressedEvent(const UINT noteID, const QTE::NoteResult& result)
 {
     _callbackHandler.ProcessQTENotePressedEvent(noteID, result);
     if (QTEUIManager* uiManager = SingletonComponent<QTEUIManager>::GetInstance())

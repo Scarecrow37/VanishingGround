@@ -23,9 +23,6 @@ namespace QTE
         };
 
     private:
-        /// <summary>프리팹을 기반으로 노트 오브젝트를 스폰합니다.</summary>
-        /// <param name="_prefab">프리팹의 Guid</param>
-        /// <param name="parent">부모가 될 Transform</param>
         void SpawnObject(const File::Guid& prefab, Transform* parent);
 
         void SetPositionX(float posX);
@@ -41,7 +38,7 @@ namespace QTE
 
         void Update(const float currTime, const float travelTime, const float currSpeed, const float startX, const float endX, const float perfectX, const float offsetX = 0.0f);
 
-        void OnNotePressed(QTE::ResultType resultType);
+        void OnNotePressed(const QTE::NoteResult& resultType);
 
     private:
         // 노트가 트랙에 나타나기 시작해야할 때

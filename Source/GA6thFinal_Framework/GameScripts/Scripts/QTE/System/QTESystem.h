@@ -116,7 +116,7 @@ private:
     void ProcessQTEFadeOutEndEvent();
     void ProcessQTEPlayingEvent();
     void ProcessQTEButtonPressedEvent();
-    void ProcessQTENotePressedEvent(UINT noteID, QTE::ResultType result);
+    void ProcessQTENotePressedEvent(UINT noteID, const QTE::NoteResult& result);
 
 public:
     inline void  SetNoteTravelTime(float time) { ReflectFields->NoteTravelTime = time; }

@@ -178,9 +178,9 @@ namespace QTE
         }
     }
     
-    void NoteUI::OnNotePressed(QTE::ResultType resultType) 
+    void NoteUI::OnNotePressed(const QTE::NoteResult& resultType) 
     {
-        Result = resultType;
+        Result = resultType.Result;
     }
     
     void NoteUI::OnNoteEnter() 
