@@ -40,16 +40,6 @@ namespace QTE
         }
     }
 
-    void NoteUI::SetPositionX(float posX) 
-    {
-        if (Overlay)
-        {
-            const POINT oldPoint = Overlay->Point;
-            const LONG  posXLong = static_cast<LONG>(posX);
-            Overlay->Point = POINT{posXLong, oldPoint.y};
-        }
-    }
-
     float NoteUI::GetNoteWidth()
     {
         if (Overlay)
@@ -99,7 +89,17 @@ namespace QTE
         }
         return false;
     }
-
+    void NoteUI::Alpha(float alpha)
+    {
+        if (StartAnimation)
+        {
+            StartAnimation->Alpha = alpha;
+        }
+        if (EndAnimation)
+        {
+            EndAnimation->Alpha = alpha;
+        }
+    }
     void NoteUI::Update(const float currTime, const float travelTime, const float currSpeed, const float startX,
                         const float endX, const float perfectX, const float offsetX)
     {
@@ -116,7 +116,6 @@ namespace QTE
         switch (State)
         {
         case STATE_WAIT: {
-            OnWaitUpdate();
             if (posXFactor >= 0.0f)
             {
                 State = STATE_VISIBLE;
@@ -127,15 +126,24 @@ namespace QTE
         }
         case STATE_VISIBLE: {
             if (Overlay)
-            {   // 최종 값은 EndX값을 넘지 않는 X값에 오프셋을 더한 값.
+            {
                 const SIZE  size      = Overlay->Size;
-                const float finalXPos = std::min(posXValue, endX) + offsetX - static_cast<float>(size.cx / 2);
-                SetPositionX(finalXPos); // 위치 설정
+                const POINT oldPoint  = Overlay->Point;
+                const float half      = static_cast<float>(-size.cx / 2);
+                const float finalXPos = std::min(posXValue, endX) + half;
+                const LONG  posXLong  = static_cast<LONG>(finalXPos) - size.cx / 2;
+                Overlay->Point        = POINT{posXLong, oldPoint.y};
+                {
+                    const float hideX  = perfectX + 300.0f;
+                    const float dist   = hideX - perfectX;
+                    const float delta  = hideX - finalXPos;
+                    const float factor = std::clamp(delta / dist, 0.0f, 1.0f);
+                    Alpha(std::clamp(factor, 0.0f, 1.0f));
+                }
+              
             }
-            OnVisibleUpdate();
-            // X값이 EndX값을 넘었거나, 결과가 생긴 노트는 Dead처리
-            if (posXValue >= endX ||
-                Result != QTE::QTE_RESULT_NONE)
+            // 결과가 생긴 노트는 Dead처리
+            if (Result != QTE::QTE_RESULT_NONE)
             {
                 State = STATE_DEAD;
                 OnNoteExit();
@@ -143,7 +151,14 @@ namespace QTE
             break;
         }
         case STATE_DEAD: {
-            OnDeadUpdate();
+            if (EndAnimation)
+            {
+                // 애니메이션 끝났는지 확인
+                if (false == EndAnimation->IsPlaying)
+                {
+                    EndAnimation->gameObject->ActiveSelf = false;
+                }
+            }
             break;
         }
         default:
@@ -153,7 +168,10 @@ namespace QTE
     
     void NoteUI::OnNotePressed(const QTE::NoteResult& resultType) 
     {
-        Result = resultType.Result;
+        if (resultType.IsPressedButton())
+        {
+            Result = resultType.Result;
+        }
     }
     
     void NoteUI::OnNoteEnter() 
@@ -173,23 +191,6 @@ namespace QTE
             if (StartAnimation)
             {
                 StartAnimation->gameObject->ActiveSelf = false;
-            }
-        }
-    }
-    void NoteUI::OnWaitUpdate() 
-    {
-    }
-    void NoteUI::OnVisibleUpdate() 
-    {
-    }
-    void NoteUI::OnDeadUpdate() 
-    {
-        if (EndAnimation)
-        {
-            // 애니메이션 끝났는지 확인
-            if (false == EndAnimation->IsPlaying)
-            {
-                EndAnimation->gameObject->ActiveSelf = false;
             }
         }
     }

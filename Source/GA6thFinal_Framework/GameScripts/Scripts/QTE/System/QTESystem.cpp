@@ -48,8 +48,13 @@ void QTESystem::Start()
 
 void QTESystem::Update()
 {
-    if (QTE::STATE_PLAYING == _currState)
+    if (QTE::STATE_PLAYING == _currState || 
+        QTE::STATE_FADE_OUT == _currState)
     {
+        if (_currTime < _totalTime)
+        {
+            _currTime += false == _isPaused ? UmTime.DeltaTime() : 0.0f;
+        }
         ProcessQTEPlayingEvent();
     }
     _prevState = _currState;
@@ -387,11 +392,7 @@ void QTESystem::ClearQueue()
 
 void QTESystem::UpdateQTETrack()
 {
-    if (false == _isPaused)
-    {
-        _currTime += UmTime.DeltaTime();
-    }
-    if (_currTime < _totalTime && _currentNoteIndex < _noteAvailQueue.size())
+    if (_currentNoteIndex < _noteAvailQueue.size())
     {
         const QTE::NoteData& curNote = _noteAvailQueue[_currentNoteIndex];
         auto& [validMin, validMax]   = ReflectFields->ValidJudgeRange;

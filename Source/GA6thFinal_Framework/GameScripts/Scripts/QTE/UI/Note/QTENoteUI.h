@@ -30,6 +30,8 @@ namespace QTE
         float GetNoteWidth();
 
     public:
+        void Alpha(float alpha);
+
         bool IsAvailable();
         
         void Reset();
@@ -41,13 +43,8 @@ namespace QTE
         void OnNotePressed(const QTE::NoteResult& resultType);
 
     private:
-        // 노트가 트랙에 나타나기 시작해야할 때
         void OnNoteEnter();
-        // 노트가 트랙에서 사라져야할 때
         void OnNoteExit();
-
-        void OnWaitUpdate();
-        void OnVisibleUpdate();
         void OnDeadUpdate();
 
     public:
