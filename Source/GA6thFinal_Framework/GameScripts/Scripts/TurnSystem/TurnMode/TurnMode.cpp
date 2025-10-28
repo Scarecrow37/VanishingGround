@@ -6,6 +6,7 @@
 #include <DamageSystem/DamageSystem.h>
 #include "TurnSystem/TurnAction/Condition/RoundOnceCondition/RoundOnceCondition.h"
 #include "TurnSystem/TurnAction/TurnAction.h"
+#include "RoundInfoUI/RoundInfoUIManager.h"
 
 //Condition
 #include "GameCore/FSM/AlwaysTransitionCondition.h"
@@ -390,6 +391,20 @@ void TurnMode::ImGuiDrawPropertysEvent()
                 ImGui::PopID();
             }
             ImGui::EndTable();
+        }
+        ImGui::TreePop();
+    }
+
+    if(ImGui::TreeNode("UI Test"))
+    {
+        if (ImGui::Button("Play Round Fade UI"))
+        {
+            if (auto roundInfoUI = GameObject::FindComponentWithTag<RoundInfoUIManager>("Round Info Panel").lock())
+            {
+                std::string info = (const char*)u8"라운드  ";
+                info += std::to_string(_roundCount);
+                roundInfoUI->FadeInfoUI(info);
+            }                            
         }
         ImGui::TreePop();
     }
