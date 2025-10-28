@@ -264,6 +264,7 @@ void PlayerPlayTurnState::SetAttackReady()
         // 애니메이션 빌드 종료
         animator->EndBuildOverrideAnimation();
     }
+    UmAudio.Play("-32000");
 }
 
 void PlayerPlayTurnState::SetAttack()
@@ -286,6 +287,7 @@ void PlayerPlayTurnState::SetAttack()
     
         animator->EndBuildOverrideAnimation();
     }
+    UmAudio.Play("-32010");
 }
 
 void PlayerPlayTurnState::SetAttackEnd()
