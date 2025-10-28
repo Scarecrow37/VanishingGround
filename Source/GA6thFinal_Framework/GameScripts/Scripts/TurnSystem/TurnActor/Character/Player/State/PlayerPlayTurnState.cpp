@@ -103,11 +103,6 @@ void PlayerPlayTurnState::OnUpdate()
     default:
         break;
     }
-
-    if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
-    {
-        combatUIManager->Refresh();
-    }
 }
 
 void PlayerPlayTurnState::PressedButtonA(const Input::Controller& controller)
