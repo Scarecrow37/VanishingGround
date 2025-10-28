@@ -17,7 +17,7 @@ namespace QTE
 
         std::unordered_map<NoteResult::Button, File::Guid> ButtonGuid;
 
-        void Initialize(size_t poolSize);
+        void Initialize(File::Guid prefabGuid, size_t poolSize);
 
         // 해당 오브젝트에 자신의 멤버가 있으면 매칭합니다.
         void MatchUIFromObject(GameObject& object);

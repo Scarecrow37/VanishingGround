@@ -36,12 +36,16 @@ public:
     ~QTEUIManager() override;
 
 public:
-    REFLECT_PROPERTY(NotePrefab, EffectPrefab, PoolSize)
+    REFLECT_PROPERTY(NotePrefab, EffectPrefab, ButtonPrefab, PoolSize)
+
     GETTER_ONLY(std::string, NotePrefab) { return File::Guid(ReflectFields->NotePrefabGuid).ToPath().string(); }
     PROPERTY(NotePrefab)
 
     GETTER_ONLY(std::string, EffectPrefab) { return File::Guid(ReflectFields->EffectPrefabGuid).ToPath().string(); }
     PROPERTY(EffectPrefab)
+
+    GETTER_ONLY(std::string, ButtonPrefab) { return File::Guid(ReflectFields->ButtonPrefabGuid).ToPath().string(); }
+    PROPERTY(ButtonPrefab)
 
     SETTER(int, PoolSize) { ReflectFields->PoolSize = value; }
     GETTER(int, PoolSize) { return ReflectFields->PoolSize; }
@@ -75,7 +79,6 @@ private:
     void ResetUI();
     void InitializeNotePool();
     void InitializeEffectPool();
-    void InitializeInputNodePool();
 
     int  GetIndexFromNoteID(UINT id);
 

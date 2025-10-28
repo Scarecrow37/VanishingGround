@@ -22,6 +22,7 @@ void QTEUIManager::OnQTEEnter()
     ResetUI();
     _fieldUI.Active(true);
     _guideUI.Active(true);
+    _inputViewerUI.Active(true);
     _fieldUI.OnQTEEnter();
     _mainFader.SetFadeMode(Fader::FADE_IN);
     if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
@@ -55,6 +56,7 @@ void QTEUIManager::OnQTENotePressed(const UINT noteID, const QTE::NoteResult& re
         int index = GetIndexFromNoteID(noteID);
         if (index >= 0)
         {
+            _inputViewerUI.OnNotePressed(result);
             _notePool[index].OnNotePressed(result);
             if (_effectPool[index].Overlay)
             {
@@ -162,6 +164,13 @@ void QTEUIManager::Reset()
             ReflectFields->EffectPrefabGuid = dragDropGuid.string();
         }
     });
+    ButtonPrefab.SetInputAutoEvent([this]() {
+        File::Guid dragDropGuid;
+        if (DragDropEvent(dragDropGuid))
+        {
+            ReflectFields->ButtonPrefabGuid = dragDropGuid.string();
+        }
+    });
 }
 
 void QTEUIManager::Awake() 
@@ -190,17 +199,20 @@ void QTEUIManager::Start()
             _backGroundUI.Alpha(0.0f);
             _fieldUI.Active(false);
             _guideUI.Active(false);
+            _inputViewerUI.Active(false);
         }
     });
     FindUIComponents();
     InitializeNotePool();
     InitializeEffectPool();
-    InitializeInputNodePool();
+    size_t poolSize = static_cast<size_t>(ReflectFields->PoolSize);
+    _inputViewerUI.Initialize(ReflectFields->ButtonPrefabGuid, poolSize);
     ResetUI();
     _backGroundUI.Alpha(0.0f);
     _backGroundUI.Active(true);
     _fieldUI.Active(false);
     _guideUI.Active(false);
+    _inputViewerUI.Active(false);
 }
 
 void QTEUIManager::Update() 
@@ -254,6 +266,7 @@ void QTEUIManager::ImGuiDrawPropertysEvent()
 void QTEUIManager::ResetUI()
 {
     _fieldUI.Reset();
+    _inputViewerUI.Reset();
     _activedPoolIndices.clear();
     for (auto& noteUI : _notePool)
     {
@@ -297,20 +310,6 @@ void QTEUIManager::InitializeEffectPool()
     }
 }
 
-void QTEUIManager::InitializeInputNodePool() 
-{
-    //assert(_inputViewerUI.NodePool && "NodePool이 없으면 인풋 노드 인스턴스를 생성하지 않습니다.");
-    //if (_inputViewerUI.Overlay)
-    //{
-    //    _inputNodePool.clear();
-    //    Transform& parent = _inputViewerUI.Overlay->transform;
-    //    for (int i = 0; i < ReflectFields->PoolSize; ++i)
-    //    {
-    //        _inputNodePool.emplace_back(&parent);
-    //    }
-    //}
-}
-
 int QTEUIManager::GetIndexFromNoteID(UINT id)
 {
     if (_activedPoolIndices.contains(id))
@@ -327,6 +326,7 @@ void QTEUIManager::SetUIAlpha(float factor)
     _backGroundUI.Alpha(factor);
     _fieldUI.Alpha(factor);
     _guideUI.Alpha(factor);
+    _inputViewerUI.Alpha(factor);
 }
 
 void QTEUIManager::DrawDebugJudgeLine()

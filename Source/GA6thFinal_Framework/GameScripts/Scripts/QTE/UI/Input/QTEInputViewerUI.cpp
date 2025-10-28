@@ -5,9 +5,17 @@
 
 namespace QTE
 {
-    void InputViewerUI::Initialize(size_t poolSize) 
+    void InputViewerUI::Initialize(File::Guid prefabGuid, size_t poolSize) 
     {
-
+        NodePool.clear();
+        if (Overlay)
+        {
+            Transform& parent = Overlay->transform;
+            for (int i = 0; i < poolSize; ++i)
+            {
+                NodePool.emplace_back(prefabGuid, &parent);
+            }
+        }
     }
     void InputViewerUI::MatchUIFromObject(GameObject& object)
     {
@@ -35,21 +43,33 @@ namespace QTE
     }
     void InputViewerUI::Reset()
     {
-        for (auto& inputNode : NodePool)
+        if (Overlay)
         {
-            inputNode.Reset();
-            Transform* parent = Overlay ? &Overlay->transform : nullptr;
-            inputNode.SetParent(parent);
+            for (auto& inputNode : NodePool)
+            {
+                inputNode.Reset();
+                Transform& parent = Overlay->transform;
+                inputNode.SetParent(&parent);
+            }
         }
         ActivedNode = 0;
     }
     void InputViewerUI::OnNotePressed(const QTE::NoteResult& result)
     {
-        File::Guid&  guid = ButtonGuid[result.PressedButton];
-        if (ActivedNode < NodePool.size())
+        if (result.IsPressedButton())
         {
-            InputNodeUI& node = NodePool[ActivedNode];
-            node.SetImage(guid);
+            File::Guid& guid = ButtonGuid[result.PressedButton];
+            if (ActivedNode < NodePool.size())
+            {
+                InputNodeUI& node = NodePool[ActivedNode];;
+                node.Show(result.PressedButton);
+                if (Horizontal)
+                {
+                    Transform& parent = Horizontal->transform;
+                    node.SetParent(&parent);
+                }
+                ++ActivedNode;
+            }
         }
     }
 }

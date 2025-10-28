@@ -24,10 +24,12 @@ namespace QTE
             }
             Transform::ForeachBFS(transform, [this](Transform* child) {
                 GameObject& childObject = child->gameObject;
-
-                if (childObject.CompareTag(BUTTON_IMAGE_TAG))
+                for (int i = 0; i < BUTTON_COUNT; ++i)
                 {
-                    ButtonImage = childObject.GetComponent<ImageElement>();
+                    if (childObject.CompareTag(BUTTON_IMAGE_TAG[i]))
+                    {
+                        ButtonImage[i] = childObject.GetComponent<ImageElement>();
+                    }
                 }
             });
         }
@@ -42,15 +44,55 @@ namespace QTE
     }
     void InputNodeUI::Alpha(float alpha)
     {
-        if (ButtonImage)
+        for (int i = 0; i < BUTTON_COUNT; ++i)
         {
-            ButtonImage->Alpha = alpha;
+            if (ButtonImage[i])
+            {
+                ButtonImage[i]->Alpha = alpha;
+            }
         }
     }
     void InputNodeUI::Reset()
     {
+        for (int i = 0; i < BUTTON_COUNT; ++i)
+        {
+            if (ButtonImage[i])
+            {
+                ButtonImage[i]->gameObject->ActiveSelf = false;
+            }
+        }
         Active(false);
         Alpha(1.0f);
+    }
+    void InputNodeUI::Show(Input::Controller::Button button)
+    {
+        Active(true);
+        switch (button)
+        {
+        case Input::Controller::Button::X: {
+            if (ButtonImage[X])
+            {
+                ButtonImage[X]->gameObject->ActiveSelf = true;
+            }
+            break;
+        }
+        case Input::Controller::Button::Y: {
+            if (ButtonImage[Y])
+            {
+                ButtonImage[Y]->gameObject->ActiveSelf = true;
+            }
+            break;
+        }
+        case Input::Controller::Button::B: {
+            if (ButtonImage[B])
+            {
+                ButtonImage[B]->gameObject->ActiveSelf = true;
+            }
+            break;
+        }
+        default:
+            break;
+        }
     }
     void InputNodeUI::SetParent(Transform* parent) 
     {
@@ -58,13 +100,6 @@ namespace QTE
         {
             Transform& transform = Overlay->gameObject->transform;
             transform.SetParent(parent);
-        }
-    }
-    void InputNodeUI::SetImage(const File::Guid& guid)
-    {
-        if (ButtonImage)
-        {
-            ButtonImage->SetImage(guid);
         }
     }
 }
