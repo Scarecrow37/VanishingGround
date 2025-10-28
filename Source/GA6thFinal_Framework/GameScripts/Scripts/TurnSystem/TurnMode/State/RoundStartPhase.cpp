@@ -5,6 +5,8 @@
 #include <TurnSystem/TurnMode/State/CombatStartPhase.h>
 #include <TurnSystem/TurnActor/Character/CharacterBase.h>
 #include <RevelationSystem/RevelationSystem.h>
+#include "TutorialSystem/TutorialSystem.h"
+#include "RoundInfoUI/RoundInfoUIManager.h"
 
 REGISTER_CLASS(FSMStateFactory, RoundStartPhase)
 
@@ -15,13 +17,12 @@ RoundStartPhase::RoundStartPhase()
 
 }
 
-RoundStartPhase::~RoundStartPhase() {}
-
-void RoundStartPhase::OnAwake() {}
+RoundStartPhase::~RoundStartPhase() = default;
 
 void RoundStartPhase::OnStart() 
 {
     TurnModeStateBase::OnStart();
+    _roundInfoUIManager = GameObject::FindComponentWithTag<RoundInfoUIManager>("Round Info Panel");
 }
 
 void RoundStartPhase::OnEnter() 
@@ -53,7 +54,36 @@ void RoundStartPhase::OnEnter()
     //캐릭터 사망 확인
     UpdateCharacterDead();   
 
-    _isPhaseEnd = true;
+    if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
+    {
+        if (int id = system->GetTutorialID(u8"라운드"); 0 < id)
+            system->Show(id);
+    }  
+
+    if (auto roundInfoUIManager = _roundInfoUIManager.lock())
+    {
+        if (_turnMode)
+        {
+            using namespace u8_literals;
+            std::string msg = u8"라운드  "_c_str;
+            msg += std::to_string(currRound);
+            roundInfoUIManager->FadeInfoUI(msg);
+
+            float uiAnimationTime =  roundInfoUIManager->UIAnimationTime;
+            UmTime.Invoke(roundInfoUIManager.get(), uiAnimationTime,
+            [this, weakFSM = GetFSM().GetWeakPtrAs<FiniteStateMachine>()]() 
+            {   
+                if (auto fsm = weakFSM.lock())
+                {
+                    _isPhaseEnd = true;
+                }
+            });
+        }     
+    }
+    else
+    {
+        _isPhaseEnd = true;
+    }
 }
 
 void RoundStartPhase::OnExit() 

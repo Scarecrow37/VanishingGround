@@ -172,21 +172,19 @@ void CombatStartPhase::OnEnter()
     AddValidActions();
     AddExtinctionRevelation();
 
-    UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"배틀 시작...3");
-    UmTime.Invoke(&GetFSM(), 1.f, [this]() { UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"배틀 시작...2"); });
-    UmTime.Invoke(&GetFSM(), 2.f, [this]() { UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"배틀 시작...1"); });
-    UmTime.Invoke(&GetFSM(), 3.f, [this]() 
-    { 
-        this->_phaseEnd = true; 
-        
-        if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
-        {
-            combatUIManager->SetActiveUI(true);
-        }
-    });
-
     NotifyCombatStart();
     Battle::ResetLastCharacter();
+
+    if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        combatUIManager->AccessoriesGroup.ActiveUI(true);
+        combatUIManager->CharacterHUDGroup.ActiveUI(true);
+        combatUIManager->ConsumableGroup.ActiveUI(true);
+        combatUIManager->RevelationsGroup.ActiveUI(true);
+        combatUIManager->TurnQueueGroup.ActiveUI(true);
+    }
+
+    this->_phaseEnd = true;
 }
 
 void CombatStartPhase::OnExit() 
