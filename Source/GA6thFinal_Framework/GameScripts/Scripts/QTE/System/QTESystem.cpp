@@ -398,13 +398,14 @@ void QTESystem::UpdateQTETrack()
 
         // 디버깅 용도. (노트랑 완벽히 같은 시간으로 설정 후 클릭 이벤트 보내기.)
         // 혹시 모르니 주석 삭제는 안함.
-        //auto& [normalMin, normalMax]   = ReflectFields->NormalJudgeRange;
-        //if (curNote.Time < _currTime + normalMin)
-        //{
-        //    _currTime = curNote.Time - normalMin;
-        //    PressedQTEButton(Input::Controller::Button::B);
-        //    // 잘나오는데요??? 걍 렉때메 판정이 이상해보이는거 같기도...
-        //}
+        auto& [perfectMin, perfectMax] = ReflectFields->NormalJudgeRange;
+        auto& [normalMin, normalMax]   = ReflectFields->NormalJudgeRange;
+        if (curNote.Time < _currTime + normalMin)
+        {
+            _currTime = curNote.Time - normalMin;
+            PressedQTEButton(Input::Controller::Button::B);
+            // 잘나오는데요??? 걍 렉때메 판정이 이상해보이는거 같기도...
+        }
 
         if (_currTime > curNote.Time + validMax)
         {

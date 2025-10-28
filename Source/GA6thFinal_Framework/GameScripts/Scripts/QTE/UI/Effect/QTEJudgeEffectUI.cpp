@@ -78,6 +78,7 @@ namespace QTE
             const POINT oldPoint = Overlay->Point;
             const LONG  posXLong = static_cast<LONG>(posX);
             Overlay->Point       = POINT{posXLong, oldPoint.y};
+            Overlay->gameObject->ActiveSelf = true;
         }
     }
     SpriteAnimationElement* JudgeEffectUI::GetSpriteAnimation(QTE::ResultType result)

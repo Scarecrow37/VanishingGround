@@ -56,19 +56,24 @@ void QTEUIManager::OnQTENotePressed(const UINT noteID, const QTE::NoteResult& re
         if (index >= 0)
         {
             _notePool[index].OnNotePressed(result);
-            if (_notePool[index].Overlay)
+            if (_effectPool[index].Overlay)
             {
-                if (result.Result == QTE::QTE_RESULT_MISS || 
-                    result.Result == QTE::QTE_RESULT_NORMAL)
+                const SIZE  size   = _effectPool[index].Overlay->Size;
+                const float offset = static_cast<float>(-size.cx / 2);
+
+                if (result.Result == QTE::QTE_RESULT_MISS || result.Result == QTE::QTE_RESULT_NORMAL)
                 {
-                    const POINT point = _notePool[index].Overlay->Point;
-                    const float posX  = static_cast<float>(point.x);
-                    _effectPool[index].OnNotePressed(result, posX);
+                    if (_notePool[index].Overlay)
+                    {
+                        const POINT point  = _notePool[index].Overlay->CenterPoint;
+                        const float posX   = static_cast<float>(point.x + offset);
+                        _effectPool[index].OnNotePressed(result, posX);
+                    }
                 }
                 else if (result.Result == QTE::QTE_RESULT_PERFECT)
                 {
-                    const POINT point = _fieldUI.JudgeNote->CenterPoint;
-                    const float posX  = static_cast<float>(point.x);
+                    const POINT point  = _fieldUI.JudgeNote->CenterPoint;
+                    const float posX   = static_cast<float>(point.x + offset);
                     _effectPool[index].OnNotePressed(result, posX);
                 }
             }
@@ -147,14 +152,14 @@ void QTEUIManager::Reset()
         File::Guid dragDropGuid;
         if (DragDropEvent(dragDropGuid))
         {
-            SetNotePrefabGuid(dragDropGuid);
+            ReflectFields->NotePrefabGuid = dragDropGuid.string();
         }
     });
     EffectPrefab.SetInputAutoEvent([this]() {
         File::Guid dragDropGuid;
         if (DragDropEvent(dragDropGuid))
         {
-            SetNotePrefabGuid(dragDropGuid);
+            ReflectFields->EffectPrefabGuid = dragDropGuid.string();
         }
     });
 }
@@ -189,6 +194,8 @@ void QTEUIManager::Start()
     });
     FindUIComponents();
     InitializeNotePool();
+    InitializeEffectPool();
+    InitializeInputNodePool();
     ResetUI();
     _backGroundUI.Alpha(0.0f);
     _backGroundUI.Active(true);
@@ -312,11 +319,6 @@ int QTEUIManager::GetIndexFromNoteID(UINT id)
         return index;
     }
     return -1;
-}
-
-void QTEUIManager::SetNotePrefabGuid(const File::Guid& guid) 
-{
-    ReflectFields->NotePrefabGuid = guid.string();
 }
 
 void QTEUIManager::SetUIAlpha(float factor)

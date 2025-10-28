@@ -36,7 +36,7 @@ public:
     ~QTEUIManager() override;
 
 public:
-    REFLECT_PROPERTY(NotePrefab, PoolSize)
+    REFLECT_PROPERTY(NotePrefab, EffectPrefab, PoolSize)
     GETTER_ONLY(std::string, NotePrefab) { return File::Guid(ReflectFields->NotePrefabGuid).ToPath().string(); }
     PROPERTY(NotePrefab)
 
@@ -55,9 +55,6 @@ private:
     void OnQTEExit();
 
 public:
-    /// <summary>노트 프리팹의 GUID를 설정합니다. 해당 프리팹을 통해 QTE 노트 UI가 생성됩니다.</summary>
-    void SetNotePrefabGuid(const File::Guid& guid);
-
     /// <summary>QTE UI의 알파 값을 설정합니다.</summary>
     void SetUIAlpha(float factor);
 
