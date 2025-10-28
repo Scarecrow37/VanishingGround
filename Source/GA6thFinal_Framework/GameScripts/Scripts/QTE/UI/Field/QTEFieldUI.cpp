@@ -5,6 +5,20 @@
 
 namespace QTE
 {
+    void FieldUI::Initialize(File::Guid noteGuid, File::Guid effectGuid, size_t poolSize)
+    {
+        NotePool.clear();
+        EffectPool.clear();
+        if (Overlay)
+        {
+            Transform& parent = Overlay->transform;
+            for (int i = 0; i < poolSize; ++i)
+            {
+                NotePool.emplace_back(noteGuid, &parent);
+                EffectPool.emplace_back(effectGuid, &parent);
+            }
+        }
+    }
     void FieldUI::MatchUIFromObject(GameObject& object) 
     {
         Overlay = object.CompareTag(OVERLAY_TAG) 
@@ -73,6 +87,14 @@ namespace QTE
         if (Line)
         {
             Line->gameObject->ActiveSelf = false;
+        }
+        for (auto& noteUI : NotePool)
+        {
+            noteUI.Reset();
+        }
+        for (auto& effectUI : EffectPool)
+        {
+            effectUI.Reset();
         }
     }
     void FieldUI::OnQTEEnter()

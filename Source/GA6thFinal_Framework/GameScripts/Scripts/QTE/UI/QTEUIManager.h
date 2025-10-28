@@ -4,10 +4,8 @@
 #include <Utility/FadeHelper.h>
 
 #include "QTE/UI/Background/QTEBackgroundUI.h"
-#include "QTE/UI/Effect/QTEJudgeEffectUI.h"
 #include "QTE/UI/Input/QTEInputViewerUI.h"
 #include "QTE/UI/Input/QTEInputNodeUI.h"
-#include "QTE/UI/Note/QTENoteUI.h"
 #include "QTE/UI/Field/QTEFieldUI.h"
 #include "QTE/UI/Guide/QTEGuideUI.h"
 
@@ -77,11 +75,7 @@ private:
 
 private:
     void ResetUI();
-    void InitializeNotePool();
-    void InitializeEffectPool();
-
     int  GetIndexFromNoteID(UINT id);
-
     void FindUIComponents();
 
 private:
@@ -93,8 +87,6 @@ private:
     QTE::FieldUI                        _fieldUI;
     QTE::GuideUI                        _guideUI;
 
-    std::vector<QTE::NoteUI>            _notePool;
-    std::vector<QTE::JudgeEffectUI>     _effectPool;
     std::unordered_map<UINT, int>       _activedPoolIndices;
 
     Fader _mainFader;

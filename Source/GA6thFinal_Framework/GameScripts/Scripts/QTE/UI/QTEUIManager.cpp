@@ -28,14 +28,14 @@ void QTEUIManager::OnQTEEnter()
     if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
     {
         const auto& noteQueue  = system->GetCurrentQTEAvailQueue();
-        bool        validRange = noteQueue.size() <= _notePool.size();
+        bool        validRange = noteQueue.size() <= _fieldUI.NotePool.size();
         assert(validRange && "노트 풀의 사이즈가 작습니다.");
         if (validRange)
         {
             for (int i = 0; i < noteQueue.size(); ++i)
             {
                 UINT id = noteQueue[i].ID;
-                if (_notePool[i].TrySetup(noteQueue[i].Time))
+                if (_fieldUI.NotePool[i].TrySetup(noteQueue[i].Time))
                 {
                     _activedPoolIndices[id] = i;
                 }
@@ -56,17 +56,20 @@ void QTEUIManager::OnQTENotePressed(const UINT noteID, const QTE::NoteResult& re
         int index = GetIndexFromNoteID(noteID);
         if (index >= 0)
         {
-            _notePool[index].OnNotePressed(result);
+            auto& noteUI = _fieldUI.NotePool[index];
+            auto& effectUI = _fieldUI.EffectPool[index];
+
+            noteUI.OnNotePressed(result);
             _inputViewerUI.OnNotePressed(result);
-            if (_effectPool[index].Overlay)
+            if (effectUI.Overlay)
             {
-                const SIZE  size = _effectPool[index].Overlay->Size;
-                float       posX = static_cast<float>(-size.cx / 2);
+                const SIZE size = effectUI.Overlay->Size;
+                float      posX = static_cast<float>(-size.cx / 2);
                 if (result.Result == QTE::QTE_RESULT_MISS || result.Result == QTE::QTE_RESULT_NORMAL)
                 {
-                    if (_notePool[index].Overlay)
+                    if (noteUI.Overlay)
                     {
-                        const POINT point  = _notePool[index].Overlay->CenterPoint;
+                        const POINT point = noteUI.Overlay->CenterPoint;
                         posX += static_cast<float>(point.x);
                     }
                 }
@@ -75,7 +78,7 @@ void QTEUIManager::OnQTENotePressed(const UINT noteID, const QTE::NoteResult& re
                     const POINT point  = _fieldUI.JudgeNote->CenterPoint;
                     posX += static_cast<float>(point.x);
                 }
-                _effectPool[index].OnNotePressed(result, posX);
+                effectUI.OnNotePressed(result, posX);
             }
         }
     }
@@ -106,7 +109,7 @@ void QTEUIManager::OnQTEPlay()
                 int index = GetIndexFromNoteID(id);
                 if (index >= 0)
                 {
-                    _notePool[index].Update(currTime, travelTime, currSpeed, startX, endX, perfectX, 0.0f);
+                    _fieldUI.NotePool[index].Update(currTime, travelTime, currSpeed, startX, endX, perfectX, 0.0f);
                 }
             }
         }
@@ -199,9 +202,8 @@ void QTEUIManager::Start()
         }
     });
     FindUIComponents();
-    InitializeNotePool();
-    InitializeEffectPool();
     size_t poolSize = static_cast<size_t>(ReflectFields->PoolSize);
+    _fieldUI.Initialize(ReflectFields->NotePrefabGuid, ReflectFields->EffectPrefabGuid, poolSize);
     _inputViewerUI.Initialize(ReflectFields->ButtonPrefabGuid, poolSize);
     ResetUI();
     _backGroundUI.Alpha(0.0f);
@@ -264,46 +266,6 @@ void QTEUIManager::ResetUI()
     _fieldUI.Reset();
     _inputViewerUI.Reset();
     _activedPoolIndices.clear();
-    for (auto& noteUI : _notePool)
-    {
-        noteUI.Reset();
-    }
-    for (auto& effectUI : _effectPool)
-    {
-        effectUI.Reset();
-    }
-}
-
-void QTEUIManager::InitializeNotePool()
-{
-    assert(_fieldUI.Overlay && "QTE Overlay가 없으면 노트 인스턴스를 생성하지 않습니다.");
-    if (_fieldUI.Overlay)
-    {
-        _notePool.clear();
-
-        File::Guid prefabGuid = ReflectFields->NotePrefabGuid;
-        Transform& parent     = _fieldUI.Overlay->transform;
-        for (int i = 0; i < ReflectFields->PoolSize; ++i)
-        {
-            _notePool.emplace_back(prefabGuid, &parent);
-        }
-    }
-}
-
-void QTEUIManager::InitializeEffectPool()
-{
-    assert(_fieldUI.Overlay && "QTE Overlay가 없으면 이펙트 인스턴스를 생성하지 않습니다.");
-    if (_fieldUI.Overlay)
-    {
-        _effectPool.clear();
-
-        File::Guid prefabGuid = ReflectFields->EffectPrefabGuid;
-        Transform& parent     = _fieldUI.Overlay->transform;
-        for (int i = 0; i < ReflectFields->PoolSize; ++i)
-        {
-            _effectPool.emplace_back(prefabGuid, &parent);
-        }
-    }
 }
 
 int QTEUIManager::GetIndexFromNoteID(UINT id)
