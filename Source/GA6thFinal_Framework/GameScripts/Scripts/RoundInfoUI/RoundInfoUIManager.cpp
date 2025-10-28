@@ -20,7 +20,10 @@ void RoundInfoUIManager::FadeInfoUI(std::string_view text)
         imageComponent->Enable = true;
         imageComponent->FadeIn();
 
-        UmTime.Invoke(imageComponent.get(), showUITime + duration, [fadeImage = imageComponent.get()]() { fadeImage->FadeOut(); });
+        UmTime.Invoke(imageComponent.get(), showUITime + duration, [fadeImage = imageComponent.get()]() 
+        { 
+            fadeImage->FadeOut(); 
+        });
     }
 
     if (auto textComponent = _fadeTextElement.lock())
@@ -32,7 +35,10 @@ void RoundInfoUIManager::FadeInfoUI(std::string_view text)
         textComponent->Enable = true;
         textComponent->FadeIn();
 
-        UmTime.Invoke(textComponent.get(), showUITime + duration, [fadeText = textComponent.get()]() { fadeText->FadeOut(); });
+        UmTime.Invoke(textComponent.get(), showUITime + duration, [fadeText = textComponent.get()]() 
+        { 
+            fadeText->FadeOut(); 
+        });
     }
 }
 
