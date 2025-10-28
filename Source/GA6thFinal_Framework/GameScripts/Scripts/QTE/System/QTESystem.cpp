@@ -345,17 +345,17 @@ QTE::ResultType QTESystem::GetQTEResult(const float noteTime)
 
     if (noteDelta >= perfectMin && noteDelta <= perfectMax)
     {
-        UmLogger.Log(LogLevel::LEVEL_DEBUG, (const char*)u8"퍼펙트!!");
+        UmLogger.Log(LogLevel::LEVEL_TRACE, (const char*)u8"퍼펙트!!");
         return QTE::QTE_RESULT_PERFECT;
     }
     else if (noteDelta >= normalMin && noteDelta <= normalMax)
     {
-        UmLogger.Log(LogLevel::LEVEL_DEBUG, (const char*)u8"일격!!");
+        UmLogger.Log(LogLevel::LEVEL_TRACE, (const char*)u8"일격!!");
         return QTE::QTE_RESULT_NORMAL;
     }
     else
     {
-        UmLogger.Log(LogLevel::LEVEL_DEBUG, (const char*)u8"미스!!");
+        UmLogger.Log(LogLevel::LEVEL_TRACE, (const char*)u8"미스!!");
         return QTE::QTE_RESULT_MISS;
     }
 }
