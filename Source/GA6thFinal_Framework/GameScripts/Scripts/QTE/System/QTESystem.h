@@ -63,10 +63,8 @@ private:
 public:
     /// <summary>QTE를 시작합니다. 현재 무기에 맞는 트랙이 있는 경우 트랙으로, 없으면 무기 기반으로 재생합니다.</summary>
     void StartQTE();
-    /// <summary>트랙 기반으로 QTE를 시작합니다.</summary>
-    void StartQTE(QTE::Track* qteTrack);
-    /// <summary>무기 기반으로 임의의 랜덤 트랙을 생성하여 QTE를 시작합니다.</summary>
-    void StartQTE(const WeaponStats* weapon);
+    /// <summary>무기 기반으로 트랙을 생성하여 QTE를 시작합니다.</summary>
+    void StartQTE(const WeaponStats& weapon);
     /// <summary>QTE를 중지합니다.</summary>
     void StopQTE();
     /// <summary>QTE를 일시정지하거나 재개합니다. QTE플레이 중이 아니라면 무시됩니다.</summary>
@@ -152,6 +150,9 @@ public:
     /// <param name="weaponID">매핑할 무기의 ID입니다.</param>
     /// <param name="index">매핑된 트랙의 인덱스(기본값은 0)입니다.</param>
     QTE::Track* GetMappingTrackToWeaponID(int weaponID, int index = 0);
+
+private:
+    std::string GetRandomAnimationName(const WeaponStats& weapon);
 
 private:
     SingletonComponent<QTESystem>   _singletonComponent{this};

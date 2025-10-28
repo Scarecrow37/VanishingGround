@@ -10,8 +10,8 @@
 #include "TurnSystem/TurnMode/TurnMode.h"
 #include "Camera/UmCineMotion.h"
 #include "CombatUIManager/CombatUIManager.h"
-
 #include "Token/Object/Focus/FocusToken.h"
+#include "WeaponModelManager/WeaponModelManager.h"
 
 UMREAL_COMPONENT(QTESystem)
 
@@ -190,6 +190,18 @@ QTE::Track* QTESystem::GetMappingTrackToWeaponID(const int weaponID, const int i
     return nullptr;
 }
 
+std::string QTESystem::GetRandomAnimationName(const WeaponStats& weapon)
+{
+    if (WeaponModelManager* manager = SingletonComponent<WeaponModelManager>::GetInstance())
+    {
+        if (auto* randomAnim = manager->GetRandomWeaPonAnimationKeyToNormalAttack(weapon.Type))
+        {
+            return *randomAnim;
+        }
+    }
+    return "";
+}
+
 void QTESystem::StartQTE()
 {
     // 현재 무기에 맞는 QTE 트랙을 선택
@@ -197,75 +209,60 @@ void QTESystem::StartQTE()
     if (weaponSystem)
     {
         auto& weapon = weaponSystem->GetCurrentWeaponElement().Stats;
-        if (_weaponIDToTrackTable.contains(weapon.WeaponID))
-        {
-            auto& trackVector = _weaponIDToTrackTable[weapon.WeaponID];
-            if (false == trackVector.empty())
-            {
-                int index = Random::Range(0, (int)trackVector.size() - 1);
-                _currentQTETrack = trackVector[index];
-                StartQTE(trackVector[index]);
-            }
-        }
-        else
-        {
-            // 현재 무기에 매핑된 QTE 트랙이 없는 경우
-            StartQTE(&weapon);
-        }
+        StartQTE(weapon);
     }
 }
 
-void QTESystem::StartQTE(QTE::Track* qteTrack)
+void QTESystem::StartQTE(const WeaponStats& weapon) 
 {
-    //assert(_currState == QTE::STATE_WAITING && "QTE가 완료되기 전까진 Start를 호출하면 안됩니다.");
     if (_currState == QTE::STATE_WAITING)
     {
         ResetQTEState();
-        if (qteTrack)
+        
+        auto& trackVector = _weaponIDToTrackTable[weapon.WeaponID];
+        if (false == trackVector.empty())
         {
-            Timeline::EventTrack* track = qteTrack->GetEventTrack().lock().get();
-            assert(track && "QTE를 진행하기 위한 트랙이 없습니다.");
-            if (track)
+            int index = Random::Range(0, (int)trackVector.size() - 1);
+            if (_currentQTETrack = trackVector[index])
             {
-                const float minFrame = track->GetMinFrame();
-                const float maxFrame = track->GetMaxFrame();
-                const float travelTime = GetNoteTravelTime();
-                const float delayTime  = GetDelayFromQTEStart();
-
-                _currTime  = minFrame - travelTime - delayTime;
-                _totalTime = maxFrame;
-
-                // 유효한 노트 큐 생성
-                auto& noteQueue = track->GetEventContextQueue();
-                _noteAvailQueue.reserve(noteQueue.size());
-                _overallResult.NoteResults.reserve(noteQueue.size());
-                for (auto& note : noteQueue)
+                Timeline::EventTrack* track = _currentQTETrack->GetEventTrack().lock().get();
+                assert(track && "QTE를 진행하기 위한 트랙이 없습니다.");
+                if (track)
                 {
-                    QTE::Note* qteNote = dynamic_cast<QTE::Note*>(note);
-                    if (qteNote)
+                    const float minFrame   = track->GetMinFrame();
+                    const float maxFrame   = track->GetMaxFrame();
+                    const float travelTime = GetNoteTravelTime();
+                    const float delayTime  = GetDelayFromQTEStart();
+
+                    _currTime  = minFrame - travelTime - delayTime;
+                    _totalTime = maxFrame;
+
+                    // 유효한 노트 큐 생성
+                    auto& noteQueue = track->GetEventContextQueue();
+                    _noteAvailQueue.reserve(noteQueue.size());
+                    _overallResult.NoteResults.reserve(noteQueue.size());
+                    for (auto& note : noteQueue)
                     {
-                        QTE::NoteData& noteData = _noteAvailQueue.emplace_back(qteNote->ToNoteData());
-                        _overallResult.NoteResults.emplace_back(&noteData);
+                        if (QTE::Note* qteNote = QTE::Note::Cast<QTE::Note>(note))
+                        {
+                            QTE::NoteData& noteData = _noteAvailQueue.emplace_back(qteNote->ToNoteData());
+                            _overallResult.NoteResults.emplace_back(&noteData);
+                            if (noteData.WeaponAnimationKey.empty())
+                            {
+                                noteData.WeaponAnimationKey = GetRandomAnimationName(weapon);
+                            }
+                        }
                     }
+                    ProcessQTEEnterEvent();
                 }
-                ProcessQTEEnterEvent();
             }
         }
-    }
-}
-
-void QTESystem::StartQTE(const WeaponStats* weapon) 
-{
-    //assert(_currState == QTE::STATE_WAITING && "QTE가 완료되기 전까진 Start를 호출하면 안됩니다.");
-    if (_currState == QTE::STATE_WAITING)
-    {
-        ResetQTEState();
-        if (weapon)
+        else // 트랙이 없다면 랜덤 재생
         {
-            int count = weapon->AttackCount;
+            const int count = weapon.AttackCount;
+            float totalTime = 0.0f;
             _noteAvailQueue.resize(count);
             _overallResult.NoteResults.resize(count);
-            float totalTime = 0.0f;
             for (int i = 0; i < count; ++i)
             {
                 float time = Random::Range(0.2f, 0.6f);
@@ -273,7 +270,7 @@ void QTESystem::StartQTE(const WeaponStats* weapon)
 
                 _noteAvailQueue[i].ID                   = i + 1;
                 _noteAvailQueue[i].Time                 = totalTime;
-                _noteAvailQueue[i].WeaponAnimationKey   = "WeaponAttack_01";
+                _noteAvailQueue[i].WeaponAnimationKey   = GetRandomAnimationName(weapon);
                 _noteAvailQueue[i].WeaponAnimationDelay = 0.0f;
 
                 _overallResult.NoteResults[i] = &_noteAvailQueue[i];
@@ -283,8 +280,10 @@ void QTESystem::StartQTE(const WeaponStats* weapon)
 
             _currTime  = -travelTime - delayTime;
             _totalTime = totalTime + 1.0f;
-            ProcessQTEEnterEvent();
+
+              ProcessQTEEnterEvent();
         }
+      
     }
 }
 
