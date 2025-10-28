@@ -223,7 +223,7 @@ RTPipeline::RootSignatureDesc RTPipeline::CreateGlobalRootDesc()
     RootSignatureDesc r;
     // 상수버퍼는 global root signature로 사용하여 local root를 사용하지 않게금 함.
     // 굳이 local 로 분리할 필요가 없기 떄문.
-    r.rootParams.resize(6);
+    r.rootParams.resize(7);
     // b0 camera data
     r.rootParams[0].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
     r.rootParams[0].Descriptor.ShaderRegister = 0;
@@ -236,32 +236,32 @@ RTPipeline::RootSignatureDesc RTPipeline::CreateGlobalRootDesc()
     r.rootParams[1].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
     // b2 bit32_3_numLight
     r.rootParams[2].ParameterType            = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-    r.rootParams[2].Constants.Num32BitValues = 3;
+    r.rootParams[2].Constants.Num32BitValues = 4;
     r.rootParams[2].Constants.ShaderRegister = 3;
     r.rootParams[2].Constants.RegisterSpace  = 0;
     r.rootParams[2].ShaderVisibility         = D3D12_SHADER_VISIBILITY_ALL;
-
+    // b3 bit32_2_gbufferData
+    r.rootParams[3].ParameterType            = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+    r.rootParams[3].Constants.Num32BitValues = 2;
+    r.rootParams[3].Constants.ShaderRegister = 4;
+    r.rootParams[3].Constants.RegisterSpace  = 0;
+    r.rootParams[3].ShaderVisibility         = D3D12_SHADER_VISIBILITY_ALL;
     // 동일하게 structured buffer들을 gloabl root signature 를 사용.
     // vertex buffer id
-    r.rootParams[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
-    r.rootParams[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-    r.rootParams[3].Descriptor.ShaderRegister = 1;
-    r.rootParams[3].Descriptor.RegisterSpace  = 0;
-    // index buffer id
-    r.rootParams[4].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_SRV;
-    r.rootParams[4].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
-    r.rootParams[4].Descriptor.ShaderRegister = 2;
+    r.rootParams[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
+    r.rootParams[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+    r.rootParams[4].Descriptor.ShaderRegister = 1;
     r.rootParams[4].Descriptor.RegisterSpace  = 0;
-    // material
+    // index buffer id
     r.rootParams[5].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_SRV;
     r.rootParams[5].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
-    r.rootParams[5].Descriptor.ShaderRegister = 3;
+    r.rootParams[5].Descriptor.ShaderRegister = 2;
     r.rootParams[5].Descriptor.RegisterSpace  = 0;
-    //// mesh instance id
-    //r.rootParams[6].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_SRV;
-    //r.rootParams[6].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
-    //r.rootParams[6].Descriptor.ShaderRegister = 4;
-    //r.rootParams[6].Descriptor.RegisterSpace  = 0;
+    // material
+    r.rootParams[6].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_SRV;
+    r.rootParams[6].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
+    r.rootParams[6].Descriptor.ShaderRegister = 3;
+    r.rootParams[6].Descriptor.RegisterSpace  = 0;
 
     r.staticSampler.resize(7);
 

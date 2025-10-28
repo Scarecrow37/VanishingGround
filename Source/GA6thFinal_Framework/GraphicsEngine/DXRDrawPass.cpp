@@ -289,6 +289,9 @@ void DXRDrawPass::UpdateFrameResource(ID3D12GraphicsCommandList* commandList)
 
 void DXRDrawPass::WriteCommand(ID3D12GraphicsCommandList* cmdList)
 {
+    const auto& parallaxMappingProperty =
+        std::any_cast<const ParallaxMappingProperty&>(Global::renderPassDatas->GetRenderPassProperty("G-BufferPass"));
+
     ComPtr<ID3D12GraphicsCommandList4> cmdList4;
     HRESULT                            hr = cmdList->QueryInterface(IID_PPV_ARGS(cmdList4.GetAddressOf()));
     FAILED_CHECK_MESSAGE(hr, L"DXRDrawPass::WriteCommand() failed to QueryInterface for ID3D12GraphicsCommandList4");
@@ -327,10 +330,11 @@ void DXRDrawPass::WriteCommand(ID3D12GraphicsCommandList* cmdList)
 
     cmdList4->SetComputeRootConstantBufferView(0, cameraData);
     cmdList4->SetComputeRootConstantBufferView(1, lightData);
-    cmdList4->SetComputeRoot32BitConstants(2, 3, &_ownerScene->_numLight, 0);
-    frameResource->SetComputeFrameResource(FrameResourceType::VERTEX_BUFFER_ID, 3, cmdList4.Get());
-    frameResource->SetComputeFrameResource(FrameResourceType::INDEX_BUFFER_ID, 4, cmdList4.Get());
-    cmdList4->SetComputeRootShaderResourceView(5, instanceData);
+    cmdList4->SetComputeRoot32BitConstants(2, 4, &_ownerScene->_numLight, 0);
+    cmdList4->SetComputeRoot32BitConstants(3, 2, &parallaxMappingProperty, 0);
+    frameResource->SetComputeFrameResource(FrameResourceType::VERTEX_BUFFER_ID, 4, cmdList4.Get());
+    frameResource->SetComputeFrameResource(FrameResourceType::INDEX_BUFFER_ID, 5, cmdList4.Get());
+    cmdList4->SetComputeRootShaderResourceView(6, instanceData);
     //frameResource->SetComputeFrameResource(FrameResourceType::MESH_INSTANCE_ID, 6, cmdList4.Get());
 
     cmdList4->SetPipelineState1(_pso.Get());
