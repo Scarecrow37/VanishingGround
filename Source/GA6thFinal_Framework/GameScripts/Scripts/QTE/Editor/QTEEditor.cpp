@@ -323,7 +323,7 @@ void QTEEditor::ShowSystemDetail()
                             if (path.extension() == QTE::Track::EXTENSION)
                             {
                                 size_t      index = 0;
-                                std::string idStr = path.filename().string();
+                                std::string idStr = path.stem().string();
                                 int         id    = std::stoi(idStr, &index);
                                 if (index == idStr.size())
                                 {

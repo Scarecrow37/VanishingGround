@@ -132,14 +132,17 @@ void QTESystem::ImGuiDrawPropertysEvent()
 QTE::Track* QTESystem::AddMappingTrackToWeaponID(const int weaponID, const File::Path& path)
 {
     QTE::Track* track = new QTE::Track;
-    auto&       trackVector = _weaponIDToTrackTable[weaponID];
-    trackVector.push_back(track);
-
     // 기본 경로가 아닌 경우 파일 로드 시도
     if (File::NULL_PATH != path && false == track->LoadFile(path))
     {
         UmLogger.Log(LogLevel::LEVEL_ERROR, (const char*)u8"QTE 트랙 파일 로드에 실패했습니다.");
-        return nullptr;
+        delete track;
+        track = nullptr;
+    }
+    else
+    {
+        auto& trackVector = _weaponIDToTrackTable[weaponID];
+        trackVector.push_back(track);
     }
     return track;
 }
