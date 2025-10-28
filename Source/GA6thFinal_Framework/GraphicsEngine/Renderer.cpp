@@ -38,17 +38,7 @@ namespace Global
 }
 
 Renderer::Renderer() = default;
-
-Renderer::~Renderer()
-{
-    for (auto& components : _toBeReleasedComponents)
-    {
-        for (auto& component : components)
-        {
-            component->Delete();
-        }
-    }
-}
+Renderer::~Renderer() = default;
 
 D3D12_GPU_DESCRIPTOR_HANDLE Renderer::GetRenderSceneImage(std::string_view renderSceneName)
 {
