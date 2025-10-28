@@ -5,6 +5,7 @@
 #include "UI/Elements/Image/ImageElement.h"
 #include "UI/Elements/Text/TextElement.h"
 #include "UI/Panels/Description/DescriptionPanel.h"
+#include "UI/Elements/SpriteAnimation/SpriteAnimationElement.h"
 
 UMREAL_COMPONENT(WeaponView)
 
@@ -26,19 +27,19 @@ void WeaponView::Focus(bool value)
 {
     if (value)
     {
-        if (_backgroundUI.ImageOn)
-            _backgroundUI.ImageOn->Enable = true;
+        if (_backgroundUI.FocusOn)
+            _backgroundUI.FocusOn->Enable = true;
 
-        if (_backgroundUI.ImageOff)
-            _backgroundUI.ImageOff->Enable = false;
+        if (_backgroundUI.FocusOff)
+            _backgroundUI.FocusOff->Enable = false;
     }
     else
     {
-        if (_backgroundUI.ImageOn)
-            _backgroundUI.ImageOn->Enable = false;
+        if (_backgroundUI.FocusOn)
+            _backgroundUI.FocusOn->Enable = false;
 
-        if (_backgroundUI.ImageOff)
-            _backgroundUI.ImageOff->Enable = true;
+        if (_backgroundUI.FocusOff)
+            _backgroundUI.FocusOff->Enable = true;
     }
 }
 
@@ -60,30 +61,39 @@ void WeaponView::Start()
             {
                 gameObject->ActiveSelf = true;
             }
-
-            if (_nameUI)
+         
+            if (_backgroundUI.FocusOff)
             {
-                _nameUI->Text = value.WeaponName;
-                _nameUI->Color = value.GradeColor;
+                _backgroundUI.FocusOff->Setup();
+                _backgroundUI.FocusOff->StartAnimation();
+                float duration = _backgroundUI.FocusOff->Duration;
+                UmTime.Invoke(this, duration, [this, value]() 
+                {
+                    if (_nameUI)
+                    {
+                        _nameUI->Text  = value.WeaponName;
+                        _nameUI->Color = value.GradeColor;
+                    }
+
+                    if (_iconUI)
+                        _iconUI->SetImage(value.WeaponIcon);
+
+                    if (_textInfoUI.Damage)
+                        _textInfoUI.Damage->Text = value.HitDamage;
+
+                    if (_textInfoUI.Critical)
+                        _textInfoUI.Critical->Text = value.CriticalDamage;
+
+                    if (_textInfoUI.AttackCount)
+                        _textInfoUI.AttackCount->Text = value.AttackCount;
+
+                    if (_textInfoUI.Speed)
+                        _textInfoUI.Speed->Text = value.Speed;
+
+                    if (_descriptionUI)
+                        _descriptionUI->Description = value.Description;
+                });
             }
-                
-            if (_iconUI)
-                _iconUI->SetImage(value.WeaponIcon);
-
-            if (_textInfoUI.Damage)
-                _textInfoUI.Damage->Text = value.HitDamage;
-
-            if (_textInfoUI.Critical)
-                _textInfoUI.Critical->Text = value.CriticalDamage;
-
-            if (_textInfoUI.AttackCount)
-                _textInfoUI.AttackCount->Text = value.AttackCount;
-
-            if (_textInfoUI.Speed)
-                _textInfoUI.Speed->Text = value.Speed;
-            
-            if (_descriptionUI)
-                _descriptionUI->Description = value.Description;
         }
         else
         {
@@ -114,25 +124,25 @@ void WeaponView::FindBackgroundUI()
     {
         Transform::ForeachDFS(_backgroundUI.BackGroundPanel->transform, [&](Transform* curr) 
         {   
-            if (nullptr == _backgroundUI.ImageOff)
+            if (nullptr == _backgroundUI.FocusOff)
             {
                 if (curr->gameObject->CompareTag("Weapon Focus off"))
                 {
-                    if (_backgroundUI.ImageOff = curr->gameObject->GetComponent<ImageElement>(); nullptr == _backgroundUI.ImageOff)
+                    if (_backgroundUI.FocusOff = curr->gameObject->GetComponent<SpriteAnimationElement>(); nullptr == _backgroundUI.FocusOff)
                     {
-                        std::u8string message = u8"Weapon Focus off에 Image Panel이 존재하지 않습니다.";
+                        std::u8string message = u8"Weapon Focus off에 SpriteAnimationElement이 존재하지 않습니다.";
                         UmLogger.Log(LogLevel::LEVEL_WARNING, message);
                     }
                 }
             }
-            if (nullptr == _backgroundUI.ImageOn)
+            if (nullptr == _backgroundUI.FocusOn)
             {
                 if (curr->gameObject->CompareTag("Weapon Focus on"))
                 {
-                    _backgroundUI.ImageOn = curr->gameObject->GetComponent<ImageElement>();
-                    if (_backgroundUI.ImageOn)
+                    _backgroundUI.FocusOn = curr->gameObject->GetComponent<ImageElement>();
+                    if (_backgroundUI.FocusOn)
                     {
-                        _backgroundUI.ImageOn->Enable = false;
+                        _backgroundUI.FocusOn->Enable = false;
                     }
                     else
                     {

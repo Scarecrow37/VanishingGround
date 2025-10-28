@@ -5,6 +5,7 @@
 class TextElement;
 class ImageElement;
 class DescriptionPanel;
+class SpriteAnimationElement;
 
 class WeaponView : public Component
 {
@@ -13,9 +14,9 @@ class WeaponView : public Component
 public:
     struct BackgroundUI
     {
-        GameObject*   BackGroundPanel = nullptr;
-        ImageElement* ImageOn         = nullptr;
-        ImageElement* ImageOff        = nullptr;
+        GameObject*             BackGroundPanel = nullptr;
+        ImageElement*           FocusOn         = nullptr;
+        SpriteAnimationElement* FocusOff        = nullptr;
     };
 
     struct TextInfoUI
