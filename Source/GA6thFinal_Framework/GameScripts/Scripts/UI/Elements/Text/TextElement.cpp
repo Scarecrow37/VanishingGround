@@ -30,11 +30,20 @@ TextElement::~TextElement()
         _renderer->Release();
 }
 
-void TextElement::SetFont(const File::Guid& Guid)
+void TextElement::SetFont(const File::Guid& guid)
 {
-    _Guid = Guid;
+    _Guid = guid;
     ReflectFields->Guid = _Guid.string();
     RequestResource();
+}
+
+void TextElement::SetOpacity(const float opacity)
+{
+    const float clampedOpacity = std::clamp(opacity, 0.0f, 1.0f);
+    ReflectFields->Color[3]    = clampedOpacity;
+    UpdateColor();
+    ReflectFields->FontOutlineColor[3] = clampedOpacity;
+    UpdateOutline();
 }
 
 void TextElement::Reset()

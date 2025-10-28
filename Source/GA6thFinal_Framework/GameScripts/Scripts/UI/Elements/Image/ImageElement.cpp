@@ -155,6 +155,13 @@ void ImageElement::ResetToSpriteSize()
     InvalidateMeasure();
 }
 
+void ImageElement::SetOpacity(const float opacity)
+{
+    const float clampedAlpha = std::clamp(opacity, 0.0f, 1.0f);
+    ReflectFields->Alpha     = clampedAlpha;
+    UpdateRendererAlpha(clampedAlpha);
+}
+
 void ImageElement::LoadTexture(const File::Guid& guid) const
 {
     if (nullptr != _renderer)

@@ -1,8 +1,9 @@
 ﻿#pragma once
 
 #include "UI/Base/DrawUIComponent/DrawUIComponent.h"
+#include "UI/Base/IOpacity/IOpacity.h"
 
-class TextElement : public DrawUIComponent
+class TextElement : public DrawUIComponent, public IOpacity
 {
     enum FontFlags : uint32_t
     {
@@ -79,7 +80,7 @@ public:
     GETTER(DirectX::SimpleMath::Color, OutlineColor) { return DirectX::SimpleMath::Color(&ReflectFields->FontOutlineColor[0]); }
     SETTER(DirectX::SimpleMath::Color, OutlineColor)
     {
-        ReflectFields->FontOutlineColor = {value.x, value.y, value.z, value.w};
+        std::memcpy(&ReflectFields->FontOutlineColor[0], &value.x, sizeof(ReflectFields->FontOutlineColor));
         UpdateOutline();
     }
     PROPERTY(OutlineColor)
@@ -95,13 +96,15 @@ public:
 
 
 public:
-    void SetFont(const File::Guid& Guid);
+    void SetFont(const File::Guid& guid);
+
+    void SetOpacity(float opacity) override;
 
 protected:
     void  Reset() override;
     void  DeserializedReflectEvent() override;
     float GetZOrder() const override;
-    void ImGuiDrawPropertysEvent() override;
+    void  ImGuiDrawPropertysEvent() override;
 
     SIZE MeasureOverride(SIZE availableSize) override;
     SIZE ArrangeOverride(SIZE finalSize) override;
@@ -135,5 +138,5 @@ protected:
 
 private:
     ISDFTextRenderer* _renderer;
-    File::Guid     _Guid;
+    File::Guid        _Guid;
 };

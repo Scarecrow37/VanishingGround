@@ -1,8 +1,9 @@
 ﻿#pragma once
 #include "UI/Base/DrawUIComponent/DrawUIComponent.h"
+#include "UI/Base/IOpacity/IOpacity.h"
 
 class ISpriteRenderer;
-class ImageElement : public DrawUIComponent
+class ImageElement : public DrawUIComponent, public IOpacity
 {
     USING_PROPERTY(ImageElement)
 
@@ -21,12 +22,7 @@ public:
     PROPERTY(FilePath)
 
     GETTER(float, Alpha) { return ReflectFields->Alpha; }
-    SETTER(float, Alpha)
-    {
-        const float clampedAlpha = std::clamp(value, 0.0f, 1.0f);
-        ReflectFields->Alpha     = clampedAlpha;
-        UpdateRendererAlpha(clampedAlpha);
-    }
+    SETTER(float, Alpha) { SetOpacity(value); }
     PROPERTY(Alpha)
 
     GETTER(int, Column) { return ReflectFields->Column; }
@@ -106,6 +102,8 @@ public:
     /// 스프라이트의 크기로 값을 초기화합니다.
     /// </summary>
     void ResetToSpriteSize();
+
+    void SetOpacity(float opacity) override;
 
 protected:
     void  Reset() override;
