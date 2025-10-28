@@ -101,7 +101,6 @@ void QTEUIManager::OnQTEPlay()
             const SIZE  judgeSize   = _fieldUI.JudgeNote->Size;
 
             const float perfectX    = static_cast<float>(judgeCenter.x);
-            const float offsetX     = static_cast<float>(overlayAbs.x);
             const float startX      = static_cast<float>(overlayPoint.x);
             const float endX        = static_cast<float>(panelSize.cx);
 

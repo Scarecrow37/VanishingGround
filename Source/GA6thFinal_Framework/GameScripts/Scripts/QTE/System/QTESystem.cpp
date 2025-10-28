@@ -401,10 +401,11 @@ void QTESystem::UpdateQTETrack()
         // 혹시 모르니 주석 삭제는 안함.
         //auto& [perfectMin, perfectMax] = ReflectFields->NormalJudgeRange;
         //auto& [normalMin, normalMax]   = ReflectFields->NormalJudgeRange;
-        //if (curNote.Time < _currTime + normalMin)
+        //if (curNote.Time < _currTime)
         //{
-        //    _currTime = curNote.Time - normalMin;
+        //    _currTime = curNote.Time;
         //    PressedQTEButton(Input::Controller::Button::B);
+        //    UmTime.TimeScale = 0.0f;
         //    // 잘나오는데요??? 걍 렉때메 판정이 이상해보이는거 같기도...
         //}
 

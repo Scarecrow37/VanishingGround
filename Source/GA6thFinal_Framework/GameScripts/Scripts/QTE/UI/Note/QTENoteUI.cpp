@@ -129,9 +129,9 @@ namespace QTE
             {
                 const SIZE  size      = Overlay->Size;
                 const POINT oldPoint  = Overlay->Point;
-                const float half      = static_cast<float>(-size.cx / 2);
-                const float finalXPos = std::min(posXValue, endX) + half;
-                const LONG  posXLong  = static_cast<LONG>(finalXPos) - size.cx / 2;
+                const float half      = static_cast<float>(size.cx / 2)/*0.0f*/;
+                const float finalXPos = std::min(posXValue, endX) + half + offsetX;
+                const LONG  posXLong  = static_cast<LONG>(finalXPos);
                 Overlay->Point        = POINT{posXLong, oldPoint.y};
                 {
                     const float hideX  = perfectX + 300.0f;
