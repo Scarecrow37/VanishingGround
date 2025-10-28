@@ -15,8 +15,8 @@ namespace CombatUI
                 Name = View->NameUI;
                 Description = View->DescriptionUI;
                 const WeaponView::BackgroundUI& background = View->BackgroundUIInfo;
-                Background.OnImage      = background.ImageOn;
-                Background.OffImage     = background.ImageOff;
+                Background.FocusOn      = background.FocusOn;
+                Background.FocusOff     = background.FocusOff;
 
                 const WeaponView::TextInfoUI& textInfo = View->TextInfo;
                 TextInfo.Damage         = textInfo.Damage;
