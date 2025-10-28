@@ -6,6 +6,7 @@
 #include "UI/Elements/Text/TextElement.h"
 #include "UI/Panels/Description/DescriptionPanel.h"
 #include "UI/Elements/SpriteAnimation/SpriteAnimationElement.h"
+#include "UI/Animations/FadeUIComponent/FadeUIComponent.h"
 
 UMREAL_COMPONENT(WeaponView)
 
@@ -13,9 +14,15 @@ WeaponView::WeaponView()
     : 
     _singletonComponent(this)
 {
-    _descriptionUI  = nullptr;
-    _iconUI         = nullptr;
-    _nameUI         = nullptr;
+    _descriptionUI     = nullptr;
+    _iconUI            = nullptr;
+    _nameUI            = nullptr;
+
+    _rootFadeUI       = nullptr;
+    _textFadeUI        = nullptr;
+    _descriptionFadeUI = nullptr;
+    _iconFadeUI        = nullptr;
+    _nameFadeUI        = nullptr;
 }
 
 WeaponView::~WeaponView()
@@ -56,23 +63,43 @@ void WeaponView::Start()
     _watchHandle = UmWatcher.Watch<WeaponViewModel, WeaponUIData>("Weapon", [this](const WeaponUIData& value) 
     {
         if (value.Enable)
-        {
-            if (false == gameObject->ActiveSelf)
-            {
-                gameObject->ActiveSelf = true;
-            }
-         
+        {      
             if (_backgroundUI.FocusOff)
             {
-                _backgroundUI.FocusOff->Setup();
-                _backgroundUI.FocusOff->StartAnimation();
                 float duration = _backgroundUI.FocusOff->Duration;
-                UmTime.Invoke(this, duration, [this, value]() 
+
+                float fadeInStartTime = duration * _backgroundUI.FocusOff->GetAnimationProgress(ReflectFields->FadeInFrame[0]);
+                float fadeInEndTime   = duration * _backgroundUI.FocusOff->GetAnimationProgress(ReflectFields->FadeInFrame[1]);
+                float fadeInTime      = fadeInEndTime - fadeInStartTime;
+                
+                float fadeOutStartTime = duration * _backgroundUI.FocusOff->GetAnimationProgress(ReflectFields->FadeOutFrame[0]);
+                float fadeOutEndTime   = duration * _backgroundUI.FocusOff->GetAnimationProgress(ReflectFields->FadeOutFrame[1]);
+                float fadeOutTime      = fadeOutEndTime - fadeOutStartTime;
+
+                auto fadeCall = [](FadeUIComponent* ui, float duration, bool fadeIn = true) 
+                {   
+                    if (ui)
+                    {
+                        ui->FadeDuration = duration;
+                        if (fadeIn)
+                        {
+                            ui->FadeIn();
+                        }                         
+                        else
+                        {
+                            ui->FadeOut();
+                        }                           
+                    }
+                };
+
+                auto updateUIInfo = [this, value]() 
                 {
                     if (_nameUI)
                     {
                         _nameUI->Text  = value.WeaponName;
-                        _nameUI->Color = value.GradeColor;
+                        Color color    = value.GradeColor;
+                        color.w        = _nameUI->Alpha;
+                        _nameUI->Color = color;
                     }
 
                     if (_iconUI)
@@ -92,15 +119,48 @@ void WeaponView::Start()
 
                     if (_descriptionUI)
                         _descriptionUI->Description = value.Description;
-                });
+                };
+
+                if (false == gameObject->ActiveSelf)
+                {
+                    gameObject->ActiveSelf = true;
+                    if (_rootFadeUI)
+                    {
+                        updateUIInfo();
+                        _rootFadeUI->FadeIn();
+                    }
+                }
+                else
+                {
+                    _backgroundUI.FocusOff->Setup();
+                    _backgroundUI.FocusOff->StartAnimation();
+
+                    UmTime.Invoke(this, fadeOutStartTime, [this, fadeCall, fadeOutTime]() 
+                    {
+                        fadeCall(_textFadeUI, fadeOutTime, false);
+                        fadeCall(_descriptionFadeUI, fadeOutTime, false);
+                        fadeCall(_iconFadeUI, fadeOutTime, false);
+                        fadeCall(_nameFadeUI, fadeOutTime, false);
+                    });
+
+                    UmTime.Invoke(this, fadeInStartTime, [this, fadeCall, fadeInTime]() 
+                    {
+                        fadeCall(_textFadeUI, fadeInTime);
+                        fadeCall(_descriptionFadeUI, fadeInTime);
+                        fadeCall(_iconFadeUI, fadeInTime);
+                        fadeCall(_nameFadeUI, fadeInTime);
+                    });
+
+                    UmTime.Invoke(this, fadeOutEndTime, updateUIInfo);
+                }              
             }
-        }
-        else
-        {
-            gameObject->ActiveSelf = false;
         }
     });
     gameObject->ActiveSelf = false;
+    if (_rootFadeUI)
+    {
+        _rootFadeUI->Begin();
+    }
 }
 
 void WeaponView::OnDestroy() 
@@ -109,7 +169,8 @@ void WeaponView::OnDestroy()
 }
 
 void WeaponView::FindElements()
-{
+{    
+    _rootFadeUI = GetComponent<FadeUIComponent>();
     FindBackgroundUI();
     FindTextInfoUI();
     FindDiscriptionUI();
@@ -165,6 +226,7 @@ void WeaponView::FindTextInfoUI()
     _textInfoUI.TextInfoPanel = GameObject::FindWithTag("Text Info Panel").lock().get();
     if (_textInfoUI.TextInfoPanel)
     {
+        _textFadeUI = _textInfoUI.TextInfoPanel->GetComponent<FadeUIComponent>();
         Transform::ForeachDFS(_textInfoUI.TextInfoPanel->transform, [&](Transform* curr) 
         {           
             if (curr->gameObject->CompareTag("Text Damage"))
@@ -218,6 +280,7 @@ void WeaponView::FindDiscriptionUI()
     if (std::vector<GameObject*> objects = transform->FindBFSwithTag("Weapon Description"); false == objects.empty())
     {
         _descriptionUI = objects.front()->GetComponent<DescriptionPanel>();
+        _descriptionFadeUI = objects.front()->GetComponent<FadeUIComponent>();
     }
     else
     {
@@ -231,6 +294,7 @@ void WeaponView::FindIconUI()
     if (std::vector<GameObject*> objects = transform->FindBFSwithTag("Weapon Icon"); false == objects.empty())
     {
         _iconUI = objects.front()->GetComponent<ImageElement>();
+        _iconFadeUI = objects.front()->GetComponent<FadeUIComponent>();
     }
     else
     {
@@ -244,6 +308,7 @@ void WeaponView::FindNameUI()
     if (std::vector<GameObject*> objects = transform->FindBFSwithTag("Weapon Name Text"); false == objects.empty())
     {
         _nameUI = objects.front()->GetComponent<TextElement>();
+        _nameFadeUI = objects.front()->GetComponent<FadeUIComponent>();
     }
     else
     {
