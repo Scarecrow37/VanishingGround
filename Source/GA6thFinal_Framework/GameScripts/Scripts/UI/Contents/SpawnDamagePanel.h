@@ -63,9 +63,9 @@ protected:
     void Awake() override;
     void Reset() override;
 
-    void                    EraseChild() const;
-    DamageElement*          MakeDamage() const;
-    std::pair<POINT, float> GetRandomSpawnPointAndAngle() const;
+    void                         EraseChild() const;
+    std::weak_ptr<DamageElement> MakeDamage() const;
+    std::pair<POINT, float>      GetRandomSpawnPointAndAngle() const;
 
     void OnButton(const Input::Controller& controller);
 
@@ -82,5 +82,5 @@ protected:
 
 private:
     File::Guid _Guid;
-    std::vector<DamageElement*> _damageElements;
+    std::vector<std::weak_ptr<DamageElement>> _damageElements;
 };

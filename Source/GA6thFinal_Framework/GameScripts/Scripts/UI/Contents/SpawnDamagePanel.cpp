@@ -124,19 +124,23 @@ void SpawnDamagePanel::EraseChild() const
     children.clear();
 }
 
-DamageElement* SpawnDamagePanel::MakeDamage() const
+std::weak_ptr<DamageElement> SpawnDamagePanel::MakeDamage() const
 {
-    const std::shared_ptr<GameObject> child          = NewGameObject(GameObject::Helper::GenerateUniqueName("Damage Element"));
-    DamageElement&                    damageElement  = child->AddComponent<DamageElement>();
-    auto                              [point, angle] = GetRandomSpawnPointAndAngle();
-    damageElement.Point                              = point;
-    const SIZE size                                  = Size;
-    damageElement.Size                               = size;
-    damageElement.HorizontalFillMode                 = FillMode::WRAP;
-    damageElement.VerticalFillMode                   = FillMode::WRAP;
-    const LONG                 distance              = static_cast<LONG>((1 - RadiusRatio) * Radius);
-    const int random = Random::Range(0, 3);
-    std::vector<std::string>   revelations;
+    const std::shared_ptr<GameObject> child = NewGameObject(GameObject::Helper::GenerateUniqueName("Damage Element"));
+
+    DamageElement&                    damageElement = child->AddComponent<DamageElement>();
+
+    auto [point, angle]                             = GetRandomSpawnPointAndAngle();
+
+    damageElement.Point                             = point;
+    const SIZE size                                 = Size;
+    damageElement.Size                              = size;
+    damageElement.HorizontalFillMode                = FillMode::WRAP;
+    damageElement.VerticalFillMode                  = FillMode::WRAP;
+
+    const LONG               distance               = static_cast<LONG>((1 - RadiusRatio) * Radius);
+    const int                random                 = Random::Range(0, 3);
+    std::vector<std::string> revelations;
     if (random > 0)
     {
         revelations.push_back("What!");
@@ -149,23 +153,26 @@ DamageElement* SpawnDamagePanel::MakeDamage() const
     {
         revelations.push_back("What the Fuck!");
     }
-    damageElement.Setup(distance, angle, LifeTime, point, _Guid, BeginScale, EndScale, BeginColor, EndColor, "100", revelations);
+
+    damageElement.Setup(distance, angle, LifeTime, point, _Guid, BeginScale, EndScale, BeginColor, EndColor, "100",
+                        revelations);
+
     child->transform->SetParent(transform, true);
-    return &damageElement;
+    return damageElement.GetWeakPtrAs<DamageElement>();
 }
 
 std::pair<POINT,float> SpawnDamagePanel::GetRandomSpawnPointAndAngle() const
 {
-    const POINT    center            = CenterPoint;
+    const auto [x, y]                = CenterPoint - Point;
     const float    randomRadiusRatio = Random::Range(0.0f, RadiusRatio);
     const float    radius            = randomRadiusRatio * Radius;
     const float    angle             = Random::Range(0.0f, XM_2PI);
     const XMVECTOR direction         = XMVectorSet(radius, 0, 0, 0);
     const XMMATRIX rotation          = XMMatrixRotationZ(angle);
     const XMVECTOR vector            = XMVector3Transform(direction, rotation);
-    const XMVECTOR centerVector      = XMVectorSet(static_cast<float>(center.x), static_cast<float>(center.y), 0, 0);
-    const XMVECTOR    resultVector      = XMVectorAdd(centerVector, vector);
-    const POINT       result = {static_cast<LONG>(XMVectorGetX(resultVector)), static_cast<LONG>(XMVectorGetY(resultVector))};
+    const XMVECTOR centerVector      = XMVectorSet(static_cast<float>(x), static_cast<float>(y), 0, 0);
+    const XMVECTOR resultVector      = XMVectorAdd(centerVector, vector);
+    const POINT result = {static_cast<LONG>(XMVectorGetX(resultVector)), static_cast<LONG>(XMVectorGetY(resultVector))};
     return std::make_pair(result, angle);
 }
 
