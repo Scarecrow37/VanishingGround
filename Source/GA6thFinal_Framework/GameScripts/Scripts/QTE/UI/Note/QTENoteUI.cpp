@@ -36,18 +36,6 @@ namespace QTE
                 {
                     EndAnimation = childObject.GetComponent<SpriteAnimationElement>();
                 }
-                else if (childObject.CompareTag(ANIMATION_MISS_TAG))
-                {
-                    MissEffect = childObject.GetComponent<SpriteAnimationElement>();
-                }
-                else if (childObject.CompareTag(ANIMATION_NORMAL_TAG))
-                {
-                    NormalEffect = childObject.GetComponent<SpriteAnimationElement>();
-                }
-                else if (childObject.CompareTag(ANIMATION_PERFECT_TAG))
-                {
-                    PerfectEffect = childObject.GetComponent<SpriteAnimationElement>();
-                }
             });
         }
     }
@@ -93,21 +81,6 @@ namespace QTE
         {
             EndAnimation->Setup();
             EndAnimation->gameObject->ActiveSelf = false;
-        }
-        if (MissEffect)
-        {
-            MissEffect->Setup();
-            MissEffect->gameObject->ActiveSelf = false;
-        }
-        if (NormalEffect)
-        {
-            NormalEffect->Setup();
-            NormalEffect->gameObject->ActiveSelf = false;
-        }
-        if (PerfectEffect)
-        {
-            PerfectEffect->Setup();
-            PerfectEffect->gameObject->ActiveSelf = false;
         }
     }
 
@@ -202,12 +175,6 @@ namespace QTE
                 StartAnimation->gameObject->ActiveSelf = false;
             }
         }
-        // 어차피 결과가 없으면 effect는 nullptr이므로 재생되지 않음.
-        if (SpriteAnimationElement* effectAnimation = GetSpriteAnimation())
-        {
-            effectAnimation->gameObject->ActiveSelf = true;
-            effectAnimation->StartAnimation();
-        }
     }
     void NoteUI::OnWaitUpdate() 
     {
@@ -225,32 +192,5 @@ namespace QTE
                 EndAnimation->gameObject->ActiveSelf = false;
             }
         }
-        if (SpriteAnimationElement* effectAnimation = GetSpriteAnimation())
-        {
-            // 애니메이션 끝났는지 확인
-            if (false == effectAnimation->IsPlaying)
-            {
-                effectAnimation->gameObject->ActiveSelf = false;
-            }
-        }
-    }
-
-    SpriteAnimationElement* NoteUI::GetSpriteAnimation()
-    {
-        switch (Result)
-        {
-        case QTE::QTE_RESULT_PERFECT:
-            return PerfectEffect;
-            break;
-        case QTE::QTE_RESULT_NORMAL:
-            return NormalEffect;
-            break;
-        case QTE::QTE_RESULT_MISS:
-            return MissEffect;
-            break;
-        default:
-            break;
-        }
-        return nullptr;
     }
 }

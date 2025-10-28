@@ -50,8 +50,6 @@ namespace QTE
         void OnVisibleUpdate();
         void OnDeadUpdate();
 
-        SpriteAnimationElement* GetSpriteAnimation();
-
     public:
         float                   Time            = 0.0f;
         UIState                 State           = STATE_AVAILABLE;
@@ -61,16 +59,9 @@ namespace QTE
         SpriteAnimationElement* StartAnimation  = nullptr;
         SpriteAnimationElement* EndAnimation    = nullptr;
 
-        SpriteAnimationElement* MissEffect      = nullptr;
-        SpriteAnimationElement* NormalEffect    = nullptr;
-        SpriteAnimationElement* PerfectEffect   = nullptr;
-
     private:
         static constexpr const char* ANIMATION_START_TAG        = "QTE Note Start";
         static constexpr const char* ANIMATION_END_TAG          = "QTE Note End";
-        static constexpr const char* ANIMATION_MISS_TAG         = "QTE Effect Miss";
-        static constexpr const char* ANIMATION_NORMAL_TAG       = "QTE Effect Normal";
-        static constexpr const char* ANIMATION_PERFECT_TAG      = "QTE Effect Perfect";
     };
 }
 

@@ -31,12 +31,12 @@ void QTEUIManager::OnQTEEnter()
         assert(validRange && "노트 풀의 사이즈가 작습니다.");
         if (validRange)
         {
-            for (size_t i = 0; i < noteQueue.size(); ++i)
+            for (int i = 0; i < noteQueue.size(); ++i)
             {
                 UINT id = noteQueue[i].ID;
                 if (_notePool[i].TrySetup(noteQueue[i].Time))
                 {
-                    _activedNote[id] = i;
+                    _activedPoolIndices[id] = i;
                 }
             }
         }
@@ -50,9 +50,29 @@ void QTEUIManager::OnQTEButtonPressed()
 
 void QTEUIManager::OnQTENotePressed(const UINT noteID, const QTE::NoteResult& result)
 {
-    if (QTE::NoteUI* noteUI = GetNoteUIFromID(noteID))
+    if (result.IsValidResult())
     {
-        noteUI->OnNotePressed(result);
+        int index = GetIndexFromNoteID(noteID);
+        if (index >= 0)
+        {
+            _notePool[index].OnNotePressed(result);
+            if (_notePool[index].Overlay)
+            {
+                if (result.Result == QTE::QTE_RESULT_MISS || 
+                    result.Result == QTE::QTE_RESULT_NORMAL)
+                {
+                    const POINT point = _notePool[index].Overlay->Point;
+                    const float posX  = static_cast<float>(point.x);
+                    _effectPool[index].OnNotePressed(result, posX);
+                }
+                else if (result.Result == QTE::QTE_RESULT_PERFECT)
+                {
+                    const POINT point = _fieldUI.JudgeNote->CenterPoint;
+                    const float posX  = static_cast<float>(point.x);
+                    _effectPool[index].OnNotePressed(result, posX);
+                }
+            }
+        }
     }
 }
 
@@ -78,11 +98,12 @@ void QTEUIManager::OnQTEPlay()
             const float startX      = static_cast<float>(overlayPoint.x);
             const float endX        = static_cast<float>(panelSize.cx);
 
-            for (auto& [id,_] : _activedNote)
+            for (auto& [id,_] : _activedPoolIndices)
             {
-                if (QTE::NoteUI* noteUI = GetNoteUIFromID(id))
+                int index = GetIndexFromNoteID(id);
+                if (index >= 0)
                 {
-                    noteUI->Update(currTime, travelTime, currSpeed, startX, endX, perfectX, 0.0f);
+                    _notePool[index].Update(currTime, travelTime, currSpeed, startX, endX, perfectX, 0.0f);
                 }
             }
         }
@@ -94,27 +115,46 @@ void QTEUIManager::OnQTEExit()
     _mainFader.SetFadeMode(Fader::FADE_OUT);
 }
 
+bool QTEUIManager::DragDropEvent(File::Guid& out)
+{
+    bool result = false;
+    if (ImGui::BeginDragDropTarget())
+    {
+        if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
+        {
+            DragDropAsset::Data* data      = static_cast<DragDropAsset::Data*>(payLoad->Data);
+            const File::Path&    path      = data->GetPath();
+            const File::Path     extension = path.extension();
+            if (extension == L".UmPrefab")
+            {
+                result = true;
+                out    = path.ToGuid();
+            }
+            else
+            {
+                UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"프리팹은 .UmPrefab 파일만 지정할 수 있습니다.");
+            }
+        }
+        ImGui::EndDragDropTarget();
+    }
+    return result;
+}
+
 void QTEUIManager::Reset() 
 {
     _singletoneComponent.SetSingleTon();
-    FilePath.SetInputAutoEvent([this]() {
-        if (ImGui::BeginDragDropTarget())
+    NotePrefab.SetInputAutoEvent([this]() {
+        File::Guid dragDropGuid;
+        if (DragDropEvent(dragDropGuid))
         {
-            if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
-            {
-                DragDropAsset::Data* data      = static_cast<DragDropAsset::Data*>(payLoad->Data);
-                const File::Path&    path      = data->GetPath();
-                const File::Path     extension = path.extension();
-                if (extension == L".UmPrefab")
-                {
-                    SetNotePrefabGuid(data->GetGuid());
-                }
-                else
-                {
-                    UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"프리팹은 .UmPrefab 파일만 지정할 수 있습니다.");
-                }
-            }
-            ImGui::EndDragDropTarget();
+            SetNotePrefabGuid(dragDropGuid);
+        }
+    });
+    EffectPrefab.SetInputAutoEvent([this]() {
+        File::Guid dragDropGuid;
+        if (DragDropEvent(dragDropGuid))
+        {
+            SetNotePrefabGuid(dragDropGuid);
         }
     });
 }
@@ -207,10 +247,14 @@ void QTEUIManager::ImGuiDrawPropertysEvent()
 void QTEUIManager::ResetUI()
 {
     _fieldUI.Reset();
-    _activedNote.clear();
+    _activedPoolIndices.clear();
     for (auto& noteUI : _notePool)
     {
         noteUI.Reset();
+    }
+    for (auto& effectUI : _effectPool)
+    {
+        effectUI.Reset();
     }
 }
 
@@ -230,6 +274,22 @@ void QTEUIManager::InitializeNotePool()
     }
 }
 
+void QTEUIManager::InitializeEffectPool()
+{
+    assert(_fieldUI.Overlay && "QTE Overlay가 없으면 이펙트 인스턴스를 생성하지 않습니다.");
+    if (_fieldUI.Overlay)
+    {
+        _effectPool.clear();
+
+        File::Guid prefabGuid = ReflectFields->EffectPrefabGuid;
+        Transform& parent     = _fieldUI.Overlay->transform;
+        for (int i = 0; i < ReflectFields->PoolSize; ++i)
+        {
+            _effectPool.emplace_back(prefabGuid, &parent);
+        }
+    }
+}
+
 void QTEUIManager::InitializeInputNodePool() 
 {
     //assert(_inputViewerUI.NodePool && "NodePool이 없으면 인풋 노드 인스턴스를 생성하지 않습니다.");
@@ -244,17 +304,14 @@ void QTEUIManager::InitializeInputNodePool()
     //}
 }
 
-QTE::NoteUI* QTEUIManager::GetNoteUIFromID(UINT id)
+int QTEUIManager::GetIndexFromNoteID(UINT id)
 {
-    if (_activedNote.contains(id))
+    if (_activedPoolIndices.contains(id))
     {
-        size_t index = _activedNote[id];
-        if (index < _notePool.size())
-        {
-            return &_notePool[index];
-        }
+        int index = _activedPoolIndices[id];
+        return index;
     }
-    return nullptr;
+    return -1;
 }
 
 void QTEUIManager::SetNotePrefabGuid(const File::Guid& guid) 

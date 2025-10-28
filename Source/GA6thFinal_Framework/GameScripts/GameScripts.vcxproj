@@ -307,6 +307,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\QTE\UI\Effect\QTEJudgeEffectUI.h" />
     <ClInclude Include="Scripts\QTE\UI\Input\QTEInputNodeUI.h" />
     <ClInclude Include="Scripts\QTE\UI\Input\QTEInputViewerUI.h" />
     <ClInclude Include="Scripts\QTE\UI\Guide\QTEGuideUI.h" />
@@ -597,7 +598,7 @@
     <ClInclude Include="Scripts\ViewModels\SturnResistance\SturnResistanceViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\TurnQueue\TurnQueueViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Weapon\WeaponViewModel.h" />
-    <ClInclude Include="WeaponModelManager\WeaponModelManager.h" />
+    <ClInclude Include="Scripts\WeaponModelManager\WeaponModelManager.h" />
     <ClInclude Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.h" />
     <ClInclude Include="Scripts\WeaponSystem\WeaponSystem.h" />
     <ClInclude Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.h" />
@@ -612,6 +613,7 @@
     <ClInclude Include="Scripts\Token\Object\Vanish\VanishToken.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\QTE\UI\Effect\QTEJudgeEffectUI.cpp" />
     <ClCompile Include="Scripts\QTE\UI\Input\QTEInputNodeUI.cpp" />
     <ClCompile Include="Scripts\QTE\UI\Input\QTEInputViewerUI.cpp" />
     <ClCompile Include="Scripts\QTE\UI\Guide\QTEGuideUI.cpp" />
@@ -901,7 +903,7 @@
     <ClCompile Include="Scripts\ViewModels\SturnResistance\SturnResistanceViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\TurnQueue\TurnQueueViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Weapon\WeaponViewModel.cpp" />
-    <ClCompile Include="WeaponModelManager\WeaponModelManager.cpp" />
+    <ClCompile Include="Scripts\WeaponModelManager\WeaponModelManager.cpp" />
     <ClCompile Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.cpp" />
     <ClCompile Include="Scripts\WeaponSystem\WeaponSystem.cpp" />
     <ClCompile Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.cpp" />

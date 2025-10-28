@@ -4,11 +4,12 @@
 #include <Utility/FadeHelper.h>
 
 #include "QTE/UI/Background/QTEBackgroundUI.h"
+#include "QTE/UI/Effect/QTEJudgeEffectUI.h"
 #include "QTE/UI/Input/QTEInputViewerUI.h"
 #include "QTE/UI/Input/QTEInputNodeUI.h"
+#include "QTE/UI/Note/QTENoteUI.h"
 #include "QTE/UI/Field/QTEFieldUI.h"
 #include "QTE/UI/Guide/QTEGuideUI.h"
-#include "QTE/UI/Note/QTENoteUI.h"
 
 class SpriteAnimationElement;
 
@@ -35,9 +36,12 @@ public:
     ~QTEUIManager() override;
 
 public:
-    REFLECT_PROPERTY(FilePath, PoolSize)
-    GETTER_ONLY(std::string, FilePath) { return File::Guid(ReflectFields->NotePrefabGuid).ToPath().string(); }
-    PROPERTY(FilePath)
+    REFLECT_PROPERTY(NotePrefab, PoolSize)
+    GETTER_ONLY(std::string, NotePrefab) { return File::Guid(ReflectFields->NotePrefabGuid).ToPath().string(); }
+    PROPERTY(NotePrefab)
+
+    GETTER_ONLY(std::string, EffectPrefab) { return File::Guid(ReflectFields->EffectPrefabGuid).ToPath().string(); }
+    PROPERTY(EffectPrefab)
 
     SETTER(int, PoolSize) { ReflectFields->PoolSize = value; }
     GETTER(int, PoolSize) { return ReflectFields->PoolSize; }
@@ -68,13 +72,15 @@ private:
     void SerializedReflectEvent() override;
     void DeserializedReflectEvent() override;
     void ImGuiDrawPropertysEvent() override;
+    bool DragDropEvent(File::Guid& out);
 
 private:
     void ResetUI();
     void InitializeNotePool();
+    void InitializeEffectPool();
     void InitializeInputNodePool();
 
-    QTE::NoteUI* GetNoteUIFromID(UINT id);
+    int  GetIndexFromNoteID(UINT id);
 
     void FindUIComponents();
 
@@ -88,13 +94,16 @@ private:
     QTE::GuideUI                        _guideUI;
 
     std::vector<QTE::NoteUI>            _notePool;
-    std::unordered_map<UINT, size_t>    _activedNote;
+    std::vector<QTE::JudgeEffectUI>     _effectPool;
+    std::unordered_map<UINT, int>       _activedPoolIndices;
 
     Fader _mainFader;
 
     REFLECT_FIELDS_BEGIN(Component)
-    std::string NotePrefabGuid; // QTE 노트 프리팹 GUID
     int         PoolSize = 15;
+    std::string NotePrefabGuid;     // QTE 노트 프리팹 GUID
+    std::string EffectPrefabGuid;   // QTE 이펙트 프리팹 GUID
+    std::string ButtonPrefabGuid;   // QTE 입력 버튼 프리팹 GUID
     REFLECT_FIELDS_END(QTEUIManager)
     
 };
