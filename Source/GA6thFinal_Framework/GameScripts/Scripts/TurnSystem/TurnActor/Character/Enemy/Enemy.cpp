@@ -33,31 +33,39 @@ void Enemy::PlayTurn()
     Base::PlayTurn();
 }
 
-void Enemy::ImGuiDrawPropertysEvent() 
+void Enemy::ImGuiDrawPropertysEvent()
 {
+    Base::ImGuiDrawPropertysEvent();
     ImGui::Separator();
-    Monster::Controller& controller = GetController();
-
-    const Monster::AIModel& aiModel = controller.GetAIModel();
-    ImGui::BulletText("Current FSM:");
-    ImGui::Text("       ID: %d", controller.GetFSMID());
-    ImGui::Text("       Current Node: %s", aiModel.GetCurrentNodeLabel());
-
-    if (auto* currAction = controller.GetCurrentAction())
+   
+    if (ImGui::TreeNodeEx("Monster Controller##enemy component", ImGuiTreeNodeFlags_DefaultOpen))
     {
-        ImGui::BulletText("Current Action:");
-        ImGui::Text("       ID: %d", currAction->GetActionID());
-        ImGui::Text("       Name: %s", currAction->GetActionContext().Name.c_str());
-        ImGui::Text("       Type: %s", currAction->GetActionContext().Type.c_str());
-        ImGui::Text("       Target: %s", currAction->GetActionContext().Target.c_str());
-        ImGui::Text("       Attack Count: %d", currAction->GetActionContext().AttackCount);
-        ImGui::Text("       Parameter: %s", currAction->GetActionContext().Parameter.c_str());
-    }
-    else
-    {
-        ImGuiHelper::StyleBuilder styleBuilder;
-        styleBuilder.PushStyleColor(ImGuiCol_Text, IM_COL32(255, 100, 100, 255));
-        ImGui::TextUnformatted("Null Current Action");
+        Monster::Controller& controller = GetController();
+        ImGui::PushID(&controller);
+
+        const Monster::AIModel& aiModel = controller.GetAIModel();
+        ImGui::BulletText("Current FSM:");
+        ImGui::Text("       ID: %d", controller.GetFSMID());
+        ImGui::Text("       Current Node: %s", aiModel.GetCurrentNodeLabel());
+
+        if (auto* currAction = controller.GetCurrentAction())
+        {
+            ImGui::BulletText("Current Action:");
+            ImGui::Text("       ID: %d", currAction->GetActionID());
+            ImGui::Text("       Name: %s", currAction->GetActionContext().Name.c_str());
+            ImGui::Text("       Type: %s", currAction->GetActionContext().Type.c_str());
+            ImGui::Text("       Target: %s", currAction->GetActionContext().Target.c_str());
+            ImGui::Text("       Attack Count: %d", currAction->GetActionContext().AttackCount);
+            ImGui::Text("       Parameter: %s", currAction->GetActionContext().Parameter.c_str());
+        }
+        else
+        {
+            ImGuiHelper::StyleBuilder styleBuilder;
+            styleBuilder.PushStyleColor(ImGuiCol_Text, IM_COL32(255, 100, 100, 255));
+            ImGui::TextUnformatted("Null Current Action");
+        }
+        ImGui::PopID();
+        ImGui::TreePop();
     }
 }
 
@@ -91,19 +99,41 @@ void Enemy::TakeDamage(int damage, bool playAnim)
     if (turnMode)
     {
         turnMode->ApplyActions([&](TurnAction& action) { action.OnEnemyTakeDamageEnd(*this, damage); });
+
+        //계시 발동 체크 플래그 초기화
+        turnMode->RevelationActiveFlag = false;
     }
 }
 
 void Enemy::TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim)
 {
-    // 혹시나 그럴 일 없겠지만 중간에 계산할 연산이 또 있다면 재연산
-    int takeDamage = damage;
-    Base::TakeDamage(takeDamage, result, playAnim);
+    GameObject& owner = gameObject;
     ParticleComponent* particle = GetParticleComponent();
-    if (particle && result.IsHit())
+    if (true == IsDead() || false == result.IsHit())
     {
-        particle->PlayEffect("normalhit");
+        std::string msg   = std::format("{}{}", owner.ToString(), (const char*)u8" 대한 공격 빗나감.");
+        UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
+        return;
     }
+    switch (result.Result)
+    {
+    case QTE::QTE_RESULT_PERFECT: {
+       
+        std::string msg = std::format("{}{}", owner.ToString(), (const char*)u8" 대한 공격 치명타!!");
+        UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
+        particle->PlayEffect("normalhit"); // TODO: 치명타 이펙트 적용 필요. 일단 기본 이펙트로 적용 (진우형)
+        break;
+    }
+    case QTE::QTE_RESULT_NORMAL: {
+        std::string msg = std::format("{}{}", owner.ToString(), (const char*)u8" 대한 공격 일격!!");
+        UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
+        particle->PlayEffect("normalhit");
+        break;
+    }
+    default:
+        break;
+    }
+    TakeDamage(damage, playAnim);
 }
 
 void Enemy::Awake()
@@ -142,6 +172,11 @@ int Enemy::GetSpeed()
         speed = stats->GetStats().Speed;
     }
     return speed;
+}
+
+int Enemy::GetRandomSpeed()
+{
+    return _randomSpeed;
 }
 
 void Enemy::SetPositionFromSpawnPoint(Monster::SpawnPoint spawnPointType) 
@@ -212,6 +247,10 @@ void Enemy::OnCombatStart()
 
 void Enemy::OnRoundStart()
 {
+    // 라운드 Start 이전에 Random Speed를 뽑아둠.
+    _randomSpeed = Random::Range(DEFINE::RANDOMSPEED_MIN, DEFINE::RANDOMSPEED_MAX);
+    TokenInventory& tokenInventory = GetTokenInventory();
+    tokenInventory.NotifyRollRandomSpeed(_randomSpeed);
     Base::OnRoundStart();
 }
 

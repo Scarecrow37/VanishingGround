@@ -1,54 +1,74 @@
 ﻿#include "pchScripts.h"
 #include "PoisonToken.h"
-
-#include <TurnSystem/TurnActor/Character/CharacterBase.h>
+#include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
+#include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <Token/TokenInventory.h>
+
 namespace TokenObject
 {
-    REGISTER_TOKEN(Poison1)
-    REGISTER_TOKEN(Poison2)
-    REGISTER_TOKEN(Poison3)
+    REGISTER_TOKEN(Poison)
+    REGISTER_TOKEN(PoisonGrant)
+    REGISTER_TOKEN(PoisonResistance)
 
-    REFLECT_FUNCTION(Poison1)
-    REFLECT_FUNCTION(Poison2)
-    REFLECT_FUNCTION(Poison3)
-
-    void Poison1::OnEachTurnStart(CharacterBase* owner, CharacterBase* destiantion)
+    bool Poison::CanAdd(CharacterBase* owner) const
     {
-        auto& tokenInventory = owner->GetTokenInventory();
-        int   stackCount     = tokenInventory.GetTokenStackFromID(ID);
-
-        GameObject& gameObject = owner->gameObject;
-        std::string msg = std::format("{}{} {}{}{}{}", gameObject.ToString(), (const char*)u8"에게서", GetTokenName(),
-                                      (const char*)u8"의 토큰이 발동했습니다. (", stackCount, (const char*)u8"스택)");
-        UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
-        // TODO: 데미지 적용
-        tokenInventory.RemoveTokenStackFromID(ID);
+        if (owner && false == owner->IsDead())
+        {
+            auto& tokenInventory = owner->GetTokenInventory();
+            if (tokenInventory.HasTokenFromID(PoisonResistance::ID))
+            {
+                tokenInventory.RemoveTokenStackFromID(PoisonResistance::ID);
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+        return false;
     }
-
-    void TokenObject::Poison2::OnEachTurnStart(CharacterBase* owner, CharacterBase* destination)
+    void Poison::OnTurnStart(CharacterBase* owner) 
     {
-        auto& tokenInventory = owner->GetTokenInventory();
-        int   stackCount     = tokenInventory.GetTokenStackFromID(ID);
-
-        GameObject& gameObject = owner->gameObject;
-        std::string msg = std::format("{}{} {}{}{}{}", gameObject.ToString(), (const char*)u8"에게서", GetTokenName(),
-                                      (const char*)u8"의 토큰이 발동했습니다. (", stackCount, (const char*)u8"스택)");
-        UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
-        // TODO: 데미지 적용
-        tokenInventory.RemoveTokenStackFromID(ID);
+        if (owner)
+        {
+            auto& tokenInventory = owner->GetTokenInventory();
+            if (false == owner->IsDead())
+            {
+                int stackCount = tokenInventory.GetTokenStackFromID(ID);
+                int param  = GetTokenParam(0);
+                int damage = param * stackCount;
+                UmLogger.Log(LogLevel::LEVEL_DEBUG, TokenLog(*owner));
+                owner->TakeDamage(damage);
+            }
+            tokenInventory.RemoveTokenStackFromID(ID);
+        }
     }
-
-    void TokenObject::Poison3::OnEachTurnStart(CharacterBase* owner, CharacterBase* destination)
+    void PoisonGrant::OnTurnEnd(CharacterBase* owner) 
     {
-        auto& tokenInventory = owner->GetTokenInventory();
-        int   stackCount     = tokenInventory.GetTokenStackFromID(ID);
-
-        GameObject& gameObject = owner->gameObject;
-        std::string msg = std::format("{}{} {}{}{}{}", gameObject.ToString(), (const char*)u8"에게서", GetTokenName(),
-                                      (const char*)u8"의 토큰이 발동했습니다. (", stackCount, (const char*)u8"스택)");
-        UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
-        // TODO: 데미지 적용
-        tokenInventory.RemoveTokenStackFromID(ID);
+        if (owner)
+        {
+            auto& tokenInventory = owner->GetTokenInventory();
+            tokenInventory.RemoveTokenStackFromID(ID);
+        }
+    }
+    void PoisonGrant::OnPostPlayerAttackCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData,
+                                                       int& damage)
+    {
+        if (damage > 0)
+        {
+            auto&     tokenInventory = targetData.Source.GetTokenInventory();
+            const int param          = GetTokenParam(0);
+            tokenInventory.AddTokenStackFromID(Poison::ID, param);
+        }
+    }
+    void PoisonGrant::OnPostEnemyAttackCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData,
+                                                      int& damage)
+    {
+        if (damage > 0)
+        {
+            auto&     tokenInventory = targetData.Source.GetTokenInventory();
+            const int param          = GetTokenParam(0);
+            tokenInventory.AddTokenStackFromID(Poison::ID, param);
+        }
     }
 } // namespace TokenObject

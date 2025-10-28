@@ -184,30 +184,47 @@ uint SafeMipLevel(float requestedMip, Texture2D tex)
 inline float CalculateShadow(float3 worldPosition, float3 normal, float3 lightDirection, Texture2DArray shadowMap)
 {
     float eyeZ = mul(float4(worldPosition, 1), cameraData.View).z;
-    
+
+    // Static mesh cascade shadow 계산
     uint cid = (eyeZ < cascadeData.CascadeSplits[0]) ? 0 :
                (eyeZ < cascadeData.CascadeSplits[1]) ? 1 : 2;
 
-    float4 shadowPos = mul(float4(worldPosition, 1), cascadeData.ShadowVP[cid]);
-    shadowPos.xyz /= shadowPos.w;
-    shadowPos.xy = shadowPos.xy * 0.5f + 0.5f;
-    shadowPos.y = 1 - shadowPos.y;
+    float4 staticShadowPos = mul(float4(worldPosition, 1), cascadeData.ShadowVP[cid]);
+    staticShadowPos.xyz /= staticShadowPos.w;
+    staticShadowPos.xy = staticShadowPos.xy * 0.5f + 0.5f;
+    staticShadowPos.y = 1 - staticShadowPos.y;
+
+    // Skeletal mesh single shadow 계산
+    float4 skeletalShadowPos = mul(float4(worldPosition, 1), cascadeData.ShadowVP[MAX_CASCADES]);
+    skeletalShadowPos.xyz /= skeletalShadowPos.w;
+    skeletalShadowPos.xy = skeletalShadowPos.xy * 0.5f + 0.5f;
+    skeletalShadowPos.y = 1 - skeletalShadowPos.y;
 
     static const float2 texelSize = 1.0f / 2048.0f;
-    float bias = max(0.005f * (1.0f - dot(normal, lightDirection)), 0.0005f);
-    float shadow = 0.0f;
     
+    // Skeletal shadow는 더 정밀한 bias 사용 (발밑 그림자를 위해)
+    float staticBias = max(0.005f * (1.0f - dot(normal, lightDirection)), 0.0005f);
+    float skeletalBias = max(0.001f * (1.0f - dot(normal, lightDirection)), 0.0001f); // 훨씬 작은 bias
+    
+    float staticShadow = 0.0f;
+    float skeletalShadow = 0.0f;
+
     [unroll]
     for (int x = -1; x <= 1; ++x)
     {
         [unroll]
         for (int y = -1; y <= 1; ++y)
         {
-            shadow += shadowMap.SampleCmpLevelZero(samComparisonLinear_border, float3(shadowPos.xy + float2(x, y) * texelSize, cid), shadowPos.z - bias);
+            float2 offset = float2(x, y) * texelSize;
+            staticShadow += shadowMap.SampleCmpLevelZero(samComparisonLinear_border,  float3(staticShadowPos.xy + offset, cid),  staticShadowPos.z - staticBias);
+            skeletalShadow += shadowMap.SampleCmpLevelZero(samComparisonLinear_border, float3(skeletalShadowPos.xy + offset, MAX_CASCADES),  skeletalShadowPos.z - skeletalBias);
         }
     }
-                                                                                                                                                                                                                                         
-    return shadow / 9.0f;
+    
+    staticShadow /= 9.0f;
+    skeletalShadow /= 9.0f;
+
+    return min(staticShadow, skeletalShadow);
 }
 
 float4 SampleCalculateMipLevel(Texture2D tex, SamplerState sam, float2 uv, float mipLevel)
@@ -385,7 +402,7 @@ float CalculatePointLightShadowPCF(float3 fragPos, float3 lightPos, uint lightIn
     uint atlasX = atlasIndexInGrid % tilesPerRow;
     uint atlasY = atlasIndexInGrid / tilesPerRow;
     float shadow = 0.0;
-    float bias = 0.01 + (currentDistance / farPlane) * 0.02;
+    float bias = 0.05 + (currentDistance / farPlane) * 0.02;
     float texelSize = 1.0 / faceSize;
     
     

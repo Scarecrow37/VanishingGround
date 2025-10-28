@@ -34,6 +34,7 @@ namespace GE
         DISTORTION_RESOLVE,
         DOWN_SAMPLE,
         DXRGBUFFER,
+        DXRGBUFFER_MASKED,
         FADE,
         FORWARD_PBR_LIGHTING,
         FXAA,
@@ -48,6 +49,7 @@ namespace GE
         PBR_LIGHTING,
         POINT_LIGHT_SHADOW,
         SDF_FONT,
+        SDF_FONT_OIT,
         SHADOW,
         SKYBOX,
         SSGI_COMPOSITE,
@@ -78,7 +80,11 @@ namespace GE
         SSGI_TEMPORAL,
         END
      };
-    enum class GS { NONE, END };
+    enum class GS { 
+        NONE,
+        POINT_LIGHT_SHADOW_CUBE,
+        END
+     };
     enum class HS { NONE, END };
     enum class DS { NONE, END };
 }

@@ -67,7 +67,7 @@ public:
     /// <summary>
     /// 턴 대기중인 Actor의 개수를 반환합니다.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>int 갯수</returns>
     int GetPendingActorCount();
 
     /*slot 값을 통해 플레이어 엑터인지 확인합니다.*/
@@ -84,6 +84,13 @@ public:
 
     GETTER_ONLY(int, RoundCount) { return _roundCount; }
     PROPERTY(RoundCount)
+
+    GETTER(bool, RevelationActiveFlag) { return _revelationActiveFlag;  }
+    SETTER(bool, RevelationActiveFlag) { _revelationActiveFlag = value; }
+    /// <summary>
+    /// 계시 발동 조건 평가용 플래그 변수입니다. QTE 공격이 완전히 종료될때마다 false로 초기화됩니다.
+    /// </summary>
+    PROPERTY(RevelationActiveFlag)
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
@@ -105,6 +112,9 @@ private:
     /*플레이어의 무기 slot 번호를 함께 저장합니다. int 값이 -1이면 Enemy, 0 이상이면 Player 입니다.*/
     MVVM::Model<std::deque<std::pair<int, TurnActor*>>> _turnList;
     MVVM::Model<TurnActor*>                             _currTurnActor;
+
+    /*계시 발동 여부를 관리하는 플래그입니다.*/
+    bool _revelationActiveFlag = false;
 
 private:
     struct SystemStates
@@ -179,10 +189,13 @@ public:
                 baseAction->_isDestroy = isDestroy.get();
                 newAction              = baseAction;
                 result                 = true;
+                CallAddedAction(action);
             }
         }
         return result;
     }
+private:
+    void CallAddedAction(TurnAction* action);
 
 private:
     std::vector<std::pair<std::unique_ptr<bool>, TurnAction*>> _turnActions;

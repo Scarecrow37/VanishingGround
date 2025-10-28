@@ -49,8 +49,11 @@ GameApplication::GameApplication()
         SetStyleToBorderlessWindowed();
     }
 
-    //덤프 설정
-    //SetUnhandledExceptionFilter(CustomUnhandledExceptionFilter);
+    // 덤프 설정
+    if constexpr (false == IS_EDITOR)
+    {
+        SetUnhandledExceptionFilter(CustomUnhandledExceptionFilter);
+    }
 }
 
 GameApplication::~GameApplication()

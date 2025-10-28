@@ -77,7 +77,7 @@ void SkeletalMeshRenderer::LoadModel()
             {                                
                 animator->SetActive(&EnableInHierarchy);
                 UmGraphics.RegisterComponent(animator);
-                Renderer->OnCustomDepth(PostProcess::BLOOM);
+                Renderer->OnCustomDepth(PostProcess::BLOOM | PostProcess::IS_SKELETAL_MESH);
                 this->InitMaterial();
             }
 

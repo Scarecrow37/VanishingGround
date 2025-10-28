@@ -106,6 +106,9 @@
     <FxCompile Include="..\Shaders\ps_sdf_font.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
+    <FxCompile Include="..\Shaders\ps_sdf_font_oit.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
     <FxCompile Include="..\Shaders\ps_shadow.hlsl">
       <Filter>Shaders\ps</Filter>
     </FxCompile>
@@ -163,9 +166,6 @@
     <FxCompile Include="..\Shaders\vs_skeletal_point_light_shadow_fr.hlsl">
       <Filter>Shaders\vs</Filter>
     </FxCompile>
-    <FxCompile Include="..\Shaders\vs_skeletal_shadow_fr.hlsl">
-      <Filter>Shaders\vs</Filter>
-    </FxCompile>
     <FxCompile Include="..\Shaders\vs_skybox.hlsl">
       <Filter>Shaders\vs</Filter>
     </FxCompile>
@@ -189,6 +189,15 @@
     </FxCompile>
     <FxCompile Include="..\Shaders\ps_transparent_lim_light.hlsl">
       <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\ps_dxrgbuffer_masked.hlsl">
+      <Filter>Shaders\ps</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\gs_point_light_shadow_cube.hlsl">
+      <Filter>Shaders\gs</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Shaders\vs_skeletal_shadow_fr.hlsl">
+      <Filter>Shaders\vs</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
@@ -582,13 +591,10 @@
     <ClCompile Include="UI2DPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="UI2DPass_OIT.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="UI3DPass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="UI3DPass_OIT.cpp">
+    <ClCompile Include="UIPassBase.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="UI25DPass.cpp">
@@ -607,9 +613,6 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="UITechnique.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="UITechnique_OIT.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="UnorderedAccessView.cpp">
@@ -634,6 +637,18 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="TransparentRimLight.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsPointer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="SDFTextDrawPass_OIT.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="UI2DPass_OIT.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="UI3DPass_OIT.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1079,9 +1094,6 @@
     <ClInclude Include="UI3DPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="UI3DPass_OIT.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="UI25DPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -1091,16 +1103,10 @@
     <ClInclude Include="UIPassBase.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="UIPassBase_OIT.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="UIResolvePass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="UITechnique.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="UITechnique_OIT.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="UnorderedAccessView.h">
@@ -1124,7 +1130,16 @@
     <ClInclude Include="CustomShaderPass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="SDFTextDrawPass_OIT.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
     <ClInclude Include="TransparentRimLight.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="UI3DPass_OIT.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="UIPassBase_OIT.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1169,6 +1184,9 @@
     </Filter>
     <Filter Include="헤더 파일">
       <UniqueIdentifier>{8bb46fea-0376-4dcd-9442-fe01ff47164c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\gs">
+      <UniqueIdentifier>{970c557c-f27d-45e1-909d-93508640e818}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

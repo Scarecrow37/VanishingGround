@@ -206,6 +206,8 @@ protected:
 
 private:
     bool _isDirty;
+
+protected:
     std::shared_ptr<Camera> _camera;
 
 private:

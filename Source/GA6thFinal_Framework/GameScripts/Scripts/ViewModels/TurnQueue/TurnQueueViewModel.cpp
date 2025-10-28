@@ -135,8 +135,8 @@ struct GetEnemyFrameGuid
                 }
                 else
                 {
-                    rowIndex = dataBase->FindRowIndex(u8"턴 창_현재_적", findIndexColumnKey);
-                }
+                    rowIndex = dataBase->FindRowIndex(u8"턴 창_현재 적", findIndexColumnKey);
+                }   
                 if (rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
                 {
                     std::string_view data = dataBase->FindData(rowIndex, findDataColumnKey);

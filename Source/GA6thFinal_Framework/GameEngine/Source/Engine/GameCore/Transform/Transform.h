@@ -600,14 +600,17 @@ inline void Transform::ForeachExPostOrder(Transform& root, bool checkValid, cons
     {
         Transform* currTr = trStack.back();
         trStack.pop_back();
-        bool valid = checkValid ? CheckValidTransform(currTr) : true;
-        if (valid)
+        if (currTr)
         {
-            func(currTr);
-            for (auto iter = currTr->_childsList.begin(); iter != currTr->_childsList.end(); ++iter)
+            bool valid = checkValid ? CheckValidTransform(currTr) : true;
+            if (valid)
             {
-                auto& transform = *iter;
-                trStack.push_back(transform);
+                func(currTr);
+                for (auto iter = currTr->_childsList.begin(); iter != currTr->_childsList.end(); ++iter)
+                {
+                    auto& transform = *iter;
+                    trStack.push_back(transform);
+                }
             }
         }
     }
@@ -621,14 +624,17 @@ inline void Transform::ForeachExDFS(Transform& root, bool checkValid, const std:
     {
         Transform* currTr = trStack.back();
         trStack.pop_back();
-        bool valid = checkValid ? CheckValidTransform(currTr) : true;
-        if (valid)
+        if (currTr)
         {
-            func(currTr);
-            for (auto iter = currTr->_childsList.rbegin(); iter != currTr->_childsList.rend(); ++iter)
+            bool valid = checkValid ? CheckValidTransform(currTr) : true;
+            if (valid)
             {
-                auto& transform = *iter;
-                trStack.push_back(transform);
+                func(currTr);
+                for (auto iter = currTr->_childsList.rbegin(); iter != currTr->_childsList.rend(); ++iter)
+                {
+                    auto& transform = *iter;
+                    trStack.push_back(transform);
+                }
             }
         }
     }
@@ -640,16 +646,19 @@ inline void Transform::ForeachExPostOrder(Transform& root, bool checkValid, cons
     trStack.emplace_back(&root, 0);
     while (trStack.empty() == false)
     {
-        auto [currTr, currentDepth] = trStack.back();
+        auto& [currTr, currentDepth] = trStack.back();
         trStack.pop_back();
-        bool valid = checkValid ? CheckValidTransform(currTr) : true;
-        if (valid)
+        if (currTr)
         {
-            func(currTr, currentDepth);
-            for (auto iter = currTr->_childsList.begin(); iter != currTr->_childsList.end(); ++iter)
+            bool valid = checkValid ? CheckValidTransform(currTr) : true;
+            if (valid)
             {
-                auto& transform = *iter;
-                trStack.emplace_back(transform, currentDepth + 1);
+                func(currTr, currentDepth);
+                for (auto iter = currTr->_childsList.begin(); iter != currTr->_childsList.end(); ++iter)
+                {
+                    auto& transform = *iter;
+                    trStack.emplace_back(transform, currentDepth + 1);
+                }
             }
         }
     }
@@ -661,16 +670,19 @@ inline void Transform::ForeachExDFS(Transform& root, bool checkValid, const std:
     trStack.emplace_back(&root, 0);
     while (trStack.empty() == false)
     {
-        auto [currTr, currentDepth] = trStack.back();
+        auto& [currTr, currentDepth] = trStack.back();
         trStack.pop_back();
-        bool valid = checkValid ? CheckValidTransform(currTr) : true;
-        if (valid)
+        if (currTr)
         {
-            func(currTr, currentDepth);
-            for (auto iter = currTr->_childsList.rbegin(); iter != currTr->_childsList.rend(); ++iter)
+            bool valid = checkValid ? CheckValidTransform(currTr) : true;
+            if (valid)
             {
-                auto& transform = *iter;
-                trStack.emplace_back(transform, currentDepth + 1);
+                func(currTr, currentDepth);
+                for (auto iter = currTr->_childsList.rbegin(); iter != currTr->_childsList.rend(); ++iter)
+                {
+                    auto& transform = *iter;
+                    trStack.emplace_back(transform, currentDepth + 1);
+                }
             }
         }
     }
@@ -684,15 +696,18 @@ inline void Transform::ForeachExBFS(Transform& root, bool checkValid, const std:
     {
         Transform* currTr = trQueue.front();
         trQueue.pop();
-        bool valid = checkValid ? CheckValidTransform(currTr) : true;
-        if (valid)
+        if (currTr)
         {
-            func(currTr);
-            for (auto& _transform : currTr->_childsList)
+            bool valid = checkValid ? CheckValidTransform(currTr) : true;
+            if (valid)
             {
-                trQueue.push(_transform);
+                func(currTr);
+                for (auto& _transform : currTr->_childsList)
+                {
+                    trQueue.push(_transform);
+                }
             }
-        }
+        }    
     }
 }
 
@@ -702,16 +717,19 @@ inline void Transform::ForeachExBFS(Transform& root, bool checkValid, const std:
     trQueue.push({&root, 0});
     while (trQueue.empty() == false)
     {
-        auto [currTr, currentDepth] = trQueue.front();
+        auto& [currTr, currentDepth] = trQueue.front();
         trQueue.pop();
-        bool valid = checkValid ? CheckValidTransform(currTr) : true;
-        if (valid)
+        if (currTr)
         {
-            func(currTr, currentDepth);
-            for (auto& _transform : currTr->_childsList)
+            bool valid = checkValid ? CheckValidTransform(currTr) : true;
+            if (valid)
             {
-                trQueue.push({_transform, currentDepth + 1});
+                func(currTr, currentDepth);
+                for (auto& _transform : currTr->_childsList)
+                {
+                    trQueue.push({_transform, currentDepth + 1});
+                }
             }
-        }
+        }      
     }
 }

@@ -224,10 +224,9 @@ public:
 
     GETTER_ONLY(POINT, CenterPoint)
     {
+        const POINT point = Point;
         const SIZE  size  = Size;
-        return POINT{
-        .x = size.cx / 2,
-        .y = size.cy / 2};
+        return POINT{.x = point. x + size.cx / 2, .y = point.y + size.cy / 2};
     }
     PROPERTY(CenterPoint)
 

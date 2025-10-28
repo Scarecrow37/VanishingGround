@@ -118,7 +118,7 @@ namespace Monster
     /// <param name="subLevelIndex">서브 Level 인덱스입니다.</param>
     /// <param name="battleCount">전투 횟수 카운트입니다.</param>
     constexpr const char*   SPAWN_ID_HEADER = "211";
-    SpawnID                 GetSpawnID(size_t mainLevelIndex, size_t subLevelIndex, size_t battleCount);
+    SpawnID                 GetSpawnID(int mainLevelIndex, int subLevelIndex, int battleCount);
 
     constexpr const char*   SpawnPointToString(SpawnPoint point)
     {

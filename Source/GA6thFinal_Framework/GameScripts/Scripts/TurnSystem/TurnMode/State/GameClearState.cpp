@@ -4,6 +4,7 @@
 #include <TurnSystem/TurnMode/State/CombatStartPhase.h>
 #include <TurnSystem/TurnActor/Character/CharacterBase.h>
 #include "ItemDropSystem/ItemDropSystem.h"
+#include "RevelationSystem/RevelationSystem.h"
 
 REGISTER_CLASS(FSMStateFactory, GameClearState)
 
@@ -19,6 +20,10 @@ void GameClearState::OnEnter()
     if (ItemDropSystem* system = SingletonComponent<ItemDropSystem>::GetInstance())
     {
         system->PlayItemDropUISequence();
+    }
+    if (_revelationSystem)
+    {
+        _revelationSystem->RemoveAllExtinctionElements();
     }
 }
 

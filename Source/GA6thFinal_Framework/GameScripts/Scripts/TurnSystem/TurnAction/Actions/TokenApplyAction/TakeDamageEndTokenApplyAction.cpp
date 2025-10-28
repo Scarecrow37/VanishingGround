@@ -8,13 +8,9 @@
 
 REGISTER_TURN_ACTION(TakeDamageEndTokenApplyAction)
 
-TakeDamageEndTokenApplyAction::TakeDamageEndTokenApplyAction() 
-{
-    UpdateActionInfo();
-}
-
 const std::string& TakeDamageEndTokenApplyAction::GetActionInfo()
 {
+    TryTokenSystemInfoUpdate();
     return _actionInfo;
 }
 
@@ -35,8 +31,7 @@ void TakeDamageEndTokenApplyAction::UpdateActionInfo()
     _actionInfo.clear();
     _actionInfo = (const char*)TurnSystemHelper::GetTurnTargetToolTip(Target).data();
     _actionInfo += u8" 데미지 입을때 "_c_str;
-
-    _actionInfo += TokenSystem::GetTokenNameFromID(TokenID);
+    _actionInfo += TokenSystem::TokenIDToName(TokenID);
     _actionInfo += u8"토큰을 "_c_str;
     _actionInfo += std::to_string(TokenCount);
     _actionInfo += u8"개 부여"_c_str;

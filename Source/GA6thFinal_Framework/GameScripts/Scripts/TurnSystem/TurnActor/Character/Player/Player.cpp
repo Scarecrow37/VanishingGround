@@ -133,19 +133,6 @@ void Player::TakeDamage(int damage, bool playAnim)
     }
 }
 
-void Player::TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim)
-{  
-    if (result.IsHit())
-    {
-        auto& inputSystem = ESceneManager::Engine::GetInputSystem();
-        inputSystem.Vibrate(Input::ControllerTypes::VIBRATION_TAKE_DAMAGE);
-    }
-
-    // 혹시나 그럴 일 없겠지만 중간에 계산할 연산이 또 있다면 재연산
-    int takeDamage = damage;
-    Base::TakeDamage(takeDamage, result, playAnim);
-}
-
 
 void Player::ImGuiDrawPropertysEvent()
 {

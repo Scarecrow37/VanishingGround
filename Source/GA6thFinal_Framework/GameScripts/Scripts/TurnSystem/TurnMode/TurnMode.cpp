@@ -5,6 +5,7 @@
 #include <WeaponSystem/WeaponSystem.h>
 #include <DamageSystem/DamageSystem.h>
 #include "TurnSystem/TurnAction/Condition/RoundOnceCondition/RoundOnceCondition.h"
+#include "TurnSystem/TurnAction/TurnAction.h"
 
 //Condition
 #include "GameCore/FSM/AlwaysTransitionCondition.h"
@@ -294,7 +295,12 @@ int TurnMode::GetRealRoundSpeed(const std::pair<int, TurnActor*>& turnActor)
     return roundSpeed;
 }
 
-void TurnMode::Reset() 
+void TurnMode::CallAddedAction(TurnAction* action) 
+{
+    action->OnAddedAction();
+}
+
+void TurnMode::Reset()
 {
     _singletonComponent.SetSingleTon();
 }

@@ -8,15 +8,11 @@
 
 UMREAL_COMPONENT(RevelationsView)
 
-RevelationsView::~RevelationsView()
-{
-    
-}
+RevelationsView::~RevelationsView() = default;
 
 void RevelationsView::Awake()
 {
     Component::Awake();
-
     FindRevelationUIs();
 }
 
@@ -25,35 +21,38 @@ void RevelationsView::Start()
     Component::Start();
 
     _watchHandle = UmWatcher.Watch<RevelationsViewModel, std::vector<RevelationUIData>>(
-        "Revelations", [this](const std::vector<RevelationUIData>& revelations) 
+        "Revelations", [this, thisWeak = GetWeakPtr()](const std::vector<RevelationUIData>& revelations) 
         {
-            for (size_t i = 0; i < _revelationUis.size(); ++i)
+            if (false == thisWeak.expired())
             {
-                if (i < revelations.size())
+                for (size_t i = 0; i < _revelationUis.size(); ++i)
                 {
-                    if (nullptr != _revelationUis[i].IconElement)
-                        _revelationUis[i].IconElement->SetImage(revelations[i].Icon);
-                    if (nullptr != _revelationUis[i].NameElement)
+                    if (i < revelations.size())
                     {
-                        _revelationUis[i].NameElement->Text = revelations[i].Name;
-                        _revelationUis[i].NameElement->Color = revelations[i].NameColor;
-                    }                       
-                    if (nullptr != _revelationUis[i].DescriptionElement)
-                        _revelationUis[i].DescriptionElement->Description = revelations[i].Description;
-                    if (false != _revelationUis[i].GradeElements.size())
-                    {
-                        size_t index = static_cast<size_t>(revelations[i].Grade);
-                        for (auto& ui : _revelationUis[i].GradeElements)
+                        if (nullptr != _revelationUis[i].IconElement)
+                            _revelationUis[i].IconElement->SetImage(revelations[i].Icon);
+                        if (nullptr != _revelationUis[i].NameElement)
                         {
-                            ui->Enable = false;
+                            _revelationUis[i].NameElement->Text  = revelations[i].Name;
+                            _revelationUis[i].NameElement->Color = revelations[i].NameColor;
                         }
-                        if (index < _revelationUis[i].GradeElements.size())
+                        if (nullptr != _revelationUis[i].DescriptionElement)
+                            _revelationUis[i].DescriptionElement->Description = revelations[i].Description;
+                        if (false != _revelationUis[i].GradeElements.size())
                         {
-                            _revelationUis[i].GradeElements[index]->Enable = true;
+                            size_t index = static_cast<size_t>(revelations[i].Grade);
+                            for (auto& ui : _revelationUis[i].GradeElements)
+                            {
+                                ui->Enable = false;
+                            }
+                            if (index < _revelationUis[i].GradeElements.size())
+                            {
+                                _revelationUis[i].GradeElements[index]->Enable = true;
+                            }
                         }
                     }
                 }
-            }
+            }       
         });
 
     gameObject->ActiveSelf = false;
@@ -62,10 +61,12 @@ void RevelationsView::Start()
 void RevelationsView::OnDestroy() 
 {
     UmWatcher.Blind<RevelationsViewModel>("Revelations", _watchHandle);
+    ClearRevelationUIs();
 }
 
 void RevelationsView::FindRevelationUIs()
 {
+    ClearRevelationUIs();
     auto [firstRevelationObject, firstRevelationUI]   = FindRevelationUI("1st Revelation");
     _revelationObjects[0]                             = firstRevelationObject;
     _revelationUis[0]                                 = firstRevelationUI;
@@ -141,4 +142,20 @@ std::pair<GameObject*, RevelationUI> RevelationsView::FindRevelationUI(const std
     }
 
     return {revelationObject, revelationUI};
+}
+
+void RevelationsView::ClearRevelationUIs() 
+{
+    for (auto& uis : _revelationUis)
+    {
+        uis.DescriptionElement = nullptr;
+        uis.IconElement        = nullptr;
+        uis.NameElement        = nullptr;
+        uis.GradeElements.clear();
+    }
+
+    for (auto& objs : _revelationObjects)
+    {
+        objs = nullptr;
+    }
 }

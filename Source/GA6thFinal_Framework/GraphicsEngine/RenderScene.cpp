@@ -337,9 +337,10 @@ void RenderScene::UpdateObject()
         const auto& textures       = model->GetTextures();
 
         BoneMatrices boneMatrices;
-        MatrixData   matrixData          = {.World = XMMatrixTranspose(component->GetWorldMatrix())};
+        MatrixData   matrixData          = {.World = component->GetWorldMatrix()};
         float        determinant         = XMMatrixDeterminant(matrixData.World).m128_f32[0];
-        matrixData.InverseTransposeWorld = XMMatrixTranspose(XMMatrixInverse(nullptr, matrixData.World));
+        matrixData.InverseTransposeWorld = XMMatrixInverse(nullptr, matrixData.World);
+        matrixData.World                 = XMMatrixTranspose(matrixData.World);
 
         if (SKELETAL_MESH == type)
         {
@@ -406,9 +407,9 @@ void RenderScene::UpdateUI()
 {    
     auto iter_ui = std::remove_if(_uiRenderQueue.begin(), _uiRenderQueue.end(), [](const auto& renderer) { return !renderer->IsAlive(); });
     _uiRenderQueue.erase(iter_ui, _uiRenderQueue.end());
-
-    _uiMatrices.clear();
-    _uiMaterials.clear();
+    
+    std::vector<std::pair<Matrix, UIMaterial>> uiDatas;
+    uiDatas.reserve(_uiRenderQueue.size());
     for (auto& component : _uiRenderQueue)
     {
         if (!component->IsActive())
@@ -445,16 +446,25 @@ void RenderScene::UpdateUI()
                 break;
             }
         }
-        
-        _uiMatrices.emplace_back(XMMatrixTranspose(scale * world * translation));
 
         UIMaterial uiMaterial{.ID          = texture->GetID(),
                               .Alpha       = component->GetAlpha(),
                               .NumColmn    = component->GetNumColumn(),
                               .NumRow      = component->GetNumRow(),
                               .ColumnIndex = component->GetColumnIndex(),
-                              .RowIndex    = component->GetRowIndex()};
-        _uiMaterials.push_back(uiMaterial);
+                              .RowIndex    = component->GetRowIndex()};       
+
+        uiDatas.emplace_back(scale * world * translation, uiMaterial);
+    }
+    
+    //std::stable_sort(uiDatas.begin(), uiDatas.end(), [](const auto& a, const auto& b) { return a.first.Translation().z > b.first.Translation().z; });
+
+    _uiMatrices.clear();
+    _uiMaterials.clear();
+    for (auto& [matrix, material] : uiDatas)
+    {
+        _uiMatrices.emplace_back(XMMatrixTranspose(matrix));
+        _uiMaterials.emplace_back(material);
     }
 
     // Text

@@ -128,7 +128,7 @@ void HealthRangeCondition::DeserializedReflectEvent()
     UpdateConditionInfo();
 }
 
-const std::string& HealthRangeCondition::GetConditionInfo() const
+const std::string& HealthRangeCondition::GetConditionInfo()
 {
     return _conditionInfo;
 }
