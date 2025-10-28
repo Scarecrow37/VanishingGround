@@ -463,7 +463,7 @@ void RenderScene::UpdateUI()
         uiDatas.emplace_back(scale * world * translation, uiMaterial);
     }
     
-    std::stable_sort(uiDatas.begin(), uiDatas.end(), [](const auto& a, const auto& b) { return a.first.Translation().z > b.first.Translation().z; });
+    //std::stable_sort(uiDatas.begin(), uiDatas.end(), [](const auto& a, const auto& b) { return a.first.Translation().z > b.first.Translation().z; });
 
     _uiMatrices.clear();
     _uiMaterials.clear();

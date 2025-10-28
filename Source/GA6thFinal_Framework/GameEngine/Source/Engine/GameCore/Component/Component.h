@@ -42,6 +42,17 @@ public:
         return _weakPtr;
     }
 
+    /// <summary>
+    /// 이 컴포넌트의 weak_ptr을 반환합니다. 
+    /// </summary>
+    /// <typeparam name="Derived">반환받을 </typeparam>
+    /// <returns>weak_ptr this</returns>
+    template <typename Derived>
+    std::weak_ptr<Derived> GetWeakPtrAs() const
+    {
+        return std::dynamic_pointer_cast<Derived>(GetWeakPtr().lock());
+    }
+
     // ITimeInvoker을(를) 통해 상속됨
     virtual std::weak_ptr<ITimeInvoker> GetWeakInvoker() override;
 
