@@ -20,7 +20,11 @@ public:
     REFLECT_PROPERTY(FadeDuration, BeginAlpha, EndAlpha)
 
     GETTER(float, FadeDuration) { return ReflectFields->FadeDuration; }
-    SETTER(float, FadeDuration) { ReflectFields->FadeDuration = std::max(0.1f, value); }
+    SETTER(float, FadeDuration)
+    {
+        ReflectFields->FadeDuration = std::max(0.1f, value);
+        UpdateAnimationProperty();
+    }
     PROPERTY(FadeDuration)
 
     GETTER(float, BeginAlpha) { return ReflectFields->BeginAlpha; }
@@ -45,6 +49,7 @@ protected:
 
 private:
     void UpdateAlpha(float alpha);
+    void UpdateAnimationProperty();
 
 protected:
     REFLECT_FIELDS_BEGIN(ImageElement)
