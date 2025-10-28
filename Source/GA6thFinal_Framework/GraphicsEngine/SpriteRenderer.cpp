@@ -45,6 +45,12 @@ void SpriteRenderer::SetLinearFill(float fill)
     _materialData = materialData;
 }
 
+void SpriteRenderer::SetRadialFill(float fill)
+{
+    UIMaterialData materialData{.Type = UIMaterialType::RADIAL_FILL, .Fill = fill};
+    _materialData = materialData;
+}
+
 void SpriteRenderer::SetAlpha(const float alpha)
 {
     _alpha = std::clamp(alpha, 0.f, 1.f);
