@@ -142,8 +142,8 @@ void TextElement::UpdateProperties()
     UpdateColor();
     UpdatePosition();
     UpdateScale();
-    UpdateContentSize();
     UpdateOutline();
+    UpdateContentSize();
 }
 
 void TextElement::UpdateText() const
