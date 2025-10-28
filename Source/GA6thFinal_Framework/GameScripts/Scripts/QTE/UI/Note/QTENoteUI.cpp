@@ -108,11 +108,12 @@ namespace QTE
             return;
         }
         const float deltaTime = Time - currTime;
-        const float noteWidth = GetNoteWidth();
+        
         // 노트 위치 가중치를 구한다. 0 이하면 나타나기 전, 1 이상이면 퍼펙트 지점을 넘었다는 것.
         const float posXFactor = Math::CalculateNotePosXFactor(deltaTime, currSpeed, travelTime);
         // 주의: end 지점을 PerfectX로 한다.
-        const float posXValue = Math::CalculateNotePosX(posXFactor, startX, perfectX);
+        const float posXValue = perfectX * posXFactor;
+
         switch (State)
         {
         case STATE_WAIT: {
@@ -129,18 +130,15 @@ namespace QTE
             {
                 const SIZE  size      = Overlay->Size;
                 const POINT oldPoint  = Overlay->Point;
-                const float half      = static_cast<float>(size.cx / 2)/*0.0f*/;
-                const float finalXPos = std::min(posXValue, endX) + half + offsetX;
+                const float halfWidth = GetNoteWidth() * 0.5f;
+                const float finalXPos = posXValue - halfWidth + offsetX;
                 const LONG  posXLong  = static_cast<LONG>(finalXPos);
                 Overlay->Point        = POINT{posXLong, oldPoint.y};
-                {
-                    const float hideX  = perfectX + 300.0f;
-                    const float dist   = hideX - perfectX;
-                    const float delta  = hideX - finalXPos;
-                    const float factor = std::clamp(delta / dist, 0.0f, 1.0f);
-                    Alpha(std::clamp(factor, 0.0f, 1.0f));
-                }
-              
+
+                const float dist   = endX - perfectX;
+                const float delta  = endX - finalXPos;
+                const float factor = std::clamp(delta / dist, 0.0f, 1.0f);
+                Alpha(std::clamp(factor, 0.0f, 1.0f));
             }
             // 결과가 생긴 노트는 Dead처리
             if (Result != QTE::QTE_RESULT_NONE)
@@ -148,6 +146,7 @@ namespace QTE
                 State = STATE_DEAD;
                 OnNoteExit();
             }
+            
             break;
         }
         case STATE_DEAD: {
@@ -171,6 +170,8 @@ namespace QTE
         if (resultType.IsPressedButton())
         {
             Result = resultType.Result;
+            //State  = STATE_DEAD;
+            //OnNoteExit();
         }
     }
     

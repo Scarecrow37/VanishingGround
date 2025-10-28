@@ -94,7 +94,6 @@ void QTEUIManager::OnQTEPlay()
             const float currTime    = system->CurrentTrackTime;
             const float currSpeed   = system->ScaledSpeedFactor;
             const SIZE  panelSize   = _overlayPanel->Size;
-            const POINT overlayAbs  = _fieldUI.Overlay->AbsolutePosition;
             const POINT overlayPoint= _fieldUI.Overlay->Point;
             const SIZE  overlaySize = _fieldUI.Overlay->Size;
             const POINT judgeCenter = _fieldUI.JudgeNote->CenterPoint;
@@ -102,7 +101,7 @@ void QTEUIManager::OnQTEPlay()
 
             const float perfectX    = static_cast<float>(judgeCenter.x);
             const float startX      = static_cast<float>(overlayPoint.x);
-            const float endX        = static_cast<float>(panelSize.cx);
+            const float endX        = static_cast<float>(overlaySize.cx);
 
             for (auto& [id,_] : _activedPoolIndices)
             {

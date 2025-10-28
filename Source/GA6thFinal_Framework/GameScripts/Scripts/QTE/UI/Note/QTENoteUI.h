@@ -25,8 +25,6 @@ namespace QTE
     private:
         void SpawnObject(const File::Guid& prefab, Transform* parent);
 
-        void SetPositionX(float posX);
-
         float GetNoteWidth();
 
     public:
