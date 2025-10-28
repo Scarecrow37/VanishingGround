@@ -56,8 +56,7 @@ void RoundStartPhase::OnEnter()
 
     if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
     {
-        if (int id = system->GetTutorialID(u8"라운드"); 0 < id)
-            system->Show(id);
+        system->Show({805900, 805901});
     }  
 
     if (auto roundInfoUIManager = _roundInfoUIManager.lock())
