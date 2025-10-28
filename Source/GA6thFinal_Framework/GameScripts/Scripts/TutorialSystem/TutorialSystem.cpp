@@ -73,11 +73,11 @@ void TutorialSystem::ImGuiDrawPropertysEvent()
 
 void TutorialSystem::FindComponents()
 {
-    _panel       = GameObject::FindWithTag(OBJECT_TAG_PANEL);
-    _title       = GameObject::FindComponentWithTag<TextElement>(OBJECT_TAG_TITLE);
-    _description = GameObject::FindComponentWithTag<DescriptionPanel>(OBJECT_TAG_DESCRIPTION);
-    _image       = GameObject::FindComponentWithTag<ImageElement>(OBJECT_TAG_IMAGE);
-    _confirm     = GameObject::FindComponentWithTag<HoldingProgressImageElement>(OBJECT_TAG_CONFIRM);
+    _panel       = GameObject::FindWithTag(OBJECT_TAG_PANEL.data());
+    _title       = GameObject::FindComponentWithTag<TextElement>(OBJECT_TAG_TITLE.data());
+    _description = GameObject::FindComponentWithTag<DescriptionPanel>(OBJECT_TAG_DESCRIPTION.data());
+    _image       = GameObject::FindComponentWithTag<ImageElement>(OBJECT_TAG_IMAGE.data());
+    _confirm     = GameObject::FindComponentWithTag<HoldingProgressImageElement>(OBJECT_TAG_CONFIRM.data());
 }
 
 bool TutorialSystem::Show(const int id)

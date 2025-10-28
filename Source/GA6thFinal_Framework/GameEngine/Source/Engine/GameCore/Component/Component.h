@@ -50,7 +50,7 @@ public:
     template <typename Derived>
     std::weak_ptr<Derived> GetWeakPtrAs() const
     {
-        return std::static_pointer_cast<Derived>(GetWeakPtr().lock());
+        return std::dynamic_pointer_cast<Derived>(GetWeakPtr().lock());
     }
 
     // ITimeInvoker을(를) 통해 상속됨

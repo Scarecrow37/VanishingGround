@@ -74,7 +74,7 @@ public:
     /// </summary>
     /// <param name="tag">검색할 태그</param>
     /// <returns>찾은 오브젝트를 weak_ptr에 담아준다.</returns>
-    static std::weak_ptr<GameObject> FindWithTag(std::string_view tag);
+    static std::weak_ptr<GameObject> FindWithTag(const std::string& tag);
 
     /// <summary>                                                                           </para>
     /// <para> 매개변수와 같은 태그가 설정된 Component를 찾아 반환합니다.                             </para>
@@ -83,7 +83,7 @@ public:
     /// <param name="tag">검색할 태그</param>
     /// <returns>찾은 컴포넌트를 weak_ptr에 담아준다.</returns>
     template <IS_BASE_COMPONENT_C DerivedComponent>
-    static std::weak_ptr<DerivedComponent> FindComponentWithTag(const std::string_view tag)
+    static std::weak_ptr<DerivedComponent> FindComponentWithTag(const std::string& tag)
     {
         const std::weak_ptr<GameObject> objectWeak = FindWithTag(tag);
         if (const auto objectShared = objectWeak.lock())
