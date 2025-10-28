@@ -1211,8 +1211,12 @@ void ESceneManager::ObjectsDestroy()
     }
 
     //큐 초기화
-    _destroyComponentsTemp.clear();
-    _destroyObjectTemp.clear();
+    if (_destroyComponentsTemp.empty() || _destroyObjectTemp.empty())
+    {
+        UmComponentFactory.CleanupExpiredComponents();
+        _destroyComponentsTemp.clear();
+        _destroyObjectTemp.clear();
+    }
 }
 
 void ESceneManager::ObjectsAddRuntime()
