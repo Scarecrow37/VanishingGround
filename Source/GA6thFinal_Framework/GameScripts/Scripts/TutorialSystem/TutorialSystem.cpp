@@ -246,7 +246,7 @@ void TutorialSystem::ShowNextTutorialOrHide()
             const int nextId = _pendingTutorials.front();
             _pendingTutorials.pop_front();
             succeed = Show(nextId);
-        } while (false == succeed);
+        } while (false == succeed && false == _pendingTutorials.empty());
     }
 }
 
