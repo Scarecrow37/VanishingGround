@@ -3,6 +3,8 @@
 
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 #include "TurnSystem/TurnMode/TurnMode.h"
+#include "RoundInfoUI/RoundInfoUIManager.h"
+#include "Monster/Action/MonsterActionBase.h"
 
 REGISTER_CLASS(FSMStateFactory, EnemyPlayTurnState)
 
@@ -21,6 +23,7 @@ void EnemyPlayTurnState::OnAwake()
 
 void EnemyPlayTurnState::OnStart() 
 {
+    _roundInfoUIManager = GameObject::FindComponentWithTag<RoundInfoUIManager>("Round Info Panel");
 }
 
 void EnemyPlayTurnState::OnEnter() 
@@ -29,6 +32,17 @@ void EnemyPlayTurnState::OnEnter()
 
     std::string message = std::format("{} {}", gameObject->ToString(), (const char*)u8"턴 시작.");
     UmLogger.Message(LogLevel::LEVEL_TRACE, message);
+
+    if (auto roundInfo = _roundInfoUIManager.lock())
+    {
+        Enemy& enemy = GetEnemy();
+        Monster::Controller& controller = enemy.GetController();
+        if (Monster::Action::Base* action = controller.GetCurrentAction())
+        {
+            const std::string& name = action->GetActionContext().Name;
+            roundInfo->FadeInfoUI(name);
+        }
+    }
 }
 
 void EnemyPlayTurnState::OnExit() 
