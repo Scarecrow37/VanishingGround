@@ -395,7 +395,7 @@ void TurnMode::ImGuiDrawPropertysEvent()
         ImGui::TreePop();
     }
 
-    if(ImGui::TreeNode("UI Test"))
+    if(UmCore->IsPlay() && ImGui::TreeNode("UI Test"))
     {
         if (ImGui::Button("Play Round Fade UI"))
         {
