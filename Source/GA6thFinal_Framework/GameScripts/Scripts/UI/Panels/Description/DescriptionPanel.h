@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "UI/Base/IOpacity/IOpacity.h"
 #include "UI/Panels/Horizontal/HorizontalPanel.h"
 
 enum class ElementType : unsigned char
@@ -24,7 +25,7 @@ struct ElementData
     std::variant<TextAttributes, ImageAttributes> Data;
 };
 
-class DescriptionPanel : public HorizontalPanel
+class DescriptionPanel : public HorizontalPanel, public IOpacity
 {
     USING_PROPERTY(DescriptionPanel)
 
@@ -60,12 +61,11 @@ public:
     PROPERTY(FontScale)
 
     GETTER(float, Alpha) { return ReflectFields->Alpha; }
-    SETTER(float, Alpha)
-    {
-        ReflectFields->Alpha = std::clamp(value, 0.0f, 1.0f);
-        UpdateAlpha();
-    }
+    SETTER(float, Alpha) { SetOpacity(value); }
     PROPERTY(Alpha)
+
+public:
+    void SetOpacity(float opacity) override;
 
 protected:
     void DeserializedReflectEvent() override;

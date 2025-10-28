@@ -91,6 +91,8 @@ void SDFTextRenderer::SetFontOutline(const GE::FontOutline& outline)
     _fontFlags = static_cast<FontFlags>(flag);
 
     _fontOutline = outline;
+
+    //MeasureString();
 }
 
 void SDFTextRenderer::AddReference()
@@ -181,40 +183,10 @@ void SDFTextRenderer::Update(ID3D12GraphicsCommandList* commandList)
             float planeRight  = glyph->PlaneBounds.Right;
             float planeTop    = glyph->PlaneBounds.Top;
 
-            // Calculate quad expansion for outline
-            float quadExpansion = 0.0f;
-            float uvExpansion = 0.0f;
-            if (_fontFlags & OUTLINE)
-            {
-                // Expand in plane space (em units)
-                quadExpansion = _fontOutline.Width / atlasInfo.DistanceRange * metricsInfo.EmSize;
-                
-                // Calculate UV expansion
-                // OutlineWidth is in distance field units, convert to atlas texture space
-                float glyphWidthInAtlas = glyph->AtlasBounds.Right - glyph->AtlasBounds.Left;
-                float glyphHeightInAtlas = glyph->AtlasBounds.Top - glyph->AtlasBounds.Bottom;
-                float glyphWidthInPlane = planeRight - planeLeft;
-                float glyphHeightInPlane = planeTop - planeBottom;
-                
-                // Ratio of plane expansion to original plane size
-                float expansionRatioX = (glyphWidthInPlane > 0) ? quadExpansion / glyphWidthInPlane : 0;
-                float expansionRatioY = (glyphHeightInPlane > 0) ? quadExpansion / glyphHeightInPlane : 0;
-                
-                // Apply same ratio to UV space
-                float uvExpandX = (u1 - u0) * expansionRatioX;
-                float uvExpandY = (v1 - v0) * expansionRatioY;
-                
-                // Expand UV coordinates
-                u0 -= uvExpandX;
-                u1 += uvExpandX;
-                v0 -= uvExpandY;
-                v1 += uvExpandY;
-            }
-
-            float quadLeft   = cursorX + planeLeft - quadExpansion;
-            float quadBottom = cursorY - planeBottom - quadExpansion;
-            float quadRight  = cursorX + planeRight + quadExpansion;
-            float quadTop    = cursorY - planeTop + quadExpansion;
+            float quadLeft   = cursorX + planeLeft;
+            float quadBottom = cursorY - planeBottom;
+            float quadRight  = cursorX + planeRight;
+            float quadTop    = cursorY - planeTop;
 
             _vertices[_charCount * 4 + 0] = Vertex{{quadLeft, quadTop, 0.f, 1.f}, {u0, v0}};
             _vertices[_charCount * 4 + 1] = Vertex{{quadRight, quadTop, 0.f, 1.f}, {u1, v0}};
@@ -299,19 +271,10 @@ void SDFTextRenderer::MeasureString()
         float planeRight  = glyph->PlaneBounds.Right;
         float planeTop    = glyph->PlaneBounds.Top;
 
-        // Expand quad if outline is enabled (same as in Update function)
-        float quadExpansion = 0.0f;
-        if (_fontFlags & OUTLINE)
-        {
-            // Calculate expansion in em-space units
-            // OutlineWidth is in SDF distance units, convert to plane space
-            quadExpansion = _fontOutline.Width / _font->GetAtlasInfo().DistanceRange * metricsInfo.EmSize;
-        }
-
-        float quadLeft   = cursorX + planeLeft - quadExpansion;
-        float quadBottom = cursorY - planeBottom - quadExpansion;
-        float quadRight  = cursorX + planeRight + quadExpansion;
-        float quadTop    = cursorY - planeTop + quadExpansion;
+        float quadLeft   = cursorX + planeLeft;
+        float quadBottom = cursorY - planeBottom;
+        float quadRight  = cursorX + planeRight;
+        float quadTop    = cursorY - planeTop;
 
         calculatedBounds[0] = std::min(calculatedBounds[0], quadLeft);
         calculatedBounds[1] = std::min(calculatedBounds[1], quadTop);

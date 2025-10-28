@@ -10,13 +10,13 @@ FadeImageElement::FadeImageElement() : UIAnimation([this](const float alpha) { U
 void FadeImageElement::FadeIn()
 {
     _fadeDirection = FadeDirection::FORWARD;
-    UIAnimation::Reset(ReflectFields->FadeDuration, false);
+    UIAnimation::Reset();
 }
 
 void FadeImageElement::FadeOut()
 {
     _fadeDirection = FadeDirection::BACKWARD;
-    UIAnimation::Reset(ReflectFields->FadeDuration, false);
+    UIAnimation::Reset();
 }
 
 void FadeImageElement::Stop()
@@ -26,23 +26,20 @@ void FadeImageElement::Stop()
 
 void FadeImageElement::Begin()
 {
-    Alpha = BeginAlpha;
-    UIAnimation::Reset(ReflectFields->FadeDuration, false);
+    SetElapsedTime(0.0f);
 }
 
 void FadeImageElement::End()
 {
-    Alpha = EndAlpha;
-    UIAnimation::Reset(0.0f, false);
+    const float duration = FadeDuration;
+    SetElapsedTime(duration);
 }
 
 void FadeImageElement::Start()
 {
     ImageElement::Start();
 
-    Alpha = BeginAlpha;
-
-    UIAnimation::Reset(ReflectFields->FadeDuration, false);
+    UpdateAnimationProperty();
 }
 
 void FadeImageElement::Update()
@@ -72,4 +69,10 @@ void FadeImageElement::Reset()
 void FadeImageElement::UpdateAlpha(const float alpha)
 {
     Alpha = std::lerp(BeginAlpha, EndAlpha, alpha);
+}
+
+void FadeImageElement::UpdateAnimationProperty()
+{
+    const float duration = FadeDuration;
+    SetDuration(duration);
 }
