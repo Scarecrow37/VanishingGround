@@ -24,7 +24,7 @@ void SpriteAnimationElement::Setup()
     const int frameCount = FrameCount;
     _durationPerFrame = ReflectFields->Duration / static_cast<float>(frameCount);
     _currentFrame        = 0;
-    _isPlaying           = ReflectFields->StartAnimationOnPlay | _isPlaying;
+    _isPlaying           = ReflectFields->StartAnimationOnPlay || _isPlaying;
 }
 
 void SpriteAnimationElement::ResetUV()
@@ -45,11 +45,10 @@ void SpriteAnimationElement::UpdateFrame()
         }
         else
         {
-            _elapsedTime = totalDuration;
+            _elapsedTime = totalDuration - _durationPerFrame * 0.5f;
             _isPlaying   = false;
             if (_willSuicide)
                 GameObject::Destroy(this->gameObject);
-            return;
         }
     }
 
@@ -69,4 +68,12 @@ void SpriteAnimationElement::StartAnimation()
 void SpriteAnimationElement::StopAnimation()
 {
     _isPlaying = false;
+}
+
+float SpriteAnimationElement::GetAnimationProgress(int targetFrame) const
+{
+    int    totalFrames = FrameCount;
+    double progress  = static_cast<double>(targetFrame - 1) / static_cast<double>(totalFrames - 1);
+    progress = std::clamp(progress, 0.0, 1.0);
+    return static_cast<float>(progress);
 }
