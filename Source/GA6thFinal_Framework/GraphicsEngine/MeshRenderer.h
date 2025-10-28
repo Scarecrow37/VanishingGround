@@ -52,7 +52,7 @@ private:
     std::vector<UINT>                             _customDepths;
     std::vector<std::shared_ptr<DXRSkeletalMesh>> _dxrSkeletalMeshes;
     std::shared_ptr<Model>                        _model;
-    GraphicsPointer<Animator>                     _animator;
+    std::unique_ptr<Animator>                     _animator;
     const Matrix*                                 _world{nullptr};
     MeshType                                      _type{MeshType::MESH_TYPE_END};
     std::any                                      _customMaterialData;

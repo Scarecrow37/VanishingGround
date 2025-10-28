@@ -538,3 +538,4 @@ imgui.ini
 !Source/GA6thFinal_Framework/GameEngine/Source/Editor/Tool/Log/
 *.dmp
 Preferences.inl
+*.UmMeta

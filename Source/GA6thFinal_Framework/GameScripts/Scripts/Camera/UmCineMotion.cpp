@@ -60,6 +60,7 @@ void UmCineMotion::Update()
 
 void UmCineMotion::ImGuiDrawPropertysEvent()
 {
+#ifdef _UMEDITOR
     CameraComponent::ImGuiDrawPropertysEvent();
     if (false == _posTethers.empty())
     {
@@ -222,6 +223,7 @@ void UmCineMotion::ImGuiDrawPropertysEvent()
                              ImVec2(400, 150));
         }
     }
+#endif
 }
 
 void UmCineMotion::AddTether()
