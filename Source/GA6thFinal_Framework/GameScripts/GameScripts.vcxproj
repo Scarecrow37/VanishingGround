@@ -244,7 +244,6 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
       <IncludeInUnityFile>true</IncludeInUnityFile>
-      <MaxFilesInUnityFile>3</MaxFilesInUnityFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -307,12 +306,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Scripts\QTE\UI\QTEGuideUI.h" />
+    <ClInclude Include="Scripts\QTE\UI\Field\QTEJudgeEffectUI.h" />
+    <ClInclude Include="Scripts\QTE\UI\Input\QTEInputNodeUI.h" />
+    <ClInclude Include="Scripts\QTE\UI\Input\QTEInputViewerUI.h" />
+    <ClInclude Include="Scripts\QTE\UI\Guide\QTEGuideUI.h" />
     <ClInclude Include="Scripts\QTE\Callback\Callback.h" />
     <ClInclude Include="Scripts\QTE\Common\QTECommon.h" />
-    <ClInclude Include="Scripts\QTE\UI\QTEBackgroundUI.h" />
-    <ClInclude Include="Scripts\QTE\UI\QTEFieldUI.h" />
-    <ClInclude Include="Scripts\QTE\UI\QTENoteUI.h" />
+    <ClInclude Include="Scripts\QTE\UI\BackGround\QTEBackgroundUI.h" />
+    <ClInclude Include="Scripts\QTE\UI\Field\QTEFieldUI.h" />
+    <ClInclude Include="Scripts\QTE\UI\Field\QTENoteUI.h" />
     <ClInclude Include="Scripts\ContentMath\ContentMath.h" />
     <ClInclude Include="Scripts\StageVigneeteUI\StageVigneeteUIComponent.h" />
     <ClInclude Include="Scripts\Test\Input\InputStackTestComponent.h" />
@@ -610,14 +612,18 @@
     <ClInclude Include="Scripts\Token\Object\Weakness\WeaknessToken.h" />
     <ClInclude Include="Scripts\Token\Object\Deffence\WeaponDeffenceToken.h" />
     <ClInclude Include="Scripts\Token\Object\Vanish\VanishToken.h" />
+    <ClInclude Include="Scripts\RoundInfoUI\RoundInfoUIManager.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Scripts\QTE\UI\QTEGuideUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\Field\QTEJudgeEffectUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\Input\QTEInputNodeUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\Input\QTEInputViewerUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\Guide\QTEGuideUI.cpp" />
     <ClCompile Include="Scripts\QTE\Callback\Callback.cpp" />
     <ClCompile Include="Scripts\QTE\Common\QTECommon.cpp" />
-    <ClCompile Include="Scripts\QTE\UI\QTEBackgroundUI.cpp" />
-    <ClCompile Include="Scripts\QTE\UI\QTEFieldUI.cpp" />
-    <ClCompile Include="Scripts\QTE\UI\QTENoteUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\BackGround\QTEBackgroundUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\Field\QTEFieldUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\Field\QTENoteUI.cpp" />
     <ClCompile Include="Scripts\ContentMath\ContentMath.cpp" />
     <ClCompile Include="Scripts\StageVigneeteUI\StageVigneeteUIComponent.cpp" />
     <ClCompile Include="Scripts\Test\Input\InputStackTestComponent.cpp" />
@@ -913,6 +919,7 @@
     <ClCompile Include="Scripts\Token\Object\Weakness\WeaknessToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\Deffence\WeaponDeffenceToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\Vanish\VanishToken.cpp" />
+    <ClCompile Include="Scripts\RoundInfoUI\RoundInfoUIManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

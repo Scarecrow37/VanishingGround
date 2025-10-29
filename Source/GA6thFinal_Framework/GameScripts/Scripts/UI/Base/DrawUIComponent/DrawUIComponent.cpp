@@ -10,9 +10,9 @@ void DrawUIComponent::SetViewOrder(const int viewOrder)
     ReflectFields->ViewOrder = viewOrder;
 }
 
-void DrawUIComponent::MakeArtificial()
+void DrawUIComponent::SetArtificial(bool isArtificial)
 {
-    _isArtificial = true;
+    _isArtificial = isArtificial;
 }
 
 bool DrawUIComponent::IsArtificial() const

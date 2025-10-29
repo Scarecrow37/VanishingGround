@@ -36,29 +36,7 @@ namespace QTE
                 {
                     EndAnimation = childObject.GetComponent<SpriteAnimationElement>();
                 }
-                else if (childObject.CompareTag(ANIMATION_MISS_TAG))
-                {
-                    MissEffect = childObject.GetComponent<SpriteAnimationElement>();
-                }
-                else if (childObject.CompareTag(ANIMATION_NORMAL_TAG))
-                {
-                    NormalEffect = childObject.GetComponent<SpriteAnimationElement>();
-                }
-                else if (childObject.CompareTag(ANIMATION_PERFECT_TAG))
-                {
-                    PerfectEffect = childObject.GetComponent<SpriteAnimationElement>();
-                }
             });
-        }
-    }
-
-    void NoteUI::SetPositionX(float posX) 
-    {
-        if (Overlay)
-        {
-            const POINT oldPoint = Overlay->Point;
-            const LONG  posXLong = static_cast<LONG>(posX);
-            Overlay->Point = POINT{posXLong, oldPoint.y};
         }
     }
 
@@ -94,21 +72,6 @@ namespace QTE
             EndAnimation->Setup();
             EndAnimation->gameObject->ActiveSelf = false;
         }
-        if (MissEffect)
-        {
-            MissEffect->Setup();
-            MissEffect->gameObject->ActiveSelf = false;
-        }
-        if (NormalEffect)
-        {
-            NormalEffect->Setup();
-            NormalEffect->gameObject->ActiveSelf = false;
-        }
-        if (PerfectEffect)
-        {
-            PerfectEffect->Setup();
-            PerfectEffect->gameObject->ActiveSelf = false;
-        }
     }
 
     bool NoteUI::IsAvailable()
@@ -126,24 +89,34 @@ namespace QTE
         }
         return false;
     }
-
-    void NoteUI::Update(const float currTime, const float currSpeed, const float startX, const float endX,
-                        const float perfectX, const float offsetX)
+    void NoteUI::Alpha(float alpha)
+    {
+        if (StartAnimation)
+        {
+            StartAnimation->Alpha = alpha;
+        }
+        if (EndAnimation)
+        {
+            EndAnimation->Alpha = alpha;
+        }
+    }
+    void NoteUI::Update(const float currTime, const float travelTime, const float currSpeed, const float startX,
+                        const float endX, const float perfectX, const float offsetX)
     {
         if (State == STATE_AVAILABLE)
         {
             return;
         }
         const float deltaTime = Time - currTime;
-        const float noteWidth = GetNoteWidth();
+        
         // 노트 위치 가중치를 구한다. 0 이하면 나타나기 전, 1 이상이면 퍼펙트 지점을 넘었다는 것.
-        const float posXFactor = Math::CalculateNotePosXFactor(deltaTime, currSpeed, TRAVEL_PERFECT_TIME);
+        const float posXFactor = Math::CalculateNotePosXFactor(deltaTime, currSpeed, travelTime);
         // 주의: end 지점을 PerfectX로 한다.
-        const float posXValue = Math::CalculateNotePosX(posXFactor, startX, perfectX);
+        const float posXValue = perfectX * posXFactor;
+
         switch (State)
         {
         case STATE_WAIT: {
-            OnWaitUpdate();
             if (posXFactor >= 0.0f)
             {
                 State = STATE_VISIBLE;
@@ -154,23 +127,37 @@ namespace QTE
         }
         case STATE_VISIBLE: {
             if (Overlay)
-            {   // 최종 값은 EndX값을 넘지 않는 X값에 오프셋을 더한 값.
+            {
                 const SIZE  size      = Overlay->Size;
-                const float finalXPos = std::min(posXValue, endX) + offsetX - static_cast<float>(size.cx / 2);
-                SetPositionX(finalXPos); // 위치 설정
+                const POINT oldPoint  = Overlay->Point;
+                const float halfWidth = GetNoteWidth() * 0.5f;
+                const float finalXPos = posXValue - halfWidth + offsetX;
+                const LONG  posXLong  = static_cast<LONG>(finalXPos);
+                Overlay->Point        = POINT{posXLong, oldPoint.y};
+
+                const float dist   = endX - perfectX;
+                const float delta  = endX - finalXPos;
+                const float factor = std::clamp(delta / dist, 0.0f, 1.0f);
+                Alpha(std::clamp(factor, 0.0f, 1.0f));
             }
-            OnVisibleUpdate();
-            // X값이 EndX값을 넘었거나, 결과가 생긴 노트는 Dead처리
-            if (posXValue >= endX ||
-                Result != QTE::QTE_RESULT_NONE)
+            // 결과가 생긴 노트는 Dead처리
+            if (Result != QTE::QTE_RESULT_NONE)
             {
                 State = STATE_DEAD;
                 OnNoteExit();
             }
+            
             break;
         }
         case STATE_DEAD: {
-            OnDeadUpdate();
+            if (EndAnimation)
+            {
+                // 애니메이션 끝났는지 확인
+                if (false == EndAnimation->IsPlaying)
+                {
+                    EndAnimation->gameObject->ActiveSelf = false;
+                }
+            }
             break;
         }
         default:
@@ -178,9 +165,14 @@ namespace QTE
         }
     }
     
-    void NoteUI::OnNotePressed(QTE::ResultType resultType) 
+    void NoteUI::OnNotePressed(const QTE::NoteResult& resultType) 
     {
-        Result = resultType;
+        if (resultType.IsPressedButton())
+        {
+            Result = resultType.Result;
+            //State  = STATE_DEAD;
+            //OnNoteExit();
+        }
     }
     
     void NoteUI::OnNoteEnter() 
@@ -202,55 +194,5 @@ namespace QTE
                 StartAnimation->gameObject->ActiveSelf = false;
             }
         }
-        // 어차피 결과가 없으면 effect는 nullptr이므로 재생되지 않음.
-        if (SpriteAnimationElement* effectAnimation = GetSpriteAnimation())
-        {
-            effectAnimation->gameObject->ActiveSelf = true;
-            effectAnimation->StartAnimation();
-        }
-    }
-    void NoteUI::OnWaitUpdate() 
-    {
-    }
-    void NoteUI::OnVisibleUpdate() 
-    {
-    }
-    void NoteUI::OnDeadUpdate() 
-    {
-        if (EndAnimation)
-        {
-            // 애니메이션 끝났는지 확인
-            if (false == EndAnimation->IsPlaying)
-            {
-                EndAnimation->gameObject->ActiveSelf = false;
-            }
-        }
-        if (SpriteAnimationElement* effectAnimation = GetSpriteAnimation())
-        {
-            // 애니메이션 끝났는지 확인
-            if (false == effectAnimation->IsPlaying)
-            {
-                effectAnimation->gameObject->ActiveSelf = false;
-            }
-        }
-    }
-
-    SpriteAnimationElement* NoteUI::GetSpriteAnimation()
-    {
-        switch (Result)
-        {
-        case QTE::QTE_RESULT_PERFECT:
-            return PerfectEffect;
-            break;
-        case QTE::QTE_RESULT_NORMAL:
-            return NormalEffect;
-            break;
-        case QTE::QTE_RESULT_MISS:
-            return MissEffect;
-            break;
-        default:
-            break;
-        }
-        return nullptr;
     }
 }

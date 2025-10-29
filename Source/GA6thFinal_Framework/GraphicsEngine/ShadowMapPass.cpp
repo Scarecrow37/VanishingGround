@@ -220,9 +220,9 @@ void ShadowMapPass::CreateShaderAndPSO()
     pss.BlendState                               = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
     pss.DepthStencilState                        = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
     pss.RasterizerState                          = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    /*(&pss.RasterizerState)->DepthBias            = 1000;
+    /*(&pss.RasterizerState)->DepthBias            = 5000;
     (&pss.RasterizerState)->DepthBiasClamp       = 0.01f;
-    (&pss.RasterizerState)->SlopeScaledDepthBias = 1.0f;*/
+    (&pss.RasterizerState)->SlopeScaledDepthBias = 1.5f;*/
     pss.PrimitiveTopology                        = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
     pss.DSVFormat                                = DXGI_FORMAT_D32_FLOAT;
 
@@ -351,9 +351,24 @@ void ShadowMapPass::UpdateSkeletalShadow(const Vector3& lightDirection)
         }
     }
 
-    if (firstBound)
+     if (firstBound)
     {
-        _cascadeData.ShadowVP[MAX_CASCADES] = Matrix::Identity;
+        // 씬의 중심과 적절한 범위를 고려한 더미 행렬
+        XMVECTOR sceneCenter = XMVectorSet(0, 0, 0, 1);
+        XMVECTOR L           = XMVector3Normalize(lightDir);
+        XMVECTOR upY         = XMVectorSet(0, 1, 0, 0);
+        XMVECTOR upZ         = XMVectorSet(0, 0, 1, 0);
+        float    d           = fabsf(XMVectorGetX(XMVector3Dot(L, upY)));
+
+        XMVECTOR U = (d > 0.95f) ? upZ : upY;
+        XMVECTOR R = XMVector3Normalize(XMVector3Cross(U, L));
+        U          = XMVector3Cross(L, R);
+
+        XMVECTOR eyePosition = XMVectorSubtract(sceneCenter, XMVectorScale(L, 50.0f));
+        XMMATRIX lightView   = XMMatrixLookAtLH(eyePosition, sceneCenter, U);
+        XMMATRIX lightProj   = XMMatrixOrthographicLH(100.0f, 100.0f, 1.0f, 100.0f);
+
+        _cascadeData.ShadowVP[MAX_CASCADES] = XMMatrixTranspose(lightView * lightProj);
         return;
     }
 
@@ -376,11 +391,11 @@ void ShadowMapPass::UpdateSkeletalShadow(const Vector3& lightDirection)
 
     constexpr float MIN_SKELETAL_SHADOW_SIZE          = 10.0f;
     constexpr float SKELETAL_SHADOW_EXTENT_MULTIPLIER = 2.1f;
+    constexpr float MAX_FAR_PLANE                     = 50.f;
 
     float    orthoSize = std::max(MIN_SKELETAL_SHADOW_SIZE, maxExtent * SKELETAL_SHADOW_EXTENT_MULTIPLIER);
-    float    nearPlane = 0.01f;
-    float    farPlane  = maxExtent * 5.0f;
-    XMMATRIX lightProj = XMMatrixOrthographicLH(orthoSize, orthoSize, nearPlane, farPlane);
+    float    farPlane  = std::max(MAX_FAR_PLANE, maxExtent * 5.0f);
+    XMMATRIX lightProj = XMMatrixOrthographicLH(orthoSize, orthoSize, 0.01f, farPlane);
 
     _cascadeData.ShadowVP[MAX_CASCADES] = XMMatrixTranspose(lightView * lightProj);
 }

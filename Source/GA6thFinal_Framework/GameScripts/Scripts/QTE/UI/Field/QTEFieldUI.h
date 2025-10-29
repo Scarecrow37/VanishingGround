@@ -1,4 +1,6 @@
 ﻿#pragma once
+#include "QTENoteUI.h"
+#include "QTEJudgeEffectUI.h"
 
 class OverlayPanel;
 class ImageElement;
@@ -20,6 +22,11 @@ namespace QTE
         SpriteAnimationElement* Flow            = nullptr;
         SpriteAnimationElement* JudgeNote       = nullptr;
         SpriteAnimationElement* StartAnimation  = nullptr;
+
+        std::vector<QTE::NoteUI>        NotePool;
+        std::vector<QTE::JudgeEffectUI> EffectPool;
+
+        void Initialize(File::Guid noteGuid, File::Guid effectGuid, size_t poolSize);
 
         // 해당 오브젝트에 자신의 멤버가 있으면 매칭합니다.
         void MatchUIFromObject(GameObject& object);

@@ -44,6 +44,10 @@ public:
     }
     PROPERTY(Color)
 
+    GETTER(float, Alpha) { return ReflectFields->Color[3]; }
+    SETTER(float, Alpha) { SetOpacity(value); }
+    PROPERTY(Alpha)
+
     GETTER(float, FontScale) { return ReflectFields->FontScale; }
     SETTER(float, FontScale)
     {

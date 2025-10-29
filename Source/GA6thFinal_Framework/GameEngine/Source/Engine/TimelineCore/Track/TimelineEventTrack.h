@@ -6,10 +6,10 @@ namespace Timeline
     class EventContext;
     enum Flag
     {
-        EVENT_TRCK_FLAGS_NONE            = 0,
-        EVENT_TRCK_FLAGS_USE_COUNTER     = 1 << 0, // 카운터 사용 여부. (매 틱 독자적으로 DeltaTime을 더한다.)
-        EVENT_TRCK_FLAGS_LOOP            = 1 << 2, // 루프 여부. (카운터 사용 시에 만)
-        EVENT_TRCK_FLAGS_NOTIFY_DISABLED = 1 << 3  // 알림 비활성화 여부. (ContextEvent가 호출되지 않음.)
+        EVENT_TRACK_FLAGS_NONE            = 0,
+        EVENT_TRACK_FLAGS_USE_COUNTER     = 1 << 0, // 카운터 사용 여부. (매 틱 독자적으로 DeltaTime을 더한다.)
+        EVENT_TRACK_FLAGS_LOOP            = 1 << 2, // 루프 여부. (카운터 사용 시에 만)
+        EVENT_TRACK_FLAGS_NOTIFY_DISABLED = 1 << 3  // 알림 비활성화 여부. (ContextEvent가 호출되지 않음.)
     };
     using EventTrackFlags = int;
 

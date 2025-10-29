@@ -28,10 +28,11 @@ PlayerPlayTurnState::PlayerPlayTurnState()
 {
     _inputState               = InputState::NONE;
     _attackButtonHeldTime     = 0.f;
-    _attackButtonHeldWaitTime = 1.0f;
+    _attackButtonHeldWaitTime = 0.5f;
     _attackRemaining          = 0;
     _isDownAButton            = false;
     _isDownAKey               = false;
+    _qteCallbackHandle        = 0;
 }
 
 PlayerPlayTurnState::~PlayerPlayTurnState() 
@@ -64,6 +65,18 @@ void PlayerPlayTurnState::OnEnter()
     _inputState           = InputState::ACTION_SELECTION;
     _attackButtonHeldTime = 0;
     _attackRemaining      = 0;
+
+    WeaponSystem* system = SingletonComponent<WeaponSystem>::GetInstance();
+    if (system)
+    {
+        const std::string& weaponName = system->GetCurrentWeaponElement().Stats.WeaponName;
+        std::string        message = std::format("{}{}{}", (const char*)u8"Player 턴 시작. ", "Weapon : ", weaponName);
+        UmLogger.Message(LogLevel::LEVEL_TRACE, message);
+    }
+    else
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, u8" WeaponSystem이 존재하지 않습니다.");
+    }
 }
 
 void PlayerPlayTurnState::OnExit() 
@@ -80,6 +93,8 @@ void PlayerPlayTurnState::OnExit()
             action.OnTurnEnd(GetPlayer());
         });
     }
+
+    UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"Player 턴 종료.");
 }
 
 
@@ -103,21 +118,26 @@ void PlayerPlayTurnState::OnUpdate()
     default:
         break;
     }
-
-    if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
-    {
-        combatUIManager->Refresh();
-    }
 }
 
 void PlayerPlayTurnState::PressedButtonA(const Input::Controller& controller)
 {
     _isDownAButton = true;
+    if (InputState::ACTION_SELECTION == _inputState)
+    {
+        if (CombatUIManager* uiManager = SingletonComponent<CombatUIManager>::GetInstance())
+            uiManager->FadeOut(_attackButtonHeldWaitTime);
+    } 
 }
 
 void PlayerPlayTurnState::ReleasedButtonA(const Input::Controller& controller)
 {
     _isDownAButton = false;
+    if (InputState::ACTION_SELECTION == _inputState)
+    {
+        if (CombatUIManager* uiManager = SingletonComponent<CombatUIManager>::GetInstance())
+            uiManager->FadeIn(_attackButtonHeldWaitTime);
+    }  
 }
 
 void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
@@ -209,10 +229,6 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
     {
         qteUIManager->SetUIAlpha(t);
     }
-    if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
-    {
-        combatUIManager->SetActiveUI(!input);
-    }
 }
 
 void PlayerPlayTurnState::UpdateQuickTimeEventUI(float dt)
@@ -250,6 +266,7 @@ void PlayerPlayTurnState::SetAttackReady()
         // 애니메이션 빌드 종료
         animator->EndBuildOverrideAnimation();
     }
+    UmAudio.Play("-32000");
 }
 
 void PlayerPlayTurnState::SetAttack()
@@ -272,6 +289,7 @@ void PlayerPlayTurnState::SetAttack()
     
         animator->EndBuildOverrideAnimation();
     }
+    UmAudio.Play("-32010");
 }
 
 void PlayerPlayTurnState::SetAttackEnd()
@@ -357,6 +375,11 @@ Battle::EnemyTargetFlag_ PlayerPlayTurnState::GetAttackTargetFromButton(unsigned
 
 void PlayerPlayTurnState::OnQTEFinish()
 {
+    _inputState = InputState::ATTACK_EVENT;
+
+    if (CombatUIManager* uiManager = SingletonComponent<CombatUIManager>::GetInstance())
+        uiManager->FadeIn(_attackButtonHeldWaitTime);
+
     float min = 0.0f; // 첫 무기 공격을 0초로 맞추고 나머지도 당겨오기 위한 변수
     const float offset = 0.3f;
 

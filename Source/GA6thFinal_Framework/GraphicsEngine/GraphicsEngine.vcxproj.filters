@@ -651,6 +651,7 @@
     <ClCompile Include="UI3DPass_OIT.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="UIRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AccelerationStructureManager.h">
@@ -1142,6 +1143,7 @@
     <ClInclude Include="UIPassBase_OIT.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="UIRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Shaders\CommonData.hlsli">

@@ -3,10 +3,11 @@
 #include <Utility/SingletonHelper.h>
 #include <Utility/FadeHelper.h>
 
-#include "QTE/UI/QTEBackgroundUI.h"
-#include "QTE/UI/QTEFieldUI.h"
-#include "QTE/UI/QTEGuideUI.h"
-#include "QTE/UI/QTENoteUI.h"
+#include "QTE/UI/Background/QTEBackgroundUI.h"
+#include "QTE/UI/Input/QTEInputViewerUI.h"
+#include "QTE/UI/Input/QTEInputNodeUI.h"
+#include "QTE/UI/Field/QTEFieldUI.h"
+#include "QTE/UI/Guide/QTEGuideUI.h"
 
 class SpriteAnimationElement;
 
@@ -33,9 +34,16 @@ public:
     ~QTEUIManager() override;
 
 public:
-    REFLECT_PROPERTY(FilePath, PoolSize)
-    GETTER_ONLY(std::string, FilePath) { return File::Guid(ReflectFields->NotePrefabGuid).ToPath().string(); }
-    PROPERTY(FilePath)
+    REFLECT_PROPERTY(NotePrefab, EffectPrefab, ButtonPrefab, PoolSize)
+
+    GETTER_ONLY(std::string, NotePrefab) { return File::Guid(ReflectFields->NotePrefabGuid).ToPath().string(); }
+    PROPERTY(NotePrefab)
+
+    GETTER_ONLY(std::string, EffectPrefab) { return File::Guid(ReflectFields->EffectPrefabGuid).ToPath().string(); }
+    PROPERTY(EffectPrefab)
+
+    GETTER_ONLY(std::string, ButtonPrefab) { return File::Guid(ReflectFields->ButtonPrefabGuid).ToPath().string(); }
+    PROPERTY(ButtonPrefab)
 
     SETTER(int, PoolSize) { ReflectFields->PoolSize = value; }
     GETTER(int, PoolSize) { return ReflectFields->PoolSize; }
@@ -44,16 +52,15 @@ public:
 private:
     void OnQTEEnter();
     void OnQTEButtonPressed();
-    void OnQTENotePressed(UINT noteID, QTE::ResultType result);
+    void OnQTENotePressed(UINT noteID, const QTE::NoteResult& result);
     void OnQTEPlay();
     void OnQTEExit();
 
 public:
-    /// <summary>노트 프리팹의 GUID를 설정합니다. 해당 프리팹을 통해 QTE 노트 UI가 생성됩니다.</summary>
-    void SetNotePrefabGuid(const File::Guid& guid);
-
     /// <summary>QTE UI의 알파 값을 설정합니다.</summary>
     void SetUIAlpha(float factor);
+
+    void DrawDebugJudgeLine();
 
 private:
     void Reset() override;
@@ -64,13 +71,11 @@ private:
     void SerializedReflectEvent() override;
     void DeserializedReflectEvent() override;
     void ImGuiDrawPropertysEvent() override;
+    bool DragDropEvent(File::Guid& out);
 
 private:
     void ResetUI();
-    void InitializeNotePool();
-
-    QTE::NoteUI* GetNoteUIFromID(UINT id);
-
+    int  GetIndexFromNoteID(UINT id);
     void FindUIComponents();
 
 private:
@@ -78,17 +83,19 @@ private:
 
     OverlayPanel*                       _overlayPanel = nullptr;
     QTE::BackgroundUI                   _backGroundUI;
+    QTE::InputViewerUI                  _inputViewerUI;
     QTE::FieldUI                        _fieldUI;
     QTE::GuideUI                        _guideUI;
 
-    std::vector<QTE::NoteUI>            _notePool;
-    std::unordered_map<UINT, size_t>    _activedNote;
+    std::unordered_map<UINT, int>       _activedPoolIndices;
 
     Fader _mainFader;
 
     REFLECT_FIELDS_BEGIN(Component)
-    std::string NotePrefabGuid; // QTE 노트 프리팹 GUID
     int         PoolSize = 15;
+    std::string NotePrefabGuid;     // QTE 노트 프리팹 GUID
+    std::string EffectPrefabGuid;   // QTE 이펙트 프리팹 GUID
+    std::string ButtonPrefabGuid;   // QTE 입력 버튼 프리팹 GUID
     REFLECT_FIELDS_END(QTEUIManager)
     
 };

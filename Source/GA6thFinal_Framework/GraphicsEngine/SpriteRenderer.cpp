@@ -2,18 +2,19 @@
 #include "SpriteRenderer.h"
 
 SpriteRenderer::SpriteRenderer()
-    : _texture(nullptr)
+    : UIRenderer(UIRenderer::Type::SPRITE)
+    , _texture(nullptr)
     , _worldMatrix(nullptr)
     , _size({0, 0})
     , _origin({0, 0})
     , _materialData({.Type = UIMaterialType::DEFAULT, .Fill = 0.f})
-    , _type(SpriteType::MODE_2D)
     , _numColumn(1)
     , _numRow(1)
     , _columnIndex(0)
     , _rowIndex(0)
     , _alpha(1.f)
 {
+    _uiType = UIType::MODE_2D;
 }
 
 SpriteRenderer::~SpriteRenderer() = default;

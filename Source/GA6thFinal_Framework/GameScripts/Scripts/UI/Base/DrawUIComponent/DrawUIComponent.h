@@ -21,7 +21,7 @@ public:
     /// <param name="viewOrder">설정할 View Order 값</param>
     virtual void SetViewOrder(int viewOrder);
 
-    void MakeArtificial();
+    void SetArtificial(bool isArtificial);
 
     bool IsArtificial() const;
 

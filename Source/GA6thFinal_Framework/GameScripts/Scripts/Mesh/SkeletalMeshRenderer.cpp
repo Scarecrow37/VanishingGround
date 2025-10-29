@@ -92,11 +92,6 @@ void SkeletalMeshRenderer::OnChangedModel()
     if (Renderer && animationComponent)
     {
         animationComponent->SetAnimator(Renderer->GetAnimator());
+        animationComponent->ChangeDefaultAnimation();
     }
-    /*ParticleComponent* particleComponent = GetComponent<ParticleComponent>();
-    if (Renderer && particleComponent)
-    {
-        const auto& animator = Renderer->GetAnimator();
-        particleComponent->SetAnimator(animator.get());
-    }*/
 }

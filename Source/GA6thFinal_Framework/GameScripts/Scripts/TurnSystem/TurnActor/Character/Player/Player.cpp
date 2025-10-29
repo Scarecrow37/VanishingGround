@@ -90,23 +90,11 @@ int Player::GetRandomSpeed()
 void Player::PlayTurn()
 {
     Base::PlayTurn();
-    WeaponSystem* system = SingletonComponent<WeaponSystem>::GetInstance();
-    if (system)
-    {
-        const std::string& weaponName = system->GetCurrentWeaponElement().Stats.WeaponName;
-        std::string      message    = std::format("{}{}{}", (const char*)u8"Player 턴 시작. ", "Weapon : ", weaponName);
-        UmLogger.Message(LogLevel::LEVEL_TRACE, message);
-    }
-    else
-    {
-        UmLogger.Log(LogLevel::LEVEL_WARNING, u8" WeaponSystem이 존재하지 않습니다.");
-    }     
 }
 
 void Player::EndTurn()
 {
     Base::EndTurn();
-    UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"Player 턴 종료.");
 }
 
 void Player::Dead()

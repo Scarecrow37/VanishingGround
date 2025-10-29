@@ -40,16 +40,6 @@ void FadeUIComponent::End()
     SetElapsedTime(duration);
 }
 
-void FadeUIComponent::Start()
-{
-    Component::Start();
-
-    UpdateAnimationProperty();
-
-    ClearTargets();
-    FindTargets();
-}
-
 void FadeUIComponent::Update()
 {
     Component::Update();
@@ -72,6 +62,16 @@ void FadeUIComponent::Reset()
     Component::Reset();
 
     _fadeDirection = FadeDirection::NONE;
+}
+
+void FadeUIComponent::Awake()
+{
+    Component::Awake();
+
+    UpdateAnimationProperty();
+
+    ClearTargets();
+    FindTargets();
 }
 
 void FadeUIComponent::ImGuiDrawPropertysEvent()

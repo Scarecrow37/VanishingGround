@@ -1140,9 +1140,8 @@ void ESceneManager::ObjectsDestroy()
 {
     //컴포넌트 삭제
     auto& [destroyComponentSet, destroyComponentQueue] = _destroyComponentsQueue;
-    //OnDestroy 호출 도중 원본 큐 변형 방지를 위한 지연삭제
+    // OnDestroy 호출 도중 원본 큐 변형 방지를 위한 지연삭제
     _destroyComponentsTemp = destroyComponentQueue;
-    destroyComponentSet.clear();
     destroyComponentQueue.clear();
     for (auto& destroyComponent : _destroyComponentsTemp)
     {
@@ -1159,12 +1158,16 @@ void ESceneManager::ObjectsDestroy()
             return destroyComponent == component.get();
         });
     }
-
+    destroyComponentSet.clear();
+    for (auto& component : destroyComponentQueue)
+    {
+        destroyComponentSet.insert(component);
+    }
+    
     //오브젝트 삭제
     auto& [destroyObjectSet, destroyObjectQueue] = _destroyObjectsQueue;
     // OnDestroy 호출 도중 원본 큐 변형 방지를 위한 복사 후 삭제
     _destroyObjectTemp = destroyObjectQueue;
-    destroyObjectSet.clear();
     destroyObjectQueue.clear();
     for (auto& destroyObject : _destroyObjectTemp)
     {
@@ -1203,6 +1206,11 @@ void ESceneManager::ObjectsDestroy()
             }
         }
     }
+    destroyObjectSet.clear();
+    for (auto& object : destroyObjectQueue)
+    {
+        destroyObjectSet.insert(object);
+    }
 
     //배열 정리
     while (_runtimeObjects.empty() == false && _runtimeObjects.back() == nullptr)
@@ -1211,8 +1219,12 @@ void ESceneManager::ObjectsDestroy()
     }
 
     //큐 초기화
-    _destroyComponentsTemp.clear();
-    _destroyObjectTemp.clear();
+    if (_destroyComponentsTemp.empty() || _destroyObjectTemp.empty())
+    {
+        UmComponentFactory.CleanupExpiredComponents();
+        _destroyComponentsTemp.clear();
+        _destroyObjectTemp.clear();
+    }
 }
 
 void ESceneManager::ObjectsAddRuntime()
@@ -1616,12 +1628,16 @@ bool ESceneManager::SetSkyIBL(const File::Path& path)
 
 const std::vector<std::weak_ptr<MeshComponent>>& ESceneManager::GetMeshComponents()
 {
+    ClearExpiredMeshComponents();
+    return _runtimeMeshComponents;
+}
+
+void ESceneManager::ClearExpiredMeshComponents() 
+{
     std::erase_if(_runtimeMeshComponents, [](const std::weak_ptr<MeshComponent>& weakMesh) 
     { 
         return weakMesh.expired();
     });
-
-    return _runtimeMeshComponents;
 }
 
 bool ESceneManager::WriteUmSceneFile(Scene& scene, std::string_view sceneName, std::string_view outPath, bool isOverride, bool isEmptyScene)

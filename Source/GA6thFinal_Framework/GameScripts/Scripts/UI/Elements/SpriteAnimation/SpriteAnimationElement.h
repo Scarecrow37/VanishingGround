@@ -48,6 +48,7 @@ public:
     void Setup();
     void StartAnimation();
     void StopAnimation();
+    float GetAnimationProgress(int targetFrame) const;
 
 protected:
     void Start() override;
