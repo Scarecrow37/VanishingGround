@@ -875,7 +875,12 @@
     <ClCompile Include="Scripts\UI\Elements\HoldingProgressImage\HoldingProgressImageElement.cpp" />
     <ClCompile Include="Scripts\UI\Elements\Image\ImageElement.cpp" />
     <ClCompile Include="Scripts\UI\Elements\SpriteAnimation\SpriteAnimationElement.cpp" />
-    <ClCompile Include="Scripts\UI\Elements\Text\TextElement.cpp" />
+    <ClCompile Include="Scripts\UI\Elements\Text\TextElement.cpp">
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</IncludeInUnityFile>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">false</IncludeInUnityFile>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</IncludeInUnityFile>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">false</IncludeInUnityFile>
+    </ClCompile>
     <ClCompile Include="Scripts\UI\Panels\Description\DescriptionPanel.cpp" />
     <ClCompile Include="Scripts\UI\Panels\Grid\GridPanel.cpp" />
     <ClCompile Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.cpp" />
