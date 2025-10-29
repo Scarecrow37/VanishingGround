@@ -5,6 +5,7 @@ class ImageElement;
 class TextElement;
 class WeaponView;
 class SpriteAnimationElement;
+class FadeUIComponent;
 
 namespace CombatUI
 {
@@ -32,10 +33,13 @@ namespace CombatUI
         ImageElement*     Icon        = nullptr;
         TextElement*      Name        = nullptr;
         DescriptionPanel* Description = nullptr;
+        FadeUIComponent*  FadeUI      = nullptr;
 
         // UIGroup을(를) 통해 상속됨
         bool FindUI() override;
         bool IsValid() const override;
         void ActiveUI(bool active) override;
+        void FadeIn(float duration) override;
+        void FadeOut(float duration) override;
     };
 } // namespace CombatUI

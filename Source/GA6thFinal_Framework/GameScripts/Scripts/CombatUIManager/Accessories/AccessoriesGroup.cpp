@@ -6,6 +6,7 @@
 #include <UI/Elements/Image/ImageElement.h>
 
 #include <UI/Views/Accessories/AccessoriesView.h>
+#include <UI/Animations/FadeUIComponent/FadeUIComponent.h>
 
 namespace CombatUI
 {
@@ -31,6 +32,7 @@ namespace CombatUI
                     }
                 }
             }
+            FadeUI = Root->GetComponent<FadeUIComponent>();
         }
 
         return IsValid();
@@ -46,6 +48,32 @@ namespace CombatUI
         if (Root)
         {
             Root->ActiveSelf = active;
+        }
+    }
+
+    void AccessoriesGroup::FadeIn(float duration)
+    {
+        if (FadeUI)
+        {
+            FadeUI->FadeDuration = duration;
+            FadeUI->FadeIn();
+        }
+        else
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Fade UI Component가 존재하지 않습니다.");
+        }
+    }
+
+    void AccessoriesGroup::FadeOut(float duration)
+    {
+        if (FadeUI)
+        {
+            FadeUI->FadeDuration = duration;
+            FadeUI->FadeOut();
+        }
+        else
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Fade UI Component가 존재하지 않습니다.");
         }
     }
 }

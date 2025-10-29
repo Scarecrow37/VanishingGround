@@ -3,6 +3,7 @@
 
 
 #include <UI/Views/RevelationsView/RevelationsView.h>
+#include <UI/Animations/FadeUIComponent/FadeUIComponent.h>
 
 namespace CombatUI
 {
@@ -24,6 +25,7 @@ namespace CombatUI
                     SlotList[i] = slot;
                 }
             }
+            FadeUI = Root->GetComponent<FadeUIComponent>();
         }
         return IsValid();
     }
@@ -38,6 +40,32 @@ namespace CombatUI
         if (Root)
         {
             Root->ActiveSelf = active;
+        }
+    }
+
+    void RevelationsGroup::FadeIn(float duration)
+    {
+        if (FadeUI)
+        {
+            FadeUI->FadeDuration = duration;
+            FadeUI->FadeIn();
+        }
+        else
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Fade UI Component가 존재하지 않습니다.");
+        }
+    }
+
+    void RevelationsGroup::FadeOut(float duration)
+    {
+        if (FadeUI)
+        {
+            FadeUI->FadeDuration = duration;
+            FadeUI->FadeOut();
+        }
+        else
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Fade UI Component가 존재하지 않습니다.");
         }
     }
 } // namespace CombatUI
