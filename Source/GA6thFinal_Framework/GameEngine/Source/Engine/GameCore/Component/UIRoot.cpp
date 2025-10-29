@@ -104,13 +104,6 @@ std::optional<NavigationKey> UIRoot::GetPressedButton()
     return result;
 }
 
-void UIRoot::Update()
-{
-    UIBaseComponent::Update();
-
-    UpdateNavigation(); 
-}
-
 void UIRoot::ImGuiDrawPropertysEvent()
 {
     UIBaseComponent::ImGuiDrawPropertysEvent();
@@ -179,6 +172,8 @@ void UIRoot::Added()
 void UIRoot::Start()
 {
     UIBaseComponent::Start();
+    
+    BindAllKeyInputAction(Action::PRESSED, this, &UIRoot::UpdateNavigation);
 
     UpdateNavigationMap();
 
@@ -189,9 +184,9 @@ void UIRoot::Start()
     SortViewOrder();
 }
 
-void UIRoot::UpdateNavigation()
+void UIRoot::UpdateNavigation(const Input::Controller& controller)
 {
-    auto queue = _controller->GetButtonQueue();
+    auto queue = controller.GetButtonQueue();
     std::ranges::for_each(queue, [this](const Input::Controller::ButtonState& buttonState) {
 
         if (nullptr != _currentFocusNavigation && (buttonState.Flag == Input::Controller::StateFlag::STATE_DOWN ||
