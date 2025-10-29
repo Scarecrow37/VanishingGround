@@ -262,7 +262,8 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
 
     float3 hitPosition = HitWorldPosition();
     float distanceToCamera = length(cameraData.Position.xyz - hitPosition);
-    float mipLevel = ComputeDynamicMipLevel(distanceToCamera, 12);
+    float mipLevel = 0;
+    //ComputeDynamicMipLevel(distanceToCamera, 12);
 
     uint baseIndex = PrimitiveIndex() * 3;
     uint3 indices = uint3(Indices[indexID][baseIndex],
