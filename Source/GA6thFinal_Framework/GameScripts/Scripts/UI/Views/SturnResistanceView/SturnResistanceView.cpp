@@ -11,6 +11,7 @@ PlayerSturnResistanceView::~PlayerSturnResistanceView() = default;
 
 void PlayerSturnResistanceView::Start() 
 {
+    _targetText = GetComponent<TextElement>();
     Base::Start();
     if (SingletonComponent<PlayerSystem>::GetInstance())
     {
