@@ -767,6 +767,7 @@ void AnimationComponent::ChangeDefaultAnimation()
 {
     ChangeMainAnimation(ReflectFields->MainAnimationKey);
     ChangeMainAnimationFlags(ReflectFields->MainAnimationFlags);
+    _currentAnimationData = &_mainAnimationData;
 }
 
 void AnimationComponent::ChangeCurrentAnimationFrame(float frame) 
