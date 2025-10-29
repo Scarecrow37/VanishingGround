@@ -19,6 +19,7 @@ namespace TokenObject
         damage              -= ContentMath::CeilPercentage(damage, param);
         TokenInventory& tokenInventory = targetData.Source.GetTokenInventory();
         tokenInventory.RemoveTokenStackFromID(tokenID);
+        UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(targetData.Source));
     }
     void Armor::OnPostEnemyHitCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData, int& damage) 
     {
@@ -27,5 +28,6 @@ namespace TokenObject
         damage              -= ContentMath::CeilPercentage(damage, param);
         TokenInventory& tokenInventory = targetData.Source.GetTokenInventory();
         tokenInventory.RemoveTokenStackFromID(tokenID);
+        UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(targetData.Source));
     }
 } // namespace TokenObject

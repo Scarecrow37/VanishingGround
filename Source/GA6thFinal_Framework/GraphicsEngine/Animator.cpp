@@ -180,12 +180,12 @@ void Animator::SetAnimationEndCallback(std::function<void()> callback)
 
 void Animator::AddReference()
 {
-    GraphicsBase::AddReference();
+    //GraphicsBase::AddReference();
 }
 
 void Animator::Release()
 {
-    GraphicsBase::Release();
+    //GraphicsBase::Release();
 }
 
 const std::vector<const char*>& Animator::GetAnimationNames() const

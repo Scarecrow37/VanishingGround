@@ -20,7 +20,7 @@ namespace QTE
         void ProcessQTEFadeOutStartEvent(const QTE::OverallResult& result);
         void ProcessQTEFadeOutFinishEvent(const QTE::OverallResult& result);
         void ProcessQTEButtonPressedEvent();
-        void ProcessQTENotePressedEvent(UINT noteID, QTE::ResultType result);
+        void ProcessQTENotePressedEvent(UINT noteID, const QTE::NoteResult& result);
 
     private:
         int _handleCounter = 0;
