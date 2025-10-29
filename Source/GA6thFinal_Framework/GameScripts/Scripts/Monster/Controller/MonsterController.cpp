@@ -97,7 +97,8 @@ namespace Monster
     {
         _aiModel.Transition();
         _aiModel.Refresh();
-
+        _currAction  = nullptr;
+        _prevAction  = nullptr;
         int actionID = _aiModel.GetCurrentActionID();
         SetCurrentAction(actionID);
     }
@@ -106,11 +107,10 @@ namespace Monster
     {
         _aiModel.Clear();
 
-        int  range       = (int)_dataContext.FsmIDs.size() - 1;
-        int  randomIndex = Random::Range(0, range);
-        _fsmID           = _dataContext.FsmIDs[randomIndex];
-        auto func        = AIFactory::GetAIBuildFunc(_fsmID);
-        auto owner       = _weakOwner.lock();
+        size_t index    = Random::Index(_dataContext.FsmIDs.size());
+        _fsmID          = _dataContext.FsmIDs[index];
+        auto func       = AIFactory::GetAIBuildFunc(_fsmID);
+        auto owner      = _weakOwner.lock();
         if (func && owner)
         {
             func(owner, _aiModel);

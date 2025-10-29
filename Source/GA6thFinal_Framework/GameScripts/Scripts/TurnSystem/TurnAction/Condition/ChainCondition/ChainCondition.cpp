@@ -98,7 +98,7 @@ void ChainCondition::DrawImguiEditor()
     }
 }
 
-const std::string& ChainCondition::GetConditionInfo() const
+const std::string& ChainCondition::GetConditionInfo()
 {
     return _conditionInfo;
 }

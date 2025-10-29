@@ -8,8 +8,9 @@
 #include "UnorderedAccessView.h"
 #include "VIBuffer.h"
 #include "d3dUtil.h"
+#include "RenderScene.h"
 
-void AccelerationStructureManager::Initialize(UINT maxInstance)
+void AccelerationStructureManager::Initialize(UINT maxInstance, RenderScene* ownerScene)
 {
     ComPtr<ID3D12Device5> device = Global::device->GetDevice5();
     _maxInstanceCount            = maxInstance;
@@ -42,6 +43,8 @@ void AccelerationStructureManager::Initialize(UINT maxInstance)
     srvDesc.RaytracingAccelerationStructure.Location = _topLevelBuffers->pResult->GetGPUVirtualAddress();
 
     Global::device->GetDevice()->CreateShaderResourceView(nullptr, &srvDesc, _topLevelBuffersSRV.CPU);
+
+    _ownerScene = ownerScene;
 }
 
 void AccelerationStructureManager::BeginFrame()
@@ -245,89 +248,6 @@ void AccelerationStructureManager::BuildDynamicBLAS(ID3D12Device5* device, ID3D1
     cmdList->ResourceBarrier(1, &uavBarrier);
 }
 
-//
-//void AccelerationStructureManager::BuildOrUpdateTLAS(ID3D12Device5* device, ID3D12GraphicsCommandList4* cmdList)
-//{
-//    std::vector<D3D12_RAYTRACING_INSTANCE_DESC> inst;
-//    inst.reserve(_pendingInstances.size());
-//
-//    size_t dynIdx = 0;
-//    for (const auto& p : _pendingInstances)
-//    {
-//        XMMATRIX*                      transoseWorld = p.meshInfo.TransposeWorldMatrix;
-//        D3D12_RAYTRACING_INSTANCE_DESC desc{};
-//        memcpy(desc.Transform, transoseWorld, sizeof(desc.Transform));
-//        desc.InstanceID                          = p.InstanceID;
-//        desc.InstanceContributionToHitGroupIndex = p.HitGroupIndex;
-//        desc.InstanceMask                        = 0xFF;
-//        desc.Flags                               = p.Flags;
-//
-//        if (p.BuildClass == AsBuildClass::STATICBLAS)
-//        {
-//            desc.AccelerationStructure = _staticBlasMap[p.meshInfo.Mesh].buf->pResult->GetGPUVirtualAddress();
-//        }
-//        else
-//        {
-//            desc.AccelerationStructure = _dynamicBlas[dynIdx++]->pResult->GetGPUVirtualAddress();
-//        }
-//        inst.push_back(desc);
-//    }
-//
-//    const UINT instCount    = static_cast<UINT>(inst.size());
-//    const UINT instByteSize = static_cast<UINT>(inst.size() * sizeof(D3D12_RAYTRACING_INSTANCE_DESC));
-//    if (instCount > 0)
-//    {
-//        // Upload 버퍼 크기 확인 및 재할당
-//        if (!_instanceUpload || _instanceUpload->GetDesc().Width < instByteSize)
-//        {
-//            Global::device->CreateUploadBuffer(instByteSize, D3D12_RESOURCE_FLAG_NONE,
-//                                               D3D12_RESOURCE_STATE_GENERIC_READ, _instanceUpload);
-//        }
-//        // CPU 데이터를 Upload 버퍼에 복사
-//        void* data = nullptr;
-//        _instanceUpload->Map(0, nullptr, &data);
-//        memcpy(data, inst.data(), instByteSize);
-//        _instanceUpload->Unmap(0, nullptr);
-//    }
-//
-//    D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS inputs{};
-//    inputs.Type          = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL;
-//    inputs.DescsLayout   = D3D12_ELEMENTS_LAYOUT_ARRAY;
-//    inputs.NumDescs      = instCount;
-//    inputs.InstanceDescs = (instCount > 0) ? _instanceUpload->GetGPUVirtualAddress() : 0;
-//    inputs.Flags         = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_BUILD;
-//
-//    D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO info;
-//    device->GetRaytracingAccelerationStructurePrebuildInfo(&inputs, &info);
-//
-//    if (_topLevelBuffers->pScratch->GetDesc().Width < info.ScratchDataSizeInBytes)
-//    {
-//        // 기존 버퍼 크기가 부족하기에 새로 만들어줌
-//        Global::device->CreateDefaultBuffer(static_cast<UINT>(info.ScratchDataSizeInBytes),
-//                                            D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON,
-//                                            _topLevelBuffers->pScratch);
-//
-//        Global::device->CreateDefaultBuffer(
-//            static_cast<UINT>(info.ResultDataMaxSizeInBytes), D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-//            D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, _topLevelBuffers->pResult);
-//
-//        D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc          = {};
-//        srvDesc.ViewDimension                            = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE;
-//        srvDesc.Shader4ComponentMapping                  = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-//        srvDesc.RaytracingAccelerationStructure.Location = _topLevelBuffers->pResult->GetGPUVirtualAddress();
-//
-//        Global::device->GetDevice()->CreateShaderResourceView(nullptr, &srvDesc, _topLevelBuffersSRV.CPU);
-//    }
-//    D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC desc{};
-//    desc.Inputs                           = inputs;
-//    desc.ScratchAccelerationStructureData = _topLevelBuffers->pScratch->GetGPUVirtualAddress();
-//    desc.DestAccelerationStructureData    = _topLevelBuffers->pResult->GetGPUVirtualAddress();
-//
-//    cmdList->BuildRaytracingAccelerationStructure(&desc, 0, nullptr);
-//
-//    CD3DX12_RESOURCE_BARRIER br = CD3DX12_RESOURCE_BARRIER::UAV(_topLevelBuffers->pResult.Get());
-//    cmdList->ResourceBarrier(1, &br);
-//}
 void AccelerationStructureManager::BuildOrUpdateTLAS(ID3D12Device5* device, ID3D12GraphicsCommandList4* cmdList)
 {
     std::vector<D3D12_RAYTRACING_INSTANCE_DESC> inst;
@@ -335,7 +255,7 @@ void AccelerationStructureManager::BuildOrUpdateTLAS(ID3D12Device5* device, ID3D
 
     for (const auto& p : _pendingInstances)
     {
-        Matrix*                      transoseWorld = p.meshInfo.TransposeWorldMatrix;
+        Matrix*                      transoseWorld = &_ownerScene->_matrices[p.meshInfo.InstanceData.MatrixID].World;
         D3D12_RAYTRACING_INSTANCE_DESC desc{};
         memcpy(desc.Transform, transoseWorld, sizeof(desc.Transform));
         desc.InstanceID                          = p.InstanceID;

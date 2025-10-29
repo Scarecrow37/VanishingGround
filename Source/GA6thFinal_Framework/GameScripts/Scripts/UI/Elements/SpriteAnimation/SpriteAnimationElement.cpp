@@ -24,7 +24,7 @@ void SpriteAnimationElement::Setup()
     const int frameCount = FrameCount;
     _durationPerFrame = ReflectFields->Duration / static_cast<float>(frameCount);
     _currentFrame        = 0;
-    _isPlaying           = true;
+    _isPlaying           = ReflectFields->StartAnimationOnPlay || _isPlaying;
 }
 
 void SpriteAnimationElement::ResetUV()
@@ -45,9 +45,10 @@ void SpriteAnimationElement::UpdateFrame()
         }
         else
         {
-            _elapsedTime = totalDuration;
+            _elapsedTime = totalDuration - _durationPerFrame * 0.5f;
             _isPlaying   = false;
-            return;
+            if (_willSuicide)
+                GameObject::Destroy(this->gameObject);
         }
     }
 
@@ -57,4 +58,22 @@ void SpriteAnimationElement::UpdateFrame()
     ReflectFields->Basefields.get().ColumnIndex = _currentFrame % ReflectFields->Basefields.get().Column;
 
     UpdateAtlasIndex();
+}
+
+void SpriteAnimationElement::StartAnimation()
+{
+    _isPlaying = true;
+}
+
+void SpriteAnimationElement::StopAnimation()
+{
+    _isPlaying = false;
+}
+
+float SpriteAnimationElement::GetAnimationProgress(int targetFrame) const
+{
+    int    totalFrames = FrameCount;
+    double progress  = static_cast<double>(targetFrame - 1) / static_cast<double>(totalFrames - 1);
+    progress = std::clamp(progress, 0.0, 1.0);
+    return static_cast<float>(progress);
 }

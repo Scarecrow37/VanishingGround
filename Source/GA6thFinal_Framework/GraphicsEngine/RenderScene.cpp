@@ -73,7 +73,7 @@ void RenderScene::InitializeRenderScene()
     if (Global::isRayTracing)
     { 
         _accelerationStructureManager = std::make_unique<AccelerationStructureManager>();
-        _accelerationStructureManager->Initialize(10000);
+        _accelerationStructureManager->Initialize(10000, this);
     }
 }
 
@@ -111,7 +111,7 @@ void RenderScene::RegisterOnRenderQueue(SpriteRenderer* component)
 
 void RenderScene::RegisterOnRenderQueue(TextRenderer* component)
 {
-    if (nullptr == component)
+    /*if (nullptr == component)
         return;
 
     auto iter = std::find_if(_textRenderQueue.begin(), _textRenderQueue.end(), [component](const auto& renderer) { return component->GetID() == renderer->GetID(); });
@@ -122,7 +122,7 @@ void RenderScene::RegisterOnRenderQueue(TextRenderer* component)
         return;
     }
 
-    _textRenderQueue.emplace_back(component);
+    _textRenderQueue.emplace_back(component);*/
 }
 
 void RenderScene::RegisterOnRenderQueue(SDFTextRenderer* component)
@@ -130,15 +130,15 @@ void RenderScene::RegisterOnRenderQueue(SDFTextRenderer* component)
     if (nullptr == component)
         return;
 
-    auto iter = std::find_if(_sdfTextRenderQueue.begin(), _sdfTextRenderQueue.end(), [component](const auto& renderer) { return component->GetID() == renderer->GetID(); });
+    auto iter = std::find_if(_uiRenderQueue.begin(), _uiRenderQueue.end(), [component](const auto& renderer) { return component->GetID() == renderer->GetID(); });
 
-    if (iter != _sdfTextRenderQueue.end())
+    if (iter != _uiRenderQueue.end())
     {
         GRAPHICS_ASSERT(false, L"RenderScene::RegisterRenderQueue : Already registered component.");
         return;
     }
 
-    _sdfTextRenderQueue.emplace_back(component);
+    _uiRenderQueue.emplace_back(component);
 }
 
 void RenderScene::AddRenderTechnique(std::unique_ptr<RenderTechnique> technique)
@@ -171,7 +171,6 @@ void RenderScene::UpdateRenderScene(const float deltaTime)
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::BONE_MATRICES, _boneMatrices.data(), (UINT)_boneMatrices.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::UI_TRANSFORM, _uiMatrices.data(), (UINT)_uiMatrices.size());
     _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::UI_MATERIAL, _uiMaterials.data(), (UINT)_uiMaterials.size());
-    _frameResources[_currentFrameIndex]->CopyStructuredBuffer(_commandSet, FrameResourceType::TEXT_MATRICES, _textMatrices.data(), (UINT)_textMatrices.size());
     
     for (auto& technique : _techniques)
     {
@@ -228,8 +227,8 @@ void RenderScene::ClearRenderQueue()
 {
     _meshRenderQueue.clear();
     _uiRenderQueue.clear();
-    _textRenderQueue.clear();
-    _sdfTextRenderQueue.clear();
+    /*_textRenderQueue.clear();
+    _sdfTextRenderQueue.clear();*/
 }
 
 void RenderScene::UpdateGlobal()
@@ -329,16 +328,18 @@ void RenderScene::UpdateObject()
             continue;
         }
 
-        const auto  type         = component->GetType();
-        const auto& customDepths = component->GetCustomDepths();
-        const auto& meshes       = model->GetMeshes();
-        auto&       materials    = model->GetMaterials();
-        const auto& textures     = model->GetTextures();
+        const auto  type           = component->GetType();
+        const auto& customDepths   = component->GetCustomDepths();
+        auto&       materials      = component->GetMaterials();
+        auto&       modelMaterials = model->GetMaterials();
+        const auto& meshes         = model->GetMeshes();
+        const auto& textures       = model->GetTextures();
 
         BoneMatrices boneMatrices;
-        MatrixData   matrixData          = {.World = XMMatrixTranspose(component->GetWorldMatrix())};
+        MatrixData   matrixData          = {.World = component->GetWorldMatrix()};
         float        determinant         = XMMatrixDeterminant(matrixData.World).m128_f32[0];
-        matrixData.InverseTransposeWorld = XMMatrixTranspose(XMMatrixInverse(nullptr, matrixData.World));
+        matrixData.InverseTransposeWorld = XMMatrixInverse(nullptr, matrixData.World);
+        matrixData.World                 = XMMatrixTranspose(matrixData.World);
 
         if (SKELETAL_MESH == type)
         {
@@ -356,7 +357,7 @@ void RenderScene::UpdateObject()
         {
             InstanceData instanceData{};
 
-            if (materials[i].IsTwoSided)
+            if (modelMaterials[i].IsTwoSided)
             {
                 materials[i].CullMode = Material::CullModeType::CULL_NONE;
             }
@@ -374,11 +375,18 @@ void RenderScene::UpdateObject()
             instanceData.MatrixID    = index;
             instanceData.Alpha       = materials[i].Alpha;
 
+            DXRSkeletalMesh* skinnedMesh = nullptr;
+            if (Global::isRayTracing)
+            {
+                skinnedMesh = SKELETAL_MESH == type ? skinnedBuffers[i].get() : nullptr;
+            }
+
             _activeMeshes[type].emplace_back(instanceData, 
                                              materials[i], 
                                              meshes[i].get(),
-                                             Global::isRayTracing ? skinnedBuffers[i].get() : nullptr,
-                                             &_matrices[index].World, 0.f);
+                                             component,
+                                             skinnedMesh, 
+                                             0.f);
         }
 
         if (SKELETAL_MESH == type)
@@ -403,73 +411,87 @@ void RenderScene::UpdateUI()
 {    
     auto iter_ui = std::remove_if(_uiRenderQueue.begin(), _uiRenderQueue.end(), [](const auto& renderer) { return !renderer->IsAlive(); });
     _uiRenderQueue.erase(iter_ui, _uiRenderQueue.end());
-
-    _uiMatrices.clear();
-    _uiMaterials.clear();
+    
+    std::vector<std::tuple<Matrix, UIMaterial, UIRenderer*>> uiDatas;
+    uiDatas.reserve(_uiRenderQueue.size());    
     for (auto& component : _uiRenderQueue)
     {
         if (!component->IsActive())
             continue;
 
-        auto texture = component->GetTexture();
-        if (nullptr == texture)
-            continue;
-
-        auto     size        = component->GetSize();
-        XMMATRIX world       = component->GetWorldMatrix();
-        XMMATRIX scale       = XMMatrixIdentity();
-        XMMATRIX translation = XMMatrixIdentity();
-
-        switch (component->GetType())
+        if (UIRenderer::Type::SPRITE == component->GetType())
         {
-            case SpriteType::MODE_2D:
-                scale = XMMatrixScaling((float)size.cx, (float)-size.cy, 1.f);
-                translation = XMMatrixTranslation(size.cx * 0.5f, size.cy * 0.5f, 0.f);
-                break;
-            case SpriteType::MODE_3D:
-            {
-                XMVECTOR s, r, t;
-                XMMatrixDecompose(&s, &r, &t, world);
+            SpriteRenderer* spriteComponent = static_cast<SpriteRenderer*>(component);
 
-                XMVECTOR combine = XMQuaternionMultiply(r, _camera->GetRotation());
-                world = XMMatrixScalingFromVector(s) * XMMatrixRotationQuaternion(combine) * XMMatrixTranslationFromVector(t);
-                [[fallthrough]];
-            }
-            case SpriteType::MODE_25D:
+            auto texture = spriteComponent->GetTexture();
+            if (nullptr == texture)
+                continue;
+
+            auto     size        = spriteComponent->GetSize();
+            XMMATRIX world       = spriteComponent->GetWorldMatrix();
+            XMMATRIX scale       = XMMatrixIdentity();
+            XMMATRIX translation = XMMatrixIdentity();
+
+            switch (spriteComponent->GetUIType())
             {
-                float ratio = (float)size.cx / (float)size.cy;
-                scale       = XMMatrixScaling(ratio, 1.f, 1.f);
-                break;
+                case UIType::MODE_2D:
+                    scale       = XMMatrixScaling((float)size.cx, (float)-size.cy, 1.f);
+                    translation = XMMatrixTranslation(size.cx * 0.5f, size.cy * 0.5f, 0.f);
+                    break;
+
+                case UIType::MODE_3D: {
+                    XMVECTOR s, r, t;
+                    XMMatrixDecompose(&s, &r, &t, world);
+
+                    XMVECTOR combine = XMQuaternionMultiply(r, _camera->GetRotation());
+                    world            = XMMatrixScalingFromVector(s) * XMMatrixRotationQuaternion(combine) * XMMatrixTranslationFromVector(t);
+                    [[fallthrough]];
+                }
+
+                case UIType::MODE_25D: {
+                    float ratio = (float)size.cx / (float)size.cy;
+                    scale       = XMMatrixScaling(ratio, 1.f, 1.f);
+                    break;
+                }
+            }
+
+            UIMaterial uiMaterial{.ID          = texture->GetID(),
+                                  .Alpha       = spriteComponent->GetAlpha(),
+                                  .NumColmn    = spriteComponent->GetNumColumn(),
+                                  .NumRow      = spriteComponent->GetNumRow(),
+                                  .ColumnIndex = spriteComponent->GetColumnIndex(),
+                                  .RowIndex    = spriteComponent->GetRowIndex()};
+
+            uiDatas.emplace_back(scale * world * translation, uiMaterial, component);
+        }
+        else if (UIRenderer::Type::TEXT == component->GetType())
+        {
+            SDFTextRenderer* textComponent = static_cast<SDFTextRenderer*>(component);
+            if (textComponent->IsActive())
+            {
+                const float fontSize = textComponent->GetFontSize();
+                XMMATRIX    scale    = XMMatrixScaling(fontSize, fontSize, 1.f);
+                XMMATRIX    rotation = XMMatrixRotationQuaternion(Quaternion::CreateFromYawPitchRoll(textComponent->GetRotation()));
+                XMMATRIX translation = XMMatrixTranslationFromVector(textComponent->GetPosition());
+                uiDatas.emplace_back(scale * rotation * translation, UIMaterial{}, component);
             }
         }
-        
-        _uiMatrices.emplace_back(XMMatrixTranspose(scale * world * translation));
-
-        UIMaterial uiMaterial{.ID          = texture->GetID(),
-                              .Alpha       = component->GetAlpha(),
-                              .NumColmn    = component->GetNumColumn(),
-                              .NumRow      = component->GetNumRow(),
-                              .ColumnIndex = component->GetColumnIndex(),
-                              .RowIndex    = component->GetRowIndex()};
-        _uiMaterials.push_back(uiMaterial);
     }
+    
+    std::stable_sort(uiDatas.begin(), uiDatas.end(), [](const auto& a, const auto& b) {
+        const auto& [lMatrix, lMaterial, lRenderer] = a;
+        const auto& [rMatrix, rMaterial, rRenderer] = b;
+        return lMatrix.Translation().z > rMatrix.Translation().z;
+    });
 
-    // Text
-    auto iter_text = std::remove_if(_sdfTextRenderQueue.begin(), _sdfTextRenderQueue.end(), [](const auto& renderer) { return !renderer->IsAlive(); });
-    _sdfTextRenderQueue.erase(iter_text, _sdfTextRenderQueue.end());
-
-    _textMatrices.clear();
-    for (auto& component : _sdfTextRenderQueue)
+    _uiMatrices.clear();
+    _uiMaterials.clear();
+    _activeUIs.clear();
+    for (auto& [matrix, material, component] : uiDatas)
     {
-        if (!component->IsActive())
-            continue;
-
-        const float fontSize = component->GetFontSize();
-
-        XMMATRIX scale       = XMMatrixScaling(fontSize, fontSize, 1.f);
-        XMMATRIX rotation    = XMMatrixRotationQuaternion(Quaternion::CreateFromYawPitchRoll(component->GetRotation()));
-        XMMATRIX translation = XMMatrixTranslationFromVector(component->GetPosition());
-        _textMatrices.emplace_back(XMMatrixTranspose(scale * rotation * translation));
+        _uiMatrices.emplace_back(XMMatrixTranspose(matrix));
+        _uiMaterials.emplace_back(material);
+        _activeUIs.push_back(component);
     }
 }
 
@@ -533,9 +555,6 @@ void RenderScene::CreateFrameResource()
 
         // UI Material
         _frameResources[i]->AddFrameResource(sizeof(UIMaterial), MAX_OBJECTS);
-
-        // Text Transform
-        _frameResources[i]->AddFrameResource(sizeof(Matrix), MAX_OBJECTS);
 
         // Vertex Buffer ID
         _frameResources[i]->AddFrameResource(sizeof(VertexBufferID), MAX_OBJECTS);

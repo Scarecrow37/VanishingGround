@@ -28,7 +28,7 @@ protected:
     // TurnActionCondition을(를) 통해 상속됨
     bool               Evaluate() override;
     void               DrawImguiEditor() override;
-    const std::string& GetConditionInfo() const override;
+    const std::string& GetConditionInfo() override;
 
     void DeserializedReflectEvent() override;
 

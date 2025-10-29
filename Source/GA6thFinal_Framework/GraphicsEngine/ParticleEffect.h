@@ -3,12 +3,15 @@
 
 class ParticleEffect
 {
+    using EffectCallback = std::function<void(void)>;
+
 public:
     ParticleEffect();
     virtual ~ParticleEffect();
 
     // 문자열 수명 보존을 위해 view 대신 값 복사 사용 권장
-    class ParticleEmitter* AddEmitter(SIZE_T maxParticles = 100000, float emissionRate = 500.f, float emitterLifetime = 5.f,
+    class ParticleEmitter* AddEmitter(SIZE_T maxParticles = 10000, float emissionRate = 500.f,
+                                      float emitterLifetime = 5.f,
                                 LocationShape locatorShape   = LocationShape::SPHERE,
                                 Vector3       locationFactor = Vector3(1, 1, 1),
                                       ParticleType        particleType   = ParticleType::SPRITE,
@@ -20,6 +23,7 @@ public:
     void                                                 RemoveEmitter(ParticleEmitter* target);
     void                                                 UpdateParticleLifeCycle(float deltaTime);
     void                                                 Play();
+    void                                                 Play(EffectCallback callback);
     void                                                 Stop();
     void                                                 Reset();
     void                                                 FlushEmitters();
@@ -64,6 +68,8 @@ protected:
 
     bool*         _followBoneFlag    = nullptr;
     bool          _removeFlag        = false;
-    const Matrix* _parentWorldMatrix = nullptr; // 안전 초기화
-    const Matrix* _boneWorldMatrix   = nullptr; // 안전 초기화
+    const Matrix* _parentWorldMatrix = nullptr;
+    const Matrix* _boneWorldMatrix   = nullptr;
+
+    EffectCallback _endCallback = nullptr;
 };

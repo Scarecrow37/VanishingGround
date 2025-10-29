@@ -10,7 +10,14 @@ MeshComponent::MeshComponent()
 {
 }
 
-MeshComponent::~MeshComponent() = default;
+MeshComponent::~MeshComponent()
+{
+    IMeshRenderer*& renderer = GetLastSelectMeshRenderer();
+    if (renderer == Renderer.Get())
+    {
+        renderer = nullptr;
+    }
+}
 
 bool MeshComponent::HasModel() const
 {
@@ -55,7 +62,6 @@ void MeshComponent::SerializedReflectEvent()
 
             for (size_t i = 0; i < meshCount; i++)
             {
-                ReflectFields->BlendMode[i]  = materials[i].BlendMode;
                 ReflectFields->IsTwoSided[i] = materials[i].IsTwoSided;
             }
         }
@@ -68,145 +74,242 @@ void MeshComponent::ImGuiDrawPropertysEvent()
 
     if (ImGui::TreeNodeEx("Materials##MeshComponent"))
     {
-        static UINT*          lastCustomDepth = 0;
-        static IMeshRenderer* lastRenderer    = nullptr;
-        static UINT           lastSelected    = 0;
+        DrawMaterialsList();
+        ImGui::TreePop();
+    }
+}
 
-        const auto& model        = Renderer->GetModel();
-        const auto& customDepths = Renderer->GetCustomDepths();
-        const auto& meshes       = model->GetMeshes();
-        auto&       materials    = model->GetMaterials();
-        UINT        count        = (UINT)model->GetMeshCount();
+void MeshComponent::DrawMaterialsList()
+{
+    static UINT*    lastCustomDepth = nullptr;
+    static UINT     lastSelected    = 0;
+    IMeshRenderer*& lastRenderer    = GetLastSelectMeshRenderer();
 
-        for (UINT i = 0; i < count; i++)
+    const auto& model        = Renderer->GetModel();
+    const auto& customDepths = Renderer->GetCustomDepths();
+    auto&       materials    = Renderer->GetMaterials();
+    const auto& meshes       = model->GetMeshes();
+    UINT        count        = (UINT)model->GetMeshCount();
+
+    for (UINT i = 0; i < count; i++)
+    {
+        ImGui::PushID(i);
+        bool isOpened = ImGui::TreeNodeEx(meshes[i]->GetName().data());
+        
+        if (ImGui::IsItemClicked())
         {
-            ImGui::PushID(i);
-            bool isOpened = ImGui::TreeNodeEx(meshes[i]->GetName().data());
-            if (ImGui::IsItemClicked())
-            {
-                if (lastRenderer)
-                {
-                    (*lastCustomDepth) &= ~PostProcess::OUTLINE;
-                    lastRenderer->OffCustomDepth(PostProcess::OUTLINE, lastSelected);
-                }
-
-                ReflectFields->CustomDepth[i] |= PostProcess::OUTLINE;
-                Renderer->OnCustomDepth(PostProcess::OUTLINE, i);
-                
-                // 마지막 선택한 값 기억
-                lastSelected    = i;
-                lastRenderer    = Renderer.Get();
-                lastCustomDepth = &ReflectFields->CustomDepth[i];
-            }
-            if (isOpened)
-            {
-                ImGuiTableFlags flags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Sortable;
-                if (ImGui::BeginTable("##MeshComponent", 2, ImGuiTableFlags_Borders))
-                {
-                    ImGui::TableNextRow();
-                    {
-                        ImGui::TableNextColumn();
-                        {
-                            ImGui::Text("Blend Mode");
-                        }
-                        ImGui::TableNextColumn();
-                        {
-                            static const char* blendModeNames[] = {"Opaque", "Masked", "Translucent"};
-                            if (ImGui::Combo("##BlendMode", (int*)&materials[i].BlendMode, blendModeNames, 3))
-                            {
-                                ReflectFields->BlendMode[i] = materials[i].BlendMode;
-                            }
-                        }
-                        ImGui::TableNextColumn();
-                    }
-                    if (materials[i].BlendMode == Material::BlendModeType::TRANSLUCENT)
-                    {
-                        ImGui::TableNextRow();
-                        {
-                            ImGui::TableNextColumn();
-                            {
-                                ImGui::Text("Alpha");
-                            }
-                            ImGui::TableNextColumn();
-                            {
-                                ImGui::DragFloat("##Alpha", &materials[i].Alpha, 0.01f, 0.f, 1.f);
-                            }
-                            ImGui::TableNextColumn();
-                        }
-                    }
-                    ImGui::TableNextRow();
-                    {
-                        ImGui::TableNextColumn();
-                        {
-                            ImGui::Text("Is Two Sided(Shared)");
-                        }
-                        ImGui::TableNextColumn();
-                        {
-                            if (ImGui::Checkbox("##IsTwoSided", &materials[i].IsTwoSided))
-                            {
-                                ReflectFields->IsTwoSided[i] = materials[i].IsTwoSided;
-                            }
-                        }
-                        ImGui::TableNextColumn();
-                    }
-
-                    ImGui::TableNextRow();
-                    {
-                        ImGui::TableNextColumn();
-                        {
-                            ImGui::Text("CustomDepth");
-                        }
-                        ImGui::TableNextColumn();
-                        {
-                            if (ImGui::BeginCombo("##CustomDepth", "Drop Down List"))
-                            {
-                                bool isBloom = customDepths[i] & PostProcess::BLOOM ? true : false;
-                                ImGuiHelper::TextWithVerticalSeparator("Bloom");
-                                if (ImGui::Checkbox("##Bloom", &isBloom))
-                                {
-                                    isBloom ? Renderer->OnCustomDepth(PostProcess::BLOOM, i) : 
-                                              Renderer->OffCustomDepth(PostProcess::BLOOM, i);
-
-                                }
-
-                                ReflectFields->CustomDepth[i] = customDepths[i];
-                                ImGui::EndCombo();
-                            }
-                        }
-                    }
-                    ImGui::EndTable();
-                }
-                ImGui::TreePop();
-            }
-
-            ImGui::PopID();
+            HandleMeshSelection(i, lastRenderer, lastCustomDepth, lastSelected);
+        }
+        
+        if (isOpened)
+        {
+            DrawMaterialProperties(i, materials[i], customDepths[i]);
+            ImGui::TreePop();
         }
 
-        ImGui::TreePop();
-    }    
+        ImGui::PopID();
+    }
+}
+
+void MeshComponent::HandleMeshSelection(UINT index, IMeshRenderer*& lastRenderer, UINT*& lastCustomDepth, UINT& lastSelected)
+{
+    if (lastRenderer)
+    {
+        (*lastCustomDepth) &= ~PostProcess::OUTLINE;
+        lastRenderer->OffCustomDepth(PostProcess::OUTLINE, lastSelected);
+    }
+
+    ReflectFields->CustomDepth[index] |= PostProcess::OUTLINE;
+    Renderer->OnCustomDepth(PostProcess::OUTLINE, index);
+    
+    lastSelected    = index;
+    lastRenderer    = Renderer.Get();
+    lastCustomDepth = &ReflectFields->CustomDepth[index];
+}
+
+void MeshComponent::DrawMaterialProperties(UINT index, Material& material, UINT customDepth)
+{
+    if (!ImGui::BeginTable("##MeshComponent", 2, ImGuiTableFlags_Borders))
+        return;
+
+    DrawShadingModelRow(index, material);
+
+    if (material.ShadingModel == Material::ShadingModelType::CUSTOMLIT)
+    {
+        DrawCustomLitProperties(index, material);
+    }
+    else
+    {
+        DrawDefaultLitProperties(index, material);
+    }
+
+    DrawCustomDepthRow(index, customDepth);
+    ImGui::EndTable();
+}
+
+void MeshComponent::DrawShadingModelRow(UINT index, Material& material)
+{
+    ImGui::TableNextRow();
+    ImGui::TableNextColumn();
+    ImGui::Text("Shading Model");
+    
+    ImGui::TableNextColumn();
+    static const char* shadingModelNames[] = {"DefaultLit", "CustomLit"};
+    if (ImGui::Combo("##ShadingModel", (int*)&material.ShadingModel, shadingModelNames, 2))
+    {
+        ReflectFields->ShadingModel[index] = material.ShadingModel;
+    }
+}
+
+void MeshComponent::DrawCustomLitProperties(UINT index, Material& material)
+{
+    // Custom Light Type
+    ImGui::TableNextRow();
+    ImGui::TableNextColumn();
+    ImGui::Text("Custom Light Type");
+    
+    ImGui::TableNextColumn();
+    static const char* customLightTypeNames[] = {"None", "Transparent Rim Light"};
+    if (ImGui::Combo("##CustomLightType", (int*)&ReflectFields->CustomLightType, customLightTypeNames, 2))
+    {
+        Renderer->SetCustomMaterial(ReflectFields->CustomLightType, ReflectFields->RimLightMaterial);
+    }
+
+    // Rim Light Material Properties
+    if (ReflectFields->CustomLightType == CustomLightType::TRANSPARENT_RIM_LIGHT)
+    {
+        DrawRimLightProperties(index);
+    }
+}
+
+void MeshComponent::DrawRimLightProperties(UINT index)
+{
+    auto& rimLight = ReflectFields->RimLightMaterial;
+
+    // Rim Color
+    ImGui::TableNextRow();
+    ImGui::TableNextColumn();
+    ImGui::Text("Rim Color");
+    
+    ImGui::TableNextColumn();
+    if (ImGui::ColorEdit3("##RimColor", (float*)&rimLight.RimColor))
+    {
+        Renderer->SetCustomMaterial(ReflectFields->CustomLightType, ReflectFields->RimLightMaterial);
+    }
+
+    // Rim Power
+    ImGui::TableNextRow();
+    ImGui::TableNextColumn();
+    ImGui::Text("Rim Power");
+    
+    ImGui::TableNextColumn();
+    if (ImGui::DragFloat("##RimPower", &rimLight.RimPower, 0.01f, 0.0f, 10.0f))
+    {
+        Renderer->SetCustomMaterial(ReflectFields->CustomLightType, ReflectFields->RimLightMaterial);
+    }
+
+    // Rim Intensity
+    ImGui::TableNextRow();
+    ImGui::TableNextColumn();
+    ImGui::Text("Rim Intensity");
+    
+    ImGui::TableNextColumn();
+    if (ImGui::DragFloat("##RimIntensity", &rimLight.RimIntensity, 0.01f, 0.0f, 10.0f))
+    {
+        Renderer->SetCustomMaterial(ReflectFields->CustomLightType, ReflectFields->RimLightMaterial);
+    }
+}
+
+void MeshComponent::DrawDefaultLitProperties(UINT index, Material& material)
+{
+    // Blend Mode
+    ImGui::TableNextRow();
+    ImGui::TableNextColumn();
+    ImGui::Text("Blend Mode");
+    
+    ImGui::TableNextColumn();
+    static const char* blendModeNames[] = {"Opaque", "Masked", "Translucent"};
+    if (ImGui::Combo("##BlendMode", (int*)&material.BlendMode, blendModeNames, 3))
+    {
+        ReflectFields->BlendMode[index] = material.BlendMode;
+    }
+
+    // Alpha (if Translucent)
+    if (material.BlendMode == Material::BlendModeType::TRANSLUCENT)
+    {
+        ImGui::TableNextRow();
+        ImGui::TableNextColumn();
+        ImGui::Text("Alpha");
+        
+        ImGui::TableNextColumn();
+        ImGui::DragFloat("##Alpha", &material.Alpha, 0.01f, 0.f, 1.f);
+    }
+
+    // Is Two Sided
+    ImGui::TableNextRow();
+    ImGui::TableNextColumn();
+    ImGui::Text("Is Two Sided(Shared)");
+    
+    ImGui::TableNextColumn();
+    if (ImGui::Checkbox("##IsTwoSided", &material.IsTwoSided))
+    {
+        ReflectFields->IsTwoSided[index] = material.IsTwoSided;
+
+        Material modelMaterial{.IsTwoSided = material.IsTwoSided};
+        Renderer->SetMasterMaterial(index, modelMaterial);
+    }
+}
+
+void MeshComponent::DrawCustomDepthRow(UINT index, UINT customDepth)
+{
+    ImGui::TableNextRow();
+    ImGui::TableNextColumn();
+    ImGui::Text("CustomDepth");
+    
+    ImGui::TableNextColumn();
+    if (ImGui::BeginCombo("##CustomDepth", "Drop Down List"))
+    {
+        bool isBloom = customDepth & PostProcess::BLOOM;
+        ImGuiHelper::TextWithVerticalSeparator("Bloom");
+        
+        if (ImGui::Checkbox("##Bloom", &isBloom))
+        {
+            isBloom ? Renderer->OnCustomDepth(PostProcess::BLOOM, index) 
+                    : Renderer->OffCustomDepth(PostProcess::BLOOM, index);
+        }
+
+        ReflectFields->CustomDepth[index] = Renderer->GetCustomDepths()[index];
+        ImGui::EndCombo();
+    }
 }
 
 void MeshComponent::InitMaterial()
 {
     const auto& model     = Renderer->GetModel();
-    auto&       materials = model->GetMaterials();
+    auto&       materials = Renderer->GetMaterials();
     size_t      meshCount = model->GetMeshCount();
-
-    if (ReflectFields->CustomDepth.size() < meshCount)
-    {
-        ReflectFields->BlendMode.resize(meshCount, 0);
-        ReflectFields->IsTwoSided.resize(meshCount, false);
-        ReflectFields->CustomDepth.resize(meshCount, PostProcess::BLOOM);
-    }
+    
+    ReflectFields->ShadingModel.resize(meshCount, Material::ShadingModelType::DEFAULTLIT);
+    ReflectFields->BlendMode.resize(meshCount, 0);
+    ReflectFields->IsTwoSided.resize(meshCount, false);
+    ReflectFields->CustomDepth.resize(meshCount, PostProcess::BLOOM);    
 
     for (size_t i = 0; i < meshCount; i++)
     {
         Renderer->OnCustomDepth(ReflectFields->CustomDepth[i], (UINT)i);
 
-        //materials[i].ShadingModel = (Material::ShadingModelType)ReflectFields->ShadingModel[i];
+        materials[i].ShadingModel = (Material::ShadingModelType)ReflectFields->ShadingModel[i];
         materials[i].BlendMode    = (Material::BlendModeType)ReflectFields->BlendMode[i];
         materials[i].IsTwoSided   = ReflectFields->IsTwoSided[i];
+        Renderer->SetMasterMaterial((UINT)i, materials[i]);
     }
 
     Renderer->OffCustomDepth(PostProcess::OUTLINE);
+    Renderer->SetCustomMaterial(ReflectFields->CustomLightType, ReflectFields->RimLightMaterial);
+}
+
+IMeshRenderer*& MeshComponent::GetLastSelectMeshRenderer()
+{
+    static IMeshRenderer* renderer = nullptr;
+    return renderer;
 }

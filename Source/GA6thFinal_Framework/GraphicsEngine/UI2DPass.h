@@ -4,14 +4,15 @@
 class UI2DPass : public UIPassBase
 {
 public:
-    UI2DPass(const std::vector<UINT>& instanceIDs);
+    UI2DPass(const std::vector<UINT>* instanceIDs);
     virtual ~UI2DPass();
 
 public:
     void Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList) override;
-    void Begin(ID3D12GraphicsCommandList* commandList) override;
+    void Update(ID3D12GraphicsCommandList* commandList, const float deltaTime) override;
     void Draw(ID3D12GraphicsCommandList* commandList) override;
 
 private:
-    FX<GE::VS::UI_FR, GE::PS::UI> _fx;
+    void DrawSprite(ID3D12GraphicsCommandList* commandList, UINT offset, UINT instanceCount);
+    void DrawSDFText(ID3D12GraphicsCommandList* commandList, SDFTextRenderer* component, UINT instanceID);
 };

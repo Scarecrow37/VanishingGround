@@ -6,7 +6,7 @@ class UmCineMotion : public CameraComponent
 {
     USING_PROPERTY(UmCineMotion)
 public:
-    REFLECT_PROPERTY(RailSpeed, ShakeIntensity, ShakeDuration, ShakeFrequency ,Current)
+    REFLECT_PROPERTY(RailSpeed, ShakeIntensity, ShakeDuration, ShakeFrequency, Current)
     GETTER(float, RailSpeed) { return ReflectFields->RailSpeed; }
     SETTER(float, RailSpeed) { ReflectFields->RailSpeed = value; }
     PROPERTY(RailSpeed)
@@ -20,9 +20,9 @@ public:
     SETTER(float, ShakeFrequency) { _shakeFrequency = value; }
     PROPERTY(ShakeFrequency)
     GETTER(float, Current) { return _currentStep; }
-    SETTER(float, Current) 
-    { 
-        _currentStep = std::clamp(value, 0.f, 100.f); 
+    SETTER(float, Current)
+    {
+        _currentStep = std::clamp(value, 0.f, 100.f);
         _railFlag    = true;
         _pauseFlag   = true;
     }
@@ -36,19 +36,22 @@ public:
 
 protected:
     REFLECT_FIELDS_BEGIN(CameraComponent)
-    float              RailSpeed  = 1.f;
-    float              RailLength = 0.f;
-    std::vector<float> PositionXTethers;
-    std::vector<float> PositionYTethers;
-    std::vector<float> PositionZTethers;
-    std::vector<float> RotationXTethers;
-    std::vector<float> RotationYTethers;
-    std::vector<float> RotationZTethers;
-    std::vector<float> RotationWTethers;
-    std::vector<float> TimestepTethers;
-    UINT               EaseType      = 0;
-    UINT               EaseFuncType  = 0;
-    float              EaseThreshold = 0.5f;
+    float                RailSpeed  = 1.f;
+    float                RailLength = 0.f;
+    std::vector<float>   PositionXTethers;
+    std::vector<float>   PositionYTethers;
+    std::vector<float>   PositionZTethers;
+    std::vector<float>   RotationXTethers;
+    std::vector<float>   RotationYTethers;
+    std::vector<float>   RotationZTethers;
+    std::vector<float>   RotationWTethers;
+    std::vector<float>   TimestepTethers;
+    std::array<float, 3> OriginPosition;
+    std::array<float, 4> OriginRotation;
+    bool                 OriginFlag;
+    UINT                 EaseType      = 0;
+    UINT                 EaseFuncType  = 0;
+    float                EaseThreshold = 0.5f;
     REFLECT_FIELDS_END(UmCineMotion)
 
     void OnDrawDebug() override;
@@ -69,9 +72,8 @@ protected:
 
     void ApplyTransform();
 
- public:
-    void AddTether(float timestep);
-    void AddTetherAuto();
+public:
+    void AddTether();
     void StartRail(bool isReverse);
     void PauseRail();
     void StopRail();
@@ -80,6 +82,8 @@ protected:
 protected:
     std::vector<Vector3>    _posTethers;
     std::vector<Quaternion> _rotTethers;
+    Vector3                 _originPosition    = Vector3::Zero;
+    Quaternion              _originRotation    = Quaternion::Identity;
     float                   _moveTimer         = 0.f;
     bool                    _railFlag          = false;
     bool                    _pauseFlag         = false;
@@ -95,6 +99,9 @@ protected:
     bool                    _reverseFlag       = false;
     bool                    _showEasingFlag    = false;
     std::vector<float>      _easeLog;
+    Matrix                  _oldWorldMat = Matrix::Identity;
+    Transform*              _oldParent   = nullptr;
+    bool                    _manipulateFlag = false;
 
     float EaseTimeStep(float step);
 
@@ -103,10 +110,10 @@ protected:
     void                                                                 PushGuizmo(const Matrix& world);
     void                                                                 PopGuizmo();
     void                                                                 ClearGuizmo();
+    void                                                                 RefreshGuizmo();
     void                                                                 DrawGuizmo();
     void                                                                 DrawGuizmoIcon();
     std::vector<std::tuple<SceneGizmo, Matrix, SceneGizmo::DefaultIcon>> _guizmoes;
 #endif
-
 };
 

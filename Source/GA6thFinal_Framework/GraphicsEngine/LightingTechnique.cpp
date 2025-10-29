@@ -1,17 +1,18 @@
 ﻿#include "pch.h"
-#include "PBRLitTechnique.h"
+#include "LightingTechnique.h"
 #include "DeferredPBRLitPass.h"
 #include "ShadowMapPass.h"
 #include "PointLightShadowPass.h"
 #include "GBufferPass.h"
 #include "SSAOWritePass.h"
 #include "ForwardPBRLitPass.h"
+#include "CustomShaderPass.h"
 
-PBRLitTechnique::PBRLitTechnique() = default;
+LightingTechnique::LightingTechnique() = default;
 
-PBRLitTechnique::~PBRLitTechnique() = default;
+LightingTechnique::~LightingTechnique() = default;
 
-void PBRLitTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
+void LightingTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 {
     std::unique_ptr<RenderPass> pass;
 
@@ -36,6 +37,10 @@ void PBRLitTechnique::Initialize(ID3D12GraphicsCommandList* commandList)
     AddRenderPass(std::move(pass));
 
     pass = std::make_unique<ForwardPBRLitPass>();
+    pass->Initialize(_ownerScene, this, commandList);
+    AddRenderPass(std::move(pass));
+
+    pass = std::make_unique<CustomShaderPass>();
     pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));
 }

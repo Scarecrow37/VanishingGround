@@ -17,7 +17,7 @@ namespace Monster
         void ShiveringWhisper::OnNotifiedAnimationEvent(const Timeline::EventContext* context)
         {
             const std::string& label = context->GetLabel();
-            if ("Attack_1" == label)
+            if ("Attack" == label)
             {
                 Attack();
             }

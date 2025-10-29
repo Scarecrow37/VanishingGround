@@ -93,9 +93,9 @@ namespace MVVM
         }
 
     public:
-        const T* operator->() const noexcept { return ModelBase<T*>::_value; }
+        T* operator->() const noexcept { return ModelBase<T*>::_value; }
 
-        const T& operator*() const { return *ModelBase<T*>::_value; }
+        T& operator*() const { return *ModelBase<T*>::_value; }
 
         auto operator<=>(std::nullptr_t) const noexcept { return ModelBase<T*>::_value <=> nullptr; }
 
@@ -104,7 +104,7 @@ namespace MVVM
         explicit operator bool() const noexcept { return ModelBase<T*>::_value != nullptr; }
 
     public:
-        const T* Get() const { return ModelBase<T*>::_value; }
+        T* Get() const { return ModelBase<T*>::_value; }
 
         void Set(T* value)
         {

@@ -1,10 +1,14 @@
 ﻿#include "pchScripts.h"
 #include "RecoveryAction.h"
 #include <TurnSystem/TurnMode/TurnMode.h>
+#include "TurnSystem/TurnSystemHelper.h"
 #include <TurnSystem/TurnMode/State/CombatStartPhase.h>
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 #include <Stats/CharacterStats.h>
+#include "PlayerSystem/PlayerSystem.h"
+#include "Stats/Player/PlayerStatsComponent.h"
+#include "Stats/Player/PlayerStats.h"
 
 REGISTER_TURN_ACTION(RecoveryAction)
 
@@ -48,68 +52,25 @@ void RecoveryAction::OnEnemyDeadByWeapon(Enemy& enemy, WeaponElement& weapon)
                 CombatStartPhase* combatStartPhase = turnMode->States->CombatStartPhase;
                 if (combatStartPhase)
                 {
-                    static std::vector<CharacterBase*> targetList;
-                    targetList.clear();
-                    ActionTarget target    = ReflectFields->Target;
-                    auto   lastAttaker     = Battle::GetLastAttacker().lock();
-                    auto   lastTarget      = Battle::GetLastTarget().lock();
-                    auto   lastTargetEnemy = Battle::GetLastTargetEnemy().lock();
-                    switch (target)
-                    {
-                    default:
-                    case ActionTarget::SELF: {
-                        const auto& self = lastAttaker;
-                        if (self)
-                        {
-                            targetList.push_back(self.get());
-                        }
-                        break;
-                    }
-                    case ActionTarget::PLAYER: {
-                        Player* player = combatStartPhase->GetPlayer();
-                        if (player && player == lastTarget.get())
-                        {
-                            targetList.push_back(player);
-                        }
-                        break;
-                    }
-                    case ActionTarget::ENEMY: {
-                        if (lastTarget && lastTarget.get() == lastTargetEnemy.get())
-                        {
-                            targetList.push_back(lastTarget.get());
-                        }
-                        break;
-                    }
-                    case ActionTarget::ALL_ENEMIES: {
-                        auto& enemys = combatStartPhase->GetEnemies();
-                        for (auto& enemy : enemys)
-                        {
-                            targetList.push_back(enemy);
-                        }
-                        break;
-                    }
-                    case ActionTarget::ALL: {
-                        auto& characters = combatStartPhase->GetCharacters();
-                        for (auto& character : characters)
-                        {
-                            targetList.push_back(character);
-                        }
-                        break;
-                    }
-                    }
-
+                    std::vector<CharacterBase*> targetList = TurnSystemHelper::GetTargetCharacters(Target);
                     if (false == targetList.empty())
                     {
+                        int recoveryHP = ReflectFields->RecoveryHP;
                         for (auto& target : targetList)
                         {
-                            CharacterStats* stats = target->GetCharacterStats();
-                            if (stats)                              
+                            if (target)
                             {
-                                int recoveryHP = ReflectFields->RecoveryHP;
-                                stats->CurrentHP += recoveryHP;
-                                std::string msg = std::format("{}{}{}{}", target->gameObject->ToString(),(const char*)u8"체력이", 
-                                    recoveryHP, (const char*)u8"회복");
-                                UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
+                                switch (ReflectFields->RecoveryUnit)
+                                {
+                                case Unit::FLAT:
+                                    target->Heal(recoveryHP);
+                                    break;
+                                case Unit::PERCENT:
+                                    target->HealByPercentage(recoveryHP);
+                                    break;
+                                default:
+                                    break;
+                                }                           
                             }
                         }
                     }
@@ -137,33 +98,18 @@ void RecoveryAction::UpdateActionInfo()
         break;
     }
 
-    ActionTarget target = ReflectFields->Target;
+    TurnTarget target = ReflectFields->Target;
     std::string_view targetName = STR_NULL;
-    switch (target)
-    {
-    case ActionTarget::SELF:
-        targetName = u8"자신의"_c_str;
-        break;
-    case ActionTarget::PLAYER:
-        targetName = u8"플레이어의"_c_str;
-        break;
-    case ActionTarget::ENEMY:
-        targetName = u8"적의"_c_str;
-        break;
-    case ActionTarget::ALL_ENEMIES:
-        targetName = u8"모든 적의"_c_str;
-        break;
-    case ActionTarget::ALL:
-        targetName = u8"모든 캐릭터의"_c_str;
-        break;
-    default:
-        break;
-    }
+    targetName = (const char*)TurnSystemHelper::GetTurnTargetToolTip(target).data();
     _actionInfo = triggerName;
     _actionInfo += targetName;
     _actionInfo += (const char*)u8" 체력";
     _actionInfo += " ";
     std::string recoveryHP = std::to_string(ReflectFields->RecoveryHP);
     _actionInfo += recoveryHP;
+    if (ReflectFields->RecoveryUnit == Unit::PERCENT)
+    {
+        _actionInfo += (const char*)u8"퍼";
+    }
     _actionInfo += (const char*)u8" 회복";
 }

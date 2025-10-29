@@ -1066,7 +1066,7 @@ void ESceneManager::ObjectsApplicationQuit()
         {
             for (auto& obj : _runtimeObjects)
             {
-                if (obj->IsValid())
+                if (IsRuntimeActive(obj))
                 {
                     for (auto& component : obj->_components)
                     {
@@ -1090,7 +1090,7 @@ void ESceneManager::ObjectsOnEnable()
     {
         if (const auto& component = weakComponent.lock())
         {
-            validComponents.push_back(std::move(component));
+            validComponents.push_back(component);
         }
     }
     onEnableSet.clear();
@@ -1119,7 +1119,7 @@ void ESceneManager::ObjectsOnDisable()
     {
         if (const auto& component = weakComponent.lock())
         {
-            validComponents.push_back(std::move(component));
+            validComponents.push_back(component);
         }
     }
     OnDisableSet.clear();
@@ -1140,9 +1140,8 @@ void ESceneManager::ObjectsDestroy()
 {
     //컴포넌트 삭제
     auto& [destroyComponentSet, destroyComponentQueue] = _destroyComponentsQueue;
-    //OnDestroy 호출 도중 원본 큐 변형 방지를 위한 지연삭제
+    // OnDestroy 호출 도중 원본 큐 변형 방지를 위한 지연삭제
     _destroyComponentsTemp = destroyComponentQueue;
-    destroyComponentSet.clear();
     destroyComponentQueue.clear();
     for (auto& destroyComponent : _destroyComponentsTemp)
     {
@@ -1159,12 +1158,16 @@ void ESceneManager::ObjectsDestroy()
             return destroyComponent == component.get();
         });
     }
-
+    destroyComponentSet.clear();
+    for (auto& component : destroyComponentQueue)
+    {
+        destroyComponentSet.insert(component);
+    }
+    
     //오브젝트 삭제
     auto& [destroyObjectSet, destroyObjectQueue] = _destroyObjectsQueue;
     // OnDestroy 호출 도중 원본 큐 변형 방지를 위한 복사 후 삭제
     _destroyObjectTemp = destroyObjectQueue;
-    destroyObjectSet.clear();
     destroyObjectQueue.clear();
     for (auto& destroyObject : _destroyObjectTemp)
     {
@@ -1203,6 +1206,11 @@ void ESceneManager::ObjectsDestroy()
             }
         }
     }
+    destroyObjectSet.clear();
+    for (auto& object : destroyObjectQueue)
+    {
+        destroyObjectSet.insert(object);
+    }
 
     //배열 정리
     while (_runtimeObjects.empty() == false && _runtimeObjects.back() == nullptr)
@@ -1211,8 +1219,12 @@ void ESceneManager::ObjectsDestroy()
     }
 
     //큐 초기화
-    _destroyComponentsTemp.clear();
-    _destroyObjectTemp.clear();
+    if (_destroyComponentsTemp.empty() || _destroyObjectTemp.empty())
+    {
+        UmComponentFactory.CleanupExpiredComponents();
+        _destroyComponentsTemp.clear();
+        _destroyObjectTemp.clear();
+    }
 }
 
 void ESceneManager::ObjectsAddRuntime()
@@ -1332,7 +1344,7 @@ void ESceneManager::EraseGameObjectMap(std::shared_ptr<GameObject>& eraseObject)
 
 void ESceneManager::AddDestroyComponentQueue(Component* component) 
 {
-    if (component->gameObject->IsValid())
+    if (component && component->gameObject->IsValid())
     {
         auto& [set, vec]    = engineCore->SceneManager._destroyComponentsQueue;
         auto [iter, result] = set.insert(component);
@@ -1450,7 +1462,7 @@ void ESceneManager::SetRendererSkyBox(Scene* scene)
 
 void ESceneManager::AddDestroyObjectQueue(GameObject* gameObject) 
 {
-    if (gameObject->IsValid())
+    if (gameObject && gameObject->IsValid())
     {
         auto& [set, vec] = engineCore->SceneManager._destroyObjectsQueue;
         Transform::ForeachDFS(gameObject->_transform, [this, &set, &vec](Transform* pTransform) {
@@ -1616,12 +1628,16 @@ bool ESceneManager::SetSkyIBL(const File::Path& path)
 
 const std::vector<std::weak_ptr<MeshComponent>>& ESceneManager::GetMeshComponents()
 {
+    ClearExpiredMeshComponents();
+    return _runtimeMeshComponents;
+}
+
+void ESceneManager::ClearExpiredMeshComponents() 
+{
     std::erase_if(_runtimeMeshComponents, [](const std::weak_ptr<MeshComponent>& weakMesh) 
     { 
         return weakMesh.expired();
     });
-
-    return _runtimeMeshComponents;
 }
 
 bool ESceneManager::WriteUmSceneFile(Scene& scene, std::string_view sceneName, std::string_view outPath, bool isOverride, bool isEmptyScene)
@@ -2275,6 +2291,54 @@ void ESceneManager::InputSystem::RegisterInputReceiver(InputReceiver& receiver, 
     }
 }
 
+bool ESceneManager::InputSystem::PushReceiverToInputStack(InputReceiver& receiver)
+{
+    if (receiver._isDestroy && false == *receiver._isDestroy)
+    {
+        if (false == receiver._isPushStack)
+        {
+            _layerStack.emplace_back(receiver._isDestroy.get(), receiver._isDestroy);
+            receiver._isPushStack = true;
+            return true;
+        }
+    }  
+    return false;
+}
+
+bool ESceneManager::InputSystem::PopReceiverToInputStack(InputReceiver& receiver)
+{
+    if (receiver._isDestroy)
+    {
+        if (true == receiver._isPushStack)
+        {
+            bool result = false;
+            while (false == _layerStack.empty())
+            {
+                auto& [topReceiver, isDestroy] = _layerStack.back();
+                if (receiver._isDestroy.get() == topReceiver)
+                {
+                    _layerStack.pop_back();
+                    receiver._isPushStack = false;
+                    result = true;
+                }
+                else 
+                {               
+                    if (auto destroyFlag = isDestroy.lock())
+                    {
+                        if (*destroyFlag)
+                        {
+                            _layerStack.pop_back();
+                            continue;
+                        }
+                    }
+                    return result;          
+                }
+            }
+        }
+    }
+    return false;
+}
+
 void ESceneManager::InputSystem::CleanupInputReceivers() 
 {
     for (auto& actions : _receivers)
@@ -2284,6 +2348,7 @@ void ESceneManager::InputSystem::CleanupInputReceivers()
             inputReceivers.clear();
         }
     }
+    _layerStack.clear();
 }
 
 void ESceneManager::InputSystem::Vibrate(const Input::ControllerTypes::Vibration vibration)
@@ -2382,7 +2447,18 @@ void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
         }
         else
         {
-            event(_inputController);
+            if (_layerStack.empty())
+            {
+                event(_inputController);
+            }
+            else
+            {
+                auto& [destroyFlag, weak] = _layerStack.back();
+                if (destroyFlag == isDestroy.get())
+                {
+                    event(_inputController);
+                }
+            }       
             checker = true;
         }
     }

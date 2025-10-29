@@ -213,12 +213,6 @@ void EGameObjectFactory::OnFileRegistered(const File::Path& path)
     }
 }
 
-void EGameObjectFactory::OnFileUnregistered(const File::Path& path) 
-{
-    File::Guid guid = path.ToGuid();
-    ErasePrefabItem(guid);
-}
-
 void EGameObjectFactory::OnFileModified(const File::Path& path)
 {
     File::Guid guid = path.ToGuid();
@@ -248,6 +242,12 @@ void EGameObjectFactory::OnFileModified(const File::Path& path)
 }
 
 void EGameObjectFactory::OnFileRemoved(const File::Path& path) 
+{
+    File::Guid guid = path.ToGuid();
+    ErasePrefabItem(guid);
+}
+
+void EGameObjectFactory::OnFileUnregistered(const File::Path& path) 
 {
     File::Guid guid = path.ToGuid();
     ErasePrefabItem(guid);

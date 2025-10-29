@@ -12,7 +12,7 @@ public:
 
     bool Evaluate() override;
     void DrawImguiEditor() override;
-    const std::string& GetConditionInfo() const override;
+    const std::string& GetConditionInfo() override;
     
     void OnEvaluateConditions(bool result) override;
 

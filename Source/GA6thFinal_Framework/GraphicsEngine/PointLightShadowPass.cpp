@@ -390,7 +390,7 @@ void PointLightShadowPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, Me
                 break;
             }
 
-            previousMesh->Render(commandList, instanceCount * 6);
+            previousMesh->Render(commandList, instanceCount);
             previousMesh = meshInfo->Mesh;
             parameter[0] += instanceCount;
             instanceCount = 1;
@@ -417,6 +417,6 @@ void PointLightShadowPass::DrawMeshes(ID3D12GraphicsCommandList* commandList, Me
             break;
         }
 
-        currentMesh->Render(commandList, instanceCount * 6);
+        currentMesh->Render(commandList, instanceCount);
     }
 }

@@ -143,6 +143,12 @@ DescriptionPanel::DescriptionPanel()
     });
 }
 
+void DescriptionPanel::SetOpacity(const float opacity)
+{
+    ReflectFields->Alpha = std::clamp(opacity, 0.0f, 1.0f);
+    UpdateAlpha();
+}
+
 void DescriptionPanel::DeserializedReflectEvent()
 {
     HorizontalPanel::DeserializedReflectEvent();
@@ -222,6 +228,7 @@ void DescriptionPanel::MakeChild()
             color.w                    = ReflectFields->Alpha;
             element.Color              = color;
             element.FontScale          = ReflectFields->FontScale;
+            element.SetArtificial(true);
         }
         break;
         case ElementType::IMAGE: {
@@ -236,6 +243,7 @@ void DescriptionPanel::MakeChild()
             element.HorizontalFillMode = FillMode::FILL;
             element.VerticalFillMode   = FillMode::FILL;
             element.Alpha              = ReflectFields->Alpha;
+            element.SetArtificial(true);
             imageChild->transform->SetParent(child->transform, true);
         }
         break;
@@ -246,18 +254,17 @@ void DescriptionPanel::MakeChild()
 
 void DescriptionPanel::UpdateAlpha()
 {
-    const float                     alpha    = ReflectFields->Alpha;
-    const std::vector<UIComponent*> children = Children;
-    std::ranges::for_each(children, [alpha](const UIComponent* child) {
-        if (TextElement* textElement = child->GetComponent<TextElement>(); nullptr != textElement)
+    const float alpha = ReflectFields->Alpha;
+    Transform::ForeachBFS(transform, [alpha](Transform* t) 
+    {
+        GameObject& object = t->gameObject;
+        if (TextElement* textElement = object.GetComponent<TextElement>(); nullptr != textElement)
         {
-            Color color        = textElement->Color;
-            color.w            = alpha;
-            textElement->Color = color;
+            textElement->SetOpacity(alpha);
         }
-        else if (ImageElement* imageElement = child->GetComponent<ImageElement>(); nullptr != imageElement)
+        else if (ImageElement* imageElement = object.GetComponent<ImageElement>(); nullptr != imageElement)
         {
-            imageElement->Alpha = alpha;
+            imageElement->SetOpacity(alpha);
         }
     });
 }

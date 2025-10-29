@@ -5,7 +5,7 @@ class TokenChangeAction : public TurnAction
 {
     USING_PROPERTY(TokenChangeAction)
 public:
-    TokenChangeAction();
+    TokenChangeAction() = default;
     ~TokenChangeAction() override;
 
     REFLECT_PROPERTY()
@@ -24,7 +24,10 @@ protected:
 
 private:
     std::string _actionInfo;
+    bool        _validTokenSystem = false;
 
 private:
     void UpdateActionInfo();
+    void TryTokenSystemInfo();
+
 };

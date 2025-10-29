@@ -23,7 +23,7 @@ IAnimator* MeshRenderer::GetAnimator() const
     if (SKELETAL_MESH != _type)
         return nullptr;
 
-    return _animator.Get();
+    return _animator.get();
 }
 
 void MeshRenderer::SetActive(const bool* isActive)
@@ -36,6 +36,7 @@ void MeshRenderer::SetModel(std::shared_ptr<Model> model)
     _model = model;
 
     _customDepths.resize(_model->GetMeshCount(), PostProcess::BLOOM);
+    _materials.resize(_model->GetMeshCount());
 
     const auto& animation = _model->GetAnimation();
 
@@ -43,8 +44,9 @@ void MeshRenderer::SetModel(std::shared_ptr<Model> model)
     {
         _type = SKELETAL_MESH;
         
-        _animator = new Animator;
+        _animator = std::make_unique<Animator>();
         _animator->Initialize(animation, _model->GetSkeleton());
+        _animator->AddReference();
 
         const auto& meshes = _model->GetMeshes();
 
@@ -70,6 +72,12 @@ void MeshRenderer::SetMaterial(const UINT meshIndex, const Material& material)
 void MeshRenderer::SetMasterMaterial(const UINT meshIndex, const Material& material)
 {    
     _model->SetMaterial(meshIndex, material);
+}
+
+void MeshRenderer::SetCustomMaterial(CustomLightType type, const std::any& customMaterial)
+{
+    _customLightType    = type;
+    _customMaterialData = customMaterial;
 }
 
 void MeshRenderer::AddReference()

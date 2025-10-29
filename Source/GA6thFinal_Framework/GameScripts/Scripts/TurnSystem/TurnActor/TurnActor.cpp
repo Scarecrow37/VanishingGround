@@ -40,6 +40,7 @@ void TurnActor::PlayTurn()
     {
         _currState = STATE::Play;
     }
+    OnTurnStart();
 }
 
 void TurnActor::Revive() 
@@ -64,6 +65,7 @@ void TurnActor::EndTurn()
     {
         _currState = STATE::Wait;
     }
+    OnTurnEnd();
 }
 
 void TurnActor::Awake() 
@@ -73,10 +75,7 @@ void TurnActor::Awake()
 
 void TurnActor::OnCombatStart() {}
 
-void TurnActor::OnRoundStart()
-{
-    _randomSpeed = Random::Range(DEFINE::RANDOMSPEED_MIN, DEFINE::RANDOMSPEED_MAX);
-}
+void TurnActor::OnRoundStart() {}
 
 void TurnActor::OnRoundEnd() {}
 

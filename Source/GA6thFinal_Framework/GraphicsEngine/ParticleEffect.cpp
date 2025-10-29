@@ -14,7 +14,8 @@ ParticleEmitter* ParticleEffect::AddEmitter(SIZE_T maxParticles, float emissionR
     auto&            uptr    = _particleEmitters.emplace_back(std::make_unique<ParticleEmitter>());
     ParticleEmitter* emitter = uptr.get(); // 외부에는 비소유 포인터 전달
 
-    emitter->Initialize(maxParticles, emissionRate, emitterLifetime, locatorShape, locationFactor, particleType,
+    //최대 개수 강제 제한
+    emitter->Initialize(10000, emissionRate, emitterLifetime, locatorShape, locationFactor, particleType,
                         meshspritePath);
 
     std::string name = "Emitter " + std::to_string(_namingIndex) + "-" + std::to_string(_emitterNamingIndex++);
@@ -84,6 +85,10 @@ void ParticleEffect::Update(float deltaTime)
             _isPlaying = false;
             _age       = 0;
         }
+        if (_endCallback)
+        {
+            _endCallback();
+        }
     }
 }
 
@@ -131,6 +136,25 @@ void ParticleEffect::Play()
             uptr->Reset();
             uptr->SetActiveFlag(true);
         }
+    }
+}
+
+void ParticleEffect::Play(EffectCallback callback) 
+{
+    if (!_isPlaying)
+    {
+        _playFlag   = true;
+        _isPlaying  = true;
+        _activeFlag = true;
+
+        _isEnding = false;
+        _age      = 0;
+        for (auto& uptr : _particleEmitters)
+        {
+            uptr->Reset();
+            uptr->SetActiveFlag(true);
+        }
+        _endCallback = callback;
     }
 }
 

@@ -17,19 +17,24 @@ struct VSOutput
     nointerpolation uint instanceID : TEXCOORD1;
 };
 
+cbuffer bit32_1_offset
+{
+    uint offset;
+};
+
 VSOutput vs_main(VSInput input)
 {
     VSOutput output = (VSOutput) 0;
     
     float4 position = float4(input.position.xyz, 1);
-    uint ID = IDs[input.instanceID];
+    uint ID = IDs[input.instanceID + offset];
         
     output.position = mul(position, ui_matrices[ID]);
     output.position = mul(output.position, cameraData.View);
     output.position = mul(output.position, cameraData.Projection);
     
     output.uv = input.uv;
-    output.instanceID = input.instanceID;
+    output.instanceID = ID;
     
     return output;
 }
