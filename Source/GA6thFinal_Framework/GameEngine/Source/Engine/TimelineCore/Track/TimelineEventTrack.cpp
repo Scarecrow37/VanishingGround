@@ -25,7 +25,7 @@ namespace Timeline
         }
         if (true == IsActive())
         {
-            if (true == IsPlaying() && true == HasFlags(EVENT_TRCK_FLAGS_USE_COUNTER))
+            if (true == IsPlaying() && true == HasFlags(EVENT_TRACK_FLAGS_USE_COUNTER))
             {
                 SetCurrentFrame(_currFrame + UmTime.DeltaTime());
             }
@@ -43,11 +43,11 @@ namespace Timeline
                 }
             }
             _prevFrame = _currFrame;
-            if (true == IsPlaying() && true == HasFlags(EVENT_TRCK_FLAGS_USE_COUNTER))
+            if (true == IsPlaying() && true == HasFlags(EVENT_TRACK_FLAGS_USE_COUNTER))
             {
                 if (_currFrame >= GetMaxFrame())
                 {
-                    if (true == HasFlags(EVENT_TRCK_FLAGS_LOOP))
+                    if (true == HasFlags(EVENT_TRACK_FLAGS_LOOP))
                     {
                         _currFrame += GetMinFrame() - GetMaxFrame();
                     }
@@ -329,7 +329,7 @@ namespace Timeline
     }
     void EventTrack::RequestNotify(float startTime, float endTime)
     {
-        if (startTime >= endTime || true == HasFlags(EVENT_TRCK_FLAGS_NOTIFY_DISABLED))
+        if (startTime >= endTime || true == HasFlags(EVENT_TRACK_FLAGS_NOTIFY_DISABLED))
         {
             return;
         }

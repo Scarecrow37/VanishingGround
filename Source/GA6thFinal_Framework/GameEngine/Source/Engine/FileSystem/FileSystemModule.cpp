@@ -44,6 +44,7 @@ void FileSystemModule::ModuleInitialize()
 
 void FileSystemModule::PreUnInitialize() 
 {
+    EGameObjectFactory::Engine::Finalize();
     if constexpr (true == IS_EDITOR)
     {
         UmFileSystem.ObserverShutDown();

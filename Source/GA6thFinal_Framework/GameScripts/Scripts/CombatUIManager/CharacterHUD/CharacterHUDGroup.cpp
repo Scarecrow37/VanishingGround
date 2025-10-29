@@ -7,6 +7,7 @@
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
+#include <UI/Animations/FadeUIComponent/FadeUIComponent.h>
 
 namespace CombatUI
 {
@@ -38,6 +39,8 @@ namespace CombatUI
                     }
                 }
             });
+
+            FadeUI = Root->GetComponent<FadeUIComponent>();
         }
 
         return IsValid();
@@ -124,5 +127,31 @@ namespace CombatUI
             }
         }
         return false;
+    }
+
+    void CharacterHUDGroup::FadeIn(float duration) 
+    {
+        if (FadeUI)
+        {
+            FadeUI->FadeDuration = duration;
+            FadeUI->FadeIn();
+        }
+        else
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Fade UI Component가 존재하지 않습니다.");
+        }
+    }
+
+    void CharacterHUDGroup::FadeOut(float duration) 
+    {
+        if (FadeUI)
+        {
+            FadeUI->FadeDuration = duration;
+            FadeUI->FadeOut();
+        }
+        else
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Fade UI Component가 존재하지 않습니다.");
+        }
     }
 } // namespace CombatUI

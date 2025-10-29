@@ -37,8 +37,8 @@ void UIAnimation::Update(const float deltaTime)
 
     UpdateAnimation();
 
-    const bool isOverDuration = _elapsedTime >= _duration;
-    const bool isUnderZero    = _elapsedTime <= 0.0f;
+    const bool isOverDuration = _elapsedTime >= _duration && deltaTime > 0.0f;
+    const bool isUnderZero    = _elapsedTime <= 0.0f && deltaTime < 0.0f;
 
     if (const bool isOutOfRange = isOverDuration || isUnderZero; isOutOfRange)
     {

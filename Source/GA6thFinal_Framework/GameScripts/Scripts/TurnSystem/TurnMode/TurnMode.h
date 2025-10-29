@@ -83,6 +83,8 @@ public:
     )
 
     GETTER_ONLY(int, RoundCount) { return _roundCount; }
+    // 현재 라운드 수
+    // type : int
     PROPERTY(RoundCount)
 
     GETTER(bool, RevelationActiveFlag) { return _revelationActiveFlag;  }

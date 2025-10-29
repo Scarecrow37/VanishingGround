@@ -347,15 +347,15 @@ namespace ReflectHelper
                     {
                         const auto view = rfl::to_view(obj);
                         view.apply([&](auto& field) {
-                            using FieldTpye     = std::remove_cvref_t<decltype(*field.value())>;
+                            using FieldType     = std::remove_cvref_t<decltype(*field.value())>;
                             auto        name    = field.name();
                             auto&       value   = *field.value();
                             yyjson_val* jsonVal = yyjson_obj_get(root, name.data());
                             if (jsonVal)
                             {
-                                if constexpr (std::is_signed_v<FieldTpye>)
+                                if constexpr (std::is_signed_v<FieldType>)
                                 {
-                                    if constexpr (std::is_floating_point_v<FieldTpye>)
+                                    if constexpr (std::is_floating_point_v<FieldType>)
                                     {
                                         if (yyjson_is_real(jsonVal))
                                         {
@@ -370,9 +370,9 @@ namespace ReflectHelper
                                         }
                                     }                               
                                 }
-                                else if constexpr (std::is_unsigned_v<FieldTpye>)
+                                else if constexpr (std::is_unsigned_v<FieldType>)
                                 {
-                                    if constexpr (std::is_same_v<bool, FieldTpye>)
+                                    if constexpr (std::is_same_v<bool, FieldType>)
                                     {
                                         if (yyjson_is_bool(jsonVal))
                                         {
@@ -387,14 +387,14 @@ namespace ReflectHelper
                                         }
                                     }
                                 }                                                          
-                                else if constexpr (std::is_same_v<FieldTpye, std::string>)
+                                else if constexpr (std::is_same_v<FieldType, std::string>)
                                 {
                                     if (yyjson_is_str(jsonVal))
                                     {
                                         value = yyjson_get_str(jsonVal);
                                     }
                                 }
-                                else if constexpr (std::is_same_v<FieldTpye, SIZE>)
+                                else if constexpr (std::is_same_v<FieldType, SIZE>)
                                 {
                                     char* data = yyjsonValToCStr(jsonVal);
                                     if (nullptr != data)
@@ -407,7 +407,7 @@ namespace ReflectHelper
                                         free(data);
                                     }
                                 }
-                                else if constexpr (std::is_same_v<FieldTpye, POINT>)
+                                else if constexpr (std::is_same_v<FieldType, POINT>)
                                 {
                                     char* data = yyjsonValToCStr(jsonVal);
                                     if (nullptr != data)
@@ -420,7 +420,7 @@ namespace ReflectHelper
                                         free(data);
                                     }
                                 }
-                                else if constexpr (std::is_same_v<FieldTpye, RECT>)
+                                else if constexpr (std::is_same_v<FieldType, RECT>)
                                 {
                                     char* data = yyjsonValToCStr(jsonVal);
                                     if (nullptr != data)
@@ -433,12 +433,38 @@ namespace ReflectHelper
                                         free(data);
                                     }
                                 }
-                                else if constexpr (std::is_same_v<FieldTpye, std::array<float, 4>>)
+                                else if constexpr (std::is_same_v<FieldType, std::array<float, 4>>)
                                 {
                                     char* data = yyjsonValToCStr(jsonVal);
                                     if (nullptr != data)
                                     {
                                         auto result = rfl::json::read<std::array<float, 4>>(data);
+                                        if (result)
+                                        {
+                                            value = result.value();
+                                        }
+                                        free(data);
+                                    }
+                                }
+                                else if constexpr (std::is_same_v<FieldType, std::vector<bool>>)
+                                {
+                                    char* data = yyjsonValToCStr(jsonVal);
+                                    if (nullptr != data)
+                                    {
+                                        auto result = rfl::json::read<std::vector<bool>>(data);
+                                        if (result)
+                                        {
+                                            value = result.value();
+                                        }
+                                        free(data);
+                                    }
+                                }
+                                else if constexpr (std::is_same_v<FieldType, std::vector<unsigned int>>)
+                                {
+                                    char* data = yyjsonValToCStr(jsonVal);
+                                    if (nullptr != data)
+                                    {
+                                        auto result = rfl::json::read<std::vector<unsigned int>>(data);
                                         if (result)
                                         {
                                             value = result.value();

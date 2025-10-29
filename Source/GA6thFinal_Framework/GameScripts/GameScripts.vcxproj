@@ -612,6 +612,7 @@
     <ClInclude Include="Scripts\Token\Object\Weakness\WeaknessToken.h" />
     <ClInclude Include="Scripts\Token\Object\Deffence\WeaponDeffenceToken.h" />
     <ClInclude Include="Scripts\Token\Object\Vanish\VanishToken.h" />
+    <ClInclude Include="Scripts\RoundInfoUI\RoundInfoUIManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scripts\QTE\UI\Field\QTEJudgeEffectUI.cpp" />
@@ -918,6 +919,7 @@
     <ClCompile Include="Scripts\Token\Object\Weakness\WeaknessToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\Deffence\WeaponDeffenceToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\Vanish\VanishToken.cpp" />
+    <ClCompile Include="Scripts\RoundInfoUI\RoundInfoUIManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
