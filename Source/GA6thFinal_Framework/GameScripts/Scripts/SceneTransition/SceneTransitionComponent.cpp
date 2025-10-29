@@ -132,7 +132,7 @@ void SceneTransitionComponent::CalculateFade()
     {
         return;
     }
-    _fadeElapsedTimer += UmTime.DeltaTime();
+    _fadeElapsedTimer += UmTime.UnscaledDeltaTime();
 
     if (_fadeElapsedTimer >= Duration)
     {
