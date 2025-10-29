@@ -255,7 +255,6 @@ void DescriptionPanel::MakeChild()
 void DescriptionPanel::UpdateAlpha()
 {
     const float alpha = ReflectFields->Alpha;
-    Transform&  myTransform = transform;
     Transform::ForeachBFS(transform, [alpha](Transform* t) 
     {
         GameObject& object = t->gameObject;
