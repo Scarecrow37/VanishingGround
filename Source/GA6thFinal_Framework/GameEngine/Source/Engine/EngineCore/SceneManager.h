@@ -461,6 +461,8 @@ public:
     /// <returns></returns>
     const std::vector<std::weak_ptr<MeshComponent>>& GetMeshComponents();
 
+    void ClearExpiredMeshComponents();
+
     class SceneResourceManager
     {
     public:

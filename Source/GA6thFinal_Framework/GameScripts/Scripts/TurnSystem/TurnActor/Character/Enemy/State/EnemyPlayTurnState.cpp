@@ -3,6 +3,7 @@
 
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 #include "TurnSystem/TurnMode/TurnMode.h"
+#include "RoundInfoUI/RoundInfoUIManager.h"
 #include "Monster/Action/MonsterActionBase.h"
 
 REGISTER_CLASS(FSMStateFactory, EnemyPlayTurnState)
@@ -22,6 +23,7 @@ void EnemyPlayTurnState::OnAwake()
 
 void EnemyPlayTurnState::OnStart() 
 {
+    _roundInfoUIManager = GameObject::FindComponentWithTag<RoundInfoUIManager>("Round Info Panel");
 }
 
 void EnemyPlayTurnState::OnEnter() 
@@ -35,6 +37,10 @@ void EnemyPlayTurnState::OnEnter()
     if (Monster::Action::Base* action = controller.GetCurrentAction())
     {
         actionName = action->GetActionContext().Name;
+        if (auto roundInfo = _roundInfoUIManager.lock())
+        {
+            roundInfo->FadeInfoUI(actionName);           
+        }
     }
     
     const std::string message = std::format("{}{}{}{}", spawnPoint, (const char*)u8" Enemy 턴 시작. ",
