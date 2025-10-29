@@ -100,47 +100,81 @@ foreach ($shaderFile in $shaderFiles) {
     $outputHeaderPath = Join-Path $shaderOutputPath $outputHeaderName
     $variableName = "g_$($baseName)"
 
-    Write-Host "Compiling: $fileName"
-    Write-Host "  - Profile: $shaderProfile, Entry Point: $entryPoint"
-    
-    $arguments = @()
-    $arguments += "/T", $shaderProfile
-    $arguments += "/E", $entryPoint
-    $arguments += "/Fh", $outputHeaderPath
-    $arguments += "/Vn", $variableName
-    $arguments += $finalCompileFlags
-    $arguments += $fileFullName
+    $maxRetries = 5 # Define max retries
+    $retryCount = 0
+    $compileSuccess = $false
 
-    $result = & $fxcPath $arguments 2>&1
+    do {
+        Write-Host "Compiling: $fileName (Attempt $($retryCount + 1)/$maxRetries)"
+        Write-Host "  - Profile: $shaderProfile, Entry Point: $entryPoint"
+        
+        $arguments = @()
+        $arguments += "/T", $shaderProfile
+        $arguments += "/E", $entryPoint
+        $arguments += "/Fh", $outputHeaderPath
+        $arguments += "/Vn", $variableName
+        $arguments += $finalCompileFlags
+        $arguments += $fileFullName
 
-    if ($LASTEXITCODE -ne 0) {
-        Write-Error "Error: Failed to compile '$fileName'."
-        Write-Error $result
-    } else {
-        # --- [핵심 수정] 파일 잠금 문제를 피하기 위해 짧은 지연 후 처리 ---
-        try {
-            # 0.1초 대기하여 fxc.exe의 파일 핸들이 완전히 해제되도록 보장
-            Start-Sleep -Milliseconds 200
+        $result = & $fxcPath $arguments 2>&1
 
-            # fxc가 생성한 파일을 읽음
-            $fileContent = Get-Content -Path $outputHeaderPath -Raw
-            
-            # 정규식을 사용해 'const BYTE ...' 변수 선언 라인 전체를 찾음
-            $pattern = "(?s)const\s+BYTE\s+$($variableName)\[\].*?};"
-            $match = [regex]::Match($fileContent, $pattern)
-
-            if ($match.Success) {
-                # 찾은 내용만으로 파일을 덮어씀
-                Set-Content -Path $outputHeaderPath -Value $match.Value -Encoding ASCII
-                Write-Host "  - Success (cleaned): $outputHeaderPath" -ForegroundColor Green
-                $compiledHeaders.Add($outputHeaderName)
-            } else {
-                Write-Error "Error: Could not find variable declaration in '$outputHeaderPath'. The file might be corrupted."
-            }
-        } catch {
-            Write-Error "Error: Failed to process and clean '$outputHeaderPath'. Exception: $_"
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warning "Warning: Failed to compile '$fileName' on attempt $($retryCount + 1). Retrying in 0.5 seconds..."
+            Write-Warning $result
+            Start-Sleep -Milliseconds 500 # Short delay before retrying
+            $retryCount++
+        } else {
+            $compileSuccess = $true
+            Write-Host "  - Success: '$fileName'" -ForegroundColor Green
         }
-        # --------------------------------------------------
+    } while (-not $compileSuccess -and $retryCount -lt $maxRetries)
+
+    if (-not $compileSuccess) {
+        Write-Error "Error: Failed to compile '$fileName' after $maxRetries attempts. Skipping this shader." -ForegroundColor Red
+        Write-Error $result # Display final error
+        Write-Host "----------------------------------------------------------------"
+        continue # Skip to next shader file
+    } else { # This 'else' is for the overall compilation success after retries
+        $postProcessSuccess = $false
+        $postProcessRetries = 0
+        $maxPostProcessRetries = 10 # More retries for file locking, as it's often transient
+
+        do {
+            try {
+                # 0.1초 대기하여 fxc.exe의 파일 핸들이 완전히 해제되도록 보장
+                Start-Sleep -Milliseconds 200 # Keep this initial sleep
+
+                # fxc가 생성한 파일을 읽음
+                $fileContent = Get-Content -Path $outputHeaderPath -Raw -ErrorAction Stop # Use -ErrorAction Stop to catch file locking errors
+                
+                # 정규식을 사용해 'const BYTE ...' 변수 선언 라인 전체를 찾음
+                $pattern = "(?s)const\s+BYTE\s+$($variableName)\[\]\s*=\s*\{.*?\};"
+                $match = [regex]::Match($fileContent, $pattern)
+
+                if ($match.Success) {
+                    # 찾은 내용만으로 파일을 덮어씀
+                    Set-Content -Path $outputHeaderPath -Value $match.Value -Encoding ASCII
+                    Write-Host "  - Success (cleaned): $outputHeaderPath" -ForegroundColor Green
+                    $compiledHeaders.Add($outputHeaderName)
+                    $postProcessSuccess = $true
+                } else {
+                    Write-Error "Error: Could not find variable declaration in '$outputHeaderPath'. The file might be corrupted. Retrying..." -ForegroundColor Red
+                    # This is a logic error, not a file lock, so maybe don't retry this specific error indefinitely
+                    # For now, we'll retry, but a more robust script might distinguish
+                }
+            } catch {
+                Write-Warning "Warning: Failed to process and clean '$outputHeaderPath' (Attempt $($postProcessRetries + 1)/$maxPostProcessRetries). Exception: $_. Retrying in 0.5 seconds..."
+                Start-Sleep -Milliseconds 500 # Delay for file release
+                $postProcessRetries++
+            }
+        } while (-not $postProcessSuccess -and $postProcessRetries -lt $maxPostProcessRetries)
+
+        if (-not $postProcessSuccess) {
+            Write-Error "Error: Failed to process and clean '$outputHeaderPath' after $maxPostProcessRetries attempts. Skipping this shader." -ForegroundColor Red
+            # No 'continue' here, as this is inside the 'else' block of the outer loop.
+            # The outer loop's 'continue' handles skipping the shader if compilation failed.
+            # If post-processing fails, we just won't add it to $compiledHeaders.
+        }
     }
     Write-Host "----------------------------------------------------------------"
 }
@@ -156,7 +190,7 @@ if ($compiledHeaders.Count -gt 0) {
     $masterHeaderContent += "#pragma once"
     $masterHeaderContent += ""
     $masterHeaderContent += "// This file was automatically generated by the CompileShaders.ps1 script."
-    $masterHeaderContent += "// Build Mode: " + (if ($isDebugBuild) { "DEBUG" } else { "RELEASE" })
+    $masterHeaderContent += "// Build Mode: $(if ($isDebugBuild) { "DEBUG" } else { "RELEASE" })"
     $masterHeaderContent += ""
 
     foreach ($header in $compiledHeaders) {
