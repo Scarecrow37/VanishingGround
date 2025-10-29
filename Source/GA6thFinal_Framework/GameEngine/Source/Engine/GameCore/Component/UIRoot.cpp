@@ -167,6 +167,15 @@ void UIRoot::Reset()
     }
 }
 
+void UIRoot::Added()
+{
+    UIBaseComponent::Added();
+    if (false == UmCore->IsPlay())
+    {
+        SortViewOrder();
+    }
+}
+
 void UIRoot::Start()
 {
     UIBaseComponent::Start();

@@ -43,7 +43,7 @@ namespace Timeline
         /// EventContext를 지정된 타입으로 캐스팅합니다.
         /// </summary>
         template <typename T>
-        T* Cast(EventContext* context)
+        static T* Cast(EventContext* context)
         {
             if (context)
             {
@@ -61,7 +61,7 @@ namespace Timeline
         /// EventContext 포인터를 지정된 타입으로 dynamic_cast를 시도합니다.
         /// </summary>
         template <typename T>
-        T* SafeCast(EventContext* context)
+        static T* SafeCast(EventContext* context)
         {
             if (context)
             {

@@ -74,7 +74,7 @@ namespace QTE
             }
         }
     }
-    void CallbackHandler::ProcessQTENotePressedEvent(UINT noteID, QTE::ResultType result)
+    void CallbackHandler::ProcessQTENotePressedEvent(UINT noteID, const QTE::NoteResult& result)
     {
         for (auto& [_, callback] : _callbackTable)
         {

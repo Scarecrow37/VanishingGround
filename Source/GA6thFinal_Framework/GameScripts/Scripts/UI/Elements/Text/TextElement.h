@@ -1,8 +1,9 @@
 ﻿#pragma once
 
 #include "UI/Base/DrawUIComponent/DrawUIComponent.h"
+#include "UI/Base/IOpacity/IOpacity.h"
 
-class TextElement : public DrawUIComponent
+class TextElement : public DrawUIComponent, public IOpacity
 {
     enum FontFlags : uint32_t
     {
@@ -20,7 +21,7 @@ public:
     ~TextElement() override;
 
 public:
-    REFLECT_PROPERTY(FilePath, Text, Color, FontScale, OutlineColor, OutlineWidth, IsOutlineEnabled)
+    REFLECT_PROPERTY(FilePath, Text, Color, FontScale, OutlineColor, OutlineWidth, OutLine)
 
     GETTER_ONLY(std::string, FilePath) { return _Guid.ToPath().string(); }
     PROPERTY(FilePath)
@@ -66,45 +67,44 @@ public:
     GETTER_ONLY(SIZE, ContentSize) { return ReflectFields->ContentSize; }
     PROPERTY(ContentSize)
 
+    GETTER(bool, OutLine) { return (ReflectFields->FontFlags & FONT_FLAG_OUTLINE) != 0; }
+    SETTER(bool, OutLine)
+    {
+        UINT fontFlags = ReflectFields->FontFlags;
+        value ? (fontFlags |= FONT_FLAG_OUTLINE) : (fontFlags &= ~FONT_FLAG_OUTLINE);
+        ReflectFields->FontFlags = fontFlags;
+        UpdateOutline();
+    }
+    PROPERTY(OutLine)
+
     GETTER(DirectX::SimpleMath::Color, OutlineColor) { return DirectX::SimpleMath::Color(&ReflectFields->FontOutlineColor[0]); }
     SETTER(DirectX::SimpleMath::Color, OutlineColor)
     {
-        ReflectFields->FontOutlineColor = {value.x, value.y, value.z, value.w};
-        TestUpdateOutline();
+        std::memcpy(&ReflectFields->FontOutlineColor[0], &value.x, sizeof(ReflectFields->FontOutlineColor));
+        UpdateOutline();
     }
     PROPERTY(OutlineColor)
 
     GETTER(float, OutlineWidth) { return ReflectFields->FontOutlineWidth; }
     SETTER(float, OutlineWidth)
     {
-        ReflectFields->FontOutlineWidth = std::max(0.0f, value);
-        TestUpdateOutline();
+        ReflectFields->FontOutlineWidth = std::clamp(value, 0.0f, 4.0f);
+        UpdateOutline();
     }
     PROPERTY(OutlineWidth)
 
-    GETTER(bool, IsOutlineEnabled) { return (ReflectFields->FontFlags & FONT_FLAG_OUTLINE) != 0; }
-    SETTER(bool, IsOutlineEnabled)
-    {
-        if (value)
-        {
-            ReflectFields->FontFlags |= FONT_FLAG_OUTLINE;
-        }
-        else
-        {
-            ReflectFields->FontFlags &= ~FONT_FLAG_OUTLINE;
-        }
-        TestUpdateOutline();
-    }
-    PROPERTY(IsOutlineEnabled)
+
 
 public:
-    void SetFont(const File::Guid& Guid);
+    void SetFont(const File::Guid& guid);
+
+    void SetOpacity(float opacity) override;
 
 protected:
     void  Reset() override;
     void  DeserializedReflectEvent() override;
     float GetZOrder() const override;
-    void ImGuiDrawPropertysEvent() override;
+    void  ImGuiDrawPropertysEvent() override;
 
     SIZE MeasureOverride(SIZE availableSize) override;
     SIZE ArrangeOverride(SIZE finalSize) override;
@@ -121,8 +121,7 @@ private:
     void UpdateScale() const;
     void UpdateWeight() const;
     void UpdateContentSize();
-
-    void TestUpdateOutline();
+    void UpdateOutline();
 
 protected:
     REFLECT_FIELDS_BEGIN(DrawUIComponent)
@@ -139,5 +138,5 @@ protected:
 
 private:
     ISDFTextRenderer* _renderer;
-    File::Guid     _Guid;
+    File::Guid        _Guid;
 };

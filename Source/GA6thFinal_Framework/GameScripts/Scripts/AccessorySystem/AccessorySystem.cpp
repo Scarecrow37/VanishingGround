@@ -165,12 +165,14 @@ void AccessorySystem::ImGuiDrawPropertysEvent()
                             else if (findID)
                             {
                                 AccessoryElement*  accessory = *idFindIter;
+                                const std::string& originName = accessory->AccessoryName;
                                 const std::string& tempName  = temp.AccessoryName;
-                                RenameAccessory(*accessory, tempName);
+                                if (originName != tempName)
+                                    RenameAccessory(*accessory, tempName);
+
                                 if (auto findIter = _elementTable.find(tempName); findIter != _elementTable.end())
                                 {
                                     accessory = &findIter->second;
-
                                     std::vector<std::pair<std::string, std::string>> originActions = accessory->ReflectFields->Actions;
                                     *accessory->ReflectFields         = *temp.ReflectFields;
                                     accessory->ReflectFields->Actions = std::move(originActions);

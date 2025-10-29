@@ -34,7 +34,7 @@ void ps_main(PSInput input)
     
     if (sdfParams.Flags & ENABLE_OUTLINE)
     {
-        float outlineEdge = sigDist + sdfParams.FontWeight + sdfParams.PxRange;
+        float outlineEdge = sigDist + sdfParams.FontWeight + sdfParams.OutlineWidth;
         float outlineOpacity = smoothstep(-screenPixelRange, screenPixelRange, outlineEdge);
                 
         float4 outlineColor = sdfParams.OutlineColor;
