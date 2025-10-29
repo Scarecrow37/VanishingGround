@@ -473,12 +473,11 @@ void RenderScene::UpdateUI()
         }
     }
     
-    std::stable_sort(uiDatas.begin(), uiDatas.end(), [](const auto& a, const auto& b)
-        {
+    std::stable_sort(uiDatas.begin(), uiDatas.end(), [](const auto& a, const auto& b) {
         const auto& [lMatrix, lMaterial, lRenderer] = a;
         const auto& [rMatrix, rMaterial, rRenderer] = b;
-            return lMatrix.Translation().z > rMatrix.Translation().z;
-        });
+        return lMatrix.Translation().z > rMatrix.Translation().z;
+    });
 
     _uiMatrices.clear();
     _uiMaterials.clear();
