@@ -78,7 +78,7 @@ public:
     void Fade(std::string_view presetName, std::function<void(void)> callback);
     void SetFadeCallback(std::function<void(void)> callback);
     void AddFadePreset();
-    bool IsTransitioning();
+    bool IsTransitioning() const;
     void SceneTransitionFade(std::string_view inPreset, std::string_view outPreset, std::function<void(void)> callback);
 
 

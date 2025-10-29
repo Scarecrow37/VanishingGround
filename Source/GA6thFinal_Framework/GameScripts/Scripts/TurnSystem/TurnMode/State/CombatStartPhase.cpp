@@ -14,6 +14,7 @@
 #include "Scripts/Stats/Enemy/EnemyStatsComponent.h"
 #include "UI/Views/MonsterHp/MonsterHpView.h"
 #include "UI/Views/MonsterChain/MonsterChainView.h"
+#include "SceneTransition/SceneTransitionComponent.h"
 
 #include "CombatUIManager/CombatUIManager.h"
 #include "QTE/UI/QTEUIManager.h"
@@ -152,6 +153,7 @@ void CombatStartPhase::OnStart()
 }
 void CombatStartPhase::OnEnter() 
 {
+    _phaseEnd = false;
     if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
     {
         //켜져 있어야 하는거
@@ -183,8 +185,6 @@ void CombatStartPhase::OnEnter()
         combatUIManager->RevelationsGroup.ActiveUI(true);
         combatUIManager->TurnQueueGroup.ActiveUI(true);
     }
-
-    this->_phaseEnd = true;
 }
 
 void CombatStartPhase::OnExit() 
@@ -194,7 +194,20 @@ void CombatStartPhase::OnExit()
 
 void CombatStartPhase::OnUpdate() 
 {
-
+    if (false == _phaseEnd)
+    {
+        if (SceneTransitionComponent* transition = SingletonComponent<SceneTransitionComponent>::GetInstance())
+        {
+            if (false == transition->IsTransitioning())
+            {
+                _phaseEnd = true;
+            }
+        }
+        else
+        {
+            _phaseEnd = true;
+        }
+    } 
 }
 
 void CombatStartPhase::NotifyCombatStart() 
