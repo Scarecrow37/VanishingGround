@@ -28,7 +28,6 @@ void EnemyActionPhase::OnEnter()
         {
             actorModel.Apply([this](TurnActor* actor) {
                 actor->PlayTurn();
-                actor->OnTurnStart();
                 CombatStartPhase* combatStartPhase = _turnMode->States->CombatStartPhase;
                 if (combatStartPhase)
                 {
