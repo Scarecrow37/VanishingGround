@@ -258,6 +258,7 @@ void Animator::Update(const float deltaTime)
             else
             {
                 _controllers[i].PlayTime = animation.LastTime;
+                _isPause                 = true;
             }
             if (_onAnimationEndCallback)
             {
