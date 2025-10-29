@@ -96,6 +96,11 @@ void DXRGBufferPass::Update(ID3D12GraphicsCommandList* commandList, const float 
     _instanceDatasBuffer->CopyStructuredBuffer(commandList, _instanceDatas.data(), (UINT)_instanceDatas.size());
 }
 
+StructuredBuffer* DXRGBufferPass::GetInstanceData()
+{
+    return _instanceDatasBuffer.get();
+}
+
 void DXRGBufferPass::Begin(ID3D12GraphicsCommandList* commandList) 
 {
     const auto& gBufferGroup = Global::multiRenderTargetManager->GetRenderTargetGroup("G-Buffer");

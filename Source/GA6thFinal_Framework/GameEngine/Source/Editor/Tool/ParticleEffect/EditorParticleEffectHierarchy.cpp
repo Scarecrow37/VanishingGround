@@ -81,6 +81,7 @@ void EditorParticleEffectHierarchy::OnFrameRender()
             {
                 UmParticleSerializer.Serialize(effect, path);
             }
+            _currentEffectFilePath = path.string();
         }
     }
 
@@ -235,7 +236,9 @@ void EditorParticleEffectHierarchy::OnFrameRender()
         _effectWorldMatrix = Matrix::Identity;
     }
     ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.f);
-
+    ImGui::Text("FilePath : ");
+    ImGui::SameLine();
+    ImGui::Text(_currentEffectFilePath.c_str());
     LocationShape locationType;
     ParticleType  particleType;
     {
@@ -407,6 +410,8 @@ void EditorParticleEffectHierarchy::LoadEffect()
                 loadedEffect->SetParentMatrix(&_effectWorldMatrix);
                 loadedEffect->SetBoneFollowFlag(&_boneFlag);
             }
+            _currentEffectFilePath = out.front().string();
+
         }
     }
 }
