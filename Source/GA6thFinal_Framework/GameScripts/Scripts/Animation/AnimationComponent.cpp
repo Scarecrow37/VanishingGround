@@ -12,13 +12,6 @@ void AnimationComponent::Added()
     SetAnimator(GetComponent<SkeletalMeshRenderer>());
 }
 
-void AnimationComponent::Start()
-{
-    ChangeMainAnimation(ReflectFields->MainAnimationKey);
-    ChangeMainAnimationFlags(ReflectFields->MainAnimationFlags);
-    _currentAnimationData = &_mainAnimationData;
-}
-
 void AnimationComponent::Update() 
 {
     //// 애니메이터가 해당 객체만 사용 중이라면 reset합니다.
@@ -768,6 +761,12 @@ bool AnimationComponent::ChangeMainAnimation(std::string_view animKey, bool rese
         ChangeMainAnimationFrame(0.0f);
     }
     return ChangeAnimationEx(_mainAnimationData, animKey);
+}
+
+void AnimationComponent::ChangeDefaultAnimation()
+{
+    ChangeMainAnimation(ReflectFields->MainAnimationKey);
+    ChangeMainAnimationFlags(ReflectFields->MainAnimationFlags);
 }
 
 void AnimationComponent::ChangeCurrentAnimationFrame(float frame) 
