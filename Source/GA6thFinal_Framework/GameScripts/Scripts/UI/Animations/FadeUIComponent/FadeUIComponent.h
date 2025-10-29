@@ -44,7 +44,7 @@ public:
     void End();
 
 protected:
-    void Start() override;
+    void Awake() override;
     void Update() override;
     void Reset() override;
     void ImGuiDrawPropertysEvent() override;

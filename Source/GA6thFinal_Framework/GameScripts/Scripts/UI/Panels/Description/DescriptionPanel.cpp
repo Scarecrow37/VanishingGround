@@ -228,7 +228,7 @@ void DescriptionPanel::MakeChild()
             color.w                    = ReflectFields->Alpha;
             element.Color              = color;
             element.FontScale          = ReflectFields->FontScale;
-            element.MakeArtificial();
+            element.SetArtificial(true);
         }
         break;
         case ElementType::IMAGE: {
@@ -243,7 +243,7 @@ void DescriptionPanel::MakeChild()
             element.HorizontalFillMode = FillMode::FILL;
             element.VerticalFillMode   = FillMode::FILL;
             element.Alpha              = ReflectFields->Alpha;
-            element.MakeArtificial();
+            element.SetArtificial(true);
             imageChild->transform->SetParent(child->transform, true);
         }
         break;
@@ -254,14 +254,15 @@ void DescriptionPanel::MakeChild()
 
 void DescriptionPanel::UpdateAlpha()
 {
-    const float                     alpha    = ReflectFields->Alpha;
-    const std::vector<UIComponent*> children = Children;
-    std::ranges::for_each(children, [alpha](const UIComponent* child) {
-        if (TextElement* textElement = child->GetComponent<TextElement>(); nullptr != textElement)
+    const float alpha = ReflectFields->Alpha;
+    Transform::ForeachBFS(transform, [alpha](Transform* t) 
+    {
+        GameObject& object = t->gameObject;
+        if (TextElement* textElement = object.GetComponent<TextElement>(); nullptr != textElement)
         {
             textElement->SetOpacity(alpha);
         }
-        else if (ImageElement* imageElement = child->GetComponent<ImageElement>(); nullptr != imageElement)
+        else if (ImageElement* imageElement = object.GetComponent<ImageElement>(); nullptr != imageElement)
         {
             imageElement->SetOpacity(alpha);
         }

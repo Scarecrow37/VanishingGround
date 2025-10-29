@@ -36,6 +36,9 @@ public:
     /// <param name="active">UI를 활성화할지 여부</param>
     void SetActiveUI(bool active);
 
+    void FadeIn(float duration);
+    void FadeOut(float duration);
+
 protected:
     void Reset() override;
     void Awake() override;

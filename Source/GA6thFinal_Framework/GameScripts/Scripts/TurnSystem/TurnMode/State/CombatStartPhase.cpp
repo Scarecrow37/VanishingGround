@@ -14,6 +14,7 @@
 #include "Scripts/Stats/Enemy/EnemyStatsComponent.h"
 #include "UI/Views/MonsterHp/MonsterHpView.h"
 #include "UI/Views/MonsterChain/MonsterChainView.h"
+#include "SceneTransition/SceneTransitionComponent.h"
 
 #include "CombatUIManager/CombatUIManager.h"
 #include "QTE/UI/QTEUIManager.h"
@@ -152,6 +153,7 @@ void CombatStartPhase::OnStart()
 }
 void CombatStartPhase::OnEnter() 
 {
+    _phaseEnd = false;
     if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
     {
         //켜져 있어야 하는거
@@ -172,21 +174,17 @@ void CombatStartPhase::OnEnter()
     AddValidActions();
     AddExtinctionRevelation();
 
-    UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"배틀 시작...3");
-    UmTime.Invoke(&GetFSM(), 1.f, [this]() { UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"배틀 시작...2"); });
-    UmTime.Invoke(&GetFSM(), 2.f, [this]() { UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"배틀 시작...1"); });
-    UmTime.Invoke(&GetFSM(), 3.f, [this]() 
-    { 
-        this->_phaseEnd = true; 
-        
-        if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
-        {
-            combatUIManager->SetActiveUI(true);
-        }
-    });
-
     NotifyCombatStart();
     Battle::ResetLastCharacter();
+
+    if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        combatUIManager->AccessoriesGroup.ActiveUI(true);
+        combatUIManager->CharacterHUDGroup.ActiveUI(true);
+        combatUIManager->ConsumableGroup.ActiveUI(true);
+        combatUIManager->RevelationsGroup.ActiveUI(true);
+        combatUIManager->TurnQueueGroup.ActiveUI(true);
+    }
 }
 
 void CombatStartPhase::OnExit() 
@@ -196,7 +194,20 @@ void CombatStartPhase::OnExit()
 
 void CombatStartPhase::OnUpdate() 
 {
-
+    if (false == _phaseEnd)
+    {
+        if (SceneTransitionComponent* transition = SingletonComponent<SceneTransitionComponent>::GetInstance())
+        {
+            if (false == transition->IsTransitioning())
+            {
+                _phaseEnd = true;
+            }
+        }
+        else
+        {
+            _phaseEnd = true;
+        }
+    } 
 }
 
 void CombatStartPhase::NotifyCombatStart() 
@@ -263,29 +274,26 @@ namespace
 
 void CombatStartPhase::RegisterEnemiesHUD() 
 {
-    auto SetHUDObject = [&](size_t index, const std::string& tag) 
+    auto SetHUDObject = [&](Monster::SpawnPoint point, const std::string& tag) 
     {
-        if (index < _enemies.size())
+        if (Enemy* enemy = GetEnemyFromSpawnPoint(point))
         {
             const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(tag);
             if (auto object = weakGameObject.lock())
             {
-                _enemies[index]->SetMonsterHUD(object.get());
+                enemy->SetMonsterHUD(object.get());
+            }
+
+            if (EnemyStatsComponent* statsComponent = enemy->GetComponent<EnemyStatsComponent>())
+            {
+                statsComponent->RegisterHUD(HUD_KEY_ARRAY[static_cast<size_t>(point)].data());
             }
         }
     };
 
-    for (size_t i = 0; i < _enemies.size(); ++i)
-    {
-        if (EnemyStatsComponent* statsComponent = _enemies[i]->GetComponent<EnemyStatsComponent>())
-        {
-            statsComponent->RegisterHUD(HUD_KEY_ARRAY[i].data());
-        }
-    }
-
-    SetHUDObject(0, "Left Monster HUD");
-    SetHUDObject(1, "Middle Monster HUD");
-    SetHUDObject(2, "Right Monster HUD");
+    SetHUDObject(Monster::SpawnPoint::Left, "Left Monster HUD");
+    SetHUDObject(Monster::SpawnPoint::Middle, "Middle Monster HUD");
+    SetHUDObject(Monster::SpawnPoint::Right, "Right Monster HUD");
 }
 
 void CombatStartPhase::RegisterEnemiesHP() const
@@ -295,11 +303,12 @@ void CombatStartPhase::RegisterEnemiesHP() const
     RegisterEnemyHP(2, HUD_KEY_ARRAY[2].data(), "Right Monster HP UI");
 }
 
-void CombatStartPhase::RegisterEnemyHP(const int index, const std::string& key, const std::string& tag) const
+void CombatStartPhase::RegisterEnemyHP(const int point, const std::string& key, const std::string& tag) const
 {
-    if (index < _enemies.size())
+    Monster::SpawnPoint spawnPoint = static_cast<Monster::SpawnPoint>(point);
+    if (Enemy* enemy = GetEnemyFromSpawnPoint(spawnPoint))
     {
-        if (const EnemyStatsComponent* leftEnemyStatsComponent = _enemies[index]->GetComponent<EnemyStatsComponent>();
+        if (const EnemyStatsComponent* leftEnemyStatsComponent = enemy->GetComponent<EnemyStatsComponent>();
             nullptr != leftEnemyStatsComponent)
         {
             const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(tag);
@@ -330,10 +339,9 @@ void CombatStartPhase::RegisterEnemyHP(const int index, const std::string& key, 
         }
         else
         {
-            UmLogger.Log(LogLevel::LEVEL_ERROR,
-                         "EnemyStatsComponent not found for enemy at index " + std::to_string(index));
+            UmLogger.Log(LogLevel::LEVEL_ERROR, "EnemyStatsComponent not found for enemy at index " + rfl::enum_to_string(spawnPoint));
         }
-    }
+    }        
 }
 
 void CombatStartPhase::RegisterEnemiesChain() 
@@ -343,11 +351,12 @@ void CombatStartPhase::RegisterEnemiesChain()
     RegisterEnemyChain(2, HUD_KEY_ARRAY[2].data(), "Right Monster Chain UI");
 }
 
-void CombatStartPhase::RegisterEnemyChain(int index, const std::string& key, const std::string& tag) 
+void CombatStartPhase::RegisterEnemyChain(int point, const std::string& key, const std::string& tag)
 {
-    if (index < _enemies.size())
+    Monster::SpawnPoint spawnPoint = static_cast<Monster::SpawnPoint>(point);
+    if (Enemy* enemy = GetEnemyFromSpawnPoint(spawnPoint))
     {
-        if (const EnemyStatsComponent* leftEnemyStatsComponent = _enemies[index]->GetComponent<EnemyStatsComponent>();
+        if (const EnemyStatsComponent* leftEnemyStatsComponent = enemy->GetComponent<EnemyStatsComponent>();
             nullptr != leftEnemyStatsComponent)
         {
             const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(tag);
@@ -369,8 +378,7 @@ void CombatStartPhase::RegisterEnemyChain(int index, const std::string& key, con
         }
         else
         {
-            UmLogger.Log(LogLevel::LEVEL_ERROR,
-                         "EnemyStatsComponent not found for enemy at index " + std::to_string(index));
+            UmLogger.Log(LogLevel::LEVEL_ERROR, "EnemyStatsComponent not found for enemy at index " + rfl::enum_to_string(spawnPoint));
         }
     }
 }
