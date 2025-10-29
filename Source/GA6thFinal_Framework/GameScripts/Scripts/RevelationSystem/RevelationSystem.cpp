@@ -738,11 +738,18 @@ void RevelationSystem::ImGuiDrawPropertysEvent()
                                 {
                                     // 이미 있으면 데이터 및 이름 복사(액션은 유지)
                                     RevelationElement* revelation        = *idFindIter;
-                                    std::string        originElementName = revelation->ElementName;
-                                    std::string        originActionName  = revelation->ReflectFields->ActionName;
-                                    temp.ReflectFields->ActionName       = std::move(originActionName);
-                                    EraseElement(originElementName);
-                                    InsertElement(temp);                                  
+                                    if (revelation)
+                                    {
+                                        std::string originElementName  = revelation->ElementName;
+                                        std::string originActionName   = revelation->ReflectFields->ActionName;
+                                        temp.ReflectFields->ActionName = std::move(originActionName);
+                                        if (revelation->_action)
+                                        {
+                                            temp._action = std::move(revelation->_action);
+                                        }                                     
+                                        EraseElement(originElementName);
+                                        InsertElement(temp);      
+                                    }                                                                                                 
                                 }
                                 if (false == result)
                                 {

@@ -14,7 +14,7 @@ enum MeshType { STATIC_MESH, SKELETAL_MESH, MESH_TYPE_END };
 
 enum UIType { MODE_3D, MODE_25D, MODE_2D, UI_TYPE_END };
 
-enum UIMaterialType { DEFAULT, LINEAR_FILL };
+enum UIMaterialType { DEFAULT, LINEAR_FILL, RADIAL_FILL };
 
 enum PostProcess
 {

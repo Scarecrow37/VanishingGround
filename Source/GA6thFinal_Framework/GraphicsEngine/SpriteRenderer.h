@@ -28,6 +28,7 @@ public:
     void SetSize(SIZE size) override { _size = size; }
     void SetTexture(std::shared_ptr<Texture> texture) override;
     void SetLinearFill(float fill) override;
+    void SetRadialFill(float fill) override;
     void SetAlpha(float alpha) override;
     void SetAtlas(UINT column, UINT row) override;
     void SetAtlasIndex(UINT columnIndex, UINT rowIndex) override;

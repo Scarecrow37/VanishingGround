@@ -107,6 +107,7 @@
     <ClCompile Include="Scripts\Test\DevTools\LogOutput.cpp" />
     <ClCompile Include="Scripts\Test\Input\InputTestComponent.cpp" />
     <ClCompile Include="Scripts\Test\TurnAction\TestActionComponent.cpp" />
+    <ClCompile Include="Scripts\Test\Tutorial\TutorialTestComponent.cpp" />
     <ClCompile Include="Scripts\Token\Interface\IToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\Bleed\BleedToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\Poison\PoisonToken.cpp" />
@@ -330,7 +331,6 @@
     <ClInclude Include="Scripts\GameCore\FSM\FSMState.h" />
     <ClInclude Include="Scripts\GameCore\FSM\IFSMEntity.h" />
     <ClInclude Include="Scripts\Interface\ITriggerType.h" />
-    <ClInclude Include="Scripts\IntroManager\IntroManager.h" />
     <ClInclude Include="Scripts\Inventory\UI\HorizontalPageUIManager.h" />
     <ClInclude Include="Scripts\Inventory\UI\InventoryUIManager.h" />
     <ClInclude Include="Scripts\Inventory\UINavi\InventoryArrowNavi.h" />
@@ -404,6 +404,7 @@
     <ClInclude Include="Scripts\Test\DevTools\LogOutput.h" />
     <ClInclude Include="Scripts\Test\Input\InputTestComponent.h" />
     <ClInclude Include="Scripts\Test\TurnAction\TestActionComponent.h" />
+    <ClInclude Include="Scripts\Test\Tutorial\TutorialTestComponent.h" />
     <ClInclude Include="Scripts\Token\Enums\TokenEnums.h" />
     <ClInclude Include="Scripts\Token\Interface\IToken.h" />
     <ClInclude Include="Scripts\Token\Object\Bleed\BleedToken.h" />

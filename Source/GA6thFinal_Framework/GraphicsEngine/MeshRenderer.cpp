@@ -23,7 +23,7 @@ IAnimator* MeshRenderer::GetAnimator() const
     if (SKELETAL_MESH != _type)
         return nullptr;
 
-    return _animator.Get();
+    return _animator.get();
 }
 
 void MeshRenderer::SetActive(const bool* isActive)
@@ -44,8 +44,9 @@ void MeshRenderer::SetModel(std::shared_ptr<Model> model)
     {
         _type = SKELETAL_MESH;
         
-        _animator = new Animator;
+        _animator = std::make_unique<Animator>();
         _animator->Initialize(animation, _model->GetSkeleton());
+        _animator->AddReference();
 
         const auto& meshes = _model->GetMeshes();
 

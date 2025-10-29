@@ -10,6 +10,7 @@ Animator::Animator()
 
 Animator::~Animator()
 {   
+    Global::animationCore->UnregisterAnimator(this);
 }
 
 const Matrix* Animator::FindBoneMatrix(const char* boneName) const

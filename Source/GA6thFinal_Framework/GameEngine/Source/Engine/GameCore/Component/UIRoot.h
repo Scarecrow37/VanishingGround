@@ -45,6 +45,7 @@ public:
 protected:
     void ImGuiDrawPropertysEvent() override;
     void Reset() override;
+    void Added() override;
     void Start() override;
 
 private:
