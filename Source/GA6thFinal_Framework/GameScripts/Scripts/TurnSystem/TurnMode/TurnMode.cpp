@@ -176,8 +176,8 @@ void TurnMode::StartFrontTurnActor()
 
     if (false == _turnList.empty())
     {
-        _turnList.ModifyFront([this](auto& actorSlot) {
-            _currTurnActor = actorSlot.second;
+        _turnList.ModifyFront([this](auto& actorSlot) 
+        {
             if (true == IsPlayerActorSlot(actorSlot))
             {
                 if (WeaponSystem* weaponSystem = SingletonComponent<WeaponSystem>::GetInstance())
@@ -189,6 +189,7 @@ void TurnMode::StartFrontTurnActor()
                     UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Weapon System이 존재하지 않습니다.");
                 }
             }
+            _currTurnActor = actorSlot.second;
         });
 
     }
