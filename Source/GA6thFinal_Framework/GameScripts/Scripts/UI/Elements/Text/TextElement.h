@@ -21,7 +21,7 @@ public:
     ~TextElement() override;
 
 public:
-    REFLECT_PROPERTY(FilePath, Text, Color, FontScale, OutlineColor, OutlineWidth, OutLine)
+    REFLECT_PROPERTY(FilePath, Text, Color, FontScale, OutlineColor, OutlineWidth, Outline)
 
     GETTER_ONLY(std::string, FilePath) { return _Guid.ToPath().string(); }
     PROPERTY(FilePath)
@@ -67,15 +67,15 @@ public:
     GETTER_ONLY(SIZE, ContentSize) { return ReflectFields->ContentSize; }
     PROPERTY(ContentSize)
 
-    GETTER(bool, OutLine) { return (ReflectFields->FontFlags & FONT_FLAG_OUTLINE) != 0; }
-    SETTER(bool, OutLine)
+    GETTER(bool, Outline) { return (ReflectFields->FontFlags & FONT_FLAG_OUTLINE) != 0; }
+    SETTER(bool, Outline)
     {
         UINT fontFlags = ReflectFields->FontFlags;
         value ? (fontFlags |= FONT_FLAG_OUTLINE) : (fontFlags &= ~FONT_FLAG_OUTLINE);
         ReflectFields->FontFlags = fontFlags;
         UpdateOutline();
     }
-    PROPERTY(OutLine)
+    PROPERTY(Outline)
 
     GETTER(DirectX::SimpleMath::Color, OutlineColor) { return DirectX::SimpleMath::Color(&ReflectFields->FontOutlineColor[0]); }
     SETTER(DirectX::SimpleMath::Color, OutlineColor)

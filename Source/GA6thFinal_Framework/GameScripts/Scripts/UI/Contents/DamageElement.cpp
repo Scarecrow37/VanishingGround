@@ -16,32 +16,35 @@ DamageElement::DamageElement()
     _points.reserve(3);
 };
 
-void DamageElement::Setup(const LONG distance, const float angle, const float duration, const POINT origin, const File::Guid& fontGuid, const float beginFontSize, const float endFontSize, const Color
-                          beginColor, const Color endColor, const std::string& damage, const std::span<std::string> revelations)
+void DamageElement::Setup(const SetupData& data)
 {
-    _distance = distance;
-    _angle = angle;
-    _duration = duration;
+    _distance    = data.Distance;
+    _angle = data.Angle;
+    _duration = data.Duration;
     _elapsedTime = 0.0f;
-    _origin      = origin;
-    if (revelations.size() > 1)
+    _origin      = data.Origin;
+    if (data.Revelations.size() > 1)
     {
-        _beginFontSize = beginFontSize * REVELATION_FONT_SIZE_RATIO_LARGE;
-        _endFontSize   = endFontSize * REVELATION_FONT_SIZE_RATIO_LARGE;
-        _sizeRatio     = 3L;
+        _beginFontSize = data.BeginFontSize * REVELATION_FONT_SIZE_RATIO_LARGE;
+        _endFontSize   = data.EndFontSize * REVELATION_FONT_SIZE_RATIO_LARGE;
+        _sizeRatio     = static_cast<LONG>(REVELATION_FONT_SIZE_RATIO_LARGE);
     }
     else
     {
-        _beginFontSize = beginFontSize * REVELATION_FONT_SIZE_RATIO_SMALL;
-        _endFontSize   = endFontSize * REVELATION_FONT_SIZE_RATIO_SMALL;
-        _sizeRatio     = 2L;
+        _beginFontSize = data.BeginFontSize * REVELATION_FONT_SIZE_RATIO_SMALL;
+        _endFontSize   = data.EndFontSize * REVELATION_FONT_SIZE_RATIO_SMALL;
+        _sizeRatio     = static_cast<LONG>(REVELATION_FONT_SIZE_RATIO_SMALL);
     }
-    _beginRevelationFontSize = beginFontSize;
-    _endRevelationFontSize   = endFontSize;
-    _beginColor              = beginColor;
-    _endColor                = endColor;
+    _beginRevelationFontSize = data.BeginFontSize;
+    _endRevelationFontSize   = data.EndFontSize;
+    _beginColor              = data.BeginColor;
+    _endColor                = data.EndColor;
+    _beginOutlineColor       = data.BeginOutlineColor;
+    _endOutlineColor         = data.EndOutlineColor;
+    _turningPoint            = std::clamp(data.TurningPoint, 0.1f, 0.9f);
+    _easingFunctionType      = data.EasingFunctionType;
     SetupPoints();
-    SetupChildren(fontGuid, damage, revelations);
+    SetupChildren(data.FontGuid, data.Damage, data.Revelations);
     InvalidateMeasure();
 }
 
@@ -57,6 +60,11 @@ SIZE DamageElement::MeasureOverride(const SIZE availableSize)
         damageSize  = damageTextElement->DesiredSize;
     }
 
+    if (const auto damageOutlineElement = _damageOutlineElement.lock(); nullptr != damageOutlineElement)
+    {
+        damageOutlineElement->Measure(availableSize);
+    }
+
     SIZE revelationSize = {};
 
     std::ranges::for_each(_revelationTextElements, [availableSize, &revelationSize](const std::weak_ptr<TextElement>& revelationTextElementWeakPtr) {
@@ -68,6 +76,15 @@ SIZE DamageElement::MeasureOverride(const SIZE availableSize)
             revelationSize.cy += revelationDesiredSize.cy;
         }
     });
+
+    std::ranges::for_each(_revelationOutlineElements,
+                          [availableSize](const std::weak_ptr<TextElement>& revelationOutlineElementWeakPtr) {
+                              if (const auto revelationOutlineElement = revelationOutlineElementWeakPtr.lock();
+                                  nullptr != revelationOutlineElement)
+                              {
+                                  revelationOutlineElement->Measure(availableSize);
+                              }
+                          });
 
     desiredSize.cx = damageSize.cx + revelationSize.cx + GAP;
     desiredSize.cy = std::max(damageSize.cy, revelationSize.cy);
@@ -95,28 +112,48 @@ SIZE DamageElement::ArrangeOverride(const SIZE finalSize)
         }
     }
 
-
     for (size_t i = 0; i < _revelationTextElements.size(); ++i)
     {
+        POINT textPoint = {};
+        SIZE  textSize = {};
         if (const auto revelationTextElement = _revelationTextElements[i].lock(); nullptr != revelationTextElement)
         {
-            SIZE        revelationDesiredSize  = revelationTextElement->DesiredSize;
-            const POINT alignPosition = AlignPoint()(
-                HorizontalAlignment::RIGHT, VerticalAlignment::TOP,
+            const SIZE  revelationDesiredSize = revelationTextElement->DesiredSize;
+            const POINT alignPosition =
+                AlignPoint()(HorizontalAlignment::RIGHT, VerticalAlignment::TOP,
                              SIZE{.cx = xOffset, .cy = 0} - SIZE{.cx = revelationDesiredSize.cx, .cy = 0});
             const POINT currentRevelationPoint = {
                 revelationPoint.x, revelationPoint.y + ((_sizeRatio - 1) - static_cast<LONG>(i)) * revelationYStep};
             const POINT childPoint = currentRevelationPoint + alignPosition;
             revelationTextElement->Arrange(childPoint, actualSize);
+            textPoint = childPoint;
+            textSize  = revelationDesiredSize;
+        }
+
+        if (const auto revelationOutlineElement = _revelationOutlineElements[i].lock(); nullptr != revelationOutlineElement)
+        {
+            const SIZE revelationOutlineDesiredSize = revelationOutlineElement->DesiredSize;
+            textPoint.x -= (revelationOutlineDesiredSize.cx - textSize.cx);
+            textPoint.y -= ((revelationOutlineDesiredSize.cy - textSize.cy) / 2) * static_cast<LONG>(i);
+            revelationOutlineElement->Arrange(textPoint, actualSize);
         }
     }
 
     POINT damagePoint = revelationPoint;
     damagePoint.x += xOffset + GAP;
+    SIZE damageDesiredSize = {};
 
     if (const auto damageTextElement = _damageTextElement.lock(); nullptr != damageTextElement)
     {
+        damageDesiredSize = damageTextElement->DesiredSize;
         damageTextElement->Arrange(damagePoint, actualSize);
+    }
+
+    if (const auto damageOutlineElement = _damageOutlineElement.lock(); nullptr != damageOutlineElement)
+    {
+        const SIZE damageOutlineDesiredSize = damageOutlineElement->DesiredSize;
+        damagePoint.y -= (damageOutlineDesiredSize.cy - damageDesiredSize.cy) / 2;
+        damageOutlineElement->Arrange(damagePoint, actualSize);
     }
 
     return actualSize;
@@ -149,29 +186,6 @@ POINT DamageElement::GetPoint(const float t) const
     return result;
 }
 
-void DamageElement::OnDestroy()
-{
-
-    if (auto damageTextElement = _damageTextElement.lock(); nullptr != damageTextElement)
-    {
-        GameObject::Destroy(damageTextElement->gameObject);
-        damageTextElement.reset();
-    }
-
-    SIZE revelationSize = {};
-
-    std::ranges::for_each(_revelationTextElements, [](
-                                                       const std::weak_ptr<TextElement>& revelationTextElementWeakPtr) {
-        if (auto revelationTextElement = revelationTextElementWeakPtr.lock(); nullptr != revelationTextElement)
-        {
-            GameObject::Destroy(revelationTextElement->gameObject);
-            revelationTextElement.reset();
-        }
-    });
-
-    UIComponent::OnDestroy();
-}
-
 float DamageElement::GetT() const
 {
     return _elapsedTime / _duration;
@@ -184,21 +198,66 @@ void DamageElement::UpdatePoint(const float t)
 
 void DamageElement::UpdateFont(const float t) const
 {
-    Color updateColor = Color::Lerp(_beginColor, _endColor, t);
+    float beforeTurningPointT = std::clamp(t / _turningPoint, 0.0f, 1.0f);
+    float easingT =
+        Mathf::Ease(Mathf::EASE_IN, Mathf::ConvertEasingFunctionType()(_easingFunctionType), 1.0f, beforeTurningPointT);
+    Color updateColor        = Color::Lerp(_beginColor, _endColor, easingT);
+    Color updateOutlineColor = Color::Lerp(_beginOutlineColor, _endOutlineColor, easingT);
     if (const auto damageText = _damageTextElement.lock(); nullptr != damageText)
     {
-        damageText->FontScale = Mathf::Lerp(_beginFontSize, _endFontSize, t);
-        damageText->Color     = updateColor;
+        damageText->FontScale    = Mathf::Lerp(_beginFontSize, _endFontSize, easingT);
+        damageText->Color        = updateColor;
+        damageText->OutlineColor = updateOutlineColor;
     }
 
-    std::ranges::for_each(_revelationTextElements, [t, updateColor, this](
+    std::ranges::for_each(_revelationTextElements, [easingT, updateColor, updateOutlineColor, this](
                                                        const std::weak_ptr<TextElement>& revelationTextElementWeakPtr) {
         if (const auto revelationText = revelationTextElementWeakPtr.lock(); nullptr != revelationText)
         {
-            revelationText->FontScale = Mathf::Lerp(_beginRevelationFontSize, _endRevelationFontSize, t);
-            revelationText->Color     = updateColor;
+            revelationText->FontScale    = Mathf::Lerp(_beginRevelationFontSize, _endRevelationFontSize, easingT);
+            revelationText->Color        = updateColor;
+            revelationText->OutlineColor = updateOutlineColor;
         }
     });
+
+    if (t < _turningPoint)
+    {
+        if (const auto damageOutline = _damageOutlineElement.lock(); nullptr != damageOutline)
+        {
+            damageOutline->FontScale    = Mathf::Lerp(_beginFontSize, _endFontSize, beforeTurningPointT);
+            damageOutline->OutlineColor = updateOutlineColor;
+        }
+
+        std::ranges::for_each(
+            _revelationOutlineElements,
+            [beforeTurningPointT, updateOutlineColor, this](const std::weak_ptr<TextElement>& revelationOutlineElementWeakPtr) {
+                if (const auto revelationOutline = revelationOutlineElementWeakPtr.lock(); nullptr != revelationOutline)
+                {
+                    revelationOutline->FontScale = Mathf::Lerp(_beginRevelationFontSize, _endRevelationFontSize, beforeTurningPointT);
+                    revelationOutline->OutlineColor = updateOutlineColor;
+                }
+            });
+    }
+    else
+    {
+        float afterTurningPointT = std::clamp((t - _turningPoint) / (1.0f - _turningPoint), 0.0f, 1.0f);
+        Color outlineColor = Color::Lerp(_endOutlineColor, _beginOutlineColor, afterTurningPointT);
+        if (const auto damageOutline = _damageOutlineElement.lock(); nullptr != damageOutline)
+        {
+            damageOutline->FontScale = Mathf::Lerp(_endFontSize, _beginFontSize, afterTurningPointT);
+            damageOutline->OutlineColor = outlineColor;
+        }
+ 
+        std::ranges::for_each(
+            _revelationOutlineElements,
+            [afterTurningPointT, outlineColor, this](const std::weak_ptr<TextElement>& revelationOutlineElementWeakPtr) {
+                if (const auto revelationOutline = revelationOutlineElementWeakPtr.lock(); nullptr != revelationOutline)
+                {
+                    revelationOutline->FontScale = Mathf::Lerp(_endRevelationFontSize, _beginRevelationFontSize, afterTurningPointT);
+                    revelationOutline->OutlineColor = outlineColor;
+                }
+            });
+    }
 }
 
 void DamageElement::SetupPoints()
@@ -225,16 +284,26 @@ void DamageElement::SetupPoints()
 void DamageElement::SetupChildren(const File::Guid& fontGuid, const std::string& damage, const std::span<std::string>
                                   revelations)
 {
-    _damageTextElement = CreateTextElement(fontGuid, damage, _beginFontSize, _beginColor);
+    _damageTextElement = CreateTextElement(fontGuid, damage, _beginFontSize, _beginColor, _beginOutlineColor);
     for (auto& revelation : revelations)
     {
         _revelationTextElements.reserve(revelations.size());
-        _revelationTextElements.push_back(CreateTextElement(fontGuid, revelation, _beginRevelationFontSize, _beginColor));
+        _revelationTextElements.push_back(CreateTextElement(fontGuid, revelation, _beginRevelationFontSize, _beginColor, _beginOutlineColor));
     }
-  }
 
-std::weak_ptr<TextElement> DamageElement::CreateTextElement(const File::Guid& fontGuid, const std::string& content, const float fontSize, const Color fontColor) const
-{
+    _damageOutlineElement = CreateTextElement(fontGuid, damage, _beginFontSize, COLOR_TRANSPARENT, _beginOutlineColor);
+    for (auto& revelation : revelations)
+    {
+        _revelationOutlineElements.reserve(revelations.size());
+        _revelationOutlineElements.push_back(
+            CreateTextElement(fontGuid, revelation, _beginRevelationFontSize, COLOR_TRANSPARENT, _beginOutlineColor));
+    }
+}
+
+std::weak_ptr<TextElement> DamageElement::CreateTextElement(const File::Guid& fontGuid, const std::string& content,
+                                                              const float                fontSize,
+                                                              const Color fontColor, const Color outlineColor) const
+  {
     Transform&                        transform = this->transform;
     const std::shared_ptr<GameObject> child     = NewGameObject(GameObject::Helper::GenerateUniqueName("Text Element"));
     TextElement&                      element   = child->AddComponent<TextElement>();
@@ -244,6 +313,9 @@ std::weak_ptr<TextElement> DamageElement::CreateTextElement(const File::Guid& fo
     element.Text               = content;
     element.FontScale          = fontSize;
     element.Color              = fontColor;
+    element.OutlineColor       = outlineColor;
+    element.OutlineWidth       = 1.0f;
+    element.Outline            = true;
     child->transform->SetParent(&transform);
 
 

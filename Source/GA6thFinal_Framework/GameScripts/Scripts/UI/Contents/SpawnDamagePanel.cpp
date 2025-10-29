@@ -128,18 +128,18 @@ std::weak_ptr<DamageElement> SpawnDamagePanel::MakeDamage() const
 {
     const std::shared_ptr<GameObject> child = NewGameObject(GameObject::Helper::GenerateUniqueName("Damage Element"));
 
-    DamageElement&                    damageElement = child->AddComponent<DamageElement>();
+    DamageElement& damageElement = child->AddComponent<DamageElement>();
 
-    auto [point, angle]                             = GetRandomSpawnPointAndAngle();
+    auto [point, angle] = GetRandomSpawnPointAndAngle();
 
-    damageElement.Point                             = point;
-    const SIZE size                                 = Size;
-    damageElement.Size                              = size;
-    damageElement.HorizontalFillMode                = FillMode::WRAP;
-    damageElement.VerticalFillMode                  = FillMode::WRAP;
+    damageElement.Point              = point;
+    const SIZE size                  = Size;
+    damageElement.Size               = size;
+    damageElement.HorizontalFillMode = FillMode::WRAP;
+    damageElement.VerticalFillMode   = FillMode::WRAP;
 
-    const LONG               distance               = static_cast<LONG>((1 - RadiusRatio) * Radius);
-    const int                random                 = Random::Range(0, 3);
+    const LONG               distance = static_cast<LONG>((1 - RadiusRatio) * Radius);
+    const int                random   = Random::Range(0, 3);
     std::vector<std::string> revelations;
     if (random > 0)
     {
@@ -154,8 +154,23 @@ std::weak_ptr<DamageElement> SpawnDamagePanel::MakeDamage() const
         revelations.push_back("What the Fuck!");
     }
 
-    damageElement.Setup(distance, angle, LifeTime, point, _Guid, BeginScale, EndScale, BeginColor, EndColor, "100",
-                        revelations);
+    const DamageElement::SetupData data{.Distance           = distance,
+                                        .Angle              = angle,
+                                        .Duration           = LifeTime,
+                                        .Origin             = point,
+                                        .FontGuid           = _Guid,
+                                        .BeginFontSize      = BeginScale,
+                                        .EndFontSize        = EndScale,
+                                        .BeginColor         = BeginColor,
+                                        .EndColor           = EndColor,
+                                        .BeginOutlineColor  = BeginOutlineColor,
+                                        .EndOutlineColor    = EndOutlineColor,
+                                        .Damage             = "100",
+                                        .Revelations        = revelations,
+                                        .TurningPoint       = TurningPoint,
+                                        .EasingFunctionType = EasingFunctionType};
+
+    damageElement.Setup(data);
 
     child->transform->SetParent(transform, true);
     return damageElement.GetWeakPtrAs<DamageElement>();
