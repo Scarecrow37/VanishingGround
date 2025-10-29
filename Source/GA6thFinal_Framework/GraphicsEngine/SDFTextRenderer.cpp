@@ -3,11 +3,13 @@
 #include "SDFFont.h"
 
 SDFTextRenderer::SDFTextRenderer()
-    : _color(DirectX::Colors::White)
+    : UIRenderer(UIRenderer::Type::TEXT)
+    , _color(DirectX::Colors::White)
 {
     _size        = Vector2::Zero;
     _fontSize    = 16.f;
     _fontWeight  = 0.f;
+    _uiType      = UIType::MODE_2D;
 }
 
 SDFTextRenderer::~SDFTextRenderer() = default;

@@ -115,7 +115,7 @@ foreach ($shaderFile in $shaderFiles) {
         # --- [핵심 수정] 파일 잠금 문제를 피하기 위해 짧은 지연 후 처리 ---
         try {
             # 0.1초 대기하여 fxc.exe의 파일 핸들이 완전히 해제되도록 보장
-            Start-Sleep -Milliseconds 100
+            Start-Sleep -Milliseconds 200
 
             # fxc가 생성한 파일을 읽음
             $fileContent = Get-Content -Path $outputHeaderPath -Raw

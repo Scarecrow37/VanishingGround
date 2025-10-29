@@ -31,7 +31,7 @@ static const uint LINEAR_FILL = 1;
 
 float4 ps_main(PSInput input) : SV_Target
 {
-    uint index = IDs[input.instanceID];
+    uint index = input.instanceID;
     
     float2 column_row = (float2) material[index].atlas.xy;
     float2 current = (float2) material[index].atlas.zw;
@@ -41,7 +41,9 @@ float4 ps_main(PSInput input) : SV_Target
 
     float4 color = textures[material[index].ID].Sample(samLinear_wrap, offset * current + uv);
     color.a *= material[index].alpha;
-        
+    
+    clip(color.a - Epsilon);
+    
     switch (uiMaterialData[index].type)
     {
         case LINEAR_FILL:
