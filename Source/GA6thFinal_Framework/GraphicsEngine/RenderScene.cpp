@@ -73,7 +73,7 @@ void RenderScene::InitializeRenderScene()
     if (Global::isRayTracing)
     { 
         _accelerationStructureManager = std::make_unique<AccelerationStructureManager>();
-        _accelerationStructureManager->Initialize(10000);
+        _accelerationStructureManager->Initialize(10000, this);
     }
 }
 
@@ -375,12 +375,17 @@ void RenderScene::UpdateObject()
             instanceData.MatrixID    = index;
             instanceData.Alpha       = materials[i].Alpha;
 
+            DXRSkeletalMesh* skinnedMesh = nullptr;
+            if (Global::isRayTracing)
+            {
+                skinnedMesh = SKELETAL_MESH == type ? skinnedBuffers[i].get() : nullptr;
+            }
+
             _activeMeshes[type].emplace_back(instanceData, 
                                              materials[i], 
                                              meshes[i].get(),
                                              component,
-                                             Global::isRayTracing ? skinnedBuffers[i].get() : nullptr,
-                                             &_matrices[index].World, 
+                                             skinnedMesh, 
                                              0.f);
         }
 
