@@ -108,8 +108,8 @@ private:
 	unsigned int							_maxSplit{ 0 };	
 	bool                                    _isBlending{false};
     bool                                    _isInitialize{false};
-    bool                                    _isPause{false};
-    bool                                    _isLoop{true};
+    bool                                    _isPause{true};
+    bool                                    _isLoop{false};
 
     std::function<void()>                   _onAnimationEndCallback{nullptr};
 };

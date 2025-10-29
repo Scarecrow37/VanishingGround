@@ -32,6 +32,7 @@ class ParticleEmitter
                             Vector3(0, 0, 0));
     UMPARTICLE_PROPERTY_REF(Vector3, _particleEndDistributionOffset, ParticleEndDistributionOffset, Vector3(0, 0, 0));
     UMPARTICLE_PROPERTY_REF(Vector3, _particleAxis, ParticleAxis, Vector3(0, 0, 0));
+    UMPARTICLE_PROPERTY_REF(Vector3, _particleRotation, ParticleRotation, Vector3(0, 0, 0));
     UMPARTICLE_PROPERTY(bool, _scaleByVelocityFlag, ScaleByVelocityFlag, false);
 
     UMPARTICLE_PROPERTY_REF(Vector3, _velocity, Velocity, Vector3(1, 1, 1));

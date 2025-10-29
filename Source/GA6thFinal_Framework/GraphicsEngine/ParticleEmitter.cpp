@@ -168,6 +168,11 @@ void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime)
     {
         if (_activeParticleCount == 0)
             _activeFlag = false;
+        for (UINT i = 0; i < _activeParticleCount; ++i)
+        {
+            _particlePool[i].SetAge(_particleLifetime);
+        }
+
         return;
     }
 
@@ -335,6 +340,7 @@ void ParticleEmitter::AwakeParticle(UINT index)
         }
     }
     _particlePool[index].SetInitialMatrix(_worldMatrix.Transpose());
+    _particlePool[index].SetSpriteRotation(_particleRotation);
 }
 
 void ParticleEmitter::ScaleVelocity(Vector3 pos)
