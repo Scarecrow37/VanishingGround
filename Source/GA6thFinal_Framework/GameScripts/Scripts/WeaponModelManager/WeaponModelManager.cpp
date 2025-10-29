@@ -69,6 +69,28 @@ bool WeaponModelManager::ReturnWeaponModel(WeaponModelData data)
     return false;
 }
 
+const std::string* WeaponModelManager::GetRandomWeaPonAnimationKeyToNormalAttack(WeaponType type)
+{
+    auto& animList = _weaponAnimationNormalNameList[type];
+    if (false == animList.empty())
+    {
+        size_t randomIndex = Random::Index(animList.size());
+        return &animList[randomIndex];
+    }
+    return nullptr;
+}
+
+const std::string* WeaponModelManager::GetRandomWeaPonAnimationKeyToSpecialAttack(WeaponType type)
+{
+    auto& animList = _weaponAnimationSpecialNameList[type];
+    if (false == animList.empty())
+    {
+        size_t randomIndex = Random::Index(animList.size());
+        return &animList[randomIndex];
+    }
+    return nullptr;
+}
+
 void WeaponModelManager::Awake()
 {
     if (_singletonComponent.TrySingleTon())
@@ -102,17 +124,18 @@ void WeaponModelManager::Start()
                     ParticleComponent*  particle  = clone->GetComponent<ParticleComponent>();
                     if (animation)
                     {
-                        _weaponAnimationTable[type].push_back(animation);
+                        RegisterWeaponAnimation(type, animation);
                     }
                     if (particle)
                     {
-                        _weaponParticleTable[type].push_back(particle);
+                        RegisterWeaponParticle(type, particle);
                     }
                     _availableWeaponIndicesTable[type].push(i);
                 }
             }
         }
     }
+    InitializeAnimationList();
 }
 
 void WeaponModelManager::Update() {}
@@ -214,3 +237,48 @@ void WeaponModelManager::UpdateOffsetPosition()
         }
     }
 }
+
+void WeaponModelManager::RegisterWeaponAnimation(WeaponType type, AnimationComponent* component)
+{
+    if (component)
+    {
+        
+        _weaponAnimationTable[type].push_back(component);
+    }
+}
+
+void WeaponModelManager::RegisterWeaponParticle(WeaponType type, ParticleComponent* component)
+{
+    if (component)
+    {
+        _weaponParticleTable[type].push_back(component);
+    }
+}
+
+void WeaponModelManager::InitializeAnimationList() 
+{
+    for (auto& [type, animPool] : _weaponAnimationTable)
+    {
+        auto& normalAnimList  = _weaponAnimationNormalNameList[type];
+        auto& specialAnimList = _weaponAnimationSpecialNameList[type];
+        if (false == animPool.empty())
+        {
+            if (const auto& anim = animPool.front())
+            {
+                const auto& keyMap = anim->GetAnimationKeyMap();
+                for (auto& [key, anim] : keyMap)
+                {
+                    if (key.find("_S_") != std::string::npos)
+                    { // "_S_" 포함된 키 → 스페셜 리스트
+                        specialAnimList.push_back(key);
+                    }
+                    else
+                    { // 나머지 → 일반 리스트
+                        normalAnimList.push_back(key);
+                    }
+                }
+            }
+        }
+    }
+}
+

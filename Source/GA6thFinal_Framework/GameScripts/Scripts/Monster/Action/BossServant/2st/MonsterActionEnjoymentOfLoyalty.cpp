@@ -44,7 +44,7 @@ namespace Monster
                 }
                 if (false == availableTokenID.empty())
                 {
-                    int randomIndex = Random::Range(0, (int)availableTokenID.size() - 1);
+                    size_t randomIndex = Random::Index(availableTokenID.size());
                     tokenInventory.RemoveTokenStackFromID(availableTokenID[randomIndex]);
                 }
             }

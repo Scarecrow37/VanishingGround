@@ -475,6 +475,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClInclude Include="UI3DPass_OIT.h" />
     <ClInclude Include="UIPassBase.h" />
     <ClInclude Include="UIPassBase_OIT.h" />
+    <ClInclude Include="UIRenderer.h" />
     <ClInclude Include="UIResolvePass.h" />
     <ClInclude Include="UITechnique.h" />
     <ClInclude Include="UnorderedAccessView.h" />
@@ -639,6 +640,7 @@ xcopy /Y /I "$(ProjectDir)ThirdParty\bin\*.*" "$(SolutionDir)GameEngine\ThirdPar
     <ClCompile Include="UI3DPass_OIT.cpp" />
     <ClCompile Include="UIPassBase.cpp" />
     <ClCompile Include="UIPassBase_OIT.cpp" />
+    <ClCompile Include="UIRenderer.cpp" />
     <ClCompile Include="UIResolvePass.cpp" />
     <ClCompile Include="UITechnique.cpp" />
     <ClCompile Include="UnorderedAccessView.cpp" />
