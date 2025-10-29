@@ -26,18 +26,15 @@ float4 ps_main(PSInput input) : SV_Target0
     
     float4 color = bit32_4_fontColor.Color;
     color.a *= fillOpacity;
-    color = Premultiply(color);
     
     if (sdfParams.Flags & ENABLE_OUTLINE)
     {
-        float outlineEdge = sigDist + sdfParams.FontWeight + sdfParams.PxRange;
+        float outlineEdge = sigDist + sdfParams.FontWeight + sdfParams.OutlineWidth;
         float outlineOpacity = smoothstep(-screenPixelRange, screenPixelRange, outlineEdge);
                 
         float4 outlineColor = sdfParams.OutlineColor;
         outlineColor.a *= outlineOpacity;
         outlineColor.a = outlineColor.a * (1.0 - fillOpacity);
-
-        color += Premultiply(outlineColor);
     }
     
     clip(color.a - Epsilon);

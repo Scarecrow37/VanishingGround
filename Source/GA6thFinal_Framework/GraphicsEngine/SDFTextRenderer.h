@@ -1,9 +1,9 @@
 ﻿#pragma once
-#include "GraphicsBase.h"
+#include "UIRenderer.h"
 #include "Interface/ISDFTextRenderer.h"
 
 class SDFFont;
-class SDFTextRenderer : public GraphicsBase, public ISDFTextRenderer
+class SDFTextRenderer : public UIRenderer, public ISDFTextRenderer
 {
     enum FontFlags
     {        
@@ -12,7 +12,7 @@ class SDFTextRenderer : public GraphicsBase, public ISDFTextRenderer
 
 public:
     SDFTextRenderer();
-    ~SDFTextRenderer();
+    virtual ~SDFTextRenderer();
 
 public:
     // ISDFTextRenderer을(를) 통해 상속됨

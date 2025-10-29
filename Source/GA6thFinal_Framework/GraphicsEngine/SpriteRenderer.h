@@ -1,8 +1,8 @@
 ﻿#pragma once
-#include "GraphicsBase.h"
+#include "UIRenderer.h"
 #include "Interface/ISpriteRenderer.h"
 
-class SpriteRenderer : public GraphicsBase, public ISpriteRenderer
+class SpriteRenderer : public UIRenderer, public ISpriteRenderer
 {
 public:
     SpriteRenderer();
@@ -18,14 +18,13 @@ public:
     const UINT  GetColumnIndex() const override { return _columnIndex; }
     const UINT  GetRowIndex() const override { return _rowIndex; }
 
-    const Matrix&         GetWorldMatrix() const { return *_worldMatrix; }
-    const SpriteType      GetType() const { return _type; }
+    const Matrix&         GetWorldMatrix() const { return *_worldMatrix; }    
     const Texture*        GetTexture() const { return _texture.get(); }
     const UIMaterialData& GetMaterialData() const { return _materialData; }
 
 public:
     void SetActive(const bool* isActive) override;
-    void SetType(SpriteType type) override { _type = type; }
+    void SetType(UIType type) override { _uiType = type; }
     void SetSize(SIZE size) override { _size = size; }
     void SetTexture(std::shared_ptr<Texture> texture) override;
     void SetLinearFill(float fill) override;
@@ -47,11 +46,9 @@ private:
     SIZE                     _size;
     SIZE                     _origin;
     UIMaterialData           _materialData;
-    SpriteType               _type;
     UINT                     _numColumn;
     UINT                     _numRow;
     UINT                     _columnIndex;
     UINT                     _rowIndex;
     float                    _alpha;
-
 };

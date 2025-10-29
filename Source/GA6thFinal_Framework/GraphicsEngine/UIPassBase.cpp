@@ -36,6 +36,9 @@ void UIPassBase::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechn
     _fx.SetPipelineStateStream(pss);
     _pipelineState = Global::pipelineStateManager->GetPipelineState(pss);
 
+    _fxSDF.SetPipelineStateStream(pss);
+    _sdfPipelineState = Global::pipelineStateManager->GetPipelineState(pss);
+
     _depthStencilView = static_cast<UITechnique*>(_ownerTechnique)->GetDepthStencilView();
 }
 
