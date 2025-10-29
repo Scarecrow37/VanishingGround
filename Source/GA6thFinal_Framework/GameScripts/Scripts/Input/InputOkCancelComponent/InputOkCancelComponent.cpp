@@ -14,12 +14,13 @@ void InputOkCancelComponent::Awake()
 
 void InputOkCancelComponent::Update() 
 {
-    if (_onClose)
+    if (_callback && _onClose)
     {
-        _onClose = false;
+        PopInputLayer();
         _callback(_result);
         gameObject->SetActive(false);
-        PopInputLayer();
+        _onClose = false;
+        _callback = nullptr;
     }
 }
 
@@ -27,20 +28,26 @@ void InputOkCancelComponent::GetOkOrCancel(const std::function<void(bool)>& call
 {
     if (callback)
     {
+        PushInputLayer();
         gameObject->SetActive(true);
         _callback = callback;
-        PushInputLayer();
     }
 }
 
 void InputOkCancelComponent::OnOk(const Input::Controller&) 
 {
-    _result = true;
-    _onClose = true;
+    if (gameObject->ActiveInHierarchy)
+    {
+        _result  = true;
+        _onClose = true;
+    }  
 }
 
 void InputOkCancelComponent::OnCancel(const Input::Controller&) 
 {
-    _result = false;
-    _onClose = true;
+    if (gameObject->ActiveInHierarchy)
+    {
+        _result  = false;
+        _onClose = true;
+    }
 }
