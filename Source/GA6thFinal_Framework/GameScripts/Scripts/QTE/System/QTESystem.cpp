@@ -245,11 +245,15 @@ void QTESystem::StartQTE(const WeaponStats& weapon)
                     {
                         if (QTE::Note* qteNote = QTE::Note::Cast<QTE::Note>(note))
                         {
-                            QTE::NoteData& noteData = _noteAvailQueue.emplace_back(qteNote->ToNoteData());
-                            _overallResult.NoteResults.emplace_back(&noteData);
-                            if (noteData.WeaponAnimationKey.empty())
+                            if (qteNote->Time <= maxFrame)
                             {
-                                noteData.WeaponAnimationKey = GetRandomAnimationName(weapon);
+                                QTE::NoteData& noteData = _noteAvailQueue.emplace_back(qteNote->ToNoteData());
+                                _overallResult.NoteResults.emplace_back(&noteData);
+                                // 애니메이션 이름이 없다면 랜덤 애니메이션을 가져옴
+                                if (noteData.WeaponAnimationKey.empty())
+                                {
+                                    noteData.WeaponAnimationKey = GetRandomAnimationName(weapon);
+                                }
                             }
                         }
                     }
@@ -281,7 +285,7 @@ void QTESystem::StartQTE(const WeaponStats& weapon)
             _currTime  = -travelTime - delayTime;
             _totalTime = totalTime + 1.0f;
 
-              ProcessQTEEnterEvent();
+            ProcessQTEEnterEvent();
         }
       
     }
