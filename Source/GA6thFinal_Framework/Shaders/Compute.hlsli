@@ -7,7 +7,7 @@ struct ParticleInput
     float3   Velocity;
     float    Mass;
     int      EmitterIndex;
-    float3   Paddings;
+    float3   SpriteRotation;
     float4x4 InitialMatrix;
 };
 
@@ -92,4 +92,45 @@ float4x4 CreateScaleMatrix(float4 scale)
     0, scale.y, 0, 0,
     0, 0, scale.z, 0,
     0, 0, 0, 1);
+}
+
+// --- 기본 축 회전 ---
+float3x3 RotX(float rx)
+{
+    float s = sin(rx), c = cos(rx);
+    return float3x3(1, 0, 0, 0, c, -s, 0, s, c);
+}
+float3x3 RotY(float ry)
+{
+    float s = sin(ry), c = cos(ry);
+    return float3x3(c, 0, s, 0, 1, 0, -s, 0, c);
+}
+float3x3 RotZ(float rz)
+{
+    float s = sin(rz), c = cos(rz);
+    return float3x3(c, -s, 0, s, c, 0, 0, 0, 1);
+}
+float3x3 CreateFromEulerXYZ(float3 eulerXYZ)
+{
+    float pitch = eulerXYZ.x; // X
+    float yaw = eulerXYZ.y; // Y
+    float roll = eulerXYZ.z; // Z
+
+    return mul(RotY(yaw), mul(RotX(pitch), RotZ(roll)));
+}
+
+// 4x4가 필요할 때
+float4x4 To4x4(float3x3 R)
+{
+    return float4x4(
+        R[0][0], R[0][1], R[0][2], 0,
+        R[1][0], R[1][1], R[1][2], 0,
+        R[2][0], R[2][1], R[2][2], 0,
+        0, 0, 0, 1
+    );
+}
+
+float4x4 CreateRotationMatrix(float3 eulerXYZ)
+{
+    return To4x4(CreateFromEulerXYZ(eulerXYZ));
 }

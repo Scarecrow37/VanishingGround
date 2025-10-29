@@ -22,7 +22,6 @@ struct PSInput
     float3 biTangent : BINORMAL;
     float2 uv : TEXCOORD;
     float4 color : COLOR0;
-    float depth : TEXCOORD1;
     nointerpolation int emitterIndex : CUSTOM_FLAG;
 };
 
@@ -31,8 +30,7 @@ uint ps_main(PSInput input) : SV_Target
 {
     PostProcessData data = bit32_6_postProcessData;
     
-    float d = input.depth;
-    
+    float d = input.position.z;
     float2 depthBufferUV = input.position.xy * data.TexelSize;
     
     float destDepth = depthbuffer.Sample(samPoint_wrap, depthBufferUV).r;

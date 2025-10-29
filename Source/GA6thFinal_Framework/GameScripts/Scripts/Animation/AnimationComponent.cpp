@@ -586,7 +586,7 @@ void AnimationComponent::GetAnimationNameEx(std::string_view key, std::string& s
     }
 }
 
-void AnimationComponent::SetNextAnimationFlags(AnimationFlags nextAnimFlag)
+void AnimationComponent::SetNextAnimationFlags(int nextAnimFlag)
 {
     _nextAnimationFlag.first  = true;
     _nextAnimationFlag.second = nextAnimFlag;
@@ -765,8 +765,8 @@ bool AnimationComponent::ChangeMainAnimation(std::string_view animKey, bool rese
 
 void AnimationComponent::ChangeDefaultAnimation()
 {
-    ChangeMainAnimation(ReflectFields->MainAnimationKey);
     ChangeMainAnimationFlags(ReflectFields->MainAnimationFlags);
+    ChangeMainAnimation(ReflectFields->MainAnimationKey);
     _currentAnimationData = &_mainAnimationData;
 }
 
