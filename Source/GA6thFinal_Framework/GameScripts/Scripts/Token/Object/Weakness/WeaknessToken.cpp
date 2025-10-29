@@ -28,6 +28,8 @@ namespace TokenObject
         const int   tokenID     = GetTokenID();
         const int   param       = GetTokenParam(0);
         damage -= ContentMath::CeilPercentage(damage, param);
+
+        UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(attackerData.Source));
     }
     void Weakness::OnPostEnemyAttackCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData,
                                                     int& damage)
@@ -35,5 +37,7 @@ namespace TokenObject
         const int   tokenID     = GetTokenID();
         const int   param       = GetTokenParam(0);
         damage -= ContentMath::CeilPercentage(damage, param);
+
+        UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(attackerData.Source));
     }
 }

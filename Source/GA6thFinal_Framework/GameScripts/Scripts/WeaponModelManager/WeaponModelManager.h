@@ -46,6 +46,10 @@ public:
     WeaponModelData RequestAvailableWeapon(WeaponType type);
     bool            ReturnWeaponModel(WeaponModelData data);
 
+    const std::string* GetRandomWeaPonAnimationKeyToNormalAttack(WeaponType type);
+    const std::string* GetRandomWeaPonAnimationKeyToSpecialAttack(WeaponType type);
+
+
 private:
     void Awake() override;
     void Start() override;
@@ -58,15 +62,23 @@ private:
 
     void UpdateOffsetPosition();
 
+    void RegisterWeaponAnimation(WeaponType type, AnimationComponent* component);
+    void RegisterWeaponParticle(WeaponType type, ParticleComponent* component);
+
+    void InitializeAnimationList();
+
 private:
     SingletonComponent<WeaponModelManager> _singletonComponent{this};
 
-    std::unordered_map<WeaponType, File::Guid>         _weaponPrefabGuidTable;
-    std::unordered_map<WeaponType, AnimationPool>      _weaponAnimationTable;
-    std::unordered_map<WeaponType, ParticlePool>       _weaponParticleTable;
-    std::unordered_map<WeaponType, std::stack<size_t>> _availableWeaponIndicesTable;
+    std::unordered_map<WeaponType, File::Guid>                  _weaponPrefabGuidTable;
+    std::unordered_map<WeaponType, AnimationPool>               _weaponAnimationTable;
+    std::unordered_map<WeaponType, ParticlePool>                _weaponParticleTable;
+    std::unordered_map<WeaponType, std::stack<size_t>>          _availableWeaponIndicesTable;
 
-    std::unordered_map<WeaponType, Vector3>            _availableWeaponOffsetsTable;
+    std::unordered_map<WeaponType, Vector3>                     _availableWeaponOffsetsTable;
+
+    std::unordered_map<WeaponType, std::vector<std::string>>    _weaponAnimationNormalNameList;
+    std::unordered_map<WeaponType, std::vector<std::string>>    _weaponAnimationSpecialNameList;
 
     REFLECT_FIELDS_BEGIN(Component)
     std::unordered_map<std::string, std::string> WeaponPrefabGuidTable;

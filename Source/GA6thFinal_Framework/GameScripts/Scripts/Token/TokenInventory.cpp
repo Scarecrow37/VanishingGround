@@ -462,7 +462,7 @@ void TokenInventory::AddTokenStackFromID(int tokenID, int count /* = 1 */)
                     count,
                     (const char*)u8"개 부여되었습니다."
                 );
-                UmLogger.Log(LogLevel::LEVEL_DEBUG, msg);
+                UmLogger.Log(LogLevel::LEVEL_TRACE, msg);
             }
         }
     }
@@ -521,7 +521,7 @@ void TokenInventory::RemoveTokenStackFromID(int tokenID, int count /* = 1 */)
                     count,
                     (const char*)u8"개 제거되었습니다."
                 );
-                UmLogger.Log(LogLevel::LEVEL_DEBUG, msg);
+                UmLogger.Log(LogLevel::LEVEL_TRACE, msg);
             }
         }
     }

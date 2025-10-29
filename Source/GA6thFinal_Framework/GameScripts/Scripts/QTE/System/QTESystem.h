@@ -41,6 +41,9 @@ public:
     GETTER_ONLY(float, CurrentTrackTime) { return _currTime; }
     PROPERTY(CurrentTrackTime)
 
+    GETTER_ONLY(float, NoteTravelTime) { return ReflectFields->NoteTravelTime; }
+    PROPERTY(NoteTravelTime)
+
     GETTER_ONLY(float, MaxTracktime) { return _totalTime; }
     PROPERTY(MaxTracktime)
 
@@ -60,14 +63,14 @@ private:
 public:
     /// <summary>QTE를 시작합니다. 현재 무기에 맞는 트랙이 있는 경우 트랙으로, 없으면 무기 기반으로 재생합니다.</summary>
     void StartQTE();
-    /// <summary>트랙 기반으로 QTE를 시작합니다.</summary>
-    void StartQTE(QTE::Track* qteTrack);
-    /// <summary>무기 기반으로 임의의 랜덤 트랙을 생성하여 QTE를 시작합니다.</summary>
-    void StartQTE(const WeaponStats* weapon);
+    /// <summary>무기 기반으로 트랙을 생성하여 QTE를 시작합니다.</summary>
+    void StartQTE(const WeaponStats& weapon);
     /// <summary>QTE를 중지합니다.</summary>
     void StopQTE();
     /// <summary>QTE를 일시정지하거나 재개합니다. QTE플레이 중이 아니라면 무시됩니다.</summary>
     void PauseQTE(bool pause);
+    /// <summary>QTE 트랙을 비웁니다.</summary>
+    void ClearTrack();
 
 public:
     /// <summary>QTE 키 바인드 상태를 초기화합니다.</summary>
@@ -93,7 +96,6 @@ public:
 
 private:
     void ResetQTEState();
-    void ClearTrack();
     void ClearQueue();
     void UpdateQTETrack();
     QTE::ResultType GetQTEResult(float noteTime);
@@ -112,9 +114,11 @@ private:
     void ProcessQTEFadeOutEndEvent();
     void ProcessQTEPlayingEvent();
     void ProcessQTEButtonPressedEvent();
-    void ProcessQTENotePressedEvent(UINT noteID, QTE::ResultType result);
+    void ProcessQTENotePressedEvent(UINT noteID, const QTE::NoteResult& result);
 
 public:
+    inline void  SetNoteTravelTime(float time) { ReflectFields->NoteTravelTime = time; }
+    inline float GetNoteTravelTime() const { return ReflectFields->NoteTravelTime; }
     inline void  SetQTESpeedScale(float scale) { ReflectFields->QTESpeedScale = scale; }
     inline float GetQTESpeedScale() const { return ReflectFields->QTESpeedScale; }
     inline void  SetDelayFromQTEStart(float delay) { ReflectFields->DelayFromQTEStart = delay; }
@@ -148,6 +152,9 @@ public:
     QTE::Track* GetMappingTrackToWeaponID(int weaponID, int index = 0);
 
 private:
+    std::string GetRandomAnimationName(const WeaponStats& weapon);
+
+private:
     SingletonComponent<QTESystem>   _singletonComponent{this};
 
     TrackTable                      _weaponIDToTrackTable;              // 무기 ID QTE 매핑 테이블
@@ -162,13 +169,14 @@ private:
     QTE::OverallResult              _overallResult;                     // QTE 최종 결과
     ControllerState                 _nextKeyEvent = {nullptr, Input::ControllerTypes::UNDEFINED};
 
-    float                           _currTime           = 0.0f;                     // QTE 타이머
+    float                           _currTime          = 0.0f;                     // QTE 타이머
     float                           _totalTime         = 0.0f;                     // QTE 최대 시간
     bool                            _isPaused          = false;                    // QTE 일시정지 여부
 
     REFLECT_FIELDS_BEGIN(Component)
     float                   QTESpeedScale       = 1.0f;                         // QTE 속도 배율
     float                   DelayFromQTEStart   = 0.0f;                         // QTE 시작 대기 시간
+    float                   NoteTravelTime      = 1.5f;
     std::pair<float, float> PerfectJudgeRange   = {-0.05f, 0.05f};              // 퍼펙트 판정 범위 (min - max)
     std::pair<float, float> NormalJudgeRange    = {-0.1f, 0.1f};                // 노멀 판정 범위 (min - max)
     std::pair<float, float> ValidJudgeRange     = {-0.3f, 0.3f};                // 유효 판정 범위 (min - max)

@@ -180,6 +180,15 @@ void QTEEditor::ShowSystemDetail()
             }
             ImGuiHelper::HoveredToolTip((const char*)u8"QTE 글로벌 속도 배율입니다.");
 
+            // 스피드
+            float travel = system->GetNoteTravelTime();
+            ImGuiHelper::TextWithVerticalSeparator("QTE Note Travel Time", labelWidth);
+            if (ImGui::DragFloat("##qte_note_tavel", &travel, 0.01f, 0.1f, 10.0f))
+            {
+                system->SetNoteTravelTime(travel);
+            }
+            ImGuiHelper::HoveredToolTip((const char*)u8"QTE 노트가 퍼펙트까지 걸리는 시간입니다.");
+
             // 대기시간
             float delay = system->GetDelayFromQTEStart();
             ImGuiHelper::TextWithVerticalSeparator("QTE Delay Second", labelWidth);
@@ -293,11 +302,40 @@ void QTEEditor::ShowSystemDetail()
             auto weaponTableComponent = SingletonComponent<WeaponTableComponent>::GetInstance();
             if (weaponTableComponent)
             {
-                auto& weaponTable = weaponTableComponent->GetWeaponTable();
+                const auto& trackTable = system->GetWeaponIDToTrackTable();
+                const auto& weaponTable = weaponTableComponent->GetWeaponTable();
+
+                if (ImGui::Button("Reset Track"))
+                {
+                    system->ClearTrack();
+                }
+                if (ImGui::Button("Load Track"))
+                {
+                    std::vector<File::Path>                  out;
+                    HWND                                     owner   = UmApplication.GetHwnd();
+                    LPCWSTR                                  title   = L"QTE 파일 열기";
+                    std::vector<std::pair<LPCWSTR, LPCWSTR>> filters = {{L"QTE 트랙 파일\0", L"*.UmQTETrack\0"},
+                                                                        {L"All File\0", L"*.*\0"}};
+                    if (File::ShowOpenFileDialog(owner, title, _lastUsedPath.c_str(), filters, true, out))
+                    {
+                        for (const File::Path& path : out)
+                        {
+                            if (path.extension() == QTE::Track::EXTENSION)
+                            {
+                                size_t      index = 0;
+                                std::string idStr = path.stem().string();
+                                int         id    = std::stoi(idStr, &index);
+                                if (index == idStr.size())
+                                {
+                                    system->AddMappingTrackToWeaponID(id, path);
+                                }
+                            }
+                        }
+                    }
+                }
                 for (const auto& [weaponName, weapon] : weaponTable)
                 {
                     int  weaponID   = weapon.Stats.WeaponID;
-                    auto trackTable = system->GetWeaponIDToTrackTable();
                     auto itr        = trackTable.find(weaponID);
                     bool valid      = (itr != trackTable.end() && false == itr->second.empty());
 

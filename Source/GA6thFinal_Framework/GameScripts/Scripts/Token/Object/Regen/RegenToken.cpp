@@ -17,6 +17,7 @@ namespace TokenObject
             owner->HealByPercentage(param);
             auto& tokenInventory = owner->GetTokenInventory();
             tokenInventory.RemoveTokenStackFromID(tokenID);
+            UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(*owner));
         }
     }
 } // namespace TokenObject

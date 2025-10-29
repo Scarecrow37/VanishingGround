@@ -48,6 +48,7 @@ namespace TokenObject
                     stats->StunResistance, static_cast<int>(stats->StunResistanceMultiplier * 100.0f));
                 tokenInventory.AddTokenStackFromID(TokenObject::StunResistance::ID, stats->StunResistance);
             }
+            UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(*owner));
         }
     }
 } // namespace TokenObject

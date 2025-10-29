@@ -17,12 +17,12 @@ namespace QTE
 
         std::weak_ptr<Component> Owner;
 
-        std::function<void()>                           OnFadeInStart   = nullptr;
-        std::function<void()>                           OnFadeInFinish  = nullptr;
-        std::function<void(const QTE::OverallResult&)>  OnFadeOutStart  = nullptr;
-        std::function<void(const QTE::OverallResult&)>  OnFadeOutFinish = nullptr;
-        std::function<void()>                           OnButtonPressed = nullptr;
-        std::function<void(UINT, QTE::ResultType)>      OnNotePressed   = nullptr;
+        std::function<void()>                               OnFadeInStart   = nullptr;
+        std::function<void()>                               OnFadeInFinish  = nullptr;
+        std::function<void(const QTE::OverallResult&)>      OnFadeOutStart  = nullptr;
+        std::function<void(const QTE::OverallResult&)>      OnFadeOutFinish = nullptr;
+        std::function<void()>                               OnButtonPressed = nullptr;
+        std::function<void(UINT, const QTE::NoteResult&)>   OnNotePressed   = nullptr;
     };
 
     enum PlayState
