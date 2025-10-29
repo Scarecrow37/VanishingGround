@@ -30,7 +30,6 @@ struct MeshInfo
     BaseMesh*        Mesh;
     MeshRenderer*    Renderer;
     DXRSkeletalMesh* SkinnedInstance;
-    Matrix*          TransposeWorldMatrix;
     float            DepthKey;
 };
 

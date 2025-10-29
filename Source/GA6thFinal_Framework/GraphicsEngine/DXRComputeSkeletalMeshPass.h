@@ -3,6 +3,12 @@
 
 class DXRComputeSkeletalMeshPass : public RenderPass
 {
+    struct MeshData
+    {
+        UINT InstanceID;
+        UINT BoneMatrixOffset;
+        UINT VertexCount;
+    };
 public:
     DXRComputeSkeletalMeshPass() = default;
     virtual ~DXRComputeSkeletalMeshPass();

@@ -70,7 +70,12 @@ foreach ($shaderFile in $shaderFiles) {
     $baseName = $shaderFile.BaseName
     $fileName = $shaderFile.Name
     $fileFullName = $shaderFile.FullName
-
+    # RTShaders.hlsl은 별도로 처리하므로 스킵
+         if ($fileName -eq "RTShaders.hlsl") {
+             Write-Host "Skipping: $fileName (RT Shader - will be compiled separately)" -ForegroundColor Yellow
+             Write-Host "----------------------------------------------------------------"
+             continue
+         }
     $shaderTypePrefix = ($baseName -split '_')[0].ToLower()
 
     $shaderProfile = ""
