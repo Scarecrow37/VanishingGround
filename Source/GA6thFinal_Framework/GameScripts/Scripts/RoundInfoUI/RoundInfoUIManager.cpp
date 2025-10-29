@@ -55,17 +55,19 @@ void RoundInfoUIManager::FindUIElements()
         GameObject& object = curr->gameObject;
         if (object.CompareTag("Frame"))
         {
-            FadeImageElement* imageComponent = object.GetComponent<FadeImageElement>();
-            imageComponent->Enable = false;
-
-            _fadeImageElement = imageComponent->GetWeakPtrAs<FadeImageElement>();
+            if (FadeImageElement* imageComponent = object.GetComponent<FadeImageElement>())
+            {
+                imageComponent->Enable = false;
+                _fadeImageElement = imageComponent->GetWeakPtrAs<FadeImageElement>();
+            }        
         }
         else if (object.CompareTag("Text"))
         {
-            FadeTextElement* text = object.GetComponent<FadeTextElement>();
-            text->Enable = false;
-
-            _fadeTextElement = text->GetWeakPtrAs<FadeTextElement>();
+            if (FadeTextElement* text = object.GetComponent<FadeTextElement>())
+            {
+                text->Enable = false;
+                _fadeTextElement = text->GetWeakPtrAs<FadeTextElement>();
+            }           
         }
     });
 }
