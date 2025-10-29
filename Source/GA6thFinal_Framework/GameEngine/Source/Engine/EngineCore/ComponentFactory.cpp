@@ -64,7 +64,7 @@ bool EComponentFactory::InitalizeComponentFactory()
         _componentInstanceVec.clear();
 
         //weak_ptr clear
-        UmSceneManager.GetMeshComponents();
+        UmSceneManager.ClearExpiredMeshComponents();
 
         // Script Dll에서 생성된 Graphics 자원 회수
         UmGraphics.ClearGraphicsResource();
@@ -243,7 +243,7 @@ void EComponentFactory::UninitalizeComponentFactory()
         _componentInstanceVec.clear();
 
         // weak_ptr clear
-        UmSceneManager.GetMeshComponents();
+        UmSceneManager.ClearExpiredMeshComponents();
 
         // Input Receiver Clear
         ESceneManager::Engine::GetInputSystem().CleanupInputReceivers();

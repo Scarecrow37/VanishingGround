@@ -1628,12 +1628,16 @@ bool ESceneManager::SetSkyIBL(const File::Path& path)
 
 const std::vector<std::weak_ptr<MeshComponent>>& ESceneManager::GetMeshComponents()
 {
+    ClearExpiredMeshComponents();
+    return _runtimeMeshComponents;
+}
+
+void ESceneManager::ClearExpiredMeshComponents() 
+{
     std::erase_if(_runtimeMeshComponents, [](const std::weak_ptr<MeshComponent>& weakMesh) 
     { 
         return weakMesh.expired();
     });
-
-    return _runtimeMeshComponents;
 }
 
 bool ESceneManager::WriteUmSceneFile(Scene& scene, std::string_view sceneName, std::string_view outPath, bool isOverride, bool isEmptyScene)
