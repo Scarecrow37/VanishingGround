@@ -97,7 +97,8 @@ namespace Monster
     {
         _aiModel.Transition();
         _aiModel.Refresh();
-
+        _currAction  = nullptr;
+        _prevAction  = nullptr;
         int actionID = _aiModel.GetCurrentActionID();
         SetCurrentAction(actionID);
     }

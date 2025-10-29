@@ -227,16 +227,16 @@ public:
     inline const std::map<std::string, std::string>& GetAnimationKeyMap() const { return ReflectFields->AnimationKeyMap; }
 
 private:
-    GraphicsPointer<IAnimator> _animator;
-    EventQueue                 _eventQueue;
-    AnimationData*             _currentAnimationData = nullptr; // 현재 애니메이션 데이터
-    AnimationData              _mainAnimationData;
-    std::deque<AnimationData>  _overrideAnimationStack; 
-    AnimationData*             _lastAnimationData = nullptr;
-    bool                       _isBuildingOverrideAnimation = false;
-    UINT                       _prevBeginBuildAnimationID    = 0;
+    GraphicsPointer<IAnimator>  _animator;
+    EventQueue                  _eventQueue;
+    AnimationData*              _currentAnimationData = nullptr; // 현재 애니메이션 데이터
+    AnimationData               _mainAnimationData;
+    std::deque<AnimationData>   _overrideAnimationStack; 
+    AnimationData*              _lastAnimationData = nullptr;
+    bool                        _isBuildingOverrideAnimation = false;
+    UINT                        _prevBeginBuildAnimationID    = 0;
     
-    std::pair<bool, AnimationFlags> _nextAnimationFlag; // 다음 애니메이션 데이터 (first: isValid, second: NextAnimationData)
+    std::pair<bool, int>        _nextAnimationFlag; // 다음 애니메이션 데이터 (first: isValid, second: NextAnimationData)
     
     // 지연 처리용 큐
     std::vector<std::function<void()>> _delayProcess;
