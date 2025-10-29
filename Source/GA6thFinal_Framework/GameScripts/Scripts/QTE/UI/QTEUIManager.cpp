@@ -22,21 +22,22 @@ void QTEUIManager::OnQTEEnter()
     ResetUI();
     _fieldUI.Active(true);
     _guideUI.Active(true);
+    _inputViewerUI.Active(true);
     _fieldUI.OnQTEEnter();
     _mainFader.SetFadeMode(Fader::FADE_IN);
     if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
     {
         const auto& noteQueue  = system->GetCurrentQTEAvailQueue();
-        bool        validRange = noteQueue.size() <= _notePool.size();
+        bool        validRange = noteQueue.size() <= _fieldUI.NotePool.size();
         assert(validRange && "노트 풀의 사이즈가 작습니다.");
         if (validRange)
         {
-            for (size_t i = 0; i < noteQueue.size(); ++i)
+            for (int i = 0; i < noteQueue.size(); ++i)
             {
                 UINT id = noteQueue[i].ID;
-                if (_notePool[i].TrySetup(noteQueue[i].Time))
+                if (_fieldUI.NotePool[i].TrySetup(noteQueue[i].Time))
                 {
-                    _activedNote[id] = i;
+                    _activedPoolIndices[id] = i;
                 }
             }
         }
@@ -48,11 +49,38 @@ void QTEUIManager::OnQTEButtonPressed()
     _fieldUI.OnButtonPressed();
 }
 
-void QTEUIManager::OnQTENotePressed(const UINT noteID, const QTE::ResultType result)
+void QTEUIManager::OnQTENotePressed(const UINT noteID, const QTE::NoteResult& result)
 {
-    if (QTE::NoteUI* noteUI = GetNoteUIFromID(noteID))
+    if (result.IsValidResult())
     {
-        noteUI->OnNotePressed(result);
+        int index = GetIndexFromNoteID(noteID);
+        if (index >= 0)
+        {
+            auto& noteUI = _fieldUI.NotePool[index];
+            auto& effectUI = _fieldUI.EffectPool[index];
+
+            noteUI.OnNotePressed(result);
+            _inputViewerUI.OnNotePressed(result);
+            if (effectUI.Overlay)
+            {
+                const SIZE size = effectUI.Overlay->Size;
+                float      posX = static_cast<float>(-size.cx / 2);
+                if (result.Result == QTE::QTE_RESULT_MISS || result.Result == QTE::QTE_RESULT_NORMAL)
+                {
+                    if (noteUI.Overlay)
+                    {
+                        const POINT point = noteUI.Overlay->CenterPoint;
+                        posX += static_cast<float>(point.x);
+                    }
+                }
+                else if (result.Result == QTE::QTE_RESULT_PERFECT)
+                {
+                    const POINT point  = _fieldUI.JudgeNote->CenterPoint;
+                    posX += static_cast<float>(point.x);
+                }
+                effectUI.OnNotePressed(result, posX);
+            }
+        }
     }
 }
 
@@ -63,25 +91,25 @@ void QTEUIManager::OnQTEPlay()
         _fieldUI.Update();
         if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
         {
+            const float travelTime  = system->NoteTravelTime;
             const float currTime    = system->CurrentTrackTime;
             const float currSpeed   = system->ScaledSpeedFactor;
             const SIZE  panelSize   = _overlayPanel->Size;
-            const POINT overlayAbs  = _fieldUI.Overlay->AbsolutePosition;
             const POINT overlayPoint= _fieldUI.Overlay->Point;
             const SIZE  overlaySize = _fieldUI.Overlay->Size;
             const POINT judgeCenter = _fieldUI.JudgeNote->CenterPoint;
             const SIZE  judgeSize   = _fieldUI.JudgeNote->Size;
 
             const float perfectX    = static_cast<float>(judgeCenter.x);
-            const float offsetX     = static_cast<float>(overlayAbs.x);
             const float startX      = static_cast<float>(overlayPoint.x);
-            const float endX        = static_cast<float>(panelSize.cx);
+            const float endX        = static_cast<float>(overlaySize.cx);
 
-            for (auto& [id,_] : _activedNote)
+            for (auto& [id,_] : _activedPoolIndices)
             {
-                if (QTE::NoteUI* noteUI = GetNoteUIFromID(id))
+                int index = GetIndexFromNoteID(id);
+                if (index >= 0)
                 {
-                    noteUI->Update(currTime, currSpeed, startX, endX, perfectX, 0.0f);
+                    _fieldUI.NotePool[index].Update(currTime, travelTime, currSpeed, startX, endX, perfectX, 0.0f);
                 }
             }
         }
@@ -93,27 +121,53 @@ void QTEUIManager::OnQTEExit()
     _mainFader.SetFadeMode(Fader::FADE_OUT);
 }
 
+bool QTEUIManager::DragDropEvent(File::Guid& out)
+{
+    bool result = false;
+    if (ImGui::BeginDragDropTarget())
+    {
+        if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
+        {
+            DragDropAsset::Data* data      = static_cast<DragDropAsset::Data*>(payLoad->Data);
+            const File::Path&    path      = data->GetPath();
+            const File::Path     extension = path.extension();
+            if (extension == L".UmPrefab")
+            {
+                result = true;
+                out    = path.ToGuid();
+            }
+            else
+            {
+                UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"프리팹은 .UmPrefab 파일만 지정할 수 있습니다.");
+            }
+        }
+        ImGui::EndDragDropTarget();
+    }
+    return result;
+}
+
 void QTEUIManager::Reset() 
 {
     _singletoneComponent.SetSingleTon();
-    FilePath.SetInputAutoEvent([this]() {
-        if (ImGui::BeginDragDropTarget())
+    NotePrefab.SetInputAutoEvent([this]() {
+        File::Guid dragDropGuid;
+        if (DragDropEvent(dragDropGuid))
         {
-            if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
-            {
-                DragDropAsset::Data* data      = static_cast<DragDropAsset::Data*>(payLoad->Data);
-                const File::Path&    path      = data->GetPath();
-                const File::Path     extension = path.extension();
-                if (extension == L".UmPrefab")
-                {
-                    SetNotePrefabGuid(data->GetGuid());
-                }
-                else
-                {
-                    UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"프리팹은 .UmPrefab 파일만 지정할 수 있습니다.");
-                }
-            }
-            ImGui::EndDragDropTarget();
+            ReflectFields->NotePrefabGuid = dragDropGuid.string();
+        }
+    });
+    EffectPrefab.SetInputAutoEvent([this]() {
+        File::Guid dragDropGuid;
+        if (DragDropEvent(dragDropGuid))
+        {
+            ReflectFields->EffectPrefabGuid = dragDropGuid.string();
+        }
+    });
+    ButtonPrefab.SetInputAutoEvent([this]() {
+        File::Guid dragDropGuid;
+        if (DragDropEvent(dragDropGuid))
+        {
+            ReflectFields->ButtonPrefabGuid = dragDropGuid.string();
         }
     });
 }
@@ -144,15 +198,19 @@ void QTEUIManager::Start()
             _backGroundUI.Alpha(0.0f);
             _fieldUI.Active(false);
             _guideUI.Active(false);
+            _inputViewerUI.Active(false);
         }
     });
     FindUIComponents();
-    InitializeNotePool();
+    size_t poolSize = static_cast<size_t>(ReflectFields->PoolSize);
+    _fieldUI.Initialize(ReflectFields->NotePrefabGuid, ReflectFields->EffectPrefabGuid, poolSize);
+    _inputViewerUI.Initialize(ReflectFields->ButtonPrefabGuid, poolSize);
     ResetUI();
     _backGroundUI.Alpha(0.0f);
     _backGroundUI.Active(true);
     _fieldUI.Active(false);
     _guideUI.Active(false);
+    _inputViewerUI.Active(false);
 }
 
 void QTEUIManager::Update() 
@@ -200,6 +258,37 @@ void QTEUIManager::ImGuiDrawPropertysEvent()
         FindUIComponents();
     }
 
+    DrawDebugJudgeLine();
+}
+
+void QTEUIManager::ResetUI()
+{
+    _fieldUI.Reset();
+    _inputViewerUI.Reset();
+    _activedPoolIndices.clear();
+}
+
+int QTEUIManager::GetIndexFromNoteID(UINT id)
+{
+    if (_activedPoolIndices.contains(id))
+    {
+        int index = _activedPoolIndices[id];
+        return index;
+    }
+    return -1;
+}
+
+void QTEUIManager::SetUIAlpha(float factor)
+{
+    factor = std::clamp(factor, 0.0f, 1.0f);
+    _backGroundUI.Alpha(factor);
+    _fieldUI.Alpha(factor);
+    _guideUI.Alpha(factor);
+    _inputViewerUI.Alpha(factor);
+}
+
+void QTEUIManager::DrawDebugJudgeLine()
+{
     if (_fieldUI.Overlay && _fieldUI.JudgeNote)
     {
         if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
@@ -207,13 +296,13 @@ void QTEUIManager::ImGuiDrawPropertysEvent()
             const auto [validMin, validMax]     = system->GetValidJudgeRange();
             const auto [normalMin, normalMax]   = system->GetNormalJudgeRange();
             const auto [perfectMin, perfectMax] = system->GetPerfectJudgeRange();
-            const float tavelTime   = QTE::NoteUI::TRAVEL_PERFECT_TIME;
-            const float speedScale  = system->GetQTESpeedScale();
-            const POINT panelPoint  = _fieldUI.Overlay->AbsolutePosition;
-            const SIZE  panelSize   = _fieldUI.Overlay->Size;
-            const POINT judgeCenter = _fieldUI.JudgeNote->CenterPoint;
-            const float perfectX    = static_cast<float>(judgeCenter.x);
-            const float offsetX     = static_cast<float>(panelPoint.x);
+            const float tavelTime               = system->GetNoteTravelTime();
+            const float speedScale              = system->GetQTESpeedScale();
+            const POINT panelPoint              = _fieldUI.Overlay->AbsolutePosition;
+            const SIZE  panelSize               = _fieldUI.Overlay->Size;
+            const POINT judgeCenter             = _fieldUI.JudgeNote->CenterPoint;
+            const float perfectX                = static_cast<float>(judgeCenter.x);
+            const float offsetX                 = static_cast<float>(panelPoint.x);
             { // Valid
                 const float minFactor = QTE::Math::CalculateNotePosXFactor(-validMin, speedScale, tavelTime);
                 DebugDrawValidLine(panelPoint, panelSize, offsetX + perfectX * minFactor, Colors::White);
@@ -236,56 +325,6 @@ void QTEUIManager::ImGuiDrawPropertysEvent()
     }
 }
 
-void QTEUIManager::ResetUI()
-{
-    _fieldUI.Reset();
-    _activedNote.clear();
-    for (auto& noteUI : _notePool)
-    {
-        noteUI.Reset();
-    }
-}
-
-void QTEUIManager::InitializeNotePool()
-{
-    assert(_fieldUI.Overlay && "QTE Overlay가 없으면 노트 인스턴스를 생성하지 않습니다.");
-
-    _notePool.clear();
-
-    File::Guid prefabGuid = ReflectFields->NotePrefabGuid;
-    Transform& parent     = _fieldUI.Overlay->transform;
-    for (int i = 0; i < ReflectFields->PoolSize; ++i)
-    {
-        _notePool.emplace_back(prefabGuid, &parent);
-    }
-}
-
-QTE::NoteUI* QTEUIManager::GetNoteUIFromID(UINT id)
-{
-    if (_activedNote.contains(id))
-    {
-        size_t index = _activedNote[id];
-        if (index < _notePool.size())
-        {
-            return &_notePool[index];
-        }
-    }
-    return nullptr;
-}
-
-void QTEUIManager::SetNotePrefabGuid(const File::Guid& guid) 
-{
-    ReflectFields->NotePrefabGuid = guid.string();
-}
-
-void QTEUIManager::SetUIAlpha(float factor)
-{
-    factor = std::clamp(factor, 0.0f, 1.0f);
-    _backGroundUI.Alpha(factor);
-    _fieldUI.Alpha(factor);
-    _guideUI.Alpha(factor);
-}
-
 void QTEUIManager::FindUIComponents()
 {
     _overlayPanel = GetComponent<OverlayPanel>();
@@ -293,6 +332,7 @@ void QTEUIManager::FindUIComponents()
         if (curr)
         {
             _backGroundUI.MatchUIFromObject(curr->gameObject);
+            _inputViewerUI.MatchUIFromObject(curr->gameObject);
             _fieldUI.MatchUIFromObject(curr->gameObject);
             _guideUI.MatchUIFromObject(curr->gameObject);
         }

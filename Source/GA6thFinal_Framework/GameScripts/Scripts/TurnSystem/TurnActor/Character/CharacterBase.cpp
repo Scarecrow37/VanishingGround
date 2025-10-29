@@ -209,12 +209,6 @@ void CharacterBase::HealByPercentage(int percentage)
 
 void CharacterBase::TakeDamage(int damage, bool playAnim) 
 {
-    // 데미지가 0 이하일 경우 무시
-    if (damage <= 0)
-    {
-        return;
-    }
-
     CharacterStats* stats = GetCharacterStats();
     if (stats)
     {
@@ -223,8 +217,7 @@ void CharacterBase::TakeDamage(int damage, bool playAnim)
         GameObject& owner = gameObject;
         std::string msg   = std::format("{}{} {}{}", owner.ToString(), (const char*)u8"이(가)", damage,
                                         (const char*)u8"의 피해를 입었습니다.");
-        UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
-
+        UmLogger.Message(LogLevel::LEVEL_TRACE, msg);
         OnHit();
     }
     if (false == IsDead())

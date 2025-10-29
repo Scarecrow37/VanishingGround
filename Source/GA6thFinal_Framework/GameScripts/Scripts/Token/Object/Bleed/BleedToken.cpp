@@ -37,7 +37,7 @@ namespace TokenObject
                 int stackCount = tokenInventory.GetTokenStackFromID(ID);
                 int param  = GetTokenParam(0);
                 int damage = param * stackCount;
-                UmLogger.Log(LogLevel::LEVEL_DEBUG, TokenLog(*owner));
+                UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(*owner));
                 owner->TakeDamage(damage);
             }
             tokenInventory.RemoveTokenStackFromID(ID);
