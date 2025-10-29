@@ -222,7 +222,7 @@ void QTESystem::StartQTE(const WeaponStats& weapon)
         auto& trackVector = _weaponIDToTrackTable[weapon.WeaponID];
         if (false == trackVector.empty())
         {
-            int index = Random::Range(0, (int)trackVector.size() - 1);
+            size_t index = Random::Index(trackVector.size());
             if (_currentQTETrack = trackVector[index])
             {
                 Timeline::EventTrack* track = _currentQTETrack->GetEventTrack().lock().get();

@@ -74,8 +74,7 @@ const std::string* WeaponModelManager::GetRandomWeaPonAnimationKeyToNormalAttack
     auto& animList = _weaponAnimationNormalNameList[type];
     if (false == animList.empty())
     {
-        int index       = static_cast<int>(animList.size());
-        int randomIndex = Random::Range(0, index - 1);
+        size_t randomIndex = Random::Index(animList.size());
         return &animList[randomIndex];
     }
     return nullptr;
@@ -86,8 +85,7 @@ const std::string* WeaponModelManager::GetRandomWeaPonAnimationKeyToSpecialAttac
     auto& animList = _weaponAnimationSpecialNameList[type];
     if (false == animList.empty())
     {
-        int index       = static_cast<int>(animList.size());
-        int randomIndex = Random::Range(0, index - 1);
+        size_t randomIndex = Random::Index(animList.size());
         return &animList[randomIndex];
     }
     return nullptr;
