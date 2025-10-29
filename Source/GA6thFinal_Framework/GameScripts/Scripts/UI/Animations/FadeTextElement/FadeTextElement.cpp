@@ -8,13 +8,13 @@ FadeTextElement::FadeTextElement() : UIAnimation([this](const float alpha) { Upd
 void FadeTextElement::FadeIn()
 {
     _fadeDirection = FadeDirection::FORWARD;
-    UIAnimation::Reset(ReflectFields->FadeDuration, false);
+    UIAnimation::Reset();
 }
 
 void FadeTextElement::FadeOut()
 {
     _fadeDirection = FadeDirection::BACKWARD;
-    UIAnimation::Reset(ReflectFields->FadeDuration, false);
+    UIAnimation::Reset();
 }
 
 void FadeTextElement::Stop()
@@ -24,29 +24,20 @@ void FadeTextElement::Stop()
 
 void FadeTextElement::Begin()
 {
-    SimpleMath::Color color = Color;
-    color.w                 = BeginAlpha;
-    Color                   = color;
-    UIAnimation::Reset(ReflectFields->FadeDuration, false);
+    SetElapsedTime(0.0f);
 }
 
 void FadeTextElement::End()
 {
-    SimpleMath::Color color = Color;
-    color.w                 = EndAlpha;
-    Color                   = color;
-    UIAnimation::Reset(0.0f, false);
+    const float duration = FadeDuration;
+    SetElapsedTime(duration);
 }
 
 void FadeTextElement::Start()
 {
     TextElement::Start();
 
-    SimpleMath::Color color = Color;
-    color.w                          = BeginAlpha;
-    Color                            = color;
-
-    UIAnimation::Reset(ReflectFields->FadeDuration, false);
+    UpdateAnimationProperty();
 }
 
 void FadeTextElement::Update()
@@ -75,7 +66,12 @@ void FadeTextElement::Reset()
 
 void FadeTextElement::UpdateAlpha(const float alpha)
 {
-    DirectX::SimpleMath::Color color = Color;
-    color.w                          = std::lerp(BeginAlpha, EndAlpha, alpha);
-    Color                            = color;
+    const float opacity = std::lerp(BeginAlpha, EndAlpha, alpha);
+    SetOpacity(opacity);
+}
+
+void FadeTextElement::UpdateAnimationProperty()
+{
+    const float duration = FadeDuration;
+    SetDuration(duration);
 }

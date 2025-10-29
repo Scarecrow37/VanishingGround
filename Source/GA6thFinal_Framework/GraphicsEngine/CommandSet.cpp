@@ -6,8 +6,9 @@ void CommandSet::Initialize(CommandType type, std::wstring_view resourceName)
     Global::device->CreateCommandList(_commandAllocator, _commandList, type);
     _commandList->Reset(_commandAllocator.Get(), nullptr);
 
-    _commandAllocator->SetName(resourceName.data());
-    _commandList->SetName(resourceName.data());
+    _resourceName = resourceName;
+    _commandList->SetName(_resourceName.c_str());
+    _commandAllocator->SetName(_resourceName.c_str());
 }
 
 void CommandSet::ExecuteCommand(CommandQueueType type)

@@ -2,6 +2,8 @@
 #include "EnemyPlayTurnState.h"
 
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
+#include "TurnSystem/TurnMode/TurnMode.h"
+#include "Monster/Action/MonsterActionBase.h"
 
 REGISTER_CLASS(FSMStateFactory, EnemyPlayTurnState)
 
@@ -24,18 +26,33 @@ void EnemyPlayTurnState::OnStart()
 
 void EnemyPlayTurnState::OnEnter() 
 {
-    GameObject* gameObject = &GetFSM().gameObject;
+    Enemy& enemy = GetEnemy();
+    Monster::Controller& controller = enemy.GetController();
 
-    std::string message = std::format("{} {}", gameObject->ToString(), (const char*)u8"턴 시작.");
+    std::string spawnPoint = Monster::SpawnPointToString(enemy.SpawnPoint);
+    std::string actionName = STR_NULL;
+
+    if (Monster::Action::Base* action = controller.GetCurrentAction())
+    {
+        actionName = action->GetActionContext().Name;
+    }
+    
+    const std::string message = std::format("{}{}{}{}", spawnPoint, (const char*)u8" Enemy 턴 시작. ",
+                                            (const char*)u8"Action : ", actionName);
     UmLogger.Message(LogLevel::LEVEL_TRACE, message);
 }
 
 void EnemyPlayTurnState::OnExit() 
 {
-    GameObject* gameObject = &GetFSM().gameObject;
-
-    std::string message = std::format("{} {}", gameObject->ToString(), (const char*)u8"턴 종료.");
+    Enemy& enemy = GetEnemy();
+    std::string spawnPoint = Monster::SpawnPointToString(enemy.SpawnPoint);
+    std::string message = std::format("{} {}{}", spawnPoint, enemy.gameObject->ToString(), (const char*)u8" 턴 종료.");
     UmLogger.Message(LogLevel::LEVEL_TRACE, message);
+
+    if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+    {
+        mode->ApplyActions([this](TurnAction& action) { action.OnTurnEnd(GetEnemy()); });
+    }
 }
     
 void EnemyPlayTurnState::OnUpdate()

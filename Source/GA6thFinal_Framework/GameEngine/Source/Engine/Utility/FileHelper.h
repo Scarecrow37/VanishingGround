@@ -36,6 +36,21 @@ namespace File
         throw std::system_error(GetLastError(), std::system_category());
     }
 
+    static bool IsGuid(const std::string& str)
+    {
+        // "<Guid("95F093BE-764E-476C-8127-C5A3DC277139")>"
+        if (str.size() == 36)
+        {
+            bool isGuid = 
+                (str[8] == '-') &&
+                (str[13] == '-') && 
+                (str[18] == '-') &&
+                (str[23] == '-');
+            return isGuid;
+        }
+        return false;
+    }
+
     HRESULT CreateGuid(File::Guid& _id);
 
     /* 폴더를 만드는 함수. 중복 시 false 리턴 */ 

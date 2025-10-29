@@ -30,11 +30,20 @@ TextElement::~TextElement()
         _renderer->Release();
 }
 
-void TextElement::SetFont(const File::Guid& Guid)
+void TextElement::SetFont(const File::Guid& guid)
 {
-    _Guid = Guid;
+    _Guid = guid;
     ReflectFields->Guid = _Guid.string();
     RequestResource();
+}
+
+void TextElement::SetOpacity(const float opacity)
+{
+    const float clampedOpacity = std::clamp(opacity, 0.0f, 1.0f);
+    ReflectFields->Color[3]    = clampedOpacity;
+    UpdateColor();
+    ReflectFields->FontOutlineColor[3] = clampedOpacity;
+    UpdateOutline();
 }
 
 void TextElement::Reset()
@@ -142,6 +151,7 @@ void TextElement::UpdateProperties()
     UpdateColor();
     UpdatePosition();
     UpdateScale();
+    UpdateOutline();
     UpdateContentSize();
 }
 
@@ -203,15 +213,17 @@ void TextElement::UpdateContentSize()
     }
 }
 
-void TextElement::TestUpdateOutline()
+void TextElement::UpdateOutline()
 {
     if (nullptr != _renderer)
     {
-        bool enabled = ReflectFields->FontFlags & FONT_FLAG_OUTLINE;
+        const UINT fontFlags = ReflectFields->FontFlags;
+        const bool enabled   = fontFlags & FONT_FLAG_OUTLINE;
 
-        GE::FontOutline outline{.Color   = Vector4(&ReflectFields->FontOutlineColor[0]),
-                                .Width   = ReflectFields->FontOutlineWidth,
-                                .Enabled = enabled};
+        const SimpleMath::Color outlineColor = SimpleMath::Color(&ReflectFields->FontOutlineColor[0]);
+        const float             outlineWidth = ReflectFields->FontOutlineWidth;
+
+        const GE::FontOutline outline{.Color = outlineColor, .Width = outlineWidth, .Enabled = enabled};
 
         _renderer->SetFontOutline(outline);
     }

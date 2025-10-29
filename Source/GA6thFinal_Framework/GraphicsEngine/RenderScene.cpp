@@ -446,22 +446,18 @@ void RenderScene::UpdateUI()
                 break;
             }
         }
-        
-        //_uiMatrices.emplace_back(XMMatrixTranspose(scale * world * translation));
 
         UIMaterial uiMaterial{.ID          = texture->GetID(),
                               .Alpha       = component->GetAlpha(),
                               .NumColmn    = component->GetNumColumn(),
                               .NumRow      = component->GetNumRow(),
                               .ColumnIndex = component->GetColumnIndex(),
-                              .RowIndex    = component->GetRowIndex()};
-        
-        //_uiMaterials.push_back(uiMaterial);
+                              .RowIndex    = component->GetRowIndex()};       
 
         uiDatas.emplace_back(scale * world * translation, uiMaterial);
     }
     
-    std::stable_sort(uiDatas.begin(), uiDatas.end(), [](const auto& a, const auto& b) { return a.first.Translation().z > b.first.Translation().z; });
+    //std::stable_sort(uiDatas.begin(), uiDatas.end(), [](const auto& a, const auto& b) { return a.first.Translation().z > b.first.Translation().z; });
 
     _uiMatrices.clear();
     _uiMaterials.clear();

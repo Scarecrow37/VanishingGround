@@ -96,8 +96,8 @@ private:
     ParticleComponent*      _particleComponent    = nullptr;
 
 protected:
-    virtual void Added() override;
     virtual void Awake() override;
+    virtual void Start() override;
 
     void InitAnimationCallback();
 

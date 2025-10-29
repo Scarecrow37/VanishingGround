@@ -4,6 +4,8 @@
 #include <TurnSystem/TurnActor/Character/CharacterBase.h>
 #include <Token/TokenInventory.h>
 #include <Stats/CharacterStats.h>
+#include "ContentMath/ContentMath.h"
+
 namespace TokenObject
 {
     REGISTER_TOKEN(Stun)
@@ -42,10 +44,11 @@ namespace TokenObject
             if (stats)
             {
                 // 스턴 저항 수치 갱신은 올림 계산
-                const float stunResistance = std::ceilf((float)stats->StunResistance * stats->StunResistanceMultiplier);
-                stats->StunResistance = static_cast<int>(stunResistance);
+                stats->StunResistance = ContentMath::CeilPercentage(
+                    stats->StunResistance, static_cast<int>(stats->StunResistanceMultiplier * 100.0f));
                 tokenInventory.AddTokenStackFromID(TokenObject::StunResistance::ID, stats->StunResistance);
             }
+            UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(*owner));
         }
     }
 } // namespace TokenObject

@@ -147,7 +147,7 @@ protected:
     REFLECT_FIELDS_END(ExcelDataSystem)
 
     void Reset() override;
-    void Awake() override;
+    void Added() override;
     void ImGuiDrawPropertysEvent() override;
 
 private:

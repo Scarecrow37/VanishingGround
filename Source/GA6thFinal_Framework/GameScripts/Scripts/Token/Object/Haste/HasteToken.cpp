@@ -20,6 +20,7 @@ namespace TokenObject
             auto& tokenInventory = owner->GetTokenInventory();
             int   tokenID        = GetTokenID();
             tokenInventory.RemoveTokenStackFromID(tokenID);
+            UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(*owner));
         }
     }
 } // namespace TokenObject

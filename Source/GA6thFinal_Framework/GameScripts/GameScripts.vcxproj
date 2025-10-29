@@ -306,11 +306,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Scripts\IntroManager\IntroManager.h" />
+    <ClInclude Include="Scripts\QTE\UI\Field\QTEJudgeEffectUI.h" />
+    <ClInclude Include="Scripts\QTE\UI\Input\QTEInputNodeUI.h" />
+    <ClInclude Include="Scripts\QTE\UI\Input\QTEInputViewerUI.h" />
+    <ClInclude Include="Scripts\QTE\UI\Guide\QTEGuideUI.h" />
+    <ClInclude Include="Scripts\QTE\Callback\Callback.h" />
+    <ClInclude Include="Scripts\QTE\Common\QTECommon.h" />
+    <ClInclude Include="Scripts\QTE\UI\BackGround\QTEBackgroundUI.h" />
+    <ClInclude Include="Scripts\QTE\UI\Field\QTEFieldUI.h" />
+    <ClInclude Include="Scripts\QTE\UI\Field\QTENoteUI.h" />
     <ClInclude Include="Scripts\ContentMath\ContentMath.h" />
     <ClInclude Include="Scripts\MagicBook\SelectMagicBook.h" />
     <ClInclude Include="Scripts\MagicBook\SelectPopup.h" />
     <ClInclude Include="Scripts\StageVigneeteUI\StageVigneeteUIComponent.h" />
+    <ClInclude Include="Scripts\Test\Input\InputStackTestComponent.h" />
     <ClInclude Include="Scripts\Token\Object\BlackArmor\BlackArmorToken.h" />
     <ClInclude Include="Scripts\Token\Object\ProphecyDoom\ProphecyDoomToken.h" />
     <ClInclude Include="Scripts\Token\Object\Deffence\ChainDeffenceToken.h" />
@@ -318,7 +327,6 @@
     <ClInclude Include="Scripts\Token\Object\Rage\RageToken.h" />
     <ClInclude Include="Scripts\Token\Object\Focus\FocusToken.h" />
     <ClInclude Include="Scripts\Token\Object\Obsession\ObsessionToken.h" />
-    <ClInclude Include="Scripts\DifficultyManager\DifficultyEnum.h" />
     <ClInclude Include="Scripts\Token\Object\Haste\HasteToken.h" />
     <ClInclude Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.h" />
     <ClInclude Include="Scripts\AccessorySystem\AccessorySystem.h" />
@@ -344,6 +352,7 @@
     <ClInclude Include="Scripts\ConsumableSystem\ConsumableSystem.h" />
     <ClInclude Include="Scripts\DamageSystem\DamageSystem.h" />
     <ClInclude Include="Scripts\Debugger\Debugger.h" />
+    <ClInclude Include="Scripts\DifficultyManager\DifficultyEnum.h" />
     <ClInclude Include="Scripts\DifficultyManager\DifficultyManager.h" />
     <ClInclude Include="Scripts\ExcelDataSystem\ExcelDataSystem.h" />
     <ClInclude Include="Scripts\ExcelParser\ImGuiColumnSheetParser.h" />
@@ -355,6 +364,7 @@
     <ClInclude Include="Scripts\GameCore\FSM\FSMState.h" />
     <ClInclude Include="Scripts\GameCore\FSM\IFSMEntity.h" />
     <ClInclude Include="Scripts\Interface\ITriggerType.h" />
+    <ClInclude Include="Scripts\IntroManager\IntroManager.h" />
     <ClInclude Include="Scripts\Inventory\OpenInventoryComponent.h" />
     <ClInclude Include="Scripts\Inventory\UINavi\InventoryArrowNavi.h" />
     <ClInclude Include="Scripts\Inventory\UINavi\InventoryItemFocusNavi.h" />
@@ -463,6 +473,7 @@
     <ClInclude Include="Scripts\Test\DevTools\LogOutput.h" />
     <ClInclude Include="Scripts\Test\Input\InputTestComponent.h" />
     <ClInclude Include="Scripts\Test\TurnAction\TestActionComponent.h" />
+    <ClInclude Include="Scripts\Test\Tutorial\TutorialTestComponent.h" />
     <ClInclude Include="Scripts\Token\Enums\TokenEnums.h" />
     <ClInclude Include="Scripts\Token\Interface\IToken.h" />
     <ClInclude Include="Scripts\Token\Object\Armor\ArmorToken.h" />
@@ -476,6 +487,7 @@
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\AdditionalDamage\AdditionalDamageAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\ApplyDamage\ApplyDamage.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\ChangeQTEButton\ChangeQTEButton.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\LastWeaponDamageCopy\LastWeaponDamageCopy.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\MultiTargetDamage\MultiTargetDamageAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\Recovery\RecoveryAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\AttackTokenApplyAction.h" />
@@ -487,13 +499,14 @@
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\ChainCondition\ChainCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\LastQTEResultCondition\LastQTEResultCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\RevelationActiveCondition\RevelationActiveCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\RoundOnceCondition\RoundOnceCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\TokenCondition\TokenCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\TurnActionCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionEnums.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionFactory.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\WeaponStas\WeaponDamageAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\WeaponStas\WeaponDamageAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\CharacterBase.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\AI\EnemyAI.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\Base\EnemyConditionBase.h" />
@@ -541,16 +554,20 @@
     <ClInclude Include="Scripts\TurnSystem\TurnMode\State\TurnListEmptyState.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnMode\TurnMode.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnSystemHelper.h" />
+    <ClInclude Include="Scripts\TutorialSystem\TutorialSystem.h" />
     <ClInclude Include="Scripts\UINavigation\TempNavigationComponent.h" />
     <ClInclude Include="Scripts\UI\Animations\FadeDescriptionPanel\FadeDescriptionPanel.h" />
     <ClInclude Include="Scripts\UI\Animations\FadeImageElement\FadeImageElement.h" />
     <ClInclude Include="Scripts\UI\Animations\FadeTextElement\FadeTextElement.h" />
+    <ClInclude Include="Scripts\UI\Animations\FadeUIComponent\FadeUIComponent.h" />
     <ClInclude Include="Scripts\UI\Animations\UIAnimation.h" />
     <ClInclude Include="Scripts\UI\Base\DrawUIComponent\DrawUIComponent.h" />
+    <ClInclude Include="Scripts\UI\Base\IOpacity\IOpacity.h" />
     <ClInclude Include="Scripts\UI\Base\SlotComponent\SlotComponent.h" />
     <ClInclude Include="Scripts\UI\Contents\DamageElement.h" />
     <ClInclude Include="Scripts\UI\Contents\SpawnDamagePanel.h" />
     <ClInclude Include="Scripts\UI\Elements\Dummy\DummyElement.h" />
+    <ClInclude Include="Scripts\UI\Elements\HoldingProgressImage\HoldingProgressImageElement.h" />
     <ClInclude Include="Scripts\UI\Elements\Image\ImageElement.h" />
     <ClInclude Include="Scripts\UI\Elements\SpriteAnimation\SpriteAnimationElement.h" />
     <ClInclude Include="Scripts\UI\Elements\Text\TextElement.h" />
@@ -591,6 +608,7 @@
     <ClInclude Include="Scripts\Token\Object\Slow\SlowToken.h" />
     <ClInclude Include="Scripts\Token\Common\TokenCommon.h" />
     <ClInclude Include="Scripts\Utility\StringHelper.h" />
+    <ClInclude Include="Scripts\Token\Helper\TokenHelper.h" />
     <ClInclude Include="UmScriptCore.h" />
     <ClInclude Include="UmScriptsExport.h" />
     <ClInclude Include="Scripts\Token\Object\Weakness\WeaknessToken.h" />
@@ -598,10 +616,20 @@
     <ClInclude Include="Scripts\Token\Object\Vanish\VanishToken.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\QTE\UI\Field\QTEJudgeEffectUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\Input\QTEInputNodeUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\Input\QTEInputViewerUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\Guide\QTEGuideUI.cpp" />
+    <ClCompile Include="Scripts\QTE\Callback\Callback.cpp" />
+    <ClCompile Include="Scripts\QTE\Common\QTECommon.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\BackGround\QTEBackgroundUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\Field\QTEFieldUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\Field\QTENoteUI.cpp" />
     <ClCompile Include="Scripts\ContentMath\ContentMath.cpp" />
     <ClCompile Include="Scripts\MagicBook\SelectMagicBook.cpp" />
     <ClCompile Include="Scripts\MagicBook\SelectPopup.cpp" />
     <ClCompile Include="Scripts\StageVigneeteUI\StageVigneeteUIComponent.cpp" />
+    <ClCompile Include="Scripts\Test\Input\InputStackTestComponent.cpp" />
     <ClCompile Include="Scripts\Token\Object\BlackArmor\BlackArmorToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\ProphecyDoom\ProphecyDoomToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\Deffence\ChainDeffenceToken.cpp" />
@@ -733,6 +761,7 @@
     <ClCompile Include="Scripts\Preferences\PreferencesManager.cpp" />
     <ClCompile Include="Scripts\Preferences\PrefrencesWindow.cpp" />
     <ClCompile Include="Scripts\QTE\Editor\QTEEditor.cpp" />
+    <ClCompile Include="Scripts\QTE\KeyBinder\QTEKeyBinder.cpp" />
     <ClCompile Include="Scripts\QTE\System\QTESystem.cpp" />
     <ClCompile Include="Scripts\QTE\Track\Note\QTENote.cpp" />
     <ClCompile Include="Scripts\QTE\Track\Note\QTENoteData.cpp" />
@@ -756,6 +785,7 @@
     <ClCompile Include="Scripts\Test\DevTools\LogOutput.cpp" />
     <ClCompile Include="Scripts\Test\Input\InputTestComponent.cpp" />
     <ClCompile Include="Scripts\Test\TurnAction\TestActionComponent.cpp" />
+    <ClCompile Include="Scripts\Test\Tutorial\TutorialTestComponent.cpp" />
     <ClCompile Include="Scripts\Token\Interface\IToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\Armor\ArmorToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\Bleed\BleedToken.cpp" />
@@ -768,6 +798,7 @@
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\AdditionalDamage\AdditionalDamageAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\ApplyDamage\ApplyDamage.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\ChangeQTEButton\ChangeQTEButton.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\LastWeaponDamageCopy\LastWeaponDamageCopy.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\MultiTargetDamage\MultiTargetDamageAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\Recovery\RecoveryAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\AttackTokenApplyAction.cpp" />
@@ -779,11 +810,12 @@
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\ChainCondition\ChainCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\LastQTEResultCondition\LastQTEResultCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\RevelationActiveCondition\RevelationActiveCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\RoundOnceCondition\RoundOnceCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\TokenCondition\TokenCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\TurnActionCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\TurnAction.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\WeaponStas\WeaponDamageAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\WeaponStas\WeaponDamageAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\CharacterBase.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\AI\EnemyAI.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\Base\EnemyConditionBase.cpp" />
@@ -830,10 +862,12 @@
     <ClCompile Include="Scripts\TurnSystem\TurnMode\State\TurnListEmptyState.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnMode\TurnMode.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnSystemHelper.cpp" />
+    <ClCompile Include="Scripts\TutorialSystem\TutorialSystem.cpp" />
     <ClCompile Include="Scripts\UINavigation\TempNavigationComponent.cpp" />
     <ClCompile Include="Scripts\UI\Animations\FadeDescriptionPanel\FadeDescriptionPanel.cpp" />
     <ClCompile Include="Scripts\UI\Animations\FadeImageElement\FadeImageElement.cpp" />
     <ClCompile Include="Scripts\UI\Animations\FadeTextElement\FadeTextElement.cpp" />
+    <ClCompile Include="Scripts\UI\Animations\FadeUIComponent\FadeUIComponent.cpp" />
     <ClCompile Include="Scripts\UI\Animations\UIAnimation.cpp" />
     <ClCompile Include="Scripts\UI\Base\DrawUIComponent\DrawUIComponent.cpp" />
     <ClCompile Include="Scripts\UI\Base\SlotComponent\SlotComponent.cpp" />
@@ -842,6 +876,7 @@
     <ClCompile Include="Scripts\UI\Contents\DamageElement.cpp" />
     <ClCompile Include="Scripts\UI\Contents\SpawnDamagePanel.cpp" />
     <ClCompile Include="Scripts\UI\Elements\Dummy\DummyElement.cpp" />
+    <ClCompile Include="Scripts\UI\Elements\HoldingProgressImage\HoldingProgressImageElement.cpp" />
     <ClCompile Include="Scripts\UI\Elements\Image\ImageElement.cpp" />
     <ClCompile Include="Scripts\UI\Elements\SpriteAnimation\SpriteAnimationElement.cpp" />
     <ClCompile Include="Scripts\UI\Elements\Text\TextElement.cpp" />
@@ -881,6 +916,7 @@
     <ClCompile Include="Scripts\Token\Object\Slow\SlowToken.cpp" />
     <ClCompile Include="Scripts\Token\Common\TokenCommon.cpp" />
     <ClCompile Include="Scripts\Utility\StringHelper.cpp" />
+    <ClCompile Include="Scripts\Token\Helper\TokenHelper.cpp" />
     <ClCompile Include="UmScriptCore.cpp" />
     <ClCompile Include="UmScriptsExport.cpp" />
     <ClCompile Include="Scripts\Token\Object\Weakness\WeaknessToken.cpp" />

@@ -34,9 +34,14 @@ void ImageElement::SetImage(const File::Guid& Guid)
     RequestResource();
 }
 
-void ImageElement::SetLinearFill(float fill)
+void ImageElement::SetLinearFill(const float fill) const
 {
     _renderer->SetLinearFill(fill);
+}
+
+void ImageElement::SetRadialFill(const float fill) const
+{
+    _renderer->SetRadialFill(fill);
 }
 
 void ImageElement::Reset()
@@ -150,6 +155,13 @@ void ImageElement::ResetToSpriteSize()
     InvalidateMeasure();
 }
 
+void ImageElement::SetOpacity(const float opacity)
+{
+    const float clampedAlpha = std::clamp(opacity, 0.0f, 1.0f);
+    ReflectFields->Alpha     = clampedAlpha;
+    UpdateRendererAlpha(clampedAlpha);
+}
+
 void ImageElement::LoadTexture(const File::Guid& guid) const
 {
     if (nullptr != _renderer)
@@ -212,7 +224,13 @@ void ImageElement::RequestResource()
             UpdateAtlas();
             UpdateAtlasIndex();
 
-            //ResetToSpriteSize();
+            const float linearFill = LinearFill;
+            SetLinearFill(linearFill);
+
+            const float radialFill = RadialFill;
+            SetRadialFill(radialFill);
+
+            // ResetToSpriteSize();
         });
     }
 }
