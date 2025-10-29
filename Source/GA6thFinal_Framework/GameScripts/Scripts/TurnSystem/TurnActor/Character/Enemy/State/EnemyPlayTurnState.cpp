@@ -46,7 +46,6 @@ void EnemyPlayTurnState::OnEnter()
     const std::string message = std::format("{}{}{}{}", spawnPoint, (const char*)u8" Enemy 턴 시작. ",
                                             (const char*)u8"Action : ", actionName);
     UmLogger.Message(LogLevel::LEVEL_TRACE, message);
-
 }
 
 void EnemyPlayTurnState::OnExit() 
