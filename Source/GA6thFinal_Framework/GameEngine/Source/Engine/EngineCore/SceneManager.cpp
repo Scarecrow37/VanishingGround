@@ -1140,9 +1140,8 @@ void ESceneManager::ObjectsDestroy()
 {
     //컴포넌트 삭제
     auto& [destroyComponentSet, destroyComponentQueue] = _destroyComponentsQueue;
-    //OnDestroy 호출 도중 원본 큐 변형 방지를 위한 지연삭제
+    // OnDestroy 호출 도중 원본 큐 변형 방지를 위한 지연삭제
     _destroyComponentsTemp = destroyComponentQueue;
-    destroyComponentSet.clear();
     destroyComponentQueue.clear();
     for (auto& destroyComponent : _destroyComponentsTemp)
     {
@@ -1159,12 +1158,16 @@ void ESceneManager::ObjectsDestroy()
             return destroyComponent == component.get();
         });
     }
-
+    destroyComponentSet.clear();
+    for (auto& component : destroyComponentQueue)
+    {
+        destroyComponentSet.insert(component);
+    }
+    
     //오브젝트 삭제
     auto& [destroyObjectSet, destroyObjectQueue] = _destroyObjectsQueue;
     // OnDestroy 호출 도중 원본 큐 변형 방지를 위한 복사 후 삭제
     _destroyObjectTemp = destroyObjectQueue;
-    destroyObjectSet.clear();
     destroyObjectQueue.clear();
     for (auto& destroyObject : _destroyObjectTemp)
     {
@@ -1202,6 +1205,11 @@ void ESceneManager::ObjectsDestroy()
 
             }
         }
+    }
+    destroyObjectSet.clear();
+    for (auto& object : destroyObjectQueue)
+    {
+        destroyObjectSet.insert(object);
     }
 
     //배열 정리
