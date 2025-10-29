@@ -94,8 +94,6 @@ void SpawnDamagePanel::DeserializedReflectEvent()
 void SpawnDamagePanel::Awake()
 {
     UIComponent::Awake();
-
-    BindInputAction(ControllerButton::A, Action::PRESSED, this, &SpawnDamagePanel::OnButton);
 }
 
 void SpawnDamagePanel::Reset()
@@ -124,7 +122,7 @@ void SpawnDamagePanel::EraseChild() const
     children.clear();
 }
 
-std::weak_ptr<DamageElement> SpawnDamagePanel::MakeDamage() const
+std::weak_ptr<DamageElement> SpawnDamagePanel::MakeDamage(const int damage, const std::span<std::string> revelations) const
 {
     const std::shared_ptr<GameObject> child = NewGameObject(GameObject::Helper::GenerateUniqueName("Damage Element"));
 
@@ -139,20 +137,6 @@ std::weak_ptr<DamageElement> SpawnDamagePanel::MakeDamage() const
     damageElement.VerticalFillMode   = FillMode::WRAP;
 
     const LONG               distance = static_cast<LONG>((1 - RadiusRatio) * Radius);
-    const int                random   = Random::Range(0, 3);
-    std::vector<std::string> revelations;
-    if (random > 0)
-    {
-        revelations.push_back("What!");
-    }
-    if (random > 1)
-    {
-        revelations.push_back("What the!");
-    }
-    if (random > 2)
-    {
-        revelations.push_back("What the Fuck!");
-    }
 
     const DamageElement::SetupData data{.Distance           = distance,
                                         .Angle              = angle,
@@ -165,7 +149,7 @@ std::weak_ptr<DamageElement> SpawnDamagePanel::MakeDamage() const
                                         .EndColor           = EndColor,
                                         .BeginOutlineColor  = BeginOutlineColor,
                                         .EndOutlineColor    = EndOutlineColor,
-                                        .Damage             = "100",
+                                        .Damage             = std::to_string(damage),
                                         .Revelations        = revelations,
                                         .TurningPoint       = TurningPoint,
                                         .EasingFunctionType = EasingFunctionType};
@@ -189,9 +173,4 @@ std::pair<POINT,float> SpawnDamagePanel::GetRandomSpawnPointAndAngle() const
     const XMVECTOR resultVector      = XMVectorAdd(centerVector, vector);
     const POINT result = {static_cast<LONG>(XMVectorGetX(resultVector)), static_cast<LONG>(XMVectorGetY(resultVector))};
     return std::make_pair(result, angle);
-}
-
-void SpawnDamagePanel::OnButton(const Input::Controller& controller)
-{
-    _damageElements.push_back(MakeDamage());
 }

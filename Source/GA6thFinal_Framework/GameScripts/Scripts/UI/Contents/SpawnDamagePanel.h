@@ -2,7 +2,7 @@
 
 class DamageElement;
 
-class SpawnDamagePanel : public UIComponent, public InputReceiver
+class SpawnDamagePanel : public UIComponent
 {
     USING_PROPERTY(SpawnDamagePanel)
 
@@ -89,10 +89,8 @@ protected:
     void Reset() override;
 
     void                         EraseChild() const;
-    std::weak_ptr<DamageElement> MakeDamage() const;
+    std::weak_ptr<DamageElement> MakeDamage(int damage, std::span<std::string> revelations = std::span<std::string>()) const;
     std::pair<POINT, float>      GetRandomSpawnPointAndAngle() const;
-
-    void OnButton(const Input::Controller& controller);
 
 protected:
     REFLECT_FIELDS_BEGIN(UIComponent)
@@ -111,5 +109,4 @@ protected:
 
 private:
     File::Guid _Guid;
-    std::vector<std::weak_ptr<DamageElement>> _damageElements;
 };
