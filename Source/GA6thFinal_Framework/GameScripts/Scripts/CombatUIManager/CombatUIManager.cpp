@@ -153,3 +153,20 @@ UINavigationComponent* CombatUIManager::GetLastFocusNaviFromObjectName(const std
     }
     return value;
 }
+
+
+void CombatUIManager::FadeIn(float duration)
+{
+    for (auto& group : _uiGroups)
+    {
+        group->FadeIn(duration);
+    }
+}
+
+void CombatUIManager::FadeOut(float duration)
+{
+    for (auto& group : _uiGroups)
+    {
+        group->FadeOut(duration);
+    }
+}
