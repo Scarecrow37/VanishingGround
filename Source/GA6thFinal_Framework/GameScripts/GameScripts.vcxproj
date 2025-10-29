@@ -1,936 +1,938 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<ItemGroup Label="ProjectConfigurations">
-		<ProjectConfiguration Include="DebugEditor|Win32">
-			<Configuration>DebugEditor</Configuration>
-			<Platform>Win32</Platform>
-		</ProjectConfiguration>
-		<ProjectConfiguration Include="DebugEditor|x64">
-			<Configuration>DebugEditor</Configuration>
-			<Platform>x64</Platform>
-		</ProjectConfiguration>
-		<ProjectConfiguration Include="Debug|Win32">
-			<Configuration>Debug</Configuration>
-			<Platform>Win32</Platform>
-		</ProjectConfiguration>
-		<ProjectConfiguration Include="ReleaseEditor|Win32">
-			<Configuration>ReleaseEditor</Configuration>
-			<Platform>Win32</Platform>
-		</ProjectConfiguration>
-		<ProjectConfiguration Include="ReleaseEditor|x64">
-			<Configuration>ReleaseEditor</Configuration>
-			<Platform>x64</Platform>
-		</ProjectConfiguration>
-		<ProjectConfiguration Include="Release|Win32">
-			<Configuration>Release</Configuration>
-			<Platform>Win32</Platform>
-		</ProjectConfiguration>
-		<ProjectConfiguration Include="Debug|x64">
-			<Configuration>Debug</Configuration>
-			<Platform>x64</Platform>
-		</ProjectConfiguration>
-		<ProjectConfiguration Include="Release|x64">
-			<Configuration>Release</Configuration>
-			<Platform>x64</Platform>
-		</ProjectConfiguration>
-	</ItemGroup>
-	<PropertyGroup Label="Globals">
-		<VCProjectVersion>17.0</VCProjectVersion>
-		<Keyword>Win32Proj</Keyword>
-		<ProjectGuid>{e8e6295b-b897-4402-a263-83a19c6e2f59}</ProjectGuid>
-		<RootNamespace>UmrealScripts</RootNamespace>
-		<WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-	</PropertyGroup>
-	<Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-		<ConfigurationType>DynamicLibrary</ConfigurationType>
-		<UseDebugLibraries>true</UseDebugLibraries>
-		<PlatformToolset>v143</PlatformToolset>
-		<CharacterSet>Unicode</CharacterSet>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugEditor|Win32'" Label="Configuration">
-		<ConfigurationType>DynamicLibrary</ConfigurationType>
-		<UseDebugLibraries>true</UseDebugLibraries>
-		<PlatformToolset>v143</PlatformToolset>
-		<CharacterSet>Unicode</CharacterSet>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-		<ConfigurationType>DynamicLibrary</ConfigurationType>
-		<UseDebugLibraries>false</UseDebugLibraries>
-		<PlatformToolset>v143</PlatformToolset>
-		<WholeProgramOptimization>true</WholeProgramOptimization>
-		<CharacterSet>Unicode</CharacterSet>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|Win32'" Label="Configuration">
-		<ConfigurationType>DynamicLibrary</ConfigurationType>
-		<UseDebugLibraries>false</UseDebugLibraries>
-		<PlatformToolset>v143</PlatformToolset>
-		<WholeProgramOptimization>true</WholeProgramOptimization>
-		<CharacterSet>Unicode</CharacterSet>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-		<ConfigurationType>DynamicLibrary</ConfigurationType>
-		<UseDebugLibraries>true</UseDebugLibraries>
-		<PlatformToolset>v143</PlatformToolset>
-		<CharacterSet>Unicode</CharacterSet>
-		<OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
-		<EnableUnitySupport>true</EnableUnitySupport>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'" Label="Configuration">
-		<ConfigurationType>DynamicLibrary</ConfigurationType>
-		<UseDebugLibraries>true</UseDebugLibraries>
-		<PlatformToolset>v143</PlatformToolset>
-		<CharacterSet>Unicode</CharacterSet>
-		<OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
-		<EnableUnitySupport>true</EnableUnitySupport>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-		<ConfigurationType>DynamicLibrary</ConfigurationType>
-		<UseDebugLibraries>false</UseDebugLibraries>
-		<PlatformToolset>v143</PlatformToolset>
-		<WholeProgramOptimization>true</WholeProgramOptimization>
-		<CharacterSet>Unicode</CharacterSet>
-		<OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
-		<EnableUnitySupport>true</EnableUnitySupport>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'" Label="Configuration">
-		<ConfigurationType>DynamicLibrary</ConfigurationType>
-		<UseDebugLibraries>false</UseDebugLibraries>
-		<PlatformToolset>v143</PlatformToolset>
-		<WholeProgramOptimization>true</WholeProgramOptimization>
-		<CharacterSet>Unicode</CharacterSet>
-		<OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
-		<EnableUnitySupport>true</EnableUnitySupport>
-	</PropertyGroup>
-	<Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-	<ImportGroup Label="ExtensionSettings" />
-	<ImportGroup Label="Shared" />
-	<ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-		<Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-		<Import Project="..\GameEngine\GameEngineIncludes.props" />
-	</ImportGroup>
-	<ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugEditor|Win32'" Label="PropertySheets">
-		<Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-		<Import Project="..\GameEngine\GameEngineIncludes.props" />
-	</ImportGroup>
-	<ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-		<Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-		<Import Project="..\GameEngine\GameEngineIncludes.props" />
-	</ImportGroup>
-	<ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|Win32'" Label="PropertySheets">
-		<Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-		<Import Project="..\GameEngine\GameEngineIncludes.props" />
-	</ImportGroup>
-	<ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-		<Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-		<Import Project="..\GameEngine\GameEngineIncludes.props" />
-	</ImportGroup>
-	<ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'" Label="PropertySheets">
-		<Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-		<Import Project="..\GameEngine\GameEngineIncludes.props" />
-	</ImportGroup>
-	<ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-		<Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-		<Import Project="..\GameEngine\GameEngineIncludes.props" />
-	</ImportGroup>
-	<ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'" Label="PropertySheets">
-		<Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-		<Import Project="..\GameEngine\GameEngineIncludes.props" />
-	</ImportGroup>
-	<PropertyGroup Label="UserMacros" />
-	<PropertyGroup Label="Vcpkg">
-		<VcpkgEnabled>false</VcpkgEnabled>
-	</PropertyGroup>
-	<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-		<ClCompile>
-			<WarningLevel>Level3</WarningLevel>
-			<SDLCheck>true</SDLCheck>
-			<PreprocessorDefinitions>WIN32;_DEBUG;UMREALSCRIPTS_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-			<ConformanceMode>true</ConformanceMode>
-			<PrecompiledHeader>Use</PrecompiledHeader>
-			<PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-		</ClCompile>
-		<Link>
-			<SubSystem>Windows</SubSystem>
-			<GenerateDebugInformation>true</GenerateDebugInformation>
-			<EnableUAC>false</EnableUAC>
-		</Link>
-	</ItemDefinitionGroup>
-	<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugEditor|Win32'">
-		<ClCompile>
-			<WarningLevel>Level3</WarningLevel>
-			<SDLCheck>true</SDLCheck>
-			<PreprocessorDefinitions>WIN32;_DEBUG;UMREALSCRIPTS_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-			<ConformanceMode>true</ConformanceMode>
-			<PrecompiledHeader>Use</PrecompiledHeader>
-			<PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-		</ClCompile>
-		<Link>
-			<SubSystem>Windows</SubSystem>
-			<GenerateDebugInformation>true</GenerateDebugInformation>
-			<EnableUAC>false</EnableUAC>
-		</Link>
-	</ItemDefinitionGroup>
-	<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-		<ClCompile>
-			<WarningLevel>Level3</WarningLevel>
-			<FunctionLevelLinking>true</FunctionLevelLinking>
-			<IntrinsicFunctions>true</IntrinsicFunctions>
-			<SDLCheck>true</SDLCheck>
-			<PreprocessorDefinitions>WIN32;NDEBUG;UMREALSCRIPTS_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-			<ConformanceMode>true</ConformanceMode>
-			<PrecompiledHeader>Use</PrecompiledHeader>
-			<PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-		</ClCompile>
-		<Link>
-			<SubSystem>Windows</SubSystem>
-			<EnableCOMDATFolding>true</EnableCOMDATFolding>
-			<OptimizeReferences>true</OptimizeReferences>
-			<GenerateDebugInformation>true</GenerateDebugInformation>
-			<EnableUAC>false</EnableUAC>
-		</Link>
-	</ItemDefinitionGroup>
-	<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|Win32'">
-		<ClCompile>
-			<WarningLevel>Level3</WarningLevel>
-			<FunctionLevelLinking>true</FunctionLevelLinking>
-			<IntrinsicFunctions>true</IntrinsicFunctions>
-			<SDLCheck>true</SDLCheck>
-			<PreprocessorDefinitions>WIN32;NDEBUG;UMREALSCRIPTS_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-			<ConformanceMode>true</ConformanceMode>
-			<PrecompiledHeader>Use</PrecompiledHeader>
-			<PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-		</ClCompile>
-		<Link>
-			<SubSystem>Windows</SubSystem>
-			<EnableCOMDATFolding>true</EnableCOMDATFolding>
-			<OptimizeReferences>true</OptimizeReferences>
-			<GenerateDebugInformation>true</GenerateDebugInformation>
-			<EnableUAC>false</EnableUAC>
-		</Link>
-	</ItemDefinitionGroup>
-	<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-		<ClCompile>
-			<WarningLevel>Level3</WarningLevel>
-			<SDLCheck>true</SDLCheck>
-			<PreprocessorDefinitions>_DEBUG;UMREALSCRIPTS_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);UMREALSCRIPTS_EXPORT;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
-			<ConformanceMode>true</ConformanceMode>
-			<PrecompiledHeader>Use</PrecompiledHeader>
-			<PrecompiledHeaderFile>pchScripts.h</PrecompiledHeaderFile>
-			<LanguageStandard>stdcpp20</LanguageStandard>
-			<AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-			<MultiProcessorCompilation>true</MultiProcessorCompilation>
-			<AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
-			<IncludeInUnityFile>true</IncludeInUnityFile>
-		</ClCompile>
-		<Link>
-			<SubSystem>Windows</SubSystem>
-			<GenerateDebugInformation>true</GenerateDebugInformation>
-			<EnableUAC>false</EnableUAC>
-			<AdditionalLibraryDirectories>$(SolutionDir)GameEngine\bin\$(Configuration)\;$(SolutionDir)GameEngine\ThirdParty\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-			<AdditionalDependencies>GraphicsEngine.lib;GameEngine.lib;InputModule.lib;AudioModule.lib;ImGuiThirdParty.lib;XAtlasThirdParty.lib;UserInterfaceModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
-		</Link>
-	</ItemDefinitionGroup>
-	<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">
-		<ClCompile>
-			<WarningLevel>Level3</WarningLevel>
-			<SDLCheck>true</SDLCheck>
-			<PreprocessorDefinitions>_DEBUG;UMREALSCRIPTS_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);UMREALSCRIPTS_EXPORT;_CRT_SECURE_NO_WARNINGS;_UMEDITOR</PreprocessorDefinitions>
-			<ConformanceMode>true</ConformanceMode>
-			<PrecompiledHeader>Use</PrecompiledHeader>
-			<PrecompiledHeaderFile>pchScripts.h</PrecompiledHeaderFile>
-			<LanguageStandard>stdcpp20</LanguageStandard>
-			<AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-			<MultiProcessorCompilation>true</MultiProcessorCompilation>
-			<AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
-			<IncludeInUnityFile>true</IncludeInUnityFile>
-		</ClCompile>
-		<Link>
-			<SubSystem>Windows</SubSystem>
-			<GenerateDebugInformation>true</GenerateDebugInformation>
-			<EnableUAC>false</EnableUAC>
-			<AdditionalLibraryDirectories>$(SolutionDir)GameEngine\bin\$(Configuration)\;$(SolutionDir)GameEngine\ThirdParty\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-			<AdditionalDependencies>GraphicsEngine.lib;GameEngine.lib;InputModule.lib;AudioModule.lib;ImGuiThirdParty.lib;XAtlasThirdParty.lib;UserInterfaceModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
-		</Link>
-	</ItemDefinitionGroup>
-	<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-		<ClCompile>
-			<WarningLevel>Level3</WarningLevel>
-			<FunctionLevelLinking>true</FunctionLevelLinking>
-			<IntrinsicFunctions>true</IntrinsicFunctions>
-			<SDLCheck>true</SDLCheck>
-			<PreprocessorDefinitions>NDEBUG;UMREALSCRIPTS_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);UMREALSCRIPTS_EXPORT;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
-			<ConformanceMode>true</ConformanceMode>
-			<PrecompiledHeader>Use</PrecompiledHeader>
-			<PrecompiledHeaderFile>pchScripts.h</PrecompiledHeaderFile>
-			<LanguageStandard>stdcpp20</LanguageStandard>
-			<AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-			<MultiProcessorCompilation>true</MultiProcessorCompilation>
-			<AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
-			<IncludeInUnityFile>true</IncludeInUnityFile>
-		</ClCompile>
-		<Link>
-			<SubSystem>Windows</SubSystem>
-			<EnableCOMDATFolding>true</EnableCOMDATFolding>
-			<OptimizeReferences>true</OptimizeReferences>
-			<GenerateDebugInformation>true</GenerateDebugInformation>
-			<EnableUAC>false</EnableUAC>
-			<AdditionalLibraryDirectories>$(SolutionDir)GameEngine\bin\$(Configuration)\;$(SolutionDir)GameEngine\ThirdParty\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-			<AdditionalDependencies>GraphicsEngine.lib;GameEngine.lib;InputModule.lib;AudioModule.lib;ImGuiThirdParty.lib;XAtlasThirdParty.lib;UserInterfaceModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
-		</Link>
-	</ItemDefinitionGroup>
-	<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">
-		<ClCompile>
-			<WarningLevel>Level3</WarningLevel>
-			<FunctionLevelLinking>true</FunctionLevelLinking>
-			<IntrinsicFunctions>true</IntrinsicFunctions>
-			<SDLCheck>true</SDLCheck>
-			<PreprocessorDefinitions>NDEBUG;UMREALSCRIPTS_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);UMREALSCRIPTS_EXPORT;_CRT_SECURE_NO_WARNINGS;_UMEDITOR</PreprocessorDefinitions>
-			<ConformanceMode>true</ConformanceMode>
-			<PrecompiledHeader>Use</PrecompiledHeader>
-			<PrecompiledHeaderFile>pchScripts.h</PrecompiledHeaderFile>
-			<LanguageStandard>stdcpp20</LanguageStandard>
-			<AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-			<MultiProcessorCompilation>true</MultiProcessorCompilation>
-			<AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
-			<IncludeInUnityFile>true</IncludeInUnityFile>
-		</ClCompile>
-		<Link>
-			<SubSystem>Windows</SubSystem>
-			<EnableCOMDATFolding>true</EnableCOMDATFolding>
-			<OptimizeReferences>true</OptimizeReferences>
-			<GenerateDebugInformation>true</GenerateDebugInformation>
-			<EnableUAC>false</EnableUAC>
-			<AdditionalLibraryDirectories>$(SolutionDir)GameEngine\bin\$(Configuration)\;$(SolutionDir)GameEngine\ThirdParty\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-			<AdditionalDependencies>GraphicsEngine.lib;GameEngine.lib;InputModule.lib;AudioModule.lib;ImGuiThirdParty.lib;XAtlasThirdParty.lib;UserInterfaceModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
-		</Link>
-	</ItemDefinitionGroup>
-	<ItemGroup>
-		<ClInclude Include="Scripts\QTE\UI\Field\QTEJudgeEffectUI.h" />
-		<ClInclude Include="Scripts\QTE\UI\Input\QTEInputNodeUI.h" />
-		<ClInclude Include="Scripts\QTE\UI\Input\QTEInputViewerUI.h" />
-		<ClInclude Include="Scripts\QTE\UI\Guide\QTEGuideUI.h" />
-		<ClInclude Include="Scripts\QTE\Callback\Callback.h" />
-		<ClInclude Include="Scripts\QTE\Common\QTECommon.h" />
-		<ClInclude Include="Scripts\QTE\UI\BackGround\QTEBackgroundUI.h" />
-		<ClInclude Include="Scripts\QTE\UI\Field\QTEFieldUI.h" />
-		<ClInclude Include="Scripts\QTE\UI\Field\QTENoteUI.h" />
-		<ClInclude Include="Scripts\ContentMath\ContentMath.h" />
-		<ClInclude Include="Scripts\StageVigneeteUI\StageVigneeteUIComponent.h" />
-		<ClInclude Include="Scripts\Test\Input\InputStackTestComponent.h" />
-		<ClInclude Include="Scripts\Token\Object\BlackArmor\BlackArmorToken.h" />
-		<ClInclude Include="Scripts\Token\Object\ProphecyDoom\ProphecyDoomToken.h" />
-		<ClInclude Include="Scripts\Token\Object\Deffence\ChainDeffenceToken.h" />
-		<ClInclude Include="Scripts\Token\Object\DeathSentence\DeathSentence.h" />
-		<ClInclude Include="Scripts\Token\Object\Rage\RageToken.h" />
-		<ClInclude Include="Scripts\Token\Object\Focus\FocusToken.h" />
-		<ClInclude Include="Scripts\Token\Object\Obsession\ObsessionToken.h" />
-		<ClInclude Include="Scripts\Token\Object\Haste\HasteToken.h" />
-		<ClInclude Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.h" />
-		<ClInclude Include="Scripts\AccessorySystem\AccessorySystem.h" />
-		<ClInclude Include="Scripts\Animation\AnimationComponent.h" />
-		<ClInclude Include="Scripts\Animation\Structs\AnimationData.h" />
-		<ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
-		<ClInclude Include="Scripts\Audio\AudioTableComponent.h" />
-		<ClInclude Include="Scripts\Audio\BGMComponent.h" />
-		<ClInclude Include="Scripts\Audio\BGMManager.h" />
-		<ClInclude Include="Scripts\BattleSystem\Battle.h" />
-		<ClInclude Include="Scripts\Camera\CameraComponent.h" />
-		<ClInclude Include="Scripts\Camera\CameraManager.h" />
-		<ClInclude Include="Scripts\Camera\UmCineMotion.h" />
-		<ClInclude Include="Scripts\ColorUtils\ColorUtils.h" />
-		<ClInclude Include="Scripts\CombatUIManager\Accessories\AccessoriesGroup.h" />
-		<ClInclude Include="Scripts\CombatUIManager\CharacterHUD\CharacterHUDGroup.h" />
-		<ClInclude Include="Scripts\CombatUIManager\CombatUIManager.h" />
-		<ClInclude Include="Scripts\CombatUIManager\Consumable\ConsumableGroup.h" />
-		<ClInclude Include="Scripts\CombatUIManager\Revelations\RevelationsGroup.h" />
-		<ClInclude Include="Scripts\CombatUIManager\TurnQueue\TurnQueueGroup.h" />
-		<ClInclude Include="Scripts\CombatUIManager\UIGroup.h" />
-		<ClInclude Include="Scripts\CombatUIManager\Weapon\WeaponGroup.h" />
-		<ClInclude Include="Scripts\ConsumableSystem\ConsumableSystem.h" />
-		<ClInclude Include="Scripts\DamageSystem\DamageSystem.h" />
-		<ClInclude Include="Scripts\Debugger\Debugger.h" />
-		<ClInclude Include="Scripts\DifficultyManager\DifficultyEnum.h" />
-		<ClInclude Include="Scripts\DifficultyManager\DifficultyManager.h" />
-		<ClInclude Include="Scripts\ExcelDataSystem\ExcelDataSystem.h" />
-		<ClInclude Include="Scripts\ExcelParser\ImGuiColumnSheetParser.h" />
-		<ClInclude Include="Scripts\GameCore\FSM\AlwaysTransitionCondition.h" />
-		<ClInclude Include="Scripts\GameCore\FSM\Factory\FSMConditionFactory.h" />
-		<ClInclude Include="Scripts\GameCore\FSM\Factory\FSMStateFactory.h" />
-		<ClInclude Include="Scripts\GameCore\FSM\FiniteStateMachine.h" />
-		<ClInclude Include="Scripts\GameCore\FSM\FSMCondition.h" />
-		<ClInclude Include="Scripts\GameCore\FSM\FSMState.h" />
-		<ClInclude Include="Scripts\GameCore\FSM\IFSMEntity.h" />
-		<ClInclude Include="Scripts\Interface\ITriggerType.h" />
-		<ClInclude Include="Scripts\IntroManager\IntroManager.h" />
-		<ClInclude Include="Scripts\Inventory\OpenInventoryComponent.h" />
-		<ClInclude Include="Scripts\Inventory\UINavi\InventoryArrowNavi.h" />
-		<ClInclude Include="Scripts\Inventory\UINavi\InventoryItemFocusNavi.h" />
-		<ClInclude Include="Scripts\Inventory\UI\HorizontalPageUIManager.h" />
-		<ClInclude Include="Scripts\Inventory\UI\InventoryUIManager.h" />
-		<ClInclude Include="Scripts\ItemDropSystem\Interface\IDropItem.h" />
-		<ClInclude Include="Scripts\ItemDropSystem\ItemDropSystem.h" />
-		<ClInclude Include="Scripts\ItemDropSystem\UINavi\ArtifactButtonNavi.h" />
-		<ClInclude Include="Scripts\ItemDropSystem\UINavi\EraseRevelationNavi.h" />
-		<ClInclude Include="Scripts\ItemDropSystem\UINavi\PlayerWeaponChangeNavi.h" />
-		<ClInclude Include="Scripts\ItemDropSystem\UINavi\RestartStageNavi.h" />
-		<ClInclude Include="Scripts\ItemDropSystem\UINavi\ReturnToMapNavi.h" />
-		<ClInclude Include="Scripts\ItemDropSystem\UI\ArtifactUIManager.h" />
-		<ClInclude Include="Scripts\ItemDropSystem\UI\EraseRevelationUIManager.h" />
-		<ClInclude Include="Scripts\ItemDropSystem\UI\ItemDropUIRootManager.h" />
-		<ClInclude Include="Scripts\ItemDropSystem\UI\ItemInfoUIManager.h" />
-		<ClInclude Include="Scripts\ItemDropSystem\UI\WeaponChangeUIManager.h" />
-		<ClInclude Include="Scripts\Light\Base\LightComponent.h" />
-		<ClInclude Include="Scripts\Light\DirectionalLight.h" />
-		<ClInclude Include="Scripts\Light\PointLight.h" />
-		<ClInclude Include="Scripts\Light\ShadowPointLight.h" />
-		<ClInclude Include="Scripts\Light\SpotLight.h" />
-		<ClInclude Include="Scripts\MainMenu\Credits.h" />
-		<ClInclude Include="Scripts\MainMenu\MainMenuNavigationBase.h" />
-		<ClInclude Include="Scripts\MainMenu\NewGame.h" />
-		<ClInclude Include="Scripts\MainMenu\Option.h" />
-		<ClInclude Include="Scripts\MainMenu\Quit.h" />
-		<ClInclude Include="Scripts\Map\MapManager.h" />
-		<ClInclude Include="Scripts\Map\MapManagerTracker.h" />
-		<ClInclude Include="Scripts\Map\RewardPopup.h" />
-		<ClInclude Include="Scripts\Map\SmoothScroll.h" />
-		<ClInclude Include="Scripts\Map\Stage.h" />
-		<ClInclude Include="Scripts\Mesh\MeshComponent.h" />
-		<ClInclude Include="Scripts\Mesh\SkeletalMeshRenderer.h" />
-		<ClInclude Include="Scripts\Mesh\StaticMeshRenderer.h" />
-		<ClInclude Include="Scripts\Monster\Action\BossServant\1st\MonsterActionBlackSacrament.h" />
-		<ClInclude Include="Scripts\Monster\Action\BossServant\1st\MonsterActionCourtesyOfTheKing.h" />
-		<ClInclude Include="Scripts\Monster\Action\BossServant\2st\MonsterActionEnjoymentOfLoyalty.h" />
-		<ClInclude Include="Scripts\Monster\Action\BossServant\2st\MonsterActionImpute.h" />
-		<ClInclude Include="Scripts\Monster\Action\Boss\MonsterActionCollapsingPillar.h" />
-		<ClInclude Include="Scripts\Monster\Action\Boss\MonsterActionRecordObliteration.h" />
-		<ClInclude Include="Scripts\Monster\Action\MonsterActionBase.h" />
-		<ClInclude Include="Scripts\Monster\Action\MonsterActionFactory.h" />
-		<ClInclude Include="Scripts\Monster\Action\MonsterA\MonsterActionAmbush.h" />
-		<ClInclude Include="Scripts\Monster\Action\MonsterA\MonsterActionBloodRitual.h" />
-		<ClInclude Include="Scripts\Monster\Action\MonsterA\MonsterActionExecutionShot.h" />
-		<ClInclude Include="Scripts\Monster\Action\MonsterA\MonsterActionRendApart.h" />
-		<ClInclude Include="Scripts\Monster\Action\MonsterA\MonsterActionSmokeSlash.h" />
-		<ClInclude Include="Scripts\Monster\Action\MonsterB\MonsterActionCower.h" />
-		<ClInclude Include="Scripts\Monster\Action\MonsterB\MonsterActionDespair.h" />
-		<ClInclude Include="Scripts\Monster\Action\MonsterB\MonsterActionHymnOfAnnihilation.h" />
-		<ClInclude Include="Scripts\Monster\Action\MonsterB\MonsterActionShiveringWhisper.h" />
-		<ClInclude Include="Scripts\Monster\Action\MonsterB\MonsterActionWhisperOfFear.h" />
-		<ClInclude Include="Scripts\Monster\Action\MonsterC\MonsterActionBaptismOfMight.h" />
-		<ClInclude Include="Scripts\Monster\Action\MonsterC\MonsterActionRebinding.h" />
-		<ClInclude Include="Scripts\Monster\Action\MonsterC\MonsterActionSkullBreaker.h" />
-		<ClInclude Include="Scripts\Monster\Action\MonsterC\MonsterActionSmashStrike.h" />
-		<ClInclude Include="Scripts\Monster\AI\MonsterAIBuilder.h" />
-		<ClInclude Include="Scripts\Monster\AI\MonsterAIFactory.h" />
-		<ClInclude Include="Scripts\Monster\AI\MonsterAIModel.h" />
-		<ClInclude Include="Scripts\Monster\Common\MonsterCommon.h" />
-		<ClInclude Include="Scripts\Monster\Context\MonsterActionContext.h" />
-		<ClInclude Include="Scripts\Monster\Context\MonsterDataContext.h" />
-		<ClInclude Include="Scripts\Monster\Context\MonsterSpawnContext.h" />
-		<ClInclude Include="Scripts\Monster\Context\MonsterStatContext.h" />
-		<ClInclude Include="Scripts\Monster\Controller\MonsterController.h" />
-		<ClInclude Include="Scripts\Monster\System\MonsterSystem.h" />
-		<ClInclude Include="Scripts\Particle\ParticleComponent.h" />
-		<ClInclude Include="Scripts\PlayerSystem\PlayerSystem.h" />
-		<ClInclude Include="Scripts\Preferences\Button\AbandonButton.h" />
-		<ClInclude Include="Scripts\Preferences\Button\AbandonNoButton.h" />
-		<ClInclude Include="Scripts\Preferences\Button\AbandonYesButton.h" />
-		<ClInclude Include="Scripts\Preferences\Button\BackButton.h" />
-		<ClInclude Include="Scripts\Preferences\Button\EnableButton.h" />
-		<ClInclude Include="Scripts\Preferences\Button\PreferencesButton.h" />
-		<ClInclude Include="Scripts\Preferences\Button\SoundButton.h" />
-		<ClInclude Include="Scripts\Preferences\Button\TextureLMH.h" />
-		<ClInclude Include="Scripts\Preferences\ImportGraphicsSetting.h" />
-		<ClInclude Include="Scripts\Preferences\PreferencesManager.h" />
-		<ClInclude Include="Scripts\Preferences\PrefrencesWindow.h" />
-		<ClInclude Include="Scripts\QTE\Editor\QTEEditor.h" />
-		<ClInclude Include="Scripts\QTE\Result\QTEResult.h" />
-		<ClInclude Include="Scripts\QTE\System\QTESystem.h" />
-		<ClInclude Include="Scripts\QTE\Track\Note\QTENote.h" />
-		<ClInclude Include="Scripts\QTE\Track\Note\QTENoteData.h" />
-		<ClInclude Include="Scripts\QTE\Track\QTETrack.h" />
-		<ClInclude Include="Scripts\QTE\UI\QTEUIManager.h" />
-		<ClInclude Include="Scripts\RevelationSystem\RevelationAction\Base\RevelationActionBase.h" />
-		<ClInclude Include="Scripts\RevelationSystem\RevelationAction\Critical\CriticalDamageAction.h" />
-		<ClInclude Include="pchScripts.h" />
-		<ClInclude Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.h" />
-		<ClInclude Include="Scripts\RevelationSystem\RevelationSystem.h" />
-		<ClInclude Include="Scripts\SceneTransition\SceneTransitionComponent.h" />
-		<ClInclude Include="Scripts\SceneTransition\TransitionManager.h" />
-		<ClInclude Include="Scripts\Stats\CharacterStats.h" />
-		<ClInclude Include="Scripts\Stats\Enemy\EnemyStats.h" />
-		<ClInclude Include="Scripts\Stats\Enemy\EnemyStatsComponent.h" />
-		<ClInclude Include="Scripts\Stats\Player\PlayerStats.h" />
-		<ClInclude Include="Scripts\Stats\Player\PlayerStatsComponent.h" />
-		<ClInclude Include="Scripts\Stats\TurnActorStats.h" />
-		<ClInclude Include="Scripts\Stats\TurnActorStatsComponent.h" />
-		<ClInclude Include="Scripts\Stats\Weapon\WeaponStats.h" />
-		<ClInclude Include="Scripts\Test\Audio\TestAudioComponent.h" />
-		<ClInclude Include="Scripts\Test\Component\TestComponent.h" />
-		<ClInclude Include="Scripts\Test\DevTools\FPSCounter.h" />
-		<ClInclude Include="Scripts\Test\DevTools\LogOutput.h" />
-		<ClInclude Include="Scripts\Test\Input\InputTestComponent.h" />
-		<ClInclude Include="Scripts\Test\TurnAction\TestActionComponent.h" />
-		<ClInclude Include="Scripts\Test\Tutorial\TutorialTestComponent.h" />
-		<ClInclude Include="Scripts\Token\Enums\TokenEnums.h" />
-		<ClInclude Include="Scripts\Token\Interface\IToken.h" />
-		<ClInclude Include="Scripts\Token\Object\Armor\ArmorToken.h" />
-		<ClInclude Include="Scripts\Token\Object\Bleed\BleedToken.h" />
-		<ClInclude Include="Scripts\Token\Object\Poison\PoisonToken.h" />
-		<ClInclude Include="Scripts\Token\Object\Regen\RegenToken.h" />
-		<ClInclude Include="Scripts\Token\Object\Stun\StunToken.h" />
-		<ClInclude Include="Scripts\Token\Token.h" />
-		<ClInclude Include="Scripts\Token\TokenInventory.h" />
-		<ClInclude Include="Scripts\Token\TokenSystem.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\AdditionalDamage\AdditionalDamageAction.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\ApplyDamage\ApplyDamage.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\ChangeQTEButton\ChangeQTEButton.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\LastWeaponDamageCopy\LastWeaponDamageCopy.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\MultiTargetDamage\MultiTargetDamageAction.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\Recovery\RecoveryAction.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\AttackTokenApplyAction.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\Base\TokenApplyAction.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TakeDamageEndTokenApplyAction.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\WeaponKillTokenApplyAction.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenChangeAction\TokenChangeAction.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenTypeCountAttackDamageAdditional\TokenTypeCountAttackDamageAdditional.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\ChainCondition\ChainCondition.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\LastQTEResultCondition\LastQTEResultCondition.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\RevelationActiveCondition\RevelationActiveCondition.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\RoundOnceCondition\RoundOnceCondition.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\TokenCondition\TokenCondition.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\TurnActionCondition.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnAction\TurnAction.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionEnums.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionFactory.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\WeaponStas\WeaponDamageAction.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnActor\Character\CharacterBase.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\AI\EnemyAI.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\Base\EnemyConditionBase.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyDeadCondition.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyEndCondition.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyStartCondition.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Enemy.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Enum\EnemyEnum.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\Base\EnemyStateBase.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\EnemyDeadState.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\EnemyPlayTurnState.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\EnemyWaitTurnState.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\Base\PlayerConditionBase.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerDeadCondition.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerExitCondition.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerStartCondition.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerWinCondition.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\Player.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\State\Base\PlayerStateBase.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerDeadState.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerPlayTurnState.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerWaitTurnState.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerWinState.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnActor\TurnActor.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\Base\TurnModeConditionBase.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundEndExit.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundStartExit.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnEmpty.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnEndCondition.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnNotEmpty.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\EnemyActionCondition.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\GameClearCondition.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\GameOverCondition.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\PlayerActionCondition.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\RoundStartCondition.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnMode\State\Base\TurnModeStateBase.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnMode\State\CheckPlayerState.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnMode\State\CombatStartPhase.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnMode\State\EnemyActionPhase.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnMode\State\GameClearState.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnMode\State\GameOverState.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnMode\State\PlayerActionPhase.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnMode\State\RoundEndPhase.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnMode\State\RoundStartPhase.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnMode\State\TurnListEmptyState.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnMode\TurnMode.h" />
-		<ClInclude Include="Scripts\TurnSystem\TurnSystemHelper.h" />
-		<ClInclude Include="Scripts\TutorialSystem\TutorialSystem.h" />
-		<ClInclude Include="Scripts\UINavigation\TempNavigationComponent.h" />
-		<ClInclude Include="Scripts\UI\Animations\FadeDescriptionPanel\FadeDescriptionPanel.h" />
-		<ClInclude Include="Scripts\UI\Animations\FadeImageElement\FadeImageElement.h" />
-		<ClInclude Include="Scripts\UI\Animations\FadeTextElement\FadeTextElement.h" />
-		<ClInclude Include="Scripts\UI\Animations\FadeUIComponent\FadeUIComponent.h" />
-		<ClInclude Include="Scripts\UI\Animations\UIAnimation.h" />
-		<ClInclude Include="Scripts\UI\Base\DrawUIComponent\DrawUIComponent.h" />
-		<ClInclude Include="Scripts\UI\Base\IOpacity\IOpacity.h" />
-		<ClInclude Include="Scripts\UI\Base\SlotComponent\SlotComponent.h" />
-		<ClInclude Include="Scripts\UI\Contents\DamageElement.h" />
-		<ClInclude Include="Scripts\UI\Contents\SpawnDamagePanel.h" />
-		<ClInclude Include="Scripts\UI\Elements\Dummy\DummyElement.h" />
-		<ClInclude Include="Scripts\UI\Elements\HoldingProgressImage\HoldingProgressImageElement.h" />
-		<ClInclude Include="Scripts\UI\Elements\Image\ImageElement.h" />
-		<ClInclude Include="Scripts\UI\Elements\SpriteAnimation\SpriteAnimationElement.h" />
-		<ClInclude Include="Scripts\UI\Elements\Text\TextElement.h" />
-		<ClInclude Include="Scripts\UI\Panels\Description\DescriptionPanel.h" />
-		<ClInclude Include="Scripts\UI\Panels\Grid\GridPanel.h" />
-		<ClInclude Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.h" />
-		<ClInclude Include="Scripts\UI\Panels\Overlay\OverlayPanel.h" />
-		<ClInclude Include="Scripts\UI\Views\Accessories\AccessoriesView.h" />
-		<ClInclude Include="Scripts\UI\Views\Map\StageFocusView.h" />
-		<ClInclude Include="Scripts\UI\Views\Map\StageView.h" />
-		<ClInclude Include="Scripts\UI\Views\MonsterChain\MonsterChainView.h" />
-		<ClInclude Include="Scripts\UI\Views\MonsterHp\MonsterHpView.h" />
-		<ClInclude Include="Scripts\UI\Views\PlayerHP\PlayerHPView.h" />
-		<ClInclude Include="Scripts\UI\Views\RevelationsView\RevelationsView.h" />
-		<ClInclude Include="Scripts\UI\Views\SturnResistanceView\SturnResistanceView.h" />
-		<ClInclude Include="Scripts\UI\Views\TurnQueue\TurnQueueView.h" />
-		<ClInclude Include="Scripts\UI\Views\Weapon\WeaponView.h" />
-		<ClInclude Include="Scripts\UI\Wrappers\Dummy\DummyWrapper.h" />
-		<ClInclude Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.h" />
-		<ClInclude Include="Scripts\UI\Wrappers\Scrolling\ScrollingWrapper.h" />
-		<ClInclude Include="Scripts\Utility\FadeHelper.h" />
-		<ClInclude Include="Scripts\Utility\SingletonHelper.h" />
-		<ClInclude Include="Scripts\Utility\UINaviKeyBindHelper.h" />
-		<ClInclude Include="Scripts\ViewModels\Accessories\AccessoriesViewModel.h" />
-		<ClInclude Include="Scripts\ViewModels\Chain\ChainCountViewModel.h" />
-		<ClInclude Include="Scripts\ViewModels\Hp\CharacterHPViewModel.h" />
-		<ClInclude Include="Scripts\ViewModels\ItemDrop\DropArtifacts\DropArtifactsViewModel.h" />
-		<ClInclude Include="Scripts\ViewModels\Map\StageFocusViewModel.h" />
-		<ClInclude Include="Scripts\ViewModels\Map\StageViewModel.h" />
-		<ClInclude Include="Scripts\ViewModels\Revelations\RevelationsViewModel.h" />
-		<ClInclude Include="Scripts\ViewModels\SturnResistance\SturnResistanceViewModel.h" />
-		<ClInclude Include="Scripts\ViewModels\TurnQueue\TurnQueueViewModel.h" />
-		<ClInclude Include="Scripts\ViewModels\Weapon\WeaponViewModel.h" />
-		<ClInclude Include="Scripts\WeaponModelManager\WeaponModelManager.h" />
-		<ClInclude Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.h" />
-		<ClInclude Include="Scripts\WeaponSystem\WeaponSystem.h" />
-		<ClInclude Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.h" />
-		<ClInclude Include="Scripts\Token\Object\Slow\SlowToken.h" />
-		<ClInclude Include="Scripts\Token\Common\TokenCommon.h" />
-		<ClInclude Include="Scripts\Utility\StringHelper.h" />
-		<ClInclude Include="Scripts\Token\Helper\TokenHelper.h" />
-		<ClInclude Include="UmScriptCore.h" />
-		<ClInclude Include="UmScriptsExport.h" />
-		<ClInclude Include="Scripts\Token\Object\Weakness\WeaknessToken.h" />
-		<ClInclude Include="Scripts\Token\Object\Deffence\WeaponDeffenceToken.h" />
-		<ClInclude Include="Scripts\Token\Object\Vanish\VanishToken.h" />
-		<ClInclude Include="Scripts\RoundInfoUI\RoundInfoUIManager.h" />
-		<ClInclude Include="Scripts\Input\InputOkCancelComponent\InputOkCancelComponent.h" />
-	</ItemGroup>
-	<ItemGroup>
-		<ClCompile Include="Scripts\QTE\UI\Field\QTEJudgeEffectUI.cpp" />
-		<ClCompile Include="Scripts\QTE\UI\Input\QTEInputNodeUI.cpp" />
-		<ClCompile Include="Scripts\QTE\UI\Input\QTEInputViewerUI.cpp" />
-		<ClCompile Include="Scripts\QTE\UI\Guide\QTEGuideUI.cpp" />
-		<ClCompile Include="Scripts\QTE\Callback\Callback.cpp" />
-		<ClCompile Include="Scripts\QTE\Common\QTECommon.cpp" />
-		<ClCompile Include="Scripts\QTE\UI\BackGround\QTEBackgroundUI.cpp" />
-		<ClCompile Include="Scripts\QTE\UI\Field\QTEFieldUI.cpp" />
-		<ClCompile Include="Scripts\QTE\UI\Field\QTENoteUI.cpp" />
-		<ClCompile Include="Scripts\ContentMath\ContentMath.cpp" />
-		<ClCompile Include="Scripts\StageVigneeteUI\StageVigneeteUIComponent.cpp" />
-		<ClCompile Include="Scripts\Test\Input\InputStackTestComponent.cpp" />
-		<ClCompile Include="Scripts\Token\Object\BlackArmor\BlackArmorToken.cpp" />
-		<ClCompile Include="Scripts\Token\Object\ProphecyDoom\ProphecyDoomToken.cpp" />
-		<ClCompile Include="Scripts\Token\Object\Deffence\ChainDeffenceToken.cpp" />
-		<ClCompile Include="Scripts\Token\Object\DeathSentence\DeathSentence.cpp" />
-		<ClCompile Include="dllmain.cpp">
-			<PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-			<PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">Use</PrecompiledHeader>
-			<PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-			<PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">Use</PrecompiledHeader>
-		</ClCompile>
-		<ClCompile Include="Scripts\Token\Object\Rage\RageToken.cpp" />
-		<ClCompile Include="Scripts\Token\Object\Focus\FocusToken.cpp" />
-		<ClCompile Include="Scripts\Token\Object\Obsession\ObsessionToken.cpp" />
-		<ClCompile Include="Scripts\Token\Object\Haste\HasteToken.cpp" />
-		<ClCompile Include="pchScripts.cpp">
-			<PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-			<PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">Create</PrecompiledHeader>
-			<PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-			<PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">Create</PrecompiledHeader>
-		</ClCompile>
-		<ClCompile Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.cpp" />
-		<ClCompile Include="Scripts\AccessorySystem\AccessorySystem.cpp" />
-		<ClCompile Include="Scripts\Animation\AnimationComponent.cpp" />
-		<ClCompile Include="Scripts\Animation\Structs\AnimationData.cpp" />
-		<ClCompile Include="Scripts\Audio\AudioTableComponent.cpp" />
-		<ClCompile Include="Scripts\Audio\BGMComponent.cpp" />
-		<ClCompile Include="Scripts\Audio\BGMManager.cpp" />
-		<ClCompile Include="Scripts\BattleSystem\Battle.cpp" />
-		<ClCompile Include="Scripts\Camera\CameraComponent.cpp" />
-		<ClCompile Include="Scripts\Camera\CameraManager.cpp" />
-		<ClCompile Include="Scripts\Camera\UmCineMotion.cpp" />
-		<ClCompile Include="Scripts\ColorUtils\ColorUtils.cpp" />
-		<ClCompile Include="Scripts\CombatUIManager\Accessories\AccessoriesGroup.cpp" />
-		<ClCompile Include="Scripts\CombatUIManager\CharacterHUD\CharacterHUDGroup.cpp" />
-		<ClCompile Include="Scripts\CombatUIManager\CombatUIManager.cpp" />
-		<ClCompile Include="Scripts\CombatUIManager\Consumable\ConsumableGroup.cpp" />
-		<ClCompile Include="Scripts\CombatUIManager\Revelations\RevelationsGroup.cpp" />
-		<ClCompile Include="Scripts\CombatUIManager\TurnQueue\TurnQueueGroup.cpp" />
-		<ClCompile Include="Scripts\CombatUIManager\Weapon\WeaponGroup.cpp" />
-		<ClCompile Include="Scripts\ConsumableSystem\ConsumableSystem.cpp" />
-		<ClCompile Include="Scripts\DamageSystem\DamageSystem.cpp" />
-		<ClCompile Include="Scripts\Debugger\Debugger.cpp" />
-		<ClCompile Include="Scripts\DifficultyManager\DifficultyManager.cpp" />
-		<ClCompile Include="Scripts\ExcelDataSystem\ExcelDataSystem.cpp" />
-		<ClCompile Include="Scripts\ExcelParser\ImGuiColumnSheetParser.cpp" />
-		<ClCompile Include="Scripts\GameCore\FSM\AlwaysTransitionCondition.cpp" />
-		<ClCompile Include="Scripts\GameCore\FSM\FiniteStateMachine.cpp" />
-		<ClCompile Include="Scripts\GameCore\FSM\FSMCondition.cpp" />
-		<ClCompile Include="Scripts\GameCore\FSM\FSMState.cpp" />
-		<ClCompile Include="Scripts\IntroManager\IntroManager.cpp" />
-		<ClCompile Include="Scripts\Inventory\OpenInventoryComponent.cpp" />
-		<ClCompile Include="Scripts\Inventory\UINavi\InventoryArrowNavi.cpp" />
-		<ClCompile Include="Scripts\Inventory\UINavi\InventoryItemFocusNavi.cpp" />
-		<ClCompile Include="Scripts\Inventory\UI\HorizontalPageUIManager.cpp" />
-		<ClCompile Include="Scripts\Inventory\UI\InventoryUIManager.cpp" />
-		<ClCompile Include="Scripts\ItemDropSystem\Interface\IDropItem.cpp" />
-		<ClCompile Include="Scripts\ItemDropSystem\ItemDropSystem.cpp" />
-		<ClCompile Include="Scripts\ItemDropSystem\UINavi\ArtifactButtonNavi.cpp" />
-		<ClCompile Include="Scripts\ItemDropSystem\UINavi\EraseRevelationNavi.cpp" />
-		<ClCompile Include="Scripts\ItemDropSystem\UINavi\PlayerWeaponChangeNavi.cpp" />
-		<ClCompile Include="Scripts\ItemDropSystem\UINavi\RestartStageNavi.cpp" />
-		<ClCompile Include="Scripts\ItemDropSystem\UINavi\ReturnToMapNavi.cpp" />
-		<ClCompile Include="Scripts\ItemDropSystem\UI\ArtifactUIManager.cpp" />
-		<ClCompile Include="Scripts\ItemDropSystem\UI\EraseRevelationUIManager.cpp" />
-		<ClCompile Include="Scripts\ItemDropSystem\UI\ItemDropUIRootManager.cpp" />
-		<ClCompile Include="Scripts\ItemDropSystem\UI\ItemInfoUIManager.cpp" />
-		<ClCompile Include="Scripts\ItemDropSystem\UI\WeaponChangeUIManager.cpp" />
-		<ClCompile Include="Scripts\Light\Base\LightComponent.cpp" />
-		<ClCompile Include="Scripts\Light\DirectionalLight.cpp" />
-		<ClCompile Include="Scripts\Light\PointLight.cpp" />
-		<ClCompile Include="Scripts\Light\ShadowPointLight.cpp" />
-		<ClCompile Include="Scripts\Light\SpotLight.cpp" />
-		<ClCompile Include="Scripts\MainMenu\Credits.cpp" />
-		<ClCompile Include="Scripts\MainMenu\MainMenuNavigationBase.cpp" />
-		<ClCompile Include="Scripts\MainMenu\NewGame.cpp" />
-		<ClCompile Include="Scripts\MainMenu\Option.cpp" />
-		<ClCompile Include="Scripts\MainMenu\Quit.cpp" />
-		<ClCompile Include="Scripts\Map\MapManager.cpp" />
-		<ClCompile Include="Scripts\Map\MapManagerTracker.cpp" />
-		<ClCompile Include="Scripts\Map\RewardPopup.cpp" />
-		<ClCompile Include="Scripts\Map\SmoothScroll.cpp" />
-		<ClCompile Include="Scripts\Map\Stage.cpp" />
-		<ClCompile Include="Scripts\Mesh\MeshComponent.cpp" />
-		<ClCompile Include="Scripts\Mesh\SkeletalMeshRenderer.cpp" />
-		<ClCompile Include="Scripts\Mesh\StaticMeshRenderer.cpp" />
-		<ClCompile Include="Scripts\Monster\Action\BossServant\1st\MonsterActionBlackSacrament.cpp" />
-		<ClCompile Include="Scripts\Monster\Action\BossServant\1st\MonsterActionCourtesyOfTheKing.cpp" />
-		<ClCompile Include="Scripts\Monster\Action\BossServant\2st\MonsterActionEnjoymentOfLoyalty.cpp" />
-		<ClCompile Include="Scripts\Monster\Action\BossServant\2st\MonsterActionImpute.cpp" />
-		<ClCompile Include="Scripts\Monster\Action\Boss\MonsterActionCollapsingPillar.cpp" />
-		<ClCompile Include="Scripts\Monster\Action\Boss\MonsterActionRecordObliteration.cpp" />
-		<ClCompile Include="Scripts\Monster\Action\MonsterActionBase.cpp" />
-		<ClCompile Include="Scripts\Monster\Action\MonsterActionFactory.cpp" />
-		<ClCompile Include="Scripts\Monster\Action\MonsterA\MonsterActionAmbush.cpp" />
-		<ClCompile Include="Scripts\Monster\Action\MonsterA\MonsterActionBloodRitual.cpp" />
-		<ClCompile Include="Scripts\Monster\Action\MonsterA\MonsterActionExecutionShot.cpp" />
-		<ClCompile Include="Scripts\Monster\Action\MonsterA\MonsterActionRendApart.cpp" />
-		<ClCompile Include="Scripts\Monster\Action\MonsterA\MonsterActionSmokeSlash.cpp" />
-		<ClCompile Include="Scripts\Monster\Action\MonsterB\MonsterActionCower.cpp" />
-		<ClCompile Include="Scripts\Monster\Action\MonsterB\MonsterActionDespair.cpp" />
-		<ClCompile Include="Scripts\Monster\Action\MonsterB\MonsterActionHymnOfAnnihilation.cpp" />
-		<ClCompile Include="Scripts\Monster\Action\MonsterB\MonsterActionShiveringWhisper.cpp" />
-		<ClCompile Include="Scripts\Monster\Action\MonsterB\MonsterActionWhisperOfFear.cpp" />
-		<ClCompile Include="Scripts\Monster\Action\MonsterC\MonsterActionBaptismOfMight.cpp" />
-		<ClCompile Include="Scripts\Monster\Action\MonsterC\MonsterActionRebinding.cpp" />
-		<ClCompile Include="Scripts\Monster\Action\MonsterC\MonsterActionSkullBreaker.cpp" />
-		<ClCompile Include="Scripts\Monster\Action\MonsterC\MonsterActionSmashStrike.cpp" />
-		<ClCompile Include="Scripts\Monster\AI\MonsterAIBuilder.cpp" />
-		<ClCompile Include="Scripts\Monster\AI\MonsterAIFactory.cpp" />
-		<ClCompile Include="Scripts\Monster\AI\MonsterAIModel.cpp" />
-		<ClCompile Include="Scripts\Monster\Common\MonsterCommon.cpp" />
-		<ClCompile Include="Scripts\Monster\Context\MonsterActionContext.cpp" />
-		<ClCompile Include="Scripts\Monster\Context\MonsterDataContext.cpp" />
-		<ClCompile Include="Scripts\Monster\Context\MonsterSpawnContext.cpp" />
-		<ClCompile Include="Scripts\Monster\Context\MonsterStatContext.cpp" />
-		<ClCompile Include="Scripts\Monster\Controller\MonsterController.cpp" />
-		<ClCompile Include="Scripts\Monster\System\MonsterSystem.cpp" />
-		<ClCompile Include="Scripts\Particle\ParticleComponent.cpp" />
-		<ClCompile Include="Scripts\PlayerSystem\PlayerSystem.cpp" />
-		<ClCompile Include="Scripts\Preferences\Button\AbandonButton.cpp" />
-		<ClCompile Include="Scripts\Preferences\Button\AbandonNoButton.cpp" />
-		<ClCompile Include="Scripts\Preferences\Button\AbandonYesButton.cpp" />
-		<ClCompile Include="Scripts\Preferences\Button\BackButton.cpp" />
-		<ClCompile Include="Scripts\Preferences\Button\EnableButton.cpp" />
-		<ClCompile Include="Scripts\Preferences\Button\PreferencesButton.cpp" />
-		<ClCompile Include="Scripts\Preferences\Button\SoundButton.cpp" />
-		<ClCompile Include="Scripts\Preferences\Button\TextureLMH.cpp" />
-		<ClCompile Include="Scripts\Preferences\ImportGraphicsSetting.cpp" />
-		<ClCompile Include="Scripts\Preferences\PreferencesManager.cpp" />
-		<ClCompile Include="Scripts\Preferences\PrefrencesWindow.cpp" />
-		<ClCompile Include="Scripts\QTE\Editor\QTEEditor.cpp" />
-		<ClCompile Include="Scripts\QTE\KeyBinder\QTEKeyBinder.cpp" />
-		<ClCompile Include="Scripts\QTE\System\QTESystem.cpp" />
-		<ClCompile Include="Scripts\QTE\Track\Note\QTENote.cpp" />
-		<ClCompile Include="Scripts\QTE\Track\Note\QTENoteData.cpp" />
-		<ClCompile Include="Scripts\QTE\Track\QTETrack.cpp" />
-		<ClCompile Include="Scripts\QTE\UI\QTEUIManager.cpp" />
-		<ClCompile Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.cpp" />
-		<ClCompile Include="Scripts\RevelationSystem\RevelationSystem.cpp" />
-		<ClCompile Include="Scripts\SceneTransition\SceneTransitionComponent.cpp" />
-		<ClCompile Include="Scripts\SceneTransition\TransitionManager.cpp" />
-		<ClCompile Include="Scripts\Stats\CharacterStats.cpp" />
-		<ClCompile Include="Scripts\Stats\Enemy\EnemyStats.cpp" />
-		<ClCompile Include="Scripts\Stats\Enemy\EnemyStatsComponent.cpp" />
-		<ClCompile Include="Scripts\Stats\Player\PlayerStats.cpp" />
-		<ClCompile Include="Scripts\Stats\Player\PlayerStatsComponent.cpp" />
-		<ClCompile Include="Scripts\Stats\TurnActorStats.cpp" />
-		<ClCompile Include="Scripts\Stats\TurnActorStatsComponent.cpp" />
-		<ClCompile Include="Scripts\Stats\Weapon\WeaponStats.cpp" />
-		<ClCompile Include="Scripts\Test\Audio\TestAudioComponent.cpp" />
-		<ClCompile Include="Scripts\Test\Component\TestComponent.cpp" />
-		<ClCompile Include="Scripts\Test\DevTools\FPSCounter.cpp" />
-		<ClCompile Include="Scripts\Test\DevTools\LogOutput.cpp" />
-		<ClCompile Include="Scripts\Test\Input\InputTestComponent.cpp" />
-		<ClCompile Include="Scripts\Test\TurnAction\TestActionComponent.cpp" />
-		<ClCompile Include="Scripts\Test\Tutorial\TutorialTestComponent.cpp" />
-		<ClCompile Include="Scripts\Token\Interface\IToken.cpp" />
-		<ClCompile Include="Scripts\Token\Object\Armor\ArmorToken.cpp" />
-		<ClCompile Include="Scripts\Token\Object\Bleed\BleedToken.cpp" />
-		<ClCompile Include="Scripts\Token\Object\Poison\PoisonToken.cpp" />
-		<ClCompile Include="Scripts\Token\Object\Regen\RegenToken.cpp" />
-		<ClCompile Include="Scripts\Token\Object\Stun\StunToken.cpp" />
-		<ClCompile Include="Scripts\Token\Token.cpp" />
-		<ClCompile Include="Scripts\Token\TokenInventory.cpp" />
-		<ClCompile Include="Scripts\Token\TokenSystem.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\AdditionalDamage\AdditionalDamageAction.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\ApplyDamage\ApplyDamage.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\ChangeQTEButton\ChangeQTEButton.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\LastWeaponDamageCopy\LastWeaponDamageCopy.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\MultiTargetDamage\MultiTargetDamageAction.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\Recovery\RecoveryAction.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\AttackTokenApplyAction.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\Base\TokenApplyAction.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TakeDamageEndTokenApplyAction.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\WeaponKillTokenApplyAction.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenChangeAction\TokenChangeAction.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenTypeCountAttackDamageAdditional\TokenTypeCountAttackDamageAdditional.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\ChainCondition\ChainCondition.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\LastQTEResultCondition\LastQTEResultCondition.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\RevelationActiveCondition\RevelationActiveCondition.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\RoundOnceCondition\RoundOnceCondition.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\TokenCondition\TokenCondition.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\TurnActionCondition.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnAction\TurnAction.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\WeaponStas\WeaponDamageAction.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnActor\Character\CharacterBase.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\AI\EnemyAI.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\Base\EnemyConditionBase.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyDeadCondition.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyEndCondition.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyStartCondition.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Enemy.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\Base\EnemyStateBase.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\EnemyDeadState.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\EnemyPlayTurnState.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\EnemyWaitTurnState.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\Base\PlayerConditionBase.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerDeadCondition.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerExitCondition.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerStartCondition.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerWinCondition.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Player.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\State\Base\PlayerStateBase.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerDeadState.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerPlayTurnState.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerWaitTurnState.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerWinState.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnActor\TurnActor.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\Base\TurnModeConditionBase.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundEndExit.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundStartExit.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnEmpty.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnEndCondition.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnNotEmpty.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\EnemyActionCondition.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\GameClearCondition.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\GameOverCondition.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\PlayerActionCondition.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\RoundStartCondition.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnMode\State\Base\TurnModeStateBase.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnMode\State\CheckPlayerState.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnMode\State\CombatStartPhase.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnMode\State\EnemyActionPhase.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnMode\State\GameClearState.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnMode\State\GameOverState.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnMode\State\PlayerActionPhase.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnMode\State\RoundEndPhase.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnMode\State\RoundStartPhase.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnMode\State\TurnListEmptyState.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnMode\TurnMode.cpp" />
-		<ClCompile Include="Scripts\TurnSystem\TurnSystemHelper.cpp" />
-		<ClCompile Include="Scripts\TutorialSystem\TutorialSystem.cpp" />
-		<ClCompile Include="Scripts\UINavigation\TempNavigationComponent.cpp" />
-		<ClCompile Include="Scripts\UI\Animations\FadeDescriptionPanel\FadeDescriptionPanel.cpp" />
-		<ClCompile Include="Scripts\UI\Animations\FadeImageElement\FadeImageElement.cpp" />
-		<ClCompile Include="Scripts\UI\Animations\FadeTextElement\FadeTextElement.cpp" />
-		<ClCompile Include="Scripts\UI\Animations\FadeUIComponent\FadeUIComponent.cpp" />
-		<ClCompile Include="Scripts\UI\Animations\UIAnimation.cpp" />
-		<ClCompile Include="Scripts\UI\Base\DrawUIComponent\DrawUIComponent.cpp" />
-		<ClCompile Include="Scripts\UI\Base\SlotComponent\SlotComponent.cpp" />
-		<ClCompile Include="Scripts\UI\Base\UINavigationComponent\UINavigationComponent.cpp" />
-		<ClCompile Include="Scripts\UI\Base\UIRoot\UIRoot.cpp" />
-		<ClCompile Include="Scripts\UI\Contents\DamageElement.cpp" />
-		<ClCompile Include="Scripts\UI\Contents\SpawnDamagePanel.cpp" />
-		<ClCompile Include="Scripts\UI\Elements\Dummy\DummyElement.cpp" />
-		<ClCompile Include="Scripts\UI\Elements\HoldingProgressImage\HoldingProgressImageElement.cpp" />
-		<ClCompile Include="Scripts\UI\Elements\Image\ImageElement.cpp" />
-		<ClCompile Include="Scripts\UI\Elements\SpriteAnimation\SpriteAnimationElement.cpp">
-			<IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</IncludeInUnityFile>
-			<IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">false</IncludeInUnityFile>
-			<IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</IncludeInUnityFile>
-			<IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">false</IncludeInUnityFile>
-		</ClCompile>
-		<ClCompile Include="Scripts\UI\Elements\Text\TextElement.cpp" />
-		<ClCompile Include="Scripts\UI\Panels\Description\DescriptionPanel.cpp" />
-		<ClCompile Include="Scripts\UI\Panels\Grid\GridPanel.cpp" />
-		<ClCompile Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.cpp" />
-		<ClCompile Include="Scripts\UI\Panels\Overlay\OverlayPanel.cpp" />
-		<ClCompile Include="Scripts\UI\Views\Accessories\AccessoriesView.cpp" />
-		<ClCompile Include="Scripts\UI\Views\Map\StageFocusView.cpp" />
-		<ClCompile Include="Scripts\UI\Views\Map\StageView.cpp" />
-		<ClCompile Include="Scripts\UI\Views\MonsterChain\MonsterChainView.cpp" />
-		<ClCompile Include="Scripts\UI\Views\MonsterHp\MonsterHpView.cpp" />
-		<ClCompile Include="Scripts\UI\Views\PlayerHP\PlayerHPView.cpp" />
-		<ClCompile Include="Scripts\UI\Views\RevelationsView\RevelationsView.cpp" />
-		<ClCompile Include="Scripts\UI\Views\SturnResistanceView\SturnResistanceView.cpp" />
-		<ClCompile Include="Scripts\UI\Views\TurnQueue\TurnQueueView.cpp" />
-		<ClCompile Include="Scripts\UI\Views\Weapon\WeaponView.cpp" />
-		<ClCompile Include="Scripts\UI\Wrappers\Dummy\DummyWrapper.cpp" />
-		<ClCompile Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.cpp" />
-		<ClCompile Include="Scripts\UI\Wrappers\Scrolling\ScrollingWrapper.cpp" />
-		<ClCompile Include="Scripts\Utility\FadeHelper.cpp" />
-		<ClCompile Include="Scripts\Utility\UINaviKeyBindHelper.cpp" />
-		<ClCompile Include="Scripts\ViewModels\Accessories\AccessoriesViewModel.cpp" />
-		<ClCompile Include="Scripts\ViewModels\Chain\ChainCountViewModel.cpp" />
-		<ClCompile Include="Scripts\ViewModels\Hp\CharacterHPViewModel.cpp" />
-		<ClCompile Include="Scripts\ViewModels\ItemDrop\DropArtifacts\DropArtifactsViewModel.cpp" />
-		<ClCompile Include="Scripts\ViewModels\Map\StageFocusViewModel.cpp" />
-		<ClCompile Include="Scripts\ViewModels\Map\StageViewModel.cpp" />
-		<ClCompile Include="Scripts\ViewModels\Revelations\RevelationsViewModel.cpp" />
-		<ClCompile Include="Scripts\ViewModels\SturnResistance\SturnResistanceViewModel.cpp" />
-		<ClCompile Include="Scripts\ViewModels\TurnQueue\TurnQueueViewModel.cpp" />
-		<ClCompile Include="Scripts\ViewModels\Weapon\WeaponViewModel.cpp" />
-		<ClCompile Include="Scripts\WeaponModelManager\WeaponModelManager.cpp" />
-		<ClCompile Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.cpp" />
-		<ClCompile Include="Scripts\WeaponSystem\WeaponSystem.cpp" />
-		<ClCompile Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.cpp" />
-		<ClCompile Include="Scripts\Token\Object\Slow\SlowToken.cpp" />
-		<ClCompile Include="Scripts\Token\Common\TokenCommon.cpp" />
-		<ClCompile Include="Scripts\Utility\StringHelper.cpp" />
-		<ClCompile Include="Scripts\Token\Helper\TokenHelper.cpp" />
-		<ClCompile Include="UmScriptCore.cpp" />
-		<ClCompile Include="UmScriptsExport.cpp" />
-		<ClCompile Include="Scripts\Token\Object\Weakness\WeaknessToken.cpp" />
-		<ClCompile Include="Scripts\Token\Object\Deffence\WeaponDeffenceToken.cpp" />
-		<ClCompile Include="Scripts\Token\Object\Vanish\VanishToken.cpp" />
-		<ClCompile Include="Scripts\RoundInfoUI\RoundInfoUIManager.cpp" />
-		<ClCompile Include="Scripts\Input\InputOkCancelComponent\InputOkCancelComponent.cpp" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Include="cpp.hint" />
-	</ItemGroup>
-	<Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-	<ImportGroup Label="ExtensionTargets" />
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="DebugEditor|Win32">
+      <Configuration>DebugEditor</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DebugEditor|x64">
+      <Configuration>DebugEditor</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseEditor|Win32">
+      <Configuration>ReleaseEditor</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseEditor|x64">
+      <Configuration>ReleaseEditor</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{e8e6295b-b897-4402-a263-83a19c6e2f59}</ProjectGuid>
+    <RootNamespace>UmrealScripts</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugEditor|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
+    <EnableUnitySupport>true</EnableUnitySupport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
+    <EnableUnitySupport>true</EnableUnitySupport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
+    <EnableUnitySupport>true</EnableUnitySupport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <OutDir>$(ProjectDir)bin\$(Configuration)\</OutDir>
+    <EnableUnitySupport>true</EnableUnitySupport>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\GameEngine\GameEngineIncludes.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugEditor|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\GameEngine\GameEngineIncludes.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\GameEngine\GameEngineIncludes.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\GameEngine\GameEngineIncludes.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\GameEngine\GameEngineIncludes.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\GameEngine\GameEngineIncludes.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\GameEngine\GameEngineIncludes.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\GameEngine\GameEngineIncludes.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnabled>false</VcpkgEnabled>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;UMREALSCRIPTS_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugEditor|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;UMREALSCRIPTS_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;UMREALSCRIPTS_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;UMREALSCRIPTS_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;UMREALSCRIPTS_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);UMREALSCRIPTS_EXPORT;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pchScripts.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
+      <IncludeInUnityFile>true</IncludeInUnityFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+      <AdditionalLibraryDirectories>$(SolutionDir)GameEngine\bin\$(Configuration)\;$(SolutionDir)GameEngine\ThirdParty\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>GraphicsEngine.lib;GameEngine.lib;InputModule.lib;AudioModule.lib;ImGuiThirdParty.lib;XAtlasThirdParty.lib;UserInterfaceModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;UMREALSCRIPTS_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);UMREALSCRIPTS_EXPORT;_CRT_SECURE_NO_WARNINGS;_UMEDITOR</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pchScripts.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
+      <IncludeInUnityFile>true</IncludeInUnityFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+      <AdditionalLibraryDirectories>$(SolutionDir)GameEngine\bin\$(Configuration)\;$(SolutionDir)GameEngine\ThirdParty\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>GraphicsEngine.lib;GameEngine.lib;InputModule.lib;AudioModule.lib;ImGuiThirdParty.lib;XAtlasThirdParty.lib;UserInterfaceModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;UMREALSCRIPTS_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);UMREALSCRIPTS_EXPORT;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pchScripts.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
+      <IncludeInUnityFile>true</IncludeInUnityFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+      <AdditionalLibraryDirectories>$(SolutionDir)GameEngine\bin\$(Configuration)\;$(SolutionDir)GameEngine\ThirdParty\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>GraphicsEngine.lib;GameEngine.lib;InputModule.lib;AudioModule.lib;ImGuiThirdParty.lib;XAtlasThirdParty.lib;UserInterfaceModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;UMREALSCRIPTS_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);UMREALSCRIPTS_EXPORT;_CRT_SECURE_NO_WARNINGS;_UMEDITOR</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pchScripts.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir)GameScripts\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
+      <IncludeInUnityFile>true</IncludeInUnityFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+      <AdditionalLibraryDirectories>$(SolutionDir)GameEngine\bin\$(Configuration)\;$(SolutionDir)GameEngine\ThirdParty\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>GraphicsEngine.lib;GameEngine.lib;InputModule.lib;AudioModule.lib;ImGuiThirdParty.lib;XAtlasThirdParty.lib;UserInterfaceModule.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="Scripts\QTE\UI\Field\QTEJudgeEffectUI.h" />
+    <ClInclude Include="Scripts\QTE\UI\Input\QTEInputNodeUI.h" />
+    <ClInclude Include="Scripts\QTE\UI\Input\QTEInputViewerUI.h" />
+    <ClInclude Include="Scripts\QTE\UI\Guide\QTEGuideUI.h" />
+    <ClInclude Include="Scripts\QTE\Callback\Callback.h" />
+    <ClInclude Include="Scripts\QTE\Common\QTECommon.h" />
+    <ClInclude Include="Scripts\QTE\UI\BackGround\QTEBackgroundUI.h" />
+    <ClInclude Include="Scripts\QTE\UI\Field\QTEFieldUI.h" />
+    <ClInclude Include="Scripts\QTE\UI\Field\QTENoteUI.h" />
+    <ClInclude Include="Scripts\ContentMath\ContentMath.h" />
+    <ClInclude Include="Scripts\StageVigneeteUI\StageVigneeteUIComponent.h" />
+    <ClInclude Include="Scripts\Test\Input\InputStackTestComponent.h" />
+    <ClInclude Include="Scripts\Token\Object\BlackArmor\BlackArmorToken.h" />
+    <ClInclude Include="Scripts\Token\Object\ProphecyDoom\ProphecyDoomToken.h" />
+    <ClInclude Include="Scripts\Token\Object\Deffence\ChainDeffenceToken.h" />
+    <ClInclude Include="Scripts\Token\Object\DeathSentence\DeathSentence.h" />
+    <ClInclude Include="Scripts\Token\Object\Rage\RageToken.h" />
+    <ClInclude Include="Scripts\Token\Object\Focus\FocusToken.h" />
+    <ClInclude Include="Scripts\Token\Object\Obsession\ObsessionToken.h" />
+    <ClInclude Include="Scripts\Token\Object\Haste\HasteToken.h" />
+    <ClInclude Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.h" />
+    <ClInclude Include="Scripts\AccessorySystem\AccessorySystem.h" />
+    <ClInclude Include="Scripts\Animation\AnimationComponent.h" />
+    <ClInclude Include="Scripts\Animation\Structs\AnimationData.h" />
+    <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
+    <ClInclude Include="Scripts\Audio\AudioTableComponent.h" />
+    <ClInclude Include="Scripts\Audio\BGMComponent.h" />
+    <ClInclude Include="Scripts\Audio\BGMManager.h" />
+    <ClInclude Include="Scripts\BattleSystem\Battle.h" />
+    <ClInclude Include="Scripts\Camera\CameraComponent.h" />
+    <ClInclude Include="Scripts\Camera\CameraManager.h" />
+    <ClInclude Include="Scripts\Camera\UmCineMotion.h" />
+    <ClInclude Include="Scripts\ColorUtils\ColorUtils.h" />
+    <ClInclude Include="Scripts\CombatUIManager\Accessories\AccessoriesGroup.h" />
+    <ClInclude Include="Scripts\CombatUIManager\CharacterHUD\CharacterHUDGroup.h" />
+    <ClInclude Include="Scripts\CombatUIManager\CombatUIManager.h" />
+    <ClInclude Include="Scripts\CombatUIManager\Consumable\ConsumableGroup.h" />
+    <ClInclude Include="Scripts\CombatUIManager\Revelations\RevelationsGroup.h" />
+    <ClInclude Include="Scripts\CombatUIManager\TurnQueue\TurnQueueGroup.h" />
+    <ClInclude Include="Scripts\CombatUIManager\UIGroup.h" />
+    <ClInclude Include="Scripts\CombatUIManager\Weapon\WeaponGroup.h" />
+    <ClInclude Include="Scripts\ConsumableSystem\ConsumableSystem.h" />
+    <ClInclude Include="Scripts\DamageSystem\DamageSystem.h" />
+    <ClInclude Include="Scripts\Debugger\Debugger.h" />
+    <ClInclude Include="Scripts\DifficultyManager\DifficultyEnum.h" />
+    <ClInclude Include="Scripts\DifficultyManager\DifficultyManager.h" />
+    <ClInclude Include="Scripts\ExcelDataSystem\ExcelDataSystem.h" />
+    <ClInclude Include="Scripts\ExcelParser\ImGuiColumnSheetParser.h" />
+    <ClInclude Include="Scripts\GameCore\FSM\AlwaysTransitionCondition.h" />
+    <ClInclude Include="Scripts\GameCore\FSM\Factory\FSMConditionFactory.h" />
+    <ClInclude Include="Scripts\GameCore\FSM\Factory\FSMStateFactory.h" />
+    <ClInclude Include="Scripts\GameCore\FSM\FiniteStateMachine.h" />
+    <ClInclude Include="Scripts\GameCore\FSM\FSMCondition.h" />
+    <ClInclude Include="Scripts\GameCore\FSM\FSMState.h" />
+    <ClInclude Include="Scripts\GameCore\FSM\IFSMEntity.h" />
+    <ClInclude Include="Scripts\Interface\ITriggerType.h" />
+    <ClInclude Include="Scripts\IntroManager\IntroManager.h" />
+    <ClInclude Include="Scripts\Inventory\OpenInventoryComponent.h" />
+    <ClInclude Include="Scripts\Inventory\UINavi\InventoryArrowNavi.h" />
+    <ClInclude Include="Scripts\Inventory\UINavi\InventoryItemFocusNavi.h" />
+    <ClInclude Include="Scripts\Inventory\UI\HorizontalPageUIManager.h" />
+    <ClInclude Include="Scripts\Inventory\UI\InventoryUIManager.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\Interface\IDropItem.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\ItemDropSystem.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UINavi\ArtifactButtonNavi.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UINavi\EraseRevelationNavi.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UINavi\PlayerWeaponChangeNavi.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UINavi\RestartStageNavi.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UINavi\ReturnToMapNavi.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UI\ArtifactUIManager.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UI\EraseRevelationUIManager.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UI\ItemDropUIRootManager.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UI\ItemInfoUIManager.h" />
+    <ClInclude Include="Scripts\ItemDropSystem\UI\WeaponChangeUIManager.h" />
+    <ClInclude Include="Scripts\Light\Base\LightComponent.h" />
+    <ClInclude Include="Scripts\Light\DirectionalLight.h" />
+    <ClInclude Include="Scripts\Light\PointLight.h" />
+    <ClInclude Include="Scripts\Light\ShadowPointLight.h" />
+    <ClInclude Include="Scripts\Light\SpotLight.h" />
+    <ClInclude Include="Scripts\MainMenu\Credits.h" />
+    <ClInclude Include="Scripts\MainMenu\MainMenuNavigationBase.h" />
+    <ClInclude Include="Scripts\MainMenu\NewGame.h" />
+    <ClInclude Include="Scripts\MainMenu\Option.h" />
+    <ClInclude Include="Scripts\MainMenu\Quit.h" />
+    <ClInclude Include="Scripts\Map\MapManager.h" />
+    <ClInclude Include="Scripts\Map\MapManagerTracker.h" />
+    <ClInclude Include="Scripts\Map\RewardPopup.h" />
+    <ClInclude Include="Scripts\Map\SmoothScroll.h" />
+    <ClInclude Include="Scripts\Map\Stage.h" />
+    <ClInclude Include="Scripts\Mesh\MeshComponent.h" />
+    <ClInclude Include="Scripts\Mesh\SkeletalMeshRenderer.h" />
+    <ClInclude Include="Scripts\Mesh\StaticMeshRenderer.h" />
+    <ClInclude Include="Scripts\Monster\Action\BossServant\1st\MonsterActionBlackSacrament.h" />
+    <ClInclude Include="Scripts\Monster\Action\BossServant\1st\MonsterActionCourtesyOfTheKing.h" />
+    <ClInclude Include="Scripts\Monster\Action\BossServant\2st\MonsterActionEnjoymentOfLoyalty.h" />
+    <ClInclude Include="Scripts\Monster\Action\BossServant\2st\MonsterActionImpute.h" />
+    <ClInclude Include="Scripts\Monster\Action\Boss\MonsterActionCollapsingPillar.h" />
+    <ClInclude Include="Scripts\Monster\Action\Boss\MonsterActionRecordObliteration.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterActionBase.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterActionFactory.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterA\MonsterActionAmbush.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterA\MonsterActionBloodRitual.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterA\MonsterActionExecutionShot.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterA\MonsterActionRendApart.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterA\MonsterActionSmokeSlash.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterB\MonsterActionCower.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterB\MonsterActionDespair.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterB\MonsterActionHymnOfAnnihilation.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterB\MonsterActionShiveringWhisper.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterB\MonsterActionWhisperOfFear.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterC\MonsterActionBaptismOfMight.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterC\MonsterActionRebinding.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterC\MonsterActionSkullBreaker.h" />
+    <ClInclude Include="Scripts\Monster\Action\MonsterC\MonsterActionSmashStrike.h" />
+    <ClInclude Include="Scripts\Monster\AI\MonsterAIBuilder.h" />
+    <ClInclude Include="Scripts\Monster\AI\MonsterAIFactory.h" />
+    <ClInclude Include="Scripts\Monster\AI\MonsterAIModel.h" />
+    <ClInclude Include="Scripts\Monster\Common\MonsterCommon.h" />
+    <ClInclude Include="Scripts\Monster\Context\MonsterActionContext.h" />
+    <ClInclude Include="Scripts\Monster\Context\MonsterDataContext.h" />
+    <ClInclude Include="Scripts\Monster\Context\MonsterSpawnContext.h" />
+    <ClInclude Include="Scripts\Monster\Context\MonsterStatContext.h" />
+    <ClInclude Include="Scripts\Monster\Controller\MonsterController.h" />
+    <ClInclude Include="Scripts\Monster\System\MonsterSystem.h" />
+    <ClInclude Include="Scripts\Particle\ParticleComponent.h" />
+    <ClInclude Include="Scripts\PlayerSystem\PlayerSystem.h" />
+    <ClInclude Include="Scripts\Preferences\Button\AbandonButton.h" />
+    <ClInclude Include="Scripts\Preferences\Button\AbandonNoButton.h" />
+    <ClInclude Include="Scripts\Preferences\Button\AbandonYesButton.h" />
+    <ClInclude Include="Scripts\Preferences\Button\BackButton.h" />
+    <ClInclude Include="Scripts\Preferences\Button\EnableButton.h" />
+    <ClInclude Include="Scripts\Preferences\Button\PreferencesButton.h" />
+    <ClInclude Include="Scripts\Preferences\Button\SoundButton.h" />
+    <ClInclude Include="Scripts\Preferences\Button\TextureLMH.h" />
+    <ClInclude Include="Scripts\Preferences\ImportGraphicsSetting.h" />
+    <ClInclude Include="Scripts\Preferences\PreferencesManager.h" />
+    <ClInclude Include="Scripts\Preferences\PrefrencesWindow.h" />
+    <ClInclude Include="Scripts\QTE\Editor\QTEEditor.h" />
+    <ClInclude Include="Scripts\QTE\Result\QTEResult.h" />
+    <ClInclude Include="Scripts\QTE\System\QTESystem.h" />
+    <ClInclude Include="Scripts\QTE\Track\Note\QTENote.h" />
+    <ClInclude Include="Scripts\QTE\Track\Note\QTENoteData.h" />
+    <ClInclude Include="Scripts\QTE\Track\QTETrack.h" />
+    <ClInclude Include="Scripts\QTE\UI\QTEUIManager.h" />
+    <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Base\RevelationActionBase.h" />
+    <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Critical\CriticalDamageAction.h" />
+    <ClInclude Include="pchScripts.h" />
+    <ClInclude Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.h" />
+    <ClInclude Include="Scripts\RevelationSystem\RevelationSystem.h" />
+    <ClInclude Include="Scripts\SceneTransition\SceneTransitionComponent.h" />
+    <ClInclude Include="Scripts\SceneTransition\TransitionManager.h" />
+    <ClInclude Include="Scripts\Stats\CharacterStats.h" />
+    <ClInclude Include="Scripts\Stats\Enemy\EnemyStats.h" />
+    <ClInclude Include="Scripts\Stats\Enemy\EnemyStatsComponent.h" />
+    <ClInclude Include="Scripts\Stats\Player\PlayerStats.h" />
+    <ClInclude Include="Scripts\Stats\Player\PlayerStatsComponent.h" />
+    <ClInclude Include="Scripts\Stats\TurnActorStats.h" />
+    <ClInclude Include="Scripts\Stats\TurnActorStatsComponent.h" />
+    <ClInclude Include="Scripts\Stats\Weapon\WeaponStats.h" />
+    <ClInclude Include="Scripts\Test\Audio\TestAudioComponent.h" />
+    <ClInclude Include="Scripts\Test\Component\TestComponent.h" />
+    <ClInclude Include="Scripts\Test\DevTools\FPSCounter.h" />
+    <ClInclude Include="Scripts\Test\DevTools\LogOutput.h" />
+    <ClInclude Include="Scripts\Test\Input\InputTestComponent.h" />
+    <ClInclude Include="Scripts\Test\TurnAction\TestActionComponent.h" />
+    <ClInclude Include="Scripts\Test\Tutorial\TutorialTestComponent.h" />
+    <ClInclude Include="Scripts\Token\Enums\TokenEnums.h" />
+    <ClInclude Include="Scripts\Token\Interface\IToken.h" />
+    <ClInclude Include="Scripts\Token\Object\Armor\ArmorToken.h" />
+    <ClInclude Include="Scripts\Token\Object\Bleed\BleedToken.h" />
+    <ClInclude Include="Scripts\Token\Object\Poison\PoisonToken.h" />
+    <ClInclude Include="Scripts\Token\Object\Regen\RegenToken.h" />
+    <ClInclude Include="Scripts\Token\Object\Stun\StunToken.h" />
+    <ClInclude Include="Scripts\Token\Token.h" />
+    <ClInclude Include="Scripts\Token\TokenInventory.h" />
+    <ClInclude Include="Scripts\Token\TokenSystem.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\AdditionalDamage\AdditionalDamageAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\ApplyDamage\ApplyDamage.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\ChangeQTEButton\ChangeQTEButton.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\LastWeaponDamageCopy\LastWeaponDamageCopy.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\MultiTargetDamage\MultiTargetDamageAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\Recovery\RecoveryAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\RevelationCountAttackDamageAdditional\RevelationCountAttackDamageAdditional.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\AttackTokenApplyAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\Base\TokenApplyAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TakeDamageEndTokenApplyAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\WeaponKillTokenApplyAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenChangeAction\TokenChangeAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenTypeCountAttackDamageAdditional\TokenTypeCountAttackDamageAdditional.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\ChainCondition\ChainCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\LastQTEResultCondition\LastQTEResultCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\RevelationActiveCondition\RevelationActiveCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\RoundOnceCondition\RoundOnceCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\TokenCondition\TokenCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\TurnActionCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionEnums.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionFactory.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\WeaponStas\WeaponDamageAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\CharacterBase.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\AI\EnemyAI.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\Base\EnemyConditionBase.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyDeadCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyEndCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyStartCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Enemy.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Enum\EnemyEnum.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\Base\EnemyStateBase.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\EnemyDeadState.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\EnemyPlayTurnState.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\EnemyWaitTurnState.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\Base\PlayerConditionBase.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerDeadCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerExitCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerStartCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerWinCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\Player.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\State\Base\PlayerStateBase.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerDeadState.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerPlayTurnState.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerWaitTurnState.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerWinState.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnActor\TurnActor.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\Base\TurnModeConditionBase.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundEndExit.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundStartExit.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnEmpty.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnEndCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnNotEmpty.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\EnemyActionCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\GameClearCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\GameOverCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\PlayerActionCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\Condition\RoundStartCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\Base\TurnModeStateBase.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\CheckPlayerState.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\CombatStartPhase.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\EnemyActionPhase.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\GameClearState.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\GameOverState.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\PlayerActionPhase.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\RoundEndPhase.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\RoundStartPhase.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\State\TurnListEmptyState.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnMode\TurnMode.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnSystemHelper.h" />
+    <ClInclude Include="Scripts\TutorialSystem\TutorialSystem.h" />
+    <ClInclude Include="Scripts\UINavigation\TempNavigationComponent.h" />
+    <ClInclude Include="Scripts\UI\Animations\FadeDescriptionPanel\FadeDescriptionPanel.h" />
+    <ClInclude Include="Scripts\UI\Animations\FadeImageElement\FadeImageElement.h" />
+    <ClInclude Include="Scripts\UI\Animations\FadeTextElement\FadeTextElement.h" />
+    <ClInclude Include="Scripts\UI\Animations\FadeUIComponent\FadeUIComponent.h" />
+    <ClInclude Include="Scripts\UI\Animations\UIAnimation.h" />
+    <ClInclude Include="Scripts\UI\Base\DrawUIComponent\DrawUIComponent.h" />
+    <ClInclude Include="Scripts\UI\Base\IOpacity\IOpacity.h" />
+    <ClInclude Include="Scripts\UI\Base\SlotComponent\SlotComponent.h" />
+    <ClInclude Include="Scripts\UI\Contents\DamageElement.h" />
+    <ClInclude Include="Scripts\UI\Contents\SpawnDamagePanel.h" />
+    <ClInclude Include="Scripts\UI\Elements\Dummy\DummyElement.h" />
+    <ClInclude Include="Scripts\UI\Elements\HoldingProgressImage\HoldingProgressImageElement.h" />
+    <ClInclude Include="Scripts\UI\Elements\Image\ImageElement.h" />
+    <ClInclude Include="Scripts\UI\Elements\SpriteAnimation\SpriteAnimationElement.h" />
+    <ClInclude Include="Scripts\UI\Elements\Text\TextElement.h" />
+    <ClInclude Include="Scripts\UI\Panels\Description\DescriptionPanel.h" />
+    <ClInclude Include="Scripts\UI\Panels\Grid\GridPanel.h" />
+    <ClInclude Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.h" />
+    <ClInclude Include="Scripts\UI\Panels\Overlay\OverlayPanel.h" />
+    <ClInclude Include="Scripts\UI\Views\Accessories\AccessoriesView.h" />
+    <ClInclude Include="Scripts\UI\Views\Map\StageFocusView.h" />
+    <ClInclude Include="Scripts\UI\Views\Map\StageView.h" />
+    <ClInclude Include="Scripts\UI\Views\MonsterChain\MonsterChainView.h" />
+    <ClInclude Include="Scripts\UI\Views\MonsterHp\MonsterHpView.h" />
+    <ClInclude Include="Scripts\UI\Views\PlayerHP\PlayerHPView.h" />
+    <ClInclude Include="Scripts\UI\Views\RevelationsView\RevelationsView.h" />
+    <ClInclude Include="Scripts\UI\Views\SturnResistanceView\SturnResistanceView.h" />
+    <ClInclude Include="Scripts\UI\Views\TurnQueue\TurnQueueView.h" />
+    <ClInclude Include="Scripts\UI\Views\Weapon\WeaponView.h" />
+    <ClInclude Include="Scripts\UI\Wrappers\Dummy\DummyWrapper.h" />
+    <ClInclude Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.h" />
+    <ClInclude Include="Scripts\UI\Wrappers\Scrolling\ScrollingWrapper.h" />
+    <ClInclude Include="Scripts\Utility\FadeHelper.h" />
+    <ClInclude Include="Scripts\Utility\SingletonHelper.h" />
+    <ClInclude Include="Scripts\Utility\UINaviKeyBindHelper.h" />
+    <ClInclude Include="Scripts\ViewModels\Accessories\AccessoriesViewModel.h" />
+    <ClInclude Include="Scripts\ViewModels\Chain\ChainCountViewModel.h" />
+    <ClInclude Include="Scripts\ViewModels\Hp\CharacterHPViewModel.h" />
+    <ClInclude Include="Scripts\ViewModels\ItemDrop\DropArtifacts\DropArtifactsViewModel.h" />
+    <ClInclude Include="Scripts\ViewModels\Map\StageFocusViewModel.h" />
+    <ClInclude Include="Scripts\ViewModels\Map\StageViewModel.h" />
+    <ClInclude Include="Scripts\ViewModels\Revelations\RevelationsViewModel.h" />
+    <ClInclude Include="Scripts\ViewModels\SturnResistance\SturnResistanceViewModel.h" />
+    <ClInclude Include="Scripts\ViewModels\TurnQueue\TurnQueueViewModel.h" />
+    <ClInclude Include="Scripts\ViewModels\Weapon\WeaponViewModel.h" />
+    <ClInclude Include="Scripts\WeaponModelManager\WeaponModelManager.h" />
+    <ClInclude Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.h" />
+    <ClInclude Include="Scripts\WeaponSystem\WeaponSystem.h" />
+    <ClInclude Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.h" />
+    <ClInclude Include="Scripts\Token\Object\Slow\SlowToken.h" />
+    <ClInclude Include="Scripts\Token\Common\TokenCommon.h" />
+    <ClInclude Include="Scripts\Utility\StringHelper.h" />
+    <ClInclude Include="Scripts\Token\Helper\TokenHelper.h" />
+    <ClInclude Include="UmScriptCore.h" />
+    <ClInclude Include="UmScriptsExport.h" />
+    <ClInclude Include="Scripts\Token\Object\Weakness\WeaknessToken.h" />
+    <ClInclude Include="Scripts\Token\Object\Deffence\WeaponDeffenceToken.h" />
+    <ClInclude Include="Scripts\Token\Object\Vanish\VanishToken.h" />
+    <ClInclude Include="Scripts\RoundInfoUI\RoundInfoUIManager.h" />
+    <ClInclude Include="Scripts\Input\InputOkCancelComponent\InputOkCancelComponent.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Scripts\QTE\UI\Field\QTEJudgeEffectUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\Input\QTEInputNodeUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\Input\QTEInputViewerUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\Guide\QTEGuideUI.cpp" />
+    <ClCompile Include="Scripts\QTE\Callback\Callback.cpp" />
+    <ClCompile Include="Scripts\QTE\Common\QTECommon.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\BackGround\QTEBackgroundUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\Field\QTEFieldUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\Field\QTENoteUI.cpp" />
+    <ClCompile Include="Scripts\ContentMath\ContentMath.cpp" />
+    <ClCompile Include="Scripts\StageVigneeteUI\StageVigneeteUIComponent.cpp" />
+    <ClCompile Include="Scripts\Test\Input\InputStackTestComponent.cpp" />
+    <ClCompile Include="Scripts\Token\Object\BlackArmor\BlackArmorToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\ProphecyDoom\ProphecyDoomToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Deffence\ChainDeffenceToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\DeathSentence\DeathSentence.cpp" />
+    <ClCompile Include="dllmain.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Scripts\Token\Object\Rage\RageToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Focus\FocusToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Obsession\ObsessionToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Haste\HasteToken.cpp" />
+    <ClCompile Include="pchScripts.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Scripts\AccessorySystem\AccessoryElement\AccessoryElement.cpp" />
+    <ClCompile Include="Scripts\AccessorySystem\AccessorySystem.cpp" />
+    <ClCompile Include="Scripts\Animation\AnimationComponent.cpp" />
+    <ClCompile Include="Scripts\Animation\Structs\AnimationData.cpp" />
+    <ClCompile Include="Scripts\Audio\AudioTableComponent.cpp" />
+    <ClCompile Include="Scripts\Audio\BGMComponent.cpp" />
+    <ClCompile Include="Scripts\Audio\BGMManager.cpp" />
+    <ClCompile Include="Scripts\BattleSystem\Battle.cpp" />
+    <ClCompile Include="Scripts\Camera\CameraComponent.cpp" />
+    <ClCompile Include="Scripts\Camera\CameraManager.cpp" />
+    <ClCompile Include="Scripts\Camera\UmCineMotion.cpp" />
+    <ClCompile Include="Scripts\ColorUtils\ColorUtils.cpp" />
+    <ClCompile Include="Scripts\CombatUIManager\Accessories\AccessoriesGroup.cpp" />
+    <ClCompile Include="Scripts\CombatUIManager\CharacterHUD\CharacterHUDGroup.cpp" />
+    <ClCompile Include="Scripts\CombatUIManager\CombatUIManager.cpp" />
+    <ClCompile Include="Scripts\CombatUIManager\Consumable\ConsumableGroup.cpp" />
+    <ClCompile Include="Scripts\CombatUIManager\Revelations\RevelationsGroup.cpp" />
+    <ClCompile Include="Scripts\CombatUIManager\TurnQueue\TurnQueueGroup.cpp" />
+    <ClCompile Include="Scripts\CombatUIManager\Weapon\WeaponGroup.cpp" />
+    <ClCompile Include="Scripts\ConsumableSystem\ConsumableSystem.cpp" />
+    <ClCompile Include="Scripts\DamageSystem\DamageSystem.cpp" />
+    <ClCompile Include="Scripts\Debugger\Debugger.cpp" />
+    <ClCompile Include="Scripts\DifficultyManager\DifficultyManager.cpp" />
+    <ClCompile Include="Scripts\ExcelDataSystem\ExcelDataSystem.cpp" />
+    <ClCompile Include="Scripts\ExcelParser\ImGuiColumnSheetParser.cpp" />
+    <ClCompile Include="Scripts\GameCore\FSM\AlwaysTransitionCondition.cpp" />
+    <ClCompile Include="Scripts\GameCore\FSM\FiniteStateMachine.cpp" />
+    <ClCompile Include="Scripts\GameCore\FSM\FSMCondition.cpp" />
+    <ClCompile Include="Scripts\GameCore\FSM\FSMState.cpp" />
+    <ClCompile Include="Scripts\IntroManager\IntroManager.cpp" />
+    <ClCompile Include="Scripts\Inventory\OpenInventoryComponent.cpp" />
+    <ClCompile Include="Scripts\Inventory\UINavi\InventoryArrowNavi.cpp" />
+    <ClCompile Include="Scripts\Inventory\UINavi\InventoryItemFocusNavi.cpp" />
+    <ClCompile Include="Scripts\Inventory\UI\HorizontalPageUIManager.cpp" />
+    <ClCompile Include="Scripts\Inventory\UI\InventoryUIManager.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\Interface\IDropItem.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\ItemDropSystem.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UINavi\ArtifactButtonNavi.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UINavi\EraseRevelationNavi.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UINavi\PlayerWeaponChangeNavi.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UINavi\RestartStageNavi.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UINavi\ReturnToMapNavi.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UI\ArtifactUIManager.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UI\EraseRevelationUIManager.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UI\ItemDropUIRootManager.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UI\ItemInfoUIManager.cpp" />
+    <ClCompile Include="Scripts\ItemDropSystem\UI\WeaponChangeUIManager.cpp" />
+    <ClCompile Include="Scripts\Light\Base\LightComponent.cpp" />
+    <ClCompile Include="Scripts\Light\DirectionalLight.cpp" />
+    <ClCompile Include="Scripts\Light\PointLight.cpp" />
+    <ClCompile Include="Scripts\Light\ShadowPointLight.cpp" />
+    <ClCompile Include="Scripts\Light\SpotLight.cpp" />
+    <ClCompile Include="Scripts\MainMenu\Credits.cpp" />
+    <ClCompile Include="Scripts\MainMenu\MainMenuNavigationBase.cpp" />
+    <ClCompile Include="Scripts\MainMenu\NewGame.cpp" />
+    <ClCompile Include="Scripts\MainMenu\Option.cpp" />
+    <ClCompile Include="Scripts\MainMenu\Quit.cpp" />
+    <ClCompile Include="Scripts\Map\MapManager.cpp" />
+    <ClCompile Include="Scripts\Map\MapManagerTracker.cpp" />
+    <ClCompile Include="Scripts\Map\RewardPopup.cpp" />
+    <ClCompile Include="Scripts\Map\SmoothScroll.cpp" />
+    <ClCompile Include="Scripts\Map\Stage.cpp" />
+    <ClCompile Include="Scripts\Mesh\MeshComponent.cpp" />
+    <ClCompile Include="Scripts\Mesh\SkeletalMeshRenderer.cpp" />
+    <ClCompile Include="Scripts\Mesh\StaticMeshRenderer.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\BossServant\1st\MonsterActionBlackSacrament.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\BossServant\1st\MonsterActionCourtesyOfTheKing.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\BossServant\2st\MonsterActionEnjoymentOfLoyalty.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\BossServant\2st\MonsterActionImpute.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\Boss\MonsterActionCollapsingPillar.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\Boss\MonsterActionRecordObliteration.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterActionBase.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterActionFactory.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterA\MonsterActionAmbush.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterA\MonsterActionBloodRitual.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterA\MonsterActionExecutionShot.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterA\MonsterActionRendApart.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterA\MonsterActionSmokeSlash.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterB\MonsterActionCower.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterB\MonsterActionDespair.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterB\MonsterActionHymnOfAnnihilation.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterB\MonsterActionShiveringWhisper.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterB\MonsterActionWhisperOfFear.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterC\MonsterActionBaptismOfMight.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterC\MonsterActionRebinding.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterC\MonsterActionSkullBreaker.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\MonsterC\MonsterActionSmashStrike.cpp" />
+    <ClCompile Include="Scripts\Monster\AI\MonsterAIBuilder.cpp" />
+    <ClCompile Include="Scripts\Monster\AI\MonsterAIFactory.cpp" />
+    <ClCompile Include="Scripts\Monster\AI\MonsterAIModel.cpp" />
+    <ClCompile Include="Scripts\Monster\Common\MonsterCommon.cpp" />
+    <ClCompile Include="Scripts\Monster\Context\MonsterActionContext.cpp" />
+    <ClCompile Include="Scripts\Monster\Context\MonsterDataContext.cpp" />
+    <ClCompile Include="Scripts\Monster\Context\MonsterSpawnContext.cpp" />
+    <ClCompile Include="Scripts\Monster\Context\MonsterStatContext.cpp" />
+    <ClCompile Include="Scripts\Monster\Controller\MonsterController.cpp" />
+    <ClCompile Include="Scripts\Monster\System\MonsterSystem.cpp" />
+    <ClCompile Include="Scripts\Particle\ParticleComponent.cpp" />
+    <ClCompile Include="Scripts\PlayerSystem\PlayerSystem.cpp" />
+    <ClCompile Include="Scripts\Preferences\Button\AbandonButton.cpp" />
+    <ClCompile Include="Scripts\Preferences\Button\AbandonNoButton.cpp" />
+    <ClCompile Include="Scripts\Preferences\Button\AbandonYesButton.cpp" />
+    <ClCompile Include="Scripts\Preferences\Button\BackButton.cpp" />
+    <ClCompile Include="Scripts\Preferences\Button\EnableButton.cpp" />
+    <ClCompile Include="Scripts\Preferences\Button\PreferencesButton.cpp" />
+    <ClCompile Include="Scripts\Preferences\Button\SoundButton.cpp" />
+    <ClCompile Include="Scripts\Preferences\Button\TextureLMH.cpp" />
+    <ClCompile Include="Scripts\Preferences\ImportGraphicsSetting.cpp" />
+    <ClCompile Include="Scripts\Preferences\PreferencesManager.cpp" />
+    <ClCompile Include="Scripts\Preferences\PrefrencesWindow.cpp" />
+    <ClCompile Include="Scripts\QTE\Editor\QTEEditor.cpp" />
+    <ClCompile Include="Scripts\QTE\KeyBinder\QTEKeyBinder.cpp" />
+    <ClCompile Include="Scripts\QTE\System\QTESystem.cpp" />
+    <ClCompile Include="Scripts\QTE\Track\Note\QTENote.cpp" />
+    <ClCompile Include="Scripts\QTE\Track\Note\QTENoteData.cpp" />
+    <ClCompile Include="Scripts\QTE\Track\QTETrack.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\QTEUIManager.cpp" />
+    <ClCompile Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.cpp" />
+    <ClCompile Include="Scripts\RevelationSystem\RevelationSystem.cpp" />
+    <ClCompile Include="Scripts\SceneTransition\SceneTransitionComponent.cpp" />
+    <ClCompile Include="Scripts\SceneTransition\TransitionManager.cpp" />
+    <ClCompile Include="Scripts\Stats\CharacterStats.cpp" />
+    <ClCompile Include="Scripts\Stats\Enemy\EnemyStats.cpp" />
+    <ClCompile Include="Scripts\Stats\Enemy\EnemyStatsComponent.cpp" />
+    <ClCompile Include="Scripts\Stats\Player\PlayerStats.cpp" />
+    <ClCompile Include="Scripts\Stats\Player\PlayerStatsComponent.cpp" />
+    <ClCompile Include="Scripts\Stats\TurnActorStats.cpp" />
+    <ClCompile Include="Scripts\Stats\TurnActorStatsComponent.cpp" />
+    <ClCompile Include="Scripts\Stats\Weapon\WeaponStats.cpp" />
+    <ClCompile Include="Scripts\Test\Audio\TestAudioComponent.cpp" />
+    <ClCompile Include="Scripts\Test\Component\TestComponent.cpp" />
+    <ClCompile Include="Scripts\Test\DevTools\FPSCounter.cpp" />
+    <ClCompile Include="Scripts\Test\DevTools\LogOutput.cpp" />
+    <ClCompile Include="Scripts\Test\Input\InputTestComponent.cpp" />
+    <ClCompile Include="Scripts\Test\TurnAction\TestActionComponent.cpp" />
+    <ClCompile Include="Scripts\Test\Tutorial\TutorialTestComponent.cpp" />
+    <ClCompile Include="Scripts\Token\Interface\IToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Armor\ArmorToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Bleed\BleedToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Poison\PoisonToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Regen\RegenToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Stun\StunToken.cpp" />
+    <ClCompile Include="Scripts\Token\Token.cpp" />
+    <ClCompile Include="Scripts\Token\TokenInventory.cpp" />
+    <ClCompile Include="Scripts\Token\TokenSystem.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\AdditionalDamage\AdditionalDamageAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\ApplyDamage\ApplyDamage.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\ChangeQTEButton\ChangeQTEButton.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\LastWeaponDamageCopy\LastWeaponDamageCopy.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\MultiTargetDamage\MultiTargetDamageAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\Recovery\RecoveryAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\RevelationCountAttackDamageAdditional\RevelationCountAttackDamageAdditional.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\AttackTokenApplyAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\Base\TokenApplyAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TakeDamageEndTokenApplyAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\WeaponKillTokenApplyAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenChangeAction\TokenChangeAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenTypeCountAttackDamageAdditional\TokenTypeCountAttackDamageAdditional.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\ChainCondition\ChainCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\LastQTEResultCondition\LastQTEResultCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\RevelationActiveCondition\RevelationActiveCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\RoundOnceCondition\RoundOnceCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\TokenCondition\TokenCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\TurnActionCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\TurnAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\WeaponStas\WeaponDamageAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\CharacterBase.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\AI\EnemyAI.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\Base\EnemyConditionBase.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyDeadCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyEndCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\EnemyStartCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Enemy.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\Base\EnemyStateBase.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\EnemyDeadState.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\EnemyPlayTurnState.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\State\EnemyWaitTurnState.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\Base\PlayerConditionBase.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerDeadCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerExitCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerStartCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Condition\PlayerWinCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\Player.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\State\Base\PlayerStateBase.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerDeadState.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerPlayTurnState.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerWaitTurnState.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Player\State\PlayerWinState.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnActor\TurnActor.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\Base\TurnModeConditionBase.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundEndExit.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckRoundStartExit.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnEmpty.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnEndCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\CheckTurnNotEmpty.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\EnemyActionCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\GameClearCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\GameOverCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\PlayerActionCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\Condition\RoundStartCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\Base\TurnModeStateBase.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\CheckPlayerState.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\CombatStartPhase.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\EnemyActionPhase.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\GameClearState.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\GameOverState.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\PlayerActionPhase.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\RoundEndPhase.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\RoundStartPhase.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\State\TurnListEmptyState.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnMode\TurnMode.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnSystemHelper.cpp" />
+    <ClCompile Include="Scripts\TutorialSystem\TutorialSystem.cpp" />
+    <ClCompile Include="Scripts\UINavigation\TempNavigationComponent.cpp" />
+    <ClCompile Include="Scripts\UI\Animations\FadeDescriptionPanel\FadeDescriptionPanel.cpp" />
+    <ClCompile Include="Scripts\UI\Animations\FadeImageElement\FadeImageElement.cpp" />
+    <ClCompile Include="Scripts\UI\Animations\FadeTextElement\FadeTextElement.cpp" />
+    <ClCompile Include="Scripts\UI\Animations\FadeUIComponent\FadeUIComponent.cpp" />
+    <ClCompile Include="Scripts\UI\Animations\UIAnimation.cpp" />
+    <ClCompile Include="Scripts\UI\Base\DrawUIComponent\DrawUIComponent.cpp" />
+    <ClCompile Include="Scripts\UI\Base\SlotComponent\SlotComponent.cpp" />
+    <ClCompile Include="Scripts\UI\Base\UINavigationComponent\UINavigationComponent.cpp" />
+    <ClCompile Include="Scripts\UI\Base\UIRoot\UIRoot.cpp" />
+    <ClCompile Include="Scripts\UI\Contents\DamageElement.cpp" />
+    <ClCompile Include="Scripts\UI\Contents\SpawnDamagePanel.cpp" />
+    <ClCompile Include="Scripts\UI\Elements\Dummy\DummyElement.cpp" />
+    <ClCompile Include="Scripts\UI\Elements\HoldingProgressImage\HoldingProgressImageElement.cpp" />
+    <ClCompile Include="Scripts\UI\Elements\Image\ImageElement.cpp" />
+    <ClCompile Include="Scripts\UI\Elements\SpriteAnimation\SpriteAnimationElement.cpp">
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</IncludeInUnityFile>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">false</IncludeInUnityFile>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</IncludeInUnityFile>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">false</IncludeInUnityFile>
+    </ClCompile>
+    <ClCompile Include="Scripts\UI\Elements\Text\TextElement.cpp" />
+    <ClCompile Include="Scripts\UI\Panels\Description\DescriptionPanel.cpp" />
+    <ClCompile Include="Scripts\UI\Panels\Grid\GridPanel.cpp" />
+    <ClCompile Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.cpp" />
+    <ClCompile Include="Scripts\UI\Panels\Overlay\OverlayPanel.cpp" />
+    <ClCompile Include="Scripts\UI\Views\Accessories\AccessoriesView.cpp" />
+    <ClCompile Include="Scripts\UI\Views\Map\StageFocusView.cpp" />
+    <ClCompile Include="Scripts\UI\Views\Map\StageView.cpp" />
+    <ClCompile Include="Scripts\UI\Views\MonsterChain\MonsterChainView.cpp" />
+    <ClCompile Include="Scripts\UI\Views\MonsterHp\MonsterHpView.cpp" />
+    <ClCompile Include="Scripts\UI\Views\PlayerHP\PlayerHPView.cpp" />
+    <ClCompile Include="Scripts\UI\Views\RevelationsView\RevelationsView.cpp" />
+    <ClCompile Include="Scripts\UI\Views\SturnResistanceView\SturnResistanceView.cpp" />
+    <ClCompile Include="Scripts\UI\Views\TurnQueue\TurnQueueView.cpp" />
+    <ClCompile Include="Scripts\UI\Views\Weapon\WeaponView.cpp" />
+    <ClCompile Include="Scripts\UI\Wrappers\Dummy\DummyWrapper.cpp" />
+    <ClCompile Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.cpp" />
+    <ClCompile Include="Scripts\UI\Wrappers\Scrolling\ScrollingWrapper.cpp" />
+    <ClCompile Include="Scripts\Utility\FadeHelper.cpp" />
+    <ClCompile Include="Scripts\Utility\UINaviKeyBindHelper.cpp" />
+    <ClCompile Include="Scripts\ViewModels\Accessories\AccessoriesViewModel.cpp" />
+    <ClCompile Include="Scripts\ViewModels\Chain\ChainCountViewModel.cpp" />
+    <ClCompile Include="Scripts\ViewModels\Hp\CharacterHPViewModel.cpp" />
+    <ClCompile Include="Scripts\ViewModels\ItemDrop\DropArtifacts\DropArtifactsViewModel.cpp" />
+    <ClCompile Include="Scripts\ViewModels\Map\StageFocusViewModel.cpp" />
+    <ClCompile Include="Scripts\ViewModels\Map\StageViewModel.cpp" />
+    <ClCompile Include="Scripts\ViewModels\Revelations\RevelationsViewModel.cpp" />
+    <ClCompile Include="Scripts\ViewModels\SturnResistance\SturnResistanceViewModel.cpp" />
+    <ClCompile Include="Scripts\ViewModels\TurnQueue\TurnQueueViewModel.cpp" />
+    <ClCompile Include="Scripts\ViewModels\Weapon\WeaponViewModel.cpp" />
+    <ClCompile Include="Scripts\WeaponModelManager\WeaponModelManager.cpp" />
+    <ClCompile Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.cpp" />
+    <ClCompile Include="Scripts\WeaponSystem\WeaponSystem.cpp" />
+    <ClCompile Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Slow\SlowToken.cpp" />
+    <ClCompile Include="Scripts\Token\Common\TokenCommon.cpp" />
+    <ClCompile Include="Scripts\Utility\StringHelper.cpp" />
+    <ClCompile Include="Scripts\Token\Helper\TokenHelper.cpp" />
+    <ClCompile Include="UmScriptCore.cpp" />
+    <ClCompile Include="UmScriptsExport.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Weakness\WeaknessToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Deffence\WeaponDeffenceToken.cpp" />
+    <ClCompile Include="Scripts\Token\Object\Vanish\VanishToken.cpp" />
+    <ClCompile Include="Scripts\RoundInfoUI\RoundInfoUIManager.cpp" />
+    <ClCompile Include="Scripts\Input\InputOkCancelComponent\InputOkCancelComponent.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
 </Project>
