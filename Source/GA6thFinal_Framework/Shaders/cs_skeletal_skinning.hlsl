@@ -24,7 +24,7 @@ struct Vertex
 struct MeshData
 {
     uint instanceID;
-    uint bontMatrixCount;
+    uint boneMatrixCount;
     uint vertexCount;
 };
 
@@ -42,7 +42,7 @@ void cs_main(uint3 dispatchThreadID : SV_DispatchThreadID)
         return;
     
     Vertex input = vertices[vertexIndex];
-    uint boneOffset = bit32_3_meshData.instanceID * bit32_3_meshData.bontMatrixCount;
+    uint boneOffset = bit32_3_meshData.instanceID * bit32_3_meshData.boneMatrixCount;
     matrix boneTransform = mul(input.blendWeights.x, boneMatrices[boneOffset + input.blendIndices.x]);
     boneTransform += mul(input.blendWeights.y, boneMatrices[boneOffset + input.blendIndices.y]);
     boneTransform += mul(input.blendWeights.z, boneMatrices[boneOffset + input.blendIndices.z]);
