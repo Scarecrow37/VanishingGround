@@ -11,7 +11,7 @@
 #include "Camera/UmCineMotion.h"
 #include "CombatUIManager/CombatUIManager.h"
 #include "Token/Object/Focus/FocusToken.h"
-#include "WeaponModelManager/WeaponModelManager.h"
+#include "WeaponModel/WeaponModelManager.h"
 
 UMREAL_COMPONENT(QTESystem)
 

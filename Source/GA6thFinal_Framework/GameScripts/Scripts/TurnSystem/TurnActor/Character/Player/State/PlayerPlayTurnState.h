@@ -3,6 +3,7 @@
 #include "BattleSystem/Battle.h"
 #include "QTE/Common/QTECommon.h"
 #include "QTE/Result/QTEResult.h"
+#include "WeaponModel/WeaponModelData.h"
 class Enemy;
 
 /*
@@ -50,13 +51,15 @@ private:
     void SetAttack();
     void SetAttackEnd();
 
+    void SetWeaponModelCallback(WeaponModelData modelData, QTE::NoteResult& noteResult);
+    void SetWeaponModelTransform(WeaponModelData modelData, QTE::NoteResult& noteResult);
+    void SetAttackEndTimeInvoke(float time);
     void BattleOnHitEvent(QTE::NoteResult& result);
 
     Battle::EnemyTargetFlag_ GetAttackTargetFromButton(unsigned int button) const;
 
 private:
     InputState _inputState;
-    int        _attackRemaining;        // 공격 남은 횟수
     bool       _isDownAButton;          // QTE 시작 버튼 (패드)
     bool       _isDownAKey;             // QTE 시작 버튼 (키보드)
     float      _attackButtonHeldTime;
