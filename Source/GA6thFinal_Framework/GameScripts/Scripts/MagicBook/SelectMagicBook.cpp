@@ -129,7 +129,10 @@ void SelectMagicBook::Submit()
 {
     Base::Submit();
 
-
+    if (auto object = GameObject::Find("Select Popup").lock())
+    {
+        object->SetActive(true);
+    } 
 }
 
 void SelectMagicBook::ImGuiDrawPropertysEvent()
