@@ -2,6 +2,7 @@
 #include "EraseRevelationNavi.h"
 #include "ItemDropSystem/UI/EraseRevelationUIManager.h"
 #include "UI/Elements/Image/ImageElement.h"
+#include "Input/InputOkCancelComponent/InputOkCancelComponent.h"
 
 UMREAL_COMPONENT(EraseRevelationNavi)
 
@@ -38,7 +39,23 @@ void EraseRevelationNavi::Submit()
     Base::Submit();
     if (EraseRevelationUIManager* system = SingletonComponent<EraseRevelationUIManager>::GetInstance())
     {
-        system->EraseRevelation(_mySlot);
+        if (InputOkCancelComponent* input = system->InputOkCancel)
+        {
+            input->GetOkOrCancel([thisWeak = GetWeakPtr(), this](bool result)
+            {
+                if (result && false == thisWeak.expired())
+                {
+                    if (EraseRevelationUIManager* system = SingletonComponent<EraseRevelationUIManager>::GetInstance())
+                    {
+                        system->EraseRevelation(_mySlot);
+                    }                    
+                }
+            });
+        }
+        else
+        {
+            system->EraseRevelation(_mySlot);
+        }  
     }
 }
 

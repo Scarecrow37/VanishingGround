@@ -7,6 +7,7 @@
 #include "ItemDropSystem/UI/ArtifactUIManager.h"
 #include "ItemDropSystem/UI/ItemDropUIRootManager.h"
 #include "RevelationSystem/RevelationSystem.h"
+#include "Input/InputOkCancelComponent/InputOkCancelComponent.h"
 
 UMREAL_COMPONENT(EraseRevelationUIManager)
 
@@ -223,6 +224,14 @@ void EraseRevelationUIManager::FindElements()
                         _revelation.Keyword = object.GetComponent<DescriptionPanel>();
                     }
                 });
+            }
+            else if (child->gameObject->CompareTag("Warning Panel"))
+            {
+                GameObject& object      = child->gameObject;
+                if (InputOkCancelComponent* okCancel = object.GetComponent<InputOkCancelComponent>())
+                {
+                    _inputOkCancelComponent = okCancel->GetWeakPtrAs<InputOkCancelComponent>();
+                }            
             }
         }
     }

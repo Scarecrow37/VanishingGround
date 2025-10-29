@@ -13,6 +13,9 @@ public:
     InputReceiver() = default;
     virtual ~InputReceiver();
 
+    static void Vibrate(Input::ControllerTypes::Vibration vibration);
+
+protected:
     /// <summary>
     /// 인풋 콜백을 등록합니다.
     /// </summary>
@@ -75,7 +78,6 @@ public:
     /// <returns>성공 여부</returns>
     bool PopInputLayer();
 
-    static void Vibrate(Input::ControllerTypes::Vibration vibration);
 
 private:
     struct ControllerSetKey
@@ -92,7 +94,7 @@ private:
     };
     std::set<ControllerSetKey> _controllerSet;
     std::shared_ptr<bool>      _isDestroy;
-    bool                       _isPushStack;
+    bool                       _isPushStack = false;
 };
 
 /// <summary>
