@@ -2,15 +2,7 @@
 #include "RenderTechnique.h"
 
 class UITechnique : public RenderTechnique
-{
-    enum UIType
-    {
-        MODE_3D,
-        MODE_25D,
-        MODE_2D,
-        MODE_TEXT,
-        TYPE_END
-    };
+{    
     struct OITNode
     {
         float        color[4];
@@ -38,7 +30,7 @@ private:
     void CreateCameraBuffer();
 
 private:
-    std::vector<UINT>                   _instanceIDs[TYPE_END];    
+    std::vector<UINT>                   _instanceIDs[UI_TYPE_END];    
     std::vector<UIMaterialData>         _uiMaterialDatas;
     std::unique_ptr<ConstantBufferView> _uiMaterialDataBuffer;
     SharedResource<DepthStencilView>    _depthStencilView;
