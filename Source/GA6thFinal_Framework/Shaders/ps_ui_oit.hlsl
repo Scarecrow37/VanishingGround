@@ -22,7 +22,6 @@ struct UIMaterialData
 
 StructuredBuffer<Material> material;
 StructuredBuffer<UIMaterialData> uiMaterialData;
-StructuredBuffer<uint> IDs : register(t0, space0);
 
 RWTexture2D<uint> OITHead;
 RWStructuredBuffer<OITNode> OITNodes;
@@ -37,7 +36,7 @@ static const uint RADIAL_FILL = 2;
 
 void ps_main(PSInput input)
 {
-    uint index = IDs[input.instanceID];
+    uint index = input.instanceID;
     
     float2 column_row = (float2) material[index].atlas.xy;
     float2 current = (float2) material[index].atlas.zw;
@@ -50,7 +49,6 @@ void ps_main(PSInput input)
     
     clip(color.a - Epsilon);
     
-    color = Premultiply(color);
     
     switch (uiMaterialData[index].type)
     {
@@ -66,6 +64,8 @@ void ps_main(PSInput input)
         default:
             break;
     }
+    
+    color = Premultiply(color);
 
     uint nodeIndex = OITAllocNode(OITCounter);
     if (nodeIndex >= FRAME_NODE_CAPACITY)
