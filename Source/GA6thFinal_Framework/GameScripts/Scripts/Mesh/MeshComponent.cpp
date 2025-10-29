@@ -288,14 +288,11 @@ void MeshComponent::InitMaterial()
     const auto& model     = Renderer->GetModel();
     auto&       materials = Renderer->GetMaterials();
     size_t      meshCount = model->GetMeshCount();
-
-    if (ReflectFields->CustomDepth.size() < meshCount)
-    {
-        ReflectFields->ShadingModel.resize(meshCount, Material::ShadingModelType::DEFAULTLIT);
-        ReflectFields->BlendMode.resize(meshCount, 0);
-        ReflectFields->IsTwoSided.resize(meshCount, false);
-        ReflectFields->CustomDepth.resize(meshCount, PostProcess::BLOOM);
-    }
+    
+    ReflectFields->ShadingModel.resize(meshCount, Material::ShadingModelType::DEFAULTLIT);
+    ReflectFields->BlendMode.resize(meshCount, 0);
+    ReflectFields->IsTwoSided.resize(meshCount, false);
+    ReflectFields->CustomDepth.resize(meshCount, PostProcess::BLOOM);    
 
     for (size_t i = 0; i < meshCount; i++)
     {

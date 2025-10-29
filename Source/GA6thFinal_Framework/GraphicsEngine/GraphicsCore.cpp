@@ -307,13 +307,14 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
 
 void GraphicsCore::UpdateAnimation(const float deltaTime) const
 {
-    _animationCore->Update(deltaTime);
+    //_animationCore->Update(deltaTime);
 }
 
 void GraphicsCore::Update(const float deltaTime)
 {
     _threadPool->Update();    
     _resourceManager->Update();
+    _animationCore->Update(deltaTime);
     _particleManager->Update(deltaTime);
     _lightCore->Update(deltaTime);
     _renderer->Update(deltaTime);

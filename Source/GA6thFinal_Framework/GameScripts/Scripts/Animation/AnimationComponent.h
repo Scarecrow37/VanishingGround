@@ -27,7 +27,6 @@ class AnimationComponent : public Component
 
 public:
     void Added() override;
-    void Start() override;
     void Update() override;
     void OnDestroy() override;
     void OnEnable() override;
@@ -105,6 +104,11 @@ public:
     /// <param name="loop">루프 여부. 기본 값은 true입니다.</param>
     bool ChangeCurrentAnimation(std::string_view animKey, bool resetFrame = true);
     bool ChangeMainAnimation(std::string_view animKey, bool resetFrame = true);
+
+    /// <summary>
+    /// 기본 애니메이션 상태로 설정합니다.
+    /// </summary>
+    void ChangeDefaultAnimation();
 
     /// <summary>애니메이션의 프레임을 설정합니다.</summary>
     /// <param name="frame">애니메이션 프레임 수</param>

@@ -20,8 +20,8 @@ void ETimeSystem::TimeSystemUpdate()
 	_realtimeSinceStartup += tickTime;
 	_time += tickTime * (LONGLONG)TimeScale;
 
-	_unscaledDeltaTime = double(tickTime) / double(_frequency.QuadPart);
-	_deltaTime = (std::min)(_unscaledDeltaTime * TimeScale, MaximumDeltaTime);
+	_unscaledDeltaTime = (std::min)(double(tickTime) / double(_frequency.QuadPart), MaximumDeltaTime);
+	_deltaTime = _unscaledDeltaTime * TimeScale;
 
 	if (FixedTimeStep > std::numeric_limits<double>::epsilon())
 	{

@@ -30,8 +30,14 @@ class TutorialSystem : public Component, public InputReceiver
     static constexpr std::u8string_view COLUMN_KEY_DESCRIPTION = u8"Text Description";
     static constexpr std::u8string_view COLUMN_KEY_IMAGE       = u8"Image";
 
-
 public:
+    /// <summary>
+    /// 튜토리얼 title 이름으로 id를 반환합니다.
+    /// </summary>
+    /// <param name="title">: 튜토리얼 제목</param>
+    /// <returns>실패시 0, 성공시 ID</returns>
+    static int GetTutorialID(std::u8string_view title);
+
     TutorialSystem();
 
 public:

@@ -28,10 +28,11 @@ PlayerPlayTurnState::PlayerPlayTurnState()
 {
     _inputState               = InputState::NONE;
     _attackButtonHeldTime     = 0.f;
-    _attackButtonHeldWaitTime = 1.0f;
+    _attackButtonHeldWaitTime = 0.5f;
     _attackRemaining          = 0;
     _isDownAButton            = false;
     _isDownAKey               = false;
+    _qteCallbackHandle        = 0;
 }
 
 PlayerPlayTurnState::~PlayerPlayTurnState() 
@@ -117,21 +118,26 @@ void PlayerPlayTurnState::OnUpdate()
     default:
         break;
     }
-
-    if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
-    {
-        combatUIManager->Refresh();
-    }
 }
 
 void PlayerPlayTurnState::PressedButtonA(const Input::Controller& controller)
 {
     _isDownAButton = true;
+    if (InputState::ACTION_SELECTION == _inputState)
+    {
+        if (CombatUIManager* uiManager = SingletonComponent<CombatUIManager>::GetInstance())
+            uiManager->FadeOut(_attackButtonHeldWaitTime);
+    } 
 }
 
 void PlayerPlayTurnState::ReleasedButtonA(const Input::Controller& controller)
 {
     _isDownAButton = false;
+    if (InputState::ACTION_SELECTION == _inputState)
+    {
+        if (CombatUIManager* uiManager = SingletonComponent<CombatUIManager>::GetInstance())
+            uiManager->FadeIn(_attackButtonHeldWaitTime);
+    }  
 }
 
 void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
@@ -222,10 +228,6 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
     if (QTEUIManager* qteUIManager = SingletonComponent<QTEUIManager>::GetInstance())
     {
         qteUIManager->SetUIAlpha(t);
-    }
-    if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
-    {
-        combatUIManager->SetActiveUI(!input);
     }
 }
 
@@ -373,6 +375,11 @@ Battle::EnemyTargetFlag_ PlayerPlayTurnState::GetAttackTargetFromButton(unsigned
 
 void PlayerPlayTurnState::OnQTEFinish()
 {
+    _inputState = InputState::ATTACK_EVENT;
+
+    if (CombatUIManager* uiManager = SingletonComponent<CombatUIManager>::GetInstance())
+        uiManager->FadeIn(_attackButtonHeldWaitTime);
+
     float min = 0.0f; // 첫 무기 공격을 0초로 맞추고 나머지도 당겨오기 위한 변수
     const float offset = 0.3f;
 

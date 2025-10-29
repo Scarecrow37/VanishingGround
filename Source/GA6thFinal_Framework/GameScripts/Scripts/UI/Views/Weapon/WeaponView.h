@@ -5,6 +5,8 @@
 class TextElement;
 class ImageElement;
 class DescriptionPanel;
+class SpriteAnimationElement;
+class FadeUIComponent;
 
 class WeaponView : public Component
 {
@@ -13,9 +15,9 @@ class WeaponView : public Component
 public:
     struct BackgroundUI
     {
-        GameObject*   BackGroundPanel = nullptr;
-        ImageElement* ImageOn         = nullptr;
-        ImageElement* ImageOff        = nullptr;
+        GameObject*             BackGroundPanel = nullptr;
+        ImageElement*           FocusOn         = nullptr;
+        SpriteAnimationElement* FocusOff        = nullptr;
     };
 
     struct TextInfoUI
@@ -32,7 +34,7 @@ public:
 public:
     void Focus(bool value);
 
-    REFLECT_PROPERTY()
+    REFLECT_PROPERTY(ReflectFields->FadeInFrame, ReflectFields->FadeOutFrame)
     GETTER_ONLY(const BackgroundUI&, BackgroundUIInfo) { return _backgroundUI; }
     PROPERTY(BackgroundUIInfo)
     GETTER_ONLY(const TextInfoUI&, TextInfo) { return _textInfoUI; }
@@ -59,6 +61,8 @@ private:
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
+    std::array<int, 2> FadeInFrame{};
+    std::array<int, 2> FadeOutFrame{};
     REFLECT_FIELDS_END(WeaponView)
 
 private:
@@ -67,6 +71,12 @@ private:
     DescriptionPanel*              _descriptionUI;
     ImageElement*                  _iconUI;
     TextElement*                   _nameUI;
+
+    FadeUIComponent* _rootFadeUI;
+    FadeUIComponent* _textFadeUI;
+    FadeUIComponent* _descriptionFadeUI;
+    FadeUIComponent* _iconFadeUI;
+    FadeUIComponent* _nameFadeUI;
 
     SingletonComponent<WeaponView> _singletonComponent;
     WeaponViewModel::Handle        _watchHandle;

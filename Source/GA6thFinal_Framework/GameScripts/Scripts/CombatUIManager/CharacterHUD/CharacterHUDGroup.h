@@ -2,6 +2,7 @@
 #include <CombatUIManager/UIGroup.h>
 class OverlayPanel;
 class ImageElement;
+class FadeUIComponent;
 
 namespace CombatUI
 {
@@ -15,11 +16,16 @@ namespace CombatUI
         OverlayPanel*   EnemyHUDPanel[3] = {nullptr, nullptr, nullptr}; // Left, Middle, Right
         Vector3         EnemyPosition[3] = {Vector3::Zero, Vector3::Zero, Vector3::Zero};
 
+        FadeUIComponent* FadeUI = nullptr;
+
         bool FindUI() override;
         bool IsValid() const override;
         void ActiveUI(bool active) override;
 
         void RefreshUIPosition();
         bool RefreshEnemiesPosition();
+
+        void FadeIn(float duration) override;
+        void FadeOut(float duration) override;
     };
 } // namespace CombatUI
