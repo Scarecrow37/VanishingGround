@@ -19,13 +19,14 @@ namespace QTE
     }
     void InputViewerUI::MatchUIFromObject(GameObject& object)
     {
-        Overlay = object.CompareTag(OVERLAY_TAG) 
-            ? object.GetComponent<OverlayPanel>() 
-            : Overlay;
-
-        Horizontal = object.CompareTag(HORIZONTAL_TAG) 
-            ? object.GetComponent<HorizontalPanel>() 
-            : Horizontal;
+        if (object.CompareTag(OVERLAY_TAG))
+        {
+            Overlay = object.GetComponent<OverlayPanel>();
+        }
+        if (object.CompareTag(HORIZONTAL_TAG))
+        {
+            Horizontal = object.GetComponent<HorizontalPanel>();
+        }
     }
     void InputViewerUI::Active(bool active)
     {

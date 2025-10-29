@@ -7,9 +7,10 @@ namespace QTE
 {
     void BackgroundUI::MatchUIFromObject(GameObject& object) 
     {
-        Background = object.CompareTag(BACKGROUND_TAG) 
-            ? object.GetComponent<ImageElement>() 
-            : Background;
+        if (object.CompareTag(BACKGROUND_TAG))
+        {
+            Background = object.GetComponent<ImageElement>();
+        }
     }
     void BackgroundUI::Active(bool active) 
     {
