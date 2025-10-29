@@ -17,7 +17,11 @@ public:
     inline static constexpr const char* TAG = "Enemy";
 
 public:
-    REFLECT_PROPERTY(Speed, Type, SpawnPoint)
+    REFLECT_PROPERTY(RandomSpeed, Speed, Type, SpawnPoint)
+
+    // OnRoundStart 진입시 자동으로 랜덤한 값이 부여됩니다.
+    GETTER_ONLY(int, RandomSpeed) { return GetRandomSpeed(); }
+    PROPERTY(RandomSpeed)
 
     GETTER_ONLY(int, Speed) { return GetSpeed(); }
     PROPERTY(Speed)
@@ -55,6 +59,8 @@ protected:
     } 
     _fsmStates;
 
+    int _randomSpeed = 0;
+
 public:
     /*Enemy의 턴을 종료합니다.*/
     void EndTurn() override;
@@ -64,7 +70,7 @@ public:
     void Revive() override;
     /*Enemy에게 피격을 가합니다.*/
     void TakeDamage(int damage, bool playAnim = true) override;
-    void TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim = true) override;
+    void TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim = true);
 
     inline Monster::Controller&     GetController() { return _controller; }
     inline FiniteStateMachine&      GetFSM() { return *_finiteStateMachine; }
@@ -75,6 +81,7 @@ public:
     CharacterStats* GetCharacterStats() override;
 
     int GetSpeed() override;
+    int GetRandomSpeed() override;
 
     void SetPositionFromSpawnPoint(Monster::SpawnPoint spawnPoint);
 

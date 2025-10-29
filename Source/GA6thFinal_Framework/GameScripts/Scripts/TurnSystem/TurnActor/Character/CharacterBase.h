@@ -62,8 +62,10 @@ public:
     virtual void ClearState() override;
     virtual void Revive() override;
     virtual void Dead() override;
+
+    virtual void Heal(int amount);
+    virtual void HealByPercentage(int percentage);
     virtual void TakeDamage(int damage, bool playAnim = true);
-    virtual void TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim = true);
     virtual void TakeChain(int chainDamage);
 
     // 연격 수를 설정합니다.
@@ -95,6 +97,7 @@ private:
 
 protected:
     virtual void Awake() override;
+    virtual void Start() override;
 
     void InitAnimationCallback();
 

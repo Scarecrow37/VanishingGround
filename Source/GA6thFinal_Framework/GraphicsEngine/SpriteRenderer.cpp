@@ -2,18 +2,19 @@
 #include "SpriteRenderer.h"
 
 SpriteRenderer::SpriteRenderer()
-    : _texture(nullptr)
+    : UIRenderer(UIRenderer::Type::SPRITE)
+    , _texture(nullptr)
     , _worldMatrix(nullptr)
     , _size({0, 0})
     , _origin({0, 0})
     , _materialData({.Type = UIMaterialType::DEFAULT, .Fill = 0.f})
-    , _type(SpriteType::MODE_2D)
     , _numColumn(1)
     , _numRow(1)
     , _columnIndex(0)
     , _rowIndex(0)
     , _alpha(1.f)
 {
+    _uiType = UIType::MODE_2D;
 }
 
 SpriteRenderer::~SpriteRenderer() = default;
@@ -42,6 +43,12 @@ void SpriteRenderer::SetTexture(std::shared_ptr<Texture> texture)
 void SpriteRenderer::SetLinearFill(float fill)
 {
     UIMaterialData materialData{.Type = UIMaterialType::LINEAR_FILL, .Fill = fill};
+    _materialData = materialData;
+}
+
+void SpriteRenderer::SetRadialFill(float fill)
+{
+    UIMaterialData materialData{.Type = UIMaterialType::RADIAL_FILL, .Fill = fill};
     _materialData = materialData;
 }
 

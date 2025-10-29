@@ -54,7 +54,7 @@ void LastQTEResultCondition::DrawImguiEditor()
     &tooltips);
 }
 
-const std::string& LastQTEResultCondition::GetConditionInfo() const
+const std::string& LastQTEResultCondition::GetConditionInfo()
 {
     return conditionInfo;
 }

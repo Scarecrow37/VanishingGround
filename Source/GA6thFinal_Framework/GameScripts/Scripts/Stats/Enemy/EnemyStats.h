@@ -15,7 +15,7 @@ struct EnemyStats : public CharacterStats
     GETTER(int, Speed) { return ReflectFields->Speed; }
     PROPERTY(Speed)
 
-    SETTER(int, Damage) { ReflectFields->Damage = std::max(value, 0); }
+    SETTER(int, Damage) { ReflectFields->Damage = value; }
     GETTER(int, Damage) { return ReflectFields->Damage; }
     PROPERTY(Damage)
 

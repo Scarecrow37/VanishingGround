@@ -10,6 +10,7 @@ Animator::Animator()
 
 Animator::~Animator()
 {   
+    Global::animationCore->UnregisterAnimator(this);
 }
 
 const Matrix* Animator::FindBoneMatrix(const char* boneName) const
@@ -179,12 +180,12 @@ void Animator::SetAnimationEndCallback(std::function<void()> callback)
 
 void Animator::AddReference()
 {
-    GraphicsBase::AddReference();
+    //GraphicsBase::AddReference();
 }
 
 void Animator::Release()
 {
-    GraphicsBase::Release();
+    //GraphicsBase::Release();
 }
 
 const std::vector<const char*>& Animator::GetAnimationNames() const
@@ -257,6 +258,7 @@ void Animator::Update(const float deltaTime)
             else
             {
                 _controllers[i].PlayTime = animation.LastTime;
+                _isPause                 = true;
             }
             if (_onAnimationEndCallback)
             {

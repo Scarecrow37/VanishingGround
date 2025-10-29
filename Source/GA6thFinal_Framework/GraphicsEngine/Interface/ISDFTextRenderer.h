@@ -5,7 +5,7 @@ namespace GE
 {
     struct FontOutline
     {
-        Vector3 Color   = Vector3(0.0f, 0.0f, 0.0f);
+        Vector4 Color   = Vector4(0.0f, 0.0f, 0.0f, 1.f);
         float   Width   = 1.0f;
         bool    Enabled = false;
     };

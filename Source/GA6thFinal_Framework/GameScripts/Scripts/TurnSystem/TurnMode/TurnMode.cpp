@@ -5,6 +5,8 @@
 #include <WeaponSystem/WeaponSystem.h>
 #include <DamageSystem/DamageSystem.h>
 #include "TurnSystem/TurnAction/Condition/RoundOnceCondition/RoundOnceCondition.h"
+#include "TurnSystem/TurnAction/TurnAction.h"
+#include "RoundInfoUI/RoundInfoUIManager.h"
 
 //Condition
 #include "GameCore/FSM/AlwaysTransitionCondition.h"
@@ -174,8 +176,8 @@ void TurnMode::StartFrontTurnActor()
 
     if (false == _turnList.empty())
     {
-        _turnList.ModifyFront([this](auto& actorSlot) {
-            _currTurnActor = actorSlot.second;
+        _turnList.ModifyFront([this](auto& actorSlot) 
+        {
             if (true == IsPlayerActorSlot(actorSlot))
             {
                 if (WeaponSystem* weaponSystem = SingletonComponent<WeaponSystem>::GetInstance())
@@ -187,6 +189,7 @@ void TurnMode::StartFrontTurnActor()
                     UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Weapon System이 존재하지 않습니다.");
                 }
             }
+            _currTurnActor = actorSlot.second;
         });
 
     }
@@ -294,7 +297,12 @@ int TurnMode::GetRealRoundSpeed(const std::pair<int, TurnActor*>& turnActor)
     return roundSpeed;
 }
 
-void TurnMode::Reset() 
+void TurnMode::CallAddedAction(TurnAction* action) 
+{
+    action->OnAddedAction();
+}
+
+void TurnMode::Reset()
 {
     _singletonComponent.SetSingleTon();
 }
@@ -384,6 +392,20 @@ void TurnMode::ImGuiDrawPropertysEvent()
                 ImGui::PopID();
             }
             ImGui::EndTable();
+        }
+        ImGui::TreePop();
+    }
+
+    if(UmCore->IsPlay() && ImGui::TreeNode("UI Test"))
+    {
+        if (ImGui::Button("Play Round Fade UI"))
+        {
+            if (auto roundInfoUI = GameObject::FindComponentWithTag<RoundInfoUIManager>("Round Info Panel").lock())
+            {
+                std::string info = (const char*)u8"라운드  ";
+                info += std::to_string(_roundCount);
+                roundInfoUI->FadeInfoUI(info);
+            }                            
         }
         ImGui::TreePop();
     }

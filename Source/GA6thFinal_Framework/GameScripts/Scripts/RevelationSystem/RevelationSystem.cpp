@@ -52,6 +52,57 @@ const std::shared_ptr<RevelationElement>& RevelationSystem::PushBackRevelation(c
     return _playerElementList.emplace_back(new RevelationElement(element));
 }
 
+void RevelationSystem::EquipRandomExtinctionElement(size_t count)
+{
+    if (count < 1)
+        return;
+
+    // 소멸 계시만 필터
+    auto& revelations = GetRevelationTableElements();
+    std::vector<RevelationElement*> extinctions;
+    extinctions.reserve(revelations.size());
+    std::ranges::copy_if(revelations, std::back_inserter(extinctions), [](RevelationElement* element)
+    { 
+        RevelationGrade garde = element->Grade;
+        return garde == RevelationGrade::EXTINCTION;
+    });
+
+    //랜덤 셔플 후 앞에 2개 추가
+    if (false == extinctions.empty())
+    {
+        auto& engine = Random::GetEngine();
+        std::ranges::shuffle(extinctions, engine);
+        extinctions.resize(count);
+
+        for (auto& extinction : extinctions)
+        {
+            if (extinction)
+            {
+                PushBackRevelation(*extinction);
+            }          
+        }
+    }  
+}
+
+void RevelationSystem::RemoveAllExtinctionElements() 
+{
+    size_t size = _playerElementList.size();
+    while (0 < size)
+    {
+        size_t lastIndex = size - 1;
+        auto&  element   = _playerElementList[lastIndex];
+        if (nullptr == element)
+            break;
+
+        RevelationGrade grade = element->Grade;
+        if (grade != RevelationGrade::EXTINCTION)
+            break;
+
+        RemovePlayerElement(static_cast<int>(lastIndex));
+        size = _playerElementList.size();
+    }
+}
+
 void RevelationSystem::RollRoundElement()
 {
     TurnMode* _turnMode = SingletonComponent<TurnMode>::GetInstance();
@@ -88,8 +139,9 @@ void RevelationSystem::RollRoundElement()
         }
 
         // 뽑힌 횟수 계산 및 액션 활성화
-        for (auto& element : roundElementList)
+        for (size_t i = 0; i < roundElementList.size(); ++i)
         {
+            auto& element = roundElementList[i];
             const std::string& name = element->ElementName;
             _elementTotalAppearances[name]++;
             if (element->IsAction())
@@ -103,6 +155,11 @@ void RevelationSystem::RollRoundElement()
                         const std::string& name = element->ElementName;
                         std::string msg  = std::format("{}{}", name, (const char*)u8" 발동.");
                         UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
+                    }
+
+                    if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+                    {
+                        mode->RevelationActiveFlag = true;
                     }
                 };
                 _turnMode->AddTurnAction(&action);
@@ -681,11 +738,18 @@ void RevelationSystem::ImGuiDrawPropertysEvent()
                                 {
                                     // 이미 있으면 데이터 및 이름 복사(액션은 유지)
                                     RevelationElement* revelation        = *idFindIter;
-                                    std::string        originElementName = revelation->ElementName;
-                                    std::string        originActionName  = revelation->ReflectFields->ActionName;
-                                    temp.ReflectFields->ActionName       = std::move(originActionName);
-                                    EraseElement(originElementName);
-                                    InsertElement(temp);                                  
+                                    if (revelation)
+                                    {
+                                        std::string originElementName  = revelation->ElementName;
+                                        std::string originActionName   = revelation->ReflectFields->ActionName;
+                                        temp.ReflectFields->ActionName = std::move(originActionName);
+                                        if (revelation->_action)
+                                        {
+                                            temp._action = std::move(revelation->_action);
+                                        }                                     
+                                        EraseElement(originElementName);
+                                        InsertElement(temp);      
+                                    }                                                                                                 
                                 }
                                 if (false == result)
                                 {

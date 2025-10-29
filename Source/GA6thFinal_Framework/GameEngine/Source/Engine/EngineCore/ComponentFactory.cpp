@@ -51,7 +51,6 @@ bool EComponentFactory::InitalizeComponentFactory()
         //Input Receiver Clear
         ESceneManager::Engine::GetInputSystem().CleanupInputReceivers();
 
-
         //모든 컴포넌트 자원 회수
         for (auto& [key, wptr] : _componentInstanceVec)
         {
@@ -63,6 +62,9 @@ bool EComponentFactory::InitalizeComponentFactory()
             }
         }
         _componentInstanceVec.clear();
+
+        //weak_ptr clear
+        UmSceneManager.ClearExpiredMeshComponents();
 
         // Script Dll에서 생성된 Graphics 자원 회수
         UmGraphics.ClearGraphicsResource();
@@ -205,16 +207,20 @@ bool EComponentFactory::InitalizeComponentFactory()
             newComponent->UpdateEnableInHierarchy();
         }     
     }
-
-    //존재 안하는거는 전부 제거
+   
+    //존재 안하는거는 전부 제거 및 Added 호출
     for (auto& [gameObject, key, index, reflectData] : addList)
     {
         std::erase_if(gameObject->_components, [](auto& sptr)
+        {
+            bool isErase = sptr == nullptr;
+            if (false == isErase)
             {
-                return sptr == nullptr;
-            });
+                sptr->Added();
+            }
+            return isErase;
+        });
     }
-
     return true;
 }
 
@@ -235,6 +241,12 @@ void EComponentFactory::UninitalizeComponentFactory()
             }
         }
         _componentInstanceVec.clear();
+
+        // weak_ptr clear
+        UmSceneManager.ClearExpiredMeshComponents();
+
+        // Input Receiver Clear
+        ESceneManager::Engine::GetInputSystem().CleanupInputReceivers();
 
         // 오디오 Clear
         UmAudio.ClearVoicePool();

@@ -15,5 +15,5 @@ public:
 
 private:
     SharedResource<UnorderedAccessView> _outputBuffer;
-    ComputeFX<GE::CS::RESOLVE_UI>       _fx;
+    ComputeFX<GE::CS::RESOLVE_UI>       _fxResolve;
 };

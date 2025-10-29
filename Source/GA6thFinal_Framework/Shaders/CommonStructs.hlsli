@@ -91,7 +91,7 @@ struct PostProcessData
 
 struct CascadeData
 {
-    matrix ShadowVP[MAX_CASCADES];
+    matrix ShadowVP[MAX_CASCADES + 1]; // 0,1,2: cascade shadows, 3: skeletal shadow
     float3 CascadeSplits; // x=split1, y=split2, z=split3
 };
 

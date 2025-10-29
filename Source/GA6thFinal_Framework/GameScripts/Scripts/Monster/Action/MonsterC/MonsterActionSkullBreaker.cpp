@@ -7,7 +7,7 @@ namespace Monster
 {
     namespace Action
     {
-        SkullBreaker::SkullBreaker() : Base("Attack3") {}
+        SkullBreaker::SkullBreaker() : Base("Attack2") {}
         SkullBreaker::~SkullBreaker() = default;
         void SkullBreaker::OnActionEnter() {}
         void SkullBreaker::OnActionUpdate() {}

@@ -21,14 +21,13 @@
 #include "BlendTechnique.h"
 #include "BloomTechnique.h"
 #include "EditorDrawTechnique.h"
-#include "PBRLitTechnique.h"
+#include "LightingTechnique.h"
 #include "SSRTechnique.h"
 #include "VolumetricFogTechnique.h"
 #include "ParticleRenderTechnique.h"
 #include "RayTracingTechnique.h"
 #include "SkyBoxRenderTechnique.h"
 #include "UITechnique.h"
-#include "UITechnique_OIT.h"
 #include "SceneTransitionTechnique.h"
 #include "SSGITechnique.h"
 #include "FXAATechnique.h"
@@ -170,9 +169,9 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
     {
         scene->AddRenderTechnique(std::make_unique<RayTracingTechnique>());
     }
-    if (RenderTechniqueFlag::PBR_TECH & flag)
+    if (RenderTechniqueFlag::LIGHTING_TECH & flag)
     {
-        scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
+        scene->AddRenderTechnique(std::make_unique<LightingTechnique>());
     }
     if (RenderTechniqueFlag::SSR_TECH & flag)
     {
@@ -213,8 +212,7 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
     // UI Pass
     if (RenderTechniqueFlag::UI_TECH & flag)
     {
-        //scene->AddRenderTechnique(std::make_unique<UITechnique>());
-        scene->AddRenderTechnique(std::make_unique<UITechnique_OIT>());
+        scene->AddRenderTechnique(std::make_unique<UITechnique>());
     }
     // Scene Transition Effect
     if (RenderTechniqueFlag::SCENE_TRANSITION_TECH & flag)
@@ -567,30 +565,53 @@ void Renderer::CreateDefaultRenderTarget()
     desc.Width  = resolution.cx;
     desc.Height = resolution.cy;
     Global::multiRenderTargetManager->InitializeRenderTargetPool(4, desc);
-        
-    auto& renderTargetManager = Global::multiRenderTargetManager;
-    std::initializer_list<std::string_view> renderTargetNames = {"BaseColor", "Normal", "ORM", "Emissive",  "Depth",  "CustomDepth"};
-    
-    auto first = renderTargetNames.begin();
-    for (UINT i = 0; i <= GBuffer::EMISSIVE; ++i)
+
+    auto&                                   renderTargetManager = Global::multiRenderTargetManager;
+    const std::string_view* first;
+    if (Global::isRayTracing)
     {
-        renderTarget = MakeSharedResource<RenderTarget>();
+        std::initializer_list<std::string_view> renderTargetNames = {"Normal", "Depth", "CustomDepth"};
+        first                                                     = renderTargetNames.begin();
+        renderTarget                                              = MakeSharedResource<RenderTarget>();
         renderTarget->Initialize(desc, 0.247f);
-        renderTargetManager->AddRenderTarget(*(first + i), renderTarget);
+        renderTargetManager->AddRenderTarget(*(first + DXRGBuffer::DXRNORMAL), renderTarget);
+
+        renderTarget = MakeSharedResource<RenderTarget>();
+        desc.Format  = DXGI_FORMAT_R32_FLOAT;
+        renderTarget->Initialize(desc, 1.f);
+        renderTargetManager->AddRenderTarget(*(first + DXRGBuffer::DXRDEPTH), renderTarget);
+
+        renderTarget = MakeSharedResource<RenderTarget>();
+        desc.Format  = DXGI_FORMAT_R32_UINT;
+        renderTarget->Initialize(desc, 0.f);
+        renderTargetManager->AddRenderTarget(*(first + DXRGBuffer::DXRCUSTOMDEPTH), renderTarget);
+
+        renderTargetManager->AddRenderTargetGroup("G-Buffer", renderTargetNames);
     }
 
-    renderTarget = MakeSharedResource<RenderTarget>();
-    desc.Format  = DXGI_FORMAT_R32_FLOAT;
-    renderTarget->Initialize(desc, 1.f);
-    renderTargetManager->AddRenderTarget(*(first + GBuffer::DEPTH), renderTarget);
+    else
+    {
+        std::initializer_list<std::string_view> renderTargetNames = {"BaseColor", "Normal", "ORM",
+                                                                     "Emissive",  "Depth",  "CustomDepth"};
+        first                                                     = renderTargetNames.begin();
+        for (UINT i = 0; i <= GBuffer::EMISSIVE; ++i)
+        {
+            renderTarget = MakeSharedResource<RenderTarget>();
+            renderTarget->Initialize(desc, 0.247f);
+            renderTargetManager->AddRenderTarget(*(first + i), renderTarget);
+        }
+        renderTarget = MakeSharedResource<RenderTarget>();
+        desc.Format  = DXGI_FORMAT_R32_FLOAT;
+        renderTarget->Initialize(desc, 1.f);
+        renderTargetManager->AddRenderTarget(*(first + GBuffer::DEPTH), renderTarget);
 
-    renderTarget = MakeSharedResource<RenderTarget>();
-    desc.Format  = DXGI_FORMAT_R32_UINT;
-    renderTarget->Initialize(desc, 0.f);
-    renderTargetManager->AddRenderTarget(*(first + GBuffer::CUSTOMDEPTH), renderTarget);
-
-    // Deferred G-Buffer
-    renderTargetManager->AddRenderTargetGroup("G-Buffer", renderTargetNames);
+        renderTarget = MakeSharedResource<RenderTarget>();
+        desc.Format  = DXGI_FORMAT_R32_UINT;
+        renderTarget->Initialize(desc, 0.f);
+        renderTargetManager->AddRenderTarget(*(first + GBuffer::CUSTOMDEPTH), renderTarget);
+        // Deferred G-Buffer
+        renderTargetManager->AddRenderTargetGroup("G-Buffer", renderTargetNames);
+    }
 
     // Forward G-Buffer
     renderTargetManager->AddRenderTargetGroup("Forward G-Buffer", {"Normal", "Depth", "CustomDepth"});

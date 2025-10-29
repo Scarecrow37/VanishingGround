@@ -14,14 +14,10 @@ struct PSInput
 
 Texture2D sdfTexture;
 
-RWTexture2D<uint> OITHead;
-RWStructuredBuffer<OITNode> OITNodes;
-RWByteAddressBuffer OITCounter;
-
-void ps_main(PSInput input)
+float4 ps_main(PSInput input) : SV_Target0
 {
     float3 sampled = sdfTexture.Sample(samLinear_clamp, input.uv).rgb;
-    float sd = Median(sampled.r, sampled.g, sampled.b);    
+    float sd = Median(sampled.r, sampled.g, sampled.b);
     float sigDist = (sd - 0.5) * sdfParams.PxRange;
     float screenPixelRange = fwidth(sigDist);
     
@@ -29,41 +25,19 @@ void ps_main(PSInput input)
     float fillOpacity = smoothstep(-screenPixelRange, screenPixelRange, effectiveDist);
     
     float4 color = bit32_4_fontColor.Color;
+    color.a *= fillOpacity;
     
     if (sdfParams.Flags & ENABLE_OUTLINE)
     {
-        float maxOutlineWidth = sdfParams.PxRange * 0.8;
-        float clampedOutlineWidth = min(sdfParams.OutlineWidth, maxOutlineWidth);
-        float outlineEdge = sigDist + sdfParams.FontWeight + clampedOutlineWidth;
+        float outlineEdge = sigDist + sdfParams.FontWeight + sdfParams.OutlineWidth;
         float outlineOpacity = smoothstep(-screenPixelRange, screenPixelRange, outlineEdge);
-        float3 outlineColor = sdfParams.OutlineColor;
-        color.rgb = lerp(outlineColor, color.rgb, fillOpacity / max(outlineOpacity, Epsilon));
-        
-        color.a *= outlineOpacity;
-    }
-    else
-    {
-        color.a *= fillOpacity;
+                
+        float4 outlineColor = sdfParams.OutlineColor;
+        outlineColor.a *= outlineOpacity;
+        outlineColor.a = outlineColor.a * (1.0 - fillOpacity);
     }
     
     clip(color.a - Epsilon);
     
-    color = Premultiply(color);
-    
-    uint nodeIndex = OITAllocNode(OITCounter);
-    if (nodeIndex >= FRAME_NODE_CAPACITY)
-    {
-        return;
-    }
-        
-    uint2 pix = uint2(input.position.xy);
-    
-    uint oldHead;
-    InterlockedExchange(OITHead[pix], nodeIndex, oldHead);
-    
-    OITNode node;
-    node.Color = color;
-    node.Depth = input.position.z;
-    node.Next = (oldHead == 0xFFFFFFFF) ? OIT_NULL : oldHead;
-    OITNodes[nodeIndex] = node;
+    return color;
 }

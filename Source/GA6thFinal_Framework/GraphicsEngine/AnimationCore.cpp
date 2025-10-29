@@ -31,6 +31,11 @@ void AnimationCore::RegisterAnimator(Animator* animator)
     _components.push_back(animator);
 }
 
+void AnimationCore::UnregisterAnimator(Animator* animator)
+{
+    std::erase_if(_components, [animator](const auto& component) { return component->GetID() == animator->GetID(); });
+}
+
 void AnimationCore::ClearAnimationQueue()
 {
     _components.clear();
@@ -55,9 +60,6 @@ void AnimationCore::Initialize(const unsigned int maxThread)
 void AnimationCore::Update(const float deltaTime)
 {
     unsigned int size = (unsigned int)_components.size();
-
-    auto first = std::remove_if(_components.begin(), _components.end(), [](const auto& component) { return !component->IsAlive(); });
-    _components.erase(first, _components.end());
 
     for (auto& component : _components)
         component->Update(deltaTime);

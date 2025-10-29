@@ -1,5 +1,11 @@
 ﻿#pragma once
+#include <Token/Common/TokenCommon.h>
 #include <Token/TokenSystem.h>
+
+namespace QTE
+{
+    struct NoteResult;
+}
 
 class TokenInventory
 {
@@ -9,6 +15,8 @@ public:
     ~TokenInventory();
 
 public:
+    void Initialize();
+
     /// <summary>
     /// 테이블의 토큰을 모두 제거합니다.
     /// </summary>
@@ -80,6 +88,29 @@ public:
     /// </summary>
     void NotifyQTEEnd();
 
+    void NotifyPrePlayerAttackCalculateChain(PlayerAttackData& attackerData, EnemyHitData& targetData);
+    void NotifyPreEnemyAttackCalculateChain(EnemyAttackData& attackerData, PlayerHitData& targetData);
+    void NotifyPrePlayerHitCalculateChain(EnemyAttackData& attackerData, PlayerHitData& targetData);
+    void NotifyPreEnemyHitCalculateChain(PlayerAttackData& attackerData, EnemyHitData& targetData);
+
+    void NotifyPostPlayerAttackCalculateChain(PlayerAttackData& attackerData, EnemyHitData&  targetData, int& chain);
+    void NotifyPostEnemyAttackCalculateChain(EnemyAttackData& attackerData, PlayerHitData& targetData, int& chain);
+    void NotifyPostPlayerHitCalculateChain(EnemyAttackData& attackerData, PlayerHitData& targetData, int& chain);
+    void NotifyPostEnemyHitCalculateChain(PlayerAttackData& attackerData, EnemyHitData& targetData, int& chain);
+
+    void NotifyPrePlayerAttackCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData);
+    void NotifyPreEnemyAttackCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData);
+    void NotifyPrePlayerHitCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData);
+    void NotifyPreEnemyHitCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData);
+
+    void NotifyPostPlayerAttackCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData, int& damage);
+    void NotifyPostEnemyAttackCalculateDamage(EnemyAttackData&  attackerData, PlayerHitData& targetData, int& damage);
+    void NotifyPostPlayerHitCalculateDamage(EnemyAttackData& attackerData, PlayerHitData& targetData, int& damage);
+    void NotifyPostEnemyHitCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData, int& damage);
+
+
+    void NotifyRollRandomSpeed(int& randomSpeed);
+
 public:
     /// <summary>
     /// 토큰 스택을 카운트만큼 추가합니다. 
@@ -120,32 +151,36 @@ public:
     /// </summary>
     /// <param name="tokenTag">확인할 TokenTag 값입니다.</param>
     /// <returns>태그에 해당하는 토큰이 있으면 true, 없으면 false를 반환합니다.</returns>
-    bool HasTokenFromTag(TokenTag tokenTag) const;
+    bool HasTokenFromTag(const std::string& tag) const;
 
     /// <summary>
     /// 토큰 ID로 해당 토큰의 스택 카운트를 반환합니다.
     /// </summary>
-    /// <param name="tokenID"></param>
-    /// <returns></returns>
     int GetTokenStackFromID(int tokenID) const;
 
     /// <summary>
-    /// 주어진 TokenTag에 해당하는 토큰 스택을 반환합니다.
+    /// 지정된 태그에 대응하는 모든 토큰의 스택을 합한 카운트를 반환합니다.
     /// </summary>
-    /// <param name="tokenTag">토큰 스택을 조회할 TokenTag 값입니다.</param>
-    /// <returns>해당 TokenTag에 연결된 토큰 스택의 정수 값입니다.</returns>
-    int GetTokenStackFromTag(TokenTag tokenTag) const;
+    int GetTokenStackFromTag(const std::string& tag) const;
 
     /// <summary>
     /// 유효한 토큰의 개수를 반환합니다.
     /// </summary>
-    /// <returns>유효한 토큰의 개수</returns>
-    size_t GetValidTokenCount() const;
+    int GetValidTokenCount() const;
 
     /// <summary>
-    /// 유효한 토큰이 있는지 확인합니다.
+    /// 해당 태크에 해당하는 유효한 토큰의 개수를 반환합니다.
     /// </summary>
-    /// <returns>유효한 토큰이 하나라도 있으면 true, 없으면 false</returns>
+    int GetValidTokenCount(const std::string& tag) const;
+
+    /// <summary>
+    /// 유효한 토큰 종류의 개수를 반환합니다.
+    /// </summary>
+    int GetValidTokenCountByTag() const;
+
+    /// <summary>
+    /// 유효한 토큰이 하나라도 있는지 확인합니다.
+    /// </summary>
     bool IsEmpty() const;
 
     /// <summary>
@@ -154,11 +189,6 @@ public:
     void DrawImGuiDebugData();
 
 private:
-    /// <summary>
-    /// 토큰 테이블에 모든 인스턴스를 초기화합니다.
-    /// </summary>
-    void InitTokenInstance();
-
     /// <summary>
     /// 해당 토큰에 대한 업데이트를 수행합니다.
     /// </summary>

@@ -77,7 +77,7 @@ void SkeletalMeshRenderer::LoadModel()
             {                                
                 animator->SetActive(&EnableInHierarchy);
                 UmGraphics.RegisterComponent(animator);
-                Renderer->OnCustomDepth(PostProcess::BLOOM);
+                Renderer->OnCustomDepth(PostProcess::BLOOM | PostProcess::IS_SKELETAL_MESH);
                 this->InitMaterial();
             }
 
@@ -92,11 +92,6 @@ void SkeletalMeshRenderer::OnChangedModel()
     if (Renderer && animationComponent)
     {
         animationComponent->SetAnimator(Renderer->GetAnimator());
+        animationComponent->ChangeDefaultAnimation();
     }
-    /*ParticleComponent* particleComponent = GetComponent<ParticleComponent>();
-    if (Renderer && particleComponent)
-    {
-        const auto& animator = Renderer->GetAnimator();
-        particleComponent->SetAnimator(animator.get());
-    }*/
 }

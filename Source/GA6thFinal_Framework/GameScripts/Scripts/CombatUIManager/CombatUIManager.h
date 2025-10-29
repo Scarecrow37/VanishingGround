@@ -36,6 +36,9 @@ public:
     /// <param name="active">UI를 활성화할지 여부</param>
     void SetActiveUI(bool active);
 
+    void FadeIn(float duration);
+    void FadeOut(float duration);
+
 protected:
     void Reset() override;
     void Awake() override;
@@ -49,6 +52,7 @@ protected:
 private:
     void PreferencesKeyDown(const Input::Controller&);
     void InventoryKeyDown(const Input::Controller&);
+    UINavigationComponent* GetLastFocusNaviFromObjectName(const std::string& uiRootObjectName);
 
 public:
     CombatUI::CharacterHUDGroup CharacterHUDGroup;
