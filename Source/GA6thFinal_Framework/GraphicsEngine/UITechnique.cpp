@@ -1,6 +1,6 @@
 ﻿#include "pch.h"
 #include "UITechnique.h"
-#include "UI2DPass_OIT.h"
+#include "UI2DPass.h"
 #include "UI25DPass_OIT.h"
 #include "UI3DPass_OIT.h"
 #include "SDFTextDrawPass_OIT.h"
@@ -44,7 +44,7 @@ void UITechnique::Initialize(ID3D12GraphicsCommandList* commandList)
     CreateCameraBuffer();
 
     std::unique_ptr<RenderPass> pass;
-    pass = std::make_unique<UI2DPass_OIT>(&_instanceIDs[MODE_2D]);
+    pass = std::make_unique<UI2DPass>(&_instanceIDs[MODE_2D]);
     pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));
     
@@ -56,9 +56,9 @@ void UITechnique::Initialize(ID3D12GraphicsCommandList* commandList)
     pass->Initialize(_ownerScene, this, commandList);
     AddRenderPass(std::move(pass));
 
-    pass = std::make_unique<SDFTextDrawPass_OIT>(&_instanceIDs[MODE_TEXT]);
+    /*pass = std::make_unique<SDFTextDrawPass_OIT>(&_instanceIDs[MODE_TEXT]);
     pass->Initialize(_ownerScene, this, commandList);
-    AddRenderPass(std::move(pass));
+    AddRenderPass(std::move(pass));*/
 
     pass = std::make_unique<UIResolvePass>();
     pass->Initialize(_ownerScene, this, commandList);
@@ -72,17 +72,22 @@ void UITechnique::Execute(ID3D12GraphicsCommandList* commandList)
         data.clear();
 
     UINT index = 0;
-    for (auto& component : _ownerScene->_uiRenderQueue)
+    for (auto& component : _ownerScene->_activeUIs)
     {
-        if (!component->IsActive())
-            continue;
-
-        if (nullptr == component->GetTexture())
-            continue;
-
-        SpriteType type = component->GetType();
+        UIType type = component->GetUIType();
         _instanceIDs[type].push_back(index);
-        _uiMaterialDatas[index] = component->GetMaterialData();
+
+        UIMaterialData data{};
+        switch (component->GetType())
+        {
+            case UIRenderer::Type::SPRITE: {
+                SpriteRenderer* spriteRenderer = static_cast<SpriteRenderer*>(component);
+                data                           = spriteRenderer->GetMaterialData();
+                break;
+            }
+        }
+
+        _uiMaterialDatas[index] = data;
         index++;
     }
 

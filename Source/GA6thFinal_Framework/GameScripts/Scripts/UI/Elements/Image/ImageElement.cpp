@@ -53,7 +53,7 @@ void ImageElement::Reset()
             UmGraphics.RegisterComponent("Editor", _renderer.Get());
         }
 
-        _renderer->SetType(SpriteType::MODE_2D);
+        _renderer->SetType(UIType::MODE_2D);
         _renderer->SetActive(&EnableInHierarchy);
 
         RequestResource();
