@@ -17,7 +17,6 @@ struct VSOutput
     float3 biTangent : BINORMAL;
     float2 uv : TEXCOORD;
     float4 color : COLOR0;
-    float depth : TEXCOORD1;
     nointerpolation int emitterIndex : CUSTOM_FLAG;
 };
 
@@ -45,6 +44,5 @@ VSOutput vs_main(VSInput input)
         lerp(instanceInfo.FrameInfo.x, instanceInfo.FrameInfo.y, input.uv.x),
         lerp(instanceInfo.FrameInfo.z, instanceInfo.FrameInfo.w, input.uv.y));
     }
-    output.depth = output.position.z / output.position.w;
     return output;
 }

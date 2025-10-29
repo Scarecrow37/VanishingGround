@@ -2277,18 +2277,24 @@ void ESceneManager::InputSystem::UpdateInput()
 
 void ESceneManager::InputSystem::RegisterInputReceiver(InputReceiver& receiver, int buttonIndex, int actionIndex, std::function<void(const Input::Controller& controller)> func)
 {
-    auto& receiverTarget = _receivers[buttonIndex][actionIndex];
-    if (nullptr == receiver._isDestroy)
+    constexpr int maxButtonCount = static_cast<int>(ControllerButton::UNKNOWN);
+    constexpr int maxActionCount = static_cast<int>(Action::UNKNOWN);
+
+    if (buttonIndex < maxButtonCount && actionIndex < maxActionCount)
     {
-        //플래그 bool 값을 동적 할당
-        receiverTarget.emplace_back(std::make_shared<bool>(false), func);
-        receiver._isDestroy = receiverTarget.back().first;
-    }
-    else
-    {
-        //이미 등록된 리시버는 bool 값을 공유.
-        receiverTarget.emplace_back(receiver._isDestroy, func);
-    }
+        auto& receiverTarget = _receivers[buttonIndex][actionIndex];
+        if (nullptr == receiver._isDestroy)
+        {
+            // 플래그 bool 값을 동적 할당
+            receiverTarget.emplace_back(std::make_shared<bool>(false), func);
+            receiver._isDestroy = receiverTarget.back().first;
+        }
+        else
+        {
+            // 이미 등록된 리시버는 bool 값을 공유.
+            receiverTarget.emplace_back(receiver._isDestroy, func);
+        }
+    } 
 }
 
 bool ESceneManager::InputSystem::PushReceiverToInputStack(InputReceiver& receiver)

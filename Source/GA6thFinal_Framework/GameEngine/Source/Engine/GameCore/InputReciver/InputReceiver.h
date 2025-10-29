@@ -13,6 +13,9 @@ public:
     InputReceiver() = default;
     virtual ~InputReceiver();
 
+    static void Vibrate(Input::ControllerTypes::Vibration vibration);
+
+protected:
     /// <summary>
     /// 인풋 콜백을 등록합니다.
     /// </summary>
@@ -47,6 +50,19 @@ public:
     /// <param name="func :">callback</param>
     /// <returns>성공 여부</returns>
     template <typename T>
+    bool BindAllKeyInputAction(Action action, T* instance, void (T::*func)(const Input::Controller&),
+                         std::source_location = std::source_location::current());
+
+
+    /// <summary>
+    /// 해당 액션에 대해 모든 키 이벤트를 등록합니다.
+    /// </summary>
+    /// <param name="action :">액션</param>
+    /// <param name="owner :">InputReceiver의 Owner</param>
+    /// <param name="instance :">this</param>
+    /// <param name="func :">callback</param>
+    /// <returns>성공 여부</returns>
+    template <typename T>
     bool BindAllKeyInputAction(Action action, Component* owner, T* instance, void (T::*func)(const Input::Controller&),
                          std::source_location = std::source_location::current());
 
@@ -62,7 +78,6 @@ public:
     /// <returns>성공 여부</returns>
     bool PopInputLayer();
 
-    static void Vibrate(Input::ControllerTypes::Vibration vibration);
 
 private:
     struct ControllerSetKey
@@ -79,7 +94,7 @@ private:
     };
     std::set<ControllerSetKey> _controllerSet;
     std::shared_ptr<bool>      _isDestroy;
-    bool                       _isPushStack;
+    bool                       _isPushStack = false;
 };
 
 /// <summary>
@@ -175,6 +190,49 @@ inline bool InputReceiver::BindInputAction(ControllerButton button, Action actio
         else
         {
             UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"이미 바인딩된 액션입니다.", location);
+        }
+    }
+    return result;
+}
+
+template <typename T>
+inline bool InputReceiver::BindAllKeyInputAction(Action action, T* instance, void (T::*func)(const Input::Controller&),
+                                                 std::source_location location)
+{
+    static_assert(std::is_base_of_v<Component, T>, "T must be derived from Component.");
+    static_assert(std::is_base_of_v<InputReceiver, T>, "T must be derived from InputReceiver.");
+    bool result = false;
+    if (instance->gameObject->IsValid())
+    {
+        constexpr auto enumrators = rfl::get_enumerator_array<ControllerButton>();
+        for (auto& [str, button] : enumrators)
+        {
+            ControllerSetKey key{};
+            key.Button          = button;
+            key.Action          = action;
+            auto [iter, isInsert] = _controllerSet.insert(key);
+            result = isInsert;
+            if (result)
+            {
+                auto& inputSystem = ESceneManager::Engine::GetInputSystem();
+                int   buttonIndex = (int)button;
+                int   actionIndex = (int)action;
+                if (instance->gameObject->IsValid())
+                {
+                    inputSystem.RegisterInputReceiver(*this, buttonIndex, actionIndex,
+                    [instance, func](const Input::Controller& controller) 
+                    {
+                        if (instance->EnableInHierarchy)
+                        {
+                            std::invoke(func, instance, controller);
+                        }
+                    });
+                }  
+            }
+            else
+            {
+                UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"이미 바인딩된 액션입니다.", location);
+            }
         }
     }
     return result;

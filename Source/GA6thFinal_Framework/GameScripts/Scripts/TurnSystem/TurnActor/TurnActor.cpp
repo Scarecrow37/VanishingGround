@@ -40,6 +40,7 @@ void TurnActor::PlayTurn()
     {
         _currState = STATE::Play;
     }
+    OnTurnStart();
 }
 
 void TurnActor::Revive() 
@@ -64,6 +65,7 @@ void TurnActor::EndTurn()
     {
         _currState = STATE::Wait;
     }
+    OnTurnEnd();
 }
 
 void TurnActor::Awake() 
