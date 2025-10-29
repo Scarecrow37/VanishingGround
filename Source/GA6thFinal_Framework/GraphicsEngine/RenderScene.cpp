@@ -73,7 +73,7 @@ void RenderScene::InitializeRenderScene()
     if (Global::isRayTracing)
     { 
         _accelerationStructureManager = std::make_unique<AccelerationStructureManager>();
-        _accelerationStructureManager->Initialize(10000);
+        _accelerationStructureManager->Initialize(10000, this);
     }
 }
 
@@ -385,8 +385,7 @@ void RenderScene::UpdateObject()
                                              materials[i], 
                                              meshes[i].get(),
                                              component,
-                                             skinnedMesh,
-                                             &_matrices[index].World, 
+                                             skinnedMesh, 
                                              0.f);
         }
 
