@@ -129,7 +129,6 @@
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\RoundOnceCondition\RoundOnceCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\TokenCondition\TokenCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\TurnActionCondition.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\WeaponStas\WeaponDamageAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\TurnAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\AI\EnemyAI.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnActor\Character\Enemy\Condition\Base\EnemyConditionBase.cpp" />
@@ -287,6 +286,9 @@
     <ClCompile Include="Scripts\Token\Object\Deffence\WeaponDeffenceToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\Vanish\VanishToken.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\RevelationActiveCondition\RevelationActiveCondition.cpp" />
+    <ClCompile Include="Scripts\Test\Input\InputStackTestComponent.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\LastWeaponDamageCopy\LastWeaponDamageCopy.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\WeaponStas\WeaponDamageAction.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
@@ -425,7 +427,6 @@
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\RoundOnceCondition\RoundOnceCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\TokenCondition\TokenCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\TurnActionCondition.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\WeaponStas\WeaponDamageAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionEnums.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\TurnActionFactory.h" />
@@ -585,6 +586,9 @@
     <ClInclude Include="Scripts\Token\Object\Deffence\WeaponDeffenceToken.h" />
     <ClInclude Include="Scripts\Token\Object\Vanish\VanishToken.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\RevelationActiveCondition\RevelationActiveCondition.h" />
+    <ClInclude Include="Scripts\Test\Input\InputStackTestComponent.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\LastWeaponDamageCopy\LastWeaponDamageCopy.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\WeaponStas\WeaponDamageAction.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

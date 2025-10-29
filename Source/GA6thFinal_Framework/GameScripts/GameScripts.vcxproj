@@ -244,7 +244,6 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/bigobj /Zm700 %(AdditionalOptions)</AdditionalOptions>
       <IncludeInUnityFile>true</IncludeInUnityFile>
-      <MaxFilesInUnityFile>3</MaxFilesInUnityFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
