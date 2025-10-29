@@ -261,29 +261,26 @@ namespace
 
 void CombatStartPhase::RegisterEnemiesHUD() 
 {
-    auto SetHUDObject = [&](size_t index, const std::string& tag) 
+    auto SetHUDObject = [&](Monster::SpawnPoint point, const std::string& tag) 
     {
-        if (index < _enemies.size())
+        if (Enemy* enemy = GetEnemyFromSpawnPoint(point))
         {
             const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(tag);
             if (auto object = weakGameObject.lock())
             {
-                _enemies[index]->SetMonsterHUD(object.get());
+                enemy->SetMonsterHUD(object.get());
+            }
+
+            if (EnemyStatsComponent* statsComponent = enemy->GetComponent<EnemyStatsComponent>())
+            {
+                statsComponent->RegisterHUD(HUD_KEY_ARRAY[static_cast<size_t>(point)].data());
             }
         }
     };
 
-    for (size_t i = 0; i < _enemies.size(); ++i)
-    {
-        if (EnemyStatsComponent* statsComponent = _enemies[i]->GetComponent<EnemyStatsComponent>())
-        {
-            statsComponent->RegisterHUD(HUD_KEY_ARRAY[i].data());
-        }
-    }
-
-    SetHUDObject(0, "Left Monster HUD");
-    SetHUDObject(1, "Middle Monster HUD");
-    SetHUDObject(2, "Right Monster HUD");
+    SetHUDObject(Monster::SpawnPoint::Left, "Left Monster HUD");
+    SetHUDObject(Monster::SpawnPoint::Middle, "Middle Monster HUD");
+    SetHUDObject(Monster::SpawnPoint::Right, "Right Monster HUD");
 }
 
 void CombatStartPhase::RegisterEnemiesHP() const
@@ -293,11 +290,12 @@ void CombatStartPhase::RegisterEnemiesHP() const
     RegisterEnemyHP(2, HUD_KEY_ARRAY[2].data(), "Right Monster HP UI");
 }
 
-void CombatStartPhase::RegisterEnemyHP(const int index, const std::string& key, const std::string& tag) const
+void CombatStartPhase::RegisterEnemyHP(const int point, const std::string& key, const std::string& tag) const
 {
-    if (index < _enemies.size())
+    Monster::SpawnPoint spawnPoint = static_cast<Monster::SpawnPoint>(point);
+    if (Enemy* enemy = GetEnemyFromSpawnPoint(spawnPoint))
     {
-        if (const EnemyStatsComponent* leftEnemyStatsComponent = _enemies[index]->GetComponent<EnemyStatsComponent>();
+        if (const EnemyStatsComponent* leftEnemyStatsComponent = enemy->GetComponent<EnemyStatsComponent>();
             nullptr != leftEnemyStatsComponent)
         {
             const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(tag);
@@ -328,10 +326,9 @@ void CombatStartPhase::RegisterEnemyHP(const int index, const std::string& key, 
         }
         else
         {
-            UmLogger.Log(LogLevel::LEVEL_ERROR,
-                         "EnemyStatsComponent not found for enemy at index " + std::to_string(index));
+            UmLogger.Log(LogLevel::LEVEL_ERROR, "EnemyStatsComponent not found for enemy at index " + rfl::enum_to_string(spawnPoint));
         }
-    }
+    }        
 }
 
 void CombatStartPhase::RegisterEnemiesChain() 
@@ -341,11 +338,12 @@ void CombatStartPhase::RegisterEnemiesChain()
     RegisterEnemyChain(2, HUD_KEY_ARRAY[2].data(), "Right Monster Chain UI");
 }
 
-void CombatStartPhase::RegisterEnemyChain(int index, const std::string& key, const std::string& tag) 
+void CombatStartPhase::RegisterEnemyChain(int point, const std::string& key, const std::string& tag)
 {
-    if (index < _enemies.size())
+    Monster::SpawnPoint spawnPoint = static_cast<Monster::SpawnPoint>(point);
+    if (Enemy* enemy = GetEnemyFromSpawnPoint(spawnPoint))
     {
-        if (const EnemyStatsComponent* leftEnemyStatsComponent = _enemies[index]->GetComponent<EnemyStatsComponent>();
+        if (const EnemyStatsComponent* leftEnemyStatsComponent = enemy->GetComponent<EnemyStatsComponent>();
             nullptr != leftEnemyStatsComponent)
         {
             const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(tag);
@@ -367,8 +365,7 @@ void CombatStartPhase::RegisterEnemyChain(int index, const std::string& key, con
         }
         else
         {
-            UmLogger.Log(LogLevel::LEVEL_ERROR,
-                         "EnemyStatsComponent not found for enemy at index " + std::to_string(index));
+            UmLogger.Log(LogLevel::LEVEL_ERROR, "EnemyStatsComponent not found for enemy at index " + rfl::enum_to_string(spawnPoint));
         }
     }
 }
