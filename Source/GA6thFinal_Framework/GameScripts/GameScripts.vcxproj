@@ -564,6 +564,7 @@
     <ClInclude Include="Scripts\UI\Base\SlotComponent\SlotComponent.h" />
     <ClInclude Include="Scripts\UI\Contents\DamageElement.h" />
     <ClInclude Include="Scripts\UI\Contents\SpawnDamagePanel.h" />
+    <ClInclude Include="Scripts\UI\Contents\SpawnDamagePanelHelper.h" />
     <ClInclude Include="Scripts\UI\Elements\Dummy\DummyElement.h" />
     <ClInclude Include="Scripts\UI\Elements\HoldingProgressImage\HoldingProgressImageElement.h" />
     <ClInclude Include="Scripts\UI\Elements\Image\ImageElement.h" />
@@ -872,6 +873,7 @@
     <ClCompile Include="Scripts\UI\Base\UIRoot\UIRoot.cpp" />
     <ClCompile Include="Scripts\UI\Contents\DamageElement.cpp" />
     <ClCompile Include="Scripts\UI\Contents\SpawnDamagePanel.cpp" />
+    <ClCompile Include="Scripts\UI\Contents\SpawnDamagePanelHelper.cpp" />
     <ClCompile Include="Scripts\UI\Elements\Dummy\DummyElement.cpp" />
     <ClCompile Include="Scripts\UI\Elements\HoldingProgressImage\HoldingProgressImageElement.cpp" />
     <ClCompile Include="Scripts\UI\Elements\Image\ImageElement.cpp" />

@@ -17,10 +17,12 @@
 #include "Condition/PlayerWinCondition.h"   
 
 //State
+#include "CombatUIManager/CombatUIManager.h"
 #include "State/PlayerWaitTurnState.h"
 #include "State/PlayerPlayTurnState.h"
 #include "State/PlayerDeadState.h"
 #include "State/PlayerWinState.h"
+#include "UI/Contents/SpawnDamagePanel.h"
 
 UMREAL_COMPONENT(Player)
 
@@ -114,6 +116,10 @@ void Player::TakeDamage(int damage, bool playAnim)
         turnMode->ApplyActions([&](TurnAction& action) { action.OnPlayerTakeDamageStart(*this, damage); });
     }
     int takeDamage = damage;
+    if (const CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        [[maybe_unused]] auto _          = combatUI->CharacterHUDGroup.PlayerSpawnDamagePanel->MakeDamage(damage);
+    }
     Base::TakeDamage(takeDamage, playAnim);
     if (turnMode)
     {

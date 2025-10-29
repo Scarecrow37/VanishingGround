@@ -76,7 +76,9 @@ public:
     SETTER(Mathf::EasingFunctionType, EasingFunctionType) { ReflectFields->EasingFunctionType = value; }
     PROPERTY(EasingFunctionType)
 
-
+public:
+    std::weak_ptr<DamageElement> MakeDamage(int                    damage,
+                                            std::span<std::string> revelations = std::span<std::string>()) const;
 
 protected:
     SIZE MeasureOverride(SIZE availableSize) override;
@@ -88,9 +90,8 @@ protected:
     void Awake() override;
     void Reset() override;
 
-    void                         EraseChild() const;
-    std::weak_ptr<DamageElement> MakeDamage(int damage, std::span<std::string> revelations = std::span<std::string>()) const;
-    std::pair<POINT, float>      GetRandomSpawnPointAndAngle() const;
+    void                    EraseChild() const;
+    std::pair<POINT, float> GetRandomSpawnPointAndAngle() const;
 
 protected:
     REFLECT_FIELDS_BEGIN(UIComponent)

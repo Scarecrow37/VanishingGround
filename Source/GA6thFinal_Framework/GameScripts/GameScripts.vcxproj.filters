@@ -224,12 +224,8 @@
     <ClCompile Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.cpp" />
     <ClCompile Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.cpp" />
     <ClCompile Include="Scripts\WeaponSystem\WeaponSystem.cpp" />
-    <ClCompile Include="Scripts\QTE\UI\QTEGuideUI.cpp" />
     <ClCompile Include="Scripts\QTE\Callback\Callback.cpp" />
     <ClCompile Include="Scripts\QTE\Common\QTECommon.cpp" />
-    <ClCompile Include="Scripts\QTE\UI\QTEBackgroundUI.cpp" />
-    <ClCompile Include="Scripts\QTE\UI\QTEFieldUI.cpp" />
-    <ClCompile Include="Scripts\QTE\UI\QTENoteUI.cpp" />
     <ClCompile Include="Scripts\ContentMath\ContentMath.cpp" />
     <ClCompile Include="Scripts\StageVigneeteUI\StageVigneeteUIComponent.cpp" />
     <ClCompile Include="Scripts\Token\Object\BlackArmor\BlackArmorToken.cpp" />
@@ -289,6 +285,18 @@
     <ClCompile Include="Scripts\Test\Input\InputStackTestComponent.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\LastWeaponDamageCopy\LastWeaponDamageCopy.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\WeaponStas\WeaponDamageAction.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\Field\QTEJudgeEffectUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\Input\QTEInputNodeUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\Input\QTEInputViewerUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\Guide\QTEGuideUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\BackGround\QTEBackgroundUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\Field\QTEFieldUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\Field\QTENoteUI.cpp" />
+    <ClCompile Include="Scripts\TutorialSystem\TutorialSystem.cpp" />
+    <ClCompile Include="Scripts\UI\Animations\FadeUIComponent\FadeUIComponent.cpp" />
+    <ClCompile Include="Scripts\UI\Elements\HoldingProgressImage\HoldingProgressImageElement.cpp" />
+    <ClCompile Include="Scripts\RoundInfoUI\RoundInfoUIManager.cpp" />
+    <ClCompile Include="Scripts\UI\Contents\SpawnDamagePanelHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
@@ -524,12 +532,8 @@
     <ClInclude Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.h" />
     <ClInclude Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.h" />
     <ClInclude Include="Scripts\WeaponSystem\WeaponSystem.h" />
-    <ClInclude Include="Scripts\QTE\UI\QTEGuideUI.h" />
     <ClInclude Include="Scripts\QTE\Callback\Callback.h" />
     <ClInclude Include="Scripts\QTE\Common\QTECommon.h" />
-    <ClInclude Include="Scripts\QTE\UI\QTEBackgroundUI.h" />
-    <ClInclude Include="Scripts\QTE\UI\QTEFieldUI.h" />
-    <ClInclude Include="Scripts\QTE\UI\QTENoteUI.h" />
     <ClInclude Include="Scripts\ContentMath\ContentMath.h" />
     <ClInclude Include="Scripts\StageVigneeteUI\StageVigneeteUIComponent.h" />
     <ClInclude Include="Scripts\Token\Object\BlackArmor\BlackArmorToken.h" />
@@ -589,6 +593,20 @@
     <ClInclude Include="Scripts\Test\Input\InputStackTestComponent.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\LastWeaponDamageCopy\LastWeaponDamageCopy.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\WeaponStas\WeaponDamageAction.h" />
+    <ClInclude Include="Scripts\QTE\UI\Field\QTEJudgeEffectUI.h" />
+    <ClInclude Include="Scripts\QTE\UI\Input\QTEInputNodeUI.h" />
+    <ClInclude Include="Scripts\QTE\UI\Input\QTEInputViewerUI.h" />
+    <ClInclude Include="Scripts\QTE\UI\Guide\QTEGuideUI.h" />
+    <ClInclude Include="Scripts\QTE\UI\BackGround\QTEBackgroundUI.h" />
+    <ClInclude Include="Scripts\QTE\UI\Field\QTEFieldUI.h" />
+    <ClInclude Include="Scripts\QTE\UI\Field\QTENoteUI.h" />
+    <ClInclude Include="Scripts\IntroManager\IntroManager.h" />
+    <ClInclude Include="Scripts\TutorialSystem\TutorialSystem.h" />
+    <ClInclude Include="Scripts\UI\Animations\FadeUIComponent\FadeUIComponent.h" />
+    <ClInclude Include="Scripts\UI\Base\IOpacity\IOpacity.h" />
+    <ClInclude Include="Scripts\UI\Elements\HoldingProgressImage\HoldingProgressImageElement.h" />
+    <ClInclude Include="Scripts\RoundInfoUI\RoundInfoUIManager.h" />
+    <ClInclude Include="Scripts\UI\Contents\SpawnDamagePanelHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

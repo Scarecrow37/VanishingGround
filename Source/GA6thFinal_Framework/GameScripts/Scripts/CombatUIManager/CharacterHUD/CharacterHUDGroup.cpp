@@ -8,6 +8,7 @@
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 #include <UI/Animations/FadeUIComponent/FadeUIComponent.h>
+#include <UI/Contents/SpawnDamagePanel.h>
 
 namespace CombatUI
 {
@@ -37,6 +38,22 @@ namespace CombatUI
                     {
                         PlayerHUDPanel = curr->gameObject->GetComponent<OverlayPanel>();
                     }
+                    if (curr->gameObject->CompareTag("Player Spawn Damage UI"))
+                    {
+                        PlayerSpawnDamagePanel = curr->gameObject->GetComponent<SpawnDamagePanel>();
+                    }
+                    else if (curr->gameObject->CompareTag("Left Spawn Damage UI"))
+                    {
+                        EnemySpawnDamagePanel[0] = curr->gameObject->GetComponent<SpawnDamagePanel>();
+                    }
+                    else if (curr->gameObject->CompareTag("Middle Spawn Damage UI"))
+                    {
+                        EnemySpawnDamagePanel[1] = curr->gameObject->GetComponent<SpawnDamagePanel>();
+                    }
+                    else if (curr->gameObject->CompareTag("Right Spawn Damage UI"))
+                    {
+                        EnemySpawnDamagePanel[2] = curr->gameObject->GetComponent<SpawnDamagePanel>();
+                    }
                 }
             });
 
@@ -48,7 +65,7 @@ namespace CombatUI
 
     bool CharacterHUDGroup::IsValid() const 
     {
-        return Root && PlayerHUDPanel && EnemyHUDPanel[0] && EnemyHUDPanel[1] && EnemyHUDPanel[2];
+        return Root && PlayerHUDPanel && EnemyHUDPanel[0] && EnemyHUDPanel[1] && EnemyHUDPanel[2] && PlayerSpawnDamagePanel && EnemySpawnDamagePanel[0] && EnemySpawnDamagePanel[1] && EnemySpawnDamagePanel[2];
     }
 
     void CharacterHUDGroup::ActiveUI(bool active)

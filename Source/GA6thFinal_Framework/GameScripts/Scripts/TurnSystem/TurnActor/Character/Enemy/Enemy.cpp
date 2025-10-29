@@ -17,10 +17,12 @@
 #include "State/EnemyDeadState.h"
 
 // Stats
+#include "CombatUIManager/CombatUIManager.h"
 #include "Stats/CharacterStats.h"
 
 #include "Monster/System/MonsterSystem.h"
 #include "Monster/Action/MonsterActionBase.h"
+#include "UI/Contents/SpawnDamagePanel.h"
 
 UMREAL_COMPONENT(Enemy)
 
@@ -96,6 +98,12 @@ void Enemy::TakeDamage(int damage, bool playAnim)
         turnMode->ApplyActions([&](TurnAction& action) { action.OnEnemyTakeDamageStart(*this, damage); });
     }
     Base::TakeDamage(damage, playAnim);
+    if (const CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        Monster::SpawnPoint   spawnPoint = SpawnPoint;
+        const size_t          index      = static_cast<size_t>(spawnPoint);
+        [[maybe_unused]] auto _          = combatUI->CharacterHUDGroup.EnemySpawnDamagePanel[index]->MakeDamage(damage);
+    }
     if (turnMode)
     {
         turnMode->ApplyActions([&](TurnAction& action) { action.OnEnemyTakeDamageEnd(*this, damage); });

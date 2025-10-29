@@ -3,6 +3,7 @@
 class OverlayPanel;
 class ImageElement;
 class FadeUIComponent;
+class SpawnDamagePanel;
 
 namespace CombatUI
 {
@@ -17,6 +18,9 @@ namespace CombatUI
         Vector3         EnemyPosition[3] = {Vector3::Zero, Vector3::Zero, Vector3::Zero};
 
         FadeUIComponent* FadeUI = nullptr;
+
+        SpawnDamagePanel* PlayerSpawnDamagePanel = nullptr;
+        SpawnDamagePanel* EnemySpawnDamagePanel[3] = {nullptr, nullptr, nullptr};
 
         bool FindUI() override;
         bool IsValid() const override;
