@@ -22,11 +22,13 @@ struct InstanceData
 
 class DXRSkeletalMesh;
 class BaseMesh;
+class MeshRenderer;
 struct MeshInfo
 {
     InstanceData     InstanceData;
     Material         Material;
     BaseMesh*        Mesh;
+    MeshRenderer*    Renderer;
     DXRSkeletalMesh* SkinnedInstance;
     Matrix*          TransposeWorldMatrix;
     float            DepthKey;
@@ -61,7 +63,7 @@ struct RayCameraData
 
 struct CascadeData
 {
-    Matrix ShadowVP[MAX_CASCADES];
+    Matrix ShadowVP[MAX_CASCADES + 1];
     float  CascadeSplits[MAX_CASCADES];
 };
 
@@ -104,6 +106,14 @@ struct VolumetricFogCompositeData
     float    BlendWithScene;
 };
 
+struct FXAAData
+{
+    Vector2 InverseResolution;
+    float  QualitySubpixel;
+    float  QualityEdgeDetectionThreshold;
+    float  QualityMinimumEdgeThreshold;
+};
+
 struct GBufferData
 {
     float HeightScale;
@@ -115,6 +125,7 @@ struct NumLight
     unsigned int Directional;
     unsigned int Point;
     unsigned int Spot;
+    unsigned int ShadowPoint;
 };
 
 struct PostProcessData
@@ -138,4 +149,20 @@ struct PipelineStateStream
     CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL_FORMAT  DSVFormat;
     CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL         DepthStencilState;
     CD3DX12_PIPELINE_STATE_STREAM_BLEND_DESC            BlendState;
+};
+
+struct ComputePipelineStateStream
+{
+    CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE        RootSignature;
+    CD3DX12_PIPELINE_STATE_STREAM_CS                    CS;
+};
+
+struct SDFParams
+{
+    unsigned int InstanceID;
+    unsigned int Flags;
+    float        DistanceRange;
+    float        FontWeight;
+    Vector4      OutlineColor;
+    float        OutlineWidth;
 };

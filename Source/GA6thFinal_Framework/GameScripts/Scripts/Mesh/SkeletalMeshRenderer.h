@@ -24,11 +24,11 @@ private:
 
 public:
     REFLECT_PROPERTY(FilePath)
-    GETTER_ONLY(std::string, FilePath) { return _guidRef.ToPath().string(); }
+    GETTER_ONLY(std::string, FilePath) { return _Guid.ToPath().string(); }
     PROPERTY(FilePath)
 
 private:
-    File::GuidRef _guidRef;
+    File::Guid _Guid;
     REFLECT_FIELDS_BEGIN(MeshComponent)
     REFLECT_FIELDS_END(SkeletalMeshRenderer)
     bool _isDirtyFlag = false;

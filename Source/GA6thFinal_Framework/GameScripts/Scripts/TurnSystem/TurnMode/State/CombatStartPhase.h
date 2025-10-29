@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Monster/Common/MonsterCommon.h"
 #include "Base/TurnModeStateBase.h"
 
 class Enemy;
@@ -28,6 +29,7 @@ public:
     void ResetCharacterStats();
     Player* GetPlayer() { return _player; }
     const std::vector<Enemy*>& GetEnemies() { return _enemies; }
+    Enemy* GetEnemyFromSpawnPoint(Monster::SpawnPoint spawnPoint) const;
     const std::vector<CharacterBase*>& GetCharacters() { return _characters; }
 
 protected:
@@ -42,20 +44,25 @@ protected:
     /*사용하는 모든 액션들 라이프 사이클에 등록*/
     void AddValidActions();
 
+    /*스테이지 반복 플레이 디버프 소멸계시 추가*/
+    void AddExtinctionRevelation() const;
+
 private:
     bool                        _phaseEnd;
     Player*                     _player;
     std::vector<Enemy*>         _enemies;
     std::vector<CharacterBase*> _characters;
 
+    std::map<Monster::SpawnPoint, Enemy*> _spawnPointEnemyTable;
+
 private:
     /*적 배열을 Left, Middle, Right 순으로 정렬합니다.*/
-    void SortEnemies();
     void RegisterEnemiesHUD();
     void RegisterEnemiesHP() const;
-    void RegisterEnemyHP(int index, const std::string& key, const std::string& tag) const;
+    void RegisterEnemyHP(int point, const std::string& key, const std::string& tag) const;
     void RegisterEnemiesChain();
-    void RegisterEnemyChain(int index, const std::string& key, const std::string& tag);
+    void RegisterEnemyChain(int point, const std::string& key, const std::string& tag);
     void ReviveEnemies();
     void ResetPlayer();
+    void RefreshUI();
 };

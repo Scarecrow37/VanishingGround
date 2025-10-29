@@ -10,6 +10,8 @@
 
 REGISTER_TURN_ACTION_CONDITION(HealthRangeCondition)
 
+REFLECT_FUNCTION(HealthRangeCondition)
+
 HealthRangeCondition::HealthRangeCondition() 
 {
     UpdateConditionInfo();
@@ -126,7 +128,7 @@ void HealthRangeCondition::DeserializedReflectEvent()
     UpdateConditionInfo();
 }
 
-const std::string& HealthRangeCondition::GetConditionInfo() const
+const std::string& HealthRangeCondition::GetConditionInfo()
 {
     return _conditionInfo;
 }

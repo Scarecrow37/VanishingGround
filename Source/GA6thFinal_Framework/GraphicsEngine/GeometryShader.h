@@ -4,7 +4,7 @@
 class GeometryShader : public Shader
 {
 public:
-    GeometryShader()        = default;
+    GeometryShader();
     virtual ~GeometryShader() = default;
 
 public:

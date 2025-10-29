@@ -184,29 +184,47 @@ uint SafeMipLevel(float requestedMip, Texture2D tex)
 inline float CalculateShadow(float3 worldPosition, float3 normal, float3 lightDirection, Texture2DArray shadowMap)
 {
     float eyeZ = mul(float4(worldPosition, 1), cameraData.View).z;
-    
-    uint cid = (eyeZ < cascadeData.CascadeSplits[0]) ? 0 :
-               (eyeZ < cascadeData.CascadeSplits[1]) ? 1 :
-               (eyeZ < cascadeData.CascadeSplits[2]) ? 2 : 3;
 
-    float4 shadowPos = mul(float4(worldPosition, 1), cascadeData.ShadowVP[cid]);
-    shadowPos.xyz /= shadowPos.w;
-    shadowPos.xy = shadowPos.xy * 0.5f + 0.5f;
-    shadowPos.y = 1 - shadowPos.y;
+    // Static mesh cascade shadow 계산
+    uint cid = (eyeZ < cascadeData.CascadeSplits[0]) ? 0 :
+               (eyeZ < cascadeData.CascadeSplits[1]) ? 1 : 2;
+
+    float4 staticShadowPos = mul(float4(worldPosition, 1), cascadeData.ShadowVP[cid]);
+    staticShadowPos.xyz /= staticShadowPos.w;
+    staticShadowPos.xy = staticShadowPos.xy * 0.5f + 0.5f;
+    staticShadowPos.y = 1 - staticShadowPos.y;
+
+    // Skeletal mesh single shadow 계산
+    float4 skeletalShadowPos = mul(float4(worldPosition, 1), cascadeData.ShadowVP[MAX_CASCADES]);
+    skeletalShadowPos.xyz /= skeletalShadowPos.w;
+    skeletalShadowPos.xy = skeletalShadowPos.xy * 0.5f + 0.5f;
+    skeletalShadowPos.y = 1 - skeletalShadowPos.y;
 
     static const float2 texelSize = 1.0f / 2048.0f;
-    float bias = max(0.005f * (1.0f - dot(normal, lightDirection)), 0.0005f);
-    float shadow = 0.0f;
     
+    // Skeletal shadow는 더 정밀한 bias 사용 (발밑 그림자를 위해)
+    float staticBias = max(0.005f * (1.0f - dot(normal, lightDirection)), 0.0005f);
+    float skeletalBias = max(0.001f * (1.0f - dot(normal, lightDirection)), 0.0001f); // 훨씬 작은 bias
+    
+    float staticShadow = 0.0f;
+    float skeletalShadow = 0.0f;
+
+    [unroll]
     for (int x = -1; x <= 1; ++x)
     {
+        [unroll]
         for (int y = -1; y <= 1; ++y)
         {
-            shadow += shadowMap.SampleCmpLevelZero(samComparisonLinear_border, float3(shadowPos.xy + float2(x, y) * texelSize, cid), shadowPos.z - bias);
+            float2 offset = float2(x, y) * texelSize;
+            staticShadow += shadowMap.SampleCmpLevelZero(samComparisonLinear_border,  float3(staticShadowPos.xy + offset, cid),  staticShadowPos.z - staticBias);
+            skeletalShadow += shadowMap.SampleCmpLevelZero(samComparisonLinear_border, float3(skeletalShadowPos.xy + offset, MAX_CASCADES),  skeletalShadowPos.z - skeletalBias);
         }
     }
-                                                                                                                                                                                                                                         
-    return shadow / 9.0f;
+    
+    staticShadow /= 9.0f;
+    skeletalShadow /= 9.0f;
+
+    return min(staticShadow, skeletalShadow);
 }
 
 float4 SampleCalculateMipLevel(Texture2D tex, SamplerState sam, float2 uv, float mipLevel)
@@ -318,6 +336,94 @@ float4 Premultiply(float4 color)
 {
     color.rgb *= color.a;
     return color;
+}
+
+float CalculatePointLightShadowPCF(float3 fragPos, float3 lightPos, uint lightIndex,
+                                   Texture2D pointLightShadowMaps,
+                                   float farPlane, float atlasSize, float faceSize)
+{
+    float3 fragToLight = fragPos - lightPos;
+    float currentDistance = length(fragToLight);
+    if(currentDistance >= farPlane)
+        return 1.0f;
+    
+    float3 dir = normalize(fragToLight);
+    
+    float3 absDir = abs(dir);
+    float maxAxis = max(absDir.x, max(absDir.y, absDir.z));
+    
+    uint faceIndex = 0;
+    float2 uv = float2(0.0f, 0.0f);
+    
+    if(maxAxis == absDir.x)
+    {
+        if(dir.x > 0)
+        {
+            faceIndex = 0; // +X
+            uv = float2(-dir.z, -dir.y) / absDir.x;
+        }
+        else
+        {
+            faceIndex = 1; // -X
+            uv = float2(dir.z, -dir.y) / absDir.x;
+        }
+    }
+    else if(maxAxis == absDir.y)
+    {
+        if(dir.y > 0)
+        {
+            faceIndex = 2; // +Y
+            uv = float2(dir.x, dir.z) / absDir.y;
+        }
+        else
+        {
+            faceIndex = 3; // -Y
+            uv = float2(dir.x, -dir.z) / absDir.y;
+        }
+    }
+    else
+    {
+        if(dir.z > 0)
+        {
+            faceIndex = 4; // +Z
+            uv = float2(dir.x, -dir.y) / absDir.z;
+        }
+        else
+        {
+            faceIndex = 5; // -Z
+            uv = float2(-dir.x, -dir.y) / absDir.z;
+        }
+    };
+    
+    uv = uv * 0.5f + 0.5f;
+    
+    uint tilesPerRow = (uint)atlasSize / faceSize;
+    uint atlasIndexInGrid = lightIndex * 6 + faceIndex;
+    uint atlasX = atlasIndexInGrid % tilesPerRow;
+    uint atlasY = atlasIndexInGrid / tilesPerRow;
+    float shadow = 0.0;
+    float bias = 0.05 + (currentDistance / farPlane) * 0.02;
+    float texelSize = 1.0 / faceSize;
+    
+    
+    [unroll]
+    for (int x = -1; x <= 1; ++x)
+    {
+             [unroll]
+        for (int y = -1; y <= 1; ++y)
+        {
+            float2 sampleUV = uv + float2(x, y) * texelSize;
+            float2 atlasUV = float2(atlasX * faceSize + sampleUV.x * faceSize,
+                                         atlasY * faceSize + sampleUV.y * faceSize) / atlasSize;
+
+            float sampledDepth = pointLightShadowMaps.SampleLevel(samLinear_clamp, atlasUV, 0).r;
+            float closestDistance = sampledDepth * farPlane;
+
+            shadow += (currentDistance - bias) > closestDistance ? 0.0 : 1.0;
+        }
+    }
+
+    return shadow / 9.0;
 }
 
 #endif

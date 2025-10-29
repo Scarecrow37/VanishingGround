@@ -8,7 +8,7 @@ public:
     //Constant, 
     //Linear, 
     //Quadratic,
-    Range,DrawShadow
+    Range
     )
 
 public:
@@ -60,9 +60,6 @@ public:
     }
     PROPERTY(Range)
 
-    GETTER(bool, DrawShadow) { return ReflectFields->DrawShadow; }
-    SETTER(bool, DrawShadow) { ReflectFields->DrawShadow = value; }
-    PROPERTY(DrawShadow)
     inline const Vector3& GetAttenuation() 
     { 
         return _attenuation;
@@ -77,7 +74,6 @@ protected:
     REFLECT_FIELDS_BEGIN(LightComponent)
     std::array<float, 3> Attenuation{1.f, 0.1f, 0.1f};
     float Range = 1.f;
-    bool                 DrawShadow = false;
     REFLECT_FIELDS_END(PointLight)
 
     /*
@@ -85,8 +81,6 @@ protected:
     직접 override 해서 사용합니다.
     */
     virtual void DeserializedReflectEvent() override;
-
-    virtual void ImGuiDrawPropertysEvent() override;
 
     virtual void Reset() override;
 

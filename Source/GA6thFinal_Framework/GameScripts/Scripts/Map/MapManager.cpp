@@ -15,6 +15,9 @@
 #include "Utility/SingletonHelper.h"
 #include "ItemDropSystem/ItemDropSystem.h"
 #include "Preferences/PreferencesManager.h"
+#include "Inventory/UI/InventoryUIManager.h"
+
+#include "DifficultyManager/DifficultyEnum.h"
 
 UMREAL_COMPONENT(MapManager)
 
@@ -107,6 +110,7 @@ void MapManager::Awake()
         SetupStage();
 
         BindInputAction(ControllerButton::BACK, Action::PRESSED, this, &MapManager::PreferencesKeyDown);
+        BindInputAction(ControllerButton::START, Action::PRESSED, this, &MapManager::InventoryKeyDown);
     }
 }
 
@@ -128,14 +132,55 @@ void MapManager::Update()
         }
     }
 
-    if (_lastFocusStage != nullptr)
+    if (_openPreferences)
     {
         if (PreferencesManager* manager = SingletonComponent<PreferencesManager>::GetInstance())
         {
             manager->OnPreferencesWindow(_lastFocusStage);
         }  
         _lastFocusStage = nullptr;
+        _openPreferences = false;
     }
+
+    if (_openInventory)
+    {
+        if (InventoryUIManager* manager = SingletonComponent<InventoryUIManager>::GetInstance())
+        {
+            manager->OpenInventory(_lastFocusStage);
+        }
+        _lastFocusStage = nullptr;
+        _openInventory  = false;
+    }
+
+    Debugger()([this]{
+        // 아래는 디버그용 코드입니다.
+        ImGuiHelper::AlignedText("Map Select", ImGuiHelper::LEFT, 0.8f);
+        char curHeader = '0';
+        for (const auto& stage : _stages)
+        {
+            if (stage)
+            {
+                const std::string& stageName = stage->gameObject->Name;
+                if (stageName.length() > 6) {
+                    char thisHeader = stageName.at(6);
+                    if (curHeader == thisHeader)
+                    {
+                        ImGui::SameLine();
+                    }
+                    curHeader = thisHeader;
+                }
+                if (ImGui::Button(stageName.c_str()))
+                {
+                    stage->Submit();
+                }
+            }
+        }
+        ImGui::Separator();
+        if (ImGui::Button("Preferences"))
+        {
+            OpenPreferencesWindow();
+        }
+    });
 }
 
 void MapManager::OnLoadScene(Scene& loadScene, LoadSceneMode mode)
@@ -150,16 +195,16 @@ void MapManager::OnLoadScene(Scene& loadScene, LoadSceneMode mode)
     else
     {
         isActive = false;
-    }
-
-    for (int i = 0; i < transform->ChildCount; i++)
-    {
-        auto child = transform->GetChild(i);
-        if (child)
+        if (Transform* preferences = transform->Find("PreferencesPannel"))
         {
-            child->gameObject->ActiveSelf = isActive;
+            GameObject::Destroy(preferences->gameObject);
+        }
+        if (Transform* inventory = transform->Find("Inventory Panel"))
+        {
+            GameObject::Destroy(inventory->gameObject);
         }
     }
+    gameObject->SetActive(isActive);
 }
 
 void MapManager::ImGuiDrawPropertysEvent()
@@ -169,21 +214,15 @@ void MapManager::ImGuiDrawPropertysEvent()
         DefaultSetting();        
 
         auto stages = GameObject::Find("Stages").lock();
-
         auto stage = NewGameObject("Stage");
-        stage->transform->SetParent(stages->transform);
-
-        auto& stageComponent = stage->AddComponent<Stage>();
-
-        std::string key = "Stage" + std::to_string(stages->transform->ChildCount);
-        stageComponent.RegisterStage(key, 
-                                     UmFileSystem.GetGuidFromAssetID(ReflectFields->AssetIDs[STAGE_ENABLE]),
-                                     UmFileSystem.GetGuidFromAssetID(ReflectFields->AssetIDs[STAGE_DISABLE]));
-
-        stage->AddComponent<ImageElement>();
-        stage->AddComponent<StageView>().Watch(key);
-
-        _childCount++;
+        if (stage)
+        {
+            stage->transform->SetParent(stages->transform);
+            stage->AddComponent<Stage>();
+            stage->AddComponent<ImageElement>();
+            stage->AddComponent<StageView>();
+            RegisterStage(*stage.get());
+        }
     }
 
     if (ImGui::Button("Update Data"))
@@ -257,27 +296,13 @@ void MapManager::SetupStage()
 
     if (stages)
     {
-        _childCount = stages->transform->GetChildCount();
-
-        for (int i = 0; i < _childCount; i++) 
+        const int childCount = stages->transform->GetChildCount();
+        for (int i = 0; i < childCount; i++) 
         {
             auto child = stages->transform->GetChild(i);
             if (child)
             {
-                std::string key   = "Stage" + std::to_string(i + 1);
-                auto        stage = child->gameObject->GetComponent<Stage>();
-                if (stage)
-                {
-                    stage->UpdateData(key, 
-                                      UmFileSystem.GetGuidFromAssetID(ReflectFields->AssetIDs[STAGE_ENABLE]),
-                                      UmFileSystem.GetGuidFromAssetID(ReflectFields->AssetIDs[STAGE_DISABLE]));
-                }
-
-                auto stageView = child->gameObject->GetComponent<StageView>();
-                if (stageView)
-                {
-                    stageView->Watch(key);
-                }
+                RegisterStage(child->gameObject);
             }
         }
     }
@@ -288,13 +313,100 @@ void MapManager::SetupStage()
     }    
 }
 
-void MapManager::PreferencesKeyDown(const Input::Controller&) 
+void MapManager::RegisterStage(GameObject& object)
 {
-    _focusStage.Apply([this](Stage* stage) 
-    { 
-        if (true == stage->EnableInHierarchy)
+    if (Stage* stage = object.GetComponent<Stage>())
+    {
+        const int mainLevel = stage->MainLevel;
+        const int subLevel  = stage->SubLevel;
+        _stages.push_back(stage);
+        _stageDataTable[mainLevel][subLevel] = stage;
+
+        std::string key = "Stage" + std::to_string(mainLevel);
+        stage->UpdateData(key, UmFileSystem.GetGuidFromAssetID(ReflectFields->AssetIDs[STAGE_ENABLE]),
+                          UmFileSystem.GetGuidFromAssetID(ReflectFields->AssetIDs[STAGE_DISABLE]));
+
+        if (StageView* stageView = object.GetComponent<StageView>())
         {
-            _lastFocusStage = stage; 
-        }               
-    });
+            stageView->Watch(key);
+        }
+    }
+}
+
+void MapManager::SetCurrentSelectedStage(Stage* stage) 
+{
+    _selectedStage = stage;
+}
+
+Stage* MapManager::GetCurrentSelectedStage()
+{
+    return _selectedStage;
+}
+
+Monster::SpawnID MapManager::GetCurrentSpawnID()
+{
+    if (_selectedStage)
+    {
+        const int mainLevel   = _selectedStage->MainLevel;
+        const int subLevel    = _selectedStage->SubLevel;
+        const int battleCount = _selectedStage->BattleCount;
+        return Monster::GetSpawnID(mainLevel, subLevel, battleCount);
+    }
+    return 0;
+}
+
+void MapManager::PreferencesKeyDown(const Input::Controller&)
+{
+    OpenPreferencesWindow();
+}
+
+void MapManager::InventoryKeyDown(const Input::Controller&) 
+{
+    OpenInventoryWindow();
+}
+
+void MapManager::OpenPreferencesWindow()
+{
+    if (EnableInHierarchy)
+    {
+        bool isOpen = true;
+        if (InventoryUIManager* inventory = SingletonComponent<InventoryUIManager>::GetInstance())
+        {
+            isOpen = inventory->gameObject->ActiveInHierarchy == false;
+        }
+        if (isOpen)
+        {
+            _focusStage.Apply([this](Stage* stage) 
+            {
+                if (true == stage->EnableInHierarchy)
+                {
+                    _lastFocusStage = stage;
+                    _openPreferences = true;
+                }
+            });
+        }
+    }
+}
+
+void MapManager::OpenInventoryWindow() 
+{
+    if (EnableInHierarchy)
+    {
+        bool isOpen = true;
+        if (PreferencesManager* preferences = SingletonComponent<PreferencesManager>::GetInstance())
+        {
+            isOpen = preferences->IsOpen() == false;
+        }
+        if (isOpen)
+        {
+            _focusStage.Apply([this](Stage* stage) 
+            {
+                if (true == stage->EnableInHierarchy)
+                {
+                    _lastFocusStage = stage;
+                    _openInventory = true;
+                }
+            });
+        }
+    }
 }

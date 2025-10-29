@@ -13,6 +13,7 @@ set BUILD_RESULT=%ERRORLEVEL%
 
 if %BUILD_RESULT% neq 0 (
     echo 빌드 실패! ERRORLEVEL=%BUILD_RESULT%
+	pause
 ) else (
 	::스크립트 빌드
 	echo 스크립트 빌드를 시작합니다.

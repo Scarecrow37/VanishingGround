@@ -19,10 +19,10 @@ namespace ReturnUtility
                 switch (type)
                 {
                 case ReturnToMapNavi::SelectBoxType::DEFAULT:
-                    rowKey = u8"선택버튼_0";
+                    rowKey = u8"나가기/ 다음전투 선택버튼 포커스 안됨";
                     break;
                 case ReturnToMapNavi::SelectBoxType::FOCUS:
-                    rowKey = u8"선택버튼_1";
+                    rowKey = u8"나가기/ 다음전투 선택버튼 포커스 됨";
                     break;
                 default:
                     break;
@@ -75,8 +75,8 @@ ReturnToMapNavi::ReturnToMapNavi()
                 const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
                 if (const auto extension = data->GetPath().extension(); extension == L".UmScene")
                 {
-                    _guidRef                = data->GetGuid();
-                    ReflectFields->MapScene = _guidRef.string();
+                    _Guid                = data->GetGuid();
+                    ReflectFields->MapScene = _Guid.string();
                 }
             }
             ImGui::EndDragDropTarget();
@@ -88,7 +88,7 @@ ReturnToMapNavi::ReturnToMapNavi()
 
 void ReturnToMapNavi::Submit()
 {
-    const File::Path& path = _guidRef.ToPath();
+    const File::Path& path = _Guid.ToPath();
 
     GameObject* transitionManager = SingletonObject<SceneTransitionComponent>::GetInstance();
     if (transitionManager)
@@ -97,6 +97,10 @@ void ReturnToMapNavi::Submit()
         if (transitionComponent)
         {
             transitionComponent->SceneTransitionFade("in", "out", [path]() { UmSceneManager.LoadScene(path.string()); });
+        }
+        else
+        {
+            UmSceneManager.LoadScene(path.string());
         }
     }
 }
@@ -144,8 +148,22 @@ void ReturnToMapNavi::DeserializedReflectEvent()
     const File::Guid guid = ReflectFields->MapScene;
     if (const auto path = guid.ToPath(); !path.IsNull())
     {
-        _guidRef = path.ToGuid();
+        _Guid = path.ToGuid();
     }
+}
+
+void ReturnToMapNavi::Added() 
+{
+    if (UmCore->IsPlay())
+    {
+        gameObject->AddTag(TAG);
+    }
+}
+
+void ReturnToMapNavi::Awake() 
+{
+    Base::Awake();
+    _imageElement = GetComponent<ImageElement>();
 }
 
 void ReturnToMapNavi::Start() 
@@ -153,10 +171,8 @@ void ReturnToMapNavi::Start()
     using namespace ReturnUtility;
     Base::Start();
     CheckImageElementWithLog(_imageElement);
-}
-
-void ReturnToMapNavi::Awake() 
-{
-    Base::Awake();
-    _imageElement = GetComponent<ImageElement>();
+    if (_imageElement)
+    {
+        _imageElement->SetImage(GetSelectBox(SelectBoxType::DEFAULT));
+    }
 }

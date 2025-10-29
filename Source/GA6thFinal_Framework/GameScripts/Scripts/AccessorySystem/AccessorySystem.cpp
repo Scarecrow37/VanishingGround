@@ -126,6 +126,7 @@ void AccessorySystem::ImGuiDrawPropertysEvent()
                 {
                     constexpr std::array<std::u8string_view, 3> keyInfos{u8"ID", u8"Name", u8"Rarity"};
 
+                    std::unordered_set<std::string> validTargets;
                     size_t rowCount = dataBase.RowCount();
                     for (size_t row = 0; row < rowCount; row++)
                     {
@@ -140,29 +141,72 @@ void AccessorySystem::ImGuiDrawPropertysEvent()
                         const std::string& name = temp.AccessoryName;
                         if (name != STR_NULL)
                         {
-                            auto findIter = _elementTable.find(name);
-                            if (findIter == _elementTable.end())
+                            auto nameFindIter = _elementTable.find(name);
+                            bool findName     = nameFindIter != _elementTable.end();
+                            auto idFindIter = std::ranges::find_if(_elementTableOrderID, [&temp](AccessoryElement* accessory) 
+                            {
+                                int currID = accessory->AccessoryID;
+                                int tempID = temp.AccessoryID;
+                                return currID == tempID;
+                            });
+                            bool findID = idFindIter != _elementTableOrderID.end();
+                            if (false == findName && false == findID)
                             {
                                 // 없으면 새로 생성
                                 InsertAccessory(temp);
                             }
-                            else
+                            else if (findName)
                             {
                                 // 이미 있으면 액션 제외하고 복사
-                                std::string originActionName               = findIter->second.ReflectFields->ActionName;
-                                std::string originActionData               = findIter->second.ReflectFields->ActionData;
-                                *findIter->second.ReflectFields            = *temp.ReflectFields;
-                                findIter->second.ReflectFields->ActionName = std::move(originActionName);
-                                findIter->second.ReflectFields->ActionData = std::move(originActionData);
+                                std::vector<std::pair<std::string, std::string>> originActions = nameFindIter->second.ReflectFields->Actions;
+                                *nameFindIter->second.ReflectFields = *temp.ReflectFields;
+                                nameFindIter->second.ReflectFields->Actions = std::move(originActions);
+                            }
+                            else if (findID)
+                            {
+                                AccessoryElement*  accessory = *idFindIter;
+                                const std::string& originName = accessory->AccessoryName;
+                                const std::string& tempName  = temp.AccessoryName;
+                                if (originName != tempName)
+                                    RenameAccessory(*accessory, tempName);
+
+                                if (auto findIter = _elementTable.find(tempName); findIter != _elementTable.end())
+                                {
+                                    accessory = &findIter->second;
+                                    std::vector<std::pair<std::string, std::string>> originActions = accessory->ReflectFields->Actions;
+                                    *accessory->ReflectFields         = *temp.ReflectFields;
+                                    accessory->ReflectFields->Actions = std::move(originActions);
+                                }
                             }
                             if (false == result)
                             {
                                 // 잘못된 데이터는 알림 팝업
                                 AccessoryElement& element = _elementTable[name];
                                 _editorOnly.DirtyAccessoryQueue.push(&element);
+                            }                  
+                            if (auto [iter, insertResult] = validTargets.insert(name); false == insertResult)
+                            {
+                                std::string message = "\"";
+                                message += name;
+                                message += (const char*)u8"\" 는 중복된 장신구 이름입니다.";
+                                UmLogger.Log(LogLevel::LEVEL_WARNING, message);
                             }
+                        }                      
+                    }      
+                   
+                    std::vector<AccessoryElement> eraseTargets;
+                    for (auto& accessory : _elementTableOrderID)
+                    {
+                        const std::string& name = accessory->AccessoryName;
+                        if (validTargets.find(name) == validTargets.end())
+                        {
+                            eraseTargets.emplace_back(*accessory);
                         }
-                    }                
+                    }
+                    for (auto& target : eraseTargets)
+                    {
+                        EraseAccessory(target);
+                    }
                 };
 
                 if (ExcelDataSystem* dataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
@@ -269,7 +313,32 @@ void AccessorySystem::ImGuiTableEditor()
                 ImGui::PopStyleColor();
                 ImGui::TableSetColumnIndex(3);
                 {
-                    TurnAction::ImGuiDrawActionMaker(key, accessory._action, accessory._showActionEditor);
+                    if (false == accessory._actions.empty())
+                    {
+                        for (size_t i = 0; i < accessory._actions.size(); ++i)
+                        {
+                            auto& action = accessory._actions[i];
+                            if (_editorOnly.ShowActionEditor.size() <= i)
+                            {
+                                _editorOnly.ShowActionEditor.resize(i + 1);
+                            }
+                            bool showEditor = _editorOnly.ShowActionEditor[i];
+                            TurnAction::ImGuiDrawActionMaker(key + std::to_string(i), action, showEditor);
+                            _editorOnly.ShowActionEditor[i] = showEditor;
+                        }
+                    }
+                    if (ImGui::Button("Push"))
+                    {
+                        accessory._actions.emplace_back();
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Pop"))
+                    {
+                        if (false == accessory._actions.empty())
+                        {
+                            accessory._actions.pop_back();
+                        }
+                    }
                 }
             }
             ImGui::PopID();

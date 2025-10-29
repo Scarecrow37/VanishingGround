@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "EditorAnimationTrackTool.h"
+#include "GraphicsEngine/Interface/IAnimator.h"
 
 EditorAnimationTrackTool::EditorAnimationTrackTool()
 {
@@ -173,7 +174,7 @@ void EditorAnimationTrackTool::UpdateTimeline()
             auto eventTrack = _animationEventTrack.GetActiveEventTrack();
             if (nullptr != eventTrack)
             {
-                eventTrack->AddFlags(Timeline::EVENT_TRCK_FLAGS_NOTIFY_DISABLED);
+                eventTrack->AddFlags(Timeline::EVENT_TRACK_FLAGS_NOTIFY_DISABLED);
                 eventTrack->SetMinFrame(0.0f);
                 eventTrack->SetMaxFrame(animator->GetCurrentAnimationLastTime());
                 eventTrack->SetCurrentFrame(animator->GetCurrentAnimationPlayTime());

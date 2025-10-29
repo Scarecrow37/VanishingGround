@@ -20,11 +20,15 @@ SIZE HorizontalPanel::MeasureOverride(const SIZE availableSize)
     const FillMode horizontalFillMode = HorizontalFillMode;
     const FillMode verticalFillMode   = VerticalFillMode;
 
-    SIZE desiredSize = MinSize()(availableSize, _requestedSize, verticalFillMode == FillMode::FILL,
-                                 horizontalFillMode == FillMode::FILL);
+    SIZE desiredSize = MinSize()(availableSize, _requestedSize, horizontalFillMode == FillMode::FILL,
+                                 verticalFillMode == FillMode::FILL);
 
     const PADDING padding               = Padding;
     const SIZE    childrenAvailableSize = desiredSize - padding.Size();
+    const LONG    space                 = Space;
+
+    const std::vector<HorizontalPanelSlot*> slots = Slots;
+    std::ranges::for_each(slots, [](HorizontalPanelSlot* slot) { slot->SetLine(0); });
 
     const std::vector<UIComponent*> children = Children;
 
@@ -32,7 +36,7 @@ SIZE HorizontalPanel::MeasureOverride(const SIZE availableSize)
     std::vector<std::pair<SIZE, LONG>> childrenDesiredSizePerLine;
     childrenDesiredSizePerLine.push_back(std::make_pair(SIZE{}, 0));
 
-    std::ranges::for_each(children, [childrenAvailableSize, &childrenDesiredSizePerLine,
+    std::ranges::for_each(children, [childrenAvailableSize, &childrenDesiredSizePerLine, space,
                                      &currentLine](UIComponent* child) {
         if (HorizontalPanelSlot* slot = child->GetComponent<HorizontalPanelSlot>(); nullptr != slot)
         {
@@ -41,10 +45,14 @@ SIZE HorizontalPanel::MeasureOverride(const SIZE availableSize)
                 const SIZE childAvailableSize{.cx = childrenAvailableSize.cx, .cy = childrenAvailableSize.cy};
                 child->Measure(childAvailableSize);
                 const SIZE childDesiredSize = child->DesiredSize;
-                if (childrenDesiredSizePerLine[currentLine].first.cx + childDesiredSize.cx > childAvailableSize.cx)
+                if (childrenDesiredSizePerLine[currentLine].first.cx + childDesiredSize.cx + space > childAvailableSize.cx)
                 {
                     ++currentLine;
                     childrenDesiredSizePerLine.push_back(std::make_pair(SIZE{}, 0));
+                }
+                else
+                {
+                    childrenDesiredSizePerLine[currentLine].first.cx += space;
                 }
                 childrenDesiredSizePerLine[currentLine].first.cx += childDesiredSize.cx;
                 childrenDesiredSizePerLine[currentLine].first.cy =
@@ -95,6 +103,7 @@ SIZE HorizontalPanel::MeasureOverride(const SIZE availableSize)
         contentSize.cx = std::max(contentSize.cx, lineWidth);
         contentSize.cy += lineHeight;
     }
+    contentSize.cy += LineSpace * (static_cast<LONG>(childrenDesiredSizePerLine.size()) - 1);
 
     if (horizontalFillMode == FillMode::WRAP)
         desiredSize.cx = contentSize.cx + padding.Horizontal();
@@ -112,16 +121,21 @@ SIZE HorizontalPanel::ArrangeOverride(const SIZE finalSize)
     const SIZE    childrenAvailableSize = actualSize - padding.Size();
 
     std::vector<UIComponent*> children = Children;
+    LONG                      space    = Space;
 
     std::vector<SIZE> childrenDesiredSizes;
 
-    std::ranges::for_each(children, [&childrenDesiredSizes](const UIComponent* child) {
+    std::ranges::for_each(children, [&childrenDesiredSizes, space](const UIComponent* child) {
         if (const HorizontalPanelSlot* slot = child->GetComponent<HorizontalPanelSlot>(); nullptr != slot)
         {
             const LONG line = slot->Line;
             if (childrenDesiredSizes.size() < static_cast<size_t>(line + 1L))
             {
                 childrenDesiredSizes.resize(line + 1L, SIZE{});
+            }
+            else
+            {
+                childrenDesiredSizes[line].cx += space;
             }
             const SIZE childDesiredSize = child->DesiredSize;
             childrenDesiredSizes[line].cx += childDesiredSize.cx;
@@ -134,6 +148,7 @@ SIZE HorizontalPanel::ArrangeOverride(const SIZE finalSize)
     {
         contentSize.cy += lineHeight;
     }
+    contentSize.cy += LineSpace * (static_cast<LONG>(childrenDesiredSizes.size()) - 1);
 
     const HorizontalAlignment horizontalAlign = HorizontalAlign;
     const VerticalAlignment   verticalAlign   = VerticalAlign;
@@ -149,25 +164,35 @@ SIZE HorizontalPanel::ArrangeOverride(const SIZE finalSize)
         const auto& [lineWidth, lineHeight]         = childrenDesiredSizes[line];
         alignPositionPerLine[line].x = AlignPoint()(horizontalAlign, childrenAvailableSize.cx - lineWidth);
         alignPositionPerLine[line].y = defaultVerticalAlignPosition + accumulatedHeight;
-        accumulatedHeight += lineHeight;
+        accumulatedHeight += lineHeight + LineSpace;
     }
 
     std::vector<LONG> childrenDesiredWidthPerLine;
     childrenDesiredWidthPerLine.resize(childrenDesiredSizes.size(), 0);
 
-    std::ranges::for_each(children, [this, &childrenDesiredWidthPerLine, &alignPositionPerLine](UIComponent* child) {
+    LONG lineSpace = LineSpace;
+
+    std::ranges::for_each(children, [this, &childrenDesiredSizes, &childrenDesiredWidthPerLine, &alignPositionPerLine, space, lineSpace](UIComponent* child) {
         if (const HorizontalPanelSlot* slot = child->GetComponent<HorizontalPanelSlot>(); nullptr != slot)
         {
-            const SIZE childAvailableSize = child->DesiredSize;
+            const SIZE childDesiredSize = child->DesiredSize;
+            const LONG line = slot->Line;
+            const LONG lineHeight = childrenDesiredSizes[line].cy;
 
             const POINT absolutePosition = AbsoluteChildPosition;
-            POINT       alignPosition    = alignPositionPerLine[slot->Line];
-            alignPosition.x += childrenDesiredWidthPerLine[slot->Line];
+            POINT       alignPosition    = alignPositionPerLine[line];
+            alignPosition.x += childrenDesiredWidthPerLine[line];
+            
+            // 각 줄의 높이에 대해 자식의 수직 정렬 적용
+            const VerticalAlignment verticalAlign = VerticalAlign;
+            const LONG verticalOffset = AlignPoint()(verticalAlign, lineHeight - childDesiredSize.cy);
+            alignPosition.y += verticalOffset;
+            
             const POINT childPosition = absolutePosition + alignPosition;
 
-            child->Arrange(childPosition, childAvailableSize);
+            child->Arrange(childPosition, childDesiredSize);
 
-            childrenDesiredWidthPerLine[slot->Line] += childAvailableSize.cx;
+            childrenDesiredWidthPerLine[line] += childDesiredSize.cx + space;
         }
     });
 

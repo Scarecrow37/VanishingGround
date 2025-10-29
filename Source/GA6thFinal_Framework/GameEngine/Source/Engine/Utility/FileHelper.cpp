@@ -397,36 +397,34 @@ namespace File
                 {
                     IFileOpenDialog* openDlg = nullptr;
                     hr                       = pDialog->QueryInterface(IID_PPV_ARGS(&openDlg));
-                    if (FAILED(hr))
-
-                        if (SUCCEEDED(hr))
+                    if (SUCCEEDED(hr))
+                    {
+                        IShellItemArray* pItems = nullptr;
+                        hr                      = openDlg->GetResults(&pItems);
+                        if (SUCCEEDED(hr) && nullptr != pItems)
                         {
-                            IShellItemArray* pItems = nullptr;
-                            hr                      = openDlg->GetResults(&pItems);
-                            if (SUCCEEDED(hr) && nullptr != pItems)
+                            DWORD count = 0;
+                            pItems->GetCount(&count);
+                            for (DWORD i = 0; i < count; ++i)
                             {
-                                DWORD count = 0;
-                                pItems->GetCount(&count);
-                                for (DWORD i = 0; i < count; ++i)
+                                IShellItem* pItem = nullptr;
+                                hr                = pItems->GetItemAt(i, &pItem);
+                                if (SUCCEEDED(hr))
                                 {
-                                    IShellItem* pItem = nullptr;
-                                    hr                = pItems->GetItemAt(i, &pItem);
+                                    PWSTR pszFilePath = nullptr;
+                                    hr                = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
                                     if (SUCCEEDED(hr))
                                     {
-                                        PWSTR pszFilePath = nullptr;
-                                        hr                = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
-                                        if (SUCCEEDED(hr))
-                                        {
-                                            out.emplace_back(pszFilePath);
-                                            CoTaskMemFree(pszFilePath);
-                                            isGetPath = true;
-                                        }
-                                        pItem->Release();
+                                        out.emplace_back(pszFilePath);
+                                        CoTaskMemFree(pszFilePath);
+                                        isGetPath = true;
                                     }
+                                    pItem->Release();
                                 }
-                                pItems->Release();
                             }
+                            pItems->Release();
                         }
+                    }
                 }
                 else
                 {

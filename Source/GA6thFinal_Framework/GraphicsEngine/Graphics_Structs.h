@@ -27,11 +27,12 @@ struct SkeletalMeshVertex : public StaticMeshVertex
 
 struct Material
 {
-#undef OPAQUE
+#undef OPAQUE    
     enum ShadingModelType
     {
-        UNLIT,
+        // UNLIT,
         DEFAULTLIT,
+        CUSTOMLIT,
         SMT_END
     } ShadingModel{};
     enum BlendModeType
@@ -49,6 +50,13 @@ struct Material
     } CullMode{};
     float Alpha = 1.f;
     bool IsTwoSided = false;
+};
+
+struct TransparentRimLightMaterial
+{
+    std::array<float, 3> RimColor     = {1.f, 1.f, 1.f};
+    float                RimPower     = 1.f;
+    float                RimIntensity = 1.f;
 };
 
 struct DescriptorHandles
@@ -80,15 +88,6 @@ struct UIMaterialData
 {
     UINT  Type;
     float Fill;
-};
-
-struct GraphicsTransform
-{
-    const Vector3&    Position;
-    const Vector3&    Scale;
-    const Quaternion& Rotation;
-    const Matrix&     World;
-    const bool&       IsDirtyFlag;
 };
 
 struct ShadowPassProperty
@@ -160,4 +159,11 @@ struct SSGIProperty
     float TemporalWeight;//이전프레임 가중치 //0.7~0.95
     float DepthSigma;//0.5~5.0
     float NormalSigma;//16~256
+};
+
+struct FXAAProperty
+{
+    float   QualitySubpixel;
+    float   QualityEdgeDetectionThreshold;
+    float   QualityMinimumEdgeThreshold;
 };

@@ -8,7 +8,6 @@
 ShaderBuilder::ShaderBuilder()
     : _currentState(State::NONE)
 {	
-	
 }
 
 UINT ShaderBuilder::GetRootParameterIndex(std::string_view tag) const
@@ -147,6 +146,9 @@ void ShaderBuilder::CreateRootSignatureTable()
             break;
         case Type::PS:
             visibility = D3D12_SHADER_VISIBILITY_PIXEL;
+            break;
+        case Type::GS:
+            visibility = D3D12_SHADER_VISIBILITY_GEOMETRY;
             break;
         case Type::CS:
             visibility = D3D12_SHADER_VISIBILITY_ALL;
@@ -309,6 +311,9 @@ void ShaderBuilder::CreateRootSignatureDirect()
             break;
         case Type::PS:
             visibility = D3D12_SHADER_VISIBILITY_PIXEL;
+            break;
+        case Type::GS:
+            visibility = D3D12_SHADER_VISIBILITY_GEOMETRY;
             break;
         case Type::CS:
             visibility = D3D12_SHADER_VISIBILITY_ALL;

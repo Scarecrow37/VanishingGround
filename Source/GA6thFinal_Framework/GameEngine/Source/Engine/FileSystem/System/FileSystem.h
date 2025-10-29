@@ -29,7 +29,6 @@ EFileSystem 클래스는 프로젝트의 파일 시스템을 관리하는 핵심
           생성하고 관리합니다.
         * 파일 경로(Path), 전역 고유 식별자(Guid), 에셋 ID(AssetID) 간의 상호 변환 및 조회를 지원합니다. 이를
           통해 파일의 이동이나 이름 변경에 유연하게 대처할 수 있습니다.
-        * 파일의 참조 횟수(GuidRefCount)를 관리하여 어떤 파일이 다른 곳에서 얼마나 참조되고 있는지 추적합니다.
 
     3. 파일 이벤트 처리:
         * FileEventObserver를 통해 파일 시스템의 변경(생성, 삭제, 수정, 이동)을 감시합니다.
@@ -55,7 +54,6 @@ class EFileSystem
     using ContextPathTable      = std::unordered_map<File::Path, std::weak_ptr<File::Context>>;
     using ContextGuidTable      = std::unordered_map<File::Guid, std::weak_ptr<File::Context>>;
     using AssetIDTable          = std::unordered_map<int, File::Path>;
-    using GuidRefTable          = std::unordered_map<File::Guid, std::size_t>;
     using EventSubscriberSet    = std::unordered_set<File::FileEventSubscriber*>;
     using EventSubscriberTable  = std::unordered_map<File::FString, EventSubscriberSet>;
     using CallBackFunc          = std::function<void(const File::FileEventData&)>;
@@ -119,8 +117,6 @@ public:
     const File::Path&           GetPathFromAssetID(int assetID) const;
     /// <summary>AssetID에 대응하는 Guid를 받아옵니다. 유효하지 않는 AssetID면 빈 Guid를 반환합니다.</summary>
     const File::Guid&           GetGuidFromAssetID(int assetID) const;
-    /// <summary>엔진에서 참조 중인 Guid와 해당 Guid의 참조 카운트를 저장하는 테이블을 반환합니다. GuidRef객체를 사용하지 않으면 해당 테이블에 등록되지 않습니다.</summary>
-    const GuidRefTable&         GetGuidRefTable() const;
     /// <summary>해당 확장자에 대응되는 EventSubscriber를 std::unordered_set으로 받아옵니다.</summary>
     const EventSubscriberSet&   GetEventSubscribers(const File::FString& ext);
     /// <summary>해당 경로에 대응되는 AssetID를 반환합니다. 실패할경우 0을 반환합니다.</summary>
@@ -248,7 +244,6 @@ public:
     void RequestPasteFile(const File::Path& path);
     void RequestDragDropFile(const File::Path& path);
 
-
 public:
     /// <summary>
     /// 파일 이벤트 구독자를 등록합니다. 확장자를 지정하지 않으면 모든 파일에 대해 이벤트를 수신합니다.
@@ -261,24 +256,6 @@ public:
     /// </summary>
     /// <param name="subscriber">등록 해제할 File::FileEventSubscriber 객체에 대한 포인터입니다.</param>
     void UnRegisterFileEventSubscriber(File::FileEventSubscriber* subscriber);
-
-public:
-    /// <summary>
-    /// 지정된 Guid의 참조 횟수를 증가시킵니다.
-    /// </summary>
-    /// <param name="guid">참조 횟수를 증가시킬 File::Guid 객체에 대한 상수 참조입니다.</param>
-    void AddGuidRefCount(const File::Guid& guid);
-    /// <summary>
-    /// 지정된 Guid의 참조 횟수를 감소시킵니다.
-    /// </summary>
-    /// <param name="guid">참조 횟수를 감소시킬 File::Guid 객체에 대한 상수 참조입니다.</param>
-    void SubGuidRefCount(const File::Guid& guid);
-    /// <summary>
-    /// 지정된 GUID의 참조 횟수를 반환합니다.
-    /// </summary>
-    /// <param name="guid">참조 횟수를 조회할 File::Guid 객체입니다.</param>
-    /// <returns>GUID가 참조된 횟수를 나타내는 std::size_t 값입니다.</returns>
-    std::size_t GetGuidRefCount(const File::Guid& guid) const;
 
 public:
     /// <summary>전체적인 정리를 실시합니다.</summary>
@@ -324,7 +301,6 @@ private:
     ContextPathTable            _pathToGuidTable;           // 파일 경로를 통해 ID를 찾는 테이블
     ContextGuidTable            _guidToPathTable;           // ID를 통해 파일 경로를 찾는 테이블
     AssetIDTable                _assetIDTable;              // 에셋 ID를 통해 컨텍스트를 찾는 테이블
-    GuidRefTable                _guidToRefTable;            // ID를 통해 참조를 찾는 테이블
 
     EventSubscriberSet          _subscriberSet;             // 등록된 EventSubscriber
     EventSubscriberTable        _extToSubscriberTable;      // 확장자를 통해 EventSubscriber를 찾는 테이블

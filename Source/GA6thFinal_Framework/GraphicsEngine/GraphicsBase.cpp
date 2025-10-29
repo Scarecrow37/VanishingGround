@@ -1,16 +1,27 @@
 ﻿#include "pch.h"
 #include "GraphicsBase.h"
 
-GraphicsBase::~GraphicsBase()
+unsigned long long GraphicsBase::_globalID = 0;
+
+GraphicsBase::GraphicsBase()
+    : _ID(++_globalID)
+    , _isActive(nullptr)
+    , _referenceCount(0)
 {
-    SetDestroy();
 }
 
-void GraphicsBase::SetDestroy()
+void GraphicsBase::AddReference()
 {
-    for (auto& isDestroy : _isDestroyeds)
+    ++_referenceCount;
+}
+
+void GraphicsBase::Release()
+{
+    if (_referenceCount > 0)
+        --_referenceCount;
+
+    if (0 == _referenceCount)
     {
-        *isDestroy = true;
+        Global::renderer->AddToBeReleasedComponent(this);
     }
-    _isDestroyeds.clear();
 }

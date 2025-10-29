@@ -56,10 +56,10 @@ protected:
     std::string CurrentOptionStr;
     REFLECT_FIELDS_END(EnableButton)
 private:
-    File::GuidRef _onFocusImage;
-    File::GuidRef _onNonFocusImage;
-    File::GuidRef _offFocusImage;
-    File::GuidRef _offNonFocusImage;
+    File::Guid _onFocusImage;
+    File::Guid _onNonFocusImage;
+    File::Guid _offFocusImage;
+    File::Guid _offNonFocusImage;
     bool          _isOptionOn = true;
     bool          _isFocus    = false;
     bool          _isOptionDirty = false;

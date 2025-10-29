@@ -18,10 +18,10 @@ public:
     static EditorSceneTool* GetTool()
     {
         auto& dockSystem = Global::editorModule->GetDockWindowSystem();
-        EditorDockWindow* sceneDock  = dockSystem.GetDockWindow("SceneDock");
+        EditorDockWindow* sceneDock  = dockSystem.GetDockWindow("Scene##dock");
         if (sceneDock)
         {
-            EditorSceneTool* editorSceneTool = dockSystem.GetDockWindow("SceneDock")->GetGui<EditorSceneTool>();
+            EditorSceneTool* editorSceneTool = sceneDock->GetGui<EditorSceneTool>();
             return editorSceneTool;
         }
         return nullptr;

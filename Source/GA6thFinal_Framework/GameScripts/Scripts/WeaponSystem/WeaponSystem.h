@@ -22,6 +22,10 @@ public:
     // 현재 사용중인 무기의 슬롯 번호 입니다.
     PROPERTY(CurrentWeaponSlot)
 
+    GETTER_ONLY(int, LastWeaponSlot) { return _lastWeaponSlot; }
+    // 마지막으로 사용한 무기 슬롯 번호 입니다.
+    PROPERTY(LastWeaponSlot)
+
     /// <summary>
     /// 장착된 무기의 원본 Stats을 인덱스로 반환합니다.
     /// </summary>
@@ -46,10 +50,10 @@ public:
     }
 
     /// <summary>
-    /// 현재 사용중인 무기의 Stats을 반환합니다.
+    /// 현재 사용중인 무기를 반환합니다.
     /// </summary>
     /// <returns></returns>
-    WeaponStats& GetCurrentWeaponStats() { return _equipWeapons[_currentWeaponSlot].Stats; }
+    WeaponElement& GetCurrentWeaponElement() { return _equipWeapons[_currentWeaponSlot]; }
 
     /// <summary>
     /// 무기를 slot에 장착합니다.
@@ -94,6 +98,8 @@ protected:
 private:
     /*현재 사용중인 무기 슬롯*/
     int _currentWeaponSlot = 0;
+    /*마지막으로 사용한 무기 슬롯*/
+    int _lastWeaponSlot = -1;
 
     /*장착된 무기들*/
     std::array<WeaponElement, EQUIP_WEAPONS_SIZE> _equipWeapons;
@@ -107,5 +113,5 @@ private:
 
 private:
     SingletonComponent<WeaponSystem> _singletonComponent{this};
-        
+       
 };

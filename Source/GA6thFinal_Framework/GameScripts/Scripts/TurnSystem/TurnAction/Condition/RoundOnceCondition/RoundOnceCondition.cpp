@@ -18,7 +18,7 @@ void RoundOnceTrueCondition::DrawImguiEditor()
 
 }
 
-const std::string& RoundOnceTrueCondition::GetConditionInfo() const
+const std::string& RoundOnceTrueCondition::GetConditionInfo()
 {
     static const std::string info = (const char*)u8"라운드당 한번만 발동";
     return info;
@@ -36,13 +36,14 @@ RoundOnceTrueCondition::RoundOnceAction::RoundOnceAction()
 {
     if (UmCore->IsPlay())
     {
-        _roundOnceActions.push_back(this);
+        _roundOnceActions.insert(this);
     }
 }
 
 RoundOnceTrueCondition::RoundOnceAction::~RoundOnceAction()
 {
     SetDestroy();
+    _roundOnceActions.erase(this);
 }
 
 const std::string& RoundOnceTrueCondition::RoundOnceAction::GetActionName()

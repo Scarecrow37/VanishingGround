@@ -104,7 +104,7 @@ void SDFFont::ParseGlyphs(yyjson_val* glyphsValue)
     {
         SDF::Glyph glyph{};
 
-        glyph.Unicode = yyjson_get_uint(yyjson_obj_get(value, "unicode"));
+        glyph.Unicode = (unsigned int)yyjson_get_uint(yyjson_obj_get(value, "unicode"));
         yyjsonValueTypeHelper(yyjson_obj_get(value, "advance"), glyph.Advance);
 
         yyjson_val* planeBoundsValue = yyjson_obj_get(value, "planeBounds");
@@ -131,5 +131,5 @@ void SDFFont::ParseGlyphs(yyjson_val* glyphsValue)
 
 void SDFFont::yyjsonValueTypeHelper(yyjson_val* value, float& data)
 {
-    data = yyjson_is_real(value) ? yyjson_get_real(value) : (float)yyjson_get_sint(value);
+    data = yyjson_is_real(value) ? (float)yyjson_get_real(value) : (float)yyjson_get_sint(value);
 }

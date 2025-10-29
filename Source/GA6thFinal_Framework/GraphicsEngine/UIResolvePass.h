@@ -15,5 +15,5 @@ public:
 
 private:
     SharedResource<UnorderedAccessView> _outputBuffer;
-    std::unique_ptr<ShaderBuilder>      _shader;
+    ComputeFX<GE::CS::RESOLVE_UI>       _fxResolve;
 };

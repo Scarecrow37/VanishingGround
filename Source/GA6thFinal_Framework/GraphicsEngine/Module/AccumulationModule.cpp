@@ -7,32 +7,15 @@ AccumulationModule::~AccumulationModule() = default;
 
 void AccumulationModule::Initialize()
 {
-    _shader = std::make_unique<ShaderBuilder>();
-    _shader->BeginBuild();
-    _shader->SetShader(L"../Shaders/vs_quad.hlsl", ShaderBuilder::Type::VS);
-    _shader->SetShader(L"../Shaders/ps_accumulation.hlsl", ShaderBuilder::Type::PS);
-    _shader->EndBuild();
-
-    HRESULT       hr     = S_OK;
-    ID3D12Device* device = Global::device->GetDevice();
-
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC psodesc = {};
-    psodesc.RasterizerState                    = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    psodesc.BlendState                         = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    psodesc.DepthStencilState                  = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-    psodesc.DepthStencilState.DepthEnable      = FALSE;
-    psodesc.SampleMask                         = UINT_MAX;
-    psodesc.PrimitiveTopologyType              = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psodesc.NumRenderTargets                   = 0;
-    psodesc.SampleDesc                         = {1, 0};
-    psodesc.InputLayout                        = _shader->GetInputLayout();
-    psodesc.pRootSignature                     = _shader->GetRootSignature();
-    psodesc.VS                                 = _shader->GetShaderByteCode(ShaderBuilder::Type::VS);
-    psodesc.PS                                 = _shader->GetShaderByteCode(ShaderBuilder::Type::PS);
-
-
-    hr = device->CreateGraphicsPipelineState(&psodesc, IID_PPV_ARGS(&_pipelineState));
-    FAILED_CHECK_MESSAGE(hr, L"AccumulationModule::Initialize device->CreateGraphicsPipelineState Failed");
+    PipelineStateStream pss{};
+    pss.BlendState                        = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    pss.RasterizerState                   = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    pss.DepthStencilState                 = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+    (&pss.DepthStencilState)->DepthEnable = FALSE;
+    pss.PrimitiveTopology                 = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    
+    _fx.SetPipelineStateStream(pss);
+    _pipelineState = Global::pipelineStateManager->GetPipelineState(pss);
 
     auto model = Global::resourceManager->LoadResource<Model>("Quad");
     _quadMesh  = model->GetMeshes().front().get();
@@ -50,10 +33,10 @@ void AccumulationModule::Execute(ID3D12GraphicsCommandList* commandList, D3D12_G
     commandList->RSSetScissorRects(1, &scissorRect);
 
     commandList->SetPipelineState(_pipelineState.Get());
-    commandList->SetGraphicsRootSignature(_shader->GetRootSignature());
+    commandList->SetGraphicsRootSignature(_fx.GetRootSignature());
 
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("sourceTexture"), input);
-    commandList->SetGraphicsRootDescriptorTable(_shader->GetRootParameterIndex("accumulation"), output->GetUAVHandle());
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("sourceTexture"), input);
+    commandList->SetGraphicsRootDescriptorTable(_fx.GetRootParameterIndex("accumulation"), output->GetUAVHandle());
     
     _quadMesh->Render(commandList);
 }

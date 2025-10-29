@@ -3,6 +3,7 @@
 #include "SceneTransition/SceneTransitionComponent.h"
 #include "ExcelDataSystem/ExcelDataSystem.h"
 #include "UI/Elements/Image/ImageElement.h"
+#include "ItemDropSystem/ItemDropSystem.h"
 
 UMREAL_COMPONENT(RestartStageNavi)
 
@@ -19,10 +20,10 @@ namespace RestartUtility
                 switch (type)
                 {
                 case RestartStageNavi::SelectBoxType::DEFAULT:
-                    rowKey = u8"선택버튼_0";
+                    rowKey = u8"나가기/ 다음전투 선택버튼 포커스 안됨";
                     break;
                 case RestartStageNavi::SelectBoxType::FOCUS :
-                    rowKey = u8"선택버튼_1";
+                    rowKey = u8"나가기/ 다음전투 선택버튼 포커스 됨";
                     break;
                 default:
                     break;
@@ -64,16 +65,29 @@ RestartStageNavi::RestartStageNavi()
 
 void RestartStageNavi::Submit()
 {
-    if (const Scene* scene = UmSceneManager.GetMainScene())
+    int clearCount = 0;
+    if (ItemDropSystem* dropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
     {
-        const std::string& path = scene->Path;
-        GameObject*        transitionManager = SingletonObject<SceneTransitionComponent>::GetInstance();
-        if (transitionManager)
+        clearCount = dropSystem->StageClearCount;
+    }
+
+    if (clearCount < 3)
+    {
+        if (const Scene* scene = UmSceneManager.GetMainScene())
         {
-            auto transitionComponent = transitionManager->GetComponent<SceneTransitionComponent>();
-            if (transitionComponent)
+            const std::string& path              = scene->Path;
+            GameObject*        transitionManager = SingletonObject<SceneTransitionComponent>::GetInstance();
+            if (transitionManager)
             {
-                transitionComponent->SceneTransitionFade("in", "out", [path]() { UmSceneManager.LoadScene(path); });
+                auto transitionComponent = transitionManager->GetComponent<SceneTransitionComponent>();
+                if (transitionComponent)
+                {
+                    transitionComponent->SceneTransitionFade("in", "out", [path]() { UmSceneManager.LoadScene(path); });
+                }
+            }
+            else
+            {
+                UmSceneManager.LoadScene(path);
             }
         }
     }
@@ -119,6 +133,7 @@ void RestartStageNavi::Awake()
 {
     Base::Awake();
     _imageElement = GetComponent<ImageElement>();
+    gameObject->AddTag(TAG);
 }
 
 void RestartStageNavi::Start()
@@ -126,11 +141,8 @@ void RestartStageNavi::Start()
     using namespace RestartUtility;
     Base::Start();
     CheckImageElementWithLog(_imageElement);
-}
-
-void RestartStageNavi::OnEnable()
-{
-    UINavigationComponent::OnEnable();
-
-    Focus();
+    if (_imageElement)
+    {
+        _imageElement->SetImage(GetSelectBox(SelectBoxType::DEFAULT));
+    }
 }

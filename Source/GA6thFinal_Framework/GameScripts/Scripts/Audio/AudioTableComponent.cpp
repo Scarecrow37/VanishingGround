@@ -171,6 +171,38 @@ void AudioTableComponent::ImGuiDrawPropertysEvent()
                 if (ImGui::IsItemHovered())
                     ImGui::SetTooltip("Stop");
             }
+            ImGui::SameLine();
+            // FadeIn
+            {
+                if (ImGui::Button(EditorIcon::ICON_BELL_ON))
+                    UmAudio.ReverbOn();
+                if (ImGui::IsItemHovered())
+                    ImGui::SetTooltip("Enable Reverb Effect");
+            }
+            ImGui::SameLine();
+            // FadeOut
+            {
+                if (ImGui::Button(EditorIcon::ICON_BELL_OFF))
+                    UmAudio.ReverbOff();
+                if (ImGui::IsItemHovered())
+                    ImGui::SetTooltip("Clear Reverb Effects");
+            }
+            ImGui::SameLine();
+            // FadeIn
+            {
+                if (ImGui::Button(EditorIcon::ICON_CIRCLE_ARROW_RIGHT))
+                    UmAudio.FadeIn();
+                if (ImGui::IsItemHovered())
+                    ImGui::SetTooltip("Fade In");
+            }
+            ImGui::SameLine();
+            // FadeOut
+            {
+                if (ImGui::Button(EditorIcon::ICON_CIRCLE_ARROW_LEFT))
+                    UmAudio.FadeOut();
+                if (ImGui::IsItemHovered())
+                    ImGui::SetTooltip("Fade Out");
+            }
         }
         ImGui::TreePop();
     }
@@ -238,7 +270,7 @@ void AudioTableComponent::LoadAudio()
     }
 }
 
-void AudioTableComponent::LoadAudio(const std::string& key, const File::GuidRef& guid)
+void AudioTableComponent::LoadAudio(const std::string& key, const File::Guid& guid)
 {
     UmAudio.LoadSound(key, guid);
 }

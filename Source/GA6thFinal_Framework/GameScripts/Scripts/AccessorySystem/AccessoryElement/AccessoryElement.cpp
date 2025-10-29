@@ -2,6 +2,8 @@
 #include "AccessoryElement.h"
 #include "TurnSystem/TurnAction/TurnActionFactory.h"
 
+REFLECT_FUNCTION(AccessoryElement)
+
 AccessoryElement::AccessoryElement() 
 {
 
@@ -19,43 +21,66 @@ void AccessoryElement::ImGuiDrawPropertysEvent()
 
 void AccessoryElement::SerializedReflectEvent() 
 {
-    if (_action)
+    ReflectFields->Actions.clear();
+    if (false == _actions.empty())
     {
-        ReflectFields->ActionName = _action->ActionName;
-        ReflectFields->ActionData = _action->SerializedReflectFields();
-    }
-    else
-    {
-        ReflectFields->ActionName = STR_NULL;
-        ReflectFields->ActionData = STR_NULL;
+        for (auto& action : _actions)
+        {
+            if (action)
+            {
+                const std::string& name = action->ActionName;
+                std::string        data = action->SerializedReflectFields();
+                ReflectFields->Actions.emplace_back(name, data);
+            }          
+        }
     }
 }
 
 void AccessoryElement::DeserializedReflectEvent() 
 {
-    const auto& actionFactory = TurnActionFactory::GetActionFactory();
-    auto        iter          = actionFactory.find(ReflectFields->ActionName);
-    if (iter != actionFactory.end())
+    _actions.clear();
+    if (false == ReflectFields->Actions.empty())
     {
-        _action.reset(iter->second());
-        _action->DeserializedReflectFields(ReflectFields->ActionData);
-    }
+        const auto& actionFactory = TurnActionFactory::GetActionFactory();
+        for (auto& [name, data] : ReflectFields->Actions)
+        {       
+            if (auto iter = actionFactory.find(name); iter != actionFactory.end())
+            {
+                auto& myAction = _actions.emplace_back();
+                myAction.reset(iter->second());
+                myAction->DeserializedReflectFields(data);
+            }
+        }       
+    }   
 }
 
 
-void AccessoryElement::DeepCopyAction(const TurnAction& action)
+void AccessoryElement::DeepCopyAction(const std::vector<std::unique_ptr<TurnAction>>& actions)
 {
-    const auto&        actionFactory = TurnActionFactory::GetActionFactory();
-    const std::string& actionName    = action.ActionName;
-    auto               iter          = actionFactory.find(actionName);
-    if (iter != actionFactory.end())
+    _actions.clear();
+    if (false == actions.empty())
     {
-        _action.reset(iter->second());
-        *_action = action;
-    }
+        const auto& actionFactory = TurnActionFactory::GetActionFactory();
+        for (auto& action : actions)
+        {
+            if (action)
+            {
+                const std::string& actionName = action->ActionName;          
+                if (auto iter = actionFactory.find(actionName); iter != actionFactory.end())
+                {
+                    auto& myAction = _actions.emplace_back();
+                    myAction.reset(iter->second());
+                    if (myAction)
+                    {
+                        *myAction = *action;
+                    }                 
+                }
+            }
+        }
+    }   
 }
 
-DropItemInfo AccessoryElement::GetItemInfo()
+DropItemInfo AccessoryElement::GetItemInfo() const
 {
     DropItemInfo info;
     info.Category = ArtifactDropType::ACCESSORY;

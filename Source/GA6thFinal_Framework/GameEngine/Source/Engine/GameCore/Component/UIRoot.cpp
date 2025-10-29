@@ -1,7 +1,8 @@
 ﻿#include "pch.h"
 #include "UIRoot.h"
-
 #include "UI/Base/DrawUIComponent/DrawUIComponent.h"
+
+REFLECT_FUNCTION(UIRoot)
 
 Input::Controller* UIRoot::_controller = nullptr;
 
@@ -166,6 +167,15 @@ void UIRoot::Reset()
     }
 }
 
+void UIRoot::Added()
+{
+    UIBaseComponent::Added();
+    if (false == UmCore->IsPlay())
+    {
+        SortViewOrder();
+    }
+}
+
 void UIRoot::Start()
 {
     UIBaseComponent::Start();
@@ -189,18 +199,24 @@ void UIRoot::UpdateNavigation()
         {
             const NavigationKey navigationKey = ButtonStateToNavigationKey()(buttonState);
 
-            if (const NavigationID navigationID = _currentFocusNavigation->GetNavigatedId(navigationKey);
-                navigationID != INVALID_NAVIGATION_ID)
+            UINavigationComponent* currentCheckUINavigationComponent = _currentFocusNavigation;
+            for (unsigned int tryCount = 0; tryCount < MAX_NAVIGATION_LOOP_COUNT; ++tryCount)
             {
-                if (UINavigationComponent* nextFocus = FindNavigationComponent(navigationID);
-                    _currentFocusNavigation == nextFocus)
+                const NavigationID navigationID = currentCheckUINavigationComponent->GetNavigatedId(navigationKey);
+                if (navigationID == INVALID_NAVIGATION_ID)
+                    break;
+
+                UINavigationComponent* nextFocus = FindNavigationComponent(navigationID);
+                if (currentCheckUINavigationComponent == nextFocus)
                 {
-                    _currentFocusNavigation->Submit();
+                    currentCheckUINavigationComponent->Submit();
+                    break;
                 }
-                else
-                {
-                    ChangeFocusComponent(nextFocus, FocusCallType::INPUT);
-                }
+
+                if (ChangeFocusComponent(nextFocus, FocusCallType::INPUT))
+                    break;
+
+                currentCheckUINavigationComponent = nextFocus;
             }
         }
     });
@@ -290,6 +306,16 @@ UINavigationComponent* UIRoot::FindNavigationComponent(NavigationID id)
     return component;
 }
 
+NavigationID UIRoot::GetFocusedNavigationID() const
+{
+    return _currentFocusNavigation != nullptr ? _currentFocusNavigation->ID : INVALID_NAVIGATION_ID;
+}
+
+UINavigationComponent* UIRoot::GetFocusedNavigationComponent() const
+{
+    return _currentFocusNavigation;
+}
+
 UINavigationComponent* UIRoot::FindNavigationComponentInTransform(NavigationID id) const
 {
     UINavigationComponent* component     = nullptr;
@@ -308,20 +334,25 @@ UINavigationComponent* UIRoot::FindNavigationComponentInTransform(NavigationID i
     return component;
 }
 
-void UIRoot::ChangeFocusComponent(UINavigationComponent* nextFocusComponent, FocusCallType callType)
+bool UIRoot::ChangeFocusComponent(UINavigationComponent* nextFocusComponent, FocusCallType callType)
 {
     if (nullptr != nextFocusComponent)
     {
-        if (nullptr != _currentFocusNavigation)
+        if (const bool isEnable = nextFocusComponent->EnableInHierarchy; true == isEnable)
         {
-            _currentFocusNavigation->FocusOut(callType);
-        }
-        _currentFocusNavigation = nextFocusComponent;
-        if (nullptr != _currentFocusNavigation)
-        {
-            _currentFocusNavigation->FocusIn(callType);
+            if (nullptr != _currentFocusNavigation)
+            {
+                _currentFocusNavigation->FocusOut(callType);
+            }
+            _currentFocusNavigation = nextFocusComponent;
+            if (nullptr != _currentFocusNavigation)
+            {
+                _currentFocusNavigation->FocusIn(callType);
+            }
+            return true;
         }
     }
+    return false;
 }
 
 void UIRoot::RequestChangeFocusComponent(UINavigationComponent* nextFocusComponent)

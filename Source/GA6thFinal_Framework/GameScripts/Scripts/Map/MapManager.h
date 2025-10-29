@@ -1,6 +1,8 @@
 ﻿#pragma once
+#include "Monster/Common/MonsterCommon.h"
 #include "Utility/SingletonHelper.h"
 
+class OpenInventoryComponent;
 class Stage;
 class ScrollingWrapper;
 class MapManager : public Component, public InputReceiver
@@ -12,15 +14,17 @@ public:
     MapManager();
     ~MapManager() override;
 
-public:
-    void SetFocusStage(Stage* stage);
-
-public:
+private:
     void Awake() override;
     void Update() override;
     void OnLoadScene(Scene& loadScene, LoadSceneMode mode) override;
 
-    void UINotify() const { _focusStage.Notify(); }
+public:
+    void    UINotify() const { _focusStage.Notify(); }
+    void    SetFocusStage(Stage* stage);
+    void    SetCurrentSelectedStage(Stage* stage);
+    Stage*  GetCurrentSelectedStage();
+    Monster::SpawnID GetCurrentSpawnID();
 
 public:
     REFLECT_PROPERTY(MapScenePath, BackgroundImage, StageEnableImage, StageDisableImage, StageFocusImage, RewardPopupImage)
@@ -65,23 +69,30 @@ private:
     void ChageBackgroundImage(int assetID);
     void DefaultSetting();
     void SetupStage();
+    void RegisterStage(GameObject& object);
 
 private:
-    ScrollingWrapper* _scroll = nullptr;
+    SingletonObject<MapManager>             _singletonObject{this};
+    SingletonComponent<MapManager>          _singletonComponent{this};
+
+    MVVM::Model<Stage*>                     _focusStage;
+
+    std::vector<Stage*>                     _stages;
+    std::map<int, std::map<int, Stage*>>    _stageDataTable;
+
+    ScrollingWrapper*                       _scroll = nullptr;
+    float                                   _scrollSpeed  = 100.0f;
 
 private:
-    MVVM::Model<Stage*> _focusStage;
-    std::vector<Stage*> _stages;
-    int                 _childCount   = 0;
-    float               _scrollSpeed  = 100.0f;
-    int                 _clearedStage = 0;
+    Stage* _selectedStage = nullptr;
 
 private:
-    SingletonObject<MapManager>    _singletonObject{this};
-    SingletonComponent<MapManager> _singletonComponent{this};
+    void PreferencesKeyDown(const Input::Controller&);
+    void InventoryKeyDown(const Input::Controller&);
+    void OpenPreferencesWindow();
+    void OpenInventoryWindow();
 
     Stage* _lastFocusStage = nullptr;
-    void PreferencesKeyDown(const Input::Controller&);
-
-
+    bool   _openPreferences = false;
+    bool   _openInventory   = false;
 };

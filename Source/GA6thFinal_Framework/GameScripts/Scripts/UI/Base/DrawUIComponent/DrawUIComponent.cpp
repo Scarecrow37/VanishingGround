@@ -1,11 +1,23 @@
 ﻿#include "pchScripts.h"
 #include "DrawUIComponent.h"
 
+REFLECT_FUNCTION(DrawUIComponent)
+
 DrawUIComponent::DrawUIComponent() = default;
 
 void DrawUIComponent::SetViewOrder(const int viewOrder)
 {
     ReflectFields->ViewOrder = viewOrder;
+}
+
+void DrawUIComponent::SetArtificial(bool isArtificial)
+{
+    _isArtificial = isArtificial;
+}
+
+bool DrawUIComponent::IsArtificial() const
+{
+    return _isArtificial;
 }
 
 void DrawUIComponent::ImGuiDrawPropertysEvent()

@@ -5,6 +5,8 @@ class ReturnToMapNavi : public UISFXNavigationComponent
     USING_PROPERTY(ReturnToMapNavi)
 
 public:
+    inline static constexpr const char* TAG = "Item Drop UI ReturnToMapNavi";
+
     enum class SelectBoxType
     {
         DEFAULT,
@@ -31,11 +33,12 @@ public:
 public:
     REFLECT_PROPERTY(MapScene)
 
-    GETTER_ONLY(std::string, MapScene) { return _guidRef.ToPath().string(); }
+    GETTER_ONLY(std::string, MapScene) { return _Guid.ToPath().string(); }
     PROPERTY(MapScene)
 
 protected:
     void DeserializedReflectEvent() override;
+    void Added() override;
     void Start() override;
     void Awake() override;
 
@@ -45,6 +48,6 @@ protected:
     REFLECT_FIELDS_END(ReturnToMapNavi)
 
 private:
-    File::GuidRef _guidRef;
+    File::Guid _Guid;
     class ImageElement* _imageElement;
 };

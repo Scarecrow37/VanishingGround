@@ -7,6 +7,10 @@
 #include "ParticleEmitter.h"
 #include "Font.h"
 #include "SDFFont.h"
+#include "Animator.h"
+#include "Light.h"
+#include "MeshRenderer.h"
+#include "SpriteRenderer.h"
 
 namespace Global
 {
@@ -26,7 +30,6 @@ namespace Global
     PipelineStateManager*                          pipelineStateManager;
     ThreadPool*                                    threadPool;
     SceneTransitionCore*                           sceneTransitionCore;
-
 
     bool                                           isRayTracing = false;
     std::unordered_map<std::wstring, std::wstring> shaderPathMappings;
@@ -133,29 +136,29 @@ void GraphicsCore::AddRenderScene(const std::string_view sceneName, const Render
     _renderer->AddRenderScene(sceneName, flag);
 }
 
-void GraphicsCore::RegisterComponent(Animator* component) const
+void GraphicsCore::RegisterComponent(IAnimator* component) const
 {
-    _animationCore->RegisterAnimator(component);
+    _animationCore->RegisterAnimator(static_cast<Animator*>(component));
 }
 
-void GraphicsCore::RegisterComponent(const std::string_view renderSceneName, MeshRenderer* component) const
+void GraphicsCore::RegisterComponent(const std::string_view renderSceneName, IMeshRenderer* component) const
 {
-    _renderer->RegisterRenderQueue(renderSceneName, component);
+    _renderer->RegisterRenderQueue(renderSceneName, static_cast<MeshRenderer*>(component));
 }
 
-void GraphicsCore::RegisterComponent(const std::string_view renderSceneName, SpriteRenderer* component) const
+void GraphicsCore::RegisterComponent(const std::string_view renderSceneName, ISpriteRenderer* component) const
 {
-    _renderer->RegisterRenderQueue(renderSceneName, component);
+    _renderer->RegisterRenderQueue(renderSceneName, static_cast<SpriteRenderer*>(component));
 }
 
-void GraphicsCore::RegisterComponent(const std::string_view renderSceneName, TextRenderer* component) const
-{
-    _renderer->RegisterRenderQueue(renderSceneName, component);
-}
+//void GraphicsCore::RegisterComponent(const std::string_view renderSceneName, TextRenderer* component) const
+//{
+//    _renderer->RegisterRenderQueue(renderSceneName, component);
+//}
 
-void GraphicsCore::RegisterComponent(const std::string_view renderSceneName, Light* component) const
+void GraphicsCore::RegisterComponent(const std::string_view renderSceneName, ILight* component) const
 {
-    _lightCore->RegisterLight(renderSceneName, component);
+    _lightCore->RegisterLight(renderSceneName, static_cast<Light*>(component));
 }
 
 void GraphicsCore::RegisterComponent(std::string_view renderSceneName, ISDFTextRenderer* component) const
@@ -167,23 +170,51 @@ void GraphicsCore::CreateSDFTextRenderer(class ISDFTextRenderer** component) con
 {
     SDFTextRenderer* textRenderer = new SDFTextRenderer;
     textRenderer->Initialize();
+    textRenderer->AddReference();
+
     *component = textRenderer;
 }
 
-void GraphicsCore::LoadResource(std::wstring_view filePath, MeshRenderer* component) const
+void GraphicsCore::CreateMeshRenderer(IMeshRenderer** component, const Matrix* worldMatrix) const
 {
-    component->SetModel(_resourceManager->LoadResource<Model>(filePath));
+    MeshRenderer* meshRenderer = new MeshRenderer;
+    meshRenderer->Initialize(worldMatrix);
+    meshRenderer->AddReference();
+
+    *component = meshRenderer;
 }
 
-void GraphicsCore::LoadResource(const std::wstring_view filePath, SpriteRenderer* component) const
+void GraphicsCore::CreateSpriteRenderer(ISpriteRenderer** component, const Matrix* worldMatrix) const
 {
-    component->SetTexture(_resourceManager->LoadResource<Texture>(filePath));
+    SpriteRenderer* spriteRenderer = new SpriteRenderer;
+    spriteRenderer->Initialize(worldMatrix);
+    spriteRenderer->AddReference();
+
+    *component = spriteRenderer;
 }
 
-void GraphicsCore::LoadResource(const std::wstring_view filePath, TextRenderer* component) const
+void GraphicsCore::CreateLight(ILight** component) const
 {
-    component->SetFont(_resourceManager->LoadResource<Font>(filePath));
+    Light* light = new Light;
+    light->AddReference();
+
+    *component = light;
 }
+
+void GraphicsCore::LoadResource(std::wstring_view filePath, IMeshRenderer* component) const
+{
+    static_cast<MeshRenderer*>(component)->SetModel(_resourceManager->LoadResource<Model>(filePath));
+}
+
+void GraphicsCore::LoadResource(const std::wstring_view filePath, ISpriteRenderer* component) const
+{
+    static_cast<SpriteRenderer*>(component)->SetTexture(_resourceManager->LoadResource<Texture>(filePath));
+}
+
+//void GraphicsCore::LoadResource(const std::wstring_view filePath, TextRenderer* component) const
+//{
+//    component->SetFont(_resourceManager->LoadResource<Font>(filePath));
+//}
 
 void GraphicsCore::LoadResource(std::wstring_view filePath, ISDFTextRenderer* component) const
 {
@@ -194,22 +225,30 @@ void GraphicsCore::LoadTextureResource(std::wstring_view filePath, ParticleEmitt
 {
     if (ParticleType::SPRITE == component->_particleType)
     {
-        static_cast<SpriteModule*>(component->_particleRenderModule)
-            ->SetAlbedoTexture(_resourceManager->LoadResource<Texture>(filePath.data()));
+        if (auto renderModule = component->_particleRenderModule->AsSprite())
+        {
+            renderModule->SetAlbedoTexture(_resourceManager->LoadResource<Texture>(filePath.data()));
+        }
     }
+
     if (ParticleType::RIBBON == component->_particleType)
     {
-        static_cast<RibbonModule*>(component->_particleRenderModule)
-            ->SetAlbedoTexture(_resourceManager->LoadResource<Texture>(filePath.data()));
+        if (auto renderModule = component->_particleRenderModule->AsRibbon())
+        {
+            renderModule->SetAlbedoTexture(_resourceManager->LoadResource<Texture>(filePath.data()));
+        }
     }
 }
+
 void GraphicsCore::LoadModelResource(const std::wstring_view filePath, ParticleEmitter* component) const
 {
-    static_cast<MeshSurfaceLocator*>(component->_emitLocator)->SetModelPath(filePath.data());
-    static_cast<MeshSurfaceLocator*>(component->_emitLocator)->LoadVerticesFromModel(_resourceManager->LoadResource<Model>(filePath.data()));
+    if (component->_emitLocator->AsMeshSurfaceLocator())
+    {
+        _resourceManager->LoadResource<Model>(filePath);
+    }
 }
 
-void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT height, const FeatureLevel feature, bool isEditorMode)
+void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT height, const FeatureLevel feature, bool isEditorMode, bool isRayTracing)
 {
     _device                   = new Device;
     _renderer                 = new Renderer;
@@ -244,15 +283,15 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
     Global::pipelineStateManager     = _pipelineStateManager;
     Global::threadPool               = _threadPool;
     Global::sceneTransitionCore      = _sceneTransitionCore;
-
+    Global::isRayTracing             = isRayTracing;
     _device->SetUpDevice(hwnd, width, height, feature);
     _viewManager->Initialize();
     _device->Initialize();
     _device->ResetCommands();
-    _particleManager->Initialize(MAX_PARTICLE);
     _renderer->Initialize();
     _moduleManager->Initialize();
     _threadPool->Initialize(5);
+    _particleManager->Initialize(MAX_PARTICLE);
 
     auto commandList = _device->GetCommandList();
     commandList->Close();
@@ -268,13 +307,14 @@ void GraphicsCore::Initialize(const HWND hwnd, const UINT width, const UINT heig
 
 void GraphicsCore::UpdateAnimation(const float deltaTime) const
 {
-    _animationCore->Update(deltaTime);
+    //_animationCore->Update(deltaTime);
 }
 
 void GraphicsCore::Update(const float deltaTime)
 {
     _threadPool->Update();    
     _resourceManager->Update();
+    _animationCore->Update(deltaTime);
     _particleManager->Update(deltaTime);
     _lightCore->Update(deltaTime);
     _renderer->Update(deltaTime);
@@ -306,6 +346,14 @@ void GraphicsCore::Finalize() const
     delete _renderer;
     delete _device;
     delete _sceneTransitionCore;
+}
+
+void GraphicsCore::ClearGraphicsResource() const
+{
+    _renderer->ClearComponents();
+    _renderer->ClearRenderQueue();
+    _animationCore->ClearAnimationQueue();
+    _lightCore->ClearLightQueue();
 }
 
 void GraphicsCore::Flip() const

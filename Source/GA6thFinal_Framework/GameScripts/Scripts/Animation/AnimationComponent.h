@@ -2,9 +2,9 @@
 #include "Animation/Structs/AnimationData.h"
 
 class SkeletalMeshRenderer;
-class MeshRenderer;
+class IMeshRenderer;
 class Model;
-class Animator;
+class IAnimator;
 
 namespace Timeline
 {
@@ -26,8 +26,7 @@ class AnimationComponent : public Component
     using EventQueue = std::vector<std::function<void()>>;
 
 public:
-    void Reset() override;
-    void Start() override;
+    void Added() override;
     void Update() override;
     void OnDestroy() override;
     void OnEnable() override;
@@ -42,7 +41,7 @@ private:
     AnimationData& GetFrontAnimationDataEx();
     AnimationData& GetTopAnimationDataEx();
 
-    void UpdateNullAnimator();
+    void UpdateValidation(); // 유효성 검사 및 처리 업데이트
     void UpdateAnimation(AnimationData& animData);
     bool SetAnimationEx(AnimationData& animData);
     bool ChangeAnimationEx(AnimationData& animData, std::string_view animKey);
@@ -56,7 +55,7 @@ private:
 
 public:
     void SetAnimator(SkeletalMeshRenderer* renderer);
-    void SetAnimator(std::shared_ptr<Animator> animator);
+    void SetAnimator(GraphicsPointer<IAnimator> animator);
 
     /// <summary>
     /// 다음에 적용할 애니메이션 플래그를 설정합니다.
@@ -103,8 +102,13 @@ public:
     /// <summary>현재 애니메이션을 바꿉니다.</summary>
     /// <param name="animKey">애니메이션 키</param>
     /// <param name="loop">루프 여부. 기본 값은 true입니다.</param>
-    bool ChangeCurrentAnimation(std::string_view animKey);
-    bool ChangeMainAnimation(std::string_view animKey);
+    bool ChangeCurrentAnimation(std::string_view animKey, bool resetFrame = true);
+    bool ChangeMainAnimation(std::string_view animKey, bool resetFrame = true);
+
+    /// <summary>
+    /// 기본 애니메이션 상태로 설정합니다.
+    /// </summary>
+    void ChangeDefaultAnimation();
 
     /// <summary>애니메이션의 프레임을 설정합니다.</summary>
     /// <param name="frame">애니메이션 프레임 수</param>
@@ -223,14 +227,14 @@ public:
     inline const std::map<std::string, std::string>& GetAnimationKeyMap() const { return ReflectFields->AnimationKeyMap; }
 
 private:
-    std::shared_ptr<Animator>  _animator;
+    GraphicsPointer<IAnimator> _animator;
     EventQueue                 _eventQueue;
     AnimationData*             _currentAnimationData = nullptr; // 현재 애니메이션 데이터
     AnimationData              _mainAnimationData;
     std::deque<AnimationData>  _overrideAnimationStack; 
     AnimationData*             _lastAnimationData = nullptr;
     bool                       _isBuildingOverrideAnimation = false;
-    const AnimationData*       _prevBeginBuildAnimatonData = nullptr;
+    UINT                       _prevBeginBuildAnimationID    = 0;
     
     std::pair<bool, AnimationFlags> _nextAnimationFlag; // 다음 애니메이션 데이터 (first: isValid, second: NextAnimationData)
     
@@ -251,11 +255,10 @@ private:
     /// EventTrack
     ///////////////////////////////////////////////////////////////////////
 
-    File::GuidRef       _guidRef;
-    File::Path          _filePath;
+    File::Guid          _trackGuid;
+    File::Path          _trackPath;
     AnimationEventTrack _eventTrack;
     std::function<bool(const Timeline::EventContext*)> _preEventCallback;  // Event Callback Function
     std::function<void(const Timeline::EventContext*)> _postEventCallback; // Event Callback Function
-    std::string _selectedEventTrack;
-    
+    std::string _selectedEventTrack;    
 };

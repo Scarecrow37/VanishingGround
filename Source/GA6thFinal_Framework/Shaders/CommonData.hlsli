@@ -8,7 +8,7 @@
 ConstantBuffer<CameraData> cameraData : register(b0);
 ConstantBuffer<CascadeData> cascadeData : register(b1);
 ConstantBuffer<LightData> lightData : register(b2);
-ConstantBuffer<NumLight> bit32_3_numLight : register(b3);
+ConstantBuffer<NumLight> bit32_4_numLight : register(b3);
 ConstantBuffer<PostProcessData> bit32_6_postProcessData : register(b4);
 
 StructuredBuffer<MatrixData> matrices;

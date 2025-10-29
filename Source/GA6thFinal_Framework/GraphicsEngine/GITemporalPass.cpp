@@ -1,12 +1,8 @@
 ﻿#include "pch.h"
 #include "GITemporalPass.h"
 #include "SSGITechnique.h"
-#include "ShaderBuilder.h"
 
-GITemporalPass::~GITemporalPass() {}
-
-void GITemporalPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique,
-                                ID3D12GraphicsCommandList* commandList)
+void GITemporalPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechnique, ID3D12GraphicsCommandList* commandList)
 {
     RenderPass::Initialize(ownerScene, ownerTechnique, commandList);
     InitShaderAnsPSO();
@@ -16,7 +12,7 @@ void GITemporalPass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerT
 void GITemporalPass::Begin(ID3D12GraphicsCommandList* commandList)
 {
     commandList->SetPipelineState(_pipelineState.Get());
-    commandList->SetComputeRootSignature(_shader->GetRootSignature());
+    commandList->SetComputeRootSignature(_fx.GetRootSignature());
 }
 
 void GITemporalPass::Draw(ID3D12GraphicsCommandList* commandList)
@@ -29,31 +25,20 @@ void GITemporalPass::Draw(ID3D12GraphicsCommandList* commandList)
     auto                      temporalGITex = _ssgiTech->_GITemporalHalf;
     auto                      motionVec     = _ssgiTech->_motionVectorTex2D;
 
-    SIZE res     = Global::device->GetResolution();
-    SIZE halfRes = SIZE((int)(res.cx / 2.f), (int)(res.cy / 2.f));
-    commandList->SetComputeRootConstantBufferView(_shader->GetRootParameterIndex("ssgiData"), giData);
-    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("prevHalf"), prevGITex->GetSRVHandle());
-    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("currHalf"), currGITex->GetSRVHandle());
-    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("temporalHalf"),
-                                               temporalGITex->GetUAVHandle());
-    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("motionVector"),
-                                               motionVec->GetSRVHandle());
+    const SIZE& res     = Global::device->GetResolution();
+    SIZE        halfRes = SIZE(res.cx >> 1, res.cy >> 1);
+
+    commandList->SetComputeRootConstantBufferView(_fx.GetRootParameterIndex("ssgiData"), giData);
+    commandList->SetComputeRootDescriptorTable(_fx.GetRootParameterIndex("prevHalf"), prevGITex->GetSRVHandle());
+    commandList->SetComputeRootDescriptorTable(_fx.GetRootParameterIndex("currHalf"), currGITex->GetSRVHandle());
+    commandList->SetComputeRootDescriptorTable(_fx.GetRootParameterIndex("temporalHalf"), temporalGITex->GetUAVHandle());
+    commandList->SetComputeRootDescriptorTable(_fx.GetRootParameterIndex("motionVector"), motionVec->GetSRVHandle());
     commandList->Dispatch((halfRes.cx + 15) / 16, (halfRes.cy + 15) / 16, 1);
 }
 
 void GITemporalPass::InitShaderAnsPSO()
 {
-    _shader = std::make_unique<ShaderBuilder>();
-    _shader->BeginBuild();
-    _shader->SetShader(L"../Shaders/cs_ssgi_temporal.hlsl", ShaderBuilder::Type::CS);
-    _shader->EndBuild();
-
-    D3D12_COMPUTE_PIPELINE_STATE_DESC psoDesc{};
-    psoDesc.pRootSignature = _shader->GetRootSignature();
-    psoDesc.CS             = _shader->GetShaderByteCode(ShaderBuilder::Type::CS);
-    psoDesc.Flags          = D3D12_PIPELINE_STATE_FLAG_NONE;
-
-    HRESULT hr =
-        Global::device->GetDevice()->CreateComputePipelineState(&psoDesc, IID_PPV_ARGS(_pipelineState.GetAddressOf()));
-    FAILED_CHECK_MESSAGE(hr, L"GITemporalPass::InitShaderAndPSO Failed");
+    ComputePipelineStateStream pss;
+    _fx.SetPipelineStateStream(pss);
+    _pipelineState = Global::pipelineStateManager->GetPipelineState(pss);
 }

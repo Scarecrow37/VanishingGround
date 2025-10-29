@@ -11,8 +11,10 @@ class LastQTEResultCondition : public TurnActionCondition
 public:
     enum class ResultType
     {
-        ALL_CRIT, // 전체 판정: 치명적
-        OVER_HIT, // 전체 판정: 무결점
+        ALL_CRIT,       // 치명적
+        OVER_HIT,       // 무결점
+        ALL_CRIT_FAIL,  // 치명적 실패
+        OVER_HIT_FAIL,  // 무결점 실패
     };
 
     LastQTEResultCondition();
@@ -26,7 +28,9 @@ protected:
     // TurnActionCondition을(를) 통해 상속됨
     bool               Evaluate() override;
     void               DrawImguiEditor() override;
-    const std::string& GetConditionInfo() const override;
+    const std::string& GetConditionInfo() override;
+
+    void DeserializedReflectEvent() override;
 
 private:
     void        UpdateConditionInfo();

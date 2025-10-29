@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+class IMeshRenderer;
 class MeshComponent abstract : public Component
 {
     USING_PROPERTY(MeshComponent)
@@ -7,7 +8,7 @@ public:
     REFLECT_PROPERTY()
 
 private:
-    std::unique_ptr<MeshRenderer> _pMeshRenderer;
+    GraphicsPointer<IMeshRenderer> _pMeshRenderer;
 
 public:
     MeshComponent();
@@ -30,19 +31,23 @@ public:
     /// </summary>
     /// <param name="renderType"></param>
     /// <param name="world"></param>
-    void MakeMeshRenderer(MeshType renderType, const Vector3& position, const Vector3& scale, const Quaternion& rotation, const Matrix& world, const bool& isDirtyFlag);
+    void MakeMeshRenderer(const Matrix& world);
 
     //meshRenderer 입니다. MakeMeshRenderer를 호출해야만 생성됩니다.
-    const std::unique_ptr<MeshRenderer>& Renderer;
+    const GraphicsPointer<IMeshRenderer>& Renderer;
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
-    std::string               Guid;
-    std::vector<unsigned int> ShadingModel;
-    std::vector<unsigned int> BlendMode;
-    std::vector<unsigned int> CullMode;
-    std::vector<unsigned int> CustomDepth;
-    std::vector<bool>         IsTwoSided;
+    std::string                 Guid;
+    std::vector<unsigned int>   ShadingModel;
+    std::vector<unsigned int>   BlendMode;
+    std::vector<unsigned int>   CullMode;
+    std::vector<unsigned int>   CustomDepth;
+    std::vector<bool>           IsTwoSided;
+
+    // CustomMaterials
+    CustomLightType             CustomLightType = CustomLightType::NONE;
+    TransparentRimLightMaterial RimLightMaterial{};
     REFLECT_FIELDS_END(MeshComponent)
 
 protected:
@@ -51,4 +56,17 @@ protected:
 
 protected:
     void InitMaterial();
+
+private:
+    static IMeshRenderer*& GetLastSelectMeshRenderer();
+    
+    // ImGui Helper Methods
+    void DrawMaterialsList();
+    void HandleMeshSelection(UINT index, IMeshRenderer*& lastRenderer, UINT*& lastCustomDepth, UINT& lastSelected);
+    void DrawMaterialProperties(UINT index, Material& material, UINT customDepth);
+    void DrawShadingModelRow(UINT index, Material& material);
+    void DrawCustomLitProperties(UINT index, Material& material);
+    void DrawRimLightProperties(UINT index);
+    void DrawDefaultLitProperties(UINT index, Material& material);
+    void DrawCustomDepthRow(UINT index, UINT customDepth);
 };

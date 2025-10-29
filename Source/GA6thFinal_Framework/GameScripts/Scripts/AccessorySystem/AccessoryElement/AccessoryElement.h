@@ -54,7 +54,7 @@ public:
         Grade
     )
 
-    TurnAction* GetAction() const { return _action.get(); }
+    const std::vector<std::unique_ptr<TurnAction>>& GetActions() const { return _actions; }
 
     SETTER(int, AccessoryID) { ReflectFields->ID = value; }
     GETTER(int, AccessoryID) { return ReflectFields->ID; }
@@ -72,12 +72,12 @@ public:
     PROPERTY(Grade)
 
 protected:
+    using ActionNameDataPair = std::pair<std::string, std::string>;
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
-    int            ID            = 0;
-    std::string    AccessoryName = STR_NULL;
-    AccessoryGrade Grade         = AccessoryGrade::COMMON;
-    std::string    ActionName    = STR_NULL; 
-    std::string    ActionData    = STR_NULL; 
+    int                             ID            = 0;
+    std::string                     AccessoryName = STR_NULL;
+    AccessoryGrade                  Grade         = AccessoryGrade::COMMON;
+    std::vector<ActionNameDataPair> Actions;
     REFLECT_FIELDS_END(AccessoryElement)
 
     /// <summary>
@@ -89,9 +89,9 @@ protected:
     void DeserializedReflectEvent() override;
 
 private:
-    std::unique_ptr<TurnAction> _action;
+    std::vector<std::unique_ptr<TurnAction>> _actions;
     using DatasType = reflect_fields_struct;
-    void              DeepCopyAction(const TurnAction& action);
+    void              DeepCopyAction(const std::vector<std::unique_ptr<TurnAction>>& actions);
     AccessoryElement& CopyElement(const AccessoryElement& rhs)
     {
         if (this == &rhs)
@@ -101,15 +101,12 @@ private:
         DatasType&       myDatas  = *ReflectFields;
         const DatasType& rhsDatas = *rhs.ReflectFields;
         myDatas                   = rhsDatas;
-        if (rhs._action)
+        if (false == rhs._actions.empty())
         {
-            DeepCopyAction(*rhs._action);
+            DeepCopyAction(rhs._actions);
         }
         return *this;
     }
-
-private:
-    bool _showActionEditor = false;
 
 public:
     AccessoryElement(const AccessoryElement& rhs) { CopyElement(rhs); }
@@ -119,5 +116,5 @@ public:
     bool operator==(const AccessoryElement& rhs) const { return this->AccessoryID == rhs.AccessoryID; }
 
 public:
-    DropItemInfo GetItemInfo() override;
+    DropItemInfo GetItemInfo() const override;
 };

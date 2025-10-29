@@ -2,6 +2,8 @@
 #include "Editor/Tool/Scene/Command/EditorSceneCommands.h"
 using namespace Global;
 
+REFLECT_FUNCTION(GameObject)
+
 #define SAFE_FREE(ptr) if(ptr != nullptr) free(ptr)
 
 void GameObject::DontDestroyOnLoad(GameObject& gameObject)
@@ -43,7 +45,8 @@ GameObject::GameObject()
     _prefabGuid(STR_NULL),
     _components(),
     _instanceID(-1),
-    _activeInHierarchy(true)
+    _activeInHierarchy(true), 
+    _creationFrame(0)
 {
 
 }

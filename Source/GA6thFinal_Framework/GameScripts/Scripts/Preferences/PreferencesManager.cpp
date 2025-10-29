@@ -2,6 +2,7 @@
 #include "PreferencesManager.h"
 #include "PrefrencesWindow.h"
 #include "Map/MapManager.h"
+#include "SceneTransition/SceneTransitionComponent.h"
 
 UMREAL_COMPONENT(PreferencesManager)
 
@@ -28,7 +29,7 @@ PreferencesManager::~PreferencesManager() = default;
 
 void PreferencesManager::Reset()
 {
-    std::string currSceneName = UmSceneManager.GetMainScene()->Name;
+   
 }
 
 void PreferencesManager::Awake()
@@ -107,6 +108,24 @@ void PreferencesManager::Update()
         }
         _isOpenAbandonDirty = false;
     }
+
+    Debugger()([this]{
+        // 아래는 디버그용 코드입니다.
+        ImGuiHelper::AlignedText("Preferences", ImGuiHelper::LEFT, 0.8f);
+        if (ImGui::Button("Close"))
+        {
+            OffPreferencesWindow();
+        }
+        if (ImGui::TreeNodeEx("Properties##details"))
+        {
+            if (ImGui::Button("Abandon"))
+            {
+                CloseAbandonButtons();
+                GoToMainMenu();
+            }
+            ImGui::TreePop();
+        }
+    });
 }
 
 void PreferencesManager::LateUpdate()
@@ -117,7 +136,14 @@ void PreferencesManager::LateUpdate()
         File::Guid sceneGuid      = ReflectFields->MainMenuSceneStr;
         if (File::Path path = sceneGuid.ToPath(); false == path.IsNull())
         {
-            UmSceneManager.LoadScene(path.string());
+            if (SceneTransitionComponent* transition = SingletonComponent<SceneTransitionComponent>::GetInstance())
+            {
+                transition->SceneTransitionFade("in", "out", [path]() { UmSceneManager.LoadScene(path.string()); });
+            }
+            else
+            {
+                UmSceneManager.LoadScene(path.string());
+            }       
         }  
     }
 }

@@ -164,18 +164,8 @@ protected:
     reflection_safe_ptr ReflectFields{this};                                                                    \
                                                                                                                 \
 public:                                                                                                         \
-    virtual std::string SerializedReflectFields()                                                               \
-    {                                                                                                           \
-        serialized_reflect_event_recursive();                                                                   \
-        return ReflectHelper::json::SerializedObjet(*ReflectFields);                                            \
-    }                                                                                                           \
-    virtual bool DeserializedReflectFields(std::string_view data)                                               \
-    {                                                                                                           \
-        bool result =                                                                                           \
-            ReflectHelper::json::DeserializedObjet(*ReflectFields, data);                                       \
-        deserialized_reflect_event_recursive();                                                                 \
-        return result;                                                                                          \
-    }                                                                                                           \
+    virtual std::string SerializedReflectFields();                                                              \
+    virtual bool DeserializedReflectFields(std::string_view data);                                              \
                                                                                                                 \
 protected:                                                                                                      \
     virtual void make_reflect_fields(void*& fields, unsigned long long& size)                                   \
@@ -207,14 +197,14 @@ protected:                                                                      
             CLASS##::DeserializedReflectEvent();                                                                \
         }                                                                                                       \
     }                                                                                                           \
-    virtual void applyReflectFields(const std::function<void(std::string_view, void*)>& func)                   \
-    {                                                                                                           \
-        const auto view = rfl::to_view(*ReflectFields.Get());                                                   \
-        view.apply([&](auto& rflField)                                                                          \
-        {                                                                                                       \
-            func(rflField.name(), rflField.value());                                                            \
-        });                                                                                                     \
-    }                                                                                                           \
+    virtual void applyReflectFields(const std::function<void(std::string_view, void*)>& func);                  \
+                                                                                                                \
+private:                                                                                                        \
+    void imgui_draw_reflect_fields_input_auto(std::unordered_set<void*>& reflectionFieldsSet, const ReflectHelper::ImGuiDraw::InputAutoSetting& setting);   \
+                                                                                                                                                            \
+protected:
+    
+
                        
 // 에디터 편집을 허용할 프로퍼티들을 등록합니다. Get, Set 함수가 모두 존재하는
 // 프로퍼티만 편집 가능합니다.
@@ -240,14 +230,7 @@ protected:                                                                      
                 reflectionFieldsSet.insert(&field);                                                         \
             }                                                                                               \
         });                                                                                                 \
-        const auto view = rfl::to_view(*ReflectFields.Get());                                               \
-        view.apply([&](auto& rflField) {                                                                    \
-            if (reflectionFieldsSet.find(rflField.value()) !=                                               \
-                reflectionFieldsSet.end())                                                                  \
-            {                                                                                               \
-                ReflectHelper::ImGuiDraw::Private::InputAuto(rflField, setting);                            \
-            }                                                                                               \
-        });                                                                                                 \
+        imgui_draw_reflect_fields_input_auto(reflectionFieldsSet, setting);                                 \
         if (true == isTail)                                                                                 \
         {                                                                                                   \
             setting.InputEndEvent = nullptr;                                                                \
@@ -364,15 +347,15 @@ namespace ReflectHelper
                     {
                         const auto view = rfl::to_view(obj);
                         view.apply([&](auto& field) {
-                            using FieldTpye     = std::remove_cvref_t<decltype(*field.value())>;
+                            using FieldType     = std::remove_cvref_t<decltype(*field.value())>;
                             auto        name    = field.name();
                             auto&       value   = *field.value();
                             yyjson_val* jsonVal = yyjson_obj_get(root, name.data());
                             if (jsonVal)
                             {
-                                if constexpr (std::is_signed_v<FieldTpye>)
+                                if constexpr (std::is_signed_v<FieldType>)
                                 {
-                                    if constexpr (std::is_floating_point_v<FieldTpye>)
+                                    if constexpr (std::is_floating_point_v<FieldType>)
                                     {
                                         if (yyjson_is_real(jsonVal))
                                         {
@@ -387,9 +370,9 @@ namespace ReflectHelper
                                         }
                                     }                               
                                 }
-                                else if constexpr (std::is_unsigned_v<FieldTpye>)
+                                else if constexpr (std::is_unsigned_v<FieldType>)
                                 {
-                                    if constexpr (std::is_same_v<bool, FieldTpye>)
+                                    if constexpr (std::is_same_v<bool, FieldType>)
                                     {
                                         if (yyjson_is_bool(jsonVal))
                                         {
@@ -404,14 +387,14 @@ namespace ReflectHelper
                                         }
                                     }
                                 }                                                          
-                                else if constexpr (std::is_same_v<FieldTpye, std::string>)
+                                else if constexpr (std::is_same_v<FieldType, std::string>)
                                 {
                                     if (yyjson_is_str(jsonVal))
                                     {
                                         value = yyjson_get_str(jsonVal);
                                     }
                                 }
-                                else if constexpr (std::is_same_v<FieldTpye, SIZE>)
+                                else if constexpr (std::is_same_v<FieldType, SIZE>)
                                 {
                                     char* data = yyjsonValToCStr(jsonVal);
                                     if (nullptr != data)
@@ -424,7 +407,7 @@ namespace ReflectHelper
                                         free(data);
                                     }
                                 }
-                                else if constexpr (std::is_same_v<FieldTpye, POINT>)
+                                else if constexpr (std::is_same_v<FieldType, POINT>)
                                 {
                                     char* data = yyjsonValToCStr(jsonVal);
                                     if (nullptr != data)
@@ -437,12 +420,51 @@ namespace ReflectHelper
                                         free(data);
                                     }
                                 }
-                                else if constexpr (std::is_same_v<FieldTpye, RECT>)
+                                else if constexpr (std::is_same_v<FieldType, RECT>)
                                 {
                                     char* data = yyjsonValToCStr(jsonVal);
                                     if (nullptr != data)
                                     {
                                         auto result = rfl::json::read<RECT>(data);
+                                        if (result)
+                                        {
+                                            value = result.value();
+                                        }
+                                        free(data);
+                                    }
+                                }
+                                else if constexpr (std::is_same_v<FieldType, std::array<float, 4>>)
+                                {
+                                    char* data = yyjsonValToCStr(jsonVal);
+                                    if (nullptr != data)
+                                    {
+                                        auto result = rfl::json::read<std::array<float, 4>>(data);
+                                        if (result)
+                                        {
+                                            value = result.value();
+                                        }
+                                        free(data);
+                                    }
+                                }
+                                else if constexpr (std::is_same_v<FieldType, std::vector<bool>>)
+                                {
+                                    char* data = yyjsonValToCStr(jsonVal);
+                                    if (nullptr != data)
+                                    {
+                                        auto result = rfl::json::read<std::vector<bool>>(data);
+                                        if (result)
+                                        {
+                                            value = result.value();
+                                        }
+                                        free(data);
+                                    }
+                                }
+                                else if constexpr (std::is_same_v<FieldType, std::vector<unsigned int>>)
+                                {
+                                    char* data = yyjsonValToCStr(jsonVal);
+                                    if (nullptr != data)
+                                    {
+                                        auto result = rfl::json::read<std::vector<unsigned int>>(data);
                                         if (result)
                                         {
                                             value = result.value();

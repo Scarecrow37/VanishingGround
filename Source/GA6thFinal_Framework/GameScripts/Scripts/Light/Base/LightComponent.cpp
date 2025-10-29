@@ -1,25 +1,17 @@
 ﻿#include "pchScripts.h"
 #include "LightComponent.h"
+#include "GraphicsEngine/Interface/ILight.h"
+
+REFLECT_FUNCTION(LightComponent)
 
 LightComponent::LightComponent() 
-    :
-    Component(Component::TYPE::LIGHT),
-    _light(std::make_unique<Light>()),
-    Lighting(*_light)
-{
-    Lighting.SetActive(&EnableInHierarchy);
-    UmGraphics.RegisterComponent("Game", _light.get());
-    if constexpr (IS_EDITOR)
-    {
-        UmGraphics.RegisterComponent("Editor", _light.get());
-    }
+    : Component(Component::TYPE::LIGHT)
+    , _light(nullptr)
+    , Lighting(_light)
+{    
 }
 
-LightComponent::~LightComponent() 
-{
-    _light->SetDestroy();
-    _light.reset();
-}
+LightComponent::~LightComponent() = default;
 
 void LightComponent::DeserializedReflectEvent() 
 {
@@ -32,6 +24,15 @@ void LightComponent::DeserializedReflectEvent()
 void LightComponent::Reset() 
 {
     Base::Reset();
+    UmGraphics.CreateLight(&_light);
+    Lighting->SetActive(&EnableInHierarchy);
+
+    UmGraphics.RegisterComponent("Game", _light.Get());
+    if constexpr (IS_EDITOR)
+    {
+        UmGraphics.RegisterComponent("Editor", _light.Get());
+    }
+
 #ifdef _UMEDITOR
     _gizmo.SetIconTexture(SceneGizmo::DefaultIcon::LIGHT);
 #endif

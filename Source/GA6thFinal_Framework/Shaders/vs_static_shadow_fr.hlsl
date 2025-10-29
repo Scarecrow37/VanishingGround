@@ -18,21 +18,21 @@ struct VSOutput
     float2 uv           : TEXCOORD;
     
     nointerpolation uint4 materialID : TEXCOORD1;
+    uint arrayIndex : SV_RenderTargetArrayIndex;
 };
 
-struct ShadowMeshData
+struct InstanceOffset
 {
-    uint CascadeIndex;
     uint Offset;
 };
 
-ConstantBuffer<ShadowMeshData> bit32_2_shadowMeshData;
+ConstantBuffer<InstanceOffset> bit32_1_instanceOffset;
 
 VSOutput vs_main(VSInput input)
 {
-    uint offset = bit32_2_shadowMeshData.Offset;
-    uint cascadeIndex = bit32_2_shadowMeshData.CascadeIndex;
-    InstanceData data = instanceData[input.instanceID + offset];
+    uint offset = bit32_1_instanceOffset.Offset;
+    uint cascadeIndex = input.instanceID % MAX_CASCADES;
+    InstanceData data = instanceData[input.instanceID / MAX_CASCADES + offset];
     
     VSOutput output = (VSOutput) 0;
 
@@ -41,6 +41,7 @@ VSOutput vs_main(VSInput input)
 
     output.uv = input.uv;
     output.materialID = data.MaterialID;
+    output.arrayIndex = cascadeIndex;
 
     return output;
 }

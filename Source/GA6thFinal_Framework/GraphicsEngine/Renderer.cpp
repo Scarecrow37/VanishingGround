@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "Renderer.h"
+#include "GraphicsBase.h"
 
 // Shader
 #include "VertexShader.h"
@@ -20,16 +21,16 @@
 #include "BlendTechnique.h"
 #include "BloomTechnique.h"
 #include "EditorDrawTechnique.h"
-#include "PBRLitTechnique.h"
+#include "LightingTechnique.h"
 #include "SSRTechnique.h"
 #include "VolumetricFogTechnique.h"
 #include "ParticleRenderTechnique.h"
 #include "RayTracingTechnique.h"
 #include "SkyBoxRenderTechnique.h"
 #include "UITechnique.h"
-#include "UITechnique_OIT.h"
 #include "SceneTransitionTechnique.h"
 #include "SSGITechnique.h"
+#include "FXAATechnique.h"
 
 namespace Global
 {
@@ -38,7 +39,10 @@ namespace Global
 
 Renderer::Renderer() = default;
 
-Renderer::~Renderer() = default;
+Renderer::~Renderer()
+{
+    ClearComponents();
+}
 
 D3D12_GPU_DESCRIPTOR_HANDLE Renderer::GetRenderSceneImage(std::string_view renderSceneName)
 {
@@ -165,9 +169,9 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
     {
         scene->AddRenderTechnique(std::make_unique<RayTracingTechnique>());
     }
-    if (RenderTechniqueFlag::PBR_TECH & flag)
+    if (RenderTechniqueFlag::LIGHTING_TECH & flag)
     {
-        scene->AddRenderTechnique(std::make_unique<PBRLitTechnique>());
+        scene->AddRenderTechnique(std::make_unique<LightingTechnique>());
     }
     if (RenderTechniqueFlag::SSR_TECH & flag)
     {
@@ -197,14 +201,18 @@ void Renderer::AddRenderScene(std::string_view sceneName, RenderTechniqueFlag fl
         scene->AddRenderTechnique(std::make_unique<BloomTechnique>());
     }
     
+    if (RenderTechniqueFlag::FXAA_TECH & flag)
+    {
+        scene->AddRenderTechnique(std::make_unique<FXAATechnique>());
+    }
+
     // Blend Pass
     scene->AddRenderTechnique(std::make_unique<BlendTechnique>());
 
     // UI Pass
     if (RenderTechniqueFlag::UI_TECH & flag)
     {
-        //scene->AddRenderTechnique(std::make_unique<UITechnique>());
-        scene->AddRenderTechnique(std::make_unique<UITechnique_OIT>());
+        scene->AddRenderTechnique(std::make_unique<UITechnique>());
     }
     // Scene Transition Effect
     if (RenderTechniqueFlag::SCENE_TRANSITION_TECH & flag)
@@ -293,6 +301,24 @@ void Renderer::ResetIBLSkyBox(std::string_view sceneName)
     scene->ResetIBLSkyBox();
 }
 
+void Renderer::ClearComponents()
+{
+    for (auto& component : _toBeReleasedComponents)
+    {
+        component->Delete();
+    }
+
+    _toBeReleasedComponents.clear();
+}
+
+void Renderer::ClearRenderQueue()
+{
+    for (auto& renderScene : _renderScenes)
+    {
+        renderScene.second->ClearRenderQueue();
+    }
+}
+
 void Renderer::Initialize()
 {
     CreateDefaultResource();
@@ -336,6 +362,8 @@ void Renderer::Flip()
     Global::device->Flip();
     Global::device->ResetCommands();
     Global::device->ResetComputeCommands();
+
+    ClearComponents();
 }
 
 void Renderer::RenderToBackBuffer()
@@ -568,6 +596,7 @@ void Renderer::CreateDefaultRenderTarget()
 
 void Renderer::CreateDefaultShader()
 {
+#ifdef _DEBUG
     // L"../Shaders 폴더를 탐색 후 모든 쉐이더 파일을 미리 컴파일
     std::filesystem::path shaderDir = L"../Shaders";
 
@@ -597,4 +626,22 @@ void Renderer::CreateDefaultShader()
             Global::shaderPathMappings[entry.path().filename()] = shaderPath;
         }
     }
+#else
+    for (auto& [key, value] : GE::globalNameToVSEnumMap)
+    {
+        _defaultResource.push_back(Global::resourceManager->LoadResource<VertexShader>(key));
+    }
+    for (auto& [key, value] : GE::globalNameToPSEnumMap)
+    {
+        _defaultResource.push_back(Global::resourceManager->LoadResource<PixelShader>(key));
+    }
+    for (auto& [key, value] : GE::globalNameToCSEnumMap)
+    {
+        _defaultResource.push_back(Global::resourceManager->LoadResource<ComputeShader>(key));
+    }
+    for (auto& [key, value] : GE::globalNameToGSEnumMap)
+    {
+        _defaultResource.push_back(Global::resourceManager->LoadResource<GeometryShader>(key));
+    }
+#endif
 }

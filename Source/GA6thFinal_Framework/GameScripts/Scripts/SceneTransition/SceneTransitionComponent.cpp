@@ -132,7 +132,6 @@ void SceneTransitionComponent::CalculateFade()
     {
         return;
     }
-    _fadeElapsedTimer += UmTime.DeltaTime();
 
     if (_fadeElapsedTimer >= Duration)
     {
@@ -144,6 +143,8 @@ void SceneTransitionComponent::CalculateFade()
         }
         return;
     }
+    _fadeElapsedTimer += UmTime.UnscaledDeltaTime();
+
     float step = _fadeElapsedTimer / Duration;
     if (true == ReflectFields->Ease)
     {
@@ -162,6 +163,7 @@ void SceneTransitionComponent::CalculateFade()
 void SceneTransitionComponent::Awake()
 {
     _singletonObject.TrySingleTon(true);
+    _singletonComponent.TrySingleTon();
 }
 
 //void SceneTransitionComponent::OnDestroy()
@@ -283,7 +285,7 @@ void SceneTransitionComponent::AddFadePreset()
         it->second = std::move(preset);
 }
 
-bool SceneTransitionComponent::IsTransitioning()
+bool SceneTransitionComponent::IsTransitioning() const
 {
     return _fadeFlag;
 }

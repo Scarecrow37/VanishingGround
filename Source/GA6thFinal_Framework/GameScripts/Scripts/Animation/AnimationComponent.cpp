@@ -1,26 +1,22 @@
 ﻿#include "pchScripts.h"
 #include "AnimationComponent.h"
-#include <Mesh/SkeletalMeshRenderer.h>
+#include "Mesh/SkeletalMeshRenderer.h"
+#include "GraphicsEngine/Interface/IAnimator.h"
+#include "GraphicsEngine/Interface/IMeshRenderer.h"
 
 
 UMREAL_COMPONENT(AnimationComponent)
 
-void AnimationComponent::Reset() 
+void AnimationComponent::Added() 
 {
     SetAnimator(GetComponent<SkeletalMeshRenderer>());
 }
 
-void AnimationComponent::Start()
-{
-    ChangeMainAnimation(ReflectFields->MainAnimationKey);
-    ChangeMainAnimationFlags(ReflectFields->MainAnimationFlags);
-    _currentAnimationData = &_mainAnimationData;
-}
-
 void AnimationComponent::Update() 
 {
-    // 애니메이터가 해당 객체만 사용 중이라면 reset합니다.
-    UpdateNullAnimator();
+    //// 애니메이터가 해당 객체만 사용 중이라면 reset합니다.
+    //UpdateNullAnimator();
+
     if (_animator)
     {
         for (auto& animData : _overrideAnimationStack)
@@ -29,9 +25,15 @@ void AnimationComponent::Update()
         }
         UpdateAnimation(_mainAnimationData);
 
+        // 유효성 검사
+        UpdateValidation();
+
         for (auto& event : _eventQueue)
         {
-            event();
+            if (event)
+            {
+                event();
+            }
         }
         _eventQueue.clear();
     }
@@ -39,7 +41,7 @@ void AnimationComponent::Update()
 
 void AnimationComponent::OnDestroy()
 {
-    UpdateNullAnimator();
+    // UpdateNullAnimator();
 }
 
 void AnimationComponent::OnEnable() 
@@ -65,7 +67,7 @@ void AnimationComponent::SerializedReflectEvent()
     ReflectFields->MainAnimationFlags = _mainAnimationData._flag;
     ReflectFields->MainAnimationSpeed = _mainAnimationData._speed;
 
-    ReflectFields->AnimEventTrackGuid = _guidRef.string();
+    ReflectFields->AnimEventTrackGuid = _trackGuid.string();
 }
 
 void AnimationComponent::DeserializedReflectEvent()
@@ -92,17 +94,34 @@ void AnimationComponent::ImGuiDrawPropertysEvent()
             const char* comboLabel = curAnimData._animationName.empty() ? "-" : curAnimData._animationName.c_str();
             if (ImGui::BeginCombo("##Animation", comboLabel))
             {
-                for (int i = 0; i < animationNames.size(); ++i)
+                for (const auto& animationName : animationNames)
                 {
-                    bool isSelected = (curAnimData._animationName == animationNames[i]);
-                    if (ImGui::Selectable(animationNames[i], isSelected))
+                    bool isSelected = (curAnimData._animationName == animationName);
+                    if (ImGui::Selectable(animationName, isSelected))
                     {
-                        curAnimData._animationName = animationNames[i];
-                        ChangeCurrentAnimation(animationNames[i]);
+                        curAnimData._animationName = animationName;
+                        ChangeCurrentAnimation(animationName);
                     }
                 }
                 ImGui::EndCombo();
             }
+
+            auto showText = [this](const char* text)
+            {
+                ImGuiHelper::StyleBuilder style;
+                if (GetTopAnimationData().IsSameAnimation(text))
+                {
+                    style.PushStyleColor(ImGuiCol_Text, ImVec4(0.2f, 0.8f, 0.2f, 1.0f));
+                }
+                ImGui::BulletText(text);
+            };
+
+            for (auto rit = _overrideAnimationStack.rbegin(); rit != _overrideAnimationStack.rend(); ++rit)
+            {
+                showText(rit->_animationName.c_str());
+            }
+            showText(_mainAnimationData._animationName.c_str());
+
             if (true == curAnimData._animationName.empty())
             {
                 ImGui::BeginDisabled();
@@ -166,7 +185,7 @@ void AnimationComponent::ImGuiDrawPropertysEvent()
         {
             ImGui::Checkbox("Disable Animation Notify", &ReflectFields->DisableAnimationNotify);
             ImGui::BeginDisabled();
-            std::string path = _filePath.string();
+            std::string path = _trackPath.string();
             ImGuiHelper::TextWithVerticalSeparator("Event Track Asset");
             ImGui::InputText("##path", &path, ImGuiInputTextFlags_ReadOnly);
             ImGui::EndDisabled();
@@ -195,12 +214,12 @@ void AnimationComponent::ImGuiDrawPropertysEvent()
                 ImGuiHelper::TextWithVerticalSeparator("Event Track List");
                 if (ImGui::BeginCombo("##Animation", _selectedEventTrack.c_str()))
                 {
-                    for (int i = 0; i < animationNames.size(); ++i)
+                    for (const auto& animationName : animationNames)
                     {
-                        bool isSelected = (curAnimData._animationName == animationNames[i]);
-                        if (ImGui::Selectable(animationNames[i], isSelected))
+                        bool isSelected = (curAnimData._animationName == animationName);
+                        if (ImGui::Selectable(animationName, isSelected))
                         {
-                            _selectedEventTrack = animationNames[i];
+                            _selectedEventTrack = animationName;
                         }
                     }
                     ImGui::EndCombo();
@@ -341,8 +360,6 @@ void AnimationComponent::ImGuiDrawPropertysEvent()
 
         if (false == UmCore->IsPlay())
         {
-            // 애니메이터가 해당 객체만 사용 중이라면 reset합니다.
-            UpdateNullAnimator();
             // 메인 애니메이션만
             UpdateAnimation(_mainAnimationData);
         }
@@ -376,12 +393,17 @@ AnimationData& AnimationComponent::GetTopAnimationDataEx()
     return _mainAnimationData;
 }
 
-void AnimationComponent::UpdateNullAnimator()
+void AnimationComponent::UpdateValidation()
 {
-    if (1 >= _animator.use_count())
+    if (_animator)
     {
-        _animator.reset();
-        ClearOverrideAnimations();
+        // 그래픽스 Animator와 현재 애니메이션 컴포넌트의 동기화가 맞지 않는 경우 처리
+        std::string_view currAnim = _animator->GetCurrentAnimationName();
+        AnimationData&   animData = GetTopAnimationDataEx();
+        if (false == animData.IsSameAnimation(currAnim))
+        {
+            SetAnimationEx(animData);
+        }
     }
 }
 
@@ -396,6 +418,7 @@ void AnimationComponent::UpdateAnimation(AnimationData& animData)
         {
             _animator->SetPause(animData.HasFlag(ANIMATION_FLAG_PAUSE));
             _animator->SetLoop(animData.HasFlag(ANIMATION_FLAG_USE_LOOP));
+            _animator->SetAnimationEndCallback(animData._onEndCallback);
             _animator->SetAnimationSpeed(animFrameScale);
             animData._elapsedFrame = _animator->GetCurrentAnimationPlayTime();
             isDirty = true;
@@ -416,8 +439,8 @@ void AnimationComponent::UpdateAnimation(AnimationData& animData)
             auto eventTrack = _eventTrack.GetEventTrack(animData._animationName);
             if (eventTrack)
             {
-                ReflectFields->DisableAnimationNotify ? eventTrack->AddFlags(Timeline::EVENT_TRCK_FLAGS_NOTIFY_DISABLED)
-                                                      : eventTrack->RemoveFlags(Timeline::EVENT_TRCK_FLAGS_NOTIFY_DISABLED);
+                ReflectFields->DisableAnimationNotify ? eventTrack->AddFlags(Timeline::EVENT_TRACK_FLAGS_NOTIFY_DISABLED)
+                                                      : eventTrack->RemoveFlags(Timeline::EVENT_TRACK_FLAGS_NOTIFY_DISABLED);
                 eventTrack->SetPreNotifyCallback(_preEventCallback);
                 eventTrack->SetPostNotifyCallback(_postEventCallback);
                 eventTrack->SetCurrentFrame(animData._elapsedFrame);
@@ -425,10 +448,13 @@ void AnimationComponent::UpdateAnimation(AnimationData& animData)
             }
             if (animData._popCondition && animData._popCondition(animData))
             {
-                if (animData._onPopCallback)
-                {
-                    animData._onPopCallback();
-                }
+                auto popCallback = animData._onPopCallback;
+                _eventQueue.push_back([popCallback]() {
+                    if (popCallback)
+                    {
+                        popCallback();
+                    }
+                    });
                 PopOverrideAnimation();
             }
         }
@@ -443,25 +469,36 @@ bool AnimationComponent::SetAnimationEx(AnimationData& animData)
         if (false == _isBuildingOverrideAnimation)
         {
             const char* animName = animData._animationName.c_str();
-            bool        canBlend = animData.HasFlag(ANIMATION_FLAG_USE_LOOP);
+            const bool  canBlend = animData.HasFlag(ANIMATION_FLAG_USE_BLEND);
             result = _animator->ChangeAnimation(animName, canBlend);
             if (result)
             {
                 if (_currentAnimationData && _currentAnimationData->_onExitCallback)
                 {
-                    _currentAnimationData->_onExitCallback();
+                    auto exitCallback = _currentAnimationData->_onExitCallback;
+                    _eventQueue.push_back([exitCallback]() {
+                        if (exitCallback)
+                        {
+                            exitCallback();
+                        }
+                    });
                 }
                 _currentAnimationData = &animData;
                 if (_currentAnimationData && _currentAnimationData->_onEnterCallback)
                 {
-                    _currentAnimationData->_onEnterCallback();
+                    auto enterCallback = _currentAnimationData->_onEnterCallback;
+                    _eventQueue.push_back([enterCallback]() {
+                        if (enterCallback)
+                        {
+                            enterCallback();
+                        }
+                    });
                 }
                 if (animData.HasFlag(ANIMATION_FLAG_RESET_FRAME))
                 {
                     animData._elapsedFrame = 0.0f;
                 }
                 _animator->SetAnimationTime(animData._elapsedFrame);
-                _animator->SetAnimationEndCallback(animData._onEndCallback);
                 _lastAnimationData = &animData;
             }
         }
@@ -560,6 +597,7 @@ void AnimationComponent::ClearOverrideAnimations()
     if (false == _overrideAnimationStack.empty())
     {
         _overrideAnimationStack.clear();
+        _currentAnimationData = &GetTopAnimationDataEx();
         if (false == _isBuildingOverrideAnimation)
         {
             SetAnimationEx(_mainAnimationData);
@@ -576,11 +614,11 @@ void AnimationComponent::BeginBuildOverrideAnimation()
         // 비어있으면 널
         if (_overrideAnimationStack.empty())
         {
-            _prevBeginBuildAnimatonData = nullptr;
+            _prevBeginBuildAnimationID = UINT_MAX;
         }
         else
         {
-            _prevBeginBuildAnimatonData = &GetTopAnimationData();
+            _prevBeginBuildAnimationID = GetTopAnimationData()._id;
         }
     }
     else
@@ -596,12 +634,12 @@ void AnimationComponent::EndBuildOverrideAnimation()
     {
         _isBuildingOverrideAnimation = false;
         // 마지막 애니메이션 데이터가 달라졌을때만
-        if (_prevBeginBuildAnimatonData != &GetTopAnimationData())
+        if (_prevBeginBuildAnimationID != GetTopAnimationData()._id)
         {
             AnimationData& animData = GetTopAnimationDataEx();
             SetAnimationEx(animData);
         }
-        _prevBeginBuildAnimatonData = nullptr;
+        _prevBeginBuildAnimationID = UINT_MAX;
     }
     else
     {
@@ -688,7 +726,13 @@ void AnimationComponent::PopOverrideAnimation()
 
     if (_currentAnimationData && _currentAnimationData->_onExitCallback)
     {
-        _currentAnimationData->_onExitCallback();
+        auto exitCallback = _currentAnimationData->_onExitCallback;
+        _eventQueue.push_back([exitCallback]() {
+            if (exitCallback)
+            {
+                exitCallback();
+            }
+        });
     }
     _currentAnimationData = nullptr;
 
@@ -701,14 +745,29 @@ void AnimationComponent::PopOverrideAnimation()
     _lastAnimationData = &nextData;
 }
 
-bool AnimationComponent::ChangeCurrentAnimation(std::string_view animKey) 
+bool AnimationComponent::ChangeCurrentAnimation(std::string_view animKey, bool resetFrame)
 {
+    if (resetFrame)
+    {
+        ChangeCurrentAnimationFrame(0.0f);
+    }
     return ChangeAnimationEx(GetLastAnimationDataEx(), animKey);
 }
 
-bool AnimationComponent::ChangeMainAnimation(std::string_view animKey) 
+bool AnimationComponent::ChangeMainAnimation(std::string_view animKey, bool resetFrame)
 {
+    if (resetFrame)
+    {
+        ChangeMainAnimationFrame(0.0f);
+    }
     return ChangeAnimationEx(_mainAnimationData, animKey);
+}
+
+void AnimationComponent::ChangeDefaultAnimation()
+{
+    ChangeMainAnimation(ReflectFields->MainAnimationKey);
+    ChangeMainAnimationFlags(ReflectFields->MainAnimationFlags);
+    _currentAnimationData = &_mainAnimationData;
 }
 
 void AnimationComponent::ChangeCurrentAnimationFrame(float frame) 
@@ -843,7 +902,7 @@ void AnimationComponent::SetAnimator(SkeletalMeshRenderer* renderer)
     }
 }
 
-void AnimationComponent::SetAnimator(std::shared_ptr<Animator> animator)
+void AnimationComponent::SetAnimator(GraphicsPointer<IAnimator> animator)
 {
     if (_animator != animator)
     {
@@ -859,10 +918,10 @@ void AnimationComponent::SetAnimationEventTrackFromPath(const File::Path& path)
 
 void AnimationComponent::SetAnimationEventTrackFromGuid(const File::Guid& guid) 
 {
-    _guidRef  = guid;
-    _filePath = guid;
-    ReflectFields->AnimEventTrackGuid = _guidRef.string();
-    if (_eventTrack.LoadFile(_filePath))
+    _trackGuid = guid;
+    _trackPath = guid;
+    ReflectFields->AnimEventTrackGuid = _trackGuid.string();
+    if (_eventTrack.LoadFile(_trackPath))
     {
         const auto& table = _eventTrack.GetEventTrackTable();
         for (const auto& [_, track] : table)

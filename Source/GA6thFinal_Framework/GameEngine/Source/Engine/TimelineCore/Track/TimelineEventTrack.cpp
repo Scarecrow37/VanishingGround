@@ -3,6 +3,8 @@
 
 namespace Timeline
 {
+    REFLECT_FUNCTION(EventTrack)
+
     EventTrack::EventTrack()
     {
         _currFrame = 0.0f;
@@ -23,7 +25,7 @@ namespace Timeline
         }
         if (true == IsActive())
         {
-            if (true == IsPlaying() && true == HasFlags(EVENT_TRCK_FLAGS_USE_COUNTER))
+            if (true == IsPlaying() && true == HasFlags(EVENT_TRACK_FLAGS_USE_COUNTER))
             {
                 SetCurrentFrame(_currFrame + UmTime.DeltaTime());
             }
@@ -41,11 +43,11 @@ namespace Timeline
                 }
             }
             _prevFrame = _currFrame;
-            if (true == IsPlaying() && true == HasFlags(EVENT_TRCK_FLAGS_USE_COUNTER))
+            if (true == IsPlaying() && true == HasFlags(EVENT_TRACK_FLAGS_USE_COUNTER))
             {
                 if (_currFrame >= GetMaxFrame())
                 {
-                    if (true == HasFlags(EVENT_TRCK_FLAGS_LOOP))
+                    if (true == HasFlags(EVENT_TRACK_FLAGS_LOOP))
                     {
                         _currFrame += GetMinFrame() - GetMaxFrame();
                     }
@@ -158,9 +160,10 @@ namespace Timeline
     {
         for (auto it = _contextQueue.begin(); it != _contextQueue.end(); ++it)
         {
-            if ((*it)->ID == id)
+            auto* context = *it;
+            if (context && context->ID == id)
             {
-                delete (*it);
+                delete context;
                 _contextQueue.erase(it);
                 _contextTable.erase(id);
                 return true;
@@ -326,7 +329,7 @@ namespace Timeline
     }
     void EventTrack::RequestNotify(float startTime, float endTime)
     {
-        if (startTime >= endTime || true == HasFlags(EVENT_TRCK_FLAGS_NOTIFY_DISABLED))
+        if (startTime >= endTime || true == HasFlags(EVENT_TRACK_FLAGS_NOTIFY_DISABLED))
         {
             return;
         }

@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "UI/Base/IOpacity/IOpacity.h"
 #include "UI/Panels/Horizontal/HorizontalPanel.h"
 
 enum class ElementType : unsigned char
@@ -24,7 +25,7 @@ struct ElementData
     std::variant<TextAttributes, ImageAttributes> Data;
 };
 
-class DescriptionPanel : public HorizontalPanel
+class DescriptionPanel : public HorizontalPanel, public IOpacity
 {
     USING_PROPERTY(DescriptionPanel)
 
@@ -32,9 +33,9 @@ public:
     DescriptionPanel();
 
 public:
-    REFLECT_PROPERTY(FontPath, Description, FontScale)
+    REFLECT_PROPERTY(FontPath, Description, FontScale, Alpha)
 
-    GETTER_ONLY(std::string, FontPath) { return _guidRef.ToPath().string(); }
+    GETTER_ONLY(std::string, FontPath) { return _Guid.ToPath().string(); }
     PROPERTY(FontPath)
 
     GETTER(std::string, Description) { return ReflectFields->Description; }
@@ -59,6 +60,13 @@ public:
     }
     PROPERTY(FontScale)
 
+    GETTER(float, Alpha) { return ReflectFields->Alpha; }
+    SETTER(float, Alpha) { SetOpacity(value); }
+    PROPERTY(Alpha)
+
+public:
+    void SetOpacity(float opacity) override;
+
 protected:
     void DeserializedReflectEvent() override;
     void ImGuiDrawPropertysEvent() override;
@@ -69,14 +77,16 @@ private:
     void UpdateContent();
     void EraseChild() const;
     void MakeChild();
+    void UpdateAlpha();
 
 protected:
     REFLECT_FIELDS_BEGIN(HorizontalPanel)
     std::string Guid;
     std::string Description;
-    float       FontScale;
+    float       FontScale = 16.0f;
+    float       Alpha     = 1.0f;
     REFLECT_FIELDS_END(DescriptionPanel)
 
 private:
-    File::GuidRef _guidRef;
+    File::Guid _Guid;
 };

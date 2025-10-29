@@ -2,7 +2,6 @@
 #include "ForwardPBRLitPass.h"
 #include "FrameResource.h"
 #include "ShadowMapPass.h"
-#include "SSAOWritePass.h"
 #include "SkyBox.h"
 
 ForwardPBRLitPass::~ForwardPBRLitPass() = default;
@@ -125,7 +124,6 @@ void ForwardPBRLitPass::Begin(ID3D12GraphicsCommandList* commandList)
     }
 
     commandList->OMSetRenderTargets(4, rtvHandles, FALSE, &_ownerScene->_depthStencilView->GetDSVHandle());
-    commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 void ForwardPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
@@ -160,7 +158,7 @@ void ForwardPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
 
     // Static
     commandList->SetGraphicsRootSignature(_fxStaticMesh.GetRootSignature());
-    commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_3_numLight"), 3, &_ownerScene->_numLight, 0);    
+    commandList->SetGraphicsRoot32BitConstants(_fxStaticMesh.GetRootParameterIndex("bit32_4_numLight"), 4, &_ownerScene->_numLight, 0);    
     commandList->SetGraphicsRootConstantBufferView(_fxStaticMesh.GetRootParameterIndex("cameraData"), cameraData);
     commandList->SetGraphicsRootConstantBufferView(_fxStaticMesh.GetRootParameterIndex("lightData"), lightData);
     commandList->SetGraphicsRootConstantBufferView(_fxStaticMesh.GetRootParameterIndex("cascadeData"), shadowMapPass->GetCascadeDataCBV());
@@ -183,7 +181,7 @@ void ForwardPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
 
     // Skeletal
     commandList->SetGraphicsRootSignature(_fxSkeletalMesh.GetRootSignature());
-    commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_3_numLight"), 3, &_ownerScene->_numLight, 0);
+    commandList->SetGraphicsRoot32BitConstants(_fxSkeletalMesh.GetRootParameterIndex("bit32_4_numLight"), 4, &_ownerScene->_numLight, 0);
     commandList->SetGraphicsRootConstantBufferView(_fxSkeletalMesh.GetRootParameterIndex("cameraData"), cameraData);
     commandList->SetGraphicsRootConstantBufferView(_fxSkeletalMesh.GetRootParameterIndex("lightData"), lightData);
     commandList->SetGraphicsRootConstantBufferView(_fxSkeletalMesh.GetRootParameterIndex("cascadeData"), shadowMapPass->GetCascadeDataCBV());

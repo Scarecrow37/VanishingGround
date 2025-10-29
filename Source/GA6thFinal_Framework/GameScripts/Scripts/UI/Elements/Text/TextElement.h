@@ -1,9 +1,15 @@
 ﻿#pragma once
 
 #include "UI/Base/DrawUIComponent/DrawUIComponent.h"
+#include "UI/Base/IOpacity/IOpacity.h"
 
-class TextElement : public DrawUIComponent
+class TextElement : public DrawUIComponent, public IOpacity
 {
+    enum FontFlags : uint32_t
+    {
+        FONT_FLAG_NONE    = 0,
+        FONT_FLAG_OUTLINE = 1 << 0,
+    };
     USING_PROPERTY(TextElement)
 
 public:
@@ -15,9 +21,9 @@ public:
     ~TextElement() override;
 
 public:
-    REFLECT_PROPERTY(FilePath, Text, Color, FontScale)
+    REFLECT_PROPERTY(FilePath, Text, Color, FontScale, OutlineColor, OutlineWidth, OutLine)
 
-    GETTER_ONLY(std::string, FilePath) { return _guidRef.ToPath().string(); }
+    GETTER_ONLY(std::string, FilePath) { return _Guid.ToPath().string(); }
     PROPERTY(FilePath)
 
     GETTER(std::string, Text) { return ReflectFields->Text; }
@@ -37,6 +43,10 @@ public:
         UpdateColor();
     }
     PROPERTY(Color)
+
+    GETTER(float, Alpha) { return ReflectFields->Color[3]; }
+    SETTER(float, Alpha) { SetOpacity(value); }
+    PROPERTY(Alpha)
 
     GETTER(float, FontScale) { return ReflectFields->FontScale; }
     SETTER(float, FontScale)
@@ -58,18 +68,47 @@ public:
     }
     PROPERTY(FontWeight)
 
-
     GETTER_ONLY(SIZE, ContentSize) { return ReflectFields->ContentSize; }
     PROPERTY(ContentSize)
 
+    GETTER(bool, OutLine) { return (ReflectFields->FontFlags & FONT_FLAG_OUTLINE) != 0; }
+    SETTER(bool, OutLine)
+    {
+        UINT fontFlags = ReflectFields->FontFlags;
+        value ? (fontFlags |= FONT_FLAG_OUTLINE) : (fontFlags &= ~FONT_FLAG_OUTLINE);
+        ReflectFields->FontFlags = fontFlags;
+        UpdateOutline();
+    }
+    PROPERTY(OutLine)
+
+    GETTER(DirectX::SimpleMath::Color, OutlineColor) { return DirectX::SimpleMath::Color(&ReflectFields->FontOutlineColor[0]); }
+    SETTER(DirectX::SimpleMath::Color, OutlineColor)
+    {
+        std::memcpy(&ReflectFields->FontOutlineColor[0], &value.x, sizeof(ReflectFields->FontOutlineColor));
+        UpdateOutline();
+    }
+    PROPERTY(OutlineColor)
+
+    GETTER(float, OutlineWidth) { return ReflectFields->FontOutlineWidth; }
+    SETTER(float, OutlineWidth)
+    {
+        ReflectFields->FontOutlineWidth = std::clamp(value, 0.0f, 4.0f);
+        UpdateOutline();
+    }
+    PROPERTY(OutlineWidth)
+
+
+
 public:
-    void SetFont(const File::GuidRef& guidRef);
+    void SetFont(const File::Guid& guid);
+
+    void SetOpacity(float opacity) override;
 
 protected:
     void  Reset() override;
     void  DeserializedReflectEvent() override;
     float GetZOrder() const override;
-    void ImGuiDrawPropertysEvent() override;
+    void  ImGuiDrawPropertysEvent() override;
 
     SIZE MeasureOverride(SIZE availableSize) override;
     SIZE ArrangeOverride(SIZE finalSize) override;
@@ -86,18 +125,22 @@ private:
     void UpdateScale() const;
     void UpdateWeight() const;
     void UpdateContentSize();
+    void UpdateOutline();
 
 protected:
     REFLECT_FIELDS_BEGIN(DrawUIComponent)
     std::string          Guid;
-    std::string          Text         = "Hello Um!";
-    std::array<float, 4> Color        = {0.0f, 0.0f, 0.0f, 1.0f};
-    float                FontScale    = 32.0f;
-    SIZE                 ContentSize  = SIZE{};
-    float                FontWeight   = 0.5f;
+    std::string          Text             = "Hello Um!";
+    std::array<float, 4> Color            = {0.0f, 0.0f, 0.0f, 1.0f};
+    float                FontScale        = 32.0f;
+    SIZE                 ContentSize      = SIZE{};
+    float                FontWeight       = 0.5f;
+    std::array<float, 4> FontOutlineColor = {0.0f, 0.0f, 0.0f, 1.0f};
+    float                FontOutlineWidth = 0.0f;
+    UINT                 FontFlags        = FONT_FLAG_NONE;
     REFLECT_FIELDS_END(TextElement)
 
 private:
     ISDFTextRenderer* _renderer;
-    File::GuidRef     _guidRef;
+    File::Guid        _Guid;
 };

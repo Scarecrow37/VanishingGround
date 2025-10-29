@@ -2,8 +2,9 @@
 #define __COMMON_STRUCTS__
 
 #define MAX_DIRECTIONAL_LIGHT 4
-#define MAX_POINT_LIGHT 32
+#define MAX_POINT_LIGHT 64
 #define MAX_SPOT_LIGHT 16
+#define MAX_SHADOW_POINT_LIGHT 10
 #define MAX_BONE_MATRIX 256
 #define MAX_CASCADES 3
 
@@ -60,6 +61,7 @@ struct NumLight
     uint Directional;
     uint Point;
     uint Spot;
+    uint ShadowPoint;
 };
 
 struct CameraData
@@ -76,6 +78,7 @@ struct LightData
     DirectionalLight Directional[MAX_DIRECTIONAL_LIGHT];
     PointLight Point[MAX_POINT_LIGHT];
     SpotLight Spot[MAX_SPOT_LIGHT];
+    PointLight ShadowPoint[MAX_SHADOW_POINT_LIGHT];
 };
 
 struct PostProcessData
@@ -88,7 +91,7 @@ struct PostProcessData
 
 struct CascadeData
 {
-    matrix ShadowVP[MAX_CASCADES];
+    matrix ShadowVP[MAX_CASCADES + 1]; // 0,1,2: cascade shadows, 3: skeletal shadow
     float3 CascadeSplits; // x=split1, y=split2, z=split3
 };
 
@@ -114,7 +117,6 @@ struct VolumetricFogData
     float LightShaftIntensity;
 };
 
-
 struct SSGIData
 {
     float4x4 PreViewProj;
@@ -129,11 +131,26 @@ struct SSGIData
     float NormalSigma;
 };
 
+struct FXAAData
+{
+    float2 InverseResolution;
+    float QualitySubpixel;
+    float QualityEdgeDetectionThreshold;
+    float QualityMinimumEdgeThreshold;
+};
+
 struct OITNode
 {
     float4 Color;
     float Depth;
     uint Next;
+};
+
+struct PointLightShadowData
+{
+    float4x4 ViewProjection[6];
+    float3 LightPosition;
+    float FarPlane;
 };
 
 #endif

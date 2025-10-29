@@ -12,21 +12,29 @@ enum CommandQueueType { GRAPHICS_QUEUE, COMPUTE_QUEUE, COPY_QUEUE, COMMAND_QUEUE
 
 enum MeshType { STATIC_MESH, SKELETAL_MESH, MESH_TYPE_END };
 
-enum SpriteType { MODE_3D, MODE_25D, MODE_2D, SPRITE_TYPE_END };
+enum UIType { MODE_3D, MODE_25D, MODE_2D, UI_TYPE_END };
 
-enum UIMaterialType { LINEAR_FILL = 1 };
+enum UIMaterialType { DEFAULT, LINEAR_FILL, RADIAL_FILL };
 
 enum PostProcess
 {
-    BLOOM = 1 << 0,
-    OUTLINE = 1 << 1,
+    BLOOM            = 1 << 0,
+    OUTLINE          = 1 << 1,
+    IS_SKELETAL_MESH = 1 << 2,
+};
+
+enum class CustomLightType
+{
+    NONE,
+    TRANSPARENT_RIM_LIGHT,
+    END
 };
 
 enum RenderTechniqueFlag : unsigned long long
 {
     NONE                  = 0,
     SKY_BOX_TECH          = 1 << 0,
-    PBR_TECH              = 1 << 1,
+    LIGHTING_TECH         = 1 << 1,
     BLOOM_TECH            = 1 << 2,
     UI_TECH               = 1 << 3,
     FONT_TECH             = 1 << 4,
@@ -38,6 +46,7 @@ enum RenderTechniqueFlag : unsigned long long
     VOLUMETRIC_FOG_TECH   = 1 << 10,
     SCENE_TRANSITION_TECH = 1 << 11,
     SSGI_TECH             = 1 << 12,
+    FXAA_TECH             = 1 << 13,
 };
 
 inline RenderTechniqueFlag operator|(RenderTechniqueFlag lhs, RenderTechniqueFlag rhs)

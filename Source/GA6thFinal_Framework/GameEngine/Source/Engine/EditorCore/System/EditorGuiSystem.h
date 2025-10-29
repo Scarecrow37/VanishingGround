@@ -1,11 +1,9 @@
 ﻿#pragma once
- 
-class EditorDockWindow;
 
 class EditorGuiSystem : public IEditorCycle
 {
-    using DockTable = std::unordered_map<std::string, EditorDockWindow*>;
-    using DockList  = std::vector<EditorTool*>;
+    using DockTable = std::unordered_map<DockID, EditorDockWindow*>;
+    using DockList  = std::vector<EditorDockWindow*>;
 
 public:
     EditorGuiSystem();
@@ -18,22 +16,21 @@ public:
     virtual void OnEndGui() override;
 
 public:
-    EditorDockWindow* RegisterDockWindow(const std::string& label, EditorDockWindow* parent = nullptr);
-    EditorDockWindow* GetDockWindow(const std::string& label) const;
-    EditorDockWindow* operator[](const std::string& label) const;
+    EditorDockWindow*   CreateDockWindow(const char* label, const char* parentLabel = nullptr);
+    EditorDockWindow*   GetDockWindow(const char* label) const;
+    EditorDockWindow*   operator[](const char* label) const;
 
-    void ResetLayout();
-
-    YAML::Node SaveGuiSettingToMemory();
-    void       LoadGuiSettingFromMemory(YAML::Node node);
-
-    const DockList&   GetDockWindowList() const;
-    const DockTable&  GetDockWindowTable() const;
+    void                Clear();
+    void                ResetLayout();
+    YAML::Node          SaveGuiSettingToMemory();
+    void                LoadGuiSettingFromMemory(YAML::Node node);
+    const DockList&     GetDockWindowList() const;
+    const DockTable&    GetDockWindowTable() const;
 
 private:
-    DockTable         _dockWindowTable;
-    DockList          _dockWindowList;
+    DockList    _dockWindowList;    // 원본 도킹 윈도우 리스트
+    DockTable   _dockWindowTable;   // 도킹 윈도우 ID 테이블
 
-    std::string       _guiSettingDataFromString;
+    std::string _guiSettingDataFromString;
 
 };

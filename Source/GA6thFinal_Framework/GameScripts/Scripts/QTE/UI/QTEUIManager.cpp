@@ -5,9 +5,12 @@
 #include <UI/Panels/Overlay/OverlayPanel.h>
 #include <UI/Elements/Image/ImageElement.h>
 #include <Camera/CameraComponent.h>
-
-#include <BattleSystem/Battle.h>
+#include <TurnSystem/TurnMode/TurnMode.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
+#include "UI/Elements/SpriteAnimation/SpriteAnimationElement.h"
+#include <Monster/Common/MonsterCommon.h>
+
+#include "ContentMath/ContentMath.h"
 
 UMREAL_COMPONENT(QTEUIManager)
 
@@ -16,85 +19,97 @@ QTEUIManager::~QTEUIManager() = default;
 
 void QTEUIManager::OnQTEEnter() 
 {
-    if (false == CheckUIValid())
-    {
-        FindUIComponents();
-    }
-    // 오브젝트 활성화 QTE UI 페이드 인 시작
+    ResetUI();
+    _fieldUI.Active(true);
+    _guideUI.Active(true);
+    _inputViewerUI.Active(true);
+    _fieldUI.OnQTEEnter();
     _mainFader.SetFadeMode(Fader::FADE_IN);
-    
-    // QTE UI 위치 및 크기 데이터 저장
-    RefreshQTEUITransformData();
-
-    // QTE 시작 시 현재 트랙에 맞게 노트 오브젝트 스폰
-    SpawnQTENotesFromCurrentTrack();
-}
-
-void QTEUIManager::OnQTENotePressed(QTE::ResultType result)
-{
-    // TODO : QTE Effect
-}
-
-void QTEUIManager::OnQTEStay() 
-{
-    // UI가 하나라도 존재하지 않으면 실행하지 않음
-    if (nullptr == _qteOverlayPanel ||
-        nullptr == _qteNoteLineUI   ||
-        nullptr == _qteBackgroundUI ||
-        nullptr == _qteJudgeNoteUI  )
+    if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
     {
-        return;
-    }
-
-    auto* system = SingletonComponent<QTESystem>::GetInstance();
-    if (system)
-    {
-        auto* track = system->GetCurrentQTETrack();
-        if (track)
+        const auto& noteQueue  = system->GetCurrentQTEAvailQueue();
+        bool        validRange = noteQueue.size() <= _fieldUI.NotePool.size();
+        assert(validRange && "노트 풀의 사이즈가 작습니다.");
+        if (validRange)
         {
-            const float qteTime  = system->GetQTETime();
-            const POINT judgePos = _qteJudgeNoteUI->Point;
-            const auto& overall  = system->GetQTEOverallResult();
-            for (const auto& result : overall.NoteResults)
+            for (int i = 0; i < noteQueue.size(); ++i)
             {
-                QTE::Note* note = result.Note;
-                if (note)
+                UINT id = noteQueue[i].ID;
+                if (_fieldUI.NotePool[i].TrySetup(noteQueue[i].Time))
                 {
-                    const int     id     = note->ID;
-                    const float   time   = note->Time;
+                    _activedPoolIndices[id] = i;
+                }
+            }
+        }
+    }
+}
 
-                    ImageElement* noteUI = FindNoteUIFromNoteID(id);
-                    if (noteUI)
+void QTEUIManager::OnQTEButtonPressed()
+{
+    _fieldUI.OnButtonPressed();
+}
+
+void QTEUIManager::OnQTENotePressed(const UINT noteID, const QTE::NoteResult& result)
+{
+    if (result.IsValidResult())
+    {
+        int index = GetIndexFromNoteID(noteID);
+        if (index >= 0)
+        {
+            auto& noteUI = _fieldUI.NotePool[index];
+            auto& effectUI = _fieldUI.EffectPool[index];
+
+            noteUI.OnNotePressed(result);
+            _inputViewerUI.OnNotePressed(result);
+            if (effectUI.Overlay)
+            {
+                const SIZE size = effectUI.Overlay->Size;
+                float      posX = static_cast<float>(-size.cx / 2);
+                if (result.Result == QTE::QTE_RESULT_MISS || result.Result == QTE::QTE_RESULT_NORMAL)
+                {
+                    if (noteUI.Overlay)
                     {
-                        GameObject& object      = noteUI->gameObject;
-                        if (result.IsValidResult() && result.IsPressedButton())
-                        {   // 이미 누른 판정이 난 노트는 비활성화
-                            object.ActiveSelf   = false;
-                            continue;
-                        }
-                        SIZE  noteSize = noteUI->Size;
-                        POINT oldPoint = noteUI->Point;
-
-                        float notePosXFactor    = CalculateNotePosXFactor(time, qteTime);
-                        float perfectPos        = _qteJudgePos.x + (_qteJudgeSize.x * 0.5f) - _qtePanelPos.x;
-                        float notePosX          = perfectPos * notePosXFactor; // 패널 기준에서의 노트 좌표
-                        
-                        // 포지션은 판정노트가 1.0 기준이지만 알파는 라인 끝을 기준으로 계산
-                        float alphaFactor       = notePosX / _qtePanelSize.x;
-                        float alpha             = CalculateNoteAlpha(alphaFactor);
-
-                        if (alpha > 0.0f)
-                        {
-                            float notePosAbsX   = notePosX - ((float)noteSize.cx * 0.5f) + _qtePanelPos.x; // 절대 좌표로 변환
-                            noteUI->Point       = POINT{(LONG)notePosAbsX, oldPoint.y};
-                            noteUI->Alpha       = alpha;
-                            object.ActiveSelf   = true;
-                        }
-                        else
-                        {
-                            object.ActiveSelf   = false;
-                        }
+                        const POINT point = noteUI.Overlay->CenterPoint;
+                        posX += static_cast<float>(point.x);
                     }
+                }
+                else if (result.Result == QTE::QTE_RESULT_PERFECT)
+                {
+                    const POINT point  = _fieldUI.JudgeNote->CenterPoint;
+                    posX += static_cast<float>(point.x);
+                }
+                effectUI.OnNotePressed(result, posX);
+            }
+        }
+    }
+}
+
+void QTEUIManager::OnQTEPlay()
+{
+    if (_overlayPanel && _fieldUI.Overlay && _fieldUI.JudgeNote)
+    {
+        _fieldUI.Update();
+        if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
+        {
+            const float travelTime  = system->NoteTravelTime;
+            const float currTime    = system->CurrentTrackTime;
+            const float currSpeed   = system->ScaledSpeedFactor;
+            const SIZE  panelSize   = _overlayPanel->Size;
+            const POINT overlayPoint= _fieldUI.Overlay->Point;
+            const SIZE  overlaySize = _fieldUI.Overlay->Size;
+            const POINT judgeCenter = _fieldUI.JudgeNote->CenterPoint;
+            const SIZE  judgeSize   = _fieldUI.JudgeNote->Size;
+
+            const float perfectX    = static_cast<float>(judgeCenter.x);
+            const float startX      = static_cast<float>(overlayPoint.x);
+            const float endX        = static_cast<float>(overlaySize.cx);
+
+            for (auto& [id,_] : _activedPoolIndices)
+            {
+                int index = GetIndexFromNoteID(id);
+                if (index >= 0)
+                {
+                    _fieldUI.NotePool[index].Update(currTime, travelTime, currSpeed, startX, endX, perfectX, 0.0f);
                 }
             }
         }
@@ -103,51 +118,63 @@ void QTEUIManager::OnQTEStay()
 
 void QTEUIManager::OnQTEExit() 
 {
-    // QTE UI 페이드 아웃 
     _mainFader.SetFadeMode(Fader::FADE_OUT);
-    
-    // QTE 종료 시 노트 오브젝트 정리
-    ClearAllQTENotes();
 }
 
-void QTEUIManager::Refresh() 
+bool QTEUIManager::DragDropEvent(File::Guid& out)
 {
-    FindUIComponents();
-    RefreshQTEUITransformData();
-    RefreshGuideNoteUITransformData();
-    UpdateGuideNoteUI();
+    bool result = false;
+    if (ImGui::BeginDragDropTarget())
+    {
+        if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
+        {
+            DragDropAsset::Data* data      = static_cast<DragDropAsset::Data*>(payLoad->Data);
+            const File::Path&    path      = data->GetPath();
+            const File::Path     extension = path.extension();
+            if (extension == L".UmPrefab")
+            {
+                result = true;
+                out    = path.ToGuid();
+            }
+            else
+            {
+                UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"프리팹은 .UmPrefab 파일만 지정할 수 있습니다.");
+            }
+        }
+        ImGui::EndDragDropTarget();
+    }
+    return result;
 }
 
 void QTEUIManager::Reset() 
 {
-    _staticInstance = this;
-
-    gameObject->ActiveSelf = true;
-
-    FilePath.SetInputAutoEvent([this]() {
-        if (ImGui::BeginDragDropTarget())
+    _singletoneComponent.SetSingleTon();
+    NotePrefab.SetInputAutoEvent([this]() {
+        File::Guid dragDropGuid;
+        if (DragDropEvent(dragDropGuid))
         {
-            if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
-            {
-                DragDropAsset::Data* data      = static_cast<DragDropAsset::Data*>(payLoad->Data);
-                const File::Path&    path      = data->GetPath();
-                const File::Path&    extension = path.extension();
-                if (extension == L".UmPrefab")
-                {
-                    SetNotePrefabGuid(data->GetGuid());
-                }
-                else
-                {
-                    UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"프리팹은 .UmPrefab 파일만 지정할 수 있습니다.");
-                }
-            }
-            ImGui::EndDragDropTarget();
+            ReflectFields->NotePrefabGuid = dragDropGuid.string();
+        }
+    });
+    EffectPrefab.SetInputAutoEvent([this]() {
+        File::Guid dragDropGuid;
+        if (DragDropEvent(dragDropGuid))
+        {
+            ReflectFields->EffectPrefabGuid = dragDropGuid.string();
+        }
+    });
+    ButtonPrefab.SetInputAutoEvent([this]() {
+        File::Guid dragDropGuid;
+        if (DragDropEvent(dragDropGuid))
+        {
+            ReflectFields->ButtonPrefabGuid = dragDropGuid.string();
         }
     });
 }
 
 void QTEUIManager::Awake() 
 {
+    _singletoneComponent.TrySingleTon();
 }
 
 void QTEUIManager::Start()
@@ -163,49 +190,47 @@ void QTEUIManager::Start()
         }
     });
     _mainFader.SetOnFadeOutEndCallback([this]() {
-        SetUIAlpha(0.0f);
-        SetBackgroundUIAlpha(0.0f);
         if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
         {
             system->ProcessQTEFadeOutEndEvent();
+            ResetUI();
             _mainFader.SetFadeMode(Fader::FADE_NONE);
+            _backGroundUI.Alpha(0.0f);
+            _fieldUI.Active(false);
+            _guideUI.Active(false);
+            _inputViewerUI.Active(false);
         }
     });
-
-    //_xybAlphaFader.SetFadeInType(Mathf::EASE_IN, Mathf::SINE);
-    //_xybAlphaFader.SetFadeOutType(Mathf::EASE_OUT, Mathf::SINE);
-    //_xybAlphaFader.SetOnFadeInEndCallback([this]() { _xybAlphaFader.SetFadeMode(Fader::FADE_NONE); });
-    //_xybAlphaFader.SetOnFadeOutEndCallback([this]() { _xybAlphaFader.SetFadeMode(Fader::FADE_NONE); });
-
-    //_xybPointFader.SetFadeInType(Mathf::EASE_OUT, Mathf::SINE);
-    //_xybPointFader.SetFadeOutType(Mathf::EASE_OUT, Mathf::SINE);
-    //_xybPointFader.SetOnFadeInEndCallback([this]() { _xybPointFader.SetFadeMode(Fader::FADE_NONE); });
-    //_xybPointFader.SetOnFadeOutEndCallback([this]() { _xybPointFader.SetFadeMode(Fader::FADE_NONE); });
-
-    Refresh();
-    SetBackgroundUIAlpha(0.0f);
-    SetGuideNoteActive(false);
+    FindUIComponents();
+    size_t poolSize = static_cast<size_t>(ReflectFields->PoolSize);
+    _fieldUI.Initialize(ReflectFields->NotePrefabGuid, ReflectFields->EffectPrefabGuid, poolSize);
+    _inputViewerUI.Initialize(ReflectFields->ButtonPrefabGuid, poolSize);
+    ResetUI();
+    _backGroundUI.Alpha(0.0f);
+    _backGroundUI.Active(true);
+    _fieldUI.Active(false);
+    _guideUI.Active(false);
+    _inputViewerUI.Active(false);
 }
 
 void QTEUIManager::Update() 
 {
-    UpdateQTEUI();
-    UpdateGuideNoteUI();
-}
-
-void QTEUIManager::OnEnable() 
-{
-}
-
-void QTEUIManager::OnDisable() 
-{
-}
-
-void QTEUIManager::OnDestroy()
-{
-    if (_staticInstance == this)
+    float factor = _mainFader.Fade();
+    auto  mode   = _mainFader.GetFadeMode();
+    switch (mode)
     {
-        _staticInstance = nullptr;
+    case Fader::FADE_NONE:
+        break;
+    case Fader::FADE_IN: {
+        _guideUI.Alpha(factor);
+        break;
+    }
+    case Fader::FADE_OUT: {
+        SetUIAlpha(factor);
+        break;
+    }
+    default:
+        break;
     }
 }
 
@@ -215,444 +240,101 @@ void QTEUIManager::SerializedReflectEvent()
 
 void QTEUIManager::DeserializedReflectEvent()
 {
-    _notePrefabGuid = File::Guid(ReflectFields->NotePrefabGuid);
+}
+
+void DebugDrawValidLine(POINT panelPoint, SIZE panelSize, float pointX, FXMVECTOR color)
+{
+    {
+        const XMFLOAT2 start{/*static_cast<float>(panelPoint.x) + */pointX, static_cast<float>(panelPoint.y)};
+        const XMFLOAT2 end{/*static_cast<float>(panelPoint.x) + */pointX, static_cast<float>(panelPoint.y + panelSize.cy)};
+        UmGraphics.DebugDraw2D("Editor", XMLoadFloat2(&start), XMLoadFloat2(&end), color);
+    }
 }
 
 void QTEUIManager::ImGuiDrawPropertysEvent() 
 {
-    if (nullptr == _qteOverlayPanel)
-    {
-        ImGui::TextUnformatted((const char*)u8"QTE OverlayPanel UI가 없습니다.");
-    }
-    if (nullptr == _qteBackgroundUI)
-    {
-        ImGui::TextUnformatted((const char*)u8"QTE Background UI가 없습니다.");
-    }
-    if (nullptr == _qteNoteLineUI)
-    {
-        ImGui::TextUnformatted((const char*)u8"QTE Note Line UI가 없습니다.");
-    }
-    if (nullptr == _qteJudgeNoteUI)
-    {
-        ImGui::TextUnformatted((const char*)u8"QTE JudgeNote UI가 없습니다.");
-    }
     if (ImGui::Button((const char*)u8"새로고침"))
     {
         FindUIComponents();
     }
 
-    if (ImGui::TreeNodeEx("Debug##qte_manager", ImGuiTreeNodeFlags_DefaultOpen))
-    {
-        ImGui::Text((const char*)u8"QTE Panel Absolute Pos : (%.1f, %.1f)", _qtePanelPos.x, _qtePanelPos.y);
-        ImGui::Text((const char*)u8"QTE Judge Absolute Pos : (%.1f, %.1f)", _qteJudgePos.x, _qteJudgePos.y);
-        // Guide Note Pos
-        ImGui::Text((const char*)u8"Guide Note X Absolute Pos : (%.1f, %.1f)", _enemyXPos.x, _enemyXPos.y);
-        ImGui::Text((const char*)u8"Guide Note Y Absolute Pos : (%.1f, %.1f)", _enemyYPos.x, _enemyYPos.y);
-        ImGui::Text((const char*)u8"Guide Note B Absolute Pos : (%.1f, %.1f)", _enemyBPos.x, _enemyBPos.y);
-
-        ImGui::TreePop();
-    }
+    DrawDebugJudgeLine();
 }
 
-void QTEUIManager::SetNotePrefabGuid(const File::Guid& guid) 
+void QTEUIManager::ResetUI()
 {
-    _notePrefabGuid               = guid;
-    ReflectFields->NotePrefabGuid = guid.string();
+    _fieldUI.Reset();
+    _inputViewerUI.Reset();
+    _activedPoolIndices.clear();
 }
 
-void QTEUIManager::SetBackgroundUIAlpha(float factor) 
+int QTEUIManager::GetIndexFromNoteID(UINT id)
 {
-    factor = std::clamp(factor, 0.0f, 1.0f);
-    if (_qteBackgroundUI)
+    if (_activedPoolIndices.contains(id))
     {
-        _qteBackgroundUI->Alpha = factor;
+        int index = _activedPoolIndices[id];
+        return index;
     }
-}
-
-void QTEUIManager::SetGuideNoteUIAlpha(float factor) 
-{
-    factor = std::clamp(factor, 0.0f, 1.0f);
-    if (_qteGuideNoteX)
-    {
-        _qteGuideNoteX->Alpha = factor;
-    }
-    if (_qteGuideNoteY)
-    {
-        _qteGuideNoteY->Alpha = factor;
-    }
-    if (_qteGuideNoteB)
-    {
-        _qteGuideNoteB->Alpha = factor;
-    }
-}
-
-void QTEUIManager::SetGuideNoteActive(bool active) 
-{
-    if (_qteGuideNoteX)
-    {
-        _qteGuideNoteX->gameObject->ActiveSelf = active;
-    }
-    if (_qteGuideNoteY)
-    {
-        _qteGuideNoteY->gameObject->ActiveSelf = active;
-    }
-    if (_qteGuideNoteB)
-    {
-        _qteGuideNoteB->gameObject->ActiveSelf = active;
-    }
+    return -1;
 }
 
 void QTEUIManager::SetUIAlpha(float factor)
 {
     factor = std::clamp(factor, 0.0f, 1.0f);
-    if (_qteNoteLineUI)
-    {
-        _qteNoteLineUI->Alpha = factor;
-    }
-    if (_qteJudgeNoteUI)
-    {
-        _qteJudgeNoteUI->Alpha = factor;
-    }
+    _backGroundUI.Alpha(factor);
+    _fieldUI.Alpha(factor);
+    _guideUI.Alpha(factor);
+    _inputViewerUI.Alpha(factor);
 }
 
-void QTEUIManager::SetActive(bool active) 
+void QTEUIManager::DrawDebugJudgeLine()
 {
-    gameObject->ActiveSelf = active;
-}
-
-void QTEUIManager::StartShowQTEGuideNote() 
-{
-    if (RefreshGuideNoteUITransformData())
+    if (_fieldUI.Overlay && _fieldUI.JudgeNote)
     {
-        _xybOutTimer = 0.0f;
-        _xybPointFader.SetTimer(0.0f);
-        _xybAlphaFader.SetTimer(0.0f);
-
-        _xybAlphaFader.SetDuration(0.5f);
-        _xybPointFader.SetDuration(1.0f);
-        _xybAlphaFader.SetFadeMode(Fader::FADE_IN);
-        _xybPointFader.SetFadeMode(Fader::FADE_IN);
-    }
-}
-
-void QTEUIManager::StartHideQTEGuideNote() 
-{
-    _xybAlphaFader.SetDuration(0.5f);
-    _xybPointFader.SetDuration(1.0f);
-    _xybAlphaFader.SetFadeMode(Fader::FADE_OUT);
-    _xybPointFader.SetFadeMode(Fader::FADE_OUT);
-}
-
-void QTEUIManager::UpdateQTEUI() 
-{
-    float factor = _mainFader.Fade();
-    auto  mode   = _mainFader.GetFadeMode();
-    switch (mode)
-    {
-    case Fader::FADE_NONE:
-        break;
-    case Fader::FADE_IN: {
-        SetUIAlpha(factor);
-        break;
-    }
-    case Fader::FADE_OUT: {
-        SetUIAlpha(factor);
-        SetBackgroundUIAlpha(factor);
-        break;
-    }
-    default:
-        break;
-    }
-}
-
-void QTEUIManager::UpdateGuideNoteUI()
-{
-    _xybAlphaFader.Fade();
-    _xybPointFader.Fade();
-
-    POINT point;
-    const SIZE& resolution  = UmGraphics.GetResolution();
-    const float minY        = static_cast<float>(resolution.cy) * 0.5f;
-    const float alphaFactor = 1.0f;
-    const float pointFactor = 0.0f;
-    
-    float offsetY = 50.0f;
-
-    if (_qteGuideNoteX)
-    {
-        SIZE size             = _qteGuideNoteX->Size;
-        point.x               = (LONG)_enemyXPos.x - size.cx / 2;
-        point.y               = (LONG)(size.cy * 2.0f);
-        _qteGuideNoteX->Point = point;
-        _qteGuideNoteX->Alpha = alphaFactor;
-    }
-    if (_qteGuideNoteY)
-    {
-        SIZE size             = _qteGuideNoteY->Size;
-        point.x               = (LONG)_enemyYPos.x - size.cx / 2;
-        point.y               = (LONG)(size.cy * 2.0f);
-        _qteGuideNoteY->Point = point;
-        _qteGuideNoteY->Alpha = alphaFactor;
-    }
-    if (_qteGuideNoteB)
-    {
-        SIZE size             = _qteGuideNoteB->Size;
-        point.x               = (LONG)_enemyBPos.x - size.cx / 2;
-        point.y               = (LONG)(size.cy * 2.0f);
-        //point.y               = (LONG)std::lerp(minY, 0, pointFactor) - size.cy / 2;
-        _qteGuideNoteB->Point = point;
-        _qteGuideNoteB->Alpha = alphaFactor;
-    }
-
-    //if (_xybPointFader.IsFadeInEnd())
-    //{
-    //    _xybOutTimer += UmTime.DeltaTime();
-    //    if (_xybOutTimer >= ReflectFields->GuideNoteDuration)
-    //    {
-    //        StartHideQTEGuideNote();
-    //    }
-    //}
-}
-
-void QTEUIManager::RefreshQTEUITransformData()
-{
-    if (_qteOverlayPanel)
-    {
-        POINT pos    = _qteOverlayPanel->AbsolutePosition;
-        _qtePanelPos = Vector2((float)pos.x, (float)pos.y);
-
-        SIZE size     = _qteOverlayPanel->Size;
-        _qtePanelSize = Vector2((float)size.cx, (float)size.cy);
-    }
-    if (_qteJudgeNoteUI)
-    {
-        POINT pos    = _qteJudgeNoteUI->AbsolutePosition;
-        _qteJudgePos = Vector2((float)pos.x, (float)pos.y);
-
-        SIZE size     = _qteJudgeNoteUI->Size;
-        _qteJudgeSize = Vector2((float)size.cx, (float)size.cy);
-    }
-}
-
-bool QTEUIManager::RefreshGuideNoteUITransformData()
-{
-    CameraComponent* camera = CameraComponent::MainCamera();
-    if (camera)
-    {
-        auto enemies = Battle::GetTargetsFromFlags(Battle::ENEMY_TARGET_FLAG_ALL);
-        if (3 <= enemies.size())
+        if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
         {
-            bool  validX = enemies[0] && _qteGuideNoteY;
-            bool  validY = enemies[1] && _qteGuideNoteX;
-            bool  validB = enemies[2] && _qteGuideNoteB;
-            if (validX)
-            {
-                _enemyXPos = camera->WorldToViewport(enemies[0]->transform->GetWorldPosition());
+            const auto [validMin, validMax]     = system->GetValidJudgeRange();
+            const auto [normalMin, normalMax]   = system->GetNormalJudgeRange();
+            const auto [perfectMin, perfectMax] = system->GetPerfectJudgeRange();
+            const float tavelTime               = system->GetNoteTravelTime();
+            const float speedScale              = system->GetQTESpeedScale();
+            const POINT panelPoint              = _fieldUI.Overlay->AbsolutePosition;
+            const SIZE  panelSize               = _fieldUI.Overlay->Size;
+            const POINT judgeCenter             = _fieldUI.JudgeNote->CenterPoint;
+            const float perfectX                = static_cast<float>(judgeCenter.x);
+            const float offsetX                 = static_cast<float>(panelPoint.x);
+            { // Valid
+                const float minFactor = QTE::Math::CalculateNotePosXFactor(-validMin, speedScale, tavelTime);
+                DebugDrawValidLine(panelPoint, panelSize, offsetX + perfectX * minFactor, Colors::White);
+                const float maxFactor = QTE::Math::CalculateNotePosXFactor(-validMax, speedScale, tavelTime);
+                DebugDrawValidLine(panelPoint, panelSize, offsetX + perfectX * maxFactor, Colors::White);
             }
-            if (validY)
-            {
-                _enemyYPos = camera->WorldToViewport(enemies[1]->transform->GetWorldPosition());
+            { // Normal
+                const float minFactor = QTE::Math::CalculateNotePosXFactor(-normalMin, speedScale, tavelTime);
+                DebugDrawValidLine(panelPoint, panelSize, offsetX + perfectX * minFactor, Colors::Blue);
+                const float maxFactor = QTE::Math::CalculateNotePosXFactor(-normalMax, speedScale, tavelTime);
+                DebugDrawValidLine(panelPoint, panelSize, offsetX + perfectX * maxFactor, Colors::Blue);
             }
-            if (validB)
-            {
-                _enemyBPos = camera->WorldToViewport(enemies[2]->transform->GetWorldPosition());
+            { // Perfect
+                const float minFactor = QTE::Math::CalculateNotePosXFactor(-perfectMin, speedScale, tavelTime);
+                DebugDrawValidLine(panelPoint, panelSize, offsetX + perfectX * minFactor, Colors::Yellow);
+                const float maxFactor = QTE::Math::CalculateNotePosXFactor(-perfectMax, speedScale, tavelTime);
+                DebugDrawValidLine(panelPoint, panelSize, offsetX + perfectX * maxFactor, Colors::Yellow);
             }
-            return true;
         }
     }
-    return false;
-}
-
-bool QTEUIManager::CheckUIValid()
-{
-    return _qteOverlayPanel && _qteBackgroundUI && _qteNoteLineUI && _qteJudgeNoteUI;
 }
 
 void QTEUIManager::FindUIComponents()
 {
-    _qteOverlayPanel    = nullptr;
-    _qteBackgroundUI    = nullptr;
-    _qteNoteLineUI      = nullptr;
-    _qteJudgeNoteUI     = nullptr;
-    _qteGuideNoteX      = nullptr;
-    _qteGuideNoteY      = nullptr;
-    _qteGuideNoteB      = nullptr;
-
+    _overlayPanel = GetComponent<OverlayPanel>();
     Transform::ForeachBFS(transform, [this](Transform* curr) {
-        if (!_qteOverlayPanel && curr->gameObject->CompareTag("QTE Panel"))
+        if (curr)
         {
-            _qteOverlayPanel = curr->gameObject->GetComponent<OverlayPanel>();
-        }
-        else if (!_qteBackgroundUI && curr->gameObject->CompareTag("QTE Background"))
-        {
-            _qteBackgroundUI = curr->gameObject->GetComponent<ImageElement>();
-        }
-        else if (!_qteNoteLineUI && curr->gameObject->CompareTag("QTE Note Line"))
-        {
-            _qteNoteLineUI = curr->gameObject->GetComponent<ImageElement>();
-        }
-        else if (!_qteJudgeNoteUI && curr->gameObject->CompareTag("QTE Judge Note"))
-        {
-            _qteJudgeNoteUI = curr->gameObject->GetComponent<ImageElement>();
-        }
-        else if (!_qteGuideNoteX && curr->gameObject->CompareTag("Guide Note X"))
-        {
-            _qteGuideNoteX = curr->gameObject->GetComponent<ImageElement>();
-        }
-        else if (!_qteGuideNoteY && curr->gameObject->CompareTag("Guide Note Y"))
-        {
-            _qteGuideNoteY = curr->gameObject->GetComponent<ImageElement>();
-        }
-        else if (!_qteGuideNoteB && curr->gameObject->CompareTag("Guide Note B"))
-        {
-            _qteGuideNoteB = curr->gameObject->GetComponent<ImageElement>();
+            _backGroundUI.MatchUIFromObject(curr->gameObject);
+            _inputViewerUI.MatchUIFromObject(curr->gameObject);
+            _fieldUI.MatchUIFromObject(curr->gameObject);
+            _guideUI.MatchUIFromObject(curr->gameObject);
         }
     });
-
-    if (nullptr == _qteOverlayPanel)
-    {
-        UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"QTE UI Panel을 찾지 못했습니다.");
-    }
-    if (nullptr == _qteBackgroundUI)
-    {
-        UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"QTE Background UI을 찾지 못했습니다.");
-    }
-    else
-    {
-        _qteBackgroundUI->gameObject->ActiveSelf = true;
-    }
-    if (nullptr == _qteNoteLineUI)
-    {
-        UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"QTE Note Line UI를 찾지 못했습니다.");
-    }
-    if (nullptr == _qteJudgeNoteUI)
-    {
-        UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"QTE Judge Note UI를 찾지 못했습니다.");
-    }
-    if (nullptr == _qteGuideNoteX)
-    {
-        UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Guide Note X를 찾지 못했습니다.");
-    }
-    if (nullptr == _qteGuideNoteY)
-    {
-        UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Guide Note Y를 찾지 못했습니다.");
-    }
-    if (nullptr == _qteGuideNoteB)
-    {
-        UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Guide Note B를 찾지 못했습니다.");
-    }
-}
-
-void QTEUIManager::SpawnQTENotesFromCurrentTrack()
-{
-    if (SingletonComponent<QTESystem>::GetInstance() && _qteOverlayPanel)
-    {
-        ClearAllQTENotes();
-        const auto& notes  = SingletonComponent<QTESystem>::GetInstance()->GetCurrentQTEAvailQueue();
-        const auto* prefab = UmGameObjectFactory.GetOriginPrefab(_notePrefabGuid);
-        for (auto& note : notes)
-        {   // 노트 프리팹을 복제해서 비활성화 상태로 대기열에 추가
-            if (note && prefab && prefab->front())
-            {
-                GameObject* clone = GameObject::Instantiate(prefab->front().get());
-                if (clone)
-                {
-                    clone->SetActive(false);
-                    ImageElement* imageElement = clone->GetComponent<ImageElement>();
-                    if (imageElement)
-                    {
-                        imageElement->transform->SetParent(transform, false);
-                        imageElement->Point       = POINT(-LONG_MAX, 0); // 화면 밖으로 이동
-                        _noteSpawnTable[note->ID] = imageElement;
-                    }
-                }
-            }
-        }
-    }
-}
-
-void QTEUIManager::ClearAllQTENotes() 
-{
-    for (auto& [id, clone] : _noteSpawnTable)
-    {
-        if (clone)
-        {
-            GameObject::Destroy(clone->gameObject);
-            clone = nullptr;
-        }
-    }
-    _noteSpawnTable.clear();
-}
-
-float QTEUIManager::CalculateNotePosXFactor(float noteTime, float totalTime)
-{
-    float      factor = 0.0f;
-    QTESystem* system = SingletonComponent<QTESystem>::GetInstance();
-    if (system)
-    {
-        auto* track = system->GetCurrentQTETrack();
-        if (track)
-        {
-            const float systemSpeed = system->GetQTESpeedScale();
-            const float trackSpeed  = track->GetQTESpeedScale();
-
-            float scaledTotalTime = totalTime * systemSpeed * trackSpeed;
-            float scaledNoteTime  = noteTime * systemSpeed * trackSpeed;
-
-            factor = 1.0f + scaledTotalTime - scaledNoteTime;
-        }
-    }
-    return factor;
-}
-
-float QTEUIManager::CalculateNotePosX(float noteTime, float totalTime)
-{
-    float factor = CalculateNotePosXFactor(noteTime, totalTime);
-    return CalculateNotePosX(factor);
-}
-
-float QTEUIManager::CalculateNotePosX(float posFactor)
-{
-    return (_qteJudgePos.x + (_qteJudgeSize.x * 0.5f) - _qtePanelPos.x) * posFactor;
-}
-
-float QTEUIManager::CalculateNoteAlpha(float posFactor)
-{
-    auto system = SingletonComponent<QTESystem>::GetInstance();
-    float alpha = 1.0f;
-    if (system)
-    {
-        auto [fadeInMin, fadeInMax]   = system->GetFadeInPosFactor();
-        auto [fadeOutMin, fadeOutMax] = system->GetFadeOutPosFactor();
-
-        if (posFactor < fadeInMin)
-        {
-            alpha = 0.0f; // 아직 페이드인 시작 전
-        }
-        else if (posFactor < fadeInMax)
-        {
-            float t = (posFactor - fadeInMin) / (fadeInMax - fadeInMin);
-            alpha   = t; // 0 → 1 보간
-        }
-        else if (posFactor > fadeOutMax)
-        {
-            alpha = 0.0f; // 이미 페이드아웃 끝남
-        }
-        else if (posFactor > fadeOutMin)
-        {
-            float t = (posFactor - fadeOutMin) / (fadeOutMax - fadeOutMin);
-            alpha   = 1.0f - t; // 1 → 0 보간
-        }
-    }
-    return alpha;
-}
-
-ImageElement* QTEUIManager::FindNoteUIFromNoteID(int noteID) const
-{
-    auto itr = _noteSpawnTable.find(noteID);
-    if (itr != _noteSpawnTable.end())
-    {
-        return itr->second;
-    }
-    return nullptr;
 }

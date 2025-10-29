@@ -402,6 +402,41 @@ void EditSSGIProperty(std::any& property)
     }
 }
 
+void EditFXAAProperty(std::any& property)
+{
+    auto& fxaaProps = std::any_cast<FXAAProperty&>(property);
+
+    if (ImGui::BeginTable("Tone Mapping Properties", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+    {
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("QualitySubpixel");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##QualitySubpixel", &fxaaProps.QualitySubpixel, 0.001f, 0.f, 1.f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("QualityEdgeDetectionThreshold");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##QualityEdgeDetectionThreshold", &fxaaProps.QualityEdgeDetectionThreshold, 0.001f, 0.0f, 1.0f);
+        ImGui::PopItemWidth();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        CenterText("QualityMinimumEdgeThreshold");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::DragFloat("##QualityMinimumEdgeThreshold", &fxaaProps.QualityMinimumEdgeThreshold, 0.001f, 0.0f, 1.0f);
+        ImGui::PopItemWidth();
+
+        ImGui::EndTable();
+    }
+}
+
+
 void EditorRenderPassData::OnFrameRender()
 {
     if (ImGui::TreeNodeEx("Properties"))
@@ -442,6 +477,10 @@ void EditorRenderPassData::OnFrameRender()
                 else if (property.type() == typeid(SSGIProperty))
                 {
                     EditSSGIProperty(property);
+                }
+                else if (property.type() == typeid(FXAAProperty))
+                {
+                    EditFXAAProperty(property);
                 }
                 ImGui::TreePop();
             }

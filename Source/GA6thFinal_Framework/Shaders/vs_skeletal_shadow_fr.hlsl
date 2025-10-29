@@ -20,22 +20,21 @@ struct VSOutput
     float2 uv            : TEXCOORD;
     
     nointerpolation uint4 materialID : TEXCOORD1;
+    uint arrayIndex : SV_RenderTargetArrayIndex;
 };
 
-struct ShadowMeshData
+struct InstanceOffset
 {
-    uint CascadeIndex;
     uint Offset;
 };
 
-ConstantBuffer<ShadowMeshData> bit32_2_shadowMeshData;
-StructuredBuffer<uint> meshData;
+ConstantBuffer<InstanceOffset> bit32_1_instanceOffset;
 StructuredBuffer<matrix> boneMatrices;
 
 VSOutput vs_main(VSInput input)
 {
-    uint offset = bit32_2_shadowMeshData.Offset;
-    uint cascadeIndex = bit32_2_shadowMeshData.CascadeIndex;
+    uint offset = bit32_1_instanceOffset.Offset;
+    uint cascadeIndex = MAX_CASCADES;
     InstanceData data = instanceData[input.instanceID + offset];
 
     matrix boneTransform = mul(input.blendWeights.x, boneMatrices[data.MatrixID * MAX_BONE_MATRIX + input.blendIndices.x]);
@@ -52,6 +51,7 @@ VSOutput vs_main(VSInput input)
 
     output.uv = input.uv;
     output.materialID = data.MaterialID;
-
+    output.arrayIndex = cascadeIndex;
+    
     return output;
 }

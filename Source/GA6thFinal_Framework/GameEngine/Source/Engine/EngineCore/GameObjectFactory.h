@@ -21,11 +21,11 @@ private:
     inline void RegisterGameObject()
     {
         const char* key      = typeid(TGameObject).name();
-        auto        findIter = _NewGameObjectFuncMap.find(key);
-        if (findIter == _NewGameObjectFuncMap.end())
+        auto        findIter = _newGameObjectFuncMap.find(key);
+        if (findIter == _newGameObjectFuncMap.end())
         {
-            _NewGameObjectFuncMap[key] = [] { return new TGameObject; };
-            _NewGameObjectKeyVec.emplace_back(key);
+            _newGameObjectFuncMap[key] = [] { return new TGameObject; };
+            _newGameObjectKeyVec.emplace_back(key);
         }
         else
         {
@@ -47,6 +47,11 @@ public:
         /// Prefab FileEventSubscriber를 등록합니다. 
         /// </summary>
         static void RegisterFileEvents();
+
+        /// <summary>
+        /// 게임오브젝트 팩토리를 정리합니다.
+        /// </summary>
+        static void Finalize();
     };
 
     struct InstanceIDManager
@@ -78,9 +83,9 @@ public:
     /// 게임 오브젝트를 Yaml 형식으로 직렬화합니다.
     /// </summary>
     /// <param name="gameObject :">직렬화할 오브젝트</param>
-    /// <param name="onlyVaildObject :">Vaild Object만 직렬화에 포함</param>
+    /// <param name="onlyValidObject :">Vaild Object만 직렬화에 포함</param>
     /// <returns></returns>
-    YAML::Node SerializeToYaml(GameObject* gameObject, bool onlyVaildObject = false);
+    YAML::Node SerializeToYaml(GameObject* gameObject, bool onlyValidObject = false);
 
     /// <summary>
     /// Yaml 형식으로 직렬화된 오브젝트를 씬에 추가합니다.
@@ -180,9 +185,9 @@ private:
    //프리팹을 맵에서 제거합니다.
    void ErasePrefabItem(const File::Guid& guid);
 
-   private:
-    std::map<std::string, std::function<GameObject* ()>> _NewGameObjectFuncMap;    //생성용 맵
-    std::vector<std::string>                             _NewGameObjectKeyVec;     //키 항목 모음
+private:
+    std::map<std::string, std::function<GameObject* ()>> _newGameObjectFuncMap;    //생성용 맵
+    std::vector<std::string>                             _newGameObjectKeyVec;     //키 항목 모음
 
 private:
     //Prefab의 GUID만 다시 작성합니다.

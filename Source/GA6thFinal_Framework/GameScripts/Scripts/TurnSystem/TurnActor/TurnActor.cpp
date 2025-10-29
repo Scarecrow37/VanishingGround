@@ -1,6 +1,8 @@
 ﻿#include "pchScripts.h"
 #include "TurnActor.h"
 
+REFLECT_FUNCTION(TurnActor)
+
 TurnActor::TurnActor() 
     : 
     _currState(STATE::Dead)
@@ -71,10 +73,7 @@ void TurnActor::Awake()
 
 void TurnActor::OnCombatStart() {}
 
-void TurnActor::OnRoundStart()
-{
-    _randomSpeed = Random::Range(DEFINE::RANDOMSPEED_MIN, DEFINE::RANDOMSPEED_MAX);
-}
+void TurnActor::OnRoundStart() {}
 
 void TurnActor::OnRoundEnd() {}
 

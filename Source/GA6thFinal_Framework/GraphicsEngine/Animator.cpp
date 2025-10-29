@@ -10,6 +10,7 @@ Animator::Animator()
 
 Animator::~Animator()
 {   
+    Global::animationCore->UnregisterAnimator(this);
 }
 
 const Matrix* Animator::FindBoneMatrix(const char* boneName) const
@@ -49,6 +50,16 @@ float Animator::GetAnimationLastTime(const char* animation) const
     return 0.0f;
 }
 
+std::string_view Animator::GetCurrentAnimationName(unsigned int ID) const
+{
+    if (ID >= _controllers.size())
+    {
+        GRAPHICS_ASSERT(false, L"Greater than the number of controllers you set.");
+        return "";
+    }
+    return _controllers[ID].Animation;
+}
+
 float Animator::GetCurrentAnimationPlayTime(unsigned int ID) const
 {
     if (ID >= _controllers.size())
@@ -56,12 +67,7 @@ float Animator::GetCurrentAnimationPlayTime(unsigned int ID) const
         GRAPHICS_ASSERT(false, L"Greater than the number of controllers you set.");
         return 0.0f;
     }
-
-    if (false == _controllers.empty())
-    {
-        return _controllers[ID].PlayTime;
-    }
-    return 0.0f;
+    return _controllers[ID].PlayTime;
 }
 
 float Animator::GetCurrentAnimationSpeed(unsigned int ID) const
@@ -71,11 +77,7 @@ float Animator::GetCurrentAnimationSpeed(unsigned int ID) const
         GRAPHICS_ASSERT(false, L"Greater than the number of controllers you set.");
         return 0.0f;
     }
-    if (false == _controllers.empty())
-    {
-        return _controllers[ID].Speed;
-    }
-    return 0.0f;
+    return _controllers[ID].Speed;
 }
 
 bool Animator::HasAnimation(const char* animation) const
@@ -86,6 +88,11 @@ bool Animator::HasAnimation(const char* animation) const
         return true;
     }
     return false;
+}
+
+void Animator::SetActive(const bool* isActive)
+{
+    GraphicsBase::SetActive(isActive);
 }
 
 bool Animator::IsPaused() const
@@ -169,6 +176,16 @@ void Animator::SetLoop(bool isLoop)
 void Animator::SetAnimationEndCallback(std::function<void()> callback) 
 {
     _onAnimationEndCallback = callback;
+}
+
+void Animator::AddReference()
+{
+    //GraphicsBase::AddReference();
+}
+
+void Animator::Release()
+{
+    //GraphicsBase::Release();
 }
 
 const std::vector<const char*>& Animator::GetAnimationNames() const
@@ -295,9 +312,15 @@ void Animator::Update(const float deltaTime)
 	}
 }
 
+bool Animator::IsActive() const
+{
+    return GraphicsBase::IsActive();
+}
+
 bool Animator::ChangeAnimation(const char* animation, bool blending)
 {
     int count = 0;
+
     for (unsigned int i = 0; i < _maxSplit; i++)
     {
         if (ChangeAnimation(animation, i, blending))
@@ -305,6 +328,7 @@ bool Animator::ChangeAnimation(const char* animation, bool blending)
             ++count;
         }
     }
+
     return count > 0;
 }
 

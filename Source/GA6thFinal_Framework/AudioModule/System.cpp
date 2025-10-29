@@ -1,6 +1,8 @@
 ﻿#include "pch.h"
 #include "System.h"
 
+#include "FXFade.h"
+
 #include <ranges>
 
 namespace Audio
@@ -146,7 +148,6 @@ namespace Audio
 
     System::System() = default;
 
-
     System::System(System&& other) noexcept
         : _xAudio2(std::move(other._xAudio2)), _masteringVoice(other._masteringVoice)
     {
@@ -180,6 +181,8 @@ namespace Audio
         ClearVoicePool();
 
         ClearGroupPool();
+
+        ClearEffectPool();
 
         if (_masteringVoice)
         {
@@ -222,6 +225,19 @@ namespace Audio
             }
         }
         _groupPool.clear();
+    }
+
+    void System::ClearEffectPool()
+    {
+        for (auto& effectVoice : _effectPool)
+        {
+            if (effectVoice.Voice)
+            {
+                effectVoice.Voice->DestroyVoice();
+                effectVoice.Voice = nullptr;
+            }
+        }
+        _effectPool.clear();
     }
 
     void System::TurnOnDebugMode() const
@@ -289,13 +305,13 @@ namespace Audio
         // Format 해싱
         const WaveFormatHash hash = GetWaveFormatHash()(sound._format);
 
-
         // Format에 맞는 Pool 찾기
         auto [iter, succeed] = _voicePools.try_emplace(hash, VoicePool{});
 
         if (succeed)
         {
-            iter->second.resize(MAX_POOL_SIZE, SourceVoice{.Generation = 0, .Callback = Callback(OnBufferEnd(this)), .Voice = nullptr});
+            iter->second.resize(
+                MAX_POOL_SIZE, SourceVoice{.Generation = 0, .Callback = Callback(OnBufferEnd(this)), .Voice = nullptr});
         }
 
         VoicePool& sourceVoices = iter->second;
@@ -361,9 +377,9 @@ namespace Audio
                     throw InvalidHandleException("Invalid group handle provided.");
                 }
 
-                const SubmixVoice& firstSubmixVoice = _groupPool.at(firstGroupHandle._index);
+                const GroupVoice& firstSubmixVoice = _groupPool.at(firstGroupHandle._index);
 
-                const UINT32 channel = firstSubmixVoice.Channels;
+                const UINT32 channel    = firstSubmixVoice.Channels;
                 const UINT32 sampleRate = firstSubmixVoice.SampleRate;
 
                 std::unordered_set<Index> uniqueIndices;
@@ -379,7 +395,7 @@ namespace Audio
                         throw InvalidHandleException("Invalid group handle provided.");
                     }
 
-                    SubmixVoice& submixVoice = _groupPool.at(group._index);
+                    GroupVoice& submixVoice = _groupPool.at(group._index);
                     if (submixVoice.Channels != channel || submixVoice.SampleRate != sampleRate)
                     {
                         throw AudioException("All groups must have the same channel count and sample rate.");
@@ -391,7 +407,8 @@ namespace Audio
                                   [this](const AudioHandle& attachedVoice) { return !IsValidHandle(attachedVoice); });
                     submixVoice.AttachedVoices.push_back(handle);
                 }
-                const XAUDIO2_VOICE_SENDS voiceSends{.SendCount = static_cast<UINT32>(groups.size()), .pSends = sendDescriptors.data()};
+                const XAUDIO2_VOICE_SENDS voiceSends{.SendCount = static_cast<UINT32>(groups.size()),
+                                                     .pSends    = sendDescriptors.data()};
 
                 throwIfFailed(unusedSourceVoice->SetOutputVoices(&voiceSends), "Failed to set output voices.");
             }
@@ -440,8 +457,18 @@ namespace Audio
     {
         if (handle._index >= 0 && static_cast<decltype(_groupPool.size())>(handle._index) < _groupPool.size())
         {
-            const SubmixVoice& group = _groupPool.at(handle._index);
+            const GroupVoice& group = _groupPool.at(handle._index);
             return handle._generation == group.Generation;
+        }
+        return false;
+    }
+
+    bool System::IsValidHandle(const EffectHandle& handle) const noexcept
+    {
+        if (handle._index >= 0 && static_cast<decltype(_effectPool.size())>(handle._index) < _effectPool.size())
+        {
+            const EffectVoice& effect = _effectPool.at(handle._index);
+            return handle._generation == effect.Generation;
         }
         return false;
     }
@@ -455,26 +482,25 @@ namespace Audio
         {
             constexpr IsUnusedGeneration isUnusedGeneration;
 
-            if (auto& submixVoice = _groupPool[i]; isUnusedGeneration(submixVoice.Generation) &&
-                                                   submixVoice.Voice != nullptr && submixVoice.Channels == channels &&
-                                                   submixVoice.SampleRate == sampleRate)
+            if (auto& groupVoice = _groupPool[i]; isUnusedGeneration(groupVoice.Generation) &&
+                                                  groupVoice.Voice != nullptr && groupVoice.Channels == channels &&
+                                                  groupVoice.SampleRate == sampleRate)
             {
-                increaseGeneration(submixVoice.Generation);
-                return GroupHandle{static_cast<Index>(i), submixVoice.Generation};
+                increaseGeneration(groupVoice.Generation);
+                return GroupHandle{static_cast<Index>(i), groupVoice.Generation};
             }
         }
 
-        SubmixVoice& newSubmixVoice =
+        GroupVoice& newSubmixVoice =
             _groupPool.emplace_back(0, channels, sampleRate, nullptr, std::list<AudioHandle>());
 
-
-        throwIfFailed(_xAudio2->CreateSubmixVoice(&newSubmixVoice.Voice, channels, sampleRate),
+        throwIfFailed(_xAudio2->CreateSubmixVoice(&newSubmixVoice.Voice, channels, sampleRate, NULL, PROCESSING_STAGE_GROUP),
                       "Failed to create submix voice.");
 
         const Generation generation = increaseGeneration(newSubmixVoice.Generation);
-        const Index index = static_cast<Index>(_groupPool.size() - 1);
+        const Index      index      = static_cast<Index>(_groupPool.size() - 1);
 
-        return GroupHandle{index, generation}; 
+        return GroupHandle{index, generation};
     }
 
     void System::ReleaseGroup(const GroupHandle& handle)
@@ -512,8 +538,208 @@ namespace Audio
         {
             const float newVolume = std::clamp(volume, 0.0f, 1.0f);
             ThrowIfFailed()(_voicePools.at(handle._hash).at(handle._index).Voice->SetVolume(newVolume),
-                            "Failed to set source voice volume.");
+                "Failed to set source voice volume.");
         }
+    }
+
+    ReverbHandle System::CreateReverbEffect(UINT32 channels, UINT32 sampleRate)
+    {
+        constexpr ThrowIfFailed      throwIfFailed;
+        constexpr IncreaseGeneration increaseGeneration;
+
+        for (size_t i = 0; i < _effectPool.size(); ++i)
+        {
+            constexpr IsUnusedGeneration isUnusedGeneration;
+
+            if (auto& effectVoice = _effectPool[i]; isUnusedGeneration(effectVoice.Generation) &&
+                                                    effectVoice.Type == EffectType::REVERB &&
+                                                    effectVoice.Voice != nullptr && effectVoice.Channels == channels &&
+                                                    effectVoice.SampleRate == sampleRate)
+            {
+                increaseGeneration(effectVoice.Generation);
+
+                return ReverbHandle{static_cast<Index>(i), effectVoice.Generation};
+            }
+        }
+
+        EffectVoice& newEffectVoice =
+            _effectPool.emplace_back(EffectType::REVERB, 0, channels, sampleRate, nullptr, std::list<GroupHandle>());
+
+        IUnknown* effect = nullptr;
+        throwIfFailed(CreateFX(__uuidof(FXReverb), &effect), "Failed to create effect.");
+
+        XAUDIO2_EFFECT_DESCRIPTOR effectDescriptor{.pEffect = effect, .InitialState = FALSE, .OutputChannels = channels};
+
+        const XAUDIO2_EFFECT_CHAIN effectChain{.EffectCount = 1, .pEffectDescriptors = &effectDescriptor};
+
+        throwIfFailed(_xAudio2->CreateSubmixVoice(&newEffectVoice.Voice, channels, sampleRate, NULL, PROCESSING_STAGE_EFFECT, nullptr, &effectChain),
+                      "Failed to create submix voice.");
+
+        if (effect)
+            effect->Release();
+
+        const Generation generation = increaseGeneration(newEffectVoice.Generation);
+        const Index      index      = static_cast<Index>(_effectPool.size() - 1);
+
+        return ReverbHandle{index, generation};
+    }
+
+    void System::SetEffectParameter(const ReverbHandle& handle, const ReverbParameter parameter) const
+    {
+        if (!IsValidHandle(handle))
+            throw InvalidHandleException("Invalid effect handle provided to SetEffectParameter.");
+
+        constexpr ThrowIfFailed throwIfFailed;
+
+        const EffectVoice& effectVoice = _effectPool.at(handle._index);
+
+        if (effectVoice.Type != EffectType::REVERB)
+            throw InvalidCallException("Effect handle is not of type Reverb.");
+
+        FXREVERB_PARAMETERS reverbParameters;
+        reverbParameters.Diffusion = parameter.Diffusion;
+        reverbParameters.RoomSize  = parameter.RoomSize;
+
+        throwIfFailed(effectVoice.Voice->SetEffectParameters(0, &reverbParameters, sizeof(FXREVERB_PARAMETERS)),
+                      "Failed to set reverb parameters.");
+    }
+
+    FadeHandle System::CreateFadeEffect(const FadeInitParameter parameter, UINT32 channels, UINT32 sampleRate)
+    {
+        constexpr ThrowIfFailed      throwIfFailed;
+        constexpr IncreaseGeneration increaseGeneration;
+
+        for (size_t i = 0; i < _effectPool.size(); ++i)
+        {
+            constexpr IsUnusedGeneration isUnusedGeneration;
+
+            if (auto& effectVoice = _effectPool[i]; isUnusedGeneration(effectVoice.Generation) &&
+                                                    effectVoice.Type == EffectType::FADE &&
+                                                    effectVoice.Voice != nullptr && effectVoice.Channels == channels &&
+                                                    effectVoice.SampleRate == sampleRate)
+            {
+                increaseGeneration(effectVoice.Generation);
+
+                return FadeHandle{static_cast<Index>(i), effectVoice.Generation};
+            }
+        }
+
+        EffectVoice& newEffectVoice =
+            _effectPool.emplace_back(EffectType::FADE, 0, channels, sampleRate, nullptr, std::list<GroupHandle>());
+
+        throwIfFailed(_xAudio2->CreateSubmixVoice(&newEffectVoice.Voice, channels, sampleRate, NULL, PROCESSING_STAGE_EFFECT),
+                      "Failed to create submix voice.");
+
+        IXAPO* effect = new FXFade(parameter);
+
+        XAUDIO2_EFFECT_DESCRIPTOR effectDescriptor{.pEffect = effect, .InitialState = FALSE, .OutputChannels = channels};
+
+        const XAUDIO2_EFFECT_CHAIN effectChain{.EffectCount = 1, .pEffectDescriptors = &effectDescriptor};
+
+        throwIfFailed(newEffectVoice.Voice->SetEffectChain(&effectChain), "Failed to set effect chain.");
+
+        if (effect)
+            effect->Release();
+
+        const Generation generation = increaseGeneration(newEffectVoice.Generation);
+        const Index      index      = static_cast<Index>(_effectPool.size() - 1);
+
+        return FadeHandle{index, generation};
+    }
+
+    void System::SetEffectParameter(const FadeHandle& handle, const FadeParameter parameter) const
+    {
+        if (!IsValidHandle(handle))
+            throw InvalidHandleException("Invalid effect handle provided to SetEffectParameter.");
+
+        constexpr ThrowIfFailed throwIfFailed;
+
+        const EffectVoice& effectVoice = _effectPool.at(handle._index);
+
+        if (effectVoice.Type != EffectType::FADE)
+            throw InvalidCallException("Effect handle is not of type Fade.");
+
+        throwIfFailed(effectVoice.Voice->SetEffectParameters(0, &parameter, sizeof(FadeParameter)),
+                      "Failed to set fade parameters.");
+    }
+
+    void System::ReleaseEffect(const EffectHandle& handle)
+    {
+        if (!IsValidHandle(handle))
+            throw InvalidHandleException("Invalid group handle provided to ReleaseGroup.");
+
+        auto& [type, generation, channels, sampleRate, voice, attachedVoices] = _effectPool.at(handle._index);
+        IncreaseGeneration()(generation);
+        std::ranges::for_each(attachedVoices, [this](const GroupHandle& attachedVoice) {
+            if (IsValidHandle(attachedVoice))
+                DetachOutput(attachedVoice);
+        });
+        attachedVoices.clear();
+    }
+
+    void System::AttachEffect(const EffectHandle& effectHandle, const GroupHandle& groupHandle)
+    {
+        if (!IsValidHandle(effectHandle))
+            throw InvalidHandleException("Invalid effect effectHandle provided to EnableEffect.");
+
+        if (!IsValidHandle(groupHandle))
+            throw InvalidHandleException("Invalid group handle provided to EnableEffect.");
+
+        EffectVoice&      effectVoice = _effectPool.at(effectHandle._index);
+        const GroupVoice& groupVoice  = _groupPool.at(groupHandle._index);
+
+        if (const auto findIter = std::ranges::find(effectVoice.AttachedVoices, groupHandle);
+            findIter != effectVoice.AttachedVoices.end())
+            return;
+
+        constexpr ThrowIfFailed throwIfFailed;
+
+        XAUDIO2_SEND_DESCRIPTOR   sendDescriptor{.Flags = NULL, .pOutputVoice = effectVoice.Voice};
+        const XAUDIO2_VOICE_SENDS voiceSends{.SendCount = 1, .pSends = &sendDescriptor};
+
+        throwIfFailed(groupVoice.Voice->SetOutputVoices(&voiceSends), "Failed to set output voices.");
+
+        effectVoice.AttachedVoices.push_back(groupHandle);
+    }
+
+    void System::DetachEffect(const EffectHandle& handle)
+    {
+        if (!IsValidHandle(handle))
+            throw InvalidHandleException("Invalid effect handle provided to DisableEffect.");
+
+        constexpr ThrowIfFailed throwIfFailed;
+
+        EffectVoice& effectVoice = _effectPool.at(handle._index);
+
+        for (auto& groupHandle : effectVoice.AttachedVoices)
+        {
+            if (IsValidHandle(groupHandle))
+                DetachOutput(groupHandle);
+        }
+
+        effectVoice.AttachedVoices.clear();
+    }
+
+    void System::EnableEffect(const EffectHandle& handle) const
+    {
+        if (!IsValidHandle(handle))
+            throw InvalidHandleException("Invalid effect handle provided to EnableEffect.");
+
+        constexpr ThrowIfFailed throwIfFailed;
+
+        const EffectVoice& effectVoice = _effectPool.at(handle._index);
+        throwIfFailed(effectVoice.Voice->EnableEffect(0), "Failed to enable effect.");
+    }
+
+    void System::DisableEffect(const EffectHandle& handle) const
+    {
+        if (!IsValidHandle(handle))
+            throw InvalidHandleException("Invalid effect handle provided to DisableEffect.");
+
+        constexpr ThrowIfFailed throwIfFailed;
+
+        const EffectVoice& effectVoice = _effectPool.at(handle._index);
+        throwIfFailed(effectVoice.Voice->DisableEffect(0), "Failed to disable effect.");
     }
 
     void System::ReleaseVoice(const AudioHandle& handle)
@@ -536,6 +762,16 @@ namespace Audio
             throw InvalidHandleException("Invalid handle provided to DetachOutput.");
 
         if (IXAudio2SourceVoice* voice = _voicePools.at(handle._hash).at(handle._index).Voice; nullptr != voice)
+        {
+            ThrowIfFailed()(voice->SetOutputVoices(nullptr), "Failed to detach output voices.");
+        }
+    }
+
+    void System::DetachOutput(const GroupHandle& handle) const
+    {
+        if (!IsValidHandle(handle))
+            throw InvalidHandleException("Invalid group handle provided to DetachOutput.");
+        if (IXAudio2SubmixVoice* voice = _groupPool.at(handle._index).Voice; nullptr != voice)
         {
             ThrowIfFailed()(voice->SetOutputVoices(nullptr), "Failed to detach output voices.");
         }

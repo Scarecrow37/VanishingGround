@@ -83,6 +83,15 @@ public:
     /// </summary>
     void UninitalizeComponentFactory();
 
+    void CleanupExpiredComponents() 
+    {
+        std::erase_if(_componentInstanceVec, [](const std::pair<std::string, std::weak_ptr<Component>>& pair) 
+        { 
+            auto& [key, weak] = pair;
+            return weak.expired();
+        });
+    }
+
     /// <summary>
     /// 컴포넌트 클래스 typeid로 컴포넌트를 생성합니다.
     /// </summary>
@@ -97,7 +106,7 @@ public:
     /// <returns></returns>
     const std::vector<std::string>& GetNewComponentKeyList()
     {
-        return m_NewScriptsKeyVec;
+        return _newScriptsKeyVec;
     }
 
     /// <summary>
@@ -106,7 +115,7 @@ public:
     /// <returns></returns>
     inline bool HasScript() const
     { 
-        return (m_scriptsDll != NULL) ? true : false;
+        return (_scriptsDll != NULL) ? true : false;
     }
 
     /// <summary>
@@ -187,9 +196,9 @@ private:
 
    std::vector<std::pair<std::string, std::weak_ptr<Component>>> _componentInstanceVec;
 
-    HMODULE m_scriptsDll{};
+    HMODULE _scriptsDll{};
     std::map<std::string, std::function<Component*()>> _newScriptsFunctionMap{};
-    std::vector<std::string> m_NewScriptsKeyVec{}; 
+    std::vector<std::string> _newScriptsKeyVec{}; 
 
     std::vector<std::pair<std::string, std::function<Component*()>>> _engineComponets;
 

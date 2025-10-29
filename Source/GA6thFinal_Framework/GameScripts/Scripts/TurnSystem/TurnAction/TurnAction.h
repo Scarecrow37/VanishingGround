@@ -10,7 +10,9 @@ class Player;
 struct PlayerStats;
 class Enemy;
 struct EnemyStats;
+class WeaponElement;
 struct WeaponStats;
+class TokenInventory;
 
 //턴 라이프 사이클 사용을 위한 Base 클래스입니다.
 class TurnAction abstract : public ReflectSerializer, public FactoryConstructor<TurnActionCondition>
@@ -42,6 +44,7 @@ public:
     {
         if (_isDestroy)
         {
+            OnDestroy();
             *_isDestroy = true;
             _isDestroy  = nullptr;
         }
@@ -106,6 +109,16 @@ public:
     /*편집을 위한 ImGui 함수를 구현해야합니다.*/
     virtual void ImGuiDrawActionEditor() = 0;
 
+    /// <summary>
+    /// 턴 모드에 이 액션이 추가될때 호출됩니다.
+    /// </summary>
+    virtual void OnAddedAction() {};
+
+    /// <summary>
+    /// SetDestory가 호출될때 호출됩니다.
+    /// </summary>
+    virtual void OnDestroy() {}
+
     /// <summary>전투가 시작될 때 호출됩니다.</summary>
     virtual void OnCombatStart() {}
 
@@ -133,6 +146,13 @@ public:
     /// </summary>
     /// <param name="enemy"></param>
     virtual void OnEnemyDead(Enemy& enemy) {}
+
+    /// <summary>
+    /// 플레이어가 무기 공격을 통해 적을 죽이면 호출합니다.
+    /// </summary>
+    /// <param name="enemy"></param>
+    /// <param name="weapon"></param>
+    virtual void OnEnemyDeadByWeapon(Enemy& enemy, WeaponElement& weapon) {}
 
     /// <summary>
     /// QTE가 시작할 때 호출됩니다. 
@@ -209,19 +229,73 @@ public:
     {
     }
 
+    /// <summary>
+    /// 토큰을 부여하기 직전에 호출합니다.
+    /// </summary>
+    /// <param name="target :">부여 대상</param>
+    /// <param name="tokenID :">부여하는 토큰 아이디</param>
+    /// <param name="tokenCount :">부여하는 갯수</param>
+    virtual void OnTokenAddedStart(CharacterBase& target, int& tokenID, int& tokenCount) {};
+
+    /// <summary>
+    /// 토큰을 부여한뒤 호출합니다.
+    /// </summary>
+    /// <param name="target :">부여 대상</param>
+    /// <param name="tokenID :">부여한 토큰 아이디</param>
+    /// <param name="tokenCount :">부여한 갯수</param>
+    virtual void OnTokenAddedEnd(CharacterBase& target, int tokenID, int tokenCount) {};
+
+    /// <summary>
+    /// 플레이어에 TakeDamage가 들어가기 직전에 호출됩니다.
+    /// </summary>
+    /// <param name="player :">대상</param>
+    /// <param name="damage :">들어갈 데미지</param>
+    virtual void OnPlayerTakeDamageStart(Player& target, int& damage) {}
+
+    /// <summary>
+    /// 플레이어에 TakeDamage가 들어간 후 호출됩니다.
+    /// </summary>
+    /// <param name="target :">대상</param>
+    /// <param name="damage :">들어간 데미지</param>
+    virtual void OnPlayerTakeDamageEnd(Player& target, int damage) {}
+    
+    /// <summary>
+    /// Enemy에 TakeDamage가 들어가기 직전에 호출됩니다.
+    /// </summary>
+    /// <param name="target :">대상</param>
+    /// <param name="damage :">들어갈 데미지</param>
+    virtual void OnEnemyTakeDamageStart(Enemy& target, int& damage) {}
+
+    /// <summary>
+    /// Enemy에 TakeDamage가 들어가기 직전에 호출됩니다.
+    /// </summary>
+    /// <param name="target :">대상</param>
+    /// <param name="damage :">들어갈 데미지</param>
+    virtual void OnEnemyTakeDamageEnd(Enemy& target, int damage) {}
+
 public:
     REFLECT_PROPERTY(ActionName, ActionInfo, LogicOperator)
 
     GETTER_ONLY(const std::string&, ActionName) { return GetActionName(); }
     // 계시 이름
+    // type : const std::string&
     PROPERTY(ActionName)
 
     GETTER_ONLY(const std::string&, ActionInfo) { return GetActionInfo(); }
+    // 액션 정보
+    // type : const std::string&
     PROPERTY(ActionInfo)
 
     GETTER(ConditionOperator, LogicOperator) { return ReflectFields->LogicOperator; }
     SETTER(ConditionOperator, LogicOperator) { ReflectFields->LogicOperator = value; }
+    // 연산자
+    // type : ConditionOperator
     PROPERTY(LogicOperator)
+
+    GETTER_ONLY(size_t, ConditionCount) { return _conditions.size(); }
+    // 현재 이 액션의 조건 객체의 개수
+    // type : size_t
+    PROPERTY(ConditionCount)
 
 protected:
     /// <summary>
@@ -229,7 +303,7 @@ protected:
     /// </summary>
     using ConditionDataType = std::pair<std::string, std::string>;
     REFLECT_FIELDS_BEGIN(ReflectSerializer)
-    std::vector<ConditionDataType> _conditionDatas;
+    std::vector<ConditionDataType> ConditionDatas;
     ConditionOperator LogicOperator = ConditionOperator::AND;
     REFLECT_FIELDS_END(TurnAction)
 

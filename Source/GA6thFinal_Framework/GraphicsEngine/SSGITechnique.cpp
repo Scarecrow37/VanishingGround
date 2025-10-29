@@ -44,10 +44,10 @@ void SSGITechnique::Initialize(ID3D12GraphicsCommandList* commandList)
 
     _finalGITex->Initialize(desc, 0.247f);
     SSGIProperty property;
-    property.Radius         = 1.f;
+    property.Radius         = 0.01f;
     property.Thickness      = 0.05f;
     property.NumSample      = 16;
-    property.Intensity      = 1.f;
+    property.Intensity      = 10.f;
     property.TemporalWeight = 0.85f;
     property.DepthSigma     = 2.f;
     property.NormalSigma    = 128.f;

@@ -29,7 +29,9 @@ std::filesystem::path ESceneManager::GetSettingFilePath()
 }
 
 ESceneManager::ESceneManager() 
-    : _mainCamera(nullptr) 
+    : 
+    _mainCamera(nullptr), 
+    _nextSceneSkybox(nullptr)
 {
    
 }
@@ -148,14 +150,14 @@ void ESceneManager::SceneUpdate()
     ObjectsAwake();
     ObjectsStart();
     ObjectsApplicationQuit();
+    ObjectsDestroy();
+    ObjectsAddLoadScene();
     ObjectsMatrixUpdate();
 }
 
 void ESceneManager::SceneFinalUpdate() 
 {
     //그래픽스 Flip 이후 실행해야할 로직들
-    ObjectsDestroy();
-    ObjectsAddLoadScene();
     ObjectsTransformFlagReset();
     ObjectsPrevFrameEnableUpdate();
 #ifdef _UMEDITOR
@@ -206,6 +208,7 @@ void ESceneManager::Engine::AddComponentToLifeCycle(std::shared_ptr<Component> c
 {
     Global::engineCore->SceneManager._addComponentsQueue.emplace_back(component->_gameObject->GetWeakPtr(), component);
     EComponentFactory::Engine::PushBackComponentToObject(component);
+    component->Reset();
 }
 
 void ESceneManager::Engine::SetGameObjectActive(GameObject* pObject, bool value)
@@ -558,6 +561,7 @@ std::shared_ptr<GameObject> ESceneManager::Engine::SwapPrefabInstance(GameObject
                 //오브젝트 정보 복사
                 std::swap(sOrigin->_instanceID, sRemake->_instanceID);
                 std::swap(sOrigin->_ownerScene, sRemake->_ownerScene);
+                sRemake->_creationFrame = sOrigin->_creationFrame;
                 std::string objectData = sOrigin->SerializedReflectFields();
                 sRemake->DeserializedReflectFields(objectData);
 
@@ -764,7 +768,7 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
             }
         }
         _setting.MainScene = scene->Path;
-        SetRendererSkyBox(scene);              
+        _nextSceneSkybox   = scene;         
         _addComponentsQueue.clear();
         _addGameObjectsQueue.clear();
         _waitAwakeVec.clear();
@@ -882,7 +886,10 @@ Scene* ESceneManager::GetSceneByName(std::string_view name)
 
 void ESceneManager::ObjectsAwake()
 {
-    for (auto& component : _waitAwakeVec)
+    static thread_local std::vector<Component*> awakeVector;
+    awakeVector.clear();
+    std::ranges::transform(_waitAwakeVec, std::back_inserter(awakeVector), [](const std::shared_ptr<Component>& ptr) { return ptr.get(); });
+    for (auto& component : awakeVector)
     {
         if (component->_enableInHierarchy)
         {
@@ -899,7 +906,10 @@ void ESceneManager::ObjectsAwake()
 
 void ESceneManager::ObjectsStart()
 {
-    for (auto& component : _waitStartVec)
+    static thread_local std::vector<Component*> startVector;
+    startVector.clear();
+    std::ranges::transform(_waitStartVec, std::back_inserter(startVector), [](const std::shared_ptr<Component>& ptr) { return ptr.get(); });
+    for (auto& component : startVector)
     {
         if (component->_enableInHierarchy)
         {
@@ -908,7 +918,7 @@ void ESceneManager::ObjectsStart()
         }
     }
     std::erase_if(_waitStartVec, [](auto& component)
-    {
+    { 
         return component->_initFlags.IsStart();
     });
 }
@@ -1040,6 +1050,12 @@ void ESceneManager::ObjectsAddLoadScene()
         }
         _nextSceneGuid.clear();
     }
+
+    if (nullptr != _nextSceneSkybox)
+    {
+        SetRendererSkyBox(_nextSceneSkybox);     
+        _nextSceneSkybox = nullptr;
+    }
 }
 
 void ESceneManager::ObjectsApplicationQuit()
@@ -1050,7 +1066,7 @@ void ESceneManager::ObjectsApplicationQuit()
         {
             for (auto& obj : _runtimeObjects)
             {
-                if (obj->IsValid())
+                if (IsRuntimeActive(obj))
                 {
                     for (auto& component : obj->_components)
                     {
@@ -1074,7 +1090,7 @@ void ESceneManager::ObjectsOnEnable()
     {
         if (const auto& component = weakComponent.lock())
         {
-            validComponents.push_back(std::move(component));
+            validComponents.push_back(component);
         }
     }
     onEnableSet.clear();
@@ -1103,7 +1119,7 @@ void ESceneManager::ObjectsOnDisable()
     {
         if (const auto& component = weakComponent.lock())
         {
-            validComponents.push_back(std::move(component));
+            validComponents.push_back(component);
         }
     }
     OnDisableSet.clear();
@@ -1124,9 +1140,8 @@ void ESceneManager::ObjectsDestroy()
 {
     //컴포넌트 삭제
     auto& [destroyComponentSet, destroyComponentQueue] = _destroyComponentsQueue;
-    //OnDestroy 호출 도중 원본 큐 변형 방지를 위한 지연삭제
+    // OnDestroy 호출 도중 원본 큐 변형 방지를 위한 지연삭제
     _destroyComponentsTemp = destroyComponentQueue;
-    destroyComponentSet.clear();
     destroyComponentQueue.clear();
     for (auto& destroyComponent : _destroyComponentsTemp)
     {
@@ -1142,15 +1157,17 @@ void ESceneManager::ObjectsDestroy()
         {
             return destroyComponent == component.get();
         });
-
-        NotInitDestroyComponentEraseToWaitVec(destroyComponent);
     }
-
+    destroyComponentSet.clear();
+    for (auto& component : destroyComponentQueue)
+    {
+        destroyComponentSet.insert(component);
+    }
+    
     //오브젝트 삭제
     auto& [destroyObjectSet, destroyObjectQueue] = _destroyObjectsQueue;
     // OnDestroy 호출 도중 원본 큐 변형 방지를 위한 복사 후 삭제
     _destroyObjectTemp = destroyObjectQueue;
-    destroyObjectSet.clear();
     destroyObjectQueue.clear();
     for (auto& destroyObject : _destroyObjectTemp)
     {
@@ -1159,7 +1176,6 @@ void ESceneManager::ObjectsDestroy()
             for (auto& component : destroyObject->_components)
             {
                 component->OnDestroy();
-                NotInitDestroyComponentEraseToWaitVec(component.get());
             }
         }
 
@@ -1190,6 +1206,11 @@ void ESceneManager::ObjectsDestroy()
             }
         }
     }
+    destroyObjectSet.clear();
+    for (auto& object : destroyObjectQueue)
+    {
+        destroyObjectSet.insert(object);
+    }
 
     //배열 정리
     while (_runtimeObjects.empty() == false && _runtimeObjects.back() == nullptr)
@@ -1197,27 +1218,18 @@ void ESceneManager::ObjectsDestroy()
         _runtimeObjects.pop_back();
     }
 
-    //하이러키 에디터에 삭제 플래그 활성화
-    if constexpr (IS_EDITOR)
-    {
-        if (false == _destroyObjectTemp.empty())
-        {
-            static EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("SceneDock");
-            static EditorHierarchyTool* editorHierarchy = sceneDock->GetGui<EditorHierarchyTool>();
-            if (editorHierarchy)
-            {
-                 editorHierarchy->ActiveHierarchyCleanup();
-            }
-        }
-    }
-
     //큐 초기화
-    _destroyComponentsTemp.clear();
-    _destroyObjectTemp.clear();
+    if (_destroyComponentsTemp.empty() || _destroyObjectTemp.empty())
+    {
+        UmComponentFactory.CleanupExpiredComponents();
+        _destroyComponentsTemp.clear();
+        _destroyObjectTemp.clear();
+    }
 }
 
 void ESceneManager::ObjectsAddRuntime()
 {
+    //오브젝트 추가
     for (auto& gameObject : _addGameObjectsQueue)
     {
         int id = gameObject->_instanceID;
@@ -1236,20 +1248,14 @@ void ESceneManager::ObjectsAddRuntime()
         }
         _runtimeObjects[id] = gameObject;
         GameObject::Engine::UpdateActiveInHierarchy(gameObject.get());     
-
-        if constexpr (IS_EDITOR)
-        {
-            static EditorDockWindow* sceneDock = Global::editorModule->GetDockWindowSystem().GetDockWindow("SceneDock");
-            static EditorHierarchyTool* editorHierarchy = sceneDock->GetGui<EditorHierarchyTool>();
-            if (editorHierarchy)
-            {
-                editorHierarchy->PushHierarchyObject(gameObject);
-            }
-        }
     }
+    _addGameObjectsQueue.clear();
 
+    //임시 큐
+    static thread_local std::vector<Component*> addQueue;
+    addQueue.reserve(_addComponentsQueue.size());
     for (auto& [owner, component] : _addComponentsQueue)
-    {
+    {   
         if (owner.expired() == false)
         {
             if (_isPlay)
@@ -1261,13 +1267,18 @@ void ESceneManager::ObjectsAddRuntime()
             {
                 component->gameObject->_transform._hasChanged = true;
             }
-            component->UpdateEnableInHierarchy();
-            component->Reset();
+            addQueue.push_back(component.get());
         }
     }
-
-    _addGameObjectsQueue.clear();
     _addComponentsQueue.clear();
+
+    //안전하게 원본 배열에서 복사 후 이벤트 호출
+    for (auto& component : addQueue)
+    {
+        component->UpdateEnableInHierarchy();
+        component->Added();
+    }
+    addQueue.clear();
 }
 
 bool ESceneManager::IsRuntimeActive(std::shared_ptr<GameObject>& obj)
@@ -1279,31 +1290,41 @@ void ESceneManager::NotInitDestroyComponentEraseToWaitVec(Component* destroyComp
 {
     if (destroyComponent->_initFlags.IsAwake() == false)
     {
-        std::erase_if(
-            _waitAwakeVec,
-            [destroyComponent](std::shared_ptr<Component>& component)
+        size_t result = std::erase_if(_waitAwakeVec, [destroyComponent](std::shared_ptr<Component>& component) 
+        {
+            return component.get() == destroyComponent;
+        });
+
+        if (0 == result)
+        {
+            if (false == _addComponentsQueue.empty())
             {
-                return component.get() == destroyComponent;
+                // 추가 대기중인 컴포넌트라면 같이 삭제
+                std::erase_if(_addComponentsQueue,
+                [destroyComponent](const std::pair<std::weak_ptr<GameObject>, std::shared_ptr<Component>>& pair) 
+                {
+                    auto& [obj, component] = pair;
+                    return component.get() == destroyComponent;
+                });
             }
-        );
+        }         
     }
 
     if (destroyComponent->_initFlags.IsStart() == false)
     {
-        std::erase_if(
-            _waitStartVec,
-            [destroyComponent](std::shared_ptr<Component>& component)
+        if (false == _waitStartVec.empty())
+        {
+            std::erase_if(_waitStartVec, [destroyComponent](std::shared_ptr<Component>& component) 
             {
                 return component.get() == destroyComponent;
-            }
-        );
+            });
+        }
     }
-
 }
 
-bool ESceneManager::InsertGameObjectMap(std::shared_ptr<GameObject>& pInsertObject) 
+bool ESceneManager::InsertGameObjectMap(std::shared_ptr<GameObject>& insertObject) 
 {
-    auto [iter, result] = _runtimeObjectsUnorderedMap[pInsertObject->ReflectFields->_name].insert(pInsertObject);
+    auto [iter, result] = _runtimeObjectsUnorderedMap[insertObject->ReflectFields->_name].insert(insertObject);
     if (result == false)
     {
         assert(!"이미 추가한 게임 오브젝트 입니다.");
@@ -1311,25 +1332,26 @@ bool ESceneManager::InsertGameObjectMap(std::shared_ptr<GameObject>& pInsertObje
     return result;
 }
 
-void ESceneManager::EraseGameObjectMap(std::shared_ptr<GameObject>& pEraseObject)
+void ESceneManager::EraseGameObjectMap(std::shared_ptr<GameObject>& eraseObject)
 {
-    auto findIter = _runtimeObjectsUnorderedMap.find(pEraseObject->ReflectFields->_name);
+    auto findIter = _runtimeObjectsUnorderedMap.find(eraseObject->ReflectFields->_name);
     if (findIter == _runtimeObjectsUnorderedMap.end())
     {
         assert(!"유효하지 않는 오브젝트 이름입니다.");
     }
-    findIter->second.erase(pEraseObject);
+    findIter->second.erase(eraseObject);
 }
 
 void ESceneManager::AddDestroyComponentQueue(Component* component) 
 {
-    if (component->gameObject->IsValid())
+    if (component && component->gameObject->IsValid())
     {
         auto& [set, vec]    = engineCore->SceneManager._destroyComponentsQueue;
         auto [iter, result] = set.insert(component);
         if (result)
         {
             vec.push_back(component);
+            NotInitDestroyComponentEraseToWaitVec(component);
         }
     }
 }
@@ -1440,14 +1462,18 @@ void ESceneManager::SetRendererSkyBox(Scene* scene)
 
 void ESceneManager::AddDestroyObjectQueue(GameObject* gameObject) 
 {
-    if (gameObject->IsValid())
+    if (gameObject && gameObject->IsValid())
     {
         auto& [set, vec] = engineCore->SceneManager._destroyObjectsQueue;
-        Transform::ForeachDFS(gameObject->_transform, [&set, &vec](Transform* pTransform) {
+        Transform::ForeachDFS(gameObject->_transform, [this, &set, &vec](Transform* pTransform) {
             auto [iter, result] = set.insert(&pTransform->gameObject);
             if (result)
             {
                 vec.push_back(&pTransform->gameObject);
+                for (auto& component : pTransform->_gameObject._components)
+                {
+                    NotInitDestroyComponentEraseToWaitVec(component.get());
+                }
             }
         });
     }
@@ -1602,12 +1628,16 @@ bool ESceneManager::SetSkyIBL(const File::Path& path)
 
 const std::vector<std::weak_ptr<MeshComponent>>& ESceneManager::GetMeshComponents()
 {
+    ClearExpiredMeshComponents();
+    return _runtimeMeshComponents;
+}
+
+void ESceneManager::ClearExpiredMeshComponents() 
+{
     std::erase_if(_runtimeMeshComponents, [](const std::weak_ptr<MeshComponent>& weakMesh) 
     { 
         return weakMesh.expired();
     });
-
-    return _runtimeMeshComponents;
 }
 
 bool ESceneManager::WriteUmSceneFile(Scene& scene, std::string_view sceneName, std::string_view outPath, bool isOverride, bool isEmptyScene)
@@ -1624,7 +1654,10 @@ bool ESceneManager::WriteUmSceneFile(Scene& scene, std::string_view sceneName, s
     fsPath writePath = UmFileSystem.GetAssetPath();
     writePath /= outPath;
     writePath /= sceneName;
-    writePath.replace_extension(SCENE_EXTENSION);
+    if (writePath.extension() != SCENE_EXTENSION)
+    {
+        writePath += SCENE_EXTENSION;
+    }
    
     bool isExists = fs::exists(writePath);
     if (true == isExists && false == isOverride)
@@ -2218,7 +2251,6 @@ void ESceneManager::InputSystem::UpdateInput()
             {
                 for (const auto& flag : queue)
                 {
-                    // TODO: 시우야 확인해줘
                     UpdateTracker(flag.Button);
                 }
             } 
@@ -2259,6 +2291,54 @@ void ESceneManager::InputSystem::RegisterInputReceiver(InputReceiver& receiver, 
     }
 }
 
+bool ESceneManager::InputSystem::PushReceiverToInputStack(InputReceiver& receiver)
+{
+    if (receiver._isDestroy && false == *receiver._isDestroy)
+    {
+        if (false == receiver._isPushStack)
+        {
+            _layerStack.emplace_back(receiver._isDestroy.get(), receiver._isDestroy);
+            receiver._isPushStack = true;
+            return true;
+        }
+    }  
+    return false;
+}
+
+bool ESceneManager::InputSystem::PopReceiverToInputStack(InputReceiver& receiver)
+{
+    if (receiver._isDestroy)
+    {
+        if (true == receiver._isPushStack)
+        {
+            bool result = false;
+            while (false == _layerStack.empty())
+            {
+                auto& [topReceiver, isDestroy] = _layerStack.back();
+                if (receiver._isDestroy.get() == topReceiver)
+                {
+                    _layerStack.pop_back();
+                    receiver._isPushStack = false;
+                    result = true;
+                }
+                else 
+                {               
+                    if (auto destroyFlag = isDestroy.lock())
+                    {
+                        if (*destroyFlag)
+                        {
+                            _layerStack.pop_back();
+                            continue;
+                        }
+                    }
+                    return result;          
+                }
+            }
+        }
+    }
+    return false;
+}
+
 void ESceneManager::InputSystem::CleanupInputReceivers() 
 {
     for (auto& actions : _receivers)
@@ -2268,6 +2348,7 @@ void ESceneManager::InputSystem::CleanupInputReceivers()
             inputReceivers.clear();
         }
     }
+    _layerStack.clear();
 }
 
 void ESceneManager::InputSystem::Vibrate(const Input::ControllerTypes::Vibration vibration)
@@ -2366,7 +2447,18 @@ void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
         }
         else
         {
-            event(_inputController);
+            if (_layerStack.empty())
+            {
+                event(_inputController);
+            }
+            else
+            {
+                auto& [destroyFlag, weak] = _layerStack.back();
+                if (destroyFlag == isDestroy.get())
+                {
+                    event(_inputController);
+                }
+            }       
             checker = true;
         }
     }

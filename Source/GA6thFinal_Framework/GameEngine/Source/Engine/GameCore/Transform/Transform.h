@@ -317,6 +317,13 @@ public:
     Transform* Find(std::string_view name) const;
 
     /// <summary>
+    /// 해당 태그를 가지고있는 자식을 찾아서 반환합니다. 여러개가 존재할 경우 가장 앞쪽에 있는 자식을 반환합니다.
+    /// </summary>
+    /// <param name="tag :">찾을 태그</param>
+    /// <returns>없으면 nullptr</returns>
+    Transform* FindWithTag(const std::string& tag) const;
+
+    /// <summary>
     /// <para>
     /// https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Transform.Rotate.html
     /// </para> <para> Transform을 특정 축으로 회전시킵니다. </para>
@@ -494,7 +501,7 @@ private:
     static void CallUIAttachChild(Transform* target, Transform* newChild);
 
     /// <summary>
-    /// object의 vaild 여부 체크합니다.
+    /// object의 valid 여부 체크합니다.
     /// </summary>
     /// <param name="target"></param>
     /// <returns></returns>
@@ -593,14 +600,17 @@ inline void Transform::ForeachExPostOrder(Transform& root, bool checkValid, cons
     {
         Transform* currTr = trStack.back();
         trStack.pop_back();
-        bool vaild = checkValid ? CheckValidTransform(currTr) : true;
-        if (vaild)
+        if (currTr)
         {
-            func(currTr);
-            for (auto iter = currTr->_childsList.begin(); iter != currTr->_childsList.end(); ++iter)
+            bool valid = checkValid ? CheckValidTransform(currTr) : true;
+            if (valid)
             {
-                auto& transform = *iter;
-                trStack.push_back(transform);
+                func(currTr);
+                for (auto iter = currTr->_childsList.begin(); iter != currTr->_childsList.end(); ++iter)
+                {
+                    auto& transform = *iter;
+                    trStack.push_back(transform);
+                }
             }
         }
     }
@@ -614,14 +624,17 @@ inline void Transform::ForeachExDFS(Transform& root, bool checkValid, const std:
     {
         Transform* currTr = trStack.back();
         trStack.pop_back();
-        bool vaild = checkValid ? CheckValidTransform(currTr) : true;
-        if (vaild)
+        if (currTr)
         {
-            func(currTr);
-            for (auto iter = currTr->_childsList.rbegin(); iter != currTr->_childsList.rend(); ++iter)
+            bool valid = checkValid ? CheckValidTransform(currTr) : true;
+            if (valid)
             {
-                auto& transform = *iter;
-                trStack.push_back(transform);
+                func(currTr);
+                for (auto iter = currTr->_childsList.rbegin(); iter != currTr->_childsList.rend(); ++iter)
+                {
+                    auto& transform = *iter;
+                    trStack.push_back(transform);
+                }
             }
         }
     }
@@ -633,16 +646,19 @@ inline void Transform::ForeachExPostOrder(Transform& root, bool checkValid, cons
     trStack.emplace_back(&root, 0);
     while (trStack.empty() == false)
     {
-        auto [currTr, currentDepth] = trStack.back();
+        auto& [currTr, currentDepth] = trStack.back();
         trStack.pop_back();
-        bool vaild = checkValid ? CheckValidTransform(currTr) : true;
-        if (vaild)
+        if (currTr)
         {
-            func(currTr, currentDepth);
-            for (auto iter = currTr->_childsList.begin(); iter != currTr->_childsList.end(); ++iter)
+            bool valid = checkValid ? CheckValidTransform(currTr) : true;
+            if (valid)
             {
-                auto& transform = *iter;
-                trStack.emplace_back(transform, currentDepth + 1);
+                func(currTr, currentDepth);
+                for (auto iter = currTr->_childsList.begin(); iter != currTr->_childsList.end(); ++iter)
+                {
+                    auto& transform = *iter;
+                    trStack.emplace_back(transform, currentDepth + 1);
+                }
             }
         }
     }
@@ -654,16 +670,19 @@ inline void Transform::ForeachExDFS(Transform& root, bool checkValid, const std:
     trStack.emplace_back(&root, 0);
     while (trStack.empty() == false)
     {
-        auto [currTr, currentDepth] = trStack.back();
+        auto& [currTr, currentDepth] = trStack.back();
         trStack.pop_back();
-        bool vaild = checkValid ? CheckValidTransform(currTr) : true;
-        if (vaild)
+        if (currTr)
         {
-            func(currTr, currentDepth);
-            for (auto iter = currTr->_childsList.rbegin(); iter != currTr->_childsList.rend(); ++iter)
+            bool valid = checkValid ? CheckValidTransform(currTr) : true;
+            if (valid)
             {
-                auto& transform = *iter;
-                trStack.emplace_back(transform, currentDepth + 1);
+                func(currTr, currentDepth);
+                for (auto iter = currTr->_childsList.rbegin(); iter != currTr->_childsList.rend(); ++iter)
+                {
+                    auto& transform = *iter;
+                    trStack.emplace_back(transform, currentDepth + 1);
+                }
             }
         }
     }
@@ -677,15 +696,18 @@ inline void Transform::ForeachExBFS(Transform& root, bool checkValid, const std:
     {
         Transform* currTr = trQueue.front();
         trQueue.pop();
-        bool vaild = checkValid ? CheckValidTransform(currTr) : true;
-        if (vaild)
+        if (currTr)
         {
-            func(currTr);
-            for (auto& _transform : currTr->_childsList)
+            bool valid = checkValid ? CheckValidTransform(currTr) : true;
+            if (valid)
             {
-                trQueue.push(_transform);
+                func(currTr);
+                for (auto& _transform : currTr->_childsList)
+                {
+                    trQueue.push(_transform);
+                }
             }
-        }
+        }    
     }
 }
 
@@ -695,16 +717,19 @@ inline void Transform::ForeachExBFS(Transform& root, bool checkValid, const std:
     trQueue.push({&root, 0});
     while (trQueue.empty() == false)
     {
-        auto [currTr, currentDepth] = trQueue.front();
+        auto& [currTr, currentDepth] = trQueue.front();
         trQueue.pop();
-        bool vaild = checkValid ? CheckValidTransform(currTr) : true;
-        if (vaild)
+        if (currTr)
         {
-            func(currTr, currentDepth);
-            for (auto& _transform : currTr->_childsList)
+            bool valid = checkValid ? CheckValidTransform(currTr) : true;
+            if (valid)
             {
-                trQueue.push({_transform, currentDepth + 1});
+                func(currTr, currentDepth);
+                for (auto& _transform : currTr->_childsList)
+                {
+                    trQueue.push({_transform, currentDepth + 1});
+                }
             }
-        }
+        }      
     }
 }

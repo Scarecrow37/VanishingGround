@@ -461,6 +461,8 @@ public:
     /// <returns></returns>
     const std::vector<std::weak_ptr<MeshComponent>>& GetMeshComponents();
 
+    void ClearExpiredMeshComponents();
+
     class SceneResourceManager
     {
     public:
@@ -591,6 +593,17 @@ public:
         void RegisterInputReceiver(InputReceiver& receiver, int buttonIndex, int actionIndex, std::function<void(const Input::Controller& controller)> func);
 
         /// <summary>
+        /// InputReceiver 레이어를 스택에 Push 합니다.
+        /// </summary>
+        /// <param name="receiver :">레이어 리시버</param>
+        bool PushReceiverToInputStack(InputReceiver& receiver);
+
+        /// <summary>
+        /// InputReceiver 레이어를 Pop 합니다.
+        /// </summary>
+        bool PopReceiverToInputStack(InputReceiver& receiver);
+
+        /// <summary>
         /// 등록된 모든 Receiver을 해제합니다.
         /// </summary>
         void CleanupInputReceivers();
@@ -626,6 +639,8 @@ public:
             ACTION_COUNT>,
             CONTROLLER_BUTTON_COUNT>
             _receivers;
+
+        std::deque<std::pair<bool*, std::weak_ptr<bool>>> _layerStack;
 
     private:
         void UpdateTracker(Input::Controller::Button button);
@@ -773,6 +788,9 @@ private:
 
     //다음에 로드할 씬
     File::Guid _nextSceneGuid;
+
+    //다음에 로드할 스카이박스
+    Scene* _nextSceneSkybox;
 
 protected:
     /// <summary>

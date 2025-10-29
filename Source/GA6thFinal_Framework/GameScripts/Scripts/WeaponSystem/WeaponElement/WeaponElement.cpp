@@ -2,34 +2,46 @@
 #include "WeaponElement.h"
 #include <TurnSystem/TurnAction/TurnActionFactory.h>
 
+REFLECT_FUNCTION(WeaponElement)
+
 void WeaponElement::SerializedReflectEvent() 
 {
     ReflectFields->WeaponStatsData = Stats.SerializedReflectFields();
-    if (_action)
+    ReflectFields->Actions.clear();
+    if (false == _actions.empty())
     {
-        ReflectFields->ActionName = _action->ActionName;
-        ReflectFields->ActionDatas = _action->SerializedReflectFields();
-    }
-    else
-    {
-        ReflectFields->ActionName  = STR_NULL;
-        ReflectFields->ActionDatas = STR_NULL;
+        for (auto& action : _actions)
+        {
+            if (action)
+            {
+                std::string name = action->ActionName;
+                std::string data = action->SerializedReflectFields();
+                ReflectFields->Actions.emplace_back(name, data);
+            }       
+        }   
     }
 }
 
 void WeaponElement::DeserializedReflectEvent() 
 {
     Stats.DeserializedReflectFields(ReflectFields->WeaponStatsData);
-    if (ReflectFields->ActionName != STR_NULL)
+    if (false == ReflectFields->Actions.empty())
     {
+        _actions.clear();
         const auto& factory = TurnActionFactory::GetActionFactory();
-        auto findIter = factory.find(ReflectFields->ActionName);
-        if (findIter != factory.end())
-        {
-            TurnAction* newAction = findIter->second();
-            _action.reset(newAction);
-            newAction->DeserializedReflectFields(ReflectFields->ActionDatas);
-        }
+        for (auto& [actionName, data] : ReflectFields->Actions)
+        {          
+            if (auto findIter = factory.find(actionName); findIter != factory.end())
+            {
+                TurnAction* newAction = findIter->second();
+                if (newAction)
+                {
+                    auto& myAction = _actions.emplace_back();
+                    myAction.reset(newAction);
+                    myAction->DeserializedReflectFields(data);
+                }                         
+            }
+        }     
     }
 }
 
@@ -37,28 +49,42 @@ void WeaponElement::ImGuiDrawPropertysEvent()
 {
     Stats.ImGuiDrawPropertys();
     const std::string& name = Stats.WeaponName;
-    if (_action)
+    for (auto& action : _actions)
     {
-        static std::string name;
-        name = _action->ActionName;
-        ImGui::InputText("Action##CAEE12AA-CE07-4816-951D-242031D9186B", &name, ImGuiInputTextFlags_ReadOnly);
-        ImGuiHelper::HoveredToolTip((const std::string&)_action->ActionInfo);
+        if (action)
+        {
+            const std::string& name = action->ActionName;
+            if(ImGui::TreeNode(name.c_str()))
+            {
+                static std::string info;
+                info = action->ActionInfo;
+                ImGui::InputText("Action##CAEE12AA-CE07-4816-951D-242031D9186B", &info, ImGuiInputTextFlags_ReadOnly);
+                ImGui::TreePop();
+            }       
+        }
     }
 }
 
-void WeaponElement::DeepCopyAction(const TurnAction& rhs)
+void WeaponElement::DeepCopyAction(const std::vector<std::unique_ptr<TurnAction>>& rhs)
 {
-    const auto&        actionFactory = TurnActionFactory::GetActionFactory();
-    const std::string& actionName    = rhs.ActionName;
-    auto               iter          = actionFactory.find(actionName);
-    if (iter != actionFactory.end())
+    _actions.clear();
+    const auto& actionFactory = TurnActionFactory::GetActionFactory();
+    for (auto& action : rhs)
     {
-        _action.reset(iter->second());
-        *_action = rhs;
+        if (action)
+        {
+            const std::string& actionName = action->ActionName;
+            if (auto iter = actionFactory.find(actionName); iter != actionFactory.end())
+            {
+                auto& myAction = _actions.emplace_back();
+                myAction.reset(iter->second());
+                *myAction = *action;
+            }
+        }     
     }
 }
 
-DropItemInfo WeaponElement::GetItemInfo()
+DropItemInfo WeaponElement::GetItemInfo() const
 {
     DropItemInfo info
     {

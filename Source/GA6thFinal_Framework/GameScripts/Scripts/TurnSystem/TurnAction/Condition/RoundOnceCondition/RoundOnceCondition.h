@@ -12,7 +12,7 @@ public:
 
     bool Evaluate() override;
     void DrawImguiEditor() override;
-    const std::string& GetConditionInfo() const override;
+    const std::string& GetConditionInfo() override;
     
     void OnEvaluateConditions(bool result) override;
 
@@ -31,7 +31,7 @@ public:
         void               OnRoundStart() override;
     private:
         inline static const std::string NAME = "RoundOnceCondition";
-        inline static std::vector<RoundOnceAction*> _roundOnceActions; //라운드 스타트를 감지를 위해 TurnMode가 초기화 될때 이 액션들을 등록해줍니다.
+        inline static std::unordered_set<RoundOnceAction*> _roundOnceActions; //라운드 스타트를 감지를 위해 TurnMode가 초기화 될때 이 액션들을 등록해줍니다.
     };
 
 private:

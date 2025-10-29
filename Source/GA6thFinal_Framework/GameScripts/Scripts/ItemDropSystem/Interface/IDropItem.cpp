@@ -5,6 +5,26 @@
 #include "ExcelDataSystem/ExcelDataSystem.h"
 #include "RevelationSystem/RevelationSystem.h"
 
+std::u8string_view DropItemInfo::GetDataBaseName(ArtifactDropType type)
+{
+    switch (type)
+    {
+    case ArtifactDropType::SWORD:
+    case ArtifactDropType::DAGGER:
+    case ArtifactDropType::WARHAMMER:
+        return u8"무기";
+    case ArtifactDropType::ACCESSORY:
+        return u8"장신구";
+    case ArtifactDropType::REVELATION:
+        return u8"계시";
+    case ArtifactDropType::Consumable:
+        return u8"소모품";
+    case ArtifactDropType::ERASE_REVELATION:
+    default:
+        return u8"";
+    }
+}
+
 int DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType type)
 {
     int id = 0;
@@ -58,41 +78,30 @@ int DropItemInfo::GetArtifactIconID(DropItemInfo itemInfo)
 {
     if (ExcelDataSystem* excelDataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
     {
-        std::unique_ptr<ExcelDataBase> dataBase;
-        switch (itemInfo.Category)
+        std::u8string_view dbName = GetDataBaseName(itemInfo.Category);
+        if (false == dbName.empty())
         {
-        case ArtifactDropType::SWORD:
-        case ArtifactDropType::DAGGER:
-        case ArtifactDropType::WARHAMMER:
-            dataBase = excelDataSystem->FindExcelDataBase(u8"무기");
-            break;
-        case ArtifactDropType::ACCESSORY:
-            dataBase = excelDataSystem->FindExcelDataBase(u8"장신구");
-            break;
-        case ArtifactDropType::REVELATION:
-            dataBase = excelDataSystem->FindExcelDataBase(u8"계시");
-            break;
-        case ArtifactDropType::ERASE_REVELATION:
-            break;
-        case ArtifactDropType::Consumable:
-            dataBase = excelDataSystem->FindExcelDataBase(u8"소모품");
-            break;
-        default:
-            return 0;
-        }
-
-        if (dataBase)
-        {
-            const std::string& name     = itemInfo.Name;
-            std::u8string_view u8Name   = (const char8_t*)name.data();
-            size_t             rowIndex = dataBase->FindRowIndex(u8Name, u8"Name");
-            if (rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
+            std::unique_ptr<ExcelDataBase> dataBase = excelDataSystem->FindExcelDataBase(dbName);
+            if (dataBase)
             {
-                std::string_view id = dataBase->FindData(rowIndex, u8"Big Icon ID");
-                if (id != ExcelDataBase::FIND_STR_FAIL)
+                const std::string& name     = itemInfo.Name;
+                std::u8string_view u8Name   = (const char8_t*)name.data();
+                size_t             rowIndex = dataBase->FindRowIndex(u8Name, u8"Name");
+                if (rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
                 {
-                    return std::stoi(id.data());
+                    std::string_view id = dataBase->FindData(rowIndex, u8"Big Icon ID");
+                    if (id != ExcelDataBase::FIND_STR_FAIL)
+                    {
+                        return std::stoi(id.data());
+                    }
                 }
+            }
+            else
+            {
+                std::u8string message = u8"엑셀 DB에서 ";
+                message += dbName;
+                message += u8"를 찾을 수 없습니다.";
+                UmLogger.Log(LogLevel::LEVEL_WARNING, message);
             }
         }
     }
@@ -140,4 +149,38 @@ int DropItemInfo::GetArtifactIconID(DropItemInfo itemInfo)
     default:
         return 0;
     }
+}
+
+std::string DropItemInfo::GetArtifactDescription(DropItemInfo itemInfo)
+{
+    if (ExcelDataSystem* excelDataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
+    {
+        std::u8string_view dbName = GetDataBaseName(itemInfo.Category);
+        if (false == dbName.empty())
+        {
+            std::unique_ptr<ExcelDataBase> dataBase = excelDataSystem->FindExcelDataBase(dbName);
+            if (dataBase)
+            {
+                const std::string& name     = itemInfo.Name;
+                std::u8string_view u8Name   = (const char8_t*)name.data();
+                size_t             rowIndex = dataBase->FindRowIndex(u8Name, u8"Name");
+                if (rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
+                {
+                    std::string_view description = dataBase->FindData(rowIndex, u8"Description");
+                    if (description != ExcelDataBase::FIND_STR_FAIL)
+                    {
+                        return description.data();
+                    }
+                }
+            }
+            else
+            {
+                std::u8string message = u8"엑셀 DB에서 ";
+                message += dbName;
+                message += u8"를 찾을 수 없습니다.";
+                UmLogger.Log(LogLevel::LEVEL_WARNING, message);
+            }
+        }
+    }
+    return "";
 }

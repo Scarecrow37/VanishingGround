@@ -20,7 +20,7 @@ void AccessoriesView::Reset()
 
 void AccessoriesView::Awake() 
 {
-    FindChildEnements();
+    FindChildElements();
 
 }
 
@@ -34,7 +34,7 @@ void AccessoriesView::OnDestroy()
     Blind();
 }
 
-void AccessoriesView::FindChildEnements()
+void AccessoriesView::FindChildElements()
 {
     for (int i = 0; i < transform->ChildCount; ++i)
     {

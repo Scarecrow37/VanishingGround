@@ -7,7 +7,7 @@
 struct CharacterStats;
 class SkeletalMeshRenderer;
 class AnimationComponent;
-class AudioTableComponent;
+class ParticleComponent;
 
 class CharacterBase abstract : public TurnActor
 {
@@ -62,8 +62,10 @@ public:
     virtual void ClearState() override;
     virtual void Revive() override;
     virtual void Dead() override;
+
+    virtual void Heal(int amount);
+    virtual void HealByPercentage(int percentage);
     virtual void TakeDamage(int damage, bool playAnim = true);
-    virtual void TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim = true);
     virtual void TakeChain(int chainDamage);
 
     // 연격 수를 설정합니다.
@@ -78,8 +80,10 @@ public:
     SkeletalMeshRenderer* GetSkeletalMeshRenderer() const { return _skeletalMeshRenderer; }
     // 애니메이션 컴포넌트를 반환합니다.
     AnimationComponent*   GetAnimationComponent() const { return _animationComponent; }
-    // 오디오 테이블 컴포넌트를 반환합니다.
-    AudioTableComponent*  GetAudioTableComponent() const { return _audioTableComponent; }
+    // 파티클 컴포넌트를 반환합니다.
+    ParticleComponent* GetParticleComponent() const { return _particleComponent; }
+
+    bool FindComponent();
 
 protected:
     REFLECT_FIELDS_BEGIN(TurnActor)
@@ -89,13 +93,12 @@ private:
     TokenInventory          _tokenInventory;
     SkeletalMeshRenderer*   _skeletalMeshRenderer = nullptr;
     AnimationComponent*     _animationComponent   = nullptr;
-    AudioTableComponent*    _audioTableComponent  = nullptr;
+    ParticleComponent*      _particleComponent    = nullptr;
 
 protected:
     virtual void Awake() override;
+    virtual void Start() override;
 
-    void InitMeshModel();
-    void InitAudio();
     void InitAnimationCallback();
 
 public:

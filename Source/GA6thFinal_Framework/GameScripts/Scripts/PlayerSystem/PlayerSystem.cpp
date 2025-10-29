@@ -85,6 +85,16 @@ void PlayerSystem::SetStatsCombatStart()
     }
 }
 
+void PlayerSystem::NotifyPlayerHP() 
+{
+    if (true == CheckWithLog(_playerStatsComponent))
+    {
+        PlayerStats& stats = _playerStatsComponent->GetStats();
+        int          hp    = stats.CurrentHP;
+        stats.CurrentHP    = hp;
+    }
+}
+
 void PlayerSystem::Reset() 
 {
     _singletonObject.SetSingleTon();
@@ -101,7 +111,7 @@ void PlayerSystem::Awake()
         if (true == CheckWithLog(_playerStatsComponent))
         {
             PlayerStats& stats = _playerStatsComponent->GetStats();
-            stats.RegisterHP();
+            stats.RegisterHUD();
         }
     }
 }
@@ -121,7 +131,7 @@ void PlayerSystem::OnDestroy()
         if (true == CheckWithLog(_playerStatsComponent))
         {
             PlayerStats& stats = _playerStatsComponent->GetStats();
-            stats.UnregisterHP();
+            stats.UnregisterHUD();
         }
     }
 }

@@ -14,8 +14,8 @@ TextElement::TextElement()
                 const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
                 if (const auto extension = data->GetPath().extension(); extension == L".png")
                 {
-                    _guidRef            = data->GetGuid();
-                    ReflectFields->Guid = _guidRef.string();
+                    _Guid            = data->GetGuid();
+                    ReflectFields->Guid = _Guid.string();
                     RequestResource();
                 }
             }
@@ -30,11 +30,20 @@ TextElement::~TextElement()
         _renderer->Release();
 }
 
-void TextElement::SetFont(const File::GuidRef& guidRef)
+void TextElement::SetFont(const File::Guid& guid)
 {
-    _guidRef = guidRef;
-    ReflectFields->Guid = _guidRef.string();
+    _Guid = guid;
+    ReflectFields->Guid = _Guid.string();
     RequestResource();
+}
+
+void TextElement::SetOpacity(const float opacity)
+{
+    const float clampedOpacity = std::clamp(opacity, 0.0f, 1.0f);
+    ReflectFields->Color[3]    = clampedOpacity;
+    UpdateColor();
+    ReflectFields->FontOutlineColor[3] = clampedOpacity;
+    UpdateOutline();
 }
 
 void TextElement::Reset()
@@ -62,12 +71,10 @@ void TextElement::Reset()
 
 void TextElement::DeserializedReflectEvent()
 {
-    DrawUIComponent::DeserializedReflectEvent();
-
     const File::Guid guid = ReflectFields->Guid;
     if (const auto path = guid.ToPath(); !path.IsNull())
     {
-        _guidRef = path.ToGuid();
+        _Guid = path.ToGuid();
     }
 }
 
@@ -99,13 +106,11 @@ SIZE TextElement::MeasureOverride(const SIZE availableSize)
                                  verticalFillMode == FillMode::FILL);
 
     const auto [contentWidth, contentHeight] = ReflectFields->ContentSize;
-    const LONG scaledContentWidth  = static_cast<LONG>(static_cast<float>(contentWidth) * ReflectFields->FontScale);
-    const LONG scaledContentHeight = static_cast<LONG>(static_cast<float>(contentHeight) * ReflectFields->FontScale);
 
     if (horizontalFillMode == FillMode::WRAP)
-        desiredSize.cx = scaledContentWidth;
+        desiredSize.cx = contentWidth;
     if (verticalFillMode == FillMode::WRAP)
-        desiredSize.cy = scaledContentHeight;
+        desiredSize.cy = contentHeight;
 
     return desiredSize;
 }
@@ -146,6 +151,7 @@ void TextElement::UpdateProperties()
     UpdateColor();
     UpdatePosition();
     UpdateScale();
+    UpdateOutline();
     UpdateContentSize();
 }
 
@@ -189,7 +195,7 @@ void TextElement::UpdateWeight() const
 {
     if (nullptr != _renderer)
     {
-        //_renderer->SetFontWeight(ReflectFields->FontWeight);
+        _renderer->SetFontWeight(ReflectFields->FontWeight);
     }
 }
 
@@ -207,11 +213,27 @@ void TextElement::UpdateContentSize()
     }
 }
 
+void TextElement::UpdateOutline()
+{
+    if (nullptr != _renderer)
+    {
+        const UINT fontFlags = ReflectFields->FontFlags;
+        const bool enabled   = fontFlags & FONT_FLAG_OUTLINE;
+
+        const SimpleMath::Color outlineColor = SimpleMath::Color(&ReflectFields->FontOutlineColor[0]);
+        const float             outlineWidth = ReflectFields->FontOutlineWidth;
+
+        const GE::FontOutline outline{.Color = outlineColor, .Width = outlineWidth, .Enabled = enabled};
+
+        _renderer->SetFontOutline(outline);
+    }
+}
+
 void TextElement::RequestResource()
 {
-    if (false == _guidRef.IsNull())
+    if (false == _Guid.IsNull())
     {
-        UmSceneManager.ResourceManager.RequestSDFFontResource(this, _guidRef, [this]() {
+        UmSceneManager.ResourceManager.RequestSDFFontResource(this, _Guid, [this]() {
             LoadFont();
             UpdateProperties();
         });

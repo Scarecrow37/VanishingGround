@@ -20,6 +20,14 @@ int APIENTRY wWinMain(
 
 GameApplication::GameApplication()
 {
+    //현재 실행 경로를 exe 경로로 고정 (WinDbg용)
+    /*
+    wchar_t path[MAX_PATH];
+    GetModuleFileNameW(nullptr, path, MAX_PATH); // 현재 실행 중인 EXE 경로
+    std::filesystem::path exePath(path);
+    std::filesystem::current_path(exePath.parent_path()); // cwd를 EXE 폴더로 변경
+    */
+
     //클라이언트 기본 초기화 함수.
     SetStyleToWindowed();
     _clientSize = { 1920, 1080 };
@@ -41,8 +49,11 @@ GameApplication::GameApplication()
         SetStyleToBorderlessWindowed();
     }
 
-    //덤프 설정
-    //SetUnhandledExceptionFilter(CustomUnhandledExceptionFilter);
+    // 덤프 설정
+    if constexpr (false == IS_EDITOR)
+    {
+        SetUnhandledExceptionFilter(CustomUnhandledExceptionFilter);
+    }
 }
 
 GameApplication::~GameApplication()
@@ -64,7 +75,7 @@ void GameApplication::BuildRootDock()
 {
     auto& dockSystem = _editorModule->GetDockWindowSystem();
 
-    _rootDock = dockSystem.RegisterDockWindow("RootDock");
+    _rootDock = dockSystem.CreateDockWindow("Root##dock");
 
     ImGuiWindowClass imguiwindowClass;
     imguiwindowClass.ClassId                = ImHashStr("RootDockID"); // 윈도우 ID값 (그냥 대충 ImHashStr을 사용하여 생성)
@@ -101,7 +112,7 @@ void GameApplication::BuildSceneDock()
 {
     auto& dockSystem = _editorModule->GetDockWindowSystem();
 
-    _sceneDock = dockSystem.RegisterDockWindow("SceneDock", _rootDock);
+    _sceneDock = dockSystem.CreateDockWindow("Scene##dock", "Root##dock");
     
     ImGuiWindowClass imguiwindowClass;
     imguiwindowClass.ClassId                = ImHashStr("SceneDockID");
@@ -145,7 +156,7 @@ void GameApplication::BuildModelDock()
 {
     auto& dockSystem = _editorModule->GetDockWindowSystem();
 
-    _modelDock       = dockSystem.RegisterDockWindow("ModelDock", _rootDock);
+    _modelDock = dockSystem.CreateDockWindow("Model##dock", "Root##dock");
 
     ImGuiWindowClass imguiwindowClass;
     imguiwindowClass.ClassId               = ImHashStr("ModelDockID");
@@ -176,10 +187,9 @@ void GameApplication::BuildModelDock()
 
 void GameApplication::BuildEffectDock() 
 {
-
     auto& dockSystem = _editorModule->GetDockWindowSystem();
 
-    _effectDock = dockSystem.RegisterDockWindow("EffectDock", _rootDock);
+    _effectDock = dockSystem.CreateDockWindow("Effect##dock", "Root##dock");
 
     ImGuiWindowClass imguiwindowClass;
     imguiwindowClass.ClassId               = ImHashStr("EffectDockID");

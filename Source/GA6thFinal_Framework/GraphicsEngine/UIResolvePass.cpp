@@ -1,9 +1,7 @@
 ﻿#include "pch.h"
 #include "UIResolvePass.h"
 
-UIResolvePass::UIResolvePass()
-{
-}
+UIResolvePass::UIResolvePass() = default;
 
 UIResolvePass::~UIResolvePass() = default;
 
@@ -18,20 +16,9 @@ void UIResolvePass::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTe
         _outputBuffer->InitializeAsTexture(desc, UnorderedAccessView::UAVSliceType::PER_MIP, false);
     }
 
-    _shader = std::make_unique<ShaderBuilder>();
-    _shader->BeginBuild();
-    _shader->SetShader(L"../Shaders/cs_resolve_ui.hlsl", ShaderBuilder::Type::CS);
-    _shader->EndBuild();
-
-    ID3D12Device*                     device = Global::device->GetDevice();
-    HRESULT                           hr     = S_OK;
-    D3D12_COMPUTE_PIPELINE_STATE_DESC pso{
-        .pRootSignature = _shader->GetRootSignature(),
-        .CS             = _shader->GetShaderByteCode(ShaderBuilder::Type::CS),
-    };
-
-    hr = device->CreateComputePipelineState(&pso, IID_PPV_ARGS(&_pipelineState));
-    FAILED_CHECK_MESSAGE(hr, L"UIResolvePass::Initialize device->CreateComputePipelineState Failed");
+    ComputePipelineStateStream pss;
+    _fxResolve.SetPipelineStateStream(pss);
+    _pipelineState = Global::pipelineStateManager->GetPipelineState(pss);
 }
 
 void UIResolvePass::Begin(ID3D12GraphicsCommandList* commandList)
@@ -45,12 +32,12 @@ void UIResolvePass::Begin(ID3D12GraphicsCommandList* commandList)
 void UIResolvePass::Draw(ID3D12GraphicsCommandList* commandList)
 {
     commandList->SetPipelineState(_pipelineState.Get());
-    commandList->SetComputeRootSignature(_shader->GetRootSignature());
+    commandList->SetComputeRootSignature(_fxResolve.GetRootSignature());
 
-    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("screenTexture"), _finalRenderTarget->GetSRVHandle());
-    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("OITHead"), _headBuffer->GetUAVHandle());
-    commandList->SetComputeRootUnorderedAccessView(_shader->GetRootParameterIndex("OITNodes"), _nodesBuffer->GetGPUVirtualAddress());
-    commandList->SetComputeRootDescriptorTable(_shader->GetRootParameterIndex("Output"), _outputBuffer->GetUAVHandle());    
+    commandList->SetComputeRootDescriptorTable(_fxResolve.GetRootParameterIndex("screenTexture"), _finalRenderTarget->GetSRVHandle());
+    commandList->SetComputeRootDescriptorTable(_fxResolve.GetRootParameterIndex("OITHead"), _headBuffer->GetUAVHandle());
+    commandList->SetComputeRootUnorderedAccessView(_fxResolve.GetRootParameterIndex("OITNodes"), _nodesBuffer->GetGPUVirtualAddress());
+    commandList->SetComputeRootDescriptorTable(_fxResolve.GetRootParameterIndex("Output"), _outputBuffer->GetUAVHandle());    
 
     const auto& resolution = Global::device->GetResolution();
     UINT        dispatchX  = (resolution.cx + 15) / 16;

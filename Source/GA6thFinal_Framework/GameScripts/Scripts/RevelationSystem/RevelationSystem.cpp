@@ -47,9 +47,60 @@ std::shared_ptr<RevelationElement> RevelationSystem::RemovePlayerElement(int slo
     return prevElement;
 }
 
-const std::shared_ptr<RevelationElement>& RevelationSystem::PushBackPlayerElement(const RevelationElement& element)
+const std::shared_ptr<RevelationElement>& RevelationSystem::PushBackRevelation(const RevelationElement& element)
 {
     return _playerElementList.emplace_back(new RevelationElement(element));
+}
+
+void RevelationSystem::EquipRandomExtinctionElement(size_t count)
+{
+    if (count < 1)
+        return;
+
+    // 소멸 계시만 필터
+    auto& revelations = GetRevelationTableElements();
+    std::vector<RevelationElement*> extinctions;
+    extinctions.reserve(revelations.size());
+    std::ranges::copy_if(revelations, std::back_inserter(extinctions), [](RevelationElement* element)
+    { 
+        RevelationGrade garde = element->Grade;
+        return garde == RevelationGrade::EXTINCTION;
+    });
+
+    //랜덤 셔플 후 앞에 2개 추가
+    if (false == extinctions.empty())
+    {
+        auto& engine = Random::GetEngine();
+        std::ranges::shuffle(extinctions, engine);
+        extinctions.resize(count);
+
+        for (auto& extinction : extinctions)
+        {
+            if (extinction)
+            {
+                PushBackRevelation(*extinction);
+            }          
+        }
+    }  
+}
+
+void RevelationSystem::RemoveAllExtinctionElements() 
+{
+    size_t size = _playerElementList.size();
+    while (0 < size)
+    {
+        size_t lastIndex = size - 1;
+        auto&  element   = _playerElementList[lastIndex];
+        if (nullptr == element)
+            break;
+
+        RevelationGrade grade = element->Grade;
+        if (grade != RevelationGrade::EXTINCTION)
+            break;
+
+        RemovePlayerElement(static_cast<int>(lastIndex));
+        size = _playerElementList.size();
+    }
 }
 
 void RevelationSystem::RollRoundElement()
@@ -88,8 +139,9 @@ void RevelationSystem::RollRoundElement()
         }
 
         // 뽑힌 횟수 계산 및 액션 활성화
-        for (auto& element : roundElementList)
+        for (size_t i = 0; i < roundElementList.size(); ++i)
         {
+            auto& element = roundElementList[i];
             const std::string& name = element->ElementName;
             _elementTotalAppearances[name]++;
             if (element->IsAction())
@@ -103,6 +155,11 @@ void RevelationSystem::RollRoundElement()
                         const std::string& name = element->ElementName;
                         std::string msg  = std::format("{}{}", name, (const char*)u8" 발동.");
                         UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
+                    }
+
+                    if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+                    {
+                        mode->RevelationActiveFlag = true;
                     }
                 };
                 _turnMode->AddTurnAction(&action);
@@ -148,6 +205,12 @@ bool RevelationSystem::EraseElement(std::string_view elementName)
     return result;
 }
 
+void RevelationSystem::ClearTable() 
+{
+    _elementsTable.clear();
+    _elementTableOrderID.clear();
+}
+
 RevelationElement* RevelationSystem::FindElement(const std::string& elementName)
 {
     auto find = _elementsTable.find(elementName);
@@ -168,6 +231,8 @@ static ReflectHelper::ImGuiDraw::InputAutoSetting InitSetting()
 void RevelationSystem::ImGuiDrawElementTableEditor() 
 {
 #ifdef _UMEDITOR
+    constexpr const char* TABLE_CLEAR_KEY = (const char*)"clear table";
+
     if (ImGui::BeginTable("Revelation Stats", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
     {                      
         static ReflectHelper::ImGuiDraw::InputAutoSetting tableSetting = InitSetting();
@@ -191,6 +256,11 @@ void RevelationSystem::ImGuiDrawElementTableEditor()
                     if (ImGui::MenuItem("Delete"))
                     {
                         _imguiEvent.DeleteTableBuffer = key;
+                        _imguiEvent.OpenDeletePopup   = true;
+                    }
+                    if (ImGui::MenuItem("Clear Table"))
+                    {
+                        _imguiEvent.DeleteTableBuffer = TABLE_CLEAR_KEY;
                         _imguiEvent.OpenDeletePopup   = true;
                     }
                     ImGui::EndPopup();
@@ -289,9 +359,18 @@ void RevelationSystem::ImGuiDrawElementTableEditor()
         ImGui::Separator();
         if (ImGui::Button("OK", ImVec2(120, 0)))
         {
-            EraseElement(_imguiEvent.DeleteTableBuffer);
-            _imguiEvent.DeleteTableBuffer = STR_NULL;
-            ImGui::CloseCurrentPopup();
+            if (_imguiEvent.DeleteTableBuffer != TABLE_CLEAR_KEY)
+            {
+                EraseElement(_imguiEvent.DeleteTableBuffer);
+                ImGui::CloseCurrentPopup();
+                _imguiEvent.DeleteTableBuffer = STR_NULL;
+            }
+            else
+            {
+                ClearTable();
+                ImGui::CloseCurrentPopup();
+                _imguiEvent.DeleteTableBuffer = STR_NULL;
+            }        
         }
         ImGui::SameLine();
         if (ImGui::Button("Cancel", ImVec2(120, 0)) || ImGui::IsKeyReleased(ImGuiKey_Escape))
@@ -617,6 +696,7 @@ void RevelationSystem::ImGuiDrawPropertysEvent()
                 {
                     auto ParserFunc = [&](ExcelDataBase& dataBase) 
                     {
+                        std::unordered_set<std::string> validTargets;
                         size_t rowCount = dataBase.RowCount();
                         for (size_t row = 0; row < rowCount; ++row)
                         {
@@ -633,27 +713,73 @@ void RevelationSystem::ImGuiDrawPropertysEvent()
                             const std::string& name = temp.ElementName;
                             if (STR_NULL != name)
                             {
-                                auto findIter = _elementsTable.find(name);
-                                if (findIter == _elementsTable.end())
+                                auto nameFindIter = _elementsTable.find(name);
+                                bool nameFind     = nameFindIter != _elementsTable.end();
+                                auto idFindIter   = std::ranges::find_if(_elementTableOrderID, [&temp](RevelationElement* revelation) 
+                                {
+                                    int tempID = temp.RevelationID;
+                                    int currID = revelation->RevelationID;
+                                    return tempID == currID;
+                                });
+                                bool idFind = idFindIter != _elementTableOrderID.end();
+                                if (false == nameFind && false == idFind)
                                 {
                                     // 없으면 새로 생성
                                     InsertElement(temp);
                                 }
-                                else
+                                else if (nameFind)
                                 {
                                     // 이미 있으면 데이터만 복사(액션은 유지)
-                                    std::string originActionName    = findIter->second.ReflectFields->ActionName;
-                                    *findIter->second.ReflectFields = *temp.ReflectFields;
-                                    findIter->second.ReflectFields->ActionName = std::move(originActionName);
+                                    std::string originActionName = nameFindIter->second.ReflectFields->ActionName;
+                                    *nameFindIter->second.ReflectFields = *temp.ReflectFields;
+                                    nameFindIter->second.ReflectFields->ActionName = std::move(originActionName);
+                                }
+                                else if (idFind)
+                                {
+                                    // 이미 있으면 데이터 및 이름 복사(액션은 유지)
+                                    RevelationElement* revelation        = *idFindIter;
+                                    if (revelation)
+                                    {
+                                        std::string originElementName  = revelation->ElementName;
+                                        std::string originActionName   = revelation->ReflectFields->ActionName;
+                                        temp.ReflectFields->ActionName = std::move(originActionName);
+                                        if (revelation->_action)
+                                        {
+                                            temp._action = std::move(revelation->_action);
+                                        }                                     
+                                        EraseElement(originElementName);
+                                        InsertElement(temp);      
+                                    }                                                                                                 
                                 }
                                 if (false == result)
                                 {
                                     // 잘못된 데이터는 알림 팝업
                                     RevelationElement& element = _elementsTable[name];
                                     _imguiEvent.DirtyRevelationElementQueue.push(&element);
+                                }                               
+                                if (auto [iter, insertResult] = validTargets.insert(name); false == insertResult)
+                                {           
+                                    std::string message = "\"";
+                                    message += name;
+                                    message += (const char*)u8"\" 는 중복된 계시 이름입니다.";
+                                    UmLogger.Log(LogLevel::LEVEL_WARNING, message);
                                 }
                             }
-                        }                     
+                        }     
+                        
+                        std::vector<std::string> eraseTargets;
+                        for (auto& revelation : _elementTableOrderID)
+                        {
+                            const std::string& name = revelation->ElementName;
+                            if (validTargets.find(name) == validTargets.end())
+                            {
+                                eraseTargets.emplace_back(name);
+                            }
+                        }
+                        for (auto& target : eraseTargets)
+                        {
+                            EraseElement(target);
+                        }
                     };
 
                     if (ExcelDataSystem* excelSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
@@ -752,7 +878,7 @@ void RevelationSystem::ImGuiDrawPlayerElementEditor()
             auto begin = _elementsTable.begin();
             if (begin != _elementsTable.end())
             {
-                PushBackPlayerElement(begin->second);
+                PushBackRevelation(begin->second);
             }
         }
         ImGui::TreePop();

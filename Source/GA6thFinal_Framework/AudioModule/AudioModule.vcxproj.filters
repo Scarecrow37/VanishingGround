@@ -72,6 +72,18 @@
     <ClInclude Include="GroupHandle.h">
       <Filter>Handle\GroupHandle</Filter>
     </ClInclude>
+    <ClInclude Include="EffectHandle.h">
+      <Filter>Handle\Effecthandle</Filter>
+    </ClInclude>
+    <ClInclude Include="ReverbHandle.h">
+      <Filter>Handle\Effecthandle\ReverbHandle</Filter>
+    </ClInclude>
+    <ClInclude Include="FXFade.h">
+      <Filter>Effects\Fade</Filter>
+    </ClInclude>
+    <ClInclude Include="FadeHandle.h">
+      <Filter>Handle\Effecthandle\FadeHandle</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -100,6 +112,18 @@
     </ClCompile>
     <ClCompile Include="GroupHandle.cpp">
       <Filter>Handle\GroupHandle</Filter>
+    </ClCompile>
+    <ClCompile Include="EffectHandle.cpp">
+      <Filter>Handle\Effecthandle</Filter>
+    </ClCompile>
+    <ClCompile Include="ReverbHandle.cpp">
+      <Filter>Handle\Effecthandle\ReverbHandle</Filter>
+    </ClCompile>
+    <ClCompile Include="FXFade.cpp">
+      <Filter>Effects\Fade</Filter>
+    </ClCompile>
+    <ClCompile Include="FadeHandle.cpp">
+      <Filter>Handle\Effecthandle\FadeHandle</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

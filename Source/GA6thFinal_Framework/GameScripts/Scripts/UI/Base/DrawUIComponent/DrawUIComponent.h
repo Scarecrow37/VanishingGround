@@ -21,6 +21,10 @@ public:
     /// <param name="viewOrder">설정할 View Order 값</param>
     virtual void SetViewOrder(int viewOrder);
 
+    void SetArtificial(bool isArtificial);
+
+    bool IsArtificial() const;
+
 protected:
     /// <summary>
     /// 이 컴포넌트의 Z-Order를 반환합니다.
@@ -37,4 +41,7 @@ protected:
     REFLECT_FIELDS_BEGIN(UIComponent)
     int ViewOrder = 0;
     REFLECT_FIELDS_END(DrawUIComponent)
+
+private:
+    bool _isArtificial;
 };

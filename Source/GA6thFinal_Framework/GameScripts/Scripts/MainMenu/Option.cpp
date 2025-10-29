@@ -27,6 +27,14 @@ void Option::Update()
             _preferencesManager->OnPreferencesWindow(this);
         }
     }
+
+    Debugger()([this] {
+        // 아래는 디버그용 코드입니다.
+        if (ImGui::Button("Preferences"))
+        {
+            Submit();
+        }
+    });
 }
 
 void Option::Submit()

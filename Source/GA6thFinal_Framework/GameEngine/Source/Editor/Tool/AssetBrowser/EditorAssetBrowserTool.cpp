@@ -1,5 +1,7 @@
 ﻿#include "pch.h"
 
+REFLECT_FUNCTION(EditorAssetBrowserTool)
+
 namespace fs = std::filesystem;
 using namespace u8_literals;
 
@@ -496,7 +498,19 @@ void EditorAssetBrowserTool::ShowSearchBar()
     ImGui::SetNextItemWidth(inputSize.x);
     if (ImGui::InputTextWithHint("##SearchBar", "Search...", &_search.SearchBuffer, ImGuiInputTextFlags_AutoSelectAll))
     {
-        _search.UpdateBuffer();
+        if (File::IsGuid(_search.SearchBuffer))
+        {
+            const File::Path& path = UmFileSystem.GetPathFromGuid(_search.SearchBuffer);
+            if (path != File::NULL_PATH)
+            {
+                SetFocusEntryPath(path);
+            }
+            _search.ClearBuffer();
+        }
+        else
+        {
+            _search.UpdateBuffer();
+        }
     }
     _search.IsSearching = ImGui::IsItemActive();
     inputStyle.PopStyle();
@@ -535,6 +549,12 @@ void EditorAssetBrowserTool::ShowSearchBar()
         {
             ReflectFields->SortFlags.first = Compare::FLAGS_SORT_BY_DATE;
             _needRefresh = true;
+        }
+        bool compareByAssetID = ReflectFields->SortFlags.first == Compare::FLAGS_SORT_BY_ASSET_ID;
+        if (ImGui::MenuItem(u8"에셋 ID"_c_str, "", compareByAssetID))
+        {
+            ReflectFields->SortFlags.first = Compare::FLAGS_SORT_BY_ASSET_ID;
+            _needRefresh                   = true;
         }
         ImGuiHelper::Separator(3.0f);
         bool compareAscending = ReflectFields->SortFlags.second;
@@ -1475,7 +1495,7 @@ void EditorAssetBrowserTool::ProcessInput()
         {
             SetCutFileFromPath(_focusEntryPath);
         }
-        if (isKeyV)
+        if (isKeyV && false == _search.IsActive())
         {
             PasteFile();
         }
@@ -1761,6 +1781,10 @@ bool EditorAssetBrowserTool::Compare::operator()(const AssetData* a, const Asset
         {
             return CompareByDate(a, b); // 날짜순
         }
+        if (flags == FLAGS_SORT_BY_ASSET_ID)
+        {
+            return CompareByAssetID(a, b); // 날짜순
+        }
     }
    
     return false;
@@ -1785,6 +1809,13 @@ bool EditorAssetBrowserTool::Compare::CompareByDate(const AssetData* a, const As
     const auto& timeA = a->LastWriteTime;
     const auto& timeB = b->LastWriteTime;
     return isAscending ? timeA > timeB : timeA < timeB;
+}
+
+bool EditorAssetBrowserTool::Compare::CompareByAssetID(const AssetData* a, const AssetData* b) const
+{
+    const int idA = UmFileSystem.GetAssetIDFromPath(a->Entry.path());
+    const int idB = UmFileSystem.GetAssetIDFromPath(b->Entry.path());
+    return isAscending ? idA > idB : idA < idB;
 }
 
 EditorAssetBrowserTool::AssetData::AssetData(FileEntry entry) 
@@ -2008,14 +2039,6 @@ void EditorAssetBrowserTool::InspectorDrawer::OnInspectorStay()
                     ImGui::Text("%.1f %s", size, units[unitIndex]);
                 else
                     ImGui::Text("%.0f %s", size, units[unitIndex]);
-            }
-
-            if (context)
-            {
-                File::MetaData& meta = context->GetMeta();
-                ImGuiHelper::TextWithVerticalSeparator("File Reference Count", offsetX);
-                size_t refCount = UmFileSystem.GetGuidRefCount(meta.GetGuid());
-                ImGui::Text("%lld", refCount);
             }
         }
     }

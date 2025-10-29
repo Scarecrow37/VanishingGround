@@ -114,10 +114,10 @@ DescriptionPanel::DescriptionPanel()
             if (const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload(DragDropAsset::KEY))
             {
                 const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
-                if (const auto extension = data->GetPath().extension(); extension == L".UmFont")
+                if (const auto extension = data->GetPath().extension(); extension == L".png")
                 {
-                    _guidRef            = data->GetGuid();
-                    ReflectFields->Guid = _guidRef.string();
+                    _Guid            = data->GetGuid();
+                    ReflectFields->Guid = _Guid.string();
                     UpdateContent();
                 }
             }
@@ -143,6 +143,12 @@ DescriptionPanel::DescriptionPanel()
     });
 }
 
+void DescriptionPanel::SetOpacity(const float opacity)
+{
+    ReflectFields->Alpha = std::clamp(opacity, 0.0f, 1.0f);
+    UpdateAlpha();
+}
+
 void DescriptionPanel::DeserializedReflectEvent()
 {
     HorizontalPanel::DeserializedReflectEvent();
@@ -150,7 +156,7 @@ void DescriptionPanel::DeserializedReflectEvent()
     const File::Guid guid = ReflectFields->Guid;
     if (const auto path = guid.ToPath(); !path.IsNull())
     {
-        _guidRef = path.ToGuid();
+        _Guid = path.ToGuid();
     }
 }
 
@@ -215,12 +221,14 @@ void DescriptionPanel::MakeChild()
         case ElementType::TEXT: {
             TextElement& element  = child->AddComponent<TextElement>();
             auto [content, color] = std::get<TextAttributes>(Data);
-            element.SetFont(_guidRef);
+            element.SetFont(_Guid);
             element.HorizontalFillMode = FillMode::WRAP;
             element.VerticalFillMode   = FillMode::WRAP;
             element.Text               = content;
+            color.w                    = ReflectFields->Alpha;
             element.Color              = color;
             element.FontScale          = ReflectFields->FontScale;
+            element.SetArtificial(true);
         }
         break;
         case ElementType::IMAGE: {
@@ -234,10 +242,29 @@ void DescriptionPanel::MakeChild()
             element.SetImage(guid);
             element.HorizontalFillMode = FillMode::FILL;
             element.VerticalFillMode   = FillMode::FILL;
+            element.Alpha              = ReflectFields->Alpha;
+            element.SetArtificial(true);
             imageChild->transform->SetParent(child->transform, true);
         }
         break;
         }
         child->transform->SetParent(transform, true);
     }
+}
+
+void DescriptionPanel::UpdateAlpha()
+{
+    const float alpha = ReflectFields->Alpha;
+    Transform::ForeachBFS(transform, [alpha](Transform* t) 
+    {
+        GameObject& object = t->gameObject;
+        if (TextElement* textElement = object.GetComponent<TextElement>(); nullptr != textElement)
+        {
+            textElement->SetOpacity(alpha);
+        }
+        else if (ImageElement* imageElement = object.GetComponent<ImageElement>(); nullptr != imageElement)
+        {
+            imageElement->SetOpacity(alpha);
+        }
+    });
 }

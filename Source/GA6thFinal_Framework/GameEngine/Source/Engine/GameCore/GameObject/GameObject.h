@@ -64,7 +64,7 @@ public:
     /// <para> 매개변수와 같은 태그가 설정된 GameObject들의 배열을 반환합니다. </para>
     /// <para> 태그가 있는 GameObject가 없으면 빈 배열을 반환합니다.          </para>
     /// </summary>
-    /// <param name="tag :">검색할 태그</param>
+    /// <param name="tag">검색할 태그</param>
     /// <returns>찾은 오브젝트들을 담은 weak_ptr배열</returns>
     static std::vector<std::weak_ptr<GameObject>> FindGameObjectsWithTag(const std::string& tag);
 
@@ -72,9 +72,29 @@ public:
     /// <para> 매개변수와 같은 태그가 설정된 GameObject를 찾아 반환합니다.                             </para>
     /// <para> 참고 : 같은 태그가 설정된 오브젝트가 여러개 있으면 특정 오브젝트 반환을 보장하지 못합니다. </para>
     /// </summary>
-    /// <param name="tag :">검색할 태그</param>
+    /// <param name="tag">검색할 태그</param>
     /// <returns>찾은 오브젝트를 weak_ptr에 담아준다.</returns>
     static std::weak_ptr<GameObject> FindWithTag(const std::string& tag);
+
+    /// <summary>                                                                           </para>
+    /// <para> 매개변수와 같은 태그가 설정된 Component를 찾아 반환합니다.                             </para>
+    /// <para> 참고 : 같은 태그가 설정된 오브젝트가 여러개 있으면 특정 오브젝트 반환을 보장하지 못합니다. </para>
+    /// </summary>
+    /// <param name="tag">검색할 태그</param>
+    /// <returns>찾은 컴포넌트를 weak_ptr에 담아준다.</returns>
+    template <IS_BASE_COMPONENT_C DerivedComponent>
+    static std::weak_ptr<DerivedComponent> FindComponentWithTag(const std::string& tag)
+    {
+        const std::weak_ptr<GameObject> objectWeak = FindWithTag(tag);
+        if (const auto objectShared = objectWeak.lock())
+        {
+            if (const DerivedComponent* componentRaw = objectShared->GetComponent<DerivedComponent>())
+            {
+                return componentRaw->template GetWeakPtrAs<DerivedComponent>();
+            }
+        }
+        return std::weak_ptr<DerivedComponent>();
+    }
 
     /// <summary>
     /// <para>전달받은 오브젝트 or 컴포넌트를 파괴합니다. </para>
@@ -174,6 +194,15 @@ public:
     bool IsValid() const
     {
         return STR_NULL != _ownerScene && 0 <= _instanceID;
+    }
+
+    /// <summary>
+    /// 이 오브젝트가 생성된 프레임 타이밍을 반환합니다.
+    /// </summary>
+    /// <returns></returns>
+    unsigned long long CreationFrame() const
+    {
+        return _creationFrame;
     }
 
     /// <summary>
@@ -403,6 +432,7 @@ protected:
     virtual void DeserializedReflectEvent();
 
 private:
+    unsigned long long                       _creationFrame;
     std::weak_ptr<GameObject>                _weakPtr;
     std::string                              _ownerScene;
     File::Guid                               _prefabGuid;

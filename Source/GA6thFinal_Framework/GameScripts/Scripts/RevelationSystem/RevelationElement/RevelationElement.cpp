@@ -10,6 +10,8 @@
 
 using namespace u8_literals;
 
+REFLECT_FUNCTION(RevelationElement)
+
 void RevelationElement::ImGuiDrawPropertysEvent()
 {
     
@@ -49,7 +51,7 @@ void RevelationElement::DeepCopyAction(const TurnAction& action)
     }  
 }
 
-DropItemInfo RevelationElement::GetItemInfo()
+DropItemInfo RevelationElement::GetItemInfo() const
 {
     DropItemInfo info
     {

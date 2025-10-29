@@ -12,6 +12,7 @@ cbuffer bit32_1_isssao
 };
 
 Texture2DArray shadowMap;
+Texture2D pointLightShadowMap;
 TextureCube irradianceMap;
 TextureCube prefilteredMap;
 Texture2D brdfLUT;
@@ -20,7 +21,7 @@ Texture2D normalMap;
 Texture2D ormMap;
 Texture2D emissiveMap;
 Texture2D depthMap;
-Texture2D customDepthMap;
+Texture2D<uint> customDepthMap;
 Texture2D<float> SSAOMap;
 
 float4 ps_main(PSInput input) : SV_Target
@@ -42,8 +43,11 @@ float4 ps_main(PSInput input) : SV_Target
     float metallic = orm.b;
     
     float ssao = 1;
-    if (1==UseSSAO)
+    if (1 == UseSSAO)
+    {
         ssao = SSAOMap.SampleLevel(samLinear_wrap, input.uv, 0).r;
+    }
+    
     float3 viewPos = cameraData.Position.xyz;
     
     float4 NDC = float4(input.uv * 2.0 - 1, depth, 1.0);
@@ -57,7 +61,7 @@ float4 ps_main(PSInput input) : SV_Target
     float3 ambientLighting = 0;
     float3 ambient = CalculateIBL(normal, V, irradianceMap, prefilteredMap, brdfLUT, albedo, roughness, metallic);
     
-    NumLight numLights = bit32_3_numLight;
+    NumLight numLights = bit32_4_numLight;
     
     //Directional Lights
     for (uint i = 0; i < numLights.Directional; i++)
@@ -82,6 +86,23 @@ float4 ps_main(PSInput input) : SV_Target
         SpotLight light = lightData.Spot[k];
         directLighting += CalculateSpot(light, normal, V, albedo, metallic, roughness, worldPosition);
     }
+    
+    //Shadow Point Lights
+    for (uint l = 0; l < numLights.ShadowPoint; l++)
+    {
+        PointLight light = lightData.ShadowPoint[l];
+        float shadow = CalculatePointLightShadowPCF(
+                 worldPosition,
+                 light.Position,
+                 l,
+                 pointLightShadowMap,
+                 light.Range,
+                 8192.0,
+                 1024.0
+             );
+        directLighting += CalculatePoint(light, normal, V, albedo, metallic, roughness, worldPosition) * shadow;
+    }
+    
 
     float3 color = directLighting + (ambientLighting * ssao) + emissive;
     return float4(color, 1.0);

@@ -4,13 +4,9 @@
 #include "Model.h"
 #include "DXRSkeletalMesh.h"
 
-MeshRenderer::MeshRenderer(MeshType type, const Vector3& position, const Vector3& scale, const Quaternion& rotation, const Matrix& world, const bool& dirtyFlag)
-    : _type(type)
-    , _transform{position, scale, rotation, world, dirtyFlag}
-{
-}
+MeshRenderer::MeshRenderer() = default;
 
-MeshRenderer::~MeshRenderer() {}
+MeshRenderer::~MeshRenderer() = default;
 
 const std::vector<UINT>& MeshRenderer::GetCustomDepths()
 {
@@ -22,22 +18,47 @@ const std::vector<UINT>& MeshRenderer::GetCustomDepths()
     return _customDepths;
 }
 
-std::shared_ptr<Animator> MeshRenderer::GetAnimator() const
+IAnimator* MeshRenderer::GetAnimator() const
 {
     if (SKELETAL_MESH != _type)
         return nullptr;
 
-    return _animator;
+    return _animator.get();
+}
+
+void MeshRenderer::SetActive(const bool* isActive)
+{
+    GraphicsBase::SetActive(isActive);
 }
 
 void MeshRenderer::SetModel(std::shared_ptr<Model> model)
 {
     _model = model;
-}
 
-void MeshRenderer::SetAnimator(std::shared_ptr<Animator> animator)
-{
-    _animator = animator;
+    _customDepths.resize(_model->GetMeshCount(), PostProcess::BLOOM);
+    _materials.resize(_model->GetMeshCount());
+
+    const auto& animation = _model->GetAnimation();
+
+    if (animation)
+    {
+        _type = SKELETAL_MESH;
+        
+        _animator = std::make_unique<Animator>();
+        _animator->Initialize(animation, _model->GetSkeleton());
+        _animator->AddReference();
+
+        const auto& meshes = _model->GetMeshes();
+
+        for (auto& mesh : meshes)
+        {
+            auto dxrMesh = std::make_shared<DXRSkeletalMesh>(mesh->GetVIBuffer());
+            dxrMesh->Initialize(mesh->GetVIBuffer()->_vertexCount, sizeof(StaticMeshVertex));
+            _dxrSkeletalMeshes.push_back(dxrMesh);
+        }
+    }
+    else
+        _type = STATIC_MESH;
 }
 
 void MeshRenderer::SetMaterial(const UINT meshIndex, const Material& material)
@@ -51,6 +72,22 @@ void MeshRenderer::SetMaterial(const UINT meshIndex, const Material& material)
 void MeshRenderer::SetMasterMaterial(const UINT meshIndex, const Material& material)
 {    
     _model->SetMaterial(meshIndex, material);
+}
+
+void MeshRenderer::SetCustomMaterial(CustomLightType type, const std::any& customMaterial)
+{
+    _customLightType    = type;
+    _customMaterialData = customMaterial;
+}
+
+void MeshRenderer::AddReference()
+{
+    GraphicsBase::AddReference();
+}
+
+void MeshRenderer::Release()
+{
+    GraphicsBase::Release();
 }
 
 void MeshRenderer::OnCustomDepth(UINT customDepth)
@@ -89,22 +126,7 @@ void MeshRenderer::OffCustomDepth(UINT customDepth, UINT meshID)
     _customDepths[meshID] &= ~customDepth;
 }
 
-void MeshRenderer::Initialize()
+void MeshRenderer::Initialize(const Matrix* world)
 {
-    _customDepths.resize(_model->GetMeshCount(), PostProcess::BLOOM);
-
-    if (_model->GetAnimation())
-    {
-        _type        = SKELETAL_MESH;
-        auto& meshes = _model->GetMeshes();
-
-        for (auto& mesh : meshes)
-        {
-            auto dxrMesh = std::make_shared<DXRSkeletalMesh>(mesh->GetVIBuffer());
-            dxrMesh->Initialize(mesh->GetVIBuffer()->_vertexCount, sizeof(StaticMeshVertex));
-            _dxrSkeletalMeshes.push_back(dxrMesh);
-        }
-    }
-    else
-        _type = STATIC_MESH;
+    _world = world;    
 }

@@ -13,7 +13,7 @@ protected:
 
 private:
     void LoadAudio();
-    void LoadAudio(const std::string& key, const File::GuidRef& guid);
+    void LoadAudio(const std::string& key, const File::Guid& guid);
 
     void PlaySelectedAudio();
     void StopSelectedAudio();

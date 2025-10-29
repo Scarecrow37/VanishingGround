@@ -3,7 +3,7 @@
 class ParticleComponent : public Component
 {
     using EffectID = int;
-
+    using EffectCallback = std::function<void(void)>;
     USING_PROPERTY(ParticleComponent)
 public:
 
@@ -104,6 +104,7 @@ public:
     PROPERTY(AttachToBoneMatrix)
 
     void PlayEffect(const std::string& key);
+    void PlayEffect(const std::string& key, EffectCallback callback);
     void StopEffect(const std::string& key);
     void StopAll();
     void ClearEffectList();
@@ -117,17 +118,9 @@ public:
     ParticleComponent();
     virtual ~ParticleComponent();
 
-    File::GuidRef _guidRef;
     File::Path    _filepath;
-
 protected:
     REFLECT_FIELDS_BEGIN(Component)
-    //std::string          Guid;
-    //std::array<float, 3> PositionArray;
-    //std::array<float, 3> RotationArray;
-    //std::array<float, 3> ScaleArray;
-    //bool                 AttachToBoneMatrix;
-    //std::string          BoneNameToAttach;
 
     std::unordered_map<std::string,std::array<float, 3>> ScaleMap;
     std::unordered_map<std::string,std::array<float, 3>> RotationMap;
@@ -139,17 +132,9 @@ protected:
 
     REFLECT_FIELDS_END(ParticleComponent)
 
-
-    void            Update() override;
-    void            Start() override;
-    void            Reset() override;
-    void            OnDestroy() override;
-
-    void            SerializedReflectEvent() override;
-    void            DeserializedReflectEvent() override;
-    void            ImGuiDrawPropertysEvent() override;
-    void            Awake() override;
-    void            OnEnable() override;
+    void SerializedReflectEvent() override;
+    void DeserializedReflectEvent() override;
+    void ImGuiDrawPropertysEvent() override;
 
  private:
     void LoadParticle(const std::string& keyString);
