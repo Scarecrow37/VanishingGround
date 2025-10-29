@@ -17,8 +17,6 @@ RoundStartPhase::RoundStartPhase()
 
 }
 
-RoundStartPhase::~RoundStartPhase() = default;
-
 void RoundStartPhase::OnStart() 
 {
     TurnModeStateBase::OnStart();

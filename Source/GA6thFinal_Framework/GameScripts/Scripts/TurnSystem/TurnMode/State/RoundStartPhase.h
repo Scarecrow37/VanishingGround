@@ -12,7 +12,6 @@ class RoundStartPhase : public TurnModeStateBase
 {
 public:
     RoundStartPhase();
-    virtual ~RoundStartPhase() override;
 
     /// <summary>
     /// 페이즈 종료 여부를 반환합니다.
