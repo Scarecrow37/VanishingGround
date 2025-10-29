@@ -135,11 +135,19 @@ void SceneTransitionComponent::CalculateFade()
 
     if (_fadeElapsedTimer >= Duration)
     {
-        _fadeFlag = false;
-        if (_fadeCallBackFunction && true == _callbackFlag)
+        if (_fadeEndFlag == true)
         {
-            _fadeCallBackFunction();
-            _callbackFlag = false;
+            _fadeFlag = false;
+            if (_fadeCallBackFunction && true == _callbackFlag)
+            {
+                _fadeCallBackFunction();
+                _callbackFlag = false;
+            }
+        }
+        else
+        {
+            UmTransition->Fade("Game", EndColor, true);
+            _fadeEndFlag = true;
         }
         return;
     }
@@ -155,21 +163,11 @@ void SceneTransitionComponent::CalculateFade()
     UmTransition->Fade("Game", Color::Lerp(StartColor, EndColor, step), true);
 }
 
-//void SceneTransitionComponent::Reset()
-//{
-//    throw std::logic_error("The method or operation is not implemented.");
-//}
-
 void SceneTransitionComponent::Awake()
 {
     _singletonObject.TrySingleTon(true);
     _singletonComponent.TrySingleTon();
 }
-
-//void SceneTransitionComponent::OnDestroy()
-//{
-//    throw std::logic_error("The method or operation is not implemented.");
-//}
 
 void SceneTransitionComponent::Fade(float duration, const Vector4& start, const Vector4& end,
                                     std::function<void()> callback)
