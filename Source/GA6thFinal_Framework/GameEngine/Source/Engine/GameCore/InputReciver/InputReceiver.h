@@ -182,14 +182,14 @@ inline bool InputReceiver::BindInputAction(ControllerButton button, Action actio
 
 template <typename T>
 inline bool InputReceiver::BindAllKeyInputAction(Action action, Component* owner, T* instance,
-                                                 void (T::*func)(const Input::Controller&), std::source_location)
+                                                 void (T::*func)(const Input::Controller&), std::source_location location)
 {
     static_assert(std::is_base_of_v<InputReceiver, T>, "T must be derived from InputReceiver.");
     bool result = false;
     if (owner->gameObject->IsValid())
     {
-        constexpr enumrators = rfl::get_enumerator_array<ControllerButton>();
-        for (auto& [str, button] : v)
+        constexpr auto enumrators = rfl::get_enumerator_array<ControllerButton>();
+        for (auto& [str, button] : enumrators)
         {
             ControllerSetKey key{};
             key.Button = button;
