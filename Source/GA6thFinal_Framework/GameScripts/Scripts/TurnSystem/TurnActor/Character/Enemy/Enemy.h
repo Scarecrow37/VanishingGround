@@ -71,6 +71,7 @@ public:
     /*Enemy에게 피격을 가합니다.*/
     void TakeDamage(int damage, bool playAnim = true) override;
     void TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim = true);
+    void ShowDamage(int damage, std::span<std::string> sources) override;
 
     inline Monster::Controller&     GetController() { return _controller; }
     inline FiniteStateMachine&      GetFSM() { return *_finiteStateMachine; }

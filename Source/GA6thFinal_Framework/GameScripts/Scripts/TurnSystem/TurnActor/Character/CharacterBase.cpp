@@ -242,6 +242,7 @@ void CharacterBase::TakeDamage(int damage, bool playAnim)
             _animationComponent->EndBuildOverrideAnimation();
         }
     }
+    ShowDamage(damage, {}); // TODO: 다른 방법을 찾아야함.
 }
 
 void CharacterBase::TakeChain(int chainDamage) 

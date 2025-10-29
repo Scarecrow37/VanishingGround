@@ -98,12 +98,6 @@ void Enemy::TakeDamage(int damage, bool playAnim)
         turnMode->ApplyActions([&](TurnAction& action) { action.OnEnemyTakeDamageStart(*this, damage); });
     }
     Base::TakeDamage(damage, playAnim);
-    if (const CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
-    {
-        Monster::SpawnPoint   spawnPoint = SpawnPoint;
-        const size_t          index      = static_cast<size_t>(spawnPoint);
-        [[maybe_unused]] auto _          = combatUI->CharacterHUDGroup.EnemySpawnDamagePanel[index]->MakeDamage(damage);
-    }
     if (turnMode)
     {
         turnMode->ApplyActions([&](TurnAction& action) { action.OnEnemyTakeDamageEnd(*this, damage); });
@@ -143,6 +137,16 @@ void Enemy::TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim)
         break;
     }
     TakeDamage(damage, playAnim);
+}
+
+void Enemy::ShowDamage(const int damage, const std::span<std::string> sources)
+{
+    if (const CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        Monster::SpawnPoint   spawnPoint = SpawnPoint;
+        const size_t          index      = static_cast<size_t>(spawnPoint);
+        [[maybe_unused]] auto _ = combatUI->CharacterHUDGroup.EnemySpawnDamagePanel[index]->MakeDamage(damage, sources);
+    }
 }
 
 void Enemy::Awake()

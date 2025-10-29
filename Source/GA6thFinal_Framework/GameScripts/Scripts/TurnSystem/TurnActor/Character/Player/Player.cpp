@@ -108,7 +108,7 @@ void Player::Dead()
     }
 }
 
-void Player::TakeDamage(int damage, bool playAnim) 
+void Player::TakeDamage(int damage, const bool playAnim) 
 {
     TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
     if (turnMode)
@@ -116,14 +116,18 @@ void Player::TakeDamage(int damage, bool playAnim)
         turnMode->ApplyActions([&](TurnAction& action) { action.OnPlayerTakeDamageStart(*this, damage); });
     }
     int takeDamage = damage;
-    if (const CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
-    {
-        [[maybe_unused]] auto _          = combatUI->CharacterHUDGroup.PlayerSpawnDamagePanel->MakeDamage(damage);
-    }
     Base::TakeDamage(takeDamage, playAnim);
     if (turnMode)
     {
         turnMode->ApplyActions([&](TurnAction& action) { action.OnPlayerTakeDamageEnd(*this, damage); });
+    }
+}
+
+void Player::ShowDamage(const int damage, const std::span<std::string> sources)
+{
+    if (const CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        [[maybe_unused]] auto _ = combatUI->CharacterHUDGroup.PlayerSpawnDamagePanel->MakeDamage(damage, sources);
     }
 }
 
@@ -246,12 +250,12 @@ void Player::OnKill(CharacterBase* destination)
     Base::OnKill(destination);
 }
 
-void Player::OnTokenAdded(int tokenID)
+void Player::OnTokenAdded(const int tokenID)
 {
     Base::OnTokenAdded(tokenID);
 }
 
-void Player::OnTokenRemoved(int tokenID)
+void Player::OnTokenRemoved(const int tokenID)
 {
     Base::OnTokenRemoved(tokenID);
 }
