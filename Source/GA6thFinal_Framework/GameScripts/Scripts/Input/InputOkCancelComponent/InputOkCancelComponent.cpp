@@ -30,13 +30,14 @@ void InputOkCancelComponent::GetOkOrCancel(const std::function<void(bool)>& call
     {
         PushInputLayer();
         gameObject->SetActive(true);
-        _callback = callback;
+        std::function<void(bool)> callbackFunc = callback;
+        UmTime.Invoke(this, 0.1f, [this, callbackFunc] { _callback = callbackFunc; });
     }
 }
 
 void InputOkCancelComponent::OnOk(const Input::Controller&) 
 {
-    if (gameObject->ActiveInHierarchy)
+    if (_callback && EnableInHierarchy)
     {
         _result  = true;
         _onClose = true;
@@ -45,7 +46,7 @@ void InputOkCancelComponent::OnOk(const Input::Controller&)
 
 void InputOkCancelComponent::OnCancel(const Input::Controller&) 
 {
-    if (gameObject->ActiveInHierarchy)
+    if (_callback && EnableInHierarchy)
     {
         _result  = false;
         _onClose = true;

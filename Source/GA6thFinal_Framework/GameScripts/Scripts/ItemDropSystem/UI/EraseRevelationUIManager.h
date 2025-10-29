@@ -22,12 +22,16 @@ public:
     void CloseUI();
     void EraseRevelation(int slot);
     void SetRevelationInfoUI(const DropItemInfo& info);
+    void SetWarningIcon(int slot);
 
 public:
     REFLECT_PROPERTY()
 
     GETTER_ONLY(InputOkCancelComponent*, InputOkCancel) { return _inputOkCancelComponent.lock().get(); }
     PROPERTY(InputOkCancel)
+
+    GETTER_ONLY(ImageElement*, WarningIcon) { return _warningImage.lock().get(); }
+    PROPERTY(WarningIcon)
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
@@ -62,5 +66,6 @@ private:
     bool   _closeFlag           = false;
 
     std::weak_ptr<InputOkCancelComponent> _inputOkCancelComponent;
+    std::weak_ptr<ImageElement>           _warningImage;
 };
 

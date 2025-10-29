@@ -51,6 +51,7 @@ void EraseRevelationNavi::Submit()
                     }                    
                 }
             });
+            system->SetWarningIcon(_mySlot);       
         }
         else
         {
