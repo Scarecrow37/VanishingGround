@@ -3,7 +3,9 @@
 #include "d3dUtil.h"
 #include "dxcapi.use.h"
 #include "ShaderBuilder.h"
-
+//#ifdef NDEBUG
+#include "Shaders/RTShaders_lib.h"
+//#endif
 const WCHAR* RTPipeline::RayGenShader       = L"RayGen";
 const WCHAR* RTPipeline::MissShader         = L"Miss";
 const WCHAR* RTPipeline::ClosestHitShader   = L"ClosestHit";
@@ -29,12 +31,38 @@ D3D12_ROOT_SIGNATURE_DESC RTPipeline::MakeRootSigDesc(const std::vector<D3D12_RO
 
 DxilLibrary RTPipeline::CreateDxilLibrary()
 {
+#ifdef NDEBUG
+    return CreateDxilLibraryFromBuiltIn();
     // compile shader
+#else
     const ComPtr<IDxcBlob> rayGenshader  = d3dUtil::CompileShaderLibrary(L"../Shaders/RTShaders.hlsl", L"lib_6_3");
     const WCHAR*           entryPoints[] = {RayGenShader, MissShader, ClosestHitShader,ShadowMissShader};
     return DxilLibrary(rayGenshader, entryPoints, ARRAYSIZE(entryPoints));
+#endif
 }
+#ifdef NDEBUG
+DxilLibrary RTPipeline::CreateDxilLibraryFromBuiltIn()
+{
+    // 1. DXC Library 생성
+    ComPtr<IDxcLibrary> pLibrary;
+    HRESULT             hr = DxcCreateInstance(CLSID_DxcLibrary, IID_PPV_ARGS(&pLibrary));
+    FAILED_CHECK_MESSAGE(hr, L"Failed to create DxcLibrary for built-in RT shader");
 
+    // 2. 바이트 배열에서 Blob 생성
+    ComPtr<IDxcBlobEncoding> pBlob;
+    hr = pLibrary->CreateBlobWithEncodingOnHeapCopy(g_RTShaders_lib, sizeof(g_RTShaders_lib), CP_UTF8, &pBlob);
+    FAILED_CHECK_MESSAGE(hr, L"Failed to create blob from built-in RT shader");
+
+    // 3. IDxcBlob으로 캐스팅
+    ComPtr<IDxcBlob> dxcBlob;
+    hr = pBlob.As(&dxcBlob);
+    FAILED_CHECK_MESSAGE(hr, L"Failed to cast to IDxcBlob");
+
+    // 4. DxilLibrary 생성
+    const WCHAR* entryPoints[] = {RayGenShader, MissShader, ClosestHitShader, ShadowMissShader};
+    return DxilLibrary(dxcBlob, entryPoints, ARRAYSIZE(entryPoints));
+}
+#endif
 
 // 이거는 완
 RTPipeline::RootSignatureDesc RTPipeline::CreateRayGenRootDesc()
