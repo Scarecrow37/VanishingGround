@@ -428,13 +428,15 @@ void PlayerPlayTurnState::OnQTEFinish()
                                     {
                                         modelData.Animation->StopCurrentAnimation();
                                         modelData.Particle->StopEffect("weapon");
+
+                                        --_attackRemaining;
+                                        if (0 >= _attackRemaining)
+                                        {
+                                            modelData.Animation->SetMainAnimationEndCallback(nullptr);
+                                            SetAttackEnd();
+                                        }
                                     }
                                     weaponModelManager->ReturnWeaponModel(modelData);
-                                    --_attackRemaining;
-                                    if (0 >= _attackRemaining)
-                                    {
-                                        SetAttackEnd();
-                                    }
                                 }
                             });
                             animation->SetAnimationPostEventCallback(
