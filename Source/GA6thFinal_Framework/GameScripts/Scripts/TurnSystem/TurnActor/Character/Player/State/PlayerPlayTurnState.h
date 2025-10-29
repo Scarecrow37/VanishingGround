@@ -51,8 +51,8 @@ private:
     void SetAttack();
     void SetAttackEnd();
 
-    void SetWeaponModelCallback(WeaponModelData modelData, QTE::NoteResult& noteResult);
-    void SetWeaponModelTransform(WeaponModelData modelData, QTE::NoteResult& noteResult);
+    void SetWeaponModelCallback(WeaponModelData& modelData, QTE::NoteResult& noteResult);
+    void SetWeaponModelTransform(WeaponModelData& modelData, QTE::NoteResult& noteResult);
     void SetAttackEndTimeInvoke(float time);
     void BattleOnHitEvent(QTE::NoteResult& result);
 

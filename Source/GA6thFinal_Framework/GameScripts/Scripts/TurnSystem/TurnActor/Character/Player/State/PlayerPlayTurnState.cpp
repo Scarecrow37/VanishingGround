@@ -234,11 +234,6 @@ void PlayerPlayTurnState::UpdateQuickTimeEventUI(float dt)
 
 void PlayerPlayTurnState::UpdateAttackEventUI(float dt)
 {
-    ImGui::Begin("Player Turn##9A48EE30-CB5F-48AC-9740-DDF8118AAC49");
-    {
-        _inputState = InputState::NONE;
-    }
-    ImGui::End();
 }
 
 void PlayerPlayTurnState::SetAttackReady()
@@ -263,7 +258,7 @@ void PlayerPlayTurnState::SetAttackReady()
         // 애니메이션 빌드 종료
         animator->EndBuildOverrideAnimation();
     }
-    UmAudio.Play("-32000");
+    //UmAudio.Play("-32000");
 }
 
 void PlayerPlayTurnState::SetAttack()
@@ -286,7 +281,7 @@ void PlayerPlayTurnState::SetAttack()
     
         animator->EndBuildOverrideAnimation();
     }
-    UmAudio.Play("-32010");
+    //UmAudio.Play("-32010");
 }
 
 void PlayerPlayTurnState::SetAttackEnd()
@@ -421,7 +416,7 @@ void PlayerPlayTurnState::OnQTEFinish()
                                     animOffset = -delta;
                                     delta      = 0.0f;
                                 }
-                                totalTime += delta;
+                                totalTime = delta + hitTime;
 
                                 auto weakWeapon = weaponModel.GameObject->GetWeakPtr();
                                 UmTime.Invoke(delta, [weakWeapon, weaponModel]() {
@@ -448,7 +443,7 @@ void PlayerPlayTurnState::OnQTEFinish()
     }
 }
 
-void PlayerPlayTurnState::SetWeaponModelCallback(WeaponModelData modelData, QTE::NoteResult& noteResult)
+void PlayerPlayTurnState::SetWeaponModelCallback(WeaponModelData& modelData, QTE::NoteResult& noteResult)
 {
     bool validModel = false;
     bool validAnim  = false;
@@ -494,7 +489,7 @@ void PlayerPlayTurnState::SetWeaponModelCallback(WeaponModelData modelData, QTE:
     }
 }
 
-void PlayerPlayTurnState::SetWeaponModelTransform(WeaponModelData modelData, QTE::NoteResult& noteResult)
+void PlayerPlayTurnState::SetWeaponModelTransform(WeaponModelData& modelData, QTE::NoteResult& noteResult)
 {
     WeaponModelManager* weaponModelManager = SingletonComponent<WeaponModelManager>::GetInstance();
     assert(weaponModelManager && "WeaponModel을 가져올 Manager가 없습니다.");
