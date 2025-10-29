@@ -59,5 +59,6 @@ private:
     float   _rotationSpeed     = 1.f;
     Vector3 _rotationVelocity = Vector3::Zero;
     
+    std::string _currentEffectFilePath = "";
     bool _boneFlag = false;
 };

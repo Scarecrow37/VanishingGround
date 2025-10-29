@@ -591,6 +591,19 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
         {
 
             {
+                Vector3 temp = _curEmitter->GetParticleRotation();
+                float axis[3] = {temp.x, temp.y, temp.z};
+                ImGui::Text("Particle Rotation");
+                ImGui::SameLine();
+                bool result = ImGui::SliderFloat3("##Particle Rotation", axis, -180, 180);
+                if (false == isDirty)
+                    if (true == result)
+                        isDirty = result;
+                _curEmitter->SetParticleRotation({axis[0], axis[1], axis[2]});
+                ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.0f);
+            }
+
+            {
                 bool scaleVelFlag = _curEmitter->GetScaleByVelocityFlag();
                 ImGui::Text("Scale by Velocity");
                 ImGui::SameLine();
