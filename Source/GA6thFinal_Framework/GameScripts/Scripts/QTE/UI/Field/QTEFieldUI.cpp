@@ -105,11 +105,6 @@ namespace QTE
             StartAnimation->gameObject->ActiveSelf = true;
             StartAnimation->StartAnimation();
         }
-        if (Flow)
-        {
-            Flow->gameObject->ActiveSelf = true;
-            Flow->StartAnimation();
-        }
     }
     void FieldUI::Update()
     {
@@ -125,6 +120,11 @@ namespace QTE
                 if (JudgeNote)
                 {
                     JudgeNote->gameObject->ActiveSelf = true;
+                }
+                if (Flow)
+                {
+                    Flow->gameObject->ActiveSelf = true;
+                    Flow->StartAnimation();
                 }
             }
         }
