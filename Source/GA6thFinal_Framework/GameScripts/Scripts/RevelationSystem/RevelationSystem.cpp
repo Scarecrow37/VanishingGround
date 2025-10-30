@@ -109,39 +109,42 @@ void RevelationSystem::RollRoundElement()
 
     if (_turnMode)
     {
-        const auto& roundElementList = _roundElementList;
-        //기존 액션들 비활성화
-        for (auto& element : roundElementList)
+        std::vector<std::shared_ptr<RevelationElement>> _roundElements;
+        if (false == _roundElementList.empty())
         {
-            if (element->IsAction())
+            // 기존 액션들 비활성화
+            const auto& roundElementList = _roundElementList;
+            for (auto& element : roundElementList)
             {
-                element->GetAction().SetDestroy();
+                if (element->IsAction())
+                {
+                    element->GetAction().SetDestroy();
+                }
             }
         }
-        _roundElementList.clear();
 
         // 실제 존재하는 계시만 리스트에 넣는다
         for (auto& element : _playerElementList)
         {
             if (element)
             {
-                _roundElementList.push_back(element);
+                _roundElements.push_back(element);
             }
         }
 
         // 랜덤 셔플
-        _roundElementList.shuffle(Random::GetEngine());
+        std::ranges::shuffle(_roundElements, Random::GetEngine());
 
         // 사용 가능한 개수만 남긴다.
-        if (ReflectFields->RevelationsPerRound < _roundElementList.size())
+        if (ReflectFields->RevelationsPerRound < _roundElements.size())
         {
-            _roundElementList.resize(ReflectFields->RevelationsPerRound);
+            _roundElements.resize(ReflectFields->RevelationsPerRound);
         }
 
         // 뽑힌 횟수 계산 및 액션 활성화
-        for (size_t i = 0; i < roundElementList.size(); ++i)
+        for (size_t i = 0; i < _roundElements.size(); ++i)
         {
-            auto& element = roundElementList[i];
+            auto& element = _roundElements[i];
             const std::string& name = element->ElementName;
             _elementTotalAppearances[name]++;
             if (element->IsAction())
@@ -165,7 +168,10 @@ void RevelationSystem::RollRoundElement()
                 _turnMode->AddTurnAction(&action);
             }
         }
-        _totalRollCount += (int)_roundElementList.size();
+        _totalRollCount += (int)_roundElements.size();
+
+        // 적용
+        _roundElementList = std::move(_roundElements);
     }
 }
 

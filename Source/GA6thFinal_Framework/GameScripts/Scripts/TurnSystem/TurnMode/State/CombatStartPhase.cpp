@@ -176,15 +176,6 @@ void CombatStartPhase::OnEnter()
 
     NotifyCombatStart();
     Battle::ResetLastCharacter();
-
-    if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
-    {
-        combatUIManager->AccessoriesGroup.ActiveUI(true);
-        combatUIManager->CharacterHUDGroup.ActiveUI(true);
-        combatUIManager->ConsumableGroup.ActiveUI(true);
-        combatUIManager->RevelationsGroup.ActiveUI(true);
-        combatUIManager->TurnQueueGroup.ActiveUI(true);
-    }
 }
 
 void CombatStartPhase::OnExit() 
@@ -206,6 +197,14 @@ void CombatStartPhase::OnUpdate()
         else
         {
             _phaseEnd = true;
+        }
+
+        if (_phaseEnd)
+        {
+            if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
+            {
+                combatUIManager->TurnQueueGroup.FadeIn(1.f);
+            }
         }
     } 
 }

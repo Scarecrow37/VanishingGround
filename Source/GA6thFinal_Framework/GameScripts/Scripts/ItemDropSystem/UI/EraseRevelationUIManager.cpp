@@ -7,6 +7,7 @@
 #include "ItemDropSystem/UI/ArtifactUIManager.h"
 #include "ItemDropSystem/UI/ItemDropUIRootManager.h"
 #include "RevelationSystem/RevelationSystem.h"
+#include "Input/InputOkCancelComponent/InputOkCancelComponent.h"
 
 UMREAL_COMPONENT(EraseRevelationUIManager)
 
@@ -130,6 +131,27 @@ void EraseRevelationUIManager::SetRevelationInfoUI(const DropItemInfo& info)
     }
 }
 
+void EraseRevelationUIManager::SetWarningIcon(int slot) 
+{
+    if (auto image = _warningImage.lock())
+    {
+        if (RevelationSystem* system = SingletonComponent<RevelationSystem>::GetInstance())
+        {
+            auto& list = system->GetPlayerElementList();
+            if (0 <= slot && slot < static_cast<int>(list.size()))
+            {
+                auto& revelation = list[slot];
+                if (revelation)
+                {
+                    DropItemInfo info = revelation->GetItemInfo();
+                    int id = DropItemInfo::GetArtifactIconID(info);
+                    image->SetImage(UmFileSystem.GetGuidFromAssetID(id));
+                }
+            }
+        }
+    }
+}
+
 void EraseRevelationUIManager::Added() 
 {
     if (_singletonComponent.TrySingleTon())
@@ -224,13 +246,36 @@ void EraseRevelationUIManager::FindElements()
                     }
                 });
             }
+            else if (child->gameObject->CompareTag("Warning Panel"))
+            {
+                GameObject& object      = child->gameObject;
+                if (InputOkCancelComponent* okCancel = object.GetComponent<InputOkCancelComponent>())
+                {
+                    _inputOkCancelComponent = okCancel->GetWeakPtrAs<InputOkCancelComponent>();
+                }            
+
+                Transform::ForeachBFS(object.transform, [this](Transform* curr)
+                {   
+                    GameObject& currObject = curr->gameObject;
+                    if (currObject.CompareTag("Icon"))
+                    {
+                        if (ImageElement* image = currObject.GetComponent<ImageElement>())
+                            _warningImage = image->GetWeakPtrAs<ImageElement>();
+                    }
+                });
+            }
         }
     }
 }
 
 void EraseRevelationUIManager::OnButtonDownB(const Input::Controller&)
 {
-    if (gameObject->ActiveInHierarchy)
+    bool isActiveWarning = false;
+    if (auto okCancel = _inputOkCancelComponent.lock())
+    {
+        isActiveWarning = okCancel->EnableInHierarchy;
+    }
+    if (gameObject->ActiveInHierarchy && false == isActiveWarning)
     {
         _closeFlag = true;
     }

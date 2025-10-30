@@ -4,6 +4,8 @@
 class ImageElement;
 class TextElement;
 class DescriptionPanel;
+class FadeUIComponent;
+class SpriteAnimationElement;
 
 struct RevelationUI
 {
@@ -42,6 +44,12 @@ protected:
 private:
     std::array<RevelationUI, 3> _revelationUis{};
     std::array<GameObject*, 3>  _revelationObjects{};
+
+    std::weak_ptr<FadeUIComponent> _rootFade;
+    std::weak_ptr<FadeUIComponent> _textsFade;
+
+    std::weak_ptr<SpriteAnimationElement> _startAnimation;
+    std::weak_ptr<SpriteAnimationElement> _reloadAnimation;
 
     RevelationsViewModel::Handle _watchHandle;
 };
