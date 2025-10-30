@@ -76,7 +76,12 @@ void AccelerationStructureManager::SubmitSkeletalInstance(MeshInfo& meshInfo)
 void AccelerationStructureManager::EndFrame(ID3D12GraphicsCommandList4* cmdList)
 {
     ComPtr<ID3D12Device5> device = Global::device->GetDevice5();
+    
+    // 배리어 모으기 
+    std::vector<D3D12_RESOURCE_BARRIER> barriers;
+    barriers.reserve(_pendingInstances.size() + 1);
 
+    // 모든 blas 빌드 배리어 없이
     for (auto& inst : _pendingInstances)
     {
         if (AsBuildClass::STATICBLAS == inst.BuildClass)
@@ -84,21 +89,50 @@ void AccelerationStructureManager::EndFrame(ID3D12GraphicsCommandList4* cmdList)
             auto& mesh  = inst.meshInfo.Mesh;
             auto& cache = _staticBlasMap[mesh];
 
-            BuildOrUpdateStaticBLAS(device.Get(), cmdList, mesh, cache);
+            ID3D12Resource* resultResource = BuildOrUpdateStaticBLAS(device.Get(), cmdList, mesh, cache);
+
+            // 배리어를 벡터에 추가
+            if (resultResource)
+            {
+                CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::UAV(resultResource);
+                barriers.push_back(barrier);
+            }
         }
         else
         {
-            auto&                                         meshInfo = inst.meshInfo;
-            auto*                                         instance = meshInfo.SkinnedInstance;
-            if (instance ==nullptr)
+            auto& meshInfo = inst.meshInfo;
+            auto* instance = meshInfo.SkinnedInstance;
+            if (instance == nullptr)
                 continue;
-            uint64_t                                      instanceID = instance->GetInstanceID();
-            auto&                                         chache        = _dynamicBlasMap[instanceID];
-            BuildDynamicBLAS(device.Get(), cmdList, &meshInfo, chache);
+
+            uint64_t instanceID = instance->GetInstanceID();
+            auto&    cache      = _dynamicBlasMap[instanceID];
+
+            ID3D12Resource* resultResource = BuildDynamicBLAS(device.Get(), cmdList, &meshInfo, cache);
+
+            // 배리어를 벡터에 추가
+            if (resultResource)
+            {
+                CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::UAV(resultResource);
+                barriers.push_back(barrier);
+            }
         }
     }
 
-    BuildOrUpdateTLAS(device.Get(), cmdList);
+    // 모든 BLAS 배리어를 한 번에 실행 
+    if (!barriers.empty())
+    {
+        cmdList->ResourceBarrier(static_cast<UINT>(barriers.size()), barriers.data());
+    }
+
+    // tlas 빌드 
+    ID3D12Resource* tlasResource = BuildOrUpdateTLAS(device.Get(), cmdList);
+
+    if (tlasResource)
+    {
+        CD3DX12_RESOURCE_BARRIER tlasBarrier = CD3DX12_RESOURCE_BARRIER::UAV(tlasResource);
+        cmdList->ResourceBarrier(1, &tlasBarrier);
+    }
 }
 
 void AccelerationStructureManager::RemoveUnUsedStaticMeshes(const std::vector<MeshInfo>& liveStatics,
@@ -140,12 +174,15 @@ void AccelerationStructureManager::RemoveUnUsedStaticMeshes(const std::vector<Me
     }
 }
 
-void AccelerationStructureManager::BuildOrUpdateStaticBLAS(ID3D12Device5* device, ID3D12GraphicsCommandList4* cmdList,
+ID3D12Resource* AccelerationStructureManager::BuildOrUpdateStaticBLAS(ID3D12Device5*              device,
+                                                                      ID3D12GraphicsCommandList4* cmdList,
                                                            BaseMesh* mesh, BlasCache& cache)
 {
+    // 이미 생성함
     if (cache.buf)
     {
-        return; // 이미 생성함
+        // 반환 받은곳에서 예외 처리.
+        return nullptr; 
     }
     VIBuffer*                      viBuf = mesh->GetVIBuffer();
     D3D12_RAYTRACING_GEOMETRY_DESC geodesc{};
@@ -184,11 +221,11 @@ void AccelerationStructureManager::BuildOrUpdateStaticBLAS(ID3D12Device5* device
 
     cmdList->BuildRaytracingAccelerationStructure(&desc, 0, nullptr);
 
-    CD3DX12_RESOURCE_BARRIER br = CD3DX12_RESOURCE_BARRIER::UAV(cache.buf->pResult.Get());
-    cmdList->ResourceBarrier(1, &br);
+    return cache.buf->pResult.Get();
 }
 
-void AccelerationStructureManager::BuildDynamicBLAS(ID3D12Device5* device, ID3D12GraphicsCommandList4* cmdList,
+ID3D12Resource* AccelerationStructureManager::BuildDynamicBLAS(ID3D12Device5*              device,
+                                                               ID3D12GraphicsCommandList4* cmdList,
                                                     MeshInfo* meshInfo, BlasCache& cache)
 {
     auto&     instance = meshInfo->SkinnedInstance;
@@ -228,8 +265,8 @@ void AccelerationStructureManager::BuildDynamicBLAS(ID3D12Device5* device, ID3D1
         cache.buf = std::make_shared<AccelerationStructureBuffers>();
 
         Global::device->CreateDefaultBuffer(static_cast<UINT>(info.ScratchDataSizeInBytes),
-                                            D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-                                            D3D12_RESOURCE_STATE_COMMON, cache.buf->pScratch);
+                                            D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON,
+                                            cache.buf->pScratch);
 
         Global::device->CreateDefaultBuffer(static_cast<UINT>(info.ResultDataMaxSizeInBytes),
                                             D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
@@ -244,18 +281,18 @@ void AccelerationStructureManager::BuildDynamicBLAS(ID3D12Device5* device, ID3D1
 
     cmdList->BuildRaytracingAccelerationStructure(&desc, 0, nullptr);
 
-    CD3DX12_RESOURCE_BARRIER uavBarrier = CD3DX12_RESOURCE_BARRIER::UAV(cache.buf->pResult.Get());
-    cmdList->ResourceBarrier(1, &uavBarrier);
+    return cache.buf->pResult.Get();
 }
 
-void AccelerationStructureManager::BuildOrUpdateTLAS(ID3D12Device5* device, ID3D12GraphicsCommandList4* cmdList)
+ID3D12Resource* AccelerationStructureManager::BuildOrUpdateTLAS(ID3D12Device5*              device,
+                                                                ID3D12GraphicsCommandList4* cmdList)
 {
     std::vector<D3D12_RAYTRACING_INSTANCE_DESC> inst;
     inst.reserve(_pendingInstances.size());
 
     for (const auto& p : _pendingInstances)
     {
-        Matrix*                      transoseWorld = &_ownerScene->_matrices[p.meshInfo.InstanceData.MatrixID].World;
+        Matrix*                        transoseWorld = &_ownerScene->_matrices[p.meshInfo.InstanceData.MatrixID].World;
         D3D12_RAYTRACING_INSTANCE_DESC desc{};
         memcpy(desc.Transform, transoseWorld, sizeof(desc.Transform));
         desc.InstanceID                          = p.InstanceID;
@@ -336,6 +373,5 @@ void AccelerationStructureManager::BuildOrUpdateTLAS(ID3D12Device5* device, ID3D
 
     cmdList->BuildRaytracingAccelerationStructure(&desc, 0, nullptr);
 
-    CD3DX12_RESOURCE_BARRIER br = CD3DX12_RESOURCE_BARRIER::UAV(_topLevelBuffers->pResult.Get());
-    cmdList->ResourceBarrier(1, &br);
+    return _topLevelBuffers->pResult.Get();
 }
