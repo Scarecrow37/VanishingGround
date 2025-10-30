@@ -133,6 +133,7 @@ void WeaponChangeUIManager::ShowChangeWarningUI(int slot)
                     File::Guid   icon = UmFileSystem.GetGuidFromAssetID(DropItemInfo::GetArtifactIconID(info));
                     _warningUI.After->SetImage(icon);
                 }
+                PushInputLayer();
             }
         }
         _state = UIState::IDLE;
@@ -281,6 +282,7 @@ void WeaponChangeUIManager::Update()
             if (_warningUI.WarningUIObject && _warningUI.WarningUIObject->ActiveInHierarchy)
             {
                 _warningUI.WarningUIObject->SetActive(false);
+                PopInputLayer();
                 _changeWeaponSlot = -1;
             }
             else
@@ -299,6 +301,7 @@ void WeaponChangeUIManager::Update()
                 {
                     system->EquipWeapon(_changeWeaponSlot, _changeWeaponElement);
                     _warningUI.WarningUIObject->SetActive(false);
+                    PopInputLayer();
                     _changeWeaponSlot = -1;
                     if (ArtifactUIManager* artifactManager = SingletonComponent<ArtifactUIManager>::GetInstance())
                     {                     
