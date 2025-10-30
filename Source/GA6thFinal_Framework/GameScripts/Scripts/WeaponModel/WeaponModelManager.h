@@ -23,8 +23,9 @@ public:
     WeaponModelData RequestAvailableWeapon(WeaponType type);
     bool            ReturnWeaponModel(WeaponModelData data);
 
-    const std::string* GetRandomWeaPonAnimationKeyToNormalAttack(WeaponType type);
-    const std::string* GetRandomWeaPonAnimationKeyToSpecialAttack(WeaponType type);
+    bool  HasWeaponAnimation(WeaponType type, const std::string& animKey);
+    const std::string* GetRandomWeaponAnimationKeyToNormalAttack(WeaponType type);
+    const std::string* GetRandomWeaponAnimationKeyToSpecialAttack(WeaponType type);
 
 
 private:

@@ -465,14 +465,15 @@ void PlayerPlayTurnState::SetWeaponModelCallback(WeaponModelData& modelData, QTE
                 if (validAnim = modelData.Animation->ChangeMainAnimation(note->WeaponAnimationKey))
                 {
                     animation->StopCurrentAnimation();
-                    animation->SetMainAnimationEndCallback([this, objectWeak, weaponModelManager, modelData]() {
-                        if (false == objectWeak.expired() && modelData.IsValid())
-                        {
-                            modelData.Animation->StopCurrentAnimation();
-                            modelData.Particle->StopEffect("weapon");
-                            weaponModelManager->ReturnWeaponModel(modelData);
-                        }
-                    });
+                    animation->SetMainAnimationEndCallback(
+                            [this, objectWeak, weaponModelManager, modelData]() {
+                            if (false == objectWeak.expired() && modelData.IsValid())
+                            {
+                                modelData.Animation->StopCurrentAnimation();
+                                modelData.Particle->StopEffect("weapon");
+                                weaponModelManager->ReturnWeaponModel(modelData);
+                            }
+                        });
                     animation->SetAnimationPostEventCallback(
                         [this, objectWeak, &noteResult, modelData](const Timeline::EventContext* context) {
                             if (false == objectWeak.expired() && modelData.IsValid())
