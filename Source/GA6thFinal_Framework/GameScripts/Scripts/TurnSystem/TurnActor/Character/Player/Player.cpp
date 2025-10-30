@@ -117,6 +117,7 @@ void Player::TakeDamage(int damage, const bool playAnim)
     }
     int takeDamage = damage;
     Base::TakeDamage(takeDamage, playAnim);
+    ShowDamage(damage, {});
     if (turnMode)
     {
         turnMode->ApplyActions([&](TurnAction& action) { action.OnPlayerTakeDamageEnd(*this, damage); });
@@ -128,6 +129,20 @@ void Player::ShowDamage(const int damage, const std::span<std::string> sources)
     if (const CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
     {
         [[maybe_unused]] auto _ = combatUI->CharacterHUDGroup.PlayerSpawnDamagePanel->MakeDamage(damage, sources);
+    }
+}
+
+void Player::Heal(const int amount)
+{
+    Base::Heal(amount);
+    ShowHeal(amount, {});
+}
+
+void Player::ShowHeal(const int healAmount, const std::span<std::string> sources)
+{
+    if (const CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        [[maybe_unused]] auto _ = combatUI->CharacterHUDGroup.PlayerSpawnHealPanel->MakeDamage(healAmount, sources);
     }
 }
 

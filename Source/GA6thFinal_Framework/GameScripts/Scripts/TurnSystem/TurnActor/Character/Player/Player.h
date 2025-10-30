@@ -55,6 +55,8 @@ public:
     /*플레이어에게 피격을 가합니다.*/
     virtual void TakeDamage(int damage, bool playAnim = true) override;
     void ShowDamage(int damage, std::span<std::string> sources) override;
+    void Heal(int amount) override;
+    void ShowHeal(int healAmount, std::span<std::string> sources) override;
 
     FiniteStateMachine& GetFSM() { return *_finiteStateMachine; }
     const PlayerStates& GetFSMStates() { return _fsmStates; }

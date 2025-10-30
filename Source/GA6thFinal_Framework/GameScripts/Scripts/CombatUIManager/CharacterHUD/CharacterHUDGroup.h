@@ -22,6 +22,11 @@ namespace CombatUI
         SpawnDamagePanel* PlayerSpawnDamagePanel = nullptr;
         SpawnDamagePanel* EnemySpawnDamagePanel[3] = {nullptr, nullptr, nullptr};
 
+        SpawnDamagePanel* PlayerSpawnHealPanel = nullptr;
+        SpawnDamagePanel* EnemySpawnHealPanel[3] = {nullptr, nullptr, nullptr};
+
+        SpawnDamagePanel* EnemySpawnCriticalDamage[3] = {nullptr, nullptr, nullptr};
+
         bool FindUI() override;
         bool IsValid() const override;
         void ActiveUI(bool active) override;

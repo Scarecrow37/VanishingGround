@@ -90,7 +90,7 @@ void Enemy::Dead()
     }
 }
 
-void Enemy::TakeDamage(int damage, bool playAnim) 
+void Enemy::TakeDamage(int damage, const bool playAnim) 
 {
     TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
     if (turnMode)
@@ -98,6 +98,9 @@ void Enemy::TakeDamage(int damage, bool playAnim)
         turnMode->ApplyActions([&](TurnAction& action) { action.OnEnemyTakeDamageStart(*this, damage); });
     }
     Base::TakeDamage(damage, playAnim);
+    // TODO: Revelation Name 적용 필요
+    _isCriticalDamage ? ShowCriticalDamage(damage, {}) : ShowDamage(damage, {});
+    _isCriticalDamage = false;
     if (turnMode)
     {
         turnMode->ApplyActions([&](TurnAction& action) { action.OnEnemyTakeDamageEnd(*this, damage); });
@@ -107,7 +110,7 @@ void Enemy::TakeDamage(int damage, bool playAnim)
     }
 }
 
-void Enemy::TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim)
+void Enemy::TakeDamage(const int damage, const QTE::NoteResult& result, const bool playAnim)
 {
     GameObject& owner = gameObject;
     std::string spawnPoint = Monster::SpawnPointToString(SpawnPoint);
@@ -125,12 +128,14 @@ void Enemy::TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim)
         std::string msg = std::format("{} {}{}", spawnPoint, owner.ToString(), (const char*)u8" 대한 공격 치명타!!");
         UmLogger.Message(LogLevel::LEVEL_TRACE, msg);
         particle->PlayEffect("normalhit"); // TODO: 치명타 이펙트 적용 필요. 일단 기본 이펙트로 적용 (진우형)
+        _isCriticalDamage = true;
         break;
     }
     case QTE::QTE_RESULT_NORMAL: {
         std::string msg = std::format("{} {}{}", spawnPoint, owner.ToString(), (const char*)u8" 대한 공격 일격!!");
         UmLogger.Message(LogLevel::LEVEL_TRACE, msg);
         particle->PlayEffect("normalhit");
+        _isCriticalDamage = false;
         break;
     }
     default:
@@ -146,6 +151,33 @@ void Enemy::ShowDamage(const int damage, const std::span<std::string> sources)
         Monster::SpawnPoint   spawnPoint = SpawnPoint;
         const size_t          index      = static_cast<size_t>(spawnPoint);
         [[maybe_unused]] auto _ = combatUI->CharacterHUDGroup.EnemySpawnDamagePanel[index]->MakeDamage(damage, sources);
+    }
+}
+
+void Enemy::ShowCriticalDamage(const int damage, const std::span<std::string> sources)
+{
+    if (const CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        Monster::SpawnPoint   spawnPoint = SpawnPoint;
+        const size_t          index      = static_cast<size_t>(spawnPoint);
+        [[maybe_unused]] auto _ =
+            combatUI->CharacterHUDGroup.EnemySpawnCriticalDamage[index]->MakeDamage(damage, sources);
+    }
+}
+
+void Enemy::Heal(const int amount)
+{
+    Base::Heal(amount);
+    ShowHeal(amount, {});
+}
+
+void Enemy::ShowHeal(const int healAmount, const std::span<std::string> sources)
+{
+    if (const CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        Monster::SpawnPoint   spawnPoint = SpawnPoint;
+        const size_t          index      = static_cast<size_t>(spawnPoint);
+        [[maybe_unused]] auto _ = combatUI->CharacterHUDGroup.EnemySpawnHealPanel[index]->MakeDamage(healAmount, sources);
     }
 }
 
@@ -192,7 +224,7 @@ int Enemy::GetRandomSpeed()
     return _randomSpeed;
 }
 
-void Enemy::SetPositionFromSpawnPoint(Monster::SpawnPoint spawnPointType) 
+void Enemy::SetPositionFromSpawnPoint(const Monster::SpawnPoint spawnPointType) 
 {
     if (MonsterSystem* system = SingletonComponent<MonsterSystem>::GetInstance())
     {
@@ -299,12 +331,12 @@ void Enemy::OnKill(CharacterBase* destination)
     Base::OnKill(destination);
 }
 
-void Enemy::OnTokenAdded(int tokenID)
+void Enemy::OnTokenAdded(const int tokenID)
 {
     Base::OnTokenAdded(tokenID);
 }
 
-void Enemy::OnTokenRemoved(int tokenID)
+void Enemy::OnTokenRemoved(const int tokenID)
 {
     Base::OnTokenRemoved(tokenID);
 }

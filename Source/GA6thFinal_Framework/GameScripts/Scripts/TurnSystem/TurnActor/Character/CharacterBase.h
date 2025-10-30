@@ -69,6 +69,7 @@ public:
     virtual void TakeChain(int chainDamage);
 
     virtual void ShowDamage(int damage, std::span<std::string> sources) = 0;
+    virtual void ShowHeal(int healAmount, std::span<std::string> sources) = 0;
 
     // 연격 수를 설정합니다.
     int SetChainCount(int value);
