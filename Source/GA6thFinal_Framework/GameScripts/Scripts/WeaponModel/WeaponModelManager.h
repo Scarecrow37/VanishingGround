@@ -1,33 +1,10 @@
 ﻿#pragma once
-#include <Stats/Weapon/WeaponStats.h>
-#include <Utility/SingletonHelper.h>
+#include "Utility/SingletonHelper.h"
+#include "WeaponModelData.h"
 
 class AnimationComponent;
 class ParticleComponent;
 class WeaponModelManager;
-
-class WeaponModelData
-{
-    friend class WeaponModelManager;
-
-public:
-    WeaponModelData() : _index(SIZE_MAX) {}
-    WeaponModelData(size_t index, WeaponType type, GameObject* gameObject, AnimationComponent* animation,
-                    ParticleComponent* particle)
-        : _index(index), Type(type), GameObject(gameObject), Animation(animation), Particle(particle)
-    {
-    }
-
-    const WeaponType    Type       = WeaponType::SWORD;
-    GameObject*         GameObject = nullptr;
-    AnimationComponent* Animation  = nullptr;
-    ParticleComponent*  Particle   = nullptr;
-
-    inline bool IsValid() const { return GameObject != nullptr && Animation != nullptr && Particle != nullptr; }
-
-private:
-    size_t _index = SIZE_MAX;
-};
 
 class WeaponModelManager : public Component
 {
@@ -46,8 +23,9 @@ public:
     WeaponModelData RequestAvailableWeapon(WeaponType type);
     bool            ReturnWeaponModel(WeaponModelData data);
 
-    const std::string* GetRandomWeaPonAnimationKeyToNormalAttack(WeaponType type);
-    const std::string* GetRandomWeaPonAnimationKeyToSpecialAttack(WeaponType type);
+    bool  HasWeaponAnimation(WeaponType type, const std::string& animKey);
+    const std::string* GetRandomWeaponAnimationKeyToNormalAttack(WeaponType type);
+    const std::string* GetRandomWeaponAnimationKeyToSpecialAttack(WeaponType type);
 
 
 private:

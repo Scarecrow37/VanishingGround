@@ -69,7 +69,14 @@ bool WeaponModelManager::ReturnWeaponModel(WeaponModelData data)
     return false;
 }
 
-const std::string* WeaponModelManager::GetRandomWeaPonAnimationKeyToNormalAttack(WeaponType type)
+bool WeaponModelManager::HasWeaponAnimation(WeaponType type, const std::string& animKey)
+{
+    auto& animList = _weaponAnimationNormalNameList[type];
+    bool  exists   = std::find(animList.begin(), animList.end(), animKey) != animList.end();
+    return exists;
+}
+
+const std::string* WeaponModelManager::GetRandomWeaponAnimationKeyToNormalAttack(WeaponType type)
 {
     auto& animList = _weaponAnimationNormalNameList[type];
     if (false == animList.empty())
@@ -80,7 +87,7 @@ const std::string* WeaponModelManager::GetRandomWeaPonAnimationKeyToNormalAttack
     return nullptr;
 }
 
-const std::string* WeaponModelManager::GetRandomWeaPonAnimationKeyToSpecialAttack(WeaponType type)
+const std::string* WeaponModelManager::GetRandomWeaponAnimationKeyToSpecialAttack(WeaponType type)
 {
     auto& animList = _weaponAnimationSpecialNameList[type];
     if (false == animList.empty())
