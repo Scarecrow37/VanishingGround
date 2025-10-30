@@ -2,15 +2,6 @@
 #include "EditorRenderPassData.h"
 #include "Engine/GraphicsCore/RenderPassDataHelper.h"
 
-void CenterText(const char* text)
-{
-    if (text == nullptr) return;
-    float columnWidth = ImGui::GetColumnWidth();
-    float textWidth = ImGui::CalcTextSize(text).x;
-    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - textWidth) * 0.5f);
-    ImGui::TextUnformatted(text);
-}
-
 EditorRenderPassData::EditorRenderPassData()
 {
     SetLabel("RenderPassData");
@@ -27,7 +18,7 @@ void EditShadowProperty(std::any& property)
     {
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("Near Plane");
+        ImGuiHelper::CenterText("Near Plane");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##NearPlane", &shadowProps.NearPlane, 0.01f, 0.01f, 100.0f, "%.2f");
@@ -35,7 +26,7 @@ void EditShadowProperty(std::any& property)
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("Far Plane");
+        ImGuiHelper::CenterText("Far Plane");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##FarPlane", &shadowProps.FarPlane, 0.1f, 0.1f, 10000.0f, "%.1f");
@@ -43,7 +34,7 @@ void EditShadowProperty(std::any& property)
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("Split Factor");
+        ImGuiHelper::CenterText("Split Factor");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::SliderFloat("##SplitFactor", &shadowProps.SplitFactor, 0.0f, 1.0f, "%.2f");
@@ -61,7 +52,7 @@ void EditBloomProperty(std::any& property)
     {
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("Threshold");
+        ImGuiHelper::CenterText("Threshold");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##Threshold", &bloomProps.Threshold, 0.01f, 0.0f, 100.0f);
@@ -69,7 +60,7 @@ void EditBloomProperty(std::any& property)
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("Intensity");
+        ImGuiHelper::CenterText("Intensity");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##Intensity", &bloomProps.Intensity, 0.01f, 0.0f, 100.0f);
@@ -77,7 +68,7 @@ void EditBloomProperty(std::any& property)
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("Bloom Knee");
+        ImGuiHelper::CenterText("Bloom Knee");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##BloomKnee", &bloomProps.BloomKnee, 0.01f, 0.0f, 100.0f);
@@ -95,7 +86,7 @@ void EditToneMappingProperty(std::any& property)
     {
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("Exposure");
+        ImGuiHelper::CenterText("Exposure");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##Exposure", &toneMappingProps.Exposure, 0.01f, -10.f, 10.0f);
@@ -103,7 +94,7 @@ void EditToneMappingProperty(std::any& property)
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("Saturation");
+        ImGuiHelper::CenterText("Saturation");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##Saturation", &toneMappingProps.Saturation, 0.01f, 0.0f, 2.0f);
@@ -111,7 +102,7 @@ void EditToneMappingProperty(std::any& property)
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("Contrast");
+        ImGuiHelper::CenterText("Contrast");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##Contrast", &toneMappingProps.Contrast, 0.01f, 0.0f, 2.0f);
@@ -119,7 +110,7 @@ void EditToneMappingProperty(std::any& property)
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("White Balance");
+        ImGuiHelper::CenterText("White Balance");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::ColorEdit3("##WhiteBalance", &toneMappingProps.WhiteBalance.x, ImGuiColorEditFlags_Float);
@@ -137,7 +128,7 @@ void EditSSAOProperty(std::any& property)
     {
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("Radius");
+        ImGuiHelper::CenterText("Radius");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##Radius", &ssaoProps.Radius, 0.01f, 0.f, 50.f);
@@ -145,7 +136,7 @@ void EditSSAOProperty(std::any& property)
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("FallOff");
+        ImGuiHelper::CenterText("FallOff");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##FallOff", &ssaoProps.Falloff, 0.001f, 0.f, 5.0f);
@@ -153,7 +144,7 @@ void EditSSAOProperty(std::any& property)
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("StrengthFactor");
+        ImGuiHelper::CenterText("StrengthFactor");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##StrengthFactor", &ssaoProps.StrengthFactor, 0.01f, 0.1f, 5.f);
@@ -161,7 +152,7 @@ void EditSSAOProperty(std::any& property)
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("ContrastFactor");
+        ImGuiHelper::CenterText("ContrastFactor");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##ContrastFactor", &ssaoProps.ContrastFactor, 0.01f, 0.1f, 5.f);
@@ -169,7 +160,7 @@ void EditSSAOProperty(std::any& property)
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("Threshold");
+        ImGuiHelper::CenterText("Threshold");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##Threshold", &ssaoProps.Threshold, 0.0005f, 0.f, 1.f);
@@ -187,7 +178,7 @@ void EditSSRProperty(std::any& property)
     {
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("Max Thickness");
+        ImGuiHelper::CenterText("Max Thickness");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##MaxThickness", &ssrProps.MaxThickness, 0.01f, 0.01f, 10.f);
@@ -195,7 +186,7 @@ void EditSSRProperty(std::any& property)
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("Step Size");
+        ImGuiHelper::CenterText("Step Size");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##StepSize", &ssrProps.StepSize, 0.01f, 0.01f, 10.f);
@@ -203,7 +194,7 @@ void EditSSRProperty(std::any& property)
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("Max Ray Count");
+        ImGuiHelper::CenterText("Max Ray Count");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##MaxRayCount", &ssrProps.MaxRayCount, 1.f, 32.f, 200.f);
@@ -211,7 +202,7 @@ void EditSSRProperty(std::any& property)
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("Screen Fade");
+        ImGuiHelper::CenterText("Screen Fade");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##ScreenFade", &ssrProps.ScreenFade, 0.01f, 0.01f, 10.f);
@@ -229,7 +220,7 @@ void EditParallaxMappingProperty(std::any& property)
     {
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("Height Scale");
+        ImGuiHelper::CenterText("Height Scale");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##HeightScale", &parallaxProps.HeightScale, 0.001f, 0.0f, 5.f);
@@ -237,7 +228,7 @@ void EditParallaxMappingProperty(std::any& property)
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("Mip Bias");
+        ImGuiHelper::CenterText("Mip Bias");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##MipBias", &parallaxProps.MipBias, 0.01f, 0.f, 15.f);
@@ -254,7 +245,7 @@ void EditVolumetricFogProperty(std::any& property)
     {
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("Custom Far");
+        ImGuiHelper::CenterText("Custom Far");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##CustomFar", &fogProperty.CustomFar, 1.f, 1.f, 1000.f);
@@ -262,7 +253,7 @@ void EditVolumetricFogProperty(std::any& property)
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("Fog Anisotropy");
+        ImGuiHelper::CenterText("Fog Anisotropy");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##FogAnisotropy", &fogProperty.FogAnisotropy, 0.001f, 0.001f, 1.f);
@@ -270,7 +261,7 @@ void EditVolumetricFogProperty(std::any& property)
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("Light Shaft Anisotropy");
+        ImGuiHelper::CenterText("Light Shaft Anisotropy");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##LightShaftAnisotropy", &fogProperty.LightShaftAnisotropy, 0.001f, 0.001f, 1.f);
@@ -278,7 +269,7 @@ void EditVolumetricFogProperty(std::any& property)
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("Density");
+        ImGuiHelper::CenterText("Density");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##Density", &fogProperty.Density, 0.01f, 0.1f, 10.f);
@@ -286,7 +277,7 @@ void EditVolumetricFogProperty(std::any& property)
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("Strength");
+        ImGuiHelper::CenterText("Strength");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##Strength", &fogProperty.Strength, 0.1f, 1.f, 100.f);
@@ -294,7 +285,7 @@ void EditVolumetricFogProperty(std::any& property)
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("Blend With Scene");
+        ImGuiHelper::CenterText("Blend With Scene");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##BlendWithScene", &fogProperty.BlendWithScene, 0.001f, 0.001f, 1.f);
@@ -302,7 +293,7 @@ void EditVolumetricFogProperty(std::any& property)
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("Blend With Prev Frame");
+        ImGuiHelper::CenterText("Blend With Prev Frame");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##BlendWithPrevFrame", &fogProperty.BlendWithPrevFrame, 0.001f, 0.001f, 1.f);
@@ -310,7 +301,7 @@ void EditVolumetricFogProperty(std::any& property)
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("Fog Intensity");
+        ImGuiHelper::CenterText("Fog Intensity");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##FogIntensity", &fogProperty.FogIntensity, 0.01f, 0.f, 5.f);
@@ -318,7 +309,7 @@ void EditVolumetricFogProperty(std::any& property)
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("Light Shaft Intensity");
+        ImGuiHelper::CenterText("Light Shaft Intensity");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##LightShaftIntensity", &fogProperty.LightShaftIntensity, 0.01f, 0.f, 5.f);
@@ -326,7 +317,7 @@ void EditVolumetricFogProperty(std::any& property)
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("Fog Color");
+        ImGuiHelper::CenterText("Fog Color");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::ColorEdit3("##FogColor", fogProperty.FogColor);
@@ -344,7 +335,7 @@ void EditSSGIProperty(std::any& property)
     {
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("Radius");
+        ImGuiHelper::CenterText("Radius");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##Radius", &giProperty.Radius, 0.01f, 0.1f, 4.f);
@@ -352,7 +343,7 @@ void EditSSGIProperty(std::any& property)
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("Thickness");
+        ImGuiHelper::CenterText("Thickness");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##Thickness", &giProperty.Thickness, 0.001f, 0.01f, 150.f);
@@ -360,7 +351,7 @@ void EditSSGIProperty(std::any& property)
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("NumSample");
+        ImGuiHelper::CenterText("NumSample");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragInt("##NumSample", &giProperty.NumSample, 1, 1, 16);
@@ -368,7 +359,7 @@ void EditSSGIProperty(std::any& property)
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("Intensity");
+        ImGuiHelper::CenterText("Intensity");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##Intensity", &giProperty.Intensity, 0.1f, 0.0f, 500.f);
@@ -376,7 +367,7 @@ void EditSSGIProperty(std::any& property)
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("TemporalWeight");
+        ImGuiHelper::CenterText("TemporalWeight");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##TemporalWeight", &giProperty.TemporalWeight, 0.01f, 0.7f, 0.95f);
@@ -384,7 +375,7 @@ void EditSSGIProperty(std::any& property)
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("DepthSigma");
+        ImGuiHelper::CenterText("DepthSigma");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##DepthSigma", &giProperty.DepthSigma, 0.01f, 0.5f, 5.f);
@@ -392,7 +383,7 @@ void EditSSGIProperty(std::any& property)
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("NormalSigma");
+        ImGuiHelper::CenterText("NormalSigma");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##NormalSigma", &giProperty.NormalSigma, 1.f, 16.f, 256.f);
@@ -410,7 +401,7 @@ void EditFXAAProperty(std::any& property)
     {
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("QualitySubpixel");
+        ImGuiHelper::CenterText("QualitySubpixel");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##QualitySubpixel", &fxaaProps.QualitySubpixel, 0.001f, 0.f, 1.f);
@@ -418,15 +409,16 @@ void EditFXAAProperty(std::any& property)
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("QualityEdgeDetectionThreshold");
+        ImGuiHelper::CenterText("QualityEdgeDetectionThreshold");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
-        ImGui::DragFloat("##QualityEdgeDetectionThreshold", &fxaaProps.QualityEdgeDetectionThreshold, 0.001f, 0.0f, 1.0f);
+        ImGui::DragFloat("##QualityEdgeDetectionThreshold", &fxaaProps.QualityEdgeDetectionThreshold, 0.001f, 0.0f,
+                         1.0f);
         ImGui::PopItemWidth();
 
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
-        CenterText("QualityMinimumEdgeThreshold");
+        ImGuiHelper::CenterText("QualityMinimumEdgeThreshold");
         ImGui::TableSetColumnIndex(1);
         ImGui::PushItemWidth(-FLT_MIN);
         ImGui::DragFloat("##QualityMinimumEdgeThreshold", &fxaaProps.QualityMinimumEdgeThreshold, 0.001f, 0.0f, 1.0f);
