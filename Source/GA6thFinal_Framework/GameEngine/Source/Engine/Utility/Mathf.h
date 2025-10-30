@@ -28,6 +28,29 @@ namespace Mathf
         COUNT
     };
 
+    enum class EasingFunctionType
+    {
+        LINEAR,
+        SINE,
+        CUBIC,
+        QUAD,
+        QUART,
+        QUINT,
+        EXPO,
+        CIRCULAR,
+        BACK,
+        ELASTIC,
+        BOUNCE,
+        COUNT
+    };
+
+    struct ConvertEasingFunctionType
+    {
+        EaseFuncType operator()(EasingFunctionType type) const { return static_cast<EaseFuncType>(type); }
+
+        EasingFunctionType operator()(EaseFuncType type) const { return static_cast<EasingFunctionType>(type); }
+    };
+
     constexpr float FLOAT_MAX = FLT_MAX;
     constexpr float FLOAT_MIN = FLT_MIN;
     constexpr float PI        = 3.14159265f;

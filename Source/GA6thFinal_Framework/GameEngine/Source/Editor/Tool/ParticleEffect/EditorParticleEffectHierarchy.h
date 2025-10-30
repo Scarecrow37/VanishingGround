@@ -38,7 +38,7 @@ private:
 
     void LoadEnvironmentModel(const File::Path& path);
     void          LoadEffect();
-    FBXConverter& GetFBXConverter();
+    static FBXConverter& GetFBXConverter();
 
     // Light Property
     Vector3                 _direction;
