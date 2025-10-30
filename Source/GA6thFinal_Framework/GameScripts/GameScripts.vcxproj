@@ -612,6 +612,7 @@
     <ClInclude Include="Scripts\Utility\StringHelper.h" />
     <ClInclude Include="Scripts\Token\Helper\TokenHelper.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TurnEndTokenApplyAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TurnEndTokenRemoveAction.h" />
     <ClInclude Include="UmScriptCore.h" />
     <ClInclude Include="UmScriptsExport.h" />
     <ClInclude Include="Scripts\Token\Object\Weakness\WeaknessToken.h" />
@@ -935,6 +936,7 @@
     <ClCompile Include="Scripts\Utility\StringHelper.cpp" />
     <ClCompile Include="Scripts\Token\Helper\TokenHelper.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TurnEndTokenApplyAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TurnEndTokenRemoveAction.cpp" />
     <ClCompile Include="UmScriptCore.cpp" />
     <ClCompile Include="UmScriptsExport.cpp" />
     <ClCompile Include="Scripts\Token\Object\Weakness\WeaknessToken.cpp" />
