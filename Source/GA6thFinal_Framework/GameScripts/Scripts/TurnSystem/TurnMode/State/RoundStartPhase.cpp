@@ -50,9 +50,6 @@ void RoundStartPhase::OnEnter()
 
     NotifyRoundStart();
 
-    //캐릭터 사망 확인
-    UpdateCharacterDead();   
-
     if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
     {
         system->Show(805900);
@@ -102,7 +99,8 @@ void RoundStartPhase::OnEnter()
 
 void RoundStartPhase::OnExit() 
 {
-    
+    // 캐릭터 사망 확인
+    UpdateCharacterDead();
 }
 
 void RoundStartPhase::OnUpdate() 
