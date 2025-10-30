@@ -132,7 +132,7 @@ namespace CombatUI
 
         if (PlayerHUDPanel)
         {
-            const float offsetY   = -800.0f;
+            const float offsetY   = -700.0f;
             SIZE        size      = PlayerHUDPanel->Size;
             point.x               = (LONG)(PlayerPosition.x - size.cx / 2);
             point.y               = (LONG)(PlayerPosition.y - size.cy + offsetY);
