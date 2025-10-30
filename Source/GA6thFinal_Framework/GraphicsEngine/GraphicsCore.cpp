@@ -201,6 +201,11 @@ void GraphicsCore::CreateLight(ILight** component) const
     *component = light;
 }
 
+void GraphicsCore::SetResource(std::shared_ptr<Model> model, IMeshRenderer* component) const
+{
+    static_cast<MeshRenderer*>(component)->SetModel(model);
+}
+
 void GraphicsCore::LoadResource(std::wstring_view filePath, IMeshRenderer* component) const
 {
     static_cast<MeshRenderer*>(component)->SetModel(_resourceManager->LoadResource<Model>(filePath));

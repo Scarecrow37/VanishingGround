@@ -6,10 +6,7 @@ UmCineMotion::UmCineMotion()  = default;
 UmCineMotion::~UmCineMotion() = default;
 void UmCineMotion::Start()
 {
-    transform->Position = Vector3::Zero;
-    transform->Rotation = Quaternion::Identity;
-    _oldWorldMat        = transform->GetWorldMatrix();
-    _oldParent          = transform->Parent;
+    ResetRail(true);
 }
 
 void UmCineMotion::OnDrawDebug()
@@ -466,6 +463,35 @@ void UmCineMotion::Shake()
             _shakeFlag         = false;
             _shakeElapsedTimer = 0;
         }
+    }
+}
+
+void UmCineMotion::ResetRail(bool toBegin) 
+{
+    _targetPos          = transform->Position;
+    _targetAngle        = transform->Rotation;
+    _easeLog.clear();
+    if (toBegin)
+    {
+        _moveTimer     = 0.f;
+        _currentStep = 0.f;
+    }
+    else
+    {
+
+        if (ReflectFields->RailLength > 0.f && ReflectFields->RailSpeed > 0.f)
+        {
+            _moveTimer = (ReflectFields->RailLength / ReflectFields->RailSpeed);
+            _currentStep = 100.f;
+
+        }
+    }
+    if (ReflectFields->TimestepTethers.size() > 1)
+    {
+        transform->Rotation = Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _rotTethers,
+                                                      _moveTimer * ReflectFields->RailLength);
+        transform->Position = Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _posTethers,
+                                                      _moveTimer * ReflectFields->RailLength);
     }
 }
 

@@ -25,7 +25,7 @@ void UIPassBase::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechn
     _halfQuad  = _quadModel->GetMeshes().front().get();
 
     PipelineStateStream pss;
-    pss.BlendState                   = CD3DX12_BLEND_DESC(CommonStates::NonPremultiplied);
+    pss.BlendState                   = CD3DX12_BLEND_DESC(CommonStates::AlphaBlend);
     pss.RasterizerState              = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
     (&pss.RasterizerState)->CullMode = D3D12_CULL_MODE_NONE;
     pss.DepthStencilState            = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
@@ -35,8 +35,6 @@ void UIPassBase::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechn
 
     _fx.SetPipelineStateStream(pss);
     _pipelineState = Global::pipelineStateManager->GetPipelineState(pss);
-
-    pss.BlendState = CD3DX12_BLEND_DESC(CommonStates::AlphaBlend);
 
     _fxSDF.SetPipelineStateStream(pss);
     _sdfPipelineState = Global::pipelineStateManager->GetPipelineState(pss);

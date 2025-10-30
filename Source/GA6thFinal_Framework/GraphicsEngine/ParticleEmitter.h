@@ -7,7 +7,14 @@ class ParticleEmitter
 {
     UMPARTICLE_PROPERTY(std::string, _emitterName, EmitterName, "");
     UMPARTICLE_PROPERTY(bool, _activeFlag, ActiveFlag, true);
-    UMPARTICLE_PROPERTY(bool, _endFlag, EndFlag, false);
+    bool _endFlag = false;
+    bool _particleEndFadeOnceFlag = false;
+    bool GetEndFlag() { return _endFlag; }
+    void SetEndFlag(bool flag)
+    {
+        _endFlag                 = flag;
+        _particleEndFadeOnceFlag = flag;
+    }
     UMPARTICLE_PROPERTY(bool, _removeFlag, RemoveFlag, false);
 
     UMPARTICLE_PROPERTY(SIZE_T, _maxParticles, MaxParticles, 10000);
@@ -18,6 +25,7 @@ class ParticleEmitter
     UMPARTICLE_PROPERTY(bool, _spawnBurstFlag, SpawnBurstFlag, false);
     UMPARTICLE_PROPERTY(float, _spawnBurstCount, SpawnBurstCount, 5000);
     UMPARTICLE_PROPERTY(float, _particleLifetime, ParticleLifetime, 1.f);
+    float _originParticleLifetime = 0.f;
     UMPARTICLE_PROPERTY(float, _particleMass, ParticleMass, 0.1f);
 
     UMPARTICLE_PROPERTY(bool, _useLight, UseLight, false);
@@ -111,10 +119,10 @@ protected:
     bool  _isSpawnBursted    = false;
     float _emissionThreshold = 0;
 
-    float   _lightCurrentIntensity = 0;
-    float   _lightCurrentRange     = 0;
-    Vector3 _lightAttenuation      = Vector3(0, 0, 0);
-    float   _endLightIntensity     = 0;
+    float   _lightCurrentIntensity   = 0;
+    float   _lightCurrentRange       = 0;
+    Vector3 _lightAttenuation        = Vector3(0, 0, 0);
+    float   _endLightIntensity       = 0;
 
     std::function<Vector3(void)> _velocityScalingFunciton = nullptr; // 기존 이름 유지
 };
