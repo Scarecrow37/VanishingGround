@@ -611,17 +611,19 @@ void Transform::CallUIAttachChild(Transform* target, Transform* newChild)
         {
             for (size_t i = 0; i < gameObject.GetComponentCount(); ++i)
             {
-                Component* component = gameObject.GetComponentAtIndex<Component>(i);
-                if (Component::TYPE::UI == component->GetType())
+                if (Component* component = gameObject.GetComponentAtIndex<Component>(i))
                 {
-                    UIBaseComponent* uiBaseComponent = static_cast<UIBaseComponent*>(component);
-                    GameObject*  newChildObject = nullptr;
-                    if (newChild)
+                    if (Component::TYPE::UI == component->GetType())
                     {
-                        newChildObject = &newChild->gameObject;
+                        UIBaseComponent* uiBaseComponent = static_cast<UIBaseComponent*>(component);
+                        GameObject*      newChildObject  = nullptr;
+                        if (newChild)
+                        {
+                            newChildObject = &newChild->gameObject;
+                        }
+                        uiBaseComponent->OnAttachChild(newChildObject);
                     }
-                    uiBaseComponent->OnAttachChild(newChildObject);
-                }
+                }             
             }
         }
     }
@@ -633,17 +635,19 @@ void Transform::CallUIAttachChild(Transform* target, Transform* newChild)
         {
             for (size_t i = 0; i < gameObject.GetComponentCount(); ++i)
             {
-                Component* component = gameObject.GetComponentAtIndex<Component>(i);
-                if (Component::TYPE::UI == component->GetType())
+                if (Component* component = gameObject.GetComponentAtIndex<Component>(i))
                 {
-                    UIBaseComponent* uiBaseComponent = static_cast<UIBaseComponent*>(component);
-                    GameObject*      targetObject  = nullptr;
-                    if (target)
+                    if (Component::TYPE::UI == component->GetType())
                     {
-                        targetObject = &target->gameObject;
+                        UIBaseComponent* uiBaseComponent = static_cast<UIBaseComponent*>(component);
+                        GameObject*      targetObject    = nullptr;
+                        if (target)
+                        {
+                            targetObject = &target->gameObject;
+                        }
+                        uiBaseComponent->OnAttachParent(targetObject);
                     }
-                    uiBaseComponent->OnAttachParent(targetObject);
-                }
+                }             
             }
         }
     }
