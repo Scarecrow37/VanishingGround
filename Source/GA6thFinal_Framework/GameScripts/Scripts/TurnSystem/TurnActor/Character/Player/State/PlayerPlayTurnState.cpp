@@ -16,6 +16,8 @@
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 
+#include <TutorialSystem/TutorialSystem.h>
+
 #include <CombatUIManager/CombatUIManager.h>
 
 #include <Stats/CharacterStats.h>
@@ -76,6 +78,11 @@ void PlayerPlayTurnState::OnEnter()
     else
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, u8" WeaponSystem이 존재하지 않습니다.");
+    }
+
+    if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
+    {
+        system->Show({805901, 805902});
     }
 }
 
@@ -149,6 +156,10 @@ void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
             _inputState = InputState::QUICK_TIME_EVENT;
             qteSystem->StartQTE();
             SetAttackReady();
+            if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
+            {
+                system->Show(805907);
+            }
         }
         else
         {
