@@ -60,6 +60,37 @@ void SpriteAnimationElement::UpdateFrame()
     UpdateAtlasIndex();
 }
 
+void SpriteAnimationElement::EditorUpdate() 
+{
+    if (_isPlaying) UpdateFrame();
+}
+
+void SpriteAnimationElement::OnDrawDebug() 
+{
+    Base::OnDrawDebug();
+    EditorUpdate();
+}
+
+void SpriteAnimationElement::OnDrawDebugSelected() 
+{
+    Base::OnDrawDebugSelected();
+    EditorUpdate();
+}
+
+void SpriteAnimationElement::ImGuiDrawPropertysEvent() 
+{
+    Base::ImGuiDrawPropertysEvent();
+    if (ImGui::Button("Play Animation"))
+    {
+        StartAnimation();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Stop Animation"))
+    {
+        StopAnimation();
+    }
+}
+
 void SpriteAnimationElement::StartAnimation()
 {
     _isPlaying = true;

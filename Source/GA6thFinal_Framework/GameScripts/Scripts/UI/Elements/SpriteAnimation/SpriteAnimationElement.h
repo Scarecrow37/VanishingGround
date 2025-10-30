@@ -58,6 +58,13 @@ protected:
 
     void UpdateFrame();
 
+    void EditorUpdate();
+
+    void OnDrawDebug() override;
+    void OnDrawDebugSelected() override;
+
+    void ImGuiDrawPropertysEvent() override;
+
 protected:
     REFLECT_FIELDS_BEGIN(ImageElement)
     bool  Loop                 = false;
