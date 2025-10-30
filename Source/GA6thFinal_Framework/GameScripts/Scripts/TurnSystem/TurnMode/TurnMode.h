@@ -88,11 +88,22 @@ public:
     PROPERTY(RoundCount)
 
     GETTER(bool, RevelationActiveFlag) { return _revelationActiveFlag;  }
-    SETTER(bool, RevelationActiveFlag) { _revelationActiveFlag = value; }
-    /// <summary>
-    /// 계시 발동 조건 평가용 플래그 변수입니다. QTE 공격이 완전히 종료될때마다 false로 초기화됩니다.
-    /// </summary>
+    SETTER(bool, RevelationActiveFlag) 
+    { 
+       _revelationActiveFlag = value; 
+       if (value)
+       {
+           _currentTurnRevelationActiveFlag = value;
+       }
+    }
+    // 계시 발동 조건 평가용 플래그 변수입니다. QTE 공격이 완전히 종료될때마다 false로 초기화됩니다.
+    // type : bool
     PROPERTY(RevelationActiveFlag)
+
+    GETTER_ONLY(bool, IsCurrentTurnActiveRevelation) { return _currentTurnRevelationActiveFlag; }
+    // 이번 턴 계시 발동 여부 입니다.
+    // type : bool
+    PROPERTY(IsCurrentTurnActiveRevelation)
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
@@ -115,8 +126,10 @@ private:
     MVVM::Model<std::deque<std::pair<int, TurnActor*>>> _turnList;
     MVVM::Model<TurnActor*>                             _currTurnActor;
 
-    /*계시 발동 여부를 관리하는 플래그입니다.*/
+    /*이번 공격에 대한 계시 발동 여부를 관리하는 플래그입니다.*/
     bool _revelationActiveFlag = false;
+    /*이번 턴에 대한 계시 발동 여부를 관리하는 플래그입니다.*/
+    bool _currentTurnRevelationActiveFlag = false;
 
 private:
     struct SystemStates

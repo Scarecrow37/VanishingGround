@@ -11,7 +11,7 @@ constexpr UINT MAX_MIPMAP_LEVEL       = 5;
 constexpr UINT MAX_CASCADES           = 3;
 constexpr UINT MAX_UI_MATERIAL_DATA   = 512;
 constexpr UINT MAX_OBJECTS            = 1000;
-constexpr UINT MAX_CHARS              = 512;
+constexpr UINT MAX_CHARS              = 64;
 
 // volumetric fog medium
 constexpr UINT VOXEL_VOLUME_SIZEX = 240;

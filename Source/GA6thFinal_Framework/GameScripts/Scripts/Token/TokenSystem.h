@@ -38,6 +38,7 @@ private:
     void Reset() override; 
     void Added() override;
     void Awake() override;
+    void Update() override;
     void OnDestroy() override;
     void ImGuiDrawPropertysEvent() override;
 
@@ -61,6 +62,13 @@ private:
     void UnregisterTokenInstanceToTable(Token* token);
     void LoadTokenDataFromExcelData(ExcelDataSystem* dataSystem);
 
+public:
+    REFLECT_PROPERTY(TokenDamageDelayTime)
+
+    GETTER(float, TokenDamageDelayTime) { return ReflectFields->TokenDamageDelayTime; }
+    SETTER(float, TokenDamageDelayTime) { ReflectFields->TokenDamageDelayTime = value; }
+    PROPERTY(TokenDamageDelayTime)
+
 private:
     SingletonObject<TokenSystem>    _singletonObject{this};
     SingletonComponent<TokenSystem> _singletonComponent{this};
@@ -71,6 +79,7 @@ private:
     std::unordered_map<std::string, std::set<TokenID>>      _tokenTagTable;  // 토큰 태그별로 토큰 ID 매핑 테이블
 
     REFLECT_FIELDS_BEGIN(Component)
+    float TokenDamageDelayTime = 0.3f;
     REFLECT_FIELDS_END(TokenSystem)
 
 public: 

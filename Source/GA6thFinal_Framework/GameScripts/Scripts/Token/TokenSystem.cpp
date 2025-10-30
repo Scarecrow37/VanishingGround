@@ -35,6 +35,19 @@ void TokenSystem::Awake()
     }
 }
 
+void TokenSystem::Update() 
+{
+    Debugger dbg;
+    dbg([this]() 
+    { 
+        float delayTime = ReflectFields->TokenDamageDelayTime;
+        if (ImGui::DragFloat("Token Damage Delay Time", &delayTime, 0.1f))
+        {
+            ReflectFields->TokenDamageDelayTime = delayTime;
+        }
+    });
+}
+
 void TokenSystem::OnDestroy() 
 {
     Clear();

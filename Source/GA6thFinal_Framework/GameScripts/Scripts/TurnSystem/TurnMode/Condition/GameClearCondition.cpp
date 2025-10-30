@@ -31,7 +31,7 @@ bool GameClearCondition::Evaluate()
             bool result = true;
             for (auto& enemy : enemies)
             {
-                result &= TurnActor::STATE::Dead == enemy->State;
+                result &= enemy->gameObject->ActiveSelf == false;
             }
             return result;
         }

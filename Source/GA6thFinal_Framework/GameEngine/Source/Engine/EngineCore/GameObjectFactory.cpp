@@ -472,7 +472,7 @@ std::vector<std::shared_ptr<GameObject>> EGameObjectFactory::MakeObjectsGraphToY
             }
 
             // 프리팹 추적
-            if (isPrefabObject)
+            if (isPrefabObject || isEmptyObject)
             {
                 if (useResource == false)
                 {

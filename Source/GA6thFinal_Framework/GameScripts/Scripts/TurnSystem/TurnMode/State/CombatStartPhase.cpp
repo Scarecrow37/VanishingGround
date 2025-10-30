@@ -176,6 +176,11 @@ void CombatStartPhase::OnEnter()
 
     NotifyCombatStart();
     Battle::ResetLastCharacter();
+
+    if (RevelationSystem* system = SingletonComponent<RevelationSystem>::GetInstance())
+    {
+        system->FindRevelationsView();
+    }
 }
 
 void CombatStartPhase::OnExit() 
