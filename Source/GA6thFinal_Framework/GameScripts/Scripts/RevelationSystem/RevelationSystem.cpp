@@ -3,6 +3,8 @@
 #include "RevelationSystem.h"
 
 #include "ViewModels/Revelations/RevelationsViewModel.h"
+#include "UI/Views/RevelationsView/RevelationsView.h"
+#include "UI/Animations/ChildsAnimationsController/ChildsAnimationsController.h"
 
 #include <TurnSystem/TurnAction/TurnActionFactory.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
@@ -151,7 +153,7 @@ void RevelationSystem::RollRoundElement()
             {
                 std::weak_ptr<RevelationElement> weakElement = element;
                 TurnAction& action = element->GetAction();
-                action.OnActionActive = [weakElement, this]() 
+                action.OnActionActive = [weakElement, this, i]() 
                 { 
                     if (auto element = weakElement.lock())
                     {
@@ -159,6 +161,17 @@ void RevelationSystem::RollRoundElement()
                         std::string msg  = std::format("{}{}", name, (const char*)u8" 발동.");
                         UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
                         _battleActiveRevelations.push_back(name);
+                        if (auto view = _revelationsView.lock())
+                        {
+                            auto& uis = view->GetRevelationUIs();
+                            if (i < uis.size())
+                            {
+                                if (uis[i].AnimationsController)
+                                {
+                                    uis[i].AnimationsController->StartAnimation(i);
+                                }
+                            }
+                        }
                     }
 
                     if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
@@ -954,6 +967,11 @@ void RevelationSystem::Awake()
     {
         UmWatcher.Register<RevelationsViewModel>("Revelations", _roundElementList);
     }
+}
+
+void RevelationSystem::Start() 
+{
+    _revelationsView = GameObject::FindComponentWithTag<RevelationsView>(RevelationsView::TAG);
 }
 
 void RevelationSystem::Reset() 

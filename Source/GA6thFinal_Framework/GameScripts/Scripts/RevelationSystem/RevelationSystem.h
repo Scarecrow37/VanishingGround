@@ -4,6 +4,7 @@
 #include "Utility/SingletonHelper.h"
 
 class TurnAction;
+class RevelationsView;
 class RevelationSystem : public Component
 {
     USING_PROPERTY(RevelationSystem)      
@@ -235,8 +236,11 @@ private:
 
 protected:
     void Awake() override;
+    void Start() override;
     void Reset() override;
 
 private:
     std::vector<std::string> _battleActiveRevelations; //이번 배틀에 발동된 계시들. Battle에서 매번 clear 합니다.
+    std::weak_ptr<RevelationsView> _revelationsView;
+
 };
