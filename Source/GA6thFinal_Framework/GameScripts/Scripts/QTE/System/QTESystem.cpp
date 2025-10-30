@@ -29,7 +29,8 @@ void QTESystem::Reset()
 
 void QTESystem::Awake()
 {
-    if (_singletonComponent.TrySingleTon())
+    if (_singletonComponent.TrySingleTon() &&
+        _singletonObject.TrySingleTon(true))
     {
         BindInputAction(ControllerButton::X, Action::PRESSED, this, this, &QTESystem::PressedButtonX);
         BindInputAction(ControllerButton::Y, Action::PRESSED, this, this, &QTESystem::PressedButtonY);

@@ -62,6 +62,8 @@ public:
 
     void DrawDebugJudgeLine();
 
+    void SetDefaultState();
+
 private:
     void Reset() override;
     void Awake() override;

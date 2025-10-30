@@ -157,6 +157,7 @@ private:
     std::string GetRandomAnimationName(WeaponType type) const;
 
 private:
+    SingletonObject<QTESystem>      _singletonObject{this};
     SingletonComponent<QTESystem>   _singletonComponent{this};
 
     TrackTable                      _weaponIDToTrackTable;              // 무기 ID QTE 매핑 테이블
