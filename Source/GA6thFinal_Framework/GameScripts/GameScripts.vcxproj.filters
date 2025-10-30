@@ -295,7 +295,9 @@
     <ClCompile Include="Scripts\UI\Animations\FadeUIComponent\FadeUIComponent.cpp" />
     <ClCompile Include="Scripts\UI\Elements\HoldingProgressImage\HoldingProgressImageElement.cpp" />
     <ClCompile Include="Scripts\RoundInfoUI\RoundInfoUIManager.cpp" />
-    <ClCompile Include="Scripts\UI\Contents\SpawnDamagePanelHelper.cpp" />
+    <ClCompile Include="Scripts\WeaponModel\WeaponModelData.cpp" />
+    <ClCompile Include="Scripts\WeaponModel\WeaponModelManager.cpp" />
+    <ClCompile Include="Scripts\Input\InputOkCancelComponent\InputOkCancelComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
@@ -604,7 +606,9 @@
     <ClInclude Include="Scripts\UI\Base\IOpacity\IOpacity.h" />
     <ClInclude Include="Scripts\UI\Elements\HoldingProgressImage\HoldingProgressImageElement.h" />
     <ClInclude Include="Scripts\RoundInfoUI\RoundInfoUIManager.h" />
-    <ClInclude Include="Scripts\UI\Contents\SpawnDamagePanelHelper.h" />
+    <ClInclude Include="Scripts\WeaponModel\WeaponModelManager.h" />
+    <ClInclude Include="Scripts\WeaponModel\WeaponModelData.h" />
+    <ClInclude Include="Scripts\Input\InputOkCancelComponent\InputOkCancelComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
