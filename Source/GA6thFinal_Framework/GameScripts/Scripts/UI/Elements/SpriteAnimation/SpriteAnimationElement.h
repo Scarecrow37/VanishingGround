@@ -60,8 +60,8 @@ protected:
 
     void EditorUpdate();
 
-    void OnDrawDebug() override;
-    void OnDrawDebugSelected() override;
+    void OnDrawDebugOverride() override;
+    void OnDrawDebugSelectedOverride() override;
 
     void ImGuiDrawPropertysEvent() override;
 

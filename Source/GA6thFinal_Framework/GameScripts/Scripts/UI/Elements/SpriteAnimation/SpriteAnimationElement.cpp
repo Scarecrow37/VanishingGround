@@ -65,15 +65,15 @@ void SpriteAnimationElement::EditorUpdate()
     if (_isPlaying) UpdateFrame();
 }
 
-void SpriteAnimationElement::OnDrawDebug() 
+void SpriteAnimationElement::OnDrawDebugOverride()
 {
-    Base::OnDrawDebug();
+    Base::OnDrawDebugOverride();
     EditorUpdate();
 }
 
-void SpriteAnimationElement::OnDrawDebugSelected() 
+void SpriteAnimationElement::OnDrawDebugSelectedOverride()
 {
-    Base::OnDrawDebugSelected();
+    Base::OnDrawDebugSelectedOverride();
     EditorUpdate();
 }
 
@@ -82,6 +82,7 @@ void SpriteAnimationElement::ImGuiDrawPropertysEvent()
     Base::ImGuiDrawPropertysEvent();
     if (ImGui::Button("Play Animation"))
     {
+        Setup();
         StartAnimation();
     }
     ImGui::SameLine();
