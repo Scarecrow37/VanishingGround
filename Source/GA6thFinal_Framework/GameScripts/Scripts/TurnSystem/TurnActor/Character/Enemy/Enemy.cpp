@@ -5,6 +5,7 @@
 #include "GameCore/FSM/FiniteStateMachine.h"
 #include "TurnSystem/TurnMode/TurnMode.h"
 #include "Particle/ParticleComponent.h"
+#include "RevelationSystem/RevelationSystem.h"
 
 //Condition
 #include "Condition/EnemyStartCondition.h"
@@ -98,8 +99,23 @@ void Enemy::TakeDamage(int damage, const bool playAnim)
         turnMode->ApplyActions([&](TurnAction& action) { action.OnEnemyTakeDamageStart(*this, damage); });
     }
     Base::TakeDamage(damage, playAnim);
-    // TODO: Revelation Name 적용 필요
-    _isCriticalDamage ? ShowCriticalDamage(damage, {}) : ShowDamage(damage, {});
+    
+    if (RevelationSystem* system = SingletonComponent<RevelationSystem>::GetInstance())
+    {
+        if (_isCriticalDamage)
+        {
+            ShowCriticalDamage(damage, system->GetBattleActiveRevelations());
+        }
+        else
+        {
+            ShowDamage(damage, system->GetBattleActiveRevelations());
+        }
+    }
+    else
+    {
+        _isCriticalDamage ? ShowCriticalDamage(damage, {}) : ShowDamage(damage, {});
+    }
+
     _isCriticalDamage = false;
     if (turnMode)
     {
@@ -141,7 +157,7 @@ void Enemy::TakeDamage(const int damage, const QTE::NoteResult& result, const bo
     TakeDamage(damage, playAnim);
 }
 
-void Enemy::ShowDamage(const int damage, const std::span<std::string> sources)
+void Enemy::ShowDamage(const int damage, const std::span<const std::string> sources)
 {
     if (const CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
     {
@@ -151,7 +167,7 @@ void Enemy::ShowDamage(const int damage, const std::span<std::string> sources)
     }
 }
 
-void Enemy::ShowCriticalDamage(const int damage, const std::span<std::string> sources)
+void Enemy::ShowCriticalDamage(const int damage, const std::span<const std::string> sources)
 {
     if (const CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
     {
@@ -168,7 +184,7 @@ void Enemy::Heal(const int amount)
     ShowHeal(amount, {});
 }
 
-void Enemy::ShowHeal(const int healAmount, const std::span<std::string> sources)
+void Enemy::ShowHeal(const int healAmount, const std::span<const std::string> sources)
 {
     if (const CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
     {
