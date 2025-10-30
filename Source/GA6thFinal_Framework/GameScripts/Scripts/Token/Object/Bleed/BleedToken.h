@@ -9,7 +9,7 @@ namespace TokenObject
         TOKEN_DATA(205000)
     private:
         bool CanAdd(CharacterBase* owner) const override;
-        void OnTurnStart(CharacterBase* owner) override;
+        void OnRoundStart(CharacterBase* owner) override;
     };
 
     // 출혈 부여 토큰
