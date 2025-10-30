@@ -28,6 +28,26 @@ const WeaponElement* WeaponTableComponent::GetWeaponToName(const std::string& na
     return result;
 }
 
+const WeaponElement* WeaponTableComponent::GetWeaponToID(std::u8string_view id)
+{
+    if (ExcelDataSystem* data = SingletonComponent<ExcelDataSystem>::GetInstance())
+    {
+        if (auto db = data->FindExcelDataBase(u8"무기"))
+        {
+            size_t rowIndex = db->FindRowIndex(id, u8"ID");
+            if (rowIndex != db->FIND_INDEX_FAIL)
+            {
+                std::string_view data = db->FindData(rowIndex, u8"Name");
+                if (data != db->FIND_STR_FAIL)
+                {
+                    return GetWeaponToName(data.data());
+                }
+            }
+        }
+    }
+    return nullptr;
+}
+
 std::string WeaponTableComponent::SaveWeaponTable()
 {
     ReflectFields->_tableDatas.clear();

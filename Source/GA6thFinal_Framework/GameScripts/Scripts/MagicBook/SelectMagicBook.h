@@ -25,6 +25,8 @@ public:
     GETTER_ONLY(std::string, UnFocusImagePath) { return ReflectFields->UnFocusImagePath; }
     PROPERTY(UnFocusImagePath)
 
+    const std::string& GetBookID() { return ReflectFields->TitleID; }
+
 protected:
     REFLECT_FIELDS_BEGIN(UISFXNavigationComponent)
     std::string TitleID;

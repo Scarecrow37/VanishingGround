@@ -30,6 +30,8 @@ public:
     /// <returns></returns>
     std::shared_ptr<RevelationElement> RemovePlayerElement(int slot);
 
+    void ClearPlayerElements() { _playerElementList.clear(); }
+
     /// <summary>
     /// 플레이어의 인벤토리 제일 뒤쪽에 계시를 추가합니다.
     /// </summary>
@@ -107,6 +109,13 @@ public:
     /// <param name="elementName :">찾을 계시 이름</param>
     /// <returns>없으면 nullptr</returns>
     RevelationElement* FindElement(const std::string& elementName);
+
+    /// <summary>
+    /// 계시를 테이블에서 찾아서 존재하면 반환합니다.
+    /// </summary>
+    /// <param name="id :">찾을 계시 아이디</param>
+    /// <returns>없으면 nullptr</returns>
+    RevelationElement* FindElementWithID(std::u8string_view id);
 
     /// <summary>
     /// ElementTable과 Action들을 Json으로 직렬화해 반환합니다.

@@ -241,6 +241,26 @@ RevelationElement* RevelationSystem::FindElement(const std::string& elementName)
     return nullptr;
 }
 
+RevelationElement* RevelationSystem::FindElementWithID(std::u8string_view id)
+{
+    if (ExcelDataSystem* data = SingletonComponent<ExcelDataSystem>::GetInstance())
+    {
+        if (auto db = data->FindExcelDataBase(u8"계시"))
+        {
+            size_t rowIndex = db->FindRowIndex(id, u8"ID");
+            if (rowIndex != db->FIND_INDEX_FAIL)
+            {
+                std::string_view data = db->FindData(rowIndex, u8"Name");
+                if (data != db->FIND_STR_FAIL)
+                {
+                    return FindElement(data.data());
+                }
+            }
+        }
+    }
+    return nullptr;
+}
+
 static ReflectHelper::ImGuiDraw::InputAutoSetting InitSetting()
 {
     ReflectHelper::ImGuiDraw::InputAutoSetting setting;
