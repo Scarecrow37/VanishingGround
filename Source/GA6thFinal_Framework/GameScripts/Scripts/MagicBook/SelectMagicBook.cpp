@@ -194,15 +194,20 @@ void SelectMagicBook::ImGuiDrawPropertysEvent()
 
 void SelectMagicBook::ChangeBookImage(GameObject& targetGameObject, const std::string& imagePath)
 {
-    targetGameObject.GetComponent<ImageElement>()->SetImage(UmFileSystem.GetGuidFromPath(imagePath));
+    if (auto imageElement = targetGameObject.GetComponent<ImageElement>())
+    {
+        imageElement->SetImage(UmFileSystem.GetGuidFromPath(imagePath));
+    }
 }
 
 void SelectMagicBook::ChangeTitle(GameObject& targetGameObject, const float alpha)
 {
-    TextElement* textElement = targetGameObject.GetComponent<TextElement>();
-    Color        color       = textElement->Color;
-    color.w                  = alpha;
-    textElement->Color       = color;
+    if (auto textElement = targetGameObject.GetComponent<TextElement>())
+    {
+        Color color        = textElement->Color;
+        color.w            = alpha;
+        textElement->Color = color;
+    }
 }
 
 void SelectMagicBook::ChangeDescription(GameObject& targetGameObject, ExcelDataBase* dataBase, const std::string& ID)
@@ -213,7 +218,10 @@ void SelectMagicBook::ChangeDescription(GameObject& targetGameObject, ExcelDataB
         std::string_view description = dataBase->FindData(rowIndex, u8"Content");
         if (description != dataBase->FIND_STR_FAIL)
         {
-            targetGameObject.GetComponent<DescriptionPanel>()->Description = description.data();
+            if (auto descriptionPanel = targetGameObject.GetComponent<DescriptionPanel>())
+            {
+                descriptionPanel->Description = description.data();
+            }
         }
     }
 }
@@ -226,18 +234,26 @@ void SelectMagicBook::ChangeHPHUD(GameObject& targetGameObject, const float alph
 
         if ("Frame" == objectName)
         {
-            gameObject->GetComponent<ImageElement>()->Alpha = alpha;
+            if (auto iamgeElement = gameObject->GetComponent<ImageElement>())
+            {
+                iamgeElement->Alpha = alpha;
+            }
         }
         else if ("Gage" == objectName)
         {
-            gameObject->GetComponent<ImageElement>()->Alpha = alpha;
+            if (auto iamgeElement = gameObject->GetComponent<ImageElement>())
+            {
+                iamgeElement->Alpha = alpha;
+            }
         }
         else if ("HP" == objectName)
         {
-            TextElement* textElement = gameObject->GetComponent<TextElement>();
-            Color        color       = textElement->Color;
-            color.w                  = alpha;
-            textElement->Color       = color;
+            if (auto textElement = gameObject->GetComponent<TextElement>())
+            {
+                Color color        = textElement->Color;
+                color.w            = alpha;
+                textElement->Color = color;
+            }
         }
     });
 }
