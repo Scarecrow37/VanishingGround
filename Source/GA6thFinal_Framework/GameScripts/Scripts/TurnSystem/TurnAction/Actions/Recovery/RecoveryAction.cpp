@@ -41,20 +41,11 @@ void RecoveryAction::ImGuiDrawActionEditor()
     ImguiDrawConditionEditor();
 }
 
-void RecoveryAction::OnPlayerTakeDamageStart(Player& target, int& damage)
+void RecoveryAction::OnPlayerBattleCalculateDamageModifier(Player& attacker, PlayerStats& attackerStats,
+                                                           WeaponStats& weaponStats, Enemy& target,
+                                                           EnemyStats& targetStats)
 {
-    if (ReflectFields->Trigger == TriggerType::ON_ATTACK)
-    {
-        if (EvaluateConditions())
-        {
-            ProcessHeal();
-        }
-    }
-}
-
-void RecoveryAction::OnEnemyDeadByWeapon(Enemy& enemy, WeaponElement& weapon)
-{
-    if (ReflectFields->Trigger == TriggerType::WEAPON_KILL_ENEMY)
+    if (ReflectFields->Trigger == TriggerType::ATTACK)
     {
         if (EvaluateConditions())
         {
@@ -77,7 +68,7 @@ void RecoveryAction::UpdateActionInfo()
     case RecoveryAction::TriggerType::WEAPON_KILL_ENEMY:
         triggerName = (const char*)u8"무기 공격으로 적 처치시 ";
         break;
-    case RecoveryAction::TriggerType::ON_ATTACK:
+    case RecoveryAction::TriggerType::ATTACK:
         triggerName = (const char*)u8"공격할 때 마다 ";
         break;
     default:
