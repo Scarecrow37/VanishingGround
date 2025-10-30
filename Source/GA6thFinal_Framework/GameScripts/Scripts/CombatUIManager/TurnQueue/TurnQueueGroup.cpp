@@ -48,6 +48,11 @@ namespace CombatUI
 
     void TurnQueueGroup::FadeIn(float duration)
     {
+        if (false == Root->ActiveSelf)
+        {
+            ActiveUI(true);
+        }
+
         if (FadeUI)
         {
             FadeUI->FadeDuration = duration;

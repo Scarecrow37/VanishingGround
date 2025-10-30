@@ -33,7 +33,6 @@ void PlayerActionPhase::OnEnter()
         if (auto& actor = _turnMode->GetCurrTurnActor())
         {
             actor->PlayTurn();
-            actor->OnTurnStart();
             if (auto* combatStartPhase = _turnMode->States->CombatStartPhase)
             {
                 CharacterBase* character = static_cast<CharacterBase*>(actor.Get());

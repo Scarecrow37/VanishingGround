@@ -3,6 +3,28 @@
 
 class DXRDrawPass : public RenderPass
 {
+private:
+    // shader table 최적화
+    struct ShaderTableCache
+    {
+        bool   NeedUpdate        = true;
+        UINT64 TlasSRV           = 0;
+        UINT64 EnvMapSRV         = 0;
+        UINT64 IrradianceMapSRV  = 0;
+        UINT64 PreFilteredMapSRV = 0;
+        UINT64 BRDFLUTSRV        = 0;
+
+        UINT64 VertexBufferSRV  = 0;
+        UINT64 IndexBufferSRV   = 0;
+        UINT64 TextureHeapStart = 0;
+
+        // shader identifier
+        std::array<uint8_t, 32> RayGenID{};
+        std::array<uint8_t, 32> MissID{};
+        std::array<uint8_t, 32> HitGroupID{};
+        std::array<uint8_t, 32> ShadowMissID{};
+    };
+
 public:
     DXRDrawPass() = default;
     virtual ~DXRDrawPass();
@@ -34,4 +56,10 @@ private:
     std::vector<MeshInstanceID>       _meshInstanceIDs;
     ComPtr<ID3D12GraphicsCommandList> _commandList;
     ComPtr<ID3D12CommandAllocator>    _commandAllocator;
+
+    std::vector<InstanceData>         _instanceDatas;
+    std::unique_ptr<StructuredBuffer> _instanceDatasBuffer;
+
+    // 최적화
+    ShaderTableCache _cache;
 };
