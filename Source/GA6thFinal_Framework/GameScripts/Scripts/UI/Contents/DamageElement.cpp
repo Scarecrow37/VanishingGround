@@ -292,9 +292,9 @@ void DamageElement::SetupChildren(const File::Guid& fontGuid, const std::string&
     }
 
     _damageOutlineElement = CreateTextElement(fontGuid, damage, _beginFontSize, COLOR_TRANSPARENT, _beginOutlineColor);
+    _revelationOutlineElements.reserve(revelations.size());
     for (auto& revelation : revelations)
     {
-        _revelationOutlineElements.reserve(revelations.size());
         _revelationOutlineElements.push_back(
             CreateTextElement(fontGuid, revelation, _beginRevelationFontSize, COLOR_TRANSPARENT, _beginOutlineColor));
     }
