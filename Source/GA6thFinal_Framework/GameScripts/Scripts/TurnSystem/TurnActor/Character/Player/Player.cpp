@@ -17,10 +17,12 @@
 #include "Condition/PlayerWinCondition.h"   
 
 //State
+#include "CombatUIManager/CombatUIManager.h"
 #include "State/PlayerWaitTurnState.h"
 #include "State/PlayerPlayTurnState.h"
 #include "State/PlayerDeadState.h"
 #include "State/PlayerWinState.h"
+#include "UI/Contents/SpawnDamagePanel.h"
 
 UMREAL_COMPONENT(Player)
 
@@ -106,7 +108,7 @@ void Player::Dead()
     }
 }
 
-void Player::TakeDamage(int damage, bool playAnim) 
+void Player::TakeDamage(int damage, const bool playAnim) 
 {
     TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
     if (turnMode)
@@ -115,9 +117,32 @@ void Player::TakeDamage(int damage, bool playAnim)
     }
     int takeDamage = damage;
     Base::TakeDamage(takeDamage, playAnim);
+    ShowDamage(damage, {});
     if (turnMode)
     {
         turnMode->ApplyActions([&](TurnAction& action) { action.OnPlayerTakeDamageEnd(*this, damage); });
+    }
+}
+
+void Player::ShowDamage(const int damage, const std::span<std::string> sources)
+{
+    if (const CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        [[maybe_unused]] auto _ = combatUI->CharacterHUDGroup.PlayerSpawnDamagePanel->MakeDamage(damage, sources);
+    }
+}
+
+void Player::Heal(const int amount)
+{
+    Base::Heal(amount);
+    ShowHeal(amount, {});
+}
+
+void Player::ShowHeal(const int healAmount, const std::span<std::string> sources)
+{
+    if (const CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        [[maybe_unused]] auto _ = combatUI->CharacterHUDGroup.PlayerSpawnHealPanel->MakeDamage(healAmount, sources);
     }
 }
 
@@ -240,12 +265,12 @@ void Player::OnKill(CharacterBase* destination)
     Base::OnKill(destination);
 }
 
-void Player::OnTokenAdded(int tokenID)
+void Player::OnTokenAdded(const int tokenID)
 {
     Base::OnTokenAdded(tokenID);
 }
 
-void Player::OnTokenRemoved(int tokenID)
+void Player::OnTokenRemoved(const int tokenID)
 {
     Base::OnTokenRemoved(tokenID);
 }

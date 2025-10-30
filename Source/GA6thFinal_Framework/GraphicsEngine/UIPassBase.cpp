@@ -36,6 +36,8 @@ void UIPassBase::Initialize(RenderScene* ownerScene, RenderTechnique* ownerTechn
     _fx.SetPipelineStateStream(pss);
     _pipelineState = Global::pipelineStateManager->GetPipelineState(pss);
 
+    pss.BlendState = CD3DX12_BLEND_DESC(CommonStates::AlphaBlend);
+
     _fxSDF.SetPipelineStateStream(pss);
     _sdfPipelineState = Global::pipelineStateManager->GetPipelineState(pss);
 
