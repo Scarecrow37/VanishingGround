@@ -77,7 +77,7 @@ public:
     /// 이번 전투에 발동한 계시 항목들을 반환합니다.
     /// </summary>
     /// <returns></returns>
-    const std::vector<RevelationElement>& GetBattleActiveRevelations() { return _battleActiveRevelations; }
+    const std::vector<std::string>& GetBattleActiveRevelations() { return _battleActiveRevelations; }
 
     /// <summary>
     /// 이번 전투에 발동한 계시 항목들을 초기화합니다.
@@ -237,7 +237,6 @@ protected:
     void Awake() override;
     void Reset() override;
 
-
 private:
-    std::vector<RevelationElement> _battleActiveRevelations; //이번 배틀에 발동된 계시들. Battle에서 매번 clear 합니다.
+    std::vector<std::string> _battleActiveRevelations; //이번 배틀에 발동된 계시들. Battle에서 매번 clear 합니다.
 };
