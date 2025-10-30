@@ -562,6 +562,7 @@ void UmCineMotion::SerializedReflectEvent()
     ReflectFields->RotationXTethers.clear();
     ReflectFields->RotationYTethers.clear();
     ReflectFields->RotationZTethers.clear();
+    ReflectFields->RotationWTethers.clear();
 
     for (auto& pos : _posTethers)
     {
