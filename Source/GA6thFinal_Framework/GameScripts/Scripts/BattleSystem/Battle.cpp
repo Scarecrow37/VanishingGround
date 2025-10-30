@@ -13,12 +13,19 @@
 #include <Stats/Enemy/EnemyStatsComponent.h>
 #include <Monster/Common/MonsterCommon.h>
 #include <Monster/System/MonsterSystem.h>
+#include <RevelationSystem/RevelationSystem.h>
 
 void Battle::operator()(Player& attacker, EnemyTargetFlag targetFlag, QTE::NoteResult& result)
 {
     TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
     if (turnMode)
     {
+        // 진입 전 초기화
+        if (RevelationSystem* system = SingletonComponent<RevelationSystem>::GetInstance())
+        {
+            system->ClearBattleActiveRevelations();
+        }
+
         //연격은 최우선적으로 계산
         currentChainDamageSet.clear();
         std::vector<Enemy*> chainTargets = GetTargetsFromFlags(targetFlag);
@@ -37,6 +44,15 @@ void Battle::operator()(Player& attacker, EnemyTargetFlag targetFlag, QTE::NoteR
         for (auto& enemy : targets)
         {
             BattleStart(attacker, *enemy, result);
+
+            // 배틀에 발동된 계시 목록 초기화
+            if (RevelationSystem* system = SingletonComponent<RevelationSystem>::GetInstance())
+            {
+                system->ClearBattleActiveRevelations();
+            }
+
+            // 계시 발동 체크 플래그 초기화
+            turnMode->RevelationActiveFlag = false;
         }
     }
 }
@@ -163,10 +179,6 @@ void Battle::BattleStart(Player& attacker, Enemy& target, QTE::NoteResult& resul
         target.GetTokenInventory().NotifyPostEnemyHitCalculateDamage(attackerData, targetData, damage);
         // 미스여도 TakeDamage를 호출. 어차피 내부에서 미스처리를 하기 때문 (판정에 따른 이펙트 출력때문에... 나중에 PlayEffect를 따로 만들까? 싶음)
         target.TakeDamage(damage, result);
-
-      
-        // 계시 발동 체크 플래그 초기화
-        turnMode->RevelationActiveFlag = false;
     }
 }
 

@@ -151,13 +151,14 @@ void RevelationSystem::RollRoundElement()
             {
                 std::weak_ptr<RevelationElement> weakElement = element;
                 TurnAction& action = element->GetAction();
-                action.OnActionActive = [weakElement]() 
+                action.OnActionActive = [weakElement, this]() 
                 { 
                     if (auto element = weakElement.lock())
                     {
                         const std::string& name = element->ElementName;
                         std::string msg  = std::format("{}{}", name, (const char*)u8" 발동.");
                         UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
+                        _battleActiveRevelations.push_back(*element);
                     }
 
                     if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
