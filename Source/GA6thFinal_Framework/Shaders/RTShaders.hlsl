@@ -74,6 +74,7 @@ struct RayPayload
     float4 color;
     uint recursionDepth;
     uint isReflectRay;
+    uint isTransmissionRay;
 };
 
 struct ShadowPayload
@@ -250,6 +251,7 @@ void RayGen()
     RayPayload payload;
     payload.recursionDepth = 0;
     payload.isReflectRay = 0;
+    payload.isTransmissionRay = 0;
     TraceRay(RtScene,
              RAY_FLAG_NONE, 0xFF,
              0, 0, 0, // hitGroup/miss/callable
@@ -280,7 +282,7 @@ void ShadowMiss(inout ShadowPayload payload)
     payload.hit = false; // 그림자 미스는 hit가 false
 }
 
-static const uint MAX_RECURSION_DEPTH = 1;
+static const uint MAX_RECURSION_DEPTH = 3;
 
 [shader("closesthit")]
 void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttributes attribs)
@@ -381,7 +383,10 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
     float3 view = normalize(WorldRayOrigin() - hitPosition);
 
     float3 emissive = textures[emissiveID].SampleLevel(samAnistropic_wrap, parallaxUV, mipLevel).rgb;
-    float3 albedo = textures[diffuseID].SampleLevel(samAnistropic_wrap, parallaxUV, mipLevel).rgb;
+    float4 diffuse = textures[diffuseID].SampleLevel(samAnistropic_wrap, parallaxUV, mipLevel);
+    float3 albedo = diffuse.rgb;
+    float textureAlpha = diffuse.a;
+    float finalAlpha = textureAlpha * instData.Alpha;
     albedo = GammaToLinearSpace(albedo);
 
     float3 orm = textures[ORMID].SampleLevel(samAnistropic_wrap, parallaxUV, mipLevel).rgb;
@@ -416,7 +421,7 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
         float3 toL = Lp.Position - hitPosition;
         float dist = length(toL);
         
-        if(dist > maxPointLightDistance)
+        if (dist > maxPointLightDistance)
         {
             continue;
         }
@@ -424,7 +429,7 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
         float3 L = toL / dist;
         
         float NdotL = dot(normal, L);
-        if(NdotL <= 0.0f)
+        if (NdotL <= 0.0f)
             continue;
         
         float3 lightIntencity = Lp.Color * Lp.Intensity * Lp.Attenuation;
@@ -474,7 +479,7 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
         float3 toL = Ls.Position - hitPosition;
         float dist = length(toL);
         
-        if(dist > maxPointLightDistance)
+        if (dist > maxPointLightDistance)
         {
             continue;
         }
@@ -536,6 +541,7 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
         reflectionPayload.recursionDepth = payload.recursionDepth + 1;
         reflectionPayload.color = float4(0, 0, 0, 1);
         reflectionPayload.isReflectRay = 1;
+        reflectionPayload.isTransmissionRay = 0;
         TraceRay(RtScene,
                  RAY_FLAG_NONE,
                  0xFF,
@@ -551,11 +557,45 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
     }
 
     /* 최종 색 결과 ------------------------------------------------------- */
-    float3 finalcolor =
+    float3 surfaceColor =
           emissive +
           ambientLighting + // 환경광 
           directLighting + // 직접광  
           reflectionLighting; // 반사광 
     
-    payload.color = float4(finalcolor, 1.f);
+    if (finalAlpha < 0.999f && payload.recursionDepth < MAX_RECURSION_DEPTH)
+    {
+        // 1. 투과 레이 발사 (표면 뒤의 색상 가져오기)
+        float3 transmissionDirection = WorldRayDirection(); // 레이 방향 유지 (굴절 없이)
+
+        RayDesc transmissionRay;
+        transmissionRay.Origin = hitPosition + transmissionDirection * 0.001f; // 표면 살짝 뒤
+        transmissionRay.Direction = transmissionDirection;
+        transmissionRay.TMin = 0.001f;
+        transmissionRay.TMax = 2000.0f;
+
+        RayPayload transmissionPayload;
+        transmissionPayload.recursionDepth = payload.recursionDepth + 1;
+        transmissionPayload.color = float4(0, 0, 0, 1);
+        transmissionPayload.isReflectRay = 0;
+        transmissionPayload.isTransmissionRay = 1; // 투과 레이 표시
+
+        TraceRay(RtScene,
+                      RAY_FLAG_NONE,
+                      0xFF,
+                      0, 0, 0, // 동일한 HitGroup 사용
+                      transmissionRay,
+                      transmissionPayload);
+
+        // 2. Alpha Blending
+        float3 backgroundColor = transmissionPayload.color.rgb;
+        float3 blendedColor = lerp(backgroundColor, surfaceColor, finalAlpha);
+
+        payload.color = float4(blendedColor, finalAlpha);
+    }
+    else
+    {
+        // 완전 불투명 또는 최대 재귀 깊이 도달
+        payload.color = float4(surfaceColor, 1.0f);
+    }
 }

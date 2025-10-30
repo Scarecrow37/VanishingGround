@@ -187,7 +187,7 @@ ID3D12Resource* AccelerationStructureManager::BuildOrUpdateStaticBLAS(ID3D12Devi
     VIBuffer*                      viBuf = mesh->GetVIBuffer();
     D3D12_RAYTRACING_GEOMETRY_DESC geodesc{};
     geodesc.Type  = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
-    geodesc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
+    geodesc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_NONE;
     geodesc.Triangles.VertexBuffer.StartAddress =
         viBuf->_vertexBuffer->GetGPUVirtualAddress() + offsetof(StaticMeshVertex, Position);
     geodesc.Triangles.VertexBuffer.StrideInBytes = sizeof(StaticMeshVertex);
@@ -230,10 +230,10 @@ ID3D12Resource* AccelerationStructureManager::BuildDynamicBLAS(ID3D12Device5*   
 {
     auto&     instance = meshInfo->SkinnedInstance;
     VIBuffer* viBuf    = instance->GetVIBuffer();
-
+    
     D3D12_RAYTRACING_GEOMETRY_DESC geodesc{};
     geodesc.Type  = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
-    geodesc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
+    geodesc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_NONE;
     geodesc.Triangles.VertexBuffer.StartAddress =
         instance->GetUpdateVertexBuffer()->GetGPUVirtualAddress() + offsetof(StaticMeshVertex, Position);
     geodesc.Triangles.VertexBuffer.StrideInBytes = sizeof(StaticMeshVertex);
@@ -248,7 +248,6 @@ ID3D12Resource* AccelerationStructureManager::BuildDynamicBLAS(ID3D12Device5*   
     inputs.DescsLayout    = D3D12_ELEMENTS_LAYOUT_ARRAY;
     inputs.NumDescs       = 1;
     inputs.pGeometryDescs = &geodesc;
-
     const bool isUpdate = (cache.buf != nullptr && cache.buf->pResult);
 
     inputs.Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE |
