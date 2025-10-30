@@ -157,6 +157,8 @@ public:
         return result;
     }
 
+    void FindRevelationsView();
+
 private:
     bool _tableEditorOpen = false;
 
@@ -245,7 +247,6 @@ private:
 
 protected:
     void Awake() override;
-    void Start() override;
     void Reset() override;
 
 private:

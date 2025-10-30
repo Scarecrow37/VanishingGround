@@ -268,7 +268,12 @@ static ReflectHelper::ImGuiDraw::InputAutoSetting InitSetting()
     return setting;
 }
 
-void RevelationSystem::ImGuiDrawElementTableEditor() 
+void RevelationSystem::FindRevelationsView() 
+{
+    _revelationsView = GameObject::FindComponentWithTag<RevelationsView>(RevelationsView::TAG);
+}
+
+void RevelationSystem::ImGuiDrawElementTableEditor()
 {
 #ifdef _UMEDITOR
     constexpr const char* TABLE_CLEAR_KEY = (const char*)"clear table";
@@ -987,11 +992,6 @@ void RevelationSystem::Awake()
     {
         UmWatcher.Register<RevelationsViewModel>("Revelations", _roundElementList);
     }
-}
-
-void RevelationSystem::Start() 
-{
-    _revelationsView = GameObject::FindComponentWithTag<RevelationsView>(RevelationsView::TAG);
 }
 
 void RevelationSystem::Reset() 
