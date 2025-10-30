@@ -78,6 +78,7 @@ public:
     void PauseRail();
     void StopRail();
     void Shake();
+    void ResetRail(bool toBegin );
 
 protected:
     std::vector<Vector3>    _posTethers;

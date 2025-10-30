@@ -90,4 +90,5 @@ private:
     bool                      _callbackFlag = true;
     std::function<void(void)> _fadeCallBackFunction;
     bool                      _transitionLock = false;
+    bool                      _fadeEndFlag    = false;
 };
