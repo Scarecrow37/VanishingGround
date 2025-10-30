@@ -126,16 +126,18 @@ namespace CombatUI
                 SIZE size               = EnemyHUDPanel[i]->Size;
                 point.x                 = (LONG)(EnemyPosition[i].x - size.cx / 2);
                 point.y                 = (LONG)(EnemyPosition[i].y - size.cy + offsetY);
+                point.y                 = std::max(point.y, (LONG)100);
                 EnemyHUDPanel[i]->Point = point;
             }
         }
 
         if (PlayerHUDPanel)
         {
-            const float offsetY   = -800.0f;
+            const float offsetY   = -700.0f;
             SIZE        size      = PlayerHUDPanel->Size;
             point.x               = (LONG)(PlayerPosition.x - size.cx / 2);
             point.y               = (LONG)(PlayerPosition.y - size.cy + offsetY);
+            point.y               = std::max(point.y, (LONG)100);
             PlayerHUDPanel->Point = point;
         }
     }
