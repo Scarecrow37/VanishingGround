@@ -386,7 +386,11 @@ void EditorParticleEffectHierarchy::LoadEnvironmentModel(const File::Path& path)
         UmGraphics.CreateMeshRenderer(&_meshRenderer, &_worldMatrix);
         UmGraphics.RegisterComponent("ParticleEditor", _meshRenderer.Get());
     }
-    UmGraphics.LoadResource(path.wstring(), _meshRenderer.Get());
+    std::shared_ptr<Model> model        = std::make_shared<Model>();
+    FBXConverter&          fbxConverter = GetFBXConverter();
+    fbxConverter.ImportModel(path, model);
+
+    UmGraphics.SetResource(model, _meshRenderer.Get());
     _meshRenderer->SetActive(&_isModelActive);
 }
 
@@ -414,4 +418,10 @@ void EditorParticleEffectHierarchy::LoadEffect()
 
         }
     }
+}
+
+FBXConverter& EditorParticleEffectHierarchy::GetFBXConverter()
+{
+    static FBXConverter fbxConverter;
+    return fbxConverter;
 }
