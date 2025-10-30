@@ -7,6 +7,7 @@
 #include "ViewModels/Revelations/RevelationsViewModel.h"
 #include "UI/Animations/FadeUIComponent/FadeUIComponent.h"
 #include "UI/Elements/SpriteAnimation/SpriteAnimationElement.h"
+#include "TutorialSystem/TutorialSystem.h"
 
 UMREAL_COMPONENT(RevelationsView)
 

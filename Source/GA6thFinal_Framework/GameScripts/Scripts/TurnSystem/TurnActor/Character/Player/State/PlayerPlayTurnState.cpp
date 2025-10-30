@@ -79,11 +79,6 @@ void PlayerPlayTurnState::OnEnter()
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, u8" WeaponSystem이 존재하지 않습니다.");
     }
-
-    if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
-    {
-        system->Show({805901, 805902});
-    }
 }
 
 void PlayerPlayTurnState::OnExit() 
