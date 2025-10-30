@@ -85,6 +85,7 @@ void ChildsAnimationsController::StartAnimation(size_t index)
 {
     if (index < _spriteAnimations.size())
     {
+        _spriteAnimations[index]->Setup();
         _spriteAnimations[index]->StartAnimation();
     }
 }
@@ -95,6 +96,7 @@ void ChildsAnimationsController::StartAnimationWithTag(std::string_view tag)
     {
         for (auto& spriteAnimation : findIter->second)
         {
+            spriteAnimation->Setup();
             spriteAnimation->StartAnimation();
         }
     }
