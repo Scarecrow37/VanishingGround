@@ -6,6 +6,7 @@
 #include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
 #include "TurnSystem/TurnActor/Character/Player/Player.h"
 #include "WeaponSystem/WeaponSystem.h"
+#include "TutorialSystem/TutorialSystem.h"
 
 REGISTER_CLASS(FSMStateFactory, TurnListEmptyState)
 
@@ -46,6 +47,15 @@ void TurnListEmptyState::OnEnter()
 
         //액션 후 다시 사망 계산
         UpdateCharacterDead();
+
+        if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
+        {
+            system->Show(805903); // 연격 튜토리얼
+            if (_turnMode->IsCurrentTurnActiveRevelation)
+            {
+                system->Show(805904); //계시 발동 튜토리얼
+            }
+        } 
     }
     else
     {

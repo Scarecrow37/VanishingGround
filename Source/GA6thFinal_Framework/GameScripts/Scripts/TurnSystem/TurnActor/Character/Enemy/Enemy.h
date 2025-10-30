@@ -71,10 +71,10 @@ public:
     /*Enemy에게 피격을 가합니다.*/
     void TakeDamage(int damage, bool playAnim = true) override;
     void TakeDamage(int damage, const QTE::NoteResult& result, bool playAnim = true);
-    void ShowDamage(int damage, std::span<std::string> sources) override;
-    void ShowCriticalDamage(int damage, std::span<std::string> sources);
+    void ShowDamage(int damage, std::span<const std::string> sources) override;
+    void ShowCriticalDamage(int damage, std::span<const std::string> sources);
     void Heal(int amount) override;
-    void ShowHeal(int healAmount, std::span<std::string> sources) override;
+    void ShowHeal(int healAmount, std::span<const std::string> sources) override;
 
     inline Monster::Controller&     GetController() { return _controller; }
     inline FiniteStateMachine&      GetFSM() { return *_finiteStateMachine; }

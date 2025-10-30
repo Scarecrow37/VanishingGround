@@ -3,6 +3,8 @@
 #include "RevelationSystem.h"
 
 #include "ViewModels/Revelations/RevelationsViewModel.h"
+#include "UI/Views/RevelationsView/RevelationsView.h"
+#include "UI/Animations/ChildsAnimationsController/ChildsAnimationsController.h"
 
 #include <TurnSystem/TurnAction/TurnActionFactory.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
@@ -151,13 +153,25 @@ void RevelationSystem::RollRoundElement()
             {
                 std::weak_ptr<RevelationElement> weakElement = element;
                 TurnAction& action = element->GetAction();
-                action.OnActionActive = [weakElement]() 
+                action.OnActionActive = [weakElement, this, i]() 
                 { 
                     if (auto element = weakElement.lock())
                     {
                         const std::string& name = element->ElementName;
                         std::string msg  = std::format("{}{}", name, (const char*)u8" 발동.");
                         UmLogger.Message(LogLevel::LEVEL_DEBUG, msg);
+                        _battleActiveRevelations.push_back(name);
+                        if (auto view = _revelationsView.lock())
+                        {
+                            auto& uis = view->GetRevelationUIs();
+                            if (i < uis.size())
+                            {
+                                if (uis[i].AnimationsController)
+                                {
+                                    uis[i].AnimationsController->StartAnimation(i);
+                                }
+                            }
+                        }
                     }
 
                     if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
@@ -227,6 +241,26 @@ RevelationElement* RevelationSystem::FindElement(const std::string& elementName)
     return nullptr;
 }
 
+RevelationElement* RevelationSystem::FindElementWithID(std::u8string_view id)
+{
+    if (ExcelDataSystem* data = SingletonComponent<ExcelDataSystem>::GetInstance())
+    {
+        if (auto db = data->FindExcelDataBase(u8"계시"))
+        {
+            size_t rowIndex = db->FindRowIndex(id, u8"ID");
+            if (rowIndex != db->FIND_INDEX_FAIL)
+            {
+                std::string_view data = db->FindData(rowIndex, u8"Name");
+                if (data != db->FIND_STR_FAIL)
+                {
+                    return FindElement(data.data());
+                }
+            }
+        }
+    }
+    return nullptr;
+}
+
 static ReflectHelper::ImGuiDraw::InputAutoSetting InitSetting()
 {
     ReflectHelper::ImGuiDraw::InputAutoSetting setting;
@@ -234,7 +268,12 @@ static ReflectHelper::ImGuiDraw::InputAutoSetting InitSetting()
     return setting;
 }
 
-void RevelationSystem::ImGuiDrawElementTableEditor() 
+void RevelationSystem::FindRevelationsView() 
+{
+    _revelationsView = GameObject::FindComponentWithTag<RevelationsView>(RevelationsView::TAG);
+}
+
+void RevelationSystem::ImGuiDrawElementTableEditor()
 {
 #ifdef _UMEDITOR
     constexpr const char* TABLE_CLEAR_KEY = (const char*)"clear table";

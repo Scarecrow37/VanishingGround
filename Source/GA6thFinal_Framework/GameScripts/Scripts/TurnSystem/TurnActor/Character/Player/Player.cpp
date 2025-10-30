@@ -124,7 +124,7 @@ void Player::TakeDamage(int damage, const bool playAnim)
     }
 }
 
-void Player::ShowDamage(const int damage, const std::span<std::string> sources)
+void Player::ShowDamage(const int damage, const std::span<const std::string> sources)
 {
     if (const CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
     {
@@ -138,7 +138,7 @@ void Player::Heal(const int amount)
     ShowHeal(amount, {});
 }
 
-void Player::ShowHeal(const int healAmount, const std::span<std::string> sources)
+void Player::ShowHeal(const int healAmount, const std::span<const std::string> sources)
 {
     if (const CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
     {

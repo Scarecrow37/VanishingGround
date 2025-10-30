@@ -3,6 +3,7 @@
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <Token/TokenInventory.h>
+#include "Token/TokenSystem.h"
 
 namespace TokenObject
 {
@@ -27,20 +28,33 @@ namespace TokenObject
         }
         return false;
     }
-    void Poison::OnTurnStart(CharacterBase* owner) 
+    void Poison::OnRoundStart(CharacterBase* owner) 
     {
         if (owner)
         {
-            auto& tokenInventory = owner->GetTokenInventory();
-            if (false == owner->IsDead())
+            auto TakeDamageToken = [owner, this]()
             {
-                int stackCount = tokenInventory.GetTokenStackFromID(ID);
-                int param  = GetTokenParam(0);
-                int damage = param * stackCount;
-                UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(*owner));
-                owner->TakeDamage(damage);
+                auto& tokenInventory = owner->GetTokenInventory();
+                if (false == owner->IsDead())
+                {
+                    int stackCount = tokenInventory.GetTokenStackFromID(ID);
+                    int param  = GetTokenParam(0);
+                    int damage = param * stackCount;
+                    UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(*owner));
+                    owner->TakeDamage(damage);
+                }
+                tokenInventory.RemoveTokenStackFromID(ID);
+            };
+             
+            if (TokenSystem* system = SingletonComponent<TokenSystem>::GetInstance())
+            {
+                float delayTime = system->TokenDamageDelayTime;
+                UmTime.Invoke(owner, delayTime, TakeDamageToken);
             }
-            tokenInventory.RemoveTokenStackFromID(ID);
+            else
+            {
+                TakeDamageToken();
+            }
         }
     }
     void PoisonGrant::OnTurnEnd(CharacterBase* owner) 

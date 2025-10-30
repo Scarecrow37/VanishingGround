@@ -16,6 +16,8 @@
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 
+#include <TutorialSystem/TutorialSystem.h>
+
 #include <CombatUIManager/CombatUIManager.h>
 
 #include <Stats/CharacterStats.h>
@@ -146,6 +148,10 @@ void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
             _inputState = InputState::QUICK_TIME_EVENT;
             qteSystem->StartQTE();
             SetAttackReady();
+            if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
+            {
+                system->Show(805907);
+            }
         }
         else
         {

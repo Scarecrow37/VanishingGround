@@ -6,13 +6,15 @@ class TextElement;
 class DescriptionPanel;
 class FadeUIComponent;
 class SpriteAnimationElement;
+class ChildsAnimationsController;
 
 struct RevelationUI
 {
-    ImageElement* IconElement;
-    std::vector<ImageElement*> GradeElements;
-    TextElement*  NameElement;
-    DescriptionPanel* DescriptionElement;
+    ImageElement*               IconElement;
+    std::vector<ImageElement*>  GradeElements;
+    TextElement*                NameElement;
+    DescriptionPanel*           DescriptionElement;
+    ChildsAnimationsController* AnimationsController;
 };
 
 class RevelationsView : public Component
@@ -20,6 +22,8 @@ class RevelationsView : public Component
     USING_PROPERTY(RevelationsView)
 
 public:
+    inline static constexpr const char* TAG = "Revelations View Component";
+
     RevelationsView() = default;
     virtual ~RevelationsView();
 
