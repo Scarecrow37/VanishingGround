@@ -163,6 +163,10 @@ void Battle::BattleStart(Player& attacker, Enemy& target, QTE::NoteResult& resul
         target.GetTokenInventory().NotifyPostEnemyHitCalculateDamage(attackerData, targetData, damage);
         // 미스여도 TakeDamage를 호출. 어차피 내부에서 미스처리를 하기 때문 (판정에 따른 이펙트 출력때문에... 나중에 PlayEffect를 따로 만들까? 싶음)
         target.TakeDamage(damage, result);
+
+      
+        // 계시 발동 체크 플래그 초기화
+        turnMode->RevelationActiveFlag = false;
     }
 }
 
