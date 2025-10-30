@@ -307,7 +307,7 @@ public:
     /// 등록된 모든 태그를 가져옵니다.
     /// </summary>
     /// <returns>부착된 태그들</returns>
-    const std::set<std::string> GetTags()
+    const std::set<std::string>& GetTags()
     {
         return ReflectFields->_tags;
     }
