@@ -306,6 +306,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\MagicBook\SelectMagicBook.h" />
+    <ClInclude Include="Scripts\MagicBook\SelectPopup.h" />
     <ClInclude Include="Scripts\QTE\UI\Field\QTEJudgeEffectUI.h" />
     <ClInclude Include="Scripts\QTE\UI\Input\QTEInputNodeUI.h" />
     <ClInclude Include="Scripts\QTE\UI\Input\QTEInputViewerUI.h" />
@@ -599,7 +601,8 @@
     <ClInclude Include="Scripts\ViewModels\SturnResistance\SturnResistanceViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\TurnQueue\TurnQueueViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Weapon\WeaponViewModel.h" />
-    <ClInclude Include="Scripts\WeaponModelManager\WeaponModelManager.h" />
+    <ClInclude Include="Scripts\WeaponModel\WeaponModelManager.h" />
+    <ClInclude Include="Scripts\WeaponModel\WeaponModelData.h" />
     <ClInclude Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.h" />
     <ClInclude Include="Scripts\WeaponSystem\WeaponSystem.h" />
     <ClInclude Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.h" />
@@ -613,8 +616,11 @@
     <ClInclude Include="Scripts\Token\Object\Deffence\WeaponDeffenceToken.h" />
     <ClInclude Include="Scripts\Token\Object\Vanish\VanishToken.h" />
     <ClInclude Include="Scripts\RoundInfoUI\RoundInfoUIManager.h" />
+    <ClInclude Include="Scripts\Input\InputOkCancelComponent\InputOkCancelComponent.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\MagicBook\SelectMagicBook.cpp" />
+    <ClCompile Include="Scripts\MagicBook\SelectPopup.cpp" />
     <ClCompile Include="Scripts\QTE\UI\Field\QTEJudgeEffectUI.cpp" />
     <ClCompile Include="Scripts\QTE\UI\Input\QTEInputNodeUI.cpp" />
     <ClCompile Include="Scripts\QTE\UI\Input\QTEInputViewerUI.cpp" />
@@ -871,11 +877,21 @@
     <ClCompile Include="Scripts\UI\Base\UINavigationComponent\UINavigationComponent.cpp" />
     <ClCompile Include="Scripts\UI\Base\UIRoot\UIRoot.cpp" />
     <ClCompile Include="Scripts\UI\Contents\DamageElement.cpp" />
-    <ClCompile Include="Scripts\UI\Contents\SpawnDamagePanel.cpp" />
+    <ClCompile Include="Scripts\UI\Contents\SpawnDamagePanel.cpp">
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</IncludeInUnityFile>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">false</IncludeInUnityFile>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</IncludeInUnityFile>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">false</IncludeInUnityFile>
+    </ClCompile>
     <ClCompile Include="Scripts\UI\Elements\Dummy\DummyElement.cpp" />
     <ClCompile Include="Scripts\UI\Elements\HoldingProgressImage\HoldingProgressImageElement.cpp" />
     <ClCompile Include="Scripts\UI\Elements\Image\ImageElement.cpp" />
-    <ClCompile Include="Scripts\UI\Elements\SpriteAnimation\SpriteAnimationElement.cpp" />
+    <ClCompile Include="Scripts\UI\Elements\SpriteAnimation\SpriteAnimationElement.cpp">
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</IncludeInUnityFile>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">false</IncludeInUnityFile>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</IncludeInUnityFile>
+      <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">false</IncludeInUnityFile>
+    </ClCompile>
     <ClCompile Include="Scripts\UI\Elements\Text\TextElement.cpp" />
     <ClCompile Include="Scripts\UI\Panels\Description\DescriptionPanel.cpp" />
     <ClCompile Include="Scripts\UI\Panels\Grid\GridPanel.cpp" />
@@ -906,7 +922,8 @@
     <ClCompile Include="Scripts\ViewModels\SturnResistance\SturnResistanceViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\TurnQueue\TurnQueueViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Weapon\WeaponViewModel.cpp" />
-    <ClCompile Include="Scripts\WeaponModelManager\WeaponModelManager.cpp" />
+    <ClCompile Include="Scripts\WeaponModel\WeaponModelData.cpp" />
+    <ClCompile Include="Scripts\WeaponModel\WeaponModelManager.cpp" />
     <ClCompile Include="Scripts\WeaponSystem\WeaponElement\WeaponElement.cpp" />
     <ClCompile Include="Scripts\WeaponSystem\WeaponSystem.cpp" />
     <ClCompile Include="Scripts\WeaponSystem\WeaponTable\WeaponTableComponent.cpp" />
@@ -920,6 +937,7 @@
     <ClCompile Include="Scripts\Token\Object\Deffence\WeaponDeffenceToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\Vanish\VanishToken.cpp" />
     <ClCompile Include="Scripts\RoundInfoUI\RoundInfoUIManager.cpp" />
+    <ClCompile Include="Scripts\Input\InputOkCancelComponent\InputOkCancelComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

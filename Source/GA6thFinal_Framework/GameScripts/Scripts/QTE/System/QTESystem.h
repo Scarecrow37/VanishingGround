@@ -6,6 +6,7 @@
 #include "QTE/KeyBinder/QTEKeyBinder.h"
 #include "QTE/Track/QTETrack.h"
 #include "Utility/SingletonHelper.h"
+#include "Stats/Weapon/WeaponStats.h"
 
 class QTEUIManager;
 class QTEEditor;
@@ -152,7 +153,8 @@ public:
     QTE::Track* GetMappingTrackToWeaponID(int weaponID, int index = 0);
 
 private:
-    std::string GetRandomAnimationName(const WeaponStats& weapon);
+    bool        ValidAnimation(WeaponType type, const std::string& animKey) const;
+    std::string GetRandomAnimationName(WeaponType type) const;
 
 private:
     SingletonComponent<QTESystem>   _singletonComponent{this};

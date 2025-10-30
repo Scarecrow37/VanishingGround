@@ -11,7 +11,7 @@
 #include "Camera/UmCineMotion.h"
 #include "CombatUIManager/CombatUIManager.h"
 #include "Token/Object/Focus/FocusToken.h"
-#include "WeaponModelManager/WeaponModelManager.h"
+#include "WeaponModel/WeaponModelManager.h"
 
 UMREAL_COMPONENT(QTESystem)
 
@@ -190,11 +190,20 @@ QTE::Track* QTESystem::GetMappingTrackToWeaponID(const int weaponID, const int i
     return nullptr;
 }
 
-std::string QTESystem::GetRandomAnimationName(const WeaponStats& weapon)
+bool QTESystem::ValidAnimation(WeaponType type, const std::string& animKey) const
 {
     if (WeaponModelManager* manager = SingletonComponent<WeaponModelManager>::GetInstance())
     {
-        if (auto* randomAnim = manager->GetRandomWeaPonAnimationKeyToNormalAttack(weapon.Type))
+        return manager->HasWeaponAnimation(type, animKey);
+    }
+    return false;
+}
+
+std::string QTESystem::GetRandomAnimationName(WeaponType type) const
+{
+    if (WeaponModelManager* manager = SingletonComponent<WeaponModelManager>::GetInstance())
+    {
+        if (auto* randomAnim = manager->GetRandomWeaponAnimationKeyToNormalAttack(type))
         {
             return *randomAnim;
         }
@@ -245,11 +254,15 @@ void QTESystem::StartQTE(const WeaponStats& weapon)
                     {
                         if (QTE::Note* qteNote = QTE::Note::Cast<QTE::Note>(note))
                         {
-                            QTE::NoteData& noteData = _noteAvailQueue.emplace_back(qteNote->ToNoteData());
-                            _overallResult.NoteResults.emplace_back(&noteData);
-                            if (noteData.WeaponAnimationKey.empty())
+                            if (qteNote->Time <= maxFrame)
                             {
-                                noteData.WeaponAnimationKey = GetRandomAnimationName(weapon);
+                                QTE::NoteData& noteData = _noteAvailQueue.emplace_back(qteNote->ToNoteData());
+                                _overallResult.NoteResults.emplace_back(&noteData);
+                                // 애니메이션 이름이 유효하지 않다면 랜덤 애니메이션을 가져옴
+                                if (false == ValidAnimation(weapon.Type, noteData.WeaponAnimationKey))
+                                {
+                                    noteData.WeaponAnimationKey = GetRandomAnimationName(weapon.Type);
+                                }
                             }
                         }
                     }
@@ -270,7 +283,7 @@ void QTESystem::StartQTE(const WeaponStats& weapon)
 
                 _noteAvailQueue[i].ID                   = i + 1;
                 _noteAvailQueue[i].Time                 = totalTime;
-                _noteAvailQueue[i].WeaponAnimationKey   = GetRandomAnimationName(weapon);
+                _noteAvailQueue[i].WeaponAnimationKey   = GetRandomAnimationName(weapon.Type);
                 _noteAvailQueue[i].WeaponAnimationDelay = 0.0f;
 
                 _overallResult.NoteResults[i] = &_noteAvailQueue[i];
@@ -281,7 +294,7 @@ void QTESystem::StartQTE(const WeaponStats& weapon)
             _currTime  = -travelTime - delayTime;
             _totalTime = totalTime + 1.0f;
 
-              ProcessQTEEnterEvent();
+            ProcessQTEEnterEvent();
         }
       
     }
