@@ -64,7 +64,7 @@ ComPtr<ID3D12StateObject> RTPipelineBuilder::BuildPipelineStateObject(ID3D12Devi
     ExportAssociation missAssoc(missShaders, 1 , &subobjects[subobjects.size() - 1]);
     subobjects.push_back(missAssoc.subObject);
 
-    ShaderConfig shaderCfg(sizeof(float) * 2, sizeof(float) * (4 + 1));
+    ShaderConfig shaderCfg(sizeof(float) * 2, sizeof(float) * (4 + 1 + 1));
     subobjects.push_back(shaderCfg.subObject);
     std::vector<const WCHAR*> exportPtrs;
     for (const auto& name : _allExportNames)
