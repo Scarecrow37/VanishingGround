@@ -1,5 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "SelectMagicBook.h"
+#include "SelectPopup.h"
 #include "UI/Elements/Image/ImageElement.h"
 #include "UI/Elements/Text/TextElement.h"
 #include "ExcelDataSystem/ExcelDataSystem.h"
@@ -48,7 +49,7 @@ SelectMagicBook::SelectMagicBook()
 
 SelectMagicBook::~SelectMagicBook() = default;
 
-void SelectMagicBook::Start()
+void SelectMagicBook::Awake()
 {
     FocusOut(FocusCallType::INITIAL);
 }
@@ -132,7 +133,29 @@ void SelectMagicBook::Submit()
     if (auto object = GameObject::Find("Select Popup").lock())
     {
         object->SetActive(true);
-    } 
+
+        if (SelectPopup* popup = object->GetComponent<SelectPopup>())
+        {
+            std::unique_ptr<ExcelDataBase> dataBase;
+            if (ExcelDataSystem* system = SingletonComponent<ExcelDataSystem>::GetInstance())
+            {
+                dataBase = system->FindExcelDataBase(u8"텍스트");
+            }
+            if (dataBase)
+            {
+                size_t rowIndex = dataBase->FindRowIndex(reinterpret_cast<const char8_t*>(ReflectFields->TitleID.c_str()), u8"ID");
+                if (rowIndex != dataBase->FIND_INDEX_FAIL)
+                {
+                    std::string_view title = dataBase->FindData(rowIndex, u8"Content");
+                    if (title != dataBase->FIND_STR_FAIL)
+                    {
+                        popup->SetSelectMagicBook(ReflectFields->FocusImagePath, title.data(), this);
+                        popup->Focus();
+                    }
+                }
+            }
+        }
+    }
 }
 
 void SelectMagicBook::ImGuiDrawPropertysEvent()
@@ -141,6 +164,14 @@ void SelectMagicBook::ImGuiDrawPropertysEvent()
 
     if (ImGui::BeginTable("SelectMagicBook", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
     {
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        ImGuiHelper::CenterText("TitleID");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::PushItemWidth(-FLT_MIN);
+        ImGui::InputText("##TitleID", &ReflectFields->TitleID);
+        ImGui::PopItemWidth();
+
         ImGui::TableNextRow();
         ImGui::TableSetColumnIndex(0);
         ImGuiHelper::CenterText("FocusDescriptionID");

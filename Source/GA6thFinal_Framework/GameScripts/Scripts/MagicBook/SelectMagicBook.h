@@ -10,7 +10,7 @@ public:
     ~SelectMagicBook() override;
 
 public:
-    void Start() override;
+    void Awake() override;
 
 public:
     void FocusIn(FocusCallType callType) override;
@@ -27,6 +27,7 @@ public:
 
 protected:
     REFLECT_FIELDS_BEGIN(UISFXNavigationComponent)
+    std::string TitleID;
     std::string FocusImagePath;
     std::string UnFocusImagePath;
     std::string FocusDescriptionID;
