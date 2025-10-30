@@ -119,6 +119,23 @@ void ApplyDamage::OnTurnEnd(CharacterBase& destination)
     }
 }
 
+void ApplyDamage::OnPlayerBattleCalculateDamageModifier(Player& attacker, PlayerStats& attackerStats,
+                                                        WeaponStats& weaponStats, Enemy& target,
+                                                        EnemyStats& targetStats)
+{
+    if (TriggerType::ATTACK == ReflectFields->Trigger)
+    {
+        if (EvaluateConditions())
+        {
+            std::vector<CharacterBase*> targets = TurnSystemHelper::GetTargetCharacters(ReflectFields->Target);
+            for (auto& target : targets)
+            {
+                target->TakeDamage(ReflectFields->Damage);
+            }
+        }
+    }
+}
+
 void ApplyDamage::DeserializedReflectEvent() 
 {
     UpdateInfoText();

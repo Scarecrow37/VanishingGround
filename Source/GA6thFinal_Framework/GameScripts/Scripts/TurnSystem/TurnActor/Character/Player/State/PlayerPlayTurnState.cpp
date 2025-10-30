@@ -447,6 +447,10 @@ void PlayerPlayTurnState::OnQTEFinish()
         }
         SetAttackEndTimeInvoke(totalTime);
     }
+    else
+    {
+        SetAttackEnd();
+    }
 }
 
 void PlayerPlayTurnState::SetWeaponModelCallback(WeaponModelData& modelData, QTE::NoteResult& noteResult)

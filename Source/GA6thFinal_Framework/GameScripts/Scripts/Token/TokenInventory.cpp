@@ -493,6 +493,14 @@ void TokenInventory::SetTokenStackFromID(int tokenID, int count)
 
 void TokenInventory::RemoveTokenStackFromID(int tokenID, int count /* = 1 */)
 {
+    if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
+    {
+        turnMode->ApplyActions([&](TurnAction& action) 
+        { 
+            action.OnTokenRemovedStart(_owner, tokenID, count); 
+        });
+    }
+
     if (0 == count)
     {   // 제거할 스택이 0이면 아무것도 하지 않습니다. (이벤트를 호출하지 않기 위해 필요)
         return;
@@ -524,6 +532,14 @@ void TokenInventory::RemoveTokenStackFromID(int tokenID, int count /* = 1 */)
                 UmLogger.Log(LogLevel::LEVEL_TRACE, msg);
             }
         }
+    }
+    
+    if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
+    {
+        turnMode->ApplyActions([&](TurnAction& action) 
+        { 
+            action.OnTokenRemovedEnd(_owner, tokenID, count); 
+        });
     }
 }
 
