@@ -1,7 +1,7 @@
 ﻿#pragma once
 #define MAX_PARTICLE 1000000
 #define PROP_DECL_INIT(type, varName, initValue)                                                                       \
-private:                                                                                                             \
+private:                                                                                                               \
     type varName = initValue;
 
 #define PROP_GET(type, varName, FuncName)                                                                              \
@@ -25,117 +25,94 @@ public:                                                                         
         varName = value;                                                                                               \
     }
 
-#define PROP_SET_REF(type, varName, FuncName)                                                                          \
+#define PROP_GET_SET(type, varName, FuncName)                                                                          \
 public:                                                                                                                \
-    void Set##FuncName(const type& value)                                                                              \
+    type Get##FuncName() const                                                                                         \
+    {                                                                                                                  \
+        return varName;                                                                                                \
+    }                                                                                                                  \
+    void Set##FuncName(type value)                                                                                     \
     {                                                                                                                  \
         varName = value;                                                                                               \
     }
 
-#define UMPARTICLE_PROPERTY(type, varName, FuncName, initValue)                                                        \
-    PROP_DECL_INIT(type, varName, initValue)                                                                           \
-    PROP_GET(type, varName, FuncName)                                                                                  \
-    PROP_SET(type, varName, FuncName)
+#define SAFE_RELEASE(ptr)                                                                                              \
+    if (ptr)                                                                                                           \
+    {                                                                                                                  \
+        ptr->Release();                                                                                                \
+        ptr = nullptr;                                                                                                 \
+    }
 
-#define UMPARTICLE_PROPERTY_REF(type, varName, FuncName, initValue)                                                    \
-    PROP_DECL_INIT(type, varName, initValue)                                                                           \
-    PROP_GET_REF(type, varName, FuncName)                                                                              \
-    PROP_SET_REF(type, varName, FuncName)
+#include <DirectXColors.h>
+#include <DirectXMath.h>
+#include <SimpleMath.h>
+#include <array>
+#include <functional>
+#include <memory>
+#include <optional>
+#include <queue>
+#include <span>
+#include <string>
+#include <string_view>
+#include <unordered_map>
+#include <vector>
+#include <wrl/client.h>
+using Microsoft::WRL::ComPtr;
+using namespace DirectX::SimpleMath;
 
-#define BYTEALIGN(value, alignment) (((value) + ((alignment) - 1)) & ~((alignment) - 1))
-
-
-
-struct ParticleOutput
+struct Particle
 {
-    Vector4 Position; // ribbon -> normal
-    Matrix  FinalMatrix;
+    Vector3 Position;
+    Vector3 Velocity;
     Vector4 Color;
-    Vector4 FrameInfo;
-    int     EmitterIndex;
-    Vector3 Paddings;
+    float   LifeTime;
+    float   Age;
+    float   Size;
+    float   Rotation;
+    float   Padding;
 };
 
 struct EmitterInfo
 {
-    Matrix  WorldMatrix;
-    Matrix  OrientedWorldMatrix;
-    Vector4 DragPoint;
-    Vector4 DragForce;
-    Vector4 VortexForce;
-    Vector4 StartScale;
-    Vector4 EndScale;
+    Matrix  World;
+    Matrix  Rotation;
     Vector4 StartColor;
     Vector4 EndColor;
-    Vector4 Lifetime; // x: particle lifetime, y: useWorldSpace (1.0f for true, 0.0f for false)
-    Vector4 StartNormal;
-    Vector4 EndNormal;
-    Vector4 RibbonVector;
-};
-
-struct __declspec(align(16)) MVPConstants
-{
-    Matrix  ViewMatrix;
-    Matrix  ViewRotInvMatrix;
-    Matrix  ProjMatrix;
-    Vector4 CameraPos;
-    float   DeltaTime; // 4바이트
-
-    // 패딩을 float 배열로 대체 (44바이트)
-    float pad1[4]; // 16바이트 (deltaTime 이후 12바이트 남은 공간 채움)
-    float pad2[4]; // 16바이트
-    float pad3[3]; // 12바이트 (총 16+16+12 = 44바이트)
-};
-
-
-
-
-enum class LocationShape
-{
-    SPHERE,
-    CUBE,
-    CYLINDER,
-    CONE,
-    TORUS,
-    MESH_SURFACE
-};
-enum class ParticleType
-{
-    SPRITE,
-    MESH,
-    RIBBON,
-    MISC,
-}; 
-enum ParticleMiscFlag
-{
-    DISTORTION,
-    BLUR,
-};
-
-enum class VelocityScaleType
-{
-    LINEAR,
-    POINT,
-    CONE,
-    CUSTOM
+    Vector4 StartEndSize;  // x: start, y: end
+    Vector4 StartEndRot;   // x: start, y: end
+    Vector4 StartEndLife;  // x: start, y: end
+    Vector4 StartEndSpeed; // x: start, y: end
+    Vector4 AlbedoIndex;   // x: index, y: count
+    Vector4 Flags;         // custom flags
+    Vector4 Misc;          // user
 };
 
 struct RibbonIndex
 {
-    UINT  Index = -1;
-    float Ratio = 0;
+    UINT Top;
+    UINT Bottom;
+};
+
+struct MVP
+{
+    Matrix  ViewProjMatrix;
+    Matrix  ViewRotInvMatrix;
+    Vector4 CameraPos;
+    Vector4 Time; // x: delta, y: total
 };
 
 struct ParticleUpdateResource
 {
     std::string Name;
 
-    std::vector<std::unique_ptr<class ParticleEffect>> SceneEffects;
+    // unique_ptr -> shared_ptr 로 변경 (씬이 공유 소유)
+    std::vector<std::shared_ptr<class ParticleEffect>> SceneEffects;
 
-    std::vector<class Particle>           TotalParticles;
-    std::vector<EmitterInfo>              EmitterMatrix;
-    std::vector<UINT>                     ActiveEmitterAlbedos;
-    UINT                                  TotalCount = 0;
+    std::vector<class Particle> TotalParticles;
+    std::vector<EmitterInfo>    EmitterMatrix;
+    std::vector<UINT>           ActiveEmitterAlbedos;
+    UINT                        TotalCount = 0;
+
     std::vector<class Particle>           RibbonTotalParticles;
     std::vector<EmitterInfo>              RibbonEmitterMatrix;
     std::vector<UINT>                     RibbonActiveEmitterAlbedos;
@@ -150,7 +127,6 @@ struct ParticleUpdateResource
     ComPtr<ID3D12Resource> RibbonEmitterInfo;
     ComPtr<ID3D12Resource> RibbonParticleInputUpload;
     ComPtr<ID3D12Resource> RibbonEmitterInfoUpload;
-
 };
 
 struct ParticleRenderResource
