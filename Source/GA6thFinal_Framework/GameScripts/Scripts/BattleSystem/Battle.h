@@ -73,6 +73,7 @@ public:
     /// </summary>
     /// <returns></returns>
     static const std::weak_ptr<Enemy>& GetLastTargetEnemy() { return lastTargetEnemy; }
+    static void SetLastTargetEnemy(const std::weak_ptr<Enemy>& enemy) { lastTargetEnemy = enemy; }
 
     /// <summary>
     /// 마지막으로 공격당한 적을 기록하는 변수를 초기화합니다. 전투 시작시 초기화됩니다.
