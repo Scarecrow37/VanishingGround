@@ -19,3 +19,13 @@ void NotingAction::ImGuiDrawActionEditor()
     ImGuiDrawPropertys();
     ImguiDrawConditionEditor();
 }
+
+void NotingAction::OnPlayerBattleCalculateDamageModifier(Player& attacker, PlayerStats& attackerStats,
+                                                         WeaponStats& weaponStats, Enemy& target,
+                                                         EnemyStats& targetStats)
+{
+    if (EvaluateConditions())
+    {
+
+    }
+}

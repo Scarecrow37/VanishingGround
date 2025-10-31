@@ -12,4 +12,7 @@ protected:
 
 private:
     inline static const std::string name = (const char*)u8"아무일도 일어나지 않음";
+
+     void OnPlayerBattleCalculateDamageModifier(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
+                                               Enemy& target, EnemyStats& targetStats) override;
 };
