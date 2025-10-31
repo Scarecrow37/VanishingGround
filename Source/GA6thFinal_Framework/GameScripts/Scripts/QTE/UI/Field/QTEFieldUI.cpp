@@ -15,6 +15,9 @@ namespace QTE
             for (int i = 0; i < poolSize; ++i)
             {
                 NotePool.emplace_back(noteGuid, &parent);
+            }
+            for (int i = 0; i < poolSize; ++i)
+            {
                 EffectPool.emplace_back(effectGuid, &parent);
             }
         }
