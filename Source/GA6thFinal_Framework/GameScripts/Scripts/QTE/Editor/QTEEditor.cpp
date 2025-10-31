@@ -158,7 +158,6 @@ bool QTEEditor::SaveFileWithDialog(QTE::Track* qteTrack)
 
 void QTEEditor::ShowSystemDetail()
 {
-
     ImVec2 availSize  = ImGui::GetContentRegionAvail();
     ImVec2 canvasSize = ImVec2(availSize.x * 0.3f, availSize.y);
     // QTE 시스템 정보
