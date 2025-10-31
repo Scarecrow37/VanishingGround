@@ -175,6 +175,8 @@ void DescriptionPanel::Awake()
 {
     HorizontalPanel::Awake();
 
+    gameObject->SetActive(false);
+
     UpdateContent();
 }
 
