@@ -17,4 +17,7 @@ public:
     void OnEnter() override;
     void OnExit() override;
     void OnUpdate() override;
+
+public:
+    bool WaitPhase = true;
 };

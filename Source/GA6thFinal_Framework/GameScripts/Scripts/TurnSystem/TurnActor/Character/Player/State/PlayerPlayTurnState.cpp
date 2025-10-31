@@ -13,6 +13,7 @@
 
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include <TurnSystem/TurnMode/State/CombatStartPhase.h>
+#include <TurnSystem/TurnMode/State/PlayerActionPhase.h>
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 
@@ -99,23 +100,32 @@ void PlayerPlayTurnState::OnExit()
 
 void PlayerPlayTurnState::OnUpdate() 
 {
-    float dt = UmTime.DeltaTime();
-    switch (_inputState)
+    if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
     {
-    case InputState::NONE:
-        break;
-    case InputState::ACTION_SELECTION:
-        UpdateActionSelectionUI(dt);
-        UpdateAttackButtonHeld(dt);
-        break;
-    case InputState::QUICK_TIME_EVENT:
-        //UpdateQuickTimeEventUI(dt);
-        break;
-    case InputState::ATTACK_EVENT:
-        UpdateAttackEventUI(dt);
-        break;
-    default:
-        break;
+        if (PlayerActionPhase* waitPhase = turnMode->States->PlayerActionPhase)
+        {
+            if (false == waitPhase->WaitPhase)
+            {
+                float dt = UmTime.DeltaTime();
+                switch (_inputState)
+                {
+                case InputState::NONE:
+                    break;
+                case InputState::ACTION_SELECTION:
+                    UpdateActionSelectionUI(dt);
+                    UpdateAttackButtonHeld(dt);
+                    break;
+                case InputState::QUICK_TIME_EVENT:
+                    // UpdateQuickTimeEventUI(dt);
+                    break;
+                case InputState::ATTACK_EVENT:
+                    UpdateAttackEventUI(dt);
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
     }
 }
 
