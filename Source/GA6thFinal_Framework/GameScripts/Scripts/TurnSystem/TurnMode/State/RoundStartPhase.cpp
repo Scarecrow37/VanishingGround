@@ -8,8 +8,6 @@
 #include "TutorialSystem/TutorialSystem.h"
 #include "RoundInfoUI/RoundInfoUIManager.h"
 #include "Token/TokenSystem.h"
-#include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
-#include "Stats/CharacterStats.h"
 
 REGISTER_CLASS(FSMStateFactory, RoundStartPhase)
 

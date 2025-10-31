@@ -5,7 +5,6 @@
 #include "TurnSystem/TurnMode/TurnMode.h"
 #include "RoundInfoUI/RoundInfoUIManager.h"
 #include "Monster/Action/MonsterActionBase.h"
-#include "../../Player/Player.h"
 
 REGISTER_CLASS(FSMStateFactory, EnemyPlayTurnState)
 
