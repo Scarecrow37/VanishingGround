@@ -662,6 +662,7 @@ bool TokenInventory::IsEmpty() const
 
 void TokenInventory::DrawImGuiDebugData() 
 {
+#ifdef _UMEDITOR
     if (TokenSystem* tokenSystem = GetTokenSystem())
     {
         const auto& instances = tokenSystem->GetTokenInstances();
@@ -739,6 +740,7 @@ void TokenInventory::DrawImGuiDebugData()
             ImGui::TreePop();
         }
     }
+#endif
 }
 
 void TokenInventory::UpdateToken(TokenID tokenID)

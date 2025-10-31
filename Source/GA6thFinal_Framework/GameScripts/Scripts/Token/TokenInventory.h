@@ -162,11 +162,13 @@ public:
     /// 유효한 토큰이 하나라도 있는지 확인합니다.
     /// </summary>
     bool IsEmpty() const;
-
+    
     /// <summary>
     /// ImGui 디버그 데이터를 그립니다. (토큰의 스택, 이름 등)
     /// </summary>
     void DrawImGuiDebugData();
+
+    inline const std::vector<TokenID>& GetValidTokenList() const { return _vaildTokenVector; }
 
 private:
     /// <summary>
@@ -183,6 +185,6 @@ private:
 
 private:
     CharacterBase&                      _owner;              // 해당 매니저를 소유한 CharacterBase 인스턴스
-    std::vector<TokenID>                _vaildTokenVector;   // 유효한 토큰 ID 리스트(쌓인 순서)
+    std::vector<TokenID>                _vaildTokenVector;   // 유효한 토큰 ID 리스트(쌓인 순서대로)
     std::unordered_map<TokenID, int>    _tokenTable;         // 모든 토큰 테이블 (스택 카운트가 0인 토큰도 포함)
 };
