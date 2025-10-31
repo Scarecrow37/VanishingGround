@@ -27,6 +27,8 @@ public:
             return u8"무기 공격으로적 처치시";
         case ApplyDamage::TriggerType::PLAYER_TURN_END:
             return u8"플레이어 턴 종료시";
+        case ApplyDamage::TriggerType::ATTACK:
+            return u8"공격시";
         default:
             return u8"NULL";
         }
