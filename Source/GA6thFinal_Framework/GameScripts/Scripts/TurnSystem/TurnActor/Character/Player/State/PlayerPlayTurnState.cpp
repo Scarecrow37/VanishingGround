@@ -307,6 +307,15 @@ void PlayerPlayTurnState::SetAttack()
 
 void PlayerPlayTurnState::SetAttackEnd()
 {
+    if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+    {
+        if (UmCineMotion* camera = mode->GetBattleCamera())
+        {
+            camera->ResetRail(false);
+            camera->StartRail(true);
+        }
+    }
+
     bool succeed = false;
     Player& player   = GetPlayer();
     auto*   animator = player.GetAnimationComponent();
@@ -332,12 +341,6 @@ void PlayerPlayTurnState::SetAttackEnd()
     if (false == succeed)
     {
         player.EndTurn();
-    }
-
-    auto camera = dynamic_cast<UmCineMotion*>(CameraComponent::MainCamera());
-    if (camera)
-    {
-        camera->StartRail(true);
     }
 }
 
@@ -406,6 +409,23 @@ void PlayerPlayTurnState::OnQTEFinish()
 
     if (qteSystem && weaponSystem && weaponModelManager)
     {
+        UmCineMotion* battleCamera = nullptr;
+        float         cameraDuration = 0.f;
+        if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+        {
+            if (battleCamera = mode->GetBattleCamera())
+            {
+                cameraDuration = battleCamera->Duration;
+            }
+        }
+
+        if (battleCamera)
+        {
+            battleCamera->SetMainCamera();
+            battleCamera->ResetRail(true);
+            battleCamera->StartRail(false);
+        }
+
         QTE::OverallResult& results = qteSystem->GetQTEOverallResult();
         for (auto& result : results.NoteResults)
         {
@@ -416,8 +436,7 @@ void PlayerPlayTurnState::OnQTEFinish()
                 if (weaponModel.IsValid())
                 {
                     SetWeaponModelCallback(weaponModel, result);
-                    SetWeaponModelTransform(weaponModel, result);
-
+                    SetWeaponModelTransform(weaponModel, result);                   
                     if (const QTE::NoteData* note = result.NoteData)
                     {
                         // 애니메이션 Hit 이벤트 콜백 등록
@@ -430,7 +449,7 @@ void PlayerPlayTurnState::OnQTEFinish()
                                 const float noteTime  = note->Time;
                                 const float hitTime   = context->Time;
                                 const float noteDelay = note->WeaponAnimationDelay;
-                                float       delta     = noteTime - hitTime + noteDelay + animOffset;
+                                float       delta     = noteTime - hitTime + noteDelay + animOffset + cameraDuration;
                                 // 0보다 낮으면 0초로 맞추고 나머지를 해당 오프셋만큼 이동
                                 if (delta < 0)
                                 {
