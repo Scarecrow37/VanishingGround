@@ -227,14 +227,14 @@ public:
     inline const std::map<std::string, std::string>& GetAnimationKeyMap() const { return ReflectFields->AnimationKeyMap; }
 
 private:
-    IAnimator*                  _animator;
-    EventQueue                  _eventQueue;
-    AnimationData*              _currentAnimationData = nullptr; // 현재 애니메이션 데이터
-    AnimationData               _mainAnimationData;
-    std::deque<AnimationData>   _overrideAnimationStack; 
-    AnimationData*              _lastAnimationData = nullptr;
-    bool                        _isBuildingOverrideAnimation = false;
-    UINT                        _prevBeginBuildAnimationID    = 0;
+    IAnimator*                _animator                     = nullptr;
+    EventQueue                _eventQueue;
+    AnimationData*            _currentAnimationData         = nullptr; // 현재 애니메이션 데이터
+    AnimationData             _mainAnimationData;
+    std::deque<AnimationData> _overrideAnimationStack;
+    AnimationData*            _lastAnimationData            = nullptr;
+    bool                      _isBuildingOverrideAnimation  = false;
+    UINT                      _prevBeginBuildAnimationID    = 0;
     
     std::pair<bool, int>        _nextAnimationFlag; // 다음 애니메이션 데이터 (first: isValid, second: NextAnimationData)
     
