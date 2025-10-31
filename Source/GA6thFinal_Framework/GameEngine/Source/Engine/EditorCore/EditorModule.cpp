@@ -269,7 +269,7 @@ void EditorModule::EditorPlayMode::Play()
             UmSceneManager.WriteSceneToFile(*scene, writePath.string(), true);
             UmSceneManager.LoadScene(path.string()); 
             SetPlayModeColor();
-
+            UmTime.TimeScale = 1.f;
             #ifdef _UMEDITOR
             _isPlay = true;
             #endif // _UMEDITOR
@@ -315,6 +315,7 @@ void EditorModule::EditorPlayMode::Stop()
         }
         UmSceneManager.LoadScene(_playSceneGuid.ToPath().string());
         Global::editorModule->SetGuiThemeStyle();
+        UmTime.TimeScale = 1.f;
 
         #ifdef _UMEDITOR
         _isPlay = false;

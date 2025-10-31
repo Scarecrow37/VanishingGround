@@ -17,14 +17,12 @@ void EGameObjectFactory::Engine::RegisterFileEvents()
 void EGameObjectFactory::Engine::Finalize()
 {
     EGameObjectFactory& factory = UmGameObjectFactory;
+    factory._prefabInstanceOverride.clear();
+    factory._prefabGuidQueue.clear();
     factory._prefabObjectMap.clear();
     factory._prefabInstanceList.clear();
     factory._newGameObjectFuncMap.clear();
     factory._newGameObjectKeyVec.clear();
-    factory._prefabObjectMap.clear();
-    factory._prefabGuidQueue.clear();
-    factory._prefabInstanceList.clear();
-    factory._prefabInstanceOverride.clear();
 }
 
 void EGameObjectFactory::WritePrefabGuid(const File::Path& path, YAML::Node& data) 
