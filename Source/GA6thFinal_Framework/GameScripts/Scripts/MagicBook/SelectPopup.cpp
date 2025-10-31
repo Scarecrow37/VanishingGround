@@ -35,9 +35,9 @@ SelectPopup::SelectPopup()
 
 SelectPopup::~SelectPopup() = default;
 
-void SelectPopup::SetSelectMagicBook(const std::string& imagePath, const std::string& title, SelectMagicBook* magicBook)
+void SelectPopup::SetSelectMagicBook(const File::Guid& imgaeGuid, const std::string& title, SelectMagicBook* magicBook)
 {
-    Transform::ForeachBFS(transform, [this, imagePath, title](Transform* tr) {
+    Transform::ForeachBFS(transform, [this, imgaeGuid, title](Transform* tr) {
         auto&            gameObject = tr->gameObject;
         std::string_view objectName = gameObject->ToString();
 
@@ -45,7 +45,7 @@ void SelectPopup::SetSelectMagicBook(const std::string& imagePath, const std::st
         {
             if (ImageElement* element = tr->gameObject->GetComponent<ImageElement>())
             {
-                element->SetImage(UmFileSystem.GetGuidFromPath(imagePath));
+                element->SetImage(imgaeGuid);
             }
         }
         else if ("Select Magic Book" == objectName)
@@ -251,12 +251,13 @@ void SelectPopup::SetSelectMagicBook(const std::string& imagePath, const std::st
                         }
                     }
                 }
-           
                 File::Path path = File::Guid(ReflectFields->NextSceneGuid).ToPath();
                 if (auto transitionManager = SingletonComponent<SceneTransitionComponent>::GetInstance())
                 {
-                    transitionManager->SceneTransitionFade("in", "out",
-                                                           [path]() { UmSceneManager.LoadScene(path.string()); });
+                    
+                    transitionManager->SceneTransitionFade("in", "out", [path]() { 
+                        UmSceneManager.LoadScene(path.string());
+                        });
                 }
                 else
                 {

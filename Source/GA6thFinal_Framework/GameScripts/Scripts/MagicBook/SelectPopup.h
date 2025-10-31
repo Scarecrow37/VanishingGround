@@ -15,7 +15,7 @@ public:
     PROPERTY(NextScene)
         
 public:
-    void SetSelectMagicBook(const std::string& imagePath, const std::string& title, SelectMagicBook* magicBook);   
+    void SetSelectMagicBook(const File::Guid& imgaeGuid, const std::string& title, SelectMagicBook* magicBook);   
 
 protected:
     REFLECT_FIELDS_BEGIN(UISFXNavigationComponent)

@@ -27,7 +27,7 @@ namespace TokenObject
     {
         const int   tokenID     = GetTokenID();
         const int   param       = GetTokenParam(0);
-        damage -= ContentMath::CeilPercentage(damage, param);
+        damage = ContentMath::CeilPercentage(damage, 100 - param);
 
         UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(attackerData.Source));
     }
@@ -36,7 +36,7 @@ namespace TokenObject
     {
         const int   tokenID     = GetTokenID();
         const int   param       = GetTokenParam(0);
-        damage -= ContentMath::CeilPercentage(damage, param);
+        damage = ContentMath::CeilPercentage(damage, 100 - param);
 
         UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(attackerData.Source));
     }
