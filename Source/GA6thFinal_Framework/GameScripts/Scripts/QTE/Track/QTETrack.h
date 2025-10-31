@@ -42,7 +42,7 @@ namespace QTE
         REFLECT_FIELDS_END(Track)
 
     public:
-        Track(Track& rhs)
+        Track(const Track& rhs)
         {
             *ReflectFields = *rhs.ReflectFields;
             _filePath      = rhs._filePath;
@@ -50,11 +50,11 @@ namespace QTE
         }
         Track(Track&& rhs) noexcept
         {
-            *ReflectFields = *rhs.ReflectFields;
-            _filePath      = rhs._filePath;
-            _eventTrack    = rhs._eventTrack;
+            *ReflectFields = std::move(*rhs.ReflectFields);
+            _filePath      = std::move(rhs._filePath);
+            _eventTrack    = std::move(rhs._eventTrack);
         }
-        Track& operator=(Track& rhs)
+        Track& operator=(const Track& rhs)
         {
             if (this == &rhs)
                 return *this;
@@ -69,9 +69,9 @@ namespace QTE
             if (this == &rhs)
                 return *this;
 
-            *ReflectFields = *rhs.ReflectFields;
-            _filePath      = rhs._filePath;
-            _eventTrack    = rhs._eventTrack;
+            *ReflectFields = std::move(*rhs.ReflectFields);
+            _filePath      = std::move(rhs._filePath);
+            _eventTrack    = std::move(rhs._eventTrack);
             return *this;
         }
 

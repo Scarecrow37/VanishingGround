@@ -123,7 +123,7 @@ void PlayerPlayTurnState::OnUpdate()
 
 void PlayerPlayTurnState::PressedButtonA(const Input::Controller& controller)
 {
-    if (false == FocusHelper::CheckFocus(FocusHelper::IS_FOCUSED_ANITHING))
+    if (false == FocusHelper::CheckFocus(FocusHelper::IS_FOCUSED_ANYTHING))
     {
         _isDownAButton = true;
         if (InputState::ACTION_SELECTION == _inputState)

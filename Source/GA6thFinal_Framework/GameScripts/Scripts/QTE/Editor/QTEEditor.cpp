@@ -1047,6 +1047,6 @@ float QTEEditor::CalcNoteAlphaFromPositionX(float posX)
 
         return alpha;
     }
-    return 1.0f;
 #endif // _UMEDITOR
+    return 1.0f;
 }
