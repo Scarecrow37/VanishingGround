@@ -78,7 +78,7 @@ public:
 
 public:
     std::weak_ptr<DamageElement> MakeDamage(int                    damage,
-                                            std::span<std::string> revelations = std::span<std::string>()) const;
+                                            std::span<const std::string> revelations = std::span<const std::string>()) const;
 
 protected:
     SIZE MeasureOverride(SIZE availableSize) override;

@@ -7,6 +7,8 @@
 #include "ViewModels/Revelations/RevelationsViewModel.h"
 #include "UI/Animations/FadeUIComponent/FadeUIComponent.h"
 #include "UI/Elements/SpriteAnimation/SpriteAnimationElement.h"
+#include "TutorialSystem/TutorialSystem.h"
+#include "UI/Animations/ChildsAnimationsController/ChildsAnimationsController.h"
 
 UMREAL_COMPONENT(RevelationsView)
 
@@ -14,6 +16,7 @@ RevelationsView::~RevelationsView() = default;
 
 void RevelationsView::Awake()
 {
+    gameObject->AddTag(TAG);
     Component::Awake();
     FindRevelationUIs();
 }
@@ -227,6 +230,10 @@ std::pair<GameObject*, RevelationUI> RevelationsView::FindRevelationUI(const std
             if (nullptr == revelationUI.DescriptionElement && object.CompareTag("Description"))
             {
                 revelationUI.DescriptionElement = object.GetComponent<DescriptionPanel>();
+            }
+            if (nullptr == revelationUI.AnimationsController && object.CompareTag("Animations"))
+            {
+                revelationUI.AnimationsController = object.GetComponent<ChildsAnimationsController>();
             }
         });
 

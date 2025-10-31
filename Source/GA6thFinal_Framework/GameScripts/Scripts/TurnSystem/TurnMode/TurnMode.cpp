@@ -199,6 +199,7 @@ void TurnMode::FinishCurrentTurn()
 {
     _turnList.pop_front();
     _currTurnActor = nullptr;
+    _currentTurnRevelationActiveFlag = false;
 }
 
 int TurnMode::GetPendingActorCount()

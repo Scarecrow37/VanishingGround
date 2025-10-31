@@ -7,6 +7,7 @@
 #include <RevelationSystem/RevelationSystem.h>
 #include "TutorialSystem/TutorialSystem.h"
 #include "RoundInfoUI/RoundInfoUIManager.h"
+#include "Token/TokenSystem.h"
 
 REGISTER_CLASS(FSMStateFactory, RoundStartPhase)
 
@@ -49,12 +50,9 @@ void RoundStartPhase::OnEnter()
 
     NotifyRoundStart();
 
-    //캐릭터 사망 확인
-    UpdateCharacterDead();   
-
     if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
     {
-        system->Show({805900, 805901});
+        system->Show(805900);
     }  
 
     if (auto roundInfoUIManager = _roundInfoUIManager.lock())
@@ -66,8 +64,16 @@ void RoundStartPhase::OnEnter()
             msg += std::to_string(currRound);
             roundInfoUIManager->FadeInfoUI(msg);
 
-            float uiAnimationTime =  roundInfoUIManager->UIAnimationTime;
-            UmTime.Invoke(roundInfoUIManager.get(), uiAnimationTime,
+            float delayTime = roundInfoUIManager->UIAnimationTime;
+            if (TokenSystem* system = SingletonComponent<TokenSystem>::GetInstance())
+            {
+                float tokenDelayTime = system->TokenDamageDelayTime * 2; // 두개의 토큰 대미지를 기다려야함 (출혈, 중독)     
+                if (delayTime < tokenDelayTime)
+                {
+                    delayTime = tokenDelayTime;
+                }     
+            }        
+            UmTime.Invoke(roundInfoUIManager.get(), delayTime,
             [this, weakFSM = GetFSM().GetWeakPtrAs<FiniteStateMachine>()]() 
             {   
                 if (auto fsm = weakFSM.lock())
@@ -79,13 +85,22 @@ void RoundStartPhase::OnEnter()
     }
     else
     {
-        _isPhaseEnd = true;
+        if (TokenSystem* system = SingletonComponent<TokenSystem>::GetInstance())
+        {
+            float delayTime = system->TokenDamageDelayTime * 2; //두개의 토큰 대미지를 기다려야함 (출혈, 중독)     
+            UmTime.Invoke(GetFSM(), delayTime, [this]() { _isPhaseEnd = true; });
+        }
+        else
+        {
+            _isPhaseEnd = true;
+        }   
     }
 }
 
 void RoundStartPhase::OnExit() 
 {
-    
+    // 캐릭터 사망 확인
+    UpdateCharacterDead();
 }
 
 void RoundStartPhase::OnUpdate() 

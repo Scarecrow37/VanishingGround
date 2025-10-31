@@ -13,12 +13,19 @@
 #include <Stats/Enemy/EnemyStatsComponent.h>
 #include <Monster/Common/MonsterCommon.h>
 #include <Monster/System/MonsterSystem.h>
+#include <RevelationSystem/RevelationSystem.h>
 
 void Battle::operator()(Player& attacker, EnemyTargetFlag targetFlag, QTE::NoteResult& result)
 {
     TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
     if (turnMode)
     {
+        // 진입 전 초기화
+        if (RevelationSystem* system = SingletonComponent<RevelationSystem>::GetInstance())
+        {
+            system->ClearBattleActiveRevelations();
+        }
+
         //연격은 최우선적으로 계산
         currentChainDamageSet.clear();
         std::vector<Enemy*> chainTargets = GetTargetsFromFlags(targetFlag);
@@ -37,6 +44,15 @@ void Battle::operator()(Player& attacker, EnemyTargetFlag targetFlag, QTE::NoteR
         for (auto& enemy : targets)
         {
             BattleStart(attacker, *enemy, result);
+
+            // 배틀에 발동된 계시 목록 초기화
+            if (RevelationSystem* system = SingletonComponent<RevelationSystem>::GetInstance())
+            {
+                system->ClearBattleActiveRevelations();
+            }
+
+            // 계시 발동 체크 플래그 초기화
+            turnMode->RevelationActiveFlag = false;
         }
     }
 }

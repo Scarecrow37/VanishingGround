@@ -30,6 +30,13 @@ public:
     const WeaponElement* GetWeaponToName(const std::string& name);
 
     /// <summary>
+    /// ID로 무기를 찾습니다.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    const WeaponElement* GetWeaponToID(std::u8string_view id);
+
+    /// <summary>
     /// 이름을 key로 사용하는 WeaponTable을 반환합니다.
     /// </summary>
     /// <returns></returns>
