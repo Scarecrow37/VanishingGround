@@ -367,7 +367,7 @@ void Renderer::Render()
 }
 
 void Renderer::Flip()
-{    
+{
     Global::device->Execute();
     Global::device->Flip();
     Global::device->ResetCommands();

@@ -262,7 +262,7 @@ void RenderScene::UpdateGlobal()
     _numLight = {};
     for (auto& light : lights)
     {
-        if (!light->IsActive())
+        if (!light->IsActive() || !light->IsAlive())
             continue;
 
         switch (light->GetType())
@@ -322,7 +322,7 @@ void RenderScene::UpdateObject()
     UINT index = 0;
     for (auto& component : _meshRenderQueue)
     {
-        if (!component->IsActive())
+        if (!component->IsActive() || !component->IsAlive())
         {
             continue;
         }
@@ -416,10 +416,11 @@ void RenderScene::UpdateObject()
 void RenderScene::UpdateUI()
 {            
     std::vector<std::tuple<Matrix, UIMaterial, UIRenderer*>> uiDatas;
-    uiDatas.reserve(_uiRenderQueue.size());    
+    uiDatas.reserve(_uiRenderQueue.size());
+
     for (auto& component : _uiRenderQueue)
     {
-        if (!component->IsActive())
+        if (!component->IsActive() || !component->IsAlive())
             continue;
 
         if (UIRenderer::Type::SPRITE == component->GetType())

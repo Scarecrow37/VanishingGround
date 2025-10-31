@@ -43,9 +43,12 @@ void LightCore::UpdateLightQueue()
 void LightCore::Update(const float deltaTime)
 {
     for (auto& [sceneName, lights] : _lights)
-    {        
+    {
         for (auto& light : lights)
-        {           
+        {
+            if (!light->IsActive() || !light->IsAlive())
+                continue;
+
             light->Update(deltaTime);
         }
     }
