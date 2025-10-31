@@ -19,10 +19,10 @@ public:
 
 public:
     REFLECT_PROPERTY(FocusImagePath, UnFocusImagePath)
-    GETTER_ONLY(std::string, FocusImagePath) { return ReflectFields->FocusImagePath; }
+    GETTER_ONLY(std::string, FocusImagePath) { return File::Guid(ReflectFields->FocusImageGuid).ToPath().string(); }
     PROPERTY(FocusImagePath)
 
-    GETTER_ONLY(std::string, UnFocusImagePath) { return ReflectFields->UnFocusImagePath; }
+    GETTER_ONLY(std::string, UnFocusImagePath) { return File::Guid(ReflectFields->UnFocusImageGuid).ToPath().string(); }
     PROPERTY(UnFocusImagePath)
 
     const std::string& GetBookID() { return ReflectFields->TitleID; }
@@ -30,8 +30,8 @@ public:
 protected:
     REFLECT_FIELDS_BEGIN(UISFXNavigationComponent)
     std::string TitleID;
-    std::string FocusImagePath;
-    std::string UnFocusImagePath;
+    std::string FocusImageGuid;
+    std::string UnFocusImageGuid;
     std::string FocusDescriptionID;
     std::string UnFocusDescriptionID;
     REFLECT_FIELDS_END(SelectMagicBook)
@@ -39,7 +39,7 @@ protected:
     void ImGuiDrawPropertysEvent() override;
 
 private:
-    void ChangeBookImage(GameObject& targetGameObject, const std::string& imagePath);
+    void ChangeBookImage(GameObject& targetGameObject, const File::Guid& imgaeGuid);
     void ChangeTitle(GameObject& targetGameObject, const float alpha);
     void ChangeDescription(GameObject& targetGameObject, ExcelDataBase* dataBase, const std::string& ID);
     void ChangeHPHUD(GameObject& targetGameObject, const float alpha);

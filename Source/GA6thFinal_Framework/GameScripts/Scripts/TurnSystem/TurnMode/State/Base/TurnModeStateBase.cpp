@@ -6,6 +6,7 @@
 #include "AccessorySystem/AccessorySystem.h"
 #include "TurnSystem/TurnMode/State/CombatStartPhase.h"
 #include "TurnSystem/TurnActor/Character/CharacterBase.h"
+#include "Stats/CharacterStats.h"
 
 TurnModeStateBase::TurnModeStateBase() {}
 
@@ -50,6 +51,24 @@ void TurnModeStateBase::UpdateCharacterDead(const std::function<void(CharacterBa
                 {
                     deadCallback(*character);
                 }             
+            }
+        }
+    }
+}
+
+void TurnModeStateBase::ApplyReduceHP()
+{
+    if (_turnMode)
+    {
+        const auto& characters = _turnMode->GetCharacters();
+        for (auto character : characters)
+        {
+            if (character)
+            {
+                if (auto* stats = character->GetCharacterStats())
+                {
+                    stats->ApplyReduce();
+                }
             }
         }
     }

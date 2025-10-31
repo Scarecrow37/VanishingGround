@@ -26,8 +26,8 @@ namespace TokenObject
         // 일격 데미지 감소
         if (QTE::QTE_RESULT_NORMAL == attackerData.NoteResult.Result)
         {
-            const int   param = GetTokenParam(0);
-            damage -= ContentMath::CeilPercentage(damage, param);
+            const int param = GetTokenParam(0);
+            damage = ContentMath::CeilPercentage(damage, 100 - param);
         }
     }
 } // namespace TokenObject

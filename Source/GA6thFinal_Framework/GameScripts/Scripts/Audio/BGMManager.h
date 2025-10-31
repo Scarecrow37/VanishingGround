@@ -40,7 +40,8 @@ protected:
     void DeserializedReflectEvent() override;
 
 private:
-    SingletonObject<BGMManager> _singletonObject{this};
+    SingletonObject<BGMManager>     _singletonObject{this};
+    SingletonComponent<BGMManager>  _singletonComponent{this};
     std::string _currBGMKey;
     std::string _prevBGMKey;
     Audio::AudioHandle _currBGMHandle;

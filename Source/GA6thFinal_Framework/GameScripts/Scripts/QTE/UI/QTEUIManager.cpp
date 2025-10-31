@@ -19,7 +19,6 @@ QTEUIManager::~QTEUIManager() = default;
 
 void QTEUIManager::OnQTEEnter() 
 {
-    ResetUI();
     _fieldUI.Active(true);
     _guideUI.Active(true);
     _inputViewerUI.Active(true);
@@ -205,12 +204,7 @@ void QTEUIManager::Start()
     size_t poolSize = static_cast<size_t>(ReflectFields->PoolSize);
     _fieldUI.Initialize(ReflectFields->NotePrefabGuid, ReflectFields->EffectPrefabGuid, poolSize);
     _inputViewerUI.Initialize(ReflectFields->ButtonPrefabGuid, poolSize);
-    ResetUI();
-    _backGroundUI.Alpha(0.0f);
-    _backGroundUI.Active(true);
-    _fieldUI.Active(false);
-    _guideUI.Active(false);
-    _inputViewerUI.Active(false);
+    SetDefaultState();
 }
 
 void QTEUIManager::Update() 
@@ -323,6 +317,16 @@ void QTEUIManager::DrawDebugJudgeLine()
             }
         }
     }
+}
+
+void QTEUIManager::SetDefaultState()
+{
+    ResetUI();
+    _backGroundUI.Alpha(0.0f);
+    _backGroundUI.Active(true);
+    _fieldUI.Active(false);
+    _guideUI.Active(false);
+    _inputViewerUI.Active(false);
 }
 
 void QTEUIManager::FindUIComponents()

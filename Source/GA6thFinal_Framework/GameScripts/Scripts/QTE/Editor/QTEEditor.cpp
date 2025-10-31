@@ -7,7 +7,9 @@
 
 QTEEditor::QTEEditor() 
 {
-    int flags = Timeline::SequencerEditor::FLAGS_ALLOW_DRAG_CURRENT_LINE |
+#ifdef _UMEDITOR
+    int flags =
+        Timeline::SequencerEditor::FLAGS_ALLOW_DRAG_CURRENT_LINE |
                 Timeline::SequencerEditor::FLAGS_ALLOW_DRAG_MIN_MAX_LINE |
                 Timeline::SequencerEditor::FLAGS_ALLOW_DRAG_CONTEXT |
                 Timeline::SequencerEditor::FLAGS_ALLOW_POPUP_LOWER_CANVAS_MENU |
@@ -45,6 +47,7 @@ QTEEditor::QTEEditor()
     _lastUsedPath = UmFileSystem.GetRootPath();
 
     _sequencerEditor.SetEventTrack(_editTrack.GetEventTrack());
+#endif // _UMEDITOR
 }
 
 QTEEditor::~QTEEditor() 
@@ -54,6 +57,7 @@ QTEEditor::~QTEEditor()
 
 void QTEEditor::Show()
 {
+#ifdef _UMEDITOR
     if (_editorOpened)
     {
         ImGui::SetNextWindowSize(ImVec2(800, 600), ImGuiCond_FirstUseEver);
@@ -83,16 +87,20 @@ void QTEEditor::Show()
 
         ImGui::End();
     }
+#endif // _UMEDITOR
 }
 
 void QTEEditor::Open() 
 {
+#ifdef _UMEDITOR
     _previewTrack = nullptr;
     _editorOpened = true;
+#endif // _UMEDITOR
 }
 
 bool QTEEditor::NewFileWithDialog(QTE::Track* qteTrack)
 {
+#ifdef _UMEDITOR
     if (qteTrack == nullptr)
     {
         return false;
@@ -116,11 +124,13 @@ bool QTEEditor::NewFileWithDialog(QTE::Track* qteTrack)
     {
         return qteTrack->NewFile(out);
     }
+#endif // _UMEDITOR
     return false;
 }
 
 bool QTEEditor::LoadFileWithDialog(QTE::Track* qteTrack)
 {
+#ifdef _UMEDITOR
     if (qteTrack == nullptr)
     {
         return false;
@@ -135,11 +145,13 @@ bool QTEEditor::LoadFileWithDialog(QTE::Track* qteTrack)
         _lastUsedPath = out.front().parent_path();
         return qteTrack->LoadFile(out.front());
     }
+#endif // _UMEDITOR
     return false;
 }
 
 bool QTEEditor::SaveFileWithDialog(QTE::Track* qteTrack)
 {
+#ifdef _UMEDITOR
     if (qteTrack == nullptr)
     {
         return false;
@@ -153,12 +165,13 @@ bool QTEEditor::SaveFileWithDialog(QTE::Track* qteTrack)
         _lastUsedPath = out.parent_path();
         return qteTrack->SaveFile(out);
     }
+#endif // _UMEDITOR
     return false;
 }
 
 void QTEEditor::ShowSystemDetail()
 {
-
+#ifdef _UMEDITOR
     ImVec2 availSize  = ImGui::GetContentRegionAvail();
     ImVec2 canvasSize = ImVec2(availSize.x * 0.3f, availSize.y);
     // QTE 시스템 정보
@@ -379,10 +392,12 @@ void QTEEditor::ShowSystemDetail()
         }
     }
     ImGui::EndChild();
+#endif // _UMEDITOR
 }
 
 void QTEEditor::ShowTrackDetail() 
 {
+#ifdef _UMEDITOR
     // QTE 트랙 정보
     ImGui::SameLine();
     ImVec2 canvasSize = ImGui::GetContentRegionAvail();
@@ -414,10 +429,12 @@ void QTEEditor::ShowTrackDetail()
         }
     }
     ImGui::EndChild();
+#endif // _UMEDITOR
 }
 
 void QTEEditor::ShowTrackDetailMenu()
 {
+#ifdef _UMEDITOR
     if (ImGui::BeginMenuBar())
     {
         if (ImGui::BeginMenu("File"))
@@ -442,10 +459,12 @@ void QTEEditor::ShowTrackDetailMenu()
         }
         ImGui::EndMenuBar();
     }
+#endif // _UMEDITOR
 }
 
 void QTEEditor::ShowEditFrame() 
 {
+#ifdef _UMEDITOR
     ImVec2 availSize    = ImGui::GetContentRegionAvail();
     float  labelWidth   = ImClamp(availSize.x * 0.2f, 30.0f, 150.0f);
     ImVec2 size         = ImGui::GetItemRectSize();
@@ -526,17 +545,19 @@ void QTEEditor::ShowEditFrame()
 
         // Preview Canvas
         ImGui::BeginChild("##preview_canvas", ImVec2(0, 0), ImGuiChildFlags_Border);
-        DrawPreview(&_editTrack);
+        DrawPreview(_editTrack);
         ImGui::EndChild();
     }
     if (false == isFileLoaded)
     {
         ImGui::EndDisabled();
     }
+#endif // _UMEDITOR
 }
 
 void QTEEditor::ShowSequencerFrame(std::shared_ptr<Timeline::EventTrack> track)
 {
+#ifdef _UMEDITOR
     if (track)
     {
         float heightScale = 0.6f;
@@ -607,10 +628,12 @@ void QTEEditor::ShowSequencerFrame(std::shared_ptr<Timeline::EventTrack> track)
             ImGui::EndChild();
         }
     }
+#endif // _UMEDITOR
 }
 
 void QTEEditor::ShowPreviewFrame() 
 {
+#ifdef _UMEDITOR
     if (nullptr == _previewTrack)
     {
         ImGui::TextUnformatted("No Selected QTE Track");
@@ -671,25 +694,29 @@ void QTEEditor::ShowPreviewFrame()
         }
 
         // Preview Canvas
-        ImGui::BeginChild("##preview_canvas", ImVec2(0, 0), ImGuiChildFlags_Border);
-        DrawPreview(_previewTrack);
-        ImGui::EndChild();
+        if (_previewTrack)
+        {
+            ImGui::BeginChild("##preview_canvas", ImVec2(0, 0), ImGuiChildFlags_Border);
+            DrawPreview(*_previewTrack);
+            ImGui::EndChild();
+        }
     }
+#endif // _UMEDITOR
 }
 
-void QTEEditor::ShowTrackFromWeapon(const QTE::Track* track, const std::string& weaponName, int weaponID, int index) 
+void QTEEditor::ShowTrackFromWeapon(const QTE::Track& track, const std::string& weaponName, int weaponID, int index) 
 {
+#ifdef _UMEDITOR
     auto system   = SingletonComponent<QTESystem>::GetInstance();
-    bool selected = (_previewTrack == track);
-    if (nullptr == system || nullptr == track)
+    bool selected = (_previewTrack == &track);
+    if (nullptr == system)
     {
         return;
     }
     std::string label = std::format("Track {}", index + 1);
     if (ImGui::Selectable(label.c_str(), selected))
     {
-        QTE::Track* track = system->GetMappingTrackToWeaponID(weaponID, index);
-        if (track)
+        if (QTE::Track* track = system->GetMappingTrackToWeaponID(weaponID, index))
         {
             _previewTrack = track;
         }
@@ -714,10 +741,12 @@ void QTEEditor::ShowTrackFromWeapon(const QTE::Track* track, const std::string& 
         }
         ImGui::EndPopup();
     }
+#endif // _UMEDITOR
 }
 
 void QTEEditor::ProcessInputEvent() 
 {
+#ifdef _UMEDITOR
     auto        track    = _editTrack.GetEventTrack().lock();
     UINT        id       = _sequencerEditor.GetSelectedContextID();
     const float minFrame = _editTrack.GetMinFrame();
@@ -790,17 +819,19 @@ void QTEEditor::ProcessInputEvent()
             }
         }
     }
+#endif // _UMEDITOR
 }
 
-void QTEEditor::DrawPreview(QTE::Track* qteTrack)
+void QTEEditor::DrawPreview(QTE::Track& qteTrack)
 {
+#ifdef _UMEDITOR
     ImVec2 buttonSize = ImVec2(ImGui::GetItemRectSize().y, ImGui::GetItemRectSize().y); // 정사각형 버튼
 
     auto* window = ImGui::GetCurrentWindow();
-    if (qteTrack && window && window->DrawList)
+    if (window && window->DrawList)
     {
         auto system = SingletonComponent<QTESystem>::GetInstance();
-        auto track  = qteTrack->GetEventTrack().lock();
+        auto track  = qteTrack.GetEventTrack().lock();
         if (system && track)
         {
             float maxFrame = track->GetMaxFrame();
@@ -891,22 +922,24 @@ void QTEEditor::DrawPreview(QTE::Track* qteTrack)
             }
         }
     }
+#endif // _UMEDITOR
 }
 
-void QTEEditor::DrawJudgeRange(QTE::Track* qteTrack, std::pair<float, float> range, ImU32 judgeCol, ImU32 bgCol)
+void QTEEditor::DrawJudgeRange(QTE::Track& qteTrack, std::pair<float, float> range, ImU32 judgeCol, ImU32 bgCol)
 {
+#ifdef _UMEDITOR
     auto* window = ImGui::GetCurrentWindow();
     auto* system = SingletonComponent<QTESystem>::GetInstance();
     if (system && window)
     {
         auto* drawList = window->DrawList;
-        if (drawList && qteTrack)
+        if (drawList)
         {
             ImVec2 offset           = ImGui::GetCursorScreenPos();
             ImVec2 availSize        = ImGui::GetContentRegionAvail();
             float  centerPosFactor  = 0.8f;
             float  systemSpeed      = system->GetQTESpeedScale();
-            float  trackSpeed       = qteTrack->GetQTESpeedScale();
+            float  trackSpeed       = qteTrack.GetQTESpeedScale();
             auto& [min, max]        = range;
             float centerPosX        = availSize.x * centerPosFactor;
             float minPosX           = centerPosX * (1.0f + min * systemSpeed * trackSpeed);
@@ -924,22 +957,24 @@ void QTEEditor::DrawJudgeRange(QTE::Track* qteTrack, std::pair<float, float> ran
                                     offset + ImVec2(maxPosX, availSize.y * 0.6f), judgeCol);
         }
     }
+#endif // _UMEDITOR
 }
 
-void QTEEditor::DrawNote(QTE::Track* qteTrack, Timeline::EventContext* context, float circleRadius, ImColor noteCol,
+void QTEEditor::DrawNote(QTE::Track& qteTrack, Timeline::EventContext* context, float circleRadius, ImColor noteCol,
                          ImColor bgCol)
 {
+#ifdef _UMEDITOR
     auto* window = ImGui::GetCurrentWindow();
     auto* system = SingletonComponent<QTESystem>::GetInstance();
     if (system && window)
     {
         auto* drawList = window->DrawList;
-        if (drawList && context && qteTrack)
+        if (drawList && context)
         {
             ImVec2 offset           = ImGui::GetCursorScreenPos();
             ImVec2 availSize        = ImGui::GetContentRegionAvail();
             float  systemSpeed      = system->GetQTESpeedScale();
-            float  trackSpeed       = qteTrack->GetQTESpeedScale();
+            float  trackSpeed       = qteTrack.GetQTESpeedScale();
             float  timer            = _previewTimer * systemSpeed * trackSpeed;
             float  noteTime         = context->Time * systemSpeed * trackSpeed;
             float  centerPosFactor  = 0.8f;
@@ -971,10 +1006,12 @@ void QTEEditor::DrawNote(QTE::Track* qteTrack, Timeline::EventContext* context, 
             }
         }
     }
+#endif // _UMEDITOR
 }
 
 float QTEEditor::CalcNoteAlphaFromPositionX(float posX)
 {
+#ifdef _UMEDITOR
     auto system = SingletonComponent<QTESystem>::GetInstance();
     if (system)
     {
@@ -1010,5 +1047,6 @@ float QTEEditor::CalcNoteAlphaFromPositionX(float posX)
 
         return alpha;
     }
+#endif // _UMEDITOR
     return 1.0f;
 }

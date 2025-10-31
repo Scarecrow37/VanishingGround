@@ -3,6 +3,10 @@
 
 float Fader::Fade()
 {
+    if (0.0f >= _duration)
+    {
+        return 0.0f;
+    }
     switch (_fadeMode)
     {
     case Fader::FADE_NONE:

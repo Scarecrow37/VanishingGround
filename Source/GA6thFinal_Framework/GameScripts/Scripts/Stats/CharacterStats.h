@@ -69,21 +69,27 @@ struct CharacterStats : public TurnActorStats
     PROPERTY(StunResistanceMultiplier)
     // 기절 저항 수치 획득 배율
 
+public:
+    void ApplyReduce();
+
 protected:
     REFLECT_FIELDS_BEGIN(TurnActorStats)
-    int MaxHP      = 100;
-    int MaxMP      = 100;
-    int MaxChainRoundCount = 1;
-    int StunResistance     = 0;
+    int   MaxHP                    = 100;
+    int   MaxMP                    = 100;
+    int   MaxChainRoundCount       = 1;
+    int   StunResistance           = 0;
     float StunResistanceMultiplier = 1.25f;
     REFLECT_FIELDS_END(CharacterStats)
 
     MVVM::Model<std::pair<int, int>> _hpModel;
-    int _currentHP = 100;
-    MVVM::Model<int> _currentChainCount = 0;
-    int _currentChainRoundCount = 0;
+    int                              _currentHP = 100;
+
+    MVVM::Model<std::pair<int, int>> _reduceHpModel = std::make_pair(0, 0);
+
+    MVVM::Model<int> _currentChainCount      = 0;
+    int              _currentChainRoundCount = 0;
+
     MVVM::Model<int> _sturnResistanceModel;
 
     void DeserializedReflectEvent() override;
 };
-
