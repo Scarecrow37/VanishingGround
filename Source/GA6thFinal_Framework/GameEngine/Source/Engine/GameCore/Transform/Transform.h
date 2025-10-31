@@ -646,7 +646,7 @@ inline void Transform::ForeachExPostOrder(Transform& root, bool checkValid, cons
     trStack.emplace_back(&root, 0);
     while (trStack.empty() == false)
     {
-        auto& [currTr, currentDepth] = trStack.back();
+        auto [currTr, currentDepth] = trStack.back();
         trStack.pop_back();
         if (currTr)
         {
@@ -670,7 +670,7 @@ inline void Transform::ForeachExDFS(Transform& root, bool checkValid, const std:
     trStack.emplace_back(&root, 0);
     while (trStack.empty() == false)
     {
-        auto& [currTr, currentDepth] = trStack.back();
+        auto [currTr, currentDepth] = trStack.back();
         trStack.pop_back();
         if (currTr)
         {
@@ -717,7 +717,7 @@ inline void Transform::ForeachExBFS(Transform& root, bool checkValid, const std:
     trQueue.push({&root, 0});
     while (trQueue.empty() == false)
     {
-        auto& [currTr, currentDepth] = trQueue.front();
+        auto [currTr, currentDepth] = trQueue.front();
         trQueue.pop();
         if (currTr)
         {
@@ -730,6 +730,6 @@ inline void Transform::ForeachExBFS(Transform& root, bool checkValid, const std:
                     trQueue.push({_transform, currentDepth + 1});
                 }
             }
-        }      
+        }
     }
 }

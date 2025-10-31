@@ -300,6 +300,7 @@
     <ClCompile Include="Scripts\Input\InputOkCancelComponent\InputOkCancelComponent.cpp" />
     <ClCompile Include="Scripts\UI\Contents\TooltipComponent.cpp" />
     <ClCompile Include="Scripts\UI\Contents\TooltipColumnComponent.cpp" />
+    <ClCompile Include="Scripts\UI\Contents\TooltipGroupComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
@@ -613,6 +614,7 @@
     <ClInclude Include="Scripts\Input\InputOkCancelComponent\InputOkCancelComponent.h" />
     <ClInclude Include="Scripts\UI\Contents\TooltipComponent.h" />
     <ClInclude Include="Scripts\UI\Contents\TooltipColumnComponent.h" />
+    <ClInclude Include="Scripts\UI\Contents\TooltipGroupComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

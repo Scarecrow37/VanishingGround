@@ -22,18 +22,14 @@ void TooltipComponent::SetTooltip(const TooltipData& data) const
 
 void TooltipComponent::Show() const
 {
-    if (const auto panel = _panel.lock())
-    {
-        panel->SetActive(true);
-    }
+    GameObject& object = gameObject;
+    object.SetActive(true);
 }
 
 void TooltipComponent::Hide() const
 {
-    if (const auto panel = _panel.lock())
-    {
-        panel->SetActive(false);
-    }
+    GameObject& object = gameObject;
+    object.SetActive(false);
 }
 
 void TooltipComponent::Awake()
@@ -77,13 +73,6 @@ void TooltipComponent::ImGuiDrawPropertysEvent()
 
 void TooltipComponent::FindComponent()
 {
-    _panel = gameObject->GetWeakPtr();
-
-    if (_panel.expired())
-    {
-        UmLogger.Log(LogLevel::LEVEL_WARNING, "Fail to find tooltip panel object.");
-    }
-
     if (const Transform* titleTransform = transform->FindWithTag(TAG_TITLE_COMPONENT))
     {
         const GameObject&  titleObject       = titleTransform->gameObject;

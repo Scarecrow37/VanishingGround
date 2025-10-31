@@ -43,7 +43,6 @@ protected:
     REFLECT_FIELDS_END(TooltipComponent)
 
 private:
-    std::weak_ptr<GameObject>       _panel;
     std::weak_ptr<TextElement>      _title;
     std::weak_ptr<DescriptionPanel> _description;
 };
