@@ -298,6 +298,15 @@
     <ClCompile Include="Scripts\WeaponModel\WeaponModelData.cpp" />
     <ClCompile Include="Scripts\WeaponModel\WeaponModelManager.cpp" />
     <ClCompile Include="Scripts\Input\InputOkCancelComponent\InputOkCancelComponent.cpp" />
+    <ClCompile Include="Scripts\MagicBook\SelectMagicBook.cpp" />
+    <ClCompile Include="Scripts\MagicBook\SelectPopup.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\NotingAction\NotingAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\RevelationCountAttackDamageAdditional\RevelationCountAttackDamageAdditional.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\Base\MultiTokenApplyAction.cpp" />
+    <ClCompile Include="Scripts\UI\Animations\ChildsAnimationsController\ChildsAnimationsController.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TurnEndTokenApplyAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TurnEndTokenRemoveAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\WeaponKillMultiTokenApplyAction.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
@@ -609,6 +618,16 @@
     <ClInclude Include="Scripts\WeaponModel\WeaponModelManager.h" />
     <ClInclude Include="Scripts\WeaponModel\WeaponModelData.h" />
     <ClInclude Include="Scripts\Input\InputOkCancelComponent\InputOkCancelComponent.h" />
+    <ClInclude Include="Scripts\MagicBook\SelectMagicBook.h" />
+    <ClInclude Include="Scripts\MagicBook\SelectPopup.h" />
+    <ClInclude Include="Scripts\QTE\KeyBinder\QTEKeyBinder.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\NotingAction\NotingAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\RevelationCountAttackDamageAdditional\RevelationCountAttackDamageAdditional.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\Base\MultiTokenApplyAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\WeaponKillMultiTokenApplyAction.h" />
+    <ClInclude Include="Scripts\UI\Animations\ChildsAnimationsController\ChildsAnimationsController.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TurnEndTokenApplyAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TurnEndTokenRemoveAction.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
