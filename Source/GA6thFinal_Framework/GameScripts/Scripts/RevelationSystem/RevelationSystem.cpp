@@ -169,7 +169,8 @@ void RevelationSystem::RollRoundElement()
                             {
                                 if (uis[i].AnimationsController)
                                 {
-                                    uis[i].AnimationsController->StartAnimation(i);
+                                    RevelationGrade garde = element->Grade;
+                                    uis[i].AnimationsController->StartAnimation(static_cast<size_t>(garde));
                                 }
                             }
                         }
