@@ -4,7 +4,7 @@
 #include "Light.h"
 
 ParticleEmitter::ParticleEmitter()  = default;
-ParticleEmitter::~ParticleEmitter() = default; 
+ParticleEmitter::~ParticleEmitter() = default;
 
 void ParticleEmitter::SetLocatorFactor(const Vector3& factor)
 {
@@ -363,7 +363,7 @@ void ParticleEmitter::ScaleVelocity(Vector3 pos)
         ScaleVelFromPoint(pos);
         break;
     case VelocityScaleType::CUSTOM:
-        _velocity = _velocityScalingFunciton ? _velocityScalingFunciton() : _velocityFactor;
+        _velocity = _velocityFactor;
         break;
     default:
         _velocity = _velocityFactor;
@@ -386,26 +386,26 @@ void ParticleEmitter::ScaleVelInCone(Vector3 /*pos*/)
 
 void ParticleEmitter::InitializeLight(std::string_view scenenName)
 {
-    if (true == _useLight)
-    {
-        _particlePointLight = new Light();
-        _particlePointLight->SetActive(&_activeFlag);
-        _particlePointLight->SetPointLight(_lightColor, _finalPos, _lightAttenuation, _lightCurrentRange,
-                                           _lightCurrentIntensity);
-        Global::lightCore->RegisterLight(scenenName, static_cast<Light*>(_particlePointLight.Get()));
-        if ("Game" == scenenName)
-        {
-            Global::lightCore->RegisterLight("Editor", static_cast<Light*>(_particlePointLight.Get()));
-        }
-    }
+//    if (true == _useLight)
+//    {
+//        _particlePointLight = new Light();
+//        _particlePointLight->SetActive(&_activeFlag);
+//        _particlePointLight->SetPointLight(_lightColor, _finalPos, _lightAttenuation, _lightCurrentRange,
+//                                           _lightCurrentIntensity);
+//        Global::lightCore->RegisterLight(scenenName, static_cast<Light*>(_particlePointLight.Get()));
+//        if ("Game" == scenenName)
+//        {
+//            Global::lightCore->RegisterLight("Editor", static_cast<Light*>(_particlePointLight.Get()));
+//        }
+//    }
 
 }
 
 void ParticleEmitter::InitializeEditorLight()
 {
-    _particlePointLight = new Light();
-    _particlePointLight->SetActive(&_activeFlag);
-    _particlePointLight->SetPointLight(_lightColor, _finalPos, _lightAttenuation, _lightCurrentRange,
-                                       _lightCurrentIntensity);
-    Global::lightCore->RegisterLight("ParticleEditor", static_cast<Light*>(_particlePointLight.Get()));
+    //_particlePointLight = new Light();
+    //_particlePointLight->SetActive(&_activeFlag);
+    //_particlePointLight->SetPointLight(_lightColor, _finalPos, _lightAttenuation, _lightCurrentRange,
+    //                                   _lightCurrentIntensity);
+    //Global::lightCore->RegisterLight("ParticleEditor", static_cast<Light*>(_particlePointLight.Get()));
 }

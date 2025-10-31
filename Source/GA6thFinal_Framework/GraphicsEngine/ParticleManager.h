@@ -22,77 +22,103 @@ private:
     // -------------------------------------
     // [ Scene & Resource Management ]
     // -------------------------------------
-    std::unordered_map<std::string, ParticleSceneResource>                                             _sceneResources;
-    std::unordered_map<std::string, UINT64>                                                            _computeFences;
+    std::unordered_map<std::string, ParticleSceneResource>                               _sceneResources;
+    std::unordered_map<std::string, UINT64>                                              _computeFences;
     std::unordered_map<EffectID, std::unordered_map<std::string, std::weak_ptr<class ParticleEffect>>> _effectIDTable;
 
     // -------------------------------------
     // [ Configuration & State ]
     // -------------------------------------
     UINT _maxParticles = MAX_PARTICLE;
-    UINT _maxEmitters  = 1024;
+    UINT _maxEmitters  = 100;
+    int  _namingIndex  = 0;
+    UMPARTICLE_PROPERTY(float, _deltaScale, DeltaScale, 1.f);
 
-    // Editor
-    class ParticleEffect* _editorCurrentEffect = nullptr;
-    bool                  _editorRefreshFlag   = false;
-
-    // Naming
-    size_t _namingIndex = 0;
+    // -------------------------------------
+    // [ Editor-related State ]
+    // -------------------------------------
+    std::weak_ptr<class ParticleEffect> _editorCurrentEffect;
+    bool                                _editorRefreshFlag = false;
 
 public:
+    // =================================================================================================================
+    // [ 1. Constructor / Destructor & Initialize ]
+    // =================================================================================================================
     ParticleManager();
-    ~ParticleManager();
+    virtual ~ParticleManager();
+    void Initialize(UINT maxParticles);
 
-    void Initialize(UINT maxParticles = MAX_PARTICLE);
+    // =================================================================================================================
+    // [ 2. Scene Management ]
+    // =================================================================================================================
+    void AddSceneResource(std::string_view sceneName);
 
-    // -------------------------------------
-    // [ Scene Management ]
-    // -------------------------------------
-    void AddScene(const std::string& sceneName);
-    void RemoveScene(const std::string& sceneName);
-
-    // -------------------------------------
-    // [ Effect Lifecycle ]
-    // -------------------------------------
+    // =================================================================================================================
+    // [ 3. Effect Lifecycle Management ]
+    // =================================================================================================================
     class ParticleEffect* RegisterEffect(EffectID id, const std::string& keyString, std::string_view sceneName);
     void                  DeleteEffect(EffectID id, const std::string& keyString, const std::string& sceneName);
+    void                  PlayEffect(EffectID id, const std::string& keyString);
+    void                  PlayEffect(EffectID id, const std::string& keyString, EffectCallback callback);
+    void                  StopEffect(EffectID id, const std::string& keyString);
     class ParticleEffect* FindEffect(EffectID id, const std::string& keyString);
+    // =================================================================================================================
+    // [ 4. Emitter Management ]
+    // =================================================================================================================
+    class ParticleEmitter* RegisterEmitter(class ParticleEffect* effect, SIZE_T maxParticles = 10000,
+                                           float emissionRate = 1000.f, float emitterLifetime = 150.f,
+                                           LocationShape       locatorShape   = LocationShape::SPHERE,
+                                           Vector3             locationFactor = Vector3(1, 1, 1),
+                                           ParticleType        particleType   = ParticleType::SPRITE,
+                                           const std::wstring& meshspritePath = L"");
 
-    // -------------------------------------
-    // [ Update / Dispatch / Copy ]
-    // -------------------------------------
-    void Update(float deltaTime, const std::string& sceneName);
-    void Dispatch(const std::string& sceneName);
-    void CopyToGPU(const std::string& sceneName);
+    // =================================================================================================================
+    // [ 5. Main Update Loop ]
+    // =================================================================================================================
+    void Update(const float deltaTime);
 
-    // -------------------------------------
-    // [ Controls ]
-    // -------------------------------------
-    void PlayEffect(EffectID id, const std::string& keyString);
-    void PlayEffect(EffectID id, const std::string& keyString, EffectCallback callback);
-    void StopEffect(EffectID id, const std::string& keyString);
-    void StopEffectAndDisable(EffectID id, const std::string& keyString);
-    void PauseEffect(EffectID id, const std::string& keyString);
-    void ResumeEffect(EffectID id, const std::string& keyString);
+    // =================================================================================================================
+    // [ 6. Getters ]
+    // =================================================================================================================
+    UINT                                         GetMaxCount();
+    UINT                                         GetTotalCount(std::string_view sceneName);
+    const std::vector<UINT>&                     GetActiveAlbedos(std::string_view sceneName);
+    ID3D12Resource*                              GetComputeOutputResource(std::string_view sceneName);
+    UINT                                         GetRibbonCount(std::string_view sceneName);
+    const std::vector<std::vector<RibbonIndex>>& GetRibbonEmitterIndices(std::string_view sceneName);
+    const std::vector<UINT>&                     GetActiveRibbonAlbedos(std::string_view sceneName);
+    ID3D12Resource*                              GetRibbonOutputResource(std::string_view sceneName);
+    UINT64                                       GetComputeFenceValue(std::string_view sceneName);
 
-    // Misc setters routed to the effect
-    void SetActive(EffectID id, const std::string& keyString, bool v);
-    void SetPosition(EffectID id, const std::string& keyString, const Vector3& p);
-    void SetRotation(EffectID id, const std::string& keyString, const Quaternion& q);
-    void SetScale(EffectID id, const std::string& keyString, const Vector3& s);
-    void SetBoneFollowFlag(EffectID id, const std::string& keyString, bool* flag);
+    // =================================================================================================================
+    // [ 7. Setters ]
+    // =================================================================================================================
+    void SetActiveFlag(EffectID id, const std::string& keyString, bool flag);
+    void SetRemoveFlag(EffectID id, const std::string& keyString, bool flag);
+    void SetFollowBoneFlag(EffectID id, const std::string& keyString, bool* flag);
     void SetBoneMatrix(EffectID id, const std::string& keyString, const Matrix* boneMatrix);
+    void SetCamera(std::string_view viewName);
+    void SetCamera(std::shared_ptr<Camera> camera);
 
-    // -------------------------------------
-    // [ Editor ]
-    // -------------------------------------
+    // =================================================================================================================
+    // [ 8. Editor-specific ]
+    // =================================================================================================================
     class ParticleEffect* RegisterEffectOnEditor();
     void                  SetCurrentEditorEffect(class ParticleEffect* newEffect);
+    class ParticleEffect* GetCurrentEditorEffect();
     void                  RefreshEditor();
     void                  UpdateEditorLifeCycle();
+    UMPARTICLE_PROPERTY(bool, _isAutoRefresh, AutoRefresh, false);
+
+    // =================================================================================================================
+    // [ 9. Other Public Methods ]
+    // =================================================================================================================
+    void ChangeTexture();
 
 private:
-    // internals (생략된 DX12/버퍼 유틸 등은 기존 그대로)
+    // =================================================================================================================
+    // [ 10. Internal Processing & DX12 Resource Management ]
+    // =================================================================================================================
     void InitializeComputeCommandObject();
     void InitializeComputeCommandObject(ParticleSceneResource& scene);
     void InitializeParticleComputePSO();

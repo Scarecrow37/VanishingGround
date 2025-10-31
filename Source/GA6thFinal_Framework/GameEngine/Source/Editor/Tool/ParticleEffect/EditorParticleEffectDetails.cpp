@@ -17,42 +17,76 @@ void EditorParticleEffectDetails::SetCurrentEffect(class ParticleEffect* curEffe
 
 void EditorParticleEffectDetails::SetCurrentEmitter(class ParticleEmitter* curEmitter)
 {
-    _curEmitter = curEmitter;
-    _curEffect  = nullptr;
-}
-
-void EditorParticleEffectDetails::OnFrameRender() 
-{
-    ParticleEffect* managersEffect = UmParticleManager->GetCurrentEditorEffect();
-
-    if (managersEffect == nullptr)
+    // 현재 매니저가 가리키는 에디터 이펙트와 동기화
+    ParticleEffect* mgr = UmParticleManager->GetCurrentEditorEffect();
+    if (mgr == nullptr)
     {
-        // The manager has no effect, so we must have no effect.
-        _curEffect = nullptr;
-        _curEmitter = nullptr; // Also clear emitter for safety
+        _curEffect  = nullptr;
+        _curEmitter = nullptr;
+        return;
+    }
+    if (_curEffect != mgr)
+    {
+        _curEffect  = mgr;
+        _curEmitter = nullptr;
+    }
+
+    if (curEmitter == nullptr)
+    {
+        _curEmitter = nullptr;
         return;
     }
 
-    // If we have a _curEffect, but it's NOT the same as the manager's effect,
-    // it means our pointer is stale (dangling). We must not use it.
-    if (_curEffect != nullptr && _curEffect != managersEffect)
+    auto& list  = _curEffect->GetEmitterList(); 
+    bool  found = false;
+    for (auto const& up : list)
     {
-        _curEffect = nullptr;
+        if (up.get() == curEmitter)
+        {
+            found = true;
+            break;
+        }
+    }
+    _curEmitter = found ? curEmitter : nullptr;
+}
+
+void EditorParticleEffectDetails::OnFrameRender()
+{
+    // 1) 매니저 기준으로 현재 이펙트 재동기화
+    ParticleEffect* mgr = UmParticleManager->GetCurrentEditorEffect();
+    if (mgr == nullptr)
+    {
+        _curEffect  = nullptr;
+        _curEmitter = nullptr;
+        ImGui::TextDisabled("No effect selected.");
+        return;
+    }
+    if (_curEffect != mgr)
+    {
+        _curEffect  = mgr;
+        _curEmitter = nullptr;
     }
 
-    // If an emitter is selected, _curEffect is supposed to be null.
-    // If no emitter is selected, and our _curEffect is now null (either from startup or because it was stale),
-    // we should fall back to showing the manager's current effect.
-    if (_curEmitter == nullptr && _curEffect == nullptr)
+    if (_curEmitter)
     {
-        _curEffect = managersEffect;
+        auto& list        = _curEffect->GetEmitterList();
+        bool  stillExists = false;
+        for (auto const& up : list)
+        {
+            if (up.get() == _curEmitter)
+            {
+                stillExists = true;
+                break;
+            }
+        }
+        if (!stillExists)
+            _curEmitter = nullptr;
     }
 
-
-    // Now, the original logic can run, but with a safer _curEffect pointer.
-    if (nullptr != _curEmitter && nullptr == _curEffect)
+    // 3) 렌더
+    if (_curEmitter)
         ShowEmitterDetails();
-    if (nullptr == _curEmitter && nullptr != _curEffect)
+    else
         ShowEffectDetails();
 }
 
