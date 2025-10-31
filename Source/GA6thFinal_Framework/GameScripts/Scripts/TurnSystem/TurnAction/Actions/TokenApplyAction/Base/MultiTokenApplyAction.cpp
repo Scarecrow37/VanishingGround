@@ -2,7 +2,6 @@
 #include "MultiTokenApplyAction.h"
 #include "Token/TokenSystem.h"
 #include "TurnSystem/TurnSystemHelper.h"
-#include "MultiTokenApplyAction.h"
 
 REFLECT_FUNCTION(MultiTokenApplyAction)
 
