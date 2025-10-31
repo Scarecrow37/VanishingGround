@@ -641,12 +641,6 @@ void QTESystem::ProcessQTEFadeOutEndEvent()
 {
     _currState = QTE::STATE_WAITING;
     _callbackHandler.ProcessQTEFadeOutFinishEvent(_overallResult);
-
-    auto camera = dynamic_cast<UmCineMotion*>(CameraComponent::MainCamera());
-    if (camera)
-    {
-        camera->StartRail(false);
-    }
 }
 
 void QTESystem::ProcessQTEPlayingEvent() 

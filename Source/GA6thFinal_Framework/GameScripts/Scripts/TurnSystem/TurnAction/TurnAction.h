@@ -246,6 +246,22 @@ public:
     virtual void OnTokenAddedEnd(CharacterBase& target, int tokenID, int tokenCount) {};
 
     /// <summary>
+    /// 토큰 스택을 제거시키기 직전에 호출합니다.
+    /// </summary>
+    /// <param name="target :">부여 대상</param>
+    /// <param name="tokenID :">제거하는 토큰 아이디</param>
+    /// <param name="tokenCount :">제거하는 갯수</param>
+    virtual void OnTokenRemovedStart(CharacterBase& target, int& tokenID, int& tokenCount) {};
+
+    /// <summary>
+    /// 토큰 스택을 제거시키기 직전에 호출합니다.
+    /// </summary>
+    /// <param name="target :">부여 대상</param>
+    /// <param name="tokenID :">제거된 토큰 아이디</param>
+    /// <param name="tokenCount :">제거된 갯수</param>
+    virtual void OnTokenRemovedEnd(CharacterBase& target, int tokenID, int tokenCount) {};
+
+    /// <summary>
     /// 플레이어에 TakeDamage가 들어가기 직전에 호출됩니다.
     /// </summary>
     /// <param name="player :">대상</param>

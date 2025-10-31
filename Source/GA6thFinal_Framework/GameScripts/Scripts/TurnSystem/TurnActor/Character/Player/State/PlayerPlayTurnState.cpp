@@ -15,6 +15,7 @@
 
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include <TurnSystem/TurnMode/State/CombatStartPhase.h>
+#include <TurnSystem/TurnMode/State/PlayerActionPhase.h>
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 
@@ -101,23 +102,32 @@ void PlayerPlayTurnState::OnExit()
 
 void PlayerPlayTurnState::OnUpdate() 
 {
-    float dt = UmTime.DeltaTime();
-    switch (_inputState)
+    if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
     {
-    case InputState::NONE:
-        break;
-    case InputState::ACTION_SELECTION:
-        UpdateActionSelectionUI(dt);
-        UpdateAttackButtonHeld(dt);
-        break;
-    case InputState::QUICK_TIME_EVENT:
-        //UpdateQuickTimeEventUI(dt);
-        break;
-    case InputState::ATTACK_EVENT:
-        UpdateAttackEventUI(dt);
-        break;
-    default:
-        break;
+        if (PlayerActionPhase* waitPhase = turnMode->States->PlayerActionPhase)
+        {
+            if (false == waitPhase->WaitPhase)
+            {
+                float dt = UmTime.DeltaTime();
+                switch (_inputState)
+                {
+                case InputState::NONE:
+                    break;
+                case InputState::ACTION_SELECTION:
+                    UpdateActionSelectionUI(dt);
+                    UpdateAttackButtonHeld(dt);
+                    break;
+                case InputState::QUICK_TIME_EVENT:
+                    // UpdateQuickTimeEventUI(dt);
+                    break;
+                case InputState::ATTACK_EVENT:
+                    UpdateAttackEventUI(dt);
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
     }
 }
 
@@ -297,6 +307,15 @@ void PlayerPlayTurnState::SetAttack()
 
 void PlayerPlayTurnState::SetAttackEnd()
 {
+    if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+    {
+        if (UmCineMotion* camera = mode->GetBattleCamera())
+        {
+            camera->ResetRail(false);
+            camera->StartRail(true);
+        }
+    }
+
     bool succeed = false;
     Player& player   = GetPlayer();
     auto*   animator = player.GetAnimationComponent();
@@ -322,12 +341,6 @@ void PlayerPlayTurnState::SetAttackEnd()
     if (false == succeed)
     {
         player.EndTurn();
-    }
-
-    auto camera = dynamic_cast<UmCineMotion*>(CameraComponent::MainCamera());
-    if (camera)
-    {
-        camera->StartRail(true);
     }
 }
 
@@ -396,6 +409,23 @@ void PlayerPlayTurnState::OnQTEFinish()
 
     if (qteSystem && weaponSystem && weaponModelManager)
     {
+        UmCineMotion* battleCamera = nullptr;
+        float         cameraDuration = 0.f;
+        if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+        {
+            if (battleCamera = mode->GetBattleCamera())
+            {
+                cameraDuration = battleCamera->Duration;
+            }
+        }
+
+        if (battleCamera)
+        {
+            battleCamera->SetMainCamera();
+            battleCamera->ResetRail(true);
+            battleCamera->StartRail(false);
+        }
+
         QTE::OverallResult& results = qteSystem->GetQTEOverallResult();
         for (auto& result : results.NoteResults)
         {
@@ -406,8 +436,7 @@ void PlayerPlayTurnState::OnQTEFinish()
                 if (weaponModel.IsValid())
                 {
                     SetWeaponModelCallback(weaponModel, result);
-                    SetWeaponModelTransform(weaponModel, result);
-
+                    SetWeaponModelTransform(weaponModel, result);                   
                     if (const QTE::NoteData* note = result.NoteData)
                     {
                         // 애니메이션 Hit 이벤트 콜백 등록
@@ -420,7 +449,7 @@ void PlayerPlayTurnState::OnQTEFinish()
                                 const float noteTime  = note->Time;
                                 const float hitTime   = context->Time;
                                 const float noteDelay = note->WeaponAnimationDelay;
-                                float       delta     = noteTime - hitTime + noteDelay + animOffset;
+                                float       delta     = noteTime - hitTime + noteDelay + animOffset + cameraDuration;
                                 // 0보다 낮으면 0초로 맞추고 나머지를 해당 오프셋만큼 이동
                                 if (delta < 0)
                                 {
@@ -451,6 +480,10 @@ void PlayerPlayTurnState::OnQTEFinish()
             }
         }
         SetAttackEndTimeInvoke(totalTime);
+    }
+    else
+    {
+        SetAttackEnd();
     }
 }
 

@@ -31,4 +31,5 @@ private:
     REFLECT_FIELDS_END(EnemyPlayTurnState)
 
     std::weak_ptr<RoundInfoUIManager> _roundInfoUIManager;
+    bool                              _isOnce = false;
 };

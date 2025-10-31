@@ -74,7 +74,7 @@ void ApplyDamage::OnPlayerQTEResult(Player& player, const QTE::OverallResult& re
             std::vector<CharacterBase*> targets = TurnSystemHelper::GetTargetCharacters(ReflectFields->Target);
             for (auto& target : targets)
             {
-                target->TakeDamage(ReflectFields->Damage);
+                target->TakeDamage(ReflectFields->Damage, false);
             }
         }
     }
@@ -89,7 +89,7 @@ void ApplyDamage::OnEnemyDeadByWeapon(Enemy& enemy, WeaponElement& weapon)
             std::vector<CharacterBase*> targets = TurnSystemHelper::GetTargetCharacters(ReflectFields->Target);
             for (auto& target : targets)
             {
-                target->TakeDamage(ReflectFields->Damage);
+                target->TakeDamage(ReflectFields->Damage, false);
             }
         }
     }
@@ -113,7 +113,24 @@ void ApplyDamage::OnTurnEnd(CharacterBase& destination)
             std::vector<CharacterBase*> targets = TurnSystemHelper::GetTargetCharacters(ReflectFields->Target);
             for (auto& target : targets)
             {
-                target->TakeDamage(ReflectFields->Damage);
+                target->TakeDamage(ReflectFields->Damage, false);
+            }
+        }
+    }
+}
+
+void ApplyDamage::OnPlayerBattleCalculateDamageModifier(Player& attacker, PlayerStats& attackerStats,
+                                                        WeaponStats& weaponStats, Enemy& target,
+                                                        EnemyStats& targetStats)
+{
+    if (TriggerType::ATTACK == ReflectFields->Trigger)
+    {
+        if (EvaluateConditions())
+        {
+            std::vector<CharacterBase*> targets = TurnSystemHelper::GetTargetCharacters(ReflectFields->Target);
+            for (auto& target : targets)
+            {
+                target->TakeDamage(ReflectFields->Damage, false);
             }
         }
     }

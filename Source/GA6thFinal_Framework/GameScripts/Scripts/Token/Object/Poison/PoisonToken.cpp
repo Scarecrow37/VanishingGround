@@ -28,7 +28,7 @@ namespace TokenObject
         }
         return false;
     }
-    void Poison::OnRoundStart(CharacterBase* owner) 
+    void Poison::OnTurnStart(CharacterBase* owner) 
     {
         if (owner)
         {
