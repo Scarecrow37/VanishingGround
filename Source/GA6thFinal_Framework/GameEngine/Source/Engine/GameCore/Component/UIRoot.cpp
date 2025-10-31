@@ -8,20 +8,9 @@ Input::Controller* UIRoot::_controller = nullptr;
 
 UIRoot::UIRoot() = default;
 
-void UIRoot::SortViewOrder() const
+void UIRoot::SortViewOrder()
 {
-    int startOrder = 0;
-
-    Transform& transform = this->transform;
-
-    Transform::ForeachPostOrder(transform, [&startOrder](const Transform* dfsTransform) {
-        const GameObject& gameObject = dfsTransform->gameObject;
-
-        auto components = gameObject.GetComponents<DrawUIComponent>();
-
-        std::ranges::for_each(components,
-                              [&startOrder](DrawUIComponent* component) { component->SetViewOrder(startOrder++); });
-    });
+    _requestedSortViewOrder = true;
 }
 
 NavigationID UIRoot::AcquireNavigationID(const NavigationID tempID)
@@ -184,6 +173,17 @@ void UIRoot::Start()
     SortViewOrder();
 }
 
+void UIRoot::Update()
+{
+    UIBaseComponent::Update();
+
+    if (_requestedSortViewOrder)
+    {
+        SortViewOrderEx();
+        _requestedSortViewOrder = false;
+    }
+}
+
 void UIRoot::UpdateNavigation(const Input::Controller& controller)
 {
     auto queue = controller.GetButtonQueue();
@@ -327,6 +327,22 @@ UINavigationComponent* UIRoot::FindNavigationComponentInTransform(NavigationID i
         }
     });
     return component;
+}
+
+void UIRoot::SortViewOrderEx() const
+{
+    int startOrder = 0;
+
+    Transform& transform = this->transform;
+
+    Transform::ForeachPostOrder(transform, [&startOrder](const Transform* dfsTransform) {
+        const GameObject& gameObject = dfsTransform->gameObject;
+
+        auto components = gameObject.GetComponents<DrawUIComponent>();
+
+        std::ranges::for_each(components,
+                              [&startOrder](DrawUIComponent* component) { component->SetViewOrder(startOrder++); });
+    });
 }
 
 bool UIRoot::ChangeFocusComponent(UINavigationComponent* nextFocusComponent, FocusCallType callType)

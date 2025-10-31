@@ -161,7 +161,7 @@ void UIComponent::OnDrawDebugSelectedOverride()
 
 void UIComponent::RequestViewOrder() const
 {
-    if (const UIRoot* uiRoot = this->Root; nullptr != uiRoot)
+    if (UIRoot* uiRoot = this->Root; nullptr != uiRoot)
     {
         uiRoot->SortViewOrder();
     }

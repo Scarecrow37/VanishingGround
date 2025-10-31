@@ -27,7 +27,7 @@ public:
     UIRoot();
 
 public:
-    void SortViewOrder() const;
+    void SortViewOrder();
     void SetInitialFocus(const UINavigationComponent* uiComponent);
     void RequestChangeFocusComponent(UINavigationComponent* nextFocusComponent);
     void CheckNavigationIdFlawless(const UIBaseComponent* newComponent);
@@ -46,6 +46,8 @@ protected:
     void Added() override;
     void Start() override;
 
+    void Update() override;
+
 private:
     bool ChangeFocusComponent(UINavigationComponent* nextFocusComponent, FocusCallType callType);
     void UpdateNavigation(const Input::Controller& controller);
@@ -56,6 +58,8 @@ private:
     NavigationID           GetSpareID();
     UINavigationComponent* FindNavigationComponentInTransform(NavigationID id) const;
 
+    void SortViewOrderEx() const;
+
 protected:
     REFLECT_FIELDS_BEGIN(UIBaseComponent)
     NavigationID LastID = INVALID_NAVIGATION_ID + 1;
@@ -65,4 +69,6 @@ protected:
 
     UINavigationComponent* _currentFocusNavigation;
     std::unordered_map<NavigationID, UINavigationComponent*> _navigationMap;
+
+    bool _requestedSortViewOrder;
 };
