@@ -902,7 +902,7 @@ void AnimationComponent::SetAnimator(SkeletalMeshRenderer* renderer)
     }
 }
 
-void AnimationComponent::SetAnimator(GraphicsPointer<IAnimator> animator)
+void AnimationComponent::SetAnimator(IAnimator* animator)
 {
     if (_animator != animator)
     {
