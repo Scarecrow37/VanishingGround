@@ -22,7 +22,7 @@ public:
     void SetSelectedMesh(unsigned int index) { _selectedMeshIndex = index; }
 
     std::shared_ptr<Model>     GetModel() const;
-    GraphicsPointer<IAnimator> GetAnimator() const;
+    IAnimator*                 GetAnimator() const;
     std::shared_ptr<Animation> GetAnimation() const;
     const std::string&         GetCurrentAnimationName() const;
 
@@ -64,7 +64,7 @@ private:
     Vector3               _scale      = Vector3::One;
     
     std::filesystem::path          _filePath;
-    GraphicsPointer<IAnimator>     _animator;
+    IAnimator*                     _animator;
     GraphicsPointer<IMeshRenderer> _meshRenderer;
     GraphicsPointer<ILight>        _mainLight;
     unsigned int                   _selectedMeshIndex = 0;
