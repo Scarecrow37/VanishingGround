@@ -79,7 +79,7 @@ void PlayerHPImageView::OnDestroy()
 
 PlayerHpReduceImageView::PlayerHpReduceImageView() = default;
 
- PlayerHpReduceImageView::~PlayerHpReduceImageView() = default;
+PlayerHpReduceImageView::~PlayerHpReduceImageView() = default;
 
 void PlayerHpReduceImageView::Start()
 {
