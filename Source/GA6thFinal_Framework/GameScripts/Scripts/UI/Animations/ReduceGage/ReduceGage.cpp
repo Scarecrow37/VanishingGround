@@ -56,7 +56,7 @@ void ReduceGage::Update()
 void ReduceGage::ResetReduce()
 {
     _reduceTimer  = 0.0f;
-    _tempRate     = 0;
+    _tempRate     = 0.f;
     _reduceFactor = 0.f;
     _isReducing   = false;
 }
