@@ -85,8 +85,6 @@ void PlayerHpReduceImageView::Start()
 {
     try
     {
-        UmWatcher.Blind<CharacterHPViewModel>(PlayerStats::MODEL_REDUCE_HP_KEY, _handle);
-
         if (_reduceHpImageElement)
             _reduceHpImageElement->Enable = true;
 
