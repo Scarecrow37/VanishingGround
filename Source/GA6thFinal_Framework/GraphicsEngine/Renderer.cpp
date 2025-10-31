@@ -301,6 +301,16 @@ void Renderer::ResetIBLSkyBox(std::string_view sceneName)
     scene->ResetIBLSkyBox();
 }
 
+void Renderer::UpdateRenderQueue()
+{
+    for (auto& renderScene : _renderScenes)
+    {
+        renderScene.second->UpdateRenderQueue();
+    }
+
+    Global::lightCore->UpdateLightQueue();
+}
+
 void Renderer::ClearComponents()
 {
     for (auto& component : _toBeReleasedComponents)
@@ -351,7 +361,7 @@ void Renderer::Render()
     for (auto& renderScene : _renderScenes)
     {
         renderScene.second->Execute();
-    }   
+    }
     
     RenderToBackBuffer();
 }
@@ -363,6 +373,7 @@ void Renderer::Flip()
     Global::device->ResetCommands();
     Global::device->ResetComputeCommands();
 
+    UpdateRenderQueue();
     ClearComponents();
 }
 

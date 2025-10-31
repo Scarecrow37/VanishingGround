@@ -31,13 +31,19 @@ void LightCore::ClearLightQueue()
     _lights.clear();
 }
 
-void LightCore::Update(const float deltaTime)
+void LightCore::UpdateLightQueue()
 {
     for (auto& [sceneName, lights] : _lights)
     {
         auto first = std::remove_if(lights.begin(), lights.end(), [](const auto& light) { return !light->IsAlive(); });
         lights.erase(first, lights.end());
+    }
+}
 
+void LightCore::Update(const float deltaTime)
+{
+    for (auto& [sceneName, lights] : _lights)
+    {        
         for (auto& light : lights)
         {           
             light->Update(deltaTime);

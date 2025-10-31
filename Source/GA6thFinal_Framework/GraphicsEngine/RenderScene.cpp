@@ -231,6 +231,15 @@ void RenderScene::ClearRenderQueue()
     _sdfTextRenderQueue.clear();*/
 }
 
+void RenderScene::UpdateRenderQueue()
+{
+    auto iter_mesh = std::remove_if(_meshRenderQueue.begin(), _meshRenderQueue.end(), [](const auto& renderer) { return !renderer->IsAlive(); });
+    _meshRenderQueue.erase(iter_mesh, _meshRenderQueue.end());
+
+    auto iter_ui = std::remove_if(_uiRenderQueue.begin(), _uiRenderQueue.end(), [](const auto& renderer) { return !renderer->IsAlive(); });
+    _uiRenderQueue.erase(iter_ui, _uiRenderQueue.end());
+}
+
 void RenderScene::UpdateGlobal()
 {
     _currentFrameIndex = Global::device->GetCurrentBackBufferIndex();
@@ -287,10 +296,7 @@ void RenderScene::UpdateGlobal()
 }
 
 void RenderScene::UpdateObject()
-{
-    auto first = std::remove_if(_meshRenderQueue.begin(), _meshRenderQueue.end(), [](const auto& renderer) { return !renderer->IsAlive(); });
-    _meshRenderQueue.erase(first, _meshRenderQueue.end());
-    
+{        
     int   mainLight    = 0;
     float maxIntensity = 0.0f;
 
@@ -408,10 +414,7 @@ void RenderScene::UpdateObject()
 }
 
 void RenderScene::UpdateUI()
-{    
-    auto iter_ui = std::remove_if(_uiRenderQueue.begin(), _uiRenderQueue.end(), [](const auto& renderer) { return !renderer->IsAlive(); });
-    _uiRenderQueue.erase(iter_ui, _uiRenderQueue.end());
-    
+{            
     std::vector<std::tuple<Matrix, UIMaterial, UIRenderer*>> uiDatas;
     uiDatas.reserve(_uiRenderQueue.size());    
     for (auto& component : _uiRenderQueue)
