@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "CombatStartPhase.h"
 
+#include "Camera/UmCineMotion.h"
 #include "TurnSystem/TurnMode/TurnMode.h"
 #include "TurnSystem/TurnActor/Character/Player/Player.h"
 #include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
@@ -150,6 +151,14 @@ void CombatStartPhase::OnAwake()
 void CombatStartPhase::OnStart() 
 {
     TurnModeStateBase::OnStart();
+    if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+    {
+        if (UmCineMotion* battleCamera = mode->GetBattleCamera())
+        {
+            battleCamera->SetMainCamera();
+            battleCamera->ResetRail(true);
+        }
+    }
 }
 void CombatStartPhase::OnEnter() 
 {

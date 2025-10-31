@@ -121,41 +121,14 @@ public:
     /// ElementTable과 Action들을 Json으로 직렬화해 반환합니다.
     /// </summary>
     /// <returns></returns>
-   std::string SaveElementTable() 
-    { 
-        ElementsToElementDatas();
-        ActionsToActionDatas();
-        std::string result = rfl::json::write(std::pair{rfl::json::write(ReflectFields->RevelationElementDatas),
-                                                        rfl::json::write(ReflectFields->RevelationActionDatas)});
-        return result; 
-    }
+    std::string SaveElementTable();
 
     /// <summary>
     /// Json으로 직렬화한 Element Table과 Action들을 역직렬화 합니다.
     /// </summary>
     /// <param name="data :">json 형식의 문자열</param>
     /// <returns>결과</returns>
-    bool LoadElementTable(std::string_view data)
-    {
-        auto result = rfl::json::read<std::pair<std::string, std::string>>(data.data());
-        if (result)
-        {
-            auto& [elementData, actionData] = result.value();
-            auto element = rfl::json::read<ElementDataType>(elementData.data());
-            if (element)
-            {
-                ReflectFields->RevelationElementDatas = element.value();
-                ElementDatasToElements();
-            }
-            auto action = rfl::json::read<ActionDataType>(actionData.data());
-            if (action)
-            {
-                ReflectFields->RevelationActionDatas = action.value();
-                ActionDatasToActions();
-            }
-        }
-        return result;
-    }
+    bool LoadElementTable(std::string_view data);
 
     void FindRevelationsView();
 

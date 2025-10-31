@@ -9,7 +9,7 @@ namespace TokenObject
         TOKEN_DATA(205001)
     private:
         bool CanAdd(CharacterBase* owner) const override;
-        void OnRoundStart(CharacterBase* owner) override;
+        void OnTurnStart(CharacterBase* owner) override;
     };
 
     // 중독 부여 토큰
