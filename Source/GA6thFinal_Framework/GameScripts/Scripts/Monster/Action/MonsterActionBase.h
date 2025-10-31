@@ -66,9 +66,6 @@ namespace Monster
             inline AnimationComponent* GetAnimationComponent() { return _weakAnimation.lock().get(); }
             inline ParticleComponent*  GetParticleComponent() { return _weakParticle.lock().get(); }
 
-            bool BeginTokenActions();
-            bool EndTokenActions();
-
             // 배틀 처리를 수행합니다.
             void ProcessBattle(int damage, float damageScale = 1.0f);
             bool ProcessAnimation(std::string_view animKey);

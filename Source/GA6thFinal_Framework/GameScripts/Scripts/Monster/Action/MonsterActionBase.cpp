@@ -51,7 +51,7 @@ namespace Monster
         ActionParam Base::GetActionParam(size_t index) const
         {
             assert(index >= 1); // [assert] 액션 파라미터 인덱스는 1부터 시작합니다. (엑셀 데이터에서 1부터 시작하기 때문)
-            size_t subOne = index - 1;
+            size_t subOne = std::clamp(index - 1, static_cast<size_t>(0), _actionParams.size() - 1);
             if (subOne < _actionParams.size())
             {
                 return _actionParams[subOne];
@@ -65,7 +65,7 @@ namespace Monster
         TokenParam Base::GetTokenParam(size_t index) const
         {
             assert(index >=  1); // [assert] 토큰 파라미터 인덱스는 1부터 시작합니다. (엑셀 데이터에서 1부터 시작하기 때문)
-            size_t subOne = index - 1;
+            size_t subOne = std::clamp(index - 1, static_cast<size_t>(0), _tokenParams.size() - 1);
             if (subOne < _tokenParams.size())
             {
                 return _tokenParams[subOne];
