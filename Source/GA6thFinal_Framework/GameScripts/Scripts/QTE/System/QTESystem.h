@@ -21,7 +21,7 @@ struct WeaponStats;
 class QTESystem : public Component, public InputReceiver
 {
     using ControllerState = std::pair<const Input::Controller*, Input::ControllerTypes::Button>;
-    using TrackTable = std::unordered_map<int, std::vector<QTE::Track*>>;
+    using TrackTable = std::unordered_map<int, std::vector<QTE::Track>>;
 
     friend class QTEUIManager;
     USING_PROPERTY(QTESystem)
@@ -32,11 +32,7 @@ public:
 
     REFLECT_PROPERTY(ScaledSpeedFactor, CurrentTrackTime, MaxTracktime, IsPlaying)
 
-    GETTER_ONLY(float, ScaledSpeedFactor) {
-        const float systemSpeedScale = ReflectFields->QTESpeedScale;
-        const float trackSpeedScale  = _currentQTETrack ? _currentQTETrack->GetQTESpeedScale() : 1.0f;
-        return systemSpeedScale * trackSpeedScale;
-    }
+    GETTER_ONLY(float, ScaledSpeedFactor) { return ReflectFields->QTESpeedScale * _currTrackSpeed; }
     PROPERTY(ScaledSpeedFactor)
 
     GETTER_ONLY(float, CurrentTrackTime) { return _currTime; }
@@ -91,7 +87,6 @@ public:
     inline QTE::PlayState                    GetPlayState() const { return _currState; }
     inline const QTE::KeyBinder&             GetKeyBinder() const { return _keyBinder; }
     inline QTE::OverallResult&               GetQTEOverallResult() { return _overallResult; }
-    inline QTE::Track*                       GetCurrentQTETrack() const { return _currentQTETrack; }
     inline const std::vector<QTE::NoteData>& GetCurrentQTEAvailQueue() const { return _noteAvailQueue; }
     inline const TrackTable&                 GetWeaponIDToTrackTable() const { return _weaponIDToTrackTable; }
 
@@ -160,21 +155,22 @@ private:
     SingletonObject<QTESystem>      _singletonObject{this};
     SingletonComponent<QTESystem>   _singletonComponent{this};
 
-    TrackTable                      _weaponIDToTrackTable;              // 무기 ID QTE 매핑 테이블
-    QTE::Track*                     _currentQTETrack  = nullptr;
-    size_t                          _currentNoteIndex = 0;              // 현재 가리키는 노트 인덱스
-    std::vector<QTE::NoteData>      _noteAvailQueue;                    // 유효한 노트 큐
+    TrackTable                      _weaponIDToTrackTable;                      // 무기 ID QTE 매핑 테이블
+    size_t                          _currentNoteIndex = 0;                      // 현재 가리키는 노트 인덱스
+    std::vector<QTE::NoteData>      _noteAvailQueue;                            // 유효한 노트 큐
 
-    QTE::PlayState                  _currState = QTE::STATE_WAITING;    // QTE 현재 상태
-    QTE::PlayState                  _prevState = QTE::STATE_WAITING;    // QTE 이전 상태
-    QTE::KeyBinder                  _keyBinder;                         // QTE 키 바인딩 처리
-    QTE::CallbackHandler            _callbackHandler;                   // QTE 콜백 처리
-    QTE::OverallResult              _overallResult;                     // QTE 최종 결과
+    QTE::PlayState                  _currState = QTE::STATE_WAITING;            // QTE 현재 상태
+    QTE::PlayState                  _prevState = QTE::STATE_WAITING;            // QTE 이전 상태
+    QTE::KeyBinder                  _keyBinder;                                 // QTE 키 바인딩 처리
+    QTE::CallbackHandler            _callbackHandler;                           // QTE 콜백 처리
+    QTE::OverallResult              _overallResult;                             // QTE 최종 결과
     ControllerState                 _nextKeyEvent = {nullptr, Input::ControllerTypes::UNDEFINED};
 
-    float                           _currTime          = 0.0f;                     // QTE 타이머
-    float                           _totalTime         = 0.0f;                     // QTE 최대 시간
-    bool                            _isPaused          = false;                    // QTE 일시정지 여부
+    float                           _currTime           = 0.0f;                 // QTE 타이머
+    float                           _totalTime          = 0.0f;                 // QTE 최대 시간
+    bool                            _isPaused           = false;                // QTE 일시정지 여부
+
+    float                           _currTrackSpeed     = 1.0f;                 // 현재 QTE 스피드 스케일
 
     REFLECT_FIELDS_BEGIN(Component)
     float                   QTESpeedScale       = 1.0f;                         // QTE 속도 배율

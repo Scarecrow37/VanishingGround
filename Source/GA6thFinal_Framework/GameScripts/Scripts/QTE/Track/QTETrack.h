@@ -40,5 +40,40 @@ namespace QTE
         float       QTESpeedScale = 1.0f;       // QTE 속도 배율
         std::string TrackSerializeData = "";    // 트랙 직렬화 데이터
         REFLECT_FIELDS_END(Track)
+
+    public:
+        Track(Track& rhs)
+        {
+            *ReflectFields = *rhs.ReflectFields;
+            _filePath      = rhs._filePath;
+            _eventTrack    = rhs._eventTrack;
+        }
+        Track(Track&& rhs) noexcept
+        {
+            *ReflectFields = *rhs.ReflectFields;
+            _filePath      = rhs._filePath;
+            _eventTrack    = rhs._eventTrack;
+        }
+        Track& operator=(Track& rhs)
+        {
+            if (this == &rhs)
+                return *this;
+
+            *ReflectFields = *rhs.ReflectFields;
+            _filePath = rhs._filePath;
+            _eventTrack = rhs._eventTrack;
+            return *this;
+        }
+        Track& operator=(Track&& rhs) noexcept
+        {
+            if (this == &rhs)
+                return *this;
+
+            *ReflectFields = *rhs.ReflectFields;
+            _filePath      = rhs._filePath;
+            _eventTrack    = rhs._eventTrack;
+            return *this;
+        }
+
     };
 } // namespace QTE
