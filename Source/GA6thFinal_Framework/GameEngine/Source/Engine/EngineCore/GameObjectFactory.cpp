@@ -917,6 +917,7 @@ std::shared_ptr<GameObject> EGameObjectFactory::MakeGameObject(std::string_view 
     }
     else
     {
+        newObject = nullptr;
         std::string message = std::format("{}{}", typeid_name, u8"는 존재하지 않는 오브젝트 타입입니다."_c_str);
         UmLogger.Log(LogLevel::LEVEL_ERROR, message);
     }
