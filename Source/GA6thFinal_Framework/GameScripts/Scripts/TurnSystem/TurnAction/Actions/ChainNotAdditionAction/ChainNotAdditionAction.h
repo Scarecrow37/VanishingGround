@@ -16,7 +16,7 @@ protected:
 
     inline static const std::string _name = (const char*)u8"연격이 쌓이지 않음";
 
-    void OnPlayerBattleCalculateDamageModifier(Player& attacker, PlayerStats& attackerStats,
+    void OnPlayerBattleCalculateChainModifier(Player& attacker, PlayerStats& attackerStats,
                                                        WeaponStats& weaponStats, Enemy& target,
                                                        EnemyStats& targetStats) override;
 };

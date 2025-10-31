@@ -20,13 +20,13 @@ void ChainNotAdditionAction::ImGuiDrawActionEditor()
     ImguiDrawConditionEditor();
 }
 
-void ChainNotAdditionAction::OnPlayerBattleCalculateDamageModifier(Player& attacker, PlayerStats& attackerStats,
+void ChainNotAdditionAction::OnPlayerBattleCalculateChainModifier(Player& attacker, PlayerStats& attackerStats,
                                                                    WeaponStats& weaponStats, Enemy& target,
                                                                    EnemyStats& targetStats)
 {
     if (EvaluateConditions())
     {
         weaponStats.AttackPerChain = -100;
-        weaponStats.AttackPerChainMultiplier = std::numeric_limits<int>::min();
+        weaponStats.AttackPerChainMultiplier = -std::numeric_limits<float>::max();
     }
 }
