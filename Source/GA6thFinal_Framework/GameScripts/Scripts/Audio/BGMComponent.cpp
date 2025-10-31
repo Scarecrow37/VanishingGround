@@ -10,12 +10,9 @@ BGMComponent::~BGMComponent() = default;
 
 void BGMComponent::Start() 
 {
-    if (GameObject* object = SingletonObject<BGMManager>::GetInstance())
+    if (BGMManager* bgmManager = SingletonComponent<BGMManager>::GetInstance())
     {
-        if (BGMManager* manager = object->GetComponent<BGMManager>())
-        {
-            std::string bgmKey = std::to_string(ReflectFields->AudioID);
-            manager->PlayBGM(bgmKey, ReflectFields->UseFade);
-        }
+        std::string bgmKey = std::to_string(ReflectFields->AudioID);
+        bgmManager->PlayBGM(bgmKey, ReflectFields->UseFade);
     }
 }
