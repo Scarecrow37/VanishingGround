@@ -151,6 +151,14 @@ void CombatStartPhase::OnAwake()
 void CombatStartPhase::OnStart() 
 {
     TurnModeStateBase::OnStart();
+    if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+    {
+        if (UmCineMotion* battleCamera = mode->GetBattleCamera())
+        {
+            battleCamera->SetMainCamera();
+            battleCamera->ResetRail(true);
+        }
+    }
 }
 void CombatStartPhase::OnEnter() 
 {
@@ -186,14 +194,7 @@ void CombatStartPhase::OnEnter()
 
 void CombatStartPhase::OnExit() 
 {
-    if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
-    {
-        if (UmCineMotion* battleCamera = mode->GetBattleCamera())
-        {
-            battleCamera->SetMainCamera();
-            battleCamera->ResetRail(true);
-        }
-    }
+
 }
 
 void CombatStartPhase::OnUpdate() 
