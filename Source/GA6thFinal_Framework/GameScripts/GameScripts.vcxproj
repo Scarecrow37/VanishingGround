@@ -566,6 +566,7 @@
     <ClInclude Include="Scripts\UI\Animations\FadeImageElement\FadeImageElement.h" />
     <ClInclude Include="Scripts\UI\Animations\FadeTextElement\FadeTextElement.h" />
     <ClInclude Include="Scripts\UI\Animations\FadeUIComponent\FadeUIComponent.h" />
+    <ClInclude Include="Scripts\UI\Animations\ReduceGage\ReduceGage.h" />
     <ClInclude Include="Scripts\UI\Animations\UIAnimation.h" />
     <ClInclude Include="Scripts\UI\Base\DrawUIComponent\DrawUIComponent.h" />
     <ClInclude Include="Scripts\UI\Base\IOpacity\IOpacity.h" />
@@ -595,6 +596,7 @@
     <ClInclude Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.h" />
     <ClInclude Include="Scripts\UI\Wrappers\Scrolling\ScrollingWrapper.h" />
     <ClInclude Include="Scripts\Utility\FadeHelper.h" />
+    <ClInclude Include="Scripts\Utility\FocusHelper.h" />
     <ClInclude Include="Scripts\Utility\SingletonHelper.h" />
     <ClInclude Include="Scripts\Utility\UINaviKeyBindHelper.h" />
     <ClInclude Include="Scripts\ViewModels\Accessories\AccessoriesViewModel.h" />
@@ -625,6 +627,7 @@
     <ClInclude Include="Scripts\Token\Object\Vanish\VanishToken.h" />
     <ClInclude Include="Scripts\RoundInfoUI\RoundInfoUIManager.h" />
     <ClInclude Include="Scripts\Input\InputOkCancelComponent\InputOkCancelComponent.h" />
+    <ClInclude Include="Scripts\CreditsBackButton.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scripts\MagicBook\SelectMagicBook.cpp" />
@@ -884,6 +887,7 @@
     <ClCompile Include="Scripts\UI\Animations\FadeImageElement\FadeImageElement.cpp" />
     <ClCompile Include="Scripts\UI\Animations\FadeTextElement\FadeTextElement.cpp" />
     <ClCompile Include="Scripts\UI\Animations\FadeUIComponent\FadeUIComponent.cpp" />
+    <ClCompile Include="Scripts\UI\Animations\ReduceGage\ReduceGage.cpp" />
     <ClCompile Include="Scripts\UI\Animations\UIAnimation.cpp" />
     <ClCompile Include="Scripts\UI\Base\DrawUIComponent\DrawUIComponent.cpp" />
     <ClCompile Include="Scripts\UI\Base\SlotComponent\SlotComponent.cpp" />
@@ -924,6 +928,7 @@
     <ClCompile Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.cpp" />
     <ClCompile Include="Scripts\UI\Wrappers\Scrolling\ScrollingWrapper.cpp" />
     <ClCompile Include="Scripts\Utility\FadeHelper.cpp" />
+    <ClCompile Include="Scripts\Utility\FocusHelper.cpp" />
     <ClCompile Include="Scripts\Utility\UINaviKeyBindHelper.cpp" />
     <ClCompile Include="Scripts\ViewModels\Accessories\AccessoriesViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Chain\ChainCountViewModel.cpp" />
@@ -953,6 +958,7 @@
     <ClCompile Include="Scripts\Token\Object\Vanish\VanishToken.cpp" />
     <ClCompile Include="Scripts\RoundInfoUI\RoundInfoUIManager.cpp" />
     <ClCompile Include="Scripts\Input\InputOkCancelComponent\InputOkCancelComponent.cpp" />
+    <ClCompile Include="Scripts\CreditsBackButton.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

@@ -68,6 +68,7 @@ void EnemyActionPhase::OnEnter()
 void EnemyActionPhase::OnExit() 
 {
     WaitPhase = true;
+    ApplyReduceHP();
 }
 
 void EnemyActionPhase::OnUpdate() 

@@ -29,7 +29,8 @@ void QTESystem::Reset()
 
 void QTESystem::Awake()
 {
-    if (_singletonComponent.TrySingleTon())
+    if (_singletonComponent.TrySingleTon() &&
+        _singletonObject.TrySingleTon(true))
     {
         BindInputAction(ControllerButton::X, Action::PRESSED, this, this, &QTESystem::PressedButtonX);
         BindInputAction(ControllerButton::Y, Action::PRESSED, this, this, &QTESystem::PressedButtonY);
@@ -53,7 +54,7 @@ void QTESystem::Update()
     {
         if (_currTime < _totalTime)
         {
-            _currTime += false == _isPaused ? UmTime.DeltaTime() : 0.0f;
+            _currTime += (false == _isPaused) ? UmTime.DeltaTime() : 0.0f;
         }
         ProcessQTEPlayingEvent();
     }
@@ -72,7 +73,7 @@ void QTESystem::SerializedReflectEvent()
     {
         for (auto& track : trackList)
         {
-            const File::Guid& guid = track->GetFilePath().ToGuid();
+            const File::Guid& guid = track.GetFilePath().ToGuid();
             ReflectFields->WeaponQTETrackGuids[weaponID].emplace_back(guid.string());
         }
     }
@@ -85,18 +86,14 @@ void QTESystem::DeserializedReflectEvent()
     {
         for (auto& guidStr : guids)
         {
-            QTE::Track* track = new QTE::Track;
-            auto& trackVector = _weaponIDToTrackTable[weaponID];
-            File::Guid guid(guidStr);
-            if (track->LoadFile(guid))
-            {
-                trackVector.push_back(track);
-            }
-            else
+            File::Guid  guid(guidStr);
+            auto&       trackVector = _weaponIDToTrackTable[weaponID];
+            QTE::Track& track       = trackVector.emplace_back();
+            if (false == track.LoadFile(guid))
             {
                 std::string message = std::format("{} {}", (const char*)u8"QTE 트랙 파일 로드에 실패했습니다. 파일 경로: ", guid.ToPath().string());
                 UmLogger.Log(LogLevel::LEVEL_ERROR, message);
-                delete track;
+                trackVector.pop_back();
             }
         }
     }
@@ -104,6 +101,7 @@ void QTESystem::DeserializedReflectEvent()
 
 void QTESystem::ImGuiDrawPropertysEvent()
 {
+#ifdef _UMEDITOR
     GetEditor().Show();
     
     if (ImGui::TreeNodeEx("Debug##debug"))
@@ -127,28 +125,31 @@ void QTESystem::ImGuiDrawPropertysEvent()
     {
         manager->DrawDebugJudgeLine();
     }
+#endif // _UMEDITOR
 }
 
 QTE::Track* QTESystem::AddMappingTrackToWeaponID(const int weaponID, const File::Path& path)
 {
-    QTE::Track* track = new QTE::Track;
+#ifdef _UMEDITOR
+    auto& trackVector = _weaponIDToTrackTable[weaponID];
+    QTE::Track& track = trackVector.emplace_back();
     // 기본 경로가 아닌 경우 파일 로드 시도
-    if (File::NULL_PATH != path && false == track->LoadFile(path))
+    if (track.LoadFile(path))
     {
-        UmLogger.Log(LogLevel::LEVEL_ERROR, (const char*)u8"QTE 트랙 파일 로드에 실패했습니다.");
-        delete track;
-        track = nullptr;
+        return &trackVector.back();
     }
     else
     {
-        auto& trackVector = _weaponIDToTrackTable[weaponID];
-        trackVector.push_back(track);
+        trackVector.pop_back();
+        UmLogger.Log(LogLevel::LEVEL_ERROR, (const char*)u8"QTE 트랙 파일 로드에 실패했습니다.");
     }
-    return track;
+#endif // _UMEDITOR
+    return nullptr;
 }
 
 bool QTESystem::RemoveMappingTrackToWeaponID(const int weaponID, int index)
 {
+#ifdef _UMEDITOR
     auto itr = _weaponIDToTrackTable.find(weaponID);
     if (itr != _weaponIDToTrackTable.end())
     {
@@ -164,29 +165,27 @@ bool QTESystem::RemoveMappingTrackToWeaponID(const int weaponID, int index)
         }
         if (index >= 0 && index < (int)trackVector.size())
         {
-            auto track = trackVector[index];
-            if (track)
-            {
-                delete track;
-            }
             trackVector.erase(trackVector.begin() + index);
             return true;
         }
     }
+#endif // _UMEDITOR
     return false;
 }
 
 QTE::Track* QTESystem::GetMappingTrackToWeaponID(const int weaponID, const int index)
 {
+#ifdef _UMEDITOR
     auto itr = _weaponIDToTrackTable.find(weaponID);
     if (itr != _weaponIDToTrackTable.end())
     {
         auto& trackVector = itr->second;
         if (index >= 0 && index < (int)trackVector.size())
         {
-            return trackVector[index];
+            return &trackVector[index];
         }
     }
+#endif // _UMEDITOR
     return nullptr;
 }
 
@@ -227,51 +226,50 @@ void QTESystem::StartQTE(const WeaponStats& weapon)
     if (_currState == QTE::STATE_WAITING)
     {
         ResetQTEState();
-        
-        auto& trackVector = _weaponIDToTrackTable[weapon.WeaponID];
-        if (false == trackVector.empty())
+        if (_weaponIDToTrackTable.contains(weapon.WeaponID) &&
+            false == _weaponIDToTrackTable[weapon.WeaponID].empty())
         {
-            size_t index = Random::Index(trackVector.size());
-            if (_currentQTETrack = trackVector[index])
+            auto& tracks = _weaponIDToTrackTable[weapon.WeaponID];
+            size_t index = Random::Index(tracks.size());
+            if (Timeline::EventTrack* track = tracks[index].GetEventTrack().lock().get())
             {
-                Timeline::EventTrack* track = _currentQTETrack->GetEventTrack().lock().get();
-                assert(track && "QTE를 진행하기 위한 트랙이 없습니다.");
-                if (track)
+                const float minFrame   = tracks[index].GetMinFrame();
+                const float maxFrame   = tracks[index].GetMaxFrame();
+                const float speedScale = tracks[index].GetQTESpeedScale();
+                const float travelTime = GetNoteTravelTime();
+                const float delayTime  = GetDelayFromQTEStart();
+
+                _currTime   = minFrame - travelTime - delayTime;
+                _totalTime  = maxFrame;
+                _trackSpeed = speedScale;
+
+                // 유효한 노트 큐 생성
+                auto& noteQueue = track->GetEventContextQueue();
+                _noteAvailQueue.reserve(noteQueue.size());
+                _overallResult.NoteResults.reserve(noteQueue.size());
+                for (auto& note : noteQueue)
                 {
-                    const float minFrame   = track->GetMinFrame();
-                    const float maxFrame   = track->GetMaxFrame();
-                    const float travelTime = GetNoteTravelTime();
-                    const float delayTime  = GetDelayFromQTEStart();
-
-                    _currTime  = minFrame - travelTime - delayTime;
-                    _totalTime = maxFrame;
-
-                    // 유효한 노트 큐 생성
-                    auto& noteQueue = track->GetEventContextQueue();
-                    _noteAvailQueue.reserve(noteQueue.size());
-                    _overallResult.NoteResults.reserve(noteQueue.size());
-                    for (auto& note : noteQueue)
+                    if (QTE::Note* qteNote = QTE::Note::Cast<QTE::Note>(note))
                     {
-                        if (QTE::Note* qteNote = QTE::Note::Cast<QTE::Note>(note))
+                        if (qteNote->Time <= maxFrame)
                         {
-                            if (qteNote->Time <= maxFrame)
+                            QTE::NoteData& noteData = _noteAvailQueue.emplace_back(qteNote->ToNoteData());
+                            _overallResult.NoteResults.emplace_back(&noteData);
+                            // 애니메이션 이름이 유효하지 않다면 랜덤 애니메이션을 가져옴
+                            if (false == ValidAnimation(weapon.Type, noteData.WeaponAnimationKey))
                             {
-                                QTE::NoteData& noteData = _noteAvailQueue.emplace_back(qteNote->ToNoteData());
-                                _overallResult.NoteResults.emplace_back(&noteData);
-                                // 애니메이션 이름이 유효하지 않다면 랜덤 애니메이션을 가져옴
-                                if (false == ValidAnimation(weapon.Type, noteData.WeaponAnimationKey))
-                                {
-                                    noteData.WeaponAnimationKey = GetRandomAnimationName(weapon.Type);
-                                }
+                                noteData.WeaponAnimationKey = GetRandomAnimationName(weapon.Type);
                             }
                         }
                     }
-                    ProcessQTEEnterEvent();
                 }
+                ProcessQTEEnterEvent();
             }
         }
         else // 트랙이 없다면 랜덤 재생
         {
+            UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"QTE시스템에 무기에 맞는 QTE 트랙이 유효하지 않습니다.");
+
             const int count = weapon.AttackCount;
             float totalTime = 0.0f;
             _noteAvailQueue.resize(count);
@@ -291,12 +289,11 @@ void QTESystem::StartQTE(const WeaponStats& weapon)
             const float travelTime = GetNoteTravelTime();
             const float delayTime  = GetDelayFromQTEStart();
 
-            _currTime  = -travelTime - delayTime;
-            _totalTime = totalTime + 1.0f;
-
+            _currTime   = -travelTime - delayTime;
+            _totalTime  = totalTime + 1.0f;
+            _trackSpeed = 1.0f;
             ProcessQTEEnterEvent();
         }
-      
     }
 }
 
@@ -379,22 +376,13 @@ void QTESystem::ResetQTEState()
     _prevState  = QTE::STATE_WAITING;
     _currTime   = 0.0f;
     _totalTime  = 0.0f;
+    _trackSpeed = 1.0f;
     PauseQTE(false);
     ClearQueue();
 }
 
 void QTESystem::ClearTrack()
 {
-    for (auto& [weaponID, trackList] : _weaponIDToTrackTable)
-    {
-        for (auto& track : trackList)
-        {
-            if (track)
-            {
-                delete track;
-            }
-        }
-    }
     _weaponIDToTrackTable.clear();
 }
 
@@ -421,7 +409,6 @@ void QTESystem::UpdateQTETrack()
         //    _currTime = curNote.Time;
         //    PressedQTEButton(Input::Controller::Button::B);
         //    UmTime.TimeScale = 0.0f;
-        //    // 잘나오는데요??? 걍 렉때메 판정이 이상해보이는거 같기도...
         //}
 
         if (_currTime > curNote.Time + validMax)

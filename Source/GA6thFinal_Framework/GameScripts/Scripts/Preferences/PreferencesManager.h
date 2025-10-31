@@ -61,7 +61,7 @@ private:
     bool                               _opened      = false;
     bool                               _openedDirty = false;
     bool                               _isOpenDirty = false;
-    GameObject*                        _preferencesPannel;
+    GameObject*                        _preferencesPannel = nullptr;
     std::map<std::string, GameObject*> _graphicsOption;
     std::map<std::string, float>       _soundOption;
 

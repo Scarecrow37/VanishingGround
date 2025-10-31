@@ -25,14 +25,14 @@ private:
     void ShowSequencerFrame(std::shared_ptr<Timeline::EventTrack> track);
     void ShowPreviewFrame();
 
-    void ShowTrackFromWeapon(const QTE::Track* qteTrack, const std::string& weaponName, int weaponID, int index);
+    void ShowTrackFromWeapon(const QTE::Track& qteTrack, const std::string& weaponName, int weaponID, int index);
 
     void ProcessInputEvent();
 
-    void DrawPreview(QTE::Track* qteTrack);
+    void DrawPreview(QTE::Track& qteTrack);
 
-    void DrawJudgeRange(QTE::Track* qteTrack, std::pair<float, float> range, ImU32 judgeCol, ImU32 bgCol = UINT_MAX - 1);
-    void DrawNote(QTE::Track* qteTrack, Timeline::EventContext* context, float circleRadius, ImColor noteCol, ImColor bgCol);
+    void DrawJudgeRange(QTE::Track& qteTrack, std::pair<float, float> range, ImU32 judgeCol, ImU32 bgCol = UINT_MAX - 1);
+    void DrawNote(QTE::Track& qteTrack, Timeline::EventContext* context, float circleRadius, ImColor noteCol, ImColor bgCol);
 
 private:
     float CalcNoteAlphaFromPositionX(float posX);

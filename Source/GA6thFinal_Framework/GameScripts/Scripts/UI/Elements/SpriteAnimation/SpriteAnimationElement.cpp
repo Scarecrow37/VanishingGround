@@ -31,6 +31,7 @@ void SpriteAnimationElement::ResetUV()
 {
     ReflectFields->Basefields.get().ColumnIndex = 0;
     ReflectFields->Basefields.get().RowIndex = 0;
+    UpdateAtlasIndex();
 }
 
 void SpriteAnimationElement::UpdateFrame()

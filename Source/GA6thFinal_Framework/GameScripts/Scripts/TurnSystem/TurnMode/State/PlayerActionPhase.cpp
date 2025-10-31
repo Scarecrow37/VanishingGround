@@ -70,6 +70,7 @@ void PlayerActionPhase::OnEnter()
 void PlayerActionPhase::OnExit()
 {
     WaitPhase = true;
+    ApplyReduceHP();
 }
 
 void PlayerActionPhase::OnUpdate() 

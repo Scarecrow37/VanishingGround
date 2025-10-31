@@ -1,5 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "PlayerPlayTurnState.h"
+#include "Utility/FocusHelper.h"
+
 #include <Animation/AnimationComponent.h>
 #include <Particle/ParticleComponent.h>
 #include <GameCore/FSM/FiniteStateMachine.h>
@@ -131,12 +133,15 @@ void PlayerPlayTurnState::OnUpdate()
 
 void PlayerPlayTurnState::PressedButtonA(const Input::Controller& controller)
 {
-    _isDownAButton = true;
-    if (InputState::ACTION_SELECTION == _inputState)
+    if (false == FocusHelper::CheckFocus(FocusHelper::IS_FOCUSED_ANYTHING))
     {
-        if (CombatUIManager* uiManager = SingletonComponent<CombatUIManager>::GetInstance())
-            uiManager->FadeOut(_attackButtonHeldWaitTime);
-    } 
+        _isDownAButton = true;
+        if (InputState::ACTION_SELECTION == _inputState)
+        {
+            if (CombatUIManager* uiManager = SingletonComponent<CombatUIManager>::GetInstance())
+                uiManager->FadeOut(_attackButtonHeldWaitTime);
+        } 
+    }
 }
 
 void PlayerPlayTurnState::ReleasedButtonA(const Input::Controller& controller)
