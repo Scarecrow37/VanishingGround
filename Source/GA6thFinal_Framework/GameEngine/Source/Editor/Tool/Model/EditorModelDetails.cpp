@@ -21,7 +21,7 @@ std::shared_ptr<Model> EditorModelDetails::GetModel() const
     return _meshRenderer ? _meshRenderer->GetModel() : std::shared_ptr<Model>();
 }
 
-GraphicsPointer<IAnimator> EditorModelDetails::GetAnimator() const
+IAnimator* EditorModelDetails::GetAnimator() const
 {
     return _animator;
 }

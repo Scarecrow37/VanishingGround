@@ -51,5 +51,5 @@ void LightCore::Update(const float deltaTime)
 
             light->Update(deltaTime);
         }
-    }
+    }    
 }

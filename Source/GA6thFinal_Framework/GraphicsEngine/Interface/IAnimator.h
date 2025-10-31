@@ -38,4 +38,8 @@ public:
     virtual void SetUpSplitBone(unsigned int maxSplit)                                         = 0;
     virtual void SplitBone(unsigned int ID, const char* boneName)                              = 0;
     virtual void MakeParent(const char* parent, const char* child)                             = 0;
+
+protected:
+    virtual void AddReference() = 0;
+    virtual void Release()      = 0;
 };
