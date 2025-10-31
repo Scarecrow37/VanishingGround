@@ -31,7 +31,7 @@ namespace TokenObject
         if (weaponType == deffenceType)
         {
             const int   param     = GetTokenParam(0);
-            damage -= ContentMath::CeilPercentage(damage, param);
+            damage = ContentMath::CeilPercentage(damage, 100 - param);
         }
     }
 }
