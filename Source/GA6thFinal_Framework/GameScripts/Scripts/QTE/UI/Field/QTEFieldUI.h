@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "QTENoteUI.h"
 #include "QTEJudgeEffectUI.h"
-
+#include "Utility/FadeHelper.h"
 class OverlayPanel;
 class ImageElement;
 class SpriteAnimationElement;
@@ -15,6 +15,7 @@ namespace QTE
             STATE_NONE,
             STATE_ENTER,
             STATE_STAY,
+            STATE_EXIT,
         };
 
         OverlayPanel*           Overlay         = nullptr;
@@ -25,6 +26,9 @@ namespace QTE
 
         std::vector<QTE::NoteUI>        NotePool;
         std::vector<QTE::JudgeEffectUI> EffectPool;
+
+        UIState State = STATE_NONE;
+        Fader FieldFader;
 
         void Initialize(File::Guid noteGuid, File::Guid effectGuid, size_t poolSize);
 

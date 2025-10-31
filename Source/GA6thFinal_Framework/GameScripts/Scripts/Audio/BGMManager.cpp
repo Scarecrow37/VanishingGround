@@ -39,6 +39,7 @@ void BGMManager::StopAllBGM()
 void BGMManager::Awake() 
 {
     _singletonObject.TrySingleTon(true);
+    _singletonComponent.TrySingleTon();
 }
 
 void BGMManager::Update()
