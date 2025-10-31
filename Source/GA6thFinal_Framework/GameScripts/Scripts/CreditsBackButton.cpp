@@ -35,6 +35,11 @@ void CreditsBackButton::FocusIn(FocusCallType callType)
 
 void CreditsBackButton::TransitionToMainMenuScene()
 {
+    if (ReflectFields->NextSceneGuid.empty())
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, "NextSceneGuid is empty!");
+        return;
+    }
     File::Path  path              = File::Guid(ReflectFields->NextSceneGuid).ToPath();
     GameObject* transitionManager = SingletonObject<SceneTransitionComponent>::GetInstance();
     if (transitionManager)
