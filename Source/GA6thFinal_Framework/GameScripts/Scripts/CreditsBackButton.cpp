@@ -1,10 +1,10 @@
 ﻿#include "pchScripts.h"
-#include "Credits.h"
+#include "CreditsBackButton.h"
 #include "SceneTransition/SceneTransitionComponent.h"
 
-UMREAL_COMPONENT(Credits)
+UMREAL_COMPONENT(CreditsBackButton)
 
-Credits::Credits()
+CreditsBackButton::CreditsBackButton()
 {
     NextScene.SetInputAutoEvent([this]() {
         if (ImGui::BeginDragDropTarget())
@@ -21,14 +21,19 @@ Credits::Credits()
         }
     });
 }
-Credits::~Credits() = default;
+CreditsBackButton::~CreditsBackButton() = default;
 
-void Credits::Submit()
+void CreditsBackButton::Submit()
 {
-    TransitionToCreditsScene();
+    TransitionToMainMenuScene();
 }
 
-void Credits::TransitionToCreditsScene()
+void CreditsBackButton::FocusIn(FocusCallType callType) 
+{
+    Base::FocusIn(callType);
+}
+
+void CreditsBackButton::TransitionToMainMenuScene()
 {
     File::Path  path              = File::Guid(ReflectFields->NextSceneGuid).ToPath();
     GameObject* transitionManager = SingletonObject<SceneTransitionComponent>::GetInstance();
