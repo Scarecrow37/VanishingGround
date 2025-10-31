@@ -16,7 +16,6 @@ public:
     {
         std::string Title;
         std::string Description;
-        Color TitleColor;
     };
 
 public:
@@ -27,8 +26,8 @@ public:
 
 public:
     void SetTooltip(const TooltipData& data) const;
-    void ShowTooltip() const;
-    void HideTooltip() const;
+    void Show() const;
+    void Hide() const;
 
 protected:
     void Awake() override;

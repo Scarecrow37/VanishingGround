@@ -12,7 +12,6 @@ void TooltipComponent::SetTooltip(const TooltipData& data) const
     if (const auto title = _title.lock())
     {
         title->Text  = data.Title;
-        title->Color = data.TitleColor;
     }
 
     if (const auto description = _description.lock())
@@ -21,7 +20,7 @@ void TooltipComponent::SetTooltip(const TooltipData& data) const
     }
 }
 
-void TooltipComponent::ShowTooltip() const
+void TooltipComponent::Show() const
 {
     if (const auto panel = _panel.lock())
     {
@@ -29,7 +28,7 @@ void TooltipComponent::ShowTooltip() const
     }
 }
 
-void TooltipComponent::HideTooltip() const
+void TooltipComponent::Hide() const
 {
     if (const auto panel = _panel.lock())
     {
@@ -48,7 +47,7 @@ void TooltipComponent::Start()
 {
     Component::Start();
 
-    HideTooltip();
+    Hide();
 }
 
 void TooltipComponent::ImGuiDrawPropertysEvent()
@@ -58,7 +57,6 @@ void TooltipComponent::ImGuiDrawPropertysEvent()
     static TooltipData data = {};
     ImGui::InputText("Title", &data.Title);
     ImGui::InputText("Description", &data.Description);
-    ImGui::ColorEdit4("TitleColor", &data.TitleColor.x);
 
 
     if (ImGui::Button("Set Tooltip"))
@@ -68,12 +66,12 @@ void TooltipComponent::ImGuiDrawPropertysEvent()
 
     if (ImGui::Button("Show Tooltip"))
     {
-        ShowTooltip();
+        Show();
     }
 
     if (ImGui::Button("Hide Tooltip"))
     {
-        HideTooltip();
+        Hide();
     }
 }
 

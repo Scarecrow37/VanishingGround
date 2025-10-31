@@ -564,6 +564,7 @@
     <ClInclude Include="Scripts\UI\Base\SlotComponent\SlotComponent.h" />
     <ClInclude Include="Scripts\UI\Contents\DamageElement.h" />
     <ClInclude Include="Scripts\UI\Contents\SpawnDamagePanel.h" />
+    <ClInclude Include="Scripts\UI\Contents\TooltipColumnComponent.h" />
     <ClInclude Include="Scripts\UI\Contents\TooltipComponent.h" />
     <ClInclude Include="Scripts\UI\Elements\Dummy\DummyElement.h" />
     <ClInclude Include="Scripts\UI\Elements\HoldingProgressImage\HoldingProgressImageElement.h" />
@@ -880,6 +881,7 @@
       <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</IncludeInUnityFile>
       <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='ReleaseEditor|x64'">false</IncludeInUnityFile>
     </ClCompile>
+    <ClCompile Include="Scripts\UI\Contents\TooltipColumnComponent.cpp" />
     <ClCompile Include="Scripts\UI\Contents\TooltipComponent.cpp" />
     <ClCompile Include="Scripts\UI\Elements\Dummy\DummyElement.cpp" />
     <ClCompile Include="Scripts\UI\Elements\HoldingProgressImage\HoldingProgressImageElement.cpp" />

@@ -299,6 +299,7 @@
     <ClCompile Include="Scripts\WeaponModel\WeaponModelManager.cpp" />
     <ClCompile Include="Scripts\Input\InputOkCancelComponent\InputOkCancelComponent.cpp" />
     <ClCompile Include="Scripts\UI\Contents\TooltipComponent.cpp" />
+    <ClCompile Include="Scripts\UI\Contents\TooltipColumnComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
@@ -611,6 +612,7 @@
     <ClInclude Include="Scripts\WeaponModel\WeaponModelData.h" />
     <ClInclude Include="Scripts\Input\InputOkCancelComponent\InputOkCancelComponent.h" />
     <ClInclude Include="Scripts\UI\Contents\TooltipComponent.h" />
+    <ClInclude Include="Scripts\UI\Contents\TooltipColumnComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
