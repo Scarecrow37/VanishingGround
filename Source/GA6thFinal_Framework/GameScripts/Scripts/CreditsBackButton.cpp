@@ -47,7 +47,7 @@ void CreditsBackButton::TransitionToMainMenuScene()
         auto transitionComponent = transitionManager->GetComponent<SceneTransitionComponent>();
         if (transitionComponent)
         {
-            transitionComponent->SceneTransitionFade("in", "out",
+            transitionComponent->SceneTransitionFade("in_fast", "out_fast",
                                                      [path]() { UmSceneManager.LoadScene(path.string()); });
         }
     }
