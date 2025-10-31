@@ -14,5 +14,4 @@ public:
 protected:
     // ViewModel을(를) 통해 상속됨
     CharacterHP Convert(const std::pair<int, int>& value) override;
-
 };

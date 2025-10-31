@@ -619,6 +619,7 @@
     <ClInclude Include="Scripts\Token\Object\Vanish\VanishToken.h" />
     <ClInclude Include="Scripts\RoundInfoUI\RoundInfoUIManager.h" />
     <ClInclude Include="Scripts\Input\InputOkCancelComponent\InputOkCancelComponent.h" />
+    <ClInclude Include="Scripts\UI\Animations\ReduceGage\ReduceGage.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scripts\MagicBook\SelectMagicBook.cpp" />
@@ -941,6 +942,7 @@
     <ClCompile Include="Scripts\Token\Object\Vanish\VanishToken.cpp" />
     <ClCompile Include="Scripts\RoundInfoUI\RoundInfoUIManager.cpp" />
     <ClCompile Include="Scripts\Input\InputOkCancelComponent\InputOkCancelComponent.cpp" />
+    <ClCompile Include="Scripts\UI\Animations\ReduceGage\ReduceGage.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

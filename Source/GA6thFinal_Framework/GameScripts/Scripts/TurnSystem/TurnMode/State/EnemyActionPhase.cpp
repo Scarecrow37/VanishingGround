@@ -43,10 +43,13 @@ void EnemyActionPhase::OnEnter()
         }
         // 액터의 턴 State를 상태 플래그를 확인하여 바꿉니다.
     }
+
+    ApplyReduceHP();
 }
 
 void EnemyActionPhase::OnExit() 
 {
+    ApplyReduceHP();
 }
 
 void EnemyActionPhase::OnUpdate() {}

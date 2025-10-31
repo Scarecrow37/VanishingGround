@@ -45,11 +45,13 @@ void PlayerActionPhase::OnEnter()
             actor->UpdatePostTurnState();
         }
     }
+
+    ApplyReduceHP();
 }
 
 void PlayerActionPhase::OnExit()
 {
-
+    ApplyReduceHP();
 }
 
 void PlayerActionPhase::OnUpdate() {}
