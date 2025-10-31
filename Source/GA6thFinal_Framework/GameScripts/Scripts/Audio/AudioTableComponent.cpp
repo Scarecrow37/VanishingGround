@@ -61,7 +61,11 @@ namespace
             ImGui::TableSetColumnIndex(1);
             availSize = ImGui::GetContentRegionAvail();
             ImGui::SetNextItemWidth(availSize.x - 60.0f);
-            ImGui::InputText("##FilePath", newPathString, ImGuiInputTextFlags_ReadOnly);
+            const int flags = ImGuiInputTextFlags_ReadOnly || ImGuiInputTextFlags_EnterReturnsTrue;
+            if (ImGui::InputText("##FilePath", newPathString, flags))
+            {
+                addCallback();
+            }
             if (!newPathString->empty())
                 ImGuiHelper::HoveredToolTip(*newPathString);
             if (ImGui::BeginDragDropTarget())
@@ -71,8 +75,13 @@ namespace
                     const DragDropAsset::Data* data = static_cast<DragDropAsset::Data*>(payLoad->Data);
                     if (const auto extension = data->GetPath().extension(); extension == L".wav")
                     {
-                        const File::Path fullPath = data->GetPath();
-                        *newPathString            = fullPath.string();
+                        const File::Path& fullPath  = data->GetPath();
+                        const int         assetId   = UmFileSystem.GetAssetIDFromPath(fullPath);
+                        if (0 != assetId)
+                        {
+                            *newKey = std::to_string(assetId);
+                        }
+                        *newPathString = fullPath.string();
                     }
                 }
                 ImGui::EndDragDropTarget();

@@ -18,6 +18,9 @@ public:
     GETTER(bool, UseFade) { return ReflectFields->UseFade; }
     PROPERTY(UseFade)
 
+    static void PlayBGM(int id, bool useFade = true);
+    static void PlayBGM(const std::string& id, bool useFade = true);
+
 private:
     void Start() override;
 
