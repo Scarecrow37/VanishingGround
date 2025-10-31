@@ -58,5 +58,5 @@ void AbandonButton::Reset()
 void AbandonButton::DirtyOnFlag(const Input::Controller&) 
 {
     _dirtyFlag = true;
-    UmAudio.Play("-40020");
+    UmAudio.Play("-901002");
 }

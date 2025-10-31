@@ -21,7 +21,7 @@ protected:
     REFLECT_FIELDS_BEGIN(UINavigationComponent)
     REFLECT_FIELDS_END(UISFXNavigationComponent)
 
-    inline static constexpr const char* DEFAULT_FOCUS_IN_SOUND_ID = "-40000";
+    inline static constexpr const char* DEFAULT_FOCUS_IN_SOUND_ID = "-901000";
 
 private:
     std::string _focusInAudioID = "0";
