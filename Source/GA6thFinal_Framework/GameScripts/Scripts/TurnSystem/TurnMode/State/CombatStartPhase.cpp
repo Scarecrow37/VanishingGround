@@ -191,6 +191,7 @@ void CombatStartPhase::OnExit()
         if (UmCineMotion* battleCamera = mode->GetBattleCamera())
         {
             battleCamera->SetMainCamera();
+            battleCamera->ResetRail(true);
         }
     }
 }
