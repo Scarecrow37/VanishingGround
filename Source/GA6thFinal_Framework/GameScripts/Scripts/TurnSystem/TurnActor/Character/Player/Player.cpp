@@ -275,6 +275,16 @@ void Player::OnTokenRemoved(const int tokenID)
     Base::OnTokenRemoved(tokenID);
 }
 
+void Player::OnTokenEnter(int tokenID)
+{
+    Base::OnTokenEnter(tokenID);
+}
+
+void Player::OnTokenExit(int tokenID)
+{
+    Base::OnTokenExit(tokenID);
+}
+
 void Player::OnQTEStart() 
 {
     Base::OnQTEStart();

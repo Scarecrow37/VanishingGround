@@ -347,6 +347,18 @@ void CharacterBase::OnTokenRemoved(int tokenID)
     _tokenInventory.NotifyTokenRemoved(tokenID);
 }
 
+void CharacterBase::OnTokenEnter(int tokenID) 
+{
+    Base::OnTokenEnter(tokenID);
+    _tokenInventory.NotifyTokenEnter(tokenID);
+}
+
+void CharacterBase::OnTokenExit(int tokenID) 
+{
+    Base::OnTokenExit(tokenID);
+    _tokenInventory.NotifyTokenExit(tokenID);
+}
+
 void CharacterBase::OnQTEStart() 
 {
     Base::OnQTEStart();

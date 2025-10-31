@@ -207,6 +207,28 @@ void TokenInventory::NotifyTokenRemoved(int tokenID)
     });
 }
 
+void TokenInventory::NotifyTokenEnter(int tokenID) 
+{
+    NotifyTokenEvent([this, tokenID](Token& token) {
+        bool valid = HasTokenFromID(token.GetTokenID());
+        if (valid)
+        {
+            token.OnTokenEnter(&_owner, tokenID);
+        }
+    });
+}
+
+void TokenInventory::NotifyTokenExit(int tokenID) 
+{
+    NotifyTokenEvent([this, tokenID](Token& token) {
+        bool valid = HasTokenFromID(token.GetTokenID());
+        if (valid)
+        {
+            token.OnTokenExit(&_owner, tokenID);
+        }
+    });
+}
+
 void TokenInventory::NotifyQTEStart()
 {
     NotifyTokenEvent([this](Token& token) {
@@ -727,20 +749,22 @@ void TokenInventory::UpdateToken(TokenID tokenID)
         int count = iter->second;
         if (0 < count)
         {
-            // 유효한 토큰 벡터에 추가
+            // 현재 유효한 토큰 리스트에 없다면 벡터에 추가
             auto it = std::find(_vaildTokenVector.begin(), _vaildTokenVector.end(), tokenID);
             if (it == _vaildTokenVector.end())
             {
                 _vaildTokenVector.push_back(tokenID);
+                NotifyTokenEnter(tokenID);
             }
         }
         else
         {
-            // 유효한 토큰 벡터에서 제거
+            // 현재 유효한 토큰 리스트에 있다면 벡터에서 제거
             auto it = std::find(_vaildTokenVector.begin(), _vaildTokenVector.end(), tokenID);
             if (it != _vaildTokenVector.end())
             {
                 _vaildTokenVector.erase(it);
+                NotifyTokenExit(tokenID);
             }
         }
     }

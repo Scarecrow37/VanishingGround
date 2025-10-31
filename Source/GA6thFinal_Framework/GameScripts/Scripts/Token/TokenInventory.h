@@ -22,70 +22,50 @@ public:
     /// </summary>
     void Clear();
 
-    /// <summary>
-    /// 전투가 시작될 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.
-    /// </summary>
+    /// <summary>전투가 시작될 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.</summary>
     void NotifyCombatStart();
 
-    /// <summary>
-    /// 라운드가 시작될 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.
-    /// </summary>
+    /// <summary>라운드가 시작될 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.</summary>
     void NotifyRoundStart();
 
-    /// <summary>
-    /// 라운드가 끝날 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.
-    /// </summary>
+    /// <summary>라운드가 끝날 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.</summary>
     void NotifyRoundEnd();
 
-    /// <summary>
-    /// 라운드가 끝날 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.
-    /// </summary>
+    /// <summary>라운드가 끝날 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.</summary>
     void NotifyEachTurnStart(CharacterBase* destination);
 
-    /// <summary>
-    /// 턴이 시작될 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.
-    /// </summary>
+    /// <summary>턴이 시작될 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.</summary>
     void NotifyTurnStart();  
 
-    /// <summary>
-    /// 턴이 끝날 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.
-    /// </summary>
+    /// <summary>턴이 끝날 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.</summary>
     void NotifyTurnEnd(); 
 
-    /// <summary>
-    /// CharacterBase가 Hit 당했을 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.
-    /// </summary>
+    /// <summary>CharacterBase가 Hit 당했을 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.</summary>
     void NotifyHit();
 
-    /// <summary>
-    /// CharacterBase가 사망했을 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.
-    /// </summary>
+    /// <summary>CharacterBase가 사망했을 때 호출됩니다. 모든 토큰에 해당 이벤트를 알려줍니다.</summary>
     void NotifyDead();
 
-    /// <summary>
-    /// CharacterBase가 대상을 처치 시 호출됩니다.
-    /// </summary>
+    /// <summary>CharacterBase가 대상을 처치 시 호출됩니다.</summary>
     /// <param name="destination">처치된 대상</param>
     void NotifyKill(CharacterBase* destination);
 
-    /// <summary>
-    /// CharacterBase가 토큰을 얻었을 때 호출됩니다.
-    /// </summary>
+    /// <summary>CharacterBase가 토큰 스택을 얻었을 때 호출됩니다.</summary>
     void NotifyTokenAdded(int tokenID);
 
-    /// <summary>
-    /// CharacterBase가 토큰을 잃었을 때 호출됩니다.
-    /// </summary>
+    /// <summary>CharacterBase가 토큰 스택을 잃었을 때 호출됩니다.</summary>
     void NotifyTokenRemoved(int tokenID);
 
-    /// <summary>
-    /// QTE가 시작될 때 호출됩니다.
-    /// </summary>
+    /// <summary>CharacterBase가 토큰이 생겼을 때 호출됩니다.</summary>
+    void NotifyTokenEnter(int tokenID);
+
+    /// <summary>CharacterBase가 토큰이 없어졌을 때 호출됩니다.</summary>
+    void NotifyTokenExit(int tokenID);
+
+    /// <summary>QTE가 시작될 때 호출됩니다.</summary>
     void NotifyQTEStart();
 
-    /// <summary>
-    /// QTE가 끝날 때 호출됩니다.
-    /// </summary>
+    /// <summary> QTE가 끝날 때 호출됩니다.</summary>
     void NotifyQTEEnd();
 
     void NotifyPrePlayerAttackCalculateChain(PlayerAttackData& attackerData, EnemyHitData& targetData);
