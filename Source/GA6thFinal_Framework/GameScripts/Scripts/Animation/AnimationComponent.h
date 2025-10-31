@@ -55,7 +55,7 @@ private:
 
 public:
     void SetAnimator(SkeletalMeshRenderer* renderer);
-    void SetAnimator(GraphicsPointer<IAnimator> animator);
+    void SetAnimator(IAnimator* animator);
 
     /// <summary>
     /// 다음에 적용할 애니메이션 플래그를 설정합니다.
@@ -227,14 +227,14 @@ public:
     inline const std::map<std::string, std::string>& GetAnimationKeyMap() const { return ReflectFields->AnimationKeyMap; }
 
 private:
-    GraphicsPointer<IAnimator>  _animator;
-    EventQueue                  _eventQueue;
-    AnimationData*              _currentAnimationData = nullptr; // 현재 애니메이션 데이터
-    AnimationData               _mainAnimationData;
-    std::deque<AnimationData>   _overrideAnimationStack; 
-    AnimationData*              _lastAnimationData = nullptr;
-    bool                        _isBuildingOverrideAnimation = false;
-    UINT                        _prevBeginBuildAnimationID    = 0;
+    IAnimator*                _animator;
+    EventQueue                _eventQueue;
+    AnimationData*            _currentAnimationData = nullptr; // 현재 애니메이션 데이터
+    AnimationData             _mainAnimationData;
+    std::deque<AnimationData> _overrideAnimationStack;
+    AnimationData*            _lastAnimationData           = nullptr;
+    bool                      _isBuildingOverrideAnimation = false;
+    UINT                      _prevBeginBuildAnimationID   = 0;
     
     std::pair<bool, int>        _nextAnimationFlag; // 다음 애니메이션 데이터 (first: isValid, second: NextAnimationData)
     

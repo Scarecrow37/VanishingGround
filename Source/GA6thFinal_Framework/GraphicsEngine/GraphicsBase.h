@@ -8,8 +8,8 @@ protected:
 
 public:
     unsigned long long GetID() const { return _ID; }
-    bool               IsActive() const { return _isActive ? *_isActive : false; }
     bool               IsAlive() const { return _referenceCount > 0; }
+    bool               IsActive() const { return IsAlive() && (_isActive ? *_isActive : false); }
 
 public:
     void SetActive(const bool* isActive) { _isActive = isActive; }
