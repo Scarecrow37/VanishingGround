@@ -22,6 +22,8 @@ protected:
     int TurnCount = 1;
     REFLECT_FIELDS_END(CheckWeaponCountCondition)
 
+    void DeserializedReflectEvent() override;
+
     bool               Evaluate() override;
     void               DrawImguiEditor() override;
     const std::string& GetConditionInfo() override;

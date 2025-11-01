@@ -23,6 +23,11 @@ bool CheckWeaponCountCondition::Evaluate()
     return false;
 }
 
+void CheckWeaponCountCondition::DeserializedReflectEvent() 
+{
+    UpdateInfo();
+}
+
 void CheckWeaponCountCondition::DrawImguiEditor() 
 {
     ImGuiDrawPropertys();
