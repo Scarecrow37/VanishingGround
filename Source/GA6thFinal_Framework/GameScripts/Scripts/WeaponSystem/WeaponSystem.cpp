@@ -77,8 +77,16 @@ void WeaponSystem::SetCurrentWeaponSlot(int slot)
         UmLogger.Log(LogLevel::LEVEL_DEBUG, "out of index");
         return;
     }
+  
+    if (-1 == _lastWeaponSlot)
+        _lastWeaponSlot = slot; // 처음에는 마지막 무기와 최초 무기가 같다.
+    else 
+        _lastWeaponSlot = _currentWeaponSlot;
+
+    _currentWeaponSlot = slot;
+
     TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
-    auto isPlay = UmCore->IsPlay();
+    auto      isPlay   = UmCore->IsPlay();
     if (isPlay && turnMode)
     {
         WeaponElement& curr = _equipWeapons[_currentWeaponSlot];
@@ -90,8 +98,8 @@ void WeaponSystem::SetCurrentWeaponSlot(int slot)
                 if (action)
                 {
                     action->SetDestroy();
-                }             
-            }      
+                }
+            }
         }
         if (false == next._actions.empty())
         {
@@ -104,15 +112,9 @@ void WeaponSystem::SetCurrentWeaponSlot(int slot)
                     msg += (const char*)u8" 효과 발동";
                     action->OnActionActive = [msg]() { UmLogger.Message(LogLevel::LEVEL_DEBUG, msg); };
                 }
-            }      
-        }       
+            }
+        }
     }
-    if (-1 == _lastWeaponSlot)
-        _lastWeaponSlot = slot; // 처음에는 마지막 무기와 최초 무기가 같다.
-    else 
-        _lastWeaponSlot = _currentWeaponSlot;
-
-    _currentWeaponSlot = slot;
 }
 
 int WeaponSystem::GetRoundSpeedToSlot(int slot)
