@@ -47,6 +47,7 @@ Stage::Stage()
     });
 
     SetFocusInAudioID("-301000");
+    SetSubmitAudioID("-301010");
 }
 
 Stage::~Stage()
