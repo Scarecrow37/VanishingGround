@@ -18,3 +18,8 @@ void UISFXNavigationComponent::FocusIn(const FocusCallType callType)
         UmAudio.Play(_focusInAudioID);
     }
 }
+
+void UISFXNavigationComponent::SetFocusInAudioID(const std::string& audioID) 
+{
+    _focusInAudioID = audioID;
+}

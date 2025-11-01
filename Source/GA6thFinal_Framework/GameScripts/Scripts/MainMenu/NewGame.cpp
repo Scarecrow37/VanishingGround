@@ -22,6 +22,7 @@ NewGame::NewGame()
             ImGui::EndDragDropTarget();
         }
     });
+    SetFocusInAudioID("-101000");
 }
 
 NewGame::~NewGame() = default;
