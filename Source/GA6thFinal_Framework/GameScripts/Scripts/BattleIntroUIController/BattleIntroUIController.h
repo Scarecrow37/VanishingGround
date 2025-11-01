@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Utility/SingletonHelper.h"
 class ChildsAnimationsController;
 class FadeUIComponent;
 
@@ -14,9 +15,9 @@ public:
     /// 인트로 UI 연출을 실행합니다.
     /// </summary>
     /// <param name="stage">: 현재 스테이지</param>
-    /// <param name="roundCount">: 현재 라운드</param>
+    /// <param name="battleCount">: 현재 배틀 횟수</param>
     /// <returns>인트로 총 시간</returns>
-    float PlayIntro(int stage, int roundCount);
+    float PlayIntro(int stage, int battleCount);
 
 public:
     REFLECT_PROPERTY(IntroTextShowTime)
@@ -35,6 +36,7 @@ protected:
 private:
     std::weak_ptr<ChildsAnimationsController> _animationController;
     std::weak_ptr<FadeUIComponent>            _fadeUIComponent;
+    SingletonComponent<BattleIntroUIController> _singletonComponent;
 
 private:
     void FindAnimations();

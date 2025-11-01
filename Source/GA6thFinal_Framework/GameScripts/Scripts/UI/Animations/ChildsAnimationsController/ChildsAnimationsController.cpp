@@ -139,7 +139,10 @@ void ChildsAnimationsController::StopAnimationWithTag(const std::string& tag)
     }
 }
 
-void ChildsAnimationsController::Awake() 
+void ChildsAnimationsController::Added() 
 {
-    FindAnimations();
+    if (UmCore->IsPlay())
+    {
+        FindAnimations();
+    } 
 }

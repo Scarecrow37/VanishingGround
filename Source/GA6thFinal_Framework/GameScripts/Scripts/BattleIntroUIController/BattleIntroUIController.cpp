@@ -5,10 +5,15 @@
 
 UMREAL_COMPONENT(BattleIntroUIController)
 
-BattleIntroUIController::BattleIntroUIController() = default;
+BattleIntroUIController::BattleIntroUIController() 
+    :
+    _singletonComponent(this) 
+{
+
+}
 BattleIntroUIController::~BattleIntroUIController() = default;
 
-float BattleIntroUIController::PlayIntro(int stage, int roundCount)
+float BattleIntroUIController::PlayIntro(int stage, int battleCount)
 {
     float introDuration = 0.f;
     gameObject->SetActive(true);
@@ -19,11 +24,13 @@ float BattleIntroUIController::PlayIntro(int stage, int roundCount)
 
     if (auto animation = _animationController.lock())
     {
-        std::string stageTag = "Stage " + std::to_string(stage);
-        introDuration        = std::max(introDuration, animation->FadeInWithTag(stageTag));
+        std::string stageTag      = "Stage " + std::to_string(stage);
+        float       stageDuration = animation->FadeInWithTag(stageTag);
+        introDuration             = std::max(introDuration, stageDuration);
 
-        std::string roundTag = "Round " + std::to_string(roundCount);
-        introDuration        = std::max(introDuration, animation->StartAnimationWithTag(roundTag));
+        std::string roundTag      = "Round " + std::to_string(battleCount);
+        float       roundDuration = animation->StartAnimationWithTag(roundTag);
+        introDuration             = std::max(introDuration, roundDuration);
 
         float delay = IntroTextShowTime;
         introDuration += delay;
@@ -48,6 +55,7 @@ void BattleIntroUIController::Added()
 {
     if (UmCore->IsPlay())
     {
+        _singletonComponent.TrySingleTon();
         gameObject->SetActive(false);
     }
 }

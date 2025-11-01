@@ -28,7 +28,7 @@ protected:
     REFLECT_FIELDS_BEGIN(Component)
     REFLECT_FIELDS_END(ChildsAnimationsController)
 
-    void Awake() override;
+    void Added() override;
 
 private:
     std::vector<FadeUIComponent*>        _fadeUIs;
