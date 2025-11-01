@@ -384,6 +384,7 @@ void MapManager::OpenPreferencesWindow()
                     _openPreferences = true;
                 }
             });
+            UmAudio.Play("-901005");
         }
     }
 }
@@ -407,6 +408,7 @@ void MapManager::OpenInventoryWindow()
                     _openInventory = true;
                 }
             });
+            UmAudio.Play("-901005");
         }
     }
 }
