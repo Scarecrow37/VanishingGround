@@ -31,20 +31,13 @@ void RevelationCountWeaponDamageAcation::OnDestroy()
 {
     if (WeaponSystem* weaponSystem = SingletonComponent<WeaponSystem>::GetInstance())
     {
-        if (RevelationSystem* revelationSystem = SingletonComponent<RevelationSystem>::GetInstance())
-        {
-            // 현재 무기
-            auto& weapon = weaponSystem->GetCurrentWeaponElement();
-            auto& stats  = weapon.Stats;
+        // 현재 무기
+        auto& weapon = weaponSystem->GetCurrentWeaponElement();
+        auto& stats  = weapon.Stats;
 
-            // 계시 갯수
-            int count = static_cast<int>(revelationSystem->GetPlayerElementList().size());
-            _damage   = count;
-
-            // 감소
-            stats.HitDamage -= _damage;
-            stats.CriticalDamage -= _damage;
-        }
+        // 감소
+        stats.HitDamage -= _damage;
+        stats.CriticalDamage -= _damage;
     }
 }
 
