@@ -4,6 +4,7 @@
 #include "QTE/Callback/Callback.h"
 #include "QTE/Result/QTEResult.h"
 #include "QTE/KeyBinder/QTEKeyBinder.h"
+#include "QTE/Audio/QTEAudioState.h"
 #include "QTE/Track/QTETrack.h"
 #include "Utility/SingletonHelper.h"
 #include "Stats/Weapon/WeaponStats.h"
@@ -161,6 +162,7 @@ private:
 
     QTE::PlayState                  _currState = QTE::STATE_WAITING;            // QTE 현재 상태
     QTE::PlayState                  _prevState = QTE::STATE_WAITING;            // QTE 이전 상태
+    QTE::AudioIDState               _audioIDState;                              // QTE 오디오 아이디
     QTE::KeyBinder                  _keyBinder;                                 // QTE 키 바인딩 처리
     QTE::CallbackHandler            _callbackHandler;                           // QTE 콜백 처리
     QTE::OverallResult              _overallResult;                             // QTE 최종 결과

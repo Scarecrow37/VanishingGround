@@ -1,5 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "QTESystem.h"
+#include "Utility/AudioHelper.h"
 #include <QTE/UI/QTEUIManager.h>
 #include <QTE/Editor/QTEEditor.h>
 #include <QTE/Track/QTETrack.h>
@@ -510,21 +511,21 @@ void QTESystem::PressedQTEButton(const Input::Controller::Button buttonType)
             case QTE::QTE_RESULT_PERFECT:
             {
                 ++_overallResult.PerfectCount;
-                UmAudio.Play("-21000");
+                AudioHelper::PlaySFX(_audioIDState.OnPerfectJudgement);
                 inputSystem.Vibrate(PERFECT_VIBRATION);
                 break;
             }
             case QTE::QTE_RESULT_NORMAL:
             {
                 ++_overallResult.NormalCount;
-                UmAudio.Play("-21010");
+                AudioHelper::PlaySFX(_audioIDState.OnNormalJudgement);
                 inputSystem.Vibrate(NORMAL_VIBRATION);
                 break;
             }
             case QTE::QTE_RESULT_MISS:
             {
                 ++_overallResult.MissCount;
-                //UmAudio.Play("-21020");
+                AudioHelper::PlaySFX(_audioIDState.OnMissJudgement);
                 inputSystem.Vibrate(MISS_VIBRATION);
                 break;
             }
@@ -635,6 +636,7 @@ void QTESystem::ProcessQTEExitEvent()
 void QTESystem::ProcessQTEFadeInEndEvent() 
 {
     _currState = QTE::STATE_PLAYING;
+    AudioHelper::PlaySFX(_audioIDState.OnPerfectJudgement);
 }
 
 void QTESystem::ProcessQTEFadeOutEndEvent() 
