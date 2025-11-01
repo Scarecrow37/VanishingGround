@@ -27,7 +27,6 @@ float BattleIntroUIController::PlayIntro(int stage, int battleCount)
     auto stagesController = _stagesController.lock();
     
     std::string stageTag = "Stage " + std::to_string(stage);
-    std::string roundTag = "Round " + std::to_string(battleCount);
 
     //페이드 인 연출
     {
@@ -63,16 +62,28 @@ float BattleIntroUIController::PlayIntro(int stage, int battleCount)
        
     //텍스트 연출
     {
-        UmTime.Invoke(this, totalDuration, [this, roundTag]() {
+        UmTime.Invoke(this, totalDuration, [this, battleCount]() 
+        {
             if (auto roundsController = _roundsController.lock())
             {
-                roundsController->StartAnimationWithTag(roundTag);
+                std::string roundTag;
+                for (int i = 1; i <= battleCount; ++i)
+                {
+                    roundTag = "Round " + std::to_string(battleCount);
+                    roundsController->StopAnimationWithTag(roundTag);
+                    roundsController->StartAnimationWithTag(roundTag);
+                }
             }
         });
         float animationDuration = IntroTextShowTime;
         if (roundsController)
         {
-            animationDuration = std::max(animationDuration, roundsController->GetAnimationDurationWithTag(roundTag));
+            std::string roundTag;
+            for (int i = 1; i <= battleCount; ++i)
+            {
+                roundTag = "Round " + std::to_string(battleCount);
+                animationDuration = std::max(animationDuration, roundsController->GetAnimationDurationWithTag(roundTag));
+            }        
         }
         totalDuration += animationDuration;
     }
