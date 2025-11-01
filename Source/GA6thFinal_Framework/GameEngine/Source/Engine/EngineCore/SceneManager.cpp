@@ -2483,6 +2483,10 @@ void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
             {
                 _layerStack.pop_back();
             }
+            else
+            {
+                break;
+            }
         }
     }
 }
