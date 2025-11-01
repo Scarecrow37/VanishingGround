@@ -2475,6 +2475,15 @@ void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
             auto& [destroy, event] = pair;
             return nullptr == destroy || *destroy;
         });
+
+        while (false == _layerStack.empty())
+        {
+            auto& [topReceiver, isDestroy] = _layerStack.back();
+            if (true == isDestroy.expired())
+            {
+                _layerStack.pop_back();
+            }
+        }
     }
 }
 
