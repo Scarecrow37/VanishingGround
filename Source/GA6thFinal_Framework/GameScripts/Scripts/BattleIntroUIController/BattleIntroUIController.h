@@ -34,7 +34,9 @@ protected:
     void Added() override;
 
 private:
-    std::weak_ptr<ChildsAnimationsController> _animationController;
+    std::weak_ptr<ChildsAnimationsController>   _roundsController;
+    std::weak_ptr<ChildsAnimationsController>   _stagesController;
+    std::weak_ptr<FadeUIComponent>              _framesController;
     SingletonComponent<BattleIntroUIController> _singletonComponent;
 
 private:

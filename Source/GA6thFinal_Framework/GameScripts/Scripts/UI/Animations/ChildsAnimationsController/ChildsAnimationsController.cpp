@@ -131,7 +131,7 @@ float ChildsAnimationsController::FadeOutWithTag(const std::string& tag)
     return 0.f;
 }
 
-float ChildsAnimationsController::GetDurationWithTag(const std::string& tag)
+float ChildsAnimationsController::GetFadeDurationWithTag(const std::string& tag)
 {
     if (auto findIter = _fadeUIsWithTag.find(tag); findIter != _fadeUIsWithTag.end())
     {
@@ -189,6 +189,20 @@ void ChildsAnimationsController::StopAnimationWithTag(const std::string& tag)
             spriteAnimation->StopAnimation();
         }
     }
+}
+
+float ChildsAnimationsController::GetAnimationDurationWithTag(const std::string& tag)
+{
+    if (auto findIter = _spriteAnimationsWithTag.find(tag); findIter != _spriteAnimationsWithTag.end())
+    {
+        float maxDuration = 0.f;
+        for (auto& spriteAnimation : findIter->second)
+        {
+            maxDuration = std::max(maxDuration, (float)spriteAnimation->Duration);
+        }
+        return maxDuration;
+    }
+    return 0.f;
 }
 
 void ChildsAnimationsController::Added() 

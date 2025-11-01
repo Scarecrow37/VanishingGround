@@ -16,60 +16,112 @@ BattleIntroUIController::~BattleIntroUIController() = default;
 float BattleIntroUIController::PlayIntro(int stage, int battleCount)
 {
     float totalDuration = 0.f;
-    gameObject->SetActive(true);
-    if (_animationController.expired())
-    {
+    if ( _roundsController.expired() || _stagesController.expired() || _framesController.expired())
+    {   
         FindAnimations();
     }
+    gameObject->SetActive(true);
 
-    if (auto animation = _animationController.lock())
+    auto framesController = _framesController.lock();
+    auto roundsController = _roundsController.lock();
+    auto stagesController = _stagesController.lock();
+    
+    std::string stageTag = "Stage " + std::to_string(stage);
+    std::string roundTag = "Round " + std::to_string(battleCount);
+
+    //페이드 인 연출
     {
-        std::string stageTag = "Stage " + std::to_string(stage);
-        std::string roundTag = "Round " + std::to_string(battleCount);
-
         float fadeInDuration = 0.f;
-
-        animation->BeginWithTag("Frame");
-        float frameDuration = animation->FadeInWithTag("Frame");
-        fadeInDuration      = std::max(fadeInDuration, frameDuration);
-
-        animation->BeginWithTag("Background");
-        float backgrundDuration = animation->FadeInWithTag("Background");
-        fadeInDuration          = std::max(fadeInDuration, backgrundDuration);
-
-        animation->BeginWithTag(stageTag);
-        float stageDuration = animation->FadeInWithTag(stageTag);
-        fadeInDuration      = std::max(fadeInDuration, stageDuration);
-
-        float roundDuration = animation->StartAnimationWithTag(roundTag);
-        fadeInDuration      = std::max(fadeInDuration, roundDuration);
-        totalDuration = fadeInDuration;
-
-        float delay = IntroTextShowTime;
-        totalDuration += delay;
-        
-        UmTime.Invoke(animation.get(), totalDuration, 
-        [animation = animation.get(), stageTag, roundTag]() 
+        if (framesController)
         {
-            animation->FadeOutWithTag("Frame");
-            animation->FadeOutWithTag("Background");
-            animation->FadeOutWithTag(stageTag);
-            animation->FadeOutWithTag(roundTag);
+            fadeInDuration = framesController->FadeDuration;
+            framesController->Begin();
+            framesController->FadeIn();
+        }
+        if (roundsController)
+        {
+            roundsController->BeginWithTag("Round 1");
+            float duration = roundsController->FadeInWithTag("Round 1");
+            fadeInDuration = std::max(fadeInDuration, duration);
+
+            roundsController->BeginWithTag("Round 2");
+            duration       = roundsController->FadeInWithTag("Round 2");
+            fadeInDuration = std::max(fadeInDuration, duration);
+
+            roundsController->BeginWithTag("Round 3");
+            duration       = roundsController->FadeInWithTag("Round 3");
+            fadeInDuration = std::max(fadeInDuration, duration);
+        }
+        if (stagesController)
+        {
+            stagesController->BeginWithTag(stageTag);
+            float duration = stagesController->FadeInWithTag(stageTag);
+            fadeInDuration = std::max(fadeInDuration, duration);
+        }
+        totalDuration += fadeInDuration;
+    }
+       
+    //텍스트 연출
+    {
+        UmTime.Invoke(this, totalDuration, [this, roundTag]() {
+            if (auto roundsController = _roundsController.lock())
+            {
+                roundsController->StartAnimationWithTag(roundTag);
+            }
+        });
+        float animationDuration = IntroTextShowTime;
+        if (roundsController)
+        {
+            animationDuration = std::max(animationDuration, roundsController->GetAnimationDurationWithTag(roundTag));
+        }
+        totalDuration += animationDuration;
+    }
+  
+    //페이드 아웃 연출
+    {
+        float fadeOutDuration = 0.f;
+        if (framesController)
+        {
+            fadeOutDuration = framesController->FadeDuration;
+        }
+        UmTime.Invoke(this, totalDuration, [this]() {
+            if (auto framesController = _framesController.lock())
+            {
+                framesController->FadeOut();
+            }
         });
 
-        float fadeOutDuration = 0.f;
+        if (roundsController)
+        {
+            float duration  = roundsController->GetFadeDurationWithTag("Round 1");
+            fadeOutDuration = std::max(fadeOutDuration, duration);
 
-        frameDuration   = animation->GetDurationWithTag("Frame");
-        fadeOutDuration = std::max(fadeOutDuration, frameDuration);
+            duration        = roundsController->GetFadeDurationWithTag("Round 2");
+            fadeOutDuration = std::max(fadeOutDuration, duration);
 
-        backgrundDuration = animation->GetDurationWithTag("Background");
-        fadeOutDuration   = std::max(fadeOutDuration, backgrundDuration);
+            duration        = roundsController->GetFadeDurationWithTag("Round 3");
+            fadeOutDuration = std::max(fadeOutDuration, duration);
+        }
+        UmTime.Invoke(this, totalDuration, [this]() {
+            if (auto roundsController = _roundsController.lock())
+            {
+                roundsController->FadeOutWithTag("Round 1");
+                roundsController->FadeOutWithTag("Round 2");
+                roundsController->FadeOutWithTag("Round 3");
+            }
+        });
 
-        stageDuration   = animation->GetDurationWithTag(stageTag);
-        fadeOutDuration = std::max(fadeOutDuration, stageDuration);
-
-        roundDuration   = animation->GetDurationWithTag(roundTag);
-        fadeOutDuration = std::max(fadeOutDuration, roundDuration);
+        if (stagesController)
+        {    
+            float duration = stagesController->GetFadeDurationWithTag(stageTag);
+            fadeOutDuration = std::max(fadeOutDuration, duration);
+        }
+        UmTime.Invoke(this, totalDuration, [this, stageTag]() {
+            if (auto stagesController = _stagesController.lock())
+            {
+                stagesController->FadeOutWithTag(stageTag);
+            }
+        });
 
         totalDuration += fadeOutDuration;
     }
@@ -92,12 +144,32 @@ void BattleIntroUIController::Added()
 
 void BattleIntroUIController::FindAnimations()
 {
-    if (Transform* tr =  transform->FindWithTag("Animations"))
+    for (int i = 0; i < transform->ChildCount; ++i)
     {
-        GameObject& animationsPanel = tr->gameObject; 
-        if (ChildsAnimationsController* controller = animationsPanel.GetComponent<ChildsAnimationsController>())
+        if (Transform* child = transform->GetChild(i))
         {
-            _animationController = controller->GetWeakPtrAs<ChildsAnimationsController>();
-        }
+            GameObject& object = child->gameObject;
+            if (object.CompareTag("Frames Panel"))
+            {
+                if (FadeUIComponent* com = object.GetComponent<FadeUIComponent>())
+                {
+                    _framesController = com->GetWeakPtrAs<FadeUIComponent>();
+                }
+            }
+            else if (object.CompareTag("Rounds Panel"))
+            {
+                if (ChildsAnimationsController* com = object.GetComponent<ChildsAnimationsController>())
+                {
+                    _roundsController = com->GetWeakPtrAs<ChildsAnimationsController>();
+                }
+            }
+            else if (object.CompareTag("Stages Panel"))
+            {
+                if (ChildsAnimationsController* com = object.GetComponent<ChildsAnimationsController>())
+                {
+                    _stagesController = com->GetWeakPtrAs<ChildsAnimationsController>();
+                }
+            }
+        }   
     }
 }
