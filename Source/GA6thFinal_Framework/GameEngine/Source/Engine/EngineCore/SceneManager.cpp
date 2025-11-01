@@ -930,13 +930,13 @@ void ESceneManager::ObjectsStart()
 
 bool ESceneManager::ResourceLoadWait()
 {
-    if (_waitResourceLoad && false == ResourceManager.CheckAllResourceLoad())
+    if (_checkResourceLoad && false == ResourceManager.CheckAllResourceLoad())
     {
         return true;
     }
     else
     {
-        _waitResourceLoad = false;       
+        _checkResourceLoad = false;       
         return false;
     }
 }
@@ -1303,6 +1303,11 @@ void ESceneManager::ObjectsAddRuntime()
 void ESceneManager::ResourceManagerUpdate() 
 {
     SceneResourceManager::Engine::Update(ResourceManager);
+    if (_waitResourceLoad)
+    {
+        _checkResourceLoad = _waitResourceLoad;
+        _waitResourceLoad  = false;
+    }       
 }
 
 bool ESceneManager::IsRuntimeActive(std::shared_ptr<GameObject>& obj)

@@ -796,6 +796,7 @@ private:
     Scene* _nextSceneSkybox;
 
     bool _waitResourceLoad = false;
+    bool _checkResourceLoad = false;
 
 protected:
     /// <summary>
