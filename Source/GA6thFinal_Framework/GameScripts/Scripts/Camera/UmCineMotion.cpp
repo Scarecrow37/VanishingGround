@@ -151,35 +151,50 @@ void UmCineMotion::ImGuiDrawPropertysEvent()
     }
 
     {
-        bool isPlayPressed = ImGui::Button("Start Rail", {150, 50});
+        bool isPlayPressed = ImGui::Button("Start Rail", {100, 50});
         if (true == isPlayPressed)
         {
             StartRail(false);
         }
         ImGui::SameLine();
 
-        bool isReversePressed = ImGui::Button("Reverse Rail", {150, 50});
+        bool isReversePressed = ImGui::Button("Reverse Rail", {100, 50});
         if (true == isReversePressed)
         {
             StartRail(true);
         }
         ImGui::SameLine();
 
-        bool isPausePressed = ImGui::Button("Pause Rail", {150, 50});
+        bool isPausePressed = ImGui::Button("Pause Rail", {100, 50});
         if (true == isPausePressed)
         {
             PauseRail();
         }
         ImGui::SameLine();
 
-        bool isStopPressed = ImGui::Button("Stop Rail", {150, 50});
+        bool isStopPressed = ImGui::Button("Stop Rail", {100, 50});
         if (true == isStopPressed)
         {
             StopRail();
         }
+        ImGui::SameLine();
+
+        bool isResetBPressed = ImGui::Button("Reset to Begin", {100, 50});
+        if (true == isResetBPressed)
+        {
+            ResetRail(true);
+        }
+        ImGui::SameLine();
+
+        bool isResetEPressed = ImGui::Button("Reset to End", {100, 50});
+        if (true == isResetEPressed)
+        {
+            ResetRail(false);
+        }
+
     }
     {
-        bool isShakePressed = ImGui::Button("Shake", {150, 50});
+        bool isShakePressed = ImGui::Button("Shake", {100, 50});
         if (true == isShakePressed)
         {
             BeginShake(_shakeDuration, _shakeIntensity, _shakeFrequency);
@@ -431,25 +446,25 @@ void UmCineMotion::RunRail()
                 _currentStep = 0.f;
             }
         }
+
+        Quaternion angle    = Quaternion::Identity;
+        Vector3    position = {0, 0, 0};
+
+        if (ReflectFields->TimestepTethers.size() > 1)
+        {
+            angle    = Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _rotTethers,
+                                               _currentStep * ReflectFields->RailLength);
+            position = Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _posTethers,
+                                               _currentStep * ReflectFields->RailLength);
+        }
+        _targetPos   = position;
+        _targetAngle = angle;
     }
     else
     {
         _targetPos   = transform->Position;
         _targetAngle = transform->Rotation;
     }
-
-    Quaternion angle    = Quaternion::Identity;
-    Vector3    position = {0, 0, 0};
-
-    if (ReflectFields->TimestepTethers.size() > 1)
-    {
-        angle    = Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _rotTethers,
-                                           _currentStep * ReflectFields->RailLength);
-        position = Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _posTethers,
-                                           _currentStep * ReflectFields->RailLength);
-    }
-    _targetPos   = position;
-    _targetAngle = angle;
 }
 
 void UmCineMotion::Shake()
@@ -488,10 +503,12 @@ void UmCineMotion::ResetRail(bool toBegin)
     }
     if (ReflectFields->TimestepTethers.size() > 1)
     {
-        transform->Rotation = Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _rotTethers,
-                                                      _moveTimer * ReflectFields->RailLength);
-        transform->Position = Mathf::CatmullRomSpline(ReflectFields->TimestepTethers, _posTethers,
-                                                      _moveTimer * ReflectFields->RailLength);
+        int idx             = toBegin ? 0 : ReflectFields->TimestepTethers.size() - 1;
+        _targetPos          = _posTethers[idx];
+        _targetAngle        = _rotTethers[idx];
+        transform->Position = _targetPos;
+        transform->Rotation = _targetAngle;
+
     }
 }
 
@@ -552,6 +569,7 @@ void UmCineMotion::DeserializedReflectEvent()
         PushGuizmo(world);
 #endif
     }
+    ResetRail(true);
 }
 
 void UmCineMotion::SerializedReflectEvent()

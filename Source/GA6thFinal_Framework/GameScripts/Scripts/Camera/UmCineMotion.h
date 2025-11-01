@@ -22,7 +22,7 @@ public:
     GETTER(float, Current) { return _currentStep; }
     SETTER(float, Current)
     {
-        _currentStep = std::clamp(value, 0.f, 100.f);
+        _currentStep = std::clamp(value, 0.f, 1.f);
         _railFlag    = true;
         _pauseFlag   = true;
     }
