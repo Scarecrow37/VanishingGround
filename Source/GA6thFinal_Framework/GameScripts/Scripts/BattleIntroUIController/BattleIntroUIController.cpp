@@ -47,19 +47,28 @@ float BattleIntroUIController::PlayIntro(int stage, int battleCount)
 
         float delay = IntroTextShowTime;
         totalDuration += delay;
+        
+        UmTime.Invoke(animation.get(), totalDuration, 
+        [animation = animation.get(), stageTag, roundTag]() 
+        {
+            animation->FadeOutWithTag("Frame");
+            animation->FadeOutWithTag("Background");
+            animation->FadeOutWithTag(stageTag);
+            animation->FadeOutWithTag(roundTag);
+        });
 
         float fadeOutDuration = 0.f;
 
-        frameDuration   = animation->FadeOutWithTag("Frame");
+        frameDuration   = animation->GetDurationWithTag("Frame");
         fadeOutDuration = std::max(fadeOutDuration, frameDuration);
 
-        backgrundDuration = animation->FadeOutWithTag("Background");
+        backgrundDuration = animation->GetDurationWithTag("Background");
         fadeOutDuration   = std::max(fadeOutDuration, backgrundDuration);
 
-        stageDuration   = animation->FadeOutWithTag(stageTag);
+        stageDuration   = animation->GetDurationWithTag(stageTag);
         fadeOutDuration = std::max(fadeOutDuration, stageDuration);
 
-        roundDuration   = animation->FadeOutWithTag(roundTag);
+        roundDuration   = animation->GetDurationWithTag(roundTag);
         fadeOutDuration = std::max(fadeOutDuration, roundDuration);
 
         totalDuration += fadeOutDuration;

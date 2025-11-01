@@ -131,6 +131,20 @@ float ChildsAnimationsController::FadeOutWithTag(const std::string& tag)
     return 0.f;
 }
 
+float ChildsAnimationsController::GetDurationWithTag(const std::string& tag)
+{
+    if (auto findIter = _fadeUIsWithTag.find(tag); findIter != _fadeUIsWithTag.end())
+    {
+        float maxDuration = 0.f;
+        for (auto& fadeUI : findIter->second)
+        {
+            maxDuration = std::max(maxDuration, (float)fadeUI->FadeDuration);
+        }
+        return maxDuration;
+    }
+    return 0.0f;
+}
+
 float ChildsAnimationsController::StartAnimation(size_t index)
 {
     if (index < _spriteAnimations.size())

@@ -21,6 +21,8 @@ public:
     float FadeOut(size_t index);
     float FadeOutWithTag(const std::string& tag);
 
+    float GetDurationWithTag(const std::string& tag);
+
     float StartAnimation(size_t index);
     float StartAnimationWithTag(const std::string& tag);
     void  StopAnimation(size_t index);
