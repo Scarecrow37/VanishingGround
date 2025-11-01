@@ -632,6 +632,7 @@
     <ClInclude Include="Scripts\RoundInfoUI\RoundInfoUIManager.h" />
     <ClInclude Include="Scripts\Input\InputOkCancelComponent\InputOkCancelComponent.h" />
     <ClInclude Include="Scripts\MainMenu\CreditsBackButton.h" />
+    <ClInclude Include="Scripts\BattleIntroUIController\BattleIntroUIController.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scripts\MagicBook\SelectMagicBook.cpp" />
@@ -965,6 +966,7 @@
     <ClCompile Include="Scripts\RoundInfoUI\RoundInfoUIManager.cpp" />
     <ClCompile Include="Scripts\Input\InputOkCancelComponent\InputOkCancelComponent.cpp" />
     <ClCompile Include="Scripts\MainMenu\CreditsBackButton.cpp" />
+    <ClCompile Include="Scripts\BattleIntroUIController\BattleIntroUIController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

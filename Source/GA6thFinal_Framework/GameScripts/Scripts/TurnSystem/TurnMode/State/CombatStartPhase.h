@@ -49,6 +49,7 @@ protected:
 
 private:
     bool                        _phaseEnd;
+    bool                        _waitPhaseEnd;
     Player*                     _player;
     std::vector<Enemy*>         _enemies;
     std::vector<CharacterBase*> _characters;

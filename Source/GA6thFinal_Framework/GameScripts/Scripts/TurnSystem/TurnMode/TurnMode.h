@@ -39,14 +39,9 @@ public:
     int AddRoundCount() { return ++_roundCount; }
 
     /// <summary>
-    /// 현재 Scene에 존재하는 모든 TurnActor를 TurnList에 담습니다.
+    /// 턴 리스트 생성 및 정렬을 수행합니다./
     /// </summary>
     void MakeTurnList();
-
-    /// <summary>
-    /// Random Speed를 뽑고 TurnList를 정렬합니다.
-    /// </summary>
-    void SortTurnList();
 
     /// <summary>
     /// 가장 우선순위가 높은 TurnActor를 CurrTurnActor 로 설정합니다.

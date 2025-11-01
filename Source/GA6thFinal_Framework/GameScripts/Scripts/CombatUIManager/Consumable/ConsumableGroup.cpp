@@ -51,6 +51,9 @@ namespace CombatUI
 
     void ConsumableGroup::FadeIn(float duration)
     {
+        if (nullptr == Root)
+            return;
+
         if (FadeUI)
         {
             FadeUI->FadeDuration = duration;
@@ -64,6 +67,9 @@ namespace CombatUI
 
     void ConsumableGroup::FadeOut(float duration)
     {
+        if (nullptr == Root)
+            return;
+
         if (FadeUI)
         {
             FadeUI->FadeDuration = duration;

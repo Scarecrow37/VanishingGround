@@ -64,14 +64,14 @@ void FadeUIComponent::Reset()
     _fadeDirection = FadeDirection::NONE;
 }
 
-void FadeUIComponent::Awake()
+void FadeUIComponent::Added()
 {
-    Component::Awake();
-
-    UpdateAnimationProperty();
-
-    ClearTargets();
-    FindTargets();
+    if (UmCore->IsPlay())
+    {
+        UpdateAnimationProperty();
+        ClearTargets();
+        FindTargets();
+    }
 }
 
 void FadeUIComponent::ImGuiDrawPropertysEvent()

@@ -85,32 +85,13 @@ struct GetWeaponFrameGuid
     File::Guid operator()(bool isFocus) const
     {
         File::Guid frameGuid;
-        if (ExcelDataSystem* dataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
+        if (isFocus)
         {
-            if (std::unique_ptr<ExcelDataBase> dataBase = dataSystem->FindExcelDataBase(u8"전투"))
-            {
-                constexpr std::u8string_view findIndexColumnKey = u8"Description";
-                constexpr std::u8string_view findDataColumnKey  = u8"ID";
-                int                          assetID            = 0;
-                size_t                       rowIndex           = ExcelDataBase::FIND_INDEX_FAIL;
-                if (false == isFocus)
-                {
-                    rowIndex = dataBase->FindRowIndex(u8"턴 창_플레이어", findIndexColumnKey);
-                }
-                else
-                {
-                    rowIndex = dataBase->FindRowIndex(u8"턴 창_현재_플레이어", findIndexColumnKey);
-                }
-                if (rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
-                {
-                    std::string_view data = dataBase->FindData(rowIndex, findDataColumnKey);
-                    if (data != ExcelDataBase::FIND_STR_FAIL)
-                    {
-                        assetID = std::stoi(data.data());
-                        frameGuid = UmFileSystem.GetGuidFromAssetID(assetID);
-                    }
-                }
-            }
+            frameGuid = UmFileSystem.GetGuidFromAssetID(450013);
+        }
+        else
+        {
+            frameGuid = UmFileSystem.GetGuidFromAssetID(450011);
         }
         return frameGuid;
     }
@@ -121,32 +102,13 @@ struct GetEnemyFrameGuid
     File::Guid operator()(bool isFocus) const 
     {
         File::Guid frameGuid;
-        if (ExcelDataSystem* dataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
+        if (isFocus)
         {
-            if (std::unique_ptr<ExcelDataBase> dataBase = dataSystem->FindExcelDataBase(u8"전투"))
-            {
-                constexpr std::u8string_view findIndexColumnKey = u8"Description";
-                constexpr std::u8string_view findDataColumnKey  = u8"ID";
-                int                          assetID            = 0;
-                size_t                       rowIndex           = ExcelDataBase::FIND_INDEX_FAIL;
-                if (false == isFocus)
-                {
-                    rowIndex = dataBase->FindRowIndex(u8"턴 창_적", findIndexColumnKey);
-                }
-                else
-                {
-                    rowIndex = dataBase->FindRowIndex(u8"턴 창_현재 적", findIndexColumnKey);
-                }   
-                if (rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
-                {
-                    std::string_view data = dataBase->FindData(rowIndex, findDataColumnKey);
-                    if (data != ExcelDataBase::FIND_STR_FAIL)
-                    {
-                        assetID = std::stoi(data.data());
-                        frameGuid = UmFileSystem.GetGuidFromAssetID(assetID);
-                    }
-                }
-            }
+            frameGuid = UmFileSystem.GetGuidFromAssetID(450014);
+        }
+        else
+        {
+            frameGuid = UmFileSystem.GetGuidFromAssetID(450012);
         }
         return frameGuid;
     }

@@ -22,7 +22,7 @@ public:
     GETTER(float, Current) { return _currentStep; }
     SETTER(float, Current)
     {
-        _currentStep = std::clamp(value, 0.f, 100.f);
+        _currentStep = std::clamp(value, 0.f, 1.f);
         _railFlag    = true;
         _pauseFlag   = true;
     }
@@ -49,9 +49,9 @@ protected:
     std::vector<float>   RotationZTethers;
     std::vector<float>   RotationWTethers;
     std::vector<float>   TimestepTethers;
-    std::array<float, 3> OriginPosition;
-    std::array<float, 4> OriginRotation;
-    bool                 OriginFlag;
+    std::array<float, 3> OriginPosition{};
+    std::array<float, 4> OriginRotation{};
+    bool                 OriginFlag{};
     UINT                 EaseType      = 0;
     UINT                 EaseFuncType  = 0;
     float                EaseThreshold = 0.5f;
