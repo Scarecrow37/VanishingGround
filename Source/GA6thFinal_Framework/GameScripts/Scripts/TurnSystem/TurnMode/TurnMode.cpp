@@ -134,21 +134,19 @@ void TurnMode::MakeTurnList()
             }
         }
     }
-
-    _turnList = std::move(turnList);
-}
-
-void TurnMode::SortTurnList()
-{
-    if (false == _turnList.empty())
+    
+    if (false == turnList.empty())
     {
-        _turnList.shuffle(Random::GetEngine());
-        _turnList.sort([this](const std::pair<int, TurnActor*>& turnSlotA, const std::pair<int, TurnActor*>& turnSlotB) {
+        std::ranges::shuffle(turnList, Random::GetEngine());
+        std::ranges::sort(turnList, 
+            [this](const std::pair<int, TurnActor*>& turnSlotA, const std::pair<int, TurnActor*>& turnSlotB) {
             const int speedA = GetRealRoundSpeed(turnSlotA);
             const int speedB = GetRealRoundSpeed(turnSlotB);
             return speedA > speedB;
-        });
+            });
     }
+
+    _turnList = std::move(turnList);
 }
 
 void TurnMode::StartFrontTurnActor()

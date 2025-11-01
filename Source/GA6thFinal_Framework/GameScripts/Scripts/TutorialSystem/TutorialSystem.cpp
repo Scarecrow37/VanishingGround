@@ -58,6 +58,16 @@ void TutorialSystem::Start()
     SetupCallback();
 }
 
+void TutorialSystem::OnDestroy() 
+{
+    Unlock();
+}
+
+void TutorialSystem::OnLoadScene(Scene& loadScene, LoadSceneMode mode) 
+{
+    Unlock();
+}
+
 void TutorialSystem::ImGuiDrawPropertysEvent()
 {
     Component::ImGuiDrawPropertysEvent();

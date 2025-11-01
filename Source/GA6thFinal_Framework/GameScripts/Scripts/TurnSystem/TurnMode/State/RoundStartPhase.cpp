@@ -41,7 +41,6 @@ void RoundStartPhase::OnEnter()
     UmLogger.Message(LogLevel::LEVEL_DEBUG, message);
 
     _turnMode->MakeTurnList();
-    _turnMode->SortTurnList();
 
     if (_revelationSystem)
     {
