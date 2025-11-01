@@ -15,7 +15,10 @@ public:
     USING_PROPERTY(SceneTransitionComponent);
 
 public:
-    REFLECT_PROPERTY(Duration, StartColor, EndColor, Easing, PresetName)
+    REFLECT_PROPERTY(Step, Duration, StartColor, EndColor, Easing, PresetName)
+
+    GETTER_ONLY(float, Step) { return _fadeElapsedTimer / ReflectFields->Duration; }
+    PROPERTY(Step)
 
     GETTER(float, Duration) { return ReflectFields->Duration; }
     SETTER(float, Duration) { ReflectFields->Duration = value; }
@@ -64,12 +67,9 @@ protected:
     void OnDrawDebugSelected() override;
     void Update() override;
     void CalculateFade();
+    void UpdateBGMVolume();
 
-    // void Reset() override;
-
-     void Awake() override;
-
-    // void OnDestroy() override;
+    void Awake() override;
 
 public:
     void Fade(float duration, const Vector4& start, const Vector4& end, std::function<void()> callback);
@@ -79,6 +79,8 @@ public:
     void SetFadeCallback(std::function<void(void)> callback);
     void AddFadePreset();
     bool IsTransitioning() const;
+    bool IsFadeIn() const;
+    bool IsFadeOut() const;
     void SceneTransitionFade(std::string_view inPreset, std::string_view outPreset, std::function<void(void)> callback);
 
 

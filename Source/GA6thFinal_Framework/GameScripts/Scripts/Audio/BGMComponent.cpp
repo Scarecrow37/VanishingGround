@@ -10,7 +10,14 @@ BGMComponent::~BGMComponent() = default;
 
 void BGMComponent::Start() 
 {
-    PlayBGM(ReflectFields->AudioID, ReflectFields->UseFade);
+    PlayBGM(ReflectFields->AudioID, false);
+}
+void BGMComponent::OnDestroy() 
+{
+    if (BGMManager* bgmManager = SingletonComponent<BGMManager>::GetInstance())
+    {
+        bgmManager->SetCurrentBGMSleep();
+    }
 }
 void BGMComponent::PlayBGM(int id, bool useFade)
 {
@@ -20,7 +27,6 @@ void BGMComponent::PlayBGM(int id, bool useFade)
         bgmManager->PlayBGM(bgmKey, useFade);
     }
 }
-
 void BGMComponent::PlayBGM(const std::string& bgmKey, bool useFade)
 {
     if (BGMManager* bgmManager = SingletonComponent<BGMManager>::GetInstance())

@@ -12,12 +12,20 @@ BGMManager::~BGMManager()
 
 void BGMManager::PlayBGM(const std::string& bgmKey, bool useFade)
 {
+    // Sleep 상태의 상태를 현재 상태로 변경
+    _currBGMKey    = _sleepBGMKey;
+    _currBGMHandle = _sleepBGMHandle;
+    _sleepBGMKey    = "";
+    _sleepBGMHandle = Audio::AudioHandle{};
+
     if (_currBGMKey != bgmKey)
     {
+        // 이전 키
         _prevBGMHandle = _currBGMHandle;
         _prevBGMKey    = _currBGMKey;
         _currBGMKey    = bgmKey;
         _currBGMHandle = UmAudio.Play(bgmKey, Audio::GROUP_BGM, true);
+
         if (useFade)
         {
             _currBGMFader.Reset();
@@ -28,15 +36,27 @@ void BGMManager::PlayBGM(const std::string& bgmKey, bool useFade)
             UmAudio.Stop(_prevBGMHandle);
         }
     }
+    UpdateVolume();
 }
+
 
 void BGMManager::StopAllBGM()
 {
     UmAudio.Stop(_currBGMHandle);
     UmAudio.Stop(_prevBGMHandle);
+    UmAudio.Stop(_sleepBGMHandle);
 }
 
-void BGMManager::Awake() 
+void BGMManager::SetCurrentBGMSleep()
+{
+    _sleepBGMKey    = _currBGMKey;
+    _sleepBGMHandle = _currBGMHandle;
+    _currBGMKey     = "";
+    _currBGMHandle  = Audio::AudioHandle{};
+    UmAudio.SetVolume(_sleepBGMHandle, 0.0f);
+}
+
+void BGMManager::Awake()
 {
     _singletonObject.TrySingleTon(true);
     _singletonComponent.TrySingleTon();
@@ -44,10 +64,15 @@ void BGMManager::Awake()
 
 void BGMManager::Update()
 {
-    float currFactor = Volume * _currBGMFader.Fade();
-    float prevFactor = Volume * _prevBGMFader.Fade();
-    UmAudio.SetVolume(_currBGMHandle, currFactor);
-    UmAudio.SetVolume(_prevBGMHandle, prevFactor);
+    if (false == _currBGMKey.empty())
+    {
+        _currBGMFader.Fade();
+    }
+    if (false == _prevBGMKey.empty())
+    {
+        _prevBGMFader.Fade();
+    }
+    UpdateVolume();
 }
 
 void BGMManager::OnDestroy()
@@ -69,4 +94,18 @@ void BGMManager::DeserializedReflectEvent()
     _prevBGMFader.SetDuration(FadeDuration);
     _prevBGMFader.SetFadeOutType(Mathf::EaseType::EASE_IN, Mathf::EaseFuncType::SINE);
     _prevBGMFader.SetOnFadeOutEndCallback([this]() { UmAudio.Stop(_prevBGMHandle); });
+}
+
+void BGMManager::UpdateVolume() 
+{
+    if (false == _currBGMKey.empty())
+    {
+        float currFactor = ReflectFields->Volume * _currBGMFader.GetFadeFactor();
+        UmAudio.SetVolume(_currBGMHandle, currFactor);
+    }
+    if (false == _prevBGMKey.empty())
+    {
+        float prevFactor = ReflectFields->Volume * _prevBGMFader.GetFadeFactor();
+        UmAudio.SetVolume(_prevBGMHandle, prevFactor);
+    }
 }
