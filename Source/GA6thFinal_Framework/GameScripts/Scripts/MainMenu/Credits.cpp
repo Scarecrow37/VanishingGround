@@ -25,6 +25,7 @@ Credits::~Credits() = default;
 
 void Credits::Submit()
 {
+    Base::Submit();
     TransitionToCreditsScene();
 }
 

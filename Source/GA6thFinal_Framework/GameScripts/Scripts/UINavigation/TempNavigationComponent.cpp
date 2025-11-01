@@ -14,14 +14,14 @@ void TempNavigationComponent::FocusIn(const FocusCallType callType)
 
 void TempNavigationComponent::FocusOut(const FocusCallType callType)
 {
-    UINavigationComponent::FocusOut(callType);
+    Base::FocusOut(callType);
 
     UmLogger.Log(LogLevel::LEVEL_INFO, "Focus Out");
 }
 
 void TempNavigationComponent::Submit()
 {
-    UINavigationComponent::Submit();
+    Base::Submit();
 
     UmLogger.Log(LogLevel::LEVEL_INFO, "Submit");
 }

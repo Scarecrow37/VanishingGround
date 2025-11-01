@@ -88,6 +88,7 @@ ReturnToMapNavi::ReturnToMapNavi()
 
 void ReturnToMapNavi::Submit()
 {
+    Base::Submit();
     const File::Path& path = _Guid.ToPath();
 
     GameObject* transitionManager = SingletonObject<SceneTransitionComponent>::GetInstance();

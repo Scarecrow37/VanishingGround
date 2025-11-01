@@ -129,7 +129,6 @@ void SelectMagicBook::FocusOut(FocusCallType callType)
 void SelectMagicBook::Submit()
 {
     Base::Submit();
-
     if (auto object = GameObject::Find("Select Popup").lock())
     {
         object->SetActive(true);

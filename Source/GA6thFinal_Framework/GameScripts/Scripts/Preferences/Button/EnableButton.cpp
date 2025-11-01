@@ -249,7 +249,10 @@ void EnableButton::FocusOut(const FocusCallType callType)
     _isOptionDirty = true;
 }
 
-void EnableButton::Submit() {}
+void EnableButton::Submit()
+{
+    Base::Submit();
+}
 
 void EnableButton::SerializedReflectEvent()
 {

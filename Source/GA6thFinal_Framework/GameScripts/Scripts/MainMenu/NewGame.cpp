@@ -22,13 +22,14 @@ NewGame::NewGame()
             ImGui::EndDragDropTarget();
         }
     });
-    SetFocusInAudioID("-101000");
+    SetSubmitAudioID("-101000");
 }
 
 NewGame::~NewGame() = default;
 
 void NewGame::Submit()
 {
+    Base::Submit();
     TransitionToNextScene();
 }
 
