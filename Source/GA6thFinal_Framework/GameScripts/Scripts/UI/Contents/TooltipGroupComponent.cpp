@@ -4,17 +4,48 @@
 
 UMREAL_COMPONENT(TooltipGroupComponent)
 
+struct GetSecondary
+{
+    TooltipGroupComponent::ColumnType operator()(const TooltipGroupComponent::ColumnType primary) const
+    {
+        using ColumnType = TooltipGroupComponent::ColumnType;
+        switch (primary)
+        {
+        case ColumnType::LEFT:
+            return ColumnType::RIGHT;
+        case ColumnType::RIGHT:
+            return ColumnType::LEFT;
+        default:
+            throw std::out_of_range("Invalid ColumnType.");
+        }
+    }
+};
+
 TooltipGroupComponent::TooltipGroupComponent() = default;
 
-void TooltipGroupComponent::Show(const TooltipComponent::TooltipData& data)
+void TooltipGroupComponent::Show(const TooltipComponent::TooltipData& data) const
 {
-    ColumnType primaryColumn = PrimaryColumn;
+    const ColumnType primaryColumn = PrimaryColumn;
     try
     {
-        auto weakTooltipColumnComponent = _columns.at(primaryColumn);
+        std::shared_ptr<TooltipColumnComponent> targetColumn = nullptr;
+        if (const auto sharedPrimaryColumn = _columns.at(primaryColumn).lock();
+            nullptr != sharedPrimaryColumn && false == sharedPrimaryColumn->IsFull())
+        {
+            targetColumn = sharedPrimaryColumn;
+        }
+        else if (const auto sharedSecondaryColumn = _columns.at(GetSecondary()(primaryColumn)).lock();
+                 nullptr != sharedSecondaryColumn && false == sharedSecondaryColumn->IsFull())
+        {
+            targetColumn = sharedSecondaryColumn;
+        }
 
+        if (nullptr != targetColumn)
+        {
+            targetColumn->Show(data);
+        }
     }
-    catch (const std::out_of_range& exception)
+    catch (const std::out_of_range&)
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, "Fail to show tooltip. Tooltip Column is not existed.");
     }
@@ -41,6 +72,20 @@ void TooltipGroupComponent::Awake()
 void TooltipGroupComponent::ImGuiDrawPropertysEvent()
 {
     Component::ImGuiDrawPropertysEvent();
+
+    static TooltipComponent::TooltipData data = {};
+    ImGui::InputText("Title", &data.Title);
+    ImGui::InputText("Description", &data.Description);
+
+    if (ImGui::Button("Show Tooltip"))
+    {
+        Show(data);
+    }
+
+    if (ImGui::Button("Hide Tooltip"))
+    {
+        Hide();
+    }
 }
 
 void TooltipGroupComponent::FindComponent()

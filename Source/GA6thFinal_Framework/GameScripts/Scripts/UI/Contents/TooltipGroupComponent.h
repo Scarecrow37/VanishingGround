@@ -9,6 +9,7 @@ class TooltipGroupComponent : public Component
 
     static constexpr size_t MAX_COLUMN_COUNT = 2;
 
+public:
     enum class ColumnType
     {
         LEFT,
@@ -26,7 +27,7 @@ public:
     PROPERTY(PrimaryColumn)
 
 public:
-    void Show(const TooltipComponent::TooltipData& data);
+    void Show(const TooltipComponent::TooltipData& data) const;
     void Hide();
 
 protected:
