@@ -19,7 +19,7 @@ public:
     float PlayIntro(int stage, int roundCount);
 
 public:
-    REFLECT_PROPERTY()
+    REFLECT_PROPERTY(IntroTextShowTime)
 
     GETTER(float, IntroTextShowTime) { return ReflectFields->IntroTextShowTime; }
     SETTER(float, IntroTextShowTime) { ReflectFields->IntroTextShowTime = value; }
