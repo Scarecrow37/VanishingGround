@@ -475,7 +475,7 @@ public:
             /// 해당 리소스 매니저를 업데이트 합니다.
             /// </summary>
             /// <param name="manager"></param>
-            static void Update(SceneResourceManager& manager, bool waitLoadResource);
+            static void Update(SceneResourceManager& manager);
 
             /// <summary>
             /// 해당 리소스 매니저를 정리합니다.
@@ -520,6 +520,7 @@ public:
         void RequestSDFFontResource(const Component* component, const File::Guid& guid, const std::function<void()>& func);
         void RequestSDFFontResource(const Component* component, const File::Path& path, const std::function<void()>& func);
 
+        bool CheckAllResourceLoad();
     private:
         template <typename T>
         struct RenderResource
@@ -536,8 +537,6 @@ public:
 
         template <typename T>
         void UpdateRenderResource(RenderResource<T>& resource);
-
-        void WaitResourceLoad();
     };
     /// <summary>
     /// 씬 리소스 관리를 위한 맴버입니다.
@@ -665,6 +664,7 @@ private:
     void SceneUpdate();
  
 private:
+    bool ResourceLoadWait();
     void ObjectsInputUpdate();       //Input을 사용하는 Component들의 Event를 Update합니다.
     void ObjectsFixedUpdate();       //FixedUpdate를 호출합니다.
     void ObjectsUpdate();            //Update 를 호출합니다.
