@@ -289,6 +289,13 @@ public:
     /// <param name="damage :">들어갈 데미지</param>
     virtual void OnEnemyTakeDamageEnd(Enemy& target, int damage) {}
 
+    /// <summary>
+    /// 플레이어 무기의 Speed 사용할때 호출됩니다.
+    /// </summary>
+    /// <param name="weapon :">해당 무기</param>
+    /// <param name="plusSpeed :">부여할 추가 속도</param>
+    virtual void OnWeaponRoundSpeedApply(WeaponElement& weapon, int& plusSpeed) {}
+
 public:
     REFLECT_PROPERTY(ActionName, ActionInfo, LogicOperator)
 
