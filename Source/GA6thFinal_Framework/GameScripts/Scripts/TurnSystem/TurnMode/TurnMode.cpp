@@ -135,6 +135,16 @@ void TurnMode::MakeTurnList()
         }
     }
     
+    std::erase_if(turnList, [](std::pair<int, TurnActor*>& pair) 
+    {
+        auto& [slot, actor] = pair;
+        if (actor)
+        {
+            return actor->IsDead();
+        }
+        return true;
+    });
+
     if (false == turnList.empty())
     {
         std::ranges::shuffle(turnList, Random::GetEngine());
@@ -147,6 +157,19 @@ void TurnMode::MakeTurnList()
     }
 
     _turnList = std::move(turnList);
+}
+
+void TurnMode::EraseTurnListToDeadCharacter() 
+{
+    _turnList.erase_if([](std::pair<int, TurnActor*>& pair) 
+    {
+        auto& [slot, actor] = pair;
+        if (actor)
+        {
+            return actor->IsDead();
+        }
+        return true;
+    });
 }
 
 void TurnMode::StartFrontTurnActor()

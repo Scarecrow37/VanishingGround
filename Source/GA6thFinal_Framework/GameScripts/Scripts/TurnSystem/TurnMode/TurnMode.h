@@ -39,9 +39,14 @@ public:
     int AddRoundCount() { return ++_roundCount; }
 
     /// <summary>
-    /// 턴 리스트 생성 및 정렬을 수행합니다./
+    /// 턴 리스트 생성 및 정렬을 수행합니다.
     /// </summary>
     void MakeTurnList();
+
+    /// <summary>
+    /// 턴 항목에서 죽은 캐릭터를 제거합니다.
+    /// </summary>
+    void EraseTurnListToDeadCharacter();
 
     /// <summary>
     /// 가장 우선순위가 높은 TurnActor를 CurrTurnActor 로 설정합니다.
