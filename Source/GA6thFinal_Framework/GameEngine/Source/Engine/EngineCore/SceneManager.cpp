@@ -143,8 +143,8 @@ void ESceneManager::SceneUpdate()
     ObjectsLateUpdate();                                 // 두번째 로직 업데이트
 
     //로직 업데이트 이후 요청된 라이프 사이클들은 아래에서 반드시 실행 (이번 프레임에 바로 처리되야함)
-    ObjectsAddRuntime();                                
-    SceneResourceManager::Engine::Update(ResourceManager);
+    ObjectsAddRuntime();              
+    ResourceManagerUpdate();
     ObjectsOnEnable();
     ObjectsOnDisable();
     ObjectsAwake();
@@ -1049,6 +1049,7 @@ void ESceneManager::ObjectsAddLoadScene()
             }
         }
         _nextSceneGuid.clear();
+        _waitResourceLoad = true;
     }
 
     if (nullptr != _nextSceneSkybox)
@@ -1279,6 +1280,15 @@ void ESceneManager::ObjectsAddRuntime()
         component->Added();
     }
     addQueue.clear();
+}
+
+void ESceneManager::ResourceManagerUpdate() 
+{
+    SceneResourceManager::Engine::Update(ResourceManager, _waitResourceLoad);
+    if (_waitResourceLoad)
+    {
+        _waitResourceLoad = false;
+    }
 }
 
 bool ESceneManager::IsRuntimeActive(std::shared_ptr<GameObject>& obj)
@@ -2023,7 +2033,7 @@ void ESceneManager::SceneResourceManager::UpdateRenderResource(RenderResource<T>
     }
 }
 
-void ESceneManager::SceneResourceManager::Engine::Update(SceneResourceManager& manager)
+void ESceneManager::SceneResourceManager::Engine::Update(SceneResourceManager& manager, bool waitLoadResource)
 {
     ESceneManager& sceneManager = UmSceneManager;
     if (true == sceneManager._addComponentsQueue.empty())
@@ -2032,6 +2042,46 @@ void ESceneManager::SceneResourceManager::Engine::Update(SceneResourceManager& m
         manager.UpdateRenderResource(manager._textures);
         manager.UpdateRenderResource(manager._fonts);
         manager.UpdateRenderResource(manager._sdfFonts);
+        if (waitLoadResource)
+        {
+            manager.WaitResourceLoad();
+        }    
+    }
+}
+
+template <typename T>
+bool CheckReadyResource(T& resource)
+{
+    for (auto& [path, resource] : _models.RenderResource)
+    {
+        if (false == resource->IsValid())
+            return false;
+    }
+    return true;
+}
+
+void ESceneManager::SceneResourceManager::WaitResourceLoad() 
+{
+    while (true)
+    {
+        std::this_thread::yield(); 
+        if (false == CheckReadyResource(_models))
+        {
+            continue;
+        }
+        if (false == CheckReadyResource(_textures))
+        {
+            continue;
+        }
+        if (false == CheckReadyResource(_fonts))
+        {
+            continue;
+        }
+        if (false == CheckReadyResource(_sdfFonts))
+        {
+            continue;
+        }
+        break;
     }
 }
 

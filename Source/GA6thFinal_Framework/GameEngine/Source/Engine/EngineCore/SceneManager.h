@@ -475,7 +475,7 @@ public:
             /// 해당 리소스 매니저를 업데이트 합니다.
             /// </summary>
             /// <param name="manager"></param>
-            static void Update(SceneResourceManager& manager);
+            static void Update(SceneResourceManager& manager, bool waitLoadResource);
 
             /// <summary>
             /// 해당 리소스 매니저를 정리합니다.
@@ -536,6 +536,8 @@ public:
 
         template <typename T>
         void UpdateRenderResource(RenderResource<T>& resource);
+
+        void WaitResourceLoad();
     };
     /// <summary>
     /// 씬 리소스 관리를 위한 맴버입니다.
@@ -669,6 +671,7 @@ private:
     void ObjectsLateUpdate();        //LateUpdate를 호출합니다.
 
     void ObjectsAddRuntime();        //추가 대기중인 오브젝트, 컴포넌트를 라이프 사이클에 포함시킵니다.
+    void ResourceManagerUpdate();    //리로스 매니저를 업데이트합니다.
     void ObjectsOnEnable();          //OnEnable 예정인 컴포넌트들의 OnEnable 함수를 호출합니다.
     void ObjectsOnDisable();         //OnDisable 예정인 컴포넌트들의 OnDisable 함수를 호출해줍니다.
     void ObjectsAwake();             //Awake 예정인 컴포넌트들의 Awake 함수를 호출합니다.
@@ -791,6 +794,8 @@ private:
 
     //다음에 로드할 스카이박스
     Scene* _nextSceneSkybox;
+
+    bool _waitResourceLoad = false;
 
 protected:
     /// <summary>
