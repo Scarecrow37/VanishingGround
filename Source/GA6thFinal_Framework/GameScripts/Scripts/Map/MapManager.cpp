@@ -322,7 +322,7 @@ void MapManager::RegisterStage(GameObject& object)
         _stages.push_back(stage);
         _stageDataTable[mainLevel][subLevel] = stage;
 
-        std::string key = "Stage" + std::to_string(mainLevel);
+        std::string key = std::string(object.ToString());
         stage->UpdateData(key, UmFileSystem.GetGuidFromAssetID(ReflectFields->AssetIDs[STAGE_ENABLE]),
                           UmFileSystem.GetGuidFromAssetID(ReflectFields->AssetIDs[STAGE_DISABLE]));
 
