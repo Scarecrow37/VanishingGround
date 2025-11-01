@@ -178,7 +178,6 @@ void TurnQueueView::InitializeFramesAndPortraits()
         FindFramesWithTag("Frame Element");
         FindPortraitsWithTag("Turn Element");
         FindButtonIconsWithTag("Button Icons");
-        gameObject->ActiveSelf = false;
     }
     else
     {
