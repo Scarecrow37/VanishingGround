@@ -2317,32 +2317,29 @@ bool ESceneManager::InputSystem::PopReceiverToInputStack(InputReceiver& receiver
 {
     if (receiver._isDestroy)
     {
-        if (true == receiver._isPushStack)
+        bool result = false;
+        while (false == _layerStack.empty())
         {
-            bool result = false;
-            while (false == _layerStack.empty())
+            auto& [topReceiver, isDestroy] = _layerStack.back();
+            if (receiver._isPushStack && receiver._isDestroy.get() == topReceiver)
             {
-                auto& [topReceiver, isDestroy] = _layerStack.back();
-                if (receiver._isDestroy.get() == topReceiver)
-                {
-                    _layerStack.pop_back();
-                    receiver._isPushStack = false;
-                    result = true;
-                }
-                else 
-                {               
-                    if (auto destroyFlag = isDestroy.lock())
-                    {
-                        if (*destroyFlag)
-                        {
-                            _layerStack.pop_back();
-                            continue;
-                        }
-                    }
-                    return result;          
-                }
+                _layerStack.pop_back();
+                receiver._isPushStack = false;
+                result = true;
             }
-        }
+            else 
+            {               
+                if (auto destroyFlag = isDestroy.lock())
+                {
+                    if (false == *destroyFlag)
+                    {
+                        //유효한 InputLayer면 반환
+                        return result;  
+                    }
+                }
+                _layerStack.pop_back(); //유효하지 않는 레이어는 제거 
+            }        
+        }      
     }
     return false;
 }
