@@ -477,17 +477,20 @@ void WeaponTableComponent::ImGuiTableEditor()
                 {
                     if (false == weapon._actions.empty())
                     {
+                        auto& actionEditorShowFlags = _imguiEvent.ShowActionEditor[key];
+                        ImGui::PushID(weapon.Stats.WeaponID);
                         for (size_t i = 0; i < weapon._actions.size(); ++i)
                         {
                             auto& action = weapon._actions[i];
-                            if (_imguiEvent.ShowActionEditor.size() <= i)
+                            if (actionEditorShowFlags.size() <= i)
                             {
-                                _imguiEvent.ShowActionEditor.resize(i + 1);
+                                actionEditorShowFlags.resize(i + 1);
                             }
-                            bool showEditor = _imguiEvent.ShowActionEditor[i];
-                            TurnAction::ImGuiDrawActionMaker(key + std::to_string(i), action, showEditor);
-                            _imguiEvent.ShowActionEditor[i] = showEditor;
-                        }                    
+                            bool showEditor = actionEditorShowFlags[i];
+                            TurnAction::ImGuiDrawActionMaker(key + std::to_string(weapon.Stats.WeaponID), action, showEditor);
+                            actionEditorShowFlags[i] = showEditor;
+                        }        
+                        ImGui::PopID();
                     }                
                     if (ImGui::Button("Push"))
                     {

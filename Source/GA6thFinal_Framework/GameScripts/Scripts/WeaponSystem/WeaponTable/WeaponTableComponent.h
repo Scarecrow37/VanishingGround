@@ -95,7 +95,7 @@ private:
         bool                  OpenDeletePopup   = false;
         WeaponElement*        SelectWeapon      = nullptr;
         std::function<void()> RenameFunc;
-        std::vector<bool>     ShowActionEditor;
+        std::unordered_map<std::string, std::vector<bool>> ShowActionEditor;
 
         std::queue<WeaponElement*> DirtyWeaponElementQueue;
         bool                       ShowDirtyWeaponPopup = false;
