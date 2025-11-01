@@ -43,7 +43,7 @@ void AttackTokenRemoveAction::ImGuiDrawActionEditor()
 
 const std::string& AttackTokenRemoveAction::GetActionName()
 {
-    static const std::string name = (const char*)u8"턴 종료시 대상에게 토큰 제거";
+    static const std::string name = (const char*)u8"공격시 대상에게 토큰 제거";
     return name;
 }
 
