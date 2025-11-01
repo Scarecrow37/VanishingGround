@@ -2083,6 +2083,8 @@ bool CheckReadyResource(ESceneManager::SceneResourceManager::RenderResource<Mode
         if (false == resource->IsValid())
             return false;
 
+        //TODO: 씬 리소스 로드 대기해야 하는데 안대요
+        /*
         for (auto& textures : resource->GetTextures())
         {
             for (auto& texture : textures)
@@ -2094,6 +2096,7 @@ bool CheckReadyResource(ESceneManager::SceneResourceManager::RenderResource<Mode
                     return false;                   
             }
         }
+        */
     }
     return true;
 }
