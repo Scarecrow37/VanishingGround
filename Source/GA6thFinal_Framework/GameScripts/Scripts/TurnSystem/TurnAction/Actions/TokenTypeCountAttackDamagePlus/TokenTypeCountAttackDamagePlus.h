@@ -48,11 +48,20 @@ protected:
     }
     PROPERTY(CriticalDamage)
 
+    GETTER(bool, IsCountToken) { return ReflectFields->IsCountToken; }
+    SETTER(bool, IsCountToken)
+    {
+        ReflectFields->IsCountToken = value;
+        UpdateActionInfo();
+    }
+    PROPERTY(IsCountToken)
+
     REFLECT_FIELDS_BEGIN(TurnAction)
     TurnTarget  TokenTarget    = TurnTarget::ENEMY;
     std::string TokenTag       = (const char*)u8"출혈";
     int         HitDamage      = 1;
     int         CriticalDamage = 1;
+    bool        IsCountToken   = true;
     REFLECT_FIELDS_END(TokenTypeCountAttackDamagePlus)
 
     void OnPlayerBattleCalculateDamageModifier(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,

@@ -40,6 +40,7 @@ void TokenTypeCountAttackDamagePlus::ImGuiDrawActionEditor()
     ReflectHelper::ImGuiDraw::Private::InputAuto(TokenTag, UmCore->ImGuiDrawPropertysSetting);
     ReflectHelper::ImGuiDraw::Private::InputAuto(HitDamage, UmCore->ImGuiDrawPropertysSetting);
     ReflectHelper::ImGuiDraw::Private::InputAuto(CriticalDamage, UmCore->ImGuiDrawPropertysSetting);
+    ReflectHelper::ImGuiDraw::Private::InputAuto(IsCountToken, UmCore->ImGuiDrawPropertysSetting);
     ImGui::Separator();
     ImGui::Text("Conditions");
     ImguiDrawConditionEditor();
@@ -60,7 +61,15 @@ void TokenTypeCountAttackDamagePlus::OnPlayerBattleCalculateDamageModifier(Playe
                 if (target)
                 {
                     TokenInventory& inventory = target->GetTokenInventory();
-                    tokenCount += inventory.GetTokenStackFromTag(ReflectFields->TokenTag);
+
+                    if (IsCountToken)
+                    {
+                        tokenCount += inventory.GetTokenStackFromTag(ReflectFields->TokenTag);
+                    }
+                    else
+                    {
+                        tokenCount += inventory.HasTokenFromTag(ReflectFields->TokenTag);
+                    }
                 }            
             }    
         }
@@ -93,10 +102,14 @@ void TokenTypeCountAttackDamagePlus::UpdateActionInfo()
     _actionInfo = (const char*)TurnSystemHelper::GetTurnTargetToolTip(ReflectFields->TokenTarget).data();
     _actionInfo += u8"에게 존재하는 "_c_str;
     _actionInfo += TokenTag;
-    _actionInfo += u8" 토큰 만큼"_c_str;
 
-    _actionInfo += u8" 일격 + 토큰 갯수 x "_c_str;
+    if (IsCountToken)
+        _actionInfo += u8" 토큰 갯수 만큼"_c_str;
+    else
+        _actionInfo += u8" 캐릭터 한명당"_c_str;
+
+    _actionInfo += u8" 일격 + 갯수 x "_c_str;
     _actionInfo += std::to_string(ReflectFields->HitDamage);
-    _actionInfo += u8" 치명타 + 토큰 갯수 x "_c_str;
+    _actionInfo += u8" 치명타 + 갯수 x "_c_str;
     _actionInfo += std::to_string(ReflectFields->CriticalDamage);
 }
