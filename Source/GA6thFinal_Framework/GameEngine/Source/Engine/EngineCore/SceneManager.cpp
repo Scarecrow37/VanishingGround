@@ -2052,7 +2052,7 @@ void ESceneManager::SceneResourceManager::Engine::Update(SceneResourceManager& m
 template <typename T>
 bool CheckReadyResource(T& resource)
 {
-    for (auto& [path, resource] : _models.RenderResource)
+    for (auto& [path, resource] : resource.RenderResource)
     {
         if (false == resource->IsValid())
             return false;
