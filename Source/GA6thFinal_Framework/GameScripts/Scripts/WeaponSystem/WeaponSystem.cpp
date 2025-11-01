@@ -121,21 +121,15 @@ int WeaponSystem::GetRoundSpeedToSlot(int slot)
 {
     int speed      = _equipWeapons[slot].Stats.Speed;
     int roundSpeed = _equipWeapons[slot].Stats.RandomSpeed;
+    //추가 액션 호출
     int actionSpeed = 0;
-    if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+    for (auto& action : _equipWeapons[slot]._actions)
     {
-        //추가 액션 부여 및 호출
-        for (auto& weapon : _equipWeapons)
+        if (action)
         {
-            for (auto& action : weapon._actions)
-            {
-                if (action)
-                {
-                    action->OnWeaponRoundSpeedApply(_equipWeapons[slot], actionSpeed);
-                }
-            }      
+            action->OnWeaponRoundSpeedApply(_equipWeapons[slot], actionSpeed);
         }
-    }
+    }   
     return speed + roundSpeed + actionSpeed;
 }
 
