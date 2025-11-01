@@ -13,8 +13,11 @@ BGMManager::~BGMManager()
 void BGMManager::PlayBGM(const std::string& bgmKey, bool useFade)
 {
     // Sleep 상태의 상태를 현재 상태로 변경
-    _currBGMKey    = _sleepBGMKey;
-    _currBGMHandle = _sleepBGMHandle;
+    if (false == _sleepBGMKey.empty())
+    {
+        _currBGMKey    = _sleepBGMKey;
+        _currBGMHandle = _sleepBGMHandle;
+    }
     _sleepBGMKey    = "";
     _sleepBGMHandle = Audio::AudioHandle{};
 
