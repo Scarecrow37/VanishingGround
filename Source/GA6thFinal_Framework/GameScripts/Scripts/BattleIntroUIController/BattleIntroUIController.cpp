@@ -15,40 +15,61 @@ BattleIntroUIController::~BattleIntroUIController() = default;
 
 float BattleIntroUIController::PlayIntro(int stage, int battleCount)
 {
-    float introDuration = 0.f;
+    float totalDuration = 0.f;
     gameObject->SetActive(true);
-    if (_fadeUIComponent.expired() || _animationController.expired())
+    if (_animationController.expired())
     {
         FindAnimations();
     }
 
     if (auto animation = _animationController.lock())
     {
-        std::string stageTag      = "Stage " + std::to_string(stage);
-        float       stageDuration = animation->FadeInWithTag(stageTag);
-        introDuration             = std::max(introDuration, stageDuration);
+        std::string stageTag = "Stage " + std::to_string(stage);
+        std::string roundTag = "Round " + std::to_string(battleCount);
 
-        std::string roundTag      = "Round " + std::to_string(battleCount);
-        float       roundDuration = animation->StartAnimationWithTag(roundTag);
-        introDuration             = std::max(introDuration, roundDuration);
+        float fadeInDuration = 0.f;
+
+        animation->BeginWithTag("Frame");
+        float frameDuration = animation->FadeInWithTag("Frame");
+        fadeInDuration      = std::max(fadeInDuration, frameDuration);
+
+        animation->BeginWithTag("Background");
+        float backgrundDuration = animation->FadeInWithTag("Background");
+        fadeInDuration          = std::max(fadeInDuration, backgrundDuration);
+
+        animation->BeginWithTag(stageTag);
+        float stageDuration = animation->FadeInWithTag(stageTag);
+        fadeInDuration      = std::max(fadeInDuration, stageDuration);
+
+        float roundDuration = animation->StartAnimationWithTag(roundTag);
+        fadeInDuration      = std::max(fadeInDuration, roundDuration);
+        totalDuration = fadeInDuration;
 
         float delay = IntroTextShowTime;
-        introDuration += delay;
+        totalDuration += delay;
+
+        float fadeOutDuration = 0.f;
+
+        frameDuration   = animation->FadeOutWithTag("Frame");
+        fadeOutDuration = std::max(fadeOutDuration, frameDuration);
+
+        backgrundDuration = animation->FadeOutWithTag("Background");
+        fadeOutDuration   = std::max(fadeOutDuration, backgrundDuration);
+
+        stageDuration   = animation->FadeOutWithTag(stageTag);
+        fadeOutDuration = std::max(fadeOutDuration, stageDuration);
+
+        roundDuration   = animation->FadeOutWithTag(roundTag);
+        fadeOutDuration = std::max(fadeOutDuration, roundDuration);
+
+        totalDuration += fadeOutDuration;
     }
 
-    if (auto fadeUI = _fadeUIComponent.lock())
-    {
-        UmTime.Invoke(fadeUI.get(), introDuration, [fadeUI = fadeUI.get()]()
-        { 
-            fadeUI->FadeOut();
-        });
-        introDuration += fadeUI->FadeDuration;
-    }
-    UmTime.Invoke(this, introDuration, [this]() 
+    UmTime.Invoke(this, totalDuration, [this]() 
     { 
         gameObject->SetActive(false); 
     });
-    return introDuration;
+    return totalDuration;
 }
 
 void BattleIntroUIController::Added() 
@@ -65,10 +86,6 @@ void BattleIntroUIController::FindAnimations()
     if (Transform* tr =  transform->FindWithTag("Animations"))
     {
         GameObject& animationsPanel = tr->gameObject; 
-        if (FadeUIComponent* fadeUI = animationsPanel.GetComponent<FadeUIComponent>())
-        {
-            _fadeUIComponent = fadeUI->GetWeakPtrAs<FadeUIComponent>();
-        }
         if (ChildsAnimationsController* controller = animationsPanel.GetComponent<ChildsAnimationsController>())
         {
             _animationController = controller->GetWeakPtrAs<ChildsAnimationsController>();

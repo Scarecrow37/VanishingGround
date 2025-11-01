@@ -43,6 +43,25 @@ void ChildsAnimationsController::FindAnimations()
     }
 }
 
+void ChildsAnimationsController::Begin(size_t index) 
+{
+    if (index < _fadeUIs.size())
+    {
+        _fadeUIs[index]->Begin();
+    }
+}
+
+void ChildsAnimationsController::BeginWithTag(const std::string& tag) 
+{
+    if (auto findIter = _fadeUIsWithTag.find(tag); findIter != _fadeUIsWithTag.end())
+    {
+        for (auto& fadeUI : findIter->second)
+        {
+            fadeUI->Begin();
+        }
+    }
+}
+
 float ChildsAnimationsController::FadeIn(size_t index) 
 {
     if (index < _fadeUIs.size())
@@ -66,6 +85,25 @@ float ChildsAnimationsController::FadeInWithTag(const std::string& tag)
         return maxDuration;
     }
     return 0.f;
+}
+
+void ChildsAnimationsController::End(size_t index) 
+{
+    if (index < _fadeUIs.size())
+    {
+        _fadeUIs[index]->End();
+    }
+}
+
+void ChildsAnimationsController::EndWithTag(const std::string& tag) 
+{
+    if (auto findIter = _fadeUIsWithTag.find(tag); findIter != _fadeUIsWithTag.end())
+    {
+        for (auto& fadeUI : findIter->second)
+        {
+            fadeUI->End();
+        }
+    }
 }
 
 float ChildsAnimationsController::FadeOut(size_t index)

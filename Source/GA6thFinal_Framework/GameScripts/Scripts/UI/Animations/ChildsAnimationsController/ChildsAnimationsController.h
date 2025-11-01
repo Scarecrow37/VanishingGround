@@ -12,8 +12,12 @@ public:
 
 public:
     void  FindAnimations();
+    void  Begin(size_t index);
+    void  BeginWithTag(const std::string& tag);
     float FadeIn(size_t index);
     float FadeInWithTag(const std::string& tag);
+    void  End(size_t index);
+    void  EndWithTag(const std::string& tag);
     float FadeOut(size_t index);
     float FadeOutWithTag(const std::string& tag);
 

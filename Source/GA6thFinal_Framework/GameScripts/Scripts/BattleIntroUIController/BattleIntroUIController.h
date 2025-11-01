@@ -35,7 +35,6 @@ protected:
 
 private:
     std::weak_ptr<ChildsAnimationsController> _animationController;
-    std::weak_ptr<FadeUIComponent>            _fadeUIComponent;
     SingletonComponent<BattleIntroUIController> _singletonComponent;
 
 private:
