@@ -511,6 +511,7 @@
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\ChainCondition\ChainCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\LastQTEResultCondition\LastQTEResultCondition.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\CheckWeaponCountCondition\CheckWeaponCountCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\RevelationActiveCondition\RevelationActiveCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\RoundOnceCondition\RoundOnceCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\TokenCondition\TokenCondition.h" />
@@ -841,6 +842,7 @@
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\WeaponStas\RevelationCountWeaponDamageAcation.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\WeaponStas\WeaponSpeedAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\ChainCondition\ChainCondition.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\CheckWeaponCountCondition\CheckWeaponCountCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\LastQTEResultCondition\LastQTEResultCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\RevelationActiveCondition\RevelationActiveCondition.cpp" />

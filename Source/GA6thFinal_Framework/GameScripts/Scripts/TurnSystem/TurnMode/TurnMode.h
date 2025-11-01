@@ -39,6 +39,11 @@ public:
     int AddRoundCount() { return ++_roundCount; }
 
     /// <summary>
+    /// 이번 라운드의 플레이어의 무기 턴 횟수입니다. 
+    /// </summary>
+    int GetPlayerWeaponCounter() { return _playerWeaponCounter; }
+
+    /// <summary>
     /// 턴 리스트 생성 및 정렬을 수행합니다.
     /// </summary>
     void MakeTurnList();
@@ -222,6 +227,8 @@ private:
 
 private:
     std::vector<std::pair<std::unique_ptr<bool>, TurnAction*>> _turnActions;
+    
+    int _playerWeaponCounter = 0;
 
 public:
     GETTER_ONLY(const SystemStates&, States) { return _systemStates; }

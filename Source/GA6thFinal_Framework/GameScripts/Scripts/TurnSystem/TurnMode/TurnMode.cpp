@@ -156,6 +156,7 @@ void TurnMode::MakeTurnList()
             });
     }
 
+    _playerWeaponCounter = 0;
     _turnList = std::move(turnList);
 }
 
@@ -210,6 +211,7 @@ void TurnMode::StartFrontTurnActor()
                 {
                     UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Weapon System이 존재하지 않습니다.");
                 }
+                ++_playerWeaponCounter;
             }
             _currTurnActor = actorSlot.second;
         });
