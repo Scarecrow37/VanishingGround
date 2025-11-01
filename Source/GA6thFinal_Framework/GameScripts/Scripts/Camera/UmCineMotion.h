@@ -28,6 +28,9 @@ public:
     }
     PROPERTY(Current)
 
+    GETTER_ONLY(float, Duration) { return ReflectFields->RailLength / ReflectFields->RailSpeed; }
+    PROPERTY(Duration)
+
 public:
     UmCineMotion();
     ~UmCineMotion() override;

@@ -6,6 +6,7 @@
 #include <TurnSystem/TurnMode/State/CombatStartPhase.h>
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
+#include <TurnSystem/TurnMode/Condition/CheckTurnEndCondition.h>
 
 REGISTER_CLASS(FSMStateFactory, PlayerActionPhase)
 
@@ -45,13 +46,41 @@ void PlayerActionPhase::OnEnter()
             actor->UpdatePostTurnState();
         }
     }
-
-    ApplyReduceHP();
+    if (CheckTurnEndCondition* condition = _turnMode->Conditions->CheckTurnEndCondition)
+    {
+        condition->IsTurnEnd = false;
+        // 토큰 데미지를 기다린다
+        if (TokenSystem* system = SingletonComponent<TokenSystem>::GetInstance())
+        {
+            float tokenDelayTime = system->TokenDamageDelayTime * 2; // 두개의 토큰 대미지를 기다려야함 (출혈, 중독)
+            UmTime.Invoke(GetFSM(), tokenDelayTime, [this]() 
+            { 
+                WaitPhase = false; 
+                UpdateCharacterDead();
+            });
+        }
+        else
+        {
+            WaitPhase = false;
+            UpdateCharacterDead();
+        }
+    }
 }
 
 void PlayerActionPhase::OnExit()
 {
+    WaitPhase = true;
     ApplyReduceHP();
 }
 
-void PlayerActionPhase::OnUpdate() {}
+void PlayerActionPhase::OnUpdate() 
+{
+    if (_turnMode && false == WaitPhase)
+    {
+        const auto& currentModel = _turnMode->GetCurrTurnActor();
+        if (CheckTurnEndCondition* condition = _turnMode->Conditions->CheckTurnEndCondition)
+        {
+            condition->IsTurnEnd = TurnActor::STATE::Play != currentModel->GetActorState();
+        }
+    }
+}

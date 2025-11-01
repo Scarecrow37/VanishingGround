@@ -1465,13 +1465,15 @@ void ESceneManager::AddDestroyObjectQueue(GameObject* gameObject)
     if (gameObject && gameObject->IsValid())
     {
         auto& [set, vec] = engineCore->SceneManager._destroyObjectsQueue;
-        Transform::ForeachDFS(gameObject->_transform, [this, &set, &vec](Transform* pTransform) {
+        auto& componentDestroySet = engineCore->SceneManager._destroyComponentsQueue.first;
+        Transform::ForeachDFS(gameObject->_transform, [this, &set, &vec, &componentDestroySet](Transform* pTransform) {
             auto [iter, result] = set.insert(&pTransform->gameObject);
             if (result)
             {
                 vec.push_back(&pTransform->gameObject);
                 for (auto& component : pTransform->_gameObject._components)
                 {
+                    componentDestroySet.insert(component.get());
                     NotInitDestroyComponentEraseToWaitVec(component.get());
                 }
             }

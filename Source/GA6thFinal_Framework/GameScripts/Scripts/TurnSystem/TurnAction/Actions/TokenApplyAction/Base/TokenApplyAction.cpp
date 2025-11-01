@@ -44,7 +44,7 @@ void TokenApplyAction::ImGuiDrawPropertysEvent()
     ImguiDrawConditionEditor();
 }
 
-void TokenApplyAction::TryTokenSystemInfoUpdate() 
+void TokenApplyAction::TryTokenSystemInfoUpdate()
 {
     if (false == validTokenSystem)
     {

@@ -7,6 +7,7 @@ class FiniteStateMachine;
 class TurnActor;
 class Enemy;
 class Player;
+class UmCineMotion;
 
 /*
 * 턴을 관리하는 컴포넌트입니다.
@@ -77,6 +78,9 @@ public:
         return 0 <= slot;
     }
 
+    UmCineMotion* GetIntroCamera() { return _introCamera.lock().get(); }
+    UmCineMotion* GetBattleCamera() { return _battleCamera.lock().get(); }
+
 public:
     REFLECT_PROPERTY(
         RoundCount
@@ -130,6 +134,10 @@ private:
     bool _revelationActiveFlag = false;
     /*이번 턴에 대한 계시 발동 여부를 관리하는 플래그입니다.*/
     bool _currentTurnRevelationActiveFlag = false;
+
+    // 카메라 연출용
+    std::weak_ptr<UmCineMotion> _introCamera;
+    std::weak_ptr<UmCineMotion> _battleCamera;
 
 private:
     struct SystemStates
@@ -239,5 +247,7 @@ protected:
     virtual void Awake() override;
 
     virtual void ImGuiDrawPropertysEvent() override;
+
+    void FindCameras();
 
 };

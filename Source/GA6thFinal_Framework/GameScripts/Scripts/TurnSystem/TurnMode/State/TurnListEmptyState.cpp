@@ -5,6 +5,7 @@
 #include <TurnSystem/TurnActor/Character/CharacterBase.h>
 #include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
 #include "TurnSystem/TurnActor/Character/Player/Player.h"
+#include "BattleSystem/Battle.h"
 #include "WeaponSystem/WeaponSystem.h"
 #include "TutorialSystem/TutorialSystem.h"
 
@@ -35,12 +36,23 @@ void TurnListEmptyState::OnEnter()
             {
                 if (WeaponSystem* weaponSystem = SingletonComponent<WeaponSystem>::GetInstance())
                 {
+                    //마지막 공격 대상
+                    std::weak_ptr<Enemy> lastTarget = Battle::GetLastTargetEnemy();
+
+                    //조건 평가를 정확하게 하기 위해 마지막 공격 대상을 죽은 캐릭터로 설정
+                    std::weak_ptr<Enemy> deadTarget = deadCharacter.GetWeakPtrAs<Enemy>();
+                    Battle::SetLastTargetEnemy(deadTarget);
+
+                    //액션 호출
                     Enemy& enemy = static_cast<Enemy&>(deadCharacter);
                     _turnMode->ApplyActions([&enemy, weaponSystem](TurnAction& action) 
                     {
                         WeaponElement& element = weaponSystem->GetCurrentWeaponElement();
                         action.OnEnemyDeadByWeapon(enemy, element);
                     });
+
+                    //마지막 공격 대상 복원
+                    Battle::SetLastTargetEnemy(lastTarget);
                 }
             }
         });
