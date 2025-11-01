@@ -503,6 +503,7 @@
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\WeaponKillTokenApplyAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenChangeAction\TokenChangeAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenTypeCountAttackDamageAdditional\TokenTypeCountAttackDamageAdditional.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenTypeCountAttackDamagePlus\TokenTypeCountAttackDamagePlus.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\WeaponStas\RevelationCountWeaponDamageAcation.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\ChainCondition\ChainCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.h" />
@@ -831,6 +832,7 @@
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\WeaponKillTokenApplyAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenChangeAction\TokenChangeAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenTypeCountAttackDamageAdditional\TokenTypeCountAttackDamageAdditional.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenTypeCountAttackDamagePlus\TokenTypeCountAttackDamagePlus.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\WeaponStas\RevelationCountWeaponDamageAcation.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\ChainCondition\ChainCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.cpp" />
