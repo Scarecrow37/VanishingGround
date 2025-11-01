@@ -115,6 +115,8 @@ public:
     virtual void OnKill(CharacterBase* destination) override;
     virtual void OnTokenAdded(int tokenID) override;
     virtual void OnTokenRemoved(int tokenID) override;
+    virtual void OnTokenEnter(int tokenID) override;
+    virtual void OnTokenExit(int tokenID) override;
     virtual void OnQTEStart() override;
     virtual void OnQTEEnd() override;
     virtual void OnNotifiedAnimationEvent(const Timeline::EventContext* context);
