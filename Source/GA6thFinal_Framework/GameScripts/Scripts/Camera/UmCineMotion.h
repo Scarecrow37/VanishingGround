@@ -49,9 +49,9 @@ protected:
     std::vector<float>   RotationZTethers;
     std::vector<float>   RotationWTethers;
     std::vector<float>   TimestepTethers;
-    std::array<float, 3> OriginPosition;
-    std::array<float, 4> OriginRotation;
-    bool                 OriginFlag;
+    std::array<float, 3> OriginPosition{};
+    std::array<float, 4> OriginRotation{};
+    bool                 OriginFlag{};
     UINT                 EaseType      = 0;
     UINT                 EaseFuncType  = 0;
     float                EaseThreshold = 0.5f;

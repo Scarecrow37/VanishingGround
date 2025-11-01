@@ -503,7 +503,7 @@ void UmCineMotion::ResetRail(bool toBegin)
     }
     if (ReflectFields->TimestepTethers.size() > 1)
     {
-        int idx             = toBegin ? 0 : ReflectFields->TimestepTethers.size() - 1;
+        int idx             = toBegin ? 0 : static_cast<int>(ReflectFields->TimestepTethers.size()) - 1;
         _targetPos          = _posTethers[idx];
         _targetAngle        = _rotTethers[idx];
         transform->Position = _targetPos;
