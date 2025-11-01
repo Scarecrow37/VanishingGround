@@ -16,14 +16,20 @@ void UISFXNavigationComponent::FocusIn(const FocusCallType callType)
     Base::FocusIn(callType);
     if (callType != FocusCallType::INITIAL)
     {
-        UmAudio.Play(_focusInAudioID);
+        if (gameObject->ActiveInHierarchy)
+        {
+            UmAudio.Play(_focusInAudioID);
+        }
     }
 }
 
 void UISFXNavigationComponent::Submit() 
 {
     Base::Submit();
-    UmAudio.Play(_submitAudioID);
+    if (gameObject->ActiveInHierarchy)
+    {
+        UmAudio.Play(_submitAudioID);
+    }
 }
 
 void UISFXNavigationComponent::SetFocusInAudioID(const std::string& audioID) 
