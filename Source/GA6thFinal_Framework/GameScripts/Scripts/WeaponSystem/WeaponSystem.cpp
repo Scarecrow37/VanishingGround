@@ -89,8 +89,8 @@ void WeaponSystem::SetCurrentWeaponSlot(int slot)
     auto      isPlay   = UmCore->IsPlay();
     if (isPlay && turnMode)
     {
-        WeaponElement& curr = _equipWeapons[_currentWeaponSlot];
-        WeaponElement& next = _equipWeapons[slot];
+        WeaponElement& curr = _equipWeapons[_lastWeaponSlot];
+        WeaponElement& next = _equipWeapons[_currentWeaponSlot];
         if (false == curr._actions.empty())
         {
             for (auto& action : curr._actions)
