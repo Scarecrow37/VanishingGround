@@ -571,6 +571,7 @@ void QTESystem::ProcessQTEEnterEvent()
     UmAudio.FadeOut();
 
     _currState = QTE::STATE_FADE_IN;
+    AudioHelper::PlaySFX(_audioIDState.OnQTEAppear);
     _callbackHandler.ProcessQTEFadeInStartEvent();
     QTEUIManager* uiManager = SingletonComponent<QTEUIManager>::GetInstance();
     if (uiManager)
@@ -636,7 +637,6 @@ void QTESystem::ProcessQTEExitEvent()
 void QTESystem::ProcessQTEFadeInEndEvent() 
 {
     _currState = QTE::STATE_PLAYING;
-    AudioHelper::PlaySFX(_audioIDState.OnPerfectJudgement);
 }
 
 void QTESystem::ProcessQTEFadeOutEndEvent() 
