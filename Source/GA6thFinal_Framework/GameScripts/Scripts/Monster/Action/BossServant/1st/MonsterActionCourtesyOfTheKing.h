@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "Monster/Action/MonsterActionBase.h"
+#include "Monster/Action/BossServant/MonsterBossServantAction.h"
 
 namespace Monster
 {
@@ -8,7 +8,7 @@ namespace Monster
     /// </summary>
     namespace Action
     {
-        class CourtesyOfTheKing : public Base
+        class CourtesyOfTheKing : public BossServantAction
         {
             MONSTER_ACTION_DATA(210271)
         public:
@@ -16,10 +16,6 @@ namespace Monster
             ~CourtesyOfTheKing() override;
 
         private:
-            void OnActionEnter() override;
-            void OnActionUpdate() override;
-            void OnActionExit() override;
-            void OnActionReset() override;
             void OnNotifiedAnimationEvent(const Timeline::EventContext* context) override;
 
         private:
