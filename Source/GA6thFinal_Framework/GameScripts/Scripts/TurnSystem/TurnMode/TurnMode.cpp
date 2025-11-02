@@ -55,12 +55,7 @@ TurnMode::TurnMode()
 }
 TurnMode::~TurnMode()
 {
-    if (_singletonComponent.IsSingleTon())
-    {
-        _turnList.Reset();
-        UmWatcher.Unregister<TurnQueueViewModel>("Turn Queue");
-        UmWatcher.Unregister<WeaponViewModel>("Weapon");
-    }
+
 }
 
 Player* TurnMode::GetPlayer()
@@ -343,6 +338,21 @@ void TurnMode::Awake()
     AddRoundOnceActions();
     FindCameras();
     
+}
+
+void TurnMode::OnDestroy() 
+{
+    if (_singletonComponent.IsSingleTon())
+    {
+        _turnList.Reset();
+        UmWatcher.Unregister<TurnQueueViewModel>("Turn Queue");
+        UmWatcher.Unregister<WeaponViewModel>("Weapon");
+
+        ApplyActions([this](TurnAction& action)
+        {
+            action.SetDestroy();
+        });
+    }
 }
 
 void TurnMode::ImGuiDrawPropertysEvent() 
