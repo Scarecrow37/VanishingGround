@@ -153,6 +153,7 @@ void CombatStartPhase::OnAwake()
 void CombatStartPhase::OnStart() 
 {
     TurnModeStateBase::OnStart();
+    AddValidActions();
 }
 void CombatStartPhase::OnEnter() 
 {
@@ -184,16 +185,15 @@ void CombatStartPhase::OnEnter()
     UmAudio.Play("-20000");
 
     _turnMode->ResetRoundCount();
-    AddValidActions();
     AddExtinctionRevelation();
 
-    NotifyCombatStart();
     Battle::ResetLastCharacter();
-
     if (RevelationSystem* system = SingletonComponent<RevelationSystem>::GetInstance())
     {
         system->FindRevelationsView();
     }
+
+    NotifyCombatStart();
 }
 
 void CombatStartPhase::OnExit() 

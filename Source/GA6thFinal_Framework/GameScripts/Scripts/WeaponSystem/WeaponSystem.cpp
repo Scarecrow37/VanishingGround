@@ -123,6 +123,8 @@ int WeaponSystem::GetRoundSpeedToSlot(int slot)
     int roundSpeed = _equipWeapons[slot].Stats.RandomSpeed;
     //추가 액션 호출
     int actionSpeed = 0;
+
+    //무기는 액션이 추가가 안되어있기 때문에 직접 호출.
     for (auto& action : _equipWeapons[slot]._actions)
     {
         if (action)
@@ -130,6 +132,17 @@ int WeaponSystem::GetRoundSpeedToSlot(int slot)
             action->OnWeaponRoundSpeedApply(_equipWeapons[slot], actionSpeed);
         }
     }   
+
+    //추가되어 있는 액션들 호출
+    if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+    {
+        mode->ApplyActions([&actionSpeed, this, slot](TurnAction& action) 
+        { 
+            action.OnWeaponRoundSpeedApply(_equipWeapons[slot], actionSpeed);
+        });
+    }
+
+    //최종 결과 반환
     return speed + roundSpeed + actionSpeed;
 }
 

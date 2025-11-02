@@ -13,6 +13,7 @@ public:
     {
         QTE_END,
         ENEMY_DEAD_BY_WEAPON,
+        ROUND_SPEED_APPLY,
     };
 
 public:
@@ -46,6 +47,7 @@ protected:
     void DeserializedReflectEvent() override;
     void OnPlayerQTEResult(Player& player, const QTE::OverallResult& result) override;
     void OnEnemyDeadByWeapon(Enemy& enemy, WeaponElement& weapon) override;
+    void OnWeaponRoundSpeedApply(WeaponElement& weapon, int& plusSpeed) override;
 
 private:
     void        UpdateActionInfo();

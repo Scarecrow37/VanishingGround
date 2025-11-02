@@ -88,6 +88,24 @@ void WeaponSpeedAction::OnEnemyDeadByWeapon(Enemy& enemy, WeaponElement& weapon)
     }
 }
 
+void WeaponSpeedAction::OnWeaponRoundSpeedApply(WeaponElement& weapon, int& plusSpeed)
+{
+    if (TriggerType::ROUND_SPEED_APPLY == ReflectFields->Trigger)
+    {
+        if (EvaluateConditions())
+        {
+            plusSpeed += Speed;
+            const std::string& weaponName = weapon.Stats.WeaponName;
+            std::string        msg        = weaponName;
+            msg += u8"의"_c_str;
+            msg += u8"무기의 속도 "_c_str;
+            msg += std::to_string(Speed);
+            msg += u8" 증가"_c_str;
+            UmLogger.Message(LogLevel::LEVEL_INFO, msg);
+        }
+    }   
+}
+
 void WeaponSpeedAction::UpdateActionInfo()
 {
     std::string_view triggerInfo;
@@ -98,6 +116,9 @@ void WeaponSpeedAction::UpdateActionInfo()
         break;
     case TriggerType::ENEMY_DEAD_BY_WEAPON:
         triggerInfo = u8"공격으로 적 처치시"_c_str;
+        break;
+    case TriggerType::ROUND_SPEED_APPLY:
+        triggerInfo = u8"속도 뽑기 실행시"_c_str;
         break;
     default:
         break;
