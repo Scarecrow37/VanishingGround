@@ -321,6 +321,7 @@
     <ClCompile Include="Scripts\BattleIntroUIController\BattleIntroUIController.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\ExtinctionRevelationApply\ExtinctionRevelationApply.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\RoundStartTokenApplyAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\CombatStartTokenApplyAction.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
@@ -656,6 +657,7 @@
     <ClInclude Include="Scripts\BattleIntroUIController\BattleIntroUIController.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\ExtinctionRevelationApply\ExtinctionRevelationApply.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\RoundStartTokenApplyAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\CombatStartTokenApplyAction.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
