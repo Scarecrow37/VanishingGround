@@ -37,14 +37,17 @@ struct CharacterStats : public TurnActorStats
     // int 현재 체력
     PROPERTY(CurrentHP)
 
-    SETTER(int, CurrentChainCount) { _currentChainCount = std::clamp(value, 0, 99); }
+    SETTER(int, CurrentChainCount) 
+    { 
+        _currentChainCount = std::clamp(value, 0, 99); 
+    }
     GETTER(int, CurrentChainCount) { return _currentChainCount; }
     // int 현재 연격 수
     PROPERTY(CurrentChainCount)
 
     SETTER(int, CurrentChainRoundCount)
     {
-        _currentChainRoundCount = std::clamp(value, 0, ReflectFields->MaxChainRoundCount);
+        _currentChainRoundCount = std::clamp(value, 0, 99);
     }
     GETTER(int, CurrentChainRoundCount) { return _currentChainRoundCount; }
     // int 연격 수 지속 시간

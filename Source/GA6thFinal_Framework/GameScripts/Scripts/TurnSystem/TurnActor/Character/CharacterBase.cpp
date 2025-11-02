@@ -174,6 +174,7 @@ void CharacterBase::Revive()
     if (CharacterStats* stats = GetCharacterStats())
     {
         stats->CurrentHP = stats->MaxHP;
+        stats->CurrentChainCount = 0;
         int maxChainRoundCount = stats->MaxChainRoundCount;
         if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
         {
@@ -182,7 +183,8 @@ void CharacterBase::Revive()
                 action.OnCharacterMaxChainRoundCountUse(*this, maxChainRoundCount);
             });
         }
-        stats->CurrentChainCount = maxChainRoundCount;
+        //부활 한 뒤에는 연격 지속시간 보정
+        stats->CurrentChainRoundCount = maxChainRoundCount + 1;
     }
 }
 
@@ -288,7 +290,7 @@ int CharacterBase::DecrementChainRoundCount()
     CharacterStats* stats = GetCharacterStats();
     if (stats)
     {
-        stats->CurrentChainRoundCount = std::clamp((int)stats->CurrentChainRoundCount - 1, 0, (int)stats->MaxChainRoundCount);
+        stats->CurrentChainRoundCount -= 1;
         int chainRoundCount = stats->CurrentChainRoundCount;
         if (chainRoundCount == 0)
         {
