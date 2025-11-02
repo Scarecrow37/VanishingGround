@@ -7,6 +7,7 @@ class FiniteStateMachine;
 class TurnActor;
 class Enemy;
 class Player;
+class UmCineMotion;
 
 /*
 * 턴을 관리하는 컴포넌트입니다.
@@ -38,14 +39,9 @@ public:
     int AddRoundCount() { return ++_roundCount; }
 
     /// <summary>
-    /// 현재 Scene에 존재하는 모든 TurnActor를 TurnList에 담습니다.
+    /// 턴 리스트 생성 및 정렬을 수행합니다./
     /// </summary>
     void MakeTurnList();
-
-    /// <summary>
-    /// Random Speed를 뽑고 TurnList를 정렬합니다.
-    /// </summary>
-    void SortTurnList();
 
     /// <summary>
     /// 가장 우선순위가 높은 TurnActor를 CurrTurnActor 로 설정합니다.
@@ -76,6 +72,9 @@ public:
         auto& [slot, actor] = turnActor;
         return 0 <= slot;
     }
+
+    UmCineMotion* GetIntroCamera() { return _introCamera.lock().get(); }
+    UmCineMotion* GetBattleCamera() { return _battleCamera.lock().get(); }
 
 public:
     REFLECT_PROPERTY(
@@ -130,6 +129,10 @@ private:
     bool _revelationActiveFlag = false;
     /*이번 턴에 대한 계시 발동 여부를 관리하는 플래그입니다.*/
     bool _currentTurnRevelationActiveFlag = false;
+
+    // 카메라 연출용
+    std::weak_ptr<UmCineMotion> _introCamera;
+    std::weak_ptr<UmCineMotion> _battleCamera;
 
 private:
     struct SystemStates
@@ -239,5 +242,7 @@ protected:
     virtual void Awake() override;
 
     virtual void ImGuiDrawPropertysEvent() override;
+
+    void FindCameras();
 
 };

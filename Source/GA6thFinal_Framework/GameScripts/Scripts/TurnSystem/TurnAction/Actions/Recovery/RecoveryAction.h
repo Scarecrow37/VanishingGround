@@ -10,7 +10,8 @@ public:
 
     enum class TriggerType
     {
-        WEAPON_KILL_ENEMY,
+        WEAPON_KILL_ENEMY,  // 무기 공격으로 적 처치 시
+        ATTACK,             // 공격할 때마다
     };
 
     enum class Unit
@@ -68,6 +69,10 @@ private:
     void               DeserializedReflectEvent() override;
     void               UpdateActionInfo();
 
-    void               OnEnemyDeadByWeapon(Enemy& enemy, WeaponElement& weapon) override;
-    std::string        _actionInfo;
+    void ProcessHeal();
+    void ProcessHeal(CharacterBase* target);
+
+    void OnPlayerBattleCalculateDamageModifier(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
+                                               Enemy& target, EnemyStats& targetStats) override;
+    std::string         _actionInfo;
 };

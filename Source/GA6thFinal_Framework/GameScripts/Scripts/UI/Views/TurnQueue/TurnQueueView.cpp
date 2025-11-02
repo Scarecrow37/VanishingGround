@@ -3,6 +3,7 @@
 
 #include "ViewModels/TurnQueue/TurnQueueViewModel.h"
 #include "UI/Elements/Image/ImageElement.h"
+#include "UI/Animations/FadeUIComponent/FadeUIComponent.h"
 
 UMREAL_COMPONENT(TurnQueueView)
 
@@ -66,6 +67,10 @@ void TurnQueueView::Awake()
 {
     Component::Awake();
     InitializeFramesAndPortraits();
+    if (FadeUIComponent* fade = GetComponent<FadeUIComponent>())
+    {
+        _fadeUIComponent = fade->GetWeakPtrAs<FadeUIComponent>();
+    }
 }
 
 void TurnQueueView::Start()
@@ -73,37 +78,50 @@ void TurnQueueView::Start()
     Component::Start();
     _watchHandle = UmWatcher.Watch<TurnQueueViewModel, std::vector<TurnUIData>>("Turn Queue", [this](const std::vector<TurnUIData>& value) 
     {
-       const size_t dataSize = value.size();
-       for (size_t i = 0; i < _turnQueueFrames.size(); ++i)
-       {
-           if (i < dataSize)
-           {
-               if (nullptr != _turnQueueFrames[i])
-               {
-                   _turnQueueFrames[i]->Enable = true;
-                   _turnQueueFrames[i]->SetImage(value[i].Frame);
-               }
-               if (nullptr != _turnQueuePortraits[i])
-               {
-                   _turnQueuePortraits[i]->Enable = true;
-                   _turnQueuePortraits[i]->SetImage(value[i].ActorPortrait);
-               }
-               UpdateButtonIcons(_turnQueueButtonIcons[i], value[i].Type);  
-           }
-           else
-           {
-               if (nullptr != _turnQueueFrames[i])
-               {
-                   _turnQueueFrames[i]->Enable = false;
-               }
-               if (nullptr != _turnQueuePortraits[i])
-               {
-                   _turnQueuePortraits[i]->Enable = false;
-               }
-               DisableButtonIcons(_turnQueueButtonIcons[i]);
-           }
+        auto UpdateInfo = [this, value]()
+        {
+            const size_t dataSize = value.size();
+            for (size_t i = 0; i < _turnQueueFrames.size(); ++i)
+            {
+                if (i < dataSize)
+                {
+                    if (nullptr != _turnQueueFrames[i])
+                    {
+                        _turnQueueFrames[i]->Enable = true;
+                        _turnQueueFrames[i]->SetImage(value[i].Frame);
+                    }
+                    if (nullptr != _turnQueuePortraits[i])
+                    {
+                        _turnQueuePortraits[i]->Enable = true;
+                        _turnQueuePortraits[i]->SetImage(value[i].ActorPortrait);
+                    }
+                    UpdateButtonIcons(_turnQueueButtonIcons[i], value[i].Type);
+                }
+                else
+                {
+                    if (nullptr != _turnQueueFrames[i])
+                    {
+                        _turnQueueFrames[i]->Enable = false;
+                    }
+                    if (nullptr != _turnQueuePortraits[i])
+                    {
+                        _turnQueuePortraits[i]->Enable = false;
+                    }
+                    DisableButtonIcons(_turnQueueButtonIcons[i]);
+                }
+            }
+        };
 
-       }
+        if (gameObject->ActiveSelf == false)
+        {
+            if (auto fade = _fadeUIComponent.lock())
+            {
+                gameObject->SetActive(true);
+                fade->Begin();
+                fade->FadeIn();
+            }
+        }
+        UpdateInfo();
     });
 
     DisableButtonIcons();
@@ -160,7 +178,6 @@ void TurnQueueView::InitializeFramesAndPortraits()
         FindFramesWithTag("Frame Element");
         FindPortraitsWithTag("Turn Element");
         FindButtonIconsWithTag("Button Icons");
-        gameObject->ActiveSelf = false;
     }
     else
     {

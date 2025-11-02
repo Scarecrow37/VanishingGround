@@ -385,7 +385,7 @@ void MonsterSystem::LoadDataContextFromExcelData(ExcelDataSystem* dataSystem)
                         int fsmID = StringToInt(data);
                         if (0 != fsmID)
                         {
-                            context.FsmIDs[i] = fsmID;
+                            context.FsmIDs.push_back(fsmID);
                         }
                     }
                 }
@@ -398,7 +398,7 @@ void MonsterSystem::LoadDataContextFromExcelData(ExcelDataSystem* dataSystem)
                         int skillID = StringToInt(data);
                         if (0 != skillID)
                         {
-                            context.ActionIDs[i] = skillID;
+                            context.ActionIDs.push_back(skillID);
                         }
                     }
                 }

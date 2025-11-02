@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "CombatStartPhase.h"
 
+#include "Camera/UmCineMotion.h"
 #include "TurnSystem/TurnMode/TurnMode.h"
 #include "TurnSystem/TurnActor/Character/Player/Player.h"
 #include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
@@ -15,6 +16,7 @@
 #include "UI/Views/MonsterHp/MonsterHpView.h"
 #include "UI/Views/MonsterChain/MonsterChainView.h"
 #include "SceneTransition/SceneTransitionComponent.h"
+#include "BattleIntroUIController/BattleIntroUIController.h"
 
 #include "CombatUIManager/CombatUIManager.h"
 #include "QTE/UI/QTEUIManager.h"
@@ -22,8 +24,8 @@
 #include "Monster/System/MonsterSystem.h"
 
 #include "DifficultyManager/DifficultyManager.h"
-
 #include "Map/MapManager.h"
+#include "Map/Stage.h"
 
 REGISTER_CLASS(FSMStateFactory, CombatStartPhase)
 
@@ -32,6 +34,7 @@ static constexpr int EXPECTED_ENEMY_COUNT = 3;
 CombatStartPhase::CombatStartPhase()
     : 
     _phaseEnd(false), 
+    _waitPhaseEnd(false),
     _player(nullptr)
 {
 
@@ -154,6 +157,16 @@ void CombatStartPhase::OnStart()
 void CombatStartPhase::OnEnter() 
 {
     _phaseEnd = false;
+    _waitPhaseEnd = false;
+    if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+    {
+        if (UmCineMotion* battleCamera = mode->GetBattleCamera())
+        {
+            battleCamera->SetMainCamera();
+            battleCamera->ResetRail(true);
+        }
+    }
+
     if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
     {
         //켜져 있어야 하는거
@@ -185,32 +198,40 @@ void CombatStartPhase::OnEnter()
 
 void CombatStartPhase::OnExit() 
 {
-
+   
 }
 
 void CombatStartPhase::OnUpdate() 
 {
-    if (false == _phaseEnd)
+    if (false == _phaseEnd && false == _waitPhaseEnd)
     {
         if (SceneTransitionComponent* transition = SingletonComponent<SceneTransitionComponent>::GetInstance())
         {
             if (false == transition->IsTransitioning())
             {
-                _phaseEnd = true;
+                if (BattleIntroUIController* controller = SingletonComponent<BattleIntroUIController>::GetInstance())
+                {
+                    if (MapManager* manager = SingletonComponent<MapManager>::GetInstance())
+                    {
+                        if (Stage* stage = manager->GetCurrentSelectedStage())
+                        {
+                            float delay = controller->PlayIntro(stage->MainLevel, stage->BattleCount);
+                            UmTime.Invoke(GetFSM(), delay, [this]()
+                            { 
+                                _phaseEnd = true; 
+                            });
+                            _waitPhaseEnd = true;
+                            return;
+                        }           
+                    }
+                }         
             }
-        }
-        else
-        {
-            _phaseEnd = true;
-        }
-
-        if (_phaseEnd)
-        {
-            if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
+            else
             {
-                combatUIManager->TurnQueueGroup.FadeIn(1.f);
-            }
+                return;
+            }          
         }
+        _phaseEnd = true;
     } 
 }
 

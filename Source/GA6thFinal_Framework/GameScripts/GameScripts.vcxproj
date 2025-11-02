@@ -488,12 +488,18 @@
     <ClInclude Include="Scripts\Token\TokenSystem.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\AdditionalDamage\AdditionalDamageAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\ApplyDamage\ApplyDamage.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\ChainNotAdditionAction\ChainNotAdditionAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\ChangeQTEButton\ChangeQTEButton.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\LastWeaponDamageCopy\LastWeaponDamageCopy.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\MultiTargetDamage\MultiTargetDamageAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\NotingAction\NotingAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\Recovery\RecoveryAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\RevelationCountAttackDamageAdditional\RevelationCountAttackDamageAdditional.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\AttackTokenApplyAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\AttackMultiTokenApplyAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\Base\MultiTokenApplyAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\Base\TokenApplyAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\WeaponKillMultiTokenApplyAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TakeDamageEndTokenApplyAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\WeaponKillTokenApplyAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenChangeAction\TokenChangeAction.h" />
@@ -615,6 +621,8 @@
     <ClInclude Include="Scripts\Token\Common\TokenCommon.h" />
     <ClInclude Include="Scripts\Utility\StringHelper.h" />
     <ClInclude Include="Scripts\Token\Helper\TokenHelper.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TurnEndTokenApplyAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TurnEndTokenRemoveAction.h" />
     <ClInclude Include="UmScriptCore.h" />
     <ClInclude Include="UmScriptsExport.h" />
     <ClInclude Include="Scripts\Token\Object\Weakness\WeaknessToken.h" />
@@ -622,7 +630,8 @@
     <ClInclude Include="Scripts\Token\Object\Vanish\VanishToken.h" />
     <ClInclude Include="Scripts\RoundInfoUI\RoundInfoUIManager.h" />
     <ClInclude Include="Scripts\Input\InputOkCancelComponent\InputOkCancelComponent.h" />
-    <ClInclude Include="Scripts\CreditsBackButton.h" />
+    <ClInclude Include="Scripts\MainMenu\CreditsBackButton.h" />
+    <ClInclude Include="Scripts\BattleIntroUIController\BattleIntroUIController.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scripts\Ending\EndingDialogManager.cpp" />
@@ -807,13 +816,19 @@
     <ClCompile Include="Scripts\Token\TokenSystem.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\AdditionalDamage\AdditionalDamageAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\ApplyDamage\ApplyDamage.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\ChainNotAdditionAction\ChainNotAdditionAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\ChangeQTEButton\ChangeQTEButton.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\LastWeaponDamageCopy\LastWeaponDamageCopy.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\MultiTargetDamage\MultiTargetDamageAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\NotingAction\NotingAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\Recovery\RecoveryAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\RevelationCountAttackDamageAdditional\RevelationCountAttackDamageAdditional.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\AttackMultiTokenApplyAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\AttackTokenApplyAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\Base\MultiTokenApplyAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\Base\TokenApplyAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TakeDamageEndTokenApplyAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\WeaponKillMultiTokenApplyAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\WeaponKillTokenApplyAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenChangeAction\TokenChangeAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenTypeCountAttackDamageAdditional\TokenTypeCountAttackDamageAdditional.cpp" />
@@ -941,6 +956,8 @@
     <ClCompile Include="Scripts\Token\Common\TokenCommon.cpp" />
     <ClCompile Include="Scripts\Utility\StringHelper.cpp" />
     <ClCompile Include="Scripts\Token\Helper\TokenHelper.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TurnEndTokenApplyAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TurnEndTokenRemoveAction.cpp" />
     <ClCompile Include="UmScriptCore.cpp" />
     <ClCompile Include="UmScriptsExport.cpp" />
     <ClCompile Include="Scripts\Token\Object\Weakness\WeaknessToken.cpp" />
@@ -948,7 +965,8 @@
     <ClCompile Include="Scripts\Token\Object\Vanish\VanishToken.cpp" />
     <ClCompile Include="Scripts\RoundInfoUI\RoundInfoUIManager.cpp" />
     <ClCompile Include="Scripts\Input\InputOkCancelComponent\InputOkCancelComponent.cpp" />
-    <ClCompile Include="Scripts\CreditsBackButton.cpp" />
+    <ClCompile Include="Scripts\MainMenu\CreditsBackButton.cpp" />
+    <ClCompile Include="Scripts\BattleIntroUIController\BattleIntroUIController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
