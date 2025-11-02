@@ -26,6 +26,10 @@ EndingDialogManager::~EndingDialogManager() = default;
 void EndingDialogManager::Reset()
 {
     _isDialogEnded = false;
+    _isSequencePlaying = false;
+    _currentDialogIndex = 0;    
+    _currentTimer       = 0.0f;
+    _totalDialogCount   = 0;
     auto EndingDialog = GameObject::FindWithTag("EndingDialogPannel").lock();
     if (EndingDialog.get())
     {
@@ -34,6 +38,10 @@ void EndingDialogManager::Reset()
         {
             UmLogger.Log(LogLevel::LEVEL_WARNING, "ChildsAnimationsController not found in EndingDialogPannel!");
         }
+        else
+        {
+            _childsAnimationsController->FindAnimations();
+        }
     }
     else
     {
@@ -41,10 +49,22 @@ void EndingDialogManager::Reset()
     }
 }
 
-void EndingDialogManager::Awake() {}
+void EndingDialogManager::Awake()
+{
+    StartDialogSequence();
+}
 
 void EndingDialogManager::Update()
 {
+    if (_isSequencePlaying&& _childsAnimationsController)
+    {
+        _currentTimer += UmTime.DeltaTime();
+        if (_currentTimer >= DialogInterval)
+        {
+            PlayNextDialog();
+            _currentTimer = 0.0f;
+        }
+    }
     if (_isDialogEnded)
     {
         _isDialogEnded = false;
@@ -71,4 +91,45 @@ void EndingDialogManager::TransitionToMainMenuScene()
                                                      [path]() { UmSceneManager.LoadScene(path.string()); });
         }
     }
+}
+
+void EndingDialogManager::StartDialogSequence() 
+{
+    if (!_childsAnimationsController)
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, "ChildsAnimationsController is null!");
+        return;
+    }
+
+    _totalDialogCount = _childsAnimationsController->transform->ChildCount;
+    if (_totalDialogCount == 0)
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, "No dialog found in ChildsAnimationsController!");
+        return;
+    }
+
+    _isSequencePlaying = true;
+    _currentDialogIndex = 0;
+    _currentTimer       = 0.0f;
+    _isDialogEnded      = false;
+
+    PlayNextDialog();
+}
+
+void EndingDialogManager::PlayNextDialog()
+{
+    if (!_childsAnimationsController)
+
+    {
+        return;
+    }
+
+    if (_currentDialogIndex >= _totalDialogCount)
+    {
+        _isSequencePlaying = false;
+        _isDialogEnded     = true;
+        return;
+    }
+    _childsAnimationsController->FadeIn(_currentDialogIndex);
+    _currentDialogIndex++;
 }
