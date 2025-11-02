@@ -419,7 +419,7 @@ void CombatStartPhase::ReviveEnemies()
 {
     for (auto& enemy : _enemies)
     {
-        enemy->CharacterBase::Revive();
+        enemy->Revive();
     }
 }
 

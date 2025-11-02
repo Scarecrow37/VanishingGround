@@ -25,6 +25,9 @@
 #include "Monster/Action/MonsterActionBase.h"
 #include "UI/Contents/SpawnDamagePanel.h"
 
+// TurnAction
+#include "TurnSystem/TurnAction/TurnActionFactory.h"
+
 UMREAL_COMPONENT(Enemy)
 
 Enemy::Enemy() = default;
@@ -39,36 +42,77 @@ void Enemy::PlayTurn()
 void Enemy::ImGuiDrawPropertysEvent()
 {
     Base::ImGuiDrawPropertysEvent();
+
     ImGui::Separator();
-   
-    if (ImGui::TreeNodeEx("Monster Controller##enemy component", ImGuiTreeNodeFlags_DefaultOpen))
+    ImGuiHelper::AlignedText("Custom Action", ImGuiHelper::LEFT, 0.8f);
+    ShowActionEditor();
+
+    ImGui::Separator();
+    ImGuiHelper::AlignedText("FSM", ImGuiHelper::LEFT, 0.8f);
+    Monster::Controller& controller = GetController();
+    ImGui::PushID(&controller);
+    const Monster::AIModel& aiModel = controller.GetAIModel();
+    ImGui::BulletText("Current FSM:");
+    ImGui::Text("       ID: %d", controller.GetFSMID());
+    ImGui::Text("       Current Node: %s", aiModel.GetCurrentNodeLabel());
+
+    ImGui::Separator();
+    ImGuiHelper::AlignedText("Action", ImGuiHelper::LEFT, 0.8f);
+    if (auto* currAction = controller.GetCurrentAction())
     {
-        Monster::Controller& controller = GetController();
-        ImGui::PushID(&controller);
+        ImGui::BulletText("Current Action:");
+        ImGui::Text("       ID: %d", currAction->GetActionID());
+        ImGui::Text("       Name: %s", currAction->GetActionContext().Name.c_str());
+        ImGui::Text("       Type: %s", currAction->GetActionContext().Type.c_str());
+        ImGui::Text("       Target: %s", currAction->GetActionContext().Target.c_str());
+        ImGui::Text("       Attack Count: %d", currAction->GetActionContext().AttackCount);
+        ImGui::Text("       Parameter: %s", currAction->GetActionContext().Parameter.c_str());
+    }
+    else
+    {
+        ImGuiHelper::StyleBuilder styleBuilder;
+        styleBuilder.PushStyleColor(ImGuiCol_Text, IM_COL32(255, 100, 100, 255));
+        ImGui::TextUnformatted("Null Current Action");
+    }
+    ImGui::PopID();
+}
 
-        const Monster::AIModel& aiModel = controller.GetAIModel();
-        ImGui::BulletText("Current FSM:");
-        ImGui::Text("       ID: %d", controller.GetFSMID());
-        ImGui::Text("       Current Node: %s", aiModel.GetCurrentNodeLabel());
+void Enemy::SerializedReflectEvent()
+{
+    ReflectFields->Actions.clear();
+    if (false == _actions.empty())
+    {
+        for (auto& action : _actions)
+        {
+            if (action)
+            {
+                const std::string& name = action->ActionName;
+                std::string        data = action->SerializedReflectFields();
+                ReflectFields->Actions.emplace_back(name, data);
+            }
+        }
+    }
+}
 
-        if (auto* currAction = controller.GetCurrentAction())
+void Enemy::DeserializedReflectEvent()
+{
+    _actions.clear();
+    if (false == ReflectFields->Actions.empty())
+    {
+        const auto& actionFactory = TurnActionFactory::GetActionFactory();
+        for (auto& [name, data] : ReflectFields->Actions)
         {
-            ImGui::BulletText("Current Action:");
-            ImGui::Text("       ID: %d", currAction->GetActionID());
-            ImGui::Text("       Name: %s", currAction->GetActionContext().Name.c_str());
-            ImGui::Text("       Type: %s", currAction->GetActionContext().Type.c_str());
-            ImGui::Text("       Target: %s", currAction->GetActionContext().Target.c_str());
-            ImGui::Text("       Attack Count: %d", currAction->GetActionContext().AttackCount);
-            ImGui::Text("       Parameter: %s", currAction->GetActionContext().Parameter.c_str());
+            if (auto iter = actionFactory.find(name); iter != actionFactory.end())
+            {
+                auto& myAction = _actions.emplace_back();
+                myAction.reset(iter->second());
+                bool result = myAction->DeserializedReflectFields(data);
+                if (false == result)
+                {
+                    _actions.pop_back();
+                }
+            }
         }
-        else
-        {
-            ImGuiHelper::StyleBuilder styleBuilder;
-            styleBuilder.PushStyleColor(ImGuiCol_Text, IM_COL32(255, 100, 100, 255));
-            ImGui::TextUnformatted("Null Current Action");
-        }
-        ImGui::PopID();
-        ImGui::TreePop();
     }
 }
 
@@ -80,6 +124,14 @@ void Enemy::EndTurn()
 void Enemy::Revive() 
 {
     Base::Revive();
+    // 커스텀 액션 추가
+    if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
+    {
+        for (auto& action : _actions)
+        {
+            turnMode->AddTurnAction(action.get());
+        }
+    }
 }
 
 void Enemy::Dead()
@@ -88,6 +140,11 @@ void Enemy::Dead()
     if (auto turnMode = SingletonComponent<TurnMode>::GetInstance())
     {
         turnMode->ApplyActions([this](TurnAction& action) { action.OnEnemyDead(*this); });
+    }
+    // 커스텀 액션 제거
+    for (auto& action : _actions)
+    {
+        action->SetDestroy();
     }
 }
 
@@ -205,11 +262,6 @@ void Enemy::Awake()
         UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Enemy Stats를 추가해주세요");
     }
 }
-
-void Enemy::Update() 
-{
-}
-
 CharacterStats* Enemy::GetCharacterStats()
 {
     CharacterStats* stats = nullptr;
@@ -378,4 +430,35 @@ void Enemy::OnNotifiedAnimationEvent(const Timeline::EventContext* context)
     {
         _fsmStates.Dead->OnNotifiedAnimationEvent(context);
     }
+}
+
+void Enemy::ShowActionEditor() 
+{
+#ifdef _UMEDITOR
+    static std::unordered_map<void*, bool> showEditorFlags;
+    if (false == _actions.empty())
+    {
+        for (size_t i = 0; i < _actions.size(); ++i)
+        {
+            auto& action = _actions[i];
+            bool& showEditor = showEditorFlags[&action];
+            ImGui::PushID(&action);
+            TurnAction::ImGuiDrawActionMaker("EnemyAction", action, showEditor);
+            ImGui::PopID();
+        }
+    }
+    if (ImGui::Button("Push Action"))
+    {
+        _actions.emplace_back();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Pop Action"))
+    {
+        if (false == _actions.empty())
+        {
+            showEditorFlags.erase(&_actions.back());
+            _actions.pop_back();
+        }
+    }
+#endif
 }

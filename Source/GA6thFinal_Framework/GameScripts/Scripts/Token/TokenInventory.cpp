@@ -682,8 +682,8 @@ void TokenInventory::DrawImGuiDebugData()
     if (TokenSystem* tokenSystem = GetTokenSystem())
     {
         const auto& instances = tokenSystem->GetTokenInstances();
-
-        ImGui::BeginChild("ValidTokenStack", ImVec2(0, 0), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY);
+        ImGui::Text("ValidTokenStack");
+        ImGui::BeginChild("##ValidTokenStack", ImVec2(0, 0), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY);
         for (size_t i = 0; i < _vaildTokenVector.size(); ++i)
         {
             TokenID     tokenID     = _vaildTokenVector[i];
@@ -755,6 +755,12 @@ void TokenInventory::DrawImGuiDebugData()
 
             ImGui::TreePop();
         }
+    }
+    else
+    {
+        ImGuiHelper::StyleBuilder style;
+        style.PushStyleColor(ImGuiCol_Text, IM_COL32(255, 100, 100, 255));
+        ImGui::Text("null TokenSystem...");
     }
 #endif
 }

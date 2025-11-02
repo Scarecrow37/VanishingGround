@@ -380,11 +380,8 @@ void CharacterBase::ImGuiDrawPropertysEvent()
 {
     Base::ImGuiDrawPropertysEvent();
     ImGui::Separator();
-    if (ImGui::TreeNodeEx("Token##enemy component", ImGuiTreeNodeFlags_DefaultOpen))
-    {
-        ImGui::PushID(&_tokenInventory);
-        _tokenInventory.DrawImGuiDebugData();
-        ImGui::PopID();
-        ImGui::TreePop();
-    }
+    ImGuiHelper::AlignedText("Token Inventory", ImGuiHelper::LEFT, 0.8f);
+    ImGui::PushID(&_tokenInventory);
+    _tokenInventory.DrawImGuiDebugData();
+    ImGui::PopID();
 }
