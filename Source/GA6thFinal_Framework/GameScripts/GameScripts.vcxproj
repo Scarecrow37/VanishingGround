@@ -640,7 +640,6 @@
     <ClCompile Include="Scripts\Ending\EndingDialogManager.cpp" />
     <ClCompile Include="Scripts\MagicBook\SelectMagicBook.cpp" />
     <ClCompile Include="Scripts\MagicBook\SelectPopup.cpp" />
-    <ClCompile Include="Scripts\QTE\Fade\QTEFadeState.cpp" />
     <ClCompile Include="Scripts\QTE\UI\Field\QTEJudgeEffectUI.cpp" />
     <ClCompile Include="Scripts\QTE\UI\Input\QTEInputNodeUI.cpp" />
     <ClCompile Include="Scripts\QTE\UI\Input\QTEInputViewerUI.cpp" />
