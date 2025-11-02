@@ -71,6 +71,11 @@ public:
     void ClearTrack();
 
 public:
+    // QTE 스피드 조정(인자로 단계 수 입력)
+    void IncreaseQTESpeedLevel(int value);
+    void DecreaseQTESpeedLevel(int value);
+
+public:
     /// <summary>QTE 페이드 상태를 설정합니다.</summary>
     void SetFadeState(const QTE::FadeState& fadeState);
     /// <summary>QTE 현재 페이드 상태를 가져옵니다.</summary>
@@ -210,4 +215,6 @@ private:
         .LeftMotorSpeed  = (unsigned short)(0.2f * 65535.0f),
         .RightMotorSpeed = (unsigned short)(0.7f * 65535.0f),
         .Duration        = std::chrono::milliseconds(150)};
+
+    inline constexpr static float SPEED_LEVEL_PER_SCALE = 0.15f; // 단계 당 스피드 변화 값
 };

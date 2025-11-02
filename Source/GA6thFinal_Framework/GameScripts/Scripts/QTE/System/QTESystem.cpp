@@ -381,6 +381,16 @@ void QTESystem::ClearTrack()
     _weaponIDToTrackTable.clear();
 }
 
+void QTESystem::IncreaseQTESpeedLevel(int value) 
+{
+    ReflectFields->QTESpeedScale += value;
+}
+
+void QTESystem::DecreaseQTESpeedLevel(int value) 
+{
+    ReflectFields->QTESpeedScale -= value;
+}
+
 void QTESystem::SetFadeState(const QTE::FadeState& fadeState) 
 {
     _fadeState = fadeState;
