@@ -6,6 +6,7 @@
 #include "TurnSystem/TurnActor/Character/Player/Player.h"
 #include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
 
+REFLECT_FUNCTION(TakeDamageEndTokenApplyAction)
 REGISTER_TURN_ACTION(TakeDamageEndTokenApplyAction)
 
 const std::string& TakeDamageEndTokenApplyAction::GetActionInfo()
@@ -40,15 +41,37 @@ void TakeDamageEndTokenApplyAction::UpdateActionInfo()
 
 void TakeDamageEndTokenApplyAction::OnPlayerTakeDamageEnd(Player& player, int damage) 
 {
-    if (EvaluateConditions())
+    if (ReflectFields->OnlyAttackDamage == false)
     {
-        std::vector<CharacterBase*> targets = TurnSystemHelper::GetTargetCharacters(Target);
-        for (auto& target : targets)
+        if (EvaluateConditions())
         {
-            if (target)
+            std::vector<CharacterBase*> targets = TurnSystemHelper::GetTargetCharacters(Target);
+            for (auto& target : targets)
             {
-                target->GetTokenInventory().AddTokenStackFromID(TokenID, TokenCount);
-            }          
-        } 
+                if (target)
+                {
+                    target->GetTokenInventory().AddTokenStackFromID(TokenID, TokenCount);
+                }
+            }
+        }
+    }
+}
+
+void TakeDamageEndTokenApplyAction::OnEnemyBattleCalculateDamageModifier(Enemy& attacker, EnemyStats& attackerStats,
+                                                                         Player& target, PlayerStats& targetStats)
+{
+    if (ReflectFields->OnlyAttackDamage == true)
+    {
+        if (EvaluateConditions())
+        {
+            std::vector<CharacterBase*> targets = TurnSystemHelper::GetTargetCharacters(Target);
+            for (auto& target : targets)
+            {
+                if (target)
+                {
+                    target->GetTokenInventory().AddTokenStackFromID(TokenID, TokenCount);
+                }
+            }
+        }
     }
 }
