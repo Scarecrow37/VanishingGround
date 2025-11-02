@@ -158,16 +158,29 @@ void CombatStartPhase::OnStart()
 void CombatStartPhase::OnEnter() 
 {
     _phaseEnd = false;
-    _waitPhaseEnd = false;
-    if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+    _waitPhaseEnd = true;
+    float introDuration = 0.f;
+    if (ItemDropSystem* dropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
     {
-        if (UmCineMotion* battleCamera = mode->GetBattleCamera())
+        if (UmCineMotion* introCamera = _turnMode->GetIntroCamera())
         {
-            battleCamera->SetMainCamera();
-            battleCamera->ResetRail(true);
+            if (dropSystem->StageClearCount == 0)
+            {
+                introCamera->ResetRail(true);
+                introCamera->StartRail(false);
+                introDuration = introCamera->Duration;
+            }
+            else
+            {
+                introCamera->ResetRail(false);
+            }
         }
     }
-
+    UmTime.Invoke(GetFSM(), introDuration, [this]() 
+    { 
+        _waitPhaseEnd = false;
+    });
+   
     if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
     {
         //켜져 있어야 하는거
@@ -195,7 +208,11 @@ void CombatStartPhase::OnEnter()
 
 void CombatStartPhase::OnExit() 
 {
-   
+    if (UmCineMotion* battleCamera = _turnMode->GetBattleCamera())
+    {
+        battleCamera->SetMainCamera();
+        battleCamera->ResetRail(true);
+    }
 }
 
 void CombatStartPhase::OnUpdate() 
