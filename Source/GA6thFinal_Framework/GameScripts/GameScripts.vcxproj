@@ -306,9 +306,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\QTE\Controller\QTEController.h" />
     <ClInclude Include="Scripts\Ending\EndingDialogManager.h" />
     <ClInclude Include="Scripts\MagicBook\SelectMagicBook.h" />
     <ClInclude Include="Scripts\MagicBook\SelectPopup.h" />
+    <ClInclude Include="Scripts\QTE\Fade\QTEFadeState.h" />
     <ClInclude Include="Scripts\QTE\KeyBinder\QTEKeyBinder.h" />
     <ClInclude Include="Scripts\QTE\UI\Field\QTEJudgeEffectUI.h" />
     <ClInclude Include="Scripts\QTE\UI\Input\QTEInputNodeUI.h" />
@@ -634,6 +636,7 @@
     <ClInclude Include="Scripts\BattleIntroUIController\BattleIntroUIController.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\QTE\Controller\QTEController.cpp" />
     <ClCompile Include="Scripts\Ending\EndingDialogManager.cpp" />
     <ClCompile Include="Scripts\MagicBook\SelectMagicBook.cpp" />
     <ClCompile Include="Scripts\MagicBook\SelectPopup.cpp" />
