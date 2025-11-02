@@ -40,6 +40,39 @@ void FadeUIComponent::End()
     SetElapsedTime(duration);
 }
 
+bool FadeUIComponent::IsComplete() const
+{
+    if (_fadeDirection == FadeDirection::NONE)
+    {
+        return true;
+    }
+    if (_fadeDirection == FadeDirection::FORWARD)
+    {
+        return GetElapsedTime() >= ReflectFields->FadeDuration;
+    }
+    if (_fadeDirection == FadeDirection::BACKWARD)
+    {
+        return GetElapsedTime() <= 0.0f;
+    }
+    return false;
+}
+
+void FadeUIComponent::CompleteImmediately()
+{
+    if (_fadeDirection == FadeDirection::FORWARD)
+    {
+        End();
+        UpdateOpacity(1.0f);
+        _fadeDirection = FadeDirection::NONE;
+    }
+    else if (_fadeDirection == FadeDirection::BACKWARD)
+    {
+        Begin();
+        UpdateOpacity(0.0f);
+        _fadeDirection = FadeDirection::NONE;
+    }
+}
+
 void FadeUIComponent::Update()
 {
     Component::Update();
