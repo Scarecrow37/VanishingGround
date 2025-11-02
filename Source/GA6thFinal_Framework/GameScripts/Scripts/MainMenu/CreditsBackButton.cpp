@@ -25,6 +25,7 @@ CreditsBackButton::~CreditsBackButton() = default;
 
 void CreditsBackButton::Submit()
 {
+    Base::Submit();
     TransitionToMainMenuScene();
 }
 

@@ -140,6 +140,10 @@ void PlayerPlayTurnState::PressedButtonA(const Input::Controller& controller)
         {
             if (CombatUIManager* uiManager = SingletonComponent<CombatUIManager>::GetInstance())
                 uiManager->FadeOut(_attackButtonHeldWaitTime);
+
+            // TODO: a홀드 사운드 넣으니까 매우 이상함. 논의 필요.
+            //UmAudio.Stop(_hHoldAButtonSound);
+            //_hHoldAButtonSound = UmAudio.Play("-901007");
         } 
     }
 }
@@ -181,12 +185,10 @@ void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
 
 void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
 {
-#ifdef _UMEDITOR
-    _isDownAKey = ImGui::IsKeyDown(ImGuiKey_A); // 에디터에서는 키보드 인풋도 받음
-#endif                                          // ISEDITOR
-
      Debugger()([this] {
         // 아래는 디버그용 코드입니다.
+        _isDownAKey = ImGui::IsKeyDown(ImGuiKey_A); // 디버그에서는 키보드 인풋도 받음
+
         ImGuiHelper::AlignedText("Combat", ImGuiHelper::LEFT, 0.8f);
         if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
         {
@@ -246,6 +248,7 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
     if (QTEUIManager* qteUIManager = SingletonComponent<QTEUIManager>::GetInstance())
     {
         qteUIManager->SetUIAlpha(t);
+        //UmAudio.SetVolume(_hHoldAButtonSound, t);
     }
 }
 
@@ -279,7 +282,6 @@ void PlayerPlayTurnState::SetAttackReady()
         // 애니메이션 빌드 종료
         animator->EndBuildOverrideAnimation();
     }
-    //UmAudio.Play("-32000");
 }
 
 void PlayerPlayTurnState::SetAttack()
@@ -302,7 +304,6 @@ void PlayerPlayTurnState::SetAttack()
     
         animator->EndBuildOverrideAnimation();
     }
-    //UmAudio.Play("-32010");
 }
 
 void PlayerPlayTurnState::SetAttackEnd()
@@ -352,15 +353,15 @@ void PlayerPlayTurnState::BattleOnHitEvent(QTE::NoteResult& result)
     switch (result.Result)
     {
     case QTE::QTE_RESULT_PERFECT: {
-        UmAudio.Play("-31000");
+        UmAudio.Play("-451300");
         break;
     }
     case QTE::QTE_RESULT_NORMAL: {
-        UmAudio.Play("-31010");
+        UmAudio.Play("-451301");
         break;
     }
     case QTE::QTE_RESULT_MISS: {
-        //UmAudio.Play("-31020");
+        //UmAudio.Play("-451302");
         break;
     }
     default:

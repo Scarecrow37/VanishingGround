@@ -31,7 +31,7 @@ void RoundStartPhase::OnEnter()
     NotifyRoundStart();
 
     /// 사운드
-    UmAudio.Play("-20100");
+    UmAudio.Play("-421000");
 
     if (_weaponSystem)
     {

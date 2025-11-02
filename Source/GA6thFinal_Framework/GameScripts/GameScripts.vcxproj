@@ -306,6 +306,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\QTE\Audio\QTEAudioState.h" />
     <ClInclude Include="Scripts\QTE\Controller\QTEController.h" />
     <ClInclude Include="Scripts\Ending\EndingDialogManager.h" />
     <ClInclude Include="Scripts\MagicBook\SelectMagicBook.h" />
@@ -612,6 +613,7 @@
     <ClInclude Include="Scripts\UI\Wrappers\Dummy\DummyWrapper.h" />
     <ClInclude Include="Scripts\UI\Wrappers\Ratio\RatioWrapper.h" />
     <ClInclude Include="Scripts\UI\Wrappers\Scrolling\ScrollingWrapper.h" />
+    <ClInclude Include="Scripts\Utility\AudioHelper.h" />
     <ClInclude Include="Scripts\Utility\FadeHelper.h" />
     <ClInclude Include="Scripts\Utility\FocusHelper.h" />
     <ClInclude Include="Scripts\Utility\SingletonHelper.h" />

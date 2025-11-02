@@ -65,6 +65,7 @@ RestartStageNavi::RestartStageNavi()
 
 void RestartStageNavi::Submit()
 {
+    Base::Submit();
     int clearCount = 0;
     if (ItemDropSystem* dropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
     {

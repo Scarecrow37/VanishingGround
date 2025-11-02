@@ -1,5 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "QTESystem.h"
+#include "Utility/AudioHelper.h"
 #include <QTE/UI/QTEUIManager.h>
 #include <QTE/Editor/QTEEditor.h>
 #include <QTE/Track/QTETrack.h>
@@ -436,32 +437,32 @@ void QTESystem::UpdateQTETrack()
             PressedQTEButton(button);
             controller = nullptr;
         }
-        #ifdef _UMEDITOR
-        if (ImGui::IsKeyPressed(ImGuiKey_LeftArrow, false))
-        {
-            ProcessQTEButtonPressedEvent();
-            if (CanPressQTEButton())
+        Debugger()([this] {
+            if (ImGui::IsKeyPressed(ImGuiKey_LeftArrow, false))
             {
-                PressedQTEButton(_keyBinder.GetKeyX());
+                ProcessQTEButtonPressedEvent();
+                if (CanPressQTEButton())
+                {
+                    PressedQTEButton(_keyBinder.GetKeyX());
+                }
             }
-        }
-        else if (ImGui::IsKeyPressed(ImGuiKey_UpArrow, false))
-        {
-            ProcessQTEButtonPressedEvent();
-            if (CanPressQTEButton())
+            else if (ImGui::IsKeyPressed(ImGuiKey_UpArrow, false))
             {
-                PressedQTEButton(_keyBinder.GetKeyY());
+                ProcessQTEButtonPressedEvent();
+                if (CanPressQTEButton())
+                {
+                    PressedQTEButton(_keyBinder.GetKeyY());
+                }
             }
-        }
-        else if (ImGui::IsKeyPressed(ImGuiKey_RightArrow, false))
-        {
-            ProcessQTEButtonPressedEvent();
-            if (CanPressQTEButton())
+            else if (ImGui::IsKeyPressed(ImGuiKey_RightArrow, false))
             {
-                PressedQTEButton(_keyBinder.GetKeyB());
+                ProcessQTEButtonPressedEvent();
+                if (CanPressQTEButton())
+                {
+                    PressedQTEButton(_keyBinder.GetKeyB());
+                }
             }
-        }
-#endif // _UMEDITOR
+        });
     }
     else
     {
@@ -525,21 +526,21 @@ void QTESystem::PressedQTEButton(const Input::Controller::Button buttonType)
             case QTE::QTE_RESULT_PERFECT:
             {
                 ++_overallResult.PerfectCount;
-                UmAudio.Play("-21000");
+                AudioHelper::PlaySFX(_audioIDState.OnPerfectJudgement);
                 inputSystem.Vibrate(PERFECT_VIBRATION);
                 break;
             }
             case QTE::QTE_RESULT_NORMAL:
             {
                 ++_overallResult.NormalCount;
-                UmAudio.Play("-21010");
+                AudioHelper::PlaySFX(_audioIDState.OnNormalJudgement);
                 inputSystem.Vibrate(NORMAL_VIBRATION);
                 break;
             }
             case QTE::QTE_RESULT_MISS:
             {
                 ++_overallResult.MissCount;
-                //UmAudio.Play("-21020");
+                AudioHelper::PlaySFX(_audioIDState.OnMissJudgement);
                 inputSystem.Vibrate(MISS_VIBRATION);
                 break;
             }
@@ -585,6 +586,7 @@ void QTESystem::ProcessQTEEnterEvent()
     UmAudio.FadeOut();
 
     _currState = QTE::STATE_FADE_IN;
+    AudioHelper::PlaySFX(_audioIDState.OnQTEAppear);
     _callbackHandler.ProcessQTEFadeInStartEvent();
     QTEUIManager* uiManager = SingletonComponent<QTEUIManager>::GetInstance();
     if (uiManager)

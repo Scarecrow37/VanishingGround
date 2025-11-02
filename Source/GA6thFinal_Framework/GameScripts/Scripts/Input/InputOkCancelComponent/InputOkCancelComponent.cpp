@@ -41,6 +41,7 @@ void InputOkCancelComponent::OnOk(const Input::Controller&)
     {
         _result  = true;
         _onClose = true;
+        UmAudio.Play("-901002");
     }  
 }
 
@@ -50,5 +51,6 @@ void InputOkCancelComponent::OnCancel(const Input::Controller&)
     {
         _result  = false;
         _onClose = true;
+        UmAudio.Play("-901004");
     }
 }

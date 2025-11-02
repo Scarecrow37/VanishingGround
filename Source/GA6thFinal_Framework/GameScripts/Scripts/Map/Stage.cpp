@@ -45,6 +45,9 @@ Stage::Stage()
             ImGui::EndDragDropTarget();
         }
     });
+
+    SetFocusInAudioID("-301000");
+    SetSubmitAudioID("-301010");
 }
 
 Stage::~Stage()
@@ -75,6 +78,7 @@ void Stage::FocusIn(FocusCallType callType)
 
 void Stage::Submit()
 {
+    Base::Submit();
     if (!_stageEnable)
     {
         return;
