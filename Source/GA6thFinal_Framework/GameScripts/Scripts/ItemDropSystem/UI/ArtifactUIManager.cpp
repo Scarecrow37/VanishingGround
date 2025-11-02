@@ -296,7 +296,7 @@ void ArtifactUIManager::ImageUIUnlock()
             ImageElement* iconImage  = _iconElements[i];
             if (ItemDropSystem* dropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
             {
-                bool isOddIndex = IsOdd(i);
+                bool isOddIndex = IsOdd(static_cast<int>(i));
                 if (dropSystem->IsObtainArtifact(i) || (lockOddArtifact && isOddIndex))
                 {
                     frameImage->SetImage(GetObtainFrameGuid());
