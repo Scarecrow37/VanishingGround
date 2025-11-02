@@ -498,6 +498,7 @@
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\LastWeaponDamageCopy\LastWeaponDamageCopy.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\MultiTargetDamage\MultiTargetDamageAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\NotingAction\NotingAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\QTEFadeHalfAction\QTEFadeHalfAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\QTESpeedAction\QTESpeedAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\Recovery\RecoveryAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\Recovery\RecoveryByTokenCountAction.h" />
@@ -846,6 +847,7 @@
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\LastWeaponDamageCopy\LastWeaponDamageCopy.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\MultiTargetDamage\MultiTargetDamageAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\NotingAction\NotingAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\QTEFadeHalfAction\QTEFadeHalfAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\QTESpeedAction\QTESpeedAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\Recovery\RecoveryAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\Recovery\RecoveryByTokenCountAction.cpp" />
