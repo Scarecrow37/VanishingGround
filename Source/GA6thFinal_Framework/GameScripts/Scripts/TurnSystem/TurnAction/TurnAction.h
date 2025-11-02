@@ -318,6 +318,11 @@ public:
     /// <param name="enemy"></param>
     virtual void OnEnemyStun(Enemy& enemy){}
 
+    /// <summary>
+    /// WeaponViewModel의 Convert가 요청될때마다 호출됩니다.
+    /// </summary>
+    virtual void OnConvertWeaponViewModel(WeaponStats& stats) {}
+
 public:
     REFLECT_PROPERTY(ActionName, ActionInfo, LogicOperator)
 
