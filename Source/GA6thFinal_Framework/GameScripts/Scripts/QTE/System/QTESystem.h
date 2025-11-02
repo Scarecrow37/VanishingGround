@@ -2,6 +2,7 @@
 #include "DLLExportDefine.h"
 #include "QTE/Common/QTECommon.h"
 #include "QTE/Callback/Callback.h"
+#include "QTE/Fade/QTEFadeState.h"
 #include "QTE/Result/QTEResult.h"
 #include "QTE/KeyBinder/QTEKeyBinder.h"
 #include "QTE/Track/QTETrack.h"
@@ -49,7 +50,6 @@ public:
 private:
     void Reset() override;
     void Awake() override;
-    void Start() override;
     void Update() override;
     void OnDestroy() override;
 
@@ -62,12 +62,19 @@ public:
     void StartQTE();
     /// <summary>무기 기반으로 트랙을 생성하여 QTE를 시작합니다.</summary>
     void StartQTE(const WeaponStats& weapon);
+        // 이후 추가할거... 가이드 노트, QTE 종료 페이드 아웃 듀레이션 등.
     /// <summary>QTE를 중지합니다.</summary>
     void StopQTE();
     /// <summary>QTE를 일시정지하거나 재개합니다. QTE플레이 중이 아니라면 무시됩니다.</summary>
     void PauseQTE(bool pause);
     /// <summary>QTE 트랙을 비웁니다.</summary>
     void ClearTrack();
+
+public:
+    /// <summary>QTE 페이드 상태를 설정합니다.</summary>
+    void SetFadeState(const QTE::FadeState& fadeState);
+    /// <summary>QTE 현재 페이드 상태를 가져옵니다.</summary>
+    const QTE::FadeState& GetCurrentFadeState();
 
 public:
     /// <summary>QTE 키 바인드 상태를 초기화합니다.</summary>
@@ -161,6 +168,7 @@ private:
 
     QTE::PlayState                  _currState = QTE::STATE_WAITING;            // QTE 현재 상태
     QTE::PlayState                  _prevState = QTE::STATE_WAITING;            // QTE 이전 상태
+    QTE::FadeState                  _fadeState;
     QTE::KeyBinder                  _keyBinder;                                 // QTE 키 바인딩 처리
     QTE::CallbackHandler            _callbackHandler;                           // QTE 콜백 처리
     QTE::OverallResult              _overallResult;                             // QTE 최종 결과
