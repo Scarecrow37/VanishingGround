@@ -500,6 +500,7 @@
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\NotingAction\NotingAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\QTESpeedAction\QTESpeedAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\Recovery\RecoveryAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\Recovery\RecoveryByTokenCountAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\RevelationCountAttackDamageAdditional\RevelationCountAttackDamageAdditional.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\AttackTokenApplyAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\AttackMultiTokenApplyAction.h" />
@@ -846,6 +847,7 @@
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\NotingAction\NotingAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\QTESpeedAction\QTESpeedAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\Recovery\RecoveryAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\Recovery\RecoveryByTokenCountAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\RevelationCountAttackDamageAdditional\RevelationCountAttackDamageAdditional.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\AttackMultiTokenApplyAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\AttackTokenApplyAction.cpp" />
