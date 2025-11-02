@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-class EndingDialogManager : public Component
+class EndingDialogManager : public Component, public InputReceiver
 {
     USING_PROPERTY(EndingDialogManager)
 
@@ -21,6 +21,8 @@ private:
         return _isDialogEnded;
     }
     void PlayNextDialog();
+    // 바로 skip 대사 재생
+    void SkipCurrentDialog(const Input::Controller& constorller);
 
 public:
     REFLECT_PROPERTY(MainMenuScene, DialogInterval)
@@ -52,7 +54,8 @@ private:
     float                             _currentTimer               = 0.0f;
     size_t                            _currentDialogIndex         = 0;
     size_t                            _totalDialogCount           = 0;
-
+    bool                              _isDialogFading             = false;
+    bool                              _skipRequested              = false;
     class ChildsAnimationsController* _childsAnimationsController = nullptr;
 };
 

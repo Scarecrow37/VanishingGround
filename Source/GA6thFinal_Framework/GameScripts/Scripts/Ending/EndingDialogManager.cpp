@@ -30,6 +30,11 @@ void EndingDialogManager::Reset()
     _currentDialogIndex = 0;    
     _currentTimer       = 0.0f;
     _totalDialogCount   = 0;
+    _isDialogFading     = false;
+    _skipRequested      = false;
+
+    BindInputAction(ControllerButton::A, Action::PRESSED, this, &EndingDialogManager::SkipCurrentDialog);
+
     auto EndingDialog = GameObject::FindWithTag("EndingDialogPannel").lock();
     if (EndingDialog.get())
     {
@@ -56,22 +61,60 @@ void EndingDialogManager::Awake()
 
 void EndingDialogManager::Update()
 {
-    if (_isSequencePlaying&& _childsAnimationsController)
+    if (_isSequencePlaying && _childsAnimationsController)
     {
+        if (_skipRequested && _isDialogFading && _currentDialogIndex > 0)
+        {
+            size_t currentIndex = _currentDialogIndex - 1;
+            _childsAnimationsController->CompleteFadeImmediately(currentIndex);
+            _isDialogFading = false;
+            _currentTimer   = ReflectFields->DialogInterval;
+            _skipRequested  = false;
+        }
+
+        if (_isDialogFading && _currentDialogIndex > 0)
+        {
+            size_t currentIndex = _currentDialogIndex - 1;
+            if (_childsAnimationsController->IsFadeComplete(currentIndex))
+            {
+                _isDialogFading = false;
+                _currentTimer   = 0.0f;
+            }
+        }
+
         _currentTimer += UmTime.DeltaTime();
-        if (_currentTimer >= DialogInterval)
+
+        if (!_isDialogFading && _currentTimer >= ReflectFields->DialogInterval)
         {
             PlayNextDialog();
             _currentTimer = 0.0f;
         }
     }
+
     if (_isDialogEnded)
     {
         _isDialogEnded = false;
         TransitionToMainMenuScene();
-    } 
-    
+    }
 }
+//void EndingDialogManager::Update()
+//{
+//    if (_isSequencePlaying&& _childsAnimationsController)
+//    {
+//        _currentTimer += UmTime.DeltaTime();
+//        if (_currentTimer >= DialogInterval)
+//        {
+//            PlayNextDialog();
+//            _currentTimer = 0.0f;
+//        }
+//    }
+//    if (_isDialogEnded)
+//    {
+//        _isDialogEnded = false;
+//        TransitionToMainMenuScene();
+//    } 
+//    
+//}
 
 void EndingDialogManager::TransitionToMainMenuScene()
 {
@@ -131,5 +174,15 @@ void EndingDialogManager::PlayNextDialog()
         return;
     }
     _childsAnimationsController->FadeIn(_currentDialogIndex);
+    _isDialogFading = true;
     _currentDialogIndex++;
+}
+
+void EndingDialogManager::SkipCurrentDialog(const Input::Controller& constorller)
+{
+    if (!_isSequencePlaying)
+    {
+        return;
+    }
+    _skipRequested = true;
 }

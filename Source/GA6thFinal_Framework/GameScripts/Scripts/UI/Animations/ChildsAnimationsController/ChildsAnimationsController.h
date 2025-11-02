@@ -22,6 +22,9 @@ public:
     void StopAnimation(size_t index);
     void StopAnimationWithTag(std::string_view tag);
 
+    bool IsFadeComplete(size_t index) const;
+    void CompleteFadeImmediately(size_t index);
+
     REFLECT_PROPERTY()
 
 protected:

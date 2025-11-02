@@ -121,6 +121,23 @@ void ChildsAnimationsController::StopAnimationWithTag(std::string_view tag)
     }
 }
 
+bool ChildsAnimationsController::IsFadeComplete(size_t index) const
+{
+    if (index < _fadeUIs.size())
+    {
+        return _fadeUIs[index]->IsComplete();
+    }
+    return true;
+}
+
+void ChildsAnimationsController::CompleteFadeImmediately(size_t index) 
+{
+    if (index < _fadeUIs.size())
+    {
+        _fadeUIs[index]->CompleteImmediately();
+    }
+}
+
 void ChildsAnimationsController::Awake() 
 {
     FindAnimations();

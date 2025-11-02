@@ -42,6 +42,8 @@ public:
     void Stop();
     void Begin();
     void End();
+    bool IsComplete() const;
+    void CompleteImmediately();
 
 protected:
     void Awake() override;
