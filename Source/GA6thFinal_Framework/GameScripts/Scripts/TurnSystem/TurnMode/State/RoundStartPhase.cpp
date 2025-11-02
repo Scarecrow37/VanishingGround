@@ -27,7 +27,7 @@ void RoundStartPhase::OnStart()
 void RoundStartPhase::OnEnter() 
 {
     /// 사운드
-    UmAudio.Play("-20100");
+    UmAudio.Play("-421000");
 
     _isPhaseEnd = false;
 

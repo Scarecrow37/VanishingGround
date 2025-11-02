@@ -13,6 +13,7 @@
 #include "Map/MapManager.h"
 #include "Map/Stage.h"
 #include "CombatUIManager/CombatUIManager.h"
+#include "Audio/BGMManager.h"
 
 UMREAL_COMPONENT(ItemDropSystem)
 
@@ -345,6 +346,11 @@ void ItemDropSystem::PlayItemDropUISequence()
             // 포커스 되야할 버튼
             ArtifactButtonNavi::LastFocusIndex = 0;
             itemDropUIRootManager->AutoFocus();
+
+            if (BGMManager* bgmManager = SingletonComponent<BGMManager>::GetInstance())
+            {
+                bgmManager->PlayBGM("-460000", true);
+            }
         }
     }
 

@@ -315,6 +315,7 @@ void CharacterBase::OnTurnStart()
 {
     Base::OnTurnStart();
     _tokenInventory.NotifyTurnStart();
+    UmAudio.Play("-421000");
 }
 
 void CharacterBase::OnTurnEnd() 

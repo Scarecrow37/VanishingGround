@@ -180,9 +180,6 @@ void CombatStartPhase::OnEnter()
         combatUIManager->TurnQueueGroup.ActiveUI(false);  
     }
 
-    /// 사운드
-    UmAudio.Play("-20000");
-
     _turnMode->ResetRoundCount();
     AddValidActions();
     AddExtinctionRevelation();
