@@ -180,6 +180,16 @@ void RevelationSystem::RollRoundElement()
                                 {
                                     RevelationGrade garde = element->Grade;
                                     uis[i].AnimationsController->StartAnimation(static_cast<size_t>(garde));
+                                    if (garde != RevelationGrade::EXTINCTION)
+                                    {
+                                        //일반 계시 발동 소리
+                                        UmAudio.Play("-401000");
+                                    }
+                                    else
+                                    {
+                                        //소멸 계시 발동 소리
+                                        UmAudio.Play("-401010");
+                                    }
                                 }
                             }
                         }

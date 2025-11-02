@@ -140,6 +140,9 @@ void WeaponView::Start()
                 }
                 else
                 {
+                    //무기 재등장 사운드
+                    UmAudio.Play("-431002");
+
                     _backgroundUI.FocusOff->Setup();
                     _backgroundUI.FocusOff->StartAnimation();
 
