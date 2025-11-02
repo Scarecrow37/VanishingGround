@@ -11,7 +11,7 @@ REGISTER_TURN_ACTION(EnemyStunTokenApplyAction)
 
 const std::string& EnemyStunTokenApplyAction::GetActionInfo()
 {
-    EnemyStunTokenApplyAction();
+    TryTokenSystemInfoUpdate();
     return _actionInfo;
 }
 
