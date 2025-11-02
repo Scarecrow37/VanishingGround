@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include "TurnSystem/TurnAction/TurnAction.h"
 
-//TODO: 효과 구현은 아직 안됨
 // 플레이어의 토큰 데미지 증가
 class TokenDamaggeAction : public TurnAction
 {
@@ -48,4 +47,6 @@ private:
     void               ImGuiDrawActionEditor() override;
 
     void ImGuiDrawPropertysEvent() override;
+
+    void OnEnemyTokenTakeDamage(int tokenID, int& damage) override;
 };

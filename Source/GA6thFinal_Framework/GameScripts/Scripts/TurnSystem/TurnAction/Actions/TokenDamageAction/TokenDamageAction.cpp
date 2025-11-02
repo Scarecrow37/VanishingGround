@@ -52,6 +52,17 @@ void TokenDamaggeAction::ImGuiDrawPropertysEvent()
     ImguiDrawConditionEditor();
 }
 
+void TokenDamaggeAction::OnEnemyTokenTakeDamage(int tokenID, int& damage) 
+{
+    if (tokenID == ReflectFields->TokenID)
+    {
+        if (EvaluateConditions())
+        {
+            damage += ReflectFields->Damage;
+        }
+    } 
+}
+
 void TokenDamaggeAction::TryTokenSystemInfoUpdate()
 {
     if (false == validTokenSystem)
