@@ -484,15 +484,7 @@ void AccessorySystem::ImGuiDrawPlayerAccsessoryItems()
             ImGui::PushStyleColor(ImGuiCol_Text, accessory.GetGradeColor());
             {
                 const std::string& name = accessory.AccessoryName;
-                AccessoryElement*  change = AccessorySelectCombo(name.c_str());
-                if (change)
-                {
-                    _playerAccessoryItems.at(i, [&](AccessoryElement& element) 
-                    { 
-                        element = *change;
-                    });
-                }
-
+                ImGui::Text(name.data());
                 ImGui::SameLine();
                 if (ImGui::Button("Unequip"))
                 {
