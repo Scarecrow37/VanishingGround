@@ -63,30 +63,26 @@ namespace QTE
     void NoteUI::ProcessAlpha(const float positionX, const float fadeInStartX, const float fadeInEndX,
                               const float fadeOutStartX, const float fadeOutEndX) 
     {
+        float alpha = 0.0f;
         // FadeIn
         if (fadeInEndX > 0.0f && positionX >= fadeInStartX && positionX <= fadeInEndX)
         {
             const float dist   = fadeInEndX - fadeInStartX;
             const float delta  = fadeInEndX - positionX;
-            const float factor = std::clamp(delta / dist, 0.0f, 1.0f);
-            Alpha(std::clamp(factor, 0.0f, 1.0f));
+            alpha              = std::clamp(delta / dist, 0.0f, 1.0f);
         }
         else if (positionX > fadeInEndX && positionX < fadeOutStartX)
         {
-            Alpha(1.0f);
+            alpha = 1.0f;
         }
         // FadeOut
         else if (fadeOutStartX > fadeInEndX && positionX >= fadeOutStartX)
         {
             const float dist   = fadeOutEndX - fadeOutStartX;
             const float delta  = fadeOutEndX - positionX;
-            const float factor = std::clamp(delta / dist, 0.0f, 1.0f);
-            Alpha(std::clamp(factor, 0.0f, 1.0f));
+            alpha              = std::clamp(delta / dist, 0.0f, 1.0f);
         }
-        else
-        {
-            Alpha(0.0f);
-        }
+        Alpha(alpha);
     }
 
     void NoteUI::Reset()
