@@ -312,6 +312,14 @@
     <ClCompile Include="Scripts\Utility\FocusHelper.cpp" />
     <ClCompile Include="Scripts\MainMenu\CreditsBackButton.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\AttackMultiTokenApplyAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\AttackTokenRemoveAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenTypeCountAttackDamagePlus\TokenTypeCountAttackDamagePlus.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenTypeCountSpeedPlus\TokenTypeCountSpeedPlus.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\WeaponStas\RevelationCountWeaponDamageAcation.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\WeaponStas\WeaponSpeedAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\CheckWeaponCountCondition\CheckWeaponCountCondition.cpp" />
+    <ClCompile Include="Scripts\BattleIntroUIController\BattleIntroUIController.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\ExtinctionRevelationApply\ExtinctionRevelationApply.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
@@ -638,6 +646,14 @@
     <ClInclude Include="Scripts\UI\Animations\ReduceGage\ReduceGage.h" />
     <ClInclude Include="Scripts\Utility\FocusHelper.h" />
     <ClInclude Include="Scripts\MainMenu\CreditsBackButton.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\AttackTokenRemoveAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenTypeCountAttackDamagePlus\TokenTypeCountAttackDamagePlus.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenTypeCountSpeedPlus\TokenTypeCountSpeedPlus.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\WeaponStas\RevelationCountWeaponDamageAcation.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\WeaponStas\WeaponSpeedAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\CheckWeaponCountCondition\CheckWeaponCountCondition.h" />
+    <ClInclude Include="Scripts\BattleIntroUIController\BattleIntroUIController.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\ExtinctionRevelationApply\ExtinctionRevelationApply.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
