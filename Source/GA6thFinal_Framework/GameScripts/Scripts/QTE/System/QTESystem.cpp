@@ -583,10 +583,16 @@ void QTESystem::PressedButtonB(const Input::Controller& controller)
 
 void QTESystem::ProcessQTEEnterEvent() 
 {
+    // 인풋 레이어 푸쉬
+    PushInputLayer();
+
+    // 오디오 페이드
     UmAudio.FadeOut();
 
-    _currState = QTE::STATE_FADE_IN;
+    // QTE 진입 사운드 재생
     AudioHelper::PlaySFX(_audioIDState.OnQTEAppear);
+
+    _currState = QTE::STATE_FADE_IN;
     _callbackHandler.ProcessQTEFadeInStartEvent();
     QTEUIManager* uiManager = SingletonComponent<QTEUIManager>::GetInstance();
     if (uiManager)
@@ -656,6 +662,8 @@ void QTESystem::ProcessQTEFadeInEndEvent()
 
 void QTESystem::ProcessQTEFadeOutEndEvent() 
 {
+    // 인풋 레이어 팝
+    PopInputLayer();
     _currState = QTE::STATE_WAITING;
     _callbackHandler.ProcessQTEFadeOutFinishEvent(_overallResult);
 }
