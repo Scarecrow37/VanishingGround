@@ -61,18 +61,12 @@ void EndingDialogManager::Awake()
 
 void EndingDialogManager::Update()
 {
-    // 컨트롤러를 안챙겨서 이걸로 테스트함..
-    /*if (ImGui::IsKeyPressed(ImGuiKey_A, false))
+#ifdef _UMEDITOR
+    if (ImGui::IsKeyPressed(ImGuiKey_A))
     {
-        if (_isDialogEnded)
-        {
-            _goToMainMenuSceneFlag = true;
-        }
-        if (_isSequencePlaying)
-        {
-            _skipRequested = true;
-        }
-    }*/
+        PressAButton();
+    }
+#endif
     if (_isSequencePlaying && _childsAnimationsController)
     {
         if (_skipRequested && _currentDialogIndex > 0)
@@ -174,6 +168,11 @@ void EndingDialogManager::PlayNextDialog()
 }
 
 void EndingDialogManager::SkipCurrentDialog(const Input::Controller& contorller)
+{
+    PressAButton();
+}
+
+void EndingDialogManager::PressAButton() 
 {
     if (!_isSequencePlaying)
     {

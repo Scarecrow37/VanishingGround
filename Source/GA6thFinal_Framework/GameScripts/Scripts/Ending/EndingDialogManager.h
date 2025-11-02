@@ -24,6 +24,8 @@ private:
     // 바로 skip 대사 재생
     void SkipCurrentDialog(const Input::Controller& contorller);
 
+    void PressAButton();
+    
 public:
     REFLECT_PROPERTY(MainMenuScene, DialogInterval)
     GETTER_ONLY(std::string, MainMenuScene)
@@ -56,7 +58,7 @@ private:
     size_t                            _totalDialogCount           = 0;
     bool                              _isDialogFading             = false;
     bool                              _skipRequested              = false;
-    bool                              _goToMainMenuSceneFlag = false;
+    bool                              _goToMainMenuSceneFlag      = false;
     class ChildsAnimationsController* _childsAnimationsController = nullptr;
 };
 
