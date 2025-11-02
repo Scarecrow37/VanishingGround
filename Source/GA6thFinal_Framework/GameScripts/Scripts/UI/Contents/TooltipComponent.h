@@ -14,6 +14,7 @@ class TooltipComponent : public Component
 public:
     struct TooltipData
     {
+        int         ImageAssetId;
         std::string Title;
         std::string Description;
     };

@@ -301,6 +301,8 @@
     <ClCompile Include="Scripts\UI\Contents\TooltipComponent.cpp" />
     <ClCompile Include="Scripts\UI\Contents\TooltipColumnComponent.cpp" />
     <ClCompile Include="Scripts\UI\Contents\TooltipGroupComponent.cpp" />
+    <ClCompile Include="Scripts\TooltipSystem\TooltipSystem.cpp" />
+    <ClCompile Include="Scripts\TooltipSystem\TooltipDataComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
@@ -615,6 +617,8 @@
     <ClInclude Include="Scripts\UI\Contents\TooltipComponent.h" />
     <ClInclude Include="Scripts\UI\Contents\TooltipColumnComponent.h" />
     <ClInclude Include="Scripts\UI\Contents\TooltipGroupComponent.h" />
+    <ClInclude Include="Scripts\TooltipSystem\TooltipSystem.h" />
+    <ClInclude Include="Scripts\TooltipSystem\TooltipDataComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

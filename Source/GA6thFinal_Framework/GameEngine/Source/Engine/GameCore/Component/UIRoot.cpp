@@ -172,7 +172,11 @@ void UIRoot::Added()
 void UIRoot::Start()
 {
     UIBaseComponent::Start();
-    
+
+    BindInputAction(ControllerButton::LEFT_TRIGGER, Action::PRESSED, this, &UIRoot::ShowTooltips);
+    BindInputAction(ControllerButton::RIGHT_TRIGGER, Action::PRESSED, this, &UIRoot::ShowTooltips);
+    BindInputAction(ControllerButton::LEFT_TRIGGER, Action::RELEASED, this, &UIRoot::HideTooltips);
+    BindInputAction(ControllerButton::RIGHT_TRIGGER, Action::RELEASED, this, &UIRoot::HideTooltips);
     BindAllKeyInputAction(Action::PRESSED, this, &UIRoot::UpdateNavigation);
 
     UpdateNavigationMap();
@@ -189,32 +193,24 @@ void UIRoot::UpdateNavigation(const Input::Controller& controller)
     auto queue = controller.GetButtonQueue();
     std::ranges::for_each(queue, [this](const Input::Controller::ButtonState& buttonState) {
 
-        if (nullptr != _currentFocusNavigation && (buttonState.Flag == Input::Controller::StateFlag::STATE_DOWN ||
-                                                   buttonState.Flag == Input::Controller::StateFlag::STATE_REPEAT))
-        {
-            const NavigationKey navigationKey = ButtonStateToNavigationKey()(buttonState);
-
-            UINavigationComponent* currentCheckUINavigationComponent = _currentFocusNavigation;
-            for (unsigned int tryCount = 0; tryCount < MAX_NAVIGATION_LOOP_COUNT; ++tryCount)
-            {
-                const NavigationID navigationID = currentCheckUINavigationComponent->GetNavigatedId(navigationKey);
-                if (navigationID == INVALID_NAVIGATION_ID)
-                    break;
-
-                UINavigationComponent* nextFocus = FindNavigationComponent(navigationID);
-                if (currentCheckUINavigationComponent == nextFocus)
-                {
-                    currentCheckUINavigationComponent->Submit();
-                    break;
-                }
-
-                if (ChangeFocusComponent(nextFocus, FocusCallType::INPUT))
-                    break;
-
-                currentCheckUINavigationComponent = nextFocus;
-            }
-        }
+        UpdateNavigation(buttonState);
     });
+}
+
+void UIRoot::ShowTooltips(const Input::Controller& controller)
+{
+    if (_currentFocusNavigation != nullptr)
+    {
+        _currentFocusNavigation->ShowTooltips();
+    }
+}
+
+void UIRoot::HideTooltips(const Input::Controller& controller)
+{
+    if (_currentFocusNavigation != nullptr)
+    {
+        _currentFocusNavigation->HideTooltips();
+    }
 }
 
 void UIRoot::UpdateNavigationMap(Transform& exceptTransform)
@@ -267,6 +263,35 @@ void UIRoot::ChangeNavigationID(NavigationID from, NavigationID to)
         auto& [id, component] = idComponentPair;
         component->ChangeNavigationDestinationID(from, to);
     });
+}
+
+void UIRoot::UpdateNavigation(const Input::Controller::ButtonState& buttonState)
+{
+    if (nullptr != _currentFocusNavigation && (buttonState.Flag == Input::Controller::StateFlag::STATE_DOWN ||
+                                               buttonState.Flag == Input::Controller::StateFlag::STATE_REPEAT))
+    {
+        const NavigationKey navigationKey = ButtonStateToNavigationKey()(buttonState);
+
+        UINavigationComponent* currentCheckUINavigationComponent = _currentFocusNavigation;
+        for (unsigned int tryCount = 0; tryCount < MAX_NAVIGATION_LOOP_COUNT; ++tryCount)
+        {
+            const NavigationID navigationID = currentCheckUINavigationComponent->GetNavigatedId(navigationKey);
+            if (navigationID == INVALID_NAVIGATION_ID)
+                break;
+
+            UINavigationComponent* nextFocus = FindNavigationComponent(navigationID);
+            if (currentCheckUINavigationComponent == nextFocus)
+            {
+                currentCheckUINavigationComponent->Submit();
+                break;
+            }
+
+            if (ChangeFocusComponent(nextFocus, FocusCallType::INPUT))
+                break;
+
+            currentCheckUINavigationComponent = nextFocus;
+        }
+    }
 }
 
 NavigationID UIRoot::GetSpareID()

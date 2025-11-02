@@ -482,6 +482,8 @@
     <ClInclude Include="Scripts\Token\Token.h" />
     <ClInclude Include="Scripts\Token\TokenInventory.h" />
     <ClInclude Include="Scripts\Token\TokenSystem.h" />
+    <ClInclude Include="Scripts\TooltipSystem\TooltipDataComponent.h" />
+    <ClInclude Include="Scripts\TooltipSystem\TooltipSystem.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\AdditionalDamage\AdditionalDamageAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\ApplyDamage\ApplyDamage.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\ChangeQTEButton\ChangeQTEButton.h" />
@@ -797,6 +799,8 @@
     <ClCompile Include="Scripts\Token\Token.cpp" />
     <ClCompile Include="Scripts\Token\TokenInventory.cpp" />
     <ClCompile Include="Scripts\Token\TokenSystem.cpp" />
+    <ClCompile Include="Scripts\TooltipSystem\TooltipDataComponent.cpp" />
+    <ClCompile Include="Scripts\TooltipSystem\TooltipSystem.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\AdditionalDamage\AdditionalDamageAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\ApplyDamage\ApplyDamage.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\ChangeQTEButton\ChangeQTEButton.cpp" />

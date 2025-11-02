@@ -404,6 +404,10 @@ void UINavigationComponent::AcquireNavigationID(UIRoot* root)
     }
 }
 
+void UINavigationComponent::ShowTooltips() {}
+
+void UINavigationComponent::HideTooltips() {}
+
 void UINavigationComponent::ReleaseNavigationID(UIRoot* root)
 {
     if (nullptr != root)
