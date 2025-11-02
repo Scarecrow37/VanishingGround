@@ -11,16 +11,25 @@ public:
     ~ChildsAnimationsController() override;
 
 public:
-    void FindAnimations();
-    void FadeIn(size_t index);
-    void FadeInWithTag(std::string_view tag);
-    void FadeOut(size_t index);
-    void FadeOutWithTag(std::string_view tag);
+    void  FindAnimations();
+    void  Begin(size_t index);
+    void  BeginWithTag(const std::string& tag);
+    float FadeIn(size_t index);
+    float FadeInWithTag(const std::string& tag);
+    void  End(size_t index);
+    void  EndWithTag(const std::string& tag);
+    float FadeOut(size_t index);
+    float FadeOutWithTag(const std::string& tag);
+    float GetFadeDurationWithTag(const std::string& tag);
 
-    void StartAnimation(size_t index);
-    void StartAnimationWithTag(std::string_view tag);
-    void StopAnimation(size_t index);
-    void StopAnimationWithTag(std::string_view tag);
+    float StartAnimation(size_t index);
+    float StartAnimationWithTag(const std::string& tag);
+    void  StopAnimation(size_t index);
+    void  StopAnimationWithTag(const std::string& tag);
+    float GetAnimationDurationWithTag(const std::string& tag);
+
+    bool IsFadeComplete(size_t index) const;
+    void CompleteFadeImmediately(size_t index);
 
     REFLECT_PROPERTY()
 
@@ -28,14 +37,14 @@ protected:
     REFLECT_FIELDS_BEGIN(Component)
     REFLECT_FIELDS_END(ChildsAnimationsController)
 
-    void Awake() override;
+    void Added() override;
 
 private:
     std::vector<FadeUIComponent*>        _fadeUIs;
     std::vector<SpriteAnimationElement*> _spriteAnimations;
 
-    std::unordered_map<std::string_view, std::vector<FadeUIComponent*>>        _fadeUIsWithTag;
-    std::unordered_map<std::string_view, std::vector<SpriteAnimationElement*>> _spriteAnimationsWithTag;
+    std::unordered_map<std::string, std::vector<FadeUIComponent*>>        _fadeUIsWithTag;
+    std::unordered_map<std::string, std::vector<SpriteAnimationElement*>> _spriteAnimationsWithTag;
 
 };
 

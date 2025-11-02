@@ -354,6 +354,16 @@ void Enemy::OnTokenRemoved(const int tokenID)
     Base::OnTokenRemoved(tokenID);
 }
 
+void Enemy::OnTokenEnter(int tokenID)
+{
+    Base::OnTokenEnter(tokenID);
+}
+
+void Enemy::OnTokenExit(int tokenID)
+{
+    Base::OnTokenExit(tokenID);
+}
+
 void Enemy::OnNotifiedAnimationEvent(const Timeline::EventContext* context) 
 {
     if (_fsmStates.WaitTurn && STATE::Wait == State)

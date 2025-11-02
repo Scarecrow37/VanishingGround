@@ -315,6 +315,7 @@ void CharacterBase::OnTurnStart()
 {
     Base::OnTurnStart();
     _tokenInventory.NotifyTurnStart();
+    UmAudio.Play("-421000");
 }
 
 void CharacterBase::OnTurnEnd() 
@@ -345,6 +346,18 @@ void CharacterBase::OnTokenRemoved(int tokenID)
 {
     Base::OnTokenRemoved(tokenID);
     _tokenInventory.NotifyTokenRemoved(tokenID);
+}
+
+void CharacterBase::OnTokenEnter(int tokenID) 
+{
+    Base::OnTokenEnter(tokenID);
+    _tokenInventory.NotifyTokenEnter(tokenID);
+}
+
+void CharacterBase::OnTokenExit(int tokenID) 
+{
+    Base::OnTokenExit(tokenID);
+    _tokenInventory.NotifyTokenExit(tokenID);
 }
 
 void CharacterBase::OnQTEStart() 

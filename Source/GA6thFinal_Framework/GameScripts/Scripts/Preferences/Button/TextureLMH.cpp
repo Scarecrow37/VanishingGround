@@ -130,7 +130,10 @@ void TextureLMH::FocusOut(const FocusCallType callType)
     _isOptionDirty = true;
 }
 
-void TextureLMH::Submit() {}
+void TextureLMH::Submit()
+{
+    Base::Submit();
+}
 
 void TextureLMH::SerializedReflectEvent() {}
 

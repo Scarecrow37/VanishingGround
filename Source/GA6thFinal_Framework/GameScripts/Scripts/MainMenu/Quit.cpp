@@ -8,5 +8,6 @@ Quit::~Quit() = default;
 
 void Quit::Submit()
 {
+    Base::Submit();
     UmApplication.Quit();
 }

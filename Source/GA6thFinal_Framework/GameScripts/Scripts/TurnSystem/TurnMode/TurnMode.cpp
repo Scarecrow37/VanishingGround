@@ -55,12 +55,7 @@ TurnMode::TurnMode()
 }
 TurnMode::~TurnMode()
 {
-    if (_singletonComponent.IsSingleTon())
-    {
-        _turnList.Reset();
-        UmWatcher.Unregister<TurnQueueViewModel>("Turn Queue");
-        UmWatcher.Unregister<WeaponViewModel>("Weapon");
-    }
+
 }
 
 Player* TurnMode::GetPlayer()
@@ -134,21 +129,43 @@ void TurnMode::MakeTurnList()
             }
         }
     }
-
-    _turnList = std::move(turnList);
-}
-
-void TurnMode::SortTurnList()
-{
-    if (false == _turnList.empty())
+    
+    std::erase_if(turnList, [](std::pair<int, TurnActor*>& pair) 
     {
-        _turnList.shuffle(Random::GetEngine());
-        _turnList.sort([this](const std::pair<int, TurnActor*>& turnSlotA, const std::pair<int, TurnActor*>& turnSlotB) {
+        auto& [slot, actor] = pair;
+        if (actor)
+        {
+            return actor->IsDead();
+        }
+        return true;
+    });
+
+    if (false == turnList.empty())
+    {
+        std::ranges::shuffle(turnList, Random::GetEngine());
+        std::ranges::sort(turnList, 
+            [this](const std::pair<int, TurnActor*>& turnSlotA, const std::pair<int, TurnActor*>& turnSlotB) {
             const int speedA = GetRealRoundSpeed(turnSlotA);
             const int speedB = GetRealRoundSpeed(turnSlotB);
             return speedA > speedB;
-        });
+            });
     }
+
+    _playerWeaponCounter = 0;
+    _turnList = std::move(turnList);
+}
+
+void TurnMode::EraseTurnListToDeadCharacter() 
+{
+    _turnList.erase_if([](std::pair<int, TurnActor*>& pair) 
+    {
+        auto& [slot, actor] = pair;
+        if (actor)
+        {
+            return actor->IsDead();
+        }
+        return true;
+    });
 }
 
 void TurnMode::StartFrontTurnActor()
@@ -189,6 +206,7 @@ void TurnMode::StartFrontTurnActor()
                 {
                     UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Weapon System이 존재하지 않습니다.");
                 }
+                ++_playerWeaponCounter;
             }
             _currTurnActor = actorSlot.second;
         });
@@ -320,6 +338,21 @@ void TurnMode::Awake()
     AddRoundOnceActions();
     FindCameras();
     
+}
+
+void TurnMode::OnDestroy() 
+{
+    if (_singletonComponent.IsSingleTon())
+    {
+        _turnList.Reset();
+        UmWatcher.Unregister<TurnQueueViewModel>("Turn Queue");
+        UmWatcher.Unregister<WeaponViewModel>("Weapon");
+
+        ApplyActions([this](TurnAction& action)
+        {
+            action.SetDestroy();
+        });
+    }
 }
 
 void TurnMode::ImGuiDrawPropertysEvent() 

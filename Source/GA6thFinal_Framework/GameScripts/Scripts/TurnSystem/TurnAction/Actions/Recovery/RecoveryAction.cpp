@@ -54,6 +54,29 @@ void RecoveryAction::OnPlayerBattleCalculateDamageModifier(Player& attacker, Pla
     }
 }
 
+void RecoveryAction::OnEquipAccessory() 
+{
+    if (ReflectFields->Trigger == TriggerType::EQUIP_ACCESSORY)
+    {
+        if (EvaluateConditions())
+        {
+            ProcessHeal();
+        }
+    }
+}
+
+void RecoveryAction::OnEnemyDeadByWeapon(Enemy& enemy, WeaponElement& weapon)
+{
+    if (ReflectFields->Trigger == TriggerType::WEAPON_KILL_ENEMY)
+    {
+        if (EvaluateConditions())
+        {
+            ProcessHeal();
+        }
+    }
+}
+
+
 void RecoveryAction::DeserializedReflectEvent() 
 {
     UpdateActionInfo();
@@ -70,6 +93,9 @@ void RecoveryAction::UpdateActionInfo()
         break;
     case RecoveryAction::TriggerType::ATTACK:
         triggerName = (const char*)u8"공격할 때 마다 ";
+        break;
+    case RecoveryAction::TriggerType::EQUIP_ACCESSORY:
+        triggerName = (const char*)u8"장신구로 장착시 ";
         break;
     default:
         break;
@@ -121,3 +147,4 @@ void RecoveryAction::ProcessHeal(CharacterBase* target)
         }
     }
 }
+

@@ -41,17 +41,27 @@ void TurnModeStateBase::UpdateCharacterDead(const std::function<void(CharacterBa
     CombatStartPhase* combatStartPhase = _turnMode->States->CombatStartPhase;
     if (combatStartPhase)
     {
+        bool isDead = false;
         for (auto& character : combatStartPhase->GetCharacters())
         {
-            int hp = character->HP;
-            if (hp <= 0)
+            if (false == character->IsDead())
             {
-                character->Dead();
-                if (deadCallback)
+                int hp = character->HP;
+                if (hp <= 0)
                 {
-                    deadCallback(*character);
-                }             
+                    character->Dead();
+                    if (deadCallback)
+                    {
+                        deadCallback(*character);
+                    }
+                    isDead = true;
+                }
             }
+        }
+
+        if (isDead)
+        {
+            _turnMode->EraseTurnListToDeadCharacter();
         }
     }
 }

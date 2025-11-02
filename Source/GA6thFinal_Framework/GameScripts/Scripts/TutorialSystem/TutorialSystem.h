@@ -59,6 +59,9 @@ public:
 protected:
     void Awake() override;
     void Start() override;
+    void OnDestroy() override;
+    void OnLoadScene(Scene& loadScene, LoadSceneMode mode) override;
+
     void ImGuiDrawPropertysEvent() override;
 
 private:

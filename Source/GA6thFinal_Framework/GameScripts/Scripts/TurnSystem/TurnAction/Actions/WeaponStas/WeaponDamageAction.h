@@ -68,7 +68,6 @@ protected:
     const std::string& GetActionInfo() override;
     void               ImGuiDrawActionEditor() override;
 
-    void SerializedReflectEvent() override;
     void DeserializedReflectEvent() override;
     void OnPlayerQTEResult(Player& player, const QTE::OverallResult& result) override; 
 
