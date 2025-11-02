@@ -158,7 +158,6 @@ void EndingDialogManager::StartDialogSequence()
 void EndingDialogManager::PlayNextDialog()
 {
     if (!_childsAnimationsController)
-
     {
         return;
     }
@@ -174,7 +173,7 @@ void EndingDialogManager::PlayNextDialog()
     _currentDialogIndex++;
 }
 
-void EndingDialogManager::SkipCurrentDialog(const Input::Controller& constorller)
+void EndingDialogManager::SkipCurrentDialog(const Input::Controller& contorller)
 {
     if (!_isSequencePlaying)
     {

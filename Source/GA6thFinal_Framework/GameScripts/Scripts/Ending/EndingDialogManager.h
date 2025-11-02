@@ -22,7 +22,7 @@ private:
     }
     void PlayNextDialog();
     // 바로 skip 대사 재생
-    void SkipCurrentDialog(const Input::Controller& constorller);
+    void SkipCurrentDialog(const Input::Controller& contorller);
 
 public:
     REFLECT_PROPERTY(MainMenuScene, DialogInterval)

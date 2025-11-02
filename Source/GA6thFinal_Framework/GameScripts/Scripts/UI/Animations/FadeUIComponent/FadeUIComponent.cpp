@@ -65,6 +65,12 @@ void FadeUIComponent::CompleteImmediately()
         UpdateOpacity(1.0f);
         _fadeDirection = FadeDirection::NONE;
     }
+    else if (_fadeDirection == FadeDirection::BACKWARD)
+    {
+        Begin();
+        UpdateOpacity(0.0f);
+        _fadeDirection = FadeDirection::NONE;
+    }
 }
 
 void FadeUIComponent::Update()
