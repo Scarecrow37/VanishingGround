@@ -1,7 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "QTESpeedAction.h"
 
-#include "Token/TokenSystem.h"
+#include "QTE/System/QTESystem.h"
 #include "TurnSystem/TurnAction/TurnActionFactory.h"
 
 REFLECT_FUNCTION(QTESpeedAction)
@@ -31,9 +31,9 @@ void QTESpeedAction::OnEquipAccessory()
         if (EvaluateConditions())
         {          
             int speed = ReflectFields->Speed;
-            if (TokenSystem* system = SingletonComponent<TokenSystem>::GetInstance())
+            if (QTESystem* system = SingletonComponent<QTESystem>::GetInstance())
             {
-                //TODO: QTE 속도 조정 필요
+                system->IncreaseQTESpeedLevel(speed);
             }
         }
     }
