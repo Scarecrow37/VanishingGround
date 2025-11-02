@@ -24,6 +24,12 @@ bool AccessorySystem::EquipAccessory(const AccessoryElement& accessory)
     if (result)
     {
         _playerAccessoryItems.push_back(accessory);
+        const auto& lastAccessory = _playerAccessoryItems[_playerAccessoryItems.size() - 1];
+        for (auto& action : lastAccessory._actions)
+        {
+            if (action)
+                action->OnEquipAccessory();
+        }
     }
     return result;
 }

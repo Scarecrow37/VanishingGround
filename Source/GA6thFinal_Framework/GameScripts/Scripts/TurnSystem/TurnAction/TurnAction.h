@@ -302,6 +302,11 @@ public:
     /// <param name="count"></param>
     virtual void OnRandomExtinctionPushPlayer(size_t& count) {}
 
+    /// <summary>
+    /// 이 액션이 악세서리로 장착되면 호출됩니다.
+    /// </summary>
+    virtual void OnEquipAccessory() {}
+
 public:
     REFLECT_PROPERTY(ActionName, ActionInfo, LogicOperator)
 
