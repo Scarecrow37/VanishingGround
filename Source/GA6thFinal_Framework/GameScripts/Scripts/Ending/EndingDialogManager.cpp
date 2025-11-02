@@ -61,9 +61,16 @@ void EndingDialogManager::Awake()
 
 void EndingDialogManager::Update()
 {
+    if (ImGui::IsKeyPressed(ImGuiKey_A, false))
+    {
+        if (_isSequencePlaying)
+        {
+            _skipRequested = true;
+        }
+    }
     if (_isSequencePlaying && _childsAnimationsController)
     {
-        if (_skipRequested && _isDialogFading && _currentDialogIndex > 0)
+        if (_skipRequested && _currentDialogIndex > 0)
         {
             size_t currentIndex = _currentDialogIndex - 1;
             _childsAnimationsController->CompleteFadeImmediately(currentIndex);
@@ -97,24 +104,7 @@ void EndingDialogManager::Update()
         TransitionToMainMenuScene();
     }
 }
-//void EndingDialogManager::Update()
-//{
-//    if (_isSequencePlaying&& _childsAnimationsController)
-//    {
-//        _currentTimer += UmTime.DeltaTime();
-//        if (_currentTimer >= DialogInterval)
-//        {
-//            PlayNextDialog();
-//            _currentTimer = 0.0f;
-//        }
-//    }
-//    if (_isDialogEnded)
-//    {
-//        _isDialogEnded = false;
-//        TransitionToMainMenuScene();
-//    } 
-//    
-//}
+
 
 void EndingDialogManager::TransitionToMainMenuScene()
 {
