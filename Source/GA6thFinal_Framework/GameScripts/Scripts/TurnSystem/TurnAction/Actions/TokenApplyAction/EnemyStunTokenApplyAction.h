@@ -1,18 +1,18 @@
 ﻿#pragma once
 #include "TurnSystem/TurnAction/Actions/TokenApplyAction/Base/TokenApplyAction.h"
 
-class TurnEndTokenRemoveAction : public TokenApplyAction
+class EnemyStunTokenApplyAction : public TokenApplyAction
 {
-    USING_PROPERTY(TurnEndTokenRemoveAction)
+    USING_PROPERTY(EnemyStunTokenApplyAction)
 public:
-    TurnEndTokenRemoveAction()           = default;
-    ~TurnEndTokenRemoveAction() override = default;
+    EnemyStunTokenApplyAction()           = default;
+    ~EnemyStunTokenApplyAction() override = default;
 
 public:
     const std::string& GetActionInfo() override;
     void               ImGuiDrawActionEditor() override;
     const std::string& GetActionName() override;
-    void               OnTurnEnd(CharacterBase& destination) override;
+    void               OnEnemyStun(Enemy& enemy) override;
 
 private:
     void        UpdateActionInfo() override;

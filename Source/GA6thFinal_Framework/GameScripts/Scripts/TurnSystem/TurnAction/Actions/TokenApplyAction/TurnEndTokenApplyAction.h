@@ -12,8 +12,7 @@ public:
     const std::string& GetActionInfo() override;
     void               ImGuiDrawActionEditor() override;
     const std::string& GetActionName() override;
-    void OnPlayerBattleCalculateDamageModifier(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
-                                               Enemy& target, EnemyStats& targetStats) override;
+    void               OnTurnEnd(CharacterBase& destination) override;
 
 private:
     void        UpdateActionInfo() override;

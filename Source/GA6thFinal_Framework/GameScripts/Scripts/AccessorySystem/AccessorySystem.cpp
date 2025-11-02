@@ -24,6 +24,12 @@ bool AccessorySystem::EquipAccessory(const AccessoryElement& accessory)
     if (result)
     {
         _playerAccessoryItems.push_back(accessory);
+        const auto& lastAccessory = _playerAccessoryItems[_playerAccessoryItems.size() - 1];
+        for (auto& action : lastAccessory._actions)
+        {
+            if (action)
+                action->OnEquipAccessory();
+        }
     }
     return result;
 }
@@ -317,14 +323,15 @@ void AccessorySystem::ImGuiTableEditor()
                     {
                         for (size_t i = 0; i < accessory._actions.size(); ++i)
                         {
+                            auto& ShowEditorFlags = _editorOnly.ShowActionEditor[key];
                             auto& action = accessory._actions[i];
-                            if (_editorOnly.ShowActionEditor.size() <= i)
+                            if (ShowEditorFlags.size() <= i)
                             {
-                                _editorOnly.ShowActionEditor.resize(i + 1);
+                                ShowEditorFlags.resize(i + 1);
                             }
-                            bool showEditor = _editorOnly.ShowActionEditor[i];
+                            bool showEditor = ShowEditorFlags[i];
                             TurnAction::ImGuiDrawActionMaker(key + std::to_string(i), action, showEditor);
-                            _editorOnly.ShowActionEditor[i] = showEditor;
+                            ShowEditorFlags[i] = showEditor;
                         }
                     }
                     if (ImGui::Button("Push"))

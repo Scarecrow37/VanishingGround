@@ -77,12 +77,20 @@ void WeaponSystem::SetCurrentWeaponSlot(int slot)
         UmLogger.Log(LogLevel::LEVEL_DEBUG, "out of index");
         return;
     }
+  
+    if (-1 == _lastWeaponSlot)
+        _lastWeaponSlot = slot; // 처음에는 마지막 무기와 최초 무기가 같다.
+    else 
+        _lastWeaponSlot = _currentWeaponSlot;
+
+    _currentWeaponSlot = slot;
+
     TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
-    auto isPlay = UmCore->IsPlay();
+    auto      isPlay   = UmCore->IsPlay();
     if (isPlay && turnMode)
     {
-        WeaponElement& curr = _equipWeapons[_currentWeaponSlot];
-        WeaponElement& next = _equipWeapons[slot];
+        WeaponElement& curr = _equipWeapons[_lastWeaponSlot];
+        WeaponElement& next = _equipWeapons[_currentWeaponSlot];
         if (false == curr._actions.empty())
         {
             for (auto& action : curr._actions)
@@ -90,8 +98,8 @@ void WeaponSystem::SetCurrentWeaponSlot(int slot)
                 if (action)
                 {
                     action->SetDestroy();
-                }             
-            }      
+                }
+            }
         }
         if (false == next._actions.empty())
         {
@@ -104,22 +112,38 @@ void WeaponSystem::SetCurrentWeaponSlot(int slot)
                     msg += (const char*)u8" 효과 발동";
                     action->OnActionActive = [msg]() { UmLogger.Message(LogLevel::LEVEL_DEBUG, msg); };
                 }
-            }      
-        }       
+            }
+        }
     }
-    if (-1 == _lastWeaponSlot)
-        _lastWeaponSlot = slot; // 처음에는 마지막 무기와 최초 무기가 같다.
-    else 
-        _lastWeaponSlot = _currentWeaponSlot;
-
-    _currentWeaponSlot = slot;
 }
 
 int WeaponSystem::GetRoundSpeedToSlot(int slot)
 {
     int speed      = _equipWeapons[slot].Stats.Speed;
     int roundSpeed = _equipWeapons[slot].Stats.RandomSpeed;
-    return speed + roundSpeed;
+    //추가 액션 호출
+    int actionSpeed = 0;
+
+    //무기는 액션이 추가가 안되어있기 때문에 직접 호출.
+    for (auto& action : _equipWeapons[slot]._actions)
+    {
+        if (action)
+        {
+            action->OnWeaponRoundSpeedApply(_equipWeapons[slot], actionSpeed);
+        }
+    }   
+
+    //추가되어 있는 액션들 호출
+    if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+    {
+        mode->ApplyActions([&actionSpeed, this, slot](TurnAction& action) 
+        { 
+            action.OnWeaponRoundSpeedApply(_equipWeapons[slot], actionSpeed);
+        });
+    }
+
+    //최종 결과 반환
+    return speed + roundSpeed + actionSpeed;
 }
 
 void WeaponSystem::ImguiEquipWeapons()

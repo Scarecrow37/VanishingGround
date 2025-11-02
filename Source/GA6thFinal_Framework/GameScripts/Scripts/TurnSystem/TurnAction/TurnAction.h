@@ -289,6 +289,35 @@ public:
     /// <param name="damage :">들어갈 데미지</param>
     virtual void OnEnemyTakeDamageEnd(Enemy& target, int damage) {}
 
+    /// <summary>
+    /// 플레이어 무기의 Speed 사용할때 호출됩니다.
+    /// </summary>
+    /// <param name="weapon :">해당 무기</param>
+    /// <param name="plusSpeed :">부여할 추가 속도</param>
+    virtual void OnWeaponRoundSpeedApply(WeaponElement& weapon, int& plusSpeed) {}
+
+    /// <summary>
+    /// 소멸 계시 뽑기를 실행할때 호출됩니다.
+    /// </summary>
+    /// <param name="count"></param>
+    virtual void OnRandomExtinctionPushPlayer(size_t& count) {}
+
+    /// <summary>
+    /// 이 액션이 악세서리로 장착되면 호출됩니다.
+    /// </summary>
+    virtual void OnEquipAccessory() {}
+
+    /// <summary>
+    /// 플레이어가 스턴에 걸리면 호출됩니다.
+    /// </summary>
+    virtual void OnPlayerStun(Player& player) {}
+
+    /// <summary>
+    /// 적이 스턴에 걸리면 호출됩니다.
+    /// </summary>
+    /// <param name="enemy"></param>
+    virtual void OnEnemyStun(Enemy& enemy){}
+
 public:
     REFLECT_PROPERTY(ActionName, ActionInfo, LogicOperator)
 

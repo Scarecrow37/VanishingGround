@@ -1,9 +1,10 @@
-﻿#include "Token/TokenSystem.h"
+﻿#include "pchScripts.h"
+#include "Token/TokenSystem.h"
 #include "TurnEndTokenRemoveAction.h"
 #include "TurnSystem/TurnAction/TurnActionFactory.h"
 #include "TurnSystem/TurnActor/Character/CharacterBase.h"
 #include "TurnSystem/TurnSystemHelper.h"
-#include "pchScripts.h"
+#include "TurnSystem/TurnActor/Character/Player/Player.h"
 
 REGISTER_TURN_ACTION(TurnEndTokenRemoveAction)
 
@@ -24,21 +25,22 @@ const std::string& TurnEndTokenRemoveAction::GetActionName()
     return name;
 }
 
-void TurnEndTokenRemoveAction::OnPlayerBattleCalculateDamageModifier(Player& attacker, PlayerStats& attackerStats,
-                                                                    WeaponStats& weaponStats, Enemy& target,
-                                                                    EnemyStats& targetStats)
+void TurnEndTokenRemoveAction::OnTurnEnd(CharacterBase& destination)
 {
-    if (EvaluateConditions())
+    if (typeid(Player) == typeid(destination))
     {
-        if (TokenSystem* tokenSystem = SingletonComponent<TokenSystem>::GetInstance())
+        if (EvaluateConditions())
         {
-            std::vector<CharacterBase*> targets = TurnSystemHelper::GetTargetCharacters(ReflectFields->TokenTarget);
-            if (false == targets.empty())
+            if (TokenSystem* tokenSystem = SingletonComponent<TokenSystem>::GetInstance())
             {
-                for (auto& target : targets)
+                std::vector<CharacterBase*> targets = TurnSystemHelper::GetTargetCharacters(ReflectFields->TokenTarget);
+                if (false == targets.empty())
                 {
-                    TokenInventory& tokenInventory = target->GetTokenInventory();
-                    tokenInventory.RemoveTokenStackFromID(TokenID, ReflectFields->TokenCount);
+                    for (auto& target : targets)
+                    {
+                        TokenInventory& tokenInventory = target->GetTokenInventory();
+                        tokenInventory.RemoveTokenStackFromID(TokenID, ReflectFields->TokenCount);
+                    }
                 }
             }
         }

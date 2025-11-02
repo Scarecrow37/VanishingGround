@@ -2,6 +2,7 @@
 #include "WeaponViewModel.h"
 
 #include "TurnSystem/TurnActor/Character/Player/Player.h"
+#include "TurnSystem/TurnMode/TurnMode.h"
 #include "WeaponSystem/WeaponSystem.h"
 #include "ExcelDataSystem/ExcelDataSystem.h"
 #include "Utility/SingletonHelper.h"
@@ -74,21 +75,32 @@ WeaponUIData WeaponViewModel::Convert(TurnActor* const& value)
     WeaponUIData data{};
     if (nullptr != value && typeid(*value) == typeid(Player))
     {
-        data.Enable                     = true;
-        WeaponSystem*      weaponSystem = SingletonComponent<WeaponSystem>::GetInstance();
-        const WeaponStats& state        = weaponSystem->GetCurrentWeaponElement().Stats;
-        const int          weaponId     = state.WeaponID;
-        const WeaponType   type         = state.Type;
-        data.WeaponIcon                 = GetWeaponIcon()(weaponId);
-        data.WeaponName                 = state.WeaponName;
-        data.HitDamage                  = std::to_string(state.HitDamage);
-        data.CriticalDamage             = std::to_string(state.CriticalDamage);
-        data.Speed                      = std::to_string(state.Speed);
-        data.AttackCount                = std::to_string(state.AttackCount);
-        data.Description                = GetWeaponDescription()(weaponId);
+        data.Enable                      = true;
+        WeaponSystem*      weaponSystem  = SingletonComponent<WeaponSystem>::GetInstance();
+        WeaponElement&     currentWeapon = weaponSystem->GetCurrentWeaponElement();
+        const WeaponStats& state         = currentWeapon.Stats;
+        const int          weaponId      = state.WeaponID;
+        const WeaponType   type          = state.Type;
+        data.WeaponIcon                  = GetWeaponIcon()(weaponId);
+        data.WeaponName                  = state.WeaponName;
+        data.HitDamage                   = std::to_string(state.HitDamage);
+        data.CriticalDamage              = std::to_string(state.CriticalDamage);
+        data.AttackCount                 = std::to_string(state.AttackCount);
+        data.Description                 = GetWeaponDescription()(weaponId);
 
         ImVec4 imColor  = state.GetGradeToColor(state.Grade);
         data.GradeColor = Color(imColor.x, imColor.y, imColor.z, imColor.w);
+
+        //추가 속도 액션 적용
+        int speed = state.Speed;
+        if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+        {
+            mode->ApplyActions([&speed, &currentWeapon](TurnAction& action)
+            { 
+                action.OnWeaponRoundSpeedApply(currentWeapon, speed);
+            });
+        }
+        data.Speed = std::to_string(speed);
     }
     else
     {

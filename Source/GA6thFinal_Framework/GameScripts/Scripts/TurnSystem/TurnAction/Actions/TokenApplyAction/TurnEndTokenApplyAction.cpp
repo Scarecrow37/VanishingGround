@@ -4,6 +4,7 @@
 #include "TurnSystem/TurnActor/Character/CharacterBase.h"
 #include "TurnSystem/TurnSystemHelper.h"
 #include "Token/TokenSystem.h"
+#include "TurnSystem/TurnActor/Character/Player/Player.h"
 
 REGISTER_TURN_ACTION(TurnEndTokenApplyAction)
 
@@ -24,21 +25,22 @@ const std::string& TurnEndTokenApplyAction::GetActionName()
     return name;
 }
 
-void TurnEndTokenApplyAction::OnPlayerBattleCalculateDamageModifier(Player& attacker, PlayerStats& attackerStats,
-                                                                   WeaponStats& weaponStats, Enemy& target,
-                                                                   EnemyStats& targetStats)
+void TurnEndTokenApplyAction::OnTurnEnd(CharacterBase& destination)
 {
-    if (EvaluateConditions())
+    if (typeid(destination) == typeid(Player))
     {
-        if (TokenSystem* tokenSystem = SingletonComponent<TokenSystem>::GetInstance())
+        if (EvaluateConditions())
         {
-            std::vector<CharacterBase*> targets = TurnSystemHelper::GetTargetCharacters(ReflectFields->TokenTarget);
-            if (false == targets.empty())
+            if (TokenSystem* tokenSystem = SingletonComponent<TokenSystem>::GetInstance())
             {
-                for (auto& target : targets)
+                std::vector<CharacterBase*> targets = TurnSystemHelper::GetTargetCharacters(ReflectFields->TokenTarget);
+                if (false == targets.empty())
                 {
-                    TokenInventory& tokenInventory = target->GetTokenInventory();
-                    tokenInventory.AddTokenStackFromID(TokenID, ReflectFields->TokenCount);
+                    for (auto& target : targets)
+                    {
+                        TokenInventory& tokenInventory = target->GetTokenInventory();
+                        tokenInventory.AddTokenStackFromID(TokenID, ReflectFields->TokenCount);
+                    }
                 }
             }
         }
