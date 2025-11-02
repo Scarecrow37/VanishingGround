@@ -29,4 +29,5 @@ protected:
     void               ImGuiDrawActionEditor() override;
 
     void OnEquipAccessory() override;
+    void OnCharacterMaxChainRoundCountUse(CharacterBase& character, int& maxChainRoundCount) override;
 };

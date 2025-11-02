@@ -51,7 +51,8 @@ struct CharacterStats : public TurnActorStats
     PROPERTY(CurrentChainRoundCount)
 
     SETTER(int, MaxChainRoundCount) { ReflectFields->MaxChainRoundCount = std::max(value, 1); }
-    GETTER(int, MaxChainRoundCount) { return ReflectFields->MaxChainRoundCount; }
+    GETTER(int, MaxChainRoundCount) { return GetMaxChainRoundCout(); }
+    int GetMaxChainRoundCout();
     // int 연격 수가 유지되는 라운드 수. 기본값 : 1
     PROPERTY(MaxChainRoundCount)
 

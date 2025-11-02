@@ -42,15 +42,29 @@ void EquipAccessoryCharacterStats::OnEquipAccessory()
                     {
                         int maxHp              = ReflectFields->MaxHP;
                         int currentHp          = ReflectFields->CurrentHP;
-                        int maxChainRoundCount = ReflectFields->MaxChainRoundCount;
                         int stunResistance     = ReflectFields->StunResistance;
 
                         stats->MaxHP += maxHp;
                         stats->CurrentHP += currentHp;
-                        stats->MaxChainRoundCount += maxChainRoundCount;
                         stats->StunResistance += stunResistance;
                     }   
                 }
+            }
+        }
+    }
+}
+
+void EquipAccessoryCharacterStats::OnCharacterMaxChainRoundCountUse(CharacterBase& character, int& maxChainRoundCount)
+{
+    if (EvaluateConditions())
+    {
+        auto targets = TurnSystemHelper::GetTargetCharacters(ReflectFields->Target);
+        for (auto& target : targets)
+        {
+            if (target == &character)
+            {
+                maxChainRoundCount += ReflectFields->MaxChainRoundCount;
+                break;
             }
         }
     }

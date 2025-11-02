@@ -1,7 +1,22 @@
 ﻿#include "pchScripts.h"
 #include "CharacterStats.h"
+#include "TurnSystem/TurnMode/TurnMode.h"
 
 REFLECT_FUNCTION(CharacterStats)
+
+int CharacterStats::GetMaxChainRoundCout()
+{
+    int maxChainRoundCount = ReflectFields->MaxChainRoundCount;
+    if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+    {
+        mode->ApplyActions([&maxChainRoundCount](TurnAction& action) 
+        {
+
+        });
+
+    }
+    return maxChainRoundCount;
+}
 
 void CharacterStats::ApplyReduce()
 {
