@@ -56,6 +56,7 @@ private:
     size_t                            _totalDialogCount           = 0;
     bool                              _isDialogFading             = false;
     bool                              _skipRequested              = false;
+    bool                              _goToMainMenuSceneFlag = false;
     class ChildsAnimationsController* _childsAnimationsController = nullptr;
 };
 

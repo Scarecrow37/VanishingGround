@@ -61,13 +61,18 @@ void EndingDialogManager::Awake()
 
 void EndingDialogManager::Update()
 {
-    if (ImGui::IsKeyPressed(ImGuiKey_A, false))
+    // 컨트롤러를 안챙겨서 이걸로 테스트함..
+    /*if (ImGui::IsKeyPressed(ImGuiKey_A, false))
     {
+        if (_isDialogEnded)
+        {
+            _goToMainMenuSceneFlag = true;
+        }
         if (_isSequencePlaying)
         {
             _skipRequested = true;
         }
-    }
+    }*/
     if (_isSequencePlaying && _childsAnimationsController)
     {
         if (_skipRequested && _currentDialogIndex > 0)
@@ -98,9 +103,10 @@ void EndingDialogManager::Update()
         }
     }
 
-    if (_isDialogEnded)
+    if (_isDialogEnded && _goToMainMenuSceneFlag)
     {
         _isDialogEnded = false;
+        _goToMainMenuSceneFlag = false;
         TransitionToMainMenuScene();
     }
 }
@@ -172,6 +178,10 @@ void EndingDialogManager::SkipCurrentDialog(const Input::Controller& constorller
 {
     if (!_isSequencePlaying)
     {
+        if (_isDialogEnded)
+        {
+            _goToMainMenuSceneFlag = true;
+        }
         return;
     }
     _skipRequested = true;
