@@ -587,6 +587,7 @@
     <ClInclude Include="Scripts\UI\Panels\Description\DescriptionPanel.h" />
     <ClInclude Include="Scripts\UI\Panels\Grid\GridPanel.h" />
     <ClInclude Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.h" />
+    <ClInclude Include="Scripts\UI\Panels\Overlay3D\Overlay3D.h" />
     <ClInclude Include="Scripts\UI\Panels\Overlay\OverlayPanel.h" />
     <ClInclude Include="Scripts\UI\Views\Accessories\AccessoriesView.h" />
     <ClInclude Include="Scripts\UI\Views\Map\StageFocusView.h" />
@@ -925,6 +926,7 @@
     <ClCompile Include="Scripts\UI\Panels\Description\DescriptionPanel.cpp" />
     <ClCompile Include="Scripts\UI\Panels\Grid\GridPanel.cpp" />
     <ClCompile Include="Scripts\UI\Panels\Horizontal\HorizontalPanel.cpp" />
+    <ClCompile Include="Scripts\UI\Panels\Overlay3D\Overlay3D.cpp" />
     <ClCompile Include="Scripts\UI\Panels\Overlay\OverlayPanel.cpp" />
     <ClCompile Include="Scripts\UI\Views\Accessories\AccessoriesView.cpp" />
     <ClCompile Include="Scripts\UI\Views\Map\StageFocusView.cpp" />
