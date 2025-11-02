@@ -8,6 +8,7 @@
 #include "TurnSystem/TurnMode/TurnMode.h"
 #include "TurnSystem/TurnActor/Character/Player/Player.h"
 #include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
+#include "Particle/ParticleComponent.h"
 
 namespace TokenObject
 {
@@ -66,6 +67,22 @@ namespace TokenObject
                 tokenInventory.AddTokenStackFromID(TokenObject::StunResistance::ID, stats->StunResistance);
             }
             UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(*owner));
+        }
+    }
+    void Stun::OnTokenEnter(CharacterBase* owner, int tokenID) 
+    {
+        // 이펙트 출력
+        if (ParticleComponent* particle = owner->GetParticleComponent())
+        {
+            particle->PlayEffect("stun");
+        }
+    }
+    void Stun::OnTokenExit(CharacterBase* owner, int tokenID) 
+    {
+        // 이펙트 종료
+        if (ParticleComponent* particle = owner->GetParticleComponent())
+        {
+            particle->StopEffect("stun");
         }
     }
 } // namespace TokenObject

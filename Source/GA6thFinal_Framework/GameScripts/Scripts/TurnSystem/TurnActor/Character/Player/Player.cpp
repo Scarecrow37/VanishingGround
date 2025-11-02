@@ -122,6 +122,11 @@ void Player::TakeDamage(int damage, const bool playAnim)
     {
         turnMode->ApplyActions([&](TurnAction& action) { action.OnPlayerTakeDamageEnd(*this, damage); });
     }
+
+    if (ParticleComponent* particle = GetParticleComponent())
+    {
+        particle->PlayEffect("gethit");
+    }
 }
 
 void Player::ShowDamage(const int damage, const std::span<const std::string> sources)

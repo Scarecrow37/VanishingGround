@@ -188,7 +188,7 @@ void TokenInventory::NotifyKill(CharacterBase* destination)
 void TokenInventory::NotifyTokenAdded(int tokenID)
 {
     NotifyTokenEvent([this, tokenID](Token& token) {
-        bool valid = HasTokenFromID(token.GetTokenID());
+        bool valid = token.GetTokenID() == tokenID;
         if (valid)
         {
             token.OnTokenAdded(&_owner, tokenID);
@@ -199,7 +199,7 @@ void TokenInventory::NotifyTokenAdded(int tokenID)
 void TokenInventory::NotifyTokenRemoved(int tokenID)
 {
     NotifyTokenEvent([this, tokenID](Token& token) {
-        bool valid = HasTokenFromID(token.GetTokenID());
+        bool valid = token.GetTokenID() == tokenID;
         if (valid)
         {
             token.OnTokenRemoved(&_owner, tokenID);
@@ -210,7 +210,7 @@ void TokenInventory::NotifyTokenRemoved(int tokenID)
 void TokenInventory::NotifyTokenEnter(int tokenID) 
 {
     NotifyTokenEvent([this, tokenID](Token& token) {
-        bool valid = HasTokenFromID(token.GetTokenID());
+        bool valid = token.GetTokenID() == tokenID;
         if (valid)
         {
             token.OnTokenEnter(&_owner, tokenID);
@@ -221,7 +221,7 @@ void TokenInventory::NotifyTokenEnter(int tokenID)
 void TokenInventory::NotifyTokenExit(int tokenID) 
 {
     NotifyTokenEvent([this, tokenID](Token& token) {
-        bool valid = HasTokenFromID(token.GetTokenID());
+        bool valid = token.GetTokenID() == tokenID;
         if (valid)
         {
             token.OnTokenExit(&_owner, tokenID);

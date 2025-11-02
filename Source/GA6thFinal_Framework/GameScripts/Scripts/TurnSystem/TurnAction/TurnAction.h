@@ -318,6 +318,16 @@ public:
     /// <param name="enemy"></param>
     virtual void OnEnemyStun(Enemy& enemy){}
 
+    /// <summary>
+    /// 플레이어가 토큰 데미지를 입기 전에 호출됩니다.
+    /// </summary>
+    virtual void OnPlayerTokenTakeDamage(int tokenID, int& damage) {}
+
+    /// <summary>
+    /// 적이 토큰 데미지를 입기 전에 호출됩니다.
+    /// </summary>
+    virtual void OnEnemyTokenTakeDamage(int tokenID, int& damage) {}
+
 public:
     REFLECT_PROPERTY(ActionName, ActionInfo, LogicOperator)
 
