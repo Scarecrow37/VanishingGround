@@ -7,14 +7,6 @@ REFLECT_FUNCTION(CharacterStats)
 int CharacterStats::GetMaxChainRoundCout()
 {
     int maxChainRoundCount = ReflectFields->MaxChainRoundCount;
-    if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
-    {
-        mode->ApplyActions([&maxChainRoundCount](TurnAction& action) 
-        {
-
-        });
-
-    }
     return maxChainRoundCount;
 }
 

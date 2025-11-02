@@ -62,6 +62,13 @@ int CharacterBase::GetMaxChainRoundCount()
     if (nullptr != stats)
     {
         maxChainCount = stats->MaxChainRoundCount;
+        if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+        {
+            mode->ApplyActions([this, &maxChainCount](TurnAction& action) 
+            {
+                action.OnCharacterMaxChainRoundCountUse(*this, maxChainCount);
+            });
+        }    
     }
     return maxChainCount;
 }
@@ -167,7 +174,15 @@ void CharacterBase::Revive()
     if (CharacterStats* stats = GetCharacterStats())
     {
         stats->CurrentHP = stats->MaxHP;
-        stats->CurrentChainCount = stats->MaxChainRoundCount;
+        int maxChainRoundCount = stats->MaxChainRoundCount;
+        if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+        {
+            mode->ApplyActions([this, &maxChainRoundCount](TurnAction& action) 
+            {
+                action.OnCharacterMaxChainRoundCountUse(*this, maxChainRoundCount);
+            });
+        }
+        stats->CurrentChainCount = maxChainRoundCount;
     }
 }
 
@@ -278,7 +293,15 @@ int CharacterBase::DecrementChainRoundCount()
         if (chainRoundCount == 0)
         {
             stats->CurrentChainCount = 0;
-            stats->CurrentChainRoundCount = stats->MaxChainRoundCount;
+            int maxChainRoundCount = stats->MaxChainRoundCount;
+            if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+            {
+                mode->ApplyActions([this, &maxChainRoundCount](TurnAction& action) 
+                {
+                    action.OnCharacterMaxChainRoundCountUse(*this, maxChainRoundCount);
+                });
+            }
+            stats->CurrentChainRoundCount = maxChainRoundCount;
         }     
         return stats->CurrentChainRoundCount;
     }
