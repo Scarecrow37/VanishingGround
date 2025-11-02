@@ -311,7 +311,7 @@ bool SceneTransitionComponent::IsFadeIn() const
 
 bool SceneTransitionComponent::IsFadeOut() const
 {
-    return _startColor.A() > _endColor.A();
+    return _startColor.A() < _endColor.A();
 }
 
 void SceneTransitionComponent::SceneTransitionFade(std::string_view inPreset, std::string_view outPreset,

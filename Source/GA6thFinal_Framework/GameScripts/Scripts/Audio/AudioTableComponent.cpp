@@ -61,7 +61,7 @@ namespace
             ImGui::TableSetColumnIndex(1);
             availSize = ImGui::GetContentRegionAvail();
             ImGui::SetNextItemWidth(availSize.x - 60.0f);
-            const int flags = ImGuiInputTextFlags_ReadOnly || ImGuiInputTextFlags_EnterReturnsTrue;
+            const int flags = ImGuiInputTextFlags_ReadOnly | ImGuiInputTextFlags_EnterReturnsTrue;
             if (ImGui::InputText("##FilePath", newPathString, flags))
             {
                 addCallback();

@@ -18,7 +18,7 @@ void BGMManager::PlayBGM(const std::string& bgmKey, bool useFade)
         _currBGMKey    = _sleepBGMKey;
         _currBGMHandle = _sleepBGMHandle;
     }
-    _sleepBGMKey    = "";
+    _sleepBGMKey.clear();
     _sleepBGMHandle = Audio::AudioHandle{};
 
     if (_currBGMKey != bgmKey)
