@@ -28,6 +28,9 @@ public:
     void  StopAnimationWithTag(const std::string& tag);
     float GetAnimationDurationWithTag(const std::string& tag);
 
+    bool IsFadeComplete(size_t index) const;
+    void CompleteFadeImmediately(size_t index);
+
     REFLECT_PROPERTY()
 
 protected:
