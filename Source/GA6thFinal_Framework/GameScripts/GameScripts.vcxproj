@@ -519,6 +519,7 @@
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\WeaponStas\RevelationCountWeaponDamageAcation.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\WeaponStas\WeaponSpeedAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\WeaponStas\WeaponTypeStatsAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\WeaponTypeCountAttackDamageAction\WeaponTypeCountAttackDamageAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\ChainCondition\ChainCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Condition\LastQTEResultCondition\LastQTEResultCondition.h" />
@@ -862,6 +863,7 @@
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\WeaponStas\RevelationCountWeaponDamageAcation.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\WeaponStas\WeaponSpeedAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\WeaponStas\WeaponTypeStatsAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\WeaponTypeCountAttackDamageAction\WeaponTypeCountAttackDamageAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\ChainCondition\ChainCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\CheckWeaponCountCondition\CheckWeaponCountCondition.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Condition\HealthRangeCondition\HealthRangeCondition.cpp" />

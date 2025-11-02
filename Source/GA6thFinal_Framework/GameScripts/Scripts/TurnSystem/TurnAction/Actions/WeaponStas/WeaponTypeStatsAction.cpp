@@ -81,12 +81,9 @@ void WeaponTypeStatsAction::OnConvertWeaponViewModel(WeaponStats& stats)
     {
         if (stats.Type == ReflectFields->Type)
         {
-            if (EvaluateConditions())
-            {
-                // UI 적용
-                stats.HitDamage += ReflectFields->HitDamage;
-                stats.CriticalDamage += ReflectFields->CriticalDamage;
-            }
+            // UI 적용
+            stats.HitDamage += ReflectFields->HitDamage;
+            stats.CriticalDamage += ReflectFields->CriticalDamage;
         }
     }
 }
