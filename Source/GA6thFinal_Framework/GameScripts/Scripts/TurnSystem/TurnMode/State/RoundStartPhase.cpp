@@ -28,14 +28,10 @@ void RoundStartPhase::OnEnter()
 {
     _isPhaseEnd = false;
 
-    _turnMode->ApplyActions([](TurnAction& action) 
-    { 
-        action.OnRoundStart();
-    });
+    NotifyRoundStart();
 
     /// 사운드
     UmAudio.Play("-20100");
-
 
     if (_weaponSystem)
     {
@@ -53,7 +49,6 @@ void RoundStartPhase::OnEnter()
         _revelationSystem->RollRoundElement();
     }
 
-    NotifyRoundStart();
 
     if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
     {
