@@ -185,12 +185,10 @@ void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
 
 void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
 {
-#ifdef _UMEDITOR
-    _isDownAKey = ImGui::IsKeyDown(ImGuiKey_A); // 에디터에서는 키보드 인풋도 받음
-#endif                                          // ISEDITOR
-
      Debugger()([this] {
         // 아래는 디버그용 코드입니다.
+        _isDownAKey = ImGui::IsKeyDown(ImGuiKey_A); // 디버그에서는 키보드 인풋도 받음
+
         ImGuiHelper::AlignedText("Combat", ImGuiHelper::LEFT, 0.8f);
         if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
         {

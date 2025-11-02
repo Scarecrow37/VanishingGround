@@ -422,32 +422,32 @@ void QTESystem::UpdateQTETrack()
             PressedQTEButton(button);
             controller = nullptr;
         }
-        #ifdef _UMEDITOR
-        if (ImGui::IsKeyPressed(ImGuiKey_LeftArrow, false))
-        {
-            ProcessQTEButtonPressedEvent();
-            if (CanPressQTEButton())
+        Debugger()([this] {
+            if (ImGui::IsKeyPressed(ImGuiKey_LeftArrow, false))
             {
-                PressedQTEButton(_keyBinder.GetKeyX());
+                ProcessQTEButtonPressedEvent();
+                if (CanPressQTEButton())
+                {
+                    PressedQTEButton(_keyBinder.GetKeyX());
+                }
             }
-        }
-        else if (ImGui::IsKeyPressed(ImGuiKey_UpArrow, false))
-        {
-            ProcessQTEButtonPressedEvent();
-            if (CanPressQTEButton())
+            else if (ImGui::IsKeyPressed(ImGuiKey_UpArrow, false))
             {
-                PressedQTEButton(_keyBinder.GetKeyY());
+                ProcessQTEButtonPressedEvent();
+                if (CanPressQTEButton())
+                {
+                    PressedQTEButton(_keyBinder.GetKeyY());
+                }
             }
-        }
-        else if (ImGui::IsKeyPressed(ImGuiKey_RightArrow, false))
-        {
-            ProcessQTEButtonPressedEvent();
-            if (CanPressQTEButton())
+            else if (ImGui::IsKeyPressed(ImGuiKey_RightArrow, false))
             {
-                PressedQTEButton(_keyBinder.GetKeyB());
+                ProcessQTEButtonPressedEvent();
+                if (CanPressQTEButton())
+                {
+                    PressedQTEButton(_keyBinder.GetKeyB());
+                }
             }
-        }
-#endif // _UMEDITOR
+        });
     }
     else
     {
