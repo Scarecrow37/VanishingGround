@@ -100,6 +100,31 @@ void MapManager::SetFocusStage(Stage* stage)
     }
 }
 
+bool MapManager::TrySelectStage(Stage* stage)
+{
+    _selectedStage = stage;
+    // 동일한 메인 레벨 스테이지들 비활성화
+    if (stage && stage->IsEnable())
+    {
+        // 현재 클리어된 스테이지보다 1단계 높은 스테이지만 선택 가능
+        if (stage->MainLevel == _lastClearedStage + 1)
+        {
+            const int mainLevel = stage->MainLevel;
+            if (_stageDataTable.contains(mainLevel))
+            {
+                auto& stageMap = _stageDataTable[mainLevel];
+                for (auto& [_, stage] : stageMap)
+                {
+                    stage->SetDisable();
+                }
+            }
+            _lastClearedStage = mainLevel;
+            return true;
+        }
+    }
+    return false;
+}
+
 void MapManager::Awake()
 {    
     if (_singletonObject.TrySingleTon(true))
@@ -209,6 +234,18 @@ void MapManager::OnLoadScene(Scene& loadScene, LoadSceneMode mode)
 
 void MapManager::ImGuiDrawPropertysEvent()
 {    
+    ImGui::Separator();
+    ImGuiHelper::AlignedText("Stage Info", ImGuiHelper::LEFT, 0.8f);
+    ImGui::Text("Cleared Stage: %i", _lastClearedStage);
+    ImGui::Text("Current Stage: ");
+    if (_selectedStage)
+    {
+        ImGui::BeginDisabled();
+        _selectedStage->ImGuiDrawPropertys();
+        ImGui::EndDisabled();
+    }
+
+    ImGui::Separator();
     if (ImGui::Button("Add Stage"))
     {
         DefaultSetting();        
@@ -331,11 +368,6 @@ void MapManager::RegisterStage(GameObject& object)
             stageView->Watch(key);
         }
     }
-}
-
-void MapManager::SetCurrentSelectedStage(Stage* stage) 
-{
-    _selectedStage = stage;
 }
 
 Stage* MapManager::GetCurrentSelectedStage()

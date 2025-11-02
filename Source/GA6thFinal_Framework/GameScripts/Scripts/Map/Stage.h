@@ -12,7 +12,9 @@ public:
 
 public:
     const std::array<int, ARTIFACT_DROP_COUNT>& GetDropItems() const { return _dropItemAssetIDs; }
-    bool                                        IsEnable() const { return _stageEnable.Get(); }
+   
+    void SetDisable() { _stageEnable = false; }
+    bool IsEnable() const { return _stageEnable.Get(); }
 
 public:
     void RegisterStage(const std::string& key, const File::Guid& enableImage, const File::Guid& disableImage);
@@ -22,7 +24,7 @@ public:
     void FocusIn(FocusCallType callType) override;
     void Submit() override;
 
-public:
+private:
     void Start() override;
 
 public:
@@ -55,8 +57,8 @@ protected:
     REFLECT_FIELDS_END(Stage)
 
 private:
-    std::string                                   _key;
-    MVVM::Model<bool>                             _stageEnable      = true;
+    std::string       _key;  // 모델 키
+    MVVM::Model<bool> _stageEnable = true; // 스테이지 진입 가능 여부
 
     std::array<int, ARTIFACT_DROP_COUNT>          _dropItemAssetIDs = {0, 0, 0, 0, 0, 0};
     std::array<DropItemInfo, ARTIFACT_DROP_COUNT> _dropItemInfos;
