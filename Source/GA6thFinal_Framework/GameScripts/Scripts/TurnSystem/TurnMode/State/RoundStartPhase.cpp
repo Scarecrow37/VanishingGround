@@ -26,10 +26,16 @@ void RoundStartPhase::OnStart()
 
 void RoundStartPhase::OnEnter() 
 {
+    _isPhaseEnd = false;
+
+    _turnMode->ApplyActions([](TurnAction& action) 
+    { 
+        action.OnRoundStart();
+    });
+
     /// 사운드
     UmAudio.Play("-20100");
 
-    _isPhaseEnd = false;
 
     if (_weaponSystem)
     {
