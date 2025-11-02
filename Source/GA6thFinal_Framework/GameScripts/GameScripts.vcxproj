@@ -509,6 +509,7 @@
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\CombatStartTokenApplyAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\EnemyStunTokenApplyAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\RoundStartTokenApplyAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\RoundStartWeaponTypeTokenApplyAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\WeaponKillMultiTokenApplyAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TakeDamageEndTokenApplyAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\WeaponKillTokenApplyAction.h" />
