@@ -43,11 +43,6 @@ void QTESystem::Awake()
     }
 }
 
-void QTESystem::Start() 
-{
-
-}
-
 void QTESystem::Update()
 {
     if (QTE::STATE_PLAYING == _currState || 
@@ -385,6 +380,26 @@ void QTESystem::ResetQTEState()
 void QTESystem::ClearTrack()
 {
     _weaponIDToTrackTable.clear();
+}
+
+void QTESystem::IncreaseQTESpeedLevel(int value) 
+{
+    ReflectFields->QTESpeedScale += value;
+}
+
+void QTESystem::DecreaseQTESpeedLevel(int value) 
+{
+    ReflectFields->QTESpeedScale -= value;
+}
+
+void QTESystem::SetFadeState(const QTE::FadeState& fadeState) 
+{
+    _fadeState = fadeState;
+}
+
+const QTE::FadeState& QTESystem::GetCurrentFadeState()
+{
+    return _fadeState;
 }
 
 void QTESystem::ClearQueue()
