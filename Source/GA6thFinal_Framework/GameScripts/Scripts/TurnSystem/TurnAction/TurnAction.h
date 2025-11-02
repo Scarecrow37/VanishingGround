@@ -307,6 +307,17 @@ public:
     /// </summary>
     virtual void OnEquipAccessory() {}
 
+    /// <summary>
+    /// 플레이어가 스턴에 걸리면 호출됩니다.
+    /// </summary>
+    virtual void OnPlayerStun(Player& player) {}
+
+    /// <summary>
+    /// 적이 스턴에 걸리면 호출됩니다.
+    /// </summary>
+    /// <param name="enemy"></param>
+    virtual void OnEnemyStun(Enemy& enemy){}
+
 public:
     REFLECT_PROPERTY(ActionName, ActionInfo, LogicOperator)
 

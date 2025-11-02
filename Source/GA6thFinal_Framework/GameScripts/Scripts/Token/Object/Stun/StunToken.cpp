@@ -5,6 +5,9 @@
 #include <Token/TokenInventory.h>
 #include <Stats/CharacterStats.h>
 #include "ContentMath/ContentMath.h"
+#include "TurnSystem/TurnMode/TurnMode.h"
+#include "TurnSystem/TurnActor/Character/Player/Player.h"
+#include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
 
 namespace TokenObject
 {
@@ -26,6 +29,20 @@ namespace TokenObject
             else
             {
                 // 기절 저항이 없다면 기절 토큰을 추가한다.
+                // 스턴 액션 호출
+                if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+                {
+                    if (typeid(Player) == typeid(*owner))
+                    {
+                        Player* player = static_cast<Player*>(owner);
+                        mode->ApplyActions([player](TurnAction& action) { action.OnPlayerStun(*player); });
+                    }
+                    else if (typeid(Enemy) == typeid(*owner))
+                    {
+                        Enemy* enemy = static_cast<Enemy*>(owner);
+                        mode->ApplyActions([enemy](TurnAction& action) { action.OnEnemyStun(*enemy); });
+                    }
+                }
                 return true;
             }
         }
