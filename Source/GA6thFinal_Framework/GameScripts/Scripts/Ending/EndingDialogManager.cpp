@@ -61,12 +61,13 @@ void EndingDialogManager::Awake()
 
 void EndingDialogManager::Update()
 {
-#ifdef _UMEDITOR
-    if (ImGui::IsKeyPressed(ImGuiKey_A))
-    {
-        PressAButton();
-    }
-#endif
+    Debugger()([this]() {
+        if (ImGui::IsKeyPressed(ImGuiKey_A))
+        {
+            PressAButton();
+        }
+    });
+   
     if (_isSequencePlaying && _childsAnimationsController)
     {
         if (_skipRequested && _currentDialogIndex > 0)
