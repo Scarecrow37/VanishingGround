@@ -16,7 +16,7 @@ void UISFXNavigationComponent::FocusIn(const FocusCallType callType)
     Base::FocusIn(callType);
     if (callType != FocusCallType::INITIAL)
     {
-        if (EnableInHierarchy && gameObject->ActiveInHierarchy)
+        if (EnableInHierarchy)
         {
             UmAudio.Play(_focusInAudioID);
         }
@@ -26,7 +26,7 @@ void UISFXNavigationComponent::FocusIn(const FocusCallType callType)
 void UISFXNavigationComponent::Submit() 
 {
     Base::Submit();
-    if (EnableInHierarchy && gameObject->ActiveInHierarchy)
+    if (EnableInHierarchy)
     {
         UmAudio.Play(_submitAudioID);
     }
