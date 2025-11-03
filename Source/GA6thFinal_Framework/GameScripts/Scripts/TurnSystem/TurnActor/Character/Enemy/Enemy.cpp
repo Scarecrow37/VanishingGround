@@ -409,11 +409,17 @@ void Enemy::RegisterTokenHUD(int tokenID)
                     {
                         if (auto tokenHUD = prefab->GetComponent<TokenHUD>())
                         {
-                            std::string key = std::format("Enemy_{}_Token_{}", monsterIndex, tokenID);
-                            tokenHUD->SetupTokenHUD(/* TODO:: Token 이미지 GUID 삽입*/"", model, key);
-                            _tokenHUDTable.emplace(tokenID, prefab.get());
-                            model.Notify();
-                            prefab->transform->SetParent(object.transform);
+                            if (TokenSystem* tokenSystem = SingletonComponent<TokenSystem>::GetInstance())
+                            {
+                                if (const TokenData* tokenData = tokenSystem->GetTokenDataFromID(tokenID))
+                                {
+                                    std::string key = std::format("Enemy_{}_Token_{}", monsterIndex, tokenID);
+                                    tokenHUD->SetupTokenHUD(UmFileSystem.GetGuidFromAssetID(tokenData->ImageID), model, key);
+                                    _tokenHUDTable.emplace(tokenID, prefab.get());
+                                    model.Notify();
+                                    prefab->transform->SetParent(object.transform);
+                                }
+                            }                            
                         }
                     }
                 });
