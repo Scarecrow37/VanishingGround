@@ -411,7 +411,7 @@ void Enemy::RegisterTokenHUD(int tokenID)
                         {
                             std::string key = std::format("Enemy_{}_Token_{}", monsterIndex, tokenID);
                             tokenHUD->SetupTokenHUD(/* TODO:: Token 이미지 GUID 삽입*/"", model, key);
-                            _tokenHUDTable.emplace(tokenID, &object);
+                            _tokenHUDTable.emplace(tokenID, prefab.get());
                             model.Notify();
                             prefab->transform->SetParent(object.transform);
                         }

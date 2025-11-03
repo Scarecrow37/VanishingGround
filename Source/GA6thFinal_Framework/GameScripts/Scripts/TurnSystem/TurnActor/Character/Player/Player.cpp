@@ -361,7 +361,7 @@ void Player::RegisterTokenHUD(int tokenID)
                         {
                             std::string key = std::format("Player_Token_{}", tokenID);
                             tokenHUD->SetupTokenHUD(/* TODO:: Token 이미지 GUID 삽입*/ "", model, key);
-                            _tokenHUDTable.emplace(tokenID, &object);
+                            _tokenHUDTable.emplace(tokenID, prefab.get());
                             model.Notify();
                             prefab->transform->SetParent(object.transform);
                         }
