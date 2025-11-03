@@ -22,9 +22,11 @@ namespace RestartUtility
                 case RestartStageNavi::SelectBoxType::DEFAULT:
                     rowKey = u8"나가기/ 다음전투 선택버튼 포커스 안됨";
                     break;
-                case RestartStageNavi::SelectBoxType::FOCUS :
+                case RestartStageNavi::SelectBoxType::FOCUS:
                     rowKey = u8"나가기/ 다음전투 선택버튼 포커스 됨";
                     break;
+                case RestartStageNavi::SelectBoxType::DISABLE:
+                    return UmFileSystem.GetGuidFromAssetID(460032);
                 default:
                     break;
                 }
@@ -66,13 +68,7 @@ RestartStageNavi::RestartStageNavi()
 void RestartStageNavi::Submit()
 {
     Base::Submit();
-    int clearCount = 0;
-    if (ItemDropSystem* dropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
-    {
-        clearCount = dropSystem->StageClearCount;
-    }
-
-    if (clearCount < 3)
+    if (_clearCount < 3)
     {
         if (const Scene* scene = UmSceneManager.GetMainScene())
         {
@@ -97,7 +93,6 @@ void RestartStageNavi::Submit()
 void RestartStageNavi::FocusIn(FocusCallType callType)
 {
     using namespace RestartUtility;
-
     if (CheckImageElementWithLog(_imageElement))
     {
         File::Guid guid = GetSelectBox(SelectBoxType::FOCUS);
@@ -108,25 +103,32 @@ void RestartStageNavi::FocusIn(FocusCallType callType)
         else
         {
             _imageElement->SetImage(guid);
-        }    
-    }
+        }
+    }   
 }
 
-void RestartStageNavi::FocusOut(FocusCallType callType) 
+void RestartStageNavi::FocusOut(FocusCallType callType)
 {
     using namespace RestartUtility;
-
     if (CheckImageElementWithLog(_imageElement))
     {
-        File::Guid guid = GetSelectBox(SelectBoxType::DEFAULT);
-        if (guid.IsNull())
+        if (_clearCount < 3)
         {
-            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"일반 이미지를 찾을 수 없습니다.");
+            File::Guid guid = GetSelectBox(SelectBoxType::DEFAULT);
+            if (guid.IsNull())
+            {
+                UmLogger.Log(LogLevel::LEVEL_WARNING, u8"일반 이미지를 찾을 수 없습니다.");
+            }
+            else
+            {
+                _imageElement->SetImage(guid);
+            }
         }
         else
         {
+            File::Guid guid = GetSelectBox(SelectBoxType::DISABLE);
             _imageElement->SetImage(guid);
-        }   
+        }
     }
 }
 
@@ -142,8 +144,23 @@ void RestartStageNavi::Start()
     using namespace RestartUtility;
     Base::Start();
     CheckImageElementWithLog(_imageElement);
-    if (_imageElement)
+    if (ItemDropSystem* dropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
     {
-        _imageElement->SetImage(GetSelectBox(SelectBoxType::DEFAULT));
+        _clearCount = dropSystem->StageClearCount;
+    }
+
+    if (_clearCount < 3)
+    {
+        if (_imageElement)
+        {
+            _imageElement->SetImage(GetSelectBox(SelectBoxType::DEFAULT));
+        }
+    }
+    else
+    {
+        if (_imageElement)
+        {
+            _imageElement->SetImage(GetSelectBox(SelectBoxType::DISABLE));
+        }
     }
 }

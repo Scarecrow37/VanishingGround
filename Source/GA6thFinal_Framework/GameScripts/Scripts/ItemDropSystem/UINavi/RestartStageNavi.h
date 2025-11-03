@@ -10,7 +10,8 @@ public:
     enum class SelectBoxType
     {
         DEFAULT,
-        FOCUS
+        FOCUS,
+        DISABLE
     };
 
     RestartStageNavi();
@@ -40,5 +41,5 @@ protected:
 
 private:
     class ImageElement* _imageElement;
-
+    int _clearCount = 0;
 };
