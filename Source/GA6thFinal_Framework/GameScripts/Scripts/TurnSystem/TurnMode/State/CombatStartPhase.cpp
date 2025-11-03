@@ -123,10 +123,16 @@ Enemy* CombatStartPhase::GetEnemyFromSpawnPoint(Monster::SpawnPoint spawnPoint) 
 
 void CombatStartPhase::OnAwake() 
 {
+
+}
+
+void CombatStartPhase::OnStart() 
+{
+    TurnModeStateBase::OnStart();
     if (MonsterSystem* system = SingletonComponent<MonsterSystem>::GetInstance())
     {
-        Difficulty          difficulty  = Difficulty::NORMAL;
-        Monster::SpawnID    spawnID     = 0;
+        Difficulty       difficulty = Difficulty::NORMAL;
+        Monster::SpawnID spawnID    = 0;
         if (DifficultyManager* manager = SingletonComponent<DifficultyManager>::GetInstance())
         {
             difficulty = manager->GetDifficulty();
@@ -146,11 +152,7 @@ void CombatStartPhase::OnAwake()
     RegisterEnemiesHP();
     RegisterEnemiesChain();
     RefreshUI();
-}
 
-void CombatStartPhase::OnStart() 
-{
-    TurnModeStateBase::OnStart();
     AddValidActions();
     ReviveEnemies();
     ResetPlayer();
