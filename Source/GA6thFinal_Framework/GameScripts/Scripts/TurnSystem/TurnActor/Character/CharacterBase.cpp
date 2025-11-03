@@ -99,7 +99,6 @@ void CharacterBase::Awake()
 void CharacterBase::Start() 
 {
     Base::Start();
-    _tokenInventory.Initialize();
 }
 
 bool CharacterBase::FindComponent()
@@ -123,6 +122,7 @@ bool CharacterBase::FindComponent()
         {
             std::string msg = std::format("{}{}", model.ToString(), (const char*)u8"의 컴포넌트에 AnimationComponent가 없습니다.");
             UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+
         }
 
         if (nullptr == _particleComponent)
@@ -288,6 +288,8 @@ int CharacterBase::DecrementChainRoundCount()
 
 void CharacterBase::OnCombatStart() 
 {
+    Base::OnCombatStart();
+    _tokenInventory.Initialize();
     _tokenInventory.NotifyCombatStart();
 }
 

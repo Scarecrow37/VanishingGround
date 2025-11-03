@@ -353,6 +353,13 @@ void Enemy::BuildEnemyFSM()
 void Enemy::OnCombatStart()
 {
     Base::OnCombatStart();
+    for (auto& action : _actions)
+    {
+        if (action)
+        {
+            action->OnEnemyCombatStartPhase(*this);
+        }
+    }
 }
 
 void Enemy::OnRoundStart()

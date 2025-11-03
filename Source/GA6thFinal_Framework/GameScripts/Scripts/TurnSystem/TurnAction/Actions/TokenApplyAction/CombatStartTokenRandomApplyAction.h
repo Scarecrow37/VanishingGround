@@ -12,7 +12,7 @@ public:
     const std::string& GetActionInfo() override;
     void               ImGuiDrawActionEditor() override;
     const std::string& GetActionName() override;
-    void               OnCombatStart() override;
+    void               OnEnemyCombatStartPhase(CharacterBase& character) override;
 
 private:
     void        UpdateActionInfo() override;

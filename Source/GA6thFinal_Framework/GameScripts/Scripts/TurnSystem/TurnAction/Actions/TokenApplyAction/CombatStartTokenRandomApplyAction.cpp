@@ -22,31 +22,23 @@ void CombatStartTokenRandomApplyAction::ImGuiDrawActionEditor()
 
 const std::string& CombatStartTokenRandomApplyAction::GetActionName()
 {
-    static const std::string name = (const char*)u8"전투 시작시 대상에게 토큰 랜덤하게 부여";
+    static const std::string name = (const char*)u8"(몬스터 전용)전투 시작시 자신에게 토큰 랜덤하게 부여";
     return name;
 }
 
-void CombatStartTokenRandomApplyAction::OnCombatStart()
+void CombatStartTokenRandomApplyAction::OnEnemyCombatStartPhase(CharacterBase& character)
 {
     if (EvaluateConditions())
     {
         const int        tokenID       = ReflectFields->TokenID;
         const int        tokenCountMin = ReflectFields->TokenCountMin;
         const int        tokenCountMax = ReflectFields->TokenCountMax;
-        const TurnTarget target        = ReflectFields->TokenTarget;
 
         if (TokenSystem* tokenSystem = SingletonComponent<TokenSystem>::GetInstance())
         {
-            std::vector<CharacterBase*> targets = TurnSystemHelper::GetTargetCharacters(target);
-            if (false == targets.empty())
-            {
-                for (auto& target : targets)
-                {
-                    TokenInventory& tokenInventory = target->GetTokenInventory();
-                    const int       randomIndex    = Random::Range(tokenCountMin, tokenCountMax);
-                    tokenInventory.AddTokenStackFromID(TokenID, randomIndex);
-                }
-            }
+            TokenInventory& tokenInventory = character.GetTokenInventory();
+            const int       randomIndex    = Random::Range(tokenCountMin, tokenCountMax);
+            tokenInventory.AddTokenStackFromID(TokenID, randomIndex);
         }
     }
 }
@@ -64,9 +56,8 @@ void CombatStartTokenRandomApplyAction::UpdateActionInfo()
         tokenName = STR_NULL;
     }
     _actionInfo = (const char*)u8"전투 시작시 ";
-    _actionInfo += std::format("{}{}{}{}{}{}{}{}", 
-        rfl::enum_to_string(target), 
-        (const char*)u8"에게 ",
+    _actionInfo += std::format("{}{}{}{}{}{}{}", 
+        (const char*)u8"자신에게 ",
         tokenName, 
         (const char*)u8"토큰 ", 
         tokenCountMin,
