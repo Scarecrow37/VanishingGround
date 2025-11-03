@@ -9,15 +9,17 @@ public:
     Overlay3DPanel();
 
 public:
-    REFLECT_PROPERTY(TargetCameraTag, Z)
+    REFLECT_PROPERTY(TargetCameraTag, TargetObjectTag)
 
     GETTER(std::string, TargetCameraTag) { return ReflectFields->TargetCameraTag; }
     SETTER(std::string, TargetCameraTag) { ReflectFields->TargetCameraTag = value; }
     PROPERTY(TargetCameraTag)
 
-    GETTER(float, Z) { return ReflectFields->Z; }
-    SETTER(float, Z) { ReflectFields->Z = value; }
-    PROPERTY(Z)
+	GETTER(std::string, TargetObjectTag) { return ReflectFields->TargetObjectTag; }
+    SETTER(std::string, TargetObjectTag) { ReflectFields->TargetObjectTag = value; }
+    PROPERTY(TargetObjectTag)
+
+
 
 protected:
     void Awake() override;
@@ -31,13 +33,12 @@ private:
 protected:
     REFLECT_FIELDS_BEGIN(OverlayPanel)
     std::string TargetCameraTag;
-    float       Z = 0.0f;
+    std::string TargetObjectTag;
     REFLECT_FIELDS_END(Overlay3DPanel)
 
 private:
     std::weak_ptr<CameraComponent> _targetCameraComponent;
+    std::weak_ptr<GameObject>      _targetObject;
 
-    POINT _originPoint;
-    POINT _offsetAndMarginLT;
-    Vector3 _targetWorldPosition;
+	POINT _offsetPoint;
 };
