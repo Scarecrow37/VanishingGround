@@ -286,8 +286,6 @@ void Player::OnKill(CharacterBase* destination)
 void Player::OnTokenAdded(const int tokenID)
 {
     Base::OnTokenAdded(tokenID);
-
-    RegisterTokenHUD(tokenID);
 }
 
 void Player::OnTokenRemoved(const int tokenID)
@@ -352,27 +350,30 @@ void Player::RegisterTokenHUD(int tokenID)
             if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
             {
                 auto HUD = combatUIManager->CharacterHUDGroup.PlayerHUDPanel;
-
-                Transform::ForeachBFS(HUD->transform, [&](Transform* tr) {
-                    GameObject& object = tr->gameObject;
-                    if (object.CompareTag("Token HUD"))
-                    {
-                        if (auto tokenHUD = prefab->GetComponent<TokenHUD>())
+                if (HUD)
+                {
+                    Transform::ForeachBFS(HUD->transform, [&](Transform* tr) {
+                        GameObject& object = tr->gameObject;
+                        if (object.CompareTag("Token HUD"))
                         {
-                            if (TokenSystem* tokenSystem = SingletonComponent<TokenSystem>::GetInstance())
+                            if (auto tokenHUD = prefab->GetComponent<TokenHUD>())
                             {
-                                if (const TokenData* tokenData = tokenSystem->GetTokenDataFromID(tokenID))
+                                if (TokenSystem* tokenSystem = SingletonComponent<TokenSystem>::GetInstance())
                                 {
-                                    std::string key = std::format("Player_Token_{}", tokenID);
-                                    tokenHUD->SetupTokenHUD(UmFileSystem.GetGuidFromAssetID(tokenData->ImageID), model, key);
-                                    _tokenHUDTable.emplace(tokenID, prefab.get());
-                                    model.Notify();
-                                    prefab->transform->SetParent(object.transform);
+                                    if (const TokenData* tokenData = tokenSystem->GetTokenDataFromID(tokenID))
+                                    {
+                                        std::string key = std::format("Player_Token_{}", tokenID);
+                                        tokenHUD->SetupTokenHUD(UmFileSystem.GetGuidFromAssetID(tokenData->ImageID),
+                                                                model, key);
+                                        _tokenHUDTable.emplace(tokenID, prefab.get());
+                                        model.Notify();
+                                        prefab->transform->SetParent(object.transform);
+                                    }
                                 }
                             }
                         }
-                    }
-                });
+                    });
+                }              
             }
         }
     }
