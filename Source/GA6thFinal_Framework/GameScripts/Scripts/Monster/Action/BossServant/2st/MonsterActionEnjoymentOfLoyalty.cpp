@@ -7,15 +7,11 @@ namespace Monster
 {
     namespace Action
     {
-        EnjoymentOfLoyalty::EnjoymentOfLoyalty() : BossServantAction("Attack1") {}
+        EnjoymentOfLoyalty::EnjoymentOfLoyalty() : BossServantAction("", 2.0f) {}
         EnjoymentOfLoyalty::~EnjoymentOfLoyalty() = default;
-        void EnjoymentOfLoyalty::OnNotifiedAnimationEvent(const Timeline::EventContext* context) 
+        void EnjoymentOfLoyalty::OnActionEnter() 
         {
-            const std::string& label = context->GetLabel();
-            if ("Behavior" == label)
-            {
-                Behavior();
-            }
+            Behavior();
         }
         /*
         바른의 T_Param(1), T_Param(2), T_Param(3), 중 하나를 제거한다.

@@ -7,15 +7,11 @@ namespace Monster
 {
     namespace Action
     {
-        BlackSacrament::BlackSacrament() : BossServantAction("Attack1") {}
+        BlackSacrament::BlackSacrament() : BossServantAction("", 2.0f) {}
         BlackSacrament::~BlackSacrament() = default;
-        void BlackSacrament::OnNotifiedAnimationEvent(const Timeline::EventContext* context) 
+        void BlackSacrament::OnActionEnter()
         {
-            const std::string& label = context->GetLabel();
-            if ("Behavior" == label)
-            {
-                Behavior();
-            }
+            Behavior();
         }
 
         /*

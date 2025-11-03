@@ -76,7 +76,10 @@ void EnemyActionPhase::OnExit()
     {
         if (auto& actorModel = _turnMode->GetCurrTurnActor())
         {
-            actorModel->OnTurnEnd();
+            if (TurnActor* actor = actorModel.Get())
+            {
+                actor->OnTurnEnd();
+            }
         }
     }
 }

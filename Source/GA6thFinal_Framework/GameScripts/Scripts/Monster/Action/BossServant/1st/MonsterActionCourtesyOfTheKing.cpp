@@ -9,13 +9,9 @@ namespace Monster
     {
         CourtesyOfTheKing::CourtesyOfTheKing() : BossServantAction("Attack1") {}
         CourtesyOfTheKing::~CourtesyOfTheKing() = default;
-        void CourtesyOfTheKing::OnNotifiedAnimationEvent(const Timeline::EventContext* context)
+        void CourtesyOfTheKing::OnActionEnter()
         {
-            const std::string& label = context->GetLabel();
-            if ("Behavior" == label)
-            {
-                Behavior();
-            }
+            Behavior();
         }
 
         /*

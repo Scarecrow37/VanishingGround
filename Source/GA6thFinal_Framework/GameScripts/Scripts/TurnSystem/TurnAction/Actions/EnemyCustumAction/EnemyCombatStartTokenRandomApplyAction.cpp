@@ -1,5 +1,5 @@
-﻿#include "EnemyCombatStartTokenRandomApplyAction.h"
-#include "pchScripts.h"
+﻿#include "pchScripts.h"
+#include "EnemyCombatStartTokenRandomApplyAction.h"
 
 #include "Token/TokenSystem.h"
 #include "TurnSystem/TurnAction/TurnActionFactory.h"
@@ -47,7 +47,6 @@ void EnemyCombatStartTokenRandomApplyAction::UpdateActionInfo()
     const int tokenID       = ReflectFields->TokenID;
     const int tokenCountMin = ReflectFields->TokenCountMin;
     const int tokenCountMax = ReflectFields->TokenCountMax;
-    const TurnTarget target = ReflectFields->TokenTarget;
 
     std::string_view tokenName = TokenSystem::TokenIDToName(tokenID);
     if (true == tokenName.empty())

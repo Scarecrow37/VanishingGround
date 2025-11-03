@@ -16,7 +16,7 @@ namespace Monster
             ~BlackSacrament() override;
 
         private:
-            void OnNotifiedAnimationEvent(const Timeline::EventContext* context) override;
+            void OnActionEnter() override;
 
         private:
             void Behavior();

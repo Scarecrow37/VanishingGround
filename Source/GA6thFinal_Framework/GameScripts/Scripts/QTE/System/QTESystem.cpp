@@ -130,7 +130,6 @@ void QTESystem::ResetState()
     _keyBinder          = {};
     _audioIDState       = {};
     _fadeState          = {};
-    _fadeState          = {};
     _callbackHandler    = {};
     _overallResult      = {};
     _nextKeyEvent       = {nullptr, Input::ControllerTypes::UNDEFINED};
