@@ -123,10 +123,17 @@ Enemy* CombatStartPhase::GetEnemyFromSpawnPoint(Monster::SpawnPoint spawnPoint) 
 
 void CombatStartPhase::OnAwake() 
 {
+
+}
+
+void CombatStartPhase::OnStart() 
+{
+    TurnModeStateBase::OnStart();
+    RefreshUI();
     if (MonsterSystem* system = SingletonComponent<MonsterSystem>::GetInstance())
     {
-        Difficulty          difficulty  = Difficulty::NORMAL;
-        Monster::SpawnID    spawnID     = 0;
+        Difficulty       difficulty = Difficulty::NORMAL;
+        Monster::SpawnID spawnID    = 0;
         if (DifficultyManager* manager = SingletonComponent<DifficultyManager>::GetInstance())
         {
             difficulty = manager->GetDifficulty();
@@ -145,12 +152,7 @@ void CombatStartPhase::OnAwake()
     RegisterEnemiesHUD();
     RegisterEnemiesHP();
     RegisterEnemiesChain();
-    RefreshUI();
-}
 
-void CombatStartPhase::OnStart() 
-{
-    TurnModeStateBase::OnStart();
     AddValidActions();
     ReviveEnemies();
     ResetPlayer();
@@ -158,24 +160,37 @@ void CombatStartPhase::OnStart()
 void CombatStartPhase::OnEnter() 
 {
     _phaseEnd = false;
-    _waitPhaseEnd = false;
-    if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+    _waitPhaseEnd = true;
+    float introDuration = 0.f;
+    if (ItemDropSystem* dropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
     {
-        if (UmCineMotion* battleCamera = mode->GetBattleCamera())
+        if (UmCineMotion* introCamera = _turnMode->GetIntroCamera())
         {
-            battleCamera->SetMainCamera();
-            battleCamera->ResetRail(true);
+            if (dropSystem->StageClearCount == 0)
+            {
+                introCamera->ResetRail(true);
+                introCamera->StartRail(false);
+                introDuration = introCamera->Duration;
+            }
+            else
+            {
+                introCamera->ResetRail(false);
+            }
         }
     }
-
+    UmTime.Invoke(GetFSM(), introDuration, [this]() 
+    { 
+        _waitPhaseEnd = false;
+    });
+   
     if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
     {
         //켜져 있어야 하는거
         combatUIManager->AccessoriesGroup.ActiveUI(true);  
         combatUIManager->ConsumableGroup.ActiveUI(true);  
-        combatUIManager->CharacterHUDGroup.ActiveUI(true);  
 
         //꺼져 있어야 하는거
+        combatUIManager->CharacterHUDGroup.ActiveUI(false);  
         combatUIManager->WeaponGroup.ActiveUI(false);  
         combatUIManager->RevelationsGroup.ActiveUI(false);  
         combatUIManager->TurnQueueGroup.ActiveUI(false);  
@@ -195,7 +210,16 @@ void CombatStartPhase::OnEnter()
 
 void CombatStartPhase::OnExit() 
 {
-   
+    if (UmCineMotion* battleCamera = _turnMode->GetBattleCamera())
+    {
+        battleCamera->SetMainCamera();
+        battleCamera->ResetRail(true);
+    }
+
+    if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        combatUIManager->CharacterHUDGroup.ActiveUI(true);
+    }
 }
 
 void CombatStartPhase::OnUpdate() 
@@ -419,7 +443,10 @@ void CombatStartPhase::ReviveEnemies()
 {
     for (auto& enemy : _enemies)
     {
-        enemy->CharacterBase::Revive();
+        if (enemy)
+        {
+            enemy->Revive();
+        }
     }
 }
 

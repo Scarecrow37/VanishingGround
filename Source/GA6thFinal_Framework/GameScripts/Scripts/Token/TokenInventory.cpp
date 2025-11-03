@@ -464,16 +464,16 @@ void TokenInventory::AddTokenStackFromID(int tokenID, int count /* = 1 */)
     {
         if (IToken* token = GetTokenFromID(tokenID))
         {
-            int  maxStackCount = token->GetMaxStackCount();
-            int& curStackCount = it->second;
+            int   maxStackCount = token->GetMaxStackCount();
+            auto& curStackCount = it->second;
             if (curStackCount >= maxStackCount)
             {   // 이미 최대 스택에 도달했으면 추가하지 않습니다.(이벤트를 호출하지 않기 위해 필요)
                 return; 
             }
             if (token->CanAdd(&_owner))
             {
-                curStackCount += count;
-                curStackCount = std::min(maxStackCount, curStackCount);
+                curStackCount = curStackCount + count;
+                curStackCount = std::min(maxStackCount, (int)curStackCount);
                 UpdateToken(tokenID);
                 _owner.OnTokenAdded(tokenID);
                 std::string msg = std::format("{}{}{}{}{}{}", 
@@ -481,7 +481,7 @@ void TokenInventory::AddTokenStackFromID(int tokenID, int count /* = 1 */)
                     (const char*)u8" 에게 ",
                     token->GetTokenName(),
                     (const char*)u8" 토큰이 ",
-                    count,
+                    curStackCount.Get(),
                     (const char*)u8"개 부여되었습니다."
                 );
                 UmLogger.Log(LogLevel::LEVEL_TRACE, msg);
@@ -532,15 +532,15 @@ void TokenInventory::RemoveTokenStackFromID(int tokenID, int count /* = 1 */)
     {
         if (IToken* token = GetTokenFromID(tokenID))
         {
-            int& curStackCount = it->second;
+            auto& curStackCount = it->second;
             if (curStackCount <= 0)
             { // 스택이 0 이하이면 제거하지 않습니다. (이벤트를 호출하지 않기 위해 필요)
                 return;
             }
             if (token->CanRemove(&_owner))
             {
-                curStackCount -= count;
-                curStackCount = std::max(0, curStackCount);
+                curStackCount = curStackCount - count;
+                curStackCount = std::max(0, (int)curStackCount);
                 UpdateToken(tokenID);
                 _owner.OnTokenRemoved(tokenID);
                 std::string msg = std::format("{}{}{}{}{}{}", 
@@ -548,7 +548,7 @@ void TokenInventory::RemoveTokenStackFromID(int tokenID, int count /* = 1 */)
                     (const char*)u8"에게 ",
                     token->GetTokenName(),
                     (const char*)u8" 토큰이 ",
-                    count,
+                    curStackCount.Get(),
                     (const char*)u8"개 제거되었습니다."
                 );
                 UmLogger.Log(LogLevel::LEVEL_TRACE, msg);
@@ -569,7 +569,7 @@ void TokenInventory::RemoveTokenFromID(int tokenID)
 {
     if (_tokenTable.contains(tokenID))
     {
-        int& count = _tokenTable[tokenID];
+        auto& count = _tokenTable[tokenID];
         if (0 < count)
         {
             RemoveTokenStackFromID(tokenID, count);
@@ -615,6 +615,17 @@ int TokenInventory::GetTokenStackFromID(int tokenID) const
         return it->second;
     }
     return 0;
+}
+
+MVVM::Model<int>& TokenInventory::GetTokenModelFromID(int tokenID)
+{
+    auto it = _tokenTable.find(tokenID);
+    if (it != _tokenTable.end())
+    {
+        return it->second;
+    }
+    
+    throw std::runtime_error("TokenInventory::GetTokenModelFromID - Token ID not found.");
 }
 
 int TokenInventory::GetTokenStackFromTag(const std::string& tag) const
@@ -682,8 +693,8 @@ void TokenInventory::DrawImGuiDebugData()
     if (TokenSystem* tokenSystem = GetTokenSystem())
     {
         const auto& instances = tokenSystem->GetTokenInstances();
-
-        ImGui::BeginChild("ValidTokenStack", ImVec2(0, 0), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY);
+        ImGui::Text("ValidTokenStack");
+        ImGui::BeginChild("##ValidTokenStack", ImVec2(0, 0), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY);
         for (size_t i = 0; i < _vaildTokenVector.size(); ++i)
         {
             TokenID     tokenID     = _vaildTokenVector[i];
@@ -756,6 +767,12 @@ void TokenInventory::DrawImGuiDebugData()
             ImGui::TreePop();
         }
     }
+    else
+    {
+        ImGuiHelper::StyleBuilder style;
+        style.PushStyleColor(ImGuiCol_Text, IM_COL32(255, 100, 100, 255));
+        ImGui::Text("null TokenSystem...");
+    }
 #endif
 }
 
@@ -772,7 +789,7 @@ void TokenInventory::UpdateToken(TokenID tokenID)
             if (it == _vaildTokenVector.end())
             {
                 _vaildTokenVector.push_back(tokenID);
-                NotifyTokenEnter(tokenID);
+                _owner.OnTokenEnter(tokenID);
             }
         }
         else
@@ -782,7 +799,7 @@ void TokenInventory::UpdateToken(TokenID tokenID)
             if (it != _vaildTokenVector.end())
             {
                 _vaildTokenVector.erase(it);
-                NotifyTokenExit(tokenID);
+                _owner.OnTokenExit(tokenID);
             }
         }
     }
