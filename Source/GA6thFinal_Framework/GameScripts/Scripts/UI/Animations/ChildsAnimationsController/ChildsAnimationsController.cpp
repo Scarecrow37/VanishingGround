@@ -145,6 +145,14 @@ float ChildsAnimationsController::GetFadeDurationWithTag(const std::string& tag)
     return 0.0f;
 }
 
+void ChildsAnimationsController::EnableAnimation(size_t index, bool enable)
+{
+    if (index < _spriteAnimations.size())
+    {
+        _spriteAnimations[index]->Enable = enable;
+    }
+}
+
 float ChildsAnimationsController::StartAnimation(size_t index)
 {
     if (index < _spriteAnimations.size())
