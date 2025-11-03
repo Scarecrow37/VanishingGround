@@ -1,18 +1,18 @@
 ﻿#pragma once
 #include "TurnSystem/TurnAction/Actions/TokenApplyAction/Base/TokenRandomRangeApplyAction.h"
 
-class CombatStartTokenRandomApplyAction : public TokenRandomRangeApplyAction
+class EnemyTurnEndTokenRandomApplyAction : public TokenRandomRangeApplyAction
 {
-    USING_PROPERTY(CombatStartTokenRandomApplyAction)
+    USING_PROPERTY(EnemyTurnEndTokenRandomApplyAction)
 public:
-    CombatStartTokenRandomApplyAction() = default;
-    ~CombatStartTokenRandomApplyAction() override = default;
+    EnemyTurnEndTokenRandomApplyAction()               = default;
+    ~EnemyTurnEndTokenRandomApplyAction() override = default;
 
 public:
     const std::string& GetActionInfo() override;
     void               ImGuiDrawActionEditor() override;
     const std::string& GetActionName() override;
-    void               OnEnemyCombatStartPhase(CharacterBase& character) override;
+    void               OnEnemyTurnEnd(Enemy& enemy) override;
 
 private:
     void        UpdateActionInfo() override;

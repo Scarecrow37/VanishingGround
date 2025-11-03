@@ -590,7 +590,7 @@ void QTESystem::ProcessQTEEnterEvent()
     UmAudio.FadeOut();
 
     // QTE 진입 사운드 재생 (튜토리얼 대응하기 위해 Invoke 사용)
-    UmTime.Invoke(0.05f, [this]() { AudioHelper::PlaySFX(_audioIDState.OnQTEAppear); });
+    UmTime.Invoke(this, 0.05f, [this]() { AudioHelper::PlaySFX(_audioIDState.OnQTEAppear); });
 
     _currState = QTE::STATE_FADE_IN;
     _callbackHandler.ProcessQTEFadeInStartEvent();

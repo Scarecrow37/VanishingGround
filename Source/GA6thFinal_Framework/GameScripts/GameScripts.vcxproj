@@ -306,7 +306,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\CombatStartTokenRandomApplyAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyTurnEndTokenRandomApplyAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyCombatStartTokenRandomApplyAction.h" />
     <ClInclude Include="Scripts\Monster\Action\BossServant\MonsterBossServantAction.h" />
     <ClInclude Include="Scripts\QTE\Audio\QTEAudioState.h" />
     <ClInclude Include="Scripts\QTE\Controller\QTEController.h" />
@@ -653,7 +654,8 @@
     <ClInclude Include="Scripts\BattleIntroUIController\BattleIntroUIController.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\CombatStartTokenRandomApplyAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyTurnEndTokenRandomApplyAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyCombatStartTokenRandomApplyAction.cpp" />
     <ClCompile Include="Scripts\Monster\Action\BossServant\MonsterBossServantAction.cpp" />
     <ClCompile Include="Scripts\QTE\Controller\QTEController.cpp" />
     <ClCompile Include="Scripts\Ending\EndingDialogManager.cpp" />

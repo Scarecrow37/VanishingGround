@@ -329,9 +329,14 @@ public:
     virtual void OnEnemyTokenTakeDamage(int tokenID, int& damage) {}
 
     /// <summary>
-    /// 이 액션이 몬스터의 커스텀 액션에 있으면 호출됩니다.
+    /// (몬스터 전용) 이 액션이 몬스터의 커스텀 액션에 있으면 호출됩니다.
     /// </summary>
-    virtual void OnEnemyCombatStartPhase(CharacterBase& character) {}
+    virtual void OnEnemyCombatStartPhase(Enemy& enemy) {}
+
+    /// <summary>
+    /// (몬스터 전용) 이 액션이 몬스터의 커스텀 액션에 있으면 호출됩니다.
+    /// </summary>
+    virtual void OnEnemyTurnEnd(Enemy& enemy) {}
 
 public:
     REFLECT_PROPERTY(ActionName, ActionInfo, LogicOperator)

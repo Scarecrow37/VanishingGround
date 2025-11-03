@@ -1,32 +1,31 @@
-﻿#include "CombatStartTokenRandomApplyAction.h"
+﻿#include "EnemyCombatStartTokenRandomApplyAction.h"
 #include "pchScripts.h"
 
 #include "Token/TokenSystem.h"
 #include "TurnSystem/TurnAction/TurnActionFactory.h"
-#include "TurnSystem/TurnActor/Character/CharacterBase.h"
-#include "TurnSystem/TurnActor/Character/Player/Player.h"
+#include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
 #include "TurnSystem/TurnSystemHelper.h"
 
-REGISTER_TURN_ACTION(CombatStartTokenRandomApplyAction)
+REGISTER_TURN_ACTION(EnemyCombatStartTokenRandomApplyAction)
 
-const std::string& CombatStartTokenRandomApplyAction::GetActionInfo()
+const std::string& EnemyCombatStartTokenRandomApplyAction::GetActionInfo()
 {
     TryTokenSystemInfoUpdate();
     return _actionInfo;
 }
 
-void CombatStartTokenRandomApplyAction::ImGuiDrawActionEditor()
+void EnemyCombatStartTokenRandomApplyAction::ImGuiDrawActionEditor()
 {
     ImGuiDrawPropertys();
 }
 
-const std::string& CombatStartTokenRandomApplyAction::GetActionName()
+const std::string& EnemyCombatStartTokenRandomApplyAction::GetActionName()
 {
-    static const std::string name = (const char*)u8"(몬스터 전용)전투 시작시 자신에게 토큰 랜덤하게 부여";
+    static const std::string name = (const char*)u8"(몬스터 전용)전투 시작 시 자신에게 토큰 랜덤하게 부여";
     return name;
 }
 
-void CombatStartTokenRandomApplyAction::OnEnemyCombatStartPhase(CharacterBase& character)
+void EnemyCombatStartTokenRandomApplyAction::OnEnemyCombatStartPhase(Enemy& enemy)
 {
     if (EvaluateConditions())
     {
@@ -36,14 +35,14 @@ void CombatStartTokenRandomApplyAction::OnEnemyCombatStartPhase(CharacterBase& c
 
         if (TokenSystem* tokenSystem = SingletonComponent<TokenSystem>::GetInstance())
         {
-            TokenInventory& tokenInventory = character.GetTokenInventory();
+            TokenInventory& tokenInventory = enemy.GetTokenInventory();
             const int       randomIndex    = Random::Range(tokenCountMin, tokenCountMax);
             tokenInventory.AddTokenStackFromID(TokenID, randomIndex);
         }
     }
 }
 
-void CombatStartTokenRandomApplyAction::UpdateActionInfo()
+void EnemyCombatStartTokenRandomApplyAction::UpdateActionInfo()
 {
     const int tokenID       = ReflectFields->TokenID;
     const int tokenCountMin = ReflectFields->TokenCountMin;
