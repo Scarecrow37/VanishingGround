@@ -378,6 +378,13 @@ void Enemy::OnTurnEnd()
     Base::OnTurnEnd();
     // Enemy의 턴이 종료시 액션을 선언.
     _controller.Transition();
+    for (auto& action : _actions)
+    {
+        if (action)
+        {
+            action->OnEnemyTurnEnd(*this);
+        }
+    }
 }
 
 void Enemy::OnHit()
