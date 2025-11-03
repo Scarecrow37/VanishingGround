@@ -7,20 +7,16 @@ namespace Monster
 {
     namespace Action
     {
-        Cower::Cower() : Base("Attack1") {}
+        Cower::Cower() : Base("", 2.0f) {}
         Cower::~Cower() =default;
-        void Cower::OnActionEnter() {}
+        void Cower::OnActionEnter()
+        {
+            Behavior();
+        }
         void Cower::OnActionUpdate() {}
         void Cower::OnActionExit() {}
         void Cower::OnActionReset() {}
-        void Cower::OnNotifiedAnimationEvent(const Timeline::EventContext* context) 
-        {
-            const std::string& label = context->GetLabel();
-            if ("Behavior" == label)
-            {
-                Behavior();
-            }
-        }
+        void Cower::OnNotifiedAnimationEvent(const Timeline::EventContext* context) {}
         
         /*
         자신에게 T_Param(1)을 부여한다.

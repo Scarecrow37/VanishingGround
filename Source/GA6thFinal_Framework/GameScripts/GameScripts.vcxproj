@@ -306,6 +306,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyTurnEndTokenRandomApplyAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyCombatStartTokenRandomApplyAction.h" />
+    <ClInclude Include="Scripts\Monster\Action\BossServant\MonsterBossServantAction.h" />
     <ClInclude Include="Scripts\QTE\Audio\QTEAudioState.h" />
     <ClInclude Include="Scripts\QTE\Controller\QTEController.h" />
     <ClInclude Include="Scripts\Ending\EndingDialogManager.h" />
@@ -649,6 +652,7 @@
     <ClInclude Include="Scripts\Token\Helper\TokenHelper.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TurnEndTokenApplyAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TurnEndTokenRemoveAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\Base\TokenRandomRangeApplyAction.h" />
     <ClInclude Include="UmScriptCore.h" />
     <ClInclude Include="UmScriptsExport.h" />
     <ClInclude Include="Scripts\Token\Object\Weakness\WeaknessToken.h" />
@@ -663,6 +667,9 @@
     <ClInclude Include="Scripts\TokenHUD\TokenHUD.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyTurnEndTokenRandomApplyAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyCombatStartTokenRandomApplyAction.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\BossServant\MonsterBossServantAction.cpp" />
     <ClCompile Include="Scripts\QTE\Controller\QTEController.cpp" />
     <ClCompile Include="Scripts\Ending\EndingDialogManager.cpp" />
     <ClCompile Include="Scripts\MagicBook\SelectMagicBook.cpp" />
@@ -1010,6 +1017,7 @@
     <ClCompile Include="Scripts\Token\Helper\TokenHelper.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TurnEndTokenApplyAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TurnEndTokenRemoveAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\Base\TokenRandomRangeApplyAction.cpp" />
     <ClCompile Include="UmScriptCore.cpp" />
     <ClCompile Include="UmScriptsExport.cpp" />
     <ClCompile Include="Scripts\Token\Object\Weakness\WeaknessToken.cpp" />

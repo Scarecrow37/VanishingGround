@@ -28,8 +28,10 @@ void EnemyActionPhase::OnEnter()
         WaitPhase = true;
         if (auto& actorModel = _turnMode->GetCurrTurnActor())
         {
-            actorModel.Apply([this](TurnActor* actor) {
+            if (TurnActor* actor = actorModel.Get())
+            {
                 actor->PlayTurn();
+                actor->OnTurnStart();
                 CombatStartPhase* combatStartPhase = _turnMode->States->CombatStartPhase;
                 if (combatStartPhase)
                 {
@@ -41,7 +43,7 @@ void EnemyActionPhase::OnEnter()
                     _turnMode->ApplyActions([character](TurnAction& action) { action.OnTurnStart(*character); });
                 }
                 actor->UpdatePostTurnState();
-            });
+            }
         }
         if (CheckTurnEndCondition* condition = _turnMode->Conditions->CheckTurnEndCondition)
         {
@@ -69,6 +71,17 @@ void EnemyActionPhase::OnExit()
 {
     WaitPhase = true;
     ApplyReduceHP();
+
+    if (_turnMode)
+    {
+        if (auto& actorModel = _turnMode->GetCurrTurnActor())
+        {
+            if (TurnActor* actor = actorModel.Get())
+            {
+                actor->OnTurnEnd();
+            }
+        }
+    }
 }
 
 void EnemyActionPhase::OnUpdate() 

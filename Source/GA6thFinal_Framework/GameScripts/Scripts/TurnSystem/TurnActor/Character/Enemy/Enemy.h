@@ -9,6 +9,7 @@
 class ParticleComponent;
 class EnemyStatsComponent;
 class FSMState;
+class TurnAction;
 
 class Enemy : public CharacterBase
 {
@@ -30,6 +31,7 @@ public:
     GETTER(EnemyType, Type) { return ReflectFields->Type; }
     PROPERTY(Type)
 
+
     GETTER_ONLY(Monster::SpawnPoint, SpawnPoint) { return _spawnPoint; }
     PROPERTY(SpawnPoint)
 
@@ -38,9 +40,13 @@ public:
     virtual ~Enemy();
 
 protected:
+    using ActionNameDataPair = std::pair<std::string, std::string>;
     REFLECT_FIELDS_BEGIN(CharacterBase)
     EnemyType Type = EnemyType::MONSTER_A;
+    std::vector<ActionNameDataPair> Actions;
     REFLECT_FIELDS_END(Enemy)
+
+    std::vector<std::unique_ptr<TurnAction>> _actions;
 
 private:
     Monster::SpawnPoint  _spawnPoint = Monster::SpawnPoint::Invalid;
@@ -100,10 +106,10 @@ private:
 
 protected:
     void Awake() override;
-    void Update() override;
     void PlayTurn() override;
     void ImGuiDrawPropertysEvent() override;
-
+    void SerializedReflectEvent() override;
+    void DeserializedReflectEvent() override;
 
 private:
     void OnCombatStart() override;
@@ -124,4 +130,8 @@ private:
     void RegisterTokenHUD(int tokenID);
     void UnregisterTokenHUD(int tokenID);
     void PassWorldPositionToHud() const;
+
+private:
+    void ShowActionEditor();
+
 };

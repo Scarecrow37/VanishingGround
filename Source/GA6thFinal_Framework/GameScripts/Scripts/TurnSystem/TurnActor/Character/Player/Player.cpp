@@ -286,8 +286,6 @@ void Player::OnKill(CharacterBase* destination)
 void Player::OnTokenAdded(const int tokenID)
 {
     Base::OnTokenAdded(tokenID);
-
-    RegisterTokenHUD(tokenID);
 }
 
 void Player::OnTokenRemoved(const int tokenID)

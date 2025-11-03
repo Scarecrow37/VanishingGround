@@ -163,9 +163,9 @@ void PlayerPlayTurnState::PressedButtonA(const Input::Controller& controller)
                 uiManager->FadeOut(_attackButtonHeldWaitTime);
 
             // TODO: a홀드 사운드 넣으니까 매우 이상함. 논의 필요.
-            //UmAudio.Stop(_hHoldAButtonSound);
-            //_hHoldAButtonSound = UmAudio.Play("-901007");
-        } 
+            UmAudio.Stop(_hHoldAButtonSound);
+            _hHoldAButtonSound = UmAudio.Play("-901007");
+        }
     }
 }
 
@@ -269,7 +269,7 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
     if (QTEUIManager* qteUIManager = SingletonComponent<QTEUIManager>::GetInstance())
     {
         qteUIManager->SetUIAlpha(t);
-        //UmAudio.SetVolume(_hHoldAButtonSound, t);
+        UmAudio.SetVolume(_hHoldAButtonSound, t);
     }
 }
 
