@@ -481,7 +481,7 @@ void TokenInventory::AddTokenStackFromID(int tokenID, int count /* = 1 */)
                     (const char*)u8" 에게 ",
                     token->GetTokenName(),
                     (const char*)u8" 토큰이 ",
-                    curStackCount,
+                    curStackCount.Get(),
                     (const char*)u8"개 부여되었습니다."
                 );
                 UmLogger.Log(LogLevel::LEVEL_TRACE, msg);
@@ -548,7 +548,7 @@ void TokenInventory::RemoveTokenStackFromID(int tokenID, int count /* = 1 */)
                     (const char*)u8"에게 ",
                     token->GetTokenName(),
                     (const char*)u8" 토큰이 ",
-                    curStackCount,
+                    curStackCount.Get(),
                     (const char*)u8"개 제거되었습니다."
                 );
                 UmLogger.Log(LogLevel::LEVEL_TRACE, msg);
