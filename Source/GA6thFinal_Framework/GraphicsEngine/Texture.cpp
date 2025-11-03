@@ -39,7 +39,7 @@ void Texture::LoadResource(const std::filesystem::path& filePath, const std::fun
 {
     _handle.GPU = Global::dummyTextureHandle;
 
-    Global::threadPool->AddTask(ThreadPool::ThreadType::ASYNK, [this, filePath, callback](ID3D12GraphicsCommandList*)
+    Global::threadPool->AddTask(ThreadPool::ThreadType::PARALLEL, [this, filePath, callback](ID3D12GraphicsCommandList*)
         {
             HRESULT       hr     = S_OK;
             ID3D12Device* device = Global::device->GetDevice();
