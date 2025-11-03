@@ -397,12 +397,12 @@ void QTESystem::ClearTrack()
 
 void QTESystem::IncreaseQTESpeedLevel(int value) 
 {
-    ReflectFields->QTESpeedScale += value;
+    ReflectFields->QTESpeedScale += static_cast<float>(value) * SPEED_LEVEL_PER_SCALE;
 }
 
 void QTESystem::DecreaseQTESpeedLevel(int value) 
 {
-    ReflectFields->QTESpeedScale -= value;
+    ReflectFields->QTESpeedScale -= static_cast<float>(value) * SPEED_LEVEL_PER_SCALE;
 }
 
 void QTESystem::SetFadeState(const QTE::FadeState& fadeState) 
