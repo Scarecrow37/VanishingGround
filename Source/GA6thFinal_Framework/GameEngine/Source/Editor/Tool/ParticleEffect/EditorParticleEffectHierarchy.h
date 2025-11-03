@@ -30,7 +30,7 @@ private:
     bool                           _isModelActive = true;
     File::Path                     _envModelPath  = File::NULL_PATH;
     Matrix                         _worldMatrix;
-    Vector3                        _position    = Vector3(0, -20, 0);
+    Vector3                        _position    = Vector3(0, 0, 0);
     Vector3                        _rotation    = Vector3::Zero;
     Quaternion                     _quaternion  = Quaternion::Identity;
     Vector3                        _scale       = Vector3::One;

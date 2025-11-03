@@ -183,6 +183,21 @@ void TokenSystem::LoadTokenDataFromExcelData(ExcelDataSystem* dataSystem)
                 {
                     StringHelper::StringToInt(excelData, tokenData.ID);
                 }
+                excelData = dataBase->FindData(rowIndex, TokenExcelData::Key::ICON_ID);
+                if (excelData != ExcelDataBase::FIND_STR_FAIL)
+                {
+                    StringHelper::StringToInt(excelData, tokenData.IconID);
+                }
+                excelData = dataBase->FindData(rowIndex, TokenExcelData::Key::INFO_ID);
+                if (excelData != ExcelDataBase::FIND_STR_FAIL)
+                {
+                    StringHelper::StringToInt(excelData, tokenData.InfoID);
+                }
+                excelData = dataBase->FindData(rowIndex, TokenExcelData::Key::IMAGE_ID);
+                if (excelData != ExcelDataBase::FIND_STR_FAIL)
+                {
+                    StringHelper::StringToInt(excelData, tokenData.ImageID);
+                }
                 excelData = dataBase->FindData(rowIndex, TokenExcelData::Key::NAME);
                 if (excelData != ExcelDataBase::FIND_STR_FAIL)
                 {

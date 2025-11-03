@@ -96,7 +96,7 @@ private:
     TokenInventory          _tokenInventory;
     SkeletalMeshRenderer*   _skeletalMeshRenderer = nullptr;
     AnimationComponent*     _animationComponent   = nullptr;
-    ParticleComponent*      _particleComponent    = nullptr;    
+    ParticleComponent*      _particleComponent    = nullptr;
 
 protected:
     virtual void Awake() override;
