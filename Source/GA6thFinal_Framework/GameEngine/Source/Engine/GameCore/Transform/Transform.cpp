@@ -701,3 +701,25 @@ std::vector<GameObject*> Transform::FindBFSwithTag(const std::string& tag)
     });
     return findResult;
 }
+
+void Transform::SetWorldMatrix(const Matrix& matrix)
+{
+    Matrix localMatrix;
+    if (nullptr == _parent)
+    {
+        localMatrix = matrix;
+    }
+    else
+    {
+        const Matrix& parentInversMatrix = _parent->GetInversWorldMatrix();
+        localMatrix                      = matrix * parentInversMatrix;
+    }
+    Vector3    sclae;
+    Quaternion rot;
+    Vector3    position;
+    localMatrix.Decompose(sclae, rot, position);
+
+    Position = position;
+    Scale    = sclae;
+    Rotation = rot;
+}
