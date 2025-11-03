@@ -26,7 +26,7 @@ namespace Monster
         class Base
         {
         public:
-            Base(std::string_view animationKey);
+            Base(std::string_view animationKey, float delayTime = 0.0f);
             Base();
             virtual ~Base();
 
@@ -43,8 +43,8 @@ namespace Monster
             inline int                          GetActionID() const { return _actionContext.ID; }
             inline std::weak_ptr<Enemy>         GetWeakOwner() const { return _weakOwner; }
             inline std::weak_ptr<CharacterBase> GetWeakTarget() const { return _weakTarget; }
-            inline bool                         IsActionEnd() const { return _isActionEnd; }
-            inline void                         SetActionEnd() { _isActionEnd = true; }
+            inline bool                         IsActionEnd() const { return _waitAnimationEnd && _waitActionTimeEnd; }
+            inline void                         SetActionEnd() { _waitAnimationEnd = true; _waitActionTimeEnd = true;}
             inline const ActionContext&         GetActionContext() const { return _actionContext; }
             inline size_t                       GetActionParamCount() const { return _actionParams.size(); }
             inline size_t                       GetTokenParamCount() const { return _tokenParams.size(); }
@@ -66,12 +66,10 @@ namespace Monster
             inline AnimationComponent* GetAnimationComponent() { return _weakAnimation.lock().get(); }
             inline ParticleComponent*  GetParticleComponent() { return _weakParticle.lock().get(); }
 
-            bool BeginTokenActions();
-            bool EndTokenActions();
-
             // 배틀 처리를 수행합니다.
             void ProcessBattle(int damage, float damageScale = 1.0f);
-            bool ProcessAnimation(std::string_view animKey);
+            void ProcessAnimation(std::string_view animKey);
+            void ProcessActionDelay();
 
             std::weak_ptr<CharacterBase> GetTargetFromActionContext(const ActionContext& actionContext) const;
             std::weak_ptr<CharacterBase> GetTargetFromString(std::string_view targetStr) const;
@@ -98,8 +96,9 @@ namespace Monster
             std::weak_ptr<ParticleComponent>    _weakParticle;
 
             std::string _animationKey;
-
-            bool _isActionEnd = false;
+            float       _waitActionTime     = 0.0f;
+            bool        _waitAnimationEnd   = false;
+            bool        _waitActionTimeEnd  = false;
         };
     }
 }

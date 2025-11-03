@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "Monster/Action/MonsterActionBase.h"
+#include "Monster/Action/BossServant/MonsterBossServantAction.h"
 
 namespace Monster
 {
@@ -8,7 +8,7 @@ namespace Monster
         /// <summary>
         /// 전가
         /// </summary>
-        class Impute : public Base
+        class Impute : public BossServantAction
         {
             MONSTER_ACTION_DATA(210281)
         public:
@@ -16,10 +16,6 @@ namespace Monster
             ~Impute() override;
 
         private:
-            void OnActionEnter() override;
-            void OnActionUpdate() override;
-            void OnActionExit() override;
-            void OnActionReset() override;
             void OnNotifiedAnimationEvent(const Timeline::EventContext* context) override;
 
         private:

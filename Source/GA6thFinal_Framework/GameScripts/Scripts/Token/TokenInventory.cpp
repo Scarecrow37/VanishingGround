@@ -481,7 +481,7 @@ void TokenInventory::AddTokenStackFromID(int tokenID, int count /* = 1 */)
                     (const char*)u8" 에게 ",
                     token->GetTokenName(),
                     (const char*)u8" 토큰이 ",
-                    count,
+                    curStackCount.Get(),
                     (const char*)u8"개 부여되었습니다."
                 );
                 UmLogger.Log(LogLevel::LEVEL_TRACE, msg);
@@ -548,7 +548,7 @@ void TokenInventory::RemoveTokenStackFromID(int tokenID, int count /* = 1 */)
                     (const char*)u8"에게 ",
                     token->GetTokenName(),
                     (const char*)u8" 토큰이 ",
-                    count,
+                    curStackCount.Get(),
                     (const char*)u8"개 제거되었습니다."
                 );
                 UmLogger.Log(LogLevel::LEVEL_TRACE, msg);
@@ -693,8 +693,8 @@ void TokenInventory::DrawImGuiDebugData()
     if (TokenSystem* tokenSystem = GetTokenSystem())
     {
         const auto& instances = tokenSystem->GetTokenInstances();
-
-        ImGui::BeginChild("ValidTokenStack", ImVec2(0, 0), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY);
+        ImGui::Text("ValidTokenStack");
+        ImGui::BeginChild("##ValidTokenStack", ImVec2(0, 0), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY);
         for (size_t i = 0; i < _vaildTokenVector.size(); ++i)
         {
             TokenID     tokenID     = _vaildTokenVector[i];
@@ -767,6 +767,12 @@ void TokenInventory::DrawImGuiDebugData()
             ImGui::TreePop();
         }
     }
+    else
+    {
+        ImGuiHelper::StyleBuilder style;
+        style.PushStyleColor(ImGuiCol_Text, IM_COL32(255, 100, 100, 255));
+        ImGui::Text("null TokenSystem...");
+    }
 #endif
 }
 
@@ -783,7 +789,7 @@ void TokenInventory::UpdateToken(TokenID tokenID)
             if (it == _vaildTokenVector.end())
             {
                 _vaildTokenVector.push_back(tokenID);
-                NotifyTokenEnter(tokenID);
+                _owner.OnTokenEnter(tokenID);
             }
         }
         else
@@ -793,7 +799,7 @@ void TokenInventory::UpdateToken(TokenID tokenID)
             if (it != _vaildTokenVector.end())
             {
                 _vaildTokenVector.erase(it);
-                NotifyTokenExit(tokenID);
+                _owner.OnTokenExit(tokenID);
             }
         }
     }

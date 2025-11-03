@@ -216,7 +216,7 @@ void TurnMode::StartFrontTurnActor()
 
 void TurnMode::FinishCurrentTurn()
 {
-    if (false == _turnList.empty())
+    if (false != _turnList.empty())
     {
         _turnList.pop_front();
     }

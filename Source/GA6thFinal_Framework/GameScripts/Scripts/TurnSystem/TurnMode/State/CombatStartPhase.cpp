@@ -444,7 +444,10 @@ void CombatStartPhase::ReviveEnemies()
 {
     for (auto& enemy : _enemies)
     {
-        enemy->CharacterBase::Revive();
+        if (enemy)
+        {
+            enemy->Revive();
+        }
     }
 }
 
