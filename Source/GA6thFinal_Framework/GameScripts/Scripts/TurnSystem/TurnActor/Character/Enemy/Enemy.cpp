@@ -124,14 +124,6 @@ void Enemy::EndTurn()
 void Enemy::Revive() 
 {
     Base::Revive();
-    // 커스텀 액션 추가
-    if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
-    {
-        for (auto& action : _actions)
-        {
-            turnMode->AddTurnAction(action.get());
-        }
-    }
 }
 
 void Enemy::Dead()
@@ -140,11 +132,6 @@ void Enemy::Dead()
     if (auto turnMode = SingletonComponent<TurnMode>::GetInstance())
     {
         turnMode->ApplyActions([this](TurnAction& action) { action.OnEnemyDead(*this); });
-    }
-    // 커스텀 액션 제거
-    for (auto& action : _actions)
-    {
-        action->SetDestroy();
     }
 }
 

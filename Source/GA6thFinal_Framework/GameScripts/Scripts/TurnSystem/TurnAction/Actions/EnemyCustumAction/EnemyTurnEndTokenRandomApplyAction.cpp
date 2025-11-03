@@ -54,7 +54,7 @@ void EnemyTurnEndTokenRandomApplyAction::UpdateActionInfo()
     {
         tokenName = STR_NULL;
     }
-    _actionInfo = (const char*)u8"전투 시작시 ";
+    _actionInfo = (const char*)u8"턴 종료 시 ";
     _actionInfo += std::format("{}{}{}{}{}{}{}", (const char*)u8"자신에게 ", tokenName, (const char*)u8"토큰 ",
                                tokenCountMin, " ~ ", tokenCountMax, (const char*)u8"개 부여");
 }

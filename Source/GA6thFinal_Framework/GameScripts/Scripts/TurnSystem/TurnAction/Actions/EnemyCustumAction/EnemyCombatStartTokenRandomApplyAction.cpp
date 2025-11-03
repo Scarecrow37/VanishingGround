@@ -54,7 +54,7 @@ void EnemyCombatStartTokenRandomApplyAction::UpdateActionInfo()
     {
         tokenName = STR_NULL;
     }
-    _actionInfo = (const char*)u8"전투 시작시 ";
+    _actionInfo = (const char*)u8"전투 시작 시 ";
     _actionInfo += std::format("{}{}{}{}{}{}{}", 
         (const char*)u8"자신에게 ",
         tokenName, 
