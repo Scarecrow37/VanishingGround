@@ -7,12 +7,12 @@ TransformNameTracker::TransformNameTracker() = default;
 TransformNameTracker::~TransformNameTracker() = default;
 
 
-void TransformNameTracker::Added() 
+void TransformNameTracker::Awake() 
 {
     if (UmCore->IsPlay())
     {
         if (auto target = GameObject::Find(Name).lock())
-        {
+        {        
             transform->SetWorldMatrix(target->transform->GetWorldMatrix());
         }
     }

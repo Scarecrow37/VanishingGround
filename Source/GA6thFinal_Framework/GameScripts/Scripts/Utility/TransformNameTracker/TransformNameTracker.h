@@ -19,6 +19,6 @@ protected:
     std::string Name;
     REFLECT_FIELDS_END(TransformNameTracker)
 
-    void Added() override;
+    void Awake() override;
 };
 
