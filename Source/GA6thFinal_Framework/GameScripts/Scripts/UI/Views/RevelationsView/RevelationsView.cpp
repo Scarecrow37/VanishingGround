@@ -106,7 +106,7 @@ void RevelationsView::Start()
                         {
                             if (_revelationUis[extinctionIndex].AnimationsController)
                             {
-                                _revelationUis[extinctionIndex].AnimationsController->EnableAnimation(extinctionIndex, false);
+                                _revelationUis[extinctionIndex].AnimationsController->EnableAnimation(4, false);
                             }
                         }
                         ++extinctionIndex;
