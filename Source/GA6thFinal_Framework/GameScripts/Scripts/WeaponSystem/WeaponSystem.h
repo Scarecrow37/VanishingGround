@@ -87,6 +87,13 @@ public:
     /// </summary>
     void RollRandomSpeed();
 
+    /// <summary>
+    /// 현재 장착중인 무기들중 특정 타입 갯수를 반환합니다.
+    /// </summary>
+    /// <param name="type">: 확인할 타입</param>
+    /// <returns></returns>
+    int GetEquipWeaponTypeCount(WeaponType type);
+
 protected:
     REFLECT_FIELDS_BEGIN(Component)
     std::array<std::string, EQUIP_WEAPONS_SIZE> EquipWeaponsData;

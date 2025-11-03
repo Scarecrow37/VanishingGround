@@ -63,6 +63,9 @@ protected:
 
     void OnPlayerBattleCalculateDamageModifier(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats, Enemy& target,
                              EnemyStats& targetStats) override;
+
+    void OnConvertWeaponViewModel(WeaponStats& stats) override;
+
 private:
     void UpdateActionInfo();
     std::string _actionInfo; 

@@ -3,11 +3,6 @@
 #include "Token/TokenSystem.h"
 #include "TurnSystem/TurnSystemHelper.h"
 
-TokenApplyAction::TokenApplyAction() 
-{
-    ReflectFields->TokenID = TokenObject::Bleed::ID;
-}
-
 REFLECT_FUNCTION(TokenApplyAction)
 
 void TokenApplyAction::ImGuiDrawPropertysEvent()
