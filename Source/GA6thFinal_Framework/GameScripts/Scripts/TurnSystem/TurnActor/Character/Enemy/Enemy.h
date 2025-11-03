@@ -100,8 +100,9 @@ public:
     void SetMonsterHUD(GameObject* HUD);
 
 private:
-    GameObject* _monsterHUD = nullptr;
-    bool        _isCriticalDamage = false;
+    std::unordered_map<int, GameObject*> _tokenHUDTable;
+    GameObject*                          _monsterHUD       = nullptr;
+    bool                                 _isCriticalDamage = false;
 
 protected:
     void Awake() override;
@@ -124,6 +125,10 @@ private:
     void OnTokenEnter(int tokenID) override;
     void OnTokenExit(int tokenID) override;
     void OnNotifiedAnimationEvent(const Timeline::EventContext* context) override;
+
+private:
+    void RegisterTokenHUD(int tokenID);
+    void UnregisterTokenHUD(int tokenID);
 
 private:
     void ShowActionEditor();
