@@ -95,7 +95,11 @@ float BattleIntroUIController::PlayIntro(int stage, int battleCount)
         {
             fadeOutDuration = framesController->FadeDuration;
         }
-        UmTime.Invoke(this, totalDuration, [this]() {
+        UmTime.Invoke(this, totalDuration, [this]() 
+        {
+            // 사라질때 소리 재생
+            UmAudio.Play("-411000");
+
             if (auto framesController = _framesController.lock())
             {
                 framesController->FadeOut();
@@ -113,7 +117,8 @@ float BattleIntroUIController::PlayIntro(int stage, int battleCount)
             duration        = roundsController->GetFadeDurationWithTag("Round 3");
             fadeOutDuration = std::max(fadeOutDuration, duration);
         }
-        UmTime.Invoke(this, totalDuration, [this]() {
+        UmTime.Invoke(this, totalDuration, [this]() 
+        {
             if (auto roundsController = _roundsController.lock())
             {
                 roundsController->FadeOutWithTag("Round 1");
@@ -127,7 +132,8 @@ float BattleIntroUIController::PlayIntro(int stage, int battleCount)
             float duration = stagesController->GetFadeDurationWithTag(stageTag);
             fadeOutDuration = std::max(fadeOutDuration, duration);
         }
-        UmTime.Invoke(this, totalDuration, [this, stageTag]() {
+        UmTime.Invoke(this, totalDuration, [this, stageTag]() 
+        {
             if (auto stagesController = _stagesController.lock())
             {
                 stagesController->FadeOutWithTag(stageTag);

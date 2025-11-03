@@ -145,14 +145,15 @@ void CombatStartPhase::OnAwake()
     RegisterEnemiesHUD();
     RegisterEnemiesHP();
     RegisterEnemiesChain();
-    ReviveEnemies();
-    ResetPlayer();
     RefreshUI();
 }
 
 void CombatStartPhase::OnStart() 
 {
     TurnModeStateBase::OnStart();
+    AddValidActions();
+    ReviveEnemies();
+    ResetPlayer();
 }
 void CombatStartPhase::OnEnter() 
 {
@@ -181,16 +182,15 @@ void CombatStartPhase::OnEnter()
     }
 
     _turnMode->ResetRoundCount();
-    AddValidActions();
     AddExtinctionRevelation();
 
-    NotifyCombatStart();
     Battle::ResetLastCharacter();
-
     if (RevelationSystem* system = SingletonComponent<RevelationSystem>::GetInstance())
     {
         system->FindRevelationsView();
     }
+
+    NotifyCombatStart();
 }
 
 void CombatStartPhase::OnExit() 

@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <TurnSystem/TurnAction/Actions/TokenApplyAction/Base/TokenApplyAction.h>
 
-//체력 잃을때 토큰 부여
+//플레이어 체력 잃을때 토큰 부여
 class TakeDamageEndTokenApplyAction : public TokenApplyAction
 {
     USING_PROPERTY(TakeDamageEndTokenApplyAction)
@@ -19,18 +19,15 @@ private:
     std::string _actionInfo;
 
 protected:
-    /// <summary>
-    /// 플레이어에 TakeDamage가 들어간 후 호출됩니다.
-    /// </summary>
-    /// <param name="target :">>대상</param>
-    /// <param name="damage :">들어간 데미지</param>
-    virtual void OnPlayerTakeDamageEnd(Player& target, int damage) override;
+    REFLECT_PROPERTY(ReflectFields->OnlyAttackDamage)
 
-    /// <summary>
-    /// Enemy에 TakeDamage가 들어가기 직전에 호출됩니다.
-    /// </summary>
-    /// <param name="target :">대상</param>
-    /// <param name="damage :">들어갈 데미지</param>
-    virtual void OnEnemyTakeDamageEnd(Enemy& target, int damage) override;
+    REFLECT_FIELDS_BEGIN(TokenApplyAction)
+    bool OnlyAttackDamage = false;
+    REFLECT_FIELDS_END(TakeDamageEndTokenApplyAction)
+
+    void OnPlayerTakeDamageEnd(Player& target, int damage) override;
+
+    void OnEnemyBattleCalculateDamageModifier(Enemy& attacker, EnemyStats& attackerStats, Player& target,
+                                              PlayerStats& targetStats) override;
 
 };

@@ -6,6 +6,7 @@
 #include "ItemDropSystem/ItemDropSystem.h"
 #include "ViewModels/ItemDrop/DropArtifacts/DropArtifactsViewModel.h"
 #include "ItemDropSystem/UINavi/ArtifactButtonNavi.h"
+#include "AccessorySystem/AccessorySystem.h"
 
 UMREAL_COMPONENT(ArtifactUIManager)
 
@@ -223,6 +224,17 @@ void ArtifactUIManager::ImageUIUnlock()
         return startIndex + 1;
     };
 
+    auto IsOdd = [](int num)
+    { 
+        return (num % 2) != 0;
+    };
+
+    bool lockOddArtifact = false;
+    if (AccessorySystem* system = SingletonComponent<AccessorySystem>::GetInstance())
+    {
+        lockOddArtifact = system->HasPlayerAccessory(203201);
+    }
+
     if (ItemDropSystem* system = SingletonComponent<ItemDropSystem>::GetInstance())
     {
         int clearCount = system->StageClearCount;
@@ -263,15 +275,17 @@ void ArtifactUIManager::ImageUIUnlock()
             {
                 if (ItemDropSystem* dropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
                 {
-                    if (false == dropSystem->IsObtainArtifact(i))
+                    bool isOddIndex = IsOdd(i);
+                    if (dropSystem->IsObtainArtifact(i) || (lockOddArtifact && isOddIndex))
                     {
-                        navi->Enable = true;
-                        iconImage->Alpha = 1.0f;
+                        navi->Enable     = false;
+                        iconImage->Alpha = 0.5f;
                     }
                     else
                     {
-                        navi->Enable = false;
-                        iconImage->Alpha = 0.5f;
+
+                        navi->Enable     = true;
+                        iconImage->Alpha = 1.0f;
                     }
                 }
             }       
@@ -282,7 +296,8 @@ void ArtifactUIManager::ImageUIUnlock()
             ImageElement* iconImage  = _iconElements[i];
             if (ItemDropSystem* dropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
             {
-                if (dropSystem->IsObtainArtifact(i))
+                bool isOddIndex = IsOdd(static_cast<int>(i));
+                if (dropSystem->IsObtainArtifact(i) || (lockOddArtifact && isOddIndex))
                 {
                     frameImage->SetImage(GetObtainFrameGuid());
                     iconImage->Alpha = 0.5f;

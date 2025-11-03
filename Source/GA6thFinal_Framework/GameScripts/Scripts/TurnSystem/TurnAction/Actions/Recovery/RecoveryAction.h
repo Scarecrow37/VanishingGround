@@ -12,6 +12,7 @@ public:
     {
         WEAPON_KILL_ENEMY,  // 무기 공격으로 적 처치 시
         ATTACK,             // 공격할 때마다
+        EQUIP_ACCESSORY,    // 악세서리로 장착될때
     };
 
     enum class Unit
@@ -72,7 +73,12 @@ private:
     void ProcessHeal();
     void ProcessHeal(CharacterBase* target);
 
+    void OnEnemyDeadByWeapon(Enemy& enemy, WeaponElement& weapon) override;
+
     void OnPlayerBattleCalculateDamageModifier(Player& attacker, PlayerStats& attackerStats, WeaponStats& weaponStats,
                                                Enemy& target, EnemyStats& targetStats) override;
+
+    void OnEquipAccessory() override;
+
     std::string         _actionInfo;
 };

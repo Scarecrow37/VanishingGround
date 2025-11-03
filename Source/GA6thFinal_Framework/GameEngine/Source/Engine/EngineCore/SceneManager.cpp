@@ -2075,6 +2075,32 @@ bool CheckReadyResource(T& resource)
     return true;
 }
 
+template <>
+bool CheckReadyResource(ESceneManager::SceneResourceManager::RenderResource<Model>& resource)
+{
+    for (auto& [path, resource] : resource.RenderResource)
+    {
+        if (false == resource->IsValid())
+            return false;
+
+        //TODO: 씬 리소스 로드 대기해야 하는데 안대요
+        /*
+        for (auto& textures : resource->GetTextures())
+        {
+            for (auto& texture : textures)
+            {
+                if (nullptr == texture)
+                    return false;
+
+                if (false == texture->IsValid())
+                    return false;                   
+            }
+        }
+        */
+    }
+    return true;
+}
+
 bool ESceneManager::SceneResourceManager::CheckAllResourceLoad()
 {
     if (false == CheckReadyResource(_models))
