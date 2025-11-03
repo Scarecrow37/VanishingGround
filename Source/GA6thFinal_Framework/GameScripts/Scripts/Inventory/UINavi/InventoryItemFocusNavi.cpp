@@ -12,6 +12,7 @@ InventoryItemFocusNavi::InventoryItemFocusNavi()
     _itemInfo.ID       = 0;
     _itemInfo.Name     = STR_NULL;  
 
+    SetFocusInAudioID("-901001");
 }
 InventoryItemFocusNavi::~InventoryItemFocusNavi() = default;
 

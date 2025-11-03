@@ -9,6 +9,7 @@
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include <Particle/ParticleComponent.h>
 #include <PlayerSystem/PlayerSystem.h>
+#include "AccessorySystem/AccessorySystem.h"
 
 //Condition
 #include "Condition/PlayerStartCondition.h"
@@ -116,11 +117,26 @@ void Player::TakeDamage(int damage, const bool playAnim)
         turnMode->ApplyActions([&](TurnAction& action) { action.OnPlayerTakeDamageStart(*this, damage); });
     }
     int takeDamage = damage;
+
+    //인내의 가루 효과 그냥 강제 적용
+    if (AccessorySystem* system = SingletonComponent<AccessorySystem>::GetInstance())
+    {
+        if (system->HasPlayerAccessory(203011))
+        {
+            takeDamage = std::min(takeDamage, 20);
+        }
+    }
+
     Base::TakeDamage(takeDamage, playAnim);
     ShowDamage(damage, {});
     if (turnMode)
     {
         turnMode->ApplyActions([&](TurnAction& action) { action.OnPlayerTakeDamageEnd(*this, damage); });
+    }
+
+    if (ParticleComponent* particle = GetParticleComponent())
+    {
+        particle->PlayEffect("gethit");
     }
 }
 
@@ -273,6 +289,16 @@ void Player::OnTokenAdded(const int tokenID)
 void Player::OnTokenRemoved(const int tokenID)
 {
     Base::OnTokenRemoved(tokenID);
+}
+
+void Player::OnTokenEnter(int tokenID)
+{
+    Base::OnTokenEnter(tokenID);
+}
+
+void Player::OnTokenExit(int tokenID)
+{
+    Base::OnTokenExit(tokenID);
 }
 
 void Player::OnQTEStart() 

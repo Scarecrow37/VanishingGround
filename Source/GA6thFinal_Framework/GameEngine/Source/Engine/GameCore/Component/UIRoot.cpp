@@ -197,6 +197,9 @@ void UIRoot::UpdateNavigation(const Input::Controller& controller)
             UINavigationComponent* currentCheckUINavigationComponent = _currentFocusNavigation;
             for (unsigned int tryCount = 0; tryCount < MAX_NAVIGATION_LOOP_COUNT; ++tryCount)
             {
+                if (nullptr == currentCheckUINavigationComponent)
+                    break;
+
                 const NavigationID navigationID = currentCheckUINavigationComponent->GetNavigatedId(navigationKey);
                 if (navigationID == INVALID_NAVIGATION_ID)
                     break;

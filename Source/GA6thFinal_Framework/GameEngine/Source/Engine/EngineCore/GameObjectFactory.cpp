@@ -17,14 +17,12 @@ void EGameObjectFactory::Engine::RegisterFileEvents()
 void EGameObjectFactory::Engine::Finalize()
 {
     EGameObjectFactory& factory = UmGameObjectFactory;
+    factory._prefabInstanceOverride.clear();
+    factory._prefabGuidQueue.clear();
     factory._prefabObjectMap.clear();
     factory._prefabInstanceList.clear();
     factory._newGameObjectFuncMap.clear();
     factory._newGameObjectKeyVec.clear();
-    factory._prefabObjectMap.clear();
-    factory._prefabGuidQueue.clear();
-    factory._prefabInstanceList.clear();
-    factory._prefabInstanceOverride.clear();
 }
 
 void EGameObjectFactory::WritePrefabGuid(const File::Path& path, YAML::Node& data) 
@@ -917,6 +915,7 @@ std::shared_ptr<GameObject> EGameObjectFactory::MakeGameObject(std::string_view 
     }
     else
     {
+        newObject = nullptr;
         std::string message = std::format("{}{}", typeid_name, u8"는 존재하지 않는 오브젝트 타입입니다."_c_str);
         UmLogger.Log(LogLevel::LEVEL_ERROR, message);
     }

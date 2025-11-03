@@ -19,7 +19,6 @@ QTEUIManager::~QTEUIManager() = default;
 
 void QTEUIManager::OnQTEEnter() 
 {
-    ResetUI();
     _fieldUI.Active(true);
     _guideUI.Active(true);
     _inputViewerUI.Active(true);
@@ -94,22 +93,39 @@ void QTEUIManager::OnQTEPlay()
             const float travelTime  = system->NoteTravelTime;
             const float currTime    = system->CurrentTrackTime;
             const float currSpeed   = system->ScaledSpeedFactor;
-            const SIZE  panelSize   = _overlayPanel->Size;
             const POINT overlayPoint= _fieldUI.Overlay->Point;
             const SIZE  overlaySize = _fieldUI.Overlay->Size;
             const POINT judgeCenter = _fieldUI.JudgeNote->CenterPoint;
-            const SIZE  judgeSize   = _fieldUI.JudgeNote->Size;
 
             const float perfectX    = static_cast<float>(judgeCenter.x);
             const float startX      = static_cast<float>(overlayPoint.x);
             const float endX        = static_cast<float>(overlaySize.cx);
 
+
+            // 페이드 x좌표 구하기... 일단 하드코딩
+            float fadeInStartX = system->GetCurrentFadeState().FadeInStartXFactor;
+            float fadeInEndX   = system->GetCurrentFadeState().FadeInEndXFactor;
+            fadeInStartX *= static_cast<float>(overlaySize.cx);
+            fadeInStartX += startX;
+            fadeInEndX *= static_cast<float>(overlaySize.cx);
+            fadeInEndX += startX;
+
+            float fadeOutStartX = system->GetCurrentFadeState().FadeOutStartXFactor;
+            float fadeOutEndX   = system->GetCurrentFadeState().FadeOutEndXFactor;
+            fadeOutEndX *= static_cast<float>(overlaySize.cx);
+            fadeOutEndX += startX;
+            fadeOutStartX *= static_cast<float>(overlaySize.cx);
+            fadeOutStartX += startX;
             for (auto& [id,_] : _activedPoolIndices)
             {
                 int index = GetIndexFromNoteID(id);
                 if (index >= 0)
                 {
-                    _fieldUI.NotePool[index].Update(currTime, travelTime, currSpeed, startX, endX, perfectX, 0.0f);
+                    _fieldUI.NotePool[index].Update(currTime, travelTime, currSpeed,
+                                                    startX, endX, perfectX, 
+                                                    fadeInStartX, fadeInEndX, 
+                                                    fadeOutStartX, fadeOutEndX, 
+                                                    0.0f);
                 }
             }
         }
@@ -205,12 +221,7 @@ void QTEUIManager::Start()
     size_t poolSize = static_cast<size_t>(ReflectFields->PoolSize);
     _fieldUI.Initialize(ReflectFields->NotePrefabGuid, ReflectFields->EffectPrefabGuid, poolSize);
     _inputViewerUI.Initialize(ReflectFields->ButtonPrefabGuid, poolSize);
-    ResetUI();
-    _backGroundUI.Alpha(0.0f);
-    _backGroundUI.Active(true);
-    _fieldUI.Active(false);
-    _guideUI.Active(false);
-    _inputViewerUI.Active(false);
+    SetDefaultState();
 }
 
 void QTEUIManager::Update() 
@@ -323,6 +334,16 @@ void QTEUIManager::DrawDebugJudgeLine()
             }
         }
     }
+}
+
+void QTEUIManager::SetDefaultState()
+{
+    ResetUI();
+    _backGroundUI.Alpha(0.0f);
+    _backGroundUI.Active(true);
+    _fieldUI.Active(false);
+    _guideUI.Active(false);
+    _inputViewerUI.Active(false);
 }
 
 void QTEUIManager::FindUIComponents()

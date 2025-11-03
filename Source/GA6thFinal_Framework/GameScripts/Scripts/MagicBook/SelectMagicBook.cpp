@@ -21,7 +21,7 @@ SelectMagicBook::SelectMagicBook()
 
                 if (extension == L".png")
                 {
-                    ReflectFields->FocusImagePath = path.string();
+                    ReflectFields->FocusImageGuid = data->GetGuid().string();
                 }
             }
             ImGui::EndDragDropTarget();
@@ -39,7 +39,7 @@ SelectMagicBook::SelectMagicBook()
 
                 if (extension == L".png")
                 {
-                    ReflectFields->UnFocusImagePath = path.string();
+                    ReflectFields->UnFocusImageGuid = data->GetGuid().string();
                 }
             }
             ImGui::EndDragDropTarget();
@@ -70,7 +70,7 @@ void SelectMagicBook::FocusIn(FocusCallType callType)
 
         if ("Book" == objectName)
         {
-            ChangeBookImage(gameObject, ReflectFields->FocusImagePath);
+            ChangeBookImage(gameObject, ReflectFields->FocusImageGuid);
         }
         else if ("Title" == objectName)
         {
@@ -106,7 +106,7 @@ void SelectMagicBook::FocusOut(FocusCallType callType)
 
         if ("Book" == objectName)
         {
-            ChangeBookImage(gameObject, ReflectFields->UnFocusImagePath);
+            ChangeBookImage(gameObject, ReflectFields->UnFocusImageGuid);
         }
         else if ("Title" == objectName)
         {
@@ -129,7 +129,6 @@ void SelectMagicBook::FocusOut(FocusCallType callType)
 void SelectMagicBook::Submit()
 {
     Base::Submit();
-
     if (auto object = GameObject::Find("Select Popup").lock())
     {
         object->SetActive(true);
@@ -149,7 +148,7 @@ void SelectMagicBook::Submit()
                     std::string_view title = dataBase->FindData(rowIndex, u8"Content");
                     if (title != dataBase->FIND_STR_FAIL)
                     {
-                        popup->SetSelectMagicBook(ReflectFields->FocusImagePath, title.data(), this);
+                        popup->SetSelectMagicBook(ReflectFields->FocusImageGuid, title.data(), this);
                         popup->Focus();
                     }
                 }
@@ -192,11 +191,11 @@ void SelectMagicBook::ImGuiDrawPropertysEvent()
     }
 }
 
-void SelectMagicBook::ChangeBookImage(GameObject& targetGameObject, const std::string& imagePath)
+void SelectMagicBook::ChangeBookImage(GameObject& targetGameObject, const File::Guid& imgaeGuid)
 {
     if (auto imageElement = targetGameObject.GetComponent<ImageElement>())
     {
-        imageElement->SetImage(UmFileSystem.GetGuidFromPath(imagePath));
+        imageElement->SetImage(imgaeGuid);
     }
 }
 

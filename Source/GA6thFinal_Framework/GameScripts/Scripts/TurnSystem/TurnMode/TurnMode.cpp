@@ -7,6 +7,7 @@
 #include "TurnSystem/TurnAction/Condition/RoundOnceCondition/RoundOnceCondition.h"
 #include "TurnSystem/TurnAction/TurnAction.h"
 #include "RoundInfoUI/RoundInfoUIManager.h"
+#include "Camera/UmCineMotion.h"
 
 //Condition
 #include "GameCore/FSM/AlwaysTransitionCondition.h"
@@ -54,12 +55,7 @@ TurnMode::TurnMode()
 }
 TurnMode::~TurnMode()
 {
-    if (_singletonComponent.IsSingleTon())
-    {
-        _turnList.Reset();
-        UmWatcher.Unregister<TurnQueueViewModel>("Turn Queue");
-        UmWatcher.Unregister<WeaponViewModel>("Weapon");
-    }
+
 }
 
 Player* TurnMode::GetPlayer()
@@ -133,21 +129,43 @@ void TurnMode::MakeTurnList()
             }
         }
     }
-
-    _turnList = std::move(turnList);
-}
-
-void TurnMode::SortTurnList()
-{
-    if (false == _turnList.empty())
+    
+    std::erase_if(turnList, [](std::pair<int, TurnActor*>& pair) 
     {
-        _turnList.shuffle(Random::GetEngine());
-        _turnList.sort([this](const std::pair<int, TurnActor*>& turnSlotA, const std::pair<int, TurnActor*>& turnSlotB) {
+        auto& [slot, actor] = pair;
+        if (actor)
+        {
+            return actor->IsDead();
+        }
+        return true;
+    });
+
+    if (false == turnList.empty())
+    {
+        std::ranges::shuffle(turnList, Random::GetEngine());
+        std::ranges::sort(turnList, 
+            [this](const std::pair<int, TurnActor*>& turnSlotA, const std::pair<int, TurnActor*>& turnSlotB) {
             const int speedA = GetRealRoundSpeed(turnSlotA);
             const int speedB = GetRealRoundSpeed(turnSlotB);
             return speedA > speedB;
-        });
+            });
     }
+
+    _playerWeaponCounter = 0;
+    _turnList = std::move(turnList);
+}
+
+void TurnMode::EraseTurnListToDeadCharacter() 
+{
+    _turnList.erase_if([](std::pair<int, TurnActor*>& pair) 
+    {
+        auto& [slot, actor] = pair;
+        if (actor)
+        {
+            return actor->IsDead();
+        }
+        return true;
+    });
 }
 
 void TurnMode::StartFrontTurnActor()
@@ -188,6 +206,7 @@ void TurnMode::StartFrontTurnActor()
                 {
                     UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Weapon System이 존재하지 않습니다.");
                 }
+                ++_playerWeaponCounter;
             }
             _currTurnActor = actorSlot.second;
         });
@@ -317,6 +336,23 @@ void TurnMode::Awake()
     }
     BuildTurnModeFSM();
     AddRoundOnceActions();
+    FindCameras();
+    
+}
+
+void TurnMode::OnDestroy() 
+{
+    if (_singletonComponent.IsSingleTon())
+    {
+        _turnList.Reset();
+        UmWatcher.Unregister<TurnQueueViewModel>("Turn Queue");
+        UmWatcher.Unregister<WeaponViewModel>("Weapon");
+
+        ApplyActions([this](TurnAction& action)
+        {
+            action.SetDestroy();
+        });
+    }
 }
 
 void TurnMode::ImGuiDrawPropertysEvent() 
@@ -409,6 +445,35 @@ void TurnMode::ImGuiDrawPropertysEvent()
             }                            
         }
         ImGui::TreePop();
+    }
+}
+
+void TurnMode::FindCameras() 
+{
+    if (auto group = GameObject::FindWithTag("Camera Group").lock())
+    {
+        std::vector<GameObject*> cameras = group->transform->FindBFSwithTag("Camera");    
+        for (size_t i = 0; i < cameras.size(); ++i)
+        {
+            GameObject* object = cameras[i];
+            if (object)
+            {
+                if (i == 0)
+                {
+                    if (UmCineMotion* motion = object->GetComponent<UmCineMotion>())
+                    {
+                        _introCamera = motion->GetWeakPtrAs<UmCineMotion>();
+                    }                 
+                }
+                else if (i == 1)
+                {
+                    if (UmCineMotion* motion = object->GetComponent<UmCineMotion>())
+                    {
+                        _battleCamera = motion->GetWeakPtrAs<UmCineMotion>();
+                    }  
+                }
+            }
+        }
     }
 }
 

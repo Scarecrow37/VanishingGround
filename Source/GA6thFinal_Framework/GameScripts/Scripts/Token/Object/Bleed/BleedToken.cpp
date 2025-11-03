@@ -3,6 +3,7 @@
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <Token/TokenInventory.h>
+#include <Particle/ParticleComponent.h>
 
 namespace TokenObject
 {
@@ -27,7 +28,7 @@ namespace TokenObject
         }
         return false;
     }
-    void Bleed::OnRoundStart(CharacterBase* owner)
+    void Bleed::OnTurnStart(CharacterBase* owner)
     {
         if (owner)
         {
@@ -38,7 +39,13 @@ namespace TokenObject
                 int param  = GetTokenParam(0);
                 int damage = param * stackCount;
                 UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(*owner));
-                owner->TakeDamage(damage);
+                TakeDamage(owner, damage);
+
+                // 이펙트 출력
+                if (ParticleComponent* particle = owner->GetParticleComponent())
+                {
+                    particle->PlayEffect("bleed");
+                }
             }
             tokenInventory.RemoveTokenStackFromID(ID);
         }

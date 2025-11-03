@@ -15,6 +15,7 @@ protected:
     void OnStart() override;
 
     void UpdateCharacterDead(const std::function<void(CharacterBase&)>& deadCallback = std::function<void(CharacterBase&)>());
+    void ApplyReduceHP();
 
 protected:
     class TurnMode* _turnMode = nullptr;

@@ -104,6 +104,8 @@ public:
     void OnKill(CharacterBase* destination) override;
     void OnTokenAdded(int tokenID) override;
     void OnTokenRemoved(int tokenID) override;
+    void OnTokenEnter(int tokenID) override;
+    void OnTokenExit(int tokenID) override;
     void OnQTEStart() override;
     void OnQTEEnd() override;
     void OnNotifiedAnimationEvent(const Timeline::EventContext* context) override;

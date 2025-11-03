@@ -5,9 +5,11 @@
 #include "ViewModels/Revelations/RevelationsViewModel.h"
 #include "UI/Views/RevelationsView/RevelationsView.h"
 #include "UI/Animations/ChildsAnimationsController/ChildsAnimationsController.h"
+#include "TurnSystem/TurnAction/Condition/ChainCondition/ChainCondition.h"
 
 #include <TurnSystem/TurnAction/TurnActionFactory.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
+#include "TurnSystem/TurnAction/TurnAction.h"
 
 #include "ExcelDataSystem/ExcelDataSystem.h"
 
@@ -56,6 +58,14 @@ const std::shared_ptr<RevelationElement>& RevelationSystem::PushBackRevelation(c
 
 void RevelationSystem::EquipRandomExtinctionElement(size_t count)
 {
+    if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+    {
+        mode->ApplyActions([&count](TurnAction& action) 
+        {
+            action.OnRandomExtinctionPushPlayer(count);
+        });
+    }
+
     if (count < 1)
         return;
 
@@ -153,7 +163,7 @@ void RevelationSystem::RollRoundElement()
             {
                 std::weak_ptr<RevelationElement> weakElement = element;
                 TurnAction& action = element->GetAction();
-                action.OnActionActive = [weakElement, this, i]() 
+                auto ActionActiveCallback = [weakElement, this, i]() 
                 { 
                     if (auto element = weakElement.lock())
                     {
@@ -168,7 +178,18 @@ void RevelationSystem::RollRoundElement()
                             {
                                 if (uis[i].AnimationsController)
                                 {
-                                    uis[i].AnimationsController->StartAnimation(i);
+                                    RevelationGrade garde = element->Grade;
+                                    uis[i].AnimationsController->StartAnimation(static_cast<size_t>(garde));
+                                    if (garde != RevelationGrade::EXTINCTION)
+                                    {
+                                        //일반 계시 발동 소리
+                                        UmAudio.Play("-401000");
+                                    }
+                                    else
+                                    {
+                                        //소멸 계시 발동 소리
+                                        UmAudio.Play("-401010");
+                                    }
                                 }
                             }
                         }
@@ -179,6 +200,34 @@ void RevelationSystem::RollRoundElement()
                         mode->RevelationActiveFlag = true;
                     }
                 };
+
+                if (element->RevelationID != 202044)
+                {
+                    action.OnActionActive = ActionActiveCallback;
+                }
+                else
+                {
+                    // 엉성한 응급조치만 특수 처리
+                    action.OnActionActive = [ActionActiveCallback, weakElement, revelation = element.get()]()
+                    { 
+                        ActionActiveCallback();
+                        if (false == weakElement.expired())
+                        {
+                            if (revelation->IsAction())
+                            {
+                                TurnAction& action = revelation->GetAction();
+                                for (auto& condition : action.GetConditions())
+                                {
+                                    if (condition && typeid(*condition) == typeid(ChainCondition))
+                                    {
+                                        ChainCondition* chainCondition = static_cast<ChainCondition*>(condition.get());
+                                        ++chainCondition->ReflectFields->Value1;
+                                    }
+                                }
+                            }
+                        }
+                    };
+                }        
                 _turnMode->AddTurnAction(&action);
             }
         }
@@ -261,6 +310,15 @@ RevelationElement* RevelationSystem::FindElementWithID(std::u8string_view id)
     return nullptr;
 }
 
+std::string RevelationSystem::SaveElementTable()
+{
+    ElementsToElementDatas();
+    ActionsToActionDatas();
+    std::string result = rfl::json::write(std::pair{rfl::json::write(ReflectFields->RevelationElementDatas),
+                                                    rfl::json::write(ReflectFields->RevelationActionDatas)});
+    return result;
+}
+
 static ReflectHelper::ImGuiDraw::InputAutoSetting InitSetting()
 {
     ReflectHelper::ImGuiDraw::InputAutoSetting setting;
@@ -268,7 +326,29 @@ static ReflectHelper::ImGuiDraw::InputAutoSetting InitSetting()
     return setting;
 }
 
-void RevelationSystem::FindRevelationsView() 
+bool RevelationSystem::LoadElementTable(std::string_view data)
+{
+    auto result = rfl::json::read<std::pair<std::string, std::string>>(data.data());
+    if (result)
+    {
+        auto& [elementData, actionData] = result.value();
+        auto element                    = rfl::json::read<ElementDataType>(elementData.data());
+        if (element)
+        {
+            ReflectFields->RevelationElementDatas = element.value();
+            ElementDatasToElements();
+        }
+        auto action = rfl::json::read<ActionDataType>(actionData.data());
+        if (action)
+        {
+            ReflectFields->RevelationActionDatas = action.value();
+            ActionDatasToActions();
+        }
+    }
+    return result;
+}
+
+void RevelationSystem::FindRevelationsView()
 {
     _revelationsView = GameObject::FindComponentWithTag<RevelationsView>(RevelationsView::TAG);
 }

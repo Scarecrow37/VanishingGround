@@ -43,66 +43,136 @@ void ChildsAnimationsController::FindAnimations()
     }
 }
 
-void ChildsAnimationsController::FadeIn(size_t index) 
+void ChildsAnimationsController::Begin(size_t index) 
+{
+    if (index < _fadeUIs.size())
+    {
+        _fadeUIs[index]->Begin();
+    }
+}
+
+void ChildsAnimationsController::BeginWithTag(const std::string& tag) 
+{
+    if (auto findIter = _fadeUIsWithTag.find(tag); findIter != _fadeUIsWithTag.end())
+    {
+        for (auto& fadeUI : findIter->second)
+        {
+            fadeUI->Begin();
+        }
+    }
+}
+
+float ChildsAnimationsController::FadeIn(size_t index) 
 {
     if (index < _fadeUIs.size())
     {
         _fadeUIs[index]->FadeIn();
+        return _fadeUIs[index]->FadeDuration;
+    }
+    return 0.f;
+}
+
+float ChildsAnimationsController::FadeInWithTag(const std::string& tag)
+{
+    if (auto findIter = _fadeUIsWithTag.find(tag); findIter != _fadeUIsWithTag.end())
+    {
+        float maxDuration = 0.f;
+        for (auto& fadeUI : findIter->second)
+        {
+            fadeUI->FadeIn();
+            maxDuration = std::max(maxDuration, (float)fadeUI->FadeDuration);
+        }
+        return maxDuration;
+    }
+    return 0.f;
+}
+
+void ChildsAnimationsController::End(size_t index) 
+{
+    if (index < _fadeUIs.size())
+    {
+        _fadeUIs[index]->End();
     }
 }
 
-void ChildsAnimationsController::FadeInWithTag(std::string_view tag)
+void ChildsAnimationsController::EndWithTag(const std::string& tag) 
 {
     if (auto findIter = _fadeUIsWithTag.find(tag); findIter != _fadeUIsWithTag.end())
     {
         for (auto& fadeUI : findIter->second)
         {
-            fadeUI->FadeIn();
+            fadeUI->End();
         }
     }
 }
 
-void ChildsAnimationsController::FadeOut(size_t index) 
+float ChildsAnimationsController::FadeOut(size_t index)
 {
     if (index < _fadeUIs.size())
     {
         _fadeUIs[index]->FadeOut();
+        return _fadeUIs[index]->FadeDuration;
     }
+    return 0.f;
 }
 
-void ChildsAnimationsController::FadeOutWithTag(std::string_view tag)
+float ChildsAnimationsController::FadeOutWithTag(const std::string& tag)
 {
     if (auto findIter = _fadeUIsWithTag.find(tag); findIter != _fadeUIsWithTag.end())
     {
+        float maxDuration = 0.f;
         for (auto& fadeUI : findIter->second)
         {
             fadeUI->FadeOut();
+            maxDuration = std::max(maxDuration, (float)fadeUI->FadeDuration);
         }
+        return maxDuration;
     }
+    return 0.f;
 }
 
-void ChildsAnimationsController::StartAnimation(size_t index) 
+float ChildsAnimationsController::GetFadeDurationWithTag(const std::string& tag)
+{
+    if (auto findIter = _fadeUIsWithTag.find(tag); findIter != _fadeUIsWithTag.end())
+    {
+        float maxDuration = 0.f;
+        for (auto& fadeUI : findIter->second)
+        {
+            maxDuration = std::max(maxDuration, (float)fadeUI->FadeDuration);
+        }
+        return maxDuration;
+    }
+    return 0.0f;
+}
+
+float ChildsAnimationsController::StartAnimation(size_t index)
 {
     if (index < _spriteAnimations.size())
     {
         _spriteAnimations[index]->Setup();
         _spriteAnimations[index]->StartAnimation();
+        return _spriteAnimations[index]->Duration;
     }
+    return 0.f;
 }
 
-void ChildsAnimationsController::StartAnimationWithTag(std::string_view tag)
+float ChildsAnimationsController::StartAnimationWithTag(const std::string& tag)
 {
     if (auto findIter = _spriteAnimationsWithTag.find(tag); findIter != _spriteAnimationsWithTag.end())
     {
+        float maxDuration = 0.f;
         for (auto& spriteAnimation : findIter->second)
         {
+            maxDuration = std::max(maxDuration, (float)spriteAnimation->Duration);
             spriteAnimation->Setup();
             spriteAnimation->StartAnimation();
         }
+        return maxDuration;
     }
+    return 0.f;
 }
 
-void ChildsAnimationsController::StopAnimation(size_t index) 
+void ChildsAnimationsController::StopAnimation(size_t index)
 {
     if (index < _spriteAnimations.size())
     {
@@ -110,7 +180,7 @@ void ChildsAnimationsController::StopAnimation(size_t index)
     }
 }
 
-void ChildsAnimationsController::StopAnimationWithTag(std::string_view tag)
+void ChildsAnimationsController::StopAnimationWithTag(const std::string& tag)
 {
     if (auto findIter = _spriteAnimationsWithTag.find(tag); findIter != _spriteAnimationsWithTag.end())
     {
@@ -121,7 +191,41 @@ void ChildsAnimationsController::StopAnimationWithTag(std::string_view tag)
     }
 }
 
-void ChildsAnimationsController::Awake() 
+float ChildsAnimationsController::GetAnimationDurationWithTag(const std::string& tag)
 {
-    FindAnimations();
+    if (auto findIter = _spriteAnimationsWithTag.find(tag); findIter != _spriteAnimationsWithTag.end())
+    {
+        float maxDuration = 0.f;
+        for (auto& spriteAnimation : findIter->second)
+        {
+            maxDuration = std::max(maxDuration, (float)spriteAnimation->Duration);
+        }
+        return maxDuration;
+    }
+    return 0.f;
+}
+
+void ChildsAnimationsController::Added() 
+{
+    if (UmCore->IsPlay())
+    {
+        FindAnimations();
+    } 
+}
+
+bool ChildsAnimationsController::IsFadeComplete(size_t index) const
+{
+    if (index < _fadeUIs.size())
+    {
+        return _fadeUIs[index]->IsComplete();
+    }
+    return true;
+}
+
+void ChildsAnimationsController::CompleteFadeImmediately(size_t index)
+{
+    if (index < _fadeUIs.size())
+    {
+        _fadeUIs[index]->CompleteImmediately();
+    }
 }

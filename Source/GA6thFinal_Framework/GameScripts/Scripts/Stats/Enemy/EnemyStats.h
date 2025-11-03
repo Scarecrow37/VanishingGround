@@ -55,6 +55,10 @@ public:
             UmWatcher.Unregister<CharacterHPViewModel>(key);
             UmWatcher.Register<CharacterHPViewModel>(key, _hpModel);
 
+            std::string newKey = key + "_reduce";
+            UmWatcher.Unregister<CharacterHPViewModel>(newKey);
+            UmWatcher.Register<CharacterHPViewModel>(newKey, _reduceHpModel);
+
             UmWatcher.Unregister<ChainCountViewModel>(key);
             UmWatcher.Register<ChainCountViewModel>(key, _currentChainCount);
         }

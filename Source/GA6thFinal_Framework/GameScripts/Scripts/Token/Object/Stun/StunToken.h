@@ -13,6 +13,8 @@ namespace TokenObject
     private:
         bool CanAdd(CharacterBase* owner) const override;
         void OnTurnStart(CharacterBase* owner) override;
+        void OnTokenEnter(CharacterBase* owner, int tokenID) override;
+        void OnTokenExit(CharacterBase* owner, int tokenID) override;
     };
 
     /// <summary>

@@ -134,6 +134,11 @@ void ESceneManager::Engine::SceneFinalUpdate()
 
 void ESceneManager::SceneUpdate()
 {
+    if (ResourceLoadWait())
+    {
+        return;
+    }
+
     ObjectsInputUpdate();                                // Input System 콜백은 항상 업데이트 주기보다 먼저 실행됨.
     while (ETimeSystem::Engine::TimeSystemFixedUpdate()) // Fixed Update는 한 프레임에 여러번 호출 가능함
     {
@@ -143,8 +148,8 @@ void ESceneManager::SceneUpdate()
     ObjectsLateUpdate();                                 // 두번째 로직 업데이트
 
     //로직 업데이트 이후 요청된 라이프 사이클들은 아래에서 반드시 실행 (이번 프레임에 바로 처리되야함)
-    ObjectsAddRuntime();                                
-    SceneResourceManager::Engine::Update(ResourceManager);
+    ObjectsAddRuntime();              
+    ResourceManagerUpdate();
     ObjectsOnEnable();
     ObjectsOnDisable();
     ObjectsAwake();
@@ -923,7 +928,20 @@ void ESceneManager::ObjectsStart()
     });
 }
 
-void ESceneManager::ObjectsInputUpdate() 
+bool ESceneManager::ResourceLoadWait()
+{
+    if (_checkResourceLoad && false == ResourceManager.CheckAllResourceLoad())
+    {
+        return true;
+    }
+    else
+    {
+        _checkResourceLoad = false;       
+        return false;
+    }
+}
+
+void ESceneManager::ObjectsInputUpdate()
 {
     if (_isPlay)
     {
@@ -1049,6 +1067,7 @@ void ESceneManager::ObjectsAddLoadScene()
             }
         }
         _nextSceneGuid.clear();
+        _waitResourceLoad = true;
     }
 
     if (nullptr != _nextSceneSkybox)
@@ -1281,6 +1300,16 @@ void ESceneManager::ObjectsAddRuntime()
     addQueue.clear();
 }
 
+void ESceneManager::ResourceManagerUpdate() 
+{
+    SceneResourceManager::Engine::Update(ResourceManager);
+    if (_waitResourceLoad)
+    {
+        _checkResourceLoad = _waitResourceLoad;
+        _waitResourceLoad  = false;
+    }       
+}
+
 bool ESceneManager::IsRuntimeActive(std::shared_ptr<GameObject>& obj)
 {
     return obj.get() != nullptr && obj->_activeInHierarchy && obj->IsValid();
@@ -1465,13 +1494,15 @@ void ESceneManager::AddDestroyObjectQueue(GameObject* gameObject)
     if (gameObject && gameObject->IsValid())
     {
         auto& [set, vec] = engineCore->SceneManager._destroyObjectsQueue;
-        Transform::ForeachDFS(gameObject->_transform, [this, &set, &vec](Transform* pTransform) {
+        auto& componentDestroySet = engineCore->SceneManager._destroyComponentsQueue.first;
+        Transform::ForeachDFS(gameObject->_transform, [this, &set, &vec, &componentDestroySet](Transform* pTransform) {
             auto [iter, result] = set.insert(&pTransform->gameObject);
             if (result)
             {
                 vec.push_back(&pTransform->gameObject);
                 for (auto& component : pTransform->_gameObject._components)
                 {
+                    componentDestroySet.insert(component.get());
                     NotInitDestroyComponentEraseToWaitVec(component.get());
                 }
             }
@@ -2033,6 +2064,64 @@ void ESceneManager::SceneResourceManager::Engine::Update(SceneResourceManager& m
     }
 }
 
+template <typename T>
+bool CheckReadyResource(T& resource)
+{
+    for (auto& [path, resource] : resource.RenderResource)
+    {
+        if (false == resource->IsValid())
+            return false;
+    }
+    return true;
+}
+
+template <>
+bool CheckReadyResource(ESceneManager::SceneResourceManager::RenderResource<Model>& resource)
+{
+    for (auto& [path, resource] : resource.RenderResource)
+    {
+        if (false == resource->IsValid())
+            return false;
+
+        //TODO: 씬 리소스 로드 대기해야 하는데 안대요
+        /*
+        for (auto& textures : resource->GetTextures())
+        {
+            for (auto& texture : textures)
+            {
+                if (nullptr == texture)
+                    return false;
+
+                if (false == texture->IsValid())
+                    return false;                   
+            }
+        }
+        */
+    }
+    return true;
+}
+
+bool ESceneManager::SceneResourceManager::CheckAllResourceLoad()
+{
+    if (false == CheckReadyResource(_models))
+    {
+        return false;
+    }
+    if (false == CheckReadyResource(_textures))
+    {
+        return false;
+    }
+    if (false == CheckReadyResource(_fonts))
+    {
+        return false;
+    }
+    if (false == CheckReadyResource(_sdfFonts))
+    {
+        return false;
+    }
+    return true;
+}
+
 void ESceneManager::SceneResourceManager::Engine::CleanUp(SceneResourceManager& manager) 
 {
     manager._models.ResourceLoadQueue.clear();
@@ -2315,32 +2404,29 @@ bool ESceneManager::InputSystem::PopReceiverToInputStack(InputReceiver& receiver
 {
     if (receiver._isDestroy)
     {
-        if (true == receiver._isPushStack)
+        bool result = false;
+        while (false == _layerStack.empty())
         {
-            bool result = false;
-            while (false == _layerStack.empty())
+            auto& [topReceiver, isDestroy] = _layerStack.back();
+            if (receiver._isPushStack && receiver._isDestroy.get() == topReceiver)
             {
-                auto& [topReceiver, isDestroy] = _layerStack.back();
-                if (receiver._isDestroy.get() == topReceiver)
-                {
-                    _layerStack.pop_back();
-                    receiver._isPushStack = false;
-                    result = true;
-                }
-                else 
-                {               
-                    if (auto destroyFlag = isDestroy.lock())
-                    {
-                        if (*destroyFlag)
-                        {
-                            _layerStack.pop_back();
-                            continue;
-                        }
-                    }
-                    return result;          
-                }
+                _layerStack.pop_back();
+                receiver._isPushStack = false;
+                result = true;
             }
-        }
+            else 
+            {               
+                if (auto destroyFlag = isDestroy.lock())
+                {
+                    if (false == *destroyFlag)
+                    {
+                        //유효한 InputLayer면 반환
+                        return result;  
+                    }
+                }
+                _layerStack.pop_back(); //유효하지 않는 레이어는 제거 
+            }        
+        }      
     }
     return false;
 }
@@ -2476,6 +2562,19 @@ void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
             auto& [destroy, event] = pair;
             return nullptr == destroy || *destroy;
         });
+
+        while (false == _layerStack.empty())
+        {
+            auto& [topReceiver, isDestroy] = _layerStack.back();
+            if (true == isDestroy.expired())
+            {
+                _layerStack.pop_back();
+            }
+            else
+            {
+                break;
+            }
+        }
     }
 }
 
