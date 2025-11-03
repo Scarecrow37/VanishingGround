@@ -123,6 +123,4 @@ protected:
     float   _lightCurrentRange       = 0;
     Vector3 _lightAttenuation        = Vector3(0, 0, 0);
     float   _endLightIntensity       = 0;
-
-    std::function<Vector3(void)> _velocityScalingFunciton = nullptr; // 기존 이름 유지
 };

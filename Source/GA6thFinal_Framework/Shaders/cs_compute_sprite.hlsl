@@ -58,6 +58,7 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     float decay = exp(-dragCoef * input.Age);
 
     float useWorldSpace = emitter.Particlelifetime.y;
+    float useWorldScale = clamp(emitter.DragForce.y,0.f,1.f);
     float3 emitterCenter = emitter.WorldMatrix[3].xyz * useWorldSpace;
 
     float3 r = input.Position.xyz - emitterCenter;
@@ -82,11 +83,14 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     // === 스케일 하한 보장(축 활성화 시에도 0으로 죽지 않게) ===
     float axisLenInput = length(input.Axis);
     float velLen = length(totalVel);
-    float axisfactor = (axisLenInput < 1e-3) ? 1.0f : max(1.0f, velLen); // 필요하면 (1+k*velLen)로 대체
+    float axisfactor = (axisLenInput < 1e-3) ? 1.0f : max(1.0f, velLen); 
 
-    float4 scalefactor = lerp(emitter.StartScale, emitter.EndScale, ratio) * axisfactor;
+    float4 scalefactor = lerp(emitter.StartScale, emitter.EndScale, ratio) * axisfactor ;
     float4x4 scaleMat = CreateScaleMatrix(scalefactor);
 
+    
+    scaleMat = mul(scaleMat, lerp(IdentityMatrix, CreateScaleMatrix(float4(ExtractScale(emitter.OrientedWorldMatrix), 1)), useWorldScale));
+    
     // 월드 위치 적분
     float4 worldPos = mul(float4(input.Position.xyz, 1.0), emitter.WorldMatrix);
     float4 finalVelocity = mul(float4(totalVel, 0.0f), emitter.OrientedWorldMatrix);
@@ -110,7 +114,6 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     float4x4 rotation;
     if (length(input.SpriteRotation) < 1e-3)
     {
-        // ★ axis는 월드 기준으로 넘김 (emitter 회전 영향 제거)
         rotation = GetBillBoardRotationMatrix(input.Axis, worldPos.xyz, (float4x4) 0);
     }
     else
