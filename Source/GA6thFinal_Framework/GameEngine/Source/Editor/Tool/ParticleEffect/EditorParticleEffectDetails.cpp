@@ -868,7 +868,7 @@ void EditorParticleEffectDetails::ShowEffectDetails()
                     ImGui::InputText(label.c_str(), pathString.data(), pathString.size() + 1,
                                      ImGuiInputTextFlags_ReadOnly);
                 }
-                if (emitter->_locationType == LocationShape::MESH_SURFACE)
+                if (emitter->_emitLocator && emitter->_locationType == LocationShape::MESH_SURFACE)
                 {
                     auto        pathText = emitter->_emitLocator->AsMeshSurfaceLocator()->GetModelPath().string();
                     std::string label    = "model : ##" + emitter->GetEmitterName() + " model : ";
