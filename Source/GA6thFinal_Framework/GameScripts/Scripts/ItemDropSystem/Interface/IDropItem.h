@@ -34,7 +34,7 @@ struct DropItemInfo
     /// </summary>
     /// <param name="type :">변환할 타입</param>
     /// <returns>실패시 0</returns>
-    static int GetArtifactCategoryAssetID(ArtifactDropType type);
+    static int GetArtifactCategoryAssetID(ArtifactDropType type, bool isMapScene);
 
     /// <summary>
     /// 해당 유물의 에셋 ID를 반환합니다.

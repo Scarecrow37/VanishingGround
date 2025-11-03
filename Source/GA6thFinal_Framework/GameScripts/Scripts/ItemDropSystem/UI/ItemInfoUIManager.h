@@ -36,7 +36,7 @@ public:
         case ArtifactDropType::SWORD:
         case ArtifactDropType::DAGGER:
         case ArtifactDropType::WARHAMMER:
-            return File::Guid("5dd1c4ea-00c1-4350-9ce3-28dcef45ae77");
+            return File::Guid("88b9814f-6b35-45a7-9aa3-130401b36674");
         case ArtifactDropType::ACCESSORY:
         case ArtifactDropType::REVELATION:
         case ArtifactDropType::ERASE_REVELATION:

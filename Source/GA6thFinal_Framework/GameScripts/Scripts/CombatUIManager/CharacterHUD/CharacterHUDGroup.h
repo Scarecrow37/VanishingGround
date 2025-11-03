@@ -32,7 +32,7 @@ namespace CombatUI
         void ActiveUI(bool active) override;
 
         void RefreshUIPosition();
-        bool RefreshEnemiesPosition();
+        bool RefreshCharactersUIPosition();
 
         void FadeIn(float duration) override;
         void FadeOut(float duration) override;
