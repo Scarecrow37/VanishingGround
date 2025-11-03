@@ -9,6 +9,8 @@
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include <Particle/ParticleComponent.h>
 #include <PlayerSystem/PlayerSystem.h>
+#include "UI/Panels/Overlay/OverlayPanel.h"
+#include "TokenHUD/TokenHUD.h"
 
 //Condition
 #include "Condition/PlayerStartCondition.h"
@@ -268,6 +270,8 @@ void Player::OnKill(CharacterBase* destination)
 void Player::OnTokenAdded(const int tokenID)
 {
     Base::OnTokenAdded(tokenID);
+
+    RegisterTokenHUD(tokenID);
 }
 
 void Player::OnTokenRemoved(const int tokenID)
@@ -278,11 +282,15 @@ void Player::OnTokenRemoved(const int tokenID)
 void Player::OnTokenEnter(int tokenID)
 {
     Base::OnTokenEnter(tokenID);
+
+    RegisterTokenHUD(tokenID);
 }
 
 void Player::OnTokenExit(int tokenID)
 {
     Base::OnTokenExit(tokenID);
+
+    UnregisterTokenHUD(tokenID);
 }
 
 void Player::OnQTEStart() 
@@ -310,5 +318,50 @@ void Player::OnNotifiedAnimationEvent(const Timeline::EventContext* context)
     if ("attackEnd" == context->GetLabel())
     {
         particlecomponent->StopEffect("handglow");
+    }
+}
+
+void Player::RegisterTokenHUD(int tokenID)
+{
+    auto&       tokenInventory = GetTokenInventory();
+    const auto& inventory      = tokenInventory.GetValidTokenList();
+
+    if (!inventory.empty())
+    {
+        auto& model = tokenInventory.GetTokenModelFromID(tokenID);
+
+        // Assets/Prefab/UI/Token Icon.prefab
+        if (auto prefab = UmGameObjectFactory.DeserializeToGuid("0abe19e7-1dc1-48cd-bcc1-6dcd86748d93"))
+        {
+            if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
+            {
+                auto HUD = combatUIManager->CharacterHUDGroup.PlayerHUDPanel;
+
+                Transform::ForeachBFS(HUD->transform, [&](Transform* tr) {
+                    GameObject& object = tr->gameObject;
+                    if (object.CompareTag("Token HUD"))
+                    {
+                        if (auto tokenHUD = prefab->GetComponent<TokenHUD>())
+                        {
+                            std::string key = std::format("Player_Token_{}", tokenID);
+                            tokenHUD->SetupTokenHUD(/* TODO:: Token 이미지 GUID 삽입*/ "", model, key);
+                            _tokenHUDTable.emplace(tokenID, &object);
+                            model.Notify();
+                            prefab->transform->SetParent(object.transform);
+                        }
+                    }
+                });
+            }
+        }
+    }
+}
+
+void Player::UnregisterTokenHUD(int tokenID)
+{
+    auto it = _tokenHUDTable.find(tokenID);
+    if (it != _tokenHUDTable.end())
+    {
+        GameObject::Destroy(it->second);
+        _tokenHUDTable.erase(it);
     }
 }

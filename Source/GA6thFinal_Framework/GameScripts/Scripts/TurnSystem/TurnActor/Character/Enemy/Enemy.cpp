@@ -6,6 +6,8 @@
 #include "TurnSystem/TurnMode/TurnMode.h"
 #include "Particle/ParticleComponent.h"
 #include "RevelationSystem/RevelationSystem.h"
+#include "UI/Panels/Overlay/OverlayPanel.h"
+#include "TokenHUD/TokenHUD.h"
 
 //Condition
 #include "Condition/EnemyStartCondition.h"
@@ -357,11 +359,15 @@ void Enemy::OnTokenRemoved(const int tokenID)
 void Enemy::OnTokenEnter(int tokenID)
 {
     Base::OnTokenEnter(tokenID);
+
+    RegisterTokenHUD(tokenID);
 }
 
 void Enemy::OnTokenExit(int tokenID)
 {
     Base::OnTokenExit(tokenID);
+
+    UnregisterTokenHUD(tokenID);
 }
 
 void Enemy::OnNotifiedAnimationEvent(const Timeline::EventContext* context) 
@@ -377,5 +383,51 @@ void Enemy::OnNotifiedAnimationEvent(const Timeline::EventContext* context)
     if (_fsmStates.Dead && STATE::Dead == State)
     {
         _fsmStates.Dead->OnNotifiedAnimationEvent(context);
+    }
+}
+
+void Enemy::RegisterTokenHUD(int tokenID)
+{
+    auto&       tokenInventory = GetTokenInventory();
+    const auto& inventory      = tokenInventory.GetValidTokenList();
+
+    if (!inventory.empty())
+    {
+        auto& model = tokenInventory.GetTokenModelFromID(tokenID);
+
+        // Assets/Prefab/UI/Token Icon.prefab
+        if (auto prefab = UmGameObjectFactory.DeserializeToGuid("0abe19e7-1dc1-48cd-bcc1-6dcd86748d93"))
+        {            
+            if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
+            {
+                int  monsterIndex = static_cast<int>(_spawnPoint);
+                auto HUD          = combatUIManager->CharacterHUDGroup.EnemyHUDPanel[monsterIndex];
+
+                Transform::ForeachBFS(HUD->transform, [&](Transform* tr) {
+                    GameObject& object = tr->gameObject;
+                    if (object.CompareTag("Token HUD"))
+                    {
+                        if (auto tokenHUD = prefab->GetComponent<TokenHUD>())
+                        {
+                            std::string key = std::format("Enemy_{}_Token_{}", monsterIndex, tokenID);
+                            tokenHUD->SetupTokenHUD(/* TODO:: Token 이미지 GUID 삽입*/"", model, key);
+                            _tokenHUDTable.emplace(tokenID, &object);
+                            model.Notify();
+                            prefab->transform->SetParent(object.transform);
+                        }
+                    }
+                });
+            }
+        }
+    }
+}
+
+void Enemy::UnregisterTokenHUD(int tokenID)
+{
+    auto it = _tokenHUDTable.find(tokenID);
+    if (it != _tokenHUDTable.end())
+    {        
+        GameObject::Destroy(it->second);        
+        _tokenHUDTable.erase(it);
     }
 }
