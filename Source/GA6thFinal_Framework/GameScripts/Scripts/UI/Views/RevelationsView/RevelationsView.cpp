@@ -63,15 +63,61 @@ void RevelationsView::Start()
                 }
             };         
 
-            auto PlayExtinctionFX = [this](float delay) 
+            auto PlayExtinctionFX = [this](float delay, std::vector<int> indices) 
             {
-                UmTime.Invoke(this, delay, []() 
+                UmTime.Invoke(this, delay, [this, indices]() 
                 {
                     // 소멸 계시 등장 소리 재생
                     UmAudio.Play("-401020");
-                    // TODO: 소멸 계시 등장 애니메이션 연출도 추가 필요
 
+                    // 소멸 계시 등장 이펙트
+                    for (auto& index : indices)
+                    {
+                        if (0 <= index && index < _revelationUis.size())
+                        {
+                            if (_revelationUis[index].AnimationsController)
+                            {
+                                _revelationUis[index].AnimationsController->EnableAnimation(4, true);
+                                _revelationUis[index].AnimationsController->StartAnimation(4);
+                            }
+                        }     
+                    }                 
                 });      
+            };
+
+            auto SetExtincionFX = [&revelations, this, PlayExtinctionFX](float delay) 
+            {
+                // 소멸 계시 등장시
+                std::vector<int> extinctionIndexes;
+                if (false == revelations.empty())
+                {
+                    std::vector<int> extinctionIndexesTemp;
+                    extinctionIndexesTemp.reserve(revelations.size());
+                    int extinctionIndex = 0;
+                    for (auto& data : revelations)
+                    {
+
+                        RevelationGrade grade = data.Grade;
+                        if (grade == RevelationGrade::EXTINCTION)
+                        {                              
+                            extinctionIndexesTemp.push_back(extinctionIndex);
+                        }
+                        else
+                        {
+                            if (_revelationUis[extinctionIndex].AnimationsController)
+                            {
+                                _revelationUis[extinctionIndex].AnimationsController->EnableAnimation(4, false);
+                            }
+                        }
+                        ++extinctionIndex;
+                    }
+                    extinctionIndexes = std::move(extinctionIndexesTemp);
+                }
+                
+                if (false == extinctionIndexes.empty())
+                {
+                    PlayExtinctionFX(delay, extinctionIndexes);
+                }
             };
 
             if (false == gameObject->ActiveSelf)
@@ -96,26 +142,11 @@ void RevelationsView::Start()
                             fadeText->FadeIn();
                         });
 
-                        // 소멸 계시 등장시
-                        bool isExtinction = false;
-                        for (auto& data : revelations)
-                        {
-                            RevelationGrade grade = data.Grade;
-                            if (grade == RevelationGrade::EXTINCTION)
-                            {
-                                isExtinction = true;
-                                break;
-                            }
-                        }
-
-                        if (isExtinction)
-                        {
-                            float fadeTime = fade->FadeDuration;
-                            PlayExtinctionFX(time + fadeTime);
-                        }
+                        //소멸 계시 등장시
+                        float fadeTime = fade->FadeDuration;
+                        SetExtincionFX(time + fadeTime);
                     }               
                 }
-
                 UpdateUIInfo();
             }
             else
@@ -145,21 +176,7 @@ void RevelationsView::Start()
                         });
 
                         //소멸 계시 등장시
-                        bool isExtinction = false;
-                        for (auto& data : revelations)
-                        {
-                            RevelationGrade grade = data.Grade;
-                            if (grade == RevelationGrade::EXTINCTION)
-                            {
-                                isExtinction = true;
-                                break;
-                            }
-                        }
-
-                        if (isExtinction)
-                        {
-                            PlayExtinctionFX(fadeTime + aniTime + fadeTime);                   
-                        }
+                        SetExtincionFX(fadeTime + aniTime + fadeTime);
                     }
                 }
 

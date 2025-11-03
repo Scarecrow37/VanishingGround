@@ -450,8 +450,9 @@ void TurnMode::ImGuiDrawPropertysEvent()
 
 void TurnMode::FindCameras() 
 {
-    if (auto group = GameObject::FindWithTag("Camera Group").lock())
+    if (CameraComponent* main = CameraComponent::MainCamera())
     {
+        GameObject* group = (nullptr != main->transform->Root) ? &main->transform->Root->gameObject : &main->gameObject;
         std::vector<GameObject*> cameras = group->transform->FindBFSwithTag("Camera");    
         for (size_t i = 0; i < cameras.size(); ++i)
         {
