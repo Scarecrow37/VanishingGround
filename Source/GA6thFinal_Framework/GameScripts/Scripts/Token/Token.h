@@ -68,6 +68,7 @@ public:
 
 protected:
     std::string TokenLog(CharacterBase& dest);
+    void        TakeDamage(CharacterBase* dest, int damage);
 
 protected:
     TokenData _tokenData;

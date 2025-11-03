@@ -18,7 +18,6 @@ protected:
     const std::string& GetActionName() override;
     const std::string& GetActionInfo() override;
     void               ImGuiDrawActionEditor() override;
-    void               DeserializedReflectEvent() override;
 
     void OnTokenAddedEnd(CharacterBase& target, int tokenID, int tokenCount) override;
 

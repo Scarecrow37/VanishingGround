@@ -62,6 +62,13 @@ int CharacterBase::GetMaxChainRoundCount()
     if (nullptr != stats)
     {
         maxChainCount = stats->MaxChainRoundCount;
+        if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+        {
+            mode->ApplyActions([this, &maxChainCount](TurnAction& action) 
+            {
+                action.OnCharacterMaxChainRoundCountUse(*this, maxChainCount);
+            });
+        }    
     }
     return maxChainCount;
 }
@@ -167,7 +174,17 @@ void CharacterBase::Revive()
     if (CharacterStats* stats = GetCharacterStats())
     {
         stats->CurrentHP = stats->MaxHP;
-        stats->CurrentChainCount = stats->MaxChainRoundCount;
+        stats->CurrentChainCount = 0;
+        int maxChainRoundCount = stats->MaxChainRoundCount;
+        if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+        {
+            mode->ApplyActions([this, &maxChainRoundCount](TurnAction& action) 
+            {
+                action.OnCharacterMaxChainRoundCountUse(*this, maxChainRoundCount);
+            });
+        }
+        //부활 한 뒤에는 연격 지속시간 보정
+        stats->CurrentChainRoundCount = maxChainRoundCount + 1;
     }
 }
 
@@ -273,12 +290,20 @@ int CharacterBase::DecrementChainRoundCount()
     CharacterStats* stats = GetCharacterStats();
     if (stats)
     {
-        stats->CurrentChainRoundCount = std::clamp((int)stats->CurrentChainRoundCount - 1, 0, (int)stats->MaxChainRoundCount);
+        stats->CurrentChainRoundCount -= 1;
         int chainRoundCount = stats->CurrentChainRoundCount;
         if (chainRoundCount == 0)
         {
             stats->CurrentChainCount = 0;
-            stats->CurrentChainRoundCount = stats->MaxChainRoundCount;
+            int maxChainRoundCount = stats->MaxChainRoundCount;
+            if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+            {
+                mode->ApplyActions([this, &maxChainRoundCount](TurnAction& action) 
+                {
+                    action.OnCharacterMaxChainRoundCountUse(*this, maxChainRoundCount);
+                });
+            }
+            stats->CurrentChainRoundCount = maxChainRoundCount;
         }     
         return stats->CurrentChainRoundCount;
     }
