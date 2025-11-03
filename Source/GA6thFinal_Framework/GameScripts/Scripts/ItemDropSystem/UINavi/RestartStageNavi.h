@@ -13,6 +13,23 @@ public:
         FOCUS,
         DISABLE
     };
+    
+    static File::Guid GetSelectBox(RestartStageNavi::SelectBoxType type)
+    {
+        File::Guid guid;
+        switch (type)
+        {
+        case RestartStageNavi::SelectBoxType::DEFAULT:
+            return UmFileSystem.GetGuidFromAssetID(460020);
+        case RestartStageNavi::SelectBoxType::FOCUS:
+            return UmFileSystem.GetGuidFromAssetID(460021);
+        case RestartStageNavi::SelectBoxType::DISABLE:
+            return UmFileSystem.GetGuidFromAssetID(460032);
+        default:
+            break;
+        }   
+        return guid;
+    }
 
     RestartStageNavi();
 

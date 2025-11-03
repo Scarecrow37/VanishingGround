@@ -9,43 +9,6 @@ UMREAL_COMPONENT(RestartStageNavi)
 
 namespace RestartUtility
 {
-    static File::Guid GetSelectBox(RestartStageNavi::SelectBoxType type)
-    {
-        File::Guid guid;
-        if (ExcelDataSystem* system = SingletonComponent<ExcelDataSystem>::GetInstance())
-        {
-            if (auto db = system->FindExcelDataBase(u8"전투"))
-            {
-                std::u8string_view rowKey;
-                switch (type)
-                {
-                case RestartStageNavi::SelectBoxType::DEFAULT:
-                    rowKey = u8"나가기/ 다음전투 선택버튼 포커스 안됨";
-                    break;
-                case RestartStageNavi::SelectBoxType::FOCUS:
-                    rowKey = u8"나가기/ 다음전투 선택버튼 포커스 됨";
-                    break;
-                case RestartStageNavi::SelectBoxType::DISABLE:
-                    return UmFileSystem.GetGuidFromAssetID(460032);
-                default:
-                    break;
-                }
-
-                size_t rowIndex = db->FindRowIndex(rowKey, u8"Description");
-                if (rowIndex != db->FIND_INDEX_FAIL)
-                {
-                    std::string_view data = db->FindData(rowIndex, u8"ID");
-                    if (data != db->FIND_STR_FAIL)
-                    {
-                        int id = std::stoi(data.data());
-                        guid   = UmFileSystem.GetGuidFromAssetID(id);
-                    }
-                }
-            }
-        }
-        return guid;
-    }
-
     static bool CheckImageElementWithLog(ImageElement* ptr)
     {
         if (ptr == nullptr)
