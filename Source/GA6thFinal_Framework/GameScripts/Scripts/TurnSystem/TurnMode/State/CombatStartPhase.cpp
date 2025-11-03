@@ -186,9 +186,9 @@ void CombatStartPhase::OnEnter()
         //켜져 있어야 하는거
         combatUIManager->AccessoriesGroup.ActiveUI(true);  
         combatUIManager->ConsumableGroup.ActiveUI(true);  
-        combatUIManager->CharacterHUDGroup.ActiveUI(true);  
 
         //꺼져 있어야 하는거
+        combatUIManager->CharacterHUDGroup.ActiveUI(false);  
         combatUIManager->WeaponGroup.ActiveUI(false);  
         combatUIManager->RevelationsGroup.ActiveUI(false);  
         combatUIManager->TurnQueueGroup.ActiveUI(false);  
@@ -212,6 +212,11 @@ void CombatStartPhase::OnExit()
     {
         battleCamera->SetMainCamera();
         battleCamera->ResetRail(true);
+    }
+
+    if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        combatUIManager->CharacterHUDGroup.ActiveUI(true);
     }
 }
 
