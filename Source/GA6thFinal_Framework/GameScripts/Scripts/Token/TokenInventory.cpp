@@ -789,7 +789,7 @@ void TokenInventory::UpdateToken(TokenID tokenID)
             if (it == _vaildTokenVector.end())
             {
                 _vaildTokenVector.push_back(tokenID);
-                NotifyTokenEnter(tokenID);
+                _owner.OnTokenEnter(tokenID);
             }
         }
         else
@@ -799,7 +799,7 @@ void TokenInventory::UpdateToken(TokenID tokenID)
             if (it != _vaildTokenVector.end())
             {
                 _vaildTokenVector.erase(it);
-                NotifyTokenExit(tokenID);
+                _owner.OnTokenExit(tokenID);
             }
         }
     }

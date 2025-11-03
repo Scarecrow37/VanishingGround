@@ -457,27 +457,29 @@ void Enemy::RegisterTokenHUD(int tokenID)
             {
                 int  monsterIndex = static_cast<int>(_spawnPoint);
                 auto HUD          = combatUIManager->CharacterHUDGroup.EnemyHUDPanel[monsterIndex];
-
-                Transform::ForeachBFS(HUD->transform, [&](Transform* tr) {
-                    GameObject& object = tr->gameObject;
-                    if (object.CompareTag("Token HUD"))
-                    {
-                        if (auto tokenHUD = prefab->GetComponent<TokenHUD>())
+                if (HUD)
+                {
+                    Transform::ForeachBFS(HUD->transform, [&](Transform* tr) {
+                        GameObject& object = tr->gameObject;
+                        if (object.CompareTag("Token HUD"))
                         {
-                            if (TokenSystem* tokenSystem = SingletonComponent<TokenSystem>::GetInstance())
+                            if (auto tokenHUD = prefab->GetComponent<TokenHUD>())
                             {
-                                if (const TokenData* tokenData = tokenSystem->GetTokenDataFromID(tokenID))
+                                if (TokenSystem* tokenSystem = SingletonComponent<TokenSystem>::GetInstance())
                                 {
-                                    std::string key = std::format("Enemy_{}_Token_{}", monsterIndex, tokenID);
-                                    tokenHUD->SetupTokenHUD(UmFileSystem.GetGuidFromAssetID(tokenData->ImageID), model, key);
-                                    _tokenHUDTable.emplace(tokenID, prefab.get());
-                                    model.Notify();
-                                    prefab->transform->SetParent(object.transform);
-                                }
-                            }                            
+                                    if (const TokenData* tokenData = tokenSystem->GetTokenDataFromID(tokenID))
+                                    {
+                                        std::string key = std::format("Enemy_{}_Token_{}", monsterIndex, tokenID);
+                                        tokenHUD->SetupTokenHUD(UmFileSystem.GetGuidFromAssetID(tokenData->ImageID), model, key);
+                                        _tokenHUDTable.emplace(tokenID, prefab.get());
+                                        model.Notify();
+                                        prefab->transform->SetParent(object.transform);
+                                    }
+                                }                            
+                            }
                         }
-                    }
-                });
+                    });
+                }
             }
         }
     }

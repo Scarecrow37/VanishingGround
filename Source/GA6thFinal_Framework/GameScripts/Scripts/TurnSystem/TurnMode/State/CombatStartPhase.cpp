@@ -129,6 +129,7 @@ void CombatStartPhase::OnAwake()
 void CombatStartPhase::OnStart() 
 {
     TurnModeStateBase::OnStart();
+    RefreshUI();
     if (MonsterSystem* system = SingletonComponent<MonsterSystem>::GetInstance())
     {
         Difficulty       difficulty = Difficulty::NORMAL;
@@ -151,7 +152,6 @@ void CombatStartPhase::OnStart()
     RegisterEnemiesHUD();
     RegisterEnemiesHP();
     RegisterEnemiesChain();
-    RefreshUI();
 
     AddValidActions();
     ReviveEnemies();
