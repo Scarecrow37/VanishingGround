@@ -67,28 +67,12 @@ void Stage::UpdateData(const std::string& key, const File::Guid& enableImage, co
     _key = key;
 }
 
-void Stage::FocusIn(FocusCallType callType)
+void Stage::OnSelected() 
 {
-    Base::FocusIn(callType);
-    if (MapManager* manager = SingletonComponent<MapManager>::GetInstance())
-    {
-        manager->SetFocusStage(this);
-    }
-}
-
-void Stage::Submit()
-{
-    Base::Submit();
-    if (!_stageEnable)
-    {
-        return;
-    }
-    
     if (auto* transitionComponent = SingletonComponent<SceneTransitionComponent>::GetInstance())
     {
         std::weak_ptr<GameObject> weakOwner = gameObject->GetWeakPtr();
         transitionComponent->SceneTransitionFade("in", "out", [this, weakOwner]() {
-            
             GameObject* owner = weakOwner.lock().get();
             assert(owner && "콜백으로 등록한 객체가 댕글링 포인터입니다.");
             if (owner)
@@ -111,14 +95,30 @@ void Stage::Submit()
                     instance->StageClearCount = 0;
                     instance->SetDropItem(droptable);
                 }
-                if (MapManager* manager = SingletonComponent<MapManager>::GetInstance())
-                {
-                    manager->SetCurrentSelectedStage(this);
-                }
             }
         });
     }
-    _stageEnable = false;
+}
+
+void Stage::FocusIn(FocusCallType callType)
+{
+    Base::FocusIn(callType);
+    if (MapManager* manager = SingletonComponent<MapManager>::GetInstance())
+    {
+        manager->SetFocusStage(this);
+    }
+}
+
+void Stage::Submit()
+{
+    if (MapManager* mapManager = SingletonComponent<MapManager>::GetInstance())
+    {
+        // 현재 스테이지 선택에 성공하면
+        if (mapManager->TrySelectStage(this))
+        {
+            Base::Submit();
+        }
+    }
 }
 
 void Stage::Start()

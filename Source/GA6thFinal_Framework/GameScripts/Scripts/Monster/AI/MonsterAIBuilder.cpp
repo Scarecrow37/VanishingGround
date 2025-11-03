@@ -2,13 +2,14 @@
 #include "MonsterAIBuilder.h"
 #include "MonsterAIFactory.h"
 
+#include "Monster/System/MonsterSystem.h"
+#include "Monster/Action/MonsterActionBase.h"
+
 #include "TurnSystem/TurnMode/TurnMode.h"
 #include "TurnSystem/TurnActor/Character/Player/Player.h"
 #include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
 
 #include "Token/Object/Bleed/BleedToken.h"
-
-#include "Monster/Action/MonsterActionBase.h"
 
 namespace Monster
 {
@@ -159,11 +160,27 @@ namespace Monster
 
         controller.PushActionNode("#1", "#2", 210280);
         controller.PushConditionNode("#2", "#3", "#4", [owner]() -> bool { 
-            // [출혈] [중독] [기절] 중 한 개 이상 보유 시
-            if (auto enemy = owner.lock())
+            Enemy* boss = nullptr;
+            if (MonsterSystem* system = SingletonComponent<MonsterSystem>::GetInstance())
             {
-                TokenInventory&      tokenInventory = enemy->GetTokenInventory();
-                Monster::Controller& controller     = enemy->GetController();
+                auto weakEnemies = system->GetSpawnedEnemiesFromID(210060);
+                if (weakEnemies)
+                {
+                    for (const auto& weakEnemy : *weakEnemies)
+                    {
+                        if (auto sharedEnemy = weakEnemy.lock())
+                        {
+                            boss = sharedEnemy.get();
+                            break;
+                        }
+                    }
+                }
+            }
+            // 바른이 [출혈] [중독] [기절] 중 한 개 이상 보유 시
+            if (boss && false == boss->IsDead())
+            {
+                TokenInventory&      tokenInventory = boss->GetTokenInventory();
+                Monster::Controller& controller     = boss->GetController();
 
                 if (Action::Base* currentAction = controller.GetCurrentAction())
                 {
