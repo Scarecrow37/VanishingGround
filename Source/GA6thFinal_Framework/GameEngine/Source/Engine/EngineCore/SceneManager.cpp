@@ -1249,6 +1249,8 @@ void ESceneManager::ObjectsDestroy()
 void ESceneManager::ObjectsAddRuntime()
 {
     //오브젝트 추가
+    static std::unordered_set<Transform*> updateMatrixSet;
+    updateMatrixSet.clear();
     for (auto& gameObject : _addGameObjectsQueue)
     {
         int id = gameObject->_instanceID;
@@ -1266,6 +1268,13 @@ void ESceneManager::ObjectsAddRuntime()
             _runtimeObjects.resize(id + 1);
         }
         _runtimeObjects[id] = gameObject;
+
+        Transform* root = (nullptr != gameObject->_transform._root) ? gameObject->_transform._root : &gameObject->_transform;
+        auto [iter, insertResult] = updateMatrixSet.insert(gameObject->_transform.Root);
+        if (insertResult)
+        {
+            root->UpdateMatrix();     
+        }
         GameObject::Engine::UpdateActiveInHierarchy(gameObject.get());     
     }
     _addGameObjectsQueue.clear();
