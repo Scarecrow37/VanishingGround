@@ -40,5 +40,5 @@ private:
     std::weak_ptr<CameraComponent> _targetCameraComponent;
     std::weak_ptr<GameObject>      _targetObject;
 
-	POINT _offsetPoint;
+	POINT _offsetFromTarget;
 };
