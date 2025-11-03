@@ -9,6 +9,7 @@
 
 #include <TurnSystem/TurnAction/TurnActionFactory.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
+#include "TurnSystem/TurnAction/TurnAction.h"
 
 #include "ExcelDataSystem/ExcelDataSystem.h"
 
@@ -57,6 +58,14 @@ const std::shared_ptr<RevelationElement>& RevelationSystem::PushBackRevelation(c
 
 void RevelationSystem::EquipRandomExtinctionElement(size_t count)
 {
+    if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+    {
+        mode->ApplyActions([&count](TurnAction& action) 
+        {
+            action.OnRandomExtinctionPushPlayer(count);
+        });
+    }
+
     if (count < 1)
         return;
 
@@ -171,6 +180,16 @@ void RevelationSystem::RollRoundElement()
                                 {
                                     RevelationGrade garde = element->Grade;
                                     uis[i].AnimationsController->StartAnimation(static_cast<size_t>(garde));
+                                    if (garde != RevelationGrade::EXTINCTION)
+                                    {
+                                        //일반 계시 발동 소리
+                                        UmAudio.Play("-401000");
+                                    }
+                                    else
+                                    {
+                                        //소멸 계시 발동 소리
+                                        UmAudio.Play("-401010");
+                                    }
                                 }
                             }
                         }

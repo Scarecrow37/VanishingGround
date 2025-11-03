@@ -55,12 +55,7 @@ TurnMode::TurnMode()
 }
 TurnMode::~TurnMode()
 {
-    if (_singletonComponent.IsSingleTon())
-    {
-        _turnList.Reset();
-        UmWatcher.Unregister<TurnQueueViewModel>("Turn Queue");
-        UmWatcher.Unregister<WeaponViewModel>("Weapon");
-    }
+
 }
 
 Player* TurnMode::GetPlayer()
@@ -135,6 +130,16 @@ void TurnMode::MakeTurnList()
         }
     }
     
+    std::erase_if(turnList, [](std::pair<int, TurnActor*>& pair) 
+    {
+        auto& [slot, actor] = pair;
+        if (actor)
+        {
+            return actor->IsDead();
+        }
+        return true;
+    });
+
     if (false == turnList.empty())
     {
         std::ranges::shuffle(turnList, Random::GetEngine());
@@ -146,7 +151,21 @@ void TurnMode::MakeTurnList()
             });
     }
 
+    _playerWeaponCounter = 0;
     _turnList = std::move(turnList);
+}
+
+void TurnMode::EraseTurnListToDeadCharacter() 
+{
+    _turnList.erase_if([](std::pair<int, TurnActor*>& pair) 
+    {
+        auto& [slot, actor] = pair;
+        if (actor)
+        {
+            return actor->IsDead();
+        }
+        return true;
+    });
 }
 
 void TurnMode::StartFrontTurnActor()
@@ -187,6 +206,7 @@ void TurnMode::StartFrontTurnActor()
                 {
                     UmLogger.Log(LogLevel::LEVEL_WARNING, u8"Weapon System이 존재하지 않습니다.");
                 }
+                ++_playerWeaponCounter;
             }
             _currTurnActor = actorSlot.second;
         });
@@ -318,6 +338,21 @@ void TurnMode::Awake()
     AddRoundOnceActions();
     FindCameras();
     
+}
+
+void TurnMode::OnDestroy() 
+{
+    if (_singletonComponent.IsSingleTon())
+    {
+        _turnList.Reset();
+        UmWatcher.Unregister<TurnQueueViewModel>("Turn Queue");
+        UmWatcher.Unregister<WeaponViewModel>("Weapon");
+
+        ApplyActions([this](TurnAction& action)
+        {
+            action.SetDestroy();
+        });
+    }
 }
 
 void TurnMode::ImGuiDrawPropertysEvent() 

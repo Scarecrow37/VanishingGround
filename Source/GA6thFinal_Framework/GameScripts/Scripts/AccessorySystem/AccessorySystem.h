@@ -176,7 +176,7 @@ private:
 
         std::queue<AccessoryElement*> DirtyAccessoryQueue;
         bool                          ShowDirtyAccessoryPopup = false;
-        std::vector<bool>             ShowActionEditor;
+        std::unordered_map<std::string, std::vector<bool>> ShowActionEditor;
     };
 #ifdef _UMEDITOR
     EditorOnly _editorOnly;
