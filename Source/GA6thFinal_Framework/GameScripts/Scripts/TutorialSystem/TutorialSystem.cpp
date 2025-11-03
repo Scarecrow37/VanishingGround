@@ -52,7 +52,6 @@ void TutorialSystem::Start()
     Component::Start();
     _requestFind = true;
     SetupData();
-    SetupCallback();
 }
 
 void TutorialSystem::Update() 
@@ -60,6 +59,7 @@ void TutorialSystem::Update()
     if (_requestFind)
     {
         FindComponents();
+        SetupCallback();
         Hide();
         _requestFind = false;
     }
