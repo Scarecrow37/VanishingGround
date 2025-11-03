@@ -67,6 +67,39 @@ void Stage::UpdateData(const std::string& key, const File::Guid& enableImage, co
     _key = key;
 }
 
+void Stage::OnSelected() 
+{
+    if (auto* transitionComponent = SingletonComponent<SceneTransitionComponent>::GetInstance())
+    {
+        std::weak_ptr<GameObject> weakOwner = gameObject->GetWeakPtr();
+        transitionComponent->SceneTransitionFade("in", "out", [this, weakOwner]() {
+            GameObject* owner = weakOwner.lock().get();
+            assert(owner && "콜백으로 등록한 객체가 댕글링 포인터입니다.");
+            if (owner)
+            {
+                std::array<DropItemInfo, ARTIFACT_DROP_COUNT>& droptable = _dropItemInfos;
+
+                std::string stagePath   = StagePath;
+                std::string lighingPath = LightingPath;
+                if (stagePath == File::NULL_PATH)
+                {
+                    return;
+                }
+                UmSceneManager.LoadScene(stagePath);
+                if (lighingPath != File::NULL_PATH)
+                {
+                    LoadRenderPassData(lighingPath);
+                }
+                if (auto instance = SingletonComponent<ItemDropSystem>::GetInstance(); instance)
+                {
+                    instance->StageClearCount = 0;
+                    instance->SetDropItem(droptable);
+                }
+            }
+        });
+    }
+}
+
 void Stage::FocusIn(FocusCallType callType)
 {
     Base::FocusIn(callType);
@@ -84,35 +117,6 @@ void Stage::Submit()
         if (mapManager->TrySelectStage(this))
         {
             Base::Submit();
-            if (auto* transitionComponent = SingletonComponent<SceneTransitionComponent>::GetInstance())
-            {
-                std::weak_ptr<GameObject> weakOwner = gameObject->GetWeakPtr();
-                transitionComponent->SceneTransitionFade("in", "out", [this, weakOwner]() {
-                    GameObject* owner = weakOwner.lock().get();
-                    assert(owner && "콜백으로 등록한 객체가 댕글링 포인터입니다.");
-                    if (owner)
-                    {
-                        std::array<DropItemInfo, ARTIFACT_DROP_COUNT>& droptable = _dropItemInfos;
-
-                        std::string stagePath   = StagePath;
-                        std::string lighingPath = LightingPath;
-                        if (stagePath == File::NULL_PATH)
-                        {
-                            return;
-                        }
-                        UmSceneManager.LoadScene(stagePath);
-                        if (lighingPath != File::NULL_PATH)
-                        {
-                            LoadRenderPassData(lighingPath);
-                        }
-                        if (auto instance = SingletonComponent<ItemDropSystem>::GetInstance(); instance)
-                        {
-                            instance->StageClearCount = 0;
-                            instance->SetDropItem(droptable);
-                        }
-                    }
-                });
-            }
         }
     }
 }

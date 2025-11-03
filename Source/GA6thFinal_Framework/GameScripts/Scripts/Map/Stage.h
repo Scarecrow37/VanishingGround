@@ -19,6 +19,7 @@ public:
 public:
     void RegisterStage(const std::string& key, const File::Guid& enableImage, const File::Guid& disableImage);
     void UpdateData(const std::string& key, const File::Guid& enableImage, const File::Guid& disableImage);
+    void OnSelected();
 
 public:
     void FocusIn(FocusCallType callType) override;

@@ -23,6 +23,7 @@ public:
     void    UINotify() const { _focusStage.Notify(); }
     void    SetFocusStage(Stage* stage);
     bool    TrySelectStage(Stage* stage);
+    void    SetSelectStage(Stage* stage);
     Stage*  GetCurrentSelectedStage();
     Monster::SpawnID GetCurrentSpawnID();
 
