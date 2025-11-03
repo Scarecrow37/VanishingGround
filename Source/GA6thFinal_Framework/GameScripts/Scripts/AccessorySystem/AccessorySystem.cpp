@@ -24,11 +24,14 @@ bool AccessorySystem::EquipAccessory(const AccessoryElement& accessory)
     if (result)
     {
         _playerAccessoryItems.push_back(accessory);
-        const auto& lastAccessory = _playerAccessoryItems[_playerAccessoryItems.size() - 1];
-        for (auto& action : lastAccessory._actions)
+        if (UmCore->IsPlay())
         {
-            if (action)
-                action->OnEquipAccessory();
+            const auto& lastAccessory = _playerAccessoryItems[_playerAccessoryItems.size() - 1];
+            for (auto& action : lastAccessory._actions)
+            {
+                if (action)
+                    action->OnEquipAccessory();
+            }
         }
     }
     return result;
@@ -481,15 +484,7 @@ void AccessorySystem::ImGuiDrawPlayerAccsessoryItems()
             ImGui::PushStyleColor(ImGuiCol_Text, accessory.GetGradeColor());
             {
                 const std::string& name = accessory.AccessoryName;
-                AccessoryElement*  change = AccessorySelectCombo(name.c_str());
-                if (change)
-                {
-                    _playerAccessoryItems.at(i, [&](AccessoryElement& element) 
-                    { 
-                        element = *change;
-                    });
-                }
-
+                ImGui::Text(name.data());
                 ImGui::SameLine();
                 if (ImGui::Button("Unequip"))
                 {

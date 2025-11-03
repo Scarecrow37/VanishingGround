@@ -40,6 +40,7 @@ namespace TokenObject
                 int damage = param * stackCount;
                 UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(*owner));
                 TakeDamage(owner, damage);
+
                 // 이펙트 출력
                 if (ParticleComponent* particle = owner->GetParticleComponent())
                 {

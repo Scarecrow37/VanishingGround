@@ -4,6 +4,19 @@
 #include <TurnSystem/TurnMode/TurnMode.h>
 
 
+int WeaponSystem::GetEquipWeaponTypeCount(WeaponType type)
+{
+    int count = 0;
+    for (auto& wepon : _equipWeapons)
+    {
+        if (type == wepon.Stats.Type)
+        {
+            ++count;
+        }
+    }
+    return count;
+}
+
 UMREAL_COMPONENT(WeaponSystem)
 
 WeaponSystem::WeaponSystem()

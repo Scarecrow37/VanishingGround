@@ -12,7 +12,9 @@
 #include <QTE/Track/QTETrack.h>
 #include <WeaponSystem/WeaponSystem.h>
 #include <WeaponModel/WeaponModelManager.h>
+#include "AccessorySystem/AccessorySystem.h"
 
+#include <TurnSystem/TurnSystemHelper.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include <TurnSystem/TurnMode/State/CombatStartPhase.h>
 #include <TurnSystem/TurnMode/State/PlayerActionPhase.h>
@@ -94,6 +96,24 @@ void PlayerPlayTurnState::OnExit()
         { 
             action.OnTurnEnd(GetPlayer());
         });
+    }
+
+    //말라 비틀어진 심장 강제 구현
+    if (AccessorySystem* system = SingletonComponent<AccessorySystem>::GetInstance())
+    {
+        if (system->HasPlayerAccessory(203206))
+        {
+            for (auto& target : TurnSystemHelper::GetTargetCharacters(TurnTarget::ALL_ENEMIES))
+            {
+                if (target)
+                {
+                    if (CharacterStats* stats = target->GetCharacterStats())
+                    {
+                        stats->CurrentChainCount = 0;
+                    }
+                }
+            }
+        }
     }
 
     UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"Player 턴 종료.");
