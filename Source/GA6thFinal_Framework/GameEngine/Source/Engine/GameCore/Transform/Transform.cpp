@@ -714,12 +714,15 @@ void Transform::SetWorldMatrix(const Matrix& matrix)
         const Matrix& parentInversMatrix = _parent->GetInversWorldMatrix();
         localMatrix                      = matrix * parentInversMatrix;
     }
-    Vector3    sclae;
-    Quaternion rot;
-    Vector3    position;
-    localMatrix.Decompose(sclae, rot, position);
 
-    Position = position;
-    Scale    = sclae;
-    Rotation = rot;
+    Vector3 scale;
+    Quaternion rotation;
+    Vector3 position;
+    if (localMatrix.Decompose(scale, rotation, position))
+    {
+        Position    = position;
+        Rotation    = rotation;
+        Scale       = scale;
+        _hasChanged = true;
+    }
 }
