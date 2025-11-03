@@ -26,6 +26,7 @@
 #include "Monster/System/MonsterSystem.h"
 #include "Monster/Action/MonsterActionBase.h"
 #include "UI/Contents/SpawnDamagePanel.h"
+#include "UI/Panels/Overlay3D/Overlay3D.h"
 
 UMREAL_COMPONENT(Enemy)
 
@@ -437,5 +438,32 @@ void Enemy::UnregisterTokenHUD(int tokenID)
     {        
         GameObject::Destroy(it->second);        
         _tokenHUDTable.erase(it);
+    }
+}
+
+void Enemy::PassWorldPositionToHud() const
+{
+    std::weak_ptr<Overlay3DPanel> overlay3DPanel;
+
+    switch (SpawnPoint)
+    {
+    case Monster::SpawnPoint::Invalid:
+        break;
+    case Monster::SpawnPoint::Left:
+        overlay3DPanel = GameObject::FindComponentWithTag<Overlay3DPanel>(LEFT_ENEMY_HUD_TAG.data());
+        break;
+    case Monster::SpawnPoint::Middle:
+        overlay3DPanel = GameObject::FindComponentWithTag<Overlay3DPanel>(MIDDLE_ENEMY_HUD_TAG.data());
+        break;
+    case Monster::SpawnPoint::Right:
+        overlay3DPanel = GameObject::FindComponentWithTag<Overlay3DPanel>(RIGHT_ENEMY_HUD_TAG.data());
+        break;
+    default:
+        break;
+    }
+
+    if (const auto sharedOverlay3DPanel = overlay3DPanel.lock())
+    {
+        sharedOverlay3DPanel->SetPosition(transform->GetWorldPosition());
     }
 }

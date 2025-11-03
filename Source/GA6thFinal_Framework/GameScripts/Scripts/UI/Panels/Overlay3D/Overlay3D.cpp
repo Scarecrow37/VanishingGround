@@ -7,24 +7,15 @@ UMREAL_COMPONENT(Overlay3DPanel)
 
 Overlay3DPanel::Overlay3DPanel() = default;
 
-void Overlay3DPanel::Awake()
+void Overlay3DPanel::SetPosition(const Vector3& position)
 {
-    OverlayPanel::Awake();
-
-    FindComponents();
-}
-
-void Overlay3DPanel::Start()
-{
-    OverlayPanel::Start();
-
-    if (const auto sharedTargetObject = _targetObject.lock())
-    {
-        transform->Position = sharedTargetObject->transform->GetWorldPosition();
-    }
+    transform->Position = position;
 
     // 초기 월드 좌표는 ViewportToWorld를 사용하여 올바르게 변환
-    if (const auto sharedCameraComponent = _targetCameraComponent.lock())
+    const std::string&                   targetCameraTag = ReflectFields->TargetCameraTag;
+    const std::weak_ptr<CameraComponent> targetCamera =
+        GameObject::FindComponentWithTag<CameraComponent>(targetCameraTag.data());
+    if (const auto sharedCameraComponent = targetCamera.lock())
     {
         const Vector3 viewportPos      = sharedCameraComponent->WorldToViewport(transform->Position);
         const POINT   absolutePosition = AbsolutePosition;
@@ -41,19 +32,11 @@ void Overlay3DPanel::Update()
     UpdateCameraViewMatrix();
 }
 
-void Overlay3DPanel::FindComponents()
-{
-    const std::string& targetCameraTag = ReflectFields->TargetCameraTag;
-    _targetCameraComponent             = GameObject::FindComponentWithTag<CameraComponent>(targetCameraTag.data());
-
-    _targetObject = GameObject::FindWithTag(ReflectFields->TargetObjectTag);
-}
-
 void Overlay3DPanel::UpdateCameraViewMatrix()
 {
-    if (const auto sharedCameraComponent = _targetCameraComponent.lock())
+    if (CameraComponent* mainCamera = CameraComponent::MainCamera())
     {
-        const Vector3 viewportPos = sharedCameraComponent->WorldToViewport(transform->Position);
+        const Vector3 viewportPos = mainCamera->WorldToViewport(transform->Position);
         const POINT   newPoint    = POINT{.x = static_cast<LONG>(viewportPos.x) + _offsetFromTarget.x,
                                           .y = static_cast<LONG>(viewportPos.y) + _offsetFromTarget.y};
         const MARGIN  margin      = Margin;

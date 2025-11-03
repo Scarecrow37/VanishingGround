@@ -1270,7 +1270,7 @@ void ESceneManager::ObjectsAddRuntime()
         _runtimeObjects[id] = gameObject;
 
         Transform* root = (nullptr != gameObject->_transform._root) ? gameObject->_transform._root : &gameObject->_transform;
-        auto [iter, insertResult] = updateMatrixSet.insert(gameObject->_transform.Root);
+        auto [iter, insertResult] = updateMatrixSet.insert(root);
         if (insertResult)
         {
             root->UpdateMatrix();     

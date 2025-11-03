@@ -123,4 +123,5 @@ private:
 private:
     void RegisterTokenHUD(int tokenID);
     void UnregisterTokenHUD(int tokenID);
+    void PassWorldPositionToHud() const;
 };

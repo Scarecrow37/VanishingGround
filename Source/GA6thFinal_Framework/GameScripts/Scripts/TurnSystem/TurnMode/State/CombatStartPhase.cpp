@@ -156,6 +156,8 @@ void CombatStartPhase::OnStart()
     AddValidActions();
     ReviveEnemies();
     ResetPlayer();
+
+    //
 }
 void CombatStartPhase::OnEnter() 
 {
@@ -443,7 +445,7 @@ void CombatStartPhase::ReviveEnemies()
 {
     for (auto& enemy : _enemies)
     {
-        enemy->CharacterBase::Revive();
+        enemy->Revive();
     }
 }
 
