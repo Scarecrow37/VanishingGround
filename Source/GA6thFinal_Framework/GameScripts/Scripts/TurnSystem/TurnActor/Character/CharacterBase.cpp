@@ -148,7 +148,7 @@ void CharacterBase::InitAnimationCallback()
 void CharacterBase::ClearState() 
 {
     Base::ClearState();
-    _tokenInventory.Clear();
+    _tokenInventory.Initialize();
     if (CharacterStats* stats = GetCharacterStats())
     {
         _tokenInventory.AddTokenStackFromID(TokenObject::StunResistance::ID, stats->StunResistance);    
@@ -289,7 +289,6 @@ int CharacterBase::DecrementChainRoundCount()
 void CharacterBase::OnCombatStart() 
 {
     Base::OnCombatStart();
-    _tokenInventory.Initialize();
     _tokenInventory.NotifyCombatStart();
 }
 
