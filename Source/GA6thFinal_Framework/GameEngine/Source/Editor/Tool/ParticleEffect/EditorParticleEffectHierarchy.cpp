@@ -38,12 +38,16 @@ void EditorParticleEffectHierarchy::OnFrameRender()
 {
     ParticleEffect* effect = UmParticleManager->GetCurrentEditorEffect();
 
+    // --- New ---
     bool isNewButtonPressed = ImGui::Button("New", {180, 50});
-    if (true == isNewButtonPressed)
+    if (isNewButtonPressed)
     {
-        auto newEffect = UmParticleManager->RegisterEffectOnEditor();
+        auto* newEffect = UmParticleManager->RegisterEffectOnEditor();
         _editorParticleEffectDetails->SetCurrentEffect(newEffect);
         effect = newEffect; // Update local variable for this frame
+
+        // 새 효과 선택 시 현재 이미터 선택 해제
+        _curEmitter = nullptr;
 
         if (effect)
         {
@@ -58,22 +62,23 @@ void EditorParticleEffectHierarchy::OnFrameRender()
     }
     ImGui::SameLine();
 
+    // --- Load ---
     bool isLoadButtonPressed = ImGui::Button("Load", {180, 50});
     bool isControlOPressed =
-        ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_O, false);
-    if (true == isLoadButtonPressed || true == isControlOPressed)
+        ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_O, false); // (필요시 ImGuiMod_Ctrl로 교체)
+    if (isLoadButtonPressed || isControlOPressed)
     {
         LoadEffect();
-        // After loading, the manager has the new effect. Get it again.
-        effect = UmParticleManager->GetCurrentEditorEffect();
+        effect      = UmParticleManager->GetCurrentEditorEffect();
+        _curEmitter = nullptr; // 로드 후 선택 초기화
     }
 
-    if (nullptr != effect)
+    // --- Save ---
+    if (effect != nullptr)
     {
         bool isSaveButtonPressed = ImGui::Button("Save", {180, 50});
-        bool isControlSPressed =
-            ImGui::IsKeyDown(ImGuiKey::ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_S, false);
-        if (true == isSaveButtonPressed || true == isControlSPressed)
+        bool isControlSPressed   = ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_S, false);
+        if (isSaveButtonPressed || isControlSPressed)
         {
             File::Path   path;
             std::wstring filename;
@@ -85,10 +90,10 @@ void EditorParticleEffectHierarchy::OnFrameRender()
         }
     }
 
-    // refresh button
+    // --- Refresh ---
     {
         bool isRefressButtonPressed = ImGui::Button("refresh", {100, 30});
-        if (true == isRefressButtonPressed && nullptr != effect)
+        if (isRefressButtonPressed && effect != nullptr)
         {
             UmParticleManager->RefreshEditor();
         }
@@ -99,14 +104,14 @@ void EditorParticleEffectHierarchy::OnFrameRender()
         UmParticleManager->SetAutoRefresh(isAutoRefresh);
     }
 
-    // time scale
+    // --- Time scale ---
     {
         float deltaScale = UmParticleManager->GetDeltaScale();
         ImGui::SliderFloat("Time Speed", &deltaScale, 0.f, 2.f);
         UmParticleManager->SetDeltaScale(deltaScale);
     }
 
-    // directional light setting
+    // --- Directional light ---
     {
         ImGui::Checkbox("Directional Light", &_lightActivity);
         if (_lightActivity)
@@ -125,16 +130,15 @@ void EditorParticleEffectHierarchy::OnFrameRender()
         }
     }
 
-    // env model load
+    // --- Environment model load ---
     {
         _envModelPath = std::filesystem::absolute(_envModelPath);
         ImGui::Text(_envModelPath.string().c_str());
         bool isLoadModelButtonPressed = ImGui::Button("load environment model", {250, 30});
-        if (true == isLoadModelButtonPressed)
+        if (isLoadModelButtonPressed)
         {
-
             HWND                    owner = UmApplication.GetHwnd();
-            constexpr LPCWSTR                 title = L"Load fbx file";
+            constexpr LPCWSTR       title = L"Load fbx file";
             std::vector<File::Path> out;
             if (File::ShowOpenFileDialog(UmApplication.GetHwnd(), title, L"",
                                          {{L"Model Files (*.fbx;*.UmModel)", L"*.fbx; *.UmModel\0\0"}}, false, out))
@@ -187,17 +191,33 @@ void EditorParticleEffectHierarchy::OnFrameRender()
                     Matrix matRotation  = Matrix::CreateFromYawPitchRoll(_rotation.y, _rotation.x, _rotation.z);
                     Matrix matTranslate = Matrix::CreateTranslation(_position);
                     _quaternion         = Quaternion::CreateFromYawPitchRoll(_rotation.y, _rotation.x, _rotation.z);
-
-                    // 변환 순서: S  R  T
-                    _worldMatrix = matScale * matRotation * matTranslate;
+                    _worldMatrix        = matScale * matRotation * matTranslate;
                 }
             }
         }
     }
 
-    if (nullptr == effect)
-    {
+    // 효과 없음 → 조기 종료
+    if (effect == nullptr)
         return;
+
+    // 매 프레임: 현재 선택된 emitter 생존 검증 (컨테이너 변경/삭제 대비)
+    if (_curEmitter)
+    {
+        bool stillExists = false;
+        for (auto const& up : effect->GetEmitterList())
+        {
+            if (up.get() == _curEmitter)
+            {
+                stillExists = true;
+                break;
+            }
+        }
+        if (!stillExists)
+        {
+            _curEmitter = nullptr;
+            _editorParticleEffectDetails->SetCurrentEmitter(nullptr);
+        }
     }
 
     ImGui::Text("current particle count : %d", UmParticleManager->GetTotalCount("ParticleEditor") +
@@ -236,18 +256,19 @@ void EditorParticleEffectHierarchy::OnFrameRender()
         _effectWorldMatrix = Matrix::Identity;
     }
     ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.f);
+
     ImGui::Text("FilePath : ");
     ImGui::SameLine();
     ImGui::Text(_currentEffectFilePath.c_str());
+
     LocationShape locationType;
     ParticleType  particleType;
     {
         ImGui::BeginGroup();
         // particleType combobox
         {
-            static int  renderRow      = -1;
-            const char* renderItems[3] = {"Sprite", "Mesh  ", "Ribbon"};
             static int  renderIdx      = 0;
+            const char* renderItems[3] = {"Sprite", "Mesh  ", "Ribbon"};
             ImGui::Text("Render Type    ");
             ImGui::SetNextItemWidth(130);
             ImGui::SameLine();
@@ -257,9 +278,7 @@ void EditorParticleEffectHierarchy::OnFrameRender()
                 {
                     bool isSelected = (renderIdx == n);
                     if (ImGui::Selectable(renderItems[n], isSelected))
-                    {
                         renderIdx = n;
-                    }
                     if (isSelected)
                         ImGui::SetItemDefaultFocus();
                 }
@@ -269,10 +288,9 @@ void EditorParticleEffectHierarchy::OnFrameRender()
         }
         // location combobox
         {
-            static int  shapeRow      = -1;
+            static int  shapeIdx      = 0;
             const char* shapeItems[6] = {"Sphere      ", "Cube        ", "Cylinder    ",
                                          "Cone        ", "Torus       ", "Mesh Surface"};
-            static int  shapeIdx      = 0;
             ImGui::Text("Emission Shape");
             ImGui::SetNextItemWidth(130);
             ImGui::SameLine();
@@ -282,9 +300,7 @@ void EditorParticleEffectHierarchy::OnFrameRender()
                 {
                     bool isSelected = (shapeIdx == n);
                     if (ImGui::Selectable(shapeItems[n], isSelected))
-                    {
                         shapeIdx = n;
-                    }
                     if (isSelected)
                         ImGui::SetItemDefaultFocus();
                 }
@@ -293,12 +309,13 @@ void EditorParticleEffectHierarchy::OnFrameRender()
             locationType = static_cast<LocationShape>(shapeIdx);
         }
         ImGui::EndGroup();
+
         if (LocationShape::MESH_SURFACE == locationType)
         {
             _currentMeshSurfaceModelPath = std::filesystem::absolute(_currentMeshSurfaceModelPath);
             ImGui::Text(_currentMeshSurfaceModelPath.string().c_str());
             bool isLoadModelButtonPressed = ImGui::Button("load target model", {250, 30});
-            if (true == isLoadModelButtonPressed)
+            if (isLoadModelButtonPressed)
             {
                 HWND                    owner = UmApplication.GetHwnd();
                 constexpr LPCWSTR       title = L"Load fbx file";
@@ -314,62 +331,77 @@ void EditorParticleEffectHierarchy::OnFrameRender()
     }
     ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.f);
 
+    // --- Add new Emitter ---
     {
         bool isAddButtonPressed = ImGui::Button("Add new Emitter", {250, 30});
-        if (true == isAddButtonPressed)
+        if (isAddButtonPressed)
         {
-            auto emitter =
+            auto* emitter =
                 UmParticleManager->RegisterEmitter(effect, 100000, 1000, 20, locationType, {0, 0, 0}, particleType);
             UmGraphics.LoadTextureResource(emitter->_particleRenderModule->GetModelAndTexturePath(), emitter);
-            if (auto locator = emitter->_emitLocator->AsMeshSurfaceLocator())
+            if (auto* locator = emitter->_emitLocator->AsMeshSurfaceLocator())
             {
                 UmGraphics.LoadModelResource(std::wstring_view(_currentMeshSurfaceModelPath.wstring()), emitter);
                 locator->SetModelPath(_currentMeshSurfaceModelPath.wstring());
             }
             emitter->InitializeEditorLight();
+            // 선택 이동(선택 유지 원하면 제거)
+            _curEmitter = emitter;
+            _editorParticleEffectDetails->SetCurrentEmitter(_curEmitter);
         }
-        bool isSomeoneChanged = false;
+        bool isSomeoneChanged = false; // (원래 변수 유지)
     }
     ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.f);
 
+    // --- Effect / Emitters tree ---
     {
-        // 부모 노드: 기본 플래그 사용
-        ImGuiTreeNodeFlags parentFlags = ImGuiTreeNodeFlags_OpenOnArrow;
+        ImGuiTreeNodeFlags parentFlags  = ImGuiTreeNodeFlags_OpenOnArrow;
         bool               isParentOpen = ImGui::TreeNodeEx(effect->GetEffectName().c_str(), parentFlags);
 
         bool isHovered      = ImGui::IsItemHovered();
         bool isMouseClicked = ImGui::IsMouseClicked(0);
-        if (true == isHovered && true == isMouseClicked)
+        if (isHovered && isMouseClicked)
         {
             _editorParticleEffectDetails->SetCurrentEffect(effect);
         }
+
         if (isParentOpen)
         {
-            ImGui::GetStyle().ItemSpacing.y = 3.f; // 모든 위젯 사이의 기본 세로 간격을 10으로
-            ImGuiTreeNodeFlags leafFlags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-            for (auto& emitter : effect->GetEmitterList())
+            ImGui::GetStyle().ItemSpacing.y = 3.f;
+
+            // ❗ 삭제 가능성이 있으므로 인덱스 기반으로 순회
+            auto& list = effect->GetEmitterList();
+            for (int i = 0; i < static_cast<int>(list.size()); ++i)
             {
+                ParticleEmitter* emitter = list[i].get();
+
+                ImGuiTreeNodeFlags leafFlags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
                 if (ImGui::TreeNodeEx(emitter->GetEmitterName().c_str(), leafFlags))
                 {
-                    bool isHovered      = ImGui::IsItemHovered();
-                    bool isMouseClicked = ImGui::IsMouseClicked(0);
-                    if (true == isHovered && true == isMouseClicked)
+                    bool hovered = ImGui::IsItemHovered();
+                    bool clicked = ImGui::IsMouseClicked(0);
+                    if (hovered && clicked)
                     {
-                        _editorParticleEffectDetails->SetCurrentEmitter(emitter.get());
-                        _curEmitter = emitter.get();
+                        _editorParticleEffectDetails->SetCurrentEmitter(emitter);
+                        _curEmitter = emitter;
                     }
-                    if (emitter.get() == _curEmitter)
+
+                    if (_curEmitter == emitter)
                     {
                         ImGui::SameLine();
-                        ImVec2 buttonSize(120.0f, 25.0f);               
+                        ImVec2 buttonSize(120.0f, 25.0f);
                         float  avail = ImGui::GetContentRegionAvail().x;
                         ImGui::SetCursorPosX(ImGui::GetCursorPosX() + avail - buttonSize.x);
                         bool isRemoveButtonPressed = ImGui::Button("Remove Emitter", buttonSize);
-                        if (true == isRemoveButtonPressed)
+                        if (isRemoveButtonPressed)
                         {
-                            effect->RemoveEmitter(emitter.get());
+                            // 인덱스로 가져온 포인터를 즉시 사용한 뒤, 루프를 중단(break)해 iterator 무효화 방지
+                            effect->RemoveEmitter(emitter);
                             _editorParticleEffectDetails->SetCurrentEmitter(nullptr);
+                            _curEmitter = nullptr;
+
                             UmParticleManager->RefreshEditor();
+                            break; // 중요: 삭제 후 루프 탈출
                         }
                     }
                 }
@@ -379,6 +411,7 @@ void EditorParticleEffectHierarchy::OnFrameRender()
     }
 }
 
+
 void EditorParticleEffectHierarchy::LoadEnvironmentModel(const File::Path& path)
 {
     if (!_meshRenderer)
@@ -386,7 +419,11 @@ void EditorParticleEffectHierarchy::LoadEnvironmentModel(const File::Path& path)
         UmGraphics.CreateMeshRenderer(&_meshRenderer, &_worldMatrix);
         UmGraphics.RegisterComponent("ParticleEditor", _meshRenderer.Get());
     }
-    UmGraphics.LoadResource(path.wstring(), _meshRenderer.Get());
+    std::shared_ptr<Model> model        = std::make_shared<Model>();
+    FBXConverter&          fbxConverter = GetFBXConverter();
+    fbxConverter.ImportModel(path, model);
+
+    UmGraphics.SetResource(model, _meshRenderer.Get());
     _meshRenderer->SetActive(&_isModelActive);
 }
 
@@ -397,8 +434,6 @@ void EditorParticleEffectHierarchy::LoadEffect()
     std::vector<File::Path> out;
     if (File::ShowOpenFileDialog(owner, title, L"", {{L"\0", L"*.vfx*\0"}}, false, out))
     {
-        // The Deserialize function registers the effect with the manager.
-        // We no longer need to manage the _curEffect pointer here.
         if (auto loadedEffect = UmParticleSerializer.Deserialize(this, "", out.front(), true, "ParticleEditor"))
         {
             _editorParticleEffectDetails->SetCurrentEffect(loadedEffect);
@@ -414,4 +449,10 @@ void EditorParticleEffectHierarchy::LoadEffect()
 
         }
     }
+}
+
+FBXConverter& EditorParticleEffectHierarchy::GetFBXConverter()
+{
+    static FBXConverter fbxConverter;
+    return fbxConverter;
 }

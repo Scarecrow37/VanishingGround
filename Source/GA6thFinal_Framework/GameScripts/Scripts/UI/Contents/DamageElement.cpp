@@ -281,7 +281,7 @@ void DamageElement::SetupPoints()
     _points.push_back(p2);
 }
 
-void DamageElement::SetupChildren(const File::Guid& fontGuid, const std::string& damage, const std::span<std::string>
+void DamageElement::SetupChildren(const File::Guid& fontGuid, const std::string& damage, const std::span<const std::string>
                                   revelations)
 {
     _damageTextElement = CreateTextElement(fontGuid, damage, _beginFontSize, _beginColor, _beginOutlineColor);

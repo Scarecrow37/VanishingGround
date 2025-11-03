@@ -66,6 +66,7 @@ private:
     float      _attackButtonHeldWaitTime;
 
     QTE::Callback::Handle _qteCallbackHandle;
+    Audio::AudioHandle    _hHoldAButtonSound;
 
     //== Debug == //
     bool       _showDebugUI = false;

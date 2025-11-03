@@ -60,11 +60,6 @@ void TokenChangeAction::ImGuiDrawActionEditor()
     ImguiDrawConditionEditor();
 }
 
-void TokenChangeAction::DeserializedReflectEvent() 
-{
-    UpdateActionInfo();
-}
-
 void TokenChangeAction::OnTokenAddedEnd(CharacterBase& target, int tokenID, int tokenCount) 
 {
     using namespace u8_literals;

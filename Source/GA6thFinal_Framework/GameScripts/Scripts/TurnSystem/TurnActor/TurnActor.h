@@ -131,16 +131,18 @@ protected:
     virtual void Awake();
 
 public:
-    void OnCombatStart() override;
-    void OnRoundStart() override;
-    void OnRoundEnd() override;
-    void OnEachTurnStart(CharacterBase* destination) override;
-    void OnTurnStart() override;
-    void OnTurnEnd() override;
-    void OnHit() override;
-    void OnKill(CharacterBase* destination) override;
-    void OnTokenAdded(int tokenID) override;
-    void OnTokenRemoved(int tokenID) override;
-    void OnQTEStart() override;
-    void OnQTEEnd() override;
+    virtual void OnCombatStart() override;
+    virtual void OnRoundStart() override;
+    virtual void OnRoundEnd() override;
+    virtual void OnEachTurnStart(CharacterBase* destination) override;
+    virtual void OnTurnStart() override;
+    virtual void OnTurnEnd() override;
+    virtual void OnHit() override;
+    virtual void OnKill(CharacterBase* destination) override;
+    virtual void OnTokenAdded(int tokenID) override;
+    virtual void OnTokenRemoved(int tokenID) override;
+    virtual void OnTokenEnter(int tokenID) override;
+    virtual void OnTokenExit(int tokenID) override;
+    virtual void OnQTEStart() override;
+    virtual void OnQTEEnd() override;
 };

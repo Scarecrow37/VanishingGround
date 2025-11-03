@@ -6,6 +6,7 @@
 #include <TurnSystem/TurnMode/State/CombatStartPhase.h>
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
+#include <TurnSystem/TurnMode/Condition/CheckTurnEndCondition.h>
 
 REGISTER_CLASS(FSMStateFactory, EnemyActionPhase)
 
@@ -24,6 +25,7 @@ void EnemyActionPhase::OnEnter()
 {
     if (_turnMode)
     {
+        WaitPhase = true;
         if (auto& actorModel = _turnMode->GetCurrTurnActor())
         {
             actorModel.Apply([this](TurnActor* actor) {
@@ -41,12 +43,42 @@ void EnemyActionPhase::OnEnter()
                 actor->UpdatePostTurnState();
             });
         }
-        // 액터의 턴 State를 상태 플래그를 확인하여 바꿉니다.
+        if (CheckTurnEndCondition* condition = _turnMode->Conditions->CheckTurnEndCondition)
+        {
+            condition->IsTurnEnd = false;
+            // 토큰 데미지를 기다린다
+            if (TokenSystem* system = SingletonComponent<TokenSystem>::GetInstance())
+            {
+                float tokenDelayTime = system->TokenDamageDelayTime * 2; // 두개의 토큰 대미지를 기다려야함 (출혈, 중독)
+                UmTime.Invoke(GetFSM(), tokenDelayTime, [this]()
+                {
+                    WaitPhase = false;
+                    UpdateCharacterDead();   
+                });
+            }
+            else
+            {
+                WaitPhase = false;
+                UpdateCharacterDead();   
+            }      
+        }
     }
 }
 
 void EnemyActionPhase::OnExit() 
 {
+    WaitPhase = true;
+    ApplyReduceHP();
 }
 
-void EnemyActionPhase::OnUpdate() {}
+void EnemyActionPhase::OnUpdate() 
+{
+    if (_turnMode && false == WaitPhase)
+    {
+        const auto& currentModel =_turnMode->GetCurrTurnActor();
+        if (CheckTurnEndCondition* condition = _turnMode->Conditions->CheckTurnEndCondition)
+        {
+            condition->IsTurnEnd = TurnActor::STATE::Play != currentModel->GetActorState();
+        }
+    }
+}

@@ -7,6 +7,7 @@
 #include "UI/Panels/Description/DescriptionPanel.h"
 #include "UI/Elements/SpriteAnimation/SpriteAnimationElement.h"
 #include "UI/Animations/FadeUIComponent/FadeUIComponent.h"
+#include "TutorialSystem/TutorialSystem.h"
 
 UMREAL_COMPONENT(WeaponView)
 
@@ -128,10 +129,20 @@ void WeaponView::Start()
                     {
                         updateUIInfo();
                         _rootFadeUI->FadeIn();
+                        UmTime.Invoke(_rootFadeUI->FadeDuration, []() 
+                        {
+                            if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
+                            {
+                                system->Show({805901, 805902});
+                            }
+                        });
                     }
                 }
                 else
                 {
+                    //무기 재등장 사운드
+                    UmAudio.Play("-431002");
+
                     _backgroundUI.FocusOff->Setup();
                     _backgroundUI.FocusOff->StartAnimation();
 

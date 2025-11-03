@@ -555,6 +555,8 @@ void Transform::SetParentToIndexEx(Transform* p, int index, bool worldPositionSt
 
 void Transform::DetachChildrenEx(bool callEvent) 
 {
+    std::vector<std::pair<Transform*, Transform*>> eventList;
+    eventList.reserve(_childsList.size());
     for (auto& child : _childsList)
     {
         Transform* prevParent = child->_parent;
@@ -566,7 +568,7 @@ void Transform::DetachChildrenEx(bool callEvent)
 
             if (callEvent)
             {
-                CallUIDetachParent(child, prevParent);
+                eventList.emplace_back(child, prevParent);
             }
         }
     }
@@ -574,6 +576,15 @@ void Transform::DetachChildrenEx(bool callEvent)
     if (_childsList.empty() == false)
     {
         std::erase_if(_childsList, [](Transform* child) { return child->_parent == nullptr; });
+    }
+
+    // 안전하게 호출
+    if (callEvent)
+    {
+        for (auto& [child, prevParent] : eventList)
+        {
+            CallUIDetachParent(child, prevParent);
+        }      
     }
 }
 
@@ -611,17 +622,19 @@ void Transform::CallUIAttachChild(Transform* target, Transform* newChild)
         {
             for (size_t i = 0; i < gameObject.GetComponentCount(); ++i)
             {
-                Component* component = gameObject.GetComponentAtIndex<Component>(i);
-                if (Component::TYPE::UI == component->GetType())
+                if (Component* component = gameObject.GetComponentAtIndex<Component>(i))
                 {
-                    UIBaseComponent* uiBaseComponent = static_cast<UIBaseComponent*>(component);
-                    GameObject*  newChildObject = nullptr;
-                    if (newChild)
+                    if (Component::TYPE::UI == component->GetType())
                     {
-                        newChildObject = &newChild->gameObject;
+                        UIBaseComponent* uiBaseComponent = static_cast<UIBaseComponent*>(component);
+                        GameObject*      newChildObject  = nullptr;
+                        if (newChild)
+                        {
+                            newChildObject = &newChild->gameObject;
+                        }
+                        uiBaseComponent->OnAttachChild(newChildObject);
                     }
-                    uiBaseComponent->OnAttachChild(newChildObject);
-                }
+                }             
             }
         }
     }
@@ -633,17 +646,19 @@ void Transform::CallUIAttachChild(Transform* target, Transform* newChild)
         {
             for (size_t i = 0; i < gameObject.GetComponentCount(); ++i)
             {
-                Component* component = gameObject.GetComponentAtIndex<Component>(i);
-                if (Component::TYPE::UI == component->GetType())
+                if (Component* component = gameObject.GetComponentAtIndex<Component>(i))
                 {
-                    UIBaseComponent* uiBaseComponent = static_cast<UIBaseComponent*>(component);
-                    GameObject*      targetObject  = nullptr;
-                    if (target)
+                    if (Component::TYPE::UI == component->GetType())
                     {
-                        targetObject = &target->gameObject;
+                        UIBaseComponent* uiBaseComponent = static_cast<UIBaseComponent*>(component);
+                        GameObject*      targetObject    = nullptr;
+                        if (target)
+                        {
+                            targetObject = &target->gameObject;
+                        }
+                        uiBaseComponent->OnAttachParent(targetObject);
                     }
-                    uiBaseComponent->OnAttachParent(targetObject);
-                }
+                }             
             }
         }
     }

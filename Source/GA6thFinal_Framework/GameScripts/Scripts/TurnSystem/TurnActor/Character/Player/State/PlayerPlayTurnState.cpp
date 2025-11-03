@@ -1,5 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "PlayerPlayTurnState.h"
+#include "Utility/FocusHelper.h"
+
 #include <Animation/AnimationComponent.h>
 #include <Particle/ParticleComponent.h>
 #include <GameCore/FSM/FiniteStateMachine.h>
@@ -10,11 +12,16 @@
 #include <QTE/Track/QTETrack.h>
 #include <WeaponSystem/WeaponSystem.h>
 #include <WeaponModel/WeaponModelManager.h>
+#include "AccessorySystem/AccessorySystem.h"
 
+#include <TurnSystem/TurnSystemHelper.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include <TurnSystem/TurnMode/State/CombatStartPhase.h>
+#include <TurnSystem/TurnMode/State/PlayerActionPhase.h>
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
+
+#include <TutorialSystem/TutorialSystem.h>
 
 #include <CombatUIManager/CombatUIManager.h>
 
@@ -91,40 +98,74 @@ void PlayerPlayTurnState::OnExit()
         });
     }
 
+    //말라 비틀어진 심장 강제 구현
+    if (AccessorySystem* system = SingletonComponent<AccessorySystem>::GetInstance())
+    {
+        if (system->HasPlayerAccessory(203206))
+        {
+            for (auto& target : TurnSystemHelper::GetTargetCharacters(TurnTarget::ALL_ENEMIES))
+            {
+                if (target)
+                {
+                    if (CharacterStats* stats = target->GetCharacterStats())
+                    {
+                        stats->CurrentChainCount = 0;
+                    }
+                }
+            }
+        }
+    }
+
     UmLogger.Message(LogLevel::LEVEL_TRACE, (const char*)u8"Player 턴 종료.");
 }
 
 
 void PlayerPlayTurnState::OnUpdate() 
 {
-    float dt = UmTime.DeltaTime();
-    switch (_inputState)
+    if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
     {
-    case InputState::NONE:
-        break;
-    case InputState::ACTION_SELECTION:
-        UpdateActionSelectionUI(dt);
-        UpdateAttackButtonHeld(dt);
-        break;
-    case InputState::QUICK_TIME_EVENT:
-        //UpdateQuickTimeEventUI(dt);
-        break;
-    case InputState::ATTACK_EVENT:
-        UpdateAttackEventUI(dt);
-        break;
-    default:
-        break;
+        if (PlayerActionPhase* waitPhase = turnMode->States->PlayerActionPhase)
+        {
+            if (false == waitPhase->WaitPhase)
+            {
+                float dt = UmTime.DeltaTime();
+                switch (_inputState)
+                {
+                case InputState::NONE:
+                    break;
+                case InputState::ACTION_SELECTION:
+                    UpdateActionSelectionUI(dt);
+                    UpdateAttackButtonHeld(dt);
+                    break;
+                case InputState::QUICK_TIME_EVENT:
+                    // UpdateQuickTimeEventUI(dt);
+                    break;
+                case InputState::ATTACK_EVENT:
+                    UpdateAttackEventUI(dt);
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
     }
 }
 
 void PlayerPlayTurnState::PressedButtonA(const Input::Controller& controller)
 {
-    _isDownAButton = true;
-    if (InputState::ACTION_SELECTION == _inputState)
+    if (false == FocusHelper::CheckFocus(FocusHelper::IS_FOCUSED_ANYTHING))
     {
-        if (CombatUIManager* uiManager = SingletonComponent<CombatUIManager>::GetInstance())
-            uiManager->FadeOut(_attackButtonHeldWaitTime);
-    } 
+        _isDownAButton = true;
+        if (InputState::ACTION_SELECTION == _inputState)
+        {
+            if (CombatUIManager* uiManager = SingletonComponent<CombatUIManager>::GetInstance())
+                uiManager->FadeOut(_attackButtonHeldWaitTime);
+
+            // TODO: a홀드 사운드 넣으니까 매우 이상함. 논의 필요.
+            //UmAudio.Stop(_hHoldAButtonSound);
+            //_hHoldAButtonSound = UmAudio.Play("-901007");
+        } 
+    }
 }
 
 void PlayerPlayTurnState::ReleasedButtonA(const Input::Controller& controller)
@@ -146,6 +187,10 @@ void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
             _inputState = InputState::QUICK_TIME_EVENT;
             qteSystem->StartQTE();
             SetAttackReady();
+            if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
+            {
+                system->Show(805907);
+            }
         }
         else
         {
@@ -160,12 +205,10 @@ void PlayerPlayTurnState::UpdateAttackButtonHeld(float dt)
 
 void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
 {
-#ifdef _UMEDITOR
-    _isDownAKey = ImGui::IsKeyDown(ImGuiKey_A); // 에디터에서는 키보드 인풋도 받음
-#endif                                          // ISEDITOR
-
      Debugger()([this] {
         // 아래는 디버그용 코드입니다.
+        _isDownAKey = ImGui::IsKeyDown(ImGuiKey_A); // 디버그에서는 키보드 인풋도 받음
+
         ImGuiHelper::AlignedText("Combat", ImGuiHelper::LEFT, 0.8f);
         if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
         {
@@ -225,6 +268,7 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
     if (QTEUIManager* qteUIManager = SingletonComponent<QTEUIManager>::GetInstance())
     {
         qteUIManager->SetUIAlpha(t);
+        //UmAudio.SetVolume(_hHoldAButtonSound, t);
     }
 }
 
@@ -258,7 +302,6 @@ void PlayerPlayTurnState::SetAttackReady()
         // 애니메이션 빌드 종료
         animator->EndBuildOverrideAnimation();
     }
-    //UmAudio.Play("-32000");
 }
 
 void PlayerPlayTurnState::SetAttack()
@@ -281,11 +324,19 @@ void PlayerPlayTurnState::SetAttack()
     
         animator->EndBuildOverrideAnimation();
     }
-    //UmAudio.Play("-32010");
 }
 
 void PlayerPlayTurnState::SetAttackEnd()
 {
+    if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+    {
+        if (UmCineMotion* camera = mode->GetBattleCamera())
+        {
+            camera->ResetRail(false);
+            camera->StartRail(true);
+        }
+    }
+
     bool succeed = false;
     Player& player   = GetPlayer();
     auto*   animator = player.GetAnimationComponent();
@@ -312,12 +363,6 @@ void PlayerPlayTurnState::SetAttackEnd()
     {
         player.EndTurn();
     }
-
-    auto camera = dynamic_cast<UmCineMotion*>(CameraComponent::MainCamera());
-    if (camera)
-    {
-        camera->StartRail(true);
-    }
 }
 
 void PlayerPlayTurnState::BattleOnHitEvent(QTE::NoteResult& result)
@@ -328,15 +373,15 @@ void PlayerPlayTurnState::BattleOnHitEvent(QTE::NoteResult& result)
     switch (result.Result)
     {
     case QTE::QTE_RESULT_PERFECT: {
-        UmAudio.Play("-31000");
+        UmAudio.Play("-451300");
         break;
     }
     case QTE::QTE_RESULT_NORMAL: {
-        UmAudio.Play("-31010");
+        UmAudio.Play("-451301");
         break;
     }
     case QTE::QTE_RESULT_MISS: {
-        //UmAudio.Play("-31020");
+        //UmAudio.Play("-451302");
         break;
     }
     default:
@@ -385,6 +430,23 @@ void PlayerPlayTurnState::OnQTEFinish()
 
     if (qteSystem && weaponSystem && weaponModelManager)
     {
+        UmCineMotion* battleCamera = nullptr;
+        float         cameraDuration = 0.f;
+        if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+        {
+            if (battleCamera = mode->GetBattleCamera())
+            {
+                cameraDuration = battleCamera->Duration;
+            }
+        }
+
+        if (battleCamera)
+        {
+            battleCamera->SetMainCamera();
+            battleCamera->ResetRail(true);
+            battleCamera->StartRail(false);
+        }
+
         QTE::OverallResult& results = qteSystem->GetQTEOverallResult();
         for (auto& result : results.NoteResults)
         {
@@ -395,8 +457,7 @@ void PlayerPlayTurnState::OnQTEFinish()
                 if (weaponModel.IsValid())
                 {
                     SetWeaponModelCallback(weaponModel, result);
-                    SetWeaponModelTransform(weaponModel, result);
-
+                    SetWeaponModelTransform(weaponModel, result);                   
                     if (const QTE::NoteData* note = result.NoteData)
                     {
                         // 애니메이션 Hit 이벤트 콜백 등록
@@ -409,7 +470,7 @@ void PlayerPlayTurnState::OnQTEFinish()
                                 const float noteTime  = note->Time;
                                 const float hitTime   = context->Time;
                                 const float noteDelay = note->WeaponAnimationDelay;
-                                float       delta     = noteTime - hitTime + noteDelay + animOffset;
+                                float       delta     = noteTime - hitTime + noteDelay + animOffset + cameraDuration;
                                 // 0보다 낮으면 0초로 맞추고 나머지를 해당 오프셋만큼 이동
                                 if (delta < 0)
                                 {
@@ -440,6 +501,10 @@ void PlayerPlayTurnState::OnQTEFinish()
             }
         }
         SetAttackEndTimeInvoke(totalTime);
+    }
+    else
+    {
+        SetAttackEnd();
     }
 }
 

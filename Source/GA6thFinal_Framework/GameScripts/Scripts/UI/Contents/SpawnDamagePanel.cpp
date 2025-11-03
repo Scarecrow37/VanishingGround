@@ -122,7 +122,7 @@ void SpawnDamagePanel::EraseChild() const
     children.clear();
 }
 
-std::weak_ptr<DamageElement> SpawnDamagePanel::MakeDamage(const int damage, const std::span<std::string> revelations) const
+std::weak_ptr<DamageElement> SpawnDamagePanel::MakeDamage(const int damage, const std::span<const std::string> revelations) const
 {
     const std::shared_ptr<GameObject> child = NewGameObject(GameObject::Helper::GenerateUniqueName("Damage Element"));
 

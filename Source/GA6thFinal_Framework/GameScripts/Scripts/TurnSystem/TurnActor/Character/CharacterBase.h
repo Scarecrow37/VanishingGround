@@ -68,8 +68,8 @@ public:
     virtual void TakeDamage(int damage, bool playAnim = true);
     virtual void TakeChain(int chainDamage);
 
-    virtual void ShowDamage(int damage, std::span<std::string> sources) = 0;
-    virtual void ShowHeal(int healAmount, std::span<std::string> sources) = 0;
+    virtual void ShowDamage(int damage, std::span<const std::string> sources) = 0;
+    virtual void ShowHeal(int healAmount, std::span<const std::string> sources) = 0;
 
     // 연격 수를 설정합니다.
     int SetChainCount(int value);
@@ -96,7 +96,7 @@ private:
     TokenInventory          _tokenInventory;
     SkeletalMeshRenderer*   _skeletalMeshRenderer = nullptr;
     AnimationComponent*     _animationComponent   = nullptr;
-    ParticleComponent*      _particleComponent    = nullptr;
+    ParticleComponent*      _particleComponent    = nullptr;    
 
 protected:
     virtual void Awake() override;
@@ -115,6 +115,8 @@ public:
     virtual void OnKill(CharacterBase* destination) override;
     virtual void OnTokenAdded(int tokenID) override;
     virtual void OnTokenRemoved(int tokenID) override;
+    virtual void OnTokenEnter(int tokenID) override;
+    virtual void OnTokenExit(int tokenID) override;
     virtual void OnQTEStart() override;
     virtual void OnQTEEnd() override;
     virtual void OnNotifiedAnimationEvent(const Timeline::EventContext* context);

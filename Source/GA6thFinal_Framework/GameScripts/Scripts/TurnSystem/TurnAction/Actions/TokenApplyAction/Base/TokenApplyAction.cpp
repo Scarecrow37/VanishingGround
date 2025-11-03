@@ -3,11 +3,6 @@
 #include "Token/TokenSystem.h"
 #include "TurnSystem/TurnSystemHelper.h"
 
-TokenApplyAction::TokenApplyAction() 
-{
-    ReflectFields->TokenID = TokenObject::Bleed::ID;
-}
-
 REFLECT_FUNCTION(TokenApplyAction)
 
 void TokenApplyAction::ImGuiDrawPropertysEvent()
@@ -44,7 +39,7 @@ void TokenApplyAction::ImGuiDrawPropertysEvent()
     ImguiDrawConditionEditor();
 }
 
-void TokenApplyAction::TryTokenSystemInfoUpdate() 
+void TokenApplyAction::TryTokenSystemInfoUpdate()
 {
     if (false == validTokenSystem)
     {

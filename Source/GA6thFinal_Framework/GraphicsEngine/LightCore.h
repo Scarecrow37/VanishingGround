@@ -13,6 +13,7 @@ public:
 public:
     void RegisterLight(std::string_view sceneName, Light* light);
     void ClearLightQueue();
+    void UpdateLightQueue();
 
 public:
     void Update(const float deltaTime);

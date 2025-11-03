@@ -17,21 +17,21 @@ class DamageElement : public UIComponent
 public:
     struct SetupData
     {
-        LONG                      Distance;
-        float                     Angle;
-        float                     Duration;
-        POINT                     Origin;
-        File::Guid                FontGuid;
-        float                     BeginFontSize;
-        float                     EndFontSize;
-        Color                     BeginColor;
-        Color                     EndColor;
-        Color                     BeginOutlineColor;
-        Color                     EndOutlineColor;
-        std::string               Damage;
-        std::span<std::string>    Revelations;
-        float                     TurningPoint;
-        Mathf::EasingFunctionType EasingFunctionType;
+        LONG                         Distance;
+        float                        Angle;
+        float                        Duration;
+        POINT                        Origin;
+        File::Guid                   FontGuid;
+        float                        BeginFontSize;
+        float                        EndFontSize;
+        Color                        BeginColor;
+        Color                        EndColor;
+        Color                        BeginOutlineColor;
+        Color                        EndOutlineColor;
+        std::string                  Damage;
+        std::span<const std::string> Revelations;
+        float                        TurningPoint;
+        Mathf::EasingFunctionType    EasingFunctionType;
     };
 
 public:
@@ -51,7 +51,7 @@ private:
     void  UpdateFont(float t) const;
 
     void SetupPoints();
-    void SetupChildren(const File::Guid& fontGuid, const std::string& damage, std::span<std::string> revelations);
+    void SetupChildren(const File::Guid& fontGuid, const std::string& damage, std::span<const std::string> revelations);
     std::weak_ptr<TextElement> CreateTextElement(const File::Guid& fontGuid, const std::string& content, float fontSize,
                                                  Color fontColor, Color outlineColor) const;
 

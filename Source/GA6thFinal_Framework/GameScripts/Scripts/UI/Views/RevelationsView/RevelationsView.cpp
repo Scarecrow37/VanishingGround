@@ -7,6 +7,8 @@
 #include "ViewModels/Revelations/RevelationsViewModel.h"
 #include "UI/Animations/FadeUIComponent/FadeUIComponent.h"
 #include "UI/Elements/SpriteAnimation/SpriteAnimationElement.h"
+#include "TutorialSystem/TutorialSystem.h"
+#include "UI/Animations/ChildsAnimationsController/ChildsAnimationsController.h"
 
 UMREAL_COMPONENT(RevelationsView)
 
@@ -14,6 +16,7 @@ RevelationsView::~RevelationsView() = default;
 
 void RevelationsView::Awake()
 {
+    gameObject->AddTag(TAG);
     Component::Awake();
     FindRevelationUIs();
 }
@@ -60,6 +63,17 @@ void RevelationsView::Start()
                 }
             };         
 
+            auto PlayExtinctionFX = [this](float delay) 
+            {
+                UmTime.Invoke(this, delay, []() 
+                {
+                    // 소멸 계시 등장 소리 재생
+                    UmAudio.Play("-401020");
+                    // TODO: 소멸 계시 등장 애니메이션 연출도 추가 필요
+
+                });      
+            };
+
             if (false == gameObject->ActiveSelf)
             {
                 gameObject->ActiveSelf = true;
@@ -70,6 +84,8 @@ void RevelationsView::Start()
 
                 if (auto startAnimation = _startAnimation.lock())
                 {
+                    //첫 등장 소리 재생
+                    UmAudio.Play("-431000");
                     startAnimation->Enable = true;
                     startAnimation->StartAnimation();
                     if (auto fade = _textsFade.lock())
@@ -79,6 +95,24 @@ void RevelationsView::Start()
                         {
                             fadeText->FadeIn();
                         });
+
+                        // 소멸 계시 등장시
+                        bool isExtinction = false;
+                        for (auto& data : revelations)
+                        {
+                            RevelationGrade grade = data.Grade;
+                            if (grade == RevelationGrade::EXTINCTION)
+                            {
+                                isExtinction = true;
+                                break;
+                            }
+                        }
+
+                        if (isExtinction)
+                        {
+                            float fadeTime = fade->FadeDuration;
+                            PlayExtinctionFX(time + fadeTime);
+                        }
                     }               
                 }
 
@@ -99,6 +133,8 @@ void RevelationsView::Start()
                             UpdateUIInfo();
                             if (auto reloadAnimation = _reloadAnimation.lock())
                             {
+                                //재 등장 사운드
+                                UmAudio.Play("-431001");
                                 reloadAnimation->StartAnimation();
                             }
                         });
@@ -107,6 +143,23 @@ void RevelationsView::Start()
                         {   
                             fadeText->FadeIn();
                         });
+
+                        //소멸 계시 등장시
+                        bool isExtinction = false;
+                        for (auto& data : revelations)
+                        {
+                            RevelationGrade grade = data.Grade;
+                            if (grade == RevelationGrade::EXTINCTION)
+                            {
+                                isExtinction = true;
+                                break;
+                            }
+                        }
+
+                        if (isExtinction)
+                        {
+                            PlayExtinctionFX(fadeTime + aniTime + fadeTime);                   
+                        }
                     }
                 }
 
@@ -227,6 +280,10 @@ std::pair<GameObject*, RevelationUI> RevelationsView::FindRevelationUI(const std
             if (nullptr == revelationUI.DescriptionElement && object.CompareTag("Description"))
             {
                 revelationUI.DescriptionElement = object.GetComponent<DescriptionPanel>();
+            }
+            if (nullptr == revelationUI.AnimationsController && object.CompareTag("Animations"))
+            {
+                revelationUI.AnimationsController = object.GetComponent<ChildsAnimationsController>();
             }
         });
 

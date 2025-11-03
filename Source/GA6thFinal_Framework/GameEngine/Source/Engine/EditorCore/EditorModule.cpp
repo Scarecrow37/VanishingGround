@@ -269,7 +269,7 @@ void EditorModule::EditorPlayMode::Play()
             UmSceneManager.WriteSceneToFile(*scene, writePath.string(), true);
             UmSceneManager.LoadScene(path.string()); 
             SetPlayModeColor();
-
+            UmTime.TimeScale = 1.f;
             #ifdef _UMEDITOR
             _isPlay = true;
             #endif // _UMEDITOR
@@ -315,6 +315,7 @@ void EditorModule::EditorPlayMode::Stop()
         }
         UmSceneManager.LoadScene(_playSceneGuid.ToPath().string());
         Global::editorModule->SetGuiThemeStyle();
+        UmTime.TimeScale = 1.f;
 
         #ifdef _UMEDITOR
         _isPlay = false;
@@ -475,28 +476,5 @@ bool EditorModule::EditorBuildSystem::BuildProject(std::string_view outPath)
             }
         }
     }
-
-    //셰이더 복사
-    pathStack.emplace_back("..\\Shaders");
-    while (false == pathStack.empty())
-    {
-        fs::path curr = pathStack.back();
-        pathStack.pop_back();
-        for (const auto& entry : fs::directory_iterator(curr))
-        {
-            if (fs::is_regular_file(entry.path()))
-            {
-                fs::path relative = entry.path().lexically_relative("..\\");
-                fs::path copyPath = destPath / relative;
-                fs::create_directories(copyPath.parent_path());
-                fs::copy_file(entry.path(), copyPath, fs::copy_options::overwrite_existing);
-            }
-            else
-            {
-                pathStack.push_back(entry);
-            }
-        }
-    }
-
     return true;
 }

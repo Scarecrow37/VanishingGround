@@ -520,6 +520,7 @@ public:
         void RequestSDFFontResource(const Component* component, const File::Guid& guid, const std::function<void()>& func);
         void RequestSDFFontResource(const Component* component, const File::Path& path, const std::function<void()>& func);
 
+        bool CheckAllResourceLoad();
     private:
         template <typename T>
         struct RenderResource
@@ -663,12 +664,14 @@ private:
     void SceneUpdate();
  
 private:
+    bool ResourceLoadWait();
     void ObjectsInputUpdate();       //Input을 사용하는 Component들의 Event를 Update합니다.
     void ObjectsFixedUpdate();       //FixedUpdate를 호출합니다.
     void ObjectsUpdate();            //Update 를 호출합니다.
     void ObjectsLateUpdate();        //LateUpdate를 호출합니다.
 
     void ObjectsAddRuntime();        //추가 대기중인 오브젝트, 컴포넌트를 라이프 사이클에 포함시킵니다.
+    void ResourceManagerUpdate();    //리로스 매니저를 업데이트합니다.
     void ObjectsOnEnable();          //OnEnable 예정인 컴포넌트들의 OnEnable 함수를 호출합니다.
     void ObjectsOnDisable();         //OnDisable 예정인 컴포넌트들의 OnDisable 함수를 호출해줍니다.
     void ObjectsAwake();             //Awake 예정인 컴포넌트들의 Awake 함수를 호출합니다.
@@ -791,6 +794,9 @@ private:
 
     //다음에 로드할 스카이박스
     Scene* _nextSceneSkybox;
+
+    bool _waitResourceLoad = false;
+    bool _checkResourceLoad = false;
 
 protected:
     /// <summary>

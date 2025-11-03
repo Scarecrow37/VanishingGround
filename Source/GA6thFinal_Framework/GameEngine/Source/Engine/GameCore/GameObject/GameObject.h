@@ -303,6 +303,15 @@ public:
     /// <returns>존재 여부</returns>
     bool CompareTag(const std::string& tag);
 
+    /// <summary>
+    /// 등록된 모든 태그를 가져옵니다.
+    /// </summary>
+    /// <returns>부착된 태그들</returns>
+    const std::set<std::string>& GetTags()
+    {
+        return ReflectFields->_tags;
+    }
+
  private:
     //IEditorObject에서 상속됨
     void OnInspectorBegin() override;

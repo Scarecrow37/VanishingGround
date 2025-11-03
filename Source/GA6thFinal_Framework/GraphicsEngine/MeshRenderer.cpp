@@ -10,7 +10,7 @@ MeshRenderer::~MeshRenderer() = default;
 
 const std::vector<UINT>& MeshRenderer::GetCustomDepths()
 {
-    if (_customDepths.empty())
+    if (_customDepths.empty() && _model)
     {
         _customDepths.resize(_model->GetMeshCount(), PostProcess::BLOOM);
     }
@@ -35,30 +35,33 @@ void MeshRenderer::SetModel(std::shared_ptr<Model> model)
 {
     _model = model;
 
-    _customDepths.resize(_model->GetMeshCount(), PostProcess::BLOOM);
-    _materials.resize(_model->GetMeshCount());
-
-    const auto& animation = _model->GetAnimation();
-
-    if (animation)
+    if (_model)
     {
-        _type = SKELETAL_MESH;
-        
-        _animator = std::make_unique<Animator>();
-        _animator->Initialize(animation, _model->GetSkeleton());
-        _animator->AddReference();
+        _customDepths.resize(_model->GetMeshCount(), PostProcess::BLOOM);
+        _materials.resize(_model->GetMeshCount());
 
-        const auto& meshes = _model->GetMeshes();
+        const auto& animation = _model->GetAnimation();
 
-        for (auto& mesh : meshes)
+        if (animation)
         {
-            auto dxrMesh = std::make_shared<DXRSkeletalMesh>(mesh->GetVIBuffer());
-            dxrMesh->Initialize(mesh->GetVIBuffer()->_vertexCount, sizeof(StaticMeshVertex));
-            _dxrSkeletalMeshes.push_back(dxrMesh);
+            _type = SKELETAL_MESH;
+
+            _animator = std::make_unique<Animator>();
+            _animator->Initialize(animation, _model->GetSkeleton());
+            _animator->AddReference();
+
+            const auto& meshes = _model->GetMeshes();
+
+            for (auto& mesh : meshes)
+            {
+                auto dxrMesh = std::make_shared<DXRSkeletalMesh>(mesh->GetVIBuffer());
+                dxrMesh->Initialize(mesh->GetVIBuffer()->_vertexCount, sizeof(StaticMeshVertex));
+                _dxrSkeletalMeshes.push_back(dxrMesh);
+            }
         }
+        else
+            _type = STATIC_MESH;
     }
-    else
-        _type = STATIC_MESH;
 }
 
 void MeshRenderer::SetMaterial(const UINT meshIndex, const Material& material)
@@ -71,7 +74,10 @@ void MeshRenderer::SetMaterial(const UINT meshIndex, const Material& material)
 
 void MeshRenderer::SetMasterMaterial(const UINT meshIndex, const Material& material)
 {    
-    _model->SetMaterial(meshIndex, material);
+    if (_model)
+    {
+        _model->SetMaterial(meshIndex, material);
+    }
 }
 
 void MeshRenderer::SetCustomMaterial(CustomLightType type, const std::any& customMaterial)

@@ -1,5 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "SceneTransitionComponent.h"
+#include "Audio/BGMManager.h"
 
 UMREAL_COMPONENT(SceneTransitionComponent)
 
@@ -124,6 +125,7 @@ void SceneTransitionComponent::OnDrawDebugSelected()
 void SceneTransitionComponent::Update()
 {
     CalculateFade();
+    UpdateBGMVolume();
 }
 
 void SceneTransitionComponent::CalculateFade()
@@ -132,16 +134,25 @@ void SceneTransitionComponent::CalculateFade()
     {
         return;
     }
-
     if (_fadeElapsedTimer >= Duration)
     {
-        _fadeFlag = false;
-        if (_fadeCallBackFunction && true == _callbackFlag)
+        if (_fadeEndFlag == true)
         {
-            _fadeCallBackFunction();
-            _callbackFlag = false;
+            UmTransition->Fade("Game", EndColor, true);
+            _fadeFlag = false;
+            if (_fadeCallBackFunction && true == _callbackFlag)
+            {
+                _fadeCallBackFunction();
+                _callbackFlag = false;
+            }
+            _fadeEndFlag = false;
+            return;
         }
-        return;
+        else
+        {
+            UmTransition->Fade("Game", EndColor, true);
+            _fadeEndFlag = true;
+        }
     }
     _fadeElapsedTimer += UmTime.UnscaledDeltaTime();
 
@@ -155,21 +166,24 @@ void SceneTransitionComponent::CalculateFade()
     UmTransition->Fade("Game", Color::Lerp(StartColor, EndColor, step), true);
 }
 
-//void SceneTransitionComponent::Reset()
-//{
-//    throw std::logic_error("The method or operation is not implemented.");
-//}
+void SceneTransitionComponent::UpdateBGMVolume() 
+{
+    if (_fadeFlag)
+    {
+        if (BGMManager* manager = SingletonComponent<BGMManager>::GetInstance())
+        {
+            const float step    = Step;
+            const float factor  = IsFadeIn() ? step : 1.0f - step;
+            manager->Volume     = std::clamp(factor, 0.0f, 1.0f);
+        }
+    }
+}
 
 void SceneTransitionComponent::Awake()
 {
     _singletonObject.TrySingleTon(true);
     _singletonComponent.TrySingleTon();
 }
-
-//void SceneTransitionComponent::OnDestroy()
-//{
-//    throw std::logic_error("The method or operation is not implemented.");
-//}
 
 void SceneTransitionComponent::Fade(float duration, const Vector4& start, const Vector4& end,
                                     std::function<void()> callback)
@@ -288,6 +302,16 @@ void SceneTransitionComponent::AddFadePreset()
 bool SceneTransitionComponent::IsTransitioning() const
 {
     return _fadeFlag;
+}
+
+bool SceneTransitionComponent::IsFadeIn() const
+{
+    return _startColor.A() > _endColor.A();
+}
+
+bool SceneTransitionComponent::IsFadeOut() const
+{
+    return _startColor.A() < _endColor.A();
 }
 
 void SceneTransitionComponent::SceneTransitionFade(std::string_view inPreset, std::string_view outPreset,
