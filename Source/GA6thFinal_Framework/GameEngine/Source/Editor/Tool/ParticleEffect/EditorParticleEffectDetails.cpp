@@ -835,43 +835,46 @@ void EditorParticleEffectDetails::ShowEffectDetails()
     }
     {
         for (auto& emitter : _curEffect->GetEmitterList())
-        {
-            if (emitter->_particleRenderModule->AsSprite())
+        { 
+            if (emitter && emitter->_particleRenderModule)
             {
+                if (emitter->_particleRenderModule->AsSprite())
+                {
 
-                auto& pathText = emitter->_particleRenderModule->AsSprite()->GetModelAndTexturePath();
+                    auto& pathText = emitter->_particleRenderModule->AsSprite()->GetModelAndTexturePath();
 
-                int n = WideCharToMultiByte(CP_UTF8, 0, pathText.c_str(), (int)pathText.size(), nullptr, 0, nullptr,
-                                            nullptr);
-                std::string pathString(n, '\0');
-                WideCharToMultiByte(CP_UTF8, 0, pathText.c_str(), (int)pathText.size(), pathString.data(), n, nullptr,
-                                    nullptr);
+                    int n = WideCharToMultiByte(CP_UTF8, 0, pathText.c_str(), (int)pathText.size(), nullptr, 0, nullptr,
+                                                nullptr);
+                    std::string pathString(n, '\0');
+                    WideCharToMultiByte(CP_UTF8, 0, pathText.c_str(), (int)pathText.size(), pathString.data(), n,
+                                        nullptr, nullptr);
 
-                std::string label = "tex : ##" + emitter->GetEmitterName() + " tex : ";
-                ImGui::InputText(label.c_str(), pathString.data(), pathString.size() + 1, ImGuiInputTextFlags_ReadOnly);
+                    std::string label = "tex : ##" + emitter->GetEmitterName() + " tex : ";
+                    ImGui::InputText(label.c_str(), pathString.data(), pathString.size() + 1,
+                                     ImGuiInputTextFlags_ReadOnly);
+                }
+                if (emitter->_particleRenderModule->AsRibbon())
+                {
+
+                    auto& pathText = emitter->_particleRenderModule->AsRibbon()->GetModelAndTexturePath();
+
+                    int n = WideCharToMultiByte(CP_UTF8, 0, pathText.c_str(), (int)pathText.size(), nullptr, 0, nullptr,
+                                                nullptr);
+                    std::string pathString(n, '\0');
+                    WideCharToMultiByte(CP_UTF8, 0, pathText.c_str(), (int)pathText.size(), pathString.data(), n,
+                                        nullptr, nullptr);
+
+                    std::string label = "tex : ##" + emitter->GetEmitterName() + " tex : ";
+                    ImGui::InputText(label.c_str(), pathString.data(), pathString.size() + 1,
+                                     ImGuiInputTextFlags_ReadOnly);
+                }
+                if (emitter->_locationType == LocationShape::MESH_SURFACE)
+                {
+                    auto        pathText = emitter->_emitLocator->AsMeshSurfaceLocator()->GetModelPath().string();
+                    std::string label    = "model : ##" + emitter->GetEmitterName() + " model : ";
+                    ImGui::InputText(label.c_str(), pathText.data(), pathText.size() + 1, ImGuiInputTextFlags_ReadOnly);
+                }
             }
-            if (emitter->_particleRenderModule->AsRibbon())
-            {
-
-                auto& pathText = emitter->_particleRenderModule->AsRibbon()->GetModelAndTexturePath();
-
-                int n = WideCharToMultiByte(CP_UTF8, 0, pathText.c_str(), (int)pathText.size(), nullptr, 0, nullptr,
-                                            nullptr);
-                std::string pathString(n, '\0');
-                WideCharToMultiByte(CP_UTF8, 0, pathText.c_str(), (int)pathText.size(), pathString.data(), n, nullptr,
-                                    nullptr);
-
-                std::string label = "tex : ##" + emitter->GetEmitterName() + " tex : ";
-                ImGui::InputText(label.c_str(), pathString.data(), pathString.size() + 1, ImGuiInputTextFlags_ReadOnly);
-            }
-            if (emitter->_locationType == LocationShape::MESH_SURFACE)
-            {
-                auto pathText = emitter->_emitLocator->AsMeshSurfaceLocator()->GetModelPath().string();
-                std::string label    = "model : ##" + emitter->GetEmitterName() + " model : ";
-                ImGui::InputText(label.c_str(), pathText.data(), pathText.size() + 1, ImGuiInputTextFlags_ReadOnly);
-
-            }
-
         }
     }
 }
