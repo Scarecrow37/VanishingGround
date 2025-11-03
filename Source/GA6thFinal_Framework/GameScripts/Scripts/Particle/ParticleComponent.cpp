@@ -178,6 +178,11 @@ void ParticleComponent::ImGuiDrawPropertysEvent()
     }
 }
 
+void ParticleComponent::Start()
+{
+    FollowBoneMatrix();
+}
+
 void ParticleComponent::LoadParticle(const std::string& keyString)
 {
     auto it = ReflectFields->GuidMap.find(keyString);
@@ -310,9 +315,10 @@ void ParticleComponent::FollowBoneMatrix(const std::string& key)
                 {
                     if (skelMesh->Renderer && skelMesh->Renderer->GetAnimator())
                     {
-                        UmParticleManager->SetBoneMatrix(
-                            this, key,
-                            skelMesh->Renderer->GetAnimator()->FindBoneMatrix(ReflectFields->BoneNameMap[key].c_str()));
+                        const Matrix* boneMat =
+                            skelMesh->Renderer->GetAnimator()->FindBoneMatrix(ReflectFields->BoneNameMap[key].c_str());
+
+                        UmParticleManager->SetBoneMatrix(this, key, boneMat);
                     }
                 }
             }

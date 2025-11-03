@@ -135,14 +135,17 @@ protected:
     void SerializedReflectEvent() override;
     void DeserializedReflectEvent() override;
     void ImGuiDrawPropertysEvent() override;
+    void Start() override;
 
- private:
+private:
     void LoadParticle(const std::string& keyString);
     
     class SkeletalMeshRenderer* _skelMesh;
     std::unordered_map<std::string,Vector3> _positionVector;
     std::unordered_map<std::string,Vector3> _rotationVector;
     std::unordered_map<std::string,Vector3> _scaleVector;
+    std::unordered_map<std::string,const Matrix*> _boneMat;
+    
 
     std::string _currentEffectKey = "-";
     std::string _newEffectKey     = "";
