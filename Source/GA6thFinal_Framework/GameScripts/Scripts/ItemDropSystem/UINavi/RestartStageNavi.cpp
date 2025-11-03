@@ -154,6 +154,7 @@ void RestartStageNavi::Start()
         if (_imageElement)
         {
             _imageElement->SetImage(GetSelectBox(SelectBoxType::DEFAULT));
+            Enable = true;
         }
     }
     else
@@ -161,6 +162,7 @@ void RestartStageNavi::Start()
         if (_imageElement)
         {
             _imageElement->SetImage(GetSelectBox(SelectBoxType::DISABLE));
+            Enable = false;
         }
     }
 }

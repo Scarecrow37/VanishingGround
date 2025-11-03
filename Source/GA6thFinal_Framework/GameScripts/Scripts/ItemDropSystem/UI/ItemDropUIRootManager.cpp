@@ -98,7 +98,16 @@ void ItemDropUIRootManager::AutoFocus(bool checkInputDir)
     //없으면 RestartButton으로 포커스 설정
     if (auto restartNavi = _restartNavi.lock())
     {
-        restartNavi->Focus();
+        if (restartNavi->Enable)
+        {
+            restartNavi->Focus();
+            ArtifactButtonNavi::LastFocusIndex = ARTIFACT_DROP_COUNT + 1;
+            _isFocusArtifactNavi               = false;
+        }
+    }
+    else if (auto returnToMapNavi = _returnToMapNavi.lock())
+    {
+        returnToMapNavi->Focus();
         ArtifactButtonNavi::LastFocusIndex = ARTIFACT_DROP_COUNT + 1;
         _isFocusArtifactNavi               = false;
     }
