@@ -104,13 +104,13 @@ void ItemDropUIRootManager::AutoFocus(bool checkInputDir)
             ArtifactButtonNavi::LastFocusIndex = ARTIFACT_DROP_COUNT + 1;
             _isFocusArtifactNavi               = false;
         }
-    }
-    else if (auto returnToMapNavi = _returnToMapNavi.lock())
-    {
-        returnToMapNavi->Focus();
-        ArtifactButtonNavi::LastFocusIndex = ARTIFACT_DROP_COUNT + 1;
-        _isFocusArtifactNavi               = false;
-    }
+        else if (auto returnToMapNavi = _returnToMapNavi.lock())
+        {
+            returnToMapNavi->Focus();
+            ArtifactButtonNavi::LastFocusIndex = ARTIFACT_DROP_COUNT + 1;
+            _isFocusArtifactNavi               = false;
+        }
+    } 
 }
 
 void ItemDropUIRootManager::DeserializedReflectEvent()
