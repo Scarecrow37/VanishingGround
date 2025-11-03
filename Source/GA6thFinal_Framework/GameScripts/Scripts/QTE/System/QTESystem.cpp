@@ -124,6 +124,20 @@ void QTESystem::ImGuiDrawPropertysEvent()
 #endif // _UMEDITOR
 }
 
+void QTESystem::ResetState() 
+{
+    ResetQTETimeState();
+    _keyBinder          = {};
+    _audioIDState       = {};
+    _fadeState          = {};
+    _fadeState          = {};
+    _callbackHandler    = {};
+    _overallResult      = {};
+    _nextKeyEvent       = {nullptr, Input::ControllerTypes::UNDEFINED};
+
+    ReflectFields->QTESpeedScale = 1.0f;
+}
+
 QTE::Track* QTESystem::AddMappingTrackToWeaponID(const int weaponID, const File::Path& path)
 {
 #ifdef _UMEDITOR
@@ -221,7 +235,7 @@ void QTESystem::StartQTE(const WeaponStats& weapon)
 {
     if (_currState == QTE::STATE_WAITING)
     {
-        ResetQTEState();
+        ResetQTETimeState();
         if (_weaponIDToTrackTable.contains(weapon.WeaponID) &&
             false == _weaponIDToTrackTable[weapon.WeaponID].empty())
         {
@@ -366,7 +380,7 @@ QTE::ResultType QTESystem::GetQTEResult(const float noteTime)
     }
 }
 
-void QTESystem::ResetQTEState() 
+void QTESystem::ResetQTETimeState()
 {
     _currState  = QTE::STATE_WAITING;
     _prevState  = QTE::STATE_WAITING;
