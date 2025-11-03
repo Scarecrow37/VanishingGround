@@ -285,8 +285,10 @@ void Enemy::SetPositionFromSpawnPoint(const Monster::SpawnPoint spawnPointType)
         {
             Vector3 spawnLocal    = spawnPoint->transform->Position;
             Vector3 spawnEuler    = spawnPoint->transform->EulerAngle;
+            Vector3 spawnScale    = spawnPoint->transform->Scale;
             transform->Position   = spawnLocal;
             transform->EulerAngle = spawnEuler;
+            transform->Scale      = spawnScale;
             _spawnPoint           = spawnPointType;
         }
     }

@@ -44,20 +44,6 @@ namespace Monster
                     size_t randomIndex = Random::Index(availableTokenID.size());
                     tokenInventory.RemoveTokenStackFromID(availableTokenID[randomIndex]);
                 }
-
-                {   // 자신에게 T_Param(4)를 S_Param(1)~S_Param(2) 만큼 부여한다.
-                    if (CharacterBase* target = GetOwnerEnemy())
-                    {
-                        TokenParam  tokenParam   = GetTokenParam(4);
-                        ActionParam actionParam1 = GetActionParam(1);
-                        ActionParam actionParam2 = GetActionParam(2);
-
-                        int randomRange = Random::Range(actionParam1.Param, actionParam2.Param);
-
-                        TokenInventory& tokenInventory = target->GetTokenInventory();
-                        tokenInventory.AddTokenStackFromID(tokenParam.TokenID, randomRange);
-                    }
-                }
             }
         }
     } // namespace Action

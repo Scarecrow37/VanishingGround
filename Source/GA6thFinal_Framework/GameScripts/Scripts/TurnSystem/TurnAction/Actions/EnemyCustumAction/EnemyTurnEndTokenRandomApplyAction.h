@@ -18,3 +18,21 @@ private:
     void        UpdateActionInfo() override;
     std::string _actionInfo;
 };
+
+class EnemyTurnEndTokenRandomSetAction : public TokenRandomRangeApplyAction
+{
+    USING_PROPERTY(EnemyTurnEndTokenRandomSetAction)
+public:
+    EnemyTurnEndTokenRandomSetAction()             = default;
+    ~EnemyTurnEndTokenRandomSetAction() override = default;
+
+public:
+    const std::string& GetActionInfo() override;
+    void               ImGuiDrawActionEditor() override;
+    const std::string& GetActionName() override;
+    void               OnEnemyTurnEnd(Enemy& enemy) override;
+
+private:
+    void        UpdateActionInfo() override;
+    std::string _actionInfo;
+};

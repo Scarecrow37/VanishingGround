@@ -38,20 +38,6 @@ namespace Monster
                     tokenInventory.AddTokenStackFromID(tokenParam.TokenID, tokenParam.Count);
                 }
             }
-
-             {  // 자신에게 T_Param(3)를 S_Param(2)~S_Param(3) 만큼 부여한다.
-                if (CharacterBase* target = GetOwnerEnemy())
-                {
-                    TokenParam  tokenParam   = GetTokenParam(3);
-                    ActionParam actionParam1 = GetActionParam(2);
-                    ActionParam actionParam2 = GetActionParam(3);
-
-                    int randomRange = Random::Range(actionParam1.Param, actionParam2.Param);
-
-                    TokenInventory& tokenInventory = target->GetTokenInventory();
-                    tokenInventory.AddTokenStackFromID(tokenParam.TokenID, randomRange);
-                }
-            }
         }
     } // namespace Action
 } // namespace Monster
