@@ -69,7 +69,7 @@ float BattleIntroUIController::PlayIntro(int stage, int battleCount)
                 std::string roundTag;
                 for (int i = 1; i <= battleCount; ++i)
                 {
-                    roundTag = "Round " + std::to_string(battleCount);
+                    roundTag = "Round " + std::to_string(i);
                     roundsController->StopAnimationWithTag(roundTag);
                     roundsController->StartAnimationWithTag(roundTag);
                 }

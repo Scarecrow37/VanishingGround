@@ -101,7 +101,8 @@ void PlayerPlayTurnState::OnExit()
     //말라 비틀어진 심장 강제 구현
     if (AccessorySystem* system = SingletonComponent<AccessorySystem>::GetInstance())
     {
-        if (system->HasPlayerAccessory(203206))
+        // 불타는 심장이 존재하면 효과 무효화
+        if (system->HasPlayerAccessory(203206) && false == system->HasPlayerAccessory(203300))
         {
             for (auto& target : TurnSystemHelper::GetTargetCharacters(TurnTarget::ALL_ENEMIES))
             {

@@ -50,12 +50,19 @@ void TutorialSystem::Awake()
 void TutorialSystem::Start()
 {
     Component::Start();
-
-    FindComponents();
-    Hide();
-
+    _requestFind = true;
     SetupData();
-    SetupCallback();
+}
+
+void TutorialSystem::Update() 
+{
+    if (_requestFind)
+    {
+        FindComponents();
+        SetupCallback();
+        Hide();
+        _requestFind = false;
+    }
 }
 
 void TutorialSystem::OnDestroy() 
@@ -66,6 +73,7 @@ void TutorialSystem::OnDestroy()
 void TutorialSystem::OnLoadScene(Scene& loadScene, LoadSceneMode mode) 
 {
     Unlock();
+    _requestFind = true;
 }
 
 void TutorialSystem::ImGuiDrawPropertysEvent()

@@ -30,7 +30,7 @@ bool GameOverCondition::Evaluate()
         Player* player = combatStartPhase->GetPlayer();
         if (player)
         {
-            return TurnActor::STATE::Dead == player->State;
+            return player->gameObject->ActiveSelf == false;
         }
     }
     return false;

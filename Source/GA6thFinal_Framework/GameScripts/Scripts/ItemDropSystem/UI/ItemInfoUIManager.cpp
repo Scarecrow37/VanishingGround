@@ -41,6 +41,11 @@ void ItemInfoUIManager::SetItemIcon(const DropItemInfo& info)
         message += " is not Import";
         UmLogger.Log(LogLevel::LEVEL_WARNING, message);
     }
+
+    if (_uiComponents.FrameImage)
+    {
+        _uiComponents.FrameImage->SetImage(GetFrameGuid(info.Category));
+    }
 }
 
 void ItemInfoUIManager::SetItemIcon(const File::Guid& guid)
@@ -160,17 +165,32 @@ void ItemInfoUIManager::Awake()
     Base::Awake();
     gameObject->AddTag(TAG);
     FindComponents();
-    
 }
 
 void ItemInfoUIManager::FindComponents() 
 {
+    _uiComponents.FrameImage      = nullptr;
+    _uiComponents.ItemName        = nullptr;
+    _uiComponents.ItemIcon        = nullptr;
+    _uiComponents.ItemDescription = nullptr;
+    _uiComponents.ItemFlavor      = nullptr;
+    _uiComponents.ItemKeyword     = nullptr;
+
+    _uiComponents.Damage      = nullptr;
+    _uiComponents.Critical    = nullptr;
+    _uiComponents.AttackCount = nullptr;
+    _uiComponents.Speed       = nullptr;
+
     Transform::ForeachBFS(transform, [this](Transform* curr) 
     { 
         GameObject& object = curr->gameObject;
         if (nullptr == _uiComponents.ItemName && object.CompareTag("Name"))
         {
             _uiComponents.ItemName = object.GetComponent<TextElement>();
+        }
+        else if (nullptr == _uiComponents.FrameImage && object.CompareTag("Frame"))
+        {
+            _uiComponents.FrameImage = object.GetComponent<ImageElement>();
         }
         else if (nullptr == _uiComponents.ItemIcon && object.CompareTag("Icon"))
         {

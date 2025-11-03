@@ -285,13 +285,13 @@ void Enemy::SetPositionFromSpawnPoint(const Monster::SpawnPoint spawnPointType)
         auto weakSpawnPoint = system->GetSpawnPointObject(spawnPointType);
         if (auto spawnPoint = weakSpawnPoint.lock())
         {
-            Vector3 spawnLocal    = spawnPoint->transform->Position;
-            Vector3 spawnEuler    = spawnPoint->transform->EulerAngle;
-            Vector3 spawnScale    = spawnPoint->transform->Scale;
-            transform->Position   = spawnLocal;
-            transform->EulerAngle = spawnEuler;
-            transform->Scale      = spawnScale;
-            _spawnPoint           = spawnPointType;
+            Vector3    spawnLocal    = spawnPoint->transform->Position;
+            Quaternion spawnRotation = spawnPoint->transform->Rotation;
+            Vector3    spawnScale    = spawnPoint->transform->Scale;
+            transform->Position      = spawnLocal;
+            transform->Rotation      = spawnRotation;
+            transform->Scale         = spawnScale;
+            _spawnPoint              = spawnPointType;
         }
     }
 }
