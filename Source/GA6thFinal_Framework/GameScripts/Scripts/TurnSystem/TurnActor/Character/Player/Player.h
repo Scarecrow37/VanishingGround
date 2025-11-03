@@ -109,4 +109,10 @@ public:
     void OnQTEStart() override;
     void OnQTEEnd() override;
     void OnNotifiedAnimationEvent(const Timeline::EventContext* context) override;
+
+private:
+    void RegisterTokenHUD(int tokenID);
+    void UnregisterTokenHUD(int tokenID);
+
+    std::unordered_map<int, GameObject*> _tokenHUDTable;
 };

@@ -656,6 +656,9 @@
     <ClInclude Include="Scripts\Input\InputOkCancelComponent\InputOkCancelComponent.h" />
     <ClInclude Include="Scripts\MainMenu\CreditsBackButton.h" />
     <ClInclude Include="Scripts\BattleIntroUIController\BattleIntroUIController.h" />
+    <ClInclude Include="Scripts\UI\Views\TokenHUD\TokenHUDView.h" />
+    <ClInclude Include="Scripts\ViewModels\TokenHUD\TokenHUDViewModel.h" />
+    <ClInclude Include="Scripts\TokenHUD\TokenHUD.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scripts\QTE\Controller\QTEController.cpp" />
@@ -1012,6 +1015,9 @@
     <ClCompile Include="Scripts\Input\InputOkCancelComponent\InputOkCancelComponent.cpp" />
     <ClCompile Include="Scripts\MainMenu\CreditsBackButton.cpp" />
     <ClCompile Include="Scripts\BattleIntroUIController\BattleIntroUIController.cpp" />
+    <ClCompile Include="Scripts\UI\Views\TokenHUD\TokenHUDView.cpp" />
+    <ClCompile Include="Scripts\ViewModels\TokenHUD\TokenHUDViewModel.cpp" />
+    <ClCompile Include="Scripts\TokenHUD\TokenHUD.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
