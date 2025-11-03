@@ -129,7 +129,7 @@ void Stage::Start()
 
         for (int i = 0; i < ARTIFACT_DROP_COUNT; i++)
         {
-            _dropItemAssetIDs[i] = DropItemInfo::GetArtifactCategoryAssetID(_dropItemInfos[i].Category);
+            _dropItemAssetIDs[i] = DropItemInfo::GetArtifactCategoryAssetID(_dropItemInfos[i].Category, true);
         }
 
         if (MapManager* mapManager = SingletonComponent<MapManager>::GetInstance())

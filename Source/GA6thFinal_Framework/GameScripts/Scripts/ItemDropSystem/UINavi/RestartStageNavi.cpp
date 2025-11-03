@@ -9,41 +9,6 @@ UMREAL_COMPONENT(RestartStageNavi)
 
 namespace RestartUtility
 {
-    static File::Guid GetSelectBox(RestartStageNavi::SelectBoxType type)
-    {
-        File::Guid guid;
-        if (ExcelDataSystem* system = SingletonComponent<ExcelDataSystem>::GetInstance())
-        {
-            if (auto db = system->FindExcelDataBase(u8"전투"))
-            {
-                std::u8string_view rowKey;
-                switch (type)
-                {
-                case RestartStageNavi::SelectBoxType::DEFAULT:
-                    rowKey = u8"나가기/ 다음전투 선택버튼 포커스 안됨";
-                    break;
-                case RestartStageNavi::SelectBoxType::FOCUS :
-                    rowKey = u8"나가기/ 다음전투 선택버튼 포커스 됨";
-                    break;
-                default:
-                    break;
-                }
-
-                size_t rowIndex = db->FindRowIndex(rowKey, u8"Description");
-                if (rowIndex != db->FIND_INDEX_FAIL)
-                {
-                    std::string_view data = db->FindData(rowIndex, u8"ID");
-                    if (data != db->FIND_STR_FAIL)
-                    {
-                        int id = std::stoi(data.data());
-                        guid   = UmFileSystem.GetGuidFromAssetID(id);
-                    }
-                }
-            }
-        }
-        return guid;
-    }
-
     static bool CheckImageElementWithLog(ImageElement* ptr)
     {
         if (ptr == nullptr)
@@ -66,13 +31,7 @@ RestartStageNavi::RestartStageNavi()
 void RestartStageNavi::Submit()
 {
     Base::Submit();
-    int clearCount = 0;
-    if (ItemDropSystem* dropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
-    {
-        clearCount = dropSystem->StageClearCount;
-    }
-
-    if (clearCount < 3)
+    if (_clearCount < 3)
     {
         if (const Scene* scene = UmSceneManager.GetMainScene())
         {
@@ -97,7 +56,6 @@ void RestartStageNavi::Submit()
 void RestartStageNavi::FocusIn(FocusCallType callType)
 {
     using namespace RestartUtility;
-
     if (CheckImageElementWithLog(_imageElement))
     {
         File::Guid guid = GetSelectBox(SelectBoxType::FOCUS);
@@ -108,25 +66,32 @@ void RestartStageNavi::FocusIn(FocusCallType callType)
         else
         {
             _imageElement->SetImage(guid);
-        }    
-    }
+        }
+    }   
 }
 
-void RestartStageNavi::FocusOut(FocusCallType callType) 
+void RestartStageNavi::FocusOut(FocusCallType callType)
 {
     using namespace RestartUtility;
-
     if (CheckImageElementWithLog(_imageElement))
     {
-        File::Guid guid = GetSelectBox(SelectBoxType::DEFAULT);
-        if (guid.IsNull())
+        if (_clearCount < 3)
         {
-            UmLogger.Log(LogLevel::LEVEL_WARNING, u8"일반 이미지를 찾을 수 없습니다.");
+            File::Guid guid = GetSelectBox(SelectBoxType::DEFAULT);
+            if (guid.IsNull())
+            {
+                UmLogger.Log(LogLevel::LEVEL_WARNING, u8"일반 이미지를 찾을 수 없습니다.");
+            }
+            else
+            {
+                _imageElement->SetImage(guid);
+            }
         }
         else
         {
+            File::Guid guid = GetSelectBox(SelectBoxType::DISABLE);
             _imageElement->SetImage(guid);
-        }   
+        }
     }
 }
 
@@ -142,8 +107,25 @@ void RestartStageNavi::Start()
     using namespace RestartUtility;
     Base::Start();
     CheckImageElementWithLog(_imageElement);
-    if (_imageElement)
+    if (ItemDropSystem* dropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
     {
-        _imageElement->SetImage(GetSelectBox(SelectBoxType::DEFAULT));
+        _clearCount = dropSystem->StageClearCount;
+    }
+
+    if (_clearCount < 3)
+    {
+        if (_imageElement)
+        {
+            _imageElement->SetImage(GetSelectBox(SelectBoxType::DEFAULT));
+            Enable = true;
+        }
+    }
+    else
+    {
+        if (_imageElement)
+        {
+            _imageElement->SetImage(GetSelectBox(SelectBoxType::DISABLE));
+            Enable = false;
+        }
     }
 }
