@@ -4,7 +4,7 @@
 #include "Light.h"
 
 ParticleEmitter::ParticleEmitter()  = default;
-ParticleEmitter::~ParticleEmitter() = default; 
+ParticleEmitter::~ParticleEmitter() = default;
 
 void ParticleEmitter::SetLocatorFactor(const Vector3& factor)
 {
@@ -363,7 +363,7 @@ void ParticleEmitter::ScaleVelocity(Vector3 pos)
         ScaleVelFromPoint(pos);
         break;
     case VelocityScaleType::CUSTOM:
-        _velocity = _velocityScalingFunciton ? _velocityScalingFunciton() : _velocityFactor;
+        _velocity = _velocityFactor;
         break;
     default:
         _velocity = _velocityFactor;

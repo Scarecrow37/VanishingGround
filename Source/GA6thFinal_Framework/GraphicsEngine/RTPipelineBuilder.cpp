@@ -22,53 +22,6 @@ void RTPipelineBuilder::SetHitGroupRootSignature(const D3D12_ROOT_SIGNATURE_DESC
     _hitGroupRootDesc = root;
 }
 
-//ComPtr<ID3D12StateObject> RTPipelineBuilder::BuildPipelineStateObject(ID3D12Device5* device)
-//{
-//    std::vector<D3D12_STATE_SUBOBJECT> subObjects;
-//    std::vector<DxilLibrary>           libraries;
-//    std::vector<ExportAssociation> associations;
-//    std::vector<HItProgram>            hitGroups;
-//    
-//    for (const auto& shader : _shaders)
-//    {
-//        const WCHAR* entryNames[] = {shader.entry.c_str()};
-//        auto         blob         = d3dUtil::CompileShaderLibrary(shader.filename.c_str(), shader.target.c_str());
-//        subObjects.push_back(libraries.back().stateSubObject);
-//        _allExportNames.push_back(shader.entry);
-//    }
-//    
-//    for (const auto& hit : _hitGroups)
-//    {
-//        hitGroups.emplace_back(hit.anyHit.c_str(), hit.closestHit.c_str(), hit.name);
-//        subObjects.push_back(hitGroups.back().subObject);
-//    }
-//    
-//    GlobalRootSignature globalRoot(_rayGenRootDesc);
-//    subObjects.push_back(globalRoot.subObject);
-//    
-//    LocalRootSignature localRoot(_hitGroupRootDesc);
-//    associations.emplace_back(_allExportNames.data(), static_cast<uint32_t>(_allExportNames.size()),
-//                              &localRoot.subObject);
-//    subObjects.push_back(localRoot.subObject);
-//    subObjects.push_back(associations.back().subObject);
-//    
-//    ShaderConfig shaderConfig(sizeof(float) * 2, sizeof(float) * (4 + 1));
-//    subObjects.push_back(shaderConfig.subObject);
-//    
-//    // 최대 재귀 횟수 + 1
-//    PipelineConfig piplineConfig(5);
-//    subObjects.push_back(piplineConfig.subObject);
-//    
-//    D3D12_STATE_OBJECT_DESC desc{};
-//    desc.Type = D3D12_STATE_OBJECT_TYPE_RAYTRACING_PIPELINE;
-//    desc.NumSubobjects = static_cast<UINT>(subObjects.size());
-//    desc.pSubobjects   = subObjects.data();
-//    
-//    ComPtr<ID3D12StateObject> stateObject;
-//    HRESULT                   hr = device->CreateStateObject(&desc, IID_PPV_ARGS(stateObject.GetAddressOf()));
-//    FAILED_CHECK_MESSAGE(hr, L"RTPipelineBuilder::BuildPipelineStateObject() failed createstateobject");
-//    return stateObject;
-//}
 ComPtr<ID3D12StateObject> RTPipelineBuilder::BuildPipelineStateObject(ID3D12Device5* device)
 {
     std::vector<D3D12_STATE_SUBOBJECT> subobjects;
@@ -111,7 +64,7 @@ ComPtr<ID3D12StateObject> RTPipelineBuilder::BuildPipelineStateObject(ID3D12Devi
     ExportAssociation missAssoc(missShaders, 1 , &subobjects[subobjects.size() - 1]);
     subobjects.push_back(missAssoc.subObject);
 
-    ShaderConfig shaderCfg(sizeof(float) * 2, sizeof(float) * (4 + 1));
+    ShaderConfig shaderCfg(sizeof(float) * 2, sizeof(float) * (4 + 1 + 1 + 1));
     subobjects.push_back(shaderCfg.subObject);
     std::vector<const WCHAR*> exportPtrs;
     for (const auto& name : _allExportNames)

@@ -99,7 +99,7 @@ void DXRDrawPass::CreateStateObject()
     subobjects[index++] = missRootAssociation.subObject; // 7
 
     // payload size float4 + uint + float3
-    ShaderConfig shaderConfig(sizeof(float) * 2, sizeof(float) * (4 + 1));
+    ShaderConfig shaderConfig(sizeof(float) * 2, sizeof(float) * (4 + 1 + 1 + 1));
     subobjects[index] = shaderConfig.subObject; // 8
 
     const uint32_t    shaderConfigIndex = index++;
