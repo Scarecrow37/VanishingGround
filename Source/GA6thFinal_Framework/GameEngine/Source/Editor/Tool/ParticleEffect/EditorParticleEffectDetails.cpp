@@ -115,6 +115,13 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
 
         ImGui::TableNextColumn();
         ImGui::Text(shapeItems[static_cast<UINT>(_curEmitter->_locationType)]);
+        
+        if (_curEmitter->_locationType == LocationShape::MESH_SURFACE)
+        {
+            ImGui::TableNextRow();
+            auto pathText = _curEmitter->_emitLocator->AsMeshSurfaceLocator()->GetModelPath().string();
+            ImGui::Text(pathText.c_str());
+        }
 
         ImGui::EndTable();
     }
@@ -149,6 +156,8 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
                     {
                         spriteModule->ChangeAlbedoTexture(out.front().wstring());
                         isDirty = true;
+                        ImGui::Text("Texture Path : ");
+                        ImGui::Text(out.front().string().c_str());
                     }
                 }
                 bool animFlag = _spriteAnimFlag;
@@ -620,6 +629,7 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
 
     // scale
     {
+
         // axis
         if (ParticleType::SPRITE == _curEmitter->_particleType)
         {
@@ -780,8 +790,7 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
     // drag
     {
         Vector4 force = _curEmitter->GetDragForce();
-        ImGui::Text("Drag Force");
-        ImGui::SameLine();
+        ImGui::Text("sprite loop / use world sprite scale / drag atten");
         bool result = ImGui::SliderFloat4("##Drag Force", (float*)&force, -1000, 1000);
         if (false == isDirty)
             if (true == result)
@@ -823,5 +832,46 @@ void EditorParticleEffectDetails::ShowEffectDetails()
         ImGui::SameLine();
         ImGui::InputFloat("##Effect Lifetime", &lifetime);
         _curEffect->SetLifetime(lifetime);
+    }
+    {
+        for (auto& emitter : _curEffect->GetEmitterList())
+        {
+            if (emitter->_particleRenderModule->AsSprite())
+            {
+
+                auto& pathText = emitter->_particleRenderModule->AsSprite()->GetModelAndTexturePath();
+
+                int n = WideCharToMultiByte(CP_UTF8, 0, pathText.c_str(), (int)pathText.size(), nullptr, 0, nullptr,
+                                            nullptr);
+                std::string pathString(n, '\0');
+                WideCharToMultiByte(CP_UTF8, 0, pathText.c_str(), (int)pathText.size(), pathString.data(), n, nullptr,
+                                    nullptr);
+
+                std::string label = "tex : ##" + emitter->GetEmitterName() + " tex : ";
+                ImGui::InputText(label.c_str(), pathString.data(), pathString.size() + 1, ImGuiInputTextFlags_ReadOnly);
+            }
+            if (emitter->_particleRenderModule->AsRibbon())
+            {
+
+                auto& pathText = emitter->_particleRenderModule->AsRibbon()->GetModelAndTexturePath();
+
+                int n = WideCharToMultiByte(CP_UTF8, 0, pathText.c_str(), (int)pathText.size(), nullptr, 0, nullptr,
+                                            nullptr);
+                std::string pathString(n, '\0');
+                WideCharToMultiByte(CP_UTF8, 0, pathText.c_str(), (int)pathText.size(), pathString.data(), n, nullptr,
+                                    nullptr);
+
+                std::string label = "tex : ##" + emitter->GetEmitterName() + " tex : ";
+                ImGui::InputText(label.c_str(), pathString.data(), pathString.size() + 1, ImGuiInputTextFlags_ReadOnly);
+            }
+            if (emitter->_locationType == LocationShape::MESH_SURFACE)
+            {
+                auto pathText = emitter->_emitLocator->AsMeshSurfaceLocator()->GetModelPath().string();
+                std::string label    = "model : ##" + emitter->GetEmitterName() + " model : ";
+                ImGui::InputText(label.c_str(), pathText.data(), pathText.size() + 1, ImGuiInputTextFlags_ReadOnly);
+
+            }
+
+        }
     }
 }
