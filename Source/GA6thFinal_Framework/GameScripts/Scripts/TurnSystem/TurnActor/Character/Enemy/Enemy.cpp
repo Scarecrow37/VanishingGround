@@ -27,6 +27,9 @@
 #include "Monster/Action/MonsterActionBase.h"
 #include "UI/Contents/SpawnDamagePanel.h"
 
+// TurnAction
+#include "TurnSystem/TurnAction/TurnActionFactory.h"
+
 UMREAL_COMPONENT(Enemy)
 
 Enemy::Enemy() = default;
@@ -41,36 +44,77 @@ void Enemy::PlayTurn()
 void Enemy::ImGuiDrawPropertysEvent()
 {
     Base::ImGuiDrawPropertysEvent();
+
     ImGui::Separator();
-   
-    if (ImGui::TreeNodeEx("Monster Controller##enemy component", ImGuiTreeNodeFlags_DefaultOpen))
+    ImGuiHelper::AlignedText("Custom Action", ImGuiHelper::LEFT, 0.8f);
+    ShowActionEditor();
+
+    ImGui::Separator();
+    ImGuiHelper::AlignedText("FSM", ImGuiHelper::LEFT, 0.8f);
+    Monster::Controller& controller = GetController();
+    ImGui::PushID(&controller);
+    const Monster::AIModel& aiModel = controller.GetAIModel();
+    ImGui::BulletText("Current FSM:");
+    ImGui::Text("       ID: %d", controller.GetFSMID());
+    ImGui::Text("       Current Node: %s", aiModel.GetCurrentNodeLabel());
+
+    ImGui::Separator();
+    ImGuiHelper::AlignedText("Action", ImGuiHelper::LEFT, 0.8f);
+    if (auto* currAction = controller.GetCurrentAction())
     {
-        Monster::Controller& controller = GetController();
-        ImGui::PushID(&controller);
+        ImGui::BulletText("Current Action:");
+        ImGui::Text("       ID: %d", currAction->GetActionID());
+        ImGui::Text("       Name: %s", currAction->GetActionContext().Name.c_str());
+        ImGui::Text("       Type: %s", currAction->GetActionContext().Type.c_str());
+        ImGui::Text("       Target: %s", currAction->GetActionContext().Target.c_str());
+        ImGui::Text("       Attack Count: %d", currAction->GetActionContext().AttackCount);
+        ImGui::Text("       Parameter: %s", currAction->GetActionContext().Parameter.c_str());
+    }
+    else
+    {
+        ImGuiHelper::StyleBuilder styleBuilder;
+        styleBuilder.PushStyleColor(ImGuiCol_Text, IM_COL32(255, 100, 100, 255));
+        ImGui::TextUnformatted("Null Current Action");
+    }
+    ImGui::PopID();
+}
 
-        const Monster::AIModel& aiModel = controller.GetAIModel();
-        ImGui::BulletText("Current FSM:");
-        ImGui::Text("       ID: %d", controller.GetFSMID());
-        ImGui::Text("       Current Node: %s", aiModel.GetCurrentNodeLabel());
+void Enemy::SerializedReflectEvent()
+{
+    ReflectFields->Actions.clear();
+    if (false == _actions.empty())
+    {
+        for (auto& action : _actions)
+        {
+            if (action)
+            {
+                const std::string& name = action->ActionName;
+                std::string        data = action->SerializedReflectFields();
+                ReflectFields->Actions.emplace_back(name, data);
+            }
+        }
+    }
+}
 
-        if (auto* currAction = controller.GetCurrentAction())
+void Enemy::DeserializedReflectEvent()
+{
+    _actions.clear();
+    if (false == ReflectFields->Actions.empty())
+    {
+        const auto& actionFactory = TurnActionFactory::GetActionFactory();
+        for (auto& [name, data] : ReflectFields->Actions)
         {
-            ImGui::BulletText("Current Action:");
-            ImGui::Text("       ID: %d", currAction->GetActionID());
-            ImGui::Text("       Name: %s", currAction->GetActionContext().Name.c_str());
-            ImGui::Text("       Type: %s", currAction->GetActionContext().Type.c_str());
-            ImGui::Text("       Target: %s", currAction->GetActionContext().Target.c_str());
-            ImGui::Text("       Attack Count: %d", currAction->GetActionContext().AttackCount);
-            ImGui::Text("       Parameter: %s", currAction->GetActionContext().Parameter.c_str());
+            if (auto iter = actionFactory.find(name); iter != actionFactory.end())
+            {
+                auto& myAction = _actions.emplace_back();
+                myAction.reset(iter->second());
+                bool result = myAction->DeserializedReflectFields(data);
+                if (false == result)
+                {
+                    _actions.pop_back();
+                }
+            }
         }
-        else
-        {
-            ImGuiHelper::StyleBuilder styleBuilder;
-            styleBuilder.PushStyleColor(ImGuiCol_Text, IM_COL32(255, 100, 100, 255));
-            ImGui::TextUnformatted("Null Current Action");
-        }
-        ImGui::PopID();
-        ImGui::TreePop();
     }
 }
 
@@ -207,11 +251,6 @@ void Enemy::Awake()
         UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Enemy Stats를 추가해주세요");
     }
 }
-
-void Enemy::Update() 
-{
-}
-
 CharacterStats* Enemy::GetCharacterStats()
 {
     CharacterStats* stats = nullptr;
@@ -305,6 +344,13 @@ void Enemy::BuildEnemyFSM()
 void Enemy::OnCombatStart()
 {
     Base::OnCombatStart();
+    for (auto& action : _actions)
+    {
+        if (action)
+        {
+            action->OnEnemyCombatStartPhase(*this);
+        }
+    }
 }
 
 void Enemy::OnRoundStart()
@@ -336,6 +382,13 @@ void Enemy::OnTurnEnd()
     Base::OnTurnEnd();
     // Enemy의 턴이 종료시 액션을 선언.
     _controller.Transition();
+    for (auto& action : _actions)
+    {
+        if (action)
+        {
+            action->OnEnemyTurnEnd(*this);
+        }
+    }
 }
 
 void Enemy::OnHit()
@@ -404,27 +457,29 @@ void Enemy::RegisterTokenHUD(int tokenID)
             {
                 int  monsterIndex = static_cast<int>(_spawnPoint);
                 auto HUD          = combatUIManager->CharacterHUDGroup.EnemyHUDPanel[monsterIndex];
-
-                Transform::ForeachBFS(HUD->transform, [&](Transform* tr) {
-                    GameObject& object = tr->gameObject;
-                    if (object.CompareTag("Token HUD"))
-                    {
-                        if (auto tokenHUD = prefab->GetComponent<TokenHUD>())
+                if (HUD)
+                {
+                    Transform::ForeachBFS(HUD->transform, [&](Transform* tr) {
+                        GameObject& object = tr->gameObject;
+                        if (object.CompareTag("Token HUD"))
                         {
-                            if (TokenSystem* tokenSystem = SingletonComponent<TokenSystem>::GetInstance())
+                            if (auto tokenHUD = prefab->GetComponent<TokenHUD>())
                             {
-                                if (const TokenData* tokenData = tokenSystem->GetTokenDataFromID(tokenID))
+                                if (TokenSystem* tokenSystem = SingletonComponent<TokenSystem>::GetInstance())
                                 {
-                                    std::string key = std::format("Enemy_{}_Token_{}", monsterIndex, tokenID);
-                                    tokenHUD->SetupTokenHUD(UmFileSystem.GetGuidFromAssetID(tokenData->ImageID), model, key);
-                                    _tokenHUDTable.emplace(tokenID, prefab.get());
-                                    model.Notify();
-                                    prefab->transform->SetParent(object.transform);
-                                }
-                            }                            
+                                    if (const TokenData* tokenData = tokenSystem->GetTokenDataFromID(tokenID))
+                                    {
+                                        std::string key = std::format("Enemy_{}_Token_{}", monsterIndex, tokenID);
+                                        tokenHUD->SetupTokenHUD(UmFileSystem.GetGuidFromAssetID(tokenData->ImageID), model, key);
+                                        _tokenHUDTable.emplace(tokenID, prefab.get());
+                                        model.Notify();
+                                        prefab->transform->SetParent(object.transform);
+                                    }
+                                }                            
+                            }
                         }
-                    }
-                });
+                    });
+                }
             }
         }
     }
@@ -438,4 +493,35 @@ void Enemy::UnregisterTokenHUD(int tokenID)
         GameObject::Destroy(it->second);        
         _tokenHUDTable.erase(it);
     }
+}
+
+void Enemy::ShowActionEditor() 
+{
+#ifdef _UMEDITOR
+    static std::unordered_map<void*, bool> showEditorFlags;
+    if (false == _actions.empty())
+    {
+        for (size_t i = 0; i < _actions.size(); ++i)
+        {
+            auto& action = _actions[i];
+            bool& showEditor = showEditorFlags[&action];
+            ImGui::PushID(&action);
+            TurnAction::ImGuiDrawActionMaker("EnemyAction", action, showEditor);
+            ImGui::PopID();
+        }
+    }
+    if (ImGui::Button("Push Action"))
+    {
+        _actions.emplace_back();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Pop Action"))
+    {
+        if (false == _actions.empty())
+        {
+            showEditorFlags.erase(&_actions.back());
+            _actions.pop_back();
+        }
+    }
+#endif
 }

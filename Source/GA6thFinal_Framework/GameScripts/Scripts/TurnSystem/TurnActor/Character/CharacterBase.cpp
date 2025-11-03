@@ -106,7 +106,6 @@ void CharacterBase::Awake()
 void CharacterBase::Start() 
 {
     Base::Start();
-    _tokenInventory.Initialize();
 }
 
 bool CharacterBase::FindComponent()
@@ -130,6 +129,7 @@ bool CharacterBase::FindComponent()
         {
             std::string msg = std::format("{}{}", model.ToString(), (const char*)u8"의 컴포넌트에 AnimationComponent가 없습니다.");
             UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+
         }
 
         if (nullptr == _particleComponent)
@@ -155,7 +155,7 @@ void CharacterBase::InitAnimationCallback()
 void CharacterBase::ClearState() 
 {
     Base::ClearState();
-    _tokenInventory.Clear();
+    _tokenInventory.Initialize();
     if (CharacterStats* stats = GetCharacterStats())
     {
         _tokenInventory.AddTokenStackFromID(TokenObject::StunResistance::ID, stats->StunResistance);    
@@ -313,6 +313,7 @@ int CharacterBase::DecrementChainRoundCount()
 
 void CharacterBase::OnCombatStart() 
 {
+    Base::OnCombatStart();
     _tokenInventory.NotifyCombatStart();
 }
 
@@ -405,11 +406,8 @@ void CharacterBase::ImGuiDrawPropertysEvent()
 {
     Base::ImGuiDrawPropertysEvent();
     ImGui::Separator();
-    if (ImGui::TreeNodeEx("Token##enemy component", ImGuiTreeNodeFlags_DefaultOpen))
-    {
-        ImGui::PushID(&_tokenInventory);
-        _tokenInventory.DrawImGuiDebugData();
-        ImGui::PopID();
-        ImGui::TreePop();
-    }
+    ImGuiHelper::AlignedText("Token Inventory", ImGuiHelper::LEFT, 0.8f);
+    ImGui::PushID(&_tokenInventory);
+    _tokenInventory.DrawImGuiDebugData();
+    ImGui::PopID();
 }

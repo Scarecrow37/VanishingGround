@@ -216,7 +216,10 @@ void TurnMode::StartFrontTurnActor()
 
 void TurnMode::FinishCurrentTurn()
 {
-    _turnList.pop_front();
+    if (false != _turnList.empty())
+    {
+        _turnList.pop_front();
+    }
     _currTurnActor = nullptr;
     _currentTurnRevelationActiveFlag = false;
 }

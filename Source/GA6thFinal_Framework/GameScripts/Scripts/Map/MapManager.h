@@ -22,7 +22,8 @@ private:
 public:
     void    UINotify() const { _focusStage.Notify(); }
     void    SetFocusStage(Stage* stage);
-    void    SetCurrentSelectedStage(Stage* stage);
+    bool    TrySelectStage(Stage* stage);
+    void    SetSelectStage(Stage* stage);
     Stage*  GetCurrentSelectedStage();
     Monster::SpawnID GetCurrentSpawnID();
 
@@ -85,6 +86,7 @@ private:
 
 private:
     Stage* _selectedStage = nullptr;
+    int    _lastClearedStage = 0;
 
 private:
     void PreferencesKeyDown(const Input::Controller&);

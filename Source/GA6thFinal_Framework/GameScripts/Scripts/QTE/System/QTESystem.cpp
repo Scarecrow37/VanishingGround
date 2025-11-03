@@ -124,6 +124,19 @@ void QTESystem::ImGuiDrawPropertysEvent()
 #endif // _UMEDITOR
 }
 
+void QTESystem::ResetState() 
+{
+    ResetQTETimeState();
+    _keyBinder          = {};
+    _audioIDState       = {};
+    _fadeState          = {};
+    _callbackHandler    = {};
+    _overallResult      = {};
+    _nextKeyEvent       = {nullptr, Input::ControllerTypes::UNDEFINED};
+
+    ReflectFields->QTESpeedScale = 1.0f;
+}
+
 QTE::Track* QTESystem::AddMappingTrackToWeaponID(const int weaponID, const File::Path& path)
 {
 #ifdef _UMEDITOR
@@ -221,7 +234,7 @@ void QTESystem::StartQTE(const WeaponStats& weapon)
 {
     if (_currState == QTE::STATE_WAITING)
     {
-        ResetQTEState();
+        ResetQTETimeState();
         if (_weaponIDToTrackTable.contains(weapon.WeaponID) &&
             false == _weaponIDToTrackTable[weapon.WeaponID].empty())
         {
@@ -366,7 +379,7 @@ QTE::ResultType QTESystem::GetQTEResult(const float noteTime)
     }
 }
 
-void QTESystem::ResetQTEState() 
+void QTESystem::ResetQTETimeState()
 {
     _currState  = QTE::STATE_WAITING;
     _prevState  = QTE::STATE_WAITING;
@@ -583,10 +596,16 @@ void QTESystem::PressedButtonB(const Input::Controller& controller)
 
 void QTESystem::ProcessQTEEnterEvent() 
 {
+    // 인풋 레이어 푸쉬
+    PushInputLayer();
+
+    // 오디오 페이드
     UmAudio.FadeOut();
 
+    // QTE 진입 사운드 재생 (튜토리얼 대응하기 위해 Invoke 사용)
+    UmTime.Invoke(this, 0.05f, [this]() { AudioHelper::PlaySFX(_audioIDState.OnQTEAppear); });
+
     _currState = QTE::STATE_FADE_IN;
-    AudioHelper::PlaySFX(_audioIDState.OnQTEAppear);
     _callbackHandler.ProcessQTEFadeInStartEvent();
     QTEUIManager* uiManager = SingletonComponent<QTEUIManager>::GetInstance();
     if (uiManager)
@@ -656,6 +675,8 @@ void QTESystem::ProcessQTEFadeInEndEvent()
 
 void QTESystem::ProcessQTEFadeOutEndEvent() 
 {
+    // 인풋 레이어 팝
+    PopInputLayer();
     _currState = QTE::STATE_WAITING;
     _callbackHandler.ProcessQTEFadeOutFinishEvent(_overallResult);
 }

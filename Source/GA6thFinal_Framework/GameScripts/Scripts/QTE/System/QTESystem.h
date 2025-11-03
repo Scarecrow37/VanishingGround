@@ -59,6 +59,8 @@ private:
     void ImGuiDrawPropertysEvent() override;
 
 public:
+    void ResetState();
+
     /// <summary>QTE를 시작합니다. 현재 무기에 맞는 트랙이 있는 경우 트랙으로, 없으면 무기 기반으로 재생합니다.</summary>
     void StartQTE();
     /// <summary>무기 기반으로 트랙을 생성하여 QTE를 시작합니다.</summary>
@@ -104,7 +106,7 @@ public:
     inline const TrackTable&                 GetWeaponIDToTrackTable() const { return _weaponIDToTrackTable; }
 
 private:
-    void ResetQTEState();
+    void ResetQTETimeState();
     void ClearQueue();
     void UpdateQTETrack();
     QTE::ResultType GetQTEResult(float noteTime);
