@@ -33,7 +33,9 @@ public:
     void                                                 SetRotation(Vector3* rotation);
     void                                                 SetScale(Vector3* scale);
     void                                                 SetBoneFollowFlag(bool* flag);
+    bool                                                 GetBoneFollowFlag();
     void                                                 SetBoneMatrix(const Matrix* matrix);
+    const Matrix*                                        GetBoneMatrix() const { return _boneWorldMatrix; }
     void                                                 SetParentMatrix(const Matrix* matrix);
 
     ParticleEffect(const ParticleEffect&)                = delete;

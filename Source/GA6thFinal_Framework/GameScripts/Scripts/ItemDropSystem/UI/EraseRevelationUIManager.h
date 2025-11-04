@@ -38,8 +38,6 @@ protected:
     REFLECT_FIELDS_END(EraseRevelationUIManager)
 
     void Added() override;
-    void Awake() override;
-    void Start() override;
     void Update() override;
     void OnButtonDownB(const Input::Controller&);
 

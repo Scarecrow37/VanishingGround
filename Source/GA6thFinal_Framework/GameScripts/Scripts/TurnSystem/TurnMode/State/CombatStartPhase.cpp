@@ -129,7 +129,8 @@ void CombatStartPhase::OnAwake()
 void CombatStartPhase::OnStart() 
 {
     TurnModeStateBase::OnStart();
-    RefreshUI();
+    RefreshUI(); //Find UI가 가장먼저 호출되야함
+
     if (MonsterSystem* system = SingletonComponent<MonsterSystem>::GetInstance())
     {
         Difficulty       difficulty = Difficulty::NORMAL;

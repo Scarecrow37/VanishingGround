@@ -142,7 +142,7 @@ namespace CombatUI
         }
     }
 
-    bool CharacterHUDGroup::RefreshEnemiesPosition()
+    bool CharacterHUDGroup::RefreshCharactersUIPosition()
     {
         if (CameraComponent* camera = CameraComponent::MainCamera())
         {

@@ -23,8 +23,6 @@ void CombatUIManager::Refresh()
             }
         }
     }
-
-    CharacterHUDGroup.RefreshEnemiesPosition();
 }
 
 void CombatUIManager::SetActiveUI(bool active) 
@@ -63,6 +61,7 @@ void CombatUIManager::Update()
     if (CharacterHUDGroup.IsValid())
     {
         CharacterHUDGroup.RefreshUIPosition();
+        CharacterHUDGroup.RefreshCharactersUIPosition();
     }
 }
 
