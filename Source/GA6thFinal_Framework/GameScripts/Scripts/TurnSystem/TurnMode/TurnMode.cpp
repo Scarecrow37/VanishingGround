@@ -8,6 +8,7 @@
 #include "TurnSystem/TurnAction/TurnAction.h"
 #include "RoundInfoUI/RoundInfoUIManager.h"
 #include "Camera/UmCineMotion.h"
+#include "CombatUIManager/CombatUIManager.h"
 
 //Condition
 #include "GameCore/FSM/AlwaysTransitionCondition.h"
@@ -341,6 +342,24 @@ void TurnMode::Awake()
     AddRoundOnceActions();
     FindCameras();
     
+}
+
+void TurnMode::Start() 
+{
+    if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        combatUIManager->Refresh();
+
+        // 켜져 있어야 하는거
+        combatUIManager->AccessoriesGroup.ActiveUI(true);
+        combatUIManager->ConsumableGroup.ActiveUI(true);
+
+        // 꺼져 있어야 하는거
+        combatUIManager->CharacterHUDGroup.ActiveUI(false);
+        combatUIManager->WeaponGroup.ActiveUI(false);
+        combatUIManager->RevelationsGroup.ActiveUI(false);
+        combatUIManager->TurnQueueGroup.ActiveUI(false);
+    }
 }
 
 void TurnMode::OnDestroy() 
