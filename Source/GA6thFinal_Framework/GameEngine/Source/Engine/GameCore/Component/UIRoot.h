@@ -49,9 +49,13 @@ protected:
 private:
     bool ChangeFocusComponent(UINavigationComponent* nextFocusComponent, FocusCallType callType);
     void UpdateNavigation(const Input::Controller& controller);
+    void ShowTooltips(const Input::Controller& controller);
+    void HideTooltips(const Input::Controller& controller);
     void UpdateNavigationMap();
     void UpdateNavigationMap(Transform& exceptTransform);
     void ChangeNavigationID(NavigationID from, NavigationID to);
+
+    void UpdateNavigation(const Input::Controller::ButtonState& buttonState);
 
     NavigationID           GetSpareID();
     UINavigationComponent* FindNavigationComponentInTransform(NavigationID id) const;
