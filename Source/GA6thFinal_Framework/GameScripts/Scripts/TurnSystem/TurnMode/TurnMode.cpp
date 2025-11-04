@@ -474,6 +474,7 @@ void TurnMode::FindCameras()
                     if (UmCineMotion* motion = object->GetComponent<UmCineMotion>())
                     {
                         _introCamera = motion->GetWeakPtrAs<UmCineMotion>();
+                        motion->SetMainCamera();
                     }                 
                 }
                 else if (auto findMain = std::ranges::search(objName, std::string_view("main"), compare); findMain.begin() != objName.end())

@@ -169,6 +169,7 @@ void CombatStartPhase::OnEnter()
         {
             if (dropSystem->StageClearCount == 0)
             {
+                introCamera->SetMainCamera();
                 introCamera->ResetRail(true);
                 introCamera->StartRail(false);
                 introDuration = introCamera->Duration;
