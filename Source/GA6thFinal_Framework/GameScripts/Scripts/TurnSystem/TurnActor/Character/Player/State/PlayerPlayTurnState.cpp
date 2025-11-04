@@ -480,7 +480,7 @@ void PlayerPlayTurnState::OnQTEFinish()
                                 }
                                 totalTime = delta + hitTime;
 
-                                auto weakWeapon = weaponModel.GameObject->GetWeakPtr();
+                                auto weakWeapon = weaponModel.GameObject;
                                 UmTime.Invoke(delta, [weakWeapon, weaponModel]() {
                                     if (auto object = weakWeapon.lock())
                                     {
@@ -522,27 +522,30 @@ void PlayerPlayTurnState::SetWeaponModelCallback(WeaponModelData& modelData, QTE
         {
             if (validModel = modelData.IsValid())
             {
-                std::weak_ptr<GameObject> objectWeak = modelData.GameObject->GetWeakPtr();
                 AnimationComponent*       animation  = modelData.Animation;
                 ParticleComponent*        particle   = modelData.Particle;
 
-                modelData.GameObject->ActiveSelf = false;
+                modelData.Active(false);
                 // 노트에 맞는 애니메이션 설정 및 애니메이션 종료 콜백 등록
                 if (validAnim = modelData.Animation->ChangeMainAnimation(note->WeaponAnimationKey))
                 {
                     animation->StopCurrentAnimation();
                     animation->SetMainAnimationEndCallback(
-                            [this, objectWeak, weaponModelManager, modelData]() {
-                            if (false == objectWeak.expired() && modelData.IsValid())
+                            [this, modelData]() {
+                        if (false == modelData.GameObject.expired() && modelData.IsValid())
                             {
                                 modelData.Animation->StopCurrentAnimation();
                                 modelData.Particle->StopEffect("weapon");
-                                weaponModelManager->ReturnWeaponModel(modelData);
+                                if (WeaponModelManager* weaponModelManager =
+                                    SingletonComponent<WeaponModelManager>::GetInstance())
+                                {
+                                    weaponModelManager->ReturnWeaponModel(modelData);
+                                }
                             }
                         });
                     animation->SetAnimationPostEventCallback(
-                        [this, objectWeak, &noteResult, modelData](const Timeline::EventContext* context) {
-                            if (false == objectWeak.expired() && modelData.IsValid())
+                        [this, &noteResult, modelData](const Timeline::EventContext* context) {
+                            if (false == modelData.GameObject.expired() && modelData.IsValid())
                             {
                                 if (context->GetLabel() == "Hit")
                                 {
@@ -576,9 +579,13 @@ void PlayerPlayTurnState::SetWeaponModelTransform(WeaponModelData& modelData, QT
                     Vector3 playerPos = player.transform->GetWorldPosition();
                     Vector3 dir       = DirectX::XMVector3Normalize(playerPos - enemyPos);
 
-                    const Vector3 offset   = weaponModelManager->GetWeaponOffset(modelData.Type);
-                    const Vector3 distance = offset + (dir * 2.0f);
-                    modelData.GameObject->transform->SetWorldPosition(enemyPos + distance);
+                    if (auto gameObject = modelData.GameObject.lock())
+                    {
+                        const Vector3 offset    = weaponModelManager->GetWeaponOffset(modelData.Type);
+                        const Vector3 distance  = offset + (dir * 2.0f);
+                        modelData.GameObject->transform->SetWorldPosition(enemyPos + distance);
+                    }
+                    
                 }
             }
         }

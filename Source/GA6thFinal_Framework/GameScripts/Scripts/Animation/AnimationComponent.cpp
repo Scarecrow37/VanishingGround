@@ -872,6 +872,10 @@ void AnimationComponent::PlayCurrentAnimation()
 {
     AnimationData& animData = GetTopAnimationDataEx();
     animData.RemoveFlag(ANIMATION_FLAG_PAUSE);
+    if (_animator)
+    {
+        _animator->SetPause(false);
+    }
     ChangeAnimationFrameEx(animData, 0.0f);
 }
 
@@ -885,6 +889,10 @@ void AnimationComponent::StopCurrentAnimation()
 {
     AnimationData& animData = GetTopAnimationDataEx();
     animData.AddFlag(ANIMATION_FLAG_PAUSE);
+    if (_animator)
+    {
+        _animator->SetPause(true);
+    }
     ChangeAnimationFrameEx(animData, 0.0f);
 }
 
