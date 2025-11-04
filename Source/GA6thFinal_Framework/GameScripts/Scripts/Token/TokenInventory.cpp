@@ -44,6 +44,17 @@ namespace
         }
         return "";
     }
+    bool IsValidToken(int tokenID)
+    {
+        if (TokenSystem* tokenSystem = GetTokenSystem())
+        {
+            if (tokenSystem->GetTokenFromID(tokenID))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 
 TokenInventory::TokenInventory(CharacterBase* owner) 
@@ -458,18 +469,19 @@ void TokenInventory::AddTokenStackFromID(int tokenID, int count /* = 1 */)
         });
     }
 
-    if (0 == count)
+    if (0 == count || false == IsValidToken(tokenID))
     {   // 추가할 스택이 0이면 아무것도 하지 않습니다. (이벤트를 호출하지 않기 위해 필요)
         return;
     }
 
-    if (!_tokenTable.contains(tokenID))
-    {
-        _tokenTable[tokenID] = 0;
-    }
-
     if (IToken* token = GetTokenFromID(tokenID))
     {
+        // 테이블에 없다면 0초기화
+        if (false == _tokenTable.contains(tokenID))
+        {
+            _tokenTable[tokenID] = 0;
+        }
+
         int   maxStackCount = token->GetMaxStackCount();
         auto& curStackCount = _tokenTable[tokenID];
         if (curStackCount >= maxStackCount)
@@ -480,12 +492,20 @@ void TokenInventory::AddTokenStackFromID(int tokenID, int count /* = 1 */)
         {
             curStackCount = curStackCount + count;
             curStackCount = std::min(maxStackCount, (int)curStackCount);
+            std::string msg = std::format("{}{}{}{}{}{}{}{}",
+                _owner.gameObject->ToString(),
+                (const char*)u8" 에게 ",
+                token->GetTokenName(), 
+                (const char*)u8" 토큰이 ",
+                count,
+                (const char*)u8"개 부여되었습니다. (",
+                curStackCount.Get(), 
+                (const char*)u8")"
+            );
+            UmLogger.Log(LogLevel::LEVEL_TRACE, msg);
+
             UpdateToken(tokenID);
             _owner.OnTokenAdded(tokenID);
-            std::string msg = std::format("{}{}{}{}{}{}", _owner.gameObject->ToString(), (const char*)u8" 에게 ",
-                                          token->GetTokenName(), (const char*)u8" 토큰이 ", curStackCount.Get(),
-                                          (const char*)u8"개 부여되었습니다.");
-            UmLogger.Log(LogLevel::LEVEL_TRACE, msg);
         }
     }
 
@@ -523,37 +543,34 @@ void TokenInventory::RemoveTokenStackFromID(int tokenID, int count /* = 1 */)
         });
     }
 
-    if (0 == count)
+    if (0 == count || false == IsValidToken(tokenID))
     {   // 제거할 스택이 0이면 아무것도 하지 않습니다. (이벤트를 호출하지 않기 위해 필요)
         return;
     }
-    auto it = _tokenTable.find(tokenID);
-    if (it != _tokenTable.end())
+
+    if (_tokenTable.contains(tokenID))
     {
         if (IToken* token = GetTokenFromID(tokenID))
         {
-            auto& curStackCount = it->second;
-            
-            //if (curStackCount <= 0)
-            //{ // 스택이 0 이하이면 제거하지 않습니다. (이벤트를 호출하지 않기 위해 필요)
-            //    return;
-            //}
-
+            auto& curStackCount = _tokenTable[tokenID];
             if (token->CanRemove(&_owner))
             {
+                count = std::min(count, curStackCount.Get());
                 curStackCount = curStackCount - count;
-                curStackCount = std::max(0, (int)curStackCount);
-                UpdateToken(tokenID);
-                _owner.OnTokenRemoved(tokenID);
                 std::string msg = std::format("{}{}{}{}{}{}", 
                     _owner.gameObject->ToString(),
                     (const char*)u8"에게 ",
                     token->GetTokenName(),
                     (const char*)u8" 토큰이 ",
-                    curStackCount.Get(),
-                    (const char*)u8"개 제거되었습니다."
+                    count,
+                    (const char*)u8"개 제거되었습니다. (",
+                    curStackCount.Get(), 
+                    (const char*)u8")"
                 );
                 UmLogger.Log(LogLevel::LEVEL_TRACE, msg);
+
+                UpdateToken(tokenID);
+                _owner.OnTokenRemoved(tokenID);
             }
         }
     }
@@ -803,8 +820,6 @@ void TokenInventory::UpdateToken(TokenID tokenID)
                 _vaildTokenVector.erase(it);
                 _owner.OnTokenExit(tokenID);                
             }
-
-            // TODO:: 주형 token table이 유효한 토큰만 가지고 있도록 변경?
             _tokenTable.erase(tokenID);
         }
     }
