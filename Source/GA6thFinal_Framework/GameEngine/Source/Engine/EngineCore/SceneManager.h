@@ -790,7 +790,7 @@ private:
     std::vector<Scene*> _lodedSceneList;
 
     //다음에 로드할 씬
-    File::Guid _nextSceneGuid;
+    std::vector<File::Guid> _nextSceneGuids;
 
     //다음에 로드할 스카이박스
     Scene* _nextSceneSkybox;

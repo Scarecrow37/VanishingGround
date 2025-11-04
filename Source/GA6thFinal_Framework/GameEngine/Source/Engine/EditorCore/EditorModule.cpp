@@ -259,21 +259,42 @@ void EditorModule::EditorPlayMode::Play()
     {
         UmCommandManager.Clear();
 
-        Scene* scene = UmSceneManager.GetMainScene();
-        if (nullptr != scene)
+        std::vector<Scene*> scenes = UmSceneManager.GetLoadedScenes();
+        if (false == scenes.empty())
         {
-            File::Path path = (std::string)scene->Path;         
-            _playSceneGuid = path.ToGuid();
+            _playSceneGuids.clear();
+            //메인 씬 로드
+            Scene* mainScene = scenes[0];
+            if (mainScene)
+            {
+                File::Path path = (std::string)mainScene->Path;
+                _playSceneGuids.push_back(path.ToGuid());
+                auto writePath = std::filesystem::relative(path, UmFileSystem.GetAssetPath()).parent_path();
+                UmSceneManager.WriteSceneToFile(*mainScene, writePath.string(), true);
+                UmSceneManager.LoadScene(path.string()); 
+            }
 
-            auto writePath = std::filesystem::relative(path, UmFileSystem.GetAssetPath()).parent_path();
-            UmSceneManager.WriteSceneToFile(*scene, writePath.string(), true);
-            UmSceneManager.LoadScene(path.string()); 
+            //서브 씬 로드
+            if (1 < scenes.size())
+            {
+                for (size_t i = 1; i < scenes.size(); i++)
+                {
+                    Scene* scene = scenes[i];
+                    if (scene)
+                    {
+                        File::Path path = (std::string)scene->Path;
+                        _playSceneGuids.push_back(path.ToGuid());
+                        UmSceneManager.LoadScene(path.string(), LoadSceneMode::ADDITIVE); 
+                    }
+                }          
+            }           
+
             SetPlayModeColor();
             UmTime.TimeScale = 1.f;
             #ifdef _UMEDITOR
             _isPlay = true;
             #endif // _UMEDITOR
-        }
+        }       
     }
 }
 
@@ -313,7 +334,21 @@ void EditorModule::EditorPlayMode::Stop()
                 }
             }
         }
-        UmSceneManager.LoadScene(_playSceneGuid.ToPath().string());
+
+        if (false == _playSceneGuids.empty())
+        {
+            const File::Guid& main = _playSceneGuids[0];
+            UmSceneManager.LoadScene(main.ToPath().string());
+            if (1 < _playSceneGuids.size())
+            {
+                for (size_t i = 1; i < _playSceneGuids.size(); i++)
+                {
+                    const File::Guid& guid = _playSceneGuids[i];
+                    UmSceneManager.LoadScene(guid.ToPath().string(), LoadSceneMode::ADDITIVE);
+                }
+            }
+        }
+
         Global::editorModule->SetGuiThemeStyle();
         UmTime.TimeScale = 1.f;
 
