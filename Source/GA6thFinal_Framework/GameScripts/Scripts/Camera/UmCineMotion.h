@@ -36,6 +36,8 @@ public:
     ~UmCineMotion() override;
 
     void Start() override;
+    void BeginShake(float duration, float intensity, float frequency);
+    void BeginFeedBackShake(int feedbackValue);
 
 protected:
     REFLECT_FIELDS_BEGIN(CameraComponent)
@@ -70,10 +72,10 @@ protected:
     void DrawRail();
     void RunRail();
 
-    void    BeginShake(float duration, float intensity, float frequency);
     Vector3 GetShakeOffset(float intensity, float frequency, float time);
 
     void ApplyTransform();
+
 
 public:
     void AddTether();
@@ -108,6 +110,7 @@ protected:
     bool                    _manipulateFlag = false;
 
     float EaseTimeStep(float step);
+
 
 #ifdef _UMEDITOR
     void                                                                 UpdateTetherFromGuizmo();
