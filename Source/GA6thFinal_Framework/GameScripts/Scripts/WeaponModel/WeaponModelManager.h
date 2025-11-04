@@ -6,6 +6,19 @@ class AnimationComponent;
 class ParticleComponent;
 class WeaponModelManager;
 
+struct WeaponPool
+{
+    File::Guid                              PrefabGuid;
+    std::vector<std::weak_ptr<GameObject>>  GameObjectPool;
+    std::vector<AnimationComponent*>        AnimationPool;
+    std::vector<ParticleComponent*>         ParticlePool;
+    std::set<size_t>                        AvailableIndices;
+
+    std::unordered_set<std::string>         WeaponAnimationKeySet;
+    std::vector<std::string>                NormalAnimationKeyList;
+    std::vector<std::string>                SpecialAnimationKeyList;
+ };
+
 class WeaponModelManager : public Component
 {
     USING_PROPERTY(WeaponModelManager)
@@ -31,32 +44,19 @@ public:
 private:
     void Awake() override;
     void Start() override;
-    void Update() override;
-    void OnDestroy() override;
 
-    void SerializedReflectEvent() override;
-    void DeserializedReflectEvent() override;
     void ImGuiDrawPropertysEvent() override;
 
     void UpdateOffsetPosition();
 
-    void RegisterWeaponAnimation(WeaponType type, AnimationComponent* component);
-    void RegisterWeaponParticle(WeaponType type, ParticleComponent* component);
-
-    void InitializeAnimationList();
+    void InitializeWeaponPool();
+    void LoadWeaponInstances(WeaponType type, const File::Guid& prefabGuid);
 
 private:
-    SingletonComponent<WeaponModelManager> _singletonComponent{this};
+    SingletonComponent<WeaponModelManager>      _singletonComponent{this};
 
-    std::unordered_map<WeaponType, File::Guid>                  _weaponPrefabGuidTable;
-    std::unordered_map<WeaponType, AnimationPool>               _weaponAnimationTable;
-    std::unordered_map<WeaponType, ParticlePool>                _weaponParticleTable;
-    std::unordered_map<WeaponType, std::stack<size_t>>          _availableWeaponIndicesTable;
-
-    std::unordered_map<WeaponType, Vector3>                     _availableWeaponOffsetsTable;
-
-    std::unordered_map<WeaponType, std::vector<std::string>>    _weaponAnimationNormalNameList;
-    std::unordered_map<WeaponType, std::vector<std::string>>    _weaponAnimationSpecialNameList;
+    std::unordered_map<WeaponType, WeaponPool>  _weaponPoolTable;
+    std::unordered_map<WeaponType, Vector3>     _availableWeaponOffsetsTable;
 
     REFLECT_FIELDS_BEGIN(Component)
     std::unordered_map<std::string, std::string> WeaponPrefabGuidTable;
