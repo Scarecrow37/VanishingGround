@@ -56,8 +56,6 @@ private:
     Monster::SpawnParam  _spawnParam; // 몬스터 스폰 정보(ID, 초기 토큰)
     EnemyStatsComponent* _enemyStats = nullptr;
 
-    UmCineMotion* _cineMotion = nullptr;
-
 protected:
     class FiniteStateMachine* _finiteStateMachine = nullptr;
 
