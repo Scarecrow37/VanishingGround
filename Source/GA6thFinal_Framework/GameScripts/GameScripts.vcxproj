@@ -664,6 +664,7 @@
     <ClInclude Include="Scripts\UI\Views\TokenHUD\TokenHUDView.h" />
     <ClInclude Include="Scripts\ViewModels\TokenHUD\TokenHUDViewModel.h" />
     <ClInclude Include="Scripts\TokenHUD\TokenHUD.h" />
+    <ClInclude Include="Scripts\ProclamationHUD\ProclamationHUD.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyTurnEndTokenRandomApplyAction.cpp" />
@@ -1028,6 +1029,7 @@
     <ClCompile Include="Scripts\UI\Views\TokenHUD\TokenHUDView.cpp" />
     <ClCompile Include="Scripts\ViewModels\TokenHUD\TokenHUDViewModel.cpp" />
     <ClCompile Include="Scripts\TokenHUD\TokenHUD.cpp" />
+    <ClCompile Include="Scripts\ProclamationHUD\ProclamationHUD.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

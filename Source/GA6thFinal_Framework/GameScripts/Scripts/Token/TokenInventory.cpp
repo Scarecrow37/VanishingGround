@@ -459,33 +459,29 @@ void TokenInventory::AddTokenStackFromID(int tokenID, int count /* = 1 */)
         return;
     }
 
-    auto it = _tokenTable.find(tokenID);
-    if (it != _tokenTable.end())
+    if (!_tokenTable.contains(tokenID))
     {
-        if (IToken* token = GetTokenFromID(tokenID))
+        _tokenTable[tokenID] = 0;
+    }
+
+    if (IToken* token = GetTokenFromID(tokenID))
+    {
+        int   maxStackCount = token->GetMaxStackCount();
+        auto& curStackCount = _tokenTable[tokenID];
+        if (curStackCount >= maxStackCount)
+        { // 이미 최대 스택에 도달했으면 추가하지 않습니다.(이벤트를 호출하지 않기 위해 필요)
+            return;
+        }
+        if (token->CanAdd(&_owner))
         {
-            int   maxStackCount = token->GetMaxStackCount();
-            auto& curStackCount = it->second;
-            if (curStackCount >= maxStackCount)
-            {   // 이미 최대 스택에 도달했으면 추가하지 않습니다.(이벤트를 호출하지 않기 위해 필요)
-                return; 
-            }
-            if (token->CanAdd(&_owner))
-            {
-                curStackCount = curStackCount + count;
-                curStackCount = std::min(maxStackCount, (int)curStackCount);
-                UpdateToken(tokenID);
-                _owner.OnTokenAdded(tokenID);
-                std::string msg = std::format("{}{}{}{}{}{}", 
-                    _owner.gameObject->ToString(),
-                    (const char*)u8" 에게 ",
-                    token->GetTokenName(),
-                    (const char*)u8" 토큰이 ",
-                    curStackCount.Get(),
-                    (const char*)u8"개 부여되었습니다."
-                );
-                UmLogger.Log(LogLevel::LEVEL_TRACE, msg);
-            }
+            curStackCount = curStackCount + count;
+            curStackCount = std::min(maxStackCount, (int)curStackCount);
+            UpdateToken(tokenID);
+            _owner.OnTokenAdded(tokenID);
+            std::string msg = std::format("{}{}{}{}{}{}", _owner.gameObject->ToString(), (const char*)u8" 에게 ",
+                                          token->GetTokenName(), (const char*)u8" 토큰이 ", curStackCount.Get(),
+                                          (const char*)u8"개 부여되었습니다.");
+            UmLogger.Log(LogLevel::LEVEL_TRACE, msg);
         }
     }
 
@@ -533,10 +529,12 @@ void TokenInventory::RemoveTokenStackFromID(int tokenID, int count /* = 1 */)
         if (IToken* token = GetTokenFromID(tokenID))
         {
             auto& curStackCount = it->second;
-            if (curStackCount <= 0)
-            { // 스택이 0 이하이면 제거하지 않습니다. (이벤트를 호출하지 않기 위해 필요)
-                return;
-            }
+            
+            //if (curStackCount <= 0)
+            //{ // 스택이 0 이하이면 제거하지 않습니다. (이벤트를 호출하지 않기 위해 필요)
+            //    return;
+            //}
+
             if (token->CanRemove(&_owner))
             {
                 curStackCount = curStackCount - count;
@@ -799,8 +797,11 @@ void TokenInventory::UpdateToken(TokenID tokenID)
             if (it != _vaildTokenVector.end())
             {
                 _vaildTokenVector.erase(it);
-                _owner.OnTokenExit(tokenID);
+                _owner.OnTokenExit(tokenID);                
             }
+
+            // TODO:: 주형 token table이 유효한 토큰만 가지고 있도록 변경?
+            _tokenTable.erase(tokenID);
         }
     }
 }

@@ -10,6 +10,7 @@ class ParticleComponent;
 class EnemyStatsComponent;
 class FSMState;
 class TurnAction;
+class ProclamationHUD;
 
 class Enemy : public CharacterBase
 {
@@ -102,10 +103,12 @@ public:
 private:
     std::unordered_map<int, GameObject*> _tokenHUDTable;
     GameObject*                          _monsterHUD       = nullptr;
+    ProclamationHUD*                     _proclamationHUD  = nullptr;
     bool                                 _isCriticalDamage = false;
 
 protected:
     void Awake() override;
+    void Start() override;
     void PlayTurn() override;
     void ImGuiDrawPropertysEvent() override;
     void SerializedReflectEvent() override;
@@ -129,6 +132,7 @@ private:
 private:
     void RegisterTokenHUD(int tokenID);
     void UnregisterTokenHUD(int tokenID);
+    void SetupProclamationHUD();
 
 private:
     void ShowActionEditor();

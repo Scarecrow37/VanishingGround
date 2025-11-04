@@ -61,7 +61,7 @@ public:
     GETTER(float, FontWeight) { return ReflectFields->FontWeight; }
     SETTER(float, FontWeight)
     {
-        ReflectFields->FontWeight = std::clamp(value, 0.0f, 1.0f);
+        ReflectFields->FontWeight = std::clamp(value, 0.0f, 4.0f);
         UpdateWeight();
         UpdateContentSize();
         InvalidateMeasure();
@@ -96,8 +96,6 @@ public:
         UpdateOutline();
     }
     PROPERTY(OutlineWidth)
-
-
 
 public:
     void SetFont(const File::Guid& guid);

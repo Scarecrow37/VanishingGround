@@ -435,7 +435,7 @@ void MonsterSystem::LoadActionContextFromExcelData(ExcelDataSystem* dataSystem)
                 data = dataBase->FindData(rowIndex, ExcelActionKey::TYPE);
                 if (data != ExcelDataBase::FIND_STR_FAIL)
                 {
-                    context.Type = std::string(data);
+                    context.IconID = StringToInt(data);
                 }
                 data = dataBase->FindData(rowIndex, ExcelActionKey::TARGET);
                 if (data != ExcelDataBase::FIND_STR_FAIL)
