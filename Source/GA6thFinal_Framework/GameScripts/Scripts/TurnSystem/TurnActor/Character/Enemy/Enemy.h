@@ -51,7 +51,8 @@ protected:
 
 private:
     Monster::SpawnPoint  _spawnPoint = Monster::SpawnPoint::Invalid;
-    Monster::Controller  _controller;
+    Monster::Controller  _controller; // 몬스터 AI, 액션 컨트롤러
+    Monster::SpawnParam  _spawnParam; // 몬스터 스폰 정보(ID, 초기 토큰)
     EnemyStatsComponent* _enemyStats = nullptr;
 
 protected:
@@ -69,6 +70,7 @@ protected:
     int _randomSpeed = 0;
 
 public:
+    void ClearState() override;
     /*Enemy의 턴을 종료합니다.*/
     void EndTurn() override;
     /*Enemy를 Dead 상태로 만듭니다.*/

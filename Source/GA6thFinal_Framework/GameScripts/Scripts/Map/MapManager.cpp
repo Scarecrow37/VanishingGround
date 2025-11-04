@@ -106,7 +106,7 @@ bool MapManager::TrySelectStage(Stage* stage)
     if (stage && stage->IsEnable())
     {
         // 현재 클리어된 스테이지보다 1단계 높은 스테이지만 선택 가능
-        if (stage->MainLevel == _lastClearedStage + 1)
+        if (stage->MainLevel == _lastClearedStageData.MainLevel+ 1)
         {
             SetSelectStage(stage);
             return true;
@@ -120,17 +120,9 @@ void MapManager::SetSelectStage(Stage* stage)
     if (stage)
     {
         stage->OnSelected();
-        const int mainLevel = stage->MainLevel;
-        if (_stageDataTable.contains(mainLevel))
-        {
-            auto& stageMap = _stageDataTable[mainLevel];
-            for (auto& [_, stage] : stageMap)
-            {
-                stage->SetDisable();
-            }
-        }
         _selectedStage = stage;
-        _lastClearedStage = mainLevel;
+        _lastClearedStageData.MainLevel = stage->MainLevel;
+        _lastClearedStageData.SubLevel  = stage->SubLevel;
     }
 }
 
@@ -217,6 +209,11 @@ void MapManager::Update()
     });
 }
 
+void MapManager::OnEnable() 
+{
+    UpdateStageFocus();
+}
+
 void MapManager::OnLoadScene(Scene& loadScene, LoadSceneMode mode)
 {
     std::string otherScene = loadScene.Path;
@@ -245,7 +242,7 @@ void MapManager::ImGuiDrawPropertysEvent()
 {    
     ImGui::Separator();
     ImGuiHelper::AlignedText("Stage Info", ImGuiHelper::LEFT, 0.8f);
-    ImGui::Text("Cleared Stage: %i", _lastClearedStage);
+    ImGui::Text("Cleared Stage Data: %i, %i", _lastClearedStageData.MainLevel, _lastClearedStageData.SubLevel);
     ImGui::Text("Current Stage: ");
     if (_selectedStage)
     {
@@ -377,6 +374,38 @@ void MapManager::RegisterStage(GameObject& object)
             stageView->Watch(key);
         }
     }
+}
+
+void MapManager::UpdateStageFocus()
+{
+    for (auto& [mainLevel, stageMap] : _stageDataTable)
+    {
+        for (auto& [subLevel, stage] : stageMap)
+        {
+            if (stage)
+            {
+                bool canSubmit = CanSubmitStage(stage);
+                stage->SetEnable(canSubmit);
+
+                const int  stageMapSize      = static_cast<int>(stageMap.size());
+                const int  nextFocusSubLevel = std::clamp(_lastClearedStageData.SubLevel, 1, stageMapSize);
+                const bool canNextFocus      = stage->SubLevel == nextFocusSubLevel;
+                if (canSubmit && canNextFocus)
+                {
+                    stage->Focus();
+                }
+            }
+        }
+    }
+}
+
+bool MapManager::CanSubmitStage(Stage* stage)
+{
+    if (stage)
+    {
+        return _lastClearedStageData.MainLevel + 1 == stage->MainLevel;
+    }
+    return false;
 }
 
 Stage* MapManager::GetCurrentSelectedStage()

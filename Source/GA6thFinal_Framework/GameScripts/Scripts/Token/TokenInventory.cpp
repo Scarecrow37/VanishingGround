@@ -54,14 +54,12 @@ TokenInventory::TokenInventory(CharacterBase* owner)
 
 TokenInventory::~TokenInventory() 
 {
-    _tokenTable.clear();
-    _vaildTokenVector.clear();
+    Clear();
 }
 
 void TokenInventory::Initialize()
 {
-    _vaildTokenVector.clear();
-    _tokenTable.clear();
+    Clear();
     if (TokenSystem* tokenSystem = GetTokenSystem())
     {
         const auto& instances = tokenSystem->GetTokenInstances();
@@ -77,10 +75,7 @@ void TokenInventory::Initialize()
 
 void TokenInventory::Clear()
 {
-    for (auto& [id, token] : _tokenTable)
-    {
-        RemoveTokenFromID(id);
-    }
+    _tokenTable.clear();
     _vaildTokenVector.clear();
 }
 
@@ -442,6 +437,15 @@ void TokenInventory::NotifyRollRandomSpeed(int& randomSpeed)
             token.OnRollRandomSpeed(&_owner, randomSpeed);
         }
     });
+}
+
+void TokenInventory::RemoveAllToken() 
+{
+    for (auto& [id, token] : _tokenTable)
+    {
+        RemoveTokenFromID(id);
+    }
+    _vaildTokenVector.clear();
 }
 
 void TokenInventory::AddTokenStackFromID(int tokenID, int count /* = 1 */)
