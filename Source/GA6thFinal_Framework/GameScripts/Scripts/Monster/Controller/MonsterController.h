@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "Monster/Context/MonsterDataContext.h"
 #include "Monster/Context/MonsterStatContext.h"
+#include "Monster/Context/MonsterSpawnContext.h"
 #include "Monster/AI/MonsterAIModel.h"
 
 class Enemy;
@@ -27,7 +28,8 @@ namespace Monster
         Action::Base*           GetCurrentAction() const;
 
 
-        bool Build(std::weak_ptr<Enemy> weakOwner, const Monster::DataContext* pDataContext, const StatContext* pStatContext);
+        bool Build(std::weak_ptr<Enemy> weakOwner, const Monster::DataContext* pDataContext,
+                   const StatContext* pStatContext, const SpawnContext* pSpawnContext);
 
         void Reset();
 
@@ -40,6 +42,8 @@ namespace Monster
         /// <summary>AI FSM의 상태를 전이합니다.</summary>
         void Transition();
 
+        /// <summary>초기 토큰을 설정합니다.</summary>
+        void SetInitialToken();
 
     private:
         void BuildAIModel();
@@ -51,6 +55,7 @@ namespace Monster
         std::weak_ptr<Enemy>  _weakOwner;
         Monster::DataContext  _dataContext;
         Monster::StatContext  _statContext;
+        Monster::SpawnContext _spawnContext;
 
         FSMID           _fsmID = 0;
         AIModel         _aiModel;
