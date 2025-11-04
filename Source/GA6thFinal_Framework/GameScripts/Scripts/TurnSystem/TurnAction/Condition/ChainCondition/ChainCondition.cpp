@@ -187,8 +187,10 @@ bool ChainCondition::CheckEvaluate(CharacterBase* character)
         {
             if (CharacterStats* stats = character->GetCharacterStats())
             {
-                auto& element = system->GetCurrentWeaponElement();
-                for (int count = stats->CurrentChainCount; count <= element.Stats.AttackCount; ++count)
+                auto& element    = system->GetCurrentWeaponElement();
+                int   startCount = stats->CurrentChainCount;
+                int   endCount   = startCount + element.Stats.AttackCount;
+                for (int count = startCount; count <= endCount; ++count)
                 {
                     if (CheckEvaluate(count))
                     {

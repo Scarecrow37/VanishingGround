@@ -118,6 +118,14 @@ void RevelationsXYBView::UpdateUI()
                     auto& conditions     = action.GetConditions();
                     auto  CheckCondition = [&action, &conditions](CharacterBase* character) 
                     {
+                        if (character)
+                        {
+                            if (character->IsDead())
+                            {
+                                return false;
+                            }
+                        }
+
                         if (true == conditions.empty())
                         {
                             return true;
