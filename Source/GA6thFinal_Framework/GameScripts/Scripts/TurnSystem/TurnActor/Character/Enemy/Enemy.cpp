@@ -30,6 +30,7 @@
 
 // TurnAction
 #include "TurnSystem/TurnAction/TurnActionFactory.h"
+#include "ProclamationHUD/ProclamationHUD.h"
 
 UMREAL_COMPONENT(Enemy)
 
@@ -66,7 +67,7 @@ void Enemy::ImGuiDrawPropertysEvent()
         ImGui::BulletText("Current Action:");
         ImGui::Text("       ID: %d", currAction->GetActionID());
         ImGui::Text("       Name: %s", currAction->GetActionContext().Name.c_str());
-        ImGui::Text("       Type: %s", currAction->GetActionContext().Type.c_str());
+        ImGui::Text("       IconID: %d", currAction->GetActionContext().IconID);
         ImGui::Text("       Target: %s", currAction->GetActionContext().Target.c_str());
         ImGui::Text("       Attack Count: %d", currAction->GetActionContext().AttackCount);
         ImGui::Text("       Parameter: %s", currAction->GetActionContext().Parameter.c_str());
@@ -265,6 +266,12 @@ void Enemy::Awake()
         UmLogger.Log(LogLevel::LEVEL_WARNING, (const char*)u8"Enemy Stats를 추가해주세요");
     }
 }
+
+void Enemy::Start()
+{
+    Base::Start();    
+}
+
 CharacterStats* Enemy::GetCharacterStats()
 {
     CharacterStats* stats = nullptr;
@@ -365,6 +372,23 @@ void Enemy::OnCombatStart()
             action->OnEnemyCombatStartPhase(*this);
         }
     }
+
+    if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        if (auto HUD = combatUIManager->CharacterHUDGroup.EnemyHUDPanel[static_cast<int>(_spawnPoint)])
+        {
+            Transform::ForeachBFS(HUD->transform, [this](Transform* tr) {
+                GameObject& object = tr->gameObject;
+                if (object.CompareTag("Proclamation HUD"))
+                {
+                    if (auto proclamationHUD = object.GetComponent<ProclamationHUD>())
+                    {
+                        _proclamationHUD = proclamationHUD;
+                    }
+                }
+            });
+        }
+    }    
 }
 
 void Enemy::OnRoundStart()
@@ -374,6 +398,8 @@ void Enemy::OnRoundStart()
     TokenInventory& tokenInventory = GetTokenInventory();
     tokenInventory.NotifyRollRandomSpeed(_randomSpeed);
     Base::OnRoundStart();
+
+    SetupProclamationHUD();
 }
 
 void Enemy::OnRoundEnd()
@@ -400,9 +426,11 @@ void Enemy::OnTurnEnd()
     {
         if (action)
         {
-            action->OnEnemyTurnEnd(*this);
+            action->OnEnemyTurnEnd(*this);            
         }
     }
+
+    SetupProclamationHUD();
 }
 
 void Enemy::OnHit()
@@ -489,7 +517,7 @@ void Enemy::RegisterTokenHUD(int tokenID)
                                         model.Notify();
                                         prefab->transform->SetParent(object.transform);
                                     }
-                                }                            
+                                }
                             }
                         }
                     });
@@ -504,8 +532,21 @@ void Enemy::UnregisterTokenHUD(int tokenID)
     auto it = _tokenHUDTable.find(tokenID);
     if (it != _tokenHUDTable.end())
     {        
-        GameObject::Destroy(it->second);        
+        GameObject::Destroy(it->second);
         _tokenHUDTable.erase(it);
+    }
+}
+
+void Enemy::SetupProclamationHUD()
+{
+    if (auto action = _controller.GetCurrentAction())
+    {
+        if (_proclamationHUD)
+        {
+            const auto& context = action->GetActionContext();
+            int         damage  = action->GetActionParam(1).Param;
+            _proclamationHUD->SetDescriptionText(context.IconID, damage, (int)context.AttackCount);
+        }
     }
 }
 
