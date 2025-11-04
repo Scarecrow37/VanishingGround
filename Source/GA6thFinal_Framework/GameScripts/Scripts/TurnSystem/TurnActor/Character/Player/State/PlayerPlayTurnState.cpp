@@ -577,7 +577,7 @@ void PlayerPlayTurnState::SetWeaponModelTransform(WeaponModelData& modelData, QT
                     Vector3 dir       = DirectX::XMVector3Normalize(playerPos - enemyPos);
 
                     const Vector3 offset   = weaponModelManager->GetWeaponOffset(modelData.Type);
-                    const Vector3 distance = offset * dir;
+                    const Vector3 distance = offset + (dir * 2.0f);
                     modelData.GameObject->transform->SetWorldPosition(enemyPos + distance);
                 }
             }
