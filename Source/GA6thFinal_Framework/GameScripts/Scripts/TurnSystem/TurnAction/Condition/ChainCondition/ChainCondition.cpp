@@ -7,6 +7,9 @@
 #include <TurnSystem/TurnMode/State/CombatStartPhase.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include <TurnSystem/TurnSystemHelper.h>
+#include <Stats/Enemy/EnemyStats.h>
+#include <Stats/Player/PlayerStats.h>
+#include <WeaponSystem/WeaponSystem.h>
 
 REGISTER_TURN_ACTION_CONDITION(ChainCondition)
 
@@ -27,27 +30,10 @@ bool ChainCondition::Evaluate()
         return false;
     }
 
-    Operator oper = ReflectFields->Operator;
-    int      value1 = ReflectFields->Value1;
-    int      value2 = ReflectFields->Value2;
-
-    auto CheckOperation = [&](int chainCount) 
-    {
-        switch (oper)
-        {
-            case Operator::GREATER_EQUAL: return chainCount >= value1;
-            case Operator::LESS_EQUAL:    return chainCount <= value1;
-            case Operator::EQUAL:         return chainCount == value1;
-            case Operator::BETWEEN:       return value1 <= chainCount && chainCount <= value2;
-            case Operator::MULTIPLE_OF:   return (0 < chainCount) && (chainCount % value1 == 0);
-            default:                      return false;
-        }
-    };
-
     for (const auto& target : targetList)
     {
         int targetChainCount = target->ChainCount;
-        if (false == CheckOperation(targetChainCount))
+        if (false == CheckEvaluate(targetChainCount))
         {
             return false;
         }
@@ -101,6 +87,29 @@ void ChainCondition::DrawImguiEditor()
 const std::string& ChainCondition::GetConditionInfo()
 {
     return _conditionInfo;
+}
+
+bool ChainCondition::CheckEvaluate(int chainCount)
+{
+    Operator oper   = ReflectFields->Operator;
+    int      value1 = ReflectFields->Value1;
+    int      value2 = ReflectFields->Value2;
+
+    switch (oper)
+    {
+    case Operator::GREATER_EQUAL:
+        return chainCount >= value1;
+    case Operator::LESS_EQUAL:
+        return chainCount <= value1;
+    case Operator::EQUAL:
+        return chainCount == value1;
+    case Operator::BETWEEN:
+        return value1 <= chainCount && chainCount <= value2;
+    case Operator::MULTIPLE_OF:
+        return (0 < chainCount) && (chainCount % value1 == 0);
+    default:
+        return false;
+    }
 }
 
 void ChainCondition::SerializedReflectEvent() 
@@ -168,4 +177,27 @@ void ChainCondition::UpdateConditionInfo()
         break;
     }
     _conditionInfo = std::format("{}{}{}", who, u8" 연격이 "_c_str, operInfo);
+}
+
+bool ChainCondition::CheckEvaluate(CharacterBase* character)
+{
+    if (WeaponSystem* system = SingletonComponent<WeaponSystem>::GetInstance())
+    {
+        if (character)
+        {
+            if (CharacterStats* stats = character->GetCharacterStats())
+            {
+                auto& element = system->GetCurrentWeaponElement();
+                for (int count = stats->CurrentChainCount; count <= element.Stats.AttackCount; ++count)
+                {
+                    if (CheckEvaluate(count))
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+    }
+    return false;
 }

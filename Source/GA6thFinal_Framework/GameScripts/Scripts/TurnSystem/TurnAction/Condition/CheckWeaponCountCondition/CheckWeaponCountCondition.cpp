@@ -61,3 +61,8 @@ void CheckWeaponCountCondition::UpdateInfo()
     }
     _conditionInfo += u8" 무기로 행동"_c_str;
 }
+
+bool CheckWeaponCountCondition::CheckEvaluate(CharacterBase* character)
+{
+    return Evaluate();
+}
