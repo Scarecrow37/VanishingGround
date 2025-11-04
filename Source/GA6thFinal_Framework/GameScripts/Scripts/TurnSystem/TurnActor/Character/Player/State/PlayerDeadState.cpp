@@ -3,6 +3,7 @@
 #include <GameCore/FSM/Factory/FSMStateFactory.h>
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <Animation/AnimationComponent.h>
+#include <Particle/ParticleComponent.h>
 
 REGISTER_CLASS(FSMStateFactory, PlayerDeadState)
 
@@ -44,7 +45,11 @@ void PlayerDeadState::OnEnter()
 
 void PlayerDeadState::OnExit() 
 {
-
+    Player& enemy = GetPlayer();
+    if (ParticleComponent* particle = enemy.GetParticleComponent())
+    {
+        particle->StopAll();
+    }
 }
 
 void PlayerDeadState::OnUpdate() 

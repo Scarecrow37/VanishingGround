@@ -118,7 +118,14 @@ void Enemy::DeserializedReflectEvent()
     }
 }
 
-void Enemy::EndTurn() 
+void Enemy::ClearState() 
+{
+    Base::ClearState();
+    // 초기 토큰 설정
+    _controller.SetInitialToken();
+}
+
+void Enemy::EndTurn()
 {
     Base::EndTurn();
 }
@@ -186,6 +193,7 @@ void Enemy::TakeDamage(const int damage, const QTE::NoteResult& result, const bo
        
         std::string msg = std::format("{} {}{}", spawnPoint, owner.ToString(), (const char*)u8" 대한 공격 치명타!!");
         UmLogger.Message(LogLevel::LEVEL_TRACE, msg);
+        particle->StopEffect("criticalhit");
         particle->PlayEffect("criticalhit");
         _isCriticalDamage = true;
         break;
@@ -193,6 +201,7 @@ void Enemy::TakeDamage(const int damage, const QTE::NoteResult& result, const bo
     case QTE::QTE_RESULT_NORMAL: {
         std::string msg = std::format("{} {}{}", spawnPoint, owner.ToString(), (const char*)u8" 대한 공격 일격!!");
         UmLogger.Message(LogLevel::LEVEL_TRACE, msg);
+        particle->StopEffect("normalhit");
         particle->PlayEffect("normalhit");
         _isCriticalDamage = false;
         break;
