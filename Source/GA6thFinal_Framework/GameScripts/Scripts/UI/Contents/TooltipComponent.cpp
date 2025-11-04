@@ -84,7 +84,7 @@ void TooltipComponent::FindComponents()
     if (const Transform* imageTransform = transform->FindWithTag(TAG_IMAGE_COMPONENT))
     {
         const GameObject& imageObject = imageTransform->gameObject;
-        if (const ImageElement* imageComponentRaw = imageObject.GetComponentDynamic<ImageElement>())
+        if (const ImageElement* imageComponentRaw = imageObject.GetComponent<ImageElement>())
         {
             _image = imageComponentRaw->GetWeakPtrAs<ImageElement>();
         }
@@ -99,7 +99,7 @@ void TooltipComponent::FindComponents()
     if (const Transform* titleTransform = transform->FindWithTag(TAG_TITLE_COMPONENT))
     {
         const GameObject&  titleObject       = titleTransform->gameObject;
-        if (const TextElement* titleComponentRaw = titleObject.GetComponentDynamic<TextElement>())
+        if (const TextElement* titleComponentRaw = titleObject.GetComponent<TextElement>())
         {
             _title = titleComponentRaw->GetWeakPtrAs<TextElement>();
         }
@@ -113,7 +113,7 @@ void TooltipComponent::FindComponents()
     if (const Transform* descriptionTransform = transform->FindWithTag(TAG_DESCRIPTION_COMPONENT))
     {
         const GameObject&      descriptionObject = descriptionTransform->gameObject;
-        if (const DescriptionPanel* descriptionComponentRaw = descriptionObject.GetComponentDynamic<DescriptionPanel>())
+        if (const DescriptionPanel* descriptionComponentRaw = descriptionObject.GetComponent<DescriptionPanel>())
         {
             _description = descriptionComponentRaw->GetWeakPtrAs<DescriptionPanel>();
         }
