@@ -65,8 +65,10 @@ void PlayerHPImageView::Start()
                 {
                     _reduceHpImageElement = element;
                 }
+
+                _reduceGage = obj.GetComponent<ReduceGage>();
             }
-        });
+        });        
 
         _handle = UmWatcher.Watch<CharacterHPViewModel, CharacterHP>( PlayerStats::MODEL_HP_KEY, [this](const CharacterHP value) 
         { 

@@ -181,4 +181,6 @@ void MonsterHpImageView::FindElements()
             }
         }
     });
+
+    _reduceGage = GetComponent<ReduceGage>();
 }

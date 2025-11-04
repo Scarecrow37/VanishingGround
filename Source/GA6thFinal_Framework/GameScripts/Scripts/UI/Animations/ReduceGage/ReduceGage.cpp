@@ -31,7 +31,7 @@ void ReduceGage::Update()
         {
             _reduceTimer += UmTime.DeltaTime();
 
-            if (_reduceTimer >= 1.f)
+            if (_reduceTimer >= 0.5f)
             {
                 _isReducing   = true;
                 _reduceTimer  = 0.0f;
@@ -44,7 +44,7 @@ void ReduceGage::Update()
         {
             _reduceTimer += UmTime.DeltaTime();
 
-            if (_reduceTimer >= 1.f)
+            if (_reduceTimer >= 0.5f)
             {                
                 _currentRate = _targetRate;
                 ResetReduce();
