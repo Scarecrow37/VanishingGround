@@ -5,7 +5,8 @@
 enum class ElementType : unsigned char
 {
     TEXT,
-    IMAGE
+    IMAGE,
+    BREAK,
 };
 
 struct TextAttributes

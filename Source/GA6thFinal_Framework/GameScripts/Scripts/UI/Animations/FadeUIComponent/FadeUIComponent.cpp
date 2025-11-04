@@ -73,6 +73,12 @@ void FadeUIComponent::CompleteImmediately()
     }
 }
 
+void FadeUIComponent::ReFindTargets()
+{
+    ClearTargets();
+    FindTargets();
+}
+
 void FadeUIComponent::Update()
 {
     Component::Update();
@@ -102,8 +108,7 @@ void FadeUIComponent::Added()
     if (UmCore->IsPlay())
     {
         UpdateAnimationProperty();
-        ClearTargets();
-        FindTargets();
+        ReFindTargets();
     }
 }
 

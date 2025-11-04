@@ -44,6 +44,7 @@ public:
     void End();
     bool IsComplete() const;
     void CompleteImmediately();
+    void ReFindTargets();
 
 protected:
     void Added() override;
