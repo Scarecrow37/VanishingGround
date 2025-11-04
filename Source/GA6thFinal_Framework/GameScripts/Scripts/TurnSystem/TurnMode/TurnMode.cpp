@@ -462,14 +462,16 @@ void TurnMode::FindCameras()
             GameObject* object = cameras[i];
             if (object)
             {
-                if (i == 0)
+                std::string_view objName = object->ToString();
+                auto toLower = [](unsigned char c) { return std::tolower(c); };
+                if (auto findIntro = std::ranges::search(objName, "intro", {}, toLower, toLower); findIntro.begin() != objName.end())
                 {
                     if (UmCineMotion* motion = object->GetComponent<UmCineMotion>())
                     {
                         _introCamera = motion->GetWeakPtrAs<UmCineMotion>();
                     }                 
                 }
-                else if (i == 1)
+                else if (auto findMain = std::ranges::search(objName, "main", {}, toLower, toLower); findIntro.begin() != objName.end())
                 {
                     if (UmCineMotion* motion = object->GetComponent<UmCineMotion>())
                     {
