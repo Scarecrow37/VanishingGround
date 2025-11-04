@@ -1,5 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "UmCineMotion.h"
+
 UMREAL_COMPONENT(UmCineMotion)
 
 UmCineMotion::UmCineMotion()  = default;
@@ -549,6 +550,39 @@ void UmCineMotion::ApplyTransform()
     {
         transform->Rotation = _targetAngle;
         transform->Position = _targetPos;
+    }
+}
+
+void UmCineMotion::BeginFeedBackShake(int feedbackValue)
+{
+    constexpr int weakThreshold   = 10;
+    constexpr int strongThreshold = 20;
+
+    constexpr float weakIntensity = 0.085f;
+    constexpr float weakDuration  = 0.2f;
+    constexpr float weakFrequency = 1.f;
+
+    constexpr float midIntensity = 0.1675f;
+    constexpr float midDuration  = 0.2f;
+    constexpr float midFrequency = 1.f;
+
+    constexpr float strongIntensity = 0.25f;
+    constexpr float strongDuration  = 0.2f;
+    constexpr float strongFrequency = 1.f;
+
+    if (feedbackValue <= 0)
+        return;
+    if (feedbackValue <= weakThreshold)
+    {
+        BeginShake(weakDuration, weakIntensity, weakFrequency);
+    }
+    else if (feedbackValue <= strongThreshold)
+    {
+        BeginShake(midDuration, midIntensity, midFrequency);
+    }
+    else
+    {
+        BeginShake(strongDuration, strongIntensity, strongFrequency);
     }
 }
 
