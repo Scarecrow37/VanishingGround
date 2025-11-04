@@ -13,21 +13,15 @@ namespace TokenObject
     REGISTER_TOKEN(Weakness2)
     REGISTER_TOKEN(Weakness3)
 
-    void Weakness::OnTurnEnd(CharacterBase* owner) 
-    {
-        if (owner)
-        {
-            auto& tokenInventory = owner->GetTokenInventory();
-            int   tokenID        = GetTokenID();
-            tokenInventory.RemoveTokenStackFromID(tokenID);
-        }
-    }
     void Weakness::OnPostPlayerAttackCalculateDamage(PlayerAttackData& attackerData, EnemyHitData& targetData,
                                                      int& damage)
     {
         const int   tokenID     = GetTokenID();
         const int   param       = GetTokenParam(0);
         damage = ContentMath::CeilPercentage(damage, 100 - param);
+
+        auto& tokenInventory = attackerData.Source.GetTokenInventory();
+        tokenInventory.RemoveTokenStackFromID(tokenID);
 
         UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(attackerData.Source));
     }
@@ -37,6 +31,9 @@ namespace TokenObject
         const int   tokenID     = GetTokenID();
         const int   param       = GetTokenParam(0);
         damage = ContentMath::CeilPercentage(damage, 100 - param);
+
+        auto& tokenInventory = attackerData.Source.GetTokenInventory();
+        tokenInventory.RemoveTokenStackFromID(tokenID);
 
         UmLogger.Log(LogLevel::LEVEL_TRACE, TokenLog(attackerData.Source));
     }

@@ -183,9 +183,9 @@ void Enemy::TakeDamage(const int damage, const QTE::NoteResult& result, const bo
     GameObject& owner = gameObject;
     std::string spawnPoint = Monster::SpawnPointToString(SpawnPoint);
     ParticleComponent* particle = GetParticleComponent();
-    if (UmCineMotion* mainCam = dynamic_cast<UmCineMotion*>(CameraComponent::MainCamera()))
+    if (_cineMotion)
     {
-        mainCam->BeginFeedBackShake(damage);
+        _cineMotion->BeginFeedBackShake(damage);
     }
     if (true == IsDead() || false == result.IsHit())
     {
@@ -269,7 +269,8 @@ void Enemy::Awake()
 
 void Enemy::Start()
 {
-    Base::Start();    
+    Base::Start();
+    _cineMotion = dynamic_cast<UmCineMotion*>(CameraComponent::MainCamera());
 }
 
 CharacterStats* Enemy::GetCharacterStats()

@@ -11,6 +11,7 @@ class EnemyStatsComponent;
 class FSMState;
 class TurnAction;
 class ProclamationHUD;
+class UmCineMotion;
 
 class Enemy : public CharacterBase
 {
@@ -54,6 +55,8 @@ private:
     Monster::Controller  _controller; // 몬스터 AI, 액션 컨트롤러
     Monster::SpawnParam  _spawnParam; // 몬스터 스폰 정보(ID, 초기 토큰)
     EnemyStatsComponent* _enemyStats = nullptr;
+
+    UmCineMotion* _cineMotion = nullptr;
 
 protected:
     class FiniteStateMachine* _finiteStateMachine = nullptr;
