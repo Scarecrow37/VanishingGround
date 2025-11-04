@@ -136,22 +136,12 @@ void SceneTransitionComponent::CalculateFade()
     }
     if (_fadeElapsedTimer >= Duration)
     {
-        if (_fadeEndFlag == true)
+        UmTransition->Fade("Game", EndColor, true);
+        _fadeFlag = false;
+        if (_fadeCallBackFunction && true == _callbackFlag)
         {
-            UmTransition->Fade("Game", EndColor, true);
-            _fadeFlag = false;
-            if (_fadeCallBackFunction && true == _callbackFlag)
-            {
-                _fadeCallBackFunction();
-                _callbackFlag = false;
-            }
-            _fadeEndFlag = false;
-            return;
-        }
-        else
-        {
-            UmTransition->Fade("Game", EndColor, true);
-            _fadeEndFlag = true;
+            _fadeCallBackFunction();
+            _callbackFlag = false;
         }
     }
     _fadeElapsedTimer += UmTime.UnscaledDeltaTime();
