@@ -307,9 +307,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\Map\StageData.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyTurnEndTokenRandomApplyAction.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyCombatStartTokenRandomApplyAction.h" />
     <ClInclude Include="Scripts\Monster\Action\BossServant\MonsterBossServantAction.h" />
+    <ClInclude Include="Scripts\ProclamationHUD\ProclamationHUD.h" />
     <ClInclude Include="Scripts\QTE\Audio\QTEAudioState.h" />
     <ClInclude Include="Scripts\QTE\Controller\QTEController.h" />
     <ClInclude Include="Scripts\Ending\EndingDialogManager.h" />
@@ -329,6 +328,7 @@
     <ClInclude Include="Scripts\ContentMath\ContentMath.h" />
     <ClInclude Include="Scripts\StageVigneeteUI\StageVigneeteUIComponent.h" />
     <ClInclude Include="Scripts\Test\Input\InputStackTestComponent.h" />
+    <ClInclude Include="Scripts\TokenHUD\TokenHUD.h" />
     <ClInclude Include="Scripts\Token\Object\BlackArmor\BlackArmorToken.h" />
     <ClInclude Include="Scripts\Token\Object\ProphecyDoom\ProphecyDoomToken.h" />
     <ClInclude Include="Scripts\Token\Object\Deffence\ChainDeffenceToken.h" />
@@ -498,6 +498,8 @@
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\ApplyDamage\ApplyDamage.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\ChainNotAdditionAction\ChainNotAdditionAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\ChangeQTEButton\ChangeQTEButton.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyCombatStartTokenRandomApplyAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyTurnEndTokenRandomApplyAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\EquipAccessoryCharacterStats\EquipAccessoryCharacterStats.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\ExtinctionRevelationApply\ExtinctionRevelationApply.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\LastWeaponDamageCopy\LastWeaponDamageCopy.h" />
@@ -513,6 +515,7 @@
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\AttackTokenRemoveAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\Base\MultiTokenApplyAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\Base\TokenApplyAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\Base\TokenRandomRangeApplyAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\CombatStartTokenApplyAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\EnemyStunTokenApplyAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\RoundStartTokenApplyAction.h" />
@@ -623,7 +626,9 @@
     <ClInclude Include="Scripts\UI\Views\MonsterHp\MonsterHpView.h" />
     <ClInclude Include="Scripts\UI\Views\PlayerHP\PlayerHPView.h" />
     <ClInclude Include="Scripts\UI\Views\RevelationsView\RevelationsView.h" />
+    <ClInclude Include="Scripts\UI\Views\RevelationsXYBView\RevelationsXYBView.h" />
     <ClInclude Include="Scripts\UI\Views\SturnResistanceView\SturnResistanceView.h" />
+    <ClInclude Include="Scripts\UI\Views\TokenHUD\TokenHUDView.h" />
     <ClInclude Include="Scripts\UI\Views\TurnQueue\TurnQueueView.h" />
     <ClInclude Include="Scripts\UI\Views\Weapon\WeaponView.h" />
     <ClInclude Include="Scripts\UI\Wrappers\Dummy\DummyWrapper.h" />
@@ -643,6 +648,7 @@
     <ClInclude Include="Scripts\ViewModels\Map\StageViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Revelations\RevelationsViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\SturnResistance\SturnResistanceViewModel.h" />
+    <ClInclude Include="Scripts\ViewModels\TokenHUD\TokenHUDViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\TurnQueue\TurnQueueViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Weapon\WeaponViewModel.h" />
     <ClInclude Include="Scripts\WeaponModel\WeaponModelManager.h" />
@@ -656,7 +662,6 @@
     <ClInclude Include="Scripts\Token\Helper\TokenHelper.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TurnEndTokenApplyAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TurnEndTokenRemoveAction.h" />
-    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\Base\TokenRandomRangeApplyAction.h" />
     <ClInclude Include="UmScriptCore.h" />
     <ClInclude Include="UmScriptsExport.h" />
     <ClInclude Include="Scripts\Token\Object\Weakness\WeaknessToken.h" />
@@ -666,15 +671,10 @@
     <ClInclude Include="Scripts\Input\InputOkCancelComponent\InputOkCancelComponent.h" />
     <ClInclude Include="Scripts\MainMenu\CreditsBackButton.h" />
     <ClInclude Include="Scripts\BattleIntroUIController\BattleIntroUIController.h" />
-    <ClInclude Include="Scripts\UI\Views\TokenHUD\TokenHUDView.h" />
-    <ClInclude Include="Scripts\ViewModels\TokenHUD\TokenHUDViewModel.h" />
-    <ClInclude Include="Scripts\TokenHUD\TokenHUD.h" />
-    <ClInclude Include="Scripts\ProclamationHUD\ProclamationHUD.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyTurnEndTokenRandomApplyAction.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyCombatStartTokenRandomApplyAction.cpp" />
     <ClCompile Include="Scripts\Monster\Action\BossServant\MonsterBossServantAction.cpp" />
+    <ClCompile Include="Scripts\ProclamationHUD\ProclamationHUD.cpp" />
     <ClCompile Include="Scripts\QTE\Controller\QTEController.cpp" />
     <ClCompile Include="Scripts\Ending\EndingDialogManager.cpp" />
     <ClCompile Include="Scripts\MagicBook\SelectMagicBook.cpp" />
@@ -691,6 +691,7 @@
     <ClCompile Include="Scripts\ContentMath\ContentMath.cpp" />
     <ClCompile Include="Scripts\StageVigneeteUI\StageVigneeteUIComponent.cpp" />
     <ClCompile Include="Scripts\Test\Input\InputStackTestComponent.cpp" />
+    <ClCompile Include="Scripts\TokenHUD\TokenHUD.cpp" />
     <ClCompile Include="Scripts\Token\Object\BlackArmor\BlackArmorToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\ProphecyDoom\ProphecyDoomToken.cpp" />
     <ClCompile Include="Scripts\Token\Object\Deffence\ChainDeffenceToken.cpp" />
@@ -861,6 +862,8 @@
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\ApplyDamage\ApplyDamage.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\ChainNotAdditionAction\ChainNotAdditionAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\ChangeQTEButton\ChangeQTEButton.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyCombatStartTokenRandomApplyAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyTurnEndTokenRandomApplyAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\EquipAccessoryCharacterStats\EquipAccessoryCharacterStats.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\ExtinctionRevelationApply\ExtinctionRevelationApply.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\LastWeaponDamageCopy\LastWeaponDamageCopy.cpp" />
@@ -876,6 +879,7 @@
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\AttackTokenRemoveAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\Base\MultiTokenApplyAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\Base\TokenApplyAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\Base\TokenRandomRangeApplyAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\CombatStartTokenApplyAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\EnemyStunTokenApplyAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\RoundStartTokenApplyAction.cpp" />
@@ -994,7 +998,9 @@
     <ClCompile Include="Scripts\UI\Views\MonsterHp\MonsterHpView.cpp" />
     <ClCompile Include="Scripts\UI\Views\PlayerHP\PlayerHPView.cpp" />
     <ClCompile Include="Scripts\UI\Views\RevelationsView\RevelationsView.cpp" />
+    <ClCompile Include="Scripts\UI\Views\RevelationsXYBView\RevelationsXYBView.cpp" />
     <ClCompile Include="Scripts\UI\Views\SturnResistanceView\SturnResistanceView.cpp" />
+    <ClCompile Include="Scripts\UI\Views\TokenHUD\TokenHUDView.cpp" />
     <ClCompile Include="Scripts\UI\Views\TurnQueue\TurnQueueView.cpp" />
     <ClCompile Include="Scripts\UI\Views\Weapon\WeaponView.cpp" />
     <ClCompile Include="Scripts\UI\Wrappers\Dummy\DummyWrapper.cpp" />
@@ -1012,6 +1018,7 @@
     <ClCompile Include="Scripts\ViewModels\Map\StageViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Revelations\RevelationsViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\SturnResistance\SturnResistanceViewModel.cpp" />
+    <ClCompile Include="Scripts\ViewModels\TokenHUD\TokenHUDViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\TurnQueue\TurnQueueViewModel.cpp" />
     <ClCompile Include="Scripts\ViewModels\Weapon\WeaponViewModel.cpp" />
     <ClCompile Include="Scripts\WeaponModel\WeaponModelData.cpp" />
@@ -1025,7 +1032,6 @@
     <ClCompile Include="Scripts\Token\Helper\TokenHelper.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TurnEndTokenApplyAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TurnEndTokenRemoveAction.cpp" />
-    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\Base\TokenRandomRangeApplyAction.cpp" />
     <ClCompile Include="UmScriptCore.cpp" />
     <ClCompile Include="UmScriptsExport.cpp" />
     <ClCompile Include="Scripts\Token\Object\Weakness\WeaknessToken.cpp" />
@@ -1035,10 +1041,6 @@
     <ClCompile Include="Scripts\Input\InputOkCancelComponent\InputOkCancelComponent.cpp" />
     <ClCompile Include="Scripts\MainMenu\CreditsBackButton.cpp" />
     <ClCompile Include="Scripts\BattleIntroUIController\BattleIntroUIController.cpp" />
-    <ClCompile Include="Scripts\UI\Views\TokenHUD\TokenHUDView.cpp" />
-    <ClCompile Include="Scripts\ViewModels\TokenHUD\TokenHUDViewModel.cpp" />
-    <ClCompile Include="Scripts\TokenHUD\TokenHUD.cpp" />
-    <ClCompile Include="Scripts\ProclamationHUD\ProclamationHUD.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

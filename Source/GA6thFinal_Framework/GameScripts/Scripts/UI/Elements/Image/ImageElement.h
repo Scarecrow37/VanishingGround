@@ -16,10 +16,13 @@ public:
     ~ImageElement() override;
 
 public:
-    REFLECT_PROPERTY(FilePath, Alpha, Column, Row, ColumnIndex, RowIndex, LinearFill, RadialFill)
+    REFLECT_PROPERTY(FilePath, FileGuid, Alpha, Column, Row, ColumnIndex, RowIndex, LinearFill, RadialFill)
 
     GETTER_ONLY(std::string, FilePath) { return _Guid.ToPath().string(); }
     PROPERTY(FilePath)
+
+    GETTER_ONLY(std::string, FileGuid) { return _Guid.string(); }
+    PROPERTY(FileGuid)
 
     GETTER(float, Alpha) { return ReflectFields->Alpha; }
     SETTER(float, Alpha) { SetOpacity(value); }

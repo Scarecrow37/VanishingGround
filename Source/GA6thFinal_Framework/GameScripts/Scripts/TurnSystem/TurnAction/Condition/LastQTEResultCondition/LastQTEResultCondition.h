@@ -36,4 +36,7 @@ private:
     void        UpdateConditionInfo();
     std::string conditionInfo;
 
+
+// TurnActionCondition을(를) 통해 상속됨
+    bool CheckEvaluate(CharacterBase* character) override;
 };

@@ -817,7 +817,7 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
         }
     }
     onloadSceneTargets.clear();
-    _nextSceneGuid = scene->_guid;
+    _nextSceneGuids.push_back(scene->_guid);
 }
 
 void ESceneManager::UnloadScene(std::string_view sceneName) 
@@ -1046,27 +1046,32 @@ void ESceneManager::ObjectsMatrixUpdate()
 
 void ESceneManager::ObjectsAddLoadScene() 
 {
-    if (false == _nextSceneGuid.empty())
+    if (false == _nextSceneGuids.empty())
     {
-        auto sceneIter = _scenesMap.find(_nextSceneGuid);
-        if (sceneIter != _scenesMap.end())
+        //안전하게 임시 변수로 이동 후 작업
+        std::vector<File::Guid> nextScenes = std::move(_nextSceneGuids);
+        _nextSceneGuids.clear();
+        for (auto& sceneGuid : nextScenes)
         {
-            Scene* scene = &sceneIter->second;
-            try
+            auto sceneIter = _scenesMap.find(sceneGuid);
+            if (sceneIter != _scenesMap.end())
             {
-                DeserializeToGuid(_nextSceneGuid);
-                scene->_isLoaded = true;
-                scene->_isDirty  = false;
-                _lodedSceneList.push_back(scene);
-            }
-            catch (const YAML::Exception& ex)
-            {
-                std::string sceneName = scene->Name;
-                std::string msg       = std::format("{}{}{}", sceneName, (const char*)u8" 로드 실패. ", ex.what());
-                UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+                Scene* scene = &sceneIter->second;
+                try
+                {
+                    DeserializeToGuid(sceneGuid);
+                    scene->_isLoaded = true;
+                    scene->_isDirty  = false;
+                    _lodedSceneList.push_back(scene);
+                }
+                catch (const YAML::Exception& ex)
+                {
+                    std::string sceneName = scene->Name;
+                    std::string msg       = std::format("{}{}{}", sceneName, (const char*)u8" 로드 실패. ", ex.what());
+                    UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
+                }
             }
         }
-        _nextSceneGuid.clear();
         _waitResourceLoad = true;
     }
 
@@ -2141,6 +2146,9 @@ void ESceneManager::SceneResourceManager::Engine::CleanUp(SceneResourceManager& 
 
     manager._fonts.ResourceLoadQueue.clear();
     manager._fonts.RenderResource.clear();
+
+    manager._sdfFonts.ResourceLoadQueue.clear();
+    manager._sdfFonts.RenderResource.clear();
 }
 
 void ESceneManager::SceneResourceManager::RequestModelResource(const Component* component, const File::Guid& guid,
@@ -2306,16 +2314,6 @@ void ESceneManager::SceneResourceManager::RequestSDFFontResource(const Component
             UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
         }
     }
-}
-
-ESceneManager::SceneResourceManager::SceneResourceManager() 
-{
-
-}
-
-ESceneManager::SceneResourceManager::~SceneResourceManager() 
-{
-
 }
 
 void ESceneManager::InputSystem::UpdateInput()

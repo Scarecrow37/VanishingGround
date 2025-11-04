@@ -26,6 +26,7 @@
 #include "DifficultyManager/DifficultyManager.h"
 #include "Map/MapManager.h"
 #include "Map/Stage.h"
+#include "TutorialSystem/TutorialSystem.h"
 
 REGISTER_CLASS(FSMStateFactory, CombatStartPhase)
 
@@ -169,6 +170,7 @@ void CombatStartPhase::OnEnter()
         {
             if (dropSystem->StageClearCount == 0)
             {
+                introCamera->SetMainCamera();
                 introCamera->ResetRail(true);
                 introCamera->StartRail(false);
                 introDuration = introCamera->Duration;
@@ -220,6 +222,19 @@ void CombatStartPhase::OnExit()
     if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
     {
         combatUIManager->CharacterHUDGroup.ActiveUI(true);
+    }
+
+     if (ItemDropSystem* itemDropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
+    {
+        // 소멸 계시 추가시 튜토리얼
+        int stageClearCount = itemDropSystem->StageClearCount;
+        if (TutorialSystem* tutorial = SingletonComponent<TutorialSystem>::GetInstance())
+        {
+            if (0 < stageClearCount)
+            {
+                tutorial->Show(805908);
+            }
+        }      
     }
 }
 
