@@ -306,6 +306,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\QTE\UI\Guide\BattleGuideUI.h" />
     <ClInclude Include="Scripts\Map\StageData.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyTurnEndTokenRandomApplyAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyCombatStartTokenRandomApplyAction.h" />
@@ -668,6 +669,7 @@
     <ClInclude Include="Scripts\ProclamationHUD\ProclamationHUD.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\QTE\UI\Guide\BattleGuideUI.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyTurnEndTokenRandomApplyAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyCombatStartTokenRandomApplyAction.cpp" />
     <ClCompile Include="Scripts\Monster\Action\BossServant\MonsterBossServantAction.cpp" />

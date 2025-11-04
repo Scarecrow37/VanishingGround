@@ -268,8 +268,9 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
     const float t    = _attackButtonHeldTime / _attackButtonHeldWaitTime;
     if (QTEUIManager* qteUIManager = SingletonComponent<QTEUIManager>::GetInstance())
     {
-        qteUIManager->SetUIAlpha(t);
-        UmAudio.SetVolume(_hHoldAButtonSound, t);
+        qteUIManager->SetQTEProgress(t);
+        const float volume = t * t;
+        UmAudio.SetVolume(_hHoldAButtonSound, volume);
     }
 }
 
