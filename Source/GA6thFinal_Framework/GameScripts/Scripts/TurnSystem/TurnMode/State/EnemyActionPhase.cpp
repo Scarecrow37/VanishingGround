@@ -56,14 +56,12 @@ void EnemyActionPhase::OnEnter()
                 {
                     WaitPhase = false;
                     UpdateCharacterDead();   
-                    ApplyReduceHP();
                 });
             }
             else
             {
                 WaitPhase = false;
                 UpdateCharacterDead();   
-                ApplyReduceHP();
             }      
         }
     }
