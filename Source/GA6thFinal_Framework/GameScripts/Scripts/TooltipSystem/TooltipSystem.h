@@ -64,7 +64,7 @@ private:
     void SetupData();
 
     void ShowDataProperty();
-    void ShowTestTooltipProperty() const;
+    void ShowTestTooltipProperty();
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)

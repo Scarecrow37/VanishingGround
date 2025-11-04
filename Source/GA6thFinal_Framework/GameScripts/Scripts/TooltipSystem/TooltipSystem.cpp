@@ -17,7 +17,7 @@ void TooltipSystem::Show(const Group group, const int id) const
             sharedGroup->FadeIn();
         }
     }
-    catch (std::out_of_range& exception)
+    catch (const std::out_of_range& exception)
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, "Tooltip group or tooltip data not found.");
         UmLogger.Log(LogLevel::LEVEL_WARNING, exception.what());
@@ -37,7 +37,7 @@ void TooltipSystem::Show(const Group group, const std::initializer_list<int> ids
             sharedGroup->FadeIn();
         }
     }
-    catch (std::out_of_range& exception)
+    catch (const std::out_of_range& exception)
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, "Tooltip group or tooltip data not found.");
         UmLogger.Log(LogLevel::LEVEL_WARNING, exception.what());
@@ -66,7 +66,7 @@ void TooltipSystem::Hide(const Group group)
             UmTime.Invoke(this, sharedGroup->GetFadeDuration(), [sharedGroup]() { sharedGroup->Hide(); });
         }
     }
-    catch (std::out_of_range& exception)
+    catch (const std::out_of_range& exception)
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, "Tooltip group not found.");
         UmLogger.Log(LogLevel::LEVEL_WARNING, exception.what());
@@ -208,7 +208,7 @@ void TooltipSystem::ShowDataProperty()
     }
 }
 
-void TooltipSystem::ShowTestTooltipProperty() const
+void TooltipSystem::ShowTestTooltipProperty()
 {
     constexpr const char* groupItems[] = {"Weapon",        "Accessory",         "Player",
                                           "Enemy Left",    "Enemy Middle",      "Enemy Right",
