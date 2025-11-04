@@ -2,7 +2,7 @@
 #include "CharacterHUDGroup.h"
 
 #include <UI/Panels/Overlay/OverlayPanel.h>
-#include <Camera/CameraComponent.h>
+#include <Camera/UmCineMotion.h>
 
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
@@ -96,80 +96,89 @@ namespace CombatUI
         SIZE    actionPanelSize[3];
         POINT   actionPanelPoint[3];
 
-        const int left      = 0;
-        const int middle    = 1;
-        const int right     = 2;
+        const int left   = 0;
+        const int middle = 1;
+        const int right  = 2;
 
-        if (EnemyHUDPanel[1])
+        //////////////////////
+        //  Middle Panel    //
+        //////////////////////
+        if (EnemyHUDPanel[middle])
         {
-            {
-                //////////////////////
-                //  Middle Panel    //
-                //////////////////////
-                if (EnemyHUDPanel[middle])
-                {
-                    hudPanelSize[middle]         = EnemyHUDPanel[middle]->Size;
-                    hudPanelPoint[middle]        = {(LONG)EnemyFootPosition[1].x - hudPanelSize[middle].cx / 2,
-                                                   (LONG)EnemyFootPosition[1].y};
-                    EnemyHUDPanel[middle]->Point = hudPanelPoint[middle];
-                }
-                if (EnemyActionPanel[middle])
-                {
-                    actionPanelSize[middle]      = EnemyActionPanel[middle]->Size;
-                    actionPanelPoint[middle]     = {(LONG)EnemyHeadPosition[middle].x - actionPanelSize[middle].cx / 2,
-                                                   (LONG)EnemyHeadPosition[middle].y};
-                    EnemyActionPanel[middle]->Point = actionPanelPoint[middle];
-                }
-            }
-            {
-                //////////////////////
-                //  Left Panel      //
-                //////////////////////
-                if (EnemyHUDPanel[left])
-                {
-                    hudPanelSize[left]            = EnemyHUDPanel[left]->Size;
-                    hudPanelPoint[left]           = {hudPanelPoint[middle].x - hudPanelSize[left].cx - MONSTER_HUD_SPACE_X,
-                                                     hudPanelPoint[middle].y + MONSTER_HUD_SPACE_Y};
-                    EnemyHUDPanel[left]->Point    = hudPanelPoint[left];
-                }
-                if (EnemyActionPanel[left])
-                {
-                    actionPanelSize[left]         = EnemyActionPanel[left]->Size;
-                    actionPanelPoint[left]        = {actionPanelPoint[middle].x - actionPanelSize[left].cx - MONSTER_HUD_SPACE_X,
-                                                    (LONG)EnemyHeadPosition[left].y};
-                    EnemyActionPanel[left]->Point = actionPanelPoint[left];
-                }
-            }
-            {
-                //////////////////////
-                //  Right Panel     //
-                //////////////////////
-                if (EnemyHUDPanel[right])
-                {
-                    hudPanelSize[right]         = EnemyHUDPanel[right]->Size;
-                    hudPanelPoint[right]        = {hudPanelPoint[middle].x + hudPanelSize[middle].cx + MONSTER_HUD_SPACE_X,
-                                                  hudPanelPoint[middle].y + MONSTER_HUD_SPACE_Y};
-                    EnemyHUDPanel[right]->Point = hudPanelPoint[right];
-                }
-                if (EnemyActionPanel[right])
-                {
-                    actionPanelSize[right]         = EnemyActionPanel[right]->Size;
-                    actionPanelPoint[right]        = {actionPanelPoint[middle].x + actionPanelSize[middle].cx + MONSTER_HUD_SPACE_X,
-                                                     (LONG)EnemyHeadPosition[right].y};
-                    EnemyActionPanel[right]->Point = actionPanelPoint[right];
-                }
-            }
+            hudPanelSize[middle]         = EnemyHUDPanel[middle]->Size;
+            hudPanelPoint[middle]        = {(LONG)EnemyFootPosition[middle].x - hudPanelSize[middle].cx / 2,
+                                            (LONG)EnemyFootPosition[middle].y};
+            EnemyHUDPanel[middle]->Point = hudPanelPoint[middle];
+        }
+        if (EnemyActionPanel[middle])
+        {
+            actionPanelSize[middle]       = EnemyActionPanel[middle]->Size;
+            actionPanelPoint[middle]      = {(LONG)EnemyHeadPosition[middle].x - actionPanelSize[middle].cx / 2,
+                                             (LONG)EnemyHeadPosition[middle].y};
+            EnemyActionPanel[middle]->Point = actionPanelPoint[middle];
+        }
+        
+        //////////////////////
+        //  Left Panel      //
+        //////////////////////
+        if (EnemyHUDPanel[left])
+        {
+            hudPanelSize[left]          = EnemyHUDPanel[left]->Size;
+            hudPanelPoint[left]         = {hudPanelPoint[middle].x - hudPanelSize[left].cx - MONSTER_HUD_SPACE_X,
+                                           hudPanelPoint[middle].y + MONSTER_HUD_SPACE_Y};
+            EnemyHUDPanel[left]->Point  = hudPanelPoint[left];
+        }
+        if (EnemyActionPanel[left])
+        {
+            actionPanelSize[left]       = EnemyActionPanel[left]->Size;
+            actionPanelPoint[left]      = {actionPanelPoint[middle].x - actionPanelSize[left].cx - MONSTER_HUD_SPACE_X,
+                                           (LONG)EnemyHeadPosition[left].y};
+            EnemyActionPanel[left]->Point = actionPanelPoint[left];
+        }
+
+        //////////////////////
+        //  Right Panel     //
+        //////////////////////
+        if (EnemyHUDPanel[right])
+        {
+            hudPanelSize[right]         = EnemyHUDPanel[right]->Size;
+            hudPanelPoint[right]        = {hudPanelPoint[middle].x + hudPanelSize[middle].cx + MONSTER_HUD_SPACE_X,
+                                           hudPanelPoint[middle].y + MONSTER_HUD_SPACE_Y};
+            EnemyHUDPanel[right]->Point = hudPanelPoint[right];
+        }
+        if (EnemyActionPanel[right])
+        {
+            actionPanelSize[right]      = EnemyActionPanel[right]->Size;
+            actionPanelPoint[right]     = {actionPanelPoint[middle].x + actionPanelSize[middle].cx + MONSTER_HUD_SPACE_X,
+                                           (LONG)EnemyHeadPosition[right].y};
+            EnemyActionPanel[right]->Point = actionPanelPoint[right];
+        }
+
+        if (PlayerHUDPanel)
+        {
+            SIZE  size  = PlayerHUDPanel->Size;
+            POINT point = {(LONG)(PlayerPosition.x - size.cx / 2),
+                           (LONG)(PlayerPosition.y)};
+            point.x     = std::max(point.x, (LONG)50);
+            point.y     = std::max(point.y, (LONG)100);
+            PlayerHUDPanel->Point = point;
         }
     }
 
     bool CharacterHUDGroup::RefreshCharactersUIPosition()
     {
-        if (CameraComponent* camera = CameraComponent::MainCamera())
+        if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
         {
-            if (TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance())
+            // 연출 카메라 가져오기
+            CameraComponent* camera = turnMode->GetBattleCamera();
+            // 연출 카메라가 없다면 메인 카메라로
+            if (nullptr == camera)
+            {
+                camera = CameraComponent::MainCamera();
+            }
+            if (camera)
             {
                 const auto& enemies = turnMode->GetEnemies();
-
                 for (size_t i = 0; i < enemies.size(); ++i)
                 {
                     if (enemies[i])
@@ -181,19 +190,14 @@ namespace CombatUI
                         EnemyHeadPosition[index] = camera->WorldToViewport(head);
                     }
                 }
-
-                bool valid = PlayerHUDPanel;
-                if (valid)
+                if (Player* player = turnMode->GetPlayer())
                 {
-
-                    if (Player* player = turnMode->GetPlayer())
-                    {
-                        const auto& playerWorld = player->transform->GetWorldPosition();
-                        PlayerPosition          = camera->WorldToViewport(playerWorld);
-                    }
+                    const Vector3 foot = player->transform->GetWorldPosition();
+                    const Vector3 head = foot + GetHeadOffset(player);
+                    PlayerPosition     = camera->WorldToViewport(head);
                 }
-                return true;
             }
+            return true;
         }
         return false;
     }
@@ -237,12 +241,22 @@ namespace CombatUI
             case EnemyType::MONSTER_A:
                 return Vector3(0.0f, 2.0f, 0.0f) * scale + offset;
             case EnemyType::MONSTER_B:
-                return Vector3(0.0f, 2.0f, 0.0f) * scale + offset;
+                return Vector3(0.0f, 1.5f, 0.0f) * scale + offset;
             case EnemyType::MONSTER_C:
-                return Vector3(0.0f, 3.0f, 0.0f) * scale + offset;
+                return Vector3(0.0f, 2.7f, 0.0f) * scale + offset;
             default:
                 break;
             }
+        }
+        return Vector3();
+    }
+    Vector3 CharacterHUDGroup::GetHeadOffset(Player* player)
+    {
+        if (player)
+        {
+            const Vector3 scale = player->transform->Scale;
+            const Vector3 offset = Vector3(0.0f, 1.0f, 0.0f);
+            return Vector3(0.0f, 2.0f, 0.0f) * scale + offset;
         }
         return Vector3();
     }

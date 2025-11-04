@@ -40,6 +40,7 @@ namespace CombatUI
         void FadeOut(float duration) override;
 
         Vector3 GetHeadOffset(Enemy* enemy);
+        Vector3 GetHeadOffset(Player* player);
 
     private:
         inline static constexpr std::array<const char*, 3> MONSTER_HUD = {
@@ -58,7 +59,7 @@ namespace CombatUI
             "Left Spawn Heal UI", "Middle Spawn Heal UI", "Right Spawn Heal UI"
         };
 
-        inline static LONG MONSTER_HUD_SPACE_X = 10;
+        inline static LONG MONSTER_HUD_SPACE_X = 0;
         inline static LONG MONSTER_HUD_SPACE_Y = -30;
     };
 } // namespace CombatUI
