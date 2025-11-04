@@ -2141,6 +2141,9 @@ void ESceneManager::SceneResourceManager::Engine::CleanUp(SceneResourceManager& 
 
     manager._fonts.ResourceLoadQueue.clear();
     manager._fonts.RenderResource.clear();
+
+    manager._sdfFonts.ResourceLoadQueue.clear();
+    manager._sdfFonts.RenderResource.clear();
 }
 
 void ESceneManager::SceneResourceManager::RequestModelResource(const Component* component, const File::Guid& guid,
@@ -2306,16 +2309,6 @@ void ESceneManager::SceneResourceManager::RequestSDFFontResource(const Component
             UmLogger.Log(LogLevel::LEVEL_WARNING, msg);
         }
     }
-}
-
-ESceneManager::SceneResourceManager::SceneResourceManager() 
-{
-
-}
-
-ESceneManager::SceneResourceManager::~SceneResourceManager() 
-{
-
 }
 
 void ESceneManager::InputSystem::UpdateInput()

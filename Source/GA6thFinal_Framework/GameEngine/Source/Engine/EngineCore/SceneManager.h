@@ -466,8 +466,8 @@ public:
     class SceneResourceManager
     {
     public:
-        SceneResourceManager();
-        ~SceneResourceManager();
+        SceneResourceManager() = default;
+        ~SceneResourceManager() = default;
 
         struct Engine
         {
