@@ -191,7 +191,7 @@ namespace Global
         #else
         static constexpr bool _isPlay = true;
         #endif
-        File::Guid  _playSceneGuid;
+        std::vector<File::Guid>  _playSceneGuids;
         ImVec4      _playModeColors[ImGuiCol_COUNT];
         bool        _isPause;
     }

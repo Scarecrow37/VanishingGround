@@ -12,6 +12,7 @@
 #include "TurnSystem/TurnAction/TurnAction.h"
 
 #include "ExcelDataSystem/ExcelDataSystem.h"
+#include "Camera/UmCineMotion.h"
 
 UMREAL_COMPONENT(RevelationSystem)
 

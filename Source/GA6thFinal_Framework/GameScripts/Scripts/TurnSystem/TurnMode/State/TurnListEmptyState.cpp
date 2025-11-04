@@ -59,7 +59,6 @@ void TurnListEmptyState::OnEnter()
 
         //액션 후 다시 사망 계산
         UpdateCharacterDead();
-
         if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
         {
             system->Show(805903); // 연격 튜토리얼
@@ -73,6 +72,7 @@ void TurnListEmptyState::OnEnter()
     {
         UpdateCharacterDead();
     }
+    ApplyReduceHP();
 
     _turnMode->FinishCurrentTurn();
     UmLogger.Message(LogLevel::LEVEL_DEBUG, (const char*)u8"턴 리스트를 확인합니다.");

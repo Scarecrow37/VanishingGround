@@ -23,6 +23,8 @@ public:
     void DrawImguiEditor() override;
     const std::string& GetConditionInfo() override;
 
+    bool CheckEvaluate(int chainCount);
+
     REFLECT_PROPERTY()
     REFLECT_FIELDS_BEGIN(TurnActionCondition)
     TurnTarget Target   = TurnTarget::SELF;
@@ -39,4 +41,5 @@ private:
     std::string _conditionInfo;
     void        UpdateConditionInfo();
 
+    bool CheckEvaluate(CharacterBase* character) override;
 };

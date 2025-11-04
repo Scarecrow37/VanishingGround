@@ -43,4 +43,8 @@ private:
 
     std::string _conditionInfo;
     void        UpdateConditionInfo();
+
+    bool CheckEvaluate(CharacterBase* character) override;
+
+    bool CheckOperation(int currentHP, int v1, int v2);
 };

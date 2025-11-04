@@ -56,12 +56,14 @@ void PlayerActionPhase::OnEnter()
                 UmTime.Invoke(GetFSM(), tokenDelayTime, [this]() {
                     WaitPhase = false;
                     UpdateCharacterDead();
+                    ApplyReduceHP();
                 });
             }
             else
             {
                 WaitPhase = false;
                 UpdateCharacterDead();
+                ApplyReduceHP();
             }
         }
     }
@@ -70,7 +72,6 @@ void PlayerActionPhase::OnEnter()
 void PlayerActionPhase::OnExit()
 {
     WaitPhase = true;
-
     if (_turnMode)
     {
         if (auto& actorModel = _turnMode->GetCurrTurnActor())
