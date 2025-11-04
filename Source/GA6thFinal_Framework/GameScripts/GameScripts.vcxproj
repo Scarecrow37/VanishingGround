@@ -623,6 +623,7 @@
     <ClInclude Include="Scripts\UI\Views\MonsterHp\MonsterHpView.h" />
     <ClInclude Include="Scripts\UI\Views\PlayerHP\PlayerHPView.h" />
     <ClInclude Include="Scripts\UI\Views\RevelationsView\RevelationsView.h" />
+    <ClInclude Include="Scripts\UI\Views\RevelationsXYBView\RevelationsXYBView.h" />
     <ClInclude Include="Scripts\UI\Views\SturnResistanceView\SturnResistanceView.h" />
     <ClInclude Include="Scripts\UI\Views\TurnQueue\TurnQueueView.h" />
     <ClInclude Include="Scripts\UI\Views\Weapon\WeaponView.h" />
@@ -994,6 +995,7 @@
     <ClCompile Include="Scripts\UI\Views\MonsterHp\MonsterHpView.cpp" />
     <ClCompile Include="Scripts\UI\Views\PlayerHP\PlayerHPView.cpp" />
     <ClCompile Include="Scripts\UI\Views\RevelationsView\RevelationsView.cpp" />
+    <ClCompile Include="Scripts\UI\Views\RevelationsXYBView\RevelationsXYBView.cpp" />
     <ClCompile Include="Scripts\UI\Views\SturnResistanceView\SturnResistanceView.cpp" />
     <ClCompile Include="Scripts\UI\Views\TurnQueue\TurnQueueView.cpp" />
     <ClCompile Include="Scripts\UI\Views\Weapon\WeaponView.cpp" />
