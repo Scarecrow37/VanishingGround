@@ -92,6 +92,8 @@ public:
     void NotifyRollRandomSpeed(int& randomSpeed);
 
 public:
+    void RemoveAllToken();
+
     /// <summary>
     /// 토큰 스택을 카운트만큼 추가합니다. 
     /// </summary>
@@ -139,6 +141,13 @@ public:
     int GetTokenStackFromID(int tokenID) const;
 
     /// <summary>
+    /// 토큰 ID로 해당 토큰 모델을 반환합니다.
+    /// </summary>
+    /// <param name="tokenID"></param>
+    /// <returns></returns>
+    MVVM::Model<int>& GetTokenModelFromID(int tokenID);
+
+    /// <summary>
     /// 지정된 태그에 대응하는 모든 토큰의 스택을 합한 카운트를 반환합니다.
     /// </summary>
     int GetTokenStackFromTag(const std::string& tag) const;
@@ -184,7 +193,7 @@ private:
     bool CheckValidTokenFromID(TokenID tokenID);
 
 private:
-    CharacterBase&                      _owner;              // 해당 매니저를 소유한 CharacterBase 인스턴스
-    std::vector<TokenID>                _vaildTokenVector;   // 유효한 토큰 ID 리스트(쌓인 순서대로)
-    std::unordered_map<TokenID, int>    _tokenTable;         // 모든 토큰 테이블 (스택 카운트가 0인 토큰도 포함)
+    CharacterBase&                                _owner;            // 해당 매니저를 소유한 CharacterBase 인스턴스
+    std::vector<TokenID>                          _vaildTokenVector; // 유효한 토큰 ID 리스트(쌓인 순서대로)
+    std::unordered_map<TokenID, MVVM::Model<int>> _tokenTable;       // 모든 토큰 테이블 (스택 카운트가 0인 토큰도 포함)
 };

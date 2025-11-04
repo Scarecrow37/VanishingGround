@@ -14,43 +14,17 @@ struct GetPortraitGuid
     File::Guid operator()(const EnemyType enemyType) const
     {
         File::Guid portraitGuid;
-        if (ExcelDataSystem* dataSystem = SingletonComponent<ExcelDataSystem>::GetInstance())
+        switch (enemyType)
         {
-            if (std::unique_ptr<ExcelDataBase> dataBase = dataSystem->FindExcelDataBase(u8"전투"))
-            {
-                constexpr std::u8string_view findIndexColumnKey = u8"Description";
-                constexpr std::u8string_view findDataColumnKey  = u8"ID";
-                int assetID = 0;
-                size_t rowIndex = ExcelDataBase::FIND_INDEX_FAIL;
-                switch (enemyType)
-                {
-                    case EnemyType::MONSTER_A: 
-                    {
-                        rowIndex = dataBase->FindRowIndex(u8"몬스터A_턴", findIndexColumnKey);
-                        break;
-                    }
-                    case EnemyType::MONSTER_B: 
-                    {
-                        rowIndex = dataBase->FindRowIndex(u8"몬스터B_턴", findIndexColumnKey);
-                        break;
-                    }
-                    case EnemyType::MONSTER_C: 
-                    {
-                        rowIndex = dataBase->FindRowIndex(u8"몬스터C_턴", findIndexColumnKey);
-                        break;
-                    }            
-                }
-
-                if (rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
-                {
-                    std::string_view data = dataBase->FindData(rowIndex, findDataColumnKey);
-                    if (data != ExcelDataBase::FIND_STR_FAIL)
-                    {
-                        assetID = std::stoi(data.data());
-                        portraitGuid = UmFileSystem.GetGuidFromAssetID(assetID);
-                    }
-                }
-            }
+        case EnemyType::MONSTER_A:
+            portraitGuid = UmFileSystem.GetGuidFromAssetID(231000);
+            break;
+        case EnemyType::MONSTER_B:
+            portraitGuid = UmFileSystem.GetGuidFromAssetID(231001);
+            break;
+        case EnemyType::MONSTER_C:
+            portraitGuid = UmFileSystem.GetGuidFromAssetID(231002);
+            break;
         }
         return portraitGuid;
     }

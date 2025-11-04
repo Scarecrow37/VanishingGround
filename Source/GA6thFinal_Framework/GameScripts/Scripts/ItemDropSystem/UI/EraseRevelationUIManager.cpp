@@ -157,24 +157,9 @@ void EraseRevelationUIManager::Added()
     if (_singletonComponent.TrySingleTon())
     {
         gameObject->AddTag(TAG);
-        gameObject->SetActive(true);
-    }
-}
-
-void EraseRevelationUIManager::Awake()
-{
-    Base::Awake();
-    if (_singletonComponent.IsSingleTon())
-    {      
         BindInputAction(ControllerButton::B, Action::PRESSED, this, &EraseRevelationUIManager::OnButtonDownB);
         FindElements();
     }
-}
-
-void EraseRevelationUIManager::Start() 
-{
-    Base::Start();
-    _closeFlag = true;
 }
 
 void EraseRevelationUIManager::Update() 

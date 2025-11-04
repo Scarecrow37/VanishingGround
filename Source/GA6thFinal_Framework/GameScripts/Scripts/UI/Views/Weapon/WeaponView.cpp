@@ -133,7 +133,7 @@ void WeaponView::Start()
                         {
                             if (TutorialSystem* system = SingletonComponent<TutorialSystem>::GetInstance())
                             {
-                                system->Show({805901, 805902});
+                                system->Show(805901);
                             }
                         });
                     }

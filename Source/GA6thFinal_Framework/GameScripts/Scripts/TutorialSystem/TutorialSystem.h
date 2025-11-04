@@ -59,6 +59,7 @@ public:
 protected:
     void Awake() override;
     void Start() override;
+    void Update() override;
     void OnDestroy() override;
     void OnLoadScene(Scene& loadScene, LoadSceneMode mode) override;
 
@@ -91,4 +92,6 @@ private:
     std::weak_ptr<DescriptionPanel>            _description;
     std::weak_ptr<ImageElement>                _image;
     std::weak_ptr<HoldingProgressImageElement> _confirm;
+
+    bool _requestFind = false;
 };

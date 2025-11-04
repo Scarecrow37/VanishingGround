@@ -7,12 +7,6 @@ class ReturnToMapNavi : public UISFXNavigationComponent
 public:
     inline static constexpr const char* TAG = "Item Drop UI ReturnToMapNavi";
 
-    enum class SelectBoxType
-    {
-        DEFAULT,
-        FOCUS
-    };
-
     ReturnToMapNavi();
 
     /// <summary>

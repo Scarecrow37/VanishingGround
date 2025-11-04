@@ -15,16 +15,20 @@ EraseRevelationNavi::EraseRevelationNavi()
 }
 EraseRevelationNavi::~EraseRevelationNavi() = default;
 
-void EraseRevelationNavi::Awake() 
+void EraseRevelationNavi::Added() 
 {
-    if (ImageElement* focusImage = GetComponent<ImageElement>())
+    Base::Added();
+    if (UmCore->IsPlay())
     {
-        focusImage->Enable = false;
-        _focusImage        = focusImage->GetWeakPtr();
-    }
+        if (ImageElement* focusImage = GetComponent<ImageElement>())
+        {
+            focusImage->Enable = false;
+            _focusImage        = focusImage->GetWeakPtr();
+        }
+    } 
 }
 
-void EraseRevelationNavi::FocusIn(FocusCallType type) 
+void EraseRevelationNavi::FocusIn(FocusCallType type)
 {
     Base::FocusIn(type);
     SetEnableFocusImage(true);

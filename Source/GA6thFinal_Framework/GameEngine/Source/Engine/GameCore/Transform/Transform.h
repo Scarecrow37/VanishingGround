@@ -390,6 +390,11 @@ public:
     }
 
     /// <summary>
+    /// 월드 행렬을 설정합니다.
+    /// </summary>
+    void SetWorldMatrix(const Matrix& matrix);
+
+    /// <summary>
     /// 자식을 DFS로 순회하면서 해당 테그가 존재하는 오브젝트들을 반환합니다.
     /// </summary>
     /// <param name="tag :">찾을 태그</param>

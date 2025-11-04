@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Map/StageData.h"
 #include "Monster/Common/MonsterCommon.h"
 #include "Utility/SingletonHelper.h"
 
@@ -17,12 +18,14 @@ public:
 private:
     void Awake() override;
     void Update() override;
+    void OnEnable() override;
     void OnLoadScene(Scene& loadScene, LoadSceneMode mode) override;
 
 public:
     void    UINotify() const { _focusStage.Notify(); }
     void    SetFocusStage(Stage* stage);
-    void    SetCurrentSelectedStage(Stage* stage);
+    bool    TrySelectStage(Stage* stage);
+    void    SetSelectStage(Stage* stage);
     Stage*  GetCurrentSelectedStage();
     Monster::SpawnID GetCurrentSpawnID();
 
@@ -71,6 +74,11 @@ private:
     void SetupStage();
     void RegisterStage(GameObject& object);
 
+    void UpdateStageFocus();
+    
+    // 해당 스테이지가 Submit가능한 상태인지 판단합니다
+    bool CanSubmitStage(Stage* stage);
+
 private:
     SingletonObject<MapManager>             _singletonObject{this};
     SingletonComponent<MapManager>          _singletonComponent{this};
@@ -84,7 +92,8 @@ private:
     float                                   _scrollSpeed  = 100.0f;
 
 private:
-    Stage* _selectedStage = nullptr;
+    Stage*      _selectedStage          = nullptr;
+    StageData   _lastClearedStageData   = {};
 
 private:
     void PreferencesKeyDown(const Input::Controller&);

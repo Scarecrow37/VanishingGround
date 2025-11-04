@@ -50,12 +50,19 @@ void TutorialSystem::Awake()
 void TutorialSystem::Start()
 {
     Component::Start();
-
-    FindComponents();
-    Hide();
-
+    _requestFind = true;
     SetupData();
-    SetupCallback();
+}
+
+void TutorialSystem::Update() 
+{
+    if (_requestFind)
+    {
+        FindComponents();
+        SetupCallback();
+        Hide();
+        _requestFind = false;
+    }
 }
 
 void TutorialSystem::OnDestroy() 
@@ -66,6 +73,7 @@ void TutorialSystem::OnDestroy()
 void TutorialSystem::OnLoadScene(Scene& loadScene, LoadSceneMode mode) 
 {
     Unlock();
+    _requestFind = true;
 }
 
 void TutorialSystem::ImGuiDrawPropertysEvent()
@@ -190,21 +198,24 @@ void TutorialSystem::SetupData()
             {
                 std::string_view idStringView = dataBase->FindData(row, COLUMN_KEY_ID);
                 std::string      idString     = std::string(idStringView);
-                int              id           = std::stoi(idString);
+                if (false == idString.empty())
+                {
+                    int id = std::stoi(idString);
 
-                std::string_view  titleStringView = dataBase->FindData(row, COLUMN_KEY_TITLE);
-                const std::string titleString     = std::string(titleStringView);
+                    std::string_view  titleStringView = dataBase->FindData(row, COLUMN_KEY_TITLE);
+                    const std::string titleString     = std::string(titleStringView);
 
-                std::string_view  descriptionStringView = dataBase->FindData(row, COLUMN_KEY_DESCRIPTION);
-                const std::string descriptionString     = std::string(descriptionStringView);
+                    std::string_view  descriptionStringView = dataBase->FindData(row, COLUMN_KEY_DESCRIPTION);
+                    const std::string descriptionString     = std::string(descriptionStringView);
 
-                std::string_view imageStringView = dataBase->FindData(row, COLUMN_KEY_IMAGE);
-                std::string      imageString     = std::string(imageStringView);
-                const int        image           = std::stoi(idString);
-                File::Guid       imageGuid       = UmFileSystem.GetGuidFromAssetID(image);
+                    std::string_view imageStringView = dataBase->FindData(row, COLUMN_KEY_IMAGE);
+                    std::string      imageString     = std::string(imageStringView);
+                    const int        image           = std::stoi(idString);
+                    File::Guid       imageGuid       = UmFileSystem.GetGuidFromAssetID(image);
 
-                auto [_, succeed] = _tutorials.try_emplace(id, false, titleString, descriptionString, imageGuid);
-                assert(succeed);
+                    auto [_, succeed] = _tutorials.try_emplace(id, false, titleString, descriptionString, imageGuid);
+                    assert(succeed);
+                }           
             }
         }
         else

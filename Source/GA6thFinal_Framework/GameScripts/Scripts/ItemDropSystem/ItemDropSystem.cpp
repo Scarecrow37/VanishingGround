@@ -273,7 +273,7 @@ std::array<DropItemInfo, ARTIFACT_DROP_COUNT> ItemDropSystem::RollArtifacts()
             artifact = RollRevelationRandomItem();
             break;
         case ArtifactDropType::ERASE_REVELATION:
-            artifact.ID       = DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::ERASE_REVELATION);
+            artifact.ID       = DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType::ERASE_REVELATION, false);
             artifact.Category = ArtifactDropType::ERASE_REVELATION;
             artifact.Name     = (const char*)u8"계시 지우기";
             break;

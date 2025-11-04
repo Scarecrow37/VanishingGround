@@ -40,7 +40,7 @@ std::vector<DropArtifactsUIData> DropArtifactsViewModel::ConvertData(const std::
             DropArtifactsUIData data
             {
                 .Artifact = UmFileSystem.GetGuidFromAssetID(DropItemInfo::GetArtifactIconID(item)),
-                .Category = UmFileSystem.GetGuidFromAssetID(DropItemInfo::GetArtifactCategoryAssetID(item.Category)),
+                .Category = UmFileSystem.GetGuidFromAssetID(DropItemInfo::GetArtifactCategoryAssetID(item.Category, false)),
             };
             CheckDropArtifactsUIData(item.Name, data);        
             datas.push_back(data);
