@@ -21,7 +21,7 @@ protected:
     REFLECT_FIELDS_END(TokenHUDTextView)
 
 private:
-    TextElement*              _textElement{nullptr};
-    TokenHUDViewModel::Handle _handle;
-    std::string               _key;
+    std::weak_ptr<TextElement> _textElement;
+    TokenHUDViewModel::Handle  _handle;
+    std::string                _key;
 };

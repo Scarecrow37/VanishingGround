@@ -18,18 +18,19 @@ void TokenHUDTextView::Watch(const std::string& key)
         {
             if (TextElement* textElement = GetComponent<TextElement>())
             {
-                _textElement = textElement;
+                _textElement = textElement->GetWeakPtrAs<TextElement>();
             }
 
-            _handle = UmWatcher.Watch<TokenHUDViewModel, int>(key, [this](const int& value) {
-                if (_textElement)
+            _handle = UmWatcher.Watch<TokenHUDViewModel, int>(key, [this](const int& value) 
+            {
+                auto textComponent = _textElement.lock();
+                if (textComponent)
                 {
-                    bool isEnable        = value > 0;
-                    _textElement->Enable = isEnable;
-                    _textElement->Text   = std::to_string(value);
+                    bool isEnable         = value > 0;
+                    textComponent->Enable = isEnable;
+                    textComponent->Text   = std::to_string(value);
                 }
             });
-
             _key = key;
         }
         catch (const std::exception& e)
