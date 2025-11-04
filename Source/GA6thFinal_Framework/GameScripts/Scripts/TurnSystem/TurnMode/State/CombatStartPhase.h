@@ -66,4 +66,5 @@ private:
     void ReviveEnemies();
     void ResetPlayer();
     void RefreshUI();
+    void PassWorldPositionToHud();
 };

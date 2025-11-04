@@ -15,7 +15,10 @@ class Enemy : public CharacterBase
 {
     USING_PROPERTY(Enemy)
 public:
-    inline static constexpr const char* TAG = "Enemy";
+    inline static constexpr const char* TAG                  = "Enemy";
+    static constexpr std::string_view   LEFT_ENEMY_HUD_TAG   = "Left Monster HUD";
+    static constexpr std::string_view   MIDDLE_ENEMY_HUD_TAG = "Middle Monster HUD";
+    static constexpr std::string_view   RIGHT_ENEMY_HUD_TAG  = "Right Monster HUD";
 
 public:
     REFLECT_PROPERTY(RandomSpeed, Speed, Type, SpawnPoint)
@@ -99,6 +102,8 @@ public:
     GameObject* GetMonsterHUD() const { return _monsterHUD; }
     void SetMonsterHUD(GameObject* HUD);
 
+    void PassWorldPositionToHud() const;
+
 private:
     std::unordered_map<int, GameObject*> _tokenHUDTable;
     GameObject*                          _monsterHUD       = nullptr;
@@ -129,7 +134,6 @@ private:
 private:
     void RegisterTokenHUD(int tokenID);
     void UnregisterTokenHUD(int tokenID);
-    void PassWorldPositionToHud() const;
 
 private:
     void ShowActionEditor();

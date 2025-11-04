@@ -10,19 +10,18 @@ Overlay3DPanel::Overlay3DPanel() = default;
 void Overlay3DPanel::SetPosition(const Vector3& position)
 {
     transform->Position = position;
+    //const std::weak_ptr<CameraComponent> editorCamera =
+    //    GameObject::FindComponentWithTag<CameraComponent>(TargetCameraTag);
 
-    // 초기 월드 좌표는 ViewportToWorld를 사용하여 올바르게 변환
-    const std::string&                   targetCameraTag = ReflectFields->TargetCameraTag;
-    const std::weak_ptr<CameraComponent> targetCamera =
-        GameObject::FindComponentWithTag<CameraComponent>(targetCameraTag.data());
-    if (const auto sharedCameraComponent = targetCamera.lock())
-    {
-        const Vector3 viewportPos      = sharedCameraComponent->WorldToViewport(transform->Position);
-        const POINT   absolutePosition = AbsolutePosition;
-        const POINT   viewportPositionPoint =
-            POINT{.x = static_cast<LONG>(viewportPos.x), .y = static_cast<LONG>(viewportPos.y)};
-        _offsetFromTarget = absolutePosition - viewportPositionPoint;
-    }
+    //if (const auto sharedEditorCamera = editorCamera.lock())
+    //{
+    //    sharedEditorCamera->ForceUpdateMatrix();
+    //    const Vector3 viewportPos      = sharedEditorCamera->WorldToViewport(transform->Position);
+    //    const POINT   absolutePosition = AbsolutePosition;
+    //    const POINT   viewportPositionPoint =
+    //        POINT{.x = static_cast<LONG>(viewportPos.x), .y = static_cast<LONG>(viewportPos.y)};
+    //    _offsetFromTarget = absolutePosition - viewportPositionPoint;
+    //}
 }
 
 void Overlay3DPanel::Update()
@@ -40,6 +39,10 @@ void Overlay3DPanel::UpdateCameraViewMatrix()
         const POINT   newPoint    = POINT{.x = static_cast<LONG>(viewportPos.x) + _offsetFromTarget.x,
                                           .y = static_cast<LONG>(viewportPos.y) + _offsetFromTarget.y};
         const MARGIN  margin      = Margin;
-        Point                     = newPoint - (Offset + margin.LeftTop());
+        const POINT   offset      = Offset;
+        const SIZE    size        = Size;
+        const POINT toCenter{.x = size.cx / 2, .y = size.cy / 2};
+        const POINT   toUp{.x = 0, .y = UpDistance};
+        Point                     = newPoint - (Offset + margin.LeftTop() + toCenter + toUp);
     }
 }

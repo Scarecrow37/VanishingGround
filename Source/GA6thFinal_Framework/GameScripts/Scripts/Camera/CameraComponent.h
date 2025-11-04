@@ -29,6 +29,8 @@ public:
     */
     bool IsDirty() const { return _isDirty; }
 
+    void ForceUpdateMatrix() const;
+
     /*Camera 객체를 설정합니다. 이미 설정되어 있으면 설정할 수 없습니다.*/
     bool SetTarget(const std::shared_ptr<Camera>& camera) 
     {

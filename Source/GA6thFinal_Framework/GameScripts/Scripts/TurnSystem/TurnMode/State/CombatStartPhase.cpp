@@ -156,8 +156,7 @@ void CombatStartPhase::OnStart()
     AddValidActions();
     ReviveEnemies();
     ResetPlayer();
-
-    //
+    PassWorldPositionToHud();
 }
 void CombatStartPhase::OnEnter() 
 {
@@ -472,5 +471,21 @@ void CombatStartPhase::RefreshUI()
     if (CombatUIManager* manager = SingletonComponent<CombatUIManager>::GetInstance())
     {
         manager->Refresh();
+    }
+}
+
+void CombatStartPhase::PassWorldPositionToHud()
+{
+    for (auto enemy : _enemies)
+    {
+        if (enemy)
+        {
+            enemy->PassWorldPositionToHud();
+        }
+    }
+
+    if (_player)
+    {
+        _player->PassWorldPositionToHud();
     }
 }

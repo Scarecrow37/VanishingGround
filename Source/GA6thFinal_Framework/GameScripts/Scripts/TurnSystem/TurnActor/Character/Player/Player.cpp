@@ -26,8 +26,20 @@
 #include "State/PlayerDeadState.h"
 #include "State/PlayerWinState.h"
 #include "UI/Contents/SpawnDamagePanel.h"
+#include "UI/Panels/Overlay3D/Overlay3D.h"
 
 UMREAL_COMPONENT(Player)
+
+void Player::PassWorldPositionToHud() const
+{
+    const std::weak_ptr<Overlay3DPanel> overlay3DPanel =
+        GameObject::FindComponentWithTag<Overlay3DPanel>(PLAYER_HUD_TAG.data());
+
+    if (const auto sharedOverlay3DPanel = overlay3DPanel.lock())
+    {
+        sharedOverlay3DPanel->SetPosition(transform->GetWorldPosition());
+    }
+}
 
 Player::Player()
 {

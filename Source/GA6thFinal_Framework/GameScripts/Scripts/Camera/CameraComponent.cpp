@@ -20,6 +20,11 @@ CameraComponent::~CameraComponent()
     }
 }
 
+void CameraComponent::ForceUpdateMatrix() const
+{
+    _camera->Update();
+}
+
 Vector3 CameraComponent::WorldToNDC(const Vector3& worldPos)
 {
     if (_camera)

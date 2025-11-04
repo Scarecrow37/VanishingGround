@@ -258,5 +258,4 @@ protected:
     void ImGuiDrawPropertysEvent() override;
 
     void FindCameras();
-
 };

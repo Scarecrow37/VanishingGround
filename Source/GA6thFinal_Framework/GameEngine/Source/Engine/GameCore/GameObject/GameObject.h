@@ -88,7 +88,7 @@ public:
         const std::weak_ptr<GameObject> objectWeak = FindWithTag(tag);
         if (const auto objectShared = objectWeak.lock())
         {
-            if (const DerivedComponent* componentRaw = objectShared->GetComponent<DerivedComponent>())
+            if (const DerivedComponent* componentRaw = objectShared->GetComponentDynamic<DerivedComponent>())
             {
                 return componentRaw->template GetWeakPtrAs<DerivedComponent>();
             }

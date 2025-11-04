@@ -480,4 +480,3 @@ void TurnMode::FindCameras()
         }
     }
 }
-

@@ -9,6 +9,8 @@ class Player : public CharacterBase
 {
     USING_PROPERTY(Player)
 
+    static constexpr std::string_view PLAYER_HUD_TAG = "Player HUD";
+
 public:
     inline static constexpr const char* TAG = "Player";
   
@@ -16,6 +18,7 @@ public:
     REFLECT_PROPERTY(
         Shield
     )
+    void PassWorldPositionToHud() const;
 
     GETTER_ONLY(int, Shield) { return GetShield(); }
     PROPERTY(Shield)
