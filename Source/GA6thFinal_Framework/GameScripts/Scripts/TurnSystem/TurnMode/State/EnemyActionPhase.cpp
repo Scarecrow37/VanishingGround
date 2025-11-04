@@ -70,7 +70,6 @@ void EnemyActionPhase::OnEnter()
 void EnemyActionPhase::OnExit() 
 {
     WaitPhase = true;
-    ApplyReduceHP();
 
     if (_turnMode)
     {

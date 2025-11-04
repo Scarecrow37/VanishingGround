@@ -65,21 +65,3 @@ void TurnModeStateBase::UpdateCharacterDead(const std::function<void(CharacterBa
         }
     }
 }
-
-void TurnModeStateBase::ApplyReduceHP()
-{
-    if (_turnMode)
-    {
-        const auto& characters = _turnMode->GetCharacters();
-        for (auto character : characters)
-        {
-            if (character)
-            {
-                if (auto* stats = character->GetCharacterStats())
-                {
-                    stats->ApplyReduce();
-                }
-            }
-        }
-    }
-}

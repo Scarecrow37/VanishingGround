@@ -30,6 +30,7 @@ private:
     std::string                  _key;    
 };
 
+class ReduceGage;
 class ImageElement;
 class MonsterHpImageView : public Component
 {
@@ -37,7 +38,7 @@ class MonsterHpImageView : public Component
 
 public:
     MonsterHpImageView();
-    void OnDestroy() override;
+    ~MonsterHpImageView() override;
 
 public:
     void Watch(const std::string& key);
@@ -45,6 +46,7 @@ public:
 
 protected:
     void Awake() override;
+    void OnDestroy() override;
 
 private:
     void FindElements();
@@ -54,37 +56,9 @@ protected:
     REFLECT_FIELDS_END(MonsterHpImageView)
 
 private:
-    ImageElement*                _hpImageElement;    
-    CharacterHPViewModel::Handle _watchHandle;
-    std::string                  _key;
-};
-
-class ReduceGage;
-class MonsterHpReduceImageView : public Component
-{
-    USING_PROPERTY(MonsterHpReduceImageView)
-
-public:
-    MonsterHpReduceImageView();
-    void OnDestroy() override;
-
-public:
-    void Watch(const std::string& key);
-    void Disable() const;
-
-protected:
-    void Awake() override;
-
-private:
-    void FindElements();
-
-protected:
-    REFLECT_FIELDS_BEGIN(Component)
-    REFLECT_FIELDS_END(MonsterHpReduceImageView)
-
-private:
-    ImageElement*                _reduceHpImageElement;
-    ReduceGage*                  _reduceGage;
-    CharacterHPViewModel::Handle _watchHandle;
+    ImageElement*                _reduceHpImageElement{nullptr};
+    ImageElement*                _hpImageElement{nullptr};
+    ReduceGage*                  _reduceGage{nullptr};
+    CharacterHPViewModel::Handle _handle;
     std::string                  _key;
 };

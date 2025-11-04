@@ -8,7 +8,6 @@
 
 UMREAL_COMPONENT(PlayerHPTextView)
 UMREAL_COMPONENT(PlayerHPImageView)
-UMREAL_COMPONENT(PlayerHpReduceImageView)
 
 PlayerHPTextView::PlayerHPTextView()  = default;
 
@@ -52,14 +51,38 @@ void PlayerHPImageView::Start()
 {
     try
     {
-        _hpGage = GetComponent<ImageElement>();
-        _handle = UmWatcher.Watch<CharacterHPViewModel, CharacterHP>(PlayerStats::MODEL_HP_KEY, [this](const CharacterHP value) 
-        { 
-            if (_hpGage)
+        Transform::ForeachBFS(transform, [this](Transform* tr) {
+            if (GameObject& obj = tr->gameObject; obj.CompareTag("HP Bar"))
             {
-                _hpGage->SetLinearFill(value.CurrentHP / (float)value.MaxHP);
+                if (ImageElement* element = obj.GetComponent<ImageElement>(); nullptr != element)
+                {
+                    _hpImageElement = element;
+                }
+            }
+            if (GameObject& obj = tr->gameObject; obj.CompareTag("Reduce HP Bar"))
+            {
+                if (ImageElement* element = obj.GetComponent<ImageElement>(); nullptr != element)
+                {
+                    _reduceHpImageElement = element;
+                }
             }
         });
+
+        _handle = UmWatcher.Watch<CharacterHPViewModel, CharacterHP>( PlayerStats::MODEL_HP_KEY, [this](const CharacterHP value) 
+        { 
+            float currentRate = (float)value.CurrentHP / (float)value.MaxHP;
+
+            if (_hpImageElement)
+            {
+                _hpImageElement->SetLinearFill(currentRate);
+            }
+
+            if (_reduceGage)
+            {
+                _reduceGage->StartReduceGage(_reduceHpImageElement, currentRate);
+            }
+        });
+
         if (PlayerSystem* system = SingletonComponent<PlayerSystem>::GetInstance())
         {
             system->NotifyPlayerHP();
@@ -75,39 +98,4 @@ void PlayerHPImageView::Start()
 void PlayerHPImageView::OnDestroy() 
 {
     UmWatcher.Blind<CharacterHPViewModel>(PlayerStats::MODEL_HP_KEY, _handle);
-}
-
-PlayerHpReduceImageView::PlayerHpReduceImageView() = default;
-
-PlayerHpReduceImageView::~PlayerHpReduceImageView() = default;
-
-void PlayerHpReduceImageView::Start()
-{
-    try
-    {
-        if (_reduceHpImageElement)
-            _reduceHpImageElement->Enable = true;
-
-        _reduceHpImageElement = GetComponent<ImageElement>();
-        _reduceGage           = GetComponent<ReduceGage>();
-        _handle               = UmWatcher.Watch<CharacterHPViewModel, CharacterHP>(
-            PlayerStats::MODEL_REDUCE_HP_KEY, [this](const CharacterHP& value) {
-                float currentRate = (float)value.CurrentHP / (float)value.MaxHP;
-
-                if (_reduceGage)
-                {
-                    _reduceGage->StartReduceGage(_reduceHpImageElement, currentRate);
-                }
-            });
-    }
-    catch (const std::exception& e)
-    {
-        UmLogger.Log(LogLevel::LEVEL_ERROR, "Watch Failed.");
-        UmLogger.Log(LogLevel::LEVEL_ERROR, e.what());
-    }
-}
-
-void PlayerHpReduceImageView::OnDestroy()
-{
-    UmWatcher.Blind<CharacterHPViewModel>(PlayerStats::MODEL_REDUCE_HP_KEY, _handle);
 }

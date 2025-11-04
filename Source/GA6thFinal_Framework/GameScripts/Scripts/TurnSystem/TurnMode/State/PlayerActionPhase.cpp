@@ -70,7 +70,6 @@ void PlayerActionPhase::OnEnter()
 void PlayerActionPhase::OnExit()
 {
     WaitPhase = true;
-    ApplyReduceHP();
 
     if (_turnMode)
     {
