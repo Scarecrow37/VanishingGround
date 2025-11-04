@@ -73,7 +73,7 @@ void TutorialSystem::OnDestroy()
 void TutorialSystem::OnLoadScene(Scene& loadScene, LoadSceneMode mode) 
 {
     Unlock();
-    _requestFind = true;
+    UmTime.Invoke(this, 0.1f, [this]() { _requestFind = true; });
 }
 
 void TutorialSystem::ImGuiDrawPropertysEvent()
