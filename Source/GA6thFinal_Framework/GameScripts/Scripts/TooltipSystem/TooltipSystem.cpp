@@ -173,7 +173,7 @@ void TooltipSystem::SetupData()
 
 void TooltipSystem::ShowDataProperty()
 {
-    if (ImGui::TreeNodeEx("Tutorial Data##details"))
+    if (ImGui::TreeNodeEx("Tooltip Data##details"))
     {
         if (ImGui::BeginTable("TooltipTable##Details", 4, ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_RowBg))
         {
