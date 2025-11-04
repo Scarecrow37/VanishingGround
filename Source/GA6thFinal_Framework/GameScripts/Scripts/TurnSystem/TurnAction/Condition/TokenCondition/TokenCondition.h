@@ -42,4 +42,9 @@ private:
     void TryUpdateTokenSystemInfo();
 
     bool _validTokenSystem = false;
+
+    // TurnActionCondition을(를) 통해 상속됨
+    bool CheckEvaluate(CharacterBase* character) override;
+
+    bool CheckOperation(int tokenCount);
 };

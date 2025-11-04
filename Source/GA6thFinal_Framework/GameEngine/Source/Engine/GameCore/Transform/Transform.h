@@ -735,6 +735,6 @@ inline void Transform::ForeachExBFS(Transform& root, bool checkValid, const std:
                     trQueue.push({_transform, currentDepth + 1});
                 }
             }
-        }      
+        }
     }
 }

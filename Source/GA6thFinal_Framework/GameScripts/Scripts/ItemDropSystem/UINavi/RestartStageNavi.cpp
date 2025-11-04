@@ -33,21 +33,45 @@ void RestartStageNavi::Submit()
     Base::Submit();
     if (_clearCount < 3)
     {
-        if (const Scene* scene = UmSceneManager.GetMainScene())
+        if (std::vector<Scene*> scenes = UmSceneManager.GetLoadedScenes(); false == scenes.empty())
         {
-            const std::string& path              = scene->Path;
             GameObject*        transitionManager = SingletonObject<SceneTransitionComponent>::GetInstance();
             if (transitionManager)
             {
                 auto transitionComponent = transitionManager->GetComponent<SceneTransitionComponent>();
                 if (transitionComponent)
                 {
-                    transitionComponent->SceneTransitionFade("in", "out", [path]() { UmSceneManager.LoadScene(path); });
+                    transitionComponent->SceneTransitionFade("in", "out", [scenes]() 
+                    { 
+                        for (size_t i = 0; i < scenes.size(); i++)
+                        {
+                            std::string path = scenes[i]->Path;
+                            if (i == 0)
+                            {
+                                UmSceneManager.LoadScene(path); 
+                            }
+                            else
+                            {                               
+                                UmSceneManager.LoadScene(path, LoadSceneMode::ADDITIVE); 
+                            }                         
+                        }                   
+                    });
                 }
             }
-            else
+            else 
             {
-                UmSceneManager.LoadScene(path);
+                for (size_t i = 0; i < scenes.size(); i++)
+                {
+                    std::string path = scenes[i]->Path;
+                    if (i == 0)
+                    {
+                        UmSceneManager.LoadScene(path);
+                    }
+                    else
+                    {
+                        UmSceneManager.LoadScene(path, LoadSceneMode::ADDITIVE);
+                    }
+                }         
             }
         }
     }

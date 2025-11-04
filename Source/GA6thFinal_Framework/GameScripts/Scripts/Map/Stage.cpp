@@ -85,7 +85,8 @@ void Stage::OnSelected()
                 {
                     return;
                 }
-                UmSceneManager.LoadScene(stagePath);
+                UmSceneManager.LoadScene(UmFileSystem.GetPathFromGuid("8cdc8f64-00db-47e5-808e-4b33b30a9600").string());
+                UmSceneManager.LoadScene(stagePath, LoadSceneMode::ADDITIVE);
                 if (lighingPath != File::NULL_PATH)
                 {
                     LoadRenderPassData(lighingPath);

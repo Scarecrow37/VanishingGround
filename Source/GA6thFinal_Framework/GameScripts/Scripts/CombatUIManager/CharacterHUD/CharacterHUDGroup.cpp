@@ -185,6 +185,7 @@ namespace CombatUI
         if (FadeUI)
         {
             FadeUI->FadeDuration = duration;
+            FadeUI->ReFindTargets();
             FadeUI->FadeIn();
         }
         else
@@ -198,6 +199,7 @@ namespace CombatUI
         if (FadeUI)
         {
             FadeUI->FadeDuration = duration;
+            FadeUI->ReFindTargets();
             FadeUI->FadeOut();
         }
         else

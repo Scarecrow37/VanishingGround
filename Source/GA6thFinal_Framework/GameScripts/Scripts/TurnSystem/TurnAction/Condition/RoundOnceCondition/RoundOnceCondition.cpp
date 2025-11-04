@@ -32,6 +32,11 @@ void RoundOnceTrueCondition::OnEvaluateConditions(bool result)
     }
 }
 
+bool RoundOnceTrueCondition::CheckEvaluate(CharacterBase* character)
+{
+    return true;
+}
+
 RoundOnceTrueCondition::RoundOnceAction::RoundOnceAction()
 {
     if (UmCore->IsPlay())

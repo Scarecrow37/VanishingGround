@@ -31,4 +31,7 @@ protected:
 private:
     void        UpdateInfo();
     std::string _conditionInfo;
+
+private:
+    bool CheckEvaluate(CharacterBase* character) override;
 };
