@@ -80,6 +80,7 @@ public:
 private:
     void OnTickGui() override;
     void OnStartGui() override;
+    void OnEndGui() override;
 
     void OnPreFrameBegin() override;
     void OnPostFrameBegin() override;
