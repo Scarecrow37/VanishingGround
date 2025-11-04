@@ -31,7 +31,8 @@ public:
     ~WeaponModelManager();
 
     const File::Guid& GetWeaponPrefabGuid(WeaponType type) const;
-    Vector3 GetWeaponOffset(WeaponType type) const;
+    Vector3           GetWeaponOffset(WeaponType type) const;
+    Quaternion        GetWeaponOriginPivotRotation(WeaponType type) const;
 
     WeaponModelData RequestAvailableWeapon(WeaponType type);
     bool            ReturnWeaponModel(WeaponModelData data);
@@ -57,6 +58,7 @@ private:
 
     std::unordered_map<WeaponType, WeaponPool>  _weaponPoolTable;
     std::unordered_map<WeaponType, Vector3>     _availableWeaponOffsetsTable;
+    std::unordered_map<WeaponType, Quaternion>  _OriginPivotRotation;
 
     REFLECT_FIELDS_BEGIN(Component)
     std::unordered_map<std::string, std::string> WeaponPrefabGuidTable;

@@ -582,8 +582,11 @@ void PlayerPlayTurnState::SetWeaponModelTransform(WeaponModelData& modelData, QT
                     if (auto gameObject = modelData.GameObject.lock())
                     {
                         const Vector3 offset    = weaponModelManager->GetWeaponOffset(modelData.Type);
+                        const Quaternion rot      = weaponModelManager->GetWeaponOriginPivotRotation(modelData.Type);
                         const Vector3 distance  = offset + (dir * 2.0f);
                         gameObject->transform->SetWorldPosition(enemyPos + distance);
+                        gameObject->transform->Rotation = Quaternion::CreateFromRotationMatrix(Matrix::CreateLookAt(
+                                                              enemyPos + distance, playerPos, Vector3::Up)) * rot;
                     }
                 }
             }
