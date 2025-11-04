@@ -25,11 +25,11 @@ public:
     {
         return _index != SIZE_MAX && Animation != nullptr && Particle != nullptr;
     }
-    inline void Active(bool actvie)
+    inline void Active(bool active)
     { 
         if (auto gameObject = GameObject.lock())
         {
-            gameObject->ActiveSelf = actvie;
+            gameObject->ActiveSelf = active;
         }
     }
 
