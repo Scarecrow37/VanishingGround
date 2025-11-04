@@ -342,12 +342,20 @@ void CharacterBase::OnTurnStart()
     Base::OnTurnStart();
     _tokenInventory.NotifyTurnStart();
     UmAudio.Play("-421000");
+    if (_particleComponent)
+    {
+        _particleComponent->PlayEffect("turn");
+    }
 }
 
 void CharacterBase::OnTurnEnd() 
 {
     Base::OnTurnEnd();
     _tokenInventory.NotifyTurnEnd();
+    if (_particleComponent)
+    {
+        _particleComponent->StopEffect("turn");
+    }
 }
 
 void CharacterBase::OnHit() 

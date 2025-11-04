@@ -5,6 +5,7 @@
 #include "GameCore/FSM/FiniteStateMachine.h"
 #include "TurnSystem/TurnMode/TurnMode.h"
 #include "Particle/ParticleComponent.h"
+#include "Camera/UmCineMotion.h"
 #include "RevelationSystem/RevelationSystem.h"
 #include "UI/Panels/Overlay/OverlayPanel.h"
 #include "TokenHUD/TokenHUD.h"
@@ -182,6 +183,10 @@ void Enemy::TakeDamage(const int damage, const QTE::NoteResult& result, const bo
     GameObject& owner = gameObject;
     std::string spawnPoint = Monster::SpawnPointToString(SpawnPoint);
     ParticleComponent* particle = GetParticleComponent();
+    if (UmCineMotion* mainCam = dynamic_cast<UmCineMotion*>(CameraComponent::MainCamera()))
+    {
+        mainCam->BeginFeedBackShake(damage);
+    }
     if (true == IsDead() || false == result.IsHit())
     {
         std::string msg = std::format("{} {}{}", spawnPoint, owner.ToString(), (const char*)u8" 대한 공격 빗나감.");
