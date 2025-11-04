@@ -584,6 +584,8 @@ void PlayerPlayTurnState::SetWeaponModelTransform(WeaponModelData& modelData, QT
                         const Vector3 offset    = weaponModelManager->GetWeaponOffset(modelData.Type);
                         const Vector3 distance  = offset + (dir * 2.0f);
                         gameObject->transform->SetWorldPosition(enemyPos + distance);
+
+                        gameObject->transform->Scale = enemy->transform->Scale;
                     }
                 }
             }
