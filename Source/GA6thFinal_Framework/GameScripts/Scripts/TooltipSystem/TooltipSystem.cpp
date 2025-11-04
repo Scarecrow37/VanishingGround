@@ -14,6 +14,7 @@ void TooltipSystem::Show(const Group group, const int id) const
         if (const auto sharedGroup = _tooltipGroups.at(group).lock())
         {
             sharedGroup->Show(_tooltips.at(id));
+            sharedGroup->FadeIn();
         }
     }
     catch (std::out_of_range& exception)
@@ -33,6 +34,7 @@ void TooltipSystem::Show(const Group group, const std::initializer_list<int> ids
             {
                 sharedGroup->Show(_tooltips.at(id));
             }
+            sharedGroup->FadeIn();
         }
     }
     catch (std::out_of_range& exception)
@@ -48,18 +50,20 @@ void TooltipSystem::Hide()
     {
         if (const auto sharedGroup = weakGroup.lock())
         {
-            sharedGroup->Hide();
+            sharedGroup->FadeOut();
+            UmTime.Invoke(this, sharedGroup->GetFadeDuration(), [sharedGroup]() { sharedGroup->Hide(); });
         }
     }
 }
 
-void TooltipSystem::Hide(const Group group) const
+void TooltipSystem::Hide(const Group group)
 {
     try
     {
         if (const auto sharedGroup = _tooltipGroups.at(group).lock())
         {
-            sharedGroup->Hide();
+            sharedGroup->FadeOut();
+            UmTime.Invoke(this, sharedGroup->GetFadeDuration(), [sharedGroup]() { sharedGroup->Hide(); });
         }
     }
     catch (std::out_of_range& exception)
@@ -133,7 +137,7 @@ void TooltipSystem::SetupData()
                 {
                     std::string_view idStringView = tooltipSheet->FindData(row, DATA_TOOLTIP_COLUMN_KEY_ID);
                     std::string      idString     = std::string(idStringView);
-                    int              id           = std::stoi(idString);
+                    int              id           = idString.empty() ? 0 : std::stoi(idString);
 
                     std::string_view nameIdStringView = tooltipSheet->FindData(row, DATA_TOOLTIP_COLUMN_KEY_NAME_ID);
                     std::u8string    nameIdU8String =
@@ -154,7 +158,7 @@ void TooltipSystem::SetupData()
 
                     std::string_view iconIdStringView = tooltipSheet->FindData(row, DATA_TOOLTIP_COLUMN_KEY_ICON_ID);
                     std::string      iconIdString     = std::string(iconIdStringView);
-                    int              iconId           = std::stoi(iconIdString);
+                    int              iconId           = iconIdString.empty() ? 0 : std::stoi(iconIdString);
 
                     TooltipComponent::TooltipData tooltipData{.ImageAssetId = iconId,
                                                               .Title        = std::move(nameContent),

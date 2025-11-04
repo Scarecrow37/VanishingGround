@@ -46,6 +46,7 @@ void TooltipColumnComponent::ImGuiDrawPropertysEvent()
     Component::ImGuiDrawPropertysEvent();
 
     static TooltipComponent::TooltipData data = {};
+    ImGui::InputInt("Image Asset Id", &data.ImageAssetId);
     ImGui::InputText("Title", &data.Title);
     ImGui::InputText("Description", &data.Description);
 

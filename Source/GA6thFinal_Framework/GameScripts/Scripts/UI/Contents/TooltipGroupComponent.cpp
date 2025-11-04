@@ -1,6 +1,7 @@
 ﻿#include "pchScripts.h"
 #include "TooltipGroupComponent.h"
 #include "Scripts/UI/Contents/TooltipColumnComponent.h"
+#include "Scripts/UI/Animations/FadeUIComponent/FadeUIComponent.h"
 
 UMREAL_COMPONENT(TooltipGroupComponent)
 
@@ -53,7 +54,7 @@ void TooltipGroupComponent::Show(const TooltipComponent::TooltipData& data) cons
 
 void TooltipGroupComponent::Hide()
 {
-    for (auto weakColumnComponent : _columns | std::views::values )
+    for (auto weakColumnComponent : _columns | std::views::values)
     {
         if (const auto sharedColumnComponent = weakColumnComponent.lock())
         {
@@ -62,11 +63,44 @@ void TooltipGroupComponent::Hide()
     }
 }
 
+void TooltipGroupComponent::FadeIn() const
+{
+    if (const auto fadeUI = _fadeUI.lock())
+    {
+        fadeUI->FadeIn();
+    }
+    
+}
+
+void TooltipGroupComponent::FadeOut() const
+{
+    if (const auto fadeUI = _fadeUI.lock())
+    {
+        fadeUI->FadeOut();
+    }
+}
+
+float TooltipGroupComponent::GetFadeDuration() const
+{
+    if (const auto fadeUI = _fadeUI.lock())
+    {
+        return fadeUI->FadeDuration;
+    }
+    return 0.0f;
+}
+
 void TooltipGroupComponent::Awake()
 {
     Component::Awake();
 
-    FindComponent();
+    FindComponents();
+}
+
+void TooltipGroupComponent::Start()
+{
+    Component::Start();
+
+Hide();
 }
 
 void TooltipGroupComponent::ImGuiDrawPropertysEvent()
@@ -74,6 +108,7 @@ void TooltipGroupComponent::ImGuiDrawPropertysEvent()
     Component::ImGuiDrawPropertysEvent();
 
     static TooltipComponent::TooltipData data = {};
+    ImGui::InputInt("Image Asset Id", &data.ImageAssetId);
     ImGui::InputText("Title", &data.Title);
     ImGui::InputText("Description", &data.Description);
 
@@ -88,7 +123,7 @@ void TooltipGroupComponent::ImGuiDrawPropertysEvent()
     }
 }
 
-void TooltipGroupComponent::FindComponent()
+void TooltipGroupComponent::FindComponents()
 {
     _columns.reserve(MAX_COLUMN_COUNT);
 
@@ -111,5 +146,10 @@ void TooltipGroupComponent::FindComponent()
             }
         }
     });
+
+    if (const FadeUIComponent* fadeUi = gameObject->GetComponent<FadeUIComponent>())
+    {
+        _fadeUI = fadeUi->GetWeakPtrAs<FadeUIComponent>();
+    }
 }
 

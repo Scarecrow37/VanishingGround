@@ -52,7 +52,7 @@ public:
     void Show(Group group, std::initializer_list<int> ids) const;
 
     void Hide();
-    void Hide(Group group) const;
+    void Hide(Group group);
 
 protected:
     void Awake() override;

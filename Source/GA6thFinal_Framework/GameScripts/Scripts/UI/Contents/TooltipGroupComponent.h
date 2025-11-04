@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "Scripts/UI/Contents/TooltipComponent.h"
 
+class FadeUIComponent;
 class TooltipColumnComponent;
 
 class TooltipGroupComponent : public Component
@@ -30,13 +31,19 @@ public:
     void Show(const TooltipComponent::TooltipData& data) const;
     void Hide();
 
+public:
+    void FadeIn() const;
+    void FadeOut() const;
+    float GetFadeDuration() const;
+
 protected:
     void Awake() override;
+    void Start() override;
 
     void ImGuiDrawPropertysEvent() override;
 
 private:
-    void FindComponent();
+    void FindComponents();
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
@@ -45,4 +52,6 @@ protected:
 
 private:
     std::unordered_map<ColumnType, std::weak_ptr<TooltipColumnComponent>> _columns;
+
+    std::weak_ptr<FadeUIComponent> _fadeUI;
 };

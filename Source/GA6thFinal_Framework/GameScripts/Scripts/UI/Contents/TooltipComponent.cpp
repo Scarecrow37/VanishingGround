@@ -1,5 +1,6 @@
 ﻿#include "pchScripts.h"
 #include "TooltipComponent.h"
+#include "Scripts/UI/Elements/Image/ImageElement.h"
 #include "Scripts/UI/Elements/Text/TextElement.h"
 #include "Scripts/UI/Panels/Description/DescriptionPanel.h"
 
@@ -9,6 +10,19 @@ TooltipComponent::TooltipComponent() = default;
 
 void TooltipComponent::SetTooltip(const TooltipData& data) const
 {
+    if (const auto image = _image.lock())
+    {
+        if (const File::Guid guid = UmFileSystem.GetGuidFromAssetID(data.ImageAssetId); !guid.empty())
+        {
+            image->SetImage(guid);
+        }
+        else
+        {
+            UmLogger.Log(LogLevel::LEVEL_WARNING,
+                         std::format("Fail to find image asset with id: {}", data.ImageAssetId));
+        }
+    }
+
     if (const auto title = _title.lock())
     {
         title->Text  = data.Title;
@@ -36,14 +50,7 @@ void TooltipComponent::Awake()
 {
     Component::Awake();
 
-    FindComponent();
-}
-
-void TooltipComponent::Start()
-{
-    Component::Start();
-
-    Hide();
+    FindComponents();
 }
 
 void TooltipComponent::ImGuiDrawPropertysEvent()
@@ -51,6 +58,7 @@ void TooltipComponent::ImGuiDrawPropertysEvent()
     Component::ImGuiDrawPropertysEvent();
 
     static TooltipData data = {};
+    ImGui::InputInt("Image Asset Id", &data.ImageAssetId);
     ImGui::InputText("Title", &data.Title);
     ImGui::InputText("Description", &data.Description);
 
@@ -71,8 +79,23 @@ void TooltipComponent::ImGuiDrawPropertysEvent()
     }
 }
 
-void TooltipComponent::FindComponent()
+void TooltipComponent::FindComponents()
 {
+    if (const Transform* imageTransform = transform->FindWithTag(TAG_IMAGE_COMPONENT))
+    {
+        const GameObject& imageObject = imageTransform->gameObject;
+        if (const ImageElement* imageComponentRaw = imageObject.GetComponentDynamic<ImageElement>())
+        {
+            _image = imageComponentRaw->GetWeakPtrAs<ImageElement>();
+        }
+    }
+
+    if (_image.expired())
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, "Fail to find tooltip image component.");
+    }
+
+
     if (const Transform* titleTransform = transform->FindWithTag(TAG_TITLE_COMPONENT))
     {
         const GameObject&  titleObject       = titleTransform->gameObject;
