@@ -273,7 +273,6 @@ void Enemy::Awake()
 void Enemy::Start()
 {
     Base::Start();
-    _cineMotion = dynamic_cast<UmCineMotion*>(CameraComponent::MainCamera());
 }
 
 CharacterStats* Enemy::GetCharacterStats()
