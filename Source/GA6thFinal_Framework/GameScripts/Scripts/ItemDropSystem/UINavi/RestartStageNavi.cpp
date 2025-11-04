@@ -33,7 +33,7 @@ void RestartStageNavi::Submit()
     Base::Submit();
     if (_clearCount < 3)
     {
-        if (std::vector<Scene*> scenes = UmSceneManager.GetLoadedScenes(); false != scenes.empty())
+        if (std::vector<Scene*> scenes = UmSceneManager.GetLoadedScenes(); false == scenes.empty())
         {
             GameObject*        transitionManager = SingletonObject<SceneTransitionComponent>::GetInstance();
             if (transitionManager)
