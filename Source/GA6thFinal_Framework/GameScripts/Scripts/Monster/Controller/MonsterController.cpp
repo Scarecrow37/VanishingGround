@@ -19,12 +19,16 @@ namespace Monster
     }
 
     bool Controller::Build(std::weak_ptr<Enemy> weakOwner, const Monster::DataContext* pDataContext,
-                           const StatContext* pStatContext)
+                           const StatContext* pStatContext, const SpawnContext* pSpawnContext)
     {
         assert(weakOwner.expired() == false); // [assert] 컨트롤러의 소유자가 유효해야합니다.
         assert(pDataContext != nullptr);      // [assert] 컨트롤러의 데이터 컨텍스트가 유효해야합니다.
         assert(pStatContext != nullptr);      // [assert] 컨트롤러의 스탯 컨텍스트가 유효해야합니다.
-        if (weakOwner.expired() || pDataContext == nullptr || pStatContext == nullptr)
+        assert(pSpawnContext != nullptr);     // [assert] 컨트롤러의 스폰 컨텍스트가 유효해야합니다.
+        if (weakOwner.expired() || 
+            pDataContext == nullptr || 
+            pStatContext == nullptr ||
+            pSpawnContext == nullptr)
         {
             return false;
         }
@@ -32,6 +36,7 @@ namespace Monster
         _weakOwner = weakOwner;
         _dataContext = *pDataContext;
         _statContext = *pStatContext;
+        _spawnContext = *pSpawnContext;
 
         BuildAIModel();
         BuildAction();
@@ -101,6 +106,21 @@ namespace Monster
         _prevAction  = nullptr;
         int actionID = _aiModel.GetCurrentActionID();
         SetCurrentAction(actionID);
+    }
+
+    void Controller::SetInitialToken() 
+    {
+        if (Enemy* owner = _weakOwner.lock().get())
+        {
+            Monster::SpawnPoint     spawnPoint = owner->SpawnPoint;
+            int                     spawnIndex = static_cast<int>(spawnPoint);
+            Monster::SpawnParam&    spawnParam = _spawnContext.SpawnParams[spawnIndex];
+            TokenInventory& tokenInventory = owner->GetTokenInventory();
+            for (const auto& tokenParam : spawnParam.InitialTokens)
+            {
+                tokenInventory.AddTokenStackFromID(tokenParam.TokenID, tokenParam.Count);
+            }
+        }
     }
 
     void Controller::BuildAIModel() 

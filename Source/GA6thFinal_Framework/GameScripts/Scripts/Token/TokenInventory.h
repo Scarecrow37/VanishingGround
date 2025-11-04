@@ -92,6 +92,8 @@ public:
     void NotifyRollRandomSpeed(int& randomSpeed);
 
 public:
+    void RemoveAllToken();
+
     /// <summary>
     /// 토큰 스택을 카운트만큼 추가합니다. 
     /// </summary>

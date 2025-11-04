@@ -118,7 +118,14 @@ void Enemy::DeserializedReflectEvent()
     }
 }
 
-void Enemy::EndTurn() 
+void Enemy::ClearState() 
+{
+    Base::ClearState();
+    // 초기 토큰 설정
+    _controller.SetInitialToken();
+}
+
+void Enemy::EndTurn()
 {
     Base::EndTurn();
 }
