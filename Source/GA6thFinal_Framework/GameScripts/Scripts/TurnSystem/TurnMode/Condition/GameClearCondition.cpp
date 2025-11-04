@@ -22,18 +22,21 @@ void GameClearCondition::OnAwake()
 
 bool GameClearCondition::Evaluate()
 {
-    CombatStartPhase* combatStartPhase = _turnMode->States->CombatStartPhase;
-    if (combatStartPhase)
+    if (_turnMode)
     {
-        const std::vector<Enemy*>& enemies = combatStartPhase->GetEnemies();
-        if (false == enemies.empty())
+        CombatStartPhase* combatStartPhase = _turnMode->States->CombatStartPhase;
+        if (combatStartPhase)
         {
-            bool result = true;
-            for (auto& enemy : enemies)
+            const std::vector<Enemy*>& enemies = combatStartPhase->GetEnemies();
+            if (false == enemies.empty())
             {
-                result &= enemy->gameObject->ActiveSelf == false;
+                bool result = true;
+                for (auto& enemy : enemies)
+                {
+                    result &= enemy->gameObject->ActiveSelf == false;
+                }
+                return result;
             }
-            return result;
         }
     }
     return false;
