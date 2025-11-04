@@ -202,6 +202,7 @@ void Animator::Initialize(std::wstring_view filePath, std::shared_ptr<Skeleton> 
 {
 	_animation = Global::resourceManager->LoadResource<Animation>(filePath);
     _skeleton  = skeleton;
+    InitializeFinalBoneMap();
 	_controllers.resize(1);
 	_prevControllers.resize(1);
 	_blends.resize(1);
@@ -221,6 +222,7 @@ void Animator::Initialize(std::shared_ptr<Animation> animation, std::shared_ptr<
 
     _animation = animation;
     _skeleton  = skeleton;
+    InitializeFinalBoneMap();
     _controllers.resize(1);
     _prevControllers.resize(1);
     _blends.resize(1);
@@ -252,7 +254,7 @@ void Animator::Update(const float deltaTime)
 		{
             if (true == _isLoop)
             {
-                bool isDevByZero = (0.0f == animation.LastTime); // max frame이 0일 경우 예외
+                bool isDevByZero = (0.0f == animation.LastTime); 
                 _controllers[i].PlayTime = isDevByZero ? 0.0f : fmod(_controllers[i].PlayTime, animation.LastTime);
             }
             else
@@ -404,6 +406,21 @@ void Animator::SplitBone(const unsigned int ID, const char* boneName)
 void Animator::MakeParent(const char* parent, const char* child)
 {
 	_skeleton->MakeParent(parent, child);
+}
+
+void Animator::InitializeFinalBoneMap() 
+{
+    _finalBoneMap.clear();
+    Bone&             rootBone = _skeleton->GetRootBone();
+    TraverseBoneMap(rootBone);
+}
+void Animator::TraverseBoneMap(const Bone& bone) 
+{
+    _finalBoneMap[bone.Name] = XMMatrixIdentity();
+    for (const auto& child : bone.Children)
+    {
+        TraverseBoneMap(child);
+    }
 }
 
 //void Animator::GetSkeletonMatrix(const char* bone, GE::Matrix4x4** out)

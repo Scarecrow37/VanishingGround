@@ -22,9 +22,10 @@ private:
     // -------------------------------------
     // [ Scene & Resource Management ]
     // -------------------------------------
-    std::unordered_map<std::string, ParticleSceneResource>                               _sceneResources;
-    std::unordered_map<std::string, UINT64>                                              _computeFences;
+    std::unordered_map<std::string, ParticleSceneResource>                                             _sceneResources;
+    std::unordered_map<std::string, UINT64>                                                            _computeFences;
     std::unordered_map<EffectID, std::unordered_map<std::string, std::weak_ptr<class ParticleEffect>>> _effectIDTable;
+    std::unordered_map<EffectID, std::unordered_map<std::string, const Matrix*>> _effectBoneMatTable;
 
     // -------------------------------------
     // [ Configuration & State ]
