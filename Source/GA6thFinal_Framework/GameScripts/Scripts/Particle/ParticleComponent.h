@@ -144,7 +144,6 @@ private:
     std::unordered_map<std::string,Vector3> _positionVector;
     std::unordered_map<std::string,Vector3> _rotationVector;
     std::unordered_map<std::string,Vector3> _scaleVector;
-    std::unordered_map<std::string,const Matrix*> _boneMat;
     
 
     std::string _currentEffectKey = "-";
