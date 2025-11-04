@@ -10,6 +10,8 @@ class ParticleComponent;
 class EnemyStatsComponent;
 class FSMState;
 class TurnAction;
+class ProclamationHUD;
+class UmCineMotion;
 
 class Enemy : public CharacterBase
 {
@@ -50,8 +52,11 @@ protected:
 
 private:
     Monster::SpawnPoint  _spawnPoint = Monster::SpawnPoint::Invalid;
-    Monster::Controller  _controller;
+    Monster::Controller  _controller; // 몬스터 AI, 액션 컨트롤러
+    Monster::SpawnParam  _spawnParam; // 몬스터 스폰 정보(ID, 초기 토큰)
     EnemyStatsComponent* _enemyStats = nullptr;
+
+    UmCineMotion* _cineMotion = nullptr;
 
 protected:
     class FiniteStateMachine* _finiteStateMachine = nullptr;
@@ -68,6 +73,7 @@ protected:
     int _randomSpeed = 0;
 
 public:
+    void ClearState() override;
     /*Enemy의 턴을 종료합니다.*/
     void EndTurn() override;
     /*Enemy를 Dead 상태로 만듭니다.*/
@@ -102,10 +108,12 @@ public:
 private:
     std::unordered_map<int, GameObject*> _tokenHUDTable;
     GameObject*                          _monsterHUD       = nullptr;
+    ProclamationHUD*                     _proclamationHUD  = nullptr;
     bool                                 _isCriticalDamage = false;
 
 protected:
     void Awake() override;
+    void Start() override;
     void PlayTurn() override;
     void ImGuiDrawPropertysEvent() override;
     void SerializedReflectEvent() override;
@@ -129,6 +137,7 @@ private:
 private:
     void RegisterTokenHUD(int tokenID);
     void UnregisterTokenHUD(int tokenID);
+    void SetupProclamationHUD();
 
 private:
     void ShowActionEditor();

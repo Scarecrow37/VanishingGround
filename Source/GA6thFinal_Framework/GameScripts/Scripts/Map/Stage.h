@@ -13,7 +13,7 @@ public:
 public:
     const std::array<int, ARTIFACT_DROP_COUNT>& GetDropItems() const { return _dropItemAssetIDs; }
    
-    void SetDisable() { _stageEnable = false; }
+    void SetEnable(bool enable) { _stageEnable = enable; }
     bool IsEnable() const { return _stageEnable.Get(); }
 
 public:

@@ -185,6 +185,16 @@ void ParticleManager::DeleteEffect(EffectID id, const std::string& keyString, co
     {
         _effectIDTable.erase(effectIDIter);
     }
+
+    if (auto boneMatIter = _effectBoneMatTable.find(id); boneMatIter != _effectBoneMatTable.end())
+    {
+        auto& boneMatMap = boneMatIter->second;
+        boneMatMap.erase(keyString);
+        if (boneMatMap.empty())
+        {
+            _effectBoneMatTable.erase(boneMatIter);
+        }
+    }
 }
 
 ParticleEffect* ParticleManager::FindEffect(EffectID id, const std::string& keyString)
@@ -203,6 +213,16 @@ ParticleEffect* ParticleManager::FindEffect(EffectID id, const std::string& keyS
             {
                 _effectIDTable.erase(effectIDIter);
             }
+
+            if (auto boneMatIter = _effectBoneMatTable.find(id); boneMatIter != _effectBoneMatTable.end())
+            {
+                auto& boneMatMap = boneMatIter->second;
+                boneMatMap.erase(keyString);
+                if (boneMatMap.empty())
+                {
+                    _effectBoneMatTable.erase(boneMatIter);
+                }
+            }
             return nullptr;
         }
     }
@@ -212,13 +232,39 @@ ParticleEffect* ParticleManager::FindEffect(EffectID id, const std::string& keyS
 void ParticleManager::PlayEffect(EffectID id, const std::string& keyString, EffectCallback callback)
 {
     if (auto effect = FindEffect(id, keyString))
+    {
+        if (effect->GetBoneFollowFlag() && effect->GetBoneMatrix() == nullptr)
+        {
+            if (auto boneMatIter = _effectBoneMatTable.find(id); boneMatIter != _effectBoneMatTable.end())
+            {
+                auto& boneMatMap = boneMatIter->second;
+                if (auto targetBoneMatIter = boneMatMap.find(keyString); targetBoneMatIter != boneMatMap.end())
+                {
+                    effect->SetBoneMatrix(targetBoneMatIter->second);
+                }
+            }
+        }
         effect->Play(callback);
+    }
 }
 
 void ParticleManager::PlayEffect(EffectID id, const std::string& keyString) 
 {
     if (auto effect = FindEffect(id, keyString))
+    {
+        if (effect->GetBoneFollowFlag() && effect->GetBoneMatrix() == nullptr)
+        {
+            if (auto boneMatIter = _effectBoneMatTable.find(id); boneMatIter != _effectBoneMatTable.end())
+            {
+                auto& boneMatMap = boneMatIter->second;
+                if (auto targetBoneMatIter = boneMatMap.find(keyString); targetBoneMatIter != boneMatMap.end())
+                {
+                    effect->SetBoneMatrix(targetBoneMatIter->second);
+                }
+            }
+        }
         effect->Play();
+    }
 }
 
 void ParticleManager::StopEffect(EffectID id, const std::string& keyString)
@@ -448,6 +494,7 @@ void ParticleManager::SetBoneMatrix(EffectID id, const std::string& keyString, c
 {
     if (auto effect = FindEffect(id, keyString))
         effect->SetBoneMatrix(boneMatrix);
+    _effectBoneMatTable[id][keyString] = boneMatrix;
 }
 
 // =================================================================================================================

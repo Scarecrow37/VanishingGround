@@ -70,7 +70,7 @@ class HorizontalPanelSlot : public SlotComponent
     USING_PROPERTY(HorizontalPanelSlot)
 
 public:
-    REFLECT_PROPERTY(IsStretch)
+    REFLECT_PROPERTY(IsStretch, BreakLine)
 
     GETTER(bool, IsStretch) { return ReflectFields->IsStretch; }
     SETTER(bool, IsStretch)
@@ -79,6 +79,7 @@ public:
         if (UIComponent* ui = UI; nullptr != ui)
         {
             ui->InvalidateMeasure();
+            ui->InvalidateArrange();
         }
     }
     PROPERTY(IsStretch)
@@ -94,6 +95,18 @@ public:
         return horizontal;
     }
     PROPERTY(Horizontal)
+
+    GETTER(bool, BreakLine) { return ReflectFields->BreakLine; }
+    SETTER(bool, BreakLine)
+    {
+        ReflectFields->BreakLine = value;
+        if (UIComponent* ui = UI; nullptr != ui)
+        {
+            ui->InvalidateMeasure();
+            ui->InvalidateArrange();
+        }
+    }
+    PROPERTY(BreakLine)
 
     GETTER_ONLY(LONG, Line) { return ReflectFields->Line; }
     PROPERTY(Line)
@@ -111,5 +124,6 @@ protected:
     REFLECT_FIELDS_BEGIN(SlotComponent)
     bool IsStretch = false;
     LONG Line      = 0;
+    bool BreakLine = false;
     REFLECT_FIELDS_END(HorizontalPanelSlot)
 };
