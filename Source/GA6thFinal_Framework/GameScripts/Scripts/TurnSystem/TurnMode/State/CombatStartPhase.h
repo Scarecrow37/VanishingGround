@@ -65,5 +65,4 @@ private:
     void RegisterEnemyChain(int point, const std::string& key, const std::string& tag);
     void ReviveEnemies();
     void ResetPlayer();
-    void RefreshUI();
 };

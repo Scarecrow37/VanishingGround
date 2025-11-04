@@ -252,6 +252,7 @@ protected:
     /// <para> 게임 오브젝트의 Active가 false 상태인 경우 Awake 함수는 true가 될때까지 호출되지 않습니다.      </para>
     /// </summary>
     void Awake() override;
+    void Start() override;
 
     void OnDestroy() override;
 
