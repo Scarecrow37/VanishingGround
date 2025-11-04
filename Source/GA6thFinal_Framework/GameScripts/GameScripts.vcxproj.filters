@@ -325,6 +325,30 @@
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\EquipAccessoryCharacterStats\EquipAccessoryCharacterStats.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\QTESpeedAction\QTESpeedAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\EnemyStunTokenApplyAction.cpp" />
+    <ClCompile Include="Scripts\QTE\Controller\QTEController.cpp" />
+    <ClCompile Include="Scripts\Ending\EndingDialogManager.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\QTEFadeHalfAction\QTEFadeHalfAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\Recovery\RecoveryByTokenCountAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\RoundStartWeaponTypeTokenApplyAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TokenGrantorAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\WeaponAttackTypeCountTokenApplyAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenDamageAction\TokenDamageAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\WeaponStas\WeaponTypeStatsAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\WeaponTypeCountAttackDamageAction\WeaponTypeCountAttackDamageAction.cpp" />
+    <ClCompile Include="Scripts\Monster\Action\BossServant\MonsterBossServantAction.cpp" />
+    <ClCompile Include="Scripts\ProclamationHUD\ProclamationHUD.cpp" />
+    <ClCompile Include="Scripts\TokenHUD\TokenHUD.cpp" />
+    <ClCompile Include="Scripts\TooltipSystem\TooltipSystem.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyCombatStartTokenRandomApplyAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyTurnEndTokenRandomApplyAction.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\Base\TokenRandomRangeApplyAction.cpp" />
+    <ClCompile Include="Scripts\UI\Contents\TooltipColumnComponent.cpp" />
+    <ClCompile Include="Scripts\UI\Contents\TooltipComponent.cpp" />
+    <ClCompile Include="Scripts\UI\Contents\TooltipGroupComponent.cpp" />
+    <ClCompile Include="Scripts\UI\Views\RevelationsXYBView\RevelationsXYBView.cpp" />
+    <ClCompile Include="Scripts\UI\Views\TokenHUD\TokenHUDView.cpp" />
+    <ClCompile Include="Scripts\Utility\TransformNameTracker\TransformNameTracker.cpp" />
+    <ClCompile Include="Scripts\ViewModels\TokenHUD\TokenHUDViewModel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
@@ -664,6 +688,34 @@
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\EquipAccessoryCharacterStats\EquipAccessoryCharacterStats.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\QTESpeedAction\QTESpeedAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\EnemyStunTokenApplyAction.h" />
+    <ClInclude Include="Scripts\QTE\Audio\QTEAudioState.h" />
+    <ClInclude Include="Scripts\QTE\Controller\QTEController.h" />
+    <ClInclude Include="Scripts\Ending\EndingDialogManager.h" />
+    <ClInclude Include="Scripts\QTE\Fade\QTEFadeState.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\QTEFadeHalfAction\QTEFadeHalfAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\Recovery\RecoveryByTokenCountAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\RoundStartWeaponTypeTokenApplyAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\TokenGrantorAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\WeaponAttackTypeCountTokenApplyAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenDamageAction\TokenDamageAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\WeaponStas\WeaponTypeStatsAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\WeaponTypeCountAttackDamageAction\WeaponTypeCountAttackDamageAction.h" />
+    <ClInclude Include="Scripts\Utility\AudioHelper.h" />
+    <ClInclude Include="Scripts\Map\StageData.h" />
+    <ClInclude Include="Scripts\Monster\Action\BossServant\MonsterBossServantAction.h" />
+    <ClInclude Include="Scripts\ProclamationHUD\ProclamationHUD.h" />
+    <ClInclude Include="Scripts\TokenHUD\TokenHUD.h" />
+    <ClInclude Include="Scripts\TooltipSystem\TooltipSystem.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyCombatStartTokenRandomApplyAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyTurnEndTokenRandomApplyAction.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\TokenApplyAction\Base\TokenRandomRangeApplyAction.h" />
+    <ClInclude Include="Scripts\UI\Contents\TooltipColumnComponent.h" />
+    <ClInclude Include="Scripts\UI\Contents\TooltipComponent.h" />
+    <ClInclude Include="Scripts\UI\Contents\TooltipGroupComponent.h" />
+    <ClInclude Include="Scripts\UI\Views\RevelationsXYBView\RevelationsXYBView.h" />
+    <ClInclude Include="Scripts\UI\Views\TokenHUD\TokenHUDView.h" />
+    <ClInclude Include="Scripts\Utility\TransformNameTracker\TransformNameTracker.h" />
+    <ClInclude Include="Scripts\ViewModels\TokenHUD\TokenHUDViewModel.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
