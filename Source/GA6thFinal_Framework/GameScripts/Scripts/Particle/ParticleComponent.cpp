@@ -210,19 +210,22 @@ void ParticleComponent::LoadParticle(const std::string& keyString)
                         ReflectFields->GuidMap[keyString] = assetGuid.string();
                         auto effect =
                             UmParticleSerializer.Deserialize(this, keyString, assetGuid.ToPath(), false, "Game");
-                        for (auto& emitter : effect->GetEmitterList())
+                        if (effect)
                         {
-                            File::Path absolutePath = emitter->_particleRenderModule->GetModelAndTexturePath();
-                            absolutePath            = std::filesystem::absolute(absolutePath).generic_string();
-                            UmGraphics.LoadTextureResource(std::wstring_view(absolutePath.wstring()), emitter.get());
+                            for (auto& emitter : effect->GetEmitterList())
+                            {
+                                File::Path absolutePath = emitter->_particleRenderModule->GetModelAndTexturePath();
+                                absolutePath            = std::filesystem::absolute(absolutePath).generic_string();
+                                UmGraphics.LoadTextureResource(std::wstring_view(absolutePath.wstring()), emitter.get());
+                            }
+                            effect->SetPlayFlag(false);
+                            effect->SetActiveFlag(false);
+                            effect->SetPosition(&_positionVector[keyString]);
+                            effect->SetRotation(&_rotationVector[keyString]);
+                            effect->SetScale(&_scaleVector[keyString]);
+                            effect->SetParentMatrix(&transform->GetWorldMatrix());
+                            effect->SetBoneFollowFlag(&(ReflectFields->AttachFlagMap[keyString]));
                         }
-                        effect->SetPlayFlag(false);
-                        effect->SetActiveFlag(false);
-                        effect->SetPosition(&_positionVector[keyString]);
-                        effect->SetRotation(&_rotationVector[keyString]);
-                        effect->SetScale(&_scaleVector[keyString]);
-                        effect->SetParentMatrix(&transform->GetWorldMatrix());
-                        effect->SetBoneFollowFlag(&(ReflectFields->AttachFlagMap[keyString]));
                     });
                 else
                     UmSceneManager.ResourceManager.RequestTextureResource(this, guid, []() {});

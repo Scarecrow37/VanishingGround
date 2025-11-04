@@ -186,7 +186,6 @@ void ParticleManager::DeleteEffect(EffectID id, const std::string& keyString, co
         _effectIDTable.erase(effectIDIter);
     }
 
-    // Clean up bone matrix cache
     if (auto boneMatIter = _effectBoneMatTable.find(id); boneMatIter != _effectBoneMatTable.end())
     {
         auto& boneMatMap = boneMatIter->second;
@@ -215,7 +214,6 @@ ParticleEffect* ParticleManager::FindEffect(EffectID id, const std::string& keyS
                 _effectIDTable.erase(effectIDIter);
             }
 
-            // Clean up bone matrix cache for expired effect
             if (auto boneMatIter = _effectBoneMatTable.find(id); boneMatIter != _effectBoneMatTable.end())
             {
                 auto& boneMatMap = boneMatIter->second;
