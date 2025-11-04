@@ -137,7 +137,7 @@ void SceneTransitionComponent::CalculateFade()
     if (_fadeElapsedTimer >= Duration)
     {
         _fadeFlag = false;
-        UmTransition->Fade("Game", EndColor, _fadeFlag);
+        UmTransition->Fade("Game", EndColor, _transitionLock || _fadeFlag);
         if (_fadeCallBackFunction && true == _callbackFlag)
         {
             _fadeCallBackFunction();
@@ -154,7 +154,7 @@ void SceneTransitionComponent::CalculateFade()
                            ReflectFields->EaseThreshold, step);
         _easeLog.push_back(step);
     }
-    UmTransition->Fade("Game", Color::Lerp(StartColor, EndColor, step), _fadeFlag);
+    UmTransition->Fade("Game", Color::Lerp(StartColor, EndColor, step), _transitionLock || _fadeFlag);
 }
 
 void SceneTransitionComponent::UpdateBGMVolume() 
