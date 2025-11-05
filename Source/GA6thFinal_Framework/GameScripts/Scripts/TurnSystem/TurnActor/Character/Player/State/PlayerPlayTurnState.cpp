@@ -62,6 +62,18 @@ void PlayerPlayTurnState::OnStart()
         QTE::Callback callback(GetPlayer().GetWeakPtr());
         // owner의 weak_ptr을 들고있으므로 람다 인자로 weak_ptr넣을 필요 X
         callback.OnFadeOutFinish = [this](const QTE::OverallResult& results) { SetAttack(); };
+        callback.OnFadeOutStart  = [this](const QTE::OverallResult& results) {
+            // 페이드 아웃 시작 시 연출 카메라 시작
+            if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
+            {
+                if (UmCineMotion* battleCamera = mode->GetBattleCamera())
+                {
+                    battleCamera->SetMainCamera();
+                    battleCamera->ResetRail(true);
+                    battleCamera->StartRail(false);
+                }
+            }
+        };
         _qteCallbackHandle = system->RegisterCallback(callback);
     }
 }
@@ -327,6 +339,7 @@ void PlayerPlayTurnState::SetAttack()
 
 void PlayerPlayTurnState::SetAttackEnd()
 {
+    // 연출 카메라 복원
     if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
     {
         if (UmCineMotion* camera = mode->GetBattleCamera())
@@ -429,23 +442,6 @@ void PlayerPlayTurnState::OnQTEFinish()
 
     if (qteSystem && weaponSystem && weaponModelManager)
     {
-        UmCineMotion* battleCamera = nullptr;
-        float         cameraDuration = 0.f;
-        if (TurnMode* mode = SingletonComponent<TurnMode>::GetInstance())
-        {
-            if (battleCamera = mode->GetBattleCamera())
-            {
-                cameraDuration = battleCamera->Duration;
-            }
-        }
-
-        if (battleCamera)
-        {
-            battleCamera->SetMainCamera();
-            battleCamera->ResetRail(true);
-            battleCamera->StartRail(false);
-        }
-
         QTE::OverallResult& results = qteSystem->GetQTEOverallResult();
         for (auto& result : results.NoteResults)
         {
@@ -469,7 +465,7 @@ void PlayerPlayTurnState::OnQTEFinish()
                                 const float noteTime  = note->Time;
                                 const float hitTime   = context->Time;
                                 const float noteDelay = note->WeaponAnimationDelay;
-                                float       delta     = noteTime - hitTime + noteDelay + animOffset + cameraDuration;
+                                float       delta     = noteTime - hitTime + noteDelay + animOffset;
                                 // 0보다 낮으면 0초로 맞추고 나머지를 해당 오프셋만큼 이동
                                 if (delta < 0)
                                 {
@@ -580,13 +576,10 @@ void PlayerPlayTurnState::SetWeaponModelTransform(WeaponModelData& modelData, QT
                     if (auto gameObject = modelData.GameObject.lock())
                     {
                         const Vector3 offset    = weaponModelManager->GetWeaponOffset(modelData.Type);
-                        const Quaternion rot      = weaponModelManager->GetWeaponOriginPivotRotation(modelData.Type);
                         const Vector3 distance  = offset + (dir * 2.0f);
                         gameObject->transform->SetWorldPosition(enemyPos + distance);
 
                         gameObject->transform->Scale = enemy->transform->Scale;
-                        //gameObject->transform->Rotation = Quaternion::CreateFromRotationMatrix(Matrix::CreateLookAt(
-                        //                                      enemyPos + distance, playerPos, Vector3::Up)) * rot;
                     }
                 }
             }
