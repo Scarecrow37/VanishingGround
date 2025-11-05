@@ -13,19 +13,16 @@ void GameOverManager::Awake()
 
 void GameOverManager::Start()
 {
-    if (auto object = GameObject::FindWithTag("Vanished Panel").lock())
+    _vanishedOverlay     = gameObject->GetComponent<OverlayPanel>();
+    const int childCount = gameObject->transform->GetChildCount();
+    for (int i = 0; i < childCount; ++i)
     {
-        _vanishedOverlay = object->GetComponent<OverlayPanel>();
-        const int childCount = object->transform->GetChildCount();
-        for (int i = 0; i < childCount; ++i)
+        if (Transform* child = gameObject->transform->GetChild(i))
         {
-            if (Transform* child = object->transform->GetChild(i))
+            if (child->gameObject->CompareTag("Vanished Animation"))
             {
-                if (child->gameObject->CompareTag("Vanished Animation"))
-                {
-                    _vanishedAnimation = child->gameObject->GetComponent<SpriteAnimationElement>();
-                    _vanishedAnimation->gameObject->ActiveSelf = false;
-                }
+                _vanishedAnimation                         = child->gameObject->GetComponent<SpriteAnimationElement>();
+                _vanishedAnimation->gameObject->ActiveSelf = false;
             }
         }
     }
@@ -71,6 +68,7 @@ void GameOverManager::TransitionTitleScene()
             if (owner)
             {
                 UmSceneManager.LoadScene(UmFileSystem.GetPathFromGuid("cd798e18-e5fd-421b-9b23-ef7bcfab15a0").string());
+                _isBeginProcess = false;
             }
         });
     }
