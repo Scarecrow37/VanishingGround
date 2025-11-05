@@ -4,8 +4,7 @@
 #include <TurnSystem/TurnActor/Character/Player/Player.h>
 #include <Animation/AnimationComponent.h>
 #include <Particle/ParticleComponent.h>
-#include <UI/Elements/SpriteAnimation/SpriteAnimationElement.h>
-#include <UI/Panels/Overlay/OverlayPanel.h>
+
 REGISTER_CLASS(FSMStateFactory, PlayerDeadState)
 
 PlayerDeadState::PlayerDeadState() 
@@ -25,14 +24,6 @@ void PlayerDeadState::OnAwake()
 
 void PlayerDeadState::OnStart() 
 {
-    if (auto object = GameObject::FindWithTag("Vanished Panel").lock())
-    {
-        _vanishedOverlay = object->GetComponent<OverlayPanel>();
-    }
-    if (auto object = GameObject::FindWithTag("Vanished Animation").lock())
-    {
-        _vanishedAnimation = object->GetComponent<SpriteAnimationElement>();
-    }
 }
 
 void PlayerDeadState::OnEnter() 
@@ -53,15 +44,6 @@ void PlayerDeadState::OnEnter()
     if (ParticleComponent* particle = enemy.GetParticleComponent())
     {
         particle->StopAll();
-    }
-    if (_vanishedOverlay)
-    {
-        _vanishedOverlay->gameObject->ActiveSelf = true;
-    }
-    if (_vanishedAnimation)
-    {
-        _vanishedAnimation->Setup();
-        _vanishedAnimation->StartAnimation();
     }
 }
 
