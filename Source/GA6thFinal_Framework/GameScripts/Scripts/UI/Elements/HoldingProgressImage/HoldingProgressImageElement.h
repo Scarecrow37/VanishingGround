@@ -56,6 +56,8 @@ public:
 
     void ResetProgress();
 
+    void SetElapsedTime(const float t);
+
 protected:
     void Reset() override;
     void Start() override;

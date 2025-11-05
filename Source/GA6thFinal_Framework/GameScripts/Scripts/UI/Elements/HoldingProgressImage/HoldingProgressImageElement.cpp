@@ -27,6 +27,11 @@ void HoldingProgressImageElement::ResetProgress()
     ResetType();
 }
 
+void HoldingProgressImageElement::SetElapsedTime(const float t)
+{
+    _elapsedTime = t;
+}
+
 void HoldingProgressImageElement::Reset()
 {
     ImageElement::Reset();

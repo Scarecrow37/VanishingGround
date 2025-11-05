@@ -268,8 +268,9 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
     const float t    = _attackButtonHeldTime / _attackButtonHeldWaitTime;
     if (QTEUIManager* qteUIManager = SingletonComponent<QTEUIManager>::GetInstance())
     {
-        qteUIManager->SetUIAlpha(t);
-        UmAudio.SetVolume(_hHoldAButtonSound, t);
+        qteUIManager->SetQTEProgress(t);
+        const float volume = t * t;
+        UmAudio.SetVolume(_hHoldAButtonSound, volume);
     }
 }
 
@@ -584,6 +585,8 @@ void PlayerPlayTurnState::SetWeaponModelTransform(WeaponModelData& modelData, QT
                         const Vector3 offset    = weaponModelManager->GetWeaponOffset(modelData.Type);
                         const Vector3 distance  = offset + (dir * 2.0f);
                         gameObject->transform->SetWorldPosition(enemyPos + distance);
+
+                        gameObject->transform->Scale = enemy->transform->Scale;
                     }
                 }
             }
