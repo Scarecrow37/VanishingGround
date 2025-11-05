@@ -144,6 +144,13 @@ void Enemy::Dead()
     {
         turnMode->ApplyActions([this](TurnAction& action) { action.OnEnemyDead(*this); });
     }
+    if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        if (auto HUD = combatUIManager->CharacterHUDGroup.EnemyActionPanel[static_cast<int>(_spawnPoint)])
+        {
+            HUD->gameObject->ActiveSelf = false;
+        }
+    }
 }
 
 void Enemy::TakeDamage(int damage, const bool playAnim) 
