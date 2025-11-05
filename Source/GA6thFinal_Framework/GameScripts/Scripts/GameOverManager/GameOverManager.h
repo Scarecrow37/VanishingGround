@@ -16,6 +16,8 @@ public:
 private:
     void TransitionTitleScene();
 
+    void PressedAButton(const Input::Controller& controller);
+
 protected:
     REFLECT_FIELDS_BEGIN(Component)
     REFLECT_FIELDS_END(GameOverManager)

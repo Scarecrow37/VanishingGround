@@ -9,6 +9,7 @@ UMREAL_COMPONENT(GameOverManager)
 void GameOverManager::Awake() 
 {
     _singletoneComponent.TrySingleTon();
+    BindInputAction(ControllerButton::A, Action::PRESSED, this, &GameOverManager::PressedAButton);
 }
 
 void GameOverManager::Start()
@@ -76,4 +77,8 @@ void GameOverManager::TransitionTitleScene()
             }
         });
     }
+}
+
+void GameOverManager::PressedAButton(const Input::Controller& controller) 
+{
 }
