@@ -143,7 +143,6 @@ void QTEUIManager::OnQTEPlay()
 void QTEUIManager::OnQTEExit() 
 {
     _mainFader.SetFadeMode(Fader::FADE_OUT);
-    _battleGuideUI.FadeIn();
 }
 
 void QTEUIManager::SetQTEProgress(float t) 
@@ -365,6 +364,20 @@ void QTEUIManager::SetDefaultState()
     _guideUI.Active(false);
     _inputViewerUI.Active(false);
     _battleGuideUI.Active(true);
+}
+
+void QTEUIManager::FadeInBattleGuideUI() 
+{
+    _battleGuideUI.FadeIn();
+    if (_battleGuideUI.Progress)
+    {
+        _battleGuideUI.Progress->ResetProgress();
+    }
+}
+
+void QTEUIManager::FadeOutBattleGuideUI() 
+{
+    _battleGuideUI.FadeOut();
 }
 
 void QTEUIManager::FindUIComponents()
