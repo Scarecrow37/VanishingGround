@@ -520,7 +520,7 @@ void UmCineMotion::BeginShake(float duration, float intensity, float frequency)
     _shakeFlag         = true;
     Vector3 camUp    = Vector3::Transform(Vector3::Up, _targetAngle);
     Vector3 camRight = Vector3::Transform(Vector3::Right, _targetAngle);
-    _shakeDirection  = Random::Range(-1, 1) * camUp + Random::Range(-1, 1) * camRight;
+    _shakeDirection  = Random::Range(-1.f, 1.f) * camUp + Random::Range(-1.f, 1.f) * camRight;
     _shakeDirection.Normalize();
     _shakeDuration     = duration;
     _shakeIntensity    = intensity;
