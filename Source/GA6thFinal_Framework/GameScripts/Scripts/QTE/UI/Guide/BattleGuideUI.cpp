@@ -87,9 +87,16 @@ void BattleGuideUI::Alpha(float alpha)
     {
         if (text)
         {
-            Color old = text->Color;
-            old.w = alpha;
-            text->Color = old;
+            {
+                Color old = text->Color;
+                old.w = alpha;
+                text->Color = old;
+            }
+            {
+                Color old = text->OutlineColor;
+                old.w = alpha;
+                text->OutlineColor = old;
+            }
         }
     }
 }

@@ -32,9 +32,8 @@ void ForwardPBRLitPass::Initialize(RenderScene* ownerScene, RenderTechnique* own
     pss.PrimitiveTopology                     = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
     pss.RTVFormats                            = {{DXGI_FORMAT_R32G32B32A32_FLOAT, // Result
                                                   DXGI_FORMAT_R32G32B32A32_FLOAT, // Normal
-                                                  DXGI_FORMAT_R32_FLOAT,          // Depth
                                                   DXGI_FORMAT_R32_UINT},          // CustomDepth
-                                                 4};
+                                                 3};
 
     auto CreatePipelineStateStream = [this, &pss](int meshType)
     {
@@ -116,14 +115,14 @@ void ForwardPBRLitPass::Begin(ID3D12GraphicsCommandList* commandList)
         renderTarget->TransitionResource(commandList, D3D12_RESOURCE_STATE_RENDER_TARGET);
     }
     
-    D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[4]{};
+    D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[MAX_FORWARD_GROUP]{};
     rtvHandles[0] = _meshRenderTarget->GetRTVHandle();
-    for (int i = 1; i < 4; i++)
+    for (int i = 1; i < MAX_FORWARD_GROUP; i++)
     {
         rtvHandles[i] = renderTargetGroup[i - 1]->GetRTVHandle();
     }
 
-    commandList->OMSetRenderTargets(4, rtvHandles, FALSE, &_ownerScene->_depthStencilView->GetDSVHandle());
+    commandList->OMSetRenderTargets(MAX_FORWARD_GROUP, rtvHandles, FALSE, &_ownerScene->_depthStencilView->GetDSVHandle());
 }
 
 void ForwardPBRLitPass::Draw(ID3D12GraphicsCommandList* commandList)
