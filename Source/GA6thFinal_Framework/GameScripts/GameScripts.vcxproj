@@ -500,6 +500,7 @@
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\ApplyDamage\ApplyDamage.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\ChainNotAdditionAction\ChainNotAdditionAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\ChangeQTEButton\ChangeQTEButton.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyBossDeadClearAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyCombatStartTokenRandomApplyAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyTurnEndTokenRandomApplyAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\EquipAccessoryCharacterStats\EquipAccessoryCharacterStats.h" />
@@ -866,6 +867,7 @@
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\ApplyDamage\ApplyDamage.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\ChainNotAdditionAction\ChainNotAdditionAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\ChangeQTEButton\ChangeQTEButton.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyBossDeadClearAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyCombatStartTokenRandomApplyAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyTurnEndTokenRandomApplyAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\EquipAccessoryCharacterStats\EquipAccessoryCharacterStats.cpp" />

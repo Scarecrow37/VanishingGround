@@ -11,7 +11,7 @@ public:
     virtual ~SkeletalMeshRenderer() override;
 
 public:
-    const Matrix* FromMappingKey(const std::string& key);
+    const Matrix* GetBoneMatrixFromMappingKey(const std::string& key);
 
 protected:
     void Reset() override;    

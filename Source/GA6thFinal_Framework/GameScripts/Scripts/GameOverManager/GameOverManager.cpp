@@ -49,6 +49,8 @@ void GameOverManager::ProcessGameOver()
             _vanishedAnimation->Setup();
             _vanishedAnimation->StartAnimation();
             _isBeginProcess = true;
+
+            PushInputLayer();
         }
         else
         {
@@ -69,6 +71,8 @@ void GameOverManager::TransitionTitleScene()
             {
                 UmSceneManager.LoadScene(UmFileSystem.GetPathFromGuid("cd798e18-e5fd-421b-9b23-ef7bcfab15a0").string());
                 _isBeginProcess = false;
+
+                PopInputLayer();
             }
         });
     }
