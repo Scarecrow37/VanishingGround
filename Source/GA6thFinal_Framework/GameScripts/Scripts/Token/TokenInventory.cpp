@@ -557,7 +557,7 @@ void TokenInventory::RemoveTokenStackFromID(int tokenID, int count /* = 1 */)
             {
                 count = std::min(count, curStackCount.Get());
                 curStackCount = curStackCount - count;
-                std::string msg = std::format("{}{}{}{}{}{}", 
+                std::string msg = std::format("{}{}{}{}{}{}{}{}", 
                     _owner.gameObject->ToString(),
                     (const char*)u8"에게 ",
                     token->GetTokenName(),

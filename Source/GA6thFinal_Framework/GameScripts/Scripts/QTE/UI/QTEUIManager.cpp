@@ -214,7 +214,7 @@ void QTEUIManager::Start()
             system->ProcessQTEFadeInEndEvent();
             _mainFader.SetFadeMode(Fader::FADE_NONE);
 
-             SetUIAlpha(1.0f);
+            SetUIAlpha(1.0f);
             _battleGuideUI.Alpha(0.0f);
         }
     });
