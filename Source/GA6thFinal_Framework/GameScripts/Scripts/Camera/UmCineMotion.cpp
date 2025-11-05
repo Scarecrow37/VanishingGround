@@ -536,10 +536,9 @@ void UmCineMotion::GetShakeOffset()
         return;
     }
 
-
     float normalizedTime = std::clamp(_shakeElapsedTimer / _shakeDuration, 0.f, 1.f);
     float envelope       = 1.0f - (normalizedTime * normalizedTime);
-    _shakeAmount         = std::sinf(normalizedTime * _shakeFrequency * XM_2PI) * _shakeIntensity * envelope;
+    _shakeAmount         = std::sinf(_shakeElapsedTimer * _shakeFrequency * XM_2PI) * _shakeIntensity * envelope;
 
     _shakeOffset = _shakeDirection * _shakeAmount;
 }
@@ -558,17 +557,17 @@ void UmCineMotion::BeginFeedBackShake(int feedbackValue)
     constexpr int weakThreshold   = 10;
     constexpr int strongThreshold = 20;
 
-    constexpr float weakIntensity = 0.085f;
-    constexpr float weakDuration  = 0.2f;
-    constexpr float weakFrequency = 1.f;
+    constexpr float weakIntensity = 0.02f;
+    constexpr float weakDuration  = 0.5f;
+    constexpr float weakFrequency = 5.f;
 
-    constexpr float midIntensity = 0.1675f;
-    constexpr float midDuration  = 0.2f;
-    constexpr float midFrequency = 1.f;
+    constexpr float midIntensity = 0.035f;
+    constexpr float midDuration  = 0.5f;
+    constexpr float midFrequency = 5.f;
 
-    constexpr float strongIntensity = 0.25f;
-    constexpr float strongDuration  = 0.2f;
-    constexpr float strongFrequency = 1.f;
+    constexpr float strongIntensity = 0.6f;
+    constexpr float strongDuration  = 0.5f;
+    constexpr float strongFrequency = 5.f;
 
     if (feedbackValue <= 0)
         return;
