@@ -100,6 +100,7 @@ void EraseRevelationUIManager::EraseRevelation(int slot)
     {
         manager->ObtainFocusNavi(_artifactObtainIndex);
     }
+    UmAudio.Play("-461010");
     CloseUI();
 }
 
