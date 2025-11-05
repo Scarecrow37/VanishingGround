@@ -17,7 +17,7 @@ GameClearState::~GameClearState() {}
 
 void GameClearState::OnAwake() {}
 
-void GameClearState::OnEnter() 
+void GameClearState::OnEnter()
 {
     UmLogger.Log(LogLevel::LEVEL_DEBUG, u8"게임 클리어!");
     // 엔딩 분기 확인

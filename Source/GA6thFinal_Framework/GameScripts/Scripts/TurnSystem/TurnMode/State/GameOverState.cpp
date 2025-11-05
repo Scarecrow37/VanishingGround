@@ -20,33 +20,27 @@ void GameOverState::OnStart()
 void GameOverState::OnEnter() 
 {
     UmLogger.Log(LogLevel::LEVEL_DEBUG, (const char*)u8"게임 오버!!!!");
-    _waitPlayerDeactive = true;
+    UmTime.Invoke(GetFSM(), 2.0f, [this]() {
+        if (_turnMode)
+        {
+            if (Player* player = _turnMode->GetPlayer())
+            {
+                if (false == player->gameObject->ActiveSelf)
+                {
+                    if (GameOverManager* manager = SingletonComponent<GameOverManager>::GetInstance())
+                    {
+                        manager->ProcessGameOver();
+                    }
+                }
+            }
+        }
+    });
 }
 
 void GameOverState::OnExit() 
 {
-
 }
 
 void GameOverState::OnUpdate() 
 {
-    if (false == _waitPlayerDeactive)
-    {
-        return;
-    }
-
-    if (_turnMode)
-    {
-        if (Player* player = _turnMode->GetPlayer())
-        {
-            if (false == player->gameObject->ActiveSelf)
-            {
-                if (GameOverManager* manager = SingletonComponent<GameOverManager>::GetInstance())
-                {
-                    manager->ProcessGameOver();
-                    _waitPlayerDeactive = false;
-                }
-            }
-        }
-    }
 }
