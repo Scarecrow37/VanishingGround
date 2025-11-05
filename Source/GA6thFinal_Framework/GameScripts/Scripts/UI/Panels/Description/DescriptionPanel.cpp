@@ -231,9 +231,16 @@ void DescriptionPanel::MakeChild()
 
     for (const std::vector<ElementData> elementData = ParseData()(text); const auto& [Type, Data] : elementData)
     {
+        if (Type == ElementType::BREAK)
+        {
+            breakNext = true;
+            continue;
+        }
+
         const std::shared_ptr<GameObject> child =
             NewGameObject(GameObject::Helper::GenerateUniqueName("Description Child"));
         child->transform->SetParent(transform, true);
+
         if (breakNext)
         {
             if (HorizontalPanelSlot* slot = child->GetComponent<HorizontalPanelSlot>())
@@ -242,6 +249,7 @@ void DescriptionPanel::MakeChild()
             }
             breakNext = false;
         }
+
         switch (Type)
         {
         case ElementType::TEXT: {
@@ -273,9 +281,8 @@ void DescriptionPanel::MakeChild()
             imageChild->transform->SetParent(child->transform, true);
         }
         break;
-        case ElementType::BREAK: {
-            breakNext = true;
-        }
+        default:
+            break;
         }
     }
 }

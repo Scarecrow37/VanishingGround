@@ -18,8 +18,7 @@ struct PSOutput
 {
     float4 color : SV_Target0;
     float4 normal : SV_Target1;
-    float depth : SV_Target2;
-    uint customDepth : SV_Target3;
+    uint customDepth : SV_Target2;
 };
 
 #define DIFFUSE   0
@@ -122,7 +121,6 @@ PSOutput ps_main(PSInput input)
     PSOutput output = (PSOutput) 0;
     output.color = float4(color, albedo.a * alpha);
     output.normal = float4(normal, 1);
-    output.depth = input.position.z;
     output.customDepth = input.customDepth;
 
     return output;
