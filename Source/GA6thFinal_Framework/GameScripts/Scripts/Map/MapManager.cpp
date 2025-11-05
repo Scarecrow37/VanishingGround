@@ -441,7 +441,7 @@ void MapManager::ScrollKeyUpdate(const Input::Controller& controller)
     } 
     if (InventoryUIManager* manager = SingletonComponent<InventoryUIManager>::GetInstance())
     {
-        if (manager->Enable == true)
+        if (manager->gameObject->ActiveInHierarchy == true)
         {
             goto label_return;
         }
