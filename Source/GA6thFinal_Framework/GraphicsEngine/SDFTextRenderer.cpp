@@ -80,8 +80,7 @@ void SDFTextRenderer::SetColor(const Vector4& color)
 
 void SDFTextRenderer::SetFontWeight(const float fontWeight)
 {
-    float convert = std::clamp(fontWeight, 0.f, 1.f);
-    _fontWeight = convert - 0.5f;
+    _fontWeight = fontWeight;
 }
 
 void SDFTextRenderer::SetFontOutline(const GE::FontOutline& outline)

@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "UI/Base/IFontAppearance/IFontAppearance.h"
 #include "UI/Base/IOpacity/IOpacity.h"
 #include "UI/Panels/Horizontal/HorizontalPanel.h"
 
@@ -26,7 +27,7 @@ struct ElementData
     std::variant<TextAttributes, ImageAttributes> Data;
 };
 
-class DescriptionPanel : public HorizontalPanel, public IOpacity
+class DescriptionPanel : public HorizontalPanel, public IOpacity, public IFontAppearance
 {
     USING_PROPERTY(DescriptionPanel)
 
@@ -67,6 +68,7 @@ public:
 
 public:
     void SetOpacity(float opacity) override;
+    void SetFontWeight(float fontWeight) override;
 
 protected:
     void DeserializedReflectEvent() override;
@@ -90,4 +92,6 @@ protected:
 
 private:
     File::Guid _Guid;
+
+    float _fontWeight;
 };
