@@ -306,6 +306,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\QTE\UI\Guide\BattleGuideUI.h" />
     <ClInclude Include="Scripts\Map\StageData.h" />
     <ClInclude Include="Scripts\Monster\Action\BossServant\MonsterBossServantAction.h" />
     <ClInclude Include="Scripts\ProclamationHUD\ProclamationHUD.h" />
@@ -680,6 +681,7 @@
     <ClCompile Include="Scripts\MagicBook\SelectMagicBook.cpp" />
     <ClCompile Include="Scripts\MagicBook\SelectPopup.cpp" />
     <ClCompile Include="Scripts\QTE\UI\Field\QTEJudgeEffectUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\Guide\BattleGuideUI.cpp" />
     <ClCompile Include="Scripts\QTE\UI\Input\QTEInputNodeUI.cpp" />
     <ClCompile Include="Scripts\QTE\UI\Input\QTEInputViewerUI.cpp" />
     <ClCompile Include="Scripts\QTE\UI\Guide\QTEGuideUI.cpp" />
