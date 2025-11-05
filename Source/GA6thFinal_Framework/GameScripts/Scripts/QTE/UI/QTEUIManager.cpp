@@ -214,7 +214,6 @@ void QTEUIManager::Start()
             system->ProcessQTEFadeInEndEvent();
             _mainFader.SetFadeMode(Fader::FADE_NONE);
 
-            SetUIAlpha(1.0f);
             _battleGuideUI.Alpha(0.0f);
         }
     });
@@ -249,12 +248,13 @@ void QTEUIManager::Update()
     case Fader::FADE_NONE:
         break;
     case Fader::FADE_IN: {
-        _guideUI.Alpha(factor);
+        _guideUI.Alpha(std::min(factor, 0.8f));
         _battleGuideUI.Alpha(1.0f - factor);
         break;
     }
     case Fader::FADE_OUT: {
         SetUIAlpha(factor);
+        _guideUI.Alpha(std::min(factor, 0.8f));
         _battleGuideUI.Alpha(1.0f - factor);
         break;
     }
