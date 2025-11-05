@@ -26,6 +26,7 @@
 #include "DifficultyManager/DifficultyManager.h"
 #include "Map/MapManager.h"
 #include "Map/Stage.h"
+#include "TutorialSystem/TutorialSystem.h"
 
 REGISTER_CLASS(FSMStateFactory, CombatStartPhase)
 
@@ -129,7 +130,6 @@ void CombatStartPhase::OnAwake()
 void CombatStartPhase::OnStart() 
 {
     TurnModeStateBase::OnStart();
-    RefreshUI(); //Find UI가 가장먼저 호출되야함
 
     if (MonsterSystem* system = SingletonComponent<MonsterSystem>::GetInstance())
     {
@@ -169,6 +169,7 @@ void CombatStartPhase::OnEnter()
         {
             if (dropSystem->StageClearCount == 0)
             {
+                introCamera->SetMainCamera();
                 introCamera->ResetRail(true);
                 introCamera->StartRail(false);
                 introDuration = introCamera->Duration;
@@ -184,19 +185,6 @@ void CombatStartPhase::OnEnter()
         _waitPhaseEnd = false;
     });
    
-    if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
-    {
-        //켜져 있어야 하는거
-        combatUIManager->AccessoriesGroup.ActiveUI(true);  
-        combatUIManager->ConsumableGroup.ActiveUI(true);  
-
-        //꺼져 있어야 하는거
-        combatUIManager->CharacterHUDGroup.ActiveUI(false);  
-        combatUIManager->WeaponGroup.ActiveUI(false);  
-        combatUIManager->RevelationsGroup.ActiveUI(false);  
-        combatUIManager->TurnQueueGroup.ActiveUI(false);  
-    }
-
     _turnMode->ResetRoundCount();
     AddExtinctionRevelation();
 
@@ -220,6 +208,19 @@ void CombatStartPhase::OnExit()
     if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
     {
         combatUIManager->CharacterHUDGroup.ActiveUI(true);
+    }
+
+     if (ItemDropSystem* itemDropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
+    {
+        // 소멸 계시 추가시 튜토리얼
+        int stageClearCount = itemDropSystem->StageClearCount;
+        if (TutorialSystem* tutorial = SingletonComponent<TutorialSystem>::GetInstance())
+        {
+            if (0 < stageClearCount)
+            {
+                tutorial->Show(805908);
+            }
+        }      
     }
 }
 
@@ -463,13 +464,5 @@ void CombatStartPhase::ResetPlayer()
     if (_player)
     {
         _player->TurnActor::Revive();
-    }
-}
-
-void CombatStartPhase::RefreshUI() 
-{
-    if (CombatUIManager* manager = SingletonComponent<CombatUIManager>::GetInstance())
-    {
-        manager->Refresh();
     }
 }

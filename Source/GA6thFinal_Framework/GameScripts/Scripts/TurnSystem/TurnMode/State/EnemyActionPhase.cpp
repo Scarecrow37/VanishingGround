@@ -56,12 +56,14 @@ void EnemyActionPhase::OnEnter()
                 {
                     WaitPhase = false;
                     UpdateCharacterDead();   
+                    ApplyReduceHP();
                 });
             }
             else
             {
                 WaitPhase = false;
                 UpdateCharacterDead();   
+                ApplyReduceHP();
             }      
         }
     }
@@ -70,8 +72,6 @@ void EnemyActionPhase::OnEnter()
 void EnemyActionPhase::OnExit() 
 {
     WaitPhase = true;
-    ApplyReduceHP();
-
     if (_turnMode)
     {
         if (auto& actorModel = _turnMode->GetCurrTurnActor())

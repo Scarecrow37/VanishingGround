@@ -8,6 +8,7 @@
 #include "TurnSystem/TurnAction/TurnAction.h"
 #include "RoundInfoUI/RoundInfoUIManager.h"
 #include "Camera/UmCineMotion.h"
+#include "CombatUIManager/CombatUIManager.h"
 
 //Condition
 #include "GameCore/FSM/AlwaysTransitionCondition.h"
@@ -343,6 +344,24 @@ void TurnMode::Awake()
     
 }
 
+void TurnMode::Start() 
+{
+    if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
+    {
+        combatUIManager->Refresh();
+
+        // 켜져 있어야 하는거
+        combatUIManager->AccessoriesGroup.ActiveUI(true);
+        combatUIManager->ConsumableGroup.ActiveUI(true);
+
+        // 꺼져 있어야 하는거
+        combatUIManager->CharacterHUDGroup.ActiveUI(false);
+        combatUIManager->WeaponGroup.ActiveUI(false);
+        combatUIManager->RevelationsGroup.ActiveUI(false);
+        combatUIManager->TurnQueueGroup.ActiveUI(false);
+    }
+}
+
 void TurnMode::OnDestroy() 
 {
     if (_singletonComponent.IsSingleTon())
@@ -462,14 +481,22 @@ void TurnMode::FindCameras()
             GameObject* object = cameras[i];
             if (object)
             {
-                if (i == 0)
+                const std::string& objName = object->Name;
+
+                auto compare = [](char a, char b) 
+                {
+                    return std::tolower(static_cast<unsigned char>(a)) == std::tolower(static_cast<unsigned char>(b));
+                };
+
+                if (auto findIntro = std::ranges::search(objName, std::string_view("intro"), compare); findIntro.begin() != objName.end())
                 {
                     if (UmCineMotion* motion = object->GetComponent<UmCineMotion>())
                     {
                         _introCamera = motion->GetWeakPtrAs<UmCineMotion>();
+                        motion->SetMainCamera();
                     }                 
                 }
-                else if (i == 1)
+                else if (auto findMain = std::ranges::search(objName, std::string_view("main"), compare); findMain.begin() != objName.end())
                 {
                     if (UmCineMotion* motion = object->GetComponent<UmCineMotion>())
                     {

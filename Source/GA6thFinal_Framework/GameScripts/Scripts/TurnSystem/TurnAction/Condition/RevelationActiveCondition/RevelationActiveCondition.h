@@ -15,4 +15,5 @@ protected:
     void DrawImguiEditor() override;
     const std::string& GetConditionInfo() override;
 
+    bool CheckEvaluate(CharacterBase* character) override;
 };
