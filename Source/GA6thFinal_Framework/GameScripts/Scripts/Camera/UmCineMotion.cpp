@@ -497,7 +497,7 @@ void UmCineMotion::ResetRail(bool toBegin)
 
         if (ReflectFields->RailLength > 0.f && ReflectFields->RailSpeed > 0.f)
         {
-            _moveTimer = (ReflectFields->RailLength / ReflectFields->RailSpeed);
+            _moveTimer   = (ReflectFields->RailLength / (ReflectFields->RailSpeed * _railSpeedScale) );
             _currentStep = 100.f;
 
         }

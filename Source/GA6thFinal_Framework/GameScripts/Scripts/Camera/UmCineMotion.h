@@ -28,7 +28,7 @@ public:
     }
     PROPERTY(Current)
 
-    GETTER_ONLY(float, Duration) { return ReflectFields->RailLength / ReflectFields->RailSpeed; }
+    GETTER_ONLY(float, Duration) { return ReflectFields->RailLength / (ReflectFields->RailSpeed * _railSpeedScale); }
     PROPERTY(Duration)
 
 public:
@@ -111,6 +111,7 @@ protected:
 
     float EaseTimeStep(float step);
 
+    inline constexpr static float _railSpeedScale = 1.5f;
 
 #ifdef _UMEDITOR
     void                                                                 UpdateTetherFromGuizmo();
