@@ -75,7 +75,16 @@ void TooltipSystem::Hide(const Group group)
 
 TooltipComponent::TooltipData TooltipSystem::GetTooltip(const int id) const
 {
-    return _tooltips.at(id);
+    try
+    {
+        return _tooltips.at(id);
+    }
+    catch (const std::out_of_range& exception)
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, "Tooltip data not found.");
+        UmLogger.Log(LogLevel::LEVEL_WARNING, exception.what());
+        return TooltipComponent::TooltipData{};
+    }
 }
 
 void TooltipSystem::Awake()
