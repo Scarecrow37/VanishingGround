@@ -12,6 +12,7 @@
 #include "AccessorySystem/AccessorySystem.h"
 #include "UI/Panels/Overlay/OverlayPanel.h"
 #include "TokenHUD/TokenHUD.h"
+#include "Camera/UmCineMotion.h"
 
 //Condition
 #include "Condition/PlayerStartCondition.h"
@@ -116,7 +117,7 @@ void Player::TakeDamage(int damage, const bool playAnim)
     TurnMode* turnMode = SingletonComponent<TurnMode>::GetInstance();
     if (turnMode)
     {
-        turnMode->ApplyActions([&](TurnAction& action) { action.OnPlayerTakeDamageStart(*this, damage); });
+        turnMode->ApplyActions([&](TurnAction& action) { action.OnPlayerTakeDamageStart(*this, damage); });  
     }
     int takeDamage = damage;
 
@@ -127,6 +128,12 @@ void Player::TakeDamage(int damage, const bool playAnim)
         {
             takeDamage = std::min(takeDamage, 20);
         }
+    }
+
+    // 플레이어 셰이크는 15
+    if (UmCineMotion* motion = turnMode->GetBattleCamera())
+    {
+        motion->BeginFeedBackShake(15);
     }
 
     Base::TakeDamage(takeDamage, playAnim);
