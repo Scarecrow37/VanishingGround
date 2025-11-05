@@ -69,10 +69,10 @@ int DropItemInfo::GetArtifactCategoryAssetID(ArtifactDropType type, bool isMapSc
             id = 460014;
             break;
         case ArtifactDropType::ACCESSORY:
-            id = 460015;
+            id = 460016;
             break;
         case ArtifactDropType::REVELATION:
-            id = 460016;
+            id = 460015;
             break;
         case ArtifactDropType::ERASE_REVELATION:
             id = 460017;
