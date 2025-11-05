@@ -72,7 +72,7 @@ protected:
     void DrawRail();
     void RunRail();
 
-    Vector3 GetShakeOffset(float intensity, float frequency, float time);
+    void GetShakeOffset();
 
     void ApplyTransform();
 
@@ -98,7 +98,10 @@ protected:
     float                   _shakeFrequency    = 0.35f;
     float                   _shakeElapsedTimer = 0.f;
     float                   _shakeDuration     = 0.f;
+    float                   _shakeAmount       = 0.f;
     bool                    _shakeFlag         = false;
+    Vector3                 _shakeDirection    = Vector3::Zero;
+    Vector3                 _shakeOffset       = Vector3::Zero;
     Vector3                 _targetPos         = Vector3::Zero;
     Quaternion              _targetAngle       = Quaternion::Identity;
     UINT                    _selectedTether    = -1;
