@@ -436,8 +436,8 @@ void UmCineMotion::RunRail()
         {
             if (ReflectFields->RailLength > 0.f && ReflectFields->RailSpeed > 0.f)
             {
-                float duration = (ReflectFields->RailLength / ReflectFields->RailSpeed);
-                _moveTimer += (_reverseFlag ? -1 : 1) * UmTime.DeltaTime();
+                float duration = (ReflectFields->RailLength / (ReflectFields->RailSpeed * _railSpeedScale));
+                _moveTimer += (_reverseFlag ? -1 : 1) * UmTime.DeltaTime() * ReflectFields->RailSpeed * _railSpeedScale;
                 _moveTimer   = std::clamp(_moveTimer, 0.f, duration);
                 float xAxis  = (duration > 0.f) ? (_moveTimer / duration) : 0.f;
                 _currentStep = EaseTimeStep(xAxis);
@@ -496,7 +496,6 @@ void UmCineMotion::ResetRail(bool toBegin)
     }
     else
     {
-
         if (ReflectFields->RailLength > 0.f && ReflectFields->RailSpeed > 0.f)
         {
             _moveTimer   = (ReflectFields->RailLength / (ReflectFields->RailSpeed * _railSpeedScale));
