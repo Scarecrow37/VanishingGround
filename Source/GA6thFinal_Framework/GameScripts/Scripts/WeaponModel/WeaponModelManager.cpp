@@ -29,6 +29,16 @@ Vector3 WeaponModelManager::GetWeaponOffset(WeaponType type) const
     return Vector3::Zero;
 }
 
+DirectX::SimpleMath::Quaternion WeaponModelManager::GetWeaponOriginPivotRotation(WeaponType type) const
+{
+    auto iter = _OriginPivotRotation.find(type);
+    if (iter != _OriginPivotRotation.end())
+    {
+        return iter->second;
+    }
+    return Quaternion::Identity;
+}
+
 WeaponModelData WeaponModelManager::RequestAvailableWeapon(WeaponType type)
 {
     auto& gameObjectPool    = _weaponPoolTable[type].GameObjectPool;
@@ -249,6 +259,14 @@ void WeaponModelManager::LoadWeaponInstances(WeaponType type, const File::Guid& 
             }
         }
     }
+
+   /* if (false == weaponPool.GameObjectPool.empty())
+    {
+        if (auto object = weaponPool.GameObjectPool.front().lock())
+        {
+            _OriginPivotRotation[type] = object->transform->Rotation;
+        }
+    }*/
 }
 
 void WeaponModelManager::InitializeWeaponPool()

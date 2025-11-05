@@ -436,8 +436,8 @@ void UmCineMotion::RunRail()
         {
             if (ReflectFields->RailLength > 0.f && ReflectFields->RailSpeed > 0.f)
             {
-                float duration = (ReflectFields->RailLength / ReflectFields->RailSpeed);
-                _moveTimer += (_reverseFlag ? -1 : 1) * UmTime.DeltaTime();
+                float duration = (ReflectFields->RailLength / (ReflectFields->RailSpeed * _railSpeedScale));
+                _moveTimer += (_reverseFlag ? -1 : 1) * UmTime.DeltaTime() * ReflectFields->RailSpeed * _railSpeedScale;
                 _moveTimer   = std::clamp(_moveTimer, 0.f, duration);
                 float xAxis  = (duration > 0.f) ? (_moveTimer / duration) : 0.f;
                 _currentStep = EaseTimeStep(xAxis);
@@ -473,33 +473,33 @@ void UmCineMotion::Shake()
     if (true == _shakeFlag)
     {
         _shakeElapsedTimer += UmTime.DeltaTime();
-        _targetPos += GetShakeOffset(_shakeIntensity, _shakeFrequency, _shakeElapsedTimer);
+        GetShakeOffset();
+        _targetPos += _shakeOffset;
+        
         if (_shakeElapsedTimer >= _shakeDuration)
         {
             _shakeFlag         = false;
-            _shakeElapsedTimer = 0;
+            _shakeElapsedTimer = 0.f;
         }
     }
 }
 
-void UmCineMotion::ResetRail(bool toBegin) 
+void UmCineMotion::ResetRail(bool toBegin)
 {
-    _targetPos          = transform->Position;
-    _targetAngle        = transform->Rotation;
+    _targetPos   = transform->Position;
+    _targetAngle = transform->Rotation;
     _easeLog.clear();
     if (toBegin)
     {
-        _moveTimer     = 0.f;
+        _moveTimer   = 0.f;
         _currentStep = 0.f;
     }
     else
     {
-
         if (ReflectFields->RailLength > 0.f && ReflectFields->RailSpeed > 0.f)
         {
-            _moveTimer = (ReflectFields->RailLength / ReflectFields->RailSpeed);
+            _moveTimer   = (ReflectFields->RailLength / (ReflectFields->RailSpeed * _railSpeedScale));
             _currentStep = 100.f;
-
         }
     }
     if (ReflectFields->TimestepTethers.size() > 1)
@@ -509,39 +509,35 @@ void UmCineMotion::ResetRail(bool toBegin)
         _targetAngle        = _rotTethers[idx];
         transform->Position = _targetPos;
         transform->Rotation = _targetAngle;
-
     }
 }
 
 void UmCineMotion::BeginShake(float duration, float intensity, float frequency)
 {
     _shakeFlag         = true;
+    Vector3 camUp    = Vector3::Transform(Vector3::Up, _targetAngle);
+    Vector3 camRight = Vector3::Transform(Vector3::Right, _targetAngle);
+    _shakeDirection  = Random::Range(-1.f, 1.f) * camUp + Random::Range(-1.f, 1.f) * camRight;
+    _shakeDirection.Normalize();
     _shakeDuration     = duration;
     _shakeIntensity    = intensity;
     _shakeFrequency    = frequency;
     _shakeElapsedTimer = 0.f;
 }
 
-DirectX::SimpleMath::Vector3 UmCineMotion::GetShakeOffset(float intensity, float frequency, float time)
+void UmCineMotion::GetShakeOffset()
 {
-    if (intensity <= 0.0f || frequency <= 0.0f)
-        return Vector3(0, 0, 0);
+    if (_shakeIntensity <= 0.0f || _shakeFrequency <= 0.0f || _shakeDuration <= 0.0f)
+    {
+        _shakeOffset = Vector3::Zero;
+        return;
+    }
 
-    const float freq = std::clamp(frequency, 0.01f, 100.0f);
+    float normalizedTime = std::clamp(_shakeElapsedTimer / _shakeDuration, 0.f, 1.f);
+    float envelope       = 1.0f - (normalizedTime * normalizedTime);
+    _shakeAmount         = std::sinf(_shakeElapsedTimer * _shakeFrequency * XM_2PI) * _shakeIntensity * envelope;
 
-    const float t = time * freq;
-
-    constexpr int   OCTAVES    = 4;
-    constexpr float LACUNARITY = 2.0f;
-    constexpr float GAIN       = 0.5f;
-
-    const float nx = Mathf::FBM1D(t + 37.173f, OCTAVES, LACUNARITY, GAIN);
-    const float ny = Mathf::FBM1D(t + 101.719f, OCTAVES, LACUNARITY, GAIN);
-    const float nz = Mathf::FBM1D(t + 223.357f, OCTAVES, LACUNARITY, GAIN);
-
-    const float amp = intensity;
-
-    return Vector3(nx * amp, ny * amp, nz * amp);
+    _shakeOffset = _shakeDirection * _shakeAmount;
 }
 
 void UmCineMotion::ApplyTransform()
@@ -558,17 +554,17 @@ void UmCineMotion::BeginFeedBackShake(int feedbackValue)
     constexpr int weakThreshold   = 10;
     constexpr int strongThreshold = 20;
 
-    constexpr float weakIntensity = 0.085f;
-    constexpr float weakDuration  = 0.2f;
-    constexpr float weakFrequency = 1.f;
+    constexpr float weakIntensity = 0.02f;
+    constexpr float weakDuration  = 0.5f;
+    constexpr float weakFrequency = 5.f;
 
-    constexpr float midIntensity = 0.1675f;
-    constexpr float midDuration  = 0.2f;
-    constexpr float midFrequency = 1.f;
+    constexpr float midIntensity = 0.035f;
+    constexpr float midDuration  = 0.5f;
+    constexpr float midFrequency = 5.f;
 
-    constexpr float strongIntensity = 0.25f;
-    constexpr float strongDuration  = 0.2f;
-    constexpr float strongFrequency = 1.f;
+    constexpr float strongIntensity = 0.6f;
+    constexpr float strongDuration  = 0.5f;
+    constexpr float strongFrequency = 5.f;
 
     if (feedbackValue <= 0)
         return;

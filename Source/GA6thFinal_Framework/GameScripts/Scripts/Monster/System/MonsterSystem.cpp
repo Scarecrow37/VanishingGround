@@ -3,7 +3,7 @@
 
 #include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
 #include "Stats/CharacterStats.h"
-
+#include "Particle/ParticleComponent.h"
 #include "ExcelDataSystem/ExcelDataSystem.h"
 
 UMREAL_COMPONENT(MonsterSystem)
@@ -320,6 +320,10 @@ void MonsterSystem::FindSpawnPoints()
         {
             const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(SPAWN_POINT_TAGS[i]);
             assert(weakGameObject.expired() == false); // [assert] 해당 태그의 스폰 포인트가 유효해야합니다.
+            if (ParticleComponent* particle = weakGameObject.lock()->GetComponent<ParticleComponent>())
+            {
+                particle->PlayEffect("slot");
+            }
             _spawnPointTable[index] = weakGameObject;
         }
     }
