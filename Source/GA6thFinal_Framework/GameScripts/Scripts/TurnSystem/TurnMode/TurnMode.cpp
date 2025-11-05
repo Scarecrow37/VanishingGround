@@ -270,6 +270,9 @@ void TurnMode::BuildTurnModeFSM()
         _finiteStateMachine->SetEntryState<CombatStartPhase>();
 
         //Transition    
+        _finiteStateMachine->AddTransition<GameOverCondition, GameOverState>();
+        _finiteStateMachine->AddTransition<GameClearCondition, GameClearState>();
+
         _finiteStateMachine->AddTransition<CombatStartPhase, RoundStartCondition, RoundStartPhase>();
         _finiteStateMachine->AddTransition<RoundStartPhase, CheckRoundStartExit, CheckPlayerState>();
 
@@ -283,9 +286,6 @@ void TurnMode::BuildTurnModeFSM()
 
         _finiteStateMachine->AddTransition<TurnListEmptyState, CheckTurnEmpty, RoundEndPhase>();
         _finiteStateMachine->AddTransition<RoundEndPhase, CheckRoundEndExit, RoundStartPhase>();
-
-        _finiteStateMachine->AddTransition<GameOverCondition, GameOverState>();
-        _finiteStateMachine->AddTransition<GameClearCondition, GameClearState>();
     }
 }
 

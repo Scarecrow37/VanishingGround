@@ -8,16 +8,23 @@ namespace Monster
     {
         Despair::Despair() : Base("Attack1") {}
         Despair::~Despair() = default;
-        void Despair::OnActionEnter() {}
+        void Despair::OnActionEnter() 
+        {
+            _attackCount = 0;
+        }
         void Despair::OnActionUpdate() {}
         void Despair::OnActionExit() {}
         void Despair::OnActionReset() {}
-        void Despair::OnNotifiedAnimationEvent(const Timeline::EventContext* context) 
+        void Despair::OnNotifiedAnimationEvent(const Timeline::EventContext* context)
         {
             const std::string& label = context->GetLabel();
             if ("Attack" == label)
             {
-                Attack();
+                if (_attackCount < GetActionContext().AttackCount)
+                {
+                    Attack();
+                    ++_attackCount;
+                }
             }
         }
 

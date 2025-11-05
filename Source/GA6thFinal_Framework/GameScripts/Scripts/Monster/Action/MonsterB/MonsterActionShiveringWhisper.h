@@ -24,6 +24,10 @@ namespace Monster
 
         private:
             void Attack();
+
+        private:
+            int _attackCount = 0;
+
         };
     } // namespace Action
 } // namespace Monster

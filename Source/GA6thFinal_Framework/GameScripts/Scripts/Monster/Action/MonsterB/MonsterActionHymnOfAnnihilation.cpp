@@ -11,34 +11,20 @@ namespace Monster
 {
     namespace Action
     {
-        HymnOfAnnihilation::HymnOfAnnihilation()  = default; // 죽는 애니메이션에서 멈춰야하므로 직접 애니메이션 수행
+        HymnOfAnnihilation::HymnOfAnnihilation() : Base("Attack2") {}; // 죽는 애니메이션에서 멈춰야하므로 직접 애니메이션 수행
         HymnOfAnnihilation::~HymnOfAnnihilation() = default;
         void HymnOfAnnihilation::OnActionEnter() 
         {
-            bool result = false;
             if (AnimationComponent* animator = GetAnimationComponent())
             {
-                if (animator->HasAnimationMappingKey("Attack2"))
-                {
-                    animator->BeginBuildOverrideAnimation();
+                auto weakOwner = GetWeakOwner();
+                animator->SetCurrentAnimationEndCallback([weakOwner, this]() {
+                    if (auto owner = weakOwner.lock())
                     {
-                        animator->ClearOverrideAnimations();
-                        animator->SetNextAnimationFlags(ANIMATION_FLAG_ALWAYS_UPDATE | ANIMATION_FLAG_USE_BLEND);
-                        result = animator->PushBackOverrideAnimation("Attack2");
-                        if (result)
-                        {
-                            auto weakOwner = GetWeakOwner();
-                            animator->SetCurrentAnimationEndCallback([weakOwner, this]() {
-                                if (auto owner = weakOwner.lock())
-                                {
-                                    this->SetActionEnd();
-                                    owner->gameObject->SetActive(false);
-                                }
-                            });
-                        }
+                        this->SetActionEnd();
+                        owner->gameObject->SetActive(false);
                     }
-                    animator->EndBuildOverrideAnimation();
-                }
+                });
             }
         }
         void HymnOfAnnihilation::OnActionUpdate() {}

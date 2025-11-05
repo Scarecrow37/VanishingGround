@@ -35,7 +35,7 @@ PlayerPlayTurnState::PlayerPlayTurnState()
 {
     _inputState               = InputState::NONE;
     _attackButtonHeldTime     = 0.f;
-    _attackButtonHeldWaitTime = 0.5f;
+    _attackButtonHeldWaitTime = 1.0f;
     _isDownAButton            = false;
     _isDownAKey               = false;
     _qteCallbackHandle        = 0;
@@ -161,8 +161,6 @@ void PlayerPlayTurnState::PressedButtonA(const Input::Controller& controller)
         {
             if (CombatUIManager* uiManager = SingletonComponent<CombatUIManager>::GetInstance())
                 uiManager->FadeOut(_attackButtonHeldWaitTime);
-
-            // TODO: a홀드 사운드 넣으니까 매우 이상함. 논의 필요.
             UmAudio.Stop(_hHoldAButtonSound);
             _hHoldAButtonSound = UmAudio.Play("-901007");
         }
@@ -269,8 +267,7 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
     if (QTEUIManager* qteUIManager = SingletonComponent<QTEUIManager>::GetInstance())
     {
         qteUIManager->SetQTEProgress(t);
-        const float volume = t * t;
-        UmAudio.SetVolume(_hHoldAButtonSound, volume);
+        UmAudio.SetVolume(_hHoldAButtonSound, t);
     }
 }
 
