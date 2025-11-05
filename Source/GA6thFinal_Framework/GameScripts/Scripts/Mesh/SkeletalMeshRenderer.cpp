@@ -31,7 +31,7 @@ SkeletalMeshRenderer::SkeletalMeshRenderer()
 
 SkeletalMeshRenderer::~SkeletalMeshRenderer() = default;
 
-const Matrix* SkeletalMeshRenderer::GetBoneMatrixFormMappingKey(const std::string& key)
+const Matrix* SkeletalMeshRenderer::GetBoneMatrixFromMappingKey(const std::string& key)
 {
     if (_boneMatrixMappingTable.contains(key))
     {
