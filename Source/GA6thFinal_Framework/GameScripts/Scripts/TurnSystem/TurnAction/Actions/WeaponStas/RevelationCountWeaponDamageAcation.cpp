@@ -19,6 +19,7 @@ void RevelationCountWeaponDamageAcation::OnAddedAction()
             //계시 갯수
             int count =  static_cast<int>(revelationSystem->GetPlayerElementList().size());
             _damage = count;
+            _myIndex = weaponSystem->CurrentWeaponSlot;
 
             //증가
             stats.HitDamage += _damage;
@@ -32,12 +33,13 @@ void RevelationCountWeaponDamageAcation::OnDestroy()
     if (WeaponSystem* weaponSystem = SingletonComponent<WeaponSystem>::GetInstance())
     {
         // 현재 무기
-        auto& weapon = weaponSystem->GetCurrentWeaponElement();
-        auto& stats  = weapon.Stats;
-
-        // 감소
-        stats.HitDamage -= _damage;
-        stats.CriticalDamage -= _damage;
+        if (0 <= _myIndex && _myIndex < weaponSystem->EQUIP_WEAPONS_SIZE)
+        {
+            // 감소
+            auto& stats = weaponSystem->GetWeaponStatsAtIndex(_myIndex);    
+            stats.HitDamage -= _damage;
+            stats.CriticalDamage -= _damage;
+        }
     }
 }
 
