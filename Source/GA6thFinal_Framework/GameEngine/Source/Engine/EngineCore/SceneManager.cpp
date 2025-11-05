@@ -774,8 +774,7 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
                 scene->_isLoaded = false;
             }
         }
-        _setting.MainScene = scene->Path;
-        _nextSceneSkybox   = scene;         
+        _setting.MainScene = scene->Path; 
         _addComponentsQueue.clear();
         _addGameObjectsQueue.clear();
         _waitAwakeVec.clear();
@@ -820,6 +819,7 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
     }
     onloadSceneTargets.clear();
     _nextSceneGuids.push_back(scene->_guid);
+    _nextSceneSkybox = scene;
 }
 
 void ESceneManager::UnloadScene(std::string_view sceneName) 
