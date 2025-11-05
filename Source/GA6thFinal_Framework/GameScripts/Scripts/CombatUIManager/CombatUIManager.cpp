@@ -58,11 +58,8 @@ void CombatUIManager::Start()
 
 void CombatUIManager::Update() 
 {
-    if (CharacterHUDGroup.IsValid())
-    {
-        CharacterHUDGroup.RefreshUIPosition();
-        CharacterHUDGroup.RefreshCharactersUIPosition();
-    }
+    CharacterHUDGroup.RefreshUIPosition();
+    CharacterHUDGroup.RefreshCharactersUIPosition();
 }
 
 void CombatUIManager::FixedUpdate() 

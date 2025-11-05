@@ -306,6 +306,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\GameOverManager\GameOverManager.h" />
     <ClInclude Include="Scripts\QTE\UI\Guide\BattleGuideUI.h" />
     <ClInclude Include="Scripts\Map\StageData.h" />
     <ClInclude Include="Scripts\Monster\Action\BossServant\MonsterBossServantAction.h" />
@@ -499,6 +500,7 @@
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\ApplyDamage\ApplyDamage.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\ChainNotAdditionAction\ChainNotAdditionAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\ChangeQTEButton\ChangeQTEButton.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyBossDeadClearAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyCombatStartTokenRandomApplyAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyTurnEndTokenRandomApplyAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\EquipAccessoryCharacterStats\EquipAccessoryCharacterStats.h" />
@@ -676,6 +678,7 @@
     <ClInclude Include="Scripts\BattleIntroUIController\BattleIntroUIController.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\GameOverManager\GameOverManager.cpp" />
     <ClCompile Include="Scripts\Monster\Action\BossServant\MonsterBossServantAction.cpp" />
     <ClCompile Include="Scripts\ProclamationHUD\ProclamationHUD.cpp" />
     <ClCompile Include="Scripts\QTE\Controller\QTEController.cpp" />
@@ -866,6 +869,7 @@
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\ApplyDamage\ApplyDamage.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\ChainNotAdditionAction\ChainNotAdditionAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\ChangeQTEButton\ChangeQTEButton.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyBossDeadClearAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyCombatStartTokenRandomApplyAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyTurnEndTokenRandomApplyAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\EquipAccessoryCharacterStats\EquipAccessoryCharacterStats.cpp" />

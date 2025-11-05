@@ -24,7 +24,6 @@ void PlayerDeadState::OnAwake()
 
 void PlayerDeadState::OnStart() 
 {
-
 }
 
 void PlayerDeadState::OnEnter() 
@@ -41,15 +40,15 @@ void PlayerDeadState::OnEnter()
         animator->ChangeMainAnimation("Dead");
         animator->EndBuildOverrideAnimation();
     }
-}
-
-void PlayerDeadState::OnExit() 
-{
     Player& enemy = GetPlayer();
     if (ParticleComponent* particle = enemy.GetParticleComponent())
     {
         particle->StopAll();
     }
+}
+
+void PlayerDeadState::OnExit() 
+{
 }
 
 void PlayerDeadState::OnUpdate() 

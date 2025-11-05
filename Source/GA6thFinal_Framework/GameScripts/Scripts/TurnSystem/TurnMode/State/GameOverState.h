@@ -13,4 +13,7 @@ protected:
     void OnEnter() override;
     void OnExit() override;
     void OnUpdate() override;
+
+private:
+    bool _waitPlayerDeactive = true;
 };

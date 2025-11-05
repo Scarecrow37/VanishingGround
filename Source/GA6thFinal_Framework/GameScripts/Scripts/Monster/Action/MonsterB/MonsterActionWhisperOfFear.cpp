@@ -10,7 +10,10 @@ namespace Monster
     {
         WhisperOfFear::WhisperOfFear() : Base("Attack1") {}
         WhisperOfFear::~WhisperOfFear() = default;
-        void WhisperOfFear::OnActionEnter() {}
+        void WhisperOfFear::OnActionEnter()
+        {
+            _attackCount = 0;
+        }
         void WhisperOfFear::OnActionUpdate() {}
         void WhisperOfFear::OnActionExit() {}
         void WhisperOfFear::OnActionReset() {}
@@ -19,7 +22,11 @@ namespace Monster
             const std::string& label = context->GetLabel();
             if ("Attack" == label)
             {
-                Attack();
+                if (_attackCount < GetActionContext().AttackCount)
+                {
+                    Attack();
+                    ++_attackCount;
+                }
             }
         }
 
