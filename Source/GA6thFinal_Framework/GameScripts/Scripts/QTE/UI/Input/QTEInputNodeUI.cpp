@@ -2,6 +2,7 @@
 #include "QTEInputNodeUI.h"
 #include "UI/Panels/Overlay/OverlayPanel.h"
 #include "UI/Elements/Image/ImageElement.h"
+#include "UI/Elements/SpriteAnimation/SpriteAnimationElement.h"
 
 namespace QTE
 {
@@ -24,11 +25,18 @@ namespace QTE
             }
             Transform::ForeachBFS(transform, [this](Transform* child) {
                 GameObject& childObject = child->gameObject;
-                for (int i = 0; i < BUTTON_COUNT; ++i)
+                for (int button = 0; button < BUTTON_COUNT; ++button)
                 {
-                    if (childObject.CompareTag(BUTTON_IMAGE_TAG[i]))
+                    if (childObject.CompareTag(BUTTON_IMAGE_TAG[button]))
                     {
-                        ButtonImage[i] = childObject.GetComponent<ImageElement>();
+                        for (int judge = 0; judge < JUDGE_COUNT; ++judge)
+                        {
+                            if (Transform* judgeChild = child->GetChild(judge))
+                            {
+                                ButtonImage[button][judge] =
+                                    judgeChild->gameObject->GetComponent<SpriteAnimationElement>();
+                            }
+                        }
                     }
                 }
             });
@@ -44,54 +52,68 @@ namespace QTE
     }
     void InputNodeUI::Alpha(float alpha)
     {
-        for (int i = 0; i < BUTTON_COUNT; ++i)
+        if (ButtonImage[InputButton][InputJudge])
         {
-            if (ButtonImage[i])
-            {
-                ButtonImage[i]->Alpha = alpha;
-            }
+            ButtonImage[InputButton][InputJudge]->Alpha = std::clamp(alpha, 0.0f, 1.0f);
         }
     }
     void InputNodeUI::Reset()
     {
+        InputButton = X;
+        InputJudge  = MISS;
         for (int i = 0; i < BUTTON_COUNT; ++i)
         {
-            if (ButtonImage[i])
+            for (int j = 0; j < JUDGE_COUNT; ++j)
             {
-                ButtonImage[i]->gameObject->ActiveSelf = false;
+                ButtonImage[i][j]->gameObject->ActiveSelf = false;
             }
         }
         Active(false);
         Alpha(1.0f);
     }
-    void InputNodeUI::Show(Input::Controller::Button button)
+    void InputNodeUI::Show(Input::Controller::Button button, QTE::ResultType result)
     {
         Active(true);
+
+        InputButton    = X;
+        InputJudge  = MISS;
+
         switch (button)
         {
-        case Input::Controller::Button::X: {
-            if (ButtonImage[X])
-            {
-                ButtonImage[X]->gameObject->ActiveSelf = true;
-            }
+        case Input::Controller::Button::X: 
+            InputButton = X;
             break;
-        }
-        case Input::Controller::Button::Y: {
-            if (ButtonImage[Y])
-            {
-                ButtonImage[Y]->gameObject->ActiveSelf = true;
-            }
+        case Input::Controller::Button::Y:
+            InputButton = Y;
             break;
-        }
-        case Input::Controller::Button::B: {
-            if (ButtonImage[B])
-            {
-                ButtonImage[B]->gameObject->ActiveSelf = true;
-            }
+        case Input::Controller::Button::B:
+            InputButton = B;
             break;
-        }
         default:
             break;
+        }
+
+        switch (result)
+        {
+        case QTE::QTE_RESULT_MISS:
+            InputJudge = MISS;
+            break;
+        case QTE::QTE_RESULT_NORMAL:
+            InputJudge = GOOD;
+            break;
+        case QTE::QTE_RESULT_PERFECT:
+            InputJudge = PERFECT;
+            break;
+        default:
+            break;
+        }
+
+        if (ButtonImage[InputButton][InputJudge])
+        {
+            ButtonImage[InputButton][InputJudge]->Alpha                  = 1.0f;
+            ButtonImage[InputButton][InputJudge]->gameObject->ActiveSelf = true;
+            ButtonImage[InputButton][InputJudge]->Setup();
+            ButtonImage[InputButton][InputJudge]->StartAnimation();
         }
     }
     void InputNodeUI::SetParent(Transform* parent) 
