@@ -133,7 +133,11 @@ void ItemDropUIRootManager::UpdateStroy()
         {
             int mainlevel   = stage->MainLevel;
             int subLevel    = stage->SubLevel;
-            int battleCount = stage->BattleCount;
+            int battleCount = 0;
+            if (ItemDropSystem* dropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
+            {
+                battleCount = dropSystem->StageClearCount;
+            }
 
             std::string stageID = "211";
             stageID += std::to_string(mainlevel);
