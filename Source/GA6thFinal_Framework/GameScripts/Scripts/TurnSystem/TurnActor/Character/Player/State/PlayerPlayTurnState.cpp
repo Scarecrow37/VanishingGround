@@ -588,8 +588,8 @@ void PlayerPlayTurnState::SetWeaponModelTransform(WeaponModelData& modelData, QT
                         gameObject->transform->SetWorldPosition(enemyPos + distance);
 
                         gameObject->transform->Scale = enemy->transform->Scale;
-                        gameObject->transform->Rotation = Quaternion::CreateFromRotationMatrix(Matrix::CreateLookAt(
-                                                              enemyPos + distance, playerPos, Vector3::Up)) * rot;
+                        //gameObject->transform->Rotation = Quaternion::CreateFromRotationMatrix(Matrix::CreateLookAt(
+                        //                                      enemyPos + distance, playerPos, Vector3::Up)) * rot;
                     }
                 }
             }

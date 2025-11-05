@@ -200,8 +200,6 @@ void UmCineMotion::ImGuiDrawPropertysEvent()
         {
             BeginShake(_shakeDuration, _shakeIntensity, _shakeFrequency);
         }
-        ImGui::Text("%f / %f /%f", _shakeElapsedTimer, _shakeDuration, _shakeAmount);
-        ImGui::Text("%f / %f /%f", _shakeOffset.x, _shakeOffset.y, _shakeOffset.z);
     }
     {
         ImGui::Checkbox("Easing Panel", &_showEasingFlag);

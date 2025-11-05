@@ -260,13 +260,13 @@ void WeaponModelManager::LoadWeaponInstances(WeaponType type, const File::Guid& 
         }
     }
 
-    if (false == weaponPool.GameObjectPool.empty())
+   /* if (false == weaponPool.GameObjectPool.empty())
     {
         if (auto object = weaponPool.GameObjectPool.front().lock())
         {
             _OriginPivotRotation[type] = object->transform->Rotation;
         }
-    }
+    }*/
 }
 
 void WeaponModelManager::InitializeWeaponPool()
