@@ -306,7 +306,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="GameOverManager.h" />
+    <ClInclude Include="Scripts\GameOverManager\GameOverManager.h" />
     <ClInclude Include="Scripts\QTE\UI\Guide\BattleGuideUI.h" />
     <ClInclude Include="Scripts\Map\StageData.h" />
     <ClInclude Include="Scripts\Monster\Action\BossServant\MonsterBossServantAction.h" />
@@ -675,7 +675,7 @@
     <ClInclude Include="Scripts\BattleIntroUIController\BattleIntroUIController.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="GameOverManager.cpp" />
+    <ClCompile Include="Scripts\GameOverManager\GameOverManager.cpp" />
     <ClCompile Include="Scripts\Monster\Action\BossServant\MonsterBossServantAction.cpp" />
     <ClCompile Include="Scripts\ProclamationHUD\ProclamationHUD.cpp" />
     <ClCompile Include="Scripts\QTE\Controller\QTEController.cpp" />

@@ -6,7 +6,12 @@
 
 UMREAL_COMPONENT(GameOverManager)
 
-void GameOverManager::Start() 
+void GameOverManager::Awake() 
+{
+    _singletoneComponent.TrySingleTon();
+}
+
+void GameOverManager::Start()
 {
     if (auto object = GameObject::FindWithTag("Vanished Panel").lock())
     {
@@ -19,6 +24,7 @@ void GameOverManager::Start()
                 if (child->gameObject->CompareTag("Vanished Animation"))
                 {
                     _vanishedAnimation = child->gameObject->GetComponent<SpriteAnimationElement>();
+                    _vanishedAnimation->gameObject->ActiveSelf = false;
                 }
             }
         }
@@ -31,18 +37,7 @@ void GameOverManager::Update()
     {
         if (false == _vanishedAnimation->IsPlaying)
         {
-            if (auto* sceneTransition = SingletonComponent<SceneTransitionComponent>::GetInstance())
-            {
-                std::weak_ptr<GameObject> weakOwner = gameObject->GetWeakPtr();
-                sceneTransition->SceneTransitionFade("in", "out", [this, weakOwner]() {
-                    GameObject* owner = weakOwner.lock().get();
-                    assert(owner && "콜백으로 등록한 객체가 댕글링 포인터입니다.");
-                    if (owner)
-                    {
-                        UmSceneManager.LoadScene(UmFileSystem.GetPathFromGuid("cd798e18-e5fd-421b-9b23-ef7bcfab15a0").string());
-                    }
-                });
-            }
+            TransitionTitleScene();
         }
     }
 }
@@ -51,15 +46,32 @@ void GameOverManager::ProcessGameOver()
 {
     if (false == _isBeginProcess)
     {
-        if (_vanishedOverlay)
-        {
-            _vanishedOverlay->gameObject->ActiveSelf = true;
-        }
         if (_vanishedAnimation)
         {
+            _vanishedAnimation->gameObject->ActiveSelf = true;
             _vanishedAnimation->Setup();
             _vanishedAnimation->StartAnimation();
+            _isBeginProcess = true;
         }
-        _isBeginProcess = true;
+        else
+        {
+            TransitionTitleScene();
+        }
+    }
+}
+
+void GameOverManager::TransitionTitleScene()
+{
+    if (auto* sceneTransition = SingletonComponent<SceneTransitionComponent>::GetInstance())
+    {
+        std::weak_ptr<GameObject> weakOwner = gameObject->GetWeakPtr();
+        sceneTransition->SceneTransitionFade("in", "out", [this, weakOwner]() {
+            GameObject* owner = weakOwner.lock().get();
+            assert(owner && "콜백으로 등록한 객체가 댕글링 포인터입니다.");
+            if (owner)
+            {
+                UmSceneManager.LoadScene(UmFileSystem.GetPathFromGuid("cd798e18-e5fd-421b-9b23-ef7bcfab15a0").string());
+            }
+        });
     }
 }
