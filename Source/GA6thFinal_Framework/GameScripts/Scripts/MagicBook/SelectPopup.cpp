@@ -12,6 +12,7 @@
 #include "RevelationSystem/RevelationSystem.h"
 #include "WeaponSystem/WeaponSystem.h"
 #include "WeaponSystem/WeaponTable/WeaponTableComponent.h"
+#include "AccessorySystem/AccessorySystem.h"
 
 UMREAL_COMPONENT(SelectPopup)
 
@@ -65,6 +66,11 @@ void SelectPopup::SetSelectMagicBook(const File::Guid& imgaeGuid, const std::str
             {
                 if (_lastSelectMagicBook)
                 {
+                    if (AccessorySystem* system = SingletonComponent<AccessorySystem>::GetInstance())
+                    {
+                        system->ClearPlayerAccessoryItems();
+                    }
+
                     using namespace u8_literals;
                     const std::string& bookName = _lastSelectMagicBook->GetBookID();                  
                     if (bookName == u8"803005"_c_str) // 피투성이 기사 선택시
