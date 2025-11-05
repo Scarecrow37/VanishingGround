@@ -380,6 +380,7 @@ void Enemy::OnCombatStart()
     {
         if (auto HUD = combatUIManager->CharacterHUDGroup.EnemyActionPanel[static_cast<int>(_spawnPoint)])
         {
+            HUD->gameObject->ActiveSelf = true;
             if (auto proclamationHUD = HUD->GetComponent<ProclamationHUD>())
             {
                 _proclamationHUD = proclamationHUD;
