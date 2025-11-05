@@ -54,6 +54,8 @@ public:
     void Hide();
     void Hide(Group group);
 
+    TooltipComponent::TooltipData GetTooltip(int id) const;
+
 protected:
     void Awake() override;
     void Start() override;

@@ -73,6 +73,11 @@ void TooltipSystem::Hide(const Group group)
     }
 }
 
+TooltipComponent::TooltipData TooltipSystem::GetTooltip(const int id) const
+{
+    return _tooltips.at(id);
+}
+
 void TooltipSystem::Awake()
 {
     Component::Awake();
