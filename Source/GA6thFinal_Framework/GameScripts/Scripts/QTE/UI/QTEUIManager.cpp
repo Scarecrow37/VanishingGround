@@ -22,6 +22,7 @@ void QTEUIManager::OnQTEEnter()
 {
     _fieldUI.Active(true);
     _guideUI.Active(true);
+    _guideUI.Alpha(0.0f);
     _inputViewerUI.Active(true);
     _fieldUI.OnQTEEnter();
     _mainFader.SetFadeMode(Fader::FADE_IN);
