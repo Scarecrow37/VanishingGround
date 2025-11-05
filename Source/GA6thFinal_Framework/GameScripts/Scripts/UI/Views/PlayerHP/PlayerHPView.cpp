@@ -52,21 +52,21 @@ void PlayerHPImageView::Start()
     try
     {
         Transform::ForeachBFS(transform, [this](Transform* tr) {
-            if (GameObject& obj = tr->gameObject; obj.CompareTag("HP Bar"))
+            if (GameObject& object = tr->gameObject; object.CompareTag("HP Bar"))
             {
-                if (ImageElement* element = obj.GetComponent<ImageElement>(); nullptr != element)
+                if (ImageElement* element = object.GetComponent<ImageElement>(); nullptr != element)
                 {
                     _hpImageElement = element;
                 }
             }
-            if (GameObject& obj = tr->gameObject; obj.CompareTag("Reduce HP Bar"))
+            if (GameObject& object = tr->gameObject; object.CompareTag("Reduce HP Bar"))
             {
-                if (ImageElement* element = obj.GetComponent<ImageElement>(); nullptr != element)
+                if (ImageElement* element = object.GetComponent<ImageElement>(); nullptr != element)
                 {
                     _reduceHpImageElement = element;
                 }
 
-                _reduceGage = obj.GetComponent<ReduceGage>();
+                _reduceGage = object.GetComponent<ReduceGage>();
             }
         });        
 
