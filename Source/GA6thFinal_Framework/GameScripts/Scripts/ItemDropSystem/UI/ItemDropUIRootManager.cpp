@@ -96,6 +96,15 @@ void ItemDropUIRootManager::AutoFocus(bool checkInputDir)
                     }
                     --i;
                 }
+
+                for (size_t i = startIndex; i < ARTIFACT_DROP_COUNT; ++i)
+                {
+                    if (artifactUI->FocusNavi(i))
+                    {
+                        _isFocusArtifactNavi = true;
+                        return;
+                    }
+                }
             }
         }
     }
