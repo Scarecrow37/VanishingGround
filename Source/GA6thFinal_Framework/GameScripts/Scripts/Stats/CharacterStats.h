@@ -73,9 +73,6 @@ struct CharacterStats : public TurnActorStats
     PROPERTY(StunResistanceMultiplier)
     // 기절 저항 수치 획득 배율
 
-public:
-    void ApplyReduce();
-
 protected:
     REFLECT_FIELDS_BEGIN(TurnActorStats)
     int   MaxHP                    = 100;

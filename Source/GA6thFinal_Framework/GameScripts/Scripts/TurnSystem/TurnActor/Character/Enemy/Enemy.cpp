@@ -379,18 +379,13 @@ void Enemy::OnCombatStart()
 
     if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
     {
-        if (auto HUD = combatUIManager->CharacterHUDGroup.EnemyHUDPanel[static_cast<int>(_spawnPoint)])
+        if (auto HUD = combatUIManager->CharacterHUDGroup.EnemyActionPanel[static_cast<int>(_spawnPoint)])
         {
-            Transform::ForeachBFS(HUD->transform, [this](Transform* tr) {
-                GameObject& object = tr->gameObject;
-                if (object.CompareTag("Proclamation HUD"))
-                {
-                    if (auto proclamationHUD = object.GetComponent<ProclamationHUD>())
-                    {
-                        _proclamationHUD = proclamationHUD;
-                    }
-                }
-            });
+            HUD->gameObject->ActiveSelf = true;
+            if (auto proclamationHUD = HUD->GetComponent<ProclamationHUD>())
+            {
+                _proclamationHUD = proclamationHUD;
+            }
         }
     }    
 }

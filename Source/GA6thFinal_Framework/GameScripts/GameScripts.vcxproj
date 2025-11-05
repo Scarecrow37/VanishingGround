@@ -306,6 +306,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\GameOverManager\GameOverManager.h" />
+    <ClInclude Include="Scripts\QTE\UI\Guide\BattleGuideUI.h" />
     <ClInclude Include="Scripts\Map\StageData.h" />
     <ClInclude Include="Scripts\Monster\Action\BossServant\MonsterBossServantAction.h" />
     <ClInclude Include="Scripts\ProclamationHUD\ProclamationHUD.h" />
@@ -498,6 +500,7 @@
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\ApplyDamage\ApplyDamage.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\ChainNotAdditionAction\ChainNotAdditionAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\ChangeQTEButton\ChangeQTEButton.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyBossDeadClearAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyCombatStartTokenRandomApplyAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyTurnEndTokenRandomApplyAction.h" />
     <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\EquipAccessoryCharacterStats\EquipAccessoryCharacterStats.h" />
@@ -603,9 +606,11 @@
     <ClInclude Include="Scripts\UI\Animations\ReduceGage\ReduceGage.h" />
     <ClInclude Include="Scripts\UI\Animations\UIAnimation.h" />
     <ClInclude Include="Scripts\UI\Base\DrawUIComponent\DrawUIComponent.h" />
+    <ClInclude Include="Scripts\UI\Base\IFontAppearance\IFontAppearance.h" />
     <ClInclude Include="Scripts\UI\Base\IOpacity\IOpacity.h" />
     <ClInclude Include="Scripts\UI\Base\SlotComponent\SlotComponent.h" />
     <ClInclude Include="Scripts\UI\Contents\DamageElement.h" />
+    <ClInclude Include="Scripts\UI\Contents\GlobalFontManager.h" />
     <ClInclude Include="Scripts\UI\Contents\SpawnDamagePanel.h" />
     <ClInclude Include="Scripts\UI\Contents\TooltipColumnComponent.h" />
     <ClInclude Include="Scripts\UI\Contents\TooltipComponent.h" />
@@ -673,6 +678,7 @@
     <ClInclude Include="Scripts\BattleIntroUIController\BattleIntroUIController.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\GameOverManager\GameOverManager.cpp" />
     <ClCompile Include="Scripts\Monster\Action\BossServant\MonsterBossServantAction.cpp" />
     <ClCompile Include="Scripts\ProclamationHUD\ProclamationHUD.cpp" />
     <ClCompile Include="Scripts\QTE\Controller\QTEController.cpp" />
@@ -680,6 +686,7 @@
     <ClCompile Include="Scripts\MagicBook\SelectMagicBook.cpp" />
     <ClCompile Include="Scripts\MagicBook\SelectPopup.cpp" />
     <ClCompile Include="Scripts\QTE\UI\Field\QTEJudgeEffectUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\Guide\BattleGuideUI.cpp" />
     <ClCompile Include="Scripts\QTE\UI\Input\QTEInputNodeUI.cpp" />
     <ClCompile Include="Scripts\QTE\UI\Input\QTEInputViewerUI.cpp" />
     <ClCompile Include="Scripts\QTE\UI\Guide\QTEGuideUI.cpp" />
@@ -862,6 +869,7 @@
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\ApplyDamage\ApplyDamage.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\ChainNotAdditionAction\ChainNotAdditionAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\ChangeQTEButton\ChangeQTEButton.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyBossDeadClearAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyCombatStartTokenRandomApplyAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyTurnEndTokenRandomApplyAction.cpp" />
     <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\EquipAccessoryCharacterStats\EquipAccessoryCharacterStats.cpp" />
@@ -968,6 +976,7 @@
     <ClCompile Include="Scripts\UI\Base\UINavigationComponent\UINavigationComponent.cpp" />
     <ClCompile Include="Scripts\UI\Base\UIRoot\UIRoot.cpp" />
     <ClCompile Include="Scripts\UI\Contents\DamageElement.cpp" />
+    <ClCompile Include="Scripts\UI\Contents\GlobalFontManager.cpp" />
     <ClCompile Include="Scripts\UI\Contents\SpawnDamagePanel.cpp">
       <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</IncludeInUnityFile>
       <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">false</IncludeInUnityFile>

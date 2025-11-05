@@ -324,17 +324,21 @@ void CombatStartPhase::RegisterEnemiesHUD()
 {
     auto SetHUDObject = [&](Monster::SpawnPoint point, const std::string& tag) 
     {
-        if (Enemy* enemy = GetEnemyFromSpawnPoint(point))
+        const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(tag);
+        if (auto object = weakGameObject.lock())
         {
-            const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(tag);
-            if (auto object = weakGameObject.lock())
+            if (Enemy* enemy = GetEnemyFromSpawnPoint(point))
             {
+                object->ActiveSelf = true;
                 enemy->SetMonsterHUD(object.get());
+                if (EnemyStatsComponent* statsComponent = enemy->GetComponent<EnemyStatsComponent>())
+                {
+                    statsComponent->RegisterHUD(HUD_KEY_ARRAY[static_cast<size_t>(point)].data());
+                }
             }
-
-            if (EnemyStatsComponent* statsComponent = enemy->GetComponent<EnemyStatsComponent>())
+            else
             {
-                statsComponent->RegisterHUD(HUD_KEY_ARRAY[static_cast<size_t>(point)].data());
+                object->ActiveSelf = false;
             }
         }
     };
@@ -378,16 +382,6 @@ void CombatStartPhase::RegisterEnemyHP(const int point, const std::string& key, 
                 else
                 {
                     UmLogger.Log(LogLevel::LEVEL_ERROR, "MonsterHpImageView with tag '" + tag + "' not found.");
-                }
-
-                std::string reduceKey = key + "_reduce";
-                if (MonsterHpReduceImageView* monsterHpView = sharedGameObject->GetComponent<MonsterHpReduceImageView>())
-                {
-                    monsterHpView->Watch(key);
-                }
-                else
-                {
-                    UmLogger.Log(LogLevel::LEVEL_ERROR, "MonsterHpReduceImageView with tag '" + tag + "' not found.");
                 }
             }
             else

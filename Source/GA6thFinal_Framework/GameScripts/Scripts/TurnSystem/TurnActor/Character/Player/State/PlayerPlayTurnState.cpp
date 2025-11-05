@@ -35,7 +35,7 @@ PlayerPlayTurnState::PlayerPlayTurnState()
 {
     _inputState               = InputState::NONE;
     _attackButtonHeldTime     = 0.f;
-    _attackButtonHeldWaitTime = 0.5f;
+    _attackButtonHeldWaitTime = 1.0f;
     _isDownAButton            = false;
     _isDownAKey               = false;
     _qteCallbackHandle        = 0;
@@ -161,8 +161,6 @@ void PlayerPlayTurnState::PressedButtonA(const Input::Controller& controller)
         {
             if (CombatUIManager* uiManager = SingletonComponent<CombatUIManager>::GetInstance())
                 uiManager->FadeOut(_attackButtonHeldWaitTime);
-
-            // TODO: a홀드 사운드 넣으니까 매우 이상함. 논의 필요.
             UmAudio.Stop(_hHoldAButtonSound);
             _hHoldAButtonSound = UmAudio.Play("-901007");
         }
@@ -268,7 +266,7 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
     const float t    = _attackButtonHeldTime / _attackButtonHeldWaitTime;
     if (QTEUIManager* qteUIManager = SingletonComponent<QTEUIManager>::GetInstance())
     {
-        qteUIManager->SetUIAlpha(t);
+        qteUIManager->SetQTEProgress(t);
         UmAudio.SetVolume(_hHoldAButtonSound, t);
     }
 }
@@ -584,6 +582,8 @@ void PlayerPlayTurnState::SetWeaponModelTransform(WeaponModelData& modelData, QT
                         const Vector3 offset    = weaponModelManager->GetWeaponOffset(modelData.Type);
                         const Vector3 distance  = offset + (dir * 2.0f);
                         gameObject->transform->SetWorldPosition(enemyPos + distance);
+
+                        gameObject->transform->Scale = enemy->transform->Scale;
                     }
                 }
             }
