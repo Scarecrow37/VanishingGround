@@ -12,9 +12,7 @@
 UMREAL_COMPONENT(IntroManager)
 
 IntroManager::IntroManager()
-    : _step(Step::WAIT_INTRO_DESCRIPTION), _isLevelSelected(false), _isSelectHard(false), _introDescription(nullptr),
-      _normalLevelText(nullptr),
-      _hardLevelText(nullptr), _promptText(nullptr), _normalSelection(nullptr), _hardSelection(nullptr)
+    : _step(Step::WAIT_INTRO_DESCRIPTION), _isLevelSelected(false), _isSelectHard(false)
 {
     NextScene.SetInputAutoEvent([this]() {
         if (ImGui::BeginDragDropTarget())
@@ -39,105 +37,11 @@ void IntroManager::Awake()
     BindInputAction(ControllerButton::A, Action::PRESSED, this, &IntroManager::SkipStep);
     BindInputAction(ControllerButton::DPAD_UP, Action::PRESSED, this, &IntroManager::SelectNormal);
     BindInputAction(ControllerButton::DPAD_DOWN, Action::PRESSED, this, &IntroManager::SelectHard);
-}
 
-void IntroManager::Start()
-{
-    Component::Start();
-
-    std::unique_ptr<ExcelDataBase> data = nullptr;
-
-    if (const GameObject* excelDataSystem = SingletonObject<ExcelDataSystem>::GetInstance())
-    {
-        if (ExcelDataSystem* excelDataSystemComponent = excelDataSystem->GetComponent<ExcelDataSystem>())
-        {
-            const std::u8string sheetName(u8"텍스트");
-            if (std::unique_ptr<ExcelDataBase> dataBase = excelDataSystemComponent->FindExcelDataBase(sheetName); nullptr != dataBase)
-            {
-                data = std::move(dataBase);
-            }
-        }
-        else
-        {
-            UmLogger.Log(LogLevel::LEVEL_WARNING, "Load Text Fail.");
-        }
-    }
-
-
-    _introDescription = GetElement<FadeDescriptionPanel>("Intro Description");
-    if (nullptr != _introDescription)
-    {
-        _introDescription->FadeDuration = ReflectFields->FadeDuration;
-        if (data)
-        {
-            if (const size_t rowIndex = data->FindRowIndex(BOOK_SELECT_INTRO_DESC_ID, COLUMN_KEY_ID);
-                rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
-            {
-                const std::string_view description = data->FindData(rowIndex, COLUMN_KEY_CONTENT);
-                if (description != ExcelDataBase::FIND_STR_FAIL)
-                {
-                    _introDescription->Description = description.data();
-                }
-            }
-        }
-    }
-
-    _normalLevelText = GetElement<FadeTextElement>("Normal Level Text");
-    if (nullptr != _normalLevelText)
-    {
-        _normalLevelText->FadeDuration = ReflectFields->FadeDuration;
-        if (data)
-        {
-            if (const size_t rowIndex = data->FindRowIndex(BOOK_SELECT_INTRO_NORMAL_ID, COLUMN_KEY_ID);
-                rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
-            {
-                const std::string_view normalText = data->FindData(rowIndex, COLUMN_KEY_CONTENT);
-                if (normalText != ExcelDataBase::FIND_STR_FAIL)
-                {
-                    _normalLevelText->Text = normalText.data();
-                }
-            }
-        }
-    }
-
-    _hardLevelText   = GetElement<FadeTextElement>("Hard Level Text");
-    if (nullptr != _hardLevelText)
-    {
-        _hardLevelText->FadeDuration = ReflectFields->FadeDuration;
-        if (data)
-        {
-            if (const size_t rowIndex = data->FindRowIndex(BOOK_SELECT_INTRO_HARD_ID, COLUMN_KEY_ID);
-                rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
-            {
-                const std::string_view hardText = data->FindData(rowIndex, COLUMN_KEY_CONTENT);
-                if (hardText != ExcelDataBase::FIND_STR_FAIL)
-                {
-                    _hardLevelText->Text = hardText.data();
-                }
-            }
-        }
-    }
-
-    _promptText      = GetElement<FadeTextElement>("Intro Prompt");
-    if (nullptr != _promptText)
-    {
-        _promptText->FadeDuration = ReflectFields->FadeDuration;
-        if (data)
-        {
-            if (const size_t rowIndex = data->FindRowIndex(BOOK_SELECT_INTRO_BOOK_NAME_PROMPT_ID, COLUMN_KEY_ID);
-                rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
-            {
-                const std::string_view promptText = data->FindData(rowIndex, COLUMN_KEY_CONTENT);
-                if (promptText != ExcelDataBase::FIND_STR_FAIL)
-                {
-                    _promptText->Text = promptText.data();
-                }
-            }
-        }
-    }
-
-    _normalSelection = GetElement<FadeImageElement>("Normal Level Selection");
-    _hardSelection   = GetElement<FadeImageElement>("Hard Level Selection");
+    const std::unique_ptr<ExcelDataBase> data = SetupData();
+    FindComponents();
+    SetupComponent(data);
+    ResetFade();
 }
 
 void IntroManager::Update()
@@ -152,9 +56,9 @@ void IntroManager::Update()
     case Step::WAIT_INTRO_DESCRIPTION:
         if (_elapsedTime >= GetWaitDescriptionTime())
         {
-            if (nullptr != _introDescription)
+            if (const auto sharedIntroDescription = _introDescription.lock())
             {
-                _introDescription->FadeIn();
+                sharedIntroDescription->FadeIn();
             }
             _step = Step::FADE_IN_INTRO_DESCRIPTION;
         }
@@ -168,13 +72,13 @@ void IntroManager::Update()
     case Step::WAIT_LEVEL_SELECTION:
         if (_elapsedTime >= GetWaitLevelSelectionTime())
         {
-            if (nullptr != _normalLevelText)
+            if (const auto sharedNormalLevelText = _normalLevelText.lock())
             {
-                _normalLevelText->FadeIn();
+                sharedNormalLevelText->FadeIn();
             }
-            if (nullptr != _hardLevelText)
+            if (const auto sharedHardLevelText = _hardLevelText.lock())
             {
-                _hardLevelText->FadeIn();
+                sharedHardLevelText->FadeIn();
             }
             _step = Step::FADE_IN_LEVEL_SELECTION;
         }
@@ -189,9 +93,9 @@ void IntroManager::Update()
     case Step::WAIT_PROMPT:
         if (_elapsedTime >= GetWaitPromptTime())
         {
-            if (nullptr != _promptText)
+            if (const auto sharedPromptText = _promptText.lock())
             {
-                _promptText->FadeIn();
+                sharedPromptText->FadeIn();
             }
             _step = Step::FADE_IN_PROMPT;
         }
@@ -212,20 +116,6 @@ void IntroManager::Update()
         LoadNextScene();
         break;
     }
-}
-
-void IntroManager::Reset()
-{
-    Component::Reset();
-
-    _step             = Step::WAIT_INTRO_DESCRIPTION;
-    _introDescription = nullptr;
-    _normalLevelText  = nullptr;
-    _hardLevelText    = nullptr;
-    _promptText       = nullptr;
-    _elapsedTime      = 0.0f;
-    _isLevelSelected  = false;
-    _isSelectHard     = false;
 }
 
 float IntroManager::GetWaitDescriptionTime() const
@@ -276,49 +166,175 @@ void IntroManager::LoadNextScene() const
     }
 }
 
+void IntroManager::FindComponents()
+{
+    _introDescription = GameObject::FindComponentWithTag<FadeDescriptionPanel>(TAG_INTRO_DESCRIPTION.data());
+    _normalLevelText  = GameObject::FindComponentWithTag<FadeTextElement>(TAG_NORMAL_LEVEL_TEXT.data());
+    _hardLevelText    = GameObject::FindComponentWithTag<FadeTextElement>(TAG_HARD_LEVEL_TEXT.data());
+    _promptText       = GameObject::FindComponentWithTag<FadeTextElement>(TAG_PROMPT_TEXT.data());
+    _normalSelection  = GameObject::FindComponentWithTag<FadeImageElement>(TAG_NORMAL_LEVEL_SELECTION.data());
+    _hardSelection    = GameObject::FindComponentWithTag<FadeImageElement>(TAG_HARD_LEVEL_SELECTION.data());
+}
+
+std::unique_ptr<ExcelDataBase> IntroManager::SetupData()
+{
+    if (ExcelDataSystem* excelDataSystemComponent = SingletonComponent<ExcelDataSystem>::GetInstance())
+    {
+        if (std::unique_ptr<ExcelDataBase> dataBase = excelDataSystemComponent->FindExcelDataBase(SHEET_NAME.data()))
+        {
+            return std::move(dataBase);
+        }
+    }
+    else
+    {
+        UmLogger.Log(LogLevel::LEVEL_WARNING, "Load Text Fail.");
+    }
+
+    return nullptr;
+}
+
+void IntroManager::SetupComponent(const std::unique_ptr<ExcelDataBase>& data)
+{
+    if (data == nullptr)
+        return;
+
+    if (const auto sharedIntroDescription = _introDescription.lock())
+    {
+        sharedIntroDescription->FadeDuration = ReflectFields->FadeDuration;
+
+        if (const size_t rowIndex = data->FindRowIndex(BOOK_SELECT_INTRO_DESC_ID, COLUMN_KEY_ID);
+            rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
+        {
+            const std::string_view description = data->FindData(rowIndex, COLUMN_KEY_CONTENT);
+            if (description != ExcelDataBase::FIND_STR_FAIL)
+            {
+                sharedIntroDescription->Description = description.data();
+            }
+        }
+    }
+
+    if (const auto sharedNormalLevelText = _normalLevelText.lock())
+    {
+        sharedNormalLevelText->FadeDuration = ReflectFields->FadeDuration;
+
+        if (const size_t rowIndex = data->FindRowIndex(BOOK_SELECT_INTRO_NORMAL_ID, COLUMN_KEY_ID);
+            rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
+        {
+            const std::string_view normalText = data->FindData(rowIndex, COLUMN_KEY_CONTENT);
+            if (normalText != ExcelDataBase::FIND_STR_FAIL)
+            {
+                sharedNormalLevelText->Text = normalText.data();
+            }
+        }
+    }
+
+    if (const auto sharedHardLevelText = _hardLevelText.lock())
+    {
+        sharedHardLevelText->FadeDuration = ReflectFields->FadeDuration;
+
+        if (const size_t rowIndex = data->FindRowIndex(BOOK_SELECT_INTRO_HARD_ID, COLUMN_KEY_ID);
+            rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
+        {
+            const std::string_view hardText = data->FindData(rowIndex, COLUMN_KEY_CONTENT);
+            if (hardText != ExcelDataBase::FIND_STR_FAIL)
+            {
+                sharedHardLevelText->Text = hardText.data();
+            }
+        }
+    }
+
+    if (const auto sharedPromptText = _promptText.lock())
+    {
+        sharedPromptText->FadeDuration = ReflectFields->FadeDuration;
+        if (const size_t rowIndex = data->FindRowIndex(BOOK_SELECT_INTRO_BOOK_NAME_PROMPT_ID, COLUMN_KEY_ID);
+            rowIndex != ExcelDataBase::FIND_INDEX_FAIL)
+        {
+            const std::string_view promptText = data->FindData(rowIndex, COLUMN_KEY_CONTENT);
+            if (promptText != ExcelDataBase::FIND_STR_FAIL)
+            {
+                sharedPromptText->Text = promptText.data();
+            }
+        }
+    }
+}
+
+void IntroManager::ResetFade()
+{
+    if (const auto introDescription = _introDescription.lock())
+    {
+        introDescription->Begin();
+    }
+    if (const auto normalLevelText = _normalLevelText.lock())
+    {
+        normalLevelText->Begin();
+    }
+    if (const auto hardLevelText = _hardLevelText.lock())
+    {
+        hardLevelText->Begin();
+    }
+    if (const auto promptText = _promptText.lock())
+    {
+        promptText->Begin();
+    }
+    if (const auto normalSelection = _normalSelection.lock())
+    {
+        normalSelection->Begin();
+    }
+    if (const auto hardSelection = _hardSelection.lock())
+    {
+        hardSelection->Begin();
+    }
+
+    _step            = Step::WAIT_INTRO_DESCRIPTION;
+    _elapsedTime     = 0.0f;
+    _isLevelSelected = false;
+    _isSelectHard    = false;
+}
+
 void IntroManager::SkipStep(const Input::Controller& controller)
 {
     switch (_step)
     {
     case Step::WAIT_INTRO_DESCRIPTION:
         _elapsedTime = GetWaitDescriptionTime();
-        if (nullptr != _introDescription)
+        if (const auto sharedIntroDescription = _introDescription.lock())
         {
-            _introDescription->FadeIn();
+            sharedIntroDescription->FadeIn();
         }
         _step = Step::FADE_IN_INTRO_DESCRIPTION;
         break;
     case Step::FADE_IN_INTRO_DESCRIPTION:
         _elapsedTime = GetFadeDescriptionTime();
-        if (nullptr != _introDescription)
+        if (const auto sharedIntroDescription = _introDescription.lock())
         {
-            _introDescription->End();
+            sharedIntroDescription->End();
         }
         _step = Step::WAIT_LEVEL_SELECTION;
         break;
     case Step::WAIT_LEVEL_SELECTION:
         _elapsedTime = GetWaitLevelSelectionTime();
-        if (nullptr != _normalLevelText)
+        if (const auto sharedNormalLevelText = _normalLevelText.lock())
         {
-            _normalLevelText->FadeIn();
+            sharedNormalLevelText->FadeIn();
         }
-        if (nullptr != _hardLevelText)
+        if (const auto sharedHardLevelText = _hardLevelText.lock())
         {
-            _hardLevelText->FadeIn();
+            sharedHardLevelText->FadeIn();
         }
         _step = Step::FADE_IN_LEVEL_SELECTION;
         break;
     case Step::FADE_IN_LEVEL_SELECTION:
         _elapsedTime = GetFadeLevelSelectionTime();
-        if (nullptr != _normalLevelText)
+        if (const auto sharedNormalLevelText = _normalLevelText.lock())
         {
-            _normalLevelText->End();
+            sharedNormalLevelText->End();
         }
-        if (nullptr != _hardLevelText)
+        if (const auto sharedHardLevelText = _hardLevelText.lock())
         {
-            _hardLevelText->End();
+            sharedHardLevelText->End();
         }
         _step = Step::WAIT_PROMPT;
+        SelectNormal();
         break;
     case Step::WAIT_PROMPT:
         _isLevelSelected = true;
@@ -340,10 +356,14 @@ void IntroManager::SelectNormal()
 {
     if (_step == Step::WAIT_PROMPT)
     {
-        if (_hardSelection)
-            _hardSelection->FadeOut();
-        if (_normalSelection)
-            _normalSelection->FadeIn();
+        if (const auto sharedHardSelection = _hardSelection.lock())
+        {
+            sharedHardSelection->FadeOut();
+        }
+        if (const auto sharedNormalSelection = _normalSelection.lock())
+        {
+            sharedNormalSelection->FadeIn();
+        }
         _isSelectHard = false;
     }
 }
@@ -352,10 +372,14 @@ void IntroManager::SelectHard(const Input::Controller& controller)
 {
     if (_step == Step::WAIT_PROMPT)
     {
-        if (_normalSelection)
-            _normalSelection->FadeOut();
-        if (_hardSelection)
-            _hardSelection->FadeIn();
+        if (const auto sharedNormalSelection = _normalSelection.lock())
+        {
+            sharedNormalSelection->FadeOut();
+        }
+        if (const auto sharedHardSelection = _hardSelection.lock())
+        {
+            sharedHardSelection->FadeIn();
+        }
         _isSelectHard = true;
     }
 }
