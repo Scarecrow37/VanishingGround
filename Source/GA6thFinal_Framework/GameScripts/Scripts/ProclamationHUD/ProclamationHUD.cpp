@@ -17,7 +17,7 @@ void ProclamationHUD::SetDescriptionText(int assetID, int damage, int count)
 
         const int colorIndex = assetID - COLOR_INDEX_OFFSET;
 
-        if (damage > 0)
+        if (damage > 0 && count > 0)
         {
             _descriptionText =
                 std::format(R"(<Description><Image asset="{}"/><Text color="{}">{}x{}</Text></Description>)", assetID,
