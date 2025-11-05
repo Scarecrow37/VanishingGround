@@ -1,9 +1,12 @@
 ﻿#pragma once
 #include <CombatUIManager/UIGroup.h>
+
 class OverlayPanel;
 class ImageElement;
 class FadeUIComponent;
 class SpawnDamagePanel;
+class Player;
+class Enemy;
 
 namespace CombatUI
 {
