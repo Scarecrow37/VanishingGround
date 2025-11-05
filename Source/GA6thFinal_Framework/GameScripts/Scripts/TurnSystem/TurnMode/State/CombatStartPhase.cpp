@@ -383,16 +383,6 @@ void CombatStartPhase::RegisterEnemyHP(const int point, const std::string& key, 
                 {
                     UmLogger.Log(LogLevel::LEVEL_ERROR, "MonsterHpImageView with tag '" + tag + "' not found.");
                 }
-
-                std::string reduceKey = key + "_reduce";
-                if (MonsterHpReduceImageView* monsterHpView = sharedGameObject->GetComponent<MonsterHpReduceImageView>())
-                {
-                    monsterHpView->Watch(key);
-                }
-                else
-                {
-                    UmLogger.Log(LogLevel::LEVEL_ERROR, "MonsterHpReduceImageView with tag '" + tag + "' not found.");
-                }
             }
             else
             {
