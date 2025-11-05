@@ -603,9 +603,11 @@
     <ClInclude Include="Scripts\UI\Animations\ReduceGage\ReduceGage.h" />
     <ClInclude Include="Scripts\UI\Animations\UIAnimation.h" />
     <ClInclude Include="Scripts\UI\Base\DrawUIComponent\DrawUIComponent.h" />
+    <ClInclude Include="Scripts\UI\Base\IFontAppearance\IFontAppearance.h" />
     <ClInclude Include="Scripts\UI\Base\IOpacity\IOpacity.h" />
     <ClInclude Include="Scripts\UI\Base\SlotComponent\SlotComponent.h" />
     <ClInclude Include="Scripts\UI\Contents\DamageElement.h" />
+    <ClInclude Include="Scripts\UI\Contents\GlobalFontManager.h" />
     <ClInclude Include="Scripts\UI\Contents\SpawnDamagePanel.h" />
     <ClInclude Include="Scripts\UI\Contents\TooltipColumnComponent.h" />
     <ClInclude Include="Scripts\UI\Contents\TooltipComponent.h" />
@@ -968,6 +970,7 @@
     <ClCompile Include="Scripts\UI\Base\UINavigationComponent\UINavigationComponent.cpp" />
     <ClCompile Include="Scripts\UI\Base\UIRoot\UIRoot.cpp" />
     <ClCompile Include="Scripts\UI\Contents\DamageElement.cpp" />
+    <ClCompile Include="Scripts\UI\Contents\GlobalFontManager.cpp" />
     <ClCompile Include="Scripts\UI\Contents\SpawnDamagePanel.cpp">
       <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</IncludeInUnityFile>
       <IncludeInUnityFile Condition="'$(Configuration)|$(Platform)'=='DebugEditor|x64'">false</IncludeInUnityFile>
