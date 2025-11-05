@@ -130,12 +130,6 @@ void Player::TakeDamage(int damage, const bool playAnim)
         }
     }
 
-    // 플레이어 셰이크는 15
-    if (UmCineMotion* motion = turnMode->GetBattleCamera())
-    {
-        motion->BeginFeedBackShake(15);
-    }
-
     Base::TakeDamage(takeDamage, playAnim);
     ShowDamage(damage, {});
     if (turnMode)
