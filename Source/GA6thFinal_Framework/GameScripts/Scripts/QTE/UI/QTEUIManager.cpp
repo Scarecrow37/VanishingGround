@@ -4,6 +4,7 @@
 #include <QTE/Track/QTETrack.h>
 #include <UI/Panels/Overlay/OverlayPanel.h>
 #include <UI/Elements/Image/ImageElement.h>
+#include <UI/Elements/HoldingProgressImage/HoldingProgressImageElement.h>
 #include <Camera/CameraComponent.h>
 #include <TurnSystem/TurnMode/TurnMode.h>
 #include <TurnSystem/TurnActor/Character/Enemy/Enemy.h>
@@ -137,6 +138,15 @@ void QTEUIManager::OnQTEExit()
     _mainFader.SetFadeMode(Fader::FADE_OUT);
 }
 
+void QTEUIManager::SetQTEProgress(float t) 
+{
+    SetUIAlpha(t);
+    if (_battleGuideUI.Progress)
+    {
+        _battleGuideUI.Progress->SetElapsedTime(t);
+    }
+}
+
 bool QTEUIManager::DragDropEvent(File::Guid& out)
 {
     bool result = false;
@@ -203,6 +213,9 @@ void QTEUIManager::Start()
         {
             system->ProcessQTEFadeInEndEvent();
             _mainFader.SetFadeMode(Fader::FADE_NONE);
+
+            SetUIAlpha(1.0f);
+            _battleGuideUI.Alpha(0.0f);
         }
     });
     _mainFader.SetOnFadeOutEndCallback([this]() {
@@ -215,6 +228,9 @@ void QTEUIManager::Start()
             _fieldUI.Active(false);
             _guideUI.Active(false);
             _inputViewerUI.Active(false);
+
+            SetUIAlpha(0.0f);
+            _battleGuideUI.Alpha(1.0f);
         }
     });
     FindUIComponents();
@@ -234,10 +250,12 @@ void QTEUIManager::Update()
         break;
     case Fader::FADE_IN: {
         _guideUI.Alpha(factor);
+        _battleGuideUI.Alpha(1.0f - factor);
         break;
     }
     case Fader::FADE_OUT: {
         SetUIAlpha(factor);
+        _battleGuideUI.Alpha(1.0f - factor);
         break;
     }
     default:
@@ -344,6 +362,7 @@ void QTEUIManager::SetDefaultState()
     _fieldUI.Active(false);
     _guideUI.Active(false);
     _inputViewerUI.Active(false);
+    _battleGuideUI.Active(true);
 }
 
 void QTEUIManager::FindUIComponents()
@@ -356,6 +375,7 @@ void QTEUIManager::FindUIComponents()
             _inputViewerUI.MatchUIFromObject(curr->gameObject);
             _fieldUI.MatchUIFromObject(curr->gameObject);
             _guideUI.MatchUIFromObject(curr->gameObject);
+            _battleGuideUI.MatchUIFromObject(curr->gameObject);
         }
     });
 }
