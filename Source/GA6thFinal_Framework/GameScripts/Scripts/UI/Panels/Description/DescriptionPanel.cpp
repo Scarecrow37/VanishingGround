@@ -115,7 +115,7 @@ struct ParseData
     }
 };
 
-DescriptionPanel::DescriptionPanel()
+DescriptionPanel::DescriptionPanel() : _fontWeight(0.5f)
 {
     FontPath.SetInputAutoEvent([this]() {
         if (ImGui::BeginDragDropTarget())
@@ -158,6 +158,12 @@ void DescriptionPanel::SetOpacity(const float opacity)
     UpdateAlpha();
 }
 
+void DescriptionPanel::SetFontWeight(const float fontWeight)
+{
+    _fontWeight = fontWeight;
+    UpdateContent();
+}
+
 void DescriptionPanel::DeserializedReflectEvent()
 {
     HorizontalPanel::DeserializedReflectEvent();
@@ -194,6 +200,7 @@ void DescriptionPanel::UpdateContent()
         EraseChild();
         MakeChild();
         InvalidateMeasure();
+        InvalidateArrange();
     }
 }
 
@@ -247,6 +254,7 @@ void DescriptionPanel::MakeChild()
             color.w                    = ReflectFields->Alpha;
             element.Color              = color;
             element.FontScale          = ReflectFields->FontScale;
+            element.FontWeight         = _fontWeight;
             element.SetArtificial(true);
         }
         break;
