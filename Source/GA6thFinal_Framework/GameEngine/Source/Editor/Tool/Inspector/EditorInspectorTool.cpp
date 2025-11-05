@@ -15,14 +15,14 @@ EditorInspectorTool::~EditorInspectorTool()
 {
 }
 
-void  EditorInspectorTool::OnStartGui()
+void EditorInspectorTool::OnEndGui() 
 {
+    _currFocused.reset();
+    _nextFocused.reset();
+    _rowPtrCurrFocused = nullptr;
+    _rowPtrNextFocused = nullptr;
 }
 
-void EditorInspectorTool::OnPreFrameBegin()
-{
-    
-}
 
 void EditorInspectorTool::OnPostFrameBegin() 
 {
