@@ -280,9 +280,9 @@ void AccessoriesView::ShowTooltip(size_t index)
 
 void AccessoriesView::HideTooltip(size_t index)
 {
-    if (auto object = _focusInfoUIObject.lock())
+    if (auto fade = _focusInfoUIFade.lock())
     {
-        object->SetActive(false);
+        fade->FadeOut();
     }
 
     if (TooltipSystem* tooltipSystem = SingletonComponent<TooltipSystem>::GetInstance())
