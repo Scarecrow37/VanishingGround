@@ -127,6 +127,7 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     output.FinalMatrix = mul(output.FinalMatrix, mvp.ProjMatrix);
 
     output.FrameInfo = input.Frameinfo;
+    output.Paddings2 = float4(emitter.DragForce.w, 0, 0, 0);
 
     ParticleOutputBuffer[idx] = output;
 }

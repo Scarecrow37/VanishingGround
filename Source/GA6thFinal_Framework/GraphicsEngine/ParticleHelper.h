@@ -52,6 +52,7 @@ struct ParticleOutput
     Vector4 FrameInfo;
     int     EmitterIndex;
     Vector3 Paddings;
+    Vector4 Paddings2;
 };
 
 struct EmitterInfo
