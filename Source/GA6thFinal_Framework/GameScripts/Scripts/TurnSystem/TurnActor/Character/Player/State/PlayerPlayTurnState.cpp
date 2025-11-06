@@ -575,8 +575,14 @@ void PlayerPlayTurnState::SetWeaponModelTransform(WeaponModelData& modelData, QT
                         const Vector3 enemyForward  = enemy->transform->Forward * offsetDistance;
                         gameObject->transform->SetWorldPosition(enemyPosition + enemyForward + offsetPosition);
 
-                        const Quaternion enemyRotation = enemy->transform->Rotation;
-                        gameObject->transform->Rotation   = enemyRotation;
+                        Quaternion addRotation = Quaternion::Identity;
+                        if (modelData.Type != WeaponType::WARHAMMER)
+                        {
+                            const Vector3 randomAdded = Vector3(Random::Range(-20.0f, 20.0f), Random::Range(-20.0f, 20.0f), 0.f);
+                            addRotation = Quaternion::CreateFromYawPitchRoll(randomAdded);
+                        }
+                    
+                        gameObject->transform->Rotation *= addRotation;
                         gameObject->transform->EulerAngle += offsetRotation;
 
                         gameObject->transform->Scale = enemy->transform->Scale;
