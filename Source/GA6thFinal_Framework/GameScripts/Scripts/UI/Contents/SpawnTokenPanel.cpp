@@ -22,14 +22,86 @@ SpawnTokenPanel::SpawnTokenPanel() : _newColor(DEFAULT_COLOR)
     });
 }
 
+std::weak_ptr<TokenElement> SpawnTokenPanel::MakeToken(int tokenID) const
+{
+    const std::shared_ptr<GameObject> child = NewGameObject(GameObject::Helper::GenerateUniqueName("Token Element"));
+
+    TokenElement& tokenElement = child->AddComponent<TokenElement>();
+
+
+}
+
+void SpawnTokenPanel::Reset()
+{
+    UIComponent::Reset();
+
+    EraseChild()
+}
+
+void SpawnTokenPanel::EraseChild() const
+{
+    Transform& transform = this->transform;
+
+    const int                childCount = transform.GetChildCount();
+    std::vector<GameObject*> children;
+    for (int i = 0; i < childCount; ++i)
+    {
+        const Transform* childTransform  = transform.GetChild(i);
+        GameObject&      childGameObject = childTransform->gameObject;
+        children.push_back(&childGameObject);
+    }
+    for (GameObject* child : children)
+    {
+        GameObject::Destroy(child);
+    }
+    children.clear();
+}
+
 SIZE SpawnTokenPanel::MeasureOverride(const SIZE availableSize)
 {
-    return availableSize;
+    const FillMode horizontalFillMode = HorizontalFillMode;
+    const FillMode verticalFillMode   = VerticalFillMode;
+    SIZE           desiredSize        = MinSize()(availableSize, _requestedSize, horizontalFillMode == FillMode::FILL,
+                                 verticalFillMode == FillMode::FILL);
+
+    const PADDING                   padding            = Padding;
+    const SIZE                      childAvailableSize = desiredSize - padding.Size();
+    SIZE                            childrenDesiredSize{};
+    const std::vector<UIComponent*> children = Children;
+    std::ranges::for_each(children, [childAvailableSize, &childrenDesiredSize](UIComponent* child) {
+        child->Measure(childAvailableSize);
+        const SIZE childDesiredSize = child->DesiredSize;
+        childrenDesiredSize         = MaxSize()(childrenDesiredSize, childDesiredSize);
+    });
+
+    if (horizontalFillMode == FillMode::WRAP)
+        desiredSize.cx = childrenDesiredSize.cx + padding.Horizontal();
+    if (verticalFillMode == FillMode::WRAP)
+        desiredSize.cy = childrenDesiredSize.cy + padding.Vertical();
+
+    return desiredSize;
 }
 
 SIZE SpawnTokenPanel::ArrangeOverride(const SIZE finalSize)
 {
-    return finalSize;
+    const SIZE                desiredSize           = DesiredSize;
+    const SIZE                actualSize            = MinSize()(finalSize, desiredSize);
+    const PADDING             padding               = Padding;
+    const SIZE                childAvailableSize    = actualSize - padding.Size();
+    const HorizontalAlignment horizontalAlign       = HorizontalAlign;
+    const VerticalAlignment   verticalAlign         = VerticalAlign;
+    const POINT               absoluteChildPosition = AbsolutePosition;
+
+    const std::vector<UIComponent*> children = Children;
+    std::ranges::for_each(children, [childAvailableSize, horizontalAlign, verticalAlign,
+                                     absoluteChildPosition](UIComponent* child) {
+        const SIZE  childDesiredSize = child->DesiredSize;
+        const POINT alignPosition = AlignPoint()(horizontalAlign, verticalAlign, childAvailableSize - childDesiredSize);
+        const POINT childPoint    = absoluteChildPosition + alignPosition;
+        child->Arrange(childPoint, childAvailableSize);
+    });
+
+    return actualSize;
 }
 
 namespace

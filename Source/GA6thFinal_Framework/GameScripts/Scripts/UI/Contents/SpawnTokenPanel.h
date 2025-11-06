@@ -41,11 +41,18 @@ public:
     SETTER(Mathf::EasingFunctionType, EasingFunctionType) { ReflectFields->EasingFunctionType = value; }
     PROPERTY(EasingFunctionType)
 
+public:
+    std::weak_ptr<TokenElement> MakeToken(int tokenID) const;
+
 protected:
     SIZE MeasureOverride(SIZE availableSize) override;
     SIZE ArrangeOverride(SIZE finalSize) override;
 
     void ImGuiDrawPropertysEvent() override;
+
+    void Reset() override;
+
+    void EraseChild() const;
 
 protected:
     REFLECT_FIELDS_BEGIN(UIComponent)
