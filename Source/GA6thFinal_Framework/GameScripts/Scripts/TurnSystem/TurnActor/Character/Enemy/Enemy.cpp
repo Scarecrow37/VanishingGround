@@ -9,6 +9,8 @@
 #include "RevelationSystem/RevelationSystem.h"
 #include "UI/Panels/Overlay/OverlayPanel.h"
 #include "TokenHUD/TokenHUD.h"
+#include "TooltipSystem/TooltipSystem.h"
+#include "KeyCallbackUINavi/KeyCallbackUINavi.h"
 
 //Condition
 #include "Condition/EnemyStartCondition.h"
@@ -118,6 +120,11 @@ void Enemy::DeserializedReflectEvent()
             }
         }
     }
+}
+
+void Enemy::OnDestroy() 
+{
+    ClearCallback();
 }
 
 void Enemy::ClearState() 
@@ -281,6 +288,18 @@ void Enemy::Awake()
 void Enemy::Start()
 {
     Base::Start();
+    switch (_spawnPoint)
+    {
+    case Monster::SpawnPoint::Left:
+
+        break;
+    case Monster::SpawnPoint::Middle:
+        break;
+    case Monster::SpawnPoint::Right:
+        break;
+    default:
+        break;
+    }
 }
 
 CharacterStats* Enemy::GetCharacterStats()
@@ -585,4 +604,51 @@ void Enemy::ShowActionEditor()
         }
     }
 #endif
+}
+
+void Enemy::AddCallback(const std::string& key)
+{
+    _callbacks.push_back(KeyCallbackUINavi::AddCallbackFocusIn(key, [this]() { FocusIn(); }));
+    _callbacks.push_back(KeyCallbackUINavi::AddCallbackFocusOut(key, [this]() { FocusOut(); }));
+    _callbacks.push_back(KeyCallbackUINavi::AddCallbackShowTooltips(key, [this]() { ShowTooltip(); }));
+    _callbacks.push_back(KeyCallbackUINavi::AddCallbackHideTooltips(key, [this]() { HideTooltip(); }));
+}
+
+void Enemy::ClearCallback()
+{
+    for (auto& [delegate, handel] : _callbacks)
+    {
+        delegate->RemoveListener(handel);
+    }
+}
+
+void Enemy::FocusIn()
+{
+
+}
+
+void Enemy::FocusOut()
+{
+    if (TooltipSystem* system = SingletonComponent<TooltipSystem>::GetInstance())
+    {
+        system->Hide();
+    }
+}
+
+void Enemy::ShowTooltip()
+{
+    if (TooltipSystem* system = SingletonComponent<TooltipSystem>::GetInstance())
+    {
+        auto&            tokenInventory = GetTokenInventory();
+        std::vector<int> ids            = tokenInventory.GetTokensTooltips();
+        system->Show(TooltipSystem::Group::ENEMY, ids);
+    }
+}
+
+void Enemy::HideTooltip()
+{
+    if (TooltipSystem* system = SingletonComponent<TooltipSystem>::GetInstance())
+    {
+        system->Hide();
+    }
 }
