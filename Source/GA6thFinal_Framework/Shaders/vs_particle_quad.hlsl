@@ -17,7 +17,7 @@ struct VSOutput
     float3 biTangent : BINORMAL;
     float2 uv : TEXCOORD;
     float4 color : COLOR0;
-    nointerpolation int emitterIndex : CUSTOM_FLAG;
+    nointerpolation uint2 emitterIndex : CUSTOM_FLAG;
 };
 
 VSOutput vs_main(VSInput input)
@@ -31,8 +31,8 @@ VSOutput vs_main(VSInput input)
     
     
     output.color = instanceInfo.Color;
-    output.emitterIndex = instanceInfo.EmitterIndex;
-    
+    output.emitterIndex.x = instanceInfo.EmitterIndex;
+    output.emitterIndex.y = (int) instanceInfo.Paddings2.x;
 
     if(instanceInfo.FrameInfo.x < 0)
     {

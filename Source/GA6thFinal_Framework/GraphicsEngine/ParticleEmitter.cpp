@@ -169,17 +169,35 @@ void ParticleEmitter::UpdateParticleLifeCycle(float deltaTime)
     if (_endFlag)
     {
         if (_activeParticleCount == 0)
+        {
             _activeFlag = false;
+            return;
+        }
         if (_particleEndFadeOnceFlag == true)
         {
-            for (UINT i = 0; i < _activeParticleCount; ++i)
+            if (_startOpacity != _endOpacity)
             {
-                if (_particleLifetime >= 0.5f)
-                    _particlePool[i].SetAge(_particleLifetime - 0.5f);
+                for (UINT i = 0; i < _activeParticleCount; ++i)
+                {
+                    float currentAge   = _particlePool[i].GetAge();
+                    float ageRatio     = (_particleLifetime > 0.f) ? (currentAge / _particleLifetime) : 0.f;
+                    float currentAlpha = _startOpacity + (_originEndOpacity - _startOpacity) * ageRatio;
+
+                    float newAge = (_fadeOutDuration > 0.f) ? (currentAlpha / _startOpacity) * _fadeOutDuration : 0.f;
+                    _particlePool[i].SetAge(newAge);
+                }
+                _particleLifetime        = _fadeOutDuration;
+                _endOpacity              = 0.f;
+            }
+            else
+            {
+                for (UINT i = 0; i < _activeParticleCount; ++i)
+                {
+                    _particlePool[i].SetAge(_particleLifetime);
+                }
             }
             _particleEndFadeOnceFlag = false;
         }
-
         return;
     }
 
@@ -240,6 +258,8 @@ void ParticleEmitter::Reset()
     _delayFlag = _activeFlag = false;
     _isSpawnBursted          = false;
     _endFlag                 = false;
+    _endOpacity              = _originEndOpacity;
+    _particleLifetime        = _originParticleLifetime;
     _delayTimer              = 0.f;
     _emitterAge              = 0.f;
     _activeParticleCount     = 0;
