@@ -9,17 +9,14 @@ REGISTER_CLASS(FSMStateFactory, PlayerDeadState)
 
 PlayerDeadState::PlayerDeadState() 
 {
-
 }
 
 PlayerDeadState::~PlayerDeadState() 
 {
-
 }
 
 void PlayerDeadState::OnAwake() 
 {
-
 }
 
 void PlayerDeadState::OnStart() 
@@ -51,6 +48,4 @@ void PlayerDeadState::OnExit()
 
 void PlayerDeadState::OnUpdate() 
 {
-    Player&             player   = GetPlayer();
-    AnimationComponent* animator = player.GetAnimationComponent();
 }

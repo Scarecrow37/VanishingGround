@@ -17,8 +17,4 @@ public:
     void OnEnter() override;
     void OnExit() override;
     void OnUpdate() override;
-
-private:
-    class OverlayPanel*           _vanishedOverlay;
-    class SpriteAnimationElement* _vanishedAnimation;
 };

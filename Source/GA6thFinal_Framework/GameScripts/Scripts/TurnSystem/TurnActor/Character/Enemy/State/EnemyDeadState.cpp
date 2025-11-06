@@ -28,6 +28,7 @@ void EnemyDeadState::OnEnter()
             animator->EndBuildOverrideAnimation();
         }
     }
+
     if (ParticleComponent* particle = enemy.GetParticleComponent())
     {
         particle->StopAll();
