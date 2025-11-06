@@ -9,6 +9,7 @@
 #include "ItemDropSystem/UINavi/ArtifactButtonNavi.h"
 #include "ViewModels/ItemDrop/DropArtifacts/DropArtifactsViewModel.h"
 #include "Debugger/Debugger.h"
+#include "UI/Animations/FadeUIComponent/FadeUIComponent.h"
 
 #include "Map/MapManager.h"
 #include "Map/Stage.h"
@@ -495,6 +496,11 @@ void ItemDropSystem::PlayItemDropUISequence()
     if (ItemDropUIRootManager* itemDropUIRootManager = SingletonComponent<ItemDropUIRootManager>::GetInstance())
     {
         itemDropUIRootManager->gameObject->ActiveSelf = true;
+        if (FadeUIComponent* fadeUI = itemDropUIRootManager->GetComponent<FadeUIComponent>())
+        {
+            fadeUI->Begin();
+            fadeUI->FadeIn();
+        }
         StageClearCount = StageClearCount + 1;
 
         if (ArtifactUIManager* manager = SingletonComponent<ArtifactUIManager>::GetInstance())
