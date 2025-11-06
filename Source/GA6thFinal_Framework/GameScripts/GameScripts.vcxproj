@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="DebugEditor|Win32">
@@ -306,6 +306,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Scripts\Camera\HandHeldController.h" />
     <ClInclude Include="Scripts\QTE\Audio\QTEAudioState.h" />
     <ClInclude Include="Scripts\QTE\Callback\Callback.h" />
     <ClInclude Include="Scripts\QTE\Common\QTECommon.h" />
@@ -681,6 +682,7 @@
     <ClInclude Include="Scripts\Vinette\VinetteManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\Camera\HandHeldController.cpp" />
     <ClCompile Include="Scripts\QTE\Callback\Callback.cpp" />
     <ClCompile Include="Scripts\QTE\Common\QTECommon.cpp" />
     <ClCompile Include="Scripts\QTE\Controller\QTEController.cpp" />
