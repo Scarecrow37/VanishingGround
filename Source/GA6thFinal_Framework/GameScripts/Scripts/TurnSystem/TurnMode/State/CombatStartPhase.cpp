@@ -17,6 +17,7 @@
 #include "UI/Views/MonsterChain/MonsterChainView.h"
 #include "SceneTransition/SceneTransitionComponent.h"
 #include "BattleIntroUIController/BattleIntroUIController.h"
+#include "KeyCallbackUINavi/KeyCallbackUINavi.h"
 
 #include "CombatUIManager/CombatUIManager.h"
 #include "QTE/UI/QTEUIManager.h"
@@ -208,6 +209,10 @@ void CombatStartPhase::OnExit()
     if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())
     {
         combatUIManager->CharacterHUDGroup.ActiveUI(true);
+        if (auto focusNavi = GameObject::FindComponentWithTag<KeyCallbackUINavi>("Weapon Panel UI Navi").lock())
+        {
+            focusNavi->Focus();
+        }
     }
 
      if (ItemDropSystem* itemDropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
