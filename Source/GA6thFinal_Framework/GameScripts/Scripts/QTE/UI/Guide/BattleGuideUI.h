@@ -9,13 +9,13 @@ class FadeUIComponent;
 
 struct BattleGuideUI
 {
-    enum { A, RB, RT };
+    enum { A, RB, RT, START, COUNT };
 
     OverlayPanel*                Overlay    = nullptr;
     FadeUIComponent*             Fader      = nullptr;
     HoldingProgressImageElement* Progress   = nullptr;
-    std::array<ImageElement*, 3> ImageList  = {nullptr, nullptr, nullptr};
-    std::array<TextElement*, 3>  TextList   = {nullptr, nullptr, nullptr};
+    std::array<ImageElement*, COUNT> ImageList  = {nullptr, nullptr, nullptr};
+    std::array<TextElement*, COUNT>  TextList   = {nullptr, nullptr, nullptr};
 
     // 해당 오브젝트에 자신의 멤버가 있으면 매칭합니다.
     void MatchUIFromObject(GameObject& object);
