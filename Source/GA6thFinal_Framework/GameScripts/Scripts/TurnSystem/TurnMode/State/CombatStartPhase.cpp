@@ -205,6 +205,8 @@ void CombatStartPhase::OnExit()
     {
         battleCamera->SetMainCamera();
         battleCamera->ResetRail(true);
+        battleCamera->StartRail(true);
+        battleCamera->PauseRail();
     }
 
     if (CombatUIManager* combatUIManager = SingletonComponent<CombatUIManager>::GetInstance())

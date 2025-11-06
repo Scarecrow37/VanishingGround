@@ -214,6 +214,28 @@ void TokenInventory::NotifyTokenRemoved(int tokenID)
     });
 }
 
+void TokenInventory::NotifyPreTokenAdded(int tokenID, int& count)
+{
+    NotifyTokenEvent([this, tokenID, &count](Token& token) {
+        bool valid = token.GetTokenID() == tokenID;
+        if (valid)
+        {
+            token.OnPreTokenAdded(&_owner, tokenID, count);
+        }
+    });
+}
+
+void TokenInventory::NotifyPreTokenRemoved(int tokenID, int& count)
+{
+    NotifyTokenEvent([this, tokenID, &count](Token& token) {
+        bool valid = token.GetTokenID() == tokenID;
+        if (valid)
+        {
+            token.OnPreTokenRemoved(&_owner, tokenID, count);
+        }
+    });
+}
+
 void TokenInventory::NotifyTokenEnter(int tokenID) 
 {
     NotifyTokenEvent([this, tokenID](Token& token) {
@@ -499,6 +521,8 @@ void TokenInventory::AddTokenStackFromID(int tokenID, int count /* = 1 */)
         });
     }
 
+    NotifyPreTokenAdded(tokenID, count);
+
     if (0 == count || false == IsValidToken(tokenID))
     {   // 추가할 스택이 0이면 아무것도 하지 않습니다. (이벤트를 호출하지 않기 위해 필요)
         return;
@@ -572,6 +596,8 @@ void TokenInventory::RemoveTokenStackFromID(int tokenID, int count /* = 1 */)
             action.OnTokenRemovedStart(_owner, tokenID, count); 
         });
     }
+
+    NotifyPreTokenRemoved(tokenID, count);
 
     if (0 == count || false == IsValidToken(tokenID))
     {   // 제거할 스택이 0이면 아무것도 하지 않습니다. (이벤트를 호출하지 않기 위해 필요)

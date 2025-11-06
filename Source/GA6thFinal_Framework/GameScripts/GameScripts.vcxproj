@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="DebugEditor|Win32">
@@ -327,10 +327,6 @@
     <ClInclude Include="Scripts\QTE\UI\Input\QTEInputNodeUI.h" />
     <ClInclude Include="Scripts\QTE\UI\Input\QTEInputViewerUI.h" />
     <ClInclude Include="Scripts\QTE\UI\QTEUIManager.h" />
-    <ClInclude Include="Scripts\UI\Contents\TooltipDescriptionPanel.h" />
-    <ClInclude Include="Scripts\UI\Contents\TooltipElement.h" />
-    <ClInclude Include="Scripts\UI\Contents\TooltipType.h" />
-    <ClInclude Include="Scripts\Utility\HexToColor.h" />
     <ClInclude Include="Scripts\Utility\SceneGuid.h" />
     <ClInclude Include="Scripts\GameOverManager\GameOverManager.h" />
     <ClInclude Include="Scripts\Map\StageData.h" />
@@ -681,7 +677,7 @@
     <ClInclude Include="Scripts\Input\InputOkCancelComponent\InputOkCancelComponent.h" />
     <ClInclude Include="Scripts\MainMenu\CreditsBackButton.h" />
     <ClInclude Include="Scripts\BattleIntroUIController\BattleIntroUIController.h" />
-    <ClInclude Include="Scripts\KeyCallbackUINavi\KeyCallbackUINavi.h" />
+    <ClInclude Include="Scripts\Vinette\VinetteManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scripts\QTE\Callback\Callback.cpp" />
@@ -702,9 +698,6 @@
     <ClCompile Include="Scripts\QTE\UI\Input\QTEInputNodeUI.cpp" />
     <ClCompile Include="Scripts\QTE\UI\Input\QTEInputViewerUI.cpp" />
     <ClCompile Include="Scripts\QTE\UI\QTEUIManager.cpp" />
-    <ClCompile Include="Scripts\UI\Contents\TooltipDescriptionPanel.cpp" />
-    <ClCompile Include="Scripts\UI\Contents\TooltipElement.cpp" />
-    <ClCompile Include="Scripts\Utility\HexToColor.cpp" />
     <ClCompile Include="Scripts\Utility\SceneGuid.cpp" />
     <ClCompile Include="Scripts\GameOverManager\GameOverManager.cpp" />
     <ClCompile Include="Scripts\Monster\Action\BossServant\MonsterBossServantAction.cpp" />
@@ -1060,7 +1053,7 @@
     <ClCompile Include="Scripts\Input\InputOkCancelComponent\InputOkCancelComponent.cpp" />
     <ClCompile Include="Scripts\MainMenu\CreditsBackButton.cpp" />
     <ClCompile Include="Scripts\BattleIntroUIController\BattleIntroUIController.cpp" />
-    <ClCompile Include="Scripts\KeyCallbackUINavi\KeyCallbackUINavi.cpp" />
+    <ClCompile Include="Scripts\Vinette\VinetteManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

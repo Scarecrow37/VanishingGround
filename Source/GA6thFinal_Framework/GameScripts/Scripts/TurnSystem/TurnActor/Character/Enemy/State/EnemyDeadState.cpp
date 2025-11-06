@@ -17,6 +17,8 @@ void EnemyDeadState::OnEnter()
     std::string message = std::format("{} {}", enemy.gameObject->ToString(), (const char*)u8"사망.");
     UmLogger.Message(LogLevel::LEVEL_DEBUG, message);
 
+    float deactiveDelay = 3.0f;
+
     if (false == _dontChangeAnimation)
     {
         if (AnimationComponent* animator = enemy.GetAnimationComponent())
@@ -26,6 +28,8 @@ void EnemyDeadState::OnEnter()
             animator->SetNextAnimationFlags(ANIMATION_FLAG_USE_BLEND);
             animator->ChangeMainAnimation("Dead");
             animator->EndBuildOverrideAnimation();
+
+            deactiveDelay = animator->GetMainAnimationData().GetAnimationMaxFrame();
         }
     }
 
@@ -34,7 +38,7 @@ void EnemyDeadState::OnEnter()
         particle->StopAll();
     }
 
-    UmTime.Invoke(GetFSM(), 2.0f, [this]() {
+    UmTime.Invoke(GetFSM(), deactiveDelay, [this]() {
         Enemy& enemy = GetEnemy();
         enemy.gameObject->SetActive(false);
         if (GameObject* monsterHUD = enemy.GetMonsterHUD())

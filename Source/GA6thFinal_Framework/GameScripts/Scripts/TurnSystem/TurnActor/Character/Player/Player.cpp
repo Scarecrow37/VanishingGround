@@ -13,6 +13,7 @@
 #include "UI/Panels/Overlay/OverlayPanel.h"
 #include "TokenHUD/TokenHUD.h"
 #include "Camera/UmCineMotion.h"
+#include "Vinette/VinetteManager.h"
 #include "KeyCallbackUINavi/KeyCallbackUINavi.h"
 #include "TooltipSystem/TooltipSystem.h"
 #include "Particle/ParticleComponent.h"
@@ -30,6 +31,7 @@
 #include "State/PlayerDeadState.h"
 #include "State/PlayerWinState.h"
 #include "UI/Contents/SpawnDamagePanel.h"
+
 
 UMREAL_COMPONENT(Player)
 
@@ -207,6 +209,11 @@ void Player::TakeDamage(int damage, const bool playAnim)
     {
         particle->PlayEffect("gethit");
     }
+
+    if (VinetteManager* vinette = SingletonComponent<VinetteManager>::GetInstance())
+    {
+        vinette->ShowHitVinette();
+    }
 }
 
 void Player::ShowDamage(const int damage, const std::span<const std::string> sources)
@@ -221,6 +228,10 @@ void Player::Heal(const int amount)
 {
     Base::Heal(amount);
     ShowHeal(amount, {});
+    if (VinetteManager* vinette = SingletonComponent<VinetteManager>::GetInstance())
+    {
+        vinette->ShowHealVinette();
+    }
 }
 
 void Player::ShowHeal(const int healAmount, const std::span<const std::string> sources)

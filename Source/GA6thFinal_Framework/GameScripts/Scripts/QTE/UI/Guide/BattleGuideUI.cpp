@@ -68,6 +68,23 @@ void BattleGuideUI::MatchUIFromObject(GameObject& object)
             }
         });
     }
+    else if (object.CompareTag("Start Guide"))
+    {
+        Transform::ForeachBFS(object.transform, [this](Transform* curr) {
+            if (curr)
+            {
+                GameObject& child = curr->gameObject;
+                if (child.CompareTag("Image"))
+                {
+                    ImageList[START] = child.GetComponent<ImageElement>();
+                }
+                else if (child.CompareTag("Text"))
+                {
+                    TextList[START] = child.GetComponent<TextElement>();
+                }
+            }
+        });
+    }
 }
 void BattleGuideUI::Active(bool active)
 {
