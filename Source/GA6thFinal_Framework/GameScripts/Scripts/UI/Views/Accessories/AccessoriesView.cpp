@@ -204,7 +204,7 @@ void AccessoriesView::AddCallback()
     _focusInfoUIFade      = GameObject::FindComponentWithTag<FadeUIComponent>("Focus Info UI Panel");
     if (auto fade =_focusInfoUIFade.lock())
     {
-        fade->End();
+        fade->Begin();
     }
     _focusInfoDescription = GameObject::FindComponentWithTag<DescriptionPanel>("Focus Info UI Description Panel");
 }
