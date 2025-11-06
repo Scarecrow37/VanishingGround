@@ -255,6 +255,7 @@ namespace Input
     private:
         void UpdateStickBias();
         void UpdateVibration();
+        ButtonQueue UpdateQueue(ButtonQueue& queue) const;
 
         /// <summary>
         /// 컨트롤러의 진동을 지정된 모터 속도와 지속 시간으로 활성화합니다.

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="DebugEditor|Win32">
@@ -306,27 +306,35 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Scripts\GameOverManager\GameOverManager.h" />
+    <ClInclude Include="Scripts\QTE\Audio\QTEAudioState.h" />
+    <ClInclude Include="Scripts\QTE\Callback\Callback.h" />
+    <ClInclude Include="Scripts\QTE\Common\QTECommon.h" />
+    <ClInclude Include="Scripts\QTE\Controller\QTEController.h" />
+    <ClInclude Include="Scripts\QTE\Editor\QTEEditor.h" />
+    <ClInclude Include="Scripts\QTE\Fade\QTEFadeState.h" />
+    <ClInclude Include="Scripts\QTE\KeyBinder\QTEKeyBinder.h" />
+    <ClInclude Include="Scripts\QTE\Result\QTEResult.h" />
+    <ClInclude Include="Scripts\QTE\System\QTESystem.h" />
+    <ClInclude Include="Scripts\QTE\Track\Note\QTENote.h" />
+    <ClInclude Include="Scripts\QTE\Track\Note\QTENoteData.h" />
+    <ClInclude Include="Scripts\QTE\Track\QTETrack.h" />
+    <ClInclude Include="Scripts\QTE\UI\BackGround\QTEBackgroundUI.h" />
+    <ClInclude Include="Scripts\QTE\UI\Field\QTEFieldUI.h" />
+    <ClInclude Include="Scripts\QTE\UI\Field\QTEJudgeEffectUI.h" />
+    <ClInclude Include="Scripts\QTE\UI\Field\QTENoteUI.h" />
     <ClInclude Include="Scripts\QTE\UI\Guide\BattleGuideUI.h" />
+    <ClInclude Include="Scripts\QTE\UI\Guide\QTEGuideUI.h" />
+    <ClInclude Include="Scripts\QTE\UI\Input\QTEInputNodeUI.h" />
+    <ClInclude Include="Scripts\QTE\UI\Input\QTEInputViewerUI.h" />
+    <ClInclude Include="Scripts\QTE\UI\QTEUIManager.h" />
+    <ClInclude Include="Scripts\Utility\SceneGuid.h" />
+    <ClInclude Include="Scripts\GameOverManager\GameOverManager.h" />
     <ClInclude Include="Scripts\Map\StageData.h" />
     <ClInclude Include="Scripts\Monster\Action\BossServant\MonsterBossServantAction.h" />
     <ClInclude Include="Scripts\ProclamationHUD\ProclamationHUD.h" />
-    <ClInclude Include="Scripts\QTE\Audio\QTEAudioState.h" />
-    <ClInclude Include="Scripts\QTE\Controller\QTEController.h" />
     <ClInclude Include="Scripts\Ending\EndingDialogManager.h" />
     <ClInclude Include="Scripts\MagicBook\SelectMagicBook.h" />
     <ClInclude Include="Scripts\MagicBook\SelectPopup.h" />
-    <ClInclude Include="Scripts\QTE\Fade\QTEFadeState.h" />
-    <ClInclude Include="Scripts\QTE\KeyBinder\QTEKeyBinder.h" />
-    <ClInclude Include="Scripts\QTE\UI\Field\QTEJudgeEffectUI.h" />
-    <ClInclude Include="Scripts\QTE\UI\Input\QTEInputNodeUI.h" />
-    <ClInclude Include="Scripts\QTE\UI\Input\QTEInputViewerUI.h" />
-    <ClInclude Include="Scripts\QTE\UI\Guide\QTEGuideUI.h" />
-    <ClInclude Include="Scripts\QTE\Callback\Callback.h" />
-    <ClInclude Include="Scripts\QTE\Common\QTECommon.h" />
-    <ClInclude Include="Scripts\QTE\UI\BackGround\QTEBackgroundUI.h" />
-    <ClInclude Include="Scripts\QTE\UI\Field\QTEFieldUI.h" />
-    <ClInclude Include="Scripts\QTE\UI\Field\QTENoteUI.h" />
     <ClInclude Include="Scripts\ContentMath\ContentMath.h" />
     <ClInclude Include="Scripts\StageVigneeteUI\StageVigneeteUIComponent.h" />
     <ClInclude Include="Scripts\Test\Input\InputStackTestComponent.h" />
@@ -456,13 +464,6 @@
     <ClInclude Include="Scripts\Preferences\ImportGraphicsSetting.h" />
     <ClInclude Include="Scripts\Preferences\PreferencesManager.h" />
     <ClInclude Include="Scripts\Preferences\PrefrencesWindow.h" />
-    <ClInclude Include="Scripts\QTE\Editor\QTEEditor.h" />
-    <ClInclude Include="Scripts\QTE\Result\QTEResult.h" />
-    <ClInclude Include="Scripts\QTE\System\QTESystem.h" />
-    <ClInclude Include="Scripts\QTE\Track\Note\QTENote.h" />
-    <ClInclude Include="Scripts\QTE\Track\Note\QTENoteData.h" />
-    <ClInclude Include="Scripts\QTE\Track\QTETrack.h" />
-    <ClInclude Include="Scripts\QTE\UI\QTEUIManager.h" />
     <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Base\RevelationActionBase.h" />
     <ClInclude Include="Scripts\RevelationSystem\RevelationAction\Critical\CriticalDamageAction.h" />
     <ClInclude Include="pchScripts.h" />
@@ -679,23 +680,31 @@
     <ClInclude Include="Scripts\BattleIntroUIController\BattleIntroUIController.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Scripts\QTE\Callback\Callback.cpp" />
+    <ClCompile Include="Scripts\QTE\Common\QTECommon.cpp" />
+    <ClCompile Include="Scripts\QTE\Controller\QTEController.cpp" />
+    <ClCompile Include="Scripts\QTE\Editor\QTEEditor.cpp" />
+    <ClCompile Include="Scripts\QTE\KeyBinder\QTEKeyBinder.cpp" />
+    <ClCompile Include="Scripts\QTE\System\QTESystem.cpp" />
+    <ClCompile Include="Scripts\QTE\Track\Note\QTENote.cpp" />
+    <ClCompile Include="Scripts\QTE\Track\Note\QTENoteData.cpp" />
+    <ClCompile Include="Scripts\QTE\Track\QTETrack.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\BackGround\QTEBackgroundUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\Field\QTEFieldUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\Field\QTEJudgeEffectUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\Field\QTENoteUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\Guide\BattleGuideUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\Guide\QTEGuideUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\Input\QTEInputNodeUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\Input\QTEInputViewerUI.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\QTEUIManager.cpp" />
+    <ClCompile Include="Scripts\Utility\SceneGuid.cpp" />
     <ClCompile Include="Scripts\GameOverManager\GameOverManager.cpp" />
     <ClCompile Include="Scripts\Monster\Action\BossServant\MonsterBossServantAction.cpp" />
     <ClCompile Include="Scripts\ProclamationHUD\ProclamationHUD.cpp" />
-    <ClCompile Include="Scripts\QTE\Controller\QTEController.cpp" />
     <ClCompile Include="Scripts\Ending\EndingDialogManager.cpp" />
     <ClCompile Include="Scripts\MagicBook\SelectMagicBook.cpp" />
     <ClCompile Include="Scripts\MagicBook\SelectPopup.cpp" />
-    <ClCompile Include="Scripts\QTE\UI\Field\QTEJudgeEffectUI.cpp" />
-    <ClCompile Include="Scripts\QTE\UI\Guide\BattleGuideUI.cpp" />
-    <ClCompile Include="Scripts\QTE\UI\Input\QTEInputNodeUI.cpp" />
-    <ClCompile Include="Scripts\QTE\UI\Input\QTEInputViewerUI.cpp" />
-    <ClCompile Include="Scripts\QTE\UI\Guide\QTEGuideUI.cpp" />
-    <ClCompile Include="Scripts\QTE\Callback\Callback.cpp" />
-    <ClCompile Include="Scripts\QTE\Common\QTECommon.cpp" />
-    <ClCompile Include="Scripts\QTE\UI\BackGround\QTEBackgroundUI.cpp" />
-    <ClCompile Include="Scripts\QTE\UI\Field\QTEFieldUI.cpp" />
-    <ClCompile Include="Scripts\QTE\UI\Field\QTENoteUI.cpp" />
     <ClCompile Include="Scripts\ContentMath\ContentMath.cpp" />
     <ClCompile Include="Scripts\StageVigneeteUI\StageVigneeteUIComponent.cpp" />
     <ClCompile Include="Scripts\Test\Input\InputStackTestComponent.cpp" />
@@ -830,13 +839,6 @@
     <ClCompile Include="Scripts\Preferences\ImportGraphicsSetting.cpp" />
     <ClCompile Include="Scripts\Preferences\PreferencesManager.cpp" />
     <ClCompile Include="Scripts\Preferences\PrefrencesWindow.cpp" />
-    <ClCompile Include="Scripts\QTE\Editor\QTEEditor.cpp" />
-    <ClCompile Include="Scripts\QTE\KeyBinder\QTEKeyBinder.cpp" />
-    <ClCompile Include="Scripts\QTE\System\QTESystem.cpp" />
-    <ClCompile Include="Scripts\QTE\Track\Note\QTENote.cpp" />
-    <ClCompile Include="Scripts\QTE\Track\Note\QTENoteData.cpp" />
-    <ClCompile Include="Scripts\QTE\Track\QTETrack.cpp" />
-    <ClCompile Include="Scripts\QTE\UI\QTEUIManager.cpp" />
     <ClCompile Include="Scripts\RevelationSystem\RevelationElement\RevelationElement.cpp" />
     <ClCompile Include="Scripts\RevelationSystem\RevelationSystem.cpp" />
     <ClCompile Include="Scripts\SceneTransition\SceneTransitionComponent.cpp" />

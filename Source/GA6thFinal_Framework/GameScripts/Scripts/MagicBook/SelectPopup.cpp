@@ -12,6 +12,7 @@
 #include "RevelationSystem/RevelationSystem.h"
 #include "WeaponSystem/WeaponSystem.h"
 #include "WeaponSystem/WeaponTable/WeaponTableComponent.h"
+#include "AccessorySystem/AccessorySystem.h"
 
 UMREAL_COMPONENT(SelectPopup)
 
@@ -65,12 +66,18 @@ void SelectPopup::SetSelectMagicBook(const File::Guid& imgaeGuid, const std::str
             {
                 if (_lastSelectMagicBook)
                 {
+                    if (AccessorySystem* system = SingletonComponent<AccessorySystem>::GetInstance())
+                    {
+                        system->ClearPlayerAccessoryItems();
+                    }
+
                     using namespace u8_literals;
-                    const std::string& bookName = _lastSelectMagicBook->GetBookID();
-                    if (bookName == u8"803005"_c_str)
+                    const std::string& bookName = _lastSelectMagicBook->GetBookID();                  
+                    if (bookName == u8"803005"_c_str) // 피투성이 기사 선택시
                     {
                         if (PlayerSystem* playerSystem = SingletonComponent<PlayerSystem>::GetInstance())
                         {
+                            playerSystem->PlayerBookName = u8"피투성이 기사"_c_str;
                             if (auto component = playerSystem->GetPlayerStats())
                             {
                                 auto& stats = component->GetStats();
@@ -128,10 +135,11 @@ void SelectPopup::SetSelectMagicBook(const File::Guid& imgaeGuid, const std::str
                             }
                         }
                     }
-                    else if (bookName == u8"803006"_c_str)
+                    else if (bookName == u8"803006"_c_str) // 쥐의 왕 선택시
                     {
                         if (PlayerSystem* playerSystem = SingletonComponent<PlayerSystem>::GetInstance())
                         {
+                            playerSystem->PlayerBookName = u8"쥐의 왕"_c_str;
                             if (auto component = playerSystem->GetPlayerStats())
                             {
                                 auto& stats          = component->GetStats();
@@ -189,10 +197,11 @@ void SelectPopup::SetSelectMagicBook(const File::Guid& imgaeGuid, const std::str
                             }
                         }
                     }
-                    else if (bookName == u8"803007"_c_str)
+                    else if (bookName == u8"803007"_c_str) // 용의 비가 포커스 됨
                     {
                         if (PlayerSystem* playerSystem = SingletonComponent<PlayerSystem>::GetInstance())
                         {
+                            playerSystem->PlayerBookName = u8"용의 비가"_c_str;
                             if (auto component = playerSystem->GetPlayerStats())
                             {
                                 auto& stats          = component->GetStats();

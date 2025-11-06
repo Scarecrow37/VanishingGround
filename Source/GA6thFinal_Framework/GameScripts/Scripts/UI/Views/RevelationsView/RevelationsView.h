@@ -54,6 +54,7 @@ private:
 
     std::weak_ptr<SpriteAnimationElement> _startAnimation;
     std::weak_ptr<SpriteAnimationElement> _reloadAnimation;
+    std::weak_ptr<ImageElement>           _endAnimation;
 
     RevelationsViewModel::Handle _watchHandle;
 };

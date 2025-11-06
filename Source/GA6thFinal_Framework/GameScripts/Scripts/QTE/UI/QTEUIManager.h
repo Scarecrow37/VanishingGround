@@ -68,6 +68,9 @@ public:
 
     void SetDefaultState();
 
+    void FadeInBattleGuideUI();
+    void FadeOutBattleGuideUI();
+
 private:
     void Reset() override;
     void Awake() override;

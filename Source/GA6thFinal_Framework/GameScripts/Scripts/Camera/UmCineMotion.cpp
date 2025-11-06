@@ -535,8 +535,8 @@ void UmCineMotion::GetShakeOffset()
 
     float normalizedTime = std::clamp(_shakeElapsedTimer / _shakeDuration, 0.f, 1.f);
     float envelope       = 1.0f - (normalizedTime * normalizedTime);
-    _shakeAmount         = std::sinf(_shakeElapsedTimer * _shakeFrequency * XM_2PI) * _shakeIntensity * envelope;
-
+    _shakeAmount         = std::sinf(_shakeElapsedTimer * _shakeFrequency * XM_2PI);
+    _shakeAmount *= _shakeIntensity * envelope;
     _shakeOffset = _shakeDirection * _shakeAmount;
 }
 
@@ -562,7 +562,7 @@ void UmCineMotion::BeginFeedBackShake(int feedbackValue)
     constexpr float midDuration  = 0.5f;
     constexpr float midFrequency = 5.f;
 
-    constexpr float strongIntensity = 0.6f;
+    constexpr float strongIntensity = 0.06f;
     constexpr float strongDuration  = 0.5f;
     constexpr float strongFrequency = 5.f;
 

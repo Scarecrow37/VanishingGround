@@ -349,6 +349,11 @@
     <ClCompile Include="Scripts\UI\Views\TokenHUD\TokenHUDView.cpp" />
     <ClCompile Include="Scripts\Utility\TransformNameTracker\TransformNameTracker.cpp" />
     <ClCompile Include="Scripts\ViewModels\TokenHUD\TokenHUDViewModel.cpp" />
+    <ClCompile Include="Scripts\GameOverManager\GameOverManager.cpp" />
+    <ClCompile Include="Scripts\QTE\UI\Guide\BattleGuideUI.cpp" />
+    <ClCompile Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyBossDeadClearAction.cpp" />
+    <ClCompile Include="Scripts\UI\Contents\GlobalFontManager.cpp" />
+    <ClCompile Include="Scripts\Utility\SceneGuid.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scripts\Animation\Structs\AnimationStructs.h" />
@@ -568,7 +573,6 @@
     <ClInclude Include="Scripts\UI\Wrappers\Scrolling\ScrollingWrapper.h" />
     <ClInclude Include="Scripts\UINavigation\TempNavigationComponent.h" />
     <ClInclude Include="Scripts\Utility\FadeHelper.h" />
-    <ClInclude Include="Scripts\Utility\SingletonHelper.h" />
     <ClInclude Include="Scripts\Utility\UINaviKeyBindHelper.h" />
     <ClInclude Include="Scripts\ViewModels\Accessories\AccessoriesViewModel.h" />
     <ClInclude Include="Scripts\ViewModels\Chain\ChainCountViewModel.h" />
@@ -716,6 +720,13 @@
     <ClInclude Include="Scripts\UI\Views\TokenHUD\TokenHUDView.h" />
     <ClInclude Include="Scripts\Utility\TransformNameTracker\TransformNameTracker.h" />
     <ClInclude Include="Scripts\ViewModels\TokenHUD\TokenHUDViewModel.h" />
+    <ClInclude Include="Scripts\GameOverManager\GameOverManager.h" />
+    <ClInclude Include="Scripts\QTE\UI\Guide\BattleGuideUI.h" />
+    <ClInclude Include="Scripts\TurnSystem\TurnAction\Actions\EnemyCustumAction\EnemyBossDeadClearAction.h" />
+    <ClInclude Include="Scripts\UI\Base\IFontAppearance\IFontAppearance.h" />
+    <ClInclude Include="Scripts\UI\Contents\GlobalFontManager.h" />
+    <ClInclude Include="Scripts\Utility\SceneGuid.h" />
+    <ClInclude Include="Scripts\Utility\SingletonHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

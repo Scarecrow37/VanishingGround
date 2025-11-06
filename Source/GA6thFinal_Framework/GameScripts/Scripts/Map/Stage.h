@@ -2,6 +2,7 @@
 #include "ItemDropSystem/Interface/IDropItem.h"
 #include "Monster/Common/MonsterCommon.h"
 
+class ImageElement;
 class Stage : public UISFXNavigationComponent
 {
     USING_PROPERTY(Stage)
@@ -24,6 +25,7 @@ public:
 public:
     void FocusIn(FocusCallType callType) override;
     void Submit() override;
+    void FocusOut(FocusCallType callType) override;
 
 private:
     void Start() override;
@@ -65,4 +67,6 @@ private:
     std::array<DropItemInfo, ARTIFACT_DROP_COUNT> _dropItemInfos;
 
     int _battleCount = 1;
+
+    std::weak_ptr<ImageElement> _bossRewordPopup; //보스 스테이지가 선택될때만 실행됨
 };

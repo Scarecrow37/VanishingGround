@@ -34,6 +34,11 @@ public:
     /// <returns>PlayerStatsComponent*</returns>
     PlayerStatsComponent* GetPlayerStats() { return _playerStatsComponent; }
 
+    /// <summary>
+    /// 플레이어가 사용중인 마도서 이름입니다.
+    /// </summary>
+    std::string PlayerBookName = STR_NULL;
+
 public:
     REFLECT_PROPERTY
     (

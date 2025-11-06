@@ -10,8 +10,13 @@
 #include "ItemDropSystem/UI/WeaponChangeUIManager.h"
 #include "ItemDropSystem/UI/EraseRevelationUIManager.h"
 #include "ItemDropSystem/UINavi/ReturnToMapNavi.h"
+#include "UI/Elements/Text/TextElement.h"
+#include "UI/Elements/Image/ImageElement.h"
 #include "Preferences/PreferencesManager.h"
 #include "Inventory/UI/InventoryUIManager.h"
+#include "UI/Panels/Description/DescriptionPanel.h"
+#include "Map/MapManager.h"
+#include "Map/Stage.h"
 
 UMREAL_COMPONENT(ItemDropUIRootManager)
 
@@ -91,6 +96,15 @@ void ItemDropUIRootManager::AutoFocus(bool checkInputDir)
                     }
                     --i;
                 }
+
+                for (size_t i = startIndex; i < ARTIFACT_DROP_COUNT; ++i)
+                {
+                    if (artifactUI->FocusNavi(i))
+                    {
+                        _isFocusArtifactNavi = true;
+                        return;
+                    }
+                }
             }
         }
     }
@@ -109,6 +123,56 @@ void ItemDropUIRootManager::AutoFocus(bool checkInputDir)
         ArtifactButtonNavi::LastFocusIndex = ARTIFACT_DROP_COUNT + 1;
         _isFocusArtifactNavi               = false;
     } 
+}
+
+void ItemDropUIRootManager::UpdateStory() 
+{
+    if (MapManager* mapManager = SingletonComponent<MapManager>::GetInstance())
+    {
+        if (Stage* stage = mapManager->GetCurrentSelectedStage())
+        {
+            int mainlevel   = stage->MainLevel;
+            int subLevel    = stage->SubLevel;
+            int battleCount = 0;
+            if (ItemDropSystem* dropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
+            {
+                battleCount = dropSystem->StageClearCount;
+            }
+
+            std::string stageID = "211";
+            stageID += std::to_string(mainlevel);
+            stageID += std::to_string(subLevel);
+            stageID += std::to_string(battleCount);
+
+            if (ExcelDataSystem* system = SingletonComponent<ExcelDataSystem>::GetInstance())
+            {
+                if (auto dataBase = system->FindExcelDataBase(u8"스토리 목록"))
+                {
+                    size_t rowIndex = dataBase->FindRowIndex((const char8_t*)stageID.c_str(), u8"Stage ID");
+                    if (rowIndex != dataBase->FIND_INDEX_FAIL)
+                    {
+                        std::string_view data = dataBase->FIND_STR_FAIL;
+                        data = dataBase->FindData(rowIndex, u8"Journal Name Real");
+                        if (data != dataBase->FIND_STR_FAIL)
+                        {
+                            if (auto title = _storyPanel.Title.lock())
+                            {
+                                title->Text = data.data();
+                            }
+                        }
+                        data = dataBase->FindData(rowIndex, u8"Journal Description Real");
+                        if (data != dataBase->FIND_STR_FAIL)
+                        {
+                            if (auto story = _storyPanel.Description.lock())
+                            {
+                                story->Description = data.data();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 void ItemDropUIRootManager::DeserializedReflectEvent()
@@ -212,6 +276,35 @@ void ItemDropUIRootManager::Start()
                 auto component = navi->GetWeakPtr().lock();
                 _returnToMapNavi = std::static_pointer_cast<ReturnToMapNavi>(component);
             }
+        }
+        
+        if (Transform* storyTransform = transform->Find("Stroy Panel"))
+        {
+            Transform::ForeachBFS(*storyTransform, [this](Transform* curr)
+            {
+                GameObject& object = curr->gameObject;
+                if (object.CompareTag("Title"))
+                {
+                    if (TextElement* text = object.GetComponent<TextElement>())
+                    {
+                        _storyPanel.Title = text->GetWeakPtrAs<TextElement>();
+                    }      
+                }
+                else if (object.CompareTag("Description"))
+                {
+                    if (DescriptionPanel* descriptionPanel = object.GetComponent<DescriptionPanel>())
+                    {
+                        _storyPanel.Description = descriptionPanel->GetWeakPtrAs<DescriptionPanel>();
+                    }
+                }
+                else if (object.CompareTag("Story Image"))
+                {
+                    if (ImageElement* image = object.GetComponent<ImageElement>())
+                    {
+                        _storyPanel.Image = image->GetWeakPtrAs<ImageElement>();
+                    }
+                }
+            });
         }
         gameObject->ActiveSelf = false;
     }
