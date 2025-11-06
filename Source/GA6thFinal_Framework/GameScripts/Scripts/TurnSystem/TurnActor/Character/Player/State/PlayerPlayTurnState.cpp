@@ -569,15 +569,19 @@ void PlayerPlayTurnState::SetWeaponModelTransform(WeaponModelData& modelData, QT
             {
                 if (GameObject& player = GetPlayer().gameObject)
                 {
-                    Vector3 enemyPos  = enemy->transform->GetWorldPosition();
-                    Vector3 playerPos = player.transform->GetWorldPosition();
-                    Vector3 dir       = DirectX::XMVector3Normalize(playerPos - enemyPos);
-
                     if (auto gameObject = modelData.GameObject.lock())
                     {
-                        const Vector3 offset    = weaponModelManager->GetWeaponOffset(modelData.Type);
-                        const Vector3 distance  = offset + (dir * 2.0f);
-                        gameObject->transform->SetWorldPosition(enemyPos + distance);
+                        const Vector3 offsetPosition = weaponModelManager->GetWeaponOffsetPosition(modelData.Type);
+                        const Vector3 offsetRotation = weaponModelManager->GetWeaponOffsetRotation(modelData.Type);
+                        const float   offsetDistance = weaponModelManager->GetWeaponOffsetDistance(modelData.Type);
+
+                        const Vector3 enemyPosition = enemy->transform->GetWorldPosition();
+                        const Vector3 enemyForward  = enemy->transform->Forward * offsetDistance;
+                        gameObject->transform->SetWorldPosition(enemyPosition + enemyForward + offsetPosition);
+
+                        const Quaternion enemyRotation = enemy->transform->Rotation;
+                        gameObject->transform->Rotation   = enemyRotation;
+                        gameObject->transform->EulerAngle += offsetRotation;
 
                         gameObject->transform->Scale = enemy->transform->Scale;
                     }
