@@ -466,7 +466,7 @@ void RevelationsView::ShowTooltip(size_t index)
                 {
                     DropItemInfo     item = element->GetItemInfo();
                     std::vector<int> ids  = item.GetArtifactTooltipIDs(item);
-                    tooltipSystem->Show(TooltipSystem::Group::REVELATION, ids);
+                    tooltipSystem->Show(Tooltip::Group::REVELATION, ids);
                 }              
             }          
         }
