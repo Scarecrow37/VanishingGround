@@ -47,11 +47,6 @@ void InventoryUIManager::Added()
     }
 }
 
-void InventoryUIManager::Start() 
-{
-
-}
-
 void InventoryUIManager::Update() 
 {
     if (_closeFlag)
