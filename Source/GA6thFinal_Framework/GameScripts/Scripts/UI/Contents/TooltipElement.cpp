@@ -15,7 +15,7 @@ void TooltipElement::SetTooltip(const int id) const
 {
     if (const TooltipSystem* tooltipSystem = SingletonComponent<TooltipSystem>::GetInstance())
     {
-        const auto [assetId, title, description] = tooltipSystem->GetTooltip(id);
+        const auto [assetId, title, color, description] = tooltipSystem->GetTooltip(id);
 
         if (const auto sharedIcon = _icon.lock())
         {
@@ -25,6 +25,7 @@ void TooltipElement::SetTooltip(const int id) const
         if (const auto sharedName = _name.lock())
         {
             sharedName->Text = title;
+            sharedName->Color = color;
         }
 
         if (const auto sharedDescription = _description.lock())

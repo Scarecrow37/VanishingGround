@@ -330,6 +330,7 @@
     <ClInclude Include="Scripts\UI\Contents\TooltipDescriptionPanel.h" />
     <ClInclude Include="Scripts\UI\Contents\TooltipElement.h" />
     <ClInclude Include="Scripts\UI\Contents\TooltipType.h" />
+    <ClInclude Include="Scripts\Utility\HexToColor.h" />
     <ClInclude Include="Scripts\Utility\SceneGuid.h" />
     <ClInclude Include="Scripts\GameOverManager\GameOverManager.h" />
     <ClInclude Include="Scripts\Map\StageData.h" />
@@ -703,6 +704,7 @@
     <ClCompile Include="Scripts\QTE\UI\QTEUIManager.cpp" />
     <ClCompile Include="Scripts\UI\Contents\TooltipDescriptionPanel.cpp" />
     <ClCompile Include="Scripts\UI\Contents\TooltipElement.cpp" />
+    <ClCompile Include="Scripts\Utility\HexToColor.cpp" />
     <ClCompile Include="Scripts\Utility\SceneGuid.cpp" />
     <ClCompile Include="Scripts\GameOverManager\GameOverManager.cpp" />
     <ClCompile Include="Scripts\Monster\Action\BossServant\MonsterBossServantAction.cpp" />

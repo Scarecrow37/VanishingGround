@@ -2,6 +2,7 @@
 #include "TooltipSystem.h"
 #include "Scripts/UI/Contents/TooltipGroupComponent.h"
 #include "ExcelDataSystem/ExcelDataSystem.h"
+#include "Utility/HexToColor.h"
 
 UMREAL_COMPONENT(TooltipSystem)
 
@@ -135,6 +136,8 @@ void TooltipSystem::SetupData()
                     const size_t     nameIndex       = textSheet->FindRowIndex(nameIdU8String, DATA_TEXT_COLUMN_KEY_ID);
                     std::string_view nameContentView = textSheet->FindData(nameIndex, DATA_TEXT_COLUMN_CONTENT);
                     std::string      nameContent     = std::string(nameContentView);
+                    std::string_view nameColorView   = textSheet->FindData(nameIndex, DATA_TEXT_COLUMN_COLOR);
+                    std::string      nameColorString       = "#" + std::string(nameColorView);
 
                     std::string_view descriptionIdStringView =
                         tooltipSheet->FindData(row, DATA_TOOLTIP_COLUMN_KEY_DESCRIPTION_ID);
@@ -151,8 +154,9 @@ void TooltipSystem::SetupData()
                     int              iconId           = iconIdString.empty() ? 0 : std::stoi(iconIdString);
 
                     Tooltip::TooltipData tooltipData{.ImageAssetId = iconId,
-                                                              .Title        = std::move(nameContent),
-                                                              .Description  = std::move(descriptionContent)};
+                                                     .Title        = std::move(nameContent),
+                                                     .TitleColor   = HexToColor()(nameColorString),
+                                                     .Description  = std::move(descriptionContent)};
 
                     _tooltips.emplace(id, std::move(tooltipData));
                 }

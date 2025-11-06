@@ -16,6 +16,7 @@ class TooltipSystem : public Component
     static constexpr std::u8string_view DATA_TEXT_SHEET_NAME                   = u8"텍스트";
     static constexpr std::u8string_view DATA_TEXT_COLUMN_KEY_ID                = u8"ID";
     static constexpr std::u8string_view DATA_TEXT_COLUMN_CONTENT               = u8"Content";
+    static constexpr std::u8string_view DATA_TEXT_COLUMN_COLOR                 = u8"Color";
 
 public:
     TooltipSystem();
