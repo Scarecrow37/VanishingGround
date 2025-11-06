@@ -28,13 +28,15 @@ public:
     PROPERTY(PrimaryColumn)
 
 public:
+    void Show(int tooltipId, const TooltipComponent::TooltipData& data);
     void Show(const TooltipComponent::TooltipData& data) const;
     void Hide();
 
 public:
-    void FadeIn() const;
-    void FadeOut() const;
+    void FadeIn();
+    void FadeOut();
     float GetFadeDuration() const;
+    bool  IsFadingOut() const;
 
 protected:
     void Awake() override;
@@ -54,4 +56,8 @@ private:
     std::unordered_map<ColumnType, std::weak_ptr<TooltipColumnComponent>> _columns;
 
     std::weak_ptr<FadeUIComponent> _fadeUI;
+
+    std::unordered_set<int> _activeTooltipIds;
+
+    bool _isFadingOut;
 };

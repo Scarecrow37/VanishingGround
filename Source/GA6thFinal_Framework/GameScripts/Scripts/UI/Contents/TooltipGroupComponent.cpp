@@ -24,6 +24,14 @@ struct GetSecondary
 
 TooltipGroupComponent::TooltipGroupComponent() = default;
 
+void TooltipGroupComponent::Show(const int tooltipId, const TooltipComponent::TooltipData& data)
+{
+    if (auto [_, succeed] = _activeTooltipIds.insert(tooltipId); succeed)
+    {
+        Show(data);
+    }
+}
+
 void TooltipGroupComponent::Show(const TooltipComponent::TooltipData& data) const
 {
     const ColumnType primaryColumn = PrimaryColumn;
@@ -54,30 +62,35 @@ void TooltipGroupComponent::Show(const TooltipComponent::TooltipData& data) cons
 
 void TooltipGroupComponent::Hide()
 {
-    for (auto weakColumnComponent : _columns | std::views::values)
+    if (_isFadingOut)
     {
-        if (const auto sharedColumnComponent = weakColumnComponent.lock())
+        for (auto weakColumnComponent : _columns | std::views::values)
         {
-            sharedColumnComponent->Hide();
+            if (const auto sharedColumnComponent = weakColumnComponent.lock())
+            {
+                sharedColumnComponent->Hide();
+            }
         }
+        _activeTooltipIds.clear();
     }
 }
 
-void TooltipGroupComponent::FadeIn() const
+void TooltipGroupComponent::FadeIn()
 {
     if (const auto fadeUI = _fadeUI.lock())
     {
         fadeUI->FadeIn();
     }
-    
+    _isFadingOut = false;
 }
 
-void TooltipGroupComponent::FadeOut() const
+void TooltipGroupComponent::FadeOut()
 {
     if (const auto fadeUI = _fadeUI.lock())
     {
         fadeUI->FadeOut();
     }
+    _isFadingOut = true;
 }
 
 float TooltipGroupComponent::GetFadeDuration() const
@@ -87,6 +100,11 @@ float TooltipGroupComponent::GetFadeDuration() const
         return fadeUI->FadeDuration;
     }
     return 0.0f;
+}
+
+bool TooltipGroupComponent::IsFadingOut() const
+{
+    return _isFadingOut;
 }
 
 void TooltipGroupComponent::Awake()
