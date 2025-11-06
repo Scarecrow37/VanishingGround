@@ -380,9 +380,21 @@ void CombatStartPhase::RegisterEnemiesNavi()
         }
     };
 
-    DisableNavi(Monster::SpawnPoint::Left);
-    DisableNavi(Monster::SpawnPoint::Middle);
-    DisableNavi(Monster::SpawnPoint::Right);
+    if (MonsterSystem* system = SingletonComponent<MonsterSystem>::GetInstance())
+    {
+        if (auto object = system->GetSpawnedEnemyFromSpawnPoint(Monster::SpawnPoint::Left).lock(); nullptr == object)
+        {
+            DisableNavi(Monster::SpawnPoint::Left);
+        }
+        if (auto object = system->GetSpawnedEnemyFromSpawnPoint(Monster::SpawnPoint::Middle).lock(); nullptr == object)
+        {
+            DisableNavi(Monster::SpawnPoint::Middle);
+        }
+        if (auto object = system->GetSpawnedEnemyFromSpawnPoint(Monster::SpawnPoint::Right).lock(); nullptr == object)
+        {
+            DisableNavi(Monster::SpawnPoint::Right);
+        }
+    }
 }
 
 void CombatStartPhase::RegisterEnemiesHP() const
