@@ -328,7 +328,7 @@ namespace
 
 void CombatStartPhase::RegisterEnemiesHUD() 
 {
-    auto SetHUDObject = [&](Monster::SpawnPoint point, const std::string& tag) 
+    auto SetEnemyHUD = [&](Monster::SpawnPoint point, const std::string& tag) 
     {
         const std::weak_ptr<GameObject> weakGameObject = GameObject::FindWithTag(tag);
         if (auto object = weakGameObject.lock())
@@ -349,9 +349,9 @@ void CombatStartPhase::RegisterEnemiesHUD()
         }
     };
 
-    SetHUDObject(Monster::SpawnPoint::Left, "Left Monster HUD");
-    SetHUDObject(Monster::SpawnPoint::Middle, "Middle Monster HUD");
-    SetHUDObject(Monster::SpawnPoint::Right, "Right Monster HUD");
+    SetEnemyHUD(Monster::SpawnPoint::Left, "Left Monster HUD");
+    SetEnemyHUD(Monster::SpawnPoint::Middle, "Middle Monster HUD");
+    SetEnemyHUD(Monster::SpawnPoint::Right, "Right Monster HUD");
 }
 
 void CombatStartPhase::RegisterEnemiesNavi() 

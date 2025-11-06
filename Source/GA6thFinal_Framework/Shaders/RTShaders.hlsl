@@ -223,9 +223,9 @@ bool TraceShadow(float3 origin, float3 dir, float maxT)
     sray.TMin = 0.01;
     sray.TMax = maxT;
     
-    // SBTable slot 1 = shadow miss
+    // SBTable: miss slot 1 = shadow miss, hit slot 1 = shadow hit group
     TraceRay(RtScene,
-             RAY_FLAG_CULL_BACK_FACING_TRIANGLES,
+             RAY_FLAG_NONE,
              0xFF, 1, 0, 1, sray, sp);
 
     return sp.hit;
@@ -280,6 +280,41 @@ void Miss(inout RayPayload payload)
 void ShadowMiss(inout ShadowPayload payload)
 {
     payload.hit = false; // 그림자 미스는 hit가 false
+}
+
+[shader("anyhit")]
+void ShadowAnyHit(inout ShadowPayload payload, in BuiltInTriangleIntersectionAttributes attribs)
+{
+    // 투명 처리: 알파값이 낮으면 hit 무시
+    uint instanceID = InstanceID();
+    InstanceData instData = meshInstanceData[instanceID];
+    uint diffuseID = instData.MaterialID[DIFFUSE];
+    uint vertexID = vertex_buffer_id[instanceID];
+    uint indexID = index_buffer_id[instanceID];
+    
+    uint baseIndex = PrimitiveIndex() * 3;
+    uint3 indices = uint3(
+        Indices[indexID][baseIndex],
+        Indices[indexID][baseIndex + 1],
+        Indices[indexID][baseIndex + 2]
+    );
+    
+    float2 uv[3] = {
+        Vertices[vertexID][indices[0]].uv[0],
+        Vertices[vertexID][indices[1]].uv[0],
+        Vertices[vertexID][indices[2]].uv[0]
+    };
+    
+    float2 hitUV = HitAttribute2(uv, attribs);
+    float4 diffuse = textures[diffuseID].SampleLevel(samAnistropic_wrap, hitUV, 0);
+    float textureAlpha = diffuse.a;
+    float finalAlpha = textureAlpha * instData.Alpha;
+    
+    // 알파가 0.5 이하면 hit 무시 (그림자를 드리우지 않음)
+    if (finalAlpha < 1.f)
+    {
+        IgnoreHit();
+    }
 }
 
 static const uint MAX_RECURSION_DEPTH = 3;
@@ -397,7 +432,7 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
     float3 directLighting = 0;
     float3 ambientLighting = 0;
     
-    float maxPointLightDistance = 30.f;
+    float maxPointLightDistance = 10.f;
     
     // Directional
     for (uint i = 0; i < bit32_4_numLight.Directional; ++i)
