@@ -9,6 +9,9 @@
 #include "UI/Elements/SpriteAnimation/SpriteAnimationElement.h"
 #include "TutorialSystem/TutorialSystem.h"
 #include "UI/Animations/ChildsAnimationsController/ChildsAnimationsController.h"
+#include "KeyCallbackUINavi/KeyCallbackUINavi.h"
+#include "RevelationSystem/RevelationSystem.h"
+#include "TooltipSystem/TooltipSystem.h"
 
 UMREAL_COMPONENT(RevelationsView)
 
@@ -230,16 +233,21 @@ void RevelationsView::Start()
     {
         start->Enable = false;
     }
-    for (auto& animation : _revelationUis)
+    for (auto& uis : _revelationUis)
     {
-        if (animation.AnimationsController)
+        if (uis.AnimationsController)
         {
-            for (int i = 0; i < animation.AnimationsController->transform->ChildCount; i++)
+            for (int i = 0; i < uis.AnimationsController->transform->ChildCount; i++)
             {
-                animation.AnimationsController->EnableAnimation(static_cast<size_t>(i), false);
+                uis.AnimationsController->EnableAnimation(static_cast<size_t>(i), false);
             }           
         }        
+        if (uis.FocusElement)
+        {
+            uis.FocusElement->Enable = false;
+        }
     }
+    AddCallback();
     gameObject->ActiveSelf = false;
 }
 
@@ -247,6 +255,7 @@ void RevelationsView::OnDestroy()
 {
     UmWatcher.Blind<RevelationsViewModel>("Revelations", _watchHandle);
     ClearRevelationUIs();
+    ClearCallback();
 }
 
 void RevelationsView::FindRevelationUIs()
@@ -312,6 +321,7 @@ std::pair<GameObject*, RevelationUI> RevelationsView::FindRevelationUI(const std
         .IconElement = nullptr, 
         .NameElement = nullptr, 
         .DescriptionElement = nullptr,
+        .FocusElement = nullptr
     };
 
     Transform& ownerTransform = transform;
@@ -348,6 +358,10 @@ std::pair<GameObject*, RevelationUI> RevelationsView::FindRevelationUI(const std
             {
                 revelationUI.AnimationsController = object.GetComponent<ChildsAnimationsController>();
             }
+            if (nullptr == revelationUI.FocusElement && object.CompareTag("Focus"))
+            {
+                revelationUI.FocusElement = object.GetComponent<ImageElement>();
+            }
         });
 
         if (nullptr == revelationUI.IconElement)
@@ -383,10 +397,86 @@ void RevelationsView::ClearRevelationUIs()
         uis.IconElement        = nullptr;
         uis.NameElement        = nullptr;
         uis.GradeElements.clear();
+        uis.AnimationsController = nullptr;
+        uis.FocusElement         = nullptr;
     }
 
     for (auto& objs : _revelationObjects)
     {
         objs = nullptr;
+    }
+}
+
+
+void RevelationsView::AddCallback()
+{
+    for (size_t i = 0; i < 4; i++)
+    {
+        _callbacks.push_back(KeyCallbackUINavi::AddCallbackFocusIn("Revelation Navi 0", [&]() { FocusIn(i); }));
+        _callbacks.push_back(KeyCallbackUINavi::AddCallbackFocusOut("Revelation Navi 0", [&]() { FocusOut(i); }));
+        _callbacks.push_back(KeyCallbackUINavi::AddCallbackShowTooltips("Revelation Navi 0", [&]() { ShowTooltip(i); }));
+        _callbacks.push_back(KeyCallbackUINavi::AddCallbackHideTooltips("Revelation Navi 0", [&]() { HideToolTip(i); }));
+    }
+}
+
+void RevelationsView::ClearCallback()
+{
+    for (auto& [delegate, handel] : _callbacks)
+    {
+        delegate->RemoveListener(handel);
+    }
+}
+
+void RevelationsView::FocusIn(size_t index)
+{
+    if (index < _revelationUis.size())
+    {
+        if (_revelationUis[index].FocusElement)
+        {
+            _revelationUis[index].FocusElement->Enable = true;
+        }
+    }
+}
+
+void RevelationsView::FocusOut(size_t index)
+{
+    if (index < _revelationUis.size())
+    {
+        if (_revelationUis[index].FocusElement)
+        {
+            _revelationUis[index].FocusElement->Enable = false;
+        }
+    }
+    if (TooltipSystem* system = SingletonComponent<TooltipSystem>::GetInstance())
+    {
+        system->Hide();
+    }
+}
+
+void RevelationsView::ShowTooltip(size_t index)
+{
+    if (TooltipSystem* tooltipSystem = SingletonComponent<TooltipSystem>::GetInstance())
+    {
+        if (RevelationSystem* revelationSystem = SingletonComponent<RevelationSystem>::GetInstance())
+        {
+            auto& elements = revelationSystem->GetPlayerElementList();
+            if (index < elements.size())
+            {
+                if (auto& element = elements[index])
+                {
+                    DropItemInfo     item = element->GetItemInfo();
+                    std::vector<int> ids  = item.GetArtifactTooltipIDs(item);
+                    tooltipSystem->Show(TooltipSystem::Group::REVELATION, ids);
+                }              
+            }          
+        }
+    }
+}
+
+void RevelationsView::HideToolTip(size_t index)
+{
+    if (TooltipSystem* system = SingletonComponent<TooltipSystem>::GetInstance())
+    {
+        system->Hide();
     }
 }
