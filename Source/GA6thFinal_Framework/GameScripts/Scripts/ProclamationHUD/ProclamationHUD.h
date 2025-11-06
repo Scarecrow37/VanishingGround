@@ -14,6 +14,7 @@ public:
 
 public:
     void SetDescriptionText(int assetID, int damage, int count);
+    void FindUI();
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)

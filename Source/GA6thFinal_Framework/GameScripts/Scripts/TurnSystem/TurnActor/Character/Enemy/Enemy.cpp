@@ -392,6 +392,7 @@ void Enemy::OnCombatStart()
             if (auto proclamationHUD = HUD->GetComponent<ProclamationHUD>())
             {
                 _proclamationHUD = proclamationHUD;
+                _proclamationHUD->FindUI();
             }
         }
     }    

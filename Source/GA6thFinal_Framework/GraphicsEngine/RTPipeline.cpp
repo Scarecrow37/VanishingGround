@@ -36,7 +36,7 @@ DxilLibrary RTPipeline::CreateDxilLibrary()
     // compile shader
 #else
     const ComPtr<IDxcBlob> rayGenshader  = d3dUtil::CompileShaderLibrary(L"../Shaders/RTShaders.hlsl", L"lib_6_3");
-    const WCHAR*           entryPoints[] = {RayGenShader, MissShader, ClosestHitShader,ShadowMissShader};
+    const WCHAR*           entryPoints[] = {RayGenShader, MissShader, ClosestHitShader, ShadowMissShader, ShadowAnyHitShader};
     return DxilLibrary(rayGenshader, entryPoints, ARRAYSIZE(entryPoints));
 #endif
 }
@@ -59,7 +59,7 @@ DxilLibrary RTPipeline::CreateDxilLibraryFromBuiltIn()
     FAILED_CHECK_MESSAGE(hr, L"Failed to cast to IDxcBlob");
 
     // 4. DxilLibrary 생성
-    const WCHAR* entryPoints[] = {RayGenShader, MissShader, ClosestHitShader, ShadowMissShader};
+    const WCHAR* entryPoints[] = {RayGenShader, MissShader, ClosestHitShader, ShadowMissShader, ShadowAnyHitShader};
     return DxilLibrary(dxcBlob, entryPoints, ARRAYSIZE(entryPoints));
 }
 #endif
