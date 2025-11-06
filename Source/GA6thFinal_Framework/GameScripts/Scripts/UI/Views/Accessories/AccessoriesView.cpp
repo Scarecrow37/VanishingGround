@@ -7,6 +7,7 @@
 #include "KeyCallbackUINavi/KeyCallbackUINavi.h"
 #include "UI/Panels/Description/DescriptionPanel.h"
 #include "TooltipSystem/TooltipSystem.h"
+#include "UI/Animations/FadeUIComponent/FadeUIComponent.h"
 
 UMREAL_COMPONENT(AccessoriesView)
 
@@ -24,7 +25,6 @@ void AccessoriesView::Reset()
 void AccessoriesView::Awake() 
 {
     FindChildElements();
-
 }
 
 void AccessoriesView::Start() 
@@ -201,7 +201,11 @@ void AccessoriesView::AddCallback()
         _callbacks.push_back(KeyCallbackUINavi::AddCallbackShowTooltips(key, [this, i]() { ShowTooltip(i); }));
         _callbacks.push_back(KeyCallbackUINavi::AddCallbackHideTooltips(key, [this, i]() { HideTooltip(i); }));
     }
-    _focusInfoUIObject    = GameObject::Find("Focus Info UI Panel");
+    _focusInfoUIFade      = GameObject::FindComponentWithTag<FadeUIComponent>("Focus Info UI Panel");
+    if (auto fade =_focusInfoUIFade.lock())
+    {
+        fade->End();
+    }
     _focusInfoDescription = GameObject::FindComponentWithTag<DescriptionPanel>("Focus Info UI Description Panel");
 }
 
@@ -222,15 +226,6 @@ void AccessoriesView::FocusIn(size_t index)
             _uiElements[index].Focus->Enable = true;       
         }
     }
-    if (AccessorySystem* system = SingletonComponent<AccessorySystem>::GetInstance())
-    {
-        if (auto description = _focusInfoDescription.lock())
-        {
-            auto&        accessory   = system->GetPlayerAccessoryItems()[index];
-            DropItemInfo info        = accessory.GetItemInfo();
-            description->Description = DropItemInfo::GetArtifactDescription(info);
-        }
-    }
     if (TooltipSystem* tooltipSystem = SingletonComponent<TooltipSystem>::GetInstance())
     {
         tooltipSystem->Hide();
@@ -246,18 +241,23 @@ void AccessoriesView::FocusOut(size_t index)
             _uiElements[index].Focus->Enable = false;
         }
     }
-    if (auto description = _focusInfoDescription.lock())
-    {
-        description->Description = "";
-    }
     if (TooltipSystem* tooltipSystem = SingletonComponent<TooltipSystem>::GetInstance())
     {
         tooltipSystem->Hide();
+    }
+    if (auto fade = _focusInfoUIFade.lock())
+    {
+        fade->FadeOut();
     }
 }
 
 void AccessoriesView::ShowTooltip(size_t index)
 {
+    if (auto fade = _focusInfoUIFade.lock())
+    {
+        fade->FadeIn();
+    }
+
     if (AccessorySystem* accessorySystem = SingletonComponent<AccessorySystem>::GetInstance())
     {
         if (TooltipSystem* tooltipSystem = SingletonComponent<TooltipSystem>::GetInstance())
@@ -266,27 +266,27 @@ void AccessoriesView::ShowTooltip(size_t index)
             if (index < accessories.size())
             {
                 DropItemInfo info = accessories[index].GetItemInfo();
+                if (auto focusInfoDescription = _focusInfoDescription.lock())
+                {
+                    std::string description = DropItemInfo::GetArtifactDescription(info);
+                    focusInfoDescription->Description = description;
+                }
                 std::vector<int> tooltips = DropItemInfo::GetArtifactTooltipIDs(info);
                 tooltipSystem->Show(TooltipSystem::Group::PLAYER, tooltips);
             }          
         }
     }
-
-    if (auto object = _focusInfoUIObject.lock())
-    {
-        object->SetActive(true);
-    }
 }
 
 void AccessoriesView::HideTooltip(size_t index)
 {
-    if (TooltipSystem* tooltipSystem = SingletonComponent<TooltipSystem>::GetInstance())
-    {
-        tooltipSystem->Hide();
-    }
-
     if (auto object = _focusInfoUIObject.lock())
     {
         object->SetActive(false);
+    }
+
+    if (TooltipSystem* tooltipSystem = SingletonComponent<TooltipSystem>::GetInstance())
+    {
+        tooltipSystem->Hide();
     }
 }
