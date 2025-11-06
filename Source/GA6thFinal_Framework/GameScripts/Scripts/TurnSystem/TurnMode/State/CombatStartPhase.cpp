@@ -215,7 +215,7 @@ void CombatStartPhase::OnExit()
         }
     }
 
-     if (ItemDropSystem* itemDropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
+    if (ItemDropSystem* itemDropSystem = SingletonComponent<ItemDropSystem>::GetInstance())
     {
         // 소멸 계시 추가시 튜토리얼
         int stageClearCount = itemDropSystem->StageClearCount;
