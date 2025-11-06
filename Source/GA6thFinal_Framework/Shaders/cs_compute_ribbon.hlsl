@@ -99,6 +99,7 @@ void cs_main(uint3 DTid : SV_DispatchThreadID)
     output.FinalMatrix = mul(output.FinalMatrix, translationMat);
     output.FinalMatrix = mul(output.FinalMatrix, mvp.ViewMatrix);
     output.FinalMatrix = mul(output.FinalMatrix, mvp.ProjMatrix);
+    output.Paddings2 = float4(emitter.DragForce.w, 0, 0, 0);
 
 
     //output.FrameInfo = float4(currentScale.x, currentScale.y, ratio, 0);
