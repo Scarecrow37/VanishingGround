@@ -37,7 +37,6 @@ protected:
 
     void ImGuiDrawPropertysEvent() override;
     void Added() override;
-    void Start() override;
     void Update() override;
 
 private:
