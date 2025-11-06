@@ -415,10 +415,10 @@ void RevelationsView::AddCallback()
     {
         key = "Revelation Navi ";
         key += std::to_string(i);
-        _callbacks.push_back(KeyCallbackUINavi::AddCallbackFocusIn(key, [&]() { FocusIn(i); }));
-        _callbacks.push_back(KeyCallbackUINavi::AddCallbackFocusOut(key, [&]() { FocusOut(i); }));
-        _callbacks.push_back(KeyCallbackUINavi::AddCallbackShowTooltips(key, [&]() { ShowTooltip(i); }));
-        _callbacks.push_back(KeyCallbackUINavi::AddCallbackHideTooltips(key, [&]() { HideToolTip(i); }));
+        _callbacks.push_back(KeyCallbackUINavi::AddCallbackFocusIn(key, [this, i]() { FocusIn(i); }));
+        _callbacks.push_back(KeyCallbackUINavi::AddCallbackFocusOut(key, [this, i]() { FocusOut(i); }));
+        _callbacks.push_back(KeyCallbackUINavi::AddCallbackShowTooltips(key, [this, i]() { ShowTooltip(i); }));
+        _callbacks.push_back(KeyCallbackUINavi::AddCallbackHideTooltips(key, [this, i]() { HideToolTip(i); }));
     }
 }
 
