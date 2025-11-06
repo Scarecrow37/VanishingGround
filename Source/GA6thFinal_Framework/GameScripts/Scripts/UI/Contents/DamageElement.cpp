@@ -7,7 +7,7 @@ UMREAL_COMPONENT(DamageElement)
 
 DamageElement::DamageElement()
     : _origin(POINT{}), _distance(0), _angle(0), _duration(0), _elapsedTime(0), _beginFontSize(0), _endFontSize(0),
-      _beginRevelationFontSize(0), _endRevelationFontSize(0), _sizeRatio(REVELATION_FONT_SIZE_RATIO_SMALL)
+      _beginRevelationFontSize(0), _endRevelationFontSize(0), _sizeRatio(static_cast<LONG>(REVELATION_FONT_SIZE_RATIO_SMALL))
 {
     _steps.reserve(3);
     _steps.push_back(0.0f);
