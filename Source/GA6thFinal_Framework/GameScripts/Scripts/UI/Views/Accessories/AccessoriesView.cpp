@@ -272,7 +272,7 @@ void AccessoriesView::ShowTooltip(size_t index)
                     focusInfoDescription->Description = description;
                 }
                 std::vector<int> tooltips = DropItemInfo::GetArtifactTooltipIDs(info);
-                tooltipSystem->Show(TooltipSystem::Group::PLAYER, tooltips);
+                tooltipSystem->Show(Tooltip::Group::PLAYER, tooltips);
             }          
         }
     }

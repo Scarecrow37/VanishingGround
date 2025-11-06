@@ -7,17 +7,22 @@ UMREAL_COMPONENT(TooltipSystem)
 
 TooltipSystem::TooltipSystem() = default;
 
-void TooltipSystem::Show(const Group group, const int id) const
+void TooltipSystem::RegisterTooltipGroup(const Tooltip::Group group, const std::weak_ptr<TooltipGroupComponent>& component)
+{
+    _tooltipGroups[group] = component;
+}
+
+void TooltipSystem::Show(const Tooltip::Group group, const int id) const
 {
     Show(group, std::span(&id, 1));
 }
 
-void TooltipSystem::Show(const Group group, const std::initializer_list<int> ids) const
+void TooltipSystem::Show(const Tooltip::Group group, const std::initializer_list<int> ids) const
 {
     Show(group, std::span(ids));
 }
 
-void TooltipSystem::Show(const Group group, const std::span<const int> ids) const
+void TooltipSystem::Show(const Tooltip::Group group, const std::span<const int> ids) const
 {
     try
     {
@@ -40,13 +45,13 @@ void TooltipSystem::Show(const Group group, const std::span<const int> ids) cons
 
 void TooltipSystem::Hide()
 {
-    for (auto& weakGroup : _tooltipGroups | std::views::keys)
+    for (const Tooltip::Group weakGroup : _tooltipGroups | std::views::keys)
     {
         Hide(weakGroup);
     }
 }
 
-void TooltipSystem::Hide(const Group group)
+void TooltipSystem::Hide(const Tooltip::Group group)
 {
     try
     {
@@ -91,8 +96,6 @@ void TooltipSystem::Awake()
     {
         _singletonComponent.TrySingleTon();
     }
-
-    FindComponents();
 }
 
 void TooltipSystem::Start()
@@ -108,16 +111,6 @@ void TooltipSystem::ImGuiDrawPropertysEvent()
 
     ShowDataProperty();
     ShowTestTooltipProperty();
-}
-
-void TooltipSystem::FindComponents()
-{
-    _tooltipGroups.emplace(Group::PLAYER,
-                           GameObject::FindComponentWithTag<TooltipGroupComponent>(TOOLTIP_GROUP_PLAYER.data()));
-    _tooltipGroups.emplace(Group::ENEMY,
-                           GameObject::FindComponentWithTag<TooltipGroupComponent>(TOOLTIP_GROUP_ENEMY.data()));
-    _tooltipGroups.emplace(Group::REVELATION,
-                           GameObject::FindComponentWithTag<TooltipGroupComponent>(TOOLTIP_GROUP_REVELATION.data()));
 }
 
 void TooltipSystem::SetupData()
@@ -208,7 +201,7 @@ void TooltipSystem::ShowDataProperty()
 void TooltipSystem::ShowTestTooltipProperty()
 {
     static int   id    = 0;
-    static Group group = Group::PLAYER;
+    static Tooltip::Group group = Tooltip::Group::PLAYER;
 
     ImGui::InputInt("Tooltip ID", &id);
     if (constexpr const char* groupItems[] = {"Player", "Enemy", "Revelation"};
@@ -219,7 +212,7 @@ void TooltipSystem::ShowTestTooltipProperty()
             const bool isSelected = (static_cast<size_t>(group) == i);
             if (ImGui::Selectable(groupItems[i], isSelected))
             {
-                group = static_cast<Group>(i);
+                group = static_cast<Tooltip::Group>(i);
             }
             if (isSelected)
             {

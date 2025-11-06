@@ -643,7 +643,7 @@ void Enemy::ShowTooltip()
     {
         auto&            tokenInventory = GetTokenInventory();
         std::vector<int> ids            = tokenInventory.GetTokensTooltips();
-        system->Show(TooltipSystem::Group::ENEMY, ids);
+        system->Show(Tooltip::Group::ENEMY, ids);
     }
 }
 

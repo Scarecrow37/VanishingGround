@@ -390,7 +390,7 @@ void WeaponView::ShowTooltips()
             DropItemInfo     item   = weapon.GetItemInfo();
             std::vector<int> ids    = item.GetArtifactTooltipIDs(item);
 
-            tooltipSystem->Show(TooltipSystem::Group::PLAYER, ids);
+            tooltipSystem->Show(Tooltip::Group::PLAYER, ids);
         }
     }
 }

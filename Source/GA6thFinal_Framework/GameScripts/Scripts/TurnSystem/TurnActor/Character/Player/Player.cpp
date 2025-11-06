@@ -88,7 +88,7 @@ void Player::ShowTooltip()
     {
         auto&  tokenInventory = GetTokenInventory();
         std::vector<int> ids = tokenInventory.GetTokensTooltips();
-        system->Show(TooltipSystem::Group::PLAYER, ids);
+        system->Show(Tooltip::Group::PLAYER, ids);
     }
 }
 

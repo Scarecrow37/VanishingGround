@@ -2,7 +2,10 @@
 #include "TooltipGroupComponent.h"
 #include "Scripts/UI/Contents/TooltipColumnComponent.h"
 #include "Scripts/UI/Animations/FadeUIComponent/FadeUIComponent.h"
+#include "TooltipSystem/TooltipSystem.h"
+#include "Utility/SingletonHelper.h"
 
+class TooltipSystem;
 UMREAL_COMPONENT(TooltipGroupComponent)
 
 struct GetSecondary
@@ -117,6 +120,11 @@ void TooltipGroupComponent::Awake()
 void TooltipGroupComponent::Start()
 {
     Component::Start();
+
+    if (TooltipSystem* system = SingletonComponent<TooltipSystem>::GetInstance())
+    {
+        system->RegisterTooltipGroup(ReflectFields->Group, GetWeakPtrAs<TooltipGroupComponent>());
+    }
 
     Hide();
 }

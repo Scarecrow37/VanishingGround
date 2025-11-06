@@ -20,7 +20,7 @@ void TooltipDescriptionPanel::SetTooltips(const std::span<const int> ids)
 {
     ClearTooltips();
 
-    for (size_t i = 0; i < ids.size(); ++i)
+    for (int i = 0; i < ids.size(); ++i)
     {
         if (i < transform->GetChildCount())
         {

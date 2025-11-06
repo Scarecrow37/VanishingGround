@@ -21,11 +21,15 @@ public:
     TooltipGroupComponent();
 
 public:
-    REFLECT_PROPERTY(PrimaryColumn)
+    REFLECT_PROPERTY(PrimaryColumn, Group)
 
     GETTER(ColumnType, PrimaryColumn) { return ReflectFields->PrimaryColumn; }
     SETTER(ColumnType, PrimaryColumn) { ReflectFields->PrimaryColumn = value; }
     PROPERTY(PrimaryColumn)
+
+    GETTER(Tooltip::Group, Group) { return ReflectFields->Group; }
+    SETTER(Tooltip::Group, Group) { ReflectFields->Group = value; }
+    PROPERTY(Group)
 
 public:
     void Show(int tooltipId, const Tooltip::TooltipData& data);
@@ -49,7 +53,8 @@ private:
 
 protected:
     REFLECT_FIELDS_BEGIN(Component)
-    ColumnType PrimaryColumn = ColumnType::LEFT;
+    ColumnType     PrimaryColumn = ColumnType::LEFT;
+    Tooltip::Group Group         = Tooltip::Group::PLAYER;
     REFLECT_FIELDS_END(TooltipGroupComponent)
 
 private:
