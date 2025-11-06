@@ -81,7 +81,7 @@ public:
     /// <summary>
     /// 스토리 정보를 갱신합니다.
     /// </summary>
-    void UpdateStroy();
+    void UpdateStory();
 
 public:
     REFLECT_PROPERTY(
@@ -123,7 +123,7 @@ private:
         std::weak_ptr<DescriptionPanel> Description;
         std::weak_ptr<ImageElement>     Image;
     }
-    _stroyPanel;
+    _storyPanel;
 
     enum class InputDir
     {

@@ -125,7 +125,7 @@ void ItemDropUIRootManager::AutoFocus(bool checkInputDir)
     } 
 }
 
-void ItemDropUIRootManager::UpdateStroy() 
+void ItemDropUIRootManager::UpdateStory() 
 {
     if (MapManager* mapManager = SingletonComponent<MapManager>::GetInstance())
     {
@@ -155,7 +155,7 @@ void ItemDropUIRootManager::UpdateStroy()
                         data = dataBase->FindData(rowIndex, u8"Journal Name Real");
                         if (data != dataBase->FIND_STR_FAIL)
                         {
-                            if (auto title = _stroyPanel.Title.lock())
+                            if (auto title = _storyPanel.Title.lock())
                             {
                                 title->Text = data.data();
                             }
@@ -163,9 +163,9 @@ void ItemDropUIRootManager::UpdateStroy()
                         data = dataBase->FindData(rowIndex, u8"Journal Description Real");
                         if (data != dataBase->FIND_STR_FAIL)
                         {
-                            if (auto stroy = _stroyPanel.Description.lock())
+                            if (auto story = _storyPanel.Description.lock())
                             {
-                                stroy->Description = data.data();
+                                story->Description = data.data();
                             }
                         }
                     }
@@ -278,30 +278,30 @@ void ItemDropUIRootManager::Start()
             }
         }
         
-        if (Transform* stroyTransform = transform->Find("Stroy Panel"))
+        if (Transform* storyTransform = transform->Find("Stroy Panel"))
         {
-            Transform::ForeachBFS(*stroyTransform, [this](Transform* curr)
+            Transform::ForeachBFS(*storyTransform, [this](Transform* curr)
             {
                 GameObject& object = curr->gameObject;
                 if (object.CompareTag("Title"))
                 {
                     if (TextElement* text = object.GetComponent<TextElement>())
                     {
-                        _stroyPanel.Title = text->GetWeakPtrAs<TextElement>();
+                        _storyPanel.Title = text->GetWeakPtrAs<TextElement>();
                     }      
                 }
                 else if (object.CompareTag("Description"))
                 {
                     if (DescriptionPanel* descriptionPanel = object.GetComponent<DescriptionPanel>())
                     {
-                        _stroyPanel.Description = descriptionPanel->GetWeakPtrAs<DescriptionPanel>();
+                        _storyPanel.Description = descriptionPanel->GetWeakPtrAs<DescriptionPanel>();
                     }
                 }
                 else if (object.CompareTag("Story Image"))
                 {
                     if (ImageElement* image = object.GetComponent<ImageElement>())
                     {
-                        _stroyPanel.Image = image->GetWeakPtrAs<ImageElement>();
+                        _storyPanel.Image = image->GetWeakPtrAs<ImageElement>();
                     }
                 }
             });

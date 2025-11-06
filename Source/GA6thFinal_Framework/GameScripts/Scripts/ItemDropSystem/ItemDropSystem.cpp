@@ -345,7 +345,7 @@ void ItemDropSystem::PlayItemDropUISequence()
 
             // 포커스 되야할 버튼
             ArtifactButtonNavi::LastFocusIndex = 0;
-            itemDropUIRootManager->UpdateStroy();
+            itemDropUIRootManager->UpdateStory();
             UmTime.Invoke(itemDropUIRootManager, 0.1f, [itemDropUIRootManager]() 
             { 
                 itemDropUIRootManager->AutoFocus();
