@@ -61,7 +61,9 @@ void TokenTypeCountAttackDamagePlus::OnPlayerBattleCalculateDamageModifier(Playe
                 if (target)
                 {
                     if (target->IsDead())
+                    {
                         continue;
+                    }
 
                     TokenInventory& inventory = target->GetTokenInventory();
 
