@@ -7,32 +7,29 @@ UMREAL_COMPONENT(TooltipSystem)
 
 TooltipSystem::TooltipSystem() = default;
 
-void TooltipSystem::Show(const Group group, const int id) const
+void TooltipSystem::Show(const Group group, const int id)
 {
-    try
-    {
-        if (const auto sharedGroup = _tooltipGroups.at(group).lock())
-        {
-            sharedGroup->Show(_tooltips.at(id));
-            sharedGroup->FadeIn();
-        }
-    }
-    catch (const std::out_of_range& exception)
-    {
-        UmLogger.Log(LogLevel::LEVEL_WARNING, "Tooltip group or tooltip data not found.");
-        UmLogger.Log(LogLevel::LEVEL_WARNING, exception.what());
-    }
+    Show(group, std::span(&id, 1));
 }
 
-void TooltipSystem::Show(const Group group, const std::initializer_list<int> ids) const
+void TooltipSystem::Show(const Group group, const std::initializer_list<int> ids)
 {
+    Show(group, std::span(ids));
+}
+
+void TooltipSystem::Show(const Group group, const std::span<const int> ids)
+{
+    auto [activeTooltipSet, _] = _activeTooltips.try_emplace(group, std::unordered_set<int>());
     try
     {
         if (const auto sharedGroup = _tooltipGroups.at(group).lock())
         {
             for (const int id : ids)
             {
-                sharedGroup->Show(_tooltips.at(id));
+                if (auto [_, succeed] = activeTooltipSet->second.insert(id); succeed)
+                {
+                    sharedGroup->Show(_tooltips.at(id));
+                }
             }
             sharedGroup->FadeIn();
         }
@@ -46,13 +43,9 @@ void TooltipSystem::Show(const Group group, const std::initializer_list<int> ids
 
 void TooltipSystem::Hide()
 {
-    for (auto& weakGroup : _tooltipGroups | std::views::values)
+    for (auto& weakGroup : _tooltipGroups | std::views::keys)
     {
-        if (const auto sharedGroup = weakGroup.lock())
-        {
-            sharedGroup->FadeOut();
-            UmTime.Invoke(this, sharedGroup->GetFadeDuration(), [sharedGroup]() { sharedGroup->Hide(); });
-        }
+        Hide(weakGroup);
     }
 }
 
@@ -65,6 +58,8 @@ void TooltipSystem::Hide(const Group group)
             sharedGroup->FadeOut();
             UmTime.Invoke(this, sharedGroup->GetFadeDuration(), [sharedGroup]() { sharedGroup->Hide(); });
         }
+
+        _activeTooltips.at(group).clear();
     }
     catch (const std::out_of_range& exception)
     {

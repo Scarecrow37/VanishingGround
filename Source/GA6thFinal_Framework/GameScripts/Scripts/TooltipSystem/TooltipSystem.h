@@ -48,8 +48,9 @@ public:
     REFLECT_PROPERTY()
 
 public:
-    void Show(Group group, int id) const;
-    void Show(Group group, std::initializer_list<int> ids) const;
+    void Show(Group group, int id);
+    void Show(Group group, std::initializer_list<int> ids);
+    void Show(Group group, std::span<const int> ids);
 
     void Hide();
     void Hide(Group group);
@@ -78,4 +79,6 @@ private:
 
     std::unordered_map<Group, std::weak_ptr<TooltipGroupComponent>> _tooltipGroups;
     std::unordered_map<int, TooltipComponent::TooltipData>          _tooltips;
+
+    std::unordered_map<Group, std::unordered_set<int>> _activeTooltips;
 };
