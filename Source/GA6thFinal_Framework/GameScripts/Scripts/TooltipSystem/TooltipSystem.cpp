@@ -111,25 +111,12 @@ void TooltipSystem::ImGuiDrawPropertysEvent()
 
 void TooltipSystem::FindComponents()
 {
-    _tooltipGroups.emplace(Group::WEAPON,
-                           GameObject::FindComponentWithTag<TooltipGroupComponent>(TOOLTIP_GROUP_WEAPON.data()));
-    _tooltipGroups.emplace(Group::ACCESSORY,
-                           GameObject::FindComponentWithTag<TooltipGroupComponent>(TOOLTIP_GROUP_ACCESSORY.data()));
     _tooltipGroups.emplace(Group::PLAYER,
                            GameObject::FindComponentWithTag<TooltipGroupComponent>(TOOLTIP_GROUP_PLAYER.data()));
-    _tooltipGroups.emplace(Group::ENEMY_LEFT,
-                           GameObject::FindComponentWithTag<TooltipGroupComponent>(TOOLTIP_GROUP_ENEMY_LEFT.data()));
-    _tooltipGroups.emplace(Group::ENEMY_MIDDLE,
-                           GameObject::FindComponentWithTag<TooltipGroupComponent>(TOOLTIP_GROUP_ENEMY_MIDDLE.data()));
-    _tooltipGroups.emplace(Group::ENEMY_RIGHT,
-                           GameObject::FindComponentWithTag<TooltipGroupComponent>(TOOLTIP_GROUP_ENEMY_RIGHT.data()));
-    _tooltipGroups.emplace(Group::REVELATION_UP,
-                           GameObject::FindComponentWithTag<TooltipGroupComponent>(TOOLTIP_GROUP_REVELATION_UP.data()));
-    _tooltipGroups.emplace(Group::REVELATION_MIDDLE, GameObject::FindComponentWithTag<TooltipGroupComponent>(
-                                                         TOOLTIP_GROUP_REVELATION_MIDDLE.data()));
-    _tooltipGroups.emplace(Group::REVELATION_DOWN,
-                            GameObject::FindComponentWithTag<TooltipGroupComponent>(
-                                                       TOOLTIP_GROUP_REVELATION_DOWN.data()));
+    _tooltipGroups.emplace(Group::ENEMY,
+                           GameObject::FindComponentWithTag<TooltipGroupComponent>(TOOLTIP_GROUP_ENEMY.data()));
+    _tooltipGroups.emplace(Group::REVELATION,
+                           GameObject::FindComponentWithTag<TooltipGroupComponent>(TOOLTIP_GROUP_REVELATION.data()));
 }
 
 void TooltipSystem::SetupData()
@@ -219,15 +206,12 @@ void TooltipSystem::ShowDataProperty()
 
 void TooltipSystem::ShowTestTooltipProperty()
 {
-    constexpr const char* groupItems[] = {"Weapon",        "Accessory",         "Player",
-                                          "Enemy Left",    "Enemy Middle",      "Enemy Right",
-                                          "Revelation Up", "Revelation Middle", "Revelation Down"};
-
-    static int id = 0;
-    static Group group = Group::WEAPON;
+    static int   id    = 0;
+    static Group group = Group::PLAYER;
 
     ImGui::InputInt("Tooltip ID", &id);
-    if (ImGui::BeginCombo("Tooltip Group", groupItems[static_cast<size_t>(group)]))
+    if (constexpr const char* groupItems[] = {"Player", "Enemy", "Revelation"};
+        ImGui::BeginCombo("Tooltip Group", groupItems[static_cast<size_t>(group)]))
     {
         for (size_t i = 0; i < std::size(groupItems); ++i)
         {

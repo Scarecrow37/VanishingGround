@@ -267,7 +267,7 @@ void AccessoriesView::ShowTooltip(size_t index)
             {
                 DropItemInfo info = accessories[index].GetItemInfo();
                 std::vector<int> tooltips = DropItemInfo::GetArtifactTooltipIDs(info);
-                tooltipSystem->Show(TooltipSystem::Group::ACCESSORY, tooltips);
+                tooltipSystem->Show(TooltipSystem::Group::PLAYER, tooltips);
             }          
         }
     }
