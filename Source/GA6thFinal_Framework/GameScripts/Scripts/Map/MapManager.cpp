@@ -436,20 +436,17 @@ void MapManager::ScrollKeyUpdate(const Input::Controller& controller)
     {
         if (manager->IsOpen())
         {
-            goto label_return;
+            return;
         }
     } 
     if (InventoryUIManager* manager = SingletonComponent<InventoryUIManager>::GetInstance())
     {
         if (manager->gameObject->ActiveInHierarchy == true)
         {
-            goto label_return;
+            return;
         }
     }
     _scrollDir = -axis.Y * axis.Magnitude;
-
-label_return:
-    return;
 }
 
 void MapManager::OpenPreferencesWindow()
