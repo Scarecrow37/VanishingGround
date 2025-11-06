@@ -176,15 +176,6 @@ void ParticleComponent::ImGuiDrawPropertysEvent()
             ClearEffectList();
         }
     }
-    if (const Matrix* boneMat =
-            skelMesh->Renderer->GetAnimator()->FindBoneMatrix(ReflectFields->BoneNameMap[_currentEffectKey].c_str()))
-    {
-        XMFLOAT4X4 mat = *boneMat;
-        ImGui::Text("%f /%f /%f /%f ", mat._11, mat._12, mat._13, mat._14);
-        ImGui::Text("%f /%f /%f /%f ", mat._21, mat._22, mat._23, mat._24);
-        ImGui::Text("%f /%f /%f /%f ", mat._31, mat._32, mat._33, mat._34);
-        ImGui::Text("%f /%f /%f /%f ", mat._41, mat._42, mat._43, mat._44);
-    }
 }
 
 void ParticleComponent::Start()
