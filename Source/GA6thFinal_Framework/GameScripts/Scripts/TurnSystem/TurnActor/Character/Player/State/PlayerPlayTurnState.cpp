@@ -252,11 +252,7 @@ void PlayerPlayTurnState::UpdateActionSelectionUI(float dt)
         Player& player = GetPlayer();
         if (ImGui::Button((const char*)u8"[플레이어] 회복"))
         {
-            if (CharacterStats* stats = player.GetCharacterStats())
-            {
-                stats->CurrentHP += 10;
-                stats->CurrentHP = std::clamp((int)stats->CurrentHP, 0, (int)stats->MaxHP);
-            }
+            player.Heal(10);
         }
         if (ImGui::Button((const char*)u8"[플레이어] 자해"))
         {
