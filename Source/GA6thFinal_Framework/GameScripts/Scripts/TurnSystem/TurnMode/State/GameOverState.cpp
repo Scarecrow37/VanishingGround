@@ -20,7 +20,7 @@ void GameOverState::OnStart()
 void GameOverState::OnEnter() 
 {
     UmLogger.Log(LogLevel::LEVEL_DEBUG, (const char*)u8"게임 오버!!!!");
-    UmTime.Invoke(GetFSM(), 3.0f, [this]() {
+    UmTime.Invoke(GetFSM(), 1.5f, [this]() {
         if (_turnMode)
         {
             if (Player* player = _turnMode->GetPlayer())

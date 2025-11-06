@@ -255,7 +255,7 @@ namespace CombatUI
         if (player)
         {
             const Vector3 scale = player->transform->Scale;
-            const Vector3 offset = Vector3(0.0f, 1.0f, 0.0f);
+            const Vector3 offset = Vector3(0.0f, 0.0f, 0.0f);
             return Vector3(0.0f, 2.0f, 0.0f) * scale + offset;
         }
         return Vector3();

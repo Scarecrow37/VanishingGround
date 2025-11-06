@@ -4,6 +4,8 @@
 #include "UI/Panels/Overlay/OverlayPanel.h"
 #include "SceneTransition/SceneTransitionComponent.h"
 #include "Utility/SceneGuid.h"
+#include "CombatUIManager/CombatUIManager.h"
+#include "QTE/UI/QTEUIManager.h"
 
 UMREAL_COMPONENT(GameOverManager)
 
@@ -23,20 +25,37 @@ void GameOverManager::Start()
         {
             if (child->gameObject->CompareTag("Vanished Animation"))
             {
-                _vanishedAnimation                         = child->gameObject->GetComponent<SpriteAnimationElement>();
-                _vanishedAnimation->gameObject->ActiveSelf = false;
+                _vanishedAnimation = child->gameObject->GetComponent<SpriteAnimationElement>();
+               
+            }
+            if (child->gameObject->CompareTag("Vanished Background"))
+            {
+                _vanishedBackground = child->gameObject->GetComponent<ImageElement>();
             }
         }
     }
+    if (_vanishedAnimation)
+    {
+        _vanishedAnimation->gameObject->ActiveSelf = false;
+    }
+    if (_vanishedBackground)
+    {
+        _vanishedBackground->Alpha                  = 0.0f;
+        _vanishedBackground->gameObject->ActiveSelf = false;
+    }
+    _backgroundFader.SetDuration(1.0f);
+    _backgroundFader.SetFadeMode(Fader::FADE_IN);
+    _backgroundFader.SetFadeInType(Mathf::EASE_OUT, Mathf::CUBIC);
 }
 
 void GameOverManager::Update() 
 {
     if (_isBeginProcess)
     {
-        if (false == _vanishedAnimation->IsPlaying)
+        const float factor = _backgroundFader.Fade();
+        if (_vanishedBackground)
         {
-            TransitionTitleScene();
+            _vanishedBackground->Alpha = factor;
         }
     }
 }
@@ -53,6 +72,15 @@ void GameOverManager::ProcessGameOver()
 {
     if (false == _isBeginProcess)
     {
+        // 오디오 처리
+        UmAudio.FadeOut(); // BGM 페이드 아웃 하면 좋을지도?
+        UmAudio.Play("-451910");
+
+        _backgroundFader.Reset();
+        if (_vanishedBackground)
+        {
+            _vanishedBackground->gameObject->ActiveSelf = true;
+        }
         if (_vanishedAnimation)
         {
             _vanishedAnimation->gameObject->ActiveSelf = true;
@@ -60,6 +88,19 @@ void GameOverManager::ProcessGameOver()
             _vanishedAnimation->StartAnimation();
             _isBeginProcess = true;
             PushInputLayer();
+
+            const float duration = _vanishedAnimation->Duration;
+            const float offset   = duration * 0.6f;
+
+            if (CombatUIManager* combatUI = SingletonComponent<CombatUIManager>::GetInstance())
+            {
+                combatUI->FadeOut(duration);
+            }
+            if (QTEUIManager* qteUI = SingletonComponent<QTEUIManager>::GetInstance())
+            {
+                qteUI->FadeOutBattleGuideUI();
+            }
+            UmTime.Invoke(this, duration - offset, [this]() { TransitionTitleScene(); });
         }
         else
         {
@@ -81,6 +122,7 @@ void GameOverManager::TransitionTitleScene()
                 UmSceneManager.LoadScene(UmFileSystem.GetPathFromGuid(SceneGuid::TITLE).string());
                 _isBeginProcess = false;
                 PopInputLayer();
+                UmAudio.FadeOut();
             }
         });
     }
