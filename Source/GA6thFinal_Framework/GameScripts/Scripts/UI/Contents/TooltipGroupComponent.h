@@ -28,8 +28,8 @@ public:
     PROPERTY(PrimaryColumn)
 
 public:
-    void Show(int tooltipId, const TooltipComponent::TooltipData& data);
-    void Show(const TooltipComponent::TooltipData& data) const;
+    void Show(int tooltipId, const Tooltip::TooltipData& data);
+    void Show(const Tooltip::TooltipData& data) const;
     void Hide();
 
 public:

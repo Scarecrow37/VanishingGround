@@ -55,7 +55,7 @@ public:
     void Hide();
     void Hide(Group group);
 
-    TooltipComponent::TooltipData GetTooltip(int id) const;
+    Tooltip::TooltipData GetTooltip(int id) const;
 
 protected:
     void Awake() override;
@@ -78,5 +78,5 @@ private:
     SingletonComponent<TooltipSystem> _singletonComponent{this};
 
     std::unordered_map<Group, std::weak_ptr<TooltipGroupComponent>> _tooltipGroups;
-    std::unordered_map<int, TooltipComponent::TooltipData>          _tooltips;
+    std::unordered_map<int, Tooltip::TooltipData>                   _tooltips;
 };

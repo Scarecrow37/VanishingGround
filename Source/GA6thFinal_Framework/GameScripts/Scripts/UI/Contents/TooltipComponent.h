@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "TooltipType.h"
 
 class ImageElement;
 class TextElement;
@@ -14,12 +15,7 @@ class TooltipComponent : public Component
     static constexpr const char* TAG_DESCRIPTION_COMPONENT = "Tooltip Description";
 
 public:
-    struct TooltipData
-    {
-        int         ImageAssetId;
-        std::string Title;
-        std::string Description;
-    };
+
 
 public:
     TooltipComponent();
@@ -28,7 +24,7 @@ public:
     REFLECT_PROPERTY()
 
 public:
-    void SetTooltip(const TooltipData& data) const;
+    void SetTooltip(const Tooltip::TooltipData& data) const;
     void Show() const;
     void Hide() const;
 

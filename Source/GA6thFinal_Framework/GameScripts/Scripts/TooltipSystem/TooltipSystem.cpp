@@ -68,7 +68,7 @@ void TooltipSystem::Hide(const Group group)
     }
 }
 
-TooltipComponent::TooltipData TooltipSystem::GetTooltip(const int id) const
+Tooltip::TooltipData TooltipSystem::GetTooltip(const int id) const
 {
     try
     {
@@ -78,7 +78,7 @@ TooltipComponent::TooltipData TooltipSystem::GetTooltip(const int id) const
     {
         UmLogger.Log(LogLevel::LEVEL_WARNING, "Tooltip data not found.");
         UmLogger.Log(LogLevel::LEVEL_WARNING, exception.what());
-        return TooltipComponent::TooltipData{};
+        return Tooltip::TooltipData{};
     }
 }
 
@@ -169,7 +169,7 @@ void TooltipSystem::SetupData()
                     std::string      iconIdString     = std::string(iconIdStringView);
                     int              iconId           = iconIdString.empty() ? 0 : std::stoi(iconIdString);
 
-                    TooltipComponent::TooltipData tooltipData{.ImageAssetId = iconId,
+                    Tooltip::TooltipData tooltipData{.ImageAssetId = iconId,
                                                               .Title        = std::move(nameContent),
                                                               .Description  = std::move(descriptionContent)};
 

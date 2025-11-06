@@ -24,7 +24,7 @@ struct GetSecondary
 
 TooltipGroupComponent::TooltipGroupComponent() = default;
 
-void TooltipGroupComponent::Show(const int tooltipId, const TooltipComponent::TooltipData& data)
+void TooltipGroupComponent::Show(const int tooltipId, const Tooltip::TooltipData& data)
 {
     if (auto [_, succeed] = _activeTooltipIds.insert(tooltipId); succeed)
     {
@@ -32,7 +32,7 @@ void TooltipGroupComponent::Show(const int tooltipId, const TooltipComponent::To
     }
 }
 
-void TooltipGroupComponent::Show(const TooltipComponent::TooltipData& data) const
+void TooltipGroupComponent::Show(const Tooltip::TooltipData& data) const
 {
     const ColumnType primaryColumn = PrimaryColumn;
     try
@@ -125,7 +125,7 @@ void TooltipGroupComponent::ImGuiDrawPropertysEvent()
 {
     Component::ImGuiDrawPropertysEvent();
 
-    static TooltipComponent::TooltipData data = {};
+    static Tooltip::TooltipData data = {};
     ImGui::InputInt("Image Asset Id", &data.ImageAssetId);
     ImGui::InputText("Title", &data.Title);
     ImGui::InputText("Description", &data.Description);
