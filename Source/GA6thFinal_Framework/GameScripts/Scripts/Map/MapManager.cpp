@@ -102,11 +102,11 @@ void MapManager::SetFocusStage(Stage* stage)
 
 bool MapManager::TrySelectStage(Stage* stage)
 {
-    // 동일한 메인 레벨 스테이지들 비활성화
+    // 현재 스테이지가 활성화 중이면
     if (stage && stage->IsEnable())
     {
         // 현재 클리어된 스테이지보다 1단계 높은 스테이지만 선택 가능
-        if (stage->MainLevel == _lastClearedStageData.MainLevel+ 1)
+        if (stage->MainLevel == _lastClearedStageData.MainLevel + 1)
         {
             SetSelectStage(stage);
             return true;
@@ -137,6 +137,7 @@ void MapManager::Awake()
 
         BindInputAction(ControllerButton::BACK, Action::PRESSED, this, &MapManager::PreferencesKeyDown);
         BindInputAction(ControllerButton::START, Action::PRESSED, this, &MapManager::InventoryKeyDown);
+        BindInputAction(ControllerButton::RIGHT_THUMB_STICK, Action::HELD, this, &MapManager::ScrollKeyUpdate);
     }
 }
 
@@ -144,17 +145,10 @@ void MapManager::Update()
 {
     if (_scroll)
     {
-        if (ImGui::IsKeyDown(ImGuiKey_GamepadRStickUp))
+        if (Mathf::Epsilon < _scrollDir || _scrollDir < -Mathf::Epsilon)
         {
-            _scroll->Scroll -= 1.f * UmTime.DeltaTime();
-        }
-        if (ImGui::IsKeyDown(ImGuiKey_GamepadRStickDown))
-        {
-            _scroll->Scroll += 1.f * UmTime.DeltaTime();
-        }
-        if (ImGui::IsKeyPressed(ImGuiKey_F2))
-        {
-            UmSceneManager.LoadScene(UmFileSystem.GetPathFromGuid(ReflectFields->MapScenePath).string());
+            _scroll->Scroll += _scrollDir * UmTime.DeltaTime();
+            _scrollDir = 0.f;
         }
     }
 
@@ -408,12 +402,19 @@ bool MapManager::CanSubmitStage(Stage* stage)
     return false;
 }
 
+bool MapManager::IsRemainingStage() const
+{
+    const int  nextMainLevel = _lastClearedStageData.MainLevel + 1;
+    const bool remainStage   = _stageDataTable.contains(nextMainLevel);
+    return remainStage;
+}
+
 Stage* MapManager::GetCurrentSelectedStage()
 {
     return _selectedStage;
 }
 
-Monster::SpawnID MapManager::GetCurrentSpawnID()
+Monster::SpawnID MapManager::GetCurrentSpawnID() const
 {
     if (_selectedStage)
     {
@@ -433,6 +434,26 @@ void MapManager::PreferencesKeyDown(const Input::Controller&)
 void MapManager::InventoryKeyDown(const Input::Controller&) 
 {
     OpenInventoryWindow();
+}
+
+void MapManager::ScrollKeyUpdate(const Input::Controller& controller)
+{
+    Input::Controller::ThumbStickAxis axis = controller.GetRightThumbStickAxis();
+    if (PreferencesManager* manager = SingletonComponent<PreferencesManager>::GetInstance())
+    {
+        if (manager->IsOpen())
+        {
+            return;
+        }
+    } 
+    if (InventoryUIManager* manager = SingletonComponent<InventoryUIManager>::GetInstance())
+    {
+        if (manager->gameObject->ActiveInHierarchy == true)
+        {
+            return;
+        }
+    }
+    _scrollDir = -axis.Y * axis.Magnitude;
 }
 
 void MapManager::OpenPreferencesWindow()

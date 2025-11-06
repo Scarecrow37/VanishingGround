@@ -23,6 +23,7 @@ protected:
 
 private:
     int _damage = 0;
+    int _myIndex = 0;
 
 
 // TurnAction을(를) 통해 상속됨

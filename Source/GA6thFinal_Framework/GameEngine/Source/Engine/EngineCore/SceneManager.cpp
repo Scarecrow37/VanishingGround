@@ -134,10 +134,12 @@ void ESceneManager::Engine::SceneFinalUpdate()
 
 void ESceneManager::SceneUpdate()
 {
+    /*
     if (ResourceLoadWait())
     {
         return;
     }
+    */
 
     ObjectsInputUpdate();                                // Input System 콜백은 항상 업데이트 주기보다 먼저 실행됨.
     while (ETimeSystem::Engine::TimeSystemFixedUpdate()) // Fixed Update는 한 프레임에 여러번 호출 가능함
@@ -772,8 +774,7 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
                 scene->_isLoaded = false;
             }
         }
-        _setting.MainScene = scene->Path;
-        _nextSceneSkybox   = scene;         
+        _setting.MainScene = scene->Path; 
         _addComponentsQueue.clear();
         _addGameObjectsQueue.clear();
         _waitAwakeVec.clear();
@@ -818,6 +819,7 @@ void ESceneManager::LoadScene(std::string_view sceneName, LoadSceneMode mode)
     }
     onloadSceneTargets.clear();
     _nextSceneGuids.push_back(scene->_guid);
+    _nextSceneSkybox = scene;
 }
 
 void ESceneManager::UnloadScene(std::string_view sceneName) 
@@ -2342,17 +2344,14 @@ void ESceneManager::InputSystem::UpdateInput()
         try
         {
             _inputController.UpdateState();
-            const auto& queue = _inputController.GetButtonQueue();
-            if (false == queue.empty())
+            if (const auto& queue = _inputController.GetButtonQueue(); false == queue.empty())
             {
-                for (const auto& flag : queue)
+                for (const auto& state : queue)
                 {
-                    UpdateTracker(flag.Button);
+                    UpdateTracker(state);
+                    CallInputReceiver(state.Button);
                 }
-            } 
-
-            UpdateAnalogButtons();
-            std::memset(_actionChecker.data(), 0, std::size(_actionChecker)); //중복 액션 방지용 기록 배열 초기화.
+            }
         }
         catch (const Input::DeviceNotConnectedException& exception)
         {
@@ -2460,83 +2459,54 @@ void ESceneManager::InputSystem::StopVibration()
     _inputController.Vibrate(0, 0);
 }
 
-void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
+struct GetIndex
 {
-    int   buttonIndex = std::countr_zero((unsigned int)button);
-    bool& checker     = _actionChecker[buttonIndex];
-    if (checker)
+    size_t operator()(const Input::ControllerTypes::Button button) const
     {
-        return;
+        return std::countr_zero(static_cast<size_t>(button));
     }
+
+    size_t operator()(const ESceneManager::InputSystem::Action action) const { return static_cast<size_t>(action); }
+};
+
+void ESceneManager::InputSystem::UpdateTracker(const Input::Controller::ButtonState& buttonState)
+{
+    const size_t buttonIndex = GetIndex()(buttonState.Button);
+
     Action& action = _actionTracker[buttonIndex];
-    bool    isDown = false;
-    switch (button)
-    {
-    case Input::Controller::Button::DPAD_UP:
-    case Input::Controller::Button::DPAD_DOWN:
-    case Input::Controller::Button::DPAD_LEFT:
-    case Input::Controller::Button::DPAD_RIGHT:
-    case Input::Controller::Button::START:
-    case Input::Controller::Button::BACK:
-    case Input::Controller::Button::LEFT_THUMB_BUTTON:
-    case Input::Controller::Button::RIGHT_THUMB_BUTTON:
-    case Input::Controller::Button::LEFT_SHOULDER:
-    case Input::Controller::Button::RIGHT_SHOULDER:
-    case Input::Controller::Button::A:
-    case Input::Controller::Button::B:
-    case Input::Controller::Button::X:
-    case Input::Controller::Button::Y:
-        isDown = _inputController.IsButtonDown(button);
-        break;
-    case Input::Controller::Button::LEFT_THUMB_STICK:
-        isDown = 0.f < _inputController.GetLeftThumbStickAxis().Magnitude;
-        break;
-    case Input::Controller::Button::RIGHT_THUMB_STICK:
-        isDown = 0.f < _inputController.GetRightThumbStickAxis().Magnitude;
-        break;
-    case Input::Controller::Button::LEFT_TRIGGER:
-        isDown = 0.f < _inputController.GetLeftTrigger();
-        break;
-    case Input::Controller::Button::RIGHT_TRIGGER:
-        isDown = 0.f < _inputController.GetRightTrigger();
-        break;
-    default:
-        break;
-    }
 
-    if (true == isDown)
+    switch (buttonState.Flag)
     {
-        switch (action)
+    case Input::ControllerTypes::STATE_UNCHANGED:
+        if (action == Action::PRESSED)
         {
-        case ESceneManager::InputSystem::Action::PRESSED:
             action = Action::HELD;
-            break;
-        case ESceneManager::InputSystem::Action::RELEASED:
-        case ESceneManager::InputSystem::Action::IDLE:
-            action = Action::PRESSED;         
-            break;
-        default:
-            break;
         }
-    }
-    else
-    {
-        switch (action)
+        else if (action == Action::RELEASED)
         {
-        case ESceneManager::InputSystem::Action::PRESSED:
-        case ESceneManager::InputSystem::Action::HELD:
-            action = Action::RELEASED;
-            break;
-        case ESceneManager::InputSystem::Action::RELEASED:
             action = Action::IDLE;
-            break;
-        default:
-            break;
         }
+        break;
+    case Input::ControllerTypes::STATE_DOWN:
+        action = Action::PRESSED;
+        break;
+    case Input::ControllerTypes::STATE_UP:
+        action = Action::RELEASED;
+        break;
+    case Input::ControllerTypes::STATE_REPEAT:
+        action = Action::HELD;
+        break;
     }
+}
 
-    int   actionIndex = static_cast<int>(action);
-    auto& receivers = _receivers[buttonIndex][actionIndex];
+void ESceneManager::InputSystem::CallInputReceiver(const Input::Controller::Button button)
+{
+    constexpr GetIndex getIndex;
+    const size_t       buttonIndex = getIndex(button);
+    const Action action = _actionTracker[buttonIndex];
+    const size_t actionIndex = getIndex(action);
+
+    auto& receivers   = _receivers[buttonIndex][actionIndex];
     bool  activeErase = false;
     for (auto& [isDestroy, event] : receivers)
     {
@@ -2552,28 +2522,24 @@ void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
             }
             else
             {
-                auto& [destroyFlag, weak] = _layerStack.back();
-                if (destroyFlag == isDestroy.get())
+                if (auto& [destroyFlag, weak] = _layerStack.back(); destroyFlag == isDestroy.get())
                 {
                     event(_inputController);
                 }
-            }       
-            checker = true;
+            }
         }
     }
 
     if (true == activeErase)
     {
-        std::erase_if(receivers, [](auto& pair) 
-        {
+        std::erase_if(receivers, [](auto& pair) {
             auto& [destroy, event] = pair;
             return nullptr == destroy || *destroy;
         });
 
         while (false == _layerStack.empty())
         {
-            auto& [topReceiver, isDestroy] = _layerStack.back();
-            if (true == isDestroy.expired())
+            if (auto& [topReceiver, isDestroy] = _layerStack.back(); true == isDestroy.expired())
             {
                 _layerStack.pop_back();
             }
@@ -2583,25 +2549,4 @@ void ESceneManager::InputSystem::UpdateTracker(Input::Controller::Button button)
             }
         }
     }
-}
-
-void ESceneManager::InputSystem::UpdateAnalogButtons() 
-{
-    // 아날로그 버튼들은 항상 갱신 필요
-    constexpr int leftTriggerIndex  = std::countr_zero((unsigned int)Input::Controller::Button::LEFT_TRIGGER);
-    constexpr int rightTriggerIndex = std::countr_zero((unsigned int)Input::Controller::Button::RIGHT_TRIGGER);
-    constexpr int leftThumbIndex    = std::countr_zero((unsigned int)Input::Controller::Button::LEFT_THUMB_STICK);
-    constexpr int rightThumbIndex   = std::countr_zero((unsigned int)Input::Controller::Button::RIGHT_THUMB_STICK);
-
-    if (_actionTracker[leftTriggerIndex] == Action::HELD)
-        UpdateTracker(Input::Controller::Button::LEFT_TRIGGER);
-
-    if (_actionTracker[rightTriggerIndex] == Action::HELD)
-        UpdateTracker(Input::Controller::Button::RIGHT_TRIGGER);
-
-    if (_actionTracker[leftThumbIndex] == Action::HELD)
-        UpdateTracker(Input::Controller::Button::LEFT_THUMB_STICK);
-
-    if (_actionTracker[rightThumbIndex] == Action::HELD)
-        UpdateTracker(Input::Controller::Button::RIGHT_THUMB_STICK);
 }

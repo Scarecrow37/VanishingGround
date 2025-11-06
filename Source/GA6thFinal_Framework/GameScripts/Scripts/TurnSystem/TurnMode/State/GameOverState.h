@@ -14,6 +14,4 @@ protected:
     void OnExit() override;
     void OnUpdate() override;
 
-private:
-    bool _waitPlayerDeactive = true;
 };

@@ -20,6 +20,7 @@ public:
 public:
     GETTER_ONLY(int, CurrentWeaponSlot) { return _currentWeaponSlot; }
     // 현재 사용중인 무기의 슬롯 번호 입니다.
+    // type : int
     PROPERTY(CurrentWeaponSlot)
 
     GETTER_ONLY(int, LastWeaponSlot) { return _lastWeaponSlot; }

@@ -5,6 +5,7 @@
 #include "ItemDropSystem/ItemDropSystem.h"
 #include "SceneTransition/SceneTransitionComponent.h"
 #include "Engine/GraphicsCore/RenderPassDataHelper.h"
+#include "UI/Elements/Image/ImageElement.h"
 
 UMREAL_COMPONENT(Stage)
 
@@ -108,6 +109,16 @@ void Stage::FocusIn(FocusCallType callType)
     {
         manager->SetFocusStage(this);
     }
+
+    //보스면
+    int mainLevel = MainLevel;
+    if (mainLevel == 6)
+    {
+        if (auto bossRewordPopup = _bossRewordPopup.lock())
+        {
+            bossRewordPopup->Enable = true;
+        }          
+    }
 }
 
 void Stage::Submit()
@@ -118,6 +129,20 @@ void Stage::Submit()
         if (mapManager->TrySelectStage(this))
         {
             Base::Submit();
+        }
+    }
+}
+
+void Stage::FocusOut(FocusCallType callType) 
+{
+    // 보스면
+    Base::FocusOut(callType);
+    int mainLevel = MainLevel;
+    if (mainLevel == 6)
+    {
+        if (auto bossRewordPopup = _bossRewordPopup.lock())
+        {
+            bossRewordPopup->Enable = false;
         }
     }
 }
@@ -137,5 +162,11 @@ void Stage::Start()
         {
             mapManager->UINotify();
         }
+    }
+
+    int mainLevel = MainLevel;
+    if (mainLevel == 6)
+    {
+        _bossRewordPopup = GameObject::FindComponentWithTag<ImageElement>("Boss Reward Popup");
     }
 }

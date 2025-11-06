@@ -160,6 +160,17 @@ void TestComponent::ImGuiDrawPropertysEvent()
         ImGui::TreePop();
     }
 
+    if (ImGui::TreeNode("Destroy test"))
+    {
+        if (ImGui::Button(u8"오브젝트 생성 파괴 동시 테스트"_c_str))
+        {
+            auto object = NewGameObject("test");
+            object->AddComponent<TestComponent>();
+            GameObject::Destroy(object.get());
+        }
+        ImGui::TreePop();
+    }
+
     ImGuiDrawEditGimzmoes();
 #endif
 }

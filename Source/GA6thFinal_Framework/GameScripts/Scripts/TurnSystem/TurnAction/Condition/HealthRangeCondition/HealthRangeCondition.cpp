@@ -34,6 +34,11 @@ bool HealthRangeCondition::Evaluate()
 
     for (const auto& target : targetList)
     {
+        if (target->IsDead())
+        {
+            return false;
+        }
+
         CharacterStats* stats = target->GetCharacterStats();
         if (!stats)
         {
@@ -208,6 +213,11 @@ bool HealthRangeCondition::CheckEvaluate(CharacterBase* character)
         Unit     unit   = ReflectFields->Unit;
         float    value1 = ReflectFields->value1;
         float    value2 = ReflectFields->value2;
+ 
+        if (character->IsDead())
+        {
+            return false;
+        }
 
         if (CharacterStats* stats = character->GetCharacterStats())
         {

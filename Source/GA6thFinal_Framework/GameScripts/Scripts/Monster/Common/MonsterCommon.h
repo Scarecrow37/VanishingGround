@@ -84,6 +84,7 @@ namespace Monster
                 constexpr const char8_t* MONSTER_ID     = u8"Enemy ID";
                 constexpr const char8_t* HEALTH         = u8"Health";
                 constexpr const char8_t* STUN_RESIST    = u8"Stun Res";
+                constexpr const char8_t* SPEED          = u8"Speed";
                 constexpr const char8_t* PARAM          = u8"Param";
 
                 constexpr const std::array<const char8_t*, MAX_SKILL_COUNT> ACTION_PARAM = {
