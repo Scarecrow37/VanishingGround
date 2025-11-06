@@ -7,15 +7,21 @@ class ParticleEmitter
 {
     UMPARTICLE_PROPERTY(std::string, _emitterName, EmitterName, "");
     UMPARTICLE_PROPERTY(bool, _activeFlag, ActiveFlag, true);
-    bool _endFlag = false;
+
+    bool _endFlag                 = false;
     bool _particleEndFadeOnceFlag = false;
+public:
     bool GetEndFlag() { return _endFlag; }
     void SetEndFlag(bool flag)
     {
         _endFlag                 = flag;
         _particleEndFadeOnceFlag = flag;
     }
+
     UMPARTICLE_PROPERTY(bool, _removeFlag, RemoveFlag, false);
+
+    float _fadeOutDuration = 0.3f;
+    float _fadeStartTime   = 0.f;
 
     UMPARTICLE_PROPERTY(SIZE_T, _maxParticles, MaxParticles, 10000);
     UMPARTICLE_PROPERTY(float, _startDelay, StartDelay, 0.f);
@@ -24,8 +30,18 @@ class ParticleEmitter
     UMPARTICLE_PROPERTY(float, _emissionRate, EmissionRate, 5000.f);
     UMPARTICLE_PROPERTY(bool, _spawnBurstFlag, SpawnBurstFlag, false);
     UMPARTICLE_PROPERTY(float, _spawnBurstCount, SpawnBurstCount, 5000);
-    UMPARTICLE_PROPERTY(float, _particleLifetime, ParticleLifetime, 1.f);
-    float _originParticleLifetime = 0.f;
+private:
+    float _particleLifetime       = 1.f;
+    float _originParticleLifetime = 1.f;
+
+public:
+    float GetParticleLifetime() { return _particleLifetime; }
+    void  SetParticleLifetime(float value)
+    {
+        _particleLifetime       = value;
+        _originParticleLifetime = value;
+    }
+
     UMPARTICLE_PROPERTY(float, _particleMass, ParticleMass, 0.1f);
 
     UMPARTICLE_PROPERTY(bool, _useLight, UseLight, false);
@@ -47,9 +63,30 @@ class ParticleEmitter
     UMPARTICLE_PROPERTY_REF(Vector3, _velocityFactor, VelocityFactor, Vector3(0, 0, 0));
 
     UMPARTICLE_PROPERTY_REF(Vector3, _startColor, StartColor, Vector3(1, 1, 1));
-    UMPARTICLE_PROPERTY(float, _startOpacity, StartOpacity, 0.f);
     UMPARTICLE_PROPERTY_REF(Vector3, _endColor, EndColor, Vector3(1, 1, 1));
-    UMPARTICLE_PROPERTY(float, _endOpacity, EndOpacity, 1.f);
+
+private:
+    float _startOpacity       = 1.f;
+    float _originStartOpacity = 1.f;
+public:
+    float GetStartOpacity() { return _startOpacity; }
+    void SetStartOpacity(float value)
+    {
+        _startOpacity       = value;
+        _originStartOpacity = value;
+    }
+
+private:
+    float _endOpacity       = 0.f;
+    float _originEndOpacity = 0.f;
+public:
+    float GetEndOpacity() { return _endOpacity; }
+    void SetEndOpacity(float value)
+    {
+        _endOpacity       = value;
+        _originEndOpacity = value;
+    }
+
     UMPARTICLE_PROPERTY_REF(Vector4, _startScale, StartScale, Vector4(1, 1, 1, 1));
     UMPARTICLE_PROPERTY_REF(Vector4, _endScale, EndScale, Vector4(1, 1, 1, 1));
 

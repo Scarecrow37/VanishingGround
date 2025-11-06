@@ -790,7 +790,7 @@ void EditorParticleEffectDetails::ShowEmitterDetails()
     // drag
     {
         Vector4 force = _curEmitter->GetDragForce();
-        ImGui::Text("sprite loop / use world sprite scale / drag atten");
+        ImGui::Text("sprite loop / use world sprite scale / drag atten / bloom");
         bool result = ImGui::SliderFloat4("##Drag Force", (float*)&force, -1000, 1000);
         if (false == isDirty)
             if (true == result)

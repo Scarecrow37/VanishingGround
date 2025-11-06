@@ -1,4 +1,5 @@
 #include "CommonData.hlsli"
+#include "Compute.hlsli"
 struct RibbonVertexCount
 {
     uint count;
@@ -7,17 +8,6 @@ struct RibbonVertexCount
 
 StructuredBuffer<uint> ribbonIndices;
 
-
-struct ParticleOutput
-{
-    float4 position; //ribbon -> normal
-    float4x4 FinalMatrix;
-    float4 Color;
-    float4 FrameInfo; // ribbon-> x = ribbon width
-    int EmitterIndex;
-    float3 paddings;
-    
-};
 StructuredBuffer<ParticleOutput> particleInfo;
 
 struct VSOutput
@@ -28,7 +18,7 @@ struct VSOutput
     float3 biTangent : BINORMAL;
     float2 uv : TEXCOORD;
     float4 color : COLOR0;
-    nointerpolation int emitterIndex : CUSTOM_FLAG;
+    nointerpolation uint2 emitterIndex : CUSTOM_FLAG;
 
 };
 
@@ -39,8 +29,8 @@ VSOutput vs_main(uint vertexId : SV_VertexID)
     uint currentIdx = vertexId / 2;
     uint particleIndex = ribbonIndices[currentIdx];
     ParticleOutput p = particleInfo[particleIndex];
-    float3 posCurr = p.position.xyz;
-    float3 offsetVector = normalize(p.paddings);
+    float3 posCurr = p.Position.xyz;
+    float3 offsetVector = normalize(p.Paddings);
     int isTop = (vertexId % 2 == 0) ? 1 : -1;
     float ribbonHalfWidth = p.FrameInfo.x * 0.5f;
 
@@ -55,7 +45,7 @@ VSOutput vs_main(uint vertexId : SV_VertexID)
     o.uv = float2(u, v);
 
     o.color = p.Color;
-    o.emitterIndex = p.EmitterIndex;
-
+    o.emitterIndex.x = p.EmitterIndex;
+    o.emitterIndex.y = p.Paddings2.x;
     return o;
 }

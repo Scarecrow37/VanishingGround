@@ -21,7 +21,7 @@ struct ParticleOutput
     float4 FrameInfo; // ribbon-> x = ribbon width
     int EmitterIndex;
     float3 Paddings;
-    
+    float4 Paddings2;
 };
 
 
