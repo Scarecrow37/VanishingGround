@@ -53,13 +53,16 @@ void TokenTypeCountAttackDamagePlus::OnPlayerBattleCalculateDamageModifier(Playe
     if (EvaluateConditions())
     {
         int tokenCount = 0;
-        std::vector<CharacterBase*> targets = TurnSystemHelper::GetTargetCharacters(ReflectFields->TokenTarget);
+        std::vector<CharacterBase*> targets    = TurnSystemHelper::GetTargetCharacters(ReflectFields->TokenTarget);
         if (false == targets.empty())
         {
             for (auto& target : targets)
             {
                 if (target)
                 {
+                    if (target->IsDead())
+                        continue;
+
                     TokenInventory& inventory = target->GetTokenInventory();
 
                     if (IsCountToken)
@@ -70,8 +73,8 @@ void TokenTypeCountAttackDamagePlus::OnPlayerBattleCalculateDamageModifier(Playe
                     {
                         tokenCount += inventory.HasTokenFromTag(ReflectFields->TokenTag);
                     }
-                }            
-            }    
+                }
+            }
         }
 
         if (0 < tokenCount)
