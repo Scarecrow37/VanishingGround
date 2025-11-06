@@ -52,8 +52,5 @@ protected:
 
     virtual void Reset() override;
     virtual void Update() override;
-
-private:
-    Vector3 _currentRotation{0.f, 0.f, 0.f};
 };
 
