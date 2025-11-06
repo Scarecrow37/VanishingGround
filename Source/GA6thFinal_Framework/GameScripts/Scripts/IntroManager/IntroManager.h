@@ -82,7 +82,7 @@ private:
     void SelectNormal(const Input::Controller& controller);
     void SelectNormal();
     void SelectHard(const Input::Controller& controller);
-    void SelectTumbStick(const Input::Controller& controller);
+    void SelectThumbStick(const Input::Controller& controller);
 
     template <typename T>
     static T* GetElement(const std::string& tag);

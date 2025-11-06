@@ -37,7 +37,7 @@ void IntroManager::Awake()
     BindInputAction(ControllerButton::A, Action::PRESSED, this, &IntroManager::SkipStep);
     BindInputAction(ControllerButton::DPAD_UP, Action::PRESSED, this, &IntroManager::SelectNormal);
     BindInputAction(ControllerButton::DPAD_DOWN, Action::PRESSED, this, &IntroManager::SelectHard);
-    BindInputAction(ControllerButton::LEFT_THUMB_STICK, Action::PRESSED, this, &IntroManager::SelectTumbStick);
+    BindInputAction(ControllerButton::LEFT_THUMB_STICK, Action::PRESSED, this, &IntroManager::SelectThumbStick);
 
     const std::unique_ptr<ExcelDataBase> data = SetupData();
     FindComponents();
@@ -385,7 +385,7 @@ void IntroManager::SelectHard(const Input::Controller& controller)
     }
 }
 
-void IntroManager::SelectTumbStick(const Input::Controller& controller)
+void IntroManager::SelectThumbStick(const Input::Controller& controller)
 {
     Input::Controller::ThumbStickAxis axis = controller.GetLeftThumbStickAxis();
     if (Mathf::Epsilon < axis.Y)
