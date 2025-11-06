@@ -291,11 +291,13 @@ void Enemy::Start()
     switch (_spawnPoint)
     {
     case Monster::SpawnPoint::Left:
-
+        AddCallback("Enemy Left Panel UI Navi");
         break;
     case Monster::SpawnPoint::Middle:
+        AddCallback("Enemy Middle Panel UI Navi");
         break;
     case Monster::SpawnPoint::Right:
+        AddCallback("Enemy Right Panel UI Navi");
         break;
     default:
         break;
