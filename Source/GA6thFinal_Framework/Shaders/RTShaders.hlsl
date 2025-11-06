@@ -311,7 +311,7 @@ void ShadowAnyHit(inout ShadowPayload payload, in BuiltInTriangleIntersectionAtt
     float finalAlpha = textureAlpha * instData.Alpha;
     
     // 알파가 0.5 이하면 hit 무시 (그림자를 드리우지 않음)
-    if (finalAlpha < 0.5f)
+    if (finalAlpha < 1.f)
     {
         IgnoreHit();
     }
@@ -432,7 +432,7 @@ void ClosestHit(inout RayPayload payload, in BuiltInTriangleIntersectionAttribut
     float3 directLighting = 0;
     float3 ambientLighting = 0;
     
-    float maxPointLightDistance = 30.f;
+    float maxPointLightDistance = 10.f;
     
     // Directional
     for (uint i = 0; i < bit32_4_numLight.Directional; ++i)
