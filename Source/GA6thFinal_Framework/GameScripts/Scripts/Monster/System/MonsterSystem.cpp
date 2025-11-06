@@ -2,7 +2,8 @@
 #include "MonsterSystem.h"
 
 #include "TurnSystem/TurnActor/Character/Enemy/Enemy.h"
-#include "Stats/CharacterStats.h"
+#include "Stats/Enemy/EnemyStatsComponent.h"
+#include "Stats/Enemy/EnemyStats.h"
 #include "Particle/ParticleComponent.h"
 #include "ExcelDataSystem/ExcelDataSystem.h"
 
@@ -250,11 +251,13 @@ void MonsterSystem::SetMonsterStateFromStatContext(Enemy* dest, const StatContex
 {
     if (dest)
     {
-        if (auto stats = dest->GetCharacterStats())
+        if (EnemyStatsComponent* statComponent = dest->GetEnemyStats())
         {
-            stats->MaxHP          = pStatContext->Health;
-            stats->CurrentHP      = pStatContext->Health;
-            stats->StunResistance = pStatContext->StunResist;
+            EnemyStats& stats     = statComponent->GetStats();
+            stats.MaxHP           = pStatContext->Health;
+            stats.CurrentHP       = pStatContext->Health;
+            stats.StunResistance  = pStatContext->StunResist;
+            stats.Speed           = pStatContext->Speed;
         }
     }
 }
@@ -492,6 +495,11 @@ void MonsterSystem::LoadStatContextFromExcelData(ExcelDataSystem* dataSystem)
                     if (data != ExcelDataBase::FIND_STR_FAIL)
                     {
                         context.StunResist = StringToInt(data);
+                    }
+                    data = dataBase->FindData(rowIndex, ExcelStatKey::SPEED);
+                    if (data != ExcelDataBase::FIND_STR_FAIL)
+                    {
+                        context.Speed = StringToInt(data);
                     }
                     data = dataBase->FindData(rowIndex, ExcelStatKey::PARAM);
                     if (data != ExcelDataBase::FIND_STR_FAIL)

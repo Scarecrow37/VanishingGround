@@ -5,12 +5,14 @@ class Horizontal;
 class OverlayPanel;
 class ImageElement;
 class TextElement;
+class FadeUIComponent;
 
 struct BattleGuideUI
 {
     enum { A, RB, RT };
 
     OverlayPanel*                Overlay    = nullptr;
+    FadeUIComponent*             Fader      = nullptr;
     HoldingProgressImageElement* Progress   = nullptr;
     std::array<ImageElement*, 3> ImageList  = {nullptr, nullptr, nullptr};
     std::array<TextElement*, 3>  TextList   = {nullptr, nullptr, nullptr};
@@ -23,4 +25,8 @@ struct BattleGuideUI
 
     // UI 알파를 적용합니다.
     void Alpha(float alpha);
+
+    void FadeIn();
+
+    void FadeOut();
 };

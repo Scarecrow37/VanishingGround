@@ -102,11 +102,11 @@ void MapManager::SetFocusStage(Stage* stage)
 
 bool MapManager::TrySelectStage(Stage* stage)
 {
-    // 동일한 메인 레벨 스테이지들 비활성화
+    // 현재 스테이지가 활성화 중이면
     if (stage && stage->IsEnable())
     {
         // 현재 클리어된 스테이지보다 1단계 높은 스테이지만 선택 가능
-        if (stage->MainLevel == _lastClearedStageData.MainLevel+ 1)
+        if (stage->MainLevel == _lastClearedStageData.MainLevel + 1)
         {
             SetSelectStage(stage);
             return true;
@@ -408,12 +408,19 @@ bool MapManager::CanSubmitStage(Stage* stage)
     return false;
 }
 
+bool MapManager::IsRemainingStage() const
+{
+    const int  nextMainLevel = _lastClearedStageData.MainLevel + 1;
+    const bool remainStage   = _stageDataTable.contains(nextMainLevel);
+    return remainStage;
+}
+
 Stage* MapManager::GetCurrentSelectedStage()
 {
     return _selectedStage;
 }
 
-Monster::SpawnID MapManager::GetCurrentSpawnID()
+Monster::SpawnID MapManager::GetCurrentSpawnID() const
 {
     if (_selectedStage)
     {
