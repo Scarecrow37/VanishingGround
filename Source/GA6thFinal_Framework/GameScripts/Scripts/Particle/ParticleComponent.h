@@ -137,6 +137,9 @@ protected:
     void ImGuiDrawPropertysEvent() override;
     void Start() override;
 
+
+ // void Update() override;
+
 private:
     void LoadParticle(const std::string& keyString);
     

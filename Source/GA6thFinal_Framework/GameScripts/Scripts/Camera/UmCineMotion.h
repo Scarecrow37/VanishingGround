@@ -31,13 +31,10 @@ public:
     GETTER_ONLY(float, Duration) { return ReflectFields->RailLength / (ReflectFields->RailSpeed * _railSpeedScale); }
     PROPERTY(Duration)
 
+
 public:
     UmCineMotion();
     ~UmCineMotion() override;
-
-    void Start() override;
-    void BeginShake(float duration, float intensity, float frequency);
-    void BeginFeedBackShake(int feedbackValue);
 
 protected:
     REFLECT_FIELDS_BEGIN(CameraComponent)
@@ -51,9 +48,6 @@ protected:
     std::vector<float>   RotationZTethers;
     std::vector<float>   RotationWTethers;
     std::vector<float>   TimestepTethers;
-    std::array<float, 3> OriginPosition{};
-    std::array<float, 4> OriginRotation{};
-    bool                 OriginFlag{};
     UINT                 EaseType      = 0;
     UINT                 EaseFuncType  = 0;
     float                EaseThreshold = 0.5f;
@@ -61,35 +55,44 @@ protected:
 
     void OnDrawDebug() override;
     void OnDrawDebugSelected() override;
+    void Start() override;
     void Update() override;
-
     void ImGuiDrawPropertysEvent() override;
-    void DeserializedReflectEvent() override;
     void SerializedReflectEvent() override;
-
-    void UndoTether();
-    void ClearTethers();
-    void DrawRail();
-    void RunRail();
-
-    void GetShakeOffset();
-
-    void ApplyTransform();
-
+    void DeserializedReflectEvent() override;
 
 public:
     void AddTether();
+    void UndoTether();
+    void ClearTethers();
+
     void StartRail(bool isReverse);
     void PauseRail();
     void StopRail();
-    void Shake();
-    void ResetRail(bool toBegin );
+    void ResetRail(bool toBegin);
+
+    void BeginShake(float duration, float intensity, float frequency);
+    void BeginFeedBackShake(int feedbackValue);
+    void BeginHandHeldShake();
+    void StopShake();
+
+    void SetHandHeldIntensity(float intensity) { _handHeldIntensity = intensity; }
+    void SetHandHeldFrequency(float frequency) { _handHeldFrequency = frequency; }
+    void SetHandHeldInterval(float interval) { _handHeldInterval = interval; }
 
 protected:
+    void DrawRail();
+    void RunRail();
+
+    void Shake();
+    void GetShakeOffset();
+    void HandHeldShakeLoop();
+
+    float EaseTimeStep(float step);
+    void ApplyTransform();
+
     std::vector<Vector3>    _posTethers;
     std::vector<Quaternion> _rotTethers;
-    Vector3                 _originPosition    = Vector3::Zero;
-    Quaternion              _originRotation    = Quaternion::Identity;
     float                   _moveTimer         = 0.f;
     bool                    _railFlag          = false;
     bool                    _pauseFlag         = false;
@@ -102,19 +105,26 @@ protected:
     bool                    _shakeFlag         = false;
     Vector3                 _shakeDirection    = Vector3::Zero;
     Vector3                 _shakeOffset       = Vector3::Zero;
-    Vector3                 _targetPos         = Vector3::Zero;
-    Quaternion              _targetAngle       = Quaternion::Identity;
+    Vector3                 _railTargetPos     = Vector3::Zero;
+    Quaternion              _railTargetAngle   = Quaternion::Identity;
+    Vector3                 _shakeTargetPos    = Vector3::Zero;
+
     UINT                    _selectedTether    = -1;
     bool                    _reverseFlag       = false;
     bool                    _showEasingFlag    = false;
     std::vector<float>      _easeLog;
-    Matrix                  _oldWorldMat = Matrix::Identity;
-    Transform*              _oldParent   = nullptr;
+    Matrix                  _oldWorldMat    = Matrix::Identity;
+    Transform*              _oldParent      = nullptr;
     bool                    _manipulateFlag = false;
 
-    float EaseTimeStep(float step);
-
     inline constexpr static float _railSpeedScale = 1.5f;
+
+    bool  _handheldShakeFlag     = false;
+    float _handheldShakeTimer    = 0.f;
+    float _handHeldInterval      = 1.f;
+    float _handHeldIntensity     = 0.f;
+    float _handHeldFrequency     = 0.f;
+
 
 #ifdef _UMEDITOR
     void                                                                 UpdateTetherFromGuizmo();
